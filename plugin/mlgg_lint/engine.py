@@ -53,11 +53,20 @@ def analyze_file(
     if config is None:
         config = load_config(start=file_path)
 
-    # F9: Guard against oversized files
+    # Guard against oversized files; treat stat errors as unreadable
     try:
-        file_size = file_path.stat().st_size
-    except OSError:
-        file_size = 0
+        stat = file_path.stat()
+        file_size = stat.st_size
+    except OSError as exc:
+        return [
+            Diagnostic(
+                rule_id="E000",
+                rule_name="file-unreadable",
+                severity=Severity.ERROR,
+                message=f"Cannot stat file: {exc}",
+                location=Location(file=str(file_path), line=0, col=0),
+            )
+        ]
     if file_size > _MAX_FILE_BYTES:
         return [
             Diagnostic(
@@ -142,7 +151,9 @@ def _collect_python_files(paths: Sequence[str | Path]) -> List[Path]:
             result.append(p)
         elif p.is_dir():
             for child in sorted(p.rglob("*.py")):
-                # Skip hidden dirs, venvs, __pycache__
+                # Skip hidden dirs, venvs, __pycache__, symlinks
+                if child.is_symlink():
+                    continue
                 parts = child.relative_to(p).parts
                 if any(
                     part.startswith(".") or part in ("__pycache__", "node_modules")

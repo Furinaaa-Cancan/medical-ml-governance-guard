@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+from typing import List
 
 from mlgg_lint.ast_utils import call_name, matches_any
 from mlgg_lint.models import Diagnostic, Severity
@@ -16,11 +17,33 @@ _METRIC_CALLS = {
     "cohen_kappa_score",
 }
 
-_CI_INDICATORS = {
-    "bootstrap", "confidence_interval", "ci_", "_ci",
-    "bootstrap_ci", "resample", "percentile",
-    "scipy.stats.bootstrap",
+_CI_NAMES = {
+    "bootstrap", "confidence_interval", "bootstrap_ci", "resample",
+    "percentile",
 }
+_CI_FQN_PATTERNS = {
+    "scipy.stats.bootstrap", "sklearn.utils.resample",
+}
+
+
+def _has_ci_indicators(tree: ast.Module) -> bool:
+    """Check for CI computation via precise AST checks (not ast.dump)."""
+    for node in ast.walk(tree):
+        # Variable names / function names containing CI hints
+        if isinstance(node, ast.Name):
+            lower = node.id.lower()
+            if any(h in lower for h in _CI_NAMES):
+                return True
+        # Attribute accesses: scipy.stats.bootstrap, etc.
+        if isinstance(node, ast.Attribute):
+            if node.attr.lower() in _CI_NAMES:
+                return True
+        # String literals: "ci_lower", "ci_upper", etc.
+        if isinstance(node, ast.Constant) and isinstance(node.value, str):
+            lower = node.value.lower()
+            if "ci_" in lower or "_ci" in lower or "confidence" in lower:
+                return True
+    return False
 
 
 @register
@@ -43,23 +66,16 @@ class NoConfidenceIntervals(BaseRule):
         self._has_ci = False
         self._metric_calls: list[ast.Call] = []
 
-    def visit_Module(self, node: ast.Module) -> None:  # noqa: N802
-        # Pre-scan: check if any CI computation exists anywhere in the file
-        source = ast.dump(node).lower()
-        self._has_ci = any(indicator in source for indicator in _CI_INDICATORS)
-        self.generic_visit(node)
-
     def visit_Call(self, node: ast.Call) -> None:  # noqa: N802
         fqn = call_name(node, self.import_map)
         if fqn and matches_any(fqn, _METRIC_CALLS):
             self._metric_calls.append(node)
         self.generic_visit(node)
 
-    def check(self, tree: ast.Module) -> list[Diagnostic]:
+    def check(self, tree: ast.Module) -> List[Diagnostic]:
+        self._has_ci = _has_ci_indicators(tree)
         self.visit(tree)
-        # Only flag if metrics are present but no CI indicators found
         if self._metric_calls and not self._has_ci:
-            # Report on the first metric call as representative
             node = self._metric_calls[0]
             self.report(
                 node,

@@ -17,6 +17,22 @@ _TIME_HINTS = {
 }
 
 
+def _has_temporal_identifiers(tree: ast.Module) -> bool:
+    """Check if the AST contains temporal variable names or column accesses
+    using precise Name/Attribute/Constant checks (not ast.dump)."""
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name):
+            if node.id.lower() in _TIME_HINTS:
+                return True
+        elif isinstance(node, ast.Attribute):
+            if node.attr.lower() in _TIME_HINTS:
+                return True
+        elif isinstance(node, ast.Constant) and isinstance(node.value, str):
+            if node.value.lower() in _TIME_HINTS:
+                return True
+    return False
+
+
 @register
 class TemporalSplit(BaseRule):
     id = "R008"
@@ -37,11 +53,6 @@ class TemporalSplit(BaseRule):
         super().__init__(*args, **kwargs)
         self._has_time_context = False
 
-    def visit_Module(self, node: ast.Module) -> None:  # noqa: N802
-        source = ast.dump(node).lower()
-        self._has_time_context = any(h in source for h in _TIME_HINTS)
-        self.generic_visit(node)
-
     def visit_Call(self, node: ast.Call) -> None:  # noqa: N802
         if not self._has_time_context:
             self.generic_visit(node)
@@ -52,7 +63,6 @@ class TemporalSplit(BaseRule):
             self.generic_visit(node)
             return
 
-        # Check if shuffle is explicitly False
         shuffle_false = False
         for kw in node.keywords:
             if kw.arg == "shuffle":
@@ -66,3 +76,8 @@ class TemporalSplit(BaseRule):
                 "Use chronological splitting instead.",
             )
         self.generic_visit(node)
+
+    def check(self, tree: ast.Module) -> list:
+        self._has_time_context = _has_temporal_identifiers(tree)
+        self.visit(tree)
+        return self._diagnostics

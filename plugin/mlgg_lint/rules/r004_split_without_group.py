@@ -17,6 +17,24 @@ _PATIENT_HINTS = {
 }
 
 
+def _has_patient_identifiers(tree: ast.Module) -> bool:
+    """Check if the AST contains patient/subject-like variable names or
+    string literals — using precise Name/Constant node checks rather than
+    ast.dump() which would match inside comments and unrelated strings."""
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name):
+            if node.id.lower() in _PATIENT_HINTS:
+                return True
+        elif isinstance(node, ast.Constant) and isinstance(node.value, str):
+            lower = node.value.lower()
+            if any(h in lower for h in _PATIENT_HINTS):
+                return True
+        elif isinstance(node, ast.Attribute):
+            if node.attr.lower() in _PATIENT_HINTS:
+                return True
+    return False
+
+
 @register
 class SplitWithoutGroup(BaseRule):
     id = "R004"
@@ -36,28 +54,28 @@ class SplitWithoutGroup(BaseRule):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._has_patient_context = False
-
-    def visit_Module(self, node: ast.Module) -> None:  # noqa: N802
-        # Pre-scan: does this file reference patient-like variables?
-        source = ast.dump(node)
-        lower = source.lower()
-        self._has_patient_context = any(h in lower for h in _PATIENT_HINTS)
-        self.generic_visit(node)
+        self._checked_module = False
 
     def visit_Call(self, node: ast.Call) -> None:  # noqa: N802
-        if not self._has_patient_context:
-            self.generic_visit(node)
-            return
-
         fqn = call_name(node, self.import_map)
         if not fqn or not matches_any(fqn, _SPLIT_CALLS):
             self.generic_visit(node)
             return
 
-        # Check for groups= keyword argument
-        has_groups = any(
-            kw.arg == "groups" for kw in node.keywords
-        )
+        # Lazy check: only scan for patient context once
+        if not self._checked_module:
+            self._checked_module = True
+            # Walk up to find the Module node — but since we don't have parent
+            # references, we stored the tree in check(). Use a workaround:
+            # the taint tracker proves the tree was already walked, so we
+            # check patient context via the import_map / taint tracker.
+            # Actually, we need the tree — defer to check() override.
+
+        if not self._has_patient_context:
+            self.generic_visit(node)
+            return
+
+        has_groups = any(kw.arg == "groups" for kw in node.keywords)
         if not has_groups:
             self.report(
                 node,
@@ -65,3 +83,8 @@ class SplitWithoutGroup(BaseRule):
                 "context. Patients may appear in both train and test splits.",
             )
         self.generic_visit(node)
+
+    def check(self, tree: ast.Module) -> list:
+        self._has_patient_context = _has_patient_identifiers(tree)
+        self.visit(tree)
+        return self._diagnostics

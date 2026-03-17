@@ -31,18 +31,36 @@ class TargetAsFeature(BaseRule):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Track: var -> (dataframe_source, is_target_dropped)
-        self._drop_calls: set[str] = set()
+        # var_name -> source dataframe variable (if known)
+        self._var_source: dict[str, str] = {}
+        # variables that were produced by df.drop()
+        self._drop_derived: set[str] = set()
 
     def visit_Assign(self, node: ast.Assign) -> None:  # noqa: N802
-        """Track X = df.drop(columns=[...]) patterns."""
-        if isinstance(node.value, ast.Call):
-            # df.drop(...)
-            if isinstance(node.value.func, ast.Attribute):
+        """Track variable origins: X = df.drop(...), y = df['target'], X = df[cols]."""
+        if not isinstance(node.value, (ast.Call, ast.Subscript)):
+            self.generic_visit(node)
+            return
+
+        for target in node.targets:
+            if not isinstance(target, ast.Name):
+                continue
+            var_name = target.id
+
+            # Pattern: X = df.drop(columns=[...])
+            if isinstance(node.value, ast.Call) and isinstance(node.value.func, ast.Attribute):
                 if node.value.func.attr == "drop":
-                    for target in node.targets:
-                        if isinstance(target, ast.Name):
-                            self._drop_calls.add(target.id)
+                    src = self._get_name(node.value.func.value)
+                    if src:
+                        self._var_source[var_name] = src
+                        self._drop_derived.add(var_name)
+
+            # Pattern: y = df['target'] or y = df[col]
+            if isinstance(node.value, ast.Subscript):
+                src = self._get_name(node.value.value)
+                if src:
+                    self._var_source[var_name] = src
+
         self.generic_visit(node)
 
     def visit_Call(self, node: ast.Call) -> None:  # noqa: N802
@@ -53,35 +71,54 @@ class TargetAsFeature(BaseRule):
             self.generic_visit(node)
             return
 
-        # model.fit(X, y) — check if X and y come from same source
-        if len(node.args) >= 2:
-            x_arg = node.args[0]
-            y_arg = node.args[1]
-            x_name = self._get_name(x_arg)
-            y_name = self._get_name(y_arg)
+        if len(node.args) < 2:
+            self.generic_visit(node)
+            return
 
-            if x_name and y_name:
-                # Heuristic: if X is just the dataframe (same variable as y source)
-                # without a .drop() call, flag it
-                if x_name == y_name:
-                    self.report(
-                        node,
-                        f"`{node.func.attr}({x_name}, {y_name})` — "
-                        f"same variable used for both features and target. "
-                        f"The target column is likely still in the feature matrix.",
-                    )
+        x_arg = node.args[0]
+        y_arg = node.args[1]
+        x_name = self._get_name(x_arg)
+        y_name = self._get_name(y_arg)
 
-                # Check: if X is a subscript like df[cols] where cols might include target
-                if isinstance(x_arg, ast.Subscript):
-                    self._check_subscript_for_target(node, x_arg, y_name)
+        if not x_name or not y_name:
+            self.generic_visit(node)
+            return
+
+        # Case 1: model.fit(df, df) — exact same variable
+        if x_name == y_name:
+            self.report(
+                node,
+                f"`{node.func.attr}({x_name}, {y_name})` — "
+                f"same variable used for both features and target. "
+                f"The target column is likely still in the feature matrix.",
+            )
+
+        # Case 2: X and y both come from the same dataframe, but X was NOT
+        # produced by df.drop() — the target column may still be in X.
+        elif (
+            x_name in self._var_source
+            and y_name in self._var_source
+            and self._var_source[x_name] == self._var_source[y_name]
+            and x_name not in self._drop_derived
+        ):
+            src = self._var_source[x_name]
+            self.report(
+                node,
+                f"`{node.func.attr}({x_name}, {y_name})` — both derived from "
+                f"`{src}` but `{x_name}` was not produced by `.drop()`. "
+                f"The target column may still be in the feature matrix.",
+            )
+
+        # Case 3: X is df[columns_list] with target-like names in the list
+        if isinstance(x_arg, ast.Subscript):
+            self._check_subscript_for_target(node, x_arg)
 
         self.generic_visit(node)
 
     def _check_subscript_for_target(
-        self, call_node: ast.Call, subscript: ast.Subscript, y_name: str
+        self, call_node: ast.Call, subscript: ast.Subscript
     ) -> None:
-        """Check df[columns_list] for presence of target-like column names."""
-        # df[[col1, col2, ...]] pattern
+        """Check df[[col1, col2, ...]] for presence of target-like column names."""
         if isinstance(subscript.slice, ast.List):
             for elt in subscript.slice.elts:
                 if isinstance(elt, ast.Constant) and isinstance(elt.value, str):

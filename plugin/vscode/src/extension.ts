@@ -145,10 +145,20 @@ function parseSarif(sarif: SarifReport, document: vscode.TextDocument): vscode.D
       if (!loc) continue;
 
       const region = loc.region;
-      const startLine = Math.max((region.startLine || 1) - 1, 0);
+      const lastLine = document.lineCount - 1;
+      const startLine = Math.min(Math.max((region.startLine || 1) - 1, 0), lastLine);
       const startCol = Math.max((region.startColumn || 1) - 1, 0);
-      const endLine = region.endLine ? region.endLine - 1 : startLine;
-      const endCol = region.endColumn ? region.endColumn - 1 : document.lineAt(endLine).text.length;
+      const endLine = region.endLine
+        ? Math.min(region.endLine - 1, lastLine)
+        : startLine;
+      let endCol: number;
+      try {
+        endCol = region.endColumn
+          ? region.endColumn - 1
+          : document.lineAt(endLine).text.length;
+      } catch {
+        endCol = 0;
+      }
 
       const range = new vscode.Range(startLine, startCol, endLine, endCol);
       const severity = mapSeverity(result.level);
