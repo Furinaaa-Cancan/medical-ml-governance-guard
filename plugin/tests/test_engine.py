@@ -274,6 +274,55 @@ def test_symlinks_skipped_in_directory(tmp_path):
     assert str(link) not in files_seen
 
 
+def test_noqa_suppresses_specific_rule(tmp_path):
+    """# noqa: R001 should suppress only R001 on that line."""
+    code = tmp_path / "noqa.py"
+    code.write_text(
+        "from sklearn.preprocessing import StandardScaler\n"
+        "from sklearn.model_selection import train_test_split\n"
+        "scaler = StandardScaler()\n"
+        "X_scaled = scaler.fit_transform(X)  # noqa: R001\n"
+        "X_train, X_test, y_train, y_test = train_test_split(X_scaled, y)\n"
+    )
+    diags = analyze_file(code)
+    r001 = [d for d in diags if d.rule_id == "R001"]
+    assert len(r001) == 0
+
+
+def test_noqa_bare_suppresses_all(tmp_path):
+    """Bare # noqa should suppress all rules on that line."""
+    code = tmp_path / "noqa_bare.py"
+    code.write_text(
+        "from sklearn.preprocessing import StandardScaler\n"
+        "from sklearn.model_selection import train_test_split\n"
+        "scaler = StandardScaler()\n"
+        "X_scaled = scaler.fit_transform(X)  # noqa\n"
+        "X_train, X_test, y_train, y_test = train_test_split(X_scaled, y)\n"
+    )
+    diags = analyze_file(code)
+    # Line 4 should have no diagnostics
+    line4 = [d for d in diags if d.location.line == 4]
+    assert len(line4) == 0
+
+
+def test_noqa_does_not_affect_other_lines(tmp_path):
+    """# noqa on one line should not suppress findings on other lines."""
+    code = tmp_path / "noqa_other.py"
+    code.write_text(
+        "from sklearn.preprocessing import StandardScaler\n"
+        "from sklearn.model_selection import train_test_split\n"
+        "scaler = StandardScaler()\n"
+        "X_scaled = scaler.fit(X)  # noqa: R001\n"
+        "X_scaled2 = scaler.fit_transform(X)  # no noqa here\n"
+        "X_train, X_test, y_train, y_test = train_test_split(X_scaled, y)\n"
+    )
+    diags = analyze_file(code)
+    r001 = [d for d in diags if d.rule_id == "R001"]
+    # Line 4 is suppressed, line 5 should still fire
+    assert len(r001) >= 1
+    assert all(d.location.line != 4 for d in r001)
+
+
 def test_taint_heuristic_no_false_positive_on_template():
     """F3: 'te' was removed — 'template' should NOT be classified as test."""
     from mlgg_lint.ast_utils import classify_var_name

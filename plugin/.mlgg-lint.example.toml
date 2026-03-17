@@ -1,0 +1,14 @@
+# .mlgg-lint.toml — configuration for mlgg-lint static analysis
+#
+# Place this file in your project root (or any parent directory).
+# mlgg-lint will auto-discover it when scanning files.
+
+[mlgg-lint]
+# Minimum severity to report: "error", "warning", or "info"
+severity-threshold = "info"
+
+[mlgg-lint.rules]
+# Disable specific rules by setting them to false:
+# R004 = false      # Disable split-without-group check
+# R008 = false      # Disable temporal-split-shuffle check
+# R009 = false      # Disable no-confidence-intervals check

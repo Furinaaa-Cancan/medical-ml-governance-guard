@@ -1,0 +1,7 @@
+- id: mlgg-lint
+  name: ML Leakage Guard Lint
+  description: Detect data leakage and ML best-practice violations in Python code.
+  entry: mlgg-lint check --exit-code
+  language: python
+  types: [python]
+  minimum_pre_commit_version: "2.9.0"

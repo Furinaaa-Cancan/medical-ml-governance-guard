@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import ast
+import re
 import sys
 from pathlib import Path
-from typing import List, Optional, Sequence
+from typing import Dict, FrozenSet, List, Optional, Sequence, Set
 
 from mlgg_lint.ast_utils import ImportMap, TaintTracker, build_import_map
 from mlgg_lint.config import LintConfig, load_config
@@ -18,6 +19,40 @@ from mlgg_lint.rules.base import BaseRule
 _MAX_FILE_BYTES = 16 * 1024 * 1024
 
 SEVERITY_ORDER = {"error": 0, "warning": 1, "info": 2}
+
+# Regex for ``# noqa: R001,R002`` or bare ``# noqa`` (suppress all)
+_NOQA_RE = re.compile(r"#\s*noqa\b(?:\s*:\s*([A-Za-z0-9,\s]+))?", re.IGNORECASE)
+
+
+def _build_noqa_map(source: str) -> Dict[int, FrozenSet[str] | None]:
+    """Parse ``# noqa`` comments from source lines.
+
+    Returns a dict of ``{line_number: frozenset_of_rule_ids}`` or
+    ``{line_number: None}`` when all rules are suppressed (bare ``# noqa``).
+    """
+    noqa: Dict[int, FrozenSet[str] | None] = {}
+    for lineno, line in enumerate(source.splitlines(), start=1):
+        m = _NOQA_RE.search(line)
+        if m:
+            codes_str = m.group(1)
+            if codes_str:
+                codes = frozenset(c.strip().upper() for c in codes_str.split(",") if c.strip())
+                noqa[lineno] = codes
+            else:
+                noqa[lineno] = None  # suppress all
+    return noqa
+
+
+def _is_suppressed(
+    diag_line: int, rule_id: str, noqa_map: Dict[int, FrozenSet[str] | None]
+) -> bool:
+    """Check if a diagnostic is suppressed by a noqa comment on its line."""
+    if diag_line not in noqa_map:
+        return False
+    suppressed = noqa_map[diag_line]
+    if suppressed is None:
+        return True  # bare # noqa
+    return rule_id.upper() in suppressed
 
 
 def _build_taint_tracker(tree: ast.Module, im: ImportMap) -> TaintTracker:
@@ -110,6 +145,7 @@ def analyze_file(
 
     im = build_import_map(tree)
     taint = _build_taint_tracker(tree, im)
+    noqa_map = _build_noqa_map(source)
 
     threshold = SEVERITY_ORDER.get(config.severity_threshold, 2)
     diagnostics: List[Diagnostic] = []
@@ -124,7 +160,8 @@ def analyze_file(
         found = rule.check(tree)
         for diag in found:
             if SEVERITY_ORDER.get(str(diag.severity), 2) <= threshold:
-                diagnostics.append(diag)
+                if not _is_suppressed(diag.location.line, diag.rule_id, noqa_map):
+                    diagnostics.append(diag)
 
     diagnostics.sort(key=lambda d: (d.location.line, d.location.col))
     return diagnostics

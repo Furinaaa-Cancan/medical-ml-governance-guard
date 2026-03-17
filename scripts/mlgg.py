@@ -278,7 +278,7 @@ COMMANDS: Dict[str, Tuple[Path, str]] = {
         "Export MLGG review criteria as a portable LLM prompt. Users paste the output into any LLM (Claude, GPT-4, Gemini) to review a paper without local deployment.",
     ),
     "lint": (
-        REPO_ROOT / "plugin" / "mlgg_lint" / "cli.py",
+        REPO_ROOT / "plugin" / "mlgg_lint" / "__main__.py",
         "Static analysis for ML code — detect data leakage and best-practice violations.",
     ),
 }
@@ -621,6 +621,27 @@ def main() -> int:
             )
 
     preset_args = list(COMMAND_PRESETS.get(subcommand, ()))
+
+    # Special handling for "lint": invoke as `python -m mlgg_lint` with
+    # PYTHONPATH pointing to the plugin directory so the module resolves.
+    if subcommand == "lint":
+        plugin_dir = str(REPO_ROOT / "plugin")
+        cmd = [python_bin, "-m", "mlgg_lint", *preset_args, *passthrough]
+        print(f"$ PYTHONPATH={plugin_dir} {shlex.join(cmd)}")
+        if args.dry_run:
+            return 0
+        import os as _os
+        env = _os.environ.copy()
+        existing = env.get("PYTHONPATH", "")
+        env["PYTHONPATH"] = f"{plugin_dir}:{existing}" if existing else plugin_dir
+        try:
+            proc = subprocess.run(cmd, cwd=str(cwd), text=True, env=env,
+                                  timeout=_DEFAULT_SUBPROCESS_TIMEOUT_SECONDS)
+            return int(proc.returncode)
+        except subprocess.TimeoutExpired:
+            print(f"[FAIL] subprocess_timeout: lint exceeded timeout.", file=sys.stderr)
+            return 2
+
     cmd = [python_bin, str(script_path), *preset_args, *passthrough]
     print(f"$ {shlex.join(cmd)}")
     if args.dry_run:
