@@ -21,9 +21,6 @@ _CI_NAMES = {
     "bootstrap", "confidence_interval", "bootstrap_ci", "resample",
     "percentile",
 }
-_CI_FQN_PATTERNS = {
-    "scipy.stats.bootstrap", "sklearn.utils.resample",
-}
 
 
 def _has_ci_indicators(tree: ast.Module) -> bool:

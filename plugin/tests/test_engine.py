@@ -323,12 +323,31 @@ def test_noqa_does_not_affect_other_lines(tmp_path):
     assert all(d.location.line != 4 for d in r001)
 
 
-def test_taint_heuristic_no_false_positive_on_template():
-    """F3: 'te' was removed — 'template' should NOT be classified as test."""
+def test_classify_var_name_correct_matches():
+    """Positive cases: variables that should be classified."""
     from mlgg_lint.ast_utils import classify_var_name
-    assert classify_var_name("template") is None
-    assert classify_var_name("matrix") is None
-    assert classify_var_name("state") is None
     assert classify_var_name("X_test") == "test"
     assert classify_var_name("y_train") == "train"
     assert classify_var_name("X_valid") == "valid"
+    assert classify_var_name("test_data") == "test"
+    assert classify_var_name("training_set") == "train"
+    assert classify_var_name("holdout") == "test"
+    assert classify_var_name("val_predictions") == "valid"
+
+
+def test_classify_var_name_no_false_positives():
+    """S1: Word-boundary matching must not match substrings of other words."""
+    from mlgg_lint.ast_utils import classify_var_name
+    # These used to be false positives with substring matching:
+    assert classify_var_name("template") is None
+    assert classify_var_name("constrain") is None
+    assert classify_var_name("strain") is None
+    assert classify_var_name("contest") is None
+    assert classify_var_name("attest") is None
+    assert classify_var_name("protest") is None
+    assert classify_var_name("invalid") is None
+    assert classify_var_name("matrix") is None
+    assert classify_var_name("state") is None
+    assert classify_var_name("interval") is None
+    assert classify_var_name("retrain_model") is None  # "retrain" != "train"
+    assert classify_var_name("n_estimators") is None

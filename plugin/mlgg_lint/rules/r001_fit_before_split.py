@@ -4,19 +4,12 @@ from __future__ import annotations
 
 import ast
 
-from mlgg_lint.ast_utils import call_name, is_method_call, matches_any
+from mlgg_lint.ast_utils import is_method_call
 from mlgg_lint.models import Severity
 from mlgg_lint.rules import register
 from mlgg_lint.rules.base import BaseRule
 
 _FIT_METHODS = {"fit", "fit_transform"}
-_FITTABLE_CLASSES = {
-    "StandardScaler", "MinMaxScaler", "RobustScaler", "MaxAbsScaler",
-    "Normalizer", "SimpleImputer", "IterativeImputer", "KNNImputer",
-    "LabelEncoder", "OrdinalEncoder", "OneHotEncoder",
-    "PolynomialFeatures", "PowerTransformer", "QuantileTransformer",
-    "PCA", "TruncatedSVD", "SelectKBest", "RFE",
-}
 
 
 @register

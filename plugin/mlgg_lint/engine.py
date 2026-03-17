@@ -4,15 +4,13 @@ from __future__ import annotations
 
 import ast
 import re
-import sys
 from pathlib import Path
-from typing import Dict, FrozenSet, List, Optional, Sequence, Set
+from typing import Dict, FrozenSet, List, Optional, Sequence
 
 from mlgg_lint.ast_utils import ImportMap, TaintTracker, build_import_map
 from mlgg_lint.config import LintConfig, load_config
 from mlgg_lint.models import Diagnostic, Location, Severity
 from mlgg_lint.rules import get_enabled_rules
-from mlgg_lint.rules.base import BaseRule
 
 # Maximum file size to analyze (16 MB).  Prevents memory exhaustion from
 # adversarial or accidentally huge .py files.

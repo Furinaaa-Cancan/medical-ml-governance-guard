@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ast
 
-from mlgg_lint.ast_utils import call_name, get_call_first_arg_name, matches_any
+from mlgg_lint.ast_utils import call_name, classify_var_name, get_call_first_arg_name, matches_any
 from mlgg_lint.models import Severity
 from mlgg_lint.rules import register
 from mlgg_lint.rules.base import BaseRule
@@ -40,7 +40,13 @@ class TrainMetricAsFinal(BaseRule):
 
         # Check first argument — is it train data?
         arg_name = get_call_first_arg_name(node)
-        if arg_name and self.taint.get_taint(arg_name) == "train":
+        if not arg_name:
+            self.generic_visit(node)
+            return
+        taint = self.taint.get_taint(arg_name)
+        if taint is None:
+            taint = classify_var_name(arg_name)
+        if taint == "train":
             self.report(
                 node,
                 f"`{fqn.rsplit('.', 1)[-1]}({arg_name}, ...)` — metric computed "

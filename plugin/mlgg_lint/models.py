@@ -67,15 +67,3 @@ class Diagnostic:
         if self.details:
             d["details"] = self.details
         return d
-
-
-@dataclass
-class RuleMetadata:
-    """Static metadata about a rule."""
-
-    id: str
-    name: str
-    severity: Severity
-    description: str
-    remediation: str
-    tags: tuple[str, ...] = ()

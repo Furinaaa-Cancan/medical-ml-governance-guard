@@ -9,12 +9,6 @@ from mlgg_lint.models import Severity
 from mlgg_lint.rules import register
 from mlgg_lint.rules.base import BaseRule
 
-_RESAMPLERS = {
-    "SMOTE", "ADASYN", "BorderlineSMOTE", "SVMSMOTE",
-    "RandomOverSampler", "RandomUnderSampler", "SMOTEENN",
-    "SMOTETomek", "NearMiss", "EditedNearestNeighbours",
-}
-
 
 @register
 class SmoteOnTest(BaseRule):

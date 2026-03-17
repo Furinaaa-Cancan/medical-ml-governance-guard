@@ -101,26 +101,26 @@ def is_method_call(node: ast.Call, method_name: str) -> Optional[str]:
 
 # ── Variable taint tracking ──────────────────────────────────────────────────
 
-TRAIN_HINTS = {"train", "training", "_train", "train_"}
-TEST_HINTS = {"test", "testing", "holdout", "_test", "test_"}
-VALID_HINTS = {"valid", "val_", "validation", "_valid", "valid_"}
+TRAIN_WORDS = {"train", "training"}
+TEST_WORDS = {"test", "testing", "holdout"}
+VALID_WORDS = {"valid", "val", "validation"}
 
 
 def classify_var_name(name: str) -> Optional[str]:
-    """Heuristic classification based on variable name substrings.
+    """Heuristic classification based on underscore-delimited word parts.
+
+    Uses word-boundary matching (split on ``_``) to avoid false positives
+    like ``constrain`` matching ``train`` or ``invalid`` matching ``valid``.
 
     Returns ``"train"``, ``"test"``, ``"valid"``, or ``None``.
     """
-    lower = name.lower()
-    for hint in TEST_HINTS:
-        if hint in lower:
-            return "test"
-    for hint in VALID_HINTS:
-        if hint in lower:
-            return "valid"
-    for hint in TRAIN_HINTS:
-        if hint in lower:
-            return "train"
+    parts = set(name.lower().replace("-", "_").split("_"))
+    if parts & TEST_WORDS:
+        return "test"
+    if parts & VALID_WORDS:
+        return "valid"
+    if parts & TRAIN_WORDS:
+        return "train"
     return None
 
 

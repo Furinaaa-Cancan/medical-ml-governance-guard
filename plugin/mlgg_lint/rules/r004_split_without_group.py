@@ -54,22 +54,12 @@ class SplitWithoutGroup(BaseRule):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._has_patient_context = False
-        self._checked_module = False
 
     def visit_Call(self, node: ast.Call) -> None:  # noqa: N802
         fqn = call_name(node, self.import_map)
         if not fqn or not matches_any(fqn, _SPLIT_CALLS):
             self.generic_visit(node)
             return
-
-        # Lazy check: only scan for patient context once
-        if not self._checked_module:
-            self._checked_module = True
-            # Walk up to find the Module node — but since we don't have parent
-            # references, we stored the tree in check(). Use a workaround:
-            # the taint tracker proves the tree was already walked, so we
-            # check patient context via the import_map / taint tracker.
-            # Actually, we need the tree — defer to check() override.
 
         if not self._has_patient_context:
             self.generic_visit(node)
