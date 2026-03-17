@@ -107,9 +107,9 @@ def format_sarif(diagnostics: List[Diagnostic]) -> str:
     results = []
     for d in diagnostics:
         loc = d.location
-        result = {
+        ridx = rule_index.get(d.rule_id, -1)
+        result: dict = {
             "ruleId": d.rule_id,
-            "ruleIndex": rule_index.get(d.rule_id, 0),
             "level": _sarif_level(d.severity),
             "message": {"text": d.message},
             "locations": [
@@ -124,6 +124,8 @@ def format_sarif(diagnostics: List[Diagnostic]) -> str:
                 }
             ],
         }
+        if ridx >= 0:
+            result["ruleIndex"] = ridx
         if loc.end_line is not None:
             result["locations"][0]["physicalLocation"]["region"]["endLine"] = loc.end_line
             result["locations"][0]["physicalLocation"]["region"]["endColumn"] = (loc.end_col or 0) + 1

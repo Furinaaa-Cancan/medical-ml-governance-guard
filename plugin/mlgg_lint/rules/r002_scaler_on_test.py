@@ -4,10 +4,17 @@ from __future__ import annotations
 
 import ast
 
-from mlgg_lint.ast_utils import get_call_first_arg_name, is_method_call
+from mlgg_lint.ast_utils import classify_var_name, get_call_first_arg_name, is_method_call
 from mlgg_lint.models import Severity
 from mlgg_lint.rules import register
 from mlgg_lint.rules.base import BaseRule
+
+# Object names that are known safe to call .fit(X_test) on.
+# Pipeline/model .fit() on test is the user's intent, not a preprocessing leak.
+_SAFE_FIT_NAMES = {
+    "pipe", "pipeline", "model", "clf", "classifier",
+    "estimator", "regressor", "detector",
+}
 
 
 @register
@@ -25,17 +32,36 @@ class ScalerOnTest(BaseRule):
     )
     tags = ("leakage", "preprocessing")
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._pipeline_vars: set[str] = set()
+
+    def visit_Assign(self, node: ast.Assign) -> None:  # noqa: N802
+        """Track Pipeline(...) assignments to avoid false positives."""
+        if isinstance(node.value, ast.Call):
+            from mlgg_lint.ast_utils import call_name, matches_any
+            fqn = call_name(node.value, self.import_map)
+            if fqn and matches_any(fqn, {"Pipeline", "make_pipeline"}):
+                for t in node.targets:
+                    if isinstance(t, ast.Name):
+                        self._pipeline_vars.add(t.id)
+        self.generic_visit(node)
+
     def visit_Call(self, node: ast.Call) -> None:  # noqa: N802
         for method in ("fit", "fit_transform"):
             obj = is_method_call(node, method)
             if obj is None:
                 continue
+            # Skip Pipeline and model objects — their .fit() is intentional
+            if obj.lower() in _SAFE_FIT_NAMES or obj in self._pipeline_vars:
+                continue
             arg_name = get_call_first_arg_name(node)
             if arg_name and self.taint.is_test_or_valid(arg_name):
+                taint = classify_var_name(arg_name)
+                label = "test" if taint == "test" else "validation"
                 self.report(
                     node,
                     f"`{obj}.{method}({arg_name})` — fitting on "
-                    f"{'test' if 'test' in arg_name.lower() else 'validation'} data "
-                    f"leaks holdout statistics into the preprocessor.",
+                    f"{label} data leaks holdout statistics into the preprocessor.",
                 )
         self.generic_visit(node)

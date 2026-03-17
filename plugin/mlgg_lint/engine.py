@@ -78,6 +78,15 @@ def _build_taint_tracker(tree: ast.Module, im: ImportMap) -> TaintTracker:
     return tracker
 
 
+def _display_path(file_path: Path) -> str:
+    """Return a relative path for display if possible, to avoid leaking
+    absolute paths (e.g. /Users/...) in SARIF/JSON output."""
+    try:
+        return str(file_path.relative_to(Path.cwd()))
+    except ValueError:
+        return str(file_path)
+
+
 def analyze_file(
     file_path: Path,
     config: Optional[LintConfig] = None,
@@ -97,7 +106,7 @@ def analyze_file(
                 rule_name="file-unreadable",
                 severity=Severity.ERROR,
                 message=f"Cannot stat file: {exc}",
-                location=Location(file=str(file_path), line=0, col=0),
+                location=Location(file=_display_path(file_path), line=0, col=0),
             )
         ]
     if file_size > _MAX_FILE_BYTES:
@@ -107,7 +116,7 @@ def analyze_file(
                 rule_name="file-too-large",
                 severity=Severity.ERROR,
                 message=f"File exceeds {_MAX_FILE_BYTES // (1024 * 1024)} MB limit ({file_size} bytes).",
-                location=Location(file=str(file_path), line=0, col=0),
+                location=Location(file=_display_path(file_path), line=0, col=0),
             )
         ]
 
@@ -120,7 +129,7 @@ def analyze_file(
                 rule_name="parse-error",
                 severity=Severity.ERROR,
                 message=f"Cannot read file: {exc}",
-                location=Location(file=str(file_path), line=0, col=0),
+                location=Location(file=_display_path(file_path), line=0, col=0),
             )
         ]
 
@@ -134,7 +143,7 @@ def analyze_file(
                 severity=Severity.ERROR,
                 message=f"Syntax error: {exc.msg}",
                 location=Location(
-                    file=str(file_path),
+                    file=_display_path(file_path),
                     line=exc.lineno or 0,
                     col=max((exc.offset or 1) - 1, 0),  # F2: offset is 1-based
                 ),
@@ -151,7 +160,7 @@ def analyze_file(
     rule_classes = get_enabled_rules(disabled=config.disabled_rules)
     for rule_cls in rule_classes:
         rule = rule_cls(
-            file_path=str(file_path),
+            file_path=_display_path(file_path),
             import_map=im,
             taint_tracker=taint,
         )
