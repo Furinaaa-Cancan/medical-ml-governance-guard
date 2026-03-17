@@ -92,10 +92,15 @@ def matches_any(fqn: str, patterns: Set[str]) -> bool:
 # ── Method call matching on objects ───────────────────────────────────────────
 
 def is_method_call(node: ast.Call, method_name: str) -> Optional[str]:
-    """If *node* is ``obj.method_name(...)``, return ``obj`` name. Else None."""
+    """If *node* is ``obj.method_name(...)``, return ``obj`` name or ``"<expr>"``
+    for chained calls like ``SMOTE().fit_resample()``.  Returns None if not a match."""
     if isinstance(node.func, ast.Attribute) and node.func.attr == method_name:
         obj = _attr_chain(node.func.value)
-        return obj
+        if obj is not None:
+            return obj
+        # Chained call: SMOTE().fit_resample() — func.value is a Call node
+        if isinstance(node.func.value, ast.Call):
+            return "<expr>"
     return None
 
 
@@ -185,7 +190,15 @@ def extract_tuple_targets(node: ast.AST) -> List[str]:
 
 
 def get_call_first_arg_name(node: ast.Call) -> Optional[str]:
-    """Return the name of the first positional argument if it's a simple Name."""
+    """Return the name of the first positional argument if it's a simple Name.
+    Falls back to the first keyword argument (e.g. ``fit(X=X_test)``)."""
     if node.args:
         return _attr_chain(node.args[0])
+    # Fallback: check first keyword arg value (covers fit(X=X_test))
+    if node.keywords:
+        for kw in node.keywords:
+            if kw.arg is not None:  # skip **kwargs
+                val = _attr_chain(kw.value)
+                if val is not None:
+                    return val
     return None

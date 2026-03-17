@@ -323,6 +323,35 @@ def test_noqa_does_not_affect_other_lines(tmp_path):
     assert all(d.location.line != 4 for d in r001)
 
 
+def test_r002_keyword_arg(tmp_path):
+    """T2: scaler.fit(X=X_test) should be caught."""
+    code = tmp_path / "kw.py"
+    code.write_text(
+        "from sklearn.preprocessing import StandardScaler\n"
+        "from sklearn.model_selection import train_test_split\n"
+        "X_train, X_test, y_train, y_test = train_test_split(X, y)\n"
+        "scaler = StandardScaler()\n"
+        "scaler.fit(X=X_test)\n"
+    )
+    diags = analyze_file(code)
+    r002 = [d for d in diags if d.rule_id == "R002"]
+    assert len(r002) >= 1
+
+
+def test_r003_chained_call(tmp_path):
+    """T1: SMOTE().fit_resample(X_test, y_test) should be caught."""
+    code = tmp_path / "chain.py"
+    code.write_text(
+        "from imblearn.over_sampling import SMOTE\n"
+        "from sklearn.model_selection import train_test_split\n"
+        "X_train, X_test, y_train, y_test = train_test_split(X, y)\n"
+        "X_res, y_res = SMOTE().fit_resample(X_test, y_test)\n"
+    )
+    diags = analyze_file(code)
+    r003 = [d for d in diags if d.rule_id == "R003"]
+    assert len(r003) >= 1
+
+
 def test_classify_var_name_correct_matches():
     """Positive cases: variables that should be classified."""
     from mlgg_lint.ast_utils import classify_var_name
