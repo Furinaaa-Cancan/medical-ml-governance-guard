@@ -1,0 +1,137 @@
+"""Core analysis engine — parse files, run rules, collect diagnostics."""
+
+from __future__ import annotations
+
+import ast
+import sys
+from pathlib import Path
+from typing import List, Optional, Sequence
+
+from mlgg_lint.ast_utils import ImportMap, TaintTracker, build_import_map
+from mlgg_lint.config import LintConfig, load_config
+from mlgg_lint.models import Diagnostic, Severity
+from mlgg_lint.rules import get_enabled_rules
+from mlgg_lint.rules.base import BaseRule
+
+SEVERITY_ORDER = {"error": 0, "warning": 1, "info": 2}
+
+
+def _build_taint_tracker(tree: ast.Module, im: ImportMap) -> TaintTracker:
+    """Pre-scan the AST to populate the taint tracker with split info."""
+    from mlgg_lint.ast_utils import (
+        call_name,
+        extract_tuple_targets,
+        matches_any,
+    )
+
+    tracker = TaintTracker()
+    split_calls = {"train_test_split", "sklearn.model_selection.train_test_split"}
+
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Assign):
+            continue
+        if not isinstance(node.value, ast.Call):
+            continue
+        fqn = call_name(node.value, im)
+        if fqn and matches_any(fqn, split_calls):
+            for target in node.targets:
+                names = extract_tuple_targets(target)
+                tracker.record_split(names, node.lineno)
+
+    return tracker
+
+
+def analyze_file(
+    file_path: Path,
+    config: Optional[LintConfig] = None,
+) -> List[Diagnostic]:
+    """Analyze a single Python file and return all diagnostics."""
+    if config is None:
+        config = load_config(start=file_path)
+
+    try:
+        source = file_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        return [
+            Diagnostic(
+                rule_id="E000",
+                rule_name="parse-error",
+                severity=Severity.ERROR,
+                message=f"Cannot read file: {exc}",
+                location=__import__("mlgg_lint.models", fromlist=["Location"]).Location(
+                    file=str(file_path), line=0, col=0
+                ),
+            )
+        ]
+
+    try:
+        tree = ast.parse(source, filename=str(file_path))
+    except SyntaxError as exc:
+        from mlgg_lint.models import Location
+
+        return [
+            Diagnostic(
+                rule_id="E000",
+                rule_name="parse-error",
+                severity=Severity.ERROR,
+                message=f"Syntax error: {exc.msg}",
+                location=Location(
+                    file=str(file_path),
+                    line=exc.lineno or 0,
+                    col=exc.offset or 0,
+                ),
+            )
+        ]
+
+    im = build_import_map(tree)
+    taint = _build_taint_tracker(tree, im)
+
+    threshold = SEVERITY_ORDER.get(config.severity_threshold, 2)
+    diagnostics: List[Diagnostic] = []
+
+    rule_classes = get_enabled_rules(disabled=config.disabled_rules)
+    for rule_cls in rule_classes:
+        rule = rule_cls(
+            file_path=str(file_path),
+            import_map=im,
+            taint_tracker=taint,
+        )
+        found = rule.check(tree)
+        for diag in found:
+            if SEVERITY_ORDER.get(str(diag.severity), 2) <= threshold:
+                diagnostics.append(diag)
+
+    diagnostics.sort(key=lambda d: (d.location.line, d.location.col))
+    return diagnostics
+
+
+def analyze_paths(
+    paths: Sequence[str | Path],
+    config: Optional[LintConfig] = None,
+) -> List[Diagnostic]:
+    """Analyze multiple files/directories."""
+    all_diags: List[Diagnostic] = []
+    files = _collect_python_files(paths)
+    for fpath in files:
+        all_diags.extend(analyze_file(fpath, config=config))
+    return all_diags
+
+
+def _collect_python_files(paths: Sequence[str | Path]) -> List[Path]:
+    """Expand directories into .py files, skip hidden/venv."""
+    result: List[Path] = []
+    for p in paths:
+        p = Path(p)
+        if p.is_file() and p.suffix == ".py":
+            result.append(p)
+        elif p.is_dir():
+            for child in sorted(p.rglob("*.py")):
+                # Skip hidden dirs, venvs, __pycache__
+                parts = child.relative_to(p).parts
+                if any(
+                    part.startswith(".") or part in ("__pycache__", "node_modules")
+                    for part in parts
+                ):
+                    continue
+                result.append(child)
+    return result

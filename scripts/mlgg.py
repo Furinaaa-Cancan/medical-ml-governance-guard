@@ -65,6 +65,10 @@ COMMANDS: Dict[str, Tuple[Path, str]] = {
         SCRIPTS_ROOT / "mlgg_pixel.py",
         "Launch pixel-art interactive CLI launcher (guided menu experience).",
     ),
+    "lint": (
+        REPO_ROOT / "plugin" / "mlgg_lint" / "cli.py",
+        "Static analysis for ML code — detect data leakage and best-practice violations.",
+    ),
 }
 INTERACTIVE_CORE_COMMANDS = ("init", "workflow", "train", "authority")
 COMMAND_PRESETS: Dict[str, Tuple[str, ...]] = {

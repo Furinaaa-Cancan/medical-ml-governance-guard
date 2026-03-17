@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mlgg-lint"
+version = "0.1.0"
+description = "Static analysis tool for ML code — detects data leakage, improper preprocessing, and evaluation malpractice."
+readme = "README.md"
+license = {text = "PolyForm Noncommercial License 1.0.0"}
+requires-python = ">=3.10"
+authors = [
+    {name = "ml-leakage-guard contributors"},
+]
+keywords = ["machine-learning", "lint", "data-leakage", "static-analysis", "medical"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Software Development :: Quality Assurance",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "pytest-cov"]
+
+[project.scripts]
+mlgg-lint = "mlgg_lint.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["mlgg_lint*"]
