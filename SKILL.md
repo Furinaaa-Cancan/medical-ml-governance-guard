@@ -72,6 +72,33 @@ python3 scripts/mlgg.py doctor
 8. `_T` i18n 字符串
 9. `MODEL_PROFILE_PRESETS`（balanced/comprehensive）
 
+### 添加新 Gate 的操作步骤
+
+所有 gate 脚本必须遵循统一 CLI 契约：
+
+1. **CLI 参数**：使用 `add_common_arguments(parser)` 或手动添加 `--report`、`--strict`、`--timeout`
+2. **计时**：入口调用 `start_gate_timer()`
+3. **报告输出**：使用 `build_report_envelope()` 生成标准信封格式
+4. **终端输出**：使用 `print_gate_summary()` 打印结构化摘要
+5. **退出逻辑**：`should_fail = bool(failures) or (args.strict and bool(warnings))`，返回 `2 if should_fail else 0`
+6. **注册**：在 `_gate_registry.py` 中注册 gate 名称和路径
+7. **测试**：在 `tests/` 中创建对应测试文件，覆盖率 ≥85%
+
+**严禁**：
+- 自定义 strict-mode 逻辑（如 `warning_is_blocking()` 过滤器）
+- 跳过 `--strict` 对 warnings 的影响
+- 手动提升 warnings 到 failures 列表（应由 `should_fail` 逻辑统一处理）
+
+### 添加新 Lint 规则 (R0xx) 的操作步骤
+
+1. 在 `plugin/mlgg_lint/rules/` 创建 `r0xx_rule_name.py`，继承 `BaseRule`
+2. 设置 `id`、`name`、`severity`、`description`、`remediation`、`tags`
+3. 在 `plugin/tests/samples/` 创建 `r0xx_bad.py`（触发诊断）和 `r0xx_good.py`（无诊断）
+4. 在 `plugin/tests/test_engine.py` 添加 `test_r0xx_bad_has_diagnostics()` 和 `test_r0xx_good_no_r0xx()`
+5. 运行 `python3 -m pytest plugin/tests/test_engine.py -v` 验证
+
+**规则实现清单**：每个新规则合并前必须同时提供 bad + good 测试样本。
+
 ### 常见错误恢复
 
 | 错误信息 | 根因 | 修复 |

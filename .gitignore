@@ -6,6 +6,7 @@ __pycache__/
 .venv/
 venv/
 .env
+.windsurf/
 
 experiments/authority-e2e/authority_e2e_summary*.json
 experiments/authority-e2e/stress_seed_search_report*.json

@@ -340,20 +340,9 @@ def main() -> int:
     size_summary = _check_artifact_sizes(evidence_dir, warnings)
     audit_summary = _check_audit_chain(evidence_dir, warnings)
 
-    # Strict mode: promote warnings to failures
-    if args.strict:
-        for w in list(warnings):
-            failures.append(GateIssue(
-                code=w.code,
-                severity=Severity.ERROR,
-                message=f"[strict] {w.message}",
-                details=w.details,
-                remediation=w.remediation,
-            ))
-        warnings.clear()
-
-    # Determine status (binary pass/fail only — warnings alone don't fail)
-    status = "fail" if failures else "pass"
+    # Determine status: fail-closed with standard finish() pattern
+    should_fail = bool(failures) or (args.strict and bool(warnings))
+    status = "fail" if should_fail else "pass"
 
     summary = {
         "model_signatures": sig_summary,

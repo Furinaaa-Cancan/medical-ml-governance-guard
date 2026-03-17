@@ -56,18 +56,6 @@ class TestSummarizeRecommendations:
         assert any("attestation" in r.lower() for r in recs)
 
 
-class TestWarningIsBlocking:
-    def test_normal_strict(self):
-        args = type("A", (), {"strict": True, "allow_missing_comparison": False})()
-        issue = {"code": "some_warning"}
-        assert scg.warning_is_blocking(issue, args) is True
-
-    def test_manifest_not_comparable_allowed(self):
-        args = type("A", (), {"strict": True, "allow_missing_comparison": True})()
-        issue = {"code": "manifest_not_comparable"}
-        assert scg.warning_is_blocking(issue, args) is False
-
-
 # ── CLI integration ──────────────────────────────────────────────────────────
 
 ARTIFACT_NAMES = [

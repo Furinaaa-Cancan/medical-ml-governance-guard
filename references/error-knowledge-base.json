@@ -1,7 +1,7 @@
 {
   "contract_version": "error_knowledge_base.v1",
   "description": "Self-improving error pattern database. Agents should append new entries when encountering novel error patterns.",
-  "last_updated": "2026-03-17",
+  "last_updated": "2026-03-17T23:00:00Z",
   "categories": {
     "data": "Data loading, splitting, format issues",
     "leakage": "Any form of data leakage detection",
@@ -1009,6 +1009,83 @@
       "first_seen": "2026-03-17",
       "resolved": true,
       "gate": "mlgg-lint"
+    },
+    {
+      "id": "ERR-063",
+      "code": "gate_strict_mode_ignored",
+      "symptom": "security_audit_gate --strict flag has no effect on warnings; warnings never cause failure",
+      "root_cause": "Gate promoted warnings to failures inline and cleared warnings list, then used only `bool(failures)` for status. This bypassed the standard finish() contract where `should_fail = bool(failures) or (args.strict and bool(warnings))`",
+      "fix": "Replace inline promotion with standard finish() pattern: `should_fail = bool(failures) or (args.strict and bool(warnings))`",
+      "prevention": "All gates must use the standard finish() pattern from _gate_framework. Never hand-roll strict-mode logic",
+      "category": "gate",
+      "severity": "ERROR",
+      "affected_files": [
+        "scripts/security_audit_gate.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
+    },
+    {
+      "id": "ERR-064",
+      "code": "gate_custom_warning_filter",
+      "symptom": "self_critique_gate uses custom warning_is_blocking() function instead of standard bool(warnings), allowing some warnings to silently pass in strict mode",
+      "root_cause": "Custom function `warning_is_blocking()` filtered specific warning codes, violating the uniform gate contract that all warnings must fail in strict mode",
+      "fix": "Remove warning_is_blocking() and use standard `should_fail = bool(failures) or (args.strict and bool(warnings))`",
+      "prevention": "Gate strict mode must treat ALL warnings as blocking. Use --allow-missing-comparison to suppress specific warnings at the source instead of filtering at the finish stage",
+      "category": "gate",
+      "severity": "WARNING",
+      "affected_files": [
+        "scripts/self_critique_gate.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
+    },
+    {
+      "id": "ERR-065",
+      "code": "gate_missing_cli_contract",
+      "symptom": "manifest_lock.py lacks --report and --strict arguments and does not use _gate_framework, producing non-standard output format",
+      "root_cause": "manifest_lock was written before the gate framework existed and never migrated to the uniform CLI contract",
+      "fix": "Add --report/--strict arguments, import _gate_framework, emit report envelope via build_report_envelope(), use print_gate_summary()",
+      "prevention": "All new gates must use add_common_arguments() from _gate_framework or subclass GateBase. Gate registry CI should validate contract compliance",
+      "category": "gate",
+      "severity": "ERROR",
+      "affected_files": [
+        "scripts/manifest_lock.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
+    },
+    {
+      "id": "ERR-066",
+      "code": "plugin_test_coverage_gap",
+      "symptom": "Lint rules R011-R020 have incomplete test coverage: missing good samples, some missing both good and bad samples",
+      "root_cause": "New rules R011-R020 were added incrementally; only bad samples were created for some rules, and neither good nor bad for others (R012, R014, R016, R018)",
+      "fix": "Create symmetric good/bad test samples for all 20 rules and add corresponding test functions in test_engine.py",
+      "prevention": "Rule implementation checklist: every new rule MUST include both a bad sample (triggers diagnostic) and a good sample (no diagnostic) before merge",
+      "category": "gate",
+      "severity": "WARNING",
+      "affected_files": [
+        "plugin/tests/test_engine.py",
+        "plugin/tests/samples/"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
+    },
+    {
+      "id": "ERR-067",
+      "code": "dependency_sync_mismatch",
+      "symptom": "tomli>=1.1.0 present in requirements.txt but missing from pyproject.toml dependencies, causing Python 3.10 users who install via `pip install .` to miss the tomli dependency",
+      "root_cause": "Conditional dependency added to requirements.txt but not propagated to pyproject.toml",
+      "fix": "Add `tomli>=1.1.0;python_version<'3.11'` to pyproject.toml [project].dependencies",
+      "prevention": "When adding conditional dependencies, update both requirements.txt and pyproject.toml simultaneously",
+      "category": "environment",
+      "severity": "WARNING",
+      "affected_files": [
+        "pyproject.toml",
+        "requirements.txt"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
     }
   ],
   "agent_instructions": {

@@ -1,5 +1,6 @@
 """Tests for the analysis engine."""
 
+import json
 from pathlib import Path
 
 from mlgg_lint.config import LintConfig
@@ -439,6 +440,140 @@ def test_format_text_strips_ansi_in_message():
     assert "\033[" not in txt
 
 
+# ── R011-R020: new rules ──────────────────────────────────────────────────────
+
+def test_r011_bad_has_diagnostics():
+    diags = check_sample("r011_bad.py")
+    r011 = [d for d in diags if d.rule_id == "R011"]
+    assert len(r011) >= 1
+    assert "imblearn" in r011[0].message.lower() or "pipeline" in r011[0].message.lower()
+
+
+def test_r011_good_no_r011():
+    diags = check_sample("r011_good.py")
+    r011 = [d for d in diags if d.rule_id == "R011"]
+    assert len(r011) == 0
+
+
+def test_r012_bad_has_diagnostics():
+    diags = check_sample("r012_bad.py")
+    r012 = [d for d in diags if d.rule_id == "R012"]
+    assert len(r012) >= 1
+    assert "accuracy" in r012[0].message.lower()
+
+
+def test_r012_good_no_r012():
+    diags = check_sample("r012_good.py")
+    r012 = [d for d in diags if d.rule_id == "R012"]
+    assert len(r012) == 0
+
+
+def test_r013_bad_has_diagnostics():
+    diags = check_sample("r013_bad.py")
+    r013 = [d for d in diags if d.rule_id == "R013"]
+    assert len(r013) >= 1
+    assert "0.5" in r013[0].message
+
+
+def test_r013_good_no_r013():
+    diags = check_sample("r013_good.py")
+    r013 = [d for d in diags if d.rule_id == "R013"]
+    assert len(r013) == 0
+
+
+def test_r014_bad_has_diagnostics():
+    diags = check_sample("r014_bad.py")
+    r014 = [d for d in diags if d.rule_id == "R014"]
+    assert len(r014) >= 1
+    assert "labelencoder" in r014[0].message.lower() or "label" in r014[0].message.lower()
+
+
+def test_r014_good_no_r014():
+    diags = check_sample("r014_good.py")
+    r014 = [d for d in diags if d.rule_id == "R014"]
+    assert len(r014) == 0
+
+
+def test_r015_bad_has_diagnostics():
+    diags = check_sample("r015_bad.py")
+    r015 = [d for d in diags if d.rule_id == "R015"]
+    assert len(r015) >= 1
+    assert "small" in r015[0].message.lower() or "0.05" in r015[0].message
+
+
+def test_r015_good_no_r015():
+    diags = check_sample("r015_good.py")
+    r015 = [d for d in diags if d.rule_id == "R015"]
+    assert len(r015) == 0
+
+
+def test_r016_bad_has_diagnostics():
+    diags = check_sample("r016_bad.py")
+    r016 = [d for d in diags if d.rule_id == "R016"]
+    assert len(r016) >= 1
+    assert "random_state" in r016[0].message.lower() or "reproducible" in r016[0].message.lower()
+
+
+def test_r016_good_no_r016():
+    diags = check_sample("r016_good.py")
+    r016 = [d for d in diags if d.rule_id == "R016"]
+    assert len(r016) == 0
+
+
+def test_r017_bad_has_diagnostics():
+    diags = check_sample("r017_bad.py")
+    r017 = [d for d in diags if d.rule_id == "R017"]
+    assert len(r017) >= 1
+    assert "eval_set" in r017[0].message.lower() or "early" in r017[0].message.lower()
+
+
+def test_r017_good_no_r017():
+    diags = check_sample("r017_good.py")
+    r017 = [d for d in diags if d.rule_id == "R017"]
+    assert len(r017) == 0
+
+
+def test_r018_bad_has_diagnostics():
+    diags = check_sample("r018_bad.py")
+    r018 = [d for d in diags if d.rule_id == "R018"]
+    assert len(r018) >= 1
+    assert "scaling" in r018[0].message.lower() or "tree" in r018[0].message.lower()
+
+
+def test_r018_good_no_r018():
+    diags = check_sample("r018_good.py")
+    r018 = [d for d in diags if d.rule_id == "R018"]
+    assert len(r018) == 0
+
+
+def test_r019_bad_has_diagnostics():
+    diags = check_sample("r019_bad.py")
+    r019 = [d for d in diags if d.rule_id == "R019"]
+    assert len(r019) >= 1
+    assert "model" in r019[0].message.lower() or "comparison" in r019[0].message.lower()
+
+
+def test_r019_good_no_r019():
+    diags = check_sample("r019_good.py")
+    r019 = [d for d in diags if d.rule_id == "R019"]
+    assert len(r019) == 0
+
+
+def test_r020_bad_has_diagnostics():
+    diags = check_sample("r020_bad.py")
+    r020 = [d for d in diags if d.rule_id == "R020"]
+    assert len(r020) >= 1
+    assert "fillna" in r020[0].message.lower() or "mean" in r020[0].message.lower()
+
+
+def test_r020_good_no_r020():
+    diags = check_sample("r020_good.py")
+    r020 = [d for d in diags if d.rule_id == "R020"]
+    assert len(r020) == 0
+
+
+# ── classify_var_name ─────────────────────────────────────────────────────────
+
 def test_classify_var_name_correct_matches():
     """Positive cases: variables that should be classified."""
     from mlgg_lint.ast_utils import classify_var_name
@@ -467,3 +602,82 @@ def test_classify_var_name_no_false_positives():
     assert classify_var_name("interval") is None
     assert classify_var_name("retrain_model") is None  # "retrain" != "train"
     assert classify_var_name("n_estimators") is None
+
+
+# ── Notebook support ────────────────────────────────────────────────────────
+
+def _make_notebook(cells, nbformat=4):
+    """Helper: build a minimal .ipynb dict from a list of code-cell sources."""
+    nb_cells = []
+    for src in cells:
+        nb_cells.append({
+            "cell_type": "code",
+            "metadata": {},
+            "source": src.splitlines(True),
+            "outputs": [],
+            "execution_count": None,
+        })
+    return {
+        "nbformat": nbformat,
+        "nbformat_minor": 5,
+        "metadata": {},
+        "cells": nb_cells,
+    }
+
+
+def test_notebook_basic():
+    """A notebook with leaky code should trigger R001."""
+    diags = analyze_file(SAMPLES_DIR / "leaky_notebook.ipynb", config=LintConfig())
+    r001 = [d for d in diags if d.rule_id == "R001"]
+    assert len(r001) >= 1
+
+
+def test_notebook_clean(tmp_path):
+    """A notebook with clean code should produce no R001."""
+    nb = _make_notebook([
+        "from sklearn.preprocessing import StandardScaler\n"
+        "from sklearn.model_selection import train_test_split\n",
+        "X_train, X_test, y_train, y_test = train_test_split(X, y)\n",
+        "scaler = StandardScaler()\n"
+        "X_train_s = scaler.fit_transform(X_train)\n",
+    ])
+    nb_path = tmp_path / "clean.ipynb"
+    nb_path.write_text(json.dumps(nb))
+    diags = analyze_file(nb_path, config=LintConfig())
+    r001 = [d for d in diags if d.rule_id == "R001"]
+    assert len(r001) == 0
+
+
+def test_notebook_malformed(tmp_path):
+    """Malformed JSON notebook should produce E000."""
+    bad = tmp_path / "broken.ipynb"
+    bad.write_text("{not valid json!!")
+    diags = analyze_file(bad, config=LintConfig())
+    assert len(diags) == 1
+    assert diags[0].rule_id == "E000"
+    assert "notebook" in diags[0].rule_name.lower() or "parse" in diags[0].rule_name.lower()
+
+
+def test_notebook_cell_location():
+    """Diagnostic locations should contain cell references."""
+    diags = analyze_file(SAMPLES_DIR / "leaky_notebook.ipynb", config=LintConfig())
+    r001 = [d for d in diags if d.rule_id == "R001"]
+    assert len(r001) >= 1
+    # Location file should contain "[cell N]"
+    assert "[cell " in r001[0].location.file
+
+
+def test_notebook_directory_scan(tmp_path):
+    """Directory scan should discover .ipynb files."""
+    nb = _make_notebook([
+        "from sklearn.preprocessing import StandardScaler\n"
+        "from sklearn.model_selection import train_test_split\n",
+        "scaler = StandardScaler()\n"
+        "X_scaled = scaler.fit_transform(X)\n",
+        "X_train, X_test, y_train, y_test = train_test_split(X_scaled, y)\n",
+    ])
+    nb_path = tmp_path / "found.ipynb"
+    nb_path.write_text(json.dumps(nb))
+    diags = analyze_paths([tmp_path], config=LintConfig())
+    # The leaky notebook should produce at least one diagnostic
+    assert len(diags) >= 1

@@ -13,6 +13,17 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List
 
+from _gate_framework import (
+    GateIssue,
+    Severity,
+    build_report_envelope,
+    print_gate_summary,
+)
+from _gate_utils import get_gate_elapsed, start_gate_timer, write_json as _write_gate_report
+
+GATE_NAME = "manifest_lock"
+GATE_VERSION = "1.0.0"
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Lock dataset/config fingerprints into a manifest.")
@@ -34,6 +45,8 @@ def parse_args() -> argparse.Namespace:
         "--compare-with",
         help="Optional baseline manifest JSON to compare against (fail on mismatch).",
     )
+    parser.add_argument("--report", help="Path to write the JSON gate report.")
+    parser.add_argument("--strict", action="store_true", help="Promote warnings to failures.")
     return parser.parse_args()
 
 
@@ -134,7 +147,11 @@ def compare_manifest(current: Dict[str, Any], baseline: Dict[str, Any]) -> Dict[
 
 
 def main() -> int:
+    start_gate_timer()
     args = parse_args()
+
+    failures: List[GateIssue] = []
+    warnings: List[GateIssue] = []
 
     manifest: Dict[str, Any] = {
         "status": "pass",
@@ -150,7 +167,12 @@ def main() -> int:
     except ValueError as exc:
         manifest["status"] = "fail"
         manifest["errors"].append(str(exc))
-        return write_and_exit(manifest, args.output, 2)
+        failures.append(GateIssue(
+            code="invalid_meta",
+            severity=Severity.ERROR,
+            message=f"Invalid --meta argument: {exc}",
+        ))
+        return _finish_gate(manifest, args, failures, warnings)
 
     for raw_path in args.inputs:
         path = Path(raw_path).expanduser().resolve()
@@ -165,12 +187,24 @@ def main() -> int:
             entry["error"] = "path_not_found"
             manifest["errors"].append(f"Missing input: {raw_path}")
             manifest["status"] = "fail"
+            failures.append(GateIssue(
+                code="path_not_found",
+                severity=Severity.ERROR,
+                message=f"Missing input: {raw_path}",
+                details={"path": str(path)},
+            ))
             manifest["files"].append(entry)
             continue
         if not path.is_file():
             entry["error"] = "not_a_file"
             manifest["errors"].append(f"Not a file: {raw_path}")
             manifest["status"] = "fail"
+            failures.append(GateIssue(
+                code="not_a_file",
+                severity=Severity.ERROR,
+                message=f"Not a file: {raw_path}",
+                details={"path": str(path)},
+            ))
             manifest["files"].append(entry)
             continue
 
@@ -194,6 +228,12 @@ def main() -> int:
         if not baseline_path.exists():
             manifest["status"] = "fail"
             manifest["errors"].append(f"Baseline manifest not found: {baseline_path}")
+            failures.append(GateIssue(
+                code="baseline_not_found",
+                severity=Severity.ERROR,
+                message=f"Baseline manifest not found: {baseline_path}",
+                details={"path": str(baseline_path)},
+            ))
         else:
             try:
                 with baseline_path.open("r", encoding="utf-8") as fh:
@@ -205,34 +245,58 @@ def main() -> int:
                 if not comparison["matched"]:
                     manifest["status"] = "fail"
                     manifest["errors"].append("Manifest comparison mismatch against baseline.")
+                    failures.append(GateIssue(
+                        code="manifest_comparison_mismatch",
+                        severity=Severity.ERROR,
+                        message="Manifest comparison mismatch against baseline.",
+                        details=comparison,
+                    ))
             except Exception as exc:
                 manifest["status"] = "fail"
                 manifest["errors"].append(f"Failed to read baseline manifest: {exc}")
+                failures.append(GateIssue(
+                    code="baseline_read_error",
+                    severity=Severity.ERROR,
+                    message=f"Failed to read baseline manifest: {exc}",
+                ))
 
+    return _finish_gate(manifest, args, failures, warnings)
+
+
+def _finish_gate(
+    manifest: Dict[str, Any],
+    args: argparse.Namespace,
+    failures: List[GateIssue],
+    warnings: List[GateIssue],
+) -> int:
+    """Write manifest, emit gate report envelope, print summary, return exit code."""
     output_path = Path(args.output).expanduser().resolve()
     from _gate_utils import write_json as _write_manifest
     _write_manifest(output_path, manifest)
 
-    if manifest["status"] != "pass":
-        print("Status: fail")
-        for err in manifest["errors"]:
-            print(f"[FAIL] {err}")
-        return 2
+    should_fail = bool(failures) or (args.strict and bool(warnings))
+    status = "fail" if should_fail else "pass"
 
-    print("Status: pass")
-    print(f"Files locked: {len(manifest['files'])}")
-    print(f"Manifest: {output_path}")
-    return 0
+    report = build_report_envelope(
+        gate_name=GATE_NAME,
+        status=status,
+        strict_mode=args.strict,
+        failures=failures,
+        warnings=warnings,
+        summary={
+            "files_locked": len(manifest.get("files", [])),
+            "manifest_path": str(output_path),
+            "manifest_status": manifest.get("status"),
+        },
+        gate_version=GATE_VERSION,
+    )
 
+    if args.report:
+        _write_gate_report(Path(args.report).expanduser().resolve(), report)
 
-def write_and_exit(manifest: Dict[str, Any], output: str, code: int) -> int:
-    output_path = Path(output).expanduser().resolve()
-    from _gate_utils import write_json as _write_manifest
-    _write_manifest(output_path, manifest)
-    print(f"Status: {manifest.get('status', 'fail')}")
-    for err in manifest.get("errors", []):
-        print(f"[FAIL] {err}")
-    return code
+    print_gate_summary(GATE_NAME, status, failures, warnings, args.strict, get_gate_elapsed())
+
+    return 2 if should_fail else 0
 
 
 if __name__ == "__main__":

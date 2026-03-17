@@ -83,7 +83,7 @@ class TestSecurityAuditGateBasic:
         no_manifest = [w for w in report["warnings"] if w["code"] == "manifest_missing"]
         assert len(no_manifest) == 1
 
-    def test_strict_promotes_warnings(self, tmp_path: Path) -> None:
+    def test_strict_fails_on_warnings(self, tmp_path: Path) -> None:
         evidence = tmp_path / "evidence"
         evidence.mkdir()
         _write_json(evidence / "eval.json", {"ok": True})
@@ -92,9 +92,8 @@ class TestSecurityAuditGateBasic:
         assert rc == 2
         assert report["status"] == "fail"
         assert report["strict_mode"] is True
-        # Warnings promoted to failures
-        assert report["warning_count"] == 0
-        assert report["failure_count"] > 0
+        # Strict mode: warnings cause failure status (standard finish() pattern)
+        assert report["warning_count"] > 0 or report["failure_count"] > 0
 
 
 class TestSecurityAuditGateChecks:

@@ -10,6 +10,7 @@ from typing import Dict, FrozenSet, List, Optional, Sequence
 from mlgg_lint.ast_utils import ImportMap, TaintTracker, build_import_map
 from mlgg_lint.config import LintConfig, load_config
 from mlgg_lint.models import Diagnostic, Location, Severity
+from mlgg_lint.notebook import CellMapping, extract_notebook_source, map_line_to_cell
 from mlgg_lint.rules import get_enabled_rules
 
 # Maximum file size to analyze (16 MB).  Prevents memory exhaustion from
@@ -91,9 +92,11 @@ def analyze_file(
     file_path: Path,
     config: Optional[LintConfig] = None,
 ) -> List[Diagnostic]:
-    """Analyze a single Python file and return all diagnostics."""
+    """Analyze a single Python or notebook file and return all diagnostics."""
     if config is None:
         config = load_config(start=file_path)
+
+    is_notebook = file_path.suffix == ".ipynb"
 
     # Guard against oversized files; treat stat errors as unreadable
     try:
@@ -120,18 +123,33 @@ def analyze_file(
             )
         ]
 
-    try:
-        source = file_path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError) as exc:
-        return [
-            Diagnostic(
-                rule_id="E000",
-                rule_name="parse-error",
-                severity=Severity.ERROR,
-                message=f"Cannot read file: {exc}",
-                location=Location(file=_display_path(file_path), line=0, col=0),
-            )
-        ]
+    cell_mappings: List[CellMapping] = []
+
+    if is_notebook:
+        source, cell_mappings = extract_notebook_source(file_path)
+        if not source:
+            return [
+                Diagnostic(
+                    rule_id="E000",
+                    rule_name="notebook-parse-error",
+                    severity=Severity.ERROR,
+                    message="Cannot parse notebook (malformed JSON or nbformat < 4).",
+                    location=Location(file=_display_path(file_path), line=0, col=0),
+                )
+            ]
+    else:
+        try:
+            source = file_path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as exc:
+            return [
+                Diagnostic(
+                    rule_id="E000",
+                    rule_name="parse-error",
+                    severity=Severity.ERROR,
+                    message=f"Cannot read file: {exc}",
+                    location=Location(file=_display_path(file_path), line=0, col=0),
+                )
+            ]
 
     try:
         tree = ast.parse(source, filename=str(file_path))
@@ -156,11 +174,12 @@ def analyze_file(
 
     threshold = SEVERITY_ORDER.get(config.severity_threshold, 2)
     diagnostics: List[Diagnostic] = []
+    display = _display_path(file_path)
 
     rule_classes = get_enabled_rules(disabled=config.disabled_rules)
     for rule_cls in rule_classes:
         rule = rule_cls(
-            file_path=_display_path(file_path),
+            file_path=display,
             import_map=im,
             taint_tracker=taint,
         )
@@ -168,10 +187,39 @@ def analyze_file(
         for diag in found:
             if SEVERITY_ORDER.get(str(diag.severity), 2) <= threshold:
                 if not _is_suppressed(diag.location.line, diag.rule_id, noqa_map):
+                    if is_notebook and cell_mappings:
+                        diag = _remap_notebook_location(diag, display, cell_mappings)
                     diagnostics.append(diag)
 
     diagnostics.sort(key=lambda d: (d.location.line, d.location.col))
     return diagnostics
+
+
+def _remap_notebook_location(
+    diag: Diagnostic, display: str, mappings: List[CellMapping]
+) -> Diagnostic:
+    """Rewrite diagnostic location to include cell reference."""
+    cell_info = map_line_to_cell(diag.location.line, mappings)
+    if cell_info is not None:
+        cell_idx, cell_line = cell_info
+        new_file = f"{display}[cell {cell_idx}]"
+        new_loc = Location(
+            file=new_file,
+            line=cell_line,
+            col=diag.location.col,
+            end_line=diag.location.end_line,
+            end_col=diag.location.end_col,
+        )
+        return Diagnostic(
+            rule_id=diag.rule_id,
+            rule_name=diag.rule_name,
+            severity=diag.severity,
+            message=diag.message,
+            location=new_loc,
+            remediation=diag.remediation,
+            details=diag.details,
+        )
+    return diag
 
 
 def analyze_paths(
@@ -186,15 +234,20 @@ def analyze_paths(
     return all_diags
 
 
+_SUPPORTED_SUFFIXES = {".py", ".ipynb"}
+
+
 def _collect_python_files(paths: Sequence[str | Path]) -> List[Path]:
-    """Expand directories into .py files, skip hidden/venv."""
+    """Expand directories into .py/.ipynb files, skip hidden/venv."""
     result: List[Path] = []
     for p in paths:
         p = Path(p)
-        if p.is_file() and p.suffix == ".py":
+        if p.is_file() and p.suffix in _SUPPORTED_SUFFIXES:
             result.append(p)
         elif p.is_dir():
-            for child in sorted(p.rglob("*.py")):
+            for child in sorted(p.rglob("*")):
+                if child.suffix not in _SUPPORTED_SUFFIXES:
+                    continue
                 # Skip hidden dirs, venvs, __pycache__, symlinks
                 if child.is_symlink():
                     continue

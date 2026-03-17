@@ -145,13 +145,6 @@ def summarize_recommendations(issues: List[Dict[str, Any]]) -> List[str]:
     return recs
 
 
-def warning_is_blocking(issue: Dict[str, Any], args: argparse.Namespace) -> bool:
-    code = str(issue.get("code", ""))
-    if args.strict and args.allow_missing_comparison and code == "manifest_not_comparable":
-        return False
-    return True
-
-
 def main() -> int:
     args = parse_args()
 
@@ -393,12 +386,7 @@ def main() -> int:
 
     from _gate_utils import get_gate_elapsed, write_json as _write_report
 
-    blocking_warning_count = (
-        sum(1 for issue in warnings if warning_is_blocking(issue, args))
-        if args.strict
-        else 0
-    )
-    should_fail = bool(failures) or (args.strict and blocking_warning_count > 0)
+    should_fail = bool(failures) or (args.strict and bool(warnings))
     claim_tier = "publication-grade-ready" if (not should_fail and quality_score >= args.min_score) else "not-ready"
     status = "pass" if not should_fail else "fail"
 
@@ -423,7 +411,7 @@ def main() -> int:
             "quality_score": round(quality_score, 2),
             "min_score": args.min_score,
             "claim_tier_decision": claim_tier,
-            "blocking_warning_count": blocking_warning_count,
+            "blocking_warning_count": len(warnings) if args.strict else 0,
             "recommendations": summarize_recommendations(failures + warnings),
             "reproducibility_comparison_evaluated": reproducibility_comparison_evaluated,
             "artifacts": {
