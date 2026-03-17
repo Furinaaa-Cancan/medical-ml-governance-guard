@@ -23,6 +23,8 @@ description: "Publication-grade medical prediction workflow with strict anti-dat
 | "对比两次运行" | `python3 scripts/compare_runs.py --run-a <dir1> --run-b <dir2>` |
 | "生成修复计划" | `python3 scripts/remediation_plan.py --evidence-dir <dir>` |
 | "解释某个 gate 失败" | `python3 scripts/explain_gate.py --report <gate_report.json>` |
+| "检查代码是否有数据泄漏" | `python3 scripts/mlgg.py lint check <file.py>` |
+| "检查代码（JSON 输出给 agent）" | `python3 scripts/mlgg.py lint check <file.py> --format json` |
 
 ### 五条常用命令（覆盖 90% 场景）
 
@@ -634,6 +636,15 @@ If any step returns non-zero, stop and block claim release.
 - `scripts/sample_size_gate.py`: fail-closed sample size adequacy gate — EPV (Riley et al. 2019/2025), shrinkage factor, min events/non-events.
 - `scripts/batch_journal_review.py`: batch audit N projects in parallel with comparison matrix, cross-cutting analysis, and aggregated remediation priorities.
 - `experiments/authority-e2e/scan_stress_diabetes_feasibility.py`: stress-case diabetes feasibility scanner across target modes and row caps; outputs a fail-closed feasibility report.
+
+### plugin/
+- `plugin/mlgg_lint/`: static analysis tool for ML Python code (10 rules: R001–R010).
+- Rules detect: fit-before-split, scaler-on-test, SMOTE-on-test, split-without-group, threshold-on-test, feature-selection-on-full, target-as-feature, temporal-split-shuffle, no-confidence-intervals, train-metric-as-final.
+- CLI: `mlgg-lint check [--format text|json|sarif] [--exit-code] [--disable R004,R008] PATH...`
+- Supports `# noqa: R001` inline suppression and `.mlgg-lint.toml` config.
+- VS Code extension skeleton at `plugin/vscode/` (SARIF-based diagnostics).
+- Pre-commit hook config at `plugin/.pre-commit-hooks.yaml`.
+- Integrated as `python3 scripts/mlgg.py lint check <file.py>`.
 
 ### examples/
 - `examples/download_real_data.py`: download and prepare 9 real medical datasets (UCI/PhysioNet/GitHub) + 2 synthetic generators.
