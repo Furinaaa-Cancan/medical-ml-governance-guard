@@ -47,6 +47,9 @@ class TargetAsFeature(BaseRule):
                 continue
             var_name = target.id
 
+            # On any re-assignment, clear stale drop-derived status
+            self._drop_derived.discard(var_name)
+
             # Pattern: X = df.drop(columns=[...])
             if isinstance(node.value, ast.Call) and isinstance(node.value.func, ast.Attribute):
                 if node.value.func.attr == "drop":

@@ -10,10 +10,11 @@ from mlgg_lint.rules import register
 from mlgg_lint.rules.base import BaseRule
 
 # Object names that are known safe to call .fit(X_test) on.
-# Pipeline/model .fit() on test is the user's intent, not a preprocessing leak.
+# Pipeline .fit() on test is intentional, not a preprocessing leak.
+# NOTE: "model" removed — users may name a StandardScaler "model" and
+# that would silently bypass this check. Only Pipeline-specific names.
 _SAFE_FIT_NAMES = {
-    "pipe", "pipeline", "model", "clf", "classifier",
-    "estimator", "regressor", "detector",
+    "pipe", "pipeline",
 }
 
 

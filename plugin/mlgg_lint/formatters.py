@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from typing import List
 
@@ -21,6 +22,14 @@ _SEV_COLOR = {
     Severity.WARNING: _YEL,
     Severity.INFO: _CYA,
 }
+
+
+_ANSI_RE = re.compile(r"\033\[[0-9;]*m")
+
+
+def _strip_ansi(text: str) -> str:
+    """Remove ANSI escape sequences from text."""
+    return _ANSI_RE.sub("", text)
 
 
 def _is_tty() -> bool:
@@ -44,7 +53,8 @@ def format_text(diagnostics: List[Diagnostic], color: bool | None = None) -> str
                 f"{d.message}"
             )
         else:
-            line = f"{loc.file}:{loc.line}:{loc.col} {sev} {d.rule_id} {d.message}"
+            msg = _strip_ansi(d.message)
+            line = f"{loc.file}:{loc.line}:{loc.col} {sev} {d.rule_id} {msg}"
         lines.append(line)
 
     if not diagnostics:

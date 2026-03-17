@@ -4,6 +4,7 @@ from pathlib import Path
 
 from mlgg_lint.config import LintConfig
 from mlgg_lint.engine import analyze_file, analyze_paths
+from mlgg_lint.models import Diagnostic, Location, Severity
 
 SAMPLES_DIR = Path(__file__).parent / "samples"
 
@@ -394,6 +395,48 @@ def test_r003_chained_call(tmp_path):
     diags = analyze_file(code)
     r003 = [d for d in diags if d.rule_id == "R003"]
     assert len(r003) >= 1
+
+
+def test_r002_model_named_scaler(tmp_path):
+    """V1: StandardScaler named 'model' must still be flagged."""
+    code = tmp_path / "ms.py"
+    code.write_text(
+        "from sklearn.preprocessing import StandardScaler\n"
+        "from sklearn.model_selection import train_test_split\n"
+        "X_train, X_test, y_train, y_test = train_test_split(X, y)\n"
+        "model = StandardScaler()\n"
+        "model.fit(X_test)\n"
+    )
+    diags = analyze_file(code)
+    r002 = [d for d in diags if d.rule_id == "R002"]
+    assert len(r002) >= 1
+
+
+def test_r007_reassign_clears_drop(tmp_path):
+    """V2: X = df.drop() then X = df[cols] must clear drop-derived status."""
+    code = tmp_path / "reassign.py"
+    code.write_text(
+        "import pandas as pd\n"
+        "from sklearn.ensemble import RandomForestClassifier\n"
+        "df = pd.read_csv('data.csv')\n"
+        "X = df.drop(columns=['target'])\n"
+        "X = df[['col1', 'col2']]\n"
+        "y = df['target']\n"
+        "RandomForestClassifier().fit(X, y)\n"
+    )
+    diags = analyze_file(code)
+    r007 = [d for d in diags if d.rule_id == "R007"]
+    assert len(r007) >= 1
+
+
+def test_format_text_strips_ansi_in_message():
+    """V3: ANSI escapes in message must be stripped in no-color mode."""
+    from mlgg_lint.formatters import format_text
+    d = Diagnostic("R001", "test", Severity.ERROR,
+                   "msg with \033[91mred\033[0m escape",
+                   Location("f.py", 1, 0))
+    txt = format_text([d], color=False)
+    assert "\033[" not in txt
 
 
 def test_classify_var_name_correct_matches():
