@@ -24,7 +24,9 @@ description: "Publication-grade medical prediction workflow with strict anti-dat
 | "生成修复计划" | `python3 scripts/remediation_plan.py --evidence-dir <dir>` |
 | "解释某个 gate 失败" | `python3 scripts/explain_gate.py --report <gate_report.json>` |
 | "检查代码是否有数据泄漏" | `python3 scripts/mlgg.py lint check <file.py>` |
-| "检查代码（JSON 输出给 agent）" | `python3 scripts/mlgg.py lint check <file.py> --format json` |
+| "检查代码（JSON 给 agent）" | `python3 scripts/mlgg.py lint check <file.py> --format json` |
+| "检查代码（CI 门控）" | `python3 scripts/mlgg.py lint check <dir> --exit-code` |
+| "查看 lint 规则列表" | `python3 scripts/mlgg.py lint rules` |
 
 ### 五条常用命令（覆盖 90% 场景）
 
@@ -638,13 +640,15 @@ If any step returns non-zero, stop and block claim release.
 - `experiments/authority-e2e/scan_stress_diabetes_feasibility.py`: stress-case diabetes feasibility scanner across target modes and row caps; outputs a fail-closed feasibility report.
 
 ### plugin/
-- `plugin/mlgg_lint/`: static analysis tool for ML Python code (10 rules: R001–R010).
-- Rules detect: fit-before-split, scaler-on-test, SMOTE-on-test, split-without-group, threshold-on-test, feature-selection-on-full, target-as-feature, temporal-split-shuffle, no-confidence-intervals, train-metric-as-final.
-- CLI: `mlgg-lint check [--format text|json|sarif] [--exit-code] [--disable R004,R008] PATH...`
-- Supports `# noqa: R001` inline suppression and `.mlgg-lint.toml` config.
-- VS Code extension skeleton at `plugin/vscode/` (SARIF-based diagnostics).
-- Pre-commit hook config at `plugin/.pre-commit-hooks.yaml`.
-- Integrated as `python3 scripts/mlgg.py lint check <file.py>`.
+- `plugin/mlgg_lint/`: AST-based static analysis for ML Python code (10 rules: R001–R010, 57 tests).
+- R001 fit-before-split (ERROR), R002 scaler-on-test (ERROR), R003 resample-on-test (ERROR), R004 split-without-group (WARNING), R005 threshold-on-test (ERROR), R006 feature-selection-on-full (ERROR), R007 target-as-feature (ERROR), R008 temporal-split-shuffle (WARNING), R009 no-confidence-intervals (INFO), R010 train-metric-as-final (WARNING).
+- Detection: keyword args (`fit(X=X_test)`), chained calls (`SMOTE().fit_resample()`), DataFrame origin tracking + `.drop()` re-assignment, Pipeline exclusion, word-boundary variable classification.
+- CLI: `python3 scripts/mlgg.py lint check [--format text|json|sarif] [--exit-code] [--severity warning] [--disable R004,R008] PATH...`
+- Supports `# noqa: R001` / `# noqa` inline suppression and `.mlgg-lint.toml` config auto-discovery.
+- Output: relative paths (no absolute path leakage), ANSI-stripped in no-color mode.
+- Security: 16 MB file limit, 1 MB config limit, symlink skip, stat-error handling, malformed TOML graceful fallback.
+- VS Code extension at `plugin/vscode/` (SARIF-based diagnostics on save/open).
+- Pre-commit hook at `plugin/.pre-commit-hooks.yaml`.
 
 ### examples/
 - `examples/download_real_data.py`: download and prepare 9 real medical datasets (UCI/PhysioNet/GitHub) + 2 synthetic generators.

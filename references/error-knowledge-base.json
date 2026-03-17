@@ -1,7 +1,7 @@
 {
   "contract_version": "error_knowledge_base.v1",
   "description": "Self-improving error pattern database. Agents should append new entries when encountering novel error patterns.",
-  "last_updated": "2026-03-15",
+  "last_updated": "2026-03-17",
   "categories": {
     "data": "Data loading, splitting, format issues",
     "leakage": "Any form of data leakage detection",
@@ -24,7 +24,10 @@
       "prevention": "Always match error codes to the specific artifact being parsed, not a related artifact",
       "category": "gate",
       "severity": "ERROR",
-      "affected_files": ["scripts/request_contract_gate.py", "scripts/feature_engineering_audit_gate.py"],
+      "affected_files": [
+        "scripts/request_contract_gate.py",
+        "scripts/feature_engineering_audit_gate.py"
+      ],
       "first_seen": "2025-07",
       "resolved": true
     },
@@ -37,7 +40,9 @@
       "prevention": "Never hard-code placeholder CI values; use null with explicit note when CI is not computed",
       "category": "statistical",
       "severity": "WARNING",
-      "affected_files": ["scripts/train_select_evaluate.py"],
+      "affected_files": [
+        "scripts/train_select_evaluate.py"
+      ],
       "first_seen": "2025-07",
       "resolved": true
     },
@@ -50,7 +55,9 @@
       "prevention": "All to_float implementations must include isfinite guard. Template: if not math.isfinite(v): return None",
       "category": "gate",
       "severity": "ERROR",
-      "affected_files": ["scripts/feature_engineering_audit_gate.py"],
+      "affected_files": [
+        "scripts/feature_engineering_audit_gate.py"
+      ],
       "first_seen": "2025-07",
       "resolved": true
     },
@@ -63,7 +70,11 @@
       "prevention": "All gate finish() must use the pattern: bool(failures) or (args.strict and bool(warnings))",
       "category": "gate",
       "severity": "CRITICAL",
-      "affected_files": ["scripts/generalization_gap_gate.py", "scripts/robustness_gate.py", "scripts/seed_stability_gate.py"],
+      "affected_files": [
+        "scripts/generalization_gap_gate.py",
+        "scripts/robustness_gate.py",
+        "scripts/seed_stability_gate.py"
+      ],
       "first_seen": "2025-07",
       "resolved": true
     },
@@ -76,7 +87,9 @@
       "prevention": "In any loop performing repeated random sampling, ensure random_state varies with iteration index",
       "category": "model",
       "severity": "WARNING",
-      "affected_files": ["scripts/train_select_evaluate.py"],
+      "affected_files": [
+        "scripts/train_select_evaluate.py"
+      ],
       "first_seen": "2025-07",
       "resolved": true
     },
@@ -89,7 +102,9 @@
       "prevention": "For small datasets, use at least balanced preset (10 families). Check env_doctor for backend availability.",
       "category": "model",
       "severity": "ERROR",
-      "affected_files": ["scripts/train_select_evaluate.py"],
+      "affected_files": [
+        "scripts/train_select_evaluate.py"
+      ],
       "first_seen": "2025-06",
       "resolved": true
     },
@@ -102,7 +117,10 @@
       "prevention": "Before assigning NaN, ensure target column is float-compatible. Use pd.array with nullable integer dtype if needed.",
       "category": "data",
       "severity": "ERROR",
-      "affected_files": ["scripts/train_select_evaluate.py", "scripts/split_data.py"],
+      "affected_files": [
+        "scripts/train_select_evaluate.py",
+        "scripts/split_data.py"
+      ],
       "first_seen": "2025-05",
       "resolved": true
     },
@@ -115,7 +133,9 @@
       "prevention": "For datasets >5000 rows: use adaptive bootstrap (auto-enabled), limit to balanced preset, set --n-jobs min(4, cpu_count)",
       "category": "model",
       "severity": "WARNING",
-      "affected_files": ["scripts/train_select_evaluate.py"],
+      "affected_files": [
+        "scripts/train_select_evaluate.py"
+      ],
       "first_seen": "2025-06",
       "resolved": true
     },
@@ -128,7 +148,9 @@
       "prevention": "Always check event rates per split after splitting. Use split_data.py which auto-warns on prevalence shift.",
       "category": "data",
       "severity": "WARNING",
-      "affected_files": ["scripts/split_data.py"],
+      "affected_files": [
+        "scripts/split_data.py"
+      ],
       "first_seen": "2025-06",
       "resolved": true
     },
@@ -141,7 +163,10 @@
       "prevention": "Use mlgg onboarding flow which handles key generation in step 6",
       "category": "attestation",
       "severity": "ERROR",
-      "affected_files": ["scripts/execution_attestation_gate.py", "scripts/generate_execution_attestation.py"],
+      "affected_files": [
+        "scripts/execution_attestation_gate.py",
+        "scripts/generate_execution_attestation.py"
+      ],
       "first_seen": "2025-07",
       "resolved": true
     },
@@ -154,7 +179,10 @@
       "prevention": "After first successful run, always save manifest as baseline for subsequent runs",
       "category": "config",
       "severity": "ERROR",
-      "affected_files": ["scripts/run_strict_pipeline.py", "scripts/run_productized_workflow.py"],
+      "affected_files": [
+        "scripts/run_strict_pipeline.py",
+        "scripts/run_productized_workflow.py"
+      ],
       "first_seen": "2025-06",
       "resolved": true
     },
@@ -167,7 +195,10 @@
       "prevention": "Use consistent metric naming. For publication-grade, primary_metric must be pr_auc.",
       "category": "config",
       "severity": "ERROR",
-      "affected_files": ["scripts/evaluation_quality_gate.py", "scripts/metric_consistency_gate.py"],
+      "affected_files": [
+        "scripts/evaluation_quality_gate.py",
+        "scripts/metric_consistency_gate.py"
+      ],
       "first_seen": "2025-08",
       "resolved": true
     },
@@ -180,7 +211,9 @@
       "prevention": "Use covariate_shift_gate.py early in pipeline. For temporal data, ensure splits respect temporal ordering.",
       "category": "leakage",
       "severity": "WARNING",
-      "affected_files": ["scripts/covariate_shift_gate.py"],
+      "affected_files": [
+        "scripts/covariate_shift_gate.py"
+      ],
       "first_seen": "2025-08",
       "resolved": true
     },
@@ -193,7 +226,10 @@
       "prevention": "Include external cohort early in development cycle. Check distribution overlap before expecting good transport.",
       "category": "model",
       "severity": "ERROR",
-      "affected_files": ["scripts/external_validation_gate.py", "scripts/distribution_generalization_gate.py"],
+      "affected_files": [
+        "scripts/external_validation_gate.py",
+        "scripts/distribution_generalization_gate.py"
+      ],
       "first_seen": "2025-09",
       "resolved": true
     },
@@ -206,7 +242,9 @@
       "prevention": "Always enable calibration. Check calibration plots. For tree-based models, isotonic often works better.",
       "category": "statistical",
       "severity": "ERROR",
-      "affected_files": ["scripts/calibration_dca_gate.py"],
+      "affected_files": [
+        "scripts/calibration_dca_gate.py"
+      ],
       "first_seen": "2025-09",
       "resolved": true
     },
@@ -219,7 +257,9 @@
       "prevention": "Any metric computed in training pipeline should have a corresponding gate that validates it against fail-closed thresholds",
       "category": "gate",
       "severity": "CRITICAL",
-      "affected_files": ["scripts/fairness_equity_gate.py"],
+      "affected_files": [
+        "scripts/fairness_equity_gate.py"
+      ],
       "first_seen": "2026-03",
       "resolved": true
     },
@@ -232,7 +272,9 @@
       "prevention": "All quantitative adequacy metrics should have corresponding fail-closed gates, not just informational reporting",
       "category": "statistical",
       "severity": "ERROR",
-      "affected_files": ["scripts/sample_size_gate.py"],
+      "affected_files": [
+        "scripts/sample_size_gate.py"
+      ],
       "first_seen": "2026-03",
       "resolved": true
     },
@@ -245,7 +287,10 @@
       "prevention": "Track guideline version updates (TRIPOD+AI BMJ 2024;385:e078378) and update gate validation items accordingly",
       "category": "gate",
       "severity": "ERROR",
-      "affected_files": ["scripts/reporting_bias_gate.py", "references/reporting-bias-checklist.example.json"],
+      "affected_files": [
+        "scripts/reporting_bias_gate.py",
+        "references/reporting-bias-checklist.example.json"
+      ],
       "first_seen": "2026-03",
       "resolved": true
     },
@@ -258,7 +303,9 @@
       "prevention": "When implementing one model comparison metric (NRI), also implement its companion metrics (IDI, DeLong) for completeness",
       "category": "statistical",
       "severity": "WARNING",
-      "affected_files": ["scripts/train_select_evaluate.py"],
+      "affected_files": [
+        "scripts/train_select_evaluate.py"
+      ],
       "first_seen": "2026-03",
       "resolved": true
     },
@@ -271,7 +318,9 @@
       "prevention": "Track journal requirements for interpretability. SHAP is becoming standard for tree-based and linear models.",
       "category": "model",
       "severity": "INFO",
-      "affected_files": ["scripts/train_select_evaluate.py"],
+      "affected_files": [
+        "scripts/train_select_evaluate.py"
+      ],
       "first_seen": "2026-03",
       "resolved": false,
       "planned_fix": "Add optional shap_explainability_gate as non-blocking INFO gate when shap package is installed; compute TreeExplainer for tree-based models, LinearExplainer for linear models, and KernelExplainer as fallback"
@@ -285,7 +334,9 @@
       "prevention": "Distinguish between policy enforcement (is the right method used?) and mechanism validation (is the assumption justified?)",
       "category": "statistical",
       "severity": "INFO",
-      "affected_files": ["scripts/missingness_policy_gate.py"],
+      "affected_files": [
+        "scripts/missingness_policy_gate.py"
+      ],
       "first_seen": "2026-03",
       "resolved": false,
       "planned_fix": "Add Little's MCAR test as optional check in missingness_policy_gate via --mcar-test flag; add MNAR sensitivity analysis via --sensitivity-analysis flag using pattern-mixture models"
@@ -299,7 +350,9 @@
       "prevention": "Monitor BMJ/EQUATOR Network for guideline updates annually",
       "category": "gate",
       "severity": "WARNING",
-      "affected_files": ["scripts/reporting_bias_gate.py"],
+      "affected_files": [
+        "scripts/reporting_bias_gate.py"
+      ],
       "first_seen": "2026-03",
       "resolved": false,
       "planned_fix": "Update reporting_bias_gate.py to implement full 22-item PROBAST+AI-2025 checklist (16 development + 18 evaluation signalling questions per Moons et al. BMJ 2025) replacing the current 6-item PROBAST-2019 core domain check"
@@ -313,7 +366,10 @@
       "prevention": "When using ICD/diagnosis codes as predictors, verify they were assigned BEFORE the prediction time point (t_index), not during the same encounter.",
       "category": "leakage",
       "severity": "CRITICAL",
-      "affected_files": ["scripts/definition_variable_guard.py", "scripts/feature_lineage_gate.py"],
+      "affected_files": [
+        "scripts/definition_variable_guard.py",
+        "scripts/feature_lineage_gate.py"
+      ],
       "first_seen": "2026-03",
       "resolved": true
     },
@@ -326,7 +382,9 @@
       "prevention": "Use batch-manifest.example.json as template. Validate JSON before running batch review.",
       "category": "config",
       "severity": "ERROR",
-      "affected_files": ["scripts/batch_journal_review.py"],
+      "affected_files": [
+        "scripts/batch_journal_review.py"
+      ],
       "first_seen": "2026-03",
       "resolved": true
     },
@@ -339,7 +397,9 @@
       "prevention": "Validate project paths before running batch review. Use absolute paths in manifest.",
       "category": "config",
       "severity": "ERROR",
-      "affected_files": ["scripts/batch_journal_review.py"],
+      "affected_files": [
+        "scripts/batch_journal_review.py"
+      ],
       "first_seen": "2026-03",
       "resolved": true
     },
@@ -352,7 +412,10 @@
       "prevention": "Always specify --entity-col when patients have multiple rows. split_data.py defaults to entity-level splitting when entity column is provided.",
       "category": "data",
       "severity": "CRITICAL",
-      "affected_files": ["scripts/split_data.py", "scripts/split_protocol_gate.py"],
+      "affected_files": [
+        "scripts/split_data.py",
+        "scripts/split_protocol_gate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "split_protocol_gate"
@@ -366,7 +429,10 @@
       "prevention": "Never edit split CSV files manually. Always regenerate splits from the source dataset using split_data.py. Run leakage_gate immediately after any split operation.",
       "category": "leakage",
       "severity": "CRITICAL",
-      "affected_files": ["scripts/split_data.py", "scripts/leakage_gate.py"],
+      "affected_files": [
+        "scripts/split_data.py",
+        "scripts/leakage_gate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "leakage_gate"
@@ -380,7 +446,10 @@
       "prevention": "Always specify at least one clinically relevant subgroup column. Define subgroup_columns in request.json and ensure train_select_evaluate.py reads it.",
       "category": "model",
       "severity": "ERROR",
-      "affected_files": ["scripts/train_select_evaluate.py", "scripts/clinical_metrics_gate.py"],
+      "affected_files": [
+        "scripts/train_select_evaluate.py",
+        "scripts/clinical_metrics_gate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "clinical_metrics_gate"
@@ -394,7 +463,10 @@
       "prevention": "Run gates in the canonical pipeline order via mlgg.py workflow. Never skip gates. Publication declaration is only valid when all 31 gates pass in the same pipeline run.",
       "category": "gate",
       "severity": "CRITICAL",
-      "affected_files": ["scripts/publication_gate.py", "scripts/run_strict_pipeline.py"],
+      "affected_files": [
+        "scripts/publication_gate.py",
+        "scripts/run_strict_pipeline.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "publication_gate"
@@ -408,7 +480,9 @@
       "prevention": "Run self_critique_gate after all other gates pass as a final pre-submission quality check. Use its dimension scores as a checklist for top-journal readiness.",
       "category": "gate",
       "severity": "WARNING",
-      "affected_files": ["scripts/self_critique_gate.py"],
+      "affected_files": [
+        "scripts/self_critique_gate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "self_critique_gate"
@@ -422,7 +496,10 @@
       "prevention": "Treat signed model artifacts as immutable. Never overwrite a signed model file. If re-training is needed, increment the model version and create a new signed artifact.",
       "category": "security",
       "severity": "CRITICAL",
-      "affected_files": ["scripts/security_audit_gate.py", "scripts/generate_execution_attestation.py"],
+      "affected_files": [
+        "scripts/security_audit_gate.py",
+        "scripts/generate_execution_attestation.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "security_audit_gate"
@@ -436,7 +513,9 @@
       "prevention": "Seal the manifest as the absolute final step of the pipeline run. Do not modify any gate report files after pipeline completion. Use --allow-update only during active iterative development.",
       "category": "attestation",
       "severity": "ERROR",
-      "affected_files": ["scripts/manifest_lock.py"],
+      "affected_files": [
+        "scripts/manifest_lock.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "manifest_lock"
@@ -450,7 +529,10 @@
       "prevention": "Use nested cross-validation for hyperparameter tuning. The test set must be touched exactly once for final evaluation. train_select_evaluate.py enforces this separation by design.",
       "category": "leakage",
       "severity": "CRITICAL",
-      "affected_files": ["scripts/tuning_leakage_gate.py", "scripts/train_select_evaluate.py"],
+      "affected_files": [
+        "scripts/tuning_leakage_gate.py",
+        "scripts/train_select_evaluate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "tuning_leakage_gate"
@@ -464,7 +546,10 @@
       "prevention": "Use the balanced or comprehensive preset to ensure at least 5+ model families. Run mlgg.py doctor to check available backends before starting training.",
       "category": "model",
       "severity": "ERROR",
-      "affected_files": ["scripts/model_selection_audit_gate.py", "scripts/train_select_evaluate.py"],
+      "affected_files": [
+        "scripts/model_selection_audit_gate.py",
+        "scripts/train_select_evaluate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "model_selection_audit_gate"
@@ -478,7 +563,9 @@
       "prevention": "Run sample_size_gate before training to confirm adequate statistical power. A non-significant permutation test should be reported as a finding, not suppressed.",
       "category": "statistical",
       "severity": "ERROR",
-      "affected_files": ["scripts/permutation_significance_gate.py"],
+      "affected_files": [
+        "scripts/permutation_significance_gate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "permutation_significance_gate"
@@ -492,7 +579,10 @@
       "prevention": "Apply the isfinite guard to all CI values before writing evaluation_report.json. Fail loudly if CI computation yields NaN instead of silently storing it.",
       "category": "statistical",
       "severity": "ERROR",
-      "affected_files": ["scripts/train_select_evaluate.py", "scripts/ci_matrix_gate.py"],
+      "affected_files": [
+        "scripts/train_select_evaluate.py",
+        "scripts/ci_matrix_gate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "ci_matrix_gate"
@@ -506,7 +596,10 @@
       "prevention": "train_select_evaluate.py should read imbalance_strategy directly from request.json rather than accepting it as a separate CLI argument, eliminating the mismatch risk.",
       "category": "config",
       "severity": "ERROR",
-      "affected_files": ["scripts/train_select_evaluate.py", "scripts/imbalance_policy_gate.py"],
+      "affected_files": [
+        "scripts/train_select_evaluate.py",
+        "scripts/imbalance_policy_gate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "imbalance_policy_gate"
@@ -520,7 +613,10 @@
       "prevention": "Always call np.random.seed(seed) and torch.manual_seed(seed) / tf.random.set_seed(seed) before model.predict(). Treat prediction CSVs and model artifacts as an inseparable pair.",
       "category": "attestation",
       "severity": "ERROR",
-      "affected_files": ["scripts/prediction_replay_gate.py", "scripts/train_select_evaluate.py"],
+      "affected_files": [
+        "scripts/prediction_replay_gate.py",
+        "scripts/train_select_evaluate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "prediction_replay_gate"
@@ -534,7 +630,10 @@
       "prevention": "Always wrap final model in CalibratedClassifierCV before writing to artifact. Treat calibration as a required step, not optional, for any clinical deployment.",
       "category": "statistical",
       "severity": "ERROR",
-      "affected_files": ["scripts/calibration_dca_gate.py", "scripts/train_select_evaluate.py"],
+      "affected_files": [
+        "scripts/calibration_dca_gate.py",
+        "scripts/train_select_evaluate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "calibration_dca_gate"
@@ -548,7 +647,9 @@
       "prevention": "Run covariate_shift_gate immediately after split_data.py. Temporal splits are inherently shift-prone — always report this as a study limitation.",
       "category": "data",
       "severity": "WARNING",
-      "affected_files": ["scripts/covariate_shift_gate.py"],
+      "affected_files": [
+        "scripts/covariate_shift_gate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "covariate_shift_gate"
@@ -562,7 +663,9 @@
       "prevention": "Apply definition_variable_guard as the first gate after feature engineering. Maintain a blocked-features list in request.json for any feature that is definitionally linked to the outcome.",
       "category": "leakage",
       "severity": "CRITICAL",
-      "affected_files": ["scripts/definition_variable_guard.py"],
+      "affected_files": [
+        "scripts/definition_variable_guard.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "definition_variable_guard"
@@ -576,7 +679,9 @@
       "prevention": "Train on multi-site data when possible. Document deployment context clearly. Run distribution_generalization_gate on any new deployment site before clinical use.",
       "category": "data",
       "severity": "ERROR",
-      "affected_files": ["scripts/distribution_generalization_gate.py"],
+      "affected_files": [
+        "scripts/distribution_generalization_gate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": false,
       "gate": "distribution_generalization_gate"
@@ -590,7 +695,10 @@
       "prevention": "Use train_select_evaluate.py default configuration which includes all required evaluation components. Do not override --skip-calibration or --skip-dca in production runs.",
       "category": "model",
       "severity": "ERROR",
-      "affected_files": ["scripts/evaluation_quality_gate.py", "scripts/train_select_evaluate.py"],
+      "affected_files": [
+        "scripts/evaluation_quality_gate.py",
+        "scripts/train_select_evaluate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "evaluation_quality_gate"
@@ -604,7 +712,9 @@
       "prevention": "Store MLGG_HMAC_SECRET in a CI/CD secret, not in code or environment files. Treat execution receipts as write-once artifacts sealed at pipeline end.",
       "category": "attestation",
       "severity": "CRITICAL",
-      "affected_files": ["scripts/execution_attestation_gate.py"],
+      "affected_files": [
+        "scripts/execution_attestation_gate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "execution_attestation_gate"
@@ -618,7 +728,9 @@
       "prevention": "Plan external validation cohort size during study design. Run sample_size_gate on the external cohort before external_validation_gate.",
       "category": "data",
       "severity": "ERROR",
-      "affected_files": ["scripts/external_validation_gate.py"],
+      "affected_files": [
+        "scripts/external_validation_gate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": false,
       "gate": "external_validation_gate"
@@ -632,7 +744,9 @@
       "prevention": "Ensure training data is balanced across protected subgroups. Audit features for proxy variables (e.g., zip code for race). Run fairness_equity_gate during model selection, not just at the end.",
       "category": "model",
       "severity": "ERROR",
-      "affected_files": ["scripts/fairness_equity_gate.py"],
+      "affected_files": [
+        "scripts/fairness_equity_gate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": false,
       "gate": "fairness_equity_gate"
@@ -646,7 +760,9 @@
       "prevention": "Feature engineering scripts should always generate an audit report as a side effect. Add feature_engineering_audit_gate to pre-training CI checks.",
       "category": "gate",
       "severity": "ERROR",
-      "affected_files": ["scripts/feature_engineering_audit_gate.py"],
+      "affected_files": [
+        "scripts/feature_engineering_audit_gate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "feature_engineering_audit_gate"
@@ -660,7 +776,9 @@
       "prevention": "Feature lineage tracking must be acyclic (DAG). Run feature_lineage_gate as part of feature engineering review, not just pre-training.",
       "category": "data",
       "severity": "CRITICAL",
-      "affected_files": ["scripts/feature_lineage_gate.py"],
+      "affected_files": [
+        "scripts/feature_lineage_gate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "feature_lineage_gate"
@@ -674,7 +792,9 @@
       "prevention": "Use generalization_gap_gate as an early stopping criterion during model selection. A gap > 0.1 should trigger re-evaluation of model complexity.",
       "category": "model",
       "severity": "ERROR",
-      "affected_files": ["scripts/generalization_gap_gate.py"],
+      "affected_files": [
+        "scripts/generalization_gap_gate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": false,
       "gate": "generalization_gap_gate"
@@ -688,7 +808,10 @@
       "prevention": "All threshold-dependent metrics must be derived from a single confusion matrix computation. Avoid computing sensitivity, specificity, PPV, NPV independently.",
       "category": "statistical",
       "severity": "ERROR",
-      "affected_files": ["scripts/metric_consistency_gate.py", "scripts/train_select_evaluate.py"],
+      "affected_files": [
+        "scripts/metric_consistency_gate.py",
+        "scripts/train_select_evaluate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "metric_consistency_gate"
@@ -702,7 +825,9 @@
       "prevention": "Always test missingness mechanism before choosing imputation strategy. Document the chosen imputation method and its justification per TRIPOD+AI Item 8.",
       "category": "data",
       "severity": "WARNING",
-      "affected_files": ["scripts/missingness_policy_gate.py"],
+      "affected_files": [
+        "scripts/missingness_policy_gate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": false,
       "planned_fix": "Add Little's MCAR test as optional check in missingness_policy_gate via --mcar-test flag",
@@ -717,7 +842,9 @@
       "prevention": "Complete the reporting checklist in parallel with manuscript writing, not as a post-hoc exercise. Assign each TRIPOD+AI item to a manuscript section during the outline phase.",
       "category": "gate",
       "severity": "ERROR",
-      "affected_files": ["scripts/reporting_bias_gate.py"],
+      "affected_files": [
+        "scripts/reporting_bias_gate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": false,
       "gate": "reporting_bias_gate"
@@ -731,7 +858,10 @@
       "prevention": "Use mlgg.py onboarding to generate a valid request.json template. Run schema_preflight.py as part of the init step before any gate execution.",
       "category": "config",
       "severity": "ERROR",
-      "affected_files": ["scripts/request_contract_gate.py", "scripts/schema_preflight.py"],
+      "affected_files": [
+        "scripts/request_contract_gate.py",
+        "scripts/schema_preflight.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": true,
       "gate": "request_contract_gate"
@@ -745,7 +875,9 @@
       "prevention": "Run robustness_gate as part of model selection. Set minimum training set size requirements that ensure stable convergence across random seeds.",
       "category": "statistical",
       "severity": "WARNING",
-      "affected_files": ["scripts/robustness_gate.py"],
+      "affected_files": [
+        "scripts/robustness_gate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": false,
       "gate": "robustness_gate"
@@ -759,7 +891,9 @@
       "prevention": "Run sample_size_gate before feature engineering finalization. Apply the rule: max_predictors = floor(n_events / 10) as a hard ceiling on feature count.",
       "category": "data",
       "severity": "ERROR",
-      "affected_files": ["scripts/sample_size_gate.py"],
+      "affected_files": [
+        "scripts/sample_size_gate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": false,
       "gate": "sample_size_gate"
@@ -773,16 +907,126 @@
       "prevention": "Test seed stability on >=10 seeds before finalizing model selection. Report seed-averaged performance with SD as the primary performance metric.",
       "category": "statistical",
       "severity": "ERROR",
-      "affected_files": ["scripts/seed_stability_gate.py"],
+      "affected_files": [
+        "scripts/seed_stability_gate.py"
+      ],
       "first_seen": "2026-03-15",
       "resolved": false,
       "gate": "seed_stability_gate"
+    },
+    {
+      "id": "ERR-057",
+      "code": "lint_classify_var_substring_false_positive",
+      "symptom": "mlgg-lint classify_var_name misclassifies 'constrain', 'strain', 'contest', 'invalid' as train/test/valid data variables",
+      "root_cause": "Variable name classifier used substring matching ('train' in name) which matches inside unrelated words",
+      "fix": "Replace substring matching with underscore-delimited word-boundary matching: split on '_' and check if any part exactly matches the hint word",
+      "prevention": "Always use word-boundary-aware matching for variable name heuristics. Test with adversarial names like 'constrain', 'attest', 'invalid'",
+      "category": "pipeline",
+      "severity": "WARNING",
+      "affected_files": [
+        "plugin/mlgg_lint/ast_utils.py"
+      ],
+      "first_seen": "2026-03-17",
+      "resolved": true,
+      "gate": "mlgg-lint"
+    },
+    {
+      "id": "ERR-058",
+      "code": "lint_chained_call_evasion",
+      "symptom": "mlgg-lint R003 fails to detect SMOTE().fit_resample(X_test) — chained constructor+method call",
+      "root_cause": "is_method_call only recognized ast.Name as receiver; chained Call nodes (SMOTE().method()) returned None",
+      "fix": "Extended is_method_call to return '<expr>' when receiver is an ast.Call node",
+      "prevention": "Test rules with chained call patterns (Constructor().method()) not just variable.method()",
+      "category": "leakage",
+      "severity": "ERROR",
+      "affected_files": [
+        "plugin/mlgg_lint/ast_utils.py"
+      ],
+      "first_seen": "2026-03-17",
+      "resolved": true,
+      "gate": "mlgg-lint"
+    },
+    {
+      "id": "ERR-059",
+      "code": "lint_keyword_arg_evasion",
+      "symptom": "mlgg-lint R002 fails to detect scaler.fit(X=X_test) — keyword argument instead of positional",
+      "root_cause": "get_call_first_arg_name only checked positional args (node.args), not keyword args (node.keywords)",
+      "fix": "Added fallback to first keyword arg value when no positional args present",
+      "prevention": "Always check both positional and keyword arguments in call-based rules. Test with keyword-only patterns",
+      "category": "leakage",
+      "severity": "ERROR",
+      "affected_files": [
+        "plugin/mlgg_lint/ast_utils.py"
+      ],
+      "first_seen": "2026-03-17",
+      "resolved": true,
+      "gate": "mlgg-lint"
+    },
+    {
+      "id": "ERR-060",
+      "code": "lint_safe_name_bypass",
+      "symptom": "mlgg-lint R002 fails to flag StandardScaler named 'model' because 'model' was in safe-fit-names exclusion list",
+      "root_cause": "R002 safe-name list was too broad (included model/clf/classifier/estimator) — users may name a preprocessor with any of these names",
+      "fix": "Reduced safe-name list to Pipeline-specific names only (pipe, pipeline). Added Pipeline variable tracking via visit_Assign",
+      "prevention": "Safe-name exclusion lists should be minimal and specific. Prefer type-tracking (Pipeline assignment detection) over name-based exclusion",
+      "category": "leakage",
+      "severity": "ERROR",
+      "affected_files": [
+        "plugin/mlgg_lint/rules/r002_scaler_on_test.py"
+      ],
+      "first_seen": "2026-03-17",
+      "resolved": true,
+      "gate": "mlgg-lint"
+    },
+    {
+      "id": "ERR-061",
+      "code": "lint_reassign_stale_drop_derived",
+      "symptom": "mlgg-lint R007 fails to flag target leakage when X is reassigned from df.drop() to df[cols] — stale drop-derived status",
+      "root_cause": "R007 visit_Assign did not clear _drop_derived on re-assignment, so X kept its safe 'produced by .drop()' status even after being overwritten",
+      "fix": "Added discard(var_name) from _drop_derived at the start of every assignment before checking for new .drop() calls",
+      "prevention": "Any variable-tracking rule must handle re-assignment by clearing stale state before recording new state",
+      "category": "leakage",
+      "severity": "ERROR",
+      "affected_files": [
+        "plugin/mlgg_lint/rules/r007_target_as_feature.py"
+      ],
+      "first_seen": "2026-03-17",
+      "resolved": true,
+      "gate": "mlgg-lint"
+    },
+    {
+      "id": "ERR-062",
+      "code": "lint_absolute_path_leakage",
+      "symptom": "mlgg-lint SARIF/JSON output contains absolute filesystem paths (e.g., /Users/xxx/...) exposing user directory structure",
+      "root_cause": "engine.py used str(file_path) directly which preserves absolute paths",
+      "fix": "Added _display_path() that converts to relative path via Path.relative_to(cwd) with fallback to absolute",
+      "prevention": "All user-facing output should use relative paths. Add a _display_path helper and use it consistently in all Location objects",
+      "category": "security",
+      "severity": "WARNING",
+      "affected_files": [
+        "plugin/mlgg_lint/engine.py"
+      ],
+      "first_seen": "2026-03-17",
+      "resolved": true,
+      "gate": "mlgg-lint"
     }
   ],
   "agent_instructions": {
     "on_new_error": "When encountering a new error not in this database: 1) Diagnose root cause 2) Apply fix 3) Verify fix works 4) Append new entry to this file with next sequential ID 5) Commit with message 'knowledge-base: add ERR-NNN <brief description>'",
     "on_known_error": "When encountering a known error: 1) Look up the entry 2) Apply the documented fix 3) If fix doesn't work, update the entry with additional context 4) If the error has a new variant, add a sub-entry",
     "id_format": "ERR-NNN where NNN is zero-padded sequential number",
-    "required_fields": ["id", "code", "symptom", "root_cause", "fix", "prevention", "category", "severity", "affected_files", "first_seen", "resolved"]
+    "required_fields": [
+      "id",
+      "code",
+      "symptom",
+      "root_cause",
+      "fix",
+      "prevention",
+      "category",
+      "severity",
+      "affected_files",
+      "first_seen",
+      "resolved"
+    ]
   }
 }

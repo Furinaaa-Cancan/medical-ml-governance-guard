@@ -8,6 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **mlgg-lint Static Analysis Plugin** (`plugin/`)
+  - 10 AST-based rules (R001–R010) detecting data leakage, improper preprocessing, and evaluation malpractice
+  - CLI: `python3 scripts/mlgg.py lint check <file.py>` with text/JSON/SARIF output
+  - VS Code extension skeleton (SARIF-based diagnostics on save/open)
+  - `# noqa: R001` inline suppression and `.mlgg-lint.toml` config auto-discovery
+  - Pre-commit hook support (`.pre-commit-hooks.yaml`)
+  - Detection: keyword args, chained calls, DataFrame origin tracking, Pipeline exclusion, word-boundary variable classification
+  - Security: 16 MB file limit, relative path output, ANSI strip, symlink skip
+  - 57 tests, 6 rounds of strict review (41 bugs/issues found and fixed)
+
 - **4 New Model Families** (all sklearn built-in, no extra dependencies)
   - K-Nearest Neighbors (KNN) — 20 hyperparameter configs
   - Gaussian Naive Bayes — 5 configs
