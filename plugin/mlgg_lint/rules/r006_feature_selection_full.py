@@ -50,12 +50,4 @@ class FeatureSelectionFull(BaseRule):
                     f"Feature selection on full data leaks test information.",
                 )
 
-        # Detect .fit() on feature selectors before split
-        if fqn.endswith(".fit") or fqn.endswith(".fit_transform"):
-            if not self.taint.has_split_occurred(node.lineno):
-                if self.taint.split_line is not None:
-                    # We can't easily tell if it's a feature selector object,
-                    # but R001 already catches generic fit-before-split.
-                    pass
-
         self.generic_visit(node)

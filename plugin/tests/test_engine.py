@@ -5,19 +5,14 @@ from pathlib import Path
 from mlgg_lint.config import LintConfig
 from mlgg_lint.engine import analyze_file, analyze_paths
 
-from pathlib import Path as _P
-
-from mlgg_lint.engine import _build_taint_tracker
-from mlgg_lint.ast_utils import build_import_map
-import ast
-
 SAMPLES_DIR = Path(__file__).parent / "samples"
 
 
 def check_sample(name, config=None):
-    from mlgg_lint.engine import analyze_file
     return analyze_file(SAMPLES_DIR / name, config=config or LintConfig())
 
+
+# ── R001: fit before split ────────────────────────────────────────────────────
 
 def test_r001_bad_has_diagnostics():
     diags = check_sample("r001_bad.py")
@@ -32,6 +27,8 @@ def test_r001_good_no_r001():
     assert len(r001) == 0
 
 
+# ── R002: scaler fit on test ──────────────────────────────────────────────────
+
 def test_r002_bad_has_diagnostics():
     diags = check_sample("r002_bad.py")
     r002 = [d for d in diags if d.rule_id == "R002"]
@@ -45,6 +42,8 @@ def test_r002_good_no_r002():
     assert len(r002) == 0
 
 
+# ── R003: SMOTE on test ──────────────────────────────────────────────────────
+
 def test_r003_bad_has_diagnostics():
     diags = check_sample("r003_bad.py")
     r003 = [d for d in diags if d.rule_id == "R003"]
@@ -57,6 +56,8 @@ def test_r003_good_no_r003():
     assert len(r003) == 0
 
 
+# ── R004: split without group ─────────────────────────────────────────────────
+
 def test_r004_bad_has_diagnostics():
     diags = check_sample("r004_bad.py")
     r004 = [d for d in diags if d.rule_id == "R004"]
@@ -64,11 +65,52 @@ def test_r004_bad_has_diagnostics():
     assert "group" in r004[0].message.lower()
 
 
+# ── R005: threshold on test ───────────────────────────────────────────────────
+
+def test_r005_bad_has_diagnostics():
+    diags = check_sample("r005_bad.py")
+    r005 = [d for d in diags if d.rule_id == "R005"]
+    assert len(r005) >= 1
+    assert "test" in r005[0].message.lower()
+
+
+def test_r005_good_no_r005():
+    """Threshold selection on validation data should NOT be flagged."""
+    diags = check_sample("r005_good.py")
+    r005 = [d for d in diags if d.rule_id == "R005"]
+    assert len(r005) == 0
+
+
+# ── R006: feature selection on full ───────────────────────────────────────────
+
+def test_r006_bad_has_diagnostics():
+    diags = check_sample("r006_bad.py")
+    r006 = [d for d in diags if d.rule_id == "R006"]
+    assert len(r006) >= 1
+    assert "before" in r006[0].message.lower() or "split" in r006[0].message.lower()
+
+
+def test_r006_good_no_r006():
+    diags = check_sample("r006_good.py")
+    r006 = [d for d in diags if d.rule_id == "R006"]
+    assert len(r006) == 0
+
+
+# ── R007: target as feature ──────────────────────────────────────────────────
+
 def test_r007_bad_has_diagnostics():
     diags = check_sample("r007_bad.py")
     r007 = [d for d in diags if d.rule_id == "R007"]
     assert len(r007) >= 1
 
+
+def test_r007_good_no_r007():
+    diags = check_sample("r007_good.py")
+    r007 = [d for d in diags if d.rule_id == "R007"]
+    assert len(r007) == 0
+
+
+# ── R008: temporal split shuffle ──────────────────────────────────────────────
 
 def test_r008_bad_has_diagnostics():
     diags = check_sample("r008_bad.py")
@@ -83,12 +125,37 @@ def test_r008_good_no_r008():
     assert len(r008) == 0
 
 
+# ── R009: no confidence intervals ─────────────────────────────────────────────
+
+def test_r009_bad_has_diagnostics():
+    diags = check_sample("r009_bad.py")
+    r009 = [d for d in diags if d.rule_id == "R009"]
+    assert len(r009) >= 1
+    assert "confidence" in r009[0].message.lower() or "ci" in r009[0].message.lower()
+
+
+def test_r009_good_no_r009():
+    diags = check_sample("r009_good.py")
+    r009 = [d for d in diags if d.rule_id == "R009"]
+    assert len(r009) == 0
+
+
+# ── R010: train metric as final ──────────────────────────────────────────────
+
 def test_r010_bad_has_diagnostics():
     diags = check_sample("r010_bad.py")
     r010 = [d for d in diags if d.rule_id == "R010"]
     assert len(r010) >= 1
     assert "train" in r010[0].message.lower()
 
+
+def test_r010_good_no_r010():
+    diags = check_sample("r010_good.py")
+    r010 = [d for d in diags if d.rule_id == "R010"]
+    assert len(r010) == 0
+
+
+# ── Engine features ──────────────────────────────────────────────────────────
 
 def test_disable_rule():
     config = LintConfig(disabled_rules={"R001"})
@@ -100,13 +167,11 @@ def test_disable_rule():
 def test_severity_threshold():
     config = LintConfig(severity_threshold="error")
     diags = check_sample("r008_bad.py", config=config)
-    # R008 is WARNING, should be filtered out
     r008 = [d for d in diags if d.rule_id == "R008"]
     assert len(r008) == 0
 
 
 def test_analyze_directory(tmp_path):
-    # Copy a sample to temp dir
     src = SAMPLES_DIR / "r001_bad.py"
     dst = tmp_path / "code.py"
     dst.write_text(src.read_text())
@@ -120,3 +185,52 @@ def test_syntax_error(tmp_path):
     diags = analyze_file(bad)
     assert len(diags) == 1
     assert diags[0].rule_id == "E000"
+
+
+def test_syntax_error_col_is_zero_based(tmp_path):
+    """F2: SyntaxError.offset is 1-based, we must convert to 0-based."""
+    bad = tmp_path / "col.py"
+    bad.write_text("x = (\n")
+    diags = analyze_file(bad)
+    assert len(diags) == 1
+    # col should be 0-based (not negative)
+    assert diags[0].location.col >= 0
+
+
+def test_oversized_file_rejected(tmp_path):
+    """F9: Files > 16 MB are rejected."""
+    from mlgg_lint.engine import _MAX_FILE_BYTES
+    big = tmp_path / "big.py"
+    big.write_text("x = 1\n")
+    # Fake a large file by checking the guard — we can't write 16MB easily,
+    # so we test the actual code path by monkeypatching
+    import mlgg_lint.engine as eng
+    original = eng._MAX_FILE_BYTES
+    try:
+        eng._MAX_FILE_BYTES = 5  # 5 bytes
+        diags = analyze_file(big)
+        assert len(diags) == 1
+        assert diags[0].rule_name == "file-too-large"
+    finally:
+        eng._MAX_FILE_BYTES = original
+
+
+def test_config_malformed_toml(tmp_path):
+    """F11: Malformed TOML structure doesn't crash."""
+    from mlgg_lint.config import LintConfig
+    cfg = LintConfig.from_dict({"mlgg-lint": "not a dict"})
+    assert cfg.severity_threshold == "info"  # defaults
+
+    cfg2 = LintConfig.from_dict({"mlgg-lint": {"rules": "not a dict"}})
+    assert len(cfg2.disabled_rules) == 0  # defaults
+
+
+def test_taint_heuristic_no_false_positive_on_template():
+    """F3: 'te' was removed — 'template' should NOT be classified as test."""
+    from mlgg_lint.ast_utils import classify_var_name
+    assert classify_var_name("template") is None
+    assert classify_var_name("matrix") is None
+    assert classify_var_name("state") is None
+    assert classify_var_name("X_test") == "test"
+    assert classify_var_name("y_train") == "train"
+    assert classify_var_name("X_valid") == "valid"

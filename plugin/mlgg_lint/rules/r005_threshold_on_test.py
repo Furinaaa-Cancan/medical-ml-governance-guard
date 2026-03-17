@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ast
 
-from mlgg_lint.ast_utils import call_name, get_call_first_arg_name, matches_any
+from mlgg_lint.ast_utils import call_name, classify_var_name, get_call_first_arg_name, matches_any
 from mlgg_lint.models import Severity
 from mlgg_lint.rules import register
 from mlgg_lint.rules.base import BaseRule
@@ -24,8 +24,8 @@ class ThresholdOnTest(BaseRule):
     severity = Severity.ERROR
     description = (
         "Threshold/cutoff selection performed using test data (via roc_curve or "
-        "precision_recall_curve). Thresholds must be selected on training or "
-        "validation data only."
+        "precision_recall_curve). Thresholds should be selected on training or "
+        "validation data, not on the test set."
     )
     remediation = (
         "Select the operating threshold on the validation set, not the test set. "
@@ -40,21 +40,20 @@ class ThresholdOnTest(BaseRule):
             return
 
         arg_name = get_call_first_arg_name(node)
-        if arg_name and self.taint.is_test_or_valid(arg_name):
-            # Check if the result is used for threshold selection
-            # (being assigned to something with "threshold" in name)
-            parent = self._find_assign_parent(node)
-            if parent:
-                self.report(
-                    node,
-                    f"`{fqn.rsplit('.', 1)[-1]}()` called with test/validation data "
-                    f"`{arg_name}`. If this is used to select an operating threshold, "
-                    f"it leaks test information into model decisions.",
-                )
-        self.generic_visit(node)
+        if not arg_name:
+            self.generic_visit(node)
+            return
 
-    @staticmethod
-    def _find_assign_parent(node: ast.Call) -> bool:
-        """Heuristic: we always flag — if roc_curve is called on test data,
-        the user is likely selecting thresholds from it."""
-        return True
+        # F5: Only flag test data, NOT validation (threshold selection on
+        # validation is the recommended practice).
+        taint = self.taint.get_taint(arg_name)
+        if taint is None:
+            taint = classify_var_name(arg_name)
+        if taint == "test":
+            self.report(
+                node,
+                f"`{fqn.rsplit('.', 1)[-1]}({arg_name})` — threshold/cutoff "
+                f"curve computed on test data. If used to select an operating "
+                f"threshold, this leaks test information into model decisions.",
+            )
+        self.generic_visit(node)

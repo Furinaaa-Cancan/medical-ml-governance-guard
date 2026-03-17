@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ast
 
-from mlgg_lint.ast_utils import call_name, get_call_first_arg_name, is_method_call, matches_any
+from mlgg_lint.ast_utils import get_call_first_arg_name, is_method_call
 from mlgg_lint.models import Severity
 from mlgg_lint.rules import register
 from mlgg_lint.rules.base import BaseRule

@@ -5,7 +5,7 @@ from __future__ import annotations
 import ast
 
 from mlgg_lint.ast_utils import call_name, matches_any
-from mlgg_lint.models import Severity
+from mlgg_lint.models import Diagnostic, Severity
 from mlgg_lint.rules import register
 from mlgg_lint.rules.base import BaseRule
 
@@ -55,7 +55,7 @@ class NoConfidenceIntervals(BaseRule):
             self._metric_calls.append(node)
         self.generic_visit(node)
 
-    def check(self, tree: ast.Module) -> list:
+    def check(self, tree: ast.Module) -> list[Diagnostic]:
         self.visit(tree)
         # Only flag if metrics are present but no CI indicators found
         if self._metric_calls and not self._has_ci:

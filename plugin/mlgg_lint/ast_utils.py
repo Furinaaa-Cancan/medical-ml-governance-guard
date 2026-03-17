@@ -101,9 +101,9 @@ def is_method_call(node: ast.Call, method_name: str) -> Optional[str]:
 
 # ── Variable taint tracking ──────────────────────────────────────────────────
 
-TRAIN_HINTS = {"train", "tr", "training"}
-TEST_HINTS = {"test", "te", "testing", "holdout"}
-VALID_HINTS = {"valid", "val", "validation", "dev"}
+TRAIN_HINTS = {"train", "training", "_train", "train_"}
+TEST_HINTS = {"test", "testing", "holdout", "_test", "test_"}
+VALID_HINTS = {"valid", "val_", "validation", "_valid", "valid_"}
 
 
 def classify_var_name(name: str) -> Optional[str]:
@@ -158,7 +158,13 @@ class TaintTracker:
 
     def is_test_or_valid(self, name: str) -> bool:
         t = self.get_taint(name)
-        return t in ("test", "valid")
+        if t in ("test", "valid"):
+            return True
+        # F4: Fallback to name heuristic for variables not tracked via split
+        if t is None:
+            cls = classify_var_name(name)
+            return cls in ("test", "valid")
+        return False
 
     def has_split_occurred(self, line: int) -> bool:
         return self.split_line is not None and line > self.split_line

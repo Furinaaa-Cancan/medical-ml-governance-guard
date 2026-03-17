@@ -95,7 +95,7 @@ def format_sarif(diagnostics: List[Diagnostic]) -> str:
             "name": cls.name,
             "shortDescription": {"text": cls.description[:200]},
             "fullDescription": {"text": cls.description},
-            "helpUri": f"https://github.com/Furinaaa-Cancan/medical-ml-leakage-guard#rules",
+            "helpUri": "https://github.com/Furinaaa-Cancan/medical-ml-leakage-guard#rules",
             "defaultConfiguration": {
                 "level": _sarif_level(cls.severity),
             },

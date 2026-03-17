@@ -19,6 +19,7 @@ else:
             tomllib = None  # type: ignore[assignment]
 
 CONFIG_FILENAME = ".mlgg-lint.toml"
+_MAX_CONFIG_BYTES = 1 * 1024 * 1024  # 1 MB
 
 
 @dataclass
@@ -32,9 +33,13 @@ class LintConfig:
     @classmethod
     def from_dict(cls, raw: Dict[str, Any]) -> LintConfig:
         section = raw.get("mlgg-lint", {})
+        if not isinstance(section, dict):
+            return cls()
         cfg = cls()
         cfg.severity_threshold = str(section.get("severity-threshold", "info")).lower()
         rules = section.get("rules", {})
+        if not isinstance(rules, dict):  # F11: guard against malformed structure
+            return cfg
         for rule_id, value in rules.items():
             rid = str(rule_id).upper()
             if value is False:
@@ -71,6 +76,15 @@ def load_config(path: Optional[Path] = None, start: Optional[Path] = None) -> Li
         return LintConfig()
     if tomllib is None:
         return LintConfig()
-    with open(path, "rb") as f:
-        raw = tomllib.load(f)
+    # F10: Guard against oversized config files
+    try:
+        if path.stat().st_size > _MAX_CONFIG_BYTES:
+            return LintConfig()
+    except OSError:
+        return LintConfig()
+    try:
+        with open(path, "rb") as f:
+            raw = tomllib.load(f)
+    except Exception:
+        return LintConfig()
     return LintConfig.from_dict(raw)

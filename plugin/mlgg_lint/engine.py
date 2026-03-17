@@ -9,9 +9,13 @@ from typing import List, Optional, Sequence
 
 from mlgg_lint.ast_utils import ImportMap, TaintTracker, build_import_map
 from mlgg_lint.config import LintConfig, load_config
-from mlgg_lint.models import Diagnostic, Severity
+from mlgg_lint.models import Diagnostic, Location, Severity
 from mlgg_lint.rules import get_enabled_rules
 from mlgg_lint.rules.base import BaseRule
+
+# Maximum file size to analyze (16 MB).  Prevents memory exhaustion from
+# adversarial or accidentally huge .py files.
+_MAX_FILE_BYTES = 16 * 1024 * 1024
 
 SEVERITY_ORDER = {"error": 0, "warning": 1, "info": 2}
 
@@ -49,6 +53,22 @@ def analyze_file(
     if config is None:
         config = load_config(start=file_path)
 
+    # F9: Guard against oversized files
+    try:
+        file_size = file_path.stat().st_size
+    except OSError:
+        file_size = 0
+    if file_size > _MAX_FILE_BYTES:
+        return [
+            Diagnostic(
+                rule_id="E000",
+                rule_name="file-too-large",
+                severity=Severity.ERROR,
+                message=f"File exceeds {_MAX_FILE_BYTES // (1024 * 1024)} MB limit ({file_size} bytes).",
+                location=Location(file=str(file_path), line=0, col=0),
+            )
+        ]
+
     try:
         source = file_path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError) as exc:
@@ -58,17 +78,13 @@ def analyze_file(
                 rule_name="parse-error",
                 severity=Severity.ERROR,
                 message=f"Cannot read file: {exc}",
-                location=__import__("mlgg_lint.models", fromlist=["Location"]).Location(
-                    file=str(file_path), line=0, col=0
-                ),
+                location=Location(file=str(file_path), line=0, col=0),
             )
         ]
 
     try:
         tree = ast.parse(source, filename=str(file_path))
     except SyntaxError as exc:
-        from mlgg_lint.models import Location
-
         return [
             Diagnostic(
                 rule_id="E000",
@@ -78,7 +94,7 @@ def analyze_file(
                 location=Location(
                     file=str(file_path),
                     line=exc.lineno or 0,
-                    col=exc.offset or 0,
+                    col=max((exc.offset or 1) - 1, 0),  # F2: offset is 1-based
                 ),
             )
         ]
