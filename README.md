@@ -44,13 +44,21 @@ python3 scripts/mlgg.py audit-report -- --project-dir /path/to/your/project \
 
 ---
 
-**核心能力** | **Core Capabilities**:
-- **20 个模型族**（逻辑回归/SVM/随机森林/XGBoost/KNN/MLP 等）自动训练+超参搜索
-- **31 道安全门控**（泄漏检测/公平性/样本量验证/校准/鲁棒性/TRIPOD 合规/安全审计等）fail-closed 架构
-- **9 个真实医学数据集**（UCI/PhysioNet/GitHub，297-14,980 行）一键下载训练
-- **交互式 CLI 向导**（中英双语，EPV 提示/类别分布/数据质量警告）
-- **自动评估报告**（ROC-AUC/PR-AUC/Brier + 95% CI + 过拟合检测）
-- **安全加固**（HMAC 模型签名/证据清单完整性校验/路径穿越防护/成员推理防御）
+## 系统模块总览 | System Module Overview
+
+| 模块 | 说明 | 规模 |
+|------|------|------|
+| **31 道安全门控** | fail-closed DAG 架构，覆盖泄漏检测 / 公平性 / 样本量 / 校准 / 鲁棒性 / TRIPOD+AI / PROBAST+AI / 安全审计 | 31 个独立 CLI 脚本 |
+| **20 个模型族** | 逻辑回归(L1/L2/ElasticNet) / SVM / RF / XGBoost / CatBoost / LightGBM / KNN / MLP / TabPFN 等，自动超参搜索 | 17 基础 + 4 可选后端 |
+| **9 个真实医学数据集** | UCI / PhysioNet / GitHub 公开数据，297-14,980 行，一键下载 | heart / breast / pima / mammographic / framingham / vitaldb / thyroid / diabetes130 / eeg_eye |
+| **12 维量化评分** | 数据完整性 / 泄漏防护 / 管线隔离 / 模型选择 / 统计有效性 / 泛化证据 / 临床完整性 / 报告标准 / 可复现性 / 安全性 / 公平性 / 样本量 | 满分 100，≥90 为顶刊级 |
+| **学术合规引擎** | TRIPOD+AI 2024（27 项）/ PROBAST+AI 2025（4 域 34 问）/ STARD-AI 自动检查 | 44 条文献知识库 + 84 条错误知识库 |
+| **交互式 CLI 向导** | 中英双语像素风终端 UI，EPV 提示 / 类别分布 / 数据质量警告 / 模型推荐 | `mlgg play` 一键启动 |
+| **安全加固层** | HMAC-SHA256 签名 / AES-256-GCM 加密 / 链式审计日志 / 路径穿越防护 / 受限反序列化沙盒 / 成员推理防御 | 10+ 防御机制 |
+| **Plugin Lint** | 20 条静态分析规则，检测代码级数据泄漏反模式（fit-before-split / SMOTE-on-test / threshold-on-test 等） | R001-R020，支持 .py + .ipynb |
+| **CI/CD 流水线** | GitHub Actions：smoke（push/PR）/ full（nightly）/ extended（weekly）/ security（多 Python 版本） | 4 条流水线 |
+| **自动化报告** | 审计报告 / 合规证书 / 修复计划 / LaTeX 导出 / 用户摘要 / 证据摘要 | Markdown + JSON + LaTeX |
+| **测试套件** | 3384+ pytest 单元测试，覆盖率 ≥86%，零网络依赖 | 86 个测试文件 |
 
 ---
 
@@ -674,21 +682,19 @@ python3 scripts/mlgg.py authority-release --dry-run --stress-case-id uci-heart-d
 ---
 
 ### 9. 目录结构
-- `scripts/`: gate、训练器、封装器、CLI 工具及共享工具模块（`_gate_utils.py`）
-  - 分析工具：`evidence_digest.py`、`report_health_check.py`、`remediation_plan.py`、`threshold_sensitivity.py`、`compare_runs.py`、`export_latex.py`、`explain_gate.py`
-  - 新增工具：`policy_generator.py`、`gate_timeline.py`、`gate_coverage_matrix.py`、`evidence_comparator.py`
-- `tests/`: 3384+ 个 pytest 单元测试，覆盖所有 gate 脚本和分析工具
-- `references/`: schema/policy/report 示例、检查清单与基准注册表
-- `experiments/authority-e2e/`: UCI 公开数据集上的 authority/adversarial 实验脚本
-- `agents/`: OpenAI agent 接口定义（`openai.yaml`）
-- `.github/workflows/`: CI 流水线（smoke / full / extended）
-- `SKILL.md`: 完整流程契约、gate 顺序与医学不可协商规则
-- `requirements.txt`: 核心 Python 依赖
-- `requirements-optional.txt`: 可选后端依赖（`xgboost`、`catboost`、`lightgbm`、`tabpfn`、`optuna`）
-- `references/Beginner-Quickstart.md`: 双语新手教程
-- `references/Troubleshooting-Top20.md`: 高频失败码修复手册
-- `references/release-benchmark-suite.md`: 发布级基准矩阵档位与通过标准
-- `references/benchmark-registry.json`: 冻结基准数据注册表（`benchmark_registry.v1`）
+
+| 目录/文件 | 内容 | 文件数 |
+|-----------|------|--------|
+| `scripts/` | 31 道 gate 脚本 + 训练器 + CLI 封装器 + 分析工具 + 共享模块 | 78 |
+| `tests/` | pytest 单元测试（3384+ 通过，≥86% 覆盖率） | 86 |
+| `plugin/` | mlgg-lint 静态分析器（20 规则）+ VSCode 扩展 | — |
+| `references/` | JSON schema/policy 模板、TRIPOD/PROBAST/STARD 清单、文献/错误知识库、基准注册表 | 40+ |
+| `experiments/` | UCI 公开数据集上的 authority/adversarial 基准实验 | — |
+| `docs/` | 架构文档、gate 框架开发指南、安全加固报告、深度代码审查报告 | 4 |
+| `examples/` | 9 个真实医学数据集下载器 | 1 |
+| `.github/workflows/` | CI 流水线（security / unit / full / extended） | 4 |
+| `SKILL.md` | Agent 操作手册：完整流程契约、gate 顺序、医学不可协商规则 | 1 |
+| `CLAUDE.md` | Claude Code agent 操作协议 | 1 |
 
 ---
 
@@ -701,21 +707,27 @@ python3 scripts/mlgg.py authority-release --dry-run --stress-case-id uci-heart-d
 
 ---
 
-### 11. 许可证
+### 11. 许可证与学术使用限制
 
 本项目采用 [PolyForm Noncommercial License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/) 许可协议。完整条文见 [LICENSE](LICENSE) 文件。
 
 **允许**：
-- 个人学习、学术研究、非营利用途
+- 个人学习、教学演示、非营利内部使用
 - 在同一许可条款下修改和再分发
-- 教育机构、公共研究组织、政府机关使用
+- 教育机构、公共研究组织、政府机关内部使用
 
 **禁止**：
 - 任何商业用途
 - 出售本软件或基于它的服务
 - 嵌入商业产品
 
-如需商业授权，请联系仓库所有者。
+**学术发表限制**：
+- 未经作者书面授权，**不得**将本工具产生的审计报告、合规证书、门控结果等作为学术论文（期刊、会议、预印本）的方法论或验证依据直接发表。
+- 未经作者书面授权，**不得**在论文中将 MLGG 作为核心方法工具进行引用并声称通过其验证的模型具有 publication-grade 质量。
+- 如需在学术出版物中使用本工具或引用其结果，请先联系仓库所有者获取书面授权。
+- 仅用于个人研究流程中的内部质量检查（不在论文中提及 MLGG）不受此限制。
+
+如需商业授权或学术发表授权，请联系仓库所有者。
 
 
 ---
@@ -1331,21 +1343,19 @@ python3 scripts/mlgg.py authority-release --dry-run --stress-case-id uci-heart-d
 ---
 
 ### 9. Repository Map
-- `scripts/`: gates, trainers, wrappers, CLI tools, and shared utilities (`_gate_utils.py`)
-  - Analysis tools: `evidence_digest.py`, `report_health_check.py`, `remediation_plan.py`, `threshold_sensitivity.py`, `compare_runs.py`, `export_latex.py`, `explain_gate.py`
-  - New tools: `policy_generator.py`, `gate_timeline.py`, `gate_coverage_matrix.py`, `evidence_comparator.py`
-- `tests/`: 3384+ pytest unit tests covering all gate scripts and analysis tools
-- `references/`: schema/policy/report examples, checklists, and benchmark registry
-- `experiments/authority-e2e/`: authority and adversarial runners with UCI public datasets
-- `agents/`: OpenAI agent interface definition (`openai.yaml`)
-- `.github/workflows/`: CI pipelines (smoke / full / extended)
-- `SKILL.md`: full workflow contract, gate ordering, and medical non-negotiable rules
-- `requirements.txt`: core Python dependencies
-- `requirements-optional.txt`: optional backend dependencies (`xgboost`, `catboost`, `lightgbm`, `tabpfn`, `optuna`)
-- `references/Beginner-Quickstart.md`: bilingual beginner tutorial
-- `references/Troubleshooting-Top20.md`: top failure-code remediation
-- `references/release-benchmark-suite.md`: release benchmark matrix profile and pass contract
-- `references/benchmark-registry.json`: frozen benchmark dataset registry (`benchmark_registry.v1`)
+
+| Directory/File | Contents | Count |
+|----------------|----------|-------|
+| `scripts/` | 31 gate scripts + trainer + CLI wrappers + analysis tools + shared modules | 78 |
+| `tests/` | pytest unit tests (3384+ passed, ≥86% coverage) | 86 |
+| `plugin/` | mlgg-lint static analyzer (20 rules) + VSCode extension | — |
+| `references/` | JSON schema/policy templates, TRIPOD/PROBAST/STARD checklists, literature/error KBs, benchmark registry | 40+ |
+| `experiments/` | Authority/adversarial benchmarks on UCI public datasets | — |
+| `docs/` | Architecture docs, gate framework developer guide, security hardening report, deep code review | 4 |
+| `examples/` | 9 real medical dataset downloaders | 1 |
+| `.github/workflows/` | CI pipelines (security / unit / full / extended) | 4 |
+| `SKILL.md` | Agent playbook: full workflow contract, gate ordering, medical non-negotiable rules | 1 |
+| `CLAUDE.md` | Claude Code agent operating protocol | 1 |
 
 ---
 
@@ -1358,12 +1368,12 @@ python3 scripts/mlgg.py authority-release --dry-run --stress-case-id uci-heart-d
 
 ---
 
-### 11. License
+### 11. License & Academic Use Restrictions
 
 This project is licensed under the [PolyForm Noncommercial License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/). See the [LICENSE](LICENSE) file for the full text.
 
 **You may**:
-- Use this software for personal study, academic research, and non-profit purposes
+- Use this software for personal study, teaching demonstrations, and internal non-profit use
 - Modify and redistribute under the same license terms
 - Use within educational institutions, public research organizations, and government agencies
 
@@ -1372,4 +1382,10 @@ This project is licensed under the [PolyForm Noncommercial License 1.0.0](https:
 - Sell the software or services built on it
 - Incorporate it into commercial products
 
-For commercial licensing inquiries, please contact the repository owner.
+**Academic publication restrictions**:
+- Without prior written authorization from the author, you **may not** publish audit reports, compliance certificates, gate results, or any MLGG-generated artifacts as methodology or validation evidence in academic publications (journals, conferences, preprints).
+- Without prior written authorization from the author, you **may not** cite MLGG as a core methodological tool in a paper and claim that models validated by it are publication-grade.
+- If you wish to use this tool or reference its outputs in academic publications, please contact the repository owner for written authorization first.
+- Using MLGG solely as an internal quality check in your research workflow (without mentioning MLGG in the publication) is not restricted.
+
+For commercial licensing or academic publication authorization, please contact the repository owner.
