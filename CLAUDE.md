@@ -106,7 +106,7 @@ When you encounter a new error during any operation:
 
 ```
 scripts/          # Gate scripts, training, orchestrators, analysis tools
-tests/            # 2900+ pytest tests
+tests/            # 3384+ pytest tests
 examples/         # Dataset downloaders
 experiments/      # Authority E2E benchmarks
 references/       # JSON templates, checklists, knowledge base

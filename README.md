@@ -39,7 +39,7 @@ python3 scripts/mlgg.py audit-report -- --project-dir /path/to/your/project \
 | TRIPOD+AI 2024 | 17 required items incl. 4 AI-specific (Collins et al. BMJ 2024;385:e078378) |
 | PROBAST+AI 2025 | Risk-of-bias across 4 domains: Participants, Predictors, Outcome, Analysis |
 | Code anti-patterns | 12 pattern types: fit_on_full_data, test_in_training_loop, global_scaler_leak, missing CI, etc. |
-| Error KB lookup | Each finding enriched with root cause + fix from 56-entry error knowledge base |
+| Error KB lookup | Each finding enriched with root cause + fix from 76-entry error knowledge base |
 | Literature citations | 44 literature entries automatically cited per finding |
 
 ---
@@ -677,7 +677,7 @@ python3 scripts/mlgg.py authority-release --dry-run --stress-case-id uci-heart-d
 - `scripts/`: gate、训练器、封装器、CLI 工具及共享工具模块（`_gate_utils.py`）
   - 分析工具：`evidence_digest.py`、`report_health_check.py`、`remediation_plan.py`、`threshold_sensitivity.py`、`compare_runs.py`、`export_latex.py`、`explain_gate.py`
   - 新增工具：`policy_generator.py`、`gate_timeline.py`、`gate_coverage_matrix.py`、`evidence_comparator.py`
-- `tests/`: 3100+ 个 pytest 单元测试，覆盖所有 gate 脚本和分析工具
+- `tests/`: 3384+ 个 pytest 单元测试，覆盖所有 gate 脚本和分析工具
 - `references/`: schema/policy/report 示例、检查清单与基准注册表
 - `experiments/authority-e2e/`: UCI 公开数据集上的 authority/adversarial 实验脚本
 - `agents/`: OpenAI agent 接口定义（`openai.yaml`）
@@ -864,7 +864,7 @@ This repository:
   - threshold/calibration misuse (threshold optimized on test set)
   - external cohort transport robustness (performance degradation on unseen cohorts)
 - Outputs machine-checkable evidence and gate reports for release decisions.
-- Every gate is **binary pass/fail**: all 29 must pass for a publication-grade claim.
+- Every gate is **binary pass/fail**: all 31 must pass for a publication-grade claim.
 
 **Architecture overview**: the pipeline is organized as a dependency DAG with 8 execution layers: `request contract validation → data fingerprinting → execution attestation → leakage/protocol gates → model audit gates → external validation gates → aggregated publication gate → self-critique scoring`. Each gate is an independent CLI script producing a standardized JSON report envelope (v2.0.0). The DAG executor (`run_dag_pipeline.py`) supports parallel execution within layers, checkpoint/resume, single-gate re-runs, and rich terminal output.
 
@@ -1334,7 +1334,7 @@ python3 scripts/mlgg.py authority-release --dry-run --stress-case-id uci-heart-d
 - `scripts/`: gates, trainers, wrappers, CLI tools, and shared utilities (`_gate_utils.py`)
   - Analysis tools: `evidence_digest.py`, `report_health_check.py`, `remediation_plan.py`, `threshold_sensitivity.py`, `compare_runs.py`, `export_latex.py`, `explain_gate.py`
   - New tools: `policy_generator.py`, `gate_timeline.py`, `gate_coverage_matrix.py`, `evidence_comparator.py`
-- `tests/`: 3100+ pytest unit tests covering all gate scripts and analysis tools
+- `tests/`: 3384+ pytest unit tests covering all gate scripts and analysis tools
 - `references/`: schema/policy/report examples, checklists, and benchmark registry
 - `experiments/authority-e2e/`: authority and adversarial runners with UCI public datasets
 - `agents/`: OpenAI agent interface definition (`openai.yaml`)
