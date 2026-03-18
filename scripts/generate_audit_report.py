@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 from datetime import datetime, timezone
@@ -392,13 +393,14 @@ def assess_probast_coverage(
 ) -> Dict[str, Any]:
     """Assess PROBAST+AI domain coverage from gate reports."""
     domain_gates: Dict[str, List[str]] = {
-        "D1_participants": ["split_protocol_gate", "external_validation_gate"],
+        "D1_participants": ["split_protocol_gate", "external_validation_gate", "sample_size_gate"],
         "D2_predictors": ["leakage_gate", "definition_variable_guard", "feature_lineage_gate"],
         "D3_outcome": ["reporting_bias_gate", "clinical_metrics_gate"],
         "D4_analysis": [
             "leakage_gate", "tuning_leakage_gate", "split_protocol_gate",
             "model_selection_audit_gate", "calibration_dca_gate",
             "permutation_significance_gate", "reporting_bias_gate",
+            "fairness_equity_gate",
         ],
     }
 
@@ -622,7 +624,7 @@ def compute_dimension_scores(
         },
         "clinical_completeness": {
             "id": 7, "name": "Clinical Completeness", "weight": 8,
-            "gate_signals": ["clinical_metrics_gate", "fairness_equity_gate"],
+            "gate_signals": ["clinical_metrics_gate", "fairness_equity_gate", "sample_size_gate"],
         },
         "reporting_standards": {
             "id": 8, "name": "Reporting Standards", "weight": 8,
@@ -680,7 +682,9 @@ def compute_dimension_scores(
         )
         for pattern, pen_weight in pattern_penalties.items():
             if code_patterns.get(pattern):
-                penalty += float(pen_weight)
+                pw = float(pen_weight) if isinstance(pen_weight, (int, float)) else 0.0
+                if math.isfinite(pw):
+                    penalty += pw
         frac = max(0.0, frac - penalty)
 
         # Structure bonuses
@@ -691,7 +695,9 @@ def compute_dimension_scores(
         )
         for check, bon_weight in structure_bonuses.items():
             if structure.get(check):
-                bonus += float(bon_weight)
+                bw = float(bon_weight) if isinstance(bon_weight, (int, float)) else 0.0
+                if math.isfinite(bw):
+                    bonus += bw
         frac = min(1.0, frac + bonus * 0.2)  # Bonuses are minor
 
         frac = round(max(0.0, min(1.0, frac)), 3)

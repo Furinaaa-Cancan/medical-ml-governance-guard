@@ -1,8 +1,8 @@
 """Tests for scripts/self_critique_gate.py.
 
-Covers helper functions (score_component, summarize_recommendations,
-warning_is_blocking), component validation, manifest checks, quality
-scoring, and CLI integration.
+Covers helper functions (score_component, summarize_recommendations),
+component validation, manifest checks, quality scoring, and CLI
+integration.
 """
 from __future__ import annotations
 

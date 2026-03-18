@@ -1290,6 +1290,21 @@
       ],
       "first_seen": "2026-03",
       "resolved": true
+    },
+    {
+      "id": "ERR-081",
+      "code": "audit_report_missing_gates_in_mappings",
+      "symptom": "generate_audit_report.py PROBAST domain mapping and dimension scoring miss sample_size_gate and fairness_equity_gate in relevant domains, producing incomplete audit assessments",
+      "root_cause": "PROBAST domain_gates and dimension gate_signals lists were not updated when fairness_equity_gate and sample_size_gate were added",
+      "fix": "Add sample_size_gate to D1_participants and Clinical Completeness dimension; add fairness_equity_gate to D4_analysis; add isfinite guards to penalty/bonus float conversions",
+      "prevention": "When adding new gates, update generate_audit_report.py mappings: gate_to_tripod, domain_gates, dimension gate_signals",
+      "category": "gate",
+      "severity": "ERROR",
+      "affected_files": [
+        "scripts/generate_audit_report.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
     }
   ],
   "agent_instructions": {
