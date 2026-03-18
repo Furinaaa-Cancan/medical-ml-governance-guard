@@ -1335,6 +1335,24 @@
       ],
       "first_seen": "2026-03",
       "resolved": true
+    },
+    {
+      "id": "ERR-084",
+      "code": "hardcoded_gate_lists_drift",
+      "symptom": "Multiple utility scripts hardcode gate report filename lists that fall out of sync when new gates are added to _gate_registry.py",
+      "root_cause": "Gate lists were copy-pasted across report_health_check, remediation_plan, evidence_digest, compare_runs instead of deriving from the registry at runtime",
+      "fix": "Replace all 4 hardcoded lists with dynamic derivation: `from _gate_registry import GATE_REGISTRY; [spec.report_output for spec in GATE_REGISTRY.values()]`",
+      "prevention": "Never hardcode gate lists in utility scripts. Always derive from _gate_registry.GATE_REGISTRY at import time with ImportError fallback",
+      "category": "gate",
+      "severity": "ERROR",
+      "affected_files": [
+        "scripts/report_health_check.py",
+        "scripts/remediation_plan.py",
+        "scripts/evidence_digest.py",
+        "scripts/compare_runs.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
     }
   ],
   "agent_instructions": {

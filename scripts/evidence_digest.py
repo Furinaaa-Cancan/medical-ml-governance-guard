@@ -100,25 +100,12 @@ def extract_digest(evidence_dir: Path) -> Dict[str, Any]:
                     "prevalence": stats.get("prevalence"),
                 }
 
-    # Gate status counts
-    gate_files = [
-        "request_contract_report.json", "manifest.json",
-        "split_protocol_report.json", "leakage_report.json",
-        "definition_guard_report.json", "lineage_report.json",
-        "covariate_shift_report.json", "imbalance_policy_report.json",
-        "missingness_policy_report.json", "tuning_leakage_report.json",
-        "model_selection_audit_report.json", "feature_engineering_audit_report.json",
-        "clinical_metrics_report.json", "prediction_replay_report.json",
-        "distribution_generalization_report.json", "generalization_gap_report.json",
-        "robustness_gate_report.json", "seed_stability_report.json",
-        "external_validation_gate_report.json", "calibration_dca_report.json",
-        "ci_matrix_gate_report.json", "metric_consistency_report.json",
-        "evaluation_quality_report.json", "permutation_report.json",
-        "reporting_bias_report.json", "execution_attestation_report.json",
-        "fairness_equity_report.json", "sample_size_report.json",
-        "self_critique_report.json", "security_audit_gate_report.json",
-        "publication_gate_report.json",
-    ]
+    # Gate status counts — derive from registry (single source of truth).
+    try:
+        from _gate_registry import GATE_REGISTRY
+        gate_files = [spec.report_output for spec in GATE_REGISTRY.values()]
+    except ImportError:
+        gate_files = []
     passed = 0
     failed = 0
     missing = 0

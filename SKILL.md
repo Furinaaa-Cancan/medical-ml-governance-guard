@@ -82,12 +82,12 @@ python3 scripts/mlgg.py doctor
 4. **终端输出**：使用 `print_gate_summary()` 打印结构化摘要
 5. **退出逻辑**：`should_fail = bool(failures) or (args.strict and bool(warnings))`，返回 `2 if should_fail else 0`
 6. **注册**：在 `_gate_registry.py` 中注册 gate 名称和路径
-7. **同步 gate 列表**：grep 并更新以下文件中的硬编码 gate 报告列表：
+7. **无需手动同步 gate 列表**：以下工具脚本已从 `_gate_registry.py` 动态获取 gate 列表，添加新 gate 后自动生效：
    - `scripts/report_health_check.py` → `EXPECTED_REPORTS`
    - `scripts/remediation_plan.py` → `GATE_ORDER`
    - `scripts/evidence_digest.py` → `gate_files`
    - `scripts/compare_runs.py` → `REPORT_FILES`
-   - `scripts/render_user_summary.py` → `DEFAULT_GATE_FILES`（如需展示）
+   - 仍需手动更新：`scripts/render_user_summary.py` → `DEFAULT_GATE_FILES`（仅展示子集）、`scripts/run_strict_pipeline.py` → `gate_script_inputs`（manifest 指纹）
 8. **测试**：在 `tests/` 中创建对应测试文件，覆盖率 ≥85%
 
 **严禁**：

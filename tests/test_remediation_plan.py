@@ -87,7 +87,7 @@ class TestCollectIssues:
         issues = collect_issues(ev)
         codes = [i["code"] for i in issues]
         assert "gate_report_missing" in codes
-        missing = [i for i in issues if i["gate"] == "leakage"]
+        missing = [i for i in issues if "leakage" in i["gate"] and "tuning" not in i["gate"]]
         assert len(missing) == 1
         assert missing[0]["severity"] == "error"
 

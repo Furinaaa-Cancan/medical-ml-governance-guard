@@ -21,40 +21,16 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 
-# Gate execution order — earlier gates block later ones.
-GATE_ORDER: List[Tuple[str, str]] = [
-    ("request_contract", "request_contract_report.json"),
-    ("manifest", "manifest.json"),
-    ("split_protocol", "split_protocol_report.json"),
-    ("leakage", "leakage_report.json"),
-    ("definition_guard", "definition_guard_report.json"),
-    ("lineage", "lineage_report.json"),
-    ("covariate_shift", "covariate_shift_report.json"),
-    ("imbalance_policy", "imbalance_policy_report.json"),
-    ("missingness_policy", "missingness_policy_report.json"),
-    ("tuning_leakage", "tuning_leakage_report.json"),
-    ("model_selection_audit", "model_selection_audit_report.json"),
-    ("feature_engineering_audit", "feature_engineering_audit_report.json"),
-    ("clinical_metrics", "clinical_metrics_report.json"),
-    ("prediction_replay", "prediction_replay_report.json"),
-    ("distribution_generalization", "distribution_generalization_report.json"),
-    ("generalization_gap", "generalization_gap_report.json"),
-    ("robustness", "robustness_gate_report.json"),
-    ("seed_stability", "seed_stability_report.json"),
-    ("external_validation", "external_validation_gate_report.json"),
-    ("calibration_dca", "calibration_dca_report.json"),
-    ("ci_matrix", "ci_matrix_gate_report.json"),
-    ("metric_consistency", "metric_consistency_report.json"),
-    ("evaluation_quality", "evaluation_quality_report.json"),
-    ("permutation", "permutation_report.json"),
-    ("reporting_bias", "reporting_bias_report.json"),
-    ("execution_attestation", "execution_attestation_report.json"),
-    ("self_critique", "self_critique_report.json"),
-    ("fairness_equity", "fairness_equity_report.json"),
-    ("sample_size", "sample_size_report.json"),
-    ("security_audit", "security_audit_gate_report.json"),
-    ("publication", "publication_gate_report.json"),
-]
+# Gate execution order — derived from registry (single source of truth).
+# Sorted by layer to preserve dependency ordering.
+try:
+    from _gate_registry import GATE_REGISTRY
+    GATE_ORDER: List[Tuple[str, str]] = [
+        (spec.name, spec.report_output)
+        for spec in sorted(GATE_REGISTRY.values(), key=lambda s: s.layer.value)
+    ]
+except ImportError:
+    GATE_ORDER: List[Tuple[str, str]] = []  # type: ignore[no-redef]
 
 # Code prefix → (priority 1-5, category, remediation command hint)
 _REMEDIATION_MAP: List[Tuple[str, int, str, str]] = [
