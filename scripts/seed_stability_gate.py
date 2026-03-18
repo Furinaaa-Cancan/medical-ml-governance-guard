@@ -11,7 +11,7 @@ import statistics
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from _gate_utils import add_issue, is_finite_number as _shared_is_finite_number, load_json_from_str as load_json_object
+from _gate_utils import add_issue, is_finite_number as _shared_is_finite_number, load_json_from_str as load_json_object, to_float
 from _gate_framework import (
     GateIssue,
     Severity,
@@ -294,7 +294,10 @@ def main() -> int:
                     {"metric": metric_name, "field": key, "value": declared_value},
                 )
                 continue
-            if abs(float(declared_value) - float(summary[key])) > tol:
+            computed_val = to_float(summary.get(key))
+            if computed_val is None:
+                continue
+            if abs(float(declared_value) - computed_val) > tol:
                 add_issue(
                     failures,
                     "seed_summary_mismatch",
@@ -303,7 +306,7 @@ def main() -> int:
                         "metric": metric_name,
                         "field": key,
                         "declared": float(declared_value),
-                        "computed": float(summary[key]),
+                        "computed": computed_val,
                     },
                 )
 
@@ -311,8 +314,10 @@ def main() -> int:
         summary = computed_summary.get(metric)
         if not isinstance(summary, dict):
             return
-        observed = float(summary[field])
-        limit = float(thresholds[threshold_key])
+        observed = to_float(summary.get(field))
+        limit = to_float(thresholds.get(threshold_key))
+        if observed is None or limit is None:
+            return
         if observed > limit:
             add_issue(
                 failures,

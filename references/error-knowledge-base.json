@@ -1244,6 +1244,22 @@
       ],
       "first_seen": "2026-03",
       "resolved": true
+    },
+    {
+      "id": "ERR-078",
+      "code": "float_crash_on_csv_data",
+      "symptom": "model_selection_audit_gate and seed_stability_gate crash with ValueError/KeyError when CSV report data contains NaN, Inf, or missing keys",
+      "root_cause": "Direct float() and dict[key] access on user-supplied report data without to_float() guard or .get() fallback",
+      "fix": "Replace float(row['key']) with to_float(row.get('key')), add None checks before arithmetic",
+      "prevention": "All float() on external data must use to_float() from _gate_utils. All dict access on parsed JSON/CSV must use .get() with default",
+      "category": "gate",
+      "severity": "ERROR",
+      "affected_files": [
+        "scripts/model_selection_audit_gate.py",
+        "scripts/seed_stability_gate.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
     }
   ],
   "agent_instructions": {

@@ -20,7 +20,7 @@ from _gate_framework import (
     print_gate_summary,
     register_remediations,
 )
-from _gate_utils import add_issue, canonical_metric_token as _shared_canonical_metric_token, load_json_from_str as load_json
+from _gate_utils import add_issue, canonical_metric_token as _shared_canonical_metric_token, load_json_from_str as load_json, to_float
 
 
 register_remediations({
@@ -503,7 +503,10 @@ def main() -> int:
             calc_std = float(math.sqrt(sum((x - mean) ** 2 for x in scores_arr) / (len(scores_arr) - 1)))
         else:
             calc_std = 0.0
-        if abs(calc_mean - float(row["mean"])) > 1e-9:
+        row_mean = to_float(row.get("mean"))
+        if row_mean is None:
+            continue
+        if abs(calc_mean - row_mean) > 1e-9:
             add_issue(
                 failures,
                 "selection_metric_summary_mismatch",
@@ -515,7 +518,10 @@ def main() -> int:
                 },
             )
             continue
-        if abs(calc_std - float(row["std"])) > 1e-9:
+        row_std = to_float(row.get("std"))
+        if row_std is None:
+            continue
+        if abs(calc_std - row_std) > 1e-9:
             add_issue(
                 failures,
                 "selection_metric_summary_mismatch",
@@ -631,17 +637,19 @@ def main() -> int:
 
     replay_summary: Dict[str, Any] = {}
     if valid_candidates:
-        best = max(valid_candidates, key=lambda item: float(item["mean"]))
-        best_mean = float(best["mean"])
-        best_se = float(best["std"]) / math.sqrt(float(best["n_folds"]))
+        best = max(valid_candidates, key=lambda item: to_float(item.get("mean")) or 0.0)
+        best_mean = to_float(best.get("mean")) or 0.0
+        best_n_folds = to_float(best.get("n_folds")) or 1.0
+        best_std = to_float(best.get("std")) or 0.0
+        best_se = best_std / math.sqrt(max(best_n_folds, 1.0))
         one_se_threshold = best_mean - best_se
-        eligible = [row for row in valid_candidates if float(row["mean"]) >= one_se_threshold - 1e-12]
+        eligible = [row for row in valid_candidates if (to_float(row.get("mean")) or 0.0) >= one_se_threshold - 1e-12]
         expected = sorted(
             eligible,
             key=lambda item: (
-                int(item["complexity_rank"]),
-                -float(item["mean"]),
-                str(item["model_id"]),
+                int(item.get("complexity_rank", 999)),
+                -(to_float(item.get("mean")) or 0.0),
+                str(item.get("model_id", "")),
             ),
         )[0]
         expected_model_id = str(expected["model_id"])

@@ -1316,7 +1316,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ### 67
 创建 CLI API 参考文档。
 
-**第一步：遍历所有 29 个 gate 脚本，提取 argparse 参数定义。**
+**第一步：遍历所有 31 个 gate 脚本，提取 argparse 参数定义。**
 
 **第二步：为每个脚本编写标准化文档：** 用途（一句话）、参数列表（名称/类型/必填/默认值/说明）、输入文件、输出文件、exit code（0=pass, 2=fail）、示例命令。
 

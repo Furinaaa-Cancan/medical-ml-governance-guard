@@ -186,7 +186,7 @@ The pipeline can be invoked at multiple levels of abstraction:
 | Layer | Entry Point | Description |
 |-------|------------|-------------|
 | **Gate scripts** | `scripts/<gate>.py` | Individual validation steps |
-| **Strict pipeline** | `scripts/run_strict_pipeline.py` | Sequential 29-gate orchestrator |
+| **Strict pipeline** | `scripts/run_strict_pipeline.py` | Sequential 31-gate orchestrator |
 | **Productized workflow** | `scripts/run_productized_workflow.py` | Doctor → Preflight → Pipeline → Summary |
 | **Onboarding** | `scripts/mlgg_onboarding.py` | Guided 8-step novice flow |
 | **Unified CLI** | `scripts/mlgg.py` | Single entry point for all commands |
