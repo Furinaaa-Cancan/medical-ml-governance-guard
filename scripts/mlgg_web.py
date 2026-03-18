@@ -476,6 +476,11 @@ def handle_step(step_num: int):
         session["step"] = 3
 
     elif step_num == 3:
+        _COL_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_ .\-]{0,127}$")
+        for col_field in ("target_col", "patient_id_col", "time_col"):
+            col_val = request.form.get(col_field, "").strip()
+            if col_val and not _COL_RE.match(col_val):
+                return f"Invalid column name for {col_field}: must be alphanumeric/underscore, max 128 chars.", 400
         session["target_col"] = request.form.get("target_col", "y").strip()
         session["patient_id_col"] = request.form.get("patient_id_col", "patient_id").strip()
         session["time_col"] = request.form.get("time_col", "event_time").strip()
@@ -563,7 +568,10 @@ def _run_cmd_with_logs(sid: str, cmd: List[str], cwd: str) -> int:
         text=True,
         cwd=cwd,
     )
-    assert proc.stdout is not None
+    if proc.stdout is None:
+        q.put("[ERROR] subprocess stdout not available")
+        q.put(None)
+        return 1
     for line in proc.stdout:
         q.put(line.rstrip())
     proc.wait()

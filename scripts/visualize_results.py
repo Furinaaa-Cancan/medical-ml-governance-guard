@@ -192,9 +192,22 @@ def plot_feature_importance(
         return
 
     if isinstance(fi, list):
-        items = [(d.get("feature", f"f{i}"), float(d.get("importance", 0))) for i, d in enumerate(fi)]
+        items = []
+        for i, d in enumerate(fi):
+            try:
+                items.append((d.get("feature", f"f{i}"), float(d.get("importance", 0))))
+            except (TypeError, ValueError):
+                continue
     else:
-        items = [(k, float(v)) for k, v in fi.items()]
+        items = []
+        for k, v in fi.items():
+            try:
+                items.append((k, float(v)))
+            except (TypeError, ValueError):
+                continue
+    if not items:
+        print("  [SKIP] Feature importance: no valid numeric values.")
+        return
 
     items.sort(key=lambda x: abs(x[1]), reverse=True)
     items = items[:top_k]

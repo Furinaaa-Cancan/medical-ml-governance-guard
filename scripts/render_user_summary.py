@@ -258,7 +258,7 @@ def main() -> int:
     publication = load_json(evidence_dir / "publication_gate_report.json")
     self_critique = load_json(evidence_dir / "self_critique_report.json")
     evaluation = load_json(evidence_dir / "evaluation_report.json")
-    external_validation = load_json(evidence_dir / "external_validation_report.json")
+    external_validation = load_json(evidence_dir / "external_validation_gate_report.json")
     gap_report = load_json(evidence_dir / "generalization_gap_report.json")
 
     gate_payloads = {

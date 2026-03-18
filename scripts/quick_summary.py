@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -143,12 +144,23 @@ def print_overfitting(eval_data: Dict[str, Any]) -> None:
             m = block.get("metrics", {}) if isinstance(block, dict) else {}
             vals[split_name] = m.get(key)
         if vals.get("train") is not None and vals.get("test") is not None:
-            gap = float(vals["train"]) - float(vals["test"])
+            try:
+                train_f = float(vals["train"])
+                test_f = float(vals["test"])
+                if not (math.isfinite(train_f) and math.isfinite(test_f)):
+                    continue
+            except (TypeError, ValueError):
+                continue
+            gap = train_f - test_f
             gap_str = f"{gap:+.4f}" if abs(gap) > 0.0001 else "+0.0000"
             row = f"  {key:<16}"
             for s_name in ["train", "valid", "test"]:
                 v = vals.get(s_name)
-                row += f"  {float(v):.4f}" if v is not None else "       —"
+                try:
+                    fv = float(v) if v is not None else None
+                    row += f"  {fv:.4f}" if fv is not None and math.isfinite(fv) else "       —"
+                except (TypeError, ValueError):
+                    row += "       —"
             row += f"  {gap_str}"
             rows.append(row)
 
@@ -160,7 +172,12 @@ def print_overfitting(eval_data: Dict[str, Any]) -> None:
         test_pr = split_metrics.get("test", {}).get("metrics", {}).get("pr_auc")
         train_pr = split_metrics.get("train", {}).get("metrics", {}).get("pr_auc")
         if test_pr is not None and train_pr is not None:
-            gap = float(train_pr) - float(test_pr)
+            try:
+                gap = float(train_pr) - float(test_pr)
+                if not math.isfinite(gap):
+                    gap = 0.0
+            except (TypeError, ValueError):
+                gap = 0.0
             if gap > 0.10:
                 lines.append("")
                 lines.append(f"  Risk: {_s('R', 'HIGH')} — Overfitting detected (gap={gap:.4f})")
@@ -199,8 +216,14 @@ def print_model_selection(ms_data: Dict[str, Any]) -> None:
         mean = c.get("mean_score", c.get("score"))
         std = c.get("std_score", c.get("std"))
         marker = " *" if str(c.get("model_id")) == selected else ""
-        mean_s = f"{float(mean):.4f}" if mean is not None else "    —"
-        std_s = f"{float(std):.4f}" if std is not None else "    —"
+        try:
+            mean_s = f"{float(mean):.4f}" if mean is not None else "    —"
+        except (TypeError, ValueError):
+            mean_s = "    —"
+        try:
+            std_s = f"{float(std):.4f}" if std is not None else "    —"
+        except (TypeError, ValueError):
+            std_s = "    —"
         lines.append(f"  {i+1:>3} {mid:<35} {mean_s:>8} {std_s:>8}{marker}")
 
     if len(candidates) > top_n:

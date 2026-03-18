@@ -1086,6 +1086,84 @@
       ],
       "first_seen": "2026-03",
       "resolved": true
+    },
+    {
+      "id": "ERR-068",
+      "code": "wrong_report_filename",
+      "symptom": "render_user_summary.py loads external_validation_report.json but actual gate output is external_validation_gate_report.json, causing the report to silently show no external validation data",
+      "root_cause": "Filename string at line 261 was typed without the '_gate' infix that the registry defines in report_output",
+      "fix": "Change 'external_validation_report.json' to 'external_validation_gate_report.json'",
+      "prevention": "Always derive report filenames from _gate_registry.py report_output field instead of hardcoding strings",
+      "category": "gate",
+      "severity": "ERROR",
+      "affected_files": [
+        "scripts/render_user_summary.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
+    },
+    {
+      "id": "ERR-069",
+      "code": "gate_list_out_of_sync",
+      "symptom": "report_health_check.py and remediation_plan.py gate lists diverge from _gate_registry.py: missing fairness_equity and sample_size gates, remediation_plan includes non-existent schema_preflight gate",
+      "root_cause": "Gate lists in utility scripts were not updated when fairness_equity_gate and sample_size_gate were added to the registry",
+      "fix": "Add fairness_equity_report.json and sample_size_report.json to report_health_check.py EXPECTED_REPORTS and remediation_plan.py GATE_ORDER; remove schema_preflight from remediation_plan.py",
+      "prevention": "When adding new gates to _gate_registry.py, grep for EXPECTED_REPORTS and GATE_ORDER across all scripts and update them",
+      "category": "gate",
+      "severity": "WARNING",
+      "affected_files": [
+        "scripts/report_health_check.py",
+        "scripts/remediation_plan.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
+    },
+    {
+      "id": "ERR-070",
+      "code": "float_without_isfinite",
+      "symptom": "quick_summary.py and visualize_results.py crash with ValueError or produce NaN/Inf output when evaluation data contains non-finite values",
+      "root_cause": "float() conversions used without math.isfinite() guard or try-except protection, violating the project's to_float() isfinite-guard convention",
+      "fix": "Wrap float() calls in try-except (TypeError, ValueError) and add math.isfinite() checks before arithmetic or formatting",
+      "prevention": "All float() conversions on user/external data must include isfinite guard. Use fmt_metric() helper for display formatting",
+      "category": "gate",
+      "severity": "WARNING",
+      "affected_files": [
+        "scripts/quick_summary.py",
+        "scripts/visualize_results.py",
+        "scripts/train_select_evaluate.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
+    },
+    {
+      "id": "ERR-071",
+      "code": "assert_in_production",
+      "symptom": "mlgg_web.py uses assert for subprocess stdout check, which is disabled under python -O and crashes instead of failing gracefully",
+      "root_cause": "assert used for runtime validation instead of explicit if-check with proper error handling",
+      "fix": "Replace 'assert proc.stdout is not None' with explicit if-check that returns error to caller",
+      "prevention": "Never use assert for runtime validation in production code. assert is for development-time invariants only",
+      "category": "security",
+      "severity": "WARNING",
+      "affected_files": [
+        "scripts/mlgg_web.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
+    },
+    {
+      "id": "ERR-072",
+      "code": "unsanitized_column_name",
+      "symptom": "mlgg_web.py passes user-supplied column names directly to subprocess arguments without validation, potentially allowing injection of unexpected arguments",
+      "root_cause": "Step 3 column name inputs (target_col, patient_id_col, time_col) stored to session without format validation",
+      "fix": "Add regex validation for column names: must match ^[A-Za-z_][A-Za-z0-9_ .\\-]{0,127}$",
+      "prevention": "All user inputs that flow into subprocess arguments must be validated against a whitelist pattern",
+      "category": "security",
+      "severity": "ERROR",
+      "affected_files": [
+        "scripts/mlgg_web.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
     }
   ],
   "agent_instructions": {

@@ -33,7 +33,6 @@ GATE_ORDER: List[Tuple[str, str]] = [
     ("imbalance_policy", "imbalance_policy_report.json"),
     ("missingness_policy", "missingness_policy_report.json"),
     ("tuning_leakage", "tuning_leakage_report.json"),
-    ("schema_preflight", "schema_preflight_report.json"),
     ("model_selection_audit", "model_selection_audit_report.json"),
     ("feature_engineering_audit", "feature_engineering_audit_report.json"),
     ("clinical_metrics", "clinical_metrics_report.json"),
@@ -51,6 +50,8 @@ GATE_ORDER: List[Tuple[str, str]] = [
     ("reporting_bias", "reporting_bias_report.json"),
     ("execution_attestation", "execution_attestation_report.json"),
     ("self_critique", "self_critique_report.json"),
+    ("fairness_equity", "fairness_equity_report.json"),
+    ("sample_size", "sample_size_report.json"),
     ("security_audit", "security_audit_gate_report.json"),
     ("publication", "publication_gate_report.json"),
 ]

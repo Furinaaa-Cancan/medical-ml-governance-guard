@@ -174,7 +174,7 @@ def resolve_device(requested: str) -> str:
             if torch.cuda.is_available():
                 return "gpu"
         except Exception:
-            pass
+            pass  # torch not installed; fall through to CPU
         return "cpu"
     if requested == "mps":
         try:
@@ -193,7 +193,8 @@ def resolve_device(requested: str) -> str:
                 print("[WARN] GPU requested but CUDA not available. Falling back to CPU.")
                 return "cpu"
         except Exception:
-            pass
+            print("[WARN] GPU requested but torch not installed. Falling back to CPU.")
+            return "cpu"
         return "gpu"
     return "cpu"
 
@@ -501,7 +502,7 @@ def parse_seed_list(raw: str, default_seed: int) -> List[int]:
             continue
         try:
             value = int(item)
-        except Exception:
+        except (TypeError, ValueError):
             continue
         if value not in seeds:
             seeds.append(value)
@@ -810,12 +811,12 @@ def select_features_by_filter(
     for feature in features:
         series = X_train[feature]
         missing_ratio = float(series.isna().mean())
-        if missing_ratio > float(max_missing_ratio):
+        if not math.isfinite(missing_ratio) or missing_ratio > float(max_missing_ratio):
             dropped_missing.append(feature)
             continue
         numeric = pd.to_numeric(series, errors="coerce")
         variance = float(numeric.var(skipna=True)) if numeric.notna().any() else 0.0
-        if variance <= float(min_variance):
+        if not math.isfinite(variance) or variance <= float(min_variance):
             dropped_low_variance.append(feature)
             continue
         kept.append(feature)
@@ -824,6 +825,8 @@ def select_features_by_filter(
         if len(valid) >= 20:
             q1 = float(valid.quantile(0.25))
             q3 = float(valid.quantile(0.75))
+            if not (math.isfinite(q1) and math.isfinite(q3)):
+                continue
             iqr = q3 - q1
             if iqr > 0:
                 lower = q1 - 3.0 * iqr
@@ -1259,7 +1262,7 @@ def feature_stability_frequency(
             model.fit(X_sub, y_sub)
             coef = np.asarray(model.coef_).reshape(-1)
             for feature, value in zip(features, coef):
-                if abs(float(value)) > 1e-10:
+                if math.isfinite(float(value)) and abs(float(value)) > 1e-10:
                     counts[feature] += 1
             effective += 1
         except Exception as exc:
