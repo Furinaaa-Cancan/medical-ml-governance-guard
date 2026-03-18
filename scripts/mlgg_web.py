@@ -63,18 +63,21 @@ _SAFE_FILENAME_RE = re.compile(r"^[a-zA-Z0-9_][a-zA-Z0-9_.\-]{0,200}\.csv$")
 # CSRF token protection
 # ---------------------------------------------------------------------------
 _csrf_tokens: Dict[str, str] = {}
+_csrf_lock = threading.Lock()
 
 
 def _generate_csrf_token(sid: str) -> str:
     """Generate and store a CSRF token for a session."""
     token = secrets.token_hex(32)
-    _csrf_tokens[sid] = token
+    with _csrf_lock:
+        _csrf_tokens[sid] = token
     return token
 
 
 def _validate_csrf_token(sid: str, token: str) -> bool:
     """Validate a CSRF token for a session."""
-    expected = _csrf_tokens.get(sid)
+    with _csrf_lock:
+        expected = _csrf_tokens.get(sid)
     if not expected or not token:
         return False
     return secrets.compare_digest(expected, token)
@@ -163,29 +166,31 @@ def _validate_path_no_traversal(raw: str, label: str = "path") -> Path:
 _MAX_SESSIONS = 100
 _sessions: Dict[str, Dict[str, Any]] = {}
 _log_queues: Dict[str, queue.Queue] = {}
+_session_lock = threading.Lock()
 
 
 def get_session(sid: str) -> Dict[str, Any]:
     """Get or create a session state dict."""
-    if sid not in _sessions:
-        if len(_sessions) >= _MAX_SESSIONS:
-            oldest = next(iter(_sessions))
-            _sessions.pop(oldest, None)
-            _log_queues.pop(oldest, None)
-            _csrf_tokens.pop(oldest, None)
-        _sessions[sid] = {
-            "step": 1,
-            "project_root": "",
-            "csv_path": "",
-            "target_col": "y",
-            "patient_id_col": "patient_id",
-            "time_col": "event_time",
-            "model_pool": "logistic_l1,logistic_l2,random_forest_balanced",
-            "cv_splits": 5,
-            "running": False,
-            "result": None,
-        }
-    return _sessions[sid]
+    with _session_lock:
+        if sid not in _sessions:
+            if len(_sessions) >= _MAX_SESSIONS:
+                oldest = next(iter(_sessions))
+                _sessions.pop(oldest, None)
+                _log_queues.pop(oldest, None)
+                _csrf_tokens.pop(oldest, None)
+            _sessions[sid] = {
+                "step": 1,
+                "project_root": "",
+                "csv_path": "",
+                "target_col": "y",
+                "patient_id_col": "patient_id",
+                "time_col": "event_time",
+                "model_pool": "logistic_l1,logistic_l2,random_forest_balanced",
+                "cv_splits": 5,
+                "running": False,
+                "result": None,
+            }
+        return _sessions[sid]
 
 
 # ── HTML template ──────────────────────────────────────────────────────────────

@@ -372,7 +372,7 @@ def main() -> int:
         report_path = Path(args.report).expanduser().resolve()
         write_json(report_path, report)
 
-    return 2 if status == "fail" else 0
+    return 2 if should_fail else 0
 
 
 if __name__ == "__main__":

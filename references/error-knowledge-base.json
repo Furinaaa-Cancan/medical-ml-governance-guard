@@ -1260,6 +1260,36 @@
       ],
       "first_seen": "2026-03",
       "resolved": true
+    },
+    {
+      "id": "ERR-079",
+      "code": "finish_pattern_indirect_status_check",
+      "symptom": "security_audit_gate uses `return 2 if status == 'fail' else 0` instead of `return 2 if should_fail else 0`, breaking the uniform gate exit pattern",
+      "root_cause": "Incomplete fix during earlier refactoring — should_fail variable was introduced but return statement still used the derived status string",
+      "fix": "Replace `return 2 if status == \"fail\" else 0` with `return 2 if should_fail else 0`",
+      "prevention": "Gate finish pattern must always use `should_fail` boolean directly for exit code. Never compare against the derived `status` string",
+      "category": "gate",
+      "severity": "WARNING",
+      "affected_files": [
+        "scripts/security_audit_gate.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
+    },
+    {
+      "id": "ERR-080",
+      "code": "web_globals_unprotected",
+      "symptom": "mlgg_web.py CSRF tokens, sessions, and log queues use global dicts without threading locks, risking race conditions under concurrent requests",
+      "root_cause": "Only _rate_buckets had a lock; _csrf_tokens, _sessions, and _log_queues were unprotected",
+      "fix": "Add _csrf_lock and _session_lock threading.Lock() objects and wrap all read/write access to these globals in with-lock blocks",
+      "prevention": "All mutable global state in web applications must be protected by locks. Code review checklist: grep for module-level Dict/List assignments in web code",
+      "category": "security",
+      "severity": "ERROR",
+      "affected_files": [
+        "scripts/mlgg_web.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
     }
   ],
   "agent_instructions": {
