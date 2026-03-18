@@ -1305,6 +1305,36 @@
       ],
       "first_seen": "2026-03",
       "resolved": true
+    },
+    {
+      "id": "ERR-082",
+      "code": "manifest_lock_missing_gate_scripts",
+      "symptom": "run_strict_pipeline.py gate_script_inputs list missing fairness_equity_gate.py, sample_size_gate.py, and security_audit_gate.py — these 3 gate scripts are not fingerprinted in the manifest lock",
+      "root_cause": "gate_script_inputs list not updated when new gates were added to the pipeline",
+      "fix": "Add the 3 missing gate script paths to gate_script_inputs list",
+      "prevention": "When adding new gates to the pipeline, also add their script paths to gate_script_inputs in run_strict_pipeline.py",
+      "category": "gate",
+      "severity": "ERROR",
+      "affected_files": [
+        "scripts/run_strict_pipeline.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
+    },
+    {
+      "id": "ERR-083",
+      "code": "registry_missing_request_inputs",
+      "symptom": "fairness_equity_gate and sample_size_gate registered without request_inputs mapping, causing run_dag_pipeline.py to omit --evaluation-report argument when building gate commands",
+      "root_cause": "Gate specs added with empty request_inputs; the required --evaluation-report input was not mapped to the request payload field",
+      "fix": "Add request_inputs={'evaluation_report_file': '--evaluation-report'} to both gate specs in _gate_registry.py",
+      "prevention": "When registering new gates, always check argparse required arguments and add corresponding request_inputs mappings",
+      "category": "gate",
+      "severity": "CRITICAL",
+      "affected_files": [
+        "scripts/_gate_registry.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
     }
   ],
   "agent_instructions": {

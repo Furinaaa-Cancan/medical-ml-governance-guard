@@ -419,7 +419,10 @@ def main() -> int:
         str(scripts_dir / "metric_consistency_gate.py"),
         str(scripts_dir / "evaluation_quality_gate.py"),
         str(scripts_dir / "permutation_significance_gate.py"),
+        str(scripts_dir / "fairness_equity_gate.py"),
+        str(scripts_dir / "sample_size_gate.py"),
         str(scripts_dir / "publication_gate.py"),
+        str(scripts_dir / "security_audit_gate.py"),
         str(scripts_dir / "self_critique_gate.py"),
     ]
 
@@ -946,7 +949,7 @@ def main() -> int:
     ):
         return finalize(args, reports, steps, success=False)
 
-    # Step 26a: fairness & equity gate (D11)
+    # Step 27: fairness & equity gate (D11)
     if not execute(
         "fairness_equity_gate",
         [
@@ -961,7 +964,7 @@ def main() -> int:
     ):
         return finalize(args, reports, steps, success=False)
 
-    # Step 26b: sample size gate (D12)
+    # Step 28: sample size gate (D12)
     if not execute(
         "sample_size_gate",
         [
@@ -976,7 +979,7 @@ def main() -> int:
     ):
         return finalize(args, reports, steps, success=False)
 
-    # Step 27: publication gate
+    # Step 29: publication gate
     if not execute(
         "publication_gate",
         [
@@ -1045,7 +1048,7 @@ def main() -> int:
     ):
         return finalize(args, reports, steps, success=False)
 
-    # Step 28: security audit gate (D10) — must run before self_critique so its report is available
+    # Step 30: security audit gate (D10) — must run before self_critique so its report is available
     if not execute(
         "security_audit_gate",
         [
