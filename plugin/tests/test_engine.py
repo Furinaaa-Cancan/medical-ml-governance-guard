@@ -572,6 +572,108 @@ def test_r020_good_no_r020():
     assert len(r020) == 0
 
 
+# ── R017 validation vs test distinction ──────────────────────────────────────
+
+def test_r017_validation_data_allowed(tmp_path):
+    """R017 must NOT flag eval_set with validation data — early stopping
+    on validation is the recommended best practice."""
+    code = tmp_path / "valid_eval.py"
+    code.write_text(
+        "from xgboost import XGBClassifier\n"
+        "from sklearn.model_selection import train_test_split\n"
+        "X_train, X_test, y_train, y_test = train_test_split(X, y)\n"
+        "X_trn, X_valid, y_trn, y_valid = train_test_split(X_train, y_train)\n"
+        "model = XGBClassifier()\n"
+        "model.fit(X_trn, y_trn, eval_set=[(X_valid, y_valid)])\n"
+    )
+    diags = analyze_file(code)
+    r017 = [d for d in diags if d.rule_id == "R017"]
+    assert len(r017) == 0, "R017 should not flag validation data for early stopping"
+
+
+def test_r017_test_data_still_flagged(tmp_path):
+    """R017 must still flag eval_set with test data."""
+    code = tmp_path / "test_eval.py"
+    code.write_text(
+        "from xgboost import XGBClassifier\n"
+        "from sklearn.model_selection import train_test_split\n"
+        "X_train, X_test, y_train, y_test = train_test_split(X, y)\n"
+        "model = XGBClassifier()\n"
+        "model.fit(X_train, y_train, eval_set=[(X_test, y_test)])\n"
+    )
+    diags = analyze_file(code)
+    r017 = [d for d in diags if d.rule_id == "R017"]
+    assert len(r017) >= 1, "R017 must flag test data in eval_set"
+
+
+# ── R004 expanded patient hints ─────────────────────────────────────────────
+
+def test_r004_encounter_id_detected(tmp_path):
+    """R004 should detect encounter_id as patient-level identifier."""
+    code = tmp_path / "encounter.py"
+    code.write_text(
+        "from sklearn.model_selection import train_test_split\n"
+        "encounter_id = df['encounter_id']\n"
+        "X_train, X_test = train_test_split(X, y)\n"
+    )
+    diags = analyze_file(code)
+    r004 = [d for d in diags if d.rule_id == "R004"]
+    assert len(r004) >= 1, "R004 should detect encounter_id as patient context"
+
+
+def test_r004_admission_id_detected(tmp_path):
+    """R004 should detect admission_id as patient-level identifier."""
+    code = tmp_path / "admission.py"
+    code.write_text(
+        "from sklearn.model_selection import train_test_split\n"
+        "admission_id = df['admission_id']\n"
+        "X_train, X_test = train_test_split(X, y)\n"
+    )
+    diags = analyze_file(code)
+    r004 = [d for d in diags if d.rule_id == "R004"]
+    assert len(r004) >= 1, "R004 should detect admission_id as patient context"
+
+
+def test_r004_mrn_detected(tmp_path):
+    """R004 should detect mrn as patient-level identifier."""
+    code = tmp_path / "mrn.py"
+    code.write_text(
+        "from sklearn.model_selection import train_test_split\n"
+        "mrn = df['mrn']\n"
+        "X_train, X_test = train_test_split(X, y)\n"
+    )
+    diags = analyze_file(code)
+    r004 = [d for d in diags if d.rule_id == "R004"]
+    assert len(r004) >= 1, "R004 should detect mrn as patient context"
+
+
+# ── Cross-rule interaction ──────────────────────────────────────────────────
+
+def test_multiple_leakage_patterns_detected(tmp_path):
+    """A file with multiple leakage patterns should trigger multiple rules."""
+    code = tmp_path / "multi_leak.py"
+    code.write_text(
+        "from sklearn.preprocessing import StandardScaler\n"
+        "from sklearn.model_selection import train_test_split\n"
+        "from sklearn.ensemble import RandomForestClassifier\n"
+        "import pandas as pd\n"
+        "df = pd.read_csv('patient_data.csv')\n"
+        "patient_id = df['patient_id']\n"
+        "X = df.drop(columns=['target'])\n"
+        "y = df['target']\n"
+        "scaler = StandardScaler()\n"
+        "X_scaled = scaler.fit_transform(X)\n"  # R001
+        "X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.05)\n"  # R004, R015, R016
+        "clf = RandomForestClassifier()\n"  # R016, R018
+        "clf.fit(X_train, y_train)\n"
+    )
+    diags = analyze_file(code)
+    rule_ids = {d.rule_id for d in diags}
+    assert "R001" in rule_ids, "Should detect fit-before-split"
+    assert "R004" in rule_ids, "Should detect split-without-group (patient context)"
+    assert "R015" in rule_ids, "Should detect small test_size"
+
+
 # ── classify_var_name ─────────────────────────────────────────────────────────
 
 def test_classify_var_name_correct_matches():
