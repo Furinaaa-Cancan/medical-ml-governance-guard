@@ -14,6 +14,10 @@ _SPLIT_CALLS = {"train_test_split", "sklearn.model_selection.train_test_split"}
 _PATIENT_HINTS = {
     "patient", "subject", "person", "individual", "participant",
     "pid", "patient_id", "subject_id", "person_id",
+    # Medical record / encounter identifiers
+    "encounter", "encounter_id", "admission", "admission_id",
+    "visit", "visit_id", "episode", "episode_id",
+    "mrn", "medical_record", "case_id",
 }
 
 

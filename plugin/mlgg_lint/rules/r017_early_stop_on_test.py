@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ast
 
-from mlgg_lint.ast_utils import call_name, get_call_first_arg_name, is_method_call, matches_any
+from mlgg_lint.ast_utils import call_name, classify_var_name, get_call_first_arg_name, is_method_call, matches_any
 from mlgg_lint.models import Severity
 from mlgg_lint.rules import register
 from mlgg_lint.rules.base import BaseRule
@@ -45,18 +45,25 @@ class EarlyStopOnTest(BaseRule):
         self.generic_visit(node)
 
     def _check_eval_set(self, call_node: ast.Call, value: ast.expr) -> None:
-        """Check if eval_set contains test data references."""
+        """Check if eval_set contains test data references.
+
+        Early stopping on validation data is the recommended practice;
+        only flag test data (not validation).
+        """
         # eval_set=[(X_test, y_test)] — List of tuples
         if isinstance(value, ast.List):
             for elt in value.elts:
                 if isinstance(elt, ast.Tuple):
                     for item in elt.elts:
                         if isinstance(item, ast.Name):
-                            if self.taint.is_test_or_valid(item.id):
+                            taint = self.taint.get_taint(item.id)
+                            if taint is None:
+                                taint = classify_var_name(item.id)
+                            if taint == "test":
                                 self.report(
                                     call_node,
-                                    f"eval_set contains `{item.id}` (test/validation data). "
-                                    f"Early stopping on holdout data leaks information "
-                                    f"into the training process.",
+                                    f"eval_set contains `{item.id}` (test data). "
+                                    f"Early stopping on test data leaks information "
+                                    f"into the training process. Use validation data instead.",
                                 )
                                 return

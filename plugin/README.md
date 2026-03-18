@@ -63,6 +63,16 @@ cd plugin && PYTHONPATH=. python3 -m mlgg_lint check <file.py>
 | R008 | WARNING | temporal-split-shuffle | Shuffled `train_test_split` on temporal data |
 | R009 | INFO | no-confidence-intervals | Metrics without bootstrap CI computation |
 | R010 | WARNING | train-metric-as-final | Metrics computed on training data reported as final results |
+| R011 | ERROR | cv-internal-smote | SMOTE/resampling with CV but not inside imblearn.Pipeline |
+| R012 | WARNING | cv-accuracy-imbalanced | `scoring='accuracy'` in CV on imbalanced data |
+| R013 | WARNING | hardcoded-threshold | Classification threshold hardcoded to 0.5 |
+| R014 | WARNING | label-encoder-on-features | LabelEncoder used on feature columns (use OrdinalEncoder) |
+| R015 | WARNING | small-test-set | `test_size < 0.1` produces unstable estimates |
+| R016 | INFO | no-random-state | Stochastic function without `random_state=` |
+| R017 | ERROR | early-stop-on-test | `eval_set` uses test data for early stopping |
+| R018 | INFO | scaling-before-trees | Feature scaling applied before tree-based models |
+| R019 | INFO | multiple-comparison | 3+ models compared without correction (Bonferroni/Holm) |
+| R020 | WARNING | global-clean-before-split | `fillna(df.mean())` before split leaks test distribution |
 
 ### Detection capabilities
 
@@ -137,7 +147,7 @@ See `vscode/` directory. The extension:
 ```bash
 cd plugin
 PYTHONPATH=. python3 -m pytest tests/ -v
-# 57 tests, ~0.15s
+# 69+ tests, ~0.15s
 ```
 
 ## Architecture
@@ -152,5 +162,5 @@ mlgg_lint/
 ├── formatters.py   # text/JSON/SARIF output
 └── rules/
     ├── base.py     # BaseRule (ast.NodeVisitor subclass)
-    └── r001–r010   # One file per rule, auto-discovered
+    └── r001–r020   # One file per rule, auto-discovered
 ```

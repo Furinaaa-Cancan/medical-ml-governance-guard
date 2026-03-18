@@ -1353,6 +1353,38 @@
       ],
       "first_seen": "2026-03",
       "resolved": true
+    },
+    {
+      "id": "ERR-085",
+      "code": "r017_flags_validation_as_test",
+      "symptom": "R017 early-stop-on-test rule flags eval_set=[(X_valid, y_valid)] as leakage, but early stopping on validation data is the recommended best practice",
+      "root_cause": "Rule used is_test_or_valid() which treats both test and validation identically; should only flag test data",
+      "fix": "Change R017 to check taint == 'test' specifically, not 'test or valid'. Use classify_var_name() fallback for untracked variables",
+      "prevention": "When writing leakage rules that distinguish train/valid/test, always check the specific taint value rather than grouping valid with test",
+      "category": "gate",
+      "severity": "ERROR",
+      "affected_files": [
+        "plugin/mlgg_lint/rules/r017_early_stop_on_test.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true,
+      "gate": "mlgg-lint"
+    },
+    {
+      "id": "ERR-086",
+      "code": "r004_narrow_patient_hints",
+      "symptom": "R004 split-without-group only detects 'patient/subject/person' identifiers, missing common medical record identifiers like encounter_id, admission_id, visit_id, mrn",
+      "root_cause": "Patient hint set was too narrow, focused on 'patient' keyword variants only",
+      "fix": "Expand _PATIENT_HINTS to include encounter, admission, visit, episode, mrn, medical_record, case_id",
+      "prevention": "Review medical data standards (HL7 FHIR resource types) when defining identifier detection patterns",
+      "category": "gate",
+      "severity": "WARNING",
+      "affected_files": [
+        "plugin/mlgg_lint/rules/r004_split_without_group.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true,
+      "gate": "mlgg-lint"
     }
   ],
   "agent_instructions": {
