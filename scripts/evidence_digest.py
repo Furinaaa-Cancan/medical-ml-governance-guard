@@ -115,6 +115,7 @@ def extract_digest(evidence_dir: Path) -> Dict[str, Any]:
         "ci_matrix_gate_report.json", "metric_consistency_report.json",
         "evaluation_quality_report.json", "permutation_report.json",
         "reporting_bias_report.json", "execution_attestation_report.json",
+        "fairness_equity_report.json", "sample_size_report.json",
         "self_critique_report.json", "security_audit_gate_report.json",
         "publication_gate_report.json",
     ]

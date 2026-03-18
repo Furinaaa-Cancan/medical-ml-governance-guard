@@ -2,7 +2,7 @@
 
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm%20Noncommercial%201.0.0-blue.svg)](https://polyformproject.org/licenses/noncommercial/1.0.0/)
 [![CI Security](https://img.shields.io/badge/ci--security-332%20tests-brightgreen)]()
-[![Tests](https://img.shields.io/badge/tests-3117%20passed-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-3384%20passed-brightgreen)]()
 [![Coverage](https://img.shields.io/badge/gate%20coverage-%E2%89%A586%25-blue)]()
 [![TRIPOD+AI 2024](https://img.shields.io/badge/TRIPOD%2BAI-2024-blue)](https://doi.org/10.1136/bmj-2023-078378)
 [![PROBAST+AI 2025](https://img.shields.io/badge/PROBAST%2BAI-2025-blue)](https://doi.org/10.7326/M18-1376)
@@ -93,7 +93,7 @@ python3 scripts/mlgg.py play
 
 重要说明：
 - `play` 是交互式快速训练/评估入口，适合探索与教学。
-- 输出中的“快速就绪检查（play 模式）”**不是** 29 关发布门结论。
+- 输出中的“快速就绪检查（play 模式）”**不是** 31 关发布门结论。
 - 当前稳定公开的已安装 CLI 入口是 `mlgg` 与 `mlgg-pixel`。
 - 浏览器向导目前仍是仓库内的遗留/实验原型，如需使用：
   `python3 -m pip install ".[web]" && python3 scripts/mlgg_web.py`
@@ -141,7 +141,7 @@ python3 scripts/mlgg.py split -- \
 |---|---|---|
 | 快速探索/教学演示 | `python3 scripts/mlgg.py play` | 快速交互训练评估，**不是**发布结论 |
 | 新手首跑严格全流程 | `python3 scripts/mlgg.py onboarding --project-root /tmp/mlgg_demo --mode guided --yes` | 固定 8 步严格流程 + 证据报告 |
-| 出版级通过/失败判定 | `python3 scripts/mlgg.py workflow --request <project>/configs/request.json --strict --allow-missing-compare` | 29 门严格判定 |
+| 出版级通过/失败判定 | `python3 scripts/mlgg.py workflow --request <project>/configs/request.json --strict --allow-missing-compare` | 31 门严格判定 |
 
 ### 0.2 状态语义（不要混用）
 
@@ -149,7 +149,7 @@ python3 scripts/mlgg.py split -- \
 |---|---|---|---|
 | `play` 快速就绪卡片 | `NOT READY (play)` / `CAUTION (play)` / `GOOD (play)` | play 模式下的轻量提示 | 否 |
 | `onboarding_report.json` | `status=pass|fail` + `termination_reason` | onboarding 包装流程是否执行完好 | 否（onboarding 是包装层） |
-| `dag_pipeline_report.json` / `publication_gate_report.json` | `status=pass|fail` | 29 门严格结果 | 是 |
+| `dag_pipeline_report.json` / `publication_gate_report.json` | `status=pass|fail` | 31 门严格结果 | 是 |
 
 ### 0.3 自有 CSV 最短严格闭环（可直接复制）
 
@@ -190,7 +190,7 @@ python3 scripts/mlgg.py workflow \
 
 本仓库：
 - 用于**医学二分类预测**的严格工程化流程。
-- 执行 **29 步顺序 fail-closed 门控**，覆盖：
+- 执行 **31 步顺序 fail-closed 门控**，覆盖：
   - 疾病定义变量泄漏（定义疾病的特征被用作预测因子）
   - 特征血缘泄漏（特征来自索引时间之后的数据）
   - 划分/时间污染（患者重叠或时间序不一致）

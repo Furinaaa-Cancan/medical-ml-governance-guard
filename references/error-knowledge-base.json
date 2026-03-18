@@ -1164,6 +1164,67 @@
       ],
       "first_seen": "2026-03",
       "resolved": true
+    },
+    {
+      "id": "ERR-073",
+      "code": "sandbox_path_traversal",
+      "symptom": "resolve_path() sandbox check can be bypassed with sibling directory names sharing the same prefix (e.g. /tmp/sandbox-evil escapes /tmp/sandbox)",
+      "root_cause": "String prefix matching via str.startswith() does not check path separators; /tmp/sandbox-evil starts with /tmp/sandbox",
+      "fix": "Replace string prefix check with Path.relative_to() which properly validates parent-child path relationship",
+      "prevention": "Never use string prefix matching for path containment checks. Always use Path.relative_to() or equivalent OS-aware path APIs",
+      "category": "security",
+      "severity": "CRITICAL",
+      "affected_files": [
+        "scripts/_gate_utils.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
+    },
+    {
+      "id": "ERR-074",
+      "code": "timing_attack_audit_chain",
+      "symptom": "verify_audit_chain() uses string != comparison for HMAC verification, enabling timing side-channel attacks to forge audit entries",
+      "root_cause": "Standard string comparison (!=) leaks comparison length through timing differences; attacker can incrementally guess correct HMAC bytes",
+      "fix": "Replace != with hmac.compare_digest() which runs in constant time regardless of match position",
+      "prevention": "All cryptographic comparisons (HMAC, signatures, hashes) must use hmac.compare_digest() — never == or !=",
+      "category": "security",
+      "severity": "CRITICAL",
+      "affected_files": [
+        "scripts/_gate_utils.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
+    },
+    {
+      "id": "ERR-075",
+      "code": "sensitive_patterns_incomplete",
+      "symptom": "SENSITIVE_DATA_PATTERNS missing medical identifiers (MRN, insurance_id) and auth patterns (refresh_token, oauth_token, PEM headers), allowing PHI/credential leakage in evidence files",
+      "root_cause": "Pattern list created pre-HIPAA review; only covered basic API key patterns",
+      "fix": "Add refresh_token, session_token, oauth_token, PEM header patterns, medical_record, mrn_number, insurance_id to SENSITIVE_DATA_PATTERNS",
+      "prevention": "Review SENSITIVE_DATA_PATTERNS against HIPAA Safe Harbor de-identification standard and OWASP credential patterns annually",
+      "category": "security",
+      "severity": "WARNING",
+      "affected_files": [
+        "scripts/_security.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
+    },
+    {
+      "id": "ERR-076",
+      "code": "gate_list_drift_utility_scripts",
+      "symptom": "evidence_digest.py and compare_runs.py gate lists missing fairness_equity and sample_size gates added in later versions",
+      "root_cause": "Hardcoded gate report filename lists in utility scripts not updated when new gates were added to registry",
+      "fix": "Add fairness_equity_report.json and sample_size_report.json to all hardcoded gate lists",
+      "prevention": "Grep for all hardcoded gate report filename lists when adding new gates. Consider deriving lists from _gate_registry at runtime",
+      "category": "gate",
+      "severity": "WARNING",
+      "affected_files": [
+        "scripts/evidence_digest.py",
+        "scripts/compare_runs.py"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
     }
   ],
   "agent_instructions": {

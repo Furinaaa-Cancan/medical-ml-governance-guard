@@ -42,10 +42,17 @@ _HMAC_ALGO = "sha256"
 # and security_audit_gate.py. Use compound keywords to avoid false positives
 # in ML contexts (e.g. "token" would match "tokenizer").
 SENSITIVE_DATA_PATTERNS: Tuple[str, ...] = (
+    # Authentication & secrets
     "password", "api_key", "secret_key", "private_key",
     "access_key", "credential", "ssn", "social_security",
     "credit_card", "auth_token", "bearer_token",
     "api_secret", "client_secret",
+    # Token & session patterns (compound to avoid "tokenizer" FP)
+    "refresh_token", "session_token", "oauth_token",
+    # Key file patterns
+    "-----begin rsa", "-----begin private", "-----begin ec",
+    # Medical identifiers (PHI under HIPAA)
+    "medical_record", "mrn_number", "insurance_id",
 )
 _KEY_ENV_VAR = "MLGG_MODEL_SECRET"
 _KEY_FILE_NAME = ".mlgg_model_key"

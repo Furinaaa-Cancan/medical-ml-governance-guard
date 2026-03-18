@@ -82,7 +82,13 @@ python3 scripts/mlgg.py doctor
 4. **终端输出**：使用 `print_gate_summary()` 打印结构化摘要
 5. **退出逻辑**：`should_fail = bool(failures) or (args.strict and bool(warnings))`，返回 `2 if should_fail else 0`
 6. **注册**：在 `_gate_registry.py` 中注册 gate 名称和路径
-7. **测试**：在 `tests/` 中创建对应测试文件，覆盖率 ≥85%
+7. **同步 gate 列表**：grep 并更新以下文件中的硬编码 gate 报告列表：
+   - `scripts/report_health_check.py` → `EXPECTED_REPORTS`
+   - `scripts/remediation_plan.py` → `GATE_ORDER`
+   - `scripts/evidence_digest.py` → `gate_files`
+   - `scripts/compare_runs.py` → `REPORT_FILES`
+   - `scripts/render_user_summary.py` → `DEFAULT_GATE_FILES`（如需展示）
+8. **测试**：在 `tests/` 中创建对应测试文件，覆盖率 ≥85%
 
 **严禁**：
 - 自定义 strict-mode 逻辑（如 `warning_is_blocking()` 过滤器）
@@ -183,13 +189,17 @@ python3 scripts/mlgg.py doctor
 - 检测篡改、缺失、敏感数据暴露
 
 **输入验证**：
-- `safe_path()`: 路径穿越防护（null byte 注入、`..` 逃逸、系统目录封锁、沙箱强制）
+- `safe_path()` / `resolve_path()`: 路径穿越防护（null byte 注入、`..` 逃逸、系统目录封锁、沙箱 `Path.relative_to()` 强制检查）
 - `safe_load_json()`: JSON 大小限制（100MB）+ 嵌套深度限制（50层）防止栈溢出/内存耗尽
 - `check_csv_row_limit()`: CSV 行数限制防止内存耗尽 DoS
 
+**密码学安全**：
+- 所有 HMAC/签名比较必须使用 `hmac.compare_digest()`（常量时间比较，防止计时攻击）
+- 禁止使用 `==` / `!=` 进行任何密码学值比较
+
 **隐私防护**：
 - `perturb_predictions()`: Laplace 机制扰动预测概率，防御成员推理攻击
-- 敏感数据扫描：审计工具自动扫描证据文件中的 API key / password / token 等
+- 敏感数据扫描：审计工具自动扫描证据文件中的 API key / password / token / PEM 私钥 / 医疗标识符（MRN/insurance_id）等
 
 **供应链验证**：
 - `verify_critical_imports()`: 运行时验证 sklearn/numpy/pandas 是否为真实库（非 monkey-patch）

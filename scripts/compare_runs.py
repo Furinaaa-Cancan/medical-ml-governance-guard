@@ -101,6 +101,8 @@ REPORT_FILES = [
     "metric_consistency_report.json",
     "evaluation_quality_report.json",
     "permutation_report.json",
+    "fairness_equity_report.json",
+    "sample_size_report.json",
     "publication_gate_report.json",
     "self_critique_report.json",
     "security_audit_gate_report.json",

@@ -142,7 +142,9 @@ def resolve_path(base: Path, value: str, sandbox: Optional[Path] = None) -> Path
             raise ValueError(f"Path targets forbidden system location: {p}")
     if sandbox is not None:
         sandbox_resolved = sandbox.resolve()
-        if not resolved.startswith(str(sandbox_resolved)):
+        try:
+            p.relative_to(sandbox_resolved)
+        except ValueError:
             raise ValueError(
                 f"Path escapes sandbox: {p} is not under {sandbox_resolved}"
             )
@@ -561,7 +563,8 @@ def verify_audit_chain(evidence_dir: Path) -> Dict[str, Any]:
 
         entry_json = json.dumps(entry, ensure_ascii=True, sort_keys=True)
         expected = _hmac_chain(prev_hash, entry_json)
-        if stored_hash != expected:
+        import hmac as _hmac_mod
+        if not _hmac_mod.compare_digest(stored_hash, expected):
             return {"valid": False, "entries": len(lines), "broken_at": idx, "reason": "chain_hash_mismatch"}
         prev_hash = stored_hash
 
