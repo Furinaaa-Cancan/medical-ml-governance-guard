@@ -1225,6 +1225,25 @@
       ],
       "first_seen": "2026-03",
       "resolved": true
+    },
+    {
+      "id": "ERR-077",
+      "code": "stale_gate_count_in_docs",
+      "symptom": "Multiple documentation files reference outdated gate counts (28/29/30) instead of the current 31, causing confusion about pipeline completeness",
+      "root_cause": "Gate count increased from 29 to 31 when fairness_equity_gate and sample_size_gate were added, but not all docs/comments were updated",
+      "fix": "Global search-and-replace of '28-step', '29 gate', '29-gate', '30 gate' to '31' across Architecture.md, QUEUE_PROMPTS.md, gate-framework-developer-guide.md, run_strict_pipeline.py comments, CI workflow step names",
+      "prevention": "When adding new gates: 1) update _gate_registry.py 2) run `grep -rn '29.gate\\|28.gate\\|29-gate\\|28-gate' .` across entire repo 3) update all matches",
+      "category": "gate",
+      "severity": "WARNING",
+      "affected_files": [
+        "references/Architecture.md",
+        "docs/gate-framework-developer-guide.md",
+        "scripts/run_strict_pipeline.py",
+        "QUEUE_PROMPTS.md",
+        ".github/workflows/ci-security.yml"
+      ],
+      "first_seen": "2026-03",
+      "resolved": true
     }
   ],
   "agent_instructions": {

@@ -1060,7 +1060,7 @@ def main() -> int:
     ):
         return finalize(args, reports, steps, success=False)
 
-    # Step 29: self critique (scores all 30 gate reports including D10/D11/D12)
+    # Step 31: self critique (scores all 31 gate reports including D10/D11/D12)
     if not execute(
         "self_critique_gate",
         [

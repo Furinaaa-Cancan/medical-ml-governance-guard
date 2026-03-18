@@ -2,7 +2,7 @@
 
 ## Overview
 
-ml-leakage-guard is a **28-step fail-closed gate pipeline** for producing
+ml-leakage-guard is a **31-step fail-closed gate pipeline** for producing
 publication-grade medical binary classification evidence. Every gate is an
 independent CLI script that reads JSON/CSV inputs, performs a specific
 validation, and writes a machine-readable JSON report with `status: pass` or
@@ -160,10 +160,10 @@ All reports are written to the `evidence/` directory. A final
                    │
                    ▼
 ┌─────────────────────────────────────────────────────────┐
-│          29-Gate DAG Pipeline                            │
+│          31-Gate DAG Pipeline                            │
 │  scripts/run_dag_pipeline.py                            │
-│  Orchestrates gates 1–29 via dependency DAG             │
-│  Writes: evidence/*_report.json (29 reports)            │
+│  Orchestrates gates 1–31 via dependency DAG             │
+│  Writes: evidence/*_report.json (31 reports)            │
 │          evidence/dag_pipeline_report.json              │
 │          evidence/publication_gate_report.json           │
 └──────────────────┬──────────────────────────────────────┘
@@ -262,7 +262,7 @@ ml-leakage-guard/
 │   ├── mlgg.py                 # Unified CLI entry point
 │   ├── mlgg_onboarding.py      # Guided onboarding flow
 │   ├── mlgg_interactive.py     # Interactive terminal wizard
-│   ├── run_strict_pipeline.py  # 29-gate orchestrator
+│   ├── run_strict_pipeline.py  # 31-gate orchestrator
 │   ├── run_productized_workflow.py  # Full UX wrapper
 │   ├── train_select_evaluate.py     # Training pipeline
 │   ├── split_data.py           # Safe data splitting

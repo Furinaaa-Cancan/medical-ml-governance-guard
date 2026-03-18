@@ -32,7 +32,7 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install pytest
 
-      - name: CLI security tests (90 tests, no numpy required)
+      - name: CLI security tests (no numpy required)
         run: python3 -m pytest tests/test_mlgg_cli_security.py -v --tb=short
 
       - name: Reporting bias gate tests
@@ -44,7 +44,7 @@ jobs:
       - name: Manifest lock tests
         run: python3 -m pytest tests/test_manifest_lock.py -v --tb=short
 
-      - name: Audit report unit tests (74 tests, no numpy required)
+      - name: Audit report unit tests (no numpy required)
         run: python3 -m pytest tests/test_generate_audit_report.py -v --tb=short
 
       - name: Audit report smoke test
