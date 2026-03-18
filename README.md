@@ -52,13 +52,25 @@ python3 scripts/mlgg.py audit-report -- --project-dir /path/to/your/project \
 | **20 个模型族** | 逻辑回归(L1/L2/ElasticNet) / SVM / RF / XGBoost / CatBoost / LightGBM / KNN / MLP / TabPFN 等，自动超参搜索 | 17 基础 + 4 可选后端 |
 | **9 个真实医学数据集** | UCI / PhysioNet / GitHub 公开数据，297-14,980 行，一键下载 | heart / breast / pima / mammographic / framingham / vitaldb / thyroid / diabetes130 / eeg_eye |
 | **12 维量化评分** | 数据完整性 / 泄漏防护 / 管线隔离 / 模型选择 / 统计有效性 / 泛化证据 / 临床完整性 / 报告标准 / 可复现性 / 安全性 / 公平性 / 样本量 | 满分 100，≥90 为顶刊级 |
-| **学术合规引擎** | TRIPOD+AI 2024（27 项）/ PROBAST+AI 2025（4 域 34 问）/ STARD-AI 自动检查 | 44 条文献知识库 + 84 条错误知识库 |
+| **学术合规引擎** | TRIPOD+AI 2024（27 项）/ PROBAST+AI 2025（4 域 34 问）/ STARD-AI 自动检查 | 44 条文献知识库 + 86 条错误知识库 |
 | **交互式 CLI 向导** | 中英双语像素风终端 UI，EPV 提示 / 类别分布 / 数据质量警告 / 模型推荐 | `mlgg play` 一键启动 |
 | **安全加固层** | HMAC-SHA256 签名 / AES-256-GCM 加密 / 链式审计日志 / 路径穿越防护 / 受限反序列化沙盒 / 成员推理防御 | 10+ 防御机制 |
-| **Plugin Lint** | 20 条静态分析规则，检测代码级数据泄漏反模式（fit-before-split / SMOTE-on-test / threshold-on-test 等） | R001-R020，支持 .py + .ipynb |
+| **Plugin Lint** | 20 条静态分析规则（见下表），检测代码级数据泄漏反模式 | R001-R020，支持 .py + .ipynb |
 | **CI/CD 流水线** | GitHub Actions：smoke（push/PR）/ full（nightly）/ extended（weekly）/ security（多 Python 版本） | 4 条流水线 |
 | **自动化报告** | 审计报告 / 合规证书 / 修复计划 / LaTeX 导出 / 用户摘要 / 证据摘要 | Markdown + JSON + LaTeX |
 | **测试套件** | 3384+ pytest 单元测试，覆盖率 ≥86%，零网络依赖 | 86 个测试文件 |
+
+### Lint 规则分类覆盖 | Lint Rule Coverage by Category
+
+| 类别 / Category | 规则 / Rules | 严重度 / Severity |
+|-----------------|-------------|-------------------|
+| **数据泄漏 / Data Leakage** | R001 fit-before-split, R002 scaler-on-test, R003 SMOTE-on-test, R005 threshold-on-test, R006 feature-selection-full, R007 target-as-feature, R017 early-stop-on-test, R020 global-clean-before-split | ERROR |
+| **分割问题 / Split Issues** | R004 split-without-group, R008 temporal-shuffle, R015 small-test-set | WARNING |
+| **交叉验证 / Cross-Validation** | R011 CV-internal-SMOTE, R012 accuracy-on-imbalanced | ERROR / WARNING |
+| **评估误用 / Evaluation Misuse** | R010 train-metric-as-final, R013 hardcoded-threshold | WARNING |
+| **预处理 / Preprocessing** | R014 LabelEncoder-on-features, R018 scaling-before-trees | WARNING / INFO |
+| **可复现性 / Reproducibility** | R016 no-random-state | INFO |
+| **统计严谨性 / Statistical Rigor** | R009 no-CI, R019 multiple-comparison | INFO |
 
 ---
 

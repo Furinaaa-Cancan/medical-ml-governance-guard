@@ -74,6 +74,18 @@ cd plugin && PYTHONPATH=. python3 -m mlgg_lint check <file.py>
 | R019 | INFO | multiple-comparison | 3+ models compared without correction (Bonferroni/Holm) |
 | R020 | WARNING | global-clean-before-split | `fillna(df.mean())` before split leaks test distribution |
 
+### Coverage by category
+
+| Category | Rules | Severity |
+|----------|-------|----------|
+| **Data leakage** | R001 fit-before-split, R002 scaler-on-test, R003 SMOTE-on-test, R005 threshold-on-test, R006 feature-selection-full, R007 target-as-feature, R017 early-stop-on-test, R020 global-clean-before-split | ERROR |
+| **Split issues** | R004 split-without-group, R008 temporal-shuffle, R015 small-test-set | WARNING |
+| **Cross-validation** | R011 CV-internal-SMOTE, R012 accuracy-on-imbalanced | ERROR / WARNING |
+| **Evaluation misuse** | R010 train-metric-as-final, R013 hardcoded-threshold | WARNING |
+| **Preprocessing** | R014 LabelEncoder-on-features, R018 scaling-before-trees | WARNING / INFO |
+| **Reproducibility** | R016 no-random-state | INFO |
+| **Statistical rigor** | R009 no-CI, R019 multiple-comparison | INFO |
+
 ### Detection capabilities
 
 - **Keyword args**: `scaler.fit(X=X_test)` detected (not just positional)
