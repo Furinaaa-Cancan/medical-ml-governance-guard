@@ -7,6 +7,7 @@ import re
 import sys
 from typing import List
 
+from mlgg_lint import __version__
 from mlgg_lint.models import Diagnostic, Severity
 
 # ANSI colors
@@ -153,7 +154,7 @@ def format_sarif(diagnostics: List[Diagnostic]) -> str:
                 "tool": {
                     "driver": {
                         "name": "mlgg-lint",
-                        "version": "0.1.0",
+                        "version": __version__,
                         "informationUri": "https://github.com/Furinaaa-Cancan/medical-ml-leakage-guard",
                         "rules": rules_sarif,
                     }

@@ -38,10 +38,11 @@ def test_exit_code_error(capsys):
 
 
 def test_exit_code_clean(capsys):
-    rc = main(["check", str(SAMPLES_DIR / "r001_good.py"), "--exit-code"])
-    # r001_good has no R001 errors, but may have other warnings
-    # exit-code only triggers on ERROR severity
-    assert rc in (0, 1)
+    rc = main(["check", str(SAMPLES_DIR / "r001_good.py"), "--exit-code",
+               "--severity", "error"])
+    # r001_good has no ERROR-severity issues; with --severity error other
+    # severities are filtered out, so exit code must be 0
+    assert rc == 0
 
 
 def test_disable_flag(capsys):

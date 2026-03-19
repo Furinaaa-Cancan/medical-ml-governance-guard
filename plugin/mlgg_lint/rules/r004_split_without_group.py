@@ -30,8 +30,13 @@ def _has_patient_identifiers(tree: ast.Module) -> bool:
             if node.id.lower() in _PATIENT_HINTS:
                 return True
         elif isinstance(node, ast.Constant) and isinstance(node.value, str):
-            lower = node.value.lower()
-            if any(h in lower for h in _PATIENT_HINTS):
+            # Use word-boundary matching to avoid false positives like
+            # "impatient" matching "patient" or "revisiting" matching "visit"
+            words = set(node.value.lower().replace("-", "_").split("_"))
+            # Also split on whitespace for natural language strings
+            for w in node.value.lower().split():
+                words.add(w.strip(".,;:!?'\"()"))
+            if words & _PATIENT_HINTS:
                 return True
         elif isinstance(node, ast.Attribute):
             if node.attr.lower() in _PATIENT_HINTS:

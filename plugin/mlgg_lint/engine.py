@@ -253,7 +253,12 @@ def _collect_python_files(paths: Sequence[str | Path]) -> List[Path]:
                     continue
                 parts = child.relative_to(p).parts
                 if any(
-                    part.startswith(".") or part in ("__pycache__", "node_modules")
+                    part.startswith(".")
+                    or part in (
+                        "__pycache__", "node_modules",
+                        "venv", ".venv", "env", ".env",
+                        "site-packages", ".tox", ".nox",
+                    )
                     for part in parts
                 ):
                     continue

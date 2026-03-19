@@ -4,12 +4,36 @@ from __future__ import annotations
 
 import ast
 
-from mlgg_lint.ast_utils import is_method_call
+from mlgg_lint.ast_utils import call_name, is_method_call, matches_any
 from mlgg_lint.models import Severity
 from mlgg_lint.rules import register
 from mlgg_lint.rules.base import BaseRule
 
 _FIT_METHODS = {"fit", "fit_transform"}
+
+# Model classes whose .fit() is training, not preprocessing.
+# We don't flag these under R001 (preprocessor leak) — models fitting on
+# unsplit data is a different concern.
+_MODEL_CLASSES = {
+    "LogisticRegression", "RandomForestClassifier", "RandomForestRegressor",
+    "GradientBoostingClassifier", "GradientBoostingRegressor",
+    "SVC", "SVR", "LinearSVC", "LinearSVR",
+    "KNeighborsClassifier", "KNeighborsRegressor",
+    "DecisionTreeClassifier", "DecisionTreeRegressor",
+    "ExtraTreesClassifier", "ExtraTreesRegressor",
+    "BaggingClassifier", "BaggingRegressor",
+    "AdaBoostClassifier", "AdaBoostRegressor",
+    "XGBClassifier", "XGBRegressor",
+    "LGBMClassifier", "LGBMRegressor",
+    "CatBoostClassifier", "CatBoostRegressor",
+    "MLPClassifier", "MLPRegressor",
+    "GaussianNB", "MultinomialNB", "BernoulliNB",
+    "SGDClassifier", "SGDRegressor",
+    "Ridge", "Lasso", "ElasticNet",
+}
+
+# Pipeline objects are also safe — Pipeline.fit() is intentional
+_SAFE_NAMES = {"pipe", "pipeline", "clf", "model", "estimator"}
 
 
 @register
@@ -27,16 +51,40 @@ class FitBeforeSplit(BaseRule):
     )
     tags = ("leakage", "preprocessing")
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Track variables that hold model instances (not preprocessors)
+        self._model_vars: set[str] = set()
+        self._pipeline_vars: set[str] = set()
+
+    def visit_Assign(self, node: ast.Assign) -> None:  # noqa: N802
+        """Track model and pipeline assignments to avoid false positives."""
+        if isinstance(node.value, ast.Call):
+            fqn = call_name(node.value, self.import_map)
+            if fqn:
+                if matches_any(fqn, _MODEL_CLASSES):
+                    for t in node.targets:
+                        if isinstance(t, ast.Name):
+                            self._model_vars.add(t.id)
+                if matches_any(fqn, {"Pipeline", "make_pipeline"}):
+                    for t in node.targets:
+                        if isinstance(t, ast.Name):
+                            self._pipeline_vars.add(t.id)
+        self.generic_visit(node)
+
     def visit_Call(self, node: ast.Call) -> None:  # noqa: N802
-        # Check if this is obj.fit() or obj.fit_transform()
         for method in _FIT_METHODS:
             obj_name = is_method_call(node, method)
             if obj_name is None:
                 continue
+            # Skip model objects — their .fit() is training, not preprocessing
+            if obj_name in self._model_vars or obj_name in self._pipeline_vars:
+                continue
+            if obj_name.lower() in _SAFE_NAMES:
+                continue
             # Only flag if no split has occurred yet
             if not self.taint.has_split_occurred(node.lineno):
                 if self.taint.split_line is not None:
-                    # Split exists but this call is before it
                     self.report(
                         node,
                         f"`{obj_name}.{method}()` called at line {node.lineno} "

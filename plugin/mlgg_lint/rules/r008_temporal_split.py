@@ -28,7 +28,11 @@ def _has_temporal_identifiers(tree: ast.Module) -> bool:
             if node.attr.lower() in _TIME_HINTS:
                 return True
         elif isinstance(node, ast.Constant) and isinstance(node.value, str):
-            if node.value.lower() in _TIME_HINTS:
+            # Use word-boundary matching: split on _ and whitespace
+            words = set(node.value.lower().replace("-", "_").split("_"))
+            for w in node.value.lower().split():
+                words.add(w.strip(".,;:!?'\"()"))
+            if words & _TIME_HINTS:
                 return True
     return False
 

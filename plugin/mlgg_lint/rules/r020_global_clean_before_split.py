@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ast
 
-from mlgg_lint.ast_utils import call_name, is_method_call, matches_any
+from mlgg_lint.ast_utils import call_name, matches_any
 from mlgg_lint.models import Severity
 from mlgg_lint.rules import register
 from mlgg_lint.rules.base import BaseRule
@@ -38,7 +38,6 @@ class GlobalCleanBeforeSplit(BaseRule):
     def visit_Assign(self, node: ast.Assign) -> None:  # noqa: N802
         """Track: mean_val = df['col'].mean()"""
         if isinstance(node.value, ast.Call):
-            method = is_method_call(node.value, None)  # won't match, check manually
             if isinstance(node.value.func, ast.Attribute):
                 if node.value.func.attr in _GLOBAL_STAT_METHODS:
                     for target in node.targets:

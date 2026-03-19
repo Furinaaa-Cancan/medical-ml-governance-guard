@@ -783,3 +783,108 @@ def test_notebook_directory_scan(tmp_path):
     diags = analyze_paths([tmp_path], config=LintConfig())
     # The leaky notebook should produce at least one diagnostic
     assert len(diags) >= 1
+
+
+# ── Regression tests for bug fixes ──────────────────────────────────────────
+
+
+def test_r001_model_fit_not_flagged(tmp_path):
+    """R001 should not flag model.fit() before split — only preprocessors."""
+    code = tmp_path / "model_fit.py"
+    code.write_text(
+        "from sklearn.ensemble import RandomForestClassifier\n"
+        "from sklearn.model_selection import train_test_split\n"
+        "clf = RandomForestClassifier()\n"
+        "clf.fit(X, y)\n"
+        "X_train, X_test, y_train, y_test = train_test_split(X, y)\n"
+    )
+    diags = analyze_file(code)
+    r001 = [d for d in diags if d.rule_id == "R001"]
+    assert len(r001) == 0, "R001 should not flag model.fit() — only preprocessors"
+
+
+def test_r006_instantiation_only_no_flag(tmp_path):
+    """R006 should NOT flag bare instantiation before split if fit is after split."""
+    code = tmp_path / "sel_ok.py"
+    code.write_text(
+        "from sklearn.feature_selection import SelectKBest\n"
+        "from sklearn.model_selection import train_test_split\n"
+        "selector = SelectKBest(k=10)\n"
+        "X_train, X_test, y_train, y_test = train_test_split(X, y)\n"
+        "X_train_sel = selector.fit_transform(X_train, y_train)\n"
+    )
+    diags = analyze_file(code)
+    r006 = [d for d in diags if d.rule_id == "R006"]
+    assert len(r006) == 0, "R006 should not flag instantiation-only before split"
+
+
+def test_r006_fit_before_split_flagged(tmp_path):
+    """R006 should flag selector.fit() before split."""
+    code = tmp_path / "sel_bad.py"
+    code.write_text(
+        "from sklearn.feature_selection import SelectKBest\n"
+        "from sklearn.model_selection import train_test_split\n"
+        "selector = SelectKBest(k=10)\n"
+        "X_selected = selector.fit_transform(X, y)\n"
+        "X_train, X_test, y_train, y_test = train_test_split(X_selected, y)\n"
+    )
+    diags = analyze_file(code)
+    r006 = [d for d in diags if d.rule_id == "R006"]
+    assert len(r006) >= 1, "R006 should flag selector.fit_transform() before split"
+
+
+def test_r014_target_usage_not_flagged(tmp_path):
+    """R014 should NOT flag LabelEncoder used on the target column."""
+    code = tmp_path / "le_target.py"
+    code.write_text(
+        "from sklearn.preprocessing import LabelEncoder\n"
+        "import pandas as pd\n"
+        "df = pd.read_csv('data.csv')\n"
+        "le = LabelEncoder()\n"
+        "df['target'] = le.fit_transform(df['target'])\n"
+    )
+    diags = analyze_file(code)
+    r014 = [d for d in diags if d.rule_id == "R014"]
+    assert len(r014) == 0, "R014 should not flag LabelEncoder on target column"
+
+
+def test_r014_feature_usage_flagged(tmp_path):
+    """R014 should flag LabelEncoder used on feature columns."""
+    code = tmp_path / "le_feature.py"
+    code.write_text(
+        "from sklearn.preprocessing import LabelEncoder\n"
+        "import pandas as pd\n"
+        "df = pd.read_csv('data.csv')\n"
+        "le = LabelEncoder()\n"
+        "df['gender'] = le.fit_transform(df['gender'])\n"
+    )
+    diags = analyze_file(code)
+    r014 = [d for d in diags if d.rule_id == "R014"]
+    assert len(r014) >= 1, "R014 should flag LabelEncoder on feature column"
+
+
+def test_r004_no_false_positive_on_impatient(tmp_path):
+    """R004 should not trigger on 'impatient' (substring of 'patient')."""
+    code = tmp_path / "impatient.py"
+    code.write_text(
+        'from sklearn.model_selection import train_test_split\n'
+        'msg = "The user was impatient"\n'
+        'train_test_split(X, y)\n'
+    )
+    diags = analyze_file(code)
+    r004 = [d for d in diags if d.rule_id == "R004"]
+    assert len(r004) == 0, "R004 should not match 'impatient' as patient context"
+
+
+def test_venv_directory_skipped(tmp_path):
+    """Files inside venv/ should be skipped during directory scanning."""
+    from mlgg_lint.engine import _collect_python_files
+    venv = tmp_path / "venv" / "lib"
+    venv.mkdir(parents=True)
+    (venv / "code.py").write_text("x = 1\n")
+    # Also create a normal file outside venv
+    (tmp_path / "main.py").write_text("x = 1\n")
+    files = _collect_python_files([tmp_path])
+    filenames = [f.name for f in files]
+    assert "main.py" in filenames, "main.py should be found"
+    assert "code.py" not in filenames, "venv/lib/code.py should be skipped"
