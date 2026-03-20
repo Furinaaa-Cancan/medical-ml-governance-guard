@@ -15,6 +15,7 @@ from __future__ import annotations
 import abc
 import argparse
 import enum
+import itertools
 import os
 import sys
 from datetime import datetime, timezone
@@ -113,7 +114,7 @@ class GateIssue:
             code=str(legacy.get("code", "unknown")),
             severity=severity,
             message=str(legacy.get("message", "")),
-            details=legacy.get("details") if isinstance(legacy.get("details"), dict) else {},
+            details=d if isinstance((d := legacy.get("details")), dict) else {},
         )
 
 
@@ -202,14 +203,12 @@ def build_report_envelope(
     """
     now_utc = datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z")
 
-    failure_dicts = sorted(
-        [f.to_dict() for f in failures],
-        key=lambda d: Severity(d["severity"]).rank,
-    )
-    warning_dicts = sorted(
-        [w.to_dict() for w in warnings],
-        key=lambda d: Severity(d["severity"]).rank,
-    )
+    failure_dicts = [
+        f.to_dict() for f in sorted(failures, key=lambda i: i.severity.rank)
+    ]
+    warning_dicts = [
+        w.to_dict() for w in sorted(warnings, key=lambda i: i.severity.rank)
+    ]
 
     envelope: Dict[str, Any] = {
         "envelope_version": REPORT_ENVELOPE_VERSION,
@@ -385,7 +384,10 @@ def print_gate_summary(
     print(f"{'=' * 60}")
 
     all_issues = sorted(
-        [(issue, True) for issue in failures] + [(issue, False) for issue in warnings],
+        itertools.chain(
+            ((issue, True) for issue in failures),
+            ((issue, False) for issue in warnings),
+        ),
         key=lambda pair: pair[0].severity.rank,
     )
 

@@ -79,28 +79,28 @@ from sklearn.tree import DecisionTreeClassifier
 
 try:
     from xgboost import XGBClassifier  # type: ignore
-except Exception:
+except (ImportError, OSError):
     XGBClassifier = None  # type: ignore
 
 try:
     from catboost import CatBoostClassifier  # type: ignore
-except Exception:
+except (ImportError, OSError):
     CatBoostClassifier = None  # type: ignore
 
 try:
     from lightgbm import LGBMClassifier  # type: ignore
-except Exception:
+except (ImportError, OSError):
     LGBMClassifier = None  # type: ignore
 
 try:
     from tabpfn import TabPFNClassifier  # type: ignore
-except Exception:
+except (ImportError, OSError):
     TabPFNClassifier = None  # type: ignore
 
 try:
     import optuna  # type: ignore
     optuna.logging.set_verbosity(optuna.logging.WARNING)
-except Exception:
+except (ImportError, OSError):
     optuna = None  # type: ignore
 
 

@@ -200,7 +200,7 @@ def load_gate_report(path: Path) -> Optional[Dict[str, Any]]:
         with path.open("r", encoding="utf-8") as fh:
             data = json.load(fh)
         return data if isinstance(data, dict) else None
-    except Exception:
+    except (json.JSONDecodeError, OSError, ValueError):
         return None
 
 
@@ -337,7 +337,7 @@ def generate_certificate(
         try:
             with request_path.open("r", encoding="utf-8") as fh:
                 study_meta = json.load(fh)
-        except Exception:
+        except (json.JSONDecodeError, OSError, ValueError):
             pass
 
     # Collect gate outcomes and evidence hashes

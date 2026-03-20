@@ -147,7 +147,7 @@ class TestLoadJsonFromStr:
     def test_root_is_list(self, tmp_path: Path):
         p = tmp_path / "list.json"
         p.write_text("[1]", encoding="utf-8")
-        with pytest.raises(ValueError, match="JSON root must be an object"):
+        with pytest.raises(ValueError, match="JSON root must be object"):
             load_json_from_str(str(p))
 
     def test_invalid_json(self, tmp_path: Path):
@@ -168,7 +168,7 @@ class TestLoadJsonFromStr:
     def test_root_is_string(self, tmp_path: Path):
         p = tmp_path / "str_root.json"
         p.write_text('"just a string"', encoding="utf-8")
-        with pytest.raises(ValueError, match="JSON root must be an object"):
+        with pytest.raises(ValueError, match="JSON root must be object"):
             load_json_from_str(str(p))
 
 

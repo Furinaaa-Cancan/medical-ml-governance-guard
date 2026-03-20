@@ -1,0 +1,48 @@
+name: ci-overnight
+
+on:
+  schedule:
+    - cron: "0 22 * * *"  # Every night at 10 PM UTC
+  workflow_dispatch:
+
+jobs:
+  overnight-stress:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt
+          python3 -m pip install pytest
+
+      - name: Fast tests (full suite, non-slow)
+        run: python3 -m pytest tests/ -m "not slow" --tb=short -q
+
+      - name: Stress tests (slow, ~6 hours total)
+        run: |
+          python3 -m pytest tests/ -m "slow" --tb=short -v \
+            2>&1 | tee /tmp/overnight_results.txt
+
+      - name: Collect results
+        if: always()
+        run: |
+          mkdir -p /tmp/overnight_artifacts
+          cp /tmp/overnight_results.txt /tmp/overnight_artifacts/ || true
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: overnight-py${{ matrix.python-version }}
+          path: /tmp/overnight_artifacts

@@ -540,7 +540,7 @@ class SecureModelLoader:
                 bundle = safe_pickle_load(fh)
             except SecurityError:
                 raise
-            except Exception:
+            except (pickle.UnpicklingError, EOFError, ValueError, KeyError):
                 # Fallback for joblib-compressed formats (zlib/lz4)
                 import joblib
                 bundle = joblib.load(model_path)
@@ -690,8 +690,13 @@ def _get_encryption_key() -> bytes:
     try:
         key_path.write_bytes(key.hex().encode("ascii") + b"\n")
         key_path.chmod(0o600)
-    except OSError:
-        pass
+    except OSError as exc:
+        import warnings
+        warnings.warn(
+            f"Could not write/chmod encryption key file {key_path}: {exc}. "
+            f"Key exists only in memory for this session.",
+            stacklevel=2,
+        )
     return key
 
 
@@ -717,9 +722,17 @@ def encrypt_evidence(data: bytes, key: Optional[bytes] = None) -> bytes:
         # ciphertext includes the 16-byte tag appended by cryptography lib
         return _ENC_HEADER + nonce + ciphertext
     except ImportError:
-        # Fallback: XOR-based obfuscation with HMAC integrity (not true AES)
-        # This is a degraded mode when cryptography package is unavailable
+        # Fallback: PBKDF2-HMAC XOR stream — NOT cryptographically secure.
+        # This provides only obfuscation + integrity, not real confidentiality.
+        # Install the 'cryptography' package for AES-256-GCM.
         import hashlib as _hl
+        import warnings
+        warnings.warn(
+            "cryptography package not installed — using PBKDF2-XOR obfuscation "
+            "which is NOT cryptographically secure. Install 'cryptography' for "
+            "AES-256-GCM encryption.",
+            stacklevel=2,
+        )
         if data:
             stream_key = _hl.pbkdf2_hmac("sha256", key, nonce, 100_000, dklen=len(data))
             ciphertext = bytes(a ^ b for a, b in zip(data, stream_key))
@@ -1204,7 +1217,7 @@ def run_security_audit(evidence_dir: Path) -> Dict[str, Any]:
                     "message": f"Package {check['package']} failed integrity check",
                 })
 
-    # Check 4: File permissions (world-writable evidence files)
+    # Check 4 & 5: File permissions + sensitive data scan (single pass)
     for fpath in evidence_dir.glob("*.json"):
         try:
             mode = fpath.stat().st_mode
@@ -1214,12 +1227,6 @@ def run_security_audit(evidence_dir: Path) -> Dict[str, Any]:
                     "code": "world_writable",
                     "message": f"{fpath.name} is world-writable (mode {oct(mode)})",
                 })
-        except OSError:
-            pass
-
-    # Check 5: Sensitive data scan in JSON reports
-    for fpath in evidence_dir.glob("*.json"):
-        try:
             content = fpath.read_text(encoding="utf-8").lower()
             for pattern in SENSITIVE_DATA_PATTERNS:
                 if pattern in content:
@@ -1233,12 +1240,16 @@ def run_security_audit(evidence_dir: Path) -> Dict[str, Any]:
             pass
 
     # Check 6: Oversized files (potential data exfiltration)
+    _OVERSIZED_THRESHOLD = 500 * 1024 * 1024
     for fpath in evidence_dir.rglob("*"):
-        if fpath.is_file() and fpath.stat().st_size > 500 * 1024 * 1024:
+        if not fpath.is_file():
+            continue
+        fsize = fpath.stat().st_size
+        if fsize > _OVERSIZED_THRESHOLD:
             issues.append({
                 "severity": "medium",
                 "code": "oversized_file",
-                "message": f"{fpath.name} exceeds 500MB ({fpath.stat().st_size} bytes)",
+                "message": f"{fpath.name} exceeds 500MB ({fsize} bytes)",
             })
 
     critical_count = sum(1 for i in issues if i["severity"] == "critical")

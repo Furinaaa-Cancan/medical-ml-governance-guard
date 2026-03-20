@@ -49,22 +49,9 @@ def _check_json_file_size(path: Path) -> None:
         pass  # File may not exist yet; let caller handle
 
 
-def load_json_from_path(path: Path) -> Dict[str, Any]:
-    """Load and validate a JSON object from a Path."""
-    _check_json_file_size(path)
-    try:
-        with path.open("r", encoding="utf-8") as fh:
-            payload = json.load(fh)
-    except json.JSONDecodeError as exc:
-        raise ValueError(f"Invalid JSON in {path}: {exc}") from exc
-    if not isinstance(payload, dict):
-        raise ValueError(f"JSON root must be object: {path}")
-    return payload
-
-
-def load_json_from_str(path: str) -> Dict[str, Any]:
-    """Load and validate a JSON object from a string path."""
-    p = Path(path).expanduser().resolve()
+def load_json(path: Union[str, Path]) -> Dict[str, Any]:
+    """Load and validate a JSON object from a string or Path."""
+    p = Path(path).expanduser().resolve() if isinstance(path, str) else path
     _check_json_file_size(p)
     try:
         with p.open("r", encoding="utf-8") as fh:
@@ -72,15 +59,13 @@ def load_json_from_str(path: str) -> Dict[str, Any]:
     except json.JSONDecodeError as exc:
         raise ValueError(f"Invalid JSON in {p}: {exc}") from exc
     if not isinstance(payload, dict):
-        raise ValueError("JSON root must be an object.")
+        raise ValueError(f"JSON root must be object: {p}")
     return payload
 
 
-def load_json(path: Union[str, Path]) -> Dict[str, Any]:
-    """Load a JSON object from a string or Path."""
-    if isinstance(path, Path):
-        return load_json_from_path(path)
-    return load_json_from_str(path)
+# Backward-compatible aliases
+load_json_from_path = load_json
+load_json_from_str = load_json
 
 
 def load_json_optional(path: Path) -> Optional[Dict[str, Any]]:
@@ -503,14 +488,38 @@ def append_audit_entry(
     log_path = evidence_dir / _AUDIT_LOG_NAME
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Read last chain hash
+    # Read last chain hash — seek to end of file to avoid loading everything
     prev_hash = "0" * 64
     if log_path.exists():
         try:
-            lines = log_path.read_text(encoding="utf-8").strip().splitlines()
-            if lines:
-                last = json.loads(lines[-1])
-                prev_hash = last.get("chain_hash", prev_hash)
+            with log_path.open("rb") as fh:
+                fh.seek(0, 2)  # seek to end
+                pos = fh.tell()
+                if pos > 0:
+                    # Read progressively larger chunks until we find a
+                    # complete JSON line (one that parses successfully).
+                    for chunk_size in (8192, 65536, 524288, pos):
+                        chunk_size = min(chunk_size, pos)
+                        fh.seek(pos - chunk_size)
+                        raw = fh.read(chunk_size)
+                        try:
+                            tail = raw.decode("utf-8")
+                        except UnicodeDecodeError:
+                            continue
+                        # Walk lines from end to find last parseable JSON
+                        for candidate in reversed(tail.strip().splitlines()):
+                            candidate = candidate.strip()
+                            if not candidate:
+                                continue
+                            try:
+                                last = json.loads(candidate)
+                                prev_hash = last.get("chain_hash", prev_hash)
+                                break
+                            except json.JSONDecodeError:
+                                continue  # Partial line, try next
+                        else:
+                            continue  # No valid line in this chunk
+                        break  # Found a valid line
         except (json.JSONDecodeError, OSError, KeyError):
             pass
 
@@ -529,9 +538,11 @@ def append_audit_entry(
 
     entry_json = json.dumps(entry, ensure_ascii=True, sort_keys=True)
     entry["chain_hash"] = _hmac_chain(prev_hash, entry_json)
+    # Re-serialize only once (entry now includes chain_hash)
+    final_line = json.dumps(entry, ensure_ascii=True, sort_keys=True)
 
     with log_path.open("a", encoding="utf-8") as fh:
-        fh.write(json.dumps(entry, ensure_ascii=True, sort_keys=True) + "\n")
+        fh.write(final_line + "\n")
         fh.flush()
         os.fsync(fh.fileno())
 
@@ -539,33 +550,41 @@ def append_audit_entry(
 def verify_audit_chain(evidence_dir: Path) -> Dict[str, Any]:
     """Verify the integrity of the gate audit log chain.
 
+    Streams line-by-line to avoid loading entire log into memory.
+
     Returns:
         Dict with 'valid' (bool), 'entries' (int), 'broken_at' (int or None).
     """
+    import hmac as _hmac_mod
+
     log_path = evidence_dir / _AUDIT_LOG_NAME
     if not log_path.exists():
         return {"valid": True, "entries": 0, "broken_at": None, "reason": "no_log"}
 
-    lines = log_path.read_text(encoding="utf-8").strip().splitlines()
-    if not lines:
-        return {"valid": True, "entries": 0, "broken_at": None}
-
     prev_hash = "0" * 64
-    for idx, line in enumerate(lines):
-        try:
-            entry = json.loads(line)
-        except json.JSONDecodeError:
-            return {"valid": False, "entries": len(lines), "broken_at": idx, "reason": "json_parse_error"}
+    entry_count = 0
+    try:
+        with log_path.open("r", encoding="utf-8") as fh:
+            for idx, line in enumerate(fh):
+                line = line.strip()
+                if not line:
+                    continue
+                entry_count += 1
+                try:
+                    entry = json.loads(line)
+                except json.JSONDecodeError:
+                    return {"valid": False, "entries": idx + 1, "broken_at": idx, "reason": "json_parse_error"}
 
-        stored_hash = entry.pop("chain_hash", None)
-        if stored_hash is None:
-            return {"valid": False, "entries": len(lines), "broken_at": idx, "reason": "missing_chain_hash"}
+                stored_hash = entry.pop("chain_hash", None)
+                if stored_hash is None:
+                    return {"valid": False, "entries": idx + 1, "broken_at": idx, "reason": "missing_chain_hash"}
 
-        entry_json = json.dumps(entry, ensure_ascii=True, sort_keys=True)
-        expected = _hmac_chain(prev_hash, entry_json)
-        import hmac as _hmac_mod
-        if not _hmac_mod.compare_digest(stored_hash, expected):
-            return {"valid": False, "entries": len(lines), "broken_at": idx, "reason": "chain_hash_mismatch"}
-        prev_hash = stored_hash
+                entry_json = json.dumps(entry, ensure_ascii=True, sort_keys=True)
+                expected = _hmac_chain(prev_hash, entry_json)
+                if not _hmac_mod.compare_digest(stored_hash, expected):
+                    return {"valid": False, "entries": idx + 1, "broken_at": idx, "reason": "chain_hash_mismatch"}
+                prev_hash = stored_hash
+    except (OSError, UnicodeDecodeError):
+        return {"valid": False, "entries": entry_count, "broken_at": None, "reason": "read_error"}
 
-    return {"valid": True, "entries": len(lines), "broken_at": None}
+    return {"valid": True, "entries": entry_count, "broken_at": None}

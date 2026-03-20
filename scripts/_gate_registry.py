@@ -519,6 +519,9 @@ _register(GateSpec(
 # DAG resolution utilities
 # ---------------------------------------------------------------------------
 
+_cached_layers: Optional[List[Tuple[int, List[str]]]] = None
+
+
 def get_execution_layers() -> List[Tuple[int, List[str]]]:
     """Return gate names grouped by execution layer, sorted by layer order.
 
@@ -526,7 +529,13 @@ def get_execution_layers() -> List[Tuple[int, List[str]]]:
     the correct GateLayer enum value even when some layers are empty.
     Within each layer, gates are listed alphabetically for determinism.
     Gates in the same layer can execute in parallel.
+
+    Results are cached after first computation since the registry is static.
     """
+    global _cached_layers
+    if _cached_layers is not None:
+        return _cached_layers
+
     layer_map: Dict[int, List[str]] = {}
     for name, spec in GATE_REGISTRY.items():
         layer_map.setdefault(spec.layer.value, []).append(name)
@@ -534,11 +543,22 @@ def get_execution_layers() -> List[Tuple[int, List[str]]]:
     layers: List[Tuple[int, List[str]]] = []
     for layer_idx in sorted(layer_map.keys()):
         layers.append((layer_idx, sorted(layer_map[layer_idx])))
+    _cached_layers = layers
     return layers
 
 
+_cached_topo_order: Optional[List[str]] = None
+
+
 def topological_sort() -> List[str]:
-    """Return all gate names in a valid topological execution order."""
+    """Return all gate names in a valid topological execution order.
+
+    Results are cached after first computation since the registry is static.
+    """
+    global _cached_topo_order
+    if _cached_topo_order is not None:
+        return list(_cached_topo_order)
+
     visited: Set[str] = set()
     order: List[str] = []
 
@@ -556,7 +576,8 @@ def topological_sort() -> List[str]:
     for name in sorted(GATE_REGISTRY.keys()):
         _visit(name)
 
-    return order
+    _cached_topo_order = order
+    return list(order)
 
 
 def get_dependencies(gate_name: str, transitive: bool = False) -> FrozenSet[str]:

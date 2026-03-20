@@ -162,15 +162,20 @@ DIMENSIONS: Dict[str, Dict[str, Any]] = {
 }
 
 
+from _audit_shared import (
+    PATTERN_DESCRIPTION,
+    PATTERN_SEVERITY,
+    QUICK_PATTERN_KEYS,
+    check_file_structure,
+    load_json_safe,
+    scan_code_patterns,
+    score_interpretation,
+)
+
+
 def _score_interpretation(score: float) -> Tuple[str, str]:
     """Return (label_en, label_zh) for a total score."""
-    if score >= 90:
-        return ("Publication-grade", "顶刊级")
-    if score >= 75:
-        return ("Solid but gaps remain", "需补充")
-    if score >= 60:
-        return ("Major issues", "重大缺陷")
-    return ("Not publishable", "不可发表")
+    return score_interpretation(score)
 
 
 # ---------------------------------------------------------------------------
@@ -226,13 +231,7 @@ _SUPPLEMENTARY_REPORTS: Dict[str, List[str]] = {
 
 def _load_json_safe(path: Path) -> Optional[Dict[str, Any]]:
     """Load JSON without raising."""
-    try:
-        if not path.is_file():
-            return None
-        with open(path, "r", encoding="utf-8") as f:
-            return cast(Dict[str, Any], json.load(f))
-    except Exception:
-        return None
+    return load_json_safe(path)
 
 
 def _score_dimension_from_evidence(
@@ -290,68 +289,15 @@ def _score_dimension_from_evidence(
 
 
 def _scan_code_patterns(project_dir: Path) -> Dict[str, List[str]]:
-    """Scan Python files for common leakage and quality anti-patterns.
-
-    Returns dict of {pattern_name: [file_paths_with_issue]}.
-    """
-    patterns: Dict[str, re.Pattern[str]] = {
-        "fit_on_full_data": re.compile(
-            r"\.fit\s*\([^)]*(?:X_all|X_full|df\b|data\b)", re.IGNORECASE
-        ),
-        "test_in_training_loop": re.compile(
-            r"(?:X_test|y_test|test_data)\s*(?:\.fit|fit_transform)", re.IGNORECASE
-        ),
-        "smote_on_full": re.compile(
-            r"SMOTE|ADASYN|BorderlineSMOTE", re.IGNORECASE
-        ),
-        "no_random_seed": re.compile(
-            r"random_state\s*=\s*None", re.IGNORECASE
-        ),
-        "hardcoded_threshold": re.compile(
-            r"threshold\s*=\s*0\.5\b"
-        ),
-        "missing_ci": re.compile(
-            r"(?:accuracy|auc|f1)(?:_score)?\s*=", re.IGNORECASE
-        ),
-    }
-    results: Dict[str, List[str]] = {k: [] for k in patterns}
-
-    py_files = list(project_dir.rglob("*.py"))
-    for pf in py_files[:200]:  # Limit to avoid huge projects
-        try:
-            content = pf.read_text(encoding="utf-8", errors="replace")
-        except Exception:
-            continue
-        for name, pat in patterns.items():
-            if pat.search(content):
-                results[name].append(str(pf.relative_to(project_dir)))
-
-    return results
+    """Scan Python files for common leakage and quality anti-patterns."""
+    return scan_code_patterns(
+        project_dir, pattern_keys=QUICK_PATTERN_KEYS, file_limit=300
+    )
 
 
 def _check_file_structure(project_dir: Path) -> Dict[str, bool]:
     """Check for expected project artifacts."""
-    checks: Dict[str, bool] = {}
-    # Data splits
-    checks["has_train_csv"] = any(project_dir.rglob("*train*.csv"))
-    checks["has_valid_csv"] = any(project_dir.rglob("*valid*.csv"))
-    checks["has_test_csv"] = any(project_dir.rglob("*test*.csv"))
-    # Config
-    checks["has_request_json"] = any(project_dir.rglob("request*.json"))
-    # Evidence
-    checks["has_evidence_dir"] = (project_dir / "evidence").is_dir()
-    # Model
-    checks["has_model_artifact"] = any(
-        project_dir.rglob("*.pkl")
-    ) or any(project_dir.rglob("*.joblib"))
-    # Requirements
-    checks["has_requirements"] = (
-        (project_dir / "requirements.txt").is_file()
-        or (project_dir / "pyproject.toml").is_file()
-    )
-    # Git
-    checks["has_git"] = (project_dir / ".git").is_dir()
-    return checks
+    return check_file_structure(project_dir)
 
 
 def _load_journal_standards(
@@ -429,28 +375,12 @@ def run_audit(
 
     # Code pattern warnings
     code_warnings: List[Dict[str, Any]] = []
-    pattern_severity: Dict[str, str] = {
-        "fit_on_full_data": "CRITICAL",
-        "test_in_training_loop": "CRITICAL",
-        "smote_on_full": "WARNING",
-        "no_random_seed": "WARNING",
-        "hardcoded_threshold": "INFO",
-        "missing_ci": "INFO",
-    }
-    pattern_descriptions: Dict[str, str] = {
-        "fit_on_full_data": "Potential fit on full/combined data (data leakage risk)",
-        "test_in_training_loop": "Test data may be used in training loop",
-        "smote_on_full": "SMOTE/oversampling detected — verify it's train-only",
-        "no_random_seed": "random_state=None found — reproducibility risk",
-        "hardcoded_threshold": "Hardcoded threshold=0.5 — should be optimized on validation",
-        "missing_ci": "Metric computed without confidence interval context",
-    }
     for pat_name, files in code_patterns.items():
         if files:
             code_warnings.append({
                 "pattern": pat_name,
-                "severity": pattern_severity.get(pat_name, "INFO"),
-                "description": pattern_descriptions.get(pat_name, pat_name),
+                "severity": PATTERN_SEVERITY.get(pat_name, "INFO"),
+                "description": PATTERN_DESCRIPTION.get(pat_name, pat_name),
                 "affected_files": files[:10],
                 "count": len(files),
             })

@@ -224,10 +224,10 @@ def run_gate_subprocess(
         exit_code = 2
         stdout = ""
         stderr = f"TIMEOUT: {gate_name} exceeded 3600s subprocess limit."
-    except Exception as exc:
+    except (OSError, ValueError) as exc:
         exit_code = 2
         stdout = ""
-        stderr = f"EXCEPTION: {exc}"
+        stderr = f"EXCEPTION: {type(exc).__name__}: {exc}"
 
     elapsed = _time.time() - t0
     status = "pass" if exit_code == 0 else "fail"

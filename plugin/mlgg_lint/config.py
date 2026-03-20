@@ -85,6 +85,6 @@ def load_config(path: Optional[Path] = None, start: Optional[Path] = None) -> Li
     try:
         with open(path, "rb") as f:
             raw = tomllib.load(f)
-    except Exception:
+    except (OSError, tomllib.TOMLDecodeError, ValueError):
         return LintConfig()
     return LintConfig.from_dict(raw)
