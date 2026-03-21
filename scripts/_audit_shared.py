@@ -98,6 +98,50 @@ PATTERN_DESCRIPTION: Dict[str, str] = {
 
 
 # ---------------------------------------------------------------------------
+# 12-Dimension scoring weights (single source of truth, total = 100)
+# ---------------------------------------------------------------------------
+
+DIMENSIONS: Dict[str, Dict[str, Any]] = {
+    "data_integrity": {
+        "id": 1, "name": "Data Integrity", "name_zh": "数据完整性", "weight": 12,
+    },
+    "leakage_prevention": {
+        "id": 2, "name": "Leakage Prevention", "name_zh": "防泄漏", "weight": 15,
+    },
+    "pipeline_isolation": {
+        "id": 3, "name": "Pipeline Isolation", "name_zh": "流水线隔离", "weight": 12,
+    },
+    "model_selection_rigor": {
+        "id": 4, "name": "Model Selection Rigor", "name_zh": "模型选择严谨性", "weight": 10,
+    },
+    "statistical_validity": {
+        "id": 5, "name": "Statistical Validity", "name_zh": "统计有效性", "weight": 12,
+    },
+    "generalization_evidence": {
+        "id": 6, "name": "Generalization Evidence", "name_zh": "泛化证据", "weight": 10,
+    },
+    "clinical_completeness": {
+        "id": 7, "name": "Clinical Completeness", "name_zh": "临床完整性", "weight": 7,
+    },
+    "reporting_standards": {
+        "id": 8, "name": "Reporting Standards", "name_zh": "报告标准", "weight": 7,
+    },
+    "reproducibility": {
+        "id": 9, "name": "Reproducibility", "name_zh": "可重复性", "weight": 6,
+    },
+    "security_provenance": {
+        "id": 10, "name": "Security & Provenance", "name_zh": "安全与溯源", "weight": 3,
+    },
+    "fairness_equity": {
+        "id": 11, "name": "Fairness & Equity", "name_zh": "公平性", "weight": 3,
+    },
+    "sample_size_adequacy": {
+        "id": 12, "name": "Sample Size Adequacy", "name_zh": "样本量充足性", "weight": 3,
+    },
+}
+
+
+# ---------------------------------------------------------------------------
 # Score interpretation
 # ---------------------------------------------------------------------------
 

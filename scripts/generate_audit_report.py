@@ -30,6 +30,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from _audit_shared import (
     CODE_PATTERNS,
+    DIMENSIONS as _BASE_DIMENSIONS,
     PATTERN_DESCRIPTION,
     PATTERN_SEVERITY,
     check_file_structure,
@@ -486,7 +487,7 @@ def compute_dimension_scores(
     scan_results: Dict[str, Any],
     gate_reports: Dict[str, Dict[str, Any]],
 ) -> Tuple[Dict[str, Any], float]:
-    """Compute 10-dimension scores from available evidence."""
+    """Compute 12-dimension scores from available evidence."""
     dimensions = {
         "data_integrity": {
             "id": 1, "name": "Data Integrity", "weight": 12,
@@ -529,23 +530,31 @@ def compute_dimension_scores(
             ],
         },
         "clinical_completeness": {
-            "id": 7, "name": "Clinical Completeness", "weight": 8,
-            "gate_signals": ["clinical_metrics_gate", "fairness_equity_gate", "sample_size_gate"],
+            "id": 7, "name": "Clinical Completeness", "weight": 7,
+            "gate_signals": ["clinical_metrics_gate"],
         },
         "reporting_standards": {
-            "id": 8, "name": "Reporting Standards", "weight": 8,
+            "id": 8, "name": "Reporting Standards", "weight": 7,
             "gate_signals": ["reporting_bias_gate"],
         },
         "reproducibility": {
-            "id": 9, "name": "Reproducibility", "weight": 8,
+            "id": 9, "name": "Reproducibility", "weight": 6,
             "gate_signals": ["manifest_lock", "execution_attestation_gate", "seed_stability_gate"],
             "pattern_penalties": {"no_random_seed": 0.4},
             "structure_bonuses": {"has_requirements": 0.3, "has_git": 0.3},
         },
         "security_provenance": {
-            "id": 10, "name": "Security & Provenance", "weight": 5,
+            "id": 10, "name": "Security & Provenance", "weight": 3,
             "gate_signals": ["security_audit_gate", "manifest_lock"],
             "pattern_penalties": {"shell_true": 0.3, "pickle_load_unsafe": 0.2, "eval_use": 0.3},
+        },
+        "fairness_equity": {
+            "id": 11, "name": "Fairness & Equity", "weight": 3,
+            "gate_signals": ["fairness_equity_gate"],
+        },
+        "sample_size_adequacy": {
+            "id": 12, "name": "Sample Size Adequacy", "weight": 3,
+            "gate_signals": ["sample_size_gate"],
         },
     }
 

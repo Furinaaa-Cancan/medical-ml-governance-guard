@@ -432,10 +432,10 @@ class TestComputeDimensionScores:
             },
         }
 
-    def test_ten_dimensions_returned(self) -> None:
+    def test_twelve_dimensions_returned(self) -> None:
         scan = self._empty_scan()
         dim_scores, _ = gar.compute_dimension_scores(scan, {})
-        assert len(dim_scores) == 10
+        assert len(dim_scores) == 12
 
     def test_all_gates_pass_raises_score(self) -> None:
         scan = self._empty_scan()
@@ -477,11 +477,11 @@ class TestComputeDimensionScores:
             assert 0.0 <= dim["score_fraction"] <= 1.0
             assert 0.0 <= dim["weighted_score"] <= dim["max_possible"]
 
-    def test_dimension_ids_1_to_10(self) -> None:
+    def test_dimension_ids_1_to_12(self) -> None:
         scan = self._empty_scan()
         dim_scores, _ = gar.compute_dimension_scores(scan, {})
         ids = sorted(d["id"] for d in dim_scores.values())
-        assert ids == list(range(1, 11))
+        assert ids == list(range(1, 13))
 
     def test_score_interpretation_publication_grade(self) -> None:
         label_en, label_zh = gar._score_interpretation(92.0)
@@ -668,7 +668,7 @@ class TestRunAuditReport:
 
         assert "total_score" in report
         assert "dimension_scores" in report
-        assert len(report["dimension_scores"]) == 10
+        assert len(report["dimension_scores"]) == 12
         assert "tripod_coverage" in report
         assert "probast_coverage" in report
 

@@ -2,7 +2,7 @@
 
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm%20Noncommercial%201.0.0-blue.svg)](https://polyformproject.org/licenses/noncommercial/1.0.0/)
 [![CI Security](https://img.shields.io/badge/ci--security-332%20tests-brightgreen)]()
-[![Tests](https://img.shields.io/badge/tests-3384%20passed-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-3900%20passed-brightgreen)]()
 [![Coverage](https://img.shields.io/badge/gate%20coverage-%E2%89%A586%25-blue)]()
 [![TRIPOD+AI 2024](https://img.shields.io/badge/TRIPOD%2BAI-2024-blue)](https://doi.org/10.1136/bmj-2023-078378)
 [![PROBAST+AI 2025](https://img.shields.io/badge/PROBAST%2BAI-2025-blue)](https://doi.org/10.7326/M18-1376)
@@ -35,7 +35,7 @@ python3 scripts/mlgg.py audit-report -- --project-dir /path/to/your/project \
 ### What the audit checks
 | Check | Detail |
 |-------|--------|
-| 10-dimension score (0–100) | Data Integrity, Leakage Prevention, Pipeline Isolation, Model Selection Rigor, Statistical Validity, Generalization Evidence, Clinical Completeness, Reporting Standards, Reproducibility, Security |
+| 12-dimension score (0–100) | Data Integrity, Leakage Prevention, Pipeline Isolation, Model Selection Rigor, Statistical Validity, Generalization Evidence, Clinical Completeness, Reporting Standards, Reproducibility, Security, Fairness & Equity, Sample Size Adequacy |
 | TRIPOD+AI 2024 | 17 required items incl. 4 AI-specific (Collins et al. BMJ 2024;385:e078378) |
 | PROBAST+AI 2025 | Risk-of-bias across 4 domains: Participants, Predictors, Outcome, Analysis |
 | Code anti-patterns | 12 pattern types: fit_on_full_data, test_in_training_loop, global_scaler_leak, missing CI, etc. |

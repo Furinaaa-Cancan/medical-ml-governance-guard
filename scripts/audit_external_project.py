@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, cast
 
 from _audit_shared import (
+    DIMENSIONS as _BASE_DIMENSIONS,
     PATTERN_DESCRIPTION,
     PATTERN_SEVERITY,
     QUICK_PATTERN_KEYS,
@@ -32,7 +33,7 @@ from _audit_shared import (
 
 
 # ---------------------------------------------------------------------------
-# 10-Dimension scoring weights (total = 100)
+# 12-Dimension scoring weights (total = 100)
 # ---------------------------------------------------------------------------
 DIMENSIONS: Dict[str, Dict[str, Any]] = {
     "data_integrity": {
@@ -123,7 +124,7 @@ DIMENSIONS: Dict[str, Dict[str, Any]] = {
         "id": 7,
         "name": "Clinical Completeness",
         "name_zh": "临床完整性",
-        "weight": 8,
+        "weight": 7,
         "checks": [
             "full_metric_panel",
             "confusion_matrix_consistent",
@@ -135,7 +136,7 @@ DIMENSIONS: Dict[str, Dict[str, Any]] = {
         "id": 8,
         "name": "Reporting Standards",
         "name_zh": "报告标准",
-        "weight": 8,
+        "weight": 7,
         "checks": [
             "tripod_adherence",
             "probast_assessment",
@@ -147,7 +148,7 @@ DIMENSIONS: Dict[str, Dict[str, Any]] = {
         "id": 9,
         "name": "Reproducibility",
         "name_zh": "可重复性",
-        "weight": 8,
+        "weight": 6,
         "checks": [
             "seed_logged",
             "version_tracked",
@@ -161,7 +162,7 @@ DIMENSIONS: Dict[str, Dict[str, Any]] = {
         "id": 10,
         "name": "Security & Provenance",
         "name_zh": "安全与溯源",
-        "weight": 5,
+        "weight": 3,
         "checks": [
             "model_signed",
             "artifact_integrity",
@@ -169,7 +170,40 @@ DIMENSIONS: Dict[str, Dict[str, Any]] = {
             "dependency_verification",
         ],
     },
+    "fairness_equity": {
+        "id": 11,
+        "name": "Fairness & Equity",
+        "name_zh": "公平性",
+        "weight": 3,
+        "checks": [
+            "equalized_odds_gap",
+            "disparate_impact_ratio",
+            "subgroup_minimums",
+        ],
+    },
+    "sample_size_adequacy": {
+        "id": 12,
+        "name": "Sample Size Adequacy",
+        "name_zh": "样本量充足性",
+        "weight": 3,
+        "checks": [
+            "epv_ge_10",
+            "shrinkage_ge_090",
+            "min_100_events",
+            "min_100_nonevents",
+        ],
+    },
 }
+
+# Validate local weights match shared definition (single source of truth)
+assert set(DIMENSIONS.keys()) == set(_BASE_DIMENSIONS.keys()), (
+    f"DIMENSIONS keys mismatch: {set(DIMENSIONS.keys()) ^ set(_BASE_DIMENSIONS.keys())}"
+)
+for _dk in DIMENSIONS:
+    assert DIMENSIONS[_dk]["weight"] == _BASE_DIMENSIONS[_dk]["weight"], (
+        f"Weight mismatch for {_dk}: local={DIMENSIONS[_dk]['weight']} "
+        f"shared={_BASE_DIMENSIONS[_dk]['weight']}"
+    )
 
 
 def _score_interpretation(score: float) -> Tuple[str, str]:
@@ -192,6 +226,8 @@ _GATE_REPORT_MAP: Dict[str, str] = {
     "reporting_standards": "reporting_bias_report.json",
     "reproducibility": "manifest.json",
     "security_provenance": "security_audit_gate_report.json",
+    "fairness_equity": "fairness_equity_report.json",
+    "sample_size_adequacy": "sample_size_report.json",
 }
 
 _SUPPLEMENTARY_REPORTS: Dict[str, List[str]] = {
@@ -225,6 +261,8 @@ _SUPPLEMENTARY_REPORTS: Dict[str, List[str]] = {
         "request_contract_report.json",
     ],
     "security_provenance": [],
+    "fairness_equity": [],
+    "sample_size_adequacy": [],
 }
 
 

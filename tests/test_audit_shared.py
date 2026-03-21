@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 
 from _audit_shared import (
     CODE_PATTERNS,
+    DIMENSIONS,
     PATTERN_DESCRIPTION,
     PATTERN_SEVERITY,
     QUICK_PATTERN_KEYS,
@@ -336,3 +337,40 @@ class TestCheckFileStructure:
             "has_requirements", "has_git",
         }
         assert set(result.keys()) == expected_keys
+
+
+# ────────────────────────────────────────────────────────
+# DIMENSIONS (12-dimension scoring rubric)
+# ────────────────────────────────────────────────────────
+
+class TestDimensions:
+    def test_has_12_dimensions(self):
+        assert len(DIMENSIONS) == 12
+
+    def test_weights_sum_to_100(self):
+        total = sum(d["weight"] for d in DIMENSIONS.values())
+        assert total == 100, f"Weights sum to {total}, expected 100"
+
+    def test_ids_are_1_to_12(self):
+        ids = sorted(d["id"] for d in DIMENSIONS.values())
+        assert ids == list(range(1, 13))
+
+    def test_all_have_required_fields(self):
+        for key, dim in DIMENSIONS.items():
+            assert "id" in dim, f"{key} missing id"
+            assert "name" in dim, f"{key} missing name"
+            assert "name_zh" in dim, f"{key} missing name_zh"
+            assert "weight" in dim, f"{key} missing weight"
+
+    def test_weights_are_positive(self):
+        for key, dim in DIMENSIONS.items():
+            assert dim["weight"] > 0, f"{key} has non-positive weight"
+
+    def test_known_dimensions_present(self):
+        expected = {
+            "data_integrity", "leakage_prevention", "pipeline_isolation",
+            "model_selection_rigor", "statistical_validity", "generalization_evidence",
+            "clinical_completeness", "reporting_standards", "reproducibility",
+            "security_provenance", "fairness_equity", "sample_size_adequacy",
+        }
+        assert set(DIMENSIONS.keys()) == expected
