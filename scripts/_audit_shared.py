@@ -14,7 +14,7 @@ import itertools
 import json
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, cast
+from typing import Any, Dict, FrozenSet, List, Optional, Tuple, cast
 
 # ---------------------------------------------------------------------------
 # Code anti-pattern definitions (superset used by both audit tools)
@@ -137,7 +137,7 @@ _DEFAULT_FILE_LIMIT = 300
 def scan_code_patterns(
     project_dir: Path,
     *,
-    pattern_keys: Optional[frozenset[str]] = None,
+    pattern_keys: Optional[FrozenSet[str]] = None,
     file_limit: int = _DEFAULT_FILE_LIMIT,
 ) -> Dict[str, List[str]]:
     """Scan Python files for code anti-patterns.

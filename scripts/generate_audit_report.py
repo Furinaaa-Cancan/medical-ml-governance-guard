@@ -28,6 +28,16 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from _audit_shared import (
+    CODE_PATTERNS,
+    PATTERN_DESCRIPTION,
+    PATTERN_SEVERITY,
+    check_file_structure,
+    load_json_safe,
+    scan_code_patterns,
+    score_interpretation,
+)
+
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
@@ -44,17 +54,6 @@ except ImportError:
 # ---------------------------------------------------------------------------
 # Knowledge base loaders
 # ---------------------------------------------------------------------------
-
-from _audit_shared import (
-    CODE_PATTERNS,
-    PATTERN_DESCRIPTION,
-    PATTERN_SEVERITY,
-    check_file_structure,
-    load_json_safe,
-    scan_code_patterns,
-    score_interpretation,
-)
-
 
 def _load_json_safe(path: Path) -> Optional[Dict[str, Any]]:
     """Load a JSON file; return None on error."""

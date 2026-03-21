@@ -565,25 +565,25 @@ def verify_audit_chain(evidence_dir: Path) -> Dict[str, Any]:
     entry_count = 0
     try:
         with log_path.open("r", encoding="utf-8") as fh:
-            for idx, line in enumerate(fh):
+            for line in fh:
                 line = line.strip()
                 if not line:
                     continue
-                entry_count += 1
                 try:
                     entry = json.loads(line)
                 except json.JSONDecodeError:
-                    return {"valid": False, "entries": idx + 1, "broken_at": idx, "reason": "json_parse_error"}
+                    return {"valid": False, "entries": entry_count, "broken_at": entry_count, "reason": "json_parse_error"}
 
                 stored_hash = entry.pop("chain_hash", None)
                 if stored_hash is None:
-                    return {"valid": False, "entries": idx + 1, "broken_at": idx, "reason": "missing_chain_hash"}
+                    return {"valid": False, "entries": entry_count, "broken_at": entry_count, "reason": "missing_chain_hash"}
 
                 entry_json = json.dumps(entry, ensure_ascii=True, sort_keys=True)
                 expected = _hmac_chain(prev_hash, entry_json)
                 if not _hmac_mod.compare_digest(stored_hash, expected):
-                    return {"valid": False, "entries": idx + 1, "broken_at": idx, "reason": "chain_hash_mismatch"}
+                    return {"valid": False, "entries": entry_count, "broken_at": entry_count, "reason": "chain_hash_mismatch"}
                 prev_hash = stored_hash
+                entry_count += 1
     except (OSError, UnicodeDecodeError):
         return {"valid": False, "entries": entry_count, "broken_at": None, "reason": "read_error"}
 

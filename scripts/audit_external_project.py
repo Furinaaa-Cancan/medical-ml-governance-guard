@@ -20,6 +20,16 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, cast
 
+from _audit_shared import (
+    PATTERN_DESCRIPTION,
+    PATTERN_SEVERITY,
+    QUICK_PATTERN_KEYS,
+    check_file_structure,
+    load_json_safe,
+    scan_code_patterns,
+    score_interpretation,
+)
+
 
 # ---------------------------------------------------------------------------
 # 10-Dimension scoring weights (total = 100)
@@ -160,17 +170,6 @@ DIMENSIONS: Dict[str, Dict[str, Any]] = {
         ],
     },
 }
-
-
-from _audit_shared import (
-    PATTERN_DESCRIPTION,
-    PATTERN_SEVERITY,
-    QUICK_PATTERN_KEYS,
-    check_file_structure,
-    load_json_safe,
-    scan_code_patterns,
-    score_interpretation,
-)
 
 
 def _score_interpretation(score: float) -> Tuple[str, str]:
