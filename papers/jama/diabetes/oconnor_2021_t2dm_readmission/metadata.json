@@ -1,0 +1,74 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "Machine learning prediction of 30-day hospital readmission for diabetes patients",
+    "authors": ["OConnor PJ"],
+    "journal": "JAMA Internal Medicine (representative)",
+    "year": 2021,
+    "doi": "",
+    "pmid": ""
+  },
+  "study_design": {
+    "prediction_type": "binary_classification",
+    "outcome": "30-day hospital readmission",
+    "prediction_unit": "patient",
+    "is_multicenter": false,
+    "has_external_validation": false
+  },
+  "dataset": {
+    "source_type": "public_dataset",
+    "source_name": "UCI Diabetes 130-US Hospitals",
+    "n_patients_total": 101766,
+    "n_events_positive": 11357,
+    "n_events_negative": 90409,
+    "prevalence_pct": 11.2,
+    "split_strategy": "random",
+    "train_n": 71236,
+    "valid_n": null,
+    "test_n": 30530,
+    "features_n": 49,
+    "has_missing_data": true,
+    "missing_data_strategy": "drop columns >50% missing"
+  },
+  "model": {
+    "model_type": "random_forest",
+    "n_candidate_models": 5,
+    "selection_criterion": "best CV AUC",
+    "hyperparameter_tuning": "random search",
+    "tuning_set": "train_validation",
+    "feature_selection_method": "mutual information",
+    "preprocessing_pipeline": "Label encoding + StandardScaler on full data"
+  },
+  "performance_metrics": {
+    "primary_metric": "auroc",
+    "test_auroc": 0.72,
+    "test_auroc_ci_lower": null,
+    "test_auroc_ci_upper": null,
+    "test_sensitivity": 0.65,
+    "test_specificity": 0.71,
+    "test_ppv": null,
+    "test_npv": null,
+    "test_brier_score": null,
+    "calibration_reported": false,
+    "dca_reported": false,
+    "bootstrap_ci_reported": false,
+    "external_auroc": null
+  },
+  "reporting_standards": {
+    "tripod_ai_claimed": false,
+    "probast_ai_claimed": false,
+    "limitation_section": true,
+    "equator_guideline_cited": "",
+    "code_availability": "public_github",
+    "data_availability": "public"
+  },
+  "leakage_risk_assessment": {
+    "patient_level_split_confirmed": false,
+    "temporal_split_confirmed": false,
+    "preprocessing_fit_on_train_only": false,
+    "tuning_used_test_data": false,
+    "target_leakage_risk": "medium",
+    "post_index_feature_risk": "medium",
+    "notes": "StandardScaler on full data before split (L1 leakage). Random split without patient grouping (L4). Feature selection method not clearly separated from test data. No CI, no calibration. Common pattern in Diabetes-130 studies."
+  }
+}

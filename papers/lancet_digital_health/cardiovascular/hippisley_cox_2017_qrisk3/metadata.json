@@ -1,0 +1,78 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "Development and validation of QRISK3 risk prediction algorithms to estimate future risk of cardiovascular disease",
+    "authors": ["Hippisley-Cox J", "Coupland C", "Brindle P"],
+    "journal": "BMJ",
+    "year": 2017,
+    "doi": "10.1136/bmj.j2099",
+    "pmid": "28536104"
+  },
+  "study_design": {
+    "prediction_type": "binary_classification",
+    "outcome": "10-year cardiovascular disease risk",
+    "prediction_unit": "patient",
+    "prediction_horizon": "10 years",
+    "is_multicenter": true,
+    "has_external_validation": true,
+    "external_cohort_description": "Separate temporal cohort from QResearch database"
+  },
+  "dataset": {
+    "source_type": "EHR_multicenter",
+    "source_name": "QResearch database (UK primary care)",
+    "n_patients_total": 10572055,
+    "n_events_positive": 363565,
+    "n_events_negative": 10208490,
+    "prevalence_pct": 3.4,
+    "split_strategy": "temporal",
+    "train_n": 7889803,
+    "valid_n": null,
+    "test_n": 2682252,
+    "features_n": 22,
+    "has_missing_data": true,
+    "missing_data_strategy": "multiple imputation"
+  },
+  "model": {
+    "model_type": "logistic_regression",
+    "n_candidate_models": 1,
+    "selection_criterion": "Cox proportional hazards (standard epidemiological approach)",
+    "hyperparameter_tuning": "none",
+    "tuning_set": "validation_only",
+    "feature_selection_method": "clinical domain knowledge",
+    "preprocessing_pipeline": "Fractional polynomials for continuous variables"
+  },
+  "performance_metrics": {
+    "primary_metric": "auroc",
+    "test_auroc": 0.88,
+    "test_auroc_ci_lower": 0.878,
+    "test_auroc_ci_upper": 0.881,
+    "test_sensitivity": null,
+    "test_specificity": null,
+    "test_ppv": null,
+    "test_npv": null,
+    "test_brier_score": null,
+    "calibration_reported": true,
+    "dca_reported": false,
+    "bootstrap_ci_reported": true,
+    "external_auroc": 0.88,
+    "external_auroc_ci_lower": 0.876,
+    "external_auroc_ci_upper": 0.882
+  },
+  "reporting_standards": {
+    "tripod_ai_claimed": true,
+    "probast_ai_claimed": false,
+    "limitation_section": true,
+    "equator_guideline_cited": "TRIPOD",
+    "code_availability": "on_request",
+    "data_availability": "restricted"
+  },
+  "leakage_risk_assessment": {
+    "patient_level_split_confirmed": true,
+    "temporal_split_confirmed": true,
+    "preprocessing_fit_on_train_only": true,
+    "tuning_used_test_data": false,
+    "target_leakage_risk": "low",
+    "post_index_feature_risk": "low",
+    "notes": "Gold standard epidemiological approach. Temporal validation, massive cohort, TRIPOD compliant. One of the best-designed prediction studies in cardiovascular medicine."
+  }
+}

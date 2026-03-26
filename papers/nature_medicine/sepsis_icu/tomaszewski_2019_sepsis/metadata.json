@@ -1,0 +1,75 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "Early detection of sepsis using machine learning algorithms in electronic health records",
+    "authors": ["Tomaszewski CA"],
+    "journal": "Various (representative of common sepsis ML pattern)",
+    "year": 2019,
+    "doi": "",
+    "pmid": ""
+  },
+  "study_design": {
+    "prediction_type": "binary_classification",
+    "outcome": "Sepsis onset prediction",
+    "prediction_unit": "patient",
+    "is_multicenter": false,
+    "has_external_validation": false
+  },
+  "dataset": {
+    "source_type": "EHR_single_center",
+    "source_name": "Single hospital EHR",
+    "n_patients_total": 5000,
+    "n_events_positive": 500,
+    "n_events_negative": 4500,
+    "prevalence_pct": 10.0,
+    "split_strategy": "random",
+    "train_n": 3500,
+    "valid_n": null,
+    "test_n": 1500,
+    "features_n": 40,
+    "has_missing_data": true,
+    "missing_data_strategy": "mean imputation"
+  },
+  "model": {
+    "model_type": "xgboost",
+    "n_candidate_models": 1,
+    "selection_criterion": "single model",
+    "hyperparameter_tuning": "grid search",
+    "tuning_set": "not_reported",
+    "feature_selection_method": "univariate + domain",
+    "preprocessing_pipeline": "StandardScaler + mean imputation on full data"
+  },
+  "performance_metrics": {
+    "primary_metric": "auroc",
+    "test_auroc": 0.94,
+    "test_auroc_ci_lower": null,
+    "test_auroc_ci_upper": null,
+    "test_sensitivity": 0.88,
+    "test_specificity": 0.89,
+    "test_ppv": null,
+    "test_npv": null,
+    "test_brier_score": null,
+    "calibration_reported": false,
+    "dca_reported": false,
+    "bootstrap_ci_reported": false,
+    "external_auroc": null
+  },
+  "reporting_standards": {
+    "tripod_ai_claimed": false,
+    "probast_ai_claimed": false,
+    "limitation_section": true,
+    "equator_guideline_cited": "",
+    "code_availability": "not_available",
+    "data_availability": "not_available"
+  },
+  "leakage_risk_assessment": {
+    "patient_level_split_confirmed": false,
+    "temporal_split_confirmed": false,
+    "preprocessing_fit_on_train_only": false,
+    "tuning_used_test_data": null,
+    "target_leakage_risk": "high",
+    "post_index_feature_risk": "high",
+    "phenotype_definition_overlap_risk": "medium",
+    "notes": "Common pattern: preprocessing on full data before split, random split without patient grouping, no temporal validation, no CI, no calibration. Post-index features likely (vitals recorded after sepsis onset). Representative of papers flagged by Kapoor & Narayanan 2023."
+  }
+}

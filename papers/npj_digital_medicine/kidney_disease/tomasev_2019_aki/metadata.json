@@ -1,0 +1,76 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "A clinically applicable approach to continuous prediction of future acute kidney injury",
+    "authors": ["Tomasev N", "Glorot X", "Rae JW"],
+    "journal": "Nature",
+    "year": 2019,
+    "doi": "10.1038/s41586-019-1390-1",
+    "pmid": "31367026"
+  },
+  "study_design": {
+    "prediction_type": "binary_classification",
+    "outcome": "Acute kidney injury within 48 hours",
+    "prediction_unit": "patient",
+    "prediction_horizon": "48 hours",
+    "is_multicenter": true,
+    "has_external_validation": true,
+    "external_cohort_description": "Separate US VA hospital sites"
+  },
+  "dataset": {
+    "source_type": "EHR_multicenter",
+    "source_name": "US Department of Veterans Affairs",
+    "n_patients_total": 703782,
+    "n_events_positive": 172015,
+    "n_events_negative": 531767,
+    "prevalence_pct": 24.4,
+    "split_strategy": "temporal",
+    "train_n": null,
+    "valid_n": null,
+    "test_n": null,
+    "features_n": 620,
+    "has_missing_data": true,
+    "missing_data_strategy": "forward fill + masking"
+  },
+  "model": {
+    "model_type": "deep_learning",
+    "n_candidate_models": null,
+    "selection_criterion": "",
+    "hyperparameter_tuning": "manual",
+    "tuning_set": "validation_only",
+    "feature_selection_method": "none",
+    "preprocessing_pipeline": "RNN on sequential EHR data"
+  },
+  "performance_metrics": {
+    "primary_metric": "auroc",
+    "test_auroc": 0.921,
+    "test_auroc_ci_lower": 0.920,
+    "test_auroc_ci_upper": 0.922,
+    "test_sensitivity": null,
+    "test_specificity": null,
+    "test_ppv": 0.293,
+    "test_npv": null,
+    "test_brier_score": null,
+    "calibration_reported": true,
+    "dca_reported": false,
+    "bootstrap_ci_reported": true,
+    "external_auroc": null
+  },
+  "reporting_standards": {
+    "tripod_ai_claimed": false,
+    "probast_ai_claimed": false,
+    "limitation_section": true,
+    "equator_guideline_cited": "",
+    "code_availability": "not_available",
+    "data_availability": "not_available"
+  },
+  "leakage_risk_assessment": {
+    "patient_level_split_confirmed": true,
+    "temporal_split_confirmed": true,
+    "preprocessing_fit_on_train_only": true,
+    "tuning_used_test_data": false,
+    "target_leakage_risk": "low",
+    "post_index_feature_risk": "low",
+    "notes": "DeepMind/Google AKI study. Temporal split, massive VA cohort. Criticized for low PPV (29.3%) and predominantly male cohort (93.6%). Methodologically sound but generalization concerns."
+  }
+}
