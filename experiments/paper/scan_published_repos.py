@@ -45,15 +45,52 @@ PYTHON = sys.executable
 # ---------------------------------------------------------------------------
 
 def clone_repo(github_url: str, dest: Path, timeout: int = 120) -> bool:
-    """Shallow-clone a GitHub repo."""
+    """Download a GitHub repo as zip archive (no git required).
+
+    Falls back to git clone if zip download fails.
+    """
+    import io
+    import zipfile
+
+    dest.mkdir(parents=True, exist_ok=True)
+
+    # Try zip download first (works even when git is blocked)
+    # https://github.com/user/repo → https://codeload.github.com/user/repo/zip/refs/heads/main
+    repo_path = github_url.rstrip("/").replace("https://github.com/", "")
+    for branch in ("main", "master"):
+        zip_url = f"https://codeload.github.com/{repo_path}/zip/refs/heads/{branch}"
+        try:
+            import urllib.request
+            req = urllib.request.Request(zip_url, headers={"User-Agent": "MLGG-Scanner/1.0"})
+            resp = urllib.request.urlopen(req, timeout=timeout)
+            data = resp.read()
+            with zipfile.ZipFile(io.BytesIO(data)) as zf:
+                # Extract all files, flatten the top-level directory
+                top_dirs = {name.split("/")[0] for name in zf.namelist() if "/" in name}
+                prefix = top_dirs.pop() + "/" if len(top_dirs) == 1 else ""
+                for member in zf.infolist():
+                    if member.is_dir():
+                        continue
+                    rel = member.filename
+                    if prefix and rel.startswith(prefix):
+                        rel = rel[len(prefix):]
+                    if not rel:
+                        continue
+                    target = dest / rel
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    with zf.open(member) as src, open(target, "wb") as dst:
+                        dst.write(src.read())
+            return True
+        except Exception:
+            continue
+
+    # Fallback: git clone
     try:
         result = subprocess.run(
             ["git", "clone", "--depth", "1", "--single-branch", github_url, str(dest)],
             capture_output=True, text=True, timeout=timeout,
         )
         return result.returncode == 0
-    except subprocess.TimeoutExpired:
-        return False
     except Exception:
         return False
 
@@ -88,9 +125,23 @@ def run_lint_on_file(filepath: Path) -> List[Dict[str, Any]]:
             cwd=str(REPO_ROOT),
         )
         if result.stdout.strip():
-            findings = json.loads(result.stdout)
-            if isinstance(findings, list):
-                return findings
+            # mlgg.py dispatcher may emit two JSON blocks; parse only the first
+            raw = result.stdout.strip()
+            # Find the first complete JSON array
+            depth = 0
+            end = 0
+            for i, ch in enumerate(raw):
+                if ch == "[":
+                    depth += 1
+                elif ch == "]":
+                    depth -= 1
+                    if depth == 0:
+                        end = i + 1
+                        break
+            if end > 0:
+                findings = json.loads(raw[:end])
+                if isinstance(findings, list):
+                    return findings
     except (subprocess.TimeoutExpired, json.JSONDecodeError, Exception):
         pass
     return []
