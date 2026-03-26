@@ -52,6 +52,24 @@ GITHUB_URL_PATTERN = re.compile(
     re.IGNORECASE
 )
 
+# Known framework/library/tool repos — NOT paper-specific code.
+# These get cited in papers but are not the paper's own implementation.
+EXCLUDED_REPOS = {
+    "scikit-learn/scikit-learn", "dmlc/xgboost", "fchollet/keras",
+    "keras-team/keras", "tensorflow/tensorflow", "pytorch/pytorch",
+    "microsoft/LightGBM", "catboost/catboost", "facebook/prophet",
+    "PyTorchLightning/pytorch-lightning", "Lightning-AI/pytorch-lightning",
+    "huggingface/transformers", "google/automl",
+    "MIT-LCP/mimic-code", "MIT-LCP/mimic-iv", "MIT-LCP/mimic-iii",
+    "YerevaNN/mimic3-benchmarks", "OHDSI/MIMIC",
+    "jadore801120/attention-is-all-you-need-pytorch",
+    "xiaopeng-liao/Pytorch-UNet", "numpy/numpy", "pandas-dev/pandas",
+    "scipy/scipy", "statsmodels/statsmodels", "matplotlib/matplotlib",
+    "mwaskom/seaborn", "Rdatatable/data.table",
+    "OHDSI/CommonDataModel", "OHDSI/Atlas", "OHDSI/Achilles",
+    "epfml/sent2vec", "google-research/bert",
+}
+
 DISEASE_KEYWORDS = {
     "cardiovascular": ["heart", "cardiac", "cardiovascular", "atrial", "coronary", "stroke", "hypertension"],
     "oncology": ["cancer", "tumor", "oncology", "malignant", "carcinoma", "lymphoma", "melanoma"],
@@ -237,10 +255,16 @@ def collect_papers(
         if not github_urls:
             continue
 
-        # Deduplicate by repo URL
+        # Deduplicate by repo URL and filter out known libraries
         for url in github_urls:
             if url in seen_repos:
                 continue
+            # Extract "user/repo" and check against exclusion list
+            parts = url.rstrip("/").split("/")
+            if len(parts) >= 5:
+                user_repo = f"{parts[3]}/{parts[4]}"
+                if user_repo in EXCLUDED_REPOS:
+                    continue
             seen_repos.add(url)
 
             year = extract_year(s["pubdate"])
