@@ -37,15 +37,18 @@ from typing import Any, Dict, List, Optional, Set
 EUTILS_BASE = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 
 # Search query: medical ML papers mentioning "github" in full text (PMC)
-PMC_SEARCH_QUERY = (
+PMC_SEARCH_QUERY_TEMPLATE = (
     '("machine learning" OR "deep learning" OR "random forest" OR "XGBoost" '
     'OR "gradient boosting" OR "neural network" OR "logistic regression") '
     'AND ("prediction" OR "classification" OR "prognostic" OR "diagnostic") '
     'AND ("patient" OR "clinical" OR "EHR" OR "electronic health record" '
     'OR "hospital" OR "cohort") '
     'AND "github.com" '
-    'AND (2019:2025[pdat])'
+    'AND ({year_start}:{year_end}[pdat])'
 )
+
+# Default: full 2015-2025 range, searched per-year for balanced coverage
+PMC_SEARCH_QUERY = PMC_SEARCH_QUERY_TEMPLATE.format(year_start=2015, year_end=2025)
 
 GITHUB_URL_PATTERN = re.compile(
     r'https?://github\.com/[\w\-\.]+/[\w\-\.]+',
@@ -223,11 +226,22 @@ def collect_papers(
     max_results: int = 500,
     email: str = "",
     output_path: Optional[Path] = None,
+    year_start: int = 2015,
+    year_end: int = 2025,
+    per_year_max: int = 100,
 ) -> List[Dict[str, Any]]:
-    """Full pipeline: search → fetch metadata → extract GitHub URLs."""
+    """Full pipeline: search → fetch metadata → extract GitHub URLs.
 
-    # Step 1: Search PMC
-    pmc_ids = search_pmc(PMC_SEARCH_QUERY, max_results=max_results, email=email)
+    Searches per-year to ensure balanced temporal coverage.
+    """
+    # Step 1: Search PMC per-year for balanced coverage
+    pmc_ids: List[str] = []
+    for year in range(year_start, year_end + 1):
+        query = PMC_SEARCH_QUERY_TEMPLATE.format(year_start=year, year_end=year)
+        year_ids = search_pmc(query, max_results=per_year_max, email=email)
+        print(f"  Year {year}: {len(year_ids)} results")
+        pmc_ids.extend(year_ids)
+        time.sleep(0.5)
     if not pmc_ids:
         print("No results found.")
         return []
@@ -316,7 +330,13 @@ def main() -> int:
                         default="experiments/paper/papers_with_code.jsonl",
                         help="Output JSONL path.")
     parser.add_argument("--max-results", type=int, default=500,
-                        help="Max PMC search results.")
+                        help="Max PMC search results (total across all years).")
+    parser.add_argument("--per-year-max", type=int, default=100,
+                        help="Max results per year (ensures balanced coverage).")
+    parser.add_argument("--year-start", type=int, default=2015,
+                        help="Start year for search.")
+    parser.add_argument("--year-end", type=int, default=2025,
+                        help="End year for search.")
     parser.add_argument("--email", type=str, default="",
                         help="Email for NCBI E-utilities (recommended for large queries).")
 
@@ -326,6 +346,9 @@ def main() -> int:
         max_results=args.max_results,
         email=args.email,
         output_path=Path(args.output),
+        year_start=args.year_start,
+        year_end=args.year_end,
+        per_year_max=args.per_year_max,
     )
 
     if papers:
