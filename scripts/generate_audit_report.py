@@ -22,15 +22,12 @@ from __future__ import annotations
 import argparse
 import json
 import math
-import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from _audit_shared import (
-    CODE_PATTERNS,
-    DIMENSIONS as _BASE_DIMENSIONS,
     PATTERN_DESCRIPTION,
     PATTERN_SEVERITY,
     check_file_structure,

@@ -42,7 +42,6 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-import os
 import re
 import sys
 import time

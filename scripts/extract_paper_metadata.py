@@ -46,7 +46,6 @@ import argparse
 import json
 import logging
 import os
-import re
 import sys
 import time
 import urllib.parse
@@ -303,7 +302,6 @@ def assemble_paper_text(metadata: dict[str, Any], abstract_only: bool = False) -
     title = bib.get("title", "")
     abstract = auto.get("abstract_snippet", "") or ""
     pmcid = bib.get("pmcid", "")
-    source = metadata.get("_source", "")
 
     lines: list[str] = []
     if title:
@@ -883,7 +881,8 @@ def _setup_provider(args: argparse.Namespace) -> tuple[str, Any, Any, str]:
             api_key=api_key or "dummy",
             base_url="https://api.deepseek.com",
         )
-        extractor = lambda text, pid: extract_with_deepseek(client, text, pid, model)
+        def extractor(text: str, pid: str) -> dict:
+            return extract_with_deepseek(client, text, pid, model)
         label = f"DeepSeek ({model})"
 
     else:  # claude
@@ -901,7 +900,8 @@ def _setup_provider(args: argparse.Namespace) -> tuple[str, Any, Any, str]:
             sys.exit(1)
         model = args.model or "claude-opus-4-6"
         client = _anthropic_mod.Anthropic(api_key=api_key or "dummy")
-        extractor = lambda text, pid: extract_with_claude(client, text, pid, model)
+        def extractor(text: str, pid: str) -> dict:
+            return extract_with_claude(client, text, pid, model)
         label = f"Claude ({model})"
 
     return provider, client, extractor, label

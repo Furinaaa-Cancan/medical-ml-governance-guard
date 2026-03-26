@@ -639,7 +639,7 @@ def main() -> int:
                                   timeout=_DEFAULT_SUBPROCESS_TIMEOUT_SECONDS)
             return int(proc.returncode)
         except subprocess.TimeoutExpired:
-            print(f"[FAIL] subprocess_timeout: lint exceeded timeout.", file=sys.stderr)
+            print("[FAIL] subprocess_timeout: lint exceeded timeout.", file=sys.stderr)
             return 2
 
     cmd = [python_bin, str(script_path), *preset_args, *passthrough]
