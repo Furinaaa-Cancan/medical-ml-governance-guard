@@ -1,7 +1,7 @@
 {
   "contract_version": "error_knowledge_base.v1",
   "description": "Self-improving error pattern database. Agents should append new entries when encountering novel error patterns.",
-  "last_updated": "2026-03-17T23:00:00Z",
+  "last_updated": "2026-03-27T00:00:00Z",
   "categories": {
     "data": "Data loading, splitting, format issues",
     "leakage": "Any form of data leakage detection",
@@ -1383,6 +1383,38 @@
         "plugin/mlgg_lint/rules/r004_split_without_group.py"
       ],
       "first_seen": "2026-03",
+      "resolved": true,
+      "gate": "mlgg-lint"
+    },
+    {
+      "id": "ERR-087",
+      "code": "dag_request_contract_not_in_newly_passed",
+      "symptom": "All 30 downstream gates skipped with 'dependency not met' after request_contract_gate passes. manifest_lock never runs, causing 'Bootstrap manifest missing' cascade failure in endurance tests (12/17 failures)",
+      "root_cause": "request_contract_gate runs outside the layer loop (line 713) but is never added to newly_passed set. When the layer loop checks dependencies, manifest_lock's dependency on request_contract_gate evaluates to False because it is not in passed_gates (empty) nor newly_passed (empty) but IS in gates_to_run",
+      "fix": "Change line 779 from 'newly_passed: Set[str] = set()' to 'newly_passed: Set[str] = {\"request_contract_gate\"}'",
+      "prevention": "When a gate is executed outside the main execution loop, always ensure its result is propagated to the dependency tracking data structures",
+      "category": "pipeline",
+      "severity": "CRITICAL",
+      "affected_files": [
+        "scripts/run_dag_pipeline.py"
+      ],
+      "first_seen": "2026-03-26",
+      "resolved": true,
+      "gate": "run_dag_pipeline"
+    },
+    {
+      "id": "ERR-088",
+      "code": "mlgg_lint_double_json_output",
+      "symptom": "scan_published_repos.py reports 0 findings on all repos. json.loads() fails with 'Extra data' error",
+      "root_cause": "mlgg.py dispatcher emits the lint JSON to stdout, then the underlying mlgg_lint module also emits JSON. Two concatenated JSON arrays in stdout cause json.loads() to fail",
+      "fix": "In run_lint_on_file(), parse only the first complete JSON array by tracking bracket depth instead of json.loads(raw)",
+      "prevention": "When calling CLI tools via subprocess and parsing JSON output, always handle the possibility of extra output (banners, warnings, duplicate output from wrapper scripts)",
+      "category": "gate",
+      "severity": "ERROR",
+      "affected_files": [
+        "experiments/paper/scan_published_repos.py"
+      ],
+      "first_seen": "2026-03-26",
       "resolved": true,
       "gate": "mlgg-lint"
     }

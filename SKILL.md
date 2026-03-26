@@ -27,6 +27,11 @@ description: "Publication-grade medical prediction workflow with strict anti-dat
 | "检查代码（JSON 给 agent）" | `python3 scripts/mlgg.py lint check <file.py> --format json` |
 | "检查代码（CI 门控）" | `python3 scripts/mlgg.py lint check <dir> --exit-code` |
 | "查看 lint 规则列表" | `python3 scripts/mlgg.py lint rules` |
+| "评审一篇论文（从 metadata）" | `python3 scripts/score_paper_metadata.py --metadata <metadata.json>` |
+| "批量评审论文" | `python3 scripts/score_paper_metadata.py --batch-dir papers/` |
+| "从 PMC 收集有代码的论文" | `python3 experiments/paper/collect_papers_with_code.py --output <out.jsonl>` |
+| "验证论文 repo 质量" | `python3 experiments/paper/verify_repos.py --input <in.jsonl> --output <out.jsonl>` |
+| "批量扫描论文代码泄漏" | `python3 experiments/paper/scan_published_repos.py --manifest <verified.jsonl> --output <out.json>` |
 
 ### 五条常用命令（覆盖 90% 场景）
 
@@ -900,7 +905,7 @@ python3 scripts/report_health_check.py --evidence-dir <dir>/evidence
 python3 scripts/remediation_plan.py --evidence-dir <dir>/evidence
 ```
 
-**审计输出**：10 维度量化评分 (满分100) + 期刊差距分析 + 优先修复清单
+**审计输出**：12 维度量化评分 (满分100) + 期刊差距分析 + 优先修复清单
 
 #### 模式 C：增量修复 (Fix)
 当某个 gate 失败时：
@@ -960,7 +965,7 @@ python3 scripts/mlgg.py batch-review \
 ```
 
 **批量评审输出**：
-- 对比矩阵：每个项目的 10 维度评分 + 总分 + 等级
+- 对比矩阵：每个项目的 12 维度评分 + 总分 + 等级
 - 跨项目分析：最常失败的维度 + 最普遍的差距
 - 聚合修复优先级：去重后按严重性 × 影响项目数排序
 
@@ -970,7 +975,7 @@ python3 scripts/mlgg.py batch-review \
 - 在评审报告中引用 `LIT-NNN` 编号
 - 新增文献须符合：IF>10 期刊 / EQUATOR 指南 / PRISMA 系统评价
 
-### 10 维度量化评分标准 (100分制)
+### 12 维度量化评分标准 (100分制)
 
 用于量化评判任何医疗 ML 项目的质量：
 
@@ -982,10 +987,12 @@ python3 scripts/mlgg.py batch-review \
 | 4 | 模型选择严谨性 | 10 | 候选池≥3、one-SE 规则、不窥探测试集、有基线比较 |
 | 5 | 统计有效性 | 12 | Bootstrap CI、置换检验、校准、DCA、指标一致性 |
 | 6 | 泛化证据 | 10 | Train-test gap、外部队列、Transport-drop CI、种子稳定性 |
-| 7 | 临床完整性 | 8 | 完整指标面板、混淆矩阵一致性、阈值可行性 |
-| 8 | 报告标准 | 8 | TRIPOD+AI、PROBAST+AI、排除标准文档、局限性文档 |
-| 9 | 可重复性 | 8 | 种子记录、版本追踪、执行认证、清单锁定 |
-| 10 | 安全与溯源 | 5 | 模型签名、工件完整性、敏感数据保护 |
+| 7 | 临床完整性 | 7 | 完整指标面板、混淆矩阵一致性、阈值可行性 |
+| 8 | 报告标准 | 7 | TRIPOD+AI、PROBAST+AI、STARD-AI、排除标准文档、局限性文档 |
+| 9 | 可重复性 | 6 | 种子记录、版本追踪、执行认证、清单锁定 |
+| 10 | 安全与溯源 | 3 | 模型签名、工件完整性、敏感数据保护 |
+| 11 | 公平性与公正 | 3 | 均等化优势差距、差异影响比率、亚组性能最低标准 |
+| 12 | 样本量充分性 | 3 | EPV≥10、收缩因子≥0.90、最小事件/非事件数≥100 |
 
 **评分解读**：
 - 90-100: 顶刊级 (Publication-grade) — 可直接投稿 Nature Medicine / Lancet DH / JAMA / BMJ
@@ -1072,7 +1079,7 @@ Agent 完成完整流程后应产出以下交付物：
 │   ├── prediction_trace.csv.gz                 # 行级预测追踪
 │   ├── evaluation_report.json                  # 评估指标报告
 │   ├── model_selection_report.json             # 模型选择报告
-│   └── audit_report.json                       # 10维量化审计报告
+│   └── audit_report.json                       # 12维量化审计报告
 ├── models/
 │   ├── model.pkl + model.pkl.sig               # 签名模型工件
 │   └── .mlgg_model_key                         # HMAC 密钥
