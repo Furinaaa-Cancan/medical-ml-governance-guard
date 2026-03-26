@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from _audit_shared import (
+    CODE_PATTERNS,  # noqa: F401 — re-exported for test access via `gar.CODE_PATTERNS`
     PATTERN_DESCRIPTION,
     PATTERN_SEVERITY,
     check_file_structure,

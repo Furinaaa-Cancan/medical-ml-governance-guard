@@ -2,7 +2,7 @@
 
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm%20Noncommercial%201.0.0-blue.svg)](https://polyformproject.org/licenses/noncommercial/1.0.0/)
 [![CI Security](https://img.shields.io/badge/ci--security-332%20tests-brightgreen)]()
-[![Tests](https://img.shields.io/badge/tests-3900%20passed-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-3900%2B%20passed-brightgreen)]()
 [![Coverage](https://img.shields.io/badge/gate%20coverage-%E2%89%A586%25-blue)]()
 [![TRIPOD+AI 2024](https://img.shields.io/badge/TRIPOD%2BAI-2024-blue)](https://doi.org/10.1136/bmj-2023-078378)
 [![PROBAST+AI 2025](https://img.shields.io/badge/PROBAST%2BAI-2025-blue)](https://doi.org/10.7326/M18-1376)
@@ -58,7 +58,7 @@ python3 scripts/mlgg.py audit-report -- --project-dir /path/to/your/project \
 | **Plugin Lint** | 20 条静态分析规则（见下表），检测代码级数据泄漏反模式 | R001-R020，支持 .py + .ipynb |
 | **CI/CD 流水线** | GitHub Actions：smoke（push/PR）/ full（nightly）/ extended（weekly）/ security（多 Python 版本） | 4 条流水线 |
 | **自动化报告** | 审计报告 / 合规证书 / 修复计划 / LaTeX 导出 / 用户摘要 / 证据摘要 | Markdown + JSON + LaTeX |
-| **测试套件** | 3384+ pytest 单元测试，覆盖率 ≥86%，零网络依赖 | 86 个测试文件 |
+| **测试套件** | 3900+ pytest 测试，gate 脚本覆盖率 ≥86%，零网络依赖 | 86 个测试文件 |
 
 ### Lint 规则分类覆盖 | Lint Rule Coverage by Category
 
@@ -698,7 +698,7 @@ python3 scripts/mlgg.py authority-release --dry-run --stress-case-id uci-heart-d
 | 目录/文件 | 内容 | 文件数 |
 |-----------|------|--------|
 | `scripts/` | 31 道 gate 脚本 + 训练器 + CLI 封装器 + 分析工具 + 共享模块 | 78 |
-| `tests/` | pytest 单元测试（3384+ 通过，≥86% 覆盖率） | 86 |
+| `tests/` | pytest 测试（3900+ 通过，gate 脚本 ≥86% 覆盖率） | 86 |
 | `plugin/` | mlgg-lint 静态分析器（20 规则）+ VSCode 扩展 | — |
 | `references/` | JSON schema/policy 模板、TRIPOD/PROBAST/STARD 清单、文献/错误知识库、基准注册表 | 40+ |
 | `experiments/` | UCI 公开数据集上的 authority/adversarial 基准实验 | — |
