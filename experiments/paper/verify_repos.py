@@ -70,14 +70,26 @@ def check_title_relevance(title: str) -> Tuple[bool, str]:
     return False, "title_no_prediction_keyword"
 
 
-def download_repo_zip(github_url: str, timeout: int = 30) -> Optional[zipfile.ZipFile]:
-    """Download repo as zip, return ZipFile or None."""
+def download_repo_zip(github_url: str, timeout: int = 20, max_bytes: int = 50_000_000) -> Optional[zipfile.ZipFile]:
+    """Download repo as zip, return ZipFile or None. Skip repos >50MB."""
     repo_path = github_url.rstrip("/").replace("https://github.com/", "").replace("http://github.com/", "")
     for branch in ("main", "master"):
         zip_url = f"https://codeload.github.com/{repo_path}/zip/refs/heads/{branch}"
         try:
             req = urllib.request.Request(zip_url, headers={"User-Agent": "MLGG-Verify/1.0"})
-            data = urllib.request.urlopen(req, timeout=timeout).read()
+            resp = urllib.request.urlopen(req, timeout=timeout)
+            # Read with size limit
+            chunks = []
+            total = 0
+            while True:
+                chunk = resp.read(1_000_000)  # 1MB chunks
+                if not chunk:
+                    break
+                total += len(chunk)
+                if total > max_bytes:
+                    return None  # Too large, skip
+                chunks.append(chunk)
+            data = b"".join(chunks)
             return zipfile.ZipFile(io.BytesIO(data))
         except Exception:
             continue
