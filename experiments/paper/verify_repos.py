@@ -70,7 +70,7 @@ def check_title_relevance(title: str) -> Tuple[bool, str]:
     return False, "title_no_prediction_keyword"
 
 
-def download_repo_zip(github_url: str, timeout: int = 20, max_bytes: int = 50_000_000) -> Optional[zipfile.ZipFile]:
+def download_repo_zip(github_url: str, timeout: int = 10, max_bytes: int = 30_000_000) -> Optional[zipfile.ZipFile]:
     """Download repo as zip, return ZipFile or None. Skip repos >50MB."""
     repo_path = github_url.rstrip("/").replace("https://github.com/", "").replace("http://github.com/", "")
     for branch in ("main", "master"):
@@ -283,7 +283,7 @@ def main() -> int:
             exclude_reasons[reason] = exclude_reasons.get(reason, 0) + 1
             print(f" EXCLUDE ({reason})")
 
-        time.sleep(0.3)  # Rate limit
+        time.sleep(0.1)  # Rate limit
 
     # Save verified manifest
     with open(args.output, "w") as f:
