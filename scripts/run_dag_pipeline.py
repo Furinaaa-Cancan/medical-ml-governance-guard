@@ -776,7 +776,7 @@ def main() -> int:
     # Execute gates layer by layer
     had_failure = False
     continue_on_fail = bool(args.continue_on_fail)
-    newly_passed: Set[str] = set()
+    newly_passed: Set[str] = {"request_contract_gate"}  # Already passed above
 
     execution_layers = get_execution_layers()
     for layer_idx, layer_gates in execution_layers:
