@@ -1,0 +1,458 @@
+[
+  {
+    "file": "leak_R001_01_scaler_before_split.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R001",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R001_02_imputer_before_split.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R001",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R001_03_pca_before_split.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R001",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R001_04_minmax_before_split.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R001",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R001_05_robust_scaler.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R001",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R002_01_fit_transform_test.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R002",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R002_02_imputer_fit_test.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R002",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R002_03_dict_comprehension.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R002",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R002_04_separate_fit_test.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R002",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R002_05_normalizer_test.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R002",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R002_06_valid_and_test.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R002",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R002_07_iterative_imputer_test.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R002",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R002_08_knn_imputer_test.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R002",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R003_01_smote_full_data.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R003",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R003_02_smote_on_test.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R003",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R003_03_adasyn_full.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R003",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R005_01_youden_on_test.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R005",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R005_02_pr_curve_threshold.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R005",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R005_03_threshold_stored.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R005",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R006_01_selectkbest_full.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R006",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R006_02_mutual_info_full.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R006",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R006_03_variance_threshold_full.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R006",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R007_01_target_in_features.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R007",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R007_02_no_drop_target.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R007",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R007_03_same_df.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R007",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R017_01_eval_set_test.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R017",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R017_02_lgbm_test_eval.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R017",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R017_03_catboost_test.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R017",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R020_01_dropna_before_split.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R020",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R020_02_fillna_before_split.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R020",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R020_03_clip_before_split.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R020",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_edge_01_dict_fit_transform_all.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R002",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_edge_02_loop_fit_transform.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R002",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_edge_03_function_hides_leak.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R001",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_edge_04_method_chain.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R001",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R001_06_power_transformer.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R001",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R001_07_quantile_transformer.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R001",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R002_09_poly_features_test.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R002",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R001_08_tfidf_before_split.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R001",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R001_09_one_hot_before_split.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R001",
+    "category": "leaky"
+  },
+  {
+    "file": "leak_R001_10_multiple_transforms.py",
+    "ground_truth": "leakage",
+    "expected_rule": "R001",
+    "category": "leaky"
+  },
+  {
+    "file": "clean_correct_01_fit_train_transform_test.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_correct_02_pipeline.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_correct_03_imputer_train_only.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_correct_04_pca_after_split.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_correct_05_minmax_after_split.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_correct_06_cv_pipeline.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_correct_07_make_pipeline.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_correct_08_column_transformer.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_correct_09_smote_train_only.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_correct_10_threshold_on_valid.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_legit_01_label_encoder_target.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_legit_02_roc_curve_eval_only.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_legit_03_roc_curve_thresh_unused.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_legit_04_model_fit_is_training.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_legit_05_xgb_early_stop_valid.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_legit_06_tsne_visualization.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_legit_07_dropna_is_row_removal.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_legit_08_ordinal_encoder_target.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_legit_09_separate_validation_set.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_legit_10_feature_importance.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_correct_11_robust_scaler.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_correct_12_kfold_inside_pipeline.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_correct_13_imblearn_pipeline.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_correct_14_target_encoder_sklearn.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_correct_15_gridsearch_cv.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_legit_11_roc_multiple_models.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_legit_12_calibration_plot.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_legit_13_confusion_matrix.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_legit_14_shap_explanation.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_legit_15_bootstrap_ci.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_correct_16_nested_cv.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_correct_17_train_valid_test.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_correct_18_predefined_split.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_correct_19_iterative_imputer_correct.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  },
+  {
+    "file": "clean_correct_20_feature_union.py",
+    "ground_truth": "clean",
+    "expected_rule": null,
+    "category": "clean"
+  }
+]
