@@ -69,5 +69,10 @@ class BaseRule(ast.NodeVisitor):
 
     def check(self, tree: ast.Module) -> List[Diagnostic]:
         """Run this rule on the AST and return diagnostics."""
+        self._tree = tree
         self.visit(tree)
+        self.finalize()
         return self._diagnostics
+
+    def finalize(self) -> None:
+        """Post-traversal hook. Override for two-pass rules."""

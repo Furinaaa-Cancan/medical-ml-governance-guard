@@ -147,19 +147,40 @@ def run_lint_on_file(filepath: Path) -> List[Dict[str, Any]]:
     return []
 
 
+def _is_training_file(filepath: Path) -> bool:
+    """Check if a Python file contains ML training logic (split + fit)."""
+    try:
+        content = filepath.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return False
+    has_split = "train_test_split" in content or "StratifiedKFold" in content or "KFold" in content
+    has_fit = ".fit(" in content or ".fit_transform(" in content
+    return has_split and has_fit
+
+
 def scan_repo(
     repo_dir: Path,
     paper_id: str = "",
 ) -> Dict[str, Any]:
-    """Scan all ML files in a repo and return aggregated findings."""
+    """Scan all ML files in a repo and return aggregated findings.
+
+    Leakage determination only counts findings from training files
+    (files containing both split and fit calls) to avoid false positives
+    from utility scripts, visualization code, or example files.
+    """
     files = find_ml_files(repo_dir)
     all_findings: List[Dict[str, Any]] = []
+    training_file_findings: List[Dict[str, Any]] = []
     files_scanned = 0
     files_with_issues = 0
+    training_files_count = 0
 
     for f in files:
         findings = run_lint_on_file(f)
         files_scanned += 1
+        is_training = _is_training_file(f)
+        if is_training:
+            training_files_count += 1
         if findings:
             files_with_issues += 1
             # Relativize paths
@@ -170,7 +191,10 @@ def scan_repo(
                         loc["file"] = str(Path(loc["file"]).relative_to(repo_dir))
                     except ValueError:
                         pass
+                finding["_is_training_file"] = is_training
             all_findings.extend(findings)
+            if is_training:
+                training_file_findings.extend(findings)
 
     # Aggregate by rule
     rule_counts: Dict[str, int] = {}
@@ -196,9 +220,10 @@ def scan_repo(
         leakage_rules[rid] for rid in rule_counts if rid in leakage_rules
     ]
 
+    # Only count leakage from training files (files with split + fit)
     has_leakage = any(
         f.get("severity") == "error" and f.get("rule_id", "").startswith("R0")
-        for f in all_findings
+        for f in training_file_findings
     )
 
     return {
@@ -206,7 +231,9 @@ def scan_repo(
         "files_total": len(files),
         "files_scanned": files_scanned,
         "files_with_issues": files_with_issues,
+        "training_files": training_files_count,
         "total_findings": len(all_findings),
+        "training_file_findings": len(training_file_findings),
         "rule_counts": dict(sorted(rule_counts.items())),
         "severity_counts": severity_counts,
         "has_leakage_error": has_leakage,
