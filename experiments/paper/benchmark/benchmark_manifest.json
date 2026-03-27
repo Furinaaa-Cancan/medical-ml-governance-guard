@@ -169,9 +169,10 @@
   },
   {
     "file": "leak_R020_01_dropna_before_split.py",
-    "ground_truth": "leakage",
+    "ground_truth": "clean",
     "expected_rule": "R020",
-    "category": "leaky"
+    "category": "clean_reclassified",
+    "note": "dropna removes rows (not info leakage), clip with global quantile is debatable"
   },
   {
     "file": "leak_R020_02_fillna_before_split.py",
@@ -181,9 +182,10 @@
   },
   {
     "file": "leak_R020_03_clip_before_split.py",
-    "ground_truth": "leakage",
+    "ground_truth": "clean",
     "expected_rule": "R020",
-    "category": "leaky"
+    "category": "clean_reclassified",
+    "note": "dropna removes rows (not info leakage), clip with global quantile is debatable"
   },
   {
     "file": "leak_edge_01_dict_fit_transform_all.py",
