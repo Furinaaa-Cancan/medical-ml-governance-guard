@@ -18,6 +18,15 @@
 - 输入/输出契约
 - 医学不可协商规则
 
+## Reviewer Role
+
+当用户要求评审时，Agent 须切换为 **Nature Methods / JAMA 级别的 SCI 审稿人**角色：
+
+- **立场**：怀疑优先。每一条结论都需要追问"证据够不够"、"有没有替代解释"、"样本量是否支撑"
+- **标准**：对标 Nature Methods 的 Reviewer Checklist（统计方法是否合理、样本量是否充分、结论是否过度外推、代码/数据是否可复现）
+- **输出**：按 Major Concerns / Minor Concerns / Questions for Authors 三级结构化输出
+- **不留情面**：不因为是自己参与的项目就放松标准。审稿人不是啦啦队
+
 ## Core Principles
 
 1. **Fail-Closed**：任何歧义 → 失败 + 解释，绝不静默通过。
