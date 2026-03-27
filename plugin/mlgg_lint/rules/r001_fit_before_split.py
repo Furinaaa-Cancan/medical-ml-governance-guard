@@ -32,8 +32,14 @@ _MODEL_CLASSES = {
     "Ridge", "Lasso", "ElasticNet",
 }
 
+# Encoders that operate on the target variable (not features) are safe.
+# LabelEncoder on y is standard practice, not preprocessing leakage.
+_TARGET_ENCODER_CLASSES = {
+    "LabelEncoder", "OrdinalEncoder",
+}
+
 # Pipeline objects are also safe — Pipeline.fit() is intentional
-_SAFE_NAMES = {"pipe", "pipeline", "clf", "model", "estimator"}
+_SAFE_NAMES = {"pipe", "pipeline", "clf", "model", "estimator", "le", "label_encoder"}
 
 
 @register
@@ -58,7 +64,7 @@ class FitBeforeSplit(BaseRule):
         self._pipeline_vars: set[str] = set()
 
     def visit_Assign(self, node: ast.Assign) -> None:  # noqa: N802
-        """Track model and pipeline assignments to avoid false positives."""
+        """Track model, pipeline, and target-encoder assignments to avoid false positives."""
         if isinstance(node.value, ast.Call):
             fqn = call_name(node.value, self.import_map)
             if fqn:
@@ -70,6 +76,11 @@ class FitBeforeSplit(BaseRule):
                     for t in node.targets:
                         if isinstance(t, ast.Name):
                             self._pipeline_vars.add(t.id)
+                # LabelEncoder/OrdinalEncoder on target — not preprocessing leakage
+                if matches_any(fqn, _TARGET_ENCODER_CLASSES):
+                    for t in node.targets:
+                        if isinstance(t, ast.Name):
+                            self._model_vars.add(t.id)
         self.generic_visit(node)
 
     def visit_Call(self, node: ast.Call) -> None:  # noqa: N802
