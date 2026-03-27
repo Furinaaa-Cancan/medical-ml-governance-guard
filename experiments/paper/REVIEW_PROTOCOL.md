@@ -202,8 +202,19 @@ Run `scan_published_repos.py` on each verified repo:
 | L3.2 | Non-independence | Are patients in only one split? |
 | L3.3 | Sampling bias | Is test set representative? |
 
-**Auditors**: 2 independent reviewers read the code line-by-line
-**Report**: Per-type prevalence, Cohen's kappa, MLGG sensitivity/specificity vs manual
+**Auditors**:
+- Reviewer 1: MLGG lint automated static analysis (R001-R020)
+- Reviewer 2: LLM-based code review (Claude) — independent line-by-line reading of source code, checking against Kapoor 8-type taxonomy without access to MLGG lint results
+- Reviewer 3 (validation subset): Human domain expert reviews N=20 disagreement cases to establish ground truth
+
+**Agreement metrics**:
+- MLGG vs Claude: Cohen's kappa for inter-method reliability
+- MLGG vs Human (on disagreement subset): precision/recall with human as reference standard
+- Claude vs Human (on disagreement subset): validates Claude's reliability as reviewer
+
+**Justification for LLM as reviewer**: Recent precedent in TRIPOD-LLM (Nature Medicine 2024) used LLM for checklist assessment. We validate LLM reliability against human expert on a subset.
+
+**Report**: Per-type prevalence, inter-method kappa, MLGG sensitivity/specificity
 
 ## 7. Statistical Analysis
 
