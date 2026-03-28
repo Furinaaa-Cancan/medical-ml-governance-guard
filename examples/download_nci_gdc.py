@@ -100,7 +100,7 @@ def flatten_case(hit: dict) -> dict:
         "bmi": exp.get("bmi"),
         "years_smoked": exp.get("years_smoked"),
         "project_id": proj.get("project_id"),
-        "disease_type": proj.get("disease_type"),
+        "disease_type": proj.get("disease_type")[0] if isinstance(proj.get("disease_type"), list) and proj.get("disease_type") else proj.get("disease_type"),
     }
 
 
