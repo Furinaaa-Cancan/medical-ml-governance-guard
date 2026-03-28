@@ -822,8 +822,8 @@ def main() -> int:
     )
     parser.add_argument(
         "dataset",
-        choices=["heart", "breast", "ckd", "hepatitis", "spect", "dermatology", "pima", "mammographic", "thyroid", "eeg_eye", "framingham", "diabetes130", "vitaldb", "all"],
-        help="Dataset to prepare. framingham=4240 rows, diabetes130=10K subsample of 101K real hospital records.",
+        choices=["heart", "breast", "ckd", "hepatitis", "spect", "dermatology", "pima", "mammographic", "thyroid", "eeg_eye", "framingham", "diabetes130", "diabetes130_full", "vitaldb", "all"],
+        help="Dataset to prepare. diabetes130=10K subsample, diabetes130_full=complete 101K records.",
     )
     parser.add_argument("--output", default="", help="Output CSV path (default: examples/<dataset>.csv).")
     args = parser.parse_args()
@@ -844,6 +844,7 @@ def main() -> int:
         "eeg_eye": ("eeg_eye_state.csv", prepare_eeg_eye),
         "framingham": ("framingham_heart.csv", prepare_framingham),
         "diabetes130": ("diabetes130_readmission.csv", lambda o: prepare_diabetes130(o, max_rows=10000)),
+        "diabetes130_full": ("diabetes130_full_readmission.csv", lambda o: prepare_diabetes130(o, max_rows=0)),
         "vitaldb": ("vitaldb_icu.csv", prepare_vitaldb),
     }
 
