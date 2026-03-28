@@ -1,0 +1,257 @@
+{
+  "phase1_mlgg": {
+    "n": 172,
+    "n_leaky": 36,
+    "prevalence": 0.2093,
+    "wilson_ci_95": [
+      0.1552,
+      0.2761
+    ]
+  },
+  "phase2_blind_audit": {
+    "n_auditable": 41,
+    "n_skipped": 9,
+    "confusion_matrix": {
+      "TP": 1,
+      "FP": 2,
+      "FN": 21,
+      "TN": 17
+    },
+    "mlgg_diagnostic_accuracy": {
+      "sensitivity": 0.045,
+      "specificity": 0.895,
+      "ppv": 0.333,
+      "npv": 0.447
+    },
+    "r2_prevalence": {
+      "n_leaky": 22,
+      "prevalence": 0.5366,
+      "wilson_ci_95": [
+        0.3875,
+        0.6794
+      ]
+    },
+    "cohens_kappa": -0.056,
+    "kappa_bootstrap_ci_95": [
+      -0.213,
+      0.093
+    ],
+    "r3_validation": {
+      "n_verified": 10,
+      "n_confirmed": 10,
+      "r2_accuracy_on_verified": 1.0
+    }
+  },
+  "corrected_prevalence": {
+    "mlgg_apparent": 0.2093,
+    "mlgg_sensitivity": 0.045,
+    "mlgg_specificity": 0.895,
+    "se_plus_sp": 0.94,
+    "rogan_gladen_corrected": null,
+    "rogan_gladen_reliable": false,
+    "note": "Rogan-Gladen correction requires Se + Sp > 1.0 to be valid. Current Se + Sp = 0.940. UNRELIABLE: Se + Sp < 1.0, correction produces inverted/unstable results. Discard this estimate. The R2 (LLM) prevalence from the blind audit subsample is the primary estimate."
+  },
+  "kapoor_type_distribution": {
+    "n_papers_with_leakage": 22,
+    "types": {
+      "L1.2_preprocessing": 16,
+      "L1.3_feature": 9,
+      "L3.2_non": 5,
+      "L1.1_no": 4,
+      "L2_illegitimate": 3,
+      "L3.1_temporal": 1,
+      "L1.4_duplicates": 1,
+      "L3.3_sampling": 1
+    },
+    "most_common": [
+      "L1.2_preprocessing",
+      16
+    ],
+    "note": "A paper can have multiple leakage types. Percentages are of papers with leakage."
+  },
+  "temporal_trend": {
+    "by_year": [
+      {
+        "year": 2017,
+        "n": 4,
+        "n_leaky": 2,
+        "prevalence": 0.5
+      },
+      {
+        "year": 2018,
+        "n": 1,
+        "n_leaky": 1,
+        "prevalence": 1.0
+      },
+      {
+        "year": 2020,
+        "n": 3,
+        "n_leaky": 3,
+        "prevalence": 1.0
+      },
+      {
+        "year": 2021,
+        "n": 1,
+        "n_leaky": 1,
+        "prevalence": 1.0
+      },
+      {
+        "year": 2022,
+        "n": 5,
+        "n_leaky": 2,
+        "prevalence": 0.4
+      },
+      {
+        "year": 2023,
+        "n": 11,
+        "n_leaky": 6,
+        "prevalence": 0.545
+      },
+      {
+        "year": 2024,
+        "n": 8,
+        "n_leaky": 4,
+        "prevalence": 0.5
+      },
+      {
+        "year": 2025,
+        "n": 8,
+        "n_leaky": 3,
+        "prevalence": 0.375
+      }
+    ],
+    "logistic_regression": {
+      "or_per_year": 0.854,
+      "or_ci_95": [
+        0.647,
+        1.126
+      ],
+      "converged": true,
+      "iterations": 4,
+      "interpretation": "OR > 1 means leakage prevalence increases over time; OR < 1 means it decreases.",
+      "year_center": 2022.5
+    }
+  },
+  "subgroup_disease": {
+    "cardiovascular": {
+      "n": 4,
+      "n_leaky": 2,
+      "prevalence": 0.5,
+      "ci_95": [
+        0.15,
+        0.85
+      ]
+    },
+    "kidney_disease": {
+      "n": 1,
+      "n_leaky": 1,
+      "prevalence": 1.0,
+      "ci_95": [
+        0.2065,
+        1
+      ]
+    },
+    "neurology": {
+      "n": 3,
+      "n_leaky": 3,
+      "prevalence": 1.0,
+      "ci_95": [
+        0.4385,
+        1
+      ]
+    },
+    "other": {
+      "n": 26,
+      "n_leaky": 11,
+      "prevalence": 0.4231,
+      "ci_95": [
+        0.2554,
+        0.6105
+      ]
+    },
+    "respiratory": {
+      "n": 1,
+      "n_leaky": 1,
+      "prevalence": 1.0,
+      "ci_95": [
+        0.2065,
+        1
+      ]
+    },
+    "sepsis_icu": {
+      "n": 6,
+      "n_leaky": 4,
+      "prevalence": 0.6667,
+      "ci_95": [
+        0.3,
+        0.9032
+      ]
+    }
+  },
+  "subgroup_year_bin": {
+    "2015-2019": {
+      "n": 5,
+      "n_leaky": 3,
+      "prevalence": 0.6,
+      "ci_95": [
+        0.2307,
+        0.8824
+      ]
+    },
+    "2020-2022": {
+      "n": 9,
+      "n_leaky": 6,
+      "prevalence": 0.6667,
+      "ci_95": [
+        0.3542,
+        0.8794
+      ]
+    },
+    "2023-2025": {
+      "n": 27,
+      "n_leaky": 13,
+      "prevalence": 0.4815,
+      "ci_95": [
+        0.3074,
+        0.6601
+      ]
+    }
+  },
+  "mlgg_rule_prevalence_172": {
+    "R009": 79,
+    "E000": 65,
+    "R019": 52,
+    "R016": 47,
+    "R008": 27,
+    "R004": 25,
+    "R018": 24,
+    "R013": 21,
+    "R007": 19,
+    "R001": 18,
+    "R002": 11,
+    "R010": 9,
+    "R014": 8,
+    "R011": 8,
+    "R020": 7,
+    "R003": 5,
+    "R017": 4,
+    "R005": 3,
+    "R015": 2,
+    "R012": 2
+  },
+  "summary": {
+    "headline": "54% of published medical ML studies with public code contain data leakage",
+    "r2_prevalence_pct": 53.7,
+    "r2_prevalence_ci": [
+      38.8,
+      67.9
+    ],
+    "mlgg_prevalence_pct": 20.9,
+    "mlgg_sensitivity_pct": 4.5,
+    "most_common_type": "L1.2 preprocessing on full data",
+    "most_common_type_pct": 72.7,
+    "r3_confirmed_all_10": true,
+    "n_papers_scanned": 172,
+    "n_papers_audited": 41
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "total": 50,
+  "reviewed": 45,
+  "failed": 5,
+  "score_summary": {
+    "mean": 8.2,
+    "median": 8,
+    "std": 3.5,
+    "min": 0,
+    "max": 17
+  },
+  "grade_distribution": {
+    "Major issues (6-11)": 27,
+    "Solid (12-17)": 6,
+    "Not publishable (<6)": 12
+  },
+  "leakage_prevalence": {
+    "papers_with_flags": 8,
+    "prevalence_pct": 17.8
+  },
+  "dimension_means": {
+    "clinical_completeness": 1.16,
+    "data_integrity": 1.18,
+    "fairness_equity": 0.11,
+    "generalization": 0.55,
+    "generalization_evidence": 0,
+    "leakage_prevention": 0.18,
+    "model_selection": 1.1,
+    "model_selection_rigor": 1,
+    "pipeline_isolation": 0.18,
+    "reporting_standards": 0.22,
+    "reproducibility": 0.31,
+    "sample_size": 0.61,
+    "sample_size_adequacy": 0,
+    "security_provenance": 1.69,
+    "statistical_validity": 0.31
+  }
+}

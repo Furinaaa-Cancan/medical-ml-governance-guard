@@ -32,62 +32,74 @@ from typing import Any, Dict, List, Optional
 # MLGG Review Prompt
 # ---------------------------------------------------------------------------
 
-MLGG_REVIEW_PROMPT = """You are an expert reviewer assessing a medical ML prediction study's methodology for data leakage and methodological rigor.
+MLGG_REVIEW_PROMPT = """You are an expert reviewer assessing a medical ML prediction study's methodology.
 
-Review the Methods section below and assess EACH of the following 12 dimensions. For each dimension, output:
-- score: 0 (not addressed), 1 (partially addressed), 2 (fully addressed)
-- issues: list of specific methodological concerns found
-- evidence: quote from the text supporting your assessment
+CRITICAL DISTINCTION: You are reviewing only the METHODS SECTION TEXT. You must strictly distinguish between:
+- **CONFIRMED PROBLEM**: The text EXPLICITLY DESCRIBES doing something wrong (e.g., "we applied StandardScaler to the entire dataset, then split into train/test")
+- **NOT REPORTED**: The text does NOT MENTION a specific practice. This is a REPORTING GAP, NOT a confirmed problem. Many papers do things correctly but don't describe every detail.
+
+DO NOT flag "not reported" as a leakage problem. Only flag issues where the text provides POSITIVE EVIDENCE of a methodological flaw.
+
+## Assessment Rules
+
+For each dimension, score as:
+- 2: Explicitly described and done correctly (e.g., "scaler was fitted on training data only")
+- 1: Partially described or ambiguous (e.g., "data was preprocessed" without specifying train-only)
+- 0: Not addressed in the text at all
+
+For the "issues" field:
+- Prefix each issue with [CONFIRMED] if the text explicitly describes a problem
+- Prefix with [NOT_REPORTED] if the text simply doesn't mention the practice
+- Prefix with [AMBIGUOUS] if the description is unclear
 
 ## 12 Dimensions
 
 1. **Data Integrity**: Are train/valid/test splits clearly described? Is patient-level separation confirmed? Is temporal ordering maintained?
 
-2. **Leakage Prevention**: Is there evidence of data leakage? Specifically:
-   - Was preprocessing (scaling, imputation) fitted on training data only?
-   - Was feature selection done on training data only?
-   - Were resampling methods (SMOTE) applied to training data only?
-   - Is there any indication that test data influenced model development?
+2. **Leakage Prevention**: Does the text describe any preprocessing, feature selection, or resampling steps? If so, does it specify whether these were done on training data only? Look for EXPLICIT statements like "fitted on the entire dataset" (confirmed leak) vs. absence of detail (not reported).
 
-3. **Pipeline Isolation**: Is the preprocessing pipeline properly isolated? Is imputation/scaling fitted only on training data and applied (transform only) to test?
+3. **Pipeline Isolation**: Is there an explicit description of the preprocessing pipeline order relative to splitting?
 
-4. **Model Selection Rigor**: Were ≥3 candidate models compared? Was there a proper validation strategy? Was the test set held out from all tuning?
+4. **Model Selection Rigor**: How many candidate models were compared? Was there a validation strategy described?
 
-5. **Statistical Validity**: Are confidence intervals reported? Is calibration assessed? Is there a permutation test or other significance test? Are bootstrap CIs used?
+5. **Statistical Validity**: Are confidence intervals, calibration, or significance tests mentioned?
 
-6. **Generalization Evidence**: Is there external validation? Is the train-test performance gap discussed? Is there multi-site or temporal validation?
+6. **Generalization Evidence**: Is there external validation or multi-site validation?
 
-7. **Clinical Completeness**: Are sensitivity, specificity, PPV, NPV reported? Is there a decision curve analysis? Is the operating threshold justified?
+7. **Clinical Completeness**: Which performance metrics are reported?
 
-8. **Reporting Standards**: Does the study follow TRIPOD+AI? PROBAST? Are limitations discussed?
+8. **Reporting Standards**: Are TRIPOD, PROBAST, or other guidelines referenced?
 
-9. **Reproducibility**: Are random seeds documented? Is code available? Are software versions specified?
+9. **Reproducibility**: Are random seeds, code availability, or software versions mentioned?
 
-10. **Security & Provenance**: Is data provenance documented? Are model artifacts versioned?
+10. **Security & Provenance**: Is data source and provenance documented?
 
-11. **Fairness & Equity**: Are subgroup analyses performed? Is there assessment of disparate impact across demographics?
+11. **Fairness & Equity**: Are subgroup analyses or fairness metrics reported?
 
-12. **Sample Size Adequacy**: Is EPV (events per variable) ≥10? Is the sample size justified? Are minimum event counts met?
+12. **Sample Size Adequacy**: Is the sample size discussed? Is EPV mentioned or calculable?
 
-## Additional Leakage Checks (Kapoor & Narayanan 2023 taxonomy)
+## Leakage Flags (Kapoor & Narayanan 2023)
 
-Flag ANY of these if detected:
-- L1.1: No proper test set (same data for training and evaluation)
-- L1.2: Preprocessing on combined train+test data before splitting
-- L1.3: Feature selection on combined data before splitting
-- L1.4: Duplicate samples across train/test splits
-- L2: Illegitimate features (post-index variables, target proxies)
-- L3.1: Temporal leakage (future information in training data)
-- L3.2: Patient-level non-independence (same patient in multiple splits)
+ONLY flag a leakage type if the text provides POSITIVE EVIDENCE. Do NOT flag based on absence of information.
+
+- L1.1: ONLY if the text says evaluation was done on the same data as training (no holdout)
+- L1.2: ONLY if the text says preprocessing was applied to the full/combined dataset before splitting
+- L1.3: ONLY if the text says feature selection was done on all data before splitting
+- L1.4: ONLY if there is evidence of duplicate handling failure
+- L2: ONLY if features clearly available only after the prediction time point are used as predictors
+- L3.1: ONLY if training data includes future time periods relative to test data
+- L3.2: ONLY if the text confirms patient-level overlap between splits is possible (e.g., "random split at visit level")
+
+If the text simply doesn't mention preprocessing isolation, that is a REPORTING GAP (score dimension as 0-1), NOT a leakage flag.
 
 ## Output Format
 
-Return a JSON object with this EXACT structure:
+Return a JSON object:
 {
-  "overall_score": <sum of 12 dimension scores, max 24>,
-  "grade": "<Publication-grade / Solid / Major issues / Not publishable>",
+  "overall_score": <sum of 12 scores, max 24>,
+  "grade": "<Publication-grade (>=18) / Solid (12-17) / Major issues (6-11) / Not publishable (<6)>",
   "dimensions": {
-    "data_integrity": {"score": 0-2, "issues": [...], "evidence": "..."},
+    "data_integrity": {"score": 0-2, "issues": ["[CONFIRMED/NOT_REPORTED/AMBIGUOUS] ..."], "evidence": "quote"},
     "leakage_prevention": {"score": 0-2, "issues": [...], "evidence": "..."},
     "pipeline_isolation": {"score": 0-2, "issues": [...], "evidence": "..."},
     "model_selection": {"score": 0-2, "issues": [...], "evidence": "..."},
@@ -101,11 +113,12 @@ Return a JSON object with this EXACT structure:
     "sample_size": {"score": 0-2, "issues": [...], "evidence": "..."}
   },
   "leakage_flags": ["L1.2", ...],
+  "reporting_gaps": ["preprocessing isolation not described", ...],
   "top_concerns": ["concern1", "concern2", "concern3"],
   "summary": "One paragraph overall assessment"
 }
 
-IMPORTANT: Output ONLY the JSON object, no other text."""
+IMPORTANT: Output ONLY the JSON object, no other text. Keep leakage_flags ONLY for CONFIRMED problems with positive textual evidence. Use reporting_gaps for things not mentioned."""
 
 
 # ---------------------------------------------------------------------------
@@ -242,6 +255,7 @@ def review_paper(pmcid: str, api_key: str, model: str = "qwen-plus") -> Dict[str
     result["overall_score"] = review.get("overall_score", 0)
     result["grade"] = review.get("grade", "Unknown")
     result["leakage_flags"] = review.get("leakage_flags", [])
+    result["reporting_gaps"] = review.get("reporting_gaps", [])
     result["top_concerns"] = review.get("top_concerns", [])
 
     return result
