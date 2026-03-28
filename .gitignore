@@ -43,3 +43,7 @@ repo3_new/
 # Experiment intermediate files
 experiments/authority-e2e/endurance_*.json
 experiments/authority-e2e/endurance_*.log
+experiments/authority-e2e/_stress_seed_workspace/
+experiments/authority-e2e/_benchmark_matrix_runs/
+experiments/overnight_2*/
+experiments/overnight_run.log
