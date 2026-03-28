@@ -1,7 +1,7 @@
 {
   "contract_version": "error_knowledge_base.v1",
   "description": "Self-improving error pattern database. Agents should append new entries when encountering novel error patterns.",
-  "last_updated": "2026-03-27T00:00:00Z",
+  "last_updated": "2026-03-28T14:21:17Z",
   "categories": {
     "data": "Data loading, splitting, format issues",
     "leakage": "Any form of data leakage detection",
@@ -1417,6 +1417,149 @@
       "first_seen": "2026-03-26",
       "resolved": true,
       "gate": "mlgg-lint"
+    },
+    {
+      "id": "ERR-089",
+      "code": "lint_r001_cross_file_false_positive",
+      "symptom": "R001 triggers on fit() in utility files that have no train_test_split",
+      "root_cause": "R001 checked if fit() was before split_line, but in files without any split, split_line was None yet the gate still tried to report",
+      "fix": "Skip R001 when taint.split_line is None (no split in current file)",
+      "prevention": "Single-file AST analysis cannot make cross-file assumptions",
+      "category": "leakage",
+      "severity": "WARNING",
+      "affected_files": [
+        "plugin/mlgg_lint/rules/r001_fit_before_split.py"
+      ]
+    },
+    {
+      "id": "ERR-090",
+      "code": "lint_r005_single_var_conservative_fp",
+      "symptom": "R005 flags roc_curve() with single variable capture even when thresholds are never used",
+      "root_cause": "__single_var__ sentinel always triggered report without checking if result[2] was accessed",
+      "fix": "Check for index-2 access (result[2] or result[-1]) before reporting",
+      "prevention": "Two-pass analysis should verify usage, not just capture",
+      "category": "leakage",
+      "severity": "WARNING",
+      "affected_files": [
+        "plugin/mlgg_lint/rules/r005_threshold_on_test.py"
+      ]
+    },
+    {
+      "id": "ERR-091",
+      "code": "scoring_tuning_not_on_test_none_passes",
+      "symptom": "tuning_not_on_test check passes when tuning_set is None",
+      "root_cause": "Lambda v: v != \"test_used\" returns True for None",
+      "fix": "Changed to v is not None and v != \"\" and v != \"test_used\"",
+      "prevention": "All fail-closed checks must explicitly reject None/empty values",
+      "category": "config",
+      "severity": "ERROR",
+      "affected_files": [
+        "scripts/score_paper_metadata.py"
+      ]
+    },
+    {
+      "id": "ERR-092",
+      "code": "validate_empty_metadata_no_errors",
+      "symptom": "Empty metadata {} passes validate_metadata() with zero issues",
+      "root_cause": "No required field checks",
+      "fix": "Added REQUIRED field checks for title, n_patients_total, split_strategy, test_auroc",
+      "prevention": "Validation must check required fields first",
+      "category": "config",
+      "severity": "ERROR",
+      "affected_files": [
+        "scripts/score_paper_metadata.py"
+      ]
+    },
+    {
+      "id": "ERR-093",
+      "code": "grade_label_mismatch",
+      "symptom": "score_paper_metadata.py returns different grade label than _audit_shared.py",
+      "root_cause": "String literal typo: \"Solid but gaps\" vs \"Solid but gaps remain\"",
+      "fix": "Aligned to \"Solid but gaps remain\"",
+      "prevention": "Grade labels should be constants, not duplicated string literals",
+      "category": "config",
+      "severity": "WARNING",
+      "affected_files": [
+        "scripts/score_paper_metadata.py"
+      ]
+    },
+    {
+      "id": "ERR-094",
+      "code": "r020_dropna_axis1_false_positive",
+      "symptom": "R020 flags dropna(axis=1) which is column removal, not leakage",
+      "root_cause": "dropna detection did not distinguish row vs column removal",
+      "fix": "Added axis=1/columns exemption",
+      "prevention": "Test both intended case and common non-leaking variants",
+      "category": "leakage",
+      "severity": "WARNING",
+      "affected_files": [
+        "plugin/mlgg_lint/rules/r020_global_clean_before_split.py"
+      ]
+    },
+    {
+      "id": "ERR-095",
+      "code": "statistical_analysis_mixed_samples",
+      "symptom": "Statistical analysis included 12 exploratory entries outside the blind list",
+      "root_cause": "load_data() did not filter to blind_audit_list.jsonl",
+      "fix": "Added blind_ids filter",
+      "prevention": "Never mix exploratory and confirmatory data",
+      "category": "statistical",
+      "severity": "ERROR",
+      "affected_files": [
+        "experiments/paper/statistical_analysis.py"
+      ]
+    },
+    {
+      "id": "ERR-096",
+      "code": "qwen_prompt_absence_equals_problem",
+      "symptom": "Qwen review flags 100% papers because absence is treated as confirmed problem",
+      "root_cause": "Prompt lacked evidence threshold distinction",
+      "fix": "Redesigned with [CONFIRMED]/[NOT_REPORTED]/[AMBIGUOUS] prefixes",
+      "prevention": "LLM prompts must define evidence thresholds explicitly",
+      "category": "statistical",
+      "severity": "ERROR",
+      "affected_files": [
+        "experiments/paper/review_methods_llm.py"
+      ]
+    },
+    {
+      "id": "ERR-097",
+      "code": "nci_gdc_disease_type_list",
+      "symptom": "NCI GDC API returns disease_type as list causing unhashable type error",
+      "root_cause": "Some projects have multiple disease types; API returns list",
+      "fix": "Take first element with [None] default for empty lists",
+      "prevention": "Check API response types; handle both scalar and array",
+      "category": "data",
+      "severity": "ERROR",
+      "affected_files": [
+        "examples/download_nci_gdc.py"
+      ]
+    },
+    {
+      "id": "ERR-098",
+      "code": "brfss_xpt_trailing_space",
+      "symptom": "BRFSS ZIP extraction fails — filename has trailing space",
+      "root_cause": "CDC ZIP contains \"LLCP2022.XPT \" with trailing space",
+      "fix": "Added .strip() before extension matching",
+      "prevention": "Never assume filenames in ZIPs are clean",
+      "category": "data",
+      "severity": "ERROR",
+      "affected_files": [
+        "examples/download_cdc_data.py"
+      ]
+    },
+    {
+      "id": "ERR-099",
+      "code": "scoring_doc_denies_cap_rule",
+      "symptom": "Documentation says no cap rules but code has tier1 hard floor",
+      "root_cause": "Documentation not updated after code change",
+      "fix": "Updated doc to describe actual mechanism",
+      "prevention": "Update scoring-methodology.md in same commit as scoring logic changes",
+      "category": "config",
+      "severity": "ERROR",
+      "affected_files": [
+        "references/scoring-methodology.md"
+      ]
     }
   ],
   "agent_instructions": {

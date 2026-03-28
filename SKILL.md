@@ -16,7 +16,14 @@ description: "Publication-grade medical prediction workflow with strict anti-dat
 | "帮我训练一个模型" / "跑一下预测" | `python3 scripts/mlgg.py play` — 启动交互向导 |
 | "用我的数据训练" / "我有一个 CSV" | `python3 scripts/mlgg.py play` → 选"使用自己的数据集" |
 | "查看训练结果" / "结果怎么样" | `python3 scripts/quick_summary.py <output_dir>` |
-| "下载一个测试数据集" | `python3 examples/download_real_data.py <name>` (heart/breast/pima/mammographic/thyroid/eeg_eye/vitaldb/framingham/diabetes130) |
+| "下载一个测试数据集" | `python3 examples/download_real_data.py <name>` (heart/breast/pima/mammographic/thyroid/eeg_eye/vitaldb/framingham/diabetes130/diabetes130_full/rhc/sepsis_survival) |
+| "下载 CDC 数据集" | `python3 examples/download_cdc_data.py <name>` (brfss/nhis/covid/all) |
+| "下载 NHANES 数据集" | `python3 examples/download_nhanes.py --cycles both --output examples/nhanes_diabetes.csv` |
+| "下载 NCI 癌症数据" | `python3 examples/download_nci_gdc.py --output examples/nci_gdc_cancer_survival.csv` |
+| "审查论文 Methods (Qwen)" | `DASHSCOPE_API_KEY=sk-... python3 experiments/paper/review_methods_llm.py --pmcid PMCxxxxxx` |
+| "Methods vs Code 比对" | `python3 experiments/paper/compare_methods_vs_code.py --methods-dir ... --audit-log ... --blind-list ... --output ...` |
+| "统计分析" | `python3 experiments/paper/statistical_analysis.py --output experiments/paper/output/statistical_results.json` |
+| "过夜批量跑 pipeline" | `nohup bash experiments/overnight_pipeline_run.sh > experiments/overnight_run.log 2>&1 &` |
 | "严格审计" / "出版级验证" | `python3 scripts/mlgg.py workflow --strict` |
 | "检查环境" / "安装有问题" | `python3 scripts/mlgg.py doctor` |
 | "初始化项目" | `python3 scripts/mlgg.py onboarding` |
@@ -119,6 +126,39 @@ python3 scripts/mlgg.py doctor
 | `NaN to integer` | numpy 整数数组赋 NaN | 用 `DataFrame.loc[mask, col] = np.nan` |
 | 训练超时（>20min） | 大数据集 + 多模型 + bootstrap | 减少模型数/trials/用保守预设 |
 | `FileNotFoundError` | 路径错误或前序步骤未执行 | 检查 `data/` 目录下 CSV 是否存在 |
+| R001 FP on utility files | 文件中无 train_test_split 但有 fit() | R001 已修复：skip_line is None 时跳过 (ERR-089) |
+| R005 FP on unused thresholds | roc_curve 单变量捕获但未用 result[2] | R005 已修复：检查 index-2 access (ERR-090) |
+| 空 metadata 通过验证 | validate_metadata({}) 返回 0 issues | 已修复：添加 REQUIRED 字段检查 (ERR-092) |
+| BRFSS ZIP 文件名有空格 | CDC ZIP 中文件名尾部有空格 | 已修复：.strip() 处理 (ERR-098) |
+| NCI GDC disease_type 是 list | API 返回 list 而非 string | 已修复：取 [0] 或 default (ERR-097) |
+
+### 可用数据集清单（14 个，526K 行）
+
+| 数据集 | 行数 | 来源 | 下载命令 | Gate 覆盖 |
+|--------|------|------|---------|----------|
+| Sepsis Survival | 129K | UCI | `download_real_data.py sepsis_survival` | C (39%) |
+| Diabetes 130 Full | 102K | UCI | `download_real_data.py diabetes130_full` | A (94%) |
+| BRFSS 2022 | 100K | CDC | `download_cdc_data.py brfss` | B (81%) |
+| COVID-19 | 100K | CDC | `download_cdc_data.py covid` | C (39%) |
+| NHIS 2022 | 28K | CDC | `download_cdc_data.py nhis` | A (94%) |
+| NCI GDC Cancer | 25K | NCI/NIH | `download_nci_gdc.py` | A (94%) |
+| NHANES | 16K | CDC | `download_nhanes.py --cycles both` | A (94%) |
+| SUPPORT2 | 9K | Vanderbilt | 已下载 | A (94%) |
+| RHC | 5.7K | Vanderbilt | `download_real_data.py rhc` | A (94%) |
+| 4 × UCI 小型 | <1K | UCI | `download_real_data.py heart/breast/pima/ckd` | B (68-84%) |
+
+Gate 覆盖: A=29/31可测, B=21-26/31, C=12/31。详见 `references/dataset-gate-coverage-matrix.md`。
+
+### Gate 严格性 Profile
+
+| Profile | 适用场景 | EPV 下限 | 最小事件数 | L3 可达？ |
+|---------|---------|---------|-----------|----------|
+| `standard` | N≥1000, 患病率≥10% | 10 | 100 | ✅ |
+| `small_cohort` | N=200-1000 | 7 | 50 | ⚠️ 需注明 |
+| `rare_disease` | N<200, 患病率<5% | 5 | 20 | ❌ |
+| `exploratory` | 可行性研究 | 5 | 20 | ❌ |
+
+在 `request.json` 中指定: `"thresholds": {"profile": "rare_disease"}`。详见 `references/gate-strictness-profiles.md`。
 
 ### 数据泄漏 & 学术诚信检测覆盖
 
