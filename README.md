@@ -2,7 +2,7 @@
 
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm%20Noncommercial%201.0.0-blue.svg)](https://polyformproject.org/licenses/noncommercial/1.0.0/)
 [![CI Security](https://img.shields.io/badge/ci--security-332%20tests-brightgreen)]()
-[![Tests](https://img.shields.io/badge/tests-3900%2B%20passed-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-4000%2B%20passed-brightgreen)]()
 [![Coverage](https://img.shields.io/badge/gate%20coverage-%E2%89%A586%25-blue)]()
 [![TRIPOD+AI 2024](https://img.shields.io/badge/TRIPOD%2BAI-2024-blue)](https://doi.org/10.1136/bmj-2023-078378)
 [![PROBAST+AI 2025](https://img.shields.io/badge/PROBAST%2BAI-2025-blue)](https://doi.org/10.7326/M18-1376)
@@ -39,8 +39,8 @@ python3 scripts/mlgg.py audit-report -- --project-dir /path/to/your/project \
 | TRIPOD+AI 2024 | 17 required items incl. 4 AI-specific (Collins et al. BMJ 2024;385:e078378) |
 | PROBAST+AI 2025 | Risk-of-bias across 4 domains: Participants, Predictors, Outcome, Analysis |
 | Code anti-patterns | 12 pattern types: fit_on_full_data, test_in_training_loop, global_scaler_leak, missing CI, etc. |
-| Error KB lookup | Each finding enriched with root cause + fix from 76-entry error knowledge base |
-| Literature citations | 44 literature entries automatically cited per finding |
+| Error KB lookup | Each finding enriched with root cause + fix from 99-entry error knowledge base |
+| Literature citations | 58 literature entries automatically cited per finding |
 
 ---
 
@@ -50,15 +50,15 @@ python3 scripts/mlgg.py audit-report -- --project-dir /path/to/your/project \
 |------|------|------|
 | **31 道安全门控** | fail-closed DAG 架构，覆盖泄漏检测 / 公平性 / 样本量 / 校准 / 鲁棒性 / TRIPOD+AI / PROBAST+AI / 安全审计 | 31 个独立 CLI 脚本 |
 | **20 个模型族** | 逻辑回归(L1/L2/ElasticNet) / SVM / RF / XGBoost / CatBoost / LightGBM / KNN / MLP / TabPFN 等，自动超参搜索 | 17 基础 + 4 可选后端 |
-| **9 个真实医学数据集** | UCI / PhysioNet / GitHub 公开数据，297-14,980 行，一键下载 | heart / breast / pima / mammographic / framingham / vitaldb / thyroid / diabetes130 / eeg_eye |
+| **14 个真实医学数据集** | UCI / CDC / NCI / Vanderbilt 官方数据，297-129K 行，一键下载（总计 526K 行） | heart / breast / pima / diabetes130_full (101K) / sepsis_survival (129K) / rhc / brfss (100K) / nhis (28K) / nhanes (16K) / nci_gdc (25K) / covid (100K) / support2 (9K) + 小型 UCI |
 | **12 维量化评分** | 数据完整性 / 泄漏防护 / 管线隔离 / 模型选择 / 统计有效性 / 泛化证据 / 临床完整性 / 报告标准 / 可复现性 / 安全性 / 公平性 / 样本量 | 满分 100，≥90 为顶刊级 |
-| **学术合规引擎** | TRIPOD+AI 2024（27 项）/ PROBAST+AI 2025（4 域 34 问）/ STARD-AI 自动检查 | 44 条文献知识库 + 86 条错误知识库 |
+| **学术合规引擎** | TRIPOD+AI 2024（27 项）/ PROBAST+AI 2025（4 域 34 问）/ STARD-AI 自动检查 | 58 条文献知识库 + 99 条错误知识库 |
 | **交互式 CLI 向导** | 中英双语像素风终端 UI，EPV 提示 / 类别分布 / 数据质量警告 / 模型推荐 | `mlgg play` 一键启动 |
 | **安全加固层** | HMAC-SHA256 签名 / AES-256-GCM 加密 / 链式审计日志 / 路径穿越防护 / 受限反序列化沙盒 / 成员推理防御 | 10+ 防御机制 |
 | **Plugin Lint** | 20 条静态分析规则（见下表），检测代码级数据泄漏反模式 | R001-R020，支持 .py + .ipynb |
 | **CI/CD 流水线** | GitHub Actions：smoke（push/PR）/ full（nightly）/ extended（weekly）/ security（多 Python 版本） | 4 条流水线 |
 | **自动化报告** | 审计报告 / 合规证书 / 修复计划 / LaTeX 导出 / 用户摘要 / 证据摘要 | Markdown + JSON + LaTeX |
-| **测试套件** | 3900+ pytest 测试，gate 脚本覆盖率 ≥86%，零网络依赖 | 86 个测试文件 |
+| **测试套件** | 4000+ pytest 测试，gate 脚本覆盖率 ≥86%，零网络依赖 | 94 个测试文件 |
 
 ### Lint 规则分类覆盖 | Lint Rule Coverage by Category
 
@@ -140,20 +140,33 @@ python3 scripts/mlgg.py play
 - 开启 `--fail-on-play-blockers` 后，如果 quick-readiness 无法评估
   （例如 `evaluation_report.json` 缺失或损坏），也会 fail-closed 直接失败。
 
-**想用真实医学数据代替 demo？** 一键下载 UCI 公开数据集：
+**想用真实医学数据？** 14 个官方公开数据集，一键下载：
 
 ```bash
-# 下载 UCI 心脏病数据集 (297 行) 或乳腺癌数据集 (569 行)
-python3 examples/download_real_data.py heart
-python3 examples/download_real_data.py breast
+# === 大型数据集（>10K 行）===
+python3 examples/download_real_data.py diabetes130_full   # UCI 101K 再入院
+python3 examples/download_real_data.py sepsis_survival    # UCI 129K 脓毒症存活
+python3 examples/download_real_data.py rhc                # Vanderbilt 5.7K ICU 死亡率
+python3 examples/download_cdc_data.py brfss               # CDC BRFSS 100K 糖尿病
+python3 examples/download_cdc_data.py nhis                # CDC NHIS 28K 糖尿病
+python3 examples/download_cdc_data.py covid               # CDC COVID-19 100K 住院
+python3 examples/download_nhanes.py --cycles both         # CDC NHANES 16K 糖尿病
+python3 examples/download_nci_gdc.py                      # NCI/NIH 25K 癌症存活
 
-# 分割并运行管线
+# === 小型 UCI 数据集 ===
+python3 examples/download_real_data.py heart              # 297 行
+python3 examples/download_real_data.py breast             # 569 行
+python3 examples/download_real_data.py pima               # 768 行
+
+# === 分割并运行管线 ===
 python3 scripts/mlgg.py split -- \
   --input examples/heart_disease.csv \
   --output-dir /tmp/mlgg_heart/data \
   --patient-id-col patient_id --target-col y --time-col event_time \
   --strategy grouped_temporal
 ```
+
+**数据来源**：所有数据集均来自官方机构（CDC / UCI ML Repository / NCI-NIH / Vanderbilt Biostatistics），不需要注册，可直接下载。总计 526K 行。详见 `references/dataset-gate-coverage-matrix.md`。
 
 ### 0.1 我该用哪个命令？
 
@@ -508,7 +521,7 @@ python3 scripts/mlgg.py play
 
 **Play 模式特性**：
 - **11 步交互向导**：语言选择 → 数据源 → 分割 → 模型 → 训练 → 结果展示
-- **9 个内置真实数据集**（一键下载）：
+- **14 个内置真实数据集**（一键下载，总计 526K 行）：
 
 | 数据集 | 行数 | 特征 | 来源 |
 |--------|------|------|------|
@@ -698,12 +711,12 @@ python3 scripts/mlgg.py authority-release --dry-run --stress-case-id uci-heart-d
 | 目录/文件 | 内容 | 文件数 |
 |-----------|------|--------|
 | `scripts/` | 31 道 gate 脚本 + 训练器 + CLI 封装器 + 分析工具 + 共享模块 | 78 |
-| `tests/` | pytest 测试（3900+ 通过，gate 脚本 ≥86% 覆盖率） | 86 |
+| `tests/` | pytest 测试（4000+ 通过，gate 脚本 ≥86% 覆盖率） | 94 |
 | `plugin/` | mlgg-lint 静态分析器（20 规则）+ VSCode 扩展 | — |
 | `references/` | JSON schema/policy 模板、TRIPOD/PROBAST/STARD 清单、文献/错误知识库、基准注册表 | 40+ |
 | `experiments/` | UCI 公开数据集上的 authority/adversarial 基准实验 | — |
 | `docs/` | 架构文档、gate 框架开发指南、安全加固报告、深度代码审查报告 | 4 |
-| `examples/` | 9 个真实医学数据集下载器 | 1 |
+| `examples/` | 14 个真实医学数据集下载器（UCI/CDC/NCI/Vanderbilt） | 4 |
 | `.github/workflows/` | CI 流水线（security / unit / full / extended） | 4 |
 | `SKILL.md` | Agent 操作手册：完整流程契约、gate 顺序、医学不可协商规则 | 1 |
 | `CLAUDE.md` | Claude Code agent 操作协议 | 1 |
@@ -1364,7 +1377,7 @@ python3 scripts/mlgg.py authority-release --dry-run --stress-case-id uci-heart-d
 | `references/` | JSON schema/policy templates, TRIPOD/PROBAST/STARD checklists, literature/error KBs, benchmark registry | 40+ |
 | `experiments/` | Authority/adversarial benchmarks on UCI public datasets | — |
 | `docs/` | Architecture docs, gate framework developer guide, security hardening report, deep code review | 4 |
-| `examples/` | 9 real medical dataset downloaders | 1 |
+| `examples/` | 14 real medical dataset downloaders (UCI/CDC/NCI/Vanderbilt) | 4 |
 | `.github/workflows/` | CI pipelines (security / unit / full / extended) | 4 |
 | `SKILL.md` | Agent playbook: full workflow contract, gate ordering, medical non-negotiable rules | 1 |
 | `CLAUDE.md` | Claude Code agent operating protocol | 1 |
