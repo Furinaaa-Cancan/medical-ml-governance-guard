@@ -16,6 +16,7 @@ import io
 import sys
 import tempfile
 import zipfile
+import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Optional
@@ -31,6 +32,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 
 BRFSS_URL = "https://www.cdc.gov/brfss/annual_data/2022/files/LLCP2022XPT.zip"
 NHIS_URL = "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NHIS/2022/adult22csv.zip"
+COVID_API = "https://data.cdc.gov/resource/vbim-akqf.csv"
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -308,6 +310,84 @@ def prepare_nhis(output: Path) -> None:
 
 
 # ---------------------------------------------------------------------------
+# CDC COVID-19 Case Surveillance
+# ---------------------------------------------------------------------------
+
+
+def prepare_covid(output: Path, max_rows: int = 100_000) -> None:
+    """Download CDC COVID-19 Case Surveillance public use data.
+
+    Source: CDC via Socrata API (106M+ total rows)
+    Task: Predict hospitalization among confirmed COVID-19 cases
+    Target: hosp_yn == "Yes"
+
+    Excluded from features (outcome-adjacent):
+    - icu_yn, death_yn (post-hospitalization outcomes)
+    - onset_dt, pos_spec_dt (timing variables used to construct target window)
+    """
+    print("\n" + "=" * 50)
+    print("CDC COVID-19 Case Surveillance — Hospitalization Prediction")
+    print("=" * 50)
+
+    # Download via Socrata API with filters
+    # Only confirmed cases with known hospitalization status
+    params = (
+        f"$where=current_status='Laboratory-confirmed case' "
+        f"AND hosp_yn in('Yes','No') "
+        f"AND sex in('Male','Female') "
+        f"AND age_group IS NOT NULL"
+        f"&$limit={max_rows}"
+        f"&$order=cdc_case_earliest_dt DESC"
+    )
+    url = f"{COVID_API}?{urllib.parse.quote(params, safe='=&$,')}"
+
+    print(f"  Fetching {max_rows:,} rows from CDC Socrata API...")
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (MLGG/1.0)"})
+    resp = urllib.request.urlopen(req, timeout=120)
+    df = pd.read_csv(io.BytesIO(resp.read()))
+    print(f"  Raw: {df.shape[0]:,} rows × {df.shape[1]} cols")
+
+    # Target: hospitalization
+    df["y"] = (df["hosp_yn"] == "Yes").astype(int)
+
+    # Features (exclude target-adjacent outcomes)
+    keep_cols = []
+    if "sex" in df.columns:
+        df["sex_female"] = (df["sex"] == "Female").astype(float)
+        keep_cols.append("sex_female")
+    if "age_group" in df.columns:
+        # Encode age group as ordinal
+        age_map = {
+            "0 - 9 Years": 0, "10 - 19 Years": 1, "20 - 29 Years": 2,
+            "30 - 39 Years": 3, "40 - 49 Years": 4, "50 - 59 Years": 5,
+            "60 - 69 Years": 6, "70 - 79 Years": 7, "80+ Years": 8,
+        }
+        df["age_group_ord"] = df["age_group"].map(age_map)
+        keep_cols.append("age_group_ord")
+    if "race_ethnicity_combined" in df.columns:
+        df["race_eth"] = df["race_ethnicity_combined"].astype("category").cat.codes.astype(float)
+        df.loc[df["race_ethnicity_combined"].isna(), "race_eth"] = np.nan
+        keep_cols.append("race_eth")
+
+    # Keep y + derived features
+    df = df[["y"] + keep_cols].copy()
+    df = df.dropna(subset=["y"]).reset_index(drop=True)
+
+    # Add pipeline columns
+    df = add_patient_id_and_time(df, seed=2024)
+
+    # Reorder
+    cols = ["patient_id", "event_time", "y"] + [c for c in df.columns if c not in ("patient_id", "event_time", "y")]
+    df = df[cols]
+
+    print_summary(df, "CDC COVID-19 Hospitalization Dataset")
+
+    output.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output, index=False)
+    print(f"Output: {output} ({output.stat().st_size / 1024:.0f} KB)")
+
+
+# ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
@@ -317,8 +397,8 @@ def main() -> int:
     )
     parser.add_argument(
         "dataset",
-        choices=["brfss", "nhis", "all"],
-        help="Dataset to download. brfss=BRFSS 2022 (~100K), nhis=NHIS 2022 (~28K).",
+        choices=["brfss", "nhis", "covid", "all"],
+        help="Dataset to download. brfss=BRFSS 2022 (~100K), nhis=NHIS 2022 (~28K), covid=COVID-19 (~100K).",
     )
     parser.add_argument("--output", default="", help="Output CSV path.")
     parser.add_argument("--max-rows", type=int, default=100_000,
@@ -334,6 +414,10 @@ def main() -> int:
     if args.dataset in ("nhis", "all"):
         out = Path(args.output) if args.output and args.dataset != "all" else examples_dir / "nhis2022_diabetes.csv"
         prepare_nhis(out)
+
+    if args.dataset in ("covid", "all"):
+        out = Path(args.output) if args.output and args.dataset != "all" else examples_dir / "covid19_hospitalization.csv"
+        prepare_covid(out, max_rows=args.max_rows)
 
     print("\nDone!")
     return 0

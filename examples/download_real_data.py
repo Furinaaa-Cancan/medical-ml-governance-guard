@@ -62,6 +62,8 @@ URLS = {
     "thyroid_test": "https://archive.ics.uci.edu/ml/machine-learning-databases/thyroid-disease/ann-test.data",
     "eeg_eye": "https://archive.ics.uci.edu/ml/machine-learning-databases/00264/EEG%20Eye%20State.arff",
     "vitaldb": "https://physionet.org/files/vitaldb/1.0.0/clinical_data.csv",
+    "rhc": "https://hbiostat.org/data/repo/rhc.csv",
+    "sepsis_survival_zip": "https://archive.ics.uci.edu/static/public/827/sepsis+survival+minimal+clinical+records.zip",
 }
 
 
@@ -671,6 +673,122 @@ def prepare_framingham(output: Path) -> None:
     print(f"  Rows: {len(df)} | Positive (CHD): {pos} ({pos/len(df)*100:.1f}%) | Negative: {neg}")
 
 
+def prepare_rhc(output: Path) -> None:
+    """Vanderbilt Right Heart Catheterization — 5,735 ICU patients, 63 variables.
+
+    Source: Connors et al. (1996) JAMA study via Frank Harrell's biostatistics data repo.
+    Task: Predict 30-day mortality in critically ill patients.
+    Target: death == "Yes"
+
+    Excluded from features (outcome/post-index):
+    - dthdte (death date), dschdte (discharge date), lstctdte (last contact date)
+    - surv2md1, surv6md1 (survival months - computed from outcome)
+    """
+    print("\n=== Vanderbilt Right Heart Catheterization (ICU Mortality) ===")
+    print("  Source: hbiostat.org (Connors et al. 1996 JAMA)")
+
+    df = pd.read_csv(URLS["rhc"])
+    print(f"  Raw: {df.shape[0]} rows × {df.shape[1]} cols")
+
+    # Target: death (Yes/No → 1/0)
+    df["y"] = (df["death"] == "Yes").astype(int)
+
+    # Drop outcome/post-index columns
+    drop_cols = ["death", "dthdte", "dschdte", "lstctdte", "sadmdte",
+                 "surv2md1", "surv6md1", "t3d30", "dth30", "Unnamed: 0"]
+    df = df.drop(columns=[c for c in drop_cols if c in df.columns])
+
+    # Encode categorical columns
+    cat_cols = df.select_dtypes(include=["object"]).columns.tolist()
+    for col in cat_cols:
+        df[col] = df[col].astype("category").cat.codes.replace(-1, float("nan")).astype(float)
+
+    # Add pipeline columns
+    df = add_patient_id_and_time(df, seed=1996)
+
+    # Reorder
+    cols = ["patient_id", "event_time", "y"] + [c for c in df.columns if c not in ("patient_id", "event_time", "y")]
+    df = df[cols]
+
+    df.to_csv(output, index=False)
+    pos = int(df["y"].sum())
+    print(f"  Output: {output}")
+    print(f"  Rows: {len(df)} | Positive (death): {pos} ({pos/len(df)*100:.1f}%) | Features: {len(df.columns)-3}")
+
+
+def prepare_sepsis_survival(output: Path) -> None:
+    """UCI Sepsis Survival Minimal Clinical Records — 110,204 patients, 4 features.
+
+    Source: UCI ML Repository (ID 827). Norwegian and South Korean ICU cohorts.
+    Task: Predict hospital mortality in sepsis patients.
+    Target: hospital_outcome_1alive_0teleported → inverted to 1=dead, 0=alive
+
+    All features are pre-admission or admission-time variables.
+    No outcome leakage risk in the minimal feature set.
+    """
+    print("\n=== UCI Sepsis Survival Minimal Clinical Records ===")
+    print("  Source: UCI ML Repository (ID 827)")
+
+    zip_path = output.parent / ".sepsis_survival_raw.zip"
+    download_file(URLS["sepsis_survival_zip"], zip_path)
+
+    import zipfile, io
+    # Handle nested ZIP (outer ZIP contains inner ZIP with CSVs)
+    with zipfile.ZipFile(zip_path) as z:
+        all_names = z.namelist()
+        csv_names = [n for n in all_names if n.endswith(".csv") and not n.startswith("__")]
+        inner_zips = [n for n in all_names if n.endswith(".zip")]
+
+        if not csv_names and inner_zips:
+            print(f"  Nested ZIP detected: {inner_zips[0]}")
+            inner_data = z.read(inner_zips[0])
+            with zipfile.ZipFile(io.BytesIO(inner_data)) as z2:
+                csv_names = [n for n in z2.namelist() if n.endswith(".csv") and not n.startswith("__")]
+                print(f"  Inner ZIP contains: {csv_names}")
+                dfs = []
+                for name in csv_names:
+                    sub = pd.read_csv(z2.open(name))
+                    sub["_source"] = name.split("/")[-1].replace(".csv", "")
+                    dfs.append(sub)
+                    print(f"    {name}: {sub.shape}")
+        else:
+            print(f"  ZIP contains: {csv_names}")
+            dfs = []
+            for name in csv_names:
+                sub = pd.read_csv(z.open(name))
+                sub["_source"] = name.split("/")[-1].replace(".csv", "")
+                dfs.append(sub)
+                print(f"    {name}: {sub.shape}")
+
+        df = pd.concat(dfs, ignore_index=True)
+
+    # Target: hospital_outcome (1=alive → 0, 0=dead → 1)
+    outcome_col = [c for c in df.columns if "outcome" in c.lower()]
+    if outcome_col:
+        df["y"] = (1 - df[outcome_col[0]]).astype(int)
+        df = df.drop(columns=outcome_col)
+    else:
+        print("  WARNING: no outcome column found!")
+        df["y"] = 0
+
+    # Drop source column (not a feature)
+    df = df.drop(columns=["_source"], errors="ignore")
+
+    # Add pipeline columns
+    df = add_patient_id_and_time(df, seed=827)
+
+    # Reorder
+    cols = ["patient_id", "event_time", "y"] + [c for c in df.columns if c not in ("patient_id", "event_time", "y")]
+    df = df[cols]
+
+    df.to_csv(output, index=False)
+    pos = int(df["y"].sum())
+    print(f"  Output: {output}")
+    print(f"  Rows: {len(df)} | Positive (death): {pos} ({pos/len(df)*100:.1f}%) | Features: {len(df.columns)-3}")
+
+    zip_path.unlink(missing_ok=True)
+
+
 def prepare_diabetes130(output: Path, max_rows: int = 10000) -> None:
     """UCI Diabetes 130-US Hospitals — up to 101,766 patients, 20+ features.
 
@@ -822,8 +940,8 @@ def main() -> int:
     )
     parser.add_argument(
         "dataset",
-        choices=["heart", "breast", "ckd", "hepatitis", "spect", "dermatology", "pima", "mammographic", "thyroid", "eeg_eye", "framingham", "diabetes130", "diabetes130_full", "vitaldb", "all"],
-        help="Dataset to prepare. diabetes130=10K subsample, diabetes130_full=complete 101K records.",
+        choices=["heart", "breast", "ckd", "hepatitis", "spect", "dermatology", "pima", "mammographic", "thyroid", "eeg_eye", "framingham", "diabetes130", "diabetes130_full", "vitaldb", "rhc", "sepsis_survival", "all"],
+        help="Dataset to prepare. diabetes130_full=101K, rhc=5.7K ICU, sepsis_survival=110K.",
     )
     parser.add_argument("--output", default="", help="Output CSV path (default: examples/<dataset>.csv).")
     args = parser.parse_args()
@@ -845,6 +963,8 @@ def main() -> int:
         "framingham": ("framingham_heart.csv", prepare_framingham),
         "diabetes130": ("diabetes130_readmission.csv", lambda o: prepare_diabetes130(o, max_rows=10000)),
         "diabetes130_full": ("diabetes130_full_readmission.csv", lambda o: prepare_diabetes130(o, max_rows=0)),
+        "rhc": ("rhc_icu_mortality.csv", prepare_rhc),
+        "sepsis_survival": ("sepsis_survival.csv", prepare_sepsis_survival),
         "vitaldb": ("vitaldb_icu.csv", prepare_vitaldb),
     }
 
