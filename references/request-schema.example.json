@@ -41,6 +41,9 @@
   "permutation_null_metrics_file": "../evidence/permutation_null_pr_auc.txt",
   "actual_primary_metric": 0.44,
   "thresholds": {
+    "profile": "standard",
+    "_profile_options": ["standard", "small_cohort", "rare_disease", "exploratory"],
+    "_profile_doc": "See references/gate-strictness-profiles.md for threshold values per profile. Profile sets defaults; individual overrides below take precedence.",
     "alpha": 0.01,
     "min_delta": 0.03,
     "min_baseline_delta": 0.01,
@@ -49,6 +52,9 @@
   },
   "context": {
     "hospital_system": "example-health",
+    "study_type": "clinical_prediction",
+    "_study_type_options": ["clinical_prediction", "rare_disease", "feasibility", "methods_comparison"],
+    "estimated_total_events": 500,
     "notes": "No disease-defining variables are allowed in predictors."
   }
 }

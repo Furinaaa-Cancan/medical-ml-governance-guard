@@ -38,10 +38,6 @@ class TargetAsFeature(BaseRule):
 
     def visit_Assign(self, node: ast.Assign) -> None:  # noqa: N802
         """Track variable origins: X = df.drop(...), y = df['target'], X = df[cols]."""
-        if not isinstance(node.value, (ast.Call, ast.Subscript)):
-            self.generic_visit(node)
-            return
-
         for target in node.targets:
             if not isinstance(target, ast.Name):
                 continue
@@ -49,6 +45,10 @@ class TargetAsFeature(BaseRule):
 
             # On any re-assignment, clear stale drop-derived status
             self._drop_derived.discard(var_name)
+
+            # Pattern: X = df  (bare assignment — same object, target still in X)
+            if isinstance(node.value, ast.Name):
+                self._var_source[var_name] = node.value.id
 
             # Pattern: X = df.drop(columns=[...])
             if isinstance(node.value, ast.Call) and isinstance(node.value.func, ast.Attribute):
@@ -58,13 +58,34 @@ class TargetAsFeature(BaseRule):
                         self._var_source[var_name] = src
                         self._drop_derived.add(var_name)
 
-            # Pattern: y = df['target'] or y = df[col]
+            # Pattern: y = df['target'] or X = df[[col1, col2, ...]]
             if isinstance(node.value, ast.Subscript):
                 src = self._get_name(node.value.value)
                 if src:
                     self._var_source[var_name] = src
+                # Check for target-like columns in list subscript: df[['age', 'target', ...]]
+                self._check_assign_subscript_for_target(node, var_name)
 
         self.generic_visit(node)
+
+    def _check_assign_subscript_for_target(
+        self, node: ast.Assign, var_name: str
+    ) -> None:
+        """Check X = df[['col1', 'target', ...]] at assignment time."""
+        if not isinstance(node.value, ast.Subscript):
+            return
+        sl = node.value.slice
+        if isinstance(sl, ast.List):
+            for elt in sl.elts:
+                if isinstance(elt, ast.Constant) and isinstance(elt.value, str):
+                    if elt.value.lower() in _TARGET_NAMES:
+                        self.report(
+                            node,
+                            f"`{var_name}` includes target-like column "
+                            f"'{elt.value}' in feature selection. "
+                            f"Drop it before training.",
+                        )
+                        return
 
     def visit_Call(self, node: ast.Call) -> None:  # noqa: N802
         if not isinstance(node.func, ast.Attribute):

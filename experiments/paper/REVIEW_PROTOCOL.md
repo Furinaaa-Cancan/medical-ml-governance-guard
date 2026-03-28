@@ -307,7 +307,18 @@ Target: ≥200 papers (achieves ±7% precision)
 
 ## 11. Protocol Deviations
 
-Any deviations from this protocol will be documented and reported in the final manuscript with justification.
+The following deviations from the original protocol have been documented:
+
+| # | Protocol Specification | Actual Implementation | Justification | Impact |
+|---|----------------------|----------------------|---------------|--------|
+| PD-1 | N ≥ 200 papers for Phase 1 | N = 172 | PMC yield lower than estimated | Margin of error ±6.1% (vs target ±7%); acceptable |
+| PD-2 | Dual-reviewer screening with Rayyan | Single automated pipeline (collect + verify scripts) | Resource constraint; screening criteria are objective (code existence, Python, training logic) | Study should be classified as "methodological survey" not "systematic review" |
+| PD-3 | N = 50 Phase 2 subsample, 25 MLGG-positive + 25 MLGG-negative | N = 50 selected, but stratification was 9 MLGG-positive + 41 MLGG-negative (based on v3 scan) | V3 scan had fewer positives than expected; equal stratification was not achievable | Sensitivity estimate is based on small MLGG-positive sample; wide CI |
+| PD-4 | R3 arbitrator = human domain expert | R3 arbitrator = Claude LLM (same model family as R2) | No human expert available | R3 lacks independence from R2; ground truth may have systematic LLM bias. Report as limitation |
+| PD-5 | R3 verification of N = 20 disagreement cases | R3 verified 10/28 disagreement cases (10 FN, 0 FP) | Focused on validating the higher-impact FN cases | Selection bias: FP cases not independently verified. Sensitivity analysis needed |
+| PD-6 | OSF pre-registration before screening | Not completed | Oversight | All analysis decisions are post-hoc; report as limitation |
+| PD-7 | MLGG rules fixed (v3 → v4) after blind list stratification | Confusion matrix computed against v4 verdicts on v3-stratified sample | FP reduction was the goal of v4 fixes | Stratification integrity weakened; report both v3 and v4 results |
+| PD-8 | Statistical analysis uses only blind-list N = 50 | Initial analysis included 12 exploratory entries (N = 62); corrected to blind-list-only | Implementation error, corrected | Corrected version uses blind-list-only sample |
 
 ## 12. References
 

@@ -64,6 +64,129 @@ MANDATORY_CLINICAL_METRICS = [
     "brier",
 ]
 
+# ---------------------------------------------------------------------------
+# Profile-based threshold overrides
+# See references/gate-strictness-profiles.md for rationale.
+# ---------------------------------------------------------------------------
+
+_PROFILE_OVERRIDES: Dict[str, Dict[str, Any]] = {
+    "standard": {},  # Default — no overrides
+    "small_cohort": {
+        "seed_stability_thresholds_max": {
+            "pr_auc_std_max": 0.05,
+            "pr_auc_range_max": 0.12,
+            "f2_beta_std_max": 0.07,
+            "f2_beta_range_max": 0.16,
+            "brier_std_max": 0.03,
+            "brier_range_max": 0.08,
+        },
+        "gap_thresholds_max": {
+            ("train", "valid", "pr_auc"): {"warn": 0.07, "fail": 0.12},
+            ("valid", "test", "pr_auc"): {"warn": 0.06, "fail": 0.10},
+            ("train", "test", "f2_beta"): {"warn": 0.10, "fail": 0.15},
+            ("valid", "test", "brier"): {"warn": 0.03, "fail": 0.05},
+        },
+        "external_validation_thresholds": {
+            "min_rows_per_cohort_min": 10,
+            "min_positive_per_cohort_min": 3,
+            "max_pr_auc_drop_max": 0.12,
+            "max_f2_beta_drop_max": 0.15,
+        },
+        "distribution_thresholds_v2": {
+            "split_classifier_auc_fail_max": 0.80,
+            "split_classifier_auc_warn_max": 0.73,
+            "top_feature_jsd_fail_max": 0.40,
+            "top_feature_jsd_warn_max": 0.28,
+        },
+    },
+    "rare_disease": {
+        "seed_stability_thresholds_max": {
+            "pr_auc_std_max": 0.08,
+            "pr_auc_range_max": 0.20,
+            "f2_beta_std_max": 0.10,
+            "f2_beta_range_max": 0.25,
+            "brier_std_max": 0.05,
+            "brier_range_max": 0.12,
+        },
+        "gap_thresholds_max": {
+            ("train", "valid", "pr_auc"): {"warn": 0.10, "fail": 0.18},
+            ("valid", "test", "pr_auc"): {"warn": 0.08, "fail": 0.15},
+            ("train", "test", "f2_beta"): {"warn": 0.15, "fail": 0.22},
+            ("valid", "test", "brier"): {"warn": 0.05, "fail": 0.08},
+        },
+        "external_validation_thresholds": {
+            "min_cohort_count_min": 1,
+            "min_rows_per_cohort_min": 5,
+            "min_positive_per_cohort_min": 2,
+            "max_pr_auc_drop_max": 0.18,
+            "max_f2_beta_drop_max": 0.22,
+            "require_cross_period": False,
+            "require_cross_institution": False,
+        },
+        "distribution_thresholds_v2": {
+            "split_classifier_auc_fail_max": 0.85,
+            "split_classifier_auc_warn_max": 0.78,
+            "top_feature_jsd_fail_max": 0.50,
+            "top_feature_jsd_warn_max": 0.35,
+        },
+        "clinical_floors_min": {
+            "sensitivity_min": 0.75,
+            "npv_min": 0.80,
+            "specificity_min": 0.30,
+            "ppv_min": 0.40,
+        },
+    },
+    "exploratory": {
+        "seed_stability_thresholds_max": {
+            "pr_auc_std_max": 0.10,
+            "pr_auc_range_max": 0.25,
+            "f2_beta_std_max": 0.12,
+            "f2_beta_range_max": 0.30,
+            "brier_std_max": 0.06,
+            "brier_range_max": 0.15,
+        },
+        "gap_thresholds_max": {
+            ("train", "valid", "pr_auc"): {"warn": 0.15, "fail": 0.25},
+            ("valid", "test", "pr_auc"): {"warn": 0.12, "fail": 0.20},
+            ("train", "test", "f2_beta"): {"warn": 0.20, "fail": 0.30},
+            ("valid", "test", "brier"): {"warn": 0.08, "fail": 0.12},
+        },
+        "external_validation_thresholds": {
+            "min_cohort_count_min": 0,
+            "require_cross_period": False,
+            "require_cross_institution": False,
+        },
+        "distribution_thresholds_v2": {
+            "split_classifier_auc_fail_max": 0.90,
+            "split_classifier_auc_warn_max": 0.82,
+            "top_feature_jsd_fail_max": 0.60,
+            "top_feature_jsd_warn_max": 0.45,
+        },
+        "clinical_floors_min": {
+            "sensitivity_min": 0.60,
+            "npv_min": 0.70,
+            "specificity_min": 0.20,
+            "ppv_min": 0.30,
+        },
+    },
+}
+
+ALLOWED_PROFILES = set(_PROFILE_OVERRIDES.keys())
+
+
+def _apply_profile(baselines: Dict[str, Any], profile: str) -> Dict[str, Any]:
+    """Deep-merge profile overrides onto a copy of baselines."""
+    import copy
+    result = copy.deepcopy(baselines)
+    overrides = _PROFILE_OVERRIDES.get(profile, {})
+    for key, value in overrides.items():
+        if isinstance(value, dict) and isinstance(result.get(key), dict):
+            result[key].update(value)
+        else:
+            result[key] = value
+    return result
+
+
 PUBLICATION_POLICY_BASELINES: Dict[str, Any] = {
     "beta": 2.0,
     "threshold_policy_strategy": "maximize_fbeta_under_floors",
@@ -209,6 +332,22 @@ def validate_thresholds(
             {"actual_type": type(thresholds).__name__},
         )
         return {}
+
+    # ── Profile resolution ──
+    profile = thresholds.get("profile", "standard")
+    if profile not in ALLOWED_PROFILES:
+        add_issue(
+            warnings,
+            "unknown_profile",
+            f"thresholds.profile='{profile}' not recognized. "
+            f"Allowed: {sorted(ALLOWED_PROFILES)}. Using 'standard'.",
+            {"profile": profile},
+        )
+        profile = "standard"
+
+    # Store resolved profile for downstream gates
+    request["_resolved_profile"] = profile
+    request["_resolved_policy"] = _apply_profile(PUBLICATION_POLICY_BASELINES, profile)
 
     parsed: Dict[str, float] = {}
     for key in ("alpha", "min_delta", "min_baseline_delta", "ci_max_width"):

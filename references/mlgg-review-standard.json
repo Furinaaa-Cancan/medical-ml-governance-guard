@@ -1,9 +1,9 @@
 {
   "contract_version": "mlgg_review_standard.v1",
   "standard_name": "MLGG Medical ML Review Standard",
-  "version": "1.1",
-  "last_updated": "2026-03-15",
-  "description": "Independent quantitative review standard for medical ML prediction models. Covers 12 dimensions (10 scored + 2 supplementary) with 76 criteria across 3 review levels. Each criterion maps to specific gates, literature references, and pass conditions.",
+  "version": "1.2",
+  "last_updated": "2026-03-20",
+  "description": "Independent quantitative review standard for medical ML prediction models. Covers 12 dimensions (10 scored + 2 supplementary) with 89 criteria across 3 review levels. Each criterion maps to specific gates, literature references, and pass conditions.",
   "review_levels": {
     "quick": {
       "estimated_time": "5 minutes",
@@ -12,12 +12,12 @@
     },
     "standard": {
       "estimated_time": "30 minutes",
-      "criteria_count": 53,
+      "criteria_count": 59,
       "description": "Standard review coverage for conference/journal submissions (cumulative: quick + standard criteria)"
     },
     "comprehensive": {
       "estimated_time": "2 hours",
-      "criteria_count": 76,
+      "criteria_count": 89,
       "description": "Top-journal-grade full review — Nature Medicine / JAMA / BMJ / Lancet level (all 76 criteria)"
     }
   },
@@ -304,6 +304,24 @@
           "applies_to_prediction_types": [
             "binary"
           ]
+        },
+        {
+          "id": "D2.9",
+          "text": "Temporal feature audit: all features verified available at prediction time point (no post-index features)",
+          "text_zh": "时间性特征审计：所有特征验证在预测时间点可用（无 post-index 特征）",
+          "level": "standard",
+          "pass_condition": "All features confirmed available before outcome observation",
+          "evidence_required": "feature_lineage_report.json or feature audit documentation",
+          "gate": "feature_lineage_gate",
+          "literature": [
+            "LIT-053",
+            "LIT-054"
+          ],
+          "severity": "CRITICAL",
+          "fail_action": "block_all_claims",
+          "applies_to_prediction_types": [
+            "binary"
+          ]
         }
       ]
     },
@@ -567,6 +585,23 @@
           "applies_to_prediction_types": [
             "binary"
           ]
+        },
+        {
+          "id": "D4.8",
+          "text": "No univariable or stepwise variable selection used (use LASSO/elastic net if selection needed)",
+          "text_zh": "未使用单变量或逐步变量选择（如需选择应使用 LASSO/弹性网络）",
+          "level": "standard",
+          "pass_condition": "Variable selection method is penalization-based or full model",
+          "evidence_required": "model_selection_audit_report.json or methodology section",
+          "gate": "model_selection_audit_gate",
+          "literature": [
+            "LIT-048"
+          ],
+          "severity": "HIGH",
+          "fail_action": "downgrade_to_preliminary",
+          "applies_to_prediction_types": [
+            "binary"
+          ]
         }
       ]
     },
@@ -715,6 +750,78 @@
           "applies_to_prediction_types": [
             "binary"
           ]
+        },
+        {
+          "id": "D5.9",
+          "text": "O/E ratio (observed/expected) reported for all cohorts, ideal=1.0",
+          "text_zh": "报告所有队列的 O/E 比（观察/预期），理想值=1.0",
+          "level": "standard",
+          "pass_condition": "O/E ratio within [0.70, 1.43] for all cohorts",
+          "evidence_required": "calibration_dca_report.json oe_ratio field",
+          "gate": "calibration_dca_gate",
+          "literature": [
+            "LIT-046",
+            "LIT-047"
+          ],
+          "severity": "HIGH",
+          "fail_action": "downgrade_to_preliminary",
+          "applies_to_prediction_types": [
+            "binary"
+          ]
+        },
+        {
+          "id": "D5.10",
+          "text": "Calibration-in-the-large reported (mean predicted vs mean observed), ideal=0",
+          "text_zh": "报告总体校准（平均预测值 vs 平均观察值），理想值=0",
+          "level": "standard",
+          "pass_condition": "|calibration_in_the_large| < 0.10",
+          "evidence_required": "calibration_dca_report.json calibration_in_the_large field",
+          "gate": "calibration_dca_gate",
+          "literature": [
+            "LIT-045",
+            "LIT-046"
+          ],
+          "severity": "HIGH",
+          "fail_action": "downgrade_to_preliminary",
+          "applies_to_prediction_types": [
+            "binary"
+          ]
+        },
+        {
+          "id": "D5.11",
+          "text": "Hosmer-Lemeshow test NOT used for calibration assessment (discouraged by BMJ 2024)",
+          "text_zh": "Hosmer-Lemeshow 检验未被用于校准评估（BMJ 2024 明确反对）",
+          "level": "standard",
+          "pass_condition": "No mention of Hosmer-Lemeshow in calibration methodology",
+          "evidence_required": "calibration_dca_report.json or methodology section",
+          "gate": "calibration_dca_gate",
+          "literature": [
+            "LIT-045",
+            "LIT-046"
+          ],
+          "severity": "MEDIUM",
+          "fail_action": "warn_and_recommend_alternative",
+          "applies_to_prediction_types": [
+            "binary"
+          ]
+        },
+        {
+          "id": "D5.12",
+          "text": "DCA threshold probability range pre-specified based on clinical context",
+          "text_zh": "DCA 阈值概率范围基于临床背景预先指定",
+          "level": "comprehensive",
+          "pass_condition": "Threshold range justified in protocol or methods section",
+          "evidence_required": "calibration_dca_report.json dca_threshold_justification",
+          "gate": "calibration_dca_gate",
+          "literature": [
+            "LIT-046",
+            "LIT-051"
+          ],
+          "severity": "MEDIUM",
+          "fail_action": "warn_and_recommend_justification",
+          "applies_to_prediction_types": [
+            "binary"
+          ]
         }
       ]
     },
@@ -845,6 +952,40 @@
           ],
           "severity": "MEDIUM",
           "fail_action": "flag_gap",
+          "applies_to_prediction_types": [
+            "binary"
+          ]
+        },
+        {
+          "id": "D6.8",
+          "text": "External validation cohort has ≥100 events and ≥100 non-events (minimum per Riley et al.)",
+          "text_zh": "外部验证队列至少有 ≥100 事件和 ≥100 非事件（Riley et al. 最低要求）",
+          "level": "standard",
+          "pass_condition": "External cohort events ≥ 100 AND non-events ≥ 100",
+          "evidence_required": "external_validation_report.json or sample_size_report.json",
+          "gate": "sample_size_gate",
+          "literature": [
+            "LIT-047"
+          ],
+          "severity": "HIGH",
+          "fail_action": "flag_underpowered_validation",
+          "applies_to_prediction_types": [
+            "binary"
+          ]
+        },
+        {
+          "id": "D6.9",
+          "text": "C-statistic CI width ≤ 0.10 in external validation (sufficient precision)",
+          "text_zh": "外部验证 C 统计量 CI 宽度 ≤ 0.10（充分精度）",
+          "level": "comprehensive",
+          "pass_condition": "C-statistic 95% CI width ≤ 0.10",
+          "evidence_required": "evaluation_quality_report.json or external_validation_report.json",
+          "gate": "sample_size_gate",
+          "literature": [
+            "LIT-047"
+          ],
+          "severity": "MEDIUM",
+          "fail_action": "warn_imprecise_validation",
           "applies_to_prediction_types": [
             "binary"
           ]
@@ -1388,6 +1529,57 @@
           "applies_to_prediction_types": [
             "binary"
           ]
+        },
+        {
+          "id": "D11.6",
+          "text": "FPR parity gap < 0.15 across demographic subgroups",
+          "text_zh": "假阳性率奇偶差距 < 0.15",
+          "level": "comprehensive",
+          "pass_condition": "Max FPR gap across subgroups < 0.15",
+          "evidence_required": "fairness_equity_report.json fpr_parity section",
+          "gate": "fairness_equity_gate",
+          "literature": [
+            "LIT-050"
+          ],
+          "severity": "HIGH",
+          "fail_action": "flag_fairness_concern",
+          "applies_to_prediction_types": [
+            "binary"
+          ]
+        },
+        {
+          "id": "D11.7",
+          "text": "FNR parity gap < 0.15 across demographic subgroups",
+          "text_zh": "假阴性率奇偶差距 < 0.15",
+          "level": "comprehensive",
+          "pass_condition": "Max FNR gap across subgroups < 0.15",
+          "evidence_required": "fairness_equity_report.json fnr_parity section",
+          "gate": "fairness_equity_gate",
+          "literature": [
+            "LIT-050"
+          ],
+          "severity": "HIGH",
+          "fail_action": "flag_fairness_concern",
+          "applies_to_prediction_types": [
+            "binary"
+          ]
+        },
+        {
+          "id": "D11.8",
+          "text": "Fairness impossibility theorem acknowledged — prioritized criterion documented",
+          "text_zh": "公平性不可能定理已声明 — 优先准则有文档记录",
+          "level": "comprehensive",
+          "pass_condition": "Documentation specifies which fairness criterion was prioritized and rationale",
+          "evidence_required": "fairness_equity_report.json or methodology section",
+          "gate": "fairness_equity_gate",
+          "literature": [
+            "LIT-050"
+          ],
+          "severity": "LOW",
+          "fail_action": "info_note",
+          "applies_to_prediction_types": [
+            "binary"
+          ]
         }
       ]
     },
@@ -1467,6 +1659,41 @@
           ],
           "severity": "MEDIUM",
           "fail_action": "flag_gap",
+          "applies_to_prediction_types": [
+            "binary"
+          ]
+        },
+        {
+          "id": "D12.5",
+          "text": "Validation set has ≥200 events and ≥200 non-events for calibration curve precision",
+          "text_zh": "验证集至少有 ≥200 事件和 ≥200 非事件以保证校准曲线精度",
+          "level": "comprehensive",
+          "pass_condition": "Validation set events ≥ 200 AND non-events ≥ 200",
+          "evidence_required": "sample_size_report.json or external_validation_report.json",
+          "gate": "sample_size_gate",
+          "literature": [
+            "LIT-047"
+          ],
+          "severity": "MEDIUM",
+          "fail_action": "warn_imprecise_calibration_curve",
+          "applies_to_prediction_types": [
+            "binary"
+          ]
+        },
+        {
+          "id": "D12.6",
+          "text": "Sample size inflated for anticipated missing data (N / (1 - missing_fraction))",
+          "text_zh": "样本量已根据预计缺失比例膨胀 N/(1-缺失比例)",
+          "level": "comprehensive",
+          "pass_condition": "Missing data inflation documented or missingness < 5%",
+          "evidence_required": "sample_size_report.json or study protocol",
+          "gate": "sample_size_gate",
+          "literature": [
+            "LIT-047",
+            "LIT-048"
+          ],
+          "severity": "LOW",
+          "fail_action": "info_note",
           "applies_to_prediction_types": [
             "binary"
           ]

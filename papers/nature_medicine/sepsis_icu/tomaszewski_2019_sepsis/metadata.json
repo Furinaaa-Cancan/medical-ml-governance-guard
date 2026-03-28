@@ -2,7 +2,9 @@
   "_template_version": "1.0.0",
   "bibliographic": {
     "title": "Early detection of sepsis using machine learning algorithms in electronic health records",
-    "authors": ["Tomaszewski CA"],
+    "authors": [
+      "Tomaszewski CA"
+    ],
     "journal": "Various (representative of common sepsis ML pattern)",
     "year": 2019,
     "doi": "",
@@ -70,6 +72,8 @@
     "target_leakage_risk": "high",
     "post_index_feature_risk": "high",
     "phenotype_definition_overlap_risk": "medium",
-    "notes": "Common pattern: preprocessing on full data before split, random split without patient grouping, no temporal validation, no CI, no calibration. Post-index features likely (vitals recorded after sepsis onset). Representative of papers flagged by Kapoor & Narayanan 2023."
+    "notes": "Common pattern: preprocessing on full data before split, random split without patient grouping, no temporal validation, no CI, no calibration. Post-index features likely (vitals recorded after sepsis onset). Representative of papers flagged by Kapoor & Narayanan 2023.",
+    "is_representative_example": true,
+    "_warning": "SYNTHETIC: This is a composite representative example, not a real published paper. Exclude from prevalence calculations."
   }
 }

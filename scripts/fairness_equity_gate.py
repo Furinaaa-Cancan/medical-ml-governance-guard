@@ -13,6 +13,8 @@ References:
 - TRIPOD+AI (BMJ 2024): fairness assessment recommendation
 - PROBAST+AI (BMJ 2025): applicability across subpopulations
 - Nature Medicine / Lancet DH: subgroup equity requirements
+- HEAL framework (eClinicalMedicine 2024): FPR/FNR parity
+- "What Is Fair?" (Statistics in Medicine 2025): impossibility theorem
 """
 from __future__ import annotations
 
@@ -74,6 +76,28 @@ register_remediations({
         "Non-finite fairness metric detected. Check evaluation code for "
         "division-by-zero in subgroup computations."
     ),
+    "fpr_parity_exceeds_threshold": (
+        "False Positive Rate gap across subgroups exceeds threshold. Consider: "
+        "1) Subgroup-specific threshold calibration, "
+        "2) Investigating feature distribution shifts across subgroups, "
+        "3) Fairness-constrained optimization targeting FPR parity."
+    ),
+    "fnr_parity_exceeds_threshold": (
+        "False Negative Rate gap across subgroups exceeds threshold. Consider: "
+        "1) Subgroup-specific threshold calibration, "
+        "2) Enriching training data for underperforming subgroups, "
+        "3) Fairness-constrained optimization targeting FNR parity."
+    ),
+    "subgroup_sample_unstable": (
+        "A subgroup has fewer than 50 samples. Fairness metrics for this "
+        "subgroup may be unstable. Consider collecting more data or reporting "
+        "wide confidence intervals."
+    ),
+    "impossibility_theorem_note": (
+        "Multiple fairness criteria cannot be simultaneously satisfied "
+        "(impossibility theorem, LIT-050). Document which criterion was "
+        "prioritized and why."
+    ),
 })
 
 
@@ -90,8 +114,18 @@ DEFAULT_THRESHOLDS: Dict[str, float] = {
     # Minimum PR-AUC for any subgroup
     "subgroup_pr_auc_min_warn": 0.50,
     "subgroup_pr_auc_min_fail": 0.40,
+    # FPR parity: max FPR gap across subgroups (HEAL framework)
+    "fpr_gap_warn": 0.10,
+    "fpr_gap_fail": 0.15,
+    # FNR parity: max FNR gap across subgroups (HEAL framework)
+    "fnr_gap_warn": 0.10,
+    "fnr_gap_fail": 0.15,
     # Minimum subgroup size for reliable assessment
     "min_subgroup_size": 20,
+    # Minimum subgroup size before fairness metrics are considered unstable
+    "min_subgroup_size_stable": 50,
+    # Minimum subgroup size for warning (enhanced threshold)
+    "min_subgroup_size_warn": 30,
     # Minimum number of subgroup features analyzed
     "min_subgroups_analyzed": 1,
 }
@@ -179,13 +213,45 @@ def main() -> int:
         )
         return _finish(args, failures, warnings, info, thresholds, None)
 
+    # Check for fairness_assessment.status = "not_assessed" exemption
+    fairness_assessment = eval_report.get("fairness_assessment", {})
+    if isinstance(fairness_assessment, dict) and fairness_assessment.get("status") == "not_assessed":
+        justification = fairness_assessment.get("justification", "")
+        if justification:
+            # Accepted: fairness not assessed with justification.
+            # Severity depends on profile (resolved from request if available).
+            add_issue(
+                warnings,
+                "fairness_not_assessed_justified",
+                f"Fairness not assessed. Justification: {justification}",
+                {"justification": justification, "plan": fairness_assessment.get("plan", "")},
+            )
+            add_issue(
+                info,
+                "fairness_not_assessed_info",
+                "Report this limitation in the manuscript's Limitations section.",
+                {},
+            )
+            return _finish(args, failures, warnings, info, thresholds, eval_report)
+        else:
+            # Not assessed without justification — still a failure
+            add_issue(
+                failures,
+                "fairness_not_assessed_no_justification",
+                "fairness_assessment.status='not_assessed' but no justification provided. "
+                "Provide a justification (e.g., 'homogeneous cohort') to use this exemption.",
+                {},
+            )
+            return _finish(args, failures, warnings, info, thresholds, eval_report)
+
     # Extract subgroup performance
     subgroup_perf = eval_report.get("subgroup_performance")
     if not subgroup_perf:
         add_issue(
             failures,
             "missing_subgroup_performance",
-            "No subgroup_performance section in evaluation report.",
+            "No subgroup_performance section in evaluation report. "
+            "To exempt, add fairness_assessment.status='not_assessed' with justification.",
             {},
         )
         return _finish(args, failures, warnings, info, thresholds, eval_report)
@@ -195,7 +261,10 @@ def main() -> int:
     all_equalized_odds_gaps: List[float] = []
     all_disparate_impact_ratios: List[float] = []
     all_subgroup_pr_aucs: List[Dict[str, Any]] = []
+    all_fpr_gaps: List[float] = []
+    all_fnr_gaps: List[float] = []
     subgroup_details: List[Dict[str, Any]] = []
+    total_fairness_metrics_reported: int = 0
 
     if isinstance(subgroup_perf, dict):
         items = subgroup_perf.items()
@@ -299,6 +368,33 @@ def main() -> int:
                         "min_required": thresholds["min_subgroup_size"],
                     },
                 )
+            elif isinstance(n, (int, float)) and n < thresholds["min_subgroup_size_warn"]:
+                add_issue(
+                    warnings,
+                    "subgroup_sample_too_small",
+                    f"Subgroup '{group.get('group_label', '?')}' in feature "
+                    f"'{feature_name}' has only {n} samples "
+                    f"(warn threshold: {int(thresholds['min_subgroup_size_warn'])}).",
+                    {
+                        "feature": feature_name,
+                        "group": group.get("group_label"),
+                        "n": n,
+                        "min_required": thresholds["min_subgroup_size_warn"],
+                    },
+                )
+            if isinstance(n, (int, float)) and n < thresholds["min_subgroup_size_stable"]:
+                add_issue(
+                    warnings,
+                    "subgroup_sample_unstable",
+                    f"Subgroup '{group.get('group_label', '?')}' in feature "
+                    f"'{feature_name}' has {n} samples — fairness metrics may be unstable.",
+                    {
+                        "feature": feature_name,
+                        "group": group.get("group_label"),
+                        "n": n,
+                        "min_stable": thresholds["min_subgroup_size_stable"],
+                    },
+                )
             pr_auc = _to_float(group.get("pr_auc"))
             if pr_auc is not None:
                 all_subgroup_pr_aucs.append({
@@ -333,12 +429,111 @@ def main() -> int:
                         },
                     )
 
+        # ── FPR parity check (HEAL framework, eClinicalMedicine 2024) ────
+        fpr_gap = None
+        group_fprs = []
+        for group in groups:
+            if not isinstance(group, dict):
+                continue
+            fpr = _to_float(group.get("fpr", group.get("false_positive_rate")))
+            if fpr is not None:
+                group_fprs.append(fpr)
+        if len(group_fprs) >= 2:
+            fpr_gap = max(group_fprs) - min(group_fprs)
+            all_fpr_gaps.append(fpr_gap)
+            if fpr_gap > thresholds["fpr_gap_fail"]:
+                add_issue(
+                    failures,
+                    "fpr_parity_exceeds_threshold",
+                    f"FPR gap for '{feature_name}' is {fpr_gap:.3f} "
+                    f"(fail threshold: {thresholds['fpr_gap_fail']:.3f}).",
+                    {
+                        "feature": feature_name,
+                        "gap": fpr_gap,
+                        "threshold": thresholds["fpr_gap_fail"],
+                    },
+                )
+            elif fpr_gap > thresholds["fpr_gap_warn"]:
+                add_issue(
+                    warnings,
+                    "fpr_parity_exceeds_threshold",
+                    f"FPR gap for '{feature_name}' is {fpr_gap:.3f} "
+                    f"(warn threshold: {thresholds['fpr_gap_warn']:.3f}).",
+                    {
+                        "feature": feature_name,
+                        "gap": fpr_gap,
+                        "threshold": thresholds["fpr_gap_warn"],
+                    },
+                )
+
+        # ── FNR parity check (HEAL framework, eClinicalMedicine 2024) ────
+        fnr_gap = None
+        group_fnrs = []
+        for group in groups:
+            if not isinstance(group, dict):
+                continue
+            fnr = _to_float(group.get("fnr", group.get("false_negative_rate")))
+            if fnr is not None:
+                group_fnrs.append(fnr)
+        if len(group_fnrs) >= 2:
+            fnr_gap = max(group_fnrs) - min(group_fnrs)
+            all_fnr_gaps.append(fnr_gap)
+            if fnr_gap > thresholds["fnr_gap_fail"]:
+                add_issue(
+                    failures,
+                    "fnr_parity_exceeds_threshold",
+                    f"FNR gap for '{feature_name}' is {fnr_gap:.3f} "
+                    f"(fail threshold: {thresholds['fnr_gap_fail']:.3f}).",
+                    {
+                        "feature": feature_name,
+                        "gap": fnr_gap,
+                        "threshold": thresholds["fnr_gap_fail"],
+                    },
+                )
+            elif fnr_gap > thresholds["fnr_gap_warn"]:
+                add_issue(
+                    warnings,
+                    "fnr_parity_exceeds_threshold",
+                    f"FNR gap for '{feature_name}' is {fnr_gap:.3f} "
+                    f"(warn threshold: {thresholds['fnr_gap_warn']:.3f}).",
+                    {
+                        "feature": feature_name,
+                        "gap": fnr_gap,
+                        "threshold": thresholds["fnr_gap_warn"],
+                    },
+                )
+
+        # Count distinct fairness metrics reported for this feature
+        _feature_metrics = 0
+        if eo_gap is not None:
+            _feature_metrics += 1
+        if di_ratio is not None:
+            _feature_metrics += 1
+        if len(group_fprs) >= 2:
+            _feature_metrics += 1
+        if len(group_fnrs) >= 2:
+            _feature_metrics += 1
+        total_fairness_metrics_reported += _feature_metrics
+
         subgroup_details.append({
             "feature": feature_name,
             "equalized_odds_gap": eo_gap,
             "disparate_impact_ratio": di_ratio,
+            "fpr_gap": fpr_gap,
+            "fnr_gap": fnr_gap,
             "n_groups": len(groups),
         })
+
+    # ── Impossibility theorem acknowledgment ("What Is Fair?", Stat Med 2025) ──
+    if total_fairness_metrics_reported >= 3:
+        add_issue(
+            info,
+            "impossibility_theorem_note",
+            "Multiple fairness criteria cannot be simultaneously satisfied "
+            "(impossibility theorem, LIT-050). Document which criterion was "
+            "prioritized and why.",
+            {"n_metrics_reported": total_fairness_metrics_reported},
+        )
 
     # Check minimum subgroup coverage
     if len(features_analyzed) < thresholds["min_subgroups_analyzed"]:
@@ -364,6 +559,11 @@ def main() -> int:
             if all_disparate_impact_ratios
             else None
         ),
+        "fpr_gaps": all_fpr_gaps,
+        "max_fpr_gap": max(all_fpr_gaps) if all_fpr_gaps else None,
+        "fnr_gaps": all_fnr_gaps,
+        "max_fnr_gap": max(all_fnr_gaps) if all_fnr_gaps else None,
+        "total_fairness_metrics_reported": total_fairness_metrics_reported,
         "subgroup_details": subgroup_details,
         "thresholds": thresholds,
     }

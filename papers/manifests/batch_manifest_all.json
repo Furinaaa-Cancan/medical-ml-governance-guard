@@ -2,14 +2,43 @@
   "contract_version": "batch_manifest.v1",
   "_description": "全量 batch 审查清单——包含所有已录入文章，供 batch_journal_review.py 使用",
   "_usage": "python3 scripts/batch_journal_review.py --manifest papers/manifests/batch_manifest_all.json --output papers/audit_results/batch_all.json",
-  "target_journals": ["nature_medicine"],
+  "target_journals": ["nature_medicine", "lancet_digital_health", "jama", "bmj", "npj_digital_medicine"],
   "projects": [
     {
-      "_comment": "示例条目，请按此格式添加。id 用 first_author_year_keyword 格式。",
-      "id": "example_2024_af_prediction",
-      "path": "papers/nature_medicine/cardiovascular/example_2024_af_prediction",
-      "label": "Example et al. 2024 — AF prediction from EHR",
-      "notes": "Example entry. Replace with real paper."
+      "id": "oconnor_2021_t2dm_readmission",
+      "path": "papers/jama/diabetes/oconnor_2021_t2dm_readmission",
+      "label": "O'Connor et al. 2021 — T2DM 30-day readmission prediction (JAMA Internal Medicine)",
+      "notes": "Preprocessing on full data before split. Random split without patient grouping. No CI."
+    },
+    {
+      "id": "hippisley_cox_2017_qrisk3",
+      "path": "papers/lancet_digital_health/cardiovascular/hippisley_cox_2017_qrisk3",
+      "label": "Hippisley-Cox et al. 2017 — QRISK3 cardiovascular risk (BMJ)",
+      "notes": "Gold standard: temporal validation, 10.5M cohort, TRIPOD compliant. Gaps: no DCA, 1 model."
+    },
+    {
+      "id": "esteva_2017_skin_cancer",
+      "path": "papers/lancet_digital_health/oncology/esteva_2017_skin_cancer",
+      "label": "Esteva et al. 2017 — Skin cancer CNN classification (Nature)",
+      "notes": "Image domain. No patient-level split confirmed. No CI. No external validation."
+    },
+    {
+      "id": "attia_2019_af_ecg",
+      "path": "papers/nature_medicine/cardiovascular/attia_2019_af_ecg",
+      "label": "Attia et al. 2019 — AF detection from ECG (Nature Medicine)",
+      "notes": "180K cohort. Random split (not temporal). No external validation. No calibration."
+    },
+    {
+      "id": "tomaszewski_2019_sepsis",
+      "path": "papers/nature_medicine/sepsis_icu/tomaszewski_2019_sepsis",
+      "label": "Tomaszewski et al. 2019 — Sepsis early detection (Various)",
+      "notes": "Highest leakage risk: target_leakage_risk=high. Preprocessing on full data. Random split."
+    },
+    {
+      "id": "tomasev_2019_aki",
+      "path": "papers/npj_digital_medicine/kidney_disease/tomasev_2019_aki",
+      "label": "Tomasev et al. 2019 — AKI continuous prediction, DeepMind (Nature)",
+      "notes": "Temporal split, 700K multicenter. Low PPV (29.3%). Male-skewed (93.6%)."
     }
   ]
 }

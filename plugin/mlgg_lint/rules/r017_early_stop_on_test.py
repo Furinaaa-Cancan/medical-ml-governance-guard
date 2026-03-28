@@ -49,21 +49,35 @@ class EarlyStopOnTest(BaseRule):
 
         Early stopping on validation data is the recommended practice;
         only flag test data (not validation).
+
+        Handles multiple formats:
+        - XGBoost/LightGBM: eval_set=[(X_test, y_test)]  (List[Tuple])
+        - CatBoost:         eval_set=(X_test, y_test)     (bare Tuple)
+        - Variable:         eval_set=my_eval_set           (Name)
         """
-        # eval_set=[(X_test, y_test)] — List of tuples
+        tuples_to_check: list[ast.Tuple] = []
+
+        # eval_set=[(X_test, y_test)] — List of tuples (XGBoost/LightGBM)
         if isinstance(value, ast.List):
             for elt in value.elts:
                 if isinstance(elt, ast.Tuple):
-                    for item in elt.elts:
-                        if isinstance(item, ast.Name):
-                            taint = self.taint.get_taint(item.id)
-                            if taint is None:
-                                taint = classify_var_name(item.id)
-                            if taint == "test":
-                                self.report(
-                                    call_node,
-                                    f"eval_set contains `{item.id}` (test data). "
-                                    f"Early stopping on test data leaks information "
-                                    f"into the training process. Use validation data instead.",
-                                )
-                                return
+                    tuples_to_check.append(elt)
+
+        # eval_set=(X_test, y_test) — bare Tuple (CatBoost)
+        elif isinstance(value, ast.Tuple):
+            tuples_to_check.append(value)
+
+        for tup in tuples_to_check:
+            for item in tup.elts:
+                if isinstance(item, ast.Name):
+                    taint = self.taint.get_taint(item.id)
+                    if taint is None:
+                        taint = classify_var_name(item.id)
+                    if taint == "test":
+                        self.report(
+                            call_node,
+                            f"eval_set contains `{item.id}` (test data). "
+                            f"Early stopping on test data leaks information "
+                            f"into the training process. Use validation data instead.",
+                        )
+                        return

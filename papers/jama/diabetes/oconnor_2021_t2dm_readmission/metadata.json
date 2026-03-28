@@ -69,6 +69,8 @@
     "tuning_used_test_data": false,
     "target_leakage_risk": "medium",
     "post_index_feature_risk": "medium",
-    "notes": "StandardScaler on full data before split (L1 leakage). Random split without patient grouping (L4). Feature selection method not clearly separated from test data. No CI, no calibration. Common pattern in Diabetes-130 studies."
+    "notes": "StandardScaler on full data before split (L1 leakage). Random split without patient grouping (L4). Feature selection method not clearly separated from test data. No CI, no calibration. Common pattern in Diabetes-130 studies.",
+    "is_representative_example": true,
+    "_warning": "SYNTHETIC: This is a composite representative example, not a real published paper. Exclude from prevalence calculations."
   }
 }

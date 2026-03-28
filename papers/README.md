@@ -151,18 +151,49 @@ python3 scripts/batch_journal_review.py \
 | 60–74 | Major issues | 重大方法论问题 |
 | <60 | Not publishable | 不应作为方法论参考 |
 
+**评分公式**：`total_score = Σ (dimension_fraction × weight)`，12 维度 41 项检查，详见 `references/scoring-methodology.md`。
+
+**与代码扫描的关系**：元数据评分（路径 A）评估"作者声称做了什么"；代码扫描 R001-R020（路径 C）评估"代码实际做了什么"。两者应交叉比对，矛盾说明报告不一致。详见 `references/paper-audit-workflow.md`。
+
+---
+
+## 与 experiments/paper/ 的关系
+
+| 维度 | `papers/`（本目录） | `experiments/paper/` |
+|------|-------------------|---------------------|
+| 目的 | 精选论文深度评审（12 维 100 分制） | 大规模自动扫描（172 篇流行率估计） |
+| 粒度 | 完整 metadata.json（~80 字段） | JSONL 条目（~10 字段）+ R001-R020 |
+| 评分 | 12 维加权评分（0-100） | 二值判定（有/无泄漏） |
+| 用途 | 框架验证 + 个案分析 + 期刊审查对标 | 流行率统计 + sensitivity/specificity |
+
+**工作流**：先用 `experiments/paper/` 大规模扫描 → 挑选代表性论文纳入 `papers/` → 精细评审 + 交叉验证 → 用精细结果校准大规模估计。
+
+---
+
+## 相关文档
+
+| 文档 | 位置 | 内容 |
+|------|------|------|
+| 评分方法学 | `references/scoring-methodology.md` | 公式、维度→字段映射、权重依据 |
+| 泄漏规则映射 | `references/leakage-rule-taxonomy-mapping.md` | R001-R020 ↔ Kapoor 八型泄漏 |
+| 元数据验证 | `references/metadata-validation-rules.md` | 字段范围、一致性校验 |
+| 端到端工作流 | `references/paper-audit-workflow.md` | 从 PDF 到评分报告的完整步骤 |
+| 盲审协议 | `references/blind-audit-protocol.md` | Phase 2 三审员盲审 + kappa 计算 |
+| 抽样策略 | `references/phase-sampling-strategy.md` | Phase 1→2 抽样设计 + 统计检验力 |
+| 系统性综述协议 | `experiments/paper/REVIEW_PROTOCOL.md` | PRISMA 2020 格式的完整 protocol |
+
 ---
 
 ## 当前收录统计
 
-> 更新脚本：`python3 scripts/audit_external_project.py --count-papers papers/`（待实现）
+> 更新脚本：`python3 scripts/score_paper_metadata.py --batch-dir papers/`
 
-| 期刊 | 心血管 | 肿瘤 | 糖尿病 | 肾病 | 脓毒症/ICU | 神经 | 呼吸 | 感染 | 其他 | 合计 |
+| 目录 | 心血管 | 肿瘤 | 糖尿病 | 肾病 | 脓毒症/ICU | 神经 | 呼吸 | 感染 | 其他 | 合计 |
 |------|--------|------|--------|------|-----------|------|------|------|------|------|
-| Nature Medicine | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| Lancet Digital Health | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| JAMA | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| BMJ | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| npj Digital Medicine | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| 专科期刊 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| **合计** | **0** | **0** | **0** | **0** | **0** | **0** | **0** | **0** | **0** | **0** |
+| nature_medicine/ | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 2 |
+| lancet_digital_health/ | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2 |
+| jama/ | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+| bmj/ | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| npj_digital_medicine/ | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 |
+| specialist_journals/ | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| **合计** | **2** | **1** | **1** | **1** | **1** | **0** | **0** | **0** | **0** | **6** |

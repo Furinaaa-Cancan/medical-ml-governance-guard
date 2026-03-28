@@ -69,6 +69,42 @@ register_remediations({
         "overfitting. Consider: penalized regression, reduced predictor set, "
         "or larger sample. Reference: Riley et al. 2019."
     ),
+    "ext_val_events_too_few": (
+        "External validation cohort has fewer than 100 events. "
+        "Minimum 100 events needed for reliable validation. "
+        "Reference: Riley et al. BMJ 2024 Part 3 (LIT-047)."
+    ),
+    "ext_val_non_events_too_few": (
+        "External validation cohort has fewer than 100 non-events. "
+        "Minimum 100 non-events needed for reliable validation. "
+        "Reference: Riley et al. BMJ 2024 Part 3 (LIT-047)."
+    ),
+    "ext_val_events_low_for_calibration": (
+        "External validation cohort has fewer than 200 events, "
+        "which may be insufficient for reliable calibration curves. "
+        "Reference: Riley et al. BMJ 2024 Part 3 (LIT-047)."
+    ),
+    "ext_val_non_events_low_for_calibration": (
+        "External validation cohort has fewer than 200 non-events, "
+        "which may be insufficient for reliable calibration curves. "
+        "Reference: Riley et al. BMJ 2024 Part 3 (LIT-047)."
+    ),
+    "c_statistic_ci_too_wide": (
+        "C-statistic confidence interval width exceeds 0.10, indicating "
+        "imprecise discrimination estimation in external validation. "
+        "Consider increasing validation sample size. "
+        "Reference: Riley et al. BMJ 2024 Part 3 (LIT-047)."
+    ),
+    "calibration_slope_ci_too_wide": (
+        "Calibration slope confidence interval width exceeds 0.30, "
+        "indicating imprecise calibration estimation in external validation. "
+        "Consider increasing validation sample size. "
+        "Reference: Riley et al. BMJ 2024 Part 3 (LIT-047)."
+    ),
+    "missing_data_inflate_sample": (
+        "Consider inflating sample size by 1/(1-missing%) to account for "
+        "missing data. Reference: Riley et al. BMJ 2024 (LIT-047)."
+    ),
 })
 
 
@@ -130,6 +166,18 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Override minimum EPV threshold.",
     )
+    parser.add_argument(
+        "--min-total-events",
+        type=int,
+        default=None,
+        help="Override minimum total events threshold (default: 100).",
+    )
+    parser.add_argument(
+        "--min-test-events",
+        type=int,
+        default=None,
+        help="Override minimum test events threshold (default: 50).",
+    )
     return parser.parse_args()
 
 
@@ -143,6 +191,10 @@ def main() -> int:
     thresholds = dict(DEFAULT_THRESHOLDS)
     if args.epv_minimum is not None:
         thresholds["epv_minimum"] = args.epv_minimum
+    if args.min_total_events is not None:
+        thresholds["min_total_events"] = args.min_total_events
+    if args.min_test_events is not None:
+        thresholds["min_test_events"] = args.min_test_events
 
     # Load evaluation report
     eval_path = Path(args.evaluation_report)
@@ -284,6 +336,107 @@ def main() -> int:
                 "n_events": n_events_int,
                 "n_features": n_features_int,
             },
+        )
+
+    # ── External validation sample size checks (Riley et al. BMJ 2024 Part 3) ──
+    ext_val = eval_report.get("external_validation", {})
+    ext_cohort = ext_val.get("cohort", {})
+    ext_events = _to_float(ext_cohort.get("n_events",
+                           ext_cohort.get("n_positive",
+                           ext_cohort.get("positive_count"))))
+    ext_non_events = _to_float(ext_cohort.get("n_non_events",
+                               ext_cohort.get("n_negative",
+                               ext_cohort.get("negative_count"))))
+
+    if ext_events is not None and math.isfinite(ext_events):
+        if ext_events < 100:
+            add_issue(
+                failures,
+                "ext_val_events_too_few",
+                f"External validation cohort has only {int(ext_events)} events "
+                f"(minimum 100 required per Riley et al. BMJ 2024 Part 3).",
+                {"ext_events": int(ext_events), "threshold": 100},
+            )
+        elif ext_events < 200:
+            add_issue(
+                warnings,
+                "ext_val_events_low_for_calibration",
+                f"External validation cohort has {int(ext_events)} events "
+                f"(recommend >= 200 for calibration curves).",
+                {"ext_events": int(ext_events), "threshold": 200},
+            )
+
+    if ext_non_events is not None and math.isfinite(ext_non_events):
+        if ext_non_events < 100:
+            add_issue(
+                failures,
+                "ext_val_non_events_too_few",
+                f"External validation cohort has only {int(ext_non_events)} "
+                f"non-events (minimum 100 required per Riley et al. BMJ 2024 Part 3).",
+                {"ext_non_events": int(ext_non_events), "threshold": 100},
+            )
+        elif ext_non_events < 200:
+            add_issue(
+                warnings,
+                "ext_val_non_events_low_for_calibration",
+                f"External validation cohort has {int(ext_non_events)} non-events "
+                f"(recommend >= 200 for calibration curves).",
+                {"ext_non_events": int(ext_non_events), "threshold": 200},
+            )
+
+    # ── C-statistic CI width check (Riley et al. BMJ 2024 Part 3) ────────────
+    ext_metrics = ext_val.get("metrics", {})
+    c_stat = ext_metrics.get("c_statistic", ext_metrics.get("roc_auc", {}))
+    if isinstance(c_stat, dict):
+        c_ci_lower = _to_float(c_stat.get("ci_lower"))
+        c_ci_upper = _to_float(c_stat.get("ci_upper"))
+        if (c_ci_lower is not None and c_ci_upper is not None
+                and math.isfinite(c_ci_lower) and math.isfinite(c_ci_upper)):
+            c_ci_width = c_ci_upper - c_ci_lower
+            if c_ci_width > 0.10:
+                add_issue(
+                    warnings,
+                    "c_statistic_ci_too_wide",
+                    f"C-statistic CI width = {c_ci_width:.3f} exceeds 0.10 "
+                    f"(too imprecise per Riley et al. BMJ 2024 Part 3).",
+                    {"ci_lower": c_ci_lower, "ci_upper": c_ci_upper,
+                     "ci_width": round(c_ci_width, 4), "threshold": 0.10},
+                )
+
+    # ── Calibration slope CI width check (Riley et al. BMJ 2024 Part 3) ──────
+    cal_slope = ext_metrics.get("calibration_slope", {})
+    if isinstance(cal_slope, dict):
+        cal_ci_lower = _to_float(cal_slope.get("ci_lower"))
+        cal_ci_upper = _to_float(cal_slope.get("ci_upper"))
+        if (cal_ci_lower is not None and cal_ci_upper is not None
+                and math.isfinite(cal_ci_lower) and math.isfinite(cal_ci_upper)):
+            cal_ci_width = cal_ci_upper - cal_ci_lower
+            if cal_ci_width > 0.30:
+                add_issue(
+                    warnings,
+                    "calibration_slope_ci_too_wide",
+                    f"Calibration slope CI width = {cal_ci_width:.3f} exceeds "
+                    f"0.30 (per Riley et al. BMJ 2024 Part 3).",
+                    {"ci_lower": cal_ci_lower, "ci_upper": cal_ci_upper,
+                     "ci_width": round(cal_ci_width, 4), "threshold": 0.30},
+                )
+
+    # ── Missing data inflation reminder (Riley et al. BMJ 2024) ──────────────
+    missingness = _to_float(
+        ssa.get("missing_pct",
+        ssa.get("missingness_pct",
+        metadata.get("missing_pct",
+        metadata.get("missingness_pct"))))
+    )
+    if missingness is not None and math.isfinite(missingness) and missingness > 0:
+        add_issue(
+            info,
+            "missing_data_inflate_sample",
+            "Consider inflating sample size by 1/(1-missing%) to account "
+            "for missing data (Riley et al. BMJ 2024, LIT-047).",
+            {"missing_pct": missingness,
+             "inflation_factor": round(1.0 / (1.0 - missingness / 100.0), 4)
+             if missingness < 100 else None},
         )
 
     # Summary

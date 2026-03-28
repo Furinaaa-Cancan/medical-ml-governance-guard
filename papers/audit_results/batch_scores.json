@@ -83,7 +83,7 @@
   "results": [
     {
       "contract_version": "paper_score.v1",
-      "scored_at": "2026-03-26T10:33:34.235010+00:00",
+      "scored_at": "2026-03-27T11:00:35.846161+00:00",
       "total_score": 50.4,
       "grade": "Not publishable",
       "dimensions": {
@@ -251,7 +251,7 @@
     },
     {
       "contract_version": "paper_score.v1",
-      "scored_at": "2026-03-26T10:33:34.235238+00:00",
+      "scored_at": "2026-03-27T11:00:35.846362+00:00",
       "total_score": 82.5,
       "grade": "Solid but gaps",
       "dimensions": {
@@ -419,7 +419,7 @@
     },
     {
       "contract_version": "paper_score.v1",
-      "scored_at": "2026-03-26T10:33:34.235311+00:00",
+      "scored_at": "2026-03-27T11:00:35.846424+00:00",
       "total_score": 23.5,
       "grade": "Not publishable",
       "dimensions": {
@@ -593,7 +593,7 @@
     },
     {
       "contract_version": "paper_score.v1",
-      "scored_at": "2026-03-26T10:33:34.235383+00:00",
+      "scored_at": "2026-03-27T11:00:35.846481+00:00",
       "total_score": 55.2,
       "grade": "Not publishable",
       "dimensions": {
@@ -766,7 +766,7 @@
     },
     {
       "contract_version": "paper_score.v1",
-      "scored_at": "2026-03-26T10:33:34.235459+00:00",
+      "scored_at": "2026-03-27T11:00:35.846529+00:00",
       "total_score": 35.4,
       "grade": "Not publishable",
       "dimensions": {
@@ -934,7 +934,7 @@
     },
     {
       "contract_version": "paper_score.v1",
-      "scored_at": "2026-03-26T10:33:34.235517+00:00",
+      "scored_at": "2026-03-27T11:00:35.846576+00:00",
       "total_score": 71.9,
       "grade": "Major issues",
       "dimensions": {

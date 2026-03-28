@@ -10,6 +10,7 @@ Evaluates calibration (ECE/slope/intercept) and DCA net-benefit for:
 from __future__ import annotations
 
 import argparse
+import math
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -33,6 +34,10 @@ register_remediations({
     "calibration_intercept_too_large": "Calibration intercept too far from 0. Recalibrate.",
     "dca_net_benefit_insufficient": "Model net benefit is insufficient. Review clinical utility.",
     "dca_advantage_coverage_low": "Decision curve advantage coverage is below threshold.",
+    "calibration_oe_ratio_out_of_range": "O/E ratio should be near 1.0 (BMJ 2024). Recalibrate the model.",
+    "calibration_in_the_large_too_large": "Calibration-in-the-large should be near 0.0 (BMJ 2024). Recalibrate.",
+    "hosmer_lemeshow_discouraged": "Replace Hosmer-Lemeshow with calibration slope, O/E ratio, and calibration plots (BMJ 2024, LIT-045/046).",
+    "dca_threshold_grid_not_prespecified": "Pre-specify and justify DCA threshold grid in the study protocol (BMJ 2024).",
 })
 
 
@@ -277,6 +282,14 @@ def evaluate_cohort(
     avg_advantage = float(np.mean(deltas_arr)) if deltas_arr.size else -1.0
     min_delta = float(np.min(deltas_arr)) if deltas_arr.size else -1.0
 
+    # BMJ 2024: O/E ratio = sum(observed) / sum(expected)
+    sum_expected = float(np.sum(y_score.astype(float)))
+    sum_observed = float(np.sum(y_true.astype(float)))
+    oe_ratio = float(sum_observed / sum_expected) if sum_expected > 0.0 else float("nan")
+
+    # BMJ 2024: calibration-in-the-large = mean(observed) - mean(predicted)
+    citl = float(np.mean(y_true.astype(float)) - np.mean(y_score.astype(float)))
+
     return {
         "cohort": cohort_label,
         "row_count": int(y_true.shape[0]),
@@ -288,6 +301,8 @@ def evaluate_cohort(
             "intercept": intercept,
             "ece_bins": ece_bins,
             "ece_min_bin_size": int(ece_min_bin_size),
+            "oe_ratio": float(oe_ratio) if math.isfinite(oe_ratio) else None,
+            "calibration_in_the_large": float(citl) if math.isfinite(citl) else None,
         },
         "dca": {
             "threshold_count": int(len(dca_rows)),
@@ -497,6 +512,58 @@ def main() -> int:
                 },
             )
 
+        # BMJ 2024: O/E ratio check (observed/expected)
+        oe_ratio_val = to_float(calibration.get("oe_ratio"))
+        if oe_ratio_val is not None and math.isfinite(oe_ratio_val):
+            if oe_ratio_val < 0.70 or oe_ratio_val > 1.43:
+                add_issue(
+                    failures,
+                    "calibration_oe_ratio_out_of_range",
+                    "O/E ratio is outside acceptable range [0.70, 1.43] (BMJ 2024).",
+                    {
+                        "cohort": label,
+                        "oe_ratio": oe_ratio_val,
+                        "acceptable_range": [0.70, 1.43],
+                    },
+                )
+            elif oe_ratio_val < 0.80 or oe_ratio_val > 1.25:
+                add_issue(
+                    warnings,
+                    "calibration_oe_ratio_out_of_range",
+                    "O/E ratio is outside preferred range [0.80, 1.25] (BMJ 2024).",
+                    {
+                        "cohort": label,
+                        "oe_ratio": oe_ratio_val,
+                        "preferred_range": [0.80, 1.25],
+                    },
+                )
+
+        # BMJ 2024: calibration-in-the-large check
+        citl_val = to_float(calibration.get("calibration_in_the_large"))
+        if citl_val is not None and math.isfinite(citl_val):
+            if abs(citl_val) > 0.10:
+                add_issue(
+                    failures,
+                    "calibration_in_the_large_too_large",
+                    "Calibration-in-the-large exceeds acceptable threshold |0.10| (BMJ 2024).",
+                    {
+                        "cohort": label,
+                        "calibration_in_the_large": citl_val,
+                        "threshold": 0.10,
+                    },
+                )
+            elif abs(citl_val) > 0.05:
+                add_issue(
+                    warnings,
+                    "calibration_in_the_large_too_large",
+                    "Calibration-in-the-large exceeds preferred threshold |0.05| (BMJ 2024).",
+                    {
+                        "cohort": label,
+                        "calibration_in_the_large": citl_val,
+                        "threshold": 0.05,
+                    },
+                )
+
         if (
             float(dca["advantage_coverage"]) < float(thresholds["min_advantage_coverage"])
             or float(dca["average_advantage"]) < float(thresholds["min_average_advantage"])
@@ -516,6 +583,44 @@ def main() -> int:
                 },
             )
         cohort_results.append(result)
+
+    # BMJ 2024: Hosmer-Lemeshow prohibition warning
+    # Scan all report content for mentions of hosmer-lemeshow
+    _hl_found = False
+    for _report_obj in (_eval_report, ext_report):
+        _report_str = str(_report_obj).lower()
+        if "hosmer" in _report_str or "lemeshow" in _report_str:
+            _hl_found = True
+            break
+    if _hl_found:
+        add_issue(
+            warnings,
+            "hosmer_lemeshow_discouraged",
+            "Hosmer-Lemeshow test is discouraged (BMJ 2024, LIT-045/046). "
+            "Use calibration slope, O/E ratio, and calibration plots instead.",
+            {},
+        )
+
+    # BMJ 2024: DCA threshold pre-specification check
+    _default_grid = {"start": 0.05, "end": 0.50, "step": 0.05}
+    _active_grid = thresholds.get("threshold_grid", {})
+    if _active_grid == _default_grid:
+        # Check whether the policy explicitly specified the grid
+        _policy_block = None
+        if isinstance(policy, dict):
+            _policy_block = policy.get("calibration_dca_thresholds")
+        _explicitly_set = (
+            isinstance(_policy_block, dict)
+            and isinstance(_policy_block.get("threshold_grid"), dict)
+        )
+        if not _explicitly_set:
+            add_issue(
+                warnings,
+                "dca_threshold_grid_not_prespecified",
+                "DCA threshold grid uses default values without explicit justification "
+                "in performance_policy. Pre-specify and justify thresholds (BMJ 2024).",
+                {"threshold_grid": _active_grid},
+            )
 
     summary = {
         "prediction_trace": str(trace_path),

@@ -38,6 +38,28 @@ _THRESHOLD_CALLS = {
 _DISCARD_NAMES = {"_", "__", "___"}
 
 
+def _find_index_2_access(tree: ast.AST, var_name: str, after_line: int) -> bool:
+    """Check if `var_name[2]` or `var_name[-1]` is accessed after `after_line`.
+
+    roc_curve returns (fpr, tpr, thresholds) — index 2 or -1 is the thresholds.
+    """
+    for node in ast.walk(tree):
+        if not hasattr(node, "lineno") or node.lineno <= after_line:
+            continue
+        if isinstance(node, ast.Subscript):
+            if isinstance(node.value, ast.Name) and node.value.id == var_name:
+                # Check for [2] or [-1]
+                sl = node.slice
+                if isinstance(sl, ast.Constant):
+                    if sl.value == 2 or sl.value == -1:
+                        return True
+                # Check for ast.UnaryOp (Python 3.7 compat for negative index)
+                if isinstance(sl, ast.UnaryOp) and isinstance(sl.op, ast.USub):
+                    if isinstance(sl.operand, ast.Constant) and sl.operand.value == 1:
+                        return True
+    return False
+
+
 def _find_name_uses_after(tree: ast.AST, var_name: str, after_line: int) -> bool:
     """Check if `var_name` is referenced (loaded) after `after_line` in the AST."""
     for node in ast.walk(tree):
@@ -116,14 +138,22 @@ class ThresholdOnTest(BaseRule):
 
         for call_node, fqn, arg_name, thresh_var, assign_line in self._candidates:
             if thresh_var == "__single_var__":
-                # `result = roc_curve(...)` — conservative: flag
-                # (we can't easily track tuple element access)
-                self.report(
-                    call_node,
-                    f"`{fqn.rsplit('.', 1)[-1]}({arg_name})` — all return values "
-                    f"captured. If thresholds are used for operating point selection, "
-                    f"this leaks test information.",
-                )
+                # `result = roc_curve(...)` — check if result[2] or similar
+                # index access is used (threshold is the 3rd element).
+                # Also check if the variable is used in a context that
+                # suggests threshold extraction (e.g., result[2], result[-1]).
+                target_names = self._get_assign_target_names(assign_line)
+                if target_names and any(
+                    _find_index_2_access(self._tree, name, assign_line)
+                    for name in target_names
+                ):
+                    self.report(
+                        call_node,
+                        f"`{fqn.rsplit('.', 1)[-1]}({arg_name})` — return value "
+                        f"accessed by index, potentially extracting thresholds. "
+                        f"This may leak test information.",
+                    )
+                # If no index-2 access found, skip — likely just using fpr/tpr
                 continue
 
             # Check if thresh_var is referenced after the assignment line
@@ -136,6 +166,17 @@ class ThresholdOnTest(BaseRule):
                     f"This leaks test information into threshold selection.",
                 )
             # If not used: thresholds captured but never referenced → just evaluation, no report
+
+    def _get_assign_target_names(self, line: int) -> List[str]:
+        """Get target variable names for an assignment at a given line."""
+        for node in ast.walk(self._tree):
+            if isinstance(node, ast.Assign) and node.lineno == line:
+                names = []
+                for t in node.targets:
+                    if isinstance(t, ast.Name):
+                        names.append(t.id)
+                return names
+        return []
 
     @staticmethod
     def _get_threshold_var(targets: list[ast.expr]) -> Optional[str]:

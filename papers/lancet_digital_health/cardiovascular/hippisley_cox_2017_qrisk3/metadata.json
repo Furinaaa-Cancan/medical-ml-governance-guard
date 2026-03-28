@@ -33,7 +33,7 @@
     "missing_data_strategy": "multiple imputation"
   },
   "model": {
-    "model_type": "logistic_regression",
+    "model_type": "cox_proportional_hazards",
     "n_candidate_models": 1,
     "selection_criterion": "Cox proportional hazards (standard epidemiological approach)",
     "hyperparameter_tuning": "none",

@@ -28,3 +28,18 @@ dist/
 *.enc
 .mlgg_rbac.json
 .execution_receipt.json
+
+# Cloned repos from paper audit (temporary, large)
+audit_repos/
+repos/
+repo1*/
+repo2*/
+repo3*/
+repo1_cml/
+repo1_new/
+repo2_new/
+repo3_new/
+
+# Experiment intermediate files
+experiments/authority-e2e/endurance_*.json
+experiments/authority-e2e/endurance_*.log

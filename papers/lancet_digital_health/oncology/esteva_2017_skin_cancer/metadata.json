@@ -2,7 +2,15 @@
   "_template_version": "1.0.0",
   "bibliographic": {
     "title": "Dermatologist-level classification of skin cancer with deep neural networks",
-    "authors": ["Esteva A", "Kuprel B", "Novoa RA", "Ko J", "Swetter SM", "Blau HM", "Thrun S"],
+    "authors": [
+      "Esteva A",
+      "Kuprel B",
+      "Novoa RA",
+      "Ko J",
+      "Swetter SM",
+      "Blau HM",
+      "Thrun S"
+    ],
     "journal": "Nature",
     "year": 2017,
     "doi": "10.1038/nature21056",
@@ -13,7 +21,9 @@
     "outcome": "Malignant vs benign skin lesion classification",
     "prediction_unit": "image",
     "is_multicenter": false,
-    "has_external_validation": false
+    "has_external_validation": false,
+    "_out_of_scope": true,
+    "_out_of_scope_reason": "Image classification (CNN on dermoscopy images), not tabular ML. MLGG leakage taxonomy does not fully apply. Scored for demonstration purposes only."
   },
   "dataset": {
     "source_type": "public_dataset",

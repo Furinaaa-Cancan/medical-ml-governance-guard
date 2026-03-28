@@ -4,10 +4,15 @@ from __future__ import annotations
 
 import ast
 
-from mlgg_lint.ast_utils import call_name, is_method_call, matches_any
+from mlgg_lint.ast_utils import call_name, get_call_first_arg_name, is_method_call, matches_any
 from mlgg_lint.models import Severity
 from mlgg_lint.rules import register
 from mlgg_lint.rules.base import BaseRule
+
+
+def _get_fit_first_arg(node: ast.Call) -> str | None:
+    """Return the first positional argument name of a fit/fit_transform call."""
+    return get_call_first_arg_name(node)
 
 _FIT_METHODS = {"fit", "fit_transform"}
 
@@ -93,13 +98,25 @@ class FitBeforeSplit(BaseRule):
                 continue
             if obj_name.lower() in _SAFE_NAMES:
                 continue
-            # Only flag if no split has occurred yet
+            # Only flag if:
+            # 1. A split exists in THIS file (split_line is not None)
+            # 2. The fit call is BEFORE the split
+            # 3. The first argument is NOT train data (avoid FP on fit(X_train))
+            if self.taint.split_line is None:
+                # No split in this file — cannot determine if fit is on unsplit
+                # data. Skip to avoid cross-file false positives.
+                continue
             if not self.taint.has_split_occurred(node.lineno):
-                if self.taint.split_line is not None:
-                    self.report(
-                        node,
-                        f"`{obj_name}.{method}()` called at line {node.lineno} "
-                        f"before train_test_split at line {self.taint.split_line}. "
-                        f"Preprocessor fitted on unsplit data leaks test information.",
-                    )
+                # Check if the fit argument is explicitly train data
+                arg_name = _get_fit_first_arg(node)
+                if arg_name and self.taint.get_taint(arg_name) == "train":
+                    # fit(X_train) before split line but variable is already
+                    # classified as train — likely a second split or reassignment.
+                    continue
+                self.report(
+                    node,
+                    f"`{obj_name}.{method}()` called at line {node.lineno} "
+                    f"before train_test_split at line {self.taint.split_line}. "
+                    f"Preprocessor fitted on unsplit data leaks test information.",
+                )
         self.generic_visit(node)

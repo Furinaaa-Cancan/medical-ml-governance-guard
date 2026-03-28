@@ -68,7 +68,7 @@ DIMENSION_CHECKS: Dict[str, Dict[str, Any]] = {
         "checks": [
             ("multiple_candidates", "model.n_candidate_models", lambda v: v is not None and v >= 3),
             ("hyperparameter_tuning", "model.hyperparameter_tuning", lambda v: v is not None and v != ""),
-            ("tuning_not_on_test", "model.tuning_set", lambda v: v != "test_used"),
+            ("tuning_not_on_test", "model.tuning_set", lambda v: v is not None and v != "" and v != "test_used"),
             ("feature_selection_described", "model.feature_selection_method", lambda v: v is not None and v != ""),
         ],
     },
@@ -202,7 +202,7 @@ def score_metadata(metadata: Dict[str, Any]) -> Dict[str, Any]:
     total_score = round(total_weighted, 1)
     grade = (
         "Publication-grade" if total_score >= 90
-        else "Solid but gaps" if total_score >= 75
+        else "Solid but gaps remain" if total_score >= 75
         else "Major issues" if total_score >= 60
         else "Not publishable"
     )
@@ -305,6 +305,157 @@ def batch_score(
 
 
 # ---------------------------------------------------------------------------
+# Metadata validation (--validate)
+# ---------------------------------------------------------------------------
+
+_RANGE_CHECKS: List[Tuple[str, float, float, str]] = [
+    # (field_path, min, max, level)
+    ("performance_metrics.test_auroc", 0.0, 1.0, "ERROR"),
+    ("performance_metrics.test_auroc_ci_lower", 0.0, 1.0, "ERROR"),
+    ("performance_metrics.test_auroc_ci_upper", 0.0, 1.0, "ERROR"),
+    ("performance_metrics.test_auprc", 0.0, 1.0, "ERROR"),
+    ("performance_metrics.test_sensitivity", 0.0, 1.0, "ERROR"),
+    ("performance_metrics.test_specificity", 0.0, 1.0, "ERROR"),
+    ("performance_metrics.test_ppv", 0.0, 1.0, "ERROR"),
+    ("performance_metrics.test_npv", 0.0, 1.0, "ERROR"),
+    ("performance_metrics.test_f1", 0.0, 1.0, "ERROR"),
+    ("performance_metrics.test_brier_score", 0.0, 1.0, "ERROR"),
+    ("performance_metrics.external_auroc", 0.0, 1.0, "ERROR"),
+    ("dataset.prevalence_pct", 0.0, 100.0, "ERROR"),
+]
+
+_ENUM_CHECKS: List[Tuple[str, List[str], str]] = [
+    ("dataset.source_type", ["EHR_single_center", "EHR_multicenter", "public_dataset",
+                             "registry", "biobank", "claims_data", "mixed"], "WARNING"),
+    ("dataset.split_strategy", ["random", "temporal", "site_based", "not_reported"], "WARNING"),
+    ("model.tuning_set", ["validation_only", "train_validation", "test_used", "not_reported"], "WARNING"),
+    ("leakage_risk_assessment.target_leakage_risk", ["low", "medium", "high", "cannot_assess"], "WARNING"),
+    ("reporting_standards.code_availability", ["public_github", "on_request", "not_available", "not_mentioned"], "WARNING"),
+    ("reporting_standards.data_availability", ["public", "on_request", "restricted", "not_available", "not_mentioned"], "WARNING"),
+]
+
+
+def validate_metadata(metadata: Dict[str, Any]) -> List[Dict[str, str]]:
+    """Validate metadata against consistency rules.
+
+    Returns a list of issues: [{rule_id, level, field, message}].
+    """
+    issues: List[Dict[str, str]] = []
+
+    def _issue(rule_id: str, level: str, field: str, msg: str) -> None:
+        issues.append({"rule_id": rule_id, "level": level, "field": field, "message": msg})
+
+    # ── Required field checks (BUG 8 fix: empty metadata must not pass) ──
+    _REQUIRED = [
+        ("bibliographic.title", "Paper title is required"),
+        ("dataset.n_patients_total", "Total sample size is required"),
+        ("dataset.split_strategy", "Split strategy is required"),
+        ("performance_metrics.test_auroc", "Test AUROC is required"),
+    ]
+    for path, msg in _REQUIRED:
+        val = _get_nested(metadata, path)
+        if val is None or val == "":
+            _issue("REQUIRED", "ERROR", path, msg)
+
+    # ── Type checks (BUG 9 fix: string metrics must not pass silently) ──
+    _NUMERIC_FIELDS = [
+        "performance_metrics.test_auroc", "performance_metrics.test_auroc_ci_lower",
+        "performance_metrics.test_auroc_ci_upper", "performance_metrics.external_auroc",
+        "dataset.n_patients_total", "dataset.train_n", "dataset.test_n",
+        "dataset.n_events_positive", "dataset.features_n", "dataset.prevalence_pct",
+    ]
+    for path in _NUMERIC_FIELDS:
+        val = _get_nested(metadata, path)
+        if val is not None and not isinstance(val, (int, float)):
+            _issue("TYPE", "ERROR", path, f"{path} must be numeric, got {type(val).__name__}: {val!r}")
+
+    # ── Range checks ──
+    for path, lo, hi, level in _RANGE_CHECKS:
+        val = _get_nested(metadata, path)
+        if val is not None and isinstance(val, (int, float)):
+            if not (lo <= val <= hi):
+                _issue("RANGE", level, path, f"{path}={val} outside [{lo}, {hi}]")
+
+    # ── Positive integer checks ──
+    for path in ("dataset.n_patients_total", "dataset.train_n", "dataset.test_n", "dataset.features_n"):
+        val = _get_nested(metadata, path)
+        if val is not None and isinstance(val, (int, float)) and val <= 0:
+            _issue("RANGE", "ERROR", path, f"{path}={val} must be > 0")
+
+    # ── Enum checks ──
+    for path, allowed, level in _ENUM_CHECKS:
+        val = _get_nested(metadata, path)
+        if val is not None and val != "" and val not in allowed:
+            _issue("ENUM", level, path, f"{path}='{val}' not in {allowed}")
+
+    # ── C-001: n_events_positive + n_events_negative ≈ n_patients_total ──
+    pos = _get_nested(metadata, "dataset.n_events_positive")
+    neg = _get_nested(metadata, "dataset.n_events_negative")
+    total = _get_nested(metadata, "dataset.n_patients_total")
+    if pos is not None and neg is not None and total is not None and total > 0:
+        if abs((pos + neg) - total) / total > 0.01:
+            _issue("C-001", "ERROR", "dataset",
+                   f"n_events_positive({pos}) + n_events_negative({neg}) = {pos+neg} "
+                   f"!= n_patients_total({total})")
+
+    # ── P-001: CI consistency ──
+    auroc = _get_nested(metadata, "performance_metrics.test_auroc")
+    ci_lo = _get_nested(metadata, "performance_metrics.test_auroc_ci_lower")
+    ci_hi = _get_nested(metadata, "performance_metrics.test_auroc_ci_upper")
+    if auroc is not None and ci_lo is not None and ci_hi is not None:
+        if not (ci_lo <= auroc <= ci_hi):
+            _issue("P-001", "ERROR", "performance_metrics",
+                   f"AUROC {auroc} not within CI [{ci_lo}, {ci_hi}]")
+
+    # ── P-003: Suspicious AUROC ──
+    if auroc is not None and isinstance(auroc, (int, float)) and auroc > 0.99:
+        _issue("P-003", "WARNING", "performance_metrics.test_auroc",
+               f"AUROC={auroc} > 0.99 — extremely suspicious, possible leakage")
+
+    # ── P-004: High AUROC + low prevalence ──
+    prev = _get_nested(metadata, "dataset.prevalence_pct")
+    if auroc is not None and isinstance(auroc, (int, float)) and auroc > 0.95 and prev is not None and isinstance(prev, (int, float)) and prev < 5:
+        _issue("P-004", "WARNING", "performance_metrics",
+               f"AUROC={auroc} > 0.95 with prevalence={prev}% < 5% — suspicious")
+
+    # ── P-005/P-006: External validation consistency ──
+    ext_val = _get_nested(metadata, "study_design.has_external_validation")
+    ext_auroc = _get_nested(metadata, "performance_metrics.external_auroc")
+    if ext_auroc is not None and ext_val is False:
+        _issue("P-005", "ERROR", "study_design",
+               "external_auroc reported but has_external_validation=false")
+    if ext_val is True and ext_auroc is None:
+        _issue("P-006", "WARNING", "performance_metrics",
+               "has_external_validation=true but external_auroc not reported")
+
+    # ── L-001/L-002: tuning field consistency ──
+    tuning_test = _get_nested(metadata, "leakage_risk_assessment.tuning_used_test_data")
+    tuning_set = _get_nested(metadata, "model.tuning_set")
+    if tuning_test is True and tuning_set is not None and tuning_set != "test_used":
+        _issue("L-001", "ERROR", "leakage_risk_assessment",
+               f"tuning_used_test_data=true but tuning_set='{tuning_set}'")
+    if tuning_set == "test_used" and tuning_test is not True:
+        _issue("L-002", "ERROR", "model",
+               f"tuning_set='test_used' but tuning_used_test_data={tuning_test}")
+
+    # ── L-004: split strategy vs temporal confirmation ──
+    split = _get_nested(metadata, "dataset.split_strategy")
+    temporal = _get_nested(metadata, "leakage_risk_assessment.temporal_split_confirmed")
+    if split == "random" and temporal is True:
+        _issue("L-004", "ERROR", "dataset",
+               "split_strategy='random' but temporal_split_confirmed=true — contradictory")
+
+    # ── S-001: multicenter vs source_type ──
+    multi = _get_nested(metadata, "study_design.is_multicenter")
+    source = _get_nested(metadata, "dataset.source_type")
+    if multi is True and source == "EHR_single_center":
+        _issue("S-001", "ERROR", "study_design",
+               "is_multicenter=true but source_type='EHR_single_center'")
+
+    return issues
+
+
+# ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
@@ -319,6 +470,8 @@ def main() -> int:
     parser.add_argument("--output", type=str, help="Output JSON path (default: stdout).")
     parser.add_argument("--target-journal", type=str, default="nature_medicine",
                         help="Target journal for context.")
+    parser.add_argument("--validate", action="store_true",
+                        help="Run validation checks before scoring. Print issues to stderr.")
 
     args = parser.parse_args()
 
@@ -329,7 +482,22 @@ def main() -> int:
             return 2
         with path.open() as f:
             metadata = json.load(f)
+
+        if args.validate:
+            issues = validate_metadata(metadata)
+            if issues:
+                print(f"\n  Validation issues ({len(issues)}):", file=sys.stderr)
+                for iss in issues:
+                    print(f"    [{iss['level']}] {iss['rule_id']}: {iss['message']}", file=sys.stderr)
+                errors = [i for i in issues if i["level"] == "ERROR"]
+                if errors:
+                    print(f"\n  {len(errors)} ERROR(s) found. Score may be unreliable.\n", file=sys.stderr)
+            else:
+                print("  Validation: OK (no issues)\n", file=sys.stderr)
+
         result = score_metadata(metadata)
+        if args.validate:
+            result["validation_issues"] = issues
         output = result
     else:
         root = Path(args.batch_dir)

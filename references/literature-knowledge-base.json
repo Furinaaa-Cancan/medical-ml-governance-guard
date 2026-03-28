@@ -1,7 +1,7 @@
 {
   "contract_version": "literature_knowledge_base.v1",
   "description": "Curated top-journal literature database for medical ML prediction methodology. Only includes publications from high-impact journals (IF>10), authoritative guidelines (EQUATOR/Cochrane/FDA), or foundational statistical methods papers. Agents should query this database when evaluating methodology or justifying gate requirements.",
-  "last_updated": "2026-03-15",
+  "last_updated": "2026-03-20",
   "categories": {
     "reporting_guideline": "报告指南 — TRIPOD+AI, STARD-AI, CONSORT-AI, SPIRIT-AI",
     "risk_of_bias": "偏倚风险评估 — PROBAST+AI, risk of bias tools",
@@ -14,7 +14,7 @@
     "systematic_review": "系统评价方法学 — ML vs regression, data quality, meta-analysis",
     "statistical_validity": "统计有效性方法学 — multiplicity, pre-specification, power"
   },
-  "total_entries_note": "LIT-001 through LIT-044 as of 2026-03-15. Next entry: LIT-045.",
+  "total_entries_note": "LIT-001 through LIT-058 as of 2026-03-20. Next entry: LIT-059.",
   "quality_criteria": {
     "inclusion": [
       "Published in journal with IF > 10 OR domain-leading specialty journal",
@@ -899,6 +899,278 @@
       "gates_implementing": ["request_contract_gate", "clinical_metrics_gate"],
       "dimensions_affected": [5],
       "url": "https://pubmed.ncbi.nlm.nih.gov/35363650/"
+    },
+    {
+      "id": "LIT-045",
+      "doi": "10.1136/bmj-2023-074819",
+      "title": "Evaluation of clinical prediction models (Part 1): from development to external validation",
+      "authors": "Collins GS, Dhiman P, Ma J, et al.",
+      "journal": "BMJ",
+      "year": 2024,
+      "category": "validation",
+      "impact_factor": 105.7,
+      "key_requirements": [
+        "Calibration-in-the-large ideal=0",
+        "Calibration slope ideal=1",
+        "Bootstrap internal validation ≥500 samples",
+        "Split-sample validation NOT recommended",
+        "Subgroup fairness evaluation required",
+        "Do NOT use Hosmer-Lemeshow test"
+      ],
+      "gates_implementing": ["calibration_dca_gate", "evaluation_quality_gate"],
+      "dimensions_affected": [5, 6],
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10772854/"
+    },
+    {
+      "id": "LIT-046",
+      "doi": "10.1136/bmj-2023-074820",
+      "title": "Evaluation of clinical prediction models (Part 2): how to undertake an external validation study",
+      "authors": "Riley RD, Archer L, Snell KIE, et al.",
+      "journal": "BMJ",
+      "year": 2024,
+      "category": "validation",
+      "impact_factor": 105.7,
+      "key_requirements": [
+        "Five-step external validation framework",
+        "O/E ratio ideal=1",
+        "ICI or ECI must be reported",
+        "Calibration plot MANDATORY with smoothed curve",
+        "Net benefit and decision curves required",
+        "Cox-Snell R-squared for future sample size calculations",
+        "Do NOT use Hosmer-Lemeshow test"
+      ],
+      "gates_implementing": ["calibration_dca_gate", "external_validation_gate", "clinical_metrics_gate"],
+      "dimensions_affected": [5, 6, 7],
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10788734/"
+    },
+    {
+      "id": "LIT-047",
+      "doi": "10.1136/bmj-2023-074821",
+      "title": "Evaluation of clinical prediction models (Part 3): calculating the sample size required for an external validation study",
+      "authors": "Riley RD, Collins GS, Snell KIE, et al.",
+      "journal": "BMJ",
+      "year": 2024,
+      "category": "sample_size",
+      "impact_factor": 105.7,
+      "key_requirements": [
+        "≥100 events AND ≥100 non-events minimum for validation",
+        "≥200 events AND ≥200 non-events for calibration curves",
+        "Four-criteria tailored framework: O/E CI width, slope CI width ≤0.3, C-statistic CI width ≤0.1, net benefit CI width",
+        "Take LARGEST of four calculated sample sizes",
+        "pmvalsampsize R/Stata package for calculations",
+        "Inflate for anticipated missing data"
+      ],
+      "gates_implementing": ["sample_size_gate", "external_validation_gate"],
+      "dimensions_affected": [6, 12],
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38253388/"
+    },
+    {
+      "id": "LIT-048",
+      "doi": "10.1136/bmj-2023-078276",
+      "title": "Developing clinical prediction models: a step-by-step guide",
+      "authors": "Efthimiou O, Seo M, Chalkou K, et al.",
+      "journal": "BMJ",
+      "year": 2024,
+      "category": "validation",
+      "impact_factor": 105.7,
+      "key_requirements": [
+        "13-step development checklist",
+        "Do NOT use univariable selection",
+        "Do NOT use stepwise selection",
+        "Penalization/regularization recommended",
+        "Multiple imputation as standard for missing data",
+        "Bootstrap with ≥500 resamples for internal validation",
+        "Do NOT categorize continuous predictors",
+        "Decision curve analysis mandatory"
+      ],
+      "gates_implementing": ["model_selection_audit_gate", "evaluation_quality_gate", "missingness_policy_gate"],
+      "dimensions_affected": [4, 5, 9],
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39227063/"
+    },
+    {
+      "id": "LIT-049",
+      "doi": "10.1016/S2589-5370(24)00058-0",
+      "title": "Health equity assessment of machine learning performance (HEAL): a framework and dermatology AI model case study",
+      "authors": "Schaekermann M, Spitz T, Pyles M, et al.",
+      "journal": "eClinicalMedicine (Lancet)",
+      "year": 2024,
+      "category": "fairness",
+      "impact_factor": 15.1,
+      "key_requirements": [
+        "Four-step interdisciplinary equity framework",
+        "HEAL metric = p(R > 0) via bootstrapped negated Spearman correlation",
+        "Prioritize performance for populations with worst health outcomes",
+        "Use DALYs/YLLs as equity-informing health outcome measures",
+        "Subgroup analysis by race/ethnicity, sex, age"
+      ],
+      "gates_implementing": ["fairness_equity_gate"],
+      "dimensions_affected": [11],
+      "url": "https://www.thelancet.com/journals/eclinm/article/PIIS2589-5370(24)00058-0/fulltext"
+    },
+    {
+      "id": "LIT-050",
+      "doi": "10.1002/sim.70234",
+      "title": "What Is Fair? Defining Fairness in Machine Learning for Health",
+      "authors": "Gao S, et al.",
+      "journal": "Statistics in Medicine",
+      "year": 2025,
+      "category": "fairness",
+      "impact_factor": 2.0,
+      "key_requirements": [
+        "Three fairness frameworks: group, individual, causal",
+        "Impossibility result: multiple group fairness criteria cannot be simultaneously satisfied",
+        "Bias propagation across ML pipeline stages",
+        "Context-dependent metric selection"
+      ],
+      "gates_implementing": ["fairness_equity_gate"],
+      "dimensions_affected": [11],
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12436242/"
+    },
+    {
+      "id": "LIT-051",
+      "doi": "10.1016/j.ijmedinf.2025.105844",
+      "title": "Hypothesis: Net benefit as an objective function during development of machine learning algorithms for medical applications",
+      "authors": "Vickers AJ, Hollingsworth A, Bozzo A, et al.",
+      "journal": "International Journal of Medical Informatics",
+      "year": 2025,
+      "category": "calibration",
+      "impact_factor": 4.9,
+      "key_requirements": [
+        "Net benefit = TP/N - FP/N * pt/(1-pt)",
+        "Consider net benefit as ML training objective function",
+        "Clinical threshold probability must be pre-specified",
+        "Traditional loss functions do not account for clinical consequences"
+      ],
+      "gates_implementing": ["calibration_dca_gate"],
+      "dimensions_affected": [5, 7],
+      "url": "https://www.sciencedirect.com/science/article/abs/pii/S1386505625000619"
+    },
+    {
+      "id": "LIT-052",
+      "doi": "10.1038/s41467-024-45355-3",
+      "title": "Concordance of randomised controlled trials for artificial intelligence interventions with the CONSORT-AI reporting guidelines",
+      "authors": "Martindale APL, Llewellyn CD, de Visser RO, et al.",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "category": "reporting_guideline",
+      "impact_factor": 16.6,
+      "key_requirements": [
+        "Median CONSORT-AI concordance 90% (IQR 77-94%)",
+        "Only 15.4% explicitly reported using CONSORT-AI",
+        "Only 3/52 journals mandated CONSORT-AI",
+        "Most under-reported: algorithm version, code accessibility, protocol references"
+      ],
+      "gates_implementing": ["reporting_bias_gate"],
+      "dimensions_affected": [8, 9],
+      "url": "https://www.nature.com/articles/s41467-024-45355-3"
+    },
+    {
+      "id": "LIT-053",
+      "doi": "10.1001/jamanetworkopen.2025.50454",
+      "title": "Diagnostic Codes in AI Prediction Models and Label Leakage of Same-Admission Clinical Outcomes",
+      "authors": "Ramadan M, et al.",
+      "journal": "JAMA Network Open",
+      "year": 2025,
+      "category": "leakage",
+      "impact_factor": 13.8,
+      "key_requirements": [
+        "40.2% of MIMIC studies used ICD codes for same-admission prediction (label leakage)",
+        "ICD-only models achieved AUROC 0.971-0.976 (artificial inflation)",
+        "Temporal feature audit: verify features available at prediction time point",
+        "Features with OR >100 are potential leakage indicators"
+      ],
+      "gates_implementing": ["leakage_gate", "definition_variable_guard"],
+      "dimensions_affected": [2],
+      "url": "https://jamanetwork.com/journals/jamanetworkopen/fullarticle/2843179"
+    },
+    {
+      "id": "LIT-054",
+      "doi": "10.1001/jamanetworkopen.2025.50464",
+      "title": "Avoiding Label Leakage in AI Risk Models — A Shared Responsibility for a Pervasive Problem",
+      "authors": "Matheny ME, Davis SE",
+      "journal": "JAMA Network Open",
+      "year": 2025,
+      "category": "leakage",
+      "impact_factor": 13.8,
+      "key_requirements": [
+        "Label leakage is a shared responsibility across stakeholders",
+        "Temporal audit mandatory for all features",
+        "Peer reviewers must scrutinize feature sets for temporal leakage",
+        "Features with extreme predictive power (OR >100) are leakage red flags"
+      ],
+      "gates_implementing": ["leakage_gate", "definition_variable_guard"],
+      "dimensions_affected": [2],
+      "url": "https://jamanetwork.com/journals/jamanetworkopen/fullarticle/2843183"
+    },
+    {
+      "id": "LIT-055",
+      "doi": null,
+      "title": "Adherence to TRIPOD+AI guideline: an updated reporting assessment tool",
+      "authors": "(J Clin Epidemiol authors)",
+      "journal": "Journal of Clinical Epidemiology",
+      "year": 2025,
+      "category": "reporting_guideline",
+      "impact_factor": 8.2,
+      "key_requirements": [
+        "Updated assessment tool for measuring TRIPOD+AI adherence",
+        "Standardized scoring methodology for compliance evaluation"
+      ],
+      "gates_implementing": ["reporting_bias_gate"],
+      "dimensions_affected": [8],
+      "url": "https://www.sciencedirect.com/science/article/abs/pii/S0895435625004512"
+    },
+    {
+      "id": "LIT-056",
+      "doi": "10.1016/S0140-6736(25)01268-1",
+      "title": "AI in clinical trials is missing from CONSORT and SPIRIT 2025 guidelines",
+      "authors": "(Lancet commentary)",
+      "journal": "The Lancet",
+      "year": 2025,
+      "category": "reporting_guideline",
+      "impact_factor": 168.9,
+      "key_requirements": [
+        "CONSORT 2025 and SPIRIT 2025 omit AI guidance",
+        "CONSORT-AI and SPIRIT-AI extensions should be revisited for 2025",
+        "Gap in unified AI trial reporting standards"
+      ],
+      "gates_implementing": ["reporting_bias_gate"],
+      "dimensions_affected": [8],
+      "url": "https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(25)01268-1/fulltext"
+    },
+    {
+      "id": "LIT-057",
+      "doi": "10.1016/j.jclinepi.2025.111886",
+      "title": "PROBAST+AI shows high interrater reliability when scored by international experts on prediction modeling",
+      "authors": "(J Clin Epidemiol)",
+      "journal": "Journal of Clinical Epidemiology",
+      "year": 2025,
+      "category": "risk_of_bias",
+      "impact_factor": 8.2,
+      "key_requirements": [
+        "High interrater reliability demonstrated for PROBAST",
+        "Supports validity as standardized assessment instrument"
+      ],
+      "gates_implementing": ["reporting_bias_gate"],
+      "dimensions_affected": [8],
+      "url": "https://www.jclinepi.com/article/S0895-4356(25)00152-0/fulltext"
+    },
+    {
+      "id": "LIT-058",
+      "doi": "10.1186/s12874-024-02268-5",
+      "title": "An evaluation of sample size requirements for developing risk prediction models with binary outcomes",
+      "authors": "(BMC Med Res Methodology)",
+      "journal": "BMC Medical Research Methodology",
+      "year": 2024,
+      "category": "sample_size",
+      "impact_factor": 4.0,
+      "key_requirements": [
+        "Evaluates Riley et al. sample size formulae via simulation",
+        "Three criteria: global shrinkage ≤10%, optimism ≤0.05 in R-squared, precise average risk estimation",
+        "Validates pmsampsize approach"
+      ],
+      "gates_implementing": ["sample_size_gate"],
+      "dimensions_affected": [12],
+      "url": "https://link.springer.com/article/10.1186/s12874-024-02268-5"
     }
   ],
   "agent_instructions": {

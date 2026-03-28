@@ -11,6 +11,7 @@ from mlgg_lint.rules.base import BaseRule
 
 _GLOBAL_STAT_METHODS = {"mean", "median", "std", "var", "mode", "quantile", "describe"}
 _FILL_METHODS = {"fillna", "replace", "interpolate"}
+_STAT_CLEAN_METHODS = {"clip", "dropna"}
 
 
 @register
@@ -46,13 +47,12 @@ class GlobalCleanBeforeSplit(BaseRule):
         self.generic_visit(node)
 
     def visit_Call(self, node: ast.Call) -> None:  # noqa: N802
-        """Detect: df.fillna(df.mean()) or df.fillna(mean_val) before split."""
+        """Detect: df.fillna(df.mean()), df.dropna(), df.clip(quantile()) before split."""
         if not isinstance(node.func, ast.Attribute):
             self.generic_visit(node)
             return
-        if node.func.attr not in _FILL_METHODS:
-            self.generic_visit(node)
-            return
+
+        method = node.func.attr
 
         # Only flag if before split
         if self.taint.has_split_occurred(node.lineno):
@@ -62,20 +62,55 @@ class GlobalCleanBeforeSplit(BaseRule):
             self.generic_visit(node)
             return
 
-        # Check: fillna(df.mean()) — arg is a method call with global stat
-        if node.args:
-            arg = node.args[0]
-            if isinstance(arg, ast.Call) and isinstance(arg.func, ast.Attribute):
-                if arg.func.attr in _GLOBAL_STAT_METHODS:
+        # --- fillna / replace / interpolate with global stats ---
+        if method in _FILL_METHODS:
+            if node.args:
+                arg = node.args[0]
+                if isinstance(arg, ast.Call) and isinstance(arg.func, ast.Attribute):
+                    if arg.func.attr in _GLOBAL_STAT_METHODS:
+                        self.report(
+                            node,
+                            f"`{method}({arg.func.attr}())` before split — "
+                            f"global statistics leak test distribution into cleaning.",
+                        )
+                elif isinstance(arg, ast.Name) and arg.id in self._global_stat_vars:
                     self.report(
                         node,
-                        f"`{node.func.attr}({arg.func.attr}())` before split — "
-                        f"global statistics leak test distribution into cleaning.",
+                        f"`{method}({arg.id})` before split — "
+                        f"`{arg.id}` was computed from the full dataset.",
                     )
-            elif isinstance(arg, ast.Name) and arg.id in self._global_stat_vars:
+
+        # --- dropna before split (removes rows using global missingness pattern) ---
+        # Exceptions:
+        # - dropna(subset=[...]) = legitimate exclusion criteria
+        # - dropna(axis=1) or dropna(axis='columns') = column schema cleanup, not leakage
+        elif method == "dropna":
+            has_subset = any(kw.arg == "subset" for kw in node.keywords)
+            has_axis_col = any(
+                kw.arg == "axis" and isinstance(kw.value, ast.Constant)
+                and kw.value.value in (1, "columns")
+                for kw in node.keywords
+            )
+            if not has_subset and not has_axis_col:
                 self.report(
                     node,
-                    f"`{node.func.attr}({arg.id})` before split — "
-                    f"`{arg.id}` was computed from the full dataset.",
+                    f"`dropna()` before split at line {self.taint.split_line} — "
+                    f"row removal based on full-data missingness pattern leaks "
+                    f"information about test distribution.",
                 )
+
+        # --- clip with quantile-based bounds before split ---
+        elif method == "clip":
+            # Check if any keyword arg uses .quantile()
+            for kw in node.keywords:
+                if kw.arg in ("lower", "upper") and isinstance(kw.value, ast.Call):
+                    if isinstance(kw.value.func, ast.Attribute):
+                        if kw.value.func.attr in _GLOBAL_STAT_METHODS | {"quantile"}:
+                            self.report(
+                                node,
+                                f"`clip({kw.arg}={kw.value.func.attr}())` before split — "
+                                f"clip bounds computed from full data leak test distribution.",
+                            )
+                            break
+
         self.generic_visit(node)

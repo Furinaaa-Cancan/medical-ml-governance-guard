@@ -30,10 +30,22 @@ class SmoteOnTest(BaseRule):
         obj = is_method_call(node, "fit_resample")
         if obj is not None:
             arg_name = get_call_first_arg_name(node)
+            # Case 1: fit_resample on test/valid data (after split)
             if arg_name and self.taint.is_test_or_valid(arg_name):
                 self.report(
                     node,
                     f"`{obj}.fit_resample({arg_name}, ...)` — resampling applied "
                     f"to holdout data. This inflates holdout metrics artificially.",
+                )
+            # Case 2: fit_resample on full data BEFORE split
+            elif (
+                self.taint.split_line is not None
+                and not self.taint.has_split_occurred(node.lineno)
+            ):
+                self.report(
+                    node,
+                    f"`{obj}.fit_resample()` called at line {node.lineno} "
+                    f"before train_test_split at line {self.taint.split_line}. "
+                    f"Resampling on unsplit data leaks synthetic samples into test set.",
                 )
         self.generic_visit(node)

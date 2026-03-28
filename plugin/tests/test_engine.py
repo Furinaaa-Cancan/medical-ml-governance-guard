@@ -888,3 +888,76 @@ def test_venv_directory_skipped(tmp_path):
     filenames = [f.name for f in files]
     assert "main.py" in filenames, "main.py should be found"
     assert "code.py" not in filenames, "venv/lib/code.py should be skipped"
+
+
+# ── Fix regression tests (Phase 0.1 fixes) ──────────────────────────────────
+
+
+def test_r001_no_split_file_not_flagged():
+    """R001 must NOT flag fit() in files that have no train_test_split."""
+    diags = check_sample("r001_good_no_split_file.py")
+    r001 = [d for d in diags if d.rule_id == "R001"]
+    assert len(r001) == 0, "R001 should skip files without train_test_split"
+
+
+def test_r003_before_split_flagged():
+    """R003 must flag SMOTE on full data BEFORE split."""
+    diags = check_sample("r003_bad_before_split.py")
+    r003 = [d for d in diags if d.rule_id == "R003"]
+    assert len(r003) >= 1, "R003 should detect SMOTE before split"
+
+
+def test_r005_discard_not_flagged():
+    """R005 must NOT flag roc_curve when thresholds are discarded with _."""
+    diags = check_sample("r005_good_discard.py")
+    r005 = [d for d in diags if d.rule_id == "R005"]
+    assert len(r005) == 0, "R005 should not flag discarded thresholds"
+
+
+def test_r005_single_var_no_index2_not_flagged():
+    """R005 must NOT flag single-var roc_curve when result[2] is never accessed."""
+    diags = check_sample("r005_good_single_var_no_index2.py")
+    r005 = [d for d in diags if d.rule_id == "R005"]
+    assert len(r005) == 0, "R005 should not flag single-var capture without index-2 access"
+
+
+def test_r007_target_in_column_list():
+    """R007 must flag df[['age', 'target', ...]] at assignment time."""
+    diags = check_sample("r007_bad_target_in_cols.py")
+    r007 = [d for d in diags if d.rule_id == "R007"]
+    assert len(r007) >= 1, "R007 should detect target column in feature list"
+
+
+def test_r017_catboost_tuple_flagged():
+    """R017 must flag CatBoost eval_set=(X_test, y_test) bare tuple format."""
+    diags = check_sample("r017_bad_catboost_tuple.py")
+    r017 = [d for d in diags if d.rule_id == "R017"]
+    assert len(r017) >= 1, "R017 should detect bare tuple eval_set with test data"
+
+
+def test_r017_catboost_valid_not_flagged():
+    """R017 must NOT flag CatBoost eval_set with validation data."""
+    diags = check_sample("r017_good_catboost_valid.py")
+    r017 = [d for d in diags if d.rule_id == "R017"]
+    assert len(r017) == 0, "R017 should not flag validation data in eval_set"
+
+
+def test_r020_dropna_before_split_flagged():
+    """R020 must flag dropna() before split."""
+    diags = check_sample("r020_bad_dropna.py")
+    r020 = [d for d in diags if d.rule_id == "R020"]
+    assert len(r020) >= 1, "R020 should detect dropna before split"
+
+
+def test_r020_dropna_subset_not_flagged():
+    """R020 must NOT flag dropna(subset=...) — legitimate exclusion criteria."""
+    diags = check_sample("r020_good_dropna_subset.py")
+    r020 = [d for d in diags if d.rule_id == "R020"]
+    assert len(r020) == 0, "R020 should not flag dropna with subset parameter"
+
+
+def test_r020_clip_quantile_before_split_flagged():
+    """R020 must flag clip(quantile()) before split."""
+    diags = check_sample("r020_bad_clip_quantile.py")
+    r020 = [d for d in diags if d.rule_id == "R020"]
+    assert len(r020) >= 1, "R020 should detect clip with quantile bounds before split"
