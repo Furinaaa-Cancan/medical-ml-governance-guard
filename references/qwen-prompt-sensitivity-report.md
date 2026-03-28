@@ -40,18 +40,19 @@ Do NOT flag based on absence of information."
 | Not publishable | 27 (59%) | 12 (27%) | -32pp |
 | Major issues | 18 (39%) | 27 (60%) | +21pp |
 | Solid | 1 (2%) | 6 (13%) | +11pp |
+| Publication-grade | 0 (0%) | 0 (0%) | — |
 | Publication-grade | 0 | 0 | — |
 
 ### Grade 分布对比
 
 ```
-Prompt v1:  ████████████████████████████░  Not publishable (59%)
-            ████████████████░░░░░░░░░░░░░  Major issues (39%)
-            ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  Solid (2%)
+Prompt v1:  ████████████████████████████░░  Not publishable <6 (59%)
+            ████████████████░░░░░░░░░░░░░░  Major issues 6-11 (39%)
+            ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  Solid 12-17 (2%)
 
-Prompt v2:  ████████░░░░░░░░░░░░░░░░░░░░░  Not publishable (27%)
-            ████████████████████░░░░░░░░░░  Major issues (60%)
-            ████░░░░░░░░░░░░░░░░░░░░░░░░░  Solid (13%)
+Prompt v2:  ████████░░░░░░░░░░░░░░░░░░░░░░  Not publishable <6 (27%)
+            ████████████████████░░░░░░░░░░░  Major issues 6-11 (60%)
+            ████░░░░░░░░░░░░░░░░░░░░░░░░░░  Solid 12-17 (13%)
 ```
 
 ## 4. 为什么差异这么大

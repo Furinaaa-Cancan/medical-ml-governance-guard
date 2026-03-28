@@ -21,8 +21,7 @@ total_score = Σ (dimension_fraction_i × weight_i)     对所有 i ∈ {1..12}
   total_score          = Σ dimension_score_i                  (0.0 ~ 100.0)
 ```
 
-**没有 cap 规则**：即使 Leakage Prevention 得分为 0，总分仍然是各维度加权和，不会被强制压到 <60。
-**没有 floor 规则**：不存在最低保障分。
+**Tier 1 hard floor**：如果 D1（Data Integrity）、D2（Leakage Prevention）、D3（Pipeline Isolation）或 D5（Statistical Validity）中任一维度 fraction = 0，则 grade 被 cap 到 "Major issues"，即使总分 ≥ 75 也不会被评为 "Solid" 或 "Publication-grade"。理由：核心方法学维度为零分意味着存在致命缺陷。
 **缺失字段处理**：如果 metadata 中某字段为 `null` 或空字符串，对应 check 判定为 **failed**（fail-closed 原则）。
 
 ---
@@ -62,7 +61,7 @@ total_score = Σ (dimension_fraction_i × weight_i)     对所有 i ∈ {1..12}
 
 | 维度 | 权重 | 文献依据 | 理由 |
 |------|------|---------|------|
-| **D2 Leakage Prevention** | 15 | Kapoor & Narayanan 2023 (*Patterns*): 294 篇论文中泄漏导致 "models did not outperform older baselines" | 泄漏是可重复性危机的首要原因；PROBAST+AI Domain 4 (Analysis) 将泄漏列为 high ROB 的决定性因素 |
+| **D2 Leakage Prevention** | 15 | Kapoor & Narayanan 2023 (*Patterns* 4(9):100804): 294 篇论文中泄漏导致 "models did not outperform older baselines" | 泄漏是可重复性危机的首要原因；PROBAST+AI Domain 4 (Analysis) 将泄漏列为 high ROB 的决定性因素 |
 | **D1 Data Integrity** | 12 | TRIPOD+AI 2024 (Collins et al., *BMJ*): Items 4a, 4b 要求详细描述数据来源和分割 | TRIPOD+AI 将数据完整性列为 27 项中 6 项 REQUIRED 条目 |
 | **D3 Pipeline Isolation** | 12 | Kaufman et al. 2012 (*J MLR*): "leakage in data mining" 首次系统性描述预处理泄漏 | 预处理泄漏是最常见的泄漏类型（我们的审计中 77% 的泄漏论文存在此问题） |
 | **D5 Statistical Validity** | 12 | Riley et al. 2019 (*BMJ*): minimum sample size + bootstrap CI requirement; Van Calster et al. 2019: calibration hierarchy | 统计效力不足导致不可重复的结论；Riley EPV ≥ 10 是公认基线 |
