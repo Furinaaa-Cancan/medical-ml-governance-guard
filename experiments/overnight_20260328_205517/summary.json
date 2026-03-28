@@ -1,0 +1,112 @@
+{"run_id": "20260328_205517", "started": "2026-03-28T12:55:17Z", "datasets": [
+    {
+      "dataset": "diabetes130_full",
+      "csv": "examples/pima_diabetes.csv",
+      "status": "FAIL_GATE",
+      "exit_code": 2,
+      "elapsed_sec": 18,
+      "elapsed_min": .3,
+      "gates_passed": "4",
+      "gates_failed": "5",
+      "report": "experiments/overnight_20260328_205517/diabetes130_full/onboarding_report.json",
+      "log": "experiments/overnight_20260328_205517/diabetes130_full_stdout.log"
+    }
+,
+    {
+      "dataset": "brfss2022",
+      "csv": "examples/pima_diabetes.csv",
+      "status": "FAIL_GATE",
+      "exit_code": 2,
+      "elapsed_sec": 14,
+      "elapsed_min": .2,
+      "gates_passed": "4",
+      "gates_failed": "5",
+      "report": "experiments/overnight_20260328_205517/brfss2022/onboarding_report.json",
+      "log": "experiments/overnight_20260328_205517/brfss2022_stdout.log"
+    }
+,
+    {
+      "dataset": "nhis2022",
+      "csv": "examples/pima_diabetes.csv",
+      "status": "FAIL_GATE",
+      "exit_code": 2,
+      "elapsed_sec": 16,
+      "elapsed_min": .2,
+      "gates_passed": "4",
+      "gates_failed": "5",
+      "report": "experiments/overnight_20260328_205517/nhis2022/onboarding_report.json",
+      "log": "experiments/overnight_20260328_205517/nhis2022_stdout.log"
+    }
+,
+    {
+      "dataset": "nhanes",
+      "csv": "examples/pima_diabetes.csv",
+      "status": "FAIL_GATE",
+      "exit_code": 2,
+      "elapsed_sec": 16,
+      "elapsed_min": .2,
+      "gates_passed": "4",
+      "gates_failed": "5",
+      "report": "experiments/overnight_20260328_205517/nhanes/onboarding_report.json",
+      "log": "experiments/overnight_20260328_205517/nhanes_stdout.log"
+    }
+,
+    {
+      "dataset": "support2",
+      "csv": "examples/pima_diabetes.csv",
+      "status": "FAIL_GATE",
+      "exit_code": 2,
+      "elapsed_sec": 17,
+      "elapsed_min": .2,
+      "gates_passed": "4",
+      "gates_failed": "5",
+      "report": "experiments/overnight_20260328_205517/support2/onboarding_report.json",
+      "log": "experiments/overnight_20260328_205517/support2_stdout.log"
+    }
+,
+    {
+      "dataset": "heart",
+      "csv": "examples/pima_diabetes.csv",
+      "status": "FAIL_GATE",
+      "exit_code": 2,
+      "elapsed_sec": 17,
+      "elapsed_min": .2,
+      "gates_passed": "4",
+      "gates_failed": "5",
+      "report": "experiments/overnight_20260328_205517/heart/onboarding_report.json",
+      "log": "experiments/overnight_20260328_205517/heart_stdout.log"
+    }
+,
+    {
+      "dataset": "breast",
+      "csv": "examples/pima_diabetes.csv",
+      "status": "FAIL_GATE",
+      "exit_code": 2,
+      "elapsed_sec": 15,
+      "elapsed_min": .2,
+      "gates_passed": "4",
+      "gates_failed": "5",
+      "report": "experiments/overnight_20260328_205517/breast/onboarding_report.json",
+      "log": "experiments/overnight_20260328_205517/breast_stdout.log"
+    }
+,
+    {
+      "dataset": "pima",
+      "csv": "examples/pima_diabetes.csv",
+      "status": "FAIL_GATE",
+      "exit_code": 2,
+      "elapsed_sec": 18,
+      "elapsed_min": .3,
+      "gates_passed": "4",
+      "gates_failed": "5",
+      "report": "experiments/overnight_20260328_205517/pima/onboarding_report.json",
+      "log": "experiments/overnight_20260328_205517/pima_stdout.log"
+    }
+
+],
+  "finished": "2026-03-28T12:57:29Z",
+  "total_datasets": 8,
+  "passed": 0,
+  "failed_gate": 8,
+  "errors": 0
+}
