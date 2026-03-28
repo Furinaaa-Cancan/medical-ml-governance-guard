@@ -200,9 +200,19 @@ def score_metadata(metadata: Dict[str, Any]) -> Dict[str, Any]:
         total_weight += weight
 
     total_score = round(total_weighted, 1)
+
+    # Hard floor: if any Tier 1 dimension (D1, D2, D3, D5) scores 0,
+    # cap the grade at "Major issues" regardless of total score.
+    # Rationale: a paper with zero leakage prevention or zero data integrity
+    # cannot be considered "Solid" or "Publication-grade" even if other
+    # dimensions are perfect.
+    tier1_dims = ["data_integrity", "leakage_prevention", "pipeline_isolation", "statistical_validity"]
+    tier1_zero = [d for d in tier1_dims if dimensions.get(d, {}).get("fraction", 0) == 0]
+    tier1_cap = bool(tier1_zero)
+
     grade = (
-        "Publication-grade" if total_score >= 90
-        else "Solid but gaps remain" if total_score >= 75
+        "Publication-grade" if total_score >= 90 and not tier1_cap
+        else "Solid but gaps remain" if total_score >= 75 and not tier1_cap
         else "Major issues" if total_score >= 60
         else "Not publishable"
     )

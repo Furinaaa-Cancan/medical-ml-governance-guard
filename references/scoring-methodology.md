@@ -58,15 +58,39 @@ total_score = Σ (dimension_fraction_i × weight_i)     对所有 i ∈ {1..12}
 
 ### 权重设计依据
 
-权重分配基于以下原则（非 Delphi 共识，属项目设计决策）：
+权重分配基于已发表文献中各方法学维度的相对重要性。每个权重均有对应的文献支撑。**当前权重未经 Delphi 共识验证，属文献驱动的项目设计决策。**
 
-1. **泄漏相关维度（D2 + D3 = 27%）权重最高**：这是本项目的核心使命——数据泄漏是医学 ML 可重复性危机的首要原因（Kapoor & Narayanan 2023, LIT-009）。
-2. **数据+统计（D1 + D5 = 24%）次之**：数据完整性和统计效力是任何预测模型的基石（TRIPOD+AI 2024, LIT-001）。
-3. **模型+泛化（D4 + D6 = 20%）**：模型选择和外部验证是顶刊审稿人最关注的方法学问题。
-4. **临床+报告（D7 + D8 = 14%）**：报告完整性影响可复现性但不直接影响结果正确性。
-5. **辅助维度（D9-D12 = 15%）**：重要但不是方法学致命缺陷。
+| 维度 | 权重 | 文献依据 | 理由 |
+|------|------|---------|------|
+| **D2 Leakage Prevention** | 15 | Kapoor & Narayanan 2023 (*Patterns*): 294 篇论文中泄漏导致 "models did not outperform older baselines" | 泄漏是可重复性危机的首要原因；PROBAST+AI Domain 4 (Analysis) 将泄漏列为 high ROB 的决定性因素 |
+| **D1 Data Integrity** | 12 | TRIPOD+AI 2024 (Collins et al., *BMJ*): Items 4a, 4b 要求详细描述数据来源和分割 | TRIPOD+AI 将数据完整性列为 27 项中 6 项 REQUIRED 条目 |
+| **D3 Pipeline Isolation** | 12 | Kaufman et al. 2012 (*J MLR*): "leakage in data mining" 首次系统性描述预处理泄漏 | 预处理泄漏是最常见的泄漏类型（我们的审计中 77% 的泄漏论文存在此问题） |
+| **D5 Statistical Validity** | 12 | Riley et al. 2019 (*BMJ*): minimum sample size + bootstrap CI requirement; Van Calster et al. 2019: calibration hierarchy | 统计效力不足导致不可重复的结论；Riley EPV ≥ 10 是公认基线 |
+| **D4 Model Selection** | 10 | Steyerberg & Harrell 2016 (*Stat Med*): 模型选择偏倚 + 内部验证要求 | PROBAST+AI Domain 4 Q4.6: "Was model selection based on apparent performance?" |
+| **D6 Generalization** | 10 | Collins et al. 2024 (*BMJ*) TRIPOD+AI Item 13b: 外部验证是 REQUIRED 条目 | Siontis et al. 2015 (*BMJ*): 外部验证普遍表现下降 (median ΔAUC = 0.05) |
+| **D7 Clinical Completeness** | 7 | Vickers & Elkin 2006 (*Med Decis Making*): DCA 的必要性; TRIPOD+AI Items 16-17 | 完整指标面板（Se/Sp/PPV/NPV/calibration/DCA）是临床决策的基础 |
+| **D8 Reporting Standards** | 7 | Collins et al. 2024 TRIPOD+AI; Wolff et al. 2019 PROBAST | 报告标准合规性影响可复现性和同行评审质量 |
+| **D9 Reproducibility** | 6 | Beam et al. 2020 (*Lancet Digital Health*): "reproducibility crisis in clinical ML"; Haibe-Kains et al. 2020 (*Nature*) | 代码和数据可用性是可重复性的必要条件 |
+| **D10 Security** | 3 | SLSA Framework (supply-chain integrity); FDA GMLP 2021 | 模型签名和溯源对监管合规重要，但不直接影响方法学正确性 |
+| **D11 Fairness** | 3 | Chen et al. 2023 (*Nature Medicine*): "algorithmic fairness in clinical prediction"; Obermeyer et al. 2019 (*Science*) | 公平性是发表要求但非方法学致命缺陷；TRIPOD+AI Item 5b 作为 CONDITIONAL 条目 |
+| **D12 Sample Size** | 3 | Riley et al. 2020 (*BMJ*): EPV criteria; van Smeden et al. 2019 (*BMJ* editorial) | EPV 是基线要求但已在 D5 (statistical validity) 中部分覆盖 |
 
-> **注意**：当前权重未经外部专家 Delphi 共识验证。未来版本计划通过结构化专家调查校准权重。
+**权重层次逻辑**：
+
+```
+Tier 1 (12-15%): 直接影响结果正确性 → D1, D2, D3, D5
+Tier 2 (10%):    影响结果可信度 → D4, D6
+Tier 3 (6-7%):   影响结果可用性 → D7, D8, D9
+Tier 4 (3%):     辅助质量维度 → D10, D11, D12
+```
+
+**已知局限**：
+1. 权重未经 Delphi 共识验证——不同审稿人可能给 D6 (外部验证) 更高权重
+2. D2 和 D3 使用相同字段（`preprocessing_fit_on_train_only`），导致该字段有双倍权重效应（见 §5 字段交叉引用）
+3. D10-D12 每个维度仅 1-2 项检查，评估粒度不足
+4. **建议**：使用本框架时，除查看总分外，还应检查 Tier 1 维度是否有 0 分——总分 85 但 D2=0 的论文仍不可发表
+
+> **未来改进**：计划通过 15-20 名医学 ML 专家的 Delphi 问卷验证并调整权重。问卷设计将基于 PROBAST+AI 的 4 域权重结构。
 
 ---
 
