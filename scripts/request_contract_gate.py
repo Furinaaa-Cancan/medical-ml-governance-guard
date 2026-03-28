@@ -72,6 +72,12 @@ MANDATORY_CLINICAL_METRICS = [
 _PROFILE_OVERRIDES: Dict[str, Dict[str, Any]] = {
     "standard": {},  # Default — no overrides
     "small_cohort": {
+        "clinical_floors_min": {
+            "sensitivity_min": 0.75,
+            "npv_min": 0.55,
+            "specificity_min": 0.30,
+            "ppv_min": 0.40,
+        },
         "seed_stability_thresholds_max": {
             "pr_auc_std_max": 0.05,
             "pr_auc_range_max": 0.12,
@@ -1617,7 +1623,12 @@ def validate_performance_policy_spec(
     policy_path: str,
     failures: List[Dict[str, Any]],
     expected_primary_metric: str,
+    resolved_baselines: Optional[Dict[str, Any]] = None,
 ) -> None:
+    # Use profile-resolved baselines if provided, else fall back to global defaults.
+    # This allows profile=small_cohort/rare_disease to relax clinical floors.
+    baselines = resolved_baselines if resolved_baselines else PUBLICATION_POLICY_BASELINES
+
     path = Path(policy_path).expanduser().resolve()
     try:
         _check_json_file_size(path)
@@ -1715,12 +1726,12 @@ def validate_performance_policy_spec(
             "performance_policy_spec.beta must be finite and > 0.",
             {"path": str(path), "beta": beta},
         )
-    elif abs(float(beta_value) - float(PUBLICATION_POLICY_BASELINES["beta"])) > 1e-12:
+    elif abs(float(beta_value) - float(baselines["beta"])) > 1e-12:
         add_issue(
             failures,
             "performance_policy_downgrade",
             "Publication-grade policy requires beta fixed to 2.0 for F2 thresholding.",
-            {"path": str(path), "beta": float(beta_value), "required_beta": float(PUBLICATION_POLICY_BASELINES["beta"])},
+            {"path": str(path), "beta": float(beta_value), "required_beta": float(baselines["beta"])},
         )
 
     threshold_policy = payload.get("threshold_policy")
@@ -1734,7 +1745,7 @@ def validate_performance_policy_spec(
         )
     else:
         strategy = str(threshold_policy.get("strategy", "")).strip().lower()
-        expected_strategy = str(PUBLICATION_POLICY_BASELINES["threshold_policy_strategy"]).strip().lower()
+        expected_strategy = str(baselines["threshold_policy_strategy"]).strip().lower()
         if strategy != expected_strategy:
             add_issue(
                 failures,
@@ -1744,7 +1755,7 @@ def validate_performance_policy_spec(
             )
 
         selection_split = threshold_policy.get("selection_split")
-        allowed = set(PUBLICATION_POLICY_BASELINES["allowed_selection_splits"])
+        allowed = set(baselines["allowed_selection_splits"])
         if not isinstance(selection_split, str) or selection_split.strip().lower() not in allowed:
             add_issue(
                 failures,
@@ -1809,7 +1820,7 @@ def validate_performance_policy_spec(
                     {"path": str(path), "field": key, "value": clinical_floors.get(key)},
                 )
                 continue
-            minimum_floor = float(PUBLICATION_POLICY_BASELINES["clinical_floors_min"][key])
+            minimum_floor = float(baselines["clinical_floors_min"][key])
             if value < minimum_floor:
                 add_issue(
                     failures,
@@ -1904,7 +1915,7 @@ def validate_performance_policy_spec(
             {"path": str(path)},
         )
     else:
-        for (left, right, metric), limits in PUBLICATION_POLICY_BASELINES["gap_thresholds_max"].items():
+        for (left, right, metric), limits in baselines["gap_thresholds_max"].items():
             pair_block = get_gap_pair_block(gap_thresholds, left, right)
             metric_block = pair_block.get(metric) if isinstance(pair_block, dict) else None
             if not isinstance(metric_block, dict):
@@ -1966,7 +1977,7 @@ def validate_performance_policy_spec(
                     {"path": str(path), "bucket": bucket},
                 )
                 continue
-            for key, max_value in PUBLICATION_POLICY_BASELINES["robustness_thresholds_max"].items():
+            for key, max_value in baselines["robustness_thresholds_max"].items():
                 raw = to_float(bucket_block.get(key))
                 if raw is None or raw < 0.0:
                     add_issue(
@@ -2009,7 +2020,7 @@ def validate_performance_policy_spec(
                     {"path": str(path), "bucket": bucket},
                 )
 
-            for key, min_value in PUBLICATION_POLICY_BASELINES["robustness_thresholds_min"].items():
+            for key, min_value in baselines["robustness_thresholds_min"].items():
                 raw = to_float(bucket_block.get(key))
                 if raw is None or raw < float(min_value):
                     add_issue(
@@ -2034,7 +2045,7 @@ def validate_performance_policy_spec(
             {"path": str(path)},
         )
     else:
-        for key, max_value in PUBLICATION_POLICY_BASELINES["seed_stability_thresholds_max"].items():
+        for key, max_value in baselines["seed_stability_thresholds_max"].items():
             raw = to_float(seed_thresholds.get(key))
             if raw is None or raw <= 0.0:
                 add_issue(
@@ -2073,7 +2084,7 @@ def validate_performance_policy_spec(
                 "prediction_replay_thresholds.metric_tolerance must be finite > 0.",
                 {"path": str(path), "value": prediction_replay_thresholds.get("metric_tolerance")},
             )
-        elif metric_tol > float(PUBLICATION_POLICY_BASELINES["prediction_replay_thresholds"]["metric_tolerance_max"]):
+        elif metric_tol > float(baselines["prediction_replay_thresholds"]["metric_tolerance_max"]):
             new_block_downgrade_detected = True
             add_issue(
                 failures,
@@ -2082,7 +2093,7 @@ def validate_performance_policy_spec(
                 {
                     "path": str(path),
                     "value": float(metric_tol),
-                    "max_allowed": float(PUBLICATION_POLICY_BASELINES["prediction_replay_thresholds"]["metric_tolerance_max"]),
+                    "max_allowed": float(baselines["prediction_replay_thresholds"]["metric_tolerance_max"]),
                 },
             )
         if threshold_tol is None or threshold_tol <= 0.0:
@@ -2092,7 +2103,7 @@ def validate_performance_policy_spec(
                 "prediction_replay_thresholds.threshold_tolerance must be finite > 0.",
                 {"path": str(path), "value": prediction_replay_thresholds.get("threshold_tolerance")},
             )
-        elif threshold_tol > float(PUBLICATION_POLICY_BASELINES["prediction_replay_thresholds"]["threshold_tolerance_max"]):
+        elif threshold_tol > float(baselines["prediction_replay_thresholds"]["threshold_tolerance_max"]):
             new_block_downgrade_detected = True
             add_issue(
                 failures,
@@ -2101,7 +2112,7 @@ def validate_performance_policy_spec(
                 {
                     "path": str(path),
                     "value": float(threshold_tol),
-                    "max_allowed": float(PUBLICATION_POLICY_BASELINES["prediction_replay_thresholds"]["threshold_tolerance_max"]),
+                    "max_allowed": float(baselines["prediction_replay_thresholds"]["threshold_tolerance_max"]),
                 },
             )
         if replay_beta is None or replay_beta <= 0.0:
@@ -2111,7 +2122,7 @@ def validate_performance_policy_spec(
                 "prediction_replay_thresholds.beta must be finite > 0.",
                 {"path": str(path), "value": prediction_replay_thresholds.get("beta")},
             )
-        elif abs(replay_beta - float(PUBLICATION_POLICY_BASELINES["prediction_replay_thresholds"]["beta"])) > 1e-12:
+        elif abs(replay_beta - float(baselines["prediction_replay_thresholds"]["beta"])) > 1e-12:
             new_block_downgrade_detected = True
             add_issue(
                 failures,
@@ -2120,7 +2131,7 @@ def validate_performance_policy_spec(
                 {
                     "path": str(path),
                     "value": float(replay_beta),
-                    "required": float(PUBLICATION_POLICY_BASELINES["prediction_replay_thresholds"]["beta"]),
+                    "required": float(baselines["prediction_replay_thresholds"]["beta"]),
                 },
             )
 
@@ -2148,7 +2159,7 @@ def validate_performance_policy_spec(
                     {"path": str(path), "field": field, "value": external_thresholds.get(field)},
                 )
                 continue
-            if value < float(PUBLICATION_POLICY_BASELINES["external_validation_thresholds"][baseline_key]):
+            if value < float(baselines["external_validation_thresholds"][baseline_key]):
                 new_block_downgrade_detected = True
                 add_issue(
                     failures,
@@ -2158,7 +2169,7 @@ def validate_performance_policy_spec(
                         "path": str(path),
                         "field": field,
                         "value": float(value),
-                        "required_min": float(PUBLICATION_POLICY_BASELINES["external_validation_thresholds"][baseline_key]),
+                        "required_min": float(baselines["external_validation_thresholds"][baseline_key]),
                     },
                 )
 
@@ -2178,7 +2189,7 @@ def validate_performance_policy_spec(
                     {"path": str(path), "field": field, "value": external_thresholds.get(field)},
                 )
                 continue
-            if value > float(PUBLICATION_POLICY_BASELINES["external_validation_thresholds"][baseline_key]):
+            if value > float(baselines["external_validation_thresholds"][baseline_key]):
                 new_block_downgrade_detected = True
                 add_issue(
                     failures,
@@ -2188,7 +2199,7 @@ def validate_performance_policy_spec(
                         "path": str(path),
                         "field": field,
                         "value": float(value),
-                        "max_allowed": float(PUBLICATION_POLICY_BASELINES["external_validation_thresholds"][baseline_key]),
+                        "max_allowed": float(baselines["external_validation_thresholds"][baseline_key]),
                     },
                 )
         ext_beta = to_float(external_thresholds.get("beta"))
@@ -2199,7 +2210,7 @@ def validate_performance_policy_spec(
                 "external_validation_thresholds.beta must be finite > 0.",
                 {"path": str(path), "value": external_thresholds.get("beta")},
             )
-        elif abs(ext_beta - float(PUBLICATION_POLICY_BASELINES["external_validation_thresholds"]["beta"])) > 1e-12:
+        elif abs(ext_beta - float(baselines["external_validation_thresholds"]["beta"])) > 1e-12:
             new_block_downgrade_detected = True
             add_issue(
                 failures,
@@ -2208,7 +2219,7 @@ def validate_performance_policy_spec(
                 {
                     "path": str(path),
                     "value": float(ext_beta),
-                    "required": float(PUBLICATION_POLICY_BASELINES["external_validation_thresholds"]["beta"]),
+                    "required": float(baselines["external_validation_thresholds"]["beta"]),
                 },
             )
 
@@ -2290,7 +2301,7 @@ def validate_performance_policy_spec(
                 },
             )
 
-        if ece_max is not None and ece_max > float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["ece_max_max"]):
+        if ece_max is not None and ece_max > float(baselines["calibration_dca_thresholds"]["ece_max_max"]):
             new_block_downgrade_detected = True
             add_issue(
                 failures,
@@ -2299,10 +2310,10 @@ def validate_performance_policy_spec(
                 {
                     "path": str(path),
                     "value": float(ece_max),
-                    "max_allowed": float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["ece_max_max"]),
+                    "max_allowed": float(baselines["calibration_dca_thresholds"]["ece_max_max"]),
                 },
             )
-        if slope_min is not None and slope_min < float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["slope_min_min"]):
+        if slope_min is not None and slope_min < float(baselines["calibration_dca_thresholds"]["slope_min_min"]):
             new_block_downgrade_detected = True
             add_issue(
                 failures,
@@ -2311,10 +2322,10 @@ def validate_performance_policy_spec(
                 {
                     "path": str(path),
                     "value": float(slope_min),
-                    "required_min": float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["slope_min_min"]),
+                    "required_min": float(baselines["calibration_dca_thresholds"]["slope_min_min"]),
                 },
             )
-        if slope_max is not None and slope_max > float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["slope_max_max"]):
+        if slope_max is not None and slope_max > float(baselines["calibration_dca_thresholds"]["slope_max_max"]):
             new_block_downgrade_detected = True
             add_issue(
                 failures,
@@ -2323,10 +2334,10 @@ def validate_performance_policy_spec(
                 {
                     "path": str(path),
                     "value": float(slope_max),
-                    "max_allowed": float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["slope_max_max"]),
+                    "max_allowed": float(baselines["calibration_dca_thresholds"]["slope_max_max"]),
                 },
             )
-        if intercept_abs_max is not None and intercept_abs_max > float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["intercept_abs_max_max"]):
+        if intercept_abs_max is not None and intercept_abs_max > float(baselines["calibration_dca_thresholds"]["intercept_abs_max_max"]):
             new_block_downgrade_detected = True
             add_issue(
                 failures,
@@ -2335,10 +2346,10 @@ def validate_performance_policy_spec(
                 {
                     "path": str(path),
                     "value": float(intercept_abs_max),
-                    "max_allowed": float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["intercept_abs_max_max"]),
+                    "max_allowed": float(baselines["calibration_dca_thresholds"]["intercept_abs_max_max"]),
                 },
             )
-        if min_rows is not None and min_rows < float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["min_rows_min"]):
+        if min_rows is not None and min_rows < float(baselines["calibration_dca_thresholds"]["min_rows_min"]):
             new_block_downgrade_detected = True
             add_issue(
                 failures,
@@ -2347,10 +2358,10 @@ def validate_performance_policy_spec(
                 {
                     "path": str(path),
                     "value": float(min_rows),
-                    "required_min": float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["min_rows_min"]),
+                    "required_min": float(baselines["calibration_dca_thresholds"]["min_rows_min"]),
                 },
             )
-        if min_positives is not None and min_positives < float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["min_positives_min"]):
+        if min_positives is not None and min_positives < float(baselines["calibration_dca_thresholds"]["min_positives_min"]):
             new_block_downgrade_detected = True
             add_issue(
                 failures,
@@ -2359,10 +2370,10 @@ def validate_performance_policy_spec(
                 {
                     "path": str(path),
                     "value": float(min_positives),
-                    "required_min": float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["min_positives_min"]),
+                    "required_min": float(baselines["calibration_dca_thresholds"]["min_positives_min"]),
                 },
             )
-        if min_coverage is not None and min_coverage < float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["min_advantage_coverage_min"]):
+        if min_coverage is not None and min_coverage < float(baselines["calibration_dca_thresholds"]["min_advantage_coverage_min"]):
             new_block_downgrade_detected = True
             add_issue(
                 failures,
@@ -2371,10 +2382,10 @@ def validate_performance_policy_spec(
                 {
                     "path": str(path),
                     "value": float(min_coverage),
-                    "required_min": float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["min_advantage_coverage_min"]),
+                    "required_min": float(baselines["calibration_dca_thresholds"]["min_advantage_coverage_min"]),
                 },
             )
-        if min_avg_adv is not None and min_avg_adv < float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["min_average_advantage_min"]):
+        if min_avg_adv is not None and min_avg_adv < float(baselines["calibration_dca_thresholds"]["min_average_advantage_min"]):
             new_block_downgrade_detected = True
             add_issue(
                 failures,
@@ -2383,10 +2394,10 @@ def validate_performance_policy_spec(
                 {
                     "path": str(path),
                     "value": float(min_avg_adv),
-                    "required_min": float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["min_average_advantage_min"]),
+                    "required_min": float(baselines["calibration_dca_thresholds"]["min_average_advantage_min"]),
                 },
             )
-        if min_nb_adv is not None and min_nb_adv < float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["min_net_benefit_advantage_min"]):
+        if min_nb_adv is not None and min_nb_adv < float(baselines["calibration_dca_thresholds"]["min_net_benefit_advantage_min"]):
             new_block_downgrade_detected = True
             add_issue(
                 failures,
@@ -2395,7 +2406,7 @@ def validate_performance_policy_spec(
                 {
                     "path": str(path),
                     "value": float(min_nb_adv),
-                    "required_min": float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["min_net_benefit_advantage_min"]),
+                    "required_min": float(baselines["calibration_dca_thresholds"]["min_net_benefit_advantage_min"]),
                 },
             )
 
@@ -2433,7 +2444,7 @@ def validate_performance_policy_spec(
                     },
                 )
             else:
-                if start_v > float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["threshold_grid_start_max"]):
+                if start_v > float(baselines["calibration_dca_thresholds"]["threshold_grid_start_max"]):
                     new_block_downgrade_detected = True
                     add_issue(
                         failures,
@@ -2442,10 +2453,10 @@ def validate_performance_policy_spec(
                         {
                             "path": str(path),
                             "value": float(start_v),
-                            "max_allowed": float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["threshold_grid_start_max"]),
+                            "max_allowed": float(baselines["calibration_dca_thresholds"]["threshold_grid_start_max"]),
                         },
                     )
-                if end_v < float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["threshold_grid_end_min"]):
+                if end_v < float(baselines["calibration_dca_thresholds"]["threshold_grid_end_min"]):
                     new_block_downgrade_detected = True
                     add_issue(
                         failures,
@@ -2454,10 +2465,10 @@ def validate_performance_policy_spec(
                         {
                             "path": str(path),
                             "value": float(end_v),
-                            "required_min": float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["threshold_grid_end_min"]),
+                            "required_min": float(baselines["calibration_dca_thresholds"]["threshold_grid_end_min"]),
                         },
                     )
-                if step_v > float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["threshold_grid_step_max"]):
+                if step_v > float(baselines["calibration_dca_thresholds"]["threshold_grid_step_max"]):
                     new_block_downgrade_detected = True
                     add_issue(
                         failures,
@@ -2466,7 +2477,7 @@ def validate_performance_policy_spec(
                         {
                             "path": str(path),
                             "value": float(step_v),
-                            "max_allowed": float(PUBLICATION_POLICY_BASELINES["calibration_dca_thresholds"]["threshold_grid_step_max"]),
+                            "max_allowed": float(baselines["calibration_dca_thresholds"]["threshold_grid_step_max"]),
                         },
                     )
 
@@ -2500,7 +2511,7 @@ def validate_performance_policy_spec(
                     {"path": str(path), "field": field, "value": distribution_thresholds_v2.get(field)},
                 )
                 continue
-            if value > float(PUBLICATION_POLICY_BASELINES["distribution_thresholds_v2"][baseline_key]):
+            if value > float(baselines["distribution_thresholds_v2"][baseline_key]):
                 new_block_downgrade_detected = True
                 add_issue(
                     failures,
@@ -2510,7 +2521,7 @@ def validate_performance_policy_spec(
                         "path": str(path),
                         "field": field,
                         "value": float(value),
-                        "max_allowed": float(PUBLICATION_POLICY_BASELINES["distribution_thresholds_v2"][baseline_key]),
+                        "max_allowed": float(baselines["distribution_thresholds_v2"][baseline_key]),
                     },
                 )
 
@@ -2569,7 +2580,7 @@ def validate_performance_policy_spec(
             )
         else:
             scope_tokens = {str(x).strip().lower() for x in scopes if isinstance(x, str) and str(x).strip()}
-            baseline_scopes = set(PUBLICATION_POLICY_BASELINES["feature_engineering_policy"]["allowed_selection_scopes"])
+            baseline_scopes = set(baselines["feature_engineering_policy"]["allowed_selection_scopes"])
             invalid_scopes = sorted(token for token in scope_tokens if token not in baseline_scopes)
             if invalid_scopes:
                 new_block_downgrade_detected = True
@@ -2596,7 +2607,7 @@ def validate_performance_policy_spec(
                 "feature_engineering_policy.min_feature_selection_frequency must be within [0,1].",
                 {"path": str(path), "value": feature_engineering_policy.get("min_feature_selection_frequency")},
             )
-        elif min_feature_freq < float(PUBLICATION_POLICY_BASELINES["feature_engineering_policy"]["min_feature_selection_frequency"]):
+        elif min_feature_freq < float(baselines["feature_engineering_policy"]["min_feature_selection_frequency"]):
             new_block_downgrade_detected = True
             add_issue(
                 failures,
@@ -2605,7 +2616,7 @@ def validate_performance_policy_spec(
                 {
                     "path": str(path),
                     "value": float(min_feature_freq),
-                    "required_min": float(PUBLICATION_POLICY_BASELINES["feature_engineering_policy"]["min_feature_selection_frequency"]),
+                    "required_min": float(baselines["feature_engineering_policy"]["min_feature_selection_frequency"]),
                 },
             )
         if min_group_freq is None or not (0.0 <= min_group_freq <= 1.0):
@@ -2615,7 +2626,7 @@ def validate_performance_policy_spec(
                 "feature_engineering_policy.min_group_selection_frequency must be within [0,1].",
                 {"path": str(path), "value": feature_engineering_policy.get("min_group_selection_frequency")},
             )
-        elif min_group_freq < float(PUBLICATION_POLICY_BASELINES["feature_engineering_policy"]["min_group_selection_frequency"]):
+        elif min_group_freq < float(baselines["feature_engineering_policy"]["min_group_selection_frequency"]):
             new_block_downgrade_detected = True
             add_issue(
                 failures,
@@ -2624,7 +2635,7 @@ def validate_performance_policy_spec(
                 {
                     "path": str(path),
                     "value": float(min_group_freq),
-                    "required_min": float(PUBLICATION_POLICY_BASELINES["feature_engineering_policy"]["min_group_selection_frequency"]),
+                    "required_min": float(baselines["feature_engineering_policy"]["min_group_selection_frequency"]),
                 },
             )
 
@@ -2650,7 +2661,7 @@ def validate_performance_policy_spec(
                 "ci_policy.n_resamples must be integer >= 100.",
                 {"path": str(path), "value": ci_policy.get("n_resamples")},
             )
-        elif n_resamples < int(PUBLICATION_POLICY_BASELINES["ci_policy"]["n_resamples_min"]):
+        elif n_resamples < int(baselines["ci_policy"]["n_resamples_min"]):
             new_block_downgrade_detected = True
             add_issue(
                 failures,
@@ -2659,7 +2670,7 @@ def validate_performance_policy_spec(
                 {
                     "path": str(path),
                     "value": int(n_resamples),
-                    "required_min": int(PUBLICATION_POLICY_BASELINES["ci_policy"]["n_resamples_min"]),
+                    "required_min": int(baselines["ci_policy"]["n_resamples_min"]),
                 },
             )
 
@@ -2671,7 +2682,7 @@ def validate_performance_policy_spec(
                 {"path": str(path), "value": ci_policy.get("max_resamples_supported")},
             )
         elif max_resamples_supported is not None and max_resamples_supported > int(
-            PUBLICATION_POLICY_BASELINES["ci_policy"]["max_resamples_supported_max"]
+            baselines["ci_policy"]["max_resamples_supported_max"]
         ):
             new_block_downgrade_detected = True
             add_issue(
@@ -2681,7 +2692,7 @@ def validate_performance_policy_spec(
                 {
                     "path": str(path),
                     "value": int(max_resamples_supported),
-                    "max_allowed": int(PUBLICATION_POLICY_BASELINES["ci_policy"]["max_resamples_supported_max"]),
+                    "max_allowed": int(baselines["ci_policy"]["max_resamples_supported_max"]),
                 },
             )
 
@@ -2704,7 +2715,7 @@ def validate_performance_policy_spec(
                 "ci_policy.max_width must be finite > 0.",
                 {"path": str(path), "value": ci_policy.get("max_width")},
             )
-        elif max_width > float(PUBLICATION_POLICY_BASELINES["ci_policy"]["max_width_max"]):
+        elif max_width > float(baselines["ci_policy"]["max_width_max"]):
             new_block_downgrade_detected = True
             add_issue(
                 failures,
@@ -2713,7 +2724,7 @@ def validate_performance_policy_spec(
                 {
                     "path": str(path),
                     "value": float(max_width),
-                    "max_allowed": float(PUBLICATION_POLICY_BASELINES["ci_policy"]["max_width_max"]),
+                    "max_allowed": float(baselines["ci_policy"]["max_width_max"]),
                 },
             )
 
@@ -2724,7 +2735,7 @@ def validate_performance_policy_spec(
                 "ci_policy.metric_tolerance must be finite > 0.",
                 {"path": str(path), "value": ci_policy.get("metric_tolerance")},
             )
-        elif metric_tolerance > float(PUBLICATION_POLICY_BASELINES["ci_policy"]["metric_tolerance_max"]):
+        elif metric_tolerance > float(baselines["ci_policy"]["metric_tolerance_max"]):
             new_block_downgrade_detected = True
             add_issue(
                 failures,
@@ -2733,7 +2744,7 @@ def validate_performance_policy_spec(
                 {
                     "path": str(path),
                     "value": float(metric_tolerance),
-                    "max_allowed": float(PUBLICATION_POLICY_BASELINES["ci_policy"]["metric_tolerance_max"]),
+                    "max_allowed": float(baselines["ci_policy"]["metric_tolerance_max"]),
                 },
             )
 
@@ -3204,12 +3215,19 @@ def main() -> int:
     robustness_report_file = normalized.get("robustness_report_file")
     if isinstance(robustness_report_file, str) and robustness_report_file:
         validate_robustness_report_shape(robustness_report_file, failures)
+    # Ensure profile-resolved baselines are available before performance policy validation.
+    # validate_thresholds sets request["_resolved_policy"] which is needed by
+    # validate_performance_policy_spec for profile-aware downgrade checks.
+    if "_resolved_policy" not in request:
+        validate_thresholds(request, failures, warnings, args.strict)
+
     performance_policy_spec = normalized.get("performance_policy_spec")
     if isinstance(performance_policy_spec, str) and performance_policy_spec:
         validate_performance_policy_spec(
             performance_policy_spec,
             failures=failures,
             expected_primary_metric=str(normalized.get("primary_metric", "")).strip(),
+            resolved_baselines=request.get("_resolved_policy"),
         )
     feature_group_spec = normalized.get("feature_group_spec")
     if isinstance(feature_group_spec, str) and feature_group_spec:
@@ -3293,6 +3311,9 @@ def main() -> int:
         normalized=normalized,
     )
 
+    # NOTE: validate_thresholds MUST run before validate_performance_policy_spec
+    # because it sets request["_resolved_policy"] used for profile-aware downgrade checks.
+    # (Moved here from after performance_policy validation.)
     normalized["thresholds"] = validate_thresholds(request, failures, warnings, args.strict)
 
     context = request.get("context", {})
