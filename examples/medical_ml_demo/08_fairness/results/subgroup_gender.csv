@@ -1,0 +1,3 @@
+n,n_positive,prevalence,AUROC,AUPRC,Sensitivity,Specificity,PPV,FPR,group
+8836,796,0.0901,0.6511,0.1828,0.4774,0.7252,0.1468,0.2748,Female
+8079,725,0.0897,0.6421,0.1717,0.4303,0.7691,0.1552,0.2309,Male

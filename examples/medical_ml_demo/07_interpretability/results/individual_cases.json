@@ -1,0 +1,372 @@
+[
+  {
+    "category": "high_risk",
+    "predicted_prob": 0.8686,
+    "actual_label": 0,
+    "top_5_drivers": [
+      {
+        "feature": "discharge_disposition_id_22",
+        "value": 1.0,
+        "shap_value": 1.1488,
+        "direction": "increases risk"
+      },
+      {
+        "feature": "discharge_disposition_id_1",
+        "value": 0.0,
+        "shap_value": 0.3833,
+        "direction": "increases risk"
+      },
+      {
+        "feature": "number_inpatient",
+        "value": -0.5185,
+        "shap_value": -0.1525,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "medical_specialty_nan",
+        "value": 1.0,
+        "shap_value": 0.1403,
+        "direction": "increases risk"
+      },
+      {
+        "feature": "insulin_Down",
+        "value": 1.0,
+        "shap_value": 0.1281,
+        "direction": "increases risk"
+      }
+    ]
+  },
+  {
+    "category": "high_risk",
+    "predicted_prob": 0.8361,
+    "actual_label": 0,
+    "top_5_drivers": [
+      {
+        "feature": "discharge_disposition_id_22",
+        "value": 1.0,
+        "shap_value": 1.114,
+        "direction": "increases risk"
+      },
+      {
+        "feature": "discharge_disposition_id_1",
+        "value": 0.0,
+        "shap_value": 0.4053,
+        "direction": "increases risk"
+      },
+      {
+        "feature": "number_inpatient",
+        "value": -0.5185,
+        "shap_value": -0.145,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "medical_specialty_nan",
+        "value": 1.0,
+        "shap_value": 0.1419,
+        "direction": "increases risk"
+      },
+      {
+        "feature": "age",
+        "value": 8.0,
+        "shap_value": 0.0903,
+        "direction": "increases risk"
+      }
+    ]
+  },
+  {
+    "category": "high_risk",
+    "predicted_prob": 0.8338,
+    "actual_label": 1,
+    "top_5_drivers": [
+      {
+        "feature": "discharge_disposition_id_22",
+        "value": 1.0,
+        "shap_value": 1.1463,
+        "direction": "increases risk"
+      },
+      {
+        "feature": "discharge_disposition_id_1",
+        "value": 0.0,
+        "shap_value": 0.3936,
+        "direction": "increases risk"
+      },
+      {
+        "feature": "number_inpatient",
+        "value": -0.5185,
+        "shap_value": -0.1667,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "medical_specialty_nan",
+        "value": 1.0,
+        "shap_value": 0.1295,
+        "direction": "increases risk"
+      },
+      {
+        "feature": "age",
+        "value": 8.0,
+        "shap_value": 0.0766,
+        "direction": "increases risk"
+      }
+    ]
+  },
+  {
+    "category": "high_risk",
+    "predicted_prob": 0.8327,
+    "actual_label": 0,
+    "top_5_drivers": [
+      {
+        "feature": "number_inpatient",
+        "value": 3.8093,
+        "shap_value": 1.1939,
+        "direction": "increases risk"
+      },
+      {
+        "feature": "number_emergency",
+        "value": 6.8823,
+        "shap_value": 0.2304,
+        "direction": "increases risk"
+      },
+      {
+        "feature": "diag_1_endocrine",
+        "value": 1.0,
+        "shap_value": 0.1369,
+        "direction": "increases risk"
+      },
+      {
+        "feature": "discharge_disposition_id_3",
+        "value": 1.0,
+        "shap_value": 0.1169,
+        "direction": "increases risk"
+      },
+      {
+        "feature": "discharge_disposition_id_1",
+        "value": 0.0,
+        "shap_value": 0.1021,
+        "direction": "increases risk"
+      }
+    ]
+  },
+  {
+    "category": "high_risk",
+    "predicted_prob": 0.8235,
+    "actual_label": 1,
+    "top_5_drivers": [
+      {
+        "feature": "discharge_disposition_id_22",
+        "value": 1.0,
+        "shap_value": 0.8818,
+        "direction": "increases risk"
+      },
+      {
+        "feature": "discharge_disposition_id_1",
+        "value": 0.0,
+        "shap_value": 0.2864,
+        "direction": "increases risk"
+      },
+      {
+        "feature": "medical_specialty_nan",
+        "value": 1.0,
+        "shap_value": 0.1178,
+        "direction": "increases risk"
+      },
+      {
+        "feature": "insulin_Down",
+        "value": 1.0,
+        "shap_value": 0.1148,
+        "direction": "increases risk"
+      },
+      {
+        "feature": "diag_3_genitourinary",
+        "value": 1.0,
+        "shap_value": 0.1094,
+        "direction": "increases risk"
+      }
+    ]
+  },
+  {
+    "category": "low_risk",
+    "predicted_prob": 0.1359,
+    "actual_label": 0,
+    "top_5_drivers": [
+      {
+        "feature": "number_diagnoses",
+        "value": -3.0361,
+        "shap_value": -0.5197,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "age",
+        "value": 1.0,
+        "shap_value": -0.5054,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "number_inpatient",
+        "value": -0.5185,
+        "shap_value": -0.3032,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "discharge_disposition_id_1",
+        "value": 0.0,
+        "shap_value": 0.2513,
+        "direction": "increases risk"
+      },
+      {
+        "feature": "medical_specialty_nan",
+        "value": 0.0,
+        "shap_value": -0.1354,
+        "direction": "decreases risk"
+      }
+    ]
+  },
+  {
+    "category": "low_risk",
+    "predicted_prob": 0.1534,
+    "actual_label": 0,
+    "top_5_drivers": [
+      {
+        "feature": "number_diagnoses",
+        "value": -2.538,
+        "shap_value": -0.5153,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "number_inpatient",
+        "value": -0.5185,
+        "shap_value": -0.3019,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "discharge_disposition_id_1",
+        "value": 1.0,
+        "shap_value": -0.1784,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "age",
+        "value": 5.0,
+        "shap_value": -0.139,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "time_in_hospital",
+        "value": -1.1565,
+        "shap_value": -0.0927,
+        "direction": "decreases risk"
+      }
+    ]
+  },
+  {
+    "category": "low_risk",
+    "predicted_prob": 0.1716,
+    "actual_label": 0,
+    "top_5_drivers": [
+      {
+        "feature": "number_diagnoses",
+        "value": -2.538,
+        "shap_value": -0.4473,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "number_inpatient",
+        "value": -0.5185,
+        "shap_value": -0.3251,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "discharge_disposition_id_1",
+        "value": 1.0,
+        "shap_value": -0.1765,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "num_lab_procedures",
+        "value": -0.8749,
+        "shap_value": -0.1469,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "time_in_hospital",
+        "value": -1.1565,
+        "shap_value": -0.1004,
+        "direction": "decreases risk"
+      }
+    ]
+  },
+  {
+    "category": "low_risk",
+    "predicted_prob": 0.1737,
+    "actual_label": 0,
+    "top_5_drivers": [
+      {
+        "feature": "number_inpatient",
+        "value": -0.5185,
+        "shap_value": -0.2658,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "diag_3_supplementary_V",
+        "value": 1.0,
+        "shap_value": -0.2439,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "time_in_hospital",
+        "value": 2.793,
+        "shap_value": -0.2019,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "discharge_disposition_id_1",
+        "value": 1.0,
+        "shap_value": -0.1641,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "diag_2_supplementary_V",
+        "value": 1.0,
+        "shap_value": -0.1403,
+        "direction": "decreases risk"
+      }
+    ]
+  },
+  {
+    "category": "low_risk",
+    "predicted_prob": 0.1826,
+    "actual_label": 0,
+    "top_5_drivers": [
+      {
+        "feature": "medical_specialty_Orthopedics-Reconstructive",
+        "value": 1.0,
+        "shap_value": -0.3863,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "number_inpatient",
+        "value": -0.5185,
+        "shap_value": -0.2797,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "number_diagnoses",
+        "value": -2.0399,
+        "shap_value": -0.2379,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "discharge_disposition_id_1",
+        "value": 1.0,
+        "shap_value": -0.151,
+        "direction": "decreases risk"
+      },
+      {
+        "feature": "metformin_Steady",
+        "value": 1.0,
+        "shap_value": -0.0925,
+        "direction": "decreases risk"
+      }
+    ]
+  }
+]

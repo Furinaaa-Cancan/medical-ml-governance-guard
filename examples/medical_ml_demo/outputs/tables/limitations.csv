@@ -1,0 +1,9 @@
+category,limitation,impact,mitigation
+Data,encounter_id used as temporal proxy — actual admission dates not available,Temporal split validity depends on encounter_id monotonicity assumption,Verified encounter_id is roughly monotonic; positive rate temporal drift documented
+Data,"ICD-9 codes (diag_1/2/3) are likely discharge diagnoses assigned for billing, not admission diagnoses",Admission-time model may include post-hoc diagnostic information,Acknowledged as UCI dataset limitation; consistent with prior literature using this data
+Methodology,"Validation set used for model selection, threshold selection, and Platt calibration (triple use)",Mild optimistic bias in validation estimates; test AUROC ~0.02 lower than validation,Bootstrap optimism correction provides independent internal validation estimate
+Methodology,Single temporal split rather than nested cross-validation,Performance estimates have higher variance than CV-based estimates (Steyerberg 2001),Multi-seed stability confirms low variance (std < 0.001)
+Clinical,DCA shows no clear clinical utility at conventional threshold ranges,Model insufficient as standalone clinical decision tool,Consistent with literature — 30-day readmission is inherently difficult to predict (AUROC 0.60-0.72 in prior work)
+Fairness,AUROC disparity of 0.12 across racial groups; AfricanAmerican sensitivity lower,Potential for disparate impact if deployed,Subgroup analysis reported transparently; further investigation needed before any deployment
+Fairness,Subgroup metrics lack bootstrap CI; small subgroups (Asian n=209) have wide uncertainty,Observed disparities may not be statistically significant,Flagged in results; recommended for future work with larger sample
+Generalizability,No external validation — trained and tested on same hospital system,Unknown performance in other healthcare settings,External validation recommended before any clinical deployment
