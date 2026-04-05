@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+00_database/raw/*.csv
+outputs/models/*.pkl
+**/results/*.npz
+**/results/*.pkl
+02_splitting/results/*.csv
