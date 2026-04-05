@@ -15,12 +15,28 @@
 
 ---
 
+## 为什么需要 MLGG？
+
+医学 ML 论文中数据泄漏的发生率远超预期。常见问题包括：
+
+- 在全数据上做标准化后再划分（**预处理泄漏**）——审稿人可能看不出来，但模型性能被虚抬
+- 死亡患者纳入再入院预测队列（**队列定义错误**）——结局结构性不可能，AUROC 被污染
+- 药物变化列用 OrdinalEncoder 编码（**假有序性**）——LR 系数失去临床意义
+- 只报 AUROC 不报 MCC 和 LR+/LR-（**指标盲区**）——AUROC 0.65 看起来可以，但 MCC 0.12 说明近乎随机
+- 用 train-test gap 硬阈值选模型（**无文献支撑**）——可能选到次优模型
+
+**MLGG 的存在就是为了系统性地防止这些问题**——每条规则都来自实际踩坑，每个阈值都有文献引用。
+
+---
+
 ## 目录
 
+- [为什么需要 MLGG？](#为什么需要-mlgg)
 - [系统能力总览](#系统能力总览)
 - [快速开始](#快速开始)
 - [9-Phase 工作流](#9-phase-工作流)
-- [31 条规则体系](#31-条规则体系)
+- [31 道安全门控 (Gate DAG)](#31-道安全门控-gate-dag)
+- [31 条方法论规则](#31-条方法论规则)
 - [参考实现：30 天再入院预测](#参考实现30-天再入院预测)
 - [安装指南](#安装指南)
 - [命令参考](#命令参考)
@@ -307,7 +323,7 @@ Layer 8  终审              self_critique_gate | security_audit_gate
 | 9 | 可复现性 | 6 | 种子记录、版本追踪、执行证明、指纹锁定 |
 | 10 | 安全与溯源 | 3 | 模型签名、工件完整性、敏感数据保护 |
 | 11 | 公平与公正 | 3 | 亚组性能差异、人口学偏倚、健康公平审计 |
-| 12 | ���本量充分性 | 3 | EPV 标准、Riley 标准、有效���本量相对于模型复杂度 |
+| 12 | 样本量充分性 | 3 | EPV 标准、Riley 标准、有效样本量相对于模型复杂度 |
 
 **评分解读**：≥90 顶刊级 (L3) / 75-89 需补充 (L2) / 60-74 重大缺陷 (L1) / <60 不可发表
 
@@ -636,29 +652,44 @@ https://github.com/Furinaaa-Cancan/medical-ml-leakage-guard
 <a name="english-version"></a>
 ## English Version
 
-> **For English readers**: This README is written in Chinese as the primary language. Below is a navigation guide to each section. All code, commands, and file structures are language-neutral.
+> This README is written in Chinese as the primary language. All code, commands, and file structures are language-neutral.
+
+### What is MLGG?
+
+**ML Leakage Guard (MLGG)** is a publication-grade integrity standard for medical binary classification models. It provides:
+
+- **31 fail-closed audit gates** organized in a 9-layer DAG, covering data leakage, fairness, sample size, calibration, robustness, TRIPOD+AI 2024, and PROBAST+AI 2025
+- **9-phase guided workflow**: Data Understanding → Splitting → Preprocessing → Feature Selection → Modeling → Evaluation → Interpretability → Fairness → Reporting
+- **12-dimension scoring** (0-100): Data Integrity, Leakage Prevention, Pipeline Isolation, Model Selection, Statistical Validity, Generalization, Clinical Completeness, Reporting Standards, Reproducibility, Security, Fairness, Sample Size
+- **3 conformance levels**: L1 (12 gates, leakage-audited) / L2 (25 gates, statistically valid) / L3 (all 31 gates, publication-grade)
+- **14 real medical datasets** from CDC / UCI / NCI / Vanderbilt (526K rows total)
+- **31 methodology rules** grounded in 15+ peer-reviewed references (Steyerberg 2019, Harrell 2015, Madley-Dowd 2019, Van Calster 2019, Riley 2019, Collins 2024, etc.)
+
+### Why MLGG?
+
+Data leakage in medical ML papers is more common than expected. MLGG systematically prevents issues like preprocessing before splitting, deceased patients in readmission cohorts, ordinal encoding of nominal variables, and AUROC-only reporting that masks MCC near zero.
+
+### Reference Implementation
+
+The `examples/medical_ml_demo/` directory contains a complete 9-phase analysis on UCI Diabetes 130-US Hospitals (99,330 encounters). Key finding: **AUROC 0.647 masks MCC 0.12 and LR+ 1.6** — the model is well-calibrated (slope 1.06, ECE 0.009) but lacks discrimination for clinical decisions. This honest conclusion is consistent with the literature (published AUROC for 30-day readmission: 0.60-0.72).
+
+### Section Navigation
 
 | Section | Jump to |
 |---------|---------|
+| Why MLGG? | [为什么需要 MLGG？](#为什么需要-mlgg) |
 | System capabilities | [系统能力总览](#系统能力总览) |
 | Quick start | [快速开始](#快速开始) |
 | 9-Phase workflow | [9-Phase 工作流](#9-phase-工作流) |
-| 31 rules | [31 条规则体系](#31-条规则体系) |
+| 31 audit gates (DAG) | [31 道安全门控](#31-道安全门控-gate-dag) |
+| 31 methodology rules | [31 条方法论规则](#31-条方法论规则) |
 | Reference implementation | [参考实现](#参考实现30-天再入院预测) |
 | Installation | [安装指南](#安装指南) |
-| Command reference | [命令参考](#命令参考) |
-| Datasets | [14 个医学数据集](#14-个医学数据集) |
-| Lint rules | [静态分析规则](#静态分析规则-r001-r020) |
+| Commands | [命令参考](#命令参考) |
+| Datasets (14) | [14 个医学数据集](#14-个医学数据集) |
+| Lint rules (R001-R020) | [静态分析规则](#静态分析规则-r001-r020) |
 | Project structure | [项目结构](#项目结构) |
-| Literature | [文献基础](#文献基础) |
-| Claude Code | [Claude Code 集成](#claude-code-集成) |
+| Literature foundation | [文献基础](#文献基础) |
+| Claude Code `/mlgg` | [Claude Code 集成](#claude-code-集成) |
 | CI/CD | [CI/CD](#cicd) |
 | License & citation | [许可证与引用](#许可证与引用) |
-
-**Key points in English**:
-- MLGG is a publication-grade integrity standard for medical binary classification models
-- 31 fail-closed audit gates, 14 real medical datasets (526K rows), 12-dimension scoring
-- 9-phase workflow from data understanding to TRIPOD+AI compliant reporting
-- All 31 rules are grounded in peer-reviewed literature (15+ top-journal citations)
-- Reference implementation on UCI Diabetes 130-US Hospitals dataset demonstrates honest reporting: AUROC 0.647 masks MCC 0.12 — model is well-calibrated but lacks clinical decision utility
-- Claude Code integration via `/mlgg` slash command for interactive guidance
