@@ -60,6 +60,7 @@ PHASES = [
     (3, "03_preprocessing/scripts/preprocess.py", "Preprocessing"),
     (4, "04_feature_selection/scripts/select_features.py", "Feature Selection"),
     (5, "05_modeling/scripts/train_models.py", "Model Training"),
+    (5.5, "05_modeling/scripts/train_admission_model.py", "Admission vs Discharge Comparison"),
     (6, "06_evaluation/scripts/evaluate.py", "Evaluation"),
     (6.5, "06_evaluation/scripts/calibrate.py", "Calibration"),
     (7, "07_interpretability/scripts/interpret.py", "Interpretability"),

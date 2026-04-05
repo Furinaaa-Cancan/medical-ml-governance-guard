@@ -91,12 +91,14 @@ MISSINGNESS_STRATEGY = {
 
 # --- Feature Temporal Classification (MLGG-F02) ---
 # Features available at ADMISSION (prior to current encounter)
+# Includes missing indicators for Tier 4 features that are known at admission
 ADMISSION_TIME_FEATURES = [
     "race", "gender", "age",
     "admission_type_id", "admission_source_id",
     "payer_code", "medical_specialty",
     "number_outpatient", "number_emergency", "number_inpatient",
     "diag_1", "diag_2", "diag_3",
+    "weight",  # original value dropped (Tier 4), but weight_missing indicator is admission-time
 ]
 
 # Features available only at/after DISCHARGE
