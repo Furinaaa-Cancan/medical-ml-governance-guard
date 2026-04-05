@@ -181,7 +181,139 @@ Phase 9  报告            TRIPOD+AI 清单 + 局限性讨论
 
 ---
 
-## 31 条规则体系
+## 31 道安全门控 (Gate DAG)
+
+31 道门控按 DAG（有向无环图）分 9 层执行。同层可并行，每层必须完成后才能执行下一层。全部通过才能声称 Publication-Grade (L3)。
+
+```
+Layer 0  契约验证          request_contract_gate
+    ↓
+Layer 1  指纹锁定          manifest_lock
+    ↓
+Layer 2  执行证明          execution_attestation_gate
+    ↓
+Layer 3  数据验证          leakage_gate | split_protocol_gate | covariate_shift_gate | reporting_bias_gate
+    ↓
+Layer 4  策略审计          definition_variable_guard | feature_lineage_gate | imbalance_policy_gate | missingness_policy_gate | tuning_leakage_gate
+    ↓
+Layer 5  模型审计          model_selection_audit_gate | feature_engineering_audit_gate | clinical_metrics_gate
+    ↓
+Layer 6  统计验证          calibration_dca_gate | ci_matrix_gate | distribution_generalization_gate | evaluation_quality_gate | external_validation_gate | fairness_equity_gate | generalization_gap_gate | metric_consistency_gate | permutation_significance_gate | prediction_replay_gate | robustness_gate | sample_size_gate | seed_stability_gate
+    ↓
+Layer 7  发布聚���          publication_gate
+    ↓
+Layer 8  终审              self_critique_gate | security_audit_gate
+```
+
+<details>
+<summary><b>31 道门控详细说明（点击展开）</b></summary>
+
+### Layer 0: 契约验证
+
+| # | 门控脚本 | 功能 | 输出报告 |
+|---|---------|------|---------|
+| 1 | `request_contract_gate.py` | 验证请求 JSON 模式、文件路径、发布策略反降级保护 | `request_contract_report.json` |
+
+### Layer 1: 指纹锁定
+
+| # | 门控脚本 | 功能 | 输出报告 |
+|---|---------|------|---------|
+| 2 | `manifest_lock.py` | SHA-256 加密锁定所有数据/配置/评估/门控脚本指纹，支持基线对比 | `manifest.json` |
+
+### Layer 2: 执行证明
+
+| # | 门控脚本 | 功能 | 输出报告 |
+|---|---------|------|---------|
+| 3 | `execution_attestation_gate.py` | 验证签名运行证明、工件哈希、密钥有效性、时间戳、见证人仲裁 | `execution_attestation_report.json` |
+
+### Layer 3: 数据验证（4 门并行）
+
+| # | 门控脚本 | 功能 | 输出报告 |
+|---|---------|------|---------|
+| 4 | `leakage_gate.py` | 检查划分污染、患者 ID 重叠、时间边界违规 | `leakage_report.json` |
+| 5 | `split_protocol_gate.py` | 强制划分协议一致性、时序/分组安全保障 | `split_protocol_report.json` |
+| 6 | `covariate_shift_gate.py` | 检测训练集 vs 验证集的协变量漂移和划分可分性风险 | `covariate_shift_report.json` |
+| 7 | `reporting_bias_gate.py` | TRIPOD+AI / PROBAST+AI / STARD-AI 清单硬门控 | `reporting_bias_report.json` |
+
+### Layer 4: 策略审计（5 门并行）
+
+| # | 门控脚本 | 功能 | 输出报告 |
+|---|---------|------|---------|
+| 8 | `definition_variable_guard.py` | 阻止疾病定义变量泄漏（如用确诊标志作为预测特征） | `definition_guard_report.json` |
+| 9 | `feature_lineage_gate.py` | 阻止血缘衍生特征泄漏（特征来自索引时间之后的数据） | `lineage_report.json` |
+| 10 | `imbalance_policy_gate.py` | 验证类别不平衡策略和训练集独占重采样策略 | `imbalance_policy_report.json` |
+| 11 | `missingness_policy_gate.py` | 验证缺失数据策略、MICE 规模保护、插补器隔离 | `missingness_policy_report.json` |
+| 12 | `tuning_leakage_gate.py` | 验证超参调优和测试集隔离协议 | `tuning_leakage_report.json` |
+
+### Layer 5: 模型审计（3 门并行）
+
+| # | 门控脚本 | 功能 | 输出报告 |
+|---|---------|------|---------|
+| 13 | `model_selection_audit_gate.py` | 审计候选池、one-SE 回放、测试集隔离的模型选择 | `model_selection_audit_report.json` |
+| 14 | `feature_engineering_audit_gate.py` | 审计特征组来源、训练集独占范围、稳定性证据 | `feature_engineering_audit_report.json` |
+| 15 | `clinical_metrics_gate.py` | 验证临床指标完整性和混淆矩阵一致性 | `clinical_metrics_report.json` |
+
+### Layer 6: 统计验证（13 门并行）
+
+| # | 门控脚本 | 功能 | 输出报告 |
+|---|---------|------|---------|
+| 16 | `calibration_dca_gate.py` | 概率校准和决策曲线分析 | `calibration_dca_report.json` |
+| 17 | `ci_matrix_gate.py` | 所有划分和队列的主要指标 Bootstrap CI 矩阵 | `ci_matrix_gate_report.json` |
+| 18 | `distribution_generalization_gate.py` | 训练集 vs 验证集分布漂移评估和迁移准备度 | `distribution_generalization_report.json` |
+| 19 | `evaluation_quality_gate.py` | 强制主要指标 CI 质量和基线改善要求 | `evaluation_quality_report.json` |
+| 20 | `external_validation_gate.py` | 外部队列（跨时期/跨机构）指标验证 | `external_validation_gate_report.json` |
+| 21 | `fairness_equity_gate.py` | 亚组公平性和健康公平审计 | `fairness_equity_report.json` |
+| 22 | `generalization_gap_gate.py` | 训练/验证/测试的过拟合差距 fail-closed 检查 | `generalization_gap_report.json` |
+| 23 | `metric_consistency_gate.py` | 从评估报告提取并验证指标一致性 | `metric_consistency_report.json` |
+| 24 | `permutation_significance_gate.py` | 基于置换的伪造显著性检验 | `permutation_report.json` |
+| 25 | `prediction_replay_gate.py` | 从预测轨迹回放验证指标可复现性 | `prediction_replay_report.json` |
+| 26 | `robustness_gate.py` | 亚组鲁棒性分析 | `robustness_gate_report.json` |
+| 27 | `sample_size_gate.py` | 样本量充分性（EPV / Riley 标准） | `sample_size_report.json` |
+| 28 | `seed_stability_gate.py` | 多种子稳定性分析 | `seed_stability_report.json` |
+
+### Layer 7: 发布聚合
+
+| # | 门控脚本 | 功能 | 输出报告 |
+|---|---------|------|---------|
+| 29 | `publication_gate.py` | 聚合所有门控结果为最终发布就绪判定 | `publication_gate_report.json` |
+
+### Layer 8: 终审
+
+| # | 门控脚本 | 功能 | 输出报告 |
+|---|---------|------|---------|
+| 30 | `self_critique_gate.py` | 12 维量化评分 + 审稿人级自我批评 | `self_critique_report.json` |
+| 31 | `security_audit_gate.py` | 加密模型签名 + 工件完整性 + 敏感数据保护 | `security_audit_report.json` |
+
+### 三级合规要求
+
+| 等级 | 名称 | 要求门控数 | strict 模式 | TRIPOD+AI 覆盖 | PROBAST ROB | 适用场景 |
+|------|------|-----------|------------|---------------|------------|---------|
+| **L1** | 泄漏审计 | 12 门 | 否 | — | — | 会议论文、初步报告 |
+| **L2** | 统计有效 | 25 门 | 否 | ≥17/27 | low/unclear | 专业期刊（JAMIA, npj Digital Medicine） |
+| **L3** | 发布级 | **全部 31 门** | **是** | ≥23/27 | **low** | Nature Medicine, Lancet, JAMA, BMJ |
+
+### 12 维评分体系 (0-100 分)
+
+| 维度 | 权重 | 评估内容 |
+|------|------|---------|
+| D1 数据完整性 | 12 | 划分隔离、患者不重叠、时序正确、行无重复 |
+| D2 泄漏防护 | 15 | 目标泄漏、定义变量泄漏、血缘泄漏、索引后泄漏 |
+| D3 管线隔离 | 12 | 预处理器、插补器、重采样的训练集独占约束 |
+| D4 模型选择 | 10 | 候选池、one-SE 规则、禁止偷看测试集、基线比较器 |
+| D5 统计有效性 | 12 | Bootstrap CI、置换检验、校准、DCA、指标一致性 |
+| D6 泛化证据 | 10 | 训练-测试差距、外部队列、迁移 CI、种子稳定性 |
+| D7 临床完整性 | 8 | 完整指标面板、混淆矩阵一致性、阈值可行性 |
+| D8 报告标准 | 8 | TRIPOD+AI、PROBAST+AI、排除标准、局限性文档 |
+| D9 可复现性 | 8 | 种子记录、版本追踪、执行证明、指纹锁定 |
+| D10 安全溯源 | 5 | 模型签名、工件完整性、敏感数据保护 |
+
+**评分解读**：≥90 顶刊级 (L3) / 75-89 需补充 (L2) / 60-74 重大缺陷 (L1) / <60 不可发表
+
+</details>
+
+---
+
+## 31 条方法论规则
 
 <details>
 <summary><b>完整规则表（点击展开）</b></summary>
