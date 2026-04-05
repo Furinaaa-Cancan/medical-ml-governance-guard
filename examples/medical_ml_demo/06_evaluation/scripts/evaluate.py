@@ -25,9 +25,11 @@ import config
 
 from sklearn.metrics import (
     roc_auc_score, average_precision_score, brier_score_loss,
+    log_loss, matthews_corrcoef, balanced_accuracy_score,
     roc_curve, precision_recall_curve,
 )
 from sklearn.calibration import calibration_curve
+from sklearn.linear_model import LogisticRegression as _LR
 
 warnings.filterwarnings("ignore")
 
@@ -75,15 +77,25 @@ def compute_metrics(y_true, y_prob, threshold):
     npv = tn / (tn + fn) if (tn + fn) > 0 else 0
     f1 = 2 * tp / (2 * tp + fp + fn) if (2 * tp + fp + fn) > 0 else 0
 
+    mcc = matthews_corrcoef(y_true, y_pred)
+    bal_acc = balanced_accuracy_score(y_true, y_pred)
+    lr_pos = sensitivity / (1 - specificity) if specificity < 1 else float('inf')
+    lr_neg = (1 - sensitivity) / specificity if specificity > 0 else float('inf')
+
     return {
         "AUROC": roc_auc_score(y_true, y_prob),
         "AUPRC": average_precision_score(y_true, y_prob),
         "Brier": brier_score_loss(y_true, y_prob),
+        "LogLoss": log_loss(y_true, y_prob),
         "Sensitivity": sensitivity,
         "Specificity": specificity,
         "PPV": ppv,
         "NPV": npv,
         "F1": f1,
+        "MCC": mcc,
+        "Balanced_Accuracy": bal_acc,
+        "LR_pos": lr_pos,
+        "LR_neg": lr_neg,
     }
 
 
@@ -392,7 +404,64 @@ def main():
     print(f"✅ Decision Curve Analysis completed")
     print(f"✅ Single final test evaluation only")
 
+    # ================================================================
+    # COMPREHENSIVE METRICS TABLE (Van Calster 2019 calibration 三件套)
+    # ================================================================
+    print(f"\n{'='*70}")
+    print("COMPREHENSIVE METRICS (including calibration slope/intercept/O:E)")
+    print(f"{'='*70}")
+
+    comp_rows = []
+    for model_name in sorted(models.keys()):
+        model = models[model_name]
+        threshold = thresholds[model_name]
+        y_prob = model.predict_proba(X_test)[:, 1]
+        y_pred = (y_prob >= threshold).astype(int)
+
+        # Platt calibration on the fly
+        y_prob_valid = model.predict_proba(X_valid)[:, 1].reshape(-1, 1)
+        platt = _LR(solver="lbfgs", max_iter=1000)
+        platt.fit(y_prob_valid, y_valid)
+        y_prob_cal = platt.predict_proba(y_prob.reshape(-1, 1))[:, 1]
+
+        # Calibration slope + intercept (Van Calster 2019)
+        eps = 1e-7
+        clipped = np.clip(y_prob_cal, eps, 1 - eps)
+        logit_p = np.log(clipped / (1 - clipped))
+        cal_lr = _LR(C=1e9, solver="lbfgs", max_iter=5000)
+        cal_lr.fit(logit_p.reshape(-1, 1), y_test)
+        cal_slope = cal_lr.coef_[0][0]
+        cal_intercept = cal_lr.intercept_[0]
+
+        # O/E ratio
+        oe_ratio = y_test.mean() / y_prob_cal.mean() if y_prob_cal.mean() > 0 else 0
+
+        # ECE (calibrated)
+        frac_pos, mean_pred = calibration_curve(y_test, y_prob_cal, n_bins=10, strategy="uniform")
+        bin_counts = np.histogram(y_prob_cal, bins=np.linspace(0, 1, 11))[0]
+        ece = sum(abs(frac_pos[i] - mean_pred[i]) * bin_counts[i] / len(y_test)
+                  for i in range(len(frac_pos)))
+
+        metrics = compute_metrics(y_test, y_prob, threshold)
+        row = {
+            "Model": model_name,
+            **{k: round(v, 4) for k, v in metrics.items()},
+            "Brier_cal": round(brier_score_loss(y_test, y_prob_cal), 4),
+            "LogLoss_cal": round(log_loss(y_test, y_prob_cal), 4),
+            "Cal_slope": round(cal_slope, 3),
+            "Cal_intercept": round(cal_intercept, 4),
+            "OE_ratio": round(oe_ratio, 3),
+            "ECE_cal": round(ece, 4),
+        }
+        comp_rows.append(row)
+        print(f"  {model_name}: AUROC={row['AUROC']}, MCC={row['MCC']}, LR+={row['LR_pos']:.2f}, "
+              f"slope={row['Cal_slope']}, O/E={row['OE_ratio']}")
+
+    comp_df = pd.DataFrame(comp_rows)
+    comp_df.to_csv(os.path.join(config.TABLE_DIR, "comprehensive_metrics.csv"), index=False)
+
     print(f"\n✅ Phase 6 results saved to: {results_dir}")
+    print(f"✅ Comprehensive metrics saved to: {config.TABLE_DIR}/comprehensive_metrics.csv")
 
 
 if __name__ == "__main__":
