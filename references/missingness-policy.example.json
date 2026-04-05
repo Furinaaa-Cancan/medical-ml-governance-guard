@@ -1,31 +1,135 @@
 {
-  "strategy": "mice_with_scale_guard",
-  "imputer_fit_scope": "cv_inner_train_only",
-  "add_missing_indicators": true,
-  "complete_case_analysis": false,
+  "strategy": "tiered_mechanism_first",
+  "version": "2.0",
+  "version_date": "2026-04-04",
+  "changelog": "v2.0: Replaced fixed max_feature_missing_ratio with literature-backed tiered strategy per Madley-Dowd 2019, Jakobsen 2017, Sterne 2009",
+
+  "core_principle": "Missingness mechanism (MCAR/MAR/MNAR) determines strategy, not proportion alone (Madley-Dowd 2019: 'The proportion of missing data should not be used to guide decisions on multiple imputation')",
+
+  "imputer_fit_scope": "train_only",
   "forbid_test_usage": true,
-  "test_used_for_fit": false,
   "valid_used_for_fit": false,
   "use_target_in_imputation": false,
-  "max_feature_missing_ratio": 0.6,
-  "min_non_missing_per_feature": 100,
-  "indicator_required_above_ratio": 0.1,
-  "missingness_drift_tolerance": 0.2,
-  "large_data_row_threshold": 1000000,
-  "large_data_col_threshold": 300,
-  "mice_max_rows": 200000,
-  "mice_max_cols": 200,
-  "scale_guard_evidence": {
-    "fallback_triggered": false,
-    "fallback_strategy": "simple_with_indicator",
-    "train_rows_seen": 120000,
-    "feature_count_seen": 120
+
+  "tiered_strategy": {
+    "tier_1_trivial": {
+      "range": "<5%",
+      "action": "Simple imputation (median for numeric, mode for categorical)",
+      "missing_indicator": false,
+      "sensitivity_analysis": false,
+      "justification": "Universally accepted as negligible; complete-case analysis also acceptable (Bennett 2001, Dong & Peng 2013)"
+    },
+    "tier_2_moderate": {
+      "range": "5-40%",
+      "action": "Multiple imputation (MICE preferred) with mechanism assessment",
+      "missing_indicator": "required if missingness may be informative (>10%)",
+      "sensitivity_analysis": "recommended",
+      "justification": "Jakobsen 2017: MI reliable in this range under MAR; Sterne 2009: MI preferred over complete-case"
+    },
+    "tier_3_high": {
+      "range": "40-80%",
+      "action": "MI + missing indicator + mandatory sensitivity analysis (MNAR scenario)",
+      "missing_indicator": true,
+      "sensitivity_analysis": true,
+      "justification": "Madley-Dowd 2019: MI can perform well even at 90% under correct MAR model; Jakobsen 2017 caution applies to MI stability, not to feature retention"
+    },
+    "tier_4_extreme": {
+      "range": ">80%",
+      "action": "Per-feature clinical review required. Options: (a) retain as missing indicator only, (b) MI if clinically critical and imputation model well-specified, (c) drop with documented justification",
+      "missing_indicator": true,
+      "sensitivity_analysis": true,
+      "auto_drop": false,
+      "justification": "No literature supports automatic exclusion at any threshold. EHR missingness is almost never MCAR (Sperrin 2020). Decision must be per-feature with clinical rationale."
+    }
   },
-  "large_data_restricted_methods": [
-    "mice",
-    "missforest",
-    "knn"
-  ],
-  "allowed_high_missing_features": [],
-  "notes": "Prefer MICE by default. If scale thresholds are exceeded, enforce auditable fallback to simple_with_indicator."
+
+  "mechanism_assessment": {
+    "required": true,
+    "methods": [
+      "Little's MCAR test (statistical)",
+      "Missingness pattern visualization (heatmap)",
+      "Logistic regression: predict missingness from other observed variables (MAR evidence)",
+      "Clinical domain knowledge for MNAR assessment"
+    ],
+    "note": "EHR data: assume MAR or MNAR by default. MCAR is rare in clinical data — a missing lab value reflects clinical decision-making."
+  },
+
+  "missing_indicator_policy": {
+    "when_required": "missingness >10% OR missingness plausibly informative (MNAR)",
+    "evidence_for": "Sperrin 2020 (valid for prediction, not causal inference); Groenwold 2012 (CMAJ: valid for prediction); Nijman 2022 (recommends for ML prediction)",
+    "evidence_against": "Jones 1996, Knol 2010 (biased for causal inference — does NOT apply to prediction models)",
+    "implementation": "Add binary column <feature>_missing before imputation, on each split independently"
+  },
+
+  "scale_guard": {
+    "mice_max_rows": 200000,
+    "mice_max_cols": 200,
+    "fallback_strategy": "simple_with_indicator",
+    "fallback_triggered": false,
+    "note": "MICE computational cost scales quadratically. For large datasets, use simple imputation + missing indicator as auditable fallback."
+  },
+
+  "reporting_requirements_tripod_ai": {
+    "item_7a": "Report number and proportion missing per variable",
+    "item_7b": "Report handling method with justification",
+    "item_7c": "Describe imputation model (variables, n_imputations, software)",
+    "item_7d": "Report sensitivity analyses for missing data assumptions"
+  },
+
+  "literature_references": [
+    {
+      "id": "MISS-REF-001",
+      "citation": "Madley-Dowd P, Hughes R, Tilling K, Heron J. The proportion of missing data should not be used to guide decisions on multiple imputation. J Clin Epidemiol. 2019;110:63-73.",
+      "doi": "10.1016/j.jclinepi.2019.02.016",
+      "key_finding": "Bias depends on mechanism, not proportion. MI works well even at 90% missing under correct MAR model."
+    },
+    {
+      "id": "MISS-REF-002",
+      "citation": "Jakobsen JC, Gluud C, Wetterslev J, Winkel P. When and how should multiple imputation be used for handling missing data in randomised clinical trials. BMC Med Res Methodol. 2017;17:162.",
+      "doi": "10.1186/s12874-017-0442-1",
+      "key_finding": "40% threshold for MI stability in RCTs. Does NOT apply to feature selection in prediction models."
+    },
+    {
+      "id": "MISS-REF-003",
+      "citation": "Sterne JAC, White IR, Carlin JB, et al. Multiple imputation for missing data in epidemiological and clinical research: potential and pitfalls. BMJ. 2009;338:b2393.",
+      "doi": "10.1136/bmj.b2393",
+      "key_finding": "No fixed threshold endorsed. Decision based on mechanism, not proportion."
+    },
+    {
+      "id": "MISS-REF-004",
+      "citation": "Sperrin M, Martin GP, et al. Missing data should be handled differently for prediction than for description or causal inference. J Clin Epidemiol. 2020;125:183-187.",
+      "doi": "10.1016/j.jclinepi.2020.03.028",
+      "key_finding": "Missing indicator method is legitimate for prediction models."
+    },
+    {
+      "id": "MISS-REF-005",
+      "citation": "Groenwold RHH, et al. Missing covariate data in clinical research: when and when not to use the missing-indicator method for analysis. CMAJ. 2012;184(11):1265-1269.",
+      "doi": "10.1503/cmaj.110977",
+      "key_finding": "Missing indicator valid for prediction, invalid for causal inference."
+    },
+    {
+      "id": "MISS-REF-006",
+      "citation": "Nijman SWJ, et al. Missing data is poorly handled and reported in prediction model studies using machine learning. J Clin Epidemiol. 2022;142:218-229.",
+      "doi": "10.1016/j.jclinepi.2021.11.023",
+      "key_finding": "Most ML studies use ad hoc deletion thresholds without justification. Recommends missing indicators."
+    },
+    {
+      "id": "MISS-REF-007",
+      "citation": "van Buuren S. Flexible Imputation of Missing Data. 2nd ed. Chapman & Hall/CRC; 2018.",
+      "doi": "10.1201/9780429492259",
+      "key_finding": "No fixed threshold for MI failure. Predictive mean matching robust to high missingness."
+    },
+    {
+      "id": "MISS-REF-008",
+      "citation": "Bennett DA. How can I deal with missing data in my study? Aust N Z J Public Health. 2001;25(5):464-469.",
+      "doi": "10.1111/j.1467-842X.2001.tb00294.x",
+      "key_finding": ">10% missingness can bias complete-case analysis, but threshold is for CCA validity, not feature exclusion."
+    },
+    {
+      "id": "MISS-REF-009",
+      "citation": "Dong Y, Peng CYJ. Principled missing data methods for researchers. SpringerPlus. 2013;2:222.",
+      "doi": "10.1186/2193-1801-2-222",
+      "key_finding": "Warns against relying on any single threshold. Method choice driven by mechanism."
+    }
+  ]
 }
