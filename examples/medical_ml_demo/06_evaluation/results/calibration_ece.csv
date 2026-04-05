@@ -1,0 +1,5 @@
+model,ECE,ECE_ok
+LR,0.4225,False
+LightGBM,0.4048,False
+RF,0.4298,False
+XGBoost,0.4061,False

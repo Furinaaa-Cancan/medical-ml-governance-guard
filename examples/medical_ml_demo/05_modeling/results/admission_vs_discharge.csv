@@ -1,0 +1,9 @@
+scenario,model,valid_AUROC,test_AUROC,test_AUPRC,threshold
+admission_time,LR,0.627,0.6022,0.1399,0.4751
+admission_time,RF,0.6279,0.6054,0.1424,0.4815
+admission_time,XGBoost,0.6295,0.6094,0.146,0.4956
+admission_time,LightGBM,0.6305,0.6056,0.1457,0.5135
+discharge_time,LR,0.6507,0.6358,0.1559,0.4909
+discharge_time,RF,0.6521,0.6335,0.1664,0.4854
+discharge_time,XGBoost,0.6621,0.6464,0.1748,0.5159
+discharge_time,LightGBM,0.6585,0.6409,0.17,0.5166
