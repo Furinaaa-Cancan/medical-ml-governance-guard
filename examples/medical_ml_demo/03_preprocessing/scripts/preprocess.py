@@ -235,14 +235,21 @@ def build_pipeline(numeric_cols, nominal_cols, ordinal_cols, binary_cols,
         )),
     ])
 
-    # age 区间有序
-    age_order = ["[0-10)", "[10-20)", "[20-30)", "[30-40)", "[40-50)",
-                 "[50-60)", "[60-70)", "[70-80)", "[80-90)", "[90-100)"]
+    # Ordinal category mappings — explicit order required for each variable
+    ORDINAL_CATEGORY_MAP = {
+        "age": ["[0-10)", "[10-20)", "[20-30)", "[30-40)", "[40-50)",
+                "[50-60)", "[60-70)", "[70-80)", "[80-90)", "[90-100)"],
+    }
 
     ordinal_categories = []
     for col in ordinal_cols:
-        if col == "age":
-            ordinal_categories.append(age_order)
+        if col in ORDINAL_CATEGORY_MAP:
+            ordinal_categories.append(ORDINAL_CATEGORY_MAP[col])
+        else:
+            raise ValueError(
+                f"Ordinal column '{col}' has no defined category order in "
+                f"ORDINAL_CATEGORY_MAP. Add explicit order or move to nominal_set."
+            )
 
     ordinal_transformer = Pipeline(steps=[
         ("imputer", SimpleImputer(strategy="most_frequent")),
@@ -335,6 +342,26 @@ def main():
     }
     with open(os.path.join(results_dir, "column_types.json"), "w") as f:
         json.dump(col_info, f, indent=2)
+
+    # Step 5b: Verify ordinal monotonicity (MLGG-P05 requirement)
+    if ordinal_cols:
+        from scipy.stats import spearmanr
+        print(f"\n  Ordinal monotonicity check (Spearman):")
+        for col in ordinal_cols:
+            # Encode ordinal temporarily to check correlation with label
+            from sklearn.preprocessing import OrdinalEncoder as _OE
+            ORDINAL_CATEGORY_MAP = {
+                "age": ["[0-10)","[10-20)","[20-30)","[30-40)","[40-50)",
+                        "[50-60)","[60-70)","[70-80)","[80-90)","[90-100)"],
+            }
+            if col in ORDINAL_CATEGORY_MAP:
+                _enc = _OE(categories=[ORDINAL_CATEGORY_MAP[col]],
+                           handle_unknown="use_encoded_value", unknown_value=-1)
+                vals = _enc.fit_transform(train[[col]].astype(str)).ravel()
+                mask = vals >= 0
+                rho, pval = spearmanr(vals[mask], train[config.LABEL_COL].values[mask])
+                status = "✅" if abs(rho) > 0.01 else "⚠️  weak"
+                print(f"    {status} {col}: rho={rho:.4f}, p={pval:.2e}")
 
     # Step 6: Build and fit pipeline on TRAIN ONLY (MLGG-P01)
     print("\nStep 6: Building pipeline (fit on TRAIN ONLY)...")

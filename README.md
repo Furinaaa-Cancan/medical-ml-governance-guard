@@ -1,7 +1,7 @@
 # ML Leakage Guard (MLGG) — 医学预测模型完整性标准
 
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm%20NC%201.0.0-blue.svg)](https://polyformproject.org/licenses/noncommercial/1.0.0/)
-[![Tests](https://img.shields.io/badge/tests-4000%2B%20passed-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-3400%2B%20passed-brightgreen)]()
 [![Gate Coverage](https://img.shields.io/badge/gate%20coverage-%E2%89%A586%25-blue)]()
 [![MLGG Standard v1.0](https://img.shields.io/badge/MLGG%20Standard-v1.0-orange)]()
 [![TRIPOD+AI 2024](https://img.shields.io/badge/TRIPOD%2BAI-2024-blue)](https://doi.org/10.1136/bmj-2023-078378)
@@ -536,6 +536,17 @@ python3 examples/download_real_data.py heart    # 297 行
 python3 examples/download_real_data.py breast   # 569 行
 python3 examples/download_real_data.py pima     # 768 行
 ```
+
+</details>
+
+<details>
+<summary><b>其他内置数据集（已预置在 examples/ 下）</b></summary>
+
+以下数据集已随仓库提供，无需额外下载：
+- `chronic_kidney_disease.csv` — UCI 慢性肾病 (400 行)
+- `support2.csv` — Vanderbilt SUPPORT2 ICU 预后 (9K 行)
+- `diabetes_130_readmission.csv` — UCI 糖尿病再入院精简版
+- `covid19_hospitalization.csv` — COVID-19 住院预测
 
 </details>
 

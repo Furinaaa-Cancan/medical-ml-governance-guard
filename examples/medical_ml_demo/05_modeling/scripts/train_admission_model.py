@@ -48,27 +48,31 @@ def load_data():
 
     feature_names = feat_info["selected_features"]
 
-    # Identify admission-time feature indices
-    # After OneHotEncoding, feature names look like "race_Caucasian", "diag_1_circulatory", etc.
-    # Match by prefix
-    admission_prefixes = []
-    for f in config.ADMISSION_TIME_FEATURES:
-        admission_prefixes.append(f + "_")  # OneHot: race_Caucasian
-        admission_prefixes.append(f)        # Exact: age, number_inpatient
-
+    # Identify admission-time feature indices using group mapping from Phase 4
+    # This avoids fragile startswith() matching
+    group_map_path = os.path.join(feat_dir, "group_selection_summary.csv")
+    admission_set = set(config.ADMISSION_TIME_FEATURES)
     # Also include missing indicators for admission-time features
     for f in config.ADMISSION_TIME_FEATURES:
-        admission_prefixes.append(f + "_missing")
+        admission_set.add(f + "_missing")
 
     admission_indices = []
     admission_names = []
     for i, name in enumerate(feature_names):
-        is_admission = False
-        for prefix in admission_prefixes:
-            if name == prefix or name.startswith(prefix):
-                is_admission = True
+        # Determine which original variable this feature belongs to
+        # by matching against known admission feature names/prefixes
+        matched = False
+        for adm_feat in admission_set:
+            # Exact match (e.g., "age", "number_inpatient", "weight_missing")
+            if name == adm_feat:
+                matched = True
                 break
-        if is_admission:
+            # OneHot prefix match with underscore boundary
+            # e.g., "diag_1_circulatory" matches "diag_1" + "_"
+            if name.startswith(adm_feat + "_"):
+                matched = True
+                break
+        if matched:
             admission_indices.append(i)
             admission_names.append(name)
 

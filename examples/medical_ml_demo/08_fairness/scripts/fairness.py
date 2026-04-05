@@ -73,6 +73,7 @@ def subgroup_metrics(y_true, y_prob, threshold):
         "Specificity": round(tn / (tn + fp), 4) if (tn + fp) > 0 else None,
         "PPV": round(tp / (tp + fp), 4) if (tp + fp) > 0 else None,
         "FPR": round(fp / (fp + tn), 4) if (fp + tn) > 0 else None,
+        "reliable": len(y_true) >= 200,  # MLGG-Q02: flag small subgroups
     }
 
 
@@ -100,11 +101,12 @@ def analyze_subgroups(test_raw, X_test, y_test, model, threshold, group_col,
 
     # Disparity analysis: max-min difference for each metric
     print(f"\n  {group_name} ({group_col}):")
-    print(f"  {'Group':20s} {'N':>6s} {'Prev':>6s} {'AUROC':>7s} {'Sens':>6s} {'Spec':>6s} {'FPR':>6s}")
-    print(f"  {'-'*60}")
+    print(f"  {'Group':20s} {'N':>6s} {'Prev':>6s} {'AUROC':>7s} {'Sens':>6s} {'Spec':>6s} {'FPR':>6s}  {'':>12s}")
+    print(f"  {'-'*72}")
     for _, row in df.iterrows():
+        flag = "" if row.get("reliable", True) else "  [small sample]"
         print(f"  {str(row['group']):20s} {row['n']:6d} {row['prevalence']:6.3f} "
-              f"{row['AUROC']:7.4f} {row['Sensitivity']:6.4f} {row['Specificity']:6.4f} {row['FPR']:6.4f}")
+              f"{row['AUROC']:7.4f} {row['Sensitivity']:6.4f} {row['Specificity']:6.4f} {row['FPR']:6.4f}{flag}")
 
     # Disparity summary
     for metric in ["AUROC", "Sensitivity", "FPR"]:

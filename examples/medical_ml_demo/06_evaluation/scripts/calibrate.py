@@ -133,8 +133,8 @@ def main():
             "AUROC_after": round(auroc_after, 4),
         })
 
-        # Save calibrated model
-        joblib.dump(cal_model, os.path.join(config.MODEL_DIR, f"{model_name}_calibrated.pkl"))
+        # Save Platt LR separately (avoids _PlattWrapper serialization issue)
+        joblib.dump(platt, os.path.join(config.MODEL_DIR, f"{model_name}_platt_lr.pkl"))
 
     pd.DataFrame(records).to_csv(
         os.path.join(results_dir, "calibration_comparison.csv"), index=False)
