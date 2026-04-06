@@ -93,6 +93,33 @@ register_remediations({
     "COHORT_SEVERE_IMBALANCE":
         "Class imbalance ratio exceeds 20:1. Consider stratified sampling "
         "and avoid SMOTE (van den Goorbergh 2022).",
+    "COHORT_SURVEY_WEIGHTS_DETECTED":
+        "Survey weight column detected. Standard ML models assume simple random "
+        "sampling. If data uses complex survey design (NHANES, BRFSS), document "
+        "that survey weights are NOT incorporated and report as limitation. "
+        "Ref: NHANES analytic guidelines (CDC).",
+    "COHORT_SURVEY_WEIGHTS_MISSING":
+        "Data appears to be from a survey database (NHANES/BRFSS/NHIS pattern) "
+        "but no weight column found. Verify sampling design and document.",
+    "COHORT_OUTCOME_DEFINITION_LEAKAGE":
+        "Features used to DEFINE the outcome should NOT be used as predictors. "
+        "E.g., if diabetes is defined by HbA1c >= 6.5%, then HbA1c cannot be a "
+        "predictor — it IS the outcome. Review feature list carefully. "
+        "Ref: TRIPOD+AI 2024 Item 6a; MLGG-F01.",
+    "COHORT_OUTCOME_DEFINITION_UNDOCUMENTED":
+        "No outcome definition specification provided. For clinical prediction, "
+        "the outcome must have a precise, reproducible definition. Document: "
+        "(1) diagnostic criteria (ICD codes? lab values? self-report? composite?) "
+        "(2) disease subtype (e.g., T1D vs T2D) "
+        "(3) time window (30-day? 1-year? prevalent?) "
+        "(4) ascertainment source (EHR? registry? claims? questionnaire?). "
+        "Ref: TRIPOD+AI 2024 Item 6a.",
+    "COHORT_OUTCOME_POSSIBLE_COMPOSITE":
+        "Target column may use a composite or multi-source definition. "
+        "Ensure all components are documented and the definition is clinically "
+        "validated. Composite endpoints require sensitivity analysis.",
+    "COHORT_EMPTY":
+        "Dataset is empty (0 rows). Check data source and file path.",
 })
 
 
@@ -529,6 +556,27 @@ def parse_args() -> argparse.Namespace:
         help="Comma-separated columns to exclude from feature analysis.",
     )
 
+    study = parser.add_argument_group("Study design")
+    study.add_argument(
+        "--outcome-definition", default="",
+        help="JSON file or inline string describing outcome definition "
+             "(criteria, subtype, time_window, ascertainment_source).",
+    )
+    study.add_argument(
+        "--definition-cols", default="",
+        help="Comma-separated columns used to DEFINE the outcome. "
+             "These will be checked for leakage if included as features.",
+    )
+    study.add_argument(
+        "--weight-col", default="",
+        help="Survey weight column name (e.g., WTMEC2YR for NHANES). "
+             "If provided, flags that standard ML ignores survey design.",
+    )
+    study.add_argument(
+        "--survey-source", default="",
+        help="Survey database name (nhanes, brfss, nhis, etc.) for auto-detection.",
+    )
+
     cfg = parser.add_argument_group("Thresholds")
     cfg.add_argument("--epv-threshold", type=int, default=_DEFAULT_EPV_THRESHOLD, help="EPV warning threshold.")
     cfg.add_argument("--min-positive", type=int, default=_DEFAULT_MIN_POSITIVE, help="Minimum positive events.")
@@ -572,15 +620,133 @@ def main() -> int:
         )
         return _finish(args, failures, warnings_list, {"n_rows": 0})
 
+    # ── Study design checks ──
+
+    study_design: Dict[str, Any] = {}
+
+    # 1. Survey weight detection
+    weight_col = args.weight_col.strip() if args.weight_col else ""
+    _KNOWN_WEIGHT_PATTERNS = ["WTMEC", "WTINT", "WTSAF", "SAMPWT", "PERWEIGHT",
+                               "FINALWT", "weight", "sampling_weight", "survey_weight"]
+    if weight_col and weight_col in df.columns:
+        add_issue(
+            warnings_list, "COHORT_SURVEY_WEIGHTS_DETECTED",
+            f"Survey weight column '{weight_col}' found. Standard ML models do NOT "
+            f"incorporate survey weights. Document this as a limitation.",
+            {"weight_col": weight_col, "weight_range": [
+                round(float(df[weight_col].min()), 2),
+                round(float(df[weight_col].max()), 2),
+            ]},
+        )
+        study_design["survey_weight_col"] = weight_col
+        study_design["survey_weighted"] = False  # ML does not use weights
+    elif not weight_col:
+        # Auto-detect weight columns
+        detected_weights = [c for c in df.columns
+                            if any(p.lower() in c.lower() for p in _KNOWN_WEIGHT_PATTERNS)]
+        if detected_weights:
+            add_issue(
+                warnings_list, "COHORT_SURVEY_WEIGHTS_DETECTED",
+                f"Possible survey weight column(s) auto-detected: {detected_weights}. "
+                f"If this is survey data, specify --weight-col and document that "
+                f"survey design is NOT incorporated in modeling.",
+                {"detected_columns": detected_weights},
+            )
+            study_design["auto_detected_weight_cols"] = detected_weights
+
+    # Survey source auto-detection
+    survey_source = args.survey_source.strip().lower() if args.survey_source else ""
+    if not survey_source:
+        _data_name = Path(args.data).stem.lower()
+        for src in ["nhanes", "brfss", "nhis", "meps", "hrs"]:
+            if src in _data_name:
+                survey_source = src
+                break
+    if survey_source:
+        study_design["survey_source"] = survey_source
+        add_issue(
+            warnings_list, "COHORT_SURVEY_WEIGHTS_MISSING" if not weight_col else "COHORT_SURVEY_WEIGHTS_DETECTED",
+            f"Data appears to be from survey database '{survey_source.upper()}'. "
+            f"Complex survey design (stratification, clustering, weights) is NOT "
+            f"incorporated in standard ML modeling. This MUST be documented as "
+            f"a limitation per STROBE/TRIPOD+AI.",
+            {"survey_source": survey_source},
+        )
+
+    # 2. Outcome definition check
+    outcome_def_provided = bool(args.outcome_definition and args.outcome_definition.strip())
+    if not outcome_def_provided:
+        add_issue(
+            warnings_list, "COHORT_OUTCOME_DEFINITION_UNDOCUMENTED",
+            "No outcome definition specification provided via --outcome-definition. "
+            "For clinical prediction models, you MUST document: "
+            "(1) Diagnostic criteria: ICD codes? Lab values (e.g., HbA1c >= 6.5%)? "
+            "Self-report? Physician diagnosis? Composite? "
+            "(2) Disease subtype: e.g., Type 1 vs Type 2 diabetes "
+            "(3) Time window: 30-day event? 1-year? Prevalent at baseline? "
+            "(4) Ascertainment source: EHR? Registry? Claims? Questionnaire? "
+            "Provide via --outcome-definition '{\"criteria\":\"...\",\"subtype\":\"...\","
+            "\"time_window\":\"...\",\"source\":\"...\"}'",
+            {},
+        )
+    else:
+        # Parse outcome definition
+        try:
+            if args.outcome_definition.strip().startswith("{"):
+                outcome_spec = json.loads(args.outcome_definition)
+            else:
+                outcome_spec_path = Path(args.outcome_definition).expanduser().resolve()
+                with outcome_spec_path.open("r", encoding="utf-8") as fh:
+                    outcome_spec = json.load(fh)
+            study_design["outcome_definition"] = outcome_spec
+        except Exception:
+            study_design["outcome_definition"] = {"raw": args.outcome_definition}
+
+    # 3. Definition variable leakage check
+    definition_cols = [c.strip() for c in args.definition_cols.split(",") if c.strip()]
+    if definition_cols:
+        study_design["definition_cols"] = definition_cols
+        # Definition columns will be auto-excluded from feature set (see ignore_cols below).
+        # Confirm this to the user.
+        present_def_cols = [c for c in definition_cols if c in df.columns]
+        if present_def_cols:
+            add_issue(
+                warnings_list, "COHORT_OUTCOME_DEFINITION_LEAKAGE",
+                f"Definition variable(s) {present_def_cols} declared and will be "
+                f"auto-excluded from the predictor set. This prevents the model "
+                f"from using the outcome definition as a feature (MLGG-F01).",
+                {"excluded_columns": present_def_cols, "action": "auto_excluded"},
+            )
+    else:
+        # Heuristic: warn if common definition variables are present
+        _DEF_PATTERNS = ["hba1c", "a1c", "glucose", "fasting_glucose", "fbg",
+                         "ogtt", "icd", "diagnosis", "dx_code", "confirmed",
+                         "lab_result", "test_result"]
+        suspected = [c for c in df.columns
+                     if any(p in c.lower() for p in _DEF_PATTERNS)
+                     and c != args.target_col]
+        if suspected:
+            add_issue(
+                warnings_list, "COHORT_OUTCOME_DEFINITION_LEAKAGE",
+                f"Columns matching common outcome-definition patterns detected: "
+                f"{suspected[:8]}. If any of these were used to DEFINE the outcome "
+                f"(not just correlated with it), they MUST be excluded. "
+                f"Specify --definition-cols to explicitly declare them.",
+                {"suspected_columns": suspected[:8]},
+            )
+
     # Determine feature columns
     ignore_cols = set(c.strip() for c in args.ignore_cols.split(",") if c.strip())
     ignore_cols.add(args.target_col)
     if args.id_col:
         ignore_cols.add(args.id_col)
+    # Also ignore definition columns if specified
+    ignore_cols.update(definition_cols)
     feature_cols = [c for c in df.columns if c not in ignore_cols]
 
     # Analyze
     analysis = analyze_cohort(df, args.target_col, args.id_col, feature_cols)
+    analysis["study_design"] = study_design
 
     # Validate
     _run_checks(
