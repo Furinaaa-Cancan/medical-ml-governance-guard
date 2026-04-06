@@ -68,21 +68,61 @@ ADMISSION_FEATURES = []
 DISCHARGE_FEATURES = []
 
 # ──────────────────────────────────────────────
-# Missingness Strategy (MLGG-P06)
+# Preprocessing (Phase 3)
 # ──────────────────────────────────────────────
-# Tiered by mechanism and proportion:
-#   <5%: simple impute (median/mode)
-#   5-40%: multiple imputation
-#   40-80%: MI + indicator + sensitivity analysis
-#   >80%: clinical review per feature
-COLS_DROP_VALUE_KEEP_INDICATOR = []  # High missing, keep as indicator
-COLS_IMPUTE_WITH_INDICATOR = []     # Medium missing, impute + indicator
-COLS_SIMPLE_IMPUTE = []             # Low missing, simple impute
+
+# Column type detection thresholds (MLGG-P05)
+# Cardinality-based: binary (2) / categorical (3-MAX) / numeric (> MAX or float)
+MAX_ONEHOT_CARDINALITY = 15   # Categorical upper bound; > this → leave as-is
+
+# Missingness tier thresholds (MLGG-P06, Madley-Dowd 2019)
+#   Tier 1 (<5%):   simple impute (median/mode)
+#   Tier 2 (5-40%): impute + missingness indicator
+#   Tier 3 (40-80%): impute + missingness indicator + sensitivity flag
+#   Tier 4 (>80%):  drop original value, keep missingness indicator only
+MISSING_TIER1_UPPER = 0.05
+MISSING_TIER2_UPPER = 0.40
+MISSING_TIER3_UPPER = 0.80
+
+# Manual overrides (take priority over auto-detection)
+COLS_DROP_VALUE_KEEP_INDICATOR = []  # Force Tier 4
+COLS_IMPUTE_WITH_INDICATOR = []     # Force Tier 2/3
+COLS_SIMPLE_IMPUTE = []             # Force Tier 1
+
+# Columns with clinically verified ordinal order → OrdinalEncoder
+# Format: {"column_name": ["low", "medium", "high"]}
+# DO NOT add here without empirical evidence of monotonic relationship
+ORDINAL_COLUMNS = {}
 
 # ──────────────────────────────────────────────
-# Near-Zero Variance Columns (Phase 4 pre-filter)
+# Feature Selection (Phase 4)
 # ──────────────────────────────────────────────
-# Columns with >99% same value — drop before feature selection.
+# Near-zero variance pre-filter
+NZV_THRESHOLD = 0.99  # Remove features with > this fraction same value
+
+# Stability Selection (Meinshausen & Buhlmann 2010)
+STABILITY_N_SUBSAMPLES = 100       # Number of subsamples
+STABILITY_SUBSAMPLE_RATIO = 0.50   # Fraction of each class to subsample
+STABILITY_THRESHOLD = 0.60         # Selection probability cutoff
+STABILITY_L1_RATIOS = (0.1, 0.3, 0.5, 0.7, 1.0)  # Elastic Net α values (Zou & Hastie 2005)
+STABILITY_CS = (0.001, 0.01, 0.1, 1.0, 10.0)      # Regularization strengths
+STABILITY_CV_FOLDS = 5             # Inner CV folds (StratifiedKFold)
+STABILITY_MAX_ITER = 3000          # Solver iteration limit
+
+# Ridge baseline comparison (Harrell 2015)
+RIDGE_CV_CS = (0.001, 0.01, 0.1, 1.0, 10.0, 100.0)  # CV-tuned C values
+RIDGE_FALLBACK_THRESHOLD = 0.005   # PR-AUC loss vs Ridge → fallback to full model
+
+# Feature groups: OneHot dummies from same original variable must stay/drop together
+# (Yuan & Lin 2006, Group LASSO). Auto-detected from Phase 3 encoding metadata.
+# Manual override format: {"race": ["race_Asian", "race_Black", ...]}
+FEATURE_GROUPS = {}
+
+# Forbidden features (MLGG-F01: label leakage, MLGG-F02: future information)
+# Features that must NEVER enter selection. Auto-populated by setup.py.
+FORBIDDEN_FEATURES = []
+
+# Legacy alias
 NEAR_ZERO_VARIANCE_COLS = []
 
 # ──────────────────────────────────────────────

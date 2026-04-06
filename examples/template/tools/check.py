@@ -33,14 +33,22 @@ PHASES = [
     {
         "num": 3, "name": "Preprocessing",
         "dir": "03_preprocessing",
-        "key_outputs": ["results/processed_data.npz", "results/feature_names.json"],
-        "checkpoint": "fit() on train only, encoding matches semantics",
+        "key_outputs": [
+            "results/processed_data.npz",
+            "results/feature_names.json",
+            "results/encoding_groups.json",
+        ],
+        "checkpoint": "fit() on train only, encoding matches semantics, tiered missingness",
     },
     {
         "num": 4, "name": "Feature Selection",
         "dir": "04_feature_selection",
-        "key_outputs": ["results/selected_data.npz", "results/selected_features.json"],
-        "checkpoint": "Train-only selection, EPV >= 10, Ridge baseline compared",
+        "key_outputs": [
+            "results/selected_data.npz",
+            "results/selected_features.json",
+            "results/selection_report.json",
+        ],
+        "checkpoint": "Elastic Net + Group LASSO + Ridge baseline, EPV >= 10",
     },
     {
         "num": 5, "name": "Model Training",
