@@ -1150,6 +1150,157 @@ Agent 完成完整流程后应产出以下交付物：
 
 ## 方法论快速参考
 
+### Phase 1 Agent 引导协议
+
+当用户说"帮我分析数据"/"我有一个 CSV"/"开始建模"时，Agent 必须按以下顺序**逐步引导**，不要跳过任何步骤。每步收集到答案后构建 `cohort_definition_gate.py` 的参数。
+
+**Step 1: 基本信息确认**
+```
+问: 你的数据文件路径是什么？
+问: 目标变量（要预测的结局）是哪一列？
+问: 患者/个体 ID 列是哪一列？（如果没有，我会为你生成）
+```
+→ 得到 `--data`, `--target-col`, `--id-col`
+
+**Step 2: 数据来源与抽样设计**
+```
+问: 这个数据来自哪里？
+  a) 公共调查数据库（NHANES / BRFSS / NHIS / MEPS）→ 有复杂抽样设计
+  b) 医院 EHR / 电子病历系统
+  c) 临床试验 / 前瞻性队列
+  d) 行政索赔 / 医保数据
+  e) 疾病登记库（癌症登记、糖尿病登记）
+  f) 其他
+
+如果是 (a): 问是否有抽样权重列（如 NHANES 的 WTMEC2YR），
+  提醒: "标准 ML 模型不使用调查权重，这会在论文 Limitations 中声明。"
+  → 设置 --weight-col, --survey-source
+
+如果是 (b)-(e): 问是单中心还是多中心？数据时间跨度？
+```
+→ 得到 `--weight-col`, `--survey-source`
+
+**Step 3: 结局定义（最关键）**
+
+这是审稿人第一个会质疑的点。必须引导用户给出**精确的临床定义**。
+
+```
+问: 你要预测的结局（y=1）的临床定义是什么？
+  请告诉我以下信息：
+
+  1. 诊断标准来自哪些来源？（可多选）
+     □ ICD 编码（请给出具体码，如 E11 = T2D）
+     □ 实验室指标（如 HbA1c ≥ 6.5% 或 ≥ 48 mmol/mol）
+     □ 空腹血糖 ≥ 7.0 mmol/L
+     □ 医生诊断记录
+     □ 患者自报（问卷）
+     □ 用药记录（如服用降糖药）
+     □ 疾病登记库确认
+     □ 其他: ___
+
+  2. 如果使用了多个来源，如何判定？
+     □ 任一来源满足即为阳性（敏感，可能假阳性多）
+     □ 至少两个来源一致（UKB 金标准，推荐）
+     □ 所有来源都满足（极严格）
+
+  3. 疾病亚型是什么？
+     例: 2 型糖尿病（排除 1 型、妊娠期、继发性、MODY）
+
+  4. 排除标准：哪些人应该被排除？
+     例: 1 型糖尿病(E10) / 妊娠期糖尿病(O24) / 年龄<18
+
+  5. 时间窗口：
+     □ 基线时已患病（prevalent）
+     □ 随访期间新发（incident），随访 ___ 年
+     □ 事件性结局（如 30 天再入院）
+```
+
+收集完毕后构建 JSON:
+```json
+{
+  "criteria": [
+    {"source": "icd", "codes": ["E11"], "system": "ICD-10"},
+    {"source": "lab", "test": "HbA1c", "threshold": ">=6.5%"},
+    {"source": "medication", "drugs": ["metformin", "insulin"]}
+  ],
+  "adjudication": "at_least_two",
+  "subtype": "type_2_diabetes",
+  "exclusions": ["type_1_E10", "gestational_O24", "age_under_18"],
+  "time_window": "prevalent_at_baseline",
+  "ascertainment": ["hospital_ehr", "lab_system"],
+  "validation": "cross_source_concordance"
+}
+```
+→ 传给 `--outcome-definition`
+
+**Step 4: 定义变量泄漏检查**
+```
+问: 上面这些用于定义结局的变量（如 HbA1c、ICD 码），
+  它们是否也出现在你的特征列中？
+
+  如果 HbA1c 用于定义糖尿病（y=1 当 HbA1c >= 6.5%），
+  那么 HbA1c 绝不能作为预测特征——它 IS 结局本身。
+
+  请列出所有用于定义结局的列名:
+```
+→ 得到 `--definition-cols`
+→ 这些列会被自动排除出特征集
+
+**Step 5: 运行门控**
+
+收集完上述信息后，构建并运行命令:
+```bash
+python3 scripts/cohort_definition_gate.py \
+  --data <path> \
+  --target-col <col> \
+  --id-col <col> \
+  --outcome-definition '<JSON>' \
+  --definition-cols <cols> \
+  --weight-col <col> \
+  --survey-source <source> \
+  --report evidence/cohort_definition_report.json \
+  --output-dir evidence/
+```
+
+**Step 6: 解读结果并引导下一步**
+
+根据报告中的 warnings/failures 向用户解释:
+- Riley 样本量是否充足 → 不足则建议减少特征或收集更多数据
+- 疾病定义质量评级 → single source 建议增加验证来源
+- 定义变量泄漏 → 明确哪些列被排除了
+- 调查权重 → 提醒在论文中声明
+
+然后说: "Phase 1 完成。现在进入 Phase 2: 数据划分。你的数据是纵向的还是横截面的？"
+
+### 常见疾病定义模板
+
+Agent 可以直接提供以下模板给用户参考：
+
+**2 型糖尿病 (T2D)**:
+```json
+{"criteria":[{"source":"icd","codes":["E11"],"system":"ICD-10"},{"source":"lab","test":"HbA1c","threshold":">=6.5% or >=48mmol/mol"},{"source":"lab","test":"FPG","threshold":">=7.0mmol/L"},{"source":"medication","drugs":["metformin","glipizide","glimepiride","insulin"]},{"source":"self_report","question":"doctor_diagnosed_diabetes"}],"adjudication":"at_least_two","subtype":"type_2_diabetes","exclusions":["type_1_E10","gestational_O24","MODY","secondary","age_under_18"],"time_window":"prevalent_at_baseline"}
+```
+
+**高血压 (Hypertension)**:
+```json
+{"criteria":[{"source":"icd","codes":["I10","I11","I12","I13","I15"],"system":"ICD-10"},{"source":"measurement","test":"SBP","threshold":">=140mmHg"},{"source":"measurement","test":"DBP","threshold":">=90mmHg"},{"source":"medication","drugs":["amlodipine","lisinopril","losartan","hydrochlorothiazide"]},{"source":"self_report","question":"doctor_diagnosed_hypertension"}],"adjudication":"at_least_two","subtype":"essential_hypertension","exclusions":["secondary_hypertension","white_coat","pregnancy_induced"],"time_window":"prevalent_at_baseline"}
+```
+
+**冠心病 (CHD/CAD)**:
+```json
+{"criteria":[{"source":"icd","codes":["I20","I21","I22","I23","I24","I25"],"system":"ICD-10"},{"source":"procedure","codes":["CABG","PCI","coronary_angiography"]},{"source":"medication","drugs":["aspirin","clopidogrel","statin","nitroglycerin"]},{"source":"self_report","question":"doctor_diagnosed_heart_disease"}],"adjudication":"at_least_two","subtype":"coronary_artery_disease","exclusions":["heart_failure_only","valvular","congenital"],"time_window":"prevalent_at_baseline"}
+```
+
+**慢性肾病 (CKD)**:
+```json
+{"criteria":[{"source":"icd","codes":["N18"],"system":"ICD-10"},{"source":"lab","test":"eGFR","threshold":"<60mL/min/1.73m2"},{"source":"lab","test":"UACR","threshold":">=30mg/g"},{"source":"medication","drugs":["SGLT2_inhibitors","ACE_inhibitors"]}],"adjudication":"at_least_two","subtype":"CKD_stage_3_plus","exclusions":["acute_kidney_injury","dialysis_dependent"],"time_window":"prevalent_at_baseline"}
+```
+
+**30 天再入院 (30-day Readmission)**:
+```json
+{"criteria":[{"source":"administrative","definition":"unplanned_admission_within_30_days_of_discharge"}],"adjudication":"any_one","subtype":"all_cause_readmission","exclusions":["planned_readmission","death_before_30_days","transfer","left_AMA"],"time_window":"30_day_post_discharge"}
+```
+
 ### 样本量（Phase 1）
 
 Riley 2019 三准则（`riley_sample_size()` in `cohort_definition_gate.py`）：
