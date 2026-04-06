@@ -1436,6 +1436,38 @@ def robustness_stress_test(
     results["robust"] = max_drop < 5.0  # <5% relative drop = robust
     results["verdict"] = "robust" if results["robust"] else "sensitive"
 
+    # Actionable guidance
+    if not results["robust"]:
+        guidance = []
+        for p in results["perturbations"]:
+            drop = p.get("relative_drop_pct", 0)
+            if isinstance(drop, (int, float)) and drop > 5:
+                ptype = p.get("type", "")
+                if "outlier" in ptype:
+                    guidance.append(
+                        "Model sensitive to outliers → consider: "
+                        "(1) verify no data entry errors in extreme values, "
+                        "(2) use tree-based models (more robust to outliers than LR/SVM), "
+                        "(3) add more training data from extreme-value patients."
+                    )
+                elif "noise" in ptype:
+                    guidance.append(
+                        "Model sensitive to feature noise → consider: "
+                        "(1) standardize features before training, "
+                        "(2) apply stronger regularization (increase L2 penalty), "
+                        "(3) reduce feature count (feature selection may help)."
+                    )
+                elif "dropout" in ptype:
+                    guidance.append(
+                        "Model sensitive to sample dropout → consider: "
+                        "(1) increase training data, "
+                        "(2) use bootstrap aggregation (bagging), "
+                        "(3) check for influential observations."
+                    )
+        results["guidance"] = guidance if guidance else ["Review perturbation results for specific vulnerabilities."]
+    else:
+        results["guidance"] = ["Model is robust to standard perturbations. No action needed."]
+
     return results
 
 

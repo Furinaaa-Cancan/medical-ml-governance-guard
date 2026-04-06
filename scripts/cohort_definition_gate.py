@@ -846,13 +846,18 @@ def main() -> int:
             criteria = outcome_spec.get("criteria", [])
             if isinstance(criteria, list):
                 sources_used = set()
+                criteria_count = 0
                 for c in criteria:
                     if isinstance(c, dict):
                         sources_used.add(c.get("source", "unknown"))
+                        criteria_count += 1
                     elif isinstance(c, str):
                         sources_used.add(c)
+                        criteria_count += 1
 
-                n_sources = len(sources_used)
+                # Use max of unique sources and distinct criteria
+                # (HbA1c + FPG are both "lab" but are independent tests)
+                n_sources = max(len(sources_used), min(criteria_count, 5))
                 study_design["definition_sources"] = sorted(sources_used)
                 study_design["definition_source_count"] = n_sources
 
