@@ -2,331 +2,487 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MLGG 完整预测流程图</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <style>
-  body {
-    font-family: -apple-system, 'PingFang SC', sans-serif;
-    background: #0d1117;
-    color: #c9d1d9;
-    margin: 0;
-    padding: 20px;
-  }
-  h1 { text-align: center; color: #58a6ff; font-size: 24px; margin-bottom: 4px; }
-  .sub { text-align: center; color: #8b949e; font-size: 13px; margin-bottom: 30px; }
-  .mermaid {
-    display: flex;
-    justify-content: center;
-    overflow-x: auto;
-  }
-  /* Mermaid dark theme overrides */
-  .mermaid svg { max-width: 100%; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC',-apple-system,sans-serif;background:#0f1318;color:#d1d5db;padding:32px}
+h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
+.sub{text-align:center;color:#6b7280;font-size:12px;margin-bottom:28px}
+
+/* ===== Grid Layout: 3 columns x 4 rows ===== */
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  grid-template-rows:auto;
+  gap:16px;
+  max-width:1500px;
+  margin:0 auto;
+}
+
+/* ===== Card ===== */
+.card{
+  background:#1a1f2e;
+  border:1px solid #2d3548;
+  border-radius:10px;
+  padding:18px 20px;
+  position:relative;
+  min-height:200px;
+}
+.card:hover{border-color:#3b82f6}
+
+.card-head{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px;
+  padding-bottom:10px;
+  border-bottom:1px solid #2d3548;
+}
+.badge{
+  width:36px;height:36px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:14px;color:#fff;flex-shrink:0;
+}
+.card-title{font-size:15px;font-weight:700}
+.card-script{font-size:10px;color:#6b7280;font-family:monospace;margin-top:2px}
+
+/* Steps */
+.steps{list-style:none;font-size:12.5px;line-height:1.65}
+.steps li{padding:4px 0 4px 16px;position:relative}
+.steps li::before{
+  content:'';position:absolute;left:0;top:10px;
+  width:6px;height:6px;border-radius:50%;
+}
+.steps li.c::before{background:#ef4444}
+.steps li.w::before{background:#f59e0b}
+.steps li.g::before{background:#22c55e}
+.steps li.i::before{background:#3b82f6}
+
+.ref{color:#22c55e;font-size:10px}
+.rule{color:#60a5fa;font-size:10px}
+.tool{color:#f97316;font-size:10px;font-family:monospace}
+
+/* Output bar */
+.out{
+  margin-top:10px;padding:7px 10px;
+  background:#111827;border-radius:6px;
+  font-size:11px;color:#4ade80;font-family:monospace;
+  line-height:1.6;
+}
+
+/* Arrow connectors */
+.arrow-row{
+  grid-column:1/-1;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  padding:4px 0;
+  color:#4b5563;
+  font-size:20px;
+}
+.arrow-row .label{font-size:11px;color:#6b7280}
+
+/* Phase colors */
+.p1 .badge{background:#7c3aed} .p1 .card-title{color:#c4b5fd}
+.p2 .badge{background:#2563eb} .p2 .card-title{color:#93c5fd}
+.p3 .badge{background:#0891b2} .p3 .card-title{color:#67e8f9}
+.p4 .badge{background:#0d9488} .p4 .card-title{color:#5eead4}
+.p5 .badge{background:#16a34a} .p5 .card-title{color:#86efac}
+.p6 .badge{background:#ca8a04} .p6 .card-title{color:#fde047}
+.p7 .badge{background:#ea580c} .p7 .card-title{color:#fdba74}
+.p8 .badge{background:#dc2626} .p8 .card-title{color:#fca5a5}
+.p9 .badge{background:#64748b} .p9 .card-title{color:#cbd5e1}
+.ps .badge{background:#475569} .ps .card-title{color:#94a3b8}
+
+/* Decision diamond */
+.decision{
+  display:inline-block;
+  background:#1e293b;border:2px solid #f59e0b;
+  padding:6px 14px;border-radius:4px;
+  color:#fbbf24;font-size:12px;font-weight:600;
+  margin:4px 0;
+}
+
+/* Wide card spanning 2 or 3 cols */
+.span2{grid-column:span 2}
+.span3{grid-column:span 3}
+
+/* Footer */
+.footer{text-align:center;margin-top:32px;color:#4b5563;font-size:11px}
+
+/* Connector dots between rows */
+.dots{
+  grid-column:1/-1;
+  text-align:center;
+  padding:2px 0;
+  color:#374151;
+  font-size:18px;
+  letter-spacing:12px;
+}
 </style>
 </head>
 <body>
 
-<h1>ML Leakage Guard — 完整 9-Phase 预测流程</h1>
-<p class="sub">横截面数据 (NHANES / BRFSS) 全流程 · 33 道 Fail-Closed 门控 · 17 项分析工具 · 37+ 文献引用</p>
+<h1>ML Leakage Guard (MLGG) — 完整 9-Phase 预测流程</h1>
+<p class="sub">横截面数据全流程 &nbsp;|&nbsp; 33 道 Fail-Closed 门控 &nbsp;|&nbsp; 17 项分析工具 &nbsp;|&nbsp; 37+ 文献引用 &nbsp;|&nbsp; Nature ML Checklist 30/30</p>
 
-<div class="mermaid">
-flowchart TD
-    %% ============================================================
-    %% 输入
-    %% ============================================================
-    RAW["📂 原始 CSV 数据集<br/>例: NHANES / UCI / CDC<br/>横截面或纵向"]
+<div class="grid">
 
-    %% ============================================================
-    %% PHASE 1
-    %% ============================================================
-    RAW --> P1_START
+<!-- ===================== ROW 1: Phase 1-3 ===================== -->
 
-    subgraph P1["🔬 Phase 1: 数据理解与队列定义"]
-        direction TB
-        P1_START["加载数据 → 验证 target 列为 0/1 二分类"]
-        P1_COHORT["定义合格队列 (MLGG-C01)<br/>排除结局结构性不可能的记录<br/>例: 死亡患者不可能再入院"]
-        P1_RILEY["Riley 2019 样本量三准则<br/>C1: 收缩因子 S ≥ 0.9<br/>C2: R² optimism ≤ 0.05<br/>C3: 风险精度 CI ≤ 0.05<br/>EPV < 5 → ❌ FAIL"]
-        P1_DTYPE["数据类型自动检测<br/>numeric / binary / categorical<br/>constant / id_or_text"]
-        P1_MISS["缺失值概况<br/>按特征统计缺失率<br/>> 50% 标记为高缺失"]
-        P1_CROSS["判定: 横截面 vs 纵向<br/>患者 ID 有重复行? → 纵向<br/>每行独立? → 横截面"]
-
-        P1_START --> P1_COHORT --> P1_RILEY --> P1_DTYPE --> P1_MISS --> P1_CROSS
-    end
-
-    P1_OUT["📄 cohort_summary.csv<br/>📄 feature_profile.csv<br/>📄 cohort_definition_report.json"]
-    P1 --> P1_OUT
-
-    %% ============================================================
-    %% PHASE 2
-    %% ============================================================
-    P1_OUT --> P2_START
-
-    subgraph P2["✂️ Phase 2: 数据划分"]
-        direction TB
-        P2_START["选择划分策略"]
-        P2_CROSS_SEC{"横截面数据?"}
-        P2_TEMPORAL["grouped_temporal<br/>按患者首次事件时间排序<br/>前 60% → train<br/>中 20% → valid<br/>后 20% → test<br/>(MLGG-S02)"]
-        P2_STRATIFIED["stratified_grouped<br/>--cross-sectional 模式<br/>按结局标签分层<br/>层内随机分配<br/>跳过时序检查"]
-        P2_DISJOINT["患者级 disjoint 保证 (MLGG-S01)<br/>同一患者所有记录 → 同一 split<br/>零容忍: 任何 ID 重叠 → ❌ FAIL"]
-        P2_CHECK["安全检查<br/>每 split ≥ 20 行, ≥ 10 正例, ≥ 10 负例<br/>正类率漂移 > 10% → ⚠️ WARNING"]
-
-        P2_START --> P2_CROSS_SEC
-        P2_CROSS_SEC -->|"是"| P2_STRATIFIED
-        P2_CROSS_SEC -->|"否 (纵向)"| P2_TEMPORAL
-        P2_TEMPORAL --> P2_DISJOINT
-        P2_STRATIFIED --> P2_DISJOINT
-        P2_DISJOINT --> P2_CHECK
-    end
-
-    P2_OUT["📄 train.csv (60%)<br/>📄 valid.csv (20%)<br/>📄 test.csv (20%)<br/>📄 split_protocol_report.json"]
-    P2 --> P2_OUT
-
-    %% ============================================================
-    %% PHASE 3
-    %% ============================================================
-    P2_OUT --> P3_START
-
-    subgraph P3["⚙️ Phase 3: 预处理 (fit on TRAIN ONLY)"]
-        direction TB
-        P3_START["加载 train / valid / test"]
-        P3_ENCODE["自动分类变量编码 (MLGG-P05)<br/>Binary (2值) → 0/1, OOD → 0.5<br/>Categorical (3-15值) → OneHot<br/>Numeric (>15值) → 保持原值<br/>全部 fit on train, transform on valid/test"]
-        P3_MISS_TIER["分层缺失策略 (MLGG-P06)<br/>Tier4 (>80%): 丢弃值, 保留缺失指示<br/>Tier3 (40-80%): 插补 + 指示<br/>Tier2 (5-40%): 插补 + 指示<br/>Tier1 (<5%): 简单插补<br/>📖 Madley-Dowd 2019"]
-        P3_PIPELINE["Pipeline 结构<br/>Imputer → Scaler → Classifier<br/>MICE (IterativeImputer) 或 SimpleImputer<br/>StandardScaler (均值0, 标准差1)"]
-        P3_SMOTE["SMOTE 立场<br/>默认不使用 → 损害校准<br/>改用 class_weight='balanced'<br/>+ 事后 Platt scaling<br/>📖 van den Goorbergh 2022 JAMIA"]
-
-        P3_START --> P3_ENCODE --> P3_MISS_TIER --> P3_PIPELINE --> P3_SMOTE
-    end
-
-    P3_OUT["🧮 X_train / X_valid / X_test<br/>(编码 + 插补完成)<br/>📦 preprocessor.pkl"]
-    P3 --> P3_OUT
-
-    %% ============================================================
-    %% PHASE 4
-    %% ============================================================
-    P3_OUT --> P4_START
-
-    subgraph P4["🔍 Phase 4: 特征筛选与诊断"]
-        direction TB
-        P4_START["候选特征集"]
-        P4_ENET["Elastic Net CV (train only)<br/>α ∈ {0.1, 0.3, 0.5, 0.7, 1.0}<br/>C 交叉验证<br/>分组选择: OneHot dummies 同进同退<br/>📖 Zou & Hastie 2005"]
-        P4_STAB["稳定性选择<br/>100 次子采样 × Elastic Net<br/>保留入选概率 > 0.6 的特征<br/>误选界: E[V] ≤ q²/((2π-1)×p)<br/>📖 Meinshausen 2010"]
-        P4_RIDGE["Ridge 对照<br/>与全量 Ridge 模型比较<br/>如选择损失 > 0.005 PR-AUC → 回退全量<br/>📖 Harrell 2015"]
-        P4_VIF["VIF 共线性检测 (自动运行)<br/>VIF > 5 → ⚠️ WARNING<br/>VIF > 10 → 🔴 CRITICAL<br/>🔧 compute_vif()"]
-        P4_NONLIN["非线性检验 (自动运行)<br/>LR test: 线性 vs 样条 logistic<br/>p < 0.05 → 存在非线性关系<br/>🔧 check_nonlinearity()"]
-        P4_NO_UNI["❌ 单因素筛选已废弃<br/>📖 Heinze 2018"]
-
-        P4_START --> P4_ENET --> P4_STAB --> P4_RIDGE
-        P4_START --> P4_VIF
-        P4_START --> P4_NONLIN
-        P4_START --> P4_NO_UNI
-    end
-
-    P4_OUT["📋 selected_features<br/>📊 vif_analysis<br/>📊 nonlinearity_analysis<br/>📄 feature_engineering_report.json"]
-    P4 --> P4_OUT
-
-    %% ============================================================
-    %% PHASE 5
-    %% ============================================================
-    P4_OUT --> P5_START
-
-    subgraph P5["🏋️ Phase 5: 模型训练与选择"]
-        direction TB
-        P5_START["20 个模型族候选池"]
-        P5_FAMILIES["比较 ≥ 3 个模型族 (MLGG-M03)<br/>LR (L1/L2/ElasticNet) | RF | XGBoost<br/>LightGBM | CatBoost | SVM | KNN | MLP<br/>TabPFN | 集成 (Voting/Stacking)"]
-        P5_CV["5 折 StratifiedKFold CV<br/>Optuna TPE 或 Grid Search<br/>在 validation 集上调参<br/>绝不在 test 上调参 (MLGG-M01)"]
-        P5_SELECT["模型选择 (MLGG-M04)<br/>用 validation PR-AUC, 不用 train-test gap<br/>One-SE 规则: 1 SE 内选最简单模型<br/>📖 Yang KDD 2023"]
-        P5_THRESHOLD["阈值选择 (MLGG-M02)<br/>Youden's J on validation<br/>J = Sensitivity + Specificity - 1<br/>threshold* = argmax J(t)"]
-        P5_OPTIMISM["Bootstrap Optimism Correction<br/>B ≥ 100 次重采样<br/>Optimism-corrected = apparent - mean(optimism)<br/>📖 Steyerberg 2019 Ch.17"]
-        P5_LEARN["学习曲线<br/>{10%, 20%, ..., 100%} 训练比例<br/>性能是否已收敛?<br/>🔧 learning_curve_data()"]
-        P5_POOL["保存模型池 (SHAP 用)<br/>每个族的最佳模型<br/>--model-pool-out model_pool.pkl"]
-
-        P5_START --> P5_FAMILIES --> P5_CV --> P5_SELECT --> P5_THRESHOLD
-        P5_SELECT --> P5_OPTIMISM
-        P5_SELECT --> P5_LEARN
-        P5_SELECT --> P5_POOL
-    end
-
-    P5_OUT["📦 model.pkl (最优单模型)<br/>📦 model_pool.pkl (多族模型)<br/>📄 model_selection_report.json<br/>📄 thresholds.json"]
-    P5 --> P5_OUT
-
-    %% ============================================================
-    %% PHASE 6
-    %% ============================================================
-    P5_OUT --> P6_START
-
-    subgraph P6["📏 Phase 6: 评估与校准"]
-        direction TB
-        P6_START["Test 集一次性评估"]
-        P6_DISCRIM["区分度<br/>AUROC, AUPRC"]
-        P6_CALIB["校准三件套 (Van Calster 2019)<br/>截距 → 0 | 斜率 → 1 | O:E → 1<br/>ECE | Hosmer-Lemeshow χ²<br/>校准 per-bin 95% Bootstrap CI<br/>🔧 calibration_metrics()<br/>🔧 calibration_bin_ci()"]
-        P6_OVERALL["整体性能<br/>Brier score<br/>Brier Skill Score = 1 - Brier/Brier_ref<br/>BSS > 0 = 优于仅预测患病率"]
-        P6_CLASS["分类指标<br/>MCC | LR+/LR- | Sens | Spec<br/>PPV | NPV | F1 | Balanced Accuracy<br/>📖 Chicco 2020: MCC 优于 F1"]
-        P6_CLINICAL["临床效用<br/>DCA 净效用 | NRI | IDI<br/>🔧 compute_nri_idi()<br/>📖 Pencina 2008"]
-        P6_CI["Bootstrap 95% CI<br/>所有主要指标<br/>percentile method, B ≥ 1000<br/>(MLGG-E01)"]
-        P6_SEED["多种子稳定性 (MLGG-R02)<br/>≥ 5 seeds, std(AUROC) < 0.02"]
-        P6_PLATT["事后校准 (MLGG-E05)<br/>Platt scaling on validation → apply to test<br/>class_weight=balanced 必须校准"]
-        P6_BASELINE["基线对比<br/>vs 患病率模型 / 随机分类器 / 全阳性 / 全阴性<br/>🔧 baseline_comparisons()"]
-        P6_ABLATION["特征消融实验<br/>去掉 top-N 特征后性能变化<br/>🔧 feature_ablation()"]
-        P6_COEF["模型系数导出<br/>LR coef_ 或 tree importances<br/>🔧 export_model_coefficients()"]
-        P6_RESOURCE["计算资源记录<br/>训练时间 / CPU / 平台<br/>🔧 compute_resource_report()"]
-
-        P6_START --> P6_DISCRIM
-        P6_START --> P6_CALIB
-        P6_START --> P6_OVERALL
-        P6_START --> P6_CLASS
-        P6_START --> P6_CLINICAL
-        P6_START --> P6_CI
-        P6_START --> P6_SEED
-        P6_START --> P6_PLATT
-        P6_START --> P6_BASELINE
-        P6_START --> P6_ABLATION
-        P6_START --> P6_COEF
-        P6_START --> P6_RESOURCE
-    end
-
-    P6_OUT["📄 evaluation_report.json<br/>📄 prediction_trace.csv.gz<br/>📄 ci_matrix_report.json<br/>📊 校准曲线数据"]
-    P6 --> P6_OUT
-
-    %% ============================================================
-    %% PHASE 7
-    %% ============================================================
-    P5_OUT --> P7_START
-    P6_OUT --> P7_START2
-
-    subgraph P7["🧠 Phase 7: 多模型 SHAP 可解释性"]
-        direction TB
-        P7_START["加载 model_pool.pkl"]
-        P7_START2["加载 train + test 数据"]
-        P7_COMPUTE["逐族独立计算 SHAP<br/>TreeExplainer: RF / XGB / CatBoost / LGBM<br/>LinearExplainer: LR<br/>KernelExplainer: SVM / KNN / MLP (兜底)<br/>背景: train 子采样 200 行<br/>解释: test 子采样 500 行<br/>📖 Lundberg NeurIPS 2017"]
-        P7_NORMALIZE["比例归一化集成<br/>每模型: mean(|SHAP|) → L1 归一化 (sum=1)<br/>跨模型: 等权平均 → 集成排名<br/>消除模型间尺度差异<br/>📖 PMC11513550"]
-        P7_AGREEMENT["跨模型一致性检验<br/>Kendall τ 排名相关<br/>> 0.7 强一致 | 0.5-0.7 中等 | < 0.5 弱<br/>Top-N Jaccard 重叠系数<br/>方向: positive / negative / mixed"]
-        P7_CASES["个案解释<br/>Top-K 最高/最低风险样本<br/>每例 Top-3 驱动特征 + SHAP 值"]
-        P7_CHECKS["8 项自动验证<br/>NaN | 全零 | 单模型 | 排名分歧<br/>极端集中 | 可疑特征 | 特征不匹配"]
-
-        P7_START --> P7_COMPUTE
-        P7_START2 --> P7_COMPUTE
-        P7_COMPUTE --> P7_NORMALIZE --> P7_AGREEMENT
-        P7_COMPUTE --> P7_CASES
-        P7_COMPUTE --> P7_CHECKS
-    end
-
-    P7_OUT["📊 Table A: 集成特征重要性<br/>📊 Table B: 逐模型 SHAP 明细<br/>📊 Table C: 跨模型排名一致性<br/>📊 Table D: 个案解释<br/>📄 shap_interpretability_report.json"]
-    P7 --> P7_OUT
-
-    %% ============================================================
-    %% PHASE 8
-    %% ============================================================
-    P6_OUT --> P8_START
-
-    subgraph P8["⚖️ Phase 8: 公平性与亚组分析"]
-        direction TB
-        P8_START["按保护属性分组"]
-        P8_SUBGROUP["亚组指标 (MLGG-Q01)<br/>按 race / gender / age 分组<br/>每组: AUROC / AUPRC / Sens / Spec / PPV / FPR"]
-        P8_DCA["亚组 DCA 净效用 (MLGG-Q02)<br/>按人群分组计算 DCA<br/>equity gap = max - min 最优净效用<br/>模型可能帮助多数族裔但伤害少数族裔!<br/>🔧 subgroup_dca()<br/>📖 Vickers 2025"]
-        P8_SMALL["小亚组标记<br/>n < 200 → 估计不可靠<br/>不作为比较依据"]
-        P8_DISPARITY["差异标记<br/>AUROC 差异 > 0.05 → ⚠️<br/>Sensitivity 差异 > 0.10 → ⚠️"]
-
-        P8_START --> P8_SUBGROUP --> P8_DCA
-        P8_SUBGROUP --> P8_SMALL
-        P8_SUBGROUP --> P8_DISPARITY
-    end
-
-    P8_OUT["📊 subgroup_race.csv<br/>📊 subgroup_gender.csv<br/>📊 subgroup_age.csv<br/>📄 fairness_equity_report.json"]
-    P8 --> P8_OUT
-
-    %% ============================================================
-    %% PHASE 9
-    %% ============================================================
-    P6_OUT --> P9_START
-    P7_OUT --> P9_START
-    P8_OUT --> P9_START
-
-    subgraph P9["📝 Phase 9: 报告与发布审查"]
-        direction TB
-        P9_START["聚合全部 gate 报告"]
-        P9_TRIPOD["TRIPOD+AI 2024 清单<br/>27 项逐项机器核对<br/>📖 Collins 2024 BMJ"]
-        P9_PROBAST["PROBAST+AI 2025 偏倚风险<br/>4 域 × 16/18 信号问题<br/>Participants | Predictors | Outcome | Analysis<br/>📖 Moons 2025 BMJ"]
-        P9_SCORE["12 维量化评分 (0-100)<br/>数据完整性 12 | 泄漏防护 15 | 管线隔离 12<br/>模型选择 10 | 统计有效性 12 | 泛化 10<br/>临床 7 | 报告 7 | 复现 6 | 安全 3 | 公平 3 | 样本 3<br/>≥ 90 顶刊级 | 75-89 需补充 | < 60 不可发表"]
-        P9_CARD["Model Card 自动生成<br/>训练数据 / 性能 / 公平性 / SHAP / 限制 / 伦理<br/>🔧 generate_model_card()"]
-        P9_LIMITS["局限性讨论 (强制)<br/>数据来源 / 时间有效性 / 编码体系<br/>外部效度 / 公平性 / DCA 结论<br/>DCA 无净效用 → 必须诚实报告"]
-
-        P9_START --> P9_TRIPOD
-        P9_START --> P9_PROBAST
-        P9_START --> P9_SCORE
-        P9_START --> P9_CARD
-        P9_START --> P9_LIMITS
-    end
-
-    P9_OUT["📄 publication_gate_report.json<br/>📄 self_critique_report.json<br/>📝 model_card.md<br/>📋 TRIPOD+AI checklist"]
-    P9 --> P9_OUT
-
-    %% ============================================================
-    %% 敏感性分析 (可选)
-    %% ============================================================
-    P6_OUT --> SENS_START
-
-    subgraph SENS["🔄 可选: 敏感性与鲁棒性分析"]
-        direction TB
-        SENS_START["敏感性分析入口"]
-        SENS_MNAR["MNAR 敏感性分析<br/>δ 偏移插补值 ∈ [-0.5, +0.5]<br/>重新训练 + 评估<br/>找 tipping point (结论翻转点)<br/>🔧 mnar_sensitivity_analysis()<br/>📖 Cro 2020 Stat Med"]
-        SENS_IMP["插补方法敏感性<br/>比较 median / mean / KNN / MICE<br/>AUROC spread < 0.01 → 稳健<br/>🔧 imputation_sensitivity()"]
-        SENS_DRIFT["时序漂移检测<br/>按时间窗口计算 O:E / ECE<br/>CUSUM 检测漂移点<br/>🔧 temporal_drift_analysis()"]
-        SENS_RUBIN["多重插补合并<br/>Rubin's Rules: 池化估计<br/>between + within variance<br/>Barnard-Rubin 自由度<br/>🔧 rubins_rules_combine()"]
-
-        SENS_START --> SENS_MNAR
-        SENS_START --> SENS_IMP
-        SENS_START --> SENS_DRIFT
-        SENS_START --> SENS_RUBIN
-    end
-
-    %% ============================================================
-    %% 最终输出
-    %% ============================================================
-    P9_OUT --> FINAL
-    SENS --> FINAL
-
-    FINAL["🏆 发布就绪产物<br/>━━━━━━━━━━━━━━━━━━━<br/>33 道门控全部通过 → L3 Publication-Grade<br/>TRIPOD+AI 2024 合规 ✅<br/>PROBAST+AI 2025 低偏倚 ✅<br/>Nature ML Checklist 30/30 ✅<br/>━━━━━━━━━━━━━━━━━━━<br/>4 张 SHAP 表格 + 校准曲线 + DCA<br/>公平性报告 + Model Card<br/>全部代码 + 数据可复现"]
-
-    %% ============================================================
-    %% 样式
-    %% ============================================================
-    classDef phase fill:#161b22,stroke:#30363d,color:#c9d1d9
-    classDef output fill:#0d1117,stroke:#238636,color:#7ee787
-    classDef final fill:#1f6feb22,stroke:#1f6feb,color:#58a6ff,stroke-width:2px
-    classDef decision fill:#161b22,stroke:#d29922,color:#e3b341
-
-    class P1,P2,P3,P4,P5,P6,P7,P8,P9,SENS phase
-    class P1_OUT,P2_OUT,P3_OUT,P4_OUT,P5_OUT,P6_OUT,P7_OUT,P8_OUT,P9_OUT output
-    class FINAL final
-    class P2_CROSS_SEC decision
+<!-- P1 -->
+<div class="card p1">
+  <div class="card-head">
+    <div class="badge">P1</div>
+    <div>
+      <div class="card-title">数据理解与队列定义</div>
+      <div class="card-script">cohort_definition_gate.py · Layer 0</div>
+    </div>
+  </div>
+  <ul class="steps">
+    <li class="c">加载 CSV → 验证 target 为 0/1 二分类</li>
+    <li class="c">定义合格队列：排除结局不可能记录 <span class="rule">MLGG-C01</span>
+      <br><span style="color:#6b7280">例: 死亡患者不可能再入院</span></li>
+    <li class="w">Riley 2019 样本量三准则 <span class="ref">Riley 2019 Stat Med</span>
+      <br>C1: 收缩因子 ≥ 0.9 · C2: R² optimism ≤ 0.05 · C3: 精度
+      <br><span style="color:#ef4444">EPV &lt; 5 → FAIL</span> · <span style="color:#f59e0b">5-10 → WARN</span>
+      <br><span class="tool">riley_sample_size()</span></li>
+    <li class="i">数据类型自动检测: numeric / binary / categorical</li>
+    <li class="i">缺失值概况: 按特征统计, &gt;50% 标记</li>
+    <li class="g">横截面 vs 纵向: 患者ID有重复? → 纵向</li>
+  </ul>
+  <div class="out">→ cohort_summary.csv · feature_profile.csv · JSON报告</div>
 </div>
 
-<script>
-mermaid.initialize({
-  startOnLoad: true,
-  theme: 'dark',
-  themeVariables: {
-    darkMode: true,
-    background: '#0d1117',
-    primaryColor: '#161b22',
-    primaryTextColor: '#c9d1d9',
-    primaryBorderColor: '#30363d',
-    lineColor: '#484f58',
-    secondaryColor: '#1c2128',
-    tertiaryColor: '#21262d',
-    fontFamily: '-apple-system, PingFang SC, sans-serif',
-    fontSize: '13px',
-  },
-  flowchart: {
-    curve: 'basis',
-    padding: 16,
-    nodeSpacing: 30,
-    rankSpacing: 40,
-    htmlLabels: true,
-    useMaxWidth: false,
-  },
-});
-</script>
+<!-- P2 -->
+<div class="card p2">
+  <div class="card-head">
+    <div class="badge">P2</div>
+    <div>
+      <div class="card-title">数据划分</div>
+      <div class="card-script">split_data.py · split_protocol_gate.py · Layer 3</div>
+    </div>
+  </div>
+  <ul class="steps">
+    <li class="c">患者级 disjoint: 同一患者 → 同一 split <span class="rule">MLGG-S01</span>
+      <br><span style="color:#ef4444">任何 ID 重叠 → FAIL</span></li>
+    <li class="w">
+      <span class="decision">横截面数据?</span>
+      <br><b style="color:#22c55e">是 →</b> stratified_grouped + --cross-sectional
+      <br><span style="color:#6b7280">按标签分层, 层内随机, 跳过时序检查</span>
+      <br><b style="color:#3b82f6">否 →</b> grouped_temporal <span class="rule">MLGG-S02</span>
+      <br><span style="color:#6b7280">按时间排序: train &lt; valid &lt; test</span></li>
+    <li class="i">比例: Train 60% / Valid 20% / Test 20%</li>
+    <li class="g">安全检查: ≥20行, ≥10正/负, ≥5患者
+      <br>正类率漂移 &gt;10% → ⚠️</li>
+  </ul>
+  <div class="out">→ train.csv · valid.csv · test.csv · split报告</div>
+</div>
+
+<!-- P3 -->
+<div class="card p3">
+  <div class="card-head">
+    <div class="badge">P3</div>
+    <div>
+      <div class="card-title">预处理 (fit on TRAIN ONLY)</div>
+      <div class="card-script">train_select_evaluate.py Pipeline</div>
+    </div>
+  </div>
+  <ul class="steps">
+    <li class="c">所有 fit() 仅在训练集 <span class="rule">MLGG-P01</span> <span class="ref">Kaufman 2012</span></li>
+    <li class="w">自动分类编码 (fit on train) <span class="rule">MLGG-P05</span>
+      <br>Binary(2值) → 0/1, OOD → 0.5 sentinel
+      <br>Categorical(3-15值) → OneHot, OOD → 全零行
+      <br>Numeric(&gt;15值) → 保持原值
+      <br><span class="tool">encode_categorical_features()</span></li>
+    <li class="w">分层缺失策略 <span class="rule">MLGG-P06</span> <span class="ref">Madley-Dowd 2019</span>
+      <br>Tier4(&gt;80%): 丢弃+指示 · Tier3(40-80%): 插补+指示
+      <br>Tier2(5-40%): 插补+指示 · Tier1(&lt;5%): 简单插补</li>
+    <li class="g">Pipeline: Imputer → Scaler → Classifier</li>
+    <li class="i">SMOTE 默认不用 → 损害校准 <span class="ref">van den Goorbergh 2022</span></li>
+  </ul>
+  <div class="out">→ X_train/valid/test (编码+插补) · preprocessor.pkl</div>
+</div>
+
+<!-- Arrow -->
+<div class="dots">▼ ▼ ▼</div>
+
+<!-- ===================== ROW 2: Phase 4-6 ===================== -->
+
+<!-- P4 -->
+<div class="card p4">
+  <div class="card-head">
+    <div class="badge">P4</div>
+    <div>
+      <div class="card-title">特征筛选与诊断</div>
+      <div class="card-script">train_select_evaluate.py · train only</div>
+    </div>
+  </div>
+  <ul class="steps">
+    <li class="c">Elastic Net CV <span class="ref">Zou & Hastie 2005</span>
+      <br>α ∈ {0.1, 0.3, 0.5, 0.7, 1.0}, C 交叉验证
+      <br>分组选择: OneHot dummies 同进同退 <span class="ref">Yuan & Lin 2006</span></li>
+    <li class="w">稳定性选择 <span class="ref">Meinshausen 2010</span>
+      <br>100次子采样, 保留入选概率 &gt; 0.6
+      <br>误选界: E[V] ≤ q²/((2π-1)×p)</li>
+    <li class="g">Ridge 对照 <span class="ref">Harrell 2015</span>
+      <br>选择损失 &gt; 0.005 PR-AUC → 回退全量</li>
+    <li class="i">VIF 共线性 (自动) <span class="tool">compute_vif()</span>
+      <br>&gt;5 ⚠️ | &gt;10 🔴</li>
+    <li class="i">非线性检验 (自动) <span class="tool">check_nonlinearity()</span>
+      <br>LR test: 线性 vs 样条, p&lt;0.05 → 非线性</li>
+    <li class="c">单因素筛选已废弃 <span class="ref">Heinze 2018</span></li>
+  </ul>
+  <div class="out">→ selected_features · VIF分析 · 非线性分析 · 报告</div>
+</div>
+
+<!-- P5 -->
+<div class="card p5">
+  <div class="card-head">
+    <div class="badge">P5</div>
+    <div>
+      <div class="card-title">模型训练与选择</div>
+      <div class="card-script">train_select_evaluate.py · 20个模型族</div>
+    </div>
+  </div>
+  <ul class="steps">
+    <li class="c">≥3 模型族 <span class="rule">MLGG-M03</span>
+      <br>LR | RF | XGBoost | LightGBM | CatBoost
+      <br>SVM | KNN | MLP | TabPFN | 集成</li>
+    <li class="c">验证集调参, 绝不碰 test <span class="rule">MLGG-M01</span>
+      <br>5折 StratifiedKFold · Optuna TPE</li>
+    <li class="w">模型选择: valid PR-AUC, 不用 gap <span class="ref">Yang KDD 2023</span>
+      <br>One-SE 规则: 1SE 内选最简单 <span class="rule">MLGG-M04</span></li>
+    <li class="g">阈值: Youden's J on valid <span class="rule">MLGG-M02</span>
+      <br>J = Sens + Spec - 1</li>
+    <li class="i">Bootstrap optimism correction <span class="ref">Steyerberg 2019</span>
+      <br>B ≥ 100 · optimism-corrected performance</li>
+    <li class="i">学习曲线 <span class="tool">learning_curve_data()</span>
+      <br>{10%, 20%, ..., 100%} 训练比例 → 收敛?</li>
+    <li class="g">保存模型池 → SHAP 用
+      <br>--model-pool-out model_pool.pkl</li>
+  </ul>
+  <div class="out">→ model.pkl · model_pool.pkl · 选择报告 · thresholds</div>
+</div>
+
+<!-- P6 -->
+<div class="card p6">
+  <div class="card-head">
+    <div class="badge">P6</div>
+    <div>
+      <div class="card-title">评估与校准</div>
+      <div class="card-script">13 道统计门控 · Layer 6</div>
+    </div>
+  </div>
+  <ul class="steps">
+    <li class="c">Test 集一次性评估, 5 域面板 <span class="ref">Lancet DH 2025</span></li>
+    <li class="w"><b>区分度</b>: AUROC, AUPRC</li>
+    <li class="w"><b>校准</b>: 截距→0 · 斜率→1 · O:E→1
+      <br>ECE · HL χ² · per-bin 95% CI <span class="ref">Van Calster 2019</span>
+      <br><span class="tool">calibration_metrics() · calibration_bin_ci()</span></li>
+    <li class="w"><b>整体</b>: Brier · BSS (>0=优于基线)</li>
+    <li class="w"><b>分类</b>: MCC · LR+/LR- · Sens/Spec/PPV/NPV <span class="ref">Chicco 2020</span></li>
+    <li class="w"><b>临床</b>: DCA · NRI · IDI <span class="tool">compute_nri_idi()</span></li>
+    <li class="i">95% CI: bootstrap ≥ 1000 <span class="rule">MLGG-E01</span></li>
+    <li class="i">多种子: ≥5 seeds, std &lt; 0.02 <span class="rule">MLGG-R02</span></li>
+    <li class="g">Platt scaling 事后校准 <span class="rule">MLGG-E05</span></li>
+    <li class="i">基线对比 <span class="tool">baseline_comparisons()</span></li>
+    <li class="i">特征消融 <span class="tool">feature_ablation()</span></li>
+    <li class="i">系数导出 <span class="tool">export_model_coefficients()</span></li>
+    <li class="i">计算资源 <span class="tool">compute_resource_report()</span></li>
+  </ul>
+  <div class="out">→ evaluation_report · prediction_trace · CI矩阵 · 校准曲线</div>
+</div>
+
+<!-- Arrow -->
+<div class="dots">▼ ▼ ▼</div>
+
+<!-- ===================== ROW 3: Phase 7-9 ===================== -->
+
+<!-- P7 -->
+<div class="card p7">
+  <div class="card-head">
+    <div class="badge">P7</div>
+    <div>
+      <div class="card-title">多模型 SHAP 可解释性</div>
+      <div class="card-script">shap_interpretability_gate.py · Layer 5</div>
+    </div>
+  </div>
+  <ul class="steps">
+    <li class="c">多族独立 SHAP <span class="ref">Lundberg NeurIPS 2017</span>
+      <br>TreeExplainer: RF/XGB/CatBoost/LGBM
+      <br>LinearExplainer: LR · KernelExplainer: 兜底
+      <br>背景: train 200行 · 解释: test 500行</li>
+    <li class="w">比例归一化集成 <span class="ref">PMC11513550</span>
+      <br>每模型 mean(|SHAP|) → L1归一化(sum=1)
+      <br>跨模型等权平均 → 消除尺度差异</li>
+    <li class="g">一致性检验
+      <br>Kendall τ: &gt;0.7强 | 0.5-0.7中 | &lt;0.5弱
+      <br>Top-N Jaccard 重叠 · 方向共识</li>
+    <li class="i">个案解释: 高/低风险 Top-3 驱动特征</li>
+    <li class="g">8 项自动验证: NaN/全零/单模型/排名分歧/极端集中/可疑特征</li>
+  </ul>
+  <div class="out">→ Table A(集成排名) · B(逐模型) · C(一致性) · D(个案)</div>
+</div>
+
+<!-- P8 -->
+<div class="card p8">
+  <div class="card-head">
+    <div class="badge">P8</div>
+    <div>
+      <div class="card-title">公平性与亚组分析</div>
+      <div class="card-script">fairness_equity_gate.py · Layer 6</div>
+    </div>
+  </div>
+  <ul class="steps">
+    <li class="c">按 race / gender / age 分组 <span class="rule">MLGG-Q01</span>
+      <br>每组: AUROC / AUPRC / Sens / Spec / PPV / FPR</li>
+    <li class="w">亚组 DCA 净效用 <span class="ref">Vickers 2025</span>
+      <br>按人群分组计算 DCA 净效用
+      <br>equity gap = max - min 最优净效用
+      <br><span style="color:#ef4444">模型可能帮助多数但伤害少数!</span>
+      <br><span class="tool">subgroup_dca()</span></li>
+    <li class="g">小亚组标记: n &lt; 200 → 不可靠 <span class="rule">MLGG-Q02</span></li>
+    <li class="i">差异标记
+      <br>AUROC 差异 &gt;0.05 → ⚠️
+      <br>Sens 差异 &gt;0.10 → ⚠️</li>
+  </ul>
+  <div class="out">→ subgroup_race/gender/age.csv · fairness报告</div>
+</div>
+
+<!-- P9 -->
+<div class="card p9">
+  <div class="card-head">
+    <div class="badge">P9</div>
+    <div>
+      <div class="card-title">报告与发布审查</div>
+      <div class="card-script">publication_gate.py · self_critique_gate.py · Layer 7-8</div>
+    </div>
+  </div>
+  <ul class="steps">
+    <li class="c">TRIPOD+AI 2024: 27 项机器核对 <span class="ref">Collins 2024 BMJ</span></li>
+    <li class="c">PROBAST+AI 2025: 4域偏倚评估 <span class="ref">Moons 2025 BMJ</span>
+      <br>Participants | Predictors | Outcome | Analysis</li>
+    <li class="w">12 维评分 (0-100)
+      <br>数据12 | 泄漏15 | 隔离12 | 选择10 | 统计12 | 泛化10
+      <br>临床7 | 报告7 | 复现6 | 安全3 | 公平3 | 样本3
+      <br><span style="color:#22c55e">≥90 顶刊级</span> · <span style="color:#f59e0b">75-89 需补充</span> · <span style="color:#ef4444">&lt;60 不可发表</span></li>
+    <li class="g">Model Card 自动生成 <span class="tool">generate_model_card()</span></li>
+    <li class="i">局限性讨论 (强制)
+      <br>数据来源 / 时间有效性 / 外部效度
+      <br>DCA 无净效用 → 必须诚实报告</li>
+  </ul>
+  <div class="out">→ publication报告 · self_critique · model_card.md · TRIPOD清单</div>
+</div>
+
+<!-- Arrow -->
+<div class="dots">▼ ▼ ▼</div>
+
+<!-- ===================== ROW 4: Sensitivity + Gates + Final ===================== -->
+
+<!-- Sensitivity -->
+<div class="card ps">
+  <div class="card-head">
+    <div class="badge">+</div>
+    <div>
+      <div class="card-title">可选: 敏感性与鲁棒性分析</div>
+      <div class="card-script">_gate_utils.py · 任何阶段可调用</div>
+    </div>
+  </div>
+  <ul class="steps">
+    <li class="w">MNAR 敏感性: δ偏移 [-0.5, +0.5]
+      <br>重训练+评估, 找 tipping point
+      <br><span class="tool">mnar_sensitivity_analysis()</span> <span class="ref">Cro 2020</span></li>
+    <li class="w">插补敏感性: median/mean/KNN/MICE
+      <br>AUROC spread &lt;0.01 → 稳健
+      <br><span class="tool">imputation_sensitivity()</span></li>
+    <li class="i">时序漂移: CUSUM 校准漂移检测
+      <br><span class="tool">temporal_drift_analysis()</span></li>
+    <li class="i">Rubin's Rules: 多重插补合并
+      <br>between + within variance
+      <br><span class="tool">rubins_rules_combine()</span></li>
+  </ul>
+</div>
+
+<!-- 33 Gates -->
+<div class="card" style="border-color:#1e40af">
+  <div class="card-head">
+    <div class="badge" style="background:#1e40af">33</div>
+    <div>
+      <div class="card-title" style="color:#93c5fd">33 道 Fail-Closed 门控 DAG</div>
+      <div class="card-script">9 层执行, 同层并行, 全部通过 → L3</div>
+    </div>
+  </div>
+  <div style="font-size:11px;line-height:1.8">
+    <b style="color:#c4b5fd">L0 契约</b> cohort_definition · request_contract<br>
+    <b style="color:#93c5fd">L1 指纹</b> manifest_lock<br>
+    <b style="color:#93c5fd">L2 证明</b> execution_attestation<br>
+    <b style="color:#67e8f9">L3 数据</b> leakage · split_protocol · covariate_shift · reporting_bias<br>
+    <b style="color:#5eead4">L4 策略</b> definition_variable · feature_lineage · imbalance · missingness · tuning_leakage<br>
+    <b style="color:#86efac">L5 模型</b> model_selection_audit · feature_eng_audit · clinical_metrics · <span style="color:#fdba74">shap_interpretability</span><br>
+    <b style="color:#fde047">L6 统计</b> calibration_dca · ci_matrix · distribution_gen · eval_quality · external_validation · fairness_equity · gen_gap · metric_consistency · permutation_sig · prediction_replay · robustness · sample_size · seed_stability<br>
+    <b style="color:#cbd5e1">L7 聚合</b> publication<br>
+    <b style="color:#e5e7eb">L8 终审</b> self_critique · security_audit
+  </div>
+</div>
+
+<!-- Final -->
+<div class="card" style="border-color:#22c55e;border-width:2px;background:#0f1f17">
+  <div class="card-head">
+    <div class="badge" style="background:#16a34a">✓</div>
+    <div>
+      <div class="card-title" style="color:#4ade80">发布就绪产物</div>
+      <div class="card-script">L3-Publication-Grade</div>
+    </div>
+  </div>
+  <div style="font-size:13px;line-height:2">
+    ✅ 33 门控全部通过<br>
+    ✅ TRIPOD+AI 2024 合规<br>
+    ✅ PROBAST+AI 2025 低偏倚<br>
+    ✅ Nature ML Checklist 30/30<br>
+    ✅ 12维评分 ≥ 90<br>
+  </div>
+  <div class="out" style="margin-top:12px">
+    最终交付:<br>
+    📊 4张SHAP表 · 校准曲线(含CI) · DCA<br>
+    📊 公平性报告 · 亚组DCA<br>
+    📝 Model Card · TRIPOD清单<br>
+    📄 evaluation_report · prediction_trace<br>
+    📦 model.pkl (签名) · 全部代码可复现
+  </div>
+</div>
+
+</div><!-- end grid -->
+
+<!-- ===================== 17 Tools Reference ===================== -->
+<div style="max-width:1500px;margin:28px auto 0;background:#1a1f2e;border:1px solid #2d3548;border-radius:10px;padding:20px">
+  <div style="font-size:15px;font-weight:700;color:#f97316;margin-bottom:14px">17 项框架级分析工具 · _gate_utils.py</div>
+  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;font-size:11px">
+    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">riley_sample_size()</span><br><span style="color:#6b7280">Riley 2019 三准则</span></div>
+    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">calibration_metrics()</span><br><span style="color:#6b7280">校准三件套+HL+BSS</span></div>
+    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">calibration_bin_ci()</span><br><span style="color:#6b7280">per-bin Bootstrap CI</span></div>
+    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">compute_nri_idi()</span><br><span style="color:#6b7280">NRI + IDI</span></div>
+    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">baseline_comparisons()</span><br><span style="color:#6b7280">vs 随机/prevalence</span></div>
+    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">feature_ablation()</span><br><span style="color:#6b7280">特征消融实验</span></div>
+    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">learning_curve_data()</span><br><span style="color:#6b7280">学习曲线</span></div>
+    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">compute_vif()</span><br><span style="color:#6b7280">多重共线性 VIF</span></div>
+    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">check_nonlinearity()</span><br><span style="color:#6b7280">LR test 非线性检验</span></div>
+    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">export_model_coefficients()</span><br><span style="color:#6b7280">系数/重要性导出</span></div>
+    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">compute_resource_report()</span><br><span style="color:#6b7280">计算资源记录</span></div>
+    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">mnar_sensitivity_analysis()</span><br><span style="color:#6b7280">MNAR δ 敏感性</span></div>
+    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">imputation_sensitivity()</span><br><span style="color:#6b7280">插补方法比较</span></div>
+    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">temporal_drift_analysis()</span><br><span style="color:#6b7280">CUSUM 漂移检测</span></div>
+    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">subgroup_dca()</span><br><span style="color:#6b7280">亚组 DCA 净效用</span></div>
+    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">generate_model_card()</span><br><span style="color:#6b7280">Model Card 生成</span></div>
+    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">rubins_rules_combine()</span><br><span style="color:#6b7280">Rubin's Rules 合并</span></div>
+  </div>
+</div>
+
+<p class="footer">
+  ML Leakage Guard (MLGG) v1.0 &mdash; PolyForm Noncommercial License 1.0.0 &mdash; Academic use requires citation
+  <br>33 gates · 17 tools · 37+ references · 117 tests · Nature ML Checklist 30/30
+</p>
 
 </body>
 </html>
