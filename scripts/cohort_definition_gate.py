@@ -337,6 +337,78 @@ def analyze_cohort(
         if nunique <= 1:
             zero_variance_features.append(feat)
 
+    # ── Data quality: outlier / impossible value detection ──
+    outlier_features: List[Dict[str, Any]] = []
+    for fp in feature_profiles:
+        if fp["dtype_class"] != "numeric":
+            continue
+        feat = fp["feature"]
+        series = pd.to_numeric(df[feat], errors="coerce").dropna()
+        if len(series) < 10:
+            continue
+        q1, q3 = float(series.quantile(0.25)), float(series.quantile(0.75))
+        iqr = q3 - q1
+        if iqr <= 0:
+            continue
+        lower = q1 - 3 * iqr
+        upper = q3 + 3 * iqr
+        n_outlier = int(((series < lower) | (series > upper)).sum())
+        if n_outlier > 0:
+            outlier_features.append({
+                "feature": feat,
+                "n_outliers": n_outlier,
+                "pct_outliers": round(n_outlier / len(series), 4),
+                "range": [round(float(series.min()), 4), round(float(series.max()), 4)],
+                "iqr_bounds": [round(lower, 4), round(upper, 4)],
+            })
+
+    # ── Feature-target suspicious correlation (leakage signal) ──
+    suspicious_correlations: List[Dict[str, Any]] = []
+    if target_col in df.columns:
+        y_numeric = pd.to_numeric(df[target_col], errors="coerce")
+        for feat in feature_cols:
+            if feat not in df.columns:
+                continue
+            series = pd.to_numeric(df[feat], errors="coerce")
+            if series.isna().all():
+                continue
+            try:
+                corr = abs(float(series.corr(y_numeric)))
+                if corr > 0.8:
+                    suspicious_correlations.append({
+                        "feature": feat,
+                        "abs_correlation": round(corr, 4),
+                        "risk": "very_high" if corr > 0.95 else "high",
+                    })
+            except Exception:
+                pass
+
+    # ── Missingness pattern analysis ──
+    missingness_patterns: Dict[str, Any] = {}
+    if n_rows > 0 and feature_cols:
+        feat_df = df[feature_cols] if all(c in df.columns for c in feature_cols) else df
+        any_missing_per_row = feat_df.isna().any(axis=1)
+        n_complete_rows = int((~any_missing_per_row).sum())
+        n_incomplete_rows = int(any_missing_per_row.sum())
+
+        # Missingness correlated with outcome? (MNAR signal)
+        outcome_miss_corr = None
+        if target_col in df.columns and n_incomplete_rows > 0:
+            missing_flag = any_missing_per_row.astype(float)
+            y_num = pd.to_numeric(df[target_col], errors="coerce")
+            try:
+                outcome_miss_corr = round(abs(float(missing_flag.corr(y_num))), 4)
+            except Exception:
+                pass
+
+        missingness_patterns = {
+            "n_complete_rows": n_complete_rows,
+            "n_incomplete_rows": n_incomplete_rows,
+            "pct_complete": round(n_complete_rows / n_rows, 4),
+            "outcome_missingness_correlation": outcome_miss_corr,
+            "mnar_signal": outcome_miss_corr is not None and outcome_miss_corr > 0.1,
+        }
+
     return {
         "n_rows": n_rows,
         "n_features": n_features,
@@ -347,6 +419,9 @@ def analyze_cohort(
         "high_missing_features": high_missing_features,
         "zero_variance_features": zero_variance_features,
         "dtype_distribution": dtype_counts,
+        "outlier_features": outlier_features,
+        "suspicious_correlations": suspicious_correlations,
+        "missingness_patterns": missingness_patterns,
     }
 
 
@@ -535,6 +610,53 @@ def _run_checks(
             warnings_list, "COHORT_NO_VARIANCE",
             f"{len(zv)} zero-variance features: {zv[:5]}",
             {"features": zv[:10], "count": len(zv)},
+        )
+
+    # Outlier features
+    outliers = analysis.get("outlier_features", [])
+    severe_outliers = [o for o in outliers if o["pct_outliers"] > 0.05]
+    if severe_outliers:
+        add_issue(
+            warnings_list, "COHORT_HIGH_MISSINGNESS",
+            f"{len(severe_outliers)} features have >5%% extreme outliers (3×IQR): "
+            f"{[o['feature'] for o in severe_outliers[:5]]}. "
+            f"Check for data entry errors or impossible values.",
+            {"outlier_features": severe_outliers[:5]},
+        )
+
+    # Suspicious correlations (leakage signal)
+    sus_corr = analysis.get("suspicious_correlations", [])
+    if sus_corr:
+        very_high = [s for s in sus_corr if s["risk"] == "very_high"]
+        if very_high:
+            add_issue(
+                failures, "COHORT_OUTCOME_DEFINITION_LEAKAGE",
+                f"{len(very_high)} feature(s) have |correlation| > 0.95 with target: "
+                f"{[s['feature'] for s in very_high]}. "
+                f"This almost certainly indicates data leakage — the feature may "
+                f"encode or directly derive from the outcome.",
+                {"features": very_high},
+            )
+        else:
+            add_issue(
+                warnings_list, "COHORT_OUTCOME_DEFINITION_LEAKAGE",
+                f"{len(sus_corr)} feature(s) have |correlation| > 0.8 with target: "
+                f"{[s['feature'] for s in sus_corr[:5]]}. "
+                f"Investigate whether these derive from the outcome definition.",
+                {"features": sus_corr[:5]},
+            )
+
+    # Missingness-outcome correlation (MNAR signal)
+    miss_patterns = analysis.get("missingness_patterns", {})
+    if miss_patterns.get("mnar_signal"):
+        add_issue(
+            warnings_list, "COHORT_HIGH_MISSINGNESS",
+            f"Missingness is correlated with outcome "
+            f"(|r| = {miss_patterns.get('outcome_missingness_correlation', '?')}). "
+            f"This suggests Missing Not At Random (MNAR). "
+            f"Use mnar_sensitivity_analysis() to assess impact. "
+            f"Document in limitations.",
+            {"mnar_correlation": miss_patterns.get("outcome_missingness_correlation")},
         )
 
 
