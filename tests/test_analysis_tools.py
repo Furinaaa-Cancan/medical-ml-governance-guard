@@ -21,6 +21,7 @@ from _gate_utils import (
     imputation_sensitivity,
     learning_curve_data,
     mnar_sensitivity_analysis,
+    robustness_stress_test,
     subgroup_dca,
     temporal_drift_analysis,
 )
@@ -335,3 +336,50 @@ class TestComputeResourceReport:
         assert "cpu_count" in r["hardware"]
         assert r["hardware"]["cpu_count"] > 0
         assert "m" in r["wall_time_human"]
+
+
+# ─── Robustness Stress Test ───
+
+class TestRobustnessStressTest:
+    def test_basic(self):
+        from sklearn.ensemble import RandomForestClassifier
+        rng = np.random.default_rng(42)
+        X = rng.standard_normal((300, 5))
+        y = (X[:, 0] + X[:, 1] > 0).astype(int)
+        rf = RandomForestClassifier(n_estimators=20, random_state=42).fit(X[:200], y[:200])
+        r = robustness_stress_test(rf, X[:200], y[:200], X[200:], y[200:])
+        assert r["baseline"] > 0.5
+        assert len(r["perturbations"]) == 4
+        assert r["verdict"] in ("robust", "sensitive")
+        assert isinstance(r["max_relative_drop_pct"], float)
+
+    def test_training_data_immutable(self):
+        from sklearn.linear_model import LogisticRegression
+        rng = np.random.default_rng(42)
+        X = rng.standard_normal((200, 3))
+        y = (X[:, 0] > 0).astype(int)
+        X_train = X[:150].copy()
+        original = X_train.copy()
+        lr = LogisticRegression(max_iter=200).fit(X_train, y[:150])
+        robustness_stress_test(lr, X_train, y[:150], X[150:], y[150:])
+        np.testing.assert_array_equal(X_train, original)
+
+    def test_perfect_model_robust(self):
+        from sklearn.ensemble import RandomForestClassifier
+        rng = np.random.default_rng(42)
+        X = np.vstack([rng.normal(-5, 0.1, (100, 3)), rng.normal(5, 0.1, (100, 3))])
+        y = np.array([0]*100 + [1]*100)
+        rf = RandomForestClassifier(n_estimators=10, random_state=42).fit(X[:150], y[:150])
+        r = robustness_stress_test(rf, X[:150], y[:150], X[150:], y[150:])
+        assert r["max_relative_drop_pct"] < 10  # perfect sep → robust
+
+    def test_estimator_unchanged(self):
+        from sklearn.ensemble import RandomForestClassifier
+        rng = np.random.default_rng(42)
+        X = rng.standard_normal((200, 3))
+        y = (X[:, 0] > 0).astype(int)
+        rf = RandomForestClassifier(n_estimators=10, random_state=42).fit(X[:150], y[:150])
+        pred_before = rf.predict_proba(X[150:]).copy()
+        robustness_stress_test(rf, X[:150], y[:150], X[150:], y[150:])
+        pred_after = rf.predict_proba(X[150:])
+        np.testing.assert_array_equal(pred_before, pred_after)
