@@ -39,6 +39,13 @@ description: "Publication-grade medical prediction workflow with strict anti-dat
 | "校准怎么样" / "calibration slope" | 查看 `calibration_metrics()` in `_gate_utils.py`：校准截距/斜率/O:E/ECE/Hosmer-Lemeshow/Brier Skill Score |
 | "NRI IDI" / "模型比较改善" | 调用 `compute_nri_idi(y_true, y_old, y_new)` in `_gate_utils.py`：分类 NRI、连续 NRI、IDI |
 | "学习曲线" / "数据量够不够" | 调用 `learning_curve_data(estimator, X_train, y_train, X_test, y_test)` in `_gate_utils.py` |
+| "VIF" / "共线性" / "多重共线性" | 调用 `compute_vif(X, feature_names)` in `_gate_utils.py`：VIF>5 警告，>10 严重 |
+| "非线性" / "线性假设" / "spline" | 调用 `check_nonlinearity(X, y, feature_names)` in `_gate_utils.py`：LR test 检验 |
+| "MNAR" / "缺失不随机" / "敏感性分析" | 调用 `mnar_sensitivity_analysis(...)` in `_gate_utils.py`：δ-adjustment + tipping point |
+| "时序漂移" / "校准漂移" / "concept drift" | 调用 `temporal_drift_analysis(y_true, y_score, times)` in `_gate_utils.py`：CUSUM 检测 |
+| "Model Card" / "模型文档" | 调用 `generate_model_card(...)` in `_gate_utils.py`：自动生成 Markdown |
+| "插补敏感性" / "换插补方法" | 调用 `imputation_sensitivity(X_raw, y, estimator, features)` in `_gate_utils.py` |
+| "亚组 DCA" / "公平性净效用" | 调用 `subgroup_dca(y_true, y_score, groups)` in `_gate_utils.py`：equity gap |
 | "查看 lint 规则列表" | `python3 scripts/mlgg.py lint rules` |
 | "评审一篇论文（从 metadata）" | `python3 scripts/score_paper_metadata.py --metadata <metadata.json>` |
 | "批量评审论文" | `python3 scripts/score_paper_metadata.py --batch-dir papers/` |

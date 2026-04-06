@@ -5345,6 +5345,31 @@ def main() -> int:
         print(f"  Categorical encoding: {categorical_report['categorical_count']} features detected, "
               f"now {len(selected_features)} columns after OneHot.")
 
+    # VIF multicollinearity detection (MLGG diagnostic, train only)
+    from _gate_utils import compute_vif, check_nonlinearity
+    _vif_data = X_train.values if hasattr(X_train, "values") else X_train
+    if _vif_data.shape[1] <= 200:  # Skip VIF for very high-dimensional data (O(p²) cost)
+        vif_report = compute_vif(_vif_data, selected_features)
+        stage1_report["vif_analysis"] = vif_report
+        if vif_report.get("critical_features"):
+            print(f"  VIF WARNING: {len(vif_report['critical_features'])} features with VIF>10: "
+                  f"{vif_report['critical_features'][:5]}")
+    else:
+        vif_report = {"skipped": True, "reason": f"p={_vif_data.shape[1]} > 200"}
+        stage1_report["vif_analysis"] = vif_report
+
+    # Nonlinearity check for continuous features (MLGG diagnostic, train only)
+    nonlinearity_report = check_nonlinearity(_vif_data, y_train, selected_features)
+    nonlinear_features = [r["feature"] for r in nonlinearity_report if r.get("nonlinear")]
+    stage1_report["nonlinearity_analysis"] = {
+        "results": nonlinearity_report,
+        "nonlinear_features": nonlinear_features,
+        "n_nonlinear": len(nonlinear_features),
+    }
+    if nonlinear_features:
+        print(f"  Nonlinearity detected in {len(nonlinear_features)} features: "
+              f"{nonlinear_features[:5]}")
+
     external_cohorts = resolve_external_cohorts(
         external_spec=external_spec,
         external_spec_path=args.external_cohort_spec,
@@ -6754,6 +6779,21 @@ def main() -> int:
             "categorical_count": cat_analysis.get("categorical_count", 0),
             "coercion_warnings": cat_analysis.get("coercion_warnings", []),
         }
+    # Include VIF and nonlinearity summaries
+    if stage1_report and "vif_analysis" in stage1_report:
+        va = stage1_report["vif_analysis"]
+        evaluation_metadata["vif_analysis"] = {
+            "max_vif": va.get("max_vif"),
+            "critical_features": va.get("critical_features", []),
+            "warn_features": va.get("warn_features", []),
+        }
+    if stage1_report and "nonlinearity_analysis" in stage1_report:
+        na = stage1_report["nonlinearity_analysis"]
+        evaluation_metadata["nonlinearity_analysis"] = {
+            "n_nonlinear": na.get("n_nonlinear", 0),
+            "nonlinear_features": na.get("nonlinear_features", []),
+        }
+
     evaluation_metadata["feature_engineering_report_sha256"] = (
         sha256_file(feature_engineering_out)
         if feature_engineering_out and feature_engineering_out.exists()
