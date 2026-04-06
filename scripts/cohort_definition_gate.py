@@ -139,6 +139,14 @@ def riley_sample_size(
     phi = prevalence
     p = max(n_parameters, 1)
 
+    if phi <= 0 or phi >= 1:
+        return {
+            "error": f"Riley formula undefined for prevalence={phi:.4f}. "
+                     "Requires 0 < prevalence < 1 (binary outcome with both classes).",
+            "prevalence": round(phi, 4),
+            "n_parameters": p,
+        }
+
     # Criterion 1: Shrinkage factor S >= target
     # Approximate: S ≈ 1 - (p / EPP_effective)
     # Rearranging: EPP >= p / (1 - S)
