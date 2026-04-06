@@ -253,6 +253,10 @@ def parse_args() -> argparse.Namespace:
         help="Probability calibration method fit on leakage-safe split.",
     )
     parser.add_argument("--cv-splits", type=int, default=5, help="CV folds for candidate scoring.")
+    parser.add_argument("--temporal-cv", action="store_true",
+                        help="Use TimeSeriesSplit instead of StratifiedKFold for CV. "
+                             "Required when training data has temporal ordering to prevent "
+                             "future-to-past leakage within CV folds.")
     parser.add_argument(
         "--model-pool",
         default="",
@@ -3036,6 +3040,7 @@ def cv_score_pr_auc(
     seed: int,
     imbalance_strategy: str = "none",
     score_metric: str = "pr_auc",
+    temporal_cv: bool = False,
 ) -> Tuple[float, float, int, List[float]]:
     """Score an estimator by stratified CV PR-AUC.
 
@@ -3045,6 +3050,9 @@ def cv_score_pr_auc(
         y: Binary target array.
         n_splits: Number of CV folds.
         seed: Random seed for fold splitting.
+        temporal_cv: If True, use TimeSeriesSplit (respects temporal order)
+            instead of StratifiedKFold (shuffles). Required when training
+            data has temporal ordering.
 
     Returns:
         Tuple of (mean PR-AUC, std PR-AUC, number of valid folds,
@@ -3056,7 +3064,11 @@ def cv_score_pr_auc(
     metric_token = str(score_metric).strip().lower()
     if metric_token not in {"pr_auc", "roc_auc"}:
         raise ValueError(f"Unsupported score metric for CV: {score_metric}")
-    splitter = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=seed)
+    if temporal_cv:
+        from sklearn.model_selection import TimeSeriesSplit
+        splitter = TimeSeriesSplit(n_splits=n_splits)
+    else:
+        splitter = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=seed)
     fold_scores: List[float] = []
     for fold_idx, (tr_idx, va_idx) in enumerate(splitter.split(X, y), start=1):
         y_val = y[va_idx]
@@ -5441,6 +5453,7 @@ def main() -> int:
                     seed=int(args.random_seed) + (idx * 17),
                     imbalance_strategy=str(strategy),
                     score_metric=selected_imbalance_metric,
+                    temporal_cv=bool(getattr(args, "temporal_cv", False)),
                 )
                 probe_results.append(
                     {
@@ -5546,6 +5559,7 @@ def main() -> int:
                 seed=args.random_seed,
                 imbalance_strategy=selected_imbalance_strategy,
                 score_metric="pr_auc",
+                temporal_cv=bool(getattr(args, "temporal_cv", False)),
             )
         else:
             model = clone(cand["estimator"])
@@ -5612,6 +5626,7 @@ def main() -> int:
                     seed=args.random_seed,
                     imbalance_strategy=selected_imbalance_strategy,
                     score_metric="pr_auc",
+                    temporal_cv=bool(getattr(args, "temporal_cv", False)),
                 )
             else:
                 emodel = clone(ecand["estimator"])
