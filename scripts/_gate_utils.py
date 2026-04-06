@@ -699,6 +699,225 @@ def compute_nri_idi(
 
 
 # ---------------------------------------------------------------------------
+# Multicollinearity Detection (VIF)
+# Ref: PMC4888898, PMC11093476 — VIF > 5 investigate, > 10 critical
+# ---------------------------------------------------------------------------
+
+def compute_vif(
+    X: Any,
+    feature_names: Optional[list] = None,
+    threshold_warn: float = 5.0,
+    threshold_critical: float = 10.0,
+) -> Dict[str, Any]:
+    """Compute Variance Inflation Factor for each feature.
+
+    VIF_j = 1 / (1 - R²_j) where R²_j is from regressing feature j on all others.
+
+    Args:
+        X: Feature matrix (numpy array or DataFrame). Must be imputed (no NaN).
+        feature_names: Column names. Inferred from DataFrame if not provided.
+        threshold_warn: VIF above this triggers warning (default 5.0).
+        threshold_critical: VIF above this triggers critical flag (default 10.0).
+
+    Returns:
+        Dict with per_feature VIF table, flagged features, and summary.
+
+    References:
+        PMC4888898 — Multicollinearity in epidemiologic studies.
+        PMC11093476 — Stepwise regression is inappropriate for multicollinearity.
+    """
+    import numpy as np
+
+    X_arr = np.asarray(X, dtype=float)
+    n, p = X_arr.shape
+
+    if feature_names is None:
+        if hasattr(X, "columns"):
+            feature_names = list(X.columns)
+        else:
+            feature_names = [f"feature_{i}" for i in range(p)]
+
+    if n < p + 1:
+        return {
+            "error": f"Cannot compute VIF: n={n} < p+1={p+1}. More features than samples.",
+            "n_features": p,
+            "n_samples": n,
+        }
+
+    # Center features for numerical stability
+    X_centered = X_arr - X_arr.mean(axis=0)
+
+    vif_values = []
+    for j in range(p):
+        y_j = X_centered[:, j]
+        X_others = np.delete(X_centered, j, axis=1)
+
+        # OLS: R² = 1 - SS_res / SS_tot
+        try:
+            coef, residuals, _, _ = np.linalg.lstsq(X_others, y_j, rcond=None)
+            y_pred = X_others @ coef
+            ss_res = float(np.sum((y_j - y_pred) ** 2))
+            ss_tot = float(np.sum((y_j - y_j.mean()) ** 2))
+            r2 = 1.0 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+            vif = 1.0 / (1.0 - r2) if r2 < 1.0 else float("inf")
+        except Exception:
+            vif = float("nan")
+
+        vif_values.append({
+            "feature": feature_names[j],
+            "vif": round(vif, 2) if np.isfinite(vif) else None,
+            "flag": "critical" if vif > threshold_critical else ("warn" if vif > threshold_warn else "ok"),
+        })
+
+    # Sort by VIF descending
+    vif_values.sort(key=lambda x: -(x["vif"] or 0))
+
+    warn_features = [v["feature"] for v in vif_values if v["flag"] == "warn"]
+    critical_features = [v["feature"] for v in vif_values if v["flag"] == "critical"]
+
+    return {
+        "vif_table": vif_values,
+        "n_features": p,
+        "warn_features": warn_features,
+        "critical_features": critical_features,
+        "max_vif": vif_values[0]["vif"] if vif_values else None,
+        "threshold_warn": threshold_warn,
+        "threshold_critical": threshold_critical,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Nonlinearity Check for Continuous Predictors
+# Ref: Harrell 2015 Ch.2, Austin 2022 (Stat Med)
+# ---------------------------------------------------------------------------
+
+def check_nonlinearity(
+    X: Any,
+    y: Any,
+    feature_names: Optional[list] = None,
+    n_knots: int = 4,
+    p_threshold: float = 0.05,
+) -> list:
+    """Test linearity assumption for continuous predictors using likelihood ratio.
+
+    For each continuous feature, compares a linear logistic model vs a model
+    with natural cubic spline terms. Significant LR test → nonlinear relationship.
+
+    Args:
+        X: Feature matrix.
+        y: Binary target.
+        feature_names: Column names.
+        n_knots: Number of knots for spline (default 4 → 3 df nonlinear).
+        p_threshold: P-value threshold for flagging nonlinearity.
+
+    Returns:
+        List of dicts with feature, lr_chi2, p_value, nonlinear flag.
+
+    References:
+        Harrell FE. Regression Modeling Strategies. 2nd ed. 2015. Ch. 2.
+    """
+    import numpy as np
+    from scipy.stats import chi2
+
+    X_arr = np.asarray(X, dtype=float)
+    y_arr = np.asarray(y, dtype=float)
+    n, p = X_arr.shape
+
+    if feature_names is None:
+        if hasattr(X, "columns"):
+            feature_names = list(X.columns)
+        else:
+            feature_names = [f"feature_{i}" for i in range(p)]
+
+    results = []
+    for j in range(p):
+        x_j = X_arr[:, j]
+
+        # Skip constant or near-constant features
+        if np.std(x_j) < 1e-10:
+            results.append({
+                "feature": feature_names[j],
+                "lr_chi2": None,
+                "p_value": None,
+                "nonlinear": False,
+                "note": "constant feature",
+            })
+            continue
+
+        # Skip low-cardinality (categorical) — nonlinearity test only for continuous
+        if len(np.unique(x_j[~np.isnan(x_j)])) < 10:
+            results.append({
+                "feature": feature_names[j],
+                "lr_chi2": None,
+                "p_value": None,
+                "nonlinear": False,
+                "note": "low cardinality (skip)",
+            })
+            continue
+
+        # Fit linear logistic: logit(y) ~ β₀ + β₁·x
+        from sklearn.linear_model import LogisticRegression
+        try:
+            lr_linear = LogisticRegression(max_iter=500, solver="lbfgs")
+            lr_linear.fit(x_j.reshape(-1, 1), y_arr)
+            ll_linear = float(np.sum(
+                y_arr * np.log(np.clip(lr_linear.predict_proba(x_j.reshape(-1, 1))[:, 1], 1e-10, 1 - 1e-10))
+                + (1 - y_arr) * np.log(np.clip(1 - lr_linear.predict_proba(x_j.reshape(-1, 1))[:, 1], 1e-10, 1 - 1e-10))
+            ))
+        except Exception:
+            results.append({
+                "feature": feature_names[j],
+                "lr_chi2": None,
+                "p_value": None,
+                "nonlinear": False,
+                "note": "linear fit failed",
+            })
+            continue
+
+        # Fit spline logistic: add natural cubic spline basis functions
+        try:
+            knots = np.percentile(x_j[~np.isnan(x_j)], np.linspace(5, 95, n_knots))
+            # Natural cubic spline basis: (x - knot)³_+ for each interior knot
+            spline_cols = [x_j.reshape(-1, 1)]
+            for k in knots[1:-1]:  # interior knots only
+                term = np.maximum(x_j - k, 0) ** 3
+                spline_cols.append(term.reshape(-1, 1))
+            X_spline = np.hstack(spline_cols)
+
+            lr_spline = LogisticRegression(max_iter=500, solver="lbfgs")
+            lr_spline.fit(X_spline, y_arr)
+            ll_spline = float(np.sum(
+                y_arr * np.log(np.clip(lr_spline.predict_proba(X_spline)[:, 1], 1e-10, 1 - 1e-10))
+                + (1 - y_arr) * np.log(np.clip(1 - lr_spline.predict_proba(X_spline)[:, 1], 1e-10, 1 - 1e-10))
+            ))
+        except Exception:
+            results.append({
+                "feature": feature_names[j],
+                "lr_chi2": None,
+                "p_value": None,
+                "nonlinear": False,
+                "note": "spline fit failed",
+            })
+            continue
+
+        # Likelihood ratio test: 2 * (ll_spline - ll_linear) ~ chi²(df = n_interior_knots)
+        lr_stat = 2.0 * (ll_spline - ll_linear)
+        lr_stat = max(lr_stat, 0.0)
+        df = max(len(knots) - 2, 1)
+        p_val = float(1.0 - chi2.cdf(lr_stat, df))
+
+        results.append({
+            "feature": feature_names[j],
+            "lr_chi2": round(lr_stat, 4),
+            "p_value": round(p_val, 4),
+            "df": df,
+            "nonlinear": p_val < p_threshold,
+        })
+
+    return results
+
+
+# ---------------------------------------------------------------------------
 # Module 1: MNAR Sensitivity Analysis (δ-adjustment + tipping point)
 # Ref: PMC10481859 (2023), Cro 2020 (Stat Med)
 # ---------------------------------------------------------------------------
