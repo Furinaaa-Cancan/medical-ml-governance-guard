@@ -1,4 +1,4 @@
-"""Tests for _gate_utils analysis tools: VIF, nonlinearity, MNAR, drift, model card, imputation, subgroup DCA."""
+"""Tests for _gate_utils analysis tools: VIF, nonlinearity, MNAR, drift, model card, imputation, subgroup DCA, baseline, ablation, resources."""
 from __future__ import annotations
 
 import sys
@@ -10,10 +10,13 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 
 from _gate_utils import (
+    baseline_comparisons,
     calibration_metrics,
     check_nonlinearity,
     compute_nri_idi,
+    compute_resource_report,
     compute_vif,
+    feature_ablation,
     generate_model_card,
     imputation_sensitivity,
     learning_curve_data,
@@ -263,3 +266,72 @@ class TestLearningCurveEdgeCases:
                                       fractions=[0.3, 0.7, 1.0])
         assert len(results) >= 2
         assert all("test_score" in r for r in results)
+
+
+# ─── Baseline Comparisons (NC 4D) ───
+
+class TestBaselineComparisons:
+    def test_better_than_random(self):
+        rng = np.random.default_rng(42)
+        n = 200
+        y = rng.choice([0, 1], n, p=[0.7, 0.3])
+        y_score = np.clip(y * 0.6 + rng.normal(0.3, 0.1, n), 0.01, 0.99)
+        y_pred = (y_score > 0.5).astype(int)
+        r = baseline_comparisons(y, y_score, y_pred)
+        assert r["model"]["auroc"] > 0.5
+        assert r["improvement_over_baseline"]["auroc_over_random"] > 0
+        assert r["improvement_over_baseline"]["brier_skill_score"] > 0
+
+    def test_prevalence_baseline(self):
+        rng = np.random.default_rng(42)
+        n = 100
+        y = rng.choice([0, 1], n, p=[0.8, 0.2])
+        y_score = np.full(n, 0.2)  # predict prevalence for everyone
+        y_pred = np.zeros(n, dtype=int)
+        r = baseline_comparisons(y, y_score, y_pred)
+        assert r["prevalence_baseline"]["auroc"] == 0.5
+        assert r["all_positive"]["sensitivity"] == 1.0
+        assert r["all_negative"]["specificity"] == 1.0
+
+
+# ─── Feature Ablation (NC 4F) ───
+
+class TestFeatureAblation:
+    def test_basic(self):
+        from sklearn.ensemble import RandomForestClassifier
+        rng = np.random.default_rng(42)
+        X = rng.standard_normal((200, 5))
+        y = (X[:, 0] + X[:, 1] > 0).astype(int)
+        rf = RandomForestClassifier(n_estimators=20, random_state=42)
+        results = feature_ablation(rf, X[:150], y[:150], X[150:], y[150:],
+                                   ["f0", "f1", "f2", "f3", "f4"], top_n=3)
+        assert len(results) == 3
+        assert all("delta" in r for r in results)
+        # Top features should have positive importance
+        assert results[0]["permutation_importance"] > 0
+
+    def test_empty_on_failure(self):
+        # Bad estimator that can't predict
+        from sklearn.linear_model import LogisticRegression
+        results = feature_ablation(
+            LogisticRegression(), np.array([[1]]), np.array([0]),
+            np.array([[1]]), np.array([0]), ["x"], top_n=1,
+        )
+        assert results == []
+
+
+# ─── Compute Resource Report (NC 5A/5B) ───
+
+class TestComputeResourceReport:
+    def test_basic(self):
+        import time
+        t0 = time.time()
+        time.sleep(0.01)
+        t1 = time.time()
+        r = compute_resource_report(t0, t1, "TestModel", 1000, 50)
+        assert r["wall_time_seconds"] >= 0
+        assert r["n_train_samples"] == 1000
+        assert r["n_features"] == 50
+        assert "cpu_count" in r["hardware"]
+        assert r["hardware"]["cpu_count"] > 0
+        assert "m" in r["wall_time_human"]

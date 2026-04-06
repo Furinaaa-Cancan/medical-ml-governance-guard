@@ -46,6 +46,9 @@ description: "Publication-grade medical prediction workflow with strict anti-dat
 | "Model Card" / "模型文档" | 调用 `generate_model_card(...)` in `_gate_utils.py`：自动生成 Markdown |
 | "插补敏感性" / "换插补方法" | 调用 `imputation_sensitivity(X_raw, y, estimator, features)` in `_gate_utils.py` |
 | "亚组 DCA" / "公平性净效用" | 调用 `subgroup_dca(y_true, y_score, groups)` in `_gate_utils.py`：equity gap |
+| "baseline 对比" / "比随机好多少" | 调用 `baseline_comparisons(y_true, y_score, y_pred)` in `_gate_utils.py`：AUROC over random + BSS |
+| "消融实验" / "ablation" / "去掉特征" | 调用 `feature_ablation(estimator, X_train, y_train, X_test, y_test, features)` in `_gate_utils.py` |
+| "训练时间" / "计算资源" / "硬件" | 调用 `compute_resource_report(t0, t1, model_name, n_train, n_features)` in `_gate_utils.py` |
 | "查看 lint 规则列表" | `python3 scripts/mlgg.py lint rules` |
 | "评审一篇论文（从 metadata）" | `python3 scripts/score_paper_metadata.py --metadata <metadata.json>` |
 | "批量评审论文" | `python3 scripts/score_paper_metadata.py --batch-dir papers/` |

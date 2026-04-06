@@ -705,25 +705,28 @@ python3 scripts/shap_interpretability_gate.py \
 
 ---
 
-## 11 项框架级分析工具
+## 14 项框架级分析工具
 
-`_gate_utils.py` 提供 11 个即调即用的分析函数，覆盖顶刊审稿人最高频提问点：
+`_gate_utils.py` 提供 14 个即调即用的分析函数，100% 覆盖 [Nature Portfolio ML Checklist V1.1](https://www.nature.com/documents/machine-learning-checklist.pdf) 全部 30 项检查：
 
-| 工具 | 函数 | 审稿人常问 | 文献 |
-|------|------|-----------|------|
-| **Riley 样本量** | `riley_sample_size()` | "样本量论证？" | Riley 2019 (Stat Med) |
-| **校准三件套** | `calibration_metrics()` | "校准斜率/截距？" | Van Calster 2019 (BMC Med) |
-| **NRI / IDI** | `compute_nri_idi()` | "比基线模型好多少？" | Pencina 2008 (Stat Med) |
-| **学习曲线** | `learning_curve_data()` | "数据量够吗？" | Figueroa 2012 |
-| **VIF 共线性** | `compute_vif()` | "特征间共线性？" | PMC4888898 |
-| **非线性检验** | `check_nonlinearity()` | "线性假设合理吗？" | Harrell 2015, Austin 2022 |
-| **MNAR 敏感性** | `mnar_sensitivity_analysis()` | "MAR 假设如果错了？" | PMC10481859, Cro 2020 |
-| **时序漂移** | `temporal_drift_analysis()` | "模型部署后还准吗？" | PMC8627243 |
-| **Model Card** | `generate_model_card()` | "结构化模型文档？" | Mitchell 2019 (FAT\*) |
-| **插补敏感性** | `imputation_sensitivity()` | "换插补方法结论变吗？" | Pop Health Metrics 2024 |
-| **亚组 DCA** | `subgroup_dca()` | "少数族裔有临床效用吗？" | Nature Comp Sci 2025 |
+| 工具 | 函数 | 审稿人常问 | NC Checklist | 文献 |
+|------|------|-----------|:---:|------|
+| **Riley 样本量** | `riley_sample_size()` | "样本量论证？" | — | Riley 2019 (Stat Med) |
+| **校准三件套** | `calibration_metrics()` | "校准斜率/截距？" | 4A | Van Calster 2019 (BMC Med) |
+| **NRI / IDI** | `compute_nri_idi()` | "比基线模型好多少？" | 4D | Pencina 2008 (Stat Med) |
+| **学习曲线** | `learning_curve_data()` | "数据量够吗？" | — | Figueroa 2012 |
+| **VIF 共线性** | `compute_vif()` | "特征间共线性？" | — | PMC4888898 |
+| **非线性检验** | `check_nonlinearity()` | "线性假设合理吗？" | — | Harrell 2015 |
+| **MNAR 敏感性** | `mnar_sensitivity_analysis()` | "MAR 假设如果错了？" | — | PMC10481859 |
+| **时序漂移** | `temporal_drift_analysis()` | "模型部署后还准吗？" | — | PMC8627243 |
+| **Model Card** | `generate_model_card()` | "结构化模型文档？" | **3B** | Mitchell 2019 |
+| **插补敏感性** | `imputation_sensitivity()` | "换插补方法结论变吗？" | — | Pop Health Metrics 2024 |
+| **亚组 DCA** | `subgroup_dca()` | "少数族裔有临床效用吗？" | — | Nature Comp Sci 2025 |
+| **基线对比** | `baseline_comparisons()` | "比随机/prevalence 好多少？" | **4D** | NC ML Checklist V1.1 |
+| **特征消融** | `feature_ablation()` | "去掉关键特征性能怎么变？" | **4F** | NC ML Checklist V1.1 |
+| **计算资源** | `compute_resource_report()` | "训练用了多少资源？" | **5A/5B** | NC ML Checklist V1.1 |
 
-所有工具在训练管道中自动运行（VIF、非线性检验集成在 Phase 4），或可按需调用。
+VIF、非线性检验自动集成在 Phase 4。其余可按需调用。
 
 ---
 
