@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data (raw data should not be committed — download or link locally)
+00_database/raw/*.csv
+00_database/raw/*.zip
+00_database/raw/*.gz
+
+# Model artifacts
+outputs/models/*.pkl
+outputs/models/*.joblib
+outputs/models/*.sig
+
+# Large result files
+*.npz
+*.pkl
+*.joblib
+
+# Keys and secrets
+keys/
+*.pem
+.mlgg_model_key
+.env
+!.env.example
