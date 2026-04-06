@@ -995,6 +995,16 @@ MLGG 的每一个方法论决策都有同行评审文献支撑。以下按流程
 | 学习曲线评估模型收敛 | Figueroa RL, et al. *Predicting sample size required for classification performance.* **BMC Med Inform Decis Mak.** 2012;12:8. [doi:10.1186/1472-6947-12-8](https://doi.org/10.1186/1472-6947-12-8) | `learning_curve_data()` in `_gate_utils.py` |
 | HMAC-SHA256 模型签名 | NIST FIPS 198-1 — *The Keyed-Hash Message Authentication Code.* 2008. | `_security.py` 签名验证 |
 
+### 顶刊方法论综述（MLGG 设计理论基础）
+
+| 文献 | 核心论点 | 与 MLGG 关系 |
+|------|---------|-------------|
+| Chekroud AM, et al. *Illusory generalizability of clinical prediction models.* **Science.** 2024;383(6679):164-167. [doi:10.1126/science.adg8538](https://doi.org/10.1126/science.adg8538) | ML 模型在训练试验内高准确度，但外推至其他试验等于随机。"虚幻的泛化性"。 | MLGG 要求外部验证 + 跨时间/跨机构队列 + 泛化差距门控 |
+| Van Calster B, van Smeden M, Steyerberg EW, et al. *The Enemies of Reliable and Useful Clinical Prediction Models.* **Annual Review of Statistics and Its Application.** 2026;13. [doi:10.1146/annurev-statistics-042324-123749](https://doi.org/10.1146/annurev-statistics-042324-123749) | 系统总结 12 个"敌人"：样本量不足、过拟合、选择偏倚、校准忽视等。86% 已发表模型存在高偏倚风险。 | MLGG 33 道门控逐一针对这 12 个敌人设计 |
+| Nature Medicine 2025 — *Clinical implementation of an AI-based prediction model for colorectal cancer surgery.* [doi:10.1038/s41591-025-03942-x](https://doi.org/10.1038/s41591-025-03942-x) | 首个 Nature Med 发表的 AI 预测模型从开发到临床实施的完整案例（AUROC 0.79，前后对照 OR 0.63）。 | MLGG 方法论流程对标此论文的开发→验证→实施路径 |
+| Feng G, et al. *Twelve practical recommendations for developing and applying clinical predictive models.* **The Innovation Medicine.** 2024;2(4):100105. [doi:10.59717/j.xinn-med.2024.100105](https://doi.org/10.59717/j.xinn-med.2024.100105) | 12 条实操建议覆盖数据准备、模型开发、验证、报告。 | 与 MLGG 31 条规则高度互补，MLGG 提供机器可验证的实现 |
+| Vickers AJ, et al. *Understanding algorithmic fairness for clinical prediction in terms of subgroup net benefit and health equity.* **Epidemiology.** 2025. [arXiv:2412.07879](https://arxiv.org/abs/2412.07879) | 提出用亚组净效用而非传统公平性指标（如均等化几率）评估临床 AI 公平性。 | `subgroup_dca()` 直接实现此框架 |
+
 ---
 
 ## Claude Code 集成
