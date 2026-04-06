@@ -1306,7 +1306,32 @@ python3 scripts/cohort_definition_gate.py \
 
 然后说: "Phase 1 完成。现在进入 Phase 2: 数据划分。你的数据是纵向的还是横截面的？"
 
-### 常见疾病定义模板
+### 疾病定义知识库 (RAG 检索源)
+
+当用户提到要预测某种疾病时，Agent 应该**立即查阅** `references/disease-definition-knowledge-base.json`，获取该疾病的：
+- ICD-10 编码列表
+- 实验室诊断标准（阈值、单位）
+- 常用药物列表（用于药物记录作为辅助证据源）
+- 排除标准（容易混淆的疾病）
+- 必须排除的定义变量列表（`definition_variables_to_exclude`）
+- 推荐的裁决策略
+- 疾病分型信息
+
+知识库覆盖 **10 种常见疾病**：
+T2D · 高血压 · 冠心病 · CKD · 心衰 · 脑卒中 · COPD · 抑郁症 · 癌症(多部位) · 心房颤动 · 30天再入院
+
+使用方法：
+```python
+# Agent 在引导 Step 3 时读取知识库
+import json
+kb = json.load(open("references/disease-definition-knowledge-base.json"))
+disease = kb["diseases"]["type_2_diabetes"]
+# → 获取 ICD codes, lab criteria, medications, exclusions, definition_variables_to_exclude
+```
+
+如果用户的疾病不在知识库中，Agent 应该按 `general_guidance.choosing_definition` 中的 7 条原则引导用户自行构建定义。
+
+### 常见疾病定义模板（快速参考）
 
 Agent 可以直接提供以下模板给用户参考：
 
