@@ -918,6 +918,185 @@ def check_nonlinearity(
 
 
 # ---------------------------------------------------------------------------
+# Calibration per-bin Bootstrap CI (NC Reviewer #2 Comment 8)
+# ---------------------------------------------------------------------------
+
+def calibration_bin_ci(
+    y_true: Any,
+    y_score: Any,
+    n_bins: int = 10,
+    n_bootstrap: int = 1000,
+    ci_level: float = 0.95,
+    seed: int = 42,
+) -> list:
+    """Bootstrap 95% CI for calibration per risk-decile bin.
+
+    For each bin (risk centile), compute fraction_positive with CI.
+    Reviewers require these for calibration plots (NC Reviewer #2).
+
+    Returns list of dicts per bin with mean_predicted, fraction_positive,
+    ci_lower, ci_upper, n.
+    """
+    import numpy as np
+
+    y_t = np.asarray(y_true, dtype=float)
+    y_s = np.asarray(y_score, dtype=float)
+    rng = np.random.default_rng(seed)
+
+    bin_edges = np.linspace(0, 1, n_bins + 1)
+    alpha = 1 - ci_level
+    results = []
+
+    for i in range(n_bins):
+        lo, hi = bin_edges[i], bin_edges[i + 1]
+        mask = (y_s >= lo) & (y_s < hi) if i < n_bins - 1 else (y_s >= lo) & (y_s <= hi)
+        yt_bin = y_t[mask]
+        ys_bin = y_s[mask]
+        n_bin = len(yt_bin)
+
+        if n_bin < 2:
+            results.append({
+                "bin": i, "bin_range": f"{lo:.2f}-{hi:.2f}",
+                "n": n_bin, "mean_predicted": round(float(ys_bin.mean()), 4) if n_bin > 0 else None,
+                "fraction_positive": round(float(yt_bin.mean()), 4) if n_bin > 0 else None,
+                "ci_lower": None, "ci_upper": None,
+            })
+            continue
+
+        boot_fracs = []
+        for _ in range(n_bootstrap):
+            idx = rng.choice(n_bin, n_bin, replace=True)
+            boot_fracs.append(float(yt_bin[idx].mean()))
+
+        ci_lo = float(np.percentile(boot_fracs, 100 * alpha / 2))
+        ci_hi = float(np.percentile(boot_fracs, 100 * (1 - alpha / 2)))
+
+        results.append({
+            "bin": i, "bin_range": f"{lo:.2f}-{hi:.2f}",
+            "n": n_bin,
+            "mean_predicted": round(float(ys_bin.mean()), 4),
+            "fraction_positive": round(float(yt_bin.mean()), 4),
+            "ci_lower": round(ci_lo, 4),
+            "ci_upper": round(ci_hi, 4),
+        })
+
+    return results
+
+
+# ---------------------------------------------------------------------------
+# Model Coefficients Export (NC Reviewer #1 Comment 4)
+# ---------------------------------------------------------------------------
+
+def export_model_coefficients(
+    estimator: Any,
+    feature_names: list,
+) -> Optional[list]:
+    """Export model coefficients or feature importances as a table.
+
+    Works for: LogisticRegression (coef_), LinearSVM, tree-based (.feature_importances_).
+    Returns list of dicts with feature, coefficient/importance, rank.
+    """
+    import numpy as np
+    from sklearn.pipeline import Pipeline
+
+    clf = estimator
+    if isinstance(estimator, Pipeline):
+        steps = list(estimator.named_steps.keys())
+        clf = estimator.named_steps[steps[-1]]
+
+    coefs = None
+    coef_type = "coefficient"
+
+    if hasattr(clf, "coef_"):
+        coefs = clf.coef_.ravel()
+        coef_type = "coefficient"
+    elif hasattr(clf, "feature_importances_"):
+        coefs = clf.feature_importances_
+        coef_type = "importance"
+    else:
+        return None
+
+    if len(coefs) != len(feature_names):
+        return None
+
+    results = []
+    order = np.argsort(-np.abs(coefs))
+    for rank, idx in enumerate(order, 1):
+        results.append({
+            "rank": rank,
+            "feature": feature_names[idx],
+            coef_type: round(float(coefs[idx]), 6),
+            f"abs_{coef_type}": round(float(abs(coefs[idx])), 6),
+        })
+
+    return results
+
+
+# ---------------------------------------------------------------------------
+# Rubin's Rules for Multiple Imputation (NC Reviewer #2 Comment 7)
+# ---------------------------------------------------------------------------
+
+def rubins_rules_combine(
+    estimates: list,
+    variances: Optional[list] = None,
+) -> Dict[str, float]:
+    """Combine estimates across multiple imputations using Rubin's rules.
+
+    Args:
+        estimates: List of point estimates from each imputed dataset.
+        variances: List of within-imputation variances (optional).
+                   If None, only pooled mean and between-imputation variance reported.
+
+    Returns:
+        Dict with pooled_estimate, between_variance, within_variance,
+        total_variance, and degrees_of_freedom.
+
+    References:
+        Rubin DB. Multiple Imputation for Nonresponse in Surveys. Wiley; 1987.
+    """
+    import numpy as np
+
+    ests = np.asarray(estimates, dtype=float)
+    m = len(ests)
+
+    if m < 2:
+        return {"pooled_estimate": float(ests[0]) if m == 1 else None, "error": "need >=2 imputations"}
+
+    # Pooled estimate: mean across imputations
+    q_bar = float(ests.mean())
+
+    # Between-imputation variance
+    b = float(np.var(ests, ddof=1))
+
+    if variances is not None:
+        vars_arr = np.asarray(variances, dtype=float)
+        # Within-imputation variance: mean of variances
+        u_bar = float(vars_arr.mean())
+        # Total variance: Rubin's formula
+        t = u_bar + (1 + 1 / m) * b
+        # Degrees of freedom (Barnard-Rubin)
+        if b > 0 and u_bar > 0:
+            r = (1 + 1 / m) * b / u_bar
+            df = (m - 1) * (1 + 1 / r) ** 2
+        else:
+            df = float("inf")
+    else:
+        u_bar = None
+        t = (1 + 1 / m) * b
+        df = m - 1
+
+    return {
+        "pooled_estimate": round(q_bar, 6),
+        "between_variance": round(b, 6),
+        "within_variance": round(u_bar, 6) if u_bar is not None else None,
+        "total_variance": round(t, 6),
+        "total_se": round(float(np.sqrt(t)), 6),
+        "degrees_of_freedom": round(df, 2),
+        "n_imputations": m,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Baseline Comparisons (Nature ML Checklist 4D)
 # ---------------------------------------------------------------------------
 
