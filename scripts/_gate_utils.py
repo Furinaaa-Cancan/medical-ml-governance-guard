@@ -699,6 +699,557 @@ def compute_nri_idi(
 
 
 # ---------------------------------------------------------------------------
+# Module 1: MNAR Sensitivity Analysis (δ-adjustment + tipping point)
+# Ref: PMC10481859 (2023), Cro 2020 (Stat Med)
+# ---------------------------------------------------------------------------
+
+def mnar_sensitivity_analysis(
+    estimator: Any,
+    X_train: Any,
+    y_train: Any,
+    X_test: Any,
+    y_test: Any,
+    missing_mask_train: Any,
+    missing_mask_test: Any,
+    deltas: Optional[list] = None,
+    metric: str = "pr_auc",
+    seed: int = 42,
+) -> Dict[str, Any]:
+    """MNAR sensitivity analysis via δ-adjustment on imputed values.
+
+    Shifts imputed values by δ (simulating MNAR departure from MAR) and
+    re-evaluates model performance. Reports tipping point where conclusion
+    changes (AUROC drops below baseline prevalence model).
+
+    Args:
+        estimator: Fitted sklearn estimator (will be cloned and re-fit).
+        X_train, y_train: Training data (already imputed under MAR).
+        X_test, y_test: Test data (already imputed under MAR).
+        missing_mask_train: Boolean mask (True=was missing, same shape as X).
+        missing_mask_test: Same for test.
+        deltas: List of δ values to test. Default: [-0.5, -0.2, -0.1, 0, 0.1, 0.2, 0.5].
+        metric: Primary metric for tipping point detection.
+        seed: Random seed.
+
+    Returns:
+        Dict with delta_results (list of {delta, metric_value}),
+        tipping_point (smallest |δ| that flips conclusion), and baseline.
+
+    References:
+        Cro S et al. Stat Med. 2020;39(21):2815-2834.
+        PMC10481859 — MI-based sensitivity analysis for MNAR.
+    """
+    import numpy as np
+    from sklearn.base import clone
+    from sklearn.metrics import average_precision_score, roc_auc_score
+
+    if deltas is None:
+        deltas = [-0.5, -0.3, -0.2, -0.1, -0.05, 0.0, 0.05, 0.1, 0.2, 0.3, 0.5]
+
+    X_tr = np.asarray(X_train, dtype=float)
+    X_te = np.asarray(X_test, dtype=float)
+    m_tr = np.asarray(missing_mask_train, dtype=bool)
+    m_te = np.asarray(missing_mask_test, dtype=bool)
+
+    score_fn = average_precision_score if metric == "pr_auc" else roc_auc_score
+
+    results = []
+    baseline_score = None
+
+    for delta in sorted(deltas):
+        X_tr_shifted = X_tr.copy()
+        X_te_shifted = X_te.copy()
+        X_tr_shifted[m_tr] += delta
+        X_te_shifted[m_te] += delta
+
+        try:
+            est = clone(estimator)
+            est.fit(X_tr_shifted, y_train)
+            y_score = est.predict_proba(X_te_shifted)[:, 1]
+            score = float(score_fn(y_test, y_score))
+        except Exception:
+            score = None
+
+        if delta == 0.0 or (baseline_score is None and delta == min(deltas, key=abs)):
+            baseline_score = score
+
+        results.append({
+            "delta": round(delta, 3),
+            f"{metric}": round(score, 4) if score is not None else None,
+        })
+
+    # Tipping point: smallest |δ| where score drops below prevalence baseline
+    prevalence = float(np.mean(y_test))
+    tipping_point = None
+    for r in results:
+        s = r.get(metric)
+        if s is not None and s <= prevalence and r["delta"] != 0.0:
+            if tipping_point is None or abs(r["delta"]) < abs(tipping_point):
+                tipping_point = r["delta"]
+
+    return {
+        "delta_results": results,
+        "baseline_score": round(baseline_score, 4) if baseline_score is not None else None,
+        "tipping_point": tipping_point,
+        "tipping_threshold": round(prevalence, 4),
+        "metric": metric,
+        "n_deltas_tested": len(deltas),
+    }
+
+
+# ---------------------------------------------------------------------------
+# Module 2: Temporal Drift Detection (calibration drift + CUSUM)
+# Ref: PMC8627243 (2021), Sci Reports 2022
+# ---------------------------------------------------------------------------
+
+def temporal_drift_analysis(
+    y_true: Any,
+    y_score: Any,
+    time_values: Any,
+    n_windows: int = 5,
+    n_bins: int = 10,
+) -> Dict[str, Any]:
+    """Detect calibration drift across time windows.
+
+    Splits data into n_windows by time quantiles, computes calibration
+    slope/intercept per window, and applies CUSUM to detect drift points.
+
+    Args:
+        y_true: Binary labels.
+        y_score: Predicted probabilities.
+        time_values: Numeric time values (epoch, ordinal, etc.).
+        n_windows: Number of time windows.
+        n_bins: Bins for per-window ECE calculation.
+
+    Returns:
+        Dict with per_window metrics, cusum values, drift_detected flag,
+        and drift_point (first window where CUSUM exceeds threshold).
+
+    References:
+        Davis SE et al. JAMIA. 2020;27(9):1514-1521 (PMC8627243).
+    """
+    import numpy as np
+
+    y_t = np.asarray(y_true, dtype=float)
+    y_s = np.asarray(y_score, dtype=float)
+    t_v = np.asarray(time_values, dtype=float)
+
+    # Sort by time
+    order = np.argsort(t_v)
+    y_t = y_t[order]
+    y_s = y_s[order]
+    t_v = t_v[order]
+
+    # Split into windows by quantiles
+    window_edges = np.linspace(0, len(y_t), n_windows + 1, dtype=int)
+    windows = []
+
+    for i in range(n_windows):
+        start, end = window_edges[i], window_edges[i + 1]
+        if end - start < 10:
+            continue
+        yt_w = y_t[start:end]
+        ys_w = y_s[start:end]
+
+        # O:E ratio
+        observed = float(yt_w.sum())
+        expected = float(ys_w.sum())
+        oe = observed / expected if expected > 0 else float("nan")
+
+        # ECE
+        bin_edges = np.linspace(0, 1, n_bins + 1)
+        ece = 0.0
+        n_w = len(yt_w)
+        for b in range(n_bins):
+            mask = (ys_w >= bin_edges[b]) & (ys_w < bin_edges[b + 1])
+            if b == n_bins - 1:
+                mask = (ys_w >= bin_edges[b]) & (ys_w <= bin_edges[b + 1])
+            nb = int(mask.sum())
+            if nb > 0:
+                ece += abs(float(yt_w[mask].mean()) - float(ys_w[mask].mean())) * (nb / n_w)
+
+        # Prevalence
+        prev = float(yt_w.mean())
+
+        windows.append({
+            "window": i,
+            "n_samples": end - start,
+            "time_min": round(float(t_v[start]), 2),
+            "time_max": round(float(t_v[end - 1]), 2),
+            "prevalence": round(prev, 4),
+            "oe_ratio": round(oe, 4),
+            "ece": round(ece, 4),
+        })
+
+    # CUSUM on O:E ratio deviations from 1.0
+    if len(windows) >= 3:
+        oe_values = [w["oe_ratio"] for w in windows if np.isfinite(w["oe_ratio"])]
+        cusum = []
+        s = 0.0
+        threshold = 0.5  # half a standard deviation of O:E
+        drift_point = None
+        for i, oe in enumerate(oe_values):
+            s = max(0, s + abs(oe - 1.0) - 0.1)  # allowance = 0.1
+            cusum.append(round(s, 4))
+            if s > threshold and drift_point is None:
+                drift_point = i
+    else:
+        cusum = []
+        drift_point = None
+
+    return {
+        "per_window": windows,
+        "cusum_values": cusum,
+        "drift_detected": drift_point is not None,
+        "drift_point_window": drift_point,
+        "n_windows": len(windows),
+    }
+
+
+# ---------------------------------------------------------------------------
+# Module 3: Model Card Generator
+# Ref: Mitchell et al. 2019 (FAT*), Nature Comp Sci 2025
+# ---------------------------------------------------------------------------
+
+def generate_model_card(
+    model_name: str,
+    model_type: str,
+    evaluation_report: Dict[str, Any],
+    cohort_report: Optional[Dict[str, Any]] = None,
+    fairness_report: Optional[Dict[str, Any]] = None,
+    shap_report: Optional[Dict[str, Any]] = None,
+    intended_use: str = "",
+    limitations: Optional[list] = None,
+    ethical_considerations: Optional[list] = None,
+) -> str:
+    """Generate a structured Model Card in Markdown format.
+
+    Args:
+        model_name: Human-readable model name.
+        model_type: Model family (e.g., "LightGBM").
+        evaluation_report: Gate evaluation report (metrics, CI).
+        cohort_report: Cohort definition report (optional).
+        fairness_report: Fairness gate report (optional).
+        shap_report: SHAP interpretability report (optional).
+        intended_use: Description of intended clinical use.
+        limitations: List of known limitations.
+        ethical_considerations: List of ethical considerations.
+
+    Returns:
+        Markdown string for model_card.md.
+
+    References:
+        Mitchell M et al. "Model Cards for Model Reporting." FAT* 2019.
+    """
+    lines = [
+        f"# Model Card: {model_name}",
+        "",
+        "## Model Details",
+        f"- **Model type**: {model_type}",
+        f"- **Framework**: ML Leakage Guard (MLGG) v1.0",
+        f"- **Training framework**: scikit-learn Pipeline (imputer → scaler → classifier)",
+    ]
+
+    # Intended Use
+    lines.extend([
+        "",
+        "## Intended Use",
+        f"- **Primary use**: {intended_use or 'Clinical risk prediction (binary classification)'}",
+        "- **Out-of-scope uses**: Not intended for individual clinical decisions without physician oversight.",
+    ])
+
+    # Training Data
+    if cohort_report and isinstance(cohort_report.get("summary"), dict):
+        s = cohort_report["summary"]
+        target = s.get("target", {})
+        lines.extend([
+            "",
+            "## Training Data",
+            f"- **Total samples**: {s.get('n_rows', 'N/A')}",
+            f"- **Features**: {s.get('n_features', 'N/A')}",
+            f"- **Positive events**: {target.get('n_positive', 'N/A')}",
+            f"- **Prevalence**: {target.get('prevalence', 'N/A')}",
+            f"- **EPV**: {target.get('epv', 'N/A')}",
+        ])
+        riley = target.get("riley_sample_size", {})
+        if riley and not riley.get("error"):
+            lines.append(f"- **Riley minimum n**: {riley.get('n_minimum', 'N/A')} "
+                         f"(binding: {riley.get('binding_criterion', '?')})")
+
+    # Performance
+    if isinstance(evaluation_report, dict):
+        metrics = evaluation_report.get("summary", evaluation_report).get("metrics", {})
+        if not metrics:
+            metrics = evaluation_report.get("metrics", {})
+        lines.extend([
+            "",
+            "## Performance (Test Set)",
+            "| Metric | Value |",
+            "|--------|-------|",
+        ])
+        for k, v in metrics.items():
+            if isinstance(v, (int, float)):
+                lines.append(f"| {k} | {v:.4f} |")
+
+    # Fairness
+    if fairness_report and isinstance(fairness_report.get("summary"), dict):
+        lines.extend([
+            "",
+            "## Fairness Analysis",
+        ])
+        fs = fairness_report["summary"]
+        for group_name, group_data in fs.items():
+            if isinstance(group_data, dict) and "disparity" in str(group_data):
+                lines.append(f"- **{group_name}**: {group_data}")
+
+    # Interpretability
+    if shap_report and isinstance(shap_report.get("summary"), dict):
+        ss = shap_report["summary"]
+        top_feats = ss.get("ensemble_top_features", [])[:5]
+        if top_feats:
+            lines.extend([
+                "",
+                "## Feature Importance (Top 5)",
+                "| Rank | Feature | Ensemble Proportion |",
+                "|------|---------|-------------------|",
+            ])
+            for f in top_feats:
+                lines.append(f"| {f.get('rank', '')} | {f.get('feature', '')} | "
+                             f"{f.get('ensemble_proportion', ''):.4f} |")
+
+    # Limitations
+    lines.extend([
+        "",
+        "## Limitations",
+    ])
+    if limitations:
+        for lim in limitations:
+            lines.append(f"- {lim}")
+    else:
+        lines.extend([
+            "- Model trained on retrospective data; prospective validation not performed.",
+            "- Performance may degrade with temporal population shift (calibration drift).",
+            "- Not validated on external institutions.",
+        ])
+
+    # Ethical Considerations
+    lines.extend([
+        "",
+        "## Ethical Considerations",
+    ])
+    if ethical_considerations:
+        for ec in ethical_considerations:
+            lines.append(f"- {ec}")
+    else:
+        lines.extend([
+            "- Model should supplement, not replace, clinical judgment.",
+            "- Subgroup performance should be monitored for health equity.",
+            "- Patient consent and data privacy must be maintained.",
+        ])
+
+    lines.extend([
+        "",
+        "---",
+        "*Generated by ML Leakage Guard (MLGG) v1.0*",
+    ])
+
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# Module 4: Imputation Sensitivity Analysis
+# Ref: Population Health Metrics 2024, BMC Med Res Method 2024
+# ---------------------------------------------------------------------------
+
+def imputation_sensitivity(
+    X_raw: Any,
+    y: Any,
+    estimator: Any,
+    feature_names: list,
+    test_size: float = 0.2,
+    seed: int = 42,
+) -> list:
+    """Compare model performance across imputation methods.
+
+    Tests median, KNN, and iterative (MICE) imputation to assess
+    whether conclusions are robust to imputation choice.
+
+    Args:
+        X_raw: Feature matrix with NaN values (pre-imputation).
+        y: Binary target.
+        estimator: sklearn estimator to clone and train per method.
+        feature_names: Feature names.
+        test_size: Test split fraction.
+        seed: Random seed.
+
+    Returns:
+        List of dicts with method, auroc, pr_auc, brier, n_missing_cells.
+
+    References:
+        Pop Health Metrics 2024 — Impact of imputation on prediction models.
+    """
+    import numpy as np
+    from sklearn.base import clone
+    from sklearn.impute import KNNImputer, SimpleImputer
+    from sklearn.metrics import average_precision_score, brier_score_loss, roc_auc_score
+    from sklearn.model_selection import train_test_split
+
+    X = np.asarray(X_raw, dtype=float)
+    y_arr = np.asarray(y, dtype=int)
+    n_missing = int(np.isnan(X).sum())
+
+    X_tr, X_te, y_tr, y_te = train_test_split(
+        X, y_arr, test_size=test_size, random_state=seed, stratify=y_arr,
+    )
+
+    methods = {
+        "median": SimpleImputer(strategy="median"),
+        "mean": SimpleImputer(strategy="mean"),
+        "knn_5": KNNImputer(n_neighbors=5),
+    }
+
+    # Try MICE if available
+    try:
+        from sklearn.experimental import enable_iterative_imputer  # noqa: F401
+        from sklearn.impute import IterativeImputer
+        methods["mice"] = IterativeImputer(max_iter=10, random_state=seed, sample_posterior=False)
+    except ImportError:
+        pass
+
+    results = []
+    for name, imputer in methods.items():
+        try:
+            imp = clone(imputer)
+            X_tr_imp = imp.fit_transform(X_tr)
+            X_te_imp = imp.transform(X_te)
+
+            est = clone(estimator)
+            est.fit(X_tr_imp, y_tr)
+            y_score = est.predict_proba(X_te_imp)[:, 1]
+
+            results.append({
+                "method": name,
+                "auroc": round(float(roc_auc_score(y_te, y_score)), 4),
+                "pr_auc": round(float(average_precision_score(y_te, y_score)), 4),
+                "brier": round(float(brier_score_loss(y_te, y_score)), 4),
+            })
+        except Exception:
+            results.append({"method": name, "auroc": None, "pr_auc": None, "brier": None})
+
+    # Assess robustness
+    valid_aurocs = [r["auroc"] for r in results if r["auroc"] is not None]
+    if len(valid_aurocs) >= 2:
+        spread = max(valid_aurocs) - min(valid_aurocs)
+        robust = spread < 0.01
+    else:
+        spread = None
+        robust = None
+
+    return {
+        "methods": results,
+        "n_missing_cells": n_missing,
+        "missing_fraction": round(n_missing / max(X.size, 1), 4),
+        "auroc_spread": round(spread, 4) if spread is not None else None,
+        "robust": robust,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Module 5: Subgroup-specific DCA (Net Benefit by subgroup)
+# Ref: Nature Comp Sci 2025, alphaxiv 2412.07879
+# ---------------------------------------------------------------------------
+
+def subgroup_dca(
+    y_true: Any,
+    y_score: Any,
+    group_labels: Any,
+    thresholds: Optional[list] = None,
+) -> Dict[str, Any]:
+    """Decision Curve Analysis stratified by subgroup.
+
+    Computes net benefit per subgroup across threshold probabilities,
+    revealing whether the model has clinical utility for ALL groups
+    or only for majority populations.
+
+    Args:
+        y_true: Binary labels.
+        y_score: Predicted probabilities.
+        group_labels: Group assignment per sample (e.g., race, gender).
+        thresholds: Probability thresholds to evaluate.
+
+    Returns:
+        Dict with per_group DCA curves and equity_gap (max disparity
+        in net benefit at optimal threshold).
+
+    References:
+        Vickers AJ, Elkin EB. Med Decis Making. 2006;26:565-574.
+        Nature Comp Sci 2025 — Algorithmic fairness + health equity.
+    """
+    import numpy as np
+
+    y_t = np.asarray(y_true, dtype=float)
+    y_s = np.asarray(y_score, dtype=float)
+    g = np.asarray(group_labels)
+
+    if thresholds is None:
+        thresholds = [round(t, 2) for t in np.arange(0.01, 0.99, 0.02).tolist()]
+
+    unique_groups = sorted(set(g.tolist()))
+    group_curves: Dict[str, list] = {}
+    group_optimal_nb: Dict[str, float] = {}
+
+    for group in unique_groups:
+        mask = g == group
+        yt_g = y_t[mask]
+        ys_g = y_s[mask]
+        n_g = int(mask.sum())
+
+        if n_g < 20:
+            group_curves[str(group)] = []
+            continue
+
+        prevalence = float(yt_g.mean())
+        curve = []
+
+        best_nb = -999.0
+        for pt in thresholds:
+            tp = float(((ys_g >= pt) & (yt_g == 1)).sum())
+            fp = float(((ys_g >= pt) & (yt_g == 0)).sum())
+            nb = (tp / n_g) - (fp / n_g) * (pt / (1 - pt)) if pt < 1 else 0.0
+            curve.append({
+                "threshold": pt,
+                "net_benefit": round(nb, 6),
+                "treat_all_nb": round(prevalence - (1 - prevalence) * (pt / (1 - pt)), 6) if pt < 1 else 0.0,
+            })
+            if nb > best_nb:
+                best_nb = nb
+
+        group_curves[str(group)] = curve
+        group_optimal_nb[str(group)] = round(best_nb, 4)
+
+    # Equity gap: max disparity in optimal net benefit
+    if len(group_optimal_nb) >= 2:
+        nbs = list(group_optimal_nb.values())
+        equity_gap = round(max(nbs) - min(nbs), 4)
+        best_group = max(group_optimal_nb, key=group_optimal_nb.get)
+        worst_group = min(group_optimal_nb, key=group_optimal_nb.get)
+    else:
+        equity_gap = None
+        best_group = None
+        worst_group = None
+
+    return {
+        "groups": unique_groups,
+        "group_curves": group_curves,
+        "group_optimal_net_benefit": group_optimal_nb,
+        "equity_gap": equity_gap,
+        "best_group": best_group,
+        "worst_group": worst_group,
+        "n_thresholds": len(thresholds),
+    }
+
+
+# ---------------------------------------------------------------------------
 # Tamper-evident audit log for gate executions
 # ---------------------------------------------------------------------------
 
