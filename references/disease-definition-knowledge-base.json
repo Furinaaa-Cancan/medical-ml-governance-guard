@@ -9,108 +9,454 @@
   "evidence_layers": {
     "description": "5 evidence layers for disease case ascertainment (UKB standard)",
     "layers": [
-      {"id": "icd", "name": "ICD diagnosis codes", "sources": ["hospital_inpatient", "death_registry", "cancer_registry"], "systems": ["ICD-10", "ICD-9-CM"], "strength": "high"},
-      {"id": "lab", "name": "Laboratory values", "sources": ["lab_system", "biobank_assessment", "EHR_labs"], "strength": "high"},
-      {"id": "medication", "name": "Medication records", "sources": ["pharmacy", "prescription", "self_report_medication"], "strength": "moderate"},
-      {"id": "self_report", "name": "Self-reported diagnosis", "sources": ["questionnaire", "interview", "nurse_assessment"], "strength": "low_to_moderate"},
-      {"id": "procedure", "name": "Procedure codes", "sources": ["hospital_procedures", "OPCS-4", "CPT"], "strength": "high"}
+      {
+        "id": "icd",
+        "name": "ICD diagnosis codes",
+        "sources": [
+          "hospital_inpatient",
+          "death_registry",
+          "cancer_registry"
+        ],
+        "systems": [
+          "ICD-10",
+          "ICD-9-CM"
+        ],
+        "strength": "high"
+      },
+      {
+        "id": "lab",
+        "name": "Laboratory values",
+        "sources": [
+          "lab_system",
+          "biobank_assessment",
+          "EHR_labs"
+        ],
+        "strength": "high"
+      },
+      {
+        "id": "medication",
+        "name": "Medication records",
+        "sources": [
+          "pharmacy",
+          "prescription",
+          "self_report_medication"
+        ],
+        "strength": "moderate"
+      },
+      {
+        "id": "self_report",
+        "name": "Self-reported diagnosis",
+        "sources": [
+          "questionnaire",
+          "interview",
+          "nurse_assessment"
+        ],
+        "strength": "low_to_moderate"
+      },
+      {
+        "id": "procedure",
+        "name": "Procedure codes",
+        "sources": [
+          "hospital_procedures",
+          "OPCS-4",
+          "CPT"
+        ],
+        "strength": "high"
+      }
     ]
   },
   "adjudication_strategies": {
-    "any_one": {"description": "Any single source sufficient", "use_case": "Screening, high sensitivity needed", "specificity": "low", "sensitivity": "high"},
-    "at_least_two": {"description": "≥2 independent sources concordant", "use_case": "UKB gold standard, balanced", "specificity": "moderate-high", "sensitivity": "moderate"},
-    "all_available": {"description": "All available sources must agree", "use_case": "Very strict, research cohort", "specificity": "very_high", "sensitivity": "low"}
+    "any_one": {
+      "description": "Any single source sufficient",
+      "use_case": "Screening, high sensitivity needed",
+      "specificity": "low",
+      "sensitivity": "high"
+    },
+    "at_least_two": {
+      "description": "≥2 independent sources concordant",
+      "use_case": "UKB gold standard, balanced",
+      "specificity": "moderate-high",
+      "sensitivity": "moderate"
+    },
+    "all_available": {
+      "description": "All available sources must agree",
+      "use_case": "Very strict, research cohort",
+      "specificity": "very_high",
+      "sensitivity": "low"
+    }
   },
   "diseases": {
     "type_2_diabetes": {
       "name": "Type 2 Diabetes Mellitus",
-      "icd10": ["E11", "E11.0", "E11.1", "E11.2", "E11.3", "E11.4", "E11.5", "E11.6", "E11.7", "E11.8", "E11.9"],
-      "icd9": ["250.00", "250.02"],
-      "lab_criteria": [
-        {"test": "HbA1c", "threshold": ">=6.5%", "unit_alt": ">=48 mmol/mol", "fasting_required": false},
-        {"test": "fasting_plasma_glucose", "threshold": ">=7.0 mmol/L", "unit_alt": ">=126 mg/dL", "fasting_required": true},
-        {"test": "oral_glucose_tolerance_test", "threshold": ">=11.1 mmol/L", "unit_alt": ">=200 mg/dL", "fasting_required": false},
-        {"test": "random_plasma_glucose", "threshold": ">=11.1 mmol/L", "note": "with symptoms only", "fasting_required": false}
+      "icd10": [
+        "E11",
+        "E11.0",
+        "E11.1",
+        "E11.2",
+        "E11.3",
+        "E11.4",
+        "E11.5",
+        "E11.6",
+        "E11.7",
+        "E11.8",
+        "E11.9"
       ],
-      "medications": ["metformin", "glipizide", "glimepiride", "glyburide", "pioglitazone", "rosiglitazone", "sitagliptin", "saxagliptin", "empagliflozin", "dapagliflozin", "canagliflozin", "liraglutide", "semaglutide", "dulaglutide", "insulin_glargine", "insulin_detemir", "insulin_aspart"],
-      "medication_atc_codes": ["A10B"],
-      "self_report_fields": ["doctor_diagnosed_diabetes", "diabetes_diagnosed_by_doctor", "non_cancer_illness_code_1220"],
+      "icd9": [
+        "250.00",
+        "250.02"
+      ],
+      "lab_criteria": [
+        {
+          "test": "HbA1c",
+          "threshold": ">=6.5%",
+          "unit_alt": ">=48 mmol/mol",
+          "fasting_required": false
+        },
+        {
+          "test": "fasting_plasma_glucose",
+          "threshold": ">=7.0 mmol/L",
+          "unit_alt": ">=126 mg/dL",
+          "fasting_required": true
+        },
+        {
+          "test": "oral_glucose_tolerance_test",
+          "threshold": ">=11.1 mmol/L",
+          "unit_alt": ">=200 mg/dL",
+          "fasting_required": false
+        },
+        {
+          "test": "random_plasma_glucose",
+          "threshold": ">=11.1 mmol/L",
+          "note": "with symptoms only",
+          "fasting_required": false
+        }
+      ],
+      "medications": [
+        "metformin",
+        "glipizide",
+        "glimepiride",
+        "glyburide",
+        "pioglitazone",
+        "rosiglitazone",
+        "sitagliptin",
+        "saxagliptin",
+        "empagliflozin",
+        "dapagliflozin",
+        "canagliflozin",
+        "liraglutide",
+        "semaglutide",
+        "dulaglutide",
+        "insulin_glargine",
+        "insulin_detemir",
+        "insulin_aspart"
+      ],
+      "medication_atc_codes": [
+        "A10B"
+      ],
+      "self_report_fields": [
+        "doctor_diagnosed_diabetes",
+        "diabetes_diagnosed_by_doctor",
+        "non_cancer_illness_code_1220"
+      ],
       "exclusions": [
-        {"condition": "type_1_diabetes", "icd10": ["E10"], "reason": "Different pathophysiology"},
-        {"condition": "gestational_diabetes", "icd10": ["O24"], "reason": "Pregnancy-specific, may resolve"},
-        {"condition": "secondary_diabetes", "icd10": ["E13"], "reason": "Due to other conditions"},
-        {"condition": "MODY", "note": "Maturity-Onset Diabetes of the Young, genetic testing required"},
-        {"condition": "age_under_18", "reason": "T2D rare in children, likely T1D"}
+        {
+          "condition": "type_1_diabetes",
+          "icd10": [
+            "E10"
+          ],
+          "reason": "Different pathophysiology"
+        },
+        {
+          "condition": "gestational_diabetes",
+          "icd10": [
+            "O24"
+          ],
+          "reason": "Pregnancy-specific, may resolve"
+        },
+        {
+          "condition": "secondary_diabetes",
+          "icd10": [
+            "E13"
+          ],
+          "reason": "Due to other conditions"
+        },
+        {
+          "condition": "MODY",
+          "note": "Maturity-Onset Diabetes of the Young, genetic testing required"
+        },
+        {
+          "condition": "age_under_18",
+          "reason": "T2D rare in children, likely T1D"
+        }
       ],
       "subtypes": {
         "description": "Ahlqvist 2018 (Lancet Diabetes Endocrinol) proposed 5 T2D subtypes",
-        "clusters": ["SAID (severe autoimmune)", "SIDD (severe insulin-deficient)", "SIRD (severe insulin-resistant)", "MOD (mild obesity-related)", "MARD (mild age-related)"]
+        "clusters": [
+          "SAID (severe autoimmune)",
+          "SIDD (severe insulin-deficient)",
+          "SIRD (severe insulin-resistant)",
+          "MOD (mild obesity-related)",
+          "MARD (mild age-related)"
+        ]
       },
-      "definition_variables_to_exclude": ["hba1c", "fasting_glucose", "random_glucose", "ogtt", "diabetes_diagnosis", "diabetes_status", "dm_flag"],
+      "definition_variables_to_exclude": [
+        "diabetes_diagnosis",
+        "diabetes_status",
+        "dm_flag",
+        "fasting_glucose",
+        "fasting_plasma_glucose",
+        "fpg",
+        "hba1c",
+        "ogtt",
+        "ogtt_result",
+        "oral_glucose_tolerance",
+        "oral_glucose_tolerance_test",
+        "random_glucose",
+        "random_glucose_result",
+        "random_plasma_glucose"
+      ],
       "recommended_adjudication": "at_least_two",
       "ukb_validation": "Eastwood 2016: 75% of 'probable T2D' confirmed in primary+secondary care"
     },
-
     "hypertension": {
       "name": "Essential Hypertension",
-      "icd10": ["I10", "I11", "I12", "I13", "I15"],
-      "lab_criteria": [
-        {"test": "systolic_blood_pressure", "threshold": ">=140 mmHg", "note": "Mean of ≥2 readings on ≥2 occasions"},
-        {"test": "diastolic_blood_pressure", "threshold": ">=90 mmHg", "note": "Mean of ≥2 readings on ≥2 occasions"}
+      "icd10": [
+        "I10",
+        "I11",
+        "I12",
+        "I13",
+        "I15"
       ],
-      "medications": ["amlodipine", "lisinopril", "enalapril", "ramipril", "losartan", "valsartan", "irbesartan", "hydrochlorothiazide", "chlorthalidone", "indapamide", "atenolol", "metoprolol", "bisoprolol", "nifedipine", "diltiazem", "doxazosin", "spironolactone"],
-      "medication_atc_codes": ["C02", "C03", "C07", "C08", "C09"],
-      "self_report_fields": ["doctor_diagnosed_high_blood_pressure"],
+      "lab_criteria": [
+        {
+          "test": "systolic_blood_pressure",
+          "threshold": ">=140 mmHg",
+          "note": "Mean of ≥2 readings on ≥2 occasions"
+        },
+        {
+          "test": "diastolic_blood_pressure",
+          "threshold": ">=90 mmHg",
+          "note": "Mean of ≥2 readings on ≥2 occasions"
+        }
+      ],
+      "medications": [
+        "amlodipine",
+        "lisinopril",
+        "enalapril",
+        "ramipril",
+        "losartan",
+        "valsartan",
+        "irbesartan",
+        "hydrochlorothiazide",
+        "chlorthalidone",
+        "indapamide",
+        "atenolol",
+        "metoprolol",
+        "bisoprolol",
+        "nifedipine",
+        "diltiazem",
+        "doxazosin",
+        "spironolactone"
+      ],
+      "medication_atc_codes": [
+        "C02",
+        "C03",
+        "C07",
+        "C08",
+        "C09"
+      ],
+      "self_report_fields": [
+        "doctor_diagnosed_high_blood_pressure"
+      ],
       "exclusions": [
-        {"condition": "secondary_hypertension", "icd10": ["I15"], "reason": "Renal artery stenosis, pheochromocytoma, Cushing"},
-        {"condition": "white_coat_hypertension", "note": "24h ABPM normal"},
-        {"condition": "pregnancy_induced", "icd10": ["O13", "O14"], "reason": "Pre-eclampsia, gestational HTN"}
+        {
+          "condition": "secondary_hypertension",
+          "icd10": [
+            "I15"
+          ],
+          "reason": "Renal artery stenosis, pheochromocytoma, Cushing"
+        },
+        {
+          "condition": "white_coat_hypertension",
+          "note": "24h ABPM normal"
+        },
+        {
+          "condition": "pregnancy_induced",
+          "icd10": [
+            "O13",
+            "O14"
+          ],
+          "reason": "Pre-eclampsia, gestational HTN"
+        }
       ],
       "staging": {
         "stage_1": "SBP 130-139 or DBP 80-89 (ACC/AHA 2017)",
         "stage_2": "SBP >=140 or DBP >=90",
         "hypertensive_crisis": "SBP >180 or DBP >120"
       },
-      "definition_variables_to_exclude": ["sbp", "dbp", "systolic", "diastolic", "blood_pressure", "bp_mean", "hypertension_flag"],
+      "definition_variables_to_exclude": [
+        "blood_pressure",
+        "bp_diastolic",
+        "bp_mean",
+        "bp_systolic",
+        "dbp",
+        "dbp_mean",
+        "diastolic",
+        "diastolic_blood_pressure",
+        "hypertension_flag",
+        "sbp",
+        "sbp_mean",
+        "systolic",
+        "systolic_blood_pressure"
+      ],
       "recommended_adjudication": "at_least_two"
     },
-
     "coronary_heart_disease": {
       "name": "Coronary Heart Disease / Coronary Artery Disease",
-      "icd10": ["I20", "I20.0", "I20.1", "I20.8", "I20.9", "I21", "I22", "I23", "I24", "I25"],
+      "icd10": [
+        "I20",
+        "I20.0",
+        "I20.1",
+        "I20.8",
+        "I20.9",
+        "I21",
+        "I22",
+        "I23",
+        "I24",
+        "I25"
+      ],
       "icd10_subtypes": {
-        "acute_mi": ["I21", "I22"],
-        "angina": ["I20"],
-        "chronic_ihd": ["I25"]
+        "acute_mi": [
+          "I21",
+          "I22"
+        ],
+        "angina": [
+          "I20"
+        ],
+        "chronic_ihd": [
+          "I25"
+        ]
       },
       "procedure_codes": {
-        "CABG": {"OPCS4": ["K40-K46"], "CPT": ["33510-33536"]},
-        "PCI": {"OPCS4": ["K49-K50", "K75"], "CPT": ["92920-92944"]},
-        "coronary_angiography": {"OPCS4": ["K63-K65"]}
+        "CABG": {
+          "OPCS4": [
+            "K40-K46"
+          ],
+          "CPT": [
+            "33510-33536"
+          ]
+        },
+        "PCI": {
+          "OPCS4": [
+            "K49-K50",
+            "K75"
+          ],
+          "CPT": [
+            "92920-92944"
+          ]
+        },
+        "coronary_angiography": {
+          "OPCS4": [
+            "K63-K65"
+          ]
+        }
       },
-      "medications": ["aspirin", "clopidogrel", "ticagrelor", "prasugrel", "atorvastatin", "rosuvastatin", "nitroglycerin", "isosorbide", "metoprolol", "bisoprolol", "ramipril", "perindopril"],
-      "self_report_fields": ["heart_attack", "angina", "coronary_artery_disease"],
+      "medications": [
+        "aspirin",
+        "clopidogrel",
+        "ticagrelor",
+        "prasugrel",
+        "atorvastatin",
+        "rosuvastatin",
+        "nitroglycerin",
+        "isosorbide",
+        "metoprolol",
+        "bisoprolol",
+        "ramipril",
+        "perindopril"
+      ],
+      "self_report_fields": [
+        "heart_attack",
+        "angina",
+        "coronary_artery_disease"
+      ],
       "biomarkers": [
-        {"test": "troponin_I", "threshold": ">99th percentile URL", "note": "For acute MI diagnosis"},
-        {"test": "troponin_T", "threshold": ">14 ng/L (hs-cTnT)"},
-        {"test": "CK_MB", "note": "Less specific than troponin"}
+        {
+          "test": "troponin_I",
+          "threshold": ">99th percentile URL",
+          "note": "For acute MI diagnosis"
+        },
+        {
+          "test": "troponin_T",
+          "threshold": ">14 ng/L (hs-cTnT)"
+        },
+        {
+          "test": "CK_MB",
+          "note": "Less specific than troponin"
+        }
       ],
       "exclusions": [
-        {"condition": "heart_failure_without_CAD", "icd10": ["I50"]},
-        {"condition": "valvular_heart_disease", "icd10": ["I05-I09", "I34-I37"]},
-        {"condition": "congenital_heart_disease", "icd10": ["Q20-Q28"]}
+        {
+          "condition": "heart_failure_without_CAD",
+          "icd10": [
+            "I50"
+          ]
+        },
+        {
+          "condition": "valvular_heart_disease",
+          "icd10": [
+            "I05-I09",
+            "I34-I37"
+          ]
+        },
+        {
+          "condition": "congenital_heart_disease",
+          "icd10": [
+            "Q20-Q28"
+          ]
+        }
       ],
-      "definition_variables_to_exclude": ["troponin", "ck_mb", "mi_flag", "cad_flag", "heart_attack", "angina_flag"],
+      "definition_variables_to_exclude": [
+        "angina_flag",
+        "cad_flag",
+        "ck_mb",
+        "heart_attack",
+        "hs_ctnt",
+        "hs_troponin",
+        "mi_flag",
+        "troponin",
+        "troponin_i",
+        "troponin_t"
+      ],
       "recommended_adjudication": "at_least_two"
     },
-
     "chronic_kidney_disease": {
       "name": "Chronic Kidney Disease",
-      "icd10": ["N18", "N18.1", "N18.2", "N18.3", "N18.4", "N18.5", "N18.9"],
+      "icd10": [
+        "N18",
+        "N18.1",
+        "N18.2",
+        "N18.3",
+        "N18.4",
+        "N18.5",
+        "N18.9"
+      ],
       "lab_criteria": [
-        {"test": "eGFR", "threshold": "<60 mL/min/1.73m2", "note": "CKD-EPI or MDRD formula, sustained ≥3 months", "formula": "CKD-EPI 2021 (race-free)"},
-        {"test": "UACR", "threshold": ">=30 mg/g", "note": "Albuminuria, sustained ≥3 months"},
-        {"test": "serum_creatinine", "note": "Used to calculate eGFR, not a direct criterion"}
+        {
+          "test": "eGFR",
+          "threshold": "<60 mL/min/1.73m2",
+          "note": "CKD-EPI or MDRD formula, sustained ≥3 months",
+          "formula": "CKD-EPI 2021 (race-free)"
+        },
+        {
+          "test": "UACR",
+          "threshold": ">=30 mg/g",
+          "note": "Albuminuria, sustained ≥3 months"
+        },
+        {
+          "test": "serum_creatinine",
+          "note": "Used to calculate eGFR, not a direct criterion"
+        }
       ],
       "staging": {
         "G1": "eGFR >=90 (with kidney damage markers)",
@@ -123,141 +469,474 @@
         "A2": "UACR 30-300 (microalbuminuria)",
         "A3": "UACR >300 (macroalbuminuria)"
       },
-      "medications": ["ramipril", "lisinopril", "losartan", "dapagliflozin", "empagliflozin", "finerenone"],
-      "procedures": ["hemodialysis", "peritoneal_dialysis", "kidney_transplant"],
-      "exclusions": [
-        {"condition": "acute_kidney_injury", "icd10": ["N17"], "reason": "Reversible, not chronic"},
-        {"condition": "dialysis_dependent_at_baseline", "note": "ESRD, different prognosis"}
+      "medications": [
+        "ramipril",
+        "lisinopril",
+        "losartan",
+        "dapagliflozin",
+        "empagliflozin",
+        "finerenone"
       ],
-      "definition_variables_to_exclude": ["egfr", "creatinine", "uacr", "albumin_creatinine_ratio", "ckd_stage", "kidney_function"],
+      "procedures": [
+        "hemodialysis",
+        "peritoneal_dialysis",
+        "kidney_transplant"
+      ],
+      "exclusions": [
+        {
+          "condition": "acute_kidney_injury",
+          "icd10": [
+            "N17"
+          ],
+          "reason": "Reversible, not chronic"
+        },
+        {
+          "condition": "dialysis_dependent_at_baseline",
+          "note": "ESRD, different prognosis"
+        }
+      ],
+      "definition_variables_to_exclude": [
+        "albumin_creatinine_ratio",
+        "ckd_stage",
+        "creatinine",
+        "creatinine_serum",
+        "cystatin_c",
+        "egfr",
+        "kidney_function",
+        "serum_creatinine",
+        "uacr"
+      ],
       "recommended_adjudication": "at_least_two",
       "note": "CKD-EPI 2021 removed race coefficient — use race-free formula"
     },
-
     "heart_failure": {
       "name": "Heart Failure",
-      "icd10": ["I50", "I50.0", "I50.1", "I50.9", "I11.0", "I13.0", "I13.2"],
+      "icd10": [
+        "I50",
+        "I50.0",
+        "I50.1",
+        "I50.9",
+        "I11.0",
+        "I13.0",
+        "I13.2"
+      ],
       "subtypes": {
         "HFrEF": "LVEF <40% (reduced ejection fraction)",
         "HFmrEF": "LVEF 40-49% (mildly reduced)",
         "HFpEF": "LVEF >=50% (preserved ejection fraction)"
       },
       "biomarkers": [
-        {"test": "BNP", "threshold": ">35 pg/mL (rule-out)", "note": "For exclusion: BNP<35 rules out HF"},
-        {"test": "NT-proBNP", "threshold": ">125 pg/mL (rule-out)"},
-        {"test": "LVEF", "note": "Echocardiography, gold standard for subtyping"}
+        {
+          "test": "BNP",
+          "threshold": ">35 pg/mL (rule-out)",
+          "note": "For exclusion: BNP<35 rules out HF"
+        },
+        {
+          "test": "NT-proBNP",
+          "threshold": ">125 pg/mL (rule-out)"
+        },
+        {
+          "test": "LVEF",
+          "note": "Echocardiography, gold standard for subtyping"
+        }
       ],
-      "medications": ["sacubitril_valsartan", "carvedilol", "bisoprolol", "enalapril", "ramipril", "spironolactone", "eplerenone", "dapagliflozin", "empagliflozin", "furosemide", "bumetanide", "digoxin", "ivabradine"],
-      "self_report_fields": ["heart_failure", "congestive_heart_failure"],
+      "medications": [
+        "sacubitril_valsartan",
+        "carvedilol",
+        "bisoprolol",
+        "enalapril",
+        "ramipril",
+        "spironolactone",
+        "eplerenone",
+        "dapagliflozin",
+        "empagliflozin",
+        "furosemide",
+        "bumetanide",
+        "digoxin",
+        "ivabradine"
+      ],
+      "self_report_fields": [
+        "heart_failure",
+        "congestive_heart_failure"
+      ],
       "exclusions": [
-        {"condition": "acute_decompensated_only", "note": "May need incident vs prevalent distinction"},
-        {"condition": "cor_pulmonale", "icd10": ["I27"], "reason": "Right-sided HF due to lung disease"}
+        {
+          "condition": "acute_decompensated_only",
+          "note": "May need incident vs prevalent distinction"
+        },
+        {
+          "condition": "cor_pulmonale",
+          "icd10": [
+            "I27"
+          ],
+          "reason": "Right-sided HF due to lung disease"
+        }
       ],
-      "definition_variables_to_exclude": ["bnp", "nt_probnp", "lvef", "ejection_fraction", "heart_failure_flag"],
+      "definition_variables_to_exclude": [
+        "bnp",
+        "ejection_fraction",
+        "heart_failure_flag",
+        "lvef",
+        "nt-probnp",
+        "nt_probnp",
+        "ntprobnp",
+        "pro_bnp"
+      ],
       "recommended_adjudication": "at_least_two"
     },
-
     "stroke": {
       "name": "Stroke (Ischaemic and Haemorrhagic)",
-      "icd10": ["I60", "I61", "I62", "I63", "I64", "I65", "I66"],
-      "icd10_subtypes": {
-        "ischaemic": ["I63"],
-        "haemorrhagic_intracerebral": ["I61"],
-        "haemorrhagic_subarachnoid": ["I60"],
-        "unspecified": ["I64"]
-      },
-      "imaging": ["CT_head", "MRI_brain", "CT_angiography"],
-      "medications_post": ["aspirin", "clopidogrel", "warfarin", "apixaban", "rivaroxaban", "dabigatran", "alteplase"],
-      "self_report_fields": ["stroke", "transient_ischaemic_attack"],
-      "exclusions": [
-        {"condition": "TIA_only", "icd10": ["G45"], "note": "Transient, different prognosis"},
-        {"condition": "traumatic_intracranial_haemorrhage", "icd10": ["S06"]}
+      "icd10": [
+        "I60",
+        "I61",
+        "I62",
+        "I63",
+        "I64",
+        "I65",
+        "I66"
       ],
-      "definition_variables_to_exclude": ["stroke_flag", "stroke_type", "nihss_score"],
+      "icd10_subtypes": {
+        "ischaemic": [
+          "I63"
+        ],
+        "haemorrhagic_intracerebral": [
+          "I61"
+        ],
+        "haemorrhagic_subarachnoid": [
+          "I60"
+        ],
+        "unspecified": [
+          "I64"
+        ]
+      },
+      "imaging": [
+        "CT_head",
+        "MRI_brain",
+        "CT_angiography"
+      ],
+      "medications_post": [
+        "aspirin",
+        "clopidogrel",
+        "warfarin",
+        "apixaban",
+        "rivaroxaban",
+        "dabigatran",
+        "alteplase"
+      ],
+      "self_report_fields": [
+        "stroke",
+        "transient_ischaemic_attack"
+      ],
+      "exclusions": [
+        {
+          "condition": "TIA_only",
+          "icd10": [
+            "G45"
+          ],
+          "note": "Transient, different prognosis"
+        },
+        {
+          "condition": "traumatic_intracranial_haemorrhage",
+          "icd10": [
+            "S06"
+          ]
+        }
+      ],
+      "definition_variables_to_exclude": [
+        "nihss_score",
+        "stroke_flag",
+        "stroke_type"
+      ],
       "recommended_adjudication": "at_least_two"
     },
-
     "copd": {
       "name": "Chronic Obstructive Pulmonary Disease",
-      "icd10": ["J40", "J41", "J42", "J43", "J44"],
+      "icd10": [
+        "J40",
+        "J41",
+        "J42",
+        "J43",
+        "J44"
+      ],
       "lab_criteria": [
-        {"test": "FEV1_FVC_ratio", "threshold": "<0.70", "note": "Post-bronchodilator spirometry (GOLD criteria)"},
-        {"test": "FEV1_percent_predicted", "note": "Used for GOLD staging: I(≥80), II(50-79), III(30-49), IV(<30)"}
+        {
+          "test": "FEV1_FVC_ratio",
+          "threshold": "<0.70",
+          "note": "Post-bronchodilator spirometry (GOLD criteria)"
+        },
+        {
+          "test": "FEV1_percent_predicted",
+          "note": "Used for GOLD staging: I(≥80), II(50-79), III(30-49), IV(<30)"
+        }
       ],
-      "medications": ["salbutamol", "ipratropium", "tiotropium", "umeclidinium", "fluticasone_salmeterol", "budesonide_formoterol", "roflumilast"],
-      "self_report_fields": ["copd", "chronic_bronchitis", "emphysema"],
+      "medications": [
+        "salbutamol",
+        "ipratropium",
+        "tiotropium",
+        "umeclidinium",
+        "fluticasone_salmeterol",
+        "budesonide_formoterol",
+        "roflumilast"
+      ],
+      "self_report_fields": [
+        "copd",
+        "chronic_bronchitis",
+        "emphysema"
+      ],
       "exclusions": [
-        {"condition": "asthma_only", "icd10": ["J45"], "note": "Reversible obstruction"},
-        {"condition": "bronchiectasis", "icd10": ["J47"]},
-        {"condition": "never_smoker_under_40", "note": "COPD very unlikely without exposure"}
+        {
+          "condition": "asthma_only",
+          "icd10": [
+            "J45"
+          ],
+          "note": "Reversible obstruction"
+        },
+        {
+          "condition": "bronchiectasis",
+          "icd10": [
+            "J47"
+          ]
+        },
+        {
+          "condition": "never_smoker_under_40",
+          "note": "COPD very unlikely without exposure"
+        }
       ],
-      "definition_variables_to_exclude": ["fev1", "fvc", "fev1_fvc_ratio", "spirometry", "copd_gold_stage"],
+      "definition_variables_to_exclude": [
+        "copd_gold_stage",
+        "fev1",
+        "fev1_fvc_ratio",
+        "fev1_pct",
+        "fev1_percent_predicted",
+        "fev1_predicted",
+        "fvc",
+        "spirometry"
+      ],
       "recommended_adjudication": "at_least_two"
     },
-
     "major_depressive_disorder": {
       "name": "Major Depressive Disorder",
-      "icd10": ["F32", "F33"],
-      "screening_instruments": [
-        {"name": "PHQ-9", "threshold": ">=10", "note": "Moderate depression screening"},
-        {"name": "PHQ-2", "threshold": ">=3", "note": "Brief screening"},
-        {"name": "CESD", "threshold": ">=16"},
-        {"name": "BDI-II", "threshold": ">=14"}
+      "icd10": [
+        "F32",
+        "F33"
       ],
-      "medications": ["sertraline", "fluoxetine", "citalopram", "escitalopram", "venlafaxine", "duloxetine", "mirtazapine", "bupropion", "amitriptyline", "nortriptyline"],
-      "medication_atc_codes": ["N06A"],
-      "self_report_fields": ["depression", "ever_seen_psychiatrist", "current_depression_treatment"],
+      "screening_instruments": [
+        {
+          "name": "PHQ-9",
+          "threshold": ">=10",
+          "note": "Moderate depression screening"
+        },
+        {
+          "name": "PHQ-2",
+          "threshold": ">=3",
+          "note": "Brief screening"
+        },
+        {
+          "name": "CESD",
+          "threshold": ">=16"
+        },
+        {
+          "name": "BDI-II",
+          "threshold": ">=14"
+        }
+      ],
+      "medications": [
+        "sertraline",
+        "fluoxetine",
+        "citalopram",
+        "escitalopram",
+        "venlafaxine",
+        "duloxetine",
+        "mirtazapine",
+        "bupropion",
+        "amitriptyline",
+        "nortriptyline"
+      ],
+      "medication_atc_codes": [
+        "N06A"
+      ],
+      "self_report_fields": [
+        "depression",
+        "ever_seen_psychiatrist",
+        "current_depression_treatment"
+      ],
       "exclusions": [
-        {"condition": "bipolar_disorder", "icd10": ["F31"], "reason": "Different treatment, prognosis"},
-        {"condition": "bereavement", "note": "Normal grief response"},
-        {"condition": "substance_induced", "icd10": ["F1x.54"]}
+        {
+          "condition": "bipolar_disorder",
+          "icd10": [
+            "F31"
+          ],
+          "reason": "Different treatment, prognosis"
+        },
+        {
+          "condition": "bereavement",
+          "note": "Normal grief response"
+        },
+        {
+          "condition": "substance_induced",
+          "icd10": [
+            "F1x.54"
+          ]
+        }
       ],
       "note": "Self-report and medication alone have high false-positive rate. Structured clinical interview (SCID) is gold standard but rarely available in large datasets.",
-      "definition_variables_to_exclude": ["phq9_score", "phq2_score", "depression_score", "depression_flag", "cesd_score"],
+      "definition_variables_to_exclude": [
+        "cesd_score",
+        "depression_flag",
+        "depression_score",
+        "phq2_score",
+        "phq9_score"
+      ],
       "recommended_adjudication": "at_least_two"
     },
-
     "cancer_any": {
       "name": "Cancer (Any Site)",
       "icd10_range": "C00-C97 (malignant neoplasms)",
       "common_sites": {
-        "breast": {"icd10": ["C50"], "screening": "mammography"},
-        "lung": {"icd10": ["C34"], "screening": "low-dose CT"},
-        "colorectal": {"icd10": ["C18", "C19", "C20"], "screening": "colonoscopy, FIT"},
-        "prostate": {"icd10": ["C61"], "screening": "PSA (controversial)"},
-        "melanoma": {"icd10": ["C43"]},
-        "pancreatic": {"icd10": ["C25"]},
-        "liver": {"icd10": ["C22"]},
-        "kidney": {"icd10": ["C64"]}
+        "breast": {
+          "icd10": [
+            "C50"
+          ],
+          "screening": "mammography"
+        },
+        "lung": {
+          "icd10": [
+            "C34"
+          ],
+          "screening": "low-dose CT"
+        },
+        "colorectal": {
+          "icd10": [
+            "C18",
+            "C19",
+            "C20"
+          ],
+          "screening": "colonoscopy, FIT"
+        },
+        "prostate": {
+          "icd10": [
+            "C61"
+          ],
+          "screening": "PSA (controversial)"
+        },
+        "melanoma": {
+          "icd10": [
+            "C43"
+          ]
+        },
+        "pancreatic": {
+          "icd10": [
+            "C25"
+          ]
+        },
+        "liver": {
+          "icd10": [
+            "C22"
+          ]
+        },
+        "kidney": {
+          "icd10": [
+            "C64"
+          ]
+        }
       },
-      "ascertainment": ["cancer_registry", "hospital_ICD", "pathology_report"],
+      "ascertainment": [
+        "cancer_registry",
+        "hospital_ICD",
+        "pathology_report"
+      ],
       "staging": "TNM staging system (T=tumor, N=nodes, M=metastasis)",
       "exclusions": [
-        {"condition": "benign_neoplasm", "icd10_range": "D10-D36"},
-        {"condition": "in_situ", "icd10_range": "D00-D09", "note": "Pre-invasive, may or may not include"},
-        {"condition": "non_melanoma_skin_cancer", "icd10": ["C44"], "note": "Often excluded from 'any cancer' definitions due to high incidence and low mortality"}
+        {
+          "condition": "benign_neoplasm",
+          "icd10_range": "D10-D36"
+        },
+        {
+          "condition": "in_situ",
+          "icd10_range": "D00-D09",
+          "note": "Pre-invasive, may or may not include"
+        },
+        {
+          "condition": "non_melanoma_skin_cancer",
+          "icd10": [
+            "C44"
+          ],
+          "note": "Often excluded from 'any cancer' definitions due to high incidence and low mortality"
+        }
       ],
-      "definition_variables_to_exclude": ["cancer_flag", "cancer_type", "tumor_stage", "tnm_stage"],
-      "recommended_adjudication": "cancer_registry_primary"
+      "definition_variables_to_exclude": [
+        "cancer_flag",
+        "cancer_type",
+        "tnm_stage",
+        "tumor_stage"
+      ],
+      "recommended_adjudication": "cancer_registry_primary",
+      "icd10": [
+        "C00-C97"
+      ]
     },
-
     "atrial_fibrillation": {
       "name": "Atrial Fibrillation",
-      "icd10": ["I48", "I48.0", "I48.1", "I48.2", "I48.9"],
+      "icd10": [
+        "I48",
+        "I48.0",
+        "I48.1",
+        "I48.2",
+        "I48.9"
+      ],
       "diagnostic_criteria": [
-        {"test": "ECG", "finding": "Irregularly irregular rhythm, absent P waves", "note": "12-lead ECG is diagnostic"},
-        {"test": "Holter_monitor", "note": "For paroxysmal AF detection"}
+        {
+          "test": "ECG",
+          "finding": "Irregularly irregular rhythm, absent P waves",
+          "note": "12-lead ECG is diagnostic"
+        },
+        {
+          "test": "Holter_monitor",
+          "note": "For paroxysmal AF detection"
+        }
       ],
-      "medications": ["warfarin", "apixaban", "rivaroxaban", "dabigatran", "edoxaban", "flecainide", "amiodarone", "dronedarone", "digoxin"],
-      "subtypes": ["paroxysmal", "persistent", "permanent"],
+      "medications": [
+        "warfarin",
+        "apixaban",
+        "rivaroxaban",
+        "dabigatran",
+        "edoxaban",
+        "flecainide",
+        "amiodarone",
+        "dronedarone",
+        "digoxin"
+      ],
+      "subtypes": [
+        "paroxysmal",
+        "persistent",
+        "permanent"
+      ],
       "exclusions": [
-        {"condition": "atrial_flutter_only", "icd10": ["I48.3", "I48.4"]},
-        {"condition": "post_surgical_AF", "note": "Transient, post-cardiac surgery"}
+        {
+          "condition": "atrial_flutter_only",
+          "icd10": [
+            "I48.3",
+            "I48.4"
+          ]
+        },
+        {
+          "condition": "post_surgical_AF",
+          "note": "Transient, post-cardiac surgery"
+        }
       ],
-      "definition_variables_to_exclude": ["af_flag", "ecg_rhythm", "atrial_fibrillation_status"],
+      "definition_variables_to_exclude": [
+        "af_flag",
+        "atrial_fibrillation_status",
+        "ecg",
+        "ecg_result",
+        "ecg_rhythm",
+        "holter",
+        "holter_monitor",
+        "holter_result",
+        "rhythm_type"
+      ],
       "recommended_adjudication": "at_least_two"
     },
-
     "readmission_30day": {
       "name": "30-Day All-Cause Hospital Readmission",
       "definition": "Unplanned admission to any hospital within 30 calendar days of discharge from index admission",
@@ -268,19 +947,41 @@
         "Calendar days, not business days"
       ],
       "exclusions": [
-        {"condition": "planned_readmission", "note": "Scheduled procedures, chemotherapy cycles"},
-        {"condition": "death_before_30_days", "reason": "Competing risk — cannot be readmitted if dead"},
-        {"condition": "transfer", "note": "Direct transfer to another facility is not a readmission"},
-        {"condition": "left_AMA", "note": "Against medical advice — may have different risk profile"},
-        {"condition": "psychiatric_admission", "note": "Sometimes excluded depending on study"},
-        {"condition": "obstetric_admission", "note": "Delivery, newborn care"}
+        {
+          "condition": "planned_readmission",
+          "note": "Scheduled procedures, chemotherapy cycles"
+        },
+        {
+          "condition": "death_before_30_days",
+          "reason": "Competing risk — cannot be readmitted if dead"
+        },
+        {
+          "condition": "transfer",
+          "note": "Direct transfer to another facility is not a readmission"
+        },
+        {
+          "condition": "left_AMA",
+          "note": "Against medical advice — may have different risk profile"
+        },
+        {
+          "condition": "psychiatric_admission",
+          "note": "Sometimes excluded depending on study"
+        },
+        {
+          "condition": "obstetric_admission",
+          "note": "Delivery, newborn care"
+        }
       ],
-      "definition_variables_to_exclude": ["readmission_flag", "days_to_readmission", "readmit_status"],
+      "definition_variables_to_exclude": [
+        "days_to_readmission",
+        "readmission_flag",
+        "readmit_status"
+      ],
       "recommended_adjudication": "any_one",
-      "note": "This is an administrative outcome, not a clinical diagnosis. Definition depends on data source (claims vs EHR). CMS definition is the de facto standard in the US."
+      "note": "This is an administrative outcome, not a clinical diagnosis. Definition depends on data source (claims vs EHR). CMS definition is the de facto standard in the US.",
+      "note_no_icd": "Administrative outcome, not diagnosed by ICD codes. Defined by admission/discharge dates."
     }
   },
-
   "general_guidance": {
     "choosing_definition": [
       "1. Start with the most specific evidence source available (ICD + lab > self-report alone)",
