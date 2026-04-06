@@ -1370,7 +1370,23 @@ Riley 2019 三准则（`riley_sample_size()` in `cohort_definition_gate.py`）�
 
 ### 划分（Phase 2）
 
-三种策略：`grouped_temporal`（纵向）、`grouped_random`（横截面）、`stratified_grouped`（横截面+保证正类率一致）。横截面数据用 `--cross-sectional` flag，自动跳过时序检查。
+**三种策略**：`grouped_temporal`（纵向）、`grouped_random`（横截面）、`stratified_grouped`（横截面+保证正类率一致）。横截面数据用 `--cross-sectional` flag，自动跳过时序检查。
+
+**三种划分模式**（根据数据量选择）：
+
+| 模式 | 参数 | 适用场景 | 模型选择方式 |
+|------|------|---------|-------------|
+| 三分法 | `--train-ratio 0.6 --valid-ratio 0.2 --test-ratio 0.2` | 大样本 (n > 5000) | valid 集调参 + test 集评估 |
+| 两分法 | `--train-ratio 0.8 --valid-ratio 0.0 --test-ratio 0.2` | 中等样本 (n 1000-5000) | CV 调参 + test 集评估 |
+| 仅CV | `--train-ratio 1.0 --valid-ratio 0.0 --test-ratio 0.0` | 小样本 (n < 1000) | Nested CV / Bootstrap 内部验证 |
+
+Agent 引导时应根据 Phase 1 报告的样本量自动推荐：
+```
+n > 5000  → "样本量充足，推荐三分法 (60/20/20)"
+n 1000-5000 → "中等样本，推荐两分法 (80/20) + 5折CV替代验证集"
+n < 1000  → "小样本，考虑全量训练 + Nested CV 或 Bootstrap 内部验证"
+n < 200   → "⚠️ 样本量可能不足，优先考虑 Riley 样本量检查结果"
+```
 
 ### 编码（Phase 3）
 

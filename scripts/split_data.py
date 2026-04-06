@@ -263,24 +263,32 @@ def validate_binary_target(df: pd.DataFrame, target_col: str) -> int:
 
 
 def validate_ratios(train_ratio: float, valid_ratio: float, test_ratio: float) -> None:
-    """Validate that split ratios sum to ~1.0 and each is >= 0.05.
+    """Validate that split ratios sum to ~1.0. Valid ratio may be 0 (two-way split).
+
+    Supported configurations:
+      - Three-way: train 0.6 / valid 0.2 / test 0.2 (large datasets)
+      - Two-way:   train 0.8 / valid 0.0 / test 0.2 (use CV instead of valid set)
+      - CV-only:   train 1.0 / valid 0.0 / test 0.0 (internal validation only)
 
     Args:
         train_ratio: Training set proportion.
-        valid_ratio: Validation set proportion.
-        test_ratio: Test set proportion.
+        valid_ratio: Validation set proportion (0.0 = no validation split).
+        test_ratio: Test set proportion (0.0 = no hold-out test, use bootstrap).
 
     Raises:
-        ValueError: If ratios do not sum to ~1.0 or any ratio < 0.05.
+        ValueError: If ratios do not sum to ~1.0, or active ratio < 0.05.
     """
     total = train_ratio + valid_ratio + test_ratio
     if not (0.99 <= total <= 1.01):
         raise ValueError(
             f"Split ratios must sum to ~1.0, got {train_ratio} + {valid_ratio} + {test_ratio} = {total}"
         )
-    for name, ratio in [("train", train_ratio), ("valid", valid_ratio), ("test", test_ratio)]:
-        if ratio < 0.05:
-            raise ValueError(f"{name}_ratio must be >= 0.05, got {ratio}")
+    if train_ratio < 0.05:
+        raise ValueError(f"train_ratio must be >= 0.05, got {train_ratio}")
+    # Valid and test may be 0.0 (two-way or CV-only split)
+    for name, ratio in [("valid", valid_ratio), ("test", test_ratio)]:
+        if 0 < ratio < 0.05:
+            raise ValueError(f"{name}_ratio must be 0.0 (disabled) or >= 0.05, got {ratio}")
 
 
 def get_patient_label(df: pd.DataFrame, patient_id_col: str, target_col: str) -> pd.DataFrame:
@@ -377,19 +385,30 @@ def split_grouped_temporal(
 
     n = len(patients_ordered)
     train_end = int(round(n * train_ratio))
-    valid_end = int(round(n * (train_ratio + valid_ratio)))
 
-    # Ensure at least 1 patient per split
-    train_end = max(1, min(train_end, n - 2))
-    valid_end = max(train_end + 1, min(valid_end, n - 1))
-
-    train_patients = set(patients_ordered[:train_end])
-    valid_patients = set(patients_ordered[train_end:valid_end])
-    test_patients = set(patients_ordered[valid_end:])
+    if valid_ratio > 0 and test_ratio > 0:
+        # Three-way split
+        valid_end = int(round(n * (train_ratio + valid_ratio)))
+        train_end = max(1, min(train_end, n - 2))
+        valid_end = max(train_end + 1, min(valid_end, n - 1))
+        train_patients = set(patients_ordered[:train_end])
+        valid_patients = set(patients_ordered[train_end:valid_end])
+        test_patients = set(patients_ordered[valid_end:])
+    elif valid_ratio == 0 and test_ratio > 0:
+        # Two-way split (train + test, no validation — use CV instead)
+        train_end = max(1, min(train_end, n - 1))
+        train_patients = set(patients_ordered[:train_end])
+        valid_patients = set()
+        test_patients = set(patients_ordered[train_end:])
+    else:
+        # CV-only (no hold-out test — bootstrap internal validation)
+        train_patients = set(patients_ordered)
+        valid_patients = set()
+        test_patients = set()
 
     train_df = df[df[patient_id_col].isin(train_patients)].drop(columns=[tmp_col])
-    valid_df = df[df[patient_id_col].isin(valid_patients)].drop(columns=[tmp_col])
-    test_df = df[df[patient_id_col].isin(test_patients)].drop(columns=[tmp_col])
+    valid_df = df[df[patient_id_col].isin(valid_patients)].drop(columns=[tmp_col]) if valid_patients else pd.DataFrame()
+    test_df = df[df[patient_id_col].isin(test_patients)].drop(columns=[tmp_col]) if test_patients else pd.DataFrame()
 
     return train_df, valid_df, test_df
 
@@ -421,19 +440,30 @@ def split_grouped_random(
     patients = df[patient_id_col].unique().tolist()
     rng.shuffle(patients)
 
+    test_ratio = 1.0 - train_ratio - valid_ratio
     n = len(patients)
     train_end = int(round(n * train_ratio))
-    valid_end = int(round(n * (train_ratio + valid_ratio)))
-    train_end = max(1, min(train_end, n - 2))
-    valid_end = max(train_end + 1, min(valid_end, n - 1))
 
-    train_patients = set(patients[:train_end])
-    valid_patients = set(patients[train_end:valid_end])
-    test_patients = set(patients[valid_end:])
+    if valid_ratio > 0 and test_ratio > 0:
+        valid_end = int(round(n * (train_ratio + valid_ratio)))
+        train_end = max(1, min(train_end, n - 2))
+        valid_end = max(train_end + 1, min(valid_end, n - 1))
+        train_patients = set(patients[:train_end])
+        valid_patients = set(patients[train_end:valid_end])
+        test_patients = set(patients[valid_end:])
+    elif valid_ratio == 0 and test_ratio > 0:
+        train_end = max(1, min(train_end, n - 1))
+        train_patients = set(patients[:train_end])
+        valid_patients = set()
+        test_patients = set(patients[train_end:])
+    else:
+        train_patients = set(patients)
+        valid_patients = set()
+        test_patients = set()
 
     train_df = df[df[patient_id_col].isin(train_patients)]
-    valid_df = df[df[patient_id_col].isin(valid_patients)]
-    test_df = df[df[patient_id_col].isin(test_patients)]
+    valid_df = df[df[patient_id_col].isin(valid_patients)] if valid_patients else pd.DataFrame()
+    test_df = df[df[patient_id_col].isin(test_patients)] if test_patients else pd.DataFrame()
 
     return train_df, valid_df, test_df
 
@@ -480,22 +510,30 @@ def split_stratified_grouped(
             # (downstream validate_splits will catch insufficient patients/samples)
             train_patients.extend(group)
             continue
+        test_ratio = 1.0 - train_ratio - valid_ratio
         te = int(round(n * train_ratio))
-        ve = int(round(n * (train_ratio + valid_ratio)))
-        te = max(1, min(te, n - 2))
-        ve = max(te + 1, min(ve, n - 1))
 
-        train_patients.extend(group[:te])
-        valid_patients.extend(group[te:ve])
-        test_patients.extend(group[ve:])
+        if valid_ratio > 0 and test_ratio > 0:
+            ve = int(round(n * (train_ratio + valid_ratio)))
+            te = max(1, min(te, n - 2))
+            ve = max(te + 1, min(ve, n - 1))
+            train_patients.extend(group[:te])
+            valid_patients.extend(group[te:ve])
+            test_patients.extend(group[ve:])
+        elif valid_ratio == 0 and test_ratio > 0:
+            te = max(1, min(te, n - 1))
+            train_patients.extend(group[:te])
+            test_patients.extend(group[te:])
+        else:
+            train_patients.extend(group)
 
     train_set = set(train_patients)
     valid_set = set(valid_patients)
     test_set = set(test_patients)
 
     train_df = df[df[patient_id_col].isin(train_set)]
-    valid_df = df[df[patient_id_col].isin(valid_set)]
-    test_df = df[df[patient_id_col].isin(test_set)]
+    valid_df = df[df[patient_id_col].isin(valid_set)] if valid_set else pd.DataFrame()
+    test_df = df[df[patient_id_col].isin(test_set)] if test_set else pd.DataFrame()
 
     return train_df, valid_df, test_df
 
@@ -845,10 +883,15 @@ def main() -> int:
         print(f"[FAIL] Splitting failed: {exc}", file=sys.stderr)
         return 2
 
-    splits = {"train": train_df, "valid": valid_df, "test": test_df}
+    # Build splits dict (exclude empty DataFrames for two-way / CV-only modes)
+    splits = {"train": train_df}
+    if len(valid_df) > 0:
+        splits["valid"] = valid_df
+    if len(test_df) > 0:
+        splits["test"] = test_df
 
     # H2: Row count preservation assertion
-    split_total = len(train_df) + len(valid_df) + len(test_df)
+    split_total = sum(len(s) for s in splits.values())
     if split_total != rows_after_clean:
         print(
             f"[FAIL] Row count mismatch: cleaned_input={rows_after_clean}, "
@@ -880,12 +923,19 @@ def main() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     train_path = output_dir / "train.csv"
-    valid_path = output_dir / "valid.csv"
-    test_path = output_dir / "test.csv"
-
     save_csv(train_df, train_path)
-    save_csv(valid_df, valid_path)
-    save_csv(test_df, test_path)
+
+    if len(valid_df) > 0:
+        valid_path = output_dir / "valid.csv"
+        save_csv(valid_df, valid_path)
+    else:
+        print("  [INFO] No validation split (valid_ratio=0). Use CV for model selection.")
+
+    if len(test_df) > 0:
+        test_path = output_dir / "test.csv"
+        save_csv(test_df, test_path)
+    else:
+        print("  [INFO] No test split (test_ratio=0). Use bootstrap internal validation.")
 
     # C1: Warn if non-temporal strategy may fail split_protocol_gate
     if args.strategy != "grouped_temporal":
@@ -907,13 +957,23 @@ def main() -> int:
 
     # Summary
     train_summary = split_summary(train_df, args.target_col, time_col, args.patient_id_col)
-    valid_summary = split_summary(valid_df, args.target_col, time_col, args.patient_id_col)
-    test_summary = split_summary(test_df, args.target_col, time_col, args.patient_id_col)
-
     print("\n[INFO] Split complete:")
     print(f"  Train: {train_path} ({train_summary['rows']} rows, {train_summary['patients']} patients, pos_rate={train_summary['positive_rate']:.3f})")
-    print(f"  Valid: {valid_path} ({valid_summary['rows']} rows, {valid_summary['patients']} patients, pos_rate={valid_summary['positive_rate']:.3f})")
-    print(f"  Test:  {test_path} ({test_summary['rows']} rows, {test_summary['patients']} patients, pos_rate={test_summary['positive_rate']:.3f})")
+
+    if len(valid_df) > 0:
+        valid_summary = split_summary(valid_df, args.target_col, time_col, args.patient_id_col)
+        print(f"  Valid: {output_dir / 'valid.csv'} ({valid_summary['rows']} rows, {valid_summary['patients']} patients, pos_rate={valid_summary['positive_rate']:.3f})")
+    else:
+        valid_summary = {"rows": 0, "patients": 0, "positive_rate": 0}
+        print("  Valid: (none — use CV for model selection)")
+
+    if len(test_df) > 0:
+        test_summary = split_summary(test_df, args.target_col, time_col, args.patient_id_col)
+        print(f"  Test:  {output_dir / 'test.csv'} ({test_summary['rows']} rows, {test_summary['patients']} patients, pos_rate={test_summary['positive_rate']:.3f})")
+    else:
+        test_summary = {"rows": 0, "patients": 0, "positive_rate": 0}
+        print("  Test:  (none — use bootstrap internal validation)")
+
     print(f"  Protocol: {protocol_path}")
 
     # H3: Input file SHA256 fingerprint
@@ -939,19 +999,22 @@ def main() -> int:
         "output_dir": str(output_dir),
         "files": {
             "train": str(train_path),
-            "valid": str(valid_path),
-            "test": str(test_path),
+            "valid": str(output_dir / "valid.csv") if len(valid_df) > 0 else None,
+            "test": str(output_dir / "test.csv") if len(test_df) > 0 else None,
             "split_protocol": str(protocol_path),
         },
         "output_sha256": {
             "train": file_sha256(train_path),
-            "valid": file_sha256(valid_path),
-            "test": file_sha256(test_path),
+            "valid": file_sha256(output_dir / "valid.csv") if len(valid_df) > 0 else None,
+            "test": file_sha256(output_dir / "test.csv") if len(test_df) > 0 else None,
         },
+        "split_mode": "three_way" if len(valid_df) > 0 and len(test_df) > 0
+                      else "two_way" if len(test_df) > 0
+                      else "cv_only",
         "splits": {
             "train": train_summary,
-            "valid": valid_summary,
-            "test": test_summary,
+            "valid": valid_summary if len(valid_df) > 0 else None,
+            "test": test_summary if len(test_df) > 0 else None,
         },
         "safety_checks": {
             "patient_disjoint": not any(i["code"] == "patient_overlap" for i in issues),
