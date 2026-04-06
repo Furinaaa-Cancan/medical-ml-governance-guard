@@ -38,7 +38,8 @@ lightgbm = ["lightgbm>=3.3"]
 tabpfn = ["tabpfn>=0.1"]
 optuna = ["optuna>=3.0"]
 web = ["flask>=3.0"]
-all = ["xgboost>=1.7", "catboost>=1.2", "lightgbm>=3.3", "tabpfn>=0.1", "optuna>=3.0", "flask>=3.0"]
+shap = ["shap>=0.42"]
+all = ["xgboost>=1.7", "catboost>=1.2", "lightgbm>=3.3", "tabpfn>=0.1", "optuna>=3.0", "flask>=3.0", "shap>=0.42"]
 
 [project.scripts]
 mlgg = "scripts.mlgg:cli_main"

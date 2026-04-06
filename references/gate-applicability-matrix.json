@@ -1,6 +1,6 @@
 {
   "contract_version": "gate_applicability_matrix.v1",
-  "description": "Defines which MLGG gates apply to which prediction types. In MLGG v1.0, all 31 gates apply to binary classification only. This matrix serves as the authoritative source for conditional gate execution in future versions.",
+  "description": "Defines which MLGG gates apply to which prediction types. In MLGG v1.0, all 33 gates apply to binary classification only. This matrix serves as the authoritative source for conditional gate execution in future versions.",
   "version": "1.0.0",
   "last_updated": "2026-03-15",
 
@@ -362,6 +362,31 @@
       "regression": "FULL",
       "survival": "FULL",
       "adaptation_notes": {}
+    },
+    "cohort_definition_gate": {
+      "layer": 0,
+      "description": "Phase 1: Cohort definition, EPV adequacy, data type detection",
+      "binary": "FULL",
+      "multiclass": "FULL",
+      "regression": "ADAPTED",
+      "survival": "ADAPTED",
+      "adaptation_notes": {
+        "regression": "EPV calculation uses continuous outcome sample size formula (Riley 2019)",
+        "survival": "EPV uses events-per-variable for Cox models, not binary outcome"
+      }
+    },
+    "shap_interpretability_gate": {
+      "layer": 5,
+      "description": "Multi-model SHAP ensemble feature importance",
+      "binary": "FULL",
+      "multiclass": "ADAPTED",
+      "regression": "ADAPTED",
+      "survival": "ADAPTED",
+      "adaptation_notes": {
+        "multiclass": "SHAP values computed per-class; aggregation across classes needed",
+        "regression": "SHAP values directly interpretable; no normalization change needed",
+        "survival": "Use SHAP for Cox model or discrete-time survival; time-varying features need care"
+      }
     }
   },
 
@@ -445,8 +470,8 @@
   },
 
   "total_gates_by_version": {
-    "v1_0_binary_only": 31,
-    "v1_1_adds_multiclass_regression": "31 + 9 = 40",
-    "v1_2_adds_survival": "40 + 5 = 45"
+    "v1_0_binary_only": 33,
+    "v1_1_adds_multiclass_regression": "33 + 9 = 42",
+    "v1_2_adds_survival": "42 + 5 = 47"
   }
 }

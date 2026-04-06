@@ -442,6 +442,232 @@ def metric_panel(
     return metrics, cm
 
 
+def calibration_metrics(
+    y_true: "numpy.ndarray[Any, Any]",
+    y_score: "numpy.ndarray[Any, Any]",
+    n_bins: int = 10,
+) -> Dict[str, Any]:
+    """Compute calibration three-piece suite per Van Calster 2019.
+
+    Returns:
+        Dict with calibration_intercept, calibration_slope, oe_ratio,
+        ece, hosmer_lemeshow_stat, hosmer_lemeshow_p, brier_skill_score,
+        and per-bin calibration data.
+
+    References:
+        Van Calster B et al. BMC Med. 2019;17:230.
+        Steyerberg EW. Clinical Prediction Models, 2nd ed. 2019.
+    """
+    import numpy as np
+
+    y_t = np.asarray(y_true, dtype=float)
+    y_s = np.asarray(y_score, dtype=float)
+    n = len(y_t)
+
+    # --- Calibration slope & intercept (logistic recalibration) ---
+    # Fit: logit(y) ~ a + b * logit(y_score)
+    # Using sklearn LogisticRegression on logit(y_score) as single feature
+    eps = 1e-7
+    logit_s = np.log(np.clip(y_s, eps, 1 - eps) / (1 - np.clip(y_s, eps, 1 - eps)))
+
+    from sklearn.linear_model import LogisticRegression
+    import sklearn
+    _sklearn_version = tuple(int(x) for x in sklearn.__version__.split(".")[:2])
+    if _sklearn_version >= (1, 8):
+        lr = LogisticRegression(C=1e10, solver="lbfgs", max_iter=1000)
+    else:
+        lr = LogisticRegression(penalty=None, solver="lbfgs", max_iter=1000)
+    lr.fit(logit_s.reshape(-1, 1), y_t)
+    cal_intercept = float(lr.intercept_[0])
+    cal_slope = float(lr.coef_[0][0])
+
+    # --- O:E ratio ---
+    observed = float(y_t.sum())
+    expected = float(y_s.sum())
+    oe_ratio = observed / expected if expected > 0 else float("nan")
+
+    # --- ECE (Expected Calibration Error) ---
+    bin_edges = np.linspace(0, 1, n_bins + 1)
+    ece = 0.0
+    bin_data = []
+    hl_stat = 0.0  # Hosmer-Lemeshow chi-sq
+
+    for i in range(n_bins):
+        mask = (y_s >= bin_edges[i]) & (y_s < bin_edges[i + 1])
+        if i == n_bins - 1:
+            mask = (y_s >= bin_edges[i]) & (y_s <= bin_edges[i + 1])
+        n_bin = int(mask.sum())
+        if n_bin == 0:
+            bin_data.append({"bin": i, "n": 0, "mean_predicted": 0, "fraction_positive": 0})
+            continue
+        mean_pred = float(y_s[mask].mean())
+        frac_pos = float(y_t[mask].mean())
+        ece += abs(frac_pos - mean_pred) * (n_bin / n)
+
+        # Hosmer-Lemeshow contribution
+        e_pos = mean_pred * n_bin
+        e_neg = (1 - mean_pred) * n_bin
+        o_pos = float(y_t[mask].sum())
+        o_neg = n_bin - o_pos
+        if e_pos > 0:
+            hl_stat += (o_pos - e_pos) ** 2 / e_pos
+        if e_neg > 0:
+            hl_stat += (o_neg - e_neg) ** 2 / e_neg
+
+        bin_data.append({
+            "bin": i,
+            "n": n_bin,
+            "mean_predicted": round(mean_pred, 4),
+            "fraction_positive": round(frac_pos, 4),
+        })
+
+    # HL p-value (chi-sq with n_bins - 2 df)
+    from scipy.stats import chi2
+    hl_df = max(n_bins - 2, 1)
+    hl_p = float(1 - chi2.cdf(hl_stat, hl_df))
+
+    # --- Brier Skill Score ---
+    prevalence = float(y_t.mean())
+    brier_model = float(np.mean((y_t - y_s) ** 2))
+    brier_ref = prevalence * (1 - prevalence)
+    brier_skill = 1 - (brier_model / brier_ref) if brier_ref > 0 else 0.0
+
+    return {
+        "calibration_intercept": round(cal_intercept, 4),
+        "calibration_slope": round(cal_slope, 4),
+        "oe_ratio": round(oe_ratio, 4),
+        "ece": round(ece, 4),
+        "hosmer_lemeshow_chi2": round(hl_stat, 4),
+        "hosmer_lemeshow_p": round(hl_p, 4),
+        "hosmer_lemeshow_df": hl_df,
+        "brier_score": round(brier_model, 4),
+        "brier_skill_score": round(brier_skill, 4),
+        "brier_reference": round(brier_ref, 4),
+        "n_bins": n_bins,
+        "bin_data": bin_data,
+    }
+
+
+def learning_curve_data(
+    estimator: Any,
+    X_train: Any,
+    y_train: Any,
+    X_test: Any,
+    y_test: Any,
+    fractions: Optional[list] = None,
+    metric: str = "pr_auc",
+    seed: int = 42,
+) -> list:
+    """Compute learning curve: performance vs training set fraction.
+
+    Returns list of dicts with fraction, n_train, train_score, test_score.
+    """
+    import numpy as np
+    from sklearn.base import clone
+    from sklearn.metrics import average_precision_score, roc_auc_score
+
+    if fractions is None:
+        fractions = [0.1, 0.2, 0.3, 0.5, 0.7, 0.85, 1.0]
+
+    rng = np.random.default_rng(seed)
+    n = X_train.shape[0]
+    results = []
+
+    score_fn = average_precision_score if metric == "pr_auc" else roc_auc_score
+
+    for frac in fractions:
+        k = max(int(n * frac), 20)
+        idx = rng.choice(n, k, replace=False) if k < n else np.arange(n)
+
+        if hasattr(X_train, "iloc"):
+            X_sub = X_train.iloc[idx]
+        else:
+            X_sub = X_train[idx]
+        y_sub = y_train[idx] if hasattr(y_train, "__getitem__") else np.asarray(y_train)[idx]
+
+        if len(np.unique(y_sub)) < 2:
+            continue
+
+        est = clone(estimator)
+        est.fit(X_sub, y_sub)
+
+        train_score = float(score_fn(y_sub, est.predict_proba(X_sub)[:, 1]))
+        test_score = float(score_fn(y_test, est.predict_proba(X_test)[:, 1]))
+
+        results.append({
+            "fraction": round(frac, 2),
+            "n_train": k,
+            "train_score": round(train_score, 4),
+            "test_score": round(test_score, 4),
+        })
+
+    return results
+
+
+def compute_nri_idi(
+    y_true: "numpy.ndarray[Any, Any]",
+    y_score_old: "numpy.ndarray[Any, Any]",
+    y_score_new: "numpy.ndarray[Any, Any]",
+    threshold: float = 0.5,
+) -> Dict[str, float]:
+    """Compute Net Reclassification Improvement (NRI) and
+    Integrated Discrimination Improvement (IDI).
+
+    Args:
+        y_true: Binary ground truth.
+        y_score_old: Predicted probabilities from reference model.
+        y_score_new: Predicted probabilities from new model.
+        threshold: Classification threshold for categorical NRI.
+
+    Returns:
+        Dict with categorical_nri, continuous_nri, idi, event_nri, nonevent_nri.
+
+    References:
+        Pencina MJ et al. Stat Med. 2008;27:157-172.
+        Pencina MJ et al. Stat Med. 2011;30:11-21.
+    """
+    import numpy as np
+
+    y_t = np.asarray(y_true, dtype=float)
+    p_old = np.asarray(y_score_old, dtype=float)
+    p_new = np.asarray(y_score_new, dtype=float)
+
+    events = y_t == 1
+    nonevents = y_t == 0
+
+    # Categorical NRI (based on threshold)
+    old_class = (p_old >= threshold).astype(int)
+    new_class = (p_new >= threshold).astype(int)
+
+    up_events = float(((new_class > old_class) & events).sum())
+    down_events = float(((new_class < old_class) & events).sum())
+    up_nonevents = float(((new_class > old_class) & nonevents).sum())
+    down_nonevents = float(((new_class < old_class) & nonevents).sum())
+
+    n_events = float(events.sum())
+    n_nonevents = float(nonevents.sum())
+
+    event_nri = (up_events - down_events) / n_events if n_events > 0 else 0.0
+    nonevent_nri = (down_nonevents - up_nonevents) / n_nonevents if n_nonevents > 0 else 0.0
+    cat_nri = event_nri + nonevent_nri
+
+    # Continuous NRI
+    cont_event_nri = float(((p_new > p_old) & events).mean() - ((p_new < p_old) & events).mean()) if n_events > 0 else 0.0
+    cont_nonevent_nri = float(((p_new < p_old) & nonevents).mean() - ((p_new > p_old) & nonevents).mean()) if n_nonevents > 0 else 0.0
+    cont_nri = cont_event_nri + cont_nonevent_nri
+
+    # IDI
+    idi = float((p_new[events].mean() - p_old[events].mean()) - (p_new[nonevents].mean() - p_old[nonevents].mean()))
+
+    return {
+        "categorical_nri": round(cat_nri, 4),
+        "continuous_nri": round(cont_nri, 4),
+        "idi": round(idi, 4),
+        "event_nri": round(event_nri, 4),
+        "nonevent_nri": round(nonevent_nri, 4),
+    }
+
+
 # ---------------------------------------------------------------------------
 # Tamper-evident audit log for gate executions
 # ---------------------------------------------------------------------------

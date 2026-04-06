@@ -89,6 +89,17 @@ def _register(spec: GateSpec) -> GateSpec:
 # -- Layer 0: Contract validation --
 
 _register(GateSpec(
+    name="cohort_definition_gate",
+    script="cohort_definition_gate.py",
+    layer=GateLayer.CONTRACT,
+    description="Phase 1: Cohort definition, EPV adequacy, data type detection, missingness profile.",
+    depends_on=frozenset(),
+    request_inputs={"data_file": "--data"},
+    report_output="cohort_definition_report.json",
+    category="data",
+))
+
+_register(GateSpec(
     name="request_contract_gate",
     script="request_contract_gate.py",
     layer=GateLayer.CONTRACT,
@@ -281,6 +292,20 @@ _register(GateSpec(
     },
     report_output="clinical_metrics_report.json",
     category="performance",
+))
+
+_register(GateSpec(
+    name="shap_interpretability_gate",
+    script="shap_interpretability_gate.py",
+    layer=GateLayer.MODEL_AUDIT,
+    description="Multi-model SHAP: proportional-normalized ensemble feature importance across model families.",
+    depends_on=frozenset({"request_contract_gate"}),
+    request_inputs={
+        "model_pool_file": "--model-pool",
+        "feature_lineage_spec": "--feature-lineage-spec",
+    },
+    report_output="shap_interpretability_report.json",
+    category="model",
 ))
 
 # -- Layer 6: Metric validation (mostly parallelizable) --
