@@ -31,7 +31,7 @@
     "mlgg_standard_version": "1.0.0",
     "mlgg_schema_version": "1.0.0",
     "conformance_level": "L3-Publication-Grade",
-    "conformance_level_description": "All 31 gates passed in strict mode. Meets requirements for Nature Medicine / Lancet Digital Health / JAMA / BMJ submission.",
+    "conformance_level_description": "All 33 gates passed in strict mode. Meets requirements for Nature Medicine / Lancet Digital Health / JAMA / BMJ submission.",
 
     "study": {
       "study_id": "sepsis_prediction_v3",
@@ -49,12 +49,12 @@
     },
 
     "gates_summary": {
-      "total_gates": 31,
-      "passed": 31,
+      "total_gates": 33,
+      "passed": 33,
       "failed": 0,
       "warnings": 2,
       "strict_mode": true,
-      "conformance_level_gates_required": 31,
+      "conformance_level_gates_required": 33,
       "gate_outcomes": {
         "request_contract_gate": "pass",
         "manifest_lock": "pass",
@@ -198,7 +198,7 @@
       "score_minimum": 75
     },
     "L3-Publication-Grade": {
-      "minimum_gates_passed": 31,
+      "minimum_gates_passed": 33,
       "strict_mode_required": true,
       "tripod_ai_minimum": "23/27",
       "probast_rob_required": "low",

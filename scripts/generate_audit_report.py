@@ -720,7 +720,7 @@ def render_markdown_report(report: Dict[str, Any]) -> str:
         f"**Project**: `{project_name}`  ",
         f"**Path**: `{report['project_dir']}`  ",
         f"**Generated**: {timestamp}  ",
-        "**MLGG Version**: 1.0 (31-gate pipeline)  ",
+        "**MLGG Version**: 1.0 (33-gate pipeline)  ",
         "**Standard References**: TRIPOD+AI 2024, PROBAST+AI 2025, STARD-AI 2021",
         "",
         "---",

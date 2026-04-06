@@ -2,7 +2,7 @@
 gate_applicability.py — MLGG gate applicability resolver.
 
 Given a prediction type (binary/multiclass/regression/survival), determines
-which of the 31 gates are applicable and in what mode (FULL/ADAPTED/NA/etc.).
+which of the 33 gates are applicable and in what mode (FULL/ADAPTED/NA/etc.).
 
 Used by:
 - generate_audit_report.py: filter audit to relevant gates

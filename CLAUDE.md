@@ -4,7 +4,7 @@
 
 ## Project
 
-**ml-leakage-guard** — 面向医学二分类预测的发布级防数据泄漏框架。31 道 fail-closed 门控，覆盖 TRIPOD+AI 2024 / PROBAST+AI 2025 合规。
+**ml-leakage-guard** — 面向医学二分类预测的发布级防数据泄漏框架。33 道 fail-closed 门控，覆盖 TRIPOD+AI 2024 / PROBAST+AI 2025 合规。
 
 ## Working Directory
 
@@ -14,7 +14,7 @@
 
 执行任务前先读 `SKILL.md`，其中包含：
 - Intent → command 映射表
-- 31-gate 执行顺序与依赖 DAG
+- 33-gate 执行顺序与依赖 DAG
 - 输入/输出契约
 - 医学不可协商规则
 

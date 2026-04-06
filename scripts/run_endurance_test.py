@@ -10,7 +10,7 @@ Phases:
   Phase 4 (~90 min)  — Extended model pool: heart + diabetes × 12 families × 4 trials
   Phase 5 (~30 min)  — Cross-calibration sweep: 3 calibration methods × 3 threshold strategies
   Phase 6 (~30 min)  — Adversarial edge cases + boundary condition gates
-  Phase 7 (~20 min)  — Full strict pipeline on best-seed configs (31 gates)
+  Phase 7 (~20 min)  — Full strict pipeline on best-seed configs (33 gates)
 
 Progress is saved after EVERY step to:
   experiments/authority-e2e/endurance_progress.json
@@ -599,7 +599,7 @@ print('PASS: all JSON schemas valid')
 
 
 def phase_7_strict_pipeline(pm: ProgressManager) -> None:
-    """Phase 7: Full strict 31-gate pipeline — default + stress + large."""
+    """Phase 7: Full strict 33-gate pipeline — default + stress + large."""
     for cid in ["uci-heart-disease", "uci-breast-cancer-wdbc",
                  "uci-chronic-kidney-disease"]:
         _ensure_manifest(cid)
@@ -608,7 +608,7 @@ def phase_7_strict_pipeline(pm: ProgressManager) -> None:
 
     # Step 1: Default strict (heart + breast)
     run_step(pm, phase_id, "p7_strict_default",
-             "Strict 31-gate: default (heart + breast)",
+             "Strict 33-gate: default (heart + breast)",
              _e2e_cmd(summary_file=str(EXPERIMENTS_DIR / "endurance_p7_default.json"),
                       run_tag="endurance_p7_default",
                       subprocess_timeout=3600),
@@ -617,7 +617,7 @@ def phase_7_strict_pipeline(pm: ProgressManager) -> None:
 
     # Step 2: Stress strict (heart)
     run_step(pm, phase_id, "p7_strict_stress_heart",
-             "Strict 31-gate: stress heart",
+             "Strict 33-gate: stress heart",
              _e2e_cmd(include_stress=True, stress_case_id="uci-heart-disease",
                       summary_file=str(EXPERIMENTS_DIR / "endurance_p7_stress.json"),
                       run_tag="endurance_p7_stress",
@@ -626,7 +626,7 @@ def phase_7_strict_pipeline(pm: ProgressManager) -> None:
 
     # Step 3: With CKD
     run_step(pm, phase_id, "p7_strict_ckd",
-             "Strict 31-gate: + CKD",
+             "Strict 33-gate: + CKD",
              _e2e_cmd(include_ckd=True,
                       summary_file=str(EXPERIMENTS_DIR / "endurance_p7_ckd.json"),
                       run_tag="endurance_p7_ckd",

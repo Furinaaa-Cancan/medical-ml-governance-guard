@@ -129,3 +129,55 @@ software under these terms.
 
 **Use** means anything you do with the software requiring one
 of your licenses.
+
+---
+
+## Addendum: MLGG Methodology Protection (v1.0, 2026)
+
+Required Notice: Copyright (c) 2026 Weng, Can. All rights reserved.
+
+### Scope of Protected Methodology
+
+In addition to the software code, the following intellectual
+contributions are protected under this license and applicable
+copyright law:
+
+1. The 33-gate fail-closed DAG audit architecture and its
+   9-layer execution design.
+2. The 12-dimension quantitative scoring rubric (0-100) and
+   its weight allocation scheme.
+3. The 9-Phase clinical ML workflow (Data Understanding through
+   Reporting) and the 31 methodology rules (MLGG-C01 through
+   MLGG-Q02).
+4. The multi-model SHAP proportional-normalization ensemble
+   method with Kendall tau cross-model agreement testing.
+5. The combination evaluation framework integrating Riley 2019
+   sample size criteria, Van Calster 2019 calibration suite,
+   and Pencina NRI/IDI into a unified gate pipeline.
+
+### Academic Citation Requirement
+
+Any academic publication (journal article, conference paper,
+thesis, preprint, technical report, or equivalent) that uses,
+references, adapts, or is substantially informed by the
+protected methodology listed above MUST include a citation
+to this project. Failure to cite constitutes academic
+misconduct and a violation of this license.
+
+### Authorized Public Distribution
+
+The Claude Code `/mlgg` Skill (defined in the SKILL.md file
+and distributed via Claude Code's skill mechanism) is the ONLY
+authorized channel for public distribution of the MLGG
+methodology guidance. All other distribution channels require
+explicit written permission from the licensor.
+
+### Derivative Works
+
+All derivative works must:
+(a) Be released under the same or a stricter noncommercial
+    open-source license;
+(b) Retain all copyright notices and this addendum;
+(c) Clearly attribute the original MLGG project.
+
+Closed-source derivative works are expressly prohibited.

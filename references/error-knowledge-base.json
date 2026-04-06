@@ -458,9 +458,9 @@
       "id": "ERR-029",
       "code": "upstream_gates_not_passed",
       "symptom": "publication_gate blocks the publication-ready declaration because one or more upstream gates have status != pass",
-      "root_cause": "publication_gate is a fail-closed aggregator: it issues a publication-ready attestation only when ALL 31 gates have passed. Any single gate failure propagates to block publication.",
-      "fix": "Read gate_results_summary.json to identify failed gates. Fix each failure in order of severity (CRITICAL first). Re-run the full pipeline until all 31 gates show status=pass.",
-      "prevention": "Run gates in the canonical pipeline order via mlgg.py workflow. Never skip gates. Publication declaration is only valid when all 31 gates pass in the same pipeline run.",
+      "root_cause": "publication_gate is a fail-closed aggregator: it issues a publication-ready attestation only when ALL 33 gates have passed. Any single gate failure propagates to block publication.",
+      "fix": "Read gate_results_summary.json to identify failed gates. Fix each failure in order of severity (CRITICAL first). Re-run the full pipeline until all 33 gates show status=pass.",
+      "prevention": "Run gates in the canonical pipeline order via mlgg.py workflow. Never skip gates. Publication declaration is only valid when all 33 gates pass in the same pipeline run.",
       "category": "gate",
       "severity": "CRITICAL",
       "affected_files": [

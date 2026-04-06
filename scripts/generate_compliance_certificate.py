@@ -44,7 +44,7 @@ MLGG_STANDARD_VERSION = "1.0.0"
 MLGG_SCHEMA_VERSION = "1.0.0"
 CERTIFICATE_EXPIRY_YEARS = 2
 
-# Ordered list of all 31 gate report filenames (canonical names from _gate_registry.py)
+# Ordered list of all 33 gate report filenames (canonical names from _gate_registry.py)
 GATE_REPORT_FILENAMES = [
     "request_contract_report.json",
     "manifest.json",
@@ -135,7 +135,7 @@ L2_REQUIRED_GATES = L1_REQUIRED_GATES | {
     "seed_stability_gate",
 }
 
-# L3 = all 31 gates
+# L3 = all 33 gates
 L3_REQUIRED_GATES = set(GATE_NAME_TO_REPORT.keys())
 
 
@@ -380,7 +380,7 @@ def generate_certificate(
         "BELOW_L1": "Pipeline does not meet minimum L1 requirements. Results cannot be presented without major remediation.",
         "L1-Leakage-Audited": "Passed all anti-leakage and data integrity gates. Suitable for conference presentations with caveats.",
         "L2-Statistically-Valid": "Passed all statistical validation gates. Suitable for specialist journal submission.",
-        "L3-Publication-Grade": "All 31 gates passed in strict mode. Meets Nature Medicine / Lancet Digital Health / JAMA / BMJ requirements.",
+        "L3-Publication-Grade": "All 33 gates passed in strict mode. Meets Nature Medicine / Lancet Digital Health / JAMA / BMJ requirements.",
     }
 
     # Build TRIPOD+AI coverage string

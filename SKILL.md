@@ -33,6 +33,12 @@ description: "Publication-grade medical prediction workflow with strict anti-dat
 | "检查代码是否有数据泄漏" | `python3 scripts/mlgg.py lint check <file.py>` |
 | "检查代码（JSON 给 agent）" | `python3 scripts/mlgg.py lint check <file.py> --format json` |
 | "检查代码（CI 门控）" | `python3 scripts/mlgg.py lint check <dir> --exit-code` |
+| "SHAP 可解释性" / "特征重要性" | `python3 scripts/shap_interpretability_gate.py --model-pool evidence/model_pool.pkl --train-data data/train.csv --test-data data/test.csv --target-col y --report evidence/shap_interpretability_report.json` |
+| "数据探索" / "样本量够不够" / "EPV" | `python3 scripts/cohort_definition_gate.py --data data.csv --target-col y --id-col patient_id --report evidence/cohort_report.json` |
+| "横截面数据" / "survey 数据" / "NHANES" | `python3 scripts/split_data.py --input data.csv --strategy stratified_grouped --cross-sectional --patient-id-col patient_id --target-col y --output-dir data/` |
+| "校准怎么样" / "calibration slope" | 查看 `calibration_metrics()` in `_gate_utils.py`：校准截距/斜率/O:E/ECE/Hosmer-Lemeshow/Brier Skill Score |
+| "NRI IDI" / "模型比较改善" | 调用 `compute_nri_idi(y_true, y_old, y_new)` in `_gate_utils.py`：分类 NRI、连续 NRI、IDI |
+| "学习曲线" / "数据量够不够" | 调用 `learning_curve_data(estimator, X_train, y_train, X_test, y_test)` in `_gate_utils.py` |
 | "查看 lint 规则列表" | `python3 scripts/mlgg.py lint rules` |
 | "评审一篇论文（从 metadata）" | `python3 scripts/score_paper_metadata.py --metadata <metadata.json>` |
 | "批量评审论文" | `python3 scripts/score_paper_metadata.py --batch-dir papers/` |
@@ -162,7 +168,7 @@ Gate 覆盖: A=29/31可测, B=21-26/31, C=12/31。详见 `references/dataset-gat
 
 ### 数据泄漏 & 学术诚信检测覆盖
 
-本项目的 31 道 gate 覆盖以下学术诚信风险：
+本项目的 33 道 gate 覆盖以下学术诚信风险：
 
 **数据泄漏检测（4 道 gate）**：
 - `leakage_gate`: 行级重叠、患者 ID 重叠、时序穿越（训练数据晚于测试数据）
@@ -1114,7 +1120,7 @@ Agent 完成完整流程后应产出以下交付物：
 │   ├── execution_attestation.json              # 执行认证规范
 │   └── *.json                                  # 各类 spec 文件
 ├── evidence/
-│   ├── *_report.json (×31)                     # 31 个 gate 报告
+│   ├── *_report.json (×33)                     # 33 个 gate 报告
 │   ├── manifest.json                           # SHA256 工件清单
 │   ├── prediction_trace.csv.gz                 # 行级预测追踪
 │   ├── evaluation_report.json                  # 评估指标报告
@@ -1128,4 +1134,83 @@ Agent 完成完整流程后应产出以下交付物：
 └── results/
     ├── summary.md                              # 人类可读摘要
     └── tables.tex                              # LaTeX 表格
+```
+
+---
+
+## 方法论快速参考
+
+### 样本量（Phase 1）
+
+Riley 2019 三准则（`riley_sample_size()` in `cohort_definition_gate.py`）：
+- C1: 收缩因子 S ≥ 0.9 → n ≥ p / ((1-S) × φ)
+- C2: R² optimism ≤ 0.05 → n ≥ p / 0.05
+- C3: 风险精度 CI 半宽 ≤ 0.05 → n ≥ φ(1-φ) / (0.05/1.96)²
+- 取三者最大值。EPV < 5 → FAIL，5-10 → WARNING
+
+### 划分（Phase 2）
+
+三种策略：`grouped_temporal`（纵向）、`grouped_random`（横截面）、`stratified_grouped`（横截面+保证正类率一致）。横截面数据用 `--cross-sectional` flag，自动跳过时序检查。
+
+### 编码（Phase 3）
+
+自动检测（`encode_categorical_features()`）：
+- Binary (2值) → 0/1 映射，OOD → 0.5 + `_ood` indicator 列
+- Categorical (3-15值) → OneHot，OOD → ��零行
+- Numeric (>15值) → 保持原值
+
+### 特征选择（Phase 4）
+
+Elastic Net CV (α∈{0.1-1.0}, C∈{0.001-10}) + Stability Selection (100次, 阈值0.6) + Group LASSO (OneHot 同进同退) + Ridge 对照 (损失>0.005则回退)。废弃单因素筛选。
+
+### 模型选择（Phase 5）
+
+Validation PR-AUC 最优 + one-SE rule 破平局。不用 train-test gap。Bootstrap optimism correction 内部验证。学习曲线评估收敛性。
+
+### 评估（Phase 6）
+
+5 域完整面板（`calibration_metrics()` + `metric_panel()` + `compute_nri_idi()` in `_gate_utils.py`）��
+- 区分度: AUROC, AUPRC
+- 校准: 截距(→0), 斜率(→1), O:E(→1), ECE, Hosmer-Lemeshow
+- 整体: Brier, Brier Skill Score (>0=优于基线)
+- ��类: MCC, LR+/LR-, Sensitivity, Specificity, PPV, NPV
+- 临床: DCA 净效用, NRI (categorical + continuous), IDI
+
+### SHAP（Phase 7）
+
+多模型 SHAP（`shap_interpretability_gate.py`）：
+- 逐族计算 → L1 归一化为比例(sum=1) → 等权平均
+- TreeExplainer(RF/XGB/CatBoost/LGBM), LinearExplainer(LR), KernelExplainer(其他)
+- ���致性: Kendall tau + Top-N Jaccard
+- 输出: Table A(集成排名), B(逐模型明细), C(一致性), D(个案解释)
+
+---
+
+## Gate 失败恢复工作流
+
+当任何 gate 失败时，按以��步骤排查：
+
+```
+1. 查看失败报告:
+   python3 scripts/explain_gate.py --report evidence/<gate_name>_report.json
+
+2. 识别错误代码:
+   报告中 failures[].code → 查 references/error-knowledge-base.json
+
+3. 常见错误快速修复:
+   - patient_id_overlap     → 检查 split_data.py 的 --patient-id-col
+   - temporal_leakage       → 确认 train 时间 < valid < test
+   - feature_name_suspicious → 检查 feature_lineage_spec
+   - calibration_poor       → 添加 Platt scaling (calibrate.py)
+   - seed_instability       → 增加模型正则化强度
+   - permutation_not_significant → 模型无效，考虑更换特征集
+   - SHAP_RANK_DISAGREEMENT → 模型间 Kendall tau 低，检查特征交互
+   - COHORT_EPV_CRITICAL    → 减少候选特征数 或 收集更多数据
+   - COHORT_RILEY_UNDERPOWERED → 同上，参考 Riley 2019 三准则
+
+4. 修复后重跑:
+   python3 scripts/mlgg.py workflow --request configs/request.json --strict
+
+5. 仍然失败 → 检查完整知识库:
+   cat references/error-knowledge-base.json | python3 -m json.tool | grep -A5 "<error_code>"
 ```

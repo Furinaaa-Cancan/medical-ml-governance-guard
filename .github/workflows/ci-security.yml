@@ -90,7 +90,7 @@ jobs:
           if missing:
               print('FAIL: Gates without error KB coverage:', missing)
               sys.exit(1)
-          print(f'OK: Error KB covers all {len(all_gates)}/31 gates')
+          print(f'OK: Error KB covers all {len(all_gates)}/33 gates')
           print(f'Total entries: {len(data[\"entries\"])}')
           "
 

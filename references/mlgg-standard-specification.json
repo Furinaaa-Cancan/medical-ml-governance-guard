@@ -158,7 +158,7 @@
     "L3": {
       "id": "L3",
       "name": "Publication-Grade",
-      "description": "The pipeline has passed all 31 gates in strict mode. Results meet the standards required for top-tier journals including Nature Medicine, Lancet Digital Health, JAMA, and BMJ.",
+      "description": "The pipeline has passed all 33 gates in strict mode. Results meet the standards required for top-tier journals including Nature Medicine, Lancet Digital Health, JAMA, and BMJ.",
       "required_gates": "all_31",
       "gate_count": 31,
       "strict_mode_required": true,
@@ -171,7 +171,7 @@
   },
 
   "gate_dag": {
-    "description": "The 31 gates are organized in a DAG with 9 execution layers. Gates in the same layer can execute in parallel. Each gate must complete before gates that depend on it.",
+    "description": "The 33 gates are organized in a DAG with 9 execution layers. Gates in the same layer can execute in parallel. Each gate must complete before gates that depend on it.",
     "layers": {
       "0_contract": {
         "gates": ["request_contract_gate"],

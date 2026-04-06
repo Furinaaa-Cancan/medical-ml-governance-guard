@@ -281,6 +281,10 @@ COMMANDS: Dict[str, Tuple[Path, str]] = {
         REPO_ROOT / "plugin" / "mlgg_lint" / "__main__.py",
         "Static analysis for ML code — detect data leakage and best-practice violations.",
     ),
+    "init-guide": (
+        SCRIPTS_ROOT / "init_guide.py",
+        "Generate MLGG methodology guide (.mlgg/ + CLAUDE.md) for any ML project.",
+    ),
 }
 INTERACTIVE_CORE_COMMANDS = ("init", "workflow", "train", "authority")
 COMMAND_PRESETS: Dict[str, Tuple[str, ...]] = {
