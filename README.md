@@ -482,7 +482,7 @@ Layer 5  模型审计          model_selection_audit_gate | feature_engineering_
     ↓
 Layer 6  统计验证          calibration_dca_gate | ci_matrix_gate | distribution_generalization_gate | evaluation_quality_gate | external_validation_gate | fairness_equity_gate | generalization_gap_gate | metric_consistency_gate | permutation_significance_gate | prediction_replay_gate | robustness_gate | sample_size_gate | seed_stability_gate
     ↓
-Layer 7  发布聚���          publication_gate
+Layer 7  发布聚合          publication_gate
     ↓
 Layer 8  终审              self_critique_gate | security_audit_gate
 ```
@@ -958,7 +958,7 @@ MLGG 的每一个方法论决策都有同行评审文献支撑。以下按流程
 | Decision Curve Analysis (DCA) | Vickers AJ, Elkin EB. *Decision curve analysis: a novel method for evaluating prediction models.* **Medical Decision Making.** 2006;26(6):565-574. [doi:10.1177/0272989X06295361](https://doi.org/10.1177/0272989X06295361) | `calibration_dca_gate.py` |
 | Bootstrap CI ≥ 1000 次 | Efron B, Tibshirani RJ. *An Introduction to the Bootstrap.* **Chapman & Hall**; 1993. | MLGG-E01, 所有主要指标 |
 | Brier Skill Score（相对基线改善） | Steyerberg EW, et al. *Assessing the performance of prediction models.* **Epidemiology.** 2010;21(1):128-138. | `calibration_metrics()` BSS 计算 |
-| 性能评估 5 域框架（区��度/校准/整体/分类/临床效用） | de Hond AAH, et al. *Evaluation of performance measures in predictive AI models to support medical decisions.* **Lancet Digital Health.** 2025;7(12):e100916. [doi:10.1016/j.landig.2025.100916](https://doi.org/10.1016/j.landig.2025.100916) | 框架覆盖���部 5 域 |
+| 性能评估 5 域框架（区分度/校准/整体/分类/临床效用） | Van Calster B, et al. *Evaluation of performance measures in predictive AI models to support medical decisions.* **Lancet Digital Health.** 2025. [doi:10.1016/j.landig.2025.100916](https://doi.org/10.1016/j.landig.2025.100916) | 框架覆盖全部 5 域 |
 | NRI / IDI 重分类改善 | Pencina MJ, et al. *Evaluating the added predictive ability of a new marker.* **Statistics in Medicine.** 2008;27(2):157-172. [doi:10.1002/sim.2929](https://doi.org/10.1002/sim.2929) | `compute_nri_idi()` in `_gate_utils.py` |
 | class_weight="balanced" 需事后校准 | Platt JC. *Probabilistic outputs for SVMs.* In: *Advances in Large Margin Classifiers*. MIT Press; 2000:61-74. | MLGG-E05, Platt scaling / isotonic |
 
@@ -984,7 +984,7 @@ MLGG 的每一个方法论决策都有同行评审文献支撑。以下按流程
 | 方法论决策 | 文献来源 | MLGG 实现 |
 |-----------|---------|-----------|
 | TRIPOD+AI 2024 清单（27 项） | Collins GS, et al. *TRIPOD+AI statement: updated guidance for reporting clinical prediction models.* **BMJ.** 2024;385:e078378. [doi:10.1136/bmj-2023-078378](https://doi.org/10.1136/bmj-2023-078378) | `reporting_bias_gate.py`, `publication_gate.py` |
-| PROBAST+AI 2025 偏倚风险评估（4 域 16/18 信号问题） | Moons KGM, et al. *PROBAST+AI: an updated quality, risk of bias, and applicability assessment tool.* **BMJ.** 2025;388:e082505. [doi:10.1136/bmj-2024-082505](https://doi.org/10.1136/bmj-2024-082505) | `self_critique_gate.py` 12 ��评分 |
+| PROBAST+AI 2025 偏倚风险评估（4 域 16/18 信号问题） | Moons KGM, et al. *PROBAST+AI: an updated quality, risk of bias, and applicability assessment tool.* **BMJ.** 2025;388:e082505. [doi:10.1136/bmj-2024-082505](https://doi.org/10.1136/bmj-2024-082505) | `self_critique_gate.py` 12 维评分 |
 | STARD-AI 诊断准确性研究报告 | Defined in Sounderajah V, et al. *Developing specific reporting guidelines for diagnostic accuracy studies assessing AI interventions.* **Nature Medicine.** 2020;26:807-808. | `reporting_bias_gate.py` 清单检查 |
 
 ### 安全与可复现性
