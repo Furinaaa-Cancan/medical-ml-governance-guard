@@ -3,724 +3,330 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MLGG 9-Phase Pipeline — Cross-Sectional Data Flow</title>
+<title>MLGG 完整预测流程图</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #0a0e17;
+    font-family: -apple-system, 'PingFang SC', sans-serif;
+    background: #0d1117;
     color: #c9d1d9;
-    padding: 40px 20px;
-    min-width: 1100px;
+    margin: 0;
+    padding: 20px;
   }
-  h1 {
-    text-align: center;
-    font-size: 28px;
-    color: #58a6ff;
-    margin-bottom: 8px;
-  }
-  .subtitle {
-    text-align: center;
-    color: #8b949e;
-    font-size: 14px;
-    margin-bottom: 40px;
-  }
-  .pipeline {
-    max-width: 1100px;
-    margin: 0 auto;
-    position: relative;
-  }
-
-  /* Vertical spine */
-  .pipeline::before {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: linear-gradient(to bottom, #1f6feb, #238636, #d29922, #f85149);
-    transform: translateX(-50%);
-    z-index: 0;
-  }
-
-  /* Phase container */
-  .phase {
-    position: relative;
-    margin-bottom: 24px;
+  h1 { text-align: center; color: #58a6ff; font-size: 24px; margin-bottom: 4px; }
+  .sub { text-align: center; color: #8b949e; font-size: 13px; margin-bottom: 30px; }
+  .mermaid {
     display: flex;
-    align-items: flex-start;
-  }
-  .phase:nth-child(odd) { flex-direction: row; }
-  .phase:nth-child(even) { flex-direction: row-reverse; }
-
-  .phase-badge {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
     justify-content: center;
-    font-weight: 700;
-    font-size: 15px;
-    color: #fff;
-    z-index: 2;
-    border: 3px solid #0a0e17;
+    overflow-x: auto;
   }
-
-  .phase-card {
-    width: 46%;
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 12px;
-    padding: 20px 24px;
-    position: relative;
-    z-index: 1;
-    transition: border-color 0.2s;
-  }
-  .phase-card:hover { border-color: #58a6ff; }
-
-  .phase:nth-child(odd) .phase-card { margin-right: auto; }
-  .phase:nth-child(even) .phase-card { margin-left: auto; }
-
-  .phase-title {
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 4px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .phase-script {
-    font-size: 11px;
-    color: #8b949e;
-    font-family: 'SF Mono', monospace;
-    margin-bottom: 10px;
-  }
-
-  /* Steps inside card */
-  .steps { list-style: none; }
-  .steps li {
-    position: relative;
-    padding: 6px 0 6px 20px;
-    font-size: 13px;
-    line-height: 1.5;
-    border-left: 2px solid #21262d;
-  }
-  .steps li::before {
-    content: '';
-    position: absolute;
-    left: -5px;
-    top: 12px;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #30363d;
-  }
-  .steps li.critical::before { background: #f85149; }
-  .steps li.important::before { background: #d29922; }
-  .steps li.good::before { background: #238636; }
-  .steps li.info::before { background: #58a6ff; }
-
-  .tag {
-    display: inline-block;
-    font-size: 10px;
-    padding: 1px 6px;
-    border-radius: 10px;
-    font-weight: 600;
-    margin-left: 4px;
-    vertical-align: middle;
-  }
-  .tag-rule { background: #1f6feb22; color: #58a6ff; border: 1px solid #1f6feb44; }
-  .tag-ref { background: #23863622; color: #3fb950; border: 1px solid #23863644; }
-  .tag-gate { background: #d2992222; color: #d29922; border: 1px solid #d2992244; }
-  .tag-tool { background: #f8514922; color: #f85149; border: 1px solid #f8514944; }
-  .tag-output { background: #8b949e22; color: #8b949e; border: 1px solid #8b949e44; }
-
-  /* Outputs section */
-  .outputs {
-    margin-top: 10px;
-    padding: 8px 12px;
-    background: #0d1117;
-    border-radius: 8px;
-    font-size: 12px;
-    font-family: 'SF Mono', monospace;
-    color: #7ee787;
-  }
-  .outputs span { color: #8b949e; }
-
-  /* Arrow between phases */
-  .arrow-down {
-    text-align: center;
-    padding: 4px 0;
-    color: #30363d;
-    font-size: 20px;
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Color coding per phase */
-  .p1 .phase-badge { background: #6e40c9; }
-  .p1 .phase-title { color: #d2a8ff; }
-  .p2 .phase-badge { background: #1f6feb; }
-  .p2 .phase-title { color: #79c0ff; }
-  .p3 .phase-badge { background: #0969da; }
-  .p3 .phase-title { color: #79c0ff; }
-  .p4 .phase-badge { background: #0550ae; }
-  .p4 .phase-title { color: #a5d6ff; }
-  .p5 .phase-badge { background: #238636; }
-  .p5 .phase-title { color: #7ee787; }
-  .p6 .phase-badge { background: #2ea043; }
-  .p6 .phase-title { color: #7ee787; }
-  .p7 .phase-badge { background: #d29922; }
-  .p7 .phase-title { color: #e3b341; }
-  .p8 .phase-badge { background: #da3633; }
-  .p8 .phase-title { color: #ffa198; }
-  .p9 .phase-badge { background: #8b949e; }
-  .p9 .phase-title { color: #c9d1d9; }
-
-  /* Gate DAG summary */
-  .gate-summary {
-    max-width: 1100px;
-    margin: 40px auto 0;
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 12px;
-    padding: 24px;
-  }
-  .gate-summary h2 {
-    color: #58a6ff;
-    font-size: 18px;
-    margin-bottom: 16px;
-  }
-  .gate-grid {
-    display: grid;
-    grid-template-columns: repeat(9, 1fr);
-    gap: 8px;
-  }
-  .gate-layer {
-    background: #0d1117;
-    border-radius: 8px;
-    padding: 8px;
-    font-size: 10px;
-    text-align: center;
-  }
-  .gate-layer .layer-label {
-    font-weight: 700;
-    color: #58a6ff;
-    margin-bottom: 4px;
-    font-size: 11px;
-  }
-  .gate-layer .gate-name {
-    display: block;
-    padding: 2px 0;
-    color: #8b949e;
-    border-bottom: 1px solid #21262d;
-  }
-  .gate-layer .gate-name:last-child { border-bottom: none; }
-
-  /* Tools summary */
-  .tools-summary {
-    max-width: 1100px;
-    margin: 24px auto 0;
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 12px;
-    padding: 24px;
-  }
-  .tools-summary h2 {
-    color: #d29922;
-    font-size: 18px;
-    margin-bottom: 16px;
-  }
-  .tool-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-  }
-  .tool-item {
-    background: #0d1117;
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-size: 12px;
-  }
-  .tool-item .tool-name {
-    color: #ffa657;
-    font-family: monospace;
-    font-weight: 600;
-  }
-  .tool-item .tool-desc { color: #8b949e; margin-top: 2px; }
-
-  .footer {
-    text-align: center;
-    margin-top: 40px;
-    color: #484f58;
-    font-size: 12px;
-  }
+  /* Mermaid dark theme overrides */
+  .mermaid svg { max-width: 100%; }
 </style>
 </head>
 <body>
 
-<h1>MLGG 9-Phase Pipeline</h1>
-<p class="subtitle">Cross-Sectional Data (e.g., NHANES) &mdash; From Raw CSV to Publication-Grade Report &mdash; 33 Fail-Closed Gates &mdash; 17 Analysis Tools</p>
+<h1>ML Leakage Guard — 完整 9-Phase 预测流程</h1>
+<p class="sub">横截面数据 (NHANES / BRFSS) 全流程 · 33 道 Fail-Closed 门控 · 17 项分析工具 · 37+ 文献引用</p>
 
-<div class="pipeline">
+<div class="mermaid">
+flowchart TD
+    %% ============================================================
+    %% 输入
+    %% ============================================================
+    RAW["📂 原始 CSV 数据集<br/>例: NHANES / UCI / CDC<br/>横截面或纵向"]
 
-<!-- ==================== PHASE 1 ==================== -->
-<div class="phase p1">
-  <div class="phase-badge">P1</div>
-  <div class="phase-card">
-    <div class="phase-title">Phase 1: Data Understanding & Cohort Definition</div>
-    <div class="phase-script">cohort_definition_gate.py &mdash; Layer 0</div>
-    <ul class="steps">
-      <li class="critical">Load raw CSV &rarr; verify target column is binary (0/1)
-        <span class="tag tag-rule">MLGG-C01</span></li>
-      <li class="critical">Define eligible cohort: exclude structurally impossible outcomes
-        <br><em style="color:#8b949e;font-size:11px">e.g., deceased patients cannot be readmitted; newborns in diabetic dataset</em></li>
-      <li class="important">Sample size: Riley 2019 three criteria
-        <span class="tag tag-ref">Riley 2019</span>
-        <br>C1: shrinkage factor &ge; 0.9 &rarr; n &ge; p/((1-S)&times;&phi;)
-        <br>C2: R&sup2; optimism &le; 0.05 &rarr; n &ge; p/0.05
-        <br>C3: risk precision CI &le; 0.05 &rarr; n &ge; &phi;(1-&phi;)/(0.05/1.96)&sup2;
-        <br><em style="color:#f85149">EPV &lt; 5 &rarr; FAIL</em> | <em style="color:#d29922">EPV 5-10 &rarr; WARNING</em>
-        <span class="tag tag-tool">riley_sample_size()</span></li>
-      <li class="info">Auto-detect data types: numeric / binary / categorical / constant / id_or_text</li>
-      <li class="info">Missing value profile: per-feature % missing, flag &gt; 50%
-        <span class="tag tag-rule">MLGG-P06</span></li>
-      <li class="good">Detect longitudinal vs cross-sectional: patient ID duplicates?</li>
-    </ul>
-    <div class="outputs">
-      <span>&rarr;</span> cohort_summary.csv &nbsp;|&nbsp; feature_profile.csv &nbsp;|&nbsp; cohort_definition_report.json
-    </div>
-  </div>
+    %% ============================================================
+    %% PHASE 1
+    %% ============================================================
+    RAW --> P1_START
+
+    subgraph P1["🔬 Phase 1: 数据理解与队列定义"]
+        direction TB
+        P1_START["加载数据 → 验证 target 列为 0/1 二分类"]
+        P1_COHORT["定义合格队列 (MLGG-C01)<br/>排除结局结构性不可能的记录<br/>例: 死亡患者不可能再入院"]
+        P1_RILEY["Riley 2019 样本量三准则<br/>C1: 收缩因子 S ≥ 0.9<br/>C2: R² optimism ≤ 0.05<br/>C3: 风险精度 CI ≤ 0.05<br/>EPV < 5 → ❌ FAIL"]
+        P1_DTYPE["数据类型自动检测<br/>numeric / binary / categorical<br/>constant / id_or_text"]
+        P1_MISS["缺失值概况<br/>按特征统计缺失率<br/>> 50% 标记为高缺失"]
+        P1_CROSS["判定: 横截面 vs 纵向<br/>患者 ID 有重复行? → 纵向<br/>每行独立? → 横截面"]
+
+        P1_START --> P1_COHORT --> P1_RILEY --> P1_DTYPE --> P1_MISS --> P1_CROSS
+    end
+
+    P1_OUT["📄 cohort_summary.csv<br/>📄 feature_profile.csv<br/>📄 cohort_definition_report.json"]
+    P1 --> P1_OUT
+
+    %% ============================================================
+    %% PHASE 2
+    %% ============================================================
+    P1_OUT --> P2_START
+
+    subgraph P2["✂️ Phase 2: 数据划分"]
+        direction TB
+        P2_START["选择划分策略"]
+        P2_CROSS_SEC{"横截面数据?"}
+        P2_TEMPORAL["grouped_temporal<br/>按患者首次事件时间排序<br/>前 60% → train<br/>中 20% → valid<br/>后 20% → test<br/>(MLGG-S02)"]
+        P2_STRATIFIED["stratified_grouped<br/>--cross-sectional 模式<br/>按结局标签分层<br/>层内随机分配<br/>跳过时序检查"]
+        P2_DISJOINT["患者级 disjoint 保证 (MLGG-S01)<br/>同一患者所有记录 → 同一 split<br/>零容忍: 任何 ID 重叠 → ❌ FAIL"]
+        P2_CHECK["安全检查<br/>每 split ≥ 20 行, ≥ 10 正例, ≥ 10 负例<br/>正类率漂移 > 10% → ⚠️ WARNING"]
+
+        P2_START --> P2_CROSS_SEC
+        P2_CROSS_SEC -->|"是"| P2_STRATIFIED
+        P2_CROSS_SEC -->|"否 (纵向)"| P2_TEMPORAL
+        P2_TEMPORAL --> P2_DISJOINT
+        P2_STRATIFIED --> P2_DISJOINT
+        P2_DISJOINT --> P2_CHECK
+    end
+
+    P2_OUT["📄 train.csv (60%)<br/>📄 valid.csv (20%)<br/>📄 test.csv (20%)<br/>📄 split_protocol_report.json"]
+    P2 --> P2_OUT
+
+    %% ============================================================
+    %% PHASE 3
+    %% ============================================================
+    P2_OUT --> P3_START
+
+    subgraph P3["⚙️ Phase 3: 预处理 (fit on TRAIN ONLY)"]
+        direction TB
+        P3_START["加载 train / valid / test"]
+        P3_ENCODE["自动分类变量编码 (MLGG-P05)<br/>Binary (2值) → 0/1, OOD → 0.5<br/>Categorical (3-15值) → OneHot<br/>Numeric (>15值) → 保持原值<br/>全部 fit on train, transform on valid/test"]
+        P3_MISS_TIER["分层缺失策略 (MLGG-P06)<br/>Tier4 (>80%): 丢弃值, 保留缺失指示<br/>Tier3 (40-80%): 插补 + 指示<br/>Tier2 (5-40%): 插补 + 指示<br/>Tier1 (<5%): 简单插补<br/>📖 Madley-Dowd 2019"]
+        P3_PIPELINE["Pipeline 结构<br/>Imputer → Scaler → Classifier<br/>MICE (IterativeImputer) 或 SimpleImputer<br/>StandardScaler (均值0, 标准差1)"]
+        P3_SMOTE["SMOTE 立场<br/>默认不使用 → 损害校准<br/>改用 class_weight='balanced'<br/>+ 事后 Platt scaling<br/>📖 van den Goorbergh 2022 JAMIA"]
+
+        P3_START --> P3_ENCODE --> P3_MISS_TIER --> P3_PIPELINE --> P3_SMOTE
+    end
+
+    P3_OUT["🧮 X_train / X_valid / X_test<br/>(编码 + 插补完成)<br/>📦 preprocessor.pkl"]
+    P3 --> P3_OUT
+
+    %% ============================================================
+    %% PHASE 4
+    %% ============================================================
+    P3_OUT --> P4_START
+
+    subgraph P4["🔍 Phase 4: 特征筛选与诊断"]
+        direction TB
+        P4_START["候选特征集"]
+        P4_ENET["Elastic Net CV (train only)<br/>α ∈ {0.1, 0.3, 0.5, 0.7, 1.0}<br/>C 交叉验证<br/>分组选择: OneHot dummies 同进同退<br/>📖 Zou & Hastie 2005"]
+        P4_STAB["稳定性选择<br/>100 次子采样 × Elastic Net<br/>保留入选概率 > 0.6 的特征<br/>误选界: E[V] ≤ q²/((2π-1)×p)<br/>📖 Meinshausen 2010"]
+        P4_RIDGE["Ridge 对照<br/>与全量 Ridge 模型比较<br/>如选择损失 > 0.005 PR-AUC → 回退全量<br/>📖 Harrell 2015"]
+        P4_VIF["VIF 共线性检测 (自动运行)<br/>VIF > 5 → ⚠️ WARNING<br/>VIF > 10 → 🔴 CRITICAL<br/>🔧 compute_vif()"]
+        P4_NONLIN["非线性检验 (自动运行)<br/>LR test: 线性 vs 样条 logistic<br/>p < 0.05 → 存在非线性关系<br/>🔧 check_nonlinearity()"]
+        P4_NO_UNI["❌ 单因素筛选已废弃<br/>📖 Heinze 2018"]
+
+        P4_START --> P4_ENET --> P4_STAB --> P4_RIDGE
+        P4_START --> P4_VIF
+        P4_START --> P4_NONLIN
+        P4_START --> P4_NO_UNI
+    end
+
+    P4_OUT["📋 selected_features<br/>📊 vif_analysis<br/>📊 nonlinearity_analysis<br/>📄 feature_engineering_report.json"]
+    P4 --> P4_OUT
+
+    %% ============================================================
+    %% PHASE 5
+    %% ============================================================
+    P4_OUT --> P5_START
+
+    subgraph P5["🏋️ Phase 5: 模型训练与选择"]
+        direction TB
+        P5_START["20 个模型族候选池"]
+        P5_FAMILIES["比较 ≥ 3 个模型族 (MLGG-M03)<br/>LR (L1/L2/ElasticNet) | RF | XGBoost<br/>LightGBM | CatBoost | SVM | KNN | MLP<br/>TabPFN | 集成 (Voting/Stacking)"]
+        P5_CV["5 折 StratifiedKFold CV<br/>Optuna TPE 或 Grid Search<br/>在 validation 集上调参<br/>绝不在 test 上调参 (MLGG-M01)"]
+        P5_SELECT["模型选择 (MLGG-M04)<br/>用 validation PR-AUC, 不用 train-test gap<br/>One-SE 规则: 1 SE 内选最简单模型<br/>📖 Yang KDD 2023"]
+        P5_THRESHOLD["阈值选择 (MLGG-M02)<br/>Youden's J on validation<br/>J = Sensitivity + Specificity - 1<br/>threshold* = argmax J(t)"]
+        P5_OPTIMISM["Bootstrap Optimism Correction<br/>B ≥ 100 次重采样<br/>Optimism-corrected = apparent - mean(optimism)<br/>📖 Steyerberg 2019 Ch.17"]
+        P5_LEARN["学习曲线<br/>{10%, 20%, ..., 100%} 训练比例<br/>性能是否已收敛?<br/>🔧 learning_curve_data()"]
+        P5_POOL["保存模型池 (SHAP 用)<br/>每个族的最佳模型<br/>--model-pool-out model_pool.pkl"]
+
+        P5_START --> P5_FAMILIES --> P5_CV --> P5_SELECT --> P5_THRESHOLD
+        P5_SELECT --> P5_OPTIMISM
+        P5_SELECT --> P5_LEARN
+        P5_SELECT --> P5_POOL
+    end
+
+    P5_OUT["📦 model.pkl (最优单模型)<br/>📦 model_pool.pkl (多族模型)<br/>📄 model_selection_report.json<br/>📄 thresholds.json"]
+    P5 --> P5_OUT
+
+    %% ============================================================
+    %% PHASE 6
+    %% ============================================================
+    P5_OUT --> P6_START
+
+    subgraph P6["📏 Phase 6: 评估与校准"]
+        direction TB
+        P6_START["Test 集一次性评估"]
+        P6_DISCRIM["区分度<br/>AUROC, AUPRC"]
+        P6_CALIB["校准三件套 (Van Calster 2019)<br/>截距 → 0 | 斜率 → 1 | O:E → 1<br/>ECE | Hosmer-Lemeshow χ²<br/>校准 per-bin 95% Bootstrap CI<br/>🔧 calibration_metrics()<br/>🔧 calibration_bin_ci()"]
+        P6_OVERALL["整体性能<br/>Brier score<br/>Brier Skill Score = 1 - Brier/Brier_ref<br/>BSS > 0 = 优于仅预测患病率"]
+        P6_CLASS["分类指标<br/>MCC | LR+/LR- | Sens | Spec<br/>PPV | NPV | F1 | Balanced Accuracy<br/>📖 Chicco 2020: MCC 优于 F1"]
+        P6_CLINICAL["临床效用<br/>DCA 净效用 | NRI | IDI<br/>🔧 compute_nri_idi()<br/>📖 Pencina 2008"]
+        P6_CI["Bootstrap 95% CI<br/>所有主要指标<br/>percentile method, B ≥ 1000<br/>(MLGG-E01)"]
+        P6_SEED["多种子稳定性 (MLGG-R02)<br/>≥ 5 seeds, std(AUROC) < 0.02"]
+        P6_PLATT["事后校准 (MLGG-E05)<br/>Platt scaling on validation → apply to test<br/>class_weight=balanced 必须校准"]
+        P6_BASELINE["基线对比<br/>vs 患病率模型 / 随机分类器 / 全阳性 / 全阴性<br/>🔧 baseline_comparisons()"]
+        P6_ABLATION["特征消融实验<br/>去掉 top-N 特征后性能变化<br/>🔧 feature_ablation()"]
+        P6_COEF["模型系数导出<br/>LR coef_ 或 tree importances<br/>🔧 export_model_coefficients()"]
+        P6_RESOURCE["计算资源记录<br/>训练时间 / CPU / 平台<br/>🔧 compute_resource_report()"]
+
+        P6_START --> P6_DISCRIM
+        P6_START --> P6_CALIB
+        P6_START --> P6_OVERALL
+        P6_START --> P6_CLASS
+        P6_START --> P6_CLINICAL
+        P6_START --> P6_CI
+        P6_START --> P6_SEED
+        P6_START --> P6_PLATT
+        P6_START --> P6_BASELINE
+        P6_START --> P6_ABLATION
+        P6_START --> P6_COEF
+        P6_START --> P6_RESOURCE
+    end
+
+    P6_OUT["📄 evaluation_report.json<br/>📄 prediction_trace.csv.gz<br/>📄 ci_matrix_report.json<br/>📊 校准曲线数据"]
+    P6 --> P6_OUT
+
+    %% ============================================================
+    %% PHASE 7
+    %% ============================================================
+    P5_OUT --> P7_START
+    P6_OUT --> P7_START2
+
+    subgraph P7["🧠 Phase 7: 多模型 SHAP 可解释性"]
+        direction TB
+        P7_START["加载 model_pool.pkl"]
+        P7_START2["加载 train + test 数据"]
+        P7_COMPUTE["逐族独立计算 SHAP<br/>TreeExplainer: RF / XGB / CatBoost / LGBM<br/>LinearExplainer: LR<br/>KernelExplainer: SVM / KNN / MLP (兜底)<br/>背景: train 子采样 200 行<br/>解释: test 子采样 500 行<br/>📖 Lundberg NeurIPS 2017"]
+        P7_NORMALIZE["比例归一化集成<br/>每模型: mean(|SHAP|) → L1 归一化 (sum=1)<br/>跨模型: 等权平均 → 集成排名<br/>消除模型间尺度差异<br/>📖 PMC11513550"]
+        P7_AGREEMENT["跨模型一致性检验<br/>Kendall τ 排名相关<br/>> 0.7 强一致 | 0.5-0.7 中等 | < 0.5 弱<br/>Top-N Jaccard 重叠系数<br/>方向: positive / negative / mixed"]
+        P7_CASES["个案解释<br/>Top-K 最高/最低风险样本<br/>每例 Top-3 驱动特征 + SHAP 值"]
+        P7_CHECKS["8 项自动验证<br/>NaN | 全零 | 单模型 | 排名分歧<br/>极端集中 | 可疑特征 | 特征不匹配"]
+
+        P7_START --> P7_COMPUTE
+        P7_START2 --> P7_COMPUTE
+        P7_COMPUTE --> P7_NORMALIZE --> P7_AGREEMENT
+        P7_COMPUTE --> P7_CASES
+        P7_COMPUTE --> P7_CHECKS
+    end
+
+    P7_OUT["📊 Table A: 集成特征重要性<br/>📊 Table B: 逐模型 SHAP 明细<br/>📊 Table C: 跨模型排名一致性<br/>📊 Table D: 个案解释<br/>📄 shap_interpretability_report.json"]
+    P7 --> P7_OUT
+
+    %% ============================================================
+    %% PHASE 8
+    %% ============================================================
+    P6_OUT --> P8_START
+
+    subgraph P8["⚖️ Phase 8: 公平性与亚组分析"]
+        direction TB
+        P8_START["按保护属性分组"]
+        P8_SUBGROUP["亚组指标 (MLGG-Q01)<br/>按 race / gender / age 分组<br/>每组: AUROC / AUPRC / Sens / Spec / PPV / FPR"]
+        P8_DCA["亚组 DCA 净效用 (MLGG-Q02)<br/>按人群分组计算 DCA<br/>equity gap = max - min 最优净效用<br/>模型可能帮助多数族裔但伤害少数族裔!<br/>🔧 subgroup_dca()<br/>📖 Vickers 2025"]
+        P8_SMALL["小亚组标记<br/>n < 200 → 估计不可靠<br/>不作为比较依据"]
+        P8_DISPARITY["差异标记<br/>AUROC 差异 > 0.05 → ⚠️<br/>Sensitivity 差异 > 0.10 → ⚠️"]
+
+        P8_START --> P8_SUBGROUP --> P8_DCA
+        P8_SUBGROUP --> P8_SMALL
+        P8_SUBGROUP --> P8_DISPARITY
+    end
+
+    P8_OUT["📊 subgroup_race.csv<br/>📊 subgroup_gender.csv<br/>📊 subgroup_age.csv<br/>📄 fairness_equity_report.json"]
+    P8 --> P8_OUT
+
+    %% ============================================================
+    %% PHASE 9
+    %% ============================================================
+    P6_OUT --> P9_START
+    P7_OUT --> P9_START
+    P8_OUT --> P9_START
+
+    subgraph P9["📝 Phase 9: 报告与发布审查"]
+        direction TB
+        P9_START["聚合全部 gate 报告"]
+        P9_TRIPOD["TRIPOD+AI 2024 清单<br/>27 项逐项机器核对<br/>📖 Collins 2024 BMJ"]
+        P9_PROBAST["PROBAST+AI 2025 偏倚风险<br/>4 域 × 16/18 信号问题<br/>Participants | Predictors | Outcome | Analysis<br/>📖 Moons 2025 BMJ"]
+        P9_SCORE["12 维量化评分 (0-100)<br/>数据完整性 12 | 泄漏防护 15 | 管线隔离 12<br/>模型选择 10 | 统计有效性 12 | 泛化 10<br/>临床 7 | 报告 7 | 复现 6 | 安全 3 | 公平 3 | 样本 3<br/>≥ 90 顶刊级 | 75-89 需补充 | < 60 不可发表"]
+        P9_CARD["Model Card 自动生成<br/>训练数据 / 性能 / 公平性 / SHAP / 限制 / 伦理<br/>🔧 generate_model_card()"]
+        P9_LIMITS["局限性讨论 (强制)<br/>数据来源 / 时间有效性 / 编码体系<br/>外部效度 / 公平性 / DCA 结论<br/>DCA 无净效用 → 必须诚实报告"]
+
+        P9_START --> P9_TRIPOD
+        P9_START --> P9_PROBAST
+        P9_START --> P9_SCORE
+        P9_START --> P9_CARD
+        P9_START --> P9_LIMITS
+    end
+
+    P9_OUT["📄 publication_gate_report.json<br/>📄 self_critique_report.json<br/>📝 model_card.md<br/>📋 TRIPOD+AI checklist"]
+    P9 --> P9_OUT
+
+    %% ============================================================
+    %% 敏感性分析 (可选)
+    %% ============================================================
+    P6_OUT --> SENS_START
+
+    subgraph SENS["🔄 可选: 敏感性与鲁棒性分析"]
+        direction TB
+        SENS_START["敏感性分析入口"]
+        SENS_MNAR["MNAR 敏感性分析<br/>δ 偏移插补值 ∈ [-0.5, +0.5]<br/>重新训练 + 评估<br/>找 tipping point (结论翻转点)<br/>🔧 mnar_sensitivity_analysis()<br/>📖 Cro 2020 Stat Med"]
+        SENS_IMP["插补方法敏感性<br/>比较 median / mean / KNN / MICE<br/>AUROC spread < 0.01 → 稳健<br/>🔧 imputation_sensitivity()"]
+        SENS_DRIFT["时序漂移检测<br/>按时间窗口计算 O:E / ECE<br/>CUSUM 检测漂移点<br/>🔧 temporal_drift_analysis()"]
+        SENS_RUBIN["多重插补合并<br/>Rubin's Rules: 池化估计<br/>between + within variance<br/>Barnard-Rubin 自由度<br/>🔧 rubins_rules_combine()"]
+
+        SENS_START --> SENS_MNAR
+        SENS_START --> SENS_IMP
+        SENS_START --> SENS_DRIFT
+        SENS_START --> SENS_RUBIN
+    end
+
+    %% ============================================================
+    %% 最终输出
+    %% ============================================================
+    P9_OUT --> FINAL
+    SENS --> FINAL
+
+    FINAL["🏆 发布就绪产物<br/>━━━━━━━━━━━━━━━━━━━<br/>33 道门控全部通过 → L3 Publication-Grade<br/>TRIPOD+AI 2024 合规 ✅<br/>PROBAST+AI 2025 低偏倚 ✅<br/>Nature ML Checklist 30/30 ✅<br/>━━━━━━━━━━━━━━━━━━━<br/>4 张 SHAP 表格 + 校准曲线 + DCA<br/>公平性报告 + Model Card<br/>全部代码 + 数据可复现"]
+
+    %% ============================================================
+    %% 样式
+    %% ============================================================
+    classDef phase fill:#161b22,stroke:#30363d,color:#c9d1d9
+    classDef output fill:#0d1117,stroke:#238636,color:#7ee787
+    classDef final fill:#1f6feb22,stroke:#1f6feb,color:#58a6ff,stroke-width:2px
+    classDef decision fill:#161b22,stroke:#d29922,color:#e3b341
+
+    class P1,P2,P3,P4,P5,P6,P7,P8,P9,SENS phase
+    class P1_OUT,P2_OUT,P3_OUT,P4_OUT,P5_OUT,P6_OUT,P7_OUT,P8_OUT,P9_OUT output
+    class FINAL final
+    class P2_CROSS_SEC decision
 </div>
 
-<!-- ==================== PHASE 2 ==================== -->
-<div class="phase p2">
-  <div class="phase-badge">P2</div>
-  <div class="phase-card">
-    <div class="phase-title">Phase 2: Data Splitting</div>
-    <div class="phase-script">split_data.py + split_protocol_gate.py &mdash; Layer 3</div>
-    <ul class="steps">
-      <li class="critical">Patient-level disjoint split: same patient &rarr; same split
-        <span class="tag tag-rule">MLGG-S01</span></li>
-      <li class="important">Strategy for cross-sectional data:
-        <br><code style="color:#ffa657">--strategy stratified_grouped --cross-sectional</code>
-        <br>Stratified by outcome label, grouped by patient_id, random shuffle
-        <br><em style="color:#8b949e">Temporal ordering checks automatically skipped</em></li>
-      <li class="info">Default ratio: Train 60% / Valid 20% / Test 20%</li>
-      <li class="good">Safety checks:
-        <br>&bull; min 20 rows, 10 pos, 10 neg, 5 patients per split
-        <br>&bull; Prevalence drift &gt; 10% &rarr; WARNING
-        <br>&bull; Any patient ID overlap &rarr; <em style="color:#f85149">FAIL</em></li>
-    </ul>
-    <div class="outputs">
-      <span>&rarr;</span> train.csv &nbsp;|&nbsp; valid.csv &nbsp;|&nbsp; test.csv &nbsp;|&nbsp; split_protocol_report.json
-    </div>
-  </div>
-</div>
-
-<!-- ==================== PHASE 3 ==================== -->
-<div class="phase p3">
-  <div class="phase-badge">P3</div>
-  <div class="phase-card">
-    <div class="phase-title">Phase 3: Preprocessing</div>
-    <div class="phase-script">train_select_evaluate.py Pipeline &mdash; fit on TRAIN ONLY</div>
-    <ul class="steps">
-      <li class="critical">All fit() on train only, transform() on valid/test
-        <span class="tag tag-rule">MLGG-P01</span>
-        <span class="tag tag-ref">Kaufman 2012</span></li>
-      <li class="important">Auto categorical encoding (fit on train):
-        <br>&bull; Binary (2 values) &rarr; 0/1 mapping, OOD &rarr; 0.5 sentinel
-        <br>&bull; Categorical (3-15 values) &rarr; OneHot, OOD &rarr; all-zero row
-        <br>&bull; Numeric (&gt; 15 unique) &rarr; unchanged
-        <span class="tag tag-rule">MLGG-P05</span>
-        <span class="tag tag-tool">encode_categorical_features()</span></li>
-      <li class="important">Tiered missingness strategy:
-        <br>&bull; Tier 4 (&gt;80%): drop value, keep missing indicator
-        <br>&bull; Tier 3 (40-80%): impute + indicator
-        <br>&bull; Tier 2 (5-40%): impute + indicator
-        <br>&bull; Tier 1 (&lt;5%): simple imputation
-        <span class="tag tag-rule">MLGG-P06</span>
-        <span class="tag tag-ref">Madley-Dowd 2019</span></li>
-      <li class="good">Pipeline: Imputer &rarr; Scaler &rarr; Classifier
-        <br><em style="color:#8b949e">IterativeImputer (MICE) or SimpleImputer, per scale guard</em></li>
-      <li class="info">No SMOTE by default &mdash; harms calibration
-        <span class="tag tag-ref">van den Goorbergh 2022</span></li>
-    </ul>
-    <div class="outputs">
-      <span>&rarr;</span> X_train/X_valid/X_test (encoded, imputed) &nbsp;|&nbsp; preprocessor.pkl
-    </div>
-  </div>
-</div>
-
-<!-- ==================== PHASE 4 ==================== -->
-<div class="phase p4">
-  <div class="phase-badge">P4</div>
-  <div class="phase-card">
-    <div class="phase-title">Phase 4: Feature Selection & Diagnostics</div>
-    <div class="phase-script">train_select_evaluate.py &mdash; train only</div>
-    <ul class="steps">
-      <li class="critical">Elastic Net CV: &alpha; &isin; {0.1, 0.3, 0.5, 0.7, 1.0}, C cross-validated
-        <br>Group selection: OneHot dummies from same variable selected/dropped together
-        <span class="tag tag-ref">Zou & Hastie 2005</span>
-        <span class="tag tag-ref">Yuan & Lin 2006</span></li>
-      <li class="important">Stability Selection: 100 subsamples &times; Elastic Net
-        <br>Keep features with inclusion probability &gt; 0.6
-        <br>False selection bound: E[V] &le; q&sup2; / ((2&pi;-1) &times; p)
-        <span class="tag tag-ref">Meinshausen 2010</span></li>
-      <li class="good">Ridge baseline comparison: if Elastic Net selection costs &gt; 0.005 PR-AUC, revert to full Ridge
-        <span class="tag tag-ref">Harrell 2015</span></li>
-      <li class="info">VIF multicollinearity check (auto-run):
-        <br>VIF &gt; 5 &rarr; WARNING, VIF &gt; 10 &rarr; CRITICAL
-        <span class="tag tag-tool">compute_vif()</span></li>
-      <li class="info">Nonlinearity test: LR test (linear vs spline) per continuous feature
-        <br>p &lt; 0.05 &rarr; nonlinear relationship detected
-        <span class="tag tag-tool">check_nonlinearity()</span></li>
-      <li class="critical">Univariate pre-screening DEPRECATED
-        <span class="tag tag-ref">Heinze 2018</span></li>
-    </ul>
-    <div class="outputs">
-      <span>&rarr;</span> selected_features &nbsp;|&nbsp; vif_analysis &nbsp;|&nbsp; nonlinearity_analysis &nbsp;|&nbsp; feature_engineering_report.json
-    </div>
-  </div>
-</div>
-
-<!-- ==================== PHASE 5 ==================== -->
-<div class="phase p5">
-  <div class="phase-badge">P5</div>
-  <div class="phase-card">
-    <div class="phase-title">Phase 5: Model Training & Selection</div>
-    <div class="phase-script">train_select_evaluate.py &mdash; 20 model families</div>
-    <ul class="steps">
-      <li class="critical">Compare &ge; 3 model families:
-        <br>LR (L1/L2/ElasticNet) | RF | XGBoost | LightGBM | CatBoost | SVM | KNN | MLP | TabPFN + ensembles
-        <span class="tag tag-rule">MLGG-M03</span></li>
-      <li class="critical">Hyperparameter tuning on VALIDATION set only, never test
-        <br>5-fold StratifiedKFold CV for inner loop (Optuna TPE or grid search)
-        <span class="tag tag-rule">MLGG-M01</span></li>
-      <li class="important">Model selection: validation PR-AUC, NOT train-test gap
-        <br>One-SE rule: within 1 SE of best, choose simplest model
-        <span class="tag tag-rule">MLGG-M04</span>
-        <span class="tag tag-ref">Yang KDD 2023</span></li>
-      <li class="good">Threshold: Youden's J on validation set
-        <br>J = Sensitivity + Specificity - 1, threshold* = argmax J(t)
-        <span class="tag tag-rule">MLGG-M02</span></li>
-      <li class="info">Bootstrap optimism correction (Steyerberg 2019 Ch.17):
-        <br>B &ge; 100 bootstrap samples &rarr; optimism-corrected performance
-        <span class="tag tag-ref">Steyerberg 2019</span></li>
-      <li class="info">Learning curve: performance at {10%, 20%, ..., 100%} training data
-        <span class="tag tag-tool">learning_curve_data()</span></li>
-      <li class="good">Save model pool for SHAP: best-per-family models
-        <br><code style="color:#ffa657">--model-pool-out evidence/model_pool.pkl</code></li>
-    </ul>
-    <div class="outputs">
-      <span>&rarr;</span> model.pkl &nbsp;|&nbsp; model_pool.pkl &nbsp;|&nbsp; model_selection_report.json &nbsp;|&nbsp; thresholds.json
-    </div>
-  </div>
-</div>
-
-<!-- ==================== PHASE 6 ==================== -->
-<div class="phase p6">
-  <div class="phase-badge">P6</div>
-  <div class="phase-card">
-    <div class="phase-title">Phase 6: Evaluation & Calibration</div>
-    <div class="phase-script">train_select_evaluate.py + 13 statistical gates &mdash; Layer 6</div>
-    <ul class="steps">
-      <li class="critical">Test set: single-use, never retrained
-        <br>Full 5-domain metric panel (Lancet DH 2025):
-        <span class="tag tag-ref">Van Calster 2025</span></li>
-      <li class="important" style="padding-left:30px">
-        <strong>Discrimination:</strong> AUROC, AUPRC
-        <br><strong>Calibration:</strong> intercept (&rarr;0), slope (&rarr;1), O:E (&rarr;1), ECE, Hosmer-Lemeshow &chi;&sup2;
-        <br><strong>Overall:</strong> Brier score, Brier Skill Score (&gt;0 = better than prevalence)
-        <br><strong>Classification:</strong> MCC, LR+/LR-, Sensitivity, Specificity, PPV, NPV, F1
-        <br><strong>Clinical utility:</strong> DCA net benefit, NRI, IDI
-        <span class="tag tag-rule">MLGG-E02</span>
-        <span class="tag tag-tool">calibration_metrics()</span>
-        <span class="tag tag-tool">compute_nri_idi()</span></li>
-      <li class="important">95% CI for ALL metrics: percentile bootstrap &ge; 1000
-        <span class="tag tag-rule">MLGG-E01</span></li>
-      <li class="important">Calibration per-bin with bootstrap CI (NC Reviewer #2)
-        <span class="tag tag-tool">calibration_bin_ci()</span></li>
-      <li class="good">Post-hoc calibration: Platt scaling on validation &rarr; apply to test
-        <br><em style="color:#8b949e">class_weight="balanced" requires mandatory recalibration</em>
-        <span class="tag tag-rule">MLGG-E05</span></li>
-      <li class="good">Multi-seed stability: &ge; 5 seeds, std(AUROC) &lt; 0.02
-        <span class="tag tag-rule">MLGG-R02</span></li>
-      <li class="info">Baseline comparisons: vs prevalence model, random, all-pos, all-neg
-        <span class="tag tag-tool">baseline_comparisons()</span></li>
-      <li class="info">Feature ablation: remove top-N features, measure performance drop
-        <span class="tag tag-tool">feature_ablation()</span></li>
-      <li class="info">Model coefficients export: LR coef_ or tree feature_importances_
-        <span class="tag tag-tool">export_model_coefficients()</span></li>
-      <li class="info">Compute resource report: wall time, hardware info
-        <span class="tag tag-tool">compute_resource_report()</span></li>
-    </ul>
-    <div class="outputs">
-      <span>&rarr;</span> evaluation_report.json &nbsp;|&nbsp; prediction_trace.csv.gz &nbsp;|&nbsp; ci_matrix_report.json &nbsp;|&nbsp; calibration curves
-    </div>
-  </div>
-</div>
-
-<!-- ==================== PHASE 7 ==================== -->
-<div class="phase p7">
-  <div class="phase-badge">P7</div>
-  <div class="phase-card">
-    <div class="phase-title">Phase 7: Multi-Model SHAP Interpretability</div>
-    <div class="phase-script">shap_interpretability_gate.py &mdash; Layer 5</div>
-    <ul class="steps">
-      <li class="critical">Multi-family SHAP: compute independently for each model family
-        <br>&bull; TreeExplainer: RF, XGBoost, CatBoost, LightGBM
-        <br>&bull; LinearExplainer: Logistic Regression
-        <br>&bull; KernelExplainer: SVM, KNN, MLP (fallback)
-        <span class="tag tag-ref">Lundberg 2017/2020</span></li>
-      <li class="important">Proportional normalization ensemble:
-        <br>Per-model: mean(|SHAP|) &rarr; L1 normalize (sum=1) &rarr; proportion
-        <br>Ensemble: equal-weight average of proportions across families
-        <br><em style="color:#8b949e">Eliminates scale differences between model families</em>
-        <span class="tag tag-ref">PMC11513550</span></li>
-      <li class="good">Cross-model agreement:
-        <br>&bull; Kendall &tau; rank correlation (&gt;0.7 strong, 0.5-0.7 moderate, &lt;0.5 weak)
-        <br>&bull; Top-N Jaccard overlap coefficient
-        <br>&bull; Direction consensus: positive / negative / mixed</li>
-      <li class="info">Individual case explanations: top-K highest + lowest risk
-        <br>Top-3 driving features per case with SHAP values</li>
-      <li class="good">8 validation checks: NaN, all-zeros, single model, rank disagreement, extreme concentration, suspicious features, feature mismatch, shap import</li>
-    </ul>
-    <div class="outputs">
-      <span>&rarr;</span> Table A: ensemble importance &nbsp;|&nbsp; Table B: per-model detail &nbsp;|&nbsp; Table C: rank agreement &nbsp;|&nbsp; Table D: case explanations
-      <br><span>&rarr;</span> shap_interpretability_report.json
-    </div>
-  </div>
-</div>
-
-<!-- ==================== PHASE 8 ==================== -->
-<div class="phase p8">
-  <div class="phase-badge">P8</div>
-  <div class="phase-card">
-    <div class="phase-title">Phase 8: Fairness & Subgroup Analysis</div>
-    <div class="phase-script">fairness_equity_gate.py &mdash; Layer 6</div>
-    <ul class="steps">
-      <li class="critical">Subgroup analysis by protected attributes: race, gender, age
-        <br>Per-group: AUROC, AUPRC, Sensitivity, Specificity, PPV, FPR
-        <span class="tag tag-rule">MLGG-Q01</span></li>
-      <li class="important">Subgroup-specific DCA: net benefit per demographic group
-        <br>Equity gap: max - min optimal net benefit across groups
-        <br><em style="color:#f85149">Model may help majority but harm minority</em>
-        <span class="tag tag-tool">subgroup_dca()</span>
-        <span class="tag tag-ref">Vickers 2025</span></li>
-      <li class="good">Small subgroup flagging: n &lt; 200 &rarr; estimates unreliable
-        <span class="tag tag-rule">MLGG-Q02</span></li>
-      <li class="info">Disparity thresholds:
-        <br>AUROC max-min &gt; 0.05 &rarr; WARNING
-        <br>Sensitivity max-min &gt; 0.10 &rarr; WARNING</li>
-    </ul>
-    <div class="outputs">
-      <span>&rarr;</span> subgroup_race.csv &nbsp;|&nbsp; subgroup_gender.csv &nbsp;|&nbsp; subgroup_age.csv &nbsp;|&nbsp; fairness_equity_report.json
-    </div>
-  </div>
-</div>
-
-<!-- ==================== PHASE 9 ==================== -->
-<div class="phase p9">
-  <div class="phase-badge">P9</div>
-  <div class="phase-card">
-    <div class="phase-title">Phase 9: Reporting & Publication Gate</div>
-    <div class="phase-script">publication_gate.py + self_critique_gate.py &mdash; Layer 7-8</div>
-    <ul class="steps">
-      <li class="critical">TRIPOD+AI 2024 checklist: 27 items machine-verified
-        <span class="tag tag-ref">Collins 2024 BMJ</span></li>
-      <li class="critical">PROBAST+AI 2025: 4-domain bias risk assessment (16/18 signaling questions)
-        <span class="tag tag-ref">Moons 2025 BMJ</span></li>
-      <li class="important">12-dimension quality scoring (0-100):
-        <br>Data Integrity (12) | Leakage Prevention (15) | Pipeline Isolation (12) | Model Selection (10)
-        <br>Statistical Validity (12) | Generalization (10) | Clinical Completeness (7) | Reporting (7)
-        <br>Reproducibility (6) | Security (3) | Fairness (3) | Sample Size (3)
-        <br><em style="color:#7ee787">&ge;90 publication-grade</em> | <em style="color:#d29922">75-89 needs work</em> | <em style="color:#f85149">&lt;60 unpublishable</em></li>
-      <li class="good">Model Card auto-generation
-        <span class="tag tag-tool">generate_model_card()</span></li>
-      <li class="info">Limitations: must discuss data source, temporal validity, external validity, fairness caveats
-        <br>If DCA shows no clinical utility &rarr; report honestly</li>
-    </ul>
-    <div class="outputs">
-      <span>&rarr;</span> publication_gate_report.json &nbsp;|&nbsp; self_critique_report.json &nbsp;|&nbsp; model_card.md &nbsp;|&nbsp; TRIPOD checklist
-    </div>
-  </div>
-</div>
-
-<!-- ==================== SENSITIVITY ANALYSES ==================== -->
-<div class="phase" style="margin-top:16px">
-  <div class="phase-badge" style="background:#484f58">+</div>
-  <div class="phase-card" style="width:92%;margin:0 auto;border-color:#484f58">
-    <div class="phase-title" style="color:#c9d1d9">Optional: Sensitivity & Robustness Analyses</div>
-    <div class="phase-script">_gate_utils.py &mdash; callable at any phase</div>
-    <ul class="steps">
-      <li class="important">MNAR Sensitivity: &delta;-adjustment on imputed values, tipping point detection
-        <span class="tag tag-tool">mnar_sensitivity_analysis()</span>
-        <span class="tag tag-ref">Cro 2020</span></li>
-      <li class="important">Imputation Sensitivity: compare median / mean / KNN / MICE
-        <br>AUROC spread &lt; 0.01 &rarr; robust to imputation choice
-        <span class="tag tag-tool">imputation_sensitivity()</span></li>
-      <li class="info">Temporal Drift Detection: per-time-window calibration + CUSUM
-        <span class="tag tag-tool">temporal_drift_analysis()</span></li>
-      <li class="info">Multiple Imputation Pooling: Rubin's Rules (between + within variance)
-        <span class="tag tag-tool">rubins_rules_combine()</span></li>
-    </ul>
-  </div>
-</div>
-
-</div><!-- end pipeline -->
-
-<!-- ==================== 33 GATE DAG ==================== -->
-<div class="gate-summary">
-  <h2>33 Fail-Closed Gates &mdash; 9-Layer DAG</h2>
-  <div class="gate-grid">
-    <div class="gate-layer">
-      <div class="layer-label">L0 Contract</div>
-      <span class="gate-name">cohort_definition</span>
-      <span class="gate-name">request_contract</span>
-    </div>
-    <div class="gate-layer">
-      <div class="layer-label">L1 Manifest</div>
-      <span class="gate-name">manifest_lock</span>
-    </div>
-    <div class="gate-layer">
-      <div class="layer-label">L2 Attest</div>
-      <span class="gate-name">execution_attestation</span>
-    </div>
-    <div class="gate-layer">
-      <div class="layer-label">L3 Data</div>
-      <span class="gate-name">leakage</span>
-      <span class="gate-name">split_protocol</span>
-      <span class="gate-name">covariate_shift</span>
-      <span class="gate-name">reporting_bias</span>
-    </div>
-    <div class="gate-layer">
-      <div class="layer-label">L4 Policy</div>
-      <span class="gate-name">definition_variable</span>
-      <span class="gate-name">feature_lineage</span>
-      <span class="gate-name">imbalance_policy</span>
-      <span class="gate-name">missingness_policy</span>
-      <span class="gate-name">tuning_leakage</span>
-    </div>
-    <div class="gate-layer">
-      <div class="layer-label">L5 Model</div>
-      <span class="gate-name">model_selection_audit</span>
-      <span class="gate-name">feature_eng_audit</span>
-      <span class="gate-name">clinical_metrics</span>
-      <span class="gate-name" style="color:#e3b341">shap_interpretability</span>
-    </div>
-    <div class="gate-layer">
-      <div class="layer-label">L6 Metrics</div>
-      <span class="gate-name">calibration_dca</span>
-      <span class="gate-name">ci_matrix</span>
-      <span class="gate-name">distribution_gen</span>
-      <span class="gate-name">eval_quality</span>
-      <span class="gate-name">external_validation</span>
-      <span class="gate-name">fairness_equity</span>
-      <span class="gate-name">gen_gap</span>
-      <span class="gate-name">metric_consistency</span>
-      <span class="gate-name">permutation_sig</span>
-      <span class="gate-name">prediction_replay</span>
-      <span class="gate-name">robustness</span>
-      <span class="gate-name">sample_size</span>
-      <span class="gate-name">seed_stability</span>
-    </div>
-    <div class="gate-layer">
-      <div class="layer-label">L7 Publish</div>
-      <span class="gate-name">publication</span>
-    </div>
-    <div class="gate-layer">
-      <div class="layer-label">L8 Final</div>
-      <span class="gate-name">self_critique</span>
-      <span class="gate-name">security_audit</span>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== 17 TOOLS ==================== -->
-<div class="tools-summary">
-  <h2>17 Framework Analysis Tools &mdash; _gate_utils.py</h2>
-  <div class="tool-grid">
-    <div class="tool-item">
-      <div class="tool-name">riley_sample_size()</div>
-      <div class="tool-desc">Riley 2019 three-criteria sample size</div>
-    </div>
-    <div class="tool-item">
-      <div class="tool-name">calibration_metrics()</div>
-      <div class="tool-desc">Van Calster calibration suite (slope/intercept/O:E/ECE/HL/BSS)</div>
-    </div>
-    <div class="tool-item">
-      <div class="tool-name">calibration_bin_ci()</div>
-      <div class="tool-desc">Per-bin bootstrap 95% CI for calibration plots</div>
-    </div>
-    <div class="tool-item">
-      <div class="tool-name">compute_nri_idi()</div>
-      <div class="tool-desc">Net Reclassification + Integrated Discrimination</div>
-    </div>
-    <div class="tool-item">
-      <div class="tool-name">baseline_comparisons()</div>
-      <div class="tool-desc">Model vs prevalence/random/all-pos/all-neg</div>
-    </div>
-    <div class="tool-item">
-      <div class="tool-name">feature_ablation()</div>
-      <div class="tool-desc">Remove top-N features, measure delta</div>
-    </div>
-    <div class="tool-item">
-      <div class="tool-name">learning_curve_data()</div>
-      <div class="tool-desc">Performance vs training fraction</div>
-    </div>
-    <div class="tool-item">
-      <div class="tool-name">compute_vif()</div>
-      <div class="tool-desc">Variance Inflation Factor per feature</div>
-    </div>
-    <div class="tool-item">
-      <div class="tool-name">check_nonlinearity()</div>
-      <div class="tool-desc">LR test: linear vs spline logistic</div>
-    </div>
-    <div class="tool-item">
-      <div class="tool-name">export_model_coefficients()</div>
-      <div class="tool-desc">LR coef_ or tree importances table</div>
-    </div>
-    <div class="tool-item">
-      <div class="tool-name">compute_resource_report()</div>
-      <div class="tool-desc">Wall time + hardware info</div>
-    </div>
-    <div class="tool-item">
-      <div class="tool-name">mnar_sensitivity_analysis()</div>
-      <div class="tool-desc">&delta;-adjustment + tipping point for MNAR</div>
-    </div>
-    <div class="tool-item">
-      <div class="tool-name">imputation_sensitivity()</div>
-      <div class="tool-desc">Compare median/mean/KNN/MICE</div>
-    </div>
-    <div class="tool-item">
-      <div class="tool-name">temporal_drift_analysis()</div>
-      <div class="tool-desc">CUSUM calibration drift detection</div>
-    </div>
-    <div class="tool-item">
-      <div class="tool-name">subgroup_dca()</div>
-      <div class="tool-desc">DCA net benefit by demographic group</div>
-    </div>
-    <div class="tool-item">
-      <div class="tool-name">generate_model_card()</div>
-      <div class="tool-desc">Structured model documentation (Markdown)</div>
-    </div>
-    <div class="tool-item">
-      <div class="tool-name">rubins_rules_combine()</div>
-      <div class="tool-desc">Pool estimates across multiple imputations</div>
-    </div>
-  </div>
-</div>
-
-<p class="footer">
-  ML Leakage Guard (MLGG) v1.0 &mdash; 33 gates &bull; 17 tools &bull; 37+ literature citations &bull; 117 tests
-  <br>PolyForm Noncommercial License 1.0.0 &mdash; Academic use requires citation
-</p>
+<script>
+mermaid.initialize({
+  startOnLoad: true,
+  theme: 'dark',
+  themeVariables: {
+    darkMode: true,
+    background: '#0d1117',
+    primaryColor: '#161b22',
+    primaryTextColor: '#c9d1d9',
+    primaryBorderColor: '#30363d',
+    lineColor: '#484f58',
+    secondaryColor: '#1c2128',
+    tertiaryColor: '#21262d',
+    fontFamily: '-apple-system, PingFang SC, sans-serif',
+    fontSize: '13px',
+  },
+  flowchart: {
+    curve: 'basis',
+    padding: 16,
+    nodeSpacing: 30,
+    rankSpacing: 40,
+    htmlLabels: true,
+    useMaxWidth: false,
+  },
+});
+</script>
 
 </body>
 </html>
