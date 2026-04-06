@@ -155,7 +155,15 @@ def _pick_explainer(clf: Any, background: "np.ndarray") -> Any:
 
     name = type(clf).__name__
     if any(t in name for t in _TREE_CLASS_FRAGMENTS):
-        return shap.TreeExplainer(clf)
+        try:
+            return shap.TreeExplainer(clf)
+        except Exception:
+            # CatBoost and some tree models have known TreeExplainer
+            # compatibility issues; fall back to KernelExplainer
+            return shap.KernelExplainer(
+                lambda x: clf.predict_proba(x)[:, 1],
+                background,
+            )
     elif any(t in name for t in _LINEAR_CLASS_FRAGMENTS):
         return shap.LinearExplainer(clf, background)
     else:
@@ -656,7 +664,16 @@ def _run_validation_checks(
     # Check: rank disagreement
     if rank_correlations:
         taus = [rc["kendall_tau"] for rc in rank_correlations]
-        mean_tau = float(np.mean(taus))
+        # Guard against NaN (identical rankings produce tau=NaN in scipy)
+        finite_taus = [t for t in taus if np.isfinite(t)]
+        if len(finite_taus) < len(taus):
+            add_issue(
+                warnings_list, "SHAP_RANK_IDENTICAL",
+                f"{len(taus) - len(finite_taus)} model pair(s) produced identical "
+                f"or degenerate importance rankings (Kendall tau = NaN).",
+                {"nan_count": len(taus) - len(finite_taus)},
+            )
+        mean_tau = float(np.mean(finite_taus)) if finite_taus else 0.0
         if mean_tau < rank_correlation_fail:
             add_issue(
                 failures, "SHAP_RANK_DISAGREEMENT",

@@ -72,6 +72,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--permutation-report", required=True, help="Path to permutation gate report JSON.")
     parser.add_argument("--fairness-equity-report", required=True, help="Path to fairness & equity gate report JSON.")
     parser.add_argument("--sample-size-report", required=True, help="Path to sample size gate report JSON.")
+    parser.add_argument("--cohort-definition-report", default="", help="Path to cohort definition gate report JSON (optional).")
+    parser.add_argument("--shap-interpretability-report", default="", help="Path to SHAP interpretability gate report JSON (optional).")
     parser.add_argument("--report", help="Optional output publication gate report path.")
     parser.add_argument("--strict", action="store_true", help="Require strict-mode component reports.")
     return parser.parse_args()
@@ -329,6 +331,12 @@ def main() -> int:
         "fairness_equity_report": args.fairness_equity_report,
         "sample_size_report": args.sample_size_report,
     }
+
+    # Optional new gates (not required for backward compatibility)
+    if getattr(args, "cohort_definition_report", "") and args.cohort_definition_report:
+        files["cohort_definition_report"] = args.cohort_definition_report
+    if getattr(args, "shap_interpretability_report", "") and args.shap_interpretability_report:
+        files["shap_interpretability_report"] = args.shap_interpretability_report
 
     for name, path in files.items():
         try:

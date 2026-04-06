@@ -936,10 +936,11 @@ def encode_categorical_features(
                 for df in (X_train, X_valid, X_test):
                     mapped = df[feat].map(mapping)
                     ood_mask = mapped.isna() & df[feat].notna()
-                    if ood_mask.any():
-                        # OOD detected: add indicator column, fill value with
-                        # prevalence-neutral 0.5 to avoid conflation with either class
-                        df[f"{feat}_ood"] = ood_mask.astype(float)
+                    # OOD safety: fill with prevalence-neutral 0.5 (not 0.0)
+                    # to avoid conflation with either binary class.
+                    # Note: do NOT add _ood indicator columns here — they would
+                    # pollute downstream feature selection and model training.
+                    # OOD is handled via the 0.5 sentinel value only.
                     df[feat] = mapped.fillna(0.5).astype(float)
         elif card <= max_onehot_cardinality:
             to_onehot.append(feat)
@@ -997,14 +998,24 @@ def apply_categorical_encoding_to_external(
         return df[encoded_feature_names]
 
     # Detect OneHot groups: columns like "race_1", "race_2" → original "race"
+    # Sort original names by length DESCENDING to match longest prefix first,
+    # preventing "blood_pressure" from stealing "blood_pressure_systolic_high"
     onehot_groups: Dict[str, List[str]] = {}
+    sorted_originals = sorted(
+        [o for o in original_feature_names if o in df.columns],
+        key=len, reverse=True,
+    )
     for col in encoded_feature_names:
         if "_" in col:
-            # Check if prefix matches an original feature name
-            for orig in original_feature_names:
-                if col.startswith(f"{orig}_") and orig in df.columns:
-                    onehot_groups.setdefault(orig, []).append(col)
-                    break
+            for orig in sorted_originals:
+                prefix = f"{orig}_"
+                if col.startswith(prefix) and col != orig:
+                    # Verify the suffix is a category value, not another feature name
+                    suffix = col[len(prefix):]
+                    # Exclude if suffix itself is a known original feature name
+                    if suffix not in set(original_feature_names):
+                        onehot_groups.setdefault(orig, []).append(col)
+                        break
 
     result = df.copy()
     for orig, dummy_cols in onehot_groups.items():

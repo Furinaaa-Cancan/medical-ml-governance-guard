@@ -556,6 +556,14 @@ def main() -> int:
         )
         return _finish(args, failures, warnings_list, {})
 
+    if len(df) == 0:
+        add_issue(
+            failures, "COHORT_EMPTY",
+            "Dataset is empty (0 rows). Check data source and file path.",
+            {"path": str(args.data)},
+        )
+        return _finish(args, failures, warnings_list, {"n_rows": 0})
+
     # Determine feature columns
     ignore_cols = set(c.strip() for c in args.ignore_cols.split(",") if c.strip())
     ignore_cols.add(args.target_col)

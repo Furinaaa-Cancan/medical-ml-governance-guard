@@ -464,6 +464,25 @@ def calibration_metrics(
     y_s = np.asarray(y_score, dtype=float)
     n = len(y_t)
 
+    # Guard: degenerate inputs
+    if n == 0:
+        return {"error": "empty_input", "n_samples": 0}
+    if np.allclose(y_s, y_s[0]):
+        return {
+            "error": "constant_y_score",
+            "y_score_value": round(float(y_s[0]), 6),
+            "n_samples": n,
+            "message": "y_score is constant; calibration metrics are undefined.",
+        }
+    if len(np.unique(y_t)) < 2:
+        return {
+            "error": "single_class_y_true",
+            "n_samples": n,
+            "message": "y_true has only one class; calibration metrics require both classes.",
+        }
+    if n < n_bins:
+        n_bins = max(n // 2, 2)  # Reduce bins for small samples
+
     # --- Calibration slope & intercept (logistic recalibration) ---
     # Fit: logit(y) ~ a + b * logit(y_score)
     # Using sklearn LogisticRegression on logit(y_score) as single feature
@@ -588,11 +607,13 @@ def learning_curve_data(
         if len(np.unique(y_sub)) < 2:
             continue
 
-        est = clone(estimator)
-        est.fit(X_sub, y_sub)
-
-        train_score = float(score_fn(y_sub, est.predict_proba(X_sub)[:, 1]))
-        test_score = float(score_fn(y_test, est.predict_proba(X_test)[:, 1]))
+        try:
+            est = clone(estimator)
+            est.fit(X_sub, y_sub)
+            train_score = float(score_fn(y_sub, est.predict_proba(X_sub)[:, 1]))
+            test_score = float(score_fn(y_test, est.predict_proba(X_test)[:, 1]))
+        except Exception:
+            continue  # Skip this fraction if clone/fit/predict fails
 
         results.append({
             "fraction": round(frac, 2),
@@ -635,6 +656,18 @@ def compute_nri_idi(
     events = y_t == 1
     nonevents = y_t == 0
 
+    n_events = float(events.sum())
+    n_nonevents = float(nonevents.sum())
+    if n_events == 0 or n_nonevents == 0:
+        return {
+            "categorical_nri": None,
+            "continuous_nri": None,
+            "idi": None,
+            "event_nri": None,
+            "nonevent_nri": None,
+            "error": "NRI/IDI undefined: requires both events and non-events.",
+        }
+
     # Categorical NRI (based on threshold)
     old_class = (p_old >= threshold).astype(int)
     new_class = (p_new >= threshold).astype(int)
@@ -643,9 +676,6 @@ def compute_nri_idi(
     down_events = float(((new_class < old_class) & events).sum())
     up_nonevents = float(((new_class > old_class) & nonevents).sum())
     down_nonevents = float(((new_class < old_class) & nonevents).sum())
-
-    n_events = float(events.sum())
-    n_nonevents = float(nonevents.sum())
 
     event_nri = (up_events - down_events) / n_events if n_events > 0 else 0.0
     nonevent_nri = (down_nonevents - up_nonevents) / n_nonevents if n_nonevents > 0 else 0.0

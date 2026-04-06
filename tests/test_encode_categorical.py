@@ -87,10 +87,8 @@ class TestEncodeCategoricalFeatures:
         )
         assert not test_enc["x"].isna().any()
         assert test_enc["x"].iloc[2] == 0.5  # OOD → 0.5 (neutral sentinel, not 0.0)
-        # OOD indicator column should be created
-        assert "x_ood" in test_enc.columns
-        assert test_enc["x_ood"].iloc[2] == 1.0  # OOD flagged
-        assert test_enc["x_ood"].iloc[0] == 0.0  # non-OOD
+        # No _ood indicator column (would pollute feature set)
+        assert "x_ood" not in test_enc.columns
 
     def test_ood_categorical_safe(self):
         """OOD values in OneHot columns should produce all-zero rows, not NaN."""
