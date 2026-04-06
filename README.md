@@ -5,7 +5,7 @@
 [![Gate Coverage](https://img.shields.io/badge/gate%20coverage-%E2%89%A586%25-blue)]()
 [![MLGG Standard v1.0](https://img.shields.io/badge/MLGG%20Standard-v1.0-orange)]()
 [![TRIPOD+AI 2024](https://img.shields.io/badge/TRIPOD%2BAI-2024-blue)](https://doi.org/10.1136/bmj-2023-078378)
-[![PROBAST+AI 2025](https://img.shields.io/badge/PROBAST%2BAI-2025-blue)](https://doi.org/10.7326/M18-1376)
+[![PROBAST+AI 2025](https://img.shields.io/badge/PROBAST%2BAI-2025-blue)](https://doi.org/10.1136/bmj-2024-082505)
 
 面向医学二分类预测的发布级防泄漏工作流。33 道 fail-closed 门控，14 个真实医学数据集（526K 行），12 维量化评分，可机器校验的合规证书。
 
@@ -958,7 +958,7 @@ MLGG 的每一个方法论决策都有同行评审文献支撑。以下按流程
 | Decision Curve Analysis (DCA) | Vickers AJ, Elkin EB. *Decision curve analysis: a novel method for evaluating prediction models.* **Medical Decision Making.** 2006;26(6):565-574. [doi:10.1177/0272989X06295361](https://doi.org/10.1177/0272989X06295361) | `calibration_dca_gate.py` |
 | Bootstrap CI ≥ 1000 次 | Efron B, Tibshirani RJ. *An Introduction to the Bootstrap.* **Chapman & Hall**; 1993. | MLGG-E01, 所有主要指标 |
 | Brier Skill Score（相对基线改善） | Steyerberg EW, et al. *Assessing the performance of prediction models.* **Epidemiology.** 2010;21(1):128-138. | `calibration_metrics()` BSS 计算 |
-| 性能评估 5 域框架（区分度/校准/整体/分类/临床效用） | Defined in Lancet Digital Health 2025 — *Evaluation of performance measures in predictive AI models.* [doi:10.1016/S2589-7500(25)00098-6](https://doi.org/10.1016/S2589-7500(25)00098-6) | 框架覆盖全部 5 域 |
+| 性能评估 5 域框架（区��度/校准/整体/分类/临床效用） | de Hond AAH, et al. *Evaluation of performance measures in predictive AI models to support medical decisions.* **Lancet Digital Health.** 2025;7(12):e100916. [doi:10.1016/j.landig.2025.100916](https://doi.org/10.1016/j.landig.2025.100916) | 框架覆盖���部 5 域 |
 | NRI / IDI 重分类改善 | Pencina MJ, et al. *Evaluating the added predictive ability of a new marker.* **Statistics in Medicine.** 2008;27(2):157-172. [doi:10.1002/sim.2929](https://doi.org/10.1002/sim.2929) | `compute_nri_idi()` in `_gate_utils.py` |
 | class_weight="balanced" 需事后校准 | Platt JC. *Probabilistic outputs for SVMs.* In: *Advances in Large Margin Classifiers*. MIT Press; 2000:61-74. | MLGG-E05, Platt scaling / isotonic |
 
@@ -968,7 +968,7 @@ MLGG 的每一个方法论决策都有同行评审文献支撑。以下按流程
 |-----------|---------|-----------|
 | SHAP 理论基础 | Lundberg SM, Lee SI. *A unified approach to interpreting model predictions.* **NeurIPS 2017.** [arXiv:1705.07874](https://arxiv.org/abs/1705.07874) | `shap_interpretability_gate.py` |
 | TreeSHAP 精确算法 | Lundberg SM, et al. *From local explanations to global understanding with explainable AI for trees.* **Nature Machine Intelligence.** 2020;2:56-67. [doi:10.1038/s42256-019-0138-9](https://doi.org/10.1038/s42256-019-0138-9) | TreeExplainer for RF/XGB/CatBoost/LGBM |
-| SHAP 比例归一化跨模型集成 | Chen Y, et al. *Practical guide to SHAP analysis.* **PMC11513550.** 2024. | L1 归一化 → 等权平均 |
+| SHAP 比例归一化跨模型集成 | Ponce-Bobadilla AV, et al. *Practical guide to SHAP analysis: Explaining supervised ML model predictions in drug development.* **Clinical and Translational Science.** 2024;17(11):e70056. [PMC11513550](https://pmc.ncbi.nlm.nih.gov/articles/PMC11513550/) | L1 归一化 → 等权平均 |
 | 多模型平均消除归纳偏差 | Breiman L. *Statistical modeling: the two cultures.* **Statistical Science.** 2001;16(3):199-231. | Rashomon 效应，多族 SHAP 集成 |
 | 多准则排名聚合 | Emond EJ, Mason DW. *A new rank correlation coefficient with application to the consensus ranking problem.* **J Multi-Criteria Decision Analysis.** 2002;11(1):17-28. | Kendall tau + Top-N Jaccard |
 
@@ -984,7 +984,7 @@ MLGG 的每一个方法论决策都有同行评审文献支撑。以下按流程
 | 方法论决策 | 文献来源 | MLGG 实现 |
 |-----------|---------|-----------|
 | TRIPOD+AI 2024 清单（27 项） | Collins GS, et al. *TRIPOD+AI statement: updated guidance for reporting clinical prediction models.* **BMJ.** 2024;385:e078378. [doi:10.1136/bmj-2023-078378](https://doi.org/10.1136/bmj-2023-078378) | `reporting_bias_gate.py`, `publication_gate.py` |
-| PROBAST+AI 2025 偏倚风险评估（4 域 16/18 信号问题） | Moons KGM, et al. *PROBAST+AI: an updated quality, risk of bias, and applicability assessment tool.* **Annals of Internal Medicine.** 2025. [doi:10.7326/M24-1749](https://doi.org/10.7326/M24-1749) | `self_critique_gate.py` 12 维评分 |
+| PROBAST+AI 2025 偏倚风险评估（4 域 16/18 信号问题） | Moons KGM, et al. *PROBAST+AI: an updated quality, risk of bias, and applicability assessment tool.* **BMJ.** 2025;388:e082505. [doi:10.1136/bmj-2024-082505](https://doi.org/10.1136/bmj-2024-082505) | `self_critique_gate.py` 12 ��评分 |
 | STARD-AI 诊断准确性研究报告 | Defined in Sounderajah V, et al. *Developing specific reporting guidelines for diagnostic accuracy studies assessing AI interventions.* **Nature Medicine.** 2020;26:807-808. | `reporting_bias_gate.py` 清单检查 |
 
 ### 安全与可复现性
