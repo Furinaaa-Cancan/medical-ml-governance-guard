@@ -144,12 +144,28 @@ Pipeline 保证: Imputer → Scaler → Classifier，每步 fit on TRAIN ONLY（
 
 ## Phase 4: 特征筛选
 
-- Elastic Net CV (α 联合调优) + 分组选择（OneHot dummies 同进同退）
-- 稳定性选择（100 次子采样，保留概率 > 0.6）
-- Ridge 对照（损失 > 0.005 → 回退全量）
-- VIF 共线性（自动）: `compute_vif()` — >10 → CRITICAL
-- 非线性检验（自动）: `check_nonlinearity()` — LR test
+实际执行（内嵌在 `train_select_evaluate.py`）:
+1. **过滤**: 按缺失率 + 方差阈值过滤 (`select_features_by_filter()`)
+2. **稳定性频率**: L1 LogisticRegression bootstrap（默认 50 次子采样），计算每特征被选中的频率 (`feature_stability_frequency()`)
+3. **分组排序**: 按 (target 相关性 × 稳定性频率) 排序，每组保留 top-K (`group_preselect_features()`)
+4. **VIF 共线性**（自动）: `compute_vif()` — >10 → CRITICAL
+5. **非线性检验**（自动）: `check_nonlinearity()` — LR test
+
+⚠️ **文档与代码差异说明**:
+- README 中描述的"Elastic Net CV 联合调 α/λ"是**推荐方法论**，实际代码使用 L1 bootstrap 稳定性（更简单但有效）
+- "Meinshausen 误选界"和"Ridge 全量对照"是**推荐的分析步骤**，当前未自动执行
+- 如需完整的 Elastic Net CV 特征选择，建议在 Phase 4 之前手动运行
 - 单因素筛选已废弃（Heinze 2018）
+
+Agent 应在 Phase 4 后告诉用户:
+```
+"特征筛选完成:
+ - 过滤: XX 个因缺失/低方差被移除
+ - 稳定性: XX 个特征被选中（选择频率 > 阈值）
+ - VIF 检查: [结果]
+ - 非线性检验: [结果]
+ 选择后特征数: XX → Phase 5 进入模型训练"
+```
 
 ## Phase 5: 模型训练
 
