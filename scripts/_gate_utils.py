@@ -1312,6 +1312,104 @@ def compute_resource_report(
 
 
 # ---------------------------------------------------------------------------
+# Bootstrap Optimism Correction (Steyerberg 2019 Ch.17)
+# ---------------------------------------------------------------------------
+
+def bootstrap_optimism_correction(
+    estimator: Any,
+    X_train: Any,
+    y_train: Any,
+    n_bootstrap: int = 200,
+    metric: str = "pr_auc",
+    seed: int = 42,
+) -> Dict[str, Any]:
+    """Bootstrap optimism correction for internal validation.
+
+    Estimates how much the apparent (training) performance overestimates
+    the true performance. The optimism-corrected estimate is:
+      corrected = apparent - mean(optimism)
+
+    Algorithm (Steyerberg 2019):
+      For b = 1..B:
+        1. Bootstrap resample training data (with replacement)
+        2. Fit model on bootstrap sample → compute score on bootstrap = S_boot
+        3. Apply bootstrap model to ORIGINAL training data → score = S_orig
+        4. Optimism_b = S_boot - S_orig
+      Optimism = mean(Optimism_b)
+      Corrected = Apparent - Optimism
+
+    Args:
+        estimator: Unfitted estimator (cloned per bootstrap).
+        X_train, y_train: Training data.
+        n_bootstrap: Number of bootstrap resamples (≥100, default 200).
+        metric: 'pr_auc' or 'roc_auc'.
+        seed: Random seed.
+
+    Returns:
+        Dict with apparent, mean_optimism, corrected, ci_optimism, per_bootstrap.
+
+    References:
+        Steyerberg EW. Clinical Prediction Models. 2nd ed. 2019. Ch.17.
+        Harrell FE. Regression Modeling Strategies. 2nd ed. 2015. Ch.5.
+    """
+    import numpy as np
+    from sklearn.base import clone
+    from sklearn.metrics import average_precision_score, roc_auc_score
+
+    X = np.asarray(X_train, dtype=float)
+    y = np.asarray(y_train, dtype=int)
+    n = X.shape[0]
+    rng = np.random.default_rng(seed)
+    score_fn = average_precision_score if metric == "pr_auc" else roc_auc_score
+
+    # Apparent performance (train on full, evaluate on full)
+    try:
+        full_est = clone(estimator)
+        full_est.fit(X, y)
+        apparent = float(score_fn(y, full_est.predict_proba(X)[:, 1]))
+    except Exception:
+        return {"error": "apparent performance computation failed"}
+
+    optimisms = []
+    for b in range(n_bootstrap):
+        boot_idx = rng.choice(n, n, replace=True)
+        X_boot, y_boot = X[boot_idx], y[boot_idx]
+
+        if len(np.unique(y_boot)) < 2:
+            continue
+
+        try:
+            est = clone(estimator)
+            est.fit(X_boot, y_boot)
+            s_boot = float(score_fn(y_boot, est.predict_proba(X_boot)[:, 1]))
+            s_orig = float(score_fn(y, est.predict_proba(X)[:, 1]))
+            optimisms.append(s_boot - s_orig)
+        except Exception:
+            continue
+
+    if len(optimisms) < 10:
+        return {"error": f"only {len(optimisms)} valid bootstrap samples (need ≥10)"}
+
+    opt_arr = np.array(optimisms)
+    mean_opt = float(opt_arr.mean())
+    corrected = apparent - mean_opt
+
+    return {
+        "apparent": round(apparent, 4),
+        "mean_optimism": round(mean_opt, 4),
+        "corrected": round(corrected, 4),
+        "optimism_std": round(float(opt_arr.std()), 4),
+        "optimism_ci_95": [
+            round(float(np.percentile(opt_arr, 2.5)), 4),
+            round(float(np.percentile(opt_arr, 97.5)), 4),
+        ],
+        "n_valid_bootstrap": len(optimisms),
+        "metric": metric,
+        "shrinkage_factor": round(corrected / apparent, 4) if apparent > 0 else None,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Robustness Stress Test (outlier, noise, dropout)
 # ---------------------------------------------------------------------------
 
