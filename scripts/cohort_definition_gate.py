@@ -673,20 +673,35 @@ def main() -> int:
             {"survey_source": survey_source},
         )
 
-    # 2. Outcome definition check
+    # 2. Outcome definition quality assessment
+    #    Gold standard: UK Biobank multi-source adjudication (Eastwood 2016)
+    #    5 evidence layers: self-report, ICD codes, lab values, medications, primary care
+    #    "Probable" = ≥2 layers concordant
     outcome_def_provided = bool(args.outcome_definition and args.outcome_definition.strip())
     if not outcome_def_provided:
         add_issue(
             warnings_list, "COHORT_OUTCOME_DEFINITION_UNDOCUMENTED",
-            "No outcome definition specification provided via --outcome-definition. "
-            "For clinical prediction models, you MUST document: "
-            "(1) Diagnostic criteria: ICD codes? Lab values (e.g., HbA1c >= 6.5%)? "
-            "Self-report? Physician diagnosis? Composite? "
-            "(2) Disease subtype: e.g., Type 1 vs Type 2 diabetes "
-            "(3) Time window: 30-day event? 1-year? Prevalent at baseline? "
-            "(4) Ascertainment source: EHR? Registry? Claims? Questionnaire? "
-            "Provide via --outcome-definition '{\"criteria\":\"...\",\"subtype\":\"...\","
-            "\"time_window\":\"...\",\"source\":\"...\"}'",
+            "No outcome definition specification provided. "
+            "Top-tier journals (Nature Med, Lancet, JAMA) require a rigorous, "
+            "multi-source outcome definition. Provide via --outcome-definition "
+            "with the following structure:\n"
+            "{\n"
+            '  "criteria": [                        ← Diagnostic criteria (list ALL sources)\n'
+            '    {"source": "icd", "codes": ["E11"], "system": "ICD-10"},\n'
+            '    {"source": "lab", "test": "HbA1c", "threshold": ">=6.5%"},\n'
+            '    {"source": "lab", "test": "FPG", "threshold": ">=7.0 mmol/L"},\n'
+            '    {"source": "medication", "drugs": ["metformin", "insulin"]},\n'
+            '    {"source": "self_report", "question": "doctor_diagnosed_diabetes"}\n'
+            "  ],\n"
+            '  "adjudication": "any_one" | "at_least_two" | "all",  ← How many sources needed?\n'
+            '  "subtype": "type_2_diabetes",         ← Disease subtype\n'
+            '  "exclusions": ["type_1", "gestational", "secondary"],\n'
+            '  "time_window": "prevalent_at_baseline" | "30_day" | "1_year",\n'
+            '  "ascertainment": ["ehr", "registry", "questionnaire"],\n'
+            '  "validation": "cross_source_concordance" | "chart_review" | "none"\n'
+            "}\n"
+            "Ref: Eastwood 2016 (PLOS ONE) — UK Biobank diabetes adjudication;\n"
+            "     TRIPOD+AI 2024 Item 6a — Outcome definition.",
             {},
         )
     else:
@@ -699,6 +714,75 @@ def main() -> int:
                 with outcome_spec_path.open("r", encoding="utf-8") as fh:
                     outcome_spec = json.load(fh)
             study_design["outcome_definition"] = outcome_spec
+
+            # Quality assessment of the definition
+            criteria = outcome_spec.get("criteria", [])
+            if isinstance(criteria, list):
+                sources_used = set()
+                for c in criteria:
+                    if isinstance(c, dict):
+                        sources_used.add(c.get("source", "unknown"))
+                    elif isinstance(c, str):
+                        sources_used.add(c)
+
+                n_sources = len(sources_used)
+                study_design["definition_sources"] = sorted(sources_used)
+                study_design["definition_source_count"] = n_sources
+
+                if n_sources == 1:
+                    add_issue(
+                        warnings_list, "COHORT_OUTCOME_DEFINITION_UNDOCUMENTED",
+                        f"Outcome defined by single source only ({sources_used}). "
+                        f"UK Biobank gold standard requires ≥2 independent sources "
+                        f"for 'probable' case adjudication. Consider adding: "
+                        f"ICD codes, lab values, medication records, self-report, "
+                        f"or primary care records as corroborative evidence. "
+                        f"Ref: Eastwood 2016 (PLOS ONE).",
+                        {"sources_used": sorted(sources_used), "n_sources": n_sources},
+                    )
+                elif n_sources >= 3:
+                    study_design["definition_quality"] = "strong"
+                else:
+                    study_design["definition_quality"] = "moderate"
+
+            # Check adjudication strategy
+            adjudication = outcome_spec.get("adjudication", "")
+            if adjudication:
+                study_design["adjudication_strategy"] = adjudication
+            else:
+                add_issue(
+                    warnings_list, "COHORT_OUTCOME_DEFINITION_UNDOCUMENTED",
+                    "Outcome definition does not specify adjudication strategy. "
+                    "How are multiple evidence sources combined? Options: "
+                    "'any_one' (sensitive), 'at_least_two' (specific, UKB standard), "
+                    "'all' (very strict). Specify 'adjudication' in definition JSON.",
+                    {"missing_field": "adjudication"},
+                )
+
+            # Check exclusions
+            exclusions = outcome_spec.get("exclusions", [])
+            if not exclusions:
+                add_issue(
+                    warnings_list, "COHORT_OUTCOME_DEFINITION_UNDOCUMENTED",
+                    "Outcome definition does not specify exclusion criteria. "
+                    "Example for T2D: exclude Type 1 (E10), gestational (O24), "
+                    "secondary diabetes, MODY. Specify 'exclusions' in definition JSON.",
+                    {"missing_field": "exclusions"},
+                )
+            study_design["exclusion_criteria"] = exclusions
+
+            # Check time window
+            time_window = outcome_spec.get("time_window", "")
+            if not time_window:
+                add_issue(
+                    warnings_list, "COHORT_OUTCOME_DEFINITION_UNDOCUMENTED",
+                    "Outcome definition does not specify time window. "
+                    "Is this prevalent (at baseline), incident (new cases during follow-up), "
+                    "or event-based (30-day readmission)? "
+                    "Specify 'time_window' in definition JSON.",
+                    {"missing_field": "time_window"},
+                )
+
         except Exception:
             study_design["outcome_definition"] = {"raw": args.outcome_definition}
 
