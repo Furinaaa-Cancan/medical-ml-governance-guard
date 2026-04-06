@@ -1004,6 +1004,8 @@ MLGG 的每一个方法论决策都有同行评审文献支撑。以下按流程
 | Nature Medicine 2025 — *Clinical implementation of an AI-based prediction model for colorectal cancer surgery.* [doi:10.1038/s41591-025-03942-x](https://doi.org/10.1038/s41591-025-03942-x) | 首个 Nature Med 发表的 AI 预测模型从开发到临床实施的完整案例（AUROC 0.79，前后对照 OR 0.63）。 | MLGG 方法论流程对标此论文的开发→验证→实施路径 |
 | Feng G, et al. *Twelve practical recommendations for developing and applying clinical predictive models.* **The Innovation Medicine.** 2024;2(4):100105. [doi:10.59717/j.xinn-med.2024.100105](https://doi.org/10.59717/j.xinn-med.2024.100105) | 12 条实操建议覆盖数据准备、模型开发、验证、报告。 | 与 MLGG 31 条规则高度互补，MLGG 提供机器可验证的实现 |
 | Vickers AJ, et al. *Understanding algorithmic fairness for clinical prediction in terms of subgroup net benefit and health equity.* **Epidemiology.** 2025. [arXiv:2412.07879](https://arxiv.org/abs/2412.07879) | 提出用亚组净效用而非传统公平性指标（如均等化几率）评估临床 AI 公平性。 | `subgroup_dca()` 直接实现此框架 |
+| Dhiman P, et al. *Peer review of prediction model studies in oncology needs improvement.* **J Clin Epidemiol.** 2025;179:111967. [doi:10.1016/j.jclinepi.2025.111967](https://doi.org/10.1016/j.jclinepi.2025.111967) | 系统分析 BMC 期刊审稿报告：中位仅 243 词，<20% 审稿人检查泛化性/局限性，校准几乎未被审查。 | MLGG 33 门控强制检查审稿人最常遗漏的 12 项 |
+| Riley RD, et al. *Stability of clinical prediction models developed using statistical or machine learning methods.* **Biometrical Journal.** 2023;65(8):e2200302. [doi:10.1002/bimj.202200302](https://doi.org/10.1002/bimj.202200302) | 预测模型的预测风险不稳定性常被忽视，应通过 bootstrap 评估。 | `seed_stability_gate` + 多种子稳定性 |
 
 ---
 
