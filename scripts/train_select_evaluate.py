@@ -933,10 +933,29 @@ def encode_categorical_features(
         Tuple of (X_train, X_valid, X_test, updated_feature_names).
     """
     cat_features = categorical_report.get("categorical_features", [])
-    if not cat_features:
-        return X_train, X_valid, X_test, list(X_train.columns)
 
+    # Safety FIRST: force-encode ALL non-numeric columns to prevent Pipeline crash.
+    # This runs BEFORE any other logic, catching string columns that escaped
+    # detect_categorical_features() due to cardinality > max_cardinality.
     to_onehot: List[str] = []
+    for feat in list(X_train.columns):
+        if not pd.api.types.is_numeric_dtype(X_train[feat]):
+            nunique = int(X_train[feat].nunique(dropna=True))
+            if nunique <= max_onehot_cardinality * 2:  # up to 2x threshold: force OneHot
+                if feat not in to_onehot:
+                    to_onehot.append(feat)
+            else:
+                # Too many categories — convert to numeric codes as last resort.
+                all_vals = sorted(str(v) for v in X_train[feat].dropna().unique())
+                code_map = {v: float(i) for i, v in enumerate(all_vals)}
+                for df in (X_train, X_valid, X_test):
+                    if feat in df.columns and len(df) > 0:
+                        df[feat] = df[feat].astype(str).map(code_map).fillna(-1.0).astype(float)
+                print(f"  [WARN] Non-numeric '{feat}' ({nunique} cats) → numeric codes. "
+                      f"Consider grouping or excluding.")
+
+    if not cat_features and not to_onehot:
+        return X_train, X_valid, X_test, list(X_train.columns)
     for entry in cat_features:
         feat = entry["feature"]
         card = entry["cardinality"]
