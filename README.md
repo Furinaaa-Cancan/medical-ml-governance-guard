@@ -705,18 +705,20 @@ python3 scripts/shap_interpretability_gate.py \
 
 ---
 
-## 14 项框架级分析工具
+## 19 项框架级分析工具
 
-`_gate_utils.py` 提供 14 个即调即用的分析函数，100% 覆盖 [Nature Portfolio ML Checklist V1.1](https://www.nature.com/documents/machine-learning-checklist.pdf) 全部 30 项检查：
+`_gate_utils.py` + `cohort_definition_gate.py` 提供 19 个即调即用的分析函数，100% 覆盖 [Nature Portfolio ML Checklist V1.1](https://www.nature.com/documents/machine-learning-checklist.pdf) 全部 30 项检查：
 
 | 工具 | 函数 | 审稿人常问 | NC Checklist | 文献 |
 |------|------|-----------|:---:|------|
 | **Riley 样本量** | `riley_sample_size()` | "样本量论证？" | — | Riley 2019 (Stat Med) |
 | **校准三件套** | `calibration_metrics()` | "校准斜率/截距？" | 4A | Van Calster 2019 (BMC Med) |
+| **校准 per-bin CI** | `calibration_bin_ci()` | "校准曲线有 CI 吗？" | 4A | NC Reviewer #2 |
 | **NRI / IDI** | `compute_nri_idi()` | "比基线模型好多少？" | 4D | Pencina 2008 (Stat Med) |
 | **学习曲线** | `learning_curve_data()` | "数据量够吗？" | — | Figueroa 2012 |
 | **VIF 共线性** | `compute_vif()` | "特征间共线性？" | — | PMC4888898 |
 | **非线性检验** | `check_nonlinearity()` | "线性假设合理吗？" | — | Harrell 2015 |
+| **系数导出** | `export_model_coefficients()` | "模型系数是什么？" | — | NC Reviewer #1 |
 | **MNAR 敏感性** | `mnar_sensitivity_analysis()` | "MAR 假设如果错了？" | — | PMC10481859 |
 | **时序漂移** | `temporal_drift_analysis()` | "模型部署后还准吗？" | — | PMC8627243 |
 | **Model Card** | `generate_model_card()` | "结构化模型文档？" | **3B** | Mitchell 2019 |
@@ -725,6 +727,9 @@ python3 scripts/shap_interpretability_gate.py \
 | **基线对比** | `baseline_comparisons()` | "比随机/prevalence 好多少？" | **4D** | NC ML Checklist V1.1 |
 | **特征消融** | `feature_ablation()` | "去掉关键特征性能怎么变？" | **4F** | NC ML Checklist V1.1 |
 | **计算资源** | `compute_resource_report()` | "训练用了多少资源？" | **5A/5B** | NC ML Checklist V1.1 |
+| **Rubin's Rules** | `rubins_rules_combine()` | "多重插补怎么合并？" | — | Rubin 1987 |
+| **鲁棒性压力测试** | `robustness_stress_test()` | "对异常值/噪声稳定吗？" | — | 原创 |
+| **Bootstrap Optimism** | `bootstrap_optimism_correction()` | "内部验证的乐观偏差？" | — | Steyerberg 2019 Ch.17 |
 
 VIF、非线性检验自动集成在 Phase 4。其余可按需调用。
 

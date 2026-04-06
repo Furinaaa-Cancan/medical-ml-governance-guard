@@ -81,7 +81,7 @@ Guide the user through rigorous binary classification following MLGG standards.
 运行: `python3 scripts/cohort_definition_gate.py --data <CSV> --target-col y --id-col <ID> --outcome-definition '<JSON>' --definition-cols <cols> --report evidence/cohort_report.json --output-dir evidence/`
 
 检查内容:
-- Riley 2019 样本量三准则（EPV < 5 → FAIL）
+- Riley 2019 样本量三准则: `riley_sample_size()` （EPV < 5 → FAIL）
 - 数据类型自动检测（numeric/binary/categorical）
 - 缺失值概况（>50% 标记）
 - 异常值检测（3×IQR，**仅报告不删除**）
@@ -147,8 +147,8 @@ Pipeline 保证: Imputer → Scaler → Classifier，每步 fit on TRAIN ONLY（
 - Elastic Net CV (α 联合调优) + 分组选择（OneHot dummies 同进同退）
 - 稳定性选择（100 次子采样，保留概率 > 0.6）
 - Ridge 对照（损失 > 0.005 → 回退全量）
-- VIF 共线性（自动，>10 → CRITICAL）
-- 非线性检验（自动，LR test）
+- VIF 共线性（自动）: `compute_vif()` — >10 → CRITICAL
+- 非线性检验（自动）: `check_nonlinearity()` — LR test
 - 单因素筛选已废弃（Heinze 2018）
 
 ## Phase 5: 模型训练
