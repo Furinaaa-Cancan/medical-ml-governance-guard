@@ -380,6 +380,7 @@ def parse_args() -> argparse.Namespace:
         help="Comma-separated integer seeds for robustness sensitivity report.",
     )
     parser.add_argument("--model-out", help="Optional model artifact output path.")
+    parser.add_argument("--model-pool-out", help="Optional multi-family model pool for SHAP interpretability gate.")
     parser.add_argument("--permutation-null-out", help="Optional null metric output file (one value per line).")
     parser.add_argument(
         "--low-memory",
@@ -892,6 +893,140 @@ def detect_categorical_features(
         "categorical_features": categorical,
         "coercion_warnings": coercion_warnings,
     }
+
+
+def encode_categorical_features(
+    X_train: pd.DataFrame,
+    X_valid: pd.DataFrame,
+    X_test: pd.DataFrame,
+    categorical_report: Dict[str, Any],
+    max_onehot_cardinality: int = 15,
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, List[str]]:
+    """OneHot-encode detected categorical features (fit on train only).
+
+    Features with cardinality 2 are binary-encoded (single column, 0/1).
+    Features with cardinality 3..max_onehot_cardinality are OneHot-encoded.
+    Features with cardinality > max_onehot_cardinality are left as-is (ordinal).
+
+    Args:
+        X_train, X_valid, X_test: Feature DataFrames.
+        categorical_report: Output of detect_categorical_features().
+        max_onehot_cardinality: Maximum cardinality for OneHot encoding.
+
+    Returns:
+        Tuple of (X_train, X_valid, X_test, updated_feature_names).
+    """
+    cat_features = categorical_report.get("categorical_features", [])
+    if not cat_features:
+        return X_train, X_valid, X_test, list(X_train.columns)
+
+    to_onehot: List[str] = []
+    for entry in cat_features:
+        feat = entry["feature"]
+        card = entry["cardinality"]
+        if feat not in X_train.columns:
+            continue
+        if card <= 1:
+            continue
+        if card == 2:
+            # Binary: encode as 0/1 using the two train-observed values
+            vals = sorted(X_train[feat].dropna().unique())
+            if len(vals) == 2:
+                mapping = {vals[0]: 0.0, vals[1]: 1.0}
+                for df in (X_train, X_valid, X_test):
+                    mapped = df[feat].map(mapping)
+                    ood_mask = mapped.isna() & df[feat].notna()
+                    if ood_mask.any():
+                        # OOD detected: add indicator column, fill value with
+                        # prevalence-neutral 0.5 to avoid conflation with either class
+                        df[f"{feat}_ood"] = ood_mask.astype(float)
+                    df[feat] = mapped.fillna(0.5).astype(float)
+        elif card <= max_onehot_cardinality:
+            to_onehot.append(feat)
+
+    if not to_onehot:
+        return X_train, X_valid, X_test, list(X_train.columns)
+
+    # Fit categories on train only
+    train_categories: Dict[str, List[Any]] = {}
+    for feat in to_onehot:
+        cats = sorted(X_train[feat].dropna().unique())
+        train_categories[feat] = cats
+
+    def _apply_onehot(df: pd.DataFrame) -> pd.DataFrame:
+        result = df.copy()
+        for feat in to_onehot:
+            cats = train_categories[feat]
+            for cat in cats:
+                col_name = f"{feat}_{cat}"
+                result[col_name] = (result[feat] == cat).astype(float)
+            # OOD safety: values not in train categories become all-zero dummies
+            # (equivalent to "unknown" category — no signal, no leakage)
+            result.drop(columns=[feat], inplace=True)
+        return result
+
+    X_train = _apply_onehot(X_train)
+    X_valid = _apply_onehot(X_valid)
+    X_test = _apply_onehot(X_test)
+
+    return X_train, X_valid, X_test, list(X_train.columns)
+
+
+def apply_categorical_encoding_to_external(
+    df: pd.DataFrame,
+    encoded_feature_names: List[str],
+    original_feature_names: List[str],
+) -> pd.DataFrame:
+    """Apply train-fit categorical encoding to an external cohort DataFrame.
+
+    If the external DataFrame has the original (pre-encoded) column names,
+    this function detects OneHot patterns in encoded_feature_names and
+    generates the corresponding dummy columns.
+
+    Args:
+        df: External cohort DataFrame (may have original or encoded columns).
+        encoded_feature_names: Feature names after encoding (from train).
+        original_feature_names: Feature names before encoding (raw).
+
+    Returns:
+        DataFrame with columns matching encoded_feature_names.
+    """
+    # If df already has the encoded columns, return as-is
+    missing = set(encoded_feature_names) - set(df.columns)
+    if not missing:
+        return df[encoded_feature_names]
+
+    # Detect OneHot groups: columns like "race_1", "race_2" → original "race"
+    onehot_groups: Dict[str, List[str]] = {}
+    for col in encoded_feature_names:
+        if "_" in col:
+            # Check if prefix matches an original feature name
+            for orig in original_feature_names:
+                if col.startswith(f"{orig}_") and orig in df.columns:
+                    onehot_groups.setdefault(orig, []).append(col)
+                    break
+
+    result = df.copy()
+    for orig, dummy_cols in onehot_groups.items():
+        if orig not in result.columns:
+            continue
+        for dcol in dummy_cols:
+            # Extract category value from column name: "race_3" → "3"
+            cat_val_str = dcol[len(orig) + 1:]
+            # Try numeric comparison first, then string
+            try:
+                cat_val = type(result[orig].dropna().iloc[0])(cat_val_str) if len(result[orig].dropna()) > 0 else cat_val_str
+            except (ValueError, TypeError):
+                cat_val = cat_val_str
+            result[dcol] = (result[orig] == cat_val).astype(float)
+        result.drop(columns=[orig], errors="ignore", inplace=True)
+
+    # Fill any still-missing encoded columns with 0.0 (OOD / not applicable)
+    for col in encoded_feature_names:
+        if col not in result.columns:
+            result[col] = 0.0
+
+    return result[encoded_feature_names]
 
 
 def impute_numeric_frame(df: pd.DataFrame) -> pd.DataFrame:
@@ -3574,6 +3709,18 @@ def resolve_external_cohorts(
         patient_id_col = str(entry.get("patient_id_col", default_patient_id_col)).strip() or default_patient_id_col
 
         cohort_df = load_split(str(data_path))
+        # If external CSV has original (pre-encoded) columns, apply encoding
+        missing_encoded = set(feature_cols) - set(cohort_df.columns)
+        if missing_encoded:
+            # Attempt to auto-encode: external CSV likely has raw categorical columns
+            all_raw_cols = [c for c in cohort_df.columns if c != target_col and c != patient_id_col]
+            cohort_encoded = apply_categorical_encoding_to_external(
+                cohort_df, list(feature_cols), all_raw_cols,
+            )
+            for col in feature_cols:
+                if col not in cohort_encoded.columns:
+                    cohort_encoded[col] = 0.0
+            cohort_df = pd.concat([cohort_df[[c for c in [target_col, patient_id_col] if c in cohort_df.columns]], cohort_encoded], axis=1)
         X_ext, y_ext = prepare_xy(cohort_df, feature_cols=feature_cols, target_col=target_col)
         if patient_id_col in cohort_df.columns:
             patient_ids = cohort_df[patient_id_col].astype(str).tolist()
@@ -5178,6 +5325,15 @@ def main() -> int:
     X_train, y_train = prepare_xy(train_df, selected_features, args.target_col)
     X_valid, y_valid = prepare_xy(valid_df, selected_features, args.target_col)
     X_test, y_test = prepare_xy(test_df, selected_features, args.target_col)
+
+    # Auto-encode detected categorical features (fit on train only, MLGG-P05)
+    if categorical_report.get("categorical_count", 0) > 0:
+        X_train, X_valid, X_test, selected_features = encode_categorical_features(
+            X_train, X_valid, X_test, categorical_report,
+        )
+        print(f"  Categorical encoding: {categorical_report['categorical_count']} features detected, "
+              f"now {len(selected_features)} columns after OneHot.")
+
     external_cohorts = resolve_external_cohorts(
         external_spec=external_spec,
         external_spec_path=args.external_cohort_spec,
@@ -6646,6 +6802,53 @@ def main() -> int:
             sign_model_artifact(model_out)
         except Exception:
             pass  # Signing is advisory; do not block pipeline
+
+    if getattr(args, "model_pool_out", None):
+        pool_out = Path(args.model_pool_out).expanduser().resolve()
+        ensure_parent(pool_out)
+        # Build best-per-family pool for multi-model SHAP interpretability
+        family_best: Dict[str, Dict[str, Any]] = {}
+        for row in candidate_rows:
+            family = str(row.get("family", row.get("base_model_id", "")))
+            pr_auc = float(row["selection_metrics"]["pr_auc"]["mean"])
+            if family not in family_best or pr_auc > family_best[family]["pr_auc"]:
+                family_best[family] = {
+                    "model_id": row["model_id"],
+                    "pr_auc": pr_auc,
+                    "hyperparameters": row.get("hyperparameters", {}),
+                }
+        pool_families: Dict[str, Any] = {}
+        for family, info in family_best.items():
+            mid = info["model_id"]
+            if mid not in estimator_map:
+                continue
+            est = clone(estimator_map[mid])
+            est, _ = fit_estimator_with_imbalance(
+                estimator=est,
+                X_train=X_train,
+                y_train=y_train,
+                strategy=selected_imbalance_strategy,
+                seed=int(args.random_seed),
+            )
+            pool_families[family] = {
+                "model_id": mid,
+                "estimator": est,
+                "hyperparameters": info["hyperparameters"],
+                "cv_pr_auc_mean": info["pr_auc"],
+            }
+        model_pool = {
+            "schema_version": 1,
+            "families": pool_families,
+            "features": selected_features,
+            "selected_model_id": selected_model_id,
+        }
+        joblib.dump(model_pool, pool_out)
+        try:
+            from _security import sign_model_artifact
+            sign_model_artifact(pool_out)
+        except Exception:
+            pass
+        print(f"ModelPool: {pool_out} ({len(pool_families)} families)")
 
     if args.permutation_null_out:
         rng = np.random.default_rng(args.random_seed)
