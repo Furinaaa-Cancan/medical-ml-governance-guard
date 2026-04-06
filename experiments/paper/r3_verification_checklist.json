@@ -1,0 +1,503 @@
+[
+  {
+    "order": 1,
+    "pmcid": "PMC5709846",
+    "title": "Medical subdomain classification of clinical notes using a machine learning-based natural language p",
+    "journal": "BMC Med Inform Decis Mak",
+    "year": 2017,
+    "github_url": "https://github.com/ckbjimmy/cdc",
+    "disease_area": "other",
+    "llm_code_flags": [
+      "L1.2"
+    ],
+    "llm_overall_score": 8,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "Check: preprocessing (scaling/imputation/encoding) fitted before train/test split?"
+    ]
+  },
+  {
+    "order": 2,
+    "pmcid": "PMC10688642",
+    "title": "Finding the best trade-off between performance and interpretability in predicting hospital length of",
+    "journal": "PLoS One",
+    "year": 2023,
+    "github_url": "https://github.com/jaotombo/LOS_mixed_2022",
+    "disease_area": "other",
+    "llm_code_flags": [
+      "L2",
+      "L3.2"
+    ],
+    "llm_overall_score": 8,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "Check: SMOTE/resampling on full data before split?",
+      "Check: patient-level grouping missing (same patient in train+test)?"
+    ]
+  },
+  {
+    "order": 3,
+    "pmcid": "PMC8929610",
+    "title": "COVID-19 Risk Stratification and Mortality Prediction in Hospitalized Indian Patients: Harnessing cl",
+    "journal": "PLoS One",
+    "year": 2022,
+    "github_url": "https://github.com/devalab/covid19-risk-stratification-india",
+    "disease_area": "sepsis_icu",
+    "llm_code_flags": [],
+    "llm_overall_score": 8,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "LLM says CLEAN - verify no subtle leakage missed"
+    ]
+  },
+  {
+    "order": 4,
+    "pmcid": "PMC9216294",
+    "title": "A novel machine learning model to predict respiratory failure and invasive mechanical ventilation in",
+    "journal": "Sci Rep",
+    "year": 2022,
+    "github_url": "https://github.com/lshvartser1959/TSG-ICU",
+    "disease_area": "respiratory",
+    "llm_code_flags": [],
+    "llm_overall_score": 10,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "LLM says CLEAN - verify no subtle leakage missed"
+    ]
+  },
+  {
+    "order": 5,
+    "pmcid": "PMC9287325",
+    "title": "Development of artificial neural networks for early prediction of intestinal perforation in preterm ",
+    "journal": "Sci Rep",
+    "year": 2022,
+    "github_url": "https://github.com/kdhRick2222/Early-Prediction-of-Intestinal-Perforation-in-Preterm-Infants",
+    "disease_area": "other",
+    "llm_code_flags": [],
+    "llm_overall_score": 8,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "LLM says CLEAN - verify no subtle leakage missed"
+    ]
+  },
+  {
+    "order": 6,
+    "pmcid": "PMC10513406",
+    "title": "ROSes-FINDER: a multi-task deep learning framework for accurate prediction of microorganism reactive",
+    "journal": "Front Microbiol",
+    "year": 2023,
+    "github_url": "https://github.com/alienn233/ROSes-Finder",
+    "disease_area": "other",
+    "llm_code_flags": [
+      "L1.2"
+    ],
+    "llm_overall_score": 6,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "Check: preprocessing (scaling/imputation/encoding) fitted before train/test split?"
+    ]
+  },
+  {
+    "order": 7,
+    "pmcid": "PMC9825777",
+    "title": "Computational prediction and characterization of cell-type-specific and shared binding sites.",
+    "journal": "Bioinformatics",
+    "year": 2023,
+    "github_url": "https://github.com/turningpoint1988/CSSBS",
+    "disease_area": "other",
+    "llm_code_flags": [],
+    "llm_overall_score": 14,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "LLM says CLEAN - verify no subtle leakage missed"
+    ]
+  },
+  {
+    "order": 8,
+    "pmcid": "PMC12408017",
+    "title": "Improving Hospital Length of Stay Prediction through Heterogeneous Data Integration from MIMIC-III R",
+    "journal": "Res Sq",
+    "year": 2025,
+    "github_url": "https://github.com/almusawiaf/ICU-LoS2",
+    "disease_area": "other",
+    "llm_code_flags": [],
+    "llm_overall_score": 6,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "LLM says CLEAN - verify no subtle leakage missed"
+    ]
+  },
+  {
+    "order": 9,
+    "pmcid": "PMC11353976",
+    "title": "A Comparison of Interpretable Machine Learning Approaches to Identify Outpatient Clinical Phenotypes",
+    "journal": "Diagnostics (Basel)",
+    "year": 2024,
+    "github_url": "https://github.com/kayvanlabs/interpretable-ami-prediction",
+    "disease_area": "other",
+    "llm_code_flags": [],
+    "llm_overall_score": 10,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "LLM says CLEAN - verify no subtle leakage missed"
+    ]
+  },
+  {
+    "order": 10,
+    "pmcid": "PMC5217341",
+    "title": "Predicting potential drug-drug interactions by integrating chemical, biological, phenotypic and netw",
+    "journal": "BMC Bioinformatics",
+    "year": 2017,
+    "github_url": "https://github.com/zw9977129/drug-drug-interaction",
+    "disease_area": "other",
+    "llm_code_flags": [
+      "L1.3"
+    ],
+    "llm_overall_score": 4,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "Check: feature selection using full dataset?"
+    ]
+  },
+  {
+    "order": 11,
+    "pmcid": "PMC5705466",
+    "title": "Counting trees in Random Forests: Predicting symptom severity in psychiatric intake reports.",
+    "journal": "J Biomed Inform",
+    "year": 2017,
+    "github_url": "https://github.com/Elyne/rdocChallenge",
+    "disease_area": "other",
+    "llm_code_flags": [],
+    "llm_overall_score": 6,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "LLM says CLEAN - verify no subtle leakage missed"
+    ]
+  },
+  {
+    "order": 12,
+    "pmcid": "PMC11914717",
+    "title": "Interpretable predictive value of including HDL-2b and HDL-3 in an explainable boosting machine mode",
+    "journal": "Eur Heart J Digit Health",
+    "year": 2025,
+    "github_url": "https://github.com/tiaoguabi/HDL_multiclass",
+    "disease_area": "cardiovascular",
+    "llm_code_flags": [],
+    "llm_overall_score": 6,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "LLM says CLEAN - verify no subtle leakage missed"
+    ]
+  },
+  {
+    "order": 13,
+    "pmcid": "PMC7505424",
+    "title": "A new analytical framework for missing data imputation and classification with uncertainty: Missing ",
+    "journal": "PLoS One",
+    "year": 2020,
+    "github_url": "https://github.com/Jeffreylin0925/MIMIC-III_ICU_Readmission_Analysis",
+    "disease_area": "cardiovascular",
+    "llm_code_flags": [],
+    "llm_overall_score": 8,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "LLM says CLEAN - verify no subtle leakage missed"
+    ]
+  },
+  {
+    "order": 14,
+    "pmcid": "PMC10498209",
+    "title": "Development of machine learning models for predicting outcome in patients with distal medium vessel ",
+    "journal": "Quant Imaging Med Surg",
+    "year": 2023,
+    "github_url": "https://github.com/mertkarabacak/DMVO",
+    "disease_area": "other",
+    "llm_code_flags": [
+      "L1.2",
+      "L2"
+    ],
+    "llm_overall_score": 8,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "Check: preprocessing (scaling/imputation/encoding) fitted before train/test split?",
+      "Check: SMOTE/resampling on full data before split?"
+    ]
+  },
+  {
+    "order": 15,
+    "pmcid": "PMC8987080",
+    "title": "A hybrid feature extraction scheme for efficient malonylation site prediction.",
+    "journal": "Sci Rep",
+    "year": 2022,
+    "github_url": "https://github.com/jimy2020/Malonylation-site-prediction",
+    "disease_area": "other",
+    "llm_code_flags": [],
+    "llm_overall_score": 8,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "LLM says CLEAN - verify no subtle leakage missed"
+    ]
+  },
+  {
+    "order": 16,
+    "pmcid": "PMC10311312",
+    "title": "PPAD: a deep learning architecture to predict progression of Alzheimer's disease.",
+    "journal": "Bioinformatics",
+    "year": 2023,
+    "github_url": "https://github.com/bozdaglab/PPAD",
+    "disease_area": "neurology",
+    "llm_code_flags": [
+      "L1.2"
+    ],
+    "llm_overall_score": 10,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "Check: preprocessing (scaling/imputation/encoding) fitted before train/test split?"
+    ]
+  },
+  {
+    "order": 17,
+    "pmcid": "PMC11210792",
+    "title": "Explainable deep learning for disease activity prediction in chronic inflammatory joint diseases.",
+    "journal": "PLOS Digit Health",
+    "year": 2024,
+    "github_url": "https://github.com/uzh-dqbm-cmi/scqm",
+    "disease_area": "other",
+    "llm_code_flags": [],
+    "llm_overall_score": 8,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "LLM says CLEAN - verify no subtle leakage missed"
+    ]
+  },
+  {
+    "order": 18,
+    "pmcid": "PMC10105751",
+    "title": "Triclustering-based classification of longitudinal data for prognostic prediction: targeting relevan",
+    "journal": "Sci Rep",
+    "year": 2023,
+    "github_url": "https://github.com/dfmsoares/triclustering-based-classifier",
+    "disease_area": "other",
+    "llm_code_flags": [],
+    "llm_overall_score": 6,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "LLM says CLEAN - verify no subtle leakage missed"
+    ]
+  },
+  {
+    "order": 19,
+    "pmcid": "PMC8953968",
+    "title": "Explainable machine learning to predict long-term mortality in critically ill ventilated patients: a",
+    "journal": "BMC Med Inform Decis Mak",
+    "year": 2022,
+    "github_url": "https://github.com/GitTerrySu/Predict-long-term-mortality",
+    "disease_area": "other",
+    "llm_code_flags": [
+      "L1.2"
+    ],
+    "llm_overall_score": 8,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "Check: preprocessing (scaling/imputation/encoding) fitted before train/test split?"
+    ]
+  },
+  {
+    "order": 20,
+    "pmcid": "PMC10843556",
+    "title": "An AdaBoost-based algorithm to detect hospital-acquired pressure injury in the presence of conflicti",
+    "journal": "Comput Biol Med",
+    "year": 2024,
+    "github_url": "https://github.com/joyceho/medaboost",
+    "disease_area": "other",
+    "llm_code_flags": [],
+    "llm_overall_score": 8,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "LLM says CLEAN - verify no subtle leakage missed"
+    ]
+  },
+  {
+    "order": 21,
+    "pmcid": "PMC12663554",
+    "title": "Large language models versus classical machine learning performance in COVID-19 mortality prediction",
+    "journal": "Sci Rep",
+    "year": 2025,
+    "github_url": "https://github.com/mohammad-gh009/Large-Language-Models-vs-Classical-Machine-Learning",
+    "disease_area": "sepsis_icu",
+    "llm_code_flags": [
+      "L1.2",
+      "L1.3",
+      "L3.3"
+    ],
+    "llm_overall_score": 14,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "Check: preprocessing (scaling/imputation/encoding) fitted before train/test split?",
+      "Check: feature selection using full dataset?",
+      "Check: stratification/sampling bias in split?"
+    ]
+  },
+  {
+    "order": 22,
+    "pmcid": "PMC12738824",
+    "title": "Machine learning-based mortality prediction in critically ill patients with hypertension: comparativ",
+    "journal": "Front Artif Intell",
+    "year": 2025,
+    "github_url": "https://github.com/ShenghanZhang1123/hypertension_mortality_pred",
+    "disease_area": "cardiovascular",
+    "llm_code_flags": [
+      "L1.2"
+    ],
+    "llm_overall_score": 10,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "Check: preprocessing (scaling/imputation/encoding) fitted before train/test split?"
+    ]
+  },
+  {
+    "order": 23,
+    "pmcid": "PMC9504538",
+    "title": "Machine Learning Algorithm to Predict Obstructive Coronary Artery Disease: Insights from the CorLipi",
+    "journal": "Metabolites",
+    "year": 2022,
+    "github_url": "https://github.com/TheoLiapikos/Syntax_Score_prediction_model_for_CV_patients_using_XGBoost_Classifier",
+    "disease_area": "cardiovascular",
+    "llm_code_flags": [
+      "L1.1",
+      "L1.2",
+      "L1.3"
+    ],
+    "llm_overall_score": 8,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "Check: preprocessing (scaling/imputation/encoding) fitted before train/test split?",
+      "Check: is train/test split present at all?",
+      "Check: feature selection using full dataset?"
+    ]
+  },
+  {
+    "order": 24,
+    "pmcid": "PMC12695285",
+    "title": "Multimodal deep learning to predict postoperative major adverse cardiac and cerebrovascular events a",
+    "journal": "Int J Surg",
+    "year": 2025,
+    "github_url": "https://github.com/oskumd2/ECG_MACCE",
+    "disease_area": "cardiovascular",
+    "llm_code_flags": [],
+    "llm_overall_score": 14,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "LLM says CLEAN - verify no subtle leakage missed"
+    ]
+  },
+  {
+    "order": 25,
+    "pmcid": "PMC6054197",
+    "title": "A similarity-based approach to leverage multi-cohort medical data on the diagnosis and prognosis of ",
+    "journal": "Gigascience",
+    "year": 2018,
+    "github_url": "https://github.com/GuanLab/2014_AD_Sup",
+    "disease_area": "neurology",
+    "llm_code_flags": [
+      "L1.1",
+      "L1.3"
+    ],
+    "llm_overall_score": 4,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "Check: is train/test split present at all?",
+      "Check: feature selection using full dataset?"
+    ]
+  },
+  {
+    "order": 26,
+    "pmcid": "PMC7739461",
+    "title": "Hyperchloremia in critically ill patients: association with outcomes and prediction using electronic",
+    "journal": "BMC Med Inform Decis Mak",
+    "year": 2020,
+    "github_url": "https://github.com/chloride-management/chloride-management",
+    "disease_area": "other",
+    "llm_code_flags": [
+      "L3.2"
+    ],
+    "llm_overall_score": 17,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "Check: patient-level grouping missing (same patient in train+test)?"
+    ]
+  },
+  {
+    "order": 27,
+    "pmcid": "PMC7747558",
+    "title": "Dynamic survival prediction in intensive care units from heterogeneous time series without the need ",
+    "journal": "Sci Rep",
+    "year": 2020,
+    "github_url": "https://github.com/jacobdeasy/flexible-ehr",
+    "disease_area": "sepsis_icu",
+    "llm_code_flags": [
+      "L3.2"
+    ],
+    "llm_overall_score": 10,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "Check: patient-level grouping missing (same patient in train+test)?"
+    ]
+  },
+  {
+    "order": 28,
+    "pmcid": "PMC12321625",
+    "title": "Using machine learning and electronic health record (EHR) data for the early prediction of Alzheimer",
+    "journal": "J Prev Alzheimers Dis",
+    "year": 2025,
+    "github_url": "https://github.com/MU-Data-Science/JPAD-2025",
+    "disease_area": "neurology",
+    "llm_code_flags": [
+      "L1.2",
+      "L1.4",
+      "L3.2"
+    ],
+    "llm_overall_score": 10,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "Check: preprocessing (scaling/imputation/encoding) fitted before train/test split?",
+      "Check: patient-level grouping missing (same patient in train+test)?"
+    ]
+  },
+  {
+    "order": 29,
+    "pmcid": "PMC11355743",
+    "title": "Identification of Time-Series Pattern Marker in Its Application to Mortality Analysis of Pneumonia P",
+    "journal": "J Pers Med",
+    "year": 2024,
+    "github_url": "https://github.com/limeorange/MIMIC_Research",
+    "disease_area": "sepsis_icu",
+    "llm_code_flags": [
+      "L1.1",
+      "L1.3",
+      "L3.1"
+    ],
+    "llm_overall_score": 4,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "Check: is train/test split present at all?",
+      "Check: feature selection using full dataset?",
+      "Check: temporal data without time-aware split?"
+    ]
+  },
+  {
+    "order": 30,
+    "pmcid": "PMC5510858",
+    "title": "Predicting all-cause risk of 30-day hospital readmission using artificial neural networks.",
+    "journal": "PLoS One",
+    "year": 2017,
+    "github_url": "https://github.com/bayesimpact/readmission-risk",
+    "disease_area": "other",
+    "llm_code_flags": [],
+    "llm_overall_score": 10,
+    "llm_key_concerns": [],
+    "verification_focus": [
+      "LLM says CLEAN - verify no subtle leakage missed"
+    ]
+  }
+]

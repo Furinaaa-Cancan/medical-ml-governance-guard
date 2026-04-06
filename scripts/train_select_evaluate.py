@@ -875,13 +875,14 @@ def detect_categorical_features(
     """
     categorical: List[Dict[str, Any]] = []
     coercion_warnings: List[str] = []
+    high_cardinality_nominal: List[Dict[str, Any]] = []
     for feat in features:
         if feat not in X.columns:
             continue
         series = X[feat]
         nunique = int(series.nunique(dropna=True))
+        is_numeric = pd.api.types.is_numeric_dtype(series)
         if nunique <= max_cardinality:
-            is_numeric = pd.api.types.is_numeric_dtype(series)
             entry: Dict[str, Any] = {
                 "feature": feat,
                 "cardinality": nunique,
@@ -892,10 +893,21 @@ def detect_categorical_features(
             categorical.append(entry)
             if not is_numeric:
                 coercion_warnings.append(feat)
+        elif not is_numeric and nunique <= 100:
+            # High-cardinality non-numeric: likely nominal but too many for OneHot
+            high_cardinality_nominal.append({
+                "feature": feat,
+                "cardinality": nunique,
+                "warning": f"Nominal feature with {nunique} categories (>max_onehot={max_cardinality}). "
+                           f"Will be treated as numeric, which is WRONG for nominal data. "
+                           f"Consider: (1) group rare categories, (2) increase max_onehot_cardinality, "
+                           f"(3) use target encoding, (4) exclude this feature.",
+            })
     return {
         "categorical_count": len(categorical),
         "categorical_features": categorical,
         "coercion_warnings": coercion_warnings,
+        "high_cardinality_nominal": high_cardinality_nominal,
     }
 
 
@@ -1553,13 +1565,21 @@ def prepare_xy(df: pd.DataFrame, feature_cols: Sequence[str], target_col: str) -
     return X, y.astype(int)
 
 
-def build_imputer(imputation_strategy: str, seed: int) -> BaseEstimator:
+def build_imputer(
+    imputation_strategy: str,
+    seed: int,
+    native_missing_support: bool = False,
+) -> BaseEstimator:
     """Build an imputer estimator based on the resolved strategy.
 
     Args:
-        imputation_strategy: 'mice' for IterativeImputer, otherwise
-            SimpleImputer with median strategy and missing indicator.
+        imputation_strategy: 'mice' for IterativeImputer, 'passthrough' to
+            skip imputation (for models with native missing support),
+            otherwise SimpleImputer with median strategy and missing indicator.
         seed: Random seed for MICE.
+        native_missing_support: If True and strategy is not 'mice', use
+            SimpleImputer without add_indicator (tree models handle NaN
+            natively via XGBoost/LightGBM/HistGBM split direction).
 
     Returns:
         Configured imputer estimator.
@@ -1571,6 +1591,11 @@ def build_imputer(imputation_strategy: str, seed: int) -> BaseEstimator:
             initial_strategy="median",
             sample_posterior=False,
         )
+    if native_missing_support:
+        # Tree-based models (XGB, LGBM, HistGBM, CatBoost) handle NaN natively.
+        # Use SimpleImputer only as safety net (no add_indicator — the model
+        # already learns from missingness through its split mechanism).
+        return SimpleImputer(strategy="median", add_indicator=False)
     return SimpleImputer(strategy="median", add_indicator=True)
 
 
@@ -2260,7 +2285,15 @@ def _build_estimator_for_family(
         ValueError: If the family is unsupported.
         RuntimeError: If tabpfn backend is requested but not installed.
     """
-    imputer = build_imputer(imputation_strategy, seed)
+    # Tree-based models handle missing values natively via split direction.
+    # Don't add missing indicators for them (avoid redundant features).
+    _TREE_FAMILIES = {
+        "random_forest_balanced", "extra_trees_balanced",
+        "hist_gradient_boosting_l2", "adaboost",
+        "xgboost", "catboost", "lightgbm", "decision_tree",
+    }
+    native_missing = family in _TREE_FAMILIES
+    imputer = build_imputer(imputation_strategy, seed, native_missing_support=native_missing)
     if family == "logistic_l1":
         return Pipeline(
             steps=[

@@ -1,0 +1,272 @@
+{
+  "description": "Stratified sample for R3 human verification of LLM code audit accuracy",
+  "sampling": {
+    "method": "stratified random (seed=42)",
+    "n_positive": 15,
+    "n_negative": 15,
+    "total": 30
+  },
+  "papers": [
+    {
+      "pmcid": "PMC5709846",
+      "paper_id": "wh_2017_other",
+      "llm_verdict": "LEAKY",
+      "llm_code_flags": [
+        "L1.2"
+      ],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC10688642",
+      "paper_id": "f_2023_other_5",
+      "llm_verdict": "LEAKY",
+      "llm_code_flags": [
+        "L2",
+        "L3.2"
+      ],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC8929610",
+      "paper_id": "s_2022_sepsis_icu",
+      "llm_verdict": "CLEAN",
+      "llm_code_flags": [],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC9216294",
+      "paper_id": "i_2022_respiratory",
+      "llm_verdict": "CLEAN",
+      "llm_code_flags": [],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC9287325",
+      "paper_id": "j_2022_other",
+      "llm_verdict": "CLEAN",
+      "llm_code_flags": [],
+      "llm_methods_flags": [
+        "L1.2",
+        "L1.3"
+      ]
+    },
+    {
+      "pmcid": "PMC10513406",
+      "paper_id": "y_2023_other_2",
+      "llm_verdict": "LEAKY",
+      "llm_code_flags": [
+        "L1.2"
+      ],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC9825777",
+      "paper_id": "q_2023_other_2",
+      "llm_verdict": "CLEAN",
+      "llm_code_flags": [],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC12408017",
+      "paper_id": "af_2025_other",
+      "llm_verdict": "CLEAN",
+      "llm_code_flags": [],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC11353976",
+      "paper_id": "m_2024_other_3",
+      "llm_verdict": "CLEAN",
+      "llm_code_flags": [],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC5217341",
+      "paper_id": "w_2017_other",
+      "llm_verdict": "LEAKY",
+      "llm_code_flags": [
+        "L1.3"
+      ],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC5705466",
+      "paper_id": "e_2017_other_4",
+      "llm_verdict": "CLEAN",
+      "llm_code_flags": [],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC11914717",
+      "paper_id": "b_2025_cardiovascular",
+      "llm_verdict": "CLEAN",
+      "llm_code_flags": [],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC7505424",
+      "paper_id": "z_2020_cardiovascular",
+      "llm_verdict": "CLEAN",
+      "llm_code_flags": [],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC10498209",
+      "paper_id": "bb_2023_other",
+      "llm_verdict": "LEAKY",
+      "llm_code_flags": [
+        "L1.2",
+        "L2"
+      ],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC8987080",
+      "paper_id": "ag_2022_other",
+      "llm_verdict": "CLEAN",
+      "llm_code_flags": [],
+      "llm_methods_flags": [
+        "L1.2",
+        "L1.3"
+      ]
+    },
+    {
+      "pmcid": "PMC10311312",
+      "paper_id": "m_2023_neurology",
+      "llm_verdict": "LEAKY",
+      "llm_code_flags": [
+        "L1.2"
+      ],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC11210792",
+      "paper_id": "c_2024_other",
+      "llm_verdict": "CLEAN",
+      "llm_code_flags": [],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC10105751",
+      "paper_id": "df_2023_other",
+      "llm_verdict": "CLEAN",
+      "llm_code_flags": [],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC8953968",
+      "paper_id": "mc_2022_other",
+      "llm_verdict": "LEAKY",
+      "llm_code_flags": [
+        "L1.2"
+      ],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC10843556",
+      "paper_id": "jc_2024_other",
+      "llm_verdict": "CLEAN",
+      "llm_code_flags": [],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC12663554",
+      "paper_id": "m_2025_sepsis_icu_2",
+      "llm_verdict": "LEAKY",
+      "llm_code_flags": [
+        "L1.2",
+        "L1.3",
+        "L3.3"
+      ],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC12738824",
+      "paper_id": "s_2025_cardiovascular",
+      "llm_verdict": "LEAKY",
+      "llm_code_flags": [
+        "L1.2"
+      ],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC9504538",
+      "paper_id": "e_2022_cardiovascular",
+      "llm_verdict": "LEAKY",
+      "llm_code_flags": [
+        "L1.1",
+        "L1.2",
+        "L1.3"
+      ],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC12695285",
+      "paper_id": "hk_2025_cardiovascular",
+      "llm_verdict": "CLEAN",
+      "llm_code_flags": [],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC6054197",
+      "paper_id": "h_2018_neurology",
+      "llm_verdict": "LEAKY",
+      "llm_code_flags": [
+        "L1.1",
+        "L1.3"
+      ],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC7739461",
+      "paper_id": "p_2020_other",
+      "llm_verdict": "LEAKY",
+      "llm_code_flags": [
+        "L3.2"
+      ],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC7747558",
+      "paper_id": "j_2020_sepsis_icu",
+      "llm_verdict": "LEAKY",
+      "llm_code_flags": [
+        "L3.2"
+      ],
+      "llm_methods_flags": [
+        "L1.2"
+      ]
+    },
+    {
+      "pmcid": "PMC12321625",
+      "paper_id": "s_2025_neurology",
+      "llm_verdict": "LEAKY",
+      "llm_code_flags": [
+        "L1.2",
+        "L1.4",
+        "L3.2"
+      ],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC11355743",
+      "paper_id": "s_2024_sepsis_icu",
+      "llm_verdict": "LEAKY",
+      "llm_code_flags": [
+        "L1.1",
+        "L1.3",
+        "L3.1"
+      ],
+      "llm_methods_flags": []
+    },
+    {
+      "pmcid": "PMC5510858",
+      "paper_id": "m_2017_other_2",
+      "llm_verdict": "CLEAN",
+      "llm_code_flags": [],
+      "llm_methods_flags": [
+        "L1.3"
+      ]
+    }
+  ]
+}
