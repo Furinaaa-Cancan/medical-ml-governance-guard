@@ -918,6 +918,221 @@ def check_nonlinearity(
 
 
 # ---------------------------------------------------------------------------
+# Baseline Comparisons (Nature ML Checklist 4D)
+# ---------------------------------------------------------------------------
+
+def baseline_comparisons(
+    y_true: Any,
+    y_score: Any,
+    y_pred: Any,
+) -> Dict[str, Any]:
+    """Compare model performance against trivial baselines.
+
+    Baselines:
+      1. Prevalence model: always predicts base rate P(y=1)
+      2. Random classifier: coin flip at base rate
+      3. All-positive: predicts everyone as positive
+      4. All-negative: predicts everyone as negative
+
+    Returns dict with model metrics and each baseline's metrics,
+    plus improvement deltas.
+
+    Required by Nature Portfolio ML Checklist Item 4D.
+    """
+    import numpy as np
+    from sklearn.metrics import (
+        average_precision_score, brier_score_loss, roc_auc_score,
+    )
+
+    y_t = np.asarray(y_true, dtype=float)
+    y_s = np.asarray(y_score, dtype=float)
+    y_p = np.asarray(y_pred, dtype=float)
+    n = len(y_t)
+    prev = float(y_t.mean())
+
+    # Model performance
+    model = {
+        "auroc": round(float(roc_auc_score(y_t, y_s)), 4),
+        "auprc": round(float(average_precision_score(y_t, y_s)), 4),
+        "brier": round(float(brier_score_loss(y_t, y_s)), 4),
+    }
+
+    # Prevalence baseline: predict P(y=1) for everyone
+    prev_scores = np.full(n, prev)
+    prevalence_baseline = {
+        "auroc": 0.5,  # by definition
+        "auprc": round(prev, 4),  # AP = prevalence for constant predictions
+        "brier": round(float(brier_score_loss(y_t, prev_scores)), 4),
+    }
+
+    # All-positive
+    all_pos = {
+        "sensitivity": 1.0, "specificity": 0.0,
+        "ppv": round(prev, 4), "npv": None,
+    }
+
+    # All-negative
+    all_neg = {
+        "sensitivity": 0.0, "specificity": 1.0,
+        "ppv": None, "npv": round(1 - prev, 4),
+    }
+
+    # Improvements over prevalence baseline
+    improvement = {
+        "auroc_over_random": round(model["auroc"] - 0.5, 4),
+        "auprc_over_prevalence": round(model["auprc"] - prev, 4),
+        "brier_skill_score": round(
+            1 - model["brier"] / prevalence_baseline["brier"], 4
+        ) if prevalence_baseline["brier"] > 0 else None,
+    }
+
+    return {
+        "model": model,
+        "prevalence_baseline": prevalence_baseline,
+        "all_positive": all_pos,
+        "all_negative": all_neg,
+        "improvement_over_baseline": improvement,
+        "prevalence": round(prev, 4),
+    }
+
+
+# ---------------------------------------------------------------------------
+# Feature Ablation Study (Nature ML Checklist 4F)
+# ---------------------------------------------------------------------------
+
+def feature_ablation(
+    estimator: Any,
+    X_train: Any,
+    y_train: Any,
+    X_test: Any,
+    y_test: Any,
+    feature_names: list,
+    top_n: int = 10,
+    metric: str = "pr_auc",
+    seed: int = 42,
+) -> list:
+    """Ablation study: measure performance drop when removing top features.
+
+    For each of the top-N most important features (by permutation importance
+    or SHAP ranking), remove it and retrain, measuring the performance delta.
+
+    Args:
+        estimator: Fitted estimator to clone.
+        X_train, y_train, X_test, y_test: Data arrays.
+        feature_names: Column names matching X columns.
+        top_n: Number of features to ablate (default 10).
+        metric: Performance metric.
+        seed: Random seed.
+
+    Returns:
+        List of dicts with feature, score_without, score_full, delta.
+
+    Required by Nature Portfolio ML Checklist Item 4F.
+    """
+    import numpy as np
+    from sklearn.base import clone
+    from sklearn.metrics import average_precision_score, roc_auc_score
+
+    X_tr = np.asarray(X_train, dtype=float)
+    X_te = np.asarray(X_test, dtype=float)
+    y_tr = np.asarray(y_train, dtype=int)
+    y_te = np.asarray(y_test, dtype=int)
+
+    score_fn = average_precision_score if metric == "pr_auc" else roc_auc_score
+
+    # Full model score
+    try:
+        full_est = clone(estimator)
+        full_est.fit(X_tr, y_tr)
+        full_score = float(score_fn(y_te, full_est.predict_proba(X_te)[:, 1]))
+    except Exception:
+        return []
+
+    # Permutation importance to determine ablation order
+    rng = np.random.default_rng(seed)
+    importances = []
+    for j in range(min(len(feature_names), X_te.shape[1])):
+        X_perm = X_te.copy()
+        X_perm[:, j] = rng.permutation(X_perm[:, j])
+        try:
+            perm_score = float(score_fn(y_te, full_est.predict_proba(X_perm)[:, 1]))
+            importances.append((j, full_score - perm_score))
+        except Exception:
+            importances.append((j, 0.0))
+
+    # Sort by importance descending
+    importances.sort(key=lambda x: -x[1])
+
+    results = []
+    for rank, (j, imp) in enumerate(importances[:top_n]):
+        # Remove feature j and retrain
+        mask = np.ones(X_tr.shape[1], dtype=bool)
+        mask[j] = False
+        try:
+            abl_est = clone(estimator)
+            abl_est.fit(X_tr[:, mask], y_tr)
+            abl_score = float(score_fn(y_te, abl_est.predict_proba(X_te[:, mask])[:, 1]))
+        except Exception:
+            abl_score = None
+
+        results.append({
+            "rank": rank + 1,
+            "feature": feature_names[j] if j < len(feature_names) else f"feature_{j}",
+            "permutation_importance": round(imp, 4),
+            "score_full": round(full_score, 4),
+            "score_without": round(abl_score, 4) if abl_score is not None else None,
+            "delta": round(full_score - abl_score, 4) if abl_score is not None else None,
+        })
+
+    return results
+
+
+# ---------------------------------------------------------------------------
+# Computational Resource Tracking (Nature ML Checklist 5A/5B)
+# ---------------------------------------------------------------------------
+
+def compute_resource_report(
+    start_time: float,
+    end_time: float,
+    model_name: str = "",
+    n_train: int = 0,
+    n_features: int = 0,
+) -> Dict[str, Any]:
+    """Generate computational resource report.
+
+    Args:
+        start_time: time.time() at start.
+        end_time: time.time() at end.
+        model_name: Model identifier.
+        n_train: Training samples.
+        n_features: Feature count.
+
+    Returns:
+        Dict with wall_time, hardware info, and dataset size.
+
+    Required by Nature Portfolio ML Checklist Items 5A and 5B.
+    """
+    import platform
+    import os
+
+    wall_seconds = end_time - start_time
+
+    return {
+        "model": model_name,
+        "wall_time_seconds": round(wall_seconds, 2),
+        "wall_time_human": f"{int(wall_seconds // 60)}m {int(wall_seconds % 60)}s",
+        "n_train_samples": n_train,
+        "n_features": n_features,
+        "hardware": {
+            "platform": platform.platform(),
+            "processor": platform.processor() or "unknown",
+            "cpu_count": os.cpu_count(),
+            "python_version": platform.python_version(),
+        },
+    }
+
+
+# ---------------------------------------------------------------------------
 # Module 1: MNAR Sensitivity Analysis (δ-adjustment + tipping point)
 # Ref: PMC10481859 (2023), Cro 2020 (Stat Med)
 # ---------------------------------------------------------------------------
