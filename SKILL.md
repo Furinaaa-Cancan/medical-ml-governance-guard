@@ -1165,8 +1165,8 @@ Riley 2019 三准则（`riley_sample_size()` in `cohort_definition_gate.py`）�
 ### 编码（Phase 3）
 
 自动检测（`encode_categorical_features()`）：
-- Binary (2值) → 0/1 映射，OOD → 0.5 + `_ood` indicator 列
-- Categorical (3-15值) → OneHot，OOD → ��零行
+- Binary (2值) → 0/1 映射，OOD → 0.5 sentinel（中性值，不添加额外列）
+- Categorical (3-15值) → OneHot，OOD → 全零行
 - Numeric (>15值) → 保持原值
 
 ### 特征选择（Phase 4）
@@ -1179,11 +1179,11 @@ Validation PR-AUC 最优 + one-SE rule 破平局。不用 train-test gap。Boots
 
 ### 评估（Phase 6）
 
-5 域完整面板（`calibration_metrics()` + `metric_panel()` + `compute_nri_idi()` in `_gate_utils.py`）��
+5 域完整面板（`calibration_metrics()` + `metric_panel()` + `compute_nri_idi()` in `_gate_utils.py`）：
 - 区分度: AUROC, AUPRC
 - 校准: 截距(→0), 斜率(→1), O:E(→1), ECE, Hosmer-Lemeshow
 - 整体: Brier, Brier Skill Score (>0=优于基线)
-- ��类: MCC, LR+/LR-, Sensitivity, Specificity, PPV, NPV
+- 分类: MCC, LR+/LR-, Sensitivity, Specificity, PPV, NPV
 - 临床: DCA 净效用, NRI (categorical + continuous), IDI
 
 ### SHAP（Phase 7）
@@ -1191,14 +1191,14 @@ Validation PR-AUC 最优 + one-SE rule 破平局。不用 train-test gap。Boots
 多模型 SHAP（`shap_interpretability_gate.py`）：
 - 逐族计算 → L1 归一化为比例(sum=1) → 等权平均
 - TreeExplainer(RF/XGB/CatBoost/LGBM), LinearExplainer(LR), KernelExplainer(其他)
-- ���致性: Kendall tau + Top-N Jaccard
+- 一致性: Kendall tau + Top-N Jaccard
 - 输出: Table A(集成排名), B(逐模型明细), C(一致性), D(个案解释)
 
 ---
 
 ## Gate 失败恢复工作流
 
-当任何 gate 失败时，按以��步骤排查：
+当任何 gate 失败时，按以下步骤排查：
 
 ```
 1. 查看失败报告:
