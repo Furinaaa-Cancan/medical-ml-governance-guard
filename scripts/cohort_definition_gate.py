@@ -612,7 +612,7 @@ def _run_checks(
             {"features": zv[:10], "count": len(zv)},
         )
 
-    # Outlier features
+    # Outlier features (REPORT ONLY — never auto-delete)
     outliers = analysis.get("outlier_features", [])
     severe_outliers = [o for o in outliers if o["pct_outliers"] > 0.05]
     if severe_outliers:
@@ -620,7 +620,12 @@ def _run_checks(
             warnings_list, "COHORT_HIGH_MISSINGNESS",
             f"{len(severe_outliers)} features have >5%% extreme outliers (3×IQR): "
             f"{[o['feature'] for o in severe_outliers[:5]]}. "
-            f"Check for data entry errors or impossible values.",
+            f"⚠️ REPORT ONLY — outliers are NOT auto-removed. "
+            f"Extreme values may be clinically meaningful (e.g., ICU vital signs). "
+            f"Review each flagged feature and decide: "
+            f"(1) data entry error → correct or exclude the row; "
+            f"(2) clinically plausible extreme → keep as-is; "
+            f"(3) run robustness_stress_test() to check model sensitivity to outliers.",
             {"outlier_features": severe_outliers[:5]},
         )
 

@@ -1312,6 +1312,134 @@ def compute_resource_report(
 
 
 # ---------------------------------------------------------------------------
+# Robustness Stress Test (outlier, noise, dropout)
+# ---------------------------------------------------------------------------
+
+def robustness_stress_test(
+    estimator: Any,
+    X_train: Any,
+    y_train: Any,
+    X_test: Any,
+    y_test: Any,
+    metric: str = "pr_auc",
+    seed: int = 42,
+) -> Dict[str, Any]:
+    """Systematic robustness check: how stable is the model under perturbation?
+
+    Tests 4 types of perturbation on the TEST set:
+      1. Outlier injection: replace 5% of values with 3×IQR extremes
+      2. Gaussian noise: add N(0, 0.1×std) to all numeric features
+      3. Sample dropout: randomly drop 10% of test rows
+      4. Feature dropout: zero out one feature at a time (top-5 by importance)
+
+    All perturbations are applied to TEST DATA ONLY — training is untouched.
+    A robust model should show <5% relative performance drop.
+
+    Args:
+        estimator: Fitted sklearn estimator.
+        X_train, y_train: Training data (only for feature importance ordering).
+        X_test, y_test: Test data (perturbations applied here).
+        metric: Performance metric.
+        seed: Random seed.
+
+    Returns:
+        Dict with baseline_score, perturbation results, and robustness verdict.
+
+    Note:
+        This function NEVER modifies training data or removes outliers.
+        It only tests whether the model's predictions are sensitive to
+        data perturbations — the decision to act is the researcher's.
+    """
+    import numpy as np
+    from sklearn.metrics import average_precision_score, roc_auc_score
+
+    rng = np.random.default_rng(seed)
+    X_te = np.asarray(X_test, dtype=float)
+    y_te = np.asarray(y_test, dtype=int)
+    score_fn = average_precision_score if metric == "pr_auc" else roc_auc_score
+
+    # Baseline
+    try:
+        baseline = float(score_fn(y_te, estimator.predict_proba(X_te)[:, 1]))
+    except Exception:
+        return {"error": "baseline prediction failed"}
+
+    results = {"baseline": round(baseline, 4), "perturbations": []}
+
+    # 1. Outlier injection (5% of test values → 3×IQR extremes)
+    X_outlier = X_te.copy()
+    n_inject = max(1, int(X_te.size * 0.05))
+    flat_idx = rng.choice(X_te.size, n_inject, replace=False)
+    for idx in flat_idx:
+        r, c = divmod(idx, X_te.shape[1])
+        col_std = float(np.std(X_te[:, c]))
+        X_outlier.flat[idx] = float(np.mean(X_te[:, c])) + 3 * col_std * rng.choice([-1, 1])
+    try:
+        s = float(score_fn(y_te, estimator.predict_proba(X_outlier)[:, 1]))
+        results["perturbations"].append({
+            "type": "outlier_injection_5pct", "score": round(s, 4),
+            "delta": round(s - baseline, 4), "relative_drop_pct": round((baseline - s) / max(baseline, 1e-10) * 100, 2),
+        })
+    except Exception:
+        results["perturbations"].append({"type": "outlier_injection_5pct", "score": None})
+
+    # 2. Gaussian noise (0.1 × feature std)
+    X_noisy = X_te.copy()
+    for c in range(X_te.shape[1]):
+        noise = rng.normal(0, max(float(np.std(X_te[:, c])) * 0.1, 1e-6), X_te.shape[0])
+        X_noisy[:, c] += noise
+    try:
+        s = float(score_fn(y_te, estimator.predict_proba(X_noisy)[:, 1]))
+        results["perturbations"].append({
+            "type": "gaussian_noise_10pct_std", "score": round(s, 4),
+            "delta": round(s - baseline, 4), "relative_drop_pct": round((baseline - s) / max(baseline, 1e-10) * 100, 2),
+        })
+    except Exception:
+        results["perturbations"].append({"type": "gaussian_noise_10pct_std", "score": None})
+
+    # 3. Sample dropout (10% of test rows)
+    n_keep = max(10, int(X_te.shape[0] * 0.9))
+    keep_idx = rng.choice(X_te.shape[0], n_keep, replace=False)
+    try:
+        s = float(score_fn(y_te[keep_idx], estimator.predict_proba(X_te[keep_idx])[:, 1]))
+        results["perturbations"].append({
+            "type": "sample_dropout_10pct", "score": round(s, 4),
+            "delta": round(s - baseline, 4), "relative_drop_pct": round((baseline - s) / max(baseline, 1e-10) * 100, 2),
+        })
+    except Exception:
+        results["perturbations"].append({"type": "sample_dropout_10pct", "score": None})
+
+    # 4. Feature zeroing (zero out top-5 features by variance)
+    feat_var = np.var(X_te, axis=0)
+    top5 = np.argsort(-feat_var)[:min(5, X_te.shape[1])]
+    feat_zero_results = []
+    for fi in top5:
+        X_zero = X_te.copy()
+        X_zero[:, fi] = 0.0
+        try:
+            s = float(score_fn(y_te, estimator.predict_proba(X_zero)[:, 1]))
+            feat_zero_results.append({
+                "feature_index": int(fi), "score": round(s, 4),
+                "delta": round(s - baseline, 4),
+            })
+        except Exception:
+            pass
+    results["perturbations"].append({
+        "type": "feature_zeroing_top5", "per_feature": feat_zero_results,
+        "max_drop": round(min(f["delta"] for f in feat_zero_results), 4) if feat_zero_results else None,
+    })
+
+    # Verdict
+    drops = [p.get("relative_drop_pct", 0) for p in results["perturbations"] if isinstance(p.get("relative_drop_pct"), (int, float))]
+    max_drop = max(drops) if drops else 0
+    results["max_relative_drop_pct"] = round(max_drop, 2)
+    results["robust"] = max_drop < 5.0  # <5% relative drop = robust
+    results["verdict"] = "robust" if results["robust"] else "sensitive"
+
+    return results
+
+
+# ---------------------------------------------------------------------------
 # Module 1: MNAR Sensitivity Analysis (δ-adjustment + tipping point)
 # Ref: PMC10481859 (2023), Cro 2020 (Stat Med)
 # ---------------------------------------------------------------------------
