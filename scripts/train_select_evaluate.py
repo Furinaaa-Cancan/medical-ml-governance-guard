@@ -237,8 +237,8 @@ def parse_args() -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(description="Train/select/evaluate leakage-safe medical binary models.")
     parser.add_argument("--train", required=True, help="Path to train CSV.")
-    parser.add_argument("--valid", required=True, help="Path to valid CSV.")
-    parser.add_argument("--test", required=True, help="Path to test CSV.")
+    parser.add_argument("--valid", default="", help="Path to valid CSV (optional for two-way/CV-only split modes).")
+    parser.add_argument("--test", default="", help="Path to test CSV (optional for CV-only mode; uses bootstrap internal validation).")
     parser.add_argument("--target-col", default="y", help="Target column.")
     parser.add_argument("--patient-id-col", default="patient_id", help="Patient ID column used for trace hashing.")
     parser.add_argument("--ignore-cols", default="patient_id,event_time", help="Comma-separated non-feature columns.")
@@ -5275,8 +5275,14 @@ def main() -> int:
         raise SystemExit("--feature-group-spec is required when --feature-engineering-report-out is used.")
 
     train_df = load_split(args.train)
-    valid_df = load_split(args.valid)
-    test_df = load_split(args.test)
+    valid_df = load_split(args.valid) if args.valid and args.valid.strip() else pd.DataFrame()
+    test_df = load_split(args.test) if args.test and args.test.strip() else pd.DataFrame()
+
+    # Auto-select model selection mode based on available splits
+    if len(valid_df) == 0:
+        if str(args.selection_data).strip().lower() == "valid":
+            print("  [INFO] No validation split provided. Switching to --selection-data=cv_inner.")
+            args.selection_data = "cv_inner"
     ignore_cols = parse_ignore_cols(args.ignore_cols, args.target_col)
     base_feature_cols = select_feature_columns(train_df, ignore_cols)
     groups, forbidden_features = normalize_feature_groups(feature_group_spec)
@@ -5334,8 +5340,14 @@ def main() -> int:
         gc.collect()
 
     X_train, y_train = prepare_xy(train_df, selected_features, args.target_col)
-    X_valid, y_valid = prepare_xy(valid_df, selected_features, args.target_col)
-    X_test, y_test = prepare_xy(test_df, selected_features, args.target_col)
+    if len(valid_df) > 0:
+        X_valid, y_valid = prepare_xy(valid_df, selected_features, args.target_col)
+    else:
+        X_valid, y_valid = pd.DataFrame(), np.array([])
+    if len(test_df) > 0:
+        X_test, y_test = prepare_xy(test_df, selected_features, args.target_col)
+    else:
+        X_test, y_test = pd.DataFrame(), np.array([])
 
     # Auto-encode detected categorical features (fit on train only, MLGG-P05)
     if categorical_report.get("categorical_count", 0) > 0:
@@ -5379,7 +5391,7 @@ def main() -> int:
     )
     if args.external_cohort_spec and not external_cohorts:
         raise SystemExit("external_cohort_spec must provide at least one external cohort entry.")
-    if len(np.unique(y_valid)) < 2:
+    if len(y_valid) > 0 and len(np.unique(y_valid)) < 2:
         raise SystemExit("valid split must contain both classes for threshold/model selection.")
     imputation = resolve_imputation_plan(
         missingness_policy,

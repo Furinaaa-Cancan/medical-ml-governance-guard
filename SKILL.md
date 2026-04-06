@@ -1388,6 +1388,15 @@ n < 1000  → "小样本，考虑全量训练 + Nested CV 或 Bootstrap 内部�
 n < 200   → "⚠️ 样本量可能不足，优先考虑 Riley 样本量检查结果"
 ```
 
+**下游兼容性**：
+- 两分法 (valid_ratio=0)：`train_select_evaluate.py` 自动切换 `--selection-data=cv_inner`，用 5 折 CV 替代 valid 集做模型选择
+- CV-only (test_ratio=0)：Phase 6 评估使用 Bootstrap optimism correction 替代 test 集评估
+- `--valid` 和 `--test` 参数已改为可选（不再 required）
+
+**已知限制**：
+- StratifiedKFold 在时序数据内部会 shuffle（CV 性能估计对有时间趋势的特征可能过于乐观）
+- MIN_POSITIVE_PER_SPLIT=10 对罕见病 (<3% 患病率) 可能过严，可通过 `--min-rows-per-split` 调整
+
 ### 编码（Phase 3）
 
 自动检测（`encode_categorical_features()`）：
