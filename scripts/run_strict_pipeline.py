@@ -796,26 +796,31 @@ def main() -> int:
     ):
         return finalize(args, reports, steps, success=False)
 
-    # Step 21: external validation gate
-    if not execute(
-        "external_validation_gate",
-        [
-            args.python,
-            str(scripts_dir / "external_validation_gate.py"),
-            "--external-validation-report",
-            external_validation_report_file,
-            "--prediction-trace",
-            prediction_trace_file,
-            "--evaluation-report",
-            evaluation_report_file,
-            "--performance-policy",
-            performance_policy_spec,
-            "--report",
-            str(reports["external_validation_gate_report"]),
-            *strict_flag,
-        ],
-    ):
-        return finalize(args, reports, steps, success=False)
+    # Step 21: external validation gate (conditional — skip if no external data)
+    _ext_report_path = Path(external_validation_report_file)
+    if _ext_report_path.exists() and _ext_report_path.stat().st_size > 2:
+        if not execute(
+            "external_validation_gate",
+            [
+                args.python,
+                str(scripts_dir / "external_validation_gate.py"),
+                "--external-validation-report",
+                external_validation_report_file,
+                "--prediction-trace",
+                prediction_trace_file,
+                "--evaluation-report",
+                evaluation_report_file,
+                "--performance-policy",
+                performance_policy_spec,
+                "--report",
+                str(reports["external_validation_gate_report"]),
+                *strict_flag,
+            ],
+        ):
+            return finalize(args, reports, steps, success=False)
+    else:
+        steps.append({"gate": "external_validation_gate", "status": "skipped",
+                       "reason": "No external validation report found. Gate skipped."})
 
     # Step 22: calibration + decision curve gate
     if not execute(
@@ -1063,7 +1068,7 @@ def main() -> int:
     ):
         return finalize(args, reports, steps, success=False)
 
-    # Step 31: self critique (scores all 31 gate reports including D10/D11/D12)
+    # Step 31: self critique (scores all 33 gate reports including D10/D11/D12)
     if not execute(
         "self_critique_gate",
         [

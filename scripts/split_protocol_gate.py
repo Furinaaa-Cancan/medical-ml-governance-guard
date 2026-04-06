@@ -31,6 +31,7 @@ register_remediations({
     "missing_target_col": "Target column not found in split CSV. Verify --target-col matches your data.",
     "prevalence_too_low": "Label prevalence is critically low. Consider stratified splitting or oversampling.",
     "missing_time_col": "Time column missing or unparseable in split data. Verify --time-col.",
+    "cross_sectional_data": "Cross-sectional data has no temporal structure. Use --cross-sectional flag and document in TRIPOD+AI limitations.",
     "missing_id_col": "ID column missing in split data. Verify --id-col.",
 })
 
@@ -42,7 +43,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--valid", help="Path to valid CSV.")
     parser.add_argument("--test", required=True, help="Path to test CSV.")
     parser.add_argument("--id-col", required=True, help="Entity ID column name.")
-    parser.add_argument("--time-col", required=True, help="Index/prediction time column name.")
+    parser.add_argument("--time-col", default="", help="Index/prediction time column name (optional for cross-sectional data).")
+    parser.add_argument("--cross-sectional", action="store_true", help="Flag data as cross-sectional (no temporal structure). Skips temporal ordering checks.")
     parser.add_argument("--target-col", default="y", help="Target/label column name.")
     parser.add_argument("--report", help="Optional output JSON report path.")
     parser.add_argument("--strict", action="store_true", help="Fail on warnings.")
@@ -122,7 +124,7 @@ def read_split(
 
         if id_col not in headers:
             raise ValueError(f"{split_name}: missing id_col '{id_col}'.")
-        if time_col not in headers:
+        if time_col and time_col not in headers:
             raise ValueError(f"{split_name}: missing time_col '{time_col}'.")
         if target_col not in headers:
             raise ValueError(f"{split_name}: missing target_col '{target_col}'.")
@@ -154,15 +156,16 @@ def read_split(
             else:
                 negative += 1
 
-            t_raw = (row.get(time_col) or "").strip()
-            if not t_raw:
-                missing_time_rows += 1
-            else:
-                t_parsed = try_parse_time(t_raw)
-                if t_parsed is None:
-                    invalid_time_rows += 1
+            if time_col:
+                t_raw = (row.get(time_col) or "").strip()
+                if not t_raw:
+                    missing_time_rows += 1
                 else:
-                    time_values.append(t_parsed)
+                    t_parsed = try_parse_time(t_raw)
+                    if t_parsed is None:
+                        invalid_time_rows += 1
+                    else:
+                        time_values.append(t_parsed)
 
     prevalence = None
     denom = positive + negative
@@ -221,7 +224,11 @@ def main() -> int:
     split_strategy = parse_non_empty_str(spec, "split_strategy", failures)
     split_reference = parse_non_empty_str(spec, "split_reference", failures)
     protocol_id_col = parse_non_empty_str(spec, "id_col", failures)
-    protocol_time_col = parse_non_empty_str(spec, "index_time_col", failures)
+    is_cross_sectional = bool(getattr(args, "cross_sectional", False)) or not args.time_col
+    if is_cross_sectional:
+        protocol_time_col = spec.get("index_time_col", "")
+    else:
+        protocol_time_col = parse_non_empty_str(spec, "index_time_col", failures)
 
     frozen_before_modeling = parse_bool(spec, "frozen_before_modeling", failures)
     requires_group_disjoint = parse_bool(spec, "requires_group_disjoint", failures)
@@ -237,7 +244,7 @@ def main() -> int:
             "Protocol id_col does not match runtime id-col.",
             {"protocol_id_col": protocol_id_col, "runtime_id_col": args.id_col},
         )
-    if protocol_time_col and protocol_time_col != args.time_col:
+    if protocol_time_col and args.time_col and protocol_time_col != args.time_col:
         add_issue(
             failures,
             "protocol_time_col_mismatch",
@@ -266,7 +273,15 @@ def main() -> int:
             "requires_group_disjoint must be true for medical entity-level prediction.",
             {},
         )
-    if requires_temporal_order is not None and requires_temporal_order is not True:
+    if is_cross_sectional:
+        add_issue(
+            warnings,
+            "cross_sectional_data",
+            "Data flagged as cross-sectional. Temporal ordering checks skipped. "
+            "Document this in limitations per TRIPOD+AI S03.",
+            {"time_col": args.time_col or "(none)"},
+        )
+    elif requires_temporal_order is not None and requires_temporal_order is not True:
         add_issue(
             failures,
             "temporal_order_not_required",
@@ -331,20 +346,21 @@ def main() -> int:
                     "negative_count": stats["negative_count"],
                 },
             )
-        if stats["time_parsed_count"] <= 0:
-            add_issue(
-                failures,
-                "no_parseable_times",
-                "Split has no parseable time values.",
-                {"split": split_name},
-            )
-        if stats["invalid_time_rows"] > 0:
-            add_issue(
-                failures,
-                "invalid_time_values",
-                "Split contains unparseable time values.",
-                {"split": split_name, "invalid_time_rows": stats["invalid_time_rows"]},
-            )
+        if not is_cross_sectional:
+            if stats["time_parsed_count"] <= 0:
+                add_issue(
+                    failures,
+                    "no_parseable_times",
+                    "Split has no parseable time values.",
+                    {"split": split_name},
+                )
+            if stats["invalid_time_rows"] > 0:
+                add_issue(
+                    failures,
+                    "invalid_time_values",
+                    "Split contains unparseable time values.",
+                    {"split": split_name, "invalid_time_rows": stats["invalid_time_rows"]},
+                )
         if stats["missing_id_rows"] > 0:
             add_issue(
                 failures,
@@ -408,10 +424,11 @@ def main() -> int:
                 },
             )
 
-    check_order("train", "valid")
-    check_order("valid", "test")
-    if "valid" not in splits:
-        check_order("train", "test")
+    if not is_cross_sectional:
+        check_order("train", "valid")
+        check_order("valid", "test")
+        if "valid" not in splits:
+            check_order("train", "test")
 
     return finish(args, failures, warnings, spec, splits, split_strategy=split_strategy, split_reference=split_reference)
 

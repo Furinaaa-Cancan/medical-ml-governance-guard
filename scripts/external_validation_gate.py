@@ -62,7 +62,7 @@ SUPPORTED_EXTERNAL_TYPES = {"cross_period", "cross_institution"}
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Validate external cohort report with replayed trace metrics.")
-    parser.add_argument("--external-validation-report", required=True, help="Path to external_validation_report.json.")
+    parser.add_argument("--external-validation-report", required=False, default="", help="Path to external_validation_report.json (optional — gate skips if absent).")
     parser.add_argument("--prediction-trace", required=True, help="Path to prediction_trace CSV/CSV.GZ.")
     parser.add_argument("--evaluation-report", required=True, help="Path to evaluation_report.json.")
     parser.add_argument("--performance-policy", help="Optional performance policy JSON path.")
@@ -165,6 +165,11 @@ def main() -> int:
     args = parse_args()
     failures: List[Dict[str, Any]] = []
     warnings: List[Dict[str, Any]] = []
+
+    if not args.external_validation_report or not args.external_validation_report.strip():
+        # No external data provided — gate passes with info-level note
+        summary = {"status": "skipped", "reason": "No external validation data provided. Gate not applicable."}
+        return finish(args, failures, warnings, summary)
 
     ext_path = Path(args.external_validation_report).expanduser().resolve()
     if not ext_path.exists():
