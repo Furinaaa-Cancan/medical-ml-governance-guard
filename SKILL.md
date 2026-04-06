@@ -1393,8 +1393,13 @@ n < 200   → "⚠️ 样本量可能不足，优先考虑 Riley 样本量检查
 - CV-only (test_ratio=0)：Phase 6 评估使用 Bootstrap optimism correction 替代 test 集评估
 - `--valid` 和 `--test` 参数已改为可选（不再 required）
 
+**时序 CV**：
+- 纵向数据（grouped_temporal 划分）应使用 `--temporal-cv` flag
+- 此 flag 将 CV 从 StratifiedKFold(shuffle=True) 切换为 TimeSeriesSplit
+- 防止 CV 内 future-to-past 泄漏（Steyerberg 2019 Ch.5 推荐）
+- 横截面数据不需要此 flag
+
 **已知限制**：
-- StratifiedKFold 在时序数据内部会 shuffle（CV 性能估计对有时间趋势的特征可能过于乐观）
 - MIN_POSITIVE_PER_SPLIT=10 对罕见病 (<3% 患病率) 可能过严，可通过 `--min-rows-per-split` 调整
 
 ### 编码（Phase 3）

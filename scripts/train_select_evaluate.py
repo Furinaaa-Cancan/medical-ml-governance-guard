@@ -971,8 +971,8 @@ def encode_categorical_features(
         return result
 
     X_train = _apply_onehot(X_train)
-    X_valid = _apply_onehot(X_valid)
-    X_test = _apply_onehot(X_test)
+    X_valid = _apply_onehot(X_valid) if len(X_valid) > 0 else X_valid
+    X_test = _apply_onehot(X_test) if len(X_test) > 0 else X_test
 
     return X_train, X_valid, X_test, list(X_train.columns)
 
@@ -1630,6 +1630,7 @@ def _optuna_search_family(
     n_jobs: int,
     cv_splits: int,
     device: str = "cpu",
+    temporal_cv: bool = False,
 ) -> List[Dict[str, Any]]:
     """Run Optuna Bayesian search for a single model family.
 
@@ -1743,7 +1744,7 @@ def _optuna_search_family(
                 imputation_strategy=imputation_strategy,
                 class_weight=class_weight, n_jobs=n_jobs, device=device,
             )
-            mean_score, _, _, _ = cv_score_pr_auc(est, X_train, y_train, n_splits=cv_splits, seed=seed)
+            mean_score, _, _, _ = cv_score_pr_auc(est, X_train, y_train, n_splits=cv_splits, seed=seed, temporal_cv=temporal_cv)
             return float(mean_score)
         except Exception as exc:
             print(f"[WARN] optuna trial failed for {family}: {exc}", file=sys.stderr)
@@ -2571,6 +2572,7 @@ def build_candidates(
     class_weight: Optional[str],
     model_pool_config: Dict[str, Any],
     device: str = "cpu",
+    temporal_cv: bool = False,
 ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
     """Build the full candidate model pool for selection.
 
@@ -2667,6 +2669,7 @@ def build_candidates(
                 n_jobs=n_jobs,
                 cv_splits=optuna_cv_splits,
                 device=device,
+                temporal_cv=temporal_cv,
             )
             family_search_space[family] = {
                 "total_configurations": optuna_trials,
@@ -5521,6 +5524,7 @@ def main() -> int:
         class_weight=effective_class_weight,
         model_pool_config=model_pool_config,
         device=resolved_dev,
+        temporal_cv=bool(getattr(args, "temporal_cv", False)),
     )
     if len(candidates) < 3:
         raise SystemExit(
