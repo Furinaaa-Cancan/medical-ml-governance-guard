@@ -1,7 +1,7 @@
 {
   "contract_version": "peer_review_kb.v1",
-  "total_papers": 8,
-  "total_concerns": 67,
+  "total_papers": 13,
+  "total_concerns": 99,
   "entries": [
     {
       "id": "PR-001",
@@ -1697,6 +1697,864 @@
         "validation_cohort",
         "targeted_proteomics",
         "biological_relevance"
+      ]
+    },
+    {
+      "id": "PR-009",
+      "paper_doi": "10.1038/s41467-025-62121-1",
+      "paper_title": "Real-time prediction of intensive care unit patient acuity and therapy requirements using state-space modelling",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "domain": "critical_care",
+      "prediction_task": "ICU patient acuity and life-sustaining therapy prediction (4-hour horizon)",
+      "model_types": [
+        "mamba_ssm",
+        "transformer",
+        "catboost",
+        "gru"
+      ],
+      "data_type": "icu_time_series",
+      "sample_size": 100000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-009-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "model_selection",
+          "severity": "HIGH",
+          "mlgg_dimension": 4,
+          "mlgg_gates": [
+            "model_selection_audit_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-M03"
+          ],
+          "concern_text": "The motivation for using Mamba is not clear. There doesn't seem to be a significant difference between APRICOT-T (Transformer) and APRICOT-M (Mamba). CatBoost and GRU appear competitive on many tasks while requiring far less computational resources.",
+          "author_response": "We added computational cost comparison and showed Mamba advantages in longer sequences and inference speed.",
+          "resolved": true,
+          "tags": [
+            "model_justification",
+            "computational_cost",
+            "marginal_improvement",
+            "simpler_model_competitive"
+          ]
+        },
+        {
+          "concern_id": "PR-009-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "ci_matrix_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-E01"
+          ],
+          "concern_text": "Confidence intervals computed using bootstrapping provide uncertainty related to the data sample but not related to model parameters. Also, using time-to-event analysis rather than binary classification could avoid issues related to time window choice.",
+          "author_response": "We acknowledged this limitation and discussed model uncertainty vs data uncertainty. Time-to-event analysis added as supplementary comparison.",
+          "resolved": true,
+          "tags": [
+            "bootstrap_vs_model_uncertainty",
+            "time_to_event_vs_binary"
+          ]
+        },
+        {
+          "concern_id": "PR-009-C03",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "The abstract states the model 'was validated prospectively on data from 2021-2023' but Mamba was first introduced in 2023. It appears the model was 'retrospectively validated' on previously collected prospective data. Please clarify.",
+          "author_response": "We clarified that the prospective data collection preceded model development, and the model was applied retrospectively to this prospectively collected dataset.",
+          "resolved": true,
+          "tags": [
+            "prospective_vs_retrospective",
+            "temporal_terminology",
+            "misleading_claim"
+          ]
+        },
+        {
+          "concern_id": "PR-009-C04",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "One challenge with prediction of rare events is having low PPV. AUC tends to produce overly optimistic results. It would be insightful to repeat analysis in 50 patients from prospective cohort by at least three clinical adjudicators to determine clinical utility (were alerts timely, accurate, actionable?).",
+          "author_response": "We added clinician review of alerts in a subset of prospective patients with assessment of timeliness and actionability.",
+          "resolved": true,
+          "tags": [
+            "rare_event_ppv",
+            "auc_overoptimistic",
+            "clinician_adjudication",
+            "clinical_utility"
+          ]
+        },
+        {
+          "concern_id": "PR-009-C05",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "reporting",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Authors claim 'first SSM model application to clinical data' but there are multiple prior studies applying state-space models to clinical data (Yin 2021, Ghassemi 2017, Nemati 2013). Please explain how the proposed SSM differs from prior works.",
+          "author_response": "We corrected the novelty claim to 'first Mamba-based SSM application' and added comparison with prior SSM clinical works.",
+          "resolved": true,
+          "tags": [
+            "overclaimed_novelty",
+            "prior_work_missing",
+            "literature_review"
+          ]
+        },
+        {
+          "concern_id": "PR-009-C06",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reporting",
+          "severity": "LOW",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Results for the temporal cohort were relegated to supplementary material. An extra column for the temporal cohort would not take up much space in the main article.",
+          "author_response": "We moved temporal validation results to the main text.",
+          "resolved": true,
+          "tags": [
+            "temporal_validation_in_supplement",
+            "reporting_completeness"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-009-S01",
+          "reviewer": "Reviewer #1",
+          "text": "Major strength is that the model was validated on external, temporally shifted and prospectively collected data. Performed significantly better than the traditional SOFA score.",
+          "tags": [
+            "external_validation",
+            "temporal_validation",
+            "prospective_validation",
+            "beats_traditional"
+          ]
+        },
+        {
+          "strength_id": "PR-009-S02",
+          "reviewer": "Reviewer #2",
+          "text": "The curation and harmonization of such diverse datasets require tremendous efforts, and the authors should be applauded for their dedication.",
+          "tags": [
+            "data_harmonization",
+            "multi_dataset"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "model_justification",
+        "prospective_vs_retrospective",
+        "rare_event_ppv",
+        "overclaimed_novelty"
+      ],
+      "key_methodology_strengths": [
+        "multi_dataset_validation",
+        "temporal_validation",
+        "prospective_data",
+        "clinical_adjudication"
+      ]
+    },
+    {
+      "id": "PR-010",
+      "paper_doi": "10.1038/s41467-023-39474-6",
+      "paper_title": "Predicting in-hospital outcomes of patients with acute kidney injury",
+      "journal": "Nature Communications",
+      "year": 2023,
+      "domain": "nephrology",
+      "prediction_task": "In-hospital mortality and dialysis prediction in AKI patients (24h-7d)",
+      "model_types": [
+        "bidirectional_lstm",
+        "bilstm"
+      ],
+      "data_type": "ehr_time_series",
+      "sample_size": 62000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-010-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "data_leakage",
+          "severity": "CRITICAL",
+          "mlgg_dimension": 2,
+          "mlgg_gates": [
+            "leakage_gate",
+            "tuning_leakage_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-F02"
+          ],
+          "concern_text": "The use of a bidirectional RNN at any given point in time is using future data which would not be available for clinical decision. That is the point of a bidirectional RNN and the point of this criticism. Evaluation would be overly optimistic. This is a major flaw in the paper.",
+          "author_response": "We clarified that the bidirectional component operates within the historical data window only, not across the prediction boundary. Added unidirectional LSTM comparison.",
+          "resolved": true,
+          "tags": [
+            "temporal_leakage",
+            "bidirectional_rnn_leakage",
+            "future_data_used",
+            "critical_flaw"
+          ]
+        },
+        {
+          "concern_id": "PR-010-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "split_protocol",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "split_protocol_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-S02"
+          ],
+          "concern_text": "The use of data from 20 past years is problematic — medicine has taken a great leap forward. Using a temporally remote population to predict future patients may not work. Instead of randomly splitting, temporal partitioning would more accurately estimate deployment performance.",
+          "author_response": "We added temporal split analysis using recent years for testing and discussed limitations of using historical data.",
+          "resolved": true,
+          "tags": [
+            "temporal_split_missing",
+            "random_split_inappropriate",
+            "temporal_drift",
+            "20_year_span"
+          ]
+        },
+        {
+          "concern_id": "PR-010-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-E02"
+          ],
+          "concern_text": "AUROCs on the derivation set of 95% are expected. I cannot imagine why they report these results and claim good performance. I want to know the results on the test set properly designed as a reliable estimate of future performance.",
+          "author_response": "We reorganized results to lead with test set performance and de-emphasized training metrics.",
+          "resolved": true,
+          "tags": [
+            "training_metrics_overemphasized",
+            "test_set_underreported",
+            "overfitting_presentation"
+          ]
+        },
+        {
+          "concern_id": "PR-010-C04",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-E02"
+          ],
+          "concern_text": "They do not present precision-recall curves which some might consider better measures with severe class imbalance. Death rate is only 1.3% leaving marked class imbalance.",
+          "author_response": "We added precision-recall curves and AUPRC for all prediction tasks.",
+          "resolved": true,
+          "tags": [
+            "class_imbalance",
+            "missing_precision_recall",
+            "auprc_needed"
+          ]
+        },
+        {
+          "concern_id": "PR-010-C05",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reproducibility",
+          "severity": "HIGH",
+          "mlgg_dimension": 9,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "It is not clear how features were actually merged from 24-hour epochs. How were values combined — average, range, median, mean? It would not be possible to reproduce these models and test the results or apply them clinically.",
+          "author_response": "We added detailed feature engineering description with aggregation functions (mean, min, max, last) for each variable type.",
+          "resolved": true,
+          "tags": [
+            "feature_engineering_unclear",
+            "irreproducible_methods",
+            "aggregation_functions"
+          ]
+        },
+        {
+          "concern_id": "PR-010-C06",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reporting",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "On numerous occasions they say that identifying patients at risk will improve their outcome — that is a hope rather than a proven reality; they should avoid the hyperbole.",
+          "author_response": "We toned down claims about clinical outcome improvement and framed as potential benefit requiring prospective validation.",
+          "resolved": true,
+          "tags": [
+            "overstatement",
+            "unproven_clinical_benefit",
+            "hyperbole"
+          ]
+        },
+        {
+          "concern_id": "PR-010-C07",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reporting",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Results appearing in the discussion and methods appearing throughout. Comparators only show up in discussion where they don't belong. Paper presented in a somewhat jumbled fashion.",
+          "author_response": "We reorganized the manuscript to separate methods, results, and discussion clearly.",
+          "resolved": true,
+          "tags": [
+            "poor_manuscript_structure",
+            "results_in_discussion",
+            "methods_scattered"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-010-S01",
+          "reviewer": "Reviewer #1",
+          "text": "Respectable ML attempt using large amounts of retrospective data from three different hospitals, enhancing generalizability.",
+          "tags": [
+            "multicenter",
+            "large_population",
+            "generalizability"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "temporal_leakage",
+        "temporal_split_missing",
+        "training_metrics_overemphasized",
+        "irreproducible_methods"
+      ],
+      "key_methodology_strengths": [
+        "multicenter",
+        "large_population",
+        "multiple_prediction_horizons"
+      ]
+    },
+    {
+      "id": "PR-011",
+      "paper_doi": "10.1038/s41467-024-49390-y",
+      "paper_title": "Enhancing the diagnosis of functionally relevant coronary artery disease with machine learning",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "domain": "cardiovascular",
+      "prediction_task": "Functionally relevant CAD prediction from stress ECG + clinical variables",
+      "model_types": [
+        "logistic_regression",
+        "convolutional_neural_network",
+        "collaborative_model"
+      ],
+      "data_type": "ecg_time_series_plus_clinical",
+      "sample_size": 3522,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-011-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "AUROC of 0.71 for best-performing model is modest. The NPV of 0.89 at 15% threshold will be challenging for clinical practice, especially when the approach aims to reduce unnecessary testing. Authors should more clearly justify optimal thresholds.",
+          "author_response": "We added clinical impact analysis showing that even modest AUROC translates to meaningful reduction (15-17%) in unnecessary imaging referrals.",
+          "resolved": true,
+          "tags": [
+            "modest_performance",
+            "threshold_justification",
+            "clinical_impact_analysis"
+          ]
+        },
+        {
+          "concern_id": "PR-011-C02",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "study_design",
+          "severity": "CRITICAL",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Major concern: the primary outcome 'functionally relevant CAD' is a combination of two outcomes (myocardial ischemia by SPECT + obstructive CAD on cath) without clear delineation. Selective referral to angiography induces bias since clinical aspects used by the ML model also influence decisions to pursue angiography.",
+          "author_response": "We separated analyses by outcome type and added discussion of verification bias from selective referral patterns.",
+          "resolved": true,
+          "tags": [
+            "composite_outcome",
+            "verification_bias",
+            "selective_referral",
+            "outcome_definition"
+          ]
+        },
+        {
+          "concern_id": "PR-011-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "interpretability",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [
+            "shap_interpretability_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "ECG features in SHAP analysis are not adequately addressed. Are there aspects that identify ECG components of interest? Are there at least positive and negative examples that are meaningful? Summary statistics across positive and negative studies would make assessment more objective.",
+          "author_response": "We expanded SHAP analysis with ECG-specific feature interpretation, positive/negative examples, and aggregate statistics.",
+          "resolved": true,
+          "tags": [
+            "shap_interpretation_shallow",
+            "ecg_feature_meaning",
+            "positive_negative_examples"
+          ]
+        },
+        {
+          "concern_id": "PR-011-C04",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reporting",
+          "severity": "HIGH",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "The data sources in both internal and external validation require more details. What were the clinical settings? Were patients consecutive? Why were patients dropped for 1 missing observation? How many were dropped?",
+          "author_response": "We added detailed data source descriptions, patient flow diagrams, and missing data handling documentation.",
+          "resolved": true,
+          "tags": [
+            "data_source_details_missing",
+            "patient_flow",
+            "missing_data_handling",
+            "consecutive_enrollment"
+          ]
+        },
+        {
+          "concern_id": "PR-011-C05",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reporting",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "The collaborative model, touted as most successful, is unclear. How is post-test judgment quantified? How is it combined numerically?",
+          "author_response": "We added detailed description of the logistic regression combining ML scores and cardiologist post-test probability.",
+          "resolved": true,
+          "tags": [
+            "model_description_unclear",
+            "human_ai_collaboration",
+            "integration_method"
+          ]
+        },
+        {
+          "concern_id": "PR-011-C06",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "LOW",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [
+            "MLGG-E02"
+          ],
+          "concern_text": "In Fig. 2, Sensitivity and Precision were shown. It is good idea to present Specificity, Recall, Accuracy and F1 score as well.",
+          "author_response": "We added complete metric panel including specificity, recall, accuracy, and F1.",
+          "resolved": true,
+          "tags": [
+            "incomplete_metrics",
+            "full_metric_panel"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-011-S01",
+          "reviewer": "Reviewer #2",
+          "text": "The paper provides a good framework of how to complement cardiologist by using this ML framework. The dataset (3522 patients) with cardiologist validation is an important feature.",
+          "tags": [
+            "human_ai_collaboration",
+            "cardiologist_validated"
+          ]
+        },
+        {
+          "strength_id": "PR-011-S02",
+          "reviewer": "Reviewer #3",
+          "text": "Comprehensive study including model development and external testing. The most novel aspect is automatic incorporation of stress ECG data.",
+          "tags": [
+            "external_validation",
+            "novel_ecg_integration"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "composite_outcome",
+        "verification_bias",
+        "modest_performance",
+        "data_source_details_missing"
+      ],
+      "key_methodology_strengths": [
+        "human_ai_collaboration",
+        "external_validation",
+        "clinical_impact_analysis"
+      ]
+    },
+    {
+      "id": "PR-012",
+      "paper_doi": "10.1038/s41467-022-28621-0",
+      "paper_title": "Stratification of hospitalised COVID-19 patients into clinical severity progression groups by immuno-phenotyping and machine learning",
+      "journal": "Nature Communications",
+      "year": 2022,
+      "domain": "infectious_disease",
+      "prediction_task": "COVID-19 clinical severity progression prediction from immunophenotyping",
+      "model_types": [
+        "random_forest",
+        "unsupervised_clustering"
+      ],
+      "data_type": "immunological_biomarkers",
+      "sample_size": 155,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-012-C01",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "There seems to be arbitrary reasoning for defining different immunophenotypes. Based on antibody/cytokine profile, first 3 patients in EXI group should be classified as LAI. This becomes even more subjective for the Barcelona validation cohort. Individuals should be accurately grouped and data reanalyzed.",
+          "author_response": "We provided detailed cluster assignment justification with sensitivity analysis showing robustness to boundary cases.",
+          "resolved": true,
+          "tags": [
+            "arbitrary_clustering",
+            "cluster_boundary",
+            "sensitivity_analysis"
+          ]
+        },
+        {
+          "concern_id": "PR-012-C02",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Healthy individuals are not the appropriate controls for COVID-19. Please include age-matched hospitalized patients with phenotypically similar disease states to identify differences unique to SARS-CoV-2 infection.",
+          "author_response": "We acknowledged this limitation and discussed the difficulty of obtaining appropriate disease-matched controls during the pandemic.",
+          "resolved": true,
+          "tags": [
+            "inappropriate_controls",
+            "disease_matched_controls",
+            "pandemic_limitation"
+          ]
+        },
+        {
+          "concern_id": "PR-012-C03",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Significant difference in gender between the 3 immunophenotypes — more males in EXI and LAI. Whole data could be explained by higher propensity of males for proinflammatory cytokines. Statistical analysis should be reanalyzed normalizing for age, gender, and DFSO using multivariate analysis.",
+          "author_response": "We added multivariate analysis adjusting for age, gender, and DFSO. Immunophenotype effects remained significant after adjustment.",
+          "resolved": true,
+          "tags": [
+            "confounding_by_gender",
+            "multivariate_adjustment",
+            "demographic_imbalance"
+          ]
+        },
+        {
+          "concern_id": "PR-012-C04",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Lot of overlap in the data and significance is driven by few outliers especially in EXI group. May be just driven by these few outliers in EXI/LAI compared with BRI.",
+          "author_response": "We performed robust analysis excluding outliers and showed consistent findings.",
+          "resolved": true,
+          "tags": [
+            "outlier_driven_results",
+            "robustness_to_outliers"
+          ]
+        },
+        {
+          "concern_id": "PR-012-C05",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "IL-6, IL-8 and IL-10 are main markers of disease severity and their levels can easily explain disease outcome among immunotypes. So that brings into question the rationale of the whole study.",
+          "author_response": "We showed that immunophenotyping provides additional prognostic value beyond these individual cytokines through interaction effects.",
+          "resolved": true,
+          "tags": [
+            "incremental_value_questioned",
+            "known_biomarkers_sufficient",
+            "rationale_challenged"
+          ]
+        },
+        {
+          "concern_id": "PR-012-C06",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "clinical_utility",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Authors conclude this immunophenotyping can be applied rapidly in clinic. It's unclear how this extensive analysis can be practically applied where the patient deteriorates in days — during pandemic with shortage of resources, this approach is impractical.",
+          "author_response": "We toned down clinical implementation claims and discussed this as a research framework rather than a point-of-care tool.",
+          "resolved": true,
+          "tags": [
+            "clinical_implementation_impractical",
+            "overstatement",
+            "feasibility"
+          ]
+        },
+        {
+          "concern_id": "PR-012-C07",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "sample_size",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 12,
+          "mlgg_gates": [
+            "sample_size_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "The sample sizes are relatively small (primary cohort ~100 patients). Authors have used sensitivity analysis for accuracy vs test size which is good, but inherent limitations remain.",
+          "author_response": "We acknowledged sample size limitation and showed consistent results in the validation cohort.",
+          "resolved": true,
+          "tags": [
+            "small_sample",
+            "sensitivity_analysis_for_size"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-012-S01",
+          "reviewer": "Reviewer #1",
+          "text": "This is a solid manuscript. A great example of how machine learning can be used to provide insights into phenotypes of diseases. Thorough and robust sensitivity analysis for accuracy vs test size increases confidence.",
+          "tags": [
+            "phenotype_discovery",
+            "sensitivity_analysis",
+            "solid_methodology"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "confounding_by_gender",
+        "inappropriate_controls",
+        "incremental_value_questioned",
+        "clinical_implementation_impractical"
+      ],
+      "key_methodology_strengths": [
+        "phenotype_discovery",
+        "cross_cohort_validation",
+        "sensitivity_analysis"
+      ]
+    },
+    {
+      "id": "PR-013",
+      "paper_doi": "10.1038/s41467-023-40917-3",
+      "paper_title": "At-home wearables and machine learning sensitively capture disease progression in amyotrophic lateral sclerosis",
+      "journal": "Nature Communications",
+      "year": 2023,
+      "domain": "neurology",
+      "prediction_task": "ALS disease progression tracking and severity prediction from wearable accelerometers",
+      "model_types": [
+        "logistic_regression",
+        "pairwise_comparison_model"
+      ],
+      "data_type": "wearable_accelerometer_longitudinal",
+      "sample_size": 376,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-013-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "The authors focus on rate of change, but variability in rates between patients plays a significant role. These two factors determine 'sensitivity' of a longitudinal marker (signal to noise). Could the authors provide insight into variability between patients relative to the average rate of decline?",
+          "author_response": "We added between-patient variability analysis showing coefficient of variation for each feature's rate of change.",
+          "resolved": true,
+          "tags": [
+            "signal_to_noise",
+            "between_patient_variability",
+            "longitudinal_sensitivity"
+          ]
+        },
+        {
+          "concern_id": "PR-013-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reporting",
+          "severity": "HIGH",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "The monitoring protocol is quite extensive with 4 accelerometers per patient. Could the authors provide insight into adherence? How many patients managed to complete the 7-day wear-time period? Metrics of patient burden and retention would be insightful.",
+          "author_response": "We added adherence statistics showing completion rates, dropout reasons, and wear-time compliance by visit.",
+          "resolved": true,
+          "tags": [
+            "adherence_unreported",
+            "feasibility",
+            "patient_burden",
+            "dropout"
+          ]
+        },
+        {
+          "concern_id": "PR-013-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reproducibility",
+          "severity": "HIGH",
+          "mlgg_dimension": 9,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "From the methods it is unclear how the rate of decline was calculated. There are no longitudinal models reported. It looks like per-patient regression was fitted and slope extracted, but this information is not provided — the statistical analysis cannot be replicated.",
+          "author_response": "We added detailed description of per-patient linear mixed-effects models used to estimate rates of decline.",
+          "resolved": true,
+          "tags": [
+            "methods_irreproducible",
+            "statistical_model_missing",
+            "rate_calculation_unclear"
+          ]
+        },
+        {
+          "concern_id": "PR-013-C04",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "The ICC is based on 'first half vs second half of days'. This likely gives a systematic difference as patients may be more active in the first half due to fatigue. Day 1 vs Day 2 comparison would be more accurate.",
+          "author_response": "We added day-by-day ICC analysis as supplementary comparison.",
+          "resolved": true,
+          "tags": [
+            "reliability_method",
+            "icc_calculation",
+            "systematic_bias"
+          ]
+        },
+        {
+          "concern_id": "PR-013-C05",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Using 'the limb with the fastest progression rate' has complexities. This can be done after data collection, but for clinical trials outcomes must be prespecified — this could result in increased type 1 error.",
+          "author_response": "We discussed this limitation for clinical trial application and suggested prespecifying the primary limb based on initial assessment.",
+          "resolved": true,
+          "tags": [
+            "post_hoc_outcome_selection",
+            "type1_error",
+            "clinical_trial_prespecification"
+          ]
+        },
+        {
+          "concern_id": "PR-013-C06",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reporting",
+          "severity": "LOW",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "The pairwise comparison model description is lacking clarity. The formula and outcome encoding need clearer explanation for the less statistical reader.",
+          "author_response": "We rewrote the pairwise model description with step-by-step worked example.",
+          "resolved": true,
+          "tags": [
+            "model_description_unclear",
+            "accessibility"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-013-S01",
+          "reviewer": "Reviewer #1",
+          "text": "The 'pairwise model' approach, disregarding the clinical outcome and using only longitudinal wearable data, is a major strength — an imperfect prediction of the ALSFRS-R is actually desired as one wants to improve on what it measures.",
+          "tags": [
+            "novel_methodology",
+            "beyond_gold_standard",
+            "longitudinal_design"
+          ]
+        },
+        {
+          "strength_id": "PR-013-S02",
+          "reviewer": "Reviewer #2",
+          "text": "Phenomenal study and manuscript. Study protocol is robust and well-executed, data analysis is novel for the clinical field. This will be extremely valuable to the field going forward.",
+          "tags": [
+            "exceptional_quality",
+            "robust_protocol",
+            "novel_analysis"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_minor_revision",
+      "key_methodology_issues": [
+        "methods_irreproducible",
+        "adherence_unreported",
+        "post_hoc_outcome_selection"
+      ],
+      "key_methodology_strengths": [
+        "large_longitudinal",
+        "novel_methodology",
+        "beyond_gold_standard",
+        "robust_protocol"
       ]
     }
   ]

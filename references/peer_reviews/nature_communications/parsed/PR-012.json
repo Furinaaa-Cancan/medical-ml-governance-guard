@@ -1,0 +1,127 @@
+{
+  "id": "PR-012",
+  "paper_doi": "10.1038/s41467-022-28621-0",
+  "paper_title": "Stratification of hospitalised COVID-19 patients into clinical severity progression groups by immuno-phenotyping and machine learning",
+  "journal": "Nature Communications",
+  "year": 2022,
+  "domain": "infectious_disease",
+  "prediction_task": "COVID-19 clinical severity progression prediction from immunophenotyping",
+  "model_types": ["random_forest", "unsupervised_clustering"],
+  "data_type": "immunological_biomarkers",
+  "sample_size": 155,
+  "review_rounds": 2,
+
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-012-C01",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "study_design",
+      "severity": "HIGH",
+      "mlgg_dimension": 1,
+      "mlgg_gates": ["cohort_definition_gate"],
+      "mlgg_rules": [],
+      "concern_text": "There seems to be arbitrary reasoning for defining different immunophenotypes. Based on antibody/cytokine profile, first 3 patients in EXI group should be classified as LAI. This becomes even more subjective for the Barcelona validation cohort. Individuals should be accurately grouped and data reanalyzed.",
+      "author_response": "We provided detailed cluster assignment justification with sensitivity analysis showing robustness to boundary cases.",
+      "resolved": true,
+      "tags": ["arbitrary_clustering", "cluster_boundary", "sensitivity_analysis"]
+    },
+    {
+      "concern_id": "PR-012-C02",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "study_design",
+      "severity": "HIGH",
+      "mlgg_dimension": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "Healthy individuals are not the appropriate controls for COVID-19. Please include age-matched hospitalized patients with phenotypically similar disease states to identify differences unique to SARS-CoV-2 infection.",
+      "author_response": "We acknowledged this limitation and discussed the difficulty of obtaining appropriate disease-matched controls during the pandemic.",
+      "resolved": true,
+      "tags": ["inappropriate_controls", "disease_matched_controls", "pandemic_limitation"]
+    },
+    {
+      "concern_id": "PR-012-C03",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "study_design",
+      "severity": "HIGH",
+      "mlgg_dimension": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "Significant difference in gender between the 3 immunophenotypes — more males in EXI and LAI. Whole data could be explained by higher propensity of males for proinflammatory cytokines. Statistical analysis should be reanalyzed normalizing for age, gender, and DFSO using multivariate analysis.",
+      "author_response": "We added multivariate analysis adjusting for age, gender, and DFSO. Immunophenotype effects remained significant after adjustment.",
+      "resolved": true,
+      "tags": ["confounding_by_gender", "multivariate_adjustment", "demographic_imbalance"]
+    },
+    {
+      "concern_id": "PR-012-C04",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "Lot of overlap in the data and significance is driven by few outliers especially in EXI group. May be just driven by these few outliers in EXI/LAI compared with BRI.",
+      "author_response": "We performed robust analysis excluding outliers and showed consistent findings.",
+      "resolved": true,
+      "tags": ["outlier_driven_results", "robustness_to_outliers"]
+    },
+    {
+      "concern_id": "PR-012-C05",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "study_design",
+      "severity": "HIGH",
+      "mlgg_dimension": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "IL-6, IL-8 and IL-10 are main markers of disease severity and their levels can easily explain disease outcome among immunotypes. So that brings into question the rationale of the whole study.",
+      "author_response": "We showed that immunophenotyping provides additional prognostic value beyond these individual cytokines through interaction effects.",
+      "resolved": true,
+      "tags": ["incremental_value_questioned", "known_biomarkers_sufficient", "rationale_challenged"]
+    },
+    {
+      "concern_id": "PR-012-C06",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "clinical_utility",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 7,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "Authors conclude this immunophenotyping can be applied rapidly in clinic. It's unclear how this extensive analysis can be practically applied where the patient deteriorates in days — during pandemic with shortage of resources, this approach is impractical.",
+      "author_response": "We toned down clinical implementation claims and discussed this as a research framework rather than a point-of-care tool.",
+      "resolved": true,
+      "tags": ["clinical_implementation_impractical", "overstatement", "feasibility"]
+    },
+    {
+      "concern_id": "PR-012-C07",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "sample_size",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 12,
+      "mlgg_gates": ["sample_size_gate"],
+      "mlgg_rules": [],
+      "concern_text": "The sample sizes are relatively small (primary cohort ~100 patients). Authors have used sensitivity analysis for accuracy vs test size which is good, but inherent limitations remain.",
+      "author_response": "We acknowledged sample size limitation and showed consistent results in the validation cohort.",
+      "resolved": true,
+      "tags": ["small_sample", "sensitivity_analysis_for_size"]
+    }
+  ],
+
+  "reviewer_strengths": [
+    {
+      "strength_id": "PR-012-S01",
+      "reviewer": "Reviewer #1",
+      "text": "This is a solid manuscript. A great example of how machine learning can be used to provide insights into phenotypes of diseases. Thorough and robust sensitivity analysis for accuracy vs test size increases confidence.",
+      "tags": ["phenotype_discovery", "sensitivity_analysis", "solid_methodology"]
+    }
+  ],
+
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["confounding_by_gender", "inappropriate_controls", "incremental_value_questioned", "clinical_implementation_impractical"],
+  "key_methodology_strengths": ["phenotype_discovery", "cross_cohort_validation", "sensitivity_analysis"]
+}

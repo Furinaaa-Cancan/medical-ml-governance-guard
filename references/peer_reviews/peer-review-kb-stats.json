@@ -1,47 +1,55 @@
 {
-  "total_papers": 8,
-  "total_concerns": 67,
-  "total_strengths": 11,
+  "total_papers": 13,
+  "total_concerns": 99,
+  "total_strengths": 19,
   "concerns_by_category": {
-    "study_design": 15,
-    "evaluation_metrics": 15,
+    "evaluation_metrics": 25,
+    "study_design": 21,
+    "reporting": 15,
     "preprocessing": 7,
-    "reporting": 7,
-    "interpretability": 6,
+    "interpretability": 7,
+    "reproducibility": 6,
     "external_validation": 5,
-    "reproducibility": 4,
-    "clinical_utility": 3,
-    "model_selection": 2,
-    "split_protocol": 1,
-    "data_leakage": 1,
-    "sample_size": 1
+    "clinical_utility": 4,
+    "model_selection": 3,
+    "split_protocol": 2,
+    "data_leakage": 2,
+    "sample_size": 2
   },
   "concerns_by_severity": {
-    "HIGH": 31,
-    "MEDIUM": 26,
-    "CRITICAL": 7,
-    "LOW": 3
+    "HIGH": 45,
+    "MEDIUM": 39,
+    "CRITICAL": 9,
+    "LOW": 6
   },
   "concerns_by_dimension": {
-    "1": 16,
-    "2": 1,
+    "1": 23,
+    "2": 2,
     "3": 7,
-    "4": 3,
-    "5": 14,
+    "4": 4,
+    "5": 24,
     "6": 5,
-    "7": 10,
-    "8": 6,
-    "9": 4,
-    "12": 1
+    "7": 12,
+    "8": 14,
+    "9": 6,
+    "12": 2
   },
   "top_30_tags": [
+    {
+      "tag": "outcome_definition",
+      "count": 5
+    },
     {
       "tag": "reproducibility",
       "count": 5
     },
     {
-      "tag": "outcome_definition",
+      "tag": "overstatement",
       "count": 4
+    },
+    {
+      "tag": "incomplete_metrics",
+      "count": 3
     },
     {
       "tag": "missing_calibration",
@@ -64,7 +72,11 @@
       "count": 2
     },
     {
-      "tag": "incomplete_metrics",
+      "tag": "class_imbalance",
+      "count": 2
+    },
+    {
+      "tag": "missing_precision_recall",
       "count": 2
     },
     {
@@ -80,6 +92,10 @@
       "count": 2
     },
     {
+      "tag": "marginal_improvement",
+      "count": 2
+    },
+    {
       "tag": "incremental_value",
       "count": 2
     },
@@ -88,11 +104,23 @@
       "count": 2
     },
     {
-      "tag": "overstatement",
+      "tag": "reporting_completeness",
+      "count": 2
+    },
+    {
+      "tag": "sensitivity_analysis",
       "count": 2
     },
     {
       "tag": "missing_confounder",
+      "count": 2
+    },
+    {
+      "tag": "model_description_unclear",
+      "count": 2
+    },
+    {
+      "tag": "feasibility",
       "count": 2
     },
     {
@@ -126,44 +154,21 @@
     {
       "tag": "multicollinearity",
       "count": 1
-    },
-    {
-      "tag": "correlated_features",
-      "count": 1
-    },
-    {
-      "tag": "control_matching",
-      "count": 1
-    },
-    {
-      "tag": "case_contamination",
-      "count": 1
-    },
-    {
-      "tag": "cohort_definition",
-      "count": 1
-    },
-    {
-      "tag": "no_external_validation",
-      "count": 1
-    },
-    {
-      "tag": "internal_split_only",
-      "count": 1
-    },
-    {
-      "tag": "same_cohort_validation",
-      "count": 1
     }
   ],
   "resolution_rate": 1.0,
   "papers_by_domain": {
-    "infectious_disease": 3,
+    "infectious_disease": 4,
     "oncology": 3,
     "musculoskeletal": 1,
-    "ehr_clinical": 1
+    "ehr_clinical": 1,
+    "critical_care": 1,
+    "nephrology": 1,
+    "cardiovascular": 1,
+    "neurology": 1
   },
   "papers_by_outcome": {
-    "accepted_after_major_revision": 8
+    "accepted_after_major_revision": 12,
+    "accepted_after_minor_revision": 1
   }
 }

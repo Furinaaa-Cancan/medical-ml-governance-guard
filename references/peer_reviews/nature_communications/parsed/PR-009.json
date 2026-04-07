@@ -1,0 +1,119 @@
+{
+  "id": "PR-009",
+  "paper_doi": "10.1038/s41467-025-62121-1",
+  "paper_title": "Real-time prediction of intensive care unit patient acuity and therapy requirements using state-space modelling",
+  "journal": "Nature Communications",
+  "year": 2025,
+  "domain": "critical_care",
+  "prediction_task": "ICU patient acuity and life-sustaining therapy prediction (4-hour horizon)",
+  "model_types": ["mamba_ssm", "transformer", "catboost", "gru"],
+  "data_type": "icu_time_series",
+  "sample_size": 100000,
+  "review_rounds": 2,
+
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-009-C01",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "model_selection",
+      "severity": "HIGH",
+      "mlgg_dimension": 4,
+      "mlgg_gates": ["model_selection_audit_gate"],
+      "mlgg_rules": ["MLGG-M03"],
+      "concern_text": "The motivation for using Mamba is not clear. There doesn't seem to be a significant difference between APRICOT-T (Transformer) and APRICOT-M (Mamba). CatBoost and GRU appear competitive on many tasks while requiring far less computational resources.",
+      "author_response": "We added computational cost comparison and showed Mamba advantages in longer sequences and inference speed.",
+      "resolved": true,
+      "tags": ["model_justification", "computational_cost", "marginal_improvement", "simpler_model_competitive"]
+    },
+    {
+      "concern_id": "PR-009-C02",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "mlgg_gates": ["ci_matrix_gate"],
+      "mlgg_rules": ["MLGG-E01"],
+      "concern_text": "Confidence intervals computed using bootstrapping provide uncertainty related to the data sample but not related to model parameters. Also, using time-to-event analysis rather than binary classification could avoid issues related to time window choice.",
+      "author_response": "We acknowledged this limitation and discussed model uncertainty vs data uncertainty. Time-to-event analysis added as supplementary comparison.",
+      "resolved": true,
+      "tags": ["bootstrap_vs_model_uncertainty", "time_to_event_vs_binary"]
+    },
+    {
+      "concern_id": "PR-009-C03",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "study_design",
+      "severity": "HIGH",
+      "mlgg_dimension": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "The abstract states the model 'was validated prospectively on data from 2021-2023' but Mamba was first introduced in 2023. It appears the model was 'retrospectively validated' on previously collected prospective data. Please clarify.",
+      "author_response": "We clarified that the prospective data collection preceded model development, and the model was applied retrospectively to this prospectively collected dataset.",
+      "resolved": true,
+      "tags": ["prospective_vs_retrospective", "temporal_terminology", "misleading_claim"]
+    },
+    {
+      "concern_id": "PR-009-C04",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "HIGH",
+      "mlgg_dimension": 5,
+      "mlgg_gates": ["evaluation_quality_gate"],
+      "mlgg_rules": [],
+      "concern_text": "One challenge with prediction of rare events is having low PPV. AUC tends to produce overly optimistic results. It would be insightful to repeat analysis in 50 patients from prospective cohort by at least three clinical adjudicators to determine clinical utility (were alerts timely, accurate, actionable?).",
+      "author_response": "We added clinician review of alerts in a subset of prospective patients with assessment of timeliness and actionability.",
+      "resolved": true,
+      "tags": ["rare_event_ppv", "auc_overoptimistic", "clinician_adjudication", "clinical_utility"]
+    },
+    {
+      "concern_id": "PR-009-C05",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "reporting",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 8,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "Authors claim 'first SSM model application to clinical data' but there are multiple prior studies applying state-space models to clinical data (Yin 2021, Ghassemi 2017, Nemati 2013). Please explain how the proposed SSM differs from prior works.",
+      "author_response": "We corrected the novelty claim to 'first Mamba-based SSM application' and added comparison with prior SSM clinical works.",
+      "resolved": true,
+      "tags": ["overclaimed_novelty", "prior_work_missing", "literature_review"]
+    },
+    {
+      "concern_id": "PR-009-C06",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "reporting",
+      "severity": "LOW",
+      "mlgg_dimension": 8,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "Results for the temporal cohort were relegated to supplementary material. An extra column for the temporal cohort would not take up much space in the main article.",
+      "author_response": "We moved temporal validation results to the main text.",
+      "resolved": true,
+      "tags": ["temporal_validation_in_supplement", "reporting_completeness"]
+    }
+  ],
+
+  "reviewer_strengths": [
+    {
+      "strength_id": "PR-009-S01",
+      "reviewer": "Reviewer #1",
+      "text": "Major strength is that the model was validated on external, temporally shifted and prospectively collected data. Performed significantly better than the traditional SOFA score.",
+      "tags": ["external_validation", "temporal_validation", "prospective_validation", "beats_traditional"]
+    },
+    {
+      "strength_id": "PR-009-S02",
+      "reviewer": "Reviewer #2",
+      "text": "The curation and harmonization of such diverse datasets require tremendous efforts, and the authors should be applauded for their dedication.",
+      "tags": ["data_harmonization", "multi_dataset"]
+    }
+  ],
+
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["model_justification", "prospective_vs_retrospective", "rare_event_ppv", "overclaimed_novelty"],
+  "key_methodology_strengths": ["multi_dataset_validation", "temporal_validation", "prospective_data", "clinical_adjudication"]
+}

@@ -1,0 +1,119 @@
+{
+  "id": "PR-013",
+  "paper_doi": "10.1038/s41467-023-40917-3",
+  "paper_title": "At-home wearables and machine learning sensitively capture disease progression in amyotrophic lateral sclerosis",
+  "journal": "Nature Communications",
+  "year": 2023,
+  "domain": "neurology",
+  "prediction_task": "ALS disease progression tracking and severity prediction from wearable accelerometers",
+  "model_types": ["logistic_regression", "pairwise_comparison_model"],
+  "data_type": "wearable_accelerometer_longitudinal",
+  "sample_size": 376,
+  "review_rounds": 2,
+
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-013-C01",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "The authors focus on rate of change, but variability in rates between patients plays a significant role. These two factors determine 'sensitivity' of a longitudinal marker (signal to noise). Could the authors provide insight into variability between patients relative to the average rate of decline?",
+      "author_response": "We added between-patient variability analysis showing coefficient of variation for each feature's rate of change.",
+      "resolved": true,
+      "tags": ["signal_to_noise", "between_patient_variability", "longitudinal_sensitivity"]
+    },
+    {
+      "concern_id": "PR-013-C02",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "reporting",
+      "severity": "HIGH",
+      "mlgg_dimension": 8,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "The monitoring protocol is quite extensive with 4 accelerometers per patient. Could the authors provide insight into adherence? How many patients managed to complete the 7-day wear-time period? Metrics of patient burden and retention would be insightful.",
+      "author_response": "We added adherence statistics showing completion rates, dropout reasons, and wear-time compliance by visit.",
+      "resolved": true,
+      "tags": ["adherence_unreported", "feasibility", "patient_burden", "dropout"]
+    },
+    {
+      "concern_id": "PR-013-C03",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "reproducibility",
+      "severity": "HIGH",
+      "mlgg_dimension": 9,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "From the methods it is unclear how the rate of decline was calculated. There are no longitudinal models reported. It looks like per-patient regression was fitted and slope extracted, but this information is not provided — the statistical analysis cannot be replicated.",
+      "author_response": "We added detailed description of per-patient linear mixed-effects models used to estimate rates of decline.",
+      "resolved": true,
+      "tags": ["methods_irreproducible", "statistical_model_missing", "rate_calculation_unclear"]
+    },
+    {
+      "concern_id": "PR-013-C04",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "The ICC is based on 'first half vs second half of days'. This likely gives a systematic difference as patients may be more active in the first half due to fatigue. Day 1 vs Day 2 comparison would be more accurate.",
+      "author_response": "We added day-by-day ICC analysis as supplementary comparison.",
+      "resolved": true,
+      "tags": ["reliability_method", "icc_calculation", "systematic_bias"]
+    },
+    {
+      "concern_id": "PR-013-C05",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "Using 'the limb with the fastest progression rate' has complexities. This can be done after data collection, but for clinical trials outcomes must be prespecified — this could result in increased type 1 error.",
+      "author_response": "We discussed this limitation for clinical trial application and suggested prespecifying the primary limb based on initial assessment.",
+      "resolved": true,
+      "tags": ["post_hoc_outcome_selection", "type1_error", "clinical_trial_prespecification"]
+    },
+    {
+      "concern_id": "PR-013-C06",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "reporting",
+      "severity": "LOW",
+      "mlgg_dimension": 8,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "The pairwise comparison model description is lacking clarity. The formula and outcome encoding need clearer explanation for the less statistical reader.",
+      "author_response": "We rewrote the pairwise model description with step-by-step worked example.",
+      "resolved": true,
+      "tags": ["model_description_unclear", "accessibility"]
+    }
+  ],
+
+  "reviewer_strengths": [
+    {
+      "strength_id": "PR-013-S01",
+      "reviewer": "Reviewer #1",
+      "text": "The 'pairwise model' approach, disregarding the clinical outcome and using only longitudinal wearable data, is a major strength — an imperfect prediction of the ALSFRS-R is actually desired as one wants to improve on what it measures.",
+      "tags": ["novel_methodology", "beyond_gold_standard", "longitudinal_design"]
+    },
+    {
+      "strength_id": "PR-013-S02",
+      "reviewer": "Reviewer #2",
+      "text": "Phenomenal study and manuscript. Study protocol is robust and well-executed, data analysis is novel for the clinical field. This will be extremely valuable to the field going forward.",
+      "tags": ["exceptional_quality", "robust_protocol", "novel_analysis"]
+    }
+  ],
+
+  "outcome": "accepted_after_minor_revision",
+  "key_methodology_issues": ["methods_irreproducible", "adherence_unreported", "post_hoc_outcome_selection"],
+  "key_methodology_strengths": ["large_longitudinal", "novel_methodology", "beyond_gold_standard", "robust_protocol"]
+}
