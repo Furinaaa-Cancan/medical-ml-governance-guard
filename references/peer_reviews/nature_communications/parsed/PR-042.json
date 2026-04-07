@@ -1,0 +1,27 @@
+{
+  "id": "PR-042",
+  "paper_doi": "10.1038/s41467-026-68355-x",
+  "paper_title": "Machine learning-predicted insulin resistance is a risk factor for 12 types of cancer",
+  "journal": "Nature Communications",
+  "year": 2026,
+  "domain": "oncology_epidemiology",
+  "prediction_task": "ML-predicted insulin resistance as risk factor for 12 cancer types (UK Biobank)",
+  "model_types": ["xgboost", "cox_regression"],
+  "data_type": "clinical_biomarkers_tabular",
+  "sample_size": 94782,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-042-C01", "reviewer": "Reviewer #1", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "All survival analyses: using enrollment as start of follow-up is inappropriate. Time scale should be age, not calendar time. This is particularly important for Kaplan-Meier curves — age is not accommodated. Including age as covariate is typically not sufficient.", "author_response": "Re-ran all survival analyses with age as time scale.", "resolved": true, "tags": ["time_scale_inappropriate", "age_as_timescale", "survival_analysis_error"]},
+    {"concern_id": "PR-042-C02", "reviewer": "Reviewer #1", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "When looking at individual cancer entities, multiple testing adjustment should be considered. Renal pelvis cancer and leukemia will not be significant after correction.", "author_response": "Added Bonferroni correction and FDR-adjusted p-values.", "resolved": true, "tags": ["multiple_testing", "bonferroni", "fdr_correction"]},
+    {"concern_id": "PR-042-C03", "reviewer": "Reviewer #1", "round": 1, "category": "study_design", "severity": "HIGH", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Cannot use future information on diabetes status to stratify at baseline in KM curves. Only baseline diabetes status is valid. In Cox model, diabetes could be a time-varying exposure.", "author_response": "Restricted to baseline diabetes status for KM. Added time-varying diabetes in Cox models.", "resolved": true, "tags": ["future_information_in_stratification", "time_varying_covariate", "immortal_time_bias"]},
+    {"concern_id": "PR-042-C04", "reviewer": "Reviewer #1", "round": 1, "category": "evaluation_metrics", "severity": "MEDIUM", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "BMI-adjusted and unadjusted analyses done in different individuals (94,782 vs 20,938). Differences in effect sizes could be due to population differences, not BMI adjustment.", "author_response": "Re-ran both analyses in same population.", "resolved": true, "tags": ["different_populations_compared", "confounded_comparison", "sample_mismatch"]},
+    {"concern_id": "PR-042-C05", "reviewer": "Reviewer #2", "round": 1, "category": "study_design", "severity": "CRITICAL", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Major concern about novelty — the metabolic syndrome is a well-known syndrome of insulin resistance with known cancer risk, easy to define clinically. Nowhere in the article do authors discuss the metabolic syndrome. Background literature linking metabolic syndrome to cancer is missing.", "author_response": "Added comprehensive metabolic syndrome comparison and discussion.", "resolved": true, "tags": ["novelty_questioned_fundamentally", "metabolic_syndrome_ignored", "prior_work_missing"]},
+    {"concern_id": "PR-042-C06", "reviewer": "Reviewer #1", "round": 1, "category": "evaluation_metrics", "severity": "MEDIUM", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "All lung cancer findings need to be adjusted or stratified by smoking status initially. Otherwise extremely difficult to interpret.", "author_response": "Added smoking-stratified analyses for all lung cancer associations.", "resolved": true, "tags": ["smoking_confounder", "stratification_needed", "lung_cancer_smoking"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-042-S01", "reviewer": "Reviewer #1", "text": "The paper is generally clear and the methods are solid.", "tags": ["clear_writing", "solid_methods"]}
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["time_scale_inappropriate", "novelty_questioned_fundamentally", "future_information_in_stratification", "multiple_testing"],
+  "key_methodology_strengths": ["large_uk_biobank", "12_cancer_types", "ml_predicted_exposure"]
+}

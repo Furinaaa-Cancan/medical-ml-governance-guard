@@ -1,37 +1,37 @@
 {
-  "total_papers": 40,
-  "total_concerns": 227,
-  "total_strengths": 51,
+  "total_papers": 47,
+  "total_concerns": 250,
+  "total_strengths": 57,
   "concerns_by_category": {
-    "evaluation_metrics": 69,
-    "study_design": 42,
-    "reporting": 31,
-    "preprocessing": 19,
-    "external_validation": 14,
+    "evaluation_metrics": 79,
+    "study_design": 47,
+    "reporting": 35,
+    "preprocessing": 21,
+    "external_validation": 15,
     "model_selection": 12,
     "clinical_utility": 12,
     "reproducibility": 11,
-    "interpretability": 8,
+    "interpretability": 9,
     "split_protocol": 3,
     "sample_size": 3,
     "data_leakage": 2,
     "feature_selection": 1
   },
   "concerns_by_severity": {
-    "HIGH": 102,
-    "MEDIUM": 94,
-    "CRITICAL": 18,
+    "HIGH": 115,
+    "MEDIUM": 103,
+    "CRITICAL": 19,
     "LOW": 13
   },
   "concerns_by_dimension": {
-    "1": 45,
+    "1": 50,
     "2": 2,
-    "3": 19,
+    "3": 21,
     "4": 14,
-    "5": 68,
-    "6": 14,
-    "7": 21,
-    "8": 30,
+    "5": 78,
+    "6": 15,
+    "7": 22,
+    "8": 34,
     "9": 11,
     "12": 3
   },
@@ -61,6 +61,10 @@
       "count": 5
     },
     {
+      "tag": "no_external_validation",
+      "count": 4
+    },
+    {
       "tag": "class_imbalance",
       "count": 4
     },
@@ -85,8 +89,8 @@
       "count": 4
     },
     {
-      "tag": "no_external_validation",
-      "count": 3
+      "tag": "multiple_testing",
+      "count": 4
     },
     {
       "tag": "missing_data_unreported",
@@ -98,10 +102,6 @@
     },
     {
       "tag": "model_justification",
-      "count": 3
-    },
-    {
-      "tag": "multiple_testing",
       "count": 3
     },
     {
@@ -160,21 +160,27 @@
   "resolution_rate": 1.0,
   "papers_by_domain": {
     "oncology": 9,
+    "infectious_disease": 6,
     "neurology": 6,
-    "infectious_disease": 5,
     "genomics": 4,
     "critical_care": 3,
     "nephrology": 3,
     "cardiovascular": 3,
     "ehr_methodology": 2,
     "emergency_medicine": 2,
+    "reproductive_medicine": 2,
     "musculoskeletal": 1,
     "ehr_clinical": 1,
-    "mental_health": 1
+    "mental_health": 1,
+    "digital_health": 1,
+    "oncology_epidemiology": 1,
+    "dermatology": 1,
+    "microbiome": 1
   },
   "papers_by_outcome": {
-    "accepted_after_major_revision": 33,
+    "accepted_after_major_revision": 37,
+    "accepted_after_revision": 5,
     "accepted_after_minor_revision": 4,
-    "accepted_after_revision": 3
+    "accepted_minimal_review": 1
   }
 }

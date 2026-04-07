@@ -1,0 +1,21 @@
+{
+  "id": "PR-047",
+  "paper_doi": "10.1038/s41467-022-34405-3",
+  "paper_title": "Faecal microbiome-based machine learning for multi-class disease diagnosis",
+  "journal": "Nature Communications",
+  "year": 2022,
+  "domain": "microbiome",
+  "prediction_task": "Multi-class disease diagnosis from faecal microbiome data",
+  "model_types": ["random_forest", "machine_learning"],
+  "data_type": "microbiome_16s_metagenomic",
+  "sample_size": 10000,
+  "review_rounds": 2,
+  "reviewer_concerns": [],
+  "reviewer_strengths": [
+    {"strength_id": "PR-047-S01", "reviewer": "Reviewer #1", "text": "Authors have answered positively to previous comments and modified the manuscript accordingly.", "tags": ["responsive_to_review"]}
+  ],
+  "outcome": "accepted_after_revision",
+  "key_methodology_issues": [],
+  "key_methodology_strengths": ["multi_class_diagnosis", "microbiome_based"],
+  "_note": "Only final round reviewer comments available — previous round comments from another journal not published. Reviewer confirmed all concerns addressed."
+}

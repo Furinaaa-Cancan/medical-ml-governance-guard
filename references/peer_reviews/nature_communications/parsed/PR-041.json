@@ -1,0 +1,26 @@
+{
+  "id": "PR-041",
+  "paper_doi": "10.1038/s41467-025-64275-4",
+  "paper_title": "A wearable-based aging clock associates with disease and behavior",
+  "journal": "Nature Communications",
+  "year": 2025,
+  "domain": "digital_health",
+  "prediction_task": "Biological age prediction from consumer wearable PPG data (PpgAge)",
+  "model_types": ["self_supervised_learning", "deep_learning"],
+  "data_type": "wearable_ppg_continuous",
+  "sample_size": 300000,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-041-C01", "reviewer": "Reviewer #1", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "PpgAge predicts chronological age well but lacks evaluation in predicting age-related outcomes like mortality, incident diseases, or functional outcomes. Must demonstrate additional predictive ability with these outcomes.", "author_response": "Added disease association analysis and mortality prediction comparison.", "resolved": true, "tags": ["chronological_vs_biological", "clinical_outcome_missing", "predictive_validity"]},
+    {"concern_id": "PR-041-C02", "reviewer": "Reviewer #1", "round": 1, "category": "preprocessing", "severity": "HIGH", "mlgg_dimension": 3, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Detailed breakdowns of consumer wearable types and software versions needed. Are all participants using the same smartwatch model? No comparison of Apple Watch PPG to ground truth. Data processing lacks details on wear time, data quality, missing data handling.", "author_response": "Added device-specific analysis, PPG validation against clinical-grade devices, and detailed preprocessing workflow.", "resolved": true, "tags": ["device_heterogeneity", "sensor_validation", "preprocessing_details_missing", "wear_time"]},
+    {"concern_id": "PR-041-C03", "reviewer": "Reviewer #1", "round": 1, "category": "interpretability", "severity": "HIGH", "mlgg_dimension": 7, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Unclear how PpgAge could be interpreted in practical settings. If an individual has PpgAge gap of +2 years, what drives this? What is the practical implication for this specific individual?", "author_response": "Added interpretability analysis showing which PPG features drive age gap predictions.", "resolved": true, "tags": ["explainability_missing", "practical_interpretation", "individual_level_explanation"]},
+    {"concern_id": "PR-041-C04", "reviewer": "Reviewer #1", "round": 1, "category": "external_validation", "severity": "HIGH", "mlgg_dimension": 6, "mlgg_gates": ["external_validation_gate"], "mlgg_rules": [], "concern_text": "External validation in another dataset is strongly encouraged.", "author_response": "Discussed data availability limitations and added cross-validation robustness analysis.", "resolved": true, "tags": ["no_external_validation", "single_cohort"]},
+    {"concern_id": "PR-041-C05", "reviewer": "Reviewer #1", "round": 1, "category": "reporting", "severity": "MEDIUM", "mlgg_dimension": 8, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "'Wearable-based biomarker of aging' in the title may be an overstatement given current results. Please consider revising to more accurately reflect the study — central focus is chronological age prediction from PPG.", "author_response": "Revised title to be more precise.", "resolved": true, "tags": ["title_overstatement", "overclaimed"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-041-S01", "reviewer": "Reviewer #1", "text": "Innovative by applying SSL to a new modality not previously explored for biological age estimation. Growing adoption of consumer wearables holds potential for health monitoring.", "tags": ["novel_modality", "ssl_innovation", "scalable"]}
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["clinical_outcome_missing", "device_heterogeneity", "explainability_missing", "no_external_validation"],
+  "key_methodology_strengths": ["ssl_novel_application", "large_scale_wearable", "longitudinal"]
+}

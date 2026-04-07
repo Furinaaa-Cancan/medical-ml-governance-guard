@@ -1,0 +1,19 @@
+{
+  "id": "PR-046",
+  "paper_doi": "10.1038/s41467-025-59442-6",
+  "paper_title": "Genetic architecture and risk prediction of gestational diabetes mellitus in Chinese pregnancies",
+  "journal": "Nature Communications",
+  "year": 2025,
+  "domain": "reproductive_medicine",
+  "prediction_task": "Gestational diabetes mellitus risk prediction from NIPT sequencing + clinical biomarkers",
+  "model_types": ["polygenic_risk_score", "logistic_regression"],
+  "data_type": "genetic_plus_clinical_biomarkers",
+  "sample_size": 116144,
+  "review_rounds": 1,
+  "reviewer_concerns": [],
+  "reviewer_strengths": [],
+  "outcome": "accepted_minimal_review",
+  "key_methodology_issues": [],
+  "key_methodology_strengths": ["large_cohort", "nipt_novel_use", "chinese_population"],
+  "_note": "This PDF contained only the reporting summary form, not the actual peer review comments. Minimal reviewer feedback available."
+}

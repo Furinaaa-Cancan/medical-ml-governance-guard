@@ -1,0 +1,24 @@
+{
+  "id": "PR-044",
+  "paper_doi": "10.1038/s41467-024-46211-0",
+  "paper_title": "Deep learning model for personalized prediction of positive MRSA culture using time-series electronic health records",
+  "journal": "Nature Communications",
+  "year": 2024,
+  "domain": "infectious_disease",
+  "prediction_task": "Positive MRSA culture prediction from time-series EHR",
+  "model_types": ["deep_learning", "logistic_regression", "xgboost"],
+  "data_type": "ehr_time_series",
+  "sample_size": 15000,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-044-C01", "reviewer": "Reviewer #3", "round": 1, "category": "study_design", "severity": "HIGH", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Why focus only on MRSA when the clinical problem is more often 'should I give antibiotics for possible severe infection (sepsis)?' rather than specifically for MRSA? The narrow focus limits clinical utility.", "author_response": "Discussed MRSA as proof-of-concept with clearer outcome definition than sepsis. Future work will expand to broader infection prediction.", "resolved": true, "tags": ["narrow_clinical_scope", "mrsa_vs_sepsis", "clinical_question_mismatch"]},
+    {"concern_id": "PR-044-C02", "reviewer": "Reviewer #3", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Table 4 suggests benefits vs clinical judgment, but how was 'clinical judgment' determined? Was it based on antibiotic usage? How did authors check if antibiotic was given for MRSA vs something else? Should compare AUROC of DL model vs clinical judgment directly.", "author_response": "Clarified clinical judgment proxy and added direct AUROC comparison.", "resolved": true, "tags": ["clinical_judgment_proxy", "comparison_methodology", "antibiotic_as_proxy"]},
+    {"concern_id": "PR-044-C03", "reviewer": "Reviewer #3", "round": 1, "category": "reporting", "severity": "MEDIUM", "mlgg_dimension": 8, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Authors acknowledge using antibiotic prescribing as proxy for clinical judgment is a weakness. MRSA-specific antibiotics not exclusively used for MRSA (daptomycin/linezolid also target VRE).", "author_response": "Discussed limitations of antibiotic proxy and added sensitivity analysis.", "resolved": true, "tags": ["proxy_outcome_limitation", "antibiotic_indication_ambiguity"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-044-S01", "reviewer": "Reviewer #3", "text": "Interesting paper reporting comparative performance of models for MRSA prediction. Relatively complex technical analyses presented clearly.", "tags": ["comparative_models", "clear_presentation"]}
+  ],
+  "outcome": "accepted_after_revision",
+  "key_methodology_issues": ["narrow_clinical_scope", "clinical_judgment_proxy"],
+  "key_methodology_strengths": ["time_series_ehr", "personalized_prediction", "deep_learning_comparison"]
+}

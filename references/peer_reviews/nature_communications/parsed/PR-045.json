@@ -1,0 +1,25 @@
+{
+  "id": "PR-045",
+  "paper_doi": "10.1038/s41467-025-64556-y",
+  "paper_title": "A highly accurate risk factor-based XGBoost multiethnic model for identifying patients with skin cancer",
+  "journal": "Nature Communications",
+  "year": 2025,
+  "domain": "dermatology",
+  "prediction_task": "Skin cancer risk prediction from genetic, lifestyle, and social determinants across ethnicities",
+  "model_types": ["xgboost"],
+  "data_type": "genetic_plus_clinical_tabular",
+  "sample_size": 500000,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-045-C01", "reviewer": "Reviewer #1", "round": 1, "category": "study_design", "severity": "HIGH", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Hard to understand what model is predicting. Age not associated with skin cancer risk (line 181) but later stated as most important predictor (line 246). What are these conflicting results? Classification into ancestries also problematic — 'Hispanic' is not an ancestry, it is an ethnicity.", "author_response": "Clarified prediction target and ancestry vs ethnicity distinction. Resolved age contradiction.", "resolved": true, "tags": ["prediction_target_unclear", "contradictory_results", "ancestry_vs_ethnicity"]},
+    {"concern_id": "PR-045-C02", "reviewer": "Reviewer #1", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Given age was single most important predictor, how does an age-only model fare? PPV still substantially lower for non-Europeans — would worse performance be due to sample size or genuine differences?", "author_response": "Added age-only baseline comparison and sample-size sensitivity analysis for non-European groups.", "resolved": true, "tags": ["age_only_baseline_missing", "ethnic_performance_gap", "sample_size_vs_genuine"]},
+    {"concern_id": "PR-045-C03", "reviewer": "Reviewer #1", "round": 1, "category": "study_design", "severity": "MEDIUM", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "How were people classified into ancestries — self-report or PCA? How was Admixed group defined? Native American ancestry not included. Self-reported race vs genotype PCA — do they overlap?", "author_response": "Added PCA-based ancestry comparison alongside self-report.", "resolved": true, "tags": ["ancestry_classification", "self_report_vs_genetic", "admixed_definition"]},
+    {"concern_id": "PR-045-C04", "reviewer": "Reviewer #1", "round": 1, "category": "preprocessing", "severity": "MEDIUM", "mlgg_dimension": 3, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Only participants with complete data used (no NA values). How many participants remained after this exclusion?", "author_response": "Reported sample reduction and added sensitivity analysis with imputed data.", "resolved": true, "tags": ["complete_case_only", "sample_reduction_unreported"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-045-S01", "reviewer": "Reviewer #1", "text": "Interesting work combining genetic, social determinants, and lifestyle factors across ethnicities for skin cancer prediction.", "tags": ["multiethnic", "sdoh_integration", "genetic_plus_lifestyle"]}
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["prediction_target_unclear", "contradictory_results", "age_only_baseline_missing", "ancestry_classification"],
+  "key_methodology_strengths": ["multiethnic", "sdoh_integration", "large_uk_biobank"]
+}
