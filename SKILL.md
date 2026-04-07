@@ -1549,7 +1549,46 @@ n < 200   → "⚠️ 样本量可能不足，优先考虑 Riley 样本量检查
 
 ### 特征选择（Phase 4）
 
-Elastic Net CV (α∈{0.1-1.0}, C∈{0.001-10}) + Stability Selection (100次, 阈值0.6) + Group LASSO (OneHot 同进同退) + Ridge 对照 (损失>0.005则回退)。废弃单因素筛选。
+**设计哲学**：Harrell 2015 和 Steyerberg 2019 推荐"临床先验预指定 + 惩罚收缩"，而非数据驱动筛选。但当候选特征远超临床知识时，MLGG 提供以下有控制的筛选路径。
+
+**方法流水线**：
+```
+NZV 过滤 → Ridge 基线(CV调优) → Stability Selection(Elastic Net + Group LASSO) → 对比决策 → EPV 重检
+```
+
+**关键方法学决策及文献依据**：
+
+| 决策 | MLGG 做法 | 文献 | 常见审稿人质疑 |
+|------|----------|------|----------------|
+| 正则化类型 | Elastic Net (α∈{0.1-1.0}) 而非纯 L1 | Zou & Hastie 2005 JRSS-B | "为什么不用 LASSO?" → Elastic Net 处理共线性更好 |
+| 稳定性选择 | 100 次子采样，阈值 0.6 | Meinshausen & Buhlmann 2010 JRSS-B | "特征选择稳定吗?" → 提供误选界 E[V] |
+| 分组选择 | OneHot dummy 列同进同退 | Yuan & Lin 2006 JRSS-B (Group LASSO) | "race_White 保留但 race_Asian 丢弃?" → Group LASSO 防止 |
+| Ridge 对照 | 全量特征 + L2 收缩作为 baseline | Harrell 2015 RMS Ch.4 | "为什么要做特征选择?" → 如果 Ridge 更好就不选 |
+| 对比指标 | PR-AUC 而非 AUROC | Saito & Rehmsmeier 2015 | "为什么不用 AUROC?" → 类别不平衡下 PR-AUC 更灵敏 |
+| 回退阈值 | 选择后 PR-AUC 降 >0.005 就回退 Ridge | 保守原则 | "选择反而更差?" → 自动回退全量模型 |
+| 废弃方法 | 不用单因素 p 值筛选 | Heinze 2018 Biometrical Journal | "为什么不做单因素分析?" → 多重比较 + 丢弃联合有效特征 |
+
+**MLGG 规则检查清单**：
+- **MLGG-F01** [CRITICAL]: 标签/结局变量不得出现在特征中
+- **MLGG-F02** [CRITICAL]: 预测时间点之后的信息不得作为特征
+- **MLGG-F03** [CRITICAL]: 特征选择只在训练集上进行
+- **MLGG-F04** [WARNING]: 不得使用单因素 p 值筛选（Heinze 2018）
+- **MLGG-F06** [WARNING]: 必须与 Ridge 全量模型对照
+- **MLGG-Z01** [CRITICAL]: 选择后 EPV 仍 ≥ 10
+
+**Peer Review 证据**（来自 peer-review-kb.json）：
+- 107 篇 NC 论文中，审稿人对特征选择的常见质疑：
+  - "为什么不和简单模型（age + sex + BMI only）比较?" (PR-001-C03, PR-067-C01)
+  - "24 个参数 vs 87 个样本，模型过参数化" (PR-016-C01, CRITICAL)
+  - "特征选择在整个数据集上做的，不是训练集" (PR-010-C01, CRITICAL — 导致性能虚高)
+  - "OneHot 后 dummy 列被选择性保留/丢弃" (无 Group LASSO)
+  - "没有报告哪些特征被选中及理由" (PR-054-C01)
+
+**输出**：
+- `selected_data.npz` — 选择后的 train/valid/test
+- `selected_features.json` — 最终特征列表
+- `stability_selection.csv` — 每个特征的入选概率
+- `selection_report.json` — 完整审计留痕（方法、参数、Ridge PR-AUC、选择后 PR-AUC、E[V]、EPV）
 
 ### 模型选择（Phase 5）
 
