@@ -1,0 +1,28 @@
+{
+  "id": "PR-028",
+  "paper_doi": "10.1038/s43856-025-01192-z",
+  "paper_title": "An interpretable machine learning algorithm enables dynamic 48-hour mortality prediction during an ICU stay",
+  "journal": "Communications Medicine",
+  "year": 2025,
+  "domain": "critical_care",
+  "prediction_task": "Dynamic 48-hour ICU mortality prediction with 24h update cycle",
+  "model_types": ["lightgbm", "xgboost", "random_forest", "logistic_regression"],
+  "data_type": "icu_time_series_tabular",
+  "sample_size": 23000,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-028-C01", "reviewer": "Reviewer #1", "round": 1, "category": "external_validation", "severity": "HIGH", "mlgg_dimension": 6, "mlgg_gates": ["external_validation_gate"], "mlgg_rules": [], "concern_text": "The study lacks external validation. Model should be tested in very different conditions to avoid out-of-distribution bias.", "author_response": "Acknowledged as limitation and discussed plans for multi-center validation.", "resolved": true, "tags": ["no_external_validation", "out_of_distribution"]},
+    {"concern_id": "PR-028-C02", "reviewer": "Reviewer #1", "round": 1, "category": "model_selection", "severity": "MEDIUM", "mlgg_dimension": 4, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Why LightGBM as first choice? There are many time-series models like LSTM that may better capture temporal patterns. Also, SOFA score uses much less variables — for parsimony, SOFA seems better for practical use.", "author_response": "Compared with LSTM and showed LightGBM competitive. SOFA comparison added showing ML model significantly outperforms.", "resolved": true, "tags": ["model_justification", "time_series_alternative", "sofa_comparison"]},
+    {"concern_id": "PR-028-C03", "reviewer": "Reviewer #1", "round": 1, "category": "evaluation_metrics", "severity": "MEDIUM", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "The outcome variable is imbalanced data. What is the proportion of deceased during the time frame?", "author_response": "Added mortality proportion and class imbalance handling discussion.", "resolved": true, "tags": ["class_imbalance", "mortality_rate_unreported"]},
+    {"concern_id": "PR-028-C04", "reviewer": "Reviewer #1", "round": 1, "category": "model_selection", "severity": "LOW", "mlgg_dimension": 4, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Will stacked ensemble model further improve performance? There is evidence that ensemble models achieve better accuracy than any individual model alone.", "author_response": "Discussed ensemble potential in future directions.", "resolved": true, "tags": ["ensemble_suggestion", "stacking"]},
+    {"concern_id": "PR-028-C05", "reviewer": "Reviewer #2", "round": 1, "category": "study_design", "severity": "HIGH", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Why update every 24 hours to predict 48-hour mortality, rather than every hour or every 6/12 hours for shorter horizons? Need clear rationale for this design choice.", "author_response": "Added clinical rationale: 24h update aligns with ICU rounding schedules and clinical decision cycles.", "resolved": true, "tags": ["prediction_window_justification", "update_frequency", "clinical_workflow"]},
+    {"concern_id": "PR-028-C06", "reviewer": "Reviewer #2", "round": 1, "category": "evaluation_metrics", "severity": "MEDIUM", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "PPV remains low indicating many false alarms. How to interpret or handle these false alarms?", "author_response": "Added false alarm analysis with risk stratification tiers to reduce alarm fatigue.", "resolved": true, "tags": ["low_ppv", "false_alarm", "alarm_fatigue"]},
+    {"concern_id": "PR-028-C07", "reviewer": "Reviewer #1", "round": 1, "category": "clinical_utility", "severity": "MEDIUM", "mlgg_dimension": 7, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "While model accuracy is important, it may not translate to clinical benefits such as reducing mortality in ICU. More work needed to test effectiveness.", "author_response": "Added discussion of implementation pathway and need for prospective impact study.", "resolved": true, "tags": ["accuracy_vs_clinical_impact", "implementation_gap"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-028-S01", "reviewer": "Reviewer #2", "text": "The effort to stratify patient risk is commendable, as prediction is not the ultimate goal. Threshold selection analysis is interesting.", "tags": ["risk_stratification", "threshold_analysis"]}
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["no_external_validation", "prediction_window_justification", "low_ppv"],
+  "key_methodology_strengths": ["dynamic_prediction", "interpretable", "risk_stratification"]
+}

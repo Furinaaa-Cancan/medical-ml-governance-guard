@@ -1,0 +1,27 @@
+{
+  "id": "PR-027",
+  "paper_doi": "10.1038/s43856-024-00437-7",
+  "paper_title": "Machine learning models identify predictive features of patient mortality across dementia types",
+  "journal": "Communications Medicine",
+  "year": 2024,
+  "domain": "neurology",
+  "prediction_task": "Mortality prediction across dementia types (1-10 year thresholds)",
+  "model_types": ["xgboost", "tree_shap"],
+  "data_type": "tabular_clinical_longitudinal",
+  "sample_size": 45275,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-027-C01", "reviewer": "Reviewer #1", "round": 1, "category": "model_selection", "severity": "MEDIUM", "mlgg_dimension": 4, "mlgg_gates": ["model_selection_audit_gate"], "mlgg_rules": ["MLGG-M03"], "concern_text": "Authors should provide rationale why selecting XGBoost, not other ML models. Unclear whether further feature selection can improve performance.", "author_response": "Added comparison with RF, LR, SVM. XGBoost selected for best AUC and interpretability via TreeSHAP.", "resolved": true, "tags": ["model_justification", "single_model_type"]},
+    {"concern_id": "PR-027-C02", "reviewer": "Reviewer #2", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Class imbalance is a major issue — subjects at later stages naturally have higher mortality. Difference between 1-year and 10-year models may simply reflect class imbalance rather than genuine finding. Need class-balanced resampling or class-weighted loss.", "author_response": "Added class-weighted analysis and SMOTE sensitivity analysis. Results robust to rebalancing.", "resolved": true, "tags": ["class_imbalance", "temporal_imbalance", "smote_needed"]},
+    {"concern_id": "PR-027-C03", "reviewer": "Reviewer #2", "round": 1, "category": "reporting", "severity": "HIGH", "mlgg_dimension": 8, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Missing result figures. Discussion mentions survival analysis differed across dementia types but corresponding figures cannot be found in manuscript or supplementary material.", "author_response": "Added missing survival curves by dementia subtype.", "resolved": true, "tags": ["missing_figures", "incomplete_manuscript"]},
+    {"concern_id": "PR-027-C04", "reviewer": "Reviewer #2", "round": 1, "category": "evaluation_metrics", "severity": "MEDIUM", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Model performance evaluated only with AUC. Additional metrics like sensitivity, specificity, F1, and calibration should be reported for clinical applicability.", "author_response": "Added full metric panel including sensitivity, specificity, PPV, NPV, F1.", "resolved": true, "tags": ["auc_only", "incomplete_metrics"]},
+    {"concern_id": "PR-027-C05", "reviewer": "Reviewer #1", "round": 1, "category": "study_design", "severity": "LOW", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Whether adding genetic or multi-omics data may improve prediction further in future studies should be discussed.", "author_response": "Added discussion of potential for genomic/proteomic data integration.", "resolved": true, "tags": ["future_directions", "multi_omics_potential"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-027-S01", "reviewer": "Reviewer #1", "text": "Important and novel ML study for dementia precision medicine. Potential application for future clinical studies and patient care.", "tags": ["novel", "precision_medicine", "clinical_potential"]},
+    {"strength_id": "PR-027-S02", "reviewer": "Reviewer #2", "text": "Survival analysis stratified by comorbidities is a strength. Use of SHAP for feature importance evaluation is a strength.", "tags": ["stratified_survival", "shap_interpretability"]}
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["class_imbalance", "missing_figures", "auc_only"],
+  "key_methodology_strengths": ["large_dataset", "multi_dementia_types", "shap_interpretability"]
+}

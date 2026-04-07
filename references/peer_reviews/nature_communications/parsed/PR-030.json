@@ -1,0 +1,25 @@
+{
+  "id": "PR-030",
+  "paper_doi": "10.1038/s43856-024-00626-4",
+  "paper_title": "Methodological choices and clinical usefulness for machine learning predictions of outcome in Internet-based cognitive behavioural therapy",
+  "journal": "Communications Medicine",
+  "year": 2024,
+  "domain": "mental_health",
+  "prediction_task": "Treatment outcome prediction in Internet-based CBT (80 model comparison)",
+  "model_types": ["logistic_regression", "random_forest", "xgboost", "svm", "elastic_net"],
+  "data_type": "clinical_questionnaire_tabular",
+  "sample_size": 6000,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-030-C01", "reviewer": "Reviewer #4", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "67% accuracy defined as benchmark for clinical usefulness. Unclear why a 33% error rate should be good enough for clinical practice. Base rate of the binary variable (50% symptom reduction yes/no) should be reported to evaluate prediction quality.", "author_response": "Added base rate reporting and clinical justification for the 67% threshold based on existing literature.", "resolved": true, "tags": ["clinical_usefulness_threshold", "base_rate_unreported", "error_rate_acceptable"]},
+    {"concern_id": "PR-030-C02", "reviewer": "Reviewer #4", "round": 1, "category": "reporting", "severity": "HIGH", "mlgg_dimension": 8, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Introduction seems superficial and does not consider relevant literature on predictive models in psychotherapy research, especially for binary outcomes. Comparable recent papers in dropout prediction not cited.", "author_response": "Expanded introduction with relevant psychotherapy prediction literature.", "resolved": true, "tags": ["incomplete_literature_review", "missing_citations"]},
+    {"concern_id": "PR-030-C03", "reviewer": "Reviewer #2", "round": 1, "category": "preprocessing", "severity": "MEDIUM", "mlgg_dimension": 3, "mlgg_gates": ["missingness_policy_gate"], "mlgg_rules": [], "concern_text": "Unconvinced by multiple imputation of outcomes. Potential risk of introducing label noise. Authors should discuss this in the discussion.", "author_response": "Added discussion of imputation risks. Results presented both with and without outcome imputation.", "resolved": true, "tags": ["outcome_imputation", "label_noise", "sensitivity_analysis"]},
+    {"concern_id": "PR-030-C04", "reviewer": "Reviewer #2", "round": 1, "category": "reproducibility", "severity": "MEDIUM", "mlgg_dimension": 9, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Great that ML pipeline is available, but code is hard to read from a PDF. Please upload to GitHub.", "author_response": "Code uploaded to GitHub repository.", "resolved": true, "tags": ["code_as_pdf", "github_needed", "reproducibility"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-030-S01", "reviewer": "Reviewer #4", "text": "Addresses important and topical issue. Provides a guide for data analysis on adequate algorithms and methodological choices. Methodologically sound and well-written.", "tags": ["methodological_guide", "systematic_comparison", "well_written"]}
+  ],
+  "outcome": "accepted_after_revision",
+  "key_methodology_issues": ["clinical_usefulness_threshold", "incomplete_literature_review", "outcome_imputation"],
+  "key_methodology_strengths": ["80_model_comparison", "systematic_methodology", "clinical_usefulness_focus"]
+}

@@ -1,0 +1,25 @@
+{
+  "id": "PR-031",
+  "paper_doi": "10.1038/s41467-025-61355-3",
+  "paper_title": "AI-guided patient stratification improves outcomes and efficiency in the AMARANTH Alzheimer's Disease clinical trial",
+  "journal": "Nature Communications",
+  "year": 2025,
+  "domain": "neurology",
+  "prediction_task": "AD patient stratification for clinical trial enrichment (trained on ADNI, applied to AMARANTH trial)",
+  "model_types": ["machine_learning_classifier"],
+  "data_type": "clinical_cognitive_biomarker",
+  "sample_size": 1500,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-031-C01", "reviewer": "Reviewer #1", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Results are not very impressive — mainly the difference between sensitivity and specificity. Existing approaches show much better performance up to 97% accuracy. Technical contributions are limited.", "author_response": "Clarified that the novelty is cross-dataset generalization (ADNI→AMARANTH without retraining), not raw accuracy. Added context for existing methods.", "resolved": true, "tags": ["modest_performance", "novelty_questioned", "comparison_with_existing"]},
+    {"concern_id": "PR-031-C02", "reviewer": "Reviewer #2", "round": 1, "category": "reporting", "severity": "HIGH", "mlgg_dimension": 8, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "The most critical element — that the model was trained on ADNI and applied to AMARANTH without retraining — is not sufficiently emphasised. This represents the key contribution and should be made clear earlier.", "author_response": "Restructured introduction and abstract to emphasize cross-dataset generalization upfront.", "resolved": true, "tags": ["key_contribution_buried", "cross_dataset_generalization", "manuscript_structure"]},
+    {"concern_id": "PR-031-C03", "reviewer": "Reviewer #2", "round": 1, "category": "reporting", "severity": "MEDIUM", "mlgg_dimension": 8, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Since the true treatment effect in clinical trials is inherently unknown, further discussion of what evidence supports the model's consistency across datasets would strengthen the manuscript.", "author_response": "Added discussion of external consistency evidence and limitations of post-hoc trial analysis.", "resolved": true, "tags": ["ground_truth_unknown", "post_hoc_analysis", "treatment_effect_uncertainty"]},
+    {"concern_id": "PR-031-C04", "reviewer": "Reviewer #1", "round": 1, "category": "reporting", "severity": "MEDIUM", "mlgg_dimension": 8, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Figures need axes labels and units. The outcomes and methodology are not reflecting the claim of interpretable AI model.", "author_response": "Improved all figure labels and added interpretability analysis section.", "resolved": true, "tags": ["figure_labels_missing", "interpretability_claim_unsupported"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-031-S01", "reviewer": "Reviewer #2", "text": "Highly significant and original contribution. Demonstrates that ML model trained on ADNI can be applied to AMARANTH trial without retraining — going well beyond reliable insights: rescuing a clinical trial. Provides generalisable framework for precision medicine.", "tags": ["clinical_trial_rescue", "cross_dataset_generalization", "precision_medicine"]}
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["modest_performance", "key_contribution_buried", "ground_truth_unknown"],
+  "key_methodology_strengths": ["cross_dataset_generalization", "clinical_trial_application", "no_retraining"]
+}

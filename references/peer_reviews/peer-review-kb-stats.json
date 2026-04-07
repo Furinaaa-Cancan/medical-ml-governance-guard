@@ -1,43 +1,47 @@
 {
-  "total_papers": 26,
-  "total_concerns": 161,
-  "total_strengths": 34,
+  "total_papers": 33,
+  "total_concerns": 195,
+  "total_strengths": 42,
   "concerns_by_category": {
-    "evaluation_metrics": 49,
-    "study_design": 31,
-    "reporting": 22,
-    "preprocessing": 12,
-    "external_validation": 9,
-    "reproducibility": 9,
+    "evaluation_metrics": 59,
+    "study_design": 38,
+    "reporting": 27,
+    "preprocessing": 14,
+    "external_validation": 11,
+    "model_selection": 10,
+    "reproducibility": 10,
+    "clinical_utility": 9,
     "interpretability": 8,
-    "clinical_utility": 7,
-    "model_selection": 6,
+    "split_protocol": 3,
     "sample_size": 3,
-    "split_protocol": 2,
     "data_leakage": 2,
     "feature_selection": 1
   },
   "concerns_by_severity": {
-    "HIGH": 72,
-    "MEDIUM": 65,
-    "CRITICAL": 14,
-    "LOW": 10
+    "HIGH": 87,
+    "MEDIUM": 79,
+    "CRITICAL": 16,
+    "LOW": 13
   },
   "concerns_by_dimension": {
-    "1": 33,
+    "1": 41,
     "2": 2,
-    "3": 12,
-    "4": 8,
-    "5": 48,
-    "6": 9,
-    "7": 16,
-    "8": 21,
-    "9": 9,
+    "3": 14,
+    "4": 12,
+    "5": 58,
+    "6": 11,
+    "7": 18,
+    "8": 26,
+    "9": 10,
     "12": 3
   },
   "top_30_tags": [
     {
       "tag": "reproducibility",
+      "count": 7
+    },
+    {
+      "tag": "sensitivity_analysis",
       "count": 6
     },
     {
@@ -45,11 +49,23 @@
       "count": 5
     },
     {
-      "tag": "sensitivity_analysis",
-      "count": 5
+      "tag": "missing_baseline_comparison",
+      "count": 4
     },
     {
-      "tag": "missing_baseline_comparison",
+      "tag": "incomplete_metrics",
+      "count": 4
+    },
+    {
+      "tag": "missing_calibration",
+      "count": 4
+    },
+    {
+      "tag": "class_imbalance",
+      "count": 4
+    },
+    {
+      "tag": "comparison_with_existing",
       "count": 4
     },
     {
@@ -61,15 +77,7 @@
       "count": 4
     },
     {
-      "tag": "incomplete_metrics",
-      "count": 3
-    },
-    {
-      "tag": "missing_calibration",
-      "count": 3
-    },
-    {
-      "tag": "comparison_with_existing",
+      "tag": "missing_dca",
       "count": 3
     },
     {
@@ -81,6 +89,14 @@
       "count": 3
     },
     {
+      "tag": "model_justification",
+      "count": 3
+    },
+    {
+      "tag": "no_external_validation",
+      "count": 2
+    },
+    {
       "tag": "causal_language",
       "count": 2
     },
@@ -89,7 +105,7 @@
       "count": 2
     },
     {
-      "tag": "class_imbalance",
+      "tag": "single_split",
       "count": 2
     },
     {
@@ -97,11 +113,15 @@
       "count": 2
     },
     {
-      "tag": "missing_dca",
+      "tag": "no_code_availability",
       "count": 2
     },
     {
-      "tag": "no_code_availability",
+      "tag": "low_ppv",
+      "count": 2
+    },
+    {
+      "tag": "cost_effectiveness",
       "count": 2
     },
     {
@@ -129,51 +149,32 @@
       "count": 2
     },
     {
-      "tag": "model_description_unclear",
+      "tag": "simpler_model_competitive",
       "count": 2
     },
     {
-      "tag": "feasibility",
+      "tag": "modest_performance",
       "count": 2
-    },
-    {
-      "tag": "ablation_missing",
-      "count": 2
-    },
-    {
-      "tag": "ablation_needed",
-      "count": 2
-    },
-    {
-      "tag": "component_contribution",
-      "count": 2
-    },
-    {
-      "tag": "ancestry_mismatch",
-      "count": 2
-    },
-    {
-      "tag": "future_information_leakage",
-      "count": 1
     }
   ],
   "resolution_rate": 1.0,
   "papers_by_domain": {
     "oncology": 9,
+    "neurology": 6,
     "infectious_disease": 4,
     "genomics": 4,
+    "critical_care": 2,
     "nephrology": 2,
     "musculoskeletal": 1,
     "ehr_clinical": 1,
-    "critical_care": 1,
     "cardiovascular": 1,
-    "neurology": 1,
     "ehr_methodology": 1,
-    "emergency_medicine": 1
+    "emergency_medicine": 1,
+    "mental_health": 1
   },
   "papers_by_outcome": {
-    "accepted_after_major_revision": 22,
+    "accepted_after_major_revision": 28,
     "accepted_after_minor_revision": 3,
-    "accepted_after_revision": 1
+    "accepted_after_revision": 2
   }
 }

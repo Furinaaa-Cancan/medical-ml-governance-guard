@@ -1,0 +1,26 @@
+{
+  "id": "PR-032",
+  "paper_doi": "10.1038/s41467-022-31037-5",
+  "paper_title": "Multimodal deep learning for Alzheimer's disease dementia assessment",
+  "journal": "Nature Communications",
+  "year": 2022,
+  "domain": "neurology",
+  "prediction_task": "AD dementia vs non-AD dementia vs MCI vs normal cognition classification",
+  "model_types": ["deep_learning", "multimodal_fusion"],
+  "data_type": "mri_plus_clinical_plus_neuropsych",
+  "sample_size": 8000,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-032-C01", "reviewer": "Reviewer #1", "round": 1, "category": "clinical_utility", "severity": "HIGH", "mlgg_dimension": 7, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "GPs usually do not have access to MRI scanner — one of the most important features is MRI-based. For clinical trials, biomarker evidence for amyloid pathology would be preferred but is not included.", "author_response": "Added analysis of model performance without MRI and discussed deployment scenarios.", "resolved": true, "tags": ["clinical_deployment_barrier", "mri_access", "amyloid_biomarker_missing"]},
+    {"concern_id": "PR-032-C02", "reviewer": "Reviewer #1", "round": 1, "category": "study_design", "severity": "CRITICAL", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Model trained on clinical diagnosis — up to 30% of individuals with clinical AD dementia do not have AD pathology. Comparison with clinicians reflects differences between new vs old clinicians, not model superiority. Also APOE is missing for non-AD cohorts — presence of APOE alone could predict AD vs non-AD almost perfectly.", "author_response": "Added neuropathological validation subset and discussed diagnostic label noise. APOE missingness handled with explicit analysis.", "resolved": true, "tags": ["noisy_labels", "clinical_vs_pathological_diagnosis", "confounded_by_missing_data", "apoe_missingness"]},
+    {"concern_id": "PR-032-C03", "reviewer": "Reviewer #1", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Dementia vs non-dementia classification is trivial — diagnosis determined based on neuropsych test scores and MMSE, so it's circular that these features predict the diagnosis perfectly. The harder and more relevant task is AD vs non-AD dementias.", "author_response": "Added focused analysis on AD vs non-AD subtypes and discussed the circular nature of the dementia vs non-dementia classification.", "resolved": true, "tags": ["circular_prediction", "trivial_task", "outcome_defined_by_features"]},
+    {"concern_id": "PR-032-C04", "reviewer": "Reviewer #1", "round": 1, "category": "preprocessing", "severity": "HIGH", "mlgg_dimension": 3, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "How were MRI scans harmonised across cohorts? How were cohort-specific missing data dealt with? APOE is missing in entire Parkinson and FTD cohorts — this creates a confound.", "author_response": "Added MRI harmonization details and missing data handling methodology.", "resolved": true, "tags": ["cross_cohort_harmonization", "missing_data_systematic", "confounding_by_cohort"]},
+    {"concern_id": "PR-032-C05", "reviewer": "Reviewer #2", "round": 1, "category": "evaluation_metrics", "severity": "MEDIUM", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Unclear how external validation dataset was chosen. Manuscript mentions splitting into folds but explanation vague. How are AUC and other metrics independent of tuning and training?", "author_response": "Clarified validation strategy with explicit held-out external datasets.", "resolved": true, "tags": ["validation_strategy_unclear", "data_leakage_via_tuning"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-032-S01", "reviewer": "Reviewer #2", "text": "Highly novel — combines datasets at much larger scales than previous studies with several different modalities and multiple layers of validation (technical, clinical, neuropathological).", "tags": ["large_scale", "multimodal", "multi_level_validation"]}
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["noisy_labels", "circular_prediction", "confounding_by_cohort", "clinical_deployment_barrier"],
+  "key_methodology_strengths": ["large_scale_multimodal", "neuropathological_validation", "multi_cohort"]
+}

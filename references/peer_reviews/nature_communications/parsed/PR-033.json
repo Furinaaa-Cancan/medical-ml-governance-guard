@@ -1,0 +1,24 @@
+{
+  "id": "PR-033",
+  "paper_doi": "10.1038/s41467-025-62590-4",
+  "paper_title": "AI-driven fusion of multimodal data for Alzheimer's disease biomarker assessment",
+  "journal": "Nature Communications",
+  "year": 2025,
+  "domain": "neurology",
+  "prediction_task": "Amyloid and tau PET status prediction from multimodal clinical data (without PET scan)",
+  "model_types": ["multimodal_fusion", "deep_learning"],
+  "data_type": "clinical_plus_mri_plus_cognitive",
+  "sample_size": 12185,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-033-C01", "reviewer": "Reviewer #1", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": ["calibration_dca_gate"], "mlgg_rules": [], "concern_text": "AUROC of 0.79/0.84 for amyloid/tau classification — should report calibration and net benefit analysis. Without these, clinical applicability cannot be assessed.", "author_response": "Added calibration plots and DCA analysis.", "resolved": true, "tags": ["missing_calibration", "missing_dca", "clinical_applicability"]},
+    {"concern_id": "PR-033-C02", "reviewer": "Reviewer #1", "round": 1, "category": "external_validation", "severity": "HIGH", "mlgg_dimension": 6, "mlgg_gates": ["external_validation_gate"], "mlgg_rules": [], "concern_text": "Seven cohorts used but unclear how independent the external validation truly is. Need clear delineation of which cohorts used for development vs validation.", "author_response": "Restructured to clearly separate 4 development cohorts from 3 validation cohorts.", "resolved": true, "tags": ["validation_independence_unclear", "cohort_overlap"]},
+    {"concern_id": "PR-033-C03", "reviewer": "Reviewer #2", "round": 1, "category": "study_design", "severity": "MEDIUM", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "The clinical utility depends on whether this replaces PET scanning. How does the model perform in the specific clinical scenario where PET is being considered but not yet obtained?", "author_response": "Added analysis of model as PET pre-screening tool with cost-effectiveness comparison.", "resolved": true, "tags": ["clinical_scenario", "pet_replacement", "cost_effectiveness"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-033-S01", "reviewer": "Reviewer #2", "text": "Large-scale study integrating data from seven cohorts comprising 12,185 participants. Practical clinical relevance for reducing need for expensive PET scans.", "tags": ["large_multicohort", "clinical_relevance", "cost_reduction"]}
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["missing_calibration", "validation_independence_unclear", "clinical_scenario"],
+  "key_methodology_strengths": ["large_multicohort", "practical_clinical_utility", "multimodal_fusion"]
+}
