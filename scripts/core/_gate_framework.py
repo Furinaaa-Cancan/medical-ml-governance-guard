@@ -402,6 +402,17 @@ def print_gate_summary(
         print(f"  \u26a0  {critical_count} CRITICAL issue(s) require immediate attention.")
         print()
 
+    # Peer Review RAG context — show similar issues from NC papers
+    if failures:
+        try:
+            from _peer_review_retrieval import format_gate_peer_context
+            peer_ctx = format_gate_peer_context(gate_name)
+            if peer_ctx:
+                print(peer_ctx)
+                print()
+        except (ImportError, FileNotFoundError):
+            pass  # Peer review KB not available — skip silently
+
 
 # ---------------------------------------------------------------------------
 # GateBase abstract class
