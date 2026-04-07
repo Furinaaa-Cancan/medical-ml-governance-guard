@@ -1,5 +1,0 @@
-model,apparent_auroc,optimism,corrected_auroc,validation_auroc,corrected_valid_diff
-XGBoost,0.7113,0.0277,0.6836,0.6611,0.0225
-LightGBM,0.7081,0.0256,0.6825,0.6609,0.0216
-RF,0.6835,0.0137,0.6699,0.6522,0.0177
-LR,0.6768,0.0067,0.6701,0.6503,0.0198

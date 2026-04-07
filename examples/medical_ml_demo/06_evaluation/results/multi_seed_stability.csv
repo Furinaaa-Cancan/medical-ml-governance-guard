@@ -1,5 +1,0 @@
-model,mean_auroc,std_auroc,stable
-LR,0.6356,0.0,True
-LightGBM,0.6467,0.0006,True
-RF,0.6335,0.0001,True
-XGBoost,0.6467,0.0005,True
