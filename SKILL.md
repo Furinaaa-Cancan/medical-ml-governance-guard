@@ -87,9 +87,9 @@ description: "Publication-grade medical prediction workflow with strict anti-dat
 
 | 用户说的 | 你该做的 |
 |---------|---------|
-| "帮我训练一个模型" / "跑一下预测" | `python3 scripts/mlgg.py play` — 启动交互向导 |
-| "用我的数据训练" / "我有一个 CSV" | `python3 scripts/mlgg.py play` → 选"使用自己的数据集" |
-| "查看训练结果" / "结果怎么样" | `python3 scripts/quick_summary.py <output_dir>` |
+| "帮我训练一个模型" / "跑一下预测" | `python3 scripts/orchestration/mlgg.py play` — 启动交互向导 |
+| "用我的数据训练" / "我有一个 CSV" | `python3 scripts/orchestration/mlgg.py play` → 选"使用自己的数据集" |
+| "查看训练结果" / "结果怎么样" | `python3 scripts/tools/quick_summary.py <output_dir>` |
 | "下载一个测试数据集" | `python3 examples/download_real_data.py <name>` (heart/breast/pima/mammographic/thyroid/eeg_eye/vitaldb/framingham/diabetes130/diabetes130_full/rhc/sepsis_survival) |
 | "下载 CDC 数据集" | `python3 examples/download_cdc_data.py <name>` (brfss/nhis/covid/all) |
 | "下载 NHANES 数据集" | `python3 examples/download_nhanes.py --cycles both --output examples/nhanes_diabetes.csv` |
@@ -98,18 +98,18 @@ description: "Publication-grade medical prediction workflow with strict anti-dat
 | "Methods vs Code 比对" | `python3 experiments/paper/compare_methods_vs_code.py --methods-dir ... --audit-log ... --blind-list ... --output ...` |
 | "统计分析" | `python3 experiments/paper/statistical_analysis.py --output experiments/paper/output/statistical_results.json` |
 | "过夜批量跑 pipeline" | `nohup bash experiments/overnight_pipeline_run.sh > experiments/overnight_run.log 2>&1 &` |
-| "严格审计" / "出版级验证" | `python3 scripts/mlgg.py workflow --strict` |
-| "检查环境" / "安装有问题" | `python3 scripts/mlgg.py doctor` |
-| "初始化项目" | `python3 scripts/mlgg.py onboarding` |
-| "对比两次运行" | `python3 scripts/compare_runs.py --run-a <dir1> --run-b <dir2>` |
-| "生成修复计划" | `python3 scripts/remediation_plan.py --evidence-dir <dir>` |
-| "解释某个 gate 失败" | `python3 scripts/explain_gate.py --report <gate_report.json>` |
-| "检查代码是否有数据泄漏" | `python3 scripts/mlgg.py lint check <file.py>` |
-| "检查代码（JSON 给 agent）" | `python3 scripts/mlgg.py lint check <file.py> --format json` |
-| "检查代码（CI 门控）" | `python3 scripts/mlgg.py lint check <dir> --exit-code` |
-| "SHAP 可解释性" / "特征重要性" | `python3 scripts/shap_interpretability_gate.py --model-pool evidence/model_pool.pkl --train-data data/train.csv --test-data data/test.csv --target-col y --report evidence/shap_interpretability_report.json` |
-| "数据探索" / "样本量够不够" / "EPV" | `python3 scripts/cohort_definition_gate.py --data data.csv --target-col y --id-col patient_id --report evidence/cohort_report.json` |
-| "横截面数据" / "survey 数据" / "NHANES" | `python3 scripts/split_data.py --input data.csv --strategy stratified_grouped --cross-sectional --patient-id-col patient_id --target-col y --output-dir data/` |
+| "严格审计" / "出版级验证" | `python3 scripts/orchestration/mlgg.py workflow --strict` |
+| "检查环境" / "安装有问题" | `python3 scripts/orchestration/mlgg.py doctor` |
+| "初始化项目" | `python3 scripts/orchestration/mlgg.py onboarding` |
+| "对比两次运行" | `python3 scripts/tools/compare_runs.py --run-a <dir1> --run-b <dir2>` |
+| "生成修复计划" | `python3 scripts/tools/remediation_plan.py --evidence-dir <dir>` |
+| "解释某个 gate 失败" | `python3 scripts/tools/explain_gate.py --report <gate_report.json>` |
+| "检查代码是否有数据泄漏" | `python3 scripts/orchestration/mlgg.py lint check <file.py>` |
+| "检查代码（JSON 给 agent）" | `python3 scripts/orchestration/mlgg.py lint check <file.py> --format json` |
+| "检查代码（CI 门控）" | `python3 scripts/orchestration/mlgg.py lint check <dir> --exit-code` |
+| "SHAP 可解释性" / "特征重要性" | `python3 scripts/gates/shap_interpretability_gate.py --model-pool evidence/model_pool.pkl --train-data data/train.csv --test-data data/test.csv --target-col y --report evidence/shap_interpretability_report.json` |
+| "数据探索" / "样本量够不够" / "EPV" | `python3 scripts/gates/cohort_definition_gate.py --data data.csv --target-col y --id-col patient_id --report evidence/cohort_report.json` |
+| "横截面数据" / "survey 数据" / "NHANES" | `python3 scripts/tools/split_data.py --input data.csv --strategy stratified_grouped --cross-sectional --patient-id-col patient_id --target-col y --output-dir data/` |
 | "校准怎么样" / "calibration slope" | 查看 `calibration_metrics()` in `_gate_utils.py`：校准截距/斜率/O:E/ECE/Hosmer-Lemeshow/Brier Skill Score |
 | "NRI IDI" / "模型比较改善" | 调用 `compute_nri_idi(y_true, y_old, y_new)` in `_gate_utils.py`：分类 NRI、连续 NRI、IDI |
 | "学习曲线" / "数据量够不够" | 调用 `learning_curve_data(estimator, X_train, y_train, X_test, y_test)` in `_gate_utils.py` |
@@ -123,9 +123,9 @@ description: "Publication-grade medical prediction workflow with strict anti-dat
 | "baseline 对比" / "比随机好多少" | 调用 `baseline_comparisons(y_true, y_score, y_pred)` in `_gate_utils.py`：AUROC over random + BSS |
 | "消融实验" / "ablation" / "去掉特征" | 调用 `feature_ablation(estimator, X_train, y_train, X_test, y_test, features)` in `_gate_utils.py` |
 | "训练时间" / "计算资源" / "硬件" | 调用 `compute_resource_report(t0, t1, model_name, n_train, n_features)` in `_gate_utils.py` |
-| "查看 lint 规则列表" | `python3 scripts/mlgg.py lint rules` |
-| "评审一篇论文（从 metadata）" | `python3 scripts/score_paper_metadata.py --metadata <metadata.json>` |
-| "批量评审论文" | `python3 scripts/score_paper_metadata.py --batch-dir papers/` |
+| "查看 lint 规则列表" | `python3 scripts/orchestration/mlgg.py lint rules` |
+| "评审一篇论文（从 metadata）" | `python3 scripts/tools/score_paper_metadata.py --metadata <metadata.json>` |
+| "批量评审论文" | `python3 scripts/tools/score_paper_metadata.py --batch-dir papers/` |
 | "从 PMC 收集有代码的论文" | `python3 experiments/paper/collect_papers_with_code.py --output <out.jsonl>` |
 | "验证论文 repo 质量" | `python3 experiments/paper/verify_repos.py --input <in.jsonl> --output <out.jsonl>` |
 | "批量扫描论文代码泄漏" | `python3 experiments/paper/scan_published_repos.py --manifest <verified.jsonl> --output <out.json>` |
@@ -187,30 +187,30 @@ Agent 根据当前场景选择检索维度：
 #### 辅助 CLI（供用户手动查询）
 
 ```bash
-python3 scripts/peer_review_lookup.py --stats
-python3 scripts/peer_review_lookup.py --dimension 5 --severity HIGH
-python3 scripts/peer_review_lookup.py --gate leakage_gate
-python3 scripts/peer_review_lookup.py --tags "missing_calibration,no_dca"
-python3 scripts/peer_review_lookup.py --category evaluation_metrics --limit 3
+python3 scripts/tools/peer_review_lookup.py --stats
+python3 scripts/tools/peer_review_lookup.py --dimension 5 --severity HIGH
+python3 scripts/tools/peer_review_lookup.py --gate leakage_gate
+python3 scripts/tools/peer_review_lookup.py --tags "missing_calibration,no_dca"
+python3 scripts/tools/peer_review_lookup.py --category evaluation_metrics --limit 3
 ```
 
 ### 五条常用命令（覆盖 90% 场景）
 
 ```bash
 # 1. 新手一键体验（推荐入口）
-python3 scripts/mlgg.py play
+python3 scripts/orchestration/mlgg.py play
 
 # 2. 快速查看结果
-python3 scripts/quick_summary.py ~/Desktop/MLGG_Output/breast_cancer
+python3 scripts/tools/quick_summary.py ~/Desktop/MLGG_Output/breast_cancer
 
 # 3. 下载真实数据集
 python3 examples/download_real_data.py breast --output /tmp/breast.csv
 
 # 4. 严格出版级流程
-python3 scripts/mlgg.py onboarding && python3 scripts/mlgg.py workflow --strict
+python3 scripts/orchestration/mlgg.py onboarding && python3 scripts/orchestration/mlgg.py workflow --strict
 
 # 5. 环境诊断
-python3 scripts/mlgg.py doctor
+python3 scripts/orchestration/mlgg.py doctor
 ```
 
 ### 添加新数据集的操作步骤
@@ -220,19 +220,19 @@ python3 scripts/mlgg.py doctor
 3. 调用 `add_patient_id_and_time(df, seed=N)`（种子必须唯一）
 4. 输出列顺序：`patient_id, event_time, y, features...`
 5. 添加到 `PREPARE` 字典和 CLI `choices`
-6. 在 `scripts/mlgg_pixel.py` 中添加 i18n 字符串 + `PLAY_DOWNLOAD_DATASETS` 条目
+6. 在 `scripts/orchestration/mlgg_pixel.py` 中添加 i18n 字符串 + `PLAY_DOWNLOAD_DATASETS` 条目
 7. 测试：`python3 examples/download_real_data.py <name> --output /tmp/test.csv`
 
 ### 添加新模型族的操作步骤
 
-修改 `scripts/train_select_evaluate.py` 的 5 个位置：
+修改 `scripts/tools/train_select_evaluate.py` 的 5 个位置：
 1. `SUPPORTED_MODEL_FAMILIES` 集合
 2. `_family_grid()` — 超参数网格
 3. `_build_estimator_for_family()` — Pipeline 构建
 4. `_family_base_complexity()` — 复杂度排名
 5. `_family_friendly_name()` — 显示名称
 
-修改 `scripts/mlgg_pixel.py` 的 4 个位置：
+修改 `scripts/orchestration/mlgg_pixel.py` 的 4 个位置：
 6. `MODEL_POOL` 列表
 7. `BASE_FAMILY_GRID_SIZES` 字典
 8. `_T` i18n 字符串
@@ -249,11 +249,11 @@ python3 scripts/mlgg.py doctor
 5. **退出逻辑**：`should_fail = bool(failures) or (args.strict and bool(warnings))`，返回 `2 if should_fail else 0`
 6. **注册**：在 `_gate_registry.py` 中注册 gate 名称和路径
 7. **无需手动同步 gate 列表**：以下工具脚本已从 `_gate_registry.py` 动态获取 gate 列表，添加新 gate 后自动生效：
-   - `scripts/report_health_check.py` → `EXPECTED_REPORTS`
-   - `scripts/remediation_plan.py` → `GATE_ORDER`
-   - `scripts/evidence_digest.py` → `gate_files`
-   - `scripts/compare_runs.py` → `REPORT_FILES`
-   - 仍需手动更新：`scripts/render_user_summary.py` → `DEFAULT_GATE_FILES`（仅展示子集）、`scripts/run_strict_pipeline.py` → `gate_script_inputs`（manifest 指纹）
+   - `scripts/tools/report_health_check.py` → `EXPECTED_REPORTS`
+   - `scripts/tools/remediation_plan.py` → `GATE_ORDER`
+   - `scripts/tools/evidence_digest.py` → `gate_files`
+   - `scripts/tools/compare_runs.py` → `REPORT_FILES`
+   - 仍需手动更新：`scripts/tools/render_user_summary.py` → `DEFAULT_GATE_FILES`（仅展示子集）、`scripts/orchestration/run_strict_pipeline.py` → `gate_script_inputs`（manifest 指纹）
 8. **测试**：在 `tests/` 中创建对应测试文件，覆盖率 ≥85%
 
 **严禁**：
@@ -384,7 +384,7 @@ Gate 覆盖: A=29/31可测, B=21-26/31, C=12/31。详见 `references/dataset-gat
 
 **证据完整性**：
 - 训练结束自动生成 SHA256 清单（`.manifest.json`），记录每个证据文件的哈希值和大小
-- 可随时验证：`python3 scripts/_security.py audit evidence/`
+- 可随时验证：`python3 scripts/core/_security.py audit evidence/`
 - 检测篡改、缺失、敏感数据暴露
 
 **输入验证**：
@@ -404,7 +404,7 @@ Gate 覆盖: A=29/31可测, B=21-26/31, C=12/31。详见 `references/dataset-gat
 - `verify_critical_imports()`: 运行时验证 sklearn/numpy/pandas 是否为真实库（非 monkey-patch）
 - `.mlgg_model_key` 自动生成、权限 600、已加入 `.gitignore`
 
-**CLI 工具**：`python3 scripts/_security.py [sign|verify|manifest|audit|check-deps]`
+**CLI 工具**：`python3 scripts/core/_security.py [sign|verify|manifest|audit|check-deps]`
 
 ### 能力边界
 
@@ -438,7 +438,7 @@ Accept a structured request JSON, not free-form text.
 
 Data input modes:
 - **Pre-split mode**: user provides separate train/valid/test CSV files.
-- **Single-file mode**: user provides one complete CSV; use `scripts/split_data.py` to auto-split with patient-level disjoint, temporal ordering, and prevalence checks. The interactive wizard (`mlgg interactive --command train`) and onboarding (`mlgg onboarding --input-csv`) support this mode natively.
+- **Single-file mode**: user provides one complete CSV; use `scripts/tools/split_data.py` to auto-split with patient-level disjoint, temporal ordering, and prevalence checks. The interactive wizard (`mlgg interactive --command train`) and onboarding (`mlgg onboarding --input-csv`) support this mode natively.
 
 Required fields:
 - `study_id`
@@ -512,7 +512,7 @@ Template:
 Validate request first:
 
 ```bash
-python3 scripts/request_contract_gate.py \
+python3 scripts/gates/request_contract_gate.py \
   --request configs/request.json \
   --report evidence/request_contract_report.json \
   --strict
@@ -610,7 +610,7 @@ Each script is a composable node:
 Use one-command orchestration for production use:
 
 ```bash
-python3 scripts/run_strict_pipeline.py \
+python3 scripts/orchestration/run_strict_pipeline.py \
   --request configs/request.json \
   --evidence-dir evidence \
   --compare-manifest evidence/manifest_baseline.json \
@@ -620,7 +620,7 @@ python3 scripts/run_strict_pipeline.py \
 Productized one-command wrapper:
 
 ```bash
-python3 scripts/run_productized_workflow.py \
+python3 scripts/orchestration/run_productized_workflow.py \
   --request configs/request.json \
   --evidence-dir evidence \
   --allow-missing-compare \
@@ -630,14 +630,14 @@ python3 scripts/run_productized_workflow.py \
 Novice onboarding wrapper (guided 8-step flow):
 
 ```bash
-python3 scripts/mlgg.py onboarding \
+python3 scripts/orchestration/mlgg.py onboarding \
   --project-root /tmp/mlgg_demo \
   --mode guided \
   --yes
 ```
 
 Onboarding contract:
-- `scripts/mlgg_onboarding.py` is strict-only (no policy downgrade path).
+- `scripts/orchestration/mlgg_onboarding.py` is strict-only (no policy downgrade path).
 - Failure behavior:
   - default `--stop-on-fail` (fail-fast)
   - optional `--no-stop-on-fail` (collect full diagnostics while keeping fail-closed result)
@@ -699,7 +699,7 @@ openssl pkey -in keys/witness_b_priv.pem -pubout -out keys/witness_b_pub.pem
 Generate payload + signature + spec in one command:
 
 ```bash
-python3 scripts/generate_execution_attestation.py \
+python3 scripts/tools/generate_execution_attestation.py \
   --study-id sepsis-risk-icu-v1 \
   --run-id sepsis-risk-icu-v1-train-2026-02-24-001 \
   --payload-out evidence/attestation_payload.json \
@@ -813,73 +813,73 @@ If any step returns non-zero, stop and block claim release.
 ## Resources
 
 ### scripts/
-- `scripts/run_strict_pipeline.py`: single-entry strict orchestrator.
-- `scripts/request_contract_gate.py`: request schema/path validation and publication-policy anti-downgrade checks.
-- `scripts/mlgg.py`: unified command entrypoint (`onboarding`, `interactive`, `init`, `train`, `workflow`, ...).
-- `scripts/mlgg_onboarding.py`: novice-guided strict onboarding flow and report emitter.
-- `scripts/split_data.py`: split a single CSV into train/valid/test with patient-level disjoint, temporal ordering, prevalence safety checks, NaN patient_id/target exclusion, row count preservation, SHA256 input fingerprint, min 10 pos/neg per split, min 5 patients per split, and prevalence shift warning.
-- `scripts/generate_demo_medical_dataset.py`: offline reproducible demo dataset generator.
-- `scripts/manifest_lock.py`: dataset/protocol/evaluation/gate-script fingerprint and baseline comparison.
-- `scripts/execution_attestation_gate.py`: signed run-attestation and artifact-hash verification gate.
-- `scripts/generate_execution_attestation.py`: one-command payload/signature/spec/timestamp/transparency/execution-receipt/execution-log/witness-quorum generator for personal users.
-- `scripts/reporting_bias_gate.py`: TRIPOD+AI / PROBAST+AI / STARD-AI checklist hard gate.
-- `scripts/leakage_gate.py`: split contamination, ID overlap, and temporal boundary checks.
-- `scripts/split_protocol_gate.py`: enforce split protocol consistency and temporal/group safeguards.
-- `scripts/covariate_shift_gate.py`: train-vs-holdout covariate-shift and split separability risk gate.
-- `scripts/definition_variable_guard.py`: hard gate against disease-definition variable leakage.
-- `scripts/feature_lineage_gate.py`: hard gate against lineage-derived leakage.
-- `scripts/imbalance_policy_gate.py`: validate class-imbalance strategy and train-only resampling policy.
-- `scripts/missingness_policy_gate.py`: validate missing-data strategy, large-scale method suitability, and imputer isolation policy.
-- `scripts/tuning_leakage_gate.py`: validate hyperparameter tuning/test-isolation protocol.
-- `scripts/model_selection_audit_gate.py`: validate candidate pool, one-SE replay, and test-isolated model selection.
-- `scripts/feature_engineering_audit_gate.py`: validate feature-group provenance, train-only engineering scope, stability evidence, and reproducibility fields.
-- `scripts/clinical_metrics_gate.py`: validate clinical metric completeness and confusion-matrix consistency per split.
-- `scripts/distribution_generalization_gate.py`: train-vs-holdout distribution shift, split separability, and transport-readiness gate.
-- `scripts/generalization_gap_gate.py`: fail-closed overfitting gap checks across train/valid/test.
-- `scripts/ci_matrix_gate.py`: bootstrap CI matrix gate for primary metric and transport-drop CI on internal and external cohorts.
-- `scripts/metric_consistency_gate.py`: extract and validate metric from evaluation report.
-- `scripts/evaluation_quality_gate.py`: enforce primary-metric CI quality and baseline improvement checks.
-- `scripts/permutation_significance_gate.py`: falsification significance gate.
-- `scripts/publication_gate.py`: aggregate fail-closed publication gate.
-- `scripts/self_critique_gate.py`: quality scoring and reviewer-grade self-critique gate.
-- `scripts/train_select_evaluate.py`: terminal-ready training, model selection, threshold selection, and evaluation artifact generator.
-- `scripts/train_select_evaluate.py` model-pool controls: `--model-pool`, `--include-optional-models`, `--max-trials-per-family`, `--hyperparam-search`, `--n-jobs`.
-- `scripts/train_select_evaluate.py` optional model backends: `xgboost` and `catboost` are auto-detected and fail-closed when explicitly requested but unavailable.
-- `scripts/init_project.py`: one-command initialization for `configs/`, `data/`, `evidence/`, `models/`, `keys/`, plus `configs/request.json`.
-- `scripts/schema_preflight.py`: train/valid/test schema checks with semantic column auto-mapping report.
-- `scripts/env_doctor.py`: dependency and environment diagnostics with optional-backend checks.
-- `scripts/render_user_summary.py`: user-facing markdown/json summary from strict evidence artifacts.
-- `scripts/run_productized_workflow.py`: full UX wrapper (doctor -> preflight -> strict pipeline -> user summary).
-- `scripts/mlgg_interactive.py`: terminal interactive wizard for core commands (`init/workflow/train/authority`) with command preview, confirm-before-run, and profile save/load.
-- `scripts/mlgg_pixel.py`: pixel-art interactive CLI wizard (`mlgg.py play`) for guided pipeline setup and execution with bilingual (en/zh) support, dataset-size-aware defaults, small-sample strict mode, and play-mode quick-readiness card.
-- `scripts/_gate_utils.py`: shared utility functions (`add_issue`, `load_json`, `write_json`, `to_float`) for gate scripts.
-- `scripts/_security.py`: security hardening module — HMAC model signing, path traversal protection, secure JSON loading, artifact integrity manifest, membership inference defense, dependency verification, security audit CLI.
-- `scripts/security_audit_gate.py`: 29th pipeline gate (FINAL layer) — verifies model HMAC signatures, evidence manifest integrity, dependency authenticity, file permissions, sensitive data exposure, artifact sizes.
-- `scripts/fairness_equity_gate.py`: 30th pipeline gate (METRIC_VALIDATION layer) — equalized odds gap across demographic/clinical subgroups, disparate impact ratio (four-fifths rule), per-subgroup PR-AUC validation.
-- `scripts/sample_size_gate.py`: 31st pipeline gate (METRIC_VALIDATION layer) — EPV (Riley et al. 2019/2025), shrinkage factor, minimum events/non-events adequacy.
-- `scripts/policy_generator.py`: generate recommended `performance_policy.json` from evidence reports with configurable margin and presets.
-- `scripts/gate_timeline.py`: analyze gate execution timeline, identify bottleneck gates, compute wall-clock span.
-- `scripts/gate_coverage_matrix.py`: scan evidence directory against full gate registry to produce coverage matrix.
-- `scripts/evidence_comparator.py`: compare two evidence directories side-by-side showing improved/regressed/new/removed gates.
-- `scripts/evidence_digest.py`: generate compact one-page summary from evidence directory.
-- `scripts/report_health_check.py`: scan all gate reports for completeness and pass rate.
-- `scripts/remediation_plan.py`: generate prioritized remediation plan from gate failures.
-- `scripts/threshold_sensitivity.py`: analyze how close metrics sit to pass/fail thresholds.
-- `scripts/compare_runs.py`: compare two pipeline runs side-by-side.
-- `scripts/export_latex.py`: generate LaTeX tables from evaluation/CI/model-selection reports.
-- `scripts/explain_gate.py`: explain a single gate result in human-readable form.
-- `scripts/quick_summary.py`: one-command training results viewer with key metrics, overfitting risk, model selection top-10.
-- `scripts/audit_external_project.py`: 10-dimension quantitative audit tool for evaluating medical ML projects (100-point scale) with journal-specific gap analysis.
-- `scripts/fairness_equity_gate.py`: fail-closed fairness and equity gate — equalized odds gap, disparate impact ratio (four-fifths rule), per-subgroup PR-AUC validation.
-- `scripts/sample_size_gate.py`: fail-closed sample size adequacy gate — EPV (Riley et al. 2019/2025), shrinkage factor, min events/non-events.
-- `scripts/batch_journal_review.py`: batch audit N projects in parallel with comparison matrix, cross-cutting analysis, and aggregated remediation priorities.
+- `scripts/orchestration/run_strict_pipeline.py`: single-entry strict orchestrator.
+- `scripts/gates/request_contract_gate.py`: request schema/path validation and publication-policy anti-downgrade checks.
+- `scripts/orchestration/mlgg.py`: unified command entrypoint (`onboarding`, `interactive`, `init`, `train`, `workflow`, ...).
+- `scripts/orchestration/mlgg_onboarding.py`: novice-guided strict onboarding flow and report emitter.
+- `scripts/tools/split_data.py`: split a single CSV into train/valid/test with patient-level disjoint, temporal ordering, prevalence safety checks, NaN patient_id/target exclusion, row count preservation, SHA256 input fingerprint, min 10 pos/neg per split, min 5 patients per split, and prevalence shift warning.
+- `scripts/tools/generate_demo_medical_dataset.py`: offline reproducible demo dataset generator.
+- `scripts/gates/manifest_lock.py`: dataset/protocol/evaluation/gate-script fingerprint and baseline comparison.
+- `scripts/gates/execution_attestation_gate.py`: signed run-attestation and artifact-hash verification gate.
+- `scripts/tools/generate_execution_attestation.py`: one-command payload/signature/spec/timestamp/transparency/execution-receipt/execution-log/witness-quorum generator for personal users.
+- `scripts/gates/reporting_bias_gate.py`: TRIPOD+AI / PROBAST+AI / STARD-AI checklist hard gate.
+- `scripts/gates/leakage_gate.py`: split contamination, ID overlap, and temporal boundary checks.
+- `scripts/gates/split_protocol_gate.py`: enforce split protocol consistency and temporal/group safeguards.
+- `scripts/gates/covariate_shift_gate.py`: train-vs-holdout covariate-shift and split separability risk gate.
+- `scripts/gates/definition_variable_guard.py`: hard gate against disease-definition variable leakage.
+- `scripts/gates/feature_lineage_gate.py`: hard gate against lineage-derived leakage.
+- `scripts/gates/imbalance_policy_gate.py`: validate class-imbalance strategy and train-only resampling policy.
+- `scripts/gates/missingness_policy_gate.py`: validate missing-data strategy, large-scale method suitability, and imputer isolation policy.
+- `scripts/gates/tuning_leakage_gate.py`: validate hyperparameter tuning/test-isolation protocol.
+- `scripts/gates/model_selection_audit_gate.py`: validate candidate pool, one-SE replay, and test-isolated model selection.
+- `scripts/gates/feature_engineering_audit_gate.py`: validate feature-group provenance, train-only engineering scope, stability evidence, and reproducibility fields.
+- `scripts/gates/clinical_metrics_gate.py`: validate clinical metric completeness and confusion-matrix consistency per split.
+- `scripts/gates/distribution_generalization_gate.py`: train-vs-holdout distribution shift, split separability, and transport-readiness gate.
+- `scripts/gates/generalization_gap_gate.py`: fail-closed overfitting gap checks across train/valid/test.
+- `scripts/gates/ci_matrix_gate.py`: bootstrap CI matrix gate for primary metric and transport-drop CI on internal and external cohorts.
+- `scripts/gates/metric_consistency_gate.py`: extract and validate metric from evaluation report.
+- `scripts/gates/evaluation_quality_gate.py`: enforce primary-metric CI quality and baseline improvement checks.
+- `scripts/gates/permutation_significance_gate.py`: falsification significance gate.
+- `scripts/gates/publication_gate.py`: aggregate fail-closed publication gate.
+- `scripts/gates/self_critique_gate.py`: quality scoring and reviewer-grade self-critique gate.
+- `scripts/tools/train_select_evaluate.py`: terminal-ready training, model selection, threshold selection, and evaluation artifact generator.
+- `scripts/tools/train_select_evaluate.py` model-pool controls: `--model-pool`, `--include-optional-models`, `--max-trials-per-family`, `--hyperparam-search`, `--n-jobs`.
+- `scripts/tools/train_select_evaluate.py` optional model backends: `xgboost` and `catboost` are auto-detected and fail-closed when explicitly requested but unavailable.
+- `scripts/tools/init_project.py`: one-command initialization for `configs/`, `data/`, `evidence/`, `models/`, `keys/`, plus `configs/request.json`.
+- `scripts/tools/schema_preflight.py`: train/valid/test schema checks with semantic column auto-mapping report.
+- `scripts/tools/env_doctor.py`: dependency and environment diagnostics with optional-backend checks.
+- `scripts/tools/render_user_summary.py`: user-facing markdown/json summary from strict evidence artifacts.
+- `scripts/orchestration/run_productized_workflow.py`: full UX wrapper (doctor -> preflight -> strict pipeline -> user summary).
+- `scripts/orchestration/mlgg_interactive.py`: terminal interactive wizard for core commands (`init/workflow/train/authority`) with command preview, confirm-before-run, and profile save/load.
+- `scripts/orchestration/mlgg_pixel.py`: pixel-art interactive CLI wizard (`mlgg.py play`) for guided pipeline setup and execution with bilingual (en/zh) support, dataset-size-aware defaults, small-sample strict mode, and play-mode quick-readiness card.
+- `scripts/core/_gate_utils.py`: shared utility functions (`add_issue`, `load_json`, `write_json`, `to_float`) for gate scripts.
+- `scripts/core/_security.py`: security hardening module — HMAC model signing, path traversal protection, secure JSON loading, artifact integrity manifest, membership inference defense, dependency verification, security audit CLI.
+- `scripts/gates/security_audit_gate.py`: 29th pipeline gate (FINAL layer) — verifies model HMAC signatures, evidence manifest integrity, dependency authenticity, file permissions, sensitive data exposure, artifact sizes.
+- `scripts/gates/fairness_equity_gate.py`: 30th pipeline gate (METRIC_VALIDATION layer) — equalized odds gap across demographic/clinical subgroups, disparate impact ratio (four-fifths rule), per-subgroup PR-AUC validation.
+- `scripts/gates/sample_size_gate.py`: 31st pipeline gate (METRIC_VALIDATION layer) — EPV (Riley et al. 2019/2025), shrinkage factor, minimum events/non-events adequacy.
+- `scripts/tools/policy_generator.py`: generate recommended `performance_policy.json` from evidence reports with configurable margin and presets.
+- `scripts/tools/gate_timeline.py`: analyze gate execution timeline, identify bottleneck gates, compute wall-clock span.
+- `scripts/tools/gate_coverage_matrix.py`: scan evidence directory against full gate registry to produce coverage matrix.
+- `scripts/tools/evidence_comparator.py`: compare two evidence directories side-by-side showing improved/regressed/new/removed gates.
+- `scripts/tools/evidence_digest.py`: generate compact one-page summary from evidence directory.
+- `scripts/tools/report_health_check.py`: scan all gate reports for completeness and pass rate.
+- `scripts/tools/remediation_plan.py`: generate prioritized remediation plan from gate failures.
+- `scripts/tools/threshold_sensitivity.py`: analyze how close metrics sit to pass/fail thresholds.
+- `scripts/tools/compare_runs.py`: compare two pipeline runs side-by-side.
+- `scripts/tools/export_latex.py`: generate LaTeX tables from evaluation/CI/model-selection reports.
+- `scripts/tools/explain_gate.py`: explain a single gate result in human-readable form.
+- `scripts/tools/quick_summary.py`: one-command training results viewer with key metrics, overfitting risk, model selection top-10.
+- `scripts/tools/audit_external_project.py`: 10-dimension quantitative audit tool for evaluating medical ML projects (100-point scale) with journal-specific gap analysis.
+- `scripts/gates/fairness_equity_gate.py`: fail-closed fairness and equity gate — equalized odds gap, disparate impact ratio (four-fifths rule), per-subgroup PR-AUC validation.
+- `scripts/gates/sample_size_gate.py`: fail-closed sample size adequacy gate — EPV (Riley et al. 2019/2025), shrinkage factor, min events/non-events.
+- `scripts/tools/batch_journal_review.py`: batch audit N projects in parallel with comparison matrix, cross-cutting analysis, and aggregated remediation priorities.
 - `experiments/authority-e2e/scan_stress_diabetes_feasibility.py`: stress-case diabetes feasibility scanner across target modes and row caps; outputs a fail-closed feasibility report.
 
 ### plugin/
 - `plugin/mlgg_lint/`: AST-based static analysis for ML Python code (10 rules: R001–R010, 57 tests).
 - R001 fit-before-split (ERROR), R002 scaler-on-test (ERROR), R003 resample-on-test (ERROR), R004 split-without-group (WARNING), R005 threshold-on-test (ERROR), R006 feature-selection-on-full (ERROR), R007 target-as-feature (ERROR), R008 temporal-split-shuffle (WARNING), R009 no-confidence-intervals (INFO), R010 train-metric-as-final (WARNING).
 - Detection: keyword args (`fit(X=X_test)`), chained calls (`SMOTE().fit_resample()`), DataFrame origin tracking + `.drop()` re-assignment, Pipeline exclusion, word-boundary variable classification.
-- CLI: `python3 scripts/mlgg.py lint check [--format text|json|sarif] [--exit-code] [--severity warning] [--disable R004,R008] PATH...`
+- CLI: `python3 scripts/orchestration/mlgg.py lint check [--format text|json|sarif] [--exit-code] [--severity warning] [--disable R004,R008] PATH...`
 - Supports `# noqa: R001` / `# noqa` inline suppression and `.mlgg-lint.toml` config auto-discovery.
 - Output: relative paths (no absolute path leakage), ANSI-stripped in no-color mode.
 - Security: 16 MB file limit, 1 MB config limit, symlink skip, stat-error handling, malformed TOML graceful fallback.
@@ -939,17 +939,17 @@ If any step returns non-zero, stop and block claim release.
 
 ## Authority E2E Execution Notes
 - Recommended single-entry CLI:
-  - `python3 scripts/mlgg.py <command> [command-args]`
+  - `python3 scripts/orchestration/mlgg.py <command> [command-args]`
   - Examples:
-    - `python3 scripts/mlgg.py init --project-root /tmp/mlgg_demo`
-    - `python3 scripts/mlgg.py train --interactive`
-    - `python3 scripts/mlgg.py interactive --command workflow --profile-name demo --save-profile`
-    - `python3 scripts/mlgg.py workflow --request /tmp/mlgg_demo/configs/request.json --strict --allow-missing-compare`
-    - `python3 scripts/mlgg.py authority --include-stress-cases`
-    - `python3 scripts/mlgg.py benchmark-suite --profile release` (recommended multi-dataset stability verdict)
-    - `python3 scripts/mlgg.py benchmark-suite --profile release --repeat 3 --registry-file references/benchmark-registry.json`
-    - `python3 scripts/mlgg.py authority-release` (recommended release stress path)
-    - `python3 scripts/mlgg.py authority-research-heart --stress-seed-min 20250003 --stress-seed-max 20250060` (research/high-pressure mode)
+    - `python3 scripts/orchestration/mlgg.py init --project-root /tmp/mlgg_demo`
+    - `python3 scripts/orchestration/mlgg.py train --interactive`
+    - `python3 scripts/orchestration/mlgg.py interactive --command workflow --profile-name demo --save-profile`
+    - `python3 scripts/orchestration/mlgg.py workflow --request /tmp/mlgg_demo/configs/request.json --strict --allow-missing-compare`
+    - `python3 scripts/orchestration/mlgg.py authority --include-stress-cases`
+    - `python3 scripts/orchestration/mlgg.py benchmark-suite --profile release` (recommended multi-dataset stability verdict)
+    - `python3 scripts/orchestration/mlgg.py benchmark-suite --profile release --repeat 3 --registry-file references/benchmark-registry.json`
+    - `python3 scripts/orchestration/mlgg.py authority-release` (recommended release stress path)
+    - `python3 scripts/orchestration/mlgg.py authority-research-heart --stress-seed-min 20250003 --stress-seed-max 20250060` (research/high-pressure mode)
     - preset wrappers are fixed-route; conflicting route flags are rejected fail-closed
     - add `--error-json` for machine-readable failures (`contract_version=mlgg_error.v1`)
 
@@ -1069,14 +1069,14 @@ If any step returns non-zero, stop and block claim release.
 
 **标准化 8 步流程**：
 ```
-Step 1: 环境检查     → python3 scripts/mlgg.py doctor
-Step 2: 项目初始化   → python3 scripts/mlgg.py init --project-root <dir>
+Step 1: 环境检查     → python3 scripts/orchestration/mlgg.py doctor
+Step 2: 项目初始化   → python3 scripts/orchestration/mlgg.py init --project-root <dir>
 Step 3: 数据准备     → 下载数据集或放入用户数据，用 split_data.py 分割
 Step 4: 配置对齐     → 确保 request.json + 所有 spec 文件正确
-Step 5: 模型训练     → python3 scripts/mlgg.py train ...
-Step 6: 执行认证     → python3 scripts/generate_execution_attestation.py ...
-Step 7: 严格审计     → python3 scripts/mlgg.py workflow --strict
-Step 8: 质量报告     → python3 scripts/quick_summary.py + python3 scripts/audit_external_project.py
+Step 5: 模型训练     → python3 scripts/orchestration/mlgg.py train ...
+Step 6: 执行认证     → python3 scripts/tools/generate_execution_attestation.py ...
+Step 7: 严格审计     → python3 scripts/orchestration/mlgg.py workflow --strict
+Step 8: 质量报告     → python3 scripts/tools/quick_summary.py + python3 scripts/tools/audit_external_project.py
 ```
 
 **Agent 决策点**：
@@ -1090,13 +1090,13 @@ Step 8: 质量报告     → python3 scripts/quick_summary.py + python3 scripts/
 
 ```bash
 # 1. 量化评分
-python3 scripts/audit_external_project.py --project-dir <dir> --target-journal nature_medicine --json
+python3 scripts/tools/audit_external_project.py --project-dir <dir> --target-journal nature_medicine --json
 
 # 2. 如果已有 evidence 目录，运行完整 gate
-python3 scripts/report_health_check.py --evidence-dir <dir>/evidence
+python3 scripts/tools/report_health_check.py --evidence-dir <dir>/evidence
 
 # 3. 生成修复计划
-python3 scripts/remediation_plan.py --evidence-dir <dir>/evidence
+python3 scripts/tools/remediation_plan.py --evidence-dir <dir>/evidence
 ```
 
 **审计输出**：12 维度量化评分 (满分100) + 期刊差距分析 + 优先修复清单
@@ -1117,21 +1117,21 @@ python3 scripts/remediation_plan.py --evidence-dir <dir>/evidence
 
 ```bash
 # 1. 快速红线检查 prompt（18条，粘贴到任意 LLM）
-python3 scripts/export_review_prompt.py --level quick --output review_prompt_quick.md
+python3 scripts/tools/export_review_prompt.py --level quick --output review_prompt_quick.md
 
 # 2. 标准评审 prompt（53条）
-python3 scripts/export_review_prompt.py --level standard --output review_prompt.md
+python3 scripts/tools/export_review_prompt.py --level standard --output review_prompt.md
 
 # 3. 顶刊级 prompt，附 Nature Medicine 特定要求
-python3 scripts/export_review_prompt.py --level comprehensive \
+python3 scripts/tools/export_review_prompt.py --level comprehensive \
   --journal nature_medicine --output review_prompt_nm.md
 
 # 4. JSON 格式（适合 API 调用）
-python3 scripts/export_review_prompt.py --level standard --format json \
+python3 scripts/tools/export_review_prompt.py --level standard --format json \
   --journal jama --output review_payload.json
 
 # 5. 附文献引用
-python3 scripts/export_review_prompt.py --level comprehensive \
+python3 scripts/tools/export_review_prompt.py --level comprehensive \
   --include-literature --output review_with_refs.md
 ```
 
@@ -1145,7 +1145,7 @@ python3 scripts/export_review_prompt.py --level comprehensive \
 ```bash
 # 1. 准备评审清单 (参考 references/batch-manifest.example.json)
 # 2. 运行批量评审
-python3 scripts/mlgg.py batch-review \
+python3 scripts/orchestration/mlgg.py batch-review \
   --manifest batch_manifest.json \
   --target-journal nature_medicine \
   --workers 4 \
@@ -1153,7 +1153,7 @@ python3 scripts/mlgg.py batch-review \
   --output batch_report.json
 
 # 3. 可选：输出 CSV 摘要
-python3 scripts/mlgg.py batch-review \
+python3 scripts/orchestration/mlgg.py batch-review \
   --manifest batch_manifest.json \
   --summary-csv batch_summary.csv
 ```
@@ -1234,15 +1234,15 @@ python3 scripts/mlgg.py batch-review \
 ┌─────────────────────────────────────────────────────────────┐
 │  ML Leakage Guard — Agent Quick Reference                   │
 ├─────────────────────────────────────────────────────────────┤
-│  构建新项目:  python3 scripts/mlgg.py onboarding --mode auto│
-│  审计项目:    python3 scripts/audit_external_project.py     │
+│  构建新项目:  python3 scripts/orchestration/mlgg.py onboarding --mode auto│
+│  审计项目:    python3 scripts/tools/audit_external_project.py     │
 │  错误查询:    references/error-knowledge-base.json          │
 │  期刊标准:    references/journal-rigor-standards.json       │
-│  修复计划:    python3 scripts/remediation_plan.py           │
-│  健康检查:    python3 scripts/report_health_check.py        │
-│  证据对比:    python3 scripts/evidence_comparator.py        │
-│  阈值敏感:    python3 scripts/threshold_sensitivity.py      │
-│  LaTeX导出:   python3 scripts/export_latex.py               │
+│  修复计划:    python3 scripts/tools/remediation_plan.py           │
+│  健康检查:    python3 scripts/tools/report_health_check.py        │
+│  证据对比:    python3 scripts/tools/evidence_comparator.py        │
+│  阈值敏感:    python3 scripts/tools/threshold_sensitivity.py      │
+│  LaTeX导出:   python3 scripts/tools/export_latex.py               │
 ├─────────────────────────────────────────────────────────────┤
 │  评分工具:    audit_external_project.py --target-journal X  │
 │  支持期刊:    nature_medicine | lancet_digital_health |     │
@@ -1422,7 +1422,7 @@ Agent 完成完整流程后应产出以下交付物：
 
 收集完上述信息后，构建并运行命令:
 ```bash
-python3 scripts/cohort_definition_gate.py \
+python3 scripts/gates/cohort_definition_gate.py \
   --data <path> \
   --target-col <col> \
   --id-col <col> \
@@ -1676,7 +1676,7 @@ Validation PR-AUC 最优 + one-SE rule 破平局。不用 train-test gap。Boots
 
 ```
 1. 查看失败报告:
-   python3 scripts/explain_gate.py --report evidence/<gate_name>_report.json
+   python3 scripts/tools/explain_gate.py --report evidence/<gate_name>_report.json
 
 2. 识别错误代码:
    报告中 failures[].code → 查 references/error-knowledge-base.json
@@ -1693,7 +1693,7 @@ Validation PR-AUC 最优 + one-SE rule 破平局。不用 train-test gap。Boots
    - COHORT_RILEY_UNDERPOWERED → 同上，参考 Riley 2019 三准则
 
 4. 修复后重跑:
-   python3 scripts/mlgg.py workflow --request configs/request.json --strict
+   python3 scripts/orchestration/mlgg.py workflow --request configs/request.json --strict
 
 5. 仍然失败 → 检查完整知识库:
    cat references/error-knowledge-base.json | python3 -m json.tool | grep -A5 "<error_code>"
