@@ -74,27 +74,38 @@
 
 ## 快速开始
 
-### 审计任何 ML 项目（无需配置）
+### 方式一：Claude Code（推荐 — AI 审稿人全程引导）
 
 ```bash
-python3 scripts/generate_audit_report.py --project-dir /path/to/your/project
-```
-
-输出 `audit-report.md` + `audit-report.json`，包含 TRIPOD+AI 覆盖率、PROBAST+AI 偏倚风险评估、错误根因分析、文献引用和优先修复建议。
-
-### 一条命令跑完整引导（约 5 分钟）
-
-```bash
+# 1. 克隆项目
 git clone https://github.com/Furinaaa-Cancan/medical-ml-leakage-guard.git
 cd medical-ml-leakage-guard
-python3 -m pip install -r requirements.txt
-python3 scripts/mlgg.py onboarding --project-root /tmp/mlgg_demo --mode guided --yes
+
+# 2. 打开 Claude Code
+claude
+
+# 3. 直接跟 AI 说你想做什么，例如：
+#    "帮我用这个 CSV 做糖尿病预测"
+#    "审查一下我的代码有没有数据泄漏"
+#    "我的模型 AUC 0.85，还需要做什么才能发 NC？"
+#
+# AI 会自动引导你走 9-Phase 流程，实时检查方法学错误，
+# 并引用 106 篇 NC 论文的真实审稿意见作为论据。
+#
+# 你也可以输入 /mlgg 启动完整的方法学指导模式。
 ```
 
-### 交互式像素风终端 UI
+### 方式二：命令行（无需 AI）
 
 ```bash
-python3 scripts/mlgg.py play
+# 审计任何 ML 项目（无需配置）
+python3 scripts/tools/generate_audit_report.py --project-dir /path/to/your/project
+
+# 交互式像素风终端 UI（5 分钟完整体验）
+python3 scripts/orchestration/mlgg.py play
+
+# 从零开始建模引导
+python3 scripts/orchestration/mlgg.py onboarding --project-root /tmp/mlgg_demo --mode guided --yes
 ```
 
 <details>
@@ -627,12 +638,12 @@ MLGG 内置多模型 SHAP 可解释性引擎（`shap_interpretability_gate.py`�
 
 ```bash
 # 训练时生成模型池
-python3 scripts/train_select_evaluate.py \
+python3 scripts/tools/train_select_evaluate.py \
   --model-pool-out evidence/model_pool.pkl \
   ... # 其他训练参数
 
 # 运行 SHAP 门控
-python3 scripts/shap_interpretability_gate.py \
+python3 scripts/gates/shap_interpretability_gate.py \
   --model-pool evidence/model_pool.pkl \
   --train-data data/train.csv \
   --test-data data/test.csv \
@@ -749,7 +760,7 @@ python3 -m pip install -r requirements.txt
 python3 -m pip install -r requirements-optional.txt
 
 # 验证安装
-python3 scripts/mlgg.py doctor
+python3 scripts/orchestration/mlgg.py doctor
 ```
 
 **环境要求**：Python 3.10+，`numpy`，`pandas`，`scikit-learn`，`scipy`，`joblib`。可选：`xgboost`，`catboost`，`lightgbm`，`tabpfn`，`optuna`，`shap`。
@@ -760,12 +771,12 @@ python3 scripts/mlgg.py doctor
 
 | 目标 | 命令 |
 |------|------|
-| 审计外部项目 | `python3 scripts/generate_audit_report.py --project-dir /path` |
-| 交互式探索 | `python3 scripts/mlgg.py play` |
-| 引导式首跑 | `python3 scripts/mlgg.py onboarding --project-root /tmp/demo --mode guided --yes` |
-| 发布级判定 | `python3 scripts/mlgg.py workflow --request <project>/configs/request.json --strict` |
-| 环境检查 | `python3 scripts/mlgg.py doctor` |
-| 初始化项目 | `python3 scripts/mlgg.py init --project-root /tmp/project` |
+| 审计外部项目 | `python3 scripts/tools/generate_audit_report.py --project-dir /path` |
+| 交互式探索 | `python3 scripts/orchestration/mlgg.py play` |
+| 引导式首跑 | `python3 scripts/orchestration/mlgg.py onboarding --project-root /tmp/demo --mode guided --yes` |
+| 发布级判定 | `python3 scripts/orchestration/mlgg.py workflow --request <project>/configs/request.json --strict` |
+| 环境检查 | `python3 scripts/orchestration/mlgg.py doctor` |
+| 初始化项目 | `python3 scripts/orchestration/mlgg.py init --project-root /tmp/project` |
 | 静态 Lint | `python3 -m mlgg_lint /path/to/code/` |
 | 下载数据集 | `python3 examples/download_real_data.py heart` |
 
@@ -786,25 +797,25 @@ python3 scripts/mlgg.py doctor
 
 ```bash
 # 1) 初始化项目
-python3 scripts/mlgg.py init --project-root /tmp/mlgg_project
+python3 scripts/orchestration/mlgg.py init --project-root /tmp/mlgg_project
 
 # 2) 安全分割
-python3 scripts/mlgg.py split -- \
+python3 scripts/orchestration/mlgg.py split -- \
   --input /path/to/your_data.csv \
   --output-dir /tmp/mlgg_project/data \
   --patient-id-col patient_id --target-col y --time-col event_time \
   --strategy grouped_temporal
 
 # 3) 交互训练
-python3 scripts/mlgg.py train --interactive
+python3 scripts/orchestration/mlgg.py train --interactive
 
 # 4) 严格审计（bootstrap 基线）
-python3 scripts/mlgg.py workflow \
+python3 scripts/orchestration/mlgg.py workflow \
   --request /tmp/mlgg_project/configs/request.json \
   --strict --allow-missing-compare
 
 # 5) 严格对比复跑
-python3 scripts/mlgg.py workflow \
+python3 scripts/orchestration/mlgg.py workflow \
   --request /tmp/mlgg_project/configs/request.json \
   --strict \
   --compare-manifest /tmp/mlgg_project/evidence/manifest_baseline.bootstrap.json

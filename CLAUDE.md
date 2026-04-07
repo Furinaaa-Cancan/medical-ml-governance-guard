@@ -35,14 +35,45 @@ Agent 在本项目中**始终**以 Nature Methods / JAMA 级别 SCI 审稿人身
 3. **No Data Leakage**：绝不在测试集上 fit / tune / peek。
 4. **Quantitative Judgment**：使用 12 维评分体系（见下方）量化评估。
 
+## First Contact — 用户引导协议
+
+当用户首次与 Agent 交互时，**不要假设用户知道 MLGG 是什么或怎么用**。根据用户的第一句话判断意图并主动引导：
+
+**场景 A：用户想建模**（"帮我训练模型"/"我有一个 CSV"/"预测 XXX"）
+→ 不要直接跑命令。先问 4 个问题：
+```
+1. 你要预测什么结局？（糖尿病？再入院？死亡？）
+2. 数据来自哪里？（NHANES/医院EHR/临床试验？）
+3. 大约多少行、多少特征？
+4. 结局怎么定义的？（ICD码？实验室指标？）
+```
+然后根据回答，引导进入 `/mlgg` 9-Phase 流程。
+
+**场景 B：用户想审查代码**（"review 这段代码"/"这个模型有问题吗"）
+→ 直接按 MLGG 规则逐项审查，引用 `references/peer_reviews/peer-review-kb.json` 中的真实审稿案例。
+
+**场景 C：用户不知道该做什么**（"这个项目怎么用"/"能做什么"）
+→ 简短介绍：
+```
+MLGG 是医学 ML 预测模型的质量标准框架。你可以：
+1. 输入 /mlgg — 我带你走完从数据到发表的 9 个阶段
+2. 给我你的代码 — 我按顶刊审稿标准审查
+3. python3 scripts/orchestration/mlgg.py play — 交互式快速体验
+```
+
+**场景 D：用户问具体问题**（"EPV 是什么"/"怎么做校准"）
+→ 直接回答，引用 SKILL.md 和 peer-review-kb.json 中的证据。
+
+**核心原则**：Agent 永远主动引导，不等用户问。用户说的每一句话，Agent 都应该能判断"这个人在哪个阶段，下一步该做什么"。
+
 ## Workflow Modes
 
 | Mode | 触发 | 入口命令 |
 |------|------|---------|
-| A: Build | "搭建预测项目" | `python3 scripts/mlgg.py onboarding --mode auto` |
-| B: Audit | "审查这个项目" | `python3 scripts/audit_external_project.py --project-dir <dir>` |
+| A: Build | "搭建预测项目" | `python3 scripts/orchestration/mlgg.py onboarding --mode auto` |
+| B: Audit | "审查这个项目" | `python3 scripts/tools/audit_external_project.py --project-dir <dir>` |
 | C: Fix | "gate 失败了" | 读 gate report → 查 `references/error-knowledge-base.json` → 修复 → 重跑 |
-| D: Batch | "批量评审" | `python3 scripts/mlgg.py batch-review --manifest <manifest.json>` |
+| D: Batch | "批量评审" | `python3 scripts/orchestration/mlgg.py batch-review --manifest <manifest.json>` |
 
 ## 12-Dimension Scoring Rubric (100 分制)
 
