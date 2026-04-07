@@ -2,14 +2,13 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>MLGG 完整预测流程图</title>
+<title>MLGG 完整预测流程图 v2</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'PingFang SC',-apple-system,sans-serif;background:#0f1318;color:#d1d5db;padding:32px}
 h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
 .sub{text-align:center;color:#6b7280;font-size:12px;margin-bottom:28px}
 
-/* ===== Grid Layout: 3 columns x 4 rows ===== */
 .grid{
   display:grid;
   grid-template-columns:1fr 1fr 1fr;
@@ -19,7 +18,6 @@ h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
   margin:0 auto;
 }
 
-/* ===== Card ===== */
 .card{
   background:#1a1f2e;
   border:1px solid #2d3548;
@@ -46,7 +44,6 @@ h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
 .card-title{font-size:15px;font-weight:700}
 .card-script{font-size:10px;color:#6b7280;font-family:monospace;margin-top:2px}
 
-/* Steps */
 .steps{list-style:none;font-size:12.5px;line-height:1.65}
 .steps li{padding:4px 0 4px 16px;position:relative}
 .steps li::before{
@@ -61,8 +58,8 @@ h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
 .ref{color:#22c55e;font-size:10px}
 .rule{color:#60a5fa;font-size:10px}
 .tool{color:#f97316;font-size:10px;font-family:monospace}
+.pr{color:#a78bfa;font-size:10px}
 
-/* Output bar */
 .out{
   margin-top:10px;padding:7px 10px;
   background:#111827;border-radius:6px;
@@ -70,20 +67,15 @@ h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
   line-height:1.6;
 }
 
-/* Arrow connectors */
-.arrow-row{
+.dots{
   grid-column:1/-1;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:8px;
-  padding:4px 0;
-  color:#4b5563;
-  font-size:20px;
+  text-align:center;
+  padding:2px 0;
+  color:#374151;
+  font-size:18px;
+  letter-spacing:12px;
 }
-.arrow-row .label{font-size:11px;color:#6b7280}
 
-/* Phase colors */
 .p1 .badge{background:#7c3aed} .p1 .card-title{color:#c4b5fd}
 .p2 .badge{background:#2563eb} .p2 .card-title{color:#93c5fd}
 .p3 .badge{background:#0891b2} .p3 .card-title{color:#67e8f9}
@@ -95,7 +87,6 @@ h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
 .p9 .badge{background:#64748b} .p9 .card-title{color:#cbd5e1}
 .ps .badge{background:#475569} .ps .card-title{color:#94a3b8}
 
-/* Decision diamond */
 .decision{
   display:inline-block;
   background:#1e293b;border:2px solid #f59e0b;
@@ -104,28 +95,15 @@ h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
   margin:4px 0;
 }
 
-/* Wide card spanning 2 or 3 cols */
 .span2{grid-column:span 2}
 .span3{grid-column:span 3}
-
-/* Footer */
 .footer{text-align:center;margin-top:32px;color:#4b5563;font-size:11px}
-
-/* Connector dots between rows */
-.dots{
-  grid-column:1/-1;
-  text-align:center;
-  padding:2px 0;
-  color:#374151;
-  font-size:18px;
-  letter-spacing:12px;
-}
 </style>
 </head>
 <body>
 
-<h1>ML Leakage Guard (MLGG) — 完整 9-Phase 预测流程</h1>
-<p class="sub">横截面数据全流程 &nbsp;|&nbsp; 33 道 Fail-Closed 门控 &nbsp;|&nbsp; 17 项分析工具 &nbsp;|&nbsp; 37+ 文献引用 &nbsp;|&nbsp; Nature ML Checklist 30/30</p>
+<h1>ML Leakage Guard (MLGG) — 完整 9-Phase 预测流程 v2</h1>
+<p class="sub">33 道 Fail-Closed 门控 &nbsp;|&nbsp; 19 项分析工具 &nbsp;|&nbsp; 37+ 文献引用 &nbsp;|&nbsp; Peer Review RAG (106 篇 NC 论文 · 375 条审稿意见) &nbsp;|&nbsp; 106+ 自动化测试</p>
 
 <div class="grid">
 
@@ -151,6 +129,7 @@ h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
     <li class="i">数据类型自动检测: numeric / binary / categorical</li>
     <li class="i">缺失值概况: 按特征统计, &gt;50% 标记</li>
     <li class="g">横截面 vs 纵向: 患者ID有重复? → 纵向</li>
+    <li class="i"><span class="pr">📚 81/375 NC 审稿意见涉及 study_design</span></li>
   </ul>
   <div class="out">→ cohort_summary.csv · feature_profile.csv · JSON报告</div>
 </div>
@@ -170,12 +149,10 @@ h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
     <li class="w">
       <span class="decision">横截面数据?</span>
       <br><b style="color:#22c55e">是 →</b> stratified_grouped + --cross-sectional
-      <br><span style="color:#6b7280">按标签分层, 层内随机, 跳过时序检查</span>
-      <br><b style="color:#3b82f6">否 →</b> grouped_temporal <span class="rule">MLGG-S02</span>
-      <br><span style="color:#6b7280">按时间排序: train &lt; valid &lt; test</span></li>
+      <br><b style="color:#3b82f6">否 →</b> grouped_temporal <span class="rule">MLGG-S02</span></li>
     <li class="i">比例: Train 60% / Valid 20% / Test 20%</li>
-    <li class="g">安全检查: ≥20行, ≥10正/负, ≥5患者
-      <br>正类率漂移 &gt;10% → ⚠️</li>
+    <li class="g">安全检查: ≥20行, ≥10正/负, ≥5患者</li>
+    <li class="i"><span class="pr">📚 PR-010: 20年数据随机分割 → 审稿人要求时序划分</span></li>
   </ul>
   <div class="out">→ train.csv · valid.csv · test.csv · split报告</div>
 </div>
@@ -186,23 +163,24 @@ h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
     <div class="badge">P3</div>
     <div>
       <div class="card-title">预处理 (fit on TRAIN ONLY)</div>
-      <div class="card-script">train_select_evaluate.py Pipeline</div>
+      <div class="card-script">preprocess.py · encoding_groups.json → Phase 4</div>
     </div>
   </div>
   <ul class="steps">
     <li class="c">所有 fit() 仅在训练集 <span class="rule">MLGG-P01</span> <span class="ref">Kaufman 2012</span></li>
-    <li class="w">自动分类编码 (fit on train) <span class="rule">MLGG-P05</span>
-      <br>Binary(2值) → 0/1, OOD → 0.5 sentinel
-      <br>Categorical(3-15值) → OneHot, OOD → 全零行
-      <br>Numeric(&gt;15值) → 保持原值
-      <br><span class="tool">encode_categorical_features()</span></li>
-    <li class="w">分层缺失策略 <span class="rule">MLGG-P06</span> <span class="ref">Madley-Dowd 2019</span>
-      <br>Tier4(&gt;80%): 丢弃+指示 · Tier3(40-80%): 插补+指示
-      <br>Tier2(5-40%): 插补+指示 · Tier1(&lt;5%): 简单插补</li>
-    <li class="g">Pipeline: Imputer → Scaler → Classifier</li>
-    <li class="i">SMOTE 默认不用 → 损害校准 <span class="ref">van den Goorbergh 2022</span></li>
+    <li class="w"><b>基数+dtype 列类型检测</b> <span class="rule">MLGG-P05</span>
+      <br>Binary(2值) → 0/1 映射
+      <br>Categorical(string, 3-15值) → OneHot
+      <br><b style="color:#5eead4">Numeric(int/float, 任意基数) → 保持原值</b>
+      <br><span style="color:#6b7280">计数变量(num_meds=0-11)不展开OneHot</span></li>
+    <li class="w"><b>4 层缺失策略</b> <span class="rule">MLGG-P06</span> <span class="ref">Madley-Dowd 2019</span>
+      <br>T4(&gt;80%): 丢值+指示 · T3(40-80%): 插补+指示
+      <br>T2(5-40%): 插补+指示 · T1(&lt;5%): 简单插补</li>
+    <li class="g">输出 encoding_groups.json → Phase 4 Group LASSO</li>
+    <li class="i">SMOTE 默认不用 <span class="ref">van den Goorbergh 2022</span></li>
+    <li class="i"><span class="pr">📚 24/375 NC 审稿意见涉及 preprocessing</span></li>
   </ul>
-  <div class="out">→ X_train/valid/test (编码+插补) · preprocessor.pkl</div>
+  <div class="out">→ processed_data.npz · feature_names.json · encoding_groups.json · missingness_report.json</div>
 </div>
 
 <!-- Arrow -->
@@ -215,26 +193,26 @@ h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
   <div class="card-head">
     <div class="badge">P4</div>
     <div>
-      <div class="card-title">特征筛选与诊断</div>
-      <div class="card-script">train_select_evaluate.py · train only</div>
+      <div class="card-title">特征筛选 (train only)</div>
+      <div class="card-script">select_features.py · 6 步流水线</div>
     </div>
   </div>
   <ul class="steps">
-    <li class="c">Elastic Net CV <span class="ref">Zou & Hastie 2005</span>
-      <br>α ∈ {0.1, 0.3, 0.5, 0.7, 1.0}, C 交叉验证
-      <br>分组选择: OneHot dummies 同进同退 <span class="ref">Yuan & Lin 2006</span></li>
-    <li class="w">稳定性选择 <span class="ref">Meinshausen 2010</span>
-      <br>100次子采样, 保留入选概率 &gt; 0.6
-      <br>误选界: E[V] ≤ q²/((2π-1)×p)</li>
-    <li class="g">Ridge 对照 <span class="ref">Harrell 2015</span>
-      <br>选择损失 &gt; 0.005 PR-AUC → 回退全量</li>
-    <li class="i">VIF 共线性 (自动) <span class="tool">compute_vif()</span>
-      <br>&gt;5 ⚠️ | &gt;10 🔴</li>
-    <li class="i">非线性检验 (自动) <span class="tool">check_nonlinearity()</span>
-      <br>LR test: 线性 vs 样条, p&lt;0.05 → 非线性</li>
+    <li class="c"><b>MLGG-F01/F02</b>: 禁止特征检查（标签泄漏 + 未来信息）</li>
+    <li class="i">NZV 过滤: &gt;99% 相同值 → 移除</li>
+    <li class="g"><b>Ridge 基线</b> (CV 调优 6 个 C 值) <span class="ref">Harrell 2015</span>
+      <br>PR-AUC 作为对比标准 <span class="ref">Saito & Rehmsmeier 2015</span></li>
+    <li class="c"><b>Stability Selection</b> <span class="ref">Meinshausen 2010</span>
+      <br>Elastic Net α∈{0.1-1.0}, class_weight=balanced
+      <br>100 次分层子采样, 阈值 0.6
+      <br>Group LASSO: OneHot dummy 同进同退 <span class="ref">Yuan & Lin 2006</span>
+      <br>误选界: E[V] ≤ q²/((2πθ-1)×p)</li>
+    <li class="w">选择后 PR-AUC 降 &gt;0.005 → 回退 Ridge 全量</li>
+    <li class="c">EPV 重检: 选择后仍 ≥ 10 <span class="rule">MLGG-Z01</span></li>
     <li class="c">单因素筛选已废弃 <span class="ref">Heinze 2018</span></li>
+    <li class="i"><span class="pr">📚 PR-016: "24参数87样本=过参数化"</span></li>
   </ul>
-  <div class="out">→ selected_features · VIF分析 · 非线性分析 · 报告</div>
+  <div class="out">→ selected_data.npz · selected_features.json · stability_selection.csv · selection_report.json</div>
 </div>
 
 <!-- P5 -->
@@ -250,18 +228,13 @@ h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
     <li class="c">≥3 模型族 <span class="rule">MLGG-M03</span>
       <br>LR | RF | XGBoost | LightGBM | CatBoost
       <br>SVM | KNN | MLP | TabPFN | 集成</li>
-    <li class="c">验证集调参, 绝不碰 test <span class="rule">MLGG-M01</span>
-      <br>5折 StratifiedKFold · Optuna TPE</li>
+    <li class="c">验证集调参, 绝不碰 test <span class="rule">MLGG-M01</span></li>
     <li class="w">模型选择: valid PR-AUC, 不用 gap <span class="ref">Yang KDD 2023</span>
       <br>One-SE 规则: 1SE 内选最简单 <span class="rule">MLGG-M04</span></li>
-    <li class="g">阈值: Youden's J on valid <span class="rule">MLGG-M02</span>
-      <br>J = Sens + Spec - 1</li>
-    <li class="i">Bootstrap optimism correction <span class="ref">Steyerberg 2019</span>
-      <br>B ≥ 100 · optimism-corrected performance</li>
-    <li class="i">学习曲线 <span class="tool">learning_curve_data()</span>
-      <br>{10%, 20%, ..., 100%} 训练比例 → 收敛?</li>
-    <li class="g">保存模型池 → SHAP 用
-      <br>--model-pool-out model_pool.pkl</li>
+    <li class="g">阈值: Youden's J on valid <span class="rule">MLGG-M02</span></li>
+    <li class="i">Bootstrap optimism correction <span class="ref">Steyerberg 2019</span></li>
+    <li class="i">学习曲线: 收敛? <span class="tool">learning_curve_data()</span></li>
+    <li class="i"><span class="pr">📚 PR-029: "XGBoost=Transformer → 选简单的"</span></li>
   </ul>
   <div class="out">→ model.pkl · model_pool.pkl · 选择报告 · thresholds</div>
 </div>
@@ -279,18 +252,14 @@ h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
     <li class="c">Test 集一次性评估, 5 域面板 <span class="ref">Lancet DH 2025</span></li>
     <li class="w"><b>区分度</b>: AUROC, AUPRC</li>
     <li class="w"><b>校准</b>: 截距→0 · 斜率→1 · O:E→1
-      <br>ECE · HL χ² · per-bin 95% CI <span class="ref">Van Calster 2019</span>
-      <br><span class="tool">calibration_metrics() · calibration_bin_ci()</span></li>
-    <li class="w"><b>整体</b>: Brier · BSS (>0=优于基线)</li>
+      <br>ECE · HL χ² <span class="ref">Van Calster 2019</span></li>
+    <li class="w"><b>整体</b>: Brier · BSS (&gt;0=优于基线)</li>
     <li class="w"><b>分类</b>: MCC · LR+/LR- · Sens/Spec/PPV/NPV <span class="ref">Chicco 2020</span></li>
     <li class="w"><b>临床</b>: DCA · NRI · IDI <span class="tool">compute_nri_idi()</span></li>
     <li class="i">95% CI: bootstrap ≥ 1000 <span class="rule">MLGG-E01</span></li>
     <li class="i">多种子: ≥5 seeds, std &lt; 0.02 <span class="rule">MLGG-R02</span></li>
     <li class="g">Platt scaling 事后校准 <span class="rule">MLGG-E05</span></li>
-    <li class="i">基线对比 <span class="tool">baseline_comparisons()</span></li>
-    <li class="i">特征消融 <span class="tool">feature_ablation()</span></li>
-    <li class="i">系数导出 <span class="tool">export_model_coefficients()</span></li>
-    <li class="i">计算资源 <span class="tool">compute_resource_report()</span></li>
+    <li class="i"><span class="pr">📚 119/375 NC 审稿意见要求完善评估指标</span></li>
   </ul>
   <div class="out">→ evaluation_report · prediction_trace · CI矩阵 · 校准曲线</div>
 </div>
@@ -311,17 +280,12 @@ h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
   </div>
   <ul class="steps">
     <li class="c">多族独立 SHAP <span class="ref">Lundberg NeurIPS 2017</span>
-      <br>TreeExplainer: RF/XGB/CatBoost/LGBM
-      <br>LinearExplainer: LR · KernelExplainer: 兜底
-      <br>背景: train 200行 · 解释: test 500行</li>
+      <br>TreeExplainer | LinearExplainer | KernelExplainer</li>
     <li class="w">比例归一化集成 <span class="ref">PMC11513550</span>
-      <br>每模型 mean(|SHAP|) → L1归一化(sum=1)
-      <br>跨模型等权平均 → 消除尺度差异</li>
-    <li class="g">一致性检验
-      <br>Kendall τ: &gt;0.7强 | 0.5-0.7中 | &lt;0.5弱
-      <br>Top-N Jaccard 重叠 · 方向共识</li>
-    <li class="i">个案解释: 高/低风险 Top-3 驱动特征</li>
-    <li class="g">8 项自动验证: NaN/全零/单模型/排名分歧/极端集中/可疑特征</li>
+      <br>每模型 mean(|SHAP|) → L1归一化 → 等权平均</li>
+    <li class="g">Kendall τ 一致性 · Top-N Jaccard · 方向共识</li>
+    <li class="i">个案解释: Top-3 驱动特征</li>
+    <li class="i"><span class="pr">📚 PR-065: "Grad-CAM 只说where不说what → 不够"</span></li>
   </ul>
   <div class="out">→ Table A(集成排名) · B(逐模型) · C(一致性) · D(个案)</div>
 </div>
@@ -336,17 +300,12 @@ h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
     </div>
   </div>
   <ul class="steps">
-    <li class="c">按 race / gender / age 分组 <span class="rule">MLGG-Q01</span>
-      <br>每组: AUROC / AUPRC / Sens / Spec / PPV / FPR</li>
-    <li class="w">亚组 DCA 净效用 <span class="ref">Vickers 2025</span>
-      <br>按人群分组计算 DCA 净效用
-      <br>equity gap = max - min 最优净效用
-      <br><span style="color:#ef4444">模型可能帮助多数但伤害少数!</span>
-      <br><span class="tool">subgroup_dca()</span></li>
+    <li class="c">按 race / gender / age 分组 <span class="rule">MLGG-Q01</span></li>
+    <li class="w">亚组 DCA 净效用 <span class="tool">subgroup_dca()</span>
+      <br><span style="color:#ef4444">模型可能帮助多数但伤害少数!</span></li>
     <li class="g">小亚组标记: n &lt; 200 → 不可靠 <span class="rule">MLGG-Q02</span></li>
-    <li class="i">差异标记
-      <br>AUROC 差异 &gt;0.05 → ⚠️
-      <br>Sens 差异 &gt;0.10 → ⚠️</li>
+    <li class="i">差异: AUROC &gt;0.05 / Sens &gt;0.10 → ⚠️</li>
+    <li class="i"><span class="pr">📚 PR-012: "性别分布不均可解释全部结果"</span></li>
   </ul>
   <div class="out">→ subgroup_race/gender/age.csv · fairness报告</div>
 </div>
@@ -361,48 +320,43 @@ h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
     </div>
   </div>
   <ul class="steps">
-    <li class="c">TRIPOD+AI 2024: 27 项机器核对 <span class="ref">Collins 2024 BMJ</span></li>
-    <li class="c">PROBAST+AI 2025: 4域偏倚评估 <span class="ref">Moons 2025 BMJ</span>
-      <br>Participants | Predictors | Outcome | Analysis</li>
+    <li class="c">TRIPOD+AI 2024: 27 项 <span class="ref">Collins 2024 BMJ</span></li>
+    <li class="c">PROBAST+AI 2025: 4域偏倚评估 <span class="ref">Moons 2025 BMJ</span></li>
     <li class="w">12 维评分 (0-100)
-      <br>数据12 | 泄漏15 | 隔离12 | 选择10 | 统计12 | 泛化10
-      <br>临床7 | 报告7 | 复现6 | 安全3 | 公平3 | 样本3
       <br><span style="color:#22c55e">≥90 顶刊级</span> · <span style="color:#f59e0b">75-89 需补充</span> · <span style="color:#ef4444">&lt;60 不可发表</span></li>
-    <li class="g">Model Card 自动生成 <span class="tool">generate_model_card()</span></li>
-    <li class="i">局限性讨论 (强制)
-      <br>数据来源 / 时间有效性 / 外部效度
-      <br>DCA 无净效用 → 必须诚实报告</li>
+    <li class="g">Model Card · 局限性讨论 (强制)</li>
+    <li class="i"><span class="pr">📚 52/375 NC 审稿意见涉及 reporting 不完整</span></li>
   </ul>
-  <div class="out">→ publication报告 · self_critique · model_card.md · TRIPOD清单</div>
+  <div class="out">→ publication报告 · TRIPOD清单 · model_card.md</div>
 </div>
 
 <!-- Arrow -->
 <div class="dots">▼ ▼ ▼</div>
 
-<!-- ===================== ROW 4: Sensitivity + Gates + Final ===================== -->
+<!-- ===================== ROW 4: RAG + Gates + Final ===================== -->
 
-<!-- Sensitivity -->
-<div class="card ps">
+<!-- Peer Review RAG -->
+<div class="card" style="border-color:#7c3aed;border-width:2px">
   <div class="card-head">
-    <div class="badge">+</div>
+    <div class="badge" style="background:#7c3aed">📚</div>
     <div>
-      <div class="card-title">可选: 敏感性与鲁棒性分析</div>
-      <div class="card-script">_gate_utils.py · 任何阶段可调用</div>
+      <div class="card-title" style="color:#c4b5fd">Peer Review RAG 知识库</div>
+      <div class="card-script">peer-review-kb.json · 始终激活</div>
     </div>
   </div>
   <ul class="steps">
-    <li class="w">MNAR 敏感性: δ偏移 [-0.5, +0.5]
-      <br>重训练+评估, 找 tipping point
-      <br><span class="tool">mnar_sensitivity_analysis()</span> <span class="ref">Cro 2020</span></li>
-    <li class="w">插补敏感性: median/mean/KNN/MICE
-      <br>AUROC spread &lt;0.01 → 稳健
-      <br><span class="tool">imputation_sensitivity()</span></li>
-    <li class="i">时序漂移: CUSUM 校准漂移检测
-      <br><span class="tool">temporal_drift_analysis()</span></li>
-    <li class="i">Rubin's Rules: 多重插补合并
-      <br>between + within variance
-      <br><span class="tool">rubins_rules_combine()</span></li>
+    <li class="g"><b>106 篇</b> Nature Communications 论文</li>
+    <li class="g"><b>375 条</b>结构化审稿意见</li>
+    <li class="w"><b>审稿人关切 Top 5</b>:
+      <br>evaluation_metrics (119) · study_design (81)
+      <br>reporting (52) · preprocessing (24) · external_validation (21)</li>
+    <li class="c"><b>25 条 CRITICAL</b>: 数据泄漏 · 结局定义 · 过度治疗</li>
+    <li class="i"><b>检索</b>: by dimension / gate / tag / category / domain / text
+      <br><b>19 组同义词</b>扩展 · 详细 fix 优先</li>
+    <li class="i"><b>引用</b>: Gate 失败时自动附带 NC 审稿案例
+      <br>Agent 审查时引用审稿人原文作为论据</li>
   </ul>
+  <div class="out">→ peer-review-kb.json · stats.json · tags.json · 106 parsed JSONs</div>
 </div>
 
 <!-- 33 Gates -->
@@ -411,7 +365,7 @@ h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
     <div class="badge" style="background:#1e40af">33</div>
     <div>
       <div class="card-title" style="color:#93c5fd">33 道 Fail-Closed 门控 DAG</div>
-      <div class="card-script">9 层执行, 同层并行, 全部通过 → L3</div>
+      <div class="card-script">9 层执行 · scripts/gates/ 目录</div>
     </div>
   </div>
   <div style="font-size:11px;line-height:1.8">
@@ -420,8 +374,8 @@ h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
     <b style="color:#93c5fd">L2 证明</b> execution_attestation<br>
     <b style="color:#67e8f9">L3 数据</b> leakage · split_protocol · covariate_shift · reporting_bias<br>
     <b style="color:#5eead4">L4 策略</b> definition_variable · feature_lineage · imbalance · missingness · tuning_leakage<br>
-    <b style="color:#86efac">L5 模型</b> model_selection_audit · feature_eng_audit · clinical_metrics · <span style="color:#fdba74">shap_interpretability</span><br>
-    <b style="color:#fde047">L6 统计</b> calibration_dca · ci_matrix · distribution_gen · eval_quality · external_validation · fairness_equity · gen_gap · metric_consistency · permutation_sig · prediction_replay · robustness · sample_size · seed_stability<br>
+    <b style="color:#86efac">L5 模型</b> model_selection · feature_eng · clinical_metrics · <span style="color:#fdba74">shap</span><br>
+    <b style="color:#fde047">L6 统计</b> calibration_dca · ci_matrix · dist_gen · eval_quality · external_val · fairness · gen_gap · metric_consist · permutation · prediction_replay · robustness · sample_size · seed_stability<br>
     <b style="color:#cbd5e1">L7 聚合</b> publication<br>
     <b style="color:#e5e7eb">L8 终审</b> self_critique · security_audit
   </div>
@@ -438,26 +392,44 @@ h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
   </div>
   <div style="font-size:13px;line-height:2">
     ✅ 33 门控全部通过<br>
-    ✅ TRIPOD+AI 2024 合规<br>
-    ✅ PROBAST+AI 2025 低偏倚<br>
-    ✅ Nature ML Checklist 30/30<br>
+    ✅ TRIPOD+AI 2024 + PROBAST+AI 2025<br>
     ✅ 12维评分 ≥ 90<br>
+    ✅ Peer Review RAG 无 CRITICAL 未解决项<br>
   </div>
   <div class="out" style="margin-top:12px">
     最终交付:<br>
-    📊 4张SHAP表 · 校准曲线(含CI) · DCA<br>
-    📊 公平性报告 · 亚组DCA<br>
-    📝 Model Card · TRIPOD清单<br>
-    📄 evaluation_report · prediction_trace<br>
-    📦 model.pkl (签名) · 全部代码可复现
+    📊 4张SHAP表 · 校准曲线 · DCA · 公平性报告<br>
+    📝 Model Card · TRIPOD清单 · 局限性讨论<br>
+    📄 evaluation_report · prediction_trace · selection_report<br>
+    📦 model.pkl (签名) · encoding_groups.json · 全部代码可复现
   </div>
 </div>
 
 </div><!-- end grid -->
 
-<!-- ===================== 17 Tools Reference ===================== -->
+<!-- ===================== Directory Structure ===================== -->
 <div style="max-width:1500px;margin:28px auto 0;background:#1a1f2e;border:1px solid #2d3548;border-radius:10px;padding:20px">
-  <div style="font-size:15px;font-weight:700;color:#f97316;margin-bottom:14px">17 项框架级分析工具 · _gate_utils.py</div>
+  <div style="font-size:15px;font-weight:700;color:#60a5fa;margin-bottom:14px">项目目录结构 (v2 重组)</div>
+  <div style="font-size:12px;font-family:monospace;line-height:1.8;color:#9ca3af">
+    <span style="color:#60a5fa">scripts/</span><br>
+    &nbsp;&nbsp;├── <span style="color:#c4b5fd">core/</span> &nbsp; _gate_utils · _gate_framework · _gate_registry · _peer_review_retrieval · _security<br>
+    &nbsp;&nbsp;├── <span style="color:#67e8f9">gates/</span> &nbsp; 33 个 gate 脚本 (leakage · split_protocol · calibration_dca · ...)<br>
+    &nbsp;&nbsp;├── <span style="color:#86efac">orchestration/</span> &nbsp; mlgg.py · mlgg_pixel.py · run_dag_pipeline · run_strict_pipeline<br>
+    &nbsp;&nbsp;└── <span style="color:#f97316">tools/</span> &nbsp; peer_review_lookup · audit_external · train_select_evaluate · split_data · ...<br>
+    <span style="color:#60a5fa">references/</span><br>
+    &nbsp;&nbsp;├── 39 JSON KB &nbsp; (error · literature · journal · TRIPOD · PROBAST · disease-definition)<br>
+    &nbsp;&nbsp;└── <span style="color:#c4b5fd">peer_reviews/</span> &nbsp; peer-review-kb.json (106篇375条) · stats · tags · 107 PDFs · 106 parsed JSONs<br>
+    <span style="color:#60a5fa">examples/</span><br>
+    &nbsp;&nbsp;├── template/ &nbsp; 9-phase 空白模板<br>
+    &nbsp;&nbsp;├── demo_diabetes130/ &nbsp; UCI 糖尿病参考实现<br>
+    &nbsp;&nbsp;└── download_*.py &nbsp; 14 个数据集下载器<br>
+    <span style="color:#60a5fa">tests/</span> &nbsp; 106+ peer review RAG 测试 · 3400+ gate 测试<br>
+  </div>
+</div>
+
+<!-- ===================== 19 Tools Reference ===================== -->
+<div style="max-width:1500px;margin:16px auto 0;background:#1a1f2e;border:1px solid #2d3548;border-radius:10px;padding:20px">
+  <div style="font-size:15px;font-weight:700;color:#f97316;margin-bottom:14px">19 项框架级分析工具 · scripts/core/_gate_utils.py</div>
   <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;font-size:11px">
     <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">riley_sample_size()</span><br><span style="color:#6b7280">Riley 2019 三准则</span></div>
     <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">calibration_metrics()</span><br><span style="color:#6b7280">校准三件套+HL+BSS</span></div>
@@ -476,12 +448,14 @@ h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
     <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">subgroup_dca()</span><br><span style="color:#6b7280">亚组 DCA 净效用</span></div>
     <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">generate_model_card()</span><br><span style="color:#6b7280">Model Card 生成</span></div>
     <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">rubins_rules_combine()</span><br><span style="color:#6b7280">Rubin's Rules 合并</span></div>
+    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#a78bfa;font-family:monospace">retrieve_by_*() / format_*()</span><br><span style="color:#6b7280">Peer Review RAG 检索</span></div>
+    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#a78bfa;font-family:monospace">count_concerns_with_tag()</span><br><span style="color:#6b7280">审稿意见统计</span></div>
   </div>
 </div>
 
 <p class="footer">
-  ML Leakage Guard (MLGG) v1.0 &mdash; PolyForm Noncommercial License 1.0.0 &mdash; Academic use requires citation
-  <br>33 gates · 17 tools · 37+ references · 117 tests · Nature ML Checklist 30/30
+  ML Leakage Guard (MLGG) v2.0 &mdash; PolyForm Noncommercial License 1.0.0
+  <br>33 gates · 19 tools · 37+ references · 106 NC papers · 375 concerns · 106+ RAG tests · scripts/ 重组为 core/gates/orchestration/tools
 </p>
 
 </body>
