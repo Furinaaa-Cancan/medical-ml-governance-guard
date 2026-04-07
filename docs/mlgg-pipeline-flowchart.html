@@ -2,473 +2,475 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>MLGG 完整预测流程图 v2</title>
+<title>MLGG Pipeline v3 — Morandi</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'PingFang SC',-apple-system,sans-serif;background:#0f1318;color:#d1d5db;padding:32px}
-h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
-.sub{text-align:center;color:#6b7280;font-size:12px;margin-bottom:28px}
+body{
+  font-family:'PingFang SC','Noto Sans SC',-apple-system,sans-serif;
+  background:#f5f0eb;color:#4a4a4a;padding:40px 20px;
+  min-height:100vh;
+}
+h1{text-align:center;color:#6b7b8d;font-size:24px;font-weight:700;letter-spacing:1px}
+.sub{text-align:center;color:#9ca3af;font-size:12px;margin:8px 0 36px;line-height:1.6}
 
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  grid-template-rows:auto;
-  gap:16px;
-  max-width:1500px;
-  margin:0 auto;
+/* ===== Morandi palette ===== */
+:root{
+  --m-rose:#c8a2a8;--m-sage:#a3b5a6;--m-blue:#8fa3bf;
+  --m-sand:#c9b99a;--m-mauve:#b0a0b9;--m-teal:#8ab4b0;
+  --m-clay:#b8977e;--m-slate:#8d99a6;--m-olive:#9aa68b;
+  --m-fog:#bfc8d1;--m-bg:#f5f0eb;--m-card:#faf8f5;
+  --m-border:#e0d8cf;--m-text:#4a4a4a;--m-muted:#8a8a8a;
+  --m-accent:#6b7b8d;
 }
 
-.card{
-  background:#1a1f2e;
-  border:1px solid #2d3548;
-  border-radius:10px;
-  padding:18px 20px;
-  position:relative;
-  min-height:200px;
+/* ===== Flow container ===== */
+.flow{
+  max-width:900px;margin:0 auto;position:relative;
+  padding-left:60px;
 }
-.card:hover{border-color:#3b82f6}
 
-.card-head{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:12px;
-  padding-bottom:10px;
-  border-bottom:1px solid #2d3548;
+/* Vertical line */
+.flow::before{
+  content:'';position:absolute;left:28px;top:0;bottom:0;
+  width:2px;background:linear-gradient(to bottom,var(--m-border),var(--m-teal),var(--m-sage),var(--m-sand),var(--m-rose),var(--m-mauve),var(--m-blue),var(--m-olive),var(--m-slate));
 }
-.badge{
-  width:36px;height:36px;border-radius:8px;
+
+/* ===== Phase node ===== */
+.node{
+  position:relative;margin-bottom:28px;
+}
+.node-dot{
+  position:absolute;left:-42px;top:18px;
+  width:24px;height:24px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  font-weight:800;font-size:14px;color:#fff;flex-shrink:0;
+  font-size:11px;font-weight:800;color:#fff;
+  z-index:2;box-shadow:0 2px 8px rgba(0,0,0,.12);
 }
-.card-title{font-size:15px;font-weight:700}
-.card-script{font-size:10px;color:#6b7280;font-family:monospace;margin-top:2px}
 
-.steps{list-style:none;font-size:12.5px;line-height:1.65}
-.steps li{padding:4px 0 4px 16px;position:relative}
+.node-card{
+  background:var(--m-card);
+  border:1px solid var(--m-border);
+  border-radius:12px;
+  padding:20px 24px;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+  transition:all .2s;
+}
+.node-card:hover{
+  box-shadow:0 4px 16px rgba(0,0,0,.08);
+  transform:translateY(-1px);
+}
+
+.node-head{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:12px;padding-bottom:10px;
+  border-bottom:1px solid var(--m-border);
+}
+.node-phase{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.node-title{font-size:16px;font-weight:700;color:var(--m-text)}
+.node-script{font-size:10px;color:var(--m-muted);font-family:'SF Mono',monospace;margin-top:2px}
+
+/* ===== Steps ===== */
+.steps{list-style:none;font-size:13px;line-height:1.7;margin-top:8px}
+.steps li{padding:3px 0 3px 20px;position:relative}
 .steps li::before{
-  content:'';position:absolute;left:0;top:10px;
-  width:6px;height:6px;border-radius:50%;
+  content:'';position:absolute;left:2px;top:10px;
+  width:8px;height:8px;border-radius:2px;
 }
-.steps li.c::before{background:#ef4444}
-.steps li.w::before{background:#f59e0b}
-.steps li.g::before{background:#22c55e}
-.steps li.i::before{background:#3b82f6}
+.steps li.crit::before{background:#c97070}
+.steps li.high::before{background:#c9a86e}
+.steps li.good::before{background:var(--m-sage)}
+.steps li.info::before{background:var(--m-blue)}
 
-.ref{color:#22c55e;font-size:10px}
-.rule{color:#60a5fa;font-size:10px}
-.tool{color:#f97316;font-size:10px;font-family:monospace}
-.pr{color:#a78bfa;font-size:10px}
+.tag{
+  display:inline-block;font-size:10px;padding:1px 6px;
+  border-radius:3px;margin-left:4px;font-weight:600;
+}
+.tag-rule{background:#e8e0f0;color:#7c6b8a}
+.tag-ref{background:#dce8dc;color:#5a7a5a}
+.tag-tool{background:#f0e6d8;color:#8a7050}
+.tag-pr{background:#e0d8e8;color:#6a5a7a}
+.tag-journal{background:#d8e4f0;color:#506a8a}
 
+/* ===== Output bar ===== */
 .out{
-  margin-top:10px;padding:7px 10px;
-  background:#111827;border-radius:6px;
-  font-size:11px;color:#4ade80;font-family:monospace;
+  margin-top:12px;padding:8px 12px;
+  background:#f0ece6;border-radius:6px;border-left:3px solid var(--m-sage);
+  font-size:11px;color:var(--m-muted);font-family:'SF Mono',monospace;
   line-height:1.6;
 }
 
-.dots{
-  grid-column:1/-1;
-  text-align:center;
-  padding:2px 0;
-  color:#374151;
-  font-size:18px;
-  letter-spacing:12px;
+/* ===== Arrow connector ===== */
+.arrow{
+  text-align:center;padding:4px 0 4px 60px;
+  color:var(--m-border);font-size:14px;letter-spacing:4px;
 }
 
-.p1 .badge{background:#7c3aed} .p1 .card-title{color:#c4b5fd}
-.p2 .badge{background:#2563eb} .p2 .card-title{color:#93c5fd}
-.p3 .badge{background:#0891b2} .p3 .card-title{color:#67e8f9}
-.p4 .badge{background:#0d9488} .p4 .card-title{color:#5eead4}
-.p5 .badge{background:#16a34a} .p5 .card-title{color:#86efac}
-.p6 .badge{background:#ca8a04} .p6 .card-title{color:#fde047}
-.p7 .badge{background:#ea580c} .p7 .card-title{color:#fdba74}
-.p8 .badge{background:#dc2626} .p8 .card-title{color:#fca5a5}
-.p9 .badge{background:#64748b} .p9 .card-title{color:#cbd5e1}
-.ps .badge{background:#475569} .ps .card-title{color:#94a3b8}
-
-.decision{
-  display:inline-block;
-  background:#1e293b;border:2px solid #f59e0b;
-  padding:6px 14px;border-radius:4px;
-  color:#fbbf24;font-size:12px;font-weight:600;
-  margin:4px 0;
+/* ===== Special cards ===== */
+.rag-card{
+  background:linear-gradient(135deg,#ece4f0,#f0ece6);
+  border-color:var(--m-mauve);
+}
+.gate-card{
+  background:linear-gradient(135deg,#e0e8f0,#f0ece6);
+  border-color:var(--m-blue);
+}
+.final-card{
+  background:linear-gradient(135deg,#dce8dc,#e8ece4);
+  border-color:var(--m-sage);border-width:2px;
 }
 
-.span2{grid-column:span 2}
-.span3{grid-column:span 3}
-.footer{text-align:center;margin-top:32px;color:#4b5563;font-size:11px}
+/* ===== Side panels ===== */
+.panels{
+  max-width:900px;margin:32px auto 0;
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;
+}
+.panel{
+  background:var(--m-card);border:1px solid var(--m-border);
+  border-radius:12px;padding:20px;
+}
+.panel-title{
+  font-size:14px;font-weight:700;margin-bottom:12px;
+  padding-bottom:8px;border-bottom:1px solid var(--m-border);
+}
+.panel-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:6px;
+  font-size:11px;
+}
+.panel-item{
+  background:#f0ece6;padding:6px 8px;border-radius:4px;
+}
+.panel-item code{color:var(--m-clay);font-size:10px}
+.panel-item span{color:var(--m-muted);font-size:10px;display:block}
+
+.footer{
+  text-align:center;margin-top:40px;color:var(--m-muted);
+  font-size:11px;line-height:1.8;
+}
 </style>
 </head>
 <body>
 
-<h1>ML Leakage Guard (MLGG) — 完整 9-Phase 预测流程 v2</h1>
-<p class="sub">33 道 Fail-Closed 门控 &nbsp;|&nbsp; 19 项分析工具 &nbsp;|&nbsp; 37+ 文献引用 &nbsp;|&nbsp; Peer Review RAG (106 篇 NC 论文 · 375 条审稿意见) &nbsp;|&nbsp; 106+ 自动化测试</p>
+<h1>MLGG — 医学 ML 预测模型完整流程</h1>
+<p class="sub">
+  9 Phase · 33 Fail-Closed Gates · 19 分析工具 · 37+ 文献引用<br>
+  Peer Review RAG: 106 篇 Nature Communications · 375 条结构化审稿意见 · 106 自动化测试
+</p>
 
-<div class="grid">
+<div class="flow">
 
-<!-- ===================== ROW 1: Phase 1-3 ===================== -->
+<!-- ─── P1 ─── -->
+<div class="node">
+  <div class="node-dot" style="background:var(--m-mauve)">1</div>
+  <div class="node-card">
+    <div class="node-head">
+      <div><div class="node-phase" style="color:var(--m-mauve)">Phase 1</div>
+      <div class="node-title">数据理解与队列定义</div>
+      <div class="node-script">cohort_definition_gate.py · Layer 0</div></div>
+    </div>
+    <ul class="steps">
+      <li class="crit">定义合格队列 — 排除结局不可能记录 <span class="tag tag-rule">MLGG-C01</span></li>
+      <li class="high">Riley 2019 样本量三准则（参考建议，不硬性阻断）<span class="tag tag-ref">Riley 2019</span>
+        <br><small>C1 收缩 · C2 Optimism · C3 精度 · EPV &lt; 5 → 标注 exploratory</small></li>
+      <li class="info">数据类型检测: numeric / binary / categorical / ordinal
+        <br><small>低基数 int 列 → 歧义警告，用户确认是连续还是编码</small></li>
+      <li class="good">缺失值概况 · 横截面 vs 纵向检测</li>
+    </ul>
+    <div class="out">→ cohort_summary · feature_profile · 81/375 审稿意见涉及 study_design</div>
+  </div>
+</div>
 
-<!-- P1 -->
-<div class="card p1">
-  <div class="card-head">
-    <div class="badge">P1</div>
-    <div>
-      <div class="card-title">数据理解与队列定义</div>
-      <div class="card-script">cohort_definition_gate.py · Layer 0</div>
+<div class="arrow">▾ ▾ ▾</div>
+
+<!-- ─── P2 ─── -->
+<div class="node">
+  <div class="node-dot" style="background:var(--m-blue)">2</div>
+  <div class="node-card">
+    <div class="node-head">
+      <div><div class="node-phase" style="color:var(--m-blue)">Phase 2</div>
+      <div class="node-title">数据划分</div>
+      <div class="node-script">split_data.py · split_protocol_gate.py</div></div>
+    </div>
+    <ul class="steps">
+      <li class="crit">患者级 disjoint — 同一患者 → 同一 split <span class="tag tag-rule">MLGG-S01</span></li>
+      <li class="high">横截面 → stratified_grouped · 纵向 → grouped_temporal <span class="tag tag-rule">MLGG-S02</span></li>
+      <li class="info">60% / 20% / 20% · 安全检查: ≥20行, ≥10正/负</li>
+    </ul>
+    <div class="out">→ train / valid / test CSV · PR-010: "20年数据随机分割是不对的"</div>
+  </div>
+</div>
+
+<div class="arrow">▾ ▾ ▾</div>
+
+<!-- ─── P3 ─── -->
+<div class="node">
+  <div class="node-dot" style="background:var(--m-teal)">3</div>
+  <div class="node-card">
+    <div class="node-head">
+      <div><div class="node-phase" style="color:var(--m-teal)">Phase 3</div>
+      <div class="node-title">预处理 — fit on TRAIN ONLY</div>
+      <div class="node-script">preprocess.py · encoding_groups.json → P4</div></div>
+    </div>
+    <ul class="steps">
+      <li class="crit">所有 fit() 仅在训练集 <span class="tag tag-rule">MLGG-P01</span> <span class="tag tag-ref">Kaufman 2012</span></li>
+      <li class="high">基数 + dtype 列类型检测 <span class="tag tag-rule">MLGG-P05</span>
+        <br><small>Binary→0/1 · Categorical(string)→OneHot · Numeric(int/float)→保持</small>
+        <br><small>名字含 id/code/type → 自动识别为 nominal · 歧义列 → 警告用户</small></li>
+      <li class="high">4 层缺失策略 <span class="tag tag-ref">Madley-Dowd 2019</span>
+        <br><small>T4(&gt;80%) 丢值+指示 · T3(40-80%) 插补+指示 · T2(5-40%) 插补+指示 · T1(&lt;5%) 简单插补</small></li>
+      <li class="good">输出 encoding_groups.json → Phase 4 Group LASSO 使用</li>
+    </ul>
+    <div class="out">→ processed_data.npz · feature_names.json · encoding_groups.json · 24/375 审稿意见涉及 preprocessing</div>
+  </div>
+</div>
+
+<div class="arrow">▾ ▾ ▾</div>
+
+<!-- ─── P4 ─── -->
+<div class="node">
+  <div class="node-dot" style="background:var(--m-sage)">4</div>
+  <div class="node-card">
+    <div class="node-head">
+      <div><div class="node-phase" style="color:var(--m-sage)">Phase 4</div>
+      <div class="node-title">特征筛选 — train only</div>
+      <div class="node-script">select_features.py · 6 步流水线</div></div>
+    </div>
+    <ul class="steps">
+      <li class="crit">禁止特征检查: 标签泄漏 + 未来信息 <span class="tag tag-rule">MLGG-F01/F02</span></li>
+      <li class="good">Ridge 基线 (CV 调优) <span class="tag tag-ref">Harrell 2015</span> — 对比标准: PR-AUC</li>
+      <li class="crit">Stability Selection: Elastic Net + class_weight=balanced <span class="tag tag-ref">Meinshausen 2010</span>
+        <br><small>100次分层子采样 · α∈{0.1-1.0} · Group LASSO: OneHot dummy 同进同退</small></li>
+      <li class="high">选择后 PR-AUC 降 &gt;0.005 → 回退 Ridge 全量</li>
+      <li class="info">EPV 重检（建议 ≥10，不硬性阻断）<span class="tag tag-rule">MLGG-Z01</span></li>
+    </ul>
+    <div class="out">→ selected_features.json · stability_selection.csv · selection_report.json</div>
+  </div>
+</div>
+
+<div class="arrow">▾ ▾ ▾</div>
+
+<!-- ─── P5 ─── -->
+<div class="node">
+  <div class="node-dot" style="background:var(--m-olive)">5</div>
+  <div class="node-card">
+    <div class="node-head">
+      <div><div class="node-phase" style="color:var(--m-olive)">Phase 5</div>
+      <div class="node-title">模型训练与选择</div>
+      <div class="node-script">train_select_evaluate.py · 20 个模型族</div></div>
+    </div>
+    <ul class="steps">
+      <li class="crit">≥3 模型族 <span class="tag tag-rule">MLGG-M03</span> · 验证集调参 <span class="tag tag-rule">MLGG-M01</span></li>
+      <li class="high">选择: valid PR-AUC + one-SE rule <span class="tag tag-ref">Yang KDD 2023</span></li>
+      <li class="good">Youden's J 阈值 on valid <span class="tag tag-rule">MLGG-M02</span></li>
+      <li class="info">Bootstrap optimism correction · 学习曲线</li>
+    </ul>
+    <div class="out">→ model.pkl · model_pool.pkl · PR-029: "XGBoost≈Transformer → 选简单的"</div>
+  </div>
+</div>
+
+<div class="arrow">▾ ▾ ▾</div>
+
+<!-- ─── P6 ─── -->
+<div class="node">
+  <div class="node-dot" style="background:var(--m-sand)">6</div>
+  <div class="node-card">
+    <div class="node-head">
+      <div><div class="node-phase" style="color:var(--m-sand)">Phase 6</div>
+      <div class="node-title">评估与校准</div>
+      <div class="node-script">13 道统计门控 · Layer 6</div></div>
+    </div>
+    <ul class="steps">
+      <li class="crit">Test 集一次性评估 · 5 域完整面板</li>
+      <li class="high"><b>区分度</b> AUROC/AUPRC · <b>校准</b> 截距→0 斜率→1 · <b>分类</b> MCC LR+/LR-</li>
+      <li class="high"><b>临床</b> DCA · NRI · IDI · <b>整体</b> Brier · BSS</li>
+      <li class="info">95% CI bootstrap≥1000 <span class="tag tag-rule">MLGG-E01</span> · 多种子 ≥5 seeds</li>
+      <li class="good">Platt scaling 事后校准 <span class="tag tag-rule">MLGG-E05</span></li>
+    </ul>
+    <div class="out">→ evaluation_report · CI 矩阵 · 119/375 审稿意见要求完善评估指标</div>
+  </div>
+</div>
+
+<div class="arrow">▾ ▾ ▾</div>
+
+<!-- ─── P7 ─── -->
+<div class="node">
+  <div class="node-dot" style="background:var(--m-clay)">7</div>
+  <div class="node-card">
+    <div class="node-head">
+      <div><div class="node-phase" style="color:var(--m-clay)">Phase 7</div>
+      <div class="node-title">多模型 SHAP 可解释性</div>
+      <div class="node-script">shap_interpretability_gate.py</div></div>
+    </div>
+    <ul class="steps">
+      <li class="crit">多族独立 SHAP → L1 归一化 → 等权平均 <span class="tag tag-ref">Lundberg 2017</span></li>
+      <li class="good">Kendall τ 一致性 · Top-N Jaccard · 方向共识</li>
+      <li class="info">个案解释: Top-3 驱动特征</li>
+    </ul>
+    <div class="out">→ Table A 集成排名 · B 逐模型 · C 一致性 · D 个案</div>
+  </div>
+</div>
+
+<div class="arrow">▾ ▾ ▾</div>
+
+<!-- ─── P8 ─── -->
+<div class="node">
+  <div class="node-dot" style="background:var(--m-rose)">8</div>
+  <div class="node-card">
+    <div class="node-head">
+      <div><div class="node-phase" style="color:var(--m-rose)">Phase 8</div>
+      <div class="node-title">公平性与亚组分析</div>
+      <div class="node-script">fairness_equity_gate.py · 8 项 D11 标准 · <span class="tag tag-journal">NM/JAMA/BMJ 强制</span></div></div>
+    </div>
+    <ul class="steps">
+      <li class="crit"><b>保护属性</b>: age + sex + race/ethnicity <span class="tag tag-rule">PROBAST+AI D5.3</span>
+        <br><small>缺少关键维度 → 必须在 Limitations 声明</small></li>
+      <li class="crit">均等化优势差距 &lt; 0.15 · 差异影响比 &gt; 0.80 <span class="tag tag-rule">D11.2/D11.3</span></li>
+      <li class="high">FPR / FNR 均等差距 &lt; 0.15 <span class="tag tag-ref">HEAL 2024</span></li>
+      <li class="high">亚组最低 PR-AUC &gt; 0.40 — 防止"平均好少数差"</li>
+      <li class="good">亚组 DCA 净效用 · equity gap <span class="tag tag-tool">subgroup_dca()</span></li>
+      <li class="info">n &lt; 50 不稳定 · n &lt; 20 不可靠</li>
+      <li class="info">如有偏差 → 缓解策略（阈值校准 / 公平约束 / 如实报告）</li>
+      <li class="info">≥3 指标 → 声明优先级 <span class="tag tag-ref">Chouldechova 2017</span></li>
+    </ul>
+    <div class="out">→ fairness_report · 43/375 NC 审稿意见涉及公平性，最常见: 缺人口统计(11) 亚组遗漏(12)</div>
+  </div>
+</div>
+
+<div class="arrow">▾ ▾ ▾</div>
+
+<!-- ─── P9 ─── -->
+<div class="node">
+  <div class="node-dot" style="background:var(--m-slate)">9</div>
+  <div class="node-card">
+    <div class="node-head">
+      <div><div class="node-phase" style="color:var(--m-slate)">Phase 9</div>
+      <div class="node-title">报告与发布审查</div>
+      <div class="node-script">publication_gate.py · self_critique_gate.py</div></div>
+    </div>
+    <ul class="steps">
+      <li class="crit">TRIPOD+AI 2024: 27 项 <span class="tag tag-ref">Collins 2024</span> · PROBAST+AI 2025: 4 域 <span class="tag tag-ref">Moons 2025</span></li>
+      <li class="high">12 维评分 (0-100) · ≥90 顶刊级 · 75-89 需补充 · &lt;60 不可发表</li>
+      <li class="good">Model Card 自动生成 · 局限性讨论 (强制)</li>
+    </ul>
+    <div class="out">→ TRIPOD 清单 · Model Card · 52/375 审稿意见涉及 reporting 不完整</div>
+  </div>
+</div>
+
+<div class="arrow">▾ ▾ ▾</div>
+
+<!-- ─── RAG ─── -->
+<div class="node">
+  <div class="node-dot" style="background:var(--m-mauve)">📚</div>
+  <div class="node-card rag-card">
+    <div class="node-head">
+      <div><div class="node-phase" style="color:var(--m-mauve)">始终激活</div>
+      <div class="node-title">Peer Review RAG 知识库</div>
+      <div class="node-script">peer-review-kb.json · 106 篇 NC 论文 · 375 条审稿意见</div></div>
+    </div>
+    <ul class="steps">
+      <li class="good"><b>检索</b>: by dimension / gate / tag / category / domain / paper / text</li>
+      <li class="good"><b>19 组同义词</b>: fit_before_split → future_information_leakage 等</li>
+      <li class="info"><b>引用</b>: Gate 失败时自动附带审稿案例 · Agent 审查时引用审稿人原文</li>
+      <li class="info"><b>统计</b>: "119/375 要求评估指标" · "25 条 CRITICAL 级"</li>
+    </ul>
+    <div class="out">→ 详细 fix 优先 · CRITICAL 文本 250 字符 · 106 自动化测试全绿</div>
+  </div>
+</div>
+
+<div class="arrow">▾ ▾ ▾</div>
+
+<!-- ─── 33 Gates ─── -->
+<div class="node">
+  <div class="node-dot" style="background:var(--m-blue)">33</div>
+  <div class="node-card gate-card">
+    <div class="node-head">
+      <div><div class="node-phase" style="color:var(--m-blue)">DAG 门控</div>
+      <div class="node-title">33 道 Fail-Closed 安全门控</div>
+      <div class="node-script">9 层执行 · scripts/gates/</div></div>
+    </div>
+    <div style="font-size:12px;line-height:2;padding:8px 0">
+      <span style="color:var(--m-mauve);font-weight:700">L0</span> cohort · request_contract
+      → <span style="color:var(--m-blue);font-weight:700">L1</span> manifest
+      → <span style="color:var(--m-blue);font-weight:700">L2</span> attestation
+      → <span style="color:var(--m-teal);font-weight:700">L3</span> leakage · split · covariate · reporting<br>
+      → <span style="color:var(--m-sage);font-weight:700">L4</span> definition · lineage · imbalance · missingness · tuning
+      → <span style="color:var(--m-olive);font-weight:700">L5</span> model · feature · clinical · shap<br>
+      → <span style="color:var(--m-sand);font-weight:700">L6</span> calibration · ci · distribution · eval · external · fairness · generalization · metric · permutation · replay · robustness · sample · seed<br>
+      → <span style="color:var(--m-slate);font-weight:700">L7</span> publication
+      → <span style="color:var(--m-rose);font-weight:700">L8</span> self_critique · security
     </div>
   </div>
-  <ul class="steps">
-    <li class="c">加载 CSV → 验证 target 为 0/1 二分类</li>
-    <li class="c">定义合格队列：排除结局不可能记录 <span class="rule">MLGG-C01</span>
-      <br><span style="color:#6b7280">例: 死亡患者不可能再入院</span></li>
-    <li class="w">Riley 2019 样本量三准则 <span class="ref">Riley 2019 Stat Med</span>
-      <br>C1: 收缩因子 ≥ 0.9 · C2: R² optimism ≤ 0.05 · C3: 精度
-      <br><span style="color:#f59e0b">EPV &lt; 5 → WARN (标注 exploratory)</span> · <span style="color:#3b82f6">5-10 → INFO</span>
-      <br><span class="tool">riley_sample_size()</span></li>
-    <li class="i">数据类型自动检测: numeric / binary / categorical</li>
-    <li class="i">缺失值概况: 按特征统计, &gt;50% 标记</li>
-    <li class="g">横截面 vs 纵向: 患者ID有重复? → 纵向</li>
-    <li class="i"><span class="pr">📚 81/375 NC 审稿意见涉及 study_design</span></li>
-  </ul>
-  <div class="out">→ cohort_summary.csv · feature_profile.csv · JSON报告</div>
 </div>
 
-<!-- P2 -->
-<div class="card p2">
-  <div class="card-head">
-    <div class="badge">P2</div>
-    <div>
-      <div class="card-title">数据划分</div>
-      <div class="card-script">split_data.py · split_protocol_gate.py · Layer 3</div>
+<div class="arrow">▾ ▾ ▾</div>
+
+<!-- ─── Final ─── -->
+<div class="node">
+  <div class="node-dot" style="background:var(--m-sage)">✓</div>
+  <div class="node-card final-card">
+    <div class="node-head">
+      <div><div class="node-phase" style="color:var(--m-sage)">发布就绪</div>
+      <div class="node-title">Publication-Grade 产物</div></div>
+    </div>
+    <div style="font-size:13px;line-height:2.2">
+      ✅ 33 门控全部通过 · TRIPOD+AI 2024 · PROBAST+AI 2025<br>
+      ✅ 12 维评分 ≥ 90 · Peer Review RAG 无 CRITICAL 未解决项<br>
+      📊 4 张 SHAP 表 · 校准曲线 · DCA · 公平性报告 · 亚组 DCA<br>
+      📝 Model Card · TRIPOD 清单 · 局限性讨论<br>
+      📦 model.pkl (签名) · encoding_groups.json · 全部代码可复现
     </div>
   </div>
-  <ul class="steps">
-    <li class="c">患者级 disjoint: 同一患者 → 同一 split <span class="rule">MLGG-S01</span>
-      <br><span style="color:#ef4444">任何 ID 重叠 → FAIL</span></li>
-    <li class="w">
-      <span class="decision">横截面数据?</span>
-      <br><b style="color:#22c55e">是 →</b> stratified_grouped + --cross-sectional
-      <br><b style="color:#3b82f6">否 →</b> grouped_temporal <span class="rule">MLGG-S02</span></li>
-    <li class="i">比例: Train 60% / Valid 20% / Test 20%</li>
-    <li class="g">安全检查: ≥20行, ≥10正/负, ≥5患者</li>
-    <li class="i"><span class="pr">📚 PR-010: 20年数据随机分割 → 审稿人要求时序划分</span></li>
-  </ul>
-  <div class="out">→ train.csv · valid.csv · test.csv · split报告</div>
 </div>
 
-<!-- P3 -->
-<div class="card p3">
-  <div class="card-head">
-    <div class="badge">P3</div>
-    <div>
-      <div class="card-title">预处理 (fit on TRAIN ONLY)</div>
-      <div class="card-script">preprocess.py · encoding_groups.json → Phase 4</div>
+</div><!-- end flow -->
+
+<!-- ===== Side panels ===== -->
+<div class="panels">
+
+  <!-- Directory -->
+  <div class="panel">
+    <div class="panel-title" style="color:var(--m-accent)">项目结构</div>
+    <div style="font-size:11px;font-family:'SF Mono',monospace;line-height:2;color:var(--m-muted)">
+      <b style="color:var(--m-mauve)">scripts/core/</b> _gate_utils · _peer_review_retrieval · _security<br>
+      <b style="color:var(--m-teal)">scripts/gates/</b> 33 个 gate 脚本<br>
+      <b style="color:var(--m-olive)">scripts/orchestration/</b> mlgg.py · run_*_pipeline<br>
+      <b style="color:var(--m-clay)">scripts/tools/</b> peer_review_lookup · audit · train · split<br>
+      <b style="color:var(--m-mauve)">references/peer_reviews/</b> 106 KB + 107 PDFs + 106 parsed<br>
+      <b style="color:var(--m-blue)">references/</b> 39 JSON KB<br>
+      <b style="color:var(--m-sage)">tests/</b> 106+ RAG tests · 3400+ gate tests
     </div>
   </div>
-  <ul class="steps">
-    <li class="c">所有 fit() 仅在训练集 <span class="rule">MLGG-P01</span> <span class="ref">Kaufman 2012</span></li>
-    <li class="w"><b>基数+dtype 列类型检测</b> <span class="rule">MLGG-P05</span>
-      <br>Binary(2值) → 0/1 映射
-      <br>Categorical(string, 3-15值) → OneHot
-      <br><b style="color:#5eead4">Numeric(int/float, 任意基数) → 保持原值</b>
-      <br><span style="color:#6b7280">计数变量(num_meds=0-11)不展开OneHot</span></li>
-    <li class="w"><b>4 层缺失策略</b> <span class="rule">MLGG-P06</span> <span class="ref">Madley-Dowd 2019</span>
-      <br>T4(&gt;80%): 丢值+指示 · T3(40-80%): 插补+指示
-      <br>T2(5-40%): 插补+指示 · T1(&lt;5%): 简单插补</li>
-    <li class="g">输出 encoding_groups.json → Phase 4 Group LASSO</li>
-    <li class="i">SMOTE 默认不用 <span class="ref">van den Goorbergh 2022</span></li>
-    <li class="i"><span class="pr">📚 24/375 NC 审稿意见涉及 preprocessing</span></li>
-  </ul>
-  <div class="out">→ processed_data.npz · feature_names.json · encoding_groups.json · missingness_report.json</div>
-</div>
 
-<!-- Arrow -->
-<div class="dots">▼ ▼ ▼</div>
-
-<!-- ===================== ROW 2: Phase 4-6 ===================== -->
-
-<!-- P4 -->
-<div class="card p4">
-  <div class="card-head">
-    <div class="badge">P4</div>
-    <div>
-      <div class="card-title">特征筛选 (train only)</div>
-      <div class="card-script">select_features.py · 6 步流水线</div>
+  <!-- Tools -->
+  <div class="panel">
+    <div class="panel-title" style="color:var(--m-clay)">19 项分析工具</div>
+    <div class="panel-grid">
+      <div class="panel-item"><code>riley_sample_size()</code><span>Riley 三准则</span></div>
+      <div class="panel-item"><code>calibration_metrics()</code><span>校准三件套</span></div>
+      <div class="panel-item"><code>compute_nri_idi()</code><span>NRI + IDI</span></div>
+      <div class="panel-item"><code>compute_vif()</code><span>共线性 VIF</span></div>
+      <div class="panel-item"><code>check_nonlinearity()</code><span>非线性检验</span></div>
+      <div class="panel-item"><code>learning_curve_data()</code><span>学习曲线</span></div>
+      <div class="panel-item"><code>feature_ablation()</code><span>特征消融</span></div>
+      <div class="panel-item"><code>baseline_comparisons()</code><span>vs 基线</span></div>
+      <div class="panel-item"><code>subgroup_dca()</code><span>亚组 DCA</span></div>
+      <div class="panel-item"><code>mnar_sensitivity()</code><span>MNAR 敏感性</span></div>
+      <div class="panel-item"><code>imputation_sensitivity()</code><span>插补比较</span></div>
+      <div class="panel-item"><code>temporal_drift()</code><span>CUSUM 漂移</span></div>
+      <div class="panel-item"><code>generate_model_card()</code><span>Model Card</span></div>
+      <div class="panel-item"><code>rubins_rules()</code><span>Rubin 合并</span></div>
+      <div class="panel-item"><code>retrieve_by_*()</code><span>RAG 检索</span></div>
+      <div class="panel-item"><code>format_peer_context()</code><span>审稿引用</span></div>
+      <div class="panel-item"><code>calibration_bin_ci()</code><span>分 bin CI</span></div>
+      <div class="panel-item"><code>export_coefficients()</code><span>系数导出</span></div>
+      <div class="panel-item"><code>resource_report()</code><span>计算资源</span></div>
     </div>
   </div>
-  <ul class="steps">
-    <li class="c"><b>MLGG-F01/F02</b>: 禁止特征检查（标签泄漏 + 未来信息）</li>
-    <li class="i">NZV 过滤: &gt;99% 相同值 → 移除</li>
-    <li class="g"><b>Ridge 基线</b> (CV 调优 6 个 C 值) <span class="ref">Harrell 2015</span>
-      <br>PR-AUC 作为对比标准 <span class="ref">Saito & Rehmsmeier 2015</span></li>
-    <li class="c"><b>Stability Selection</b> <span class="ref">Meinshausen 2010</span>
-      <br>Elastic Net α∈{0.1-1.0}, class_weight=balanced
-      <br>100 次分层子采样, 阈值 0.6
-      <br>Group LASSO: OneHot dummy 同进同退 <span class="ref">Yuan & Lin 2006</span>
-      <br>误选界: E[V] ≤ q²/((2πθ-1)×p)</li>
-    <li class="w">选择后 PR-AUC 降 &gt;0.005 → 回退 Ridge 全量</li>
-    <li class="c">EPV 重检: 选择后仍 ≥ 10 <span class="rule">MLGG-Z01</span></li>
-    <li class="c">单因素筛选已废弃 <span class="ref">Heinze 2018</span></li>
-    <li class="i"><span class="pr">📚 PR-016: "24参数87样本=过参数化"</span></li>
-  </ul>
-  <div class="out">→ selected_data.npz · selected_features.json · stability_selection.csv · selection_report.json</div>
-</div>
 
-<!-- P5 -->
-<div class="card p5">
-  <div class="card-head">
-    <div class="badge">P5</div>
-    <div>
-      <div class="card-title">模型训练与选择</div>
-      <div class="card-script">train_select_evaluate.py · 20个模型族</div>
-    </div>
-  </div>
-  <ul class="steps">
-    <li class="c">≥3 模型族 <span class="rule">MLGG-M03</span>
-      <br>LR | RF | XGBoost | LightGBM | CatBoost
-      <br>SVM | KNN | MLP | TabPFN | 集成</li>
-    <li class="c">验证集调参, 绝不碰 test <span class="rule">MLGG-M01</span></li>
-    <li class="w">模型选择: valid PR-AUC, 不用 gap <span class="ref">Yang KDD 2023</span>
-      <br>One-SE 规则: 1SE 内选最简单 <span class="rule">MLGG-M04</span></li>
-    <li class="g">阈值: Youden's J on valid <span class="rule">MLGG-M02</span></li>
-    <li class="i">Bootstrap optimism correction <span class="ref">Steyerberg 2019</span></li>
-    <li class="i">学习曲线: 收敛? <span class="tool">learning_curve_data()</span></li>
-    <li class="i"><span class="pr">📚 PR-029: "XGBoost=Transformer → 选简单的"</span></li>
-  </ul>
-  <div class="out">→ model.pkl · model_pool.pkl · 选择报告 · thresholds</div>
-</div>
-
-<!-- P6 -->
-<div class="card p6">
-  <div class="card-head">
-    <div class="badge">P6</div>
-    <div>
-      <div class="card-title">评估与校准</div>
-      <div class="card-script">13 道统计门控 · Layer 6</div>
-    </div>
-  </div>
-  <ul class="steps">
-    <li class="c">Test 集一次性评估, 5 域面板 <span class="ref">Lancet DH 2025</span></li>
-    <li class="w"><b>区分度</b>: AUROC, AUPRC</li>
-    <li class="w"><b>校准</b>: 截距→0 · 斜率→1 · O:E→1
-      <br>ECE · HL χ² <span class="ref">Van Calster 2019</span></li>
-    <li class="w"><b>整体</b>: Brier · BSS (&gt;0=优于基线)</li>
-    <li class="w"><b>分类</b>: MCC · LR+/LR- · Sens/Spec/PPV/NPV <span class="ref">Chicco 2020</span></li>
-    <li class="w"><b>临床</b>: DCA · NRI · IDI <span class="tool">compute_nri_idi()</span></li>
-    <li class="i">95% CI: bootstrap ≥ 1000 <span class="rule">MLGG-E01</span></li>
-    <li class="i">多种子: ≥5 seeds, std &lt; 0.02 <span class="rule">MLGG-R02</span></li>
-    <li class="g">Platt scaling 事后校准 <span class="rule">MLGG-E05</span></li>
-    <li class="i"><span class="pr">📚 119/375 NC 审稿意见要求完善评估指标</span></li>
-  </ul>
-  <div class="out">→ evaluation_report · prediction_trace · CI矩阵 · 校准曲线</div>
-</div>
-
-<!-- Arrow -->
-<div class="dots">▼ ▼ ▼</div>
-
-<!-- ===================== ROW 3: Phase 7-9 ===================== -->
-
-<!-- P7 -->
-<div class="card p7">
-  <div class="card-head">
-    <div class="badge">P7</div>
-    <div>
-      <div class="card-title">多模型 SHAP 可解释性</div>
-      <div class="card-script">shap_interpretability_gate.py · Layer 5</div>
-    </div>
-  </div>
-  <ul class="steps">
-    <li class="c">多族独立 SHAP <span class="ref">Lundberg NeurIPS 2017</span>
-      <br>TreeExplainer | LinearExplainer | KernelExplainer</li>
-    <li class="w">比例归一化集成 <span class="ref">PMC11513550</span>
-      <br>每模型 mean(|SHAP|) → L1归一化 → 等权平均</li>
-    <li class="g">Kendall τ 一致性 · Top-N Jaccard · 方向共识</li>
-    <li class="i">个案解释: Top-3 驱动特征</li>
-    <li class="i"><span class="pr">📚 PR-065: "Grad-CAM 只说where不说what → 不够"</span></li>
-  </ul>
-  <div class="out">→ Table A(集成排名) · B(逐模型) · C(一致性) · D(个案)</div>
-</div>
-
-<!-- P8 -->
-<div class="card p8">
-  <div class="card-head">
-    <div class="badge">P8</div>
-    <div>
-      <div class="card-title">公平性与亚组分析</div>
-      <div class="card-script">fairness_equity_gate.py · Layer 6 · 8 项 D11 标准</div>
-    </div>
-  </div>
-  <ul class="steps">
-    <li class="c"><b>保护属性覆盖</b>: age + sex + race/ethnicity (±保险) <span class="rule">PROBAST+AI D5.3</span>
-      <br><span style="color:#6b7280">缺少关键人口统计维度 → 审稿人必问</span></li>
-    <li class="c"><b>均等化优势差距</b> &lt; 0.15 <span class="rule">D11.2</span>
-      <br>max sensitivity gap across subgroups
-      <br><span class="ref">Nature Medicine / JAMA / BMJ 强制要求</span></li>
-    <li class="c"><b>差异影响比</b> &gt; 0.80 (四分之五规则) <span class="rule">D11.3</span>
-      <br>min(subgroup_rate) / max(subgroup_rate)</li>
-    <li class="w"><b>FPR / FNR 均等差距</b> &lt; 0.15 <span class="rule">D11.6/D11.7</span>
-      <br><span class="ref">HEAL framework (eClinicalMedicine 2024)</span></li>
-    <li class="w"><b>亚组最低 PR-AUC</b> &gt; 0.40 <span class="rule">D11.x</span>
-      <br><span style="color:#ef4444">防止"平均好但少数群体极差"</span></li>
-    <li class="w">亚组 DCA 净效用 <span class="tool">subgroup_dca()</span>
-      <br>equity gap = max - min 净效用</li>
-    <li class="g">小亚组: n &lt; 50 → 不稳定 · n &lt; 20 → 不可靠 <span class="rule">D11.4</span></li>
-    <li class="i"><b>不可能定理声明</b>: ≥3 指标时必须说明优先级 <span class="rule">D11.8</span></li>
-    <li class="i">如有偏差: 必须记录缓解策略 <span class="rule">D11.5</span>
-      <br><span style="color:#6b7280">阈值校准 / 公平约束优化 / 子组模型</span></li>
-    <li class="i"><span class="pr">📚 43/375 NC 审稿意见涉及公平性/偏倚</span>
-      <br><span class="pr">最常见: 缺少人口统计(11) · 亚组遗漏(12) · 性别混杂(8)</span></li>
-  </ul>
-  <div class="out">→ fairness_equity_report.json · subgroup_*.csv · mitigation_doc</div>
-</div>
-
-<!-- P9 -->
-<div class="card p9">
-  <div class="card-head">
-    <div class="badge">P9</div>
-    <div>
-      <div class="card-title">报告与发布审查</div>
-      <div class="card-script">publication_gate.py · self_critique_gate.py · Layer 7-8</div>
-    </div>
-  </div>
-  <ul class="steps">
-    <li class="c">TRIPOD+AI 2024: 27 项 <span class="ref">Collins 2024 BMJ</span></li>
-    <li class="c">PROBAST+AI 2025: 4域偏倚评估 <span class="ref">Moons 2025 BMJ</span></li>
-    <li class="w">12 维评分 (0-100)
-      <br><span style="color:#22c55e">≥90 顶刊级</span> · <span style="color:#f59e0b">75-89 需补充</span> · <span style="color:#ef4444">&lt;60 不可发表</span></li>
-    <li class="g">Model Card · 局限性讨论 (强制)</li>
-    <li class="i"><span class="pr">📚 52/375 NC 审稿意见涉及 reporting 不完整</span></li>
-  </ul>
-  <div class="out">→ publication报告 · TRIPOD清单 · model_card.md</div>
-</div>
-
-<!-- Arrow -->
-<div class="dots">▼ ▼ ▼</div>
-
-<!-- ===================== ROW 4: RAG + Gates + Final ===================== -->
-
-<!-- Peer Review RAG -->
-<div class="card" style="border-color:#7c3aed;border-width:2px">
-  <div class="card-head">
-    <div class="badge" style="background:#7c3aed">📚</div>
-    <div>
-      <div class="card-title" style="color:#c4b5fd">Peer Review RAG 知识库</div>
-      <div class="card-script">peer-review-kb.json · 始终激活</div>
-    </div>
-  </div>
-  <ul class="steps">
-    <li class="g"><b>106 篇</b> Nature Communications 论文</li>
-    <li class="g"><b>375 条</b>结构化审稿意见</li>
-    <li class="w"><b>审稿人关切 Top 5</b>:
-      <br>evaluation_metrics (119) · study_design (81)
-      <br>reporting (52) · preprocessing (24) · external_validation (21)</li>
-    <li class="c"><b>25 条 CRITICAL</b>: 数据泄漏 · 结局定义 · 过度治疗</li>
-    <li class="i"><b>检索</b>: by dimension / gate / tag / category / domain / text
-      <br><b>19 组同义词</b>扩展 · 详细 fix 优先</li>
-    <li class="i"><b>引用</b>: Gate 失败时自动附带 NC 审稿案例
-      <br>Agent 审查时引用审稿人原文作为论据</li>
-  </ul>
-  <div class="out">→ peer-review-kb.json · stats.json · tags.json · 106 parsed JSONs</div>
-</div>
-
-<!-- 33 Gates -->
-<div class="card" style="border-color:#1e40af">
-  <div class="card-head">
-    <div class="badge" style="background:#1e40af">33</div>
-    <div>
-      <div class="card-title" style="color:#93c5fd">33 道 Fail-Closed 门控 DAG</div>
-      <div class="card-script">9 层执行 · scripts/gates/ 目录</div>
-    </div>
-  </div>
-  <div style="font-size:11px;line-height:1.8">
-    <b style="color:#c4b5fd">L0 契约</b> cohort_definition · request_contract<br>
-    <b style="color:#93c5fd">L1 指纹</b> manifest_lock<br>
-    <b style="color:#93c5fd">L2 证明</b> execution_attestation<br>
-    <b style="color:#67e8f9">L3 数据</b> leakage · split_protocol · covariate_shift · reporting_bias<br>
-    <b style="color:#5eead4">L4 策略</b> definition_variable · feature_lineage · imbalance · missingness · tuning_leakage<br>
-    <b style="color:#86efac">L5 模型</b> model_selection · feature_eng · clinical_metrics · <span style="color:#fdba74">shap</span><br>
-    <b style="color:#fde047">L6 统计</b> calibration_dca · ci_matrix · dist_gen · eval_quality · external_val · fairness · gen_gap · metric_consist · permutation · prediction_replay · robustness · sample_size · seed_stability<br>
-    <b style="color:#cbd5e1">L7 聚合</b> publication<br>
-    <b style="color:#e5e7eb">L8 终审</b> self_critique · security_audit
-  </div>
-</div>
-
-<!-- Final -->
-<div class="card" style="border-color:#22c55e;border-width:2px;background:#0f1f17">
-  <div class="card-head">
-    <div class="badge" style="background:#16a34a">✓</div>
-    <div>
-      <div class="card-title" style="color:#4ade80">发布就绪产物</div>
-      <div class="card-script">L3-Publication-Grade</div>
-    </div>
-  </div>
-  <div style="font-size:13px;line-height:2">
-    ✅ 33 门控全部通过<br>
-    ✅ TRIPOD+AI 2024 + PROBAST+AI 2025<br>
-    ✅ 12维评分 ≥ 90<br>
-    ✅ Peer Review RAG 无 CRITICAL 未解决项<br>
-  </div>
-  <div class="out" style="margin-top:12px">
-    最终交付:<br>
-    📊 4张SHAP表 · 校准曲线 · DCA · 公平性报告<br>
-    📝 Model Card · TRIPOD清单 · 局限性讨论<br>
-    📄 evaluation_report · prediction_trace · selection_report<br>
-    📦 model.pkl (签名) · encoding_groups.json · 全部代码可复现
-  </div>
-</div>
-
-</div><!-- end grid -->
-
-<!-- ===================== Directory Structure ===================== -->
-<div style="max-width:1500px;margin:28px auto 0;background:#1a1f2e;border:1px solid #2d3548;border-radius:10px;padding:20px">
-  <div style="font-size:15px;font-weight:700;color:#60a5fa;margin-bottom:14px">项目目录结构 (v2 重组)</div>
-  <div style="font-size:12px;font-family:monospace;line-height:1.8;color:#9ca3af">
-    <span style="color:#60a5fa">scripts/</span><br>
-    &nbsp;&nbsp;├── <span style="color:#c4b5fd">core/</span> &nbsp; _gate_utils · _gate_framework · _gate_registry · _peer_review_retrieval · _security<br>
-    &nbsp;&nbsp;├── <span style="color:#67e8f9">gates/</span> &nbsp; 33 个 gate 脚本 (leakage · split_protocol · calibration_dca · ...)<br>
-    &nbsp;&nbsp;├── <span style="color:#86efac">orchestration/</span> &nbsp; mlgg.py · mlgg_pixel.py · run_dag_pipeline · run_strict_pipeline<br>
-    &nbsp;&nbsp;└── <span style="color:#f97316">tools/</span> &nbsp; peer_review_lookup · audit_external · train_select_evaluate · split_data · ...<br>
-    <span style="color:#60a5fa">references/</span><br>
-    &nbsp;&nbsp;├── 39 JSON KB &nbsp; (error · literature · journal · TRIPOD · PROBAST · disease-definition)<br>
-    &nbsp;&nbsp;└── <span style="color:#c4b5fd">peer_reviews/</span> &nbsp; peer-review-kb.json (106篇375条) · stats · tags · 107 PDFs · 106 parsed JSONs<br>
-    <span style="color:#60a5fa">examples/</span><br>
-    &nbsp;&nbsp;├── template/ &nbsp; 9-phase 空白模板<br>
-    &nbsp;&nbsp;├── demo_diabetes130/ &nbsp; UCI 糖尿病参考实现<br>
-    &nbsp;&nbsp;└── download_*.py &nbsp; 14 个数据集下载器<br>
-    <span style="color:#60a5fa">tests/</span> &nbsp; 106+ peer review RAG 测试 · 3400+ gate 测试<br>
-  </div>
-</div>
-
-<!-- ===================== 19 Tools Reference ===================== -->
-<div style="max-width:1500px;margin:16px auto 0;background:#1a1f2e;border:1px solid #2d3548;border-radius:10px;padding:20px">
-  <div style="font-size:15px;font-weight:700;color:#f97316;margin-bottom:14px">19 项框架级分析工具 · scripts/core/_gate_utils.py</div>
-  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;font-size:11px">
-    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">riley_sample_size()</span><br><span style="color:#6b7280">Riley 2019 三准则</span></div>
-    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">calibration_metrics()</span><br><span style="color:#6b7280">校准三件套+HL+BSS</span></div>
-    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">calibration_bin_ci()</span><br><span style="color:#6b7280">per-bin Bootstrap CI</span></div>
-    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">compute_nri_idi()</span><br><span style="color:#6b7280">NRI + IDI</span></div>
-    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">baseline_comparisons()</span><br><span style="color:#6b7280">vs 随机/prevalence</span></div>
-    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">feature_ablation()</span><br><span style="color:#6b7280">特征消融实验</span></div>
-    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">learning_curve_data()</span><br><span style="color:#6b7280">学习曲线</span></div>
-    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">compute_vif()</span><br><span style="color:#6b7280">多重共线性 VIF</span></div>
-    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">check_nonlinearity()</span><br><span style="color:#6b7280">LR test 非线性检验</span></div>
-    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">export_model_coefficients()</span><br><span style="color:#6b7280">系数/重要性导出</span></div>
-    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">compute_resource_report()</span><br><span style="color:#6b7280">计算资源记录</span></div>
-    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">mnar_sensitivity_analysis()</span><br><span style="color:#6b7280">MNAR δ 敏感性</span></div>
-    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">imputation_sensitivity()</span><br><span style="color:#6b7280">插补方法比较</span></div>
-    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">temporal_drift_analysis()</span><br><span style="color:#6b7280">CUSUM 漂移检测</span></div>
-    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">subgroup_dca()</span><br><span style="color:#6b7280">亚组 DCA 净效用</span></div>
-    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">generate_model_card()</span><br><span style="color:#6b7280">Model Card 生成</span></div>
-    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#f97316;font-family:monospace">rubins_rules_combine()</span><br><span style="color:#6b7280">Rubin's Rules 合并</span></div>
-    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#a78bfa;font-family:monospace">retrieve_by_*() / format_*()</span><br><span style="color:#6b7280">Peer Review RAG 检索</span></div>
-    <div style="background:#111827;padding:8px;border-radius:6px"><span style="color:#a78bfa;font-family:monospace">count_concerns_with_tag()</span><br><span style="color:#6b7280">审稿意见统计</span></div>
-  </div>
 </div>
 
 <p class="footer">
-  ML Leakage Guard (MLGG) v2.0 &mdash; PolyForm Noncommercial License 1.0.0
-  <br>33 gates · 19 tools · 37+ references · 106 NC papers · 375 concerns · 106+ RAG tests · scripts/ 重组为 core/gates/orchestration/tools
+  ML Leakage Guard (MLGG) v3.0 — PolyForm Noncommercial License<br>
+  33 gates · 19 tools · 37+ references · 106 NC papers · 375 concerns · 106+ tests
 </p>
 
 </body>
