@@ -1,0 +1,127 @@
+{
+  "id": "PR-004",
+  "paper_doi": "10.1038/s41467-023-43715-z",
+  "paper_title": "TransformEHR: transformer-based encoder-decoder generative model to enhance prediction of disease outcomes using electronic health records",
+  "journal": "Nature Communications",
+  "year": 2023,
+  "domain": "ehr_clinical",
+  "prediction_task": "Disease outcome prediction from longitudinal EHR (pancreatic cancer onset, self-harm in PTSD)",
+  "model_types": ["transformer_encoder_decoder"],
+  "data_type": "longitudinal_ehr_icd_codes",
+  "sample_size": 6500000,
+  "review_rounds": 2,
+
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-004-C01",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "HIGH",
+      "mlgg_dimension": 5,
+      "mlgg_gates": ["evaluation_quality_gate"],
+      "mlgg_rules": ["MLGG-E02"],
+      "concern_text": "AUROC reported only for Pancreatic Cancer in the main manuscript. Supplement tables show Jaccard scores, which is inappropriate for discriminative accuracy. Move main results to main manuscript and report AUROC, AUPRC, and other metrics with best-defined thresholds.",
+      "author_response": "We replaced Jaccard with AUROC as primary metric and added comprehensive metrics to the main manuscript.",
+      "resolved": true,
+      "tags": ["inappropriate_metric", "jaccard_for_classification", "metrics_in_supplement_only"]
+    },
+    {
+      "concern_id": "PR-004-C02",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "clinical_utility",
+      "severity": "CRITICAL",
+      "mlgg_dimension": 7,
+      "mlgg_gates": ["clinical_metrics_gate"],
+      "mlgg_rules": [],
+      "concern_text": "PPV 1.7% - is this really practically useful? If implemented in clinical practice, over 98% of interventions would be for patients who will not actually harm themselves. The statement that PPV 8.45% 'minimizes resource cost' is certainly not true as stated.",
+      "author_response": "We have revised the language to more accurately describe the clinical trade-offs. Added cost-effectiveness analysis using ICER thresholds.",
+      "resolved": true,
+      "tags": ["low_ppv", "clinical_utility_questionable", "false_positive_burden", "cost_effectiveness"]
+    },
+    {
+      "concern_id": "PR-004-C03",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "study_design",
+      "severity": "HIGH",
+      "mlgg_dimension": 1,
+      "mlgg_gates": ["cohort_definition_gate"],
+      "mlgg_rules": ["MLGG-C01"],
+      "concern_text": "Please clarify the meaning of what you are predicting. ICD-10-CM is how the meaning is encoded but does not fully explain what is being predicted. Are these codes entered for billing purposes? Clinical purposes? Without this, it is hard to understand the contribution beyond numerical comparison.",
+      "author_response": "We clarified that ICD-10-CM codes reflect clinical diagnoses documented during VA encounters, and added discussion of billing vs clinical coding practices.",
+      "resolved": true,
+      "tags": ["outcome_definition", "icd_code_meaning", "billing_vs_clinical"]
+    },
+    {
+      "concern_id": "PR-004-C04",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "external_validation",
+      "severity": "HIGH",
+      "mlgg_dimension": 6,
+      "mlgg_gates": ["distribution_generalization_gate"],
+      "mlgg_rules": [],
+      "concern_text": "The VA and MIMIC populations are clinically very different (general vs ICU). It is surprising that a system pretrained on a general population performed well on a very different population. More information regarding prediction tasks in different populations needed.",
+      "author_response": "We added detailed analysis of domain shift between VA and MIMIC populations and discussed transfer learning properties.",
+      "resolved": true,
+      "tags": ["domain_shift", "population_difference", "transfer_learning"]
+    },
+    {
+      "concern_id": "PR-004-C05",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "clinical_utility",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 7,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "Prediction of pancreatic cancer ICD-10 codes one visit prior may not be clinically useful. The documentation of a code is not equivalent to the first diagnosis. The duration between visits may differ greatly — predicting in 1 year may be much more useful than if next visit is in 1 week.",
+      "author_response": "We added a new prediction window (12-36 months) for pancreatic cancer onset and updated results for this clinically meaningful timeframe.",
+      "resolved": true,
+      "tags": ["prediction_window", "clinical_relevance", "time_horizon"]
+    },
+    {
+      "concern_id": "PR-004-C06",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "preprocessing",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 3,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "The use of PHI data like actual visit dates will highly impact both usability and generalizability. Recommend using day differences between events instead.",
+      "author_response": "We implemented daysdiff embedding and showed no significant performance difference vs date-specific embedding, while improving privacy protection.",
+      "resolved": true,
+      "tags": ["phi_in_features", "privacy", "date_encoding"]
+    },
+    {
+      "concern_id": "PR-004-C07",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "mlgg_gates": ["evaluation_quality_gate"],
+      "mlgg_rules": [],
+      "concern_text": "The improvements in PPV over BERT are relatively modest in absolute terms (7.14% vs 8.67%). Is this clinically significant? How much does this practically decrease resource utilization?",
+      "author_response": "We added cost-effectiveness analysis showing ICER reduction from baseline, demonstrating practical clinical significance.",
+      "resolved": true,
+      "tags": ["marginal_improvement", "clinical_significance", "effect_size"]
+    }
+  ],
+
+  "reviewer_strengths": [
+    {
+      "strength_id": "PR-004-S01",
+      "reviewer": "Reviewer #2",
+      "text": "Methods are well-described and appropriate, with ablation analyses to help determine the most useful model components as well as analyzing model performance in different patient subgroups based on demographics.",
+      "tags": ["ablation_study", "subgroup_analysis", "methods_quality"]
+    }
+  ],
+
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["inappropriate_metric", "low_ppv", "outcome_definition", "domain_shift"],
+  "key_methodology_strengths": ["large_scale_ehr", "ablation_study", "subgroup_analysis", "privacy_aware"]
+}

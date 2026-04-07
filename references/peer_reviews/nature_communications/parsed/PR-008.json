@@ -1,0 +1,141 @@
+{
+  "id": "PR-008",
+  "paper_doi": "10.1038/s41467-025-59242-y",
+  "paper_title": "Targeted plasma proteomics reveals organ damage signatures of AIDS- and noncommunicable disease-related deaths in people with HIV",
+  "journal": "Nature Communications",
+  "year": 2025,
+  "domain": "infectious_disease",
+  "prediction_task": "Mortality prediction in HIV patients using plasma proteomics panel",
+  "model_types": ["lasso_regression", "random_forest"],
+  "data_type": "proteomics_plus_clinical",
+  "sample_size": 567,
+  "review_rounds": 2,
+
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-008-C01",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "study_design",
+      "severity": "HIGH",
+      "mlgg_dimension": 1,
+      "mlgg_gates": ["cohort_definition_gate"],
+      "mlgg_rules": [],
+      "concern_text": "Selection bias may be a concern as less than 6% of the original CHART cohort is included. How do baseline characteristics of selected patients compare to the overall population? Could patients have been matched with ART treatment in addition to age and sex?",
+      "author_response": "We added comparison of selected vs overall cohort characteristics and justified the sampling strategy. ART matching was not feasible due to heterogeneity.",
+      "resolved": true,
+      "tags": ["selection_bias", "representativeness", "matching_strategy"]
+    },
+    {
+      "concern_id": "PR-008-C02",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "preprocessing",
+      "severity": "HIGH",
+      "mlgg_dimension": 3,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "Adjustments for the duration or type of ART use are conspicuously missing from the models. Several ART either act directly on viral or host proteins or indirectly through transcription. This could enhance models' accuracy.",
+      "author_response": "We added ART duration and type as covariates in sensitivity analyses. Results remained robust after adjustment.",
+      "resolved": true,
+      "tags": ["missing_confounder", "treatment_as_confounder", "art_adjustment"]
+    },
+    {
+      "concern_id": "PR-008-C03",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "preprocessing",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 3,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "Adjusting protein expression for renal function is important as several studies report the impact of renal function on protein expression due to the kidney's role in filtering and inflammatory response.",
+      "author_response": "We added eGFR as a covariate and performed sensitivity analysis stratified by renal function.",
+      "resolved": true,
+      "tags": ["missing_confounder", "renal_function_adjustment", "biological_confounder"]
+    },
+    {
+      "concern_id": "PR-008-C04",
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "CRITICAL",
+      "mlgg_dimension": 5,
+      "mlgg_gates": ["evaluation_quality_gate"],
+      "mlgg_rules": [],
+      "concern_text": "Throughout the study, the authors implied seeking unique proteomics signatures dichotomizing AIDS vs NCD deaths. However, figures compare each death type with HIV survivors separately. The conclusions could be totally different if all groups were compared against each other. A Venn diagram showing common proteins across all comparisons is needed.",
+      "author_response": "We added comprehensive multi-group comparison analysis with Venn diagram and pairwise contrasts.",
+      "resolved": true,
+      "tags": ["incomplete_comparison", "analytical_approach_flawed", "multi_group_comparison"]
+    },
+    {
+      "concern_id": "PR-008-C05",
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "category": "study_design",
+      "severity": "HIGH",
+      "mlgg_dimension": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "The paper fails to describe potential confounders. The time of plasma isolation and preservative type could introduce methodological artifacts. The time between plasma collection and death is not described. Authors state protein expression was altered 'right before' death but provide no time data.",
+      "author_response": "We clarified sample collection protocols, added time-to-death analysis, and corrected temporal language.",
+      "resolved": true,
+      "tags": ["confounders_undisclosed", "sample_timing", "temporal_language"]
+    },
+    {
+      "concern_id": "PR-008-C06",
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "The statistical approaches were not clear. Table 1 showed three P-values where ANOVA followed by post-hoc test should have been used. Tables include data not significant after FDR correction, making interpretation difficult.",
+      "author_response": "We corrected statistical tests and removed non-significant results from main tables.",
+      "resolved": true,
+      "tags": ["wrong_statistical_test", "multiple_testing_correction", "fdr"]
+    },
+    {
+      "concern_id": "PR-008-C07",
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "category": "external_validation",
+      "severity": "HIGH",
+      "mlgg_dimension": 6,
+      "mlgg_gates": ["external_validation_gate"],
+      "mlgg_rules": [],
+      "concern_text": "It is not clear why the validation cohort of 127 samples had significantly lower sensitivity than the training datasets. Supplemental Table 1 is missing.",
+      "author_response": "We explained the performance gap due to smaller sample size and different clinical characteristics. Supplemental Table 1 added.",
+      "resolved": true,
+      "tags": ["validation_performance_drop", "small_validation_set", "missing_supplementary"]
+    },
+    {
+      "concern_id": "PR-008-C08",
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "category": "reporting",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 8,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "Several unsubstantiated statements imply causality throughout the results section. Introduction states 'traditional biomarkers are challenging for predicting mortality' but Discussion says they have 'potential for predicting mortality' — these are contradictory.",
+      "author_response": "We revised causal language to associational framing and resolved the logical inconsistency between introduction and discussion.",
+      "resolved": true,
+      "tags": ["causal_language", "internal_contradiction", "association_not_causation"]
+    }
+  ],
+
+  "reviewer_strengths": [
+    {
+      "strength_id": "PR-008-S01",
+      "reviewer": "Reviewer #2",
+      "text": "The report is appropriately written with appropriate statistical methods, prediction corrections, and a validation group. The markers identified (CA12, CA14) are consistent and potentially biologically relevant.",
+      "tags": ["validation_group", "biological_relevance", "appropriate_statistics"]
+    }
+  ],
+
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["selection_bias", "missing_confounder", "incomplete_comparison", "causal_language"],
+  "key_methodology_strengths": ["validation_cohort", "targeted_proteomics", "biological_relevance"]
+}

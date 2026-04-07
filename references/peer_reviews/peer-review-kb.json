@@ -1,7 +1,7 @@
 {
   "contract_version": "peer_review_kb.v1",
-  "total_papers": 3,
-  "total_concerns": 29,
+  "total_papers": 8,
+  "total_concerns": 67,
   "entries": [
     {
       "id": "PR-001",
@@ -749,6 +749,954 @@
         "multicenter_validation",
         "novel_biomarker",
         "translational_value"
+      ]
+    },
+    {
+      "id": "PR-004",
+      "paper_doi": "10.1038/s41467-023-43715-z",
+      "paper_title": "TransformEHR: transformer-based encoder-decoder generative model to enhance prediction of disease outcomes using electronic health records",
+      "journal": "Nature Communications",
+      "year": 2023,
+      "domain": "ehr_clinical",
+      "prediction_task": "Disease outcome prediction from longitudinal EHR (pancreatic cancer onset, self-harm in PTSD)",
+      "model_types": [
+        "transformer_encoder_decoder"
+      ],
+      "data_type": "longitudinal_ehr_icd_codes",
+      "sample_size": 6500000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-004-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-E02"
+          ],
+          "concern_text": "AUROC reported only for Pancreatic Cancer in the main manuscript. Supplement tables show Jaccard scores, which is inappropriate for discriminative accuracy. Move main results to main manuscript and report AUROC, AUPRC, and other metrics with best-defined thresholds.",
+          "author_response": "We replaced Jaccard with AUROC as primary metric and added comprehensive metrics to the main manuscript.",
+          "resolved": true,
+          "tags": [
+            "inappropriate_metric",
+            "jaccard_for_classification",
+            "metrics_in_supplement_only"
+          ]
+        },
+        {
+          "concern_id": "PR-004-C02",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "clinical_utility",
+          "severity": "CRITICAL",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [
+            "clinical_metrics_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "PPV 1.7% - is this really practically useful? If implemented in clinical practice, over 98% of interventions would be for patients who will not actually harm themselves. The statement that PPV 8.45% 'minimizes resource cost' is certainly not true as stated.",
+          "author_response": "We have revised the language to more accurately describe the clinical trade-offs. Added cost-effectiveness analysis using ICER thresholds.",
+          "resolved": true,
+          "tags": [
+            "low_ppv",
+            "clinical_utility_questionable",
+            "false_positive_burden",
+            "cost_effectiveness"
+          ]
+        },
+        {
+          "concern_id": "PR-004-C03",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-C01"
+          ],
+          "concern_text": "Please clarify the meaning of what you are predicting. ICD-10-CM is how the meaning is encoded but does not fully explain what is being predicted. Are these codes entered for billing purposes? Clinical purposes? Without this, it is hard to understand the contribution beyond numerical comparison.",
+          "author_response": "We clarified that ICD-10-CM codes reflect clinical diagnoses documented during VA encounters, and added discussion of billing vs clinical coding practices.",
+          "resolved": true,
+          "tags": [
+            "outcome_definition",
+            "icd_code_meaning",
+            "billing_vs_clinical"
+          ]
+        },
+        {
+          "concern_id": "PR-004-C04",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "external_validation",
+          "severity": "HIGH",
+          "mlgg_dimension": 6,
+          "mlgg_gates": [
+            "distribution_generalization_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "The VA and MIMIC populations are clinically very different (general vs ICU). It is surprising that a system pretrained on a general population performed well on a very different population. More information regarding prediction tasks in different populations needed.",
+          "author_response": "We added detailed analysis of domain shift between VA and MIMIC populations and discussed transfer learning properties.",
+          "resolved": true,
+          "tags": [
+            "domain_shift",
+            "population_difference",
+            "transfer_learning"
+          ]
+        },
+        {
+          "concern_id": "PR-004-C05",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "clinical_utility",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Prediction of pancreatic cancer ICD-10 codes one visit prior may not be clinically useful. The documentation of a code is not equivalent to the first diagnosis. The duration between visits may differ greatly — predicting in 1 year may be much more useful than if next visit is in 1 week.",
+          "author_response": "We added a new prediction window (12-36 months) for pancreatic cancer onset and updated results for this clinically meaningful timeframe.",
+          "resolved": true,
+          "tags": [
+            "prediction_window",
+            "clinical_relevance",
+            "time_horizon"
+          ]
+        },
+        {
+          "concern_id": "PR-004-C06",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "preprocessing",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 3,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "The use of PHI data like actual visit dates will highly impact both usability and generalizability. Recommend using day differences between events instead.",
+          "author_response": "We implemented daysdiff embedding and showed no significant performance difference vs date-specific embedding, while improving privacy protection.",
+          "resolved": true,
+          "tags": [
+            "phi_in_features",
+            "privacy",
+            "date_encoding"
+          ]
+        },
+        {
+          "concern_id": "PR-004-C07",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "The improvements in PPV over BERT are relatively modest in absolute terms (7.14% vs 8.67%). Is this clinically significant? How much does this practically decrease resource utilization?",
+          "author_response": "We added cost-effectiveness analysis showing ICER reduction from baseline, demonstrating practical clinical significance.",
+          "resolved": true,
+          "tags": [
+            "marginal_improvement",
+            "clinical_significance",
+            "effect_size"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-004-S01",
+          "reviewer": "Reviewer #2",
+          "text": "Methods are well-described and appropriate, with ablation analyses to help determine the most useful model components as well as analyzing model performance in different patient subgroups based on demographics.",
+          "tags": [
+            "ablation_study",
+            "subgroup_analysis",
+            "methods_quality"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "inappropriate_metric",
+        "low_ppv",
+        "outcome_definition",
+        "domain_shift"
+      ],
+      "key_methodology_strengths": [
+        "large_scale_ehr",
+        "ablation_study",
+        "subgroup_analysis",
+        "privacy_aware"
+      ]
+    },
+    {
+      "id": "PR-005",
+      "paper_doi": "10.1038/s41467-023-40890-x",
+      "paper_title": "Biology-guided deep learning predicts prognosis and cancer immunotherapy response",
+      "journal": "Nature Communications",
+      "year": 2023,
+      "domain": "oncology",
+      "prediction_task": "Gastric cancer prognosis and immunotherapy response prediction from CT images",
+      "model_types": [
+        "multi_task_deep_learning",
+        "convolutional_neural_network"
+      ],
+      "data_type": "ct_imaging_plus_clinical",
+      "sample_size": 2029,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-005-C01",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "study_design",
+          "severity": "CRITICAL",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "A lot more detail needs to be provided on which parts of the CT images were used and correlated to histology images. Which cut of CT was used and why? Were they sagittal or cross-sectional? It is almost impossible to visualize a stomach tumor on CT, especially early stages. It is non-trivial to correlate a biopsy from endoscopy and match to a CT scan.",
+          "author_response": "We added detailed description of CT slice selection, tumor segmentation protocol, and histology-radiology correlation methods.",
+          "resolved": true,
+          "tags": [
+            "imaging_protocol_unclear",
+            "data_acquisition",
+            "reproducibility"
+          ]
+        },
+        {
+          "concern_id": "PR-005-C02",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "interpretability",
+          "severity": "HIGH",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Given that stage is a very good determinant of prognosis, how do we know that the ML model isn't merely measuring tumor size and using this to determine prognosis? What other features other than size is the model using? How do we know it isn't merely using clinicopathological characteristics already readily available?",
+          "author_response": "We added ablation analysis removing size-related features and showed the model captures additional information beyond tumor size. Multivariate analysis demonstrates DLS is independent of stage.",
+          "resolved": true,
+          "tags": [
+            "confounding_by_stage",
+            "incremental_value",
+            "beyond_known_predictors"
+          ]
+        },
+        {
+          "concern_id": "PR-005-C03",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "model_selection_audit_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "For prediction of benefit for adjuvant chemotherapy, a multivariate analysis should be performed to determine if TME or DLS are independent predictors of benefit from chemotherapy.",
+          "author_response": "We added multivariate Cox regression analysis showing DLS is an independent predictor of chemotherapy benefit after adjusting for stage, age, and other clinical variables.",
+          "resolved": true,
+          "tags": [
+            "multivariate_analysis_missing",
+            "independent_predictor",
+            "treatment_benefit"
+          ]
+        },
+        {
+          "concern_id": "PR-005-C04",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "For immunotherapy treatment — were patients treated with single agent or combination with chemo? If mixed, the analysis needs to be divided to study single agent and combination separately. It is unclear how heterogeneous this group is.",
+          "author_response": "We clarified treatment regimens and performed subgroup analyses by treatment type.",
+          "resolved": true,
+          "tags": [
+            "treatment_heterogeneity",
+            "subgroup_by_treatment"
+          ]
+        },
+        {
+          "concern_id": "PR-005-C05",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "The AUCs seem similar to their previous work (Jiang et al, Lancet Digital Health). Why AUC is used for measuring survival performance? Is the endpoint classification only at 5 years?",
+          "author_response": "We clarified the survival endpoint definition and added time-dependent AUC analysis and C-index for survival prediction.",
+          "resolved": true,
+          "tags": [
+            "survival_metric",
+            "auc_vs_cindex",
+            "comparison_with_prior_work"
+          ]
+        },
+        {
+          "concern_id": "PR-005-C06",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "interpretability",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "The choice of being more concerned with interpretability than explainability appears trenchant. If the authors have a strategy for dealing with explainability and determining criteria to select significant features, they should describe it.",
+          "author_response": "We expanded the discussion to address both interpretability (biology-guided architecture) and explainability (feature attribution maps).",
+          "resolved": true,
+          "tags": [
+            "interpretability_vs_explainability",
+            "feature_attribution"
+          ]
+        },
+        {
+          "concern_id": "PR-005-C07",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "reproducibility",
+          "severity": "HIGH",
+          "mlgg_dimension": 9,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "There is a general lack of details (data more than code) for the work to be reproduced.",
+          "author_response": "We expanded methods section with full implementation details and made code available on GitHub.",
+          "resolved": true,
+          "tags": [
+            "reproducibility",
+            "insufficient_methods_detail",
+            "data_sharing"
+          ]
+        },
+        {
+          "concern_id": "PR-005-C08",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "How many pathologists were involved in the TME classification? Was this done independently? How were conflicts resolved in TME assessments?",
+          "author_response": "Two pathologists independently classified TME with a third resolving conflicts. Inter-rater agreement (kappa) reported.",
+          "resolved": true,
+          "tags": [
+            "inter_rater_reliability",
+            "ground_truth_quality",
+            "pathologist_agreement"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-005-S01",
+          "reviewer": "Reviewer #3",
+          "text": "The results presented are valuable. The methodology is sound. The authors claim superior results compared to the literature.",
+          "tags": [
+            "sound_methodology",
+            "strong_results"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "confounding_by_stage",
+        "multivariate_analysis_missing",
+        "treatment_heterogeneity",
+        "reproducibility"
+      ],
+      "key_methodology_strengths": [
+        "biology_guided_architecture",
+        "multi_task_learning",
+        "multicenter_validation"
+      ]
+    },
+    {
+      "id": "PR-006",
+      "paper_doi": "10.1038/s41467-024-47204-9",
+      "paper_title": "Integration of pathologic characteristics, genetic risk and lifestyle exposure for colorectal cancer survival assessment",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "domain": "oncology",
+      "prediction_task": "Colorectal cancer 5-year survival prediction using polygenic prognostic score + clinical + lifestyle",
+      "model_types": [
+        "cox_regression",
+        "polygenic_risk_score"
+      ],
+      "data_type": "genomic_plus_clinical_plus_lifestyle",
+      "sample_size": 3703,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-006-C01",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "data_leakage",
+          "severity": "CRITICAL",
+          "mlgg_dimension": 2,
+          "mlgg_gates": [
+            "leakage_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-P01"
+          ],
+          "concern_text": "A significant methodological issue: the use of the same dataset for both GWAS and PPS parameterisation. This overlap will result in overfitting of PPS and optimism in performance estimates. This is clearly demonstrated by the drop in performance in the TCGA cohort where calibration and AUC are quite poor compared to the discovery cohorts.",
+          "author_response": "We acknowledge this limitation and have added detailed discussion. We performed sensitivity analysis with stricter separation and noted the performance gap.",
+          "resolved": true,
+          "tags": [
+            "same_data_gwas_and_prs",
+            "overfitting",
+            "optimism_bias",
+            "discovery_validation_overlap"
+          ]
+        },
+        {
+          "concern_id": "PR-006-C02",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "calibration_dca_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-E02"
+          ],
+          "concern_text": "Reported statistics are limited to effect sizes (HR), AUC, and KM curves/log rank tests. Reporting of variance explained for the PPS would be helpful, in addition to clinically meaningful metrics such as sensitivity/specificity/PPV, and decision curve analysis.",
+          "author_response": "We have added variance explained (R²), sensitivity/specificity at optimal thresholds, and DCA analysis.",
+          "resolved": true,
+          "tags": [
+            "incomplete_metrics",
+            "missing_dca",
+            "missing_variance_explained",
+            "missing_sensitivity_specificity"
+          ]
+        },
+        {
+          "concern_id": "PR-006-C03",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Overwhelmingly the presence of stage and grade are the strongest predictors of survival (AUC 0.8 vs PRS alone 0.63). Whether the addition of PRS to a model containing stage and grade is of any value needs much more careful consideration than just reporting the increment in AUC.",
+          "author_response": "We added NRI analysis and DCA to demonstrate the incremental clinical value of PRS beyond stage/grade.",
+          "resolved": true,
+          "tags": [
+            "incremental_value",
+            "clinical_relevance",
+            "nri_analysis",
+            "beyond_known_predictors"
+          ]
+        },
+        {
+          "concern_id": "PR-006-C04",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "external_validation",
+          "severity": "CRITICAL",
+          "mlgg_dimension": 6,
+          "mlgg_gates": [
+            "external_validation_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "The combined model has been made publicly available for use 'in clinical practice'. This model has not been externally validated, having been constructed and tested only in the PLCO cohort, and I have very serious reservations about it being made available as such as a clinical tool.",
+          "author_response": "We revised the language to state the tool is for research purposes only, not clinical practice. Added explicit disclaimer.",
+          "resolved": true,
+          "tags": [
+            "premature_clinical_deployment",
+            "no_external_validation_for_combined",
+            "overstatement"
+          ]
+        },
+        {
+          "concern_id": "PR-006-C05",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "preprocessing",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 3,
+          "mlgg_gates": [
+            "missingness_policy_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-P04"
+          ],
+          "concern_text": "Handling of missing data noted in Table 1 and several supplementary tables is not reported — was complete case analysis used, or imputation in some form?",
+          "author_response": "We clarified that multiple imputation was used for missing lifestyle variables and complete case analysis for genetic data.",
+          "resolved": true,
+          "tags": [
+            "missing_data_handling_unclear",
+            "imputation_method"
+          ]
+        },
+        {
+          "concern_id": "PR-006-C06",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "In the construction of the HLS — it is unclear why these particular predictors were chosen and how cut-off thresholds were defined. The 'traditional model' includes some but not all lifestyle predictors. Authors reference a pre-existing validated lifestyle model (Cheng et al) — is there a reason this was not used?",
+          "author_response": "We justified predictor selection based on WHO guidelines and existing literature. Comparison with Cheng et al model added.",
+          "resolved": true,
+          "tags": [
+            "feature_selection_justification",
+            "threshold_definition",
+            "comparison_with_existing"
+          ]
+        },
+        {
+          "concern_id": "PR-006-C07",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "reporting",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "The paper does not report how cancer cases were identified in UKB (which field was used). End of follow-up/censoring dates should also be defined, as cancer data has been regularly updated.",
+          "author_response": "We added case identification methodology (ICD-10 codes from cancer registry) and specified censoring dates.",
+          "resolved": true,
+          "tags": [
+            "case_ascertainment_unclear",
+            "censoring_dates",
+            "reporting_completeness"
+          ]
+        },
+        {
+          "concern_id": "PR-006-C08",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "sample_size",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 12,
+          "mlgg_gates": [
+            "sample_size_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "I would suggest that the number of cases does not constitute 'Large scale' GWAS meta-analysis. There is insufficient power to detect GWAS-significant SNP associations. This should be made clearer in the discussion.",
+          "author_response": "We toned down the 'large scale' claim and added power analysis discussion.",
+          "resolved": true,
+          "tags": [
+            "sample_size_insufficient",
+            "power_analysis",
+            "overstatement"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-006-S01",
+          "reviewer": "Reviewer #1",
+          "text": "An interesting and innovative study that firstly introduces PPS (a germline variant score) into the colorectal cancer survival prediction. Multi-ancestry replication is a strength.",
+          "tags": [
+            "novel_approach",
+            "multi_ancestry",
+            "innovation"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "same_data_gwas_and_prs",
+        "incomplete_metrics",
+        "premature_clinical_deployment",
+        "no_external_validation_for_combined"
+      ],
+      "key_methodology_strengths": [
+        "multi_ancestry",
+        "lifestyle_integration",
+        "web_tool"
+      ]
+    },
+    {
+      "id": "PR-007",
+      "paper_doi": "10.1038/s41467-024-46700-2",
+      "paper_title": "Development and validation of an interpretable model integrating multimodal information for improving ovarian cancer diagnosis",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "domain": "oncology",
+      "prediction_task": "Ovarian cancer diagnosis from ultrasound + clinical variables",
+      "model_types": [
+        "random_forest",
+        "densenet121",
+        "human_in_the_loop"
+      ],
+      "data_type": "imaging_plus_clinical",
+      "sample_size": 1111,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-007-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "clinical_utility",
+          "severity": "HIGH",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [
+            "clinical_metrics_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Identifying ovarian cancer in a woman with CA125 of 10,000 or massive ascites is not difficult. What would be of actual clinical value is an algorithm that is highly predictive in women with NORMAL CA125s, relatively small masses (<10 cm), without obvious clinical evidence of malignancy.",
+          "author_response": "We showed that 44.6% had normal CA125 and 82.6% had lesions <10cm. OvcaFinder still achieved highest performance in these subgroups.",
+          "resolved": true,
+          "tags": [
+            "clinical_utility_in_easy_cases",
+            "subgroup_performance",
+            "hard_cases"
+          ]
+        },
+        {
+          "concern_id": "PR-007-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Nearly half of the training set of 724 masses were malignant, likely introducing significant bias limiting generalizability. In community settings, typically <5% of masses are malignant. Even in tertiary referral centers, usual prevalence is <25%.",
+          "author_response": "We acknowledged the relatively higher malignancy rate in the limitation section. Both centers were high-level cancer hospitals in China. Added discussion of prevalence adjustment.",
+          "resolved": true,
+          "tags": [
+            "prevalence_bias",
+            "spectrum_bias",
+            "generalizability",
+            "tertiary_center_bias"
+          ]
+        },
+        {
+          "concern_id": "PR-007-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Inclusion of borderline tumors as malignant is problematic. Borderline tumors rarely cause death and surgery by gynecologic oncologist has no impact on survival. Show performance if only invasive cancers are included.",
+          "author_response": "We added sensitivity analysis excluding borderline tumors showing maintained performance for invasive cancers.",
+          "resolved": true,
+          "tags": [
+            "outcome_definition",
+            "borderline_tumors",
+            "sensitivity_analysis"
+          ]
+        },
+        {
+          "concern_id": "PR-007-C04",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "external_validation",
+          "severity": "HIGH",
+          "mlgg_dimension": 6,
+          "mlgg_gates": [
+            "distribution_generalization_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "In assessing ORADS, sensitivity dropped from 96.2% (internal) to 85.7% (external). A difference between 96% and 86% is significant. An explanation as to why performance varied so much between external and internal datasets is needed.",
+          "author_response": "We analyzed sources of performance degradation and attributed differences to imaging equipment, operator expertise, and patient population differences between centers.",
+          "resolved": true,
+          "tags": [
+            "performance_degradation_external",
+            "internal_external_gap",
+            "site_effects"
+          ]
+        },
+        {
+          "concern_id": "PR-007-C05",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reproducibility",
+          "severity": "HIGH",
+          "mlgg_dimension": 9,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "The unusual nature of the training set (nearly 50% malignant) and the lack of detail about how human input was provided makes it impossible to reproduce the work.",
+          "author_response": "We expanded methods with full HITL protocol details, reader selection criteria, and scoring methodology.",
+          "resolved": true,
+          "tags": [
+            "reproducibility",
+            "hitl_protocol_unclear",
+            "methods_insufficient"
+          ]
+        },
+        {
+          "concern_id": "PR-007-C06",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "interpretability",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "The authors did not explain what DL specifically finds in ultrasound images. The explanation that it 'highlighted the most important areas' is laconic. Should explain what extent and localization of hotspots mean in benign vs malignant lesions.",
+          "author_response": "We added quantitative analysis of Grad-CAM hotspot patterns comparing benign vs malignant, including hotspot area percentage and spatial distribution.",
+          "resolved": true,
+          "tags": [
+            "explainability_insufficient",
+            "gradcam_interpretation",
+            "feature_meaning"
+          ]
+        },
+        {
+          "concern_id": "PR-007-C07",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "reporting",
+          "severity": "LOW",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Development of RF model serving as OvcaFinder lacks details. How were the sets of different predictors identified? Please expand the description.",
+          "author_response": "We expanded the RF model development section with feature selection process and hyperparameter tuning details.",
+          "resolved": true,
+          "tags": [
+            "model_development_details",
+            "feature_selection_process"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-007-S01",
+          "reviewer": "Reviewer #1",
+          "text": "The work is interesting in that there is significant interest in ML models for diagnostic imaging. No previously reported ML model used a similar strategy, so the report is novel.",
+          "tags": [
+            "novel_approach",
+            "multimodal_integration",
+            "human_in_the_loop"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "prevalence_bias",
+        "performance_degradation_external",
+        "reproducibility",
+        "clinical_utility_in_easy_cases"
+      ],
+      "key_methodology_strengths": [
+        "multimodal_integration",
+        "human_in_the_loop",
+        "novel_approach"
+      ]
+    },
+    {
+      "id": "PR-008",
+      "paper_doi": "10.1038/s41467-025-59242-y",
+      "paper_title": "Targeted plasma proteomics reveals organ damage signatures of AIDS- and noncommunicable disease-related deaths in people with HIV",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "domain": "infectious_disease",
+      "prediction_task": "Mortality prediction in HIV patients using plasma proteomics panel",
+      "model_types": [
+        "lasso_regression",
+        "random_forest"
+      ],
+      "data_type": "proteomics_plus_clinical",
+      "sample_size": 567,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-008-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Selection bias may be a concern as less than 6% of the original CHART cohort is included. How do baseline characteristics of selected patients compare to the overall population? Could patients have been matched with ART treatment in addition to age and sex?",
+          "author_response": "We added comparison of selected vs overall cohort characteristics and justified the sampling strategy. ART matching was not feasible due to heterogeneity.",
+          "resolved": true,
+          "tags": [
+            "selection_bias",
+            "representativeness",
+            "matching_strategy"
+          ]
+        },
+        {
+          "concern_id": "PR-008-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "preprocessing",
+          "severity": "HIGH",
+          "mlgg_dimension": 3,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Adjustments for the duration or type of ART use are conspicuously missing from the models. Several ART either act directly on viral or host proteins or indirectly through transcription. This could enhance models' accuracy.",
+          "author_response": "We added ART duration and type as covariates in sensitivity analyses. Results remained robust after adjustment.",
+          "resolved": true,
+          "tags": [
+            "missing_confounder",
+            "treatment_as_confounder",
+            "art_adjustment"
+          ]
+        },
+        {
+          "concern_id": "PR-008-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "preprocessing",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 3,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Adjusting protein expression for renal function is important as several studies report the impact of renal function on protein expression due to the kidney's role in filtering and inflammatory response.",
+          "author_response": "We added eGFR as a covariate and performed sensitivity analysis stratified by renal function.",
+          "resolved": true,
+          "tags": [
+            "missing_confounder",
+            "renal_function_adjustment",
+            "biological_confounder"
+          ]
+        },
+        {
+          "concern_id": "PR-008-C04",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "CRITICAL",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Throughout the study, the authors implied seeking unique proteomics signatures dichotomizing AIDS vs NCD deaths. However, figures compare each death type with HIV survivors separately. The conclusions could be totally different if all groups were compared against each other. A Venn diagram showing common proteins across all comparisons is needed.",
+          "author_response": "We added comprehensive multi-group comparison analysis with Venn diagram and pairwise contrasts.",
+          "resolved": true,
+          "tags": [
+            "incomplete_comparison",
+            "analytical_approach_flawed",
+            "multi_group_comparison"
+          ]
+        },
+        {
+          "concern_id": "PR-008-C05",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "The paper fails to describe potential confounders. The time of plasma isolation and preservative type could introduce methodological artifacts. The time between plasma collection and death is not described. Authors state protein expression was altered 'right before' death but provide no time data.",
+          "author_response": "We clarified sample collection protocols, added time-to-death analysis, and corrected temporal language.",
+          "resolved": true,
+          "tags": [
+            "confounders_undisclosed",
+            "sample_timing",
+            "temporal_language"
+          ]
+        },
+        {
+          "concern_id": "PR-008-C06",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "The statistical approaches were not clear. Table 1 showed three P-values where ANOVA followed by post-hoc test should have been used. Tables include data not significant after FDR correction, making interpretation difficult.",
+          "author_response": "We corrected statistical tests and removed non-significant results from main tables.",
+          "resolved": true,
+          "tags": [
+            "wrong_statistical_test",
+            "multiple_testing_correction",
+            "fdr"
+          ]
+        },
+        {
+          "concern_id": "PR-008-C07",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "external_validation",
+          "severity": "HIGH",
+          "mlgg_dimension": 6,
+          "mlgg_gates": [
+            "external_validation_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "It is not clear why the validation cohort of 127 samples had significantly lower sensitivity than the training datasets. Supplemental Table 1 is missing.",
+          "author_response": "We explained the performance gap due to smaller sample size and different clinical characteristics. Supplemental Table 1 added.",
+          "resolved": true,
+          "tags": [
+            "validation_performance_drop",
+            "small_validation_set",
+            "missing_supplementary"
+          ]
+        },
+        {
+          "concern_id": "PR-008-C08",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "reporting",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Several unsubstantiated statements imply causality throughout the results section. Introduction states 'traditional biomarkers are challenging for predicting mortality' but Discussion says they have 'potential for predicting mortality' — these are contradictory.",
+          "author_response": "We revised causal language to associational framing and resolved the logical inconsistency between introduction and discussion.",
+          "resolved": true,
+          "tags": [
+            "causal_language",
+            "internal_contradiction",
+            "association_not_causation"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-008-S01",
+          "reviewer": "Reviewer #2",
+          "text": "The report is appropriately written with appropriate statistical methods, prediction corrections, and a validation group. The markers identified (CA12, CA14) are consistent and potentially biologically relevant.",
+          "tags": [
+            "validation_group",
+            "biological_relevance",
+            "appropriate_statistics"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "selection_bias",
+        "missing_confounder",
+        "incomplete_comparison",
+        "causal_language"
+      ],
+      "key_methodology_strengths": [
+        "validation_cohort",
+        "targeted_proteomics",
+        "biological_relevance"
       ]
     }
   ]

@@ -1,0 +1,127 @@
+{
+  "id": "PR-007",
+  "paper_doi": "10.1038/s41467-024-46700-2",
+  "paper_title": "Development and validation of an interpretable model integrating multimodal information for improving ovarian cancer diagnosis",
+  "journal": "Nature Communications",
+  "year": 2024,
+  "domain": "oncology",
+  "prediction_task": "Ovarian cancer diagnosis from ultrasound + clinical variables",
+  "model_types": ["random_forest", "densenet121", "human_in_the_loop"],
+  "data_type": "imaging_plus_clinical",
+  "sample_size": 1111,
+  "review_rounds": 2,
+
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-007-C01",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "clinical_utility",
+      "severity": "HIGH",
+      "mlgg_dimension": 7,
+      "mlgg_gates": ["clinical_metrics_gate"],
+      "mlgg_rules": [],
+      "concern_text": "Identifying ovarian cancer in a woman with CA125 of 10,000 or massive ascites is not difficult. What would be of actual clinical value is an algorithm that is highly predictive in women with NORMAL CA125s, relatively small masses (<10 cm), without obvious clinical evidence of malignancy.",
+      "author_response": "We showed that 44.6% had normal CA125 and 82.6% had lesions <10cm. OvcaFinder still achieved highest performance in these subgroups.",
+      "resolved": true,
+      "tags": ["clinical_utility_in_easy_cases", "subgroup_performance", "hard_cases"]
+    },
+    {
+      "concern_id": "PR-007-C02",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "study_design",
+      "severity": "HIGH",
+      "mlgg_dimension": 1,
+      "mlgg_gates": ["cohort_definition_gate"],
+      "mlgg_rules": [],
+      "concern_text": "Nearly half of the training set of 724 masses were malignant, likely introducing significant bias limiting generalizability. In community settings, typically <5% of masses are malignant. Even in tertiary referral centers, usual prevalence is <25%.",
+      "author_response": "We acknowledged the relatively higher malignancy rate in the limitation section. Both centers were high-level cancer hospitals in China. Added discussion of prevalence adjustment.",
+      "resolved": true,
+      "tags": ["prevalence_bias", "spectrum_bias", "generalizability", "tertiary_center_bias"]
+    },
+    {
+      "concern_id": "PR-007-C03",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "study_design",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 1,
+      "mlgg_gates": ["cohort_definition_gate"],
+      "mlgg_rules": [],
+      "concern_text": "Inclusion of borderline tumors as malignant is problematic. Borderline tumors rarely cause death and surgery by gynecologic oncologist has no impact on survival. Show performance if only invasive cancers are included.",
+      "author_response": "We added sensitivity analysis excluding borderline tumors showing maintained performance for invasive cancers.",
+      "resolved": true,
+      "tags": ["outcome_definition", "borderline_tumors", "sensitivity_analysis"]
+    },
+    {
+      "concern_id": "PR-007-C04",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "external_validation",
+      "severity": "HIGH",
+      "mlgg_dimension": 6,
+      "mlgg_gates": ["distribution_generalization_gate"],
+      "mlgg_rules": [],
+      "concern_text": "In assessing ORADS, sensitivity dropped from 96.2% (internal) to 85.7% (external). A difference between 96% and 86% is significant. An explanation as to why performance varied so much between external and internal datasets is needed.",
+      "author_response": "We analyzed sources of performance degradation and attributed differences to imaging equipment, operator expertise, and patient population differences between centers.",
+      "resolved": true,
+      "tags": ["performance_degradation_external", "internal_external_gap", "site_effects"]
+    },
+    {
+      "concern_id": "PR-007-C05",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "reproducibility",
+      "severity": "HIGH",
+      "mlgg_dimension": 9,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "The unusual nature of the training set (nearly 50% malignant) and the lack of detail about how human input was provided makes it impossible to reproduce the work.",
+      "author_response": "We expanded methods with full HITL protocol details, reader selection criteria, and scoring methodology.",
+      "resolved": true,
+      "tags": ["reproducibility", "hitl_protocol_unclear", "methods_insufficient"]
+    },
+    {
+      "concern_id": "PR-007-C06",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "interpretability",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 7,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "The authors did not explain what DL specifically finds in ultrasound images. The explanation that it 'highlighted the most important areas' is laconic. Should explain what extent and localization of hotspots mean in benign vs malignant lesions.",
+      "author_response": "We added quantitative analysis of Grad-CAM hotspot patterns comparing benign vs malignant, including hotspot area percentage and spatial distribution.",
+      "resolved": true,
+      "tags": ["explainability_insufficient", "gradcam_interpretation", "feature_meaning"]
+    },
+    {
+      "concern_id": "PR-007-C07",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "reporting",
+      "severity": "LOW",
+      "mlgg_dimension": 8,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "Development of RF model serving as OvcaFinder lacks details. How were the sets of different predictors identified? Please expand the description.",
+      "author_response": "We expanded the RF model development section with feature selection process and hyperparameter tuning details.",
+      "resolved": true,
+      "tags": ["model_development_details", "feature_selection_process"]
+    }
+  ],
+
+  "reviewer_strengths": [
+    {
+      "strength_id": "PR-007-S01",
+      "reviewer": "Reviewer #1",
+      "text": "The work is interesting in that there is significant interest in ML models for diagnostic imaging. No previously reported ML model used a similar strategy, so the report is novel.",
+      "tags": ["novel_approach", "multimodal_integration", "human_in_the_loop"]
+    }
+  ],
+
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["prevalence_bias", "performance_degradation_external", "reproducibility", "clinical_utility_in_easy_cases"],
+  "key_methodology_strengths": ["multimodal_integration", "human_in_the_loop", "novel_approach"]
+}

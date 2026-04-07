@@ -1,0 +1,141 @@
+{
+  "id": "PR-005",
+  "paper_doi": "10.1038/s41467-023-40890-x",
+  "paper_title": "Biology-guided deep learning predicts prognosis and cancer immunotherapy response",
+  "journal": "Nature Communications",
+  "year": 2023,
+  "domain": "oncology",
+  "prediction_task": "Gastric cancer prognosis and immunotherapy response prediction from CT images",
+  "model_types": ["multi_task_deep_learning", "convolutional_neural_network"],
+  "data_type": "ct_imaging_plus_clinical",
+  "sample_size": 2029,
+  "review_rounds": 2,
+
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-005-C01",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "study_design",
+      "severity": "CRITICAL",
+      "mlgg_dimension": 1,
+      "mlgg_gates": ["cohort_definition_gate"],
+      "mlgg_rules": [],
+      "concern_text": "A lot more detail needs to be provided on which parts of the CT images were used and correlated to histology images. Which cut of CT was used and why? Were they sagittal or cross-sectional? It is almost impossible to visualize a stomach tumor on CT, especially early stages. It is non-trivial to correlate a biopsy from endoscopy and match to a CT scan.",
+      "author_response": "We added detailed description of CT slice selection, tumor segmentation protocol, and histology-radiology correlation methods.",
+      "resolved": true,
+      "tags": ["imaging_protocol_unclear", "data_acquisition", "reproducibility"]
+    },
+    {
+      "concern_id": "PR-005-C02",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "interpretability",
+      "severity": "HIGH",
+      "mlgg_dimension": 7,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "Given that stage is a very good determinant of prognosis, how do we know that the ML model isn't merely measuring tumor size and using this to determine prognosis? What other features other than size is the model using? How do we know it isn't merely using clinicopathological characteristics already readily available?",
+      "author_response": "We added ablation analysis removing size-related features and showed the model captures additional information beyond tumor size. Multivariate analysis demonstrates DLS is independent of stage.",
+      "resolved": true,
+      "tags": ["confounding_by_stage", "incremental_value", "beyond_known_predictors"]
+    },
+    {
+      "concern_id": "PR-005-C03",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "HIGH",
+      "mlgg_dimension": 5,
+      "mlgg_gates": ["model_selection_audit_gate"],
+      "mlgg_rules": [],
+      "concern_text": "For prediction of benefit for adjuvant chemotherapy, a multivariate analysis should be performed to determine if TME or DLS are independent predictors of benefit from chemotherapy.",
+      "author_response": "We added multivariate Cox regression analysis showing DLS is an independent predictor of chemotherapy benefit after adjusting for stage, age, and other clinical variables.",
+      "resolved": true,
+      "tags": ["multivariate_analysis_missing", "independent_predictor", "treatment_benefit"]
+    },
+    {
+      "concern_id": "PR-005-C04",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "study_design",
+      "severity": "HIGH",
+      "mlgg_dimension": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "For immunotherapy treatment — were patients treated with single agent or combination with chemo? If mixed, the analysis needs to be divided to study single agent and combination separately. It is unclear how heterogeneous this group is.",
+      "author_response": "We clarified treatment regimens and performed subgroup analyses by treatment type.",
+      "resolved": true,
+      "tags": ["treatment_heterogeneity", "subgroup_by_treatment"]
+    },
+    {
+      "concern_id": "PR-005-C05",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "The AUCs seem similar to their previous work (Jiang et al, Lancet Digital Health). Why AUC is used for measuring survival performance? Is the endpoint classification only at 5 years?",
+      "author_response": "We clarified the survival endpoint definition and added time-dependent AUC analysis and C-index for survival prediction.",
+      "resolved": true,
+      "tags": ["survival_metric", "auc_vs_cindex", "comparison_with_prior_work"]
+    },
+    {
+      "concern_id": "PR-005-C06",
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "category": "interpretability",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 7,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "The choice of being more concerned with interpretability than explainability appears trenchant. If the authors have a strategy for dealing with explainability and determining criteria to select significant features, they should describe it.",
+      "author_response": "We expanded the discussion to address both interpretability (biology-guided architecture) and explainability (feature attribution maps).",
+      "resolved": true,
+      "tags": ["interpretability_vs_explainability", "feature_attribution"]
+    },
+    {
+      "concern_id": "PR-005-C07",
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "category": "reproducibility",
+      "severity": "HIGH",
+      "mlgg_dimension": 9,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "There is a general lack of details (data more than code) for the work to be reproduced.",
+      "author_response": "We expanded methods section with full implementation details and made code available on GitHub.",
+      "resolved": true,
+      "tags": ["reproducibility", "insufficient_methods_detail", "data_sharing"]
+    },
+    {
+      "concern_id": "PR-005-C08",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "study_design",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "How many pathologists were involved in the TME classification? Was this done independently? How were conflicts resolved in TME assessments?",
+      "author_response": "Two pathologists independently classified TME with a third resolving conflicts. Inter-rater agreement (kappa) reported.",
+      "resolved": true,
+      "tags": ["inter_rater_reliability", "ground_truth_quality", "pathologist_agreement"]
+    }
+  ],
+
+  "reviewer_strengths": [
+    {
+      "strength_id": "PR-005-S01",
+      "reviewer": "Reviewer #3",
+      "text": "The results presented are valuable. The methodology is sound. The authors claim superior results compared to the literature.",
+      "tags": ["sound_methodology", "strong_results"]
+    }
+  ],
+
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["confounding_by_stage", "multivariate_analysis_missing", "treatment_heterogeneity", "reproducibility"],
+  "key_methodology_strengths": ["biology_guided_architecture", "multi_task_learning", "multicenter_validation"]
+}
