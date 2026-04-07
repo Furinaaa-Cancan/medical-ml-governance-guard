@@ -75,24 +75,28 @@ Agent 在本项目中**始终**以 Nature Methods / JAMA 级别 SCI 审稿人身
 ## File Layout
 
 ```
-scripts/          # Gate 脚本、训练、编排器
-tests/            # pytest 测试
-examples/         # 数据集下载器
-experiments/      # E2E 基准实验
-references/       # JSON 模板、知识库
-docs/             # 架构文档
-plugin/           # Plugin Lint（R001-R020）
-.github/workflows # CI/CD
+scripts/
+├── core/           # 内部框架（_gate_framework, _gate_utils, _gate_registry, _security 等）
+├── gates/          # 33 道 Gate 门控脚本
+├── orchestration/  # 编排器（mlgg.py, run_dag_pipeline, run_strict_pipeline 等）
+└── tools/          # 报告/导出/数据工具（train_select_evaluate, split_data 等）
+tests/              # pytest 测试
+examples/           # 数据集下载器
+experiments/        # E2E 基准实验
+references/         # JSON 模板、知识库
+docs/               # 架构文档
+plugin/             # Plugin Lint（R001-R020）
+.github/workflows   # CI/CD
 ```
 
 ## Key Commands
 
 ```bash
-python3 scripts/mlgg.py play                    # 交互式新建项目
-python3 scripts/mlgg.py workflow --request configs/request.json --strict  # 严格审计
-python3 scripts/audit_external_project.py --project-dir /path/to/project  # 审计外部项目
+python3 scripts/orchestration/mlgg.py play                    # 交互式新建项目
+python3 scripts/orchestration/mlgg.py workflow --request configs/request.json --strict  # 严格审计
+python3 scripts/tools/audit_external_project.py --project-dir /path/to/project  # 审计外部项目
 python3 -m pytest tests/ -q --tb=short          # 跑测试
-python3 scripts/mlgg.py doctor                   # 环境检查
+python3 scripts/orchestration/mlgg.py doctor                   # 环境检查
 ```
 
 ## Limitations — 安全边界与行为约束

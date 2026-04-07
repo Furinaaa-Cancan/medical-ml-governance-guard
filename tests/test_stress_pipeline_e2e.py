@@ -16,6 +16,10 @@ import pandas as pd
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "core"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "gates"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orchestration"))
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
 
@@ -129,7 +133,7 @@ class TestSplitProtocolStress:
             report = evidence / "split_protocol_report.json"
             request = project / "configs" / "request.json"
             result = subprocess.run(
-                [sys.executable, str(SCRIPTS_DIR / "split_protocol_gate.py"),
+                [sys.executable, str(SCRIPTS_DIR / "gates/split_protocol_gate.py"),
                  "--report", str(report),
                  "--request", str(request)],
                 capture_output=True, text=True, timeout=120,
@@ -153,7 +157,7 @@ class TestLeakageGateStress:
         report = evidence / "leakage_report.json"
         request = project / "configs" / "request.json"
         result = subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "leakage_gate.py"),
+            [sys.executable, str(SCRIPTS_DIR / "gates/leakage_gate.py"),
              "--report", str(report),
              "--request", str(request)],
             capture_output=True, text=True, timeout=120,
@@ -177,7 +181,7 @@ class TestLeakageGateStress:
         report = evidence / "leakage_report.json"
         request = project / "configs" / "request.json"
         result = subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "leakage_gate.py"),
+            [sys.executable, str(SCRIPTS_DIR / "gates/leakage_gate.py"),
              "--report", str(report),
              "--request", str(request)],
             capture_output=True, text=True, timeout=120,
@@ -240,7 +244,7 @@ class TestAuditReportStress:
         project = tmp_path / "empty"
         project.mkdir()
         result = subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "audit_external_project.py"),
+            [sys.executable, str(SCRIPTS_DIR / "tools/audit_external_project.py"),
              "--project-dir", str(project), "--json"],
             capture_output=True, text=True, timeout=120,
             env={**dict(__import__("os").environ), "PYTHONPATH": str(SCRIPTS_DIR)},
@@ -253,7 +257,7 @@ class TestAuditReportStress:
         """Full audit on a synthetic project."""
         project = _make_dataset(tmp_path, n=500)
         result = subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "audit_external_project.py"),
+            [sys.executable, str(SCRIPTS_DIR / "tools/audit_external_project.py"),
              "--project-dir", str(project), "--json"],
             capture_output=True, text=True, timeout=180,
             env={**dict(__import__("os").environ), "PYTHONPATH": str(SCRIPTS_DIR)},
@@ -275,7 +279,7 @@ class TestAuditReportStress:
                 prevalence=0.1 + i * 0.08,
             )
             result = subprocess.run(
-                [sys.executable, str(SCRIPTS_DIR / "audit_external_project.py"),
+                [sys.executable, str(SCRIPTS_DIR / "tools/audit_external_project.py"),
                  "--project-dir", str(project), "--json"],
                 capture_output=True, text=True, timeout=120,
                 env={**dict(__import__("os").environ), "PYTHONPATH": str(SCRIPTS_DIR)},

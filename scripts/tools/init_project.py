@@ -5,6 +5,8 @@ One-command project bootstrap for ml-leakage-guard publication-grade workflow.
 
 from __future__ import annotations
 
+import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core"); _sys.path.insert(0, _CORE_DIR) if _CORE_DIR not in _sys.path else None  # noqa: E702
+
 import argparse
 from datetime import datetime, timezone
 from pathlib import Path
@@ -13,7 +15,7 @@ from typing import Any, Dict, List
 from _gate_utils import load_json_from_path as load_json, write_json
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 REFERENCES_ROOT = REPO_ROOT / "references"
 
 TEMPLATE_COPY_MAP = {

@@ -10,6 +10,10 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "core"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "gates"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orchestration"))
 import manifest_lock as ml
 from manifest_lock import (
     compare_manifest,
@@ -244,7 +248,7 @@ class TestCompareManifest:
 
 class TestCLI:
     def _run(self, args, cwd=None):
-        cmd = [sys.executable, str(SCRIPTS_DIR / "manifest_lock.py")] + args
+        cmd = [sys.executable, str(SCRIPTS_DIR / "gates/manifest_lock.py")] + args
         return subprocess.run(cmd, capture_output=True, text=True, timeout=30,
                               cwd=cwd or str(SCRIPTS_DIR.parent))
 

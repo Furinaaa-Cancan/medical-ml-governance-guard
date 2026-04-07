@@ -8,6 +8,8 @@ can use one stable command surface in terminal workflows and agent automation.
 
 from __future__ import annotations
 
+import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core"); _sys.path.insert(0, _CORE_DIR) if _CORE_DIR not in _sys.path else None  # noqa: E702
+
 import argparse
 import json
 import os
@@ -19,7 +21,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 # ---------------------------------------------------------------------------
 # Security constants
@@ -212,22 +214,22 @@ EXPERIMENTS_ROOT = REPO_ROOT / "experiments" / "authority-e2e"
 
 COMMANDS: Dict[str, Tuple[Path, str]] = {
     "onboarding": (
-        SCRIPTS_ROOT / "mlgg_onboarding.py",
+        SCRIPTS_ROOT / "orchestration" / "mlgg_onboarding.py",
         "Run guided novice onboarding (demo data -> train -> attestation -> strict workflow).",
     ),
     "interactive": (
-        SCRIPTS_ROOT / "mlgg_interactive.py",
+        SCRIPTS_ROOT / "orchestration" / "mlgg_interactive.py",
         "Launch interactive wizard for core commands (init/workflow/train/authority).",
     ),
-    "init": (SCRIPTS_ROOT / "init_project.py", "Initialize project folders and config templates."),
-    "split": (SCRIPTS_ROOT / "split_data.py", "Split a single CSV into train/valid/test with medical safety guarantees."),
-    "doctor": (SCRIPTS_ROOT / "env_doctor.py", "Check runtime dependencies and optional backends."),
-    "preflight": (SCRIPTS_ROOT / "schema_preflight.py", "Validate train/valid/test schema and semantic mapping."),
-    "workflow": (SCRIPTS_ROOT / "run_productized_workflow.py", "Run doctor -> preflight -> strict -> summary."),
-    "strict": (SCRIPTS_ROOT / "run_dag_pipeline.py", "Run strict fail-closed DAG gate pipeline."),
-    "strict-legacy": (SCRIPTS_ROOT / "run_strict_pipeline.py", "Run legacy sequential strict pipeline (deprecated)."),
-    "summary": (SCRIPTS_ROOT / "render_user_summary.py", "Render user-facing markdown/json summary."),
-    "train": (SCRIPTS_ROOT / "train_select_evaluate.py", "Train/select/evaluate and emit evidence artifacts."),
+    "init": (SCRIPTS_ROOT / "tools" / "init_project.py", "Initialize project folders and config templates."),
+    "split": (SCRIPTS_ROOT / "tools" / "split_data.py", "Split a single CSV into train/valid/test with medical safety guarantees."),
+    "doctor": (SCRIPTS_ROOT / "tools" / "env_doctor.py", "Check runtime dependencies and optional backends."),
+    "preflight": (SCRIPTS_ROOT / "tools" / "schema_preflight.py", "Validate train/valid/test schema and semantic mapping."),
+    "workflow": (SCRIPTS_ROOT / "orchestration" / "run_productized_workflow.py", "Run doctor -> preflight -> strict -> summary."),
+    "strict": (SCRIPTS_ROOT / "orchestration" / "run_dag_pipeline.py", "Run strict fail-closed DAG gate pipeline."),
+    "strict-legacy": (SCRIPTS_ROOT / "orchestration" / "run_strict_pipeline.py", "Run legacy sequential strict pipeline (deprecated)."),
+    "summary": (SCRIPTS_ROOT / "tools" / "render_user_summary.py", "Render user-facing markdown/json summary."),
+    "train": (SCRIPTS_ROOT / "tools" / "train_select_evaluate.py", "Train/select/evaluate and emit evidence artifacts."),
     "authority": (EXPERIMENTS_ROOT / "run_authority_e2e.py", "Run authority E2E benchmark suite."),
     "benchmark-suite": (
         EXPERIMENTS_ROOT / "run_release_benchmark_matrix.py",
@@ -250,31 +252,31 @@ COMMANDS: Dict[str, Tuple[Path, str]] = {
         "Run adversarial fail-closed gate scenarios.",
     ),
     "play": (
-        SCRIPTS_ROOT / "mlgg_pixel.py",
+        SCRIPTS_ROOT / "orchestration" / "mlgg_pixel.py",
         "Launch pixel-art interactive CLI launcher (guided menu experience).",
     ),
     "audit": (
-        SCRIPTS_ROOT / "audit_external_project.py",
+        SCRIPTS_ROOT / "tools" / "audit_external_project.py",
         "Quantitative 10-dimension audit of a medical ML project (100-point scale).",
     ),
     "fairness": (
-        SCRIPTS_ROOT / "fairness_equity_gate.py",
+        SCRIPTS_ROOT / "gates" / "fairness_equity_gate.py",
         "Validate subgroup fairness and equity metrics (equalized odds, disparate impact).",
     ),
     "sample-size": (
-        SCRIPTS_ROOT / "sample_size_gate.py",
+        SCRIPTS_ROOT / "gates" / "sample_size_gate.py",
         "Validate sample size adequacy (EPV, shrinkage factor, Riley criteria).",
     ),
     "batch-review": (
-        SCRIPTS_ROOT / "batch_journal_review.py",
+        SCRIPTS_ROOT / "tools" / "batch_journal_review.py",
         "Batch audit N projects against journal standards with comparison matrix.",
     ),
     "audit-report": (
-        SCRIPTS_ROOT / "generate_audit_report.py",
+        SCRIPTS_ROOT / "tools" / "generate_audit_report.py",
         "Generate comprehensive audit report with TRIPOD+AI/PROBAST+AI coverage, error KB lookup, and literature citations.",
     ),
     "export-review-prompt": (
-        SCRIPTS_ROOT / "export_review_prompt.py",
+        SCRIPTS_ROOT / "tools" / "export_review_prompt.py",
         "Export MLGG review criteria as a portable LLM prompt. Users paste the output into any LLM (Claude, GPT-4, Gemini) to review a paper without local deployment.",
     ),
     "lint": (
@@ -282,7 +284,7 @@ COMMANDS: Dict[str, Tuple[Path, str]] = {
         "Static analysis for ML code — detect data leakage and best-practice violations.",
     ),
     "init-guide": (
-        SCRIPTS_ROOT / "init_guide.py",
+        SCRIPTS_ROOT / "tools" / "init_guide.py",
         "Generate MLGG methodology guide (.mlgg/ + CLAUDE.md) for any ML project.",
     ),
 }

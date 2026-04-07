@@ -18,11 +18,13 @@ Usage:
 """
 from __future__ import annotations
 
+import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core"); _sys.path.insert(0, _CORE_DIR) if _CORE_DIR not in _sys.path else None  # noqa: E702
+
 import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-_REFERENCES_DIR = Path(__file__).parent.parent / "references"
+_REFERENCES_DIR = Path(__file__).resolve().parent.parent.parent / "references"
 _MATRIX_PATH = _REFERENCES_DIR / "gate-applicability-matrix.json"
 
 # Valid prediction types

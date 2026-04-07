@@ -7,6 +7,10 @@ from typing import Set
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "core"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "gates"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orchestration"))
 from _gate_registry import (
     GATE_REGISTRY,
     GateLayer,

@@ -13,6 +13,8 @@ Usage:
 """
 from __future__ import annotations
 
+import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core"); _sys.path.insert(0, _CORE_DIR) if _CORE_DIR not in _sys.path else None  # noqa: E702
+
 import argparse
 import json
 import sys
@@ -343,7 +345,7 @@ def _load_journal_standards(
     if not target_journal:
         return None
     standards_path = (
-        Path(__file__).parent.parent / "references" / "journal-rigor-standards.json"
+        Path(__file__).resolve().parent.parent.parent / "references" / "journal-rigor-standards.json"
     )
     data = _load_json_safe(standards_path)
     if data is None:

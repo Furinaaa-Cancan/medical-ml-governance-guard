@@ -8,6 +8,10 @@ from pathlib import Path
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "core"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "gates"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orchestration"))
 import tuning_leakage_gate as tlg
 from tuning_leakage_gate import (
     contains_test_token,
@@ -165,7 +169,7 @@ class TestRequireInt:
 class TestCLI:
     def _run(self, tmp_path, spec_path, extra_args=None):
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "tuning_leakage_gate.py"),
+            sys.executable, str(SCRIPTS_DIR / "gates/tuning_leakage_gate.py"),
             "--tuning-spec", str(spec_path),
             "--report", str(tmp_path / "report.json"),
             "--has-valid-split",
@@ -364,7 +368,7 @@ class TestCLI:
         spec_path = _write_json(tmp_path / "spec.json", spec)
         # Do NOT pass --has-valid-split
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "tuning_leakage_gate.py"),
+            sys.executable, str(SCRIPTS_DIR / "gates/tuning_leakage_gate.py"),
             "--tuning-spec", str(spec_path),
             "--report", str(tmp_path / "report.json"),
         ]

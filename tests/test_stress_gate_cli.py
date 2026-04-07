@@ -16,6 +16,10 @@ from typing import List
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "core"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "gates"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orchestration"))
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
 

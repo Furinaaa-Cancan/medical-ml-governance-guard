@@ -19,7 +19,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 def _run_onboarding(tmp_path: Path, extra_args: list = None, timeout: int = 600) -> subprocess.CompletedProcess:
     cmd = [
         sys.executable,
-        str(SCRIPTS_DIR / "mlgg_onboarding.py"),
+        str(SCRIPTS_DIR / "orchestration/mlgg_onboarding.py"),
         "--project-root", str(tmp_path / "project"),
         "--report", str(tmp_path / "onboarding_report.json"),
         "--python", sys.executable,

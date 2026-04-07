@@ -15,8 +15,8 @@ import numpy as np
 import pandas as pd
 
 SCRIPTS_DIR = Path(__file__).resolve().parent
-SPLIT_SCRIPT = str(SCRIPTS_DIR / "split_data.py")
-PREFLIGHT_SCRIPT = str(SCRIPTS_DIR / "schema_preflight.py")
+SPLIT_SCRIPT = str(SCRIPTS_DIR / "tools/split_data.py")
+PREFLIGHT_SCRIPT = str(SCRIPTS_DIR / "tools/schema_preflight.py")
 PYTHON = sys.executable
 
 
@@ -482,7 +482,7 @@ def test_split_help():
 
 def test_mlgg_split_help():
     """Test that mlgg.py split -- --help works."""
-    mlgg_script = str(SCRIPTS_DIR / "mlgg.py")
+    mlgg_script = str(SCRIPTS_DIR / "orchestration/mlgg.py")
     rc, stdout, stderr = run([PYTHON, mlgg_script, "split", "--", "--help"])
     assert rc == 0
     assert "split" in stdout.lower() or "patient" in stdout.lower()

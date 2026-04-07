@@ -9,6 +9,10 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "core"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "gates"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orchestration"))
 from missingness_policy_gate import (
     is_missing,
     parse_ignore_cols,
@@ -259,7 +263,7 @@ class TestValidateRatioField:
 class TestCLI:
     def _run(self, tmp_path, setup, extra_args=None):
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "missingness_policy_gate.py"),
+            sys.executable, str(SCRIPTS_DIR / "gates/missingness_policy_gate.py"),
             "--policy-spec", str(setup["spec"]),
             "--train", str(setup["train"]),
             "--test", str(setup["test"]),

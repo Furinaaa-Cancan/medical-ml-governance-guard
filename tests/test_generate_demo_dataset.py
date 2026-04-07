@@ -14,9 +14,13 @@ import numpy as np
 import pandas as pd
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
-GATE_SCRIPT = SCRIPTS_DIR / "generate_demo_medical_dataset.py"
+GATE_SCRIPT = SCRIPTS_DIR / "tools/generate_demo_medical_dataset.py"
 
 sys.path.insert(0, str(SCRIPTS_DIR))
+sys.path.insert(0, str(SCRIPTS_DIR / "core"))
+sys.path.insert(0, str(SCRIPTS_DIR / "gates"))
+sys.path.insert(0, str(SCRIPTS_DIR / "tools"))
+sys.path.insert(0, str(SCRIPTS_DIR / "orchestration"))
 import generate_demo_medical_dataset as gd
 
 

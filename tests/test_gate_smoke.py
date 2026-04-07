@@ -144,7 +144,7 @@ def test_leakage_gate_clean_splits() -> None:
         write_csv(td / "test.csv",  test_rows,  headers)
         report_path = td / "report.json"
         proc = run_gate([
-            str(SCRIPTS_DIR / "leakage_gate.py"),
+            str(SCRIPTS_DIR / "gates/leakage_gate.py"),
             "--train", str(td / "train.csv"),
             "--valid", str(td / "valid.csv"),
             "--test",  str(td / "test.csv"),
@@ -172,7 +172,7 @@ def test_leakage_gate_row_overlap() -> None:
         write_csv(td / "test.csv",  test_rows,  headers)
         report_path = td / "report.json"
         proc = run_gate([
-            str(SCRIPTS_DIR / "leakage_gate.py"),
+            str(SCRIPTS_DIR / "gates/leakage_gate.py"),
             "--train", str(td / "train.csv"),
             "--test",  str(td / "test.csv"),
             "--target-col", "y",
@@ -196,7 +196,7 @@ def test_leakage_gate_id_overlap() -> None:
         write_csv(td / "test.csv",  test_rows,  headers)
         report_path = td / "report.json"
         proc = run_gate([
-            str(SCRIPTS_DIR / "leakage_gate.py"),
+            str(SCRIPTS_DIR / "gates/leakage_gate.py"),
             "--train", str(td / "train.csv"),
             "--test",  str(td / "test.csv"),
             "--id-cols", "patient_id",
@@ -220,7 +220,7 @@ def test_leakage_gate_temporal_overlap() -> None:
         write_csv(td / "valid.csv", valid_rows, headers)
         report_path = td / "report.json"
         proc = run_gate([
-            str(SCRIPTS_DIR / "leakage_gate.py"),
+            str(SCRIPTS_DIR / "gates/leakage_gate.py"),
             "--train", str(td / "train.csv"),
             "--valid", str(td / "valid.csv"),
             "--time-col", "event_time",
@@ -243,7 +243,7 @@ def test_leakage_gate_temporal_boundary_equal_is_overlap() -> None:
         write_csv(td / "valid.csv", valid_rows, headers)
         report_path = td / "report.json"
         run_gate([
-            str(SCRIPTS_DIR / "leakage_gate.py"),
+            str(SCRIPTS_DIR / "gates/leakage_gate.py"),
             "--train", str(td / "train.csv"),
             "--valid", str(td / "valid.csv"),
             "--time-col", "event_time",
@@ -269,7 +269,7 @@ def test_leakage_gate_word_boundary_regex() -> None:
         write_csv(td / "test.csv",  test_rows,  headers)
         report_path = td / "report.json"
         run_gate([
-            str(SCRIPTS_DIR / "leakage_gate.py"),
+            str(SCRIPTS_DIR / "gates/leakage_gate.py"),
             "--train", str(td / "train.csv"),
             "--test",  str(td / "test.csv"),
             "--target-col", "y",
@@ -291,7 +291,7 @@ def test_leakage_gate_word_boundary_regex() -> None:
         write_csv(td / "test.csv",  test_rows,  headers)
         report_path = td / "report.json"
         run_gate([
-            str(SCRIPTS_DIR / "leakage_gate.py"),
+            str(SCRIPTS_DIR / "gates/leakage_gate.py"),
             "--train", str(td / "train.csv"),
             "--test",  str(td / "test.csv"),
             "--target-col", "y",
@@ -340,7 +340,7 @@ def test_run_strict_pipeline_requires_strict() -> None:
         req = Path(tmp) / "request.json"
         req.write_text(json.dumps({"study_id": "x"}), encoding="utf-8")
         proc = run_gate([
-            str(SCRIPTS_DIR / "run_strict_pipeline.py"),
+            str(SCRIPTS_DIR / "orchestration/run_strict_pipeline.py"),
             "--request", str(req),
         ])
         assert_true(proc.returncode == 2, "missing --strict exits 2")
@@ -357,7 +357,7 @@ def test_transport_drop_ci_not_computed_sentinel() -> None:
 
     # Minimal stub: simulate the build_ci_matrix_report transport block directly
     # by importing the function and constructing minimal payloads.
-    spec_path = SCRIPTS_DIR / "train_select_evaluate.py"
+    spec_path = SCRIPTS_DIR / "tools/train_select_evaluate.py"
     loader = importlib.util.spec_from_file_location("tse", spec_path)
     assert loader is not None
     mod = importlib.util.module_from_spec(loader)
@@ -387,7 +387,7 @@ def test_transport_drop_ci_not_computed_sentinel() -> None:
 
 def test_feature_engineering_audit_gate_error_codes() -> None:
     print("\n=== feature_engineering_audit_gate: error code consistency ===")
-    src = (SCRIPTS_DIR / "feature_engineering_audit_gate.py").read_text(encoding="utf-8")
+    src = (SCRIPTS_DIR / "gates/feature_engineering_audit_gate.py").read_text(encoding="utf-8")
     # The feature_engineering_report parse failure must use correct code
     assert_true(
         '"feature_engineering_report_invalid"' in src,
@@ -418,7 +418,7 @@ def test_feature_engineering_audit_gate_error_codes() -> None:
 
 def test_feature_engineering_audit_gate_to_float_isfinite() -> None:
     print("\n=== feature_engineering_audit_gate: to_float rejects inf/nan ===")
-    src = (SCRIPTS_DIR / "feature_engineering_audit_gate.py").read_text(encoding="utf-8")
+    src = (SCRIPTS_DIR / "gates/feature_engineering_audit_gate.py").read_text(encoding="utf-8")
     uses_local_guard = ("math.isfinite" in src) and ("import math" in src)
     imports_shared_guard = ("from _gate_utils import" in src) and ("to_float" in src)
     assert_true(
@@ -426,7 +426,7 @@ def test_feature_engineering_audit_gate_to_float_isfinite() -> None:
         "feature_engineering_audit_gate uses local finite-check guard or shared _gate_utils.to_float guard",
     )
     if imports_shared_guard:
-        guard_src = (SCRIPTS_DIR / "_gate_utils.py").read_text(encoding="utf-8")
+        guard_src = (SCRIPTS_DIR / "core/_gate_utils.py").read_text(encoding="utf-8")
         assert_true("def to_float" in guard_src, "_gate_utils exposes to_float helper")
         assert_true("math.isfinite" in guard_src, "_gate_utils.to_float uses math.isfinite")
 
@@ -454,7 +454,7 @@ def test_mlgg_interactive_train_defaults_are_dependency_safe() -> None:
         prompt_count = 32
         proc = run_gate(
             [
-                str(SCRIPTS_DIR / "mlgg.py"),
+                str(SCRIPTS_DIR / "orchestration/mlgg.py"),
                 "interactive",
                 "--command",
                 "train",
@@ -494,7 +494,7 @@ def test_mlgg_interactive_workflow_always_injects_strict() -> None:
         req.write_text("{}", encoding="utf-8")
         proc = run_gate(
             [
-                str(SCRIPTS_DIR / "mlgg.py"),
+                str(SCRIPTS_DIR / "orchestration/mlgg.py"),
                 "interactive",
                 "--command",
                 "workflow",
@@ -517,7 +517,7 @@ def test_mlgg_interactive_authority_defaults_to_release_stress_path() -> None:
     print("\n=== mlgg interactive: authority defaults to CKD release stress path ===")
     proc = run_gate(
         [
-            str(SCRIPTS_DIR / "mlgg.py"),
+            str(SCRIPTS_DIR / "orchestration/mlgg.py"),
             "interactive",
             "--command",
             "authority",
@@ -553,7 +553,7 @@ def test_mlgg_interactive_accept_defaults_non_blocking() -> None:
 
         proc = run_gate(
             [
-                str(SCRIPTS_DIR / "mlgg.py"),
+                str(SCRIPTS_DIR / "orchestration/mlgg.py"),
                 "interactive",
                 "--command",
                 "train",
@@ -594,7 +594,7 @@ def test_mlgg_interactive_accept_defaults_auto_detects_presplit_data() -> None:
 
         proc = run_gate(
             [
-                str(SCRIPTS_DIR / "mlgg.py"),
+                str(SCRIPTS_DIR / "orchestration/mlgg.py"),
                 "interactive",
                 "--command",
                 "train",
@@ -618,7 +618,7 @@ def test_mlgg_interactive_accept_defaults_missing_presplit_is_actionable() -> No
         td = Path(tmp)
         proc = run_gate(
             [
-                str(SCRIPTS_DIR / "mlgg.py"),
+                str(SCRIPTS_DIR / "orchestration/mlgg.py"),
                 "interactive",
                 "--command",
                 "train",
@@ -643,7 +643,7 @@ def test_mlgg_interactive_accept_defaults_missing_presplit_is_actionable() -> No
 
 def test_mlgg_authority_wrapper_release_and_research_presets() -> None:
     print("\n=== mlgg wrapper: authority-release and authority-research-heart presets ===")
-    release = run_gate([str(SCRIPTS_DIR / "mlgg.py"), "authority-release", "--dry-run"])
+    release = run_gate([str(SCRIPTS_DIR / "orchestration/mlgg.py"), "authority-release", "--dry-run"])
     assert_true(release.returncode == 0, "authority-release dry-run exits 0")
     assert_true("--include-stress-cases" in release.stdout, "authority-release injects include-stress-cases")
     assert_true(
@@ -651,7 +651,7 @@ def test_mlgg_authority_wrapper_release_and_research_presets() -> None:
         "authority-release injects CKD stress-case-id",
     )
 
-    research = run_gate([str(SCRIPTS_DIR / "mlgg.py"), "authority-research-heart", "--dry-run"])
+    research = run_gate([str(SCRIPTS_DIR / "orchestration/mlgg.py"), "authority-research-heart", "--dry-run"])
     assert_true(research.returncode == 0, "authority-research-heart dry-run exits 0")
     assert_true("--include-stress-cases" in research.stdout, "authority-research-heart injects include-stress-cases")
     assert_true(
@@ -665,7 +665,7 @@ def test_mlgg_authority_wrapper_rejects_conflicting_route_flags() -> None:
     print("\n=== mlgg wrapper: preset commands reject conflicting route flags ===")
     release_conflict = run_gate(
         [
-            str(SCRIPTS_DIR / "mlgg.py"),
+            str(SCRIPTS_DIR / "orchestration/mlgg.py"),
             "authority-release",
             "--dry-run",
             "--stress-case-id",
@@ -680,7 +680,7 @@ def test_mlgg_authority_wrapper_rejects_conflicting_route_flags() -> None:
 
     research_conflict = run_gate(
         [
-            str(SCRIPTS_DIR / "mlgg.py"),
+            str(SCRIPTS_DIR / "orchestration/mlgg.py"),
             "authority-research-heart",
             "--dry-run",
             "--stress-case-id",
@@ -694,7 +694,7 @@ def test_mlgg_authority_wrapper_rejects_conflicting_route_flags() -> None:
     )
     research_conflict_json = run_gate(
         [
-            str(SCRIPTS_DIR / "mlgg.py"),
+            str(SCRIPTS_DIR / "orchestration/mlgg.py"),
             "authority-research-heart",
             "--dry-run",
             "--stress-case-id",
@@ -899,7 +899,7 @@ def test_mlgg_benchmark_passthrough_strips_separator_before_subcommand() -> None
         out = td / "benchmark_report.json"
         proc = run_gate(
             [
-                str(SCRIPTS_DIR / "mlgg.py"),
+                str(SCRIPTS_DIR / "orchestration/mlgg.py"),
                 "benchmark-suite",
                 "--profile",
                 "quick",
@@ -1670,7 +1670,7 @@ def test_mlgg_interactive_profile_value_validation_fail_closed() -> None:
 
         proc = run_gate(
             [
-                str(SCRIPTS_DIR / "mlgg.py"),
+                str(SCRIPTS_DIR / "orchestration/mlgg.py"),
                 "interactive",
                 "--command",
                 "train",
@@ -1706,7 +1706,7 @@ def test_mlgg_interactive_workflow_default_evidence_dir_uses_request_project_bas
 
         proc = run_gate(
             [
-                str(SCRIPTS_DIR / "mlgg.py"),
+                str(SCRIPTS_DIR / "orchestration/mlgg.py"),
                 "interactive",
                 "--command",
                 "workflow",
@@ -1749,7 +1749,7 @@ def test_render_user_summary_propagates_fail_status() -> None:
         out_json = evidence_dir / "user_summary.json"
         proc = run_gate(
             [
-                str(SCRIPTS_DIR / "render_user_summary.py"),
+                str(SCRIPTS_DIR / "tools/render_user_summary.py"),
                 "--evidence-dir",
                 str(evidence_dir),
                 "--out-markdown",
@@ -1823,7 +1823,7 @@ def test_wrapper_stale_publication_report_does_not_trigger_bootstrap_retry() -> 
         wrapper_report = evidence / "productized_workflow_report.json"
         proc = run_gate(
             [
-                str(SCRIPTS_DIR / "run_productized_workflow.py"),
+                str(SCRIPTS_DIR / "orchestration/run_productized_workflow.py"),
                 "--request",
                 str(request_path),
                 "--evidence-dir",
@@ -1873,7 +1873,7 @@ def test_wrapper_schema_preflight_failure_causes_fail_even_if_strict_pass() -> N
         wrapper_report = evidence / "productized_workflow_report.json"
         proc = run_gate(
             [
-                str(SCRIPTS_DIR / "run_productized_workflow.py"),
+                str(SCRIPTS_DIR / "orchestration/run_productized_workflow.py"),
                 "--request",
                 str(request_path),
                 "--evidence-dir",
@@ -1943,7 +1943,7 @@ def test_wrapper_bootstrap_recovered_path_reports_pass_with_recovered_step() -> 
         wrapper_report = evidence / "productized_workflow_report.json"
         proc = run_gate(
             [
-                str(SCRIPTS_DIR / "run_productized_workflow.py"),
+                str(SCRIPTS_DIR / "orchestration/run_productized_workflow.py"),
                 "--request",
                 str(request_path),
                 "--evidence-dir",
@@ -1993,7 +1993,7 @@ def test_wrapper_report_contract_v2_fields_present() -> None:
         wrapper_report = evidence / "productized_workflow_report.json"
         proc = run_gate(
             [
-                str(SCRIPTS_DIR / "run_productized_workflow.py"),
+                str(SCRIPTS_DIR / "orchestration/run_productized_workflow.py"),
                 "--request",
                 str(request_path),
                 "--evidence-dir",
@@ -2040,7 +2040,7 @@ def test_mlgg_onboarding_preview_emits_full_step_plan() -> None:
         report_path = td / "onboarding_preview_report.json"
         proc = run_gate(
             [
-                str(SCRIPTS_DIR / "mlgg.py"),
+                str(SCRIPTS_DIR / "orchestration/mlgg.py"),
                 "onboarding",
                 "--project-root",
                 str(project_root),
@@ -2065,7 +2065,7 @@ def test_mlgg_onboarding_preview_emits_full_step_plan() -> None:
         assert_true("authority_release" in copy_ready, "onboarding preview copy_ready_commands includes authority_release")
         workflow_compare = str(copy_ready.get("workflow_compare", ""))
         assert_true(
-            str((SCRIPTS_DIR / "mlgg.py").resolve()) in workflow_compare,
+            str((SCRIPTS_DIR / "orchestration/mlgg.py").resolve()) in workflow_compare,
             "onboarding copy-ready commands use absolute mlgg.py path",
         )
         assert_true(isinstance(steps, list) and len(steps) == 8, "onboarding preview contains 8 fixed steps")
@@ -2082,7 +2082,7 @@ def test_mlgg_onboarding_guided_cancel_has_failure_code_and_actions() -> None:
         report_path = td / "onboarding_cancel_report.json"
         proc = run_gate(
             [
-                str(SCRIPTS_DIR / "mlgg.py"),
+                str(SCRIPTS_DIR / "orchestration/mlgg.py"),
                 "onboarding",
                 "--project-root",
                 str(project_root),
@@ -2115,7 +2115,7 @@ def test_mlgg_onboarding_guided_without_stdin_fails_closed_with_clear_code() -> 
         report_path = td / "onboarding_no_stdin_report.json"
         proc = run_gate(
             [
-                str(SCRIPTS_DIR / "mlgg.py"),
+                str(SCRIPTS_DIR / "orchestration/mlgg.py"),
                 "onboarding",
                 "--project-root",
                 str(project_root),
@@ -2159,7 +2159,7 @@ def test_mlgg_onboarding_guided_cancel_ignores_stale_report_codes() -> None:
         report_path = td / "onboarding_cancel_report.json"
         proc = run_gate(
             [
-                str(SCRIPTS_DIR / "mlgg.py"),
+                str(SCRIPTS_DIR / "orchestration/mlgg.py"),
                 "onboarding",
                 "--project-root",
                 str(project_root),
@@ -2188,7 +2188,7 @@ def test_mlgg_onboarding_no_stop_on_fail_completes_with_failures() -> None:
         fake_python.chmod(0o755)
         proc = run_gate(
             [
-                str(SCRIPTS_DIR / "mlgg_onboarding.py"),
+                str(SCRIPTS_DIR / "orchestration/mlgg_onboarding.py"),
                 "--project-root",
                 str(project_root),
                 "--mode",
@@ -2216,7 +2216,7 @@ def test_mlgg_onboarding_no_stop_on_fail_completes_with_failures() -> None:
 
 def test_mlgg_interactive_help_passthrough_requires_command_and_returns_script_help() -> None:
     print("\n=== mlgg interactive: -- --help without --command returns wizard help ===")
-    proc = run_gate([str(SCRIPTS_DIR / "mlgg.py"), "interactive", "--", "--help"])
+    proc = run_gate([str(SCRIPTS_DIR / "orchestration/mlgg.py"), "interactive", "--", "--help"])
     assert_true(proc.returncode == 0, "interactive passthrough help exits 0")
     body = proc.stdout + "\n" + proc.stderr
     assert_true("Interactive wizard for ml-leakage-guard core commands." in body, "interactive help content is returned")
@@ -2224,12 +2224,12 @@ def test_mlgg_interactive_help_passthrough_requires_command_and_returns_script_h
 
 def test_mlgg_subcommand_direct_help_for_onboarding_and_interactive_train() -> None:
     print("\n=== mlgg help: direct subcommand --help routes to target script ===")
-    onboarding_help = run_gate([str(SCRIPTS_DIR / "mlgg.py"), "onboarding", "--help"])
+    onboarding_help = run_gate([str(SCRIPTS_DIR / "orchestration/mlgg.py"), "onboarding", "--help"])
     assert_true(onboarding_help.returncode == 0, "onboarding --help exits 0")
     onboarding_body = onboarding_help.stdout + "\n" + onboarding_help.stderr
     assert_true("Guided novice onboarding for ml-leakage-guard." in onboarding_body, "onboarding direct help is routed")
     interactive_train_help = run_gate(
-        [str(SCRIPTS_DIR / "mlgg.py"), "train", "--interactive", "--help"]
+        [str(SCRIPTS_DIR / "orchestration/mlgg.py"), "train", "--interactive", "--help"]
     )
     assert_true(interactive_train_help.returncode == 0, "train --interactive --help exits 0")
     interactive_body = interactive_train_help.stdout + "\n" + interactive_train_help.stderr
@@ -2243,7 +2243,7 @@ def test_mlgg_subcommand_direct_help_with_global_options() -> None:
     print("\n=== mlgg help: direct subcommand help still works with global options ===")
     onboarding_help = run_gate(
         [
-            str(SCRIPTS_DIR / "mlgg.py"),
+            str(SCRIPTS_DIR / "orchestration/mlgg.py"),
             "--python",
             sys.executable,
             "onboarding",
@@ -2258,7 +2258,7 @@ def test_mlgg_subcommand_direct_help_with_global_options() -> None:
     )
     interactive_help = run_gate(
         [
-            str(SCRIPTS_DIR / "mlgg.py"),
+            str(SCRIPTS_DIR / "orchestration/mlgg.py"),
             "--cwd",
             "/tmp",
             "train",
@@ -2278,7 +2278,7 @@ def test_mlgg_onboarding_unknown_failure_only_when_no_specific_codes() -> None:
     print("\n=== mlgg onboarding: unknown failure code is fallback only ===")
     import importlib.util
 
-    spec = importlib.util.spec_from_file_location("mlgg_onboarding_mod", SCRIPTS_DIR / "mlgg_onboarding.py")
+    spec = importlib.util.spec_from_file_location("mlgg_onboarding_mod", SCRIPTS_DIR / "orchestration/mlgg_onboarding.py")
     assert spec is not None and spec.loader is not None
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)  # type: ignore[union-attr]
@@ -2310,7 +2310,7 @@ def test_mlgg_onboarding_missing_openssl_fails_closed() -> None:
         # first preflight where openssl is required and fail closed.
         proc = run_gate(
             [
-                str(SCRIPTS_DIR / "mlgg.py"),
+                str(SCRIPTS_DIR / "orchestration/mlgg.py"),
                 "onboarding",
                 "--project-root",
                 str(project_root),
@@ -2329,7 +2329,7 @@ def test_mlgg_onboarding_missing_openssl_fails_closed() -> None:
 
 def test_mlgg_help_includes_onboarding_and_bootstrap_example() -> None:
     print("\n=== mlgg help: includes onboarding and bootstrap workflow examples ===")
-    proc = run_gate([str(SCRIPTS_DIR / "mlgg.py"), "--help"])
+    proc = run_gate([str(SCRIPTS_DIR / "orchestration/mlgg.py"), "--help"])
     assert_true(proc.returncode == 0, "mlgg --help exits 0")
     body = proc.stdout
     assert_true("onboarding" in body, "mlgg --help lists onboarding command")

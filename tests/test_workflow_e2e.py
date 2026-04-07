@@ -18,7 +18,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 def _run_workflow(request_path: Path, evidence_dir: Path, report_path: Path,
                   extra_args: list = None, timeout: int = 120) -> subprocess.CompletedProcess:
     cmd = [
-        sys.executable, str(SCRIPTS_DIR / "run_productized_workflow.py"),
+        sys.executable, str(SCRIPTS_DIR / "orchestration/run_productized_workflow.py"),
         "--request", str(request_path),
         "--evidence-dir", str(evidence_dir),
         "--strict",
@@ -35,7 +35,7 @@ class TestWorkflowRequiresStrict:
         req = tmp_path / "request.json"
         req.write_text("{}", encoding="utf-8")
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "run_productized_workflow.py"),
+            sys.executable, str(SCRIPTS_DIR / "orchestration/run_productized_workflow.py"),
             "--request", str(req),
         ]
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)

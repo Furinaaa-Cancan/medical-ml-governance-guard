@@ -90,7 +90,7 @@ def _register(spec: GateSpec) -> GateSpec:
 
 _register(GateSpec(
     name="cohort_definition_gate",
-    script="cohort_definition_gate.py",
+    script="gates/cohort_definition_gate.py",
     layer=GateLayer.CONTRACT,
     description="Phase 1: Cohort definition, EPV adequacy, data type detection, missingness profile.",
     depends_on=frozenset(),
@@ -101,7 +101,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="request_contract_gate",
-    script="request_contract_gate.py",
+    script="gates/request_contract_gate.py",
     layer=GateLayer.CONTRACT,
     description="Validate the structured request contract and normalize all input paths.",
     request_inputs={"request": "--request"},
@@ -113,7 +113,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="manifest_lock",
-    script="manifest_lock.py",
+    script="gates/manifest_lock.py",
     layer=GateLayer.MANIFEST,
     description="Compute and verify SHA-256 manifest of all input artifacts.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -125,7 +125,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="execution_attestation_gate",
-    script="execution_attestation_gate.py",
+    script="gates/execution_attestation_gate.py",
     layer=GateLayer.ATTESTATION,
     description="Verify cryptographic execution attestation: signatures, timestamps, transparency log.",
     depends_on=frozenset({"manifest_lock"}),
@@ -141,7 +141,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="leakage_gate",
-    script="leakage_gate.py",
+    script="gates/leakage_gate.py",
     layer=GateLayer.DATA_VALIDATION,
     description="Detect patient ID leakage, temporal leakage, and row-hash overlap across splits.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -151,7 +151,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="split_protocol_gate",
-    script="split_protocol_gate.py",
+    script="gates/split_protocol_gate.py",
     layer=GateLayer.DATA_VALIDATION,
     description="Verify split protocol compliance: stratification, temporal ordering, size requirements.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -162,7 +162,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="covariate_shift_gate",
-    script="covariate_shift_gate.py",
+    script="gates/covariate_shift_gate.py",
     layer=GateLayer.DATA_VALIDATION,
     description="Detect covariate distribution shift between training and evaluation splits.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -172,7 +172,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="reporting_bias_gate",
-    script="reporting_bias_gate.py",
+    script="gates/reporting_bias_gate.py",
     layer=GateLayer.DATA_VALIDATION,
     description="Enforce TRIPOD+AI / PROBAST+AI / STARD-AI reporting and bias checklists.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -185,7 +185,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="definition_variable_guard",
-    script="definition_variable_guard.py",
+    script="gates/definition_variable_guard.py",
     layer=GateLayer.POLICY_AUDIT,
     description="Verify phenotype definition variables against training data columns.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -196,7 +196,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="feature_lineage_gate",
-    script="feature_lineage_gate.py",
+    script="gates/feature_lineage_gate.py",
     layer=GateLayer.POLICY_AUDIT,
     description="Verify feature lineage spec against phenotype definition and training data.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -210,7 +210,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="imbalance_policy_gate",
-    script="imbalance_policy_gate.py",
+    script="gates/imbalance_policy_gate.py",
     layer=GateLayer.POLICY_AUDIT,
     description="Verify class imbalance handling policy against actual split prevalence.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -224,7 +224,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="missingness_policy_gate",
-    script="missingness_policy_gate.py",
+    script="gates/missingness_policy_gate.py",
     layer=GateLayer.POLICY_AUDIT,
     description="Verify missingness handling policy against actual missing data patterns.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -238,7 +238,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="tuning_leakage_gate",
-    script="tuning_leakage_gate.py",
+    script="gates/tuning_leakage_gate.py",
     layer=GateLayer.POLICY_AUDIT,
     description="Verify hyperparameter tuning protocol does not leak test data.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -251,7 +251,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="model_selection_audit_gate",
-    script="model_selection_audit_gate.py",
+    script="gates/model_selection_audit_gate.py",
     layer=GateLayer.MODEL_AUDIT,
     description="Audit model selection process for protocol compliance and data leakage.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -265,7 +265,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="feature_engineering_audit_gate",
-    script="feature_engineering_audit_gate.py",
+    script="gates/feature_engineering_audit_gate.py",
     layer=GateLayer.MODEL_AUDIT,
     description="Audit feature engineering for reproducibility and selection leakage.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -281,7 +281,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="clinical_metrics_gate",
-    script="clinical_metrics_gate.py",
+    script="gates/clinical_metrics_gate.py",
     layer=GateLayer.MODEL_AUDIT,
     description="Verify clinical metric floors and operating point requirements.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -296,7 +296,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="shap_interpretability_gate",
-    script="shap_interpretability_gate.py",
+    script="gates/shap_interpretability_gate.py",
     layer=GateLayer.MODEL_AUDIT,
     description="Multi-model SHAP: proportional-normalized ensemble feature importance across model families.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -312,7 +312,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="prediction_replay_gate",
-    script="prediction_replay_gate.py",
+    script="gates/prediction_replay_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Replay predictions from trace and verify metric consistency with evaluation report.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -327,7 +327,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="distribution_generalization_gate",
-    script="distribution_generalization_gate.py",
+    script="gates/distribution_generalization_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Assess distribution shift and generalization across splits and external cohorts.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -344,7 +344,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="generalization_gap_gate",
-    script="generalization_gap_gate.py",
+    script="gates/generalization_gap_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Compute and threshold directional performance gaps between splits.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -358,7 +358,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="robustness_gate",
-    script="robustness_gate.py",
+    script="gates/robustness_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Verify model robustness across time slices and patient subgroups.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -372,7 +372,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="seed_stability_gate",
-    script="seed_stability_gate.py",
+    script="gates/seed_stability_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Verify model stability across random seed variations.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -386,7 +386,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="external_validation_gate",
-    script="external_validation_gate.py",
+    script="gates/external_validation_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Validate transferability on external cohorts with metric replay.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -402,7 +402,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="calibration_dca_gate",
-    script="calibration_dca_gate.py",
+    script="gates/calibration_dca_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Validate model calibration and decision curve analysis thresholds.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -418,7 +418,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="ci_matrix_gate",
-    script="ci_matrix_gate.py",
+    script="gates/ci_matrix_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Validate confidence interval matrix via bootstrap resampling.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -435,7 +435,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="metric_consistency_gate",
-    script="metric_consistency_gate.py",
+    script="gates/metric_consistency_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Verify primary metric value matches between request and evaluation report.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -448,7 +448,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="evaluation_quality_gate",
-    script="evaluation_quality_gate.py",
+    script="gates/evaluation_quality_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Assess overall evaluation quality: CI width, baseline delta, resampling adequacy.",
     depends_on=frozenset({"request_contract_gate", "metric_consistency_gate", "ci_matrix_gate"}),
@@ -462,7 +462,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="permutation_significance_gate",
-    script="permutation_significance_gate.py",
+    script="gates/permutation_significance_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Verify model performance is statistically significant vs. permutation null distribution.",
     depends_on=frozenset({"request_contract_gate", "metric_consistency_gate"}),
@@ -475,7 +475,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="fairness_equity_gate",
-    script="fairness_equity_gate.py",
+    script="gates/fairness_equity_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Fairness and equity: equalized odds gap, disparate impact ratio (four-fifths rule), per-subgroup metric minimums.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -487,7 +487,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="sample_size_gate",
-    script="sample_size_gate.py",
+    script="gates/sample_size_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Sample size adequacy: EPV (Riley et al. 2019/2025), shrinkage factor, minimum events/non-events.",
     depends_on=frozenset({"request_contract_gate"}),
@@ -501,7 +501,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="publication_gate",
-    script="publication_gate.py",
+    script="gates/publication_gate.py",
     layer=GateLayer.AGGREGATION,
     description="Aggregate all gate results and determine publication eligibility.",
     depends_on=frozenset(
@@ -517,7 +517,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="self_critique_gate",
-    script="self_critique_gate.py",
+    script="gates/self_critique_gate.py",
     layer=GateLayer.FINAL,
     description="Self-critique: compute quality score and generate actionable recommendations.",
     depends_on=frozenset(
@@ -530,7 +530,7 @@ _register(GateSpec(
 
 _register(GateSpec(
     name="security_audit_gate",
-    script="security_audit_gate.py",
+    script="gates/security_audit_gate.py",
     layer=GateLayer.FINAL,
     description="Security audit: verify model signatures, evidence integrity, dependency authenticity, sensitive data exposure.",
     depends_on=frozenset({"self_critique_gate"}),

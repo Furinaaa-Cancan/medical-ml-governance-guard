@@ -9,6 +9,10 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "core"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "gates"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orchestration"))
 from leakage_gate import (
     bounds_for_time,
     epoch_to_iso,
@@ -255,7 +259,7 @@ class TestEpochToIso:
 class TestCLI:
     def _run(self, tmp_path, splits, extra_args=None):
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "leakage_gate.py"),
+            sys.executable, str(SCRIPTS_DIR / "gates/leakage_gate.py"),
             "--train", str(splits["train"]),
             "--test", str(splits["test"]),
             "--report", str(tmp_path / "report.json"),

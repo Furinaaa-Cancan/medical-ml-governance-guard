@@ -24,6 +24,8 @@ Usage:
 
 from __future__ import annotations
 
+import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core"); _sys.path.insert(0, _CORE_DIR) if _CORE_DIR not in _sys.path else None  # noqa: E702
+
 import argparse
 import json
 import os
@@ -37,7 +39,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS_DIR = REPO_ROOT / "scripts"
 EXPERIMENTS_DIR = REPO_ROOT / "experiments" / "authority-e2e"
 PROGRESS_FILE = EXPERIMENTS_DIR / "endurance_progress.json"
@@ -352,7 +354,7 @@ def _ensure_manifest(case_id: str) -> None:
     )
     if evidence_files:
         subprocess.run(
-            [PYTHON, str(SCRIPTS_DIR / "manifest_lock.py"),
+            [PYTHON, str(SCRIPTS_DIR / "gates/manifest_lock.py"),
              "--inputs"] + evidence_files +
             ["--output", str(manifest)],
             capture_output=True, timeout=60,

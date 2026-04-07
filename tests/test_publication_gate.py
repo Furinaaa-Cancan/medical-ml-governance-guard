@@ -8,6 +8,10 @@ from pathlib import Path
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "core"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "gates"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orchestration"))
 from publication_gate import (
     parse_int_like,
     validate_component_status,
@@ -175,7 +179,7 @@ def _make_all_artifacts(tmp_path: Path) -> dict:
 
 def _build_cmd(tmp_path, paths, extra_args=None):
     cmd = [
-        sys.executable, str(SCRIPTS_DIR / "publication_gate.py"),
+        sys.executable, str(SCRIPTS_DIR / "gates/publication_gate.py"),
         "--report", str(tmp_path / "report.json"),
     ]
     for arg_name, comp_name in zip(COMPONENT_ARGS, COMPONENT_NAMES):

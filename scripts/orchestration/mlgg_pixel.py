@@ -9,6 +9,8 @@ Usage:
 
 from __future__ import annotations
 
+import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core"); _sys.path.insert(0, _CORE_DIR) if _CORE_DIR not in _sys.path else None  # noqa: E702
+
 import csv
 import importlib.util
 import itertools
@@ -28,7 +30,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 # ── paths ─────────────────────────────────────────────────────────────────────
-SCRIPTS_DIR = Path(__file__).resolve().parent
+SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 REPO_ROOT = SCRIPTS_DIR.parent
 EXAMPLES_DIR = REPO_ROOT / "examples"
 DESKTOP = Path.home() / "Desktop"
@@ -3754,7 +3756,7 @@ def _export_cli(state: Dict) -> str:
     """Build a copy-ready CLI command string from wizard state."""
     import shlex as _shlex
     preview_state, _ = execution_preview_state(state)
-    parts: List[str] = [sys.executable, str(SCRIPTS_DIR / "mlgg.py")]
+    parts: List[str] = [sys.executable, str(SCRIPTS_DIR / "orchestration/mlgg.py")]
     source = preview_state.get("source", "")
     if source == "demo":
         parts.extend(["onboarding", "--project-root", preview_state["out_dir"],
@@ -3764,7 +3766,7 @@ def _export_cli(state: Dict) -> str:
     evidence_dir = str(Path(preview_state["out_dir"]) / "evidence")
     models_dir = str(Path(preview_state["out_dir"]) / "models")
     split_parts = [
-        sys.executable, str(SCRIPTS_DIR / "mlgg.py"), "split", "--",
+        sys.executable, str(SCRIPTS_DIR / "orchestration/mlgg.py"), "split", "--",
         "--input", preview_state.get("csv_path", ""),
         "--output-dir", out_data,
         "--patient-id-col", preview_state.get("pid", "patient_id"),
@@ -3787,7 +3789,7 @@ def _export_cli(state: Dict) -> str:
     if imbalance_metric not in {"pr_auc", "roc_auc"}:
         imbalance_metric = "pr_auc"
     train_parts = [
-        sys.executable, str(SCRIPTS_DIR / "mlgg.py"), "train", "--",
+        sys.executable, str(SCRIPTS_DIR / "orchestration/mlgg.py"), "train", "--",
         "--train", str(Path(out_data) / "train.csv"),
         "--valid", str(Path(out_data) / "valid.csv"),
         "--test", str(Path(out_data) / "test.csv"),
@@ -4130,7 +4132,7 @@ def step_run(state: Dict) -> Any:
     # ── Demo: run full onboarding pipeline ──
     if source == "demo":
         rc, _, err = run_spinner(
-            [sys.executable, str(SCRIPTS_DIR / "mlgg.py"), "onboarding",
+            [sys.executable, str(SCRIPTS_DIR / "orchestration/mlgg.py"), "onboarding",
              "--project-root", state["out_dir"], "--mode", "guided", "--yes"],
             t("x_pipeline"),
         )
@@ -4179,9 +4181,9 @@ def step_run(state: Dict) -> Any:
         project_root = state.get("_full_project_root", state["out_dir"])
         request_json = state.get("_full_request_json", "")
         evidence_dir = str(Path(project_root) / "evidence")
-        workflow_script = SCRIPTS_DIR / "run_productized_workflow.py"
+        workflow_script = SCRIPTS_DIR / "orchestration/run_productized_workflow.py"
         if not workflow_script.exists():
-            workflow_script = SCRIPTS_DIR / "run_dag_pipeline.py"
+            workflow_script = SCRIPTS_DIR / "orchestration/run_dag_pipeline.py"
         cmd = [
             sys.executable, str(workflow_script),
             "--request", request_json,
@@ -4289,7 +4291,7 @@ def step_run(state: Dict) -> Any:
     csv_path = state["csv_path"]
 
     cmd = [
-        sys.executable, str(SCRIPTS_DIR / "mlgg.py"), "split", "--",
+        sys.executable, str(SCRIPTS_DIR / "orchestration/mlgg.py"), "split", "--",
         "--input", csv_path, "--output-dir", out_data,
         "--patient-id-col", state["pid"], "--target-col", state["target"],
         "--strategy", state["strategy"],
@@ -4365,7 +4367,7 @@ def step_run(state: Dict) -> Any:
         imbalance_metric = "pr_auc"
 
     train_cmd = [
-        sys.executable, str(SCRIPTS_DIR / "mlgg.py"), "train", "--",
+        sys.executable, str(SCRIPTS_DIR / "orchestration/mlgg.py"), "train", "--",
         "--train", str(Path(out_data) / "train.csv"),
         "--valid", str(Path(out_data) / "valid.csv"),
         "--test", str(Path(out_data) / "test.csv"),

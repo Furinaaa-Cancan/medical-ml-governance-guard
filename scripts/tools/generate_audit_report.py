@@ -19,6 +19,8 @@ Usage:
 """
 from __future__ import annotations
 
+import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core"); _sys.path.insert(0, _CORE_DIR) if _CORE_DIR not in _sys.path else None  # noqa: E702
+
 import argparse
 import json
 import math
@@ -40,7 +42,7 @@ from _audit_shared import (
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
-_SCRIPTS_DIR = Path(__file__).parent
+_SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 _REFERENCES_DIR = _SCRIPTS_DIR.parent / "references"
 
 # Gate applicability (lazy import to avoid circular)

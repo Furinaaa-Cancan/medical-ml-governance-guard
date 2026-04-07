@@ -16,6 +16,10 @@ from typing import List
 SCRIPTS_DIR = Path(__file__).resolve().parent
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
+    sys.path.insert(0, str(SCRIPTS_DIR / "core"))
+    sys.path.insert(0, str(SCRIPTS_DIR / "gates"))
+    sys.path.insert(0, str(SCRIPTS_DIR / "tools"))
+    sys.path.insert(0, str(SCRIPTS_DIR / "orchestration"))
 
 import mlgg_pixel as play  # noqa: E402
 

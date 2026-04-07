@@ -109,20 +109,20 @@ def run_script(args: List[str], cwd: str | None = None) -> subprocess.CompletedP
 
 class TestShowDAG:
     def test_show_dag_exits_zero(self):
-        result = run_script([str(SCRIPTS_DIR / "run_dag_pipeline.py"), "--show-dag"])
+        result = run_script([str(SCRIPTS_DIR / "orchestration/run_dag_pipeline.py"), "--show-dag"])
         assert result.returncode == 0, f"stderr: {result.stderr}"
 
     def test_show_dag_lists_all_layers(self):
-        result = run_script([str(SCRIPTS_DIR / "run_dag_pipeline.py"), "--show-dag"])
+        result = run_script([str(SCRIPTS_DIR / "orchestration/run_dag_pipeline.py"), "--show-dag"])
         assert "Layer" in result.stdout
         assert "gate" in result.stdout.lower()
 
     def test_show_dag_lists_publication_gate(self):
-        result = run_script([str(SCRIPTS_DIR / "run_dag_pipeline.py"), "--show-dag"])
+        result = run_script([str(SCRIPTS_DIR / "orchestration/run_dag_pipeline.py"), "--show-dag"])
         assert "publication_gate" in result.stdout
 
     def test_show_dag_lists_self_critique_gate(self):
-        result = run_script([str(SCRIPTS_DIR / "run_dag_pipeline.py"), "--show-dag"])
+        result = run_script([str(SCRIPTS_DIR / "orchestration/run_dag_pipeline.py"), "--show-dag"])
         assert "self_critique_gate" in result.stdout
 
 
@@ -141,7 +141,7 @@ class TestDryRun:
             req = make_minimal_request(td, splits)
             evidence_dir = td / "evidence"
             result = run_script([
-                str(SCRIPTS_DIR / "run_dag_pipeline.py"),
+                str(SCRIPTS_DIR / "orchestration/run_dag_pipeline.py"),
                 "--request", str(req),
                 "--evidence-dir", str(evidence_dir),
                 "--strict",
@@ -167,7 +167,7 @@ class TestDryRun:
             req = make_minimal_request(td, splits)
             evidence_dir = td / "evidence"
             run_script([
-                str(SCRIPTS_DIR / "run_dag_pipeline.py"),
+                str(SCRIPTS_DIR / "orchestration/run_dag_pipeline.py"),
                 "--request", str(req),
                 "--evidence-dir", str(evidence_dir),
                 "--strict",
@@ -193,7 +193,7 @@ class TestRequestContractEnvelope:
             req = make_minimal_request(td, splits)
             report_path = td / "request_contract_report.json"
             result = run_script([
-                str(SCRIPTS_DIR / "request_contract_gate.py"),
+                str(SCRIPTS_DIR / "gates/request_contract_gate.py"),
                 "--request", str(req),
                 "--report", str(report_path),
             ])
@@ -216,7 +216,7 @@ class TestRequestContractEnvelope:
             req = make_minimal_request(td, splits)
             report_path = td / "request_contract_report.json"
             run_script([
-                str(SCRIPTS_DIR / "request_contract_gate.py"),
+                str(SCRIPTS_DIR / "gates/request_contract_gate.py"),
                 "--request", str(req),
                 "--report", str(report_path),
             ])
@@ -233,7 +233,7 @@ class TestRequestContractEnvelope:
             req = make_minimal_request(td, splits)
             report_path = td / "request_contract_report.json"
             run_script([
-                str(SCRIPTS_DIR / "request_contract_gate.py"),
+                str(SCRIPTS_DIR / "gates/request_contract_gate.py"),
                 "--request", str(req),
                 "--report", str(report_path),
             ])
@@ -256,7 +256,7 @@ class TestOnlyGate:
             req = make_minimal_request(td, splits)
             evidence_dir = td / "evidence"
             result = run_script([
-                str(SCRIPTS_DIR / "run_dag_pipeline.py"),
+                str(SCRIPTS_DIR / "orchestration/run_dag_pipeline.py"),
                 "--request", str(req),
                 "--evidence-dir", str(evidence_dir),
                 "--strict",
@@ -273,7 +273,7 @@ class TestOnlyGate:
             req = make_minimal_request(td, splits)
             evidence_dir = td / "evidence"
             run_script([
-                str(SCRIPTS_DIR / "run_dag_pipeline.py"),
+                str(SCRIPTS_DIR / "orchestration/run_dag_pipeline.py"),
                 "--request", str(req),
                 "--evidence-dir", str(evidence_dir),
                 "--strict",
@@ -292,7 +292,7 @@ class TestOnlyGate:
 class TestCLIValidation:
     def test_missing_request_fails(self):
         result = run_script([
-            str(SCRIPTS_DIR / "run_dag_pipeline.py"),
+            str(SCRIPTS_DIR / "orchestration/run_dag_pipeline.py"),
             "--strict",
         ])
         assert result.returncode == 2
@@ -303,7 +303,7 @@ class TestCLIValidation:
             splits = make_minimal_splits(td)
             req = make_minimal_request(td, splits)
             result = run_script([
-                str(SCRIPTS_DIR / "run_dag_pipeline.py"),
+                str(SCRIPTS_DIR / "orchestration/run_dag_pipeline.py"),
                 "--request", str(req),
             ])
             assert result.returncode == 2
@@ -311,7 +311,7 @@ class TestCLIValidation:
 
     def test_nonexistent_request_file_fails(self):
         result = run_script([
-            str(SCRIPTS_DIR / "run_dag_pipeline.py"),
+            str(SCRIPTS_DIR / "orchestration/run_dag_pipeline.py"),
             "--request", "/nonexistent/request.json",
             "--strict",
         ])

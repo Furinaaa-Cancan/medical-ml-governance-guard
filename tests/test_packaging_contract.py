@@ -26,8 +26,8 @@ def test_public_console_scripts_only_expose_supported_entrypoints() -> None:
     project = _load_project_metadata()
     scripts = project["scripts"]
     assert scripts == {
-        "mlgg": "scripts.mlgg:cli_main",
-        "mlgg-pixel": "scripts.mlgg_pixel:main",
+        "mlgg": "scripts.orchestration.mlgg:cli_main",
+        "mlgg-pixel": "scripts.orchestration.mlgg_pixel:main",
     }
 
 

@@ -35,7 +35,7 @@ import pytest
 # ---------------------------------------------------------------------------
 
 SCRIPTS_ROOT = Path(__file__).resolve().parents[1] / "scripts"
-MLGG = SCRIPTS_ROOT / "mlgg.py"
+MLGG = SCRIPTS_ROOT / "orchestration/mlgg.py"
 
 
 def run_mlgg(args: List[str], timeout: int = 10) -> subprocess.CompletedProcess:
@@ -57,6 +57,10 @@ def run_mlgg_module(args: List[str]) -> tuple[int, str, str]:
     from contextlib import redirect_stderr, redirect_stdout
 
     sys.path.insert(0, str(SCRIPTS_ROOT))
+    sys.path.insert(0, str(SCRIPTS_ROOT / "core"))
+    sys.path.insert(0, str(SCRIPTS_ROOT / "gates"))
+    sys.path.insert(0, str(SCRIPTS_ROOT / "tools"))
+    sys.path.insert(0, str(SCRIPTS_ROOT / "orchestration"))
     import importlib
     if "mlgg" in sys.modules:
         del sys.modules["mlgg"]

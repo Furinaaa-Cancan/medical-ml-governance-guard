@@ -11,6 +11,10 @@ import pandas as pd
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "core"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "gates"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orchestration"))
 import schema_preflight as sp
 from schema_preflight import (
     TARGET_ALIASES,
@@ -375,7 +379,7 @@ class TestSplitSummary:
 class TestCLISplitMode:
     def _run(self, tmp_path, splits, extra_args=None):
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "schema_preflight.py"),
+            sys.executable, str(SCRIPTS_DIR / "tools/schema_preflight.py"),
             "--train", str(splits["train"]),
             "--valid", str(splits["valid"]),
             "--test", str(splits["test"]),
@@ -478,7 +482,7 @@ class TestCLISplitMode:
 class TestCLISingleFileMode:
     def _run(self, tmp_path, csv_path, extra_args=None):
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "schema_preflight.py"),
+            sys.executable, str(SCRIPTS_DIR / "tools/schema_preflight.py"),
             "--input-csv", str(csv_path),
             "--report", str(tmp_path / "report.json"),
         ]

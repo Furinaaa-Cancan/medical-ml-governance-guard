@@ -10,9 +10,14 @@ from pathlib import Path
 from typing import Any, Dict, List
 import unittest
 
-SCRIPTS_DIR = str(Path(__file__).resolve().parent.parent / "scripts")
+_SCRIPTS_PATH = Path(__file__).resolve().parent.parent / "scripts"
+SCRIPTS_DIR = str(_SCRIPTS_PATH)
 if SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, SCRIPTS_DIR)
+    sys.path.insert(0, str(_SCRIPTS_PATH / "core"))
+    sys.path.insert(0, str(_SCRIPTS_PATH / "gates"))
+    sys.path.insert(0, str(_SCRIPTS_PATH / "tools"))
+    sys.path.insert(0, str(_SCRIPTS_PATH / "orchestration"))
 
 
 def _write_csv(rows: List[Dict[str, Any]], path: str) -> None:

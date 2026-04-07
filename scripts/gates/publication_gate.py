@@ -5,6 +5,8 @@ Aggregate fail-closed publication gate for medical prediction evidence artifacts
 
 from __future__ import annotations
 
+import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core"); _sys.path.insert(0, _CORE_DIR) if _CORE_DIR not in _sys.path else None  # noqa: E702
+
 import argparse
 import math
 from pathlib import Path

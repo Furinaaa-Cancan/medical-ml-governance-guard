@@ -5,6 +5,8 @@ User-facing wrapper: env doctor -> schema preflight -> strict pipeline -> user s
 
 from __future__ import annotations
 
+import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core"); _sys.path.insert(0, _CORE_DIR) if _CORE_DIR not in _sys.path else None  # noqa: E702
+
 import argparse
 import shlex
 import subprocess
@@ -104,7 +106,7 @@ def main() -> int:
 
     evidence_dir = resolve_path(project_base, args.evidence_dir)
     evidence_dir.mkdir(parents=True, exist_ok=True)
-    scripts_dir = Path(__file__).resolve().parent
+    scripts_dir = Path(__file__).resolve().parent.parent
 
     steps: List[Dict[str, Any]] = []
     bootstrap_recovery_applied = False
@@ -126,7 +128,7 @@ def main() -> int:
     env_report = evidence_dir / "env_doctor_report.json"
     append_step(
         "env_doctor",
-        [args.python, str(scripts_dir / "env_doctor.py"), "--report", str(env_report)],
+        [args.python, str(scripts_dir / "tools/env_doctor.py"), "--report", str(env_report)],
     )
 
     schema_report = evidence_dir / "schema_preflight_report.json"
@@ -135,7 +137,7 @@ def main() -> int:
         "schema_preflight",
         [
             args.python,
-            str(scripts_dir / "schema_preflight.py"),
+            str(scripts_dir / "tools/schema_preflight.py"),
             "--train",
             str(train_path),
             "--valid",
@@ -159,7 +161,7 @@ def main() -> int:
     strict_run_started_epoch = time.time()
     dag_cmd = [
         args.python,
-        str(scripts_dir / "run_dag_pipeline.py"),
+        str(scripts_dir / "orchestration/run_dag_pipeline.py"),
         "--request",
         str(request_path),
         "--evidence-dir",
@@ -206,7 +208,7 @@ def main() -> int:
             shutil.copy2(manifest_path, bootstrap_baseline_path)
             retry_cmd = [
                 args.python,
-                str(scripts_dir / "run_dag_pipeline.py"),
+                str(scripts_dir / "orchestration/run_dag_pipeline.py"),
                 "--request",
                 str(request_path),
                 "--evidence-dir",
@@ -232,7 +234,7 @@ def main() -> int:
         "render_user_summary",
         [
             args.python,
-            str(scripts_dir / "render_user_summary.py"),
+            str(scripts_dir / "tools/render_user_summary.py"),
             "--evidence-dir",
             str(evidence_dir),
             "--request",

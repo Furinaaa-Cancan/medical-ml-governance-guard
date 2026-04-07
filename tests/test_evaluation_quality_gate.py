@@ -8,6 +8,10 @@ from pathlib import Path
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "core"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "gates"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orchestration"))
 import evaluation_quality_gate as eqg
 from evaluation_quality_gate import (
     canonical_metric_token,
@@ -266,7 +270,7 @@ class TestExtractBaselineMetrics:
 class TestCLI:
     def _run(self, tmp_path, eval_path, metric_name="roc_auc", extra_args=None):
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "evaluation_quality_gate.py"),
+            sys.executable, str(SCRIPTS_DIR / "gates/evaluation_quality_gate.py"),
             "--evaluation-report", str(eval_path),
             "--metric-name", metric_name,
             "--report", str(tmp_path / "report.json"),

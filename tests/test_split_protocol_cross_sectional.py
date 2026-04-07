@@ -69,7 +69,7 @@ class TestCrossSectionalMode:
         report_path = tmp_path / "report.json"
 
         result = subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "split_protocol_gate.py"),
+            [sys.executable, str(SCRIPTS_DIR / "gates/split_protocol_gate.py"),
              "--protocol-spec", str(spec_path),
              "--train", str(train_path),
              "--test", str(test_path),
@@ -92,7 +92,7 @@ class TestCrossSectionalMode:
         report_path = tmp_path / "report.json"
 
         result = subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "split_protocol_gate.py"),
+            [sys.executable, str(SCRIPTS_DIR / "gates/split_protocol_gate.py"),
              "--protocol-spec", str(spec_path),
              "--train", str(train_path),
              "--test", str(test_path),
@@ -111,7 +111,7 @@ class TestCrossSectionalMode:
         report_path = tmp_path / "report.json"
 
         result = subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "split_protocol_gate.py"),
+            [sys.executable, str(SCRIPTS_DIR / "gates/split_protocol_gate.py"),
              "--protocol-spec", str(spec_path),
              "--train", str(train_path),
              "--test", str(test_path),
@@ -129,7 +129,7 @@ class TestCrossSectionalMode:
         report_path = tmp_path / "report.json"
 
         result = subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "split_protocol_gate.py"),
+            [sys.executable, str(SCRIPTS_DIR / "gates/split_protocol_gate.py"),
              "--protocol-spec", str(spec_path),
              "--train", str(train_path),
              "--test", str(test_path),

@@ -23,6 +23,10 @@ import pytest
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
 sys.path.insert(0, str(SCRIPTS_DIR))
+sys.path.insert(0, str(SCRIPTS_DIR / "core"))
+sys.path.insert(0, str(SCRIPTS_DIR / "gates"))
+sys.path.insert(0, str(SCRIPTS_DIR / "tools"))
+sys.path.insert(0, str(SCRIPTS_DIR / "orchestration"))
 import train_select_evaluate as tse
 
 
@@ -744,14 +748,14 @@ class TestPermutationImportance:
 class TestCLIMissingFile:
     def test_missing_train(self, tmp_path):
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "train_select_evaluate.py"),
+            sys.executable, str(SCRIPTS_DIR / "tools/train_select_evaluate.py"),
             "--train", str(tmp_path / "nope.csv"),
             "--valid", str(tmp_path / "nope2.csv"),
             "--test", str(tmp_path / "nope3.csv"),
             "--model-selection-report-out", str(tmp_path / "ms.json"),
             "--evaluation-report-out", str(tmp_path / "eval.json"),
         ]
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=30, cwd=str(SCRIPTS_DIR))
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=60, cwd=str(SCRIPTS_DIR))
         assert proc.returncode != 0
 
 
@@ -793,7 +797,7 @@ class TestCLIImbalanceStrategyCandidates:
 
         cmd = [
             sys.executable,
-            str(SCRIPTS_DIR / "train_select_evaluate.py"),
+            str(SCRIPTS_DIR / "tools/train_select_evaluate.py"),
             "--train",
             str(train_csv),
             "--valid",

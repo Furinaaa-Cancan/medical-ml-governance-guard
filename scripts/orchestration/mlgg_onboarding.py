@@ -15,6 +15,8 @@ Flow:
 
 from __future__ import annotations
 
+import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core"); _sys.path.insert(0, _CORE_DIR) if _CORE_DIR not in _sys.path else None  # noqa: E702
+
 import argparse
 import csv
 import json
@@ -29,7 +31,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS_ROOT = REPO_ROOT / "scripts"
 CONTRACT_VERSION = "onboarding_report.v2"
 
@@ -676,7 +678,7 @@ def build_train_command(
     ignore_parts = sorted({patient_id_col, time_col} - {""})
     cmd = [
         python_bin,
-        str(SCRIPTS_ROOT / "train_select_evaluate.py"),
+        str(SCRIPTS_ROOT / "tools/train_select_evaluate.py"),
         "--train",
         str(data / "train.csv"),
         "--valid",
@@ -824,7 +826,7 @@ def collect_step_failure_codes(steps: Sequence[Dict[str, Any]]) -> List[str]:
 def absolutize_repo_python_command(raw: str) -> str:
     # Keep command semantics unchanged while making copy-ready commands runnable from any cwd.
     return re.sub(
-        r"\bpython3\s+scripts/([A-Za-z0-9_.-]+)",
+        r"\bpython3\s+scripts/([A-Za-z0-9_/.-]+)",
         lambda m: "python3 " + str((SCRIPTS_ROOT / m.group(1)).resolve()),
         str(raw),
     )
@@ -833,7 +835,7 @@ def absolutize_repo_python_command(raw: str) -> str:
 def build_next_actions(failure_codes: Sequence[str], status: str, lang: str, mode: str) -> List[str]:
     lang_mode = str(lang).strip().lower()
     actions: List[str] = []
-    mlgg_cli = f"python3 {(SCRIPTS_ROOT / 'mlgg.py').resolve()}"
+    mlgg_cli = f"python3 {(SCRIPTS_ROOT / 'orchestration/mlgg.py').resolve()}"
     if mode == "preview":
         if lang_mode == "zh":
             return [
@@ -962,7 +964,7 @@ def build_next_actions(failure_codes: Sequence[str], status: str, lang: str, mod
 
 
 def build_copy_ready_commands(project_root: Path) -> Dict[str, str]:
-    mlgg_entry = str((SCRIPTS_ROOT / "mlgg.py").resolve())
+    mlgg_entry = str((SCRIPTS_ROOT / "orchestration/mlgg.py").resolve())
     request_path = project_root / "configs" / "request.json"
     evidence_dir = project_root / "evidence"
     compare_manifest = evidence_dir / "manifest_baseline.bootstrap.json"
@@ -1091,7 +1093,7 @@ def main() -> int:
     ok = run_command_step(
         name="step1_doctor",
         description="Environment check for core/optional dependencies.",
-        command=[python_bin, str(SCRIPTS_ROOT / "env_doctor.py"), "--report", str(doctor_report)],
+        command=[python_bin, str(SCRIPTS_ROOT / "tools/env_doctor.py"), "--report", str(doctor_report)],
         cwd=project_root,
         mode=mode,
         auto_yes=auto_yes,
@@ -1113,7 +1115,7 @@ def main() -> int:
         description="Initialize project directories and baseline config templates.",
         command=[
             python_bin,
-            str(SCRIPTS_ROOT / "init_project.py"),
+            str(SCRIPTS_ROOT / "tools/init_project.py"),
             "--project-root",
             str(project_root),
             "--study-id",
@@ -1149,7 +1151,7 @@ def main() -> int:
         split_report = evidence_dir / "split_report.json"
         split_cmd = [
             python_bin,
-            str(SCRIPTS_ROOT / "split_data.py"),
+            str(SCRIPTS_ROOT / "tools/split_data.py"),
             "--input", user_input_csv,
             "--output-dir", str(project_root / "data"),
             "--patient-id-col", str(getattr(args, "patient_id_col", "patient_id")),
@@ -1185,7 +1187,7 @@ def main() -> int:
             description="Generate offline synthetic medical splits (train/valid/test + dual external cohorts).",
             command=[
                 python_bin,
-                str(SCRIPTS_ROOT / "generate_demo_medical_dataset.py"),
+                str(SCRIPTS_ROOT / "tools/generate_demo_medical_dataset.py"),
                 "--project-root",
                 str(project_root),
                 "--seed",
@@ -1324,7 +1326,7 @@ def main() -> int:
         study_id = str(req.get("study_id", "demo-medical-leakage-guard"))
         cmd = [
             python_bin,
-            str(SCRIPTS_ROOT / "generate_execution_attestation.py"),
+            str(SCRIPTS_ROOT / "tools/generate_execution_attestation.py"),
             "--study-id",
             study_id,
             "--run-id",
@@ -1429,7 +1431,7 @@ def main() -> int:
         description="Run strict workflow with bootstrap baseline generation.",
         command=[
             python_bin,
-            str(SCRIPTS_ROOT / "run_productized_workflow.py"),
+            str(SCRIPTS_ROOT / "orchestration/run_productized_workflow.py"),
             "--request",
             str(project_root / "configs" / "request.json"),
             "--evidence-dir",
@@ -1462,7 +1464,7 @@ def main() -> int:
         description="Rerun strict workflow against locked baseline manifest.",
         command=[
             python_bin,
-            str(SCRIPTS_ROOT / "run_productized_workflow.py"),
+            str(SCRIPTS_ROOT / "orchestration/run_productized_workflow.py"),
             "--request",
             str(project_root / "configs" / "request.json"),
             "--evidence-dir",

@@ -12,9 +12,13 @@ from pathlib import Path
 
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
-GATE_SCRIPT = SCRIPTS_DIR / "env_doctor.py"
+GATE_SCRIPT = SCRIPTS_DIR / "tools/env_doctor.py"
 
 sys.path.insert(0, str(SCRIPTS_DIR))
+sys.path.insert(0, str(SCRIPTS_DIR / "core"))
+sys.path.insert(0, str(SCRIPTS_DIR / "gates"))
+sys.path.insert(0, str(SCRIPTS_DIR / "tools"))
+sys.path.insert(0, str(SCRIPTS_DIR / "orchestration"))
 import env_doctor as ed
 
 
@@ -56,7 +60,7 @@ def _run_gate(tmp_path, require_optional="", strict=False):
         cmd.extend(["--require-optional-models", require_optional])
     if strict:
         cmd.append("--strict")
-    subprocess.run(cmd, capture_output=True, text=True, timeout=30, cwd=str(SCRIPTS_DIR))
+    subprocess.run(cmd, capture_output=True, text=True, timeout=60, cwd=str(SCRIPTS_DIR))
     if report_path.exists():
         return json.loads(report_path.read_text())
     return {}

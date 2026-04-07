@@ -15,13 +15,15 @@ Usage:
 
 from __future__ import annotations
 
+import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core"); _sys.path.insert(0, _CORE_DIR) if _CORE_DIR not in _sys.path else None  # noqa: E702
+
 import argparse
 import json
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-REFERENCES_DIR = Path(__file__).parent.parent / "references"
+REFERENCES_DIR = Path(__file__).resolve().parent.parent.parent / "references"
 REVIEW_STANDARD_PATH = REFERENCES_DIR / "mlgg-review-standard.json"
 JOURNAL_STANDARDS_PATH = REFERENCES_DIR / "journal-rigor-standards.json"
 LITERATURE_KB_PATH = REFERENCES_DIR / "literature-knowledge-base.json"

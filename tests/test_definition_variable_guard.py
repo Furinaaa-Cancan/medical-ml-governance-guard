@@ -9,6 +9,10 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "core"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "gates"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orchestration"))
 from definition_variable_guard import (
     compile_patterns,
     list_from,
@@ -230,7 +234,7 @@ class TestCompilePatterns:
 class TestCLI:
     def _run(self, tmp_path, setup, target="sepsis", extra_args=None):
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "definition_variable_guard.py"),
+            sys.executable, str(SCRIPTS_DIR / "gates/definition_variable_guard.py"),
             "--target", target,
             "--definition-spec", str(setup["spec"]),
             "--train", str(setup["train"]),

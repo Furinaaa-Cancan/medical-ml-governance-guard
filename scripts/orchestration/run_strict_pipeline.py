@@ -5,6 +5,8 @@ Single-entry strict pipeline runner for medical leakage-safe prediction review.
 
 from __future__ import annotations
 
+import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core"); _sys.path.insert(0, _CORE_DIR) if _CORE_DIR not in _sys.path else None  # noqa: E702
+
 import argparse
 import concurrent.futures
 import shlex
@@ -150,7 +152,7 @@ def main() -> int:
     evidence_dir = resolve_path(cwd, args.evidence_dir)
     evidence_dir.mkdir(parents=True, exist_ok=True)
 
-    scripts_dir = Path(__file__).resolve().parent
+    scripts_dir = Path(__file__).resolve().parent.parent
     reports = {
         "request_report": evidence_dir / "request_contract_report.json",
         "manifest": evidence_dir / "manifest.json",
@@ -242,7 +244,7 @@ def main() -> int:
         "request_contract_gate",
         [
             args.python,
-            str(scripts_dir / "request_contract_gate.py"),
+            str(scripts_dir / "gates/request_contract_gate.py"),
             "--request",
             str(request_path),
             "--report",
@@ -391,39 +393,39 @@ def main() -> int:
     attestation_extra_inputs = list(dict.fromkeys(attestation_extra_inputs))
 
     gate_script_inputs = [
-        str(scripts_dir / "run_strict_pipeline.py"),
-        str(scripts_dir / "request_contract_gate.py"),
-        str(scripts_dir / "manifest_lock.py"),
-        str(scripts_dir / "execution_attestation_gate.py"),
-        str(scripts_dir / "generate_execution_attestation.py"),
-        str(scripts_dir / "reporting_bias_gate.py"),
-        str(scripts_dir / "leakage_gate.py"),
-        str(scripts_dir / "split_protocol_gate.py"),
-        str(scripts_dir / "covariate_shift_gate.py"),
-        str(scripts_dir / "definition_variable_guard.py"),
-        str(scripts_dir / "feature_lineage_gate.py"),
-        str(scripts_dir / "imbalance_policy_gate.py"),
-        str(scripts_dir / "missingness_policy_gate.py"),
-        str(scripts_dir / "tuning_leakage_gate.py"),
-        str(scripts_dir / "model_selection_audit_gate.py"),
-        str(scripts_dir / "feature_engineering_audit_gate.py"),
-        str(scripts_dir / "clinical_metrics_gate.py"),
-        str(scripts_dir / "prediction_replay_gate.py"),
-        str(scripts_dir / "distribution_generalization_gate.py"),
-        str(scripts_dir / "generalization_gap_gate.py"),
-        str(scripts_dir / "robustness_gate.py"),
-        str(scripts_dir / "seed_stability_gate.py"),
-        str(scripts_dir / "external_validation_gate.py"),
-        str(scripts_dir / "calibration_dca_gate.py"),
-        str(scripts_dir / "ci_matrix_gate.py"),
-        str(scripts_dir / "metric_consistency_gate.py"),
-        str(scripts_dir / "evaluation_quality_gate.py"),
-        str(scripts_dir / "permutation_significance_gate.py"),
-        str(scripts_dir / "fairness_equity_gate.py"),
-        str(scripts_dir / "sample_size_gate.py"),
-        str(scripts_dir / "publication_gate.py"),
-        str(scripts_dir / "security_audit_gate.py"),
-        str(scripts_dir / "self_critique_gate.py"),
+        str(scripts_dir / "orchestration/run_strict_pipeline.py"),
+        str(scripts_dir / "gates/request_contract_gate.py"),
+        str(scripts_dir / "gates/manifest_lock.py"),
+        str(scripts_dir / "gates/execution_attestation_gate.py"),
+        str(scripts_dir / "tools/generate_execution_attestation.py"),
+        str(scripts_dir / "gates/reporting_bias_gate.py"),
+        str(scripts_dir / "gates/leakage_gate.py"),
+        str(scripts_dir / "gates/split_protocol_gate.py"),
+        str(scripts_dir / "gates/covariate_shift_gate.py"),
+        str(scripts_dir / "gates/definition_variable_guard.py"),
+        str(scripts_dir / "gates/feature_lineage_gate.py"),
+        str(scripts_dir / "gates/imbalance_policy_gate.py"),
+        str(scripts_dir / "gates/missingness_policy_gate.py"),
+        str(scripts_dir / "gates/tuning_leakage_gate.py"),
+        str(scripts_dir / "gates/model_selection_audit_gate.py"),
+        str(scripts_dir / "gates/feature_engineering_audit_gate.py"),
+        str(scripts_dir / "gates/clinical_metrics_gate.py"),
+        str(scripts_dir / "gates/prediction_replay_gate.py"),
+        str(scripts_dir / "gates/distribution_generalization_gate.py"),
+        str(scripts_dir / "gates/generalization_gap_gate.py"),
+        str(scripts_dir / "gates/robustness_gate.py"),
+        str(scripts_dir / "gates/seed_stability_gate.py"),
+        str(scripts_dir / "gates/external_validation_gate.py"),
+        str(scripts_dir / "gates/calibration_dca_gate.py"),
+        str(scripts_dir / "gates/ci_matrix_gate.py"),
+        str(scripts_dir / "gates/metric_consistency_gate.py"),
+        str(scripts_dir / "gates/evaluation_quality_gate.py"),
+        str(scripts_dir / "gates/permutation_significance_gate.py"),
+        str(scripts_dir / "gates/fairness_equity_gate.py"),
+        str(scripts_dir / "gates/sample_size_gate.py"),
+        str(scripts_dir / "gates/publication_gate.py"),
+        str(scripts_dir / "gates/security_audit_gate.py"),
+        str(scripts_dir / "gates/self_critique_gate.py"),
     ]
 
     manifest_inputs.extend(
@@ -460,7 +462,7 @@ def main() -> int:
         "manifest_lock",
         [
             args.python,
-            str(scripts_dir / "manifest_lock.py"),
+            str(scripts_dir / "gates/manifest_lock.py"),
             "--inputs",
             *manifest_inputs,
             "--output",
@@ -475,7 +477,7 @@ def main() -> int:
         "execution_attestation_gate",
         [
             args.python,
-            str(scripts_dir / "execution_attestation_gate.py"),
+            str(scripts_dir / "gates/execution_attestation_gate.py"),
             "--attestation-spec",
             execution_attestation_spec,
             "--evaluation-report",
@@ -494,25 +496,25 @@ def main() -> int:
     # Steps 4-7: independent data validation gates (parallelizable)
     data_validation_batch: List[Tuple[str, List[str]]] = [
         ("leakage_gate", [
-            args.python, str(scripts_dir / "leakage_gate.py"),
+            args.python, str(scripts_dir / "gates/leakage_gate.py"),
             *split_args, "--id-cols", id_col, "--time-col", time_col,
             "--target-col", label_col,
             "--report", str(reports["leakage_report"]), *strict_flag,
         ]),
         ("split_protocol_gate", [
-            args.python, str(scripts_dir / "split_protocol_gate.py"),
+            args.python, str(scripts_dir / "gates/split_protocol_gate.py"),
             "--protocol-spec", split_protocol_spec, *split_args,
             "--id-col", id_col, "--time-col", time_col, "--target-col", label_col,
             "--report", str(reports["split_protocol_report"]), *strict_flag,
         ]),
         ("covariate_shift_gate", [
-            args.python, str(scripts_dir / "covariate_shift_gate.py"),
+            args.python, str(scripts_dir / "gates/covariate_shift_gate.py"),
             *split_args, "--target-col", label_col,
             "--ignore-cols", f"{id_col},{time_col}",
             "--report", str(reports["covariate_shift_report"]), *strict_flag,
         ]),
         ("reporting_bias_gate", [
-            args.python, str(scripts_dir / "reporting_bias_gate.py"),
+            args.python, str(scripts_dir / "gates/reporting_bias_gate.py"),
             "--checklist-spec", reporting_bias_checklist_spec,
             "--report", str(reports["reporting_bias_report"]), *strict_flag,
         ]),
@@ -525,7 +527,7 @@ def main() -> int:
         "definition_variable_guard",
         [
             args.python,
-            str(scripts_dir / "definition_variable_guard.py"),
+            str(scripts_dir / "gates/definition_variable_guard.py"),
             "--target",
             target_name,
             "--definition-spec",
@@ -547,7 +549,7 @@ def main() -> int:
         "feature_lineage_gate",
         [
             args.python,
-            str(scripts_dir / "feature_lineage_gate.py"),
+            str(scripts_dir / "gates/feature_lineage_gate.py"),
             "--target",
             target_name,
             "--definition-spec",
@@ -571,7 +573,7 @@ def main() -> int:
         "imbalance_policy_gate",
         [
             args.python,
-            str(scripts_dir / "imbalance_policy_gate.py"),
+            str(scripts_dir / "gates/imbalance_policy_gate.py"),
             "--policy-spec",
             imbalance_policy_spec,
             *split_args,
@@ -591,7 +593,7 @@ def main() -> int:
         "missingness_policy_gate",
         [
             args.python,
-            str(scripts_dir / "missingness_policy_gate.py"),
+            str(scripts_dir / "gates/missingness_policy_gate.py"),
             "--policy-spec",
             missingness_policy_spec,
             *split_args,
@@ -611,7 +613,7 @@ def main() -> int:
     # Step 12: tuning leakage gate
     tuning_cmd = [
         args.python,
-        str(scripts_dir / "tuning_leakage_gate.py"),
+        str(scripts_dir / "gates/tuning_leakage_gate.py"),
         "--tuning-spec",
         tuning_protocol_spec,
         "--id-col",
@@ -634,7 +636,7 @@ def main() -> int:
         "model_selection_audit_gate",
         [
             args.python,
-            str(scripts_dir / "model_selection_audit_gate.py"),
+            str(scripts_dir / "gates/model_selection_audit_gate.py"),
             "--model-selection-report",
             model_selection_report_file,
             "--tuning-spec",
@@ -658,7 +660,7 @@ def main() -> int:
         "feature_engineering_audit_gate",
         [
             args.python,
-            str(scripts_dir / "feature_engineering_audit_gate.py"),
+            str(scripts_dir / "gates/feature_engineering_audit_gate.py"),
             "--feature-group-spec",
             feature_group_spec,
             "--feature-engineering-report",
@@ -679,7 +681,7 @@ def main() -> int:
         "clinical_metrics_gate",
         [
             args.python,
-            str(scripts_dir / "clinical_metrics_gate.py"),
+            str(scripts_dir / "gates/clinical_metrics_gate.py"),
             "--evaluation-report",
             evaluation_report_file,
             "--external-validation-report",
@@ -698,7 +700,7 @@ def main() -> int:
         "prediction_replay_gate",
         [
             args.python,
-            str(scripts_dir / "prediction_replay_gate.py"),
+            str(scripts_dir / "gates/prediction_replay_gate.py"),
             "--evaluation-report",
             evaluation_report_file,
             "--prediction-trace",
@@ -717,7 +719,7 @@ def main() -> int:
         "distribution_generalization_gate",
         [
             args.python,
-            str(scripts_dir / "distribution_generalization_gate.py"),
+            str(scripts_dir / "gates/distribution_generalization_gate.py"),
             "--train",
             train,
             "--valid",
@@ -750,7 +752,7 @@ def main() -> int:
         "generalization_gap_gate",
         [
             args.python,
-            str(scripts_dir / "generalization_gap_gate.py"),
+            str(scripts_dir / "gates/generalization_gap_gate.py"),
             "--evaluation-report",
             evaluation_report_file,
             "--performance-policy",
@@ -767,7 +769,7 @@ def main() -> int:
         "robustness_gate",
         [
             args.python,
-            str(scripts_dir / "robustness_gate.py"),
+            str(scripts_dir / "gates/robustness_gate.py"),
             "--robustness-report",
             robustness_report_file,
             "--performance-policy",
@@ -784,7 +786,7 @@ def main() -> int:
         "seed_stability_gate",
         [
             args.python,
-            str(scripts_dir / "seed_stability_gate.py"),
+            str(scripts_dir / "gates/seed_stability_gate.py"),
             "--seed-sensitivity-report",
             seed_sensitivity_report_file,
             "--performance-policy",
@@ -803,7 +805,7 @@ def main() -> int:
             "external_validation_gate",
             [
                 args.python,
-                str(scripts_dir / "external_validation_gate.py"),
+                str(scripts_dir / "gates/external_validation_gate.py"),
                 "--external-validation-report",
                 external_validation_report_file,
                 "--prediction-trace",
@@ -827,7 +829,7 @@ def main() -> int:
         "calibration_dca_gate",
         [
             args.python,
-            str(scripts_dir / "calibration_dca_gate.py"),
+            str(scripts_dir / "gates/calibration_dca_gate.py"),
             "--prediction-trace",
             prediction_trace_file,
             "--evaluation-report",
@@ -848,7 +850,7 @@ def main() -> int:
         "ci_matrix_gate",
         [
             args.python,
-            str(scripts_dir / "ci_matrix_gate.py"),
+            str(scripts_dir / "gates/ci_matrix_gate.py"),
             "--evaluation-report",
             evaluation_report_file,
             "--prediction-trace",
@@ -869,7 +871,7 @@ def main() -> int:
     # Step 24: metric consistency gate
     metric_consistency_cmd = [
         args.python,
-        str(scripts_dir / "metric_consistency_gate.py"),
+        str(scripts_dir / "gates/metric_consistency_gate.py"),
         "--evaluation-report",
         evaluation_report_file,
         "--required-evaluation-split",
@@ -903,7 +905,7 @@ def main() -> int:
     # Step 25: evaluation quality gate
     evaluation_quality_cmd = [
         args.python,
-        str(scripts_dir / "evaluation_quality_gate.py"),
+        str(scripts_dir / "gates/evaluation_quality_gate.py"),
         "--evaluation-report",
         evaluation_report_file,
         "--ci-matrix-report",
@@ -936,7 +938,7 @@ def main() -> int:
         "permutation_significance_gate",
         [
             args.python,
-            str(scripts_dir / "permutation_significance_gate.py"),
+            str(scripts_dir / "gates/permutation_significance_gate.py"),
             "--metric-name",
             metric_name,
             "--actual",
@@ -959,7 +961,7 @@ def main() -> int:
         "fairness_equity_gate",
         [
             args.python,
-            str(scripts_dir / "fairness_equity_gate.py"),
+            str(scripts_dir / "gates/fairness_equity_gate.py"),
             "--evaluation-report",
             evaluation_report_file,
             "--report",
@@ -974,7 +976,7 @@ def main() -> int:
         "sample_size_gate",
         [
             args.python,
-            str(scripts_dir / "sample_size_gate.py"),
+            str(scripts_dir / "gates/sample_size_gate.py"),
             "--evaluation-report",
             evaluation_report_file,
             "--report",
@@ -989,7 +991,7 @@ def main() -> int:
         "publication_gate",
         [
             args.python,
-            str(scripts_dir / "publication_gate.py"),
+            str(scripts_dir / "gates/publication_gate.py"),
             "--request-report",
             str(reports["request_report"]),
             "--manifest",
@@ -1058,7 +1060,7 @@ def main() -> int:
         "security_audit_gate",
         [
             args.python,
-            str(scripts_dir / "security_audit_gate.py"),
+            str(scripts_dir / "gates/security_audit_gate.py"),
             "--evidence-dir",
             str(evidence_dir),
             "--report",
@@ -1073,7 +1075,7 @@ def main() -> int:
         "self_critique_gate",
         [
             args.python,
-            str(scripts_dir / "self_critique_gate.py"),
+            str(scripts_dir / "gates/self_critique_gate.py"),
             "--request-report",
             str(reports["request_report"]),
             "--manifest",

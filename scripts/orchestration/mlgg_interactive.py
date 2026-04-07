@@ -11,6 +11,8 @@ Supported commands:
 
 from __future__ import annotations
 
+import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core"); _sys.path.insert(0, _CORE_DIR) if _CORE_DIR not in _sys.path else None  # noqa: E702
+
 import argparse
 import csv as _csv_mod
 import importlib.util
@@ -26,7 +28,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from _gate_utils import load_json_from_path as load_json, write_json as atomic_write_json
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS_ROOT = REPO_ROOT / "scripts"
 EXPERIMENTS_ROOT = REPO_ROOT / "experiments" / "authority-e2e"
 PROFILE_CONTRACT_VERSION = "v1"
@@ -34,9 +36,9 @@ SUPPORTED_COMMANDS = ("init", "workflow", "train", "authority")
 PROMPT_AUTO_ACCEPT_DEFAULTS = False
 
 COMMAND_SCRIPT: Dict[str, Path] = {
-    "init": SCRIPTS_ROOT / "init_project.py",
-    "workflow": SCRIPTS_ROOT / "run_productized_workflow.py",
-    "train": SCRIPTS_ROOT / "train_select_evaluate.py",
+    "init": SCRIPTS_ROOT / "tools/init_project.py",
+    "workflow": SCRIPTS_ROOT / "orchestration/run_productized_workflow.py",
+    "train": SCRIPTS_ROOT / "tools/train_select_evaluate.py",
     "authority": EXPERIMENTS_ROOT / "run_authority_e2e.py",
 }
 
@@ -1049,7 +1051,7 @@ def run_auto_split(
     print_only: bool = False,
 ) -> Tuple[str, str, str, List[str]]:
     """Run split_data.py and return (train_path, valid_path, test_path, cmd)."""
-    split_script = str(SCRIPTS_ROOT / "split_data.py")
+    split_script = str(SCRIPTS_ROOT / "tools/split_data.py")
     cmd = [
         sys.executable, split_script,
         "--input", input_csv,

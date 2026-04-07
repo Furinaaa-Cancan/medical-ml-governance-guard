@@ -12,6 +12,10 @@ import pandas as pd
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "core"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "gates"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orchestration"))
 
 from cohort_definition_gate import (
     _classify_dtype,
@@ -243,7 +247,7 @@ class TestE2ESubprocess:
         path, _ = _make_csv(tmp_path, n=500, prevalence=0.15, n_features=5)
         report_path = tmp_path / "report.json"
         result = subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "cohort_definition_gate.py"),
+            [sys.executable, str(SCRIPTS_DIR / "gates/cohort_definition_gate.py"),
              "--data", str(path), "--target-col", "y", "--id-col", "patient_id",
              "--report", str(report_path), "--output-dir", str(tmp_path)],
             capture_output=True, text=True, timeout=30,
@@ -266,7 +270,7 @@ class TestE2ESubprocess:
         report_path = tmp_path / "report.json"
 
         result = subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "cohort_definition_gate.py"),
+            [sys.executable, str(SCRIPTS_DIR / "gates/cohort_definition_gate.py"),
              "--data", str(path), "--target-col", "y",
              "--report", str(report_path), "--output-dir", str(tmp_path)],
             capture_output=True, text=True, timeout=30,
@@ -291,7 +295,7 @@ class TestE2ESubprocess:
         report_path = tmp_path / "report.json"
 
         result = subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "cohort_definition_gate.py"),
+            [sys.executable, str(SCRIPTS_DIR / "gates/cohort_definition_gate.py"),
              "--data", str(path), "--target-col", "y",
              "--report", str(report_path), "--output-dir", str(tmp_path),
              "--strict"],

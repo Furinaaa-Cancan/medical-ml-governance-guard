@@ -15,9 +15,13 @@ from pathlib import Path
 
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
-GATE_SCRIPT = SCRIPTS_DIR / "metric_consistency_gate.py"
+GATE_SCRIPT = SCRIPTS_DIR / "gates/metric_consistency_gate.py"
 
 sys.path.insert(0, str(SCRIPTS_DIR))
+sys.path.insert(0, str(SCRIPTS_DIR / "core"))
+sys.path.insert(0, str(SCRIPTS_DIR / "gates"))
+sys.path.insert(0, str(SCRIPTS_DIR / "tools"))
+sys.path.insert(0, str(SCRIPTS_DIR / "orchestration"))
 import metric_consistency_gate as mcg
 
 

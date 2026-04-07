@@ -9,6 +9,10 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "core"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "gates"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orchestration"))
 import permutation_significance_gate as psg
 from permutation_significance_gate import (
     load_null_metrics,
@@ -134,7 +138,7 @@ class TestSummarize:
 class TestCLI:
     def _run(self, tmp_path, null_path, actual=0.85, metric_name="roc_auc", extra_args=None):
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "permutation_significance_gate.py"),
+            sys.executable, str(SCRIPTS_DIR / "gates/permutation_significance_gate.py"),
             "--metric-name", metric_name,
             "--actual", str(actual),
             "--null-metrics-file", str(null_path),

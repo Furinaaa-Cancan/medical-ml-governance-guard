@@ -55,7 +55,7 @@ class TestAdversarialDefinitionVariable:
         spec_path = _write_json(tmp_path / "phenotype.json", spec)
         report_path = tmp_path / "report.json"
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "definition_variable_guard.py"),
+            sys.executable, str(SCRIPTS_DIR / "gates/definition_variable_guard.py"),
             "--target", "disease_risk",
             "--definition-spec", str(spec_path),
             "--train", str(data / "train.csv"),
@@ -95,7 +95,7 @@ class TestAdversarialTuningLeakage:
         spec_path = _write_json(tmp_path / "tuning.json", spec)
         report_path = tmp_path / "report.json"
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "tuning_leakage_gate.py"),
+            sys.executable, str(SCRIPTS_DIR / "gates/tuning_leakage_gate.py"),
             "--tuning-spec", str(spec_path),
             "--id-col", "patient_id",
             "--has-valid-split",
@@ -131,7 +131,7 @@ class TestAdversarialMissingnessLeakage:
         spec_path = _write_json(tmp_path / "miss.json", spec)
         report_path = tmp_path / "report.json"
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "missingness_policy_gate.py"),
+            sys.executable, str(SCRIPTS_DIR / "gates/missingness_policy_gate.py"),
             "--policy-spec", str(spec_path),
             "--train", str(data / "train.csv"),
             "--valid", str(data / "valid.csv"),
@@ -164,7 +164,7 @@ class TestAdversarialImbalanceLeakage:
         spec_path = _write_json(tmp_path / "imb.json", spec)
         report_path = tmp_path / "report.json"
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "imbalance_policy_gate.py"),
+            sys.executable, str(SCRIPTS_DIR / "gates/imbalance_policy_gate.py"),
             "--policy-spec", str(spec_path),
             "--train", str(data / "train.csv"),
             "--valid", str(data / "valid.csv"),
@@ -195,7 +195,7 @@ class TestAdversarialLeakageOverlap:
         _make_csv(data / "test.csv", header, test)
         report_path = tmp_path / "report.json"
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "leakage_gate.py"),
+            sys.executable, str(SCRIPTS_DIR / "gates/leakage_gate.py"),
             "--train", str(data / "train.csv"),
             "--valid", str(data / "valid.csv"),
             "--test", str(data / "test.csv"),
@@ -232,7 +232,7 @@ class TestAdversarialEvaluationQuality:
         eval_path = _write_json(tmp_path / "eval.json", eval_data)
         report_path = tmp_path / "report.json"
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "evaluation_quality_gate.py"),
+            sys.executable, str(SCRIPTS_DIR / "gates/evaluation_quality_gate.py"),
             "--evaluation-report", str(eval_path),
             "--metric-name", "roc_auc",
             "--report", str(report_path),
@@ -252,7 +252,7 @@ class TestAdversarialPermutationInsignificant:
         null_path = _write_json(tmp_path / "null.json", null_values)
         report_path = tmp_path / "report.json"
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "permutation_significance_gate.py"),
+            sys.executable, str(SCRIPTS_DIR / "gates/permutation_significance_gate.py"),
             "--metric-name", "roc_auc",
             "--actual", "0.505",  # Barely above null mean
             "--null-metrics-file", str(null_path),

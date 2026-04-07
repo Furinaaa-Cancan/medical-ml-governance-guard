@@ -56,7 +56,7 @@ def test_onboarding_preview_report_contract() -> None:
         report = td / "onboarding_report.json"
         proc = run_cmd(
             [
-                str(SCRIPTS_DIR / "mlgg.py"),
+                str(SCRIPTS_DIR / "orchestration/mlgg.py"),
                 "onboarding",
                 "--project-root",
                 str(project),
@@ -95,7 +95,7 @@ def test_onboarding_preview_report_contract() -> None:
         assert_true("authority_research_heart" in copy_ready, "copy_ready_commands includes authority_research_heart")
         workflow_compare = str(copy_ready.get("workflow_compare", ""))
         assert_true(
-            str((SCRIPTS_DIR / "mlgg.py").resolve()) in workflow_compare,
+            str((SCRIPTS_DIR / "orchestration/mlgg.py").resolve()) in workflow_compare,
             "copy_ready workflow command uses absolute mlgg.py path",
         )
         steps = payload.get("steps")
@@ -110,7 +110,7 @@ def test_onboarding_preview_has_required_step_fields() -> None:
         report = td / "onboarding_report.json"
         proc = run_cmd(
             [
-                str(SCRIPTS_DIR / "mlgg.py"),
+                str(SCRIPTS_DIR / "orchestration/mlgg.py"),
                 "onboarding",
                 "--project-root",
                 str(project),

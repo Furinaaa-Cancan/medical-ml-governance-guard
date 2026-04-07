@@ -35,6 +35,8 @@ Usage examples:
 
 from __future__ import annotations
 
+import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core"); _sys.path.insert(0, _CORE_DIR) if _CORE_DIR not in _sys.path else None  # noqa: E702
+
 import argparse
 import concurrent.futures
 import json
@@ -476,7 +478,7 @@ def _build_manifest_cmd(
         spec = GATE_REGISTRY[name]
         cmd.append(str(scripts_dir / spec.script))
 
-    cmd.append(str(scripts_dir / "run_dag_pipeline.py"))
+    cmd.append(str(scripts_dir / "orchestration/run_dag_pipeline.py"))
 
     return cmd
 
@@ -679,7 +681,7 @@ def main() -> int:
         print(f"[FAIL] Request file not found: {request_path}", file=sys.stderr)
         return 2
 
-    scripts_dir = Path(__file__).resolve().parent
+    scripts_dir = Path(__file__).resolve().parent.parent
     cwd = Path.cwd()
     evidence_dir = resolve_path(cwd, args.evidence_dir)
     evidence_dir.mkdir(parents=True, exist_ok=True)
@@ -699,7 +701,7 @@ def main() -> int:
 
     request_cmd = [
         args.python,
-        str(scripts_dir / "request_contract_gate.py"),
+        str(scripts_dir / "gates/request_contract_gate.py"),
         "--request", str(request_path),
         "--report", str(report_paths["request_contract_gate"]),
     ]

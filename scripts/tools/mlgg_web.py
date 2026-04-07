@@ -16,6 +16,8 @@ Usage:
 
 from __future__ import annotations
 
+import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core"); _sys.path.insert(0, _CORE_DIR) if _CORE_DIR not in _sys.path else None  # noqa: E702
+
 import json
 import os
 import queue
@@ -47,7 +49,7 @@ except ImportError:
     raise SystemExit(1)
 
 # ── paths ──────────────────────────────────────────────────────────────────────
-SCRIPTS_DIR = Path(__file__).resolve().parent
+SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 REPO_ROOT = SCRIPTS_DIR.parent
 UPLOAD_DIR = Path(tempfile.mkdtemp(prefix="mlgg_web_"))
 PYTHON = sys.executable
@@ -591,7 +593,7 @@ def _start_split(sid: str, session: Dict[str, Any]) -> None:
     csv_path = session["csv_path"]
     cmd = [
         PYTHON,
-        str(SCRIPTS_DIR / "split_data.py"),
+        str(SCRIPTS_DIR / "tools/split_data.py"),
         "--input", csv_path,
         "--output-dir", str(Path(project) / "data"),
         "--patient-id-col", session["patient_id_col"],
@@ -611,7 +613,7 @@ def _start_train(sid: str, session: Dict[str, Any]) -> None:
     evidence_dir.mkdir(parents=True, exist_ok=True)
     cmd = [
         PYTHON,
-        str(SCRIPTS_DIR / "train_select_evaluate.py"),
+        str(SCRIPTS_DIR / "tools/train_select_evaluate.py"),
         "--train", str(data_dir / "train.csv"),
         "--test", str(data_dir / "test.csv"),
         "--target-col", session["target_col"],
@@ -645,7 +647,7 @@ def _start_pipeline(sid: str, session: Dict[str, Any]) -> None:
             return
         cmd = [
             PYTHON,
-            str(SCRIPTS_DIR / "run_dag_pipeline.py"),
+            str(SCRIPTS_DIR / "orchestration/run_dag_pipeline.py"),
             "--request", str(request_json),
             "--evidence-dir", str(evidence_dir),
             "--strict",

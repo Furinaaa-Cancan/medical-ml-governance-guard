@@ -13,6 +13,10 @@ import pytest
 
 # Ensure scripts/ is importable
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "core"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "gates"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orchestration"))
 from split_data import (
     _temp_col_name,
     file_sha256,
@@ -653,7 +657,7 @@ class TestCLI:
                    time_col: str = "", extra_args: Optional[list] = None) -> subprocess.CompletedProcess:
         out_dir = tmp_path / "output" / "data"
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "split_data.py"),
+            sys.executable, str(SCRIPTS_DIR / "tools/split_data.py"),
             "--input", str(csv_path),
             "--output-dir", str(out_dir),
             "--patient-id-col", "patient_id",
