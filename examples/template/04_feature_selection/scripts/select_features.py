@@ -391,7 +391,10 @@ def main():
     print("[x] Feature selection on training set only (MLGG-F03)")
     print("[x] Univariate pre-screening NOT used (MLGG-F04, Heinze 2018)")
     print(f"[x] Elastic Net Stability Selection + Group LASSO + Ridge baseline (MLGG-F06)")
-    print(f"[{'x' if epv_adequate else ' '}] EPV >= 10 after selection (MLGG-Z01)")
+    if epv_adequate:
+        print("[x] EPV >= 10 after selection (MLGG-Z01)")
+    else:
+        print("[ ] EPV < 10 after selection (MLGG-Z01) — declare in Limitations, not a blocker")
     if expected_false < float("inf"):
         print(f"[i] False selection bound E[V] <= {expected_false:.2f} "
               f"(Meinshausen & Buhlmann 2010)")

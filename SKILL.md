@@ -1504,7 +1504,11 @@ Riley 2019 三准则（`riley_sample_size()` in `cohort_definition_gate.py`）�
 - C1: 收缩因子 S ≥ 0.9 → n ≥ p / ((1-S) × φ)
 - C2: R² optimism ≤ 0.05 → n ≥ p / 0.05
 - C3: 风险精度 CI 半宽 ≤ 0.05 → n ≥ φ(1-φ) / (0.05/1.96)²
-- 取三者最大值。EPV < 5 → FAIL，5-10 → WARNING
+- 取三者最大值。**作为参考建议，不硬性阻断**：
+  - EPV < 5 → WARNING（强烈建议减特征或增数据，结论标注 exploratory）
+  - EPV 5-10 → INFO（在 Limitations 中声明）
+  - Riley 不满足 → INFO（解释风险，不阻断）
+  - 注：Riley 对小样本/罕见病过于严格，NC/NM 发表的论文也常达不到
 
 ### 划分（Phase 2）
 
@@ -1574,7 +1578,7 @@ NZV 过滤 → Ridge 基线(CV调优) → Stability Selection(Elastic Net + Grou
 - **MLGG-F03** [CRITICAL]: 特征选择只在训练集上进行
 - **MLGG-F04** [WARNING]: 不得使用单因素 p 值筛选（Heinze 2018）
 - **MLGG-F06** [WARNING]: 必须与 Ridge 全量模型对照
-- **MLGG-Z01** [CRITICAL]: 选择后 EPV 仍 ≥ 10
+- **MLGG-Z01** [WARNING]: 选择后 EPV 建议 ≥ 10（不满足需在 Limitations 声明，不硬性阻断）
 
 **Peer Review 证据**（来自 peer-review-kb.json）：
 - 107 篇 NC 论文中，审稿人对特征选择的常见质疑：
