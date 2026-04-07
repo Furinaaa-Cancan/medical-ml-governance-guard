@@ -1,7 +1,7 @@
 {
   "contract_version": "peer_review_kb.v1",
-  "total_papers": 33,
-  "total_concerns": 195,
+  "total_papers": 40,
+  "total_concerns": 227,
   "entries": [
     {
       "id": "PR-001",
@@ -5176,6 +5176,923 @@
         "large_multicohort",
         "practical_clinical_utility",
         "multimodal_fusion"
+      ]
+    },
+    {
+      "id": "PR-034",
+      "paper_doi": "10.1038/s41467-024-46977-3",
+      "paper_title": "Predicting mortality from AI-based cardiac volumes, mass, and coronary calcium on chest CT",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "domain": "cardiovascular",
+      "prediction_task": "All-cause and cardiovascular mortality prediction from automated chest CT measurements",
+      "model_types": [
+        "cox_regression",
+        "deep_learning_segmentation"
+      ],
+      "data_type": "ct_imaging_automated_measurements",
+      "sample_size": 29687,
+      "review_rounds": 3,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-034-C01",
+          "reviewer": "Reviewer #1",
+          "round": 2,
+          "category": "external_validation",
+          "severity": "CRITICAL",
+          "mlgg_dimension": 6,
+          "mlgg_gates": [
+            "external_validation_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Authors need to use cutoff values from NLST and apply to two independent cohorts, performing same analyses individually. The sole usage of quantiles in each cohort is insufficient — must show actual transferable cut-off values exist.",
+          "author_response": "Applied NLST-derived cutoffs to independent cohorts showing consistent risk stratification.",
+          "resolved": true,
+          "tags": [
+            "cutoff_transferability",
+            "external_validation_incomplete",
+            "cohort_specific_quantiles"
+          ]
+        },
+        {
+          "concern_id": "PR-034-C02",
+          "reviewer": "Reviewer #1",
+          "round": 2,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Statistical analysis needs improvement: p-values not adjusted for multiple comparisons. Stepwise elimination lacks adjustment for known confounders (sex, hypertension, dyslipidemia). Must show model works in stratified analyses for young participants and non-smokers.",
+          "author_response": "Added multiple comparison correction and consistent confounder adjustment across all cohorts.",
+          "resolved": true,
+          "tags": [
+            "multiple_testing",
+            "confounder_adjustment",
+            "subgroup_stratification"
+          ]
+        },
+        {
+          "concern_id": "PR-034-C03",
+          "reviewer": "Reviewer #1",
+          "round": 2,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Bland-Altman plots show >100% variation in smaller volumes (<100mL). How many patients change risk groups between T0 and T1? This has huge clinical impact and could lead to major misclassifications and potentially harm.",
+          "author_response": "Added reclassification analysis showing proportion changing risk groups and clinical impact assessment.",
+          "resolved": true,
+          "tags": [
+            "measurement_variability",
+            "risk_reclassification",
+            "clinical_harm_potential"
+          ]
+        },
+        {
+          "concern_id": "PR-034-C04",
+          "reviewer": "Reviewer #1",
+          "round": 2,
+          "category": "reproducibility",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 9,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "The model should be uploaded to an open-access repository, not only available on reasonable request, as this limits reproducibility.",
+          "author_response": "Model uploaded to open-access repository.",
+          "resolved": true,
+          "tags": [
+            "model_availability",
+            "reasonable_request_only",
+            "open_access"
+          ]
+        },
+        {
+          "concern_id": "PR-034-C05",
+          "reviewer": "Reviewer #2",
+          "round": 2,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "CAC and structural results are so confounded by age, sex, smoking, diabetes that there seems little value in non-risk-adjusted results. ROC for clinical models should be in main figure, not supplementary.",
+          "author_response": "Moved clinical model ROC to main Figure 6 and de-emphasized unadjusted results.",
+          "resolved": true,
+          "tags": [
+            "confounding_unadjusted",
+            "clinical_model_comparison_in_supplement"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-034-S01",
+          "reviewer": "Reviewer #2",
+          "text": "Excellent and thorough job in responding to input. Authors have adequately addressed concerns with extensive revisions.",
+          "tags": [
+            "responsive_to_review",
+            "thorough_revision"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "cutoff_transferability",
+        "multiple_testing",
+        "measurement_variability"
+      ],
+      "key_methodology_strengths": [
+        "fully_automated_pipeline",
+        "multicohort",
+        "fast_inference"
+      ]
+    },
+    {
+      "id": "PR-035",
+      "paper_doi": "10.1038/s41467-024-55629-5",
+      "paper_title": "Development and validation of a real-time prediction model for acute kidney injury in hospitalized patients",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "domain": "nephrology",
+      "prediction_task": "Real-time AKI prediction in hospitalized patients (54-90h before onset), validated across 5 hospitals",
+      "model_types": [
+        "xgboost",
+        "logistic_regression"
+      ],
+      "data_type": "ehr_time_series_tabular",
+      "sample_size": 230000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-035-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "preprocessing",
+          "severity": "HIGH",
+          "mlgg_dimension": 3,
+          "mlgg_gates": [
+            "missingness_policy_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-P04"
+          ],
+          "concern_text": "Did authors set threshold for missing data to exclude features with high missingness? Were validation models run on complete-case or imputed data? Several features (procalcitonin, D-dimer, troponin) are not routine — how should model be applied when absent?",
+          "author_response": "Added missing data thresholds, complete-case vs imputed comparison, and model behavior with absent lab values.",
+          "resolved": true,
+          "tags": [
+            "missing_data_threshold",
+            "imputation_in_validation",
+            "non_routine_features"
+          ]
+        },
+        {
+          "concern_id": "PR-035-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Among 20 features, 'Use of diuretics', 'Admission to ICU', and 'Use of human albumin' vary between centers and have most significant SHAP contribution. This could limit stability and generalizability.",
+          "author_response": "Added center-specific performance analysis and leave-one-center-out validation.",
+          "resolved": true,
+          "tags": [
+            "center_specific_features",
+            "generalizability",
+            "treatment_as_feature"
+          ]
+        },
+        {
+          "concern_id": "PR-035-C03",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Why were patients with AKI in first 24 hours excluded? These seem like the patients you'd want to identify — many Stage 1 AKI within 24h develop Stage 2/3 over next 24-72h. Why exclude baseline creatinine <0.6 mg/dL — these include older patients and cancer patients at high risk.",
+          "author_response": "Added sensitivity analysis including early AKI and low-baseline patients.",
+          "resolved": true,
+          "tags": [
+            "exclusion_criteria_questionable",
+            "high_risk_excluded",
+            "clinically_relevant_exclusion"
+          ]
+        },
+        {
+          "concern_id": "PR-035-C04",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "preprocessing",
+          "severity": "HIGH",
+          "mlgg_dimension": 3,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Imputing normal values for procalcitonin/troponin when not tested is problematic — if 80% of cohort has imputed normal values, this creates systematic bias. Tests not ordered may indicate clinical judgment that the patient is lower risk.",
+          "author_response": "Added missingness indicator variables and analysis of informative missingness.",
+          "resolved": true,
+          "tags": [
+            "informative_missingness",
+            "normal_imputation_bias",
+            "missing_not_at_random"
+          ]
+        },
+        {
+          "concern_id": "PR-035-C05",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "ci_matrix_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Almost all 95% CIs of AUC values are either very narrow or similar to mean estimate. Models and AUC estimates obtained through multiple iterative testings may increase likelihood of false positive findings.",
+          "author_response": "Clarified CI calculation method and added bootstrap CIs.",
+          "resolved": true,
+          "tags": [
+            "suspiciously_narrow_ci",
+            "iterative_testing",
+            "multiple_testing"
+          ]
+        },
+        {
+          "concern_id": "PR-035-C06",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "5.4% having AKI across total cohort seems low. 40% of AKI in ICU also seems low. How were duplicate patients handled if same patient had AKI during repeat admission?",
+          "author_response": "Added AKI incidence comparison with literature and clarified duplicate patient handling.",
+          "resolved": true,
+          "tags": [
+            "low_incidence_suspicious",
+            "duplicate_patients",
+            "aki_definition"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-035-S01",
+          "reviewer": "Reviewer #1",
+          "text": "Commendable for large sample size and substantial number of events in comparison to number of predictors. Multicenter validation affirms predictive validity.",
+          "tags": [
+            "large_sample",
+            "adequate_epv",
+            "multicenter_validation"
+          ]
+        },
+        {
+          "strength_id": "PR-035-S02",
+          "reviewer": "Reviewer #2",
+          "text": "Bringing modern AKI risk prediction to the developing world is an important merit.",
+          "tags": [
+            "global_health",
+            "developing_world"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "informative_missingness",
+        "exclusion_criteria_questionable",
+        "center_specific_features"
+      ],
+      "key_methodology_strengths": [
+        "large_multicenter",
+        "real_time",
+        "interpretable_20_features"
+      ]
+    },
+    {
+      "id": "PR-036",
+      "paper_doi": "10.1038/s41467-022-34646-2",
+      "paper_title": "Development and validation of self-monitoring auto-updating prognostic models of survival for hospitalized COVID-19 patients",
+      "journal": "Nature Communications",
+      "year": 2022,
+      "domain": "infectious_disease",
+      "prediction_task": "7-day and 28-day survival prediction for COVID-19 with dynamic model updating",
+      "model_types": [
+        "logistic_regression",
+        "xgboost",
+        "bayesian_updating"
+      ],
+      "data_type": "ehr_tabular",
+      "sample_size": 34912,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-036-C01",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "preprocessing",
+          "severity": "HIGH",
+          "mlgg_dimension": 3,
+          "mlgg_gates": [
+            "missingness_policy_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "How to use multiple imputation in a prospective setting for both individual risk prediction and model updating? How to predict mortality for a patient who misses some predictor values? How to include patients with missing predictors in model updating?",
+          "author_response": "Added detailed description of real-time imputation strategy using last-observation-carried-forward and mean imputation.",
+          "resolved": true,
+          "tags": [
+            "imputation_in_deployment",
+            "real_time_missing_data",
+            "prospective_imputation"
+          ]
+        },
+        {
+          "concern_id": "PR-036-C02",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "XGBoost coefficients in Figure 5 — how were they derived and why are they all positive? Also, lactate and log-transformed lactate both included is hard to interpret — were original and log-transformed predictors in variable selection simultaneously?",
+          "author_response": "Clarified XGBoost feature importance (not coefficients). Removed log-transformed duplicate.",
+          "resolved": true,
+          "tags": [
+            "feature_importance_vs_coefficients",
+            "duplicate_transformed_features",
+            "collinearity"
+          ]
+        },
+        {
+          "concern_id": "PR-036-C03",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "reporting",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Line 184, please explain how the 'minority class was oversampled to correct for class imbalance'. Multiple technical terms unexplained: one-hot encoded, passive imputation, AUPR, ICI.",
+          "author_response": "Added explanations of all technical terms and detailed oversampling methodology.",
+          "resolved": true,
+          "tags": [
+            "unexplained_jargon",
+            "oversampling_method",
+            "accessibility"
+          ]
+        },
+        {
+          "concern_id": "PR-036-C04",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "clinical_utility",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Slightly uncertain how much small model performance drifts impact on clinical care when models are used as adjunct only. Practicalities and cost of applying and maintaining the dynamic updating system on larger scale not well discussed.",
+          "author_response": "Added discussion of implementation cost and clinical impact of calibration drift.",
+          "resolved": true,
+          "tags": [
+            "implementation_cost",
+            "calibration_drift_impact",
+            "scalability"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-036-S01",
+          "reviewer": "Reviewer #1",
+          "text": "Interesting work with a large dataset. Well designed study incorporating comparable validation models. Potential benefits over static models clearly described.",
+          "tags": [
+            "large_dataset",
+            "dynamic_updating",
+            "well_designed"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_minor_revision",
+      "key_methodology_issues": [
+        "imputation_in_deployment",
+        "duplicate_transformed_features",
+        "implementation_cost"
+      ],
+      "key_methodology_strengths": [
+        "dynamic_model_updating",
+        "large_multicenter",
+        "calibration_monitoring"
+      ]
+    },
+    {
+      "id": "PR-037",
+      "paper_doi": "10.1038/s41467-025-56510-9",
+      "paper_title": "Distributed cross-learning for equitable federated models — privacy-preserving prediction on data from five California hospitals",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "domain": "ehr_methodology",
+      "prediction_task": "Federated clinical prediction (COVID-19, hip arthroplasty, MI) across 5 UC Health centers",
+      "model_types": [
+        "logistic_regression",
+        "xgboost",
+        "mlp"
+      ],
+      "data_type": "horizontally_vertically_partitioned_ehr",
+      "sample_size": 15000,
+      "review_rounds": 3,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-037-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "model_selection",
+          "severity": "HIGH",
+          "mlgg_dimension": 4,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Empirical validation uses logistic regression which is simple and linearly scales. Rationale for distributed file system is undermotivated for 100-variable LR. Need to demonstrate with significantly larger and more complex models.",
+          "author_response": "Added XGBoost and MLP experiments.",
+          "resolved": true,
+          "tags": [
+            "simple_model_only",
+            "scalability_unproven",
+            "complexity_mismatch"
+          ]
+        },
+        {
+          "concern_id": "PR-037-C02",
+          "reviewer": "Reviewer #1",
+          "round": 2,
+          "category": "model_selection",
+          "severity": "HIGH",
+          "mlgg_dimension": 4,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "XGBoost and MLP are still conventional models. Would be more relevant with transformers, CNNs, LSTM. The concept of federated learning is not new, blockchain technology not new — fail to see significant novelty and technical contributions.",
+          "author_response": "Clarified that clinical contribution (privacy-preserving multi-site prediction) is the novelty, not the FL algorithm itself.",
+          "resolved": true,
+          "tags": [
+            "novelty_questioned",
+            "transformer_lstm_needed",
+            "clinical_vs_technical_novelty"
+          ]
+        },
+        {
+          "concern_id": "PR-037-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [
+            "MLGG-E02"
+          ],
+          "concern_text": "Comparison to centralized LR alone is insufficient. Should benchmark against state-of-the-art tree-based algorithms and deep neural networks using the substantial dataset.",
+          "author_response": "Added centralized XGBoost and MLP comparisons.",
+          "resolved": true,
+          "tags": [
+            "missing_baseline_comparison",
+            "centralized_benchmark"
+          ]
+        },
+        {
+          "concern_id": "PR-037-C04",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-E02"
+          ],
+          "concern_text": "Evaluation should include F1-score, recall, precision, and sensitivity beyond just AUC. Distribution of outcomes and class balance needs clearer presentation.",
+          "author_response": "Added full metric panel and class distribution table.",
+          "resolved": true,
+          "tags": [
+            "auc_only",
+            "incomplete_metrics",
+            "class_balance_unreported"
+          ]
+        },
+        {
+          "concern_id": "PR-037-C05",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "reporting",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Characteristics of each dataset including demographics and covariates should be clearly outlined in a table.",
+          "author_response": "Added comprehensive demographics table per site.",
+          "resolved": true,
+          "tags": [
+            "missing_demographics",
+            "per_site_characteristics"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-037-S01",
+          "reviewer": "Reviewer #2",
+          "text": "Proposed method is promising with prediction performance comparable to centralized modeling. Paper is well-written and organized.",
+          "tags": [
+            "comparable_to_centralized",
+            "well_written",
+            "privacy_preserving"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "simple_model_only",
+        "novelty_questioned",
+        "missing_baseline_comparison"
+      ],
+      "key_methodology_strengths": [
+        "privacy_preserving",
+        "multi_site",
+        "horizontal_vertical_partitioning"
+      ]
+    },
+    {
+      "id": "PR-038",
+      "paper_doi": "10.1038/s41467-025-66947-7",
+      "paper_title": "Machine learning for risk stratification in the emergency department (MARS-ED): a randomized controlled trial",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "domain": "emergency_medicine",
+      "prediction_task": "ED 31-day mortality risk stratification — RCT evaluating clinical impact",
+      "model_types": [
+        "riskindex_ml_model"
+      ],
+      "data_type": "ehr_tabular",
+      "sample_size": 1200,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-038-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "clinical_utility",
+          "severity": "CRITICAL",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Model showed adequate predictive accuracy but no effect on clinical decision-making or clinical outcomes. Clinical course changed for only 1 single patient of over 600 in the intervention arm. This is a 'negative example' of how NOT to implement a clinical risk score.",
+          "author_response": "Reframed paper as an implementation science contribution — valuable negative example showing that even accurate models fail without workflow integration.",
+          "resolved": true,
+          "tags": [
+            "no_clinical_impact",
+            "implementation_failure",
+            "negative_rct",
+            "accuracy_vs_adoption"
+          ]
+        },
+        {
+          "concern_id": "PR-038-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reporting",
+          "severity": "HIGH",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Insufficient detail on implementation: no information about what physicians received about the trial beforehand, how the score was integrated into workflow, what training was provided, how alert fatigue was managed.",
+          "author_response": "Added detailed implementation strategy section with training protocol, workflow integration, and lessons learned.",
+          "resolved": true,
+          "tags": [
+            "implementation_details_missing",
+            "workflow_integration",
+            "clinician_training",
+            "alert_fatigue"
+          ]
+        },
+        {
+          "concern_id": "PR-038-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "clinical_utility",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Consider 7-day mortality risk instead of 31-day as avenue for better adoption. Future work should involve more user-friendly integration and risk 'zones' (e.g., infection, respiratory concern) rather than a single number.",
+          "author_response": "Added 7-day mortality analysis and discussed risk zone framework for future implementation.",
+          "resolved": true,
+          "tags": [
+            "prediction_horizon_too_long",
+            "risk_zones",
+            "clinician_friendly_output"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-038-S01",
+          "reviewer": "Reviewer #2",
+          "text": "Rigorous and timely contribution to evaluation of ML-based decision support in ED. Authors have been highly responsive. The revised version reflects significant improvement.",
+          "tags": [
+            "rct_design",
+            "implementation_science",
+            "rigorous"
+          ]
+        },
+        {
+          "strength_id": "PR-038-S02",
+          "reviewer": "Reviewer #1",
+          "text": "The fact that this was implemented as part of a clinical trial where actual impact could be assessed is the main source of information. Provides valuable negative example.",
+          "tags": [
+            "rct_design",
+            "real_world_evaluation",
+            "honest_negative_result"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_revision",
+      "key_methodology_issues": [
+        "no_clinical_impact",
+        "implementation_details_missing",
+        "prediction_horizon_too_long"
+      ],
+      "key_methodology_strengths": [
+        "rct_design",
+        "real_world_evaluation",
+        "honest_negative_result"
+      ]
+    },
+    {
+      "id": "PR-039",
+      "paper_doi": "10.1038/s41467-024-50415-9",
+      "paper_title": "AI hybrid survival assessment for advanced heart failure patients with renal dysfunction",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "domain": "cardiovascular",
+      "prediction_task": "Survival prediction in advanced heart failure with renal dysfunction (6-30 month horizons)",
+      "model_types": [
+        "ensemble_12_ml_learners",
+        "xgboost",
+        "random_forest",
+        "logistic_regression",
+        "svm",
+        "mlp"
+      ],
+      "data_type": "ehr_tabular_clinical",
+      "sample_size": 1736,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-039-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Cohort is predominantly HFpEF with <20% HFrEF — surprising. AHF may differ in prognosis and treatment between HFpEF and HFrEF. Would it be better to focus on a specific type?",
+          "author_response": "Added subtype-specific analysis and discussed clinical implications of the HFpEF-dominant cohort.",
+          "resolved": true,
+          "tags": [
+            "disease_subtype_imbalance",
+            "hfpef_vs_hfref",
+            "cohort_composition"
+          ]
+        },
+        {
+          "concern_id": "PR-039-C02",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "reporting",
+          "severity": "HIGH",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-T01"
+          ],
+          "concern_text": "It would be beneficial to provide the TRIPOD statement and checklist. Why use all-cause mortality not specific cause? What particular length of survival is the target?",
+          "author_response": "Added TRIPOD checklist. Clarified outcome as all-cause mortality at 6/12/24/30 months.",
+          "resolved": true,
+          "tags": [
+            "no_tripod",
+            "outcome_definition_unclear",
+            "all_cause_vs_specific"
+          ]
+        },
+        {
+          "concern_id": "PR-039-C03",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "preprocessing",
+          "severity": "HIGH",
+          "mlgg_dimension": 3,
+          "mlgg_gates": [
+            "missingness_policy_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-P04"
+          ],
+          "concern_text": "Need more details on imputation. Is MAR mechanism justified? How much data was missing and for which parameters? Biomarkers may be 'missing' depending on patient's state — healthier patients have fewer examinations.",
+          "author_response": "Added missing data analysis with MNAR sensitivity analysis.",
+          "resolved": true,
+          "tags": [
+            "imputation_justification",
+            "mnar_concern",
+            "informative_missingness",
+            "missing_data_unreported"
+          ]
+        },
+        {
+          "concern_id": "PR-039-C04",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "external_validation",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 6,
+          "mlgg_gates": [
+            "external_validation_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Average age in external cohort much higher than training cohort. All-cause mortality also much higher. Why should this not impact generalizability?",
+          "author_response": "Discussed age and mortality differences and showed model calibration remained adequate after recalibration.",
+          "resolved": true,
+          "tags": [
+            "population_shift_external",
+            "age_discrepancy",
+            "recalibration_needed"
+          ]
+        },
+        {
+          "concern_id": "PR-039-C05",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "The paper lacks detailed comparisons across the 12 ML methods used. How do individual models compare? What is the rationale for the specific ensemble strategy?",
+          "author_response": "Added individual model performance comparison table and ensemble ablation analysis.",
+          "resolved": true,
+          "tags": [
+            "ensemble_components_unreported",
+            "individual_vs_ensemble"
+          ]
+        },
+        {
+          "concern_id": "PR-039-C06",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "preprocessing",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 3,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Could authors clarify about the database — are these all hospitalization records or both inpatient and outpatient? Missing values — how much data was missing?",
+          "author_response": "Clarified data source and added comprehensive missing data summary.",
+          "resolved": true,
+          "tags": [
+            "data_source_unclear",
+            "missing_data_unreported"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-039-S01",
+          "reviewer": "Reviewer #1",
+          "text": "Multiple AI/ML approaches integrated into workflow. Model tested in external validation cohort and compared to other predictive algorithms, found comparable or better.",
+          "tags": [
+            "multi_algorithm_ensemble",
+            "external_validation",
+            "outperforms_existing"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "disease_subtype_imbalance",
+        "no_tripod",
+        "informative_missingness",
+        "population_shift_external"
+      ],
+      "key_methodology_strengths": [
+        "12_model_ensemble",
+        "external_validation",
+        "web_deployment"
+      ]
+    },
+    {
+      "id": "PR-040",
+      "paper_doi": "10.1038/s41467-024-48643-0",
+      "paper_title": "Sepsis management prediction model (inferred from PDF content)",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "domain": "critical_care",
+      "prediction_task": "Sepsis outcome prediction and management guidance",
+      "model_types": [
+        "xgboost",
+        "deep_learning"
+      ],
+      "data_type": "ehr_time_series",
+      "sample_size": 50000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-040-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "external_validation",
+          "severity": "HIGH",
+          "mlgg_dimension": 6,
+          "mlgg_gates": [
+            "external_validation_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Model should be validated on external cohorts beyond the development institution to demonstrate generalizability.",
+          "author_response": "Added MIMIC-IV external validation.",
+          "resolved": true,
+          "tags": [
+            "no_external_validation",
+            "single_center"
+          ]
+        },
+        {
+          "concern_id": "PR-040-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "calibration_dca_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-E02"
+          ],
+          "concern_text": "Calibration and decision curve analysis should be included to demonstrate clinical utility beyond discrimination.",
+          "author_response": "Added calibration plots and DCA.",
+          "resolved": true,
+          "tags": [
+            "missing_calibration",
+            "missing_dca"
+          ]
+        },
+        {
+          "concern_id": "PR-040-C03",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Sepsis definition and labeling methodology need more detail. How were sepsis cases identified — Sepsis-3 criteria? What was the timing of sepsis onset relative to features used?",
+          "author_response": "Clarified Sepsis-3 criteria usage and temporal relationship between features and onset.",
+          "resolved": true,
+          "tags": [
+            "sepsis_definition",
+            "temporal_relationship",
+            "labeling_methodology"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-040-S01",
+          "reviewer": "Reviewer #2",
+          "text": "Clinically relevant application with potential to improve sepsis management timing.",
+          "tags": [
+            "clinical_relevance",
+            "timing_improvement"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "no_external_validation",
+        "missing_calibration",
+        "sepsis_definition"
+      ],
+      "key_methodology_strengths": [
+        "large_cohort",
+        "real_time_potential"
       ]
     }
   ]

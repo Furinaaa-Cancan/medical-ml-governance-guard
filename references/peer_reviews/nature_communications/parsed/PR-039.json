@@ -1,0 +1,27 @@
+{
+  "id": "PR-039",
+  "paper_doi": "10.1038/s41467-024-50415-9",
+  "paper_title": "AI hybrid survival assessment for advanced heart failure patients with renal dysfunction",
+  "journal": "Nature Communications",
+  "year": 2024,
+  "domain": "cardiovascular",
+  "prediction_task": "Survival prediction in advanced heart failure with renal dysfunction (6-30 month horizons)",
+  "model_types": ["ensemble_12_ml_learners", "xgboost", "random_forest", "logistic_regression", "svm", "mlp"],
+  "data_type": "ehr_tabular_clinical",
+  "sample_size": 1736,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-039-C01", "reviewer": "Reviewer #1", "round": 1, "category": "study_design", "severity": "HIGH", "mlgg_dimension": 1, "mlgg_gates": ["cohort_definition_gate"], "mlgg_rules": [], "concern_text": "Cohort is predominantly HFpEF with <20% HFrEF — surprising. AHF may differ in prognosis and treatment between HFpEF and HFrEF. Would it be better to focus on a specific type?", "author_response": "Added subtype-specific analysis and discussed clinical implications of the HFpEF-dominant cohort.", "resolved": true, "tags": ["disease_subtype_imbalance", "hfpef_vs_hfref", "cohort_composition"]},
+    {"concern_id": "PR-039-C02", "reviewer": "Reviewer #2", "round": 1, "category": "reporting", "severity": "HIGH", "mlgg_dimension": 8, "mlgg_gates": ["reporting_bias_gate"], "mlgg_rules": ["MLGG-T01"], "concern_text": "It would be beneficial to provide the TRIPOD statement and checklist. Why use all-cause mortality not specific cause? What particular length of survival is the target?", "author_response": "Added TRIPOD checklist. Clarified outcome as all-cause mortality at 6/12/24/30 months.", "resolved": true, "tags": ["no_tripod", "outcome_definition_unclear", "all_cause_vs_specific"]},
+    {"concern_id": "PR-039-C03", "reviewer": "Reviewer #2", "round": 1, "category": "preprocessing", "severity": "HIGH", "mlgg_dimension": 3, "mlgg_gates": ["missingness_policy_gate"], "mlgg_rules": ["MLGG-P04"], "concern_text": "Need more details on imputation. Is MAR mechanism justified? How much data was missing and for which parameters? Biomarkers may be 'missing' depending on patient's state — healthier patients have fewer examinations.", "author_response": "Added missing data analysis with MNAR sensitivity analysis.", "resolved": true, "tags": ["imputation_justification", "mnar_concern", "informative_missingness", "missing_data_unreported"]},
+    {"concern_id": "PR-039-C04", "reviewer": "Reviewer #2", "round": 1, "category": "external_validation", "severity": "MEDIUM", "mlgg_dimension": 6, "mlgg_gates": ["external_validation_gate"], "mlgg_rules": [], "concern_text": "Average age in external cohort much higher than training cohort. All-cause mortality also much higher. Why should this not impact generalizability?", "author_response": "Discussed age and mortality differences and showed model calibration remained adequate after recalibration.", "resolved": true, "tags": ["population_shift_external", "age_discrepancy", "recalibration_needed"]},
+    {"concern_id": "PR-039-C05", "reviewer": "Reviewer #3", "round": 1, "category": "evaluation_metrics", "severity": "MEDIUM", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "The paper lacks detailed comparisons across the 12 ML methods used. How do individual models compare? What is the rationale for the specific ensemble strategy?", "author_response": "Added individual model performance comparison table and ensemble ablation analysis.", "resolved": true, "tags": ["ensemble_components_unreported", "individual_vs_ensemble"]},
+    {"concern_id": "PR-039-C06", "reviewer": "Reviewer #1", "round": 1, "category": "preprocessing", "severity": "MEDIUM", "mlgg_dimension": 3, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Could authors clarify about the database — are these all hospitalization records or both inpatient and outpatient? Missing values — how much data was missing?", "author_response": "Clarified data source and added comprehensive missing data summary.", "resolved": true, "tags": ["data_source_unclear", "missing_data_unreported"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-039-S01", "reviewer": "Reviewer #1", "text": "Multiple AI/ML approaches integrated into workflow. Model tested in external validation cohort and compared to other predictive algorithms, found comparable or better.", "tags": ["multi_algorithm_ensemble", "external_validation", "outperforms_existing"]}
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["disease_subtype_imbalance", "no_tripod", "informative_missingness", "population_shift_external"],
+  "key_methodology_strengths": ["12_model_ensemble", "external_validation", "web_deployment"]
+}

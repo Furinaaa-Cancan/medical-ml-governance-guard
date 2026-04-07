@@ -1,0 +1,26 @@
+{
+  "id": "PR-037",
+  "paper_doi": "10.1038/s41467-025-56510-9",
+  "paper_title": "Distributed cross-learning for equitable federated models — privacy-preserving prediction on data from five California hospitals",
+  "journal": "Nature Communications",
+  "year": 2025,
+  "domain": "ehr_methodology",
+  "prediction_task": "Federated clinical prediction (COVID-19, hip arthroplasty, MI) across 5 UC Health centers",
+  "model_types": ["logistic_regression", "xgboost", "mlp"],
+  "data_type": "horizontally_vertically_partitioned_ehr",
+  "sample_size": 15000,
+  "review_rounds": 3,
+  "reviewer_concerns": [
+    {"concern_id": "PR-037-C01", "reviewer": "Reviewer #1", "round": 1, "category": "model_selection", "severity": "HIGH", "mlgg_dimension": 4, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Empirical validation uses logistic regression which is simple and linearly scales. Rationale for distributed file system is undermotivated for 100-variable LR. Need to demonstrate with significantly larger and more complex models.", "author_response": "Added XGBoost and MLP experiments.", "resolved": true, "tags": ["simple_model_only", "scalability_unproven", "complexity_mismatch"]},
+    {"concern_id": "PR-037-C02", "reviewer": "Reviewer #1", "round": 2, "category": "model_selection", "severity": "HIGH", "mlgg_dimension": 4, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "XGBoost and MLP are still conventional models. Would be more relevant with transformers, CNNs, LSTM. The concept of federated learning is not new, blockchain technology not new — fail to see significant novelty and technical contributions.", "author_response": "Clarified that clinical contribution (privacy-preserving multi-site prediction) is the novelty, not the FL algorithm itself.", "resolved": true, "tags": ["novelty_questioned", "transformer_lstm_needed", "clinical_vs_technical_novelty"]},
+    {"concern_id": "PR-037-C03", "reviewer": "Reviewer #1", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": ["MLGG-E02"], "concern_text": "Comparison to centralized LR alone is insufficient. Should benchmark against state-of-the-art tree-based algorithms and deep neural networks using the substantial dataset.", "author_response": "Added centralized XGBoost and MLP comparisons.", "resolved": true, "tags": ["missing_baseline_comparison", "centralized_benchmark"]},
+    {"concern_id": "PR-037-C04", "reviewer": "Reviewer #2", "round": 1, "category": "evaluation_metrics", "severity": "MEDIUM", "mlgg_dimension": 5, "mlgg_gates": ["evaluation_quality_gate"], "mlgg_rules": ["MLGG-E02"], "concern_text": "Evaluation should include F1-score, recall, precision, and sensitivity beyond just AUC. Distribution of outcomes and class balance needs clearer presentation.", "author_response": "Added full metric panel and class distribution table.", "resolved": true, "tags": ["auc_only", "incomplete_metrics", "class_balance_unreported"]},
+    {"concern_id": "PR-037-C05", "reviewer": "Reviewer #2", "round": 1, "category": "reporting", "severity": "MEDIUM", "mlgg_dimension": 8, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Characteristics of each dataset including demographics and covariates should be clearly outlined in a table.", "author_response": "Added comprehensive demographics table per site.", "resolved": true, "tags": ["missing_demographics", "per_site_characteristics"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-037-S01", "reviewer": "Reviewer #2", "text": "Proposed method is promising with prediction performance comparable to centralized modeling. Paper is well-written and organized.", "tags": ["comparable_to_centralized", "well_written", "privacy_preserving"]}
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["simple_model_only", "novelty_questioned", "missing_baseline_comparison"],
+  "key_methodology_strengths": ["privacy_preserving", "multi_site", "horizontal_vertical_partitioning"]
+}

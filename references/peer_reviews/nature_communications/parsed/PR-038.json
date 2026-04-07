@@ -1,0 +1,25 @@
+{
+  "id": "PR-038",
+  "paper_doi": "10.1038/s41467-025-66947-7",
+  "paper_title": "Machine learning for risk stratification in the emergency department (MARS-ED): a randomized controlled trial",
+  "journal": "Nature Communications",
+  "year": 2025,
+  "domain": "emergency_medicine",
+  "prediction_task": "ED 31-day mortality risk stratification — RCT evaluating clinical impact",
+  "model_types": ["riskindex_ml_model"],
+  "data_type": "ehr_tabular",
+  "sample_size": 1200,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-038-C01", "reviewer": "Reviewer #1", "round": 1, "category": "clinical_utility", "severity": "CRITICAL", "mlgg_dimension": 7, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Model showed adequate predictive accuracy but no effect on clinical decision-making or clinical outcomes. Clinical course changed for only 1 single patient of over 600 in the intervention arm. This is a 'negative example' of how NOT to implement a clinical risk score.", "author_response": "Reframed paper as an implementation science contribution — valuable negative example showing that even accurate models fail without workflow integration.", "resolved": true, "tags": ["no_clinical_impact", "implementation_failure", "negative_rct", "accuracy_vs_adoption"]},
+    {"concern_id": "PR-038-C02", "reviewer": "Reviewer #1", "round": 1, "category": "reporting", "severity": "HIGH", "mlgg_dimension": 8, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Insufficient detail on implementation: no information about what physicians received about the trial beforehand, how the score was integrated into workflow, what training was provided, how alert fatigue was managed.", "author_response": "Added detailed implementation strategy section with training protocol, workflow integration, and lessons learned.", "resolved": true, "tags": ["implementation_details_missing", "workflow_integration", "clinician_training", "alert_fatigue"]},
+    {"concern_id": "PR-038-C03", "reviewer": "Reviewer #1", "round": 1, "category": "clinical_utility", "severity": "MEDIUM", "mlgg_dimension": 7, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Consider 7-day mortality risk instead of 31-day as avenue for better adoption. Future work should involve more user-friendly integration and risk 'zones' (e.g., infection, respiratory concern) rather than a single number.", "author_response": "Added 7-day mortality analysis and discussed risk zone framework for future implementation.", "resolved": true, "tags": ["prediction_horizon_too_long", "risk_zones", "clinician_friendly_output"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-038-S01", "reviewer": "Reviewer #2", "text": "Rigorous and timely contribution to evaluation of ML-based decision support in ED. Authors have been highly responsive. The revised version reflects significant improvement.", "tags": ["rct_design", "implementation_science", "rigorous"]},
+    {"strength_id": "PR-038-S02", "reviewer": "Reviewer #1", "text": "The fact that this was implemented as part of a clinical trial where actual impact could be assessed is the main source of information. Provides valuable negative example.", "tags": ["rct_design", "real_world_evaluation", "honest_negative_result"]}
+  ],
+  "outcome": "accepted_after_revision",
+  "key_methodology_issues": ["no_clinical_impact", "implementation_details_missing", "prediction_horizon_too_long"],
+  "key_methodology_strengths": ["rct_design", "real_world_evaluation", "honest_negative_result"]
+}

@@ -1,0 +1,26 @@
+{
+  "id": "PR-034",
+  "paper_doi": "10.1038/s41467-024-46977-3",
+  "paper_title": "Predicting mortality from AI-based cardiac volumes, mass, and coronary calcium on chest CT",
+  "journal": "Nature Communications",
+  "year": 2024,
+  "domain": "cardiovascular",
+  "prediction_task": "All-cause and cardiovascular mortality prediction from automated chest CT measurements",
+  "model_types": ["cox_regression", "deep_learning_segmentation"],
+  "data_type": "ct_imaging_automated_measurements",
+  "sample_size": 29687,
+  "review_rounds": 3,
+  "reviewer_concerns": [
+    {"concern_id": "PR-034-C01", "reviewer": "Reviewer #1", "round": 2, "category": "external_validation", "severity": "CRITICAL", "mlgg_dimension": 6, "mlgg_gates": ["external_validation_gate"], "mlgg_rules": [], "concern_text": "Authors need to use cutoff values from NLST and apply to two independent cohorts, performing same analyses individually. The sole usage of quantiles in each cohort is insufficient — must show actual transferable cut-off values exist.", "author_response": "Applied NLST-derived cutoffs to independent cohorts showing consistent risk stratification.", "resolved": true, "tags": ["cutoff_transferability", "external_validation_incomplete", "cohort_specific_quantiles"]},
+    {"concern_id": "PR-034-C02", "reviewer": "Reviewer #1", "round": 2, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Statistical analysis needs improvement: p-values not adjusted for multiple comparisons. Stepwise elimination lacks adjustment for known confounders (sex, hypertension, dyslipidemia). Must show model works in stratified analyses for young participants and non-smokers.", "author_response": "Added multiple comparison correction and consistent confounder adjustment across all cohorts.", "resolved": true, "tags": ["multiple_testing", "confounder_adjustment", "subgroup_stratification"]},
+    {"concern_id": "PR-034-C03", "reviewer": "Reviewer #1", "round": 2, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Bland-Altman plots show >100% variation in smaller volumes (<100mL). How many patients change risk groups between T0 and T1? This has huge clinical impact and could lead to major misclassifications and potentially harm.", "author_response": "Added reclassification analysis showing proportion changing risk groups and clinical impact assessment.", "resolved": true, "tags": ["measurement_variability", "risk_reclassification", "clinical_harm_potential"]},
+    {"concern_id": "PR-034-C04", "reviewer": "Reviewer #1", "round": 2, "category": "reproducibility", "severity": "MEDIUM", "mlgg_dimension": 9, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "The model should be uploaded to an open-access repository, not only available on reasonable request, as this limits reproducibility.", "author_response": "Model uploaded to open-access repository.", "resolved": true, "tags": ["model_availability", "reasonable_request_only", "open_access"]},
+    {"concern_id": "PR-034-C05", "reviewer": "Reviewer #2", "round": 2, "category": "evaluation_metrics", "severity": "MEDIUM", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "CAC and structural results are so confounded by age, sex, smoking, diabetes that there seems little value in non-risk-adjusted results. ROC for clinical models should be in main figure, not supplementary.", "author_response": "Moved clinical model ROC to main Figure 6 and de-emphasized unadjusted results.", "resolved": true, "tags": ["confounding_unadjusted", "clinical_model_comparison_in_supplement"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-034-S01", "reviewer": "Reviewer #2", "text": "Excellent and thorough job in responding to input. Authors have adequately addressed concerns with extensive revisions.", "tags": ["responsive_to_review", "thorough_revision"]}
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["cutoff_transferability", "multiple_testing", "measurement_variability"],
+  "key_methodology_strengths": ["fully_automated_pipeline", "multicohort", "fast_inference"]
+}
