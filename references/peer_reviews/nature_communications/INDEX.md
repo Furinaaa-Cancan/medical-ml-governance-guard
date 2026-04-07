@@ -1,6 +1,6 @@
 # Nature Communications — Peer Review Files (Medical ML)
 
-43 篇透明同行评审文件，收集自 Nature Communications 发表的医学机器学习预测模型论文。
+68 篇透明同行评审文件，收集自 Nature Communications 发表的医学机器学习预测模型论文。
 包含完整的审稿人意见、作者回复和修改说明。
 
 ## 用途
@@ -56,6 +56,31 @@
 | 44 | `44_generalizability_AI_hospitals_peer_review.pdf` | Generalizability assessment of AI models across hospitals (HIC→LMIC) | 10.1038/s41467-024-52618-6 | AI 跨医院泛化性评估 |
 | 45 | `45_pathology_fairness_adaptation_peer_review.pdf` | Knowledge-guided adaptation improves cross-domain fairness (pathology) | 10.1038/s41467-025-66300-y | 病理模型公平性域适应 |
 | 46 | `46_vagus_nerve_stimulation_DL_peer_review.pdf` | Deep representation learning to predict response to VNS | 10.1038/s41467-026-71555-0 | 迷走神经刺激 DL 预测 |
+| 53 | `53_radiogenomics_breast_peer_review.pdf` | Radiogenomic signatures reveal intratumour heterogeneity in breast cancer | 10.1038/s41467-020-18703-2 | 乳腺癌影像基因组学 |
+| 54 | `54_PRS_confidence_bounds_peer_review.pdf` | Translating polygenic risk scores: confidence bounds of risk prediction | 10.1038/s41467-021-25014-7 | PRS 置信区间 |
+| 55 | `55_PRS_preventing_deaths_peer_review.pdf` | Preventing premature deaths through polygenic risk scores | 10.1038/s41467-025-68129-x | PRS 预防早死 |
+| 56 | `56_multi_ancestry_PRS_peer_review.pdf` | Ensemble penalized regression for multi-ancestry polygenic risk | 10.1038/s41467-024-47357-7 | 多祖源 PRS 集成 |
+| 57 | `57_PRS_tuning_GWAS_peer_review.pdf` | Tuning parameters for PRS methods using GWAS summary statistics | 10.1038/s41467-023-44009-0 | PRS 参数调优 |
+| 58 | `58_PRS_utility_hospital_peer_review.pdf` | Utility of polygenic scores across diverse diseases in hospital cohort | 10.1038/s41467-024-47472-5 | PRS 医院队列应用 |
+| 59 | `59_PRS_instability_integrative_peer_review.pdf` | Instability of high polygenic risk classification and mitigation | 10.1038/s41467-025-56945-0 | PRS 高风险分类不稳定性 |
+| 60 | `60_multi_PGS_937_scores_peer_review.pdf` | Multi-PGS enhances polygenic prediction combining 937 scores | 10.1038/s41467-023-40330-w | 937 PGS 集成预测 |
+| 61 | `61_pathology_foundation_benchmark_peer_review.pdf` | Clinical benchmark of public self-supervised pathology foundation models | 10.1038/s41467-025-58796-1 | 病理基础模型基准 |
+| 63 | `63_causal_decomposition_SURD_peer_review.pdf` | Decomposing causality into synergistic, unique, redundant components | 10.1038/s41467-024-53373-4 | 因果分解 SURD |
+| 64 | `64_thyroid_multimodal_DL_peer_review.pdf` | Explainable multimodal DL for thyroid cancer lymph node metastasis | 10.1038/s41467-025-62042-z | 甲状腺癌多模态 DL |
+| 65 | `65_lung_cancer_multimodal_peer_review.pdf` | Medical multimodal multitask foundation model for lung cancer screening | 10.1038/s41467-025-56822-w | 肺癌筛查多模态基础模型 |
+| 66 | `66_breast_cancer_multimodal_peer_review.pdf` | Multimodal histopathologic models stratify HR+ early breast cancer | 10.1038/s41467-025-57283-x | 乳腺癌多模态组织病理 |
+| 67 | `67_radiology_foundation_model_peer_review.pdf` | Generalist foundation model for radiology (web-scale 2D&3D) | 10.1038/s41467-025-62385-7 | 放射学通用基础模型 |
+| 68 | `68_assimilative_causal_peer_review.pdf` | Assimilative causal inference | 10.1038/s41467-026-68568-0 | 同化因果推断 |
+| 69 | `69_cross_ancestry_PRS_peer_review.pdf` | Quantifying portable genetic effects, improving cross-ancestry prediction | 10.1038/s41467-023-36544-7 | 跨祖源遗传效应 |
+| 70 | `70_general_causal_inference_peer_review.pdf` | General model-based causal inference overcoming synchrony curse | 10.1038/s41467-023-39983-4 | 通用因果推断方法 |
+| 71 | `71_causal_protein_MI_peer_review.pdf` | Circulating causal protein networks linked to MI risk | 10.1038/s41467-025-67135-3 | 心梗因果蛋白网络 |
+| 72 | `72_GNN_transfer_molecular_peer_review.pdf` | Transfer learning with GNN for molecular property prediction | 10.1038/s41467-024-45566-8 | GNN 迁移学习分子预测 |
+| 73 | `73_knowledge_graph_drug_peer_review.pdf` | Experimentally validated knowledge graph for drug discovery | 10.1038/s41467-024-50024-6 | 知识图谱药物发现 |
+| 74 | `74_AI_drug_synergy_pancreatic_peer_review.pdf` | AI-driven synergistic drug combinations against pancreatic cancer | 10.1038/s41467-025-56818-6 | AI 胰腺癌药物协同 |
+| 75 | `75_generative_drug_perturbation_peer_review.pdf` | Predicting transcriptional responses to novel chemical perturbations | 10.1038/s41467-024-53457-1 | 生成模型药物扰动预测 |
+| 76 | `76_equivariant_molecular_GNN_peer_review.pdf` | Enhancing geometric representations for molecules with equivariant GNN | 10.1038/s41467-023-43720-2 | 等变分子 GNN |
+| 77 | `77_drug_target_interaction_peer_review.pdf` | Semi-inductive framework for drug target interaction prediction | 10.1038/s41467-025-66311-9 | 药物靶点交互预测 |
+| 78 | `78_evidential_DL_DTI_peer_review.pdf` | Evidential deep learning-based drug-target interaction prediction | 10.1038/s41467-025-62235-6 | 证据深度学习 DTI |
 
 ## 来源
 
