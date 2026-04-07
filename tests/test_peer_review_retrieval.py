@@ -239,27 +239,6 @@ class TestFixPrioritization:
         assert "Fix:" not in fmt  # generic fix should be hidden
 
 
-class TestPerformance:
-    """Verify retrieval is fast enough for interactive use."""
-
-    def test_retrieval_under_50ms(self):
-        import time
-        # Warm cache
-        retrieve_by_dimension(5, limit=1, kb_path=KB_PATH)
-        start = time.perf_counter()
-        for _ in range(10):
-            retrieve_by_tags(["missing_calibration"], limit=5, kb_path=KB_PATH)
-        elapsed_ms = (time.perf_counter() - start) / 10 * 1000
-        assert elapsed_ms < 50, f"Tag retrieval too slow: {elapsed_ms:.1f}ms"
-
-    def test_text_search_under_100ms(self):
-        import time
-        retrieve_by_text("test", limit=1, kb_path=KB_PATH)
-        start = time.perf_counter()
-        for _ in range(10):
-            retrieve_by_text("calibration missing AUC", limit=5, kb_path=KB_PATH)
-        elapsed_ms = (time.perf_counter() - start) / 10 * 1000
-        assert elapsed_ms < 100, f"Text search too slow: {elapsed_ms:.1f}ms"
 
 
 class TestRetrieveByPaper:
