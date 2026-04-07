@@ -1,0 +1,147 @@
+{
+  "id": "PR-002",
+  "paper_doi": "10.1038/s41467-021-20910-4",
+  "paper_title": "Artificial intelligence in sepsis early prediction and diagnosis using unstructured data in healthcare",
+  "journal": "Nature Communications",
+  "year": 2021,
+  "domain": "infectious_disease",
+  "prediction_task": "Sepsis early prediction (6-48h before onset)",
+  "model_types": ["voting_ensemble", "random_forest", "gradient_boosting", "logistic_regression"],
+  "data_type": "ehr_structured_plus_clinical_notes",
+  "sample_size": 24819,
+  "review_rounds": 2,
+
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-002-C01",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "HIGH",
+      "mlgg_dimension": 5,
+      "mlgg_gates": ["evaluation_quality_gate", "calibration_dca_gate"],
+      "mlgg_rules": ["MLGG-E02"],
+      "concern_text": "The dataset is highly imbalanced; thus, AUC should not be the only performance metric reported. Authors should at least provide PPV and NPV. Furthermore, it is unclear how well calibrated the model is; calibration curves should be provided.",
+      "author_response": "We have added PPV, NPV, sensitivity, specificity for all time horizons. Calibration curves have been added as supplementary figures.",
+      "resolved": true,
+      "tags": ["incomplete_metrics", "missing_calibration", "class_imbalance", "missing_ppv_npv"]
+    },
+    {
+      "concern_id": "PR-002-C02",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "HIGH",
+      "mlgg_dimension": 5,
+      "mlgg_gates": ["evaluation_quality_gate"],
+      "mlgg_rules": ["MLGG-E01"],
+      "concern_text": "Based on the title 'role of unstructured data', I would have expected the authors to describe the actual role of clinical notes in prediction performance, in comparison to using structured data only. The results pertain only to processing both types of data together.",
+      "author_response": "We have added ablation study comparing: structured-only vs. notes-only vs. combined, showing the incremental value of unstructured data.",
+      "resolved": true,
+      "tags": ["ablation_study_missing", "contribution_of_features"]
+    },
+    {
+      "concern_id": "PR-002-C03",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "study_design",
+      "severity": "CRITICAL",
+      "mlgg_dimension": 1,
+      "mlgg_gates": ["cohort_definition_gate"],
+      "mlgg_rules": ["MLGG-C01"],
+      "concern_text": "The method of labelling sepsis prediction is unusual and a potential source of significant confusion: 'when a physician orders for both culture test and lactate test, we classify the patient as one predicted to have sepsis by the physician.' The authors do not provide any evidence to the validity of this crucial statement.",
+      "author_response": "We have added clinical validation of this labeling approach with references to Rhee et al. 2017 and Singer et al. 2016 Sepsis-3 criteria, and sensitivity analysis with alternative labeling.",
+      "resolved": true,
+      "tags": ["outcome_definition", "label_validity", "gold_standard"]
+    },
+    {
+      "concern_id": "PR-002-C04",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "model_selection",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 4,
+      "mlgg_gates": ["model_selection_audit_gate"],
+      "mlgg_rules": ["MLGG-M01"],
+      "concern_text": "When developing the model, cross-validation is much more robust method to avoid overfitting than the random split used by the authors.",
+      "author_response": "We have added 5-fold cross-validation results alongside the holdout results, showing consistent performance.",
+      "resolved": true,
+      "tags": ["no_cross_validation", "overfitting_risk", "single_split"]
+    },
+    {
+      "concern_id": "PR-002-C05",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "split_protocol",
+      "severity": "HIGH",
+      "mlgg_dimension": 1,
+      "mlgg_gates": ["split_protocol_gate", "leakage_gate"],
+      "mlgg_rules": ["MLGG-S01"],
+      "concern_text": "How was random sampling performed? Was the unit of randomization performed at the level of the note, the patient visit, or the patient? Was there any overlap in patients between the test set and the training/validation set?",
+      "author_response": "Splitting was performed at the patient level. No patient appears in both training and test sets. This has been clarified in the methods.",
+      "resolved": true,
+      "tags": ["patient_level_split", "split_unit_unclear", "potential_patient_overlap"]
+    },
+    {
+      "concern_id": "PR-002-C06",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "reporting",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 8,
+      "mlgg_gates": ["reporting_bias_gate"],
+      "mlgg_rules": [],
+      "concern_text": "The paper is missing a demographics table to describe the patient population. What is the incidence of sepsis, severe sepsis, septic shock? How many are admitted to the ICU? Age distribution?",
+      "author_response": "Table 1 has been added with full demographic and clinical characteristics of the cohort.",
+      "resolved": true,
+      "tags": ["missing_demographics_table", "cohort_description"]
+    },
+    {
+      "concern_id": "PR-002-C07",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "mlgg_gates": ["calibration_dca_gate"],
+      "mlgg_rules": ["MLGG-E02"],
+      "concern_text": "It would be helpful to include a reliability diagram (calibration diagram) as well as a precision-recall diagram for a representative model to better understand calibration and trade-offs between precision and recall for choosing a decision threshold.",
+      "author_response": "Calibration plots and precision-recall curves have been added as supplementary figures.",
+      "resolved": true,
+      "tags": ["missing_calibration", "missing_precision_recall", "threshold_selection"]
+    },
+    {
+      "concern_id": "PR-002-C08",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "reporting",
+      "severity": "LOW",
+      "mlgg_dimension": 8,
+      "mlgg_gates": ["reporting_bias_gate"],
+      "mlgg_rules": [],
+      "concern_text": "A standard CONSORT enrollment diagram should be included as a figure to show patient flow.",
+      "author_response": "Flow diagram has been added as Figure 1.",
+      "resolved": true,
+      "tags": ["missing_flow_diagram", "consort"]
+    }
+  ],
+
+  "reviewer_strengths": [
+    {
+      "strength_id": "PR-002-S01",
+      "reviewer": "Reviewer #2",
+      "text": "The background is well motivated. Using ML for real-time surveillance and workflow augmentation for decreasing variability in care is eloquently stated.",
+      "tags": ["clinical_motivation", "real_time_prediction"]
+    },
+    {
+      "strength_id": "PR-002-S02",
+      "reviewer": "Reviewer #2",
+      "text": "Performance characteristics persist even 12 hours prior to sepsis onset (AUC 0.94), which is considerably better than comparison papers.",
+      "tags": ["strong_performance", "early_prediction"]
+    }
+  ],
+
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["incomplete_metrics", "missing_calibration", "outcome_definition", "split_unit_unclear"],
+  "key_methodology_strengths": ["early_prediction", "unstructured_data_integration", "clinical_validation"]
+}

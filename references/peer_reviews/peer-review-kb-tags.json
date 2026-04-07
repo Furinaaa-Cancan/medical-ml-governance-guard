@@ -1,0 +1,213 @@
+{
+  "ablation_study_missing": [
+    "PR-002-C02"
+  ],
+  "association_not_causation": [
+    "PR-001-C09"
+  ],
+  "auc_insufficient": [
+    "PR-003-C05"
+  ],
+  "case_contamination": [
+    "PR-001-C05"
+  ],
+  "causal_language": [
+    "PR-001-C09"
+  ],
+  "class_imbalance": [
+    "PR-002-C01"
+  ],
+  "clinical_interpretation": [
+    "PR-001-C08"
+  ],
+  "cohort_definition": [
+    "PR-001-C05"
+  ],
+  "cohort_description": [
+    "PR-002-C06"
+  ],
+  "comorbidity_data": [
+    "PR-003-C01"
+  ],
+  "comparison_with_existing": [
+    "PR-003-C05",
+    "PR-003-C06"
+  ],
+  "confounding": [
+    "PR-003-C11"
+  ],
+  "consort": [
+    "PR-002-C08"
+  ],
+  "contribution_of_features": [
+    "PR-002-C02"
+  ],
+  "control_matching": [
+    "PR-001-C05"
+  ],
+  "correlated_features": [
+    "PR-001-C04"
+  ],
+  "data_leakage_via_imputation": [
+    "PR-003-C03"
+  ],
+  "definition_variable": [
+    "PR-001-C02"
+  ],
+  "disease_heterogeneity": [
+    "PR-001-C10"
+  ],
+  "ethnicity_data": [
+    "PR-003-C01"
+  ],
+  "feature_correlation": [
+    "PR-003-C11"
+  ],
+  "feature_importance": [
+    "PR-003-C07"
+  ],
+  "feature_is_outcome_proxy": [
+    "PR-001-C02"
+  ],
+  "future_information_leakage": [
+    "PR-001-C01"
+  ],
+  "gold_standard": [
+    "PR-002-C03"
+  ],
+  "imputation_transparency": [
+    "PR-003-C02"
+  ],
+  "incomplete_metrics": [
+    "PR-002-C01"
+  ],
+  "independence_check": [
+    "PR-003-C11"
+  ],
+  "internal_split_only": [
+    "PR-001-C06"
+  ],
+  "label_validity": [
+    "PR-002-C03"
+  ],
+  "living_review": [
+    "PR-003-C06"
+  ],
+  "mechanistic_insight": [
+    "PR-001-C08"
+  ],
+  "missing_baseline_comparison": [
+    "PR-001-C03",
+    "PR-003-C06"
+  ],
+  "missing_calibration": [
+    "PR-002-C01",
+    "PR-002-C07",
+    "PR-003-C05"
+  ],
+  "missing_data_unreported": [
+    "PR-003-C02"
+  ],
+  "missing_dca": [
+    "PR-003-C05"
+  ],
+  "missing_demographics": [
+    "PR-003-C01"
+  ],
+  "missing_demographics_table": [
+    "PR-002-C06"
+  ],
+  "missing_flow_diagram": [
+    "PR-002-C08"
+  ],
+  "missing_ppv_npv": [
+    "PR-002-C01"
+  ],
+  "missing_precision_recall": [
+    "PR-002-C07"
+  ],
+  "model_diversity": [
+    "PR-003-C08"
+  ],
+  "multi_model_shap": [
+    "PR-001-C07"
+  ],
+  "multicollinearity": [
+    "PR-001-C04"
+  ],
+  "multiple_model_comparison": [
+    "PR-003-C08"
+  ],
+  "no_code_availability": [
+    "PR-003-C09",
+    "PR-003-C10"
+  ],
+  "no_cross_validation": [
+    "PR-002-C04"
+  ],
+  "no_external_validation": [
+    "PR-001-C06"
+  ],
+  "no_tripod": [
+    "PR-003-C04"
+  ],
+  "outcome_definition": [
+    "PR-001-C10",
+    "PR-002-C03"
+  ],
+  "overfitting_risk": [
+    "PR-002-C04"
+  ],
+  "patient_level_split": [
+    "PR-002-C05"
+  ],
+  "potential_patient_overlap": [
+    "PR-002-C05"
+  ],
+  "prediction_timepoint_unclear": [
+    "PR-001-C01"
+  ],
+  "reporting_guidelines": [
+    "PR-003-C04"
+  ],
+  "reproducibility": [
+    "PR-003-C09",
+    "PR-003-C10"
+  ],
+  "retrospective_vs_prospective": [
+    "PR-001-C01"
+  ],
+  "same_cohort_validation": [
+    "PR-001-C06"
+  ],
+  "shap_presentation": [
+    "PR-001-C07"
+  ],
+  "shap_requested": [
+    "PR-003-C07"
+  ],
+  "simple_model_baseline": [
+    "PR-001-C03"
+  ],
+  "single_split": [
+    "PR-002-C04"
+  ],
+  "split_unit_unclear": [
+    "PR-002-C05"
+  ],
+  "subgroup_analysis": [
+    "PR-001-C08"
+  ],
+  "target_leakage": [
+    "PR-001-C02"
+  ],
+  "threshold_selection": [
+    "PR-002-C07"
+  ],
+  "validation_imputation": [
+    "PR-003-C03"
+  ],
+  "xgboost_suggestion": [
+    "PR-003-C08"
+  ]
+}

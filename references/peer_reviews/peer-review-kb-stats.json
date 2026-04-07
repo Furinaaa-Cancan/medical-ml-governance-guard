@@ -1,0 +1,162 @@
+{
+  "total_papers": 3,
+  "total_concerns": 29,
+  "total_strengths": 6,
+  "concerns_by_category": {
+    "evaluation_metrics": 7,
+    "study_design": 6,
+    "reporting": 4,
+    "preprocessing": 3,
+    "interpretability": 3,
+    "model_selection": 2,
+    "reproducibility": 2,
+    "external_validation": 1,
+    "split_protocol": 1
+  },
+  "concerns_by_severity": {
+    "HIGH": 14,
+    "MEDIUM": 11,
+    "CRITICAL": 2,
+    "LOW": 2
+  },
+  "concerns_by_dimension": {
+    "1": 7,
+    "3": 3,
+    "4": 3,
+    "5": 6,
+    "6": 1,
+    "7": 4,
+    "8": 3,
+    "9": 2
+  },
+  "top_30_tags": [
+    {
+      "tag": "missing_calibration",
+      "count": 3
+    },
+    {
+      "tag": "missing_baseline_comparison",
+      "count": 2
+    },
+    {
+      "tag": "outcome_definition",
+      "count": 2
+    },
+    {
+      "tag": "comparison_with_existing",
+      "count": 2
+    },
+    {
+      "tag": "no_code_availability",
+      "count": 2
+    },
+    {
+      "tag": "reproducibility",
+      "count": 2
+    },
+    {
+      "tag": "future_information_leakage",
+      "count": 1
+    },
+    {
+      "tag": "prediction_timepoint_unclear",
+      "count": 1
+    },
+    {
+      "tag": "retrospective_vs_prospective",
+      "count": 1
+    },
+    {
+      "tag": "target_leakage",
+      "count": 1
+    },
+    {
+      "tag": "definition_variable",
+      "count": 1
+    },
+    {
+      "tag": "feature_is_outcome_proxy",
+      "count": 1
+    },
+    {
+      "tag": "simple_model_baseline",
+      "count": 1
+    },
+    {
+      "tag": "multicollinearity",
+      "count": 1
+    },
+    {
+      "tag": "correlated_features",
+      "count": 1
+    },
+    {
+      "tag": "control_matching",
+      "count": 1
+    },
+    {
+      "tag": "case_contamination",
+      "count": 1
+    },
+    {
+      "tag": "cohort_definition",
+      "count": 1
+    },
+    {
+      "tag": "no_external_validation",
+      "count": 1
+    },
+    {
+      "tag": "internal_split_only",
+      "count": 1
+    },
+    {
+      "tag": "same_cohort_validation",
+      "count": 1
+    },
+    {
+      "tag": "shap_presentation",
+      "count": 1
+    },
+    {
+      "tag": "multi_model_shap",
+      "count": 1
+    },
+    {
+      "tag": "clinical_interpretation",
+      "count": 1
+    },
+    {
+      "tag": "subgroup_analysis",
+      "count": 1
+    },
+    {
+      "tag": "mechanistic_insight",
+      "count": 1
+    },
+    {
+      "tag": "causal_language",
+      "count": 1
+    },
+    {
+      "tag": "association_not_causation",
+      "count": 1
+    },
+    {
+      "tag": "disease_heterogeneity",
+      "count": 1
+    },
+    {
+      "tag": "incomplete_metrics",
+      "count": 1
+    }
+  ],
+  "resolution_rate": 1.0,
+  "papers_by_domain": {
+    "infectious_disease": 2,
+    "musculoskeletal": 1
+  },
+  "papers_by_outcome": {
+    "accepted_after_major_revision": 3
+  }
+}
