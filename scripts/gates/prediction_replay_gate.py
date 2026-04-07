@@ -14,6 +14,7 @@ import argparse
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+import math
 import numpy as np
 import pandas as pd
 
@@ -73,6 +74,13 @@ REQUIRED_METRICS = [
     "roc_auc",
     "pr_auc",
     "brier",
+    "mcc",
+]
+
+# Metrics that are replayed but tolerate missing expected values (backward compat).
+OPTIONAL_REPLAY_METRICS = [
+    "lr_positive",
+    "lr_negative",
 ]
 
 
@@ -423,6 +431,21 @@ def main() -> int:
                 tolerance=metric_tol,
                 failures=failures,
             )
+
+        # Optional metrics: check if present in evaluation report, skip if absent.
+        for metric_name in OPTIONAL_REPLAY_METRICS:
+            expected_val = metrics.get(metric_name)
+            if expected_val is not None:
+                observed_val = replay_metrics.get(metric_name)
+                if observed_val is not None and math.isfinite(float(observed_val)) and math.isfinite(float(to_float(expected_val) or 0)):
+                    compare_metric(
+                        split_name=split_name,
+                        metric_name=metric_name,
+                        observed=float(observed_val),
+                        expected=expected_val,
+                        tolerance=metric_tol,
+                        failures=failures,
+                    )
 
         summary_splits[split_name] = {
             "row_count": int(split_rows.shape[0]),

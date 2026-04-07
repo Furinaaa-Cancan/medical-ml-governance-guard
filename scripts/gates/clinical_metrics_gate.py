@@ -42,7 +42,12 @@ DEFAULT_REQUIRED_METRICS = [
     "roc_auc",
     "pr_auc",
     "brier",
+    "mcc",
 ]
+
+# Informational metrics: checked if present and finite, but not required
+# (LR+/LR- can be inf when specificity=1.0 or sensitivity=1.0).
+INFORMATIONAL_METRICS = ["lr_positive", "lr_negative"]
 
 
 def parse_args() -> argparse.Namespace:
@@ -101,9 +106,15 @@ def compute_confusion_metrics(tp: int, fp: int, tn: int, fn: int, beta: float) -
     }
 
 
+_NON_UNIT_RANGE_METRICS = {"mcc", "lrpositive", "lrnegative"}
+
+
 def metric_in_unit_range(metric_name: str) -> bool:
-    # All required metrics here are bounded to [0,1] for binary classification.
-    return canonical_metric_token(metric_name) in {
+    """Check if metric is bounded to [0,1]. MCC ([-1,1]) and LR+/LR- ([0,inf]) are excluded."""
+    token = canonical_metric_token(metric_name)
+    if token in _NON_UNIT_RANGE_METRICS:
+        return False
+    return token in {
         canonical_metric_token(name)
         for name in DEFAULT_REQUIRED_METRICS
     }

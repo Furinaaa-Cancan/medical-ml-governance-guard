@@ -3264,6 +3264,14 @@ def metric_panel(y_true: np.ndarray, proba: np.ndarray, threshold: float, beta: 
     roc_auc = float(roc_auc_score(y_true, proba))
     pr_auc = float(average_precision_score(y_true, proba))
     brier = float(brier_score_loss(y_true, proba))
+    # Matthews Correlation Coefficient (Chicco & Jurman, BMC Genomics 2020)
+    mcc_denom = math.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
+    mcc = ((tp * tn) - (fp * fn)) / mcc_denom if mcc_denom > 0 else 0.0
+
+    # Likelihood ratios (clinical decision-making gold standard)
+    lr_positive = sensitivity / (1.0 - specificity) if specificity < 1.0 else float("inf")
+    lr_negative = (1.0 - sensitivity) / specificity if specificity > 0 else float("inf")
+
     metrics = {
         "accuracy": clip01(accuracy),
         "precision": clip01(precision),
@@ -3276,6 +3284,9 @@ def metric_panel(y_true: np.ndarray, proba: np.ndarray, threshold: float, beta: 
         "roc_auc": clip01(roc_auc),
         "pr_auc": clip01(pr_auc),
         "brier": clip01(brier),
+        "mcc": max(-1.0, min(1.0, mcc)),
+        "lr_positive": lr_positive,
+        "lr_negative": lr_negative,
     }
     return metrics, cm
 
@@ -3905,6 +3916,221 @@ def bootstrap_ci_pr_auc(y_true: np.ndarray, proba: np.ndarray, n_resamples: int,
     return float(lo), float(hi), int(len(hits))
 
 
+def bootstrap_optimism_correction(
+    estimator: Any,
+    X_train: np.ndarray,
+    y_train: np.ndarray,
+    threshold: float,
+    beta: float,
+    n_resamples: int,
+    seed: int,
+    metrics_of_interest: Optional[List[str]] = None,
+) -> Dict[str, Dict[str, float]]:
+    """Estimate optimism via bootstrap internal validation (Steyerberg 2019).
+
+    For each bootstrap resample:
+      1. Clone and fit estimator on bootstrap sample.
+      2. Score on bootstrap sample (apparent performance).
+      3. Score on original training set (test performance).
+      4. optimism_i = apparent_i - test_i
+    Final: optimism = mean(optimism_i)
+           corrected = apparent_original - optimism
+
+    Args:
+        estimator: Fitted sklearn estimator (will be cloned, not mutated).
+        X_train: Original training features.
+        y_train: Original training labels.
+        threshold: Decision threshold for metric_panel.
+        beta: Beta for F-beta score.
+        n_resamples: Number of bootstrap iterations.
+        seed: Random seed.
+        metrics_of_interest: Subset of metrics to correct (default: pr_auc, roc_auc, brier).
+
+    Returns:
+        Dict mapping metric name to {apparent, optimism, corrected, n_resamples}.
+    """
+    from sklearn.base import clone as sklearn_clone
+
+    if metrics_of_interest is None:
+        metrics_of_interest = ["pr_auc", "roc_auc", "brier"]
+
+    rng = np.random.default_rng(seed)
+    optimisms: Dict[str, List[float]] = {m: [] for m in metrics_of_interest}
+
+    # Apparent performance on original training data
+    try:
+        train_proba = estimator.predict_proba(X_train)[:, 1]
+    except Exception:
+        return {}
+    apparent_panel, _ = metric_panel(y_train, train_proba, threshold, beta=beta)
+
+    lower_is_better = {"brier"}
+    max_attempts = max(3 * n_resamples, 1000)
+    attempts = 0
+    completed = 0
+
+    while completed < n_resamples and attempts < max_attempts:
+        attempts += 1
+        idx = stratified_bootstrap_indices(y_train, rng)
+        if idx is None:
+            break
+        X_boot, y_boot = X_train[idx], y_train[idx]
+
+        try:
+            boot_est = sklearn_clone(estimator)
+            boot_est.fit(X_boot, y_boot)
+            # Apparent: score on bootstrap sample
+            boot_proba_apparent = boot_est.predict_proba(X_boot)[:, 1]
+            panel_apparent, _ = metric_panel(y_boot, boot_proba_apparent, threshold, beta=beta)
+            # Test: score on original full training set
+            boot_proba_test = boot_est.predict_proba(X_train)[:, 1]
+            panel_test, _ = metric_panel(y_train, boot_proba_test, threshold, beta=beta)
+        except Exception:
+            continue
+
+        valid = True
+        for m in metrics_of_interest:
+            va = panel_apparent.get(m)
+            vt = panel_test.get(m)
+            if va is None or vt is None or not math.isfinite(float(va)) or not math.isfinite(float(vt)):
+                valid = False
+                break
+        if not valid:
+            continue
+
+        for m in metrics_of_interest:
+            optimisms[m].append(float(panel_apparent[m]) - float(panel_test[m]))
+        completed += 1
+
+    result: Dict[str, Dict[str, float]] = {}
+    for m in metrics_of_interest:
+        arr = optimisms[m]
+        if not arr:
+            continue
+        mean_optimism = float(np.mean(arr))
+        apparent_val = float(apparent_panel.get(m, 0.0))
+        corrected = apparent_val - mean_optimism
+        result[m] = {
+            "apparent": apparent_val,
+            "optimism": mean_optimism,
+            "corrected": corrected,
+            "n_resamples": len(arr),
+        }
+    return result
+
+
+def learning_curve_data(
+    estimator: Any,
+    X_train: np.ndarray,
+    y_train: np.ndarray,
+    X_valid: np.ndarray,
+    y_valid: np.ndarray,
+    threshold: float,
+    beta: float,
+    seed: int,
+    n_points: int = 8,
+    metric: str = "pr_auc",
+) -> Dict[str, Any]:
+    """Compute learning curve: performance vs. training set size.
+
+    Trains on increasing fractions of the training data and evaluates on
+    the held-out validation set to assess whether the model has converged.
+
+    Convergence criterion: the last 3 points have relative std < 2% of
+    the mean, indicating marginal returns from additional data.
+
+    Args:
+        estimator: Sklearn estimator (will be cloned per fraction).
+        X_train: Full training features.
+        y_train: Full training labels.
+        X_valid: Validation features (held constant).
+        y_valid: Validation labels (held constant).
+        threshold: Decision threshold for metric_panel.
+        beta: Beta for F-beta score.
+        seed: Random seed.
+        n_points: Number of fractions to evaluate (default 8).
+        metric: Primary metric for convergence check (default pr_auc).
+
+    Returns:
+        Dict with fractions, train_sizes, train_scores, valid_scores,
+        converged flag, and convergence details.
+    """
+    from sklearn.base import clone as sklearn_clone
+    from sklearn.model_selection import StratifiedShuffleSplit
+
+    n_total = X_train.shape[0]
+    min_fraction = max(50 / n_total, 0.1) if n_total > 50 else 0.5
+    fractions = np.linspace(min_fraction, 1.0, n_points).tolist()
+
+    curve: List[Dict[str, Any]] = []
+    rng = np.random.default_rng(seed)
+
+    for frac in fractions:
+        n_samples = max(int(round(frac * n_total)), 20)
+        n_samples = min(n_samples, n_total)
+
+        if n_samples == n_total:
+            idx = np.arange(n_total)
+        else:
+            # Stratified subsample
+            try:
+                splitter = StratifiedShuffleSplit(
+                    n_splits=1, train_size=n_samples, random_state=int(rng.integers(0, 2**31)),
+                )
+                idx, _ = next(splitter.split(X_train, y_train))
+            except ValueError:
+                idx = rng.choice(n_total, size=n_samples, replace=False)
+
+        X_sub, y_sub = X_train[idx], y_train[idx]
+
+        try:
+            est = sklearn_clone(estimator)
+            est.fit(X_sub, y_sub)
+            train_proba = est.predict_proba(X_sub)[:, 1]
+            valid_proba = est.predict_proba(X_valid)[:, 1]
+            train_panel, _ = metric_panel(y_sub, train_proba, threshold, beta=beta)
+            valid_panel, _ = metric_panel(y_valid, valid_proba, threshold, beta=beta)
+
+            curve.append({
+                "fraction": round(frac, 4),
+                "train_size": n_samples,
+                "train_score": float(train_panel.get(metric, 0.0)),
+                "valid_score": float(valid_panel.get(metric, 0.0)),
+            })
+        except Exception as exc:
+            curve.append({
+                "fraction": round(frac, 4),
+                "train_size": n_samples,
+                "train_score": None,
+                "valid_score": None,
+                "error": str(exc),
+            })
+
+    # Convergence check: last 3 valid scores have relative std < 2%
+    valid_scores = [p["valid_score"] for p in curve if p.get("valid_score") is not None]
+    converged = False
+    convergence_detail = {}
+    if len(valid_scores) >= 3:
+        tail = valid_scores[-3:]
+        tail_mean = float(np.mean(tail))
+        tail_std = float(np.std(tail))
+        relative_std = tail_std / tail_mean if tail_mean > 0 else float("inf")
+        converged = relative_std < 0.02
+        convergence_detail = {
+            "tail_mean": round(tail_mean, 6),
+            "tail_std": round(tail_std, 6),
+            "relative_std": round(relative_std, 6),
+            "threshold": 0.02,
+        }
+
+    return {
+        "metric": metric,
+        "curve": curve,
+        "converged": converged,
+        "convergence_detail": convergence_detail,
+    }
+
+
 def stratified_bootstrap_indices(y_true: np.ndarray, rng: np.random.Generator) -> Optional[np.ndarray]:
     """Generate stratified bootstrap sample indices.
 
@@ -3950,7 +4176,7 @@ def bootstrap_metric_ci(
         effective number of resamples).
     """
     rng = np.random.default_rng(seed)
-    hits: Dict[str, List[float]] = {metric: [] for metric in ("accuracy", "precision", "ppv", "npv", "sensitivity", "specificity", "f1", "f2_beta", "roc_auc", "pr_auc", "brier")}
+    hits: Dict[str, List[float]] = {metric: [] for metric in ("accuracy", "precision", "ppv", "npv", "sensitivity", "specificity", "f1", "f2_beta", "roc_auc", "pr_auc", "brier", "mcc", "lr_positive", "lr_negative")}
     attempts = 0
     max_attempts = max(5 * int(n_resamples), 8000)
     while len(hits["pr_auc"]) < int(n_resamples) and attempts < max_attempts:
@@ -3964,10 +4190,13 @@ def bootstrap_metric_ci(
             panel, _ = metric_panel(yb, sb, threshold, beta=beta)
         except Exception:
             continue
-        if not all(isinstance(panel.get(k), (int, float)) and math.isfinite(float(panel.get(k))) for k in hits):
+        _finite_required = {"accuracy", "precision", "ppv", "npv", "sensitivity", "specificity", "f1", "f2_beta", "roc_auc", "pr_auc", "brier", "mcc"}
+        if not all(isinstance(panel.get(k), (int, float)) and math.isfinite(float(panel.get(k))) for k in _finite_required):
             continue
         for metric in hits:
-            hits[metric].append(float(panel[metric]))
+            val = float(panel[metric])
+            if math.isfinite(val):
+                hits[metric].append(val)
     effective = min((len(v) for v in hits.values()), default=0)
     summary: Dict[str, Dict[str, float]] = {}
     for metric, values in hits.items():
@@ -5841,6 +6070,43 @@ def main() -> int:
             seed=args.random_seed,
         )
 
+    # Bootstrap optimism correction (Steyerberg, Clinical Prediction Models, 2019)
+    if fast_diagnostic_mode:
+        optimism_correction: Dict[str, Any] = {"skipped": True, "reason": "fast_diagnostic_mode"}
+    else:
+        try:
+            optimism_correction = bootstrap_optimism_correction(
+                estimator=selected_estimator,
+                X_train=X_train,
+                y_train=y_train,
+                threshold=selected_threshold,
+                beta=beta,
+                n_resamples=min(int(args.bootstrap_resamples), 200),
+                seed=args.random_seed,
+            )
+        except Exception as exc:
+            print(f"[WARN] bootstrap_optimism_correction failed: {exc}", file=sys.stderr)
+            optimism_correction = {"skipped": True, "reason": str(exc)}
+
+    # Learning curve convergence check
+    if fast_diagnostic_mode:
+        learning_curve_report: Dict[str, Any] = {"skipped": True, "reason": "fast_diagnostic_mode"}
+    else:
+        try:
+            learning_curve_report = learning_curve_data(
+                estimator=selected_estimator,
+                X_train=X_train,
+                y_train=y_train,
+                X_valid=X_valid,
+                y_valid=y_valid,
+                threshold=selected_threshold,
+                beta=beta,
+                seed=args.random_seed,
+            )
+        except Exception as exc:
+            print(f"[WARN] learning_curve_data failed: {exc}", file=sys.stderr)
+            learning_curve_report = {"skipped": True, "reason": str(exc)}
+
     prevalence = float(np.mean(y_train))
     baseline_proba_test = np.full(shape=y_test.shape[0], fill_value=prevalence, dtype=float)
     prevalence_baseline = {
@@ -6173,6 +6439,8 @@ def main() -> int:
             "fallback_trace": fallback_trace if fallback_trace else None,
         },
         "calibration_assessment": calibration_test,
+        "bootstrap_optimism_correction": optimism_correction,
+        "learning_curve": learning_curve_report,
         "decision_curve_analysis": dca_test,
         "sample_size_adequacy": epv_report,
         "multicollinearity": vif_report,

@@ -177,6 +177,11 @@ def _make_split_block(tp, fp, tn, fn, metrics=None):
         f1 = (2 * prec * rec) / (prec + rec) if (prec + rec) > 0 else 0.0
         beta = 2.0
         f2 = ((1 + beta**2) * prec * rec) / ((beta**2 * prec) + rec) if ((beta**2 * prec) + rec) > 0 else 0.0
+        import math as _m
+        mcc_denom = _m.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
+        mcc = ((tp * tn) - (fp * fn)) / mcc_denom if mcc_denom > 0 else 0.0
+        lr_pos = rec / (1.0 - spec) if spec < 1.0 else float("inf")
+        lr_neg = (1.0 - rec) / spec if spec > 0 else float("inf")
         metrics = {
             "accuracy": acc,
             "precision": prec,
@@ -189,6 +194,9 @@ def _make_split_block(tp, fp, tn, fn, metrics=None):
             "roc_auc": 0.85,
             "pr_auc": 0.80,
             "brier": 0.15,
+            "mcc": mcc,
+            "lr_positive": lr_pos,
+            "lr_negative": lr_neg,
         }
     return {"metrics": metrics, "confusion_matrix": cm, "n_samples": total}
 

@@ -426,6 +426,16 @@ def metric_panel(
     roc_auc = float(roc_auc_score(y_true, y_score))
     pr_auc = float(average_precision_score(y_true, y_score))
     brier = float(brier_score_loss(y_true, y_score))
+    import math as _math
+
+    # Matthews Correlation Coefficient (Chicco & Jurman, BMC Genomics 2020)
+    mcc_denom = _math.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
+    mcc = ((tp * tn) - (fp * fn)) / mcc_denom if mcc_denom > 0 else 0.0
+
+    # Likelihood ratios (clinical decision-making gold standard)
+    lr_positive = sensitivity / (1.0 - specificity) if specificity < 1.0 else float("inf")
+    lr_negative = (1.0 - sensitivity) / specificity if specificity > 0 else float("inf")
+
     metrics = {
         "accuracy": accuracy,
         "precision": precision,
@@ -438,6 +448,9 @@ def metric_panel(
         "roc_auc": roc_auc,
         "pr_auc": pr_auc,
         "brier": brier,
+        "mcc": mcc,
+        "lr_positive": lr_positive,
+        "lr_negative": lr_negative,
     }
     return metrics, cm
 
