@@ -208,6 +208,7 @@ def _compute_shap_for_family(
     X_background: "np.ndarray",
     X_explain: "np.ndarray",
     feature_names: List[str],
+    seed: int = 42,
 ) -> Optional[Dict[str, Any]]:
     """Compute SHAP values for a single model family.
 
@@ -225,7 +226,7 @@ def _compute_shap_for_family(
         or any(t in name for t in _LINEAR_CLASS_FRAGMENTS)
     )
     if is_kernel and ex_transformed.shape[0] > _KERNEL_EXPLAINER_MAX_SAMPLES:
-        rng = np.random.default_rng(42)
+        rng = np.random.default_rng(seed)
         idx = rng.choice(
             ex_transformed.shape[0],
             _KERNEL_EXPLAINER_MAX_SAMPLES,
@@ -783,6 +784,13 @@ def parse_args() -> argparse.Namespace:
         help=f"Fail if mean Kendall tau < this (default {_DEFAULT_RANK_CORRELATION_FAIL}).",
     )
 
+    misc = parser.add_argument_group("Reproducibility")
+    misc.add_argument(
+        "--random-seed", type=int, default=42,
+        help="Random seed for background/explain subsampling (default 42). "
+             "Set to match pipeline seed for full reproducibility.",
+    )
+
     out = parser.add_argument_group("Output")
     out.add_argument("--report", help="Path to write JSON gate report.")
     out.add_argument("--output-dir", help="Directory for CSV tables (default: same as --report parent).")
@@ -889,8 +897,8 @@ def main() -> int:
     X_train_full = train_df[feature_names].values.astype(np.float64)
     X_test_full = test_df[feature_names].values.astype(np.float64)
 
-    # Subsample background
-    rng = np.random.default_rng(42)
+    # Subsample background (seed from CLI for pipeline reproducibility)
+    rng = np.random.default_rng(args.random_seed)
     bg_n = min(args.background_samples, X_train_full.shape[0])
     bg_idx = rng.choice(X_train_full.shape[0], bg_n, replace=False)
     X_background = X_train_full[bg_idx]
@@ -936,6 +944,7 @@ def main() -> int:
                 X_background=X_background,
                 X_explain=X_explain,
                 feature_names=feature_names,
+                seed=args.random_seed,
             )
             if result is not None:
                 result["model_id"] = model_id
