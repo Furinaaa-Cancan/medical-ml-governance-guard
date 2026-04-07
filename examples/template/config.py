@@ -94,6 +94,12 @@ COLS_SIMPLE_IMPUTE = []             # Force Tier 1
 # DO NOT add here without empirical evidence of monotonic relationship
 ORDINAL_COLUMNS = {}
 
+# Numeric columns that are actually nominal (coded IDs, not measurements)
+# These will be OneHot encoded even though they have int dtype.
+# Example: admission_type_id (1=Emergency, 2=Urgent, 3=Elective) — numbers are codes, not quantities
+# Auto-detection catches columns with 'id/code/type' in name, but add others here manually.
+NOMINAL_OVERRIDE = []
+
 # ──────────────────────────────────────────────
 # Feature Selection (Phase 4)
 # ──────────────────────────────────────────────

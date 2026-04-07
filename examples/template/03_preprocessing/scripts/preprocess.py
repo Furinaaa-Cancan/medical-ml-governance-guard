@@ -67,28 +67,53 @@ def separate_xy(df):
 
 # ─── Column Type Detection (MLGG-P05) ────────────────────────
 
+def _is_likely_id_or_code(col_name: str, values) -> bool:
+    """Heuristic: detect if a numeric column is likely a coded ID, not a measurement.
+
+    Clues that a numeric column is actually a nominal code:
+    - Column name contains 'id', 'code', 'type', 'category', 'flag', 'status'
+    - Values are non-consecutive integers (e.g., 1,2,5,8 not 0,1,2,3,4)
+    - Values don't start from 0 or 1 in a natural counting pattern
+    """
+    name_lower = col_name.lower()
+    id_keywords = ["_id", "id_", "code", "type", "category", "flag", "status",
+                   "class", "group", "level", "grade", "stage", "source"]
+    if any(kw in name_lower for kw in id_keywords):
+        return True
+
+    # Check if values are non-consecutive (coded, not counted)
+    unique_sorted = sorted(values.dropna().unique())
+    if len(unique_sorted) >= 3:
+        diffs = [unique_sorted[i+1] - unique_sorted[i] for i in range(len(unique_sorted)-1)]
+        # If gaps are irregular (not all 1), likely coded
+        if len(set(diffs)) > 1 and max(diffs) > 2:
+            return True
+
+    return False
+
+
 def classify_columns(X_train):
-    """Classify columns by cardinality and dtype (MLGG-P05).
+    """Classify columns by cardinality, dtype, and naming heuristics (MLGG-P05).
 
-    Key rule: dtype determines whether low-cardinality columns are
-    categorical (nominal → OneHot) or numeric (ordinal/count → keep).
+    Two-pass approach:
+      Pass 1: Auto-classify based on dtype + cardinality + name heuristics
+      Pass 2: Flag ambiguous columns for user review
 
-    | Condition                                    | Type             | Encoding    |
-    |----------------------------------------------|------------------|-------------|
-    | nunique <= 1                                 | constant         | drop        |
-    | in ORDINAL_COLUMNS config                    | ordinal          | verified    |
-    | nunique == 2                                 | binary           | 0/1         |
-    | 3 <= nunique <= MAX and string/object dtype   | categorical      | OneHot      |
-    | 3 <= nunique <= MAX and numeric dtype         | numeric          | passthrough |
-    | nunique > MAX and numeric dtype               | numeric          | passthrough |
-    | nunique > MAX and string/object dtype          | high_cardinality | passthrough |
+    | Condition                                    | Type              | Encoding    |
+    |----------------------------------------------|-------------------|-------------|
+    | nunique <= 1                                 | constant          | drop        |
+    | in ORDINAL_COLUMNS config                    | ordinal           | verified    |
+    | in NOMINAL_OVERRIDE config                   | categorical       | OneHot      |
+    | nunique == 2                                 | binary            | 0/1         |
+    | 3-MAX, string/object                         | categorical       | OneHot      |
+    | 3-MAX, int, name has 'id/code/type'          | categorical (auto)| OneHot      |
+    | 3-MAX, int, looks like count/score           | numeric           | passthrough |
+    | > MAX, numeric                               | numeric           | passthrough |
+    | > MAX, string                                | high_cardinality  | passthrough |
 
-    Why numeric low-cardinality stays numeric:
-      Count variables (num_medications=0..11) have inherent order.
-      OneHot destroys "5 > 3" information, wastes degrees of freedom,
-      and inflates EPV denominator. Integer-coded IDs that are actually
-      nominal (admission_type_id=1..5) should be declared in
-      ORDINAL_COLUMNS or cast to string before Phase 3.
+    Ambiguous columns (low-cardinality int without clear naming) are flagged
+    with a warning. User should review and add to ORDINAL_COLUMNS or
+    NOMINAL_OVERRIDE in config.py.
     """
     col_types = {
         "binary": [],
@@ -98,6 +123,10 @@ def classify_columns(X_train):
         "high_cardinality": [],
         "constant": [],
     }
+    ambiguous = []  # low-cardinality int columns needing user review
+
+    # Manual nominal overrides from config
+    nominal_override = getattr(cfg, "NOMINAL_OVERRIDE", [])
 
     for col in X_train.columns:
         nunique = X_train[col].nunique()
@@ -108,9 +137,12 @@ def classify_columns(X_train):
             col_types["constant"].append(col)
             continue
 
-        # Configured ordinal (clinically verified)
+        # Manual overrides: ordinal (verified order) or nominal (force OneHot)
         if col in cfg.ORDINAL_COLUMNS:
             col_types["ordinal"].append(col)
+            continue
+        if col in nominal_override:
+            col_types["categorical"].append(col)
             continue
 
         # Binary
@@ -118,14 +150,19 @@ def classify_columns(X_train):
             col_types["binary"].append(col)
             continue
 
-        # Low cardinality: dtype decides categorical vs numeric
+        # Low cardinality
         if nunique <= cfg.MAX_ONEHOT_CARDINALITY:
-            if is_number:
-                # Integer counts, scores, coded ordinals → keep numeric
-                col_types["numeric"].append(col)
-            else:
-                # String/object → truly nominal → OneHot
+            if not is_number:
+                # String/object → definitely nominal → OneHot
                 col_types["categorical"].append(col)
+            elif _is_likely_id_or_code(col, X_train[col]):
+                # Numeric but name/pattern suggests coded ID → treat as categorical
+                col_types["categorical"].append(col)
+                print(f"  [MLGG-P05] Auto-detected '{col}' as nominal (name/pattern suggests ID/code)")
+            else:
+                # Numeric low-cardinality: could be count or coded
+                col_types["numeric"].append(col)
+                ambiguous.append((col, nunique, sorted(X_train[col].dropna().unique())[:8]))
             continue
 
         # High cardinality
@@ -134,9 +171,22 @@ def classify_columns(X_train):
         else:
             col_types["high_cardinality"].append(col)
 
+    # Report
     for t, cols in col_types.items():
         if cols:
             print(f"  {t}: {len(cols)} columns")
+
+    # Flag ambiguous columns for user review
+    if ambiguous:
+        print(f"\n  ⚠️ [MLGG-P05] {len(ambiguous)} ambiguous column(s) — numeric dtype "
+              f"but low cardinality. Please review:")
+        print(f"    These could be either continuous (keep as numeric) or coded IDs (need OneHot).")
+        print(f"    Currently treated as NUMERIC (safe default for ordered data).")
+        print(f"    If any are actually nominal/categorical, add them to NOMINAL_OVERRIDE in config.py.\n")
+        for col, nu, vals in ambiguous:
+            val_str = str(vals)[:50]
+            print(f"    '{col}': {nu} unique values, sample: {val_str}")
+        print()
 
     return col_types
 
