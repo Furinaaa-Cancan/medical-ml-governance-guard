@@ -1,0 +1,24 @@
+{
+  "id": "PR-057",
+  "paper_doi": "10.1038/s41467-020-19313-8",
+  "paper_title": "Network-based machine learning in colorectal and bladder organoid models predicts anti-cancer drug efficacy in patients",
+  "journal": "Nature Communications",
+  "year": 2020,
+  "domain": "oncology",
+  "prediction_task": "Anti-cancer drug response prediction from network-based transcriptomic signatures in organoid models",
+  "model_types": ["penalized_linear_regression", "network_guided_ml"],
+  "data_type": "transcriptomic_pharmacogenomic",
+  "sample_size": 500,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-057-C01", "reviewer": "Reviewer #1", "round": 1, "category": "model_selection", "severity": "CRITICAL", "mlgg_dimension": 4, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Analytical approach is outdated and simplistic — many publications already describe similar strategies with much more advanced deep learning methods. Authors must show (i) PPI-guided selection beats unguided penalized regression, (ii) drug-target proximity beats random pathway selection, (iii) organoid data beats large-scale cell line screens (GDSC/CCLE), (iv) method works better than existing network-guided regression.", "author_response": "Added comprehensive comparisons with GDSC, random pathway controls, and deep learning baselines.", "resolved": true, "tags": ["outdated_methodology", "insufficient_comparison", "deep_learning_alternatives", "four_way_validation_needed"]},
+    {"concern_id": "PR-057-C02", "reviewer": "Reviewer #1", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Results from a unique drug response prediction don't look convincing. Should perform validation using much more comprehensive pharmacogenomics datasets encompassing thousands of observations across hundreds of compounds.", "author_response": "Added pan-drug validation across GDSC and CCLE.", "resolved": true, "tags": ["single_drug_insufficient", "comprehensive_validation_needed", "pan_drug"]},
+    {"concern_id": "PR-057-C03", "reviewer": "Reviewer #1", "round": 1, "category": "study_design", "severity": "MEDIUM", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Authors do not account for biases from reference network topology — over-characterized genes with more connections will always be 'proximal'. Need proper randomization to estimate this bias.", "author_response": "Added degree-preserving random network controls.", "resolved": true, "tags": ["network_topology_bias", "degree_bias", "randomization_control"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-057-S01", "reviewer": "Reviewer #1", "text": "Tackles a critical and timely problem. Assembling models from public preclinical data for personalized medicine is of paramount importance.", "tags": ["critical_problem", "personalized_medicine", "preclinical_to_clinical"]}
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["outdated_methodology", "single_drug_insufficient", "network_topology_bias"],
+  "key_methodology_strengths": ["preclinical_to_clinical_translation", "network_guided", "organoid_validation"]
+}

@@ -1,0 +1,24 @@
+{
+  "id": "PR-059",
+  "paper_doi": "10.1038/s41467-025-59694-2",
+  "paper_title": "AI-based screening for thoracic aortic aneurysms in routine breast MRI",
+  "journal": "Nature Communications",
+  "year": 2025,
+  "domain": "cardiovascular",
+  "prediction_task": "Thoracic aortic aneurysm detection from routine breast MRI scans",
+  "model_types": ["deep_learning_segmentation", "neural_network"],
+  "data_type": "breast_mri_imaging",
+  "sample_size": 5153,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-059-C01", "reviewer": "Reviewer #1", "round": 1, "category": "external_validation", "severity": "HIGH", "mlgg_dimension": 6, "mlgg_gates": ["external_validation_gate"], "mlgg_rules": [], "concern_text": "Algorithm has to be assessed in a prospective huge dataset of multi-institutions. The Erlangen dataset carries too many breast cancer patients and does not reflect a normal population.", "author_response": "Discussed prospective validation plans and population representativeness.", "resolved": true, "tags": ["no_prospective_validation", "enriched_population", "not_representative"]},
+    {"concern_id": "PR-059-C02", "reviewer": "Reviewer #1", "round": 1, "category": "clinical_utility", "severity": "MEDIUM", "mlgg_dimension": 7, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Number of diagnosed aneurysms was very low. Did any diagnosed aneurysm have further assessment with CT/angiography or treatment? What would be the consequence of such a diagnosis for a woman? Incidence higher in breast cancer group — any explanations?", "author_response": "Added clinical follow-up data for detected aneurysms and discussed cancer-aortic association.", "resolved": true, "tags": ["low_prevalence", "clinical_consequences_unclear", "follow_up_actions"]},
+    {"concern_id": "PR-059-C03", "reviewer": "Reviewer #1", "round": 1, "category": "reporting", "severity": "LOW", "mlgg_dimension": 8, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "How long does analysis take per case? How could the analysis be included in reporting workflow? Could the algorithm also be used for lung cancer screening CT as a blueprint?", "author_response": "Added inference time analysis and discussed broader screening applications.", "resolved": true, "tags": ["inference_time", "workflow_integration", "broader_applications"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-059-S01", "reviewer": "Reviewer #1", "text": "Huge dataset (N=5153) from multiple sites with mix of MRI manufacturers and field strengths makes it very interesting and robust. Impressive numbers.", "tags": ["large_multicenter", "multi_vendor", "robust_dataset"]}
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["no_prospective_validation", "enriched_population", "low_prevalence"],
+  "key_methodology_strengths": ["large_multicenter", "multi_vendor_mri", "opportunistic_screening"]
+}

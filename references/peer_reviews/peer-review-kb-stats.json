@@ -1,39 +1,39 @@
 {
-  "total_papers": 54,
-  "total_concerns": 276,
-  "total_strengths": 64,
+  "total_papers": 61,
+  "total_concerns": 295,
+  "total_strengths": 69,
   "concerns_by_category": {
-    "evaluation_metrics": 87,
-    "study_design": 56,
-    "reporting": 38,
+    "evaluation_metrics": 89,
+    "study_design": 62,
+    "reporting": 43,
     "preprocessing": 22,
-    "external_validation": 15,
-    "clinical_utility": 15,
-    "model_selection": 13,
-    "reproducibility": 12,
+    "external_validation": 16,
+    "clinical_utility": 16,
+    "model_selection": 15,
+    "reproducibility": 13,
     "interpretability": 9,
+    "sample_size": 4,
     "split_protocol": 3,
-    "sample_size": 3,
     "data_leakage": 2,
     "feature_selection": 1
   },
   "concerns_by_severity": {
-    "HIGH": 130,
-    "MEDIUM": 114,
-    "CRITICAL": 19,
-    "LOW": 13
+    "HIGH": 141,
+    "MEDIUM": 119,
+    "CRITICAL": 21,
+    "LOW": 14
   },
   "concerns_by_dimension": {
-    "1": 59,
+    "1": 65,
     "2": 2,
     "3": 22,
-    "4": 15,
-    "5": 86,
-    "6": 15,
-    "7": 25,
-    "8": 37,
-    "9": 12,
-    "12": 3
+    "4": 17,
+    "5": 88,
+    "6": 16,
+    "7": 26,
+    "8": 42,
+    "9": 13,
+    "12": 4
   },
   "top_30_tags": [
     {
@@ -93,6 +93,10 @@
       "count": 4
     },
     {
+      "tag": "missing_demographics",
+      "count": 3
+    },
+    {
       "tag": "missing_data_unreported",
       "count": 3
     },
@@ -102,6 +106,10 @@
     },
     {
       "tag": "model_justification",
+      "count": 3
+    },
+    {
+      "tag": "manuscript_structure",
       "count": 3
     },
     {
@@ -118,10 +126,6 @@
     },
     {
       "tag": "missing_precision_recall",
-      "count": 2
-    },
-    {
-      "tag": "missing_demographics",
       "count": 2
     },
     {
@@ -151,21 +155,17 @@
     {
       "tag": "independent_predictor",
       "count": 2
-    },
-    {
-      "tag": "reporting_completeness",
-      "count": 2
     }
   ],
   "resolution_rate": 1.0,
   "papers_by_domain": {
-    "oncology": 16,
+    "oncology": 19,
     "infectious_disease": 6,
     "neurology": 6,
+    "cardiovascular": 5,
+    "critical_care": 4,
     "genomics": 4,
-    "critical_care": 3,
     "nephrology": 3,
-    "cardiovascular": 3,
     "ehr_methodology": 2,
     "emergency_medicine": 2,
     "reproductive_medicine": 2,
@@ -175,12 +175,13 @@
     "digital_health": 1,
     "oncology_epidemiology": 1,
     "dermatology": 1,
-    "microbiome": 1
+    "microbiome": 1,
+    "global_health": 1
   },
   "papers_by_outcome": {
-    "accepted_after_major_revision": 41,
+    "accepted_after_major_revision": 46,
     "accepted_after_revision": 8,
     "accepted_after_minor_revision": 4,
-    "accepted_minimal_review": 1
+    "accepted_minimal_review": 3
   }
 }

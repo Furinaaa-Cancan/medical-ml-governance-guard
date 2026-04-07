@@ -1,0 +1,25 @@
+{
+  "id": "PR-058",
+  "paper_doi": "10.1038/s41467-024-52618-6",
+  "paper_title": "Generalizability assessment of AI models across hospitals in a low-middle and high income country",
+  "journal": "Nature Communications",
+  "year": 2024,
+  "domain": "global_health",
+  "prediction_task": "COVID-19 test-positive prediction — UK-trained model applied to Vietnam hospitals",
+  "model_types": ["feedforward_nn", "logistic_regression", "xgboost"],
+  "data_type": "ehr_tabular",
+  "sample_size": 50000,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-058-C01", "reviewer": "Reviewer #1", "round": 1, "category": "model_selection", "severity": "HIGH", "mlgg_dimension": 4, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Feature set is neither complicated nor high-dimensional. Not clear the need or benefit of feedforward neural network — it can only overfit without improvements over linear models. Also, GBDT CAN be easily fine-tuned (contrary to authors' claim).", "author_response": "Added LR and GBDT fine-tuning comparisons showing similar performance.", "resolved": true, "tags": ["unnecessarily_complex_model", "overfit_risk", "gbdt_fine_tuning_possible"]},
+    {"concern_id": "PR-058-C02", "reviewer": "Reviewer #2", "round": 1, "category": "study_design", "severity": "HIGH", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Very little time discussing how Vietnam data were labeled. Using ICD codes? Were hospitals testing for COVID during the dataset period? What kinds of tests? Any test results to validate diagnoses? Labeling is crucial for interpreting results.", "author_response": "Added COVID testing protocols by hospital and label validation analysis.", "resolved": true, "tags": ["label_quality_unclear", "icd_code_accuracy", "testing_protocol_variation"]},
+    {"concern_id": "PR-058-C03", "reviewer": "Reviewer #1", "round": 1, "category": "reporting", "severity": "HIGH", "mlgg_dimension": 8, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Need overall diagram explaining entire study design. Detailed inclusion/exclusion cascade needed. Need justification why deploying such a model in low-income countries is desired given many such models already exist.", "author_response": "Added study design diagram, CONSORT flow, and justified LMIC deployment need.", "resolved": true, "tags": ["study_design_diagram_missing", "consort_flow_missing", "justification_for_lmic"]},
+    {"concern_id": "PR-058-C04", "reviewer": "Reviewer #2", "round": 1, "category": "reporting", "severity": "MEDIUM", "mlgg_dimension": 8, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Paper is quite long and confusing for a simple fact. Remove many acronyms for datasets and replace with intelligible words.", "author_response": "Shortened paper and replaced acronyms.", "resolved": true, "tags": ["too_long", "excessive_acronyms", "clarity"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-058-S01", "reviewer": "Reviewer #2", "text": "Great to see more data on training in data-rich environments and applying to less-resourced settings. An important general idea.", "tags": ["hic_to_lmic", "global_health", "important_concept"]}
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["unnecessarily_complex_model", "label_quality_unclear", "study_design_diagram_missing"],
+  "key_methodology_strengths": ["hic_to_lmic_transfer", "multi_country", "real_world_deployment"]
+}

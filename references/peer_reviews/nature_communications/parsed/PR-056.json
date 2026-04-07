@@ -1,0 +1,25 @@
+{
+  "id": "PR-056",
+  "paper_doi": "10.1038/s41467-025-61685-2",
+  "paper_title": "Immunodiagnostic plasma amino acid residue biomarkers detect cancer early and predict treatment response",
+  "journal": "Nature Communications",
+  "year": 2025,
+  "domain": "oncology",
+  "prediction_task": "Multi-cancer early detection from plasma amino acid biomarkers + CDKi treatment response prediction",
+  "model_types": ["supervised_ml", "manova"],
+  "data_type": "plasma_amino_acid_biomarkers",
+  "sample_size": 200,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-056-C01", "reviewer": "Reviewer #2", "round": 1, "category": "study_design", "severity": "CRITICAL", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Most cancers are advanced stage (e.g., PDAC all but 1 are stage III-IV). Utility for multi-cancer 'early' detection is unclear and not supported by provided data. Title claims early detection but data is mostly late-stage.", "author_response": "Revised to clarify limitations of staging distribution and added subgroup analysis by stage.", "resolved": true, "tags": ["early_detection_claim_unsupported", "late_stage_bias", "title_vs_data_mismatch"]},
+    {"concern_id": "PR-056-C02", "reviewer": "Reviewer #2", "round": 1, "category": "sample_size", "severity": "HIGH", "mlgg_dimension": 12, "mlgg_gates": ["sample_size_gate"], "mlgg_rules": [], "concern_text": "Cohort size is too small to make any definitive conclusions regarding utility of the test for MCED or for predicting response to treatment (N=92 for cancer detection, N=30 for drug response).", "author_response": "Acknowledged power limitation and framed as proof-of-concept.", "resolved": true, "tags": ["tiny_sample_size", "underpowered", "proof_of_concept"]},
+    {"concern_id": "PR-056-C03", "reviewer": "Reviewer #2", "round": 1, "category": "study_design", "severity": "HIGH", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Age distributions among cases and controls appear quite different. Is there an association between biomarker values and age/sex? Were patients fasted when blood was collected? Important confounders not assessed.", "author_response": "Added age/sex-adjusted analysis and fasting status reporting.", "resolved": true, "tags": ["age_mismatch_cases_controls", "fasting_status", "confounders"]},
+    {"concern_id": "PR-056-C04", "reviewer": "Reviewer #2", "round": 1, "category": "study_design", "severity": "MEDIUM", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Although authors include autoimmune and infection controls, other benign conditions pertinent to the field of cancer detection are missing.", "author_response": "Added discussion of benign condition controls as future work.", "resolved": true, "tags": ["incomplete_control_groups", "benign_conditions_missing"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-056-S01", "reviewer": "Reviewer #1", "text": "Identification of immunodiagnostic biomarkers is very novel. Very sophisticated data analysis. Results are significant and the study is state-of-the-art.", "tags": ["novel_biomarker_platform", "sophisticated_analysis", "significant_results"]}
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["early_detection_claim_unsupported", "tiny_sample_size", "age_mismatch_cases_controls"],
+  "key_methodology_strengths": ["novel_biomarker", "plasma_based_non_invasive", "multi_cancer"]
+}
