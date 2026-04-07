@@ -263,3 +263,22 @@ Fix: Use OneHotEncoder for nominal variables
 | T01 | WARNING | TRIPOD+AI 2024 合规 |
 | Q01 | WARNING | 亚组分析 |
 | Q02 | WARNING | 亚组 CI + n<200 标记 |
+
+## Peer Review Evidence-Based Review（始终激活）
+
+在审查用户代码或回答方法学问题时，**必须**查阅 `references/peer_reviews/peer-review-kb.json`（106 篇 NC 论文，375 条审稿意见）。
+
+**引用规则**：
+- 发现问题时，按 category/tags 检索相似审稿案例，引用 concern_text 和 author_response
+- Gate 失败时，按 mlgg_gates 检索，告诉用户 "X 位 NC 审稿人指出过相同问题"
+- Phase checkpoint 时，引用该维度的统计数据（如 "119/375 审稿意见要求完善评估指标"）
+- 格式: `[PEER-REVIEW] PR-XXX-CYY: "审稿人原文..." — 修复方案: "..."`
+
+**辅助 CLI**（供用户手动查询）：
+```
+python3 scripts/tools/peer_review_lookup.py --stats
+python3 scripts/tools/peer_review_lookup.py --dimension 5 --severity HIGH
+python3 scripts/tools/peer_review_lookup.py --gate leakage_gate
+python3 scripts/tools/peer_review_lookup.py --tags "missing_calibration"
+python3 scripts/tools/peer_review_lookup.py --search "calibration missing AUC"
+```

@@ -138,3 +138,11 @@ Fix: Use OneHotEncoder for nominal variables
 - **CRITICAL**: 必须修复 — 结果不可信（数据泄漏、标签泄漏、编码错误）
 - **WARNING**: 强烈建议 — 审稿人会要求（缺少 CI、校准不佳）
 - **INFO**: 最佳实践（随机种子、代码风格）
+
+## Peer Review 知识库
+
+本项目集成了 Peer Review RAG 知识库（`references/peer_reviews/peer-review-kb.json`），包含 106 篇 Nature Communications 论文的 375 条结构化审稿意见。
+
+审查用户代码时，应读取此文件按问题类别检索相关审稿案例，引用真实审稿人意见作为论据。
+例如：当发现用户缺少校准时，引用 "PR-002-C01: NC 审稿人指出 'AUC should not be the only metric... calibration curves should be provided'"。
+
