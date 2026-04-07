@@ -73,9 +73,9 @@ description: "Publication-grade medical prediction workflow with strict anti-dat
 | 用户的特征中有 ICD/diagnosis 编码列 | "⚠️ 如果 ICD 编码列包含结局疾病的诊断码，这是定义变量泄漏。需要排除。" |
 | 模型训练完成后 | "建议运行鲁棒性压力测试 (robustness_stress_test)，检查模型对异常值和噪声的稳定性。" |
 | 评估完成后 | "校准斜率应接近 1.0，截距接近 0。如果偏离较大，建议做 Platt scaling 校准。" |
-| 用户代码在某 gate 失败时 | 查询 `references/peer_reviews/peer-review-kb.json`，按 gate 匹配。告诉用户："X 位 NC 审稿人在 Y 篇论文中指出过相同问题。典型修复方案：..." 使用 `python3 scripts/peer_review_lookup.py --gate <gate_name>` |
-| 用户说"审查我的代码"/"帮我 review" | 按发现的问题 category/tags 查询 peer-review-kb.json，引用 top-3 真实审稿意见作为论据。使用 `python3 scripts/peer_review_lookup.py --tags <detected_tags>` |
-| 审稿人/用户问"这种问题常见吗" | 查询 peer-review-kb 统计：`python3 scripts/peer_review_lookup.py --stats`。引用 "107 篇 NC 论文中，X/375 审稿意见要求了这个" |
+| 用户代码在某 gate 失败时 | 读取 `references/peer_reviews/peer-review-kb.json`，按失败 gate 名称在 `mlgg_gates` 字段中匹配相关 concerns。告诉用户："X 位 NC 审稿人在 Y 篇论文中指出过相同问题。典型修复方案：..." 并引用具体的 concern_id 和 author_response。 |
+| 用户说"审查我的代码"/"帮我 review" | 先识别代码中的问题 category 和 tags，然后读取 peer-review-kb.json 按 tags/category 匹配。引用 top-3 真实审稿意见原文作为论据，格式："[PEER-REVIEW] PR-XXX-CYY: Reviewer 指出 '...' — 作者修复方案：'...'"。 |
+| 审稿人/用户问"这种问题常见吗" | 读取 `references/peer_reviews/peer-review-kb-stats.json`，引用统计数据。例如："107 篇 NC 论文中，119/375 (31.7%) 的审稿意见涉及评估指标不完整，其中 missing_calibration 出现 12+ 次。" |
 
 ---
 
@@ -129,34 +129,70 @@ description: "Publication-grade medical prediction workflow with strict anti-dat
 | "从 PMC 收集有代码的论文" | `python3 experiments/paper/collect_papers_with_code.py --output <out.jsonl>` |
 | "验证论文 repo 质量" | `python3 experiments/paper/verify_repos.py --input <in.jsonl> --output <out.jsonl>` |
 | "批量扫描论文代码泄漏" | `python3 experiments/paper/scan_published_repos.py --manifest <verified.jsonl> --output <out.json>` |
-| "这种问题审稿人会怎么看？" | `python3 scripts/peer_review_lookup.py --tags <detected_tags>` |
-| "NC 审稿人通常要求什么？" | `python3 scripts/peer_review_lookup.py --stats` |
-| "查找相关审稿案例" | `python3 scripts/peer_review_lookup.py --dimension <dim> --severity HIGH` |
-| "这个 gate 以前抓过什么？" | `python3 scripts/peer_review_lookup.py --gate <gate_name>` |
+| "这种问题审稿人会怎么看？" | 读取 peer-review-kb.json 按问题 tags 匹配，返回同行审稿人的原始意见和作者修复方案。 |
+| "NC 审稿人通常要求什么？" | 读取 peer-review-kb-stats.json，返回统计摘要：top 类别、severity 分布、最常见 tags。 |
+| "查找相关审稿案例" | 按用户描述的问题在 peer-review-kb.json 中按 dimension/category/tags 匹配，返回 top-3 案例。 |
+| "这个 gate 以前抓过什么？" | 在 peer-review-kb.json 中按 mlgg_gates 字段匹配，展示该 gate 关联的真实审稿案例。 |
 
 ### Peer Review Evidence-Based Review（始终激活）
 
-Agent 审查代码时，应查阅 `references/peer_reviews/peer-review-kb.json`（107 篇 NC 论文，375 条审稿意见）：
+Agent 审查代码时，**必须**查阅 `references/peer_reviews/peer-review-kb.json`（107 篇 NC 论文，375 条结构化审稿意见）和 `references/peer_reviews/peer-review-kb-stats.json`（统计摘要）。
 
-**引用时机：**
-1. **发现方法学问题时**：按 category + tags 检索，引用 "Reviewer #X in Paper Y raised..."
-2. **Gate 失败时**：按 gate 检索，附带 "此 gate 在 N 篇真实论文中捕获过类似问题"
-3. **Phase checkpoint 时**：按 dimension 检索，展示该维度最常见的审稿人关切
-4. **用户问"审稿人会怎么说"时**：返回 top-3 最相关案例
+> **核心原则**：每一条审查建议都应尽可能引用真实同行评审案例作为论据，而非仅凭规则输出。
+> 审稿人的原话比规则更有说服力——"NC Reviewer #2 在类似论文中指出了完全相同的问题"。
 
-**引用格式：**
+#### 知识库结构
+
+peer-review-kb.json 中每条 concern 包含：
+- `concern_id`：唯一标识（PR-XXX-CYY）
+- `category`：问题类别（evaluation_metrics / study_design / reporting / preprocessing / ...）
+- `severity`：CRITICAL / HIGH / MEDIUM / LOW
+- `mlgg_dimension`：MLGG 12 维度编号（1-12）
+- `mlgg_gates`：关联的 gate 脚本列表
+- `tags`：语义标签列表（missing_calibration / temporal_leakage / no_external_validation / ...）
+- `concern_text`：审稿人原文
+- `author_response`：作者修复方案
+- `_paper_id` / `_year` / `_domain`：论文信息
+
+#### 检索策略
+
+Agent 根据当前场景选择检索维度：
+
+| 场景 | 检索字段 | 示例 |
+|------|----------|------|
+| Gate 失败 | `mlgg_gates` 包含该 gate | leakage_gate → 找所有被这个 gate 捕获的案例 |
+| 发现具体问题 | `tags` 匹配 | 发现缺校准 → tags=["missing_calibration"] |
+| Phase checkpoint | `mlgg_dimension` 匹配 | Phase 3 完成 → dimension=3 (Pipeline Isolation) |
+| 领域相关 | `_domain` 匹配 | 用户做癌症预测 → domain="oncology" |
+| 严重度过滤 | `severity` 过滤 | 只看 CRITICAL 级问题 |
+
+#### 引用格式
+
 ```
 [PEER-REVIEW] PR-XXX-CYY (Nature Communications, 20XX)
-Reviewer concern: "..."
-Author fix: "..."
-MLGG dimension: X | Gate: xxx_gate | Tags: [...]
-Similar concerns in KB: N/375 (X%)
+  审稿人指出: "..."
+  作者修复: "..."
+  维度: X | Gate: xxx_gate | 标签: [...]
+  KB 中类似问题: N/375 (X%)
 ```
 
-**统计引用示例：**
+#### 统计引用
+
+当建议某个改进时，引用 peer-review-kb-stats.json 中的数据增强说服力：
 - "107 篇 NC 论文中，119/375 (31.7%) 的审稿意见要求完善评估指标"
-- "25 条 CRITICAL 级问题中，最常见的是数据泄漏和结局定义错误"
-- "只报 AUC 不报校准是 NC 审稿人最常提出的 HIGH 级问题"
+- "25 条 CRITICAL 级问题中，最常见的是数据泄漏(3)和结局定义错误(5)"
+- "只报 AUC 不报校准是 NC 审稿人最常提出的 HIGH 级问题（出现 12+ 次）"
+- "81/375 (21.6%) 的意见涉及研究设计——审稿人最关心队列定义和结局变量"
+
+#### 辅助 CLI（供用户手动查询）
+
+```bash
+python3 scripts/peer_review_lookup.py --stats
+python3 scripts/peer_review_lookup.py --dimension 5 --severity HIGH
+python3 scripts/peer_review_lookup.py --gate leakage_gate
+python3 scripts/peer_review_lookup.py --tags "missing_calibration,no_dca"
+python3 scripts/peer_review_lookup.py --category evaluation_metrics --limit 3
+```
 
 ### 五条常用命令（覆盖 90% 场景）
 
