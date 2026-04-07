@@ -103,7 +103,7 @@ class TestRetrieveByDomain:
 class TestGetStatsSummary:
     def test_stats_loads(self):
         stats = get_stats_summary(kb_path=STATS_PATH)
-        assert stats["total_papers"] == 107
+        assert stats["total_papers"] == 106
         assert stats["total_concerns"] == 375
         assert "concerns_by_category" in stats
         assert "concerns_by_severity" in stats

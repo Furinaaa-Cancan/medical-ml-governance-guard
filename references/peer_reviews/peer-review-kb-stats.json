@@ -1,5 +1,5 @@
 {
-  "total_papers": 107,
+  "total_papers": 106,
   "total_concerns": 375,
   "total_strengths": 76,
   "concerns_by_category": {
@@ -159,7 +159,7 @@
   ],
   "resolution_rate": 1.0,
   "papers_by_domain": {
-    "oncology": 29,
+    "oncology": 28,
     "neurology": 10,
     "infectious_disease": 8,
     "cardiovascular": 7,
@@ -199,7 +199,7 @@
   "papers_by_outcome": {
     "accepted_after_major_revision": 81,
     "accepted_after_revision": 9,
-    "reporting_summary_only": 8,
+    "reporting_summary_only": 7,
     "accepted_after_minor_revision": 5,
     "accepted_minimal_review": 4
   }

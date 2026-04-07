@@ -198,7 +198,7 @@ class TestScenario14_StatsConsistency:
 
     def test_counts_match(self):
         stats = get_stats_summary(kb_path=STATS_PATH)
-        assert stats["total_papers"] == 107
+        assert stats["total_papers"] == 106
         assert stats["total_concerns"] == 375
         assert sum(stats["concerns_by_category"].values()) == 375
         assert sum(stats["concerns_by_severity"].values()) == 375
