@@ -27,41 +27,41 @@
 
 ---
 
-## Table of Contents
+## 目录
 
-- [Why MLGG](#why-mlgg)
-- [System Overview](#system-overview)
-- [Quick Start](#quick-start)
-- [The 9-Phase Pipeline](#the-9-phase-pipeline)
-  - [Phase 1: Cohort Definition & Sample Size](#phase-1--cohort-definition--sample-size)
-  - [Phase 2: Data Splitting](#phase-2--data-splitting)
-  - [Phase 3: Preprocessing](#phase-3--preprocessing)
-  - [Phase 4: Feature Selection](#phase-4--feature-selection)
-  - [Phase 5: Training & Model Selection](#phase-5--training--model-selection)
-  - [Phase 6: Evaluation & Calibration](#phase-6--evaluation--calibration)
-  - [Phase 7: Multi-Model SHAP Interpretability](#phase-7--multi-model-shap-interpretability)
-  - [Phase 8: Fairness & Equity](#phase-8--fairness--equity)
-  - [Phase 9: Reporting & Compliance](#phase-9--reporting--compliance)
-- [The 33-Gate DAG](#the-33-gate-dag)
-- [12-Dimension Scoring](#12-dimension-scoring)
-- [31 Methodology Rules](#31-methodology-rules)
-- [20 Model Families](#20-model-families)
-- [14 Medical Datasets](#14-medical-datasets)
-- [20 Static Analysis Rules (R001-R020)](#20-static-analysis-rules-r001-r020)
-- [19 Analysis Tools](#19-analysis-tools)
-- [Security Layer](#security-layer)
-- [Project Structure](#project-structure)
-- [Installation](#installation)
-- [Command Reference](#command-reference)
-- [Literature Foundation](#literature-foundation)
-- [Claude Code Integration](#claude-code-integration)
+- [为什么需要 MLGG](#为什么需要-mlgg)
+- [系统能力总览](#系统能力总览)
+- [快速开始](#快速开始)
+- [9 阶段工作流](#9-阶段工作流)
+  - [阶段一：队列定义与样本量](#阶段一队列定义与样本量)
+  - [阶段二：数据划分](#阶段二数据划分)
+  - [阶段三：预处理](#阶段三预处理)
+  - [阶段四：特征筛选](#阶段四特征筛选)
+  - [阶段五：模型训练与选择](#阶段五模型训练与选择)
+  - [阶段六：评估与校准](#阶段六评估与校准)
+  - [阶段七：多模型 SHAP 可解释性](#阶段七多模型-shap-可解释性)
+  - [阶段八：公平性与亚组分析](#阶段八公平性与亚组分析)
+  - [阶段九：报告与合规](#阶段九报告与合规)
+- [33 道安全门控 (Gate DAG)](#33-道安全门控-gate-dag)
+- [12 维量化评分](#12-维量化评分)
+- [31 条方法论规则](#31-条方法论规则)
+- [20 个模型族](#20-个模型族)
+- [14 个医学数据集](#14-个医学数据集)
+- [20 条静态分析规则 (R001-R020)](#20-条静态分析规则-r001-r020)
+- [19 项分析工具](#19-项分析工具)
+- [安全加固层](#安全加固层)
+- [项目结构](#项目结构)
+- [安装指南](#安装指南)
+- [命令参考](#命令参考)
+- [文献基础](#文献基础)
+- [Claude Code 集成](#claude-code-集成)
 - [CI/CD](#cicd)
-- [License & Citation](#license--citation)
+- [许可证与引用](#许可证与引用)
 - [English Version](#english-version)
 
 ---
 
-## Why MLGG
+## 为什么需要 MLGG
 
 医学 ML 论文中数据泄漏的发生率远超预期。86% 已发表预测模型存在高偏倚风险 (Van Calster 2026, Annual Review of Statistics)。
 
@@ -80,7 +80,7 @@
 
 ---
 
-## System Overview
+## 系统能力总览
 
 ```
 原始数据 ──→ 9-Phase 工作流 ──→ 33 道门控审计 ──→ 合规证书 ──→ 可发表报告
@@ -101,9 +101,9 @@
 
 ---
 
-## Quick Start
+## 快速开始
 
-### Way 1: Claude Code (Recommended &mdash; AI Reviewer Full Guidance)
+### 方式一：Claude Code（推荐 — AI 审稿人全程引导）
 
 ```bash
 # 1. Clone
@@ -124,7 +124,7 @@ claude
 # 107 peer review papers as evidence.
 ```
 
-### Way 2: Command Line
+### 方式二：命令行
 
 ```bash
 # Install
@@ -150,7 +150,7 @@ python3 scripts/orchestration/mlgg.py workflow \
   --request configs/request.json --strict
 ```
 
-### Way 3: Shortest Strict Loop (Your Own CSV)
+### 方式三：自有 CSV 最短严格闭环
 
 ```bash
 # 1. Init project
@@ -180,7 +180,7 @@ python3 scripts/orchestration/mlgg.py workflow \
 
 ---
 
-## The 9-Phase Pipeline
+## 9 阶段工作流
 
 MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通过不进入下一阶段。
 
@@ -219,15 +219,15 @@ MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通
 
 ---
 
-### Phase 1 &mdash; Cohort Definition & Sample Size
+### 阶段一：队列定义与样本量
 
 > **Script**: `cohort_definition_gate.py` &nbsp;|&nbsp; **Layer**: 0 &nbsp;|&nbsp; **Rules**: C01, F05, Z01
 
-#### 1.1 Cohort Definition (MLGG-C01)
+#### 1.1 队列定义（MLGG-C01）
 
 排除结局结构性不可能的记录。例如在再入院预测中，死亡/临终关怀患者不可能再入院，纳入会虚抬 AUROC (实测 +0.004)。排除规则必须在任何分析之前确定，且记录排除人数和理由 (TRIPOD+AI Item 4a)。
 
-#### 1.2 Sample Size &mdash; Riley Triple Criteria (Riley 2019, Stat Med)
+#### 1.2 样本量 — Riley 三准则（Riley 2019, Stat Med）
 
 传统 EPV >= 10 规则已被证明"过于简化且缺乏证据支撑" (Riley 2019 原文)。MLGG 实现三准则：
 
@@ -246,7 +246,7 @@ MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通
 | EPV 10-20 | **INFO** &mdash; 可接受，推荐 >= 20 |
 | EPV >= 20 | **PASS** |
 
-#### 1.3 Data Type Auto-Detection
+#### 1.3 数据类型自动检测
 
 每列按基数和类型分类：
 
@@ -260,11 +260,11 @@ MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通
 
 输出 `feature_profile.csv`：每列的缺失率、唯一值数、描述统计。
 
-#### 1.4 Missingness Profile
+#### 1.4 缺失值概况
 
 按特征统计缺失率。>50% 缺失自动标记。检测缺失与结局的相关性 (|r| > 0.1 标记为 MNAR 信号)。检测纵向/横截面：患者 ID 有重复行 -> 纵向数据。
 
-#### 1.5 Suspicious Correlation Detection
+#### 1.5 可疑相关性检测
 
 | 条件 | 判定 | 含义 |
 |:-----|:-----|:-----|
@@ -274,15 +274,15 @@ MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通
 
 ---
 
-### Phase 2 &mdash; Data Splitting
+### 阶段二：数据划分
 
 > **Script**: `split_data.py` &nbsp;|&nbsp; **Gates**: `split_protocol_gate` + `leakage_gate` &nbsp;|&nbsp; **Rules**: S01, S02
 
-#### 2.1 Patient-Level Disjoint Split (MLGG-S01)
+#### 2.1 患者级 disjoint 划分（MLGG-S01）
 
 同一患者的所有记录 (如多次住院) 必须归入同一 split。违反此原则会导致模型"记住"患者特征，虚抬测试性能。实现：按 `patient_id` 分组，组为最小不可分割单位。
 
-#### 2.2 Three Splitting Strategies
+#### 2.2 三种划分策略
 
 | 策略 | 适用数据 | 时间列 | 原理 |
 |:-----|:---------|:-------|:-----|
@@ -290,7 +290,7 @@ MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通
 | `grouped_random` | 横截面调查 (NHANES, BRFSS) | 不需要 | 患者随机打乱后按比例分配。`--cross-sectional` 跳过时序检查 |
 | `stratified_grouped` | 横截面 + 需保证正类比例一致 | 不需要 | 按结局标签分层，层内随机分配，各 split 正类率差异 < 3% |
 
-#### 2.3 Safety Constraints
+#### 2.3 安全约束
 
 | 约束 | 阈值 | 违反后果 |
 |:-----|:-----|:---------|
@@ -301,7 +301,7 @@ MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通
 | 正类率跨 split 漂移 | > 10% | WARNING |
 | 患者 ID 跨 split 重叠 | 任何 | **FAIL (零容忍)** |
 
-#### 2.4 Leakage Detection (7-Category Regex)
+#### 2.4 泄漏检测（7 类正则）
 
 泄漏门控检测 7 类可疑特征名模式：
 
@@ -315,7 +315,7 @@ MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通
 | 结局日期 | `diagnosis_date`, `death_date`, `event_date` | `discharge_date` |
 | 衍生指标 | `readmit`, `mortality_flag`, `los_days` | `readmit_30d`, `survival_status` |
 
-#### 2.5 Output Artifacts
+#### 2.5 输出工件
 
 - `train.csv`, `valid.csv`, `test.csv`
 - `split_protocol.json` (自动生成，gate 可验证)
@@ -323,15 +323,15 @@ MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通
 
 ---
 
-### Phase 3 &mdash; Preprocessing
+### 阶段三：预处理
 
 > **Script**: `train_select_evaluate.py` Pipeline &nbsp;|&nbsp; **Rules**: P01-P06
 
-#### 3.1 Iron Rule: All fit() on Train Only (P01/P03/P04)
+#### 3.1 铁律：所有 fit() 仅在训练集（P01/P03/P04）
 
 预处理管道结构：`Imputer -> Scaler -> Classifier`。每一步的统计量 (中位数、均值、标准差、类别映射) 只从训练集计算，验证集和测试集只调用 `.transform()`。这防止了最常见的数据泄漏 &mdash; 预处理泄漏 (Kaufman 2012, ACM TKDD)。
 
-#### 3.2 Categorical Encoding (MLGG-P05)
+#### 3.2 分类变量编码（MLGG-P05）
 
 | 特征类型 | 检测条件 | 编码方法 | OOD 安全性 |
 |:---------|:---------|:---------|:-----------|
@@ -342,7 +342,7 @@ MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通
 
 **为什么不用 OrdinalEncoder 编码名义变量**: 名义变量 (如 race=1,2,3,4,5) 用 OrdinalEncoder 会让模型假设 race=5 是 race=1 的 5 倍 &mdash; LR 系数失去临床意义 (实测：改为 OneHot 后 LR AUROC +0.02)。
 
-#### 3.3 Tiered Missingness Strategy (MLGG-P06, Madley-Dowd 2019)
+#### 3.3 分层缺失策略（MLGG-P06, Madley-Dowd 2019）
 
 不使用固定阈值 (如"丢弃 >60% 缺失")，而是按缺失机制分层：
 
@@ -355,21 +355,21 @@ MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通
 
 > **实现说明**: 当前代码统一使用 `SimpleImputer(median, add_indicator=True)`。上述分层是推荐的分析框架。树模型 (RF/XGB/LGBM) 不添加 indicator 列 (原生处理缺失)。
 
-#### 3.4 SMOTE Position Statement
+#### 3.4 SMOTE 立场
 
 van den Goorbergh 2022 (JAMIA) 证明 SMOTE 严重损害风险预测模型的概率校准。MLGG 默认不使用 SMOTE，改用 `class_weight="balanced"` + 事后 Platt scaling 校准。
 
 ---
 
-### Phase 4 &mdash; Feature Selection
+### 阶段四：特征筛选
 
 > **Script**: `train_select_evaluate.py` &nbsp;|&nbsp; **Rules**: F01-F06
 
-#### 4.1 Design Philosophy
+#### 4.1 设计哲学
 
 Harrell 2015 和 Steyerberg 2019 推荐"临床先验预指定 + 惩罚收缩"而非数据驱动筛选。但当候选特征远超临床知识时，MLGG 提供有控制的筛选路径。
 
-#### 4.2 Elastic Net CV (Zou & Hastie 2005)
+#### 4.2 Elastic Net CV（Zou & Hastie 2005）
 
 联合调优正则化参数：
 - alpha in {0.1, 0.3, 0.5, 0.7, 1.0}: 0.1 接近 Ridge (保留所有特征), 1.0 等价 LASSO (稀疏)
@@ -377,7 +377,7 @@ Harrell 2015 和 Steyerberg 2019 推荐"临床先验预指定 + 惩罚收缩"而
 - 5 折 StratifiedKFold 内部 CV，选择 PR-AUC 最优组合
 - **分组选择** (Yuan & Lin 2006, Group LASSO): OneHot 产生的 dummy 列属于同一原始变量，必须同进同退
 
-#### 4.3 Stability Selection (Meinshausen & Buhlmann 2010)
+#### 4.3 稳定性选择（Meinshausen & Buhlmann 2010）
 
 - 100 次子采样 (每次抽 80% 训练集)
 - 每次拟合 Elastic Net (C=0.3, L1)，记录非零特征
@@ -385,21 +385,21 @@ Harrell 2015 和 Steyerberg 2019 推荐"临床先验预指定 + 惩罚收缩"而
 - 保留入选概率 > 0.6 的特征
 - **修正**: 使用全局 train median 做插补 (而非 bootstrap 局部 median)，避免信息泄漏
 
-#### 4.4 Ridge Control (Harrell 2015)
+#### 4.4 Ridge 对照（Harrell 2015）
 
 始终与"不做筛选、只用 Ridge 收缩"的全量模型比较。如果 Elastic Net 选择后 PR-AUC 损失 > 0.005，回退到全量 Ridge。
 
-#### 4.5 Deprecated: Univariate Screening
+#### 4.5 废弃：单因素筛选
 
 Heinze 2018 (Biometrical Journal) 明确反对单因素 p 值筛选：导致多重比较问题、丢弃弱但联合有效的特征、引入选择偏倚。MLGG 只将单因素分析 (Mann-Whitney U) 作为诊断工具，不用于特征选择决策。
 
 ---
 
-### Phase 5 &mdash; Training & Model Selection
+### 阶段五：模型训练与选择
 
 > **Script**: `train_select_evaluate.py` &nbsp;|&nbsp; **Gate**: `model_selection_audit_gate` &nbsp;|&nbsp; **Rules**: M01-M04, R01
 
-#### 5.1 Candidate Model Families (MLGG-M03: >= 3)
+#### 5.1 候选模型族（MLGG-M03：>= 3）
 
 MLGG 支持 20 个模型族 (详见 [20 Model Families](#20-model-families) 节)。推荐至少比较：
 - **Logistic Regression** (L1/L2/ElasticNet) &mdash; 线性基线，系数可直接解释
@@ -408,7 +408,7 @@ MLGG 支持 20 个模型族 (详见 [20 Model Families](#20-model-families) 节)
 
 每族定义超参数网格，通过 Optuna TPE sampler 或 Grid Search 在**验证集**上调优。
 
-#### 5.2 Model Selection Criterion (MLGG-M04, Yang KDD 2023)
+#### 5.2 模型选择标准（MLGG-M04, Yang KDD 2023）
 
 **不使用 train-test gap 选模型。** Yang et al. 2023 证明验证集性能是更可靠的模型选择准则：
 
@@ -426,7 +426,7 @@ eligible = [m for m in candidates if m.mean >= threshold]
 selected = min(eligible, key=complexity_rank)
 ```
 
-#### 5.3 Threshold Selection (MLGG-M02)
+#### 5.3 阈值选择（MLGG-M02）
 
 在**验证集**上通过 F-beta 最大化 + 临床约束确定最优分类阈值。阈值绝不在测试集上选择 (MLGG-M01 零容忍)。
 
@@ -439,7 +439,7 @@ selected = min(eligible, key=complexity_rank)
 | Specificity | >= 0.60 | 误诊率上限 |
 | PPV | >= 0.50 | 阳性预测值下限 |
 
-#### 5.4 Bootstrap Optimism Correction (Steyerberg 2019 Ch.17)
+#### 5.4 Bootstrap Optimism Correction（Steyerberg 2019 Ch.17）
 
 内部验证方法，估计模型性能的"乐观偏差"：
 
@@ -455,7 +455,7 @@ corrected = apparent_original - mean(optimism_i)
 
 输出 `bootstrap_optimism_correction` 块：apparent / optimism / corrected (pr_auc, roc_auc, brier)。
 
-#### 5.5 Learning Curve (Figueroa 2012)
+#### 5.5 学习曲线（Figueroa 2012）
 
 评估模型是否已"收敛" &mdash; 训练数据再增加是否还能提升性能：
 
@@ -463,17 +463,17 @@ corrected = apparent_original - mean(optimism_i)
 - 收敛判定：最后 3 个点的相对标准差 < 2%
 - 输出 `learning_curve` 块：每个点的 train_score / valid_score + converged flag
 
-#### 5.6 Definition Column Enforcement
+#### 5.6 定义列强制排除
 
 `--definition-cols HbA1c,fasting_glucose` &mdash; 结局定义列被**强制排除**，不再是建议。防止最常见的医学 ML 泄漏：用于定义结局的变量混入预测特征。
 
 ---
 
-### Phase 6 &mdash; Evaluation & Calibration
+### 阶段六：评估与校准
 
 > **Script**: `train_select_evaluate.py` + 13 道统计门控 &nbsp;|&nbsp; **Rules**: E01-E06
 
-#### 6.1 Complete 14-Metric Panel (MLGG-E02)
+#### 6.1 完整 14 指标面板（MLGG-E02）
 
 测试集一次性使用，报告 5 域 14 项指标 (对标 Lancet Digital Health 2025 评估框架)：
 
@@ -487,7 +487,7 @@ corrected = apparent_original - mean(optimism_i)
 
 > **为什么必须报 MCC 和 LR+/LR-**: AUROC 0.65 可能看起来"还行"，但 MCC 0.12 (接近随机) 和 LR+ 1.6 (无决策价值) 揭示模型真实能力。仅报 AUROC/F1 是选择性报告。
 
-#### 6.2 Calibration Triple (Van Calster 2019, BMC Medicine)
+#### 6.2 校准三件套（Van Calster 2019, BMC Medicine）
 
 通过 logistic recalibration 拟合 `logit(y) ~ a + b x logit(y_hat)`：
 
@@ -499,7 +499,7 @@ corrected = apparent_original - mean(optimism_i)
 | ECE | 0 | 预测概率分组误差 | <= 0.06 |
 | CITL | 0 | Calibration-in-the-large | \|CITL\| <= 0.10 (fail), <= 0.05 (warn) |
 
-#### 6.3 Decision Curve Analysis (Vickers 2006)
+#### 6.3 决策曲线分析（Vickers 2006）
 
 DCA 评估模型在不同决策阈值下的临床净效用：
 
@@ -509,7 +509,7 @@ DCA 评估模型在不同决策阈值下的临床净效用：
 | 优势覆盖率 | >= 50% | 模型优于"全治疗"的阈值比例 |
 | 平均优势 | >= 0.0 | 平均净效用改善 |
 
-#### 6.4 NRI / IDI (Pencina 2008, Statistics in Medicine)
+#### 6.4 NRI / IDI（Pencina 2008）
 
 | 指标 | 含义 |
 |:-----|:-----|
@@ -517,7 +517,7 @@ DCA 评估模型在不同决策阈值下的临床净效用：
 | Continuous NRI | 不依赖阈值的重分类改善 |
 | IDI | 事件组和非事件组预测概率差的改善量 |
 
-#### 6.5 Bootstrap 95% CI (MLGG-E01)
+#### 6.5 Bootstrap 95% CI（MLGG-E01）
 
 所有主要指标使用 percentile bootstrap 计算 95% CI：
 
@@ -529,7 +529,7 @@ DCA 评估模型在不同决策阈值下的临床净效用：
 | CI width max | 0.20 | 超过则 FAIL |
 | Min baseline delta | 0.01 | 必须优于 prevalence baseline |
 
-#### 6.6 Generalization Gap Thresholds
+#### 6.6 泛化差距阈值
 
 | 比较 | 指标 | WARNING | FAIL |
 |:-----|:-----|:--------|:-----|
@@ -540,7 +540,7 @@ DCA 评估模型在不同决策阈值下的临床净效用：
 
 Gap 仅用于诊断报告，不用于模型选择 (MLGG-E04)。
 
-#### 6.7 Multi-Seed Stability (MLGG-R02)
+#### 6.7 多种子稳定性（MLGG-R02）
 
 | 指标 | Std Max | Range Max |
 |:-----|:--------|:----------|
@@ -550,21 +550,21 @@ Gap 仅用于诊断报告，不用于模型选择 (MLGG-E04)。
 
 Strict mode 要求 >= 5 seeds, non-strict >= 3 seeds。
 
-#### 6.8 Post-hoc Calibration (MLGG-E05)
+#### 6.8 事后校准（MLGG-E05）
 
 `class_weight="balanced"` 会扭曲预测概率 (ECE 可达 0.3-0.4)。必须用 Platt scaling 或 isotonic regression 在**验证集**上拟合校准器，然后应用于测试集。校准后 ECE 应 < 0.06。
 
 ---
 
-### Phase 7 &mdash; Multi-Model SHAP Interpretability
+### 阶段七：多模型 SHAP 可解释性
 
 > **Gate**: `shap_interpretability_gate` &nbsp;|&nbsp; **Layer**: 5
 
-#### 7.1 Why Multi-Model, Not Single-Model
+#### 7.1 为什么多模型而非单模型
 
 不同模型族有不同的归纳偏差：RF 偏好交互特征、XGBoost 偏好非线性分段、LR 只看线性效应。单模型 SHAP 排名反映的是该模型的"世界观"，不是数据的真相 (Rashomon 效应, Breiman 2001)。多模型平均更鲁棒。
 
-#### 7.2 Computation Flow
+#### 7.2 计算流程
 
 ```
 For each model family m in {RF, XGB, CatBoost, LGBM, LR, ...}:
@@ -578,7 +578,7 @@ For each model family m in {RF, XGB, CatBoost, LGBM, LR, ...}:
     5. Compute SHAP values -> (n_explain x n_features) matrix
 ```
 
-#### 7.3 Proportional Normalization Ensemble (PMC11513550)
+#### 7.3 比例归一化集成（PMC11513550）
 
 ```
 For each model m:
@@ -591,7 +591,7 @@ Cross-model ensemble:
 
 L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [0, 0.15])，确保每个模型族投票权相等。
 
-#### 7.4 Cross-Model Consistency Tests
+#### 7.4 跨模型一致性检验
 
 | 检验 | 含义 | FAIL | WARN |
 |:-----|:-----|:-----|:-----|
@@ -600,7 +600,7 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 | Direction consistency | 所有模型 signed SHAP 同向? | &mdash; | `mixed` 方向 |
 | Extreme concentration | 单特征 > 50% 总重要性 | &mdash; | WARNING |
 
-#### 7.5 Four Publication-Grade CSV Tables
+#### 7.5 四张发表级 CSV 表格
 
 | Table | File | Purpose | Columns |
 |:------|:-----|:--------|:--------|
@@ -613,15 +613,15 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 
 ---
 
-### Phase 8 &mdash; Fairness & Equity
+### 阶段八：公平性与亚组分析
 
 > **Gate**: `fairness_equity_gate` &nbsp;|&nbsp; **Rules**: Q01, Q02
 
-#### 8.1 Subgroup Analysis (MLGG-Q01, TRIPOD+AI Item 16b)
+#### 8.1 亚组分析（MLGG-Q01, TRIPOD+AI Item 16b）
 
 按保护属性 (race, gender, age) 分组，每组独立计算：AUROC, PR-AUC, Sensitivity, Specificity, PPV, FPR, prevalence。
 
-#### 8.2 Fairness Thresholds
+#### 8.2 公平性阈值
 
 | 指标 | WARNING | FAIL | 定义 |
 |:-----|:--------|:-----|:-----|
@@ -631,7 +631,7 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 | FPR parity gap (HEAL) | > 0.10 | > 0.15 | 各亚组假阳性率的最大差距 |
 | FNR parity gap (HEAL) | > 0.10 | > 0.15 | 各亚组假阴性率的最大差距 |
 
-#### 8.3 Small Subgroup Handling (MLGG-Q02)
+#### 8.3 小亚组处理（MLGG-Q02）
 
 | 亚组大小 | 处理方式 |
 |:---------|:---------|
@@ -640,17 +640,17 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 | n 50-200 | 计算，发出 WARNING |
 | n >= 200 | 完全可靠 |
 
-#### 8.4 Impossibility Theorem Acknowledgment
+#### 8.4 不可能定理声明
 
 当报告 >= 3 个公平性指标时，自动提示 Chouldechova 2017 / Kleinberg 2016 不可能定理：除基率相等或完美预测外，不可能同时满足所有公平性标准。
 
 ---
 
-### Phase 9 &mdash; Reporting & Compliance
+### 阶段九：报告与合规
 
 > **Gates**: `publication_gate` + `self_critique_gate` + `security_audit_gate` &nbsp;|&nbsp; **Rule**: T01
 
-#### 9.1 TRIPOD+AI 2024 Checklist (Collins 2024, BMJ)
+#### 9.1 TRIPOD+AI 2024 清单（Collins 2024, BMJ）
 
 27 项逐项核对，机器验证每项有对应证据文件。17 项为必须项 (含 6 项 AI 新增)：
 
@@ -663,7 +663,7 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 | Item 24 | AI 特定局限性已讨论 |
 | Item 27 | 模型/代码可用性已声明 |
 
-#### 9.2 PROBAST+AI 2025 Risk of Bias (Moons 2025, BMJ)
+#### 9.2 PROBAST+AI 2025 偏倚风险（Moons 2025, BMJ）
 
 4 域评估，16 个信号问题：
 
@@ -676,7 +676,7 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 
 每域判定 low / high / unclear。总体 ROB 必须为 `low` 才能声称 publication-grade。
 
-#### 9.3 Three-Level Compliance (L1/L2/L3)
+#### 9.3 三级合规（L1/L2/L3）
 
 | Level | Name | Gates | Applicable Scene | TRIPOD+AI | PROBAST ROB |
 |:------|:-----|:------|:-----------------|:----------|:-----------|
@@ -690,13 +690,13 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 
 **L3 adds (8)**: distribution_generalization, external_validation, fairness_equity, cohort_definition, shap_interpretability, publication, self_critique, security_audit
 
-#### 9.4 Limitations Discussion (Structured)
+#### 9.4 结构化局限性讨论
 
 必须覆盖：数据来源局限、时间有效性、编码体系变化 (ICD-9 -> ICD-10)、外部效度、公平性局限、DCA 临床效用结论。如 DCA 显示无净效用，必须诚实报告 &mdash; 不隐瞒负面结果。
 
 ---
 
-## The 33-Gate DAG
+## 33 道安全门控 (Gate DAG)
 
 33 道门控按有向无环图 (DAG) 分 9 层执行。同层可并行，全部通过才能声称 L3 Publication-Grade。
 
@@ -765,7 +765,7 @@ Layer 8  FINAL (2 ||)    self_critique  |  security_audit
 
 ---
 
-## 12-Dimension Scoring
+## 12 维量化评分
 
 每个维度独立评分，加权求和得出总分 (0-100)：
 
@@ -784,7 +784,7 @@ Layer 8  FINAL (2 ||)    self_critique  |  security_audit
 | 11 | Fairness & Equity | 3 | Subgroup analysis, equalized odds, disparate impact, HEAL FPR/FNR |
 | 12 | Sample Size Adequacy | 3 | EPV criteria, Riley triple, shrinkage factor, effective sample size |
 
-**Score Interpretation**:
+  **评分解读**：
 
 | Range | Level | Meaning |
 |:------|:------|:--------|
@@ -795,7 +795,7 @@ Layer 8  FINAL (2 ||)    self_critique  |  security_audit
 
 ---
 
-## 31 Methodology Rules
+## 31 条方法论规则
 
 <details>
 <summary><strong>Complete Rule Table (Click to expand)</strong></summary>
@@ -838,7 +838,7 @@ Layer 8  FINAL (2 ||)    self_critique  |  security_audit
 
 ---
 
-## 20 Model Families
+## 20 个模型族
 
 | Family | Alias | Type | Notes |
 |:-------|:------|:-----|:------|
@@ -867,7 +867,7 @@ Complexity ranking: Gaussian NB (1) < LR (2-4) < DT (5) < KNN (6) < SVM (7-8) < 
 
 ---
 
-## 14 Medical Datasets
+## 14 个医学数据集
 
 <details>
 <summary><strong>Large Datasets (>10K rows)</strong></summary>
@@ -910,7 +910,7 @@ All data from official sources (CDC / UCI / NCI-NIH / Vanderbilt). No registrati
 
 ---
 
-## 20 Static Analysis Rules (R001-R020)
+## 20 条静态分析规则 (R001-R020)
 
 | Category | Rules | Severity |
 |:---------|:------|:---------|
@@ -929,7 +929,7 @@ python3 -m mlgg_lint /path/to/code/
 
 ---
 
-## 19 Analysis Tools
+## 19 项分析工具
 
 | Tool | Function | Reviewer Question | Literature |
 |:-----|:---------|:-----------------|:-----------|
@@ -957,7 +957,7 @@ python3 -m mlgg_lint /path/to/code/
 
 ---
 
-## Security Layer
+## 安全加固层
 
 | Component | Implementation | Status |
 |:----------|:--------------|:-------|
@@ -972,7 +972,7 @@ python3 -m mlgg_lint /path/to/code/
 
 ---
 
-## Project Structure
+## 项目结构
 
 ```
 scripts/
@@ -1017,7 +1017,7 @@ docs/                 Architecture documentation
 
 ---
 
-## Installation
+## 安装指南
 
 ```bash
 git clone https://github.com/Furinaaa-Cancan/medical-ml-leakage-guard.git
@@ -1032,13 +1032,13 @@ python3 -m pip install -r requirements-optional.txt
 python3 scripts/orchestration/mlgg.py doctor
 ```
 
-**Requirements**: Python 3.10+, numpy, pandas, scikit-learn, scipy, joblib.
+  **环境要求**: Python 3.10+, numpy, pandas, scikit-learn, scipy, joblib.
 
-**Optional**: xgboost, catboost, lightgbm, tabpfn, optuna, shap, flask, cryptography.
+  **可选**: xgboost, catboost, lightgbm, tabpfn, optuna, shap, flask, cryptography.
 
 ---
 
-## Command Reference
+## 命令参考
 
 | Goal | Command |
 |:-----|:--------|
@@ -1058,7 +1058,7 @@ python3 scripts/orchestration/mlgg.py doctor
 
 ---
 
-## Literature Foundation
+## 文献基础
 
 <details>
 <summary><strong>Complete Literature Table by Phase (Click to expand)</strong></summary>
@@ -1142,7 +1142,7 @@ python3 scripts/orchestration/mlgg.py doctor
 
 ---
 
-## Claude Code Integration
+## Claude Code 集成
 
 MLGG provides Claude Code slash command `/mlgg`. When activated, Claude operates as a Nature Methods / JAMA-level reviewer, guiding users through the 9-Phase workflow with real-time methodology checks.
 
@@ -1170,11 +1170,11 @@ The AI will:
 
 ---
 
-## License & Citation
+## 许可证与引用
 
 **PolyForm Noncommercial License 1.0.0** &mdash; See [LICENSE](./LICENSE).
 
-### Required Citation
+### 学术引用（必须）
 
 ```bibtex
 @software{mlgg2026,
@@ -1189,7 +1189,7 @@ The AI will:
 }
 ```
 
-### Usage Rights
+### 使用权限
 
 | Use | Allowed | Condition |
 |:----|:-------:|:----------|
@@ -1209,8 +1209,51 @@ Commercial use is **strictly prohibited**. Uncited reproduction of MLGG methodol
 
 ## English Version
 
-> This README is written in Chinese as the primary language. All code, commands, and file structures are language-neutral.
+> This README is written in Chinese as the primary language. All code, commands, and file structures are language-neutral. Click any section link below to jump to the detailed Chinese documentation.
 
-**ML Leakage Guard (MLGG)** is a publication-grade integrity standard for medical binary classification models. It provides 33 fail-closed audit gates organized in a 9-layer DAG, a 9-phase guided workflow from raw data to TRIPOD+AI compliant publication, 12-dimension quality scoring (0-100), and 3 conformance levels (L1/L2/L3). Built on 30+ peer-reviewed references including Steyerberg 2019, Riley 2019, Van Calster 2019, Collins 2024 (TRIPOD+AI), Moons 2025 (PROBAST+AI), and Kapoor 2023.
+**ML Leakage Guard (MLGG)** is a publication-grade integrity standard for medical binary classification models, providing:
 
-See the Chinese sections above for detailed methodology. All section headers link to their Chinese counterparts via the [Table of Contents](#table-of-contents).
+- **33 fail-closed audit gates** in a 9-layer DAG &mdash; covering data leakage, interpretability, fairness, calibration, robustness, TRIPOD+AI 2024, and PROBAST+AI 2025
+- **9-phase guided workflow**: Cohort Definition -> Splitting -> Preprocessing -> Feature Selection -> Training -> Evaluation -> Interpretability -> Fairness -> Reporting
+- **12-dimension quality scoring** (0-100) with weighted rubric
+- **3 conformance levels**: L1 (12 gates, leakage audit) / L2 (25 gates, statistically valid) / L3 (all 33, publication-grade)
+- **20 model families** with automatic hyperparameter tuning
+- **14 real medical datasets** (526K rows) from CDC / UCI / NCI / Vanderbilt
+- **Multi-model SHAP engine** with L1-normalized ensemble and Kendall tau agreement
+- **Security layer**: HMAC-SHA256 / AES-256-GCM / tamper-evident audit chain
+- **30+ peer-reviewed references** grounding every methodology decision
+
+### Section Navigation
+
+| English | Chinese Section (click to jump) |
+|:--------|:-------------------------------|
+| Why MLGG | [为什么需要 MLGG](#为什么需要-mlgg) |
+| System Overview | [系统能力总览](#系统能力总览) |
+| Quick Start | [快速开始](#快速开始) |
+| Phase 1: Cohort & Sample Size | [阶段一：队列定义与样本量](#阶段一队列定义与样本量) |
+| Phase 2: Data Splitting | [阶段二：数据划分](#阶段二数据划分) |
+| Phase 3: Preprocessing | [阶段三：预处理](#阶段三预处理) |
+| Phase 4: Feature Selection | [阶段四：特征筛选](#阶段四特征筛选) |
+| Phase 5: Training & Selection | [阶段五：模型训练与选择](#阶段五模型训练与选择) |
+| Phase 6: Evaluation & Calibration | [阶段六：评估与校准](#阶段六评估与校准) |
+| Phase 7: Multi-Model SHAP | [阶段七：多模型 SHAP 可解释性](#阶段七多模型-shap-可解释性) |
+| Phase 8: Fairness & Equity | [阶段八：公平性与亚组分析](#阶段八公平性与亚组分析) |
+| Phase 9: Reporting & Compliance | [阶段九：报告与合规](#阶段九报告与合规) |
+| 33-Gate DAG | [33 道安全门控](#33-道安全门控-gate-dag) |
+| 12-Dimension Scoring | [12 维量化评分](#12-维量化评分) |
+| 31 Methodology Rules | [31 条方法论规则](#31-条方法论规则) |
+| 20 Model Families | [20 个模型族](#20-个模型族) |
+| 14 Medical Datasets | [14 个医学数据集](#14-个医学数据集) |
+| Static Analysis (R001-R020) | [20 条静态分析规则](#20-条静态分析规则-r001-r020) |
+| 19 Analysis Tools | [19 项分析工具](#19-项分析工具) |
+| Security Layer | [安全加固层](#安全加固层) |
+| Project Structure | [项目结构](#项目结构) |
+| Installation | [安装指南](#安装指南) |
+| Commands | [命令参考](#命令参考) |
+| Literature | [文献基础](#文献基础) |
+| Claude Code | [Claude Code 集成](#claude-code-集成) |
+| License & Citation | [许可证与引用](#许可证与引用) |
+
+### License & IP (English Summary)
+
+**PolyForm Noncommercial License 1.0.0.** Commercial use is **strictly prohibited**. Academic use **requires citation** (see BibTeX in [许可证与引用](#许可证与引用)). Uncited reproduction of MLGG methodology in publications constitutes academic misconduct. The Claude Code `/mlgg` Skill is the **only authorized public distribution channel**.
