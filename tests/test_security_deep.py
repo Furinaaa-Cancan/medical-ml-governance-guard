@@ -98,6 +98,15 @@ class TestRestrictedUnpickler:
 # Evidence encryption tests
 # ---------------------------------------------------------------------------
 
+_HAS_CRYPTOGRAPHY = False
+try:
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM  # noqa: F401
+    _HAS_CRYPTOGRAPHY = True
+except ImportError:
+    pass
+
+
+@pytest.mark.skipif(not _HAS_CRYPTOGRAPHY, reason="cryptography package not installed")
 class TestEvidenceEncryption:
     def test_encrypt_decrypt_roundtrip(self) -> None:
         key = os.urandom(32)

@@ -16,6 +16,7 @@ import time as _time
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
+from _gate_registry import GATE_REGISTRY
 from _gate_utils import load_json_from_path as load_json, resolve_path
 
 
@@ -392,41 +393,13 @@ def main() -> int:
     # Keep deterministic order while deduplicating.
     attestation_extra_inputs = list(dict.fromkeys(attestation_extra_inputs))
 
+    # Dynamically derive gate script paths from GATE_REGISTRY (single source of truth).
     gate_script_inputs = [
         str(scripts_dir / "orchestration/run_strict_pipeline.py"),
-        str(scripts_dir / "gates/request_contract_gate.py"),
-        str(scripts_dir / "gates/manifest_lock.py"),
-        str(scripts_dir / "gates/execution_attestation_gate.py"),
         str(scripts_dir / "tools/generate_execution_attestation.py"),
-        str(scripts_dir / "gates/reporting_bias_gate.py"),
-        str(scripts_dir / "gates/leakage_gate.py"),
-        str(scripts_dir / "gates/split_protocol_gate.py"),
-        str(scripts_dir / "gates/covariate_shift_gate.py"),
-        str(scripts_dir / "gates/definition_variable_guard.py"),
-        str(scripts_dir / "gates/feature_lineage_gate.py"),
-        str(scripts_dir / "gates/imbalance_policy_gate.py"),
-        str(scripts_dir / "gates/missingness_policy_gate.py"),
-        str(scripts_dir / "gates/tuning_leakage_gate.py"),
-        str(scripts_dir / "gates/model_selection_audit_gate.py"),
-        str(scripts_dir / "gates/feature_engineering_audit_gate.py"),
-        str(scripts_dir / "gates/clinical_metrics_gate.py"),
-        str(scripts_dir / "gates/prediction_replay_gate.py"),
-        str(scripts_dir / "gates/distribution_generalization_gate.py"),
-        str(scripts_dir / "gates/generalization_gap_gate.py"),
-        str(scripts_dir / "gates/robustness_gate.py"),
-        str(scripts_dir / "gates/seed_stability_gate.py"),
-        str(scripts_dir / "gates/external_validation_gate.py"),
-        str(scripts_dir / "gates/calibration_dca_gate.py"),
-        str(scripts_dir / "gates/ci_matrix_gate.py"),
-        str(scripts_dir / "gates/metric_consistency_gate.py"),
-        str(scripts_dir / "gates/evaluation_quality_gate.py"),
-        str(scripts_dir / "gates/permutation_significance_gate.py"),
-        str(scripts_dir / "gates/fairness_equity_gate.py"),
-        str(scripts_dir / "gates/sample_size_gate.py"),
-        str(scripts_dir / "gates/publication_gate.py"),
-        str(scripts_dir / "gates/security_audit_gate.py"),
-        str(scripts_dir / "gates/self_critique_gate.py"),
     ]
+    for _spec in GATE_REGISTRY.values():
+        gate_script_inputs.append(str(scripts_dir / _spec.script))
 
     manifest_inputs.extend(
         [

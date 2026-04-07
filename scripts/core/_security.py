@@ -96,8 +96,13 @@ def _derive_key() -> bytes:
     try:
         key_path.write_bytes(new_key.hex().encode("ascii") + b"\n")
         key_path.chmod(0o600)
-    except OSError:
-        pass  # In-memory only if write fails
+    except OSError as exc:
+        import warnings
+        warnings.warn(
+            f"Could not write/chmod signing key file {key_path}: {exc}. "
+            f"Key exists only in memory for this session.",
+            stacklevel=2,
+        )
     return hashlib.sha256(new_key).digest()
 
 
@@ -722,24 +727,11 @@ def encrypt_evidence(data: bytes, key: Optional[bytes] = None) -> bytes:
         # ciphertext includes the 16-byte tag appended by cryptography lib
         return _ENC_HEADER + nonce + ciphertext
     except ImportError:
-        # Fallback: PBKDF2-HMAC XOR stream — NOT cryptographically secure.
-        # This provides only obfuscation + integrity, not real confidentiality.
-        # Install the 'cryptography' package for AES-256-GCM.
-        import hashlib as _hl
-        import warnings
-        warnings.warn(
-            "cryptography package not installed — using PBKDF2-XOR obfuscation "
-            "which is NOT cryptographically secure. Install 'cryptography' for "
-            "AES-256-GCM encryption.",
-            stacklevel=2,
+        raise RuntimeError(
+            "AES-256-GCM encryption requires the 'cryptography' package. "
+            "Install it with: pip install cryptography. "
+            "Falling back to insecure obfuscation is not permitted (fail-closed)."
         )
-        if data:
-            stream_key = _hl.pbkdf2_hmac("sha256", key, nonce, 100_000, dklen=len(data))
-            ciphertext = bytes(a ^ b for a, b in zip(data, stream_key))
-        else:
-            ciphertext = b""
-        tag = hmac.new(key, nonce + ciphertext, hashlib.sha256).digest()[:16]
-        return _ENC_HEADER + nonce + tag + ciphertext
 
 
 def decrypt_evidence(blob: bytes, key: Optional[bytes] = None) -> bytes:
@@ -770,16 +762,10 @@ def decrypt_evidence(blob: bytes, key: Optional[bytes] = None) -> bytes:
         ciphertext_with_tag = blob[header_len + 12:]
         return bytes(aesgcm.decrypt(nonce, ciphertext_with_tag, None))
     except ImportError:
-        tag = blob[header_len + 12:header_len + 28]
-        ciphertext = blob[header_len + 28:]
-        expected_tag = hmac.new(key, nonce + ciphertext, hashlib.sha256).digest()[:16]
-        if not hmac.compare_digest(tag, expected_tag):
-            raise SecurityError("Evidence integrity check failed: HMAC mismatch")
-        if not ciphertext:
-            return b""
-        import hashlib as _hl
-        stream_key = _hl.pbkdf2_hmac("sha256", key, nonce, 100_000, dklen=len(ciphertext))
-        return bytes(a ^ b for a, b in zip(ciphertext, stream_key))
+        raise RuntimeError(
+            "AES-256-GCM decryption requires the 'cryptography' package. "
+            "Install it with: pip install cryptography."
+        )
 
 
 def encrypt_file(path: Path, key: Optional[bytes] = None) -> Path:

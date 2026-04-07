@@ -31,10 +31,10 @@ from _security import (
 # XOR encryption fallback warning
 # ────────────────────────────────────────────────────────
 
-class TestXORFallbackWarning:
-    """Verify that when 'cryptography' is unavailable, a warning is emitted."""
+class TestEncryptionFailClosed:
+    """Verify that when 'cryptography' is unavailable, encryption fails closed (no XOR fallback)."""
 
-    def test_encrypt_warns_without_cryptography(self):
+    def test_encrypt_raises_without_cryptography(self):
         key = b"0123456789abcdef0123456789abcdef"
         data = b"test plaintext"
         with mock.patch.dict("sys.modules", {"cryptography": None,
@@ -42,40 +42,20 @@ class TestXORFallbackWarning:
                                               "cryptography.hazmat.primitives": None,
                                               "cryptography.hazmat.primitives.ciphers": None,
                                               "cryptography.hazmat.primitives.ciphers.aead": None}):
-            with warnings.catch_warnings(record=True) as w:
-                warnings.simplefilter("always")
-                blob = encrypt_evidence(data, key)
-                # Check that a warning was issued
-                xor_warnings = [x for x in w if "NOT cryptographically secure" in str(x.message)]
-                assert len(xor_warnings) >= 1, f"Expected XOR warning, got: {[str(x.message) for x in w]}"
+            with pytest.raises(RuntimeError, match="cryptography"):
+                encrypt_evidence(data, key)
 
-    def test_xor_roundtrip_without_cryptography(self):
-        """XOR fallback should still produce decryptable output."""
+    def test_decrypt_raises_without_cryptography(self):
         key = b"0123456789abcdef0123456789abcdef"
-        data = b"roundtrip test data for XOR mode"
+        # Fabricate a blob with valid header
+        fake_blob = b"MLGG-ENC-v1\x00" + b"\x00" * 12 + b"\x00" * 20
         with mock.patch.dict("sys.modules", {"cryptography": None,
                                               "cryptography.hazmat": None,
                                               "cryptography.hazmat.primitives": None,
                                               "cryptography.hazmat.primitives.ciphers": None,
                                               "cryptography.hazmat.primitives.ciphers.aead": None}):
-            with warnings.catch_warnings(record=True):
-                warnings.simplefilter("always")
-                blob = encrypt_evidence(data, key)
-                recovered = decrypt_evidence(blob, key)
-                assert recovered == data
-
-    def test_xor_empty_data(self):
-        key = b"0123456789abcdef0123456789abcdef"
-        with mock.patch.dict("sys.modules", {"cryptography": None,
-                                              "cryptography.hazmat": None,
-                                              "cryptography.hazmat.primitives": None,
-                                              "cryptography.hazmat.primitives.ciphers": None,
-                                              "cryptography.hazmat.primitives.ciphers.aead": None}):
-            with warnings.catch_warnings(record=True):
-                warnings.simplefilter("always")
-                blob = encrypt_evidence(b"", key)
-                recovered = decrypt_evidence(blob, key)
-                assert recovered == b""
+            with pytest.raises(RuntimeError, match="cryptography"):
+                decrypt_evidence(fake_blob, key)
 
 
 # ────────────────────────────────────────────────────────
