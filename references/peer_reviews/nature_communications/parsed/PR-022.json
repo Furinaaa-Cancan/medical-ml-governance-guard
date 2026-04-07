@@ -1,0 +1,22 @@
+{
+  "id": "PR-022",
+  "paper_doi": "10.1038/s41467-025-57283-x",
+  "paper_title": "Multimodal histopathologic models stratify hormone receptor-positive early breast cancer",
+  "journal": "Nature Communications",
+  "year": 2025,
+  "domain": "oncology",
+  "prediction_task": "Breast cancer recurrence risk from histopathology (Orpheus vs Oncotype DX)",
+  "model_types": ["linear_model", "deep_learning_histopathology"],
+  "data_type": "histopathology_wsi_plus_clinical",
+  "sample_size": 6172,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-022-C01", "reviewer": "Reviewer #4", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": ["calibration_dca_gate"], "mlgg_rules": [], "concern_text": "Correlation of 0.6 does not indicate reliable individual prediction. No individual-level performance data vs gold-standard. Need calibration plot with censoring.", "author_response": "Added individual-level analysis and calibration plots.", "resolved": true, "tags": ["correlation_not_prediction", "individual_level_accuracy", "calibration_plot_missing"]},
+    {"concern_id": "PR-022-C02", "reviewer": "Reviewer #4", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Cut-off in Orpheus for high-risk classification not specified. Does it vary across populations?", "author_response": "Reported cut-off with cross-cohort sensitivity analysis.", "resolved": true, "tags": ["threshold_unclear", "threshold_consistency_across_cohorts"]},
+    {"concern_id": "PR-022-C03", "reviewer": "Reviewer #4", "round": 1, "category": "evaluation_metrics", "severity": "MEDIUM", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Claim that Orpheus enhances beyond Oncotype DX needs tempering — linear models developed within Oncotype risk groups, comparison may not be equitable.", "author_response": "Tempered claims and added independent evaluation.", "resolved": true, "tags": ["circular_evaluation", "overclaimed_improvement"]}
+  ],
+  "reviewer_strengths": [{"strength_id": "PR-022-S01", "reviewer": "Reviewer #4", "text": "Interdisciplinary expertise in biostatistics, computational oncology, statistical learning, and computer science.", "tags": ["interdisciplinary"]}],
+  "outcome": "accepted_after_revision",
+  "key_methodology_issues": ["correlation_not_prediction", "threshold_unclear", "circular_evaluation"],
+  "key_methodology_strengths": ["multi_cohort_validation", "clinical_standard_comparison"]
+}

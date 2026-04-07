@@ -1,0 +1,23 @@
+{
+  "id": "PR-021",
+  "paper_doi": "10.1038/s41467-025-56822-w",
+  "paper_title": "Medical multimodal multitask foundation model for lung cancer screening",
+  "journal": "Nature Communications",
+  "year": 2025,
+  "domain": "oncology",
+  "prediction_task": "Lung cancer screening: nodule detection, risk prediction, CVD mortality from LDCT + clinical text",
+  "model_types": ["multimodal_foundation_model", "vision_transformer", "text_encoder"],
+  "data_type": "ct_imaging_plus_clinical_text",
+  "sample_size": 163725,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-021-C01", "reviewer": "Reviewer #1", "round": 1, "category": "study_design", "severity": "HIGH", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "CVD mortality as binary label is over-simplification — it is right-censored time-to-event data. Should stratify by cut-off years like cancer risk task.", "author_response": "Added time-stratified CVD analysis.", "resolved": true, "tags": ["censoring_ignored", "binary_simplification_of_survival"]},
+    {"concern_id": "PR-021-C02", "reviewer": "Reviewer #1", "round": 1, "category": "study_design", "severity": "MEDIUM", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Clinical metadata encoded as predefined-rule text — fundamentally differs from natural language. Is this necessary vs simply encoding as array?", "author_response": "Added ablation comparing text vs tabular encoding.", "resolved": true, "tags": ["tabular_vs_text_encoding", "unnecessary_complexity"]},
+    {"concern_id": "PR-021-C03", "reviewer": "Reviewer #2", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "AUC improvements for MT-MM are small in some cases. Need critical perspective balancing gains vs extra effort.", "author_response": "Added cost analysis and honest discussion of marginal gains.", "resolved": true, "tags": ["marginal_improvement", "cost_benefit_analysis"]},
+    {"concern_id": "PR-021-C04", "reviewer": "Reviewer #2", "round": 1, "category": "interpretability", "severity": "MEDIUM", "mlgg_dimension": 7, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Heatmaps show apparently useless tokens ('brother', '142') as important. Can multi-source information be shown to be composed in complementary way?", "author_response": "Added token-level attribution analysis.", "resolved": true, "tags": ["attention_interpretation", "multimodal_complementarity"]}
+  ],
+  "reviewer_strengths": [{"strength_id": "PR-021-S01", "reviewer": "Reviewer #1", "text": "First multimodal multitask pretrained FM for LDCT screening. Superior performance over SOTA.", "tags": ["first_of_kind", "beats_sota"]}],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["censoring_ignored", "tabular_vs_text_encoding", "marginal_improvement"],
+  "key_methodology_strengths": ["first_multimodal_foundation", "large_scale", "multi_task"]
+}

@@ -1,0 +1,88 @@
+{
+  "id": "PR-026",
+  "paper_doi": "10.1038/s41467-025-68198-y",
+  "paper_title": "Prehospital real-time AI for trauma mortality prediction: a multi-institutional and multi-national validation study",
+  "journal": "Nature Communications",
+  "year": 2025,
+  "domain": "emergency_medicine",
+  "prediction_task": "Emergency room mortality prediction in trauma patients from prehospital data",
+  "model_types": ["gradient_boosting", "logistic_regression", "neural_network"],
+  "data_type": "prehospital_clinical_tabular",
+  "sample_size": 216125,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-026-C01",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "external_validation",
+      "severity": "HIGH",
+      "mlgg_dimension": 6,
+      "mlgg_gates": ["external_validation_gate"],
+      "mlgg_rules": [],
+      "concern_text": "The model was developed and internally validated in South Korean trauma centers. External validation in Australia (n=3,578) is valuable but limited to one center. Performance in other healthcare systems (e.g., US, European EMS) would strengthen generalizability claims.",
+      "author_response": "We acknowledged geographic limitation and discussed plans for broader international validation. Added sensitivity analysis by injury mechanism.",
+      "resolved": true,
+      "tags": ["limited_geographic_validation", "single_external_center", "generalizability"]
+    },
+    {
+      "concern_id": "PR-026-C02",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "mlgg_gates": ["calibration_dca_gate"],
+      "mlgg_rules": ["MLGG-E02"],
+      "concern_text": "Calibration analysis should be presented more prominently. The model's predicted probabilities vs observed mortality rates should be clearly shown across risk groups.",
+      "author_response": "We moved calibration plots to main figures and added calibration metrics (slope, intercept, Brier score).",
+      "resolved": true,
+      "tags": ["calibration_presentation", "calibration_metrics"]
+    },
+    {
+      "concern_id": "PR-026-C03",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "clinical_utility",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 7,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "How would this model be deployed in real-time prehospital settings? What are the latency requirements? What happens when data is missing (common in trauma settings)?",
+      "author_response": "We described the real-time deployment architecture, measured inference latency (<1s), and added analysis of model robustness to missing prehospital variables.",
+      "resolved": true,
+      "tags": ["deployment_feasibility", "latency", "missing_data_in_deployment"]
+    },
+    {
+      "concern_id": "PR-026-C04",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "reporting",
+      "severity": "LOW",
+      "mlgg_dimension": 8,
+      "mlgg_gates": ["reporting_bias_gate"],
+      "mlgg_rules": ["MLGG-T01"],
+      "concern_text": "The study follows TRIPOD+AI and TRIPOD-cluster guidelines — this is commendable. Minor formatting improvements needed in checklist compliance table.",
+      "author_response": "We reformatted the TRIPOD+AI checklist table.",
+      "resolved": true,
+      "tags": ["tripod_compliance", "reporting_quality"]
+    }
+  ],
+  "reviewer_strengths": [
+    {
+      "strength_id": "PR-026-S01",
+      "reviewer": "Reviewer #1",
+      "text": "Large-scale study with 204,189 patients for development and multi-national external validation. Follows TRIPOD+AI guidelines rigorously.",
+      "tags": ["large_scale", "multinational", "tripod_compliant"]
+    },
+    {
+      "strength_id": "PR-026-S02",
+      "reviewer": "Reviewer #2",
+      "text": "Clinically important application — prehospital mortality prediction could meaningfully improve triage decisions and resource allocation.",
+      "tags": ["clinical_importance", "triage", "resource_allocation"]
+    }
+  ],
+  "outcome": "accepted_after_minor_revision",
+  "key_methodology_issues": ["limited_geographic_validation", "deployment_feasibility"],
+  "key_methodology_strengths": ["large_scale", "multinational_validation", "tripod_compliant", "real_time_deployment"]
+}

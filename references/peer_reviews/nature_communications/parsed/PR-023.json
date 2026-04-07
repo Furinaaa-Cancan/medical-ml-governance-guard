@@ -1,0 +1,23 @@
+{
+  "id": "PR-023",
+  "paper_doi": "10.1038/s41467-023-36544-7",
+  "paper_title": "Quantifying portable genetic effects and improving cross-ancestry genetic prediction with GWAS summary statistics",
+  "journal": "Nature Communications",
+  "year": 2023,
+  "domain": "genomics",
+  "prediction_task": "Cross-ancestry polygenic risk prediction (X-Wing method)",
+  "model_types": ["bayesian_regression", "prs_csx", "x_wing"],
+  "data_type": "gwas_summary_statistics",
+  "sample_size": 500000,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-023-C01", "reviewer": "Reviewer #1", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Type I error simulations only 100 times — not enough at 0.05 level. Need ≥1,000. Also need FDR threshold sensitivity analysis.", "author_response": "Increased to 1,000 simulations with FDR sensitivity.", "resolved": true, "tags": ["insufficient_simulations", "type1_error_control", "fdr_threshold_sensitivity"]},
+    {"concern_id": "PR-023-C02", "reviewer": "Reviewer #2", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Only simulated on chromosome 22 — heritability disproportionally large, samples highly related. Need whole-genome simulation.", "author_response": "Added whole-genome simulations.", "resolved": true, "tags": ["simulation_too_simple", "single_chromosome", "unrealistic_simulation"]},
+    {"concern_id": "PR-023-C03", "reviewer": "Reviewer #2", "round": 1, "category": "external_validation", "severity": "HIGH", "mlgg_dimension": 6, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Only East Asian and European. Transferability to African samples is harder. Should apply to AFR samples.", "author_response": "Added African ancestry analysis using PAGE.", "resolved": true, "tags": ["missing_african_ancestry", "ancestry_diversity"]},
+    {"concern_id": "PR-023-C04", "reviewer": "Reviewer #2", "round": 1, "category": "evaluation_metrics", "severity": "MEDIUM", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "X-Wing only marginally better than PRS-CSx. Need scenario simulations showing when each method wins.", "author_response": "Added scenario-based simulations.", "resolved": true, "tags": ["marginal_improvement", "scenario_analysis"]}
+  ],
+  "reviewer_strengths": [{"strength_id": "PR-023-S01", "reviewer": "Reviewer #1", "text": "Addresses important issue of cross-ancestry PRS using summary-level data only. Clearly written.", "tags": ["important_problem", "clear_writing"]}],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["insufficient_simulations", "single_chromosome_simulation", "missing_african_ancestry"],
+  "key_methodology_strengths": ["summary_statistics_only", "cross_ancestry", "local_genetic_correlation"]
+}

@@ -1,7 +1,7 @@
 {
   "contract_version": "peer_review_kb.v1",
-  "total_papers": 19,
-  "total_concerns": 128,
+  "total_papers": 26,
+  "total_concerns": 161,
   "entries": [
     {
       "id": "PR-001",
@@ -3332,6 +3332,928 @@
         "large_hospital_cohort",
         "457_phenotypes",
         "cross_ancestry_evaluation"
+      ]
+    },
+    {
+      "id": "PR-020",
+      "paper_doi": "10.1038/s41467-025-62042-z",
+      "paper_title": "Explainable multimodal deep learning for predicting thyroid cancer lateral lymph node metastasis using ultrasound imaging",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "domain": "oncology",
+      "prediction_task": "Thyroid cancer lateral lymph node metastasis prediction from multimodal data",
+      "model_types": [
+        "deep_learning",
+        "yolov8",
+        "unet_plus_plus",
+        "bidirectional_attention"
+      ],
+      "data_type": "ultrasound_imaging_plus_clinical",
+      "sample_size": 23692,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-020-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "model_selection",
+          "severity": "HIGH",
+          "mlgg_dimension": 4,
+          "mlgg_gates": [
+            "model_selection_audit_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-M03"
+          ],
+          "concern_text": "Lacks thorough comparison with existing baselines. Comprehensive ablation studies needed for each component and each modality's independent contribution.",
+          "author_response": "Added baseline comparisons and comprehensive ablation.",
+          "resolved": true,
+          "tags": [
+            "missing_baseline_comparison",
+            "ablation_missing",
+            "modality_contribution"
+          ]
+        },
+        {
+          "concern_id": "PR-020-C02",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "clinical_utility",
+          "severity": "CRITICAL",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [
+            "clinical_metrics_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Predicting microscopic LLNMs with AI may be HARMFUL — removal of small metastases may not change outcome. Will result in overutilization of lateral neck dissection.",
+          "author_response": "Added LLNM characteristics analysis stratified by clinical significance. Revised workflow.",
+          "resolved": true,
+          "tags": [
+            "potential_harm",
+            "overtreatment",
+            "clinical_significance_of_findings"
+          ]
+        },
+        {
+          "concern_id": "PR-020-C03",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "calibration_dca_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "DCA assumes all true AI predictions are beneficial — not true for microscopic metastases. Proposed workflow would not be best clinical management.",
+          "author_response": "Revised DCA accounting for clinically insignificant metastases.",
+          "resolved": true,
+          "tags": [
+            "dca_assumptions_violated",
+            "workflow_inappropriate"
+          ]
+        },
+        {
+          "concern_id": "PR-020-C04",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Comparison with human experts unfair due to differing dataset sizes (model on full data vs radiologists on N=200).",
+          "author_response": "Added model performance on same N=200 subset.",
+          "resolved": true,
+          "tags": [
+            "unfair_comparison",
+            "dataset_size_mismatch"
+          ]
+        },
+        {
+          "concern_id": "PR-020-C05",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "LLNM-Net trained on cancerous nodules only — most thyroid nodules are benign. Cannot be used for population screening.",
+          "author_response": "Clarified intended use is pre-surgical planning, not screening.",
+          "resolved": true,
+          "tags": [
+            "scope_of_application",
+            "population_vs_selected"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-020-S01",
+          "reviewer": "Reviewer #2",
+          "text": "Performance impressive, quality of data science is high. Using AI to identify thyroid locations associated with metastatic disease is useful.",
+          "tags": [
+            "strong_performance",
+            "high_quality"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "potential_harm",
+        "dca_assumptions_violated",
+        "missing_baseline_comparison"
+      ],
+      "key_methodology_strengths": [
+        "large_multicenter",
+        "explainable_ai",
+        "high_performance"
+      ]
+    },
+    {
+      "id": "PR-021",
+      "paper_doi": "10.1038/s41467-025-56822-w",
+      "paper_title": "Medical multimodal multitask foundation model for lung cancer screening",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "domain": "oncology",
+      "prediction_task": "Lung cancer screening: nodule detection, risk prediction, CVD mortality from LDCT + clinical text",
+      "model_types": [
+        "multimodal_foundation_model",
+        "vision_transformer",
+        "text_encoder"
+      ],
+      "data_type": "ct_imaging_plus_clinical_text",
+      "sample_size": 163725,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-021-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "CVD mortality as binary label is over-simplification — it is right-censored time-to-event data. Should stratify by cut-off years like cancer risk task.",
+          "author_response": "Added time-stratified CVD analysis.",
+          "resolved": true,
+          "tags": [
+            "censoring_ignored",
+            "binary_simplification_of_survival"
+          ]
+        },
+        {
+          "concern_id": "PR-021-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Clinical metadata encoded as predefined-rule text — fundamentally differs from natural language. Is this necessary vs simply encoding as array?",
+          "author_response": "Added ablation comparing text vs tabular encoding.",
+          "resolved": true,
+          "tags": [
+            "tabular_vs_text_encoding",
+            "unnecessary_complexity"
+          ]
+        },
+        {
+          "concern_id": "PR-021-C03",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "AUC improvements for MT-MM are small in some cases. Need critical perspective balancing gains vs extra effort.",
+          "author_response": "Added cost analysis and honest discussion of marginal gains.",
+          "resolved": true,
+          "tags": [
+            "marginal_improvement",
+            "cost_benefit_analysis"
+          ]
+        },
+        {
+          "concern_id": "PR-021-C04",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "interpretability",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Heatmaps show apparently useless tokens ('brother', '142') as important. Can multi-source information be shown to be composed in complementary way?",
+          "author_response": "Added token-level attribution analysis.",
+          "resolved": true,
+          "tags": [
+            "attention_interpretation",
+            "multimodal_complementarity"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-021-S01",
+          "reviewer": "Reviewer #1",
+          "text": "First multimodal multitask pretrained FM for LDCT screening. Superior performance over SOTA.",
+          "tags": [
+            "first_of_kind",
+            "beats_sota"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "censoring_ignored",
+        "tabular_vs_text_encoding",
+        "marginal_improvement"
+      ],
+      "key_methodology_strengths": [
+        "first_multimodal_foundation",
+        "large_scale",
+        "multi_task"
+      ]
+    },
+    {
+      "id": "PR-022",
+      "paper_doi": "10.1038/s41467-025-57283-x",
+      "paper_title": "Multimodal histopathologic models stratify hormone receptor-positive early breast cancer",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "domain": "oncology",
+      "prediction_task": "Breast cancer recurrence risk from histopathology (Orpheus vs Oncotype DX)",
+      "model_types": [
+        "linear_model",
+        "deep_learning_histopathology"
+      ],
+      "data_type": "histopathology_wsi_plus_clinical",
+      "sample_size": 6172,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-022-C01",
+          "reviewer": "Reviewer #4",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "calibration_dca_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Correlation of 0.6 does not indicate reliable individual prediction. No individual-level performance data vs gold-standard. Need calibration plot with censoring.",
+          "author_response": "Added individual-level analysis and calibration plots.",
+          "resolved": true,
+          "tags": [
+            "correlation_not_prediction",
+            "individual_level_accuracy",
+            "calibration_plot_missing"
+          ]
+        },
+        {
+          "concern_id": "PR-022-C02",
+          "reviewer": "Reviewer #4",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Cut-off in Orpheus for high-risk classification not specified. Does it vary across populations?",
+          "author_response": "Reported cut-off with cross-cohort sensitivity analysis.",
+          "resolved": true,
+          "tags": [
+            "threshold_unclear",
+            "threshold_consistency_across_cohorts"
+          ]
+        },
+        {
+          "concern_id": "PR-022-C03",
+          "reviewer": "Reviewer #4",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Claim that Orpheus enhances beyond Oncotype DX needs tempering — linear models developed within Oncotype risk groups, comparison may not be equitable.",
+          "author_response": "Tempered claims and added independent evaluation.",
+          "resolved": true,
+          "tags": [
+            "circular_evaluation",
+            "overclaimed_improvement"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-022-S01",
+          "reviewer": "Reviewer #4",
+          "text": "Interdisciplinary expertise in biostatistics, computational oncology, statistical learning, and computer science.",
+          "tags": [
+            "interdisciplinary"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_revision",
+      "key_methodology_issues": [
+        "correlation_not_prediction",
+        "threshold_unclear",
+        "circular_evaluation"
+      ],
+      "key_methodology_strengths": [
+        "multi_cohort_validation",
+        "clinical_standard_comparison"
+      ]
+    },
+    {
+      "id": "PR-023",
+      "paper_doi": "10.1038/s41467-023-36544-7",
+      "paper_title": "Quantifying portable genetic effects and improving cross-ancestry genetic prediction with GWAS summary statistics",
+      "journal": "Nature Communications",
+      "year": 2023,
+      "domain": "genomics",
+      "prediction_task": "Cross-ancestry polygenic risk prediction (X-Wing method)",
+      "model_types": [
+        "bayesian_regression",
+        "prs_csx",
+        "x_wing"
+      ],
+      "data_type": "gwas_summary_statistics",
+      "sample_size": 500000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-023-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Type I error simulations only 100 times — not enough at 0.05 level. Need ≥1,000. Also need FDR threshold sensitivity analysis.",
+          "author_response": "Increased to 1,000 simulations with FDR sensitivity.",
+          "resolved": true,
+          "tags": [
+            "insufficient_simulations",
+            "type1_error_control",
+            "fdr_threshold_sensitivity"
+          ]
+        },
+        {
+          "concern_id": "PR-023-C02",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Only simulated on chromosome 22 — heritability disproportionally large, samples highly related. Need whole-genome simulation.",
+          "author_response": "Added whole-genome simulations.",
+          "resolved": true,
+          "tags": [
+            "simulation_too_simple",
+            "single_chromosome",
+            "unrealistic_simulation"
+          ]
+        },
+        {
+          "concern_id": "PR-023-C03",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "external_validation",
+          "severity": "HIGH",
+          "mlgg_dimension": 6,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Only East Asian and European. Transferability to African samples is harder. Should apply to AFR samples.",
+          "author_response": "Added African ancestry analysis using PAGE.",
+          "resolved": true,
+          "tags": [
+            "missing_african_ancestry",
+            "ancestry_diversity"
+          ]
+        },
+        {
+          "concern_id": "PR-023-C04",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "X-Wing only marginally better than PRS-CSx. Need scenario simulations showing when each method wins.",
+          "author_response": "Added scenario-based simulations.",
+          "resolved": true,
+          "tags": [
+            "marginal_improvement",
+            "scenario_analysis"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-023-S01",
+          "reviewer": "Reviewer #1",
+          "text": "Addresses important issue of cross-ancestry PRS using summary-level data only. Clearly written.",
+          "tags": [
+            "important_problem",
+            "clear_writing"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "insufficient_simulations",
+        "single_chromosome_simulation",
+        "missing_african_ancestry"
+      ],
+      "key_methodology_strengths": [
+        "summary_statistics_only",
+        "cross_ancestry",
+        "local_genetic_correlation"
+      ]
+    },
+    {
+      "id": "PR-024",
+      "paper_doi": "10.1038/s41467-025-57990-5",
+      "paper_title": "Development and external validation of prediction algorithms to improve early diagnosis of cancer",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "domain": "oncology",
+      "prediction_task": "Early cancer diagnosis prediction for 15 cancer types from primary care EHR",
+      "model_types": [
+        "cox_regression",
+        "logistic_regression"
+      ],
+      "data_type": "primary_care_ehr",
+      "sample_size": 5380000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-024-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "CRITICAL",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-F05"
+          ],
+          "concern_text": "Time horizon for prediction not found — paramount importance. Are models predicting imminent diagnoses or long-term risk? Models with very high AUC may just be diagnosing established cancers.",
+          "author_response": "Clarified 2-year window and added time-stratified analyses.",
+          "resolved": true,
+          "tags": [
+            "prediction_horizon_missing",
+            "diagnosis_vs_prediction"
+          ]
+        },
+        {
+          "concern_id": "PR-024-C02",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Fundamental difference between predicting probability cancer is already present vs probability of developing cancer in the future. These concepts are conflated.",
+          "author_response": "Revised terminology: 'risk of cancer diagnosis' instead of 'cancer risk'.",
+          "resolved": true,
+          "tags": [
+            "risk_vs_diagnosis",
+            "terminology_conflated"
+          ]
+        },
+        {
+          "concern_id": "PR-024-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "preprocessing",
+          "severity": "HIGH",
+          "mlgg_dimension": 3,
+          "mlgg_gates": [
+            "missingness_policy_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-P04"
+          ],
+          "concern_text": "Missing data shown not to be MCAR. Imputation method doesn't handle MNAR. Need reporting of N missing and bias analysis.",
+          "author_response": "Added MNAR sensitivity analysis.",
+          "resolved": true,
+          "tags": [
+            "mnar_not_addressed",
+            "missing_data_bias"
+          ]
+        },
+        {
+          "concern_id": "PR-024-C04",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "feature_selection",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 4,
+          "mlgg_gates": [],
+          "mlgg_rules": [
+            "MLGG-F04"
+          ],
+          "concern_text": "Variables kept based on P values. Did you consider data-driven variable selection?",
+          "author_response": "Added LASSO comparison showing similar results.",
+          "resolved": true,
+          "tags": [
+            "p_value_selection",
+            "data_driven_selection"
+          ]
+        },
+        {
+          "concern_id": "PR-024-C05",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "calibration_dca_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Calibration intercept/slope should be in main text. Blood tests add almost nothing — discuss clinical implications.",
+          "author_response": "Added calibration to main text, discussed limited value of blood tests.",
+          "resolved": true,
+          "tags": [
+            "calibration_in_supplement_only",
+            "blood_tests_unhelpful"
+          ]
+        },
+        {
+          "concern_id": "PR-024-C06",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "reporting",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "DCA not commonly used — need explanation. Cancer-specific DCA needed, aggregate 'any cancer' DCA makes little sense.",
+          "author_response": "Added cancer-specific DCA with interpretation.",
+          "resolved": true,
+          "tags": [
+            "dca_explanation_needed",
+            "cancer_specific_dca"
+          ]
+        },
+        {
+          "concern_id": "PR-024-C07",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reproducibility",
+          "severity": "HIGH",
+          "mlgg_dimension": 9,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Model coefficients and variables need to be clearly provided to allow further validation.",
+          "author_response": "Provided full coefficients in supplementary tables.",
+          "resolved": true,
+          "tags": [
+            "coefficients_not_provided",
+            "model_transparency"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-024-S01",
+          "reviewer": "Reviewer #2",
+          "text": "Well-written. Multi-variable models for 15 cancer types using large-scale primary care data.",
+          "tags": [
+            "well_written",
+            "large_scale",
+            "primary_care"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "prediction_horizon_missing",
+        "risk_vs_diagnosis",
+        "mnar_not_addressed",
+        "calibration_in_supplement_only"
+      ],
+      "key_methodology_strengths": [
+        "large_scale_primary_care",
+        "15_cancer_types",
+        "external_validation"
+      ]
+    },
+    {
+      "id": "PR-025",
+      "paper_doi": "10.1038/s41467-025-62273-0",
+      "paper_title": "A noninvasive model for chronic kidney disease screening and common pathological type identification from retinal images",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "domain": "nephrology",
+      "prediction_task": "CKD screening, pathological diagnosis and prognosis from retinal fundus images",
+      "model_types": [
+        "deep_learning",
+        "random_forest",
+        "nomogram"
+      ],
+      "data_type": "retinal_images_plus_clinical",
+      "sample_size": 12000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-025-C01",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "sample_size",
+          "severity": "HIGH",
+          "mlgg_dimension": 12,
+          "mlgg_gates": [
+            "sample_size_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Sample size lacks formal power calculations and has concerning issues in key subgroups like Somalia cohort (n=47) and less common pathological types like MCD/FSGS. This raises questions about statistical power.",
+          "author_response": "We added power calculations and explicitly stated limited power for rare subtypes. Somalia cohort results reported with appropriate caveats.",
+          "resolved": true,
+          "tags": [
+            "no_power_calculation",
+            "small_subgroups",
+            "underpowered"
+          ]
+        },
+        {
+          "concern_id": "PR-025-C02",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "preprocessing",
+          "severity": "HIGH",
+          "mlgg_dimension": 3,
+          "mlgg_gates": [
+            "missingness_policy_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-P04"
+          ],
+          "concern_text": "Missing data handling lacks adequate documentation — no clear explanation of how missing values were managed, no reporting of missing data percentages, no sensitivity analyses to assess impact.",
+          "author_response": "We added missing data reporting, imputation methodology, and sensitivity analysis.",
+          "resolved": true,
+          "tags": [
+            "missing_data_undocumented",
+            "no_sensitivity_analysis",
+            "imputation_unclear"
+          ]
+        },
+        {
+          "concern_id": "PR-025-C03",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "calibration_dca_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Model calibration is insufficiently reported — calibration plots relegated to supplementary materials, no formal calibration testing (such as Hosmer-Lemeshow) presented.",
+          "author_response": "We moved calibration plots to main figures and added Hosmer-Lemeshow test results.",
+          "resolved": true,
+          "tags": [
+            "calibration_in_supplement",
+            "no_formal_calibration_test",
+            "hosmer_lemeshow"
+          ]
+        },
+        {
+          "concern_id": "PR-025-C04",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Multiple testing concerns remain unaddressed — no clear adjustment for multiple comparisons across numerous statistical tests performed.",
+          "author_response": "We added Bonferroni correction for multiple comparisons and flagged results that do not survive correction.",
+          "resolved": true,
+          "tags": [
+            "multiple_testing",
+            "no_correction",
+            "bonferroni"
+          ]
+        },
+        {
+          "concern_id": "PR-025-C05",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "The authors categorize MCD or FSGS as combined feature. It is reasonable to combine primary MCD/FSGS as podocytopathies, but secondary FSGS is much more frequent and has different clinical management.",
+          "author_response": "We discussed the MCD/FSGS distinction and added sensitivity analysis separating primary vs secondary FSGS.",
+          "resolved": true,
+          "tags": [
+            "disease_subtype_grouping",
+            "clinical_distinction",
+            "sensitivity_analysis"
+          ]
+        },
+        {
+          "concern_id": "PR-025-C06",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "The Net Reclassification Index (NRI) has well-documented issues with the category-free version and should be interpreted with caution. The term 'metadata' is confusing — it relates to actual clinical data, not metadata.",
+          "author_response": "We clarified NRI limitations and changed 'metadata' to 'clinical data' throughout.",
+          "resolved": true,
+          "tags": [
+            "nri_limitations",
+            "terminology_confusing"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-025-S01",
+          "reviewer": "Reviewer #1",
+          "text": "Authors are very clear in methodology and present compelling results using high-quality data including multi-national datasets. Excellent visuals and clear clinical implications.",
+          "tags": [
+            "clear_methodology",
+            "multinational",
+            "excellent_visuals"
+          ]
+        },
+        {
+          "strength_id": "PR-025-S02",
+          "reviewer": "Reviewer #3",
+          "text": "Prediction of disease progression and pathological diagnosis, comparison with human performance, and validation in prospective and external cohorts is relevant. Methodology is sound.",
+          "tags": [
+            "prospective_validation",
+            "human_comparison",
+            "sound_methodology"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "no_power_calculation",
+        "missing_data_undocumented",
+        "calibration_in_supplement",
+        "multiple_testing"
+      ],
+      "key_methodology_strengths": [
+        "multinational_validation",
+        "noninvasive_approach",
+        "prospective_cohort"
+      ]
+    },
+    {
+      "id": "PR-026",
+      "paper_doi": "10.1038/s41467-025-68198-y",
+      "paper_title": "Prehospital real-time AI for trauma mortality prediction: a multi-institutional and multi-national validation study",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "domain": "emergency_medicine",
+      "prediction_task": "Emergency room mortality prediction in trauma patients from prehospital data",
+      "model_types": [
+        "gradient_boosting",
+        "logistic_regression",
+        "neural_network"
+      ],
+      "data_type": "prehospital_clinical_tabular",
+      "sample_size": 216125,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-026-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "external_validation",
+          "severity": "HIGH",
+          "mlgg_dimension": 6,
+          "mlgg_gates": [
+            "external_validation_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "The model was developed and internally validated in South Korean trauma centers. External validation in Australia (n=3,578) is valuable but limited to one center. Performance in other healthcare systems (e.g., US, European EMS) would strengthen generalizability claims.",
+          "author_response": "We acknowledged geographic limitation and discussed plans for broader international validation. Added sensitivity analysis by injury mechanism.",
+          "resolved": true,
+          "tags": [
+            "limited_geographic_validation",
+            "single_external_center",
+            "generalizability"
+          ]
+        },
+        {
+          "concern_id": "PR-026-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "calibration_dca_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-E02"
+          ],
+          "concern_text": "Calibration analysis should be presented more prominently. The model's predicted probabilities vs observed mortality rates should be clearly shown across risk groups.",
+          "author_response": "We moved calibration plots to main figures and added calibration metrics (slope, intercept, Brier score).",
+          "resolved": true,
+          "tags": [
+            "calibration_presentation",
+            "calibration_metrics"
+          ]
+        },
+        {
+          "concern_id": "PR-026-C03",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "clinical_utility",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "How would this model be deployed in real-time prehospital settings? What are the latency requirements? What happens when data is missing (common in trauma settings)?",
+          "author_response": "We described the real-time deployment architecture, measured inference latency (<1s), and added analysis of model robustness to missing prehospital variables.",
+          "resolved": true,
+          "tags": [
+            "deployment_feasibility",
+            "latency",
+            "missing_data_in_deployment"
+          ]
+        },
+        {
+          "concern_id": "PR-026-C04",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "reporting",
+          "severity": "LOW",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-T01"
+          ],
+          "concern_text": "The study follows TRIPOD+AI and TRIPOD-cluster guidelines — this is commendable. Minor formatting improvements needed in checklist compliance table.",
+          "author_response": "We reformatted the TRIPOD+AI checklist table.",
+          "resolved": true,
+          "tags": [
+            "tripod_compliance",
+            "reporting_quality"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-026-S01",
+          "reviewer": "Reviewer #1",
+          "text": "Large-scale study with 204,189 patients for development and multi-national external validation. Follows TRIPOD+AI guidelines rigorously.",
+          "tags": [
+            "large_scale",
+            "multinational",
+            "tripod_compliant"
+          ]
+        },
+        {
+          "strength_id": "PR-026-S02",
+          "reviewer": "Reviewer #2",
+          "text": "Clinically important application — prehospital mortality prediction could meaningfully improve triage decisions and resource allocation.",
+          "tags": [
+            "clinical_importance",
+            "triage",
+            "resource_allocation"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_minor_revision",
+      "key_methodology_issues": [
+        "limited_geographic_validation",
+        "deployment_feasibility"
+      ],
+      "key_methodology_strengths": [
+        "large_scale",
+        "multinational_validation",
+        "tripod_compliant",
+        "real_time_deployment"
       ]
     }
   ]

@@ -1,0 +1,24 @@
+{
+  "id": "PR-020",
+  "paper_doi": "10.1038/s41467-025-62042-z",
+  "paper_title": "Explainable multimodal deep learning for predicting thyroid cancer lateral lymph node metastasis using ultrasound imaging",
+  "journal": "Nature Communications",
+  "year": 2025,
+  "domain": "oncology",
+  "prediction_task": "Thyroid cancer lateral lymph node metastasis prediction from multimodal data",
+  "model_types": ["deep_learning", "yolov8", "unet_plus_plus", "bidirectional_attention"],
+  "data_type": "ultrasound_imaging_plus_clinical",
+  "sample_size": 23692,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-020-C01", "reviewer": "Reviewer #1", "round": 1, "category": "model_selection", "severity": "HIGH", "mlgg_dimension": 4, "mlgg_gates": ["model_selection_audit_gate"], "mlgg_rules": ["MLGG-M03"], "concern_text": "Lacks thorough comparison with existing baselines. Comprehensive ablation studies needed for each component and each modality's independent contribution.", "author_response": "Added baseline comparisons and comprehensive ablation.", "resolved": true, "tags": ["missing_baseline_comparison", "ablation_missing", "modality_contribution"]},
+    {"concern_id": "PR-020-C02", "reviewer": "Reviewer #2", "round": 1, "category": "clinical_utility", "severity": "CRITICAL", "mlgg_dimension": 7, "mlgg_gates": ["clinical_metrics_gate"], "mlgg_rules": [], "concern_text": "Predicting microscopic LLNMs with AI may be HARMFUL — removal of small metastases may not change outcome. Will result in overutilization of lateral neck dissection.", "author_response": "Added LLNM characteristics analysis stratified by clinical significance. Revised workflow.", "resolved": true, "tags": ["potential_harm", "overtreatment", "clinical_significance_of_findings"]},
+    {"concern_id": "PR-020-C03", "reviewer": "Reviewer #2", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": ["calibration_dca_gate"], "mlgg_rules": [], "concern_text": "DCA assumes all true AI predictions are beneficial — not true for microscopic metastases. Proposed workflow would not be best clinical management.", "author_response": "Revised DCA accounting for clinically insignificant metastases.", "resolved": true, "tags": ["dca_assumptions_violated", "workflow_inappropriate"]},
+    {"concern_id": "PR-020-C04", "reviewer": "Reviewer #1", "round": 1, "category": "evaluation_metrics", "severity": "MEDIUM", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Comparison with human experts unfair due to differing dataset sizes (model on full data vs radiologists on N=200).", "author_response": "Added model performance on same N=200 subset.", "resolved": true, "tags": ["unfair_comparison", "dataset_size_mismatch"]},
+    {"concern_id": "PR-020-C05", "reviewer": "Reviewer #2", "round": 1, "category": "study_design", "severity": "HIGH", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "LLNM-Net trained on cancerous nodules only — most thyroid nodules are benign. Cannot be used for population screening.", "author_response": "Clarified intended use is pre-surgical planning, not screening.", "resolved": true, "tags": ["scope_of_application", "population_vs_selected"]}
+  ],
+  "reviewer_strengths": [{"strength_id": "PR-020-S01", "reviewer": "Reviewer #2", "text": "Performance impressive, quality of data science is high. Using AI to identify thyroid locations associated with metastatic disease is useful.", "tags": ["strong_performance", "high_quality"]}],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["potential_harm", "dca_assumptions_violated", "missing_baseline_comparison"],
+  "key_methodology_strengths": ["large_multicenter", "explainable_ai", "high_performance"]
+}
