@@ -1,0 +1,26 @@
+{
+  "id": "PR-066",
+  "paper_doi": "10.1038/s41467-025-56784-z",
+  "paper_title": "Artificial intelligence links CT images to pathologic features and survival outcomes of renal masses",
+  "journal": "Nature Communications",
+  "year": 2025,
+  "domain": "oncology",
+  "prediction_task": "Renal mass classification and survival prediction from multi-phase CT images",
+  "model_types": ["resnet18", "deep_learning"],
+  "data_type": "ct_multi_phase_imaging",
+  "sample_size": 5000,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-066-C01", "reviewer": "Reviewer #4", "round": 1, "category": "interpretability", "severity": "HIGH", "mlgg_dimension": 7, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Three-phase model achieves best performance but authors haven't shown what each phase contributes. Which radiological phenotypes in each phase correlate with predictions?", "author_response": "Added phase-specific contribution analysis and CAM visualization per phase.", "resolved": true, "tags": ["phase_contribution_unclear", "multimodal_interpretation"]},
+    {"concern_id": "PR-066-C02", "reviewer": "Reviewer #4", "round": 1, "category": "study_design", "severity": "HIGH", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Only one slice with maximum tumour extracted per CT — ignores spatial heterogeneity. Should test with smaller tumour slice. nnUNet segmentation may fail for difficult images from TCIA.", "author_response": "Added multi-slice analysis and segmentation failure rate reporting.", "resolved": true, "tags": ["single_slice_only", "spatial_heterogeneity_ignored", "segmentation_failure"]},
+    {"concern_id": "PR-066-C03", "reviewer": "Reviewer #4", "round": 1, "category": "interpretability", "severity": "HIGH", "mlgg_dimension": 7, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "After segmentation, why not focus on kidney areas by masking background? Benign CAM in Figure C shows attention paid to background areas. Why not include segmentation results as additional input?", "author_response": "Added masked-kidney-only model comparison.", "resolved": true, "tags": ["background_attention", "segmentation_mask_unused", "cam_on_background"]},
+    {"concern_id": "PR-066-C04", "reviewer": "Reviewer #4", "round": 1, "category": "study_design", "severity": "MEDIUM", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Intra-observer variability of three pathologists in revaluating tumour subtypes not reported. Arterial phase segmentation labelled by only one radiologist — annotation bias.", "author_response": "Added inter-rater agreement and second reader validation.", "resolved": true, "tags": ["inter_rater_missing", "single_annotator_bias"]},
+    {"concern_id": "PR-066-C05", "reviewer": "Reviewer #1", "round": 1, "category": "reproducibility", "severity": "MEDIUM", "mlgg_dimension": 9, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Code available but trained weights not shared. Checked code in repository — seems reasonable but can't run without pre-trained model.", "author_response": "Uploaded trained weights to repository.", "resolved": true, "tags": ["weights_not_shared", "partial_reproducibility"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-066-S01", "reviewer": "Reviewer #4", "text": "Methodology is sound, experiments support conclusions. Multi-centre CT dataset with potential association to survival and gene mutation.", "tags": ["multi_centre", "sound_methodology", "genomic_association"]}
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["single_slice_only", "background_attention", "inter_rater_missing"],
+  "key_methodology_strengths": ["multi_phase_ct", "multi_centre", "survival_genomic_link"]
+}

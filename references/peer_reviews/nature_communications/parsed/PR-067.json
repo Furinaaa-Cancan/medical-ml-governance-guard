@@ -1,0 +1,25 @@
+{
+  "id": "PR-067",
+  "paper_doi": "10.1038/s41467-023-39631-x",
+  "paper_title": "Opportunistic detection of type 2 diabetes using deep learning from frontal chest radiographs",
+  "journal": "Nature Communications",
+  "year": 2023,
+  "domain": "endocrinology",
+  "prediction_task": "Type 2 diabetes detection from routine chest X-rays (opportunistic screening)",
+  "model_types": ["deep_learning", "logistic_regression"],
+  "data_type": "chest_xray_imaging",
+  "sample_size": 271065,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-067-C01", "reviewer": "Reviewer #2", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "More meaningful clinical comparison would be to USPSTF recommendation (screen persons aged 35-70 with BMI≥25). How does CXR DL model perform compared to USPSTF? Within USPSTF-eligible subset, how would this affect number of people tested/diagnosed/missed?", "author_response": "Added USPSTF comparison analysis.", "resolved": true, "tags": ["comparison_with_clinical_standard", "uspstf_guideline", "clinical_decision_comparison"]},
+    {"concern_id": "PR-067-C02", "reviewer": "Reviewer #2", "round": 1, "category": "reporting", "severity": "MEDIUM", "mlgg_dimension": 8, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Results section very difficult to read without Methods. Model should be explained how it would be used in clinical practice. Statistical testing should highlight utility for decision making.", "author_response": "Restructured results with clinical workflow context.", "resolved": true, "tags": ["results_need_methods_context", "clinical_workflow_unclear"]},
+    {"concern_id": "PR-067-C03", "reviewer": "Reviewer #1", "round": 1, "category": "evaluation_metrics", "severity": "MEDIUM", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Despite rebuttal, would like to see correlation of DL-score and HbA1c. Many patients have consistent HbA1c levels over time — presence/absence of association provides insights into whether glycemia or adiposity features relate to diabetes detection from CXR.", "author_response": "Added DL-score vs HbA1c correlation analysis.", "resolved": true, "tags": ["mechanism_unclear", "glycemia_vs_adiposity", "biomarker_correlation"]},
+    {"concern_id": "PR-067-C04", "reviewer": "Reviewer #1", "round": 1, "category": "interpretability", "severity": "LOW", "mlgg_dimension": 7, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Speculation that rib attenuation relates to osteoporosis should be cautious — T2D and osteoporosis correlation is subtle. More likely that rib attenuation results from increased subcutaneous fat.", "author_response": "Revised interpretation discussion.", "resolved": true, "tags": ["overinterpreted_mechanism", "alternative_explanation"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-067-S01", "reviewer": "Reviewer #1", "text": "The explainable-AI approach presents novel aspects convincingly suggesting plausible features of CXR images associated with diabetes detection.", "tags": ["explainable_ai", "novel_xai_insights", "cxr_diabetes"]}
+  ],
+  "outcome": "accepted_after_revision",
+  "key_methodology_issues": ["comparison_with_clinical_standard", "mechanism_unclear"],
+  "key_methodology_strengths": ["opportunistic_screening", "large_dataset_271k", "xai_insights"]
+}

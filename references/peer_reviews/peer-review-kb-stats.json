@@ -1,38 +1,38 @@
 {
-  "total_papers": 61,
-  "total_concerns": 295,
-  "total_strengths": 69,
+  "total_papers": 68,
+  "total_concerns": 319,
+  "total_strengths": 76,
   "concerns_by_category": {
-    "evaluation_metrics": 89,
-    "study_design": 62,
-    "reporting": 43,
-    "preprocessing": 22,
-    "external_validation": 16,
+    "evaluation_metrics": 95,
+    "study_design": 67,
+    "reporting": 48,
+    "preprocessing": 23,
+    "external_validation": 17,
     "clinical_utility": 16,
     "model_selection": 15,
-    "reproducibility": 13,
-    "interpretability": 9,
+    "reproducibility": 15,
+    "interpretability": 13,
     "sample_size": 4,
     "split_protocol": 3,
     "data_leakage": 2,
     "feature_selection": 1
   },
   "concerns_by_severity": {
-    "HIGH": 141,
-    "MEDIUM": 119,
-    "CRITICAL": 21,
-    "LOW": 14
+    "HIGH": 153,
+    "MEDIUM": 129,
+    "CRITICAL": 22,
+    "LOW": 15
   },
   "concerns_by_dimension": {
-    "1": 65,
+    "1": 70,
     "2": 2,
-    "3": 22,
+    "3": 23,
     "4": 17,
-    "5": 88,
-    "6": 16,
-    "7": 26,
-    "8": 42,
-    "9": 13,
+    "5": 94,
+    "6": 17,
+    "7": 30,
+    "8": 47,
+    "9": 15,
     "12": 4
   },
   "top_30_tags": [
@@ -159,7 +159,7 @@
   ],
   "resolution_rate": 1.0,
   "papers_by_domain": {
-    "oncology": 19,
+    "oncology": 21,
     "infectious_disease": 6,
     "neurology": 6,
     "cardiovascular": 5,
@@ -176,12 +176,17 @@
     "oncology_epidemiology": 1,
     "dermatology": 1,
     "microbiome": 1,
-    "global_health": 1
+    "global_health": 1,
+    "pulmonology": 1,
+    "proteomics": 1,
+    "ophthalmology": 1,
+    "endocrinology": 1,
+    "clinical_trials": 1
   },
   "papers_by_outcome": {
-    "accepted_after_major_revision": 46,
-    "accepted_after_revision": 8,
-    "accepted_after_minor_revision": 4,
-    "accepted_minimal_review": 3
+    "accepted_after_major_revision": 50,
+    "accepted_after_revision": 9,
+    "accepted_after_minor_revision": 5,
+    "accepted_minimal_review": 4
   }
 }

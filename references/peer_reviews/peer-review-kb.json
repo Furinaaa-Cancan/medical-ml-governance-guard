@@ -1,7 +1,7 @@
 {
   "contract_version": "peer_review_kb.v1",
-  "total_papers": 61,
-  "total_concerns": 295,
+  "total_papers": 68,
+  "total_concerns": 319,
   "entries": [
     {
       "id": "PR-001",
@@ -8123,6 +8123,712 @@
       "key_methodology_strengths": [
         "external_validation",
         "hfpef_detection"
+      ],
+      "_note": "PDF contained only Reporting Summary form, not actual peer review comments."
+    },
+    {
+      "id": "PR-062",
+      "paper_doi": "10.1038/s41467-023-37758-5",
+      "paper_title": "Deep learning to estimate lung disease mortality from chest radiographs",
+      "journal": "Nature Communications",
+      "year": 2023,
+      "domain": "pulmonology",
+      "prediction_task": "Lung disease mortality risk prediction from routine chest X-rays (CXR Lung-Risk)",
+      "model_types": [
+        "deep_learning_ensemble_20_models",
+        "lasso"
+      ],
+      "data_type": "chest_xray_imaging",
+      "sample_size": 40643,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-062-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reproducibility",
+          "severity": "CRITICAL",
+          "mlgg_dimension": 9,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "DL model description is vague: loss function completely missing, training details (optimizer, dev split, epochs) absent, image preprocessing completely missing (DICOM→PNG, dimensions, cropping, augmentation). Why 20 models with random hyperparameters? How are they combined? Extreme ensemble learning is only used in ML contests but rarely in clinical settings.",
+          "author_response": "Added complete training pipeline details, preprocessing steps, and individual model performance.",
+          "resolved": true,
+          "tags": [
+            "training_details_missing",
+            "loss_function_missing",
+            "preprocessing_missing",
+            "extreme_ensemble",
+            "ml_contest_approach"
+          ]
+        },
+        {
+          "concern_id": "PR-062-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "How does each individual model perform? Using 20-model ensemble is unacceptable without showing individual performance. This is extreme ensemble that would not be practical clinically.",
+          "author_response": "Added individual model performance table showing ensemble is necessary for stability.",
+          "resolved": true,
+          "tags": [
+            "individual_model_performance_missing",
+            "ensemble_justification",
+            "clinical_practicality"
+          ]
+        },
+        {
+          "concern_id": "PR-062-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reporting",
+          "severity": "HIGH",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "In supplemental Fig 3B, lung-risk HR of [65,75] category is not significant in multivariate model. The claim 'CXR Lung-Risk remained independently associated with lung disease mortality in both subpopulations' is misleading.",
+          "author_response": "Corrected the claim with appropriate caveats.",
+          "resolved": true,
+          "tags": [
+            "misleading_claim",
+            "non_significant_subgroup",
+            "selective_reporting"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-062-S01",
+          "reviewer": "Reviewer #1",
+          "text": "Novel problem for deep learning — finding risk of lung disease mortality from regular radiographs. Evidence suggests DL can identify elevated risk subjects.",
+          "tags": [
+            "novel_application",
+            "chest_xray",
+            "lung_mortality"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "training_details_missing",
+        "extreme_ensemble",
+        "misleading_claim"
+      ],
+      "key_methodology_strengths": [
+        "novel_application",
+        "three_independent_test_sets",
+        "large_training_data"
+      ]
+    },
+    {
+      "id": "PR-063",
+      "paper_doi": "10.1038/s41467-023-39933-0",
+      "paper_title": "Spatial cellular architecture predicts prognosis in glioblastoma",
+      "journal": "Nature Communications",
+      "year": 2023,
+      "domain": "oncology",
+      "prediction_task": "Glioblastoma prognosis prediction from spatial transcriptomics + H&E histology features",
+      "model_types": [
+        "deep_learning",
+        "spatial_transcriptomics"
+      ],
+      "data_type": "spatial_transcriptomics_plus_he",
+      "sample_size": 500,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-063-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "No molecular definition provided for glioblastoma — training data likely contains IDH-mutant tumors, and TCGA data likely contains entities no longer diagnosed as glioblastoma. These samples should be removed.",
+          "author_response": "Added IDH status filtering and removed non-GBM entities.",
+          "resolved": true,
+          "tags": [
+            "molecular_subtype_not_defined",
+            "outdated_classification",
+            "cohort_contamination"
+          ]
+        },
+        {
+          "concern_id": "PR-063-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Multivariate analysis only includes the five cell-type states. Should include other prognostic factors like patient age and tumour size. Even if states no longer significant, findings are still important.",
+          "author_response": "Added age and tumor size to multivariate model.",
+          "resolved": true,
+          "tags": [
+            "multivariate_incomplete",
+            "standard_prognostic_factors_missing"
+          ]
+        },
+        {
+          "concern_id": "PR-063-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "TCGA clinical annotation is limited — survival data should be treated with more caution. Number of slides in training data is relatively low.",
+          "author_response": "Added caveats about TCGA annotation quality and discussed sample size limitations.",
+          "resolved": true,
+          "tags": [
+            "tcga_annotation_limited",
+            "small_training_set"
+          ]
+        },
+        {
+          "concern_id": "PR-063-C04",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Line 321: 'Genes related to low aggressiveness associated with neuronal development' could be due to lower tumor purity rather than biology. Tumor purity not accounted for.",
+          "author_response": "Added tumor purity analysis as confounder.",
+          "resolved": true,
+          "tags": [
+            "tumor_purity_confounder",
+            "biological_vs_technical"
+          ]
+        },
+        {
+          "concern_id": "PR-063-C05",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reporting",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Discussion is mainly a recap of results with no discussion of study limitations or comparative efforts.",
+          "author_response": "Added limitations and comparison with existing AI approaches.",
+          "resolved": true,
+          "tags": [
+            "discussion_is_recap",
+            "no_limitations",
+            "no_comparison"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-063-S01",
+          "reviewer": "Reviewer #1",
+          "text": "Combining spatial transcriptomic data with imaging features on H&E sections is a very interesting and innovative approach providing new insights.",
+          "tags": [
+            "innovative",
+            "spatial_transcriptomics",
+            "novel_combination"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "molecular_subtype_not_defined",
+        "multivariate_incomplete",
+        "tumor_purity_confounder"
+      ],
+      "key_methodology_strengths": [
+        "spatial_transcriptomics",
+        "novel_combination",
+        "prognostic_architecture"
+      ]
+    },
+    {
+      "id": "PR-064",
+      "paper_doi": "10.1038/s41467-023-43575-7",
+      "paper_title": "Plasma proteomic profiles predict individual future health risk",
+      "journal": "Nature Communications",
+      "year": 2023,
+      "domain": "proteomics",
+      "prediction_task": "Future health risk prediction for 14 disease categories from plasma proteomics (52K UK Biobank)",
+      "model_types": [
+        "neural_network_representation_learning",
+        "survival_model"
+      ],
+      "data_type": "olink_proteomics_plus_clinical",
+      "sample_size": 52000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-064-C01",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "reporting",
+          "severity": "HIGH",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Unclear how the feature (ProRS?) is calculated from model output. Cross-validation procedure needs more detail — is the full NN + survival pipeline done leave-one-region-out or has some steps been carried for all data?",
+          "author_response": "Clarified ProRS calculation and full CV pipeline details.",
+          "resolved": true,
+          "tags": [
+            "feature_extraction_unclear",
+            "cv_procedure_unclear",
+            "potential_data_leakage_in_cv"
+          ]
+        },
+        {
+          "concern_id": "PR-064-C02",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "reporting",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "GitHub link does not work. Why is network called a 'residual network' when no residual connections are used? Several sentences are unclear.",
+          "author_response": "Fixed GitHub link, corrected terminology, improved clarity.",
+          "resolved": true,
+          "tags": [
+            "broken_github_link",
+            "incorrect_terminology",
+            "unclear_writing"
+          ]
+        },
+        {
+          "concern_id": "PR-064-C03",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "What does 'before and after baseline' mean? Does each patient appear with different covariates for different outcomes? The comorbid network claim of 'overwhelmingly estimating health conditions' is unclear.",
+          "author_response": "Clarified temporal modeling and toned down claims.",
+          "resolved": true,
+          "tags": [
+            "temporal_model_unclear",
+            "overclaimed_capability"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-064-S01",
+          "reviewer": "Reviewer #1",
+          "text": "Important contribution due to the scope (52K+ samples, Olink proteomics, 14 disease categories). Manuscript is well-written with vigorous methodology.",
+          "tags": [
+            "large_scale_proteomics",
+            "multi_disease",
+            "rigorous"
+          ]
+        },
+        {
+          "strength_id": "PR-064-S02",
+          "reviewer": "Reviewer #2",
+          "text": "Paper is easy to follow and analysis appears thorough and convincing.",
+          "tags": [
+            "clear_presentation",
+            "thorough_analysis"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_minor_revision",
+      "key_methodology_issues": [
+        "feature_extraction_unclear",
+        "cv_procedure_unclear",
+        "broken_github_link"
+      ],
+      "key_methodology_strengths": [
+        "52k_proteomics",
+        "14_disease_categories",
+        "representation_learning"
+      ]
+    },
+    {
+      "id": "PR-065",
+      "paper_doi": "10.1038/s41467-023-42934-8",
+      "paper_title": "LensAge index as a deep learning-based biological age for self-monitoring the risks of age-related diseases and mortality",
+      "journal": "Nature Communications",
+      "year": 2023,
+      "domain": "ophthalmology",
+      "prediction_task": "Biological age estimation from anterior segment photos → disease and mortality risk prediction",
+      "model_types": [
+        "inception_v3",
+        "deep_learning"
+      ],
+      "data_type": "anterior_segment_photography",
+      "sample_size": 8255,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-065-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "external_validation",
+          "severity": "HIGH",
+          "mlgg_dimension": 6,
+          "mlgg_gates": [
+            "external_validation_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "All datasets consisted of participants from China only. Single-ethnicity training from a single national screening program. LensAge DL model may be limited in generalizability to other populations.",
+          "author_response": "Acknowledged generalizability limitation and discussed plans for multi-ethnic validation.",
+          "resolved": true,
+          "tags": [
+            "single_ethnicity",
+            "single_country",
+            "generalizability_limited"
+          ]
+        },
+        {
+          "concern_id": "PR-065-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "What was defined as 'healthy individuals' for training? Were patients screened for diseases or self-reported absence sufficient? How to account for patients with undiagnosed diseases? Were corticosteroid users excluded (secondary cataracts)?",
+          "author_response": "Added detailed inclusion/exclusion criteria with disease screening protocol.",
+          "resolved": true,
+          "tags": [
+            "healthy_definition_unclear",
+            "undiagnosed_disease",
+            "corticosteroid_confounder"
+          ]
+        },
+        {
+          "concern_id": "PR-065-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "preprocessing",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 3,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "A variety of slit-lamps were used (BQ-900, BX-900, OVS-II, PSL-Classic). Did every participant have photographs from all slit-lamps? What was the distribution of slit-lamp models in the dataset?",
+          "author_response": "Added device distribution analysis and robustness to different slit-lamp models.",
+          "resolved": true,
+          "tags": [
+            "device_heterogeneity",
+            "slit_lamp_variation",
+            "imaging_protocol"
+          ]
+        },
+        {
+          "concern_id": "PR-065-C04",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "interpretability",
+          "severity": "HIGH",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Explainability analysis needed — what specific lens features drive the LensAge prediction? Is it nuclear sclerosis, cortical changes, posterior subcapsular changes? Grad-CAM only shows where, not what.",
+          "author_response": "Added ophthalmologist-graded lens feature correlation analysis.",
+          "resolved": true,
+          "tags": [
+            "explainability_what_not_where",
+            "clinical_feature_correlation",
+            "grad_cam_insufficient"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-065-S01",
+          "reviewer": "Reviewer #1",
+          "text": "Novel research question. Demonstrated that LensAge and LensAge index are accurate indicators of age-related disease risks. Non-invasive method for biological age assessment.",
+          "tags": [
+            "novel_concept",
+            "non_invasive",
+            "biological_age"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "single_ethnicity",
+        "healthy_definition_unclear",
+        "explainability_what_not_where"
+      ],
+      "key_methodology_strengths": [
+        "novel_concept",
+        "non_invasive_biomarker",
+        "large_dataset"
+      ]
+    },
+    {
+      "id": "PR-066",
+      "paper_doi": "10.1038/s41467-025-56784-z",
+      "paper_title": "Artificial intelligence links CT images to pathologic features and survival outcomes of renal masses",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "domain": "oncology",
+      "prediction_task": "Renal mass classification and survival prediction from multi-phase CT images",
+      "model_types": [
+        "resnet18",
+        "deep_learning"
+      ],
+      "data_type": "ct_multi_phase_imaging",
+      "sample_size": 5000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-066-C01",
+          "reviewer": "Reviewer #4",
+          "round": 1,
+          "category": "interpretability",
+          "severity": "HIGH",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Three-phase model achieves best performance but authors haven't shown what each phase contributes. Which radiological phenotypes in each phase correlate with predictions?",
+          "author_response": "Added phase-specific contribution analysis and CAM visualization per phase.",
+          "resolved": true,
+          "tags": [
+            "phase_contribution_unclear",
+            "multimodal_interpretation"
+          ]
+        },
+        {
+          "concern_id": "PR-066-C02",
+          "reviewer": "Reviewer #4",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Only one slice with maximum tumour extracted per CT — ignores spatial heterogeneity. Should test with smaller tumour slice. nnUNet segmentation may fail for difficult images from TCIA.",
+          "author_response": "Added multi-slice analysis and segmentation failure rate reporting.",
+          "resolved": true,
+          "tags": [
+            "single_slice_only",
+            "spatial_heterogeneity_ignored",
+            "segmentation_failure"
+          ]
+        },
+        {
+          "concern_id": "PR-066-C03",
+          "reviewer": "Reviewer #4",
+          "round": 1,
+          "category": "interpretability",
+          "severity": "HIGH",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "After segmentation, why not focus on kidney areas by masking background? Benign CAM in Figure C shows attention paid to background areas. Why not include segmentation results as additional input?",
+          "author_response": "Added masked-kidney-only model comparison.",
+          "resolved": true,
+          "tags": [
+            "background_attention",
+            "segmentation_mask_unused",
+            "cam_on_background"
+          ]
+        },
+        {
+          "concern_id": "PR-066-C04",
+          "reviewer": "Reviewer #4",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Intra-observer variability of three pathologists in revaluating tumour subtypes not reported. Arterial phase segmentation labelled by only one radiologist — annotation bias.",
+          "author_response": "Added inter-rater agreement and second reader validation.",
+          "resolved": true,
+          "tags": [
+            "inter_rater_missing",
+            "single_annotator_bias"
+          ]
+        },
+        {
+          "concern_id": "PR-066-C05",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reproducibility",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 9,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Code available but trained weights not shared. Checked code in repository — seems reasonable but can't run without pre-trained model.",
+          "author_response": "Uploaded trained weights to repository.",
+          "resolved": true,
+          "tags": [
+            "weights_not_shared",
+            "partial_reproducibility"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-066-S01",
+          "reviewer": "Reviewer #4",
+          "text": "Methodology is sound, experiments support conclusions. Multi-centre CT dataset with potential association to survival and gene mutation.",
+          "tags": [
+            "multi_centre",
+            "sound_methodology",
+            "genomic_association"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "single_slice_only",
+        "background_attention",
+        "inter_rater_missing"
+      ],
+      "key_methodology_strengths": [
+        "multi_phase_ct",
+        "multi_centre",
+        "survival_genomic_link"
+      ]
+    },
+    {
+      "id": "PR-067",
+      "paper_doi": "10.1038/s41467-023-39631-x",
+      "paper_title": "Opportunistic detection of type 2 diabetes using deep learning from frontal chest radiographs",
+      "journal": "Nature Communications",
+      "year": 2023,
+      "domain": "endocrinology",
+      "prediction_task": "Type 2 diabetes detection from routine chest X-rays (opportunistic screening)",
+      "model_types": [
+        "deep_learning",
+        "logistic_regression"
+      ],
+      "data_type": "chest_xray_imaging",
+      "sample_size": 271065,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-067-C01",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "More meaningful clinical comparison would be to USPSTF recommendation (screen persons aged 35-70 with BMI≥25). How does CXR DL model perform compared to USPSTF? Within USPSTF-eligible subset, how would this affect number of people tested/diagnosed/missed?",
+          "author_response": "Added USPSTF comparison analysis.",
+          "resolved": true,
+          "tags": [
+            "comparison_with_clinical_standard",
+            "uspstf_guideline",
+            "clinical_decision_comparison"
+          ]
+        },
+        {
+          "concern_id": "PR-067-C02",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "reporting",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Results section very difficult to read without Methods. Model should be explained how it would be used in clinical practice. Statistical testing should highlight utility for decision making.",
+          "author_response": "Restructured results with clinical workflow context.",
+          "resolved": true,
+          "tags": [
+            "results_need_methods_context",
+            "clinical_workflow_unclear"
+          ]
+        },
+        {
+          "concern_id": "PR-067-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Despite rebuttal, would like to see correlation of DL-score and HbA1c. Many patients have consistent HbA1c levels over time — presence/absence of association provides insights into whether glycemia or adiposity features relate to diabetes detection from CXR.",
+          "author_response": "Added DL-score vs HbA1c correlation analysis.",
+          "resolved": true,
+          "tags": [
+            "mechanism_unclear",
+            "glycemia_vs_adiposity",
+            "biomarker_correlation"
+          ]
+        },
+        {
+          "concern_id": "PR-067-C04",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "interpretability",
+          "severity": "LOW",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Speculation that rib attenuation relates to osteoporosis should be cautious — T2D and osteoporosis correlation is subtle. More likely that rib attenuation results from increased subcutaneous fat.",
+          "author_response": "Revised interpretation discussion.",
+          "resolved": true,
+          "tags": [
+            "overinterpreted_mechanism",
+            "alternative_explanation"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-067-S01",
+          "reviewer": "Reviewer #1",
+          "text": "The explainable-AI approach presents novel aspects convincingly suggesting plausible features of CXR images associated with diabetes detection.",
+          "tags": [
+            "explainable_ai",
+            "novel_xai_insights",
+            "cxr_diabetes"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_revision",
+      "key_methodology_issues": [
+        "comparison_with_clinical_standard",
+        "mechanism_unclear"
+      ],
+      "key_methodology_strengths": [
+        "opportunistic_screening",
+        "large_dataset_271k",
+        "xai_insights"
+      ]
+    },
+    {
+      "id": "PR-068",
+      "paper_doi": "10.1038/s41467-025-57181-2",
+      "paper_title": "Pretrained transformers applied to clinical studies improve predictions of treatment efficacy and associated biomarkers",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "domain": "clinical_trials",
+      "prediction_task": "Treatment efficacy and biomarker prediction in clinical trials using pretrained clinical transformer",
+      "model_types": [
+        "transformer",
+        "pretrained"
+      ],
+      "data_type": "clinical_trial_tabular",
+      "sample_size": 10000,
+      "review_rounds": 1,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "outcome": "accepted_minimal_review",
+      "key_methodology_issues": [],
+      "key_methodology_strengths": [
+        "pretrained_transformer",
+        "clinical_trials"
       ],
       "_note": "PDF contained only Reporting Summary form, not actual peer review comments."
     }

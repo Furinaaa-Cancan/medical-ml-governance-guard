@@ -1,0 +1,19 @@
+{
+  "id": "PR-068",
+  "paper_doi": "10.1038/s41467-025-57181-2",
+  "paper_title": "Pretrained transformers applied to clinical studies improve predictions of treatment efficacy and associated biomarkers",
+  "journal": "Nature Communications",
+  "year": 2025,
+  "domain": "clinical_trials",
+  "prediction_task": "Treatment efficacy and biomarker prediction in clinical trials using pretrained clinical transformer",
+  "model_types": ["transformer", "pretrained"],
+  "data_type": "clinical_trial_tabular",
+  "sample_size": 10000,
+  "review_rounds": 1,
+  "reviewer_concerns": [],
+  "reviewer_strengths": [],
+  "outcome": "accepted_minimal_review",
+  "key_methodology_issues": [],
+  "key_methodology_strengths": ["pretrained_transformer", "clinical_trials"],
+  "_note": "PDF contained only Reporting Summary form, not actual peer review comments."
+}
