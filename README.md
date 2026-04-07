@@ -210,14 +210,16 @@ Phase 9  报告            TRIPOD+AI 清单 + 局限性讨论
 
 **3.3 分层缺失策略（MLGG-P06, Madley-Dowd 2019）**
 
-不使用固定阈值（如"丢弃 >60% 缺失"），而是按缺失机制分层：
+不使用固定阈值（如"丢弃 >60% 缺失"），而是按缺失机制分层（**推荐的分析框架**，用于指导研究者决策）：
 
-| 层级 | 缺失率范围 | 策略 | 理由 |
-|------|-----------|------|------|
-| Tier 4 | > 80% | 丢弃原值，保留缺失指示变量 | 原值信息已极度稀疏，但"是否缺失"本身可能有预测价值（如"体重未测量"→门诊 vs 住院） |
+| 层级 | 缺失率范围 | 推荐策略 | 理由 |
+|------|-----------|---------|------|
+| Tier 4 | > 80% | 丢弃原值，保留缺失指示变量 | 原值信息已极度稀疏，但"是否缺失"本身可能有预测价值 |
 | Tier 3 | 40-80% | 插补 + 缺失指示变量 | 插补可能不准，指示变量补偿 |
 | Tier 2 | 5-40% | 插补 + 缺失指示变量 | 标准 MAR 处理 |
 | Tier 1 | < 5% | 简单插补（中位数/众数） | 缺失太少，不值得复杂处理 |
+
+> **实现说明**：当前代码对所有列统一使用 `SimpleImputer(median, add_indicator=True)`。上述分层是推荐的分析框架，研究者应在 Phase 1 缺失分析后根据临床知识决定各列策略。树模型（RF/XGB/LGBM）不添加 indicator 列（原生处理缺失）。
 
 **3.4 SMOTE 立场**
 
@@ -247,7 +249,7 @@ Harrell 2015 和 Steyerberg 2019 推荐"临床先验预指定 + 惩罚收缩"而
 - 每次拟合 Elastic Net，记录非零特征
 - 特征入选概率 = 100 次中被选中的次数 / 100
 - 保留入选概率 > 0.6 的特征
-- 提供有限样本误选界：期望误选数 E[V] ≤ q² / ((2π - 1) × p)
+- 理论误选界（Meinshausen 2010）：E[V] ≤ q² / ((2π - 1) × p)（推荐报告，当前代码未自动计算）
 
 **4.4 Ridge 对照（Harrell 2015 推荐）**
 
@@ -297,7 +299,7 @@ threshold* = argmax_t J(t)
 
 **5.4 Bootstrap Optimism Correction（Steyerberg 2019 Ch.17）**
 
-内部验证方法，估计模型性能的"乐观偏差"：
+内部验证方法，估计模型性能的"乐观偏差"。**通过 `bootstrap_optimism_correction()` 工具函数调用**（非自动执行）：
 1. 在原训练集上拟合模型，计算 apparent performance
 2. 重复 B 次（B ≥ 100）：Bootstrap 重采样 → 拟合 → 在 bootstrap 样本和原样本上分别评估 → 差值 = optimism
 3. Optimism-corrected performance = apparent - mean(optimism)
@@ -951,7 +953,7 @@ MLGG 的每一个方法论决策都有同行评审文献支撑。以下按流程
 | 方法论决策 | 文献来源 | MLGG 实现 |
 |-----------|---------|-----------|
 | 模型选择用验证集性能（非 train-test gap） | Yang Z, et al. *Toward understanding generalization in discrete search spaces.* **KDD 2023.** | MLGG-M04, `--selection-data=valid` |
-| Bootstrap optimism correction 内部验证 | Steyerberg EW. *Clinical Prediction Models.* 2nd ed. **Springer**; 2019. Ch. 17. | Phase 5 内建 |
+| Bootstrap optimism correction 内部验证 | Steyerberg EW. *Clinical Prediction Models.* 2nd ed. **Springer**; 2019. Ch. 17. | `bootstrap_optimism_correction()` 工具函数（推荐在 Phase 5 后手动调用） |
 | 比较 ≥3 个模型族 | TRIPOD+AI 2024, Item 7b — Model building procedures | MLGG-M03 |
 | 阈值选择（Youden's J） | Fluss R, et al. *Estimation of the Youden Index and its associated cutoff point.* **Biometrical Journal.** 2005;47(4):458-472. | MLGG-M02, 验证集上选择 |
 
