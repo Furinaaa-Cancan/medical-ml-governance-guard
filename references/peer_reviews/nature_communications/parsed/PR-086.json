@@ -1,0 +1,57 @@
+{
+  "id": "PR-086",
+  "paper_doi": "10.1038/s41467-025-65693-0",
+  "paper_title": "A noninvasive machine learning model using a complete blood count for screening of primary vitreoretinal lymphoma",
+  "year": 2025,
+  "domain": "hematology",
+  "prediction_task": "PVRL screening from CBC data using random forest (prospective 100K + community 500K validation)",
+  "model_types": [
+    "random_forest"
+  ],
+  "data_type": "complete_blood_count",
+  "sample_size": 600000,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-086-C01",
+      "category": "study_design",
+      "severity": "HIGH",
+      "mlgg_dimension": 1,
+      "concern_text": "Gold standard diagnostic protocol (2016 WHO classification biopsy) choice should be clarified. How were healthy controls matched to cases?",
+      "tags": [
+        "gold_standard_justification",
+        "control_matching"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-086-C02",
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "concern_text": "Very rare disease — PPV will be extremely low in community screening even with high AUC. Clinical utility of screening unclear.",
+      "tags": [
+        "rare_disease_ppv",
+        "screening_utility"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    }
+  ],
+  "journal": "Nature Communications",
+  "review_rounds": 2,
+  "reviewer_strengths": [],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": [],
+  "key_methodology_issues": [
+    "gold_standard_justification"
+  ]
+}

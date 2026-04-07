@@ -1,0 +1,55 @@
+{
+  "id": "PR-079",
+  "paper_doi": "10.1038/s41467-023-39676-y",
+  "paper_title": "Computational analysis of peripheral blood smears detects disease-associated cytomorphologies",
+  "year": 2023,
+  "domain": "hematology",
+  "prediction_task": "Disease-associated blood cell morphology detection from peripheral blood smears",
+  "model_types": [
+    "deep_learning"
+  ],
+  "data_type": "blood_smear_microscopy",
+  "sample_size": 5000,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-079-C01",
+      "category": "clinical_utility",
+      "severity": "HIGH",
+      "mlgg_dimension": 7,
+      "concern_text": "How would the ML protocol work from a user/clinician perspective? Clinical applicability beyond research setting unclear.",
+      "tags": [
+        "clinical_workflow_unclear"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-079-C02",
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "concern_text": "Correlation between morphological features and molecular features needs more rigorous statistical validation.",
+      "tags": [
+        "molecular_correlation_weak"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    }
+  ],
+  "journal": "Nature Communications",
+  "review_rounds": 2,
+  "reviewer_strengths": [],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": [],
+  "key_methodology_issues": [
+    "clinical_workflow_unclear"
+  ]
+}

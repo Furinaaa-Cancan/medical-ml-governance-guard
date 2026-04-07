@@ -1,0 +1,38 @@
+{
+  "id": "PR-089",
+  "paper_doi": "10.1038/s41467-025-66994-0",
+  "paper_title": "ML-supported framework for classification of mpox infection and MVA immunization from multiplexed serology data",
+  "year": 2025,
+  "domain": "infectious_disease",
+  "prediction_task": "Mpox infection vs MVA vaccination classification from multiplexed serology",
+  "model_types": [
+    "machine_learning"
+  ],
+  "data_type": "serology_multiplex",
+  "sample_size": 500,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-089-C01",
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "concern_text": "Cross-reactivity of Orthopoxvirus antibodies is complex. Model performance on sera from different clades and vaccination schedules should be tested.",
+      "tags": [
+        "cross_reactivity",
+        "clade_specific_testing"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    }
+  ],
+  "journal": "Nature Communications",
+  "review_rounds": 2,
+  "reviewer_strengths": [],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": [],
+  "key_methodology_issues": []
+}

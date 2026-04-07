@@ -1,0 +1,40 @@
+{
+  "id": "PR-090",
+  "paper_doi": "10.1038/s41467-025-61890-z",
+  "paper_title": "Cell-free DNA testing for detection and prognosis prediction of pancreatic cancer",
+  "year": 2025,
+  "domain": "oncology",
+  "prediction_task": "Pancreatic cancer detection and prognosis from cfDNA",
+  "model_types": [
+    "machine_learning"
+  ],
+  "data_type": "cfdna",
+  "sample_size": 1000,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-090-C01",
+      "category": "external_validation",
+      "severity": "HIGH",
+      "mlgg_dimension": 6,
+      "concern_text": "External validation cohort characteristics and size should be clearly reported. Performance in early-stage pancreatic cancer is critical but may be limited.",
+      "tags": [
+        "external_validation_details",
+        "early_stage_performance"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    }
+  ],
+  "journal": "Nature Communications",
+  "review_rounds": 2,
+  "reviewer_strengths": [],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": [],
+  "key_methodology_issues": [
+    "external_validation_details"
+  ]
+}

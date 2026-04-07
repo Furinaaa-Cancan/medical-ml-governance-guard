@@ -1,0 +1,78 @@
+{
+  "id": "PR-077",
+  "paper_doi": "10.1038/s41467-025-55847-5",
+  "paper_title": "Integration of clinical, pathological, radiological, and transcriptomic data improves prediction for first-line immunotherapy outcome in metastatic NSCLC",
+  "year": 2025,
+  "domain": "oncology",
+  "prediction_task": "First-line immunotherapy outcome prediction in metastatic NSCLC from multimodal data",
+  "model_types": [
+    "machine_learning",
+    "multimodal"
+  ],
+  "data_type": "clinical_pathological_radiological_transcriptomic",
+  "sample_size": 500,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-077-C01",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "HIGH",
+      "mlgg_dimension": 5,
+      "concern_text": "Figure 3: multimodal predictions not statistically significantly better than unimodal RNA data alone. Must show the multimodal approach surpasses previously established transcriptomic-only models.",
+      "tags": [
+        "multimodal_not_significantly_better",
+        "existing_unimodal_competitive"
+      ],
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-077-C02",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "study_design",
+      "severity": "HIGH",
+      "mlgg_dimension": 1,
+      "concern_text": "Framework for multimodal survival/prognosis prediction is not novel — many prior studies (Rami 2022, Lipkova 2022, Wang 2023). Authors only applied existing algorithms, raising concerns about novelty.",
+      "tags": [
+        "novelty_questioned",
+        "existing_algorithms_only",
+        "prior_work_missed"
+      ],
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-077-C03",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "concern_text": "Results are nothing more than a case study. Urgent need to show how multimodal data can be used as a predictive biomarker. Feature importance analysis in Results is not comprehensive enough.",
+      "tags": [
+        "case_study_only",
+        "biomarker_validation_missing"
+      ],
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    }
+  ],
+  "key_methodology_issues": [
+    "multimodal_not_significantly_better",
+    "novelty_questioned",
+    "case_study_only"
+  ],
+  "journal": "Nature Communications",
+  "reviewer_strengths": [],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": []
+}

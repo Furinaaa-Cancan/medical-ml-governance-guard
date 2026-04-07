@@ -1,0 +1,60 @@
+{
+  "id": "PR-088",
+  "paper_doi": "10.1038/s41467-024-54357-0",
+  "paper_title": "Metabolomic and genomic prediction of common diseases in 700,217 participants in three national biobanks",
+  "year": 2024,
+  "domain": "metabolomics",
+  "prediction_task": "Common disease prediction from NMR metabolomics + genomics across 3 national biobanks",
+  "model_types": [
+    "lasso",
+    "cox_regression"
+  ],
+  "data_type": "nmr_metabolomics_plus_genomics",
+  "sample_size": 700217,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-088-C01",
+      "category": "reporting",
+      "severity": "CRITICAL",
+      "mlgg_dimension": 8,
+      "concern_text": "Investigative group dominated by employees of the company selling the NMR test. Despite scaling back claims, manuscript continues to promote NMR testing for public health screening. Must completely refrain from commentary on incorporating into national preventive programs.",
+      "tags": [
+        "conflict_of_interest",
+        "commercial_promotion",
+        "overclaimed_public_health"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-088-C02",
+      "category": "evaluation_metrics",
+      "severity": "HIGH",
+      "mlgg_dimension": 5,
+      "concern_text": "Original intent was to show improvement over conventional approaches but revised to 'proof of principle'. Statements must be unequivocally supported by data.",
+      "tags": [
+        "goal_post_shift",
+        "claims_vs_data"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    }
+  ],
+  "journal": "Nature Communications",
+  "review_rounds": 2,
+  "reviewer_strengths": [],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": [],
+  "key_methodology_issues": [
+    "conflict_of_interest",
+    "goal_post_shift"
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "PR-070",
+  "paper_doi": "10.1038/s41467-025-64430-x",
+  "paper_title": "AgentMD: Empowering language agents for risk prediction with large-scale clinical tool learning",
+  "year": 2025,
+  "domain": "llm_clinical",
+  "prediction_task": "LLM agent that auto-creates clinical risk calculators from PubMed articles and applies them to patient data",
+  "model_types": [
+    "llm_agent",
+    "gpt4"
+  ],
+  "data_type": "clinical_notes_plus_literature",
+  "sample_size": 37000000,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-070-C01",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "HIGH",
+      "mlgg_dimension": 5,
+      "concern_text": "Tool correctness tested with GPT-4-generated unit tests. Should include manually crafted high-quality test cases by human experts, including extreme/boundary cases.",
+      "tags": [
+        "ai_generated_tests_only",
+        "human_validation_needed",
+        "boundary_testing"
+      ],
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-070-C02",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "reproducibility",
+      "severity": "HIGH",
+      "mlgg_dimension": 9,
+      "concern_text": "How can agent reliably create calculation functions from paper abstracts only? Calculation details are in the main body. Toolset creation pipeline not open-sourced.",
+      "tags": [
+        "abstract_only_insufficient",
+        "code_not_open_source"
+      ],
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-070-C03",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "study_design",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 1,
+      "concern_text": "Sending patient information to proprietary model API may leak private information — privacy concerns not discussed.",
+      "tags": [
+        "privacy_concern",
+        "proprietary_api"
+      ],
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    }
+  ],
+  "key_methodology_issues": [
+    "ai_generated_tests_only",
+    "abstract_only_insufficient",
+    "privacy_concern"
+  ],
+  "journal": "Nature Communications",
+  "reviewer_strengths": [],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": []
+}

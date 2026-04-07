@@ -1,0 +1,76 @@
+{
+  "id": "PR-081",
+  "paper_doi": "10.1038/s41467-025-57587-y",
+  "paper_title": "A foundation model for generalizable cancer diagnosis and survival prediction from histopathological images",
+  "year": 2025,
+  "domain": "oncology",
+  "prediction_task": "Pan-cancer diagnosis and survival from histopathology foundation model (BEPH)",
+  "model_types": [
+    "beit_foundation_model"
+  ],
+  "data_type": "histopathology_wsi",
+  "sample_size": 50000,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-081-C01",
+      "category": "preprocessing",
+      "severity": "HIGH",
+      "mlgg_dimension": 3,
+      "concern_text": "Downsampled all images to 224x224 — substantial information loss. How does patch size affect performance?",
+      "tags": [
+        "image_downsampling",
+        "information_loss",
+        "resolution_impact"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-081-C02",
+      "category": "evaluation_metrics",
+      "severity": "HIGH",
+      "mlgg_dimension": 5,
+      "concern_text": "Variance of accuracy is substantial across models. Statistical significance of performance differences should be formally tested.",
+      "tags": [
+        "high_variance",
+        "statistical_significance_missing"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-081-C03",
+      "category": "model_selection",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 4,
+      "concern_text": "Different magnification levels give different results. Should aggregate predictions from multiple magnifications via ensemble methods.",
+      "tags": [
+        "magnification_sensitivity",
+        "multi_scale_ensemble"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    }
+  ],
+  "journal": "Nature Communications",
+  "review_rounds": 2,
+  "reviewer_strengths": [],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": [],
+  "key_methodology_issues": [
+    "image_downsampling",
+    "high_variance"
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "PR-084",
+  "paper_doi": "10.1038/s41467-023-44595-z",
+  "paper_title": "A machine learning-driven virtual biopsy system for kidney transplant patients",
+  "year": 2023,
+  "domain": "nephrology",
+  "prediction_task": "Virtual kidney transplant biopsy prediction from 11 donor parameters",
+  "model_types": [
+    "machine_learning"
+  ],
+  "data_type": "clinical_tabular",
+  "sample_size": 14032,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-084-C01",
+      "category": "external_validation",
+      "severity": "HIGH",
+      "mlgg_dimension": 6,
+      "concern_text": "Model trained on single-center data. Needs external validation across different transplant centers with different protocols.",
+      "tags": [
+        "single_center",
+        "transplant_protocol_variation"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-084-C02",
+      "category": "clinical_utility",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 7,
+      "concern_text": "Virtual biopsy cannot replace histological assessment — clinical deployment pathway unclear.",
+      "tags": [
+        "virtual_vs_real_biopsy",
+        "deployment_unclear"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    }
+  ],
+  "journal": "Nature Communications",
+  "review_rounds": 2,
+  "reviewer_strengths": [],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": [],
+  "key_methodology_issues": [
+    "single_center"
+  ]
+}

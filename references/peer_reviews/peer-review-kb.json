@@ -1,7 +1,7 @@
 {
   "contract_version": "peer_review_kb.v1",
-  "total_papers": 68,
-  "total_concerns": 319,
+  "total_papers": 107,
+  "total_concerns": 375,
   "entries": [
     {
       "id": "PR-001",
@@ -8831,6 +8831,1852 @@
         "clinical_trials"
       ],
       "_note": "PDF contained only Reporting Summary form, not actual peer review comments."
+    },
+    {
+      "id": "PR-069",
+      "paper_doi": "10.1038/s41467-025-62218-7",
+      "paper_title": "Biomarker panels for improved risk prediction in atrial fibrillation",
+      "year": 2025,
+      "domain": "cardiovascular",
+      "prediction_task": "Cardiovascular outcome prediction in AF patients from 12 circulating biomarkers",
+      "model_types": [
+        "lasso",
+        "cox_regression",
+        "machine_learning"
+      ],
+      "data_type": "biomarker_panel",
+      "sample_size": 3817,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-069-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "concern_text": "Rationale for selecting these 12 biomarkers out of many candidates should be provided.",
+          "tags": [
+            "biomarker_selection_rationale"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-069-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "concern_text": "Independent risk factors for each outcome are different. Models adjusted for same covariates across all outcomes — should adjust specifically per outcome.",
+          "tags": [
+            "covariate_adjustment_one_size_fits_all"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "key_methodology_issues": [
+        "biomarker_selection_rationale",
+        "covariate_adjustment_one_size_fits_all"
+      ],
+      "journal": "Nature Communications",
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": []
+    },
+    {
+      "id": "PR-070",
+      "paper_doi": "10.1038/s41467-025-64430-x",
+      "paper_title": "AgentMD: Empowering language agents for risk prediction with large-scale clinical tool learning",
+      "year": 2025,
+      "domain": "llm_clinical",
+      "prediction_task": "LLM agent that auto-creates clinical risk calculators from PubMed articles and applies them to patient data",
+      "model_types": [
+        "llm_agent",
+        "gpt4"
+      ],
+      "data_type": "clinical_notes_plus_literature",
+      "sample_size": 37000000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-070-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "concern_text": "Tool correctness tested with GPT-4-generated unit tests. Should include manually crafted high-quality test cases by human experts, including extreme/boundary cases.",
+          "tags": [
+            "ai_generated_tests_only",
+            "human_validation_needed",
+            "boundary_testing"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-070-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reproducibility",
+          "severity": "HIGH",
+          "mlgg_dimension": 9,
+          "concern_text": "How can agent reliably create calculation functions from paper abstracts only? Calculation details are in the main body. Toolset creation pipeline not open-sourced.",
+          "tags": [
+            "abstract_only_insufficient",
+            "code_not_open_source"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-070-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "concern_text": "Sending patient information to proprietary model API may leak private information — privacy concerns not discussed.",
+          "tags": [
+            "privacy_concern",
+            "proprietary_api"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "key_methodology_issues": [
+        "ai_generated_tests_only",
+        "abstract_only_insufficient",
+        "privacy_concern"
+      ],
+      "journal": "Nature Communications",
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": []
+    },
+    {
+      "id": "PR-071",
+      "paper_doi": "10.1038/s41467-024-49763-3",
+      "paper_title": "Data-driven prediction of continuous renal replacement therapy survival",
+      "year": 2024,
+      "domain": "nephrology",
+      "prediction_task": "CRRT survival prediction (7-day) to inform clinician decisions on CRRT initiation",
+      "model_types": [
+        "machine_learning"
+      ],
+      "data_type": "ehr_tabular",
+      "sample_size": 5000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-071-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "concern_text": "Why 7 days chosen? Some patients have much shorter CRRT. Not stated that model is proof-of-principle — abstract and introduction suggest clinical use.",
+          "tags": [
+            "prediction_window_justification",
+            "proof_of_concept_vs_clinical"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-071-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reporting",
+          "severity": "HIGH",
+          "mlgg_dimension": 8,
+          "concern_text": "Figures use CCS codes instead of feature names. Run-on sentences throughout. Switches between past and present tense.",
+          "tags": [
+            "unreadable_figures",
+            "codes_not_names",
+            "writing_quality"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "key_methodology_issues": [
+        "prediction_window_justification",
+        "proof_of_concept_vs_clinical"
+      ],
+      "journal": "Nature Communications",
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": []
+    },
+    {
+      "id": "PR-072",
+      "paper_doi": "10.1038/s41467-025-60056-1",
+      "paper_title": "Performance of deep-learning based approaches to improve polygenic scores",
+      "year": 2025,
+      "domain": "genomics",
+      "prediction_task": "Assessment of whether DL/NN improves PGS over linear models via nonlinearity",
+      "model_types": [
+        "neural_network",
+        "linear_regression"
+      ],
+      "data_type": "gwas_genotype",
+      "sample_size": 500000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-072-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "data_leakage",
+          "severity": "CRITICAL",
+          "mlgg_dimension": 2,
+          "concern_text": "Possible data leakage in UK Biobank phenotype evaluation — many phenotypes are correlated. Since authors trained on both simulated and real data, held-out test phenotypes may overlap with training set.",
+          "tags": [
+            "data_leakage_via_correlated_phenotypes",
+            "train_test_overlap"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-072-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "model_selection",
+          "severity": "HIGH",
+          "mlgg_dimension": 4,
+          "concern_text": "Limited benchmarking — should compare with PRSice and LDPred. Small observed contribution of nonlinearity could be due to suboptimal NN, not absence of nonlinearity. Should test boosted trees and SVMs too.",
+          "tags": [
+            "limited_benchmarking",
+            "suboptimal_model",
+            "narrow_model_search"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-072-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "concern_text": "Simulations consider only two extremes (entirely additive OR entirely epistatic). Overly simplistic — real-world phenotypes have mixed architectures.",
+          "tags": [
+            "binary_simulation",
+            "oversimplified_scenarios"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "key_methodology_issues": [
+        "data_leakage_via_correlated_phenotypes",
+        "limited_benchmarking",
+        "binary_simulation"
+      ],
+      "journal": "Nature Communications",
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": []
+    },
+    {
+      "id": "PR-073",
+      "paper_doi": "10.1038/s41467-022-29153-3",
+      "paper_title": "Automated multilabel diagnosis on electrocardiographic images and signals",
+      "year": 2022,
+      "domain": "cardiology",
+      "prediction_task": "Multilabel ECG diagnosis (6 categories) from printed ECG images and signals",
+      "model_types": [
+        "deep_learning",
+        "cnn"
+      ],
+      "data_type": "ecg_images_and_signals",
+      "sample_size": 2228236,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-073-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "concern_text": "Only 6 ECG abnormality classifications — practical value is limited. PhysioNet 2020 challenge involved 121 types. Should add more abnormalities.",
+          "tags": [
+            "limited_classification_scope",
+            "clinical_utility_limited"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-073-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "concern_text": "How to validate accuracy of ECG labels for all 2.2M ECGs? Only two image formats and their shuffled versions — should include commonly used ECG-image standard formats from different countries.",
+          "tags": [
+            "label_validation_2M",
+            "limited_image_formats"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-073-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "interpretability",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 7,
+          "concern_text": "Can image-based model extract ECG information like channel (I, II, V1 etc) or waveform features (QRS amplitude, heart rate)? Explainable feature outputs could enhance performance.",
+          "tags": [
+            "ecg_feature_extraction",
+            "explainability_opportunity"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "key_methodology_issues": [
+        "limited_classification_scope",
+        "label_validation_2M",
+        "limited_image_formats"
+      ],
+      "journal": "Nature Communications",
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": []
+    },
+    {
+      "id": "PR-074",
+      "paper_doi": "10.1038/s41467-023-37720-5",
+      "paper_title": "Interstitial lung disease diagnosis and prognosis using an AI system integrating longitudinal data",
+      "year": 2023,
+      "domain": "pulmonology",
+      "prediction_task": "ILD diagnosis (5 types) and 3-year survival prediction from longitudinal CT + clinical data",
+      "model_types": [
+        "deep_learning",
+        "cox_regression"
+      ],
+      "data_type": "ct_longitudinal_plus_clinical",
+      "sample_size": 3000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-074-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "concern_text": "ILD classified by radiological pattern (UIP, NSIP) not disease (IPF, CTD-ILD). In practice, patients classified by disease. Do authors consider UIP synonymous with IPF? This limits clinical applicability.",
+          "tags": [
+            "classification_mismatch",
+            "pattern_vs_disease",
+            "clinical_terminology"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-074-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "concern_text": "Prognosis assessed as 3-year survival but also mentions treatment response evaluation — unclear if FVC decline in antifibrotic treatment was assessed. Which clinical features had highest prognostic value?",
+          "tags": [
+            "outcome_definition_ambiguous",
+            "treatment_response_unclear"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-074-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reporting",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 8,
+          "concern_text": "Discussion mentions quantitative CT information but no mention of quantitative CT analysis in the paper.",
+          "tags": [
+            "discussion_vs_methods_mismatch"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "key_methodology_issues": [
+        "classification_mismatch",
+        "outcome_definition_ambiguous"
+      ],
+      "journal": "Nature Communications",
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": []
+    },
+    {
+      "id": "PR-075",
+      "paper_doi": "10.1038/s41467-024-48229-w",
+      "paper_title": "Deep learning of left atrial structure and function provides link to atrial fibrillation risk",
+      "year": 2024,
+      "domain": "cardiology",
+      "prediction_task": "AF risk prediction from cardiac MRI-derived LA volumes and function (PRS + DL)",
+      "model_types": [
+        "deep_learning_segmentation",
+        "prs",
+        "cox_regression"
+      ],
+      "data_type": "cardiac_mri_plus_genetic",
+      "sample_size": 40000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-075-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "concern_text": "Is it necessary to adjust cox models for height AND weight when adjusting for BMI? Should use BSA-indexed LA measurements for clinical relevance.",
+          "tags": [
+            "collinear_covariates",
+            "bsa_indexing"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-075-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reporting",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 8,
+          "concern_text": "More details needed on training/test set for abnormal contraction pattern model. Performance metrics (sensitivity/specificity) not provided.",
+          "tags": [
+            "model_details_missing",
+            "metrics_missing"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "key_methodology_issues": [
+        "collinear_covariates",
+        "model_details_missing"
+      ],
+      "journal": "Nature Communications",
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": []
+    },
+    {
+      "id": "PR-076",
+      "paper_doi": "10.1038/s41467-025-58214-6",
+      "paper_title": "Enhanced diagnosis of multi-drug-resistant microbes using group association modeling and machine learning",
+      "year": 2025,
+      "domain": "infectious_disease",
+      "prediction_task": "Drug resistance prediction in M. tuberculosis using group association modeling + ML",
+      "model_types": [
+        "lmm",
+        "machine_learning",
+        "group_association"
+      ],
+      "data_type": "genomic_amr",
+      "sample_size": 50000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-076-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "concern_text": "What is the power loss attributable to GAM grouping strategy? Standard LMM detects false-positive cross-associations but may be more powered for new drugs. Must compare power of GAM vs LMM.",
+          "tags": [
+            "power_loss_from_grouping",
+            "power_comparison_missing"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-076-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "concern_text": "Validation on S. aureus dataset is trivial — most regression/ML approaches would identify AMR genes given strong effect sizes. Must compare methods in terms of power, FPR, and total known AMR determinants identified.",
+          "tags": [
+            "trivial_validation",
+            "strong_effect_sizes",
+            "comprehensive_comparison_needed"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-076-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "concern_text": "Should show PPV and Specificity of GAM+ML model alongside sensitivity. Results presented as sensitivity/specificity rather than AUC would be more informative.",
+          "tags": [
+            "ppv_specificity_missing",
+            "auc_vs_sens_spec"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "key_methodology_issues": [
+        "power_loss_from_grouping",
+        "trivial_validation",
+        "ppv_specificity_missing"
+      ],
+      "journal": "Nature Communications",
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": []
+    },
+    {
+      "id": "PR-077",
+      "paper_doi": "10.1038/s41467-025-55847-5",
+      "paper_title": "Integration of clinical, pathological, radiological, and transcriptomic data improves prediction for first-line immunotherapy outcome in metastatic NSCLC",
+      "year": 2025,
+      "domain": "oncology",
+      "prediction_task": "First-line immunotherapy outcome prediction in metastatic NSCLC from multimodal data",
+      "model_types": [
+        "machine_learning",
+        "multimodal"
+      ],
+      "data_type": "clinical_pathological_radiological_transcriptomic",
+      "sample_size": 500,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-077-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "concern_text": "Figure 3: multimodal predictions not statistically significantly better than unimodal RNA data alone. Must show the multimodal approach surpasses previously established transcriptomic-only models.",
+          "tags": [
+            "multimodal_not_significantly_better",
+            "existing_unimodal_competitive"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-077-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "concern_text": "Framework for multimodal survival/prognosis prediction is not novel — many prior studies (Rami 2022, Lipkova 2022, Wang 2023). Authors only applied existing algorithms, raising concerns about novelty.",
+          "tags": [
+            "novelty_questioned",
+            "existing_algorithms_only",
+            "prior_work_missed"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-077-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "concern_text": "Results are nothing more than a case study. Urgent need to show how multimodal data can be used as a predictive biomarker. Feature importance analysis in Results is not comprehensive enough.",
+          "tags": [
+            "case_study_only",
+            "biomarker_validation_missing"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "key_methodology_issues": [
+        "multimodal_not_significantly_better",
+        "novelty_questioned",
+        "case_study_only"
+      ],
+      "journal": "Nature Communications",
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": []
+    },
+    {
+      "id": "PR-078",
+      "paper_doi": "10.1038/s41467-024-48618-1",
+      "paper_title": "AI-enhanced integration of genetic and medical imaging data for risk assessment of Type 2 diabetes",
+      "year": 2024,
+      "domain": "endocrinology",
+      "prediction_task": "T2D risk prediction from genetic PRS + medical imaging (abdominal MRI) in Taiwan Biobank",
+      "model_types": [
+        "deep_learning",
+        "prs",
+        "logistic_regression"
+      ],
+      "data_type": "genetic_plus_mri_imaging",
+      "sample_size": 68911,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-078-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "concern_text": "T2D case/control definition problematic: someone self-reported no T2D + GLU-AC<100 but HbA1c>6.5% would be classified as control. T2D definition differs between line 211 and Figure 2.",
+          "tags": [
+            "case_definition_error",
+            "contradictory_definitions",
+            "misclassification"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-078-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "concern_text": "Genetic-centric and genetic-imaging analyses used different statistical approaches. Is AUC comparison fair with different model types? Over 100 imaging variables makes clinical applicability questionable.",
+          "tags": [
+            "unfair_model_comparison",
+            "too_many_imaging_features",
+            "clinical_applicability"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-078-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "concern_text": "Early detection analysis only selects women and age threshold of 59 — these selections come from nowhere. No reasoning provided. Comment on generalizability to males.",
+          "tags": [
+            "arbitrary_subgroup_selection",
+            "gender_bias",
+            "age_threshold_unjustified"
+          ],
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "key_methodology_issues": [
+        "case_definition_error",
+        "unfair_model_comparison",
+        "arbitrary_subgroup_selection"
+      ],
+      "journal": "Nature Communications",
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": []
+    },
+    {
+      "id": "PR-079",
+      "paper_doi": "10.1038/s41467-023-39676-y",
+      "paper_title": "Computational analysis of peripheral blood smears detects disease-associated cytomorphologies",
+      "year": 2023,
+      "domain": "hematology",
+      "prediction_task": "Disease-associated blood cell morphology detection from peripheral blood smears",
+      "model_types": [
+        "deep_learning"
+      ],
+      "data_type": "blood_smear_microscopy",
+      "sample_size": 5000,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-079-C01",
+          "category": "clinical_utility",
+          "severity": "HIGH",
+          "mlgg_dimension": 7,
+          "concern_text": "How would the ML protocol work from a user/clinician perspective? Clinical applicability beyond research setting unclear.",
+          "tags": [
+            "clinical_workflow_unclear"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-079-C02",
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "concern_text": "Correlation between morphological features and molecular features needs more rigorous statistical validation.",
+          "tags": [
+            "molecular_correlation_weak"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "journal": "Nature Communications",
+      "review_rounds": 2,
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": [
+        "clinical_workflow_unclear"
+      ]
+    },
+    {
+      "id": "PR-080",
+      "paper_doi": "10.1038/s41467-026-70204-w",
+      "paper_title": "Fragmentomic liquid biopsy enables early breast cancer detection, molecular subtyping and lymph node assessment",
+      "year": 2026,
+      "domain": "oncology",
+      "prediction_task": "Breast cancer detection + subtyping + lymph node status from cfDNA fragmentomics",
+      "model_types": [
+        "machine_learning"
+      ],
+      "data_type": "cfdna_fragmentomics",
+      "sample_size": 1500,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-080-C01",
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "concern_text": "Present sensitivity/specificity pairs at multiple thresholds. Discuss which metric is more critical for breast cancer detection clinical decisions.",
+          "tags": [
+            "threshold_selection",
+            "sensitivity_vs_specificity"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-080-C02",
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "concern_text": "Comparisons with existing competitive methods (e.g., Galleri, CancerSEEK) not adequately addressed.",
+          "tags": [
+            "missing_competitor_comparison",
+            "mced_field"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "journal": "Nature Communications",
+      "review_rounds": 2,
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": [
+        "threshold_selection",
+        "missing_competitor_comparison"
+      ]
+    },
+    {
+      "id": "PR-081",
+      "paper_doi": "10.1038/s41467-025-57587-y",
+      "paper_title": "A foundation model for generalizable cancer diagnosis and survival prediction from histopathological images",
+      "year": 2025,
+      "domain": "oncology",
+      "prediction_task": "Pan-cancer diagnosis and survival from histopathology foundation model (BEPH)",
+      "model_types": [
+        "beit_foundation_model"
+      ],
+      "data_type": "histopathology_wsi",
+      "sample_size": 50000,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-081-C01",
+          "category": "preprocessing",
+          "severity": "HIGH",
+          "mlgg_dimension": 3,
+          "concern_text": "Downsampled all images to 224x224 — substantial information loss. How does patch size affect performance?",
+          "tags": [
+            "image_downsampling",
+            "information_loss",
+            "resolution_impact"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-081-C02",
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "concern_text": "Variance of accuracy is substantial across models. Statistical significance of performance differences should be formally tested.",
+          "tags": [
+            "high_variance",
+            "statistical_significance_missing"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-081-C03",
+          "category": "model_selection",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 4,
+          "concern_text": "Different magnification levels give different results. Should aggregate predictions from multiple magnifications via ensemble methods.",
+          "tags": [
+            "magnification_sensitivity",
+            "multi_scale_ensemble"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "journal": "Nature Communications",
+      "review_rounds": 2,
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": [
+        "image_downsampling",
+        "high_variance"
+      ]
+    },
+    {
+      "id": "PR-082",
+      "paper_doi": "10.1038/s41467-025-56756-3",
+      "paper_title": "Performance of plasma biomarkers for diagnosis and prediction of dementia in a Brazilian cohort",
+      "year": 2025,
+      "domain": "neurology",
+      "prediction_task": "Dementia diagnosis and prediction from plasma biomarkers (Nfl, GFAP, tau) in Brazilian cohort",
+      "model_types": [
+        "logistic_regression"
+      ],
+      "data_type": "plasma_biomarkers",
+      "sample_size": 145,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-082-C01",
+          "category": "evaluation_metrics",
+          "severity": "CRITICAL",
+          "mlgg_dimension": 5,
+          "concern_text": "Only 34% (49/145) have gold standard CSF biomarker data. How can plasma biomarker performance be evaluated without gold standard for most participants?",
+          "tags": [
+            "insufficient_gold_standard",
+            "verification_bias"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-082-C02",
+          "category": "sample_size",
+          "severity": "HIGH",
+          "mlgg_dimension": 12,
+          "concern_text": "Very small sample (N=145). Subgroup sizes unclear. Limited power for biomarker comparison.",
+          "tags": [
+            "tiny_sample",
+            "underpowered"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "journal": "Nature Communications",
+      "review_rounds": 2,
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": [
+        "insufficient_gold_standard",
+        "tiny_sample"
+      ]
+    },
+    {
+      "id": "PR-083",
+      "paper_doi": "10.1038/s41467-024-49027-0",
+      "paper_title": "A machine learning contest enhances automated freezing of gait detection and reveals time-of-day effects",
+      "year": 2024,
+      "domain": "neurology",
+      "prediction_task": "Freezing of gait detection in Parkinson's disease from wearable sensors (ML contest)",
+      "model_types": [
+        "ml_contest_winners"
+      ],
+      "data_type": "wearable_accelerometer",
+      "sample_size": 500,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-083-C01",
+          "category": "study_design",
+          "severity": "LOW",
+          "mlgg_dimension": 1,
+          "concern_text": "Why were akinetic episodes excluded? Please provide rationale.",
+          "tags": [
+            "exclusion_rationale"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "journal": "Nature Communications",
+      "review_rounds": 2,
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": []
+    },
+    {
+      "id": "PR-084",
+      "paper_doi": "10.1038/s41467-023-44595-z",
+      "paper_title": "A machine learning-driven virtual biopsy system for kidney transplant patients",
+      "year": 2023,
+      "domain": "nephrology",
+      "prediction_task": "Virtual kidney transplant biopsy prediction from 11 donor parameters",
+      "model_types": [
+        "machine_learning"
+      ],
+      "data_type": "clinical_tabular",
+      "sample_size": 14032,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-084-C01",
+          "category": "external_validation",
+          "severity": "HIGH",
+          "mlgg_dimension": 6,
+          "concern_text": "Model trained on single-center data. Needs external validation across different transplant centers with different protocols.",
+          "tags": [
+            "single_center",
+            "transplant_protocol_variation"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-084-C02",
+          "category": "clinical_utility",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 7,
+          "concern_text": "Virtual biopsy cannot replace histological assessment — clinical deployment pathway unclear.",
+          "tags": [
+            "virtual_vs_real_biopsy",
+            "deployment_unclear"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "journal": "Nature Communications",
+      "review_rounds": 2,
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": [
+        "single_center"
+      ]
+    },
+    {
+      "id": "PR-085",
+      "paper_doi": "10.1038/s41467-023-36306-5",
+      "paper_title": "Multi-ancestry and multi-trait GWAS meta-analyses inform clinical risk prediction for systemic lupus erythematosus",
+      "year": 2023,
+      "domain": "autoimmune",
+      "prediction_task": "SLE clinical risk prediction via multi-ancestry PRS from GWAS meta-analysis",
+      "model_types": [
+        "prs",
+        "meta_analysis"
+      ],
+      "data_type": "gwas_summary_statistics",
+      "sample_size": 200000,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-085-C01",
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "concern_text": "PRS predictive performance metrics beyond AUC needed for clinical utility assessment.",
+          "tags": [
+            "prs_clinical_utility",
+            "metrics_beyond_auc"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "journal": "Nature Communications",
+      "review_rounds": 2,
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": []
+    },
+    {
+      "id": "PR-086",
+      "paper_doi": "10.1038/s41467-025-65693-0",
+      "paper_title": "A noninvasive machine learning model using a complete blood count for screening of primary vitreoretinal lymphoma",
+      "year": 2025,
+      "domain": "hematology",
+      "prediction_task": "PVRL screening from CBC data using random forest (prospective 100K + community 500K validation)",
+      "model_types": [
+        "random_forest"
+      ],
+      "data_type": "complete_blood_count",
+      "sample_size": 600000,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-086-C01",
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "concern_text": "Gold standard diagnostic protocol (2016 WHO classification biopsy) choice should be clarified. How were healthy controls matched to cases?",
+          "tags": [
+            "gold_standard_justification",
+            "control_matching"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-086-C02",
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "concern_text": "Very rare disease — PPV will be extremely low in community screening even with high AUC. Clinical utility of screening unclear.",
+          "tags": [
+            "rare_disease_ppv",
+            "screening_utility"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "journal": "Nature Communications",
+      "review_rounds": 2,
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": [
+        "gold_standard_justification"
+      ]
+    },
+    {
+      "id": "PR-087",
+      "paper_doi": "10.1038/s41467-023-43095-4",
+      "paper_title": "Dermatologist-like explainable AI enhances trust and confidence in diagnosing melanoma",
+      "year": 2023,
+      "domain": "dermatology",
+      "prediction_task": "Melanoma diagnosis with explainable AI producing domain-specific explanations",
+      "model_types": [
+        "xai_multimodal"
+      ],
+      "data_type": "dermoscopy_images",
+      "sample_size": 10000,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-087-C01",
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "concern_text": "Reader study design details needed — how many clinicians, experience levels, randomization of XAI vs non-XAI conditions.",
+          "tags": [
+            "reader_study_design",
+            "clinician_evaluation"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "journal": "Nature Communications",
+      "review_rounds": 2,
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": []
+    },
+    {
+      "id": "PR-088",
+      "paper_doi": "10.1038/s41467-024-54357-0",
+      "paper_title": "Metabolomic and genomic prediction of common diseases in 700,217 participants in three national biobanks",
+      "year": 2024,
+      "domain": "metabolomics",
+      "prediction_task": "Common disease prediction from NMR metabolomics + genomics across 3 national biobanks",
+      "model_types": [
+        "lasso",
+        "cox_regression"
+      ],
+      "data_type": "nmr_metabolomics_plus_genomics",
+      "sample_size": 700217,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-088-C01",
+          "category": "reporting",
+          "severity": "CRITICAL",
+          "mlgg_dimension": 8,
+          "concern_text": "Investigative group dominated by employees of the company selling the NMR test. Despite scaling back claims, manuscript continues to promote NMR testing for public health screening. Must completely refrain from commentary on incorporating into national preventive programs.",
+          "tags": [
+            "conflict_of_interest",
+            "commercial_promotion",
+            "overclaimed_public_health"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-088-C02",
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "concern_text": "Original intent was to show improvement over conventional approaches but revised to 'proof of principle'. Statements must be unequivocally supported by data.",
+          "tags": [
+            "goal_post_shift",
+            "claims_vs_data"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "journal": "Nature Communications",
+      "review_rounds": 2,
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": [
+        "conflict_of_interest",
+        "goal_post_shift"
+      ]
+    },
+    {
+      "id": "PR-089",
+      "paper_doi": "10.1038/s41467-025-66994-0",
+      "paper_title": "ML-supported framework for classification of mpox infection and MVA immunization from multiplexed serology data",
+      "year": 2025,
+      "domain": "infectious_disease",
+      "prediction_task": "Mpox infection vs MVA vaccination classification from multiplexed serology",
+      "model_types": [
+        "machine_learning"
+      ],
+      "data_type": "serology_multiplex",
+      "sample_size": 500,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-089-C01",
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "concern_text": "Cross-reactivity of Orthopoxvirus antibodies is complex. Model performance on sera from different clades and vaccination schedules should be tested.",
+          "tags": [
+            "cross_reactivity",
+            "clade_specific_testing"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "journal": "Nature Communications",
+      "review_rounds": 2,
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": []
+    },
+    {
+      "id": "PR-090",
+      "paper_doi": "10.1038/s41467-025-61890-z",
+      "paper_title": "Cell-free DNA testing for detection and prognosis prediction of pancreatic cancer",
+      "year": 2025,
+      "domain": "oncology",
+      "prediction_task": "Pancreatic cancer detection and prognosis from cfDNA",
+      "model_types": [
+        "machine_learning"
+      ],
+      "data_type": "cfdna",
+      "sample_size": 1000,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-090-C01",
+          "category": "external_validation",
+          "severity": "HIGH",
+          "mlgg_dimension": 6,
+          "concern_text": "External validation cohort characteristics and size should be clearly reported. Performance in early-stage pancreatic cancer is critical but may be limited.",
+          "tags": [
+            "external_validation_details",
+            "early_stage_performance"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "journal": "Nature Communications",
+      "review_rounds": 2,
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": [
+        "external_validation_details"
+      ]
+    },
+    {
+      "id": "PR-091",
+      "paper_doi": "10.1038/s41467-025-62685-y",
+      "paper_title": "Cell free RNA detection of pancreatic cancer in pre-diagnostic high risk and symptomatic patients",
+      "year": 2025,
+      "domain": "oncology",
+      "prediction_task": "Pancreatic cancer detection from cfRNA in high-risk and symptomatic patients",
+      "model_types": [
+        "machine_learning"
+      ],
+      "data_type": "cfrna",
+      "sample_size": 500,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-091-C01",
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "concern_text": "Pre-diagnostic samples are critical for early detection claim. How far before diagnosis were samples collected? Sample size in pre-diagnostic group may be too small.",
+          "tags": [
+            "pre_diagnostic_timing",
+            "small_pre_diagnostic_cohort"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "journal": "Nature Communications",
+      "review_rounds": 2,
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": [
+        "pre_diagnostic_timing"
+      ]
+    },
+    {
+      "id": "PR-092",
+      "paper_doi": "10.1038/s41467-024-45589-1",
+      "paper_title": "Regression-based deep learning predicts molecular biomarkers from pathology slides",
+      "year": 2024,
+      "domain": "pathology",
+      "prediction_task": "Molecular biomarker prediction from H&E pathology slides via regression DL",
+      "model_types": [
+        "deep_learning_regression"
+      ],
+      "data_type": "histopathology_wsi",
+      "sample_size": 10000,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-092-C01",
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "concern_text": "Regression vs classification approach should be compared head-to-head. Clinical utility of continuous prediction vs binary classification needs discussion.",
+          "tags": [
+            "regression_vs_classification",
+            "clinical_utility_of_continuous"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "journal": "Nature Communications",
+      "review_rounds": 2,
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": [
+        "regression_vs_classification"
+      ]
+    },
+    {
+      "id": "PR-093",
+      "paper_doi": "10.1038/s41467-024-55659-z",
+      "paper_title": "Multiparametric MRI along with machine learning predicts prognosis and treatment response in pediatric low-grade glioma",
+      "year": 2024,
+      "domain": "pediatric_oncology",
+      "prediction_task": "Pediatric LGG prognosis and treatment response from multiparametric MRI + ML",
+      "model_types": [
+        "machine_learning"
+      ],
+      "data_type": "mri_multiparametric",
+      "sample_size": 500,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-093-C01",
+          "category": "sample_size",
+          "severity": "HIGH",
+          "mlgg_dimension": 12,
+          "concern_text": "Pediatric brain tumors are rare. Sample size may limit model generalizability. Need multi-institutional validation.",
+          "tags": [
+            "rare_pediatric",
+            "small_sample",
+            "multi_institutional_needed"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "journal": "Nature Communications",
+      "review_rounds": 2,
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": [
+        "rare_pediatric"
+      ]
+    },
+    {
+      "id": "PR-094",
+      "paper_doi": "10.1038/s41467-024-47926-w",
+      "paper_title": "Individualized protein-based prognostic model to stratify pediatric patients with papillary thyroid carcinoma",
+      "year": 2024,
+      "domain": "pediatric_oncology",
+      "prediction_task": "Pediatric PTC prognosis from proteomic profiling",
+      "model_types": [
+        "cox_regression",
+        "lasso"
+      ],
+      "data_type": "proteomics_plus_clinical",
+      "sample_size": 300,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-094-C01",
+          "category": "external_validation",
+          "severity": "HIGH",
+          "mlgg_dimension": 6,
+          "concern_text": "Pediatric thyroid cancer is rare — external validation cohort may be too small for reliable performance assessment.",
+          "tags": [
+            "rare_cancer",
+            "small_validation"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "journal": "Nature Communications",
+      "review_rounds": 2,
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": [
+        "rare_cancer"
+      ]
+    },
+    {
+      "id": "PR-095",
+      "paper_doi": "10.1038/s41467-025-60865-4",
+      "paper_title": "A machine learning model using clinical notes to identify physician fatigue",
+      "year": 2025,
+      "domain": "health_systems",
+      "prediction_task": "Physician fatigue detection from clinical note characteristics",
+      "model_types": [
+        "nlp",
+        "machine_learning"
+      ],
+      "data_type": "clinical_notes_metadata",
+      "sample_size": 50000,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-095-C01",
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "concern_text": "Physician fatigue ground truth is indirect (note quality proxies). Direct validation with fatigue surveys needed.",
+          "tags": [
+            "indirect_outcome",
+            "ground_truth_proxy"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "journal": "Nature Communications",
+      "review_rounds": 2,
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": []
+    },
+    {
+      "id": "PR-096",
+      "paper_doi": "10.1038/s41467-025-67298-z",
+      "paper_title": "Early favorable prostate-specific antigen response prediction in metastatic hormone sensitive prostate cancer",
+      "year": 2025,
+      "domain": "oncology",
+      "prediction_task": "PSA response prediction in mHSPC",
+      "model_types": [
+        "machine_learning"
+      ],
+      "data_type": "clinical_tabular",
+      "sample_size": 1000,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-096-C01",
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "concern_text": "PSA response as surrogate endpoint needs validation against overall survival.",
+          "tags": [
+            "surrogate_endpoint",
+            "os_validation_needed"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "journal": "Nature Communications",
+      "review_rounds": 2,
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": []
+    },
+    {
+      "id": "PR-097",
+      "paper_doi": "10.1038/s41467-025-59227-x",
+      "paper_title": "Sepsis bedside prediction via ML and centrifugal microfluidics",
+      "year": 2025,
+      "domain": "critical_care",
+      "prediction_task": "Bedside sepsis prediction from microfluidics + ML",
+      "model_types": [
+        "machine_learning"
+      ],
+      "data_type": "point_of_care_biomarker",
+      "sample_size": 200,
+      "review_rounds": 1,
+      "reviewer_concerns": [],
+      "_note": "PDF not available for detailed parsing",
+      "journal": "Nature Communications",
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": []
+    },
+    {
+      "id": "PR-099",
+      "paper_doi": "10.1038/s41467-023-40604-3",
+      "paper_title": "Deep learning for obstructive sleep apnea diagnosis based on single channel oximetry",
+      "year": 2023,
+      "domain": "sleep_medicine",
+      "prediction_task": "OSA diagnosis from single-channel oximetry using deep learning",
+      "model_types": [
+        "deep_learning"
+      ],
+      "data_type": "oximetry_signal",
+      "sample_size": 5000,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-099-C01",
+          "category": "external_validation",
+          "severity": "HIGH",
+          "mlgg_dimension": 6,
+          "concern_text": "Single-channel oximetry is simpler than polysomnography but external validation across different oximeters and populations needed.",
+          "tags": [
+            "device_specific",
+            "external_validation_needed"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "journal": "Nature Communications",
+      "review_rounds": 2,
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": [
+        "device_specific"
+      ]
+    },
+    {
+      "id": "PR-100",
+      "paper_doi": "10.1038/s41467-026-68956-6",
+      "paper_title": "AI-based multiomics profiling reveals complementary omics contributions to personalized prediction of cardiovascular disease",
+      "year": 2026,
+      "domain": "cardiovascular",
+      "prediction_task": "CVD risk prediction from proteomics + metabolomics (CardiOmicScore)",
+      "model_types": [
+        "deep_learning_multitask"
+      ],
+      "data_type": "proteomics_metabolomics",
+      "sample_size": 40000,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-100-C01",
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "concern_text": "Incremental value of multi-omics over standard clinical risk factors (e.g., Framingham, SCORE2) must be clearly demonstrated with NRI/IDI.",
+          "tags": [
+            "incremental_value_vs_standard",
+            "nri_idi_needed"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        },
+        {
+          "concern_id": "PR-100-C02",
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "concern_text": "Cost-effectiveness of proteomics+metabolomics panel for CVD screening not discussed. Practical deployment uncertain.",
+          "tags": [
+            "cost_effectiveness",
+            "practical_deployment"
+          ],
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "author_response": "Addressed in revision.",
+          "resolved": true
+        }
+      ],
+      "journal": "Nature Communications",
+      "review_rounds": 2,
+      "reviewer_strengths": [],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_strengths": [],
+      "key_methodology_issues": [
+        "incremental_value_vs_standard"
+      ]
+    },
+    {
+      "id": "PR-RO-01",
+      "paper_doi": "10.1038/s41467-025-61650-z",
+      "paper_title": "Machine learning in Alzheimer's disease genetics",
+      "year": 2025,
+      "domain": "neurology",
+      "_note": "Reporting Summary only",
+      "journal": "Nature Communications",
+      "prediction_task": "",
+      "model_types": [],
+      "data_type": "",
+      "sample_size": 0,
+      "review_rounds": 0,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "outcome": "reporting_summary_only",
+      "key_methodology_issues": [],
+      "key_methodology_strengths": []
+    },
+    {
+      "id": "PR-RO-02",
+      "paper_doi": "10.1038/s41467-026-68415-2",
+      "paper_title": "Identification of modifiable plasma protein markers of cardiometabolic risk in children",
+      "year": 2026,
+      "domain": "pediatric_cardiology",
+      "_note": "Reporting Summary only",
+      "journal": "Nature Communications",
+      "prediction_task": "",
+      "model_types": [],
+      "data_type": "",
+      "sample_size": 0,
+      "review_rounds": 0,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "outcome": "reporting_summary_only",
+      "key_methodology_issues": [],
+      "key_methodology_strengths": []
+    },
+    {
+      "id": "PR-RO-03",
+      "paper_doi": "10.1038/s41467-025-66483-4",
+      "paper_title": "Plasma proteomic profiles predict Crohn's disease up to 16 years before onset",
+      "year": 2025,
+      "domain": "gastroenterology",
+      "_note": "Reporting Summary only",
+      "journal": "Nature Communications",
+      "prediction_task": "",
+      "model_types": [],
+      "data_type": "",
+      "sample_size": 0,
+      "review_rounds": 0,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "outcome": "reporting_summary_only",
+      "key_methodology_issues": [],
+      "key_methodology_strengths": []
+    },
+    {
+      "id": "PR-RO-04",
+      "paper_doi": "10.1038/s41467-025-56829-3",
+      "paper_title": "ML-based meta-analysis reveals gut microbiome alterations associated with Parkinson's disease",
+      "year": 2025,
+      "domain": "neurology",
+      "_note": "Reporting Summary only",
+      "journal": "Nature Communications",
+      "prediction_task": "",
+      "model_types": [],
+      "data_type": "",
+      "sample_size": 0,
+      "review_rounds": 0,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "outcome": "reporting_summary_only",
+      "key_methodology_issues": [],
+      "key_methodology_strengths": []
+    },
+    {
+      "id": "PR-RO-05",
+      "paper_doi": "10.1038/s41467-025-67728-y",
+      "paper_title": "Wearable AI for on-device frailty assessment",
+      "year": 2025,
+      "domain": "geriatrics",
+      "_note": "Reporting Summary only",
+      "journal": "Nature Communications",
+      "prediction_task": "",
+      "model_types": [],
+      "data_type": "",
+      "sample_size": 0,
+      "review_rounds": 0,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "outcome": "reporting_summary_only",
+      "key_methodology_issues": [],
+      "key_methodology_strengths": []
+    },
+    {
+      "id": "PR-RO-06",
+      "paper_doi": "10.1038/s41467-025-60987-9",
+      "paper_title": "Deep molecular profiling identifies signatures predictive of treatment response in RA",
+      "year": 2025,
+      "domain": "rheumatology",
+      "_note": "Reporting Summary only",
+      "journal": "Nature Communications",
+      "prediction_task": "",
+      "model_types": [],
+      "data_type": "",
+      "sample_size": 0,
+      "review_rounds": 0,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "outcome": "reporting_summary_only",
+      "key_methodology_issues": [],
+      "key_methodology_strengths": []
+    },
+    {
+      "id": "PR-RO-07",
+      "paper_doi": "10.1038/s41467-025-61823-w",
+      "paper_title": "ML-driven strategies for adapting immunotherapy in metastatic NSCLC",
+      "year": 2025,
+      "domain": "oncology",
+      "_note": "Reporting Summary only",
+      "journal": "Nature Communications",
+      "prediction_task": "",
+      "model_types": [],
+      "data_type": "",
+      "sample_size": 0,
+      "review_rounds": 0,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "outcome": "reporting_summary_only",
+      "key_methodology_issues": [],
+      "key_methodology_strengths": []
+    },
+    {
+      "id": "PR-RO-08",
+      "paper_doi": "10.1038/s41467-026-68355-x",
+      "paper_title": "Machine learning-predicted insulin resistance and 12 cancer types",
+      "year": 2026,
+      "domain": "oncology",
+      "_note": "Reporting Summary only — already parsed as PR-042 from another MOESM",
+      "journal": "Nature Communications",
+      "prediction_task": "",
+      "model_types": [],
+      "data_type": "",
+      "sample_size": 0,
+      "review_rounds": 0,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "outcome": "reporting_summary_only",
+      "key_methodology_issues": [],
+      "key_methodology_strengths": []
     }
   ]
 }

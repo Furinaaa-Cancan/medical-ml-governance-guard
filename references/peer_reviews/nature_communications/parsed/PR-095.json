@@ -1,0 +1,39 @@
+{
+  "id": "PR-095",
+  "paper_doi": "10.1038/s41467-025-60865-4",
+  "paper_title": "A machine learning model using clinical notes to identify physician fatigue",
+  "year": 2025,
+  "domain": "health_systems",
+  "prediction_task": "Physician fatigue detection from clinical note characteristics",
+  "model_types": [
+    "nlp",
+    "machine_learning"
+  ],
+  "data_type": "clinical_notes_metadata",
+  "sample_size": 50000,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-095-C01",
+      "category": "study_design",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 1,
+      "concern_text": "Physician fatigue ground truth is indirect (note quality proxies). Direct validation with fatigue surveys needed.",
+      "tags": [
+        "indirect_outcome",
+        "ground_truth_proxy"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    }
+  ],
+  "journal": "Nature Communications",
+  "review_rounds": 2,
+  "reviewer_strengths": [],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": [],
+  "key_methodology_issues": []
+}

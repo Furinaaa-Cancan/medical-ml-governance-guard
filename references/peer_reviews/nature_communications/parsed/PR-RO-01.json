@@ -1,0 +1,19 @@
+{
+  "id": "PR-RO-01",
+  "paper_doi": "10.1038/s41467-025-61650-z",
+  "paper_title": "Machine learning in Alzheimer's disease genetics",
+  "year": 2025,
+  "domain": "neurology",
+  "_note": "Reporting Summary only",
+  "journal": "Nature Communications",
+  "prediction_task": "",
+  "model_types": [],
+  "data_type": "",
+  "sample_size": 0,
+  "review_rounds": 0,
+  "reviewer_concerns": [],
+  "reviewer_strengths": [],
+  "outcome": "reporting_summary_only",
+  "key_methodology_issues": [],
+  "key_methodology_strengths": []
+}

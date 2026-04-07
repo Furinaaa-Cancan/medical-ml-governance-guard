@@ -1,0 +1,58 @@
+{
+  "id": "PR-082",
+  "paper_doi": "10.1038/s41467-025-56756-3",
+  "paper_title": "Performance of plasma biomarkers for diagnosis and prediction of dementia in a Brazilian cohort",
+  "year": 2025,
+  "domain": "neurology",
+  "prediction_task": "Dementia diagnosis and prediction from plasma biomarkers (Nfl, GFAP, tau) in Brazilian cohort",
+  "model_types": [
+    "logistic_regression"
+  ],
+  "data_type": "plasma_biomarkers",
+  "sample_size": 145,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-082-C01",
+      "category": "evaluation_metrics",
+      "severity": "CRITICAL",
+      "mlgg_dimension": 5,
+      "concern_text": "Only 34% (49/145) have gold standard CSF biomarker data. How can plasma biomarker performance be evaluated without gold standard for most participants?",
+      "tags": [
+        "insufficient_gold_standard",
+        "verification_bias"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-082-C02",
+      "category": "sample_size",
+      "severity": "HIGH",
+      "mlgg_dimension": 12,
+      "concern_text": "Very small sample (N=145). Subgroup sizes unclear. Limited power for biomarker comparison.",
+      "tags": [
+        "tiny_sample",
+        "underpowered"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    }
+  ],
+  "journal": "Nature Communications",
+  "review_rounds": 2,
+  "reviewer_strengths": [],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": [],
+  "key_methodology_issues": [
+    "insufficient_gold_standard",
+    "tiny_sample"
+  ]
+}

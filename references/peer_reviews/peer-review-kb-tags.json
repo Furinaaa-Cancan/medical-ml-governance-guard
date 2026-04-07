@@ -16,6 +16,9 @@
   "absolute_threshold_needed": [
     "PR-054-C03"
   ],
+  "abstract_only_insufficient": [
+    "PR-070-C02"
+  ],
   "accessibility": [
     "PR-013-C06",
     "PR-036-C03"
@@ -44,6 +47,9 @@
   "age_only_baseline_missing": [
     "PR-045-C02"
   ],
+  "age_threshold_unjustified": [
+    "PR-078-C03"
+  ],
   "aggregated_only": [
     "PR-043-C05"
   ],
@@ -52,6 +58,9 @@
   ],
   "aggressive_disease_confound": [
     "PR-050-C02"
+  ],
+  "ai_generated_tests_only": [
+    "PR-070-C01"
   ],
   "aki_definition": [
     "PR-035-C06"
@@ -111,6 +120,9 @@
   "arbitrary_clustering": [
     "PR-012-C01"
   ],
+  "arbitrary_subgroup_selection": [
+    "PR-078-C03"
+  ],
   "architecture_unclear": [
     "PR-052-C01"
   ],
@@ -139,6 +151,9 @@
   ],
   "auc_vs_cindex": [
     "PR-005-C05"
+  ],
+  "auc_vs_sens_spec": [
+    "PR-076-C03"
   ],
   "auprc_needed": [
     "PR-010-C04"
@@ -171,6 +186,9 @@
   "binary_simplification_of_survival": [
     "PR-021-C01"
   ],
+  "binary_simulation": [
+    "PR-072-C03"
+  ],
   "biological_confounder": [
     "PR-008-C03"
   ],
@@ -180,8 +198,14 @@
   "biomarker_correlation": [
     "PR-067-C03"
   ],
+  "biomarker_selection_rationale": [
+    "PR-069-C01"
+  ],
   "biomarker_specificity": [
     "PR-048-C01"
+  ],
+  "biomarker_validation_missing": [
+    "PR-077-C03"
   ],
   "blood_tests_unhelpful": [
     "PR-024-C05"
@@ -196,11 +220,17 @@
   "borderline_tumors": [
     "PR-007-C03"
   ],
+  "boundary_testing": [
+    "PR-070-C01"
+  ],
   "broader_applications": [
     "PR-059-C03"
   ],
   "broken_github_link": [
     "PR-064-C02"
+  ],
+  "bsa_indexing": [
+    "PR-075-C01"
   ],
   "calibration_drift_impact": [
     "PR-036-C04"
@@ -232,6 +262,12 @@
   ],
   "case_contamination": [
     "PR-001-C05"
+  ],
+  "case_definition_error": [
+    "PR-078-C01"
+  ],
+  "case_study_only": [
+    "PR-077-C03"
   ],
   "causal_language": [
     "PR-001-C09",
@@ -276,6 +312,12 @@
   "circular_prediction": [
     "PR-032-C03"
   ],
+  "clade_specific_testing": [
+    "PR-089-C01"
+  ],
+  "claims_vs_data": [
+    "PR-088-C02"
+  ],
   "clarity": [
     "PR-058-C04"
   ],
@@ -291,8 +333,12 @@
   "class_imbalance_across_centers": [
     "PR-055-C02"
   ],
+  "classification_mismatch": [
+    "PR-074-C01"
+  ],
   "clinical_applicability": [
-    "PR-033-C01"
+    "PR-033-C01",
+    "PR-078-C02"
   ],
   "clinical_consequences_unclear": [
     "PR-059-C02"
@@ -361,6 +407,9 @@
   "clinical_standard_comparison": [
     "PR-052-C02"
   ],
+  "clinical_terminology": [
+    "PR-074-C01"
+  ],
   "clinical_trial_prespecification": [
     "PR-013-C05"
   ],
@@ -372,6 +421,12 @@
   ],
   "clinical_utility_in_easy_cases": [
     "PR-007-C01"
+  ],
+  "clinical_utility_limited": [
+    "PR-073-C01"
+  ],
+  "clinical_utility_of_continuous": [
+    "PR-092-C01"
   ],
   "clinical_utility_questionable": [
     "PR-004-C02"
@@ -386,13 +441,17 @@
     "PR-028-C05"
   ],
   "clinical_workflow_unclear": [
-    "PR-067-C02"
+    "PR-067-C02",
+    "PR-079-C01"
   ],
   "clinically_relevant_exclusion": [
     "PR-035-C03"
   ],
   "clinician_adjudication": [
     "PR-009-C04"
+  ],
+  "clinician_evaluation": [
+    "PR-087-C01"
   ],
   "clinician_friendly_output": [
     "PR-038-C03"
@@ -408,6 +467,12 @@
   ],
   "code_availability": [
     "PR-015-C02"
+  ],
+  "code_not_open_source": [
+    "PR-070-C02"
+  ],
+  "codes_not_names": [
+    "PR-071-C02"
   ],
   "coefficients_not_provided": [
     "PR-024-C07"
@@ -433,6 +498,9 @@
   "cohort_specific_quantiles": [
     "PR-034-C01"
   ],
+  "collinear_covariates": [
+    "PR-075-C01"
+  ],
   "collinear_features": [
     "PR-049-C03"
   ],
@@ -441,6 +509,9 @@
   ],
   "commercial_language": [
     "PR-043-C04"
+  ],
+  "commercial_promotion": [
+    "PR-088-C01"
   ],
   "comorbidity_data": [
     "PR-003-C01"
@@ -489,6 +560,9 @@
   "composite_outcome": [
     "PR-011-C02"
   ],
+  "comprehensive_comparison_needed": [
+    "PR-076-C02"
+  ],
   "comprehensive_validation_needed": [
     "PR-057-C02"
   ],
@@ -497,7 +571,8 @@
     "PR-018-C04"
   ],
   "conflict_of_interest": [
-    "PR-043-C04"
+    "PR-043-C04",
+    "PR-088-C01"
   ],
   "confounded_by_missing_data": [
     "PR-032-C02"
@@ -547,6 +622,9 @@
   "consort_flow_missing": [
     "PR-058-C03"
   ],
+  "contradictory_definitions": [
+    "PR-078-C01"
+  ],
   "contradictory_results": [
     "PR-045-C01"
   ],
@@ -554,7 +632,8 @@
     "PR-002-C02"
   ],
   "control_matching": [
-    "PR-001-C05"
+    "PR-001-C05",
+    "PR-086-C01"
   ],
   "convergence_diagnostics": [
     "PR-018-C01"
@@ -573,10 +652,14 @@
   ],
   "cost_effectiveness": [
     "PR-004-C02",
-    "PR-033-C03"
+    "PR-033-C03",
+    "PR-100-C02"
   ],
   "covariate_adjustment": [
     "PR-018-C02"
+  ],
+  "covariate_adjustment_one_size_fits_all": [
+    "PR-069-C02"
   ],
   "covariate_control_unclear": [
     "PR-019-C04"
@@ -595,6 +678,9 @@
   ],
   "cross_dataset_generalization": [
     "PR-031-C02"
+  ],
+  "cross_reactivity": [
+    "PR-089-C01"
   ],
   "cross_validation_unclear": [
     "PR-016-C04"
@@ -622,6 +708,9 @@
   ],
   "data_inconsistency": [
     "PR-054-C02"
+  ],
+  "data_leakage_via_correlated_phenotypes": [
+    "PR-072-C01"
   ],
   "data_leakage_via_imputation": [
     "PR-003-C03"
@@ -674,9 +763,15 @@
   "deployment_practicality": [
     "PR-029-C04"
   ],
+  "deployment_unclear": [
+    "PR-084-C02"
+  ],
   "device_heterogeneity": [
     "PR-041-C02",
     "PR-065-C03"
+  ],
+  "device_specific": [
+    "PR-099-C01"
   ],
   "diagnosis_vs_prediction": [
     "PR-024-C01"
@@ -692,6 +787,9 @@
   ],
   "discussion_is_recap": [
     "PR-063-C05"
+  ],
+  "discussion_vs_methods_mismatch": [
+    "PR-074-C03"
   ],
   "disease_heterogeneity": [
     "PR-001-C10"
@@ -722,6 +820,12 @@
   ],
   "early_detection_claim_unsupported": [
     "PR-056-C01"
+  ],
+  "early_stage_performance": [
+    "PR-090-C01"
+  ],
+  "ecg_feature_extraction": [
+    "PR-073-C03"
   ],
   "ecg_feature_meaning": [
     "PR-011-C03"
@@ -763,17 +867,35 @@
   "exclusion_criteria_questionable": [
     "PR-035-C03"
   ],
+  "exclusion_rationale": [
+    "PR-083-C01"
+  ],
+  "existing_algorithms_only": [
+    "PR-077-C02"
+  ],
+  "existing_unimodal_competitive": [
+    "PR-077-C01"
+  ],
   "explainability_insufficient": [
     "PR-007-C06"
   ],
   "explainability_missing": [
     "PR-041-C03"
   ],
+  "explainability_opportunity": [
+    "PR-073-C03"
+  ],
   "explainability_what_not_where": [
     "PR-065-C04"
   ],
+  "external_validation_details": [
+    "PR-090-C01"
+  ],
   "external_validation_incomplete": [
     "PR-034-C01"
+  ],
+  "external_validation_needed": [
+    "PR-099-C01"
   ],
   "extreme_class_imbalance": [
     "PR-048-C02"
@@ -908,6 +1030,9 @@
   "gbdt_fine_tuning_possible": [
     "PR-058-C01"
   ],
+  "gender_bias": [
+    "PR-078-C03"
+  ],
   "generalizability": [
     "PR-007-C02",
     "PR-018-C05",
@@ -933,14 +1058,23 @@
   "glycemia_vs_adiposity": [
     "PR-067-C03"
   ],
+  "goal_post_shift": [
+    "PR-088-C02"
+  ],
   "gold_standard": [
     "PR-002-C03"
+  ],
+  "gold_standard_justification": [
+    "PR-086-C01"
   ],
   "grad_cam_insufficient": [
     "PR-065-C04"
   ],
   "gradcam_interpretation": [
     "PR-007-C06"
+  ],
+  "ground_truth_proxy": [
+    "PR-095-C01"
   ],
   "ground_truth_quality": [
     "PR-005-C08"
@@ -972,6 +1106,9 @@
   "high_risk_excluded": [
     "PR-035-C03"
   ],
+  "high_variance": [
+    "PR-081-C02"
+  ],
   "hitl_protocol_unclear": [
     "PR-007-C05"
   ],
@@ -983,6 +1120,9 @@
   ],
   "human_ai_collaboration": [
     "PR-011-C05"
+  ],
+  "human_validation_needed": [
+    "PR-070-C01"
   ],
   "hyperbole": [
     "PR-010-C06"
@@ -999,6 +1139,9 @@
   ],
   "icd_code_meaning": [
     "PR-004-C03"
+  ],
+  "image_downsampling": [
+    "PR-081-C01"
   ],
   "image_normalization_missing": [
     "PR-016-C02"
@@ -1091,7 +1234,8 @@
     "PR-012-C05"
   ],
   "incremental_value_vs_standard": [
-    "PR-052-C02"
+    "PR-052-C02",
+    "PR-100-C01"
   ],
   "independence_check": [
     "PR-003-C11"
@@ -1099,6 +1243,9 @@
   "independent_predictor": [
     "PR-005-C03",
     "PR-016-C03"
+  ],
+  "indirect_outcome": [
+    "PR-095-C01"
   ],
   "individual_level_accuracy": [
     "PR-022-C01"
@@ -1115,12 +1262,18 @@
   "inference_time": [
     "PR-059-C03"
   ],
+  "information_loss": [
+    "PR-081-C01"
+  ],
   "informative_missingness": [
     "PR-035-C04",
     "PR-039-C03"
   ],
   "insufficient_comparison": [
     "PR-057-C01"
+  ],
+  "insufficient_gold_standard": [
+    "PR-082-C01"
   ],
   "insufficient_methods_detail": [
     "PR-005-C07"
@@ -1186,6 +1339,9 @@
   "label_quality_unclear": [
     "PR-058-C02"
   ],
+  "label_validation_2M": [
+    "PR-073-C02"
+  ],
   "label_validity": [
     "PR-002-C03"
   ],
@@ -1204,8 +1360,17 @@
   "ld_reference_quality": [
     "PR-017-C03"
   ],
+  "limited_benchmarking": [
+    "PR-072-C02"
+  ],
+  "limited_classification_scope": [
+    "PR-073-C01"
+  ],
   "limited_geographic_validation": [
     "PR-026-C01"
+  ],
+  "limited_image_formats": [
+    "PR-073-C02"
   ],
   "literature_gap": [
     "PR-053-C01"
@@ -1241,6 +1406,9 @@
   "lung_cancer_smoking": [
     "PR-042-C06"
   ],
+  "magnification_sensitivity": [
+    "PR-081-C03"
+  ],
   "manuscript_structure": [
     "PR-031-C02",
     "PR-052-C04",
@@ -1254,6 +1422,9 @@
   ],
   "matching_strategy": [
     "PR-008-C01"
+  ],
+  "mced_field": [
+    "PR-080-C02"
   ],
   "measurement_variability": [
     "PR-034-C03"
@@ -1282,8 +1453,17 @@
   "methods_scattered": [
     "PR-010-C07"
   ],
+  "metrics_beyond_auc": [
+    "PR-085-C01"
+  ],
   "metrics_in_supplement_only": [
     "PR-004-C01"
+  ],
+  "metrics_missing": [
+    "PR-075-C02"
+  ],
+  "misclassification": [
+    "PR-078-C01"
   ],
   "misleading_claim": [
     "PR-009-C03",
@@ -1320,6 +1500,9 @@
   ],
   "missing_clinic_comparison": [
     "PR-043-C03"
+  ],
+  "missing_competitor_comparison": [
+    "PR-080-C02"
   ],
   "missing_confounder": [
     "PR-008-C02",
@@ -1412,6 +1595,9 @@
     "PR-011-C05",
     "PR-013-C06"
   ],
+  "model_details_missing": [
+    "PR-075-C02"
+  ],
   "model_development_details": [
     "PR-007-C07"
   ],
@@ -1430,6 +1616,9 @@
     "PR-011-C01",
     "PR-031-C01"
   ],
+  "molecular_correlation_weak": [
+    "PR-079-C02"
+  ],
   "molecular_subtype_not_defined": [
     "PR-063-C01"
   ],
@@ -1445,11 +1634,17 @@
   "multi_group_comparison": [
     "PR-008-C04"
   ],
+  "multi_institutional_needed": [
+    "PR-093-C01"
+  ],
   "multi_model_shap": [
     "PR-001-C07"
   ],
   "multi_omics_potential": [
     "PR-027-C05"
+  ],
+  "multi_scale_ensemble": [
+    "PR-081-C03"
   ],
   "multicollinearity": [
     "PR-001-C04"
@@ -1459,6 +1654,9 @@
   ],
   "multimodal_interpretation": [
     "PR-066-C01"
+  ],
+  "multimodal_not_significantly_better": [
+    "PR-077-C01"
   ],
   "multiple_admissions_per_patient": [
     "PR-029-C03"
@@ -1492,6 +1690,9 @@
   ],
   "narrow_clinical_scope": [
     "PR-044-C01"
+  ],
+  "narrow_model_search": [
+    "PR-072-C02"
   ],
   "negative_rct": [
     "PR-038-C01"
@@ -1578,7 +1779,8 @@
   ],
   "novelty_questioned": [
     "PR-031-C01",
-    "PR-037-C02"
+    "PR-037-C02",
+    "PR-077-C02"
   ],
   "novelty_questioned_fundamentally": [
     "PR-042-C05"
@@ -1588,6 +1790,9 @@
   ],
   "nri_analysis": [
     "PR-006-C03"
+  ],
+  "nri_idi_needed": [
+    "PR-100-C01"
   ],
   "nri_limitations": [
     "PR-025-C06"
@@ -1601,6 +1806,9 @@
   "optimism_bias": [
     "PR-006-C01"
   ],
+  "os_validation_needed": [
+    "PR-096-C01"
+  ],
   "out_of_distribution": [
     "PR-028-C01"
   ],
@@ -1613,6 +1821,9 @@
     "PR-004-C03",
     "PR-007-C03",
     "PR-011-C02"
+  ],
+  "outcome_definition_ambiguous": [
+    "PR-074-C02"
   ],
   "outcome_definition_unclear": [
     "PR-039-C02"
@@ -1656,6 +1867,9 @@
   "overclaimed_novelty": [
     "PR-009-C05"
   ],
+  "overclaimed_public_health": [
+    "PR-088-C01"
+  ],
   "overfit_risk": [
     "PR-058-C01"
   ],
@@ -1682,6 +1896,9 @@
   ],
   "oversampling_method": [
     "PR-036-C03"
+  ],
+  "oversimplified_scenarios": [
+    "PR-072-C03"
   ],
   "overstatement": [
     "PR-006-C04",
@@ -1731,6 +1948,9 @@
   ],
   "patient_overlap": [
     "PR-029-C03"
+  ],
+  "pattern_vs_disease": [
+    "PR-074-C01"
   ],
   "per_center_missing": [
     "PR-043-C05"
@@ -1795,8 +2015,23 @@
   "power_analysis": [
     "PR-006-C08"
   ],
+  "power_comparison_missing": [
+    "PR-076-C01"
+  ],
+  "power_loss_from_grouping": [
+    "PR-076-C01"
+  ],
+  "ppv_specificity_missing": [
+    "PR-076-C03"
+  ],
+  "practical_deployment": [
+    "PR-100-C02"
+  ],
   "practical_interpretation": [
     "PR-041-C03"
+  ],
+  "pre_diagnostic_timing": [
+    "PR-091-C01"
   ],
   "predict_tool": [
     "PR-053-C03"
@@ -1820,7 +2055,8 @@
     "PR-004-C05"
   ],
   "prediction_window_justification": [
-    "PR-028-C05"
+    "PR-028-C05",
+    "PR-071-C01"
   ],
   "predictive_validity": [
     "PR-041-C01"
@@ -1840,6 +2076,9 @@
   "prevalence_bias": [
     "PR-007-C02"
   ],
+  "prior_work_missed": [
+    "PR-077-C02"
+  ],
   "prior_work_missing": [
     "PR-009-C05",
     "PR-042-C05"
@@ -1849,6 +2088,9 @@
   ],
   "privacy": [
     "PR-004-C06"
+  ],
+  "privacy_concern": [
+    "PR-070-C03"
   ],
   "privacy_details_missing": [
     "PR-055-C04"
@@ -1862,6 +2104,12 @@
   "proof_of_concept": [
     "PR-056-C02"
   ],
+  "proof_of_concept_vs_clinical": [
+    "PR-071-C01"
+  ],
+  "proprietary_api": [
+    "PR-070-C03"
+  ],
   "prospective_imputation": [
     "PR-036-C01"
   ],
@@ -1870,6 +2118,9 @@
   ],
   "proxy_outcome_limitation": [
     "PR-044-C03"
+  ],
+  "prs_clinical_utility": [
+    "PR-085-C01"
   ],
   "pseudo_code_needed": [
     "PR-055-C04"
@@ -1883,14 +2134,26 @@
   "randomization_control": [
     "PR-057-C03"
   ],
+  "rare_cancer": [
+    "PR-094-C01"
+  ],
+  "rare_disease_ppv": [
+    "PR-086-C02"
+  ],
   "rare_event_ppv": [
     "PR-009-C04"
+  ],
+  "rare_pediatric": [
+    "PR-093-C01"
   ],
   "rate_calculation_unclear": [
     "PR-013-C03"
   ],
   "rationale_challenged": [
     "PR-012-C05"
+  ],
+  "reader_study_design": [
+    "PR-087-C01"
   ],
   "real_time_missing_data": [
     "PR-036-C01"
@@ -1906,6 +2169,9 @@
   ],
   "reference_panel": [
     "PR-017-C03"
+  ],
+  "regression_vs_classification": [
+    "PR-092-C01"
   ],
   "relative_abundance_unclear": [
     "PR-048-C04"
@@ -1937,6 +2203,9 @@
     "PR-007-C05",
     "PR-015-C02",
     "PR-030-C04"
+  ],
+  "resolution_impact": [
+    "PR-081-C01"
   ],
   "resolution_variation": [
     "PR-016-C02"
@@ -2016,6 +2285,9 @@
   "scope_of_claims": [
     "PR-014-C04"
   ],
+  "screening_utility": [
+    "PR-086-C02"
+  ],
   "segmentation_failure": [
     "PR-066-C02"
   ],
@@ -2045,6 +2317,9 @@
   ],
   "sensitivity_analysis_for_size": [
     "PR-012-C07"
+  ],
+  "sensitivity_vs_specificity": [
+    "PR-080-C01"
   ],
   "sensor_validation": [
     "PR-041-C02"
@@ -2084,7 +2359,8 @@
     "PR-066-C04"
   ],
   "single_center": [
-    "PR-040-C01"
+    "PR-040-C01",
+    "PR-084-C01"
   ],
   "single_chromosome": [
     "PR-023-C02"
@@ -2120,8 +2396,12 @@
   "slit_lamp_variation": [
     "PR-065-C03"
   ],
+  "small_pre_diagnostic_cohort": [
+    "PR-091-C01"
+  ],
   "small_sample": [
-    "PR-012-C07"
+    "PR-012-C07",
+    "PR-093-C01"
   ],
   "small_subgroup_overclaimed": [
     "PR-051-C03"
@@ -2131,6 +2411,9 @@
   ],
   "small_training_set": [
     "PR-063-C03"
+  ],
+  "small_validation": [
+    "PR-094-C01"
   ],
   "small_validation_set": [
     "PR-008-C07"
@@ -2171,8 +2454,14 @@
   "statistical_model_missing": [
     "PR-013-C03"
   ],
+  "statistical_significance_missing": [
+    "PR-081-C02"
+  ],
   "stratification_needed": [
     "PR-042-C06"
+  ],
+  "strong_effect_sizes": [
+    "PR-076-C02"
   ],
   "study_design_diagram_missing": [
     "PR-058-C03"
@@ -2189,11 +2478,17 @@
   "subgroup_stratification": [
     "PR-034-C02"
   ],
+  "suboptimal_model": [
+    "PR-072-C02"
+  ],
   "super_learner_alternatives": [
     "PR-017-C05"
   ],
   "super_learner_vs_penalty": [
     "PR-017-C01"
+  ],
+  "surrogate_endpoint": [
+    "PR-096-C01"
   ],
   "survival_analysis_error": [
     "PR-042-C01"
@@ -2298,7 +2593,8 @@
     "PR-011-C01"
   ],
   "threshold_selection": [
-    "PR-002-C07"
+    "PR-002-C07",
+    "PR-080-C01"
   ],
   "threshold_unclear": [
     "PR-022-C02"
@@ -2318,6 +2614,9 @@
   "time_varying_covariate": [
     "PR-042-C03"
   ],
+  "tiny_sample": [
+    "PR-082-C02"
+  ],
   "tiny_sample_size": [
     "PR-056-C02"
   ],
@@ -2336,8 +2635,14 @@
   "too_many_features": [
     "PR-016-C01"
   ],
+  "too_many_imaging_features": [
+    "PR-078-C02"
+  ],
   "traditional_method_comparison": [
     "PR-018-C04"
+  ],
+  "train_test_overlap": [
+    "PR-072-C01"
   ],
   "training_details_missing": [
     "PR-062-C01"
@@ -2353,6 +2658,9 @@
   ],
   "transformer_lstm_needed": [
     "PR-037-C02"
+  ],
+  "transplant_protocol_variation": [
+    "PR-084-C01"
   ],
   "treatment_as_confounder": [
     "PR-008-C02"
@@ -2372,6 +2680,9 @@
   "treatment_heterogeneity": [
     "PR-005-C04"
   ],
+  "treatment_response_unclear": [
+    "PR-074-C02"
+  ],
   "treatment_specificity": [
     "PR-050-C02"
   ],
@@ -2384,6 +2695,9 @@
   ],
   "trivial_task": [
     "PR-032-C03"
+  ],
+  "trivial_validation": [
+    "PR-076-C02"
   ],
   "tumor_purity_confounder": [
     "PR-063-C04"
@@ -2405,7 +2719,8 @@
   ],
   "underpowered": [
     "PR-025-C01",
-    "PR-056-C02"
+    "PR-056-C02",
+    "PR-082-C02"
   ],
   "undiagnosed_disease": [
     "PR-065-C02"
@@ -2419,6 +2734,9 @@
   "unfair_comparison": [
     "PR-020-C04"
   ],
+  "unfair_model_comparison": [
+    "PR-078-C02"
+  ],
   "unnecessarily_complex_model": [
     "PR-058-C01"
   ],
@@ -2429,7 +2747,8 @@
     "PR-010-C06"
   ],
   "unreadable_figures": [
-    "PR-050-C03"
+    "PR-050-C03",
+    "PR-071-C02"
   ],
   "unrealistic_simulation": [
     "PR-023-C02"
@@ -2459,7 +2778,11 @@
     "PR-050-C04"
   ],
   "verification_bias": [
-    "PR-011-C02"
+    "PR-011-C02",
+    "PR-082-C01"
+  ],
+  "virtual_vs_real_biopsy": [
+    "PR-084-C02"
   ],
   "wear_time": [
     "PR-041-C02"
@@ -2476,6 +2799,9 @@
   "workflow_integration": [
     "PR-038-C02",
     "PR-059-C03"
+  ],
+  "writing_quality": [
+    "PR-071-C02"
   ],
   "wrong_statistical_test": [
     "PR-008-C06"

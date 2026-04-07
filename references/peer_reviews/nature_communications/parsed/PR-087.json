@@ -1,0 +1,38 @@
+{
+  "id": "PR-087",
+  "paper_doi": "10.1038/s41467-023-43095-4",
+  "paper_title": "Dermatologist-like explainable AI enhances trust and confidence in diagnosing melanoma",
+  "year": 2023,
+  "domain": "dermatology",
+  "prediction_task": "Melanoma diagnosis with explainable AI producing domain-specific explanations",
+  "model_types": [
+    "xai_multimodal"
+  ],
+  "data_type": "dermoscopy_images",
+  "sample_size": 10000,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-087-C01",
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "concern_text": "Reader study design details needed — how many clinicians, experience levels, randomization of XAI vs non-XAI conditions.",
+      "tags": [
+        "reader_study_design",
+        "clinician_evaluation"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    }
+  ],
+  "journal": "Nature Communications",
+  "review_rounds": 2,
+  "reviewer_strengths": [],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": [],
+  "key_methodology_issues": []
+}

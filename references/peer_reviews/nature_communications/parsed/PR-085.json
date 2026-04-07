@@ -1,0 +1,39 @@
+{
+  "id": "PR-085",
+  "paper_doi": "10.1038/s41467-023-36306-5",
+  "paper_title": "Multi-ancestry and multi-trait GWAS meta-analyses inform clinical risk prediction for systemic lupus erythematosus",
+  "year": 2023,
+  "domain": "autoimmune",
+  "prediction_task": "SLE clinical risk prediction via multi-ancestry PRS from GWAS meta-analysis",
+  "model_types": [
+    "prs",
+    "meta_analysis"
+  ],
+  "data_type": "gwas_summary_statistics",
+  "sample_size": 200000,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-085-C01",
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "concern_text": "PRS predictive performance metrics beyond AUC needed for clinical utility assessment.",
+      "tags": [
+        "prs_clinical_utility",
+        "metrics_beyond_auc"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    }
+  ],
+  "journal": "Nature Communications",
+  "review_rounds": 2,
+  "reviewer_strengths": [],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": [],
+  "key_methodology_issues": []
+}

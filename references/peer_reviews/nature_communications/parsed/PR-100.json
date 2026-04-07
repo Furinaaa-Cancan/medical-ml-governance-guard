@@ -1,0 +1,57 @@
+{
+  "id": "PR-100",
+  "paper_doi": "10.1038/s41467-026-68956-6",
+  "paper_title": "AI-based multiomics profiling reveals complementary omics contributions to personalized prediction of cardiovascular disease",
+  "year": 2026,
+  "domain": "cardiovascular",
+  "prediction_task": "CVD risk prediction from proteomics + metabolomics (CardiOmicScore)",
+  "model_types": [
+    "deep_learning_multitask"
+  ],
+  "data_type": "proteomics_metabolomics",
+  "sample_size": 40000,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-100-C01",
+      "category": "evaluation_metrics",
+      "severity": "HIGH",
+      "mlgg_dimension": 5,
+      "concern_text": "Incremental value of multi-omics over standard clinical risk factors (e.g., Framingham, SCORE2) must be clearly demonstrated with NRI/IDI.",
+      "tags": [
+        "incremental_value_vs_standard",
+        "nri_idi_needed"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-100-C02",
+      "category": "study_design",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 1,
+      "concern_text": "Cost-effectiveness of proteomics+metabolomics panel for CVD screening not discussed. Practical deployment uncertain.",
+      "tags": [
+        "cost_effectiveness",
+        "practical_deployment"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    }
+  ],
+  "journal": "Nature Communications",
+  "review_rounds": 2,
+  "reviewer_strengths": [],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": [],
+  "key_methodology_issues": [
+    "incremental_value_vs_standard"
+  ]
+}

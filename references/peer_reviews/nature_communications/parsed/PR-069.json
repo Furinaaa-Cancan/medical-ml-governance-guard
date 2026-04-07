@@ -1,0 +1,58 @@
+{
+  "id": "PR-069",
+  "paper_doi": "10.1038/s41467-025-62218-7",
+  "paper_title": "Biomarker panels for improved risk prediction in atrial fibrillation",
+  "year": 2025,
+  "domain": "cardiovascular",
+  "prediction_task": "Cardiovascular outcome prediction in AF patients from 12 circulating biomarkers",
+  "model_types": [
+    "lasso",
+    "cox_regression",
+    "machine_learning"
+  ],
+  "data_type": "biomarker_panel",
+  "sample_size": 3817,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-069-C01",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "study_design",
+      "severity": "HIGH",
+      "mlgg_dimension": 1,
+      "concern_text": "Rationale for selecting these 12 biomarkers out of many candidates should be provided.",
+      "tags": [
+        "biomarker_selection_rationale"
+      ],
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-069-C02",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "HIGH",
+      "mlgg_dimension": 5,
+      "concern_text": "Independent risk factors for each outcome are different. Models adjusted for same covariates across all outcomes — should adjust specifically per outcome.",
+      "tags": [
+        "covariate_adjustment_one_size_fits_all"
+      ],
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    }
+  ],
+  "key_methodology_issues": [
+    "biomarker_selection_rationale",
+    "covariate_adjustment_one_size_fits_all"
+  ],
+  "journal": "Nature Communications",
+  "reviewer_strengths": [],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": []
+}

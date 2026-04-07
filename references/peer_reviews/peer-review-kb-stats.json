@@ -1,39 +1,39 @@
 {
-  "total_papers": 68,
-  "total_concerns": 319,
+  "total_papers": 107,
+  "total_concerns": 375,
   "total_strengths": 76,
   "concerns_by_category": {
-    "evaluation_metrics": 95,
-    "study_design": 67,
-    "reporting": 48,
-    "preprocessing": 23,
-    "external_validation": 17,
-    "clinical_utility": 16,
-    "model_selection": 15,
-    "reproducibility": 15,
-    "interpretability": 13,
-    "sample_size": 4,
+    "evaluation_metrics": 119,
+    "study_design": 81,
+    "reporting": 52,
+    "preprocessing": 24,
+    "external_validation": 21,
+    "clinical_utility": 18,
+    "model_selection": 17,
+    "reproducibility": 16,
+    "interpretability": 14,
+    "sample_size": 6,
     "split_protocol": 3,
-    "data_leakage": 2,
+    "data_leakage": 3,
     "feature_selection": 1
   },
   "concerns_by_severity": {
-    "HIGH": 153,
-    "MEDIUM": 129,
-    "CRITICAL": 22,
-    "LOW": 15
+    "HIGH": 187,
+    "MEDIUM": 147,
+    "CRITICAL": 25,
+    "LOW": 16
   },
   "concerns_by_dimension": {
-    "1": 70,
-    "2": 2,
-    "3": 23,
-    "4": 17,
-    "5": 94,
-    "6": 17,
-    "7": 30,
-    "8": 47,
-    "9": 15,
-    "12": 4
+    "1": 84,
+    "2": 3,
+    "3": 24,
+    "4": 19,
+    "5": 118,
+    "6": 21,
+    "7": 33,
+    "8": 51,
+    "9": 16,
+    "12": 6
   },
   "top_30_tags": [
     {
@@ -101,6 +101,10 @@
       "count": 3
     },
     {
+      "tag": "cost_effectiveness",
+      "count": 3
+    },
+    {
       "tag": "incremental_value",
       "count": 3
     },
@@ -109,8 +113,20 @@
       "count": 3
     },
     {
+      "tag": "underpowered",
+      "count": 3
+    },
+    {
+      "tag": "novelty_questioned",
+      "count": 3
+    },
+    {
       "tag": "manuscript_structure",
       "count": 3
+    },
+    {
+      "tag": "control_matching",
+      "count": 2
     },
     {
       "tag": "causal_language",
@@ -129,63 +145,61 @@
       "count": 2
     },
     {
+      "tag": "threshold_selection",
+      "count": 2
+    },
+    {
       "tag": "no_tripod",
       "count": 2
     },
     {
       "tag": "no_code_availability",
       "count": 2
-    },
-    {
-      "tag": "low_ppv",
-      "count": 2
-    },
-    {
-      "tag": "cost_effectiveness",
-      "count": 2
-    },
-    {
-      "tag": "clinical_relevance",
-      "count": 2
-    },
-    {
-      "tag": "beyond_known_predictors",
-      "count": 2
-    },
-    {
-      "tag": "independent_predictor",
-      "count": 2
     }
   ],
   "resolution_rate": 1.0,
   "papers_by_domain": {
-    "oncology": 21,
-    "infectious_disease": 6,
-    "neurology": 6,
-    "cardiovascular": 5,
-    "critical_care": 4,
-    "genomics": 4,
-    "nephrology": 3,
+    "oncology": 29,
+    "neurology": 10,
+    "infectious_disease": 8,
+    "cardiovascular": 7,
+    "critical_care": 5,
+    "nephrology": 5,
+    "genomics": 5,
     "ehr_methodology": 2,
     "emergency_medicine": 2,
     "reproductive_medicine": 2,
+    "dermatology": 2,
+    "pulmonology": 2,
+    "endocrinology": 2,
+    "cardiology": 2,
+    "hematology": 2,
+    "pediatric_oncology": 2,
     "musculoskeletal": 1,
     "ehr_clinical": 1,
     "mental_health": 1,
     "digital_health": 1,
     "oncology_epidemiology": 1,
-    "dermatology": 1,
     "microbiome": 1,
     "global_health": 1,
-    "pulmonology": 1,
     "proteomics": 1,
     "ophthalmology": 1,
-    "endocrinology": 1,
-    "clinical_trials": 1
+    "clinical_trials": 1,
+    "llm_clinical": 1,
+    "autoimmune": 1,
+    "metabolomics": 1,
+    "pathology": 1,
+    "health_systems": 1,
+    "sleep_medicine": 1,
+    "pediatric_cardiology": 1,
+    "gastroenterology": 1,
+    "geriatrics": 1,
+    "rheumatology": 1
   },
   "papers_by_outcome": {
-    "accepted_after_major_revision": 50,
+    "accepted_after_major_revision": 81,
     "accepted_after_revision": 9,
+    "reporting_summary_only": 8,
     "accepted_after_minor_revision": 5,
     "accepted_minimal_review": 4
   }
