@@ -1,6 +1,6 @@
 # Nature Communications — Peer Review Files (Medical ML)
 
-透明同行评审文件，收集自 Nature Communications 发表的医学机器学习预测模型论文。
+43 篇透明同行评审文件，收集自 Nature Communications 发表的医学机器学习预测模型论文。
 包含完整的审稿人意见、作者回复和修改说明。
 
 ## 用途
@@ -43,6 +43,19 @@
 | 29 | `29_federated_learning_clinical_peer_review.pdf` | Distributed cross-learning for equitable federated clinical models | 10.1038/s41467-025-56510-9 | 联邦学习临床预测 |
 | 30 | `30_deep_clustering_EHR_peer_review.pdf` | Deep representation learning for clustering longitudinal EHR survival | 10.1038/s41467-025-56625-z | 纵向 EHR 深度聚类 |
 | 31 | `31_post_COVID_prediction_peer_review.pdf` | Predictors of post-COVID condition following mild SARS-CoV-2 | 10.1038/s41467-023-41541-x | 新冠后遗症预测 |
+| 33 | `33_algorithmic_fairness_outcomes_peer_review.pdf` | Connecting algorithmic fairness and fair outcomes (AI-assisted screening) | 10.1038/s41467-025-67470-5 | 算法公平性与临床结局 |
+| 34 | `34_prehospital_trauma_AI_peer_review.pdf` | Prehospital real-time AI for trauma mortality prediction (multi-national) | 10.1038/s41467-025-68198-y | 院前创伤 AI 死亡预测 |
+| 36 | `36_proteomics_imputation_DL_peer_review.pdf` | Imputation of label-free quantitative proteomics data using self-supervised DL | 10.1038/s41467-024-48711-5 | 蛋白组学缺失值 DL 填补 |
+| 37 | `37_metalearning_genomic_survival_peer_review.pdf` | A meta-learning approach for genomic survival analysis | 10.1038/s41467-020-20167-3 | 元学习基因组生存分析 |
+| 38 | `38_COVID_immunophenotype_ML_peer_review.pdf` | COVID-19 stratification by immuno-phenotyping and ML | 10.1038/s41467-022-28621-0 | COVID 免疫表型 ML 分层 |
+| 39 | `39_colorectal_cancer_lncRNA_ML_peer_review.pdf` | ML-based immune-derived lncRNA signature for colorectal cancer | 10.1038/s41467-022-28421-6 | 结直肠癌免疫 lncRNA ML |
+| 40 | `40_ILD_AI_longitudinal_peer_review.pdf` | Interstitial lung disease diagnosis and prognosis using AI (longitudinal) | 10.1038/s41467-023-37720-5 | 间质性肺病 AI 纵向诊断 |
+| 41 | `41_ALS_wearable_ML_peer_review.pdf` | At-home wearables and ML capture ALS disease progression | 10.1038/s41467-023-40917-3 | ALS 可穿戴 ML 进展追踪 |
+| 42 | `42_cancer_NLP_EHR_peer_review.pdf` | Shareable AI to extract cancer outcomes from EHR | 10.1038/s41467-024-54071-x | 癌症 NLP 结局提取 |
+| 43 | `43_synthetic_EHR_HALO_peer_review.pdf` | Synthesize longitudinal EHR via hierarchical autoregressive model | 10.1038/s41467-023-41093-0 | 合成纵向 EHR (HALO) |
+| 44 | `44_generalizability_AI_hospitals_peer_review.pdf` | Generalizability assessment of AI models across hospitals (HIC→LMIC) | 10.1038/s41467-024-52618-6 | AI 跨医院泛化性评估 |
+| 45 | `45_pathology_fairness_adaptation_peer_review.pdf` | Knowledge-guided adaptation improves cross-domain fairness (pathology) | 10.1038/s41467-025-66300-y | 病理模型公平性域适应 |
+| 46 | `46_vagus_nerve_stimulation_DL_peer_review.pdf` | Deep representation learning to predict response to VNS | 10.1038/s41467-026-71555-0 | 迷走神经刺激 DL 预测 |
 
 ## 来源
 
