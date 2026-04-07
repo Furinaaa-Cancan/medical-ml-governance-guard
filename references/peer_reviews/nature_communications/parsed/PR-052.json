@@ -1,0 +1,25 @@
+{
+  "id": "PR-052",
+  "paper_doi": "10.1038/s41467-025-62910-8",
+  "paper_title": "HIBRID: histology-based risk-stratification with deep learning and ctDNA in colorectal cancer",
+  "journal": "Nature Communications",
+  "year": 2025,
+  "domain": "oncology",
+  "prediction_task": "CRC disease-free survival prediction from histopathology WSI + ctDNA MRD",
+  "model_types": ["vision_transformer", "foundation_model_uni"],
+  "data_type": "histopathology_wsi_plus_ctDNA",
+  "sample_size": 3540,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-052-C01", "reviewer": "Reviewer #1", "round": 1, "category": "reproducibility", "severity": "HIGH", "mlgg_dimension": 9, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Section on Model Development is unclear and poorly explained. Many details missing regarding architecture and optimization. No hyperparameter tuning described. No schematic figure of model architecture. In current form, difficult to reproduce.", "author_response": "Added architecture diagram, hyperparameter details, and optimization pipeline.", "resolved": true, "tags": ["architecture_unclear", "hyperparameters_missing", "irreproducible_methods"]},
+    {"concern_id": "PR-052-C02", "reviewer": "Reviewer #1", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Model seems to overlook other factors that typically influence survival and are considered for adjuvant treatment. Should revisit analyses to better illustrate additional benefits compared to current prognostic classification.", "author_response": "Added multivariate analysis including standard prognostic factors.", "resolved": true, "tags": ["incremental_value_vs_standard", "multivariate_missing", "clinical_standard_comparison"]},
+    {"concern_id": "PR-052-C03", "reviewer": "Reviewer #1", "round": 1, "category": "study_design", "severity": "MEDIUM", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "12% of DACHS cohort and 10% of Galaxy cohort received neoadjuvant treatment. How did you deal with pathological changes due to therapy? Can you justify this does not affect the model?", "author_response": "Added sensitivity analysis excluding neoadjuvant patients.", "resolved": true, "tags": ["neoadjuvant_treatment_effect", "pathology_artifact", "sensitivity_analysis"]},
+    {"concern_id": "PR-052-C04", "reviewer": "Reviewer #1", "round": 1, "category": "reporting", "severity": "MEDIUM", "mlgg_dimension": 8, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "All results sections start with methods explanations — does not help understand the whole picture. Manuscript needs restructuring. Multiple terminology inconsistencies (transformer vs Vision Transformer, foundation model vs pretrained model).", "author_response": "Restructured manuscript and unified terminology.", "resolved": true, "tags": ["results_mixed_with_methods", "terminology_inconsistent", "manuscript_structure"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-052-S01", "reviewer": "Reviewer #1", "text": "Topic and methodology is novel and of interest — combining DL histopathology with ctDNA MRD is a promising approach for CRC risk stratification.", "tags": ["novel_combination", "ctDNA_plus_histology", "clinical_interest"]}
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["architecture_unclear", "incremental_value_vs_standard", "neoadjuvant_treatment_effect"],
+  "key_methodology_strengths": ["histology_ctDNA_combination", "foundation_model", "multicohort"]
+}

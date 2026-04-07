@@ -1,0 +1,25 @@
+{
+  "id": "PR-053",
+  "paper_doi": "10.1038/s41467-025-60824-z",
+  "paper_title": "Deep learning assessment of metastatic relapse risk from digitized breast cancer histological slides",
+  "journal": "Nature Communications",
+  "year": 2025,
+  "domain": "oncology",
+  "prediction_task": "5-year metastasis-free survival prediction in ER+/HER2- breast cancer from H&E slides",
+  "model_types": ["deep_learning_wsi", "rlapsrisk_bc"],
+  "data_type": "histopathology_wsi_plus_clinical",
+  "sample_size": 2500,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-053-C01", "reviewer": "Reviewer #5", "round": 1, "category": "study_design", "severity": "HIGH", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Many prior studies have demonstrated prognostic value of DL applied to H&E slides in breast cancer. The claim that H&E slides contain prognostic information beyond clinico-pathology is well-established. Discussion does not sufficiently acknowledge prior work from 2018-2024.", "author_response": "Expanded literature review with recent 2023-2024 studies and positioned novelty more carefully.", "resolved": true, "tags": ["novelty_overstated", "prior_work_underacknowledged", "literature_gap"]},
+    {"concern_id": "PR-053-C02", "reviewer": "Reviewer #5", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Study uses a single cutoff to distinguish high from low risk — authors should at minimum assess how sensitive performance is to the choice of cutoff. Use hazard ratio and concordance index in addition to AUC.", "author_response": "Added cutoff sensitivity analysis, hazard ratio, and C-index.", "resolved": true, "tags": ["cutoff_sensitivity", "hazard_ratio_missing", "cindex_missing"]},
+    {"concern_id": "PR-053-C03", "reviewer": "Reviewer #4", "round": 1, "category": "evaluation_metrics", "severity": "MEDIUM", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "How does RlapsRiskBC compare to the online tool Predict Breast Cancer in these datasets? This would be a relevant addition.", "author_response": "Added comparison with Predict tool.", "resolved": true, "tags": ["comparison_with_clinical_standard", "predict_tool"]},
+    {"concern_id": "PR-053-C04", "reviewer": "Reviewer #5", "round": 1, "category": "study_design", "severity": "MEDIUM", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Training and validation cohorts have different staining protocols (HES vs HE). While the revised study used HE for both, not all validation was on HE. How robust is the model to staining differences?", "author_response": "Added staining protocol robustness analysis.", "resolved": true, "tags": ["staining_variability", "technical_artifact", "robustness_to_protocol"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-053-S01", "reviewer": "Reviewer #4", "text": "Large independent validation cohort from different centre makes the study considerably stronger. Authors addressed previous reviewer suggestions well.", "tags": ["independent_validation", "responsive_to_review"]}
+  ],
+  "outcome": "accepted_after_revision",
+  "key_methodology_issues": ["novelty_overstated", "cutoff_sensitivity", "comparison_with_clinical_standard"],
+  "key_methodology_strengths": ["large_independent_validation", "direct_mfs_prediction", "multi_centre"]
+}

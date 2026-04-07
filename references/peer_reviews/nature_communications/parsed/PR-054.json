@@ -1,0 +1,25 @@
+{
+  "id": "PR-054",
+  "paper_doi": "10.1038/s41467-024-50369-y",
+  "paper_title": "A multi-classifier system integrated by clinico-histology-genomic analysis for predicting recurrence of papillary renal cell carcinoma",
+  "journal": "Nature Communications",
+  "year": 2024,
+  "domain": "oncology",
+  "prediction_task": "pRCC recurrence prediction from lncRNA + histopathology WSI + clinicopathological features",
+  "model_types": ["multi_classifier_system", "deep_learning_wsi", "cox_regression"],
+  "data_type": "lncrna_plus_wsi_plus_clinical",
+  "sample_size": 500,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-054-C01", "reviewer": "Reviewer #1", "round": 1, "category": "study_design", "severity": "HIGH", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "What is the added novelty compared to the previous study on ccRCC? Why use lncRNA but not mRNA or other molecular features? Would integration of mRNA/miRNA/methylation result in better predictions?", "author_response": "Discussed pRCC-specific biology and added mRNA comparison showing lncRNA provides unique prognostic information.", "resolved": true, "tags": ["novelty_vs_prior_work", "feature_type_justification", "lncrna_vs_mrna"]},
+    {"concern_id": "PR-054-C02", "reviewer": "Reviewer #1", "round": 1, "category": "reporting", "severity": "HIGH", "mlgg_dimension": 8, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Data inconsistencies: why different cutoff from training set applied to validation but different median for TCGA? P-value is 0.004 or 0.042, not <0.001 as stated. Number at risk and survival plot do not match.", "author_response": "Corrected all data inconsistencies and unified cutoff methodology.", "resolved": true, "tags": ["data_inconsistency", "cutoff_inconsistency", "p_value_error", "figure_data_mismatch"]},
+    {"concern_id": "PR-054-C03", "reviewer": "Reviewer #2", "round": 1, "category": "evaluation_metrics", "severity": "HIGH", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Cut-off defined by median — differs between cohorts. Should define absolute risk value universally usable between cohorts. This would allow total evaluation across all cohorts and be very useful for implementation.", "author_response": "Added absolute cutoff analysis derived from training set and applied uniformly.", "resolved": true, "tags": ["median_cutoff_not_transferable", "absolute_threshold_needed", "implementation_barrier"]},
+    {"concern_id": "PR-054-C04", "reviewer": "Reviewer #1", "round": 1, "category": "clinical_utility", "severity": "MEDIUM", "mlgg_dimension": 7, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Authors claim system can inform strategies for adjuvant therapy but provide no evidence of therapeutic significance.", "author_response": "Toned down therapeutic claims and framed as hypothesis-generating.", "resolved": true, "tags": ["therapeutic_claim_unsupported", "overstatement"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-054-S01", "reviewer": "Reviewer #2", "text": "Well-written analysis of a novel progression prediction algorithm for pRCC. Concentrates on an underserved cancer type, combining clinical, histopathologic, and lncRNA data.", "tags": ["novel_for_prcc", "multimodal", "underserved_cancer"]}
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["data_inconsistency", "median_cutoff_not_transferable", "feature_type_justification"],
+  "key_methodology_strengths": ["multimodal_integration", "underserved_cancer_type", "external_validation"]
+}

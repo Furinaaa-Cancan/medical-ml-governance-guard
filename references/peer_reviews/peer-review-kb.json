@@ -1,7 +1,7 @@
 {
   "contract_version": "peer_review_kb.v1",
-  "total_papers": 47,
-  "total_concerns": 250,
+  "total_papers": 54,
+  "total_concerns": 276,
   "entries": [
     {
       "id": "PR-001",
@@ -6775,6 +6775,753 @@
         "microbiome_based"
       ],
       "_note": "Only final round reviewer comments available — previous round comments from another journal not published. Reviewer confirmed all concerns addressed."
+    },
+    {
+      "id": "PR-048",
+      "paper_doi": "10.1038/s41467-024-46043-y",
+      "paper_title": "Metabolomic machine learning predictor for diagnosis and prognosis of gastric cancer",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "domain": "oncology",
+      "prediction_task": "Gastric cancer diagnosis and prognosis from plasma metabolomics",
+      "model_types": [
+        "machine_learning",
+        "pca",
+        "lasso"
+      ],
+      "data_type": "metabolomics_targeted",
+      "sample_size": 1400,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-048-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Metabolites could be triggered by other diseases — GSH:GSSG imbalance associated with lung cancers, HIV, immune dysfunction. Neopterin elevated in measles, influenza. How specific are the suggested biomarkers for gastric cancer?",
+          "author_response": "Added disease-specificity analysis and multi-disease comparison.",
+          "resolved": true,
+          "tags": [
+            "biomarker_specificity",
+            "confounding_by_comorbidity",
+            "false_positive_rate"
+          ]
+        },
+        {
+          "concern_id": "PR-048-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Prognostic model with 28 variables but only 34 deceased cases — heavily biased toward survival. Should adopt orthogonal modeling or one-class approach, or prove model is unbiased.",
+          "author_response": "Added class-weight adjustment and one-vs-rest validation.",
+          "resolved": true,
+          "tags": [
+            "extreme_class_imbalance",
+            "overparameterized_for_events",
+            "epv_violation"
+          ]
+        },
+        {
+          "concern_id": "PR-048-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Metabolites could be affected by diet habit, aging, or other diseases. Missing from cohort information: possible other underlying diseases and nutritional habits. ML model's false positive discovery rate should be addressed.",
+          "author_response": "Added diet and comorbidity data as confounders.",
+          "resolved": true,
+          "tags": [
+            "diet_confounder",
+            "comorbidity_missing",
+            "false_discovery_rate"
+          ]
+        },
+        {
+          "concern_id": "PR-048-C04",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "preprocessing",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 3,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "258 vs 147 metabolites discrepancy. LOQ, LODs, ion transitions for MRM, main adduct ions and retention time should be provided. How is relative abundance calculated — quantitative or normalized peak area?",
+          "author_response": "Clarified metabolite filtering pipeline and added analytical validation parameters.",
+          "resolved": true,
+          "tags": [
+            "metabolite_count_discrepancy",
+            "analytical_validation",
+            "relative_abundance_unclear"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-048-S01",
+          "reviewer": "Reviewer #1",
+          "text": "Well-structured manuscript with respect to utility and diagnosis capability. Research question is of interest for precision medicine.",
+          "tags": [
+            "well_structured",
+            "precision_medicine"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "biomarker_specificity",
+        "extreme_class_imbalance",
+        "diet_confounder"
+      ],
+      "key_methodology_strengths": [
+        "multicenter_validation",
+        "non_invasive_biomarker",
+        "metabolomics"
+      ]
+    },
+    {
+      "id": "PR-049",
+      "paper_doi": "10.1038/s41467-024-45475-w",
+      "paper_title": "Prediction of plasma ctDNA fraction and prognostic implications of liquid biopsy in advanced prostate cancer",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "domain": "oncology",
+      "prediction_task": "ctDNA fraction prediction from clinical parameters + prognostic implications in metastatic prostate cancer",
+      "model_types": [
+        "machine_learning_predictor"
+      ],
+      "data_type": "clinical_plus_liquid_biopsy",
+      "sample_size": 3000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-049-C01",
+          "reviewer": "Reviewer #4",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Most samples were already analyzed in previous publications from same group. Prognostic association of ctDNA is not novel — the strength is the AI prediction tool. Title and narrative should center on the predictive tool, not the prognostic role of ctDNA.",
+          "author_response": "Restructured narrative to emphasize the prediction tool as main contribution.",
+          "resolved": true,
+          "tags": [
+            "sample_reuse",
+            "novelty_in_tool_not_association",
+            "narrative_mismatch"
+          ]
+        },
+        {
+          "concern_id": "PR-049-C02",
+          "reviewer": "Reviewer #4",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Patients exposed to taxanes had increased cfDNA and ctDNA fraction. How does the prediction model account for ctDNA variance due to different therapies if these variables were not incorporated?",
+          "author_response": "Added therapy-stratified analysis and discussed model behavior across treatment lines.",
+          "resolved": true,
+          "tags": [
+            "treatment_confounder",
+            "therapy_not_in_model",
+            "cfDNA_treatment_effect"
+          ]
+        },
+        {
+          "concern_id": "PR-049-C03",
+          "reviewer": "Reviewer #4",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "cfDNA concentration seems to be the highest predictor of ctDNA fraction and is inter-correlated with LDH/ALP. But authors don't explore cfDNA concentration's prognostic role or compare it to ctDNA.",
+          "author_response": "Added cfDNA concentration as standalone prognostic factor comparison.",
+          "resolved": true,
+          "tags": [
+            "collinear_features",
+            "simpler_biomarker_comparison",
+            "cfDNA_vs_ctDNA"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-049-S01",
+          "reviewer": "Reviewer #4",
+          "text": "Elegant approach with uniform harmonized analysis pipeline. Large cohort gives strength. The AI prediction tool is a powerful contribution for biomarker studies and patient stratification.",
+          "tags": [
+            "harmonized_pipeline",
+            "large_cohort",
+            "clinical_tool"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_revision",
+      "key_methodology_issues": [
+        "sample_reuse",
+        "treatment_confounder",
+        "narrative_mismatch"
+      ],
+      "key_methodology_strengths": [
+        "large_harmonized_cohort",
+        "clinical_prediction_tool",
+        "external_validation"
+      ]
+    },
+    {
+      "id": "PR-050",
+      "paper_doi": "10.1038/s41467-023-37647-x",
+      "paper_title": "Predicting response to enzalutamide and abiraterone in metastatic prostate cancer using whole-omics machine learning",
+      "journal": "Nature Communications",
+      "year": 2023,
+      "domain": "oncology",
+      "prediction_task": "ARSI treatment response prediction in mCRPC from WGS + WTS + clinical data",
+      "model_types": [
+        "logistic_regression",
+        "sparse_pca"
+      ],
+      "data_type": "wgs_wts_clinical",
+      "sample_size": 300,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-050-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "clinical_utility",
+          "severity": "HIGH",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Most patients (even in academic centers) do not undergo WGS/WTS. It would be of great practical relevance to study model performance with targeted panel sequencing data as input, ideally in a separate cohort.",
+          "author_response": "Discussed panel sequencing as future work and showed which features are capturable by commercial panels.",
+          "resolved": true,
+          "tags": [
+            "clinical_feasibility",
+            "wgs_not_available",
+            "panel_sequencing_alternative"
+          ]
+        },
+        {
+          "concern_id": "PR-050-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Not clear how treatment response to ARSI can be differentiated from overall prognosis. Is the model predicting aggressive disease rather than features specific to ARSI response?",
+          "author_response": "Added treatment-specific interaction analysis and discussed prognostic vs predictive biomarkers.",
+          "resolved": true,
+          "tags": [
+            "prognostic_vs_predictive",
+            "treatment_specificity",
+            "aggressive_disease_confound"
+          ]
+        },
+        {
+          "concern_id": "PR-050-C03",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "reporting",
+          "severity": "HIGH",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Figure legends too small to be readable. Figure resolution poor. Distribution of variables not shown. No exploration of how validation cohort differs from training cohort.",
+          "author_response": "Improved all figures and added cohort comparison.",
+          "resolved": true,
+          "tags": [
+            "unreadable_figures",
+            "cohort_comparison_missing",
+            "variable_distribution"
+          ]
+        },
+        {
+          "concern_id": "PR-050-C04",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "model_selection",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 4,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Choice of sparse PCA as feature reduction is well-established but not without difficulties. Covariance of features, captured variance for number of components should be shown. Why logistic regression and not other methods?",
+          "author_response": "Added PCA variance explained plots and comparison with other classifiers.",
+          "resolved": true,
+          "tags": [
+            "feature_reduction_justification",
+            "variance_explained_missing",
+            "model_choice"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-050-S01",
+          "reviewer": "Reviewer #1",
+          "text": "Answers a potentially critical clinical question. Well-annotated cohorts, state-of-the-art ML approaches, very clear and concise data presentation.",
+          "tags": [
+            "critical_clinical_question",
+            "well_annotated",
+            "clear_presentation"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "clinical_feasibility",
+        "prognostic_vs_predictive",
+        "unreadable_figures"
+      ],
+      "key_methodology_strengths": [
+        "whole_omics",
+        "external_validation",
+        "critical_clinical_question"
+      ]
+    },
+    {
+      "id": "PR-051",
+      "paper_doi": "10.1038/s41467-025-61713-1",
+      "paper_title": "Personalized risk stratification in colorectal cancer via PIANOS system",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "domain": "oncology",
+      "prediction_task": "CRC 3-year recurrence prediction from transcriptomic risk score",
+      "model_types": [
+        "transcriptomic_classifier"
+      ],
+      "data_type": "transcriptomic_plus_clinical",
+      "sample_size": 5000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-051-C01",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Outcome used in benchmarking is 3-year recurrence, but several benchmark methods were developed for 5-year OS/RFS. Should tabulate timepoint and outcome metric for each benchmark method — risk of comparing apples and pears.",
+          "author_response": "Added table comparing timepoints and outcome metrics across all benchmarked methods.",
+          "resolved": true,
+          "tags": [
+            "outcome_timepoint_mismatch",
+            "unfair_benchmarking",
+            "apples_vs_pears"
+          ]
+        },
+        {
+          "concern_id": "PR-051-C02",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Can performance be benchmarked to mIHC scores such as ImmunoScore and SIA? Should include iCMS system and CRPS system (Nunes 2024) for comparison.",
+          "author_response": "Added ImmunoScore and CRPS comparison.",
+          "resolved": true,
+          "tags": [
+            "missing_benchmark_methods",
+            "immunoscore_comparison"
+          ]
+        },
+        {
+          "concern_id": "PR-051-C03",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "clinical_utility",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Associations between OS and bevacizumab use are questionable. Only 30 patients with mixed treatment histories — too small to make conclusions about response prediction to bevacizumab.",
+          "author_response": "Toned down bevacizumab response claims and noted as exploratory analysis.",
+          "resolved": true,
+          "tags": [
+            "small_subgroup_overclaimed",
+            "drug_response_underpowered"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-051-S01",
+          "reviewer": "Reviewer #3",
+          "text": "The developed predictor performs well when benchmarked to other transcriptomic predictors.",
+          "tags": [
+            "strong_benchmarking",
+            "transcriptomic_approach"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_revision",
+      "key_methodology_issues": [
+        "outcome_timepoint_mismatch",
+        "small_subgroup_overclaimed"
+      ],
+      "key_methodology_strengths": [
+        "multi_cohort_benchmarking",
+        "transcriptomic_risk_score"
+      ]
+    },
+    {
+      "id": "PR-052",
+      "paper_doi": "10.1038/s41467-025-62910-8",
+      "paper_title": "HIBRID: histology-based risk-stratification with deep learning and ctDNA in colorectal cancer",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "domain": "oncology",
+      "prediction_task": "CRC disease-free survival prediction from histopathology WSI + ctDNA MRD",
+      "model_types": [
+        "vision_transformer",
+        "foundation_model_uni"
+      ],
+      "data_type": "histopathology_wsi_plus_ctDNA",
+      "sample_size": 3540,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-052-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reproducibility",
+          "severity": "HIGH",
+          "mlgg_dimension": 9,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Section on Model Development is unclear and poorly explained. Many details missing regarding architecture and optimization. No hyperparameter tuning described. No schematic figure of model architecture. In current form, difficult to reproduce.",
+          "author_response": "Added architecture diagram, hyperparameter details, and optimization pipeline.",
+          "resolved": true,
+          "tags": [
+            "architecture_unclear",
+            "hyperparameters_missing",
+            "irreproducible_methods"
+          ]
+        },
+        {
+          "concern_id": "PR-052-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Model seems to overlook other factors that typically influence survival and are considered for adjuvant treatment. Should revisit analyses to better illustrate additional benefits compared to current prognostic classification.",
+          "author_response": "Added multivariate analysis including standard prognostic factors.",
+          "resolved": true,
+          "tags": [
+            "incremental_value_vs_standard",
+            "multivariate_missing",
+            "clinical_standard_comparison"
+          ]
+        },
+        {
+          "concern_id": "PR-052-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "12% of DACHS cohort and 10% of Galaxy cohort received neoadjuvant treatment. How did you deal with pathological changes due to therapy? Can you justify this does not affect the model?",
+          "author_response": "Added sensitivity analysis excluding neoadjuvant patients.",
+          "resolved": true,
+          "tags": [
+            "neoadjuvant_treatment_effect",
+            "pathology_artifact",
+            "sensitivity_analysis"
+          ]
+        },
+        {
+          "concern_id": "PR-052-C04",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reporting",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "All results sections start with methods explanations — does not help understand the whole picture. Manuscript needs restructuring. Multiple terminology inconsistencies (transformer vs Vision Transformer, foundation model vs pretrained model).",
+          "author_response": "Restructured manuscript and unified terminology.",
+          "resolved": true,
+          "tags": [
+            "results_mixed_with_methods",
+            "terminology_inconsistent",
+            "manuscript_structure"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-052-S01",
+          "reviewer": "Reviewer #1",
+          "text": "Topic and methodology is novel and of interest — combining DL histopathology with ctDNA MRD is a promising approach for CRC risk stratification.",
+          "tags": [
+            "novel_combination",
+            "ctDNA_plus_histology",
+            "clinical_interest"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "architecture_unclear",
+        "incremental_value_vs_standard",
+        "neoadjuvant_treatment_effect"
+      ],
+      "key_methodology_strengths": [
+        "histology_ctDNA_combination",
+        "foundation_model",
+        "multicohort"
+      ]
+    },
+    {
+      "id": "PR-053",
+      "paper_doi": "10.1038/s41467-025-60824-z",
+      "paper_title": "Deep learning assessment of metastatic relapse risk from digitized breast cancer histological slides",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "domain": "oncology",
+      "prediction_task": "5-year metastasis-free survival prediction in ER+/HER2- breast cancer from H&E slides",
+      "model_types": [
+        "deep_learning_wsi",
+        "rlapsrisk_bc"
+      ],
+      "data_type": "histopathology_wsi_plus_clinical",
+      "sample_size": 2500,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-053-C01",
+          "reviewer": "Reviewer #5",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Many prior studies have demonstrated prognostic value of DL applied to H&E slides in breast cancer. The claim that H&E slides contain prognostic information beyond clinico-pathology is well-established. Discussion does not sufficiently acknowledge prior work from 2018-2024.",
+          "author_response": "Expanded literature review with recent 2023-2024 studies and positioned novelty more carefully.",
+          "resolved": true,
+          "tags": [
+            "novelty_overstated",
+            "prior_work_underacknowledged",
+            "literature_gap"
+          ]
+        },
+        {
+          "concern_id": "PR-053-C02",
+          "reviewer": "Reviewer #5",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Study uses a single cutoff to distinguish high from low risk — authors should at minimum assess how sensitive performance is to the choice of cutoff. Use hazard ratio and concordance index in addition to AUC.",
+          "author_response": "Added cutoff sensitivity analysis, hazard ratio, and C-index.",
+          "resolved": true,
+          "tags": [
+            "cutoff_sensitivity",
+            "hazard_ratio_missing",
+            "cindex_missing"
+          ]
+        },
+        {
+          "concern_id": "PR-053-C03",
+          "reviewer": "Reviewer #4",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "How does RlapsRiskBC compare to the online tool Predict Breast Cancer in these datasets? This would be a relevant addition.",
+          "author_response": "Added comparison with Predict tool.",
+          "resolved": true,
+          "tags": [
+            "comparison_with_clinical_standard",
+            "predict_tool"
+          ]
+        },
+        {
+          "concern_id": "PR-053-C04",
+          "reviewer": "Reviewer #5",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Training and validation cohorts have different staining protocols (HES vs HE). While the revised study used HE for both, not all validation was on HE. How robust is the model to staining differences?",
+          "author_response": "Added staining protocol robustness analysis.",
+          "resolved": true,
+          "tags": [
+            "staining_variability",
+            "technical_artifact",
+            "robustness_to_protocol"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-053-S01",
+          "reviewer": "Reviewer #4",
+          "text": "Large independent validation cohort from different centre makes the study considerably stronger. Authors addressed previous reviewer suggestions well.",
+          "tags": [
+            "independent_validation",
+            "responsive_to_review"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_revision",
+      "key_methodology_issues": [
+        "novelty_overstated",
+        "cutoff_sensitivity",
+        "comparison_with_clinical_standard"
+      ],
+      "key_methodology_strengths": [
+        "large_independent_validation",
+        "direct_mfs_prediction",
+        "multi_centre"
+      ]
+    },
+    {
+      "id": "PR-054",
+      "paper_doi": "10.1038/s41467-024-50369-y",
+      "paper_title": "A multi-classifier system integrated by clinico-histology-genomic analysis for predicting recurrence of papillary renal cell carcinoma",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "domain": "oncology",
+      "prediction_task": "pRCC recurrence prediction from lncRNA + histopathology WSI + clinicopathological features",
+      "model_types": [
+        "multi_classifier_system",
+        "deep_learning_wsi",
+        "cox_regression"
+      ],
+      "data_type": "lncrna_plus_wsi_plus_clinical",
+      "sample_size": 500,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-054-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "What is the added novelty compared to the previous study on ccRCC? Why use lncRNA but not mRNA or other molecular features? Would integration of mRNA/miRNA/methylation result in better predictions?",
+          "author_response": "Discussed pRCC-specific biology and added mRNA comparison showing lncRNA provides unique prognostic information.",
+          "resolved": true,
+          "tags": [
+            "novelty_vs_prior_work",
+            "feature_type_justification",
+            "lncrna_vs_mrna"
+          ]
+        },
+        {
+          "concern_id": "PR-054-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reporting",
+          "severity": "HIGH",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Data inconsistencies: why different cutoff from training set applied to validation but different median for TCGA? P-value is 0.004 or 0.042, not <0.001 as stated. Number at risk and survival plot do not match.",
+          "author_response": "Corrected all data inconsistencies and unified cutoff methodology.",
+          "resolved": true,
+          "tags": [
+            "data_inconsistency",
+            "cutoff_inconsistency",
+            "p_value_error",
+            "figure_data_mismatch"
+          ]
+        },
+        {
+          "concern_id": "PR-054-C03",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Cut-off defined by median — differs between cohorts. Should define absolute risk value universally usable between cohorts. This would allow total evaluation across all cohorts and be very useful for implementation.",
+          "author_response": "Added absolute cutoff analysis derived from training set and applied uniformly.",
+          "resolved": true,
+          "tags": [
+            "median_cutoff_not_transferable",
+            "absolute_threshold_needed",
+            "implementation_barrier"
+          ]
+        },
+        {
+          "concern_id": "PR-054-C04",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "clinical_utility",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Authors claim system can inform strategies for adjuvant therapy but provide no evidence of therapeutic significance.",
+          "author_response": "Toned down therapeutic claims and framed as hypothesis-generating.",
+          "resolved": true,
+          "tags": [
+            "therapeutic_claim_unsupported",
+            "overstatement"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-054-S01",
+          "reviewer": "Reviewer #2",
+          "text": "Well-written analysis of a novel progression prediction algorithm for pRCC. Concentrates on an underserved cancer type, combining clinical, histopathologic, and lncRNA data.",
+          "tags": [
+            "novel_for_prcc",
+            "multimodal",
+            "underserved_cancer"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "data_inconsistency",
+        "median_cutoff_not_transferable",
+        "feature_type_justification"
+      ],
+      "key_methodology_strengths": [
+        "multimodal_integration",
+        "underserved_cancer_type",
+        "external_validation"
+      ]
     }
   ]
 }

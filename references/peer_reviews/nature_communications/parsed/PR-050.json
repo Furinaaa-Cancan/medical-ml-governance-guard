@@ -1,0 +1,25 @@
+{
+  "id": "PR-050",
+  "paper_doi": "10.1038/s41467-023-37647-x",
+  "paper_title": "Predicting response to enzalutamide and abiraterone in metastatic prostate cancer using whole-omics machine learning",
+  "journal": "Nature Communications",
+  "year": 2023,
+  "domain": "oncology",
+  "prediction_task": "ARSI treatment response prediction in mCRPC from WGS + WTS + clinical data",
+  "model_types": ["logistic_regression", "sparse_pca"],
+  "data_type": "wgs_wts_clinical",
+  "sample_size": 300,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-050-C01", "reviewer": "Reviewer #1", "round": 1, "category": "clinical_utility", "severity": "HIGH", "mlgg_dimension": 7, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Most patients (even in academic centers) do not undergo WGS/WTS. It would be of great practical relevance to study model performance with targeted panel sequencing data as input, ideally in a separate cohort.", "author_response": "Discussed panel sequencing as future work and showed which features are capturable by commercial panels.", "resolved": true, "tags": ["clinical_feasibility", "wgs_not_available", "panel_sequencing_alternative"]},
+    {"concern_id": "PR-050-C02", "reviewer": "Reviewer #1", "round": 1, "category": "study_design", "severity": "HIGH", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Not clear how treatment response to ARSI can be differentiated from overall prognosis. Is the model predicting aggressive disease rather than features specific to ARSI response?", "author_response": "Added treatment-specific interaction analysis and discussed prognostic vs predictive biomarkers.", "resolved": true, "tags": ["prognostic_vs_predictive", "treatment_specificity", "aggressive_disease_confound"]},
+    {"concern_id": "PR-050-C03", "reviewer": "Reviewer #2", "round": 1, "category": "reporting", "severity": "HIGH", "mlgg_dimension": 8, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Figure legends too small to be readable. Figure resolution poor. Distribution of variables not shown. No exploration of how validation cohort differs from training cohort.", "author_response": "Improved all figures and added cohort comparison.", "resolved": true, "tags": ["unreadable_figures", "cohort_comparison_missing", "variable_distribution"]},
+    {"concern_id": "PR-050-C04", "reviewer": "Reviewer #2", "round": 1, "category": "model_selection", "severity": "MEDIUM", "mlgg_dimension": 4, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Choice of sparse PCA as feature reduction is well-established but not without difficulties. Covariance of features, captured variance for number of components should be shown. Why logistic regression and not other methods?", "author_response": "Added PCA variance explained plots and comparison with other classifiers.", "resolved": true, "tags": ["feature_reduction_justification", "variance_explained_missing", "model_choice"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-050-S01", "reviewer": "Reviewer #1", "text": "Answers a potentially critical clinical question. Well-annotated cohorts, state-of-the-art ML approaches, very clear and concise data presentation.", "tags": ["critical_clinical_question", "well_annotated", "clear_presentation"]}
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["clinical_feasibility", "prognostic_vs_predictive", "unreadable_figures"],
+  "key_methodology_strengths": ["whole_omics", "external_validation", "critical_clinical_question"]
+}

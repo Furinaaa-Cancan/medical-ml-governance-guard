@@ -1,0 +1,24 @@
+{
+  "id": "PR-049",
+  "paper_doi": "10.1038/s41467-024-45475-w",
+  "paper_title": "Prediction of plasma ctDNA fraction and prognostic implications of liquid biopsy in advanced prostate cancer",
+  "journal": "Nature Communications",
+  "year": 2024,
+  "domain": "oncology",
+  "prediction_task": "ctDNA fraction prediction from clinical parameters + prognostic implications in metastatic prostate cancer",
+  "model_types": ["machine_learning_predictor"],
+  "data_type": "clinical_plus_liquid_biopsy",
+  "sample_size": 3000,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {"concern_id": "PR-049-C01", "reviewer": "Reviewer #4", "round": 1, "category": "study_design", "severity": "HIGH", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Most samples were already analyzed in previous publications from same group. Prognostic association of ctDNA is not novel — the strength is the AI prediction tool. Title and narrative should center on the predictive tool, not the prognostic role of ctDNA.", "author_response": "Restructured narrative to emphasize the prediction tool as main contribution.", "resolved": true, "tags": ["sample_reuse", "novelty_in_tool_not_association", "narrative_mismatch"]},
+    {"concern_id": "PR-049-C02", "reviewer": "Reviewer #4", "round": 1, "category": "study_design", "severity": "HIGH", "mlgg_dimension": 1, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "Patients exposed to taxanes had increased cfDNA and ctDNA fraction. How does the prediction model account for ctDNA variance due to different therapies if these variables were not incorporated?", "author_response": "Added therapy-stratified analysis and discussed model behavior across treatment lines.", "resolved": true, "tags": ["treatment_confounder", "therapy_not_in_model", "cfDNA_treatment_effect"]},
+    {"concern_id": "PR-049-C03", "reviewer": "Reviewer #4", "round": 1, "category": "evaluation_metrics", "severity": "MEDIUM", "mlgg_dimension": 5, "mlgg_gates": [], "mlgg_rules": [], "concern_text": "cfDNA concentration seems to be the highest predictor of ctDNA fraction and is inter-correlated with LDH/ALP. But authors don't explore cfDNA concentration's prognostic role or compare it to ctDNA.", "author_response": "Added cfDNA concentration as standalone prognostic factor comparison.", "resolved": true, "tags": ["collinear_features", "simpler_biomarker_comparison", "cfDNA_vs_ctDNA"]}
+  ],
+  "reviewer_strengths": [
+    {"strength_id": "PR-049-S01", "reviewer": "Reviewer #4", "text": "Elegant approach with uniform harmonized analysis pipeline. Large cohort gives strength. The AI prediction tool is a powerful contribution for biomarker studies and patient stratification.", "tags": ["harmonized_pipeline", "large_cohort", "clinical_tool"]}
+  ],
+  "outcome": "accepted_after_revision",
+  "key_methodology_issues": ["sample_reuse", "treatment_confounder", "narrative_mismatch"],
+  "key_methodology_strengths": ["large_harmonized_cohort", "clinical_prediction_tool", "external_validation"]
+}

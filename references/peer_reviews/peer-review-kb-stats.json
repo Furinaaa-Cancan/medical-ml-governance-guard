@@ -1,16 +1,16 @@
 {
-  "total_papers": 47,
-  "total_concerns": 250,
-  "total_strengths": 57,
+  "total_papers": 54,
+  "total_concerns": 276,
+  "total_strengths": 64,
   "concerns_by_category": {
-    "evaluation_metrics": 79,
-    "study_design": 47,
-    "reporting": 35,
-    "preprocessing": 21,
+    "evaluation_metrics": 87,
+    "study_design": 56,
+    "reporting": 38,
+    "preprocessing": 22,
     "external_validation": 15,
-    "model_selection": 12,
-    "clinical_utility": 12,
-    "reproducibility": 11,
+    "clinical_utility": 15,
+    "model_selection": 13,
+    "reproducibility": 12,
     "interpretability": 9,
     "split_protocol": 3,
     "sample_size": 3,
@@ -18,21 +18,21 @@
     "feature_selection": 1
   },
   "concerns_by_severity": {
-    "HIGH": 115,
-    "MEDIUM": 103,
+    "HIGH": 130,
+    "MEDIUM": 114,
     "CRITICAL": 19,
     "LOW": 13
   },
   "concerns_by_dimension": {
-    "1": 50,
+    "1": 59,
     "2": 2,
-    "3": 21,
-    "4": 14,
-    "5": 78,
+    "3": 22,
+    "4": 15,
+    "5": 86,
     "6": 15,
-    "7": 22,
-    "8": 34,
-    "9": 11,
+    "7": 25,
+    "8": 37,
+    "9": 12,
     "12": 3
   },
   "top_30_tags": [
@@ -42,7 +42,7 @@
     },
     {
       "tag": "sensitivity_analysis",
-      "count": 6
+      "count": 7
     },
     {
       "tag": "missing_baseline_comparison",
@@ -58,6 +58,10 @@
     },
     {
       "tag": "missing_calibration",
+      "count": 5
+    },
+    {
+      "tag": "overstatement",
       "count": 5
     },
     {
@@ -78,10 +82,6 @@
     },
     {
       "tag": "marginal_improvement",
-      "count": 4
-    },
-    {
-      "tag": "overstatement",
       "count": 4
     },
     {
@@ -159,7 +159,7 @@
   ],
   "resolution_rate": 1.0,
   "papers_by_domain": {
-    "oncology": 9,
+    "oncology": 16,
     "infectious_disease": 6,
     "neurology": 6,
     "genomics": 4,
@@ -178,8 +178,8 @@
     "microbiome": 1
   },
   "papers_by_outcome": {
-    "accepted_after_major_revision": 37,
-    "accepted_after_revision": 5,
+    "accepted_after_major_revision": 41,
+    "accepted_after_revision": 8,
     "accepted_after_minor_revision": 4,
     "accepted_minimal_review": 1
   }
