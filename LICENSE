@@ -155,14 +155,26 @@ copyright law:
    sample size criteria, Van Calster 2019 calibration suite,
    and Pencina NRI/IDI into a unified gate pipeline.
 
-### Academic Citation Requirement
+### Academic Publication Restriction
 
 Any academic publication (journal article, conference paper,
 thesis, preprint, technical report, or equivalent) that uses,
-references, adapts, or is substantially informed by the
-protected methodology listed above MUST include a citation
-to this project. Failure to cite constitutes academic
-misconduct and a violation of this license.
+reproduces, adapts, or is substantially informed by the
+protected methodology, framework architecture, or audit
+pipeline listed above requires **explicit prior written
+permission** from the licensor (Weng, Can).
+
+Unauthorized academic publication constitutes a violation of
+this license and may constitute academic misconduct.
+
+To request permission, contact the licensor with:
+(a) a description of the intended publication;
+(b) how the methodology will be used or referenced;
+(c) the target venue and expected publication date.
+
+If permission is granted, the publication MUST include a
+citation to this project in the format specified by the
+licensor.
 
 ### Authorized Public Distribution
 
