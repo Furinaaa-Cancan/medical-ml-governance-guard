@@ -36,9 +36,11 @@ class MultipleComparison(BaseRule):
         "a spuriously 'best' model increases with N."
     )
     remediation = (
-        "Apply Bonferroni or Holm correction when comparing multiple models. "
-        "Alternatively, use a one-standard-error rule to select the simplest "
-        "model within one SE of the best."
+        "Apply BH FDR (Benjamini-Hochberg) or Holm correction when comparing "
+        "multiple models. MLGG recommends the one-standard-error rule: select "
+        "the simplest model within 1 SE of the best validation score (Yang KDD "
+        "2023). Use statsmodels.stats.multitest.multipletests(method='fdr_bh') "
+        "for formal multiple testing correction."
     )
     tags = ("statistical", "model-selection")
 
