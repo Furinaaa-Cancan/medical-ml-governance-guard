@@ -201,6 +201,84 @@ class TestRetrieveByText:
             assert results[0]["_match_score"] >= results[1]["_match_score"]
 
 
+class TestNewSynonyms:
+    """Test newly added synonym groups."""
+
+    @pytest.mark.parametrize("term", [
+        "no_shap", "no_dca", "no_bootstrap", "temporal_leak",
+        "label_leakage", "no_reproducibility", "confounding", "overstatement",
+    ])
+    def test_synonym_finds_results(self, term):
+        results = retrieve_by_tags([term], kb_path=KB_PATH)
+        assert len(results) >= 1, f"'{term}' returned 0 results"
+
+
+class TestFixPrioritization:
+    """Verify detailed fixes rank above generic ones."""
+
+    def test_detailed_before_generic(self):
+        results = retrieve_by_tags(["missing_calibration"], limit=10, kb_path=KB_PATH)
+        # First result should have a detailed fix
+        if results:
+            fix = results[0].get("author_response", "")
+            assert fix not in ("Addressed in revision.", "Addressed in revision", ""), \
+                f"Top result has generic fix: '{fix}'"
+
+    def test_format_skips_generic_fix(self):
+        # Create a mock concern with generic fix
+        mock = [{"concern_id": "TEST-01", "severity": "HIGH",
+                 "concern_text": "Test concern", "author_response": "Addressed in revision.",
+                 "_paper_id": "TEST", "_year": 2024, "tags": ["test"]}]
+        fmt = format_peer_context(mock, max_display=1)
+        assert "Fix:" not in fmt  # generic fix should be hidden
+
+
+class TestPerformance:
+    """Verify retrieval is fast enough for interactive use."""
+
+    def test_retrieval_under_50ms(self):
+        import time
+        # Warm cache
+        retrieve_by_dimension(5, limit=1, kb_path=KB_PATH)
+        start = time.perf_counter()
+        for _ in range(10):
+            retrieve_by_tags(["missing_calibration"], limit=5, kb_path=KB_PATH)
+        elapsed_ms = (time.perf_counter() - start) / 10 * 1000
+        assert elapsed_ms < 50, f"Tag retrieval too slow: {elapsed_ms:.1f}ms"
+
+    def test_text_search_under_50ms(self):
+        import time
+        retrieve_by_text("test", limit=1, kb_path=KB_PATH)
+        start = time.perf_counter()
+        for _ in range(10):
+            retrieve_by_text("calibration missing AUC", limit=5, kb_path=KB_PATH)
+        elapsed_ms = (time.perf_counter() - start) / 10 * 1000
+        assert elapsed_ms < 50, f"Text search too slow: {elapsed_ms:.1f}ms"
+
+
+class TestEdgeCases:
+    """Verify no crashes on unusual inputs."""
+
+    def test_empty_tags(self):
+        assert retrieve_by_tags([], kb_path=KB_PATH) == []
+
+    def test_unicode_tags(self):
+        r = retrieve_by_tags(["校准缺失"], kb_path=KB_PATH)
+        assert isinstance(r, list)
+
+    def test_very_long_text_query(self):
+        r = retrieve_by_text("a " * 500, kb_path=KB_PATH)
+        assert isinstance(r, list)
+
+    def test_invalid_dimension(self):
+        r = retrieve_by_dimension(99, kb_path=KB_PATH)
+        assert r == []
+
+    def test_limit_zero(self):
+        r = retrieve_by_dimension(5, limit=0, kb_path=KB_PATH)
+        assert r == []
+
+
 class TestAllMajorGates:
     """Ensure peer review context exists for all major gates."""
 

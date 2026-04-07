@@ -30,6 +30,14 @@ TAG_SYNONYMS: Dict[str, List[str]] = {
     "sample_too_small": ["small_sample", "tiny_sample", "tiny_sample_size", "underpowered", "no_power_calculation"],
     "smote_leakage": ["class_imbalance", "extreme_class_imbalance", "smote_needed", "temporal_imbalance"],
     "class_imbalance": ["class_imbalance", "extreme_class_imbalance", "smote_needed", "temporal_imbalance", "low_incidence_suspicious"],
+    "no_shap": ["shap_interpretation_shallow", "shap_presentation", "explainability_missing", "explainability_insufficient", "feature_importance", "shap_requested"],
+    "no_dca": ["missing_dca", "dca_explanation_needed", "dca_assumptions_violated", "cancer_specific_dca"],
+    "no_bootstrap": ["missing_ci", "no_bootstrap_ci", "suspiciously_narrow_ci", "single_split"],
+    "temporal_leak": ["temporal_leakage", "temporal_split_missing", "future_data_used", "future_information_leakage", "bidirectional_rnn_leakage"],
+    "label_leakage": ["target_leakage", "definition_variable", "feature_is_outcome_proxy", "circular_prediction", "outcome_defined_by_features"],
+    "no_reproducibility": ["no_code_availability", "reproducibility", "irreproducible_methods", "code_as_pdf", "weights_not_shared", "broken_github_link"],
+    "confounding": ["confounders", "missing_confounder", "confounders_undisclosed", "confounding_by_gender", "confounding_unadjusted", "covariate_adjustment_one_size_fits_all"],
+    "overstatement": ["overstatement", "overclaimed", "overclaimed_novelty", "overclaimed_improvement", "overclaimed_public_health", "title_overstatement"],
 }
 
 _KB_PATH = Path(__file__).resolve().parent.parent / "references" / "peer_reviews" / "peer-review-kb.json"
@@ -51,9 +59,20 @@ def _load_kb(kb_path: Optional[Path] = None) -> Dict[str, Any]:
     return data
 
 
+_GENERIC_FIXES = {"Addressed in revision.", "Addressed in revision", ""}
+
+
+def _has_detailed_fix(concern: Dict) -> bool:
+    """Check if a concern has a detailed (non-generic) author response."""
+    return concern.get("author_response", "") not in _GENERIC_FIXES
+
+
 def _sort_by_severity(concerns: List[Dict]) -> List[Dict]:
-    """Sort concerns by severity: CRITICAL > HIGH > MEDIUM > LOW."""
-    return sorted(concerns, key=lambda c: _SEVERITY_ORDER.get(c.get("severity", "LOW"), 9))
+    """Sort concerns by: severity first, then prefer detailed fixes."""
+    return sorted(concerns, key=lambda c: (
+        _SEVERITY_ORDER.get(c.get("severity", "LOW"), 9),
+        0 if _has_detailed_fix(c) else 1,  # detailed fix first
+    ))
 
 
 def _collect_concerns(
@@ -80,7 +99,7 @@ def _collect_concerns(
             }
             results.append(enriched)
     results = _sort_by_severity(results)
-    return results[:limit] if limit else results
+    return results[:limit] if limit is None else results[:limit]
 
 
 # ─── Public retrieval functions ───────────────────────────────
@@ -320,27 +339,29 @@ def format_peer_context(concerns: List[Dict], max_display: int = 3) -> str:
     if not concerns:
         return "  No matching peer review examples found."
 
+    _GENERIC_FIXES = {"Addressed in revision.", "Addressed in revision", ""}
+
     lines = []
     for i, c in enumerate(concerns[:max_display]):
         cid = c.get("concern_id", "?")
         paper = c.get("_paper_id", "?")
         year = c.get("_year", "?")
         sev = c.get("severity", "?")
-        text = c.get("concern_text", "")[:120]
-        fix = c.get("author_response", "")[:80]
-        tags = ", ".join(c.get("tags", [])[:3])
+        text = c.get("concern_text", "")[:150]
+        fix = c.get("author_response", "")
+        tags = ", ".join(c.get("tags", [])[:4])
 
         lines.append(f"  [{sev}] {cid} ({paper}, NC {year})")
         lines.append(f"    Concern: {text}...")
-        if fix:
-            lines.append(f"    Fix: {fix}...")
+        if fix and fix not in _GENERIC_FIXES:
+            lines.append(f"    Fix: {fix[:100]}...")
         lines.append(f"    Tags: {tags}")
         if i < max_display - 1:
             lines.append("")
 
     total = len(concerns)
     if total > max_display:
-        lines.append(f"  ... and {total - max_display} more similar concerns")
+        lines.append(f"  ... and {total - max_display} more similar concerns in KB")
 
     return "\n".join(lines)
 
