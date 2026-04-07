@@ -114,7 +114,7 @@ description: "Publication-grade medical prediction workflow with strict anti-dat
 | "NRI IDI" / "模型比较改善" | 调用 `compute_nri_idi(y_true, y_old, y_new)` in `_gate_utils.py`：分类 NRI、连续 NRI、IDI |
 | "学习曲线" / "数据量够不够" | 调用 `learning_curve_data(estimator, X_train, y_train, X_test, y_test)` in `_gate_utils.py` |
 | "VIF" / "共线性" / "多重共线性" | 调用 `compute_vif(X, feature_names)` in `_gate_utils.py`：VIF>5 警告，>10 严重 |
-| "非线性" / "线性假设" / "spline" | 调用 `check_nonlinearity(X, y, feature_names)` in `_gate_utils.py`：LR test 检验 |
+| "非线性" / "线性假设" / "spline" | 调用 `check_nonlinearity(X, y, feature_names)` in `_gate_utils.py`：LR test + BH FDR 校正（默认）|
 | "MNAR" / "缺失不随机" / "敏感性分析" | 调用 `mnar_sensitivity_analysis(...)` in `_gate_utils.py`：δ-adjustment + tipping point |
 | "时序漂移" / "校准漂移" / "concept drift" | 调用 `temporal_drift_analysis(y_true, y_score, times)` in `_gate_utils.py`：CUSUM 检测 |
 | "Model Card" / "模型文档" | 调用 `generate_model_card(...)` in `_gate_utils.py`：自动生成 Markdown |
@@ -1606,6 +1606,25 @@ Validation PR-AUC 最优 + one-SE rule 破平局。不用 train-test gap。Boots
 - 整体: Brier, Brier Skill Score (>0=优于基线)
 - 分类: MCC, LR+/LR-, Sensitivity, Specificity, PPV, NPV
 - 临床: DCA 净效用, NRI (categorical + continuous), IDI
+
+### p 值与多重检验策略
+
+| 场景 | 测试次数 | 校正方法 | 理由 |
+|------|---------|---------|------|
+| check_nonlinearity | N 个特征 | **BH FDR（默认）** | 20 个特征各测一次 → 期望 1 个假阳性 |
+| SHAP Kendall tau | C(K,2) 对 | 不校正 | 主要看 tau 值，不做假设检验决策 |
+| DeLong AUC 比较 | 1 次 | 不校正 | 单一假设检验 |
+| 置换检验 | 1 次 | 不校正 | 单一假设检验（模型 vs 随机） |
+| Hosmer-Lemeshow | 1 次 | 不校正 | 单一校准检验 |
+
+**原则**：
+- **多特征/多亚组同时检验** → 必须 BH FDR（Benjamini & Hochberg 1995）
+- **单一预设假设** → 不需要校正
+- **探索性分析**（SHAP 排名一致性）→ 不做校正，但明确标注为探索性
+- `check_nonlinearity(fdr_method="fdr_bh")` 默认启用 BH，可选 `"holm"` / `"bonferroni"` / `None`
+
+**Peer Review 证据**：PR-042-C02 审稿人要求 "multiple testing adjustment should be considered"。
+PR-025-C04 审稿人指出 "no clear adjustment for multiple comparisons"。
 
 ### SHAP（Phase 7）
 

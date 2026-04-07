@@ -810,11 +810,16 @@ def check_nonlinearity(
     feature_names: Optional[list] = None,
     n_knots: int = 4,
     p_threshold: float = 0.05,
+    fdr_method: Optional[str] = "fdr_bh",
 ) -> list:
     """Test linearity assumption for continuous predictors using likelihood ratio.
 
     For each continuous feature, compares a linear logistic model vs a model
     with natural cubic spline terms. Significant LR test → nonlinear relationship.
+
+    Multiple testing correction: When testing N features, the false positive rate
+    inflates (e.g., 20 features at α=0.05 → expect 1 false positive). By default,
+    Benjamini-Hochberg FDR correction is applied to control the false discovery rate.
 
     Args:
         X: Feature matrix.
@@ -822,12 +827,19 @@ def check_nonlinearity(
         feature_names: Column names.
         n_knots: Number of knots for spline (default 4 → 3 df nonlinear).
         p_threshold: P-value threshold for flagging nonlinearity.
+        fdr_method: Multiple testing correction method. Options:
+            - "fdr_bh" (default): Benjamini-Hochberg FDR correction
+            - "holm": Holm-Bonferroni (controls FWER, more conservative)
+            - "bonferroni": Bonferroni (most conservative)
+            - None: No correction (use raw p-values, NOT recommended for >5 features)
 
     Returns:
-        List of dicts with feature, lr_chi2, p_value, nonlinear flag.
+        List of dicts with feature, lr_chi2, p_value, p_value_adjusted,
+        nonlinear flag (based on adjusted p-value when correction applied).
 
     References:
         Harrell FE. Regression Modeling Strategies. 2nd ed. 2015. Ch. 2.
+        Benjamini Y, Hochberg Y. Controlling the FDR. JRSS-B. 1995;57(1):289-300.
     """
     import numpy as np
     from scipy.stats import chi2
@@ -924,8 +936,34 @@ def check_nonlinearity(
             "lr_chi2": round(lr_stat, 4),
             "p_value": round(p_val, 4),
             "df": df,
-            "nonlinear": p_val < p_threshold,
+            "nonlinear": False,  # will be set after FDR correction
         })
+
+    # ── Multiple testing correction ──
+    # Collect raw p-values from features that were actually tested
+    tested_indices = [i for i, r in enumerate(results) if r["p_value"] is not None]
+    raw_pvals = [results[i]["p_value"] for i in tested_indices]
+
+    if raw_pvals and fdr_method is not None and len(raw_pvals) > 1:
+        try:
+            from statsmodels.stats.multitest import multipletests
+            reject, pvals_adj, _, _ = multipletests(raw_pvals, alpha=p_threshold, method=fdr_method)
+            for idx, ti in enumerate(tested_indices):
+                results[ti]["p_value_adjusted"] = round(float(pvals_adj[idx]), 4)
+                results[ti]["nonlinear"] = bool(reject[idx])
+                results[ti]["fdr_method"] = fdr_method
+        except ImportError:
+            # statsmodels not available — fall back to raw p-values with warning
+            for ti in tested_indices:
+                results[ti]["p_value_adjusted"] = results[ti]["p_value"]
+                results[ti]["nonlinear"] = results[ti]["p_value"] < p_threshold
+                results[ti]["fdr_method"] = "none (statsmodels not installed)"
+    else:
+        # Single test or no correction requested — use raw p-values
+        for ti in tested_indices:
+            results[ti]["p_value_adjusted"] = results[ti]["p_value"]
+            results[ti]["nonlinear"] = results[ti]["p_value"] < p_threshold
+            results[ti]["fdr_method"] = "none" if fdr_method is None else "single_test"
 
     return results
 
