@@ -28,6 +28,8 @@ TAG_SYNONYMS: Dict[str, List[str]] = {
     "no_validation": ["no_external_validation", "internal_split_only", "same_cohort_validation", "single_center"],
     "missing_comparison": ["missing_baseline_comparison", "comparison_with_existing", "missing_competitor_comparison", "missing_benchmark_methods"],
     "sample_too_small": ["small_sample", "tiny_sample", "tiny_sample_size", "underpowered", "no_power_calculation"],
+    "smote_leakage": ["class_imbalance", "extreme_class_imbalance", "smote_needed", "temporal_imbalance"],
+    "class_imbalance": ["class_imbalance", "extreme_class_imbalance", "smote_needed", "temporal_imbalance", "low_incidence_suspicious"],
 }
 
 _KB_PATH = Path(__file__).resolve().parent.parent / "references" / "peer_reviews" / "peer-review-kb.json"
@@ -212,22 +214,41 @@ def retrieve_by_text(
     severity: Optional[str] = None,
     limit: int = 5,
     kb_path: Optional[Path] = None,
+    min_match_ratio: float = 0.4,
 ) -> List[Dict]:
-    """Retrieve concerns by fuzzy text matching on concern_text and tags.
+    """Retrieve concerns by text matching on concern_text and tags.
 
     Searches for query terms in concern_text, author_response, tags,
-    and category fields. Useful when the agent identifies a problem
-    in natural language.
+    and category fields. Requires a minimum fraction of query terms
+    to match to avoid spurious results from single-word overlaps.
 
     Args:
         query: Natural language description of the problem
         severity: Filter by severity
         limit: Maximum results
+        kb_path: Optional custom KB path
+        min_match_ratio: Minimum fraction of query terms that must match (0-1).
+            Default 0.4 means at least 40% of query words must be found.
 
     Returns:
         List of enriched concern dicts ranked by match quality
     """
-    terms = [t.lower().strip() for t in query.split() if len(t) > 2]
+    # Filter stopwords and short words
+    stopwords = {"the", "and", "for", "that", "this", "with", "from", "are",
+                 "was", "were", "been", "being", "have", "has", "had", "not",
+                 "but", "can", "will", "would", "should", "could", "may",
+                 "also", "than", "then", "when", "where", "which", "what",
+                 "how", "why", "who", "its", "their", "our", "your", "any",
+                 "all", "each", "every", "some", "more", "most", "other",
+                 "only", "such", "into", "over", "after", "before", "between",
+                 "about", "using", "used", "based", "does"}
+    terms = [t.lower().strip() for t in query.split()
+             if len(t) > 2 and t.lower().strip() not in stopwords]
+
+    if not terms:
+        return []
+
+    min_hits = max(1, int(len(terms) * min_match_ratio))
     kb = _load_kb(kb_path)
 
     scored = []
@@ -236,17 +257,14 @@ def retrieve_by_text(
             if severity and concern.get("severity") != severity:
                 continue
 
-            # Build searchable text
-            searchable = " ".join([
-                concern.get("concern_text", ""),
-                concern.get("author_response", ""),
-                concern.get("category", ""),
-                " ".join(concern.get("tags", [])),
-            ]).lower()
+            # Build searchable text — weight tags and category higher
+            text_parts = concern.get("concern_text", "") + " " + concern.get("author_response", "")
+            tag_parts = " ".join(concern.get("tags", [])) + " " + concern.get("category", "")
+            searchable = (text_parts + " " + tag_parts + " " + tag_parts).lower()  # tags counted double
 
             # Score by term hits
-            score = sum(1 for t in terms if t in searchable)
-            if score > 0:
+            hits = sum(1 for t in terms if t in searchable)
+            if hits >= min_hits:
                 enriched = {
                     **concern,
                     "_paper_id": entry.get("id"),
@@ -254,12 +272,17 @@ def retrieve_by_text(
                     "_paper_title": entry.get("paper_title"),
                     "_year": entry.get("year"),
                     "_domain": entry.get("domain"),
-                    "_match_score": score,
+                    "_match_score": hits,
+                    "_match_ratio": hits / len(terms),
                 }
                 scored.append(enriched)
 
-    # Sort by match score (desc), then severity
-    scored.sort(key=lambda c: (-c["_match_score"], _SEVERITY_ORDER.get(c.get("severity", "LOW"), 9)))
+    # Sort by match ratio (desc), then score (desc), then severity
+    scored.sort(key=lambda c: (
+        -c["_match_ratio"],
+        -c["_match_score"],
+        _SEVERITY_ORDER.get(c.get("severity", "LOW"), 9),
+    ))
     return scored[:limit]
 
 
