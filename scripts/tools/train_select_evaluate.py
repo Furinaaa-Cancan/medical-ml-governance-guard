@@ -244,6 +244,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--target-col", default="y", help="Target column.")
     parser.add_argument("--patient-id-col", default="patient_id", help="Patient ID column used for trace hashing.")
     parser.add_argument("--ignore-cols", default="patient_id,event_time", help="Comma-separated non-feature columns.")
+    parser.add_argument("--definition-cols", default="", help="Comma-separated columns used to DEFINE the outcome (e.g., HbA1c,fasting_glucose). These are forcibly excluded from features to prevent target leakage.")
     parser.add_argument("--performance-policy", help="Optional performance policy JSON path.")
     parser.add_argument("--missingness-policy", help="Optional missingness policy JSON path.")
     parser.add_argument("--selection-data", default="cv_inner", help="Model selection source (valid/cv_inner/nested_cv).")
@@ -474,12 +475,13 @@ def sha256_text(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
-def parse_ignore_cols(raw: str, target_col: str) -> List[str]:
+def parse_ignore_cols(raw: str, target_col: str, definition_cols: str = "") -> List[str]:
     """Parse comma-separated ignore columns, always including the target.
 
     Args:
         raw: Comma-separated column names to ignore.
         target_col: Target column name (always included).
+        definition_cols: Comma-separated outcome-definition columns (forcibly excluded).
 
     Returns:
         Sorted deduplicated list of columns to exclude from features.
@@ -489,6 +491,19 @@ def parse_ignore_cols(raw: str, target_col: str) -> List[str]:
         key = token.strip()
         if key:
             out.append(key)
+    # Forcibly exclude outcome-definition columns (prevents target leakage)
+    excluded_definitions: List[str] = []
+    for token in definition_cols.split(","):
+        key = token.strip()
+        if key:
+            out.append(key)
+            excluded_definitions.append(key)
+    if excluded_definitions:
+        print(
+            f"[SAFE] definition_cols_excluded: {len(excluded_definitions)} outcome-definition "
+            f"column(s) forcibly excluded from features: {excluded_definitions}",
+            file=sys.stderr,
+        )
     return sorted(set(out))
 
 
@@ -1426,12 +1441,25 @@ def feature_stability_frequency(
     if pos_idx.size == 0 or neg_idx.size == 0:
         return {feature: 0.0 for feature in features}
 
+    # Precompute global train medians to avoid leaking bootstrap-local statistics.
+    _global_medians: Dict[str, float] = {}
+    for col in features:
+        series = pd.to_numeric(X_train[col], errors="coerce")
+        _global_medians[col] = float(series.median(skipna=True)) if series.notna().any() else 0.0
+
+    def _impute_with_global_medians(df: pd.DataFrame) -> pd.DataFrame:
+        out = df.copy()
+        for col in out.columns:
+            series = pd.to_numeric(out[col], errors="coerce")
+            out[col] = series.fillna(_global_medians.get(col, 0.0))
+        return out
+
     for repeat_idx in range(int(repeats)):
         sample_pos = rng.choice(pos_idx, size=max(1, int(0.8 * pos_idx.size)), replace=True)
         sample_neg = rng.choice(neg_idx, size=max(1, int(0.8 * neg_idx.size)), replace=True)
         idx = np.concatenate([sample_pos, sample_neg], axis=0)
         rng.shuffle(idx)
-        X_sub = impute_numeric_frame(X_train.iloc[idx][list(features)])
+        X_sub = _impute_with_global_medians(X_train.iloc[idx][list(features)])
         y_sub = y[idx]
         try:
             model = LogisticRegression(
@@ -5581,7 +5609,7 @@ def main() -> int:
         if str(args.selection_data).strip().lower() == "valid":
             print("  [INFO] No validation split provided. Switching to --selection-data=cv_inner.")
             args.selection_data = "cv_inner"
-    ignore_cols = parse_ignore_cols(args.ignore_cols, args.target_col)
+    ignore_cols = parse_ignore_cols(args.ignore_cols, args.target_col, getattr(args, "definition_cols", ""))
     base_feature_cols = select_feature_columns(train_df, ignore_cols)
     groups, forbidden_features = normalize_feature_groups(feature_group_spec)
     grouped_features = sorted({feature for values in groups.values() for feature in values})

@@ -65,8 +65,16 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--forbidden-feature-regex",
-        default=r"\b(future|leak)\b|(?:^|_)(target|label|outcome)(?:_|$)",
-        help="Regex for suspicious feature names. Default matches clearly leakage-indicative tokens (future, leak as whole words; target, label, outcome as underscore-delimited segments). Override with --forbidden-feature-regex for domain-specific patterns.",
+        default=(
+            r"\b(future|leak)\b"
+            r"|(?:^|_)(target|label|outcome)(?:_|$)"
+            r"|(?:^|_)(pred|predicted|actual|confirmed|diagnosed|staging|stage_at)"
+            r"|(?:^|_)(pathology|biopsy_result|histology)"
+            r"|(?:^|_)(next_|future_|post_|after_)"
+            r"|(?:^|_)(diagnosis_date|death_date|event_date|outcome_date|discharge_date)"
+            r"|(?:^|_)(readmit|mortality_flag|survival_status|los_days)"
+        ),
+        help="Regex for suspicious feature names. Covers: explicit markers (future, leak), target aliases, post-outcome variables (pred_, confirmed_, staging), temporal leakage (next_, post_), outcome dates, and derived outcome indicators.",
     )
     parser.add_argument("--report", help="Optional path to write JSON report.")
     parser.add_argument(

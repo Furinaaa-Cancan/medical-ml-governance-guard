@@ -462,6 +462,44 @@ def main() -> int:
 
     from _gate_utils import get_gate_elapsed, write_json as _write_report
 
+    # ── L1/L2/L3 compliance tiers ──────────────────────────────────────────
+    # L1 (12 gates): Core leakage audit — minimum for internal use
+    L1_GATES = {
+        "request_report", "manifest", "leakage_report", "split_protocol_report",
+        "definition_report", "lineage_report", "tuning_report",
+        "imbalance_report", "missingness_report", "covariate_shift_report",
+        "execution_attestation_report", "reporting_bias_report",
+    }
+    # L2 (25 gates): Statistically valid — sufficient for preprint/conference
+    L2_GATES = L1_GATES | {
+        "model_selection_audit_report", "feature_engineering_audit_report",
+        "clinical_metrics_report", "prediction_replay_report",
+        "generalization_gap_report", "seed_stability_report",
+        "calibration_dca_report", "ci_matrix_report", "metric_report",
+        "evaluation_quality_report", "permutation_report",
+        "sample_size_report", "robustness_report",
+    }
+    # L3 (all gates): Publication-grade — required for top-tier journal submission
+    L3_GATES = L2_GATES | {
+        "distribution_generalization_report", "external_validation_report",
+        "fairness_equity_report", "cohort_definition_report",
+        "shap_interpretability_report",
+    }
+
+    def _tier_passed(tier_gates: set) -> bool:
+        for g in tier_gates:
+            r = loaded.get(g)
+            if r is None and g not in files:
+                continue  # optional gate not provided
+            if r is None or str(r.get("status", "")).lower() != "pass":
+                return False
+        return True
+
+    l1_passed = _tier_passed(L1_GATES)
+    l2_passed = _tier_passed(L2_GATES) and l1_passed
+    l3_passed = _tier_passed(L3_GATES) and l2_passed
+    compliance_level = "L3" if l3_passed else ("L2" if l2_passed else ("L1" if l1_passed else "none"))
+
     should_fail = bool(failures) or (args.strict and bool(warnings))
     status = "fail" if should_fail else "pass"
     quality_score = max(0.0, min(100.0, 100.0 - 20.0 * len(failures) - 2.5 * len(warnings)))
@@ -485,6 +523,12 @@ def main() -> int:
         warnings=wi,
         summary={
             "quality_score": round(quality_score, 2),
+            "compliance_level": compliance_level,
+            "compliance_tiers": {
+                "L1_leakage_audit": l1_passed,
+                "L2_statistically_valid": l2_passed,
+                "L3_publication_grade": l3_passed,
+            },
             "artifacts": {
                 name: {
                     "path": str(Path(path).expanduser().resolve()),
