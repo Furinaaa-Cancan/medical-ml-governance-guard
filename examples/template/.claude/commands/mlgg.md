@@ -212,6 +212,8 @@ Agent 应在 Phase 4 后告诉用户:
 ## Phase 9: 报告
 
 - TRIPOD+AI 2024 清单 27 项（Collins 2024 BMJ）
+- **报告精度控制**: 小样本(n<500) → 最多 2 位小数；n<200 → 1 位。NC 审稿人拒绝过度精确的报告 (如 AUC=0.8112 但 n=140)
+- **TRIPOD Table 1**: 按 split 生成队列特征表（demographics + clinical + outcome rate），用 `cohort_definition_gate` 输出为基础
 - PROBAST+AI 2025 偏倚风险 4 域（Moons 2025 BMJ）
 - 12 维评分 0-100（≥90 顶刊级, 75-89 需补充, <60 不可发表）
 - Model Card: `generate_model_card()`
