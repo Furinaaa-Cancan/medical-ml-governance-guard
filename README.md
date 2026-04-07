@@ -106,46 +106,46 @@
 ### 方式一：Claude Code（推荐 — AI 审稿人全程引导）
 
 ```bash
-# 1. Clone
+# 1. 克隆项目
 git clone https://github.com/Furinaaa-Cancan/medical-ml-leakage-guard.git
 cd medical-ml-leakage-guard
 
-# 2. Open Claude Code
+# 2. 打开 Claude Code
 claude
 
-# 3. Just tell it what you want:
-#    "Help me predict diabetes with this CSV"
-#    "Review my code for data leakage"
-#    "My model AUC is 0.85, what do I need for Nature Medicine?"
+# 3. 直接说你想做什么：
+#    "帮我用这个 CSV 做糖尿病预测"
+#    "审查一下我的代码有没有数据泄漏"
+#    "我的模型 AUC 0.85，还需要做什么才能发 Nature Medicine？"
 #
-# Or type /mlgg to activate full methodology guidance mode.
-# The AI will guide you through the 9-Phase workflow,
-# check methodology errors in real-time, and cite
-# 107 peer review papers as evidence.
+# 或者输入 /mlgg 启动完整方法学指导模式。
+# AI 会自动引导你走 9 阶段流程，
+# 实时检查方法学错误，并引用
+# 107 篇同行评审论文作为论据。
 ```
 
 ### 方式二：命令行
 
 ```bash
-# Install
+# 安装
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 pip install -r requirements-optional.txt  # XGBoost, CatBoost, LightGBM, SHAP, ...
 
-# Verify installation
+# 验证安装
 python3 scripts/orchestration/mlgg.py doctor
 
-# Interactive pixel-art terminal UI (5-min full experience)
+# 交互式像素风终端 UI（5 分钟完整体验）
 python3 scripts/orchestration/mlgg.py play
 
-# Guided onboarding from scratch
+# 从零开始引导式建模
 python3 scripts/orchestration/mlgg.py onboarding \
   --project-root /tmp/mlgg_demo --mode guided --yes
 
-# Audit any existing ML project (zero config)
+# 审计任何 ML 项目（无需配置）
 python3 scripts/tools/generate_audit_report.py --project-dir /path/to/project
 
-# Publication-grade strict pipeline
+# 发布级严格管线
 python3 scripts/orchestration/mlgg.py workflow \
   --request configs/request.json --strict
 ```
@@ -153,25 +153,25 @@ python3 scripts/orchestration/mlgg.py workflow \
 ### 方式三：自有 CSV 最短严格闭环
 
 ```bash
-# 1. Init project
+# 1. 初始化项目
 python3 scripts/orchestration/mlgg.py init --project-root /tmp/project
 
-# 2. Safe split
+# 2. 安全划分
 python3 scripts/orchestration/mlgg.py split -- \
   --input /path/to/data.csv \
   --output-dir /tmp/project/data \
   --patient-id-col patient_id --target-col y --time-col event_time \
   --strategy grouped_temporal
 
-# 3. Interactive training
+# 3. 交互式训练
 python3 scripts/orchestration/mlgg.py train --interactive
 
-# 4. Strict audit (bootstrap baseline)
+# 4. 严格审计（bootstrap 基线）
 python3 scripts/orchestration/mlgg.py workflow \
   --request /tmp/project/configs/request.json \
   --strict --allow-missing-compare
 
-# 5. Strict rerun with comparison
+# 5. 严格对比复跑
 python3 scripts/orchestration/mlgg.py workflow \
   --request /tmp/project/configs/request.json \
   --strict \
@@ -185,9 +185,9 @@ python3 scripts/orchestration/mlgg.py workflow \
 MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通过不进入下一阶段。
 
 ```
-  Phase 1            Phase 2            Phase 3            Phase 4
-  Cohort      ────>  Splitting   ────>  Preprocessing ──>  Feature
-  Definition         Protocol           Pipeline           Selection
+  阶段一           阶段二           阶段三           阶段四
+  队列定义   ────>  数据划分    ────>  预处理      ────>  特征
+                     协议               管线               筛选
   ┌─────────┐       ┌─────────┐       ┌─────────┐       ┌─────────┐
   │ EPV      │       │ Patient │       │ Fit on  │       │ ElasticN│
   │ Riley    │       │ disjoint│       │ train   │       │ Stability│
@@ -196,9 +196,9 @@ MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通
   └────┬─────┘       └────┬────┘       └────┬────┘       └────┬────┘
        │                  │                  │                  │
        v                  v                  v                  v
-  Phase 5            Phase 6            Phase 7            Phase 8
-  Training    ────>  Evaluation  ────>  Interpret-  ────>  Fairness
-  & Selection        & Calibration      ability            & Equity
+  阶段五           阶段六           阶段七           阶段八
+  模型训练   ────>  评估校准    ────>  可解释性    ────>  公平性
+  与选择             与校准                               与公平
   ┌─────────┐       ┌─────────┐       ┌─────────┐       ┌─────────┐
   │ >=3 fam │       │ 14 metr │       │ Multi   │       │ EqOdds  │
   │ One-SE  │       │ Boot CI │       │ model   │       │ Disparate│
@@ -208,7 +208,7 @@ MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通
        │                  │                  │                  │
        └──────────────────┴────────┬─────────┴──────────────────┘
                                    v
-                            Phase 9: Reporting
+                            阶段九：报告与合规
                             ┌─────────────────┐
                             │ TRIPOD+AI 2024  │
                             │ PROBAST+AI 2025 │
@@ -221,7 +221,7 @@ MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通
 
 ### 阶段一：队列定义与样本量
 
-> **Script**: `cohort_definition_gate.py` &nbsp;|&nbsp; **Layer**: 0 &nbsp;|&nbsp; **Rules**: C01, F05, Z01
+> **脚本**: `cohort_definition_gate.py` &nbsp;|&nbsp; **层**: 0 &nbsp;|&nbsp; **规则**: C01, F05, Z01
 
 #### 1.1 队列定义（MLGG-C01）
 
@@ -276,7 +276,7 @@ MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通
 
 ### 阶段二：数据划分
 
-> **Script**: `split_data.py` &nbsp;|&nbsp; **Gates**: `split_protocol_gate` + `leakage_gate` &nbsp;|&nbsp; **Rules**: S01, S02
+> **脚本**: `split_data.py` &nbsp;|&nbsp; **Gates**: `split_protocol_gate` + `leakage_gate` &nbsp;|&nbsp; **规则**: S01, S02
 
 #### 2.1 患者级 disjoint 划分（MLGG-S01）
 
@@ -325,7 +325,7 @@ MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通
 
 ### 阶段三：预处理
 
-> **Script**: `train_select_evaluate.py` Pipeline &nbsp;|&nbsp; **Rules**: P01-P06
+> **脚本**: `train_select_evaluate.py` Pipeline &nbsp;|&nbsp; **规则**: P01-P06
 
 #### 3.1 铁律：所有 fit() 仅在训练集（P01/P03/P04）
 
@@ -363,7 +363,7 @@ van den Goorbergh 2022 (JAMIA) 证明 SMOTE 严重损害风险预测模型的概
 
 ### 阶段四：特征筛选
 
-> **Script**: `train_select_evaluate.py` &nbsp;|&nbsp; **Rules**: F01-F06
+> **脚本**: `train_select_evaluate.py` &nbsp;|&nbsp; **规则**: F01-F06
 
 #### 4.1 设计哲学
 
@@ -397,7 +397,7 @@ Heinze 2018 (Biometrical Journal) 明确反对单因素 p 值筛选：导致多�
 
 ### 阶段五：模型训练与选择
 
-> **Script**: `train_select_evaluate.py` &nbsp;|&nbsp; **Gate**: `model_selection_audit_gate` &nbsp;|&nbsp; **Rules**: M01-M04, R01
+> **脚本**: `train_select_evaluate.py` &nbsp;|&nbsp; **Gate**: `model_selection_audit_gate` &nbsp;|&nbsp; **规则**: M01-M04, R01
 
 #### 5.1 候选模型族（MLGG-M03：>= 3）
 
@@ -471,7 +471,7 @@ corrected = apparent_original - mean(optimism_i)
 
 ### 阶段六：评估与校准
 
-> **Script**: `train_select_evaluate.py` + 13 道统计门控 &nbsp;|&nbsp; **Rules**: E01-E06
+> **脚本**: `train_select_evaluate.py` + 13 道统计门控 &nbsp;|&nbsp; **规则**: E01-E06
 
 #### 6.1 完整 14 指标面板（MLGG-E02）
 
@@ -558,7 +558,7 @@ Strict mode 要求 >= 5 seeds, non-strict >= 3 seeds。
 
 ### 阶段七：多模型 SHAP 可解释性
 
-> **Gate**: `shap_interpretability_gate` &nbsp;|&nbsp; **Layer**: 5
+> **门控**: `shap_interpretability_gate` &nbsp;|&nbsp; **层**: 5
 
 #### 7.1 为什么多模型而非单模型
 
@@ -602,7 +602,7 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 
 #### 7.5 四张发表级 CSV 表格
 
-| Table | File | Purpose | Columns |
+| 表格 | 文件名 | 用途 | 列 |
 |:------|:-----|:--------|:--------|
 | **A** | `shap_table_a_ensemble_importance.csv` | Paper main table | Rank, Feature, Ensemble_Proportion, Direction, per-model Proportions |
 | **B** | `shap_table_b_per_model_detail.csv` | Reviewer supplementary | Feature, per-model MeanAbsSHAP / Proportion / SignedSHAP / Rank |
@@ -615,7 +615,7 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 
 ### 阶段八：公平性与亚组分析
 
-> **Gate**: `fairness_equity_gate` &nbsp;|&nbsp; **Rules**: Q01, Q02
+> **门控**: `fairness_equity_gate` &nbsp;|&nbsp; **规则**: Q01, Q02
 
 #### 8.1 亚组分析（MLGG-Q01, TRIPOD+AI Item 16b）
 
@@ -648,7 +648,7 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 
 ### 阶段九：报告与合规
 
-> **Gates**: `publication_gate` + `self_critique_gate` + `security_audit_gate` &nbsp;|&nbsp; **Rule**: T01
+> **门控**: `publication_gate` + `self_critique_gate` + `security_audit_gate` &nbsp;|&nbsp; **规则**: T01
 
 #### 9.1 TRIPOD+AI 2024 清单（Collins 2024, BMJ）
 
@@ -678,7 +678,7 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 
 #### 9.3 三级合规（L1/L2/L3）
 
-| Level | Name | Gates | Applicable Scene | TRIPOD+AI | PROBAST ROB |
+| 等级 | 名称 | 门控数 | 适用场景 | TRIPOD+AI | PROBAST ROB |
 |:------|:-----|:------|:-----------------|:----------|:-----------|
 | **L1** | Leakage Audit | 12 | Conference paper, preliminary report | &mdash; | &mdash; |
 | **L2** | Statistically Valid | 25 | Professional journals (JAMIA, npj DM) | >= 17/27 | low/unclear |
@@ -701,65 +701,65 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 33 道门控按有向无环图 (DAG) 分 9 层执行。同层可并行，全部通过才能声称 L3 Publication-Grade。
 
 ```
-Layer 0  CONTRACT        cohort_definition  |  request_contract
+层 0  契约验证           cohort_definition  |  request_contract
    |
-Layer 1  MANIFEST        manifest_lock
+层 1  指纹锁定           manifest_lock
    |
-Layer 2  ATTESTATION     execution_attestation
+层 2  执行证明     execution_attestation
    |
-Layer 3  DATA (4 ||)     leakage  |  split_protocol  |  covariate_shift  |  reporting_bias
+层 3  数据验证 (4 并行)     leakage  |  split_protocol  |  covariate_shift  |  reporting_bias
    |
-Layer 4  POLICY (5 ||)   definition_guard  |  feature_lineage  |  imbalance  |  missingness  |  tuning
+层 4  策略审计 (5 并行)   definition_guard  |  feature_lineage  |  imbalance  |  missingness  |  tuning
    |
-Layer 5  MODEL (4 ||)    model_selection_audit  |  feature_engineering  |  clinical_metrics  |  shap
+层 5  模型审计 (4 并行)    model_selection_audit  |  feature_engineering  |  clinical_metrics  |  shap
    |
-Layer 6  STATS (13 ||)   calibration_dca  |  ci_matrix  |  distribution  |  eval_quality
+层 6  统计验证 (13 并行)   calibration_dca  |  ci_matrix  |  distribution  |  eval_quality
                           external_validation  |  fairness  |  gap  |  metric_consistency
                           permutation  |  prediction_replay  |  robustness  |  sample_size  |  seed
    |
-Layer 7  AGGREGATION     publication_gate
+层 7  发布聚合     publication_gate
    |
-Layer 8  FINAL (2 ||)    self_critique  |  security_audit
+层 8  终审 (2 并行)    self_critique  |  security_audit
 ```
 
 <details>
 <summary><strong>Full 33-Gate Detail Table (Click to expand)</strong></summary>
 
-| # | Layer | Gate | What It Checks | Output Report |
+| # | 层 | 门控 | 检查内容 | 输出报告 |
 |:--|:------|:-----|:---------------|:-------------|
-| 1 | 0 | `cohort_definition_gate` | EPV adequacy, Riley triple criteria, data types, missingness, suspicious correlations | `cohort_definition_report.json` |
-| 2 | 0 | `request_contract_gate` | Request JSON schema, file paths, anti-downgrade protection | `request_contract_report.json` |
-| 3 | 1 | `manifest_lock` | SHA-256 fingerprint of all data/config/evaluation/gate scripts | `manifest.json` |
-| 4 | 2 | `execution_attestation_gate` | Cryptographic signatures, timestamps, key assurance, witness quorum | `execution_attestation_report.json` |
-| 5 | 3 | `leakage_gate` | Row-hash overlap, patient ID overlap, temporal boundary violation, 7-category feature name regex | `leakage_report.json` |
-| 6 | 3 | `split_protocol_gate` | Patient-disjoint splits, temporal ordering, prevalence checks, minimum split sizes | `split_protocol_report.json` |
-| 7 | 3 | `covariate_shift_gate` | Jensen-Shannon divergence per feature, prevalence drift, missingness drift | `covariate_shift_report.json` |
-| 8 | 3 | `reporting_bias_gate` | TRIPOD+AI 2024 (17 items) + PROBAST+AI 2025 (6 domains) + STARD-AI checklists | `reporting_bias_report.json` |
-| 9 | 4 | `definition_variable_guard` | Block outcome-definition variables (HbA1c, fasting_glucose) from features | `definition_guard_report.json` |
-| 10 | 4 | `feature_lineage_gate` | Block post-index-time derived features from training | `lineage_report.json` |
-| 11 | 4 | `imbalance_policy_gate` | Class imbalance strategy, train-only resampling, prevalence verification | `imbalance_policy_report.json` |
-| 12 | 4 | `missingness_policy_gate` | Missing data strategy, MICE scale protection, imputer isolation | `missingness_policy_report.json` |
-| 13 | 4 | `tuning_leakage_gate` | Hyperparameter tuning protocol, test set isolation, CV nesting | `tuning_leakage_report.json` |
-| 14 | 5 | `model_selection_audit_gate` | One-SE rule replay, >= 3 candidates, logistic baseline, fingerprint verification | `model_selection_audit_report.json` |
-| 15 | 5 | `feature_engineering_audit_gate` | Feature group provenance, train-only scope, stability evidence | `feature_engineering_audit_report.json` |
-| 16 | 5 | `clinical_metrics_gate` | 14-metric panel completeness, confusion matrix consistency, clinical floor validation | `clinical_metrics_report.json` |
-| 17 | 5 | `shap_interpretability_gate` | Multi-model SHAP ensemble, Kendall tau agreement, 4 publication CSV tables | `shap_interpretability_report.json` |
-| 18 | 6 | `calibration_dca_gate` | ECE, slope/intercept, O:E ratio, CITL, DCA net benefit, per-cohort validation | `calibration_dca_report.json` |
-| 19 | 6 | `ci_matrix_gate` | Bootstrap CI matrix across all splits and external cohorts | `ci_matrix_gate_report.json` |
-| 20 | 6 | `distribution_generalization_gate` | Cross-split distribution shift, feature-level JSD, transport readiness | `distribution_generalization_report.json` |
-| 21 | 6 | `evaluation_quality_gate` | CI width <= 0.20, resamples >= 200, baseline delta >= 0.01 | `evaluation_quality_report.json` |
-| 22 | 6 | `external_validation_gate` | External cohort metrics, transport gap, >= 100 events per cohort | `external_validation_gate_report.json` |
-| 23 | 6 | `fairness_equity_gate` | Equalized odds, disparate impact, subgroup performance floors, HEAL FPR/FNR | `fairness_equity_report.json` |
-| 24 | 6 | `generalization_gap_gate` | Train-valid-test performance gaps (PR-AUC, F2-beta, Brier) | `generalization_gap_report.json` |
-| 25 | 6 | `metric_consistency_gate` | Metric value consistency between request and evaluation report | `metric_consistency_report.json` |
-| 26 | 6 | `permutation_significance_gate` | Permutation null distribution significance test | `permutation_report.json` |
-| 27 | 6 | `prediction_replay_gate` | Row-level prediction trace metric replay (tolerance 1e-6) | `prediction_replay_report.json` |
-| 28 | 6 | `robustness_gate` | Time-slice and patient subgroup performance stability | `robustness_gate_report.json` |
-| 29 | 6 | `sample_size_gate` | EPV >= 10, shrinkage >= 0.90, external >= 100 events, CI precision | `sample_size_report.json` |
-| 30 | 6 | `seed_stability_gate` | Multi-seed variance (PR-AUC std <= 0.03, >= 5 seeds strict) | `seed_stability_report.json` |
-| 31 | 7 | `publication_gate` | Aggregate L1/L2/L3 compliance, manifest baseline comparison, quality score | `publication_gate_report.json` |
-| 32 | 8 | `self_critique_gate` | 12-dimension quality score + actionable recommendations | `self_critique_report.json` |
-| 33 | 8 | `security_audit_gate` | HMAC model signatures, evidence integrity, dependency authenticity, sensitive data scan | `security_audit_report.json` |
+| 1 | 0 | `cohort_definition_gate` | EPV 充分性、Riley 三准则、数据类型、缺失值、可疑相关性 | `cohort_definition_report.json` |
+| 2 | 0 | `request_contract_gate` | 请求 JSON 模式、文件路径、发布策略反降级保护 | `request_contract_report.json` |
+| 3 | 1 | `manifest_lock` | SHA-256 加密锁定所有数据/配置/评估/门控脚本指纹 | `manifest.json` |
+| 4 | 2 | `execution_attestation_gate` | 加密签名、时间戳、密钥有效性、见证人仲裁 | `execution_attestation_report.json` |
+| 5 | 3 | `leakage_gate` | 行哈希重叠、患者 ID 重叠、时间边界违规、7 类特征名正则 | `leakage_report.json` |
+| 6 | 3 | `split_protocol_gate` | 患者级 disjoint 划分、时序正确性、患病率检查、最小划分大小 | `split_protocol_report.json` |
+| 7 | 3 | `covariate_shift_gate` | 逐特征 Jensen-Shannon 散度、患病率漂移、缺失率漂移 | `covariate_shift_report.json` |
+| 8 | 3 | `reporting_bias_gate` | TRIPOD+AI 2024 (17 项) + PROBAST+AI 2025 (6 域) + STARD-AI 清单 | `reporting_bias_report.json` |
+| 9 | 4 | `definition_variable_guard` | 阻止结局定义变量（HbA1c、空腹血糖等）作为预测特征 | `definition_guard_report.json` |
+| 10 | 4 | `feature_lineage_gate` | 阻止索引时间后衍生特征进入训练 | `lineage_report.json` |
+| 11 | 4 | `imbalance_policy_gate` | 类别不平衡策略、训练集独占重采样、患病率验证 | `imbalance_policy_report.json` |
+| 12 | 4 | `missingness_policy_gate` | 缺失数据策略、MICE 规模保护、插补器隔离 | `missingness_policy_report.json` |
+| 13 | 4 | `tuning_leakage_gate` | 超参调优协议、测试集隔离、CV 嵌套 | `tuning_leakage_report.json` |
+| 14 | 5 | `model_selection_audit_gate` | one-SE 规则回放、>= 3 候选模型、逻辑回归基线、指纹验证 | `model_selection_audit_report.json` |
+| 15 | 5 | `feature_engineering_audit_gate` | 特征组来源、训练集独占范围、稳定性证据 | `feature_engineering_audit_report.json` |
+| 16 | 5 | `clinical_metrics_gate` | 14 指标面板完整性、混淆矩阵一致性、临床下限验证 | `clinical_metrics_report.json` |
+| 17 | 5 | `shap_interpretability_gate` | 多模型 SHAP 集成、Kendall tau 一致性、4 张发表级 CSV | `shap_interpretability_report.json` |
+| 18 | 6 | `calibration_dca_gate` | ECE、斜率/截距、O:E 比、CITL、DCA 净效用、逐队列验证 | `calibration_dca_report.json` |
+| 19 | 6 | `ci_matrix_gate` | 所有划分和外部队列的 Bootstrap CI 矩阵 | `ci_matrix_gate_report.json` |
+| 20 | 6 | `distribution_generalization_gate` | 跨划分分布漂移、特征级 JSD、迁移准备度 | `distribution_generalization_report.json` |
+| 21 | 6 | `evaluation_quality_gate` | CI 宽度 <= 0.20、重采样 >= 200、基线改善 >= 0.01 | `evaluation_quality_report.json` |
+| 22 | 6 | `external_validation_gate` | 外部队列指标、迁移差距、每队列 >= 100 事件 | `external_validation_gate_report.json` |
+| 23 | 6 | `fairness_equity_gate` | 均等化几率、差异影响比、亚组性能下限、HEAL FPR/FNR | `fairness_equity_report.json` |
+| 24 | 6 | `generalization_gap_gate` | 训练-验证-测试性能差距（PR-AUC、F2-beta、Brier） | `generalization_gap_report.json` |
+| 25 | 6 | `metric_consistency_gate` | 请求与评估报告之间的指标值一致性 | `metric_consistency_report.json` |
+| 26 | 6 | `permutation_significance_gate` | 置换零分布显著性检验 | `permutation_report.json` |
+| 27 | 6 | `prediction_replay_gate` | 行级预测轨迹指标回放（容差 1e-6） | `prediction_replay_report.json` |
+| 28 | 6 | `robustness_gate` | 时间片和患者亚组性能稳定性 | `robustness_gate_report.json` |
+| 29 | 6 | `sample_size_gate` | EPV >= 10、收缩因子 >= 0.90、外部 >= 100 事件、CI 精度 | `sample_size_report.json` |
+| 30 | 6 | `seed_stability_gate` | 多种子方差（PR-AUC std <= 0.03，strict >= 5 seeds） | `seed_stability_report.json` |
+| 31 | 7 | `publication_gate` | 聚合 L1/L2/L3 合规、指纹基线对比、质量评分 | `publication_gate_report.json` |
+| 32 | 8 | `self_critique_gate` | 12 维质量评分 + 可操作建议 | `self_critique_report.json` |
+| 33 | 8 | `security_audit_gate` | HMAC 模型签名、证据完整性、依赖真实性、敏感数据扫描 | `security_audit_report.json` |
 
 </details>
 
@@ -769,29 +769,29 @@ Layer 8  FINAL (2 ||)    self_critique  |  security_audit
 
 每个维度独立评分，加权求和得出总分 (0-100)：
 
-| # | Dimension | Weight | What It Measures |
+| # | 维度 | 权重 | 评估内容 |
 |:--|:----------|:------:|:-----------------|
-| 1 | Data Integrity | 12 | Split isolation, patient non-overlap, temporal correctness, row deduplication |
-| 2 | Leakage Prevention | 15 | Target leakage, definition variables, post-index features, feature name patterns |
-| 3 | Pipeline Isolation | 12 | Train-only preprocessing, imputer/scaler/resampling scope enforcement |
-| 4 | Model Selection Rigor | 10 | Candidate pool diversity, one-SE rule, test isolation, baseline comparison |
-| 5 | Statistical Validity | 12 | Bootstrap CI, permutation tests, calibration triple, DCA, metric consistency |
-| 6 | Generalization Evidence | 10 | Train-test gap, external cohorts, transport CI, seed stability |
-| 7 | Clinical Completeness | 7 | Full 14-metric panel (MCC, LR+/LR-), confusion matrix, threshold feasibility |
-| 8 | Reporting Standards | 7 | TRIPOD+AI 2024, PROBAST+AI 2025, exclusion criteria, limitations |
-| 9 | Reproducibility | 6 | Seed locking, version tracking, execution attestation, manifest fingerprint |
-| 10 | Security & Provenance | 3 | HMAC-SHA256 signing, AES-256-GCM, audit chain, restricted deserialization |
-| 11 | Fairness & Equity | 3 | Subgroup analysis, equalized odds, disparate impact, HEAL FPR/FNR |
-| 12 | Sample Size Adequacy | 3 | EPV criteria, Riley triple, shrinkage factor, effective sample size |
+| 1 | 数据完整性 | 12 | 划分隔离、患者不重叠、时序正确性、行无重复 |
+| 2 | 泄漏防护 | 15 | 目标泄漏、定义变量、索引后特征、特征名模式 |
+| 3 | 管线隔离 | 12 | 训练集独占预处理、插补器/缩放器/重采样范围强制 |
+| 4 | 模型选择严谨性 | 10 | 候选池多样性、one-SE 规则、测试集隔离、基线比较 |
+| 5 | 统计有效性 | 12 | Bootstrap CI、置换检验、校准三件套、DCA、指标一致性 |
+| 6 | 泛化证据 | 10 | 训练-测试差距、外部队列、迁移 CI、种子稳定性 |
+| 7 | 临床完整性 | 7 | 完整 14 指标面板（MCC、LR+/LR-）、混淆矩阵、阈值可行性 |
+| 8 | 报告标准 | 7 | TRIPOD+AI 2024、PROBAST+AI 2025、排除标准、局限性 |
+| 9 | 可复现性 | 6 | 种子锁定、版本追踪、执行证明、指纹锁定 |
+| 10 | 安全与溯源 | 3 | HMAC-SHA256 签名、AES-256-GCM、审计链、受限反序列化 |
+| 11 | 公平与公正 | 3 | 亚组分析、均等化几率、差异影响比、HEAL FPR/FNR |
+| 12 | 样本量充分性 | 3 | EPV 标准、Riley 三准则、收缩因子、有效样本量 |
 
   **评分解读**：
 
-| Range | Level | Meaning |
+| 分数范围 | 等级 | 含义 |
 |:------|:------|:--------|
-| >= 90 | L3 | Top-tier journal ready (Nature Medicine, Lancet, JAMA, BMJ) |
-| 75-89 | L2 | Needs supplementation (professional journals) |
-| 60-74 | L1 | Major defects (conference papers only) |
-| < 60 | &mdash; | Unpublishable |
+| >=90 | L3 | 顶刊水准（Nature Medicine、Lancet、JAMA、BMJ） |
+| 75-89 | L2 | 需要补充（专业期刊） |
+| 60-74 | L1 | 重大缺陷（仅限会议论文） |
+| < 60 | — | 不可发表 |
 
 ---
 
@@ -800,7 +800,7 @@ Layer 8  FINAL (2 ||)    self_critique  |  security_audit
 <details>
 <summary><strong>Complete Rule Table (Click to expand)</strong></summary>
 
-| ID | Severity | Rule | Literature |
+| ID | 严重度 | 规则 | 文献来源 |
 |:---|:---------|:-----|:-----------|
 | **C01** | CRITICAL | Define eligible cohort &mdash; exclude records with structurally impossible outcomes | TRIPOD+AI 2024 Item 4a |
 | **S01** | CRITICAL | Split by patient ID &mdash; same patient never across splits | Steyerberg 2019 Ch.5 |
@@ -840,7 +840,7 @@ Layer 8  FINAL (2 ||)    self_critique  |  security_audit
 
 ## 20 个模型族
 
-| Family | Alias | Type | Notes |
+| 模型族 | 别名 | 类型 | 说明 |
 |:-------|:------|:-----|:------|
 | `logistic_l1` | `lr_l1` | Logistic Regression | L1 penalty (sparse) |
 | `logistic_l2` | `lr_l2` | Logistic Regression | L2 penalty (Ridge) |
@@ -863,7 +863,7 @@ Layer 8  FINAL (2 ||)    self_critique  |  security_audit
 | `weighted_voting` | &mdash; | Weighted Voting | Performance-weighted |
 | `stacking` | `stack` | Stacking | Meta-learner ensemble |
 
-Complexity ranking: Gaussian NB (1) < LR (2-4) < DT (5) < KNN (6) < SVM (7-8) < RF/Trees (9-10) < Boosting (11-14) < MLP (15) < TabPFN (17) < Ensemble (15000+).
+复杂度排名： Gaussian NB (1) < LR (2-4) < DT (5) < KNN (6) < SVM (7-8) < RF/Trees (9-10) < Boosting (11-14) < MLP (15) < TabPFN (17) < Ensemble (15000+).
 
 ---
 
@@ -912,7 +912,7 @@ All data from official sources (CDC / UCI / NCI-NIH / Vanderbilt). No registrati
 
 ## 20 条静态分析规则 (R001-R020)
 
-| Category | Rules | Severity |
+| 类别 | 规则 | 严重度 |
 |:---------|:------|:---------|
 | **Data Leakage** | R001 fit-before-split, R002 scaler-on-test, R003 SMOTE-on-test, R005 threshold-on-test, R006 feature-selection-full, R007 target-as-feature, R017 early-stop-on-test, R020 global-clean-before-split | ERROR |
 | **Split Issues** | R004 split-without-group, R008 temporal-shuffle, R015 small-test-set | WARNING |
@@ -931,27 +931,27 @@ python3 -m mlgg_lint /path/to/code/
 
 ## 19 项分析工具
 
-| Tool | Function | Reviewer Question | Literature |
+| 工具 | 函数 | 审稿人常问 | 文献 |
 |:-----|:---------|:-----------------|:-----------|
-| Riley Sample Size | `riley_sample_size()` | "Sample size justification?" | Riley 2019 |
-| Calibration Triple | `calibration_metrics()` | "Calibration slope/intercept?" | Van Calster 2019 |
-| Calibration per-bin CI | `calibration_bin_ci()` | "Calibration curve with CI?" | NC Reviewer #2 |
-| NRI / IDI | `compute_nri_idi()` | "How much better than baseline?" | Pencina 2008 |
-| Learning Curve | `learning_curve_data()` | "Enough data?" | Figueroa 2012 |
-| VIF Collinearity | `compute_vif()` | "Feature collinearity?" | PMC4888898 |
-| Nonlinearity Test | `check_nonlinearity()` | "Linear assumption valid?" | Harrell 2015 |
-| Coefficient Export | `export_model_coefficients()` | "Model coefficients?" | NC Reviewer #1 |
-| MNAR Sensitivity | `mnar_sensitivity_analysis()` | "What if MAR is wrong?" | PMC10481859 |
-| Temporal Drift | `temporal_drift_analysis()` | "Model stable after deployment?" | PMC8627243 |
-| Model Card | `generate_model_card()` | "Structured model documentation?" | Mitchell 2019 |
-| Imputation Sensitivity | `imputation_sensitivity()` | "Conclusions change with different imputation?" | Pop Health 2024 |
-| Subgroup DCA | `subgroup_dca()` | "Clinical utility for minorities?" | Nature CS 2025 |
-| Baseline Comparisons | `baseline_comparisons()` | "Better than random/prevalence?" | NC ML Checklist |
-| Feature Ablation | `feature_ablation()` | "Remove key feature: what happens?" | NC ML Checklist |
-| Compute Resources | `compute_resource_report()` | "Training resources used?" | NC ML Checklist |
-| Rubin's Rules | `rubins_rules_combine()` | "Multiple imputation combination?" | Rubin 1987 |
-| Robustness Stress Test | `robustness_stress_test()` | "Stable against outliers/noise?" | Original |
-| Bootstrap Optimism | `bootstrap_optimism_correction()` | "Internal validation bias?" | Steyerberg 2019 |
+| Riley Sample Size | `riley_sample_size()` | "样本量论证？" | Riley 2019 |
+| Calibration Triple | `calibration_metrics()` | "校准斜率/截距？" | Van Calster 2019 |
+| Calibration per-bin CI | `calibration_bin_ci()` | "校准曲线有 CI 吗？" | NC Reviewer #2 |
+| NRI / IDI | `compute_nri_idi()` | "比基线模型好多少？" | Pencina 2008 |
+| Learning Curve | `learning_curve_data()` | "数据量够吗？" | Figueroa 2012 |
+| VIF Collinearity | `compute_vif()` | "特征间共线性？" | PMC4888898 |
+| Nonlinearity Test | `check_nonlinearity()` | "线性假设合理吗？" | Harrell 2015 |
+| Coefficient Export | `export_model_coefficients()` | "模型系数是什么？" | NC Reviewer #1 |
+| MNAR Sensitivity | `mnar_sensitivity_analysis()` | "MAR 假设如果错了？" | PMC10481859 |
+| Temporal Drift | `temporal_drift_analysis()` | "模型部署后还准吗？" | PMC8627243 |
+| Model Card | `generate_model_card()` | "结构化模型文档？" | Mitchell 2019 |
+| Imputation Sensitivity | `imputation_sensitivity()` | "换插补方法结论变吗？" | Pop Health 2024 |
+| Subgroup DCA | `subgroup_dca()` | "少数族裔有临床效用吗？" | Nature CS 2025 |
+| Baseline Comparisons | `baseline_comparisons()` | "比随机/患病率好多少？" | NC ML Checklist |
+| Feature Ablation | `feature_ablation()` | "去掉关键特征性能怎么变？" | NC ML Checklist |
+| Compute Resources | `compute_resource_report()` | "训练用了多少资源？" | NC ML Checklist |
+| Rubin's Rules | `rubins_rules_combine()` | "多重插补怎么合并？" | Rubin 1987 |
+| Robustness Stress Test | `robustness_stress_test()` | "对异常值/噪声稳定吗？" | Original |
+| Bootstrap Optimism | `bootstrap_optimism_correction()` | "内部验证的乐观偏差？" | Steyerberg 2019 |
 
 100% coverage of [Nature Portfolio ML Checklist V1.1](https://www.nature.com/documents/machine-learning-checklist.pdf) (30 items).
 
@@ -959,16 +959,16 @@ python3 -m mlgg_lint /path/to/code/
 
 ## 安全加固层
 
-| Component | Implementation | Status |
+| 组件 | 实现 | 状态 |
 |:----------|:--------------|:-------|
 | Model signing | HMAC-SHA256 with timing-safe `hmac.compare_digest()` | fail-closed |
-| Evidence encryption | AES-256-GCM (no fallback &mdash; requires `cryptography` package) | fail-closed |
-| Audit chain | Append-only JSONL with chained HMAC hashes, fsync per entry | tamper-evident |
-| Deserialization | `RestrictedUnpickler` with module allowlist + callable blocklist | sandboxed |
-| Path traversal | `safe_path()` with symlink resolve + forbidden prefix check + sandbox enforcement | defended |
-| Attestation | OpenSSL detached signatures + witness quorum (min 2) + key rotation (180 days) | multi-sig |
-| Sensitive data | 18-pattern scan (API keys, PEM blocks, PHI fields, SSN, credit card) | auto-detect |
-| Key protection | `.mlgg_model_key` chmod 0o600, `.gitignore` protected, upward search with fallback warning | hardened |
+| 证据加密 | AES-256-GCM（无降级——需 cryptography 包）| fail-closed |
+| 审计链 | 仅追加 JSONL + 链式 HMAC 哈希，每条 fsync | 防篡改 |
+| 反序列化 | RestrictedUnpickler 模块白名单 + 可调用黑名单 | 沙箱化 |
+| 路径穿越 | safe_path() 符号链接解析 + 禁止前缀检查 + 沙箱强制 | 已防御 |
+| 执行证明 | OpenSSL 分离签名 + 见证人仲裁（最少 2）+ 密钥轮换（180 天）| 多重签名 |
+| 敏感数据 | 18 模式扫描（API 密钥、PEM 块、PHI 字段、SSN、信用卡）| 自动检测 |
+| 密钥保护 | .mlgg_model_key chmod 0o600、.gitignore 保护、向上搜索 + 降级警告 | 加固 |
 
 ---
 
@@ -976,43 +976,43 @@ python3 -m mlgg_lint /path/to/code/
 
 ```
 scripts/
-  core/               Framework internals
-    _gate_framework.py   Gate base class, report envelope, issue management
-    _gate_utils.py       Shared numeric helpers, metric panel, calibration, audit chain
-    _gate_registry.py    33-gate DAG with dependency graph and layer parallelism
-    _security.py         HMAC, AES-256-GCM, restricted unpickler, path traversal defense
-    _audit_shared.py     Audit report shared utilities
-    _peer_review_retrieval.py   Peer review knowledge base retrieval
-  gates/              33 fail-closed gate scripts
-  orchestration/      CLI entrypoints and pipeline runners
-    mlgg.py              Unified CLI (20+ subcommands)
-    run_dag_pipeline.py  Parallel DAG executor with checkpoint/resume
-    run_strict_pipeline.py  Sequential strict executor
+  core/               框架内部模块
+    _gate_framework.py   门控基类、报告信封、问题管理
+    _gate_utils.py       共享数值工具、指标面板、校准、审计链
+    _gate_registry.py    33 门 DAG 依赖图与层级并行
+    _security.py         HMAC、AES-256-GCM、受限反序列化、路径穿越防御
+    _audit_shared.py     审计报告共享工具
+    _peer_review_retrieval.py   同行评审知识库检索
+  gates/              33 道 fail-closed 门控脚本
+  orchestration/      CLI 入口与管线运行器
+    mlgg.py              统一 CLI（20+ 子命令）
+    run_dag_pipeline.py  并行 DAG 执行器，支持断点续跑
+    run_strict_pipeline.py  顺序严格执行器
     run_productized_workflow.py  doctor -> preflight -> strict -> summary
-    mlgg_onboarding.py   Guided novice onboarding
-    mlgg_interactive.py  Interactive wizard
-    mlgg_pixel.py        Pixel-art terminal UI
-  tools/              Reports, training, splitting, utilities
-    train_select_evaluate.py  7000-line training engine (20 model families)
-    split_data.py        Safe data splitting
-    generate_audit_report.py  12-dimension audit report generator
-    audit_external_project.py  External project auditor
-    ...33 more tool scripts
-tests/                4000+ pytest tests (85%+ coverage)
-examples/             14 medical datasets + 9-phase template
-experiments/          E2E benchmark suite (4 UCI datasets, adversarial checks)
-references/           60+ JSON knowledge bases
-  disease-definition-knowledge-base.json   Disease definitions (ICD, labs, meds)
-  error-knowledge-base.json                99 error diagnosis entries
-  literature-knowledge-base.json           58 literature citations
-  tripod-ai-official-checklist.json        TRIPOD+AI 2024 machine-verifiable
-  probast-ai-signalling-questions.json     PROBAST+AI 2025 4-domain assessment
-  peer_reviews/peer-review-kb.json         107 papers, 375 structured concerns
-plugin/               Static analysis lint (R001-R020, .py + .ipynb)
-  mlgg_lint/rules/     20 rule implementations
-  vscode/              VS Code extension
-docs/                 Architecture documentation
-.github/workflows/    CI/CD (unit / security / nightly full / weekly extended)
+    mlgg_onboarding.py   新手引导式入门
+    mlgg_interactive.py  交互式向导
+    mlgg_pixel.py        像素风终端 UI
+  tools/              报告、训练、划分、工具
+    train_select_evaluate.py  7000 行训练引擎（20 个模型族）
+    split_data.py        安全数据划分
+    generate_audit_report.py  12 维审计报告生成器
+    audit_external_project.py  外部项目审计器
+    ...另外 33 个工具脚本
+tests/                4000+ pytest 测试（覆盖率 85%+）
+examples/             14 个医学数据集 + 9 阶段模板
+experiments/          E2E 基准套件（4 个 UCI 数据集、对抗性检查）
+references/           60+ JSON 知识库
+  disease-definition-knowledge-base.json   疾病定义（ICD、实验室、药物）
+  error-knowledge-base.json                99 条错误诊断条目
+  literature-knowledge-base.json           58 条文献引用
+  tripod-ai-official-checklist.json        TRIPOD+AI 2024 可机器验证
+  probast-ai-signalling-questions.json     PROBAST+AI 2025 四域评估
+  peer_reviews/peer-review-kb.json         107 篇论文、375 个结构化审稿意见
+plugin/               静态分析 Lint（R001-R020，.py + .ipynb）
+  mlgg_lint/rules/     20 条规则实现
+  vscode/              VS Code 插件
+docs/                 架构文档
+.github/workflows/    CI/CD（单元/安全/每夜完整/每周扩展）
 ```
 
 ---
@@ -1025,10 +1025,10 @@ cd medical-ml-leakage-guard
 python3 -m venv .venv && source .venv/bin/activate
 python3 -m pip install -r requirements.txt
 
-# Optional model backends
+# 可选：模型后端
 python3 -m pip install -r requirements-optional.txt
 
-# Verify
+# 验证
 python3 scripts/orchestration/mlgg.py doctor
 ```
 
@@ -1040,21 +1040,21 @@ python3 scripts/orchestration/mlgg.py doctor
 
 ## 命令参考
 
-| Goal | Command |
+| 目标 | 命令 |
 |:-----|:--------|
-| Audit external project | `python3 scripts/tools/generate_audit_report.py --project-dir /path` |
-| Interactive exploration | `python3 scripts/orchestration/mlgg.py play` |
-| Guided first run | `python3 scripts/orchestration/mlgg.py onboarding --project-root /tmp/demo --mode guided --yes` |
-| Publication-grade verdict | `python3 scripts/orchestration/mlgg.py workflow --request <project>/configs/request.json --strict` |
-| Environment check | `python3 scripts/orchestration/mlgg.py doctor` |
-| Initialize project | `python3 scripts/orchestration/mlgg.py init --project-root /tmp/project` |
-| Safe data split | `python3 scripts/orchestration/mlgg.py split -- --input data.csv --patient-id-col id --target-col y` |
-| Train models | `python3 scripts/orchestration/mlgg.py train --interactive` |
-| Static lint | `python3 -m mlgg_lint /path/to/code/` |
-| Download dataset | `python3 examples/download_real_data.py heart` |
-| DAG visualization | `python3 scripts/orchestration/run_dag_pipeline.py --show-dag` |
-| Export review prompt | `python3 scripts/tools/export_review_prompt.py` |
-| Batch journal review | `python3 scripts/orchestration/mlgg.py batch-review --manifest manifest.json` |
+| 审计外部项目 | `python3 scripts/tools/generate_audit_report.py --project-dir /path` |
+| 交互式探索 | `python3 scripts/orchestration/mlgg.py play` |
+| 引导式首跑 | `python3 scripts/orchestration/mlgg.py onboarding --project-root /tmp/demo --mode guided --yes` |
+| 发布级判定 | `python3 scripts/orchestration/mlgg.py workflow --request <project>/configs/request.json --strict` |
+| 环境检查 | `python3 scripts/orchestration/mlgg.py doctor` |
+| 初始化项目 | `python3 scripts/orchestration/mlgg.py init --project-root /tmp/project` |
+| 安全数据划分 | `python3 scripts/orchestration/mlgg.py split -- --input data.csv --patient-id-col id --target-col y` |
+| 训练模型 | `python3 scripts/orchestration/mlgg.py train --interactive` |
+| 静态 Lint | `python3 -m mlgg_lint /path/to/code/` |
+| 下载数据集 | `python3 examples/download_real_data.py heart` |
+| DAG 可视化 | `python3 scripts/orchestration/run_dag_pipeline.py --show-dag` |
+| 导出审查提示词 | `python3 scripts/tools/export_review_prompt.py` |
+| 批量期刊审查 | `python3 scripts/orchestration/mlgg.py batch-review --manifest manifest.json` |
 
 ---
 
@@ -1065,7 +1065,7 @@ python3 scripts/orchestration/mlgg.py doctor
 
 ### Phase 1: Sample Size & Cohort
 
-| Decision | Reference | MLGG Implementation |
+| 方法论决策 | 文献来源 | MLGG 实现 |
 |:---------|:----------|:-------------------|
 | Riley triple criteria | Riley RD et al. *Stat Med.* 2019;38(7):1276-1296 | `riley_sample_size()` |
 | Sample size tutorial | Riley RD et al. *BMJ.* 2020;368:m441 | Binding criterion report |
@@ -1073,14 +1073,14 @@ python3 scripts/orchestration/mlgg.py doctor
 
 ### Phase 2: Splitting
 
-| Decision | Reference | MLGG Implementation |
+| 方法论决策 | 文献来源 | MLGG 实现 |
 |:---------|:----------|:-------------------|
 | Patient-level split | Steyerberg EW. *Clinical Prediction Models.* 2019 Ch.5 | MLGG-S01 |
 | Temporal split | Futoma J et al. *Lancet Digit Health.* 2020;2(9):e489 | MLGG-S02 |
 
 ### Phase 3: Preprocessing
 
-| Decision | Reference | MLGG Implementation |
+| 方法论决策 | 文献来源 | MLGG 实现 |
 |:---------|:----------|:-------------------|
 | Fit on train only | Kaufman S et al. *ACM TKDD.* 2012;6(4):1-21 | MLGG-P01/P03/P04 |
 | Tiered missingness | Madley-Dowd P et al. *J Clin Epidemiol.* 2019;110:63-73 | MLGG-P06 |
@@ -1088,7 +1088,7 @@ python3 scripts/orchestration/mlgg.py doctor
 
 ### Phase 4: Feature Selection
 
-| Decision | Reference | MLGG Implementation |
+| 方法论决策 | 文献来源 | MLGG 实现 |
 |:---------|:----------|:-------------------|
 | Elastic Net | Zou H, Hastie T. *JRSS-B.* 2005;67(2):301-320 | alpha/C joint CV |
 | Stability selection | Meinshausen N, Buhlmann P. *JRSS-B.* 2010;72(4):417-473 | 100 subsamples, threshold 0.6 |
@@ -1097,14 +1097,14 @@ python3 scripts/orchestration/mlgg.py doctor
 
 ### Phase 5: Training
 
-| Decision | Reference | MLGG Implementation |
+| 方法论决策 | 文献来源 | MLGG 实现 |
 |:---------|:----------|:-------------------|
 | Valid performance > gap | Yang Z et al. *KDD 2023* | MLGG-M04 |
 | Optimism correction | Steyerberg EW. *Clinical Prediction Models.* 2019 Ch.17 | `bootstrap_optimism_correction()` |
 
 ### Phase 6: Evaluation
 
-| Decision | Reference | MLGG Implementation |
+| 方法论决策 | 文献来源 | MLGG 实现 |
 |:---------|:----------|:-------------------|
 | Calibration triple | Van Calster B et al. *BMC Med.* 2019;17:230 | `calibration_metrics()` |
 | MCC over F1 | Chicco D, Jurman G. *BMC Genomics.* 2020;21:6 | MLGG-E02 |
@@ -1115,16 +1115,16 @@ python3 scripts/orchestration/mlgg.py doctor
 
 ### Phase 7: Interpretability
 
-| Decision | Reference | MLGG Implementation |
+| 方法论决策 | 文献来源 | MLGG 实现 |
 |:---------|:----------|:-------------------|
 | SHAP theory | Lundberg SM, Lee SI. *NeurIPS 2017* | `shap_interpretability_gate` |
 | TreeSHAP | Lundberg SM et al. *Nature MI.* 2020;2:56-67 | TreeExplainer |
 | Proportional normalization | Ponce-Bobadilla AV et al. *CTS.* 2024;17(11):e70056 | L1 normalization |
 | Rashomon effect | Breiman L. *Stat Sci.* 2001;16(3):199-231 | Multi-model ensemble |
 
-### Phase 9: Reporting
+### 阶段九：报告与合规
 
-| Decision | Reference | MLGG Implementation |
+| 方法论决策 | 文献来源 | MLGG 实现 |
 |:---------|:----------|:-------------------|
 | TRIPOD+AI 2024 | Collins GS et al. *BMJ.* 2024;385:e078378 | 27-item checklist |
 | PROBAST+AI 2025 | Moons KGM et al. *BMJ.* 2025;388:e082505 | 4-domain ROB |
@@ -1132,7 +1132,7 @@ python3 scripts/orchestration/mlgg.py doctor
 
 ### Foundational Reviews
 
-| Reference | Core Argument |
+| 文献 | 核心论点 |
 |:----------|:-------------|
 | Chekroud AM et al. *Science.* 2024;383:164-167 | "Illusory generalizability" &mdash; ML models accurate within training trial, random outside |
 | Van Calster B et al. *Ann Rev Stat.* 2026;13 | 12 "enemies" of reliable prediction models; 86% published models high ROB |
@@ -1161,12 +1161,12 @@ The AI will:
 
 ## CI/CD
 
-| Pipeline | Trigger | Scope | Timeout |
+| 流水线 | 触发条件 | 范围 | 超时 |
 |:---------|:--------|:------|:--------|
-| **ci-unit** | Push / PR | Unit tests, Python 3.10-3.12 | 20 min |
-| **ci-security** | Push / PR | Security tests, gate validation, KB integrity, TRIPOD/PROBAST checks | 30 min |
-| **ci-full** | Nightly (3am) | Full onboarding demo, release benchmarks | 360 min |
-| **ci-extended** | Weekly (Sun 4am) | Extended observational benchmarks | 480 min |
+| **ci-unit** | Push / PR | 单元测试，Python 3.10-3.12 | 20 分钟 |
+| **ci-security** | Push / PR | 安全测试、门控验证、知识库完整性、TRIPOD/PROBAST 检查 | 30 分钟 |
+| **ci-full** | 每夜 (3am) | 完整入门演示、发布基准 | 360 分钟 |
+| **ci-extended** | 每周 (周日 4am) | 扩展观测基准 | 480 分钟 |
 
 ---
 
@@ -1191,17 +1191,17 @@ The AI will:
 
 ### 使用权限
 
-| Use | Allowed | Condition |
+| 用途 | 是否允许 | 条件 |
 |:----|:-------:|:----------|
-| Personal learning & research | Yes | No restriction |
-| Academic paper using MLGG validation | Yes | **Must cite** |
-| Classroom teaching | Yes | Credit source |
-| Open-source noncommercial derivative | Yes | Same license + cite |
-| Claude Code `/mlgg` Skill | Yes | Only authorized public channel |
-| Commercial use | **No** | Requires separate commercial license |
-| Uncited methodology reproduction | **No** | Academic misconduct |
+| 个人学习与研究 | 允许 | 无需授权 |
+| 学术论文中使用 MLGG 验证 | 允许 | **必须引用** |
+| 教学课堂演示 | 允许 | 注明来源 |
+| 开源非商业衍生项目 | 允许 | 相同许可证 + 引用 |
+| Claude Code `/mlgg` Skill | 允许 | 唯一授权公开渠道 |
+| 商业用途 | **禁止** | 需单独商业授权 |
+| 未引用的方法论复制 | **禁止** | 视为学术不端 |
 
-Commercial use is **strictly prohibited**. Uncited reproduction of MLGG methodology constitutes academic misconduct and will be reported to journal editors.
+商业用途**严格禁止**。未引用的方法论复制视为学术不端，将向相关期刊编辑部举报。
 
 ---
 
@@ -1238,7 +1238,7 @@ Commercial use is **strictly prohibited**. Uncited reproduction of MLGG methodol
 | Phase 6: Evaluation & Calibration | [阶段六：评估与校准](#阶段六评估与校准) |
 | Phase 7: Multi-Model SHAP | [阶段七：多模型 SHAP 可解释性](#阶段七多模型-shap-可解释性) |
 | Phase 8: Fairness & Equity | [阶段八：公平性与亚组分析](#阶段八公平性与亚组分析) |
-| Phase 9: Reporting & Compliance | [阶段九：报告与合规](#阶段九报告与合规) |
+| 阶段九：报告与合规 & Compliance | [阶段九：报告与合规](#阶段九报告与合规) |
 | 33-Gate DAG | [33 道安全门控](#33-道安全门控-gate-dag) |
 | 12-Dimension Scoring | [12 维量化评分](#12-维量化评分) |
 | 31 Methodology Rules | [31 条方法论规则](#31-条方法论规则) |
