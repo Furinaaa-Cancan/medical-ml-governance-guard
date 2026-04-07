@@ -12,14 +12,17 @@ from _peer_review_retrieval import (
     TAG_SYNONYMS,
     _expand_tags,
     _sort_by_severity,
+    clear_cache,
     count_concerns_with_tag,
     format_gate_peer_context,
     format_peer_context,
     get_stats_summary,
     retrieve_by_category,
+    retrieve_combined,
     retrieve_by_dimension,
     retrieve_by_domain,
     retrieve_by_gate,
+    retrieve_by_paper,
     retrieve_by_tags,
     retrieve_by_text,
 )
@@ -256,11 +259,83 @@ class TestPerformance:
         assert elapsed_ms < 50, f"Text search too slow: {elapsed_ms:.1f}ms"
 
 
+class TestRetrieveByPaper:
+    """Test paper-specific retrieval."""
+
+    def test_by_paper_id(self):
+        r = retrieve_by_paper("PR-001", kb_path=KB_PATH)
+        assert len(r) >= 5
+        assert all(c.get("_paper_id") == "PR-001" for c in r)
+
+    def test_by_doi_fragment(self):
+        r = retrieve_by_paper("s41467-024-46663-4", kb_path=KB_PATH)
+        assert len(r) >= 5
+
+    def test_nonexistent_paper(self):
+        r = retrieve_by_paper("PR-999", kb_path=KB_PATH)
+        assert r == []
+
+
+class TestRetrieveCombined:
+    """Test multi-filter combined queries."""
+
+    def test_dimension_and_domain(self):
+        r = retrieve_combined(dimension=5, domain="oncology", kb_path=KB_PATH)
+        assert len(r) >= 1
+        assert all(c.get("mlgg_dimension") == 5 for c in r)
+        assert all(c.get("_domain") == "oncology" for c in r)
+
+    def test_category_and_severity(self):
+        r = retrieve_combined(category="evaluation_metrics", severity="CRITICAL", kb_path=KB_PATH)
+        assert all(c.get("category") == "evaluation_metrics" for c in r)
+        assert all(c.get("severity") == "CRITICAL" for c in r)
+
+    def test_no_filters_returns_all(self):
+        r = retrieve_combined(limit=5, kb_path=KB_PATH)
+        assert len(r) == 5
+
+    def test_conflicting_filters_returns_empty(self):
+        r = retrieve_combined(dimension=5, domain="nonexistent_domain", kb_path=KB_PATH)
+        assert r == []
+
+
+class TestCountWithSynonym:
+    """Test count_concerns_with_tag with synonym expansion."""
+
+    def test_count_with_synonym(self):
+        count = count_concerns_with_tag("fit_before_split", expand_synonyms=True, kb_path=KB_PATH)
+        assert count >= 2
+
+    def test_count_without_synonym(self):
+        count = count_concerns_with_tag("fit_before_split", expand_synonyms=False, kb_path=KB_PATH)
+        # This exact tag may not exist in KB
+        assert isinstance(count, int)
+
+
+class TestClearCache:
+    def test_clear_and_reload(self):
+        # Load once
+        retrieve_by_dimension(5, limit=1, kb_path=KB_PATH)
+        # Clear
+        clear_cache()
+        # Should reload without error
+        r = retrieve_by_dimension(5, limit=1, kb_path=KB_PATH)
+        assert len(r) >= 1
+
+
 class TestEdgeCases:
     """Verify no crashes on unusual inputs."""
 
     def test_empty_tags(self):
         assert retrieve_by_tags([], kb_path=KB_PATH) == []
+
+    def test_none_in_tags(self):
+        r = retrieve_by_tags([None, "missing_calibration"], kb_path=KB_PATH)
+        assert isinstance(r, list)
+
+    def test_int_in_tags(self):
+        r = retrieve_by_tags([123, "missing_calibration"], kb_path=KB_PATH)
+        assert isinstance(r, list)
 
     def test_unicode_tags(self):
         r = retrieve_by_tags(["校准缺失"], kb_path=KB_PATH)
@@ -277,6 +352,15 @@ class TestEdgeCases:
     def test_limit_zero(self):
         r = retrieve_by_dimension(5, limit=0, kb_path=KB_PATH)
         assert r == []
+
+    def test_format_critical_gets_more_text(self):
+        """CRITICAL concerns should show more text (250 chars vs 150)."""
+        mock = [{"concern_id": "T-01", "severity": "CRITICAL",
+                 "concern_text": "x" * 200, "author_response": "",
+                 "_paper_id": "T", "_year": 2024, "tags": ["t"]}]
+        fmt = format_peer_context(mock, max_display=1)
+        # Should contain more than 150 x's
+        assert fmt.count("x") > 150
 
 
 class TestAllMajorGates:
