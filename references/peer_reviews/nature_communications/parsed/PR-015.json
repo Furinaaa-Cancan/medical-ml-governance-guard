@@ -1,0 +1,68 @@
+{
+  "id": "PR-015",
+  "paper_doi": "10.1038/s41467-023-41093-0",
+  "paper_title": "Synthesize high-dimensional longitudinal electronic health records via hierarchical autoregressive language model",
+  "journal": "Nature Communications",
+  "year": 2023,
+  "domain": "ehr_methodology",
+  "prediction_task": "Synthetic EHR generation for downstream disease prediction tasks",
+  "model_types": ["transformer_autoregressive", "halo"],
+  "data_type": "longitudinal_ehr_claims",
+  "sample_size": 1000000,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-015-C01",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "mlgg_gates": ["evaluation_quality_gate"],
+      "mlgg_rules": ["MLGG-E01"],
+      "concern_text": "Show standard deviations (confidence intervals) in Tables 7 and 8. Performance improvement seems mainly from the transformer backbone, limiting the specific contributions of the proposed method.",
+      "author_response": "We added CIs and provided ablation analysis showing contributions of each component beyond the transformer backbone.",
+      "resolved": true,
+      "tags": ["missing_ci", "ablation_needed", "component_contribution"]
+    },
+    {
+      "concern_id": "PR-015-C02",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "reproducibility",
+      "severity": "CRITICAL",
+      "mlgg_dimension": 9,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "My fundamental objection to nearly all synthetic data papers: Is the real input data available? Is the synthetic data available? Where is the public code repository? They cannot answer 'yes' to all three. How could someone reproduce this?",
+      "author_response": "We released code on GitHub, made synthetic MIMIC data available, and documented that the claims data is proprietary but synthetic output is shareable.",
+      "resolved": true,
+      "tags": ["reproducibility", "code_availability", "data_availability", "synthetic_data_sharing"]
+    },
+    {
+      "concern_id": "PR-015-C03",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "reporting",
+      "severity": "LOW",
+      "mlgg_dimension": 8,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "Which modules or components are specifically devised for handling the high-dimension issue? This should be more clearly discussed.",
+      "author_response": "We added focused discussion of the masked linear layer for high-dimensional intra-visit modeling and transformer for inter-visit modeling.",
+      "resolved": true,
+      "tags": ["component_description", "high_dimensionality"]
+    }
+  ],
+  "reviewer_strengths": [
+    {
+      "strength_id": "PR-015-S01",
+      "reviewer": "Reviewer #2",
+      "text": "Noteworthy and significant — simultaneously addresses high-dimensionality, longitudinal coherency, and continuous variables. Evaluation of data quality checking and privacy analysis is thorough.",
+      "tags": ["comprehensive_evaluation", "privacy_analysis", "multiple_challenges_addressed"]
+    }
+  ],
+  "outcome": "accepted_after_minor_revision",
+  "key_methodology_issues": ["reproducibility", "component_contribution"],
+  "key_methodology_strengths": ["comprehensive_evaluation", "privacy_analysis", "longitudinal_coherency"]
+}

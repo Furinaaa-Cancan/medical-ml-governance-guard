@@ -1,0 +1,96 @@
+{
+  "id": "PR-018",
+  "paper_doi": "10.1038/s41467-023-44009-0",
+  "paper_title": "Tuning parameters for polygenic risk score methods using GWAS summary statistics from training data",
+  "journal": "Nature Communications",
+  "year": 2023,
+  "domain": "genomics",
+  "prediction_task": "PRS parameter tuning without external validation data (PRStuning method)",
+  "model_types": ["bayesian_regression", "empirical_bayes", "ldpred"],
+  "data_type": "gwas_summary_statistics",
+  "sample_size": 400000,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-018-C01",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "HIGH",
+      "mlgg_dimension": 5,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "For PRStuning based on C+T, AUC increases when threshold decreases. For LDpred, highest AUC is at parameter 0.3. Is this an indication of overfitting or convergence issues? Based on Tables 4 and 5, is it concluded that P+T is better than LDpred?",
+      "author_response": "We clarified that this pattern reflects the polygenicity of the trait. Added convergence diagnostics for LDpred Gibbs chains.",
+      "resolved": true,
+      "tags": ["overfitting_concern", "convergence_diagnostics", "parameter_selection"]
+    },
+    {
+      "concern_id": "PR-018-C02",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "Would it be possible to include confounders such as age, sex as part of the AUC calculation?",
+      "author_response": "We showed that covariate adjustment has minimal impact on relative ranking of PRS methods but added adjusted AUC as supplementary analysis.",
+      "resolved": true,
+      "tags": ["covariate_adjustment", "confounders_in_auc"]
+    },
+    {
+      "concern_id": "PR-018-C03",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "study_design",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "How does the method handle the HLA region of Chromosome 6? Is the chosen LD radius (5) large enough? Please define LD radius in terms of SNPs/megabase pairs.",
+      "author_response": "We defined LD radius as 5Mb and showed that the HLA region is adequately captured. Added sensitivity analysis with larger radius.",
+      "resolved": true,
+      "tags": ["hla_region_handling", "ld_radius_definition", "sensitivity_analysis"]
+    },
+    {
+      "concern_id": "PR-018-C04",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "external_validation",
+      "severity": "HIGH",
+      "mlgg_dimension": 6,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "As summary statistics of T2D, CAD, and IBD are available, could authors generate PRS using traditional LDpred2 with UKBB data and compare AUC with LDpred based PRStuning? Include computational time comparison.",
+      "author_response": "We added traditional LDpred2 comparison and computational time benchmarks showing PRStuning is 10× faster.",
+      "resolved": true,
+      "tags": ["traditional_method_comparison", "computational_cost", "benchmark"]
+    },
+    {
+      "concern_id": "PR-018-C05",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "external_validation",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 6,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "Author mentioned they applied the framework in European ancestral group only. Would it be possible to include non-European population in the training datasets?",
+      "author_response": "We acknowledged European-only limitation and discussed extension to multi-ancestry as future work.",
+      "resolved": true,
+      "tags": ["european_only", "ancestry_limitation", "generalizability"]
+    }
+  ],
+  "reviewer_strengths": [
+    {
+      "strength_id": "PR-018-S01",
+      "reviewer": "Reviewer #2",
+      "text": "Novel approach offering two significant advantages: eliminates need for external validation data and is computationally efficient. The Empirical Bayes approach is well-motivated.",
+      "tags": ["novel_method", "no_external_data_needed", "computationally_efficient"]
+    }
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["overfitting_concern", "european_only", "traditional_method_comparison"],
+  "key_methodology_strengths": ["no_external_data_needed", "computationally_efficient", "empirical_bayes"]
+}

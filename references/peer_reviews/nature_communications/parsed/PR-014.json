@@ -1,0 +1,82 @@
+{
+  "id": "PR-014",
+  "paper_doi": "10.1038/s41467-024-54071-x",
+  "paper_title": "Shareable artificial intelligence to extract cancer outcomes from electronic health records for precision oncology research",
+  "journal": "Nature Communications",
+  "year": 2024,
+  "domain": "oncology",
+  "prediction_task": "Cancer outcome extraction from imaging reports and oncologist notes (teacher-student privacy-preserving)",
+  "model_types": ["bert", "longformer", "teacher_student_distillation"],
+  "data_type": "clinical_notes_nlp",
+  "sample_size": 50000,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-014-C01",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "study_design",
+      "severity": "CRITICAL",
+      "mlgg_dimension": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "There is no evidence that there actually is any data leakage in the classification model in the first place — therefore it is not clear there is anything to be fixed, which is the objective of the paper. Classification models learn category assignments, not patient-specific information.",
+      "author_response": "We added discussion clarifying the precautionary principle and referenced recent membership inference attacks on clinical NLP models.",
+      "resolved": true,
+      "tags": ["premise_questioned", "privacy_leakage_unproven", "threat_model"]
+    },
+    {
+      "concern_id": "PR-014-C02",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "model_selection",
+      "severity": "HIGH",
+      "mlgg_dimension": 4,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "The proposed models are not compared with any other methods, only an uninformative model. LLMs like ChatGPT have been proven effective for extracting structured data from clinical notes. Open-source LLMs on in-house servers could protect privacy without the teacher-student paradigm.",
+      "author_response": "We added comparison with GPT-4 and open-source LLM baselines, showing trade-offs between accuracy, cost, and privacy.",
+      "resolved": true,
+      "tags": ["missing_baseline_comparison", "llm_comparison", "alternative_approaches"]
+    },
+    {
+      "concern_id": "PR-014-C03",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "What is the benefit of training the student model with soft logit output vs hard prediction labels? There is only a difference between soft and hard labels. Authors need to illustrate benefits of soft label training.",
+      "author_response": "We added ablation comparing soft vs hard label training showing soft labels preserve calibration and improve minority class performance.",
+      "resolved": true,
+      "tags": ["soft_vs_hard_labels", "ablation_missing", "knowledge_distillation"]
+    },
+    {
+      "concern_id": "PR-014-C04",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "reporting",
+      "severity": "LOW",
+      "mlgg_dimension": 8,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "It should be stressed that the privacy-preserving approach has only been demonstrated to work on the relatively narrowly defined task of outcome extraction. A richer illustration in Figure 1 showing data boundaries would help.",
+      "author_response": "We added clearer figure showing data flow boundaries and scoped the claims to outcome extraction tasks.",
+      "resolved": true,
+      "tags": ["scope_of_claims", "figure_clarity", "generalizability_limited"]
+    }
+  ],
+  "reviewer_strengths": [
+    {
+      "strength_id": "PR-014-S01",
+      "reviewer": "Reviewer #1",
+      "text": "The analyses credibly demonstrate the feasibility of a privacy-preserving teacher-student paradigm for outcome detection on imaging and oncology reports.",
+      "tags": ["privacy_preserving", "teacher_student", "feasibility"]
+    }
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["premise_questioned", "missing_baseline_comparison", "soft_vs_hard_labels"],
+  "key_methodology_strengths": ["privacy_preserving", "multi_site_evaluation", "teacher_student_paradigm"]
+}

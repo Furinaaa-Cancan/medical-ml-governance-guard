@@ -1,7 +1,7 @@
 {
   "contract_version": "peer_review_kb.v1",
-  "total_papers": 13,
-  "total_concerns": 99,
+  "total_papers": 19,
+  "total_concerns": 128,
   "entries": [
     {
       "id": "PR-001",
@@ -2555,6 +2555,783 @@
         "novel_methodology",
         "beyond_gold_standard",
         "robust_protocol"
+      ]
+    },
+    {
+      "id": "PR-014",
+      "paper_doi": "10.1038/s41467-024-54071-x",
+      "paper_title": "Shareable artificial intelligence to extract cancer outcomes from electronic health records for precision oncology research",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "domain": "oncology",
+      "prediction_task": "Cancer outcome extraction from imaging reports and oncologist notes (teacher-student privacy-preserving)",
+      "model_types": [
+        "bert",
+        "longformer",
+        "teacher_student_distillation"
+      ],
+      "data_type": "clinical_notes_nlp",
+      "sample_size": 50000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-014-C01",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "study_design",
+          "severity": "CRITICAL",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "There is no evidence that there actually is any data leakage in the classification model in the first place — therefore it is not clear there is anything to be fixed, which is the objective of the paper. Classification models learn category assignments, not patient-specific information.",
+          "author_response": "We added discussion clarifying the precautionary principle and referenced recent membership inference attacks on clinical NLP models.",
+          "resolved": true,
+          "tags": [
+            "premise_questioned",
+            "privacy_leakage_unproven",
+            "threat_model"
+          ]
+        },
+        {
+          "concern_id": "PR-014-C02",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "model_selection",
+          "severity": "HIGH",
+          "mlgg_dimension": 4,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "The proposed models are not compared with any other methods, only an uninformative model. LLMs like ChatGPT have been proven effective for extracting structured data from clinical notes. Open-source LLMs on in-house servers could protect privacy without the teacher-student paradigm.",
+          "author_response": "We added comparison with GPT-4 and open-source LLM baselines, showing trade-offs between accuracy, cost, and privacy.",
+          "resolved": true,
+          "tags": [
+            "missing_baseline_comparison",
+            "llm_comparison",
+            "alternative_approaches"
+          ]
+        },
+        {
+          "concern_id": "PR-014-C03",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "What is the benefit of training the student model with soft logit output vs hard prediction labels? There is only a difference between soft and hard labels. Authors need to illustrate benefits of soft label training.",
+          "author_response": "We added ablation comparing soft vs hard label training showing soft labels preserve calibration and improve minority class performance.",
+          "resolved": true,
+          "tags": [
+            "soft_vs_hard_labels",
+            "ablation_missing",
+            "knowledge_distillation"
+          ]
+        },
+        {
+          "concern_id": "PR-014-C04",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reporting",
+          "severity": "LOW",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "It should be stressed that the privacy-preserving approach has only been demonstrated to work on the relatively narrowly defined task of outcome extraction. A richer illustration in Figure 1 showing data boundaries would help.",
+          "author_response": "We added clearer figure showing data flow boundaries and scoped the claims to outcome extraction tasks.",
+          "resolved": true,
+          "tags": [
+            "scope_of_claims",
+            "figure_clarity",
+            "generalizability_limited"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-014-S01",
+          "reviewer": "Reviewer #1",
+          "text": "The analyses credibly demonstrate the feasibility of a privacy-preserving teacher-student paradigm for outcome detection on imaging and oncology reports.",
+          "tags": [
+            "privacy_preserving",
+            "teacher_student",
+            "feasibility"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "premise_questioned",
+        "missing_baseline_comparison",
+        "soft_vs_hard_labels"
+      ],
+      "key_methodology_strengths": [
+        "privacy_preserving",
+        "multi_site_evaluation",
+        "teacher_student_paradigm"
+      ]
+    },
+    {
+      "id": "PR-015",
+      "paper_doi": "10.1038/s41467-023-41093-0",
+      "paper_title": "Synthesize high-dimensional longitudinal electronic health records via hierarchical autoregressive language model",
+      "journal": "Nature Communications",
+      "year": 2023,
+      "domain": "ehr_methodology",
+      "prediction_task": "Synthetic EHR generation for downstream disease prediction tasks",
+      "model_types": [
+        "transformer_autoregressive",
+        "halo"
+      ],
+      "data_type": "longitudinal_ehr_claims",
+      "sample_size": 1000000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-015-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-E01"
+          ],
+          "concern_text": "Show standard deviations (confidence intervals) in Tables 7 and 8. Performance improvement seems mainly from the transformer backbone, limiting the specific contributions of the proposed method.",
+          "author_response": "We added CIs and provided ablation analysis showing contributions of each component beyond the transformer backbone.",
+          "resolved": true,
+          "tags": [
+            "missing_ci",
+            "ablation_needed",
+            "component_contribution"
+          ]
+        },
+        {
+          "concern_id": "PR-015-C02",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "reproducibility",
+          "severity": "CRITICAL",
+          "mlgg_dimension": 9,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "My fundamental objection to nearly all synthetic data papers: Is the real input data available? Is the synthetic data available? Where is the public code repository? They cannot answer 'yes' to all three. How could someone reproduce this?",
+          "author_response": "We released code on GitHub, made synthetic MIMIC data available, and documented that the claims data is proprietary but synthetic output is shareable.",
+          "resolved": true,
+          "tags": [
+            "reproducibility",
+            "code_availability",
+            "data_availability",
+            "synthetic_data_sharing"
+          ]
+        },
+        {
+          "concern_id": "PR-015-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reporting",
+          "severity": "LOW",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Which modules or components are specifically devised for handling the high-dimension issue? This should be more clearly discussed.",
+          "author_response": "We added focused discussion of the masked linear layer for high-dimensional intra-visit modeling and transformer for inter-visit modeling.",
+          "resolved": true,
+          "tags": [
+            "component_description",
+            "high_dimensionality"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-015-S01",
+          "reviewer": "Reviewer #2",
+          "text": "Noteworthy and significant — simultaneously addresses high-dimensionality, longitudinal coherency, and continuous variables. Evaluation of data quality checking and privacy analysis is thorough.",
+          "tags": [
+            "comprehensive_evaluation",
+            "privacy_analysis",
+            "multiple_challenges_addressed"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_minor_revision",
+      "key_methodology_issues": [
+        "reproducibility",
+        "component_contribution"
+      ],
+      "key_methodology_strengths": [
+        "comprehensive_evaluation",
+        "privacy_analysis",
+        "longitudinal_coherency"
+      ]
+    },
+    {
+      "id": "PR-016",
+      "paper_doi": "10.1038/s41467-020-18703-2",
+      "paper_title": "Radiogenomic signatures reveal multiscale intratumour heterogeneity associated with biological functions and survival in breast cancer",
+      "journal": "Nature Communications",
+      "year": 2020,
+      "domain": "oncology",
+      "prediction_task": "Breast cancer survival prediction from MRI radiomics + genomic features",
+      "model_types": [
+        "logistic_regression"
+      ],
+      "data_type": "mri_radiomics_plus_genomics",
+      "sample_size": 87,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-016-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "preprocessing",
+          "severity": "CRITICAL",
+          "mlgg_dimension": 3,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "The model has too many parameters. 24 parameters with 47+40 cases — model is overparametrized. Maximum ~8-10 parameters. They've got (10+10+19)×3=117 parameters — almost infinite ways to extract n from 117 to build models. How did they arrive at these models/parameters?",
+          "author_response": "We performed LASSO regularization with nested cross-validation and reported the number of retained features. Added comparison with simpler models.",
+          "resolved": true,
+          "tags": [
+            "overparameterized",
+            "too_many_features",
+            "feature_to_sample_ratio",
+            "epv_violation"
+          ]
+        },
+        {
+          "concern_id": "PR-016-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "preprocessing",
+          "severity": "HIGH",
+          "mlgg_dimension": 3,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Calculated subtraction images without dividing by precontrast image — makes comparison of histogram features (mean, range, min, max) across patients highly dubious. Both in-plane resolution and slice thickness vary — should interpolate to same resolution prior to feature calculations.",
+          "author_response": "We added image normalization and resampling to uniform resolution. Results remain consistent after standardization.",
+          "resolved": true,
+          "tags": [
+            "image_normalization_missing",
+            "resolution_variation",
+            "feature_standardization"
+          ]
+        },
+        {
+          "concern_id": "PR-016-C03",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "None of the prognosis analyses correct for common clinical features such as age, size, grade, stage, hormone receptor status. It is important to know if the radiogenomic biomarkers are independent of these clinical features.",
+          "author_response": "We added multivariate Cox regression adjusting for age, stage, grade, and receptor status. Radiogenomic signature remained an independent predictor.",
+          "resolved": true,
+          "tags": [
+            "no_multivariate_adjustment",
+            "confounders_unadjusted",
+            "independent_predictor"
+          ]
+        },
+        {
+          "concern_id": "PR-016-C04",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Figure 4d and 7d appear to be training set performance — if so should NOT be reported as it is not representative of unseen data.",
+          "author_response": "We clarified these are cross-validated results, not training performance, and relabeled figures.",
+          "resolved": true,
+          "tags": [
+            "training_performance_reported",
+            "misleading_figure",
+            "cross_validation_unclear"
+          ]
+        },
+        {
+          "concern_id": "PR-016-C05",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "clinical_utility",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Several gene expression signatures for breast cancer (Mammaprint, OncotypeDX) are clinically used. Authors have to study how their proposed biomarkers add additional prognostic value on top of these existing prognostic biomarkers.",
+          "author_response": "We added comparison with established genomic signatures and showed complementary prognostic information.",
+          "resolved": true,
+          "tags": [
+            "comparison_with_existing_biomarkers",
+            "incremental_value",
+            "clinical_standard"
+          ]
+        },
+        {
+          "concern_id": "PR-016-C06",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reporting",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "IRB/informed consent information not provided. Radiomics methodology needs more detail — software validation, grey level reduction, normalization method.",
+          "author_response": "We added IRB information and detailed radiomics methodology including software (PyRadiomics), grey levels, and normalization steps.",
+          "resolved": true,
+          "tags": [
+            "irb_missing",
+            "radiomics_methods_incomplete",
+            "software_not_specified"
+          ]
+        },
+        {
+          "concern_id": "PR-016-C07",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reporting",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "MRI data quality is no longer state-of-the-art/outdated. Since the TCGA/I-SPY studies there have been significant improvements in MRI software and hardware. Results may not be representative of current MRI radiomics potential.",
+          "author_response": "We acknowledged the data age limitation and discussed how modern MRI would likely improve results.",
+          "resolved": true,
+          "tags": [
+            "outdated_data",
+            "technology_advancement",
+            "generalizability_to_modern_data"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-016-S01",
+          "reviewer": "Reviewer #2",
+          "text": "Solid paper with good design using multiple publicly available datasets. The idea has never been performed in breast cancer and results are very promising. Very well written and logical.",
+          "tags": [
+            "public_datasets",
+            "novel_application",
+            "well_written"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "overparameterized",
+        "image_normalization_missing",
+        "no_multivariate_adjustment",
+        "training_performance_reported"
+      ],
+      "key_methodology_strengths": [
+        "public_datasets",
+        "novel_radiogenomic_approach",
+        "multi_dataset"
+      ]
+    },
+    {
+      "id": "PR-017",
+      "paper_doi": "10.1038/s41467-024-47357-7",
+      "paper_title": "An ensemble penalized regression method for multi-ancestry polygenic risk prediction",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "domain": "genomics",
+      "prediction_task": "Multi-ancestry polygenic risk prediction (PROSPER method)",
+      "model_types": [
+        "penalized_regression",
+        "lasso",
+        "ridge",
+        "super_learner"
+      ],
+      "data_type": "gwas_summary_statistics",
+      "sample_size": 500000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-017-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "model_selection",
+          "severity": "HIGH",
+          "mlgg_dimension": 4,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Given the very good performance of 'weighted lassosum2', I wonder whether the extra gain from PROSPER comes from the L2-penalty sharing effects across populations, or from the super learning step? You could also add super learning step for lassosum2 to answer this question.",
+          "author_response": "We added ablation: super learning alone on lassosum2 vs PROSPER's L2 penalty. Both contribute, but L2 penalty provides the larger gain.",
+          "resolved": true,
+          "tags": [
+            "ablation_needed",
+            "component_contribution",
+            "super_learner_vs_penalty"
+          ]
+        },
+        {
+          "concern_id": "PR-017-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Is it reasonable to assume genetic effects are similarly similar across populations (constant c)? I might expect this similarity to decrease with genetic distance between populations. Any literature to support either claim?",
+          "author_response": "We cited literature supporting similar effect sizes across closely related populations and acknowledged this may break down for more distant populations.",
+          "resolved": true,
+          "tags": [
+            "cross_ancestry_assumption",
+            "genetic_distance",
+            "assumption_justification"
+          ]
+        },
+        {
+          "concern_id": "PR-017-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "preprocessing",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 3,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "LD references computed from 1000G. Have you tried using more individuals (e.g., UKBB)? AMR in 1000G is used for Latino ancestry — is it really the same ancestry?",
+          "author_response": "We compared 1000G vs UKBB LD references showing minimal impact for European ancestry but noted limitations for admixed populations.",
+          "resolved": true,
+          "tags": [
+            "ld_reference_quality",
+            "ancestry_mismatch",
+            "reference_panel"
+          ]
+        },
+        {
+          "concern_id": "PR-017-C04",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reproducibility",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 9,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Analysis code is publicly shared but I cannot find the code corresponding to LDpred2 analyses. I am surprised LDpred2 performs consistently worse than lassosum2 — maybe consider extending the grid to the one currently recommended in the tutorial.",
+          "author_response": "We added LDpred2 code and re-ran with recommended grid parameters. Performance gap narrowed but PROSPER still outperforms.",
+          "resolved": true,
+          "tags": [
+            "incomplete_code",
+            "competitor_suboptimal_settings",
+            "fair_comparison"
+          ]
+        },
+        {
+          "concern_id": "PR-017-C05",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Did the authors consider using machine learning methods for the super-learner step? Also, how large a tuning dataset would you recommend?",
+          "author_response": "We tested ML methods (random forest, gradient boosting) in the super-learner — linear combination performed comparably. Added tuning set size sensitivity analysis.",
+          "resolved": true,
+          "tags": [
+            "super_learner_alternatives",
+            "tuning_set_size",
+            "sensitivity_analysis"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-017-S01",
+          "reviewer": "Reviewer #2",
+          "text": "The method is clearly presented with comprehensive comparisons with existing methods and applied to various real datasets.",
+          "tags": [
+            "clear_presentation",
+            "comprehensive_comparison",
+            "real_data_validation"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "ablation_needed",
+        "cross_ancestry_assumption",
+        "competitor_suboptimal_settings"
+      ],
+      "key_methodology_strengths": [
+        "multi_ancestry",
+        "comprehensive_comparison",
+        "super_learner_integration"
+      ]
+    },
+    {
+      "id": "PR-018",
+      "paper_doi": "10.1038/s41467-023-44009-0",
+      "paper_title": "Tuning parameters for polygenic risk score methods using GWAS summary statistics from training data",
+      "journal": "Nature Communications",
+      "year": 2023,
+      "domain": "genomics",
+      "prediction_task": "PRS parameter tuning without external validation data (PRStuning method)",
+      "model_types": [
+        "bayesian_regression",
+        "empirical_bayes",
+        "ldpred"
+      ],
+      "data_type": "gwas_summary_statistics",
+      "sample_size": 400000,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-018-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "For PRStuning based on C+T, AUC increases when threshold decreases. For LDpred, highest AUC is at parameter 0.3. Is this an indication of overfitting or convergence issues? Based on Tables 4 and 5, is it concluded that P+T is better than LDpred?",
+          "author_response": "We clarified that this pattern reflects the polygenicity of the trait. Added convergence diagnostics for LDpred Gibbs chains.",
+          "resolved": true,
+          "tags": [
+            "overfitting_concern",
+            "convergence_diagnostics",
+            "parameter_selection"
+          ]
+        },
+        {
+          "concern_id": "PR-018-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Would it be possible to include confounders such as age, sex as part of the AUC calculation?",
+          "author_response": "We showed that covariate adjustment has minimal impact on relative ranking of PRS methods but added adjusted AUC as supplementary analysis.",
+          "resolved": true,
+          "tags": [
+            "covariate_adjustment",
+            "confounders_in_auc"
+          ]
+        },
+        {
+          "concern_id": "PR-018-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "How does the method handle the HLA region of Chromosome 6? Is the chosen LD radius (5) large enough? Please define LD radius in terms of SNPs/megabase pairs.",
+          "author_response": "We defined LD radius as 5Mb and showed that the HLA region is adequately captured. Added sensitivity analysis with larger radius.",
+          "resolved": true,
+          "tags": [
+            "hla_region_handling",
+            "ld_radius_definition",
+            "sensitivity_analysis"
+          ]
+        },
+        {
+          "concern_id": "PR-018-C04",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "external_validation",
+          "severity": "HIGH",
+          "mlgg_dimension": 6,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "As summary statistics of T2D, CAD, and IBD are available, could authors generate PRS using traditional LDpred2 with UKBB data and compare AUC with LDpred based PRStuning? Include computational time comparison.",
+          "author_response": "We added traditional LDpred2 comparison and computational time benchmarks showing PRStuning is 10× faster.",
+          "resolved": true,
+          "tags": [
+            "traditional_method_comparison",
+            "computational_cost",
+            "benchmark"
+          ]
+        },
+        {
+          "concern_id": "PR-018-C05",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "external_validation",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 6,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Author mentioned they applied the framework in European ancestral group only. Would it be possible to include non-European population in the training datasets?",
+          "author_response": "We acknowledged European-only limitation and discussed extension to multi-ancestry as future work.",
+          "resolved": true,
+          "tags": [
+            "european_only",
+            "ancestry_limitation",
+            "generalizability"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-018-S01",
+          "reviewer": "Reviewer #2",
+          "text": "Novel approach offering two significant advantages: eliminates need for external validation data and is computationally efficient. The Empirical Bayes approach is well-motivated.",
+          "tags": [
+            "novel_method",
+            "no_external_data_needed",
+            "computationally_efficient"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "overfitting_concern",
+        "european_only",
+        "traditional_method_comparison"
+      ],
+      "key_methodology_strengths": [
+        "no_external_data_needed",
+        "computationally_efficient",
+        "empirical_bayes"
+      ]
+    },
+    {
+      "id": "PR-019",
+      "paper_doi": "10.1038/s41467-024-47472-5",
+      "paper_title": "Utility of polygenic scores across diverse diseases in a hospital cohort for predictive modeling",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "domain": "genomics",
+      "prediction_task": "Cross-ancestry PRS evaluation across 457 phenotypes in Taiwanese hospital cohort",
+      "model_types": [
+        "logistic_regression",
+        "polygenic_risk_score"
+      ],
+      "data_type": "genotyping_plus_ehr",
+      "sample_size": 276712,
+      "review_rounds": 2,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-019-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Several factors affect PRS prediction quality — sample sizes of source data, genetic architecture, and model used — but authors did not assess correlation of source GWAS sample sizes with prediction quality. Did not establish overlap with their genotyping data. Did not explore why ankylosing spondylitis had highest prediction while heart failure had lowest.",
+          "author_response": "We added correlation analysis between source GWAS sample size, SNP overlap, heritability, and prediction quality across all 457 traits.",
+          "resolved": true,
+          "tags": [
+            "factors_affecting_prediction_unexplored",
+            "sample_size_correlation",
+            "genetic_architecture"
+          ]
+        },
+        {
+          "concern_id": "PR-019-C02",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "In the abstract, authors stated significant incremental predictive performance, but the methods and results do not include any analyses investigating the incremental performance of PGS — only full model analyses with covariates were included.",
+          "author_response": "We added incremental analysis: PGS-only model vs covariates-only vs combined, with delta-AUC and NRI for each trait.",
+          "resolved": true,
+          "tags": [
+            "incremental_value_not_tested",
+            "delta_auc",
+            "nri_missing"
+          ]
+        },
+        {
+          "concern_id": "PR-019-C03",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Were PGS from all ancestry used, or only PGS trained from East Asian samples? Was there any attempt at handling population stratification? Were there any attempts to avoid sample overlap?",
+          "author_response": "We included all-ancestry PGS and added population stratification adjustment via principal components. Assessed and excluded overlapping samples.",
+          "resolved": true,
+          "tags": [
+            "population_stratification",
+            "sample_overlap",
+            "ancestry_mismatch"
+          ]
+        },
+        {
+          "concern_id": "PR-019-C04",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "For the t-test and Wilcoxon test, were there any attempts to control for covariates such as age, sex, and population stratification? Was the metric reported based on PGS only, or the full model?",
+          "author_response": "We clarified that all association tests control for age, sex, and top 10 PCs. Both PGS-only and full model metrics now reported.",
+          "resolved": true,
+          "tags": [
+            "covariate_control_unclear",
+            "unadjusted_tests"
+          ]
+        },
+        {
+          "concern_id": "PR-019-C05",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "reporting",
+          "severity": "LOW",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [],
+          "mlgg_rules": [],
+          "concern_text": "Figure 1 annotations unclear — n and m were not annotated. Add a box between 'Access medical records' and 'Identified phenotype' stating post-QC sample size.",
+          "author_response": "We improved Figure 1 with clear annotations for sample sizes at each step.",
+          "resolved": true,
+          "tags": [
+            "figure_annotation",
+            "flow_diagram_clarity"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        {
+          "strength_id": "PR-019-S01",
+          "reviewer": "Reviewer #1",
+          "text": "A great resource that will inform researchers working in East Asian ancestry populations on trait-specific transferability of cross-ancestry disease predictions.",
+          "tags": [
+            "resource_paper",
+            "cross_ancestry",
+            "comprehensive_evaluation"
+          ]
+        }
+      ],
+      "outcome": "accepted_after_major_revision",
+      "key_methodology_issues": [
+        "factors_affecting_prediction_unexplored",
+        "incremental_value_not_tested",
+        "population_stratification"
+      ],
+      "key_methodology_strengths": [
+        "large_hospital_cohort",
+        "457_phenotypes",
+        "cross_ancestry_evaluation"
       ]
     }
   ]

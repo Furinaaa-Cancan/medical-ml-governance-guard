@@ -1,0 +1,96 @@
+{
+  "id": "PR-019",
+  "paper_doi": "10.1038/s41467-024-47472-5",
+  "paper_title": "Utility of polygenic scores across diverse diseases in a hospital cohort for predictive modeling",
+  "journal": "Nature Communications",
+  "year": 2024,
+  "domain": "genomics",
+  "prediction_task": "Cross-ancestry PRS evaluation across 457 phenotypes in Taiwanese hospital cohort",
+  "model_types": ["logistic_regression", "polygenic_risk_score"],
+  "data_type": "genotyping_plus_ehr",
+  "sample_size": 276712,
+  "review_rounds": 2,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-019-C01",
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "HIGH",
+      "mlgg_dimension": 5,
+      "mlgg_gates": ["evaluation_quality_gate"],
+      "mlgg_rules": [],
+      "concern_text": "Several factors affect PRS prediction quality — sample sizes of source data, genetic architecture, and model used — but authors did not assess correlation of source GWAS sample sizes with prediction quality. Did not establish overlap with their genotyping data. Did not explore why ankylosing spondylitis had highest prediction while heart failure had lowest.",
+      "author_response": "We added correlation analysis between source GWAS sample size, SNP overlap, heritability, and prediction quality across all 457 traits.",
+      "resolved": true,
+      "tags": ["factors_affecting_prediction_unexplored", "sample_size_correlation", "genetic_architecture"]
+    },
+    {
+      "concern_id": "PR-019-C02",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "HIGH",
+      "mlgg_dimension": 5,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "In the abstract, authors stated significant incremental predictive performance, but the methods and results do not include any analyses investigating the incremental performance of PGS — only full model analyses with covariates were included.",
+      "author_response": "We added incremental analysis: PGS-only model vs covariates-only vs combined, with delta-AUC and NRI for each trait.",
+      "resolved": true,
+      "tags": ["incremental_value_not_tested", "delta_auc", "nri_missing"]
+    },
+    {
+      "concern_id": "PR-019-C03",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "study_design",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "Were PGS from all ancestry used, or only PGS trained from East Asian samples? Was there any attempt at handling population stratification? Were there any attempts to avoid sample overlap?",
+      "author_response": "We included all-ancestry PGS and added population stratification adjustment via principal components. Assessed and excluded overlapping samples.",
+      "resolved": true,
+      "tags": ["population_stratification", "sample_overlap", "ancestry_mismatch"]
+    },
+    {
+      "concern_id": "PR-019-C04",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "For the t-test and Wilcoxon test, were there any attempts to control for covariates such as age, sex, and population stratification? Was the metric reported based on PGS only, or the full model?",
+      "author_response": "We clarified that all association tests control for age, sex, and top 10 PCs. Both PGS-only and full model metrics now reported.",
+      "resolved": true,
+      "tags": ["covariate_control_unclear", "unadjusted_tests"]
+    },
+    {
+      "concern_id": "PR-019-C05",
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "category": "reporting",
+      "severity": "LOW",
+      "mlgg_dimension": 8,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "concern_text": "Figure 1 annotations unclear — n and m were not annotated. Add a box between 'Access medical records' and 'Identified phenotype' stating post-QC sample size.",
+      "author_response": "We improved Figure 1 with clear annotations for sample sizes at each step.",
+      "resolved": true,
+      "tags": ["figure_annotation", "flow_diagram_clarity"]
+    }
+  ],
+  "reviewer_strengths": [
+    {
+      "strength_id": "PR-019-S01",
+      "reviewer": "Reviewer #1",
+      "text": "A great resource that will inform researchers working in East Asian ancestry populations on trait-specific transferability of cross-ancestry disease predictions.",
+      "tags": ["resource_paper", "cross_ancestry", "comprehensive_evaluation"]
+    }
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_issues": ["factors_affecting_prediction_unexplored", "incremental_value_not_tested", "population_stratification"],
+  "key_methodology_strengths": ["large_hospital_cohort", "457_phenotypes", "cross_ancestry_evaluation"]
+}
