@@ -9,6 +9,8 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
 from _peer_review_retrieval import (
+    TAG_SYNONYMS,
+    _expand_tags,
     _sort_by_severity,
     count_concerns_with_tag,
     format_gate_peer_context,
@@ -19,6 +21,7 @@ from _peer_review_retrieval import (
     retrieve_by_domain,
     retrieve_by_gate,
     retrieve_by_tags,
+    retrieve_by_text,
 )
 
 KB_PATH = Path(__file__).resolve().parents[1] / "references" / "peer_reviews" / "peer-review-kb.json"
@@ -132,3 +135,81 @@ class TestFormatGatePeerContext:
     def test_nonexistent_gate_empty(self):
         output = format_gate_peer_context("nonexistent_gate", kb_path=KB_PATH)
         assert output == ""
+
+
+class TestSynonymExpansion:
+    """Test that common problem descriptions find results via synonym mapping."""
+
+    def test_fit_before_split_finds_leakage(self):
+        results = retrieve_by_tags(["fit_before_split"], kb_path=KB_PATH)
+        assert len(results) > 0
+
+    def test_no_calibration_finds_calibration(self):
+        results = retrieve_by_tags(["no_calibration"], kb_path=KB_PATH)
+        assert len(results) > 0
+
+    def test_overfitting_expands(self):
+        results = retrieve_by_tags(["overfitting"], kb_path=KB_PATH)
+        assert len(results) > 0
+
+    def test_no_expand_flag(self):
+        results = retrieve_by_tags(
+            ["fit_before_split"], expand_synonyms=False, kb_path=KB_PATH
+        )
+        # Without expansion, this exact tag may not exist
+        # Just verify it doesn't crash
+        assert isinstance(results, list)
+
+    def test_expand_tags_function(self):
+        expanded = _expand_tags(["fit_before_split"])
+        assert "future_information_leakage" in expanded
+        assert "fit_before_split" in expanded  # original preserved
+
+
+class TestRetrieveByText:
+    """Test free-text search across concern text and tags."""
+
+    def test_calibration_search(self):
+        results = retrieve_by_text("calibration missing AUC only", kb_path=KB_PATH)
+        assert len(results) > 0
+
+    def test_leakage_search(self):
+        results = retrieve_by_text("preprocessing before splitting data leakage", kb_path=KB_PATH)
+        assert len(results) > 0
+
+    def test_tripod_search(self):
+        results = retrieve_by_text("TRIPOD reporting guidelines", kb_path=KB_PATH)
+        assert len(results) > 0
+
+    def test_empty_search_returns_empty(self):
+        results = retrieve_by_text("", kb_path=KB_PATH)
+        assert results == []
+
+    def test_gibberish_returns_empty(self):
+        results = retrieve_by_text("xyzqweasd", kb_path=KB_PATH)
+        assert results == []
+
+    def test_severity_filter_works(self):
+        all_results = retrieve_by_text("sample size small", kb_path=KB_PATH, limit=50)
+        critical_only = retrieve_by_text("sample size small", severity="CRITICAL", kb_path=KB_PATH, limit=50)
+        assert len(critical_only) <= len(all_results)
+        assert all(r.get("severity") == "CRITICAL" for r in critical_only)
+
+    def test_match_score_ranking(self):
+        results = retrieve_by_text("calibration missing AUC", kb_path=KB_PATH, limit=5)
+        if len(results) >= 2:
+            assert results[0]["_match_score"] >= results[1]["_match_score"]
+
+
+class TestAllMajorGates:
+    """Ensure peer review context exists for all major gates."""
+
+    @pytest.mark.parametrize("gate", [
+        "leakage_gate", "split_protocol_gate", "cohort_definition_gate",
+        "evaluation_quality_gate", "calibration_dca_gate",
+        "model_selection_audit_gate", "shap_interpretability_gate",
+        "reporting_bias_gate", "missingness_policy_gate",
+    ])
+    def test_gate_has_peer_context(self, gate):
+        ctx = format_gate_peer_context(gate, kb_path=KB_PATH)
+        assert ctx != "", f"Gate {gate} should have peer review context"

@@ -15,6 +15,21 @@ from typing import Any, Dict, List, Optional
 
 _SEVERITY_ORDER = {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3}
 
+# Synonym map: common problem descriptions → actual KB tags
+# Allows fuzzy matching when user/agent uses different terminology
+TAG_SYNONYMS: Dict[str, List[str]] = {
+    "fit_before_split": ["future_information_leakage", "target_leakage", "temporal_leakage", "data_leakage_via_imputation"],
+    "preprocessing_leakage": ["future_information_leakage", "data_leakage_via_imputation", "normal_imputation_bias", "informative_missingness"],
+    "data_leakage": ["future_information_leakage", "target_leakage", "temporal_leakage", "bidirectional_rnn_leakage", "data_leakage_via_correlated_phenotypes"],
+    "no_calibration": ["missing_calibration", "calibration_plot_missing", "calibration_in_supplement", "calibration_in_supplement_only"],
+    "no_ci": ["missing_ci", "no_bootstrap_ci", "suspiciously_narrow_ci"],
+    "overfitting": ["overfitting", "overfitting_concern", "overfitting_risk", "overparameterized", "epv_violation", "extreme_class_imbalance"],
+    "no_code": ["no_code_availability", "reproducibility", "code_as_pdf", "broken_github_link", "weights_not_shared"],
+    "no_validation": ["no_external_validation", "internal_split_only", "same_cohort_validation", "single_center"],
+    "missing_comparison": ["missing_baseline_comparison", "comparison_with_existing", "missing_competitor_comparison", "missing_benchmark_methods"],
+    "sample_too_small": ["small_sample", "tiny_sample", "tiny_sample_size", "underpowered", "no_power_calculation"],
+}
+
 _KB_PATH = Path(__file__).resolve().parent.parent / "references" / "peer_reviews" / "peer-review-kb.json"
 _STATS_PATH = Path(__file__).resolve().parent.parent / "references" / "peer_reviews" / "peer-review-kb-stats.json"
 
@@ -120,25 +135,37 @@ def retrieve_by_gate(
     )
 
 
+def _expand_tags(tags: List[str]) -> set:
+    """Expand tags using synonym map for fuzzy matching."""
+    expanded = set(tags)
+    for tag in tags:
+        if tag in TAG_SYNONYMS:
+            expanded.update(TAG_SYNONYMS[tag])
+    return expanded
+
+
 def retrieve_by_tags(
     tags: List[str],
     match_any: bool = True,
     severity: Optional[str] = None,
     limit: int = 5,
     kb_path: Optional[Path] = None,
+    expand_synonyms: bool = True,
 ) -> List[Dict]:
-    """Retrieve concerns matching given tags.
+    """Retrieve concerns matching given tags (with synonym expansion).
 
     Args:
         tags: List of tags to match
         match_any: If True, match ANY tag; if False, match ALL tags
         severity: Filter by severity
         limit: Maximum results
+        kb_path: Optional custom KB path
+        expand_synonyms: If True, expand tags using TAG_SYNONYMS map
 
     Returns:
         List of enriched concern dicts
     """
-    tag_set = set(tags)
+    tag_set = _expand_tags(tags) if expand_synonyms else set(tags)
     kb = _load_kb(kb_path)
 
     def _match(c, _):
@@ -178,6 +205,62 @@ def retrieve_by_domain(
         severity=severity,
         limit=limit,
     )
+
+
+def retrieve_by_text(
+    query: str,
+    severity: Optional[str] = None,
+    limit: int = 5,
+    kb_path: Optional[Path] = None,
+) -> List[Dict]:
+    """Retrieve concerns by fuzzy text matching on concern_text and tags.
+
+    Searches for query terms in concern_text, author_response, tags,
+    and category fields. Useful when the agent identifies a problem
+    in natural language.
+
+    Args:
+        query: Natural language description of the problem
+        severity: Filter by severity
+        limit: Maximum results
+
+    Returns:
+        List of enriched concern dicts ranked by match quality
+    """
+    terms = [t.lower().strip() for t in query.split() if len(t) > 2]
+    kb = _load_kb(kb_path)
+
+    scored = []
+    for entry in kb.get("entries", []):
+        for concern in entry.get("reviewer_concerns", []):
+            if severity and concern.get("severity") != severity:
+                continue
+
+            # Build searchable text
+            searchable = " ".join([
+                concern.get("concern_text", ""),
+                concern.get("author_response", ""),
+                concern.get("category", ""),
+                " ".join(concern.get("tags", [])),
+            ]).lower()
+
+            # Score by term hits
+            score = sum(1 for t in terms if t in searchable)
+            if score > 0:
+                enriched = {
+                    **concern,
+                    "_paper_id": entry.get("id"),
+                    "_paper_doi": entry.get("paper_doi"),
+                    "_paper_title": entry.get("paper_title"),
+                    "_year": entry.get("year"),
+                    "_domain": entry.get("domain"),
+                    "_match_score": score,
+                }
+                scored.append(enriched)
+
+    # Sort by match score (desc), then severity
+    scored.sort(key=lambda c: (-c["_match_score"], _SEVERITY_ORDER.get(c.get("severity", "LOW"), 9)))
+    return scored[:limit]
 
 
 def get_stats_summary(kb_path: Optional[Path] = None) -> Dict[str, Any]:

@@ -24,6 +24,7 @@ from _peer_review_retrieval import (
     retrieve_by_domain,
     retrieve_by_gate,
     retrieve_by_tags,
+    retrieve_by_text,
 )
 
 DIMENSION_NAMES = {
@@ -96,6 +97,10 @@ def cmd_query(args):
         title = f"Domain: {args.domain}"
         results = retrieve_by_domain(args.domain, severity=args.severity, limit=args.limit)
 
+    elif args.search:
+        title = f"Text search: '{args.search}'"
+        results = retrieve_by_text(args.search, severity=args.severity, limit=args.limit)
+
     print(f"\n  Query: {title}")
     if args.severity:
         print(f"  Filter: severity={args.severity}")
@@ -111,13 +116,14 @@ def main():
     parser.add_argument("--tags", type=str, help="Comma-separated tags")
     parser.add_argument("--category", type=str, help="Concern category")
     parser.add_argument("--domain", type=str, help="Clinical domain")
+    parser.add_argument("--search", type=str, help="Free-text search in concern text")
     parser.add_argument("--severity", type=str, help="Filter by severity")
     parser.add_argument("--limit", type=int, default=5, help="Max results (default: 5)")
     args = parser.parse_args()
 
     if args.stats:
         cmd_stats()
-    elif any([args.dimension is not None, args.gate, args.tags, args.category, args.domain]):
+    elif any([args.dimension is not None, args.gate, args.tags, args.category, args.domain, args.search]):
         cmd_query(args)
     else:
         parser.print_help()
