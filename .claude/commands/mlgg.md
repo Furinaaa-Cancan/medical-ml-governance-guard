@@ -35,7 +35,7 @@
 | 6 | 评估 | 5 域面板 · 校准三件套 · DCA · Bootstrap CI |
 | 7 | SHAP | 多模型集成 · Kendall τ 一致性 |
 | 8 | 公平性 | 保护属性覆盖 · 均等化优势 < 0.15 · 差异影响 > 0.80 |
-| 9 | 报告 | TRIPOD+AI 2024 · PROBAST+AI 2025 · 局限性讨论 |
+| 9 | 报告 | TRIPOD+AI 2024 · PROBAST+AI 2025 · Model Card · 局限性讨论 |
 
 ## 审查规则
 
