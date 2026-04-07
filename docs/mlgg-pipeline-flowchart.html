@@ -296,18 +296,31 @@ h1{text-align:center;color:#60a5fa;font-size:22px;margin-bottom:6px}
     <div class="badge">P8</div>
     <div>
       <div class="card-title">公平性与亚组分析</div>
-      <div class="card-script">fairness_equity_gate.py · Layer 6</div>
+      <div class="card-script">fairness_equity_gate.py · Layer 6 · 8 项 D11 标准</div>
     </div>
   </div>
   <ul class="steps">
-    <li class="c">按 race / gender / age 分组 <span class="rule">MLGG-Q01</span></li>
+    <li class="c"><b>保护属性覆盖</b>: age + sex + race/ethnicity (±保险) <span class="rule">PROBAST+AI D5.3</span>
+      <br><span style="color:#6b7280">缺少关键人口统计维度 → 审稿人必问</span></li>
+    <li class="c"><b>均等化优势差距</b> &lt; 0.15 <span class="rule">D11.2</span>
+      <br>max sensitivity gap across subgroups
+      <br><span class="ref">Nature Medicine / JAMA / BMJ 强制要求</span></li>
+    <li class="c"><b>差异影响比</b> &gt; 0.80 (四分之五规则) <span class="rule">D11.3</span>
+      <br>min(subgroup_rate) / max(subgroup_rate)</li>
+    <li class="w"><b>FPR / FNR 均等差距</b> &lt; 0.15 <span class="rule">D11.6/D11.7</span>
+      <br><span class="ref">HEAL framework (eClinicalMedicine 2024)</span></li>
+    <li class="w"><b>亚组最低 PR-AUC</b> &gt; 0.40 <span class="rule">D11.x</span>
+      <br><span style="color:#ef4444">防止"平均好但少数群体极差"</span></li>
     <li class="w">亚组 DCA 净效用 <span class="tool">subgroup_dca()</span>
-      <br><span style="color:#ef4444">模型可能帮助多数但伤害少数!</span></li>
-    <li class="g">小亚组标记: n &lt; 200 → 不可靠 <span class="rule">MLGG-Q02</span></li>
-    <li class="i">差异: AUROC &gt;0.05 / Sens &gt;0.10 → ⚠️</li>
-    <li class="i"><span class="pr">📚 PR-012: "性别分布不均可解释全部结果"</span></li>
+      <br>equity gap = max - min 净效用</li>
+    <li class="g">小亚组: n &lt; 50 → 不稳定 · n &lt; 20 → 不可靠 <span class="rule">D11.4</span></li>
+    <li class="i"><b>不可能定理声明</b>: ≥3 指标时必须说明优先级 <span class="rule">D11.8</span></li>
+    <li class="i">如有偏差: 必须记录缓解策略 <span class="rule">D11.5</span>
+      <br><span style="color:#6b7280">阈值校准 / 公平约束优化 / 子组模型</span></li>
+    <li class="i"><span class="pr">📚 43/375 NC 审稿意见涉及公平性/偏倚</span>
+      <br><span class="pr">最常见: 缺少人口统计(11) · 亚组遗漏(12) · 性别混杂(8)</span></li>
   </ul>
-  <div class="out">→ subgroup_race/gender/age.csv · fairness报告</div>
+  <div class="out">→ fairness_equity_report.json · subgroup_*.csv · mitigation_doc</div>
 </div>
 
 <!-- P9 -->
