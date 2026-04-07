@@ -401,7 +401,7 @@ Heinze 2018 (Biometrical Journal) 明确反对单因素 p 值筛选：导致多�
 
 #### 5.1 候选模型族（MLGG-M03：>= 3）
 
-MLGG 支持 20 个模型族 (详见 [20 Model Families](#20-model-families) 节)。推荐至少比较：
+MLGG 支持 20 个模型族 (详见 [20 个模型族](#20-个模型族) 节)。推荐至少比较：
 - **Logistic Regression** (L1/L2/ElasticNet) &mdash; 线性基线，系数可直接解释
 - **Random Forest** &mdash; 非线性 + 交互，天然处理缺失
 - **XGBoost / LightGBM** &mdash; 梯度提升，通常性能最优
@@ -525,7 +525,7 @@ DCA 评估模型在不同决策阈值下的临床净效用：
 |:-----|:-------|:-----|
 | Test CI resamples | 500 | >= 200 (evaluation_quality_gate) |
 | CI matrix resamples | 2000 | 覆盖所有 split 和 cohort |
-| Permutation resamples | 300 | 置换检验 null distribution |
+| Permutation resamples | 300 | 置换检验 零分布 |
 | CI width max | 0.20 | 超过则 FAIL |
 | Min baseline delta | 0.01 | 必须优于 prevalence baseline |
 
@@ -604,10 +604,10 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 
 | 表格 | 文件名 | 用途 | 列 |
 |:------|:-----|:--------|:--------|
-| **A** | `shap_table_a_ensemble_importance.csv` | Paper main table | Rank, Feature, Ensemble_Proportion, Direction, per-model Proportions |
-| **B** | `shap_table_b_per_model_detail.csv` | Reviewer supplementary | Feature, per-model MeanAbsSHAP / Proportion / SignedSHAP / Rank |
-| **C** | `shap_table_c_rank_agreement.csv` | Methodology evidence | Model_A, Model_B, Kendall_tau, P_Value, Top10_Overlap, Jaccard |
-| **D** | `shap_table_d_case_explanations.csv` | Clinical narrative | Case_Index, Risk_Category, Y_True, Score, Top-3 driver features |
+| **A** | `shap_table_a_ensemble_importance.csv` | 论文主表 | 排名、特征、集成比例、方向、各模型比例 |
+| **B** | `shap_table_b_per_model_detail.csv` | 审稿人补充表 | 特征、每模型 MeanAbsSHAP / 比例 / 带符号 SHAP / 排名 |
+| **C** | `shap_table_c_rank_agreement.csv` | 方法学证据 | 模型A、模型B、Kendall_tau、P 值、Top10 重叠、Jaccard |
+| **D** | `shap_table_d_case_explanations.csv` | 临床叙事 | 病例索引、风险类别、真实标签、预测分数、Top-3 驱动特征 |
 
 每张 CSV 首行为方法论注释 (`# Method: ...`)，可被 `pd.read_csv(comment="#")` 跳过。
 
@@ -680,9 +680,9 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 
 | 等级 | 名称 | 门控数 | 适用场景 | TRIPOD+AI | PROBAST ROB |
 |:------|:-----|:------|:-----------------|:----------|:-----------|
-| **L1** | Leakage Audit | 12 | Conference paper, preliminary report | &mdash; | &mdash; |
-| **L2** | Statistically Valid | 25 | Professional journals (JAMIA, npj DM) | >= 17/27 | low/unclear |
-| **L3** | Publication-Grade | **All 33** | Nature Medicine, Lancet, JAMA, BMJ | >= 23/27 | **low** |
+| **L1** | 泄漏审计 | 12 | 会议论文、初步报告 | &mdash; | &mdash; |
+| **L2** | 统计有效 | 25 | 专业期刊（JAMIA、npj DM） | >= 17/27 | low/unclear |
+| **L3** | 发布级 | **全部 33 门** | Nature Medicine、Lancet、JAMA、BMJ | >= 23/27 | **low** |
 
 **L1 Gates (12)**: request_contract, manifest, execution_attestation, leakage, split_protocol, covariate_shift, definition_guard, feature_lineage, imbalance, missingness, tuning, reporting_bias
 
@@ -723,7 +723,7 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 ```
 
 <details>
-<summary><strong>Full 33-Gate Detail Table (Click to expand)</strong></summary>
+<summary><strong>33 道门控详细说明（点击展开）</strong></summary>
 
 | # | 层 | 门控 | 检查内容 | 输出报告 |
 |:--|:------|:-----|:---------------|:-------------|
@@ -798,41 +798,41 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 ## 31 条方法论规则
 
 <details>
-<summary><strong>Complete Rule Table (Click to expand)</strong></summary>
+<summary><strong>完整规则表（点击展开）</strong></summary>
 
 | ID | 严重度 | 规则 | 文献来源 |
 |:---|:---------|:-----|:-----------|
-| **C01** | CRITICAL | Define eligible cohort &mdash; exclude records with structurally impossible outcomes | TRIPOD+AI 2024 Item 4a |
-| **S01** | CRITICAL | Split by patient ID &mdash; same patient never across splits | Steyerberg 2019 Ch.5 |
-| **S02** | CRITICAL | Test set time must be later than training set | Futoma 2020 (Lancet DH) |
-| **P01** | CRITICAL | Preprocessors fit on train only | Kaufman 2012 (ACM TKDD) |
-| **P02** | CRITICAL | SMOTE on train only; caution: harms calibration | van den Goorbergh 2022 (JAMIA) |
-| **P03** | CRITICAL | No global cleaning before split | |
-| **P04** | CRITICAL | Imputation statistics from train only | |
-| **P05** | CRITICAL | Nominal -> OneHotEncoder; ordinal -> OrdinalEncoder (monotonicity verified) | AUROC +0.02 empirical |
-| **P06** | WARNING | Missingness tiered by mechanism, not fixed threshold | Madley-Dowd 2019 |
-| **F01** | CRITICAL | Target variable never as feature | |
-| **F02** | CRITICAL | No future information in features | |
-| **F03** | CRITICAL | Feature selection on train only | |
-| **F04** | WARNING | Univariate screening deprecated &mdash; use Elastic Net or Ridge | Heinze 2018 |
-| **F05** | CRITICAL | Define prediction time point; classify all features temporally | TRIPOD+AI Item 4b |
-| **F06** | WARNING | Elastic Net grouped selection + Stability Selection + Ridge control | Zou 2005, Meinshausen 2010 |
-| **M01** | CRITICAL | Never tune on test set | |
-| **M02** | CRITICAL | Threshold selected on validation set | |
-| **M03** | WARNING | Compare >= 3 model families | TRIPOD+AI Item 7b |
-| **M04** | CRITICAL | Model selection by validation performance, not train-test gap | Yang 2023 (KDD) |
-| **E01** | CRITICAL | All primary metrics need 95% CI (bootstrap >= 1000) | Efron 1993 |
-| **E02** | CRITICAL | Full 14-metric panel: discrimination + classification (MCC, LR+/LR-) + calibration + DCA | Van Calster 2019, Chicco 2020 |
-| **E03** | WARNING | Calibration ECE < 0.06 | |
-| **E04** | WARNING | Train-test gap for diagnostics only, not selection | Steyerberg 2019 |
-| **E05** | WARNING | class_weight="balanced" requires post-hoc calibration | Platt 2000 |
-| **E06** | WARNING | Bootstrap optimism correction (>= 100 resamples) | Steyerberg 2019 Ch.17 |
-| **Z01** | WARNING | Sample size: EPV >= 10 (simple); strict = Riley 2019 | Peduzzi 1996, Riley 2019 |
-| **R01** | INFO | Set random_state for reproducibility | |
-| **R02** | WARNING | Multi-seed stability (>= 5 seeds, std < 0.03) | Riley 2023 (Biom J) |
-| **T01** | WARNING | TRIPOD+AI 2024 compliance | Collins 2024 (BMJ) |
-| **Q01** | WARNING | Subgroup analysis (gender/age/race) | TRIPOD+AI Item 16b |
-| **Q02** | WARNING | Subgroup metrics need Bootstrap CI; n < 200 flagged as unreliable | Steyerberg 2019 Ch.25 |
+| **C01** | CRITICAL | 定义合格队列——排除结局结构性不可能的记录 | TRIPOD+AI 2024 Item 4a |
+| **S01** | CRITICAL | 按患者 ID 划分——同一患者不跨 split | Steyerberg 2019 Ch.5 |
+| **S02** | CRITICAL | 测试集时间必须晚于训练集 | Futoma 2020 (Lancet DH) |
+| **P01** | CRITICAL | 预处理器仅在训练集上 fit | Kaufman 2012 (ACM TKDD) |
+| **P02** | CRITICAL | SMOTE 仅在训练集；慎用：损害校准 | van den Goorbergh 2022 (JAMIA) |
+| **P03** | CRITICAL | 划分前禁止全局清洗 | |
+| **P04** | CRITICAL | 插补统计量仅来自训练集 | |
+| **P05** | CRITICAL | 名义 -> OneHotEncoder；有序 -> OrdinalEncoder（需验证单调性） | 实测 AUROC +0.02 |
+| **P06** | WARNING | 缺失按机制分层，不用固定丢弃阈值 | Madley-Dowd 2019 |
+| **F01** | CRITICAL | 禁止目标变量作为特征 | |
+| **F02** | CRITICAL | 禁止未来信息作为特征 | |
+| **F03** | CRITICAL | 特征选择仅在训练集 | |
+| **F04** | WARNING | 单因素筛选已废弃——用 Elastic Net 或 Ridge | Heinze 2018 |
+| **F05** | CRITICAL | 定义预测时间点；分类所有特征的时间归属 | TRIPOD+AI Item 4b |
+| **F06** | WARNING | Elastic Net 分组选择 + 稳定性选择 + Ridge 对照 | Zou 2005, Meinshausen 2010 |
+| **M01** | CRITICAL | 禁止在测试集上调参 | |
+| **M02** | CRITICAL | 阈值在验证集上选择 | |
+| **M03** | WARNING | 比较 >= 3 个模型族 | TRIPOD+AI Item 7b |
+| **M04** | CRITICAL | 模型选择用验证集性能，不用 train-test gap | Yang 2023 (KDD) |
+| **E01** | CRITICAL | 所有主要指标需 95% CI（bootstrap >= 1000） | Efron 1993 |
+| **E02** | CRITICAL | 完整 14 指标面板：区分度 + 分类（含 MCC、LR+/LR-）+ 校准 + DCA | Van Calster 2019, Chicco 2020 |
+| **E03** | WARNING | 校准 ECE < 0.06 | |
+| **E04** | WARNING | Train-test gap 仅作诊断，不作选择标准 | Steyerberg 2019 |
+| **E05** | WARNING | class_weight="balanced" 需事后校准 | Platt 2000 |
+| **E06** | WARNING | Bootstrap optimism correction（>= 100 次重采样） | Steyerberg 2019 Ch.17 |
+| **Z01** | WARNING | 样本量：EPV >= 10（简化）；严格用 Riley 2019 | Peduzzi 1996, Riley 2019 |
+| **R01** | INFO | 设置 random_state 保证可复现 | |
+| **R02** | WARNING | 多种子稳定性（>= 5 seeds，std < 0.03） | Riley 2023 (Biom J) |
+| **T01** | WARNING | TRIPOD+AI 2024 合规 | Collins 2024 (BMJ) |
+| **Q01** | WARNING | 亚组分析（性别/年龄/种族） | TRIPOD+AI Item 16b |
+| **Q02** | WARNING | 亚组指标需 Bootstrap CI；n < 200 标为不可靠 | Steyerberg 2019 Ch.25 |
 
 </details>
 
@@ -842,26 +842,26 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 
 | 模型族 | 别名 | 类型 | 说明 |
 |:-------|:------|:-----|:------|
-| `logistic_l1` | `lr_l1` | Logistic Regression | L1 penalty (sparse) |
-| `logistic_l2` | `lr_l2` | Logistic Regression | L2 penalty (Ridge) |
-| `logistic_elasticnet` | `lr_en` | Logistic Regression | L1+L2 hybrid |
-| `random_forest_balanced` | `rf` | Random Forest | Balanced class weight |
-| `extra_trees_balanced` | `extra_trees` | Extra Trees | Balanced class weight |
-| `hist_gradient_boosting_l2` | `hgb` | Gradient Boosting | sklearn HistGB |
-| `adaboost` | &mdash; | AdaBoost | Binary classification |
-| `xgboost` | `xgb` | XGBoost | Requires xgboost package |
-| `catboost` | &mdash; | CatBoost | Requires catboost package |
-| `lightgbm` | `lgbm` | LightGBM | Requires lightgbm package |
-| `svm_linear` | `svm_lin` | SVM | Linear kernel |
-| `svm_rbf` | `svm` | SVM | RBF kernel |
-| `knn` | &mdash; | K-Nearest Neighbors | Distance-based |
-| `gaussian_nb` | &mdash; | Naive Bayes | Gaussian assumption |
-| `mlp` | &mdash; | MLP | Neural network |
-| `tabpfn` | &mdash; | TabPFN | Foundation model |
-| `decision_tree` | `dt` | Decision Tree | Single tree baseline |
-| `soft_voting` | `voting` | Soft Voting Ensemble | Top-K ensemble |
-| `weighted_voting` | &mdash; | Weighted Voting | Performance-weighted |
-| `stacking` | `stack` | Stacking | Meta-learner ensemble |
+| `logistic_l1` | `lr_l1` | Logistic Regression | L1 惩罚（稀疏） |
+| `logistic_l2` | `lr_l2` | Logistic Regression | L2 惩罚（Ridge） |
+| `logistic_elasticnet` | `lr_en` | Logistic Regression | L1+L2 混合 |
+| `random_forest_balanced` | `rf` | Random Forest | 平衡类别权重 |
+| `extra_trees_balanced` | `extra_trees` | Extra Trees | 平衡类别权重 |
+| `hist_gradient_boosting_l2` | `hgb` | Gradient Boosting | sklearn 直方图梯度提升 |
+| `adaboost` | &mdash; | AdaBoost | 二分类 |
+| `xgboost` | `xgb` | XGBoost | 需安装 xgboost |
+| `catboost` | &mdash; | CatBoost | 需安装 catboost |
+| `lightgbm` | `lgbm` | LightGBM | 需安装 lightgbm |
+| `svm_linear` | `svm_lin` | SVM | 线性核 |
+| `svm_rbf` | `svm` | SVM | RBF 核 |
+| `knn` | &mdash; | K-Nearest Neighbors | 基于距离 |
+| `gaussian_nb` | &mdash; | Naive Bayes | 高斯假设 |
+| `mlp` | &mdash; | MLP | 神经网络 |
+| `tabpfn` | &mdash; | TabPFN | 基础模型 |
+| `decision_tree` | `dt` | Decision Tree | 单树基线 |
+| `soft_voting` | `voting` | Soft Voting Ensemble | Top-K 集成 |
+| `weighted_voting` | &mdash; | Weighted Voting | 性能加权 |
+| `stacking` | `stack` | Stacking | 元学习器集成 |
 
 复杂度排名： Gaussian NB (1) < LR (2-4) < DT (5) < KNN (6) < SVM (7-8) < RF/Trees (9-10) < Boosting (11-14) < MLP (15) < TabPFN (17) < Ensemble (15000+).
 
@@ -870,7 +870,7 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 ## 14 个医学数据集
 
 <details>
-<summary><strong>Large Datasets (>10K rows)</strong></summary>
+<summary><strong>大型数据集（>10K 行）</strong></summary>
 
 ```bash
 python3 examples/download_real_data.py diabetes130_full   # UCI 101K readmission
@@ -886,7 +886,7 @@ python3 examples/download_nci_gdc.py                      # NCI/NIH 25K cancer s
 </details>
 
 <details>
-<summary><strong>Small UCI Datasets</strong></summary>
+<summary><strong>小型 UCI 数据集</strong></summary>
 
 ```bash
 python3 examples/download_real_data.py heart    # 297 rows
@@ -897,7 +897,7 @@ python3 examples/download_real_data.py pima     # 768 rows
 </details>
 
 <details>
-<summary><strong>Pre-bundled Datasets</strong></summary>
+<summary><strong>预置数据集</strong></summary>
 
 - `chronic_kidney_disease.csv` &mdash; UCI CKD (400 rows)
 - `support2.csv` &mdash; Vanderbilt SUPPORT2 ICU prognosis (9K rows)
@@ -906,7 +906,7 @@ python3 examples/download_real_data.py pima     # 768 rows
 
 </details>
 
-All data from official sources (CDC / UCI / NCI-NIH / Vanderbilt). No registration required. Total: 526K rows.
+所有数据来自官方机构（CDC / UCI / NCI-NIH / Vanderbilt），无需注册，一键下载。总计 526K 行。
 
 ---
 
@@ -914,16 +914,16 @@ All data from official sources (CDC / UCI / NCI-NIH / Vanderbilt). No registrati
 
 | 类别 | 规则 | 严重度 |
 |:---------|:------|:---------|
-| **Data Leakage** | R001 fit-before-split, R002 scaler-on-test, R003 SMOTE-on-test, R005 threshold-on-test, R006 feature-selection-full, R007 target-as-feature, R017 early-stop-on-test, R020 global-clean-before-split | ERROR |
-| **Split Issues** | R004 split-without-group, R008 temporal-shuffle, R015 small-test-set | WARNING |
-| **Cross-Validation** | R011 CV-internal-SMOTE, R012 accuracy-on-imbalanced | ERROR/WARNING |
-| **Evaluation Misuse** | R010 train-metric-as-final, R013 hardcoded-threshold | WARNING |
-| **Preprocessing** | R014 LabelEncoder-on-features, R018 scaling-before-trees | WARNING/INFO |
-| **Reproducibility** | R016 no-random-state | INFO |
-| **Statistical Rigor** | R009 no-CI, R019 multiple-comparison | INFO |
+|   **数据泄漏** | R001 fit-before-split, R002 scaler-on-test, R003 SMOTE-on-test, R005 threshold-on-test, R006 feature-selection-full, R007 target-as-feature, R017 early-stop-on-test, R020 global-clean-before-split | ERROR |
+|   **划分问题** | R004 split-without-group, R008 temporal-shuffle, R015 small-test-set | WARNING |
+|   **交叉验证** | R011 CV-internal-SMOTE, R012 accuracy-on-imbalanced | ERROR/WARNING |
+|   **评估误用** | R010 train-metric-as-final, R013 hardcoded-threshold | WARNING |
+|   **预处理** | R014 LabelEncoder-on-features, R018 scaling-before-trees | WARNING/INFO |
+|   **可复现性** | R016 no-random-state | INFO |
+|   **统计严谨性** | R009 no-CI, R019 multiple-comparison | INFO |
 
 ```bash
-# Run lint on any Python project
+# 对任何 Python 项目运行静态分析
 python3 -m mlgg_lint /path/to/code/
 ```
 
@@ -933,27 +933,27 @@ python3 -m mlgg_lint /path/to/code/
 
 | 工具 | 函数 | 审稿人常问 | 文献 |
 |:-----|:---------|:-----------------|:-----------|
-| Riley Sample Size | `riley_sample_size()` | "样本量论证？" | Riley 2019 |
-| Calibration Triple | `calibration_metrics()` | "校准斜率/截距？" | Van Calster 2019 |
-| Calibration per-bin CI | `calibration_bin_ci()` | "校准曲线有 CI 吗？" | NC Reviewer #2 |
+| Riley 样本量 | `riley_sample_size()` | "样本量论证？" | Riley 2019 |
+| 校准三件套 | `calibration_metrics()` | "校准斜率/截距？" | Van Calster 2019 |
+| 校准分 bin CI | `calibration_bin_ci()` | "校准曲线有 CI 吗？" | NC Reviewer #2 |
 | NRI / IDI | `compute_nri_idi()` | "比基线模型好多少？" | Pencina 2008 |
-| Learning Curve | `learning_curve_data()` | "数据量够吗？" | Figueroa 2012 |
-| VIF Collinearity | `compute_vif()` | "特征间共线性？" | PMC4888898 |
-| Nonlinearity Test | `check_nonlinearity()` | "线性假设合理吗？" | Harrell 2015 |
-| Coefficient Export | `export_model_coefficients()` | "模型系数是什么？" | NC Reviewer #1 |
-| MNAR Sensitivity | `mnar_sensitivity_analysis()` | "MAR 假设如果错了？" | PMC10481859 |
-| Temporal Drift | `temporal_drift_analysis()` | "模型部署后还准吗？" | PMC8627243 |
-| Model Card | `generate_model_card()` | "结构化模型文档？" | Mitchell 2019 |
-| Imputation Sensitivity | `imputation_sensitivity()` | "换插补方法结论变吗？" | Pop Health 2024 |
-| Subgroup DCA | `subgroup_dca()` | "少数族裔有临床效用吗？" | Nature CS 2025 |
-| Baseline Comparisons | `baseline_comparisons()` | "比随机/患病率好多少？" | NC ML Checklist |
-| Feature Ablation | `feature_ablation()` | "去掉关键特征性能怎么变？" | NC ML Checklist |
-| Compute Resources | `compute_resource_report()` | "训练用了多少资源？" | NC ML Checklist |
-| Rubin's Rules | `rubins_rules_combine()` | "多重插补怎么合并？" | Rubin 1987 |
-| Robustness Stress Test | `robustness_stress_test()` | "对异常值/噪声稳定吗？" | Original |
+| 学习曲线 | `learning_curve_data()` | "数据量够吗？" | Figueroa 2012 |
+| VIF 共线性 | `compute_vif()` | "特征间共线性？" | PMC4888898 |
+| 非线性检验 | `check_nonlinearity()` | "线性假设合理吗？" | Harrell 2015 |
+| 系数导出 | `export_model_coefficients()` | "模型系数是什么？" | NC Reviewer #1 |
+| MNAR 敏感性 | `mnar_sensitivity_analysis()` | "MAR 假设如果错了？" | PMC10481859 |
+| 时序漂移 | `temporal_drift_analysis()` | "模型部署后还准吗？" | PMC8627243 |
+| 模型卡片 | `generate_model_card()` | "结构化模型文档？" | Mitchell 2019 |
+| 插补敏感性 | `imputation_sensitivity()` | "换插补方法结论变吗？" | Pop Health 2024 |
+| 亚组 DCA | `subgroup_dca()` | "少数族裔有临床效用吗？" | Nature CS 2025 |
+| 基线对比 | `baseline_comparisons()` | "比随机/患病率好多少？" | NC ML Checklist |
+| 特征消融 | `feature_ablation()` | "去掉关键特征性能怎么变？" | NC ML Checklist |
+| 计算资源 | `compute_resource_report()` | "训练用了多少资源？" | NC ML Checklist |
+| Rubin 规则 | `rubins_rules_combine()` | "多重插补怎么合并？" | Rubin 1987 |
+| 鲁棒性压力测试 | `robustness_stress_test()` | "对异常值/噪声稳定吗？" | Original |
 | Bootstrap Optimism | `bootstrap_optimism_correction()` | "内部验证的乐观偏差？" | Steyerberg 2019 |
 
-100% coverage of [Nature Portfolio ML Checklist V1.1](https://www.nature.com/documents/machine-learning-checklist.pdf) (30 items).
+100% 覆盖 [Nature Portfolio ML Checklist V1.1](https://www.nature.com/documents/machine-learning-checklist.pdf) (30 items).
 
 ---
 
@@ -961,7 +961,7 @@ python3 -m mlgg_lint /path/to/code/
 
 | 组件 | 实现 | 状态 |
 |:----------|:--------------|:-------|
-| Model signing | HMAC-SHA256 with timing-safe `hmac.compare_digest()` | fail-closed |
+| 模型签名 | HMAC-SHA256 时间安全 `hmac.compare_digest()` | fail-closed |
 | 证据加密 | AES-256-GCM（无降级——需 cryptography 包）| fail-closed |
 | 审计链 | 仅追加 JSONL + 链式 HMAC 哈希，每条 fsync | 防篡改 |
 | 反序列化 | RestrictedUnpickler 模块白名单 + 可调用黑名单 | 沙箱化 |
@@ -1061,24 +1061,24 @@ python3 scripts/orchestration/mlgg.py doctor
 ## 文献基础
 
 <details>
-<summary><strong>Complete Literature Table by Phase (Click to expand)</strong></summary>
+<summary><strong>按阶段分类的完整文献表（点击展开）</strong></summary>
 
-### Phase 1: Sample Size & Cohort
+### 阶段一：样本量与队列
 
 | 方法论决策 | 文献来源 | MLGG 实现 |
 |:---------|:----------|:-------------------|
 | Riley triple criteria | Riley RD et al. *Stat Med.* 2019;38(7):1276-1296 | `riley_sample_size()` |
-| Sample size tutorial | Riley RD et al. *BMJ.* 2020;368:m441 | Binding criterion report |
-| EPV >= 10 (legacy) | Peduzzi P et al. *J Clin Epidemiol.* 1996;49(12):1373-1379 | Backup check |
+| Sample size tutorial | Riley RD et al. *BMJ.* 2020;368:m441 | 绑定准则报告 |
+| EPV >= 10 (legacy) | Peduzzi P et al. *J Clin Epidemiol.* 1996;49(12):1373-1379 | 后备检查 |
 
-### Phase 2: Splitting
+### 阶段二：数据划分
 
 | 方法论决策 | 文献来源 | MLGG 实现 |
 |:---------|:----------|:-------------------|
 | Patient-level split | Steyerberg EW. *Clinical Prediction Models.* 2019 Ch.5 | MLGG-S01 |
 | Temporal split | Futoma J et al. *Lancet Digit Health.* 2020;2(9):e489 | MLGG-S02 |
 
-### Phase 3: Preprocessing
+### 阶段三：预处理
 
 | 方法论决策 | 文献来源 | MLGG 实现 |
 |:---------|:----------|:-------------------|
@@ -1086,23 +1086,23 @@ python3 scripts/orchestration/mlgg.py doctor
 | Tiered missingness | Madley-Dowd P et al. *J Clin Epidemiol.* 2019;110:63-73 | MLGG-P06 |
 | SMOTE harms calibration | van den Goorbergh RWM et al. *JAMIA.* 2022;29(9):1525-1534 | MLGG-P02 |
 
-### Phase 4: Feature Selection
+### 阶段四：特征筛选
 
 | 方法论决策 | 文献来源 | MLGG 实现 |
 |:---------|:----------|:-------------------|
-| Elastic Net | Zou H, Hastie T. *JRSS-B.* 2005;67(2):301-320 | alpha/C joint CV |
-| Stability selection | Meinshausen N, Buhlmann P. *JRSS-B.* 2010;72(4):417-473 | 100 subsamples, threshold 0.6 |
-| Group LASSO | Yuan M, Lin Y. *JRSS-B.* 2006;68(1):49-67 | OneHot grouped |
+| Elastic Net | Zou H, Hastie T. *JRSS-B.* 2005;67(2):301-320 | alpha/C 联合 CV |
+| Stability selection | Meinshausen N, Buhlmann P. *JRSS-B.* 2010;72(4):417-473 | 100 次子采样，阈值 0.6 |
+| Group LASSO | Yuan M, Lin Y. *JRSS-B.* 2006;68(1):49-67 | OneHot 分组 |
 | No univariate screening | Heinze G et al. *Biometrical J.* 2018;60(3):431-449 | MLGG-F04 |
 
-### Phase 5: Training
+### 阶段五：模型训练
 
 | 方法论决策 | 文献来源 | MLGG 实现 |
 |:---------|:----------|:-------------------|
 | Valid performance > gap | Yang Z et al. *KDD 2023* | MLGG-M04 |
 | Optimism correction | Steyerberg EW. *Clinical Prediction Models.* 2019 Ch.17 | `bootstrap_optimism_correction()` |
 
-### Phase 6: Evaluation
+### 阶段六：评估
 
 | 方法论决策 | 文献来源 | MLGG 实现 |
 |:---------|:----------|:-------------------|
@@ -1111,15 +1111,15 @@ python3 scripts/orchestration/mlgg.py doctor
 | LR+/LR- for clinical decisions | Deeks JJ, Altman DG. *BMJ.* 2004;329:168-169 | MLGG-E02 |
 | DCA | Vickers AJ, Elkin EB. *Med Decis Making.* 2006;26(6):565-574 | `calibration_dca_gate` |
 | NRI / IDI | Pencina MJ et al. *Stat Med.* 2008;27(2):157-172 | `compute_nri_idi()` |
-| 5-domain evaluation | Van Calster B et al. *Lancet Digit Health.* 2025 | Framework coverage |
+| 5-domain evaluation | Van Calster B et al. *Lancet Digit Health.* 2025 | 框架覆盖 |
 
-### Phase 7: Interpretability
+### 阶段七：可解释性
 
 | 方法论决策 | 文献来源 | MLGG 实现 |
 |:---------|:----------|:-------------------|
 | SHAP theory | Lundberg SM, Lee SI. *NeurIPS 2017* | `shap_interpretability_gate` |
 | TreeSHAP | Lundberg SM et al. *Nature MI.* 2020;2:56-67 | TreeExplainer |
-| Proportional normalization | Ponce-Bobadilla AV et al. *CTS.* 2024;17(11):e70056 | L1 normalization |
+| Proportional normalization | Ponce-Bobadilla AV et al. *CTS.* 2024;17(11):e70056 | L1 归一化 |
 | Rashomon effect | Breiman L. *Stat Sci.* 2001;16(3):199-231 | Multi-model ensemble |
 
 ### 阶段九：报告与合规
@@ -1128,9 +1128,9 @@ python3 scripts/orchestration/mlgg.py doctor
 |:---------|:----------|:-------------------|
 | TRIPOD+AI 2024 | Collins GS et al. *BMJ.* 2024;385:e078378 | 27-item checklist |
 | PROBAST+AI 2025 | Moons KGM et al. *BMJ.* 2025;388:e082505 | 4-domain ROB |
-| Leakage taxonomy | Kapoor S, Narayanan A. *Patterns.* 2023;4(9):100804 | 33-gate coverage |
+| Leakage taxonomy | Kapoor S, Narayanan A. *Patterns.* 2023;4(9):100804 | 33 门全覆盖 |
 
-### Foundational Reviews
+### 基础综述
 
 | 文献 | 核心论点 |
 |:----------|:-------------|
@@ -1144,18 +1144,18 @@ python3 scripts/orchestration/mlgg.py doctor
 
 ## Claude Code 集成
 
-MLGG provides Claude Code slash command `/mlgg`. When activated, Claude operates as a Nature Methods / JAMA-level reviewer, guiding users through the 9-Phase workflow with real-time methodology checks.
+MLGG 提供 Claude Code slash command `/mlgg`。激活后 Claude 切换为 Nature Methods / JAMA 级别审稿人，引导用户完成 9 阶段工作流，实时检查方法学。
 
 ```bash
 # In Claude Code terminal:
 /mlgg
 ```
 
-The AI will:
-- Guide through 9 phases with proactive questioning
-- Cite 107 peer review papers (375 structured concerns) as evidence
-- Auto-detect common leakage patterns in code
-- Generate structured audit reports with remediation plans
+AI 会自动：
+- 主动提问引导 9 个阶段
+- 引用 107 篇同行评审论文（375 个结构化审稿意见）作为论据
+- 自动检测代码中的常见泄漏模式
+- 生成结构化审计报告和修复方案
 
 ---
 
