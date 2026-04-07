@@ -73,6 +73,9 @@ description: "Publication-grade medical prediction workflow with strict anti-dat
 | 用户的特征中有 ICD/diagnosis 编码列 | "⚠️ 如果 ICD 编码列包含结局疾病的诊断码，这是定义变量泄漏。需要排除。" |
 | 模型训练完成后 | "建议运行鲁棒性压力测试 (robustness_stress_test)，检查模型对异常值和噪声的稳定性。" |
 | 评估完成后 | "校准斜率应接近 1.0，截距接近 0。如果偏离较大，建议做 Platt scaling 校准。" |
+| 用户代码在某 gate 失败时 | 查询 `references/peer_reviews/peer-review-kb.json`，按 gate 匹配。告诉用户："X 位 NC 审稿人在 Y 篇论文中指出过相同问题。典型修复方案：..." 使用 `python3 scripts/peer_review_lookup.py --gate <gate_name>` |
+| 用户说"审查我的代码"/"帮我 review" | 按发现的问题 category/tags 查询 peer-review-kb.json，引用 top-3 真实审稿意见作为论据。使用 `python3 scripts/peer_review_lookup.py --tags <detected_tags>` |
+| 审稿人/用户问"这种问题常见吗" | 查询 peer-review-kb 统计：`python3 scripts/peer_review_lookup.py --stats`。引用 "107 篇 NC 论文中，X/375 审稿意见要求了这个" |
 
 ---
 
@@ -126,6 +129,34 @@ description: "Publication-grade medical prediction workflow with strict anti-dat
 | "从 PMC 收集有代码的论文" | `python3 experiments/paper/collect_papers_with_code.py --output <out.jsonl>` |
 | "验证论文 repo 质量" | `python3 experiments/paper/verify_repos.py --input <in.jsonl> --output <out.jsonl>` |
 | "批量扫描论文代码泄漏" | `python3 experiments/paper/scan_published_repos.py --manifest <verified.jsonl> --output <out.json>` |
+| "这种问题审稿人会怎么看？" | `python3 scripts/peer_review_lookup.py --tags <detected_tags>` |
+| "NC 审稿人通常要求什么？" | `python3 scripts/peer_review_lookup.py --stats` |
+| "查找相关审稿案例" | `python3 scripts/peer_review_lookup.py --dimension <dim> --severity HIGH` |
+| "这个 gate 以前抓过什么？" | `python3 scripts/peer_review_lookup.py --gate <gate_name>` |
+
+### Peer Review Evidence-Based Review（始终激活）
+
+Agent 审查代码时，应查阅 `references/peer_reviews/peer-review-kb.json`（107 篇 NC 论文，375 条审稿意见）：
+
+**引用时机：**
+1. **发现方法学问题时**：按 category + tags 检索，引用 "Reviewer #X in Paper Y raised..."
+2. **Gate 失败时**：按 gate 检索，附带 "此 gate 在 N 篇真实论文中捕获过类似问题"
+3. **Phase checkpoint 时**：按 dimension 检索，展示该维度最常见的审稿人关切
+4. **用户问"审稿人会怎么说"时**：返回 top-3 最相关案例
+
+**引用格式：**
+```
+[PEER-REVIEW] PR-XXX-CYY (Nature Communications, 20XX)
+Reviewer concern: "..."
+Author fix: "..."
+MLGG dimension: X | Gate: xxx_gate | Tags: [...]
+Similar concerns in KB: N/375 (X%)
+```
+
+**统计引用示例：**
+- "107 篇 NC 论文中，119/375 (31.7%) 的审稿意见要求完善评估指标"
+- "25 条 CRITICAL 级问题中，最常见的是数据泄漏和结局定义错误"
+- "只报 AUC 不报校准是 NC 审稿人最常提出的 HIGH 级问题"
 
 ### 五条常用命令（覆盖 90% 场景）
 
