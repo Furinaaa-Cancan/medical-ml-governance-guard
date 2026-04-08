@@ -57,6 +57,10 @@ description: "Publication-grade medical prediction workflow with strict anti-dat
 | "baseline 对比" / "比随机好多少" | 调用 `baseline_comparisons(y_true, y_score, y_pred)` in `_gate_utils.py`：AUROC over random + BSS |
 | "消融实验" / "ablation" / "去掉特征" | 调用 `feature_ablation(estimator, X_train, y_train, X_test, y_test, features)` in `_gate_utils.py` |
 | "训练时间" / "计算资源" / "硬件" | 调用 `compute_resource_report(t0, t1, model_name, n_train, n_features)` in `_gate_utils.py` |
+| "生成 TRIPOD 清单" | 编辑 `configs/reporting-bias-checklist.json`，然后运行 `reporting_bias_gate.py` 验证 |
+| "生成 LaTeX 表格" | `python3 scripts/tools/export_latex.py --evaluation-report evidence/evaluation_report.json --output evidence/tables.tex` |
+| "生成合规证书" | `python3 scripts/tools/generate_compliance_certificate.py --evidence-dir evidence/ --output evidence/certificate.json` |
+| "初始化新项目" | `python3 scripts/tools/init_guide.py --output /path/to/project` |
 | "查看 lint 规则列表" | `python3 scripts/orchestration/mlgg.py lint rules` |
 | "评审一篇论文（从 metadata）" | `python3 scripts/tools/score_paper_metadata.py --metadata <metadata.json>` |
 | "批量评审论文" | `python3 scripts/tools/score_paper_metadata.py --batch-dir papers/` |
@@ -235,7 +239,7 @@ python3 scripts/orchestration/mlgg.py doctor
 | RHC | 5.7K | Vanderbilt | `download_real_data.py rhc` | A (94%) |
 | 4 × UCI 小型 | <1K | UCI | `download_real_data.py heart/breast/pima/ckd` | B (68-84%) |
 
-Gate 覆盖: A=29/31可测, B=21-26/31, C=12/31。详见 `references/dataset-gate-coverage-matrix.md`。
+Gate 覆盖: A=29/33可测, B=21-26/33, C=12/33。详见 `references/dataset-gate-coverage-matrix.md`。
 
 ### Gate 严格性 Profile
 
@@ -454,75 +458,79 @@ python3 scripts/gates/request_contract_gate.py \
 
 ## Hidden Workflow (Internal, Fail-Closed)
 Use this internal sequence in order:
-1. Validate request contract.
-2. Lock data/config fingerprints (`manifest_lock.py`).
-3. Run execution attestation gate (`execution_attestation_gate.py`).
-4. Run split/time leakage gate (`leakage_gate.py`).
-5. Run split protocol gate (`split_protocol_gate.py`).
-6. Run covariate-shift gate (`covariate_shift_gate.py`).
-7. Run reporting/bias checklist gate (`reporting_bias_gate.py`).
-8. Run phenotype-definition leakage gate (`definition_variable_guard.py`).
-9. Run lineage leakage gate (`feature_lineage_gate.py`).
-10. Run imbalance policy gate (`imbalance_policy_gate.py`).
-11. Run missingness policy gate (`missingness_policy_gate.py`).
-12. Run tuning leakage gate (`tuning_leakage_gate.py`).
-13. Run model-selection audit gate (`model_selection_audit_gate.py`).
-14. Run feature-engineering audit gate (`feature_engineering_audit_gate.py`).
-15. Run clinical-metrics gate (`clinical_metrics_gate.py`).
-16. Run prediction-replay gate (`prediction_replay_gate.py`).
-17. Run distribution-generalization gate (`distribution_generalization_gate.py`).
-18. Run generalization-gap gate (`generalization_gap_gate.py`).
-19. Run robustness gate (`robustness_gate.py`).
-20. Run seed-stability gate (`seed_stability_gate.py`).
-21. Run external-validation gate (`external_validation_gate.py`).
-22. Run calibration+DCA gate (`calibration_dca_gate.py`).
-23. Run CI-matrix gate (`ci_matrix_gate.py`).
-24. Run metric consistency gate (`metric_consistency_gate.py`).
-25. Run evaluation quality gate (`evaluation_quality_gate.py`).
-26. Run permutation falsification gate (`permutation_significance_gate.py`).
-27. Aggregate publication gate (`publication_gate.py`).
-28. Run self-critique scoring gate (`self_critique_gate.py`).
-29. Run security audit gate (`security_audit_gate.py`).
-30. Run fairness & equity gate (`fairness_equity_gate.py`).
-31. Run sample size adequacy gate (`sample_size_gate.py`).
-32. Emit final report only if all strict gates pass.
+1. Run cohort definition gate (`cohort_definition_gate.py`).
+2. Validate request contract.
+3. Lock data/config fingerprints (`manifest_lock.py`).
+4. Run execution attestation gate (`execution_attestation_gate.py`).
+5. Run split/time leakage gate (`leakage_gate.py`).
+6. Run split protocol gate (`split_protocol_gate.py`).
+7. Run covariate-shift gate (`covariate_shift_gate.py`).
+8. Run reporting/bias checklist gate (`reporting_bias_gate.py`).
+9. Run phenotype-definition leakage gate (`definition_variable_guard.py`).
+10. Run lineage leakage gate (`feature_lineage_gate.py`).
+11. Run imbalance policy gate (`imbalance_policy_gate.py`).
+12. Run missingness policy gate (`missingness_policy_gate.py`).
+13. Run tuning leakage gate (`tuning_leakage_gate.py`).
+14. Run model-selection audit gate (`model_selection_audit_gate.py`).
+15. Run feature-engineering audit gate (`feature_engineering_audit_gate.py`).
+16. Run clinical-metrics gate (`clinical_metrics_gate.py`).
+17. Run prediction-replay gate (`prediction_replay_gate.py`).
+18. Run distribution-generalization gate (`distribution_generalization_gate.py`).
+19. Run generalization-gap gate (`generalization_gap_gate.py`).
+20. Run robustness gate (`robustness_gate.py`).
+21. Run seed-stability gate (`seed_stability_gate.py`).
+22. Run external-validation gate (`external_validation_gate.py`).
+23. Run calibration+DCA gate (`calibration_dca_gate.py`).
+24. Run CI-matrix gate (`ci_matrix_gate.py`).
+25. Run metric consistency gate (`metric_consistency_gate.py`).
+26. Run evaluation quality gate (`evaluation_quality_gate.py`).
+27. Run permutation falsification gate (`permutation_significance_gate.py`).
+28. Run SHAP interpretability gate (`shap_interpretability_gate.py`).
+29. Aggregate publication gate (`publication_gate.py`).
+30. Run self-critique scoring gate (`self_critique_gate.py`).
+31. Run security audit gate (`security_audit_gate.py`).
+32. Run fairness & equity gate (`fairness_equity_gate.py`).
+33. Run sample size adequacy gate (`sample_size_gate.py`).
+34. Emit final report only if all strict gates pass.
 
 Treat execution-attestation failures (signature/fingerprint/key-revocation/timestamp/transparency/execution-receipt/execution-log/witness-quorum/cross-role-authority-distinctness), disease-definition leakage, lineage ambiguity, metric-source ambiguity, split protocol violations, covariate-shift anomalies, class-imbalance misuse, missingness/imputation misuse, and tuning/test leakage as critical failures in strict mode.
 
 ## Output Contract (Machine-Parseable)
 Produce these deterministic artifacts:
-1. `evidence/request_contract_report.json`
-2. `evidence/manifest.json`
-3. `evidence/execution_attestation_report.json`
-4. `evidence/reporting_bias_report.json`
-5. `evidence/leakage_report.json`
-6. `evidence/split_protocol_report.json`
-7. `evidence/covariate_shift_report.json`
-8. `evidence/definition_guard_report.json`
-9. `evidence/lineage_report.json`
-10. `evidence/imbalance_policy_report.json`
-11. `evidence/missingness_policy_report.json`
-12. `evidence/tuning_leakage_report.json`
-13. `evidence/model_selection_audit_report.json`
-14. `evidence/feature_engineering_audit_report.json`
-15. `evidence/clinical_metrics_report.json`
-16. `evidence/prediction_replay_report.json`
-17. `evidence/distribution_generalization_report.json`
-18. `evidence/generalization_gap_report.json`
-19. `evidence/robustness_gate_report.json`
-20. `evidence/seed_stability_report.json`
-21. `evidence/external_validation_gate_report.json`
-22. `evidence/calibration_dca_report.json`
-23. `evidence/ci_matrix_gate_report.json`
-24. `evidence/metric_consistency_report.json`
-25. `evidence/evaluation_quality_report.json`
-26. `evidence/permutation_report.json`
-27. `evidence/publication_gate_report.json`
-28. `evidence/self_critique_report.json`
-29. `evidence/security_audit_gate_report.json`
-30. `evidence/fairness_equity_report.json`
-31. `evidence/sample_size_report.json`
-32. `evidence/dag_pipeline_report.json`
+1. `evidence/cohort_definition_report.json`
+2. `evidence/request_contract_report.json`
+3. `evidence/manifest.json`
+4. `evidence/execution_attestation_report.json`
+5. `evidence/reporting_bias_report.json`
+6. `evidence/leakage_report.json`
+7. `evidence/split_protocol_report.json`
+8. `evidence/covariate_shift_report.json`
+9. `evidence/definition_guard_report.json`
+10. `evidence/lineage_report.json`
+11. `evidence/imbalance_policy_report.json`
+12. `evidence/missingness_policy_report.json`
+13. `evidence/tuning_leakage_report.json`
+14. `evidence/model_selection_audit_report.json`
+15. `evidence/feature_engineering_audit_report.json`
+16. `evidence/clinical_metrics_report.json`
+17. `evidence/prediction_replay_report.json`
+18. `evidence/distribution_generalization_report.json`
+19. `evidence/generalization_gap_report.json`
+20. `evidence/robustness_gate_report.json`
+21. `evidence/seed_stability_report.json`
+22. `evidence/external_validation_gate_report.json`
+23. `evidence/calibration_dca_report.json`
+24. `evidence/ci_matrix_gate_report.json`
+25. `evidence/metric_consistency_report.json`
+26. `evidence/evaluation_quality_report.json`
+27. `evidence/permutation_report.json`
+28. `evidence/shap_interpretability_report.json`
+29. `evidence/publication_gate_report.json`
+30. `evidence/self_critique_report.json`
+31. `evidence/security_audit_gate_report.json`
+32. `evidence/fairness_equity_report.json`
+33. `evidence/sample_size_report.json`
+34. `evidence/dag_pipeline_report.json`
 
 Report status from each file must be machine-readable (`pass` or `fail`) with issue codes.
 
@@ -831,6 +839,8 @@ Every calibration report must include:
 - `scripts/orchestration/run_productized_workflow.py`: full UX wrapper (doctor -> preflight -> strict pipeline -> user summary).
 - `scripts/orchestration/mlgg_interactive.py`: terminal interactive wizard for core commands (`init/workflow/train/authority`) with command preview, confirm-before-run, and profile save/load.
 - `scripts/orchestration/mlgg_pixel.py`: pixel-art interactive CLI wizard (`mlgg.py play`) for guided pipeline setup and execution with bilingual (en/zh) support, dataset-size-aware defaults, small-sample strict mode, and play-mode quick-readiness card.
+- `scripts/orchestration/run_dag_pipeline.py`: DAG-based parallel pipeline executor with dependency resolution and checkpointing.
+- `scripts/orchestration/run_endurance_test.py`: stress-test MLGG across multiple datasets and configurations.
 - `scripts/core/_gate_utils.py`: shared utility functions (`add_issue`, `load_json`, `write_json`, `to_float`) for gate scripts.
 - `scripts/core/_security.py`: security hardening module — HMAC model signing, path traversal protection, secure JSON loading, artifact integrity manifest, membership inference defense, dependency verification, security audit CLI.
 - `scripts/gates/security_audit_gate.py`: 29th pipeline gate (FINAL layer) — verifies model HMAC signatures, evidence manifest integrity, dependency authenticity, file permissions, sensitive data exposure, artifact sizes.
@@ -849,6 +859,14 @@ Every calibration report must include:
 - `scripts/tools/explain_gate.py`: explain a single gate result in human-readable form.
 - `scripts/tools/quick_summary.py`: one-command training results viewer with key metrics, overfitting risk, model selection top-10.
 - `scripts/tools/audit_external_project.py`: 10-dimension quantitative audit tool for evaluating medical ML projects (100-point scale) with journal-specific gap analysis.
+- `scripts/tools/extract_paper_metadata.py`: LLM-powered structured metadata extraction from medical ML papers.
+- `scripts/tools/fetch_papers.py`: multi-source academic paper crawler (PubMed, PMC, Semantic Scholar, OpenAlex, arXiv).
+- `scripts/tools/gate_applicability.py`: determine which gates apply to a given dataset/prediction type.
+- `scripts/tools/generate_audit_report.py`: comprehensive external project audit report generator.
+- `scripts/tools/generate_compliance_certificate.py`: generate L1/L2/L3 compliance certificates from evidence.
+- `scripts/tools/init_guide.py`: generate MLGG methodology guide and rules for any project.
+- `scripts/tools/mlgg_web.py`: legacy local Flask web UI wizard (127.0.0.1:8501).
+- `scripts/tools/visualize_results.py`: visualization utilities for evidence artifacts.
 - `scripts/gates/fairness_equity_gate.py`: fail-closed fairness and equity gate — equalized odds gap, disparate impact ratio (four-fifths rule), per-subgroup PR-AUC validation.
 - `scripts/gates/sample_size_gate.py`: fail-closed sample size adequacy gate — EPV (Riley et al. 2019/2025), shrinkage factor, min events/non-events.
 - `scripts/tools/batch_journal_review.py`: batch audit N projects in parallel with comparison matrix, cross-cutting analysis, and aggregated remediation priorities.

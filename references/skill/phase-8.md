@@ -41,9 +41,11 @@ python3 scripts/gates/fairness_equity_gate.py \
 
 ## 注意事项
 
-- 亚组 n < 200 → 标记为不可靠（MLGG-Q02），不做推断
+- 亚组指标（AUROC、AUPRC 等）**必须报告 95% Bootstrap CI**（MLGG-Q02）
+- 亚组 n < 200 → 标记为不可靠，CI 宽度会很大，不做强推断
 - 如果数据缺少保护属性 → 在报告中声明局限性
 - equity gap = max - min 最优净效用
+- 建议额外报告亚组校准指标（ECE per subgroup），如果样本量允许
 
 ## 完成后告诉用户
 
