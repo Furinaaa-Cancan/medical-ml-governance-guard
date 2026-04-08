@@ -1527,6 +1527,13 @@ def robustness_stress_test(
     rng = np.random.default_rng(seed)
     X_te = np.asarray(X_test, dtype=float)
     y_te = np.asarray(y_test, dtype=int)
+
+    if X_te.shape[0] == 0 or y_te.size == 0:
+        return {"error": "empty_test_set", "robust": False, "verdict": "error"}
+    if len(np.unique(y_te)) < 2 and metric != "pr_auc":
+        # roc_auc_score requires both classes; pr_auc works with single class
+        return {"error": "single_class_test_set", "robust": False, "verdict": "error"}
+
     score_fn = average_precision_score if metric == "pr_auc" else roc_auc_score
 
     # Baseline
@@ -1569,7 +1576,7 @@ def robustness_stress_test(
         results["perturbations"].append({"type": f"gaussian_noise_{int(noise_fraction*100)}pct_std", "score": None})
 
     # 3. Sample dropout
-    n_keep = max(10, int(X_te.shape[0] * (1.0 - dropout_fraction)))
+    n_keep = min(X_te.shape[0], max(10, int(X_te.shape[0] * (1.0 - dropout_fraction))))
     keep_idx = rng.choice(X_te.shape[0], n_keep, replace=False)
     try:
         s = float(score_fn(y_te[keep_idx], estimator.predict_proba(X_te[keep_idx])[:, 1]))
