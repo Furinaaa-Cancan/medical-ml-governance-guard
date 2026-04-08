@@ -1,5 +1,8 @@
 # Phase 6: 评估
 
+> **Pipeline 模式 (路径 A)**：Phase 3-6 由 `mlgg.py train` 一条命令自动完成，本文件仅在 Research 模式下需要。
+> Pipeline 模式用户在 A-3 完成后直接进入 A-4（SHAP），评估 gate 在 A-6（workflow --strict）中统一运行。
+
 ## 目标
 在测试集上执行单次最终评估，生成完整 5 域指标面板 + Bootstrap CI。
 
