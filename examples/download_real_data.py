@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Download and prepare real UCI medical datasets for ml-leakage-guard pipeline.
+Download and prepare real UCI medical datasets for ml-governance-guard pipeline.
 
 Produces a single CSV ready for:
   python3 scripts/orchestration/mlgg.py split -- --input <csv> --patient-id-col patient_id ...
@@ -934,7 +934,7 @@ def prepare_synth_large(output: Path, n_rows: int = 5000) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Download and prepare real UCI medical datasets for ml-leakage-guard pipeline.",
+        description="Download and prepare real UCI medical datasets for ml-governance-guard pipeline.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )

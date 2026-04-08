@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Interactive terminal wizard for ml-leakage-guard core commands.
+Interactive terminal wizard for ml-governance-guard core commands.
 
 Supported commands:
 - init
@@ -66,7 +66,7 @@ DATA_INPUT_MODES = ("pre_split", "single_csv")
 
 def parse_args() -> Tuple[argparse.Namespace, List[str]]:
     parser = argparse.ArgumentParser(
-        description="Interactive wizard for ml-leakage-guard core commands."
+        description="Interactive wizard for ml-governance-guard core commands."
     )
     parser.add_argument(
         "--command",

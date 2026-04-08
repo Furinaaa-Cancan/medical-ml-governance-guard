@@ -270,10 +270,12 @@ class TestMetricPanelExhaustive:
             "accuracy", "precision", "ppv", "npv",
             "sensitivity", "specificity", "f1", "f2_beta",
             "roc_auc", "pr_auc", "brier",
+            "lr_positive", "lr_negative", "mcc",
         }
         for k, v in metrics.items():
             assert isinstance(v, float), f"{k} is not float"
-            assert 0 <= v <= 1, f"{k}={v} out of [0,1]"
+            if k not in ("lr_positive", "lr_negative", "mcc"):
+                assert 0 <= v <= 1, f"{k}={v} out of [0,1]"
 
     def test_ppv_equals_precision(self):
         y_true, y_score, y_pred = self._make_data(200)
@@ -310,7 +312,8 @@ class TestMetricPanelExhaustive:
             metrics, cm = metric_panel(y_true, y_score, y_pred, beta=2.0)
             for k, v in metrics.items():
                 assert math.isfinite(v), f"seed={seed}, {k}={v}"
-                assert 0 <= v <= 1, f"seed={seed}, {k}={v}"
+                if k not in ("lr_positive", "lr_negative", "mcc"):
+                    assert 0 <= v <= 1, f"seed={seed}, {k}={v}"
 
     @pytest.mark.slow
     def test_imbalanced_datasets(self):

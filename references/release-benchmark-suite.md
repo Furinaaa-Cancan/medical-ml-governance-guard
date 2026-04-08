@@ -1,8 +1,8 @@
 # Release Benchmark Suite (v2)
 
-Structured benchmark protocol for stability validation of `ml-leakage-guard`.
+Structured benchmark protocol for stability validation of `ml-governance-guard`.
 
-`ml-leakage-guard` 稳定性验证的结构化基准协议。
+`ml-governance-guard` 稳定性验证的结构化基准协议。
 
 ---
 

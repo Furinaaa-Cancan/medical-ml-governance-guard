@@ -22,7 +22,7 @@ from _gate_framework import (
     print_gate_summary,
     register_remediations,
 )
-from _gate_utils import add_issue, canonical_metric_token as _shared_canonical_metric_token, load_json_from_str as load_json, to_float
+from _gate_utils import add_issue, canonical_metric_token as _shared_canonical_metric_token, contains_test_token as _shared_contains_test_token, load_json_from_str as load_json, to_float
 
 
 register_remediations({
@@ -49,14 +49,9 @@ def canonical_metric_token(value: str) -> str:
     return _shared_canonical_metric_token(value)
 
 
-def contains_test_token(value: str) -> bool:
-    token = value.strip().lower()
-    if not token:
-        return False
-    parts = [p for p in re.split(r"[^a-z0-9]+", token) if p]
-    if "test" in parts:
-        return True
-    return any(p.startswith("test") or p.endswith("test") for p in parts if p not in {"latest", "attest"})
+def contains_test_token(value: Optional[str]) -> bool:
+    """Delegate to shared implementation in _gate_utils."""
+    return _shared_contains_test_token(value)
 
 
 def finite_float(value: Any) -> Optional[float]:
@@ -113,6 +108,14 @@ def csv_row_count(path: Path) -> int:
     return max(total, 0)
 
 
+_ALLOWED_TEST_KEYS = frozenset({
+    "test_used_for_model_selection",
+    "test_used_for_early_stopping",
+    "test_used_for_threshold_selection",
+    "test_used_for_calibration",
+})
+
+
 def scan_candidate_for_test_usage(node: Any, path: str, hits: List[str]) -> None:
     if isinstance(node, dict):
         for key, value in node.items():
@@ -120,7 +123,7 @@ def scan_candidate_for_test_usage(node: Any, path: str, hits: List[str]) -> None
                 continue
             next_path = f"{path}.{key}" if path else key
             key_l = key.lower()
-            if "test" in key_l and key_l not in {"test_used_for_model_selection"}:
+            if "test" in key_l and key_l not in _ALLOWED_TEST_KEYS:
                 hits.append(next_path)
             scan_candidate_for_test_usage(value, next_path, hits)
         return

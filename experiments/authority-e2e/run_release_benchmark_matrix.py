@@ -155,7 +155,7 @@ def parse_bool(raw: Any, default: bool = False) -> bool:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run release benchmark matrix for ml-leakage-guard.")
+    parser = argparse.ArgumentParser(description="Run release benchmark matrix for ml-governance-guard.")
     parser.add_argument(
         "--profile",
         choices=["quick", "release", "extended"],

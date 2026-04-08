@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-ML Leakage Guard — legacy local Web UI wizard.
+ML Governance Guard — legacy local Web UI wizard.
 
 This Flask app is kept as a repository-local browser prototype. The supported
 interactive surface is `python3 scripts/mlgg.py play`; this web wizard is not
@@ -201,7 +201,7 @@ PAGE_HTML = r"""<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ML Leakage Guard</title>
+<title>ML Governance Guard</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -244,7 +244,7 @@ PAGE_HTML = r"""<!DOCTYPE html>
 </head>
 <body>
 <div class="container">
-  <h1>ML Leakage Guard</h1>
+  <h1>ML Governance Guard</h1>
 
   <!-- Progress -->
   <div class="progress">
@@ -668,7 +668,7 @@ def _start_pipeline(sid: str, session: Dict[str, Any]) -> None:
 # ── main ───────────────────────────────────────────────────────────────────────
 def main() -> None:
     """Start the local web UI server."""
-    print("ML Leakage Guard Web UI (legacy local prototype)")
+    print("ML Governance Guard Web UI (legacy local prototype)")
     print("Supported interactive entrypoint: python3 scripts/mlgg.py play")
     print("Open http://127.0.0.1:8501 in your browser.")
     print("Press Ctrl+C to stop.\n")

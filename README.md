@@ -2,7 +2,7 @@
   <br>
   <img src="https://img.shields.io/badge/MLGG-v1.0-FF6B35?style=for-the-badge&labelColor=1a1a2e" alt="MLGG v1.0">
   <br><br>
-  <strong style="font-size: 2.5em;">ML Leakage Guard</strong>
+  <strong style="font-size: 2.5em;">ML Governance Guard</strong>
   <br>
   <em>Publication-Grade Integrity Standard for Medical Prediction Models</em>
   <br><br>
@@ -107,8 +107,8 @@
 
 ```bash
 # 1. 克隆项目
-git clone https://github.com/Furinaaa-Cancan/medical-ml-leakage-guard.git
-cd medical-ml-leakage-guard
+git clone https://github.com/Furinaaa-Cancan/medical-ml-governance-guard.git
+cd medical-ml-governance-guard
 
 # 2. 打开 Claude Code
 claude
@@ -1178,8 +1178,8 @@ docs/                 架构文档
 ## 安装指南
 
 ```bash
-git clone https://github.com/Furinaaa-Cancan/medical-ml-leakage-guard.git
-cd medical-ml-leakage-guard
+git clone https://github.com/Furinaaa-Cancan/medical-ml-governance-guard.git
+cd medical-ml-governance-guard
 python3 -m venv .venv && source .venv/bin/activate
 python3 -m pip install -r requirements.txt
 
@@ -1336,12 +1336,12 @@ AI 会自动：
 
 ```bibtex
 @software{mlgg2026,
-  title   = {ML Leakage Guard (MLGG): Publication-Grade Integrity Standard
+  title   = {ML Governance Guard (MLGG): Publication-Grade Integrity Standard
              for Medical Prediction Models},
   author  = {Weng, Can},
   year    = {2026},
   version = {1.0},
-  url     = {https://github.com/Furinaaa-Cancan/medical-ml-leakage-guard},
+  url     = {https://github.com/Furinaaa-Cancan/medical-ml-governance-guard},
   note    = {33 fail-closed audit gates, 9-phase workflow,
              TRIPOD+AI 2024 / PROBAST+AI 2025 compliant}
 }
@@ -1369,7 +1369,7 @@ AI 会自动：
 
 > This README is written in Chinese as the primary language. All code, commands, and file structures are language-neutral. Click any section link below to jump to the detailed Chinese documentation.
 
-**ML Leakage Guard (MLGG)** is a publication-grade integrity standard for medical binary classification models, providing:
+**ML Governance Guard (MLGG)** is a publication-grade integrity standard for medical binary classification models, providing:
 
 - **33 fail-closed audit gates** in a 9-layer DAG &mdash; covering data leakage, interpretability, fairness, calibration, robustness, TRIPOD+AI 2024, and PROBAST+AI 2025
 - **9-phase guided workflow**: Cohort Definition -> Splitting -> Preprocessing -> Feature Selection -> Training -> Evaluation -> Interpretability -> Fairness -> Reporting

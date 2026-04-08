@@ -1,12 +1,12 @@
-# CLAUDE.md — Agent Operating Protocol for ML Leakage Guard
+# CLAUDE.md — Agent Operating Protocol for ML Governance Guard
 
 ## Project
 
-**ml-leakage-guard** — 面向医学二分类预测的发布级防数据泄漏框架。33 道 fail-closed 门控，覆盖 TRIPOD+AI 2024 / PROBAST+AI 2025 合规。
+**ml-governance-guard (MLGG)** — 面向医学二分类预测的发布级模型治理框架。33 道 fail-closed 门控，覆盖数据泄漏检测、校准验证、公平性审查、TRIPOD+AI 2024 / PROBAST+AI 2025 合规等全生命周期治理。
 
 ## Working Directory
 
-所有命令均在项目根目录 `/Volumes/Seagate/Skill/ml-leakage-guard` 下运行。
+所有命令均在项目根目录 `/Volumes/Seagate/Skill/ml-governance-guard` 下运行。
 
 ## Reviewer Role（始终激活）
 

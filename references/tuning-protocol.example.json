@@ -10,7 +10,7 @@
     "hist_gradient_boosting_l2"
   ],
   "max_trials_per_family": 1,
-  "search_strategy": "fixed_grid",
+  "search_strategy": "random_subsample",
   "n_jobs": -1,
   "model_selection_data": "nested_cv",
   "early_stopping_data": "cv_inner",

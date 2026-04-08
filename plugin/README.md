@@ -2,7 +2,7 @@
 
 Static analysis tool for ML Python code — detects data leakage, improper preprocessing, and evaluation malpractice.
 
-Part of [ML Leakage Guard](https://github.com/Furinaaa-Cancan/medical-ml-leakage-guard).
+Part of [ML Governance Guard](https://github.com/Furinaaa-Cancan/medical-ml-governance-guard).
 
 ## Install
 
@@ -14,7 +14,7 @@ pip install -e .
 Or use directly without installing:
 
 ```bash
-cd ml-leakage-guard
+cd ml-governance-guard
 python3 scripts/mlgg.py lint check <file.py>
 ```
 
@@ -123,7 +123,7 @@ The config file is auto-discovered by walking up from the target file's director
 ```yaml
 # .pre-commit-config.yaml
 repos:
-  - repo: https://github.com/Furinaaa-Cancan/medical-ml-leakage-guard
+  - repo: https://github.com/Furinaaa-Cancan/medical-ml-governance-guard
     rev: main
     hooks:
       - id: mlgg-lint

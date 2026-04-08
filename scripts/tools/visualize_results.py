@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Result Visualization Tool for ML Leakage Guard.
+Result Visualization Tool for ML Governance Guard.
 
 Generates publication-quality plots from evaluation_report.json and
 prediction_trace.csv: ROC curve, PR curve, calibration curve,

@@ -410,7 +410,7 @@ def generate_certificate(
         "issuance": {
             "issued_at": now.isoformat(),
             "expires_at": expiry.isoformat(),
-            "generator_version": f"mlgg-leakage-guard v{MLGG_STANDARD_VERSION}",
+            "generator_version": f"mlgg-governance-guard v{MLGG_STANDARD_VERSION}",
             "generation_script": "scripts/generate_compliance_certificate.py",
             "evidence_directory": str(evidence_dir),
         },

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Novice onboarding runner for ml-leakage-guard.
+Novice onboarding runner for ml-governance-guard.
 
 Flow:
 1) doctor
@@ -150,7 +150,7 @@ TROUBLESHOOTING_TOP20: Dict[str, Dict[str, str]] = {
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Guided novice onboarding for ml-leakage-guard.")
+    parser = argparse.ArgumentParser(description="Guided novice onboarding for ml-governance-guard.")
     parser.add_argument("--project-root", required=True, help="Target project root.")
     parser.add_argument("--mode", choices=["guided", "preview", "auto"], default="guided", help="Onboarding execution mode.")
     parser.add_argument("--lang", choices=["bilingual", "zh", "en"], default="bilingual", help="Prompt language mode.")
@@ -470,7 +470,7 @@ def align_demo_configs(
         raise FileNotFoundError(f"Missing request config: {request_path}")
 
     request = load_json(request_path)
-    request["study_id"] = "user-data-study" if is_user_data else "demo-medical-leakage-guard"
+    request["study_id"] = "user-data-study" if is_user_data else "demo-medical-governance-guard"
     request["run_id"] = run_id
     request["target_name"] = "disease_risk"
     request["prediction_unit"] = "patient-episode"
@@ -1108,7 +1108,7 @@ def main() -> int:
     _init_pid_col = str(getattr(args, "patient_id_col", "patient_id"))
     _init_target_col = str(getattr(args, "target_col", "y"))
     _init_time_col = str(getattr(args, "time_col", "") or "").strip() or "event_time"
-    _init_study_id = "user-data-study" if str(getattr(args, "input_csv", "") or "").strip() else "demo-medical-leakage-guard"
+    _init_study_id = "user-data-study" if str(getattr(args, "input_csv", "") or "").strip() else "demo-medical-governance-guard"
     init_report = evidence_dir / "init_report.json"
     ok = run_command_step(
         name="step2_init",
@@ -1323,7 +1323,7 @@ def main() -> int:
             ensure_keypair(openssl_bin=openssl_bin, private_key=keys_dir / priv_name, public_key=keys_dir / pub_name)
 
         req = load_json(project_root / "configs" / "request.json")
-        study_id = str(req.get("study_id", "demo-medical-leakage-guard"))
+        study_id = str(req.get("study_id", "demo-medical-governance-guard"))
         cmd = [
             python_bin,
             str(SCRIPTS_ROOT / "tools/generate_execution_attestation.py"),

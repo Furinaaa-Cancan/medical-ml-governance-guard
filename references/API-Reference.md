@@ -6,7 +6,7 @@ All scripts live under `scripts/`. Exit codes: **0** = pass, **2** = fail (gate 
 
 ## Unified CLI — `mlgg.py`
 
-**Purpose:** Single entry point for all ML Leakage Guard commands.
+**Purpose:** Single entry point for all ML Governance Guard commands.
 
 ```
 python3 scripts/orchestration/mlgg.py <subcommand> [options] [-- <forwarded-args>]
@@ -76,7 +76,7 @@ python3 scripts/orchestration/mlgg.py split -- --input data.csv --output-dir out
 
 ### `env_doctor.py`
 
-**Purpose:** Check Python/runtime dependencies for ml-leakage-guard.
+**Purpose:** Check Python/runtime dependencies for ml-governance-guard.
 
 | Parameter | Type | Required | Default | Description |
 |---|---|---|---|---|

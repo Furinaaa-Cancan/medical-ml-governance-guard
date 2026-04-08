@@ -165,7 +165,7 @@ def extract_external_summary(external_report: Optional[Dict[str, Any]]) -> Dict[
 
 def to_markdown(summary: Dict[str, Any]) -> str:
     lines: List[str] = []
-    lines.append("# ML Leakage Guard User Summary")
+    lines.append("# ML Governance Guard User Summary")
     lines.append("")
     lines.append(f"- Generated at: `{summary['generated_at_utc']}`")
     lines.append(f"- Study: `{summary.get('study_id')}`")

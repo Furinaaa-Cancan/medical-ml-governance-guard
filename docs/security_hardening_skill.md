@@ -1,4 +1,4 @@
-# ML-Leakage-Guard 安全加固 Skill 归纳总结
+# ML-Governance-Guard 安全加固 Skill 归纳总结
 
 > 加固日期: 2026-03-09  
 > 加固范围: 全项目安全防御体系  

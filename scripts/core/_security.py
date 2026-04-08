@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Security hardening module for ml-leakage-guard.
+Security hardening module for ml-governance-guard.
 
 Provides defense-in-depth against:
     1. Pickle/joblib deserialization RCE (HMAC-signed model artifacts)

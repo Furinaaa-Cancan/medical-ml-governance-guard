@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-ML Leakage Guard -- Interactive Pipeline Wizard.
+ML Governance Guard -- Interactive Pipeline Wizard.
 
 Usage:
     python3 scripts/mlgg_pixel.py
@@ -945,7 +945,7 @@ def step_header(step: int, total: int, title: str) -> None:
     filled = int(bar_w * step / total)
     bar = s('C', _BLOCK * filled) + DIM + _LIGHT * (bar_w - filled) + RST
     pct = f"{int(100 * step / total):>3}%"
-    print(f"  {s('C', 'LEAKAGE GUARD', bold=True)}  {DIM}Step {step}/{total}{RST}  {bar} {DIM}{pct}{RST}")
+    print(f"  {s('C', 'GOVERNANCE GUARD', bold=True)}  {DIM}Step {step}/{total}{RST}  {bar} {DIM}{pct}{RST}")
     print(f"  {s('C', _HLINE * w)}")
     if title:
         print(f"\n  {s('W', title, bold=True)}\n")

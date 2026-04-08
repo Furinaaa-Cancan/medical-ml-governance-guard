@@ -10,7 +10,7 @@ readme = "README.md"
 license = {text = "PolyForm Noncommercial License 1.0.0"}
 requires-python = ">=3.10"
 authors = [
-    {name = "ml-leakage-guard contributors"},
+    {name = "ml-governance-guard contributors"},
 ]
 keywords = ["machine-learning", "lint", "data-leakage", "static-analysis", "medical"]
 classifiers = [

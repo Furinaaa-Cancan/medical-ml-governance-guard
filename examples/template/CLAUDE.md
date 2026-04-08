@@ -1,6 +1,6 @@
 # CLAUDE.md — Medical ML Project Protocol
 
-> 本项目遵循 MLGG（Medical ML Leakage Guard）方法学标准。
+> 本项目遵循 MLGG（Medical ML Governance Guard）方法学标准。
 > Claude 在本项目中始终以 **Nature Methods / JAMA 级审稿人**身份运作。
 
 ## 用户引导

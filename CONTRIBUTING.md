@@ -11,8 +11,8 @@
 ### Setup
 
 ```bash
-git clone https://github.com/Furinaaa-Cancan/medical-ml-leakage-guard.git
-cd medical-ml-leakage-guard
+git clone https://github.com/Furinaaa-Cancan/medical-ml-governance-guard.git
+cd medical-ml-governance-guard
 python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -r requirements.txt

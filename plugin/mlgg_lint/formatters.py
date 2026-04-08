@@ -106,7 +106,7 @@ def format_sarif(diagnostics: List[Diagnostic]) -> str:
             "name": cls.name,
             "shortDescription": {"text": cls.description[:200]},
             "fullDescription": {"text": cls.description},
-            "helpUri": "https://github.com/Furinaaa-Cancan/medical-ml-leakage-guard#rules",
+            "helpUri": "https://github.com/Furinaaa-Cancan/medical-ml-governance-guard#rules",
             "defaultConfiguration": {
                 "level": _sarif_level(cls.severity),
             },
@@ -155,7 +155,7 @@ def format_sarif(diagnostics: List[Diagnostic]) -> str:
                     "driver": {
                         "name": "mlgg-lint",
                         "version": __version__,
-                        "informationUri": "https://github.com/Furinaaa-Cancan/medical-ml-leakage-guard",
+                        "informationUri": "https://github.com/Furinaaa-Cancan/medical-ml-governance-guard",
                         "rules": rules_sarif,
                     }
                 },

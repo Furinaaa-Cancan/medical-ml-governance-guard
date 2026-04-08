@@ -2,7 +2,7 @@
 
 ## Overview
 
-ml-leakage-guard is a **31-step fail-closed gate pipeline** for producing
+ml-governance-guard is a **33-step fail-closed gate pipeline** for producing
 publication-grade medical binary classification evidence. Every gate is an
 independent CLI script that reads JSON/CSV inputs, performs a specific
 validation, and writes a machine-readable JSON report with `status: pass` or
@@ -257,7 +257,7 @@ assessment with recommendations.
 ## Directory Structure
 
 ```
-ml-leakage-guard/
+ml-governance-guard/
 ├── scripts/                    # All executable scripts
 │   ├── mlgg.py                 # Unified CLI entry point
 │   ├── mlgg_onboarding.py      # Guided onboarding flow

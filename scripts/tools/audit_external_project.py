@@ -525,7 +525,7 @@ def _format_text_report(report: Dict[str, Any]) -> str:
     """Format audit report as human-readable text."""
     lines: List[str] = []
     lines.append("=" * 70)
-    lines.append("  ML Leakage Guard — External Project Audit Report")
+    lines.append("  ML Governance Guard — External Project Audit Report")
     lines.append("=" * 70)
     lines.append("")
     lines.append(

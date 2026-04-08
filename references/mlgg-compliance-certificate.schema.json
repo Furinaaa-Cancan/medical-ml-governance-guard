@@ -44,7 +44,7 @@
     "issuance": {
       "issued_at": "2026-03-15T14:30:00Z",
       "expires_at": "2028-03-15T14:30:00Z",
-      "generator_version": "mlgg-leakage-guard v1.0.0",
+      "generator_version": "mlgg-governance-guard v1.0.0",
       "generation_script": "scripts/tools/generate_compliance_certificate.py"
     },
 

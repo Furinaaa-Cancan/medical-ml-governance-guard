@@ -247,4 +247,4 @@ class TestDigestMain:
         rc = digest_main()
         assert rc == 0
         data = json.loads(out.read_text())
-        assert data["gates"]["total"] == 31
+        assert data["gates"]["total"] == 33

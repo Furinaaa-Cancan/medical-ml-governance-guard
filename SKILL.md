@@ -1,9 +1,9 @@
 ---
-name: ml-leakage-guard
+name: ml-governance-guard
 description: "Publication-grade medical prediction workflow with strict anti-data-leakage controls, phenotype-definition safeguards, lineage-based leakage detection, split-protocol verification, class-imbalance policy validation, hyperparameter-tuning isolation checks, falsification tests, and reproducibility gates. Use when building, reviewing, or debugging disease risk or prognosis models in EHR/claims/registry data, especially when target definitions, diagnosis codes, lab criteria, medications, temporal windows, and derived features can leak target information."
 ---
 
-# ML Leakage Guard
+# ML Governance Guard
 
 ## 架构说明
 
@@ -1168,7 +1168,7 @@ python3 scripts/orchestration/mlgg.py batch-review \
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  ML Leakage Guard — Agent Quick Reference                   │
+│  ML Governance Guard — Agent Quick Reference                   │
 ├─────────────────────────────────────────────────────────────┤
 │  构建新项目:  python3 scripts/orchestration/mlgg.py onboarding --mode auto│
 │  审计项目:    python3 scripts/tools/audit_external_project.py     │

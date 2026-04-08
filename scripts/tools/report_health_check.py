@@ -138,7 +138,7 @@ def format_text(result: Dict[str, Any]) -> str:
     """Format health check result as human-readable text."""
     lines: List[str] = []
     lines.append("=" * 60)
-    lines.append("  ML Leakage Guard — Evidence Health Check")
+    lines.append("  ML Governance Guard — Evidence Health Check")
     lines.append("=" * 60)
     lines.append("")
     lines.append(f"  Evidence:     {result['evidence_dir']}")

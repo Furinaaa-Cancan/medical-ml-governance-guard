@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Adversarial strict-gate validation for ml-leakage-guard.
+Adversarial strict-gate validation for ml-governance-guard.
 
 This script intentionally injects protocol violations and verifies that
 corresponding gates fail with expected failure codes.

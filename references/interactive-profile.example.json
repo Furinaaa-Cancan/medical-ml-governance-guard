@@ -25,5 +25,5 @@
     "seed_sensitivity_out": "/tmp/mlgg_demo/evidence/seed_sensitivity_report.json"
   },
   "python": "/usr/bin/python3",
-  "cwd": "/Volumes/Seagate/Skill/ml-leakage-guard"
+  "cwd": "/Volumes/Seagate/Skill/ml-governance-guard"
 }

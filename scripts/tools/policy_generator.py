@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Performance Policy Generator for ML Leakage Guard.
+Performance Policy Generator for ML Governance Guard.
 
 Scans gate reports and evaluation artifacts in an evidence directory,
 extracts observed metric values, and generates a recommended

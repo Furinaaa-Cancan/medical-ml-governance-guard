@@ -31,7 +31,7 @@ BLOCKING_STEP_NAMES = {
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run productized ml-leakage-guard workflow in one command.")
+    parser = argparse.ArgumentParser(description="Run productized ml-governance-guard workflow in one command.")
     parser.add_argument("--request", required=True, help="Path to request JSON.")
     parser.add_argument("--evidence-dir", default="evidence", help="Evidence output directory.")
     parser.add_argument("--compare-manifest", help="Optional manifest baseline for strict pipeline.")

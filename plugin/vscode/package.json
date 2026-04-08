@@ -1,13 +1,13 @@
 {
   "name": "mlgg-lint",
-  "displayName": "ML Leakage Guard Lint",
+  "displayName": "ML Governance Guard Lint",
   "description": "Static analysis for ML code — detects data leakage, improper preprocessing, and evaluation malpractice.",
   "version": "0.1.0",
-  "publisher": "ml-leakage-guard",
+  "publisher": "ml-governance-guard",
   "license": "PolyForm-Noncommercial-1.0.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Furinaaa-Cancan/medical-ml-leakage-guard"
+    "url": "https://github.com/Furinaaa-Cancan/medical-ml-governance-guard"
   },
   "engines": {
     "vscode": "^1.85.0"
@@ -20,7 +20,7 @@
   "main": "./out/extension.js",
   "contributes": {
     "configuration": {
-      "title": "ML Leakage Guard Lint",
+      "title": "ML Governance Guard Lint",
       "properties": {
         "mlgg-lint.enable": {
           "type": "boolean",

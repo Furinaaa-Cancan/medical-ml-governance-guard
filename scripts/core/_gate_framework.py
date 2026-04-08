@@ -1,5 +1,5 @@
 """
-Unified gate framework for ml-leakage-guard.
+Unified gate framework for ml-governance-guard.
 
 Provides GateBase abstract class, standardized report envelope, severity
 levels, remediation hint registry, and CLI helpers. Each gate script can

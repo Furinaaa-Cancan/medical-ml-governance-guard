@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Medical-safe data splitting tool for ml-leakage-guard.
+Medical-safe data splitting tool for ml-governance-guard.
 
 Splits a single CSV into train/valid/test with patient-level disjoint
 splits, temporal ordering enforcement, and prevalence checks.

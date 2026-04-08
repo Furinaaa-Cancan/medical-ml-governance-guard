@@ -1,5 +1,5 @@
 """
-Gate registry and DAG dependency graph for ml-leakage-guard.
+Gate registry and DAG dependency graph for ml-governance-guard.
 
 Declares every gate's metadata, input/output contracts, and inter-gate
 dependencies. The DAG executor uses this to:

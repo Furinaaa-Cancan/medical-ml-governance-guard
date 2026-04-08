@@ -1,6 +1,6 @@
 {
   "contract_version": "journal_rigor_standards.v1",
-  "description": "Top-tier medical journal requirements mapped to ml-leakage-guard gates. Use for gap analysis when targeting specific journals.",
+  "description": "Top-tier medical journal requirements mapped to ml-governance-guard gates. Use for gap analysis when targeting specific journals.",
   "last_updated": "2026-03-15",
   "journals": {
     "nature_medicine": {

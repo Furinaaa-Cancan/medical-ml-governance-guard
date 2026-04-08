@@ -1,5 +1,5 @@
 - id: mlgg-lint
-  name: ML Leakage Guard Lint
+  name: ML Governance Guard Lint
   description: Detect data leakage and ML best-practice violations in Python code.
   entry: mlgg-lint check --exit-code
   language: python

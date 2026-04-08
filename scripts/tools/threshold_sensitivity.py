@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Threshold Sensitivity Analyzer for ML Leakage Guard.
+Threshold Sensitivity Analyzer for ML Governance Guard.
 
 Scans gate reports in an evidence directory and analyzes how close each
 metric sits relative to its pass/fail threshold.  Identifies fragile gates

@@ -321,7 +321,7 @@ def to_text(plan: Dict[str, Any]) -> str:
     """Render remediation plan as plain text."""
     lines: List[str] = []
     lines.append("=" * 60)
-    lines.append("  ML Leakage Guard — Remediation Plan")
+    lines.append("  ML Governance Guard — Remediation Plan")
     lines.append("=" * 60)
     lines.append("")
     lines.append(f"  Issues:  {plan['total_issues']} ({plan['errors']} errors, {plan['warnings']} warnings)")

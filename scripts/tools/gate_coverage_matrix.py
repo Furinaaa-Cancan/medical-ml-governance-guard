@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Gate Coverage Matrix for ML Leakage Guard.
+Gate Coverage Matrix for ML Governance Guard.
 
 Scans an evidence directory against the full gate registry to produce
 a coverage matrix showing which gates have been executed, their status,

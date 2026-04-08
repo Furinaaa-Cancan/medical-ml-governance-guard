@@ -5,10 +5,10 @@
 
   "tools": {
     "mlgg": {
-      "name": "ML Leakage Guard (MLGG)",
+      "name": "ML Governance Guard (MLGG)",
       "version": "1.0",
       "type": "Medical ML pipeline validation framework",
-      "url": "https://github.com/Furinaaa-Cancan/medical-ml-leakage-guard",
+      "url": "https://github.com/Furinaaa-Cancan/medical-ml-governance-guard",
       "scope": "End-to-end medical binary classification audit"
     },
     "manual_tripod": {

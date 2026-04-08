@@ -1,7 +1,7 @@
 {
   "contract_version": "mlgg_standard_specification.v1",
   "standard_id": "MLGG",
-  "standard_full_name": "Machine Learning Leakage Guard — Prediction Model Integrity Standard",
+  "standard_full_name": "Machine Learning Governance Guard — Prediction Model Integrity Standard",
   "version": "1.0.0",
   "version_date": "2026-03-15",
   "status": "Active",
@@ -9,7 +9,7 @@
   "language": "en",
 
   "citation": {
-    "preferred_citation": "Machine Learning Leakage Guard (MLGG) Standard v1.0. ml-leakage-guard project. 2026. https://github.com/Furinaaa-Cancan/medical-ml-leakage-guard",
+    "preferred_citation": "Machine Learning Governance Guard (MLGG) Standard v1.0. ml-governance-guard project. 2026. https://github.com/Furinaaa-Cancan/medical-ml-governance-guard",
     "note": "When citing this standard in a manuscript, please include the MLGG version number and the conformance level achieved (e.g., 'MLGG v1.0 L3-Publication-Grade')."
   },
 
@@ -269,9 +269,9 @@
   },
 
   "governance": {
-    "maintainer": "ml-leakage-guard project",
-    "repository": "https://github.com/Furinaaa-Cancan/medical-ml-leakage-guard",
-    "issue_tracker": "https://github.com/Furinaaa-Cancan/medical-ml-leakage-guard/issues",
+    "maintainer": "ml-governance-guard project",
+    "repository": "https://github.com/Furinaaa-Cancan/medical-ml-governance-guard",
+    "issue_tracker": "https://github.com/Furinaaa-Cancan/medical-ml-governance-guard/issues",
     "contribution_process": "See CONTRIBUTING.md for gate contribution guidelines",
     "review_cycle": "Annual review of normative references; immediate patch for critical bugs"
   },

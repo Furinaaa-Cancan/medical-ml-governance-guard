@@ -22,7 +22,7 @@ from _gate_framework import (
     print_gate_summary,
     register_remediations,
 )
-from _gate_utils import add_issue
+from _gate_utils import add_issue, contains_test_token as _shared_contains_test_token
 
 
 register_remediations({
@@ -94,19 +94,8 @@ def require_int(spec: Dict[str, Any], key: str, failures: List[Dict[str, Any]]) 
 
 
 def contains_test_token(value: Optional[str]) -> bool:
-    if not value:
-        return False
-    token = value.strip().lower()
-    if "no_test" in token or "without_test" in token or "exclude_test" in token or "notest" in token:
-        return False
-    parts = [p for p in re.split(r"[^a-z0-9]+", token) if p]
-    if "test" in parts:
-        return True
-    for part in parts:
-        if part.startswith("test") or part.endswith("test"):
-            if part not in {"latest", "attest", "tested", "testing"}:
-                return True
-    return False
+    """Delegate to shared implementation in _gate_utils."""
+    return _shared_contains_test_token(value)
 
 
 def main() -> int:

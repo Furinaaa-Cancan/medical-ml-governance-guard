@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Evidence Comparator for ML Leakage Guard.
+Evidence Comparator for ML Governance Guard.
 
 Compares two evidence directories (baseline vs current) side-by-side,
 showing which gates improved, regressed, or stayed the same between runs.

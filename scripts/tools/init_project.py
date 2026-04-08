@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-One-command project bootstrap for ml-leakage-guard publication-grade workflow.
+One-command project bootstrap for ml-governance-guard publication-grade workflow.
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ TEMPLATE_COPY_MAP = {
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Bootstrap a publication-grade ml-leakage-guard project.")
+    parser = argparse.ArgumentParser(description="Bootstrap a publication-grade ml-governance-guard project.")
     parser.add_argument("--project-root", required=True, help="Project folder to initialize.")
     parser.add_argument("--study-id", default="medical-prediction-v1", help="study_id for request.json.")
     parser.add_argument("--run-id", default="", help="run_id for request.json (defaults to UTC timestamp token).")

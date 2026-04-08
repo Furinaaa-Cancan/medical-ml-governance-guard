@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-DAG-based pipeline executor for ml-leakage-guard gates.
+DAG-based pipeline executor for ml-governance-guard gates.
 
 Replaces the hardcoded sequential run_strict_pipeline.py with a declarative
 DAG-driven executor that provides:
@@ -79,7 +79,7 @@ CHECKPOINT_FILE = ".dag_checkpoint.json"
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="DAG-based pipeline executor for ml-leakage-guard gates.",
+        description="DAG-based pipeline executor for ml-governance-guard gates.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Unified CLI entrypoint for ml-leakage-guard.
+Unified CLI entrypoint for ml-governance-guard.
 
 This is a thin wrapper that forwards subcommands to existing scripts, so users
 can use one stable command surface in terminal workflows and agent automation.
@@ -426,7 +426,7 @@ def build_parser() -> argparse.ArgumentParser:
     command_help = "\n".join([f"  - {name}: {desc}" for name, (_, desc) in sorted(COMMANDS.items())])
     parser = argparse.ArgumentParser(
         description=(
-            "ml-leakage-guard unified CLI.\n\n"
+            "ml-governance-guard unified CLI.\n\n"
             "Available commands:\n"
             f"{command_help}\n\n"
             "Examples:\n"

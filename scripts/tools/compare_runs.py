@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Run Comparison Tool for ML Leakage Guard.
+Run Comparison Tool for ML Governance Guard.
 
 Compares two evidence directories and produces a JSON diff report
 and Markdown summary highlighting gate status changes, metric deltas,

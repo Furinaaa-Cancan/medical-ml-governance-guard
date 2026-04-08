@@ -26,7 +26,7 @@ import tempfile
 from pathlib import Path
 from typing import Any, Dict, List
 
-SCRIPTS_DIR = Path(__file__).resolve().parent
+SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
 PYTHON = sys.executable
 
 
@@ -2219,7 +2219,7 @@ def test_mlgg_interactive_help_passthrough_requires_command_and_returns_script_h
     proc = run_gate([str(SCRIPTS_DIR / "orchestration/mlgg.py"), "interactive", "--", "--help"])
     assert_true(proc.returncode == 0, "interactive passthrough help exits 0")
     body = proc.stdout + "\n" + proc.stderr
-    assert_true("Interactive wizard for ml-leakage-guard core commands." in body, "interactive help content is returned")
+    assert_true("Interactive wizard for ml-governance-guard core commands." in body, "interactive help content is returned")
 
 
 def test_mlgg_subcommand_direct_help_for_onboarding_and_interactive_train() -> None:
@@ -2227,14 +2227,14 @@ def test_mlgg_subcommand_direct_help_for_onboarding_and_interactive_train() -> N
     onboarding_help = run_gate([str(SCRIPTS_DIR / "orchestration/mlgg.py"), "onboarding", "--help"])
     assert_true(onboarding_help.returncode == 0, "onboarding --help exits 0")
     onboarding_body = onboarding_help.stdout + "\n" + onboarding_help.stderr
-    assert_true("Guided novice onboarding for ml-leakage-guard." in onboarding_body, "onboarding direct help is routed")
+    assert_true("Guided novice onboarding for ml-governance-guard." in onboarding_body, "onboarding direct help is routed")
     interactive_train_help = run_gate(
         [str(SCRIPTS_DIR / "orchestration/mlgg.py"), "train", "--interactive", "--help"]
     )
     assert_true(interactive_train_help.returncode == 0, "train --interactive --help exits 0")
     interactive_body = interactive_train_help.stdout + "\n" + interactive_train_help.stderr
     assert_true(
-        "Interactive wizard for ml-leakage-guard core commands." in interactive_body,
+        "Interactive wizard for ml-governance-guard core commands." in interactive_body,
         "train --interactive --help routes to interactive wizard help",
     )
 
@@ -2253,7 +2253,7 @@ def test_mlgg_subcommand_direct_help_with_global_options() -> None:
     assert_true(onboarding_help.returncode == 0, "global --python + onboarding --help exits 0")
     onboarding_body = onboarding_help.stdout + "\n" + onboarding_help.stderr
     assert_true(
-        "Guided novice onboarding for ml-leakage-guard." in onboarding_body,
+        "Guided novice onboarding for ml-governance-guard." in onboarding_body,
         "global --python still routes to onboarding help",
     )
     interactive_help = run_gate(
@@ -2269,7 +2269,7 @@ def test_mlgg_subcommand_direct_help_with_global_options() -> None:
     assert_true(interactive_help.returncode == 0, "global --cwd + train --interactive --help exits 0")
     interactive_body = interactive_help.stdout + "\n" + interactive_help.stderr
     assert_true(
-        "Interactive wizard for ml-leakage-guard core commands." in interactive_body,
+        "Interactive wizard for ml-governance-guard core commands." in interactive_body,
         "global --cwd still routes to interactive wizard help",
     )
 

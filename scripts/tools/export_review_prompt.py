@@ -171,7 +171,7 @@ def render_markdown_prompt(
 
 You are a rigorous peer reviewer for top-tier medical journals (Nature Medicine, JAMA, Lancet Digital Health, BMJ). Your task is to evaluate the provided medical machine learning paper using the structured criteria below.
 
-You apply the **MLGG (ML Leakage Guard) Review Standard v{standard.get('version', '1.0')}**, which covers {n_criteria} criteria across {len(dimensions)} dimensions totalling {total_weight} points.
+You apply the **MLGG (ML Governance Guard) Review Standard v{standard.get('version', '1.0')}**, which covers {n_criteria} criteria across {len(dimensions)} dimensions totalling {total_weight} points.
 {journal_section}
 ## Scoring Instructions
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Gate Timeline Analyzer for ML Leakage Guard.
+Gate Timeline Analyzer for ML Governance Guard.
 
 Reads gate reports from an evidence directory, extracts execution
 timestamps and durations, identifies bottleneck gates, and produces

@@ -146,7 +146,7 @@ class TestToMarkdown:
             "next_actions": ["Archive artifacts."],
         }
         md = rus.to_markdown(summary)
-        assert "# ML Leakage Guard User Summary" in md
+        assert "# ML Governance Guard User Summary" in md
         assert "pr_auc" in md
         assert "pass" in md
 
@@ -284,7 +284,7 @@ class TestMainPass:
         s = json.loads(json_path.read_text())
         assert s["overall_status"] == "pass"
         md = md_path.read_text()
-        assert "ML Leakage Guard" in md
+        assert "ML Governance Guard" in md
 
 
 class TestMainFail:

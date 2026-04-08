@@ -644,7 +644,7 @@ def build_clinical_floor_gap_summary(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run authoritative publication-grade E2E checks for ml-leakage-guard."
+        description="Run authoritative publication-grade E2E checks for ml-governance-guard."
     )
     parser.add_argument(
         "--include-stress-cases",

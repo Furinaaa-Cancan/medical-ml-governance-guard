@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Environment self-check for ml-leakage-guard.
+Environment self-check for ml-governance-guard.
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ from _gate_utils import add_issue, write_json
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Check Python/runtime dependencies for ml-leakage-guard.")
+    parser = argparse.ArgumentParser(description="Check Python/runtime dependencies for ml-governance-guard.")
     parser.add_argument(
         "--require-optional-models",
         default="",

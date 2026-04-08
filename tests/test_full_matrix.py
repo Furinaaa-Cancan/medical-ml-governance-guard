@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Full Matrix Integration Test for ML Leakage Guard.
+Full Matrix Integration Test for ML Governance Guard.
 
 Test matrix: 3 datasets × 3 split strategies × 2 tuning strategies = 18 combinations.
 Each combination: download data → split → train (2 minimal models) → verify output.
