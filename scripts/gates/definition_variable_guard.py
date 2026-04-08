@@ -42,6 +42,14 @@ register_remediations({
         "Predictor column is listed as post_prediction_features — data collected after "
         "the prediction time point. Remove it or justify why it is available at prediction time."
     ),
+    "input_error": "Verify that all split CSV files exist and are readable.",
+    "column_mismatch": "Ensure all split CSVs share identical column headers.",
+    "missing_definition_spec": "Provide the phenotype definition spec JSON file at the specified path.",
+    "invalid_definition_spec": "Fix the definition spec so it is a valid JSON object with correct field types.",
+    "target_not_found": "Add the requested target to the definition spec targets block, or use --allow-missing-target.",
+    "empty_forbidden_rules": "Define at least one forbidden variable or pattern in the definition spec for strict mode.",
+    "invalid_forbidden_pattern": "Fix the invalid regex in forbidden_patterns so it compiles without errors.",
+    "no_features_checked": "Reduce the ignore-cols list so at least one predictor column is checked.",
 })
 
 

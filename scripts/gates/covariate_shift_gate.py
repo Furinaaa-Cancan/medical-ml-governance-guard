@@ -35,6 +35,23 @@ register_remediations({
     "covariate_shift_jsd_high": "High Jensen-Shannon divergence between splits. Investigate feature distribution changes.",
     "covariate_shift_separability_high": "Domain classifier can distinguish splits with high accuracy. Strong covariate shift present.",
     "covariate_shift_missingness_drift": "Missing data patterns differ significantly between splits.",
+    "invalid_threshold_range": "Set the threshold parameter to a finite value within [0, 1].",
+    "invalid_prevalence_threshold_order": "Ensure warn-prevalence-delta is less than or equal to max-prevalence-delta.",
+    "invalid_numeric_bins": "Set numeric-bins to at least 2 for meaningful histogram binning.",
+    "invalid_categorical_buckets": "Set categorical-buckets to at least 2 for meaningful hash bucketing.",
+    "invalid_max_rows_per_split": "Set max-rows-per-split to 0 (unlimited) or a positive integer.",
+    "feature_type_discovery_failed": "Verify the train CSV exists, has a valid header, and contains usable feature columns.",
+    "split_profile_failed": "Verify that all split CSVs exist, share the same feature columns, and are readable.",
+    "empty_split": "Ensure every split contains at least one data row.",
+    "invalid_labels": "Fix non-binary or unparseable labels in the target column so all rows are 0 or 1.",
+    "split_profile_truncated": "Increase max-rows-per-split or set to 0 for a full-data covariate shift audit.",
+    "no_finite_shift_metrics": "Check that splits have overlapping non-missing feature values to produce JSD scores.",
+    "top_feature_shift_too_high": "Investigate the top-shifted feature for data collection or preprocessing drift.",
+    "mean_top10_shift_too_high": "Multiple features show distribution shift — review data pipeline consistency across splits.",
+    "too_many_high_shift_features": "A large fraction of features shifted — check for systematic collection or encoding differences.",
+    "missingness_shift_exceeds_threshold": "Investigate differing missingness patterns between splits for potential informative missingness.",
+    "prevalence_shift_too_high": "Outcome prevalence differs too much between splits — verify stratified splitting was used.",
+    "prevalence_shift_warning": "Outcome prevalence differs across splits — confirm this is expected or re-stratify.",
 })
 
 
