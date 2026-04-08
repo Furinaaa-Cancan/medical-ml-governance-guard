@@ -183,7 +183,7 @@ def read_label_stats(path: str, split_name: str, target_col: str) -> Dict[str, A
     if minority > 0:
         ratio = majority / float(minority)
     elif majority > 0:
-        ratio = math.inf
+        ratio = 1000.0  # Cap to avoid JSON-incompatible Infinity
 
     prevalence = None
     denom = pos + neg
