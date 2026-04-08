@@ -255,8 +255,13 @@ python3 scripts/orchestration/mlgg.py workflow \
 1. 读取 phase-N.md
 2. 告诉用户目标和预期耗时
 3. 审查用户代码 / 运行 gate
-4. **评审循环**（`references/skill/review-protocol.md`）
-5. 通过 → 总结卡 → 用户确认 → 下一步
+4. **临床语义审查**（SKILL.md "Clinical Semantic Review Checklist"）：
+   - Phase 1-3：检查每个特征的时间线——是入院前、住院中、还是出院后产生的？出院后变量不能用于预测出院后结局
+   - Phase 6：多模型比较是否需要多重检验校正？校准是否报告了 slope/intercept/O:E（Van Calster 2019 trio）？
+   - Phase 7：是否做了跨模型 SHAP 一致性（Spearman ρ）？ρ < 0.5 = 警告
+   - Phase 8：亚组指标是否有 95% Bootstrap CI？小样本亚组是否标记？
+5. **评审循环**（`references/skill/review-protocol.md`）
+6. 通过 → 总结卡 → 用户确认 → 下一步
 
 **中途恢复**：检查前序 evidence 文件是否存在：
 
