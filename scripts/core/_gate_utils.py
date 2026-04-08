@@ -433,8 +433,11 @@ def metric_panel(
     mcc = ((tp * tn) - (fp * fn)) / mcc_denom if mcc_denom > 0 else 0.0
 
     # Likelihood ratios (clinical decision-making gold standard)
-    lr_positive = sensitivity / (1.0 - specificity) if specificity < 1.0 else float("inf")
-    lr_negative = (1.0 - sensitivity) / specificity if specificity > 0 else float("inf")
+    # Cap at 1000 to avoid JSON-incompatible Infinity (consistent with
+    # train_select_evaluate.py Round 3 fix).
+    _LR_CAP = 1000.0
+    lr_positive = min(sensitivity / (1.0 - specificity), _LR_CAP) if specificity < 1.0 else _LR_CAP
+    lr_negative = min((1.0 - sensitivity) / specificity, _LR_CAP) if specificity > 0 else _LR_CAP
 
     metrics = {
         "accuracy": accuracy,
@@ -506,9 +509,15 @@ def calibration_metrics(
     import sklearn
     _sklearn_version = tuple(int(x) for x in sklearn.__version__.split(".")[:2])
     if _sklearn_version >= (1, 8):
-        lr = LogisticRegression(C=1e10, solver="lbfgs", max_iter=1000)
-    else:
+        # sklearn 1.8 deprecated penalty=None; use C=np.inf instead.
+        lr = LogisticRegression(C=np.inf, solver="lbfgs", max_iter=1000)
+    elif _sklearn_version >= (1, 2):
+        # penalty=None supported from sklearn 1.2+; unpenalised logistic
+        # regression gives unbiased calibration slope (Van Calster 2019).
         lr = LogisticRegression(penalty=None, solver="lbfgs", max_iter=1000)
+    else:
+        # Fallback: very large C ≈ no regularisation
+        lr = LogisticRegression(C=1e10, solver="lbfgs", max_iter=1000)
     lr.fit(logit_s.reshape(-1, 1), y_t)
     cal_intercept = float(lr.intercept_[0])
     cal_slope = float(lr.coef_[0][0])
@@ -625,8 +634,9 @@ def learning_curve_data(
             est.fit(X_sub, y_sub)
             train_score = float(score_fn(y_sub, est.predict_proba(X_sub)[:, 1]))
             test_score = float(score_fn(y_test, est.predict_proba(X_test)[:, 1]))
-        except Exception:
-            continue  # Skip this fraction if clone/fit/predict fails
+        except Exception as exc:
+            print(f"[learning_curve] fraction={frac}: {exc}", file=sys.stderr)
+            continue
 
         results.append({
             "fraction": round(frac, 2),
@@ -773,7 +783,8 @@ def compute_vif(
             ss_tot = float(np.sum((y_j - y_j.mean()) ** 2))
             r2 = 1.0 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
             vif = 1.0 / (1.0 - r2) if r2 < 1.0 else float("inf")
-        except Exception:
+        except Exception as exc:
+            print(f"[compute_vif] feature={feature_names[j]}: {exc}", file=sys.stderr)
             vif = float("nan")
 
         vif_values.append({
@@ -881,9 +892,19 @@ def check_nonlinearity(
             continue
 
         # Fit linear logistic: logit(y) ~ β₀ + β₁·x
+        # Unpenalised MLE required for valid LR test likelihoods.
         from sklearn.linear_model import LogisticRegression
+        import sklearn as _sk_nl
+        _sk_nl_ver = tuple(int(x) for x in _sk_nl.__version__.split(".")[:2])
+        _lr_kwargs: Dict[str, Any] = {"max_iter": 500, "solver": "lbfgs"}
+        if _sk_nl_ver >= (1, 8):
+            _lr_kwargs["C"] = float("inf")
+        elif _sk_nl_ver >= (1, 2):
+            _lr_kwargs["penalty"] = None
+        else:
+            _lr_kwargs["C"] = 1e10
         try:
-            lr_linear = LogisticRegression(max_iter=500, solver="lbfgs")
+            lr_linear = LogisticRegression(**_lr_kwargs)
             lr_linear.fit(x_j.reshape(-1, 1), y_arr)
             ll_linear = float(np.sum(
                 y_arr * np.log(np.clip(lr_linear.predict_proba(x_j.reshape(-1, 1))[:, 1], 1e-10, 1 - 1e-10))
@@ -909,7 +930,7 @@ def check_nonlinearity(
                 spline_cols.append(term.reshape(-1, 1))
             X_spline = np.hstack(spline_cols)
 
-            lr_spline = LogisticRegression(max_iter=500, solver="lbfgs")
+            lr_spline = LogisticRegression(**_lr_kwargs)
             lr_spline.fit(X_spline, y_arr)
             ll_spline = float(np.sum(
                 y_arr * np.log(np.clip(lr_spline.predict_proba(X_spline)[:, 1], 1e-10, 1 - 1e-10))
@@ -1275,7 +1296,8 @@ def feature_ablation(
         full_est = clone(estimator)
         full_est.fit(X_tr, y_tr)
         full_score = float(score_fn(y_te, full_est.predict_proba(X_te)[:, 1]))
-    except Exception:
+    except Exception as exc:
+        print(f"[feature_ablation] full model fit failed: {exc}", file=sys.stderr)
         return []
 
     # Permutation importance to determine ablation order
@@ -1287,7 +1309,8 @@ def feature_ablation(
         try:
             perm_score = float(score_fn(y_te, full_est.predict_proba(X_perm)[:, 1]))
             importances.append((j, full_score - perm_score))
-        except Exception:
+        except Exception as exc:
+            print(f"[feature_ablation] permutation j={j}: {exc}", file=sys.stderr)
             importances.append((j, 0.0))
 
     # Sort by importance descending
@@ -1302,7 +1325,8 @@ def feature_ablation(
             abl_est = clone(estimator)
             abl_est.fit(X_tr[:, mask], y_tr)
             abl_score = float(score_fn(y_te, abl_est.predict_proba(X_te[:, mask])[:, 1]))
-        except Exception:
+        except Exception as exc:
+            print(f"[feature_ablation] ablate {feature_names[j] if j < len(feature_names) else j}: {exc}", file=sys.stderr)
             abl_score = None
 
         results.append({
@@ -1435,7 +1459,8 @@ def bootstrap_optimism_correction(
             s_boot = float(score_fn(y_boot, est.predict_proba(X_boot)[:, 1]))
             s_orig = float(score_fn(y, est.predict_proba(X)[:, 1]))
             optimisms.append(s_boot - s_orig)
-        except Exception:
+        except Exception as exc:
+            print(f"[bootstrap_optimism] bootstrap {b}: {exc}", file=sys.stderr)
             continue
 
     if len(optimisms) < 10:
@@ -1558,7 +1583,8 @@ def robustness_stress_test(
             "type": f"outlier_injection_{int(outlier_fraction*100)}pct", "score": round(s, 4),
             "delta": round(s - baseline, 4), "relative_drop_pct": round((baseline - s) / max(baseline, 1e-10) * 100, 2),
         })
-    except Exception:
+    except Exception as exc:
+        print(f"[robustness] outlier_injection: {exc}", file=sys.stderr)
         results["perturbations"].append({"type": f"outlier_injection_{int(outlier_fraction*100)}pct", "score": None})
 
     # 2. Gaussian noise
@@ -1572,7 +1598,8 @@ def robustness_stress_test(
             "type": f"gaussian_noise_{int(noise_fraction*100)}pct_std", "score": round(s, 4),
             "delta": round(s - baseline, 4), "relative_drop_pct": round((baseline - s) / max(baseline, 1e-10) * 100, 2),
         })
-    except Exception:
+    except Exception as exc:
+        print(f"[robustness] gaussian_noise: {exc}", file=sys.stderr)
         results["perturbations"].append({"type": f"gaussian_noise_{int(noise_fraction*100)}pct_std", "score": None})
 
     # 3. Sample dropout
@@ -1584,7 +1611,8 @@ def robustness_stress_test(
             "type": f"sample_dropout_{int(dropout_fraction*100)}pct", "score": round(s, 4),
             "delta": round(s - baseline, 4), "relative_drop_pct": round((baseline - s) / max(baseline, 1e-10) * 100, 2),
         })
-    except Exception:
+    except Exception as exc:
+        print(f"[robustness] sample_dropout: {exc}", file=sys.stderr)
         results["perturbations"].append({"type": f"sample_dropout_{int(dropout_fraction*100)}pct", "score": None})
 
     # 4. Feature zeroing (zero out top-N features by variance)
@@ -1600,8 +1628,8 @@ def robustness_stress_test(
                 "feature_index": int(fi), "score": round(s, 4),
                 "delta": round(s - baseline, 4),
             })
-        except Exception:
-            pass
+        except Exception as exc:
+            print(f"[robustness] feature_zero fi={fi}: {exc}", file=sys.stderr)
     results["perturbations"].append({
         "type": f"feature_zeroing_top{top_n_features}", "per_feature": feat_zero_results,
         "max_drop": round(min(f["delta"] for f in feat_zero_results), 4) if feat_zero_results else None,
@@ -1718,7 +1746,8 @@ def mnar_sensitivity_analysis(
             est.fit(X_tr_shifted, y_train)
             y_score = est.predict_proba(X_te_shifted)[:, 1]
             score = float(score_fn(y_test, y_score))
-        except Exception:
+        except Exception as exc:
+            print(f"[mnar_sensitivity] delta={delta}: {exc}", file=sys.stderr)
             score = None
 
         if delta == 0.0 or (baseline_score is None and delta == min(deltas, key=abs)):
@@ -2093,7 +2122,8 @@ def imputation_sensitivity(
                 "pr_auc": round(float(average_precision_score(y_te, y_score)), 4),
                 "brier": round(float(brier_score_loss(y_te, y_score)), 4),
             })
-        except Exception:
+        except Exception as exc:
+            print(f"[imputation_sensitivity] method={name}: {exc}", file=sys.stderr)
             results.append({"method": name, "auroc": None, "pr_auc": None, "brier": None})
 
     # Assess robustness
