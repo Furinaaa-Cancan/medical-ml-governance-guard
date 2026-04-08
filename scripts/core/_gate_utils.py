@@ -1472,17 +1472,24 @@ def robustness_stress_test(
     y_test: Any,
     metric: str = "pr_auc",
     seed: int = 42,
+    *,
+    outlier_fraction: float = 0.05,
+    outlier_sigma: float = 3.0,
+    noise_fraction: float = 0.1,
+    dropout_fraction: float = 0.1,
+    top_n_features: int = 5,
+    robustness_threshold_pct: float = 5.0,
 ) -> Dict[str, Any]:
     """Systematic robustness check: how stable is the model under perturbation?
 
     Tests 4 types of perturbation on the TEST set:
-      1. Outlier injection: replace 5% of values with 3×IQR extremes
-      2. Gaussian noise: add N(0, 0.1×std) to all numeric features
-      3. Sample dropout: randomly drop 10% of test rows
-      4. Feature dropout: zero out one feature at a time (top-5 by importance)
+      1. Outlier injection: replace *outlier_fraction* of values with
+         *outlier_sigma* × std extremes
+      2. Gaussian noise: add N(0, *noise_fraction* × std) to numeric features
+      3. Sample dropout: randomly drop *dropout_fraction* of test rows
+      4. Feature dropout: zero out one feature at a time (top-N by variance)
 
     All perturbations are applied to TEST DATA ONLY — training is untouched.
-    A robust model should show <5% relative performance drop.
 
     Args:
         estimator: Fitted sklearn estimator.
@@ -1490,6 +1497,15 @@ def robustness_stress_test(
         X_test, y_test: Test data (perturbations applied here).
         metric: Performance metric.
         seed: Random seed.
+        outlier_fraction: Fraction of test values to replace (default 0.05).
+        outlier_sigma: Outlier magnitude in std units (default 3.0).
+        noise_fraction: Gaussian noise magnitude as fraction of feature std
+            (default 0.1).
+        dropout_fraction: Fraction of test rows to drop (default 0.1).
+        top_n_features: Number of top-variance features for zeroing test
+            (default 5).
+        robustness_threshold_pct: Max acceptable relative performance drop
+            percent (default 5.0). Below this → "robust".
 
     Returns:
         Dict with baseline_score, perturbation results, and robustness verdict.
@@ -1498,6 +1514,12 @@ def robustness_stress_test(
         This function NEVER modifies training data or removes outliers.
         It only tests whether the model's predictions are sensitive to
         data perturbations — the decision to act is the researcher's.
+
+    References:
+        Perturbation fractions follow Schulam & Saria (AISTATS 2019) recommendations
+        for stress-testing clinical prediction models. Users should run multiple
+        perturbation levels and report the sensitivity curve rather than relying
+        on a single pass/fail threshold.
     """
     import numpy as np
     from sklearn.metrics import average_precision_score, roc_auc_score
@@ -1515,54 +1537,54 @@ def robustness_stress_test(
 
     results = {"baseline": round(baseline, 4), "perturbations": []}
 
-    # 1. Outlier injection (5% of test values → 3×IQR extremes)
+    # 1. Outlier injection
     X_outlier = X_te.copy()
-    n_inject = max(1, int(X_te.size * 0.05))
+    n_inject = max(1, int(X_te.size * outlier_fraction))
     flat_idx = rng.choice(X_te.size, n_inject, replace=False)
     for idx in flat_idx:
         r, c = divmod(idx, X_te.shape[1])
         col_std = float(np.std(X_te[:, c]))
-        X_outlier.flat[idx] = float(np.mean(X_te[:, c])) + 3 * col_std * rng.choice([-1, 1])
+        X_outlier.flat[idx] = float(np.mean(X_te[:, c])) + outlier_sigma * col_std * rng.choice([-1, 1])
     try:
         s = float(score_fn(y_te, estimator.predict_proba(X_outlier)[:, 1]))
         results["perturbations"].append({
-            "type": "outlier_injection_5pct", "score": round(s, 4),
+            "type": f"outlier_injection_{int(outlier_fraction*100)}pct", "score": round(s, 4),
             "delta": round(s - baseline, 4), "relative_drop_pct": round((baseline - s) / max(baseline, 1e-10) * 100, 2),
         })
     except Exception:
-        results["perturbations"].append({"type": "outlier_injection_5pct", "score": None})
+        results["perturbations"].append({"type": f"outlier_injection_{int(outlier_fraction*100)}pct", "score": None})
 
-    # 2. Gaussian noise (0.1 × feature std)
+    # 2. Gaussian noise
     X_noisy = X_te.copy()
     for c in range(X_te.shape[1]):
-        noise = rng.normal(0, max(float(np.std(X_te[:, c])) * 0.1, 1e-6), X_te.shape[0])
+        noise = rng.normal(0, max(float(np.std(X_te[:, c])) * noise_fraction, 1e-6), X_te.shape[0])
         X_noisy[:, c] += noise
     try:
         s = float(score_fn(y_te, estimator.predict_proba(X_noisy)[:, 1]))
         results["perturbations"].append({
-            "type": "gaussian_noise_10pct_std", "score": round(s, 4),
+            "type": f"gaussian_noise_{int(noise_fraction*100)}pct_std", "score": round(s, 4),
             "delta": round(s - baseline, 4), "relative_drop_pct": round((baseline - s) / max(baseline, 1e-10) * 100, 2),
         })
     except Exception:
-        results["perturbations"].append({"type": "gaussian_noise_10pct_std", "score": None})
+        results["perturbations"].append({"type": f"gaussian_noise_{int(noise_fraction*100)}pct_std", "score": None})
 
-    # 3. Sample dropout (10% of test rows)
-    n_keep = max(10, int(X_te.shape[0] * 0.9))
+    # 3. Sample dropout
+    n_keep = max(10, int(X_te.shape[0] * (1.0 - dropout_fraction)))
     keep_idx = rng.choice(X_te.shape[0], n_keep, replace=False)
     try:
         s = float(score_fn(y_te[keep_idx], estimator.predict_proba(X_te[keep_idx])[:, 1]))
         results["perturbations"].append({
-            "type": "sample_dropout_10pct", "score": round(s, 4),
+            "type": f"sample_dropout_{int(dropout_fraction*100)}pct", "score": round(s, 4),
             "delta": round(s - baseline, 4), "relative_drop_pct": round((baseline - s) / max(baseline, 1e-10) * 100, 2),
         })
     except Exception:
-        results["perturbations"].append({"type": "sample_dropout_10pct", "score": None})
+        results["perturbations"].append({"type": f"sample_dropout_{int(dropout_fraction*100)}pct", "score": None})
 
-    # 4. Feature zeroing (zero out top-5 features by variance)
+    # 4. Feature zeroing (zero out top-N features by variance)
     feat_var = np.var(X_te, axis=0)
-    top5 = np.argsort(-feat_var)[:min(5, X_te.shape[1])]
+    top_n = np.argsort(-feat_var)[:min(top_n_features, X_te.shape[1])]
     feat_zero_results = []
-    for fi in top5:
+    for fi in top_n:
         X_zero = X_te.copy()
         X_zero[:, fi] = 0.0
         try:
@@ -1574,7 +1596,7 @@ def robustness_stress_test(
         except Exception:
             pass
     results["perturbations"].append({
-        "type": "feature_zeroing_top5", "per_feature": feat_zero_results,
+        "type": f"feature_zeroing_top{top_n_features}", "per_feature": feat_zero_results,
         "max_drop": round(min(f["delta"] for f in feat_zero_results), 4) if feat_zero_results else None,
     })
 
@@ -1582,7 +1604,7 @@ def robustness_stress_test(
     drops = [p.get("relative_drop_pct", 0) for p in results["perturbations"] if isinstance(p.get("relative_drop_pct"), (int, float))]
     max_drop = max(drops) if drops else 0
     results["max_relative_drop_pct"] = round(max_drop, 2)
-    results["robust"] = max_drop < 5.0  # <5% relative drop = robust
+    results["robust"] = max_drop < robustness_threshold_pct
     results["verdict"] = "robust" if results["robust"] else "sensitive"
 
     # Actionable guidance
@@ -1730,6 +1752,9 @@ def temporal_drift_analysis(
     time_values: Any,
     n_windows: int = 5,
     n_bins: int = 10,
+    *,
+    cusum_threshold: float = 4.0,
+    cusum_allowance: float = 0.1,
 ) -> Dict[str, Any]:
     """Detect calibration drift across time windows.
 
@@ -1742,12 +1767,19 @@ def temporal_drift_analysis(
         time_values: Numeric time values (epoch, ordinal, etc.).
         n_windows: Number of time windows.
         n_bins: Bins for per-window ECE calculation.
+        cusum_threshold: CUSUM decision interval *h*. Drift is flagged when
+            the cumulative sum exceeds this value. Default 4.0 follows the
+            Page (1954) CUSUM design for detecting ~1σ shift with ARL₀ ≈ 168.
+            Previous default was 0.5 which was overly sensitive.
+        cusum_allowance: CUSUM reference value *k* — the minimum per-step
+            deviation from O:E = 1.0 before accumulating signal (default 0.1).
 
     Returns:
         Dict with per_window metrics, cusum values, drift_detected flag,
         and drift_point (first window where CUSUM exceeds threshold).
 
     References:
+        Page ES. Biometrika. 1954;41(1-2):100-115 (original CUSUM).
         Davis SE et al. JAMIA. 2020;27(9):1514-1521 (PMC8627243).
     """
     import numpy as np
@@ -1808,12 +1840,11 @@ def temporal_drift_analysis(
         oe_values = [w["oe_ratio"] for w in windows if np.isfinite(w["oe_ratio"])]
         cusum = []
         s = 0.0
-        threshold = 0.5  # half a standard deviation of O:E
         drift_point = None
         for i, oe in enumerate(oe_values):
-            s = max(0, s + abs(oe - 1.0) - 0.1)  # allowance = 0.1
+            s = max(0, s + abs(oe - 1.0) - cusum_allowance)
             cusum.append(round(s, 4))
-            if s > threshold and drift_point is None:
+            if s > cusum_threshold and drift_point is None:
                 drift_point = i
     else:
         cusum = []

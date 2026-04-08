@@ -411,6 +411,7 @@ def split_grouped_temporal(
 
     n = len(patients_ordered)
     train_end = int(round(n * train_ratio))
+    test_ratio = 1.0 - train_ratio - valid_ratio
 
     if valid_ratio > 0 and test_ratio > 0:
         # Three-way split
