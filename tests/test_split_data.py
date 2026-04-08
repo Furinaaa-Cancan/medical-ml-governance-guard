@@ -251,7 +251,7 @@ class TestValidateRatios:
             validate_ratios(0.3, 0.1, 0.1)
 
     def test_ratio_too_small(self):
-        with pytest.raises(ValueError, match="must be >= 0.05"):
+        with pytest.raises(ValueError, match=r"must be 0\.0 \(disabled\) or >= 0\.05"):
             validate_ratios(0.9, 0.06, 0.04)
 
     def test_exact_boundary(self):
