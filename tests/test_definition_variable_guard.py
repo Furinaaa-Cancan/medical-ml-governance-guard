@@ -599,3 +599,166 @@ class TestCLI:
         codes = [f["code"] for f in report["failures"]]
         assert "definition_variable_leakage" in codes
         assert "definition_proxy_leakage" in codes
+
+
+# ── Circular definition detection ──────────────────────────────────
+
+class TestCircularDefinition(TestCLI):
+
+    def test_circular_dependency_detected(self, tmp_path: Path):
+        """Target A defines B with B's name as defining variable, and vice versa."""
+        spec = {
+            "targets": {
+                "diabetes": {
+                    "defining_variables": ["hba1c", "sepsis"],  # "sepsis" is another target
+                    "forbidden_variables": [],
+                    "forbidden_patterns": [],
+                },
+                "sepsis": {
+                    "defining_variables": ["lactate", "diabetes"],  # "diabetes" is another target
+                    "forbidden_variables": [],
+                    "forbidden_patterns": [],
+                },
+            },
+            "global_forbidden_variables": [],
+            "global_forbidden_patterns": [],
+        }
+        setup = _make_test_setup(tmp_path, spec)
+        result = self._run(tmp_path, setup, target="diabetes")
+        assert result.returncode == 2
+        report = json.loads((tmp_path / "report.json").read_text())
+        codes = [f["code"] for f in report["failures"]]
+        assert "circular_definition_dependency" in codes
+
+    def test_no_circularity_with_single_target(self, tmp_path: Path):
+        """Single target → no circularity check triggered."""
+        spec = {
+            "targets": {
+                "sepsis": {
+                    "defining_variables": ["lactate"],
+                    "forbidden_variables": [],
+                    "forbidden_patterns": [],
+                }
+            },
+            "global_forbidden_variables": [],
+            "global_forbidden_patterns": [],
+        }
+        setup = _make_test_setup(tmp_path, spec)
+        result = self._run(tmp_path, setup)
+        assert result.returncode == 0
+
+
+# ── Temporal spec enforcement ──────────────────────────────────────
+
+class TestTemporalSpec(TestCLI):
+
+    def test_missing_temporal_fields_warns(self, tmp_path: Path):
+        """No prediction_time / follow_up_window → warning."""
+        spec = {
+            "targets": {
+                "sepsis": {
+                    "defining_variables": [],
+                    "forbidden_variables": [],
+                    "forbidden_patterns": [],
+                    # No prediction_time, no follow_up_window
+                }
+            },
+            "global_forbidden_variables": [],
+            "global_forbidden_patterns": [],
+        }
+        setup = _make_test_setup(tmp_path, spec)
+        result = self._run(tmp_path, setup)
+        assert result.returncode == 0  # warning, not failure
+        report = json.loads((tmp_path / "report.json").read_text())
+        codes = [w["code"] for w in report["warnings"]]
+        assert "temporal_spec_missing" in codes
+
+    def test_temporal_fields_present_no_warning(self, tmp_path: Path):
+        """With prediction_time + follow_up_window → no warning."""
+        spec = {
+            "targets": {
+                "sepsis": {
+                    "defining_variables": [],
+                    "forbidden_variables": [],
+                    "forbidden_patterns": [],
+                    "prediction_time": "admission",
+                    "follow_up_window": "30 days",
+                }
+            },
+            "global_forbidden_variables": [],
+            "global_forbidden_patterns": [],
+        }
+        setup = _make_test_setup(tmp_path, spec)
+        result = self._run(tmp_path, setup)
+        assert result.returncode == 0
+        report = json.loads((tmp_path / "report.json").read_text())
+        codes = [w["code"] for w in report["warnings"]]
+        assert "temporal_spec_missing" not in codes
+
+
+# ── Post-prediction feature leakage ───────────────────────────────
+
+class TestPostPredictionLeakage(TestCLI):
+
+    def test_post_prediction_feature_detected(self, tmp_path: Path):
+        """Feature listed in post_prediction_features → failure."""
+        spec = {
+            "targets": {
+                "sepsis": {
+                    "defining_variables": [],
+                    "forbidden_variables": [],
+                    "forbidden_patterns": [],
+                    "prediction_time": "admission",
+                    "follow_up_window": "30 days",
+                    "post_prediction_features": ["creatinine"],
+                }
+            },
+            "global_forbidden_variables": [],
+            "global_forbidden_patterns": [],
+        }
+        # creatinine is in the default headers
+        setup = _make_test_setup(tmp_path, spec)
+        result = self._run(tmp_path, setup)
+        assert result.returncode == 2
+        report = json.loads((tmp_path / "report.json").read_text())
+        codes = [f["code"] for f in report["failures"]]
+        assert "post_prediction_feature_leakage" in codes
+
+    def test_post_prediction_feature_not_in_data(self, tmp_path: Path):
+        """post_prediction_features listed but not in actual data → pass."""
+        spec = {
+            "targets": {
+                "sepsis": {
+                    "defining_variables": [],
+                    "forbidden_variables": [],
+                    "forbidden_patterns": [],
+                    "post_prediction_features": ["some_future_lab"],
+                }
+            },
+            "global_forbidden_variables": [],
+            "global_forbidden_patterns": [],
+        }
+        setup = _make_test_setup(tmp_path, spec)
+        result = self._run(tmp_path, setup)
+        assert result.returncode == 0
+
+    def test_global_post_prediction_features(self, tmp_path: Path):
+        """post_prediction_features at global level also checked."""
+        spec = {
+            "targets": {
+                "sepsis": {
+                    "defining_variables": [],
+                    "forbidden_variables": [],
+                    "forbidden_patterns": [],
+                }
+            },
+            "global_forbidden_variables": [],
+            "global_forbidden_patterns": [],
+            "post_prediction_features": ["age"],  # global level
+        }
+        setup = _make_test_setup(tmp_path, spec)
+        result = self._run(tmp_path, setup)
+        assert result.returncode == 2
+        report = json.loads((tmp_path / "report.json").read_text())
+        codes = [f["code"] for f in report["failures"]]
+        assert "post_prediction_feature_leakage" in codes

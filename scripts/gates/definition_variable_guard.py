@@ -30,6 +30,18 @@ register_remediations({
     "definition_variable_leakage": "Predictor column directly matches a disease-definition variable. Remove it.",
     "definition_proxy_leakage": "Predictor column matches a forbidden proxy pattern. Remove or rename.",
     "definition_spec_missing": "Provide a valid phenotype_definition_spec JSON with target definitions.",
+    "circular_definition_dependency": (
+        "Defining variables form a circular dependency — variable A defines B and B defines A. "
+        "Review the phenotype definition and break the cycle."
+    ),
+    "temporal_spec_missing": (
+        "Publication-grade models must document prediction_time and follow_up_window "
+        "in the phenotype definition spec. Add these fields to the target block."
+    ),
+    "post_prediction_feature_leakage": (
+        "Predictor column is listed as post_prediction_features — data collected after "
+        "the prediction time point. Remove it or justify why it is available at prediction time."
+    ),
 })
 
 
@@ -260,6 +272,79 @@ def main() -> int:
             "Detected predictor columns matching forbidden proxy patterns.",
             {"hits": pattern_hits},
         )
+
+    # ── Circular definition detection ─────────────────────────────
+    # If spec defines multiple targets where target A's defining_variables
+    # include a variable that is itself the name of target B (and vice versa),
+    # or if a defining variable appears as both a predictor and an outcome
+    # component, flag it.
+    targets_block = spec.get("targets")
+    if isinstance(targets_block, dict) and len(targets_block) >= 2:
+        all_target_names_norm = {norm(t) for t in targets_block}
+        for t_name, t_block in targets_block.items():
+            if not isinstance(t_block, dict):
+                continue
+            t_defining = list_from(t_block, "defining_variables")
+            for dv in t_defining:
+                if norm(dv) in all_target_names_norm and norm(dv) != norm(t_name):
+                    add_issue(
+                        failures,
+                        "circular_definition_dependency",
+                        f"Target '{t_name}' uses defining variable '{dv}' which is "
+                        f"itself another target endpoint. This creates a circular dependency.",
+                        {"target": t_name, "defining_variable": dv},
+                    )
+
+    # ── Temporal specification enforcement ─────────────────────────
+    # Publication-grade models must document when the prediction is made
+    # and how long the follow-up window is.
+    if target_block:
+        has_prediction_time = bool(target_block.get("prediction_time"))
+        has_follow_up = bool(target_block.get("follow_up_window"))
+        if not has_prediction_time or not has_follow_up:
+            missing_fields = []
+            if not has_prediction_time:
+                missing_fields.append("prediction_time")
+            if not has_follow_up:
+                missing_fields.append("follow_up_window")
+            add_issue(
+                warnings,
+                "temporal_spec_missing",
+                "Phenotype definition should document prediction_time and follow_up_window.",
+                {
+                    "target": args.target,
+                    "missing_fields": missing_fields,
+                    "hint": (
+                        "Example: prediction_time='admission' follow_up_window='30 days'. "
+                        "This enables temporal leakage detection."
+                    ),
+                },
+            )
+
+    # ── Post-prediction feature leakage ───────────────────────────
+    # If spec lists features that are only available after the prediction
+    # time point, check that none appear in the actual predictor columns.
+    post_pred_features = []
+    if target_block:
+        post_pred_features = list_from(target_block, "post_prediction_features")
+    if not post_pred_features:
+        post_pred_features = list_from(spec, "post_prediction_features")
+    if post_pred_features:
+        post_pred_norm = {norm(f): f for f in post_pred_features}
+        post_pred_hits: List[Dict[str, str]] = []
+        for feature in checked_features:
+            if norm(feature) in post_pred_norm:
+                post_pred_hits.append({
+                    "feature": feature,
+                    "matched_rule": post_pred_norm[norm(feature)],
+                })
+        if post_pred_hits:
+            add_issue(
+                failures,
+                "post_prediction_feature_leakage",
+                "Predictor columns include features only available after the prediction time point.",
+                {"hits": post_pred_hits},
+            )
 
     return finish(
         args,
