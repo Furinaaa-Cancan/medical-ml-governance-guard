@@ -784,6 +784,16 @@ def parse_args() -> argparse.Namespace:
         help=f"Fail if mean Kendall tau < this (default {_DEFAULT_RANK_CORRELATION_FAIL}).",
     )
 
+    pdp = parser.add_argument_group("PDP/ICE (complementary to SHAP)")
+    pdp.add_argument(
+        "--pdp-top-k", type=int, default=5,
+        help="Number of top SHAP features for PDP/ICE computation (default 5). Set 0 to disable.",
+    )
+    pdp.add_argument(
+        "--pdp-grid-points", type=int, default=20,
+        help="Number of grid points per feature for PDP (default 20).",
+    )
+
     misc = parser.add_argument_group("Reproducibility")
     misc.add_argument(
         "--random-seed", type=int, default=42,
@@ -797,6 +807,101 @@ def parse_args() -> argparse.Namespace:
     out.add_argument("--strict", action="store_true", help="Promote warnings to failures.")
 
     return parser.parse_args()
+
+
+# ---------------------------------------------------------------------------
+# PDP / ICE computation (complementary to SHAP)
+# ---------------------------------------------------------------------------
+
+def _compute_pdp_ice(
+    families: Dict[str, Dict[str, Any]],
+    X_data: "np.ndarray",
+    feature_names: List[str],
+    top_feature_indices: List[int],
+    grid_points: int = 20,
+    warnings_list: Optional[List[Dict[str, Any]]] = None,
+) -> List[Dict[str, Any]]:
+    """Compute Partial Dependence for top features across all model families.
+
+    Uses sklearn.inspection.partial_dependence (kind='average') for PDP
+    and (kind='individual') for ICE summary statistics.
+
+    Returns list of dicts, one per (feature, family) pair, suitable for CSV.
+    """
+    import numpy as _np
+
+    try:
+        from sklearn.inspection import partial_dependence
+    except ImportError:
+        if warnings_list is not None:
+            add_issue(
+                warnings_list,
+                "PDP_SKLEARN_MISSING",
+                "sklearn.inspection not available; PDP/ICE skipped.",
+                {},
+            )
+        return []
+
+    rows: List[Dict[str, Any]] = []
+
+    for family_name, family_info in sorted(families.items()):
+        estimator = family_info.get("estimator")
+        if estimator is None:
+            continue
+
+        for feat_idx in top_feature_indices:
+            feat_name = feature_names[feat_idx]
+
+            # Check feature has variance
+            feat_vals = X_data[:, feat_idx]
+            if _np.std(feat_vals) < 1e-12:
+                if warnings_list is not None:
+                    add_issue(
+                        warnings_list,
+                        "PDP_FEATURE_CONSTANT",
+                        f"Feature '{feat_name}' has near-zero variance; PDP is degenerate.",
+                        {"feature": feat_name, "family": family_name},
+                    )
+                continue
+
+            try:
+                pd_result = partial_dependence(
+                    estimator, X_data, [feat_idx],
+                    grid_resolution=grid_points,
+                    kind="average",
+                )
+                grid_vals = pd_result["grid_values"][0]
+                pd_vals = pd_result["average"][0]
+
+                for gi in range(len(grid_vals)):
+                    rows.append({
+                        "family": family_name,
+                        "feature": feat_name,
+                        "feature_value": round(float(grid_vals[gi]), 6),
+                        "pd_value": round(float(pd_vals[gi]), 6),
+                    })
+
+            except Exception as exc:
+                if warnings_list is not None:
+                    add_issue(
+                        warnings_list,
+                        "PDP_COMPUTATION_FAILED",
+                        f"PDP failed for '{feat_name}' in '{family_name}': {exc}",
+                        {"feature": feat_name, "family": family_name, "error": str(exc)},
+                    )
+
+    return rows
+
+
+def _write_table_e(path: Path, pdp_rows: List[Dict[str, Any]]) -> None:
+    """Write Table E: PDP marginal effects."""
+    import csv as _csv
+
+    with path.open("w", newline="", encoding="utf-8") as fh:
+        writer = _csv.DictWriter(fh, fieldnames=["family", "feature", "feature_value", "pd_value"])
+        writer.writeheader()
+        for row in pdp_rows:
+            writer.writerow(row)
 
 
 # ---------------------------------------------------------------------------
@@ -982,6 +1087,20 @@ def main() -> int:
                 rc["p_value_adjusted"] = round(fdr_result["pvalues_adjusted"][idx], 6)
                 rc["significant_after_fdr"] = fdr_result["rejected"][idx]
 
+    # --- PDP / ICE computation (complementary to SHAP) ---
+    pdp_rows: List[Dict[str, Any]] = []
+    pdp_top_k = getattr(args, "pdp_top_k", 5)
+    if pdp_top_k > 0 and len(agg["ranking"]) > 0:
+        top_feat_indices = list(agg["ranking"][:pdp_top_k])
+        pdp_rows = _compute_pdp_ice(
+            families=families,
+            X_data=X_explain,
+            feature_names=feature_names,
+            top_feature_indices=top_feat_indices,
+            grid_points=getattr(args, "pdp_grid_points", 20),
+            warnings_list=warnings_list,
+        )
+
     # --- y_score fallback: use selected model to predict ---
     if y_score is None:
         # Use first available family's estimator to predict
@@ -1071,6 +1190,12 @@ def main() -> int:
             cases=cases,
         )
 
+    if pdp_rows:
+        _write_table_e(
+            path=output_dir / "pdp_table_e_marginal_effects.csv",
+            pdp_rows=pdp_rows,
+        )
+
     print(f"  Tables written to: {output_dir}/")
 
     # --- Build summary ---
@@ -1134,6 +1259,13 @@ def main() -> int:
             "table_b": str(output_dir / "shap_table_b_per_model_detail.csv"),
             "table_c": str(output_dir / "shap_table_c_rank_agreement.csv") if rank_correlations else None,
             "table_d": str(output_dir / "shap_table_d_case_explanations.csv") if cases else None,
+            "table_e_pdp": str(output_dir / "pdp_table_e_marginal_effects.csv") if pdp_rows else None,
+        },
+        "pdp_ice": {
+            "enabled": pdp_top_k > 0,
+            "top_k_features": pdp_top_k,
+            "grid_points": getattr(args, "pdp_grid_points", 20),
+            "n_pdp_rows": len(pdp_rows),
         },
     }
 

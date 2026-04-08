@@ -21,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orc
 from shap_interpretability_gate import (
     _aggregate_shap,
     _classify_direction,
+    _compute_pdp_ice,
     _compute_rank_correlations,
     _extract_clf_and_transform,
     _run_validation_checks,
@@ -29,6 +30,7 @@ from shap_interpretability_gate import (
     _write_table_b,
     _write_table_c,
     _write_table_d,
+    _write_table_e,
 )
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
@@ -665,3 +667,113 @@ class TestIntegrationSHAP:
         )
 
         assert result.returncode == 2
+
+
+# ── PDP / ICE computation ──────────────────────────────────────────────
+
+class TestComputePDPICE:
+    """Test PDP/ICE computation on simple sklearn models."""
+
+    def _make_simple_model(self):
+        """Create a trivially fitted LogisticRegression for testing."""
+        from sklearn.linear_model import LogisticRegression
+        rng = np.random.default_rng(42)
+        X = rng.standard_normal((100, 3))
+        y = (X[:, 0] > 0).astype(int)
+        model = LogisticRegression(max_iter=200, random_state=42)
+        model.fit(X, y)
+        return model, X
+
+    def test_pdp_returns_rows(self):
+        model, X = self._make_simple_model()
+        families = {"lr": {"estimator": model}}
+        feature_names = ["f0", "f1", "f2"]
+        rows = _compute_pdp_ice(
+            families=families,
+            X_data=X,
+            feature_names=feature_names,
+            top_feature_indices=[0, 1],
+            grid_points=10,
+        )
+        assert len(rows) > 0
+        assert all(k in rows[0] for k in ("family", "feature", "feature_value", "pd_value"))
+
+    def test_pdp_correct_family_and_features(self):
+        model, X = self._make_simple_model()
+        families = {"lr": {"estimator": model}}
+        feature_names = ["f0", "f1", "f2"]
+        rows = _compute_pdp_ice(
+            families=families,
+            X_data=X,
+            feature_names=feature_names,
+            top_feature_indices=[0],
+            grid_points=5,
+        )
+        assert all(r["family"] == "lr" for r in rows)
+        assert all(r["feature"] == "f0" for r in rows)
+        assert len(rows) == 5  # grid_points=5
+
+    def test_pdp_constant_feature_warns(self):
+        model, X = self._make_simple_model()
+        X[:, 2] = 0.0
+        families = {"lr": {"estimator": model}}
+        warnings_list = []
+        _compute_pdp_ice(
+            families=families,
+            X_data=X,
+            feature_names=["f0", "f1", "f2"],
+            top_feature_indices=[2],
+            grid_points=10,
+            warnings_list=warnings_list,
+        )
+        codes = [w["code"] for w in warnings_list]
+        assert "PDP_FEATURE_CONSTANT" in codes
+
+    def test_pdp_multiple_families(self):
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.ensemble import RandomForestClassifier
+        rng = np.random.default_rng(42)
+        X = rng.standard_normal((100, 3))
+        y = (X[:, 0] > 0).astype(int)
+        lr = LogisticRegression(max_iter=200, random_state=42).fit(X, y)
+        rf = RandomForestClassifier(n_estimators=5, random_state=42).fit(X, y)
+        families = {"lr": {"estimator": lr}, "rf": {"estimator": rf}}
+        rows = _compute_pdp_ice(
+            families=families,
+            X_data=X,
+            feature_names=["f0", "f1", "f2"],
+            top_feature_indices=[0],
+            grid_points=5,
+        )
+        family_names = {r["family"] for r in rows}
+        assert "lr" in family_names
+        assert "rf" in family_names
+
+    def test_pdp_disabled_with_empty_indices(self):
+        model, X = self._make_simple_model()
+        families = {"lr": {"estimator": model}}
+        rows = _compute_pdp_ice(
+            families=families,
+            X_data=X,
+            feature_names=["f0", "f1", "f2"],
+            top_feature_indices=[],
+            grid_points=10,
+        )
+        assert len(rows) == 0
+
+
+class TestWriteTableE:
+    def test_writes_csv(self, tmp_path):
+        rows = [
+            {"family": "lr", "feature": "age", "feature_value": 30.0, "pd_value": 0.5},
+            {"family": "lr", "feature": "age", "feature_value": 50.0, "pd_value": 0.7},
+        ]
+        path = tmp_path / "table_e.csv"
+        _write_table_e(path, rows)
+        assert path.exists()
+        with path.open() as fh:
+            reader = csv.DictReader(fh)
+            data = list(reader)
+        assert len(data) == 2
+        assert data[0]["family"] == "lr"
+        assert data[0]["feature"] == "age"
