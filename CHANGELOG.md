@@ -6,6 +6,55 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Project Rename**: ML Leakage Guard → **ML Governance Guard** (MLGG abbreviation unchanged)
+  - 73 files updated; all code identifiers (`mlgg`) preserved
+  - GitHub repo renamed to `medical-ml-governance-guard`
+  - pyproject.toml description updated to "33 fail-closed governance gates"
+
+### Fixed
+
+- **Security**: Removed `joblib.load()` fallback in `SecureModelLoader` that bypassed `RestrictedUnpickler` (arbitrary code execution risk)
+- **Security**: 3 non-atomic JSON writes in `_security.py` replaced with `_atomic_json_write()` (fsync + rename)
+- **Data Integrity**: Global NaN/Infinity safety net via `_sanitize_for_json()` + `allow_nan=False` in `write_json()` — eliminates RFC 8259 violations across all gate reports
+- **Data Integrity**: 10+ individual NaN/Infinity bugs fixed in gates (ci_matrix, calibration_dca, permutation_significance, sample_size, imbalance_policy)
+- **Compatibility**: sklearn 1.8+ `penalty=None` deprecation — 3-level version detection using `C=np.inf` for >=1.8
+- **Subprocess Safety**: Added `timeout=` to 12 subprocess calls across attestation gates, onboarding, and orchestration (30s for openssl, 3600s for pipeline steps)
+- **Path Traversal**: `manifest_lock.py` and `cohort_definition_gate.py` now use `resolve_path()` for forbidden prefix checks
+- **Error Handling**: `cohort_definition_gate.py` no longer silently swallows JSON parse errors — emits warning
+- **Error Handling**: 8+ bare `except: pass` replaced with stderr logging in security_audit, shap_interpretability, distribution_generalization gates
+- **Metric Naming**: Standardized "auroc"→"roc_auc", "auprc"→"pr_auc" in `imputation_sensitivity()` and `init_guide.py`
+- **Gate Count**: Updated stale "31 gates" → "33 gates" across 13 reference/doc files + `generate_compliance_certificate.py` hardcoded bug
+- **Reference KB**: `mlgg-standard-specification.json` — added missing `cohort_definition_gate` and `shap_interpretability_gate` to DAG layers; fixed `ci_matrix_gate` and `metric_consistency_gate` layer assignment (6→5)
+- **Reference KB**: `gate-applicability-matrix.json` — fixed 2 gate layer mismatches to match `_gate_registry.py`
+- **Tests**: Fixed `SCRIPTS_DIR` bug in `test_gate_smoke.py` and `test_split_smoke.py` (pointed to `tests/` instead of `scripts/`)
+- **Tests**: Fixed stale gate count assertions in `test_evidence_digest.py` and `test_registry_cache.py`
+- **Tests**: Fixed stale metric key set in `test_stress_numeric.py` (added `lr_positive`, `lr_negative`, `mcc`)
+- **Tests**: Fixed stale error message regex in `test_split_data.py`
+- **Packaging**: Added `dev` optional-dependencies group (pytest, pytest-cov, pytest-timeout)
+- **Packaging**: Fixed `ruff.toml` target-version `py312` → `py310` to match `requires-python`
+- **Packaging**: Fixed `.gitignore` missing `*.log` and `.env.local` patterns
+- **Examples**: Fixed `download_nhanes.py` FILES_2020 URLs pointing to wrong year directory (/2017/ → /2019/)
+- **README**: Fixed broken anchor `#19-项分析工具` → `#21-项分析工具`; updated description wording
+
+### Enhanced
+
+- **SKILL.md**: Added "Clinical Semantic Review Checklist" — feature timeline audit, fairness quality standards, interpretability standards (cross-model SHAP consistency), model comparison standards, calibration reporting standards (Van Calster 2019 trio)
+- **SKILL.md**: Fixed hidden workflow to list all 33 gates; output contract to list all 34 report files; added 10 missing tool/orchestration script descriptions; added 4 dispatch scenarios
+- **mlgg.md**: Added clinical semantic review step to Research mode Phase rhythm
+- **phase-8.md**: Added explicit bootstrap CI requirement for subgroup fairness metrics
+- **Demo diabetes130**: Added bootstrap 95% CI for fairness subgroup metrics (MLGG-Q02); SHAP cross-model Spearman rank correlation; TRIPOD calibration slope/intercept reference; multiple comparison caveat; data integrity SHA-256 manifest
+
+### Added (Tests)
+
+- `test_generate_demo_medical_dataset.py` — 9 tests (output files, schema, patient disjoint, determinism)
+- `test_init_guide.py` — 18 tests (.mlgg/ directory, rules JSON, CLAUDE.md, --force, metric naming)
+- `test_peer_review_lookup_cli.py` — 15 tests (--stats, --dimension, --search, output format)
+- `test_fetch_papers.py` — 28 tests (deduplicate, slug, journal/disease classification, dry-run)
+- `test_mlgg_web.py` — 27 tests (path traversal, CSRF, rate limiter, Flask app, security headers)
+- `test_extract_paper_metadata.py` — 16 tests (Pydantic schemas, CLI, path resolution)
+
 ### Added
 
 - **mlgg-lint Static Analysis Plugin** (`plugin/`)
