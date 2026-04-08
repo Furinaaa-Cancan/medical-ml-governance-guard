@@ -14,7 +14,7 @@
   },
 
   "scope": {
-    "description": "The MLGG Standard defines a set of machine-verifiable requirements for the development, validation, and reporting of clinical prediction models. It specifies 31 audit gates organized in a directed acyclic graph (DAG) that a model development pipeline must satisfy to achieve a given conformance level.",
+    "description": "The MLGG Standard defines a set of machine-verifiable requirements for the development, validation, and reporting of clinical prediction models. It specifies 33 audit gates organized in a directed acyclic graph (DAG) that a model development pipeline must satisfy to achieve a given conformance level.",
     "in_scope": [
       "Supervised machine learning models for clinical prediction",
       "Binary classification (version 1.0)",
@@ -159,8 +159,8 @@
       "id": "L3",
       "name": "Publication-Grade",
       "description": "The pipeline has passed all 33 gates in strict mode. Results meet the standards required for top-tier journals including Nature Medicine, Lancet Digital Health, JAMA, and BMJ.",
-      "required_gates": "all_31",
-      "gate_count": 31,
+      "required_gates": "all_33",
+      "gate_count": 33,
       "strict_mode_required": true,
       "tripod_ai_coverage_minimum": "23/27",
       "probast_overall_rob_required": "low",

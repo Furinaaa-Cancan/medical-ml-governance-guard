@@ -69,7 +69,7 @@
       ],
 
       "applicable_checklists": ["tripod_ai", "probast_ai", "stard_ai"],
-      "applicable_gates": "all_31",
+      "applicable_gates": "all_33",
 
       "publication_floor": {
         "roc_auc_minimum": 0.70,

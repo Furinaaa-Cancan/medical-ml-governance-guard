@@ -160,10 +160,10 @@ All reports are written to the `evidence/` directory. A final
                    │
                    ▼
 ┌─────────────────────────────────────────────────────────┐
-│          31-Gate DAG Pipeline                            │
+│          33-Gate DAG Pipeline                            │
 │  scripts/orchestration/run_dag_pipeline.py                            │
-│  Orchestrates gates 1–31 via dependency DAG             │
-│  Writes: evidence/*_report.json (31 reports)            │
+│  Orchestrates gates 1–33 via dependency DAG             │
+│  Writes: evidence/*_report.json (33 reports)            │
 │          evidence/dag_pipeline_report.json              │
 │          evidence/publication_gate_report.json           │
 └──────────────────┬──────────────────────────────────────┘
@@ -186,7 +186,7 @@ The pipeline can be invoked at multiple levels of abstraction:
 | Layer | Entry Point | Description |
 |-------|------------|-------------|
 | **Gate scripts** | `scripts/<gate>.py` | Individual validation steps |
-| **Strict pipeline** | `scripts/orchestration/run_strict_pipeline.py` | Sequential 31-gate orchestrator |
+| **Strict pipeline** | `scripts/orchestration/run_strict_pipeline.py` | Sequential 33-gate orchestrator |
 | **Productized workflow** | `scripts/orchestration/run_productized_workflow.py` | Doctor → Preflight → Pipeline → Summary |
 | **Onboarding** | `scripts/orchestration/mlgg_onboarding.py` | Guided 8-step novice flow |
 | **Unified CLI** | `scripts/orchestration/mlgg.py` | Single entry point for all commands |
@@ -262,7 +262,7 @@ ml-governance-guard/
 │   ├── mlgg.py                 # Unified CLI entry point
 │   ├── mlgg_onboarding.py      # Guided onboarding flow
 │   ├── mlgg_interactive.py     # Interactive terminal wizard
-│   ├── run_strict_pipeline.py  # 31-gate orchestrator
+│   ├── run_strict_pipeline.py  # 33-gate orchestrator
 │   ├── run_productized_workflow.py  # Full UX wrapper
 │   ├── train_select_evaluate.py     # Training pipeline
 │   ├── split_data.py           # Safe data splitting

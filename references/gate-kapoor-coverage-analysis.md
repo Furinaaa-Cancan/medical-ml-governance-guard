@@ -1,8 +1,8 @@
-# 31-Gate ↔ Kapoor 2023 Leakage Taxonomy Coverage Analysis
+# 33-Gate ↔ Kapoor 2023 Leakage Taxonomy Coverage Analysis
 
 **Version**: 1.0
 **Date**: 2026-03-28
-**Purpose**: 对照独立的外部分类法（Kapoor & Narayanan 2023），评估 MLGG 31-gate 框架的泄漏检测覆盖率，避免循环验证。
+**Purpose**: 对照独立的外部分类法（Kapoor & Narayanan 2023），评估 MLGG 33-gate 框架的泄漏检测覆盖率，避免循环验证。
 
 ---
 
@@ -12,7 +12,7 @@ Kapoor S, Narayanan A. "Leakage and the reproducibility crisis in ML-based scien
 
 该论文基于对 294 篇已发表论文的系统性回顾，提出了 8 种数据泄漏类型。这是目前最被广泛引用的 ML 泄漏分类体系。
 
-## 2. 覆盖矩阵：Kapoor 8 型 × MLGG 31 Gate
+## 2. 覆盖矩阵：Kapoor 8 型 × MLGG 33 Gate
 
 | Kapoor 类型 | 定义 | MLGG Gate（运行时检测） | MLGG Lint（静态分析） | 覆盖评价 |
 |------------|------|----------------------|---------------------|---------|
@@ -40,7 +40,7 @@ Kapoor S, Narayanan A. "Leakage and the reproducibility crisis in ML-based scien
 
 ## 4. MLGG 覆盖但 Kapoor 未列出的额外泄漏类型
 
-MLGG 31-gate 还检测以下 Kapoor 2023 未明确列出的泄漏类型：
+MLGG 33-gate 还检测以下 Kapoor 2023 未明确列出的泄漏类型：
 
 | 额外类型 | MLGG Gate | 说明 |
 |---------|----------|------|

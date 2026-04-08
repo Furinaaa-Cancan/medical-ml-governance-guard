@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# Overnight 31-Gate Pipeline Run
+# Overnight 33-Gate Pipeline Run
 # ============================================================
 # Runs the full MLGG pipeline on all large datasets.
 # Designed to run unattended for several hours.
@@ -296,7 +296,7 @@ if [ -d "$OUTPUT_BASE" ]; then
         fi
     done
 
-    git commit -m "experiment: overnight 31-gate pipeline run on ${TOTAL} datasets (${PASSED} pass, ${FAILED} fail, ${ERRORS} error)
+    git commit -m "experiment: overnight 33-gate pipeline run on ${TOTAL} datasets (${PASSED} pass, ${FAILED} fail, ${ERRORS} error)
 
 Datasets: ${DATASET_ORDER}
 Run ID: ${TIMESTAMP}

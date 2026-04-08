@@ -561,7 +561,7 @@ def _print_certificate_summary(cert: Dict[str, Any]) -> None:
     print(f"  Conformance Level: {level_icons.get(level, '?')} {level}")
     print(f"  {cert.get('conformance_level_description', '')}")
     print()
-    print(f"  Gates passed:  {gates.get('passed', 0)}/{gates.get('total_gates', 31)}")
+    print(f"  Gates passed:  {gates.get('passed', 0)}/{gates.get('total_gates', 33)}")
     print(f"  Gates failed:  {gates.get('failed', 0)}")
     print(f"  Gates missing: {gates.get('missing', 0)}")
     print(f"  Strict mode:   {'YES' if gates.get('strict_mode') else 'NO'}")

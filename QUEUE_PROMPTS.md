@@ -1378,7 +1378,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 
 **第一步：阅读 SKILL.md 的 Hidden Workflow 和 Manual Strict Execution Order。**
 
-**第二步：用 Mermaid 语法绘制：** 31 gate 的执行顺序流程图、每个 gate 的输入/输出文件、数据流方向。
+**第二步：用 Mermaid 语法绘制：** 33 gate 的执行顺序流程图、每个 gate 的输入/输出文件、数据流方向。
 
 **第三步：编写 `references/Architecture.md`。** 包含流程图、gate 简介表格、依赖关系说明。
 
@@ -1595,7 +1595,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ### 86
 为 run_strict_pipeline.py 添加并行 gate 支持。
 
-**第一步：分析 31 gate 的依赖关系。** 用 SKILL.md 中的 Hidden Workflow 确认哪些 gate 之间无依赖。
+**第一步：分析 33 gate 的依赖关系。** 用 SKILL.md 中的 Hidden Workflow 确认哪些 gate 之间无依赖。
 
 **第二步：实现 `--parallel` 模式。** 使用 concurrent.futures.ProcessPoolExecutor 并行执行无依赖 gate。
 
@@ -1721,7 +1721,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 94
-在 wizard 中添加完整 31 gate 管线模式。
+在 wizard 中添加完整 33 gate 管线模式。
 
 **第一步：了解 publication-grade 路径需要的额外配置（lineage spec, phenotype spec, feature group spec 等）。**
 

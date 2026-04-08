@@ -57,8 +57,8 @@
 | **L1.1** No test set | *无直接规则* | ⚠️ **覆盖缺口**：MLGG lint 不检测"是否存在独立测试集"，因为这需要语义分析，非 AST 可检测。需在 Phase 2 手动检查。 |
 | **L1.2** Preprocessing on full data | R001, R002, R003, R005, R011, R017, R020 | ✅ **覆盖充分**：7 条规则覆盖，检测面最广。 |
 | **L1.3** Feature selection on full data | R006 | ✅ 单点覆盖。检测 `SelectKBest`/`SelectFromModel`/`RFE` 等在分割前实例化。 |
-| **L1.4** Duplicates across splits | *无直接规则* | ⚠️ **覆盖缺口**：行/患者重复需要运行时数据检查，非静态分析可检测。由 `leakage_gate` 和 `split_protocol_gate`（31-gate 流程）覆盖。 |
-| **L2** Illegitimate features | R007 | ⚠️ **部分覆盖**：R007 检测目标变量作为特征，但不检测 post-index 代理特征（需要领域知识）。由 `definition_variable_guard` 和 `feature_lineage_gate`（31-gate 流程）补充。 |
+| **L1.4** Duplicates across splits | *无直接规则* | ⚠️ **覆盖缺口**：行/患者重复需要运行时数据检查，非静态分析可检测。由 `leakage_gate` 和 `split_protocol_gate`（33-gate 流程）覆盖。 |
+| **L2** Illegitimate features | R007 | ⚠️ **部分覆盖**：R007 检测目标变量作为特征，但不检测 post-index 代理特征（需要领域知识）。由 `definition_variable_guard` 和 `feature_lineage_gate`（33-gate 流程）补充。 |
 | **L3.1** Temporal leakage | R008 | ⚠️ **部分覆盖**：R008 检测时间数据使用 shuffle，但不检测更隐蔽的时间泄漏（如 future feature engineering）。由 `leakage_gate` temporal checks 补充。 |
 | **L3.2** Non-independence | R004 | ⚠️ **部分覆盖**：R004 检测 split 时缺少 `groups=`，但仅在代码中使用 `train_test_split` 时触发。GroupKFold 等其他分割方式可能绕过检测。 |
 | **L3.3** Sampling bias | R003, R015 | ⚠️ **部分覆盖**：R003 检测 SMOTE 改变分布，R015 检测小测试集。但无法检测系统性选择偏倚。 |
@@ -97,9 +97,9 @@ R020           ·     ●      ·     ·    ·      ·     ·     ·
 | 缺口 | 泄漏类型 | 为什么 lint 无法检测 | 补偿机制 |
 |------|---------|-------------------|---------|
 | L1.1 无测试集 | No test set | 需要理解完整代码执行流程 | Phase 2 手动审计 + LLM 代码评审 |
-| L1.4 重复行 | Duplicates | 需要运行时数据访问 | 31-gate: `split_protocol_gate`, `leakage_gate` |
-| L2 代理特征 | Illegitimate | 需要医学领域知识（诊断码→疾病定义） | 31-gate: `definition_variable_guard`, `feature_lineage_gate` |
-| L3.1 隐蔽时序 | Temporal | 需要理解 feature engineering 时间窗口 | 31-gate: `leakage_gate` temporal checks |
+| L1.4 重复行 | Duplicates | 需要运行时数据访问 | 33-gate: `split_protocol_gate`, `leakage_gate` |
+| L2 代理特征 | Illegitimate | 需要医学领域知识（诊断码→疾病定义） | 33-gate: `definition_variable_guard`, `feature_lineage_gate` |
+| L3.1 隐蔽时序 | Temporal | 需要理解 feature engineering 时间窗口 | 33-gate: `leakage_gate` temporal checks |
 | L3.2 深层依赖 | Non-independence | GroupKFold 等替代 API 可绕过 R004 | Phase 2 手动审计 |
 | L3.3 系统偏倚 | Sampling bias | 需要理解采样设计意图 | Phase 2 手动审计 + metadata 评分（D1.temporal_split） |
 
