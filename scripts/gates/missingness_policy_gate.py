@@ -31,6 +31,22 @@ register_remediations({
     "missingness_exceeds_threshold": "Feature missingness exceeds policy threshold. Apply imputation or remove the feature.",
     "target_missing_rows": "Target column has missing values. Remove or impute missing target rows before training.",
     "strategy_mismatch": "Declared missingness strategy doesn't match observed handling. Update policy or pipeline.",
+    "mechanism_assessment_required": (
+        "At least one feature exceeds 5% missingness. "
+        "Add mechanism_assessment to policy with method (e.g. Little's MCAR test, "
+        "logistic regression for MAR) and conclusion (mcar/mar/mnar/mixed). "
+        "Ref: Madley-Dowd 2019, Sterne 2009."
+    ),
+    "mnar_sensitivity_required": (
+        "At least one feature exceeds 40% missingness. "
+        "Add mnar_sensitivity to policy with performed=true and tipping_point. "
+        "Use mnar_sensitivity_analysis() from _gate_utils. "
+        "Ref: Cro 2020, White 2011."
+    ),
+    "mechanism_assessment_invalid": (
+        "mechanism_assessment must contain 'method' (non-empty string) and "
+        "'conclusion' (one of: mcar, mar, mnar, mixed)."
+    ),
 })
 
 
@@ -693,6 +709,81 @@ def main() -> int:
                         "indicator_required_above_ratio": indicator_required_above_ratio,
                     },
                 )
+
+    # ── Mechanism assessment enforcement ─────────────────────────────────
+    # Madley-Dowd 2019: missingness mechanism determines strategy, not
+    # proportion alone.  >5% → must document mechanism.  >40% → must run
+    # MNAR sensitivity analysis (Cro 2020).
+    if train_stats:
+        _MECHANISM_THRESHOLD = 0.05
+        _MNAR_THRESHOLD = 0.40
+        _max_miss_ratio = 0.0
+        for col in feature_headers:
+            r = ratio_by_col.get(col)
+            if r is not None and r > _max_miss_ratio:
+                _max_miss_ratio = r
+
+        if _max_miss_ratio > _MECHANISM_THRESHOLD:
+            mechanism = policy.get("mechanism_assessment")
+            if not isinstance(mechanism, dict):
+                add_issue(
+                    failures,
+                    "mechanism_assessment_required",
+                    "Feature missingness >5% detected; mechanism_assessment is required in policy.",
+                    {
+                        "max_feature_missing_ratio_observed": round(_max_miss_ratio, 4),
+                        "threshold": _MECHANISM_THRESHOLD,
+                        "required_fields": ["method", "conclusion"],
+                    },
+                )
+            else:
+                _method = mechanism.get("method")
+                _conclusion = str(mechanism.get("conclusion", "")).strip().lower()
+                _valid_conclusions = {"mcar", "mar", "mnar", "mixed"}
+                if not isinstance(_method, str) or not _method.strip():
+                    add_issue(
+                        failures,
+                        "mechanism_assessment_invalid",
+                        "mechanism_assessment.method must be a non-empty string describing the test used.",
+                        {"method": _method},
+                    )
+                if _conclusion not in _valid_conclusions:
+                    add_issue(
+                        failures,
+                        "mechanism_assessment_invalid",
+                        "mechanism_assessment.conclusion must be one of: mcar, mar, mnar, mixed.",
+                        {"conclusion": mechanism.get("conclusion"), "valid": sorted(_valid_conclusions)},
+                    )
+
+        if _max_miss_ratio > _MNAR_THRESHOLD:
+            mnar = policy.get("mnar_sensitivity")
+            if not isinstance(mnar, dict) or mnar.get("performed") is not True:
+                add_issue(
+                    failures,
+                    "mnar_sensitivity_required",
+                    "Feature missingness >40% detected; MNAR sensitivity analysis is required.",
+                    {
+                        "max_feature_missing_ratio_observed": round(_max_miss_ratio, 4),
+                        "threshold": _MNAR_THRESHOLD,
+                        "hint": "Run mnar_sensitivity_analysis() and add result to policy as mnar_sensitivity.",
+                    },
+                )
+            elif mnar.get("performed") is True:
+                _tp = mnar.get("tipping_point")
+                if _tp is not None:
+                    try:
+                        _tp_f = float(_tp)
+                        if not math.isfinite(_tp_f):
+                            _tp_f = None
+                    except (TypeError, ValueError):
+                        _tp_f = None
+                    if _tp_f is None:
+                        add_issue(
+                            warnings,
+                            "mnar_tipping_point_invalid",
+                            "mnar_sensitivity.tipping_point should be a finite number (smallest delta that flips conclusion).",
+                            {"tipping_point": _tp},
+                        )
 
     # Missingness drift audit (train vs valid/test) for sufficiently large splits.
     if "train" in splits and missingness_drift_tolerance is not None:

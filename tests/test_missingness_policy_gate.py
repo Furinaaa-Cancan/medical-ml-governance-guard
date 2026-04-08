@@ -463,3 +463,116 @@ class TestCLI:
         report = json.loads((tmp_path / "report.json").read_text())
         codes = [f["code"] for f in report["failures"]]
         assert "mice_scale_guard_violation" in codes
+
+    # ── Mechanism assessment enforcement ──────────────────────────
+
+    def _make_missing_setup(self, tmp_path, policy=None, miss_ratio=0.25):
+        """Create train/test with controlled missingness ratio on 'bp' column."""
+        if policy is None:
+            policy = _good_policy()
+        headers = ["patient_id", "y", "age", "bp"]
+        n = 20
+        n_miss = max(1, int(n * miss_ratio))
+        train_data = []
+        for i in range(n):
+            bp = "" if i < n_miss else str(120 + i)
+            train_data.append([f"P{i}", str(i % 2), str(30 + i), bp])
+        test_data = [["T1", "0", "35", "125"], ["T2", "1", "45", "135"]]
+        return _make_setup(tmp_path, policy=policy, train_data=train_data, test_data=test_data)
+
+    def test_mechanism_assessment_required_above_5pct(self, tmp_path: Path):
+        """miss >5% without mechanism_assessment → failure."""
+        policy = _good_policy()
+        # No mechanism_assessment key
+        setup = self._make_missing_setup(tmp_path, policy=policy, miss_ratio=0.10)
+        result = self._run(tmp_path, setup)
+        assert result.returncode == 2
+        report = json.loads((tmp_path / "report.json").read_text())
+        codes = [f["code"] for f in report["failures"]]
+        assert "mechanism_assessment_required" in codes
+
+    def test_mechanism_assessment_not_required_below_5pct(self, tmp_path: Path):
+        """miss <5% → no mechanism_assessment needed."""
+        policy = _good_policy()
+        setup = self._make_missing_setup(tmp_path, policy=policy, miss_ratio=0.0)
+        result = self._run(tmp_path, setup)
+        assert result.returncode == 0
+
+    def test_mechanism_assessment_valid_passes(self, tmp_path: Path):
+        """Valid mechanism_assessment with >5% miss → pass."""
+        policy = _good_policy()
+        policy["mechanism_assessment"] = {
+            "method": "Little's MCAR test + logistic regression for MAR",
+            "conclusion": "mar",
+        }
+        setup = self._make_missing_setup(tmp_path, policy=policy, miss_ratio=0.10)
+        result = self._run(tmp_path, setup)
+        assert result.returncode == 0
+
+    def test_mechanism_assessment_missing_method(self, tmp_path: Path):
+        """mechanism_assessment without method → failure."""
+        policy = _good_policy()
+        policy["mechanism_assessment"] = {"conclusion": "mar"}
+        setup = self._make_missing_setup(tmp_path, policy=policy, miss_ratio=0.10)
+        result = self._run(tmp_path, setup)
+        assert result.returncode == 2
+        report = json.loads((tmp_path / "report.json").read_text())
+        codes = [f["code"] for f in report["failures"]]
+        assert "mechanism_assessment_invalid" in codes
+
+    def test_mechanism_assessment_bad_conclusion(self, tmp_path: Path):
+        """mechanism_assessment with invalid conclusion → failure."""
+        policy = _good_policy()
+        policy["mechanism_assessment"] = {
+            "method": "Little's MCAR test",
+            "conclusion": "random",  # not valid
+        }
+        setup = self._make_missing_setup(tmp_path, policy=policy, miss_ratio=0.10)
+        result = self._run(tmp_path, setup)
+        assert result.returncode == 2
+        report = json.loads((tmp_path / "report.json").read_text())
+        codes = [f["code"] for f in report["failures"]]
+        assert "mechanism_assessment_invalid" in codes
+
+    def test_mnar_sensitivity_required_above_40pct(self, tmp_path: Path):
+        """miss >40% without mnar_sensitivity → failure."""
+        policy = _good_policy()
+        policy["mechanism_assessment"] = {
+            "method": "Little's MCAR test",
+            "conclusion": "mnar",
+        }
+        # No mnar_sensitivity
+        setup = self._make_missing_setup(tmp_path, policy=policy, miss_ratio=0.50)
+        result = self._run(tmp_path, setup)
+        assert result.returncode == 2
+        report = json.loads((tmp_path / "report.json").read_text())
+        codes = [f["code"] for f in report["failures"]]
+        assert "mnar_sensitivity_required" in codes
+
+    def test_mnar_sensitivity_valid_passes(self, tmp_path: Path):
+        """Valid mnar_sensitivity with >40% miss → pass."""
+        policy = _good_policy()
+        policy["mechanism_assessment"] = {
+            "method": "Little's MCAR test + logistic regression",
+            "conclusion": "mnar",
+        }
+        policy["mnar_sensitivity"] = {
+            "performed": True,
+            "tipping_point": -0.3,
+            "metric": "pr_auc",
+            "baseline_score": 0.72,
+        }
+        setup = self._make_missing_setup(tmp_path, policy=policy, miss_ratio=0.50)
+        result = self._run(tmp_path, setup)
+        assert result.returncode == 0
+
+    def test_mnar_sensitivity_not_required_below_40pct(self, tmp_path: Path):
+        """miss 10% with mechanism_assessment → no mnar_sensitivity needed."""
+        policy = _good_policy()
+        policy["mechanism_assessment"] = {
+            "method": "Little's MCAR test",
+            "conclusion": "mar",
+        }
+        setup = self._make_missing_setup(tmp_path, policy=policy, miss_ratio=0.10)
+        result = self._run(tmp_path, setup)
+        assert result.returncode == 0
