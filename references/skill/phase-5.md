@@ -60,6 +60,7 @@ python3 scripts/tools/train_select_evaluate.py \
 - **调参**: 在 valid 或 CV 上，绝不碰 test（MLGG-M01）
 - **选择标准**: valid PR-AUC + One-SE rule（MLGG-M04, Yang KDD 2023）
 - **阈值**: Youden's J on valid（MLGG-M02）
+- **多模型比较**: ≥3 模型在同一 test set 上评估时，不声称统计优越性（需 Bonferroni-adjusted DeLong test）。报告为"经验比较"
 - **预期耗时**: 5-30 分钟（取决于数据量和模型数）→ 必须提前告知用户
 
 ## Gate 检查
