@@ -4,14 +4,42 @@
 
 ---
 
-## 两种评审模式
+## 三种评审模式
 
-不同 Phase 使用不同的评审方式：
+不同阶段使用不同的评审方式：
 
-| 模式 | 适用 Phase | 机制 |
-|------|-----------|------|
-| **Gate 模式** | 1, 2, 4, 5, 6, 7, 8, 9 | 运行 Gate 脚本 → 解析 JSON 报告 |
-| **Lint + 人工审查模式** | 3 | 运行 `mlgg lint check` + Agent 逐项代码审查 |
+| 模式 | 适用场景 | 机制 |
+|------|---------|------|
+| **Gate 模式** | Research 模式 Phase 1-9 / Pipeline 模式 A-1, A-2, A-4, A-5 | 运行 Gate 脚本 → 解析 JSON 报告（failures/warnings 数组） |
+| **CLI 输出审查模式** | Pipeline 模式 A-3（train）和 A-6（workflow） | 读 CLI 产出的 JSON → Agent 按标准阈值判断 |
+| **Lint + 人工审查模式** | Research 模式 Phase 3 | 运行 `mlgg lint check` + Agent 逐项代码审查 |
+
+### CLI 输出审查模式（Pipeline 模式专用）
+
+`mlgg.py train` 和 `mlgg.py workflow` 的输出不是标准 gate 报告（没有 failures/warnings 数组）。Agent 按以下标准自行判断：
+
+**A-3 (`mlgg.py train`) 输出审查标准**：
+
+| 读哪个文件 | 检查项 | 通过标准 | 未通过操作 |
+|-----------|--------|---------|-----------|
+| `evaluation_report.json` | test PR-AUC | > 0.5 | 检查特征/数据 |
+| `evaluation_report.json` | 校准斜率 | 0.7 ~ 1.3 | 加 `--calibration-method sigmoid` |
+| `evaluation_report.json` | CI 宽度 | < 0.20 | 增加 `--bootstrap-resamples` |
+| `evaluation_report.json` | train-test gap | < 0.10 | 加正则化或减特征 |
+| `evaluation_report.json` | 过拟合风险 | low / medium | high → 简化模型池 |
+| `model_selection_report.json` | 候选模型数 | ≥ 3 | 增加 `--model-pool` |
+
+**A-6 (`mlgg.py workflow`) 输出审查标准**：
+
+| 读哪个文件 | 检查项 | 操作 |
+|-----------|--------|------|
+| `publication_gate_report.json` | 整体 pass/fail + 各 gate 状态 | 先看聚合结果 |
+| `evidence/<gate>_report.json` | 失败 gate 详情 | `explain_gate.py --report <file>` |
+| `self_critique_report.json` | 12 维评分 | 评分 < 75 → 查低分维度 |
+
+两种 CLI 输出审查都遵守 3 轮迭代上限和 peer-review 查证要求。
+
+### Lint + 人工审查模式（Research 模式 Phase 3）
 
 Phase 3（预处理）没有独立 Gate 脚本，因为预处理内嵌在 sklearn Pipeline 中。该 Phase 的评审循环改为：
 1. 运行 `python3 scripts/orchestration/mlgg.py lint check <file>` 扫描代码

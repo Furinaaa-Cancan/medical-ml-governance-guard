@@ -10,7 +10,8 @@
 | 用户说的 | 路由 |
 |---------|------|
 | 建模 / 预测 / 训练 / "我有数据" | → **Intake 问诊** |
-| 审查代码 / review / "有没有泄漏" | → 读 `references/skill/audit-mode.md` |
+| "审查这个文件" / "这段代码有泄漏吗" | → 读 `references/skill/audit-mode.md`（快速审计） |
+| "逐步审查我的 pipeline" / "帮我过一遍流程" | → **Intake → 路径 B: Research 模式** |
 | 具体问题（"EPV 是什么"） | → 直接回答，引用证据 |
 | "这个项目怎么用" | → 简介 + 推荐 `mlgg.py play` |
 
@@ -73,7 +74,8 @@
    python3 scripts/orchestration/mlgg.py split \
      --input <CSV> --output-dir data/ \
      --patient-id-col <ID> --target-col y \
-     --strategy stratified_grouped [--cross-sectional]
+     --strategy stratified_grouped  # 横截面数据用此策略
+     # 纵向数据改为: --strategy grouped_temporal --time-col <TIME_COL>
    ```
 3. 运行 leakage_gate + split_protocol_gate
 4. **评审循环** → 检查患者重叠、时序、正类比例
@@ -111,16 +113,28 @@ python3 scripts/orchestration/mlgg.py train \
 
 | 条件 | 参数调整 |
 |------|---------|
-| n < 1000（CV-only） | 去掉 `--test`，加 `--selection-data cv_inner` |
+| n < 1000（CV-only） | 去掉 `--test` 和 `--valid`，加 `--selection-data cv_inner` |
 | n < 200 | 加 `--model-pool "lr"` + `--feature-engineering-mode quick` |
 | 有外部队列 | 加 `--external-cohort-spec` + `--external-validation-report-out` |
 | 纵向数据 | 加 `--temporal-cv` |
 
-**训练完成后，评审循环**：
-- 读 `evidence/evaluation_report.json` → 检查 AUROC、校准、CI 宽度、过拟合风险
-- 读 `evidence/model_selection_report.json` → 检查候选池 ≥3、one-SE 选择合理性
-- 发现问题 → 调整参数 → 重跑 `mlgg.py train`（最多 3 轮）
+**训练完成后，评审循环**（CLI 输出审查模式，非 gate 报告）：
+
+`evaluation_report.json` 不是 gate 报告（没有 failures/warnings 数组），Agent 按以下标准自行判断：
+
+| 检查项 | 通过标准 | 未通过 → 操作 |
+|--------|---------|--------------|
+| 候选模型数 | ≥ 3 | 增加 `--model-pool` |
+| test PR-AUC | > 0.5（优于随机） | 检查特征质量或数据问题 |
+| 校准斜率 | 0.7 ~ 1.3 | 加 `--calibration-method sigmoid` |
+| CI 宽度 (PR-AUC) | < 0.20 | 增加 `--bootstrap-resamples` |
+| train-test gap | < 0.10 (PR-AUC) | 加正则化或减少特征 |
+| 过拟合风险 | low / medium | high → 简化模型池 |
+
+- 读 `evidence/model_selection_report.json` → 确认 one-SE 选择合理
+- 未达标 → 调整参数 → 重跑 `mlgg.py train`（最多 3 轮）
 - 用 `python3 scripts/tools/peer_review_lookup.py --tags "<问题标签>"` 引用审稿案例
+- 3 轮后仍未达标 → 停止，向用户报告并建议调整数据/特征
 
 告诉用户预期耗时，不让用户面对空白屏幕超过 30 秒。
 
@@ -162,8 +176,14 @@ cp references/split-protocol.example.json configs/split-protocol.json
 cp references/feature-lineage.example.json configs/feature-lineage.json
 cp references/tuning-protocol.example.json configs/tuning-protocol.json
 cp references/reporting-bias-checklist.example.json configs/reporting-bias-checklist.json
-# ... Agent 编辑每个 config 的关键字段
 ```
+
+**Agent 必须编辑的关键字段**（其余保持默认即可）：
+- `request.json`: `study_id`, `target_name`, `label_col`, `patient_id_col`, `split_paths.*`
+- `split-protocol.json`: `id_col`, `target_col`, `requires_temporal_order`(横截面→false)
+- `feature-lineage.json`: `features` 字典（每个特征的来源和时间归属）
+- `tuning-protocol.json`: `candidate_models`（与 A-3 的 `--model-pool` 一致）
+- `reporting-bias-checklist.json`: 根据研究实际情况填写 TRIPOD/PROBAST 各项
 
 运行：
 ```bash
@@ -171,12 +191,23 @@ python3 scripts/orchestration/mlgg.py workflow \
   --request configs/request.json --strict --allow-missing-compare
 ```
 
-**评审循环**：
-- 读 `evidence/publication_gate_report.json` → 查看哪些 gate 通过/失败
-- 读 `evidence/self_critique_report.json` → 12 维评分
-- 失败的 gate → `python3 scripts/tools/explain_gate.py --report evidence/<gate>_report.json`
-- 查 peer-review-kb: `python3 scripts/tools/peer_review_lookup.py --gate <gate_name>`
-- 修复 → 重跑（可能只需重跑 train 或调整 config）→ 再跑 workflow
+**评审循环**（workflow 产出 33 个独立 gate 报告 + 1 个聚合报告）：
+
+1. **先读聚合报告**：`evidence/publication_gate_report.json` → 整体 pass/fail + 各 gate 状态
+2. **读评分**：`evidence/self_critique_report.json` → 12 维评分
+3. **有 gate 失败？** → 用 explain_gate 查看详情：
+   ```bash
+   python3 scripts/tools/explain_gate.py --report evidence/<失败gate>_report.json
+   ```
+4. **查审稿案例**：
+   ```bash
+   python3 scripts/tools/peer_review_lookup.py --gate <gate_name>
+   ```
+5. **修复策略**（按失败类型）：
+   - 数据/分割问题 → 调整 split 参数 → 从 A-2 重跑
+   - 训练/评估问题 → 调整 train 参数 → 从 A-3 重跑
+   - 配置/报告问题 → 编辑 configs/*.json → 只重跑 workflow
+6. 重跑 workflow → 再读聚合报告（最多 3 轮）
 
 ### Pipeline 模式总结卡
 
