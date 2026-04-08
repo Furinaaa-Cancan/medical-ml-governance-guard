@@ -742,7 +742,7 @@ def main() -> int:
     report_path = args.report
     report_path.parent.mkdir(parents=True, exist_ok=True)
     with open(report_path, "w") as f:
-        json.dump(report, f, indent=2, ensure_ascii=False)
+        json.dump(report, f, indent=2, ensure_ascii=False, allow_nan=False)
 
     # Print summary
     print(f"\n{'='*60}")

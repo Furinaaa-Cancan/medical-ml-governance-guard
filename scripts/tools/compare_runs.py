@@ -242,7 +242,7 @@ def main() -> int:
         out = Path(args.output).expanduser().resolve()
         out.parent.mkdir(parents=True, exist_ok=True)
         with out.open("w", encoding="utf-8") as f:
-            json.dump(result, f, indent=2)
+            json.dump(result, f, indent=2, sort_keys=True, allow_nan=False)
         print(f"JSON report: {out}")
 
     md = to_markdown(result)
