@@ -19,29 +19,40 @@
 
 ## Step 2: Intake 问诊
 
-**必须有答案才能继续：**
+**必问（3 个，缺一不可）：**
 
-1. 预测什么结局？**是二分类(是/否)吗？**
-2. 数据来源？（NHANES / EHR / 试验 / 登记库）
-3. 约多少行 × 多少特征？
-4. 结局怎么定义的？（ICD / 实验室指标 / 自报）
-5. 数据是一个完整 CSV 还是已分好 train/test？
-6. 有外部验证队列吗？
-7. **你要用 MLGG 内置管线跑，还是审查你自己写的代码？**
+1. **预测什么结局？** 是二分类(是/否)吗？
+2. **结局怎么定义的？** ICD 码 / 实验室阈值 / 自报 / 复合？
+3. **你要 MLGG 帮你跑，还是审查你已有的代码？**
+
+**能从数据推断的 → 别问，自己查：**
+
+| 信息 | 怎么获取 | 什么时候问用户 |
+|------|---------|--------------|
+| 行数 × 特征数 | 读 CSV header + `wc -l` | 用户没给文件时 |
+| 数据来源 | 看文件名 / 列名推断 | 推断不出时 |
+| 已分好 train/test？ | `ls data/` 看有没有 train.csv | 目录结构不明确时 |
+| 外部验证队列 | 问一句就行 | 始终简短确认 |
 
 **不支持的任务（立即告知）：**
 - 生存分析 / 多分类 / 回归 / 图像·文本·序列 → "MLGG 仅支持结构化表格二分类。"
 
-**根据答案确定路径：**
+**自动触发的提醒（不需要用户回答）：**
+
+| Agent 观察到 | 主动提醒 |
+|-------------|---------|
+| 提到具体疾病 | 读 `references/disease-definition-knowledge-base.json` → 提醒定义变量泄漏 |
+| 推断出 n < 500 | "小样本，推荐 CV-only" |
+| 推断出 n < 100 | "极小样本，只用 LR+Ridge，标记为探索性" |
+| 列名含 NHANES/BRFSS 特征 | "复杂抽样设计，需在 Limitations 声明" |
+| CSV 中有 hba1c/glucose/血压 且预测糖尿病/高血压 | "⚠️ 这些列可能用于定义结局，不能做预测特征" |
+
+**确定路径：**
 
 | 条件 | 路由 |
 |------|------|
 | "帮我跑" / 没有自己的代码 | → **路径 A: Pipeline 模式** |
 | "审查我的代码" / 已有 pipeline | → **路径 B: Research 模式** |
-| 提到具体疾病 | 读 `references/disease-definition-knowledge-base.json` → 提醒定义变量泄漏 |
-| n < 500 | "小样本，推荐 CV-only" |
-| n < 100 | "极小样本，只用 LR+Ridge，标记为探索性" |
-| NHANES / BRFSS | "复杂抽样设计，需在 Limitations 声明" |
 
 ---
 
@@ -253,15 +264,54 @@ python3 scripts/orchestration/mlgg.py workflow \
 
 **每个 Phase 的节奏**：
 1. 读取 phase-N.md
-2. 告诉用户目标和预期耗时
-3. 审查用户代码 / 运行 gate
-4. **临床语义审查**（SKILL.md "Clinical Semantic Review Checklist"）：
-   - Phase 1-3：检查每个特征的时间线——是入院前、住院中、还是出院后产生的？出院后变量不能用于预测出院后结局
-   - Phase 6：多模型比较是否需要多重检验校正？校准是否报告了 slope/intercept/O:E（Van Calster 2019 trio）？
-   - Phase 7：是否做了跨模型 SHAP 一致性（Spearman ρ）？ρ < 0.5 = 警告
-   - Phase 8：亚组指标是否有 95% Bootstrap CI？小样本亚组是否标记？
-5. **评审循环**（`references/skill/review-protocol.md`）
-6. 通过 → 总结卡 → 用户确认 → 下一步
+2. 告诉用户："现在检查 Phase N（XX），大约需要 X 分钟"
+3. **读用户代码** → 对照 phase-N.md 的规则逐条检查
+4. **临床语义审查**（见 SKILL.md §Clinical-Semantic-Review）：
+   - Phase 1-3：每个特征的产生时间点（入院前/住院中/出院后）
+   - Phase 6：校准三件套（slope/intercept/O:E）+ 多重检验
+   - Phase 7：跨模型 SHAP Spearman ρ ≥ 0.5
+   - Phase 8：亚组 95% Bootstrap CI + n<200 标记
+5. 发现问题 → **直接给出修复代码**（不只是说"你应该改"）
+6. 用户确认修复 → 运行 gate 验证 → 通过 → 总结卡 → 下一步
+
+### 路径 B 常见修复模式速查
+
+Agent 审查用户代码时，遇到以下模式直接给修复方案：
+
+| 用户代码中的问题 | 严重度 | 修复方案 |
+|----------------|--------|---------|
+| `train_test_split(X, y)` 无 `groups=` | CRITICAL | 加 `groups=df["patient_id"]`；如果没有 patient_id 列，问用户"数据里有没有患者标识列？" |
+| `scaler.fit(X)` 在 split 之前 | CRITICAL | 移到 split 后，改为 `scaler.fit(X_train)`；或用 Pipeline 包裹 |
+| `SMOTE` 用在全数据或 test 上 | CRITICAL | 删除 SMOTE，改用 `class_weight="balanced"` + Platt 校准 |
+| `SelectKBest().fit(X, y)` 在 split 前 | CRITICAL | 移到 split 后，`fit(X_train, y_train)` |
+| 只报了 AUROC | MAJOR | 补充 AUPRC、MCC、Brier、校准 ECE、DCA |
+| 只报了点估计无 CI | MAJOR | 加 bootstrap 95% CI（≥1000 resamples） |
+| 阈值在 test 上选 | CRITICAL | 改为在 validation 上选（Youden's J 或 cost-sensitive） |
+| HbA1c 既定义糖尿病又作特征 | CRITICAL | 从特征中删除所有定义变量 |
+| `model.predict(X_test)` 用 0.5 硬编码阈值 | MAJOR | 改为 validation set 上选的最优阈值 |
+| `time_in_hospital` 用于预测出院后结局 | CRITICAL | 明确模型是 admission-time 还是 discharge-time，分别标注 |
+| 单模型 SHAP | WARNING | 至少 2 个模型族做 SHAP，报告 Spearman 排名一致性 |
+| 亚组分析无 CI | WARNING | 加 bootstrap CI；n<200 标记"不可靠" |
+
+### 路径 B Gate 失败修复指南
+
+当 gate 运行失败时，agent 按此表查找修复方案：
+
+| Gate 失败 | 常见原因 | 修复命令/操作 |
+|-----------|---------|-------------|
+| `leakage_gate` — ID 重叠 | split 时没有按 patient 分组 | 重跑 `split_data.py --patient-id-col <ID> --strategy stratified_grouped` |
+| `leakage_gate` — 时序反转 | test 时间早于 train | 加 `--time-col <TIME>` 使用 `grouped_temporal` 策略 |
+| `split_protocol_gate` — 正类比例偏移 | 时序 split 导致 prevalence drift | 在 limitations 中声明；如 drift > 3% 考虑 stratified 策略 |
+| `calibration_dca_gate` — ECE > 0.1 | 未做校准 | 训练命令加 `--calibration-method sigmoid`（Platt scaling） |
+| `sample_size_gate` — EPV < 10 | 特征太多 / 事件太少 | 减少特征数（Phase 4 更严格筛选）或声明为探索性研究 |
+| `ci_matrix_gate` — CI 宽度 > 0.20 | bootstrap 不够 | 加 `--bootstrap-resamples 2000` |
+| `fairness_equity_gate` — disparity | 亚组间 AUROC 差异大 | 在 limitations 中讨论；考虑亚组特定阈值 |
+| `shap_interpretability_gate` — τ < 0.5 | 模型间特征排名不一致 | 增加模型族数量；在讨论中注明不稳定性 |
+| `permutation_significance_gate` — p > 0.05 | 模型不比随机好 | 检查特征质量；考虑更强的特征工程 |
+| `reporting_bias_gate` — 项目未满足 | TRIPOD/PROBAST 缺项 | 编辑 `configs/reporting-bias-checklist.json` 补全缺失项 |
+
+更详细的错误诊断：`python3 scripts/tools/explain_gate.py --report evidence/<gate>_report.json`
+错误知识库：`references/error-knowledge-base.json`
 
 **中途恢复**：检查前序 evidence 文件是否存在：
 
