@@ -87,13 +87,14 @@ class TestDAGValidation:
                     f"publication_gate missing dependency on {name}"
                 )
 
-    def test_self_critique_depends_on_all_gates(self):
+    def test_self_critique_depends_on_all_pre_final_gates(self):
         sc = GATE_REGISTRY["self_critique_gate"]
-        # Gates that depend on self_critique are excluded from this check
-        post_critique = {name for name, spec in GATE_REGISTRY.items()
-                         if "self_critique_gate" in spec.depends_on}
+        # self_critique depends on all gates except itself and other
+        # Layer 8 (FINAL) gates that run in parallel with it.
+        final_gates = {name for name, spec in GATE_REGISTRY.items()
+                       if spec.layer == GateLayer.FINAL}
         for name in GATE_REGISTRY:
-            if name != "self_critique_gate" and name not in post_critique:
+            if name != "self_critique_gate" and name not in final_gates:
                 assert name in sc.depends_on, (
                     f"self_critique_gate missing dependency on {name}"
                 )
@@ -121,9 +122,11 @@ class TestTopologicalSort:
         order = topological_sort()
         assert order[0] == "request_contract_gate"
 
-    def test_security_audit_gate_is_last(self):
+    def test_final_layer_gates_are_last(self):
         order = topological_sort()
-        assert order[-1] == "security_audit_gate"
+        final_gates = {"self_critique_gate", "security_audit_gate"}
+        # Both should be in the last 2 positions (order between them is arbitrary)
+        assert set(order[-2:]) == final_gates
 
 
 # ────────────────────────────────────────────────────────

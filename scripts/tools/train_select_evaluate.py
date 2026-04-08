@@ -3300,8 +3300,14 @@ def metric_panel(y_true: np.ndarray, proba: np.ndarray, threshold: float, beta: 
     mcc = ((tp * tn) - (fp * fn)) / mcc_denom if mcc_denom > 0 else 0.0
 
     # Likelihood ratios (clinical decision-making gold standard)
-    lr_positive = sensitivity / (1.0 - specificity) if specificity < 1.0 else float("inf")
-    lr_negative = (1.0 - sensitivity) / specificity if specificity > 0 else float("inf")
+    # Capped at 1000 to avoid JSON serialization issues and CI computation
+    # failures.  LR+ > 1000 or LR- < 0.001 are clinically indistinguishable
+    # from "perfect" and should not be reported as Infinity.
+    _LR_CAP = 1000.0
+    lr_positive = sensitivity / (1.0 - specificity) if specificity < 1.0 else _LR_CAP
+    lr_negative = (1.0 - sensitivity) / specificity if specificity > 0 else _LR_CAP
+    lr_positive = min(float(lr_positive), _LR_CAP)
+    lr_negative = min(float(lr_negative), _LR_CAP)
 
     metrics = {
         "accuracy": clip01(accuracy),
@@ -3978,6 +3984,9 @@ def bootstrap_ci_pr_auc(y_true: np.ndarray, proba: np.ndarray, n_resamples: int,
     Raises:
         ValueError: If fewer than 200 valid resamples are obtained.
     """
+    y_arr = np.asarray(y_true)
+    if y_arr.size == 0 or len(np.unique(y_arr)) < 2:
+        return float("nan"), float("nan"), 0
     rng = np.random.default_rng(seed)
     hits: List[float] = []
     max_attempts = max(5 * n_resamples, 2000)

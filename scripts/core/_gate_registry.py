@@ -419,7 +419,7 @@ _register(GateSpec(
 _register(GateSpec(
     name="ci_matrix_gate",
     script="gates/ci_matrix_gate.py",
-    layer=GateLayer.METRIC_VALIDATION,
+    layer=GateLayer.MODEL_AUDIT,  # Moved from METRIC_VALIDATION to avoid intra-layer dep
     description="Validate confidence interval matrix via bootstrap resampling.",
     depends_on=frozenset({"request_contract_gate"}),
     request_inputs={
@@ -436,7 +436,7 @@ _register(GateSpec(
 _register(GateSpec(
     name="metric_consistency_gate",
     script="gates/metric_consistency_gate.py",
-    layer=GateLayer.METRIC_VALIDATION,
+    layer=GateLayer.MODEL_AUDIT,  # Moved from METRIC_VALIDATION to avoid intra-layer dep
     description="Verify primary metric value matches between request and evaluation report.",
     depends_on=frozenset({"request_contract_gate"}),
     request_inputs={
@@ -533,7 +533,7 @@ _register(GateSpec(
     script="gates/security_audit_gate.py",
     layer=GateLayer.FINAL,
     description="Security audit: verify model signatures, evidence integrity, dependency authenticity, sensitive data exposure.",
-    depends_on=frozenset({"self_critique_gate"}),
+    depends_on=frozenset({"publication_gate"}),  # Removed self_critique dep; both now run in parallel at Layer 8
     report_output="security_audit_gate_report.json",
     parallelizable=False,
     category="security",
