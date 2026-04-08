@@ -28,6 +28,15 @@ from _gate_utils import add_issue, load_json_from_str as load_json, normalize_bi
 
 
 register_remediations({
+    "ci_matrix_input_parse_error": "Fix malformed JSON/CSV input files for CI matrix gate.",
+    "prediction_trace_unreadable": "Fix or regenerate the prediction_trace CSV file.",
+    "prediction_trace_missing_columns": "Ensure prediction_trace contains all required columns (scope, cohort_id, y_true, y_score, y_pred, selected_threshold).",
+    "prediction_trace_non_binary": "prediction_trace y_true/y_pred must contain only binary 0/1 values.",
+    "prediction_trace_score_invalid": "prediction_trace y_score must be finite and within [0, 1].",
+    "ci_matrix_split_missing": "Ensure prediction_trace contains rows for all required splits (train, valid, test).",
+    "ci_matrix_threshold_unstable": "selected_threshold must be consistent within each split.",
+    "ci_matrix_single_class": "Each split must contain both positive and negative cases for CI computation.",
+    "ci_matrix_missing_required_metric": "Missing CI bounds for a required metric. Re-run bootstrap CI computation.",
     "ci_width_excessive": "Confidence intervals are too wide. Increase bootstrap resamples or collect more data.",
     "ci_coverage_below_threshold": "CI coverage is below expected nominal level. Check bootstrap methodology.",
     "ci_resamples_insufficient": "Increase the number of bootstrap resamples (recommended >= 2000).",
@@ -246,7 +255,7 @@ def main() -> int:
     except Exception as exc:
         add_issue(
             failures,
-            "ci_matrix_missing_required_metric",
+            "ci_matrix_input_parse_error",
             "Unable to parse evaluation_report JSON.",
             {"path": str(Path(args.evaluation_report).expanduser()), "error": str(exc)},
         )
@@ -271,7 +280,7 @@ def main() -> int:
     except Exception as exc:
         add_issue(
             failures,
-            "ci_matrix_missing_required_metric",
+            "prediction_trace_unreadable",
             "Unable to read prediction_trace CSV.",
             {"path": str(Path(args.prediction_trace).expanduser()), "error": str(exc)},
         )
@@ -284,7 +293,7 @@ def main() -> int:
         except Exception as exc:
             add_issue(
                 failures,
-                "ci_matrix_missing_required_metric",
+                "ci_matrix_input_parse_error",
                 "Unable to parse performance_policy JSON.",
                 {"path": str(Path(args.performance_policy).expanduser()), "error": str(exc)},
             )
@@ -314,7 +323,7 @@ def main() -> int:
     if missing_cols:
         add_issue(
             failures,
-            "ci_matrix_missing_required_metric",
+            "prediction_trace_missing_columns",
             "prediction_trace missing required columns.",
             {"missing_columns": missing_cols},
         )
@@ -331,7 +340,7 @@ def main() -> int:
     if y_true_bin is None or y_pred_bin is None:
         add_issue(
             failures,
-            "ci_matrix_missing_required_metric",
+            "prediction_trace_non_binary",
             "prediction_trace y_true/y_pred must be binary 0/1.",
             {},
         )
@@ -342,7 +351,7 @@ def main() -> int:
     if np.any(~np.isfinite(trace_df["y_score"].to_numpy(dtype=float))):
         add_issue(
             failures,
-            "ci_matrix_missing_required_metric",
+            "prediction_trace_score_invalid",
             "prediction_trace y_score contains non-finite values.",
             {},
         )
@@ -350,7 +359,7 @@ def main() -> int:
     if np.any(trace_df["y_score"].to_numpy(dtype=float) < 0.0) or np.any(trace_df["y_score"].to_numpy(dtype=float) > 1.0):
         add_issue(
             failures,
-            "ci_matrix_missing_required_metric",
+            "prediction_trace_score_invalid",
             "prediction_trace y_score must be within [0,1].",
             {},
         )
@@ -365,7 +374,7 @@ def main() -> int:
         if rows.empty:
             add_issue(
                 failures,
-                "ci_matrix_missing_required_metric",
+                "ci_matrix_split_missing",
                 "prediction_trace missing rows for required split.",
                 {"split": split_name, "scope": scope},
             )
@@ -374,7 +383,7 @@ def main() -> int:
         if threshold is None:
             add_issue(
                 failures,
-                "ci_matrix_missing_required_metric",
+                "ci_matrix_threshold_unstable",
                 "selected_threshold must be stable within each split.",
                 {"split": split_name},
             )
@@ -384,7 +393,7 @@ def main() -> int:
         if len(np.unique(y_true)) < 2:
             add_issue(
                 failures,
-                "ci_matrix_missing_required_metric",
+                "ci_matrix_single_class",
                 "Each split must contain both classes for CI computation.",
                 {"split": split_name},
             )

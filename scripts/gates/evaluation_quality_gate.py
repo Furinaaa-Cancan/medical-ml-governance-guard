@@ -72,9 +72,11 @@ def is_auxiliary_metric_path(path: str) -> bool:
         "baseline",
         "baselines",
         "confidence_intervals",
+        "metadata",
         "metrics_ci",
         "null_distribution",
         "null_metrics",
+        "threshold_selection",
         "uncertainty",
     }
     return any(token in auxiliary_tokens for token in tokens)

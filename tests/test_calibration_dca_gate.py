@@ -302,7 +302,7 @@ class TestCLI:
         assert result.returncode == 2
         report = json.loads((tmp_path / "report.json").read_text())
         codes = [f["code"] for f in report["failures"]]
-        assert "calibration_insufficient_events" in codes
+        assert "missing_artifact_file" in codes
 
     def test_missing_eval_report(self, tmp_path: Path):
         trace_path = _make_trace(tmp_path)
@@ -322,7 +322,7 @@ class TestCLI:
         assert result.returncode == 2
         report = json.loads((tmp_path / "report.json").read_text())
         codes = [f["code"] for f in report["failures"]]
-        assert "calibration_insufficient_events" in codes
+        assert "prediction_trace_missing_columns" in codes
 
     def test_empty_ext_cohorts(self, tmp_path: Path):
         trace_path = _make_trace(tmp_path)
@@ -334,7 +334,7 @@ class TestCLI:
         assert result.returncode == 2
         report = json.loads((tmp_path / "report.json").read_text())
         codes = [f["code"] for f in report["failures"]]
-        assert "calibration_insufficient_events" in codes
+        assert "external_cohorts_empty" in codes
 
     def test_non_binary_y_true(self, tmp_path: Path):
         trace_path = tmp_path / "prediction_trace.csv"
@@ -430,7 +430,7 @@ class TestMainDirectMissingTrace:
         assert rc == 2
         out = json.loads(rpt.read_text())
         fail_codes = [f["code"] for f in out["failures"]]
-        assert "calibration_insufficient_events" in fail_codes
+        assert "missing_artifact_file" in fail_codes
 
 
 class TestMainDirectMissingColumns:
@@ -451,7 +451,7 @@ class TestMainDirectMissingColumns:
         assert rc == 2
         out = json.loads(rpt.read_text())
         fail_codes = [f["code"] for f in out["failures"]]
-        assert "calibration_insufficient_events" in fail_codes
+        assert "prediction_trace_missing_columns" in fail_codes
 
 
 class TestMainDirectNonBinaryYTrue:

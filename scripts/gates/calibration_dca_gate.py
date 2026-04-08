@@ -31,6 +31,16 @@ from _gate_utils import add_issue, load_json_from_str as load_json_obj, normaliz
 
 
 register_remediations({
+    "missing_artifact_file": "Provide the missing input file required by this gate.",
+    "prediction_trace_unreadable": "Fix or regenerate the prediction_trace CSV file.",
+    "prediction_trace_missing_columns": "Ensure prediction_trace contains all required columns (scope, cohort_id, cohort_type, y_true, y_score, y_pred, selected_threshold).",
+    "calibration_input_parse_error": "Fix malformed JSON input files for calibration/DCA gate.",
+    "prediction_trace_non_binary": "prediction_trace y_true must contain only binary 0/1 values.",
+    "prediction_trace_score_invalid": "prediction_trace y_score must be finite and within [0, 1].",
+    "external_cohorts_empty": "external_validation_report must include a non-empty cohorts list, or omit the --external-validation-report flag.",
+    "cohort_not_in_trace": "Ensure prediction_trace contains rows for every cohort referenced in the validation report.",
+    "calibration_insufficient_events": "Cohort does not have enough rows or events for calibration/DCA. Collect more data or relax minimum thresholds.",
+    "cohort_evaluation_failed": "Calibration/DCA computation failed for a cohort. Check data integrity.",
     "calibration_ece_exceeds_threshold": "Recalibrate the model (Platt scaling, isotonic regression) to reduce ECE.",
     "calibration_slope_out_of_range": "Calibration slope should be near 1.0. Recalibrate or retrain.",
     "calibration_intercept_too_large": "Calibration intercept too far from 0. Recalibrate.",
@@ -155,7 +165,7 @@ def expected_calibration_error(
 
 def net_benefit(y_true: np.ndarray, y_score: np.ndarray, threshold: float) -> float:
     n = float(y_true.shape[0])
-    if n <= 0:
+    if n <= 0 or threshold >= 1.0 or threshold <= 0.0:
         return 0.0
     y_pred = (y_score >= threshold).astype(int)
     tp = float(np.sum((y_true == 1) & (y_pred == 1)))
@@ -165,6 +175,8 @@ def net_benefit(y_true: np.ndarray, y_score: np.ndarray, threshold: float) -> fl
 
 
 def treat_all_net_benefit(y_true: np.ndarray, threshold: float) -> float:
+    if threshold >= 1.0 or threshold <= 0.0:
+        return 0.0
     prevalence = float(np.mean(y_true.astype(float)))
     weight = float(threshold / (1.0 - threshold))
     return float(prevalence - (1.0 - prevalence) * weight)
@@ -350,7 +362,7 @@ def main() -> int:
         if not p.exists():
             add_issue(
                 failures,
-                "calibration_insufficient_events",
+                "missing_artifact_file",
                 "Required artifact file is missing for calibration/DCA gate.",
                 {"artifact": name, "path": str(p)},
             )
@@ -361,7 +373,7 @@ def main() -> int:
     except Exception as exc:
         add_issue(
             failures,
-            "calibration_insufficient_events",
+            "prediction_trace_unreadable",
             "Unable to load prediction_trace file.",
             {"path": str(trace_path), "error": str(exc)},
         )
@@ -370,7 +382,7 @@ def main() -> int:
     if not REQUIRED_TRACE_COLUMNS.issubset(set(trace_df.columns)):
         add_issue(
             failures,
-            "calibration_insufficient_events",
+            "prediction_trace_missing_columns",
             "prediction_trace is missing required columns.",
             {"missing_columns": sorted(REQUIRED_TRACE_COLUMNS - set(trace_df.columns))},
         )
@@ -383,7 +395,7 @@ def main() -> int:
     except Exception as exc:
         add_issue(
             failures,
-            "calibration_insufficient_events",
+            "calibration_input_parse_error",
             "Unable to parse required JSON input for calibration/DCA gate.",
             {"error": str(exc), "eval_path": str(eval_path), "ext_path": str(ext_path)},
         )
@@ -408,7 +420,7 @@ def main() -> int:
     if y_true_all is None:
         add_issue(
             failures,
-            "calibration_insufficient_events",
+            "prediction_trace_non_binary",
             "prediction_trace y_true must be binary 0/1.",
             {},
         )
@@ -419,7 +431,7 @@ def main() -> int:
     if np.any(~np.isfinite(y_score_all)) or np.any(y_score_all < 0.0) or np.any(y_score_all > 1.0):
         add_issue(
             failures,
-            "calibration_insufficient_events",
+            "prediction_trace_score_invalid",
             "prediction_trace y_score must be finite and in [0,1].",
             {},
         )
@@ -433,7 +445,7 @@ def main() -> int:
             # User explicitly provided an external report but it has no cohorts
             add_issue(
                 failures,
-                "calibration_insufficient_events",
+                "external_cohorts_empty",
                 "external_validation_report must include non-empty cohorts list.",
                 {},
             )
@@ -469,7 +481,7 @@ def main() -> int:
         if subset.empty:
             add_issue(
                 failures,
-                "calibration_insufficient_events",
+                "cohort_not_in_trace",
                 "No prediction_trace rows found for cohort required by calibration/DCA gate.",
                 {"scope": scope, "cohort_id": cohort_id},
             )
@@ -508,7 +520,7 @@ def main() -> int:
         except Exception as exc:
             add_issue(
                 failures,
-                "calibration_insufficient_events",
+                "cohort_evaluation_failed",
                 "Failed to evaluate calibration/DCA metrics for cohort.",
                 {"cohort": label, "error": str(exc)},
             )

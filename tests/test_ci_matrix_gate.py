@@ -232,14 +232,14 @@ class TestMissingFiles:
         report = _run_gate(tmp_path, trace_path=trace_path,
                            eval_path=tmp_path / "nope.json", ext_path=ext_path)
         codes = [f["code"] for f in report["failures"]]
-        assert "ci_matrix_missing_required_metric" in codes
+        assert "ci_matrix_input_parse_error" in codes
 
     def test_missing_trace(self, tmp_path):
         _, eval_path, ext_path = _build_test_artifacts(tmp_path)
         report = _run_gate(tmp_path, trace_path=tmp_path / "nope.csv",
                            eval_path=eval_path, ext_path=ext_path)
         codes = [f["code"] for f in report["failures"]]
-        assert "ci_matrix_missing_required_metric" in codes
+        assert "prediction_trace_unreadable" in codes
 
     def test_missing_ext_report(self, tmp_path):
         trace_path, eval_path, _ = _build_test_artifacts(tmp_path)
@@ -260,7 +260,7 @@ class TestTraceValidation:
         report = _run_gate(tmp_path, trace_path=bad_trace, eval_path=eval_path,
                            ext_path=ext_path, policy=policy)
         codes = [f["code"] for f in report["failures"]]
-        assert "ci_matrix_missing_required_metric" in codes
+        assert "prediction_trace_missing_columns" in codes
 
     def test_non_binary_y_true(self, tmp_path):
         trace_path, eval_path, ext_path = _build_test_artifacts(tmp_path)
@@ -272,7 +272,7 @@ class TestTraceValidation:
         report = _run_gate(tmp_path, trace_path=bad_trace, eval_path=eval_path,
                            ext_path=ext_path, policy=policy)
         codes = [f["code"] for f in report["failures"]]
-        assert "ci_matrix_missing_required_metric" in codes
+        assert "prediction_trace_non_binary" in codes
 
 
 class TestExternalCohort:

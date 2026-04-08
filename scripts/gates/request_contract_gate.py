@@ -1293,7 +1293,7 @@ def validate_ci_matrix_report_shape(
     except Exception as exc:
         add_issue(
             failures,
-            "ci_matrix_missing_required_metric",
+            "ci_matrix_input_parse_error",
             "Unable to parse ci_matrix_report JSON.",
             {"path": str(path), "error": str(exc)},
         )
