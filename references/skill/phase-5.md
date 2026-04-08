@@ -26,11 +26,19 @@ python3 scripts/tools/train_select_evaluate.py \
   [--valid data/valid.csv] \
   --target-col y \
   --patient-id-col <ID> \
-  --output-dir evidence/ \
-  --model-pool "lr,rf,xgboost" \
-  [--include-optional-models] \
+  --model-pool "lr_l1,lr_l2,rf,hgb" \
+  --model-selection-report-out evidence/model_selection_report.json \
+  --evaluation-report-out evidence/evaluation_report.json \
+  --model-pool-out evidence/model_pool.pkl \
+  --model-out evidence/best_model.pkl \
+  --ci-matrix-report-out evidence/ci_matrix_report.json \
+  --distribution-report-out evidence/distribution_report.json \
+  --robustness-report-out evidence/robustness_report.json \
+  --prediction-trace-out evidence/prediction_trace.json \
   [--max-trials-per-family 20] \
   [--n-jobs 1]
+# 别名: lr_l1/lr_l2/lr_en (logistic), rf (random forest),
+#        hgb (HistGradientBoosting), xgb (需装 xgboost), lgbm (需装 lightgbm)
 
 # CV-only 模式（无 test.csv，n < 1000）
 python3 scripts/tools/train_select_evaluate.py \
@@ -38,8 +46,10 @@ python3 scripts/tools/train_select_evaluate.py \
   --selection-data cv_inner \
   --target-col y \
   --patient-id-col <ID> \
-  --output-dir evidence/ \
-  --model-pool "lr,rf,xgboost" \
+  --model-pool "lr_l1,lr_l2,rf,hgb" \
+  --model-selection-report-out evidence/model_selection_report.json \
+  --evaluation-report-out evidence/evaluation_report.json \
+  --model-pool-out evidence/model_pool.pkl \
   [--n-jobs 1]
 # CV-only 模式下：评估用 Bootstrap optimism correction，不产出独立测试集指标
 ```
@@ -57,16 +67,19 @@ python3 scripts/tools/train_select_evaluate.py \
 ```bash
 # 如果 configs/tuning-protocol.json 不存在，先从模板创建:
 #   cp references/tuning-protocol.example.json configs/tuning-protocol.json
-#   然后根据实际调参策略编辑
+#   然后根据实际调参策略编辑（确保 model_selection_data 与训练配置一致）
 
 # 1. 调优泄漏
 python3 scripts/gates/tuning_leakage_gate.py \
-  --protocol configs/tuning-protocol.json \
+  --tuning-spec configs/tuning-protocol.json \
+  --has-valid-split \
   --report evidence/tuning_leakage_report.json --strict
 
 # 2. 模型选择审计
 python3 scripts/gates/model_selection_audit_gate.py \
-  --selection-report evidence/model_selection_report.json \
+  --model-selection-report evidence/model_selection_report.json \
+  --tuning-spec configs/tuning-protocol.json \
+  --train data/train.csv --valid data/valid.csv --test data/test.csv \
   --report evidence/model_selection_audit_report.json --strict
 ```
 

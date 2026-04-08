@@ -984,19 +984,41 @@ def main() -> int:
         )
         return _finish(args, failures, warnings_list, {})
 
-    # Validate feature columns exist
+    # Validate feature columns exist — auto-encode if model used OneHot
     missing_train = set(feature_names) - set(train_df.columns)
     missing_test = set(feature_names) - set(test_df.columns)
     if missing_train or missing_test:
-        add_issue(
-            failures, "SHAP_FEATURE_MISMATCH",
-            "Features in model pool not found in data.",
-            {
-                "missing_in_train": sorted(missing_train)[:10],
-                "missing_in_test": sorted(missing_test)[:10],
-            },
-        )
-        return _finish(args, failures, warnings_list, {})
+        # Try auto-encoding: model_pool may include original_features
+        original_features = model_pool.get("original_features")
+        if original_features is not None:
+            try:
+                sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
+                from train_select_evaluate import apply_categorical_encoding_to_external
+                train_df = apply_categorical_encoding_to_external(
+                    train_df, feature_names, original_features,
+                )
+                test_df = apply_categorical_encoding_to_external(
+                    test_df, feature_names, original_features,
+                )
+                # Re-check after encoding
+                missing_train = set(feature_names) - set(train_df.columns)
+                missing_test = set(feature_names) - set(test_df.columns)
+            except Exception as enc_exc:
+                add_issue(
+                    warnings_list, "SHAP_ENCODING_FALLBACK_FAILED",
+                    f"Auto-encoding failed: {enc_exc}. Falling back to mismatch error.",
+                    {},
+                )
+        if missing_train or missing_test:
+            add_issue(
+                failures, "SHAP_FEATURE_MISMATCH",
+                "Features in model pool not found in data.",
+                {
+                    "missing_in_train": sorted(missing_train)[:10],
+                    "missing_in_test": sorted(missing_test)[:10],
+                },
+            )
+            return _finish(args, failures, warnings_list, {})
 
     # Extract feature matrices
     X_train_full = train_df[feature_names].values.astype(np.float64)

@@ -58,7 +58,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Fail-closed calibration + DCA gate for test + external cohorts.")
     parser.add_argument("--prediction-trace", required=True, help="Path to prediction_trace CSV/CSV.GZ.")
     parser.add_argument("--evaluation-report", required=True, help="Path to evaluation_report.json.")
-    parser.add_argument("--external-validation-report", required=True, help="Path to external_validation_report.json.")
+    parser.add_argument("--external-validation-report", default=None, help="Path to external_validation_report.json (optional; skip external checks if absent).")
     parser.add_argument("--performance-policy", help="Optional performance_policy JSON path.")
     parser.add_argument("--report", help="Optional output report JSON path.")
     parser.add_argument("--strict", action="store_true", help="Fail on warnings.")
@@ -342,8 +342,11 @@ def main() -> int:
 
     trace_path = Path(args.prediction_trace).expanduser().resolve()
     eval_path = Path(args.evaluation_report).expanduser().resolve()
-    ext_path = Path(args.external_validation_report).expanduser().resolve()
-    for p, name in ((trace_path, "prediction_trace"), (eval_path, "evaluation_report"), (ext_path, "external_validation_report")):
+    ext_path = Path(args.external_validation_report).expanduser().resolve() if args.external_validation_report else None
+    required_artifacts = [(trace_path, "prediction_trace"), (eval_path, "evaluation_report")]
+    if ext_path is not None:
+        required_artifacts.append((ext_path, "external_validation_report"))
+    for p, name in required_artifacts:
         if not p.exists():
             add_issue(
                 failures,
@@ -375,7 +378,7 @@ def main() -> int:
 
     try:
         _eval_report = load_json_obj(str(eval_path))  # noqa: F841 – validates JSON parse
-        ext_report = load_json_obj(str(ext_path))
+        ext_report = load_json_obj(str(ext_path)) if ext_path else {"cohorts": []}
         policy = load_json_obj(args.performance_policy) if args.performance_policy else {}
     except Exception as exc:
         add_issue(
@@ -425,13 +428,23 @@ def main() -> int:
     cohorts_to_check: List[Dict[str, str]] = [{"scope": "test", "cohort_id": "internal_test", "label": "internal_test"}]
     ext_cohorts = ext_report.get("cohorts")
     if not isinstance(ext_cohorts, list) or not ext_cohorts:
+        ext_cohorts = []
+        if ext_path is not None:
+            # User explicitly provided an external report but it has no cohorts
+            add_issue(
+                failures,
+                "calibration_insufficient_events",
+                "external_validation_report must include non-empty cohorts list.",
+                {},
+            )
+            return finish(args, failures, warnings, {"thresholds": thresholds})
+        # No external validation provided — proceed with internal test only
         add_issue(
-            failures,
-            "calibration_insufficient_events",
-            "external_validation_report must include non-empty cohorts list.",
+            warnings,
+            "no_external_validation",
+            "No external validation report provided. Only internal test calibration will be evaluated.",
             {},
         )
-        return finish(args, failures, warnings, {"thresholds": thresholds})
     for entry in ext_cohorts:
         if not isinstance(entry, dict):
             continue
@@ -656,7 +669,7 @@ def main() -> int:
     summary = {
         "prediction_trace": str(trace_path),
         "evaluation_report": str(eval_path),
-        "external_validation_report": str(ext_path),
+        "external_validation_report": str(ext_path) if ext_path else None,
         "thresholds": thresholds,
         "cohort_results": cohort_results,
     }

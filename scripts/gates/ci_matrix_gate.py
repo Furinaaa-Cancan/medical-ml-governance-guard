@@ -54,7 +54,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Compute and validate full split/external CI matrix with transport-drop CI.")
     parser.add_argument("--evaluation-report", required=True, help="Path to evaluation_report JSON.")
     parser.add_argument("--prediction-trace", required=True, help="Path to prediction_trace CSV/CSV.GZ.")
-    parser.add_argument("--external-validation-report", required=True, help="Path to external_validation_report JSON.")
+    parser.add_argument("--external-validation-report", default=None, help="Path to external_validation_report JSON (optional; skip transport CI if absent).")
     parser.add_argument("--performance-policy", help="Optional performance_policy JSON.")
     parser.add_argument("--ci-matrix-report", required=True, help="Path to ci_matrix_report JSON artifact.")
     parser.add_argument(
@@ -252,16 +252,19 @@ def main() -> int:
         )
         return finish(args, failures, warnings, {})
 
-    try:
-        external_payload = load_json(args.external_validation_report)
-    except Exception as exc:
-        add_issue(
-            failures,
-            "transport_ci_invalid",
-            "Unable to parse external_validation_report JSON.",
-            {"path": str(Path(args.external_validation_report).expanduser()), "error": str(exc)},
-        )
-        return finish(args, failures, warnings, {})
+    if args.external_validation_report:
+        try:
+            external_payload = load_json(args.external_validation_report)
+        except Exception as exc:
+            add_issue(
+                failures,
+                "transport_ci_invalid",
+                "Unable to parse external_validation_report JSON.",
+                {"path": str(Path(args.external_validation_report).expanduser()), "error": str(exc)},
+            )
+            return finish(args, failures, warnings, {})
+    else:
+        external_payload = {"cohorts": []}
 
     try:
         trace_df = pd.read_csv(Path(args.prediction_trace).expanduser().resolve())
@@ -447,13 +450,22 @@ def main() -> int:
     # External cohort CI matrix.
     cohorts = external_payload.get("cohorts")
     if not isinstance(cohorts, list) or not cohorts:
-        add_issue(
-            failures,
-            "transport_ci_invalid",
-            "external_validation_report must include non-empty cohorts list.",
-            {},
-        )
         cohorts = []
+        if args.external_validation_report:
+            # User explicitly provided external report but it has no cohorts
+            add_issue(
+                failures,
+                "transport_ci_invalid",
+                "external_validation_report must include non-empty cohorts list.",
+                {},
+            )
+        else:
+            add_issue(
+                warnings,
+                "no_external_validation",
+                "No external validation report provided. Transport CI checks skipped.",
+                {},
+            )
 
     external_ci: Dict[str, Any] = {}
     transport_drop_ci: Dict[str, Any] = {}
@@ -630,12 +642,21 @@ def main() -> int:
         }
 
     if transport_required and not transport_drop_ci:
-        add_issue(
-            failures,
-            "transport_ci_invalid",
-            "Policy requires transport-drop CI, but no external transport CI could be computed.",
-            {"transport_ci_required": transport_required},
-        )
+        if args.external_validation_report:
+            # User intended external validation but it failed
+            add_issue(
+                failures,
+                "transport_ci_invalid",
+                "Policy requires transport-drop CI, but no external transport CI could be computed.",
+                {"transport_ci_required": transport_required},
+            )
+        else:
+            add_issue(
+                warnings,
+                "transport_ci_skipped",
+                "Transport-drop CI skipped: no external validation report provided.",
+                {},
+            )
 
     ci_matrix_payload = {
         "status": "pass" if not failures else "fail",
@@ -650,7 +671,7 @@ def main() -> int:
         "metadata": {
             "evaluation_report": str(Path(args.evaluation_report).expanduser().resolve()),
             "prediction_trace": str(Path(args.prediction_trace).expanduser().resolve()),
-            "external_validation_report": str(Path(args.external_validation_report).expanduser().resolve()),
+            "external_validation_report": str(Path(args.external_validation_report).expanduser().resolve()) if args.external_validation_report else None,
             "ci_policy": ci_policy,
         },
     }
@@ -691,7 +712,7 @@ def finish(
     input_files = {
         "evaluation_report": str(Path(args.evaluation_report).expanduser().resolve()),
         "prediction_trace": str(Path(args.prediction_trace).expanduser().resolve()),
-        "external_validation_report": str(Path(args.external_validation_report).expanduser().resolve()),
+        "external_validation_report": str(Path(args.external_validation_report).expanduser().resolve()) if args.external_validation_report else None,
         "ci_matrix_report": str(Path(args.ci_matrix_report).expanduser().resolve()),
     }
     if getattr(args, "performance_policy", None):

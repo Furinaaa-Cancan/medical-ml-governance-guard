@@ -143,6 +143,7 @@ SUPPORTED_IMBALANCE_STRATEGIES = {
 }
 
 MODEL_ALIASES = {
+    "lr": "logistic_l2",
     "lr_l1": "logistic_l1",
     "lr_l2": "logistic_l2",
     "lr_en": "logistic_elasticnet",
