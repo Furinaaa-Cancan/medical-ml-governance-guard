@@ -4430,7 +4430,8 @@ def write_json(path: Path, payload: Dict[str, Any]) -> None:
         f".{path.name}.tmp-{os.getpid()}"
     )
     with tmp_path.open("w", encoding="utf-8") as fh:
-        json.dump(payload, fh, ensure_ascii=True, indent=2, sort_keys=True)
+        json.dump(payload, fh, ensure_ascii=True, indent=2, sort_keys=True,
+                  allow_nan=False)
         fh.write("\n")
         fh.flush()
         os.fsync(fh.fileno())
@@ -5799,6 +5800,7 @@ def main() -> int:
         X_test, y_test = pd.DataFrame(), np.array([])
 
     # Auto-encode detected categorical features (fit on train only, MLGG-P05)
+    pre_encoding_features = list(selected_features)  # preserve raw names for model_pool
     if categorical_report.get("categorical_count", 0) > 0:
         X_train, X_valid, X_test, selected_features = encode_categorical_features(
             X_train, X_valid, X_test, categorical_report,
@@ -6037,7 +6039,8 @@ def main() -> int:
             _ckpt_payload = {"candidate_rows": candidate_rows, "completed_count": len(candidate_rows)}
             _ckpt_tmp = checkpoint_path.with_suffix(".tmp")
             with _ckpt_tmp.open("w", encoding="utf-8") as _cfh:
-                json.dump(_ckpt_payload, _cfh, ensure_ascii=True, indent=2, sort_keys=True)
+                json.dump(_ckpt_payload, _cfh, ensure_ascii=True, indent=2, sort_keys=True,
+                          allow_nan=False)
             _ckpt_tmp.replace(checkpoint_path)
 
     estimator_map = {cand["model_id"]: cand["estimator"] for cand in candidates}
@@ -7395,6 +7398,7 @@ def main() -> int:
             "schema_version": 1,
             "families": pool_families,
             "features": selected_features,
+            "original_features": pre_encoding_features,
             "selected_model_id": selected_model_id,
         }
         joblib.dump(model_pool, pool_out)

@@ -805,7 +805,8 @@ def write_json(path: Path, payload: Dict[str, Any]) -> None:
         f".{path.name}.tmp-{os.getpid()}-{datetime.now(tz=timezone.utc).strftime('%Y%m%d%H%M%S%f')}"
     )
     with tmp.open("w", encoding="utf-8") as fh:
-        json.dump(payload, fh, ensure_ascii=True, indent=2, sort_keys=True)
+        json.dump(payload, fh, ensure_ascii=True, indent=2, sort_keys=True,
+                  allow_nan=False)
         fh.write("\n")
         fh.flush()
         os.fsync(fh.fileno())

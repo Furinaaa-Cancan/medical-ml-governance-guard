@@ -83,14 +83,40 @@ def load_json_optional(path: Path) -> Optional[Dict[str, Any]]:
     return None
 
 
+def _sanitize_for_json(obj: Any) -> Any:
+    """Recursively replace non-finite floats (NaN, Infinity) with None.
+
+    JSON spec (RFC 8259) does not permit NaN or Infinity.  Python's
+    ``json.dump`` silently emits them by default, producing invalid JSON
+    that downstream parsers reject.  This function is the global safety
+    net: even if a gate or tool forgets to guard a division, the report
+    will contain ``null`` instead of crashing or producing corrupt JSON.
+    """
+    if isinstance(obj, float):
+        return obj if math.isfinite(obj) else None
+    if isinstance(obj, dict):
+        return {k: _sanitize_for_json(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_sanitize_for_json(v) for v in obj]
+    return obj
+
+
 def write_json(path: Path, payload: Dict[str, Any]) -> None:
-    """Atomically write a JSON object to a file."""
+    """Atomically write a JSON object to a file.
+
+    Non-finite floats (NaN, ±Infinity) are replaced with ``null`` before
+    serialisation.  ``allow_nan=False`` is set as a hard backstop so any
+    value that slips past the sanitizer raises immediately rather than
+    producing silently invalid JSON.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
+    clean = _sanitize_for_json(payload)
     tmp_path = path.with_name(
         f".{path.name}.tmp-{os.getpid()}-{int(time.time() * 1_000_000)}"
     )
     with tmp_path.open("w", encoding="utf-8") as fh:
-        json.dump(payload, fh, ensure_ascii=True, indent=2, sort_keys=True)
+        json.dump(clean, fh, ensure_ascii=True, indent=2, sort_keys=True,
+                  allow_nan=False)
         fh.write("\n")
         fh.flush()
         os.fsync(fh.fileno())

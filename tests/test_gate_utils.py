@@ -318,6 +318,34 @@ class TestWriteJson:
         loaded = json.loads(p.read_text(encoding="utf-8"))
         assert loaded == {}
 
+    def test_nan_sanitized_to_null(self, tmp_path: Path):
+        """NaN, Infinity, -Infinity must become null in JSON output."""
+        p = tmp_path / "nan.json"
+        write_json(p, {
+            "nan_val": float("nan"),
+            "inf_val": float("inf"),
+            "neg_inf": float("-inf"),
+            "normal": 3.14,
+            "nested": {"deep_nan": float("nan"), "ok": 1},
+            "list_inf": [1.0, float("inf"), 2.0],
+        })
+        loaded = json.loads(p.read_text(encoding="utf-8"))
+        assert loaded["nan_val"] is None
+        assert loaded["inf_val"] is None
+        assert loaded["neg_inf"] is None
+        assert loaded["normal"] == 3.14
+        assert loaded["nested"]["deep_nan"] is None
+        assert loaded["nested"]["ok"] == 1
+        assert loaded["list_inf"] == [1.0, None, 2.0]
+
+    def test_sanitizer_preserves_valid_types(self, tmp_path: Path):
+        """Sanitizer must not alter valid ints, strings, bools, None."""
+        p = tmp_path / "valid.json"
+        data = {"s": "hello", "i": 42, "b": True, "n": None, "f": 0.0}
+        write_json(p, data)
+        loaded = json.loads(p.read_text(encoding="utf-8"))
+        assert loaded == data
+
 
 # ────────────────────────────────────────────────────────
 # resolve_path
