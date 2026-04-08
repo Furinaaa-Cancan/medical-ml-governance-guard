@@ -6,6 +6,8 @@ __pycache__/
 .venv/
 venv/
 .env
+.env.local
+*.log
 .windsurf/
 
 experiments/authority-e2e/authority_e2e_summary*.json

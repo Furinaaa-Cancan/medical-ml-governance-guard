@@ -51,20 +51,20 @@ FILES_2017 = {
 
 # 2019-2020 pre-pandemic (P_ prefix files)
 FILES_2020 = {
-    "demo": f"{NHANES_DATA_BASE}/2017/DataFiles/P_DEMO.XPT",
-    "bmx": f"{NHANES_DATA_BASE}/2017/DataFiles/P_BMX.XPT",
-    "bpx": f"{NHANES_DATA_BASE}/2017/DataFiles/P_BPXO.XPT",
-    "ghb": f"{NHANES_DATA_BASE}/2017/DataFiles/P_GHB.XPT",
-    "glu": f"{NHANES_DATA_BASE}/2017/DataFiles/P_GLU.XPT",
-    "tchol": f"{NHANES_DATA_BASE}/2017/DataFiles/P_TCHOL.XPT",
-    "hdl": f"{NHANES_DATA_BASE}/2017/DataFiles/P_HDL.XPT",
-    "trigly": f"{NHANES_DATA_BASE}/2017/DataFiles/P_TRIGLY.XPT",
-    "diq": f"{NHANES_DATA_BASE}/2017/DataFiles/P_DIQ.XPT",
-    "bpq": f"{NHANES_DATA_BASE}/2017/DataFiles/P_BPQ.XPT",
-    "smq": f"{NHANES_DATA_BASE}/2017/DataFiles/P_SMQ.XPT",
-    "alq": f"{NHANES_DATA_BASE}/2017/DataFiles/P_ALQ.XPT",
-    "paq": f"{NHANES_DATA_BASE}/2017/DataFiles/P_PAQ.XPT",
-    "mcq": f"{NHANES_DATA_BASE}/2017/DataFiles/P_MCQ.XPT",
+    "demo": f"{NHANES_DATA_BASE}/2019/DataFiles/P_DEMO.XPT",
+    "bmx": f"{NHANES_DATA_BASE}/2019/DataFiles/P_BMX.XPT",
+    "bpx": f"{NHANES_DATA_BASE}/2019/DataFiles/P_BPXO.XPT",
+    "ghb": f"{NHANES_DATA_BASE}/2019/DataFiles/P_GHB.XPT",
+    "glu": f"{NHANES_DATA_BASE}/2019/DataFiles/P_GLU.XPT",
+    "tchol": f"{NHANES_DATA_BASE}/2019/DataFiles/P_TCHOL.XPT",
+    "hdl": f"{NHANES_DATA_BASE}/2019/DataFiles/P_HDL.XPT",
+    "trigly": f"{NHANES_DATA_BASE}/2019/DataFiles/P_TRIGLY.XPT",
+    "diq": f"{NHANES_DATA_BASE}/2019/DataFiles/P_DIQ.XPT",
+    "bpq": f"{NHANES_DATA_BASE}/2019/DataFiles/P_BPQ.XPT",
+    "smq": f"{NHANES_DATA_BASE}/2019/DataFiles/P_SMQ.XPT",
+    "alq": f"{NHANES_DATA_BASE}/2019/DataFiles/P_ALQ.XPT",
+    "paq": f"{NHANES_DATA_BASE}/2019/DataFiles/P_PAQ.XPT",
+    "mcq": f"{NHANES_DATA_BASE}/2019/DataFiles/P_MCQ.XPT",
 }
 
 

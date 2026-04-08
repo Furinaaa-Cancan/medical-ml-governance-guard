@@ -12,7 +12,7 @@ requires-python = ">=3.10"
 authors = [
     {name = "ml-governance-guard contributors"},
 ]
-keywords = ["medical", "machine-learning", "leakage", "prediction", "publication-grade"]
+keywords = ["medical", "machine-learning", "governance", "prediction", "publication-grade"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
@@ -40,6 +40,7 @@ optuna = ["optuna>=3.0"]
 web = ["flask>=3.0"]
 shap = ["shap>=0.42"]
 all = ["xgboost>=1.7", "catboost>=1.2", "lightgbm>=3.3", "tabpfn>=0.1", "optuna>=3.0", "flask>=3.0", "shap>=0.42"]
+dev = ["pytest>=7.0", "pytest-cov", "pytest-timeout>=2.1.0"]
 
 [project.scripts]
 mlgg = "scripts.orchestration.mlgg:cli_main"
