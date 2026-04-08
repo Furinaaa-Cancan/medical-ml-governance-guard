@@ -1405,10 +1405,37 @@ def fit_estimator_with_imbalance(
     strategy: str,
     seed: int,
 ) -> Tuple[BaseEstimator, Dict[str, Any]]:
-    """Fit an estimator on a training set after applying imbalance strategy."""
+    """Fit an estimator on a training set after applying imbalance strategy.
+
+    For class_weight strategy with XGBoost (which doesn't accept
+    class_weight="balanced"), computes scale_pos_weight from the
+    actual class distribution and sets it before fitting.
+    """
     X_fit, y_fit, meta = apply_imbalance_strategy_to_train(X_train, y_train, strategy=strategy, seed=int(seed))
+    # XGBoost class_weight fix: set scale_pos_weight from actual data
+    if str(strategy).strip().lower() == "class_weight":
+        _apply_xgb_scale_pos_weight(estimator, y_fit)
     estimator.fit(X_fit, y_fit)
     return estimator, meta
+
+
+def _apply_xgb_scale_pos_weight(estimator: BaseEstimator, y: np.ndarray) -> None:
+    """Set scale_pos_weight on XGBoost classifiers inside Pipelines.
+
+    XGBoost does not accept class_weight='balanced' like sklearn estimators.
+    This function computes n_negative/n_positive and applies it.
+    """
+    from sklearn.pipeline import Pipeline
+    if isinstance(estimator, Pipeline):
+        clf = estimator.named_steps.get("clf", estimator)
+    else:
+        clf = estimator
+    if XGBClassifier is not None and isinstance(clf, XGBClassifier):
+        y_int = np.asarray(y, dtype=int)
+        n_pos = int(np.sum(y_int == 1))
+        n_neg = int(np.sum(y_int == 0))
+        if n_pos > 0:
+            clf.set_params(scale_pos_weight=float(n_neg) / float(n_pos))
 
 
 def feature_stability_frequency(
@@ -2489,6 +2516,8 @@ def _build_estimator_for_family(
             device=xgb_device,
             verbosity=0,
         )
+        # Note: XGBoost class_weight="balanced" is handled at fit time
+        # via scale_pos_weight in fit_estimator_with_imbalance().
         return Pipeline(steps=[("imputer", imputer), ("clf", clf)])
     if family == "catboost":
         if CatBoostClassifier is None:
