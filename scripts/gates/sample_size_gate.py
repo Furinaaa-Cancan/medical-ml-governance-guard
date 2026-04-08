@@ -306,13 +306,15 @@ def main() -> int:
             {"n_events": n_events_int, "threshold": thresholds["min_total_events"]},
         )
 
-    # Check non-events
+    # Check non-events (Riley 2019 Criterion 3: minority class >= 100)
     if n_non_events is not None and n_non_events < thresholds["min_total_non_events"]:
+        target_list = failures if n_non_events < 50 else warnings
         add_issue(
-            warnings,
-            "events_too_few",
-            f"Only {int(n_non_events)} non-events total.",
-            {"n_non_events": int(n_non_events)},
+            target_list,
+            "non_events_too_few",
+            f"Only {int(n_non_events)} non-events total "
+            f"(Riley 2019 Criterion 3: minority class >= {int(thresholds['min_total_non_events'])}).",
+            {"n_non_events": int(n_non_events), "threshold": thresholds["min_total_non_events"]},
         )
 
     # Check test events

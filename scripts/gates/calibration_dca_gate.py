@@ -642,8 +642,11 @@ def main() -> int:
             and isinstance(_policy_block.get("threshold_grid"), dict)
         )
         if not _explicitly_set:
+            # Strict mode: failure (TRIPOD+AI Item 23 requires pre-specified
+            # clinical thresholds). Non-strict: warning.
+            target_list = failures if args.strict else warnings
             add_issue(
-                warnings,
+                target_list,
                 "dca_threshold_grid_not_prespecified",
                 "DCA threshold grid uses default values without explicit justification "
                 "in performance_policy. Pre-specify and justify thresholds (BMJ 2024).",
