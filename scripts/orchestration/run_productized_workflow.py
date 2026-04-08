@@ -43,10 +43,23 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+_STEP_TIMEOUT = 3600  # 1 hour per step
+
+
 def run_step(name: str, cmd: List[str]) -> Dict[str, Any]:
     print(f"\n== Step: {name} ==")
     print(f"$ {shlex.join(cmd)}")
-    proc = subprocess.run(cmd, text=True, capture_output=True)
+    try:
+        proc = subprocess.run(cmd, text=True, capture_output=True,
+                              timeout=_STEP_TIMEOUT)
+    except subprocess.TimeoutExpired:
+        print(f"TIMEOUT: {name} exceeded {_STEP_TIMEOUT}s", file=sys.stderr)
+        return {
+            "name": name, "command": shlex.join(cmd), "exit_code": 2,
+            "stdout_tail": "", "stderr_tail": f"TIMEOUT after {_STEP_TIMEOUT}s",
+            "status": "fail", "blocking": bool(name in BLOCKING_STEP_NAMES),
+            "recovered_by_step": None,
+        }
     if proc.stdout:
         print(proc.stdout, end="")
     if proc.stderr:

@@ -792,7 +792,10 @@ def main() -> int:
         for gate_name in runnable_in_layer:
             spec = GATE_REGISTRY[gate_name]
             deps_met = all(
-                d in passed_gates or d in newly_passed or d not in gates_to_run
+                (d in passed_gates or d in newly_passed or d not in gates_to_run)
+                and (d not in gates_to_run
+                     or (evidence_dir / GATE_REGISTRY[d].report_output).exists()
+                     if d in GATE_REGISTRY else True)
                 for d in spec.depends_on
             )
             if deps_met:

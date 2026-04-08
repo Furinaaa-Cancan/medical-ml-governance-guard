@@ -72,11 +72,21 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+_STEP_TIMEOUT = 3600  # 1 hour per gate, consistent with run_dag_pipeline
+
+
 def run_step(name: str, cmd: List[str]) -> Tuple[int, str, str]:
     print(f"\n== Step: {name} ==")
     print(f"$ {shlex.join(cmd)}")
     t0 = _time.time()
-    proc = subprocess.run(cmd, text=True, capture_output=True)
+    try:
+        proc = subprocess.run(cmd, text=True, capture_output=True,
+                              timeout=_STEP_TIMEOUT)
+    except subprocess.TimeoutExpired:
+        elapsed = _time.time() - t0
+        msg = f"TIMEOUT: {name} exceeded {_STEP_TIMEOUT}s limit."
+        print(msg, file=sys.stderr)
+        return 2, "", msg
     elapsed = _time.time() - t0
     if proc.stdout:
         print(proc.stdout, end="")
@@ -114,7 +124,20 @@ def run_parallel_batch(
         futures = {pool.submit(_run_one, item): i for i, item in enumerate(batch)}
         indexed: List[Tuple[int, Dict[str, Any]]] = []
         for future in concurrent.futures.as_completed(futures):
-            indexed.append((futures[future], future.result()))
+            idx = futures[future]
+            try:
+                indexed.append((idx, future.result()))
+            except Exception as exc:
+                # Gate subprocess crashed — record as failure
+                name = batch[idx][0] if idx < len(batch) else "unknown"
+                indexed.append((idx, {
+                    "name": name,
+                    "command": shlex.join(batch[idx][1]) if idx < len(batch) else "",
+                    "exit_code": 2,
+                    "execution_time_seconds": 0,
+                    "stdout_tail": "",
+                    "stderr_tail": f"parallel execution error: {exc}",
+                }))
         indexed.sort(key=lambda x: x[0])
         results = [r for _, r in indexed]
     return results
@@ -794,7 +817,8 @@ def main() -> int:
         ):
             return finalize(args, reports, steps, success=False)
     else:
-        steps.append({"gate": "external_validation_gate", "status": "skipped",
+        steps.append({"name": "external_validation_gate", "status": "skipped",
+                       "exit_code": 0, "execution_time_seconds": 0,
                        "reason": "No external validation report found. Gate skipped."})
 
     # Step 22: calibration + decision curve gate
