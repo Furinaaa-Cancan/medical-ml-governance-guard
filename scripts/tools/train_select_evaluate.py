@@ -803,10 +803,10 @@ def mode_config(mode: str) -> Dict[str, Any]:
     """
     token = str(mode).strip().lower()
     if token == "quick":
-        return {"max_missing_ratio": 0.80, "min_variance": 1e-10, "group_keep_ratio": 0.85, "stability_repeats": 25}
+        return {"max_missing_ratio": 0.80, "min_variance": 1e-10, "group_keep_ratio": 0.85, "stability_repeats": 15}
     if token == "moderate":
-        return {"max_missing_ratio": 0.70, "min_variance": 1e-9, "group_keep_ratio": 0.70, "stability_repeats": 35}
-    return {"max_missing_ratio": 0.60, "min_variance": 1e-8, "group_keep_ratio": 0.50, "stability_repeats": 45}
+        return {"max_missing_ratio": 0.70, "min_variance": 1e-9, "group_keep_ratio": 0.70, "stability_repeats": 30}
+    return {"max_missing_ratio": 0.60, "min_variance": 1e-8, "group_keep_ratio": 0.50, "stability_repeats": 50}
 
 
 def select_features_by_filter(
