@@ -188,7 +188,7 @@ class ProgressManager:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         tmp = self.path.with_suffix(".tmp")
         with open(tmp, "w") as f:
-            json.dump(self.data, f, indent=2, ensure_ascii=False)
+            json.dump(self.data, f, indent=2, ensure_ascii=False, allow_nan=False)
         shutil.move(str(tmp), str(self.path))
 
 

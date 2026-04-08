@@ -4429,19 +4429,34 @@ def feature_jsd(train: pd.Series, other: pd.Series) -> Optional[float]:
     return js_divergence_from_probs(a, b)
 
 
+def _sanitize_for_json(obj: Any) -> Any:
+    """Replace non-finite floats (NaN, ±Inf) with None for JSON safety."""
+    if isinstance(obj, float):
+        return obj if math.isfinite(obj) else None
+    if isinstance(obj, dict):
+        return {k: _sanitize_for_json(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_sanitize_for_json(v) for v in obj]
+    return obj
+
+
 def write_json(path: Path, payload: Dict[str, Any]) -> None:
     """Atomically write a JSON file via tmp + rename.
+
+    Non-finite floats (NaN, ±Infinity) are replaced with ``null`` before
+    serialisation to prevent ``ValueError`` from ``allow_nan=False``.
 
     Args:
         path: Target output path.
         payload: Dict to serialize as JSON.
     """
     ensure_parent(path)
+    clean = _sanitize_for_json(payload)
     tmp_path = path.with_name(
         f".{path.name}.tmp-{os.getpid()}"
     )
     with tmp_path.open("w", encoding="utf-8") as fh:
-        json.dump(payload, fh, ensure_ascii=True, indent=2, sort_keys=True,
+        json.dump(clean, fh, ensure_ascii=True, indent=2, sort_keys=True,
                   allow_nan=False)
         fh.write("\n")
         fh.flush()

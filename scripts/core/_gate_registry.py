@@ -545,6 +545,9 @@ _register(GateSpec(
 # DAG resolution utilities
 # ---------------------------------------------------------------------------
 
+import threading as _threading
+
+_cache_lock = _threading.Lock()
 _cached_layers: Optional[List[Tuple[int, List[str]]]] = None
 
 
@@ -557,20 +560,22 @@ def get_execution_layers() -> List[Tuple[int, List[str]]]:
     Gates in the same layer can execute in parallel.
 
     Results are cached after first computation since the registry is static.
+    Thread-safe via ``_cache_lock``.
     """
     global _cached_layers
-    if _cached_layers is not None:
-        return _cached_layers
+    with _cache_lock:
+        if _cached_layers is not None:
+            return _cached_layers
 
-    layer_map: Dict[int, List[str]] = {}
-    for name, spec in GATE_REGISTRY.items():
-        layer_map.setdefault(spec.layer.value, []).append(name)
+        layer_map: Dict[int, List[str]] = {}
+        for name, spec in GATE_REGISTRY.items():
+            layer_map.setdefault(spec.layer.value, []).append(name)
 
-    layers: List[Tuple[int, List[str]]] = []
-    for layer_idx in sorted(layer_map.keys()):
-        layers.append((layer_idx, sorted(layer_map[layer_idx])))
-    _cached_layers = layers
-    return layers
+        layers: List[Tuple[int, List[str]]] = []
+        for layer_idx in sorted(layer_map.keys()):
+            layers.append((layer_idx, sorted(layer_map[layer_idx])))
+        _cached_layers = layers
+        return layers
 
 
 _cached_topo_order: Optional[List[str]] = None
@@ -580,30 +585,32 @@ def topological_sort() -> List[str]:
     """Return all gate names in a valid topological execution order.
 
     Results are cached after first computation since the registry is static.
+    Thread-safe via ``_cache_lock``.
     """
     global _cached_topo_order
-    if _cached_topo_order is not None:
-        return list(_cached_topo_order)
+    with _cache_lock:
+        if _cached_topo_order is not None:
+            return list(_cached_topo_order)
 
-    visited: Set[str] = set()
-    order: List[str] = []
+        visited: Set[str] = set()
+        order: List[str] = []
 
-    def _visit(name: str) -> None:
-        if name in visited:
-            return
-        visited.add(name)
-        spec = GATE_REGISTRY.get(name)
-        if spec is None:
-            return
-        for dep in sorted(spec.depends_on):
-            _visit(dep)
-        order.append(name)
+        def _visit(name: str) -> None:
+            if name in visited:
+                return
+            visited.add(name)
+            spec = GATE_REGISTRY.get(name)
+            if spec is None:
+                return
+            for dep in sorted(spec.depends_on):
+                _visit(dep)
+            order.append(name)
 
-    for name in sorted(GATE_REGISTRY.keys()):
-        _visit(name)
+        for name in sorted(GATE_REGISTRY.keys()):
+            _visit(name)
 
-    _cached_topo_order = order
-    return list(order)
+        _cached_topo_order = order
+        return list(order)
 
 
 def get_dependencies(gate_name: str, transitive: bool = False) -> FrozenSet[str]:

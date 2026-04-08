@@ -122,12 +122,16 @@ class GateIssue:
 # Remediation hint registry
 # ---------------------------------------------------------------------------
 
+import threading as _threading
+
 _REMEDIATION_REGISTRY: Dict[str, str] = {}
+_REMEDIATION_LOCK = _threading.Lock()
 
 
 def register_remediation(code: str, hint: str) -> None:
-    """Register a remediation hint for a failure code."""
-    _REMEDIATION_REGISTRY[code] = hint
+    """Register a remediation hint for a failure code (thread-safe)."""
+    with _REMEDIATION_LOCK:
+        _REMEDIATION_REGISTRY[code] = hint
 
 
 def get_remediation(code: str) -> Optional[str]:
@@ -136,8 +140,9 @@ def get_remediation(code: str) -> Optional[str]:
 
 
 def register_remediations(mapping: Dict[str, str]) -> None:
-    """Bulk-register remediation hints."""
-    _REMEDIATION_REGISTRY.update(mapping)
+    """Bulk-register remediation hints (thread-safe)."""
+    with _REMEDIATION_LOCK:
+        _REMEDIATION_REGISTRY.update(mapping)
 
 
 # ---------------------------------------------------------------------------
