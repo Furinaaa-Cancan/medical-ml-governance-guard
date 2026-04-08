@@ -1116,13 +1116,15 @@ def main() -> int:
                 rc["significant_after_fdr"] = fdr_result["rejected"][idx]
 
     # --- PDP / ICE computation (complementary to SHAP) ---
+    # PDP estimates marginal effects and should use training data (not test
+    # subsample) for stable density-weighted integration.
     pdp_rows: List[Dict[str, Any]] = []
     pdp_top_k = getattr(args, "pdp_top_k", 5)
     if pdp_top_k > 0 and len(agg["ranking"]) > 0:
         top_feat_indices = list(agg["ranking"][:pdp_top_k])
         pdp_rows = _compute_pdp_ice(
             families=families,
-            X_data=X_explain,
+            X_data=X_train_full,
             feature_names=feature_names,
             top_feature_indices=top_feat_indices,
             grid_points=getattr(args, "pdp_grid_points", 20),
@@ -1131,15 +1133,17 @@ def main() -> int:
 
     # --- y_score fallback: use selected model to predict ---
     if y_score is None:
-        # Use first available family's estimator to predict
-        first_family = next(iter(families))
-        est = families[first_family]["estimator"]
+        # Prefer the selected model's family; fall back to first available
+        fallback_family = None
+        for fname, finfo in families.items():
+            if finfo.get("model_id") == selected_model_id:
+                fallback_family = fname
+                break
+        if fallback_family is None:
+            fallback_family = next(iter(families))
+        est = families[fallback_family]["estimator"]
         try:
-            from sklearn.pipeline import Pipeline
-            if isinstance(est, Pipeline):
-                y_score = est.predict_proba(X_explain)[:, 1]
-            else:
-                y_score = est.predict_proba(X_explain)[:, 1]
+            y_score = est.predict_proba(X_explain)[:, 1]
         except Exception:
             y_score = np.full(ex_n, 0.5)
 
