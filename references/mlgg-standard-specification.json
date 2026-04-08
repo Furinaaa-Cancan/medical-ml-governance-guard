@@ -254,8 +254,8 @@
   "compliance_certificate": {
     "description": "A MLGG Compliance Certificate is a machine-readable, HMAC-signed JSON artifact that bundles all gate reports and attests to the conformance level. It can be submitted alongside a manuscript for independent verification.",
     "schema_file": "references/mlgg-compliance-certificate.schema.json",
-    "generation_script": "scripts/generate_compliance_certificate.py",
-    "verification": "The certificate signature can be verified by running: python3 scripts/generate_compliance_certificate.py --verify <certificate.json>",
+    "generation_script": "scripts/tools/generate_compliance_certificate.py",
+    "verification": "The certificate signature can be verified by running: python3 scripts/tools/generate_compliance_certificate.py --verify <certificate.json>",
     "format": "JSON-LD compatible, includes ISO 8601 timestamps"
   },
 
@@ -277,10 +277,10 @@
   },
 
   "implementation_guide": {
-    "quick_start": "python3 scripts/mlgg.py play",
-    "full_workflow": "python3 scripts/mlgg.py workflow --request configs/request.json --strict",
-    "external_audit": "python3 scripts/audit_external_project.py --project-dir /path/to/project",
-    "generate_certificate": "python3 scripts/generate_compliance_certificate.py --evidence-dir evidence/ --output certificate.json",
-    "verify_certificate": "python3 scripts/generate_compliance_certificate.py --verify certificate.json"
+    "quick_start": "python3 scripts/orchestration/mlgg.py play",
+    "full_workflow": "python3 scripts/orchestration/mlgg.py workflow --request configs/request.json --strict",
+    "external_audit": "python3 scripts/tools/audit_external_project.py --project-dir /path/to/project",
+    "generate_certificate": "python3 scripts/tools/generate_compliance_certificate.py --evidence-dir evidence/ --output certificate.json",
+    "verify_certificate": "python3 scripts/tools/generate_compliance_certificate.py --verify certificate.json"
   }
 }

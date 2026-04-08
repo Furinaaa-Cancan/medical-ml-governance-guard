@@ -9,7 +9,7 @@ All scripts live under `scripts/`. Exit codes: **0** = pass, **2** = fail (gate 
 **Purpose:** Single entry point for all ML Leakage Guard commands.
 
 ```
-python3 scripts/mlgg.py <subcommand> [options] [-- <forwarded-args>]
+python3 scripts/orchestration/mlgg.py <subcommand> [options] [-- <forwarded-args>]
 ```
 
 | Parameter | Type | Required | Default | Description |
@@ -29,8 +29,8 @@ python3 scripts/mlgg.py <subcommand> [options] [-- <forwarded-args>]
 
 **Example:**
 ```bash
-python3 scripts/mlgg.py onboarding --project-root /tmp/demo --mode guided --yes
-python3 scripts/mlgg.py split -- --input data.csv --output-dir out/ --patient-id-col pid
+python3 scripts/orchestration/mlgg.py onboarding --project-root /tmp/demo --mode guided --yes
+python3 scripts/orchestration/mlgg.py split -- --input data.csv --output-dir out/ --patient-id-col pid
 ```
 
 ---
@@ -450,7 +450,7 @@ All gates share `--report` (optional JSON output) and `--strict` (fail on warnin
 **Purpose:** Pixel-art interactive CLI wizard for guided pipeline setup and execution.
 
 ```
-python3 scripts/mlgg_pixel.py [--lang {en,zh}] [--dry-run]
+python3 scripts/orchestration/mlgg_pixel.py [--lang {en,zh}] [--dry-run]
 ```
 
 | Parameter | Type | Required | Default | Description |
@@ -475,7 +475,7 @@ python3 scripts/mlgg_pixel.py [--lang {en,zh}] [--dry-run]
 **Purpose:** Generate a recommended `performance_policy.json` from evidence reports.
 
 ```
-python3 scripts/policy_generator.py --evidence-dir <dir> [--margin 0.15] [--preset {lenient,standard,strict}] [--text] [--output <path>]
+python3 scripts/tools/policy_generator.py --evidence-dir <dir> [--margin 0.15] [--preset {lenient,standard,strict}] [--text] [--output <path>]
 ```
 
 | Parameter | Type | Required | Default | Description |
@@ -491,7 +491,7 @@ python3 scripts/policy_generator.py --evidence-dir <dir> [--margin 0.15] [--pres
 **Purpose:** Analyze gate execution timeline from an evidence directory.
 
 ```
-python3 scripts/gate_timeline.py --evidence-dir <dir> [--json] [--top 5] [--output <path>]
+python3 scripts/tools/gate_timeline.py --evidence-dir <dir> [--json] [--top 5] [--output <path>]
 ```
 
 | Parameter | Type | Required | Default | Description |
@@ -506,7 +506,7 @@ python3 scripts/gate_timeline.py --evidence-dir <dir> [--json] [--top 5] [--outp
 **Purpose:** Generate a gate coverage matrix from an evidence directory against the full gate registry.
 
 ```
-python3 scripts/gate_coverage_matrix.py --evidence-dir <dir> [--json] [--output <path>]
+python3 scripts/tools/gate_coverage_matrix.py --evidence-dir <dir> [--json] [--output <path>]
 ```
 
 | Parameter | Type | Required | Default | Description |
@@ -520,7 +520,7 @@ python3 scripts/gate_coverage_matrix.py --evidence-dir <dir> [--json] [--output 
 **Purpose:** Compare two evidence directories (baseline vs current) and show gate-level diffs.
 
 ```
-python3 scripts/evidence_comparator.py --baseline <dir> --current <dir> [--json] [--output <path>]
+python3 scripts/tools/evidence_comparator.py --baseline <dir> --current <dir> [--json] [--output <path>]
 ```
 
 | Parameter | Type | Required | Default | Description |

@@ -26,7 +26,7 @@ jobs:
       - name: Extended benchmark suite (observational)
         continue-on-error: true
         run: |
-          python3 scripts/mlgg.py benchmark-suite \
+          python3 scripts/orchestration/mlgg.py benchmark-suite \
             --profile extended \
             --repeat 1 \
             --output /tmp/mlgg_extended_benchmark_summary.ci_extended.json \

@@ -25,7 +25,7 @@ python3 -m pip install -r requirements.txt
 Check environment / 检查环境:
 
 ```bash
-python3 scripts/mlgg.py doctor
+python3 scripts/orchestration/mlgg.py doctor
 ```
 
 ---
@@ -39,13 +39,13 @@ English:
 - 直接跑 onboarding；它会使用离线合成医学数据执行固定 8 步严格流程。
 
 ```bash
-python3 scripts/mlgg.py onboarding --project-root /tmp/mlgg_demo --mode guided --yes
+python3 scripts/orchestration/mlgg.py onboarding --project-root /tmp/mlgg_demo --mode guided --yes
 ```
 
 Need full diagnostics without early stop:
 
 ```bash
-python3 scripts/mlgg.py onboarding --project-root /tmp/mlgg_demo --mode auto --no-stop-on-fail
+python3 scripts/orchestration/mlgg.py onboarding --project-root /tmp/mlgg_demo --mode auto --no-stop-on-fail
 ```
 
 Expected key outputs:
@@ -64,7 +64,7 @@ English:
 - 如果只想看完整命令而不执行：
 
 ```bash
-python3 scripts/mlgg.py onboarding --project-root /tmp/mlgg_demo --mode preview
+python3 scripts/orchestration/mlgg.py onboarding --project-root /tmp/mlgg_demo --mode preview
 ```
 
 Preview semantics:
@@ -92,10 +92,10 @@ English:
 4. 使用 baseline manifest 复跑对比。
 
 ```bash
-python3 scripts/mlgg.py init --project-root /tmp/mlgg_demo
-python3 scripts/mlgg.py train --interactive
-python3 scripts/mlgg.py workflow --request /tmp/mlgg_demo/configs/request.json --strict --allow-missing-compare
-python3 scripts/mlgg.py workflow --request /tmp/mlgg_demo/configs/request.json --strict --compare-manifest /tmp/mlgg_demo/evidence/manifest_baseline.bootstrap.json
+python3 scripts/orchestration/mlgg.py init --project-root /tmp/mlgg_demo
+python3 scripts/orchestration/mlgg.py train --interactive
+python3 scripts/orchestration/mlgg.py workflow --request /tmp/mlgg_demo/configs/request.json --strict --allow-missing-compare
+python3 scripts/orchestration/mlgg.py workflow --request /tmp/mlgg_demo/configs/request.json --strict --compare-manifest /tmp/mlgg_demo/evidence/manifest_baseline.bootstrap.json
 ```
 
 ---
@@ -138,18 +138,18 @@ English:
 
 ```bash
 # Unified CLI help
-python3 scripts/mlgg.py --help
-python3 scripts/mlgg.py onboarding --help
-python3 scripts/mlgg.py train --interactive --help
+python3 scripts/orchestration/mlgg.py --help
+python3 scripts/orchestration/mlgg.py onboarding --help
+python3 scripts/orchestration/mlgg.py train --interactive --help
 
 # Recommended release-grade authority benchmark
-python3 scripts/mlgg.py authority-release
+python3 scripts/orchestration/mlgg.py authority-release
 
 # Advanced heart research/high-pressure benchmark
-python3 scripts/mlgg.py authority-research-heart --stress-seed-min 20250003 --stress-seed-max 20250060
+python3 scripts/orchestration/mlgg.py authority-research-heart --stress-seed-min 20250003 --stress-seed-max 20250060
 
 # Interactive wizard (init/workflow/train/authority)
-python3 scripts/mlgg.py interactive --command train
+python3 scripts/orchestration/mlgg.py interactive --command train
 
 # Gate smoke tests
 python3 scripts/test_gate_smoke.py

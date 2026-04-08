@@ -54,7 +54,7 @@ Mitigation:
 - Run feature lineage review for each high-importance feature.
 - Check transitive lineage, not only direct ancestors.
 - Force ablation of suspect columns and compare metric drop.
-- Enforce `scripts/definition_variable_guard.py` against phenotype definition spec.
+- Enforce `scripts/gates/definition_variable_guard.py` against phenotype definition spec.
 
 ## 5. Preprocessing Leakage
 Definition:

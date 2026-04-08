@@ -21,7 +21,7 @@ python3 -m pip install -r requirements.txt
 python3 -m pip install -r requirements-optional.txt
 
 # Verify
-python3 scripts/mlgg.py doctor
+python3 scripts/orchestration/mlgg.py doctor
 ```
 
 ---
@@ -118,10 +118,10 @@ python3 scripts/test_onboarding_smoke.py
 python3 scripts/test_split_smoke.py
 
 # Full authority benchmark (longer)
-python3 scripts/mlgg.py authority
+python3 scripts/orchestration/mlgg.py authority
 
 # Release-grade benchmark suite
-python3 scripts/mlgg.py benchmark-suite --profile release
+python3 scripts/orchestration/mlgg.py benchmark-suite --profile release
 ```
 
 ---

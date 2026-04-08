@@ -802,7 +802,7 @@ def build_observational_diagnostics(suite_rows: List[Dict[str, Any]]) -> List[Di
                         )
                         if case_id == "uci-diabetes-130-readmission":
                             recommended_actions.append(
-                                "Run diabetes feasibility sweep: python3 scripts/mlgg.py scan-diabetes --target-modes gt30,any,lt30 --max-rows-options 20000,0"
+                                "Run diabetes feasibility sweep: python3 scripts/orchestration/mlgg.py scan-diabetes --target-modes gt30,any,lt30 --max-rows-options 20000,0"
                             )
                             recommended_actions.append(
                                 "Review distribution_report and external_validation_report for transport stress before attempting floor-preserving model changes."
@@ -1186,7 +1186,7 @@ def main() -> int:
     print(f"Observational diagnostics: {diagnostics_path}")
     if overall_status == "fail" and blocking_failures:
         rerun_cmd = (
-            "python3 scripts/mlgg.py benchmark-suite --profile "
+            "python3 scripts/orchestration/mlgg.py benchmark-suite --profile "
             f"{args.profile} --repeat 1 --registry-file {registry_file}"
         )
         print("Blocking failures (priority):")

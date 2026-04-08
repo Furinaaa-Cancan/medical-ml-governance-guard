@@ -144,7 +144,7 @@ All reports are written to the `evidence/` directory. A final
                    ▼
 ┌─────────────────────────────────────────────────────────┐
 │              Training & Evaluation                      │
-│  scripts/train_select_evaluate.py                       │
+│  scripts/tools/train_select_evaluate.py                       │
 │  Produces: model_selection_report.json                  │
 │            evaluation_report.json                       │
 │            prediction_trace.csv.gz                      │
@@ -161,7 +161,7 @@ All reports are written to the `evidence/` directory. A final
                    ▼
 ┌─────────────────────────────────────────────────────────┐
 │          31-Gate DAG Pipeline                            │
-│  scripts/run_dag_pipeline.py                            │
+│  scripts/orchestration/run_dag_pipeline.py                            │
 │  Orchestrates gates 1–31 via dependency DAG             │
 │  Writes: evidence/*_report.json (31 reports)            │
 │          evidence/dag_pipeline_report.json              │
@@ -186,11 +186,11 @@ The pipeline can be invoked at multiple levels of abstraction:
 | Layer | Entry Point | Description |
 |-------|------------|-------------|
 | **Gate scripts** | `scripts/<gate>.py` | Individual validation steps |
-| **Strict pipeline** | `scripts/run_strict_pipeline.py` | Sequential 31-gate orchestrator |
-| **Productized workflow** | `scripts/run_productized_workflow.py` | Doctor → Preflight → Pipeline → Summary |
-| **Onboarding** | `scripts/mlgg_onboarding.py` | Guided 8-step novice flow |
-| **Unified CLI** | `scripts/mlgg.py` | Single entry point for all commands |
-| **Interactive wizard** | `scripts/mlgg_interactive.py` | Terminal UX with command preview and profiles |
+| **Strict pipeline** | `scripts/orchestration/run_strict_pipeline.py` | Sequential 31-gate orchestrator |
+| **Productized workflow** | `scripts/orchestration/run_productized_workflow.py` | Doctor → Preflight → Pipeline → Summary |
+| **Onboarding** | `scripts/orchestration/mlgg_onboarding.py` | Guided 8-step novice flow |
+| **Unified CLI** | `scripts/orchestration/mlgg.py` | Single entry point for all commands |
+| **Interactive wizard** | `scripts/orchestration/mlgg_interactive.py` | Terminal UX with command preview and profiles |
 
 ---
 

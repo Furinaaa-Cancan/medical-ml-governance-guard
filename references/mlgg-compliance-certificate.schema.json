@@ -45,7 +45,7 @@
       "issued_at": "2026-03-15T14:30:00Z",
       "expires_at": "2028-03-15T14:30:00Z",
       "generator_version": "mlgg-leakage-guard v1.0.0",
-      "generation_script": "scripts/generate_compliance_certificate.py"
+      "generation_script": "scripts/tools/generate_compliance_certificate.py"
     },
 
     "gates_summary": {
@@ -158,7 +158,7 @@
       "signature_scope": "All fields except this integrity block",
       "signature": "0x1a2b3c4d5e6f...",
       "signed_by": "pipeline_runner",
-      "verification_command": "python3 scripts/generate_compliance_certificate.py --verify certificate.json"
+      "verification_command": "python3 scripts/tools/generate_compliance_certificate.py --verify certificate.json"
     }
   },
 

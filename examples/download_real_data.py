@@ -3,7 +3,7 @@
 Download and prepare real UCI medical datasets for ml-leakage-guard pipeline.
 
 Produces a single CSV ready for:
-  python3 scripts/mlgg.py split -- --input <csv> --patient-id-col patient_id ...
+  python3 scripts/orchestration/mlgg.py split -- --input <csv> --patient-id-col patient_id ...
 
 Available datasets:
   heart    - UCI Heart Disease (Cleveland), 303 rows, 13 features
@@ -17,7 +17,7 @@ Usage:
   python3 examples/download_real_data.py heart --output /tmp/heart.csv
 
 Then split and run the pipeline:
-  python3 scripts/mlgg.py split -- \\
+  python3 scripts/orchestration/mlgg.py split -- \\
     --input examples/heart_disease.csv \\
     --output-dir /tmp/mlgg_heart/data \\
     --patient-id-col patient_id \\
@@ -167,7 +167,7 @@ def prepare_heart(output: Path) -> None:
     print(f"  Output: {output}")
     print(f"  Rows: {len(df)} | Positive: {pos} ({pos/len(df)*100:.1f}%) | Negative: {neg}")
     print(f"\n  Ready to use:")
-    print(f"    python3 scripts/mlgg.py split -- \\")
+    print(f"    python3 scripts/orchestration/mlgg.py split -- \\")
     print(f"      --input {output} \\")
     print(f"      --output-dir /tmp/mlgg_heart/data \\")
     print(f"      --patient-id-col patient_id --target-col y --time-col event_time \\")
@@ -216,7 +216,7 @@ def prepare_breast(output: Path) -> None:
     print(f"  Output: {output}")
     print(f"  Rows: {len(df)} | Positive (malignant): {pos} ({pos/len(df)*100:.1f}%) | Negative (benign): {neg}")
     print(f"\n  Ready to use:")
-    print(f"    python3 scripts/mlgg.py split -- \\")
+    print(f"    python3 scripts/orchestration/mlgg.py split -- \\")
     print(f"      --input {output} \\")
     print(f"      --output-dir /tmp/mlgg_breast/data \\")
     print(f"      --patient-id-col patient_id --target-col y --time-col event_time \\")
@@ -318,7 +318,7 @@ def prepare_ckd(output: Path) -> None:
     print(f"  Output: {output}")
     print(f"  Rows: {len(df)} | Positive (CKD): {pos} ({pos/len(df)*100:.1f}%) | Negative: {neg}")
     print(f"\n  Ready to use:")
-    print(f"    python3 scripts/mlgg.py split -- \\")
+    print(f"    python3 scripts/orchestration/mlgg.py split -- \\")
     print(f"      --input {output} \\")
     print(f"      --output-dir /tmp/mlgg_ckd/data \\")
     print(f"      --patient-id-col patient_id --target-col y --time-col event_time \\")

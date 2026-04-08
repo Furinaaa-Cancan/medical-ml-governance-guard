@@ -180,16 +180,16 @@
 
 | 文件 | 变更类型 | 说明 |
 |------|----------|------|
-| `scripts/security_audit_gate.py` | 新增 | 第 29 道 gate：安全审计 |
+| `scripts/gates/security_audit_gate.py` | 新增 | 第 29 道 gate：安全审计 |
 | `scripts/_security.py` | 修改 | RestrictedUnpickler, AES 加密, RBAC, 执行回执, 安全删除, 新 CLI 命令 |
 | `scripts/_gate_utils.py` | 修改 | JSON 大小限制, 审计日志, resolve_path 加固 |
 | `scripts/_gate_framework.py` | 修改 | CLI 参数长度验证 |
 | `scripts/_gate_registry.py` | 修改 | 注册 security_audit_gate |
-| `scripts/run_dag_pipeline.py` | 修改 | 审计日志集成, security_audit_gate 命令构建, --encrypt/--sign-receipt/--secure-cleanup/--require-role 安全后处理 |
-| `scripts/run_strict_pipeline.py` | 修改 | --encrypt/--sign-receipt/--secure-cleanup 安全后处理对齐 |
-| `scripts/mlgg_web.py` | 修改 | CSP headers, rate limiting, 文件名清洗, 路径防护 |
-| `scripts/split_data.py` | 修改 | CSV 大小限制 |
-| `scripts/train_select_evaluate.py` | 修改 | CSV 大小限制, categorical_analysis 嵌入 |
+| `scripts/orchestration/run_dag_pipeline.py` | 修改 | 审计日志集成, security_audit_gate 命令构建, --encrypt/--sign-receipt/--secure-cleanup/--require-role 安全后处理 |
+| `scripts/orchestration/run_strict_pipeline.py` | 修改 | --encrypt/--sign-receipt/--secure-cleanup 安全后处理对齐 |
+| `scripts/tools/mlgg_web.py` | 修改 | CSP headers, rate limiting, 文件名清洗, 路径防护 |
+| `scripts/tools/split_data.py` | 修改 | CSV 大小限制 |
+| `scripts/tools/train_select_evaluate.py` | 修改 | CSV 大小限制, categorical_analysis 嵌入 |
 | `tests/test_security_audit_gate.py` | 新增 | 13 个 gate 测试 |
 | `tests/test_audit_logging.py` | 新增 | 14 个审计日志测试 + 5 个路径防护测试 |
 | `tests/test_security_deep.py` | 新增 | 24 个深层安全测试 |
@@ -198,19 +198,19 @@
 | `README.md` | 修改 | 安全章节扩展 |
 | `SKILL.md` | 修改 | Gate 计数、序列、输出合约更新 |
 | `.gitignore` | 修改 | 新增安全工件排除项 |
-| `scripts/evidence_digest.py` | 修改 | 添加 security_audit_gate_report 到 gate_files 列表 |
-| `scripts/render_user_summary.py` | 修改 | 添加 security_audit_gate 到用户摘要 |
+| `scripts/tools/evidence_digest.py` | 修改 | 添加 security_audit_gate_report 到 gate_files 列表 |
+| `scripts/tools/render_user_summary.py` | 修改 | 添加 security_audit_gate 到用户摘要 |
 | `tests/test_evidence_digest.py` | 修改 | gate 计数 28→29 |
-| `scripts/compare_runs.py` | 修改 | 添加 security_audit_gate_report 到 REPORT_FILES |
-| `scripts/report_health_check.py` | 修改 | 添加 security_audit_gate_report 到健康检查列表 |
-| `scripts/remediation_plan.py` | 修改 | 添加 security_audit 到 GATE_REPORTS |
-| `scripts/run_strict_pipeline.py` | 修改 | 添加 Step 29 (security_audit_gate) |
+| `scripts/tools/compare_runs.py` | 修改 | 添加 security_audit_gate_report 到 REPORT_FILES |
+| `scripts/tools/report_health_check.py` | 修改 | 添加 security_audit_gate_report 到健康检查列表 |
+| `scripts/tools/remediation_plan.py` | 修改 | 添加 security_audit 到 GATE_REPORTS |
+| `scripts/orchestration/run_strict_pipeline.py` | 修改 | 添加 Step 29 (security_audit_gate) |
 | `CHANGELOG.md` | 修改 | gate 计数 28→29 (3处) |
 | `CONTRIBUTING.md` | 修改 | gate 计数 28→29 |
 | `references/Architecture.md` | 修改 | gate 计数 28→29 (5处) |
 | `docs/gate-framework-developer-guide.md` | 修改 | gate 计数 28→29 |
 | `docs/scripts_deep_review_report.md` | 修改 | gate 计数 28→29 |
-| `scripts/mlgg_pixel.py` | 修改 | UI 字符串 28→29 (en+zh) |
+| `scripts/orchestration/mlgg_pixel.py` | 修改 | UI 字符串 28→29 (en+zh) |
 | `QUEUE_PROMPTS.md` | 修改 | gate 计数 28→29 (4处) |
 | `docs/security_hardening_skill.md` | 新增 | 本文档：安全加固 Skill 归纳总结 |
 
@@ -243,7 +243,7 @@ python3 scripts/_security.py secure-delete evidence/ --pattern "*.tmp"
 python3 scripts/_security.py verify-audit evidence/
 
 # 管线安全 flags（可组合使用）
-python3 scripts/run_dag_pipeline.py --request request.json --strict \
+python3 scripts/orchestration/run_dag_pipeline.py --request request.json --strict \
   --encrypt --sign-receipt --secure-cleanup --require-role operator
 ```
 

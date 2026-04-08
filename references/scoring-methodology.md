@@ -2,7 +2,7 @@
 
 **Version**: 1.0
 **Date**: 2026-03-27
-**Source of truth**: `scripts/score_paper_metadata.py` + `scripts/_audit_shared.py`
+**Source of truth**: `scripts/tools/score_paper_metadata.py` + `scripts/_audit_shared.py`
 
 ---
 

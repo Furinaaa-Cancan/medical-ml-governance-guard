@@ -32,12 +32,12 @@ Guide the user through rigorous binary classification following MLGG standards.
 | 用户说的 | 场景 | Agent 应该做什么 |
 |---------|------|----------------|
 | "帮我预测 X" / "训练模型" | **标准建模** | 走 Phase 1→9 完整流程（本文档主要内容） |
-| "审查这个代码" / "review" | **代码审计** | 用 `python3 scripts/generate_audit_report.py --project-dir <dir>` 或 `mlgg lint check <file>` |
+| "审查这个代码" / "review" | **代码审计** | 用 `python3 scripts/tools/generate_audit_report.py --project-dir <dir>` 或 `mlgg lint check <file>` |
 | "我已经有 train.csv 和 test.csv" | **跳过 Phase 2** | 直接从 Phase 3 开始，但仍要做 Phase 1 的疾病定义和泄漏检查 |
 | "从 Phase 4 继续" / "重新跑评估" | **中途恢复** | 从指定 Phase 开始，确认前序产物存在 |
 | "我有一个已训练的模型" | **模型评估/更新** | 只跑 Phase 6-9（评估→SHAP→公平性→报告） |
 | "我不确定要预测什么" | **探索性分析** | 先跑 Phase 1 了解数据，再帮用户确定研究问题 |
-| "检查环境" / "安装有问题" | **环境诊断** | `python3 scripts/mlgg.py doctor` |
+| "检查环境" / "安装有问题" | **环境诊断** | `python3 scripts/orchestration/mlgg.py doctor` |
 | "帮我解释这个 gate 失败" | **错误诊断** | 读取 gate report JSON，查 `references/error-knowledge-base.json` |
 
 ### 不支持的场景（必须提前告知）
@@ -78,7 +78,7 @@ Guide the user through rigorous binary classification following MLGG standards.
 
 ## Phase 1: 数据理解与队列定义
 
-运行: `python3 scripts/cohort_definition_gate.py --data <CSV> --target-col y --id-col <ID> --outcome-definition '<JSON>' --definition-cols <cols> --report evidence/cohort_report.json --output-dir evidence/`
+运行: `python3 scripts/gates/cohort_definition_gate.py --data <CSV> --target-col y --id-col <ID> --outcome-definition '<JSON>' --definition-cols <cols> --report evidence/cohort_report.json --output-dir evidence/`
 
 检查内容:
 - Riley 2019 样本量三准则: `riley_sample_size()` （EPV < 5 → FAIL）
@@ -100,7 +100,7 @@ Guide the user through rigorous binary classification following MLGG standards.
 | n 1000-5000 | 两分法 | `--train-ratio 0.8 --valid-ratio 0.0 --test-ratio 0.2` | **CV 替代 valid** |
 | n < 1000 | CV-only | `--train-ratio 1.0 --valid-ratio 0.0 --test-ratio 0.0` | Nested CV + Bootstrap |
 
-运行: `python3 scripts/split_data.py --input <CSV> --output-dir data/ --patient-id-col <ID> --target-col y --strategy stratified_grouped [--cross-sectional]`
+运行: `python3 scripts/tools/split_data.py --input <CSV> --output-dir data/ --patient-id-col <ID> --target-col y --strategy stratified_grouped [--cross-sectional]`
 
 核心规则:
 - 同一患者 → 同一 split（MLGG-S01），任何重叠 → FAIL
@@ -195,7 +195,7 @@ Agent 应在 Phase 4 后告诉用户:
 
 ## Phase 7: 多模型 SHAP
 
-运行: `python3 scripts/shap_interpretability_gate.py --model-pool evidence/model_pool.pkl --train-data data/train.csv --test-data data/test.csv --target-col y --report evidence/shap_report.json`
+运行: `python3 scripts/gates/shap_interpretability_gate.py --model-pool evidence/model_pool.pkl --train-data data/train.csv --test-data data/test.csv --target-col y --report evidence/shap_report.json`
 
 - 多族独立 SHAP → L1 归一化 → 等权平均（消除模型间尺度差异）
 - Kendall τ 一致性 + Top-N Jaccard

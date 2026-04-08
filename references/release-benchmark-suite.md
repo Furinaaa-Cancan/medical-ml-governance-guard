@@ -29,13 +29,13 @@ Release blocking suites are currently `authority_release_core` and `adversarial_
 Run command:
 
 ```bash
-python3 scripts/mlgg.py benchmark-suite --profile release
+python3 scripts/orchestration/mlgg.py benchmark-suite --profile release
 ```
 
 Reproducibility hard gate (recommended):
 
 ```bash
-python3 scripts/mlgg.py benchmark-suite \
+python3 scripts/orchestration/mlgg.py benchmark-suite \
   --profile release \
   --repeat 3 \
   --registry-file references/benchmark-registry.json \
@@ -106,13 +106,13 @@ python3 scripts/mlgg.py benchmark-suite \
 执行命令：
 
 ```bash
-python3 scripts/mlgg.py benchmark-suite --profile release
+python3 scripts/orchestration/mlgg.py benchmark-suite --profile release
 ```
 
 推荐可复现硬门：
 
 ```bash
-python3 scripts/mlgg.py benchmark-suite \
+python3 scripts/orchestration/mlgg.py benchmark-suite \
   --profile release \
   --repeat 3 \
   --registry-file references/benchmark-registry.json \

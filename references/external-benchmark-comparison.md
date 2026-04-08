@@ -25,20 +25,20 @@
   - Randomization/adversarial-split thinking existed conceptually but not as dedicated deterministic artifact.
 
 ## Implemented Improvement in This Revision
-- Added `scripts/covariate_shift_gate.py`.
+- Added `scripts/gates/covariate_shift_gate.py`.
 - Added new strict artifact: `evidence/covariate_shift_report.json`.
 - Integrated the new gate into:
-  - `scripts/run_strict_pipeline.py`
-  - `scripts/publication_gate.py`
-  - `scripts/self_critique_gate.py`
+  - `scripts/orchestration/run_strict_pipeline.py`
+  - `scripts/gates/publication_gate.py`
+  - `scripts/gates/self_critique_gate.py`
   - `SKILL.md` workflow, output contract, strict rules, and script inventory
   - `references/top-tier-rigor-checklist.md`
   - `references/report-template.md`
   - `agents/openai.yaml` default prompt
 
 ## Implemented Improvement (Execution Non-Repudiation)
-- Added `scripts/execution_attestation_gate.py` to verify detached signatures and signed artifact hashes.
-- Added `scripts/generate_execution_attestation.py` to improve personal-user UX for payload/signature/spec generation.
+- Added `scripts/gates/execution_attestation_gate.py` to verify detached signatures and signed artifact hashes.
+- Added `scripts/tools/generate_execution_attestation.py` to improve personal-user UX for payload/signature/spec generation.
 - Added strict artifact: `evidence/execution_attestation_report.json`.
 - Integrated attestation gate into strict pipeline + publication/self-critique aggregate gates.
 - Updated request contract to require `run_id` + `execution_attestation_spec` for publication-grade claims.
@@ -51,37 +51,37 @@
 
 ## Implemented Improvement (Witness Quorum)
 - Added `witness_quorum` support in execution attestation spec and strict gate.
-- Added signed witness-record generation in `scripts/generate_execution_attestation.py`.
-- Added fail-closed quorum checks in `scripts/execution_attestation_gate.py`:
+- Added signed witness-record generation in `scripts/tools/generate_execution_attestation.py`.
+- Added fail-closed quorum checks in `scripts/gates/execution_attestation_gate.py`:
   - minimum validated witness count
   - witness signature verification
   - witness payload/study/run binding checks
   - independent witness key/authority checks
   - witness key independence from payload signing key
-- Added manifest lock coverage for witness quorum files in `scripts/run_strict_pipeline.py`.
+- Added manifest lock coverage for witness quorum files in `scripts/orchestration/run_strict_pipeline.py`.
 - Added adversarial scenario coverage for witness quorum tampering in `experiments/authority-e2e/run_adversarial_gate_checks.py`.
 
 ## Implemented Improvement (Model Selection + Clinical Metrics + Overfitting Gap)
-- Added `scripts/model_selection_audit_gate.py`:
+- Added `scripts/gates/model_selection_audit_gate.py`:
   - candidate pool size gate (`>=3`) with required logistic baseline
   - strict non-test model-selection scope checks
   - deterministic one-SE + simplicity replay validation
-- Added `scripts/clinical_metrics_gate.py`:
+- Added `scripts/gates/clinical_metrics_gate.py`:
   - required clinical panel enforcement (accuracy/precision/PPV/NPV/sensitivity/specificity/F1/F2-beta/ROC-AUC/PR-AUC/Brier)
   - precision==PPV and confusion-matrix formula consistency checks
-- Added `scripts/generalization_gap_gate.py`:
+- Added `scripts/gates/generalization_gap_gate.py`:
   - train/valid/test directional gap thresholds with warning/fail tiers
 - Added policy artifact `references/performance-policy.example.json`.
 - Integrated all three gates into strict pipeline + publication gate + self-critique gate.
 
 ## Implemented Improvement (V3: Replay + External Cohort + Calibration/DCA)
-- Added `scripts/prediction_replay_gate.py`:
+- Added `scripts/gates/prediction_replay_gate.py`:
   - replays PR-AUC/ROC-AUC/Brier and threshold metrics from de-identified row-level `prediction_trace`.
   - enforces split row-count linkage to evaluation metadata fingerprints.
-- Added `scripts/external_validation_gate.py` as publication-grade hard precondition:
+- Added `scripts/gates/external_validation_gate.py` as publication-grade hard precondition:
   - requires at least one external cohort and type coverage (`cross_period` or `cross_institution`).
   - replays cohort metrics from trace and enforces transport-gap limits vs internal test.
-- Added `scripts/calibration_dca_gate.py`:
+- Added `scripts/gates/calibration_dca_gate.py`:
   - fail-closed checks for ECE/slope/intercept and decision-curve net benefit on internal test + all external cohorts.
 - Added trainer outputs and metadata linkage:
   - `prediction_trace.csv.gz`

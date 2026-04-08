@@ -35,9 +35,9 @@
 ---
 
 ### 2
-为 `scripts/split_data.py` 编写完整单元测试。
+为 `scripts/tools/split_data.py` 编写完整单元测试。
 
-**第一步：通读源码。** 完整阅读 `scripts/split_data.py`（每一行都要看），理解：
+**第一步：通读源码。** 完整阅读 `scripts/tools/split_data.py`（每一行都要看），理解：
 - argparse 参数定义（input, output-dir, patient-id-col, target-col, time-col, strategy, train-ratio, valid-ratio, test-ratio）
 - 三种 split 策略的具体算法（grouped_temporal, grouped_random, stratified_grouped）
 - 安全检查：NaN patient_id 排除、NaN target 排除、min 10 pos/neg per split、min 5 patients per split、prevalence shift warning、row count preservation、SHA256 fingerprint
@@ -103,9 +103,9 @@
 ---
 
 ### 4
-为 `scripts/schema_preflight.py` 编写完整单元测试。
+为 `scripts/tools/schema_preflight.py` 编写完整单元测试。
 
-**第一步：完整阅读 `scripts/schema_preflight.py` 源码。** 理解两种模式（单文件 pre-split 检查 vs split 后三文件检查）、所有验证项（列存在性、类型检查、target 值域、patient_id NaN、time 格式、语义列自动映射）、报告 JSON 格式和所有可能的 issue codes。
+**第一步：完整阅读 `scripts/tools/schema_preflight.py` 源码。** 理解两种模式（单文件 pre-split 检查 vs split 后三文件检查）、所有验证项（列存在性、类型检查、target 值域、patient_id NaN、time 格式、语义列自动映射）、报告 JSON 格式和所有可能的 issue codes。
 
 **第二步：设计测试矩阵（至少 10 个 case）：**
 - 正常 CSV → pass
@@ -129,9 +129,9 @@
 ---
 
 ### 5
-为 `scripts/leakage_gate.py` 编写完整单元测试。
+为 `scripts/gates/leakage_gate.py` 编写完整单元测试。
 
-**第一步：完整阅读 `scripts/leakage_gate.py`。** 理解所有泄漏检测类型：
+**第一步：完整阅读 `scripts/gates/leakage_gate.py`。** 理解所有泄漏检测类型：
 - patient ID overlap between train/valid/test
 - temporal boundary violation (test 样本的时间早于 train)
 - 列级信息泄漏检查
@@ -160,7 +160,7 @@
 ---
 
 ### 6
-为 `scripts/manifest_lock.py` 编写完整单元测试。
+为 `scripts/gates/manifest_lock.py` 编写完整单元测试。
 
 **第一步：完整阅读源码。** 理解 manifest 指纹计算逻辑（SHA256 of 数据文件 + 配置文件 + gate 脚本）、baseline 比较逻辑（匹配/不匹配/缺失文件处理）、输出格式。
 
@@ -181,7 +181,7 @@
 ---
 
 ### 7
-为 `scripts/definition_variable_guard.py` 编写完整单元测试。
+为 `scripts/gates/definition_variable_guard.py` 编写完整单元测试。
 
 **第一步：完整阅读源码。** 理解 phenotype_definition_spec 的格式、疾病定义变量列表提取、与训练特征的交集检测逻辑、issue codes。
 
@@ -198,7 +198,7 @@
 ---
 
 ### 8
-为 `scripts/feature_lineage_gate.py` 编写完整单元测试。
+为 `scripts/gates/feature_lineage_gate.py` 编写完整单元测试。
 
 **第一步：完整阅读源码。** 理解 lineage map 格式、post-index 特征检测、疾病定义变量衍生特征检测、ambiguity 处理逻辑。
 
@@ -215,7 +215,7 @@
 ---
 
 ### 9
-为 `scripts/imbalance_policy_gate.py` 编写完整单元测试。
+为 `scripts/gates/imbalance_policy_gate.py` 编写完整单元测试。
 
 **第一步：完整阅读源码。** 理解 policy JSON 格式、SMOTE/over-sampling/under-sampling 的 scope 验证（必须 train-only）、class_weight 处理、issue codes。
 
@@ -232,7 +232,7 @@
 ---
 
 ### 10
-为 `scripts/missingness_policy_gate.py` 编写完整单元测试。
+为 `scripts/gates/missingness_policy_gate.py` 编写完整单元测试。
 
 **第一步：完整阅读源码。** 理解 policy 格式、imputer isolation 验证（train-only fit）、MICE scale guard、target-info imputation 禁令。
 
@@ -249,7 +249,7 @@
 ---
 
 ### 11
-为 `scripts/tuning_leakage_gate.py` 编写完整单元测试。
+为 `scripts/gates/tuning_leakage_gate.py` 编写完整单元测试。
 
 **第一步：完整阅读源码。** 理解 tuning protocol 格式、test isolation 验证、valid-only hyperparameter search 验证、issue codes。
 
@@ -266,7 +266,7 @@
 ---
 
 ### 12
-为 `scripts/calibration_dca_gate.py` 编写完整单元测试。
+为 `scripts/gates/calibration_dca_gate.py` 编写完整单元测试。
 
 **第一步：完整阅读源码。** 理解校准方法验证、DCA net benefit 计算、calibration slope/intercept 检查、issue codes。
 
@@ -282,7 +282,7 @@
 ---
 
 ### 13
-为 `scripts/evaluation_quality_gate.py` 编写完整单元测试。
+为 `scripts/gates/evaluation_quality_gate.py` 编写完整单元测试。
 
 **第一步：完整阅读源码。** 理解 CI width 阈值、baseline delta 要求、min_resamples 检查、primary metric 来源验证。
 
@@ -299,7 +299,7 @@
 ---
 
 ### 14
-为 `scripts/permutation_significance_gate.py` 编写完整单元测试。
+为 `scripts/gates/permutation_significance_gate.py` 编写完整单元测试。
 
 **第一步：完整阅读源码。** 理解 permutation null 分布读取、p-value 计算、alpha 阈值、min_delta 检查。
 
@@ -315,7 +315,7 @@
 ---
 
 ### 15
-为 `scripts/publication_gate.py` 编写完整单元测试。
+为 `scripts/gates/publication_gate.py` 编写完整单元测试。
 
 **第一步：完整阅读源码。** 理解聚合逻辑：扫描所有子报告 → 全部 pass 才聚合为 pass、任一 fail 聚合为 fail、缺少必要报告 → fail。
 
@@ -336,11 +336,11 @@
 ### 16
 创建完整的 onboarding E2E 测试。
 
-**第一步：阅读 `scripts/mlgg_onboarding.py` 和 `scripts/mlgg.py` 中 onboarding 子命令的完整代码。** 理解 8 步流程、每一步的成功/失败条件、报告字段。
+**第一步：阅读 `scripts/orchestration/mlgg_onboarding.py` 和 `scripts/orchestration/mlgg.py` 中 onboarding 子命令的完整代码。** 理解 8 步流程、每一步的成功/失败条件、报告字段。
 
 **第二步：编写 `tests/test_onboarding_e2e.py`。** 用 subprocess 运行：
 ```python
-subprocess.run([sys.executable, "scripts/mlgg.py", "onboarding",
+subprocess.run([sys.executable, "scripts/orchestration/mlgg.py", "onboarding",
                 "--project-root", str(tmp_dir),
                 "--mode", "auto", "--yes"],
                timeout=600, capture_output=True, text=True)
@@ -370,7 +370,7 @@ subprocess.run([sys.executable, "scripts/mlgg.py", "onboarding",
 ### 17
 创建完整的 split E2E 测试。
 
-**第一步：阅读 `scripts/split_data.py` 的 argparse 和主流程。** 理解输入输出约定。
+**第一步：阅读 `scripts/tools/split_data.py` 的 argparse 和主流程。** 理解输入输出约定。
 
 **第二步：编写 `tests/test_split_e2e.py`。** 使用 `examples/heart_disease.csv` 真实数据，通过 subprocess 调用 split：
 ```
@@ -398,7 +398,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ### 18
 创建完整的 train E2E 测试。
 
-**第一步：阅读 `scripts/train_select_evaluate.py` 的参数和输出。**
+**第一步：阅读 `scripts/tools/train_select_evaluate.py` 的参数和输出。**
 
 **第二步：编写 `tests/test_train_e2e.py`。** 流程：
 1. 用 subprocess 生成 demo 数据（或使用 examples/ 数据 split 后的结果）
@@ -416,7 +416,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ### 19
 创建完整的 workflow E2E 测试。
 
-**第一步：阅读 `scripts/run_productized_workflow.py` 和 `scripts/run_strict_pipeline.py`。**
+**第一步：阅读 `scripts/orchestration/run_productized_workflow.py` 和 `scripts/orchestration/run_strict_pipeline.py`。**
 
 **第二步：编写 `tests/test_workflow_e2e.py`。** 流程：
 1. 先用 onboarding 在 /tmp 下生成完整项目
@@ -486,7 +486,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ## C. Gate 脚本代码审查与修复（23-42）
 
 ### 23
-严格审查 `scripts/request_contract_gate.py`。
+严格审查 `scripts/gates/request_contract_gate.py`。
 
 **第一步：完整阅读文件（从第 1 行到最后一行），不跳过任何代码。** 对每个函数，记录其职责和所有分支。
 
@@ -516,7 +516,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 24
-严格审查 `scripts/split_protocol_gate.py`。
+严格审查 `scripts/gates/split_protocol_gate.py`。
 
 **第一步：完整阅读全文。** 理解 split protocol JSON 的 schema（strategy, patient_disjoint, temporal_ordering, prevalence_check 等）和所有验证规则。
 
@@ -535,7 +535,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 25
-严格审查 `scripts/covariate_shift_gate.py`。
+严格审查 `scripts/gates/covariate_shift_gate.py`。
 
 **第一步：完整阅读全文。**
 
@@ -552,7 +552,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 26
-严格审查 `scripts/reporting_bias_gate.py`。
+严格审查 `scripts/gates/reporting_bias_gate.py`。
 
 **第一步：完整阅读全文。**
 
@@ -571,7 +571,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 27
-严格审查 `scripts/model_selection_audit_gate.py`。
+严格审查 `scripts/gates/model_selection_audit_gate.py`。
 
 **第一步：完整阅读全文。**
 
@@ -587,7 +587,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 28
-严格审查 `scripts/feature_engineering_audit_gate.py`。
+严格审查 `scripts/gates/feature_engineering_audit_gate.py`。
 
 **第一步：完整阅读全文。** 特别关注之前 Fix 3（error code 修正）和 Fix 4（to_float isfinite guard）是否仍正确。
 
@@ -604,7 +604,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 29
-严格审查 `scripts/clinical_metrics_gate.py`。
+严格审查 `scripts/gates/clinical_metrics_gate.py`。
 
 **第一步：完整阅读全文。**
 
@@ -620,7 +620,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 30
-严格审查 `scripts/prediction_replay_gate.py`。
+严格审查 `scripts/gates/prediction_replay_gate.py`。
 
 **第一步：完整阅读全文。**
 
@@ -636,7 +636,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 31
-严格审查 `scripts/distribution_generalization_gate.py`。
+严格审查 `scripts/gates/distribution_generalization_gate.py`。
 
 **第一步：完整阅读全文。**
 
@@ -652,7 +652,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 32
-严格审查 `scripts/generalization_gap_gate.py`。
+严格审查 `scripts/gates/generalization_gap_gate.py`。
 
 **第一步：完整阅读全文。** 确认 Fix 5（`should_fail = bool(failures) or (args.strict and bool(warnings))`）仍正确。
 
@@ -668,7 +668,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 33
-严格审查 `scripts/robustness_gate.py`。
+严格审查 `scripts/gates/robustness_gate.py`。
 
 **第一步：完整阅读全文。** 确认 Fix 6 仍正确。
 
@@ -683,7 +683,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 34
-严格审查 `scripts/seed_stability_gate.py`。
+严格审查 `scripts/gates/seed_stability_gate.py`。
 
 **第一步：完整阅读全文。** 确认 Fix 7 仍正确。
 
@@ -699,7 +699,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 35
-严格审查 `scripts/external_validation_gate.py`。
+严格审查 `scripts/gates/external_validation_gate.py`。
 
 **第一步：完整阅读全文。**
 
@@ -716,7 +716,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 36
-严格审查 `scripts/ci_matrix_gate.py`。
+严格审查 `scripts/gates/ci_matrix_gate.py`。
 
 **第一步：完整阅读全文。**
 
@@ -733,7 +733,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 37
-严格审查 `scripts/metric_consistency_gate.py`。
+严格审查 `scripts/gates/metric_consistency_gate.py`。
 
 **第一步：完整阅读全文。**
 
@@ -748,7 +748,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 38
-严格审查 `scripts/self_critique_gate.py`。
+严格审查 `scripts/gates/self_critique_gate.py`。
 
 **第一步：完整阅读全文。**
 
@@ -765,7 +765,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 39
-严格审查 `scripts/execution_attestation_gate.py`（最复杂 gate）。
+严格审查 `scripts/gates/execution_attestation_gate.py`（最复杂 gate）。
 
 **第一步：完整阅读全文（预计 500+ 行）。** 这是最复杂的 gate，需要格外仔细。
 
@@ -791,7 +791,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 40
-严格审查 `scripts/generate_execution_attestation.py`。
+严格审查 `scripts/tools/generate_execution_attestation.py`。
 
 **第一步：完整阅读全文。**
 
@@ -810,7 +810,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 41
-严格审查 `scripts/run_strict_pipeline.py`。
+严格审查 `scripts/orchestration/run_strict_pipeline.py`。
 
 **第一步：完整阅读全文。**
 
@@ -829,7 +829,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 42
-严格审查 `scripts/run_productized_workflow.py`。
+严格审查 `scripts/orchestration/run_productized_workflow.py`。
 
 **第一步：完整阅读全文。**
 
@@ -847,7 +847,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ## D. 训练核心代码审查（43-48）
 
 ### 43
-严格审查 `scripts/train_select_evaluate.py` — 模型训练部分。
+严格审查 `scripts/tools/train_select_evaluate.py` — 模型训练部分。
 
 **第一步：定位并阅读模型训练相关代码。** 用 code_search 找到 fit/train 相关函数。
 
@@ -869,7 +869,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 44
-严格审查 `scripts/train_select_evaluate.py` — 模型选择部分。
+严格审查 `scripts/tools/train_select_evaluate.py` — 模型选择部分。
 
 **第一步：定位模型选择/排名代码。**
 
@@ -885,7 +885,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 45
-严格审查 `scripts/train_select_evaluate.py` — 评估部分。
+严格审查 `scripts/tools/train_select_evaluate.py` — 评估部分。
 
 **第一步：定位评估代码。**
 
@@ -912,7 +912,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 46
-严格审查 `scripts/train_select_evaluate.py` — 超参搜索部分。
+严格审查 `scripts/tools/train_select_evaluate.py` — 超参搜索部分。
 
 **第一步：定位超参搜索代码。**
 
@@ -929,7 +929,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 47
-严格审查 `scripts/train_select_evaluate.py` — 外部验证部分。
+严格审查 `scripts/tools/train_select_evaluate.py` — 外部验证部分。
 
 **第一步：定位外部验证代码。**
 
@@ -945,7 +945,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 48
-严格审查 `scripts/train_select_evaluate.py` — 输出工件部分。
+严格审查 `scripts/tools/train_select_evaluate.py` — 输出工件部分。
 
 **第一步：定位所有 report/artifact 写入代码。**
 
@@ -969,9 +969,9 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ## E. CLI 入口与编排审查（49-55）
 
 ### 49
-严格审查 `scripts/mlgg.py` 命令路由。
+严格审查 `scripts/orchestration/mlgg.py` 命令路由。
 
-**第一步：完整阅读 `scripts/mlgg.py`。**
+**第一步：完整阅读 `scripts/orchestration/mlgg.py`。**
 
 **第二步：逐行检查所有子命令的 dispatch：**
 - onboarding: 参数传递到 mlgg_onboarding.py 是否完整？
@@ -995,7 +995,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 50
-严格审查 `scripts/mlgg_onboarding.py`。
+严格审查 `scripts/orchestration/mlgg_onboarding.py`。
 
 **第一步：完整阅读全文。**
 
@@ -1020,7 +1020,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 51
-严格审查 `scripts/mlgg_interactive.py`。
+严格审查 `scripts/orchestration/mlgg_interactive.py`。
 
 **第一步：完整阅读全文。**
 
@@ -1039,7 +1039,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 52
-严格审查 `scripts/init_project.py`。
+严格审查 `scripts/tools/init_project.py`。
 
 **第一步：完整阅读全文。**
 
@@ -1055,7 +1055,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 53
-严格审查 `scripts/env_doctor.py`。
+严格审查 `scripts/tools/env_doctor.py`。
 
 **第一步：完整阅读全文。**
 
@@ -1072,7 +1072,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 54
-严格审查 `scripts/render_user_summary.py`。
+严格审查 `scripts/tools/render_user_summary.py`。
 
 **第一步：完整阅读全文。**
 
@@ -1088,7 +1088,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 55
-严格审查 `scripts/generate_demo_medical_dataset.py`。
+严格审查 `scripts/tools/generate_demo_medical_dataset.py`。
 
 **第一步：完整阅读全文。**
 
@@ -1644,7 +1644,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 
 **第一步：设计 Web wizard 的页面结构（9 步对应 9 个页面）。**
 
-**第二步：选择框架（Flask + Jinja2 或 FastAPI + 前端），创建 `scripts/mlgg_web.py`。** 实现：步骤进度条、配置表单（对应 wizard 的每个 step）、文件上传（CSV）、实时日志流（SSE/WebSocket）、结果展示。
+**第二步：选择框架（Flask + Jinja2 或 FastAPI + 前端），创建 `scripts/tools/mlgg_web.py`。** 实现：步骤进度条、配置表单（对应 wizard 的每个 step）、文件上传（CSV）、实时日志流（SSE/WebSocket）、结果展示。
 
 **第三步：绑定到 127.0.0.1:8501，不对外暴露。**
 
@@ -1695,7 +1695,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 
 **第一步：收集所有 failure code 到 code→explanation 映射。** 阅读每个 gate 脚本的 `add_issue` 调用。
 
-**第二步：创建 `scripts/explain_gate.py`。** 输入一个 gate 报告 JSON，输出人类可读的中英文解释。每个 failure code 映射到诊断步骤和修复建议。
+**第二步：创建 `scripts/tools/explain_gate.py`。** 输入一个 gate 报告 JSON，输出人类可读的中英文解释。每个 failure code 映射到诊断步骤和修复建议。
 
 **第三步：验证对所有已知 failure codes 的覆盖。**
 
@@ -1710,7 +1710,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 
 **第一步：了解 evaluation_report.json 和 prediction_trace.csv 的格式。**
 
-**第二步：创建 `scripts/visualize_results.py`。** 使用 matplotlib 生成：ROC 曲线（带 AUC）、PR 曲线（带 AP）、Calibration 曲线、DCA 曲线、Feature Importance Top-20。
+**第二步：创建 `scripts/tools/visualize_results.py`。** 使用 matplotlib 生成：ROC 曲线（带 AUC）、PR 曲线（带 AP）、Calibration 曲线、DCA 曲线、Feature Importance Top-20。
 
 **第三步：输出 PNG 到 evidence/ 目录。**
 
@@ -1742,7 +1742,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 
 **第一步：设计 diff report 格式（变化的 gate 状态、指标变化、failure code 变化）。**
 
-**第二步：创建 `scripts/compare_runs.py`。** 输入两个 evidence 目录，输出 JSON diff 和 Markdown 摘要。
+**第二步：创建 `scripts/tools/compare_runs.py`。** 输入两个 evidence 目录，输出 JSON diff 和 Markdown 摘要。
 
 **第三步：用两次 onboarding 运行的结果测试。**
 
@@ -1772,7 +1772,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 
 **第一步：了解医学论文常见的表格格式（Table 1: Baseline、Table 2: Performance、Table 3: External）。**
 
-**第二步：创建 `scripts/export_latex.py`。** 从 evidence JSON 生成 LaTeX tabular 代码。
+**第二步：创建 `scripts/tools/export_latex.py`。** 从 evidence JSON 生成 LaTeX tabular 代码。
 
 **第三步：验证生成的 LaTeX 可编译。**
 
