@@ -742,15 +742,24 @@ def render_markdown_report(report: Dict[str, Any]) -> str:
         "",
     ]
 
+    # Score cap notice
+    if report.get("score_capped_by_external_validation"):
+        lines += [
+            f"> **Score capped at {score}**: No external validation data provided. "
+            "TRIPOD+AI 2024 Item 23 requires external validation for publication-grade claims. "
+            "Provide cross-period, cross-institution, or independent cohort data to lift this cap.",
+            "",
+        ]
+
     # Grade explanation
     if score >= 90:
-        lines.append("> ✓ **Publication-grade**: Meets requirements for top-tier journals (Nature Medicine, JAMA, BMJ).")
+        lines.append("> **Publication-grade**: Meets requirements for top-tier journals (Nature Medicine, JAMA, BMJ).")
     elif score >= 75:
-        lines.append("> ⚠ **Solid but gaps remain**: Suitable for conference submission; address gaps before top-journal submission.")
+        lines.append("> **Solid but gaps remain**: Suitable for conference submission; address gaps before top-journal submission.")
     elif score >= 60:
-        lines.append("> ✗ **Major issues**: Significant methodological concerns must be resolved before any submission.")
+        lines.append("> **Major issues**: Significant methodological concerns must be resolved before any submission.")
     else:
-        lines.append("> ✗ **Not publishable**: Fundamental flaws detected. Comprehensive rework required.")
+        lines.append("> **Not publishable**: Fundamental flaws detected. Comprehensive rework required.")
     lines.append("")
 
     # 10-Dimension scores
@@ -1041,6 +1050,20 @@ def run_audit_report(
 
     # Score dimensions
     dimension_scores, total_score = compute_dimension_scores(scan_results, filtered_gate_reports)
+
+    # ── External validation absent → hard cap at 85 ──────────────────────
+    # TRIPOD+AI 2024 Item 23 requires reporting external validation status.
+    # Without external validation, a model cannot claim publication-grade
+    # generalizability.  Cap prevents inflated scores.
+    _ext_val = filtered_gate_reports.get("external_validation_gate", {})
+    _ext_val_status = str(_ext_val.get("status", "")).lower() if _ext_val else ""
+    _EXT_VAL_ABSENT_CAP = 85.0
+    external_validation_absent = _ext_val_status in ("skipped", "") or not _ext_val
+    score_capped_by_external_validation = False
+    if external_validation_absent and total_score > _EXT_VAL_ABSENT_CAP:
+        total_score = _EXT_VAL_ABSENT_CAP
+        score_capped_by_external_validation = True
+
     grade_en, grade_zh = _score_interpretation(total_score)
 
     # Assess reporting standards
@@ -1087,6 +1110,8 @@ def run_audit_report(
         "prediction_type": prediction_type,
         "total_score": total_score,
         "max_score": 100,
+        "score_capped_by_external_validation": score_capped_by_external_validation,
+        "external_validation_absent": external_validation_absent,
         "grade_en": grade_en,
         "grade_zh": grade_zh,
         "py_files_scanned": scan_results["py_file_count"],

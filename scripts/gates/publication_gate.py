@@ -500,6 +500,34 @@ def main() -> int:
     l3_passed = _tier_passed(L3_GATES) and l2_passed
     compliance_level = "L3" if l3_passed else ("L2" if l2_passed else ("L1" if l1_passed else "none"))
 
+    # ── External validation absent → mandatory Limitations declaration ────
+    ext_val = loaded.get("external_validation_report")
+    ext_val_status = str(ext_val.get("status", "")).lower() if isinstance(ext_val, dict) else ""
+    if ext_val_status == "skipped" or (
+        isinstance(ext_val, dict)
+        and isinstance(ext_val.get("summary"), dict)
+        and ext_val["summary"].get("external_validation_absent") is True
+    ):
+        add_issue(
+            warnings,
+            "external_validation_absent",
+            "No external validation performed. Model generalizability is unverified. "
+            "This MUST be declared in the Limitations section. "
+            "Score capped at 85; L3 publication-grade blocked.",
+            {
+                "limitation_text": (
+                    "This model has not been externally validated. "
+                    "Generalizability to other populations, time periods, "
+                    "or institutions is unknown."
+                ),
+                "remediation": (
+                    "Provide at least one external cohort: "
+                    "cross_period (temporal), cross_institution (geographic), "
+                    "or independent_cohort (separate dataset)."
+                ),
+            },
+        )
+
     should_fail = bool(failures) or (args.strict and bool(warnings))
     status = "fail" if should_fail else "pass"
     quality_score = max(0.0, min(100.0, 100.0 - 20.0 * len(failures) - 2.5 * len(warnings)))

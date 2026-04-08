@@ -42,6 +42,7 @@ register_remediations({
     "external_cohort_metric_replay_mismatch": "Replayed metrics don't match external validation report. Re-run evaluation pipeline.",
     "missing_cross_period_cohort": "Add at least one cross_period cohort. Required for publication-grade.",
     "missing_cross_institution_cohort": "Add at least one cross_institution cohort. Required for publication-grade.",
+    "missing_independent_cohort": "Add at least one independent_cohort for strongest evidence of generalizability.",
 })
 
 
@@ -59,7 +60,7 @@ REQUIRED_METRICS = [
     "brier",
 ]
 
-SUPPORTED_EXTERNAL_TYPES = {"cross_period", "cross_institution"}
+SUPPORTED_EXTERNAL_TYPES = {"cross_period", "cross_institution", "independent_cohort"}
 
 
 def parse_args() -> argparse.Namespace:
@@ -169,9 +170,55 @@ def main() -> int:
     warnings: List[Dict[str, Any]] = []
 
     if not args.external_validation_report or not args.external_validation_report.strip():
-        # No external data provided — gate passes with info-level note
-        summary = {"status": "skipped", "reason": "No external validation data provided. Gate not applicable."}
-        return finish(args, failures, warnings, summary)
+        # No external data — report status="skipped" (NOT "pass").
+        # This blocks L3 publication-grade in publication_gate and caps
+        # total audit score at 85 in generate_audit_report.
+        from _gate_utils import get_gate_elapsed, write_json as _write_report
+
+        summary = {
+            "external_validation_absent": True,
+            "reason": (
+                "No external validation data provided. "
+                "Total audit score capped at 85. "
+                "Must be declared in Limitations section."
+            ),
+            "limitation_required": (
+                "This model has not been externally validated "
+                "(no cross-period, cross-institution, or independent cohort data). "
+                "Generalizability to other populations or time periods is unknown."
+            ),
+            "supported_external_types": sorted(SUPPORTED_EXTERNAL_TYPES),
+        }
+        fi: List[GateIssue] = []
+        wi: List[GateIssue] = []
+        report = build_report_envelope(
+            gate_name="external_validation_gate",
+            status="skipped",
+            strict_mode=bool(args.strict),
+            failures=fi,
+            warnings=wi,
+            summary=summary,
+            input_files={
+                "external_validation_report": "",
+                "prediction_trace": str(Path(args.prediction_trace).expanduser().resolve()),
+                "evaluation_report": str(Path(args.evaluation_report).expanduser().resolve()),
+                "performance_policy": (
+                    str(Path(args.performance_policy).expanduser().resolve())
+                    if args.performance_policy else None
+                ),
+            },
+        )
+        if args.report:
+            _write_report(Path(args.report).expanduser().resolve(), report)
+        print_gate_summary(
+            gate_name="external_validation_gate",
+            status="skipped",
+            failures=fi,
+            warnings=wi,
+            strict=bool(args.strict),
+            elapsed=get_gate_elapsed(),
+        )
+        return 0
 
     ext_path = Path(args.external_validation_report).expanduser().resolve()
     if not ext_path.exists():
