@@ -59,8 +59,8 @@ jobs:
           if missing:
               print('FAIL: Missing keys:', missing)
               sys.exit(1)
-          if len(d['dimension_scores']) != 10:
-              print('FAIL: Expected 10 dimension scores, got', len(d['dimension_scores']))
+          if len(d['dimension_scores']) != 12:
+              print('FAIL: Expected 12 dimension scores, got', len(d['dimension_scores']))
               sys.exit(1)
           tripod_items = d['tripod_coverage']['items']
           if len(tripod_items) != 17:
