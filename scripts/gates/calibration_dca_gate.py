@@ -62,6 +62,23 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--performance-policy", help="Optional performance_policy JSON path.")
     parser.add_argument("--report", help="Optional output report JSON path.")
     parser.add_argument("--strict", action="store_true", help="Fail on warnings.")
+    # Calibration ridge regularization
+    parser.add_argument("--calibration-ridge", type=float, default=20.0,
+                        help="Ridge regularization strength for calibration slope/intercept fitting (default: 20.0).")
+    # O/E ratio thresholds (BMJ 2024)
+    parser.add_argument("--oe-ratio-fail-lower", type=float, default=0.70,
+                        help="O/E ratio lower bound for failure (default: 0.70).")
+    parser.add_argument("--oe-ratio-fail-upper", type=float, default=1.43,
+                        help="O/E ratio upper bound for failure (default: 1.43).")
+    parser.add_argument("--oe-ratio-warn-lower", type=float, default=0.80,
+                        help="O/E ratio lower bound for warning (default: 0.80).")
+    parser.add_argument("--oe-ratio-warn-upper", type=float, default=1.25,
+                        help="O/E ratio upper bound for warning (default: 1.25).")
+    # CITL thresholds (BMJ 2024)
+    parser.add_argument("--citl-fail-threshold", type=float, default=0.10,
+                        help="Calibration-in-the-large absolute threshold for failure (default: 0.10).")
+    parser.add_argument("--citl-warn-threshold", type=float, default=0.05,
+                        help="Calibration-in-the-large absolute threshold for warning (default: 0.05).")
     return parser.parse_args()
 
 
@@ -74,7 +91,7 @@ def sigmoid(x: np.ndarray) -> np.ndarray:
     return 1.0 / (1.0 + np.exp(-clipped))
 
 
-def fit_calibration_slope_intercept(y_true: np.ndarray, y_score: np.ndarray) -> Optional[Dict[str, float]]:
+def fit_calibration_slope_intercept(y_true: np.ndarray, y_score: np.ndarray, ridge: float = 20.0) -> Optional[Dict[str, float]]:
     if y_true.shape[0] < 3 or len(np.unique(y_true)) < 2:
         return None
     eps = 1e-6
@@ -84,7 +101,6 @@ def fit_calibration_slope_intercept(y_true: np.ndarray, y_score: np.ndarray) -> 
     beta = np.array([0.0, 1.0], dtype=float)
     prior = np.array([0.0, 1.0], dtype=float)
     # Strong prior regularization stabilizes slope/intercept estimation in small cohorts.
-    ridge = 20.0
 
     for _ in range(80):
         eta = X @ beta
@@ -244,6 +260,7 @@ def evaluate_cohort(
     y_score: np.ndarray,
     thresholds: Dict[str, Any],
     grid: np.ndarray,
+    ridge: float = 20.0,
 ) -> Dict[str, Any]:
     ece_bins = int(thresholds["ece_bins"])
     ece_min_bin_size = int(thresholds.get("ece_min_bin_size", 15))
@@ -253,7 +270,7 @@ def evaluate_cohort(
         n_bins=ece_bins,
         min_bin_size=ece_min_bin_size,
     )
-    cal = fit_calibration_slope_intercept(y_true, y_score)
+    cal = fit_calibration_slope_intercept(y_true, y_score, ridge=ridge)
     if cal is None:
         raise ValueError("Unable to fit calibration slope/intercept.")
     slope = float(cal["slope"])
@@ -471,6 +488,7 @@ def main() -> int:
                 y_score=y_score,
                 thresholds=thresholds,
                 grid=grid,
+                ridge=float(args.calibration_ridge),
             )
         except Exception as exc:
             add_issue(
@@ -516,53 +534,59 @@ def main() -> int:
 
         # BMJ 2024: O/E ratio check (observed/expected)
         oe_ratio_val = to_float(calibration.get("oe_ratio"))
+        oe_fail_lo = float(args.oe_ratio_fail_lower)
+        oe_fail_hi = float(args.oe_ratio_fail_upper)
+        oe_warn_lo = float(args.oe_ratio_warn_lower)
+        oe_warn_hi = float(args.oe_ratio_warn_upper)
         if oe_ratio_val is not None and math.isfinite(oe_ratio_val):
-            if oe_ratio_val < 0.70 or oe_ratio_val > 1.43:
+            if oe_ratio_val < oe_fail_lo or oe_ratio_val > oe_fail_hi:
                 add_issue(
                     failures,
                     "calibration_oe_ratio_out_of_range",
-                    "O/E ratio is outside acceptable range [0.70, 1.43] (BMJ 2024).",
+                    f"O/E ratio is outside acceptable range [{oe_fail_lo}, {oe_fail_hi}] (BMJ 2024).",
                     {
                         "cohort": label,
                         "oe_ratio": oe_ratio_val,
-                        "acceptable_range": [0.70, 1.43],
+                        "acceptable_range": [oe_fail_lo, oe_fail_hi],
                     },
                 )
-            elif oe_ratio_val < 0.80 or oe_ratio_val > 1.25:
+            elif oe_ratio_val < oe_warn_lo or oe_ratio_val > oe_warn_hi:
                 add_issue(
                     warnings,
                     "calibration_oe_ratio_out_of_range",
-                    "O/E ratio is outside preferred range [0.80, 1.25] (BMJ 2024).",
+                    f"O/E ratio is outside preferred range [{oe_warn_lo}, {oe_warn_hi}] (BMJ 2024).",
                     {
                         "cohort": label,
                         "oe_ratio": oe_ratio_val,
-                        "preferred_range": [0.80, 1.25],
+                        "preferred_range": [oe_warn_lo, oe_warn_hi],
                     },
                 )
 
         # BMJ 2024: calibration-in-the-large check
         citl_val = to_float(calibration.get("calibration_in_the_large"))
+        citl_fail_thresh = float(args.citl_fail_threshold)
+        citl_warn_thresh = float(args.citl_warn_threshold)
         if citl_val is not None and math.isfinite(citl_val):
-            if abs(citl_val) > 0.10:
+            if abs(citl_val) > citl_fail_thresh:
                 add_issue(
                     failures,
                     "calibration_in_the_large_too_large",
-                    "Calibration-in-the-large exceeds acceptable threshold |0.10| (BMJ 2024).",
+                    f"Calibration-in-the-large exceeds acceptable threshold |{citl_fail_thresh}| (BMJ 2024).",
                     {
                         "cohort": label,
                         "calibration_in_the_large": citl_val,
-                        "threshold": 0.10,
+                        "threshold": citl_fail_thresh,
                     },
                 )
-            elif abs(citl_val) > 0.05:
+            elif abs(citl_val) > citl_warn_thresh:
                 add_issue(
                     warnings,
                     "calibration_in_the_large_too_large",
-                    "Calibration-in-the-large exceeds preferred threshold |0.05| (BMJ 2024).",
+                    f"Calibration-in-the-large exceeds preferred threshold |{citl_warn_thresh}| (BMJ 2024).",
                     {
                         "cohort": label,
                         "calibration_in_the_large": citl_val,
-                        "threshold": 0.05,
+                        "threshold": citl_warn_thresh,
                     },
                 )
 
