@@ -314,8 +314,8 @@ body{
 <header class="hd">
   <h1>MLGG -- 医学 ML 预测模型完整流程</h1>
   <p>
-    <b>9 阶段</b> <b>33 道安全门控</b> <b>19 项分析工具</b> <b>37+ 文献引用</b><br>
-    <b>Peer Review RAG</b> <b>106 篇 Nature Comms</b> <b>375 条审稿意见</b> <b>106 项自动化测试</b>
+    <b>9 阶段</b> <b>33 道安全门控</b> <b>21 项分析工具</b> <b>37+ 文献引用</b> <b>5 轮方法学审计</b><br>
+    <b>Peer Review RAG</b> <b>106 篇 Nature Comms</b> <b>375 条审稿意见</b> <b>4000+ 自动化测试</b>
   </p>
 </header>
 
@@ -437,6 +437,7 @@ body{
       <small>名字含 id/code/type -- 自动识别 nominal | 歧义列 -- 警告用户</small></li>
     <li class="h">4 层缺失策略 <span class="tag">Madley-Dowd 2019</span>
       <small>T4(&gt;80%) 丢弃+指示 | T3(40-80%) 插补+指示 | T2(5-40%) 插补+指示 | T1(&lt;5%) 简单插补</small></li>
+    <li class="c">缺失机制强制检验: &gt;5% 必须声明 MCAR/MAR/MNAR; &gt;40% 必须 MNAR 敏感性分析 <span class="tag">Cro 2020</span></li>
     <li class="g">输出 encoding_groups.json -- 供阶段四 Group LASSO 使用</li>
   </ul>
   <div class="node-out">输出: processed_data.npz / feature_names.json / encoding_groups.json / 24/375 审稿意见涉及预处理</div>
@@ -453,7 +454,7 @@ body{
     <div class="node-script">select_features.py / 6 步流水线</div>
   </div>
   <ul class="steps">
-    <li class="c">禁止特征检查: 标签泄漏 + 未来信息 <span class="tag">MLGG-F01/F02</span></li>
+    <li class="c">禁止特征检查: 标签泄漏 + 未来信息 + 循环定义 + 预测后特征 <span class="tag">MLGG-F01/F02</span></li>
     <li class="g">Ridge 基线 (CV 调优) -- 对比标准: PR-AUC <span class="tag">Harrell 2015</span></li>
     <li class="c">Stability Selection: Elastic Net + class_weight=balanced <span class="tag">Meinshausen 2010</span>
       <small>100 次分层子采样 | alpha 0.1-1.0 | Group LASSO: OneHot dummy 同进同退</small></li>
@@ -496,9 +497,9 @@ body{
   </div>
   <ul class="steps">
     <li class="c">至少 3 个模型族 <span class="tag">MLGG-M03</span> / 验证集调参 <span class="tag">MLGG-M01</span></li>
-    <li class="h">选择标准: valid PR-AUC + one-SE rule <span class="tag">Yang KDD 2023</span></li>
-    <li class="g">Youden's J 阈值 on 验证集 <span class="tag">MLGG-M02</span></li>
-    <li class="i">Bootstrap optimism correction / 学习曲线</li>
+    <li class="h">选择标准: valid PR-AUC + one-SE rule (n_folds&gt;=2 强制校验) <span class="tag">Yang KDD 2023</span></li>
+    <li class="g">Youden's J 阈值 on 验证集 / XGBoost scale_pos_weight 自动计算 <span class="tag">MLGG-M02</span></li>
+    <li class="i">BCa Bootstrap optimism correction / 学习曲线</li>
   </ul>
   <div class="node-out">输出: model.pkl / model_pool.pkl / PR-029: "XGBoost 约等于 Transformer -- 选简单的"</div>
 </div>
@@ -535,11 +536,11 @@ body{
     <div class="node-script">13 道统计门控 / Layer 6</div>
   </div>
   <ul class="steps">
-    <li class="c">测试集一次性评估 / 5 域完整面板</li>
-    <li class="h">区分度 AUROC/AUPRC / 校准 截距-0 斜率-1 / 分类 MCC LR+/LR-</li>
-    <li class="h">临床 DCA / NRI / IDI / 整体 Brier / BSS</li>
-    <li class="i">95% CI bootstrap &gt;= 1000 <span class="tag">MLGG-E01</span> / 多种子 &gt;= 5 seeds</li>
-    <li class="g">Platt scaling 事后校准 <span class="tag">MLGG-E05</span></li>
+    <li class="c">测试集一次性评估 / 5 域完整面板 / proba NaN/Inf 强制校验</li>
+    <li class="h">区分度 AUROC/AUPRC / 校准 截距-0 斜率-1 (ridge=0.1) / 分类 MCC LR+/LR- (cap 1000)</li>
+    <li class="h">临床 DCA (阈值预注册强制) / NRI / IDI / 整体 Brier / BSS / ECE (min_bin=40)</li>
+    <li class="i">BCa Bootstrap CI &gt;= 1000 <span class="tag">Efron 1993</span> / 多种子 &gt;= 5 seeds / JSON sort_keys 可复现</li>
+    <li class="g">Platt scaling 事后校准 / Riley 准则 3: 少数类 &gt;= 100 <span class="tag">MLGG-E05</span></li>
   </ul>
   <div class="node-out">输出: evaluation_report / CI 矩阵 / 119/375 审稿意见要求完善评估指标</div>
 </div>
@@ -555,10 +556,11 @@ body{
     <div class="node-script" style="font-family:var(--mono);font-size:.62rem;color:var(--text-3)">shap_interpretability_gate.py</div>
     <ul class="steps" style="margin-top:8px">
       <li class="c" style="font-size:.72rem">多族独立 SHAP -- L1 归一化 -- 等权平均</li>
-      <li class="g" style="font-size:.72rem">Kendall tau 一致性 / Top-N Jaccard / 方向共识</li>
+      <li class="g" style="font-size:.72rem">Kendall tau 一致性 (FDR-BH 校正) / Top-N Jaccard / 方向共识</li>
+      <li class="h" style="font-size:.72rem">PDP 边际效应: Top-K 特征 x 全模型族 (sklearn)</li>
       <li class="i" style="font-size:.72rem">个案解释: Top-3 驱动特征</li>
     </ul>
-    <div class="node-out" style="font-size:.6rem">Table A 集成排名 / B 逐模型 / C 一致性 / D 个案</div>
+    <div class="node-out" style="font-size:.6rem">Table A-D (SHAP) + Table E (PDP 边际效应)</div>
   </div>
   <div class="parallel-mid"><span>并行</span></div>
   <div class="parallel-right">
@@ -569,8 +571,8 @@ body{
     <ul class="steps" style="margin-top:8px">
       <li class="c" style="font-size:.72rem">保护属性: age + sex + race/ethnicity</li>
       <li class="c" style="font-size:.72rem">均等化优势差距 &lt; 0.15 / 差异影响比 &gt; 0.80</li>
-      <li class="h" style="font-size:.72rem">FPR/FNR 均等差距 &lt; 0.15</li>
-      <li class="h" style="font-size:.72rem">亚组最低 PR-AUC &gt; 0.40</li>
+      <li class="h" style="font-size:.72rem">FPR/FNR 均等差距 &lt; 0.15 / PPV 公平性 / 校准公平性 (7 项指标)</li>
+      <li class="h" style="font-size:.72rem">亚组最低 PR-AUC &gt; 0.40 / 多重比较校正警告 (Bonferroni)</li>
       <li class="g" style="font-size:.72rem">亚组 DCA 净效用 / equity gap</li>
     </ul>
     <div class="node-out" style="font-size:.6rem">43/375 审稿意见涉及公平性</div>
@@ -611,6 +613,7 @@ body{
   <ul class="steps">
     <li class="c">TRIPOD+AI 2024: 27 项 <span class="tag">Collins 2024</span> / PROBAST+AI 2025: 4 域 <span class="tag">Moons 2025</span></li>
     <li class="h">12 维评分 (0-100) / &gt;=90 顶刊级 / 75-89 需补充 / &lt;60 不可发表</li>
+    <li class="c">无外部验证 -- 总分 cap 85 / L3 阻断 / 强制 Limitations 声明</li>
     <li class="g">Model Card 自动生成 / 局限性讨论（强制）</li>
   </ul>
   <div class="node-out">输出: TRIPOD 清单 / Model Card / 52/375 审稿意见涉及报告不完整</div>
@@ -644,9 +647,9 @@ body{
   <div class="nr-title">发布就绪 -- Publication-Grade</div>
   <div class="nr-sub">
     33 门控全部通过 / TRIPOD+AI 2024 / PROBAST+AI 2025<br>
-    12 维评分 &gt;= 90 / Peer Review RAG 无 CRITICAL 未解决项<br>
-    4 张 SHAP 表 / 校准曲线 / DCA / 公平性报告 / 亚组 DCA<br>
-    Model Card / TRIPOD 清单 / 局限性讨论<br>
+    12 维评分 &gt;= 90 / 外部验证通过 / Peer Review RAG 无 CRITICAL 未解决项<br>
+    5 张解释表 (SHAP A-D + PDP E) / BCa CI / 校准曲线 / DCA / 7 项公平性指标<br>
+    Model Card / TRIPOD 清单 / 局限性讨论 / JSON sort_keys 可复现<br>
     model.pkl (签名) / encoding_groups.json / 全部代码可复现
   </div>
 </div>
@@ -679,8 +682,8 @@ body{
     <span class="L">L2</span><span class="items">attestation</span><br>
     <span class="L">L3</span><span class="items">leakage, split, covariate, reporting</span><br>
     <span class="L">L4</span><span class="items">definition, lineage, imbalance, missingness, tuning</span><br>
-    <span class="L">L5</span><span class="items">model, feature, clinical, shap</span><br>
-    <span class="L">L6</span><span class="items">calibration, ci, distribution, eval, external, fairness, generalization, metric, permutation, replay, robustness, sample, seed</span><br>
+    <span class="L">L5</span><span class="items">model, feature, clinical, shap, ci_matrix, metric_consistency</span><br>
+    <span class="L">L6</span><span class="items">calibration, distribution, eval_quality, external, fairness, generalization, permutation, replay, robustness, sample, seed</span><br>
     <span class="L">L7</span><span class="items">publication</span><br>
     <span class="L">L8</span><span class="items">self_critique, security</span>
   </div>
@@ -699,11 +702,11 @@ body{
       <b>scripts/tools/</b> peer_review_lookup, audit, train, split<br>
       <b>references/peer_reviews/</b> 106 KB + 107 PDFs + 106 parsed<br>
       <b>references/</b> 39 JSON 知识库<br>
-      <b>tests/</b> 106+ RAG 测试, 3400+ gate 测试
+      <b>tests/</b> 106+ RAG 测试, 4000+ gate 测试
     </div>
   </div>
   <div class="panel">
-    <div class="panel-t">19 项分析工具</div>
+    <div class="panel-t">21 项分析工具</div>
     <div class="tgrid">
       <div class="tgrid-item"><code>riley_sample_size()</code><span>Riley 三准则</span></div>
       <div class="tgrid-item"><code>calibration_metrics()</code><span>校准三件套</span></div>
@@ -724,13 +727,15 @@ body{
       <div class="tgrid-item"><code>calibration_bin_ci()</code><span>分 bin CI</span></div>
       <div class="tgrid-item"><code>export_coefficients()</code><span>系数导出</span></div>
       <div class="tgrid-item"><code>resource_report()</code><span>计算资源</span></div>
+      <div class="tgrid-item"><code>_compute_pdp_ice()</code><span>PDP 边际效应</span></div>
+      <div class="tgrid-item"><code>fdr_bh_correction()</code><span>FDR-BH 多重校正</span></div>
     </div>
   </div>
 </div>
 
 <p class="ft">
   ML Leakage Guard (MLGG) v3.0 -- PolyForm Noncommercial License<br>
-  33 gates / 19 tools / 37+ references / 106 NC papers / 375 concerns / 106+ tests
+  33 gates / 21 tools / 37+ references / 106 NC papers / 375 concerns / 4000+ tests / 24 方法学修复 (5 轮审计)
 </p>
 
 </div><!-- end page -->
