@@ -97,7 +97,7 @@ class TestExtractDigest:
         d = extract_digest(tmp_path)
         assert d["schema_version"] == "evidence_digest.v1"
         assert d["pipeline_status"] == "unknown"
-        assert d["gates"]["missing"] == 31
+        assert d["gates"]["missing"] == 33
         assert d["metrics"] == {}
 
     def test_with_pipeline_report(self, tmp_path):
