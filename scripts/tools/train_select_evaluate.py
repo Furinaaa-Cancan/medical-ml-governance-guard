@@ -175,8 +175,8 @@ def resolve_device(requested: str) -> str:
                 return "mps"
             if torch.cuda.is_available():
                 return "gpu"
-        except Exception:
-            pass  # torch not installed; fall through to CPU
+        except Exception:  # noqa: BLE001 — torch not installed; fall through to CPU
+            pass
         return "cpu"
     if requested == "mps":
         try:
@@ -4048,7 +4048,8 @@ def bootstrap_optimism_correction(
     # Apparent performance on original training data
     try:
         train_proba = estimator.predict_proba(X_train)[:, 1]
-    except Exception:
+    except Exception as exc:
+        print(f"[WARN] bootstrap_optimism: predict_proba failed: {exc}", file=sys.stderr)
         return {}
     apparent_panel, _ = metric_panel(y_train, train_proba, threshold, beta=beta)
 
@@ -4073,7 +4074,8 @@ def bootstrap_optimism_correction(
             # Test: score on original full training set
             boot_proba_test = boot_est.predict_proba(X_train)[:, 1]
             panel_test, _ = metric_panel(y_train, boot_proba_test, threshold, beta=beta)
-        except Exception:
+        except Exception as exc:
+            print(f"[WARN] bootstrap_optimism iteration skipped: {exc}", file=sys.stderr)
             continue
 
         valid = True
@@ -4276,7 +4278,8 @@ def bootstrap_metric_ci(
         sb = y_score[idx]
         try:
             panel, _ = metric_panel(yb, sb, threshold, beta=beta)
-        except Exception:
+        except Exception as exc:
+            print(f"[WARN] bootstrap_ci iteration skipped: {exc}", file=sys.stderr)
             continue
         _finite_required = {"accuracy", "precision", "ppv", "npv", "sensitivity", "specificity", "f1", "f2_beta", "roc_auc", "pr_auc", "brier", "mcc"}
         if not all(isinstance(panel.get(k), (int, float)) and math.isfinite(float(panel.get(k))) for k in _finite_required):
@@ -4653,7 +4656,8 @@ def _calibration_assessment(
         cal_lr.fit(logit_p.reshape(-1, 1), y_true)
         result["calibration_slope"] = round(float(cal_lr.coef_[0, 0]), 4)
         result["calibration_intercept"] = round(float(cal_lr.intercept_[0]), 4)
-    except Exception:
+    except Exception as exc:
+        print(f"[WARN] calibration_slope computation failed: {exc}", file=sys.stderr)
         result["calibration_slope"] = None
         result["calibration_intercept"] = None
     # Expected Calibration Error (equal-frequency bins)
@@ -4670,7 +4674,8 @@ def _calibration_assessment(
             avg_true = float(np.mean(y_true[blk]))
             ece_total += (len(blk) / n_samples) * abs(avg_true - avg_pred)
         result["ece"] = round(float(ece_total), 4)
-    except Exception:
+    except Exception as exc:
+        print(f"[WARN] ECE computation failed: {exc}", file=sys.stderr)
         result["ece"] = None
     # Binned calibration curve
     try:
@@ -4680,7 +4685,8 @@ def _calibration_assessment(
             "fraction_of_positives": [round(float(v), 4) for v in frac_pos],
             "mean_predicted_value": [round(float(v), 4) for v in mean_pred],
         }
-    except Exception:
+    except Exception as exc:
+        print(f"[WARN] calibration_curve computation failed: {exc}", file=sys.stderr)
         result["calibration_curve"] = None
     return result
 
@@ -4793,7 +4799,8 @@ def _multicollinearity_check(
         except LinAlgError:
             xtx_inv = np.linalg.pinv(xtx)
         vifs = [round(float(xtx_inv[i, i] * xtx[i, i]), 2) for i in range(len(cols))]
-    except Exception:
+    except Exception as exc:
+        print(f"[WARN] VIF computation failed: {exc}", file=sys.stderr)
         return {"skipped": True, "reason": "computation_error", "vif": []}
     vif_records = [{"feature": str(c), "vif": v} for c, v in zip(cols, vifs)]
     high_vif = [r for r in vif_records if r["vif"] > 10.0]
@@ -5146,13 +5153,13 @@ def _subgroup_performance(
             ppv = tp / max(tp + fp, 1)
             try:
                 auc = float(roc_auc_score(y_sub, p_sub))
-            except Exception:
+            except Exception:  # noqa: BLE001 — subgroup may lack both classes
                 auc = None
             if auc is not None and not np.isfinite(auc):
                 auc = None
             try:
                 pr_auc = float(average_precision_score(y_sub, p_sub))
-            except Exception:
+            except Exception:  # noqa: BLE001 — subgroup may lack both classes
                 pr_auc = None
             if pr_auc is not None and not np.isfinite(pr_auc):
                 pr_auc = None
@@ -5214,7 +5221,7 @@ def _inference_benchmark(
             estimator.predict_proba(sample)
         else:
             estimator.predict(sample)
-    except Exception:
+    except Exception:  # noqa: BLE001 — warm-up; failure is benign
         pass
     times = []
     for _ in range(n_repeats):
@@ -5224,7 +5231,8 @@ def _inference_benchmark(
                 estimator.predict_proba(sample)
             else:
                 estimator.predict(sample)
-        except Exception:
+        except Exception as exc:
+            print(f"[WARN] inference_latency: predict failed: {exc}", file=sys.stderr)
             break
         t1 = time.perf_counter()
         times.append((t1 - t0) * 1000)
@@ -5245,7 +5253,7 @@ def _inference_benchmark(
             param_count = sum(t.tree_.node_count for t in (clf.estimators_ if not hasattr(clf.estimators_[0], '__len__') else [e for sub in clf.estimators_ for e in sub]))
         elif hasattr(clf, "get_booster"):
             param_count = len(clf.get_booster().get_dump())
-    except Exception:
+    except Exception:  # noqa: BLE001 — param count is informational
         pass
     return {
         "inference_latency_ms_per_sample": round(avg_total / max(n, 1), 4),
@@ -5323,7 +5331,8 @@ def _feature_ablation_study(
             else:
                 p_abl = estimator.predict(X_ablated).ravel()
             abl_pr_auc = float(_ap(y_test, p_abl))
-        except Exception:
+        except Exception as exc:
+            print(f"[WARN] feature_ablation failed for '{col}': {exc}", file=sys.stderr)
             abl_pr_auc = full_pr_auc
         drop = full_pr_auc - abl_pr_auc
         results.append({
@@ -5388,7 +5397,7 @@ def _error_analysis(
             vals = pd.to_numeric(feature_df[col], errors="coerce")
             if vals.notna().sum() > 10:
                 numeric_cols.append(col)
-        except Exception:
+        except Exception:  # noqa: BLE001 — column type detection; non-numeric skipped
             pass
     for col in numeric_cols[:top_k]:
         vals = pd.to_numeric(feature_df[col], errors="coerce").values.astype(float)
@@ -7296,7 +7305,7 @@ def main() -> int:
         try:
             from _security import sign_model_artifact, ArtifactManifest
             sign_model_artifact(model_out)
-        except Exception:
+        except Exception:  # noqa: BLE001
             pass  # Signing is advisory; do not block pipeline
 
     if getattr(args, "model_pool_out", None):
@@ -7342,7 +7351,7 @@ def main() -> int:
         try:
             from _security import sign_model_artifact
             sign_model_artifact(pool_out)
-        except Exception:
+        except Exception:  # noqa: BLE001 — signing advisory
             pass
         print(f"ModelPool: {pool_out} ({len(pool_families)} families)")
 
@@ -7389,7 +7398,7 @@ def main() -> int:
                 manifest.add_file(Path(epath))
         manifest_out = evaluation_out.parent / ".manifest.json"
         manifest.save(manifest_out)
-    except Exception:
+    except Exception:  # noqa: BLE001
         pass  # Manifest is advisory; do not block pipeline
 
     return 0
