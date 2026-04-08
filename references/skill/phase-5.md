@@ -1,0 +1,78 @@
+# Phase 5: 模型训练
+
+## 目标
+训练 ≥3 模型族，在验证集/CV 上选模型和阈值，测试集零接触。
+
+## 前置条件
+- Phase 4 评审通过
+- 特征集已确定，EPV 充足
+
+## 执行命令
+
+```bash
+python3 scripts/tools/train_select_evaluate.py \
+  --train data/train.csv \
+  --test data/test.csv \
+  [--valid data/valid.csv] \
+  --target-col y \
+  --patient-id-col <ID> \
+  --output-dir evidence/ \
+  --model-pool "lr,rf,xgboost" \
+  [--include-optional-models] \
+  [--max-trials-per-family 20] \
+  [--n-jobs 1]
+```
+
+## 关键约束
+
+- **≥ 3 模型族**: LR / RF / XGBoost / LightGBM / CatBoost / SVM / MLP
+- **调参**: 在 valid 或 CV 上，绝不碰 test（MLGG-M01）
+- **选择标准**: valid PR-AUC + One-SE rule（MLGG-M04, Yang KDD 2023）
+- **阈值**: Youden's J on valid（MLGG-M02）
+- **预期耗时**: 5-30 分钟（取决于数据量和模型数）→ 必须提前告知用户
+
+## Gate 检查
+
+```bash
+# 1. 调优泄漏
+python3 scripts/gates/tuning_leakage_gate.py \
+  --protocol configs/tuning-protocol.json \
+  --report evidence/tuning_leakage_report.json --strict
+
+# 2. 模型选择审计
+python3 scripts/gates/model_selection_audit_gate.py \
+  --selection-report evidence/model_selection_report.json \
+  --report evidence/model_selection_audit_report.json --strict
+```
+
+## 本阶段规则
+
+| ID | 严重度 | 规则 |
+|----|--------|------|
+| M01 | CRITICAL | 禁止在 test 调参 |
+| M02 | CRITICAL | 阈值在 valid 选择 |
+| M04 | CRITICAL | 选模型用 valid 性能，不用 train-test gap |
+
+## 训练后建议（非阻断，但推荐）
+
+- `bootstrap_optimism_correction()` — 估计乐观偏差（Steyerberg 2019）
+- `learning_curve_data()` — 检查性能是否随数据量收敛
+- `robustness_stress_test()` — 噪声/异常值稳定性
+
+## 常见陷阱
+
+- 候选模型 < 3 个 → `candidate_pool_too_small`
+- Early stopping 使用了测试集 → 调优泄漏
+- 只用 AUROC 选模型而非 PR-AUC（不平衡数据下 AUROC 过于乐观）
+
+## 完成后告诉用户
+
+```
+Phase 5 训练完成:
+- 训练了 N 个模型族 × M 个超参组合
+- 最优模型: [模型名] (valid PR-AUC = X.XXX)
+- 阈值: X.XX (Youden's J on valid)
+- 调优泄漏检查: ✓ 测试集未参与
+- 候选池大小: XX（满足 ≥3 要求）
+建议运行鲁棒性压力测试以检查稳定性。
+```
