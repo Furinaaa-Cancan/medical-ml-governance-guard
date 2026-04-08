@@ -4,11 +4,11 @@
 Phase 7: Model Interpretability
 - SHAP values (TreeExplainer for XGBoost/LightGBM/RF, LinearExplainer for LR)
 - Global feature importance (mean |SHAP|)
-- SHAP summary data for beeswarm plot
-- Top feature SHAP dependence data
+- Cross-model SHAP consistency (Spearman rank correlation)
 - Individual case explanations (highest/lowest risk)
 
 SHAP 基于训练集计算（不泄漏测试集信息）。
+注：PDP/ICE 图建议用 sklearn.inspection.PartialDependenceDisplay 手动生成。
 
 输出 → 07_interpretability/results/
 """

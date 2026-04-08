@@ -293,6 +293,16 @@ def main():
     pd.DataFrame(all_ci_results).to_csv(
         os.path.join(results_dir, "test_metrics_ci.csv"), index=False)
 
+    # Multiple comparison note (MLGG methodology)
+    n_models = len(all_test_results)
+    if n_models >= 3:
+        print(f"\n  ⚠️  Note: {n_models} models compared on same test set.")
+        print(f"     Model selection was on validation (not test), so test metrics")
+        print(f"     are unbiased. However, claims of statistical superiority")
+        print(f"     between models require multiple-comparison correction (e.g.,")
+        print(f"     Bonferroni-adjusted DeLong test). Current results are")
+        print(f"     empirical comparisons, not formal superiority tests.")
+
     # ================================================================
     # CALIBRATION — ECE (MLGG-E03)
     # ================================================================

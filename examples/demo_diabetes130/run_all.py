@@ -13,6 +13,7 @@ import sys
 import time
 import subprocess
 import argparse
+import json
 import urllib.request
 import zipfile
 
@@ -52,6 +53,15 @@ def download_data():
         os.remove(zip_path)
 
     print(f"  Done: {csv_path}")
+
+    # Data integrity hash for reproducibility
+    import hashlib
+    sha = hashlib.sha256(open(csv_path, "rb").read()).hexdigest()
+    manifest = {"file": "diabetic_data.csv", "sha256": sha, "source": url}
+    manifest_path = os.path.join(raw_dir, "DATA_MANIFEST.json")
+    with open(manifest_path, "w") as f:
+        json.dump(manifest, f, indent=2)
+    print(f"  SHA-256: {sha[:16]}... (saved to DATA_MANIFEST.json)")
 
 
 PHASES = [
