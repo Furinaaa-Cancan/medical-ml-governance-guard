@@ -116,7 +116,7 @@ def generate_tripod_checklist():
         ("12", "Missing data handling", "Detailed description", "OneHotEncoder for nominal; OrdinalEncoder for age; Platt scaling for calibration"),
         ("13", "Participants", "Flow diagram", "101,766 → 99,330 (after exclusions) → 61,991/20,424/16,915 split"),
         ("14", "Model performance", "Full results", "AUROC 0.647 (0.631-0.661), AUPRC 0.173, ECE 0.010 post-calibration"),
-        ("15", "Calibration", "Reported", "ECE before: 0.41, after Platt scaling: 0.010"),
+        ("15", "Calibration", "Reported", "ECE before: 0.41, after Platt scaling: 0.010; calibration slope/intercept/O:E in comprehensive_metrics.csv"),
         ("16", "Subgroups", "Subgroup performance", "Race, gender, age subgroups with disparities flagged"),
         ("17", "Interpretation", "Clinical implications", "Limited clinical utility (DCA narrow); admission-time model AUROC 0.606"),
         ("18", "Limitations", "Discussed", "See limitations section"),
@@ -166,9 +166,9 @@ def generate_limitations():
         },
         {
             "category": "Fairness",
-            "limitation": "Subgroup metrics lack bootstrap CI; small subgroups (Asian n=209) have wide uncertainty",
-            "impact": "Observed disparities may not be statistically significant",
-            "mitigation": "Flagged in results; recommended for future work with larger sample",
+            "limitation": "Small subgroups (e.g., Asian n=209) have wide bootstrap CI; point estimates may be unstable",
+            "impact": "Observed disparities may not be statistically significant for small groups",
+            "mitigation": "Bootstrap 95% CI reported for AUROC/AUPRC per subgroup; small groups flagged (n<200)",
         },
         {
             "category": "Generalizability",
@@ -242,7 +242,7 @@ def main():
         ("MLGG-R01", "random_state set", True),
         ("MLGG-R02", "Multi-seed stability", True),
         ("MLGG-Q01", "Subgroup analysis", True),
-        ("MLGG-Q02", "Subgroup CI", False),
+        ("MLGG-Q02", "Subgroup CI (bootstrap 95% CI)", True),
         ("MLGG-T01", "TRIPOD+AI checklist", True),
     ]
     passed = sum(1 for _, _, ok in checks if ok)

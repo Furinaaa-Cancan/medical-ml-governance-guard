@@ -151,6 +151,7 @@ def main():
     print(f"  Features: {len(feature_names)}")
 
     # Compute SHAP for all models
+    all_importance = {}  # {model_name: importance_df} for cross-model consistency
     for model_name in sorted(models.keys()):
         model = models[model_name]
         print(f"\n{'='*60}")
@@ -172,6 +173,7 @@ def main():
         importance = global_importance(shap_values, feature_names)
         importance.to_csv(os.path.join(results_dir, f"{model_name}_importance.csv"),
                           index=False)
+        all_importance[model_name] = importance
 
         print(f"\n  Top 10 features (mean |SHAP|):")
         for _, row in importance.head(10).iterrows():
@@ -192,6 +194,35 @@ def main():
                 print(f"\n    [{case['category']}] P={case['predicted_prob']:.3f}, actual={case['actual_label']}")
                 for d in case["top_5_drivers"][:3]:
                     print(f"      {d['feature']}: SHAP={d['shap_value']:+.4f} ({d['direction']})")
+
+    # Cross-model SHAP consistency (Spearman rank correlation)
+    if len(all_importance) >= 2:
+        from scipy.stats import spearmanr
+        print(f"\n{'='*60}")
+        print("Cross-Model SHAP Consistency")
+        print(f"{'='*60}")
+        model_names = sorted(all_importance.keys())
+        consistency_rows = []
+        for i, m1 in enumerate(model_names):
+            for m2 in model_names[i+1:]:
+                imp1 = all_importance[m1].set_index("feature")["mean_abs_shap"]
+                imp2 = all_importance[m2].set_index("feature")["mean_abs_shap"]
+                common = imp1.index.intersection(imp2.index)
+                if len(common) >= 5:
+                    rho, pval = spearmanr(imp1[common].values, imp2[common].values)
+                    print(f"  {m1} vs {m2}: Spearman ρ = {rho:.4f} (p = {pval:.2e})")
+                    consistency_rows.append({
+                        "model_1": m1, "model_2": m2,
+                        "spearman_rho": round(rho, 4), "p_value": round(pval, 6),
+                        "n_features": len(common),
+                    })
+        if consistency_rows:
+            pd.DataFrame(consistency_rows).to_csv(
+                os.path.join(results_dir, "shap_cross_model_consistency.csv"),
+                index=False)
+            mean_rho = np.mean([r["spearman_rho"] for r in consistency_rows])
+            print(f"\n  Mean Spearman ρ: {mean_rho:.4f}", end="")
+            print("  ✅" if mean_rho >= 0.5 else "  ⚠️ Low consistency")
 
     print(f"\n✅ Phase 7 results saved to: {results_dir}")
 

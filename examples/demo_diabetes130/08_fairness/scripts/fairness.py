@@ -52,8 +52,23 @@ def load_test_with_demographics():
     )
 
 
+def _bootstrap_metric(y_true, y_prob, metric_fn, n_boot=1000, seed=42):
+    """Bootstrap 95% CI for a metric function."""
+    rng = np.random.RandomState(seed)
+    n = len(y_true)
+    scores = []
+    for _ in range(n_boot):
+        idx = rng.choice(n, size=n, replace=True)
+        if len(np.unique(y_true[idx])) < 2:
+            continue
+        scores.append(metric_fn(y_true[idx], y_prob[idx]))
+    if len(scores) < 100:
+        return None, None
+    return round(float(np.percentile(scores, 2.5)), 4), round(float(np.percentile(scores, 97.5)), 4)
+
+
 def subgroup_metrics(y_true, y_prob, threshold):
-    """计算子组指标。"""
+    """计算子组指标 + bootstrap 95% CI (MLGG-Q02)。"""
     if len(np.unique(y_true)) < 2 or len(y_true) < 20:
         return None
 
@@ -63,12 +78,23 @@ def subgroup_metrics(y_true, y_prob, threshold):
     tn = ((y_pred == 0) & (y_true == 0)).sum()
     fn = ((y_pred == 0) & (y_true == 1)).sum()
 
+    auroc = round(roc_auc_score(y_true, y_prob), 4)
+    auprc = round(average_precision_score(y_true, y_prob), 4)
+
+    # Bootstrap 95% CI for AUROC and AUPRC
+    auroc_lo, auroc_hi = _bootstrap_metric(y_true, y_prob, roc_auc_score)
+    auprc_lo, auprc_hi = _bootstrap_metric(y_true, y_prob, average_precision_score)
+
     return {
         "n": len(y_true),
         "n_positive": int(y_true.sum()),
         "prevalence": round(y_true.mean(), 4),
-        "AUROC": round(roc_auc_score(y_true, y_prob), 4),
-        "AUPRC": round(average_precision_score(y_true, y_prob), 4),
+        "AUROC": auroc,
+        "AUROC_ci_lo": auroc_lo,
+        "AUROC_ci_hi": auroc_hi,
+        "AUPRC": auprc,
+        "AUPRC_ci_lo": auprc_lo,
+        "AUPRC_ci_hi": auprc_hi,
         "Sensitivity": round(tp / (tp + fn), 4) if (tp + fn) > 0 else None,
         "Specificity": round(tn / (tn + fp), 4) if (tn + fp) > 0 else None,
         "PPV": round(tp / (tp + fp), 4) if (tp + fp) > 0 else None,
@@ -101,12 +127,15 @@ def analyze_subgroups(test_raw, X_test, y_test, model, threshold, group_col,
 
     # Disparity analysis: max-min difference for each metric
     print(f"\n  {group_name} ({group_col}):")
-    print(f"  {'Group':20s} {'N':>6s} {'Prev':>6s} {'AUROC':>7s} {'Sens':>6s} {'Spec':>6s} {'FPR':>6s}  {'':>12s}")
-    print(f"  {'-'*72}")
+    print(f"  {'Group':20s} {'N':>6s} {'Prev':>6s} {'AUROC (95% CI)':>22s} {'Sens':>6s} {'Spec':>6s} {'FPR':>6s}  {'':>12s}")
+    print(f"  {'-'*88}")
     for _, row in df.iterrows():
         flag = "" if row.get("reliable", True) else "  [small sample]"
+        ci_str = f"{row['AUROC']:.4f}"
+        if row.get("AUROC_ci_lo") is not None:
+            ci_str = f"{row['AUROC']:.4f} ({row['AUROC_ci_lo']:.3f}-{row['AUROC_ci_hi']:.3f})"
         print(f"  {str(row['group']):20s} {row['n']:6d} {row['prevalence']:6.3f} "
-              f"{row['AUROC']:7.4f} {row['Sensitivity']:6.4f} {row['Specificity']:6.4f} {row['FPR']:6.4f}{flag}")
+              f"{ci_str:>22s} {row['Sensitivity']:6.4f} {row['Specificity']:6.4f} {row['FPR']:6.4f}{flag}")
 
     # Disparity summary
     for metric in ["AUROC", "Sensitivity", "FPR"]:
