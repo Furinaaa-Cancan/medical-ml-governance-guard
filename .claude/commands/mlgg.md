@@ -21,18 +21,31 @@
 
 **必须有答案才能继续，不可跳过：**
 
-1. 预测什么结局？
+1. 预测什么结局？**结局是二分类(是/否)吗？**
 2. 数据来源？（NHANES / EHR / 试验 / 登记库）
 3. 约多少行 × 多少特征？
 4. 结局怎么定义的？（ICD / 实验室指标 / 自报）
+5. 数据是一个完整 CSV，还是已经分好了 train/test？
+6. 有外部验证队列吗？（如另一家医院的数据）
 
-**根据答案触发提醒（不是罗列所有，而是命中哪个说哪个）：**
+**不支持的任务类型（立即告知，不进入 Phase 流程）：**
 
-| 条件 | 提醒 |
-|------|------|
+| 用户要做的 | 回复 |
+|-----------|------|
+| 生存分析 (time-to-event / Cox) | "MLGG 仅支持二分类。生存分析需要 Cox/DeepSurv 等专用框架。" |
+| 多分类 (>2 标签) | "MLGG 仅支持二分类。多分类需要扩展评估指标（macro-AUROC 等）。" |
+| 回归 (连续结局) | "MLGG 仅支持二分类。连续结局需要 RMSE/MAE/R² 等评估。" |
+| 图像 / 文本 / 序列 | "MLGG 专为结构化表格数据设计。" |
+
+**根据答案触发路由和提醒：**
+
+| 条件 | 路由/提醒 |
+|------|---------|
+| 已有 train/test | → Phase 1 用 train.csv 做队列检查，**跳过 Phase 2**，但仍需跑 leakage_gate 验证 split 质量 |
+| 有外部验证队列 | → 记录路径，Phase 6 后追加外部验证（见 Phase 6 补充流程） |
 | 提到具体疾病 | 读 `references/disease-definition-knowledge-base.json` → "定义疾病的变量不能做预测特征" |
 | CSV 含 hba1c/glucose 且预测糖尿病 | "⚠️ 这些列可能定义了结局，不能做特征——最常见的泄漏" |
-| n < 500 | "小样本，推荐 CV-only，不做三分法" |
+| n < 500 | "小样本，推荐 CV-only，不做三分法"（见 CV-only 模式说明） |
 | n < 100 | "极小样本，只用 LR+Ridge，标记为探索性" |
 | NHANES / BRFSS / NHIS | "复杂抽样设计，标准 ML 不用权重，需在 Limitations 声明" |
 | 用户说"直接训练" | "训练前需 30 秒 Phase 1 检查，这是 TRIPOD+AI 要求" |
@@ -81,6 +94,30 @@ Intake 完成后 → 进入 Phase 1。
 5. 评审通过 → 输出总结卡 → "准备进入 Phase {N+1}？"
 6. 用户确认 → 下一个 Phase
 ```
+
+### 特殊模式
+
+**已有 train/test（跳过 Phase 2）：**
+- Phase 1：用 train.csv 做队列检查（`--data data/train.csv`）
+- 跳过 Phase 2 划分，但仍需运行 leakage_gate + split_protocol_gate 验证已有 split 质量
+- Phase 3 起正常推进
+
+**CV-only 模式（n < 1000，无 test.csv）：**
+- Phase 2：`--train-ratio 1.0 --test-ratio 0.0`，不产出 test.csv
+- Phase 5：`train_select_evaluate.py` 使用 `--selection-data cv_inner`（Nested CV），不传 `--test`
+- Phase 6：评估用 Bootstrap optimism correction 替代测试集评估，跳过需要 test.csv 的 Gate
+- Phase 7：SHAP 在 CV fold 数据上计算，不需要独立测试集
+- Phase 9：报告标注"内部验证，无独立测试集"，评分降权
+
+**有外部验证队列：**
+- Intake 记录外部数据路径
+- Phase 6 之后、Phase 7 之前，追加外部验证：
+  ```bash
+  python3 scripts/gates/external_validation_gate.py \
+    --external-data data/external_*.csv \
+    --report evidence/external_validation_gate_report.json --strict
+  ```
+- 外部验证结果纳入 Phase 9 的 12 维评分（Dimension 6: Generalization Evidence）
 
 ---
 

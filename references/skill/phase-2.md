@@ -17,6 +17,21 @@
 | n 1000-5000 | 两分法 | `--train 0.8 --valid 0.0 --test 0.2` | CV 替代 valid |
 | n < 1000 | CV-only | `--train 1.0 --valid 0.0 --test 0.0` | Nested CV + Bootstrap |
 
+## 配置准备（首次运行时）
+
+如果 `configs/` 目录不存在，先初始化：
+```bash
+mkdir -p configs
+cp references/split-protocol.example.json configs/split-protocol.json
+```
+然后编辑 `configs/split-protocol.json`：
+- `id_col` → 实际患者 ID 列名
+- `target_col` → 实际目标列名
+- `requires_temporal_order` → 横截面数据设为 `false`
+- `split_strategy` → 根据数据类型选择
+
+> 后续 Phase 4/5/9 也需要 configs/ 下的配置文件，各 Phase 文件中有具体说明。
+
 ## 执行命令
 
 ```bash

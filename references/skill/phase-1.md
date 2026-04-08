@@ -22,6 +22,7 @@
 ### 2. 运行 Gate
 
 ```bash
+# 完整 CSV 模式（标准路径）
 python3 scripts/gates/cohort_definition_gate.py \
   --data <CSV> \
   --target-col y \
@@ -30,6 +31,17 @@ python3 scripts/gates/cohort_definition_gate.py \
   --definition-cols <cols> \
   --report evidence/cohort_report.json \
   --output-dir evidence/
+
+# 已有 train/test 模式（用 train.csv 做队列检查）
+python3 scripts/gates/cohort_definition_gate.py \
+  --data data/train.csv \
+  --target-col y \
+  --id-col <patient_id> \
+  --outcome-definition '<JSON>' \
+  --definition-cols <cols> \
+  --report evidence/cohort_report.json \
+  --output-dir evidence/
+# 注意：已有 split 时 EPV 基于训练集计算，Phase 2 仍需跑 leakage_gate 验证 split 质量
 ```
 
 ### 3. Gate 检查内容

@@ -996,7 +996,9 @@ If any step returns non-zero, stop and block claim release.
 
 本节定义 AI Agent 如何使用本项目作为 skill 快速构建和审计医疗 ML 项目。
 
-### 三种操作模式
+> **与 `/mlgg` 的关系**：`/mlgg`（`.claude/commands/mlgg.md`）是面向用户的交互式 9-Phase 流程，每个 Phase 后有强制评审循环（`references/skill/review-protocol.md`）。下方的模式 A/B/C/D/E 是面向**自动化编排器**（`mlgg.py workflow/onboarding`）的快速路径，不包含交互式评审循环。两者可以互补：用户可以先用 `/mlgg` 交互走完 Phase 1-4，然后用 Mode A 的 Step 5-8 自动跑剩余流程。
+
+### 操作模式
 
 #### 模式 A：从零构建科研项目 (Build)
 当用户说"帮我做一个预测模型"或"build a medical prediction project"时：

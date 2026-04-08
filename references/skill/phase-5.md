@@ -10,6 +10,7 @@
 ## 执行命令
 
 ```bash
+# 标准模式（有 test.csv）
 python3 scripts/tools/train_select_evaluate.py \
   --train data/train.csv \
   --test data/test.csv \
@@ -21,6 +22,17 @@ python3 scripts/tools/train_select_evaluate.py \
   [--include-optional-models] \
   [--max-trials-per-family 20] \
   [--n-jobs 1]
+
+# CV-only 模式（无 test.csv，n < 1000）
+python3 scripts/tools/train_select_evaluate.py \
+  --train data/train.csv \
+  --selection-data cv_inner \
+  --target-col y \
+  --patient-id-col <ID> \
+  --output-dir evidence/ \
+  --model-pool "lr,rf,xgboost" \
+  [--n-jobs 1]
+# CV-only 模式下：评估用 Bootstrap optimism correction，不产出独立测试集指标
 ```
 
 ## 关键约束
