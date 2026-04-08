@@ -280,7 +280,7 @@ def openssl_sign_file(private_key: Path, input_file: Path, output_sig: Path) -> 
         str(input_file),
     ]
     try:
-        proc = subprocess.run(cmd, text=True, capture_output=True)
+        proc = subprocess.run(cmd, text=True, capture_output=True, timeout=30)
     except FileNotFoundError as exc:
         raise RuntimeError("openssl command not found; required for detached signature creation.") from exc
     if proc.returncode != 0:
@@ -292,7 +292,7 @@ def openssl_sign_file(private_key: Path, input_file: Path, output_sig: Path) -> 
 def public_key_der_bytes(public_key_file: Path) -> bytes:
     cmd = ["openssl", "pkey", "-pubin", "-in", str(public_key_file), "-outform", "DER"]
     try:
-        proc = subprocess.run(cmd, text=False, capture_output=True)
+        proc = subprocess.run(cmd, text=False, capture_output=True, timeout=30)
     except FileNotFoundError as exc:
         raise RuntimeError("openssl command not found; required for key fingerprinting.") from exc
     if proc.returncode != 0:

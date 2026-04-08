@@ -321,7 +321,7 @@ def run_command_step(
         )
         return False
 
-    proc = subprocess.run(command, cwd=str(cwd), text=True, capture_output=True)
+    proc = subprocess.run(command, cwd=str(cwd), text=True, capture_output=True, timeout=3600)
     stdout_tail = proc.stdout[-4000:]
     stderr_tail = proc.stderr[-4000:]
     if output_log:
@@ -757,7 +757,7 @@ def ensure_keypair(openssl_bin: str, private_key: Path, public_key: Path) -> Non
     gen = [openssl_bin, "genpkey", "-algorithm", "RSA", "-pkeyopt", "rsa_keygen_bits:3072", "-out", str(private_key)]
     pub = [openssl_bin, "pkey", "-in", str(private_key), "-pubout", "-out", str(public_key)]
     for cmd in (gen, pub):
-        proc = subprocess.run(cmd, text=True, capture_output=True)
+        proc = subprocess.run(cmd, text=True, capture_output=True, timeout=30)
         if proc.returncode != 0:
             raise RuntimeError(f"key_generation_failed: {shlex.join(cmd)}\n{proc.stderr.strip()}")
 
@@ -1024,6 +1024,7 @@ def derive_git_commit() -> str:
             ["git", "-C", str(REPO_ROOT), "rev-parse", "--short", "HEAD"],
             text=True,
             capture_output=True,
+            timeout=10,
         )
     except FileNotFoundError:
         return "unknown"
@@ -1392,7 +1393,7 @@ def main() -> int:
             "--artifact",
             f"external_validation_report={train_outputs['external_validation_report']}",
         ]
-        proc = subprocess.run(cmd, cwd=str(project_root), text=True, capture_output=True)
+        proc = subprocess.run(cmd, cwd=str(project_root), text=True, capture_output=True, timeout=120)
         if proc.returncode != 0:
             raise RuntimeError(
                 "attestation_generation_failed:\n"

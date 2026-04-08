@@ -353,7 +353,10 @@ def log_boundary_hashes(path: Path) -> Optional[Dict[str, Any]]:
 
 def run_openssl(cmd: List[str], failures: List[Dict[str, Any]], code: str, message: str) -> Optional[subprocess.CompletedProcess]:
     try:
-        proc = subprocess.run(cmd, text=True, capture_output=True)
+        proc = subprocess.run(cmd, text=True, capture_output=True, timeout=30)
+    except subprocess.TimeoutExpired:
+        add_issue(failures, "openssl_timeout", "openssl command timed out after 30 s.", {})
+        return None
     except FileNotFoundError:
         add_issue(
             failures,
@@ -440,7 +443,10 @@ def verify_detached_signature(
 def public_key_der_bytes(public_key_file: Path, failures: List[Dict[str, Any]]) -> Optional[bytes]:
     cmd = ["openssl", "pkey", "-pubin", "-in", str(public_key_file), "-outform", "DER"]
     try:
-        proc = subprocess.run(cmd, capture_output=True, text=False)
+        proc = subprocess.run(cmd, capture_output=True, text=False, timeout=30)
+    except subprocess.TimeoutExpired:
+        add_issue(failures, "openssl_timeout", "openssl command timed out after 30 s.", {})
+        return None
     except FileNotFoundError:
         add_issue(
             failures,

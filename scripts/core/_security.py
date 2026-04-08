@@ -31,6 +31,18 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
+
+def _atomic_json_write(path: Path, payload: Any, **kwargs: Any) -> None:
+    """Write JSON atomically via tmp-file + rename + fsync."""
+    tmp = path.with_name(f".{path.name}.tmp-{os.getpid()}-{int(time.time() * 1_000_000)}")
+    with tmp.open("w", encoding="utf-8") as fh:
+        json.dump(payload, fh, **kwargs)
+        fh.write("\n")
+        fh.flush()
+        os.fsync(fh.fileno())
+    tmp.replace(path)
+
+
 # ---------------------------------------------------------------------------
 # 1. HMAC-signed model artifact serialization
 # ---------------------------------------------------------------------------
@@ -138,9 +150,7 @@ def sign_model_artifact(model_path: Path, key: Optional[bytes] = None) -> Path:
         "signed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "schema_version": 1,
     }
-    with sig_path.open("w", encoding="utf-8") as fh:
-        json.dump(payload, fh, indent=2)
-        fh.write("\n")
+    _atomic_json_write(sig_path, payload, indent=2)
     return sig_path
 
 
@@ -383,9 +393,7 @@ class ArtifactManifest:
             "entry_count": len(self._entries),
         }
         manifest_path.parent.mkdir(parents=True, exist_ok=True)
-        with manifest_path.open("w", encoding="utf-8") as fh:
-            json.dump(payload, fh, indent=2, sort_keys=True)
-            fh.write("\n")
+        _atomic_json_write(manifest_path, payload, indent=2, sort_keys=True)
 
     @staticmethod
     def verify(manifest_path: Path) -> Tuple[bool, List[str]]:
@@ -888,9 +896,7 @@ class AccessControl:
             payload = {"user_roles": self._user_roles, "schema_version": 1}
             try:
                 self._config_path.parent.mkdir(parents=True, exist_ok=True)
-                with self._config_path.open("w", encoding="utf-8") as fh:
-                    json.dump(payload, fh, indent=2)
-                    fh.write("\n")
+                _atomic_json_write(self._config_path, payload, indent=2)
                 self._config_path.chmod(0o600)
             except OSError:
                 pass
