@@ -630,8 +630,28 @@ class TestCircularDefinition(TestCLI):
         codes = [f["code"] for f in report["failures"]]
         assert "circular_definition_dependency" in codes
 
+    def test_self_reference_single_target(self, tmp_path: Path):
+        """Target references itself as a defining variable → failure."""
+        spec = {
+            "targets": {
+                "sepsis": {
+                    "defining_variables": ["lactate", "sepsis"],  # self-reference!
+                    "forbidden_variables": [],
+                    "forbidden_patterns": [],
+                }
+            },
+            "global_forbidden_variables": [],
+            "global_forbidden_patterns": [],
+        }
+        setup = _make_test_setup(tmp_path, spec)
+        result = self._run(tmp_path, setup)
+        assert result.returncode == 2
+        report = json.loads((tmp_path / "report.json").read_text())
+        codes = [f["code"] for f in report["failures"]]
+        assert "circular_definition_dependency" in codes
+
     def test_no_circularity_with_single_target(self, tmp_path: Path):
-        """Single target → no circularity check triggered."""
+        """Single target with no self-reference → no circularity."""
         spec = {
             "targets": {
                 "sepsis": {

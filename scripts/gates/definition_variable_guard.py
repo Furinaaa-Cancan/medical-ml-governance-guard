@@ -274,19 +274,29 @@ def main() -> int:
         )
 
     # ── Circular definition detection ─────────────────────────────
-    # If spec defines multiple targets where target A's defining_variables
-    # include a variable that is itself the name of target B (and vice versa),
-    # or if a defining variable appears as both a predictor and an outcome
-    # component, flag it.
+    # Detect two types of circularity:
+    # 1. Self-reference: target A's defining_variables include A itself
+    # 2. Cross-reference: target A's defining_variables include target B
     targets_block = spec.get("targets")
-    if isinstance(targets_block, dict) and len(targets_block) >= 2:
+    if isinstance(targets_block, dict) and len(targets_block) >= 1:
         all_target_names_norm = {norm(t) for t in targets_block}
         for t_name, t_block in targets_block.items():
             if not isinstance(t_block, dict):
                 continue
             t_defining = list_from(t_block, "defining_variables")
             for dv in t_defining:
-                if norm(dv) in all_target_names_norm and norm(dv) != norm(t_name):
+                dv_norm = norm(dv)
+                if dv_norm == norm(t_name):
+                    # Self-reference: defining variable is the target itself
+                    add_issue(
+                        failures,
+                        "circular_definition_dependency",
+                        f"Target '{t_name}' uses itself as a defining variable. "
+                        f"This is a self-referential circular definition.",
+                        {"target": t_name, "defining_variable": dv},
+                    )
+                elif dv_norm in all_target_names_norm:
+                    # Cross-reference: defining variable is another target
                     add_issue(
                         failures,
                         "circular_definition_dependency",
