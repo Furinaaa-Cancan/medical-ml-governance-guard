@@ -2982,6 +2982,8 @@ def predict_proba_1(estimator: BaseEstimator, X: pd.DataFrame) -> np.ndarray:
             return np.asarray(proba[:, 1], dtype=float)
     if hasattr(estimator, "decision_function"):
         scores = np.asarray(estimator.decision_function(X), dtype=float)
+        # Clip to prevent overflow in exp() (|score| > 500 causes inf/nan)
+        scores = np.clip(scores, -500.0, 500.0)
         return 1.0 / (1.0 + np.exp(-scores))
     raise ValueError("Estimator does not expose probability-like outputs.")
 
@@ -3304,7 +3306,12 @@ def metric_panel(y_true: np.ndarray, proba: np.ndarray, threshold: float, beta: 
         Tuple of (metrics dict with accuracy/precision/sensitivity/
         specificity/npv/f1/f2_beta/roc_auc/pr_auc/brier,
         confusion matrix dict).
+
+    Raises:
+        ValueError: If proba contains NaN or Inf values.
     """
+    if np.any(~np.isfinite(proba)):
+        raise ValueError("proba contains NaN or Inf values; cannot compute metrics.")
     y_pred = (proba >= threshold).astype(int)
     cm = confusion_counts(y_true, y_pred)
     tp = float(cm["tp"])
@@ -4037,7 +4044,12 @@ def bootstrap_ci_pr_auc(y_true: np.ndarray, proba: np.ndarray, n_resamples: int,
     jk_stats = np.empty(n, dtype=float)
     for i in range(n):
         mask = np.concatenate([np.arange(i), np.arange(i + 1, n)])
-        jk_stats[i] = float(average_precision_score(y_true[mask], proba[mask]))
+        y_jk = y_true[mask]
+        if len(np.unique(y_jk)) < 2:
+            # Jackknife fold lost a class — use original stat as fallback
+            jk_stats[i] = original_stat
+        else:
+            jk_stats[i] = float(average_precision_score(y_jk, proba[mask]))
     lo, hi = _bca_ci(arr, original_stat, jk_stats, alpha=0.05)
     return float(lo), float(hi), int(len(hits))
 
@@ -4418,7 +4430,7 @@ def write_json(path: Path, payload: Dict[str, Any]) -> None:
         f".{path.name}.tmp-{os.getpid()}"
     )
     with tmp_path.open("w", encoding="utf-8") as fh:
-        json.dump(payload, fh, ensure_ascii=True, indent=2)
+        json.dump(payload, fh, ensure_ascii=True, indent=2, sort_keys=True)
         fh.write("\n")
         fh.flush()
         os.fsync(fh.fileno())
@@ -6025,7 +6037,7 @@ def main() -> int:
             _ckpt_payload = {"candidate_rows": candidate_rows, "completed_count": len(candidate_rows)}
             _ckpt_tmp = checkpoint_path.with_suffix(".tmp")
             with _ckpt_tmp.open("w", encoding="utf-8") as _cfh:
-                json.dump(_ckpt_payload, _cfh, ensure_ascii=True, indent=2)
+                json.dump(_ckpt_payload, _cfh, ensure_ascii=True, indent=2, sort_keys=True)
             _ckpt_tmp.replace(checkpoint_path)
 
     estimator_map = {cand["model_id"]: cand["estimator"] for cand in candidates}

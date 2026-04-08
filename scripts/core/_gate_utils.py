@@ -90,7 +90,7 @@ def write_json(path: Path, payload: Dict[str, Any]) -> None:
         f".{path.name}.tmp-{os.getpid()}-{int(time.time() * 1_000_000)}"
     )
     with tmp_path.open("w", encoding="utf-8") as fh:
-        json.dump(payload, fh, ensure_ascii=True, indent=2)
+        json.dump(payload, fh, ensure_ascii=True, indent=2, sort_keys=True)
         fh.write("\n")
         fh.flush()
         os.fsync(fh.fileno())
