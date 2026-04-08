@@ -27,14 +27,39 @@ from _gate_utils import _check_json_file_size, add_issue, try_parse_time as _sha
 
 
 register_remediations({
+    # -- Protocol spec validation --
     "split_protocol_missing": "Provide a valid split_protocol_spec JSON describing the splitting strategy.",
-    "temporal_ordering_violation": "Temporal ordering violated between splits. Ensure train < valid < test in time.",
+    "missing_protocol_spec": "Split protocol spec file not found. Verify --protocol-spec path.",
+    "invalid_protocol_spec": "Split protocol spec JSON is malformed. Fix JSON syntax.",
+    "invalid_protocol_field": "A required field in the split protocol spec is invalid or missing.",
+    "protocol_id_col_mismatch": "Protocol id_col does not match --id-col. Align protocol spec with CLI args.",
+    "protocol_time_col_mismatch": "Protocol time_col does not match --time-col. Align protocol spec with CLI args.",
+    # -- Split integrity --
+    "split_not_frozen": "Split protocol requires frozen splits but split_frozen is not true.",
+    "split_seed_not_locked": "Random seed must be locked for reproducible splitting.",
+    "split_io_error": "Cannot read a split CSV file. Verify file paths and permissions.",
+    "empty_split": "A split file is empty (no data rows). Regenerate splits.",
+    "invalid_labels": "Target column contains values other than 0/1. Ensure binary labels.",
+    "single_class_split": "A split contains only one class. Use stratified splitting.",
+    # -- Overlap and temporal --
     "id_overlap_between_splits": "Patient IDs overlap between splits. Use strict patient-level splitting.",
-    "missing_target_col": "Target column not found in split CSV. Verify --target-col matches your data.",
-    "prevalence_too_low": "Label prevalence is critically low. Consider stratified splitting or oversampling.",
-    "missing_time_col": "Time column missing or unparseable in split data. Verify --time-col.",
+    "temporal_ordering_violation": "Temporal ordering violated between splits. Ensure train < valid < test in time.",
+    "entity_overlap": "Entity (patient) IDs overlap between train and test splits. Use grouped splitting.",
+    "temporal_boundary_violation": "Temporal boundary violated: test data precedes train data in time.",
+    "missing_entity_ids": "ID column missing or empty in split data. Verify --id-col.",
+    "no_parseable_times": "No parseable time values found. Verify --time-col format.",
+    "invalid_time_values": "Time column contains unparseable values. Check date format.",
+    # -- Policy warnings --
+    "group_disjoint_not_required": "Protocol does not require group-disjoint splits. Consider enabling for medical data.",
+    "temporal_order_not_required": "Protocol does not require temporal ordering. Consider enabling for longitudinal data.",
+    "patient_overlap_allowed": "Protocol allows patient overlap between splits. This is unusual for medical data.",
+    "time_overlap_allowed": "Protocol allows temporal overlap between splits. Consider requiring temporal ordering.",
     "cross_sectional_data": "Cross-sectional data has no temporal structure. Use --cross-sectional flag and document in TRIPOD+AI limitations.",
+    # -- Sample adequacy --
+    "missing_target_col": "Target column not found in split CSV. Verify --target-col matches your data.",
+    "missing_time_col": "Time column missing or unparseable in split data. Verify --time-col.",
     "missing_id_col": "ID column missing in split data. Verify --id-col.",
+    "prevalence_too_low": "Label prevalence is critically low. Consider stratified splitting or oversampling.",
 })
 
 

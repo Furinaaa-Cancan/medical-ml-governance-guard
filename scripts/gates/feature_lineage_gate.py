@@ -27,8 +27,25 @@ from _gate_utils import add_issue
 
 
 register_remediations({
+    # -- Input validation --
+    "input_error": "Failed to read a split CSV file. Verify file paths and permissions.",
+    "column_mismatch": "Feature columns differ across train/valid/test splits. Ensure consistent preprocessing.",
+    "invalid_definition_spec": "Phenotype definition spec JSON is malformed or missing required fields.",
+    "invalid_lineage_spec": "Feature lineage spec JSON is malformed or missing required fields.",
+    "invalid_forbidden_pattern": "A forbidden-feature regex pattern is invalid. Fix the pattern in the definition spec.",
+    "target_not_found": "Target disease name not found in phenotype definition spec. Verify --target matches a spec entry.",
+    "no_features_checked": "No features were checked against lineage spec. Verify data columns and --ignore-cols.",
+    # -- Lineage structure --
+    "lineage_key_normalization_collision": "Multiple lineage entries map to the same normalized key. Fix lineage spec.",
+    "lineage_cycle_detected": "Cyclic dependency detected in feature lineage. Break the cycle in lineage spec.",
+    "lineage_depth_overflow": "Feature ancestor chain exceeds depth limit. Simplify lineage spec.",
+    "empty_lineage_map": "Feature lineage spec contains no feature entries. Add feature lineage records.",
+    "missing_lineage_entries": "Features have no lineage entry. Add them to lineage spec or use --allow-missing-lineage.",
+    # -- Leakage detection --
     "forbidden_feature_exact": "Feature matches a forbidden disease-definition variable. Remove it from the feature set.",
     "forbidden_feature_pattern": "Feature matches a forbidden pattern derived from disease definition. Remove or rename.",
+    "lineage_definition_leakage": "Feature derives from a disease-definition variable. Remove or justify.",
+    "lineage_proxy_leakage": "Feature is a proxy for a disease-definition variable via its ancestors. Investigate.",
     "lineage_missing": "Feature has no lineage entry. Add it to feature_lineage_spec or use --allow-missing-lineage.",
     "lineage_spec_missing": "Provide a valid feature_lineage_spec JSON.",
     "definition_spec_missing": "Provide a valid phenotype_definition_spec JSON.",

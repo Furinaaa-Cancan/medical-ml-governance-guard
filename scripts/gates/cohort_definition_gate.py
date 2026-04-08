@@ -75,6 +75,12 @@ register_remediations({
     "COHORT_HIGH_MISSINGNESS":
         "Features with >50%% missing values detected. "
         "Document missingness mechanism (MCAR/MAR/MNAR) per Madley-Dowd 2019.",
+    "COHORT_SEVERE_OUTLIERS":
+        "Features have >5%% extreme outliers (3×IQR). Review each flagged feature: "
+        "data entry error → correct; clinically plausible → keep; uncertain → run robustness test.",
+    "COHORT_MNAR_SIGNAL":
+        "Missingness is correlated with outcome (MNAR). Use mnar_sensitivity_analysis() "
+        "to assess impact and document in study limitations.",
     "COHORT_DUPLICATE_ROWS":
         "Duplicate rows detected. This may indicate data quality issues "
         "or multiple records per patient without proper ID grouping.",
@@ -620,7 +626,7 @@ def _run_checks(
     severe_outliers = [o for o in outliers if o["pct_outliers"] > 0.05]
     if severe_outliers:
         add_issue(
-            warnings_list, "COHORT_HIGH_MISSINGNESS",
+            warnings_list, "COHORT_SEVERE_OUTLIERS",
             f"{len(severe_outliers)} features have >5%% extreme outliers (3×IQR): "
             f"{[o['feature'] for o in severe_outliers[:5]]}. "
             f"⚠️ REPORT ONLY — outliers are NOT auto-removed. "
@@ -658,7 +664,7 @@ def _run_checks(
     miss_patterns = analysis.get("missingness_patterns", {})
     if miss_patterns.get("mnar_signal"):
         add_issue(
-            warnings_list, "COHORT_HIGH_MISSINGNESS",
+            warnings_list, "COHORT_MNAR_SIGNAL",
             f"Missingness is correlated with outcome "
             f"(|r| = {miss_patterns.get('outcome_missingness_correlation', '?')}). "
             f"This suggests Missing Not At Random (MNAR). "
