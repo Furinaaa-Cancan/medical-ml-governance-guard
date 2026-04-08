@@ -956,3 +956,152 @@ class TestPublicationGradeRequest:
         assert report["status"] == "fail"
         codes = [f["code"] for f in report["failures"]]
         assert "missing_required_path" in codes or "missing_publication_grade_v3_field" in codes
+
+
+# ── Evaluation report shape validation ─────────────────────────────────
+
+class TestEvaluationReportShape:
+    """Test that required fields in evaluation_report are validated."""
+
+    def _write_eval(self, tmp_path: Path, content: dict) -> str:
+        p = tmp_path / "eval.json"
+        p.write_text(json.dumps(content), encoding="utf-8")
+        return str(p)
+
+    def test_missing_threshold_selection(self, tmp_path: Path):
+        path = self._write_eval(tmp_path, {
+            "metrics": {"pr_auc": 0.8},
+            "metadata": {"model_id": "lr_l2"},
+        })
+        failures: List[Dict[str, Any]] = []
+        rcg.validate_evaluation_report_shape(path, failures)
+        codes = [f["code"] for f in failures]
+        assert "evaluation_report_missing_threshold_selection" in codes
+
+    def test_missing_prediction_trace_hash(self, tmp_path: Path):
+        path = self._write_eval(tmp_path, {
+            "metrics": {"pr_auc": 0.8},
+            "metadata": {"model_id": "lr_l2"},
+            "threshold_selection": {"method": "youden_j", "split": "valid"},
+        })
+        failures: List[Dict[str, Any]] = []
+        rcg.validate_evaluation_report_shape(path, failures)
+        codes = [f["code"] for f in failures]
+        assert "evaluation_report_missing_prediction_trace_hash" in codes
+
+    def test_missing_split_metrics(self, tmp_path: Path):
+        path = self._write_eval(tmp_path, {
+            "metrics": {"pr_auc": 0.8},
+            "metadata": {"model_id": "lr_l2"},
+            "threshold_selection": {"method": "youden_j", "split": "valid"},
+            "prediction_trace_sha256": "a" * 64,
+        })
+        failures: List[Dict[str, Any]] = []
+        rcg.validate_evaluation_report_shape(path, failures)
+        codes = [f["code"] for f in failures]
+        assert "evaluation_report_missing_split_metrics" in codes
+
+    def test_invalid_eval_json(self, tmp_path: Path):
+        p = tmp_path / "eval.json"
+        p.write_text("not json!")
+        failures: List[Dict[str, Any]] = []
+        rcg.validate_evaluation_report_shape(str(p), failures)
+        codes = [f["code"] for f in failures]
+        assert "invalid_evaluation_report" in codes
+
+
+# ── Model selection report shape ───────────────────────────────────────
+
+class TestModelSelectionReportShape:
+
+    def _write_report(self, tmp_path: Path, content: dict) -> str:
+        p = tmp_path / "model_sel.json"
+        p.write_text(json.dumps(content), encoding="utf-8")
+        return str(p)
+
+    def test_not_a_dict(self, tmp_path: Path):
+        p = tmp_path / "model_sel.json"
+        p.write_text(json.dumps([1, 2, 3]))
+        failures: List[Dict[str, Any]] = []
+        rcg.validate_model_selection_report_shape(str(p), failures)
+        codes = [f["code"] for f in failures]
+        assert "invalid_model_selection_report" in codes
+
+    def test_valid_minimal(self, tmp_path: Path):
+        path = self._write_report(tmp_path, {
+            "selected_model_id": "lr_l2",
+            "candidates": [{"model_id": "lr_l2", "score": 0.8}],
+        })
+        failures: List[Dict[str, Any]] = []
+        rcg.validate_model_selection_report_shape(path, failures)
+        structural = [f for f in failures if f["code"] == "invalid_model_selection_report"]
+        assert len(structural) == 0
+
+
+# ── External cohort spec shape ─────────────────────────────────────────
+
+class TestExternalCohortSpecShape:
+
+    def _write_spec(self, tmp_path: Path, content: dict) -> str:
+        p = tmp_path / "ext_cohort.json"
+        p.write_text(json.dumps(content), encoding="utf-8")
+        return str(p)
+
+    def test_missing_cohorts_array(self, tmp_path: Path):
+        path = self._write_spec(tmp_path, {})
+        failures: List[Dict[str, Any]] = []
+        rcg.validate_external_cohort_spec_shape(path, failures)
+        codes = [f["code"] for f in failures]
+        assert len(codes) > 0
+
+    def test_invalid_cohort_entry(self, tmp_path: Path):
+        path = self._write_spec(tmp_path, {"cohorts": ["not_a_dict"]})
+        failures: List[Dict[str, Any]] = []
+        rcg.validate_external_cohort_spec_shape(path, failures)
+        codes = [f["code"] for f in failures]
+        assert len(codes) > 0
+
+    def test_missing_supported_type(self, tmp_path: Path):
+        path = self._write_spec(tmp_path, {
+            "cohorts": [{"cohort_id": "test1", "path": "data.csv"}],
+        })
+        failures: List[Dict[str, Any]] = []
+        rcg.validate_external_cohort_spec_shape(path, failures)
+        codes = [f["code"] for f in failures]
+        assert any("type" in c.lower() or "cohort" in c.lower() for c in codes)
+
+
+# ── Robustness / seed sensitivity report shape ─────────────────────────
+
+class TestOptionalReportShapes:
+
+    def test_robustness_report_non_dict(self, tmp_path: Path):
+        failures: List[Dict[str, Any]] = []
+        rcg.validate_robustness_report_shape("not_a_dict", failures)
+        codes = [f["code"] for f in failures]
+        assert "invalid_robustness_report" in codes
+
+    def test_seed_sensitivity_report_non_dict(self, tmp_path: Path):
+        failures: List[Dict[str, Any]] = []
+        rcg.validate_seed_sensitivity_report_shape("not_a_dict", failures)
+        codes = [f["code"] for f in failures]
+        assert "invalid_seed_sensitivity_report" in codes
+
+    def test_distribution_report_non_dict(self, tmp_path: Path):
+        failures: List[Dict[str, Any]] = []
+        rcg.validate_distribution_report_shape("not_a_dict", failures)
+        codes = [f["code"] for f in failures]
+        assert "distribution_report_schema_invalid" in codes
+
+
+# ── Strict mode ────────────────────────────────────────────────────────
+
+class TestStrictMode:
+
+    def test_strict_fails_on_warnings(self, tmp_path: Path):
+        req = _make_minimal_request(tmp_path)
+        report_path = tmp_path / "report.json"
+        report = _run_gate(req, report_path, strict=True)
+        # Strict mode should produce a stricter result
+        assert "strict_mode" in report
+        assert report["strict_mode"] is True
