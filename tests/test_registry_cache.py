@@ -77,4 +77,4 @@ class TestTopologicalSortCaching:
         for _ in range(100):
             topological_sort()
         assert reg._cached_topo_order is not None
-        assert len(reg._cached_topo_order) == 31
+        assert len(reg._cached_topo_order) == 33

@@ -147,7 +147,7 @@ class TestExtractDigest:
         d = extract_digest(tmp_path)
         assert d["gates"]["passed"] == 1
         assert d["gates"]["failed"] == 1
-        assert d["gates"]["missing"] == 29
+        assert d["gates"]["missing"] == 31
 
     def test_calibration_ece(self, tmp_path):
         _write(tmp_path, "calibration_dca_report.json", {
