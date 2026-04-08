@@ -20,7 +20,7 @@ import math
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from _gate_utils import add_issue, get_gate_elapsed, load_json_from_path as load_json_object
+from _gate_utils import add_issue, get_gate_elapsed, load_json_from_path as load_json_object, write_json as _write_report
 from _gate_framework import (
     GateIssue,
     Severity,
@@ -507,16 +507,13 @@ def _finish(
     )
 
     if args.report:
-        out = Path(args.report)
-        out.parent.mkdir(parents=True, exist_ok=True)
-        import json
-        out.write_text(
-            json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8"
-        )
+        _write_report(Path(args.report).expanduser().resolve(), report)
 
-    print_gate_summary("Sample Size Adequacy Gate", status, fi, wi, bool(args.strict), get_gate_elapsed())
+    print_gate_summary("sample_size_gate", status, fi, wi, bool(args.strict), get_gate_elapsed())
     return 2 if should_fail else 0
 
 
 if __name__ == "__main__":
+    from _gate_utils import start_gate_timer
+    start_gate_timer()
     raise SystemExit(main())
