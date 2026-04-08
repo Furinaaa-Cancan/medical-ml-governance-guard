@@ -2317,3 +2317,83 @@ def verify_audit_chain(evidence_dir: Path) -> Dict[str, Any]:
         return {"valid": False, "entries": entry_count, "broken_at": None, "reason": "read_error"}
 
     return {"valid": True, "entries": entry_count, "broken_at": None}
+
+
+# ---------------------------------------------------------------------------
+# Multiple comparison correction utilities
+# ---------------------------------------------------------------------------
+
+def fdr_bh_correction(
+    pvalues: List[float],
+    alpha: float = 0.05,
+) -> Dict[str, Any]:
+    """Benjamini-Hochberg FDR correction for multiple p-values.
+
+    Args:
+        pvalues: List of raw p-values (must be finite, in [0,1]).
+        alpha: Family-wise significance level (default 0.05).
+
+    Returns:
+        Dict with keys:
+            n_tests: number of tests
+            alpha: original alpha
+            pvalues_raw: input p-values
+            pvalues_adjusted: BH-adjusted p-values
+            rejected: list of booleans (True = significant after correction)
+            n_rejected: number of rejected nulls
+    """
+    import math as _m
+
+    n = len(pvalues)
+    if n == 0:
+        return {
+            "n_tests": 0, "alpha": alpha, "pvalues_raw": [],
+            "pvalues_adjusted": [], "rejected": [], "n_rejected": 0,
+        }
+
+    # Validate
+    clean: List[float] = []
+    for p in pvalues:
+        try:
+            pf = float(p)
+        except (TypeError, ValueError):
+            pf = 1.0
+        if not _m.isfinite(pf):
+            pf = 1.0
+        clean.append(max(0.0, min(1.0, pf)))
+
+    # BH procedure: sort, compute adjusted, enforce monotonicity
+    indexed = sorted(enumerate(clean), key=lambda x: x[1])
+    adjusted = [0.0] * n
+    prev = 1.0
+    for rank_from_end, (orig_idx, raw_p) in enumerate(reversed(indexed)):
+        rank = n - rank_from_end  # 1-based rank from smallest
+        adj = min(prev, raw_p * n / rank)
+        adj = min(1.0, adj)
+        adjusted[orig_idx] = adj
+        prev = adj
+
+    rejected = [adj <= alpha for adj in adjusted]
+
+    return {
+        "n_tests": n,
+        "alpha": alpha,
+        "pvalues_raw": clean,
+        "pvalues_adjusted": adjusted,
+        "rejected": rejected,
+        "n_rejected": sum(rejected),
+    }
+
+
+def bonferroni_adjusted_threshold(
+    threshold: float,
+    n_comparisons: int,
+) -> float:
+    """Return Bonferroni-adjusted threshold (threshold / n).
+
+    For effect-size thresholds (not p-values), this is a conservative
+    heuristic — use when strict FDR is not applicable.
+    """
+    if n_comparisons <= 1:
+        return threshold
+    return threshold / n_comparisons

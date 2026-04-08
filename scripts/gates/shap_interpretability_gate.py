@@ -969,10 +969,18 @@ def main() -> int:
     # --- Aggregate ---
     agg = _aggregate_shap(family_results, feature_names)
 
-    # --- Rank correlations ---
+    # --- Rank correlations (with FDR-BH correction) ---
     rank_correlations = []
     if len(family_results) >= 2:
         rank_correlations = _compute_rank_correlations(agg["per_model_abs"])
+        # Apply FDR-BH correction when multiple pairwise comparisons exist
+        if len(rank_correlations) >= 2:
+            from _gate_utils import fdr_bh_correction
+            raw_pvals = [rc["p_value"] for rc in rank_correlations]
+            fdr_result = fdr_bh_correction(raw_pvals, alpha=0.05)
+            for idx, rc in enumerate(rank_correlations):
+                rc["p_value_adjusted"] = round(fdr_result["pvalues_adjusted"][idx], 6)
+                rc["significant_after_fdr"] = fdr_result["rejected"][idx]
 
     # --- y_score fallback: use selected model to predict ---
     if y_score is None:

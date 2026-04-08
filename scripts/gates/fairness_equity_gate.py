@@ -629,6 +629,26 @@ def main() -> int:
             "n_groups": len(groups),
         })
 
+    # ── Multiplicity warning ─────────────────────────────────────────
+    # When many subgroup × metric comparisons are made, the chance of
+    # a false alarm rises.  Report total comparisons and warn.
+    n_comparisons = len(features_analyzed) * 7  # 7 metric types per feature
+    if n_comparisons > 10:
+        add_issue(
+            warnings,
+            "multiple_comparisons_unadjusted",
+            f"{n_comparisons} fairness comparisons made across "
+            f"{len(features_analyzed)} features without multiplicity correction. "
+            "Some flagged disparities may be due to chance. "
+            "Consider Bonferroni or FDR-BH adjustment before interpreting.",
+            {
+                "n_features": len(features_analyzed),
+                "metrics_per_feature": 7,
+                "n_comparisons": n_comparisons,
+                "bonferroni_adjusted_alpha": round(0.05 / n_comparisons, 4) if n_comparisons > 0 else 0.05,
+            },
+        )
+
     # ── Impossibility theorem acknowledgment ("What Is Fair?", Stat Med 2025) ──
     if total_fairness_metrics_reported >= 3:
         add_issue(

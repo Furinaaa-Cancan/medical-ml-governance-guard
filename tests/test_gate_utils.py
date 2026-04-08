@@ -909,3 +909,78 @@ class TestInstallGateTimeout:
             signal.alarm(0)
         finally:
             signal.signal(signal.SIGALRM, old_handler if callable(old_handler) else signal.SIG_DFL)
+
+
+# ── FDR-BH correction ──────────────────────────────────────────────────
+
+class TestFDRBHCorrection:
+    """Tests for fdr_bh_correction utility."""
+
+    def test_empty(self):
+        from _gate_utils import fdr_bh_correction
+        result = fdr_bh_correction([])
+        assert result["n_tests"] == 0
+        assert result["n_rejected"] == 0
+
+    def test_single_significant(self):
+        from _gate_utils import fdr_bh_correction
+        result = fdr_bh_correction([0.01], alpha=0.05)
+        assert result["n_tests"] == 1
+        assert result["rejected"] == [True]
+        assert result["pvalues_adjusted"][0] == 0.01
+
+    def test_single_not_significant(self):
+        from _gate_utils import fdr_bh_correction
+        result = fdr_bh_correction([0.10], alpha=0.05)
+        assert result["rejected"] == [False]
+
+    def test_classic_bh_example(self):
+        """Known BH example: 3 p-values, one should survive."""
+        from _gate_utils import fdr_bh_correction
+        # p-values: 0.01, 0.04, 0.03 → sorted: 0.01, 0.03, 0.04
+        # BH adjusted: 0.01*3/1=0.03, 0.03*3/2=0.045, 0.04*3/3=0.04
+        result = fdr_bh_correction([0.01, 0.04, 0.03], alpha=0.05)
+        assert result["n_tests"] == 3
+        assert result["rejected"][0] is True   # p=0.01
+        assert result["pvalues_adjusted"][0] <= 0.05
+
+    def test_all_significant(self):
+        from _gate_utils import fdr_bh_correction
+        result = fdr_bh_correction([0.001, 0.002, 0.003], alpha=0.05)
+        assert all(result["rejected"])
+        assert result["n_rejected"] == 3
+
+    def test_none_significant(self):
+        from _gate_utils import fdr_bh_correction
+        result = fdr_bh_correction([0.5, 0.6, 0.7], alpha=0.05)
+        assert not any(result["rejected"])
+        assert result["n_rejected"] == 0
+
+    def test_non_finite_treated_as_1(self):
+        from _gate_utils import fdr_bh_correction
+        result = fdr_bh_correction([0.01, float("nan"), float("inf")], alpha=0.05)
+        assert result["n_tests"] == 3
+        assert result["pvalues_adjusted"][1] == 1.0
+        assert result["pvalues_adjusted"][2] == 1.0
+
+    def test_adjusted_pvalues_monotonic_with_raw_order(self):
+        """Adjusted p-values for sorted raw p-values should be non-decreasing."""
+        from _gate_utils import fdr_bh_correction
+        raw = [0.001, 0.01, 0.03, 0.05, 0.10, 0.50]
+        result = fdr_bh_correction(raw, alpha=0.05)
+        adj = result["pvalues_adjusted"]
+        # After sorting by raw p-value order (already sorted), adjusted should be non-decreasing
+        for i in range(len(adj) - 1):
+            assert adj[i] <= adj[i + 1] + 1e-10
+
+
+class TestBonferroniAdjustedThreshold:
+
+    def test_single_comparison(self):
+        from _gate_utils import bonferroni_adjusted_threshold
+        assert bonferroni_adjusted_threshold(0.15, 1) == 0.15
+
+    def test_multiple_comparisons(self):
+        from _gate_utils import bonferroni_adjusted_threshold
+        result = bonferroni_adjusted_threshold(0.15, 10)
+        assert abs(result - 0.015) < 1e-10
