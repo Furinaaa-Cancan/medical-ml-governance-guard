@@ -70,7 +70,7 @@ def main() -> int:
             mod = importlib.import_module(module_name)
             version = getattr(mod, "__version__", "unknown")
             optional_status[key] = {"installed": True, "version": str(version)}
-        except Exception:
+        except Exception as exc:  # noqa: F841
             optional_status[key] = {
                 "installed": False,
                 "install_hint": f"pip install {module_name}",

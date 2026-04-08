@@ -1035,8 +1035,8 @@ def run_audit_report(
             ga = GateApplicability(prediction_type)
             gate_applicability_summary = ga.summary()
             skipped_gates = ga.skipped_gates()
-        except Exception:
-            pass
+        except Exception as exc:
+            print(f"[WARN] gate applicability: {exc}", file=sys.stderr)
 
     # Scan project
     scan_results = scan_project(project_dir)

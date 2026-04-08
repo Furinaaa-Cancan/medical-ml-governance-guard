@@ -4254,8 +4254,8 @@ def learning_curve_data(
         tail = valid_scores[-3:]
         tail_mean = float(np.mean(tail))
         tail_std = float(np.std(tail))
-        relative_std = tail_std / tail_mean if tail_mean > 0 else float("inf")
-        converged = relative_std < 0.02
+        relative_std = tail_std / tail_mean if tail_mean > 0 else None
+        converged = relative_std is not None and relative_std < 0.02
         convergence_detail = {
             "tail_mean": round(tail_mean, 6),
             "tail_std": round(tail_std, 6),
