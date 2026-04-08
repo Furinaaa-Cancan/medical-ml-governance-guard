@@ -3,6 +3,12 @@
 > **Pipeline 模式 (路径 A)**：Phase 3-6 由 `mlgg.py train` 一条命令自动完成，本文件不适用。
 > **Research 模式 (路径 B)**：用户自己写训练代码时，按以下规则审查。
 
+## Research 模式说明
+
+用户有两种选择：
+1. **用 MLGG 工具训练**：运行下方的 `train_select_evaluate.py` 命令（自动满足所有 gate 的 JSON 格式要求）
+2. **审查用户自己的训练代码**：Agent 按本文件的规则逐项审查用户代码，然后用 `mlgg lint check` 扫描。Gate 验证可能需要用户手动生成兼容格式的 JSON 报告，或跳过特定 gate。
+
 ## 目标
 训练 ≥3 模型族，在验证集/CV 上选模型和阈值，测试集零接触。
 

@@ -64,10 +64,22 @@
 2. **评审循环** → 读报告，检查 EPV、泄漏变量、缺失 → fix → re-run
 3. 确定：泄漏变量黑名单、样本量模式（三分/两分/CV-only）、纵向/横截面
 
-### A-2. 数据划分（< 10s）
+### A-2. 数据划分 + 配置初始化（< 1min）
 
 读取 `references/skill/phase-2.md`。
 
+**首先初始化 configs/（后续步骤都需要）**：
+```bash
+mkdir -p configs data evidence models
+cp references/request-schema.example.json configs/request.json
+cp references/split-protocol.example.json configs/split-protocol.json
+cp references/feature-lineage.example.json configs/feature-lineage.json
+cp references/tuning-protocol.example.json configs/tuning-protocol.json
+cp references/reporting-bias-checklist.example.json configs/reporting-bias-checklist.json
+```
+Agent 根据 Intake 信息编辑 `configs/split-protocol.json`（`id_col`, `target_col`, `requires_temporal_order`）和 `configs/request.json`（`study_id`, `target_name`, `label_col`, `patient_id_col`）。
+
+**然后划分数据**：
 1. 如果用户已有 train/test → **跳过划分**，直接跑验证 gate
 2. 否则根据样本量选择模式：
    ```bash
@@ -113,6 +125,8 @@ python3 scripts/orchestration/mlgg.py train \
 
 | 条件 | 参数调整 |
 |------|---------|
+| n > 5000（三分法） | 保留 `--train` + `--valid` + `--test` |
+| n 1000-5000（两分法） | 去掉 `--valid`，保留 `--train` + `--test`，加 `--selection-data cv_inner` |
 | n < 1000（CV-only） | 去掉 `--test` 和 `--valid`，加 `--selection-data cv_inner` |
 | n < 200 | 加 `--model-pool "lr"` + `--feature-engineering-mode quick` |
 | 有外部队列 | 加 `--external-cohort-spec` + `--external-validation-report-out` |
@@ -167,23 +181,11 @@ python3 scripts/gates/fairness_equity_gate.py \
 
 **这是 Pipeline 模式的另一个核心优势**：`mlgg.py workflow --strict` 一条命令跑完 33 道 gate。
 
-准备 configs/（如不存在）：
-```bash
-mkdir -p configs
-# 从模板生成，Agent 根据 Intake 信息编辑关键字段
-cp references/request-schema.example.json configs/request.json
-cp references/split-protocol.example.json configs/split-protocol.json
-cp references/feature-lineage.example.json configs/feature-lineage.json
-cp references/tuning-protocol.example.json configs/tuning-protocol.json
-cp references/reporting-bias-checklist.example.json configs/reporting-bias-checklist.json
-```
-
-**Agent 必须编辑的关键字段**（其余保持默认即可）：
-- `request.json`: `study_id`, `target_name`, `label_col`, `patient_id_col`, `split_paths.*`
-- `split-protocol.json`: `id_col`, `target_col`, `requires_temporal_order`(横截面→false)
-- `feature-lineage.json`: `features` 字典（每个特征的来源和时间归属）
-- `tuning-protocol.json`: `candidate_models`（与 A-3 的 `--model-pool` 一致）
-- `reporting-bias-checklist.json`: 根据研究实际情况填写 TRIPOD/PROBAST 各项
+**运行前检查**：configs/ 已在 A-2 初始化。此时 Agent 需补全剩余字段：
+- `configs/request.json`: `split_paths.*`（指向 data/ 下实际文件）
+- `configs/feature-lineage.json`: `features` 字典（根据 A-3 训练结果补全特征来源）
+- `configs/tuning-protocol.json`: `candidate_models`（与 A-3 的 `--model-pool` 一致）
+- `configs/reporting-bias-checklist.json`: 根据研究实际情况填写 TRIPOD/PROBAST 各项
 
 运行：
 ```bash

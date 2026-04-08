@@ -4,7 +4,13 @@
 多模型 SHAP 集成，验证特征重要性一致性，生成个案解释。
 
 ## 前置条件
-- Phase 6 评审通过：`evidence/evaluation_quality_report.json` 和 `evidence/calibration_dca_report.json` 存在且 status=pass
+
+**Pipeline 模式 (路径 A)**：A-3 (train) 完成即可，需要：
+- `evidence/model_pool.pkl` 存在（由 `mlgg.py train --model-pool-out` 产出）
+- `data/train.csv` 和 `data/test.csv` 存在（CV-only 模式下用 train.csv 的 CV fold）
+
+**Research 模式 (路径 B)**：Phase 6 评审通过，需要：
+- `evidence/evaluation_quality_report.json` 和 `evidence/calibration_dca_report.json` 存在且 status=pass
 - `evidence/model_pool.pkl` 和 `data/train.csv`, `data/test.csv` 存在
 
 ## 执行命令
