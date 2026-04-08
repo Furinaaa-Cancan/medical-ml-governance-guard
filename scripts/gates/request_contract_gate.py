@@ -1482,6 +1482,13 @@ def validate_cross_artifact_alignment(
                         actual_trace_sha = sha256_file(Path(prediction_trace_path).expanduser().resolve()).lower()
                     except Exception as exc:
                         print(f"[WARN] prediction trace hash failed: {exc}", file=sys.stderr)
+                        if recorded_trace_sha and re.fullmatch(r"[0-9a-f]{64}", recorded_trace_sha):
+                            add_issue(
+                                warnings_list,
+                                "prediction_trace_hash_unverifiable",
+                                f"Cannot verify prediction trace hash: {exc}",
+                                {"recorded_sha256": recorded_trace_sha},
+                            )
                         actual_trace_sha = ""
                     if (
                         recorded_trace_sha
@@ -1507,6 +1514,13 @@ def validate_cross_artifact_alignment(
                         actual_external_sha = sha256_file(Path(external_report_path).expanduser().resolve()).lower()
                     except Exception as exc:
                         print(f"[WARN] external report hash failed: {exc}", file=sys.stderr)
+                        if recorded_external_sha and re.fullmatch(r"[0-9a-f]{64}", recorded_external_sha):
+                            add_issue(
+                                warnings_list,
+                                "external_report_hash_unverifiable",
+                                f"Cannot verify external report hash: {exc}",
+                                {"recorded_sha256": recorded_external_sha},
+                            )
                         actual_external_sha = ""
                     if (
                         recorded_external_sha

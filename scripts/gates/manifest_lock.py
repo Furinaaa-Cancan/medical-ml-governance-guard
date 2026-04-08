@@ -21,7 +21,7 @@ from _gate_framework import (
     build_report_envelope,
     print_gate_summary,
 )
-from _gate_utils import get_gate_elapsed, start_gate_timer, write_json as _write_gate_report
+from _gate_utils import get_gate_elapsed, resolve_path, start_gate_timer, write_json as _write_gate_report
 
 GATE_NAME = "manifest_lock"
 GATE_VERSION = "1.0.0"
@@ -177,7 +177,15 @@ def main() -> int:
         return _finish_gate(manifest, args, failures, warnings)
 
     for raw_path in args.inputs:
-        path = Path(raw_path).expanduser().resolve()
+        try:
+            path = resolve_path(Path.cwd(), raw_path)
+        except ValueError as exc:
+            failures.append(GateIssue(
+                code="forbidden_path",
+                severity=Severity.CRITICAL,
+                message=f"Path blocked: {exc}",
+            ))
+            continue
         entry: Dict[str, Any] = {
             "input": raw_path,
             "path": str(path),

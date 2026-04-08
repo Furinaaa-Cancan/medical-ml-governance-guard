@@ -42,7 +42,7 @@ from _gate_framework import (
     print_gate_summary,
     register_remediations,
 )
-from _gate_utils import add_issue, start_gate_timer, get_gate_elapsed, write_json
+from _gate_utils import add_issue, resolve_path, start_gate_timer, get_gate_elapsed, write_json
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -263,7 +263,8 @@ def analyze_cohort(
         prevalence = n_positive / (n_positive + n_negative) if (n_positive + n_negative) > 0 else 0.0
         minority = min(n_positive, n_negative)
         majority = max(n_positive, n_negative)
-        imbalance_ratio = majority / minority if minority > 0 else float("inf")
+        # Cap at 1000 to avoid JSON-incompatible Infinity
+        imbalance_ratio = majority / minority if minority > 0 else 1000.0
         epv = minority / n_features if n_features > 0 else 0.0
 
         # Riley 2019 sample size calculation
@@ -382,8 +383,8 @@ def analyze_cohort(
                         "abs_correlation": round(corr, 4),
                         "risk": "very_high" if corr > 0.95 else "high",
                     })
-            except Exception:
-                pass
+            except Exception as exc:
+                print(f"[cohort] correlation {feat}: {exc}", file=sys.stderr)
 
     # ── Missingness pattern analysis ──
     missingness_patterns: Dict[str, Any] = {}
@@ -400,8 +401,8 @@ def analyze_cohort(
             y_num = pd.to_numeric(df[target_col], errors="coerce")
             try:
                 outcome_miss_corr = round(abs(float(missing_flag.corr(y_num))), 4)
-            except Exception:
-                pass
+            except Exception as exc:
+                print(f"[cohort] missingness-outcome corr: {exc}", file=sys.stderr)
 
         missingness_patterns = {
             "n_complete_rows": n_complete_rows,
@@ -839,7 +840,9 @@ def main() -> int:
             if args.outcome_definition.strip().startswith("{"):
                 outcome_spec = json.loads(args.outcome_definition)
             else:
-                outcome_spec_path = Path(args.outcome_definition).expanduser().resolve()
+                outcome_spec_path = resolve_path(
+                    Path.cwd(), args.outcome_definition,
+                )
                 with outcome_spec_path.open("r", encoding="utf-8") as fh:
                     outcome_spec = json.load(fh)
             study_design["outcome_definition"] = outcome_spec
