@@ -7,10 +7,10 @@
   <em>Publication-Grade Integrity Standard for Medical Prediction Models</em>
   <br><br>
   <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/"><img src="https://img.shields.io/badge/License-PolyForm%20NC%201.0.0-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/tests-4000%2B%20passed-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-4200%2B%20passed-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/gates-33%20fail--closed-critical" alt="Gates">
   <img src="https://img.shields.io/badge/datasets-14%20medical-purple" alt="Datasets">
-  <img src="https://img.shields.io/badge/code-138K%20lines-informational" alt="Code">
+  <img src="https://img.shields.io/badge/code-72K%20lines-informational" alt="Code">
   <a href="https://doi.org/10.1136/bmj-2023-078378"><img src="https://img.shields.io/badge/TRIPOD%2BAI-2024-blue" alt="TRIPOD+AI"></a>
   <a href="https://doi.org/10.1136/bmj-2024-082505"><img src="https://img.shields.io/badge/PROBAST%2BAI-2025-blue" alt="PROBAST+AI"></a>
 </p>
@@ -20,7 +20,7 @@
 <p align="center">
 <strong>33 道 fail-closed 门控</strong> &middot; <strong>9 阶段工作流</strong> &middot; <strong>12 维量化评分</strong> &middot; <strong>3 级合规认证</strong>
 <br>
-<strong>20 个模型族</strong> &middot; <strong>14 个真实医学数据集 (526K 行)</strong> &middot; <strong>31 条方法论规则</strong> &middot; <strong>21 项分析工具</strong>
+<strong>20 个模型族</strong> &middot; <strong>14 个真实医学数据集 (526K 行)</strong> &middot; <strong>33 条方法论规则</strong> &middot; <strong>21 项分析工具</strong>
 <br><br>
 <em>从原始数据到 TRIPOD+AI 合规发表的完整模型治理管线。<br>每条规则来自实际踩坑，每个阈值有文献引用。</em>
 </p>
@@ -44,7 +44,7 @@
   - [阶段九：报告与合规](#阶段九报告与合规)
 - [33 道安全门控 (Gate DAG)](#33-道安全门控-gate-dag)
 - [12 维量化评分](#12-维量化评分)
-- [31 条方法论规则](#31-条方法论规则)
+- [33 条方法论规则](#31-条方法论规则)
 - [20 个模型族](#20-个模型族)
 - [14 个医学数据集](#14-个医学数据集)
 - [20 条静态分析规则 (R001-R020)](#20-条静态分析规则-r001-r020)
@@ -93,7 +93,7 @@
 | **3 级合规** | L1 (12 门, 泄漏审计) / L2 (25 门, 统计有效) / L3 (全部 33 门, 发布级) | 渐进认证 |
 | **20 个模型族** | LR (L1/L2/ElasticNet) / SVM / RF / XGBoost / CatBoost / LightGBM / KNN / MLP / TabPFN + 集成 | 自动超参搜索 |
 | **14 个真实数据集** | UCI / CDC / NCI / Vanderbilt 官方数据 | 总计 526K 行 |
-| **多模型 SHAP + PDP 引擎** | 多族 L1 归一化集成 + Kendall tau 一致性 (FDR-BH 校正) + PDP 边际效应 + 5 张发表级 CSV | RF/XGB/CatBoost/LGBM/LR |
+| **多模型 SHAP 集成引擎** | 多族 L1 归一化集成 + Kendall tau 一致性 (FDR-BH 校正) + 跨模型 Spearman 排名相关 + 5 张发表级 CSV | RF/XGB/CatBoost/LGBM/LR |
 | **学术合规引擎** | TRIPOD+AI 2024 (27 项) / PROBAST+AI 2025 (4 域) / STARD-AI | 58 条文献知识库 |
 | **20 条 Lint 规则** | 静态分析检测代码级泄漏反模式 (R001-R020) | .py + .ipynb |
 | **安全加固层** | HMAC-SHA256 / AES-256-GCM / 链式审计日志 / 路径穿越防护 / 受限反序列化 | fail-closed |
@@ -951,7 +951,7 @@ SHAP 对相关特征可能产生误导（联盟博弈论假设）。PDP 提供�
 
 ---
 
-## 31 条方法论规则
+## 33 条方法论规则
 
 <details>
 <summary><strong>完整规则表（点击展开）</strong></summary>
@@ -1379,7 +1379,7 @@ AI 会自动：
 - **14 real medical datasets** (526K rows) from CDC / UCI / NCI / Vanderbilt
 - **Multi-model SHAP engine** with L1-normalized ensemble and Kendall tau agreement
 - **Security layer**: HMAC-SHA256 / AES-256-GCM / tamper-evident audit chain
-- **30+ peer-reviewed references** grounding every methodology decision
+- **107 peer-reviewed references** (Nature Communications) grounding every methodology decision
 
 ### Section Navigation
 
@@ -1396,14 +1396,14 @@ AI 会自动：
 | Phase 6: Evaluation & Calibration | [阶段六：评估与校准](#阶段六评估与校准) |
 | Phase 7: Multi-Model SHAP | [阶段七：多模型 SHAP 可解释性](#阶段七多模型-shap-可解释性) |
 | Phase 8: Fairness & Equity | [阶段八：公平性与亚组分析](#阶段八公平性与亚组分析) |
-| 阶段九：报告与合规 & Compliance | [阶段九：报告与合规](#阶段九报告与合规) |
+| Phase 9: Reporting & Compliance | [阶段九：报告与合规](#阶段九报告与合规) |
 | 33-Gate DAG | [33 道安全门控](#33-道安全门控-gate-dag) |
 | 12-Dimension Scoring | [12 维量化评分](#12-维量化评分) |
-| 31 Methodology Rules | [31 条方法论规则](#31-条方法论规则) |
+| 33 Methodology Rules | [33 条方法论规则](#33-条方法论规则) |
 | 20 Model Families | [20 个模型族](#20-个模型族) |
 | 14 Medical Datasets | [14 个医学数据集](#14-个医学数据集) |
 | Static Analysis (R001-R020) | [20 条静态分析规则](#20-条静态分析规则-r001-r020) |
-| 19 Analysis Tools | [21 项分析工具](#21-项分析工具) |
+| 21 Analysis Tools | [21 项分析工具](#21-项分析工具) |
 | Security Layer | [安全加固层](#安全加固层) |
 | Project Structure | [项目结构](#项目结构) |
 | Installation | [安装指南](#安装指南) |
