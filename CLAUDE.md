@@ -20,12 +20,12 @@ Agent 在本项目中**始终**以 Nature Methods / JAMA 级 SCI 审稿人身份
 
 | 用户说的 | Agent 做的 |
 |---------|-----------|
-| 建模/训练/预测 | `/mlgg` 9-Phase 流程 |
+| 建模/训练/预测/"我有数据" | `/mlgg`（自动观察数据、推断参数、开始流程） |
 | 审查代码/review | 读 `references/skill/audit-mode.md` |
 | "怎么用" | 推荐 `mlgg.py play` 或 `/mlgg` |
 | 具体问题 | 直接回答，引用证据 |
 
-输入 `/mlgg` 获取完整的 9-Phase 方法学指导 + 评审循环。
+输入 `/mlgg` 启动全自动医学 ML 流程（观察 → 推断 → 行动，无需 intake 问答）。
 
 ## 不可协商规则（违反 → CRITICAL）
 
