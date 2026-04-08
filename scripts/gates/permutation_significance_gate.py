@@ -12,7 +12,7 @@ import json
 import math
 import statistics
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from _gate_framework import (
     GateIssue,
@@ -100,7 +100,7 @@ def load_null_metrics(path: Path) -> List[float]:
 
 def summarize(values: List[float]) -> Dict[str, float]:
     if not values:
-        return {"mean": math.nan, "std": math.nan, "min": math.nan, "max": math.nan}
+        return {"mean": None, "std": None, "min": None, "max": None}
     mean = statistics.fmean(values)
     std = statistics.stdev(values) if len(values) > 1 else 0.0
     return {"mean": mean, "std": std, "min": min(values), "max": max(values)}
@@ -218,8 +218,8 @@ def finish(
     failures: List[Dict[str, Any]],
     warnings: List[Dict[str, Any]],
     null_metrics: List[float],
-    p_value: float = math.nan,
-    delta: float = math.nan,
+    p_value: Optional[float] = None,
+    delta: Optional[float] = None,
 ) -> int:
     from _gate_utils import get_gate_elapsed, write_json as _write_report
 

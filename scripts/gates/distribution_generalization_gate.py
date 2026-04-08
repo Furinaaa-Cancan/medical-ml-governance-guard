@@ -278,7 +278,8 @@ def build_split_classifier_auc(
             bin_count = int(min(10, max(2, unique_count)))
             try:
                 processed[feature] = pd.qcut(filled, q=bin_count, duplicates="drop").astype(str)
-            except Exception:
+            except Exception as exc:
+                print(f"[WARN] qcut fallback for {feature}: {exc}", file=sys.stderr)
                 processed[feature] = filled.round(3).astype(str)
         else:
             processed[feature] = raw.astype(str).fillna("__missing__")

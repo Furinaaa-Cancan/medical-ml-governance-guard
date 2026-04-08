@@ -267,7 +267,7 @@ def main() -> int:
     if epv is None and n_features_int > 0:
         epv = n_events / n_features
     elif n_features_int == 0:
-        epv = float("inf")
+        epv = None  # No features → EPV undefined; avoid JSON-incompatible Infinity
 
     # Check EPV
     if epv is not None and epv < thresholds["epv_minimum"]:

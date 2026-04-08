@@ -306,7 +306,7 @@ def evaluate_cohort(
     # BMJ 2024: O/E ratio = sum(observed) / sum(expected)
     sum_expected = float(np.sum(y_score.astype(float)))
     sum_observed = float(np.sum(y_true.astype(float)))
-    oe_ratio = float(sum_observed / sum_expected) if sum_expected > 0.0 else float("nan")
+    oe_ratio = float(sum_observed / sum_expected) if sum_expected > 0.0 else None
 
     # BMJ 2024: calibration-in-the-large = mean(observed) - mean(predicted)
     citl = float(np.mean(y_true.astype(float)) - np.mean(y_score.astype(float)))

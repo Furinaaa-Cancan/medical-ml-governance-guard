@@ -126,9 +126,9 @@ class TestSummarize:
         assert result["std"] == 0.0
 
     def test_empty(self):
-        import math
         result = summarize([])
-        assert math.isnan(result["mean"])
+        assert result["mean"] is None
+        assert result["std"] is None
 
 
 # ────────────────────────────────────────────────────────

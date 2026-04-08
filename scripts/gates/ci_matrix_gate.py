@@ -212,7 +212,7 @@ def bootstrap_metric_ci(
     for metric in REQUIRED_METRICS:
         values = np.asarray(hits[metric][:effective], dtype=float)
         if values.size == 0:
-            summary[metric] = {"ci_lower": float("nan"), "ci_upper": float("nan"), "ci_width": float("nan")}
+            summary[metric] = {"ci_lower": None, "ci_upper": None, "ci_width": None}
             continue
         lo, hi = np.percentile(values, [2.5, 97.5]).tolist()
         summary[metric] = {

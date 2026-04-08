@@ -1032,8 +1032,8 @@ def main() -> int:
             test_trace = trace_df[trace_df["scope"] == "test"]
             if "y_score" in test_trace.columns and len(test_trace) >= ex_n:
                 y_score = test_trace["y_score"].values[:X_test_full.shape[0]][ex_idx]
-        except Exception:
-            pass  # Non-critical; fall back to model predictions
+        except Exception as exc:
+            print(f"[WARN] prediction trace load: {exc}", file=sys.stderr)
 
     # --- Compute SHAP per family ---
     family_results: Dict[str, Dict[str, Any]] = {}
@@ -1132,8 +1132,8 @@ def main() -> int:
             fl_path = Path(args.feature_lineage_spec).expanduser().resolve()
             with fl_path.open("r", encoding="utf-8") as fh:
                 feature_lineage_spec = json.load(fh)
-        except Exception:
-            pass
+        except Exception as exc:
+            print(f"[WARN] feature lineage spec load: {exc}", file=sys.stderr)
 
     # --- Validation checks ---
     _run_validation_checks(
