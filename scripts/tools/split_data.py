@@ -138,6 +138,30 @@ def parse_args() -> argparse.Namespace:
         default=MIN_ROWS_PER_SPLIT,
         help=f"Minimum rows per split (default: {MIN_ROWS_PER_SPLIT}).",
     )
+    parser.add_argument(
+        "--min-positive-per-split",
+        type=int,
+        default=MIN_POSITIVE_PER_SPLIT,
+        help=f"Minimum positive cases per split (default: {MIN_POSITIVE_PER_SPLIT}).",
+    )
+    parser.add_argument(
+        "--min-negative-per-split",
+        type=int,
+        default=MIN_NEGATIVE_PER_SPLIT,
+        help=f"Minimum negative cases per split (default: {MIN_NEGATIVE_PER_SPLIT}).",
+    )
+    parser.add_argument(
+        "--min-patients-per-split",
+        type=int,
+        default=MIN_PATIENTS_PER_SPLIT,
+        help=f"Minimum unique patients per split (default: {MIN_PATIENTS_PER_SPLIT}).",
+    )
+    parser.add_argument(
+        "--prevalence-shift-threshold",
+        type=float,
+        default=PREVALENCE_SHIFT_WARN_THRESHOLD,
+        help=f"Max acceptable prevalence difference between train and test splits (default: {PREVALENCE_SHIFT_WARN_THRESHOLD}).",
+    )
     return parser.parse_args()
 
 
@@ -547,6 +571,10 @@ def validate_splits(
     time_col: str,
     min_rows: int,
     strategy: str = "grouped_temporal",
+    min_positive: int = MIN_POSITIVE_PER_SPLIT,
+    min_negative: int = MIN_NEGATIVE_PER_SPLIT,
+    min_patients: int = MIN_PATIENTS_PER_SPLIT,
+    prevalence_shift_threshold: float = PREVALENCE_SHIFT_WARN_THRESHOLD,
 ) -> List[Dict[str, Any]]:
     """Run post-split safety checks and return any issues found.
 
@@ -562,6 +590,11 @@ def validate_splits(
         min_rows: Minimum required rows per split.
         strategy: Split strategy name; temporal boundary violations are
             hard failures only for 'grouped_temporal', warnings otherwise.
+        min_positive: Minimum positive cases per split.
+        min_negative: Minimum negative cases per split.
+        min_patients: Minimum unique patients per split.
+        prevalence_shift_threshold: Max acceptable prevalence difference
+            between train and test splits.
 
     Returns:
         List of issue dicts with 'code', 'message', and context fields.
@@ -584,17 +617,17 @@ def validate_splits(
         target = df[target_col].astype(float)
         pos = int((target == 1.0).sum())
         neg = int((target == 0.0).sum())
-        if pos < MIN_POSITIVE_PER_SPLIT:
+        if pos < min_positive:
             issues.append({
                 "code": "insufficient_positive",
-                "message": f"{name} split has {pos} positive samples (minimum: {MIN_POSITIVE_PER_SPLIT}).",
+                "message": f"{name} split has {pos} positive samples (minimum: {min_positive}).",
                 "split": name,
                 "positive_count": pos,
             })
-        if neg < MIN_NEGATIVE_PER_SPLIT:
+        if neg < min_negative:
             issues.append({
                 "code": "insufficient_negative",
-                "message": f"{name} split has {neg} negative samples (minimum: {MIN_NEGATIVE_PER_SPLIT}).",
+                "message": f"{name} split has {neg} negative samples (minimum: {min_negative}).",
                 "split": name,
                 "negative_count": neg,
             })
@@ -602,10 +635,10 @@ def validate_splits(
     # Check minimum patients per split
     for name, df in splits.items():
         n_patients = int(df[patient_id_col].nunique())
-        if n_patients < MIN_PATIENTS_PER_SPLIT:
+        if n_patients < min_patients:
             issues.append({
                 "code": "insufficient_patients_in_split",
-                "message": f"{name} split has {n_patients} unique patients (minimum: {MIN_PATIENTS_PER_SPLIT}).",
+                "message": f"{name} split has {n_patients} unique patients (minimum: {min_patients}).",
                 "split": name,
                 "patient_count": n_patients,
             })
@@ -660,12 +693,12 @@ def validate_splits(
         train_prev = float(train_target.mean()) if len(train_target) > 0 else 0.0
         test_prev = float(test_target.mean()) if len(test_target) > 0 else 0.0
         shift = abs(train_prev - test_prev)
-        if shift > PREVALENCE_SHIFT_WARN_THRESHOLD:
+        if shift > prevalence_shift_threshold:
             issues.append({
                 "code": "prevalence_shift",
                 "message": (
                     f"Prevalence shift between train ({train_prev:.3f}) and test ({test_prev:.3f}): "
-                    f"delta={shift:.3f} exceeds threshold {PREVALENCE_SHIFT_WARN_THRESHOLD}. "
+                    f"delta={shift:.3f} exceeds threshold {prevalence_shift_threshold}. "
                     "Consider stratified_grouped strategy or verify temporal prevalence drift is expected."
                 ),
                 "level": "warn",
@@ -903,7 +936,14 @@ def main() -> int:
         return 2
 
     # Validate splits
-    issues = validate_splits(splits, args.patient_id_col, args.target_col, time_col, args.min_rows_per_split, strategy=args.strategy)
+    issues = validate_splits(
+        splits, args.patient_id_col, args.target_col, time_col,
+        args.min_rows_per_split, strategy=args.strategy,
+        min_positive=args.min_positive_per_split,
+        min_negative=args.min_negative_per_split,
+        min_patients=args.min_patients_per_split,
+        prevalence_shift_threshold=args.prevalence_shift_threshold,
+    )
     hard_failures = [i for i in issues if i.get("level") != "warn"]
     warnings = [i for i in issues if i.get("level") == "warn"]
 
@@ -1021,8 +1061,8 @@ def main() -> int:
         "safety_checks": {
             "patient_disjoint": not any(i["code"] == "patient_overlap" for i in issues),
             "temporal_order": not any(i["code"] == "temporal_overlap" for i in issues),
-            "min_positive_per_split": MIN_POSITIVE_PER_SPLIT,
-            "min_negative_per_split": MIN_NEGATIVE_PER_SPLIT,
+            "min_positive_per_split": args.min_positive_per_split,
+            "min_negative_per_split": args.min_negative_per_split,
             "min_rows_per_split": args.min_rows_per_split,
         },
         "warnings": warnings,
