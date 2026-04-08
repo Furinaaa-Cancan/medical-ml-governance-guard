@@ -915,7 +915,15 @@ def install_slash_command(force: bool = False) -> int:
         print("  Use --force to overwrite.")
         return 1
 
-    target.write_text(SLASH_COMMAND_MD, encoding="utf-8")
+    # Prefer the canonical mlgg.md from the repo (single source of truth)
+    repo_mlgg = Path(__file__).resolve().parent.parent.parent / ".claude" / "commands" / "mlgg.md"
+    if repo_mlgg.exists():
+        content = repo_mlgg.read_text(encoding="utf-8")
+    else:
+        # Fallback to embedded version if running outside the repo
+        content = SLASH_COMMAND_MD
+
+    target.write_text(content, encoding="utf-8")
     print(f"Installed /mlgg command: {target}")
     print()
     print("Usage: Open any project in Claude Code and type /mlgg")
