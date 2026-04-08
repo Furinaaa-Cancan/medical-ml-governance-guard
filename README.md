@@ -7,7 +7,7 @@
   <em>Publication-Grade Integrity Standard for Medical Prediction Models</em>
   <br><br>
   <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/"><img src="https://img.shields.io/badge/License-PolyForm%20NC%201.0.0-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/tests-3400%2B%20passed-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-4000%2B%20passed-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/gates-33%20fail--closed-critical" alt="Gates">
   <img src="https://img.shields.io/badge/datasets-14%20medical-purple" alt="Datasets">
   <img src="https://img.shields.io/badge/code-138K%20lines-informational" alt="Code">
@@ -20,7 +20,7 @@
 <p align="center">
 <strong>33 道 fail-closed 门控</strong> &middot; <strong>9 阶段工作流</strong> &middot; <strong>12 维量化评分</strong> &middot; <strong>3 级合规认证</strong>
 <br>
-<strong>20 个模型族</strong> &middot; <strong>14 个真实医学数据集 (526K 行)</strong> &middot; <strong>31 条方法论规则</strong>
+<strong>20 个模型族</strong> &middot; <strong>14 个真实医学数据集 (526K 行)</strong> &middot; <strong>31 条方法论规则</strong> &middot; <strong>21 项分析工具</strong>
 <br><br>
 <em>从原始数据到 TRIPOD+AI 合规发表的完整防泄漏管线。<br>每条规则来自实际踩坑，每个阈值有文献引用。</em>
 </p>
@@ -48,7 +48,7 @@
 - [20 个模型族](#20-个模型族)
 - [14 个医学数据集](#14-个医学数据集)
 - [20 条静态分析规则 (R001-R020)](#20-条静态分析规则-r001-r020)
-- [19 项分析工具](#19-项分析工具)
+- [21 项分析工具](#19-项分析工具)
 - [安全加固层](#安全加固层)
 - [项目结构](#项目结构)
 - [安装指南](#安装指南)
@@ -93,11 +93,11 @@
 | **3 级合规** | L1 (12 门, 泄漏审计) / L2 (25 门, 统计有效) / L3 (全部 33 门, 发布级) | 渐进认证 |
 | **20 个模型族** | LR (L1/L2/ElasticNet) / SVM / RF / XGBoost / CatBoost / LightGBM / KNN / MLP / TabPFN + 集成 | 自动超参搜索 |
 | **14 个真实数据集** | UCI / CDC / NCI / Vanderbilt 官方数据 | 总计 526K 行 |
-| **多模型 SHAP 引擎** | 多族 L1 归一化集成 + Kendall tau 一致性 + 4 张发表级 CSV | RF/XGB/CatBoost/LGBM/LR |
+| **多模型 SHAP + PDP 引擎** | 多族 L1 归一化集成 + Kendall tau 一致性 (FDR-BH 校正) + PDP 边际效应 + 5 张发表级 CSV | RF/XGB/CatBoost/LGBM/LR |
 | **学术合规引擎** | TRIPOD+AI 2024 (27 项) / PROBAST+AI 2025 (4 域) / STARD-AI | 58 条文献知识库 |
 | **20 条 Lint 规则** | 静态分析检测代码级泄漏反模式 (R001-R020) | .py + .ipynb |
 | **安全加固层** | HMAC-SHA256 / AES-256-GCM / 链式审计日志 / 路径穿越防护 / 受限反序列化 | fail-closed |
-| **19 个分析工具** | Riley 样本量 / 校准三件套 / NRI-IDI / 学习曲线 / VIF / MNAR 敏感性 / 时序漂移 / ... | 100% 覆盖 Nature ML Checklist |
+| **21 个分析工具** | Riley 样本量 / 校准三件套 / NRI-IDI / 学习曲线 / VIF / MNAR 敏感性 / PDP 边际效应 / FDR-BH 校正 / 时序漂移 / ... | 100% 覆盖 Nature ML Checklist |
 
 ---
 
@@ -354,6 +354,8 @@ MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通
 | Tier 1 | < 5% | 简单插补 (中位数/众数) | 缺失太少，不值得复杂处理 |
 
 > **实现说明**: 当前代码统一使用 `SimpleImputer(median, add_indicator=True)`。上述分层是推荐的分析框架。树模型 (RF/XGB/LGBM) 不添加 indicator 列 (原生处理缺失)。
+
+> **机制检验强制**: 任何特征缺失率 >5% 时，`missingness_policy_gate` 要求 policy 中声明 `mechanism_assessment`（方法 + 结论: MCAR/MAR/MNAR/mixed）；>40% 时额外要求 `mnar_sensitivity` 分析结果。参考 Madley-Dowd 2019, Cro 2020。
 
 #### 3.4 SMOTE 立场
 
@@ -732,19 +734,30 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 
 | 检验 | 含义 | FAIL | WARN |
 |:-----|:-----|:-----|:-----|
-| Kendall tau | 两个模型的特征重要性排名相关 | tau < 0.3 | tau < 0.5 |
+| Kendall tau (FDR-BH 校正) | 两个模型的特征重要性排名相关 | tau < 0.3 | tau < 0.5 |
 | Top-N Jaccard | Top-10 特征集合重叠度 | &mdash; | Jaccard < 0.3 |
 | Direction consistency | 所有模型 signed SHAP 同向? | &mdash; | `mixed` 方向 |
 | Extreme concentration | 单特征 > 50% 总重要性 | &mdash; | WARNING |
 
-#### 7.5 四张发表级 CSV 表格
+> 当模型族 >= 3 时，多对 Kendall tau P 值自动应用 Benjamini-Hochberg FDR 校正，避免多重比较假阳性。
+
+#### 7.5 PDP 边际效应（Partial Dependence，互补 SHAP）
+
+SHAP 对相关特征可能产生误导（联盟博弈论假设）。PDP 提供互补视角——展示单个特征对预测的边际效应曲线：
+
+- 自动对 SHAP Top-K 特征（默认 5）计算 PDP（`sklearn.inspection.partial_dependence`）
+- 跨所有模型族分别计算，可观察不同模型对同一特征的响应差异
+- 零方差特征自动跳过并发出 `PDP_FEATURE_CONSTANT` 警告
+
+#### 7.6 五张发表级 CSV 表格
 
 | 表格 | 文件名 | 用途 | 列 |
 |:------|:-----|:--------|:--------|
 | **A** | `shap_table_a_ensemble_importance.csv` | 论文主表 | 排名、特征、集成比例、方向、各模型比例 |
 | **B** | `shap_table_b_per_model_detail.csv` | 审稿人补充表 | 特征、每模型 MeanAbsSHAP / 比例 / 带符号 SHAP / 排名 |
-| **C** | `shap_table_c_rank_agreement.csv` | 方法学证据 | 模型A、模型B、Kendall_tau、P 值、Top10 重叠、Jaccard |
+| **C** | `shap_table_c_rank_agreement.csv` | 方法学证据 | 模型A、模型B、Kendall_tau、P 值 (FDR 校正)、Top10 重叠、Jaccard |
 | **D** | `shap_table_d_case_explanations.csv` | 临床叙事 | 病例索引、风险类别、真实标签、预测分数、Top-3 驱动特征 |
+| **E** | `pdp_table_e_marginal_effects.csv` | 边际效应 | 模型族、特征、特征值、PD 值 |
 
 每张 CSV 首行为方法论注释 (`# Method: ...`)，可被 `pd.read_csv(comment="#")` 跳过。
 
@@ -758,7 +771,7 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 
 按保护属性 (race, gender, age) 分组，每组独立计算：AUROC, PR-AUC, Sensitivity, Specificity, PPV, FPR, prevalence。
 
-#### 8.2 公平性阈值
+#### 8.2 公平性阈值（7 项指标）
 
 | 指标 | WARNING | FAIL | 定义 |
 |:-----|:--------|:-----|:-----|
@@ -767,6 +780,10 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 | Subgroup PR-AUC minimum | < 0.50 | < 0.40 | 任何亚组的最低性能 |
 | FPR parity gap (HEAL) | > 0.10 | > 0.15 | 各亚组假阳性率的最大差距 |
 | FNR parity gap (HEAL) | > 0.10 | > 0.15 | 各亚组假阴性率的最大差距 |
+| PPV parity gap (预测值公平性) | > 0.10 | > 0.15 | 各亚组 PPV 的最大差距 |
+| Calibration slope deviation (校准公平性) | > 0.20 | > 0.30 | 各亚组校准斜率偏离 1.0 的最大值 |
+
+> **多重比较警告**: 当 N 特征 x 7 指标 > 10 次比较时，自动发出 multiplicity warning 并报告 Bonferroni 调整后 alpha，避免假阳性。
 
 #### 8.3 小亚组处理（MLGG-Q02）
 
@@ -821,6 +838,8 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 | **L2** | 统计有效 | 25 | 专业期刊（JAMIA、npj DM） | >= 17/27 | low/unclear |
 | **L3** | 发布级 | **全部 33 门** | Nature Medicine、Lancet、JAMA、BMJ | >= 23/27 | **low** |
 
+> **外部验证政策**: 无外部验证数据时，`external_validation_gate` 返回 `status="skipped"`，总审计评分硬性上限 85 分（不可能达到 >=90 顶刊级），L3 合规自动阻断，并强制要求在 Limitations 中声明。支持三种外部验证类型：`cross_period`（时间验证）/ `cross_institution`（地理验证）/ `independent_cohort`（独立队列）。
+
 **L1 Gates (12)**: request_contract, manifest, execution_attestation, leakage, split_protocol, covariate_shift, definition_guard, feature_lineage, imbalance, missingness, tuning, reporting_bias
 
 **L2 adds (13)**: model_selection_audit, feature_engineering_audit, clinical_metrics, prediction_replay, generalization_gap, seed_stability, calibration_dca, ci_matrix, metric_consistency, evaluation_quality, permutation, sample_size, robustness
@@ -872,10 +891,10 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 | 6 | 3 | `split_protocol_gate` | 患者级 disjoint 划分、时序正确性、患病率检查、最小划分大小 | `split_protocol_report.json` |
 | 7 | 3 | `covariate_shift_gate` | 逐特征 Jensen-Shannon 散度、患病率漂移、缺失率漂移 | `covariate_shift_report.json` |
 | 8 | 3 | `reporting_bias_gate` | TRIPOD+AI 2024 (17 项) + PROBAST+AI 2025 (6 域) + STARD-AI 清单 | `reporting_bias_report.json` |
-| 9 | 4 | `definition_variable_guard` | 阻止结局定义变量（HbA1c、空腹血糖等）作为预测特征 | `definition_guard_report.json` |
+| 9 | 4 | `definition_variable_guard` | 阻止结局定义变量作为预测特征；**循环定义检测、时间窗文档化、预测后特征泄漏检查** | `definition_guard_report.json` |
 | 10 | 4 | `feature_lineage_gate` | 阻止索引时间后衍生特征进入训练 | `lineage_report.json` |
 | 11 | 4 | `imbalance_policy_gate` | 类别不平衡策略、训练集独占重采样、患病率验证 | `imbalance_policy_report.json` |
-| 12 | 4 | `missingness_policy_gate` | 缺失数据策略、MICE 规模保护、插补器隔离 | `missingness_policy_report.json` |
+| 12 | 4 | `missingness_policy_gate` | 缺失数据策略、MICE 规模保护、插补器隔离；**>5% 强制机制检验、>40% 强制 MNAR 敏感性** | `missingness_policy_report.json` |
 | 13 | 4 | `tuning_leakage_gate` | 超参调优协议、测试集隔离、CV 嵌套 | `tuning_leakage_report.json` |
 | 14 | 5 | `model_selection_audit_gate` | one-SE 规则回放、>= 3 候选模型、逻辑回归基线、指纹验证 | `model_selection_audit_report.json` |
 | 15 | 5 | `feature_engineering_audit_gate` | 特征组来源、训练集独占范围、稳定性证据 | `feature_engineering_audit_report.json` |
@@ -885,8 +904,8 @@ L1 归一化消除模型间尺度差异 (RF SHAP 值在 [0, 0.02], XGBoost 在 [
 | 19 | 6 | `ci_matrix_gate` | 所有划分和外部队列的 Bootstrap CI 矩阵 | `ci_matrix_gate_report.json` |
 | 20 | 6 | `distribution_generalization_gate` | 跨划分分布漂移、特征级 JSD、迁移准备度 | `distribution_generalization_report.json` |
 | 21 | 6 | `evaluation_quality_gate` | CI 宽度 <= 0.20、重采样 >= 200、基线改善 >= 0.01 | `evaluation_quality_report.json` |
-| 22 | 6 | `external_validation_gate` | 外部队列指标、迁移差距、每队列 >= 100 事件 | `external_validation_gate_report.json` |
-| 23 | 6 | `fairness_equity_gate` | 均等化几率、差异影响比、亚组性能下限、HEAL FPR/FNR | `fairness_equity_report.json` |
+| 22 | 6 | `external_validation_gate` | 外部队列指标、迁移差距、每队列 >= 100 事件；**缺失时总分 cap 85、L3 阻断** | `external_validation_gate_report.json` |
+| 23 | 6 | `fairness_equity_gate` | 均等化几率、差异影响比、亚组性能下限、HEAL FPR/FNR、**PPV 公平性、校准公平性、多重比较警告** | `fairness_equity_report.json` |
 | 24 | 6 | `generalization_gap_gate` | 训练-验证-测试性能差距（PR-AUC、F2-beta、Brier） | `generalization_gap_report.json` |
 | 25 | 6 | `metric_consistency_gate` | 请求与评估报告之间的指标值一致性 | `metric_consistency_report.json` |
 | 26 | 6 | `permutation_significance_gate` | 置换零分布显著性检验 | `permutation_report.json` |
@@ -1066,7 +1085,7 @@ python3 -m mlgg_lint /path/to/code/
 
 ---
 
-## 19 项分析工具
+## 21 项分析工具
 
 | 工具 | 函数 | 审稿人常问 | 文献 |
 |:-----|:---------|:-----------------|:-----------|
@@ -1089,6 +1108,8 @@ python3 -m mlgg_lint /path/to/code/
 | Rubin 规则 | `rubins_rules_combine()` | "多重插补怎么合并？" | Rubin 1987 |
 | 鲁棒性压力测试 | `robustness_stress_test()` | "对异常值/噪声稳定吗？" | Original |
 | Bootstrap Optimism | `bootstrap_optimism_correction()` | "内部验证的乐观偏差？" | Steyerberg 2019 |
+| PDP 边际效应 | `_compute_pdp_ice()` | "特征对预测的边际影响？" | Friedman 2001 |
+| FDR-BH 多重校正 | `fdr_bh_correction()` | "多次比较是否校正？" | Benjamini-Hochberg 1995 |
 
 100% 覆盖 [Nature Portfolio ML Checklist V1.1](https://www.nature.com/documents/machine-learning-checklist.pdf) (30 items).
 
@@ -1382,7 +1403,7 @@ AI 会自动：
 | 20 Model Families | [20 个模型族](#20-个模型族) |
 | 14 Medical Datasets | [14 个医学数据集](#14-个医学数据集) |
 | Static Analysis (R001-R020) | [20 条静态分析规则](#20-条静态分析规则-r001-r020) |
-| 19 Analysis Tools | [19 项分析工具](#19-项分析工具) |
+| 19 Analysis Tools | [21 项分析工具](#19-项分析工具) |
 | Security Layer | [安全加固层](#安全加固层) |
 | Project Structure | [项目结构](#项目结构) |
 | Installation | [安装指南](#安装指南) |
