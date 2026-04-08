@@ -825,8 +825,8 @@ def write_examples(output_dir: Path) -> Path:
             y_bin = (y_prob >= threshold).astype(int)
             tn, fp, fn, tp = confusion_matrix(y_true, y_bin).ravel()
             return {
-                "auroc": roc_auc_score(y_true, y_prob),
-                "auprc": average_precision_score(y_true, y_prob),
+                "roc_auc": roc_auc_score(y_true, y_prob),
+                "pr_auc": average_precision_score(y_true, y_prob),
                 "sensitivity": tp / (tp + fn) if (tp + fn) > 0 else 0,
                 "specificity": tn / (tn + fp) if (tn + fp) > 0 else 0,
                 "ppv": tp / (tp + fp) if (tp + fp) > 0 else 0,
@@ -859,8 +859,8 @@ def write_examples(output_dir: Path) -> Path:
 
         # Train-test gap check (MLGG-E04)
         train_auc = roc_auc_score(y_train, best_pipe.predict_proba(X_train)[:, 1])
-        gap = train_auc - point_metrics['auroc']
-        print(f"\\nTrain AUC: {train_auc:.3f}, Test AUC: {point_metrics['auroc']:.3f}, Gap: {gap:.3f}")
+        gap = train_auc - point_metrics['roc_auc']
+        print(f"\\nTrain AUC: {train_auc:.3f}, Test AUC: {point_metrics['roc_auc']:.3f}, Gap: {gap:.3f}")
         if gap > 0.05:
             print("WARNING: Train-test gap > 0.05, possible overfitting!")
 

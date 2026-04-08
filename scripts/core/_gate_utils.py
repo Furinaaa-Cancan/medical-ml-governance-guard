@@ -2144,18 +2144,18 @@ def imputation_sensitivity(
 
             results.append({
                 "method": name,
-                "auroc": round(float(roc_auc_score(y_te, y_score)), 4),
+                "roc_auc": round(float(roc_auc_score(y_te, y_score)), 4),
                 "pr_auc": round(float(average_precision_score(y_te, y_score)), 4),
                 "brier": round(float(brier_score_loss(y_te, y_score)), 4),
             })
         except Exception as exc:
             print(f"[imputation_sensitivity] method={name}: {exc}", file=sys.stderr)
-            results.append({"method": name, "auroc": None, "pr_auc": None, "brier": None})
+            results.append({"method": name, "roc_auc": None, "pr_auc": None, "brier": None})
 
     # Assess robustness
-    valid_aurocs = [r["auroc"] for r in results if r["auroc"] is not None]
-    if len(valid_aurocs) >= 2:
-        spread = max(valid_aurocs) - min(valid_aurocs)
+    valid_roc_aucs = [r["roc_auc"] for r in results if r["roc_auc"] is not None]
+    if len(valid_roc_aucs) >= 2:
+        spread = max(valid_roc_aucs) - min(valid_roc_aucs)
         robust = spread < 0.01
     else:
         spread = None
@@ -2165,7 +2165,7 @@ def imputation_sensitivity(
         "methods": results,
         "n_missing_cells": n_missing,
         "missing_fraction": round(n_missing / max(X.size, 1), 4),
-        "auroc_spread": round(spread, 4) if spread is not None else None,
+        "roc_auc_spread": round(spread, 4) if spread is not None else None,
         "robust": robust,
     }
 

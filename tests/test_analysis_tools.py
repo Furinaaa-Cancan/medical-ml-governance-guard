@@ -179,7 +179,7 @@ class TestImputationSensitivity:
         methods = [m["method"] for m in r["methods"]]
         assert "median" in methods
         assert "mean" in methods
-        assert r["auroc_spread"] is not None
+        assert r["roc_auc_spread"] is not None
 
     def test_no_missing(self):
         rng = np.random.default_rng(42)
