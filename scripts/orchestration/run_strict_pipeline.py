@@ -331,7 +331,8 @@ def main() -> int:
         evaluation_report_file = str(normalized["evaluation_report_file"])
         prediction_trace_file = str(normalized["prediction_trace_file"])
         external_cohort_spec = str(normalized["external_cohort_spec"])
-        external_validation_report_file = str(normalized["external_validation_report_file"])
+        _ext_val_raw = normalized.get("external_validation_report_file")
+        external_validation_report_file = str(_ext_val_raw) if _ext_val_raw else None
         ci_matrix_report_file = str(normalized["ci_matrix_report_file"])
         evaluation_metric_path = normalized.get("evaluation_metric_path")
         null_metrics_file = str(normalized["permutation_null_metrics_file"])
@@ -445,7 +446,7 @@ def main() -> int:
             evaluation_report_file,
             prediction_trace_file,
             external_cohort_spec,
-            external_validation_report_file,
+            *([] if external_validation_report_file is None else [external_validation_report_file]),
             ci_matrix_report_file,
             null_metrics_file,
             str(request_path),
@@ -680,8 +681,7 @@ def main() -> int:
             str(scripts_dir / "gates/clinical_metrics_gate.py"),
             "--evaluation-report",
             evaluation_report_file,
-            "--external-validation-report",
-            external_validation_report_file,
+            *(["--external-validation-report", external_validation_report_file] if external_validation_report_file else []),
             "--performance-policy",
             performance_policy_spec,
             "--report",
@@ -724,8 +724,7 @@ def main() -> int:
             test,
             "--evaluation-report",
             evaluation_report_file,
-            "--external-validation-report",
-            external_validation_report_file,
+            *(["--external-validation-report", external_validation_report_file] if external_validation_report_file else []),
             "--feature-group-spec",
             feature_group_spec,
             "--target-col",
@@ -795,8 +794,8 @@ def main() -> int:
         return finalize(args, reports, steps, success=False)
 
     # Step 21: external validation gate (conditional — skip if no external data)
-    _ext_report_path = Path(external_validation_report_file)
-    if _ext_report_path.exists() and _ext_report_path.stat().st_size > 2:
+    _ext_report_path = Path(external_validation_report_file) if external_validation_report_file else None
+    if _ext_report_path is not None and _ext_report_path.exists() and _ext_report_path.stat().st_size > 2:
         if not execute(
             "external_validation_gate",
             [
@@ -831,8 +830,7 @@ def main() -> int:
             prediction_trace_file,
             "--evaluation-report",
             evaluation_report_file,
-            "--external-validation-report",
-            external_validation_report_file,
+            *(["--external-validation-report", external_validation_report_file] if external_validation_report_file else []),
             "--performance-policy",
             performance_policy_spec,
             "--report",
@@ -852,8 +850,7 @@ def main() -> int:
             evaluation_report_file,
             "--prediction-trace",
             prediction_trace_file,
-            "--external-validation-report",
-            external_validation_report_file,
+            *(["--external-validation-report", external_validation_report_file] if external_validation_report_file else []),
             "--performance-policy",
             performance_policy_spec,
             "--ci-matrix-report",

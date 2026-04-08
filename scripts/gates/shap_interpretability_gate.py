@@ -990,25 +990,31 @@ def main() -> int:
     if missing_train or missing_test:
         # Try auto-encoding: model_pool may include original_features
         original_features = model_pool.get("original_features")
-        if original_features is not None:
+        if original_features:
+            _tools_dir = str(Path(__file__).resolve().parent.parent / "tools")
             try:
-                sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
+                sys.path.insert(0, _tools_dir)
                 from train_select_evaluate import apply_categorical_encoding_to_external
-                train_df = apply_categorical_encoding_to_external(
+                # Encode both atomically: if either fails, keep originals
+                encoded_train = apply_categorical_encoding_to_external(
                     train_df, feature_names, original_features,
                 )
-                test_df = apply_categorical_encoding_to_external(
+                encoded_test = apply_categorical_encoding_to_external(
                     test_df, feature_names, original_features,
                 )
+                train_df, test_df = encoded_train, encoded_test
                 # Re-check after encoding
                 missing_train = set(feature_names) - set(train_df.columns)
                 missing_test = set(feature_names) - set(test_df.columns)
-            except Exception as enc_exc:
+            except (ImportError, KeyError, ValueError, TypeError) as enc_exc:
                 add_issue(
                     warnings_list, "SHAP_ENCODING_FALLBACK_FAILED",
                     f"Auto-encoding failed: {enc_exc}. Falling back to mismatch error.",
                     {},
                 )
+            finally:
+                if _tools_dir in sys.path:
+                    sys.path.remove(_tools_dir)
         if missing_train or missing_test:
             add_issue(
                 failures, "SHAP_FEATURE_MISMATCH",

@@ -36,27 +36,36 @@
 # 1. 评估质量
 python3 scripts/gates/evaluation_quality_gate.py \
   --evaluation-report evidence/evaluation_report.json \
+  --metric-name pr_auc \
+  [--ci-matrix-report evidence/ci_matrix_report.json] \
   --report evidence/evaluation_quality_report.json --strict
 
 # 2. 校准 + DCA
 python3 scripts/gates/calibration_dca_gate.py \
+  --prediction-trace evidence/prediction_trace.json \
   --evaluation-report evidence/evaluation_report.json \
+  [--external-validation-report evidence/external_validation_report.json] \
   --report evidence/calibration_dca_report.json --strict
 
 # 3. CI 矩阵
 python3 scripts/gates/ci_matrix_gate.py \
-  --ci-matrix evidence/ci_matrix_report.json \
+  --evaluation-report evidence/evaluation_report.json \
+  --prediction-trace evidence/prediction_trace.json \
+  --ci-matrix-report evidence/ci_matrix_report.json \
+  [--external-validation-report evidence/external_validation_report.json] \
   --report evidence/ci_matrix_gate_report.json --strict
 
 # 4. 指标一致性
 python3 scripts/gates/metric_consistency_gate.py \
   --evaluation-report evidence/evaluation_report.json \
+  --metric-name pr_auc \
   --report evidence/metric_consistency_report.json --strict
 
-# 5. 置换检验
+# 5. 置换检验（需要训练时加 --permutation-null-out）
 python3 scripts/gates/permutation_significance_gate.py \
-  --null-metrics evidence/permutation_null_metrics.json \
-  --observed-metric <value> \
+  --null-metrics-file evidence/permutation_null_metrics.json \
+  --metric-name pr_auc \
+  --actual <实际PR-AUC值> \
   --report evidence/permutation_report.json --strict
 ```
 

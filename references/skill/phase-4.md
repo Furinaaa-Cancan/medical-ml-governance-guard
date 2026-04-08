@@ -23,9 +23,16 @@
 ```bash
 # 如果 configs/feature-lineage.json 不存在，先从模板创建:
 #   cp references/feature-lineage.example.json configs/feature-lineage.json
+#   cp references/disease-definition-knowledge-base.json configs/definition-spec.json
 #   然后根据实际特征来源编辑（记录每个特征的来源和时间归属）
 python3 scripts/gates/feature_lineage_gate.py \
-  --lineage configs/feature-lineage.json \
+  --target <目标疾病名> \
+  --definition-spec configs/definition-spec.json \
+  --lineage-spec configs/feature-lineage.json \
+  --train data/train.csv \
+  [--valid data/valid.csv] \
+  [--test data/test.csv] \
+  --target-col y \
   --report evidence/lineage_report.json \
   --strict
 ```

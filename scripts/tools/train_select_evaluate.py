@@ -1077,12 +1077,16 @@ def apply_categorical_encoding_to_external(
         for dcol in dummy_cols:
             # Extract category value from column name: "race_3" → "3"
             cat_val_str = dcol[len(orig) + 1:]
-            # Try numeric comparison first, then string
-            try:
-                cat_val = type(result[orig].dropna().iloc[0])(cat_val_str) if len(result[orig].dropna()) > 0 else cat_val_str
-            except (ValueError, TypeError):
-                cat_val = cat_val_str
-            result[dcol] = (result[orig] == cat_val).astype(float)
+            # Compare as-is first; if column is numeric, also try numeric cast
+            col_vals = result[orig]
+            matched = col_vals == cat_val_str
+            if not matched.any():
+                try:
+                    cat_val_num = float(cat_val_str)
+                    matched = col_vals == cat_val_num
+                except (ValueError, TypeError):
+                    pass
+            result[dcol] = matched.astype(float)
         result.drop(columns=[orig], errors="ignore", inplace=True)
 
     # Fill any still-missing encoded columns with 0.0 (OOD / not applicable)

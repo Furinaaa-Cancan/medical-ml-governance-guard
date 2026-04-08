@@ -54,17 +54,19 @@ python3 scripts/tools/split_data.py \
 python3 scripts/gates/leakage_gate.py \
   --train data/train.csv --test data/test.csv \
   [--valid data/valid.csv] \
-  --patient-id-col <ID> --target-col y \
-  --report evidence/leakage_report.json
+  --id-cols <ID> --target-col y \
+  --report evidence/leakage_report.json --strict
 
 # 2. 分割协议验证
 # 如果 configs/split-protocol.json 不存在，先从模板创建:
 #   cp references/split-protocol.example.json configs/split-protocol.json
 #   然后根据实际划分参数编辑
 python3 scripts/gates/split_protocol_gate.py \
-  --protocol configs/split-protocol.json \
+  --protocol-spec configs/split-protocol.json \
   --train data/train.csv --test data/test.csv \
-  --report evidence/split_protocol_report.json
+  --id-col <ID> --target-col y \
+  [--cross-sectional] \
+  --report evidence/split_protocol_report.json --strict
 ```
 
 ## 本阶段规则
