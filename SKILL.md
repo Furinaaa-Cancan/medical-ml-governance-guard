@@ -744,6 +744,51 @@ If any step returns non-zero, stop and block claim release.
 - Never use ICD diagnostic codes from the same admission as predictors without verifying temporal precedence.
 - Never claim TRIPOD+AI adherence without the 2024 expanded 27-item checklist (BMJ 2024;385:e078378).
 
+## Clinical Semantic Review Checklist
+
+When reviewing or building a medical ML model, the agent MUST proactively perform these clinical checks beyond what automated gates can detect:
+
+### Feature Timeline Audit
+For each feature in the model, determine WHEN it is recorded relative to the prediction time point:
+- **Pre-index features** (e.g., demographics, prior diagnoses, admission vitals) — safe to use
+- **Index-time features** (e.g., admission lab values, chief complaint) — safe if prediction is at admission
+- **Post-index features** (e.g., length of stay, discharge disposition, in-hospital procedures, medications administered during stay) — LEAKAGE if predicting post-discharge outcomes
+
+Common traps by dataset:
+| Dataset | Post-index features frequently misused | Correct action |
+|---------|---------------------------------------|---------------|
+| Diabetes 130 (UCI) | time_in_hospital, num_medications, num_procedures, discharge_disposition_id, insulin dose changes | Split into admission-time vs discharge-time models; label clearly |
+| MIMIC-III/IV | Procedures, ventilation hours, vasopressor doses | Use only first-N-hours features for early prediction |
+| eICU | Treatment variables, APACHE components measured over stay | Distinguish admission vs accumulated features |
+
+If the user does not specify a prediction time point, ASK: "Is this model intended for use at admission, during hospitalization, or at discharge?"
+
+### Fairness Quality Standards
+When evaluating subgroup fairness:
+- **Always compute 95% bootstrap CI** for subgroup AUROC/AUPRC (MLGG-Q02)
+- **Flag subgroups with n < 200** as unreliable
+- **Report equalized odds gap**: max FPR difference across groups
+- **Report calibration by subgroup** when sample permits (ECE per group)
+
+### Interpretability Quality Standards
+When computing SHAP:
+- **Multi-model SHAP**: compute for ≥ 2 model families (not just the best model)
+- **Cross-model consistency**: report Spearman rank correlation of top-20 feature importance between model pairs; ρ < 0.5 = low consistency warning
+- **Clinical plausibility**: review top-5 SHAP features — are they clinically sensible?
+
+### Model Comparison Standards
+When comparing ≥ 3 models on the same test set:
+- Model selection on validation set is unbiased for test evaluation
+- But claims of statistical superiority require multiple-comparison correction (Bonferroni-adjusted DeLong test)
+- Without correction, report as "empirical comparison" not "statistically superior"
+
+### Calibration Reporting Standards (Van Calster 2019 trio)
+Every calibration report must include:
+1. **Calibration slope** (target: 1.0; <0.8 = overfitting; >1.2 = underfitting)
+2. **Calibration intercept** (calibration-in-the-large; target: 0)
+3. **O:E ratio** (observed/expected; target: 1.0; 0.8-1.25 = acceptable)
+4. **ECE** (Expected Calibration Error; <0.05 = good, <0.10 = acceptable)
+
 ## Resources
 
 ### scripts/
