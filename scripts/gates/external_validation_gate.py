@@ -43,6 +43,14 @@ register_remediations({
     "missing_cross_period_cohort": "Add at least one cross_period cohort. Required for publication-grade.",
     "missing_cross_institution_cohort": "Add at least one cross_institution cohort. Required for publication-grade.",
     "missing_independent_cohort": "Add at least one independent_cohort for strongest evidence of generalizability.",
+    "external_validation_metric_replay_mismatch": "Replayed metric does not match the external validation report; re-run the evaluation pipeline on the same trace.",
+    "external_validation_missing": "Required external validation input file is missing or unparseable; verify all paths exist and contain valid JSON/CSV.",
+    "external_validation_min_cohort_not_met": "External validation requires at least the minimum number of cohorts; add more external cohort entries.",
+    "external_validation_insufficient_events": "External cohort has too few rows or positive events; collect more data for this cohort.",
+    "external_validation_transport_drop_exceeds_threshold": "Performance drop from internal to external cohort exceeds the policy threshold; consider domain adaptation.",
+    "external_validation_type_coverage_not_met": "At least one supported external cohort type (cross_period or cross_institution) must be present.",
+    "external_validation_cross_period_not_met": "Publication-grade validation requires at least one passing cross_period cohort.",
+    "external_validation_cross_institution_not_met": "Publication-grade validation requires at least one passing cross_institution cohort.",
 })
 
 

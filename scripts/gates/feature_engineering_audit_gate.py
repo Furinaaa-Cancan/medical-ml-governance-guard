@@ -26,6 +26,12 @@ register_remediations({
     "fe_selection_scope_invalid": "Feature selection must use train_only or cv_inner_train_only scope. Never use test/holdout data.",
     "fe_missing_lineage": "Feature group is not covered by feature lineage spec. Add it to the lineage.",
     "fe_reproducibility_missing": "Feature engineering report must document reproducibility steps.",
+    "feature_group_spec_missing_or_invalid": "Provide a valid feature_group_spec JSON with non-empty groups covering all selected features.",
+    "feature_engineering_report_invalid": "feature_engineering_report JSON is missing or unparseable; check the file path and format.",
+    "feature_engineering_reproducibility_missing": "Add reproducibility block (random_seed, cv, selection_thresholds, retained_feature_list, selection_scope) to the feature engineering report.",
+    "feature_engineering_scope_violation": "Feature engineering must use train_only or cv_inner_train_only scope; remove any test/valid/external scope usage.",
+    "feature_selection_data_leakage": "Selected features include forbidden or test/valid-scoped data; remove leaked features and re-run selection on train-only data.",
+    "feature_stability_evidence_missing": "Provide feature and group selection frequency evidence in the stability block of the feature engineering report.",
 })
 
 ALLOWED_SELECTION_SCOPES = {"train_only", "cv_inner_train_only"}
