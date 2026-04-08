@@ -179,7 +179,7 @@ class TestMainPassingReport:
         data = json.loads(rpt.read_text())
         assert "failures" in data
         assert "warnings" in data
-        assert "thresholds" in data  # extra fields merged into top-level envelope
+        assert "thresholds" in data.get("summary", {})  # thresholds inside summary
 
 
 class TestMainEqualizedOddsFailure:

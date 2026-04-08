@@ -711,6 +711,8 @@ def _finish(
     eval_report: Optional[Dict[str, Any]],
     summary: Optional[Dict[str, Any]] = None,
 ) -> int:
+    from _gate_utils import write_json as _write_report
+
     should_fail = bool(failures) or (args.strict and bool(warnings))
     status = "fail" if should_fail else "pass"
 
@@ -720,28 +722,30 @@ def _finish(
         if not issue.remediation:
             issue.remediation = get_remediation(issue.code)
 
+    combined_summary = dict(summary or {})
+    combined_summary["thresholds"] = thresholds
+    combined_summary["info"] = info
+
     report = build_report_envelope(
         gate_name="fairness_equity_gate",
         status=status,
         strict_mode=bool(args.strict),
         failures=fi,
         warnings=wi,
-        extra={
-            "thresholds": thresholds,
-            "summary": summary or {},
-            "info": info,
+        summary=combined_summary,
+        input_files={
+            "evaluation_report": str(Path(args.evaluation_report).expanduser().resolve()),
         },
     )
 
     if args.report:
-        out = Path(args.report)
-        out.parent.mkdir(parents=True, exist_ok=True)
-        import json
-        out.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+        _write_report(Path(args.report).expanduser().resolve(), report)
 
-    print_gate_summary("Fairness & Equity Gate", status, fi, wi, bool(args.strict), get_gate_elapsed())
+    print_gate_summary("fairness_equity_gate", status, fi, wi, bool(args.strict), get_gate_elapsed())
     return 2 if should_fail else 0
 
 
 if __name__ == "__main__":
+    from _gate_utils import start_gate_timer
+    start_gate_timer()
     raise SystemExit(main())
