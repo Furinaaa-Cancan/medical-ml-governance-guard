@@ -522,6 +522,7 @@ _register(GateSpec(
     description="Self-critique: compute quality score and generate actionable recommendations.",
     depends_on=frozenset(
         name for name in GATE_REGISTRY
+        if name != "self_critique_gate"  # explicit guard against registration order
     ),
     report_output="self_critique_report.json",
     parallelizable=False,

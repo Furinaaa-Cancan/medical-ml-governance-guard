@@ -384,7 +384,7 @@ class ArtifactManifest:
         }
         manifest_path.parent.mkdir(parents=True, exist_ok=True)
         with manifest_path.open("w", encoding="utf-8") as fh:
-            json.dump(payload, fh, indent=2)
+            json.dump(payload, fh, indent=2, sort_keys=True)
             fh.write("\n")
 
     @staticmethod
@@ -539,16 +539,24 @@ class SecureModelLoader:
                 f"model_too_large: {file_size} bytes exceeds {max_model_size} limit"
             )
 
-        # Use restricted unpickler to block arbitrary code execution
+        # Use restricted unpickler to block arbitrary code execution.
+        # SECURITY: joblib fallback is intentionally removed.  joblib.load()
+        # uses standard pickle internally and would bypass the RestrictedUnpickler,
+        # allowing arbitrary code execution from crafted .pkl files.  All MLGG
+        # model artifacts MUST be serialised with plain pickle (not joblib
+        # compression) so that RestrictedUnpickler can inspect every opcode.
         with model_path.open("rb") as fh:
             try:
                 bundle = safe_pickle_load(fh)
             except SecurityError:
                 raise
-            except (pickle.UnpicklingError, EOFError, ValueError, KeyError):
-                # Fallback for joblib-compressed formats (zlib/lz4)
-                import joblib
-                bundle = joblib.load(model_path)
+            except (pickle.UnpicklingError, EOFError, ValueError, KeyError) as exc:
+                raise SecurityError(
+                    f"model_load_failed: could not deserialise {model_path.name} "
+                    f"through RestrictedUnpickler ({type(exc).__name__}: {exc}). "
+                    f"If this model was saved with joblib compression, re-save it "
+                    f"with pickle.dump() to enable secure loading."
+                ) from exc
 
         # Validate expected structure
         if not isinstance(bundle, dict):

@@ -231,7 +231,14 @@ def build_report_envelope(
         envelope["input_files"] = input_files
 
     if extra:
-        envelope.update(extra)
+        _RESERVED = {
+            "envelope_version", "gate_name", "gate_version", "status",
+            "strict_mode", "execution_timestamp_utc", "execution_time_seconds",
+            "failure_count", "warning_count", "failures", "warnings",
+        }
+        for k, v in extra.items():
+            if k not in _RESERVED:
+                envelope[k] = v
 
     return envelope
 
