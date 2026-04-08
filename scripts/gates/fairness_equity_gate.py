@@ -100,6 +100,18 @@ register_remediations({
         "(impossibility theorem, LIT-050). Document which criterion was "
         "prioritized and why."
     ),
+    "ppv_parity_exceeds_threshold": (
+        "Positive Predictive Value gap across subgroups exceeds threshold. "
+        "Consider: 1) Investigating prevalence differences across subgroups, "
+        "2) Subgroup-specific threshold calibration, "
+        "3) Reporting per-subgroup PPV with confidence intervals."
+    ),
+    "calibration_parity_exceeds_threshold": (
+        "Calibration slope differs across subgroups — model is better calibrated "
+        "for some groups than others. Consider: 1) Per-subgroup recalibration, "
+        "2) Investigating feature distribution shifts, "
+        "3) Reporting per-subgroup calibration curves."
+    ),
 })
 
 
@@ -122,6 +134,12 @@ DEFAULT_THRESHOLDS: Dict[str, float] = {
     # FNR parity: max FNR gap across subgroups (HEAL framework)
     "fnr_gap_warn": 0.10,
     "fnr_gap_fail": 0.15,
+    # PPV parity: max PPV gap across subgroups (predictive parity)
+    "ppv_gap_warn": 0.10,
+    "ppv_gap_fail": 0.15,
+    # Calibration parity: max calibration slope deviation from 1.0 across subgroups
+    "calibration_slope_deviation_warn": 0.20,
+    "calibration_slope_deviation_fail": 0.30,
     # Minimum subgroup size for reliable assessment
     "min_subgroup_size": 20,
     # Minimum subgroup size before fairness metrics are considered unstable
@@ -265,6 +283,8 @@ def main() -> int:
     all_subgroup_pr_aucs: List[Dict[str, Any]] = []
     all_fpr_gaps: List[float] = []
     all_fnr_gaps: List[float] = []
+    all_ppv_gaps: List[float] = []
+    all_cal_slope_deviations: List[float] = []
     subgroup_details: List[Dict[str, Any]] = []
     total_fairness_metrics_reported: int = 0
 
@@ -505,6 +525,83 @@ def main() -> int:
                     },
                 )
 
+        # ── PPV parity check (predictive parity) ──────────────────────
+        ppv_gap = None
+        group_ppvs: List[float] = []
+        for group in groups:
+            if not isinstance(group, dict):
+                continue
+            ppv = _to_float(group.get("ppv", group.get("precision")))
+            if ppv is not None:
+                group_ppvs.append(ppv)
+        if len(group_ppvs) >= 2:
+            ppv_gap = max(group_ppvs) - min(group_ppvs)
+            all_ppv_gaps.append(ppv_gap)
+            if ppv_gap > thresholds["ppv_gap_fail"]:
+                add_issue(
+                    failures,
+                    "ppv_parity_exceeds_threshold",
+                    f"PPV gap for '{feature_name}' is {ppv_gap:.3f} "
+                    f"(fail threshold: {thresholds['ppv_gap_fail']:.3f}).",
+                    {
+                        "feature": feature_name,
+                        "gap": ppv_gap,
+                        "threshold": thresholds["ppv_gap_fail"],
+                    },
+                )
+            elif ppv_gap > thresholds["ppv_gap_warn"]:
+                add_issue(
+                    warnings,
+                    "ppv_parity_exceeds_threshold",
+                    f"PPV gap for '{feature_name}' is {ppv_gap:.3f} "
+                    f"(warn threshold: {thresholds['ppv_gap_warn']:.3f}).",
+                    {
+                        "feature": feature_name,
+                        "gap": ppv_gap,
+                        "threshold": thresholds["ppv_gap_warn"],
+                    },
+                )
+
+        # ── Calibration parity check ──────────────────────────────
+        cal_slope_deviation = None
+        group_cal_slopes: List[float] = []
+        for group in groups:
+            if not isinstance(group, dict):
+                continue
+            cal_slope = _to_float(group.get("calibration_slope"))
+            if cal_slope is not None:
+                group_cal_slopes.append(cal_slope)
+        if len(group_cal_slopes) >= 2:
+            max_dev = max(abs(s - 1.0) for s in group_cal_slopes)
+            cal_slope_deviation = max_dev
+            all_cal_slope_deviations.append(max_dev)
+            if max_dev > thresholds["calibration_slope_deviation_fail"]:
+                add_issue(
+                    failures,
+                    "calibration_parity_exceeds_threshold",
+                    f"Calibration slope deviation for '{feature_name}' is {max_dev:.3f} "
+                    f"(fail threshold: {thresholds['calibration_slope_deviation_fail']:.3f}).",
+                    {
+                        "feature": feature_name,
+                        "max_deviation": max_dev,
+                        "slopes": group_cal_slopes,
+                        "threshold": thresholds["calibration_slope_deviation_fail"],
+                    },
+                )
+            elif max_dev > thresholds["calibration_slope_deviation_warn"]:
+                add_issue(
+                    warnings,
+                    "calibration_parity_exceeds_threshold",
+                    f"Calibration slope deviation for '{feature_name}' is {max_dev:.3f} "
+                    f"(warn threshold: {thresholds['calibration_slope_deviation_warn']:.3f}).",
+                    {
+                        "feature": feature_name,
+                        "max_deviation": max_dev,
+                        "slopes": group_cal_slopes,
+                        "threshold": thresholds["calibration_slope_deviation_warn"],
+                    },
+                )
+
         # Count distinct fairness metrics reported for this feature
         _feature_metrics = 0
         if eo_gap is not None:
@@ -515,6 +612,10 @@ def main() -> int:
             _feature_metrics += 1
         if len(group_fnrs) >= 2:
             _feature_metrics += 1
+        if len(group_ppvs) >= 2:
+            _feature_metrics += 1
+        if len(group_cal_slopes) >= 2:
+            _feature_metrics += 1
         total_fairness_metrics_reported += _feature_metrics
 
         subgroup_details.append({
@@ -523,6 +624,8 @@ def main() -> int:
             "disparate_impact_ratio": di_ratio,
             "fpr_gap": fpr_gap,
             "fnr_gap": fnr_gap,
+            "ppv_gap": ppv_gap,
+            "calibration_slope_deviation": cal_slope_deviation,
             "n_groups": len(groups),
         })
 
@@ -565,6 +668,12 @@ def main() -> int:
         "max_fpr_gap": max(all_fpr_gaps) if all_fpr_gaps else None,
         "fnr_gaps": all_fnr_gaps,
         "max_fnr_gap": max(all_fnr_gaps) if all_fnr_gaps else None,
+        "ppv_gaps": all_ppv_gaps,
+        "max_ppv_gap": max(all_ppv_gaps) if all_ppv_gaps else None,
+        "calibration_slope_deviations": all_cal_slope_deviations,
+        "max_calibration_slope_deviation": (
+            max(all_cal_slope_deviations) if all_cal_slope_deviations else None
+        ),
         "total_fairness_metrics_reported": total_fairness_metrics_reported,
         "subgroup_details": subgroup_details,
         "thresholds": thresholds,

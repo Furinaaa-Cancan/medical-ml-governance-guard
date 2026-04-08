@@ -382,6 +382,123 @@ class TestMainNonFiniteMetric:
         assert result.returncode in (0, 2)
 
 
+class TestPPVParity:
+    """PPV parity (predictive parity) checks."""
+
+    def test_ppv_gap_pass(self, tmp_path: Path):
+        report = {
+            "subgroup_performance": {
+                "sex": {
+                    "equalized_odds_gap": 0.05,
+                    "disparate_impact_ratio": 0.90,
+                    "groups": [
+                        {"group_label": "M", "n": 100, "pr_auc": 0.80, "ppv": 0.75},
+                        {"group_label": "F", "n": 100, "pr_auc": 0.78, "ppv": 0.72},
+                    ],
+                }
+            }
+        }
+        p = _write_report(tmp_path, report)
+        result = subprocess.run(
+            [sys.executable, str(GATE_SCRIPT), "--evaluation-report", str(p)],
+            capture_output=True, text=True,
+        )
+        assert result.returncode == 0
+
+    def test_ppv_gap_fail(self, tmp_path: Path):
+        report = {
+            "subgroup_performance": {
+                "sex": {
+                    "equalized_odds_gap": 0.05,
+                    "disparate_impact_ratio": 0.90,
+                    "groups": [
+                        {"group_label": "M", "n": 100, "pr_auc": 0.80, "ppv": 0.90},
+                        {"group_label": "F", "n": 100, "pr_auc": 0.78, "ppv": 0.60},
+                    ],
+                }
+            }
+        }
+        p = _write_report(tmp_path, report)
+        result = subprocess.run(
+            [sys.executable, str(GATE_SCRIPT),
+             "--evaluation-report", str(p), "--report", str(tmp_path / "r.json")],
+            capture_output=True, text=True,
+        )
+        assert result.returncode == 2
+        r = json.loads((tmp_path / "r.json").read_text())
+        codes = [f["code"] for f in r["failures"]]
+        assert "ppv_parity_exceeds_threshold" in codes
+
+
+class TestCalibrationParity:
+    """Calibration slope parity checks."""
+
+    def test_calibration_pass(self, tmp_path: Path):
+        report = {
+            "subgroup_performance": {
+                "age_group": {
+                    "equalized_odds_gap": 0.05,
+                    "disparate_impact_ratio": 0.90,
+                    "groups": [
+                        {"group_label": "young", "n": 100, "pr_auc": 0.80, "calibration_slope": 0.95},
+                        {"group_label": "old", "n": 100, "pr_auc": 0.78, "calibration_slope": 1.05},
+                    ],
+                }
+            }
+        }
+        p = _write_report(tmp_path, report)
+        result = subprocess.run(
+            [sys.executable, str(GATE_SCRIPT), "--evaluation-report", str(p)],
+            capture_output=True, text=True,
+        )
+        assert result.returncode == 0
+
+    def test_calibration_fail(self, tmp_path: Path):
+        report = {
+            "subgroup_performance": {
+                "age_group": {
+                    "equalized_odds_gap": 0.05,
+                    "disparate_impact_ratio": 0.90,
+                    "groups": [
+                        {"group_label": "young", "n": 100, "pr_auc": 0.80, "calibration_slope": 0.95},
+                        {"group_label": "old", "n": 100, "pr_auc": 0.78, "calibration_slope": 1.50},
+                    ],
+                }
+            }
+        }
+        p = _write_report(tmp_path, report)
+        result = subprocess.run(
+            [sys.executable, str(GATE_SCRIPT),
+             "--evaluation-report", str(p), "--report", str(tmp_path / "r.json")],
+            capture_output=True, text=True,
+        )
+        assert result.returncode == 2
+        r = json.loads((tmp_path / "r.json").read_text())
+        codes = [f["code"] for f in r["failures"]]
+        assert "calibration_parity_exceeds_threshold" in codes
+
+    def test_calibration_no_data_no_error(self, tmp_path: Path):
+        """No calibration_slope in groups → no error (metric is optional)."""
+        report = {
+            "subgroup_performance": {
+                "sex": {
+                    "equalized_odds_gap": 0.05,
+                    "disparate_impact_ratio": 0.90,
+                    "groups": [
+                        {"group_label": "M", "n": 100, "pr_auc": 0.80},
+                        {"group_label": "F", "n": 100, "pr_auc": 0.78},
+                    ],
+                }
+            }
+        }
+        p = _write_report(tmp_path, report)
+        result = subprocess.run(
+            [sys.executable, str(GATE_SCRIPT), "--evaluation-report", str(p)],
+            capture_output=True, text=True,
+        )
+        assert result.returncode == 0
+
+
 class TestCliHelp:
     def test_help_exits_0(self):
         result = subprocess.run(
