@@ -11,7 +11,7 @@
 |---------|------|
 | 建模 / 预测 / 训练 / "我有数据" | → **Intake 问诊** → Phase 1 |
 | 审查代码 / review / "有没有泄漏" | → 读 `references/skill/audit-mode.md` → 执行审计 |
-| "从 Phase N 继续" / "重跑评估" | → 验证前序产物 → Phase N |
+| "从 Phase N 继续" / "重跑评估" | → 验证前序产物（见下方） → Phase N |
 | 具体问题（"EPV 是什么"） | → 直接回答，引用证据 |
 | "这个项目怎么用" | → 简介 + 推荐 `mlgg.py play` |
 
@@ -39,6 +39,21 @@
 
 Intake 完成后 → 进入 Phase 1。
 
+**中途恢复（"从 Phase N 继续"）**：检查 Phase N-1 的产出文件是否存在且无 CRITICAL：
+
+| 要恢复的 Phase | 必须验证的前序文件 |
+|---------------|-------------------|
+| Phase 2 | `evidence/cohort_report.json` |
+| Phase 3 | `evidence/leakage_report.json` |
+| Phase 4 | `data/train.csv` + lint 审查通过 |
+| Phase 5 | `evidence/lineage_report.json` |
+| Phase 6 | `evidence/tuning_leakage_report.json` + `evidence/model_selection_audit_report.json` |
+| Phase 7 | `evidence/evaluation_quality_report.json` |
+| Phase 8 | `evidence/shap_report.json` |
+| Phase 9 | `evidence/fairness_equity_report.json` |
+
+如果前序文件不存在或有 CRITICAL → 告诉用户需要先完成该 Phase。
+
 ---
 
 ## Step 3: 9-Phase 状态机
@@ -49,7 +64,7 @@ Intake 完成后 → 进入 Phase 1。
 |-------|------|---------|----------|---------|
 | 1 | 数据理解 & 队列 | `references/skill/phase-1.md` | cohort_definition_gate | < 30s |
 | 2 | 数据划分 | `references/skill/phase-2.md` | leakage_gate, split_protocol_gate | < 10s |
-| 3 | 预处理 | `references/skill/phase-3.md` | （内嵌 Pipeline 保证） | 10-60s |
+| 3 | 预处理 | `references/skill/phase-3.md` | lint + Agent 代码审查 | 10-60s |
 | 4 | 特征选择 | `references/skill/phase-4.md` | feature_lineage_gate | 1-5min |
 | 5 | 模型训练 | `references/skill/phase-5.md` | tuning_leakage_gate, model_selection_audit | 5-30min |
 | 6 | 评估 | `references/skill/phase-6.md` | evaluation_quality, calibration_dca, ci_matrix | 1-3min |

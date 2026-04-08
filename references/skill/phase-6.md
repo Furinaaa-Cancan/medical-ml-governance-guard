@@ -4,8 +4,9 @@
 在测试集上执行单次最终评估，生成完整 5 域指标面板 + Bootstrap CI。
 
 ## 前置条件
-- Phase 5 评审通过
+- Phase 5 评审通过：`evidence/tuning_leakage_report.json` 和 `evidence/model_selection_audit_report.json` 存在且 status=pass
 - 最优模型和阈值已确定
+- `evidence/evaluation_report.json` 已由 `train_select_evaluate.py` 生成
 
 ## 5 域指标面板（Lancet DH 2025）
 
@@ -25,6 +26,8 @@
 - **Platt scaling**: 如果训练时用了 `class_weight='balanced'`，必须做事后校准（MLGG-E05）
 
 ## Gate 检查
+
+**本阶段有 5 个 Gate。一次性全部运行，汇总所有报告后统一评审**（见 `review-protocol.md` 多 Gate 策略），不需要逐个跑逐个修。
 
 ```bash
 # 1. 评估质量

@@ -810,8 +810,8 @@ If any step returns non-zero, stop and block claim release.
 - `experiments/authority-e2e/scan_stress_diabetes_feasibility.py`: stress-case diabetes feasibility scanner across target modes and row caps; outputs a fail-closed feasibility report.
 
 ### plugin/
-- `plugin/mlgg_lint/`: AST-based static analysis for ML Python code (10 rules: R001–R010, 57 tests).
-- R001 fit-before-split (ERROR), R002 scaler-on-test (ERROR), R003 resample-on-test (ERROR), R004 split-without-group (WARNING), R005 threshold-on-test (ERROR), R006 feature-selection-on-full (ERROR), R007 target-as-feature (ERROR), R008 temporal-split-shuffle (WARNING), R009 no-confidence-intervals (INFO), R010 train-metric-as-final (WARNING).
+- `plugin/mlgg_lint/`: AST-based static analysis for ML Python code (20 rules: R001–R020).
+- R001 fit-before-split (ERROR), R002 scaler-on-test (ERROR), R003 resample-on-test (ERROR), R004 split-without-group (WARNING), R005 threshold-on-test (ERROR), R006 feature-selection-on-full (ERROR), R007 target-as-feature (ERROR), R008 temporal-split-shuffle (WARNING), R009 no-confidence-intervals (INFO), R010 train-metric-as-final (WARNING), R011 cv-internal-smote (ERROR), R012 cv-accuracy-imbalanced (WARNING), R013 hardcoded-threshold (WARNING), R014 label-encoder-features (ERROR), R015 small-test-set (WARNING), R016 no-random-state (WARNING), R017 early-stop-on-test (ERROR), R018 scaling-trees (INFO), R019 multiple-comparison (WARNING), R020 global-clean-before-split (ERROR).
 - Detection: keyword args (`fit(X=X_test)`), chained calls (`SMOTE().fit_resample()`), DataFrame origin tracking + `.drop()` re-assignment, Pipeline exclusion, word-boundary variable classification.
 - CLI: `python3 scripts/orchestration/mlgg.py lint check [--format text|json|sarif] [--exit-code] [--severity warning] [--disable R004,R008] PATH...`
 - Supports `# noqa: R001` / `# noqa` inline suppression and `.mlgg-lint.toml` config auto-discovery.
@@ -821,7 +821,7 @@ If any step returns non-zero, stop and block claim release.
 - Pre-commit hook at `plugin/.pre-commit-hooks.yaml`.
 
 ### examples/
-- `examples/download_real_data.py`: download and prepare 9 real medical datasets (UCI/PhysioNet/GitHub) + 2 synthetic generators.
+- `examples/download_real_data.py`: download and prepare 16 real medical datasets (UCI/PhysioNet/GitHub/Vanderbilt) + 2 synthetic generators.
   - Real datasets: heart(297), breast(569), pima(768), mammographic(961), framingham(4240), vitaldb(6388), thyroid(7200), diabetes130(10000), eeg_eye(14980).
   - All produce pipeline-ready CSV with `patient_id`, `event_time`, `y` columns.
 

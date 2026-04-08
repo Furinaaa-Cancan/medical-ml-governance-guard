@@ -4,7 +4,7 @@
 训练 ≥3 模型族，在验证集/CV 上选模型和阈值，测试集零接触。
 
 ## 前置条件
-- Phase 4 评审通过
+- Phase 4 评审通过：`evidence/lineage_report.json` 存在且 status=pass
 - 特征集已确定，EPV 充足
 
 ## 执行命令
@@ -34,6 +34,10 @@ python3 scripts/tools/train_select_evaluate.py \
 ## Gate 检查
 
 ```bash
+# 如果 configs/tuning-protocol.json 不存在，先从模板创建:
+#   cp references/tuning-protocol.example.json configs/tuning-protocol.json
+#   然后根据实际调参策略编辑
+
 # 1. 调优泄漏
 python3 scripts/gates/tuning_leakage_gate.py \
   --protocol configs/tuning-protocol.json \

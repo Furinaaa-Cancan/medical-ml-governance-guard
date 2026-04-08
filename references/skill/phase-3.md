@@ -4,8 +4,8 @@
 编码、插补、缩放——全部只在训练集上 fit，保证 Pipeline 隔离。
 
 ## 前置条件
-- Phase 2 评审通过
-- train/valid/test CSV 已存在
+- Phase 2 评审通过：`evidence/leakage_report.json` 存在且 status=pass
+- `data/train.csv` 和 `data/test.csv` 存在
 
 ## 关键事实
 
@@ -52,17 +52,29 @@ Pipeline 结构: `Imputer → Scaler → Classifier`
 - 缺失率 >80% 的列是否需要丢弃
 - 编码后特征数暴增（>200 列考虑跳过 VIF）
 
-## 本阶段没有独立 Gate
+## 评审循环（Lint + 人工审查模式）
 
-预处理由 Pipeline 保证。评审循环改为 **Agent 代码审查**：
-1. 检查 Pipeline 构建代码，确认 fit 作用域
-2. 确认编码方式匹配变量语义
-3. 确认无全局预处理（分割前的 dropna/clip）
-4. 如果有手动预处理代码 → 用 `mlgg lint check` 扫描
+本阶段没有独立 Gate 脚本。评审循环按以下步骤执行：
 
+**Step 1: Lint 扫描**
 ```bash
+# 如果有手动预处理脚本
 python3 scripts/orchestration/mlgg.py lint check <preprocessing_script.py>
 ```
+
+**Step 2: Agent 逐项代码审查**
+1. 检查 Pipeline 构建代码，确认所有 fit() 只作用于训练集
+2. 确认编码方式匹配变量语义（名义 → OneHot，不能 Ordinal）
+3. 确认无分割前的全局预处理（dropna/clip/quantile）
+4. 确认 SMOTE 未被使用，或仅在训练集内使用
+
+**Step 3: 发现问题时**
+- 按标准格式输出 `[MLGG-P0X] CRITICAL: ...`
+- 修复代码
+- 重新执行 Step 1-2 审查
+- 最多 3 轮
+
+**Step 4: 全部通过 → Phase 总结卡**
 
 ## 完成后告诉用户
 

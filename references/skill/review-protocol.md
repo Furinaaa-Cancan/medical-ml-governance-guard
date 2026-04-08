@@ -4,15 +4,33 @@
 
 ---
 
-## 执行流程
+## 两种评审模式
 
-### Round 1: 运行 Gate
+不同 Phase 使用不同的评审方式：
+
+| 模式 | 适用 Phase | 机制 |
+|------|-----------|------|
+| **Gate 模式** | 1, 2, 4, 5, 6, 7, 8, 9 | 运行 Gate 脚本 → 解析 JSON 报告 |
+| **Lint + 人工审查模式** | 3 | 运行 `mlgg lint check` + Agent 逐项代码审查 |
+
+Phase 3（预处理）没有独立 Gate 脚本，因为预处理内嵌在 sklearn Pipeline 中。该 Phase 的评审循环改为：
+1. 运行 `python3 scripts/orchestration/mlgg.py lint check <file>` 扫描代码
+2. Agent 按 MLGG-P01~P06 规则逐项审查 Pipeline 构建代码
+3. 发现问题 → 同样用标准格式输出 → fix → 重新审查
+4. lint 无诊断 + Agent 审查无问题 → 视为通过
+
+---
+
+## Gate 模式执行流程
+
+### Step 1: 运行 Gate
 
 1. 执行该 Phase 对应的 Gate 脚本（见各 Phase 规则文件中的命令）
-2. 读取 Gate 输出的 JSON 报告
-3. 解析三个列表：`failures[]`、`warnings[]`、`info[]`
+2. **多 Gate 的 Phase**（如 Phase 6 有 5 个 Gate）：**一次性全部运行**，汇总所有报告后统一评审，而非逐个运行逐个修
+3. 读取每个 Gate 输出的 JSON 报告
+4. 解析三个列表：`failures[]`、`warnings[]`、`info[]`
 
-### Round 2: 处理 CRITICAL
+### Step 2: 处理 CRITICAL
 
 对每个 failure：
 
@@ -26,11 +44,23 @@ Fix: 修复方案
 
 **b. 查证 peer-review-kb.json**
 
-按以下字段匹配：
-- `mlgg_gates` — 包含当前 gate 名的案例
-- `tags` — 匹配问题语义标签
-- `category` — 匹配问题大类
-- `severity` — 优先 CRITICAL/HIGH
+用 CLI 工具按字段匹配：
+```bash
+# 按 gate 名匹配
+python3 scripts/tools/peer_review_lookup.py --gate <gate_name>
+
+# 按问题标签匹配
+python3 scripts/tools/peer_review_lookup.py --tags "<tag1>,<tag2>"
+
+# 按维度+严重度匹配
+python3 scripts/tools/peer_review_lookup.py --dimension <N> --severity HIGH
+
+# 按关键词搜索
+python3 scripts/tools/peer_review_lookup.py --search "<keyword>"
+
+# 查看统计概况
+python3 scripts/tools/peer_review_lookup.py --stats
+```
 
 输出引用：
 ```
@@ -47,11 +77,11 @@ Fix: 修复方案
 - 如果需要用户决策 → 明确列出选项和建议
 
 **d. 重新运行 Gate**
-- 修复后必须重跑同一个 Gate
+- 修复后必须重跑**同一批**Gate（不是只跑失败的那一个）
 - 确认该 CRITICAL 已消除
 - 如果产生新的 CRITICAL → 继续处理
 
-### Round 3: 迭代控制
+### Step 3: 迭代控制
 
 - **最多 3 轮** fix-and-rerun
 - 每轮记录：修了什么、结果如何
@@ -67,7 +97,7 @@ Fix: 修复方案
   建议: [需要用户手动处理的事项]
   ```
 
-### Round 4: 处理 WARNING
+### Step 4: 处理 WARNING
 
 - **非 strict 模式**: 展示 WARNING，建议修复但不阻断
 - **strict 模式**: WARNING 视为阻断，走 CRITICAL 同样的 fix-and-rerun 流程
@@ -80,7 +110,7 @@ Recommendation: 建议运行 ≥5 seeds，std < 0.02
 NC 参考: 38/375 审稿意见要求可复现性验证
 ```
 
-### Round 5: Phase 总结卡
+### Step 5: Phase 总结卡
 
 所有检查通过后，输出总结卡：
 
@@ -103,7 +133,29 @@ NC 参考: 38/375 审稿意见要求可复现性验证
 
 ---
 
-## Peer Review 统计引用
+## Peer Review 查证工具
+
+审查时**必须**使用 `peer_review_lookup.py` 检索证据，不要手动打开 JSON 文件搜索：
+
+```bash
+# 统计概况（每次审查开始时可先看一眼）
+python3 scripts/tools/peer_review_lookup.py --stats
+
+# 按问题类别查
+python3 scripts/tools/peer_review_lookup.py --category evaluation_metrics --limit 3
+
+# 按 gate 名查（gate 失败时用）
+python3 scripts/tools/peer_review_lookup.py --gate calibration_dca_gate
+
+# 按标签查（发现具体问题时用）
+python3 scripts/tools/peer_review_lookup.py --tags "missing_calibration,no_dca"
+
+# 按维度+严重度查（Phase checkpoint 时用）
+python3 scripts/tools/peer_review_lookup.py --dimension 5 --severity HIGH
+
+# 自由文本搜索
+python3 scripts/tools/peer_review_lookup.py --search "calibration missing AUC"
+```
 
 增强说服力时，引用 `references/peer_reviews/peer-review-kb-stats.json` 中的统计数据：
 
@@ -118,7 +170,7 @@ NC 参考: 38/375 审稿意见要求可复现性验证
 
 ## 评审循环的不可协商规则
 
-1. **不可跳过**: 即使用户说"跳过检查"，也必须运行 Gate，至少告知结果
+1. **不可跳过**: 即使用户说"跳过检查"，也必须运行 Gate / lint，至少告知结果
 2. **不可降级**: CRITICAL 不能降为 WARNING
 3. **必须重跑**: 修复后必须重跑 Gate 验证，不能仅靠人工判断
 4. **必须记录**: 每次修复的内容和原因都要告诉用户

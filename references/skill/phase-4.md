@@ -4,7 +4,7 @@
 在训练集内筛选稳定特征，排除共线性和泄漏来源。
 
 ## 前置条件
-- Phase 3 评审通过
+- Phase 3 评审通过：lint 无 ERROR + Agent 代码审查无 CRITICAL
 - Pipeline 已确认编码/插补正确
 
 ## 执行步骤（内嵌在 train_select_evaluate.py）
@@ -18,6 +18,9 @@
 ## Gate 检查
 
 ```bash
+# 如果 configs/feature-lineage.json 不存在，先从模板创建:
+#   cp references/feature-lineage.example.json configs/feature-lineage.json
+#   然后根据实际特征来源编辑（记录每个特征的来源和时间归属）
 python3 scripts/gates/feature_lineage_gate.py \
   --lineage configs/feature-lineage.json \
   --report evidence/lineage_report.json \

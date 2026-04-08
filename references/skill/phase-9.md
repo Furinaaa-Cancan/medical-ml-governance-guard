@@ -4,12 +4,16 @@
 生成出版级报告，通过 TRIPOD+AI 2024 和 PROBAST+AI 2025 合规检查，输出最终质量评分。
 
 ## 前置条件
-- Phase 8 评审通过
-- 所有 evidence/ 报告文件已生成
+- Phase 8 评审通过：`evidence/fairness_equity_report.json` 存在且无 CRITICAL
+- 所有 evidence/ 报告文件已生成（Phase 1-8 各阶段产出）
 
 ## Gate 检查
 
 ```bash
+# 如果 configs/reporting-bias-checklist.json 不存在，先从模板创建:
+#   cp references/reporting-bias-checklist.example.json configs/reporting-bias-checklist.json
+#   然后根据实际报告状态编辑每个 checklist item
+
 # 1. 报告偏倚检查（TRIPOD+AI / PROBAST+AI / STARD-AI）
 python3 scripts/gates/reporting_bias_gate.py \
   --checklist configs/reporting-bias-checklist.json \

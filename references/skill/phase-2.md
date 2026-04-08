@@ -4,7 +4,7 @@
 按患者级别划分数据，确保无泄漏、无重叠、时序正确。
 
 ## 前置条件
-- Phase 1 评审通过
+- Phase 1 评审通过：`evidence/cohort_report.json` 存在且无 CRITICAL
 - 已确定：患者 ID 列、目标列、数据类型（纵向/横截面）
 
 ## 划分策略选择
@@ -43,6 +43,9 @@ python3 scripts/gates/leakage_gate.py \
   --report evidence/leakage_report.json
 
 # 2. 分割协议验证
+# 如果 configs/split-protocol.json 不存在，先从模板创建:
+#   cp references/split-protocol.example.json configs/split-protocol.json
+#   然后根据实际划分参数编辑
 python3 scripts/gates/split_protocol_gate.py \
   --protocol configs/split-protocol.json \
   --train data/train.csv --test data/test.csv \

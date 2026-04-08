@@ -4,8 +4,8 @@
 多模型 SHAP 集成，验证特征重要性一致性，生成个案解释。
 
 ## 前置条件
-- Phase 6 评审通过
-- model_pool.pkl 和 train/test 数据可用
+- Phase 6 评审通过：`evidence/evaluation_quality_report.json` 和 `evidence/calibration_dca_report.json` 存在且 status=pass
+- `evidence/model_pool.pkl` 和 `data/train.csv`, `data/test.csv` 存在
 
 ## 执行命令
 

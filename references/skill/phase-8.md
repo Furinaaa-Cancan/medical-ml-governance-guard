@@ -4,7 +4,8 @@
 检查模型在不同亚组（性别/种族/年龄）上的表现差异，评估公平性。
 
 ## 前置条件
-- Phase 7 评审通过
+- Phase 7 评审通过：`evidence/shap_report.json` 存在且无 CRITICAL
+- `evidence/evaluation_report.json` 存在
 - 测试集包含保护属性列
 
 ## Gate 检查
