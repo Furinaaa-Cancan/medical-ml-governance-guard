@@ -11,6 +11,7 @@ from mlgg_lint.rules.base import BaseRule
 
 _GLOBAL_STAT_METHODS = {"mean", "median", "std", "var", "mode", "quantile", "describe"}
 _FILL_METHODS = {"fillna", "replace", "interpolate"}
+_TEMPORAL_FILL_METHODS = {"ffill", "bfill", "pad", "backfill"}
 _STAT_CLEAN_METHODS = {"clip", "dropna"}
 
 
@@ -20,14 +21,16 @@ class GlobalCleanBeforeSplit(BaseRule):
     name = "global-clean-before-split"
     severity = Severity.WARNING
     description = (
-        "Data cleaning (fillna, replace) using global statistics (mean, median) "
-        "applied before train/test split. Global statistics computed on the full "
+        "Data cleaning (fillna, replace, ffill, bfill) using global statistics "
+        "(mean, median) or temporal propagation applied before train/test split. "
+        "Global statistics and forward/backward fills computed on the full "
         "dataset leak test distribution into the cleaning process."
     )
     remediation = (
         "Compute fill values on training data only after splitting. "
         "Use sklearn.impute.SimpleImputer inside a Pipeline for automatic "
-        "train-only imputation."
+        "train-only imputation. For temporal fills, apply ffill/bfill within "
+        "each split independently."
     )
     tags = ("leakage", "preprocessing")
 
@@ -98,6 +101,15 @@ class GlobalCleanBeforeSplit(BaseRule):
                     f"row removal based on full-data missingness pattern leaks "
                     f"information about test distribution.",
                 )
+
+        # --- ffill / bfill before split (propagates values across train/test boundary) ---
+        elif method in _TEMPORAL_FILL_METHODS:
+            self.report(
+                node,
+                f"`{method}()` before split — forward/backward fill propagates "
+                f"values across the train/test boundary, leaking future or test "
+                f"distribution information into training rows.",
+            )
 
         # --- clip with quantile-based bounds before split ---
         elif method == "clip":

@@ -1560,6 +1560,118 @@
       "affected_files": [
         "references/scoring-methodology.md"
       ]
+    },
+    {
+      "id": "ERR-100",
+      "code": "COHORT_TARGET_MISSING",
+      "symptom": "Target column not found in data or contains no valid binary values",
+      "root_cause": "The specified --target-col does not exist in the CSV, or all values are NaN/non-binary",
+      "fix": "Verify the target column name matches exactly (case-sensitive). Ensure the column contains only 0/1 or True/False values.",
+      "prevention": "Run schema_preflight before cohort_definition_gate to catch column mismatches early",
+      "category": "data",
+      "severity": "ERROR",
+      "gate": "cohort_definition_gate",
+      "affected_files": [
+        "scripts/gates/cohort_definition_gate.py"
+      ]
+    },
+    {
+      "id": "ERR-101",
+      "code": "COHORT_EPV_CRITICAL",
+      "symptom": "Events per variable (EPV) < 5, sample size severely insufficient",
+      "root_cause": "Too few positive events relative to candidate features. Riley 2019 triple criteria not met.",
+      "fix": "Reduce feature count (clinical prior selection), increase sample size, or use penalized methods (Ridge) with full feature set",
+      "prevention": "Estimate EPV before feature engineering. Use riley_sample_size() to compute minimum required n.",
+      "category": "statistical",
+      "severity": "ERROR",
+      "gate": "cohort_definition_gate",
+      "affected_files": [
+        "scripts/gates/cohort_definition_gate.py"
+      ]
+    },
+    {
+      "id": "ERR-102",
+      "code": "COHORT_OUTCOME_DEFINITION_LEAKAGE",
+      "symptom": "Feature with |r| > 0.95 correlation to target detected — near-certain leakage",
+      "root_cause": "A column used to define the outcome (e.g., HbA1c for diabetes) is still present as a predictor feature",
+      "fix": "Add the leaking column to --definition-cols or --ignore-cols. Verify it is not a post-outcome variable.",
+      "prevention": "Always declare outcome-definition columns explicitly via --definition-cols before training",
+      "category": "leakage",
+      "severity": "ERROR",
+      "gate": "cohort_definition_gate",
+      "affected_files": [
+        "scripts/gates/cohort_definition_gate.py"
+      ]
+    },
+    {
+      "id": "ERR-103",
+      "code": "COHORT_SEVERE_IMBALANCE",
+      "symptom": "Class imbalance ratio exceeds 20:1, minority class may be too rare for stable modeling",
+      "root_cause": "Rare outcome (prevalence < 5%). Standard ML methods produce unreliable probability estimates.",
+      "fix": "Consider class_weight='balanced', verify EPV adequacy, use PR-AUC (not AUROC) as primary metric",
+      "prevention": "Check prevalence in Phase 1 before proceeding. For prevalence < 2%, reconsider study design.",
+      "category": "data",
+      "severity": "WARNING",
+      "gate": "cohort_definition_gate",
+      "affected_files": [
+        "scripts/gates/cohort_definition_gate.py"
+      ]
+    },
+    {
+      "id": "ERR-104",
+      "code": "SHAP_RANK_DISAGREEMENT",
+      "symptom": "Kendall tau < 0.3 between model families — feature importance rankings severely disagree",
+      "root_cause": "Different model families capture different aspects of the data (Rashomon effect). Low agreement suggests no robust importance signal.",
+      "fix": "Investigate features with highest rank variance. Consider if model-specific interactions dominate. Report disagreement transparently.",
+      "prevention": "Use >= 3 diverse model families. Check if data has strong nonlinear structure that favors one family.",
+      "category": "model",
+      "severity": "ERROR",
+      "gate": "shap_interpretability_gate",
+      "affected_files": [
+        "scripts/gates/shap_interpretability_gate.py"
+      ]
+    },
+    {
+      "id": "ERR-105",
+      "code": "SHAP_EXTREME_CONCENTRATION",
+      "symptom": "Single feature accounts for > 50% of total ensemble SHAP importance",
+      "root_cause": "One feature dominates predictions. May indicate leakage (definition variable) or legitimate strong predictor.",
+      "fix": "Verify the dominant feature is not a post-outcome variable. Check feature_lineage_gate and definition_variable_guard reports.",
+      "prevention": "Review top feature against clinical knowledge before accepting. If it is a lab result, confirm it was available at prediction time.",
+      "category": "model",
+      "severity": "WARNING",
+      "gate": "shap_interpretability_gate",
+      "affected_files": [
+        "scripts/gates/shap_interpretability_gate.py"
+      ]
+    },
+    {
+      "id": "ERR-106",
+      "code": "SHAP_COMPUTATION_FAILED",
+      "symptom": "SHAP value computation raised an exception for one or more model families",
+      "root_cause": "Model-specific issues: memory exhaustion (KernelExplainer on large data), incompatible model API, or numerical instability",
+      "fix": "Reduce --explain-samples (default 500) or --background-samples (default 200). For KernelExplainer, try <= 100 background samples.",
+      "prevention": "Use TreeExplainer-compatible models (RF, XGB, CatBoost, LGBM) for reliable SHAP computation.",
+      "category": "environment",
+      "severity": "ERROR",
+      "gate": "shap_interpretability_gate",
+      "affected_files": [
+        "scripts/gates/shap_interpretability_gate.py"
+      ]
+    },
+    {
+      "id": "ERR-107",
+      "code": "SHAP_POOL_LOAD_FAILED",
+      "symptom": "Cannot load model_pool.pkl — file missing, corrupted, or signature verification failed",
+      "root_cause": "model_pool.pkl was not generated during training (requires --model-pool-out), or HMAC signature mismatch after file modification",
+      "fix": "Re-run training with --model-pool-out evidence/model_pool.pkl. If signature fails, verify .mlgg_model_key has not changed.",
+      "prevention": "Always include --model-pool-out in training command. Never modify .pkl files manually.",
+      "category": "security",
+      "severity": "ERROR",
+      "gate": "shap_interpretability_gate",
+      "affected_files": [
+        "scripts/gates/shap_interpretability_gate.py"
+      ]
     }
   ],
   "agent_instructions": {
