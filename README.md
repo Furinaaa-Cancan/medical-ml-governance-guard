@@ -397,75 +397,212 @@ Heinze 2018 (Biometrical Journal) 明确反对单因素 p 值筛选：导致多�
 
 ### 阶段五：模型训练与选择
 
-> **脚本**: `train_select_evaluate.py` &nbsp;|&nbsp; **Gate**: `model_selection_audit_gate` &nbsp;|&nbsp; **规则**: M01-M04, R01
+> **脚本**: `train_select_evaluate.py` &nbsp;|&nbsp; **门控**: `model_selection_audit_gate` &nbsp;|&nbsp; **规则**: M01-M04, R01
 
-#### 5.1 候选模型族（MLGG-M03：>= 3）
+#### 5.1 训练管线结构
 
-MLGG 支持 20 个模型族 (详见 [20 个模型族](#20-个模型族) 节)。推荐至少比较：
-- **Logistic Regression** (L1/L2/ElasticNet) &mdash; 线性基线，系数可直接解释
-- **Random Forest** &mdash; 非线性 + 交互，天然处理缺失
-- **XGBoost / LightGBM** &mdash; 梯度提升，通常性能最优
+每个候选模型以 sklearn `Pipeline` 形式构造，确保预处理和模型训练严格绑定：
 
-每族定义超参数网格，通过 Optuna TPE sampler 或 Grid Search 在**验证集**上调优。
+```
+Pipeline([
+    ("imputer",    SimpleImputer(strategy="median", add_indicator=True)),
+    ("scaler",     StandardScaler()),
+    ("classifier", model)      # 如 LogisticRegression / RandomForest / XGBoost ...
+])
+```
 
-#### 5.2 模型选择标准（MLGG-M04, Yang KDD 2023）
+- **Imputer**: 中位数插补 + 缺失指示列（树模型不加 indicator，原生处理缺失）
+- **Scaler**: StandardScaler 仅在训练集 fit，验证/测试集只 transform
+- **Classifier**: 由模型族决定，带预定义超参网格
+
+#### 5.2 候选模型族（MLGG-M03：>= 3）
+
+MLGG 支持 20 个模型族（详见 [20 个模型族](#20-个模型族) 节），推荐至少比较 3 族：
+
+| 推荐族 | 优势 | 典型超参网格 |
+|:-------|:-----|:------------|
+| **Logistic Regression** (L1/L2/ElasticNet) | 线性基线，系数可直接临床解释 | C in {0.01, 0.1, 1, 10}, penalty in {l1, l2, elasticnet} |
+| **Random Forest** | 非线性 + 特征交互，天然处理缺失 | n_estimators in {300, 500}, max_depth in {4, 5, 6} |
+| **XGBoost / LightGBM** | 梯度提升，通常性能最优 | n_estimators in {200, 400}, max_depth in {3, 5, 7}, learning_rate in {0.01, 0.05, 0.1} |
+| **CatBoost** (可选) | 原生类别编码 | depth in {4, 6, 8}, learning_rate in {0.03, 0.1} |
+| **SVM** (可选) | 高维空间，小样本有优势 | C in {0.1, 1, 10}, kernel in {linear, rbf} |
+
+调优方式：Optuna TPE sampler 或 Grid Search，在**验证集**上调优，绝不碰测试集。默认 5 折 StratifiedKFold 内部 CV。
+
+#### 5.3 模型复杂度排名
+
+one-SE 规则需要"选最简单模型"，因此每个候选模型有一个复杂度分数。排名规则：
+
+```
+族基础复杂度（越小越简单）：
+  Gaussian NB (1) < LR-L1 (2) < LR-L2 (3) < LR-EN (4) < KNN (5)
+  < Decision Tree (6) < SVM-linear (7) < SVM-rbf (8) < AdaBoost (9)
+  < RF (10) < ExtraTrees (11) < HistGB (12) < MLP (13)
+  < XGBoost (14) < CatBoost (15) < LightGBM (16) < TabPFN (17)
+
+族内排名：按超参复杂度加分
+  - LR: C 越大越复杂（正则化越弱）
+  - RF: max_depth 越深 + n_estimators 越多 = 越复杂
+  - XGBoost: 深度 x 树数量 x 学习率的组合
+
+集成模型：复杂度 = 15000+（永远排在最后）
+```
+
+#### 5.4 类别不平衡处理
+
+医学数据通常严重不平衡（正类 5-15%）。MLGG 支持 7 种策略，**所有重采样仅在训练集上执行**：
+
+| 策略 | 实现 | 适用场景 |
+|:-----|:-----|:---------|
+| `auto` | 根据不平衡比自动选择 | 默认推荐 |
+| `none` | 不做任何处理 | 平衡数据 |
+| `class_weight` | `class_weight="balanced"` | **推荐** &mdash; 不生成合成样本，需配合 Platt scaling 校准 |
+| `random_oversample` | 少数类随机重复采样 | 简单，不引入噪声 |
+| `random_undersample` | 多数类随机丢弃 | 数据量充足时 |
+| `smote` | 合成少数类过采样 | **慎用** &mdash; van den Goorbergh 2022 证明损害校准 |
+| `adasyn` | 自适应合成采样 | **慎用** &mdash; 同 SMOTE 问题 |
+
+> **铁律**: 重采样只作用于训练集（`apply_imbalance_strategy_to_train()`），验证集和测试集保持原始分布不变。
+
+#### 5.5 交叉验证细节
+
+| 参数 | 默认值 | 说明 |
+|:-----|:-------|:-----|
+| CV 折数 | 5 | StratifiedKFold，保持各折正类比例一致 |
+| 最小折数 | 3 | 低于 3 折强制报错 |
+| 选择数据源 | `cv_inner` | 模型选择基于内部 CV 的 OOF 预测 |
+| 备选数据源 | `valid` | 使用独立验证集（适合大数据集） |
+| 嵌套 CV | `nested_cv` | 外层选模型 + 内层调参（最严格但最慢） |
+
+当选择 `cv_inner` 时，模型在训练集上做 K 折 CV，收集 out-of-fold 预测，在 OOF 上计算 PR-AUC 用于模型选择。**测试集自始至终不参与任何选择过程。**
+
+#### 5.6 模型选择标准（MLGG-M04, Yang KDD 2023）
 
 **不使用 train-test gap 选模型。** Yang et al. 2023 证明验证集性能是更可靠的模型选择准则：
 
 ```
- WRONG:  Select model with smallest |AUC_train - AUC_test|
- MLGG:   Select model with highest validation PR-AUC (one-SE rule tiebreak)
+  错误做法:  选 |AUC_train - AUC_test| 最小的模型
+  MLGG:      选验证集 PR-AUC 最高的模型（one-SE 规则破平局）
 ```
 
-**One-SE Rule**: 在最优性能的 1 个标准误范围内，选择复杂度最低的模型 (偏好 LR > RF > XGBoost)：
+**One-SE 规则**：在最优性能的 1 个标准误范围内，选择复杂度最低的模型（偏好 LR > RF > XGBoost）：
 
 ```python
-best_se = best_std / sqrt(n_folds)
-threshold = best_mean - best_se
-eligible = [m for m in candidates if m.mean >= threshold]
-selected = min(eligible, key=complexity_rank)
+best_se = best_std / sqrt(n_folds)        # 最优模型的标准误
+threshold = best_mean - best_se            # 可接受的最低性能
+eligible = [m for m in candidates if m.mean >= threshold]  # 筛选合格模型
+selected = min(eligible, key=complexity_rank)               # 选最简单的
 ```
 
-#### 5.3 阈值选择（MLGG-M02）
+#### 5.7 过拟合回调机制
 
-在**验证集**上通过 F-beta 最大化 + 临床约束确定最优分类阈值。阈值绝不在测试集上选择 (MLGG-M01 零容忍)。
+当选定模型的 train-test gap 超过阈值时，自动触发过拟合回调：
 
-默认临床约束：
+```
+1. 计算过拟合风险：
+   - PR-AUC gap > 0.15  →  risk = "high"
+   - PR-AUC gap > 0.10  →  risk = "medium"
+   - 否则               →  risk = "low"
+
+2. 如果 risk >= "medium"：
+   - 在候选池中寻找 gap 更小的替代模型
+   - 替代模型必须仍满足 one-SE 规则
+   - 如果找到，切换到替代模型并记录 fallback_trace
+   - 如果没找到，保留原模型但发出 WARNING
+
+3. 输出：
+   - callback_activated: true/false
+   - original_model_id: 原始选择
+   - fallback_trace: 替代搜索过程
+```
+
+> Gap 仍然**不用于模型选择**——回调仅在选择完成后作为安全网触发。
+
+#### 5.8 阈值选择（MLGG-M02）
+
+在**验证集**上通过 F-beta 最大化 + 临床约束确定最优分类阈值。阈值绝不在测试集上选择（MLGG-M01 零容忍）。
+
+**选择流程**：
+
+```
+1. 生成 299 个分位数阈值 + 0.5（共 300 个候选）
+2. 对每个阈值，在选择集（valid/cv_inner OOF）上计算指标
+3. 筛选满足所有临床约束的"可行阈值"
+4. 在可行阈值中选 F-beta 最大的
+5. 如果有 guard split（内部交叉验证），在 guard split 上二次验证
+6. 如果 guard split 无可行阈值，选约束违反最小的阈值
+```
+
+默认临床约束（可通过 `--sensitivity-floor` 等参数覆盖）：
 
 | 临床指标 | 默认下限 | 含义 |
 |:---------|:---------|:-----|
-| Sensitivity | >= 0.70 | 漏诊率上限 |
+| Sensitivity | >= 0.70 | 漏诊率上限 30% |
 | NPV | >= 0.70 | 阴性预测值下限 |
-| Specificity | >= 0.60 | 误诊率上限 |
+| Specificity | >= 0.60 | 误诊率上限 40% |
 | PPV | >= 0.50 | 阳性预测值下限 |
 
-#### 5.4 Bootstrap Optimism Correction（Steyerberg 2019 Ch.17）
+> **为什么不用 Youden's J**: Youden's J（Sensitivity + Specificity - 1）不考虑临床约束。F-beta + 临床下限可以保证模型在临床可接受的范围内运行。例如，Youden's J 可能选到 Sensitivity=0.50 的阈值（漏诊一半患者），而 MLGG 的约束会阻止这种情况。
+
+#### 5.9 概率校准
+
+`class_weight="balanced"` 会扭曲预测概率（ECE 可达 0.3-0.4）。MLGG 在训练后自动进行概率校准：
+
+| 校准方法 | 实现 | 适用场景 |
+|:---------|:-----|:---------|
+| Platt scaling | `CalibratedClassifierCV(method="sigmoid")` | **默认** &mdash; 大多数模型适用 |
+| Isotonic regression | `CalibratedClassifierCV(method="isotonic")` | 非单调关系 |
+| 无校准 | &mdash; | 模型原生概率已校准（如 LR） |
+
+校准器在**验证集**上 fit，应用于测试集。校准后 ECE 应 < 0.06。
+
+#### 5.10 Bootstrap Optimism Correction（Steyerberg 2019 Ch.17）
 
 内部验证方法，估计模型性能的"乐观偏差"：
 
 ```
-For each of B bootstrap resamples (B >= 100):
-    1. Fit model on bootstrap sample
-    2. Score on bootstrap sample -> apparent_i
-    3. Score on original training set -> test_i
+对 B 次 bootstrap 重采样（B >= 100）：
+    1. 在 bootstrap 样本上拟合模型
+    2. 在 bootstrap 样本上评分 → apparent_i
+    3. 在原始训练集上评分 → test_i
     4. optimism_i = apparent_i - test_i
 
-corrected = apparent_original - mean(optimism_i)
+校正后性能 = 原始表观性能 - mean(optimism_i)
 ```
 
-输出 `bootstrap_optimism_correction` 块：apparent / optimism / corrected (pr_auc, roc_auc, brier)。
+输出 `bootstrap_optimism_correction` 块，包含 pr_auc / roc_auc / brier 三个指标的 apparent / optimism / corrected 值。
 
-#### 5.5 学习曲线（Figueroa 2012）
+#### 5.11 学习曲线（Figueroa 2012）
 
-评估模型是否已"收敛" &mdash; 训练数据再增加是否还能提升性能：
+评估模型是否已"收敛"——训练数据再增加是否还能提升性能：
 
 - 在 {10%, 20%, 30%, 50%, 70%, 85%, 100%} 训练集比例上分别训练
+- 每个比例使用分层子采样保持正类率一致
 - 收敛判定：最后 3 个点的相对标准差 < 2%
 - 输出 `learning_curve` 块：每个点的 train_score / valid_score + converged flag
+- 如果未收敛，建议增加数据量或简化模型
 
-#### 5.6 定义列强制排除
+#### 5.12 定义列强制排除
 
 `--definition-cols HbA1c,fasting_glucose` &mdash; 结局定义列被**强制排除**，不再是建议。防止最常见的医学 ML 泄漏：用于定义结局的变量混入预测特征。
+
+#### 5.13 输出工件
+
+训练完成后生成以下工件，全部经 HMAC-SHA256 签名：
+
+| 工件 | 文件 | 内容 |
+|:-----|:-----|:-----|
+| 最优模型 | `model.pkl` | 序列化的 Pipeline（Imputer + Scaler + Classifier + 校准器 + 阈值） |
+| 模型池 | `model_pool.pkl` | 各族最优候选模型（供 SHAP 分析用） |
+| 选择报告 | `model_selection_report.json` | 候选池、CV 分数、one-SE 跟踪、选中模型 |
+| 评估报告 | `evaluation_report.json` | 测试指标、CI、过拟合分析、校准、DCA、NRI/IDI |
+| 预测轨迹 | `prediction_trace.csv.gz` | 每行的 y_true / y_score / y_pred（供回放验证） |
+| 特征工程报告 | `feature_engineering_report.json` | 特征选择过程、稳定性、VIF、非线性检验 |
+| 分布报告 | `distribution_report.json` | 特征分布漂移（JSD）across train/valid/test |
+| CI 矩阵报告 | `ci_matrix_report.json` | 所有指标的 Bootstrap 95% CI |
+| 鲁棒性报告 | `robustness_report.json` | 时间片和亚组性能 |
+| 种子敏感性报告 | `seed_sensitivity_report.json` | 多种子稳定性分析 |
+| 置换零分布 | `permutation_null.txt` | PR-AUC 的置换检验零分布 |
 
 ---
 
