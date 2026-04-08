@@ -91,7 +91,7 @@ def sigmoid(x: np.ndarray) -> np.ndarray:
     return 1.0 / (1.0 + np.exp(-clipped))
 
 
-def fit_calibration_slope_intercept(y_true: np.ndarray, y_score: np.ndarray, ridge: float = 20.0) -> Optional[Dict[str, float]]:
+def fit_calibration_slope_intercept(y_true: np.ndarray, y_score: np.ndarray, ridge: float = 0.1) -> Optional[Dict[str, float]]:
     if y_true.shape[0] < 3 or len(np.unique(y_true)) < 2:
         return None
     eps = 1e-6
@@ -100,7 +100,9 @@ def fit_calibration_slope_intercept(y_true: np.ndarray, y_score: np.ndarray, rid
     X = np.column_stack([np.ones_like(z), z]).astype(float)
     beta = np.array([0.0, 1.0], dtype=float)
     prior = np.array([0.0, 1.0], dtype=float)
-    # Strong prior regularization stabilizes slope/intercept estimation in small cohorts.
+    # Weak regularization for numerical stability only (BMJ 2024 LIT-045:
+    # unregularized logistic calibration preferred; ridge=20 was too strong
+    # and pulled slope toward 1.0 even for poorly calibrated models).
 
     for _ in range(80):
         eta = X @ beta
@@ -177,7 +179,7 @@ def parse_policy_thresholds(policy: Optional[Dict[str, Any]]) -> Dict[str, Any]:
         "min_rows": 50,
         "min_positives": 10,
         "ece_bins": 10,
-        "ece_min_bin_size": 15,
+        "ece_min_bin_size": 40,
         "threshold_grid": {"start": 0.05, "end": 0.50, "step": 0.05},
         "min_advantage_coverage": 0.50,
         "min_average_advantage": 0.0,

@@ -3194,7 +3194,10 @@ def choose_model_one_se(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
         and eligible models.
     """
     best = max(rows, key=lambda r: float(r["mean"]))
-    best_se = float(best["std"]) / math.sqrt(float(best["n_folds"]))
+    n_folds = int(best["n_folds"])
+    if n_folds < 2:
+        raise ValueError(f"one-SE rule requires n_folds >= 2, got {n_folds}")
+    best_se = float(best["std"]) / math.sqrt(float(n_folds))
     threshold = float(best["mean"]) - best_se
     eligible = [r for r in rows if float(r["mean"]) >= threshold - 1e-12]
     chosen = sorted(
@@ -3910,6 +3913,56 @@ def build_prediction_trace_rows(
     return pd.DataFrame(payload)
 
 
+def _bca_ci(boot_stats: np.ndarray, original_stat: float, jackknife_stats: np.ndarray, alpha: float = 0.05) -> Tuple[float, float]:
+    """Compute BCa (Bias-Corrected and Accelerated) confidence interval.
+
+    Falls back to percentile method if BCa computation fails (e.g., zero
+    acceleration due to identical jackknife values).
+
+    References:
+        Efron & Tibshirani 1993, Chapter 14.
+    """
+    from scipy import stats as _sp_stats
+
+    n_boot = len(boot_stats)
+    if n_boot < 50:
+        lo, hi = np.percentile(boot_stats, [100 * alpha / 2, 100 * (1 - alpha / 2)])
+        return float(lo), float(hi)
+
+    # Bias correction factor z0
+    proportion_below = np.mean(boot_stats < original_stat)
+    proportion_below = np.clip(proportion_below, 1e-10, 1.0 - 1e-10)
+    z0 = float(_sp_stats.norm.ppf(proportion_below))
+
+    # Acceleration factor a (from jackknife)
+    jk_mean = np.mean(jackknife_stats)
+    diffs = jk_mean - jackknife_stats
+    denom = np.sum(diffs ** 2)
+    if denom < 1e-30:
+        # No variation in jackknife → fallback to percentile
+        lo, hi = np.percentile(boot_stats, [100 * alpha / 2, 100 * (1 - alpha / 2)])
+        return float(lo), float(hi)
+    a = float(np.sum(diffs ** 3) / (6.0 * denom ** 1.5))
+
+    # Adjusted quantiles
+    z_alpha_lo = float(_sp_stats.norm.ppf(alpha / 2))
+    z_alpha_hi = float(_sp_stats.norm.ppf(1 - alpha / 2))
+
+    def _adj(z_a: float) -> float:
+        num = z0 + z_a
+        denom_val = 1.0 - a * num
+        if abs(denom_val) < 1e-10:
+            return z_a  # fallback
+        return float(_sp_stats.norm.cdf(z0 + num / denom_val))
+
+    q_lo = max(0.0, min(1.0, _adj(z_alpha_lo)))
+    q_hi = max(0.0, min(1.0, _adj(z_alpha_hi)))
+
+    lo = float(np.percentile(boot_stats, 100 * q_lo))
+    hi = float(np.percentile(boot_stats, 100 * q_hi))
+    return lo, hi
+
+
 def bootstrap_ci_pr_auc(y_true: np.ndarray, proba: np.ndarray, n_resamples: int, seed: int) -> Tuple[float, float, int]:
     """Compute 95% bootstrap CI for PR-AUC.
 
@@ -3940,7 +3993,14 @@ def bootstrap_ci_pr_auc(y_true: np.ndarray, proba: np.ndarray, n_resamples: int,
     if len(hits) < 200:
         raise ValueError(f"Insufficient bootstrap resamples for CI: {len(hits)}")
     arr = np.asarray(hits, dtype=float)
-    lo, hi = np.percentile(arr, [2.5, 97.5]).tolist()
+    # BCa CI: compute original statistic + jackknife for acceleration
+    original_stat = float(average_precision_score(y_true, proba))
+    n = len(y_true)
+    jk_stats = np.empty(n, dtype=float)
+    for i in range(n):
+        mask = np.concatenate([np.arange(i), np.arange(i + 1, n)])
+        jk_stats[i] = float(average_precision_score(y_true[mask], proba[mask]))
+    lo, hi = _bca_ci(arr, original_stat, jk_stats, alpha=0.05)
     return float(lo), float(hi), int(len(hits))
 
 
@@ -4232,11 +4292,15 @@ def bootstrap_metric_ci(
         if arr.size == 0:
             summary[metric] = {"ci_lower": None, "ci_upper": None, "ci_width": None}
             continue
+        # Percentile CI for supplementary metrics (BCa used for primary
+        # PR-AUC in bootstrap_ci_pr_auc; jackknife per-metric here would
+        # be O(n * n_metrics) and is not justified for 14 supplementary metrics).
         lo, hi = np.percentile(arr, [2.5, 97.5]).tolist()
         summary[metric] = {
             "ci_lower": float(lo),
             "ci_upper": float(hi),
             "ci_width": float(hi - lo),
+            "ci_method": "percentile",
         }
     return summary, int(effective)
 
