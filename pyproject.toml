@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ml-governance-guard"
 version = "0.1.0"
-description = "Publication-grade medical prediction workflow with strict anti-data-leakage gates."
+description = "Publication-grade medical prediction workflow with 33 fail-closed governance gates."
 readme = "README.md"
 license = {text = "PolyForm Noncommercial License 1.0.0"}
 requires-python = ">=3.10"
