@@ -1180,18 +1180,18 @@ def baseline_comparisons(
     n = len(y_t)
     prev = float(y_t.mean())
 
-    # Model performance
+    # Model performance (use pr_auc/roc_auc consistently with metric_panel)
     model = {
-        "auroc": round(float(roc_auc_score(y_t, y_s)), 4),
-        "auprc": round(float(average_precision_score(y_t, y_s)), 4),
+        "roc_auc": round(float(roc_auc_score(y_t, y_s)), 4),
+        "pr_auc": round(float(average_precision_score(y_t, y_s)), 4),
         "brier": round(float(brier_score_loss(y_t, y_s)), 4),
     }
 
     # Prevalence baseline: predict P(y=1) for everyone
     prev_scores = np.full(n, prev)
     prevalence_baseline = {
-        "auroc": 0.5,  # by definition
-        "auprc": round(prev, 4),  # AP = prevalence for constant predictions
+        "roc_auc": 0.5,  # by definition
+        "pr_auc": round(prev, 4),  # AP = prevalence for constant predictions
         "brier": round(float(brier_score_loss(y_t, prev_scores)), 4),
     }
 
@@ -1209,8 +1209,8 @@ def baseline_comparisons(
 
     # Improvements over prevalence baseline
     improvement = {
-        "auroc_over_random": round(model["auroc"] - 0.5, 4),
-        "auprc_over_prevalence": round(model["auprc"] - prev, 4),
+        "roc_auc_over_random": round(model["roc_auc"] - 0.5, 4),
+        "pr_auc_over_prevalence": round(model["pr_auc"] - prev, 4),
         "brier_skill_score": round(
             1 - model["brier"] / prevalence_baseline["brier"], 4
         ) if prevalence_baseline["brier"] > 0 else None,

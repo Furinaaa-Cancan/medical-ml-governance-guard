@@ -315,10 +315,10 @@ def parse_args() -> argparse.Namespace:
         help="Parallel CPU workers for multi-core estimators (e.g., RF/XGBoost).",
     )
     parser.add_argument("--beta", type=float, default=1.5, help="Beta for F-beta threshold objective.")
-    parser.add_argument("--sensitivity-floor", type=float, default=0.70, help="Minimum sensitivity for threshold choice.")
-    parser.add_argument("--npv-floor", type=float, default=0.70, help="Minimum NPV for threshold choice.")
-    parser.add_argument("--specificity-floor", type=float, default=0.60, help="Minimum specificity for threshold choice.")
-    parser.add_argument("--ppv-floor", type=float, default=0.50, help="Minimum PPV for threshold choice.")
+    parser.add_argument("--sensitivity-floor", type=float, default=0.70, help="Minimum sensitivity for threshold choice (default 0.70; performance-policy.example.json recommends 0.85 for publication-grade).")
+    parser.add_argument("--npv-floor", type=float, default=0.70, help="Minimum NPV for threshold choice (default 0.70; performance-policy.example.json recommends 0.90 for publication-grade).")
+    parser.add_argument("--specificity-floor", type=float, default=0.60, help="Minimum specificity for threshold choice (default 0.60; performance-policy.example.json uses 0.40).")
+    parser.add_argument("--ppv-floor", type=float, default=0.50, help="Minimum PPV for threshold choice (default 0.50; performance-policy.example.json recommends 0.55).")
     parser.add_argument(
         "--class-weight-override",
         default="auto",

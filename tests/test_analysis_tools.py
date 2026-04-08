@@ -283,8 +283,8 @@ class TestBaselineComparisons:
         y_score = np.clip(y * 0.6 + rng.normal(0.3, 0.1, n), 0.01, 0.99)
         y_pred = (y_score > 0.5).astype(int)
         r = baseline_comparisons(y, y_score, y_pred)
-        assert r["model"]["auroc"] > 0.5
-        assert r["improvement_over_baseline"]["auroc_over_random"] > 0
+        assert r["model"]["roc_auc"] > 0.5
+        assert r["improvement_over_baseline"]["roc_auc_over_random"] > 0
         assert r["improvement_over_baseline"]["brier_skill_score"] > 0
 
     def test_prevalence_baseline(self):
@@ -294,7 +294,7 @@ class TestBaselineComparisons:
         y_score = np.full(n, 0.2)  # predict prevalence for everyone
         y_pred = np.zeros(n, dtype=int)
         r = baseline_comparisons(y, y_score, y_pred)
-        assert r["prevalence_baseline"]["auroc"] == 0.5
+        assert r["prevalence_baseline"]["roc_auc"] == 0.5
         assert r["all_positive"]["sensitivity"] == 1.0
         assert r["all_negative"]["specificity"] == 1.0
 
