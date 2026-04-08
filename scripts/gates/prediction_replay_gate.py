@@ -47,6 +47,12 @@ register_remediations({
     "metric_replay_mismatch": "Replayed metric does not match evaluation report. Re-run evaluation to ensure consistency.",
     "split_fingerprint_mismatch": "Split fingerprint mismatch between prediction trace and evaluation report.",
     "threshold_replay_mismatch": "Replayed threshold does not match evaluation report threshold.",
+    "prediction_trace_missing": "Ensure the evaluation_report and prediction_trace files exist at the specified paths.",
+    "prediction_trace_schema_invalid": "Fix the prediction trace or evaluation report to match the required schema and column structure.",
+    "prediction_trace_non_finite": "Replace NaN/Inf values in y_score or selected_threshold with valid finite numbers.",
+    "prediction_score_out_of_range": "Ensure y_score values are clipped to [0, 1] before writing the prediction trace.",
+    "prediction_metric_replay_mismatch": "Replayed metric diverges from evaluation report; re-run evaluation with the same data and threshold.",
+    "prediction_trace_rowcount_mismatch": "Prediction trace row count must match the evaluation metadata fingerprint row_count per split.",
 })
 
 

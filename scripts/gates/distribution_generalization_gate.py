@@ -34,6 +34,13 @@ register_remediations({
     "feature_drift_exceeds_threshold": "Significant feature distribution shift detected. Investigate data pipeline changes or population drift.",
     "domain_classifier_auc_high": "Domain classifier can easily distinguish splits — strong covariate shift present.",
     "external_cohort_generalization_poor": "Model generalizes poorly to external cohorts. Consider domain adaptation.",
+    "distribution_report_schema_invalid": "Fix the distribution/external-validation report structure to match the expected schema.",
+    "distribution_shift_exceeds_threshold": "Reduce distribution shift by aligning data pipelines or applying domain adaptation between train and target splits.",
+    "distribution_shift_warning": "Distribution shift is approaching the fail threshold; investigate feature drift before proceeding.",
+    "split_separability_exceeds_threshold": "A classifier can distinguish train from target split — review for covariate shift or data leakage.",
+    "split_separability_warning": "Split separability is elevated; monitor for worsening covariate shift.",
+    "missingness_pattern_shift_exceeds_threshold": "Missingness patterns differ significantly between splits — check data collection or imputation pipeline.",
+    "missingness_pattern_shift_warning": "Missingness pattern shift is approaching the fail threshold; review missing-data handling.",
 })
 
 

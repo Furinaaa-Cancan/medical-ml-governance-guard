@@ -38,6 +38,11 @@ register_remediations({
     "robustness_primary_metric_mismatch": "Set primary_metric to 'pr_auc' in robustness_report for publication-grade.",
     "robustness_low_slice_size": "Increase data volume per time slice/group or merge small slices.",
     "robustness_low_positive_count": "Insufficient positive cases in a slice/group. Merge small slices or collect more data.",
+    "invalid_performance_policy": "Fix JSON syntax in the performance policy file or verify the file path.",
+    "robustness_missing_metric_values": "Ensure at least one slice/group has a valid pr_auc value in the robustness report.",
+    "robustness_pr_auc_drop_near_threshold": "Worst-slice PR-AUC drop is approaching the fail threshold; consider time-aware training.",
+    "robustness_pr_auc_range_near_threshold": "Slice/group PR-AUC range is approaching the fail threshold; consider regularization.",
+    "robustness_summary_missing": "Add the required numeric summary fields to robustness_report.summary.",
 })
 
 

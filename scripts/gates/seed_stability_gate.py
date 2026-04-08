@@ -40,6 +40,10 @@ register_remediations({
     "seed_summary_mismatch": "Declared summary stats don't match computed values. Re-generate seed_sensitivity_report.",
     "seed_stability_exceeds_threshold": "Model shows excessive variation across seeds. Consider ensemble methods or more stable architectures.",
     "seed_stability_near_threshold": "Seed stability is approaching the fail threshold. Monitor closely.",
+    "invalid_performance_policy": "Fix JSON syntax in the performance policy file or verify the file path.",
+    "seed_summary_missing": "Add a summary object to seed_sensitivity_report with per-metric statistics.",
+    "seed_summary_missing_metric": "Include all required metric blocks (pr_auc, f2_beta, brier) in seed_sensitivity_report.summary.",
+    "seed_summary_invalid_value": "Replace non-finite summary values with valid numbers; re-generate the seed_sensitivity_report.",
 })
 
 
