@@ -20,7 +20,7 @@
 python3 scripts/orchestration/mlgg.py lint check <path> --format json
 ```
 
-10 条 AST 规则:
+20 条 AST 规则 (R001-R020):
 - R001 fit-before-split (ERROR)
 - R002 scaler-on-test (ERROR)
 - R003 resample-on-test (ERROR)
@@ -31,6 +31,16 @@ python3 scripts/orchestration/mlgg.py lint check <path> --format json
 - R008 temporal-split-shuffle (WARNING)
 - R009 no-confidence-intervals (INFO)
 - R010 train-metric-as-final (WARNING)
+- R011 cv-internal-smote (ERROR)
+- R012 cv-accuracy-imbalanced (WARNING)
+- R013 hardcoded-threshold (WARNING)
+- R014 label-encoder-features (WARNING)
+- R015 small-test-set (WARNING)
+- R016 no-random-state (WARNING)
+- R017 early-stop-on-test (ERROR)
+- R018 scaling-trees (INFO)
+- R019 multiple-comparison (INFO)
+- R020 global-clean-before-split (ERROR)
 
 ### 3. MLGG 规则逐项审查
 
@@ -40,13 +50,25 @@ python3 scripts/orchestration/mlgg.py lint check <path> --format json
 - S01: 患者跨 split？
 - P01: fit() 作用域？
 - F01: 标签泄漏？
-- F02: 未来信息？
+- F02: 未来信息？（出院后变量用于预测出院后结局 = 泄漏）
 - M01: 测试集调参？
 - E01: 有 CI？
 - E02: 完整指标面板？
 
 **WARNING 其次：**
 - 校准？SMOTE？多种子？公平性？
+
+### 3.5 临床语义审查（Lint 抓不到的问题）
+
+Lint 只做 AST 模式匹配，以下问题需要 agent 理解代码语义：
+
+1. **特征时间线**：逐个检查 top 特征——它是在预测时间点之前产生的吗？
+   - 常见陷阱：`time_in_hospital`（住院中）、`discharge_disposition_id`（出院时）用于预测出院后结局
+   - 具体方法：问自己"这个特征在模型做预测的那一刻，医生能看到吗？"
+2. **定义变量泄漏**：HbA1c 定义糖尿病 → 不能用 HbA1c 预测糖尿病
+3. **校准完整性**：有没有报 slope/intercept/O:E（不只是 ECE）？
+4. **亚组 CI**：公平性分析有没有 bootstrap CI？小样本标记了吗？
+5. **SHAP 一致性**：多模型 SHAP 排名相关性 ≥ 0.5？
 
 ### 4. Peer Review 证据引用
 
