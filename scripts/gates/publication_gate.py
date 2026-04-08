@@ -24,7 +24,7 @@ from _gate_utils import add_issue, load_json_from_str as load_json, to_int as _s
 
 
 register_remediations({
-    "component_report_missing": "A required gate report is missing. Run the full pipeline to generate all reports.",
+    "missing_component_report": "A required gate report is missing. Run the full pipeline to generate all reports.",
     "component_status_fail": "A component gate reported failure. Fix the underlying issue before publication.",
     "component_strict_mode_off": "A component gate was not run in strict mode. Re-run with --strict.",
     "metric_report_missing_actual": "Metric consistency report must contain finite numeric actual_metric.",
