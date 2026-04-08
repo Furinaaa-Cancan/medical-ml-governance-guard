@@ -81,7 +81,7 @@ jobs:
         run: |
           python3 -c "
           import json, sys
-          sys.path.insert(0, 'scripts')
+          sys.path.insert(0, 'scripts/core')
           from _gate_registry import GATE_REGISTRY
           data = json.load(open('references/error-knowledge-base.json'))
           gates_covered = {e.get('gate') for e in data['entries'] if e.get('gate')}
