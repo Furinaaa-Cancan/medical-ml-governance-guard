@@ -920,7 +920,15 @@ def main() -> int:
                     {"missing_field": "time_window"},
                 )
 
-        except Exception:
+        except json.JSONDecodeError as exc:
+            add_issue(
+                warnings_list, "COHORT_OUTCOME_DEFINITION_INVALID_JSON",
+                f"Failed to parse outcome_definition as JSON: {exc}",
+                {"raw_value": args.outcome_definition[:200]},
+            )
+            study_design["outcome_definition"] = {"raw": args.outcome_definition}
+        except (OSError, ValueError) as exc:
+            print(f"[WARN] outcome_definition parse error: {exc}", file=sys.stderr)
             study_design["outcome_definition"] = {"raw": args.outcome_definition}
 
     # 3. Definition variable leakage check

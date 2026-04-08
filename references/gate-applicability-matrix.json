@@ -193,7 +193,7 @@
       }
     },
     "ci_matrix_gate": {
-      "layer": 6,
+      "layer": 5,
       "description": "Bootstrap CI for all primary metrics",
       "binary": "FULL",
       "multiclass": "ADAPTED",
@@ -263,7 +263,7 @@
       }
     },
     "metric_consistency_gate": {
-      "layer": 6,
+      "layer": 5,
       "description": "Arithmetic consistency of reported metrics",
       "binary": "FULL",
       "multiclass": "ADAPTED",

@@ -174,7 +174,7 @@
     "description": "The 33 gates are organized in a DAG with 9 execution layers. Gates in the same layer can execute in parallel. Each gate must complete before gates that depend on it.",
     "layers": {
       "0_contract": {
-        "gates": ["request_contract_gate"],
+        "gates": ["request_contract_gate", "cohort_definition_gate"],
         "description": "Validates and normalizes request.json — all subsequent gates depend on this"
       },
       "1_manifest": {
@@ -200,16 +200,16 @@
         "description": "Policy-level compliance verification"
       },
       "5_model_audit": {
-        "gates": ["model_selection_audit_gate", "feature_engineering_audit_gate", "clinical_metrics_gate"],
+        "gates": ["model_selection_audit_gate", "feature_engineering_audit_gate", "clinical_metrics_gate", "shap_interpretability_gate", "ci_matrix_gate", "metric_consistency_gate"],
         "depends_on": ["request_contract_gate"],
         "parallelizable": true,
         "description": "Model selection and feature engineering compliance"
       },
       "6_metric_validation": {
         "gates": [
-          "calibration_dca_gate", "ci_matrix_gate", "distribution_generalization_gate",
+          "calibration_dca_gate", "distribution_generalization_gate",
           "evaluation_quality_gate", "external_validation_gate", "fairness_equity_gate",
-          "generalization_gap_gate", "metric_consistency_gate", "permutation_significance_gate",
+          "generalization_gap_gate", "permutation_significance_gate",
           "prediction_replay_gate", "robustness_gate", "sample_size_gate", "seed_stability_gate"
         ],
         "depends_on": ["request_contract_gate"],
