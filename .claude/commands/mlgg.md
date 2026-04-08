@@ -45,10 +45,10 @@ Intake 完成后 → 进入 Phase 1。
 |---------------|-------------------|
 | Phase 2 | `evidence/cohort_report.json` |
 | Phase 3 | `evidence/leakage_report.json` |
-| Phase 4 | `data/train.csv` + lint 审查通过 |
+| Phase 4 | Phase 3 lint 无 ERROR + Agent 代码审查无 CRITICAL |
 | Phase 5 | `evidence/lineage_report.json` |
 | Phase 6 | `evidence/tuning_leakage_report.json` + `evidence/model_selection_audit_report.json` |
-| Phase 7 | `evidence/evaluation_quality_report.json` |
+| Phase 7 | `evidence/evaluation_quality_report.json` + `evidence/calibration_dca_report.json` |
 | Phase 8 | `evidence/shap_report.json` |
 | Phase 9 | `evidence/fairness_equity_report.json` |
 
@@ -66,8 +66,8 @@ Intake 完成后 → 进入 Phase 1。
 | 2 | 数据划分 | `references/skill/phase-2.md` | leakage_gate, split_protocol_gate | < 10s |
 | 3 | 预处理 | `references/skill/phase-3.md` | lint + Agent 代码审查 | 10-60s |
 | 4 | 特征选择 | `references/skill/phase-4.md` | feature_lineage_gate | 1-5min |
-| 5 | 模型训练 | `references/skill/phase-5.md` | tuning_leakage_gate, model_selection_audit | 5-30min |
-| 6 | 评估 | `references/skill/phase-6.md` | evaluation_quality, calibration_dca, ci_matrix | 1-3min |
+| 5 | 模型训练 | `references/skill/phase-5.md` | tuning_leakage_gate, model_selection_audit_gate | 5-30min |
+| 6 | 评估 | `references/skill/phase-6.md` | evaluation_quality + calibration_dca + ci_matrix + metric_consistency + permutation_significance (5个) | 1-3min |
 | 7 | SHAP 可解释性 | `references/skill/phase-7.md` | shap_interpretability_gate | 2-10min |
 | 8 | 公平性 | `references/skill/phase-8.md` | fairness_equity_gate | < 1min |
 | 9 | 报告 | `references/skill/phase-9.md` | publication_gate, self_critique_gate | < 1min |
