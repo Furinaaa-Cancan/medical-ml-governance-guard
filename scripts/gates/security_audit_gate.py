@@ -156,8 +156,8 @@ def _check_evidence_manifest(
         with manifest_path.open("r", encoding="utf-8") as fh:
             manifest_data = json.load(fh)
         summary["entries_checked"] = manifest_data.get("entry_count", 0)
-    except (json.JSONDecodeError, OSError):
-        pass
+    except (json.JSONDecodeError, OSError) as exc:
+        print(f"[WARN] manifest parse: {exc}", file=sys.stderr)
 
     if ok:
         summary["entries_valid"] = summary["entries_checked"]
@@ -226,8 +226,8 @@ def _check_file_permissions(
                     details={"path": str(fpath.name), "mode": oct(mode)},
                     remediation=get_remediation("world_writable_evidence"),
                 ))
-        except OSError:
-            pass
+        except OSError as exc:
+            print(f"[WARN] security scan: {exc}", file=sys.stderr)
 
     return summary
 
@@ -254,8 +254,8 @@ def _check_sensitive_data(
                         remediation=get_remediation("sensitive_data_in_evidence"),
                     ))
                     break  # One finding per file is enough
-        except OSError:
-            pass
+        except OSError as exc:
+            print(f"[WARN] security scan: {exc}", file=sys.stderr)
 
     return summary
 
@@ -283,8 +283,8 @@ def _check_artifact_sizes(
                     details={"path": str(fpath.name), "size_bytes": size},
                     remediation=get_remediation("oversized_artifact"),
                 ))
-        except OSError:
-            pass
+        except OSError as exc:
+            print(f"[WARN] security scan: {exc}", file=sys.stderr)
 
     return summary
 
