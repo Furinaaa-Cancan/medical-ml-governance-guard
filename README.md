@@ -1384,14 +1384,17 @@ AI 会自动：
 | 用途 | 是否允许 | 条件 |
 |:----|:-------:|:----------|
 | 个人学习与研究 | 允许 | 无需授权 |
-| 学术论文中使用 MLGG 验证 | 允许 | **必须引用** |
-| 教学课堂演示 | 允许 | 注明来源 |
-| 开源非商业衍生项目 | 允许 | 相同许可证 + 引用 |
-| Claude Code `/mlgg` Skill | 允许 | 唯一授权公开渠道 |
+| **以下所有其他用途** | **需授权** | **请先联系作者** |
+| 学术论文中使用 MLGG 方法论 | 需授权 | 联系作者获得书面许可 + 必须引用 |
+| 教学/课堂/培训 | 需授权 | 联系作者 |
+| 衍生项目（开源或闭源） | 需授权 | 联系作者 |
+| 企业/机构内部使用 | 需授权 | 联系作者 |
 | 商业用途 | **禁止** | 需单独商业授权 |
-| 未引用的方法论复制 | **禁止** | 视为学术不端 |
+| 未授权的方法论复制 | **禁止** | 视为学术不端 |
 
-商业用途**严格禁止**。未引用的方法论复制视为学术不端，将向相关期刊编辑部举报。
+**除个人学习与研究外，任何形式的使用均需事先获得作者书面授权。** 未经授权的使用（包括但不限于学术发表、教学引用、二次开发、机构部署）均违反本许可证。未引用的方法论复制视为学术不端，将向相关期刊编辑部举报。
+
+联系方式：通过 [GitHub Issues](https://github.com/Furinaaa-Cancan/medical-ml-governance-guard/issues) 或作者主页联系。
 
 ---
 
@@ -1445,4 +1448,4 @@ AI 会自动：
 
 ### License & IP (English Summary)
 
-**PolyForm Noncommercial License 1.0.0.** Commercial use is **strictly prohibited**. Academic use **requires citation** (see BibTeX in [许可证与引用](#许可证与引用)). Uncited reproduction of MLGG methodology in publications constitutes academic misconduct. The Claude Code `/mlgg` Skill is the **only authorized public distribution channel**.
+**PolyForm Noncommercial License 1.0.0.** Personal learning and research is permitted without authorization. **All other uses — including academic publication, teaching, derivative works, and institutional deployment — require prior written permission from the author.** Commercial use is strictly prohibited. Uncited reproduction of MLGG methodology constitutes academic misconduct. Contact the author via [GitHub Issues](https://github.com/Furinaaa-Cancan/medical-ml-governance-guard/issues).
