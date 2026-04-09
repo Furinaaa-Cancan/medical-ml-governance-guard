@@ -47,7 +47,7 @@
 - [33 条方法论规则](#31-条方法论规则)
 - [20 个模型族](#20-个模型族)
 - [14 个医学数据集](#14-个医学数据集)
-- [20 条静态分析规则 (R001-R020)](#20-条静态分析规则-r001-r020)
+- [25 条静态分析规则 (R001-R025)](#20-条静态分析规则-r001-r020)
 - [21 项分析工具](#21-项分析工具)
 - [安全加固层](#安全加固层)
 - [项目结构](#项目结构)
@@ -92,7 +92,7 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 
 | 层 | 机制 | 能抓到什么 |
 |:---|:-----|:----------|
-| **第一层：20 条 AST 静态分析** | 代码模式匹配 (R001-R020) | `scaler.fit(X)` 在 split 前、SMOTE 用在 test 上、阈值在 test 选 |
+| **第一层：25 条 AST 静态分析** | 代码模式匹配 (R001-R025) | `scaler.fit(X)` 在 split 前、SMOTE 用在 test 上、阈值在 test 选 |
 | **第二层：33 道 fail-closed 门控** | 运行时验证，报告 JSON 产出 | 患者跨 split、校准 ECE > 0.1、EPV < 10、CI 宽度 > 0.20 |
 | **第三层：临床语义审查 + 审稿证据** | AI agent 理解代码含义 + 107 篇审稿 KB | 出院后变量预测出院后结局、HbA1c 定义泄漏、亚组校准缺失 |
 
@@ -127,7 +127,7 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 | **多模型 SHAP 集成引擎** | 多族 L1 归一化集成 + Kendall tau 一致性 (FDR-BH 校正) + 跨模型 Spearman 排名相关 + 5 张发表级 CSV | RF/XGB/CatBoost/LGBM/LR |
 | **学术合规引擎** | TRIPOD+AI 2024 (27 项) / PROBAST+AI 2025 (4 域) / STARD-AI | 全项逐条验证 |
 | **审稿证据库** | 107 篇 NC 论文 × 375 条结构化审稿意见，按 gate/tag/severity 检索 | 每条建议引用原文 |
-| **20 条 Lint 规则** | 静态分析检测代码级泄漏反模式 (R001-R020) | .py + .ipynb |
+| **25 条 Lint 规则** | 静态分析检测代码级泄漏反模式 (R001-R025) | .py + .ipynb |
 | **安全加固层** | HMAC-SHA256 / AES-256-GCM / 链式审计日志 / 路径穿越防护 / 受限反序列化 | fail-closed |
 | **21 个分析工具** | Riley 样本量 / 校准三件套 / NRI-IDI / 学习曲线 / VIF / MNAR 敏感性 / PDP 边际效应 / FDR-BH 校正 / 时序漂移 / ... | 100% 覆盖 Nature ML Checklist |
 
@@ -1098,7 +1098,7 @@ python3 examples/download_real_data.py pima     # 768 rows
 
 ---
 
-## 20 条静态分析规则 (R001-R020)
+## 25 条静态分析规则 (R001-R025)
 
 | 类别 | 规则 | 严重度 |
 |:---------|:------|:---------|
@@ -1404,7 +1404,7 @@ AI 会自动：
 **ML Governance Guard (MLGG)** is an AI-powered co-review system that audits medical ML code to top-journal standards, providing:
 
 - **33 fail-closed audit gates** in a 9-layer DAG &mdash; covering data leakage, interpretability, fairness, calibration, robustness, TRIPOD+AI 2024, and PROBAST+AI 2025
-- **3-layer review architecture**: AST static analysis (20 rules) → runtime gate validation (33 gates) → clinical semantic review with peer review evidence
+- **3-layer review architecture**: AST static analysis (25 rules) → runtime gate validation (33 gates) → clinical semantic review with peer review evidence
 - **107 real peer review opinions** from Nature Communications papers (375 structured concerns), retrieved by gate/tag/severity to back every recommendation with reviewer quotes
 - **9-phase guided workflow**: Cohort Definition → Splitting → Preprocessing → Feature Selection → Training → Evaluation → Interpretability → Fairness → Reporting
 - **12-dimension quality scoring** (0-100) with 3 conformance levels (L1/L2/L3)
@@ -1433,7 +1433,7 @@ AI 会自动：
 | 33 Methodology Rules | [33 条方法论规则](#33-条方法论规则) |
 | 20 Model Families | [20 个模型族](#20-个模型族) |
 | 14 Medical Datasets | [14 个医学数据集](#14-个医学数据集) |
-| Static Analysis (R001-R020) | [20 条静态分析规则](#20-条静态分析规则-r001-r020) |
+| Static Analysis (R001-R025) | [20 条静态分析规则](#20-条静态分析规则-r001-r020) |
 | 21 Analysis Tools | [21 项分析工具](#21-项分析工具) |
 | Security Layer | [安全加固层](#安全加固层) |
 | Project Structure | [项目结构](#项目结构) |

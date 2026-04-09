@@ -20,7 +20,7 @@
 python3 scripts/orchestration/mlgg.py lint check <path> --format json
 ```
 
-20 条 AST 规则 (R001-R020):
+25 条 AST 规则 (R001-R025):
 - R001 fit-before-split (ERROR)
 - R002 scaler-on-test (ERROR)
 - R003 resample-on-test (ERROR)
@@ -41,6 +41,11 @@ python3 scripts/orchestration/mlgg.py lint check <path> --format json
 - R018 scaling-trees (INFO)
 - R019 multiple-comparison (INFO)
 - R020 global-clean-before-split (ERROR)
+- R021 test-loop-tuning (WARNING)
+- R022 single-metric-report (WARNING)
+- R023 target-encoding-leak (ERROR)
+- R024 frequency-encoding-leak (WARNING)
+- R025 smote-after-model-in-pipeline (ERROR)
 
 ### 3. MLGG 规则逐项审查
 
