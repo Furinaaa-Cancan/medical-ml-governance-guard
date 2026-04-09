@@ -34,6 +34,28 @@ def add_issue(
 
 
 _MAX_JSON_FILE_SIZE = 100 * 1024 * 1024  # 100 MB safety limit
+_MAX_CSV_FILE_SIZE = 2 * 1024 * 1024 * 1024  # 2 GB safety limit
+_WARN_CSV_FILE_SIZE = 500 * 1024 * 1024  # 500 MB warning threshold
+
+
+def check_csv_file_size(path: Path) -> None:
+    """Warn on large CSV files, raise on extremely large ones."""
+    try:
+        size = path.stat().st_size
+        if size > _MAX_CSV_FILE_SIZE:
+            raise ValueError(
+                f"CSV file too large: {path.name} is {size / (1024**3):.1f} GB "
+                f"(limit {_MAX_CSV_FILE_SIZE // (1024**3)} GB). "
+                f"Consider sampling or chunked processing."
+            )
+        if size > _WARN_CSV_FILE_SIZE:
+            print(
+                f"[WARN] Large CSV: {path.name} is {size / (1024**2):.0f} MB. "
+                f"Processing may be slow.",
+                file=sys.stderr,
+            )
+    except OSError:
+        pass
 
 
 def _check_json_file_size(path: Path) -> None:

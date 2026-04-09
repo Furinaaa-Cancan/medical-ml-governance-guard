@@ -23,7 +23,7 @@ import re
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
-from _gate_utils import add_issue, try_parse_time as _shared_try_parse_time, epoch_to_iso as _shared_epoch_to_iso
+from _gate_utils import add_issue, check_csv_file_size, try_parse_time as _shared_try_parse_time, epoch_to_iso as _shared_epoch_to_iso
 from _gate_framework import (
     GateIssue,
     Severity,
@@ -91,6 +91,7 @@ def parse_args() -> argparse.Namespace:
 def parse_csv(path: str, split_name: str) -> Dict[str, Any]:
     if not os.path.exists(path):
         raise FileNotFoundError(f"{split_name}: file not found: {path}")
+    check_csv_file_size(Path(path))
 
     with open(path, "r", encoding="utf-8-sig", newline="") as fh:
         reader = csv.DictReader(fh)

@@ -42,7 +42,7 @@ from _gate_framework import (
     print_gate_summary,
     register_remediations,
 )
-from _gate_utils import add_issue, resolve_path, start_gate_timer, get_gate_elapsed, write_json
+from _gate_utils import add_issue, check_csv_file_size, resolve_path, start_gate_timer, get_gate_elapsed, write_json
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -739,6 +739,7 @@ def main() -> int:
     # Load data
     try:
         data_path = Path(args.data).expanduser().resolve()
+        check_csv_file_size(data_path)
         df = pd.read_csv(data_path)
     except Exception as exc:
         add_issue(
