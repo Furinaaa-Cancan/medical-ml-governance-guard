@@ -58,9 +58,9 @@ cp references/reporting-bias-checklist.example.json configs/reporting-bias-check
 # 根据 P-1 信息编辑 configs/*.json
 
 # 划分（已有 train/test 则跳过，只跑 gate）
-python3 scripts/orchestration/mlgg.py split \
+python3 scripts/tools/split_data.py \
   --input <CSV> --output-dir data/ --patient-id-col <ID> --target-col y \
-  --strategy stratified_grouped [--cross-sectional]
+  --strategy stratified_grouped
 # 验证
 python3 scripts/gates/leakage_gate.py \
   --train data/train.csv --test data/test.csv [--valid data/valid.csv] \

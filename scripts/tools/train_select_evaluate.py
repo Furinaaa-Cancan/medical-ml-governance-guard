@@ -987,6 +987,8 @@ def encode_categorical_features(
             if len(vals) == 2:
                 mapping = {vals[0]: 0.0, vals[1]: 1.0}
                 for df in (X_train, X_valid, X_test):
+                    if df.empty or feat not in df.columns:
+                        continue
                     mapped = df[feat].map(mapping)
                     ood_mask = mapped.isna() & df[feat].notna()
                     # OOD safety: fill with prevalence-neutral 0.5 (not 0.0)
@@ -5763,6 +5765,11 @@ def main() -> int:
         if str(args.selection_data).strip().lower() == "valid":
             print("  [INFO] No validation split provided. Switching to --selection-data=cv_inner.")
             args.selection_data = "cv_inner"
+        if threshold_selection_split == "valid":
+            print("  [INFO] No validation split provided. Switching threshold selection to cv_inner.")
+            threshold_selection_split = "cv_inner"
+        if calibration_fit_split == "valid":
+            calibration_fit_split = "cv_inner"
     ignore_cols = parse_ignore_cols(args.ignore_cols, args.target_col, getattr(args, "definition_cols", ""))
     base_feature_cols = select_feature_columns(train_df, ignore_cols)
     groups, forbidden_features = normalize_feature_groups(feature_group_spec)
