@@ -19,7 +19,7 @@ _STAT_CLEAN_METHODS = {"clip", "dropna"}
 class GlobalCleanBeforeSplit(BaseRule):
     id = "R020"
     name = "global-clean-before-split"
-    severity = Severity.WARNING
+    severity = Severity.ERROR
     description = (
         "Data cleaning (fillna, replace, ffill, bfill) using global statistics "
         "(mean, median) or temporal propagation applied before train/test split. "
