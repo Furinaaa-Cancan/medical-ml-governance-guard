@@ -131,10 +131,17 @@ def main() -> int:
         return 2
 
     train_path = resolve_path(base_dir, str(split_paths.get("train", "")))
-    valid_path = resolve_path(base_dir, str(split_paths.get("valid", "")))
-    test_path = resolve_path(base_dir, str(split_paths.get("test", "")))
-    if not train_path.exists() or not valid_path.exists() or not test_path.exists():
-        print("[FAIL] split CSV files not found from request.split_paths.", file=sys.stderr)
+    _valid_raw = split_paths.get("valid", "")
+    valid_path = resolve_path(base_dir, str(_valid_raw)) if _valid_raw else None
+    _test_raw = split_paths.get("test", "")
+    test_path = resolve_path(base_dir, str(_test_raw)) if _test_raw else None
+    if not train_path.exists():
+        print("[FAIL] train split CSV not found from request.split_paths.", file=sys.stderr)
+        return 2
+    if valid_path and not valid_path.is_file():
+        valid_path = None  # valid path is not a file — treat as absent
+    if test_path and not test_path.is_file():
+        print("[FAIL] test split CSV not found from request.split_paths.", file=sys.stderr)
         return 2
 
     evidence_dir = resolve_path(project_base, args.evidence_dir)
@@ -166,30 +173,26 @@ def main() -> int:
 
     schema_report = evidence_dir / "schema_preflight_report.json"
     schema_mapping = evidence_dir / "schema_mapping.json"
-    append_step(
-        "schema_preflight",
-        [
-            args.python,
-            str(scripts_dir / "tools/schema_preflight.py"),
-            "--train",
-            str(train_path),
-            "--valid",
-            str(valid_path),
-            "--test",
-            str(test_path),
-            "--target-col",
-            str(request_payload.get("label_col", "y")),
-            "--patient-id-col",
-            str(request_payload.get("patient_id_col", "patient_id")),
-            "--time-col",
-            str(request_payload.get("index_time_col", "event_time")),
-            "--strict",
-            "--mapping-out",
-            str(schema_mapping),
-            "--report",
-            str(schema_report),
-        ],
-    )
+    _preflight_cmd = [
+        args.python,
+        str(scripts_dir / "tools/schema_preflight.py"),
+        "--train",
+        str(train_path),
+        *(["--valid", str(valid_path)] if valid_path else []),
+        *(["--test", str(test_path)] if test_path else []),
+        "--target-col",
+        str(request_payload.get("label_col", "y")),
+        "--patient-id-col",
+        str(request_payload.get("patient_id_col", "patient_id")),
+        "--time-col",
+        str(request_payload.get("index_time_col", "event_time")),
+        "--strict",
+        "--mapping-out",
+        str(schema_mapping),
+        "--report",
+        str(schema_report),
+    ]
+    append_step("schema_preflight", _preflight_cmd)
 
     strict_run_started_epoch = time.time()
     dag_cmd = [
