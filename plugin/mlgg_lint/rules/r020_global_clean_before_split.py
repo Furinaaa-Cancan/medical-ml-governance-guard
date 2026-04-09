@@ -113,7 +113,8 @@ class GlobalCleanBeforeSplit(BaseRule):
 
         # --- clip with quantile-based bounds before split ---
         elif method == "clip":
-            # Check if any keyword arg uses .quantile()
+            flagged = False
+            # Check keyword args: clip(lower=df.quantile(0.01))
             for kw in node.keywords:
                 if kw.arg in ("lower", "upper") and isinstance(kw.value, ast.Call):
                     if isinstance(kw.value.func, ast.Attribute):
@@ -122,6 +123,25 @@ class GlobalCleanBeforeSplit(BaseRule):
                                 node,
                                 f"`clip({kw.arg}={kw.value.func.attr}())` before split — "
                                 f"clip bounds computed from full data leak test distribution.",
+                            )
+                            flagged = True
+                            break
+            # Check positional args: clip(q01, q99) where q01/q99 are global stats
+            if not flagged:
+                for arg in node.args:
+                    if isinstance(arg, ast.Name) and arg.id in self._global_stat_vars:
+                        self.report(
+                            node,
+                            f"`clip({arg.id})` before split — "
+                            f"`{arg.id}` was computed from the full dataset.",
+                        )
+                        break
+                    if isinstance(arg, ast.Call) and isinstance(arg.func, ast.Attribute):
+                        if arg.func.attr in _GLOBAL_STAT_METHODS | {"quantile"}:
+                            self.report(
+                                node,
+                                f"`clip({arg.func.attr}())` before split — "
+                                f"clip bounds from full data leak test distribution.",
                             )
                             break
 
