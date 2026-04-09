@@ -1,0 +1,333 @@
+{
+  "experiment": "exp3_peer_review_kb",
+  "overview": {
+    "n_papers": 106,
+    "n_total_concerns": 375,
+    "n_total_strengths": 76,
+    "avg_concerns_per_paper": 3.5,
+    "median_concerns_per_paper": 3,
+    "concerns_range": "0-11"
+  },
+  "severity_distribution": {
+    "HIGH": 187,
+    "MEDIUM": 147,
+    "CRITICAL": 25,
+    "LOW": 16
+  },
+  "domain_distribution": {
+    "oncology": 28,
+    "neurology": 10,
+    "infectious_disease": 8,
+    "cardiovascular": 7,
+    "critical_care": 5,
+    "nephrology": 5,
+    "genomics": 5,
+    "ehr_methodology": 2,
+    "emergency_medicine": 2,
+    "reproductive_medicine": 2,
+    "dermatology": 2,
+    "pulmonology": 2,
+    "endocrinology": 2,
+    "cardiology": 2,
+    "hematology": 2,
+    "pediatric_oncology": 2,
+    "musculoskeletal": 1,
+    "ehr_clinical": 1,
+    "mental_health": 1,
+    "digital_health": 1,
+    "oncology_epidemiology": 1,
+    "microbiome": 1,
+    "global_health": 1,
+    "proteomics": 1,
+    "ophthalmology": 1,
+    "clinical_trials": 1,
+    "llm_clinical": 1,
+    "autoimmune": 1,
+    "metabolomics": 1,
+    "pathology": 1,
+    "health_systems": 1,
+    "sleep_medicine": 1,
+    "pediatric_cardiology": 1,
+    "gastroenterology": 1,
+    "geriatrics": 1,
+    "rheumatology": 1
+  },
+  "outcome_distribution": {
+    "accepted_after_major_revision": 81,
+    "accepted_after_revision": 9,
+    "reporting_summary_only": 7,
+    "accepted_after_minor_revision": 5,
+    "accepted_minimal_review": 4
+  },
+  "reviewer_focus_analysis": {
+    "total_concerns": 375,
+    "domain_distribution": {
+      "code_level_mlgg": {
+        "count": 31,
+        "pct": 8.3,
+        "categories": [
+          "data_leakage",
+          "feature_selection",
+          "preprocessing",
+          "split_protocol"
+        ],
+        "severity": {
+          "MEDIUM": 11,
+          "HIGH": 16,
+          "CRITICAL": 4
+        }
+      },
+      "design_level_reviewer": {
+        "count": 208,
+        "pct": 55.5,
+        "categories": [
+          "clinical_utility",
+          "external_validation",
+          "interpretability",
+          "reporting",
+          "reproducibility",
+          "sample_size",
+          "study_design"
+        ],
+        "severity": {
+          "CRITICAL": 18,
+          "HIGH": 98,
+          "MEDIUM": 79,
+          "LOW": 13
+        }
+      },
+      "shared": {
+        "count": 136,
+        "pct": 36.3,
+        "categories": [
+          "evaluation_metrics",
+          "model_selection"
+        ]
+      }
+    },
+    "complementarity_narrative": "Of 375 reviewer concerns, only 31 (8.3%) address code-level issues (MLGG's domain). 208 (55.5%) focus on design-level issues (external validation, clinical utility, study design) that require domain expertise. This demonstrates complementarity: reviewers and MLGG cover different verification layers."
+  },
+  "category_table": {
+    "table3_rows": [
+      {
+        "category": "evaluation_metrics",
+        "n_concerns": 119,
+        "n_papers": 75,
+        "pct_papers": 70.8,
+        "severity_distribution": {
+          "HIGH": 65,
+          "MEDIUM": 50,
+          "LOW": 2,
+          "CRITICAL": 2
+        },
+        "example_quotes": [
+          "Prior studies based on UK Biobank have demonstrated that models solely incorporating age, sex, and BMI can predict OA with AUC of 0.685-0.701. It is essential to compare the authors' models with simpl",
+          "The dataset is highly imbalanced; thus, AUC should not be the only performance metric reported. Authors should at least provide PPV and NPV. Furthermore, it is unclear how well calibrated the model is",
+          "Based on the title 'role of unstructured data', I would have expected the authors to describe the actual role of clinical notes in prediction performance, in comparison to using structured data only. "
+        ]
+      },
+      {
+        "category": "study_design",
+        "n_concerns": 81,
+        "n_papers": 55,
+        "pct_papers": 51.9,
+        "severity_distribution": {
+          "CRITICAL": 10,
+          "HIGH": 42,
+          "MEDIUM": 26,
+          "LOW": 3
+        },
+        "example_quotes": [
+          "Models incorporate data gathered over the subsequent five years (or until OA diagnosis), effectively conditioning on future observations. One cannot anticipate factors like NSAID use four years into t",
+          "NSAIDs are commonly prescribed for OA management and should preferably not be incorporated into a model designed to predict the onset of OA. NSAID prescriptions up to one year before OA diagnosis as a",
+          "Why were controls not age and sex matched, as these are fixed risk factors for OA? What exclusion criteria were applied to controls? Many EHR codes for OA are common and non-specific — discuss the rol"
+        ]
+      },
+      {
+        "category": "reporting",
+        "n_concerns": 52,
+        "n_papers": 39,
+        "pct_papers": 36.8,
+        "severity_distribution": {
+          "MEDIUM": 26,
+          "LOW": 9,
+          "HIGH": 16,
+          "CRITICAL": 1
+        },
+        "example_quotes": [
+          "The paper is missing a demographics table to describe the patient population. What is the incidence of sepsis, severe sepsis, septic shock? How many are admitted to the ICU? Age distribution?",
+          "A standard CONSORT enrollment diagram should be included as a figure to show patient flow.",
+          "The demographics are missing ethnic data which research has shown drastically affect risk assessing algorithms. Key data such as prior medical history, or ongoing treatment for other conditions is imp"
+        ]
+      },
+      {
+        "category": "preprocessing",
+        "n_concerns": 24,
+        "n_papers": 19,
+        "pct_papers": 17.9,
+        "severity_distribution": {
+          "MEDIUM": 10,
+          "HIGH": 13,
+          "CRITICAL": 1
+        },
+        "example_quotes": [
+          "Inclusion of highly correlated variables (e.g., fat mass ratios in right leg vs left leg, grip strength right vs left hand) should be reconsidered to avoid multicollinearity issues.",
+          "Missing data was imputed without specifying its percentage. For example, was 40% of the age variable missing in cohort A? These characteristics need to be mentioned for assessment of the lncRNA as a p",
+          "Was the input data imputed for the validation cohort? If yes, then what were missing proportions? These parameters could skew the results in favor of the biomarker."
+        ]
+      },
+      {
+        "category": "external_validation",
+        "n_concerns": 21,
+        "n_papers": 20,
+        "pct_papers": 18.9,
+        "severity_distribution": {
+          "HIGH": 17,
+          "CRITICAL": 2,
+          "MEDIUM": 2
+        },
+        "example_quotes": [
+          "Although they validate their model in a separate sample in UKB, really this needs to be done in a separate cohort. This should be acknowledged.",
+          "The VA and MIMIC populations are clinically very different (general vs ICU). It is surprising that a system pretrained on a general population performed well on a very different population. More infor",
+          "The combined model has been made publicly available for use 'in clinical practice'. This model has not been externally validated, having been constructed and tested only in the PLCO cohort, and I have"
+        ]
+      },
+      {
+        "category": "clinical_utility",
+        "n_concerns": 18,
+        "n_papers": 16,
+        "pct_papers": 15.1,
+        "severity_distribution": {
+          "CRITICAL": 3,
+          "MEDIUM": 11,
+          "HIGH": 4
+        },
+        "example_quotes": [
+          "PPV 1.7% - is this really practically useful? If implemented in clinical practice, over 98% of interventions would be for patients who will not actually harm themselves. The statement that PPV 8.45% '",
+          "Prediction of pancreatic cancer ICD-10 codes one visit prior may not be clinically useful. The documentation of a code is not equivalent to the first diagnosis. The duration between visits may differ ",
+          "Identifying ovarian cancer in a woman with CA125 of 10,000 or massive ascites is not difficult. What would be of actual clinical value is an algorithm that is highly predictive in women with NORMAL CA"
+        ]
+      },
+      {
+        "category": "model_selection",
+        "n_concerns": 17,
+        "n_papers": 15,
+        "pct_papers": 14.2,
+        "severity_distribution": {
+          "MEDIUM": 7,
+          "HIGH": 8,
+          "LOW": 1,
+          "CRITICAL": 1
+        },
+        "example_quotes": [
+          "When developing the model, cross-validation is much more robust method to avoid overfitting than the random split used by the authors.",
+          "It might be possible to improve the model performance using a gradient-boosted tree model. Since this is a very simple code change, it would be worthwhile to see if XGBoost might allow the model to gl",
+          "The motivation for using Mamba is not clear. There doesn't seem to be a significant difference between APRICOT-T (Transformer) and APRICOT-M (Mamba). CatBoost and GRU appear competitive on many tasks "
+        ]
+      },
+      {
+        "category": "reproducibility",
+        "n_concerns": 16,
+        "n_papers": 15,
+        "pct_papers": 14.2,
+        "severity_distribution": {
+          "HIGH": 9,
+          "MEDIUM": 5,
+          "CRITICAL": 2
+        },
+        "example_quotes": [
+          "I did not find the file with code.",
+          "I may have missed something, but I didn't see a link to the code.",
+          "There is a general lack of details (data more than code) for the work to be reproduced."
+        ]
+      },
+      {
+        "category": "interpretability",
+        "n_concerns": 14,
+        "n_papers": 11,
+        "pct_papers": 10.4,
+        "severity_distribution": {
+          "MEDIUM": 7,
+          "HIGH": 6,
+          "LOW": 1
+        },
+        "example_quotes": [
+          "Present the ClinGRS, ClinMet and ClinPro OA risk models using SHAP values similar to how the Clin model was presented in Figure 2D. The sparse volcano plots are not particularly informative.",
+          "A major missed opportunity: the multi-omics data was not used to disentangle the role of BMI in OA. High BMI is an established predictor but the underlying reasons BMI influences OA etiology are likel",
+          "Another way to further tease apart the relative importance of lncRNA expression would be to show a Shapley beeswarm plot of the feature weights for the models. Ideally we could see this for one of the"
+        ]
+      },
+      {
+        "category": "sample_size",
+        "n_concerns": 6,
+        "n_papers": 6,
+        "pct_papers": 5.7,
+        "severity_distribution": {
+          "MEDIUM": 2,
+          "HIGH": 4
+        },
+        "example_quotes": [
+          "I would suggest that the number of cases does not constitute 'Large scale' GWAS meta-analysis. There is insufficient power to detect GWAS-significant SNP associations. This should be made clearer in t",
+          "The sample sizes are relatively small (primary cohort ~100 patients). Authors have used sensitivity analysis for accuracy vs test size which is good, but inherent limitations remain.",
+          "Sample size lacks formal power calculations and has concerning issues in key subgroups like Somalia cohort (n=47) and less common pathological types like MCD/FSGS. This raises questions about statisti"
+        ]
+      },
+      {
+        "category": "split_protocol",
+        "n_concerns": 3,
+        "n_papers": 3,
+        "pct_papers": 2.8,
+        "severity_distribution": {
+          "HIGH": 3
+        },
+        "example_quotes": [
+          "How was random sampling performed? Was the unit of randomization performed at the level of the note, the patient visit, or the patient? Was there any overlap in patients between the test set and the t",
+          "The use of data from 20 past years is problematic — medicine has taken a great leap forward. Using a temporally remote population to predict future patients may not work. Instead of randomly splitting",
+          "The fact that some patients were associated with multiple admissions might positively bias the performance of the model. Recommend including only the first admission per patient."
+        ]
+      },
+      {
+        "category": "data_leakage",
+        "n_concerns": 3,
+        "n_papers": 3,
+        "pct_papers": 2.8,
+        "severity_distribution": {
+          "CRITICAL": 3
+        },
+        "example_quotes": [
+          "A significant methodological issue: the use of the same dataset for both GWAS and PPS parameterisation. This overlap will result in overfitting of PPS and optimism in performance estimates. This is cl",
+          "The use of a bidirectional RNN at any given point in time is using future data which would not be available for clinical decision. That is the point of a bidirectional RNN and the point of this critic",
+          "Possible data leakage in UK Biobank phenotype evaluation — many phenotypes are correlated. Since authors trained on both simulated and real data, held-out test phenotypes may overlap with training set"
+        ]
+      },
+      {
+        "category": "feature_selection",
+        "n_concerns": 1,
+        "n_papers": 1,
+        "pct_papers": 0.9,
+        "severity_distribution": {
+          "MEDIUM": 1
+        },
+        "example_quotes": [
+          "Variables kept based on P values. Did you consider data-driven variable selection?"
+        ]
+      }
+    ]
+  },
+  "pilot_pr026": {
+    "paper_id": "PR-026",
+    "reviewer_issues": 0,
+    "mlgg_issues": 0,
+    "overlap": 0,
+    "unique_to_reviewer": 0,
+    "unique_to_mlgg": 0,
+    "summary": ""
+  },
+  "key_findings": [
+    "106 NC papers yielded 375 structured methodology concerns",
+    "Top categories: evaluation_metrics (119), study_design (81), reporting (52)",
+    "Only 31 concerns (8.3%) address code-level issues — MLGG's primary domain",
+    "208 concerns (55.5%) focus on research design — beyond code analysis",
+    "Complementarity confirmed: reviewers and MLGG verify different layers"
+  ]
+}

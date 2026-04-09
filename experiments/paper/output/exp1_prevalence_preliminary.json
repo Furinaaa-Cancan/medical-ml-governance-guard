@@ -1,0 +1,922 @@
+{
+  "experiment": "exp1_prevalence_study_preliminary",
+  "scan_date": "2026-04-09",
+  "note": "Preliminary results from 77/100 random sample. Full scan (1267 repos) pending.",
+  "summary": {
+    "n_repos_scanned": 77,
+    "n_with_python": 44,
+    "n_with_training_code": 17,
+    "n_with_leakage": 7,
+    "leakage_prevalence_pct": 41.2,
+    "python_rate_pct": 57.1,
+    "training_rate_pct": 22.1
+  },
+  "rule_prevalence_training_repos": {
+    "R016": {
+      "n_repos": 10,
+      "pct": 58.8
+    },
+    "R019": {
+      "n_repos": 9,
+      "pct": 52.9
+    },
+    "R009": {
+      "n_repos": 7,
+      "pct": 41.2
+    },
+    "E000": {
+      "n_repos": 6,
+      "pct": 35.3
+    },
+    "R001": {
+      "n_repos": 5,
+      "pct": 29.4
+    },
+    "R021": {
+      "n_repos": 5,
+      "pct": 29.4
+    },
+    "R008": {
+      "n_repos": 4,
+      "pct": 23.5
+    },
+    "R022": {
+      "n_repos": 4,
+      "pct": 23.5
+    },
+    "R002": {
+      "n_repos": 3,
+      "pct": 17.6
+    },
+    "R004": {
+      "n_repos": 2,
+      "pct": 11.8
+    },
+    "R020": {
+      "n_repos": 2,
+      "pct": 11.8
+    },
+    "R003": {
+      "n_repos": 1,
+      "pct": 5.9
+    },
+    "R010": {
+      "n_repos": 1,
+      "pct": 5.9
+    },
+    "R012": {
+      "n_repos": 1,
+      "pct": 5.9
+    },
+    "R015": {
+      "n_repos": 1,
+      "pct": 5.9
+    },
+    "R006": {
+      "n_repos": 1,
+      "pct": 5.9
+    },
+    "R018": {
+      "n_repos": 1,
+      "pct": 5.9
+    },
+    "R005": {
+      "n_repos": 1,
+      "pct": 5.9
+    }
+  },
+  "leakage_repos": [
+    {
+      "paper_id": "a_2018_other_5",
+      "github_url": "https://github.com/rhiever/tpot",
+      "rules": [
+        "R001",
+        "R004",
+        "R008",
+        "R009",
+        "R016",
+        "R019",
+        "R022"
+      ],
+      "training_files": 13,
+      "total_findings": 39
+    },
+    {
+      "paper_id": "a_2020_cardiovascular",
+      "github_url": "https://github.com/atward424/ASCVD_ML",
+      "rules": [
+        "E000",
+        "R002",
+        "R009",
+        "R016",
+        "R019",
+        "R021"
+      ],
+      "training_files": 3,
+      "total_findings": 18
+    },
+    {
+      "paper_id": "d_2020_other_3",
+      "github_url": "https://github.com/astrazeneca-cgr-publications/mantis-ml-release",
+      "rules": [
+        "R001",
+        "R009",
+        "R016",
+        "R019",
+        "R021",
+        "R022"
+      ],
+      "training_files": 6,
+      "total_findings": 10
+    },
+    {
+      "paper_id": "dp_2023_oncology",
+      "github_url": "https://github.com/damiankotevski/head-and-neck-cancer-specific-survival",
+      "rules": [
+        "R001",
+        "R003",
+        "R008",
+        "R010",
+        "R012",
+        "R016",
+        "R019"
+      ],
+      "training_files": 2,
+      "total_findings": 62
+    },
+    {
+      "paper_id": "mc_2022_other",
+      "github_url": "https://github.com/GitTerrySu/Predict-long-term-mortality",
+      "rules": [
+        "R002",
+        "R009"
+      ],
+      "training_files": 3,
+      "total_findings": 6
+    },
+    {
+      "paper_id": "pa_2023_cardiovascular",
+      "github_url": "https://github.com/petmoreno/Heart_Failure_Predictor",
+      "rules": [
+        "E000",
+        "R001",
+        "R002",
+        "R006",
+        "R008",
+        "R009",
+        "R016",
+        "R018",
+        "R019",
+        "R020",
+        "R021",
+        "R022"
+      ],
+      "training_files": 18,
+      "total_findings": 107
+    },
+    {
+      "paper_id": "r_2021_other_10",
+      "github_url": "https://github.com/Svvord/visar",
+      "rules": [
+        "R001",
+        "R016",
+        "R020"
+      ],
+      "training_files": 2,
+      "total_findings": 5
+    }
+  ],
+  "per_repo_summary": [
+    {
+      "paper_id": "a_2018_other_5",
+      "files_total": 89,
+      "training_files": 13,
+      "total_findings": 39,
+      "has_leakage": true,
+      "rules": [
+        "R001",
+        "R004",
+        "R008",
+        "R009",
+        "R016",
+        "R019",
+        "R022"
+      ]
+    },
+    {
+      "paper_id": "a_2018_other_6",
+      "files_total": 19,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "a_2020_cardiovascular",
+      "files_total": 20,
+      "training_files": 3,
+      "total_findings": 18,
+      "has_leakage": true,
+      "rules": [
+        "E000",
+        "R002",
+        "R009",
+        "R016",
+        "R019",
+        "R021"
+      ]
+    },
+    {
+      "paper_id": "a_2025_oncology_4",
+      "files_total": 4,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "b_2024_other",
+      "files_total": 1,
+      "training_files": 0,
+      "total_findings": 1,
+      "has_leakage": false,
+      "rules": [
+        "R013"
+      ]
+    },
+    {
+      "paper_id": "b_2024_other_5",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "b_2024_other_7",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "b_2025_cardiovascular",
+      "files_total": 3,
+      "training_files": 2,
+      "total_findings": 4,
+      "has_leakage": false,
+      "rules": [
+        "R019",
+        "R021"
+      ]
+    },
+    {
+      "paper_id": "bj_2018_oncology_4",
+      "files_total": 4,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "c_2018_neurology",
+      "files_total": 20,
+      "training_files": 0,
+      "total_findings": 1,
+      "has_leakage": false,
+      "rules": [
+        "E000"
+      ]
+    },
+    {
+      "paper_id": "cr_2016_other",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "cs_2025_oncology_10",
+      "files_total": 1,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "d_2016_other_2",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "d_2020_other_2",
+      "files_total": 20,
+      "training_files": 2,
+      "total_findings": 5,
+      "has_leakage": false,
+      "rules": [
+        "E000",
+        "R009",
+        "R016"
+      ]
+    },
+    {
+      "paper_id": "d_2020_other_3",
+      "files_total": 79,
+      "training_files": 6,
+      "total_findings": 10,
+      "has_leakage": true,
+      "rules": [
+        "R001",
+        "R009",
+        "R016",
+        "R019",
+        "R021",
+        "R022"
+      ]
+    },
+    {
+      "paper_id": "d_2021_other",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "d_2022_diabetes_2",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "dj_2015_other",
+      "files_total": 60,
+      "training_files": 0,
+      "total_findings": 20,
+      "has_leakage": false,
+      "rules": [
+        "E000"
+      ]
+    },
+    {
+      "paper_id": "dm_2021_other_2",
+      "files_total": 1,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "dp_2023_oncology",
+      "files_total": 2,
+      "training_files": 2,
+      "total_findings": 62,
+      "has_leakage": true,
+      "rules": [
+        "R001",
+        "R003",
+        "R008",
+        "R010",
+        "R012",
+        "R016",
+        "R019"
+      ]
+    },
+    {
+      "paper_id": "e_2015_other",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "elh_2020_respiratory",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "fj_2017_neurology",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "g_2015_other_2",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "h_2016_other",
+      "files_total": 10,
+      "training_files": 0,
+      "total_findings": 5,
+      "has_leakage": false,
+      "rules": [
+        "E000"
+      ]
+    },
+    {
+      "paper_id": "h_2021_respiratory_3",
+      "files_total": 6,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "i_2017_other",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "ij_2022_oncology",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "j_2017_other_4",
+      "files_total": 6,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "j_2020_other_4",
+      "files_total": 2,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "j_2022_respiratory_2",
+      "files_total": 20,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "j_2023_other_2",
+      "files_total": 2,
+      "training_files": 0,
+      "total_findings": 1,
+      "has_leakage": false,
+      "rules": [
+        "R022"
+      ]
+    },
+    {
+      "paper_id": "je_2015_other_2",
+      "files_total": 1,
+      "training_files": 0,
+      "total_findings": 1,
+      "has_leakage": false,
+      "rules": [
+        "E000"
+      ]
+    },
+    {
+      "paper_id": "k_2023_cardiovascular",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "l_2015_other_3",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "l_2018_other_4",
+      "files_total": 9,
+      "training_files": 1,
+      "total_findings": 5,
+      "has_leakage": false,
+      "rules": [
+        "E000"
+      ]
+    },
+    {
+      "paper_id": "l_2024_other",
+      "files_total": 6,
+      "training_files": 0,
+      "total_findings": 1,
+      "has_leakage": false,
+      "rules": [
+        "R013"
+      ]
+    },
+    {
+      "paper_id": "ls_2018_other",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "lsf_2023_cardiovascular",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "m_2015_cardiovascular",
+      "files_total": 4,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "m_2017_other_4",
+      "files_total": 132,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "m_2025_other",
+      "files_total": 19,
+      "training_files": 6,
+      "total_findings": 12,
+      "has_leakage": false,
+      "rules": [
+        "R008",
+        "R015",
+        "R019",
+        "R021",
+        "R022"
+      ]
+    },
+    {
+      "paper_id": "mc_2022_other",
+      "files_total": 3,
+      "training_files": 3,
+      "total_findings": 6,
+      "has_leakage": true,
+      "rules": [
+        "R002",
+        "R009"
+      ]
+    },
+    {
+      "paper_id": "me_2016_other",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "mp_2015_other",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "n_2017_other",
+      "files_total": 192,
+      "training_files": 0,
+      "total_findings": 4,
+      "has_leakage": false,
+      "rules": [
+        "E000"
+      ]
+    },
+    {
+      "paper_id": "pa_2023_cardiovascular",
+      "files_total": 21,
+      "training_files": 18,
+      "total_findings": 107,
+      "has_leakage": true,
+      "rules": [
+        "E000",
+        "R001",
+        "R002",
+        "R006",
+        "R008",
+        "R009",
+        "R016",
+        "R018",
+        "R019",
+        "R020",
+        "R021",
+        "R022"
+      ]
+    },
+    {
+      "paper_id": "r_2019_other_2",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "r_2019_other_3",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "r_2020_cardiovascular",
+      "files_total": 10,
+      "training_files": 4,
+      "total_findings": 5,
+      "has_leakage": false,
+      "rules": [
+        "R005",
+        "R016"
+      ]
+    },
+    {
+      "paper_id": "r_2021_other_10",
+      "files_total": 11,
+      "training_files": 2,
+      "total_findings": 5,
+      "has_leakage": true,
+      "rules": [
+        "R001",
+        "R016",
+        "R020"
+      ]
+    },
+    {
+      "paper_id": "r_2021_other_27",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "r_2021_other_30",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "r_2021_other_32",
+      "files_total": 12,
+      "training_files": 0,
+      "total_findings": 1,
+      "has_leakage": false,
+      "rules": [
+        "R009"
+      ]
+    },
+    {
+      "paper_id": "rc_2016_other_18",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "rc_2016_other_30",
+      "files_total": 182,
+      "training_files": 2,
+      "total_findings": 1,
+      "has_leakage": false,
+      "rules": [
+        "R004"
+      ]
+    },
+    {
+      "paper_id": "rc_2016_other_4",
+      "files_total": 187,
+      "training_files": 1,
+      "total_findings": 36,
+      "has_leakage": false,
+      "rules": [
+        "E000"
+      ]
+    },
+    {
+      "paper_id": "s_2017_oncology_2",
+      "files_total": 8,
+      "training_files": 0,
+      "total_findings": 2,
+      "has_leakage": false,
+      "rules": [
+        "E000"
+      ]
+    },
+    {
+      "paper_id": "s_2018_other_2",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "s_2023_other_2",
+      "files_total": 16,
+      "training_files": 0,
+      "total_findings": 7,
+      "has_leakage": false,
+      "rules": [
+        "R004",
+        "R005",
+        "R008",
+        "R009",
+        "R014"
+      ]
+    },
+    {
+      "paper_id": "t_2015_other_7",
+      "files_total": 7,
+      "training_files": 0,
+      "total_findings": 5,
+      "has_leakage": false,
+      "rules": [
+        "E000"
+      ]
+    },
+    {
+      "paper_id": "t_2020_other",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "t_2023_other_2",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "tm_2018_other",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "ur_2016_other",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "v_2017_other",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "w_2016_oncology",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "wa_2021_respiratory",
+      "files_total": 1,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "x_2017_other",
+      "files_total": 10,
+      "training_files": 5,
+      "total_findings": 10,
+      "has_leakage": false,
+      "rules": [
+        "E000"
+      ]
+    },
+    {
+      "paper_id": "x_2018_other_6",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "x_2020_other_2",
+      "files_total": 6,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "x_2020_other_6",
+      "files_total": 36,
+      "training_files": 0,
+      "total_findings": 5,
+      "has_leakage": false,
+      "rules": [
+        "E000",
+        "R004",
+        "R021"
+      ]
+    },
+    {
+      "paper_id": "xs_2019_other",
+      "files_total": 10,
+      "training_files": 2,
+      "total_findings": 8,
+      "has_leakage": false,
+      "rules": [
+        "R009",
+        "R016",
+        "R019"
+      ]
+    },
+    {
+      "paper_id": "y_2016_other_4",
+      "files_total": 3,
+      "training_files": 0,
+      "total_findings": 1,
+      "has_leakage": false,
+      "rules": [
+        "R013"
+      ]
+    },
+    {
+      "paper_id": "yw_2016_other",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "z_2019_sepsis_icu",
+      "files_total": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "has_leakage": false,
+      "rules": []
+    },
+    {
+      "paper_id": "z_2021_other_2",
+      "files_total": 21,
+      "training_files": 1,
+      "total_findings": 20,
+      "has_leakage": false,
+      "rules": [
+        "R016",
+        "R019"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,570 @@
+{
+  "experiment": "exp2_redteam_validation",
+  "total_scenarios": 40,
+  "total_detected": 31,
+  "overall_detection_rate": 77.5,
+  "total_leakage_detected": 13,
+  "overall_leakage_rate": 32.5,
+  "summary_by_difficulty": {
+    "r1": {
+      "label": "Easy",
+      "n_scenarios": 10,
+      "n_detected": 10,
+      "detection_rate": 100.0,
+      "n_leakage_detected": 5,
+      "leakage_rate": 50.0
+    },
+    "r2": {
+      "label": "Medium",
+      "n_scenarios": 10,
+      "n_detected": 8,
+      "detection_rate": 80.0,
+      "n_leakage_detected": 3,
+      "leakage_rate": 30.0
+    },
+    "r3": {
+      "label": "Hard",
+      "n_scenarios": 10,
+      "n_detected": 7,
+      "detection_rate": 70.0,
+      "n_leakage_detected": 4,
+      "leakage_rate": 40.0
+    },
+    "r4": {
+      "label": "Extreme",
+      "n_scenarios": 10,
+      "n_detected": 6,
+      "detection_rate": 60.0,
+      "n_leakage_detected": 1,
+      "leakage_rate": 10.0
+    }
+  },
+  "rule_frequency": {
+    "R009": 35,
+    "R004": 15,
+    "R022": 13,
+    "R001": 4,
+    "R021": 4,
+    "R016": 3,
+    "R023": 2,
+    "R008": 2,
+    "R020": 2,
+    "R019": 2,
+    "R003": 1,
+    "R005": 1,
+    "R006": 1,
+    "R013": 1,
+    "R011": 1,
+    "R017": 1,
+    "R014": 1,
+    "R018": 1,
+    "R025": 1,
+    "R024": 1,
+    "R010": 1,
+    "R002": 1
+  },
+  "detailed_results": {
+    "r1": [
+      {
+        "file": "test_01_obvious_leak.py",
+        "total_findings": 3,
+        "warnings_or_above": 2,
+        "leakage_findings": 1,
+        "detected": true,
+        "leakage_detected": true,
+        "rules_triggered": [
+          "R001",
+          "R004",
+          "R016"
+        ]
+      },
+      {
+        "file": "test_02_smote_on_full.py",
+        "total_findings": 2,
+        "warnings_or_above": 1,
+        "leakage_findings": 1,
+        "detected": true,
+        "leakage_detected": true,
+        "rules_triggered": [
+          "R003",
+          "R016"
+        ]
+      },
+      {
+        "file": "test_03_threshold_on_test.py",
+        "total_findings": 3,
+        "warnings_or_above": 2,
+        "leakage_findings": 1,
+        "detected": true,
+        "leakage_detected": true,
+        "rules_triggered": [
+          "R005",
+          "R009",
+          "R022"
+        ]
+      },
+      {
+        "file": "test_04_no_patient_grouping.py",
+        "total_findings": 1,
+        "warnings_or_above": 1,
+        "leakage_findings": 0,
+        "detected": true,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R004"
+        ]
+      },
+      {
+        "file": "test_05_feature_selection_full.py",
+        "total_findings": 3,
+        "warnings_or_above": 2,
+        "leakage_findings": 2,
+        "detected": true,
+        "leakage_detected": true,
+        "rules_triggered": [
+          "R001",
+          "R006",
+          "R016"
+        ]
+      },
+      {
+        "file": "test_06_hidden_in_function.py",
+        "total_findings": 4,
+        "warnings_or_above": 3,
+        "leakage_findings": 1,
+        "detected": true,
+        "leakage_detected": true,
+        "rules_triggered": [
+          "R001",
+          "R004",
+          "R009",
+          "R022"
+        ]
+      },
+      {
+        "file": "test_07_target_leakage_hba1c.py",
+        "total_findings": 2,
+        "warnings_or_above": 1,
+        "leakage_findings": 0,
+        "detected": true,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R009",
+          "R022"
+        ]
+      },
+      {
+        "file": "test_08_temporal_oracle.py",
+        "total_findings": 2,
+        "warnings_or_above": 1,
+        "leakage_findings": 0,
+        "detected": true,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R009",
+          "R022"
+        ]
+      },
+      {
+        "file": "test_09_aliased_test_tuning.py",
+        "total_findings": 4,
+        "warnings_or_above": 3,
+        "leakage_findings": 0,
+        "detected": true,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R004",
+          "R009",
+          "R021",
+          "R022"
+        ]
+      },
+      {
+        "file": "test_10_subtle_reporting.py",
+        "total_findings": 3,
+        "warnings_or_above": 2,
+        "leakage_findings": 0,
+        "detected": true,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R009",
+          "R013",
+          "R022"
+        ]
+      }
+    ],
+    "r2": [
+      {
+        "file": "test_11_definition_leak_ckd.py",
+        "total_findings": 1,
+        "warnings_or_above": 0,
+        "leakage_findings": 0,
+        "detected": false,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R009"
+        ]
+      },
+      {
+        "file": "test_12_temporal_icu_mortality.py",
+        "total_findings": 1,
+        "warnings_or_above": 0,
+        "leakage_findings": 0,
+        "detected": false,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R009"
+        ]
+      },
+      {
+        "file": "test_13_eval_data_alias.py",
+        "total_findings": 3,
+        "warnings_or_above": 2,
+        "leakage_findings": 0,
+        "detected": true,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R009",
+          "R021",
+          "R022"
+        ]
+      },
+      {
+        "file": "test_14_derived_feature_leak.py",
+        "total_findings": 3,
+        "warnings_or_above": 2,
+        "leakage_findings": 1,
+        "detected": true,
+        "leakage_detected": true,
+        "rules_triggered": [
+          "R004",
+          "R009",
+          "R023"
+        ]
+      },
+      {
+        "file": "test_15_cv_smote_no_pipeline.py",
+        "total_findings": 3,
+        "warnings_or_above": 2,
+        "leakage_findings": 0,
+        "detected": true,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R009",
+          "R011",
+          "R022"
+        ]
+      },
+      {
+        "file": "test_16_shuffle_temporal.py",
+        "total_findings": 4,
+        "warnings_or_above": 3,
+        "leakage_findings": 0,
+        "detected": true,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R004",
+          "R008",
+          "R009",
+          "R022"
+        ]
+      },
+      {
+        "file": "test_17_global_dropna.py",
+        "total_findings": 4,
+        "warnings_or_above": 3,
+        "leakage_findings": 1,
+        "detected": true,
+        "leakage_detected": true,
+        "rules_triggered": [
+          "R004",
+          "R009",
+          "R020",
+          "R022"
+        ]
+      },
+      {
+        "file": "test_18_early_stop_test.py",
+        "total_findings": 2,
+        "warnings_or_above": 1,
+        "leakage_findings": 1,
+        "detected": true,
+        "leakage_detected": true,
+        "rules_triggered": [
+          "R009",
+          "R017"
+        ]
+      },
+      {
+        "file": "test_19_label_encoder_nominal.py",
+        "total_findings": 3,
+        "warnings_or_above": 2,
+        "leakage_findings": 0,
+        "detected": true,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R009",
+          "R014",
+          "R022"
+        ]
+      },
+      {
+        "file": "test_20_overstatement.py",
+        "total_findings": 6,
+        "warnings_or_above": 4,
+        "leakage_findings": 0,
+        "detected": true,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R009",
+          "R019",
+          "R021"
+        ]
+      }
+    ],
+    "r3": [
+      {
+        "file": "test_21_indirect_target_via_merge.py",
+        "total_findings": 3,
+        "warnings_or_above": 2,
+        "leakage_findings": 1,
+        "detected": true,
+        "leakage_detected": true,
+        "rules_triggered": [
+          "R004",
+          "R009",
+          "R023"
+        ]
+      },
+      {
+        "file": "test_22_imputer_fit_full.py",
+        "total_findings": 5,
+        "warnings_or_above": 3,
+        "leakage_findings": 1,
+        "detected": true,
+        "leakage_detected": true,
+        "rules_triggered": [
+          "R001",
+          "R004",
+          "R009",
+          "R018",
+          "R022"
+        ]
+      },
+      {
+        "file": "test_23_pipeline_but_wrong_order.py",
+        "total_findings": 1,
+        "warnings_or_above": 1,
+        "leakage_findings": 0,
+        "detected": true,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R025"
+        ]
+      },
+      {
+        "file": "test_24_data_snooping_via_visualization.py",
+        "total_findings": 1,
+        "warnings_or_above": 0,
+        "leakage_findings": 0,
+        "detected": false,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R009"
+        ]
+      },
+      {
+        "file": "test_25_quantile_clip_before_split.py",
+        "total_findings": 3,
+        "warnings_or_above": 2,
+        "leakage_findings": 1,
+        "detected": true,
+        "leakage_detected": true,
+        "rules_triggered": [
+          "R004",
+          "R009",
+          "R020"
+        ]
+      },
+      {
+        "file": "test_26_nested_cv_leaky_outer.py",
+        "total_findings": 4,
+        "warnings_or_above": 3,
+        "leakage_findings": 0,
+        "detected": true,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R009",
+          "R021",
+          "R022"
+        ]
+      },
+      {
+        "file": "test_27_future_feature_subtle.py",
+        "total_findings": 2,
+        "warnings_or_above": 1,
+        "leakage_findings": 0,
+        "detected": true,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R004",
+          "R009"
+        ]
+      },
+      {
+        "file": "test_28_multi_file_leak.py",
+        "total_findings": 1,
+        "warnings_or_above": 0,
+        "leakage_findings": 0,
+        "detected": false,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R009"
+        ]
+      },
+      {
+        "file": "test_29_survival_as_binary.py",
+        "total_findings": 1,
+        "warnings_or_above": 0,
+        "leakage_findings": 0,
+        "detected": false,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R009"
+        ]
+      },
+      {
+        "file": "test_30_information_leak_via_frequency.py",
+        "total_findings": 3,
+        "warnings_or_above": 2,
+        "leakage_findings": 1,
+        "detected": true,
+        "leakage_detected": true,
+        "rules_triggered": [
+          "R004",
+          "R009",
+          "R024"
+        ]
+      }
+    ],
+    "r4": [
+      {
+        "file": "test_31_leaky_custom_transformer.py",
+        "total_findings": 1,
+        "warnings_or_above": 0,
+        "leakage_findings": 0,
+        "detected": false,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R009"
+        ]
+      },
+      {
+        "file": "test_32_outcome_in_feature_name_disguised.py",
+        "total_findings": 2,
+        "warnings_or_above": 1,
+        "leakage_findings": 0,
+        "detected": true,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R004",
+          "R009"
+        ]
+      },
+      {
+        "file": "test_33_mutual_information_full.py",
+        "total_findings": 2,
+        "warnings_or_above": 1,
+        "leakage_findings": 0,
+        "detected": true,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R004",
+          "R009"
+        ]
+      },
+      {
+        "file": "test_34_train_metrics_as_final.py",
+        "total_findings": 4,
+        "warnings_or_above": 3,
+        "leakage_findings": 0,
+        "detected": true,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R009",
+          "R010"
+        ]
+      },
+      {
+        "file": "test_35_calibration_on_test.py",
+        "total_findings": 1,
+        "warnings_or_above": 0,
+        "leakage_findings": 0,
+        "detected": false,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R009"
+        ]
+      },
+      {
+        "file": "test_36_stacking_test_leak.py",
+        "total_findings": 3,
+        "warnings_or_above": 1,
+        "leakage_findings": 1,
+        "detected": true,
+        "leakage_detected": true,
+        "rules_triggered": [
+          "R002",
+          "R009",
+          "R019"
+        ]
+      },
+      {
+        "file": "test_37_conditional_imputation_leak.py",
+        "total_findings": 2,
+        "warnings_or_above": 1,
+        "leakage_findings": 0,
+        "detected": true,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R004",
+          "R009"
+        ]
+      },
+      {
+        "file": "test_38_immortal_time_bias.py",
+        "total_findings": 2,
+        "warnings_or_above": 1,
+        "leakage_findings": 0,
+        "detected": true,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R008",
+          "R009"
+        ]
+      },
+      {
+        "file": "test_39_collider_bias.py",
+        "total_findings": 1,
+        "warnings_or_above": 0,
+        "leakage_findings": 0,
+        "detected": false,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R009"
+        ]
+      },
+      {
+        "file": "test_40_informative_censoring.py",
+        "total_findings": 1,
+        "warnings_or_above": 0,
+        "leakage_findings": 0,
+        "detected": false,
+        "leakage_detected": false,
+        "rules_triggered": [
+          "R009"
+        ]
+      }
+    ]
+  }
+}

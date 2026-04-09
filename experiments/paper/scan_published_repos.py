@@ -36,7 +36,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-LINT_SCRIPT = REPO_ROOT / "scripts" / "mlgg.py"
+LINT_MODULE_DIR = REPO_ROOT / "plugin"
 PYTHON = sys.executable
 
 
@@ -119,10 +119,13 @@ def find_ml_files(repo_dir: Path) -> List[Path]:
 def run_lint_on_file(filepath: Path) -> List[Dict[str, Any]]:
     """Run MLGG lint on a single file and return findings."""
     try:
+        env = os.environ.copy()
+        env["PYTHONPATH"] = str(LINT_MODULE_DIR) + os.pathsep + env.get("PYTHONPATH", "")
         result = subprocess.run(
-            [PYTHON, str(LINT_SCRIPT), "lint", "check", str(filepath), "--format", "json"],
+            [PYTHON, "-m", "mlgg_lint", "check", str(filepath), "--format", "json"],
             capture_output=True, text=True, timeout=30,
             cwd=str(REPO_ROOT),
+            env=env,
         )
         if result.stdout.strip():
             # mlgg.py dispatcher may emit two JSON blocks; parse only the first
@@ -148,14 +151,27 @@ def run_lint_on_file(filepath: Path) -> List[Dict[str, Any]]:
 
 
 def _is_training_file(filepath: Path) -> bool:
-    """Check if a Python file contains ML training logic (split + fit)."""
+    """Check if a Python file contains ML training logic.
+
+    Broadened criteria: a file is considered a training file if it contains
+    EITHER (split + fit) OR (fit + metric evaluation), since many repos
+    split data in a separate script.
+    """
     try:
         content = filepath.read_text(encoding="utf-8", errors="replace")
     except OSError:
         return False
-    has_split = "train_test_split" in content or "StratifiedKFold" in content or "KFold" in content
+    has_split = any(kw in content for kw in (
+        "train_test_split", "StratifiedKFold", "KFold", "GroupKFold",
+        "cross_val_score", "cross_validate", "X_train", "x_train",
+    ))
     has_fit = ".fit(" in content or ".fit_transform(" in content
-    return has_split and has_fit
+    has_metric = any(kw in content for kw in (
+        "roc_auc_score", "accuracy_score", "f1_score", "precision_score",
+        "recall_score", "average_precision_score", "brier_score_loss",
+        "confusion_matrix", "classification_report",
+    ))
+    return (has_split and has_fit) or (has_fit and has_metric)
 
 
 def scan_repo(
@@ -215,6 +231,8 @@ def scan_repo(
         "R007": "target_as_feature",
         "R017": "early_stop_on_test",
         "R020": "global_clean_before_split",
+        "R023": "target_encoding_leak",
+        "R024": "frequency_encoding_leak",
     }
     leakage_types_found = [
         leakage_rules[rid] for rid in rule_counts if rid in leakage_rules
