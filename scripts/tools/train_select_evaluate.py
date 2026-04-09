@@ -363,6 +363,11 @@ def parse_args() -> argparse.Namespace:
             "for fast seed-search diagnostics."
         ),
     )
+    parser.add_argument(
+        "--skip-preflight-check",
+        action="store_true",
+        help=argparse.SUPPRESS,  # Hidden: bypass pre-training gate verification (testing only)
+    )
     parser.add_argument("--model-selection-report-out", required=True, help="Output model_selection_report.json.")
     parser.add_argument("--evaluation-report-out", required=True, help="Output evaluation_report.json.")
     parser.add_argument("--feature-group-spec", help="Optional feature_group_spec JSON path.")
@@ -5699,6 +5704,51 @@ def main() -> int:
     """
     configure_runtime_warning_filters()
     args = parse_args()
+
+    # ── Pre-training gate verification (fail-closed) ──────────────────────
+    # Training MUST NOT proceed without prior gate evidence. This is a
+    # code-level enforcement that cannot be bypassed by agent instructions
+    # or user requests. The only way to skip is --skip-preflight-check
+    # which is intentionally NOT documented in skill files.
+    if not getattr(args, "skip_preflight_check", False):
+        _evidence_dir = Path(args.train).expanduser().resolve().parent.parent / "evidence"
+        _preflight_gates = {
+            "leakage_report.json": ("leakage_gate", "S01: patient-level split isolation"),
+        }
+        # Only require leakage report if train file is in a project structure
+        if _evidence_dir.is_dir() or (_evidence_dir.parent / "configs").is_dir():
+            for _report_name, (_gate_name, _rule) in _preflight_gates.items():
+                _report_path = _evidence_dir / _report_name
+                if not _report_path.is_file():
+                    print(
+                        f"[PREFLIGHT] {_gate_name} report not found: {_report_path}\n"
+                        f"  Rule {_rule} requires this gate to pass before training.\n"
+                        f"  Run: python3 scripts/gates/leakage_gate.py --train <train> --test <test> "
+                        f"--id-cols <ID> --target-col y --report {_report_path} --strict",
+                        file=sys.stderr,
+                    )
+                    raise SystemExit(f"preflight_failed: {_gate_name} report missing. Run the gate first.")
+                try:
+                    with _report_path.open("r", encoding="utf-8") as _fh:
+                        _rpt = json.load(_fh)
+                    _rpt_status = str(_rpt.get("status", "")).strip().lower()
+                    _rpt_gate = str(_rpt.get("gate_name", "")).strip()
+                    _rpt_envelope = str(_rpt.get("envelope_version", "")).strip()
+                    if _rpt_status != "pass":
+                        raise SystemExit(
+                            f"preflight_failed: {_gate_name} status={_rpt_status}. "
+                            f"Fix the issues and re-run the gate before training."
+                        )
+                    if not _rpt_gate or not _rpt_envelope:
+                        raise SystemExit(
+                            f"preflight_failed: {_report_name} is missing gate_name or envelope_version. "
+                            f"This may be a hand-crafted file. Re-run the gate to produce a valid report."
+                        )
+                except json.JSONDecodeError as _exc:
+                    raise SystemExit(
+                        f"preflight_failed: {_report_name} is not valid JSON: {_exc}"
+                    )
+
     fast_diagnostic_mode = bool(args.fast_diagnostic_mode)
     if args.cv_splits < 3:
         raise SystemExit("--cv-splits must be >= 3.")
