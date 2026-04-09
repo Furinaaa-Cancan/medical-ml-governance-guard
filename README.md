@@ -646,7 +646,7 @@ selected = min(eligible, key=complexity_rank)               # 选最简单的
 
 #### 6.1 完整 14 指标面板（MLGG-E02）
 
-测试集一次性使用，报告 5 域 14 项指标 (对标 Lancet Digital Health 2025 评估框架)：
+测试集一次性使用，报告 5 域 14 项指标 (对标 Riley et al. Lancet Digital Health 2025; doi:10.1016/S2589-7500(25)00021-4)：
 
 | 域 | 指标 | 目标/解读 |
 |:---|:-----|:---------|
@@ -1133,7 +1133,7 @@ python3 -m mlgg_lint /path/to/code/
 | 时序漂移 | `temporal_drift_analysis()` | "模型部署后还准吗？" | PMC8627243 |
 | 模型卡片 | `generate_model_card()` | "结构化模型文档？" | Mitchell 2019 |
 | 插补敏感性 | `imputation_sensitivity()` | "换插补方法结论变吗？" | Pop Health 2024 |
-| 亚组 DCA | `subgroup_dca()` | "少数族裔有临床效用吗？" | Nature CS 2025 |
+| 亚组 DCA | `subgroup_dca()` | "少数族裔有临床效用吗？" | Vickers 2006 + PROBAST+AI 2025 |
 | 基线对比 | `baseline_comparisons()` | "比随机/患病率好多少？" | NC ML Checklist |
 | 特征消融 | `feature_ablation()` | "去掉关键特征性能怎么变？" | NC ML Checklist |
 | 计算资源 | `compute_resource_report()` | "训练用了多少资源？" | NC ML Checklist |
@@ -1326,7 +1326,7 @@ python3 scripts/orchestration/mlgg.py doctor
 |:----------|:-------------|
 | Chekroud AM et al. *Science.* 2024;383:164-167 | "Illusory generalizability" &mdash; ML models accurate within training trial, random outside |
 | Wynants L et al. *BMJ.* 2020;369:m1328 | COVID prediction models: 94% high ROB by PROBAST; systematic evidence of widespread bias |
-| Dhiman P et al. *J Clin Epidemiol.* 2025;179:111967 | Median peer review 243 words; <20% check generalizability; calibration rarely reviewed |
+| Collins GS, Dhiman P, Ma J, et al. *BMJ.* 2024;384:e074819 | Calibration-in-the-large, calibration slope, bootstrap internal validation; split-sample NOT recommended |
 
 </details>
 

@@ -11,7 +11,7 @@
 - 最优模型和阈值已确定
 - `evidence/evaluation_report.json` 已由 `train_select_evaluate.py` 生成
 
-## 5 域指标面板（Lancet DH 2025）
+## 5 域指标面板（Riley et al., Lancet Digital Health 2025; doi:10.1016/S2589-7500(25)00021-4）
 
 | 域 | 指标 |
 |----|------|
