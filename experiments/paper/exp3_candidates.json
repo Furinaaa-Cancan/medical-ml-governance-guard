@@ -1,0 +1,82 @@
+{
+  "experiment": "exp3_concordance",
+  "description": "Papers from peer-review-kb with public Python code for MLGG vs reviewer concordance",
+  "generated": "2026-04-09",
+  "candidates": [
+    {
+      "paper_id": "PR-010",
+      "pmcid": "PMC10287760",
+      "doi": "10.1038/s41467-023-39474-6",
+      "domain": "nephrology",
+      "github": "https://github.com/yunzhangwww/AKIEPM",
+      "n_method_concerns": 4,
+      "n_critical": 1,
+      "critical_categories": ["data_leakage", "split_protocol"],
+      "status": "to_verify"
+    },
+    {
+      "paper_id": "PR-016",
+      "pmcid": "PMC7519071",
+      "doi": "10.1038/s41467-020-18703-2",
+      "domain": "oncology",
+      "github": "https://github.com/mfan0809/Gene-expression-deconvolution",
+      "n_method_concerns": 4,
+      "n_critical": 1,
+      "critical_categories": ["preprocessing"],
+      "status": "to_verify"
+    },
+    {
+      "paper_id": "PR-057",
+      "pmcid": "PMC7599252",
+      "doi": "10.1038/s41467-020-19313-8",
+      "domain": "oncology",
+      "github": "https://github.com/billy-kong/organoid_biomarker_detection",
+      "n_method_concerns": 2,
+      "n_critical": 1,
+      "critical_categories": ["evaluation_metrics", "model_selection"],
+      "status": "to_verify"
+    },
+    {
+      "paper_id": "PR-004",
+      "pmcid": "PMC10687211",
+      "doi": "10.1038/s41467-023-43715-z",
+      "domain": "ehr_clinical",
+      "github": "https://github.com/whaleloops/TransformEHR",
+      "n_method_concerns": 3,
+      "n_critical": 0,
+      "critical_categories": [],
+      "note": "Transformer-based — may not have standard sklearn pipeline",
+      "status": "to_verify"
+    },
+    {
+      "paper_id": "PR-013",
+      "pmcid": "PMC10442344",
+      "doi": "10.1038/s41467-023-40917-3",
+      "domain": "neurology",
+      "github": "https://github.com/neuropheno-org/Pairwise_model_code",
+      "n_method_concerns": 3,
+      "n_critical": 0,
+      "critical_categories": [],
+      "status": "to_verify"
+    },
+    {
+      "paper_id": "PR-017",
+      "pmcid": "PMC11271575",
+      "doi": "10.1038/s41467-024-47357-7",
+      "domain": "genomics",
+      "github": "https://github.com/Jingning-Zhang/PROSPER_analysis",
+      "n_method_concerns": 3,
+      "n_critical": 0,
+      "critical_categories": [],
+      "note": "Polygenic risk score — may be R-based analysis pipeline",
+      "status": "to_verify"
+    }
+  ],
+  "next_steps": [
+    "1. Clone each repo and verify it contains Python training code",
+    "2. Run mlgg lint on Python files",
+    "3. Extract reviewer methodology concerns from peer-review-kb",
+    "4. Build concordance matrix: MLGG findings vs reviewer findings",
+    "5. Compute Cohen's kappa, precision, recall"
+  ]
+}
