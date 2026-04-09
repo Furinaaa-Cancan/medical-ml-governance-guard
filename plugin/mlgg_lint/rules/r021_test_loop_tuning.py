@@ -20,15 +20,16 @@ from mlgg_lint.rules.base import BaseRule
 class TestLoopTuning(BaseRule):
     id = "R021"
     name = "test-loop-tuning"
-    severity = Severity.ERROR
+    severity = Severity.WARNING
     description = (
-        "Test/holdout data used inside a loop for model evaluation, suggesting "
-        "hyperparameter tuning on test data. This inflates reported performance "
-        "and violates MLGG-M01."
+        "Test/holdout data evaluated inside a loop — may indicate hyperparameter "
+        "tuning on test data (MLGG-M01 violation). If this is multi-model comparison "
+        "(not tuning), document that test set is used for reporting only."
     )
     remediation = (
-        "Use a separate validation set or inner cross-validation for "
-        "hyperparameter tuning. Reserve the test set for a single final evaluation."
+        "If tuning: use a separate validation set or inner cross-validation. "
+        "If comparing models: acceptable, but report as empirical comparison "
+        "without claims of statistical superiority."
     )
     tags = ("leakage", "model_selection")
 
@@ -92,5 +93,9 @@ class TestLoopTuning(BaseRule):
     @staticmethod
     def _is_test_like(name: str) -> bool:
         low = name.lower()
-        test_hints = ("test", "holdout", "held_out", "heldout", "x_eval")
+        test_hints = (
+            "test", "holdout", "held_out", "heldout",
+            "x_eval", "eval_data", "eval_x", "eval_label", "eval_y",
+            "final_eval", "unseen",
+        )
         return any(h in low for h in test_hints)
