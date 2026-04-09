@@ -69,9 +69,9 @@ total_score = Σ (dimension_fraction_i × weight_i)     对所有 i ∈ {1..12}
 | **D6 Generalization** | 10 | Collins et al. 2024 (*BMJ*) TRIPOD+AI Item 13b: 外部验证是 REQUIRED 条目 | Siontis et al. 2015 (*BMJ*): 外部验证普遍表现下降 (median ΔAUC = 0.05) |
 | **D7 Clinical Completeness** | 7 | Vickers & Elkin 2006 (*Med Decis Making*): DCA 的必要性; TRIPOD+AI Items 16-17 | 完整指标面板（Se/Sp/PPV/NPV/calibration/DCA）是临床决策的基础 |
 | **D8 Reporting Standards** | 7 | Collins et al. 2024 TRIPOD+AI; Wolff et al. 2019 PROBAST | 报告标准合规性影响可复现性和同行评审质量 |
-| **D9 Reproducibility** | 6 | Beam et al. 2020 (*Lancet Digital Health*): "reproducibility crisis in clinical ML"; Haibe-Kains et al. 2020 (*Nature*) | 代码和数据可用性是可重复性的必要条件 |
-| **D10 Security** | 3 | SLSA Framework (supply-chain integrity); FDA GMLP 2021 | 模型签名和溯源对监管合规重要，但不直接影响方法学正确性 |
-| **D11 Fairness** | 3 | Chen et al. 2023 (*Nature Medicine*): "algorithmic fairness in clinical prediction"; Obermeyer et al. 2019 (*Science*) | 公平性是发表要求但非方法学致命缺陷；TRIPOD+AI Item 5b 作为 CONDITIONAL 条目 |
+| **D9 Reproducibility** | 6 | Haibe-Kains B et al. 2020 (*Nature* 586:E14-E16; doi:10.1038/s41586-020-2766-y): reproducibility in ML | 代码和数据可用性是可重复性的必要条件 |
+| **D10 Security** | 3 | SLSA Framework (supply-chain integrity); FDA Good Machine Learning Practice 2021 | 模型签名和溯源对监管合规重要，但不直接影响方法学正确性 |
+| **D11 Fairness** | 3 | Obermeyer Z et al. 2019 (*Science* 366:447-453; doi:10.1126/science.aax2342): racial bias in health algorithms | 公平性是发表要求但非方法学致命缺陷；TRIPOD+AI Item 5b 作为 CONDITIONAL 条目 |
 | **D12 Sample Size** | 3 | Riley et al. 2020 (*BMJ*): EPV criteria; van Smeden et al. 2019 (*BMJ* editorial) | EPV 是基线要求但已在 D5 (statistical validity) 中部分覆盖 |
 
 **权重层次逻辑**：

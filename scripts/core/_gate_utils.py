@@ -1755,7 +1755,7 @@ def robustness_stress_test(
 
 # ---------------------------------------------------------------------------
 # Module 1: MNAR Sensitivity Analysis (δ-adjustment + tipping point)
-# Ref: PMC10481859 (2023), Cro 2020 (Stat Med)
+# Ref: Cro S et al. Stat Med 2020;39(21):2815-2842; doi:10.1002/sim.8569
 # ---------------------------------------------------------------------------
 
 def mnar_sensitivity_analysis(
@@ -1855,7 +1855,7 @@ def mnar_sensitivity_analysis(
 
 # ---------------------------------------------------------------------------
 # Module 2: Temporal Drift Detection (calibration drift + CUSUM)
-# Ref: PMC8627243 (2021), Sci Reports 2022
+# Ref: Davis SE et al. JAMIA 2020;27(9):1514-1521; doi:10.1093/jamia/ocaa004
 # ---------------------------------------------------------------------------
 
 def temporal_drift_analysis(
@@ -1973,7 +1973,7 @@ def temporal_drift_analysis(
 
 # ---------------------------------------------------------------------------
 # Module 3: Model Card Generator
-# Ref: Mitchell et al. 2019 (FAT*), Nature Comp Sci 2025
+# Ref: Mitchell et al. 2019 (FAT*)
 # ---------------------------------------------------------------------------
 
 def generate_model_card(
@@ -2123,7 +2123,7 @@ def generate_model_card(
 
 # ---------------------------------------------------------------------------
 # Module 4: Imputation Sensitivity Analysis
-# Ref: Population Health Metrics 2024, BMC Med Res Method 2024
+# Ref: Madley-Dowd P et al. J Clin Epidemiol 2019;110:63-73
 # ---------------------------------------------------------------------------
 
 def imputation_sensitivity(
@@ -2222,7 +2222,7 @@ def imputation_sensitivity(
 
 # ---------------------------------------------------------------------------
 # Module 5: Subgroup-specific DCA (Net Benefit by subgroup)
-# Ref: Nature Comp Sci 2025, alphaxiv 2412.07879
+# Ref: Vickers AJ, Elkin EB. Med Decis Making 2006;26(6):565-574
 # ---------------------------------------------------------------------------
 
 def subgroup_dca(
@@ -2249,7 +2249,6 @@ def subgroup_dca(
 
     References:
         Vickers AJ, Elkin EB. Med Decis Making. 2006;26:565-574.
-        Nature Comp Sci 2025 — Algorithmic fairness + health equity.
     """
     import numpy as np
 

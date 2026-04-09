@@ -46,10 +46,10 @@ register_remediations({
     "calibration_intercept_too_large": "Calibration intercept too far from 0. Recalibrate.",
     "dca_net_benefit_insufficient": "Model net benefit is insufficient. Review clinical utility.",
     "dca_advantage_coverage_low": "Decision curve advantage coverage is below threshold.",
-    "calibration_oe_ratio_out_of_range": "O/E ratio should be near 1.0 (BMJ 2024). Recalibrate the model.",
-    "calibration_in_the_large_too_large": "Calibration-in-the-large should be near 0.0 (BMJ 2024). Recalibrate.",
-    "hosmer_lemeshow_discouraged": "Replace Hosmer-Lemeshow with calibration slope, O/E ratio, and calibration plots (BMJ 2024, LIT-045/046).",
-    "dca_threshold_grid_not_prespecified": "Pre-specify and justify DCA threshold grid in the study protocol (BMJ 2024).",
+    "calibration_oe_ratio_out_of_range": "O/E ratio should be near 1.0 (Collins et al. BMJ 2024;384:e074819). Recalibrate the model.",
+    "calibration_in_the_large_too_large": "Calibration-in-the-large should be near 0.0 (Collins et al. BMJ 2024;384:e074819). Recalibrate.",
+    "hosmer_lemeshow_discouraged": "Replace Hosmer-Lemeshow with calibration slope, O/E ratio, and calibration plots (Collins et al. BMJ 2024;384:e074819).",
+    "dca_threshold_grid_not_prespecified": "Pre-specify and justify DCA threshold grid in the study protocol (TRIPOD+AI 2024).",
 })
 
 

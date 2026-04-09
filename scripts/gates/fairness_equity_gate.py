@@ -10,11 +10,9 @@ journals (Nature Medicine, Lancet Digital Health, JAMA, BMJ). Checks:
 - Coverage of subgroup analysis
 
 References:
-- TRIPOD+AI (BMJ 2024): fairness assessment recommendation
-- PROBAST+AI (BMJ 2025): applicability across subpopulations
-- Nature Medicine / Lancet DH: subgroup equity requirements
-- HEAL framework (eClinicalMedicine 2024): FPR/FNR parity
-- "What Is Fair?" (Statistics in Medicine 2025): impossibility theorem
+- Collins GS et al. BMJ 2024;385:e078378 (TRIPOD+AI): fairness assessment recommendation
+- Moons KGM et al. BMJ 2025;388:e082505 (PROBAST+AI): applicability across subpopulations
+- Obermeyer Z et al. Science 2019;366:447-453: racial bias in health algorithms
 """
 from __future__ import annotations
 
