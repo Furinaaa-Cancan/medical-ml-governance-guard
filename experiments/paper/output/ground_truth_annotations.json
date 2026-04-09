@@ -1,0 +1,402 @@
+{
+  "experiment": "ground_truth_validation",
+  "date": "2026-04-09",
+  "methodology": "Agent deep code review on 38/38 repos (excluding 2 empty/failed), verified by reading actual training code",
+  "annotations": [
+    {
+      "id": 6,
+      "name": "Predict-long-term-mortality",
+      "lint_says_leak": true,
+      "actually_leak": true,
+      "types": [
+        "imputer_refit_on_test",
+        "early_stop_on_test"
+      ],
+      "notes": "imputer.fit(X_test) instead of transform; XGBoost eval_set uses test"
+    },
+    {
+      "id": 17,
+      "name": "Hybrid-Random-Forest-Linear-Model",
+      "lint_says_leak": true,
+      "actually_leak": true,
+      "types": [
+        "imputation_before_split"
+      ],
+      "notes": "imputer.fit on full X before split; scaler correctly done after split"
+    },
+    {
+      "id": 18,
+      "name": "Heart_Failure_Predictor",
+      "lint_says_leak": true,
+      "actually_leak": true,
+      "types": [
+        "winsorization_before_split",
+        "scaler_refit_on_test"
+      ],
+      "notes": "winsorize on full df before split; fit_transform on test; many lint FPs on Pipeline-based code"
+    },
+    {
+      "id": 19,
+      "name": "ASCVD_ML",
+      "lint_says_leak": true,
+      "actually_leak": false,
+      "types": [],
+      "notes": "FALSE POSITIVE: scaler inside sklearn Pipeline, correctly handled"
+    },
+    {
+      "id": 20,
+      "name": "Diabetes_Prediction",
+      "lint_says_leak": true,
+      "actually_leak": true,
+      "types": [
+        "scaler_before_split"
+      ],
+      "notes": "StandardScaler fit on full 768 samples before split"
+    },
+    {
+      "id": 30,
+      "name": "stroke_prediction",
+      "lint_says_leak": true,
+      "actually_leak": false,
+      "types": [],
+      "notes": "FALSE POSITIVE: preprocessing inside imblearn Pipeline, correctly per-fold"
+    },
+    {
+      "id": 35,
+      "name": "head-and-neck-cancer-specific-survival",
+      "lint_says_leak": true,
+      "actually_leak": true,
+      "types": [
+        "smote_before_split",
+        "imputation_before_split"
+      ],
+      "notes": "SMOTE on full data then split; IterativeImputer on full data"
+    },
+    {
+      "id": 46,
+      "name": "clinical-risk-prediction",
+      "lint_says_leak": true,
+      "actually_leak": true,
+      "types": [
+        "scaler_before_split",
+        "model_selection_on_test"
+      ],
+      "notes": "StandardScaler on full data; best model selected by test accuracy"
+    },
+    {
+      "id": 47,
+      "name": "continuous-aki-predict",
+      "lint_says_leak": true,
+      "actually_leak": true,
+      "types": [
+        "normalization_before_split",
+        "early_stop_on_test",
+        "threshold_on_test"
+      ],
+      "notes": "cap_data+normalise on full data; XGBoost early_stopping on test; threshold opt on test"
+    },
+    {
+      "id": 1,
+      "name": "Predict_ICU_mortality_tabular_data",
+      "lint_says_leak": false,
+      "actually_leak": false,
+      "types": [],
+      "notes": "Clean: split first, scaler fit on train only, RFE on train only"
+    },
+    {
+      "id": 3,
+      "name": "MIMIC_EHR_Predictor",
+      "lint_says_leak": false,
+      "actually_leak": false,
+      "types": [],
+      "notes": "Clean: FIDDLE framework with pre-defined splits"
+    },
+    {
+      "id": 4,
+      "name": "Hospital_adverse_outcomes_prediction",
+      "lint_says_leak": false,
+      "actually_leak": false,
+      "types": [],
+      "notes": "Clean: fillna(0) is constant, scaler fit on train only"
+    },
+    {
+      "id": 10,
+      "name": "readmission_prediction",
+      "lint_says_leak": false,
+      "actually_leak": true,
+      "types": [
+        "standardization_before_split",
+        "outlier_removal_before_split"
+      ],
+      "notes": "MISSED: preprocess.py standardizes full data, saves CSV, then train.py splits"
+    },
+    {
+      "id": 11,
+      "name": "Hospital-Readmission-Prediction",
+      "lint_says_leak": false,
+      "actually_leak": true,
+      "types": [
+        "imputation_before_split",
+        "target_encoding_before_split"
+      ],
+      "notes": "MISSED: KNNImputer + TargetEncoder on full data in preprocess.py before split in pipeline.py"
+    },
+    {
+      "id": 13,
+      "name": "Prediction-of-Hospital-Readmission",
+      "lint_says_leak": false,
+      "actually_leak": false,
+      "types": [],
+      "notes": "Clean: sklearn Pipeline with imputer+scaler+selector inside GridSearchCV"
+    },
+    {
+      "id": 14,
+      "name": "Heart_disease_prediction",
+      "lint_says_leak": false,
+      "actually_leak": false,
+      "types": [],
+      "notes": "Clean: no preprocessing, split before training"
+    },
+    {
+      "id": 15,
+      "name": "Heart-Disease-Model",
+      "lint_says_leak": false,
+      "actually_leak": true,
+      "types": [
+        "normalization_before_split"
+      ],
+      "notes": "MISSED: manual min-max normalization on full DataFrame before split"
+    },
+    {
+      "id": 24,
+      "name": "Early-Prediction-of-Sepsis-From-Clinical-Data",
+      "lint_says_leak": false,
+      "actually_leak": true,
+      "types": [
+        "oversampling_before_split"
+      ],
+      "notes": "MISSED: sklearn resample (not SMOTE) on full data before split"
+    },
+    {
+      "id": 25,
+      "name": "sepsis-prediction",
+      "lint_says_leak": false,
+      "actually_leak": false,
+      "types": [],
+      "notes": "Clean: proper patient-level split, standardize on train only"
+    },
+    {
+      "id": 26,
+      "name": "sepsis-early-detection",
+      "lint_says_leak": false,
+      "actually_leak": true,
+      "types": [
+        "imputer_fit_on_test",
+        "scaler_fit_on_test"
+      ],
+      "notes": "MISSED: imputer/scaler fit_transform on val/test independently instead of from train stats"
+    },
+    {
+      "id": 28,
+      "name": "Neonatal-Sepsis-Prediction",
+      "lint_says_leak": false,
+      "actually_leak": true,
+      "types": [
+        "scaling_before_split",
+        "smote_before_split",
+        "feature_selection_before_split"
+      ],
+      "notes": "MISSED: preprocessing.scale on full data, RF feature importance on full data, SMOTE before KFold"
+    },
+    {
+      "id": 29,
+      "name": "Stroke-prediction-with-ML",
+      "lint_says_leak": false,
+      "actually_leak": true,
+      "types": [
+        "imputation_before_split",
+        "smote_before_split"
+      ],
+      "notes": "MISSED: fillna(mean) on full data, SMOTE on full data before split"
+    },
+    {
+      "id": 37,
+      "name": "Chronic-Kidney-Disease",
+      "lint_says_leak": false,
+      "actually_leak": true,
+      "types": [
+        "preprocessing_before_split"
+      ],
+      "notes": "MISSED (borderline): dropna on full data before split in preprocess.py"
+    },
+    {
+      "id": 42,
+      "name": "Using-Machine-Learning-to-Predict-Alzheimer-s-Disease",
+      "lint_says_leak": false,
+      "actually_leak": false,
+      "types": [],
+      "notes": "Clean: augmentation on train folds only, scaler fit on train only"
+    },
+    {
+      "id": 45,
+      "name": "PD_Early",
+      "lint_says_leak": false,
+      "actually_leak": true,
+      "types": [
+        "standardization_before_split"
+      ],
+      "notes": "MISSED: manual z-score (X-mean)/std on full X before split"
+    },
+    {
+      "id": 50,
+      "name": "MIRAGE",
+      "lint_says_leak": false,
+      "actually_leak": true,
+      "types": [
+        "hyperparameter_tuning_on_test",
+        "cv_on_full_data"
+      ],
+      "notes": "MISSED: Optuna objective evaluates on test set; cross_val_score on full X,y"
+    },
+    {
+      "id": 55,
+      "name": "Chronic-Kidney-Disease-Prediction-Project",
+      "lint_says_leak": false,
+      "actually_leak": true,
+      "types": [
+        "imputation_before_split",
+        "feature_selection_before_split"
+      ],
+      "notes": "MISSED: fillna(median) on full data; ExtraTreesClassifier feature importance on full data"
+    },
+    {
+      "id": 16,
+      "name": "chd-prediction-ml",
+      "lint_says_leak": false,
+      "actually_leak": true,
+      "types": [
+        "scaler_before_split"
+      ],
+      "notes": "MISSED: StandardScaler fit_transform on full X in notebook before split"
+    },
+    {
+      "id": 21,
+      "name": "Diabetes-Prediction-",
+      "lint_says_leak": false,
+      "actually_leak": true,
+      "types": [
+        "scaler_before_split"
+      ],
+      "notes": "MISSED: scaler.fit(X) on full data before split"
+    },
+    {
+      "id": 22,
+      "name": "wids-datathon-2021-diabetes-prediction",
+      "lint_says_leak": false,
+      "actually_leak": false,
+      "types": [],
+      "notes": "Clean (competition context): concat train+test for imputation but no internal split violated"
+    },
+    {
+      "id": 23,
+      "name": "diabetes-patients-readmissions-prediction",
+      "lint_says_leak": false,
+      "actually_leak": false,
+      "types": [],
+      "notes": "Clean: split before pipeline, SMOTE on train only"
+    },
+    {
+      "id": 27,
+      "name": "Early_SEPSIS_ML",
+      "lint_says_leak": false,
+      "actually_leak": false,
+      "types": [],
+      "notes": "Empty repo, no code to evaluate"
+    },
+    {
+      "id": 31,
+      "name": "stroke-prediction-machine-learning",
+      "lint_says_leak": false,
+      "actually_leak": true,
+      "types": [
+        "imputation_before_split",
+        "scaler_before_split"
+      ],
+      "notes": "MISSED: fillna(mean) + StandardScaler on full data before split"
+    },
+    {
+      "id": 34,
+      "name": "Tumor-Prediction-with-ML",
+      "lint_says_leak": false,
+      "actually_leak": true,
+      "types": [
+        "feature_selection_before_split",
+        "no_train_test_split"
+      ],
+      "notes": "MISSED: DEG+RFE on full data, trained and evaluated on same data"
+    },
+    {
+      "id": 36,
+      "name": "CKD-Prediction",
+      "lint_says_leak": false,
+      "actually_leak": true,
+      "types": [
+        "imputation_before_split"
+      ],
+      "notes": "MISSED: fillna(mean) in Preprocessing.py, split in CKD_Prediction.py (cross-file)"
+    },
+    {
+      "id": 38,
+      "name": "Chronic-Kidney-Disease-Prediction",
+      "lint_says_leak": false,
+      "actually_leak": true,
+      "types": [
+        "imputation_before_split",
+        "encoding_before_split",
+        "feature_selection_before_split"
+      ],
+      "notes": "MISSED: fillna(median) + LabelEncoder + SelectKBest all on full data before split"
+    },
+    {
+      "id": 40,
+      "name": "liver-disease-prediction",
+      "lint_says_leak": false,
+      "actually_leak": true,
+      "types": [
+        "imputation_before_split",
+        "scaler_before_split"
+      ],
+      "notes": "MISSED: fillna(median) + log transform + MinMaxScaler on full data before split"
+    },
+    {
+      "id": 44,
+      "name": "ICU-Length-of-Stay-Prediction",
+      "lint_says_leak": false,
+      "actually_leak": false,
+      "types": [],
+      "notes": "Clean: proper train/test separation, pipeline fit on train"
+    },
+    {
+      "id": 49,
+      "name": "Heart_Disease_Prediction",
+      "lint_says_leak": false,
+      "actually_leak": true,
+      "types": [
+        "feature_selection_before_split",
+        "scaler_before_split",
+        "hyperparameter_tuning_before_split"
+      ],
+      "notes": "MISSED: SelectKBest + ExtraTrees + StandardScaler + GridSearchCV all on full data"
+    },
+    {
+      "id": 54,
+      "name": "Predicting-Death-Time-and-Mortality",
+      "lint_says_leak": false,
+      "actually_leak": true,
+      "types": [
+        "imputation_before_split"
+      ],
+      "notes": "MISSED: fillna(median) in POC notebooks before split; Phase1/2 notebooks are clean"
+    }
+  ]
+}
