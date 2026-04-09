@@ -12,10 +12,14 @@ from mlgg_lint.rules.base import BaseRule
 _CV_CALLS = {
     "cross_val_score", "cross_validate", "cross_val_predict",
     "GridSearchCV", "RandomizedSearchCV",
+    "StratifiedKFold", "KFold", "RepeatedStratifiedKFold", "RepeatedKFold",
+    "GroupKFold", "LeaveOneOut", "LeaveOneGroupOut",
     "sklearn.model_selection.cross_val_score",
     "sklearn.model_selection.cross_validate",
     "sklearn.model_selection.GridSearchCV",
     "sklearn.model_selection.RandomizedSearchCV",
+    "sklearn.model_selection.StratifiedKFold",
+    "sklearn.model_selection.KFold",
 }
 
 _RESAMPLE_CLASSES = {
