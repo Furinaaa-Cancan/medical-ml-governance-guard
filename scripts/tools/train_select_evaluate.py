@@ -4517,7 +4517,11 @@ def build_distribution_report(
         and metadata.
     """
     rows: List[Dict[str, Any]] = []
-    comparisons: List[Tuple[str, pd.DataFrame]] = [("valid", valid_df), ("test", test_df)]
+    comparisons: List[Tuple[str, pd.DataFrame]] = []
+    if len(valid_df) > 0:
+        comparisons.append(("valid", valid_df))
+    if len(test_df) > 0:
+        comparisons.append(("test", test_df))
     for ext in external_frames:
         split_name = f"external:{ext['cohort_id']}"
         comparisons.append((split_name, ext["frame"]))
@@ -5635,7 +5639,8 @@ def _full_candidate_eval(
     cal = fit_probability_calibrator(c_y, c_raw, calibration_method, int(random_seed))
     t_proba = apply_probability_calibrator(cal, t_raw)
     # Guard split
-    if threshold_selection_split == "cv_inner":
+    _has_valid_eval = len(y_valid) > 0 if isinstance(y_valid, np.ndarray) else False
+    if threshold_selection_split == "cv_inner" and _has_valid_eval:
         g_y = y_valid
         g_proba = apply_probability_calibrator(cal, predict_proba_1(est, X_valid))
     else:
@@ -5649,9 +5654,13 @@ def _full_candidate_eval(
     thresh = float(info["selected_threshold"])
     # Metrics on train + valid only (no test — avoids leakage)
     tr_p = apply_probability_calibrator(cal, predict_proba_1(est, X_train))
-    va_p = apply_probability_calibrator(cal, predict_proba_1(est, X_valid))
     tr_m, tr_cm = metric_panel(y_train, tr_p, thresh, beta=beta)
-    va_m, va_cm = metric_panel(y_valid, va_p, thresh, beta=beta)
+    if _has_valid_eval:
+        va_p = apply_probability_calibrator(cal, predict_proba_1(est, X_valid))
+        va_m, va_cm = metric_panel(y_valid, va_p, thresh, beta=beta)
+    else:
+        va_p = tr_p  # fallback: use train metrics for risk assessment
+        va_m, va_cm = tr_m, tr_cm
     risk, gaps, warns = _compute_overfit_risk(tr_m, va_m)
     max_gap = max(
         float(gaps.get(k, {}).get("train_valid_gap", 0.0))
@@ -5835,6 +5844,8 @@ def main() -> int:
         X_test, y_test = prepare_xy(test_df, selected_features, args.target_col)
     else:
         X_test, y_test = pd.DataFrame(), np.array([])
+    has_valid = len(X_valid) > 0 and len(y_valid) > 0
+    has_test = len(X_test) > 0 and len(y_test) > 0
 
     # Auto-encode detected categorical features (fit on train only, MLGG-P05)
     pre_encoding_features = list(selected_features)  # preserve raw names for model_pool
@@ -5879,7 +5890,7 @@ def main() -> int:
     )
     if args.external_cohort_spec and not external_cohorts:
         raise SystemExit("external_cohort_spec must provide at least one external cohort entry.")
-    if len(y_valid) > 0 and len(np.unique(y_valid)) < 2:
+    if has_valid and len(np.unique(y_valid)) < 2:
         raise SystemExit("valid split must contain both classes for threshold/model selection.")
     imputation = resolve_imputation_plan(
         missingness_policy,
@@ -6039,6 +6050,8 @@ def main() -> int:
                 temporal_cv=bool(getattr(args, "temporal_cv", False)),
             )
         else:
+            if not has_valid:
+                raise SystemExit("selection_data=valid requires a validation split. Provide --valid or use --selection-data cv_inner.")
             model = clone(cand["estimator"])
             model, _ = fit_estimator_with_imbalance(
                 estimator=model,
@@ -6107,6 +6120,8 @@ def main() -> int:
                     temporal_cv=bool(getattr(args, "temporal_cv", False)),
                 )
             else:
+                if not has_valid:
+                    raise SystemExit("selection_data=valid requires a validation split for ensemble scoring.")
                 emodel = clone(ecand["estimator"])
                 emodel, _ = fit_estimator_with_imbalance(
                     estimator=emodel,
@@ -6199,9 +6214,21 @@ def main() -> int:
     threshold_proba = apply_probability_calibrator(calibrator, threshold_proba_raw)
     guard_y: Optional[np.ndarray] = None
     guard_proba: Optional[np.ndarray] = None
-    if threshold_selection_split == "cv_inner":
+    if threshold_selection_split == "cv_inner" and has_valid:
         guard_y = y_valid
         guard_proba = apply_probability_calibrator(calibrator, predict_proba_1(selected_estimator, X_valid))
+    elif threshold_selection_split == "cv_inner" and not has_valid:
+        # No valid split — use train OOF with offset seed as guard
+        guard_y = y_train
+        guard_proba_raw = cv_oof_proba(
+            estimator=selected_estimator,
+            X=X_train,
+            y=y_train,
+            n_splits=args.cv_splits,
+            seed=args.random_seed + 7777,
+            imbalance_strategy=selected_imbalance_strategy,
+        )
+        guard_proba = apply_probability_calibrator(calibrator, guard_proba_raw)
     else:
         # When threshold selection is done on valid, use train OOF predictions as
         # an internal guard split to reduce valid-only threshold overfitting.
@@ -6230,15 +6257,24 @@ def main() -> int:
 
     # Keep evaluation on the train-fitted selected model to avoid polluting valid split metrics.
     train_proba_raw = predict_proba_1(selected_estimator, X_train)
-    valid_proba_raw = predict_proba_1(selected_estimator, X_valid)
-    test_proba_raw = predict_proba_1(selected_estimator, X_test)
     train_proba = apply_probability_calibrator(calibrator, train_proba_raw)
-    valid_proba = apply_probability_calibrator(calibrator, valid_proba_raw)
-    test_proba = apply_probability_calibrator(calibrator, test_proba_raw)
-
     train_metrics, train_cm = metric_panel(y_train, train_proba, selected_threshold, beta=beta)
-    valid_metrics, valid_cm = metric_panel(y_valid, valid_proba, selected_threshold, beta=beta)
-    test_metrics, test_cm = metric_panel(y_test, test_proba, selected_threshold, beta=beta)
+
+    if has_valid:
+        valid_proba_raw = predict_proba_1(selected_estimator, X_valid)
+        valid_proba = apply_probability_calibrator(calibrator, valid_proba_raw)
+        valid_metrics, valid_cm = metric_panel(y_valid, valid_proba, selected_threshold, beta=beta)
+    else:
+        valid_proba = np.array([])
+        valid_metrics, valid_cm = {}, {}
+
+    if has_test:
+        test_proba_raw = predict_proba_1(selected_estimator, X_test)
+        test_proba = apply_probability_calibrator(calibrator, test_proba_raw)
+        test_metrics, test_cm = metric_panel(y_test, test_proba, selected_threshold, beta=beta)
+    else:
+        test_proba = np.array([])
+        test_metrics, test_cm = {}, {}
 
     if fast_diagnostic_mode:
         ci_lo = None
@@ -6299,12 +6335,16 @@ def main() -> int:
             learning_curve_report = {"skipped": True, "reason": str(exc)}
 
     prevalence = float(np.mean(y_train))
-    baseline_proba_test = np.full(shape=y_test.shape[0], fill_value=prevalence, dtype=float)
-    prevalence_baseline = {
-        "roc_auc": float(roc_auc_score(y_test, baseline_proba_test)),
-        "pr_auc": float(average_precision_score(y_test, baseline_proba_test)),
-        "brier": float(brier_score_loss(y_test, baseline_proba_test)),
-    }
+    if has_test:
+        baseline_proba_test = np.full(shape=y_test.shape[0], fill_value=prevalence, dtype=float)
+        prevalence_baseline = {
+            "roc_auc": float(roc_auc_score(y_test, baseline_proba_test)),
+            "pr_auc": float(average_precision_score(y_test, baseline_proba_test)),
+            "brier": float(brier_score_loss(y_test, baseline_proba_test)),
+        }
+    else:
+        baseline_proba_test = np.array([])
+        prevalence_baseline = {"roc_auc": None, "pr_auc": None, "brier": None}
 
     baseline_logit = Pipeline(
         steps=[
@@ -6329,12 +6369,16 @@ def main() -> int:
         strategy=selected_imbalance_strategy,
         seed=int(args.random_seed) + 313,
     )
-    baseline_logit_proba_test = predict_proba_1(baseline_logit, X_test)
-    logistic_baseline = {
-        "roc_auc": float(roc_auc_score(y_test, baseline_logit_proba_test)),
-        "pr_auc": float(average_precision_score(y_test, baseline_logit_proba_test)),
-        "brier": float(brier_score_loss(y_test, baseline_logit_proba_test)),
-    }
+    if has_test:
+        baseline_logit_proba_test = predict_proba_1(baseline_logit, X_test)
+        logistic_baseline = {
+            "roc_auc": float(roc_auc_score(y_test, baseline_logit_proba_test)),
+            "pr_auc": float(average_precision_score(y_test, baseline_logit_proba_test)),
+            "brier": float(brier_score_loss(y_test, baseline_logit_proba_test)),
+        }
+    else:
+        baseline_logit_proba_test = np.array([])
+        logistic_baseline = {"roc_auc": None, "pr_auc": None, "brier": None}
 
     split_fingerprints = {
         "train": {
@@ -6342,17 +6386,19 @@ def main() -> int:
             "sha256": sha256_file(Path(args.train).expanduser().resolve()),
             "row_count": int(X_train.shape[0]),
         },
-        "valid": {
+    }
+    if has_valid and args.valid:
+        split_fingerprints["valid"] = {
             "path": str(Path(args.valid).expanduser().resolve()),
             "sha256": sha256_file(Path(args.valid).expanduser().resolve()),
             "row_count": int(X_valid.shape[0]),
-        },
-        "test": {
+        }
+    if has_test and args.test:
+        split_fingerprints["test"] = {
             "path": str(Path(args.test).expanduser().resolve()),
             "sha256": sha256_file(Path(args.test).expanduser().resolve()),
             "row_count": int(X_test.shape[0]),
-        },
-    }
+        }
 
     model_selection_report = {
         "status": "pass",
@@ -6501,25 +6547,27 @@ def main() -> int:
                     (r for r in candidate_rows if bool(r.get("selected"))), None
                 )
                 # Recompute test metrics ONCE for the new model (single test evaluation)
-                test_proba = apply_probability_calibrator(
-                    calibrator, predict_proba_1(selected_estimator, X_test),
-                )
-                test_metrics, test_cm = metric_panel(y_test, test_proba, selected_threshold, beta=beta)
-                if not fast_diagnostic_mode:
-                    ci_lo, ci_hi, ci_n = bootstrap_ci_pr_auc(
-                        y_true=y_test, proba=test_proba,
-                        n_resamples=int(args.bootstrap_resamples),
-                        seed=args.random_seed,
+                if has_test:
+                    test_proba = apply_probability_calibrator(
+                        calibrator, predict_proba_1(selected_estimator, X_test),
                     )
-                    all_metric_ci, _ = bootstrap_metric_ci(
-                        y_true=y_test, y_score=test_proba,
-                        threshold=selected_threshold, beta=beta,
-                        n_resamples=int(args.bootstrap_resamples),
-                        seed=args.random_seed,
-                    )
-                # Recompute overfit with test for final reporting
+                    test_metrics, test_cm = metric_panel(y_test, test_proba, selected_threshold, beta=beta)
+                    if not fast_diagnostic_mode:
+                        ci_lo, ci_hi, ci_n = bootstrap_ci_pr_auc(
+                            y_true=y_test, proba=test_proba,
+                            n_resamples=int(args.bootstrap_resamples),
+                            seed=args.random_seed,
+                        )
+                        all_metric_ci, _ = bootstrap_metric_ci(
+                            y_true=y_test, y_score=test_proba,
+                            threshold=selected_threshold, beta=beta,
+                            n_resamples=int(args.bootstrap_resamples),
+                            seed=args.random_seed,
+                        )
+                # Recompute overfit with available metrics
                 overfit_risk, overfit_gaps, overfit_warnings = _compute_overfit_risk(
-                    train_metrics, valid_metrics, test_metrics,
+                    train_metrics, valid_metrics,
+                    test_metrics if has_test else None,
                 )
                 fallback_trace.append({
                     "round": "final", "model_id": alt_id,
@@ -6556,63 +6604,82 @@ def main() -> int:
 
     # ── TRIPOD+AI / PROBAST supplementary assessments ──
     # Must run AFTER overfitting callback to use final model's probabilities.
-    calibration_test = _calibration_assessment(y_test, test_proba)
-    dca_test = _decision_curve_analysis(y_test, test_proba)
     epv_report = _sample_size_adequacy(
         n_events=int(np.sum(y_train)),
         n_features=int(X_train.shape[1]),
         n_total=int(X_train.shape[0]),
     )
     vif_report = _multicollinearity_check(X_train)
-    nri_vs_prevalence = _net_reclassification_improvement(
-        y_test, test_proba, baseline_proba_test, threshold=selected_threshold,
-    )
-    nri_vs_logistic = _net_reclassification_improvement(
-        y_test, test_proba, baseline_logit_proba_test, threshold=selected_threshold,
-    )
-    if not fast_diagnostic_mode:
-        perm_imp = _permutation_importance_report(
-            estimator=selected_estimator,
-            X_test=X_test,
-            y_test=y_test,
-            scoring="average_precision",
-            n_repeats=10,
-            seed=args.random_seed,
+    _no_test_stub = {"skipped": True, "reason": "no_test_split"}
+    if has_test:
+        calibration_test = _calibration_assessment(y_test, test_proba)
+        dca_test = _decision_curve_analysis(y_test, test_proba)
+        nri_vs_prevalence = _net_reclassification_improvement(
+            y_test, test_proba, baseline_proba_test, threshold=selected_threshold,
         )
+        nri_vs_logistic = _net_reclassification_improvement(
+            y_test, test_proba, baseline_logit_proba_test, threshold=selected_threshold,
+        )
+        if not fast_diagnostic_mode:
+            perm_imp = _permutation_importance_report(
+                estimator=selected_estimator,
+                X_test=X_test,
+                y_test=y_test,
+                scoring="average_precision",
+                n_repeats=10,
+                seed=args.random_seed,
+            )
+        else:
+            perm_imp = {"scoring": "average_precision", "top_features": [], "skipped": True}
+        # Top-conference supplementary assessments
+        test_pred = (test_proba >= selected_threshold).astype(int)
+        baseline_logit_pred = (baseline_logit_proba_test >= selected_threshold).astype(int)
+        delong_vs_logistic = _delong_test(y_test, test_proba, baseline_logit_proba_test)
+        idi_vs_prevalence = _integrated_discrimination_improvement(
+            y_test, test_proba, baseline_proba_test,
+        )
+        idi_vs_logistic = _integrated_discrimination_improvement(
+            y_test, test_proba, baseline_logit_proba_test,
+        )
+        mcnemar_vs_logistic = _mcnemar_test(y_test, test_pred, baseline_logit_pred)
+        pred_uncertainty = _prediction_uncertainty(test_proba)
     else:
-        perm_imp = {"scoring": "average_precision", "top_features": [], "skipped": True}
-
-    # ── Top-conference supplementary assessments (NeurIPS/ICML/Nature Medicine) ──
-    # DeLong test: AUC comparison vs logistic baseline
-    test_pred = (test_proba >= selected_threshold).astype(int)
-    baseline_logit_pred = (baseline_logit_proba_test >= selected_threshold).astype(int)
-    delong_vs_logistic = _delong_test(y_test, test_proba, baseline_logit_proba_test)
-    idi_vs_prevalence = _integrated_discrimination_improvement(
-        y_test, test_proba, baseline_proba_test,
-    )
-    idi_vs_logistic = _integrated_discrimination_improvement(
-        y_test, test_proba, baseline_logit_proba_test,
-    )
-    mcnemar_vs_logistic = _mcnemar_test(y_test, test_pred, baseline_logit_pred)
-    pred_uncertainty = _prediction_uncertainty(test_proba)
-    subgroup_report = _subgroup_performance(
-        y_true=y_test, proba=test_proba,
-        threshold=selected_threshold, beta=beta,
-        feature_df=X_test,
-    )
-    inference_bench = _inference_benchmark(selected_estimator, X_test)
+        calibration_test = _no_test_stub
+        dca_test = _no_test_stub
+        nri_vs_prevalence = _no_test_stub
+        nri_vs_logistic = _no_test_stub
+        perm_imp = _no_test_stub
+        delong_vs_logistic = _no_test_stub
+        idi_vs_prevalence = _no_test_stub
+        idi_vs_logistic = _no_test_stub
+        mcnemar_vs_logistic = _no_test_stub
+        pred_uncertainty = _no_test_stub
+        test_pred = np.array([])
+        baseline_logit_pred = np.array([])
     env_versions = _environment_versions()
-    error_analysis_report = _error_analysis(y_test, test_proba, selected_threshold, X_test)
-    if not fast_diagnostic_mode:
-        ablation_report = _feature_ablation_study(
-            estimator=selected_estimator,
-            X_test=X_test, y_test=y_test,
-            proba_full=test_proba,
+    if has_test:
+        subgroup_report = _subgroup_performance(
+            y_true=y_test, proba=test_proba,
             threshold=selected_threshold, beta=beta,
-            seed=args.random_seed,
+            feature_df=X_test,
         )
+        inference_bench = _inference_benchmark(selected_estimator, X_test)
+        error_analysis_report = _error_analysis(y_test, test_proba, selected_threshold, X_test)
+        if not fast_diagnostic_mode:
+            ablation_report = _feature_ablation_study(
+                estimator=selected_estimator,
+                X_test=X_test, y_test=y_test,
+                proba_full=test_proba,
+                threshold=selected_threshold, beta=beta,
+                seed=args.random_seed,
+            )
+        else:
+            ablation_report = {"method": "leave_one_feature_out", "skipped": True, "top_features": []}
     else:
-        ablation_report = {"method": "leave_one_feature_out", "skipped": True, "top_features": []}
+        subgroup_report = _no_test_stub
+        inference_bench = _no_test_stub
+        error_analysis_report = _no_test_stub
+        ablation_report = _no_test_stub
 
     evaluation_report = {
         "schema_version": 2,
@@ -6774,8 +6841,8 @@ def main() -> int:
             "trainer_supported_calibration_fit_splits": ["valid", "cv_inner"],
             "evaluation_model_fit_split": "train",
             "train_rows": int(X_train.shape[0]),
-            "valid_rows": int(X_valid.shape[0]),
-            "test_rows": int(X_test.shape[0]),
+            "valid_rows": int(X_valid.shape[0]) if has_valid else 0,
+            "test_rows": int(X_test.shape[0]) if has_test else 0,
             "data_fingerprints": split_fingerprints,
             "imputation": imputation,
             "imbalance": {
@@ -6823,30 +6890,32 @@ def main() -> int:
             model_id=selected_model_id,
         )
     )
-    prediction_trace_frames.append(
-        build_prediction_trace_rows(
-            scope="valid",
-            cohort_id="internal_valid",
-            cohort_type="",
-            patient_ids=_patient_ids_or_fallback(valid_df, "valid"),
-            y_true=y_valid,
-            y_score=valid_proba,
-            threshold=selected_threshold,
-            model_id=selected_model_id,
+    if has_valid:
+        prediction_trace_frames.append(
+            build_prediction_trace_rows(
+                scope="valid",
+                cohort_id="internal_valid",
+                cohort_type="",
+                patient_ids=_patient_ids_or_fallback(valid_df, "valid"),
+                y_true=y_valid,
+                y_score=valid_proba,
+                threshold=selected_threshold,
+                model_id=selected_model_id,
+            )
         )
-    )
-    prediction_trace_frames.append(
-        build_prediction_trace_rows(
-            scope="test",
-            cohort_id="internal_test",
-            cohort_type="",
-            patient_ids=_patient_ids_or_fallback(test_df, "test"),
-            y_true=y_test,
-            y_score=test_proba,
-            threshold=selected_threshold,
-            model_id=selected_model_id,
+    if has_test:
+        prediction_trace_frames.append(
+            build_prediction_trace_rows(
+                scope="test",
+                cohort_id="internal_test",
+                cohort_type="",
+                patient_ids=_patient_ids_or_fallback(test_df, "test"),
+                y_true=y_test,
+                y_score=test_proba,
+                threshold=selected_threshold,
+                model_id=selected_model_id,
+            )
         )
-    )
 
     external_validation_report: Optional[Dict[str, Any]] = None
     external_rows: List[Dict[str, Any]] = []
@@ -6997,9 +7066,11 @@ def main() -> int:
         ci_resamples = max(200, int(ci_resamples))
         split_ci_payloads = {
             "train": {"y_true": y_train, "y_score": train_proba, "threshold": selected_threshold},
-            "valid": {"y_true": y_valid, "y_score": valid_proba, "threshold": selected_threshold},
-            "test": {"y_true": y_test, "y_score": test_proba, "threshold": selected_threshold},
         }
+        if has_valid:
+            split_ci_payloads["valid"] = {"y_true": y_valid, "y_score": valid_proba, "threshold": selected_threshold}
+        if has_test:
+            split_ci_payloads["test"] = {"y_true": y_test, "y_score": test_proba, "threshold": selected_threshold}
         external_ci_payloads = [
             {
                 "cohort_id": str(c["cohort_id"]),
@@ -7157,7 +7228,7 @@ def main() -> int:
                 seed=int(seed),
             )
 
-            if threshold_selection_split == "valid":
+            if threshold_selection_split == "valid" and has_valid:
                 threshold_y_seed = y_valid
                 threshold_proba_seed_raw = predict_proba_1(seed_estimator, X_valid)
             else:
@@ -7170,7 +7241,7 @@ def main() -> int:
                     seed=seed,
                     imbalance_strategy=selected_imbalance_strategy,
                 )
-            if calibration_fit_split == "valid":
+            if calibration_fit_split == "valid" and has_valid:
                 calibration_y_seed = y_valid
                 calibration_proba_seed_raw = predict_proba_1(seed_estimator, X_valid)
             else:
@@ -7192,7 +7263,7 @@ def main() -> int:
             threshold_proba_seed = apply_probability_calibrator(calibrator_seed, threshold_proba_seed_raw)
             guard_y_seed: Optional[np.ndarray] = None
             guard_proba_seed: Optional[np.ndarray] = None
-            if threshold_selection_split == "cv_inner":
+            if threshold_selection_split == "cv_inner" and has_valid:
                 guard_y_seed = y_valid
                 guard_proba_seed = apply_probability_calibrator(
                     calibrator_seed,
@@ -7259,8 +7330,8 @@ def main() -> int:
                 "specificity_floor": specificity_floor,
                 "ppv_floor": ppv_floor,
                 "train_rows": int(X_train.shape[0]),
-                "valid_rows": int(X_valid.shape[0]),
-                "test_rows": int(X_test.shape[0]),
+                "valid_rows": int(X_valid.shape[0]) if has_valid else 0,
+                "test_rows": int(X_test.shape[0]) if has_test else 0,
             },
         }
 
