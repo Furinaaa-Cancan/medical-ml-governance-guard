@@ -97,6 +97,23 @@ Agent 审查或构建模型时，**必须**执行以下临床检查（自动 gat
 
 用户未指定预测时间点 → 问: "模型用于入院时、住院中、还是出院时？"
 
+### Definition Variable Leakage (Lint 无法检测)
+当用户用 `hba1c >= 6.5` 或 `fasting_glucose >= 126` 定义糖尿病标签后，
+这些变量**不能**出现在特征列表中。Agent 必须检查:
+1. 标签是如何构建的（查找 `df["label"] = ...` 的定义逻辑）
+2. 定义中用到的列是否出现在 `features = [...]` 或 `X = df.drop(...)` 中
+3. 如果结局 = 疾病诊断，读 `references/disease-definition-knowledge-base.json` 获取泄漏黑名单
+
+### Variable Aliasing (Lint R021 可部分检测)
+用户可能将 test set 赋给别名变量后用于调参:
+```python
+holdout_X = X_test       # alias
+for params in grid:
+    score = evaluate(holdout_X)  # 实际上在用 test set 调参
+```
+R021 可检测 `holdout/held_out` 等关键词，但任意命名（如 `eval_data = X_test`）
+仍需 agent 人工追踪赋值链。
+
 ### Calibration Standards (Van Calster 2019)
 每次校准报告必须包含:
 1. Calibration slope (target: 1.0)
