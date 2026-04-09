@@ -23,7 +23,7 @@ import re
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
-from _gate_utils import add_issue, check_csv_file_size, try_parse_time as _shared_try_parse_time, epoch_to_iso as _shared_epoch_to_iso
+from _gate_utils import add_issue, check_csv_file_size, try_parse_time as _shared_try_parse_time, epoch_to_iso as _shared_epoch_to_iso, _normalize_unicode
 from _gate_framework import (
     GateIssue,
     Severity,
@@ -265,7 +265,7 @@ def main() -> int:
                 key: List[str] = []
                 incomplete = False
                 for col in id_cols:
-                    val = row.get(col, "").strip()
+                    val = _normalize_unicode(row.get(col, "")).strip()
                     if not val:
                         incomplete = True
                         break

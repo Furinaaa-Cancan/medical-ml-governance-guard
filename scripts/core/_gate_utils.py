@@ -326,13 +326,18 @@ def epoch_to_iso(ts: Optional[float]) -> Optional[str]:
         ts: Epoch timestamp, or None.
 
     Returns:
-        ISO-8601 string with Z suffix, or None.
+        ISO-8601 string with Z suffix, or None for non-finite values.
     """
     import datetime as _dt
 
     if ts is None:
         return None
-    return _dt.datetime.fromtimestamp(ts, tz=_dt.timezone.utc).isoformat().replace("+00:00", "Z")
+    if not math.isfinite(ts):
+        return None
+    try:
+        return _dt.datetime.fromtimestamp(ts, tz=_dt.timezone.utc).isoformat().replace("+00:00", "Z")
+    except (OSError, OverflowError, ValueError):
+        return None
 
 
 def to_float(value: Any) -> Optional[float]:
@@ -358,8 +363,61 @@ def to_float(value: Any) -> Optional[float]:
 # ---------------------------------------------------------------------------
 
 
+# Common Cyrillic/Greek → Latin confusable mappings (Unicode TR39 subset).
+# Only includes characters that are visually identical to Latin letters
+# and commonly used in homoglyph attacks.
+_CONFUSABLE_MAP = {
+    "\u0410": "A", "\u0430": "a",  # Cyrillic А/а
+    "\u0412": "B", "\u0432": "b",  # Cyrillic В/в (visual B/b)
+    "\u0421": "C", "\u0441": "c",  # Cyrillic С/с
+    "\u0415": "E", "\u0435": "e",  # Cyrillic Е/е
+    "\u041d": "H", "\u043d": "h",  # Cyrillic Н/н (visual H/h)
+    "\u041a": "K", "\u043a": "k",  # Cyrillic К/к
+    "\u041c": "M", "\u043c": "m",  # Cyrillic М/м
+    "\u041e": "O", "\u043e": "o",  # Cyrillic О/о
+    "\u0420": "P", "\u0440": "p",  # Cyrillic Р/р
+    "\u0422": "T", "\u0442": "t",  # Cyrillic Т/т
+    "\u0425": "X", "\u0445": "x",  # Cyrillic Х/х
+    "\u0443": "y",                  # Cyrillic у
+    "\u0392": "B",                  # Greek Β
+    "\u0395": "E",                  # Greek Ε
+    "\u0397": "H",                  # Greek Η
+    "\u039a": "K",                  # Greek Κ
+    "\u039c": "M",                  # Greek Μ
+    "\u039d": "N",                  # Greek Ν
+    "\u039f": "O",                  # Greek Ο
+    "\u03a1": "P",                  # Greek Ρ
+    "\u03a4": "T",                  # Greek Τ
+    "\u03a7": "X",                  # Greek Χ
+}
+
+
+def _normalize_unicode(value: str) -> str:
+    """Normalize Unicode to NFKD + strip invisible chars + map confusables.
+
+    Defends against:
+    - Compatibility variants (ﬁ→fi, ™→TM via NFKD)
+    - Cyrillic/Greek lookalikes (е→e, Ρ→P via confusable map)
+    - Zero-width spaces, joiners, and other invisible characters
+    """
+    import unicodedata
+    # Step 1: NFKD decomposes compatibility characters
+    nfkd = unicodedata.normalize("NFKD", value)
+    # Step 2: Map known Cyrillic/Greek confusables to Latin
+    mapped = "".join(_CONFUSABLE_MAP.get(ch, ch) for ch in nfkd)
+    # Step 3: Strip zero-width and invisible Unicode (category Cf)
+    cleaned = "".join(
+        ch for ch in mapped
+        if unicodedata.category(ch) not in ("Cf",)
+    )
+    return cleaned
+
+
 def contains_test_token(value: Optional[str]) -> bool:
     """Return True if *value* contains a 'test' token indicating test-data usage.
+
+    Applies Unicode NFKD normalization and strips invisible characters before
+    checking, to defend against Cyrillic/Greek lookalike and zero-width bypass.
 
     Handles negative prefixes (``no_test``, ``without_test``, ``exclude_test``,
     ``notest``) and benign words (``latest``, ``attest``, ``tested``,
@@ -371,7 +429,8 @@ def contains_test_token(value: Optional[str]) -> bool:
 
     if not value:
         return False
-    token = value.strip().lower()
+    # Normalize Unicode before any comparison
+    token = _normalize_unicode(value).strip().lower()
     # Negative prefixes → explicitly excluding test data, not leakage.
     if "no_test" in token or "without_test" in token or "exclude_test" in token or "notest" in token:
         return False
