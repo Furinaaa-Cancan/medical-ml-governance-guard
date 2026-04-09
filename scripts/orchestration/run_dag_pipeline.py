@@ -42,6 +42,7 @@ import concurrent.futures
 import json
 import os
 import shlex
+import signal
 import subprocess
 import sys
 import time as _time
@@ -686,6 +687,20 @@ def main() -> int:
     evidence_dir = resolve_path(cwd, args.evidence_dir)
     evidence_dir.mkdir(parents=True, exist_ok=True)
 
+    # Graceful shutdown on SIGINT/SIGTERM — save checkpoint before exit
+    _interrupt_received = False
+
+    def _handle_interrupt(signum: int, frame: Any) -> None:
+        nonlocal _interrupt_received
+        if _interrupt_received:
+            sys.exit(2)  # Second signal → force exit
+        _interrupt_received = True
+        sig_name = signal.Signals(signum).name
+        print(f"\n[{sig_name}] Saving checkpoint and shutting down...", file=sys.stderr)
+
+    signal.signal(signal.SIGINT, _handle_interrupt)
+    signal.signal(signal.SIGTERM, _handle_interrupt)
+
     # Validate DAG
     dag_errors = validate_dag()
     if dag_errors:
@@ -782,6 +797,11 @@ def main() -> int:
 
     execution_layers = get_execution_layers()
     for layer_idx, layer_gates in execution_layers:
+        if _interrupt_received:
+            print("\n[INTERRUPT] Saving progress and exiting...", file=sys.stderr)
+            _save_progress(evidence_dir, passed_gates | newly_passed, steps)
+            return _finalize(args, evidence_dir, steps, False, pipeline_t0)
+
         runnable_in_layer = [g for g in layer_gates if g in gates_to_run and g != "request_contract_gate"]
         if not runnable_in_layer:
             continue

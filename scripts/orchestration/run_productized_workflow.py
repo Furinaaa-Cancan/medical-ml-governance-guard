@@ -9,6 +9,7 @@ import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__f
 
 import argparse
 import shlex
+import signal
 import subprocess
 import sys
 import shutil
@@ -46,7 +47,13 @@ def parse_args() -> argparse.Namespace:
 _STEP_TIMEOUT = 3600  # 1 hour per step
 
 
-def run_step(name: str, cmd: List[str]) -> Dict[str, Any]:
+def run_step(name: str, cmd: List[str], *, _check_interrupt: Any = None) -> Dict[str, Any]:
+    if _check_interrupt and _check_interrupt():
+        return {
+            "name": name, "command": shlex.join(cmd), "exit_code": 2,
+            "stdout_tail": "", "stderr_tail": "Interrupted by user",
+            "status": "fail", "blocking": False, "recovered_by_step": None,
+        }
     print(f"\n== Step: {name} ==")
     print(f"$ {shlex.join(cmd)}")
     try:
@@ -96,6 +103,19 @@ def main() -> int:
             file=sys.stderr,
         )
         return 2
+
+    # Graceful shutdown on SIGINT/SIGTERM
+    _interrupt_received = False
+
+    def _handle_interrupt(signum: int, frame: Any) -> None:
+        nonlocal _interrupt_received
+        if _interrupt_received:
+            sys.exit(2)
+        _interrupt_received = True
+        print(f"\n[{signal.Signals(signum).name}] Shutting down after current step...", file=sys.stderr)
+
+    signal.signal(signal.SIGINT, _handle_interrupt)
+    signal.signal(signal.SIGTERM, _handle_interrupt)
 
     request_path = Path(args.request).expanduser().resolve()
     if not request_path.exists():

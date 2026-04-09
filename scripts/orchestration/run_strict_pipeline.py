@@ -10,6 +10,7 @@ import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__f
 import argparse
 import concurrent.futures
 import shlex
+import signal
 import subprocess
 import sys
 import time as _time
@@ -176,6 +177,19 @@ def main() -> int:
     evidence_dir = resolve_path(cwd, args.evidence_dir)
     evidence_dir.mkdir(parents=True, exist_ok=True)
 
+    # Graceful shutdown on SIGINT/SIGTERM
+    _interrupt_received = False
+
+    def _handle_interrupt(signum: int, frame: Any) -> None:
+        nonlocal _interrupt_received
+        if _interrupt_received:
+            sys.exit(2)
+        _interrupt_received = True
+        print(f"\n[{signal.Signals(signum).name}] Shutting down after current gate...", file=sys.stderr)
+
+    signal.signal(signal.SIGINT, _handle_interrupt)
+    signal.signal(signal.SIGTERM, _handle_interrupt)
+
     scripts_dir = Path(__file__).resolve().parent.parent
     reports = {
         "request_report": evidence_dir / "request_contract_report.json",
@@ -216,6 +230,8 @@ def main() -> int:
 
     def execute(name: str, cmd: List[str]) -> bool:
         nonlocal had_failure
+        if _interrupt_received:
+            return False
         t0 = _time.time()
         code, stdout, stderr = run_step(name, cmd)
         elapsed = _time.time() - t0
