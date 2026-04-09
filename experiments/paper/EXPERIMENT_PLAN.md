@@ -47,20 +47,25 @@
 
 ---
 
-### Experiment 3: Concordance with Human Reviewers — Peer Review KB Validation
-**目的**: MLGG 的发现和真实审稿人的意见有多一致？
+### Experiment 3: Peer Review Knowledge Base — 方法论贡献
+**目的**: 描述并验证审稿知识库的构建和应用价值
 
 **方法**:
-1. 从 peer-review-kb.json 中选 20 篇有公开代码的论文
-2. 对每篇论文: (a) 用 MLGG lint 扫描代码 (b) 提取审稿人的方法学意见
-3. 计算 concordance:
-   - MLGG 发现的问题中，有多少在审稿意见中也出现？(precision proxy)
-   - 审稿人指出的方法学问题中，有多少 MLGG 也能检测？(recall proxy)
+1. 报告 KB 构建过程：107 篇 NC 论文 → 375 条结构化审稿意见
+2. 统计分析：按 category/severity/tags 分布，最常见方法学问题
+3. 展示 KB 在实际审查中的应用（case study: PR-026 pilot）
 
-**产出**: Table 3 — MLGG vs Human Reviewer Concordance
-**关键指标**: Cohen's κ (agreement), precision, recall
+**核心 narrative**: MLGG 不替代审稿人，而是**补充审稿人看不到的代码级缺陷**。
+审稿人关注高层研究设计（外部验证、部署可行性），MLGG 关注底层代码实现
+（泄漏、阈值硬编码、缺失校准）。两者互补：Reviewer + MLGG > Reviewer alone。
 
-**这是论文最核心的实验** — 直接回答 "MLGG 能否达到人类审稿人水平？"
+**产出**: Table 3 — KB 统计概览 + Figure — 问题类别分布
+**已有数据**: peer-review-kb.json, peer-review-kb-stats.json
+
+**Pilot 发现 (PR-026)**:
+- 审稿人发现 4 个高层问题，MLGG 发现 9 个代码级问题
+- 重叠仅 1 个（校准），但 MLGG 发现了审稿人未提到的 5 个代码缺陷
+- 结论：互补而非竞争
 
 ---
 
@@ -99,16 +104,16 @@
 ## 执行优先级
 
 ```
-优先级 1 (最核心 — 论文成立的基础):
-  Exp 3: Concordance with Human Reviewers  ← 直接证明 MLGG = 人类审稿人水平
-  Exp 1: Prevalence Study                  ← 证明问题严重性
+优先级 1 (论文核心):
+  Exp 1: Prevalence Study                  ← 真实世界泄漏率（N≥100 repos）
+  Exp 2: Red Team Validation               ← 已完成（40 场景 97%），整理数据即可
 
-优先级 2 (增强说服力):
-  Exp 4: Deflation Study                   ← 量化泄漏的实际危害
-  Exp 2: Red Team Validation               ← 已完成，整理数据即可
+优先级 2 (方法论贡献):
+  Exp 3: Peer Review KB                    ← 107 篇 NC 审稿知识库 + 互补性论证
+  Exp 4: Deflation Study                   ← 量化泄漏对 AUROC 的实际影响
 
-优先级 3 (补充分析):
-  Exp 5: Gate Ablation                     ← 框架设计合理性论证
+优先级 3 (补充):
+  Exp 5: Gate Ablation                     ← 哪些 gate 贡献最大
 ```
 
 ---
