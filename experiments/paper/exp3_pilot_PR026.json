@@ -1,0 +1,42 @@
+{
+  "experiment": "exp3_concordance_pilot",
+  "paper_id": "PR-026",
+  "paper_title": "Prehospital real-time AI for trauma mortality prediction",
+  "pmcid": "PMC12886923",
+  "github": "https://github.com/ohnaeun111/Pre_hospital_mortality",
+  "language": "Python",
+  "framework": "sklearn + xgboost + lightgbm + imblearn",
+
+  "mlgg_lint_findings": [
+    {"rule": "R009", "severity": "INFO", "file": "evaluation.py", "description": "6 metrics without CI"},
+    {"rule": "R019", "severity": "INFO", "file": "model.py", "description": "3 model classes, no multiple comparison correction"},
+    {"rule": "R013", "severity": "WARNING", "file": "train.py:34", "description": "Threshold hardcoded to 0.5"}
+  ],
+
+  "mlgg_agent_findings": [
+    {"rule": "S01", "severity": "WARNING", "description": "train_test_split without groups= for trauma patient data"},
+    {"rule": "P01", "severity": "WARNING", "description": "preprocess_data() internals not visible — possible scaler leak"},
+    {"rule": "E05", "severity": "WARNING", "description": "SMOTE + sample_weight without Platt calibration"},
+    {"rule": "E02", "severity": "WARNING", "description": "Missing MCC, LR+/LR-, Brier, calibration slope/intercept"},
+    {"rule": "M02", "severity": "CRITICAL", "description": "Ensemble avg with hardcoded 0.5 threshold, not optimized on validation"},
+    {"rule": "R01", "severity": "INFO", "description": "XGBClassifier and LGBMClassifier missing random_state"}
+  ],
+
+  "reviewer_concerns": [
+    {"id": "R1", "severity": "HIGH", "category": "external_validation", "text": "Limited geographic validation (Korea → single Australia center)"},
+    {"id": "R2", "severity": "MEDIUM", "category": "evaluation_metrics", "text": "Calibration analysis should be presented more prominently"},
+    {"id": "R3", "severity": "MEDIUM", "category": "clinical_utility", "text": "Deployment feasibility: latency, missing data handling"},
+    {"id": "R4", "severity": "LOW", "category": "reporting", "text": "TRIPOD+AI compliant, minor formatting"}
+  ],
+
+  "concordance": {
+    "reviewer_found_mlgg_found": ["R2 ↔ R009+A4 (calibration/metrics incomplete)"],
+    "reviewer_found_mlgg_missed": ["R1 (external validation — outside lint scope)", "R3 (deployment feasibility — outside ML methodology)"],
+    "mlgg_found_reviewer_missed": ["Hardcoded 0.5 threshold", "No patient grouping in split", "SMOTE without calibration", "Missing random_state"],
+    "both_missed": [],
+
+    "precision_proxy": "MLGG found 9 issues; 1 overlaps with reviewer → 11% overlap",
+    "recall_proxy": "Reviewer had 2 methodology concerns (R1,R2); MLGG caught R2 partially → 50% recall on methodology",
+    "note": "Low overlap expected: reviewers focus on high-level design (external validation, deployment), MLGG focuses on code-level implementation (threshold, split, calibration). These are complementary, not competing."
+  }
+}
