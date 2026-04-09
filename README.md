@@ -4,7 +4,7 @@
   <br><br>
   <strong style="font-size: 2.5em;">ML Governance Guard</strong>
   <br>
-  <em>Publication-Grade Integrity Standard for Medical Prediction Models</em>
+  <em>顶刊级审稿标准 × AI 驱动的医学预测模型治理框架</em>
   <br><br>
   <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/"><img src="https://img.shields.io/badge/License-PolyForm%20NC%201.0.0-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/tests-4200%2B%20passed-brightgreen" alt="Tests">
@@ -20,9 +20,9 @@
 <p align="center">
 <strong>33 道 fail-closed 门控</strong> &middot; <strong>9 阶段工作流</strong> &middot; <strong>12 维量化评分</strong> &middot; <strong>3 级合规认证</strong>
 <br>
-<strong>20 个模型族</strong> &middot; <strong>14 个真实医学数据集 (526K 行)</strong> &middot; <strong>33 条方法论规则</strong> &middot; <strong>21 项分析工具</strong>
+<strong>20 个模型族</strong> &middot; <strong>14 个真实医学数据集 (526K 行)</strong> &middot; <strong>107 篇 NC 审稿证据</strong> &middot; <strong>21 项分析工具</strong>
 <br><br>
-<em>从原始数据到 TRIPOD+AI 合规发表的完整模型治理管线。<br>每条规则来自实际踩坑，每个阈值有文献引用。</em>
+<em>每一条审查建议都引用真实顶刊审稿意见作为论据。<br>不是规则引擎，是能像 Nature Medicine 审稿人一样思考的 AI 协审系统。</em>
 </p>
 
 ---
@@ -76,7 +76,38 @@
 | HbA1c 既定义糖尿病又作为预测特征 | 完美泄漏，模型学到的是定义本身 | Gate C02: 定义列强制排除 |
 | Bootstrap CI 用正态近似 | 小样本/非对称分布不可靠 | Gate E01: 强制 percentile bootstrap |
 
-> **MLGG 不是又一个 ML 工具包。** 它是一套可机器验证的方法学标准——33 道 fail-closed 门控，任何一道不过就不能声称 publication-grade。
+> **MLGG 不是又一个 ML 工具包。** 它是一套达到顶刊审稿标准的 AI 协审系统——33 道 fail-closed 门控 + 107 篇 Nature Communications 真实审稿意见作为知识库。每一条建议都能引用审稿人原文作为论据。
+
+---
+
+## 审稿级审查机制
+
+MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代码**。
+
+```
+你的代码 ──→ /mlgg 审查 ──→ 发现问题 ──→ 引用审稿人原文 ──→ 给出修复代码 ──→ 重新验证
+```
+
+**三层审查架构：**
+
+| 层 | 机制 | 能抓到什么 |
+|:---|:-----|:----------|
+| **第一层：20 条 AST 静态分析** | 代码模式匹配 (R001-R020) | `scaler.fit(X)` 在 split 前、SMOTE 用在 test 上、阈值在 test 选 |
+| **第二层：33 道 fail-closed 门控** | 运行时验证，报告 JSON 产出 | 患者跨 split、校准 ECE > 0.1、EPV < 10、CI 宽度 > 0.20 |
+| **第三层：临床语义审查 + 审稿证据** | AI agent 理解代码含义 + 107 篇审稿 KB | 出院后变量预测出院后结局、HbA1c 定义泄漏、亚组校准缺失 |
+
+**审稿证据库 (Peer Review Knowledge Base)：**
+
+从 107 篇 Nature Communications 医学 ML 论文中结构化提取了 375 条审稿意见：
+
+| 类别 | 占比 | 示例审稿人原话 |
+|:-----|:-----|:-------------|
+| 评估指标 | 31.7% | *"AUC should not be the only metric. Provide PPV, NPV, calibration."* |
+| 研究设计 | 21.6% | *"Using future data which would not be available for clinical decision."* |
+| 报告规范 | 13.9% | *"Should report calibration and net benefit analysis."* |
+| 外部验证 | 5.6% | *"External validation on independent cohort is essential."* |
+
+> 当 MLGG 发现你的代码有问题时，它不只是说"违反了规则 E02"——它会告诉你：*"NC 审稿人在 107 篇论文中 119 次（31.7%）要求完善评估指标。这是审稿人最常提出的问题类别。"*
 
 ---
 
@@ -94,7 +125,8 @@
 | **20 个模型族** | LR (L1/L2/ElasticNet) / SVM / RF / XGBoost / CatBoost / LightGBM / KNN / MLP / TabPFN + 集成 | 自动超参搜索 |
 | **14 个真实数据集** | UCI / CDC / NCI / Vanderbilt 官方数据 | 总计 526K 行 |
 | **多模型 SHAP 集成引擎** | 多族 L1 归一化集成 + Kendall tau 一致性 (FDR-BH 校正) + 跨模型 Spearman 排名相关 + 5 张发表级 CSV | RF/XGB/CatBoost/LGBM/LR |
-| **学术合规引擎** | TRIPOD+AI 2024 (27 项) / PROBAST+AI 2025 (4 域) / STARD-AI | 58 条文献知识库 |
+| **学术合规引擎** | TRIPOD+AI 2024 (27 项) / PROBAST+AI 2025 (4 域) / STARD-AI | 全项逐条验证 |
+| **审稿证据库** | 107 篇 NC 论文 × 375 条结构化审稿意见，按 gate/tag/severity 检索 | 每条建议引用原文 |
 | **20 条 Lint 规则** | 静态分析检测代码级泄漏反模式 (R001-R020) | .py + .ipynb |
 | **安全加固层** | HMAC-SHA256 / AES-256-GCM / 链式审计日志 / 路径穿越防护 / 受限反序列化 | fail-closed |
 | **21 个分析工具** | Riley 样本量 / 校准三件套 / NRI-IDI / 学习曲线 / VIF / MNAR 敏感性 / PDP 边际效应 / FDR-BH 校正 / 时序漂移 / ... | 100% 覆盖 Nature ML Checklist |
@@ -1369,17 +1401,16 @@ AI 会自动：
 
 > This README is written in Chinese as the primary language. All code, commands, and file structures are language-neutral. Click any section link below to jump to the detailed Chinese documentation.
 
-**ML Governance Guard (MLGG)** is a publication-grade integrity standard for medical binary classification models, providing:
+**ML Governance Guard (MLGG)** is an AI-powered co-review system that audits medical ML code to top-journal standards, providing:
 
 - **33 fail-closed audit gates** in a 9-layer DAG &mdash; covering data leakage, interpretability, fairness, calibration, robustness, TRIPOD+AI 2024, and PROBAST+AI 2025
-- **9-phase guided workflow**: Cohort Definition -> Splitting -> Preprocessing -> Feature Selection -> Training -> Evaluation -> Interpretability -> Fairness -> Reporting
-- **12-dimension quality scoring** (0-100) with weighted rubric
-- **3 conformance levels**: L1 (12 gates, leakage audit) / L2 (25 gates, statistically valid) / L3 (all 33, publication-grade)
+- **3-layer review architecture**: AST static analysis (20 rules) → runtime gate validation (33 gates) → clinical semantic review with peer review evidence
+- **107 real peer review opinions** from Nature Communications papers (375 structured concerns), retrieved by gate/tag/severity to back every recommendation with reviewer quotes
+- **9-phase guided workflow**: Cohort Definition → Splitting → Preprocessing → Feature Selection → Training → Evaluation → Interpretability → Fairness → Reporting
+- **12-dimension quality scoring** (0-100) with 3 conformance levels (L1/L2/L3)
 - **20 model families** with automatic hyperparameter tuning
 - **14 real medical datasets** (526K rows) from CDC / UCI / NCI / Vanderbilt
-- **Multi-model SHAP engine** with L1-normalized ensemble and Kendall tau agreement
-- **Security layer**: HMAC-SHA256 / AES-256-GCM / tamper-evident audit chain
-- **107 peer-reviewed references** (Nature Communications) grounding every methodology decision
+- **Claude Code `/mlgg` Skill**: type `/mlgg` and the AI reviews your code like a Nature Medicine reviewer — finds issues, cites peer review evidence, gives fix code
 
 ### Section Navigation
 
