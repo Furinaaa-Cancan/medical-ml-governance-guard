@@ -63,7 +63,7 @@
 
 ## 为什么需要 MLGG
 
-医学 ML 论文中数据泄漏的发生率远超预期。86% 已发表预测模型存在高偏倚风险 (Van Calster 2026, Annual Review of Statistics)。
+医学 ML 论文中数据泄漏和方法学缺陷的发生率远超预期。已发表预测模型中高偏倚风险的比例极高 (Wynants et al. 2020, BMJ; Navarro et al. 2023, BMJ)。
 
 | 常见错误 | 后果 | MLGG 阻止方式 |
 |:---------|:-----|:-------------|
@@ -1301,7 +1301,7 @@ python3 scripts/orchestration/mlgg.py doctor
 | LR+/LR- for clinical decisions | Deeks JJ, Altman DG. *BMJ.* 2004;329:168-169 | MLGG-E02 |
 | DCA | Vickers AJ, Elkin EB. *Med Decis Making.* 2006;26(6):565-574 | `calibration_dca_gate` |
 | NRI / IDI | Pencina MJ et al. *Stat Med.* 2008;27(2):157-172 | `compute_nri_idi()` |
-| 5-domain evaluation | Van Calster B et al. *Lancet Digit Health.* 2025 | 框架覆盖 |
+| 5-domain evaluation | Van Calster B et al. *BMC Med.* 2019;17:230 + Steyerberg EW. *Clinical Prediction Models.* 2019 | 框架覆盖 |
 
 ### 阶段七：可解释性
 
@@ -1325,7 +1325,7 @@ python3 scripts/orchestration/mlgg.py doctor
 | 文献 | 核心论点 |
 |:----------|:-------------|
 | Chekroud AM et al. *Science.* 2024;383:164-167 | "Illusory generalizability" &mdash; ML models accurate within training trial, random outside |
-| Van Calster B et al. *Ann Rev Stat.* 2026;13 | 12 "enemies" of reliable prediction models; 86% published models high ROB |
+| Wynants L et al. *BMJ.* 2020;369:m1328 | COVID prediction models: 94% high ROB by PROBAST; systematic evidence of widespread bias |
 | Dhiman P et al. *J Clin Epidemiol.* 2025;179:111967 | Median peer review 243 words; <20% check generalizability; calibration rarely reviewed |
 
 </details>
