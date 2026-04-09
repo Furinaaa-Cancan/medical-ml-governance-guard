@@ -51,7 +51,7 @@ random.shuffle(blind_sample)  # 打乱顺序，消除审计员偏倚
 
 ### 2.3 样本量 justification
 
-- N=50 对于计算 kappa 的 95% CI 足够（Sim & Wright 2005：N≥50 for kappa with 2 categories）
+- N=50 对于计算 kappa 的 95% CI 足够（Sim J, Wright CC. J Clin Epidemiol 2005;58(10):982-984：N≥50 for kappa with 2 categories）
 - 25:25 等比分层确保 sensitivity 和 specificity 都有充足样本
 - 层内平衡按期刊/疾病/年份确保结论不被单一子群驱动
 
@@ -202,7 +202,7 @@ paper_uuid = str(uuid.uuid5(uuid.NAMESPACE_URL, paper["github_url"]))
   q_no  = R2 判定"无泄漏"的比例
 ```
 
-**Kappa 解释**（Landis & Koch 1977）：
+**Kappa 解释**（Landis JR, Koch GG. Biometrics 1977;33(1):159-174）：
 
 | κ 范围 | 一致性 | 行动 |
 |-------|--------|------|

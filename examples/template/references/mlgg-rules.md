@@ -67,5 +67,5 @@ y_test_pred = (y_test_prob >= threshold).astype(int)
 | MCC vs F1 | Chicco & Jurman 2020 | MCC more informative for imbalanced |
 | Model selection | Yang et al. KDD 2023 | Select by validation, not train-test gap |
 | Internal validation | Steyerberg 2019, Harrell 2015 | Bootstrap optimism correction |
-| Missingness | Madley-Dowd 2019, Sperrin 2020 | Mechanism > proportion |
+| Missingness | Madley-Dowd et al. J Clin Epidemiol 2019;110:63-73 | Mechanism > proportion |
 | TRIPOD+AI | BMJ 2024;385:e078378 | 27-item reporting checklist |

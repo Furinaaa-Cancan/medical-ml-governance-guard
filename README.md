@@ -828,7 +828,7 @@ SHAP 对相关特征可能产生误导（联盟博弈论假设）。PDP 提供�
 
 #### 8.4 不可能定理声明
 
-当报告 >= 3 个公平性指标时，自动提示 Chouldechova 2017 / Kleinberg 2016 不可能定理：除基率相等或完美预测外，不可能同时满足所有公平性标准。
+当报告 >= 3 个公平性指标时，自动提示不可能定理 (Chouldechova A. Big Data 2017;5(2):153-163; Kleinberg J et al. ITCS 2017)：除基率相等或完美预测外，不可能同时满足所有公平性标准。
 
 ---
 
@@ -1131,8 +1131,8 @@ python3 -m mlgg_lint /path/to/code/
 | 系数导出 | `export_model_coefficients()` | "模型系数是什么？" | NC Reviewer #1 |
 | MNAR 敏感性 | `mnar_sensitivity_analysis()` | "MAR 假设如果错了？" | PMC10481859 |
 | 时序漂移 | `temporal_drift_analysis()` | "模型部署后还准吗？" | PMC8627243 |
-| 模型卡片 | `generate_model_card()` | "结构化模型文档？" | Mitchell 2019 |
-| 插补敏感性 | `imputation_sensitivity()` | "换插补方法结论变吗？" | Pop Health 2024 |
+| 模型卡片 | `generate_model_card()` | "结构化模型文档？" | Mitchell M et al. FAT* 2019 |
+| 插补敏感性 | `imputation_sensitivity()` | "换插补方法结论变吗？" | Madley-Dowd et al. J Clin Epidemiol 2019 |
 | 亚组 DCA | `subgroup_dca()` | "少数族裔有临床效用吗？" | Vickers 2006 + PROBAST+AI 2025 |
 | 基线对比 | `baseline_comparisons()` | "比随机/患病率好多少？" | NC ML Checklist |
 | 特征消融 | `feature_ablation()` | "去掉关键特征性能怎么变？" | NC ML Checklist |

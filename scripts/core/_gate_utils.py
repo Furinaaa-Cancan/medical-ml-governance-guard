@@ -2151,7 +2151,7 @@ def imputation_sensitivity(
         List of dicts with method, auroc, pr_auc, brier, n_missing_cells.
 
     References:
-        Pop Health Metrics 2024 — Impact of imputation on prediction models.
+        Madley-Dowd P et al. J Clin Epidemiol 2019;110:63-73.
     """
     import numpy as np
     from sklearn.base import clone

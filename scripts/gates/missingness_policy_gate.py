@@ -35,13 +35,13 @@ register_remediations({
         "At least one feature exceeds 5% missingness. "
         "Add mechanism_assessment to policy with method (e.g. Little's MCAR test, "
         "logistic regression for MAR) and conclusion (mcar/mar/mnar/mixed). "
-        "Ref: Madley-Dowd 2019, Sterne 2009."
+        "Ref: Madley-Dowd et al. J Clin Epidemiol 2019;110:63-73; Sterne et al. BMJ 2009;338:b2393."
     ),
     "mnar_sensitivity_required": (
         "At least one feature exceeds 40% missingness. "
         "Add mnar_sensitivity to policy with performed=true and tipping_point. "
         "Use mnar_sensitivity_analysis() from _gate_utils. "
-        "Ref: Cro 2020, White 2011."
+        "Ref: Cro S et al. Stat Med 2020;39:2815-2842; White IR et al. Stat Med 2011;30:377-399."
     ),
     "mechanism_assessment_invalid": (
         "mechanism_assessment must contain 'method' (non-empty string) and "
