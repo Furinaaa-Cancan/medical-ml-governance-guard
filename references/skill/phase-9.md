@@ -16,20 +16,15 @@
 
 # 1. 报告偏倚检查（TRIPOD+AI / PROBAST+AI / STARD-AI）
 python3 scripts/gates/reporting_bias_gate.py \
-  --checklist configs/reporting-bias-checklist.json \
+  --checklist-spec configs/reporting-bias-checklist.json \
   --report evidence/reporting_bias_report.json --strict
 
-# 2. 出版门控（聚合所有 gate）
-python3 scripts/gates/publication_gate.py \
-  --evidence-dir evidence/ \
-  --report evidence/publication_gate_report.json --strict
+# 2-3. 出版门控 + 自我批评评分（需要 28+ 个 --*-report 参数）
+# 不建议手动运行，使用 orchestrator 自动传参：
+python3 scripts/orchestration/mlgg.py workflow \
+  --request configs/request.json --strict
 
-# 3. 自我批评评分
-python3 scripts/gates/self_critique_gate.py \
-  --evidence-dir evidence/ \
-  --report evidence/self_critique_report.json --strict
-
-# 4. 安全审计
+# 4. 安全审计（可独立运行）
 python3 scripts/gates/security_audit_gate.py \
   --evidence-dir evidence/ \
   --report evidence/security_audit_gate_report.json --strict
