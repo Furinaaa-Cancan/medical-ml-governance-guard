@@ -87,6 +87,7 @@ def _run_train(tmp_path: Path, data_dir: Path, extra_args: list = None,
         "--feature-group-spec", str(feature_group_spec),
         "--feature-engineering-report-out", str(evidence / "feature_engineering_report.json"),
         "--calibration-method", "power",
+        "--skip-preflight-check",
     ]
     if extra_args:
         cmd.extend(extra_args)

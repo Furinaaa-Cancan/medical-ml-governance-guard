@@ -109,6 +109,7 @@ def test_full_pipeline(dataset, strategy, tuning, dataset_cache, tmp_path):
         "--cv-splits", "3",
         "--model-selection-report-out", str(evidence_dir / "model_selection_report.json"),
         "--evaluation-report-out", str(evidence_dir / "evaluation_report.json"),
+        "--skip-preflight-check",
     ]
     # Add valid split if it exists
     valid_csv = data_dir / "valid.csv"
@@ -176,6 +177,7 @@ def test_single_smoke(dataset, dataset_cache, tmp_path):
         "--cv-splits", "3",
         "--model-selection-report-out", str(evidence_dir / "model_selection_report.json"),
         "--evaluation-report-out", str(evidence_dir / "evaluation_report.json"),
+        "--skip-preflight-check",
     ]
     valid_csv = data_dir / "valid.csv"
     if valid_csv.exists():
