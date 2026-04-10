@@ -5693,9 +5693,29 @@ def _full_candidate_eval(
 def main() -> int:
     """Entry point for the train-select-evaluate pipeline.
 
-    Orchestrates data loading, feature engineering, candidate building,
-    model selection, calibration, threshold selection, evaluation,
-    and report generation.
+    Orchestrates 10 phases:
+
+    Phase 0: PREFLIGHT & CONFIG (args validation, policy loading)
+      Outputs: args, policy, beta, thresholds, calibration/selection config
+    Phase 1: DATA LOADING (splits, feature columns)
+      Outputs: train/valid/test_df, X/y arrays, has_valid, has_test
+    Phase 2: FEATURE ENGINEERING (filter, stability, VIF, encoding)
+      Outputs: selected_features, stage1_report, categorical_report
+    Phase 3: IMBALANCE PROBE (strategy selection)
+      Outputs: selected_imbalance_strategy, effective_class_weight
+    Phase 4: CANDIDATE POOL (build + CV score)
+      Outputs: candidates, candidate_rows, estimator_map
+    Phase 5: MODEL SELECTION (one-SE rule + fit)
+      Outputs: selected_model_id, selected_estimator
+    Phase 6: THRESHOLD & CALIBRATION
+      Outputs: calibrator, selected_threshold, threshold_info
+    Phase 7: EVALUATION (metrics + bootstrap CI)
+      Outputs: train/valid/test_metrics, all_metric_ci
+    Phase 8: DIAGNOSTICS (optimism correction, baselines, learning curve)
+      Outputs: model_selection_report, prevalence/logistic baselines
+    Phase 9: OVERFITTING CALLBACK [MUTATES 17 VARS]
+      May reassign: selected_estimator, calibrator, threshold, metrics, probas
+    Phase 10+: REPORTS & OUTPUT (external, robustness, seed, file writes)
 
     Returns:
         Exit code (0 for success).
@@ -5706,6 +5726,15 @@ def main() -> int:
     """
     configure_runtime_warning_filters()
     args = parse_args()
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # PHASE 0: PREFLIGHT & CONFIG
+    # Inputs:  args
+    # Outputs: fast_diagnostic_mode, policy, beta, sensitivity_floor,
+    #          npv_floor, specificity_floor, ppv_floor, calibration_method,
+    #          selection_data, threshold_selection_split, calibration_fit_split,
+    #          model_pool_config, feature_group_spec, missingness_policy
+    # ═══════════════════════════════════════════════════════════════════════
 
     # ── Pre-training gate verification (fail-closed) ──────────────────────
     # Training MUST NOT proceed without prior gate evidence. This is a
@@ -5817,6 +5846,14 @@ def main() -> int:
     if args.feature_engineering_report_out and not args.feature_group_spec:
         raise SystemExit("--feature-group-spec is required when --feature-engineering-report-out is used.")
 
+    # ═══════════════════════════════════════════════════════════════════════
+    # PHASE 1: DATA LOADING
+    # Inputs:  args, feature_group_spec
+    # Outputs: train_df, valid_df, test_df, has_valid, has_test,
+    #          base_feature_cols, stage0_features, ignore_cols,
+    #          groups, forbidden_features, low_mem
+    # ═══════════════════════════════════════════════════════════════════════
+
     train_df = load_split(args.train)
     valid_df = load_split(args.valid) if args.valid and args.valid.strip() else pd.DataFrame()
     test_df = load_split(args.test) if args.test and args.test.strip() else pd.DataFrame()
@@ -5836,6 +5873,16 @@ def main() -> int:
     groups, forbidden_features = normalize_feature_groups(feature_group_spec)
     grouped_features = sorted({feature for values in groups.values() for feature in values})
     if grouped_features:
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # PHASE 2: FEATURE ENGINEERING
+    # Inputs:  train_df, stage0_features, args
+    # Outputs: selected_features, stage1_report, categorical_report,
+    #          stability_frequency, vif_report, nonlinearity_report,
+    #          X_train, X_valid, X_test (may be re-encoded)
+    # ═══════════════════════════════════════════════════════════════════════
+
+
         stage0_features = [f for f in base_feature_cols if f in grouped_features and f not in set(forbidden_features)]
     else:
         stage0_features = [f for f in base_feature_cols if f not in set(forbidden_features)]
@@ -5883,6 +5930,10 @@ def main() -> int:
                 _df[col] = pd.to_numeric(_df[col], downcast="float")
             for col in _df.select_dtypes(include=["int64"]).columns:
                 _df[col] = pd.to_numeric(_df[col], downcast="integer")
+
+
+    # ── Phase 2a: Filter + stability selection ────────────────────────────
+
 
     X_train_stage0, y_train = prepare_xy(train_df, stage0_features, args.target_col)
     stage1_features, stage1_report = select_features_by_filter(
@@ -5976,6 +6027,15 @@ def main() -> int:
         raise SystemExit("external_cohort_spec must provide at least one external cohort entry.")
     if has_valid and len(np.unique(y_valid)) < 2:
         raise SystemExit("valid split must contain both classes for threshold/model selection.")
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # PHASE 3: IMPUTATION & IMBALANCE STRATEGY
+    # Inputs:  X_train, y_train, args, policy
+    # Outputs: imputation, imbalance_candidates, selected_imbalance_strategy,
+    #          effective_class_weight, strategy_probe_rows
+    # ═══════════════════════════════════════════════════════════════════════
+
+
     imputation = resolve_imputation_plan(
         missingness_policy,
         train_rows=int(X_train.shape[0]),
@@ -6085,6 +6145,14 @@ def main() -> int:
         model_pool_config["optuna_y_train"] = y_train
         model_pool_config["optuna_cv_splits"] = int(args.cv_splits)
         model_pool_config["optuna_trials"] = int(getattr(args, "optuna_trials", 50))
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # PHASE 4: CANDIDATE POOL BUILD + CV SCORING
+    # Inputs:  X_train, y_train, model_pool_config, selected_features
+    # Outputs: candidates, candidate_rows, estimator_map, candidate_space_meta
+    # ═══════════════════════════════════════════════════════════════════════
+
+
     candidates, candidate_space_meta = build_candidates(
         seed=int(args.random_seed),
         sampling_seed=int(args.random_seed),
@@ -6239,6 +6307,14 @@ def main() -> int:
             })
             estimator_map[ecand["model_id"]] = ecand["estimator"]
 
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # PHASE 5: MODEL SELECTION + FIT
+    # Inputs:  candidate_rows, estimator_map, X_train, y_train
+    # Outputs: selected_model_id, selected_estimator, selected_candidate_row
+    # ═══════════════════════════════════════════════════════════════════════
+
+
     trace = choose_model_one_se(
         [
             {
@@ -6289,6 +6365,14 @@ def main() -> int:
             seed=args.random_seed,
             imbalance_strategy=selected_imbalance_strategy,
         )
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # PHASE 6: CALIBRATION + THRESHOLD
+    # Inputs:  selected_estimator, X_train/valid, y_train/valid
+    # Outputs: calibrator, selected_threshold, threshold_info
+    # ═══════════════════════════════════════════════════════════════════════
+
+
     calibrator = fit_probability_calibrator(
         y_true=calibration_y,
         proba_raw=calibration_proba_raw,
@@ -6340,6 +6424,15 @@ def main() -> int:
     selected_threshold = float(threshold_info["selected_threshold"])
 
     # Keep evaluation on the train-fitted selected model to avoid polluting valid split metrics.
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # PHASE 7: EVALUATION (metrics + bootstrap CI)
+    # Inputs:  selected_estimator, calibrator, X/y arrays, threshold
+    # Outputs: train/valid/test_metrics, train/valid/test_proba,
+    #          ci_lo, ci_hi, all_metric_ci
+    # ═══════════════════════════════════════════════════════════════════════
+
+
     train_proba_raw = predict_proba_1(selected_estimator, X_train)
     train_proba = apply_probability_calibrator(calibrator, train_proba_raw)
     train_metrics, train_cm = metric_panel(y_train, train_proba, selected_threshold, beta=beta)
@@ -6484,6 +6577,15 @@ def main() -> int:
             "row_count": int(X_test.shape[0]),
         }
 
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # PHASE 8: DIAGNOSTICS (optimism, baselines, learning curve)
+    # Inputs:  selected_estimator, X_train, y_train, y_test, test_proba
+    # Outputs: model_selection_report, prevalence/logistic baselines,
+    #          split_fingerprints, overfit_risk
+    # ═══════════════════════════════════════════════════════════════════════
+
+
     model_selection_report = {
         "status": "pass",
         "primary_metric": "pr_auc",
@@ -6535,6 +6637,16 @@ def main() -> int:
         print(f"[WARN] Overfitting detected ({len(overfit_warnings)} signal(s)):")
         for w in overfit_warnings:
             print(f"  - {w}")
+
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # PHASE 9: OVERFITTING CALLBACK [DANGER: MUTATES 17 UPSTREAM VARS]
+    # If overfit_risk >= medium, re-evaluates alternative candidates.
+    # May REASSIGN: selected_model_id, selected_estimator, calibrator,
+    #   selected_threshold, threshold_info, train/valid/test_metrics,
+    #   train/valid/test_proba, overfit_risk/gaps/warnings
+    # ═══════════════════════════════════════════════════════════════════════
+
 
     # ── Overfitting callback: try alternative candidates when risk >= medium ──
     # IMPORTANT: callback uses only train-valid gap for decisions (no test leakage).
@@ -6685,6 +6797,15 @@ def main() -> int:
     if overfit_risk == "high":
         overfit_recommendations.append("Consider a simpler model family (e.g., logistic regression).")
         overfit_recommendations.append("Use stronger cross-validation (more folds, repeated CV).")
+
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # PHASE 10: TRIPOD+AI / PROBAST SUPPLEMENTARY ASSESSMENTS
+    # Inputs:  selected_estimator, X/y arrays, test_proba, baselines
+    # Outputs: epv_report, calibration/DCA/NRI/IDI/DeLong/McNemar reports,
+    #          subgroup_report, error_analysis, ablation_report
+    # ═══════════════════════════════════════════════════════════════════════
+
 
     # ── TRIPOD+AI / PROBAST supplementary assessments ──
     # Must run AFTER overfitting callback to use final model's probabilities.
@@ -7051,6 +7172,16 @@ def main() -> int:
                 },
             }
         )
+
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # PHASE 11: EXTERNAL VALIDATION + OPTIONAL REPORTS
+    # Inputs:  external_cohorts, selected_estimator, calibrator
+    # Outputs: external_validation_report, distribution_report_payload,
+    #          ci_matrix_report_payload, robustness_report,
+    #          seed_sensitivity_report
+    # ═══════════════════════════════════════════════════════════════════════
+
 
     if args.external_validation_report_out:
         external_validation_report = {
@@ -7422,6 +7553,14 @@ def main() -> int:
     if low_mem:
         del train_df, valid_df, test_df
         gc.collect()
+
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # PHASE 12: FILE OUTPUT + MANIFEST
+    # Inputs:  All reports, selected_estimator, calibrator
+    # Outputs: JSON/CSV/pkl files to disk
+    # ═══════════════════════════════════════════════════════════════════════
+
 
     model_selection_out = Path(args.model_selection_report_out).expanduser().resolve()
     evaluation_out = Path(args.evaluation_report_out).expanduser().resolve()
