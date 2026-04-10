@@ -65,6 +65,15 @@ def extract_notebook_source(path: Path) -> Tuple[str, List[CellMapping]]:
         current_line += 1  # skip the header line
 
         cell_lines = cell_source.splitlines()
+        # Strip IPython magics (%matplotlib, %%time, !pip, obj?) that
+        # cause ast.parse() to fail.  Replace with blanks to preserve
+        # line numbers for downstream diagnostics.
+        for i, ln in enumerate(cell_lines):
+            stripped = ln.strip()
+            if (stripped.startswith(("%", "!"))
+                    or stripped.endswith("?")
+                    or stripped.startswith("?")):
+                cell_lines[i] = ""
         if not cell_lines:
             continue
 
