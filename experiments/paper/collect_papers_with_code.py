@@ -47,8 +47,8 @@ PMC_SEARCH_QUERY_TEMPLATE = (
     'AND ({year_start}:{year_end}[pdat])'
 )
 
-# Default: full 2015-2025 range, searched per-year for balanced coverage
-PMC_SEARCH_QUERY = PMC_SEARCH_QUERY_TEMPLATE.format(year_start=2015, year_end=2025)
+# Default: full 2015-2026 range, searched per-year for balanced coverage
+PMC_SEARCH_QUERY = PMC_SEARCH_QUERY_TEMPLATE.format(year_start=2015, year_end=2026)
 
 GITHUB_URL_PATTERN = re.compile(
     r'https?://github\.com/[\w\-\.]+/[\w\-\.]+',
@@ -335,7 +335,7 @@ def main() -> int:
                         help="Max results per year (ensures balanced coverage).")
     parser.add_argument("--year-start", type=int, default=2015,
                         help="Start year for search.")
-    parser.add_argument("--year-end", type=int, default=2025,
+    parser.add_argument("--year-end", type=int, default=2026,
                         help="End year for search.")
     parser.add_argument("--email", type=str, default="",
                         help="Email for NCBI E-utilities (recommended for large queries).")
