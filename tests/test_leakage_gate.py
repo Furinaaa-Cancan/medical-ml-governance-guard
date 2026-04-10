@@ -385,6 +385,26 @@ class TestCLI:
         warn_codes = [w["code"] for w in report["warnings"]]
         assert "suspicious_feature_names" not in warn_codes
 
+    def test_ehr_date_abbreviations_flagged(self, tmp_path: Path):
+        """EHR-style date abbreviations (dx_date, diag_date) should be flagged."""
+        train_p = tmp_path / "train.csv"
+        test_p = tmp_path / "test.csv"
+        _write_csv(train_p, ["pid", "y", "dx_date", "diag_date", "age"],
+                   [["A", "0", "2020-01-01", "2020-02-01", "50"]])
+        _write_csv(test_p, ["pid", "y", "dx_date", "diag_date", "age"],
+                   [["B", "1", "2021-01-01", "2021-02-01", "60"]])
+        splits = {"train": train_p, "test": test_p}
+        self._run(tmp_path, splits, extra_args=["--target-col", "y"])
+        report = json.loads((tmp_path / "report.json").read_text())
+        warn_codes = [w["code"] for w in report["warnings"]]
+        assert "suspicious_feature_names" in warn_codes
+        # Verify both columns were caught
+        for w in report["warnings"]:
+            if w["code"] == "suspicious_feature_names":
+                flagged = w.get("details", {}).get("columns", [])
+                assert "dx_date" in flagged, f"dx_date not flagged, got: {flagged}"
+                assert "diag_date" in flagged, f"diag_date not flagged, got: {flagged}"
+
     def test_column_mismatch_warning(self, tmp_path: Path):
         train_p = tmp_path / "train.csv"
         test_p = tmp_path / "test.csv"

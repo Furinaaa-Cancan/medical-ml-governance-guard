@@ -230,10 +230,14 @@ def create_target(df: pd.DataFrame) -> pd.DataFrame:
     doctor_pos = df["doctor_told_diabetes"] == 1.0 if "doctor_told_diabetes" in df.columns else pd.Series(False, index=df.index)
     df["y"] = (hba1c_pos | doctor_pos).astype(int)
 
-    # Remove target-defining and target-adjacent variables from features
+    # Remove target-defining, target-adjacent, and post-prediction variables.
+    # Lipids (total_cholesterol, hdl, triglycerides) are drawn at the same
+    # NHANES exam visit as HbA1c — they reflect post-diagnosis metabolic state
+    # and are unavailable at a pre-visit screening prediction time point.
     drop_cols = [
         "hba1c", "fasting_glucose",
         "doctor_told_diabetes", "prediabetes", "at_risk_diabetes",
+        "total_cholesterol", "hdl", "triglycerides",
     ]
     for col in drop_cols:
         if col in df.columns:

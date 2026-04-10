@@ -71,7 +71,7 @@ def parse_args() -> argparse.Namespace:
             r"|(?:^|_)(pred|predicted|actual|confirmed|diagnosed|staging|stage_at)"
             r"|(?:^|_)(pathology|biopsy_result|histology)"
             r"|(?:^|_)(next_|future_|post_|after_)"
-            r"|(?:^|_)(diagnosis_date|death_date|event_date|outcome_date|discharge_date)"
+            r"|(?:^|_)(diagnosis_date|dx_date|diag_date|death_date|event_date|outcome_date|discharge_date)"
             r"|(?:^|_)(readmit|mortality_flag|survival_status|los_days)"
         ),
         help="Regex for suspicious feature names. Covers: explicit markers (future, leak), target aliases, post-outcome variables (pred_, confirmed_, staging), temporal leakage (next_, post_), outcome dates, and derived outcome indicators.",
