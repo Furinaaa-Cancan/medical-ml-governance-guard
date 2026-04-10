@@ -4131,7 +4131,8 @@ def bootstrap_optimism_correction(
         idx = stratified_bootstrap_indices(y_train, rng)
         if idx is None:
             break
-        X_boot, y_boot = X_train[idx], y_train[idx]
+        X_boot = X_train.iloc[idx] if hasattr(X_train, "iloc") else X_train[idx]
+        y_boot = y_train[idx] if not hasattr(y_train, "iloc") else y_train.iloc[idx]
 
         try:
             boot_est = sklearn_clone(estimator)
@@ -4239,7 +4240,8 @@ def learning_curve_data(
             except ValueError:
                 idx = rng.choice(n_total, size=n_samples, replace=False)
 
-        X_sub, y_sub = X_train[idx], y_train[idx]
+        X_sub = X_train.iloc[idx] if hasattr(X_train, "iloc") else X_train[idx]
+        y_sub = y_train[idx] if not hasattr(y_train, "iloc") else y_train.iloc[idx]
 
         try:
             est = sklearn_clone(estimator)
@@ -5841,6 +5843,38 @@ def main() -> int:
         stage0_features = [f for f in base_feature_cols if f not in set(forbidden_features)]
     if not stage0_features:
         raise SystemExit("No usable features remain after feature-group and forbidden-feature filtering.")
+
+    # ── Cross-split missingness divergence check ────────────────────────
+    # Detect features where train missing rate differs drastically from
+    # test/valid (e.g., feature collected in one survey cycle but not another).
+    # Threshold: if test missing rate > train + 0.50, the feature is unusable.
+    _MISS_DIVERGENCE_THRESHOLD = 0.50
+    _splits_to_check = [("valid", valid_df), ("test", test_df)]
+    _features_to_drop: list[str] = []
+    for split_name, split_df in _splits_to_check:
+        if split_df.empty:
+            continue
+        for feat in stage0_features:
+            if feat not in split_df.columns:
+                continue
+            tr_miss = train_df[feat].isna().mean() if feat in train_df.columns else 0.0
+            sp_miss = split_df[feat].isna().mean()
+            if sp_miss - tr_miss > _MISS_DIVERGENCE_THRESHOLD:
+                print(
+                    f"[WARN] cross_split_missingness_divergence: "
+                    f"'{feat}' missing {tr_miss:.1%} in train but {sp_miss:.1%} "
+                    f"in {split_name} (Δ={sp_miss - tr_miss:.1%}). "
+                    f"Dropping feature to prevent distribution shift collapse."
+                )
+                _features_to_drop.append(feat)
+    if _features_to_drop:
+        _drop_set = set(_features_to_drop)
+        stage0_features = [f for f in stage0_features if f not in _drop_set]
+        if not stage0_features:
+            raise SystemExit(
+                "All features dropped due to cross-split missingness divergence. "
+                "Check if train and test data come from compatible sources."
+            )
 
     low_mem = getattr(args, "low_memory", False)
     if low_mem:

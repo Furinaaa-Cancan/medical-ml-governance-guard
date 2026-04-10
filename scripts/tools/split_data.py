@@ -382,13 +382,28 @@ def split_grouped_temporal(
     if not time_col:
         raise ValueError("grouped_temporal strategy requires --time-col.")
 
-    # Parse time column
+    # Parse time column — support both datetime and categorical/ordinal formats
+    # (e.g., "2017-2018", "wave_1", "cycle_J" can be sorted lexicographically)
     time_series = pd.to_datetime(df[time_col], errors="coerce")
     if time_series.isna().all():
-        raise ValueError(
-            f"Cannot parse any values in time column '{time_col}'. "
-            "Use --strategy grouped_random if no time information is available."
-        )
+        # Fallback: treat as categorical and sort lexicographically
+        raw_vals = df[time_col].dropna().unique()
+        if len(raw_vals) >= 2:
+            sorted_vals = sorted(raw_vals, key=str)
+            # Map to ordinal integers for temporal ordering
+            val_to_rank = {v: i for i, v in enumerate(sorted_vals)}
+            time_series = df[time_col].map(val_to_rank)
+            print(
+                f"[INFO] Time column '{time_col}' parsed as categorical ordinal: "
+                f"{' < '.join(str(v) for v in sorted_vals)}",
+                file=sys.stderr,
+            )
+        else:
+            raise ValueError(
+                f"Cannot parse time column '{time_col}' as datetime or categorical "
+                f"(need ≥2 unique values). "
+                "Use --strategy grouped_random if no time information is available."
+            )
     na_count = int(time_series.isna().sum())
     if na_count > 0:
         print(

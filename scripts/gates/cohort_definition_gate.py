@@ -410,12 +410,28 @@ def analyze_cohort(
             except Exception as exc:
                 print(f"[cohort] missingness-outcome corr: {exc}", file=sys.stderr)
 
+        # Per-feature missingness-outcome correlation (MNAR detection)
+        per_feature_mnar: Dict[str, float] = {}
+        if target_col in df.columns:
+            y_for_mnar = pd.to_numeric(df[target_col], errors="coerce")
+            for col in feature_cols:
+                col_missing = df[col].isna()
+                n_miss = int(col_missing.sum())
+                if 0 < n_miss < len(df):
+                    try:
+                        corr = abs(float(col_missing.astype(float).corr(y_for_mnar)))
+                        if corr > 0.1:
+                            per_feature_mnar[col] = round(corr, 4)
+                    except Exception:
+                        pass
+
         missingness_patterns = {
             "n_complete_rows": n_complete_rows,
             "n_incomplete_rows": n_incomplete_rows,
             "pct_complete": round(n_complete_rows / n_rows, 4),
             "outcome_missingness_correlation": outcome_miss_corr,
             "mnar_signal": outcome_miss_corr is not None and outcome_miss_corr > 0.1,
+            "per_feature_mnar": per_feature_mnar,
         }
 
     return {
@@ -672,6 +688,20 @@ def _run_checks(
             f"Document in limitations.",
             {"mnar_correlation": miss_patterns.get("outcome_missingness_correlation")},
         )
+
+    # Per-feature MNAR warnings
+    per_feat_mnar = miss_patterns.get("per_feature_mnar", {})
+    if per_feat_mnar:
+        for feat, corr in sorted(per_feat_mnar.items(), key=lambda x: -x[1]):
+            add_issue(
+                warnings_list, "COHORT_FEATURE_MNAR",
+                f"Feature '{feat}' has missingness correlated with outcome "
+                f"(|r|={corr}). This is a strong MNAR signal — "
+                f"SimpleImputer(median) may be inappropriate. "
+                f"Consider domain-specific imputation (e.g., missing=0 if "
+                f"'not applicable' is the clinical meaning).",
+                {"feature": feat, "mnar_correlation": corr},
+            )
 
 
 # ---------------------------------------------------------------------------
