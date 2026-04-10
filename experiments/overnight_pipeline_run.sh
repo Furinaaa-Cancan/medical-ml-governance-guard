@@ -79,11 +79,17 @@ TIME_COLS=(
     ["diabetes130_full"]="event_time"
     ["brfss2022"]="event_time"
     ["nhis2022"]="event_time"
-    ["nhanes"]="event_time"
+    ["nhanes"]=""
     ["support2"]=""
     ["heart"]="event_time"
     ["breast"]="event_time"
-    ["pima"]="event_time"
+    ["pima"]=""
+)
+
+# Phenotype definition specs (for definition_variable_guard)
+declare -A PHENOTYPE_SPECS
+PHENOTYPE_SPECS=(
+    ["nhanes"]="examples/nhanes_diabetes_phenotype_spec.json"
 )
 
 # Split strategies
@@ -92,11 +98,11 @@ SPLIT_STRATEGIES=(
     ["diabetes130_full"]="grouped_temporal"
     ["brfss2022"]="grouped_temporal"
     ["nhis2022"]="grouped_temporal"
-    ["nhanes"]="grouped_temporal"
+    ["nhanes"]="stratified_grouped"
     ["support2"]="stratified_grouped"
     ["heart"]="grouped_temporal"
     ["breast"]="grouped_temporal"
-    ["pima"]="grouped_temporal"
+    ["pima"]="stratified_grouped"
 )
 
 # Ordered list (large first)
@@ -125,6 +131,7 @@ for DNAME in $DATASET_ORDER; do
     PID="${PID_COLS[$DNAME]}"
     TIME="${TIME_COLS[$DNAME]}"
     SPLIT="${SPLIT_STRATEGIES[$DNAME]}"
+    PHENO_SPEC="${PHENOTYPE_SPECS[$DNAME]:-}"
 
     # Skip if CSV doesn't exist
     if [ ! -f "$CSV" ]; then
@@ -167,6 +174,18 @@ for DNAME in $DATASET_ORDER; do
     fi
     if [ -n "$TIME" ]; then
         CMD="$CMD --time-col ${TIME}"
+    fi
+
+    # Cross-sectional datasets: no temporal structure, skip temporal ordering checks
+    # NHANES: stratified multistage survey, nhanes_cycle is cohort label not event time
+    # Pima: single-timepoint screening dataset
+    if [ "$DNAME" = "nhanes" ] || [ "$DNAME" = "pima" ]; then
+        CMD="$CMD --cross-sectional"
+    fi
+
+    # Phenotype definition spec (enables definition_variable_guard post-prediction checks)
+    if [ -n "$PHENO_SPEC" ] && [ -f "${PROJ_ROOT}/${PHENO_SPEC}" ]; then
+        CMD="$CMD --phenotype-spec ${PROJ_ROOT}/${PHENO_SPEC}"
     fi
 
     # Run with timing

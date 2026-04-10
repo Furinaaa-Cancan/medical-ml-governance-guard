@@ -1,0 +1,56 @@
+{
+  "version": "1.0",
+  "dataset": "nhanes_diabetes",
+  "description": "Phenotype definition for NHANES 2017-2020 diabetes prediction. Cross-sectional survey design: all labs, vitals, and questionnaires collected at a single exam visit. Target defined by HbA1c >= 6.5% OR self-reported doctor-diagnosed diabetes.",
+  "study_design": {
+    "type": "cross_sectional",
+    "source": "CDC NHANES 2017-2020 (pre-pandemic)",
+    "sampling": "stratified_multistage_cluster",
+    "survey_weights_used": false,
+    "survey_weights_justification": "Weights excluded intentionally. NHANES oversamples minorities; unweighted analysis is valid for internal prediction model development but prevalence estimates are not population-representative. External validation on differently-sampled cohorts is required.",
+    "cycles": ["2017-2018", "2019-2020"]
+  },
+  "global_forbidden_variables": [],
+  "global_forbidden_patterns": [
+    "^WTMEC",
+    "^WTINT",
+    "^SDMVPSU$",
+    "^SDMVSTRA$",
+    "^MEC.*WT$"
+  ],
+  "targets": {
+    "diabetes": {
+      "defining_variables": [
+        "hba1c",
+        "doctor_told_diabetes"
+      ],
+      "forbidden_variables": [
+        "hba1c",
+        "fasting_glucose",
+        "doctor_told_diabetes",
+        "prediabetes",
+        "at_risk_diabetes",
+        "LBXGH",
+        "LBXGLU",
+        "DIQ010",
+        "DIQ160",
+        "DIQ170"
+      ],
+      "forbidden_patterns": [
+        "(?i)hba1c",
+        "(?i)glycated",
+        "(?i)a1c",
+        "(?i)^DIQ"
+      ],
+      "post_prediction_features": [
+        "total_cholesterol",
+        "hdl",
+        "triglycerides"
+      ],
+      "post_prediction_justification": "Lipid panels (TCHOL_J, HDL_J, TRIGLY_J) are drawn at the same NHANES exam visit as HbA1c (GHB_J). Since HbA1c >= 6.5% defines the target, same-visit metabolic labs reflect post-diagnosis metabolic state and cannot be assumed available at a hypothetical pre-diagnosis prediction time point.",
+      "prediction_time": "pre_visit_screening",
+      "follow_up_window": "point_in_time",
+      "prediction_time_justification": "NHANES is cross-sectional. The clinically meaningful prediction scenario is screening: predicting diabetes risk using demographics, lifestyle, and vitals available before lab results are returned."
+    }
+  }
+}

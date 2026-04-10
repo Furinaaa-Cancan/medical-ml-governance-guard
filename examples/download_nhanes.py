@@ -116,15 +116,20 @@ def build_diabetes_dataset(dfs: Dict[str, pd.DataFrame], cycle: str) -> pd.DataF
         bmx.columns = ["SEQN", "bmi", "waist_circumference"]
         merged = merged.merge(bmx, on="SEQN", how="left")
 
-    # Blood pressure
+    # Blood pressure — require >= 2 valid readings for a reliable mean
     if "bpx" in dfs:
         bpx = dfs["bpx"].copy()
         sbp_cols = [c for c in bpx.columns if c.startswith("BPXOSY")]
         dbp_cols = [c for c in bpx.columns if c.startswith("BPXODI")]
+        min_valid_readings = 2
         if sbp_cols:
+            valid_count = bpx[sbp_cols].notna().sum(axis=1)
             bpx["sbp_mean"] = bpx[sbp_cols].mean(axis=1)
+            bpx.loc[valid_count < min_valid_readings, "sbp_mean"] = np.nan
         if dbp_cols:
+            valid_count = bpx[dbp_cols].notna().sum(axis=1)
             bpx["dbp_mean"] = bpx[dbp_cols].mean(axis=1)
+            bpx.loc[valid_count < min_valid_readings, "dbp_mean"] = np.nan
         bp_cols = ["SEQN"] + [c for c in ["sbp_mean", "dbp_mean"] if c in bpx.columns]
         merged = merged.merge(bpx[bp_cols], on="SEQN", how="left")
 

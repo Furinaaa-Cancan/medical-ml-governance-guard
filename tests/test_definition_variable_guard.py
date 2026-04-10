@@ -782,3 +782,112 @@ class TestPostPredictionLeakage(TestCLI):
         report = json.loads((tmp_path / "report.json").read_text())
         codes = [f["code"] for f in report["failures"]]
         assert "post_prediction_feature_leakage" in codes
+
+
+# ────────────────────────────────────────────────────────
+# NHANES-specific integration tests
+# ────────────────────────────────────────────────────────
+
+class TestNHANESDiabetesPhenotypeSpec(TestCLI):
+    """Integration tests using the real NHANES phenotype definition spec."""
+
+    NHANES_SPEC_PATH = Path(__file__).resolve().parent.parent / "examples" / "nhanes_diabetes_phenotype_spec.json"
+
+    @pytest.fixture()
+    def nhanes_spec(self) -> dict:
+        if not self.NHANES_SPEC_PATH.exists():
+            pytest.skip("NHANES phenotype spec not found")
+        return json.loads(self.NHANES_SPEC_PATH.read_text(encoding="utf-8"))
+
+    def test_nhanes_spec_is_valid_json(self, nhanes_spec: dict):
+        """Spec must have required structure."""
+        assert "targets" in nhanes_spec
+        assert "diabetes" in nhanes_spec["targets"]
+        target = nhanes_spec["targets"]["diabetes"]
+        assert "defining_variables" in target
+        assert "post_prediction_features" in target
+        assert "prediction_time" in target
+        assert "follow_up_window" in target
+
+    def test_nhanes_hba1c_forbidden(self, nhanes_spec: dict):
+        """HbA1c (target-defining) must be in forbidden_variables."""
+        target = nhanes_spec["targets"]["diabetes"]
+        forbidden = [v.lower() for v in target["forbidden_variables"]]
+        assert "hba1c" in forbidden
+        assert "lbxgh" in forbidden  # raw NHANES code
+
+    def test_nhanes_lipids_post_prediction(self, nhanes_spec: dict):
+        """Same-visit lipids must be listed as post_prediction_features."""
+        target = nhanes_spec["targets"]["diabetes"]
+        post = [v.lower() for v in target["post_prediction_features"]]
+        assert "total_cholesterol" in post
+        assert "hdl" in post
+        assert "triglycerides" in post
+
+    def test_nhanes_lipid_leakage_detected(self, tmp_path: Path, nhanes_spec: dict):
+        """Gate must FAIL when NHANES CSV contains lipids as predictors."""
+        nhanes_headers = [
+            "patient_id", "y", "age", "gender", "bmi",
+            "total_cholesterol", "hdl", "triglycerides",
+        ]
+        spec_path = _write_spec(tmp_path / "spec.json", nhanes_spec)
+        train_path = _write_csv(
+            tmp_path / "train.csv",
+            nhanes_headers,
+            [["1", "0", "55", "1", "28.0", "200", "50", "150"]],
+        )
+        setup = {"spec": spec_path, "train": train_path}
+        result = self._run(tmp_path, setup, target="diabetes")
+        assert result.returncode == 2, f"Expected gate failure.\nstdout: {result.stdout}"
+        report = json.loads((tmp_path / "report.json").read_text())
+        codes = [f["code"] for f in report["failures"]]
+        assert "post_prediction_feature_leakage" in codes
+        # All three lipids should be flagged
+        hits = []
+        for f in report["failures"]:
+            if f["code"] == "post_prediction_feature_leakage":
+                hits = [h["feature"] for h in f.get("details", {}).get("hits", [])]
+        assert "total_cholesterol" in hits
+        assert "hdl" in hits
+        assert "triglycerides" in hits
+
+    def test_nhanes_clean_features_pass(self, tmp_path: Path, nhanes_spec: dict):
+        """Gate must PASS when lipids are removed from NHANES features."""
+        clean_headers = [
+            "patient_id", "y", "age", "gender", "bmi",
+            "sbp_mean", "dbp_mean", "family_history_diabetes",
+        ]
+        spec_path = _write_spec(tmp_path / "spec.json", nhanes_spec)
+        train_path = _write_csv(
+            tmp_path / "train.csv",
+            clean_headers,
+            [["1", "0", "55", "1", "28.0", "120", "80", "0"]],
+        )
+        setup = {"spec": spec_path, "train": train_path}
+        result = self._run(tmp_path, setup, target="diabetes")
+        assert result.returncode == 0, f"Expected pass.\nstdout: {result.stdout}\nstderr: {result.stderr}"
+
+    def test_nhanes_diq_pattern_catches_questionnaire(self, tmp_path: Path, nhanes_spec: dict):
+        """Forbidden pattern (?i)^DIQ must catch any DIQ questionnaire column."""
+        headers = ["patient_id", "y", "age", "DIQ050"]
+        spec_path = _write_spec(tmp_path / "spec.json", nhanes_spec)
+        train_path = _write_csv(
+            tmp_path / "train.csv",
+            headers,
+            [["1", "0", "55", "1"]],
+        )
+        setup = {"spec": spec_path, "train": train_path}
+        result = self._run(tmp_path, setup, target="diabetes")
+        assert result.returncode == 2
+        report = json.loads((tmp_path / "report.json").read_text())
+        codes = [f["code"] for f in report["failures"]]
+        assert "definition_proxy_leakage" in codes
+
+    def test_nhanes_survey_weight_patterns(self, nhanes_spec: dict):
+        """Global forbidden patterns must block NHANES survey weight columns."""
+        patterns = nhanes_spec.get("global_forbidden_patterns", [])
+        compiled = [__import__("re").compile(p) for p in patterns]
+        weight_cols = ["WTMEC2YR", "WTINT2YR", "SDMVPSU", "SDMVSTRA"]
+        for col in weight_cols:
+            matched = any(pat.search(col) for pat in compiled)
+            assert matched, f"Survey weight column '{col}' not caught by forbidden patterns"
