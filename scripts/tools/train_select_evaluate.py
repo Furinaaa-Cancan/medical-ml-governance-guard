@@ -5690,63 +5690,20 @@ def _full_candidate_eval(
     }
 
 
-def main() -> int:
-    """Entry point for the train-select-evaluate pipeline.
+def _phase0_preflight_and_config(args: argparse.Namespace) -> Dict[str, Any]:
+    """Phase 0: Preflight gate verification and configuration loading.
 
-    Orchestrates 10 phases:
+    Validates CLI args, loads policy files, resolves thresholds and
+    calibration/selection split settings.
 
-    Phase 0: PREFLIGHT & CONFIG (args validation, policy loading)
-      Outputs: args, policy, beta, thresholds, calibration/selection config
-    Phase 1: DATA LOADING (splits, feature columns)
-      Outputs: train/valid/test_df, X/y arrays, has_valid, has_test
-    Phase 2: FEATURE ENGINEERING (filter, stability, VIF, encoding)
-      Outputs: selected_features, stage1_report, categorical_report
-    Phase 3: IMBALANCE PROBE (strategy selection)
-      Outputs: selected_imbalance_strategy, effective_class_weight
-    Phase 4: CANDIDATE POOL (build + CV score)
-      Outputs: candidates, candidate_rows, estimator_map
-    Phase 5: MODEL SELECTION (one-SE rule + fit)
-      Outputs: selected_model_id, selected_estimator
-    Phase 6: THRESHOLD & CALIBRATION
-      Outputs: calibrator, selected_threshold, threshold_info
-    Phase 7: EVALUATION (metrics + bootstrap CI)
-      Outputs: train/valid/test_metrics, all_metric_ci
-    Phase 8: DIAGNOSTICS (optimism correction, baselines, learning curve)
-      Outputs: model_selection_report, prevalence/logistic baselines
-    Phase 9: OVERFITTING CALLBACK [MUTATES 17 VARS]
-      May reassign: selected_estimator, calibrator, threshold, metrics, probas
-    Phase 10+: REPORTS & OUTPUT (external, robustness, seed, file writes)
-
-    Returns:
-        Exit code (0 for success).
-
-    Raises:
-        SystemExit: On invalid arguments or data issues.
-        ValueError: On data validation failures (e.g., empty splits).
+    Returns dict with all config values needed by subsequent phases.
     """
-    configure_runtime_warning_filters()
-    args = parse_args()
-
-    # ═══════════════════════════════════════════════════════════════════════
-    # PHASE 0: PREFLIGHT & CONFIG
-    # Inputs:  args
-    # Outputs: fast_diagnostic_mode, policy, beta, sensitivity_floor,
-    #          npv_floor, specificity_floor, ppv_floor, calibration_method,
-    #          selection_data, threshold_selection_split, calibration_fit_split,
-    #          model_pool_config, feature_group_spec, missingness_policy
-    # ═══════════════════════════════════════════════════════════════════════
-
     # ── Pre-training gate verification (fail-closed) ──────────────────────
-    # Training MUST NOT proceed without prior gate evidence. This is a
-    # code-level enforcement that cannot be bypassed by agent instructions
-    # or user requests. The only way to skip is --skip-preflight-check
-    # which is intentionally NOT documented in skill files.
     if not getattr(args, "skip_preflight_check", False):
         _evidence_dir = Path(args.train).expanduser().resolve().parent.parent / "evidence"
         _preflight_gates = {
             "leakage_report.json": ("leakage_gate", "S01: patient-level split isolation"),
         }
-        # Only require leakage report if train file is in a project structure
         if _evidence_dir.is_dir() or (_evidence_dir.parent / "configs").is_dir():
             for _report_name, (_gate_name, _rule) in _preflight_gates.items():
                 _report_path = _evidence_dir / _report_name
@@ -5780,7 +5737,7 @@ def main() -> int:
                         f"preflight_failed: {_report_name} is not valid JSON: {_exc}"
                     )
 
-    fast_diagnostic_mode = bool(args.fast_diagnostic_mode)
+    # ── Argument validation ───────────────────────────────────────────────
     if args.cv_splits < 3:
         raise SystemExit("--cv-splits must be >= 3.")
     if args.beta <= 0:
@@ -5791,7 +5748,10 @@ def main() -> int:
         raise SystemExit("--external-cohort-spec and --external-validation-report-out must be provided together.")
     if args.external_cohort_spec and not args.prediction_trace_out:
         raise SystemExit("--prediction-trace-out is required when --external-cohort-spec is provided.")
+    if args.feature_engineering_report_out and not args.feature_group_spec:
+        raise SystemExit("--feature-group-spec is required when --feature-engineering-report-out is used.")
 
+    # ── Policy & config loading ───────────────────────────────────────────
     policy = load_policy(args.performance_policy)
     missingness_policy = load_missingness_policy(args.missingness_policy)
     external_spec = load_external_cohort_spec(args.external_cohort_spec)
@@ -5842,9 +5802,88 @@ def main() -> int:
     token_top = str(policy.get("calibration_fit_split", calibration_fit_split)).strip().lower()
     if token_top in {"valid", "cv_inner"}:
         calibration_fit_split = token_top
-    model_pool_config = parse_model_pool_config(policy, args)
-    if args.feature_engineering_report_out and not args.feature_group_spec:
-        raise SystemExit("--feature-group-spec is required when --feature-engineering-report-out is used.")
+
+    return {
+        "fast_diagnostic_mode": bool(args.fast_diagnostic_mode),
+        "policy": policy,
+        "missingness_policy": missingness_policy,
+        "external_spec": external_spec,
+        "feature_group_spec": feature_group_spec,
+        "fe_mode_cfg": fe_mode_cfg,
+        "threshold_policy": threshold_policy,
+        "clinical_floors": clinical_floors,
+        "beta": beta,
+        "sensitivity_floor": sensitivity_floor,
+        "npv_floor": npv_floor,
+        "specificity_floor": specificity_floor,
+        "ppv_floor": ppv_floor,
+        "calibration_method": calibration_method,
+        "selection_data": selection_data,
+        "threshold_selection_split": threshold_selection_split,
+        "calibration_fit_split": calibration_fit_split,
+        "model_pool_config": parse_model_pool_config(policy, args),
+    }
+
+
+def main() -> int:
+    """Entry point for the train-select-evaluate pipeline.
+
+    Orchestrates 10 phases:
+
+    Phase 0: PREFLIGHT & CONFIG (args validation, policy loading)
+      Outputs: args, policy, beta, thresholds, calibration/selection config
+    Phase 1: DATA LOADING (splits, feature columns)
+      Outputs: train/valid/test_df, X/y arrays, has_valid, has_test
+    Phase 2: FEATURE ENGINEERING (filter, stability, VIF, encoding)
+      Outputs: selected_features, stage1_report, categorical_report
+    Phase 3: IMBALANCE PROBE (strategy selection)
+      Outputs: selected_imbalance_strategy, effective_class_weight
+    Phase 4: CANDIDATE POOL (build + CV score)
+      Outputs: candidates, candidate_rows, estimator_map
+    Phase 5: MODEL SELECTION (one-SE rule + fit)
+      Outputs: selected_model_id, selected_estimator
+    Phase 6: THRESHOLD & CALIBRATION
+      Outputs: calibrator, selected_threshold, threshold_info
+    Phase 7: EVALUATION (metrics + bootstrap CI)
+      Outputs: train/valid/test_metrics, all_metric_ci
+    Phase 8: DIAGNOSTICS (optimism correction, baselines, learning curve)
+      Outputs: model_selection_report, prevalence/logistic baselines
+    Phase 9: OVERFITTING CALLBACK [MUTATES 17 VARS]
+      May reassign: selected_estimator, calibrator, threshold, metrics, probas
+    Phase 10+: REPORTS & OUTPUT (external, robustness, seed, file writes)
+
+    Returns:
+        Exit code (0 for success).
+
+    Raises:
+        SystemExit: On invalid arguments or data issues.
+        ValueError: On data validation failures (e.g., empty splits).
+    """
+    configure_runtime_warning_filters()
+    args = parse_args()
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # PHASE 0: PREFLIGHT & CONFIG → _phase0_preflight_and_config()
+    # ═══════════════════════════════════════════════════════════════════════
+    cfg = _phase0_preflight_and_config(args)
+    fast_diagnostic_mode = cfg["fast_diagnostic_mode"]
+    policy = cfg["policy"]
+    missingness_policy = cfg["missingness_policy"]
+    external_spec = cfg["external_spec"]
+    feature_group_spec = cfg["feature_group_spec"]
+    fe_mode_cfg = cfg["fe_mode_cfg"]
+    threshold_policy = cfg["threshold_policy"]
+    clinical_floors = cfg["clinical_floors"]
+    beta = cfg["beta"]
+    sensitivity_floor = cfg["sensitivity_floor"]
+    npv_floor = cfg["npv_floor"]
+    specificity_floor = cfg["specificity_floor"]
+    ppv_floor = cfg["ppv_floor"]
+    calibration_method = cfg["calibration_method"]
+    selection_data = cfg["selection_data"]
+    threshold_selection_split = cfg["threshold_selection_split"]
+    calibration_fit_split = cfg["calibration_fit_split"]
+    model_pool_config = cfg["model_pool_config"]
 
     # ═══════════════════════════════════════════════════════════════════════
     # PHASE 1: DATA LOADING
