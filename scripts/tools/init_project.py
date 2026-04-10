@@ -51,7 +51,11 @@ def parse_args() -> argparse.Namespace:
 def copy_template_json(src_name: str, dst_path: Path, force: bool) -> str:
     if dst_path.exists() and not force:
         return "preserved"
-    src_path = REFERENCES_ROOT / src_name
+    # Example templates stored in references/examples/ subdirectory
+    src_path = REFERENCES_ROOT / "examples" / src_name
+    if not src_path.exists():
+        # Fallback to top-level for backward compatibility
+        src_path = REFERENCES_ROOT / src_name
     payload = load_json(src_path)
     write_json(dst_path, payload)
     return "written"
@@ -161,7 +165,10 @@ def main() -> int:
         write_json(phenotype_path, make_phenotype_template(str(args.target_name)))
         file_status[str(phenotype_path)] = "written"
 
-    request_template = load_json(REFERENCES_ROOT / "request-schema.example.json")
+    _req_path = REFERENCES_ROOT / "examples" / "request-schema.example.json"
+    if not _req_path.exists():
+        _req_path = REFERENCES_ROOT / "request-schema.example.json"
+    request_template = load_json(_req_path)
     request_payload = build_request_payload(
         template=request_template,
         study_id=str(args.study_id),
