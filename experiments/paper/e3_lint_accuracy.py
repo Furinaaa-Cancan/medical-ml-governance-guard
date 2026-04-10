@@ -34,7 +34,7 @@ RULE_TO_LEAKAGE = {
 }
 
 # Quality rules (not directly leakage)
-QUALITY_RULES = {"R004", "R008", "R009", "R010", "R011", "R012", "R013",
+QUALITY_RULES = {"R004", "R008", "R009", "R010", "R012", "R013",
                  "R014", "R015", "R016", "R018", "R019", "E000"}
 
 
@@ -55,9 +55,18 @@ def main() -> None:
             "flags": c.get("code_flags", []),
         }
 
-    # Load per-repo MLGG scan details
-    # We need per-repo rule hits - check if they're in the audit file
+    # Load per-repo MLGG scan details — build lookup from results list
     per_repo = audit.get("per_repo", {})
+    if not per_repo and "results" in audit:
+        for r in audit["results"]:
+            pid = r.get("paper_id", "")
+            if pid and "error" not in r:
+                rules_fired = [rid for rid, cnt in r.get("rule_counts", {}).items() if cnt > 0]
+                per_repo[pid] = {
+                    "rules_fired": rules_fired,
+                    "has_leakage_error": r.get("has_leakage_error", False),
+                    "rule_counts": r.get("rule_counts", {}),
+                }
 
     # Load papers metadata to map paper_id → pmcid
     papers = {}
