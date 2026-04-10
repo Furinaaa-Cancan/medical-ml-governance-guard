@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import ast
 
-from mlgg_lint.ast_utils import call_name
 from mlgg_lint.models import Severity
 from mlgg_lint.rules import register
 from mlgg_lint.rules.base import BaseRule
@@ -73,19 +72,20 @@ class ManualScalingBeforeSplit(BaseRule):
             self.generic_visit(node)
             return
 
-        name = call_name(node)
-        if not name:
+        # Get function name from AST
+        func = node.func
+        if isinstance(func, ast.Attribute):
+            func_name = func.attr
+        elif isinstance(func, ast.Name):
+            func_name = func.id
+        else:
             self.generic_visit(node)
             return
-
-        # Check for preprocessing.scale(), preprocessing.normalize(), etc.
-        parts = name.split(".")
-        func_name = parts[-1] if parts else ""
 
         if func_name in _SCALE_FUNCTIONS:
             self.report(
                 node,
-                f"`{name}()` before split at line {self.taint.split_line} — "
+                f"`{func_name}()` before split at line {self.taint.split_line} — "
                 f"scaling on full data leaks test distribution.",
             )
 

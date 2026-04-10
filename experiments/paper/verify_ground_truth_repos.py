@@ -97,7 +97,7 @@ def scan_candidate(url: str, candidate_id: int, domain: str) -> Dict[str, Any]:
             severity_counts[sev] = severity_counts.get(sev, 0) + 1
 
         leakage_rules = {"R001", "R002", "R003", "R005", "R006", "R007",
-                         "R017", "R020", "R023", "R024"}
+                         "R017", "R020", "R023", "R024", "R026", "R027"}
         has_leakage = any(
             fd.get("severity") == "error" and fd.get("rule_id") in leakage_rules
             for fd in all_findings
