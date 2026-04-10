@@ -1010,6 +1010,36 @@ def main() -> int:
     ignore_cols.update(definition_cols)
     feature_cols = [c for c in df.columns if c not in ignore_cols]
 
+    # Cross-temporal-group feature availability check
+    # If data has a temporal/cycle column (e.g., nhanes_cycle), check that
+    # features are available across all groups. A feature collected in one
+    # cycle but not another will cause model collapse on temporal split.
+    _temporal_candidates = [c for c in df.columns
+                           if any(kw in c.lower() for kw in
+                                  ("cycle", "wave", "period", "cohort", "year_group",
+                                   "survey_year", "nhanes"))]
+    for tcol in _temporal_candidates:
+        groups = df[tcol].dropna().unique()
+        if len(groups) < 2:
+            continue
+        for feat in feature_cols:
+            if feat == tcol:
+                continue
+            miss_by_group = {str(g): float(df.loc[df[tcol] == g, feat].isna().mean()) for g in groups}
+            max_miss = max(miss_by_group.values())
+            min_miss = min(miss_by_group.values())
+            if max_miss - min_miss > 0.5:
+                add_issue(
+                    warnings_list, "COHORT_CROSS_CYCLE_FEATURE_MISMATCH",
+                    f"Feature '{feat}' has drastically different missing rates "
+                    f"across '{tcol}' groups: {miss_by_group}. "
+                    f"If using temporal split, this feature will be ~100% missing "
+                    f"in one split, causing model collapse. "
+                    f"Exclude this feature or verify cross-cycle compatibility.",
+                    {"feature": feat, "temporal_col": tcol, "missing_by_group": miss_by_group},
+                )
+        break  # only check the first temporal candidate
+
     # Analyze
     analysis = analyze_cohort(df, args.target_col, args.id_col, feature_cols)
     analysis["study_design"] = study_design
