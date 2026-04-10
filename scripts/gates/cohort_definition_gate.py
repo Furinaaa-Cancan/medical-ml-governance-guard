@@ -1276,6 +1276,46 @@ def main() -> int:
                 "reason": "Could not auto-detect dataset key. Specify --codebook-dataset.",
             }
 
+    # ── NHANES RAG auto-retrieval (fallback for unregistered variables) ──
+    # If data looks like NHANES and Harvard codebook TSVs are available,
+    # auto-validate ALL columns against the full 3,964-variable codebook.
+    # Manual registry has priority; RAG only checks unregistered columns.
+    _nhanes_rag_dir = Path("references/nhanes_codebook")
+    if survey_source == "nhanes" and (_nhanes_rag_dir / "nhanes_variables.tsv").exists():
+        try:
+            _tools_dir = str(Path(__file__).resolve().parent.parent / "tools")
+            if _tools_dir not in sys.path:
+                sys.path.insert(0, _tools_dir)
+            from nhanes_codebook_lookup import NHANESCodebook
+
+            # Load manual registry variable codes for priority exclusion
+            manual_vars: Optional[Dict[str, Any]] = None
+            if codebook_path and codebook_ds:
+                try:
+                    with Path(codebook_path).open() as _f:
+                        _reg = json.load(_f)
+                    manual_vars = _reg.get("datasets", {}).get(codebook_ds, {}).get("variables")
+                except Exception:
+                    pass
+
+            cb_rag = NHANESCodebook(str(_nhanes_rag_dir), cycle="2017-2018")
+            rag_issues = cb_rag.validate_columns(
+                list(df.columns), target_col=args.target_col,
+                manual_registry=manual_vars,
+            )
+            for issue in rag_issues:
+                add_issue(warnings_list, issue["code"], issue["message"], issue["details"])
+
+            study_design["nhanes_rag"] = {
+                "status": "completed",
+                "variables_loaded": cb_rag.variable_count,
+                "issues_found": len(rag_issues),
+            }
+        except ImportError:
+            study_design["nhanes_rag"] = {"status": "skipped", "reason": "nhanes_codebook_lookup not available"}
+        except Exception as exc:
+            study_design["nhanes_rag"] = {"status": "error", "error": str(exc)}
+
     # Cross-temporal-group feature availability check
     # If data has a temporal/cycle column (e.g., nhanes_cycle), check that
     # features are available across all groups. A feature collected in one
