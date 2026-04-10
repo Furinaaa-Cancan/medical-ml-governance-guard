@@ -1,6 +1,6 @@
 # MLGG Paper Experiment Results Summary
 
-Generated: 2026-04-10 (v6 final: strict + lenient evaluation)
+Generated: 2026-04-10 (v7 final: strict + lenient evaluation, methodology verified)
 
 ---
 
@@ -8,7 +8,7 @@ Generated: 2026-04-10 (v6 final: strict + lenient evaluation)
 
 **Question**: How many medical ML repos have real data leakage?
 
-**Method**: Curated 55 medical ML repos from PapersWithCode/GitHub → verified Python training code (39 valid) → MLGG lint scan → agent deep code review → ground truth annotation
+**Method**: Curated 55 medical ML repos from PapersWithCode/GitHub → verified Python training code (40 with annotations, 1 excluded: empty repo id=27 with no code to evaluate → **39 valid**) → MLGG lint scan → agent deep code review → ground truth annotation
 
 ### Ground Truth Results (n=39)
 
@@ -55,11 +55,14 @@ for a different reason that lint missed.
 
 #### Coincidental TP details
 
-| ID | Repo | Lint Finding | Why Coincidental |
-|----|------|-------------|-----------------|
-| 24 | Early-Prediction-of-Sepsis | R002: labelencoder.fit_transform(Y_test) | Benign label reshape on fresh encoder, not leakage |
-| 26 | sepsis-early-detection | R003: SMOTE before cross_validate | SMOTE is after custom split_data(); cross_validate misidentified as split boundary |
-| 50 | MIRAGE | R020: dropna() before split | dropna doesn't learn statistics; debatable as leakage |
+A coincidental TP is a repo where lint flags a non-leaking pattern, but the
+repo has real leakage for a *different* reason that lint missed entirely.
+
+| ID | Repo | Lint Finding | Real Leakage (missed by lint) | Why Coincidental |
+|----|------|-------------|-------------------------------|-----------------|
+| 24 | Early-Prediction-of-Sepsis | R002: labelencoder.fit_transform(Y_test) | oversampling_before_split (sklearn resample on full data) | R002 flagged benign label reshape on fresh encoder — not actual leakage |
+| 26 | sepsis-early-detection | R003: SMOTE before cross_validate | imputer/scaler fit_transform on val/test independently | SMOTE is after custom split_data(); lint misidentified cross_validate as split boundary. Real leak is imputer/scaler refit on test — a different issue entirely |
+| 50 | MIRAGE | R020: dropna() before split | Optuna objective evaluates on test set; cross_val_score on full X,y | dropna doesn't learn statistics (debatable as leakage); real leaks are hyperparameter tuning on test and CV on full data |
 
 ### V1 → V6 Improvement Breakdown
 
@@ -76,26 +79,33 @@ for a different reason that lint missed.
 
 ### What Lint Still Misses (strict: 8 False Negatives)
 
-| Category | Count | Repos |
-|----------|-------|-------|
-| Cross-file leakage | 3 | readmission_prediction, Chronic-Kidney-Disease, CKD-Prediction |
-| Custom split function | 1 | sepsis-early-detection (split_data not recognized) |
-| Coincidental: benign finding | 1 | Early-Prediction-of-Sepsis (R002 FP on label reshape) |
-| Coincidental: debatable finding | 1 | MIRAGE (dropna not meaningful leakage) |
-| Notebook taint limitation | 1 | stroke-prediction-machine-learning |
-| No split at all | 1 | Tumor-Prediction-with-ML |
+| Category | Count | Repos | Why Missed |
+|----------|-------|-------|-----------|
+| Coincidental TP (reclassified) | 3 | Early-Prediction-of-Sepsis (id=24), sepsis-early-detection (id=26), MIRAGE (id=50) | Lint flagged a non-leaking pattern; real leakage is a different issue lint can't detect |
+| Cross-file leakage | 2 | readmission_prediction (id=10), CKD-Prediction (id=36) | Preprocessing in file A, split in file B — lint is single-file |
+| Cross-file + borderline | 1 | Chronic-Kidney-Disease (id=37) | dropna() in preprocess.py before split — borderline: dropna doesn't learn statistics |
+| Notebook taint limitation | 1 | stroke-prediction-machine-learning (id=31) | fillna+scaler in notebook; lint can't track cross-cell taint |
+| No split at all | 1 | Tumor-Prediction-with-ML (id=34) | DEG+RFE on full data, trained and evaluated on same data — no split to detect |
 
 ### False Positives (3)
 
-| Repo | Rule | Why FP |
-|------|------|--------|
-| ASCVD_ML | R001/R002 | Preprocessing inside sklearn Pipeline |
-| stroke_prediction | R001 | Preprocessing inside imblearn Pipeline |
-| wids-datathon-2021 | R026 | Competition context: concat train+test for imputation |
+| Repo | Rule | Why FP | Notes |
+|------|------|--------|-------|
+| ASCVD_ML (id=19) | R001/R002 | Preprocessing inside sklearn Pipeline — correctly handled per-fold | Clear FP |
+| stroke_prediction (id=30) | R001 | Preprocessing inside imblearn Pipeline — correctly handled per-fold | Clear FP |
+| wids-datathon-2021 (id=22) | R020/R026 | fillna(median) on concat(train+test) before internal split | **Judgment call**: technically IS leakage (global statistics), but competition context where train+test boundary is the organizer's, not the modeler's. If reclassified as TP: precision 92%, FP=2 |
 
 ### Key Finding
 
-**V1 lint detects 26% of real leakage. V6 reaches 70-82% (strict-lenient range) with 86-88% precision.** The remaining false negatives are dominated by cross-file patterns (3/8) and lint infrastructure limitations (custom split functions, debatable dropna). These require semantic analysis (Layer 3 agent).
+**V1 lint detects 26% of real leakage. V6 reaches 70-82% (strict-lenient range) with 86-88% precision.** The remaining 8 strict false negatives break down as: coincidental TPs where lint flagged the wrong thing (3/8), cross-file leakage across script boundaries (2-3/8), notebook taint limitations (1/8), and no-split repos (1/8). Cross-file and semantic patterns require Layer 3 agent analysis.
+
+#### Sensitivity analysis (annotation judgment calls)
+
+Two annotations involve judgment calls that affect metrics:
+- **id=22 (wids-datathon)**: FP in current annotation (competition context). If reclassified as TP: strict precision 92.0% (+5.6pp), FP=2.
+- **id=37 (Chronic-Kidney-Disease)**: TP in current annotation (borderline dropna). If reclassified as not-leakage: prevalence 66.7% (−2.5pp), strict FN=7.
+
+Neither changes the qualitative conclusions.
 
 ---
 
@@ -133,11 +143,11 @@ for a different reason that lint missed.
 
 ## Paper Narrative Arc
 
-1. **The Problem**: 69% of medical ML repos have data leakage (n=39)
+1. **The Problem**: 69% of medical ML repos have data leakage (n=39; sensitivity: 67-69% depending on borderline dropna classification)
 2. **The Gap**: V1 lint catches only 26%; human reviewers focus on design (55.5%), not code (8.3%)
 3. **The Improvement**: Targeted rules + infra fixes raise strict recall to 70% (lenient 82%)
-4. **The Transparency**: 3/22 repo-level TPs are coincidental (strict precision 86%, lenient 88%)
-5. **The Ceiling**: Cross-file patterns (3 repos) and custom split functions are lint's hard boundary
+4. **The Transparency**: 3/22 repo-level TPs are coincidental (strict precision 86%, lenient 88%); 1 FP is a judgment call (competition context) — if reclassified, precision rises to 92%
+5. **The Ceiling**: Coincidental TPs (3/8 FN), cross-file patterns (2-3/8), and no-split repos (1/8) are lint's hard boundary
 6. **The Complementarity**: MLGG finds code issues reviewers miss; reviewers find design issues MLGG can't
 
 ---
