@@ -92,6 +92,13 @@ PHENOTYPE_SPECS=(
     ["nhanes"]="examples/nhanes_diabetes_phenotype_spec.json"
 )
 
+# Codebook registry (for cohort_definition_gate variable-level validation)
+CODEBOOK_REGISTRY="references/dataset-codebook-registry.json"
+declare -A CODEBOOK_DATASETS
+CODEBOOK_DATASETS=(
+    ["nhanes"]="nhanes_2017_2020"
+)
+
 # Split strategies
 declare -A SPLIT_STRATEGIES
 SPLIT_STRATEGIES=(
@@ -132,6 +139,7 @@ for DNAME in $DATASET_ORDER; do
     TIME="${TIME_COLS[$DNAME]}"
     SPLIT="${SPLIT_STRATEGIES[$DNAME]}"
     PHENO_SPEC="${PHENOTYPE_SPECS[$DNAME]:-}"
+    CB_DATASET="${CODEBOOK_DATASETS[$DNAME]:-}"
 
     # Skip if CSV doesn't exist
     if [ ! -f "$CSV" ]; then
@@ -186,6 +194,11 @@ for DNAME in $DATASET_ORDER; do
     # Phenotype definition spec (enables definition_variable_guard post-prediction checks)
     if [ -n "$PHENO_SPEC" ] && [ -f "${PROJ_ROOT}/${PHENO_SPEC}" ]; then
         CMD="$CMD --phenotype-spec ${PROJ_ROOT}/${PHENO_SPEC}"
+    fi
+
+    # Codebook registry for variable-level validation
+    if [ -n "$CB_DATASET" ] && [ -f "${PROJ_ROOT}/${CODEBOOK_REGISTRY}" ]; then
+        CMD="$CMD --codebook ${PROJ_ROOT}/${CODEBOOK_REGISTRY} --codebook-dataset ${CB_DATASET}"
     fi
 
     # Run with timing

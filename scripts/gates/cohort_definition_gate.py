@@ -128,6 +128,26 @@ register_remediations({
         "validated. Composite endpoints require sensitivity analysis.",
     "COHORT_EMPTY":
         "Dataset is empty (0 rows). Check data source and file path.",
+    "CODEBOOK_VARIABLE_MISLABEL":
+        "Column name does not match its codebook semantic definition. "
+        "Verify the variable code against the original data dictionary. "
+        "Mislabeled variables cause silent logic errors in downstream analysis.",
+    "CODEBOOK_GATED_MISSINGNESS":
+        "Column has gated (structured) missingness — NaN means 'question not asked' "
+        "due to a skip pattern, NOT 'value unknown'. Standard imputation will fill "
+        "with wrong values. Explicitly encode NaN based on the skip logic.",
+    "CODEBOOK_MEASUREMENT_PROTOCOL":
+        "Multi-reading measurement does not follow the official protocol. "
+        "Check the data source's procedures manual for averaging rules.",
+    "CODEBOOK_ENCODING_MISMATCH":
+        "Nominal categorical variable stored as numeric. Models will impose "
+        "a false ordinal relationship. Use one-hot encoding.",
+    "CODEBOOK_TOP_CODED":
+        "Continuous variable is top-coded (ceiling value). Risk gradient is "
+        "compressed above the ceiling. Document as a known limitation.",
+    "CODEBOOK_REVERSE_CAUSATION":
+        "Feature may be a downstream consequence of the target disease rather "
+        "than an independent risk factor. Document as limitation or exclude.",
 })
 
 
@@ -227,6 +247,213 @@ def riley_sample_size(
             else "C3_precision"
         ),
     }
+
+
+def validate_codebook(
+    df: pd.DataFrame,
+    codebook_path: str,
+    dataset_key: str,
+    target_col: str,
+    failures: List[Dict[str, Any]],
+    warnings_list: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    """Validate DataFrame columns against a dataset codebook registry.
+
+    Checks 6 categories:
+    1. Gated missingness — skip-pattern NaN not properly encoded
+    2. Encoding mismatch — nominal variable stored as numeric
+    3. Top-coding — continuous variable at ceiling
+    4. Reverse causation — feature may be downstream of target
+    5. Measurement protocol — multi-reading rules
+    6. Variable mislabeling — common_mislabel warnings
+    """
+    import re as _re
+
+    cb_path = Path(codebook_path).expanduser().resolve()
+    if not cb_path.exists():
+        add_issue(warnings_list, "CODEBOOK_VARIABLE_MISLABEL",
+                  f"Codebook registry not found: {cb_path}", {"path": str(cb_path)})
+        return {}
+
+    try:
+        with cb_path.open("r", encoding="utf-8") as fh:
+            registry = json.load(fh)
+    except Exception as exc:
+        add_issue(warnings_list, "CODEBOOK_VARIABLE_MISLABEL",
+                  f"Failed to parse codebook JSON: {exc}", {"path": str(cb_path)})
+        return {}
+
+    datasets = registry.get("datasets", {})
+    if dataset_key not in datasets:
+        # Try auto-detect from data filename
+        return {"codebook_dataset": dataset_key, "status": "not_found"}
+
+    ds = datasets[dataset_key]
+    variables = ds.get("variables", {})
+    results: Dict[str, Any] = {"codebook_dataset": dataset_key, "checks": []}
+
+    # Build reverse map: friendly_name → codebook entry (for matching df columns)
+    # Also match by raw variable code
+    col_set = set(df.columns)
+
+    for var_code, var_info in variables.items():
+        label = var_info.get("label", "")
+
+        # --- 1. Gated missingness ---
+        miss_mech = var_info.get("missingness_mechanism", "")
+        if miss_mech.startswith("MNAR_gated"):
+            # Find which df column corresponds to this variable
+            fill_rule = var_info.get("encoding_rule", "")
+            true_meaning = var_info.get("missingness_true_meaning", "")
+            # Check if any column could be the downstream of this gated var
+            gated_cols = _find_columns_for_var(col_set, var_code, var_info)
+            for col in gated_cols:
+                null_rate = float(df[col].isna().mean())
+                if null_rate > 0.05:
+                    add_issue(
+                        warnings_list, "CODEBOOK_GATED_MISSINGNESS",
+                        f"Column '{col}' has {null_rate:.0%} missing. Codebook says "
+                        f"'{var_code}' has gated missingness: {miss_mech}. "
+                        f"True meaning of NaN: {true_meaning}. "
+                        f"Encoding rule: {fill_rule or 'not specified'}.",
+                        {"column": col, "var_code": var_code,
+                         "null_rate": round(null_rate, 3),
+                         "mechanism": miss_mech, "fill_rule": fill_rule},
+                    )
+                    results["checks"].append({"type": "gated_missingness", "column": col})
+
+        # --- 2. Encoding mismatch (nominal as numeric) ---
+        if var_info.get("encoding_rule") == "must_onehot" or var_info.get("type") == "nominal_categorical":
+            nom_cols = _find_columns_for_var(col_set, var_code, var_info)
+            for col in nom_cols:
+                if pd.api.types.is_numeric_dtype(df[col]):
+                    add_issue(
+                        failures, "CODEBOOK_ENCODING_MISMATCH",
+                        f"Column '{col}' is nominal categorical ({label}) but stored "
+                        f"as numeric dtype ({df[col].dtype}). Numeric encoding implies "
+                        f"a false ordinal relationship. Use one-hot encoding.",
+                        {"column": col, "var_code": var_code,
+                         "codebook_type": var_info.get("type", ""),
+                         "current_dtype": str(df[col].dtype)},
+                    )
+                    results["checks"].append({"type": "encoding_mismatch", "column": col})
+
+        # --- 3. Top-coding ---
+        top_val = var_info.get("top_coded")
+        if top_val is not None:
+            tc_cols = _find_columns_for_var(col_set, var_code, var_info)
+            for col in tc_cols:
+                if pd.api.types.is_numeric_dtype(df[col]):
+                    at_ceiling = float((df[col] == top_val).mean())
+                    if at_ceiling > 0.01:
+                        add_issue(
+                            warnings_list, "CODEBOOK_TOP_CODED",
+                            f"Column '{col}' has {at_ceiling:.1%} of values at ceiling "
+                            f"value {top_val} ({var_info.get('top_coded_meaning', '')}).",
+                            {"column": col, "ceiling": top_val,
+                             "pct_at_ceiling": round(at_ceiling, 3)},
+                        )
+                        results["checks"].append({"type": "top_coded", "column": col})
+
+        # --- 4. Reverse causation ---
+        rc_targets = var_info.get("reverse_causation_risk", [])
+        if rc_targets:
+            rc_cols = _find_columns_for_var(col_set, var_code, var_info)
+            for col in rc_cols:
+                note = var_info.get("reverse_causation_note", "")
+                add_issue(
+                    warnings_list, "CODEBOOK_REVERSE_CAUSATION",
+                    f"Column '{col}' ({label}) has reverse causation risk for "
+                    f"targets {rc_targets}. {note}",
+                    {"column": col, "targets_at_risk": rc_targets},
+                )
+                results["checks"].append({"type": "reverse_causation", "column": col})
+
+        # --- 5. Must-exclude if target ---
+        if var_info.get("must_exclude_if_target"):
+            def_targets = var_info.get("definition_variable_for", []) + var_info.get("target_adjacent_for", [])
+            excl_cols = _find_columns_for_var(col_set, var_code, var_info)
+            for col in excl_cols:
+                add_issue(
+                    failures, "CODEBOOK_VARIABLE_MISLABEL",
+                    f"Column '{col}' (codebook: {var_code} — {label}) must be excluded "
+                    f"when predicting {def_targets}. It is a definition or "
+                    f"target-adjacent variable.",
+                    {"column": col, "var_code": var_code, "targets": def_targets},
+                )
+                results["checks"].append({"type": "must_exclude", "column": col})
+
+        # --- 6. Common mislabel warning ---
+        mislabel = var_info.get("common_mislabel", "")
+        if mislabel:
+            ml_cols = _find_columns_for_var(col_set, var_code, var_info)
+            for col in ml_cols:
+                add_issue(
+                    warnings_list, "CODEBOOK_VARIABLE_MISLABEL",
+                    f"Column '{col}' maps to codebook variable '{var_code}'. "
+                    f"Known mislabel risk: {mislabel}",
+                    {"column": col, "var_code": var_code, "mislabel_warning": mislabel},
+                )
+                results["checks"].append({"type": "mislabel_warning", "column": col})
+
+        # --- 5b. Measurement protocol ---
+        protocol = var_info.get("measurement_protocol", "")
+        if protocol == "exclude_from_average":
+            # This is informational — flag if the raw variable appears in columns
+            if var_code in col_set or var_code.lower() in {c.lower() for c in col_set}:
+                add_issue(
+                    warnings_list, "CODEBOOK_MEASUREMENT_PROTOCOL",
+                    f"Raw variable '{var_code}' ({label}) should be excluded from "
+                    f"averaging per measurement protocol: {var_info.get('protocol_rationale', '')}",
+                    {"var_code": var_code, "protocol": protocol},
+                )
+                results["checks"].append({"type": "measurement_protocol", "column": var_code})
+
+    return results
+
+
+def _find_columns_for_var(
+    col_set: set, var_code: str, var_info: Dict[str, Any]
+) -> List[str]:
+    """Find DataFrame columns that likely correspond to a codebook variable.
+
+    Matches by: exact var_code, lowercase label words, or known friendly names.
+    """
+    matches = []
+    var_lower = var_code.lower()
+    label_lower = var_info.get("label", "").lower()
+
+    # Exact match on raw code
+    if var_code in col_set:
+        matches.append(var_code)
+
+    # Common friendly-name mappings from download_nhanes.py
+    _FRIENDLY_MAP = {
+        "RIDAGEYR": ["age"],
+        "RIAGENDR": ["gender", "sex"],
+        "RIDRETH3": ["race_ethnicity", "race", "ethnicity"],
+        "LBXGH": ["hba1c", "glycohemoglobin"],
+        "LBXGLU": ["fasting_glucose", "glucose"],
+        "LBXTC": ["total_cholesterol", "cholesterol"],
+        "LBDHDD": ["hdl", "hdl_cholesterol"],
+        "LBXTR": ["triglycerides", "trigly"],
+        "DIQ010": ["doctor_told_diabetes"],
+        "DIQ160": ["prediabetes"],
+        "DIQ170": ["at_risk_diabetes"],
+        "DIQ172": ["family_history_diabetes", "feel_at_risk"],
+        "MCQ300C": ["family_history_diabetes"],
+        "BPQ020": ["hypertension_diagnosed"],
+        "BPQ050A": ["bp_medication"],
+        "SMQ020": ["ever_smoked", "smoking"],
+        "MCQ160C": ["coronary_heart_disease", "chd"],
+        "MCQ160F": ["stroke"],
+    }
+    for friendly in _FRIENDLY_MAP.get(var_code, []):
+        if friendly in col_set:
+            if friendly not in matches:
+                matches.append(friendly)
+
+    return matches
 
 
 def _classify_dtype(series: pd.Series, max_cat_cardinality: int = 20) -> str:
@@ -742,6 +969,16 @@ def parse_args() -> argparse.Namespace:
         "--survey-source", default="",
         help="Survey database name (nhanes, brfss, nhis, etc.) for auto-detection.",
     )
+    study.add_argument(
+        "--codebook", default="",
+        help="Path to dataset codebook registry JSON (references/dataset-codebook-registry.json). "
+             "Enables variable-level semantic validation against the original data dictionary.",
+    )
+    study.add_argument(
+        "--codebook-dataset", default="",
+        help="Dataset key within the codebook registry (e.g., 'nhanes_2017_2020'). "
+             "Auto-detected from filename if omitted.",
+    )
 
     cfg = parser.add_argument_group("Thresholds")
     cfg.add_argument("--epv-threshold", type=int, default=_DEFAULT_EPV_THRESHOLD, help="EPV warning threshold.")
@@ -1009,6 +1246,35 @@ def main() -> int:
     # Also ignore definition columns if specified
     ignore_cols.update(definition_cols)
     feature_cols = [c for c in df.columns if c not in ignore_cols]
+
+    # ── Codebook validation ──────────────────────────────────────
+    codebook_path = (args.codebook or "").strip()
+    codebook_ds = (args.codebook_dataset or "").strip()
+    if codebook_path:
+        # Auto-detect dataset key if not provided
+        if not codebook_ds:
+            _data_stem = Path(args.data).stem.lower()
+            _DS_PATTERNS = {
+                "nhanes": "nhanes_2017_2020",
+                "brfss": "brfss_2022",
+                "nhis": "nhis_2022",
+                "mimic": "mimic_iv",
+            }
+            for pat, key in _DS_PATTERNS.items():
+                if pat in _data_stem:
+                    codebook_ds = key
+                    break
+        if codebook_ds:
+            cb_results = validate_codebook(
+                df, codebook_path, codebook_ds, args.target_col,
+                failures, warnings_list,
+            )
+            study_design["codebook_validation"] = cb_results
+        else:
+            study_design["codebook_validation"] = {
+                "status": "skipped",
+                "reason": "Could not auto-detect dataset key. Specify --codebook-dataset.",
+            }
 
     # Cross-temporal-group feature availability check
     # If data has a temporal/cycle column (e.g., nhanes_cycle), check that

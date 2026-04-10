@@ -19,9 +19,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orc
 
 from cohort_definition_gate import (
     _classify_dtype,
+    _find_columns_for_var,
     _to_float,
     analyze_cohort,
     _run_checks,
+    validate_codebook,
     _write_cohort_summary_csv,
     _write_feature_profile_csv,
 )
@@ -303,3 +305,170 @@ class TestE2ESubprocess:
         )
         # high missingness → warning → strict → fail
         assert result.returncode == 2
+
+
+# ────────────────────────────────────────────────────────
+# Codebook validation tests
+# ────────────────────────────────────────────────────────
+
+CODEBOOK_REGISTRY = Path(__file__).resolve().parent.parent / "references" / "dataset-codebook-registry.json"
+
+
+class TestCodebookValidation:
+    """Verify codebook validation catches NHANES-specific issues."""
+
+    @pytest.fixture()
+    def codebook_path(self) -> Path:
+        if not CODEBOOK_REGISTRY.exists():
+            pytest.skip("Codebook registry not found")
+        return CODEBOOK_REGISTRY
+
+    def test_race_as_numeric_fails(self, codebook_path: Path):
+        """Nominal race_ethnicity stored as float → CODEBOOK_ENCODING_MISMATCH failure."""
+        df = pd.DataFrame({
+            "patient_id": [1, 2, 3],
+            "race_ethnicity": [1.0, 3.0, 4.0],  # numeric = wrong
+            "age": [50, 60, 70],
+            "y": [0, 1, 0],
+        })
+        failures, warnings = [], []
+        validate_codebook(df, str(codebook_path), "nhanes_2017_2020", "y", failures, warnings)
+        fail_codes = [f["code"] for f in failures]
+        assert "CODEBOOK_ENCODING_MISMATCH" in fail_codes
+
+    def test_race_as_string_passes(self, codebook_path: Path):
+        """Nominal race_ethnicity stored as string → no encoding failure."""
+        df = pd.DataFrame({
+            "patient_id": [1, 2, 3],
+            "race_ethnicity": ["nh_white", "nh_black", "nh_asian"],
+            "age": [50, 60, 70],
+            "y": [0, 1, 0],
+        })
+        failures, warnings = [], []
+        validate_codebook(df, str(codebook_path), "nhanes_2017_2020", "y", failures, warnings)
+        fail_codes = [f["code"] for f in failures]
+        assert "CODEBOOK_ENCODING_MISMATCH" not in fail_codes
+
+    def test_gated_missingness_detected(self, codebook_path: Path):
+        """bp_medication with high NaN rate → CODEBOOK_GATED_MISSINGNESS warning."""
+        n = 100
+        df = pd.DataFrame({
+            "patient_id": range(n),
+            "bp_medication": [np.nan] * 66 + [1.0] * 20 + [0.0] * 14,
+            "age": np.random.default_rng(42).integers(18, 80, n),
+            "y": [0] * 80 + [1] * 20,
+        })
+        failures, warnings = [], []
+        validate_codebook(df, str(codebook_path), "nhanes_2017_2020", "y", failures, warnings)
+        warn_codes = [w["code"] for w in warnings]
+        assert "CODEBOOK_GATED_MISSINGNESS" in warn_codes
+        # Check it mentions BPQ050A
+        gated_warns = [w for w in warnings if w["code"] == "CODEBOOK_GATED_MISSINGNESS"]
+        assert any("BPQ050A" in w.get("details", {}).get("var_code", "") for w in gated_warns)
+
+    def test_age_top_coding_detected(self, codebook_path: Path):
+        """Age with many values at 80 → CODEBOOK_TOP_CODED warning."""
+        ages = [80.0] * 15 + list(range(18, 80))
+        df = pd.DataFrame({
+            "patient_id": range(len(ages)),
+            "age": ages,
+            "y": [0] * (len(ages) - 5) + [1] * 5,
+        })
+        failures, warnings = [], []
+        validate_codebook(df, str(codebook_path), "nhanes_2017_2020", "y", failures, warnings)
+        warn_codes = [w["code"] for w in warnings]
+        assert "CODEBOOK_TOP_CODED" in warn_codes
+
+    def test_reverse_causation_flagged(self, codebook_path: Path):
+        """CHD and stroke features → CODEBOOK_REVERSE_CAUSATION warning."""
+        df = pd.DataFrame({
+            "patient_id": [1, 2, 3],
+            "coronary_heart_disease": [0.0, 1.0, 0.0],
+            "stroke": [0.0, 0.0, 1.0],
+            "age": [50, 60, 70],
+            "y": [0, 1, 0],
+        })
+        failures, warnings = [], []
+        validate_codebook(df, str(codebook_path), "nhanes_2017_2020", "y", failures, warnings)
+        warn_codes = [w["code"] for w in warnings]
+        assert warn_codes.count("CODEBOOK_REVERSE_CAUSATION") >= 2
+
+    def test_definition_variable_in_features_fails(self, codebook_path: Path):
+        """HbA1c as feature when predicting diabetes → must_exclude failure."""
+        df = pd.DataFrame({
+            "patient_id": [1, 2, 3],
+            "hba1c": [5.5, 7.0, 6.0],
+            "age": [50, 60, 70],
+            "y": [0, 1, 0],
+        })
+        failures, warnings = [], []
+        validate_codebook(df, str(codebook_path), "nhanes_2017_2020", "y", failures, warnings)
+        fail_codes = [f["code"] for f in failures]
+        assert "CODEBOOK_VARIABLE_MISLABEL" in fail_codes
+        # Should mention must_exclude
+        mislabel_fails = [f for f in failures if f["code"] == "CODEBOOK_VARIABLE_MISLABEL"]
+        assert any("must be excluded" in f.get("message", "") for f in mislabel_fails)
+
+    def test_clean_nhanes_no_failures(self, codebook_path: Path):
+        """Clean NHANES features (post-fix) should produce zero failures."""
+        df = pd.DataFrame({
+            "patient_id": [1, 2, 3],
+            "age": [50, 60, 70],
+            "gender": [0.0, 1.0, 0.0],
+            "race_ethnicity": ["nh_white", "nh_black", "nh_asian"],
+            "bmi": [25.0, 30.0, 22.0],
+            "sbp_mean": [120.0, 140.0, 110.0],
+            "ever_smoked": [0.0, 1.0, 0.0],
+            "bp_medication": [0.0, 1.0, 0.0],
+            "coronary_heart_disease": [0.0, 1.0, 0.0],
+            "stroke": [0.0, 0.0, 0.0],
+            "y": [0, 1, 0],
+        })
+        failures, warnings = [], []
+        validate_codebook(df, str(codebook_path), "nhanes_2017_2020", "y", failures, warnings)
+        assert len(failures) == 0, f"Unexpected failures: {failures}"
+        # Warnings are OK (top-coding, reverse causation are warnings not failures)
+
+    def test_cli_codebook_flag(self, tmp_path: Path, codebook_path: Path):
+        """E2E: --codebook flag works in subprocess."""
+        n = 200
+        rng = np.random.default_rng(42)
+        df = pd.DataFrame({
+            "patient_id": range(n),
+            "age": rng.integers(18, 80, n).astype(float),
+            "race_ethnicity": rng.choice([1.0, 3.0, 4.0], n),  # numeric = should flag
+            "y": rng.choice([0, 1], n, p=[0.85, 0.15]),
+        })
+        data_path = tmp_path / "nhanes_test.csv"
+        df.to_csv(data_path, index=False)
+        report_path = tmp_path / "report.json"
+        result = subprocess.run(
+            [sys.executable, str(SCRIPTS_DIR / "gates/cohort_definition_gate.py"),
+             "--data", str(data_path), "--target-col", "y",
+             "--codebook", str(codebook_path),
+             "--codebook-dataset", "nhanes_2017_2020",
+             "--report", str(report_path), "--output-dir", str(tmp_path),
+             "--strict"],
+            capture_output=True, text=True, timeout=30,
+        )
+        # strict + encoding mismatch (failure) → exit 2
+        assert result.returncode == 2, f"Expected failure.\nstdout:\n{result.stdout}"
+        report = json.loads(report_path.read_text())
+        all_codes = [f["code"] for f in report["failures"]]
+        assert "CODEBOOK_ENCODING_MISMATCH" in all_codes
+
+    def test_unknown_dataset_key_skipped(self, codebook_path: Path):
+        """Unknown dataset key → validation returns not_found, no crash."""
+        df = pd.DataFrame({"x": [1, 2], "y": [0, 1]})
+        failures, warnings = [], []
+        result = validate_codebook(df, str(codebook_path), "nonexistent_ds", "y", failures, warnings)
+        assert result.get("status") == "not_found"
+        assert len(failures) == 0
+
+    def test_missing_codebook_file(self, tmp_path: Path):
+        """Non-existent codebook path → warning, no crash."""
+        df = pd.DataFrame({"x": [1, 2], "y": [0, 1]})
+        failures, warnings = [], []
+        validate_codebook(df, str(tmp_path / "nope.json"), "nhanes", "y", failures, warnings)
+        assert len(failures) == 0
+        assert len(warnings) == 1
