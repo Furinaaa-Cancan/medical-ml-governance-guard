@@ -1,6 +1,6 @@
 # MLGG Paper Experiment Results Summary
 
-Generated: 2026-04-10 (v5 final: all fixes applied)
+Generated: 2026-04-10 (v6 final: strict + lenient evaluation)
 
 ---
 
@@ -18,9 +18,14 @@ Generated: 2026-04-10 (v5 final: all fixes applied)
 | **Actual leakage rate** | **69.2% (27/39)** |
 | Actually clean | 12/39 (30.8%) |
 
-### MLGG Lint Performance Across Versions
+### MLGG Lint Performance
 
-| Metric | V1 (baseline) | V5 (final) |
+#### Repo-level evaluation (lenient)
+
+A repo is TP if lint flags leakage AND the repo actually has leakage,
+regardless of whether the specific finding matches the actual leakage type.
+
+| Metric | V1 (baseline) | V6 (final) |
 |--------|---------------|------------|
 | TP | 7 | **22** |
 | FP | 2 | **3** |
@@ -31,45 +36,66 @@ Generated: 2026-04-10 (v5 final: all fixes applied)
 | **F1** | 38.9% | **84.6%** |
 | **Specificity** | 83.3% | **75.0%** |
 
-### V1 → V5 Improvement Breakdown
+#### Finding-level evaluation (strict)
 
-| Fix | Type | TP gained | FP change |
-|-----|------|-----------|-----------|
-| R020 severity WARNING→ERROR | Rule fix | +2 | 0 |
-| R026 fillna before split | New rule | +3 | +1 |
-| R027 manual scaling before split | New rule | +2 | 0 |
-| Notebook IPython magic stripping | Infra fix | +5 | 0 |
-| R011 (SMOTE+CV) added to leakage_rules | Eval fix | +1 | 0 |
-| Subscript unwrap (train_test_split(...)[0]) | Bug fix | 0 | -1 |
-| KFold/CV split detection in taint tracker | Enhancement | +2 | 0 |
-| Notebook 5MB file size limit | Infra fix | +0* | 0 |
-| **Total** | | **+15** | **+1** |
+A repo is TP only if the specific lint finding correctly identifies a
+real leakage pattern. 3 "coincidental TPs" are reclassified as FN:
+repos where lint flagged a non-leaking pattern but the repo has leakage
+for a different reason that lint missed.
 
-*id=31 now scanned but still FN (notebook split detection limitation)
+| Metric | Lenient | Strict | Δ |
+|--------|---------|--------|---|
+| TP | 22 | **19** | −3 |
+| FP | 3 | **3** | 0 |
+| FN | 5 | **8** | +3 |
+| TN | 9 | **9** | 0 |
+| **Precision** | 88.0% | **86.4%** | −1.6pp |
+| **Recall** | 81.5% | **70.4%** | −11.1pp |
+| **F1** | 84.6% | **77.6%** | −7.0pp |
 
-### What Lint Still Misses (5 False Negatives)
+#### Coincidental TP details
 
-| Repo | Missed Pattern | Root Cause |
-|------|----------------|------------|
-| readmission_prediction | standardization before split | Cross-file: preprocess.py → train.py |
-| Chronic-Kidney-Disease | dropna before split | Cross-file: preprocess.py → prediction.py |
-| CKD-Prediction | fillna(mean) before split | Cross-file: Preprocessing.py → CKD_Prediction.py |
-| stroke-prediction-machine-learning | fillna(mean) + StandardScaler | Notebook: split not detectable by taint tracker |
-| Tumor-Prediction-with-ML | feature selection, no split | No train_test_split call — trained on full data |
+| ID | Repo | Lint Finding | Why Coincidental |
+|----|------|-------------|-----------------|
+| 24 | Early-Prediction-of-Sepsis | R002: labelencoder.fit_transform(Y_test) | Benign label reshape on fresh encoder, not leakage |
+| 26 | sepsis-early-detection | R003: SMOTE before cross_validate | SMOTE is after custom split_data(); cross_validate misidentified as split boundary |
+| 50 | MIRAGE | R020: dropna() before split | dropna doesn't learn statistics; debatable as leakage |
 
-**Categories**: Cross-file leakage (3), Notebook taint limitation (1), No split pattern (1)
+### V1 → V6 Improvement Breakdown
+
+| Fix | Type | TP gained |
+|-----|------|-----------|
+| R020 severity WARNING→ERROR | Rule fix | +2 |
+| R026 fillna before split | New rule | +3 |
+| R027 manual scaling before split | New rule | +2 |
+| Notebook IPython magic stripping | Infra fix | +5 |
+| R011 added to leakage_rules | Eval fix | +1 |
+| Subscript unwrap (train_test_split(...)[0]) | Bug fix | 0 |
+| Cross_val fallback split detection | Enhancement | +2 |
+| String .split() guard | Bug fix | 0 |
+
+### What Lint Still Misses (strict: 8 False Negatives)
+
+| Category | Count | Repos |
+|----------|-------|-------|
+| Cross-file leakage | 3 | readmission_prediction, Chronic-Kidney-Disease, CKD-Prediction |
+| Custom split function | 1 | sepsis-early-detection (split_data not recognized) |
+| Coincidental: benign finding | 1 | Early-Prediction-of-Sepsis (R002 FP on label reshape) |
+| Coincidental: debatable finding | 1 | MIRAGE (dropna not meaningful leakage) |
+| Notebook taint limitation | 1 | stroke-prediction-machine-learning |
+| No split at all | 1 | Tumor-Prediction-with-ML |
 
 ### False Positives (3)
 
 | Repo | Rule | Why FP |
 |------|------|--------|
-| ASCVD_ML | R002 | Scaler inside sklearn Pipeline (correctly handled) |
+| ASCVD_ML | R001/R002 | Preprocessing inside sklearn Pipeline |
 | stroke_prediction | R001 | Preprocessing inside imblearn Pipeline |
-| wids-datathon-2021-diabetes-prediction | R026 | Competition context: concat train+test for imputation (methodologically incorrect but no internal split violated) |
+| wids-datathon-2021 | R026 | Competition context: concat train+test for imputation |
 
 ### Key Finding
 
-**V1 lint detects 26% of real leakage. V5 (targeted rules + infrastructure fixes) reaches 82% — a 215% relative improvement in recall with precision rising from 78% to 88%.** The remaining 18% (5 repos) are cross-file patterns or edge cases requiring semantic analysis (Layer 3 agent).
+**V1 lint detects 26% of real leakage. V6 reaches 70-82% (strict-lenient range) with 86-88% precision.** The remaining false negatives are dominated by cross-file patterns (3/8) and lint infrastructure limitations (custom split functions, debatable dropna). These require semantic analysis (Layer 3 agent).
 
 ---
 
@@ -87,13 +113,6 @@ Generated: 2026-04-10 (v5 final: all fixes applied)
 | Hard (R3) | 10 | 7 | 70% |
 | Extreme (R4) | 10 | 6 | 60% |
 | **Total** | **40** | **31** | **77.5%** |
-
-### Note on Red Team vs Real World
-
-Red team recall (77.5%) vs real-world recall (81.5% v5). **Real-world recall now exceeds red team recall** because:
-- Infrastructure fixes (notebook parsing, file size limits) unlocked detection on files that weren't being analyzed at all
-- Red team scenarios don't test infrastructure robustness, only rule logic
-- This suggests the red team should be updated to include notebook-based scenarios
 
 ---
 
@@ -114,28 +133,28 @@ Red team recall (77.5%) vs real-world recall (81.5% v5). **Real-world recall now
 
 ## Paper Narrative Arc
 
-1. **The Problem**: 69% of medical ML repos have data leakage (Ground Truth, n=39)
-2. **The Gap**: V1 lint catches only 26% — human reviewers focus on design, not code
-3. **The Improvement**: Targeted rules + infra fixes raise recall to 82% (precision 88%, F1 85%)
-4. **The Ceiling**: Remaining 18% are cross-file patterns requiring agent layer
-5. **The Complementarity**: MLGG finds code-level issues (8.3%) that reviewers miss; reviewers find design issues (55.5%) that MLGG can't catch
-6. **The Validation**: Red team (77.5%) and real-world (81.5%) recall converge, confirming comprehensive coverage
+1. **The Problem**: 69% of medical ML repos have data leakage (n=39)
+2. **The Gap**: V1 lint catches only 26%; human reviewers focus on design (55.5%), not code (8.3%)
+3. **The Improvement**: Targeted rules + infra fixes raise strict recall to 70% (lenient 82%)
+4. **The Transparency**: 3/22 repo-level TPs are coincidental (strict precision 86%, lenient 88%)
+5. **The Ceiling**: Cross-file patterns (3 repos) and custom split functions are lint's hard boundary
+6. **The Complementarity**: MLGG finds code issues reviewers miss; reviewers find design issues MLGG can't
 
 ---
 
-## Technical Fixes Applied (V1→V5)
+## Technical Fixes Applied (V1→V6)
 
 | Fix | File | Impact |
 |-----|------|--------|
-| Strip IPython magics (%matplotlib, !, ?, get_ipython()) | `plugin/mlgg_lint/notebook.py` | 5 notebooks now parseable |
-| Raise .ipynb file size limit to 5MB | `experiments/paper/scan_published_repos.py` | 1 large notebook now scanned |
-| Unwrap Subscript in taint tracker | `plugin/mlgg_lint/engine.py` | train_test_split(...)[0] detected |
-| Add KFold/CV split detection | `plugin/mlgg_lint/engine.py` | for-loop and cross_val as split points |
-| Remove KFold instantiation as split | `plugin/mlgg_lint/engine.py` | Prevented false split detection |
-| Add R026 (fillna before split) | `plugin/mlgg_lint/rules/r026_fillna_before_split.py` | New rule |
-| Add R027 (manual scaling before split) | `plugin/mlgg_lint/rules/r027_manual_scaling_before_split.py` | New rule |
-| R020 severity WARNING→ERROR | `plugin/mlgg_lint/rules/r020_global_clean_before_split.py` | Correctly classified |
-| R011 added to leakage_rules | `experiments/paper/verify_ground_truth_repos.py` | Eval completeness |
+| Strip IPython magics | `plugin/mlgg_lint/notebook.py` | 5 notebooks parseable |
+| Strip get_ipython() calls | `plugin/mlgg_lint/notebook.py` | nbconvert compatibility |
+| Raise .ipynb size limit to 5MB | `experiments/paper/scan_published_repos.py` | 1 large notebook scanned |
+| Unwrap Subscript in taint | `plugin/mlgg_lint/engine.py` | train_test_split(...)[0] detected |
+| Cross_val as fallback split marker | `plugin/mlgg_lint/engine.py` | CV-only files detected |
+| String .split() guard | `plugin/mlgg_lint/engine.py` | Prevent FP on string parsing |
+| R026 fillna before split | `plugin/mlgg_lint/rules/r026_fillna_before_split.py` | New rule |
+| R027 manual scaling | `plugin/mlgg_lint/rules/r027_manual_scaling_before_split.py` | New rule |
+| R020 severity → ERROR | `plugin/mlgg_lint/rules/r020_global_clean_before_split.py` | Severity fix |
 
 ---
 
@@ -145,8 +164,7 @@ Red team recall (77.5%) vs real-world recall (81.5% v5). **Real-world recall now
 |------|-------------|
 | `output/ground_truth_annotations.json` | 39-repo ground truth with leakage types |
 | `output/ground_truth_scan.json` | V1 lint scan results |
-| `output/ground_truth_scan_v5.json` | V5 lint scan results (final) |
+| `output/ground_truth_scan_v6.json` | V6 lint scan results (final) |
 | `output/redteam_results.json` | 40-scenario red team evaluation |
 | `output/kb_analysis.json` | 106-paper peer review KB analysis |
 | `ground_truth_candidates.json` | 55 candidate repos |
-| `papers_with_code_exp1.jsonl` | 1,267 PMC papers with GitHub links |

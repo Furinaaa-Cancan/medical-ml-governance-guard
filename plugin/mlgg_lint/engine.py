@@ -82,6 +82,7 @@ def _build_taint_tracker(tree: ast.Module, im: ImportMap) -> TaintTracker:
             return value.value
         return None
 
+    # Pass 1: explicit splits (train_test_split, for-loop kf.split)
     for node in ast.walk(tree):
         # Pattern 1: X_train, X_test, ... = train_test_split(...)
         #         or: indices = train_test_split(...)[0]
@@ -94,15 +95,7 @@ def _build_taint_tracker(tree: ast.Module, im: ImportMap) -> TaintTracker:
                         names = extract_tuple_targets(target)
                         tracker.record_split(names, node.lineno)
 
-        # Pattern 2: cross_val_score(model, X, y, ...) — standalone call or assign
-        if isinstance(node, (ast.Assign, ast.Expr)):
-            call_node = node.value if isinstance(node, ast.Assign) else node.value
-            if isinstance(call_node, ast.Call):
-                fqn = call_name(call_node, im)
-                if fqn and matches_any(fqn, cv_calls):
-                    tracker.record_split([], node.lineno)
-
-        # Pattern 3: for train_idx, test_idx in kf.split(X):
+        # Pattern 2: for train_idx, test_idx in kf.split(X):
         # Guard: require tuple unpacking (≥2 vars) to distinguish from
         # str.split() which iterates single values.
         if isinstance(node, ast.For) and isinstance(node.iter, ast.Call):
@@ -111,6 +104,19 @@ def _build_taint_tracker(tree: ast.Module, im: ImportMap) -> TaintTracker:
                     if isinstance(node.target, ast.Tuple) and len(node.target.elts) >= 2:
                         names = extract_tuple_targets(node.target)
                         tracker.record_split(names, node.lineno)
+
+    # Pass 2: cross_val_score/cross_validate as fallback split markers
+    # Only if no explicit split was found — avoids false positives when
+    # CV is used on an already-split training set.
+    if tracker.split_line is None:
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.Assign, ast.Expr)):
+                call_node = node.value if isinstance(node, ast.Assign) else node.value
+                if isinstance(call_node, ast.Call):
+                    fqn = call_name(call_node, im)
+                    if fqn and matches_any(fqn, cv_calls):
+                        tracker.record_split([], node.lineno)
+                        break  # only need the first one
 
     return tracker
 
