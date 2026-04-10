@@ -1,0 +1,193 @@
+{
+  "version": "1.0",
+  "description": "Dataset-level variable codebook registry. Maps raw variable codes to clinical semantics, gating conditions, measurement protocols, and encoding requirements. Used by gates and /mlgg skill to auto-validate feature engineering code.",
+  "datasets": {
+    "nhanes_2017_2020": {
+      "full_name": "National Health and Nutrition Examination Survey 2017-2020 (Pre-Pandemic)",
+      "source": "CDC/NCHS",
+      "design": "stratified_multistage_cluster",
+      "survey_weighted": true,
+      "known_quirks": [
+        "RIDAGEYR top-coded at 80 (all >=80 mapped to 80)",
+        "2019-2020 cycle truncated by COVID-19",
+        "P_ prefix files for 2019-2020 cycle"
+      ],
+      "variables": {
+        "RIDAGEYR": {
+          "label": "Age in years at screening",
+          "type": "numeric",
+          "top_coded": 80,
+          "top_coded_meaning": "80 or older",
+          "questionnaire": "DEMO",
+          "note": "7% of adult sample at ceiling"
+        },
+        "RIAGENDR": {
+          "label": "Gender",
+          "type": "binary",
+          "codes": {"1": "Male", "2": "Female"},
+          "questionnaire": "DEMO"
+        },
+        "RIDRETH3": {
+          "label": "Race/Hispanic origin with NH Asian",
+          "type": "nominal_categorical",
+          "codes": {
+            "1": "Mexican American",
+            "2": "Other Hispanic",
+            "3": "Non-Hispanic White",
+            "4": "Non-Hispanic Black",
+            "6": "Non-Hispanic Asian",
+            "7": "Other/Multi-Racial"
+          },
+          "questionnaire": "DEMO",
+          "encoding_rule": "must_onehot",
+          "encoding_rationale": "No ordinal relationship between racial/ethnic categories. Numeric codes are arbitrary identifiers."
+        },
+        "LBXGH": {
+          "label": "Glycohemoglobin (HbA1c) %",
+          "type": "continuous_lab",
+          "questionnaire": "GHB",
+          "definition_variable_for": ["diabetes"],
+          "threshold": {"diabetes": ">=6.5", "prediabetes": ">=5.7 and <6.5"},
+          "must_exclude_if_target": true
+        },
+        "LBXGLU": {
+          "label": "Fasting glucose (mg/dL)",
+          "type": "continuous_lab",
+          "questionnaire": "GLU",
+          "definition_variable_for": ["diabetes"],
+          "threshold": {"diabetes": ">=126", "prediabetes": ">=100 and <126"},
+          "must_exclude_if_target": true,
+          "note": "Fasting subsample only — not all participants"
+        },
+        "DIQ010": {
+          "label": "Doctor told you have diabetes",
+          "type": "binary_with_borderline",
+          "codes": {"1": "Yes", "2": "No", "3": "Borderline"},
+          "questionnaire": "DIQ",
+          "definition_variable_for": ["diabetes"],
+          "must_exclude_if_target": true
+        },
+        "DIQ160": {
+          "label": "Ever told you have prediabetes",
+          "type": "binary",
+          "codes": {"1": "Yes", "2": "No"},
+          "questionnaire": "DIQ",
+          "target_adjacent_for": ["diabetes"],
+          "must_exclude_if_target": true
+        },
+        "DIQ170": {
+          "label": "Ever told at risk for diabetes",
+          "type": "binary",
+          "codes": {"1": "Yes", "2": "No"},
+          "questionnaire": "DIQ",
+          "target_adjacent_for": ["diabetes"],
+          "must_exclude_if_target": true
+        },
+        "DIQ172": {
+          "label": "Feel could be at risk for diabetes/prediabetes",
+          "type": "binary_subjective",
+          "codes": {"1": "Yes", "2": "No"},
+          "questionnaire": "DIQ",
+          "skip_pattern": "Only asked if DIQ010 != 1 AND DIQ160 != 1",
+          "missingness_mechanism": "MNAR_gated_by_target",
+          "target_adjacent_for": ["diabetes"],
+          "must_exclude_if_target": true,
+          "common_mislabel": "Often confused with family_history_diabetes — it is NOT family history"
+        },
+        "MCQ300C": {
+          "label": "Close relative had diabetes",
+          "type": "binary",
+          "codes": {"1": "Yes", "2": "No"},
+          "questionnaire": "MCQ",
+          "is_family_history_for": ["diabetes"],
+          "safe_as_feature": true
+        },
+        "BPQ020": {
+          "label": "Ever told you had high blood pressure",
+          "type": "binary",
+          "codes": {"1": "Yes", "2": "No"},
+          "questionnaire": "BPQ",
+          "gates_downstream": ["BPQ050A"],
+          "safe_as_feature": true
+        },
+        "BPQ050A": {
+          "label": "Now taking prescribed BP medicine",
+          "type": "binary_gated",
+          "codes": {"1": "Yes", "2": "No"},
+          "questionnaire": "BPQ",
+          "skip_pattern": "Only asked if BPQ020 = 1 (Yes)",
+          "missingness_mechanism": "MNAR_gated_by_BPQ020",
+          "missingness_true_meaning": "Never diagnosed hypertension → no medication → code as 0",
+          "safe_as_feature": true,
+          "encoding_rule": "fillna_with_0"
+        },
+        "BPXOSY1": {
+          "label": "Systolic BP reading 1 (oscillometric)",
+          "type": "continuous_vital",
+          "questionnaire": "BPXO",
+          "measurement_protocol": "exclude_from_average",
+          "protocol_rationale": "First reading affected by white-coat effect. CDC NHANES protocol: use average of readings 2 and 3 only.",
+          "reference": "CDC NHANES Blood Pressure Procedures Manual 2017-2020"
+        },
+        "BPXOSY2": {
+          "label": "Systolic BP reading 2",
+          "type": "continuous_vital",
+          "questionnaire": "BPXO",
+          "measurement_protocol": "include_in_average"
+        },
+        "BPXOSY3": {
+          "label": "Systolic BP reading 3",
+          "type": "continuous_vital",
+          "questionnaire": "BPXO",
+          "measurement_protocol": "include_in_average"
+        },
+        "SMQ020": {
+          "label": "Smoked at least 100 cigarettes in life",
+          "type": "binary",
+          "codes": {"1": "Yes", "2": "No"},
+          "questionnaire": "SMQ",
+          "threshold_note": "100 cigarettes ≈ 5 packs. Not 'ever tried smoking'.",
+          "safe_as_feature": true
+        },
+        "MCQ160C": {
+          "label": "Ever told had coronary heart disease",
+          "type": "binary_self_report_lifetime",
+          "codes": {"1": "Yes", "2": "No"},
+          "questionnaire": "MCQ",
+          "reverse_causation_risk": ["diabetes"],
+          "reverse_causation_note": "DM → CVD pathway well-established. Using CHD to predict DM may capture reverse causation rather than genuine risk."
+        },
+        "MCQ160F": {
+          "label": "Ever told had stroke",
+          "type": "binary_self_report_lifetime",
+          "codes": {"1": "Yes", "2": "No"},
+          "questionnaire": "MCQ",
+          "reverse_causation_risk": ["diabetes"],
+          "reverse_causation_note": "Same reverse causation concern as CHD."
+        },
+        "LBXTC": {
+          "label": "Total cholesterol (mg/dL)",
+          "type": "continuous_lab",
+          "questionnaire": "TCHOL",
+          "same_visit_as": ["LBXGH", "LBDHDD", "LBXTR"],
+          "post_prediction_if_target": ["diabetes"],
+          "post_prediction_rationale": "Drawn at same exam visit as HbA1c. Reflects post-diagnosis metabolic state."
+        },
+        "LBDHDD": {
+          "label": "Direct HDL-cholesterol (mg/dL)",
+          "type": "continuous_lab",
+          "questionnaire": "HDL",
+          "same_visit_as": ["LBXGH", "LBXTC", "LBXTR"],
+          "post_prediction_if_target": ["diabetes"]
+        },
+        "LBXTR": {
+          "label": "Triglycerides (mg/dL)",
+          "type": "continuous_lab",
+          "questionnaire": "TRIGLY",
+          "same_visit_as": ["LBXGH", "LBXTC", "LBDHDD"],
+          "post_prediction_if_target": ["diabetes"]
+        }
+      }
+    }
+  }
+}

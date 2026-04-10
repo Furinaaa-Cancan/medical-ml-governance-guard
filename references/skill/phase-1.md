@@ -19,6 +19,32 @@
   - ≥ 2 层一致 = 推荐
   - ≥ 3 层 = 强定义
 
+### 1b. 数据集 Codebook 验证（公共数据集必做）
+
+如果数据来自已知公共数据集（NHANES, BRFSS, NHIS, UKB, MIMIC 等），
+读取 `references/dataset-codebook-registry.json`，逐变量检查：
+
+1. **语义正确性**：代码中的变量名是否匹配 codebook 真实含义？
+   - 例：DIQ172 ≠ family_history，MCQ300C 才是
+2. **gated missingness**：变量的缺失是否由 skip pattern 造成？
+   - 例：BPQ050A 只问 BPQ020=Yes 的人，NaN = 无高血压诊断
+   - 如果是 gated missing → 必须显式编码（通常 NaN → 0），不能让 imputer 处理
+3. **测量协议**：多次测量变量是否遵循官方均值计算规则？
+   - 例：NHANES 血压排除 reading 1
+4. **编码类型**：nominal 变量是否被错误当作 ordinal/numeric？
+   - 例：RIDRETH3 (race) 必须 OneHot，不能当 float
+5. **顶编码/底编码**：连续变量是否有截断？
+   - 例：RIDAGEYR ≥ 80 → 80
+6. **反向因果**：终生累积自报诊断是否可能是结局的下游？
+   - 例：CHD/stroke 可能是糖尿病并发症
+
+如果 codebook registry 中没有该数据集，Agent 应提示用户：
+```
+⚠ 此数据集未在 codebook registry 中注册。
+建议：查阅原始数据字典确认每个变量的真实含义、skip pattern、编码规则。
+特别注意：问卷变量的 gated missingness、多次测量的均值计算协议、分类变量的有序/无序。
+```
+
 ### 2. 运行 Gate
 
 ```bash
@@ -69,6 +95,12 @@ python3 scripts/gates/cohort_definition_gate.py \
 - ICD 编码列包含结局疾病的诊断码 → 定义变量泄漏
 - NHANES 数据中权重列被当特征
 - 缺失率 >80% 的列没被标记
+- **变量误标签**：NHANES DIQ172 常被误认为 family_history（实际是主观风险感知）→ 必须查 codebook
+- **Gated missingness 当真缺失处理**：BPQ050A 的 NaN 不是"不知道吃没吃药"，而是"没被问到因为没有高血压" → imputer 会填错值
+- **多次测量不遵循协议**：NHANES 血压 reading 1 有白大衣效应，CDC 规定排除 → 全部平均会系统偏高
+- **Nominal 变量当 ordinal**：race/ethnicity 的 1,2,3,4,6,7 编码没有有序含义 → 直接给 LR 等于假设 Mexican < White < Black
+- **同一 visit 的实验室值做特征**：如果 HbA1c 定义 target，同次抽血的 lipid panel 是 post-diagnosis 信息
+- **终生自报诊断的反向因果**："曾被诊断 CHD" 可能是糖尿病导致的并发症，而非独立风险因素
 
 ## 产出
 
