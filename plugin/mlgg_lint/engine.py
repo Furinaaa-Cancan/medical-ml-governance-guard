@@ -103,11 +103,14 @@ def _build_taint_tracker(tree: ast.Module, im: ImportMap) -> TaintTracker:
                     tracker.record_split([], node.lineno)
 
         # Pattern 3: for train_idx, test_idx in kf.split(X):
+        # Guard: require tuple unpacking (≥2 vars) to distinguish from
+        # str.split() which iterates single values.
         if isinstance(node, ast.For) and isinstance(node.iter, ast.Call):
             if isinstance(node.iter.func, ast.Attribute):
                 if node.iter.func.attr == "split":
-                    names = extract_tuple_targets(node.target)
-                    tracker.record_split(names, node.lineno)
+                    if isinstance(node.target, ast.Tuple) and len(node.target.elts) >= 2:
+                        names = extract_tuple_targets(node.target)
+                        tracker.record_split(names, node.lineno)
 
     return tracker
 
