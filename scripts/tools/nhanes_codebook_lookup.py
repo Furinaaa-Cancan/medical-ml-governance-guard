@@ -22,8 +22,10 @@ from __future__ import annotations
 
 import csv
 import json
+import math
+import re
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
@@ -189,15 +191,22 @@ class NHANESCodebook:
 
             var_code = info["variable"]
 
-            # Check 1: Gated missingness (skip pattern + high missing)
-            if info["has_skip_pattern"] and info["missing_rate"] > 0.10:
+            # Check 1: Gated missingness
+            # Source A: variable's own skip pattern + high missing
+            # Source B: upstream gating chain (variable is skipped by another question)
+            self._ensure_index()
+            gating = self.resolve_gating_chain(var_code)
+            is_upstream_gated = gating["is_gated"]
+
+            if (info["has_skip_pattern"] or is_upstream_gated) and info["missing_rate"] > 0.10:
                 issues.append({
                     "code": "CODEBOOK_GATED_MISSINGNESS",
                     "message": (
                         f"Column '{col}' maps to NHANES variable '{var_code}' "
-                        f"({info['sas_label']}). This variable has skip patterns "
-                        f"(skip_to: {info['skip_pattern']}) and "
-                        f"{info['missing_rate']:.0%} missing values. "
+                        f"({info['sas_label']}). "
+                        f"{'Has own skip pattern: ' + str(info['skip_pattern']) + '. ' if info['has_skip_pattern'] else ''}"
+                        f"{'Gated by upstream: ' + ', '.join(g['upstream_variable'] for g in gating['gated_by']) + '. ' if is_upstream_gated else ''}"
+                        f"Missing rate: {info['missing_rate']:.0%}. "
                         f"NaN likely means 'question not asked' (gated), "
                         f"not 'value unknown'."
                     ),
@@ -206,6 +215,7 @@ class NHANESCodebook:
                         "var_code": var_code,
                         "sas_label": info["sas_label"],
                         "skip_pattern": info["skip_pattern"],
+                        "upstream_gating": gating["gated_by"] if is_upstream_gated else None,
                         "missing_rate": info["missing_rate"],
                         "source": "nhanes_rag_auto",
                     },
@@ -236,19 +246,238 @@ class NHANESCodebook:
 
         return issues
 
-    def _reverse_lookup(self, friendly_name: str) -> Optional[Dict[str, Any]]:
-        """Try to find a variable by its SAS label.
+    # ── Hybrid retrieval ──────────────────────────────────────
 
-        Uses strict matching: the full friendly name (with underscores→spaces)
-        must exactly equal the SAS label. Substring matching produces too many
-        false positives (e.g. 'ever_smoked' → 'Ever smoked a cigar').
-        """
-        fn_lower = friendly_name.lower().replace("_", " ")
+    def _ensure_index(self) -> None:
+        """Build BM25 and n-gram indexes for hybrid retrieval."""
+        if hasattr(self, "_bm25_ready"):
+            return
+        self._ensure_loaded()
+
+        # BM25 index: doc_id → token bag, plus IDF table
+        self._doc_tokens: Dict[str, List[str]] = {}
+        df_counter: Counter = Counter()  # document frequency
         for var_code, info in self._variables.items():
-            label_lower = info["sas_label"].lower()
-            if fn_lower == label_lower:
+            tokens = self._tokenize(
+                f"{info['sas_label']} {info.get('english_text', '')}"
+            )
+            self._doc_tokens[var_code] = tokens
+            for t in set(tokens):
+                df_counter[t] += 1
+
+        n_docs = max(len(self._doc_tokens), 1)
+        self._idf: Dict[str, float] = {
+            t: math.log((n_docs - df + 0.5) / (df + 0.5) + 1.0)
+            for t, df in df_counter.items()
+        }
+
+        # N-gram index: trigram → set of var_codes
+        self._trigram_index: Dict[str, Set[str]] = defaultdict(set)
+        for var_code, info in self._variables.items():
+            label = info["sas_label"].lower()
+            for tri in self._trigrams(label):
+                self._trigram_index[tri].add(var_code)
+
+        # Skip-chain graph: var → set of vars it gates (downstream)
+        self._skip_graph: Dict[str, Set[str]] = defaultdict(set)
+        self._gated_by: Dict[str, Set[str]] = defaultdict(set)
+        for var_code in self._variables:
+            cb_entries = self._codebooks.get(var_code, [])
+            for entry in cb_entries:
+                skip_to = entry.get("skip_to", "")
+                if skip_to:
+                    # var_code skips over variables between itself and skip_to
+                    self._skip_graph[var_code].add(skip_to)
+
+        # Build reverse: which variables are gated by which upstream questions
+        # A variable V is gated by U if U's skip pattern jumps PAST V
+        # Heuristic: if V appears in the same questionnaire table as U,
+        # and U skips to W where W comes alphabetically after V, then V is gated
+        table_vars: Dict[str, List[str]] = defaultdict(list)
+        for var_code, info in self._variables.items():
+            table_vars[info["table"]].append(var_code)
+
+        for upstream, skip_targets in self._skip_graph.items():
+            up_info = self._variables.get(upstream)
+            if not up_info:
+                continue
+            table = up_info["table"]
+            vars_in_table = sorted(table_vars.get(table, []))
+            up_idx = vars_in_table.index(upstream) if upstream in vars_in_table else -1
+            for skip_target in skip_targets:
+                if skip_target in vars_in_table:
+                    skip_idx = vars_in_table.index(skip_target)
+                    # All variables between upstream and skip_target are gated
+                    for i in range(up_idx + 1, skip_idx):
+                        gated_var = vars_in_table[i]
+                        self._gated_by[gated_var].add(upstream)
+
+        self._bm25_ready = True
+
+    @staticmethod
+    def _tokenize(text: str) -> List[str]:
+        """Tokenize text for BM25. Lowercase, split on non-alpha, remove stopwords."""
+        _STOP = {"the", "a", "an", "in", "of", "to", "for", "and", "or", "is",
+                 "at", "by", "on", "as", "has", "had", "was", "been", "are",
+                 "you", "your", "sp", "s", "he", "she", "his", "her", "have",
+                 "do", "does", "did", "ever", "been", "told", "other"}
+        tokens = re.findall(r"[a-z0-9]+", text.lower())
+        return [t for t in tokens if t not in _STOP and len(t) > 1]
+
+    @staticmethod
+    def _trigrams(text: str) -> List[str]:
+        """Generate character trigrams from text."""
+        s = f"__{text.lower()}__"
+        return [s[i:i+3] for i in range(len(s) - 2)]
+
+    def _bm25_score(self, query_tokens: List[str], doc_tokens: List[str],
+                    k1: float = 1.5, b: float = 0.75) -> float:
+        """BM25 score for a single document."""
+        if not doc_tokens:
+            return 0.0
+        avg_dl = sum(len(t) for t in self._doc_tokens.values()) / max(len(self._doc_tokens), 1)
+        dl = len(doc_tokens)
+        tf_map = Counter(doc_tokens)
+        score = 0.0
+        for qt in query_tokens:
+            tf = tf_map.get(qt, 0)
+            idf = self._idf.get(qt, 0.0)
+            numerator = tf * (k1 + 1)
+            denominator = tf + k1 * (1 - b + b * dl / avg_dl)
+            score += idf * numerator / denominator
+        return score
+
+    def _trigram_similarity(self, query: str, candidate_label: str) -> float:
+        """Jaccard similarity on character trigrams."""
+        q_tri = set(self._trigrams(query))
+        c_tri = set(self._trigrams(candidate_label))
+        if not q_tri or not c_tri:
+            return 0.0
+        return len(q_tri & c_tri) / len(q_tri | c_tri)
+
+    def search(self, query: str, top_k: int = 5,
+               min_score: float = 2.0) -> List[Dict[str, Any]]:
+        """Hybrid search: BM25 + trigram similarity.
+
+        Returns top-k matches with combined scores.
+        """
+        self._ensure_index()
+        query_tokens = self._tokenize(query)
+        query_lower = query.lower().replace("_", " ")
+
+        candidates: Dict[str, float] = {}
+
+        # BM25 scoring
+        for var_code, doc_tokens in self._doc_tokens.items():
+            score = self._bm25_score(query_tokens, doc_tokens)
+            if score > 0:
+                candidates[var_code] = score
+
+        # Trigram boost (for misspellings, partial matches)
+        query_trigrams = set(self._trigrams(query_lower))
+        trigram_candidates: Counter = Counter()
+        for tri in query_trigrams:
+            for var_code in self._trigram_index.get(tri, set()):
+                trigram_candidates[var_code] += 1
+
+        for var_code, tri_hits in trigram_candidates.items():
+            label = self._variables[var_code]["sas_label"].lower()
+            sim = self._trigram_similarity(query_lower, label)
+            # Combine: BM25 base + trigram boost (weighted 0.5)
+            candidates[var_code] = candidates.get(var_code, 0) + sim * 3.0
+
+        # Sort by score, return top-k
+        ranked = sorted(candidates.items(), key=lambda x: -x[1])
+        results = []
+        for var_code, score in ranked[:top_k]:
+            if score < min_score:
+                break
+            info = self._variables[var_code]
+            results.append({
+                "variable": var_code,
+                "sas_label": info["sas_label"],
+                "score": round(score, 2),
+                "table": info["table"],
+            })
+        return results
+
+    def resolve_gating_chain(self, var_code: str) -> Dict[str, Any]:
+        """Resolve the upstream gating chain for a variable.
+
+        Returns: which upstream questions gate this variable via skip patterns.
+        """
+        self._ensure_index()
+        upstream = self._gated_by.get(var_code, set())
+        if not upstream:
+            return {"variable": var_code, "gated_by": [], "is_gated": False}
+        chain = []
+        for up_var in sorted(upstream):
+            up_info = self._variables.get(up_var, {})
+            skip_targets = self._skip_graph.get(up_var, set())
+            chain.append({
+                "upstream_variable": up_var,
+                "upstream_label": up_info.get("sas_label", ""),
+                "skip_targets": sorted(skip_targets),
+            })
+        return {"variable": var_code, "gated_by": chain, "is_gated": True}
+
+    def _reverse_lookup(self, friendly_name: str) -> Optional[Dict[str, Any]]:
+        """Hybrid reverse lookup: alias table → exact label → BM25+trigram.
+
+        Returns the best matching variable if confidence is high enough.
+        """
+        self._ensure_index()
+        fn_lower = friendly_name.lower().replace("_", " ")
+
+        # Tier 0: Known alias table (common friendly names from download scripts)
+        _ALIAS_TABLE = {
+            "age": "RIDAGEYR", "gender": "RIAGENDR", "sex": "RIAGENDR",
+            "bmi": "BMXBMI", "body mass index": "BMXBMI",
+            "waist circumference": "BMXWAIST",
+            "hba1c": "LBXGH", "glycohemoglobin": "LBXGH", "a1c": "LBXGH",
+            "fasting glucose": "LBXGLU", "glucose": "LBXGLU",
+            "total cholesterol": "LBXTC", "cholesterol": "LBXTC",
+            "hdl": "LBDHDD", "hdl cholesterol": "LBDHDD",
+            "triglycerides": "LBXTR",
+            "creatinine": "LBXSCR",
+            "race ethnicity": "RIDRETH3", "race": "RIDRETH3",
+            "ever smoked": "SMQ020", "smoking": "SMQ020",
+            "bp medication": "BPQ050A",
+            "hypertension diagnosed": "BPQ020", "high blood pressure": "BPQ020",
+            "coronary heart disease": "MCQ160C", "chd": "MCQ160C",
+            "stroke": "MCQ160F",
+            "family history diabetes": "MCQ300C",
+            "doctor told diabetes": "DIQ010", "diabetes diagnosis": "DIQ010",
+            "prediabetes": "DIQ160",
+            "depression": "DPQ010",
+            "alcohol": "ALQ130",
+            "income": "INDFMIN2", "education": "DMDEDUC2",
+            "marital status": "DMDMARTL",
+            "sbp mean": "BPXOSY2", "dbp mean": "BPXODI2",
+            "systolic": "BPXOSY2", "diastolic": "BPXODI2",
+        }
+        alias_code = _ALIAS_TABLE.get(fn_lower)
+        if alias_code and alias_code in self._variables:
+            return self.lookup(alias_code)
+
+        # Tier 1: Exact SAS label match
+        for var_code, info in self._variables.items():
+            if fn_lower == info["sas_label"].lower():
                 return self.lookup(var_code)
-        return None
+
+        # Tier 2: Hybrid search (BM25 + trigram)
+        results = self.search(friendly_name, top_k=3, min_score=5.0)
+        if not results:
+            return None
+
+        best = results[0]
+        # Require strong confidence AND clear separation from runner-up
+        if best["score"] < 8.0:
+            return None
+        if len(results) >= 2 and results[1]["score"] > best["score"] * 0.7:
+            return None
+
+        return self.lookup(best["variable"])
 
     def summarize(self) -> Dict[str, Any]:
         """Return summary statistics about the loaded codebook."""
