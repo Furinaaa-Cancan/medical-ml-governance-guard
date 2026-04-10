@@ -66,16 +66,23 @@ repo has real leakage for a *different* reason that lint missed entirely.
 
 ### V1 → V6 Improvement Breakdown
 
-| Fix | Type | TP gained |
-|-----|------|-----------|
-| R020 severity WARNING→ERROR | Rule fix | +2 |
-| R026 fillna before split | New rule | +3 |
-| R027 manual scaling before split | New rule | +2 |
-| Notebook IPython magic stripping | Infra fix | +5 |
-| R011 added to leakage_rules | Eval fix | +1 |
-| Subscript unwrap (train_test_split(...)[0]) | Bug fix | 0 |
-| Cross_val fallback split detection | Enhancement | +2 |
-| String .split() guard | Bug fix | 0 |
+Verified by re-running V1/V6 scans and tracing each new TP to its root cause.
+
+| Fix | Type | TP gained | Details |
+|-----|------|-----------|---------|
+| Notebook IPython magic stripping | Infra fix | **+8** | id=11,16,21,24,38,40,49,54 — V1 returned E000 parse error, V6 parses successfully |
+| R020 severity WARNING→ERROR | Rule fix | **+4** | id=29,45,50,55 — R020 fired at WARNING in V1 (not counted), ERROR in V6 |
+| R027 manual scaling before split | New rule | **+1** | id=15 — manual (X-min)/(max-min) normalization detected |
+| R011 added to leakage_rules | Eval fix | **+1** | id=28 — SMOTE+CV without imblearn.Pipeline |
+| Cross_val fallback split detection | Enhancement | **+1** | id=26 — cross_validate as fallback split marker |
+| Subscript unwrap (train_test_split(...)[0]) | Bug fix | 0 | Correctness fix, no new TPs in this dataset |
+| String .split() guard | Bug fix | 0 | Prevented FP on for-loop .split() |
+| R026 fillna before split | New rule | **0** | R026 never fires alone — all R026 repos also have R020. Adds specificity to diagnostics but no unique TPs |
+| **Total** | | **+15** | |
+
+Note: R026 provides more specific diagnostic messages (e.g., "fillna(median())
+before split") vs R020's generic "global statistics leak". It is valuable for
+user guidance even though it doesn't increase repo-level detection count.
 
 ### What Lint Still Misses (strict: 8 False Negatives)
 
