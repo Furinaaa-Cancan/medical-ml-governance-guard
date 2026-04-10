@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "dataset": "nhanes_diabetes",
   "description": "Phenotype definition for NHANES 2017-2020 diabetes prediction. Cross-sectional survey design: all labs, vitals, and questionnaires collected at a single exam visit. Target defined by HbA1c >= 6.5% OR self-reported doctor-diagnosed diabetes.",
   "study_design": {
@@ -34,7 +34,8 @@
         "LBXGLU",
         "DIQ010",
         "DIQ160",
-        "DIQ170"
+        "DIQ170",
+        "DIQ172"
       ],
       "forbidden_patterns": [
         "(?i)hba1c",
@@ -52,5 +53,25 @@
       "follow_up_window": "point_in_time",
       "prediction_time_justification": "NHANES is cross-sectional. The clinically meaningful prediction scenario is screening: predicting diabetes risk using demographics, lifestyle, and vitals available before lab results are returned."
     }
-  }
+  },
+  "variable_notes": {
+    "age": "RIDAGEYR: top-coded at 80 (all >=80 mapped to 80). 7.1% of sample affected. Age-risk gradient compressed above 80.",
+    "gender": "RIAGENDR: 1=Male, 2=Female. Encoded as binary 0/1 (1=female).",
+    "race_ethnicity": "RIDRETH3: NOMINAL categorical (not ordinal). Encoded as string labels to prevent numeric ordering. 1=Mexican American, 2=Other Hispanic, 3=NH White, 4=NH Black, 6=NH Asian, 7=Other/Multi-Racial.",
+    "sbp_mean_dbp_mean": "BPXOSY2-3, BPXODI2-3: Average of readings 2 and 3 ONLY. Reading 1 excluded per NHANES protocol (white-coat effect). Reference: CDC NHANES Blood Pressure Procedures Manual.",
+    "ever_smoked": "SMQ020: 'Smoked at least 100 cigarettes in entire life?' Threshold is 100 cigarettes (~5 packs), NOT 'ever tried smoking'.",
+    "bp_medication": "BPQ050A: 'Now taking prescribed BP medicine?' Gated question — only asked if BPQ020=Yes (ever told high BP). NaN explicitly filled with 0 (no HTN diagnosis → no medication).",
+    "hypertension_diagnosed": "BPQ020: 'Ever told you had high blood pressure?' Asked to all adults. Upstream gate for bp_medication.",
+    "family_history_diabetes": "MCQ300C: 'Close relative had diabetes?' (parent, sibling). NOT DIQ172 which is subjective risk perception.",
+    "coronary_heart_disease": "MCQ160C: 'Ever told had coronary heart disease?' Self-report, lifetime cumulative. Reverse causation possible (DM→CHD, not CHD→DM). Documented as limitation.",
+    "stroke": "MCQ160F: 'Ever told had stroke?' Same reverse causation caveat as CHD."
+  },
+  "known_limitations": [
+    "Age top-coded at 80 — risk gradient compressed for elderly",
+    "2019-2020 cycle incomplete due to COVID-19 pandemic interruption",
+    "Survey weights not used — prevalence not population-representative",
+    "CHD and stroke features have reverse causation risk (DM→CVD possible)",
+    "Self-report variables subject to recall bias and social desirability bias",
+    "Target definition uses 2 evidence layers (lab + self-report); no ICD codes or medication records available for 3-layer adjudication"
+  ]
 }

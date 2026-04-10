@@ -116,20 +116,18 @@ def build_diabetes_dataset(dfs: Dict[str, pd.DataFrame], cycle: str) -> pd.DataF
         bmx.columns = ["SEQN", "bmi", "waist_circumference"]
         merged = merged.merge(bmx, on="SEQN", how="left")
 
-    # Blood pressure — require >= 2 valid readings for a reliable mean
+    # Blood pressure — NHANES protocol: discard 1st reading (white-coat effect),
+    # average readings 2 and 3 only. Require >= 1 valid reading from {2,3}.
+    # Reference: CDC NHANES Blood Pressure Procedures Manual, 2017-2020.
     if "bpx" in dfs:
         bpx = dfs["bpx"].copy()
-        sbp_cols = [c for c in bpx.columns if c.startswith("BPXOSY")]
-        dbp_cols = [c for c in bpx.columns if c.startswith("BPXODI")]
-        min_valid_readings = 2
-        if sbp_cols:
-            valid_count = bpx[sbp_cols].notna().sum(axis=1)
-            bpx["sbp_mean"] = bpx[sbp_cols].mean(axis=1)
-            bpx.loc[valid_count < min_valid_readings, "sbp_mean"] = np.nan
-        if dbp_cols:
-            valid_count = bpx[dbp_cols].notna().sum(axis=1)
-            bpx["dbp_mean"] = bpx[dbp_cols].mean(axis=1)
-            bpx.loc[valid_count < min_valid_readings, "dbp_mean"] = np.nan
+        # Only use readings 2 and 3 (skip reading 1 per NHANES protocol)
+        sbp_use = [c for c in bpx.columns if c.startswith("BPXOSY") and c[-1] in ("2", "3")]
+        dbp_use = [c for c in bpx.columns if c.startswith("BPXODI") and c[-1] in ("2", "3")]
+        if sbp_use:
+            bpx["sbp_mean"] = bpx[sbp_use].mean(axis=1)
+        if dbp_use:
+            bpx["dbp_mean"] = bpx[dbp_use].mean(axis=1)
         bp_cols = ["SEQN"] + [c for c in ["sbp_mean", "dbp_mean"] if c in bpx.columns]
         merged = merged.merge(bpx[bp_cols], on="SEQN", how="left")
 
@@ -159,7 +157,10 @@ def build_diabetes_dataset(dfs: Dict[str, pd.DataFrame], cycle: str) -> pd.DataF
         tg.columns = ["SEQN", "triglycerides"]
         merged = merged.merge(tg, on="SEQN", how="left")
 
-    # Diabetes questionnaire (target component + risk factors)
+    # Diabetes questionnaire (target component only)
+    # DIQ172 ("feel at risk for diabetes") is NOT family history — it's
+    # subjective risk perception with MNAR skip pattern (only asked to
+    # non-diabetics). Excluded as target-adjacent.
     if "diq" in dfs:
         diq = dfs["diq"].copy()
         diq_cols = {"SEQN": "SEQN"}
@@ -169,8 +170,7 @@ def build_diabetes_dataset(dfs: Dict[str, pd.DataFrame], cycle: str) -> pd.DataF
             diq_cols["DIQ160"] = "prediabetes"
         if "DIQ170" in diq.columns:
             diq_cols["DIQ170"] = "at_risk_diabetes"
-        if "DIQ172" in diq.columns:
-            diq_cols["DIQ172"] = "family_history_diabetes"
+        # DIQ172 intentionally excluded — see comment above
         diq_sub = diq[list(diq_cols.keys())].copy()
         diq_sub.columns = list(diq_cols.values())
         merged = merged.merge(diq_sub, on="SEQN", how="left")
@@ -183,15 +183,26 @@ def build_diabetes_dataset(dfs: Dict[str, pd.DataFrame], cycle: str) -> pd.DataF
             smq_sub.columns = ["SEQN", "ever_smoked"]
             merged = merged.merge(smq_sub, on="SEQN", how="left")
 
-    # Blood pressure medication
+    # Blood pressure diagnosis and medication
+    # BPQ020: "Ever told you had high blood pressure?" (all adults)
+    # BPQ050A: "Now taking prescribed BP medicine?" (gated: only asked if BPQ020=Yes)
+    # So BPQ050A NaN means "never diagnosed hypertension" → bp_medication = 0.
     if "bpq" in dfs:
         bpq = dfs["bpq"].copy()
+        bpq_sub = bpq[["SEQN"]].copy()
+        if "BPQ020" in bpq.columns:
+            bpq_sub["hypertension_diagnosed"] = bpq["BPQ020"].map({1.0: 1.0, 2.0: 0.0})
         if "BPQ050A" in bpq.columns:
-            bpq_sub = bpq[["SEQN", "BPQ050A"]].copy()
-            bpq_sub.columns = ["SEQN", "bp_medication"]
-            merged = merged.merge(bpq_sub, on="SEQN", how="left")
+            # Explicit: NaN = never asked because no HTN diagnosis → 0
+            bpq_sub["bp_medication"] = bpq["BPQ050A"].map({1.0: 1.0, 2.0: 0.0}).fillna(0.0)
+        merged = merged.merge(bpq_sub, on="SEQN", how="left")
 
-    # Medical conditions (family history)
+    # Medical conditions and family history
+    # MCQ160C: "Ever told had coronary heart disease?" (self-report, lifetime)
+    # MCQ160F: "Ever told had stroke?" (self-report, lifetime)
+    # MCQ300C: "Close relative had diabetes?" (actual family history)
+    # Note: CHD/stroke are lifetime self-report — reverse causation possible
+    # (diabetes → CVD, not CVD → diabetes). Documented as limitation.
     if "mcq" in dfs:
         mcq = dfs["mcq"].copy()
         mcq_keep = {"SEQN": "SEQN"}
@@ -199,6 +210,8 @@ def build_diabetes_dataset(dfs: Dict[str, pd.DataFrame], cycle: str) -> pd.DataF
             mcq_keep["MCQ160C"] = "coronary_heart_disease"
         if "MCQ160F" in mcq.columns:
             mcq_keep["MCQ160F"] = "stroke"
+        if "MCQ300C" in mcq.columns:
+            mcq_keep["MCQ300C"] = "family_history_diabetes"
         if len(mcq_keep) > 1:
             mcq_sub = mcq[list(mcq_keep.keys())].copy()
             mcq_sub.columns = list(mcq_keep.values())
@@ -247,7 +260,18 @@ def create_target(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def clean_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Clean and encode features. Minimal preprocessing — rest left to MLGG pipeline."""
+    """Clean and encode features. Minimal preprocessing — rest left to MLGG pipeline.
+
+    NHANES-specific encoding notes:
+    - age: RIDAGEYR is top-coded at 80 (all ≥80 → 80). Documented as limitation.
+    - gender: RIAGENDR 1=Male, 2=Female → binary 0/1.
+    - race_ethnicity: RIDRETH3 is NOMINAL (not ordinal). Stored as string category
+      to prevent models from treating numeric codes as ordered.
+    - ever_smoked: SMQ020 = "smoked ≥100 cigarettes in lifetime" (not "ever tried").
+    - bp_medication: BPQ050A already fillna(0) in build step (NaN = no HTN diagnosis).
+    - hypertension_diagnosed: BPQ020 "ever told high BP", 1=Yes/2=No → 1/0.
+    - family_history_diabetes: MCQ300C "close relative had diabetes", 1=Yes/2=No → 1/0.
+    """
     df = df.copy()
 
     # Encode gender: 1=Male, 2=Female → 0/1
@@ -255,18 +279,29 @@ def clean_features(df: pd.DataFrame) -> pd.DataFrame:
         df["gender"] = (df["gender"] == 2).astype(float)  # 1 = female
 
     # Encode binary questionnaire fields (1=Yes, 2=No → 1/0)
+    # bp_medication already encoded in build step (fillna=0)
     binary_cols = [
-        "ever_smoked", "bp_medication", "family_history_diabetes",
+        "ever_smoked", "family_history_diabetes", "hypertension_diagnosed",
         "coronary_heart_disease", "stroke",
     ]
     for col in binary_cols:
         if col in df.columns:
             df[col] = df[col].map({1.0: 1.0, 2.0: 0.0})
 
-    # Race/ethnicity: one-hot (keep as numeric codes for now, let pipeline handle)
-    # 1=Mexican, 2=Other Hispanic, 3=White, 4=Black, 6=Asian, 7=Other
+    # Race/ethnicity: NOMINAL categorical — store as string to prevent
+    # models from treating 1<2<3<4<6<7 as an ordinal scale.
+    # 1=Mexican American, 2=Other Hispanic, 3=NH White, 4=NH Black,
+    # 6=NH Asian, 7=Other/Multi-Racial
+    race_map = {
+        1.0: "mexican_american",
+        2.0: "other_hispanic",
+        3.0: "nh_white",
+        4.0: "nh_black",
+        6.0: "nh_asian",
+        7.0: "other_multiracial",
+    }
     if "race_ethnicity" in df.columns:
-        df["race_ethnicity"] = df["race_ethnicity"].astype(float)
+        df["race_ethnicity"] = df["race_ethnicity"].map(race_map).fillna("unknown")
 
     return df
 
