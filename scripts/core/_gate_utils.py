@@ -759,7 +759,7 @@ def learning_curve_data(
             X_sub = X_train.iloc[idx]
         else:
             X_sub = X_train[idx]
-        y_sub = y_train[idx] if hasattr(y_train, "__getitem__") else np.asarray(y_train)[idx]
+        y_sub = y_train.iloc[idx] if hasattr(y_train, "iloc") else np.asarray(y_train)[idx]
 
         if len(np.unique(y_sub)) < 2:
             continue
