@@ -169,3 +169,121 @@ class TestRAGConsistency:
             if codebook.lookup(var_code) is None:
                 missing.append(var_code)
         assert missing == [], f"Manual registry vars not found in RAG: {missing}"
+
+
+# ────────────────────────────────────────────────────────
+# P0: Disease-KB × Codebook RAG (task-aware)
+# ────────────────────────────────────────────────────────
+
+DISEASE_KB_PATH = Path(__file__).resolve().parent.parent / "references" / "disease-definition-knowledge-base.json"
+
+
+class TestTaskAwareValidation:
+    """Test disease-KB × codebook RAG integration."""
+
+    @pytest.fixture()
+    def disease_kb(self) -> Path:
+        if not DISEASE_KB_PATH.exists():
+            pytest.skip("Disease definition KB not found")
+        return DISEASE_KB_PATH
+
+    def test_hba1c_flagged_for_diabetes(self, codebook, disease_kb):
+        """HbA1c as feature when predicting diabetes → definition variable."""
+        issues = codebook.task_aware_validate(
+            ["SEQN", "hba1c", "age", "bmi", "y"],
+            target_col="y",
+            target_disease="type_2_diabetes",
+            disease_kb_path=str(disease_kb),
+        )
+        codes = [i["details"]["var_code"] for i in issues]
+        assert "LBXGH" in codes
+
+    def test_fasting_glucose_flagged(self, codebook, disease_kb):
+        """Fasting glucose flagged for diabetes prediction."""
+        issues = codebook.task_aware_validate(
+            ["SEQN", "fasting_glucose", "age", "y"],
+            target_col="y",
+            target_disease="diabetes",
+            disease_kb_path=str(disease_kb),
+        )
+        codes = [i["details"]["var_code"] for i in issues]
+        assert "LBXGLU" in codes
+
+    def test_doctor_told_diabetes_flagged(self, codebook, disease_kb):
+        """Self-report diabetes diagnosis flagged."""
+        issues = codebook.task_aware_validate(
+            ["SEQN", "doctor_told_diabetes", "age", "y"],
+            target_col="y",
+            target_disease="type_2_diabetes",
+            disease_kb_path=str(disease_kb),
+        )
+        matched_terms = [i["details"]["matched_term"] for i in issues]
+        assert any("diabetes" in t.lower() for t in matched_terms)
+
+    def test_safe_features_not_flagged(self, codebook, disease_kb):
+        """BMI, age, smoking should NOT be flagged for diabetes."""
+        issues = codebook.task_aware_validate(
+            ["SEQN", "age", "bmi", "ever_smoked", "y"],
+            target_col="y",
+            target_disease="type_2_diabetes",
+            disease_kb_path=str(disease_kb),
+        )
+        assert len(issues) == 0
+
+    def test_wrong_disease_no_flags(self, codebook, disease_kb):
+        """HbA1c should NOT be flagged if predicting stroke (not diabetes)."""
+        issues = codebook.task_aware_validate(
+            ["SEQN", "hba1c", "age", "y"],
+            target_col="y",
+            target_disease="stroke",
+            disease_kb_path=str(disease_kb),
+        )
+        # HbA1c is not a definition variable for stroke
+        flagged_codes = [i["details"]["var_code"] for i in issues]
+        assert "LBXGH" not in flagged_codes
+
+    def test_missing_kb_returns_empty(self, codebook):
+        """Non-existent KB path → empty list, no crash."""
+        issues = codebook.task_aware_validate(
+            ["SEQN", "hba1c", "y"],
+            target_col="y",
+            target_disease="diabetes",
+            disease_kb_path="/nonexistent/kb.json",
+        )
+        assert issues == []
+
+
+# ────────────────────────────────────────────────────────
+# P1: Skip-chain ordering
+# ────────────────────────────────────────────────────────
+
+class TestSkipChain:
+    """Test skip-chain graph resolution with corrected item ordering."""
+
+    def test_bpq050a_gated_by_bpq020(self, codebook):
+        """BPQ050A must be detected as gated by BPQ020."""
+        chain = codebook.resolve_gating_chain("BPQ050A")
+        assert chain["is_gated"]
+        upstream_vars = [g["upstream_variable"] for g in chain["gated_by"]]
+        assert "BPQ020" in upstream_vars
+
+    def test_did040_gated_by_diq010(self, codebook):
+        """DID040 (age when diagnosed) gated by DIQ010 (doctor told diabetes)."""
+        chain = codebook.resolve_gating_chain("DID040")
+        assert chain["is_gated"]
+        upstream_vars = [g["upstream_variable"] for g in chain["gated_by"]]
+        assert "DIQ010" in upstream_vars
+
+    def test_table_var_order_preserved(self, codebook):
+        """DIQ_J table variables should follow questionnaire item order."""
+        codebook._ensure_index()
+        order = codebook._table_var_order.get("DIQ_J", [])
+        assert len(order) > 5
+        # DIQ010 should come before DIQ160 which comes before DIQ172
+        assert order.index("DIQ010") < order.index("DIQ160")
+        assert order.index("DIQ160") < order.index("DIQ172")
+
+    def test_ungated_variable(self, codebook):
+        """RIDAGEYR (demographics) should not be gated."""
+        chain = codebook.resolve_gating_chain("RIDAGEYR")
+        assert not chain["is_gated"]

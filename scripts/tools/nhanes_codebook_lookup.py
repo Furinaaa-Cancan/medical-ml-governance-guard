@@ -69,6 +69,8 @@ class NHANESCodebook:
         return table.endswith(suffix)
 
     def _load_variables(self, path: Path) -> None:
+        # Track variable order within each table (row order = questionnaire item order)
+        self._table_var_order: Dict[str, List[str]] = defaultdict(list)
         with path.open("r", encoding="utf-8") as f:
             reader = csv.DictReader(f, delimiter="\t")
             for row in reader:
@@ -85,6 +87,7 @@ class NHANESCodebook:
                         "english_instructions": row.get("EnglishInstructions", ""),
                         "target_population": row.get("Target", ""),
                     }
+                    self._table_var_order[table].append(var)
 
     def _load_codebooks(self, path: Path) -> None:
         with path.open("r", encoding="utf-8") as f:
@@ -246,6 +249,116 @@ class NHANESCodebook:
 
         return issues
 
+    # ── Task-aware validation (disease-KB × codebook) ────────
+
+    def task_aware_validate(
+        self,
+        column_names: List[str],
+        target_col: str,
+        target_disease: str,
+        disease_kb_path: str,
+        manual_registry: Optional[Dict[str, Dict]] = None,
+    ) -> List[Dict[str, Any]]:
+        """Validate columns with disease-specific awareness.
+
+        Loads disease-definition-knowledge-base.json, extracts:
+        - definition_variables_to_exclude (abstract names)
+        - lab_criteria (test names)
+        - self_report_fields
+        Then maps them to actual NHANES codes via hybrid search,
+        and flags any that appear in the user's feature columns.
+        """
+        self._ensure_index()
+
+        # Load disease KB
+        kb_path = Path(disease_kb_path)
+        if not kb_path.exists():
+            return []
+        try:
+            with kb_path.open("r", encoding="utf-8") as fh:
+                kb = json.load(fh)
+        except Exception:
+            return []
+
+        diseases = kb.get("diseases", {})
+        # Fuzzy match disease name
+        disease_block = None
+        target_lower = target_disease.lower().replace("_", " ").replace("-", " ")
+        for dk, dv in diseases.items():
+            dk_lower = dk.lower().replace("_", " ")
+            name_lower = dv.get("name", "").lower()
+            if target_lower in dk_lower or target_lower in name_lower or dk_lower in target_lower:
+                disease_block = dv
+                break
+        if disease_block is None:
+            return []
+
+        # Collect all exclusion terms from the disease block
+        exclude_terms: List[str] = list(disease_block.get("definition_variables_to_exclude", []))
+        for lab in disease_block.get("lab_criteria", []):
+            exclude_terms.append(lab.get("test", ""))
+        exclude_terms.extend(disease_block.get("self_report_fields", []))
+        exclude_terms = [t for t in exclude_terms if t]
+
+        # Map abstract terms to NHANES codes via hybrid search
+        flagged_codes: Dict[str, str] = {}  # nhanes_code → matched_term
+        for term in exclude_terms:
+            results = self.search(term, top_k=2, min_score=3.0)
+            for r in results:
+                if r["score"] >= 5.0:
+                    flagged_codes[r["variable"]] = term
+
+        # Also try alias-based reverse lookup
+        for term in exclude_terms:
+            info = self._reverse_lookup(term)
+            if info:
+                flagged_codes[info["variable"]] = term
+
+        # Check which flagged codes appear in the user's columns
+        issues: List[Dict[str, Any]] = []
+        for col in column_names:
+            if col == target_col:
+                continue
+            if manual_registry and col in manual_registry:
+                continue
+
+            # Resolve column → NHANES code
+            matched_code = None
+            if col in flagged_codes:
+                matched_code = col
+            else:
+                info = self.lookup(col)
+                if info and info["variable"] in flagged_codes:
+                    matched_code = info["variable"]
+                else:
+                    rev = self._reverse_lookup(col)
+                    if rev and rev["variable"] in flagged_codes:
+                        matched_code = rev["variable"]
+
+            if matched_code:
+                var_info = self.lookup(matched_code)
+                label = var_info["sas_label"] if var_info else matched_code
+                term = flagged_codes[matched_code]
+                issues.append({
+                    "code": "CODEBOOK_DEFINITION_VARIABLE",
+                    "message": (
+                        f"Column '{col}' maps to NHANES '{matched_code}' ({label}), "
+                        f"which is a definition/exclusion variable for "
+                        f"'{target_disease}' (matched term: '{term}'). "
+                        f"Using it as a predictor constitutes target leakage (MLGG-F01)."
+                    ),
+                    "details": {
+                        "column": col,
+                        "var_code": matched_code,
+                        "sas_label": label,
+                        "matched_term": term,
+                        "target_disease": target_disease,
+                        "source": "disease_kb_x_codebook_rag",
+                    },
+                })
+
+        return issues
+
     # ── Hybrid retrieval ──────────────────────────────────────
 
     def _ensure_index(self) -> None:
@@ -289,28 +402,31 @@ class NHANESCodebook:
                     # var_code skips over variables between itself and skip_to
                     self._skip_graph[var_code].add(skip_to)
 
-        # Build reverse: which variables are gated by which upstream questions
-        # A variable V is gated by U if U's skip pattern jumps PAST V
-        # Heuristic: if V appears in the same questionnaire table as U,
-        # and U skips to W where W comes alphabetically after V, then V is gated
-        table_vars: Dict[str, List[str]] = defaultdict(list)
-        for var_code, info in self._variables.items():
-            table_vars[info["table"]].append(var_code)
-
+        # Build reverse: which variables are gated by which upstream questions.
+        # A variable V is gated by U if U's skip pattern jumps PAST V.
+        # Uses TSV row order (= questionnaire item order), NOT alphabetical.
+        # This correctly handles DIQ010 skip→DIQ159 gating DIQ160-DIQ172.
         for upstream, skip_targets in self._skip_graph.items():
             up_info = self._variables.get(upstream)
             if not up_info:
                 continue
             table = up_info["table"]
-            vars_in_table = sorted(table_vars.get(table, []))
-            up_idx = vars_in_table.index(upstream) if upstream in vars_in_table else -1
+            vars_in_table = self._table_var_order.get(table, [])
+            if upstream not in vars_in_table:
+                continue
+            up_idx = vars_in_table.index(upstream)
             for skip_target in skip_targets:
+                # Find skip_target position — may be in the list or may be
+                # a label that maps to a var further down
                 if skip_target in vars_in_table:
                     skip_idx = vars_in_table.index(skip_target)
-                    # All variables between upstream and skip_target are gated
-                    for i in range(up_idx + 1, skip_idx):
-                        gated_var = vars_in_table[i]
-                        self._gated_by[gated_var].add(upstream)
+                else:
+                    # skip_target not found in table — skip
+                    continue
+                # All variables between upstream and skip_target are gated
+                for i in range(up_idx + 1, skip_idx):
+                    gated_var = vars_in_table[i]
+                    self._gated_by[gated_var].add(upstream)
 
         self._bm25_ready = True
 
