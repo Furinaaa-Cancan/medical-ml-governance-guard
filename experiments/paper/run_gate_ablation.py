@@ -196,6 +196,16 @@ GATE_LEAKAGE_COVERAGE: Dict[str, Dict[str, Any]] = {
         "role": "security",
         "description": "Security verification — not related to L1-L5",
     },
+    "cohort_definition_gate": {
+        "detects": [],
+        "role": "clinical",
+        "description": "Validates cohort definition and inclusion/exclusion criteria",
+    },
+    "shap_interpretability_gate": {
+        "detects": [],
+        "role": "interpretability",
+        "description": "SHAP value consistency and interpretability checks",
+    },
 }
 
 LEAKAGE_TYPES = ["L1", "L2", "L3", "L4", "L5"]

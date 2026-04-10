@@ -1,3 +1,7 @@
+<p align="right">
+  <a href="./README_EN.md">English</a> | 中文
+</p>
+
 <p align="center">
   <br>
   <img src="https://img.shields.io/badge/MLGG-v1.0-FF6B35?style=for-the-badge&labelColor=1a1a2e" alt="MLGG v1.0">
@@ -1402,50 +1406,4 @@ AI 会自动：
 
 ## English Version
 
-> This README is written in Chinese as the primary language. All code, commands, and file structures are language-neutral. Click any section link below to jump to the detailed Chinese documentation.
-
-**ML Governance Guard (MLGG)** is an AI-powered co-review system that audits medical ML code to top-journal standards, providing:
-
-- **33 fail-closed audit gates** in a 9-layer DAG &mdash; covering data leakage, interpretability, fairness, calibration, robustness, TRIPOD+AI 2024, and PROBAST+AI 2025
-- **3-layer review architecture**: AST static analysis (25 rules) → runtime gate validation (33 gates) → clinical semantic review with peer review evidence
-- **107 real peer review opinions** from Nature Communications papers (375 structured concerns), retrieved by gate/tag/severity to back every recommendation with reviewer quotes
-- **9-phase guided workflow**: Cohort Definition → Splitting → Preprocessing → Feature Selection → Training → Evaluation → Interpretability → Fairness → Reporting
-- **12-dimension quality scoring** (0-100) with 3 conformance levels (L1/L2/L3)
-- **20 model families** with automatic hyperparameter tuning
-- **14 real medical datasets** (526K rows) from CDC / UCI / NCI / Vanderbilt
-- **Claude Code `/mlgg` Skill**: type `/mlgg` and the AI reviews your code like a Nature Medicine reviewer — finds issues, cites peer review evidence, gives fix code
-
-### Section Navigation
-
-| English | Chinese Section (click to jump) |
-|:--------|:-------------------------------|
-| Why MLGG | [为什么需要 MLGG](#为什么需要-mlgg) |
-| System Overview | [系统能力总览](#系统能力总览) |
-| Quick Start | [快速开始](#快速开始) |
-| Phase 1: Cohort & Sample Size | [阶段一：队列定义与样本量](#阶段一队列定义与样本量) |
-| Phase 2: Data Splitting | [阶段二：数据划分](#阶段二数据划分) |
-| Phase 3: Preprocessing | [阶段三：预处理](#阶段三预处理) |
-| Phase 4: Feature Selection | [阶段四：特征筛选](#阶段四特征筛选) |
-| Phase 5: Training & Selection | [阶段五：模型训练与选择](#阶段五模型训练与选择) |
-| Phase 6: Evaluation & Calibration | [阶段六：评估与校准](#阶段六评估与校准) |
-| Phase 7: Multi-Model SHAP | [阶段七：多模型 SHAP 可解释性](#阶段七多模型-shap-可解释性) |
-| Phase 8: Fairness & Equity | [阶段八：公平性与亚组分析](#阶段八公平性与亚组分析) |
-| Phase 9: Reporting & Compliance | [阶段九：报告与合规](#阶段九报告与合规) |
-| 33-Gate DAG | [33 道安全门控](#33-道安全门控-gate-dag) |
-| 12-Dimension Scoring | [12 维量化评分](#12-维量化评分) |
-| 33 Methodology Rules | [33 条方法论规则](#33-条方法论规则) |
-| 20 Model Families | [20 个模型族](#20-个模型族) |
-| 14 Medical Datasets | [14 个医学数据集](#14-个医学数据集) |
-| Static Analysis (R001-R025) | [20 条静态分析规则](#20-条静态分析规则-r001-r020) |
-| 21 Analysis Tools | [21 项分析工具](#21-项分析工具) |
-| Security Layer | [安全加固层](#安全加固层) |
-| Project Structure | [项目结构](#项目结构) |
-| Installation | [安装指南](#安装指南) |
-| Commands | [命令参考](#命令参考) |
-| Literature | [文献基础](#文献基础) |
-| Claude Code | [Claude Code 集成](#claude-code-集成) |
-| License & Citation | [许可证与引用](#许可证与引用) |
-
-### License & IP (English Summary)
-
-**PolyForm Noncommercial License 1.0.0.** Personal learning and research is permitted without authorization. **All other uses — including academic publication, teaching, derivative works, and institutional deployment — require prior written permission from the author.** Commercial use is strictly prohibited. Uncited reproduction of MLGG methodology constitutes academic misconduct. Contact the author via [GitHub Issues](https://github.com/Furinaaa-Cancan/medical-ml-governance-guard/issues).
+> **[Read the full English version here (README_EN.md)](./README_EN.md)**

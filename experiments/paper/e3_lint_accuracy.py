@@ -24,8 +24,13 @@ RULE_TO_LEAKAGE = {
     "R005": ["L1.2"],  # threshold-on-test (technically L5, but often co-occurs with L1.2)
     "R006": ["L1.3"],  # feature-selection-full
     "R007": ["L1.3"],  # target-as-feature
+    "R011": ["L1.2"],  # train-metric-as-final
     "R017": ["L1.2"],  # early-stop-on-test
     "R020": ["L1.2"],  # global-clean-before-split
+    "R023": ["L1.2"],  # target-encoding-leak
+    "R024": ["L1.2"],  # frequency-encoding-leak
+    "R026": ["L1.2"],  # fillna-before-split
+    "R027": ["L1.2"],  # manual-scaling-before-split
 }
 
 # Quality rules (not directly leakage)
@@ -34,8 +39,8 @@ QUALITY_RULES = {"R004", "R008", "R009", "R010", "R011", "R012", "R013",
 
 
 def main() -> None:
-    # Load R1 scan results (172 repos)
-    with open(OUTPUT_DIR / "code_audit_v3_final.json") as f:
+    # Load R1 scan results (172 repos) — v4 is the post-fix version
+    with open(OUTPUT_DIR / "code_audit_v4_post_fix.json") as f:
         audit = json.load(f)
 
     # Load R2b comparison data (43 papers with both methods + code review)

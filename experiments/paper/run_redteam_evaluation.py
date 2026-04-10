@@ -31,7 +31,7 @@ PYTHON = sys.executable
 
 LEAKAGE_RULES = {
     "R001", "R002", "R003", "R005", "R006", "R007",
-    "R017", "R020", "R023", "R024",
+    "R011", "R017", "R020", "R023", "R024", "R026", "R027",
 }
 
 DIFFICULTY_LABELS = {

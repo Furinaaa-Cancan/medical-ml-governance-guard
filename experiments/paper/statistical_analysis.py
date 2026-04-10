@@ -381,7 +381,7 @@ def run_analysis(base: Path) -> dict:
     results["subgroup_disease"] = disease_stats
 
     # By year bin
-    year_bins = {"2015-2019": [], "2020-2022": [], "2023-2025": []}
+    year_bins = {"2015-2019": [], "2020-2022": [], "2023-2026": []}
     for pm in paper_meta:
         y = pm.get("year")
         if y and y <= 2019:
@@ -389,7 +389,7 @@ def run_analysis(base: Path) -> dict:
         elif y and y <= 2022:
             year_bins["2020-2022"].append(pm)
         elif y:
-            year_bins["2023-2025"].append(pm)
+            year_bins["2023-2026"].append(pm)
 
     year_bin_stats = {}
     for label, pms in year_bins.items():

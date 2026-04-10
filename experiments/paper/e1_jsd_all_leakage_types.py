@@ -104,12 +104,13 @@ def inject_leakage(df: pd.DataFrame, target_col: str, pid_col: str,
         return train_df, test_df
 
     elif leakage_type == "L4_no_grouping":
-        # Random split ignoring patient IDs (row-level, not patient-level)
-        # Simulate by duplicating some patients across splits
+        # Random row-level split ignoring patient IDs.
+        # For single-row-per-patient datasets (UCI, etc.) this is identical
+        # to clean — L4 leakage only manifests in longitudinal data where
+        # the same patient has multiple rows.
         df_mod = df.copy()
         if pid_col not in df_mod.columns:
             return None, None
-        # Just do a plain random split (ignoring groups)
         train_df, test_df = train_test_split(
             df_mod, test_size=0.2, random_state=seed, stratify=df_mod[target_col]
         )

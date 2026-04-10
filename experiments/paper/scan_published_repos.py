@@ -231,10 +231,13 @@ def scan_repo(
         "R005": "threshold_on_test",
         "R006": "feature_selection_on_full",
         "R007": "target_as_feature",
+        "R011": "train_metric_as_final",
         "R017": "early_stop_on_test",
         "R020": "global_clean_before_split",
         "R023": "target_encoding_leak",
         "R024": "frequency_encoding_leak",
+        "R026": "fillna_before_split",
+        "R027": "manual_scaling_before_split",
     }
     leakage_types_found = [
         leakage_rules[rid] for rid in rule_counts if rid in leakage_rules
@@ -242,7 +245,7 @@ def scan_repo(
 
     # Only count leakage from training files (files with split + fit)
     has_leakage = any(
-        f.get("severity") == "error" and f.get("rule_id", "").startswith("R0")
+        f.get("severity") == "error" and f.get("rule_id") in leakage_rules
         for f in training_file_findings
     )
 
