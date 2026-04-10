@@ -106,9 +106,11 @@ def find_ml_files(repo_dir: Path) -> List[Path]:
                          "env", "docs", "doc", "test", "tests", "setup.py"}
             if any(p.lower() in skip_dirs for p in parts):
                 continue
-            # Skip very large files (>500KB)
+            # Skip very large files — notebooks are bigger due to embedded
+            # outputs, so use a higher limit for .ipynb.
+            max_bytes = 5_000_000 if f.suffix == ".ipynb" else 500_000
             try:
-                if f.stat().st_size > 500_000:
+                if f.stat().st_size > max_bytes:
                     continue
             except OSError:
                 continue

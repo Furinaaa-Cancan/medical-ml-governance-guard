@@ -64,17 +64,50 @@ def _build_taint_tracker(tree: ast.Module, im: ImportMap) -> TaintTracker:
 
     tracker = TaintTracker()
     split_calls = {"train_test_split", "sklearn.model_selection.train_test_split"}
+    # CV/KFold calls also imply a split boundary — any preprocessing before
+    # these calls applies to the full dataset.
+    cv_calls = {
+        "cross_val_score", "cross_validate", "cross_val_predict",
+        "sklearn.model_selection.cross_val_score",
+        "sklearn.model_selection.cross_validate",
+        "sklearn.model_selection.cross_val_predict",
+    }
+
+
+    def _unwrap_call(value: ast.AST) -> ast.Call | None:
+        """Unwrap Call from Subscript (e.g. train_test_split(...)[0])."""
+        if isinstance(value, ast.Call):
+            return value
+        if isinstance(value, ast.Subscript) and isinstance(value.value, ast.Call):
+            return value.value
+        return None
 
     for node in ast.walk(tree):
-        if not isinstance(node, ast.Assign):
-            continue
-        if not isinstance(node.value, ast.Call):
-            continue
-        fqn = call_name(node.value, im)
-        if fqn and matches_any(fqn, split_calls):
-            for target in node.targets:
-                names = extract_tuple_targets(target)
-                tracker.record_split(names, node.lineno)
+        # Pattern 1: X_train, X_test, ... = train_test_split(...)
+        #         or: indices = train_test_split(...)[0]
+        if isinstance(node, ast.Assign):
+            call_node = _unwrap_call(node.value)
+            if call_node is not None:
+                fqn = call_name(call_node, im)
+                if fqn and matches_any(fqn, split_calls):
+                    for target in node.targets:
+                        names = extract_tuple_targets(target)
+                        tracker.record_split(names, node.lineno)
+
+        # Pattern 2: cross_val_score(model, X, y, ...) — standalone call or assign
+        if isinstance(node, (ast.Assign, ast.Expr)):
+            call_node = node.value if isinstance(node, ast.Assign) else node.value
+            if isinstance(call_node, ast.Call):
+                fqn = call_name(call_node, im)
+                if fqn and matches_any(fqn, cv_calls):
+                    tracker.record_split([], node.lineno)
+
+        # Pattern 3: for train_idx, test_idx in kf.split(X):
+        if isinstance(node, ast.For) and isinstance(node.iter, ast.Call):
+            if isinstance(node.iter.func, ast.Attribute):
+                if node.iter.func.attr == "split":
+                    names = extract_tuple_targets(node.target)
+                    tracker.record_split(names, node.lineno)
 
     return tracker
 
