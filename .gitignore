@@ -51,3 +51,6 @@ experiments/authority-e2e/_stress_seed_workspace/
 experiments/authority-e2e/_benchmark_matrix_runs/
 experiments/overnight_2*/
 experiments/overnight_run.log
+
+# NHANES codebook data (download via references/nhanes_codebook/README.md)
+references/nhanes_codebook/*.tsv

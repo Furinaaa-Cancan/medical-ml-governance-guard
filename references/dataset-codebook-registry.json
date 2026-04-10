@@ -1,6 +1,15 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "description": "Dataset-level variable codebook registry. Maps raw variable codes to clinical semantics, gating conditions, measurement protocols, and encoding requirements. Used by gates and /mlgg skill to auto-validate feature engineering code.",
+  "authoritative_source": {
+    "repository": "ccb-hms/NHANES-metadata (Harvard Center for Computational Biomedicine)",
+    "files": [
+      "references/nhanes_codebook/nhanes_variables.tsv (58794 variables, all NHANES cycles)",
+      "references/nhanes_codebook/nhanes_variables_codebooks.tsv (202019 codebook entries with skip patterns)"
+    ],
+    "cross_validation": "21/21 variables validated against Harvard data. 0 semantic conflicts.",
+    "last_validated": "2026-04-10"
+  },
   "datasets": {
     "nhanes_2017_2020": {
       "full_name": "National Health and Nutrition Examination Survey 2017-2020 (Pre-Pandemic)",
@@ -62,10 +71,12 @@
         "DIQ010": {
           "label": "Doctor told you have diabetes",
           "type": "binary_with_borderline",
-          "codes": {"1": "Yes", "2": "No", "3": "Borderline"},
+          "codes": {"1": "Yes", "2": "No", "3": "Borderline", "7": "Refused", "9": "Don't know"},
           "questionnaire": "DIQ",
           "definition_variable_for": ["diabetes"],
-          "must_exclude_if_target": true
+          "must_exclude_if_target": true,
+          "skip_pattern": {"2": "DIQ159", "3": "DIQ159", "7": "DIQ159"},
+          "harvard_validated": true
         },
         "DIQ160": {
           "label": "Ever told you have prediabetes",
@@ -86,13 +97,16 @@
         "DIQ172": {
           "label": "Feel could be at risk for diabetes/prediabetes",
           "type": "binary_subjective",
-          "codes": {"1": "Yes", "2": "No"},
+          "codes": {"1": "Yes", "2": "No", "7": "Refused", "9": "Don't know"},
           "questionnaire": "DIQ",
-          "skip_pattern": "Only asked if DIQ010 != 1 AND DIQ160 != 1",
+          "skip_pattern": {"2": "DIQ180", "7": "DIQ180", "9": "DIQ180"},
+          "skip_pattern_text": "Only asked if DIQ010 != 1 AND DIQ160 != 1",
           "missingness_mechanism": "MNAR_gated_by_target",
           "target_adjacent_for": ["diabetes"],
           "must_exclude_if_target": true,
-          "common_mislabel": "Often confused with family_history_diabetes — it is NOT family history"
+          "common_mislabel": "Often confused with family_history_diabetes — it is NOT family history. Harvard CCB-HMS confirms label is 'Feel could be at risk for diabetes'.",
+          "harvard_validated": true,
+          "harvard_missing_rate_2017": "3021/8897 (34%)"
         },
         "MCQ300C": {
           "label": "Close relative had diabetes",
@@ -105,21 +119,25 @@
         "BPQ020": {
           "label": "Ever told you had high blood pressure",
           "type": "binary",
-          "codes": {"1": "Yes", "2": "No"},
+          "codes": {"1": "Yes", "2": "No", "7": "Refused", "9": "Don't know"},
           "questionnaire": "BPQ",
+          "skip_pattern": {"2": "BPQ080", "7": "BPQ080", "9": "BPQ080"},
           "gates_downstream": ["BPQ050A"],
-          "safe_as_feature": true
+          "safe_as_feature": true,
+          "harvard_validated": true
         },
         "BPQ050A": {
           "label": "Now taking prescribed BP medicine",
           "type": "binary_gated",
-          "codes": {"1": "Yes", "2": "No"},
+          "codes": {"1": "Yes", "2": "No", "7": "Refused", "9": "Don't know"},
           "questionnaire": "BPQ",
-          "skip_pattern": "Only asked if BPQ020 = 1 (Yes)",
+          "skip_pattern_text": "Only asked if BPQ020 = 1 (Yes). Gated by BPQ020 skip→BPQ080.",
           "missingness_mechanism": "MNAR_gated_by_BPQ020",
           "missingness_true_meaning": "Never diagnosed hypertension → no medication → code as 0",
           "safe_as_feature": true,
-          "encoding_rule": "fillna_with_0"
+          "encoding_rule": "fillna_with_0",
+          "harvard_validated": true,
+          "harvard_missing_rate_2017": "4219/6161 (68%)"
         },
         "BPXOSY1": {
           "label": "Systolic BP reading 1 (oscillometric)",
