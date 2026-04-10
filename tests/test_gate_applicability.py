@@ -6,10 +6,6 @@ from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
-sys.path.insert(0, str(Path(__file__).parent.parent / "scripts" / "core"))
-sys.path.insert(0, str(Path(__file__).parent.parent / "scripts" / "gates"))
-sys.path.insert(0, str(Path(__file__).parent.parent / "scripts" / "tools"))
 
 from gate_applicability import GateApplicability, SUPPORTED_TYPES
 

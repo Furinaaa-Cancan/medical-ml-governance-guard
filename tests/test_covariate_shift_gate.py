@@ -17,11 +17,6 @@ import pytest
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
 GATE_SCRIPT = SCRIPTS_DIR / "gates/covariate_shift_gate.py"
 
-sys.path.insert(0, str(SCRIPTS_DIR))
-sys.path.insert(0, str(SCRIPTS_DIR / "core"))
-sys.path.insert(0, str(SCRIPTS_DIR / "gates"))
-sys.path.insert(0, str(SCRIPTS_DIR / "tools"))
-sys.path.insert(0, str(SCRIPTS_DIR / "orchestration"))
 import covariate_shift_gate as csg
 
 

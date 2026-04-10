@@ -7,11 +7,6 @@ import sys
 from pathlib import Path
 
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "core"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "gates"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orchestration"))
 from publication_gate import (
     parse_int_like,
     validate_component_status,

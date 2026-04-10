@@ -7,8 +7,6 @@ from unittest.mock import patch
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts" / "tools"))
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts" / "core"))
 
 TOOL_PATH = str(Path(__file__).resolve().parents[1] / "scripts" / "tools" / "fetch_papers.py")
 

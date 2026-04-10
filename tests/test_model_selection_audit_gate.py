@@ -18,11 +18,6 @@ from typing import List
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
 GATE_SCRIPT = SCRIPTS_DIR / "gates/model_selection_audit_gate.py"
 
-sys.path.insert(0, str(SCRIPTS_DIR))
-sys.path.insert(0, str(SCRIPTS_DIR / "core"))
-sys.path.insert(0, str(SCRIPTS_DIR / "gates"))
-sys.path.insert(0, str(SCRIPTS_DIR / "tools"))
-sys.path.insert(0, str(SCRIPTS_DIR / "orchestration"))
 import model_selection_audit_gate as msg
 
 

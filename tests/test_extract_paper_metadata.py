@@ -44,7 +44,6 @@ try:
     from pydantic import ValidationError
 
     # Add tool's parent to path so we can import its models
-    sys.path.insert(0, str(TOOL_PATH.parent))
     from extract_paper_metadata import (
         DatasetOut,
         ExtractionResult,

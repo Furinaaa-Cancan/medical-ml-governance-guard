@@ -8,11 +8,7 @@ from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "core"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "gates"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orchestration"))
+# sys.path configured by tests/conftest.py
 from leakage_gate import (
     bounds_for_time,
     epoch_to_iso,

@@ -23,7 +23,6 @@ TOOL_PATH = Path(__file__).resolve().parent.parent / "scripts" / "tools" / "mlgg
 flask = pytest.importorskip("flask", reason="Flask required for mlgg_web tests")
 
 # Import the module under test
-sys.path.insert(0, str(TOOL_PATH.parent))
 from mlgg_web import (  # noqa: E402
     _check_rate_limit,
     _generate_csrf_token,

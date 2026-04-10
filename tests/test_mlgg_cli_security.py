@@ -56,11 +56,6 @@ def run_mlgg_module(args: List[str]) -> tuple[int, str, str]:
     import io
     from contextlib import redirect_stderr, redirect_stdout
 
-    sys.path.insert(0, str(SCRIPTS_ROOT))
-    sys.path.insert(0, str(SCRIPTS_ROOT / "core"))
-    sys.path.insert(0, str(SCRIPTS_ROOT / "gates"))
-    sys.path.insert(0, str(SCRIPTS_ROOT / "tools"))
-    sys.path.insert(0, str(SCRIPTS_ROOT / "orchestration"))
     import importlib
     if "mlgg" in sys.modules:
         del sys.modules["mlgg"]

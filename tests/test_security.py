@@ -15,11 +15,6 @@ from unittest import mock
 import pytest
 
 # Ensure scripts/ is importable
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "core"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "gates"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orchestration"))
 
 from _security import (
     ArtifactManifest,

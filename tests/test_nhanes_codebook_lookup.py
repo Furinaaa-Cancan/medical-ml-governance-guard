@@ -7,7 +7,6 @@ from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
 
 CODEBOOK_DIR = Path(__file__).resolve().parent.parent / "references" / "nhanes_codebook"
 REGISTRY_PATH = Path(__file__).resolve().parent.parent / "references" / "dataset-codebook-registry.json"

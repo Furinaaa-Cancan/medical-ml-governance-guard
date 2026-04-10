@@ -11,11 +11,6 @@ import sys
 from pathlib import Path
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
-sys.path.insert(0, str(SCRIPTS_DIR))
-sys.path.insert(0, str(SCRIPTS_DIR / "core"))
-sys.path.insert(0, str(SCRIPTS_DIR / "gates"))
-sys.path.insert(0, str(SCRIPTS_DIR / "tools"))
-sys.path.insert(0, str(SCRIPTS_DIR / "orchestration"))
 
 import threshold_sensitivity as ts
 

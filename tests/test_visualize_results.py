@@ -11,11 +11,6 @@ import numpy as np
 import pandas as pd
 
 pytest.importorskip("matplotlib", reason="matplotlib not installed")
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "core"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "gates"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orchestration"))
 import visualize_results as viz
 
 

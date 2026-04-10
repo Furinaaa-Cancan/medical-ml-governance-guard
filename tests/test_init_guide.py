@@ -15,8 +15,6 @@ import pytest
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
 TOOL_SCRIPT = SCRIPTS_DIR / "tools" / "init_guide.py"
 
-sys.path.insert(0, str(SCRIPTS_DIR / "core"))
-sys.path.insert(0, str(SCRIPTS_DIR / "tools"))
 
 import init_guide as ig
 

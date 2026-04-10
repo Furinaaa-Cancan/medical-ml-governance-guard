@@ -8,12 +8,6 @@ from pathlib import Path
 import pytest
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
-if str(SCRIPTS_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPTS_DIR))
-    sys.path.insert(0, str(SCRIPTS_DIR / "core"))
-    sys.path.insert(0, str(SCRIPTS_DIR / "gates"))
-    sys.path.insert(0, str(SCRIPTS_DIR / "tools"))
-    sys.path.insert(0, str(SCRIPTS_DIR / "orchestration"))
 
 from report_health_check import (
     EXPECTED_REPORTS,

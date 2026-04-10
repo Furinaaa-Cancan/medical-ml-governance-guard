@@ -9,11 +9,6 @@ from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "core"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "gates"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orchestration"))
 import manifest_lock as ml
 from manifest_lock import (
     compare_manifest,

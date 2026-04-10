@@ -22,9 +22,6 @@ SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
 GATES_DIR = SCRIPTS_DIR / "gates"
 CORE_DIR = SCRIPTS_DIR / "core"
 
-sys.path.insert(0, str(SCRIPTS_DIR))
-sys.path.insert(0, str(CORE_DIR))
-sys.path.insert(0, str(GATES_DIR))
 
 from _gate_utils import contains_test_token
 

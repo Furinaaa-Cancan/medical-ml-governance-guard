@@ -8,11 +8,6 @@ from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "core"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "gates"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "tools"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "orchestration"))
 from score_paper_metadata import score_metadata, validate_metadata, _check_epv
 
 
@@ -236,7 +231,6 @@ def test_validate_clean_metadata_no_errors():
 
 def test_grade_labels_match_audit_shared():
     """Grade labels in score_metadata must match _audit_shared.score_interpretation."""
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
     from _audit_shared import score_interpretation
 
     for target, expected in [(95, "Publication-grade"), (80, "Solid but gaps remain"),
