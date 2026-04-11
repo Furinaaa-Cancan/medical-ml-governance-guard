@@ -68,125 +68,44 @@ MANDATORY_CLINICAL_METRICS = [
 
 # ---------------------------------------------------------------------------
 # Profile-based threshold overrides
+# Loaded from references/publication-policy-baselines.json at import time.
 # See references/gate-strictness-profiles.md for rationale.
 # ---------------------------------------------------------------------------
 
-# ── POLICY CONFIGURATION (869 lines) ─────────────────────────────────
-# TODO: Migrate to references/publication-policy-baselines.json for
-# easier auditing, versioning, and user customization.
-# Currently hardcoded as Python dicts; values are from:
-#   - Nature Methods / JAMA / Lancet DH reviewer expectations
-#   - TRIPOD+AI 2024 Items 4a, 6a, 10a, 13a
-#   - PROBAST+AI 2025 Domains 1-4
-# ─────────────────────────────────────────────────────────────────────
-_PROFILE_OVERRIDES: Dict[str, Dict[str, Any]] = {
-    "standard": {},  # Default — no overrides
-    "small_cohort": {
-        "clinical_floors_min": {
-            "sensitivity_min": 0.75,
-            "npv_min": 0.55,
-            "specificity_min": 0.30,
-            "ppv_min": 0.40,
-        },
-        "seed_stability_thresholds_max": {
-            "pr_auc_std_max": 0.05,
-            "pr_auc_range_max": 0.12,
-            "f2_beta_std_max": 0.07,
-            "f2_beta_range_max": 0.16,
-            "brier_std_max": 0.03,
-            "brier_range_max": 0.08,
-        },
-        "gap_thresholds_max": {
-            ("train", "valid", "pr_auc"): {"warn": 0.07, "fail": 0.12},
-            ("valid", "test", "pr_auc"): {"warn": 0.06, "fail": 0.10},
-            ("train", "test", "f2_beta"): {"warn": 0.10, "fail": 0.15},
-            ("valid", "test", "brier"): {"warn": 0.03, "fail": 0.05},
-        },
-        "external_validation_thresholds": {
-            "min_rows_per_cohort_min": 10,
-            "min_positive_per_cohort_min": 3,
-            "max_pr_auc_drop_max": 0.12,
-            "max_f2_beta_drop_max": 0.15,
-        },
-        "distribution_thresholds_v2": {
-            "split_classifier_auc_fail_max": 0.80,
-            "split_classifier_auc_warn_max": 0.73,
-            "top_feature_jsd_fail_max": 0.40,
-            "top_feature_jsd_warn_max": 0.28,
-        },
-    },
-    "rare_disease": {
-        "seed_stability_thresholds_max": {
-            "pr_auc_std_max": 0.08,
-            "pr_auc_range_max": 0.20,
-            "f2_beta_std_max": 0.10,
-            "f2_beta_range_max": 0.25,
-            "brier_std_max": 0.05,
-            "brier_range_max": 0.12,
-        },
-        "gap_thresholds_max": {
-            ("train", "valid", "pr_auc"): {"warn": 0.10, "fail": 0.18},
-            ("valid", "test", "pr_auc"): {"warn": 0.08, "fail": 0.15},
-            ("train", "test", "f2_beta"): {"warn": 0.15, "fail": 0.22},
-            ("valid", "test", "brier"): {"warn": 0.05, "fail": 0.08},
-        },
-        "external_validation_thresholds": {
-            "min_cohort_count_min": 1,
-            "min_rows_per_cohort_min": 5,
-            "min_positive_per_cohort_min": 2,
-            "max_pr_auc_drop_max": 0.18,
-            "max_f2_beta_drop_max": 0.22,
-            "require_cross_period": False,
-            "require_cross_institution": False,
-        },
-        "distribution_thresholds_v2": {
-            "split_classifier_auc_fail_max": 0.85,
-            "split_classifier_auc_warn_max": 0.78,
-            "top_feature_jsd_fail_max": 0.50,
-            "top_feature_jsd_warn_max": 0.35,
-        },
-        "clinical_floors_min": {
-            "sensitivity_min": 0.75,
-            "npv_min": 0.80,
-            "specificity_min": 0.30,
-            "ppv_min": 0.40,
-        },
-    },
-    "exploratory": {
-        "seed_stability_thresholds_max": {
-            "pr_auc_std_max": 0.10,
-            "pr_auc_range_max": 0.25,
-            "f2_beta_std_max": 0.12,
-            "f2_beta_range_max": 0.30,
-            "brier_std_max": 0.06,
-            "brier_range_max": 0.15,
-        },
-        "gap_thresholds_max": {
-            ("train", "valid", "pr_auc"): {"warn": 0.15, "fail": 0.25},
-            ("valid", "test", "pr_auc"): {"warn": 0.12, "fail": 0.20},
-            ("train", "test", "f2_beta"): {"warn": 0.20, "fail": 0.30},
-            ("valid", "test", "brier"): {"warn": 0.08, "fail": 0.12},
-        },
-        "external_validation_thresholds": {
-            "min_cohort_count_min": 0,
-            "require_cross_period": False,
-            "require_cross_institution": False,
-        },
-        "distribution_thresholds_v2": {
-            "split_classifier_auc_fail_max": 0.90,
-            "split_classifier_auc_warn_max": 0.82,
-            "top_feature_jsd_fail_max": 0.60,
-            "top_feature_jsd_warn_max": 0.45,
-        },
-        "clinical_floors_min": {
-            "sensitivity_min": 0.60,
-            "npv_min": 0.70,
-            "specificity_min": 0.20,
-            "ppv_min": 0.30,
-        },
-    },
-}
+_POLICY_JSON_PATH = Path(__file__).resolve().parent.parent.parent / "references" / "publication-policy-baselines.json"
 
+
+def _decode_gap_keys(d: Dict[str, Any]) -> Dict[str, Any]:
+    """Convert pipe-delimited gap_thresholds_max keys to tuples.
+
+    JSON keys like "train|valid|pr_auc" → Python tuple ("train", "valid", "pr_auc").
+    Also converts list-typed allowed_selection_splits/scopes to sets.
+    """
+    result = {}
+    for k, v in d.items():
+        if k == "gap_thresholds_max" and isinstance(v, dict):
+            result[k] = {tuple(key.split("|")): val for key, val in v.items()}
+        elif k in ("allowed_selection_splits", "allowed_selection_scopes") and isinstance(v, list):
+            result[k] = set(v)
+        elif isinstance(v, dict):
+            result[k] = _decode_gap_keys(v)
+        else:
+            result[k] = v
+    return result
+
+
+def _load_policy_json() -> tuple:
+    """Load baselines and profile overrides from JSON. Returns (baselines, overrides)."""
+    with open(_POLICY_JSON_PATH, encoding="utf-8") as f:
+        raw = json.load(f)
+    baselines = _decode_gap_keys(raw["baselines"])
+    overrides = {}
+    for profile_name, profile_data in raw.get("profile_overrides", {}).items():
+        overrides[profile_name] = _decode_gap_keys(profile_data)
+    return baselines, overrides
+
+
+PUBLICATION_POLICY_BASELINES, _PROFILE_OVERRIDES = _load_policy_json()
 ALLOWED_PROFILES = set(_PROFILE_OVERRIDES.keys())
 
 
@@ -201,99 +120,6 @@ def _apply_profile(baselines: Dict[str, Any], profile: str) -> Dict[str, Any]:
         else:
             result[key] = value
     return result
-
-
-PUBLICATION_POLICY_BASELINES: Dict[str, Any] = {
-    "beta": 2.0,
-    "threshold_policy_strategy": "maximize_fbeta_under_floors",
-    "allowed_selection_splits": {"valid", "cv_inner", "nested_cv"},
-    "clinical_floors_min": {
-        "sensitivity_min": 0.85,
-        "npv_min": 0.90,
-        "specificity_min": 0.40,
-        "ppv_min": 0.55,
-    },
-    "gap_thresholds_max": {
-        ("train", "valid", "pr_auc"): {"warn": 0.05, "fail": 0.08},
-        ("valid", "test", "pr_auc"): {"warn": 0.04, "fail": 0.06},
-        ("train", "test", "f2_beta"): {"warn": 0.07, "fail": 0.10},
-        ("valid", "test", "brier"): {"warn": 0.02, "fail": 0.03},
-    },
-    "robustness_thresholds_min": {"min_slice_size": 8, "min_positive": 2},
-    "robustness_thresholds_max": {
-        "pr_auc_drop_warn": 0.10,
-        "pr_auc_drop_fail": 0.14,
-        "pr_auc_range_warn": 0.15,
-        "pr_auc_range_fail": 0.20,
-    },
-    "seed_stability_thresholds_max": {
-        "pr_auc_std_max": 0.03,
-        "pr_auc_range_max": 0.08,
-        "f2_beta_std_max": 0.05,
-        "f2_beta_range_max": 0.12,
-        "brier_std_max": 0.02,
-        "brier_range_max": 0.05,
-    },
-    "prediction_replay_thresholds": {
-        "metric_tolerance_max": 1e-6,
-        "threshold_tolerance_max": 1e-9,
-        "beta": 2.0,
-    },
-    "external_validation_thresholds": {
-        "min_cohort_count_min": 1,
-        "min_rows_per_cohort_min": 20,
-        "min_positive_per_cohort_min": 3,
-        "max_pr_auc_drop_max": 0.08,
-        "max_f2_beta_drop_max": 0.10,
-        "max_brier_increase_max": 0.05,
-        "metric_tolerance_max": 1e-6,
-        "beta": 2.0,
-        "require_cross_period": True,
-        "require_cross_institution": True,
-    },
-    "calibration_dca_thresholds": {
-        "ece_max_max": 0.06,
-        "slope_min_min": 0.80,
-        "slope_max_max": 2.00,
-        "intercept_abs_max_max": 1.00,
-        "min_rows_min": 50,
-        "min_positives_min": 10,
-        "threshold_grid_start_max": 0.10,
-        "threshold_grid_end_min": 0.30,
-        "threshold_grid_step_max": 0.05,
-        "min_advantage_coverage_min": 0.50,
-        "min_average_advantage_min": 0.0,
-        "min_net_benefit_advantage_min": 0.0,
-    },
-    "distribution_thresholds_v2": {
-        "split_classifier_auc_fail_max": 0.75,
-        "split_classifier_auc_warn_max": 0.68,
-        "top_feature_jsd_fail_max": 0.30,
-        "top_feature_jsd_warn_max": 0.20,
-        "high_shift_feature_fraction_fail_max": 0.30,
-        "high_shift_feature_fraction_warn_max": 0.20,
-        "missing_ratio_delta_fail_max": 0.20,
-        "missing_ratio_delta_warn_max": 0.12,
-        "prevalence_delta_fail_max": 0.20,
-        "prevalence_delta_warn_max": 0.10,
-    },
-    "feature_engineering_policy": {
-        "require_explicit_feature_groups": True,
-        "allowed_selection_scopes": {"train_only", "cv_inner_train_only"},
-        "require_stability_evidence": True,
-        "min_feature_selection_frequency": 0.50,
-        "min_group_selection_frequency": 0.50,
-        "disallow_valid_test_external_for_selection": True,
-        "require_reproducibility_fields": True,
-    },
-    "ci_policy": {
-        "n_resamples_min": 2000,
-        "max_resamples_supported_max": 4000,
-        "max_width_max": 0.20,
-        "metric_tolerance_max": 1e-6,
-        "transport_ci_required": True,
-    },
-}
 
 
 

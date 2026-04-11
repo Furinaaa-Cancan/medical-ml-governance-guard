@@ -279,6 +279,11 @@ def _aggregate_shap(
     Dual-track:
       1. Per-model mean(|SHAP|) → L1-normalize to proportions → average
       2. Per-model mean(SHAP) → average for directional information
+
+    Handles dimension mismatch across model families: different pipelines
+    may produce different feature counts (e.g., LR with OneHot + missing
+    indicators vs tree models without). SHAP values are aligned to
+    ``feature_names`` by truncating or zero-padding as needed.
     """
     n_features = len(feature_names)
 
@@ -287,9 +292,22 @@ def _aggregate_shap(
     per_model_proportion: Dict[str, np.ndarray] = {}
 
     for family, result in family_results.items():
-        raw = result["raw_shap"]  # (n_samples, n_features)
-        abs_mean = np.mean(np.abs(raw), axis=0)  # (n_features,)
+        raw = result["raw_shap"]  # (n_samples, n_features_model)
+        abs_mean = np.mean(np.abs(raw), axis=0)  # (n_features_model,)
         signed_mean = np.mean(raw, axis=0)
+
+        # Align to canonical feature_names dimension.
+        # If model has more features (e.g., OneHot/indicators), truncate.
+        # If fewer, zero-pad. This is a pragmatic alignment — a model
+        # with extra encoded features will have those contributions dropped.
+        if len(abs_mean) != n_features:
+            abs_aligned = np.zeros(n_features)
+            signed_aligned = np.zeros(n_features)
+            k = min(len(abs_mean), n_features)
+            abs_aligned[:k] = abs_mean[:k]
+            signed_aligned[:k] = signed_mean[:k]
+            abs_mean = abs_aligned
+            signed_mean = signed_aligned
 
         per_model_abs[family] = abs_mean
         per_model_signed[family] = signed_mean
@@ -377,6 +395,9 @@ def _build_case_explanations(
         selected_family = next(iter(family_results))
 
     raw_shap = family_results[selected_family]["raw_shap"]
+    # Truncate to canonical feature count if model has extra features
+    if raw_shap.shape[1] > len(feature_names):
+        raw_shap = raw_shap[:, :len(feature_names)]
     n_samples = raw_shap.shape[0]
 
     # Ensure arrays match

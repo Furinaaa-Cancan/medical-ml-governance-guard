@@ -1,5 +1,5 @@
 {
-  "actual_primary_metric": 0.4995705810013591,
+  "actual_primary_metric": 0.5098132920153122,
   "ci_matrix_report_file": "../evidence/ci_matrix_report.json",
   "claim_tier_target": "publication-grade",
   "context": {
@@ -52,7 +52,7 @@
     "profile": "standard"
   },
   "tuning_protocol_spec": "tuning_protocol.json",
-  "profile": "small_cohort",
+  "profile": "standard",
   "study_design": "cross_sectional",
   "cross_sectional": true
 }
