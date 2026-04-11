@@ -668,15 +668,24 @@ def _start_pipeline(sid: str, session: Dict[str, Any]) -> None:
 # ── main ───────────────────────────────────────────────────────────────────────
 def main() -> None:
     """Start the local web UI server."""
+    import argparse
+    parser = argparse.ArgumentParser(
+        description="ML Governance Guard — legacy local Web UI wizard. "
+                    "Starts a Flask server on 127.0.0.1:8501.",
+    )
+    parser.add_argument("--port", type=int, default=8501, help="Port to bind (default 8501).")
+    parser.add_argument("--host", default="127.0.0.1", help="Host to bind (default 127.0.0.1).")
+    args = parser.parse_args()
+
     print("ML Governance Guard Web UI (legacy local prototype)")
     print("Supported interactive entrypoint: python3 scripts/mlgg.py play")
-    print("Open http://127.0.0.1:8501 in your browser.")
+    print(f"Open http://{args.host}:{args.port} in your browser.")
     print("Press Ctrl+C to stop.\n")
     try:
-        app.run(host="127.0.0.1", port=8501, debug=False, threaded=True)
+        app.run(host=args.host, port=args.port, debug=False, threaded=True)
     except OSError as exc:
         if "Address already in use" in str(exc):
-            print("Port 8501 is already in use. Try: lsof -i :8501", file=sys.stderr)
+            print(f"Port {args.port} is already in use. Try: lsof -i :{args.port}", file=sys.stderr)
         raise SystemExit(1)
 
 

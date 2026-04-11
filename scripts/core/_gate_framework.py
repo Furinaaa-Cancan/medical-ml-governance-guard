@@ -22,14 +22,24 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
 
-from _gate_utils import (
-    add_issue,
-    add_timeout_argument,
-    get_gate_elapsed,
-    install_gate_timeout,
-    start_gate_timer,
-    write_json,
-)
+try:
+    from _gate_utils import (
+        add_issue,
+        add_timeout_argument,
+        get_gate_elapsed,
+        install_gate_timeout,
+        start_gate_timer,
+        write_json,
+    )
+except ImportError:
+    from scripts.core._gate_utils import (  # type: ignore[no-redef]
+        add_issue,
+        add_timeout_argument,
+        get_gate_elapsed,
+        install_gate_timeout,
+        start_gate_timer,
+        write_json,
+    )
 
 
 # ---------------------------------------------------------------------------

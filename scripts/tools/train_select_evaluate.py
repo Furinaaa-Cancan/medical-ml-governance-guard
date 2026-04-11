@@ -5912,16 +5912,6 @@ def main() -> int:
     groups, forbidden_features = normalize_feature_groups(feature_group_spec)
     grouped_features = sorted({feature for values in groups.values() for feature in values})
     if grouped_features:
-
-    # ═══════════════════════════════════════════════════════════════════════
-    # PHASE 2: FEATURE ENGINEERING
-    # Inputs:  train_df, stage0_features, args
-    # Outputs: selected_features, stage1_report, categorical_report,
-    #          stability_frequency, vif_report, nonlinearity_report,
-    #          X_train, X_valid, X_test (may be re-encoded)
-    # ═══════════════════════════════════════════════════════════════════════
-
-
         stage0_features = [f for f in base_feature_cols if f in grouped_features and f not in set(forbidden_features)]
     else:
         stage0_features = [f for f in base_feature_cols if f not in set(forbidden_features)]
@@ -5929,6 +5919,15 @@ def main() -> int:
         stage0_features = [f for f in base_feature_cols if f not in set(forbidden_features)]
     if not stage0_features:
         raise SystemExit("No usable features remain after feature-group and forbidden-feature filtering.")
+
+    # ═════════��═════════════════════════════════════════════════════════════
+    # PHASE 2: FEATURE ENGINEERING
+    # Inputs:  train_df, stage0_features, args, fe_mode_cfg
+    # Outputs: selected_features, pre_encoding_features, stage1_report,
+    #          categorical_report, stability_frequency, vif_report,
+    #          nonlinearity_report, X_train, X_valid, X_test, y_train,
+    #          y_valid, y_test, has_valid, has_test, external_cohorts
+    # ═══════════════════════════════════════════════════════════════════════
 
     # ── Cross-split missingness divergence check ────────────────────────
     # Detect features where train missing rate differs drastically from
