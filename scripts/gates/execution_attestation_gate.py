@@ -56,6 +56,9 @@ GIT_COMMIT_RE = re.compile(r"^[a-fA-F0-9]{7,40}$")
 PUBLIC_KEY_BITS_RE = re.compile(r"Public-Key:\s*\((\d+)\s*bit\)", re.IGNORECASE)
 
 
+
+# ── parse_args (9 lines) ──────────────────────────
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Verify signed execution attestation and artifact integrity.")
     parser.add_argument("--attestation-spec", required=True, help="Path to execution attestation spec JSON.")
@@ -200,6 +203,9 @@ def check_authority_not_revoked(
         details,
     )
 
+
+
+# ── enforce_publication_policy_requirements (60 lines) ──────────────────────────
 
 def enforce_publication_policy_requirements(
     key_assurance: Dict[str, Any],
@@ -376,6 +382,9 @@ def run_openssl(cmd: List[str], failures: List[Dict[str, Any]], code: str, messa
     return proc
 
 
+
+# ── verify_detached_signature (62 lines) ──────────────────────────
+
 def verify_detached_signature(
     data_file: Path,
     signature_file: Path,
@@ -548,6 +557,9 @@ def collect_required_path(
     return path
 
 
+
+# ── parse_artifacts (157 lines) ──────────────────────────
+
 def parse_artifacts(
     artifacts: Any,
     payload_base: Path,
@@ -706,6 +718,9 @@ def parse_artifacts(
         "checked": checked,
     }
 
+
+
+# ── validate_key_assurance (261 lines) ──────────────────────────
 
 def validate_key_assurance(
     spec_base: Path,
@@ -970,6 +985,9 @@ def validate_key_assurance(
     }
 
 
+
+# ── validate_timestamp_trust (189 lines) ──────────────────────────
+
 def validate_timestamp_trust(
     spec_base: Path,
     spec: Dict[str, Any],
@@ -1161,6 +1179,9 @@ def validate_timestamp_trust(
     }
 
 
+
+# ── validate_transparency_log (180 lines) ──────────────────────────
+
 def validate_transparency_log(
     spec_base: Path,
     spec: Dict[str, Any],
@@ -1342,6 +1363,9 @@ def validate_transparency_log(
         "signature_verification": verify_result,
     }
 
+
+
+# ── validate_execution_receipt (324 lines) ──────────────────────────
 
 def validate_execution_receipt(
     spec_base: Path,
@@ -1668,6 +1692,9 @@ def validate_execution_receipt(
         "exit_code": exit_code_value,
     }
 
+
+
+# ── validate_execution_log_attestation (492 lines) ──────────────────────────
 
 def validate_execution_log_attestation(
     spec_base: Path,
@@ -2163,6 +2190,9 @@ def validate_execution_log_attestation(
     }
 
 
+
+# ── validate_witness_quorum (307 lines) ──────────────────────────
+
 def validate_witness_quorum(
     spec_base: Path,
     spec: Dict[str, Any],
@@ -2472,6 +2502,9 @@ def validate_witness_quorum(
     }
 
 
+
+# ── enforce_distinct_authority_roles (114 lines) ──────────────────────────
+
 def enforce_distinct_authority_roles(
     key_assurance: Dict[str, Any],
     timestamp_summary: Dict[str, Any],
@@ -2587,6 +2620,9 @@ def enforce_distinct_authority_roles(
         "duplicate_public_key_fingerprints": duplicate_fingerprints,
     }
 
+
+
+# ── main (385 lines) ──────────────────────────
 
 def main() -> int:
     args = parse_args()

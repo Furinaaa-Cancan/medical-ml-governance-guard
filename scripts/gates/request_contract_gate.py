@@ -288,6 +288,9 @@ PUBLICATION_POLICY_BASELINES: Dict[str, Any] = {
 }
 
 
+
+# ── parse_args (6 lines) ──────────────────────────
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Validate structured request JSON for medical prediction workflow.")
     parser.add_argument("--request", required=True, help="Path to request JSON.")
@@ -325,6 +328,9 @@ def must_be_non_empty_str(request: Dict[str, Any], key: str, failures: List[Dict
         return None
     return value.strip()
 
+
+
+# ── validate_thresholds (112 lines) ──────────────────────────
 
 def validate_thresholds(
     request: Dict[str, Any], failures: List[Dict[str, Any]], warnings: List[Dict[str, Any]], strict: bool
@@ -473,6 +479,9 @@ def get_gap_pair_block(gap_thresholds: Dict[str, Any], left: str, right: str) ->
             return block
     return None
 
+
+
+# ── validate_evaluation_report_shape (220 lines) ──────────────────────────
 
 def validate_evaluation_report_shape(
     evaluation_report_path: str,
@@ -696,6 +705,9 @@ def validate_evaluation_report_shape(
             )
 
 
+
+# ── validate_model_selection_report_shape (82 lines) ──────────────────────────
+
 def validate_model_selection_report_shape(
     model_selection_report_path: str,
     failures: List[Dict[str, Any]],
@@ -828,6 +840,9 @@ def validate_seed_sensitivity_report_shape(
         )
 
 
+
+# ── validate_robustness_report_shape (62 lines) ──────────────────────────
+
 def validate_robustness_report_shape(
     robustness_report_path: str,
     failures: List[Dict[str, Any]],
@@ -943,6 +958,9 @@ def validate_execution_attestation_shape(
         )
 
 
+
+# ── validate_external_cohort_spec_shape (102 lines) ──────────────────────────
+
 def validate_external_cohort_spec_shape(
     external_cohort_spec_path: str,
     failures: List[Dict[str, Any]],
@@ -1047,6 +1065,9 @@ def validate_external_cohort_spec_shape(
         )
 
 
+
+# ── validate_external_validation_report_shape (81 lines) ──────────────────────────
+
 def validate_external_validation_report_shape(
     external_validation_report_path: str,
     failures: List[Dict[str, Any]],
@@ -1129,6 +1150,9 @@ def validate_external_validation_report_shape(
             {"path": str(path), "missing_types": missing_types, "observed_types": sorted(observed_types)},
         )
 
+
+
+# ── validate_feature_group_spec_shape (65 lines) ──────────────────────────
 
 def validate_feature_group_spec_shape(
     feature_group_spec_path: str,
@@ -1330,6 +1354,9 @@ def load_json_object(path: str) -> Optional[Dict[str, Any]]:
         return payload
     return None
 
+
+
+# ── validate_cross_artifact_alignment (302 lines) ──────────────────────────
 
 def validate_cross_artifact_alignment(
     normalized: Dict[str, Any],
@@ -1634,6 +1661,9 @@ def validate_cross_artifact_alignment(
                     },
                 )
 
+
+
+# ── validate_performance_policy_spec (1145 lines) ──────────────────────────
 
 def validate_performance_policy_spec(
     policy_path: str,
@@ -2879,6 +2909,9 @@ def validate_publication_v4_path(
         normalized=normalized,
     )
 
+
+
+# ── main (466 lines) ──────────────────────────
 
 def main() -> int:
     args = parse_args()

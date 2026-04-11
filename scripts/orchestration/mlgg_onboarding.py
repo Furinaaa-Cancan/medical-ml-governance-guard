@@ -152,6 +152,9 @@ TROUBLESHOOTING_TOP20: Dict[str, Dict[str, str]] = {
 }
 
 
+
+# ── parse_args (35 lines) ──────────────────────────
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Guided novice onboarding for ml-governance-guard.")
     parser.add_argument("--project-root", required=True, help="Target project root.")
@@ -267,6 +270,9 @@ def maybe_prompt_confirm(
     return False, "step_cancelled_by_user"
 
 
+
+# ── run_command_step (102 lines) ──────────────────────────
+
 def run_command_step(
     *,
     name: str,
@@ -371,6 +377,9 @@ def run_command_step(
     return code == 0
 
 
+
+# ── run_internal_step (98 lines) ──────────────────────────
+
 def run_internal_step(
     *,
     name: str,
@@ -470,6 +479,9 @@ def run_internal_step(
         print(f"[FAIL] {name}: {stderr_tail}", file=sys.stderr)
     return code == 0
 
+
+
+# ── align_demo_configs (190 lines) ──────────────────────────
 
 def align_demo_configs(
     project_root: Path,
@@ -663,6 +675,9 @@ def align_demo_configs(
     write_json(configs / "phenotype_definitions.json", phenotype)
 
 
+
+# ── build_train_command (85 lines) ──────────────────────────
+
 def build_train_command(
     project_root: Path,
     python_bin: str,
@@ -847,6 +862,9 @@ def absolutize_repo_python_command(raw: str) -> str:
     )
 
 
+
+# ── build_next_actions (129 lines) ──────────────────────────
+
 def build_next_actions(failure_codes: Sequence[str], status: str, lang: str, mode: str) -> List[str]:
     lang_mode = str(lang).strip().lower()
     actions: List[str] = []
@@ -978,6 +996,9 @@ def build_next_actions(failure_codes: Sequence[str], status: str, lang: str, mod
     return actions
 
 
+
+# ── build_copy_ready_commands (53 lines) ──────────────────────────
+
 def build_copy_ready_commands(project_root: Path) -> Dict[str, str]:
     mlgg_entry = str((SCRIPTS_ROOT / "orchestration/mlgg.py").resolve())
     request_path = project_root / "configs" / "request.json"
@@ -1047,6 +1068,9 @@ def derive_git_commit() -> str:
         return "unknown"
     return proc.stdout.strip() or "unknown"
 
+
+
+# ── main (460 lines) ──────────────────────────
 
 def main() -> int:
     args = parse_args()
@@ -1509,6 +1533,9 @@ def main() -> int:
     has_failed_step = any(str(row.get("status", "")).strip().lower() == "fail" for row in step_rows if isinstance(row, dict))
     return finish("fail" if has_failed_step else "pass")
 
+
+
+# ── finalize (65 lines) ──────────────────────────
 
 def finalize(
     report_path: Path,

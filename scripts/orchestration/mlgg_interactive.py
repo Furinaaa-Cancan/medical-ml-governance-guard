@@ -66,6 +66,9 @@ SPLIT_STRATEGY_CHOICES = ("grouped_temporal", "grouped_random", "stratified_grou
 DATA_INPUT_MODES = ("pre_split", "single_csv")
 
 
+
+# ── parse_args (54 lines) ──────────────────────────
+
 def parse_args() -> Tuple[argparse.Namespace, List[str]]:
     parser = argparse.ArgumentParser(
         description="Interactive wizard for ml-governance-guard core commands."
@@ -174,6 +177,9 @@ def validate_binary_target(csv_path: str, col: str) -> Tuple[bool, str]:
         return False, f"validation error: {exc}"
 
 
+
+# ── prompt_column_choice (58 lines) ──────────────────────────
+
 def prompt_column_choice(
     label: str,
     columns: List[str],
@@ -233,6 +239,9 @@ def prompt_column_choice(
                     continue
         return str(value)
 
+
+
+# ── compute_feature_summary (100 lines) ──────────────────────────
 
 def compute_feature_summary(
     csv_path: str,
@@ -354,6 +363,9 @@ def _format_feature_line(col: str, info: Dict[str, Any]) -> str:
         parts.append(f"corr={info['corr_target']:+.3f}")
     return f"    {col:<30s}  {' | '.join(parts)}"
 
+
+
+# ── prompt_ignore_cols (63 lines) ──────────────────────────
 
 def prompt_ignore_cols(
     columns: List[str],
@@ -632,6 +644,9 @@ def prompt_authority_stress_case(default: str) -> str:
         print("[WARN] Invalid selection.")
 
 
+
+# ── parse_command_overrides (60 lines) ──────────────────────────
+
 def parse_command_overrides(command: str, passthrough: List[str]) -> Dict[str, Any]:
     parser = argparse.ArgumentParser(add_help=False, allow_abbrev=False)
     if command == "init":
@@ -694,6 +709,9 @@ def parse_command_overrides(command: str, passthrough: List[str]) -> Dict[str, A
     return {k: v for k, v in vars(ns).items() if v is not None}
 
 
+
+# ── profile_allowed_keys (60 lines) ──────────────────────────
+
 def profile_allowed_keys(command: str) -> Tuple[str, ...]:
     table: Dict[str, Tuple[str, ...]] = {
         "init": (
@@ -755,6 +773,9 @@ def profile_allowed_keys(command: str) -> Tuple[str, ...]:
     }
     return table[command]
 
+
+
+# ── validate_profile_values (78 lines) ──────────────────────────
 
 def validate_profile_values(command: str, values: Dict[str, Any]) -> None:
     def _check_type(key: str, expected: tuple[type, ...]) -> None:
@@ -962,6 +983,9 @@ def collect_init_values(profile: Dict[str, Any], explicit: Dict[str, Any]) -> Di
     return values
 
 
+
+# ── collect_workflow_values (75 lines) ──────────────────────────
+
 def collect_workflow_values(profile: Dict[str, Any], explicit: Dict[str, Any]) -> Dict[str, Any]:
     values: Dict[str, Any] = {}
     seed, source = merged_seed("request", "", profile, explicit)
@@ -1086,6 +1110,9 @@ def run_auto_split(
 
     return train_path, valid_path, test_path, cmd
 
+
+
+# ── collect_train_values (504 lines) ──────────────────────────
 
 def collect_train_values(profile: Dict[str, Any], explicit: Dict[str, Any]) -> Dict[str, Any]:
     values: Dict[str, Any] = {}
@@ -1593,6 +1620,9 @@ def collect_train_values(profile: Dict[str, Any], explicit: Dict[str, Any]) -> D
     return values
 
 
+
+# ── collect_authority_values (75 lines) ──────────────────────────
+
 def collect_authority_values(profile: Dict[str, Any], explicit: Dict[str, Any]) -> Dict[str, Any]:
     values: Dict[str, Any] = {}
     seed, source = merged_seed("include_stress_cases", True, profile, explicit)
@@ -1682,6 +1712,9 @@ def collect_values(command: str, profile: Dict[str, Any], explicit: Dict[str, An
     raise ValueError(f"Unsupported command: {command}")
 
 
+
+# ── build_command (69 lines) ──────────────────────────
+
 def build_command(command: str, python_bin: str, values: Dict[str, Any]) -> List[str]:
     script = COMMAND_SCRIPT[command]
     if not script.exists():
@@ -1756,6 +1789,9 @@ def build_command(command: str, python_bin: str, values: Dict[str, Any]) -> List
 def confirm_execute() -> bool:
     return prompt_bool("Execute this command now?", default=True)
 
+
+
+# ── main (116 lines) ──────────────────────────
 
 def main() -> int:
     global PROMPT_AUTO_ACCEPT_DEFAULTS
