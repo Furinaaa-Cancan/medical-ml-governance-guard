@@ -11,10 +11,10 @@
   <em>顶刊级审稿标准 × AI 驱动的医学预测模型治理框架</em>
   <br><br>
   <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/"><img src="https://img.shields.io/badge/License-PolyForm%20NC%201.0.0-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/tests-4200%2B%20passed-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-4578%20passed-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/gates-33%20fail--closed-critical" alt="Gates">
   <img src="https://img.shields.io/badge/datasets-14%20medical-purple" alt="Datasets">
-  <img src="https://img.shields.io/badge/code-72K%20lines-informational" alt="Code">
+  <img src="https://img.shields.io/badge/code-145K%20lines-informational" alt="Code">
   <a href="https://doi.org/10.1136/bmj-2023-078378"><img src="https://img.shields.io/badge/TRIPOD%2BAI-2024-blue" alt="TRIPOD+AI"></a>
   <a href="https://doi.org/10.1136/bmj-2024-082505"><img src="https://img.shields.io/badge/PROBAST%2BAI-2025-blue" alt="PROBAST+AI"></a>
 </p>
@@ -1151,6 +1151,24 @@ python3 -m mlgg_lint /path/to/code/
 
 ---
 
+## NHANES Codebook RAG 系统
+
+公共数据集（NHANES、BRFSS 等）的变量定义、skip pattern、编码规则常被误解，导致静默的数据泄漏。MLGG 内置三层 RAG 检索自动拦截：
+
+| 层 | 机制 | 覆盖 |
+|---|------|------|
+| Layer 1 | **手动 Codebook Registry** — 人工标注的变量元数据（类型、gated missingness、测量协议、反向因果） | 21 个 NHANES 变量 |
+| Layer 2 | **RAG 自动检索** — BM25 + trigram 混合检索 Harvard CCB-HMS 58K 变量库 + skip-chain 图 | 3,964 变量/cycle |
+| Layer 3 | **Disease-KB x Codebook** — 从疾病定义知识库提取排除术语，映射到 NHANES codes | 自动标记 definition variable |
+
+**Onboarding 自动触发**：`mlgg onboarding --input-csv nhanes_diabetes.csv` 自动检测 dataset/disease/cross-sectional，训练前运行 codebook RAG + definition_variable_guard + leakage_gate。
+
+**外部验证对齐检查**：`external_validation_gate` 自动检测 degenerate prediction（全阴性/全阳性）、prevalence shift、常数特征，防止无意义的外部验证。缺失特征使用训练集中位数填充。
+
+详见 `references/dataset-codebook-registry.json` 和 `scripts/tools/nhanes_codebook_lookup.py`。
+
+---
+
 ## 安全加固层
 
 | 组件 | 实现 | 状态 |
@@ -1187,14 +1205,21 @@ scripts/
     mlgg_interactive.py  交互式向导
     mlgg_pixel.py        像素风终端 UI
   tools/              报告、训练、划分、工具
-    train_select_evaluate.py  7000 行训练引擎（20 个模型族）
-    split_data.py        安全数据划分
+    train_select_evaluate.py  训练引擎（20 模型族, MICE/median 插补, Phase 0-12 标注）
+    nhanes_codebook_lookup.py  NHANES Codebook RAG（BM25 + trigram 混合检索）
+    split_data.py        安全数据划分（患者级隔离）
     generate_audit_report.py  12 维审计报告生成器
     audit_external_project.py  外部项目审计器
-    ...另外 33 个工具脚本
-tests/                4000+ pytest 测试（覆盖率 85%+）
-examples/             14 个医学数据集 + 9 阶段模板
-experiments/          E2E 基准套件（4 个 UCI 数据集、对抗性检查）
+    ...另外 32 个工具脚本
+tests/                4578 pytest 测试（conftest.py 统一路径，覆盖率 85%+）
+examples/             14 个医学数据集 + 9 阶段模板 + NHANES phenotype spec
+references/
+  dataset-codebook-registry.json   数据集变量 codebook（NHANES 21 变量验证）
+  nhanes_codebook/                 Harvard CCB-HMS 元数据（58K 变量）
+  disease-definition-knowledge-base.json   疾病定义知识库（11 种疾病）
+  examples/                        26 个 JSON 模板
+  skill/                           /mlgg Phase 1-9 规则
+experiments/          E2E ���准套件（4 个 UCI 数据集、对抗性检查）
 references/           60+ JSON 知识库
   disease-definition-knowledge-base.json   疾病定义（ICD、实验室、药物）
   error-knowledge-base.json                99 条错误诊断条目
