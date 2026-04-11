@@ -1289,7 +1289,6 @@ def main() -> int:
     # Infer codebook, phenotype spec, and study design from data
     _csv_stem = Path(user_input_csv).stem.lower() if user_input_csv else ""
     _codebook_registry = REPO_ROOT / "references" / "dataset-codebook-registry.json"
-    _codebook_dir = REPO_ROOT / "references" / "nhanes_codebook"
 
     # Auto-detect dataset for codebook RAG
     _DS_PATTERNS = {"nhanes": "nhanes_2017_2020", "brfss": "brfss_2022",
@@ -1332,6 +1331,8 @@ def main() -> int:
               f"cross_sectional={_is_cross_sectional}")
 
     # Run codebook RAG + definition_variable_guard as pre-train check
+    if user_input_csv and not (project_root / "data" / "train.csv").exists():
+        print("  [WARN] train.csv not found — pre-train RAG/gate checks SKIPPED.", file=sys.stderr)
     if user_input_csv and (project_root / "data" / "train.csv").exists():
         _pretrain_gates = []
 
@@ -1362,7 +1363,12 @@ def main() -> int:
                 _spec_targets = list(_pspec.get("targets", {}).keys())
                 if _spec_targets:
                     # Use exact spec target; if detected disease is a substring match, use it
-                    _matched = [t for t in _spec_targets if _detected_disease.replace("type_2_", "") in t]
+                    # Match detected disease name against spec target names.
+                    # Try progressively shorter prefixes for fuzzy matching.
+                    _disease_short = _detected_disease.replace("type_2_", "").replace("_", "")
+                    _matched = [t for t in _spec_targets
+                                if _disease_short in t.replace("_", "")
+                                or t.replace("_", "") in _disease_short]
                     _def_target = _matched[0] if _matched else _spec_targets[0]
             except Exception:
                 pass
@@ -1409,7 +1415,7 @@ def main() -> int:
                 steps=step_rows,
                 expected_artifacts=[],
             )
-            if not ok and not getattr(args, "no_stop_on_fail", False):
+            if not ok and bool(getattr(args, "stop_on_fail", True)):
                 print(f"  [BLOCK] {gate_label} FAILED. Fix issues before training.", file=sys.stderr)
                 return finish("fail")
 
