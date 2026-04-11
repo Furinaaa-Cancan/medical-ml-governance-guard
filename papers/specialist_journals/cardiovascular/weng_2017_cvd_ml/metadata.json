@@ -1,0 +1,105 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "Can machine-learning improve cardiovascular risk prediction using routine clinical data?",
+    "authors": ["Weng SF", "Reps J", "Kai J", "Garibaldi JM", "Qureshi N"],
+    "journal": "PLoS ONE",
+    "year": 2017,
+    "doi": "10.1371/journal.pone.0174944",
+    "pmid": "28376093",
+    "url": "",
+    "pdf_filename": "paper.pdf"
+  },
+  "study_design": {
+    "prediction_type": "binary_classification",
+    "outcome": "First cardiovascular event over 10 years",
+    "prediction_unit": "patient",
+    "prediction_horizon": "10 years",
+    "setting": "Primary care",
+    "study_period_start": null,
+    "study_period_end": null,
+    "is_multicenter": true,
+    "has_external_validation": false,
+    "external_cohort_description": ""
+  },
+  "dataset": {
+    "source_type": "EHR_multicenter",
+    "source_name": "UK Clinical Practice Research Datalink (CPRD)",
+    "n_patients_total": 378256,
+    "n_events_positive": 24970,
+    "n_events_negative": 353286,
+    "prevalence_pct": 6.6,
+    "split_strategy": "random",
+    "train_n": 283692,
+    "valid_n": null,
+    "test_n": 94564,
+    "features_n": 30,
+    "has_missing_data": true,
+    "missing_data_strategy": "median imputation + dummy variables on full data before split"
+  },
+  "model": {
+    "model_type": "ensemble",
+    "n_candidate_models": 4,
+    "selection_criterion": "best AUC among random forest, logistic regression, gradient boosting, neural network",
+    "hyperparameter_tuning": "not reported",
+    "tuning_set": "not_reported",
+    "feature_selection_method": "8 core ACC/AHA variables + 22 additional clinical variables",
+    "preprocessing_pipeline": "Median imputation + dummy variable encoding on FULL data before split"
+  },
+  "performance_metrics": {
+    "primary_metric": "auroc",
+    "test_auroc": 0.764,
+    "test_auroc_ci_lower": 0.759,
+    "test_auroc_ci_upper": 0.769,
+    "test_auprc": null,
+    "test_sensitivity": null,
+    "test_specificity": null,
+    "test_ppv": null,
+    "test_npv": null,
+    "test_f1": null,
+    "test_brier_score": null,
+    "calibration_method": "",
+    "calibration_reported": false,
+    "dca_reported": false,
+    "bootstrap_ci_reported": false,
+    "n_bootstrap_resamples": null,
+    "external_auroc": null,
+    "external_auroc_ci_lower": null,
+    "external_auroc_ci_upper": null
+  },
+  "reporting_standards": {
+    "tripod_ai_claimed": false,
+    "probast_ai_claimed": false,
+    "stard_ai_claimed": false,
+    "equator_guideline_cited": "",
+    "limitation_section": true,
+    "code_availability": "not_mentioned",
+    "data_availability": "restricted"
+  },
+  "leakage_risk_assessment": {
+    "patient_level_split_confirmed": true,
+    "temporal_split_confirmed": false,
+    "preprocessing_fit_on_train_only": false,
+    "tuning_used_test_data": false,
+    "target_leakage_risk": "low",
+    "post_index_feature_risk": "low",
+    "phenotype_definition_overlap_risk": "low",
+    "notes": "PREPROCESSING LEAKAGE — median imputation + dummy variable encoding on full data before split (L1 leakage pattern, MLGG R001/R026). No calibration despite clinical prediction task. No temporal validation. No DCA. Random split inappropriate for prospective CVD deployment. Modest ML improvement over ACC/AHA baseline. CI via jackknife, not bootstrap."
+  },
+  "mlgg_audit": {
+    "audit_run_date": null,
+    "mlgg_total_score": null,
+    "mlgg_grade": null,
+    "gates_passed": null,
+    "gates_failed": null,
+    "gates_missing": null,
+    "conformance_level": null,
+    "top_gaps": []
+  },
+  "reviewer_notes": {
+    "added_by": "mlgg_team",
+    "added_date": "2026-04-11",
+    "priority": "high",
+    "notes": "METHODOLOGICAL ISSUES. Classic preprocessing leakage pattern (imputation on full data). No calibration, no DCA, no temporal split. MLGG should flag R001, R026, missing calibration gate, missing DCA gate."
+  }
+}

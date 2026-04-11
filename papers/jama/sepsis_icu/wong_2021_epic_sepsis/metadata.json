@@ -1,0 +1,105 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "External Validation of a Widely Implemented Proprietary Sepsis Prediction Model in Hospitalized Patients",
+    "authors": ["Wong A", "Otles E", "Donnelly JP", "Krumm A", "McCullough J", "DeTroyer-Cooley O"],
+    "journal": "JAMA Internal Medicine",
+    "year": 2021,
+    "doi": "10.1001/jamainternmed.2021.2626",
+    "pmid": "34152373",
+    "url": "",
+    "pdf_filename": "paper.pdf"
+  },
+  "study_design": {
+    "prediction_type": "binary_classification",
+    "outcome": "Sepsis onset",
+    "prediction_unit": "patient",
+    "prediction_horizon": "real-time prediction during hospitalization",
+    "setting": "Inpatient, academic medical center",
+    "study_period_start": 2018,
+    "study_period_end": 2019,
+    "is_multicenter": false,
+    "has_external_validation": true,
+    "external_cohort_description": "External validation of Epic Systems' proprietary sepsis model at Michigan Medicine"
+  },
+  "dataset": {
+    "source_type": "EHR_single_center",
+    "source_name": "Michigan Medicine, University of Michigan",
+    "n_patients_total": 27697,
+    "n_events_positive": 2552,
+    "n_events_negative": 25145,
+    "prevalence_pct": 9.2,
+    "split_strategy": "not_reported",
+    "train_n": null,
+    "valid_n": null,
+    "test_n": 27697,
+    "features_n": null,
+    "has_missing_data": null,
+    "missing_data_strategy": ""
+  },
+  "model": {
+    "model_type": "xgboost",
+    "n_candidate_models": 1,
+    "selection_criterion": "Proprietary Epic Systems model (gradient boosted decision trees)",
+    "hyperparameter_tuning": "proprietary",
+    "tuning_set": "not_reported",
+    "feature_selection_method": "proprietary",
+    "preprocessing_pipeline": "proprietary"
+  },
+  "performance_metrics": {
+    "primary_metric": "auroc",
+    "test_auroc": 0.63,
+    "test_auroc_ci_lower": 0.62,
+    "test_auroc_ci_upper": 0.64,
+    "test_auprc": null,
+    "test_sensitivity": 0.33,
+    "test_specificity": null,
+    "test_ppv": null,
+    "test_npv": null,
+    "test_f1": null,
+    "test_brier_score": null,
+    "calibration_method": "calibration plot",
+    "calibration_reported": true,
+    "dca_reported": false,
+    "bootstrap_ci_reported": true,
+    "n_bootstrap_resamples": null,
+    "external_auroc": 0.63,
+    "external_auroc_ci_lower": 0.62,
+    "external_auroc_ci_upper": 0.64
+  },
+  "reporting_standards": {
+    "tripod_ai_claimed": false,
+    "probast_ai_claimed": false,
+    "stard_ai_claimed": false,
+    "equator_guideline_cited": "",
+    "limitation_section": true,
+    "code_availability": "not_available",
+    "data_availability": "restricted"
+  },
+  "leakage_risk_assessment": {
+    "patient_level_split_confirmed": null,
+    "temporal_split_confirmed": null,
+    "preprocessing_fit_on_train_only": null,
+    "tuning_used_test_data": null,
+    "target_leakage_risk": "cannot_assess",
+    "post_index_feature_risk": "cannot_assess",
+    "phenotype_definition_overlap_risk": "cannot_assess",
+    "notes": "LANDMARK EXTERNAL VALIDATION FAILURE. Epic's model showed AUC 0.63 vs claimed 0.76-0.83. Sensitivity only 33% — 67% of sepsis cases missed. Proprietary model prevents leakage assessment. Widely deployed despite poor validation. Companion editorial titled 'The Epic Sepsis Model Falls Short'. Demonstrates critical importance of independent external validation."
+  },
+  "mlgg_audit": {
+    "audit_run_date": null,
+    "mlgg_total_score": null,
+    "mlgg_grade": null,
+    "gates_passed": null,
+    "gates_failed": null,
+    "gates_missing": null,
+    "conformance_level": null,
+    "top_gaps": []
+  },
+  "reviewer_notes": {
+    "added_by": "mlgg_team",
+    "added_date": "2026-04-11",
+    "priority": "high",
+    "notes": "METHODOLOGICAL ISSUES — CRITICAL. Landmark external validation failure of most widely deployed clinical ML model. Proprietary black-box prevents audit. Essential case study for governance framework justification."
+  }
+}

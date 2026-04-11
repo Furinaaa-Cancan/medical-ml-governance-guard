@@ -1,0 +1,105 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "Dissecting racial bias in an algorithm used to manage the health of populations",
+    "authors": ["Obermeyer Z", "Powers B", "Vogeli C", "Mullainathan S"],
+    "journal": "Science",
+    "year": 2019,
+    "doi": "10.1126/science.aax2342",
+    "pmid": "31649194",
+    "url": "",
+    "pdf_filename": "paper.pdf"
+  },
+  "study_design": {
+    "prediction_type": "binary_classification",
+    "outcome": "Health needs (proxied by healthcare costs — label choice bias)",
+    "prediction_unit": "patient",
+    "prediction_horizon": "prospective risk scoring",
+    "setting": "Population health management",
+    "study_period_start": null,
+    "study_period_end": null,
+    "is_multicenter": true,
+    "has_external_validation": false,
+    "external_cohort_description": ""
+  },
+  "dataset": {
+    "source_type": "claims_data",
+    "source_name": "Large US academic hospital + Optum claims data",
+    "n_patients_total": 50000,
+    "n_events_positive": null,
+    "n_events_negative": null,
+    "prevalence_pct": 3.0,
+    "split_strategy": "not_reported",
+    "train_n": null,
+    "valid_n": null,
+    "test_n": null,
+    "features_n": null,
+    "has_missing_data": null,
+    "missing_data_strategy": ""
+  },
+  "model": {
+    "model_type": "other",
+    "n_candidate_models": 1,
+    "selection_criterion": "Commercial proprietary algorithm (predicts healthcare cost as proxy for health need)",
+    "hyperparameter_tuning": "proprietary",
+    "tuning_set": "not_reported",
+    "feature_selection_method": "proprietary",
+    "preprocessing_pipeline": "proprietary"
+  },
+  "performance_metrics": {
+    "primary_metric": "auroc",
+    "test_auroc": null,
+    "test_auroc_ci_lower": null,
+    "test_auroc_ci_upper": null,
+    "test_auprc": null,
+    "test_sensitivity": null,
+    "test_specificity": null,
+    "test_ppv": null,
+    "test_npv": null,
+    "test_f1": null,
+    "test_brier_score": null,
+    "calibration_method": "",
+    "calibration_reported": false,
+    "dca_reported": false,
+    "bootstrap_ci_reported": false,
+    "n_bootstrap_resamples": null,
+    "external_auroc": null,
+    "external_auroc_ci_lower": null,
+    "external_auroc_ci_upper": null
+  },
+  "reporting_standards": {
+    "tripod_ai_claimed": false,
+    "probast_ai_claimed": false,
+    "stard_ai_claimed": false,
+    "equator_guideline_cited": "",
+    "limitation_section": true,
+    "code_availability": "not_available",
+    "data_availability": "restricted"
+  },
+  "leakage_risk_assessment": {
+    "patient_level_split_confirmed": null,
+    "temporal_split_confirmed": null,
+    "preprocessing_fit_on_train_only": null,
+    "tuning_used_test_data": null,
+    "target_leakage_risk": "high",
+    "post_index_feature_risk": "cannot_assess",
+    "phenotype_definition_overlap_risk": "high",
+    "notes": "LANDMARK FAIRNESS CASE. Not a standard prediction model — this paper audits a deployed commercial algorithm. The core issue is LABEL CHOICE BIAS: predicting healthcare cost instead of illness systematically disadvantages Black patients. At same algorithm-predicted risk, Black patients are substantially sicker. Fixing label would increase Black patients receiving help from 17.7% to 46.5%. Essential case for MLGG fairness_equity_gate demonstration."
+  },
+  "mlgg_audit": {
+    "audit_run_date": null,
+    "mlgg_total_score": null,
+    "mlgg_grade": null,
+    "gates_passed": null,
+    "gates_failed": null,
+    "gates_missing": null,
+    "conformance_level": null,
+    "top_gaps": []
+  },
+  "reviewer_notes": {
+    "added_by": "mlgg_team",
+    "added_date": "2026-04-11",
+    "priority": "high",
+    "notes": "FAIRNESS CASE STUDY — LANDMARK. Published in Science. Demonstrates label choice bias in deployed commercial algorithm affecting millions. Essential for MLGG fairness_equity_gate and definition_variable_guard validation."
+  }
+}

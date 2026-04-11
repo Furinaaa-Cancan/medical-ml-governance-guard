@@ -1,0 +1,105 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "Prediction of Sepsis in the Intensive Care Unit With Minimal Electronic Health Record Data: A Machine Learning Approach",
+    "authors": ["Desautels T", "Calvert J", "Hoffman J", "Jay M", "Keber Y", "Barton C"],
+    "journal": "JMIR Medical Informatics",
+    "year": 2016,
+    "doi": "10.2196/medinform.5909",
+    "pmid": "27694098",
+    "url": "",
+    "pdf_filename": "paper.pdf"
+  },
+  "study_design": {
+    "prediction_type": "binary_classification",
+    "outcome": "Sepsis onset in ICU",
+    "prediction_unit": "patient",
+    "prediction_horizon": "real-time ICU prediction",
+    "setting": "ICU",
+    "study_period_start": 2001,
+    "study_period_end": 2012,
+    "is_multicenter": false,
+    "has_external_validation": false,
+    "external_cohort_description": ""
+  },
+  "dataset": {
+    "source_type": "public_dataset",
+    "source_name": "MIMIC-III (Beth Israel Deaconess Medical Center)",
+    "n_patients_total": 22853,
+    "n_events_positive": 2583,
+    "n_events_negative": 20270,
+    "prevalence_pct": 11.3,
+    "split_strategy": "not_reported",
+    "train_n": null,
+    "valid_n": null,
+    "test_n": null,
+    "features_n": 6,
+    "has_missing_data": true,
+    "missing_data_strategy": "forward fill"
+  },
+  "model": {
+    "model_type": "xgboost",
+    "n_candidate_models": 1,
+    "selection_criterion": "InSight gradient boosted trees with minimal feature set",
+    "hyperparameter_tuning": "not reported",
+    "tuning_set": "not_reported",
+    "feature_selection_method": "minimal clinical feature set (vitals, SpO2, GCS, age)",
+    "preprocessing_pipeline": "forward fill for missing vitals"
+  },
+  "performance_metrics": {
+    "primary_metric": "auroc",
+    "test_auroc": 0.88,
+    "test_auroc_ci_lower": null,
+    "test_auroc_ci_upper": null,
+    "test_auprc": null,
+    "test_sensitivity": null,
+    "test_specificity": null,
+    "test_ppv": null,
+    "test_npv": null,
+    "test_f1": null,
+    "test_brier_score": null,
+    "calibration_method": "",
+    "calibration_reported": false,
+    "dca_reported": false,
+    "bootstrap_ci_reported": false,
+    "n_bootstrap_resamples": null,
+    "external_auroc": null,
+    "external_auroc_ci_lower": null,
+    "external_auroc_ci_upper": null
+  },
+  "reporting_standards": {
+    "tripod_ai_claimed": false,
+    "probast_ai_claimed": false,
+    "stard_ai_claimed": false,
+    "equator_guideline_cited": "",
+    "limitation_section": true,
+    "code_availability": "not_available",
+    "data_availability": "public"
+  },
+  "leakage_risk_assessment": {
+    "patient_level_split_confirmed": false,
+    "temporal_split_confirmed": false,
+    "preprocessing_fit_on_train_only": null,
+    "tuning_used_test_data": null,
+    "target_leakage_risk": "medium",
+    "post_index_feature_risk": "low",
+    "phenotype_definition_overlap_risk": "low",
+    "notes": "5-fold cross-validation without confirmed patient-level splitting — potential for same-patient leakage across folds. No calibration. SD from CV folds reported instead of bootstrap CI. No temporal validation. Dascena later commercialized without prospective validation at time of publication. Single-center retrospective."
+  },
+  "mlgg_audit": {
+    "audit_run_date": null,
+    "mlgg_total_score": null,
+    "mlgg_grade": null,
+    "gates_passed": null,
+    "gates_failed": null,
+    "gates_missing": null,
+    "conformance_level": null,
+    "top_gaps": []
+  },
+  "reviewer_notes": {
+    "added_by": "mlgg_team",
+    "added_date": "2026-04-11",
+    "priority": "medium",
+    "notes": "METHODOLOGICAL ISSUES. No calibration, no CI, unclear patient-level split in CV, no temporal validation. Commercialized by Dascena despite gaps. MLGG should flag split_protocol_gate, calibration_dca_gate, ci_matrix_gate."
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "Readmission prediction via deep contextual embedding of clinical concepts",
+    "authors": ["Xiao C", "Ma T", "Dieng AB", "Blei DM", "Wang F"],
+    "journal": "PLoS ONE",
+    "year": 2018,
+    "doi": "10.1371/journal.pone.0195024",
+    "pmid": "29630604",
+    "url": "",
+    "pdf_filename": "paper.pdf"
+  },
+  "study_design": {
+    "prediction_type": "binary_classification",
+    "outcome": "Hospital readmission in congestive heart failure patients",
+    "prediction_unit": "patient",
+    "prediction_horizon": "30 days",
+    "setting": "Inpatient",
+    "study_period_start": null,
+    "study_period_end": null,
+    "is_multicenter": false,
+    "has_external_validation": false,
+    "external_cohort_description": ""
+  },
+  "dataset": {
+    "source_type": "mixed",
+    "source_name": "Real-world CHF cohort + synthetic patients",
+    "n_patients_total": 8393,
+    "n_events_positive": null,
+    "n_events_negative": null,
+    "prevalence_pct": null,
+    "split_strategy": "random",
+    "train_n": 2000,
+    "valid_n": 500,
+    "test_n": 500,
+    "features_n": null,
+    "has_missing_data": null,
+    "missing_data_strategy": ""
+  },
+  "model": {
+    "model_type": "deep_learning",
+    "n_candidate_models": 1,
+    "selection_criterion": "TopicRNN hybrid topic-recurrent neural network",
+    "hyperparameter_tuning": "not reported",
+    "tuning_set": "validation_only",
+    "feature_selection_method": "clinical codes embedded as concept vectors",
+    "preprocessing_pipeline": "embeddings likely trained on full data"
+  },
+  "performance_metrics": {
+    "primary_metric": "auroc",
+    "test_auroc": 0.6103,
+    "test_auroc_ci_lower": null,
+    "test_auroc_ci_upper": null,
+    "test_auprc": null,
+    "test_sensitivity": null,
+    "test_specificity": null,
+    "test_ppv": null,
+    "test_npv": null,
+    "test_f1": null,
+    "test_brier_score": null,
+    "calibration_method": "",
+    "calibration_reported": false,
+    "dca_reported": false,
+    "bootstrap_ci_reported": false,
+    "n_bootstrap_resamples": null,
+    "external_auroc": null,
+    "external_auroc_ci_lower": null,
+    "external_auroc_ci_upper": null
+  },
+  "reporting_standards": {
+    "tripod_ai_claimed": false,
+    "probast_ai_claimed": false,
+    "stard_ai_claimed": false,
+    "equator_guideline_cited": "",
+    "limitation_section": true,
+    "code_availability": "not_mentioned",
+    "data_availability": "restricted"
+  },
+  "leakage_risk_assessment": {
+    "patient_level_split_confirmed": null,
+    "temporal_split_confirmed": false,
+    "preprocessing_fit_on_train_only": false,
+    "tuning_used_test_data": false,
+    "target_leakage_risk": "medium",
+    "post_index_feature_risk": "low",
+    "phenotype_definition_overlap_risk": "low",
+    "notes": "MULTIPLE ISSUES. Synthetic data mixed with real patients — methodologically questionable. Embeddings likely trained on full data. Modest AUC (0.61) barely above random. No calibration, no CI, no temporal validation, no external validation. Clinical utility unclear."
+  },
+  "mlgg_audit": {
+    "audit_run_date": null,
+    "mlgg_total_score": null,
+    "mlgg_grade": null,
+    "gates_passed": null,
+    "gates_failed": null,
+    "gates_missing": null,
+    "conformance_level": null,
+    "top_gaps": []
+  },
+  "reviewer_notes": {
+    "added_by": "mlgg_team",
+    "added_date": "2026-04-11",
+    "priority": "medium",
+    "notes": "METHODOLOGICAL ISSUES. Synthetic data mixing, poor AUC (0.61), no calibration, no CI. MLGG should flag multiple gates: leakage_gate, calibration_dca_gate, ci_matrix_gate, evaluation_quality_gate, sample_size_gate."
+  }
+}

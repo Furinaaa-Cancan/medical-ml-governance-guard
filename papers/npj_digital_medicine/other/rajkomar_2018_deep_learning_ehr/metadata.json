@@ -1,0 +1,105 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "Scalable and accurate deep learning with electronic health records",
+    "authors": ["Rajkomar A", "Oren E", "Chen K", "Dai AM", "Hajaj N", "Hardt M"],
+    "journal": "npj Digital Medicine",
+    "year": 2018,
+    "doi": "10.1038/s41746-018-0029-1",
+    "pmid": "31304302",
+    "url": "",
+    "pdf_filename": "paper.pdf"
+  },
+  "study_design": {
+    "prediction_type": "binary_classification",
+    "outcome": "In-hospital mortality",
+    "prediction_unit": "patient",
+    "prediction_horizon": "during hospitalization",
+    "setting": "Inpatient",
+    "study_period_start": null,
+    "study_period_end": null,
+    "is_multicenter": true,
+    "has_external_validation": true,
+    "external_cohort_description": "Two US academic medical centers (UCSF and University of Chicago Medicine)"
+  },
+  "dataset": {
+    "source_type": "EHR_multicenter",
+    "source_name": "UCSF + University of Chicago Medicine EHR",
+    "n_patients_total": 216221,
+    "n_events_positive": 3200,
+    "n_events_negative": 213021,
+    "prevalence_pct": 1.5,
+    "split_strategy": "random",
+    "train_n": 172977,
+    "valid_n": 21622,
+    "test_n": 21622,
+    "features_n": null,
+    "has_missing_data": true,
+    "missing_data_strategy": "deep learning handles missing data natively via token encoding"
+  },
+  "model": {
+    "model_type": "deep_learning",
+    "n_candidate_models": 3,
+    "selection_criterion": "LSTM, time-aware feedforward, embedded attention comparison",
+    "hyperparameter_tuning": "grid search",
+    "tuning_set": "validation_only",
+    "feature_selection_method": "all EHR data tokens (no feature selection)",
+    "preprocessing_pipeline": "FHIR tokenization of all EHR data"
+  },
+  "performance_metrics": {
+    "primary_metric": "auroc",
+    "test_auroc": 0.93,
+    "test_auroc_ci_lower": null,
+    "test_auroc_ci_upper": null,
+    "test_auprc": null,
+    "test_sensitivity": null,
+    "test_specificity": null,
+    "test_ppv": null,
+    "test_npv": null,
+    "test_f1": null,
+    "test_brier_score": null,
+    "calibration_method": "calibration plot",
+    "calibration_reported": true,
+    "dca_reported": false,
+    "bootstrap_ci_reported": true,
+    "n_bootstrap_resamples": 1000,
+    "external_auroc": 0.93,
+    "external_auroc_ci_lower": null,
+    "external_auroc_ci_upper": null
+  },
+  "reporting_standards": {
+    "tripod_ai_claimed": false,
+    "probast_ai_claimed": false,
+    "stard_ai_claimed": false,
+    "equator_guideline_cited": "",
+    "limitation_section": true,
+    "code_availability": "not_available",
+    "data_availability": "restricted"
+  },
+  "leakage_risk_assessment": {
+    "patient_level_split_confirmed": true,
+    "temporal_split_confirmed": false,
+    "preprocessing_fit_on_train_only": null,
+    "tuning_used_test_data": false,
+    "target_leakage_risk": "low",
+    "post_index_feature_risk": "low",
+    "phenotype_definition_overlap_risk": "low",
+    "notes": "Google Health landmark paper. Large scale, bootstrap CI, calibration reported, multi-site. Random split (not temporal) is a weakness. Tokenization applied broadly — unclear if test patient data influenced tokenizer. Proprietary data limits reproducibility."
+  },
+  "mlgg_audit": {
+    "audit_run_date": null,
+    "mlgg_total_score": null,
+    "mlgg_grade": null,
+    "gates_passed": null,
+    "gates_failed": null,
+    "gates_missing": null,
+    "conformance_level": null,
+    "top_gaps": []
+  },
+  "reviewer_notes": {
+    "added_by": "mlgg_team",
+    "added_date": "2026-04-11",
+    "priority": "high",
+    "notes": "GOLD STANDARD. Google Health landmark paper. Large-scale deep learning on EHR with calibration and bootstrap CI. Random split is notable weakness."
+  }
+}

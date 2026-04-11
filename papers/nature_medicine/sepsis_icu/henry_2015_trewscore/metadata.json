@@ -1,0 +1,105 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "A targeted real-time early warning score (TREWScore) for septic shock",
+    "authors": ["Henry KE", "Hager DN", "Pronovost PJ", "Saria S"],
+    "journal": "Science Translational Medicine",
+    "year": 2015,
+    "doi": "10.1126/scitranslmed.aab3719",
+    "pmid": "26246167",
+    "url": "",
+    "pdf_filename": "paper.pdf"
+  },
+  "study_design": {
+    "prediction_type": "binary_classification",
+    "outcome": "Septic shock onset (median 28.2h before onset)",
+    "prediction_unit": "patient",
+    "prediction_horizon": "28.2 hours (median lead time)",
+    "setting": "ICU",
+    "study_period_start": 2001,
+    "study_period_end": 2012,
+    "is_multicenter": false,
+    "has_external_validation": false,
+    "external_cohort_description": ""
+  },
+  "dataset": {
+    "source_type": "public_dataset",
+    "source_name": "MIMIC-II ICU database",
+    "n_patients_total": 16000,
+    "n_events_positive": 1600,
+    "n_events_negative": 14400,
+    "prevalence_pct": 10.0,
+    "split_strategy": "temporal",
+    "train_n": null,
+    "valid_n": null,
+    "test_n": null,
+    "features_n": 54,
+    "has_missing_data": true,
+    "missing_data_strategy": "forward fill + population median"
+  },
+  "model": {
+    "model_type": "cox_proportional_hazards",
+    "n_candidate_models": 1,
+    "selection_criterion": "Cox proportional hazards with time-varying covariates",
+    "hyperparameter_tuning": "none",
+    "tuning_set": "validation_only",
+    "feature_selection_method": "clinical domain knowledge",
+    "preprocessing_pipeline": "Forward fill for vitals, population median for labs"
+  },
+  "performance_metrics": {
+    "primary_metric": "auroc",
+    "test_auroc": 0.83,
+    "test_auroc_ci_lower": 0.81,
+    "test_auroc_ci_upper": 0.85,
+    "test_auprc": null,
+    "test_sensitivity": null,
+    "test_specificity": null,
+    "test_ppv": null,
+    "test_npv": null,
+    "test_f1": null,
+    "test_brier_score": null,
+    "calibration_method": "",
+    "calibration_reported": false,
+    "dca_reported": false,
+    "bootstrap_ci_reported": true,
+    "n_bootstrap_resamples": null,
+    "external_auroc": null,
+    "external_auroc_ci_lower": null,
+    "external_auroc_ci_upper": null
+  },
+  "reporting_standards": {
+    "tripod_ai_claimed": false,
+    "probast_ai_claimed": false,
+    "stard_ai_claimed": false,
+    "equator_guideline_cited": "",
+    "limitation_section": true,
+    "code_availability": "not_mentioned",
+    "data_availability": "public"
+  },
+  "leakage_risk_assessment": {
+    "patient_level_split_confirmed": true,
+    "temporal_split_confirmed": true,
+    "preprocessing_fit_on_train_only": true,
+    "tuning_used_test_data": false,
+    "target_leakage_risk": "low",
+    "post_index_feature_risk": "low",
+    "phenotype_definition_overlap_risk": "low",
+    "notes": "Gold standard temporal split design. Later prospectively validated in 2022 Nature Medicine study (TREWS). Lacks formal calibration plots but otherwise methodologically sound. Suchi Saria's lab."
+  },
+  "mlgg_audit": {
+    "audit_run_date": null,
+    "mlgg_total_score": null,
+    "mlgg_grade": null,
+    "gates_passed": null,
+    "gates_failed": null,
+    "gates_missing": null,
+    "conformance_level": null,
+    "top_gaps": []
+  },
+  "reviewer_notes": {
+    "added_by": "mlgg_team",
+    "added_date": "2026-04-11",
+    "priority": "high",
+    "notes": "GOLD STANDARD. Temporal split, CI reported. Prospectively validated in TREWS (Nature Medicine 2022). Suchi Saria's foundational sepsis work."
+  }
+}
