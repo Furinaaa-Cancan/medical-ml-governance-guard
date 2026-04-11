@@ -79,8 +79,17 @@ class SmoteAfterModelInPipeline(BaseRule):
         self.generic_visit(node)
 
     def _extract_pipeline_steps(self, node: ast.Call) -> List[tuple]:
-        """Extract (step_name, class_name) from Pipeline([...]) steps arg."""
+        """Extract (step_name, class_name) from Pipeline([...]) or make_pipeline(...) args."""
         steps = []
+        func_name = self._get_func_name(node)
+
+        # make_pipeline(SMOTE(), LogisticRegression()) — positional args, no names
+        if func_name == "make_pipeline":
+            for i, arg in enumerate(node.args):
+                class_name = self._get_class_name(arg)
+                steps.append((f"step_{i}", class_name))
+            return steps
+
         # Pipeline(steps=[...]) or Pipeline([...])
         steps_arg = None
         if node.args:

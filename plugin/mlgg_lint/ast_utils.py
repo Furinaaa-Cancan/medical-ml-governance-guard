@@ -151,6 +151,11 @@ class TaintTracker:
             self.taints[name] = taint
 
     def record_assignment(self, name: str, taint: Optional[str] = None) -> None:
+        """Record taint for a variable assignment.
+
+        Called during the taint-propagation pass so that ``data = X_test``
+        propagates test taint to ``data``.
+        """
         if taint:
             self.taints[name] = taint
         elif name not in self.taints:

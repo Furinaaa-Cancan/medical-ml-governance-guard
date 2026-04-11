@@ -10,10 +10,14 @@ from mlgg_lint.rules import register
 from mlgg_lint.rules.base import BaseRule
 
 _SPLIT_CALLS = {"train_test_split", "sklearn.model_selection.train_test_split"}
+# Single-word hints matched via word-boundary split on _ (Name/Attribute/Constant).
+# Multi-word entries like "admission_date" are redundant because "date" already
+# matches. Entries like "created_at" are included for Name/Attribute exact match
+# but won't match string literals split on _ (where they become {"created","at"}).
+# We keep only single-word roots that reliably trigger via word splitting.
 _TIME_HINTS = {
-    "date", "time", "timestamp", "datetime", "event_time",
-    "admission_date", "discharge_date", "index_time",
-    "created_at", "updated_at", "recorded_at",
+    "date", "time", "timestamp", "datetime",
+    "admission", "discharge", "temporal", "chronological",
 }
 
 

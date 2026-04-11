@@ -62,9 +62,23 @@ class FillnaBeforeSplit(BaseRule):
             return
 
         # Check positional arg: fillna(df.mean()), fillna(df[col].median())
+        # NOTE: R020 also detects inline fillna(stat()) — only report here
+        # if the stat call is on a column subscript (df[col].median()) which
+        # R020 may miss because R020 checks arg.func.attr on the arg itself,
+        # not on the arg's receiver.
         if node.args:
             arg = node.args[0]
             if _is_stat_call(arg):
+                # Check if this is a column-subscript variant that R020 misses:
+                # df[col].fillna(df[col].median()) — the stat arg receiver is a Subscript
+                receiver_is_subscript = (
+                    isinstance(arg.func, ast.Attribute)
+                    and isinstance(arg.func.value, ast.Subscript)
+                )
+                if not receiver_is_subscript:
+                    # R020 already covers df.fillna(df.mean()) — skip to avoid duplication
+                    self.generic_visit(node)
+                    return
                 stat_name = arg.func.attr
                 self.report(
                     node,

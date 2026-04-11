@@ -9,18 +9,19 @@ from __future__ import annotations
 
 import ast
 
+from mlgg_lint.ast_utils import call_name, matches_any
 from mlgg_lint.models import Severity
 from mlgg_lint.rules import register
 from mlgg_lint.rules.base import BaseRule
 
 
-_AUROC_FUNCS = {"roc_auc_score"}
+_AUROC_FUNCS = {"roc_auc_score", "sklearn.metrics.roc_auc_score"}
 _COMPLEMENTARY_FUNCS = {
-    "average_precision_score",  # AUPRC
-    "brier_score_loss",         # calibration
-    "calibration_curve",        # calibration
-    "log_loss",                 # calibration
-    "matthews_corrcoef",        # MCC
+    "average_precision_score", "sklearn.metrics.average_precision_score",
+    "brier_score_loss", "sklearn.metrics.brier_score_loss",
+    "calibration_curve", "sklearn.calibration.calibration_curve",
+    "log_loss", "sklearn.metrics.log_loss",
+    "matthews_corrcoef", "sklearn.metrics.matthews_corrcoef",
 }
 
 
@@ -48,12 +49,12 @@ class SingleMetricReport(BaseRule):
         self._has_complementary = False
 
     def visit_Call(self, node: ast.Call) -> None:  # noqa: N802
-        func_name = self._get_func_name(node)
-        if func_name in _AUROC_FUNCS:
+        fqn = call_name(node, self.import_map)
+        if fqn and matches_any(fqn, _AUROC_FUNCS):
             if not self._has_auroc:
                 self._has_auroc = True
                 self._auroc_node = node
-        if func_name in _COMPLEMENTARY_FUNCS:
+        if fqn and matches_any(fqn, _COMPLEMENTARY_FUNCS):
             self._has_complementary = True
         self.generic_visit(node)
 
@@ -66,10 +67,3 @@ class SingleMetricReport(BaseRule):
                 "(TRIPOD+AI 2024 Item 17).",
             )
 
-    @staticmethod
-    def _get_func_name(node: ast.Call) -> str | None:
-        if isinstance(node.func, ast.Name):
-            return node.func.id
-        if isinstance(node.func, ast.Attribute):
-            return node.func.attr
-        return None

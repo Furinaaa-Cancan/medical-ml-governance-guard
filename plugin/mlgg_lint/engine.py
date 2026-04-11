@@ -118,6 +118,28 @@ def _build_taint_tracker(tree: ast.Module, im: ImportMap) -> TaintTracker:
                         tracker.record_split([], node.lineno)
                         break  # only need the first one
 
+    # Pass 3: propagate taint through simple assignments.
+    # Handles ``data = X_test`` → data gets test taint.
+    # Only propagates from already-tainted variables (single level).
+    from mlgg_lint.ast_utils import classify_var_name
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign) and len(node.targets) == 1:
+            target = node.targets[0]
+            if isinstance(target, ast.Name):
+                val = node.value
+                # Simple name assignment: data = X_test
+                if isinstance(val, ast.Name):
+                    src_taint = tracker.get_taint(val.id)
+                    if src_taint is None:
+                        src_taint = classify_var_name(val.id)
+                    if src_taint:
+                        tracker.record_assignment(target.id, src_taint)
+                # Subscript: data = df[X_test] or data = splits[0]
+                elif isinstance(val, ast.Subscript) and isinstance(val.value, ast.Name):
+                    src_taint = tracker.get_taint(val.value.id)
+                    if src_taint:
+                        tracker.record_assignment(target.id, src_taint)
+
     return tracker
 
 

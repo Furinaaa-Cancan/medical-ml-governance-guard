@@ -92,10 +92,15 @@ class TestLoopTuning(BaseRule):
 
     @staticmethod
     def _is_test_like(name: str) -> bool:
+        """Word-boundary matching to avoid false positives like 'contestant'."""
+        parts = set(name.lower().replace("-", "_").split("_"))
+        word_hints = {"test", "testing", "holdout", "heldout", "unseen"}
+        if parts & word_hints:
+            return True
+        # Check compound names as full match
         low = name.lower()
-        test_hints = (
-            "test", "holdout", "held_out", "heldout",
-            "x_eval", "eval_data", "eval_x", "eval_label", "eval_y",
-            "final_eval", "unseen",
+        compound_hints = (
+            "held_out", "x_eval", "eval_data", "eval_x",
+            "eval_label", "eval_y", "final_eval",
         )
-        return any(h in low for h in test_hints)
+        return any(low == h or low.startswith(h + "_") or low.endswith("_" + h) for h in compound_hints)
