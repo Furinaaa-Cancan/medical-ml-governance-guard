@@ -452,7 +452,8 @@ class TestCLI:
         assert result.returncode == 2
         report = json.loads((tmp_path / "report.json").read_text())
         codes = [f["code"] for f in report["failures"]]
-        assert "invalid_postprocessing_split" in codes
+        # Specific "test" token now produces a dedicated failure code
+        assert "test_split_used_for_postprocessing" in codes
 
     def test_calibration_on_train_fails(self, tmp_path: Path):
         policy = _good_policy()
@@ -462,7 +463,7 @@ class TestCLI:
         assert result.returncode == 2
         report = json.loads((tmp_path / "report.json").read_text())
         codes = [f["code"] for f in report["failures"]]
-        assert "invalid_postprocessing_split" in codes
+        assert "train_split_used_for_postprocessing" in codes
 
     def test_evaluation_reconciliation_match_pass(self, tmp_path: Path):
         policy = _good_policy()

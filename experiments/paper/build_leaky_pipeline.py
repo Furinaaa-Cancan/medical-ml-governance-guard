@@ -217,24 +217,32 @@ def run_pipeline(
 
     # ── Step 3: Resampling (L2) ──────────────────────────────────────
     if L2 and SMOTE is not None:
-        # LEAKY: SMOTE on full data before split was the original pattern,
-        # but since we already split, simulate by applying SMOTE to
-        # train+valid+test combined, then re-split
+        # LEAKY: SMOTE on full data then RANDOM re-split.
+        # Simulates the real-world pattern: researcher applies SMOTE to
+        # entire dataset, then does train_test_split. Synthetic minority
+        # samples are randomly distributed across splits, contaminating
+        # test with information derived from its own samples.
         X_combined = np.vstack([X_train_sc, X_valid_sc, X_test_sc])
         y_combined = pd.concat([y_train, y_valid, y_test], ignore_index=True)
         try:
             sm = SMOTE(random_state=seed)
             X_resampled, y_resampled = sm.fit_resample(X_combined, y_combined)
-            # After SMOTE on full data, re-split (some synthetic samples
-            # will land in test — this IS the leakage)
-            n_tr = len(X_train_sc)
-            n_va = len(X_valid_sc)
-            X_train_sc = X_resampled[:n_tr]
-            y_train = pd.Series(y_resampled[:n_tr])
-            X_valid_sc = X_resampled[n_tr:n_tr + n_va]
-            y_valid = pd.Series(y_resampled[n_tr:n_tr + n_va])
-            X_test_sc = X_resampled[n_tr + n_va:n_tr + n_va + len(X_test_sc)]
-            y_test = pd.Series(y_resampled[n_tr + n_va:n_tr + n_va + len(y_test)])
+            # Random re-split (not deterministic slicing) to realistically
+            # distribute synthetic samples across all splits.
+            n_total = len(X_resampled)
+            n_tr = int(n_total * 0.6)
+            n_va = int(n_total * 0.2)
+            rng = np.random.RandomState(seed)
+            perm = rng.permutation(n_total)
+            idx_tr = perm[:n_tr]
+            idx_va = perm[n_tr:n_tr + n_va]
+            idx_te = perm[n_tr + n_va:]
+            X_train_sc = X_resampled[idx_tr]
+            y_train = pd.Series(y_resampled.iloc[idx_tr].values)
+            X_valid_sc = X_resampled[idx_va]
+            y_valid = pd.Series(y_resampled.iloc[idx_va].values)
+            X_test_sc = X_resampled[idx_te]
+            y_test = pd.Series(y_resampled.iloc[idx_te].values)
         except Exception:
             pass  # If SMOTE fails (too few samples), skip
     elif not L2 and SMOTE is not None:

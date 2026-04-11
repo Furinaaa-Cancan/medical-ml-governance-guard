@@ -82,7 +82,7 @@ def paired_test(leaky_vals: np.ndarray, clean_vals: np.ndarray) -> dict:
         "cohens_d": round(cohens_d, 4),
         "paired_t_stat": round(float(t_stat), 4),
         "paired_t_p": round(float(t_p), 6),
-        "paired_t_p_one_sided": round(float(t_p) / 2, 6),
+        "paired_t_p_one_sided": round(float(t_p) / 2 if t_stat > 0 else 1.0 - float(t_p) / 2, 6),
         "wilcoxon_stat": round(float(w_stat), 4) if not np.isnan(w_stat) else None,
         "wilcoxon_p_one_sided": round(float(w_p), 6) if not np.isnan(w_p) else None,
         "leaky_mean": round(float(np.mean(leaky_vals)), 6),

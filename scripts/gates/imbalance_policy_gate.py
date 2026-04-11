@@ -393,13 +393,6 @@ def main() -> int:
         if not split_name:
             continue
         split_token = split_name.lower()
-        if split_token not in allowed_postprocessing_splits:
-            add_issue(
-                failures,
-                "invalid_postprocessing_split",
-                "Post-processing split must be one of the approved non-test scopes.",
-                {"field": field_name, "split": split_name, "allowed": sorted(allowed_postprocessing_splits)},
-            )
         if split_token == "test":
             add_issue(
                 failures,
@@ -407,12 +400,19 @@ def main() -> int:
                 "Test split must not be used for threshold/calibration selection.",
                 {"field": field_name, "split": split_name},
             )
-        if split_token == "train":
+        elif split_token == "train":
             add_issue(
                 failures,
                 "train_split_used_for_postprocessing",
                 "Train split must not be reused for threshold/calibration selection.",
                 {"field": field_name, "split": split_name},
+            )
+        elif split_token not in allowed_postprocessing_splits:
+            add_issue(
+                failures,
+                "invalid_postprocessing_split",
+                "Post-processing split must be one of the approved non-test scopes.",
+                {"field": field_name, "split": split_name, "allowed": sorted(allowed_postprocessing_splits)},
             )
         if split_token == "valid" and not has_valid_split:
             add_issue(

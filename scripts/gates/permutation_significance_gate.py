@@ -44,7 +44,7 @@ def parse_args() -> argparse.Namespace:
         help="Path to null metrics file (.json list/dict or text with one numeric value per line).",
     )
     direction = parser.add_mutually_exclusive_group()
-    direction.add_argument("--higher-is-better", action="store_true", default=True)
+    direction.add_argument("--higher-is-better", action="store_true")
     direction.add_argument("--lower-is-better", action="store_true")
     parser.add_argument("--alpha", type=float, default=0.01, help="One-sided significance threshold.")
     parser.add_argument("--min-delta", type=float, default=0.0, help="Minimum gap between actual and null mean.")

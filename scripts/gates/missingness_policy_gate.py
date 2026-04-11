@@ -489,10 +489,11 @@ def main() -> int:
             if strategy == "mice_with_scale_guard":
                 pass
             elif (
-                large_data_row_threshold is not None
-                and large_data_col_threshold is not None
-                and train_rows >= int(large_data_row_threshold)
-                and feature_count >= int(large_data_col_threshold)
+                (large_data_row_threshold is not None
+                 and train_rows >= int(large_data_row_threshold))
+                or
+                (large_data_col_threshold is not None
+                 and feature_count >= int(large_data_col_threshold))
             ):
                 add_issue(
                     failures,

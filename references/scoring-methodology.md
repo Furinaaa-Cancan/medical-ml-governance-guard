@@ -267,7 +267,7 @@ Tier 4 (3%):     辅助质量维度 → D10, D11, D12
 
 1. **仅评估报告完整性**：metadata 评分基于作者声称做了什么，不验证代码是否一致。需配合 R001-R020 lint 扫描交叉验证。
 2. **等权 check**：同一维度内所有 check 权重相同（1/N），但实际上 `patient_level_split` 的重要性远高于 `prevalence_reported`。
-3. **无 cap 机制**：理论上一篇有严重泄漏（D2 = 0）但其他方面完美的论文可以得到 85 分，这可能高估了论文质量。
+3. **Tier 1 hard floor 已实现**（见第 1 节）：D1/D2/D3/D5 任一 fraction=0 时 grade 被 cap 到 "Major issues"。但注意：fraction > 0 但极低（如 D2 = 1/6 ≈ 16.7%）时不触发 cap，此时总分仍可能偏高。
 4. **D10、D11 各只有 1 个 check**：这些维度的评估粒度不足。
 5. **二值判定**：每个 check 只有 pass/fail，无中间状态（如 `target_leakage_risk = "medium"` 判定为 fail）。
 

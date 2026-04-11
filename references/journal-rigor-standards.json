@@ -46,7 +46,7 @@
           {
             "requirement": "Clear temporal split preventing data leakage",
             "gate": "leakage_gate",
-            "dimension": 1
+            "dimension": 2
           },
           {
             "requirement": "Patient-level data splitting (no patient in multiple splits)",

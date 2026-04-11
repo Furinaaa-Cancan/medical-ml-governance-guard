@@ -25,6 +25,7 @@ from _gate_framework import (
 DEFAULT_THRESHOLDS: Dict[Tuple[str, str, str], Tuple[float, float]] = {
     ("train", "valid", "pr_auc"): (0.05, 0.08),
     ("valid", "test", "pr_auc"): (0.04, 0.06),
+    ("train", "test", "pr_auc"): (0.08, 0.12),
     ("train", "test", "f2_beta"): (0.07, 0.10),
     ("valid", "test", "brier"): (0.02, 0.03),
 }
