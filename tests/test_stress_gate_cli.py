@@ -17,6 +17,7 @@ import pytest
 
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
+GATES_DIR = SCRIPTS_DIR / "gates"
 
 
 # ────────────────────────────────────────────────────────
@@ -25,8 +26,9 @@ SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
 
 def _discover_gate_scripts() -> List[str]:
     """Return names of all *_gate.py scripts."""
+    gates_dir = SCRIPTS_DIR / "gates"
     return sorted(
-        p.stem for p in SCRIPTS_DIR.glob("*_gate.py")
+        p.stem for p in gates_dir.glob("*_gate.py")
         if not p.name.startswith("._") and not p.name.startswith("test_")
     )
 
@@ -34,20 +36,30 @@ def _discover_gate_scripts() -> List[str]:
 def _discover_all_scripts_with_main() -> List[str]:
     """Return names of all scripts that define a main() function."""
     results = []
-    for p in sorted(SCRIPTS_DIR.glob("*.py")):
-        if p.name.startswith("._") or p.name.startswith("test_") or p.name.startswith("__"):
-            continue
-        try:
-            content = p.read_text(encoding="utf-8")
-            if "\ndef main(" in content:
-                results.append(p.stem)
-        except OSError:
-            continue
+    for subdir in ["gates", "tools", "orchestration"]:
+        for p in sorted((SCRIPTS_DIR / subdir).glob("*.py")):
+            if p.name.startswith("._") or p.name.startswith("test_") or p.name.startswith("__"):
+                continue
+            try:
+                content = p.read_text(encoding="utf-8")
+                if "\ndef main(" in content:
+                    results.append(p.stem)
+            except OSError:
+                continue
     return results
 
 
 GATE_SCRIPTS = _discover_gate_scripts()
 ALL_SCRIPTS_WITH_MAIN = _discover_all_scripts_with_main()
+
+
+def _find_script(name: str) -> Path:
+    """Find a script by name across all subdirectories."""
+    for subdir in ["gates", "tools", "orchestration"]:
+        candidate = SCRIPTS_DIR / subdir / f"{name}.py"
+        if candidate.exists():
+            return candidate
+    return SCRIPTS_DIR / f"{name}.py"  # fallback
 
 
 # ────────────────────────────────────────────────────────
@@ -58,7 +70,7 @@ class TestGateHelpFlags:
     @pytest.mark.parametrize("gate_name", GATE_SCRIPTS)
     def test_gate_help_exits_zero(self, gate_name: str):
         """Every gate script should accept --help and exit 0."""
-        script = SCRIPTS_DIR / f"{gate_name}.py"
+        script = GATES_DIR / f"{gate_name}.py"
         result = subprocess.run(
             [sys.executable, str(script), "--help"],
             capture_output=True, text=True, timeout=30,
@@ -78,7 +90,7 @@ class TestAllScriptsHelp:
     @pytest.mark.parametrize("script_name", ALL_SCRIPTS_WITH_MAIN)
     def test_help_exits_zero(self, script_name: str):
         """Every script with main() should accept --help and exit 0."""
-        script = SCRIPTS_DIR / f"{script_name}.py"
+        script = _find_script(script_name)
         result = subprocess.run(
             [sys.executable, str(script), "--help"],
             capture_output=True, text=True, timeout=30,
@@ -99,7 +111,7 @@ class TestGateMissingArgs:
     @pytest.mark.parametrize("gate_name", GATE_SCRIPTS)
     def test_gate_no_args_exits_nonzero(self, gate_name: str):
         """Gate with no args should fail (exit 2) due to missing required params."""
-        script = SCRIPTS_DIR / f"{gate_name}.py"
+        script = GATES_DIR / f"{gate_name}.py"
         result = subprocess.run(
             [sys.executable, str(script)],
             capture_output=True, text=True, timeout=30,
@@ -120,7 +132,7 @@ class TestGateNonexistentPaths:
     @pytest.mark.parametrize("gate_name", GATE_SCRIPTS)
     def test_gate_nonexistent_report_path(self, gate_name: str, tmp_path: Path):
         """Gate with --report pointing to nonexistent dir should fail."""
-        script = SCRIPTS_DIR / f"{gate_name}.py"
+        script = GATES_DIR / f"{gate_name}.py"
         fake_report = tmp_path / "nonexistent" / "report.json"
         result = subprocess.run(
             [sys.executable, str(script), "--report", str(fake_report)],
@@ -140,7 +152,7 @@ class TestGateReportContract:
     @pytest.mark.parametrize("gate_name", GATE_SCRIPTS)
     def test_gate_produces_valid_report(self, gate_name: str, tmp_path: Path):
         """When a gate runs (even failing), its report should be valid JSON."""
-        script = SCRIPTS_DIR / f"{gate_name}.py"
+        script = GATES_DIR / f"{gate_name}.py"
         report_path = tmp_path / "report.json"
         # Create minimal evidence structure
         evidence = tmp_path / "evidence"
@@ -173,7 +185,7 @@ class TestGateSyntax:
     @pytest.mark.parametrize("gate_name", GATE_SCRIPTS)
     def test_gate_compiles(self, gate_name: str):
         """Every gate script should compile without syntax errors."""
-        script = SCRIPTS_DIR / f"{gate_name}.py"
+        script = GATES_DIR / f"{gate_name}.py"
         result = subprocess.run(
             [sys.executable, "-m", "py_compile", str(script)],
             capture_output=True, text=True, timeout=10,
@@ -185,14 +197,14 @@ class TestGateSyntax:
     @pytest.mark.parametrize("gate_name", GATE_SCRIPTS)
     def test_gate_has_main_function(self, gate_name: str):
         """Every gate script should define a main() function."""
-        script = SCRIPTS_DIR / f"{gate_name}.py"
+        script = GATES_DIR / f"{gate_name}.py"
         content = script.read_text(encoding="utf-8")
         assert "\ndef main(" in content, f"{gate_name} missing main() function"
 
     @pytest.mark.parametrize("gate_name", GATE_SCRIPTS)
     def test_gate_has_name_guard(self, gate_name: str):
         """Every gate script should have if __name__ == '__main__' guard."""
-        script = SCRIPTS_DIR / f"{gate_name}.py"
+        script = GATES_DIR / f"{gate_name}.py"
         content = script.read_text(encoding="utf-8")
         assert '__name__' in content and '__main__' in content, (
             f"{gate_name} missing __name__ == '__main__' guard"
