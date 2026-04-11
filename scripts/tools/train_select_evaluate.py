@@ -5416,10 +5416,11 @@ def _feature_ablation_study(
     top_k: int = 10,
     seed: int = 42,
 ) -> Dict[str, Any]:
-    """Leave-one-feature-out ablation study.
+    """Permutation-based feature importance (often called "ablation" in ML).
 
-    NeurIPS/ICML require ablation studies to justify model components.
-    Measures performance drop when each feature is individually shuffled.
+    Measures performance drop when each feature is individually permuted
+    (Breiman 2001). This is NOT true ablation (retraining without the feature)
+    but is standard practice for fitted model diagnostics.
 
     Args:
         estimator: Fitted estimator.
@@ -6062,7 +6063,12 @@ def main() -> int:
 
     # VIF multicollinearity detection (MLGG diagnostic, train only)
     from _gate_utils import compute_vif, check_nonlinearity
+    # VIF and nonlinearity checks require imputed data (no NaN).
+    # X_train still has NaN here because imputation happens inside the Pipeline.
+    # Use median imputation as a lightweight pre-step for diagnostics only.
     _vif_data = X_train.values if hasattr(X_train, "values") else X_train
+    _vif_data = np.where(np.isnan(_vif_data),
+                         np.nanmedian(_vif_data, axis=0), _vif_data)
     if _vif_data.shape[1] <= 200:  # Skip VIF for very high-dimensional data (O(p²) cost)
         vif_report = compute_vif(_vif_data, selected_features)
         stage1_report["vif_analysis"] = vif_report
