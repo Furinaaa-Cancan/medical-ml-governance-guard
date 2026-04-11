@@ -6206,6 +6206,283 @@ def _phase3_imbalance(ctx: Dict[str, Any]) -> None:
     })
 
 
+def _phase4_candidates(ctx: Dict[str, Any]) -> None:
+    """Phase 4: Build candidate model pool and score via CV or validation.
+
+    Reads from ctx: args, X_train, y_train, X_valid, y_valid, has_valid,
+                    imputation, effective_class_weight, model_pool_config,
+                    resolved_dev, selected_imbalance_strategy, selection_data
+    Writes to ctx:  candidates, candidate_space_meta, candidate_rows, estimator_map
+    """
+    args = ctx["args"]
+    X_train, y_train = ctx["X_train"], ctx["y_train"]
+    X_valid, y_valid = ctx["X_valid"], ctx["y_valid"]
+    has_valid = ctx["has_valid"]
+    imputation = ctx["imputation"]
+    effective_class_weight = ctx["effective_class_weight"]
+    model_pool_config = ctx["model_pool_config"]
+    resolved_dev = ctx["resolved_dev"]
+    selected_imbalance_strategy = ctx["selected_imbalance_strategy"]
+    selection_data = ctx["selection_data"]
+
+    candidates, candidate_space_meta = build_candidates(
+        seed=int(args.random_seed),
+        sampling_seed=int(args.random_seed),
+        imputation_strategy=str(imputation["executed_strategy"]),
+        class_weight=effective_class_weight,
+        model_pool_config=model_pool_config,
+        device=resolved_dev,
+        temporal_cv=bool(getattr(args, "temporal_cv", False)),
+    )
+    if len(candidates) < 3:
+        raise SystemExit(
+            "candidate_pool_too_small: candidate pool must contain >=3 models; "
+            "expand --model-pool or increase --max-trials-per-family."
+        )
+    checkpoint_path = Path(args.checkpoint_file) if args.checkpoint_file else None
+    resumed_rows: Dict[str, Dict[str, Any]] = {}
+    if checkpoint_path and args.resume_from_checkpoint and checkpoint_path.exists():
+        try:
+            with checkpoint_path.open("r", encoding="utf-8") as _cfh:
+                _ckpt = json.load(_cfh)
+            if isinstance(_ckpt, dict) and isinstance(_ckpt.get("candidate_rows"), list):
+                for _cr in _ckpt["candidate_rows"]:
+                    if isinstance(_cr, dict) and "model_id" in _cr:
+                        resumed_rows[str(_cr["model_id"])] = _cr
+                print(f"Checkpoint: resumed {len(resumed_rows)} scored candidates.", file=sys.stderr)
+        except (json.JSONDecodeError, OSError) as exc:
+            print(f"Checkpoint: corrupted or unreadable ({exc}), starting fresh.", file=sys.stderr)
+
+    candidate_rows: List[Dict[str, Any]] = []
+    n_candidates = len(candidates)
+    for cand_idx, cand in enumerate(candidates):
+        mid = str(cand["model_id"])
+        if mid in resumed_rows:
+            candidate_rows.append(resumed_rows[mid])
+            print(f"[PROGRESS] {cand_idx + 1}/{n_candidates} {mid} (cached)", file=sys.stderr, flush=True)
+            continue
+        print(f"[PROGRESS] {cand_idx + 1}/{n_candidates} {mid}", file=sys.stderr, flush=True)
+        if selection_data == "cv_inner":
+            mean_score, std_score, n_folds, fold_scores = cv_score_pr_auc(
+                cand["estimator"], X_train, y_train,
+                n_splits=args.cv_splits, seed=args.random_seed,
+                imbalance_strategy=selected_imbalance_strategy,
+                score_metric="pr_auc",
+                temporal_cv=bool(getattr(args, "temporal_cv", False)),
+            )
+        else:
+            if not has_valid:
+                raise SystemExit("selection_data=valid requires a validation split.")
+            model = clone(cand["estimator"])
+            model, _ = fit_estimator_with_imbalance(
+                estimator=model, X_train=X_train, y_train=y_train,
+                strategy=selected_imbalance_strategy, seed=int(args.random_seed),
+            )
+            valid_proba = predict_proba_1(model, X_valid)
+            mean_score = float(average_precision_score(y_valid, valid_proba))
+            std_score, n_folds, fold_scores = 0.0, 1, [mean_score]
+        candidate_rows.append({
+            "model_id": cand["model_id"], "base_model_id": cand["base_model_id"],
+            "family": cand["family"], "complexity_rank": cand["complexity_rank"],
+            "hyperparameters": cand["hyperparameters"],
+            "regularization_profile": cand["regularization_profile"],
+            "search_meta": cand["search_meta"],
+            "selection_metrics": {"pr_auc": {
+                "mean": mean_score, "std": std_score,
+                "n_folds": n_folds, "fold_scores": [float(x) for x in fold_scores],
+            }},
+            "selected": False,
+        })
+        if checkpoint_path:
+            _ckpt_payload = {"candidate_rows": candidate_rows, "completed_count": len(candidate_rows)}
+            _ckpt_tmp = checkpoint_path.with_suffix(".tmp")
+            with _ckpt_tmp.open("w", encoding="utf-8") as _cfh:
+                json.dump(_ckpt_payload, _cfh, ensure_ascii=True, indent=2, sort_keys=True, allow_nan=False)
+            _ckpt_tmp.replace(checkpoint_path)
+
+    estimator_map = {cand["model_id"]: cand["estimator"] for cand in candidates}
+
+    requested_ensembles = [f for f in model_pool_config.get("model_pool", []) if f in ENSEMBLE_FAMILIES]
+    ensemble_top_k = int(getattr(args, "ensemble_top_k", 0) or 0)
+    if ensemble_top_k <= 0 and requested_ensembles:
+        ensemble_top_k = DEFAULT_ENSEMBLE_TOP_K
+    if requested_ensembles and ensemble_top_k >= 2 and len(candidate_rows) >= 2:
+        ensemble_cands = build_ensemble_candidates(
+            candidate_rows=candidate_rows, estimator_map=estimator_map,
+            requested_ensembles=requested_ensembles, top_k=ensemble_top_k,
+            seed=int(args.random_seed),
+        )
+        for ecand in ensemble_cands:
+            if selection_data == "cv_inner":
+                mean_score, std_score, n_folds, fold_scores = cv_score_pr_auc(
+                    ecand["estimator"], X_train, y_train,
+                    n_splits=args.cv_splits, seed=args.random_seed,
+                    imbalance_strategy=selected_imbalance_strategy,
+                    score_metric="pr_auc",
+                    temporal_cv=bool(getattr(args, "temporal_cv", False)),
+                )
+            else:
+                if not has_valid:
+                    raise SystemExit("selection_data=valid requires a validation split for ensemble scoring.")
+                emodel = clone(ecand["estimator"])
+                emodel, _ = fit_estimator_with_imbalance(
+                    estimator=emodel, X_train=X_train, y_train=y_train,
+                    strategy=selected_imbalance_strategy, seed=int(args.random_seed),
+                )
+                valid_proba = predict_proba_1(emodel, X_valid)
+                mean_score = float(average_precision_score(y_valid, valid_proba))
+                std_score, n_folds, fold_scores = 0.0, 1, [mean_score]
+            candidate_rows.append({
+                "model_id": ecand["model_id"], "base_model_id": ecand["base_model_id"],
+                "family": ecand["family"], "complexity_rank": ecand["complexity_rank"],
+                "hyperparameters": ecand["hyperparameters"],
+                "regularization_profile": ecand["regularization_profile"],
+                "search_meta": ecand["search_meta"],
+                "selection_metrics": {"pr_auc": {
+                    "mean": mean_score, "std": std_score,
+                    "n_folds": n_folds, "fold_scores": [float(x) for x in fold_scores],
+                }},
+                "selected": False,
+            })
+            estimator_map[ecand["model_id"]] = ecand["estimator"]
+
+    ctx.update({
+        "candidates": candidates, "candidate_space_meta": candidate_space_meta,
+        "candidate_rows": candidate_rows, "estimator_map": estimator_map,
+    })
+
+
+def _phase5_selection(ctx: Dict[str, Any]) -> None:
+    """Phase 5: Select best model via one-SE rule, fit on full train set.
+
+    Reads from ctx: candidate_rows, estimator_map, X_train, y_train, X_valid,
+                    y_valid, selected_imbalance_strategy, threshold_selection_split,
+                    calibration_fit_split, args
+    Writes to ctx:  selected_model_id, selected_estimator, selected_candidate_row,
+                    selected_fit_meta, threshold_y, threshold_proba_raw,
+                    calibration_y, calibration_proba_raw
+    """
+    args = ctx["args"]
+    candidate_rows = ctx["candidate_rows"]
+    estimator_map = ctx["estimator_map"]
+    X_train, y_train = ctx["X_train"], ctx["y_train"]
+    X_valid, y_valid = ctx["X_valid"], ctx["y_valid"]
+    selected_imbalance_strategy = ctx["selected_imbalance_strategy"]
+    threshold_selection_split = ctx["threshold_selection_split"]
+    calibration_fit_split = ctx["calibration_fit_split"]
+
+    trace = choose_model_one_se([
+        {
+            "model_id": row["model_id"],
+            "complexity_rank": row["complexity_rank"],
+            "mean": row["selection_metrics"]["pr_auc"]["mean"],
+            "std": row["selection_metrics"]["pr_auc"]["std"],
+            "n_folds": row["selection_metrics"]["pr_auc"]["n_folds"],
+        }
+        for row in candidate_rows
+    ])
+    selected_model_id = str(trace["chosen_model_id"])
+    for row in candidate_rows:
+        row["selected"] = bool(row["model_id"] == selected_model_id)
+    selected_candidate_row = next((row for row in candidate_rows if bool(row.get("selected"))), None)
+    selected_estimator = clone(estimator_map[selected_model_id])
+    selected_estimator, selected_fit_meta = fit_estimator_with_imbalance(
+        estimator=selected_estimator, X_train=X_train, y_train=y_train,
+        strategy=selected_imbalance_strategy, seed=int(args.random_seed),
+    )
+    if threshold_selection_split == "valid":
+        threshold_y = y_valid
+        threshold_proba_raw = predict_proba_1(selected_estimator, X_valid)
+    else:
+        threshold_y = y_train
+        threshold_proba_raw = cv_oof_proba(
+            estimator=selected_estimator, X=X_train, y=y_train,
+            n_splits=args.cv_splits, seed=args.random_seed,
+            imbalance_strategy=selected_imbalance_strategy,
+        )
+    if calibration_fit_split == "valid":
+        calibration_y = y_valid
+        calibration_proba_raw = predict_proba_1(selected_estimator, X_valid)
+    else:
+        calibration_y = y_train
+        calibration_proba_raw = cv_oof_proba(
+            estimator=selected_estimator, X=X_train, y=y_train,
+            n_splits=args.cv_splits, seed=args.random_seed,
+            imbalance_strategy=selected_imbalance_strategy,
+        )
+
+    ctx.update({
+        "selected_model_id": selected_model_id,
+        "selected_estimator": selected_estimator,
+        "selected_candidate_row": selected_candidate_row,
+        "selected_fit_meta": selected_fit_meta,
+        "selection_trace": trace,
+        "threshold_y": threshold_y, "threshold_proba_raw": threshold_proba_raw,
+        "calibration_y": calibration_y, "calibration_proba_raw": calibration_proba_raw,
+    })
+
+
+def _phase6_calibration(ctx: Dict[str, Any]) -> None:
+    """Phase 6: Fit probability calibrator and choose clinical threshold.
+
+    Reads from ctx: calibration_y, calibration_proba_raw, threshold_proba_raw,
+                    threshold_y, calibration_method, selected_estimator,
+                    threshold_selection_split, has_valid, X_valid, y_valid,
+                    X_train, y_train, selected_imbalance_strategy, beta,
+                    sensitivity_floor, npv_floor, specificity_floor, ppv_floor, args
+    Writes to ctx:  calibrator, selected_threshold, threshold_info
+    """
+    args = ctx["args"]
+    calibration_method = ctx["calibration_method"]
+    selected_estimator = ctx["selected_estimator"]
+    threshold_selection_split = ctx["threshold_selection_split"]
+    has_valid = ctx["has_valid"]
+    X_train, y_train = ctx["X_train"], ctx["y_train"]
+    X_valid, y_valid = ctx["X_valid"], ctx["y_valid"]
+    selected_imbalance_strategy = ctx["selected_imbalance_strategy"]
+
+    calibrator = fit_probability_calibrator(
+        y_true=ctx["calibration_y"], proba_raw=ctx["calibration_proba_raw"],
+        method=calibration_method, seed=int(args.random_seed),
+    )
+    threshold_proba = apply_probability_calibrator(calibrator, ctx["threshold_proba_raw"])
+    guard_y: Optional[np.ndarray] = None
+    guard_proba: Optional[np.ndarray] = None
+    if threshold_selection_split == "cv_inner" and has_valid:
+        guard_y = y_valid
+        guard_proba = apply_probability_calibrator(calibrator, predict_proba_1(selected_estimator, X_valid))
+    elif threshold_selection_split == "cv_inner" and not has_valid:
+        guard_y = y_train
+        guard_proba_raw = cv_oof_proba(
+            estimator=selected_estimator, X=X_train, y=y_train,
+            n_splits=args.cv_splits, seed=args.random_seed + 7777,
+            imbalance_strategy=selected_imbalance_strategy,
+        )
+        guard_proba = apply_probability_calibrator(calibrator, guard_proba_raw)
+    else:
+        guard_y = y_train
+        guard_proba_raw = cv_oof_proba(
+            estimator=selected_estimator, X=X_train, y=y_train,
+            n_splits=args.cv_splits, seed=args.random_seed,
+            imbalance_strategy=selected_imbalance_strategy,
+        )
+        guard_proba = apply_probability_calibrator(calibrator, guard_proba_raw)
+    threshold_info = choose_threshold(
+        y_valid=ctx["threshold_y"], proba_valid=threshold_proba,
+        beta=ctx["beta"],
+        sensitivity_floor=ctx["sensitivity_floor"], npv_floor=ctx["npv_floor"],
+        specificity_floor=ctx["specificity_floor"], ppv_floor=ctx["ppv_floor"],
+        guard_y=guard_y, guard_proba=guard_proba,
+    )
+    selected_threshold = float(threshold_info["selected_threshold"])
+
+    ctx.update({
+        "calibrator": calibrator,
+        "selected_threshold": selected_threshold,
+        "threshold_info": threshold_info,
+    })
+
+
 def main() -> int:
     """Entry point for the train-select-evaluate pipeline.
 
@@ -6324,286 +6601,44 @@ def main() -> int:
     imbalance_ratio = ctx["imbalance_ratio"]
 
     # ═══════════════════════════════════════════════════════════════════════
-    # PHASE 4: CANDIDATE POOL BUILD + CV SCORING
-    # Inputs:  X_train, y_train, model_pool_config, selected_features
-    # Outputs: candidates, candidate_rows, estimator_map, candidate_space_meta
+    # PHASES 4-6: CANDIDATE POOL → MODEL SELECTION → CALIBRATION
+    # → _phase4_candidates(), _phase5_selection(), _phase6_calibration()
     # ═══════════════════════════════════════════════════════════════════════
-
-
+    ctx.update({
+        "X_train": X_train, "y_train": y_train, "X_valid": X_valid, "y_valid": y_valid,
+        "has_valid": has_valid, "selected_features": selected_features,
+        "imputation": imputation, "effective_class_weight": effective_class_weight,
+        "model_pool_config": model_pool_config, "resolved_dev": resolved_dev,
+        "selected_imbalance_strategy": selected_imbalance_strategy,
+        "selection_data": selection_data,
+        "threshold_selection_split": threshold_selection_split,
+        "calibration_fit_split": calibration_fit_split,
+        "calibration_method": calibration_method,
+        "beta": beta, "sensitivity_floor": sensitivity_floor,
+        "npv_floor": npv_floor, "specificity_floor": specificity_floor,
+        "ppv_floor": ppv_floor,
+    })
     print("[STEP  5/12] Building candidate models + CV scoring...", file=sys.stderr, flush=True)
-    candidates, candidate_space_meta = build_candidates(
-        seed=int(args.random_seed),
-        sampling_seed=int(args.random_seed),
-        imputation_strategy=str(imputation["executed_strategy"]),
-        class_weight=effective_class_weight,
-        model_pool_config=model_pool_config,
-        device=resolved_dev,
-        temporal_cv=bool(getattr(args, "temporal_cv", False)),
-    )
-    if len(candidates) < 3:
-        raise SystemExit(
-            "candidate_pool_too_small: candidate pool must contain >=3 models; "
-            "expand --model-pool or increase --max-trials-per-family."
-        )
-    checkpoint_path = Path(args.checkpoint_file) if args.checkpoint_file else None
-    resumed_rows: Dict[str, Dict[str, Any]] = {}
-    if checkpoint_path and args.resume_from_checkpoint and checkpoint_path.exists():
-        try:
-            with checkpoint_path.open("r", encoding="utf-8") as _cfh:
-                _ckpt = json.load(_cfh)
-            if isinstance(_ckpt, dict) and isinstance(_ckpt.get("candidate_rows"), list):
-                for _cr in _ckpt["candidate_rows"]:
-                    if isinstance(_cr, dict) and "model_id" in _cr:
-                        resumed_rows[str(_cr["model_id"])] = _cr
-                print(f"Checkpoint: resumed {len(resumed_rows)} scored candidates.", file=sys.stderr)
-        except (json.JSONDecodeError, OSError) as exc:
-            print(f"Checkpoint: corrupted or unreadable ({exc}), starting fresh.", file=sys.stderr)
-
-    candidate_rows: List[Dict[str, Any]] = []
-    n_candidates = len(candidates)
-    for cand_idx, cand in enumerate(candidates):
-        mid = str(cand["model_id"])
-        if mid in resumed_rows:
-            candidate_rows.append(resumed_rows[mid])
-            print(f"[PROGRESS] {cand_idx + 1}/{n_candidates} {mid} (cached)", file=sys.stderr, flush=True)
-            continue
-        print(f"[PROGRESS] {cand_idx + 1}/{n_candidates} {mid}", file=sys.stderr, flush=True)
-        if selection_data == "cv_inner":
-            mean_score, std_score, n_folds, fold_scores = cv_score_pr_auc(
-                cand["estimator"],
-                X_train,
-                y_train,
-                n_splits=args.cv_splits,
-                seed=args.random_seed,
-                imbalance_strategy=selected_imbalance_strategy,
-                score_metric="pr_auc",
-                temporal_cv=bool(getattr(args, "temporal_cv", False)),
-            )
-        else:
-            if not has_valid:
-                raise SystemExit("selection_data=valid requires a validation split. Provide --valid or use --selection-data cv_inner.")
-            model = clone(cand["estimator"])
-            model, _ = fit_estimator_with_imbalance(
-                estimator=model,
-                X_train=X_train,
-                y_train=y_train,
-                strategy=selected_imbalance_strategy,
-                seed=int(args.random_seed),
-            )
-            valid_proba = predict_proba_1(model, X_valid)
-            mean_score = float(average_precision_score(y_valid, valid_proba))
-            std_score = 0.0
-            n_folds = 1
-            fold_scores = [mean_score]
-        candidate_rows.append(
-            {
-                "model_id": cand["model_id"],
-                "base_model_id": cand["base_model_id"],
-                "family": cand["family"],
-                "complexity_rank": cand["complexity_rank"],
-                "hyperparameters": cand["hyperparameters"],
-                "regularization_profile": cand["regularization_profile"],
-                "search_meta": cand["search_meta"],
-                "selection_metrics": {
-                    "pr_auc": {
-                        "mean": mean_score,
-                        "std": std_score,
-                        "n_folds": n_folds,
-                        "fold_scores": [float(x) for x in fold_scores],
-                    }
-                },
-                "selected": False,
-            }
-        )
-        if checkpoint_path:
-            _ckpt_payload = {"candidate_rows": candidate_rows, "completed_count": len(candidate_rows)}
-            _ckpt_tmp = checkpoint_path.with_suffix(".tmp")
-            with _ckpt_tmp.open("w", encoding="utf-8") as _cfh:
-                json.dump(_ckpt_payload, _cfh, ensure_ascii=True, indent=2, sort_keys=True,
-                          allow_nan=False)
-            _ckpt_tmp.replace(checkpoint_path)
-
-    estimator_map = {cand["model_id"]: cand["estimator"] for cand in candidates}
-
-    requested_ensembles = [f for f in model_pool_config.get("model_pool", []) if f in ENSEMBLE_FAMILIES]
-    ensemble_top_k = int(getattr(args, "ensemble_top_k", 0) or 0)
-    if ensemble_top_k <= 0 and requested_ensembles:
-        ensemble_top_k = DEFAULT_ENSEMBLE_TOP_K
-    if requested_ensembles and ensemble_top_k >= 2 and len(candidate_rows) >= 2:
-        ensemble_cands = build_ensemble_candidates(
-            candidate_rows=candidate_rows,
-            estimator_map=estimator_map,
-            requested_ensembles=requested_ensembles,
-            top_k=ensemble_top_k,
-            seed=int(args.random_seed),
-        )
-        for ecand in ensemble_cands:
-            if selection_data == "cv_inner":
-                mean_score, std_score, n_folds, fold_scores = cv_score_pr_auc(
-                    ecand["estimator"],
-                    X_train,
-                    y_train,
-                    n_splits=args.cv_splits,
-                    seed=args.random_seed,
-                    imbalance_strategy=selected_imbalance_strategy,
-                    score_metric="pr_auc",
-                    temporal_cv=bool(getattr(args, "temporal_cv", False)),
-                )
-            else:
-                if not has_valid:
-                    raise SystemExit("selection_data=valid requires a validation split for ensemble scoring.")
-                emodel = clone(ecand["estimator"])
-                emodel, _ = fit_estimator_with_imbalance(
-                    estimator=emodel,
-                    X_train=X_train,
-                    y_train=y_train,
-                    strategy=selected_imbalance_strategy,
-                    seed=int(args.random_seed),
-                )
-                valid_proba = predict_proba_1(emodel, X_valid)
-                mean_score = float(average_precision_score(y_valid, valid_proba))
-                std_score = 0.0
-                n_folds = 1
-                fold_scores = [mean_score]
-            candidate_rows.append({
-                "model_id": ecand["model_id"],
-                "base_model_id": ecand["base_model_id"],
-                "family": ecand["family"],
-                "complexity_rank": ecand["complexity_rank"],
-                "hyperparameters": ecand["hyperparameters"],
-                "regularization_profile": ecand["regularization_profile"],
-                "search_meta": ecand["search_meta"],
-                "selection_metrics": {
-                    "pr_auc": {
-                        "mean": mean_score,
-                        "std": std_score,
-                        "n_folds": n_folds,
-                        "fold_scores": [float(x) for x in fold_scores],
-                    }
-                },
-                "selected": False,
-            })
-            estimator_map[ecand["model_id"]] = ecand["estimator"]
-
-
-    # ═══════════════════════════════════════════════════════════════════════
-    # PHASE 5: MODEL SELECTION + FIT
-    # Inputs:  candidate_rows, estimator_map, X_train, y_train
-    # Outputs: selected_model_id, selected_estimator, selected_candidate_row
-    # ═══════════════════════════════════════════════════════════════════════
-
-
+    _phase4_candidates(ctx)
     print("[STEP  6/12] Model selection (one-SE rule)...", file=sys.stderr, flush=True)
-    trace = choose_model_one_se(
-        [
-            {
-                "model_id": row["model_id"],
-                "complexity_rank": row["complexity_rank"],
-                "mean": row["selection_metrics"]["pr_auc"]["mean"],
-                "std": row["selection_metrics"]["pr_auc"]["std"],
-                "n_folds": row["selection_metrics"]["pr_auc"]["n_folds"],
-            }
-            for row in candidate_rows
-        ]
-    )
-    selected_model_id = str(trace["chosen_model_id"])
-    for row in candidate_rows:
-        row["selected"] = bool(row["model_id"] == selected_model_id)
-    selected_candidate_row = next((row for row in candidate_rows if bool(row.get("selected"))), None)
-    selected_estimator = clone(estimator_map[selected_model_id])
-    selected_estimator, selected_fit_meta = fit_estimator_with_imbalance(
-        estimator=selected_estimator,
-        X_train=X_train,
-        y_train=y_train,
-        strategy=selected_imbalance_strategy,
-        seed=int(args.random_seed),
-    )
-    if threshold_selection_split == "valid":
-        threshold_y = y_valid
-        threshold_proba_raw = predict_proba_1(selected_estimator, X_valid)
-    else:
-        threshold_y = y_train
-        threshold_proba_raw = cv_oof_proba(
-            estimator=selected_estimator,
-            X=X_train,
-            y=y_train,
-            n_splits=args.cv_splits,
-            seed=args.random_seed,
-            imbalance_strategy=selected_imbalance_strategy,
-        )
-    if calibration_fit_split == "valid":
-        calibration_y = y_valid
-        calibration_proba_raw = predict_proba_1(selected_estimator, X_valid)
-    else:
-        calibration_y = y_train
-        calibration_proba_raw = cv_oof_proba(
-            estimator=selected_estimator,
-            X=X_train,
-            y=y_train,
-            n_splits=args.cv_splits,
-            seed=args.random_seed,
-            imbalance_strategy=selected_imbalance_strategy,
-        )
-
-    # ═══════════════════════════════════════════════════════════════════════
-    # PHASE 6: CALIBRATION + THRESHOLD
-    # Inputs:  selected_estimator, X_train/valid, y_train/valid
-    # Outputs: calibrator, selected_threshold, threshold_info
-    # ═══════════════════════════════════════════════════════════════════════
-
-
+    _phase5_selection(ctx)
     print("[STEP  7/12] Calibration + threshold...", file=sys.stderr, flush=True)
-    calibrator = fit_probability_calibrator(
-        y_true=calibration_y,
-        proba_raw=calibration_proba_raw,
-        method=calibration_method,
-        seed=int(args.random_seed),
-    )
-    threshold_proba = apply_probability_calibrator(calibrator, threshold_proba_raw)
-    guard_y: Optional[np.ndarray] = None
-    guard_proba: Optional[np.ndarray] = None
-    if threshold_selection_split == "cv_inner" and has_valid:
-        guard_y = y_valid
-        guard_proba = apply_probability_calibrator(calibrator, predict_proba_1(selected_estimator, X_valid))
-    elif threshold_selection_split == "cv_inner" and not has_valid:
-        # No valid split — use train OOF with offset seed as guard
-        guard_y = y_train
-        guard_proba_raw = cv_oof_proba(
-            estimator=selected_estimator,
-            X=X_train,
-            y=y_train,
-            n_splits=args.cv_splits,
-            seed=args.random_seed + 7777,
-            imbalance_strategy=selected_imbalance_strategy,
-        )
-        guard_proba = apply_probability_calibrator(calibrator, guard_proba_raw)
-    else:
-        # When threshold selection is done on valid, use train OOF predictions as
-        # an internal guard split to reduce valid-only threshold overfitting.
-        guard_y = y_train
-        guard_proba_raw = cv_oof_proba(
-            estimator=selected_estimator,
-            X=X_train,
-            y=y_train,
-            n_splits=args.cv_splits,
-            seed=args.random_seed,
-            imbalance_strategy=selected_imbalance_strategy,
-        )
-        guard_proba = apply_probability_calibrator(calibrator, guard_proba_raw)
-    threshold_info = choose_threshold(
-        y_valid=threshold_y,
-        proba_valid=threshold_proba,
-        beta=beta,
-        sensitivity_floor=sensitivity_floor,
-        npv_floor=npv_floor,
-        specificity_floor=specificity_floor,
-        ppv_floor=ppv_floor,
-        guard_y=guard_y,
-        guard_proba=guard_proba,
-    )
-    selected_threshold = float(threshold_info["selected_threshold"])
-
-    # Keep evaluation on the train-fitted selected model to avoid polluting valid split metrics.
+    _phase6_calibration(ctx)
+    # Bridge ctx → locals
+    candidates = ctx["candidates"]
+    candidate_space_meta = ctx["candidate_space_meta"]
+    candidate_rows = ctx["candidate_rows"]
+    estimator_map = ctx["estimator_map"]
+    selected_model_id = ctx["selected_model_id"]
+    selected_estimator = ctx["selected_estimator"]
+    selected_candidate_row = ctx["selected_candidate_row"]
+    selected_fit_meta = ctx["selected_fit_meta"]
+    calibrator = ctx["calibrator"]
+    selected_threshold = ctx["selected_threshold"]
+    threshold_info = ctx["threshold_info"]
+    threshold_y = ctx["threshold_y"]
+    calibration_y = ctx["calibration_y"]
+    trace = ctx["selection_trace"]
 
     # ═══════════════════════════════════════════════════════════════════════
     # PHASE 7: EVALUATION (metrics + bootstrap CI)
