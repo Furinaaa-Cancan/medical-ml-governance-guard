@@ -320,13 +320,21 @@ def install_gate_timeout(
 def try_parse_time(value: str) -> Optional[float]:
     """Parse a time string to epoch float, trying multiple formats.
 
+    All naive (timezone-unaware) timestamps are interpreted as **UTC** to
+    ensure deterministic, platform-independent comparisons.  Previously,
+    naive dates used local time (``datetime.timestamp()``), causing the
+    same date string to produce different epoch values on machines in
+    different timezones.
+
     Args:
         value: Raw time string (ISO-8601, date, or numeric epoch).
 
     Returns:
-        Epoch timestamp as float, or None if unparseable.
+        Epoch timestamp as float (always UTC-based), or None if unparseable.
     """
     import datetime as _dt
+
+    _UTC = _dt.timezone.utc
 
     s = value.strip()
     if not s:
@@ -335,11 +343,17 @@ def try_parse_time(value: str) -> Optional[float]:
         return float(s)
     except ValueError:
         pass
+    # ISO-8601 with Z or offset
     iso = s.replace("Z", "+00:00")
     try:
-        return _dt.datetime.fromisoformat(iso).timestamp()
+        dt = _dt.datetime.fromisoformat(iso)
+        # If already aware, use as-is; otherwise treat as UTC
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=_UTC)
+        return dt.timestamp()
     except ValueError:
         pass
+    # Common date/datetime formats — all treated as UTC
     formats = (
         "%Y-%m-%d",
         "%Y-%m-%d %H:%M:%S",
@@ -349,7 +363,8 @@ def try_parse_time(value: str) -> Optional[float]:
     )
     for fmt in formats:
         try:
-            return _dt.datetime.strptime(s, fmt).timestamp()
+            dt = _dt.datetime.strptime(s, fmt).replace(tzinfo=_UTC)
+            return dt.timestamp()
         except ValueError:
             continue
     return None

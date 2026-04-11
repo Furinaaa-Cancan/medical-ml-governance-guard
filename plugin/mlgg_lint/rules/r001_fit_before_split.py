@@ -67,6 +67,26 @@ class FitBeforeSplit(BaseRule):
         # Track variables that hold model instances (not preprocessors)
         self._model_vars: set[str] = set()
         self._pipeline_vars: set[str] = set()
+        # Track line ranges of function/class definitions to skip fit()
+        # calls inside helper functions (they're called on specific data,
+        # not necessarily on unsplit data).
+        self._scope_ranges: list[tuple[int, int]] = []
+
+    def check(self, tree: ast.Module) -> list:
+        # Pre-scan: collect function/class body line ranges
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                if node.body:
+                    start = node.body[0].lineno
+                    end = node.end_lineno or node.body[-1].lineno
+                    self._scope_ranges.append((start, end))
+        self.visit(tree)
+        self.finalize()
+        return self._diagnostics
+
+    def _in_nested_scope(self, lineno: int) -> bool:
+        """Check if a line is inside a function/class body."""
+        return any(start <= lineno <= end for start, end in self._scope_ranges)
 
     def visit_Assign(self, node: ast.Assign) -> None:  # noqa: N802
         """Track model, pipeline, and target-encoder assignments to avoid false positives."""
@@ -101,10 +121,15 @@ class FitBeforeSplit(BaseRule):
             # Only flag if:
             # 1. A split exists in THIS file (split_line is not None)
             # 2. The fit call is BEFORE the split
-            # 3. The first argument is NOT train data (avoid FP on fit(X_train))
+            # 3. The fit call is at module level (not inside a function/class)
+            # 4. The first argument is NOT train data (avoid FP on fit(X_train))
             if self.taint.split_line is None:
                 # No split in this file — cannot determine if fit is on unsplit
                 # data. Skip to avoid cross-file false positives.
+                continue
+            if self._in_nested_scope(node.lineno):
+                # fit() inside a function/class body — the function may be
+                # called on train data only. Skip to avoid false positives.
                 continue
             if not self.taint.has_split_occurred(node.lineno):
                 # Check if the fit argument is explicitly train data

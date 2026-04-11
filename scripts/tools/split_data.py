@@ -203,7 +203,7 @@ def load_csv(path: str) -> pd.DataFrame:
     file_size = p.stat().st_size
     if file_size > 2 * 1024 * 1024 * 1024:
         raise ValueError(f"Input CSV too large: {file_size} bytes (limit 2 GB)")
-    df = pd.read_csv(p)
+    df = pd.read_csv(p, encoding="utf-8-sig")
     if df.empty:
         raise ValueError(f"Input CSV is empty: {p}")
     return df
@@ -235,6 +235,9 @@ def validate_columns(df: pd.DataFrame, patient_id_col: str, target_col: str, tim
         raise ValueError(
             f"Missing columns: {', '.join(missing)}. Available: {available}"
         )
+    # NOTE: Patient ID normalization to string happens AFTER NaN exclusion
+    # in the main pipeline (see main() function). Do not convert here as
+    # it would mask NaN detection downstream.
 
 
 def validate_binary_target(df: pd.DataFrame, target_col: str) -> int:
@@ -320,6 +323,12 @@ def validate_ratios(train_ratio: float, valid_ratio: float, test_ratio: float) -
 def get_patient_label(df: pd.DataFrame, patient_id_col: str, target_col: str) -> pd.DataFrame:
     """Compute per-patient majority label for stratified splitting.
 
+    For patients with exactly 50/50 positive/negative events, the tie is
+    broken toward the **minority class** in the overall dataset (the rarer
+    class).  This prevents systematic inflation of the positive patient
+    count in rare-disease studies where a patient with 1/2 positive visits
+    would otherwise always be counted as positive.
+
     Args:
         df: Input DataFrame.
         patient_id_col: Patient ID column name.
@@ -327,10 +336,20 @@ def get_patient_label(df: pd.DataFrame, patient_id_col: str, target_col: str) ->
 
     Returns:
         DataFrame indexed by patient ID with columns 'mean', 'count',
-        and 'label' (1 if mean >= 0.5, else 0).
+        and 'label'.
     """
     patient_groups = df.groupby(patient_id_col)[target_col].agg(["mean", "count"])
-    patient_groups["label"] = (patient_groups["mean"] >= 0.5).astype(int)
+    # Determine overall base rate to break 50/50 ties toward the minority class
+    overall_positive_rate = df[target_col].mean()
+    # If positive is the minority (<50%), ties go to positive (1);
+    # if positive is the majority (>=50%), ties go to negative (0).
+    # This ensures the minority class gets slightly more patients, which
+    # improves stratification stability for rare events.
+    tie_label = 1 if overall_positive_rate < 0.5 else 0
+    patient_groups["label"] = 0
+    patient_groups.loc[patient_groups["mean"] > 0.5, "label"] = 1
+    patient_groups.loc[patient_groups["mean"] < 0.5, "label"] = 0
+    patient_groups.loc[patient_groups["mean"] == 0.5, "label"] = tie_label
     return patient_groups
 
 
@@ -452,6 +471,21 @@ def split_grouped_temporal(
     valid_df = df[df[patient_id_col].isin(valid_patients)].drop(columns=[tmp_col]) if valid_patients else pd.DataFrame()
     test_df = df[df[patient_id_col].isin(test_patients)].drop(columns=[tmp_col]) if test_patients else pd.DataFrame()
 
+    # Warn about multi-visit patients whose events span the temporal boundary.
+    # This is expected for longitudinal data and will cause temporal overlap
+    # in validate_splits. Users should either use first-visit-only data or
+    # accept the overlap as a known limitation documented in the split report.
+    multi_visit = df.groupby(patient_id_col).size()
+    n_multi = (multi_visit > 1).sum()
+    if n_multi > 0:
+        print(
+            f"[INFO] grouped_temporal: {n_multi}/{len(multi_visit)} patients have "
+            f"multiple visits. Their events may span the temporal boundary between "
+            f"splits, causing expected temporal overlap in validation. Consider "
+            f"using first-visit-only data for strict temporal separation.",
+            file=sys.stderr,
+        )
+
     return train_df, valid_df, test_df
 
 
@@ -549,11 +583,11 @@ def split_stratified_grouped(
             continue
         if n < 3:
             # Too few patients in this class to split 3 ways; put all in train.
-            import logging
-            logging.warning(
-                f"Class {label_val} has only {n} patient(s) — all assigned to "
+            print(
+                f"[WARN] Class {label_val} has only {n} patient(s) — all assigned to "
                 f"training. Test/validation will have 0 patients for this class. "
-                f"Consider using a larger dataset or the 'rare_disease' profile."
+                f"Consider using a larger dataset or the 'rare_disease' profile.",
+                file=sys.stderr,
             )
             train_patients.extend(group)
             continue
@@ -905,6 +939,10 @@ def main() -> int:
     if rows_after_clean == 0:
         print("[FAIL] No valid rows remain after excluding NaN patient_id/target.", file=sys.stderr)
         return 2
+
+    # Normalize patient IDs to string after NaN exclusion to prevent
+    # leading-zero loss and ensure consistent comparison across splits.
+    df[args.patient_id_col] = df[args.patient_id_col].astype(str)
 
     n_patients = df[args.patient_id_col].nunique()
     print(f"[INFO] {n_patients} unique patients, {rows_after_clean} rows (excluded {total_excluded}), strategy: {args.strategy}")

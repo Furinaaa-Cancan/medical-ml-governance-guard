@@ -273,11 +273,23 @@ class TestGetPatientLabel:
         result = get_patient_label(df, "pid", "y")
         assert result.loc["A", "label"] == 1
 
-    def test_exactly_half(self):
+    def test_exactly_half_majority_positive(self):
+        # Base rate = 0.5 → positive is not minority → tie goes to 0
         df = pd.DataFrame({"pid": ["A", "A"], "y": [0, 1]})
         result = get_patient_label(df, "pid", "y")
-        # mean=0.5, >= 0.5 → label=1
+        assert result.loc["A", "label"] == 0
+
+    def test_exactly_half_rare_disease(self):
+        # Base rate < 0.5 → positive is minority → tie goes to 1
+        df = pd.DataFrame({
+            "pid": ["A", "A", "B", "B", "B"],
+            "y":   [0,   1,   0,   0,   0],
+        })
+        result = get_patient_label(df, "pid", "y")
+        # A: mean=0.5, overall rate=0.2 < 0.5 → tie_label=1
         assert result.loc["A", "label"] == 1
+        # B: mean=0.0 → label=0
+        assert result.loc["B", "label"] == 0
 
 
 # ────────────────────────────────────────────────────────
