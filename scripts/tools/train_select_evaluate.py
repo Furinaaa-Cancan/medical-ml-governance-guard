@@ -7659,7 +7659,17 @@ def main() -> int:
         prediction_trace_out = Path(args.prediction_trace_out).expanduser().resolve()
         ensure_parent(prediction_trace_out)
         prediction_trace_df = pd.concat(prediction_trace_frames, axis=0, ignore_index=True)
-        prediction_trace_df.to_csv(prediction_trace_out, index=False)
+        # Write with deterministic gzip (mtime=0) so SHA-256 is reproducible.
+        # pandas.to_csv with .gz extension uses gzip with mtime=current time,
+        # making the compressed file non-deterministic across runs.
+        if str(prediction_trace_out).endswith(".gz"):
+            import gzip as _gzip_mod
+            csv_bytes = prediction_trace_df.to_csv(index=False).encode("utf-8")
+            with open(prediction_trace_out, "wb") as _f_out:
+                with _gzip_mod.GzipFile(fileobj=_f_out, mode="wb", mtime=0) as _gz:
+                    _gz.write(csv_bytes)
+        else:
+            prediction_trace_df.to_csv(prediction_trace_out, index=False)
 
     external_validation_out: Optional[Path] = None
     if args.external_validation_report_out and external_validation_report is not None:
