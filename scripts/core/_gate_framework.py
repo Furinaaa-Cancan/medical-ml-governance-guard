@@ -1,18 +1,15 @@
 """
 Unified gate framework for ml-governance-guard.
 
-Provides GateBase abstract class, standardized report envelope, severity
-levels, remediation hint registry, and CLI helpers. Each gate script can
-subclass GateBase for a consistent lifecycle while retaining full control
-over its validation logic.
+Provides standardized report envelope (v2.0.0), severity levels (GateIssue),
+remediation hint registry, and CLI helpers for the 33 fail-closed gates.
 
-Backward-compatible: existing gates that do NOT subclass GateBase continue
-to work unchanged. Migration is incremental and per-gate.
+All gates use the legacy pattern: standalone parse_args() + main() + finish().
+GateBase abstract class was removed (no gate subclassed it).
 """
 
 from __future__ import annotations
 
-import abc
 import argparse
 import enum
 import itertools
@@ -23,23 +20,9 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
 
 try:
-    from _gate_utils import (
-        add_issue,
-        add_timeout_argument,
-        get_gate_elapsed,
-        install_gate_timeout,
-        start_gate_timer,
-        write_json,
-    )
+    from _gate_utils import add_timeout_argument, get_gate_elapsed
 except ImportError:
-    from scripts.core._gate_utils import (  # type: ignore[no-redef]
-        add_issue,
-        add_timeout_argument,
-        get_gate_elapsed,
-        install_gate_timeout,
-        start_gate_timer,
-        write_json,
-    )
+    from scripts.core._gate_utils import add_timeout_argument, get_gate_elapsed  # type: ignore[no-redef]
 
 
 # ---------------------------------------------------------------------------
