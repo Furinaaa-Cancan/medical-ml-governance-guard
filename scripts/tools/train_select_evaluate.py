@@ -1507,7 +1507,7 @@ def feature_stability_frequency(
                 penalty="l1",
                 solver="liblinear",
                 C=0.3,
-                class_weight=None,
+                class_weight="balanced",
                 max_iter=3000,
                 random_state=seed + repeat_idx,
             )
