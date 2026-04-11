@@ -1,0 +1,1604 @@
+{
+  "results": [
+    {
+      "paper_id": "gt_1",
+      "files_total": 3,
+      "files_scanned": 3,
+      "files_with_issues": 3,
+      "training_files": 3,
+      "total_findings": 7,
+      "training_file_findings": 7,
+      "rule_counts": {
+        "E000": 1,
+        "R004": 2,
+        "R016": 3,
+        "R019": 1
+      },
+      "severity_counts": {
+        "error": 1,
+        "warning": 2,
+        "info": 4
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/sallymoon10/Predict_ICU_mortality_tabular_data",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "icu_mortality",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_2",
+      "files_total": 0,
+      "files_scanned": 0,
+      "files_with_issues": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "training_file_findings": 0,
+      "rule_counts": {},
+      "severity_counts": {
+        "error": 0,
+        "warning": 0,
+        "info": 0
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/soheilbr82/ICUMortalityPrediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "icu_mortality",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_3",
+      "files_total": 25,
+      "files_scanned": 25,
+      "files_with_issues": 2,
+      "training_files": 4,
+      "total_findings": 5,
+      "training_file_findings": 4,
+      "rule_counts": {
+        "R016": 3,
+        "R022": 2
+      },
+      "severity_counts": {
+        "error": 0,
+        "warning": 2,
+        "info": 3
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/Ashutosh27ind/MIMIC_EHR_Predictor",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "icu_mortality",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_4",
+      "files_total": 7,
+      "files_scanned": 7,
+      "files_with_issues": 5,
+      "training_files": 5,
+      "total_findings": 47,
+      "training_file_findings": 47,
+      "rule_counts": {
+        "R004": 8,
+        "R008": 8,
+        "R009": 5,
+        "R016": 1,
+        "R018": 4,
+        "R019": 5,
+        "R021": 12,
+        "R022": 4
+      },
+      "severity_counts": {
+        "error": 0,
+        "warning": 32,
+        "info": 15
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/EngineerRajeev/Hospital_adverse_outcomes_prediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "mortality",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_5",
+      "files_total": 1,
+      "files_scanned": 1,
+      "files_with_issues": 1,
+      "training_files": 1,
+      "total_findings": 11,
+      "training_file_findings": 11,
+      "rule_counts": {
+        "R001": 1,
+        "R009": 1,
+        "R016": 6,
+        "R018": 1,
+        "R019": 1,
+        "R021": 1
+      },
+      "severity_counts": {
+        "error": 1,
+        "warning": 1,
+        "info": 9
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "preprocessing_before_split"
+      ],
+      "github_url": "https://github.com/yrodriguezmd/Heart_Failure_UCI_2020",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "mortality",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_6",
+      "files_total": 3,
+      "files_scanned": 3,
+      "files_with_issues": 3,
+      "training_files": 3,
+      "total_findings": 6,
+      "training_file_findings": 6,
+      "rule_counts": {
+        "R002": 3,
+        "R009": 3
+      },
+      "severity_counts": {
+        "error": 3,
+        "warning": 0,
+        "info": 3
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "scaler_on_test"
+      ],
+      "github_url": "https://github.com/GitTerrySu/Predict-long-term-mortality",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "mortality",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_7",
+      "files_total": 1,
+      "files_scanned": 1,
+      "files_with_issues": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "training_file_findings": 0,
+      "rule_counts": {},
+      "severity_counts": {
+        "error": 0,
+        "warning": 0,
+        "info": 0
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/Julian-Theis/covid19-critical-event",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "covid",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_8",
+      "files_total": 1,
+      "files_scanned": 1,
+      "files_with_issues": 1,
+      "training_files": 1,
+      "total_findings": 12,
+      "training_file_findings": 12,
+      "rule_counts": {
+        "R004": 3,
+        "R008": 3,
+        "R009": 1,
+        "R011": 1,
+        "R016": 2,
+        "R019": 1,
+        "R022": 1
+      },
+      "severity_counts": {
+        "error": 1,
+        "warning": 7,
+        "info": 4
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "train_metric_as_final"
+      ],
+      "github_url": "https://github.com/moggirain/Hospital_readmission_prediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "readmission",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_9",
+      "files_total": 0,
+      "files_scanned": 0,
+      "files_with_issues": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "training_file_findings": 0,
+      "rule_counts": {},
+      "severity_counts": {
+        "error": 0,
+        "warning": 0,
+        "info": 0
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/kavitha-jayaram/HRRP-Hospital-Readmission-Prediction-Analytics",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "readmission",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_10",
+      "files_total": 2,
+      "files_scanned": 2,
+      "files_with_issues": 1,
+      "training_files": 1,
+      "total_findings": 4,
+      "training_file_findings": 4,
+      "rule_counts": {
+        "R004": 1,
+        "R008": 1,
+        "R009": 1,
+        "R016": 1
+      },
+      "severity_counts": {
+        "error": 0,
+        "warning": 2,
+        "info": 2
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/freesinger/readmission_prediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "readmission",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_11",
+      "files_total": 7,
+      "files_scanned": 7,
+      "files_with_issues": 3,
+      "training_files": 2,
+      "total_findings": 7,
+      "training_file_findings": 6,
+      "rule_counts": {
+        "R001": 2,
+        "R008": 1,
+        "R014": 2,
+        "R018": 2
+      },
+      "severity_counts": {
+        "error": 2,
+        "warning": 3,
+        "info": 2
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "preprocessing_before_split"
+      ],
+      "github_url": "https://github.com/hrithikda/Hospital-Readmission-Prediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "readmission",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_12",
+      "files_total": 2,
+      "files_scanned": 2,
+      "files_with_issues": 1,
+      "training_files": 1,
+      "total_findings": 11,
+      "training_file_findings": 11,
+      "rule_counts": {
+        "R001": 1,
+        "R004": 1,
+        "R008": 1,
+        "R009": 1,
+        "R011": 1,
+        "R018": 1,
+        "R019": 1,
+        "R020": 1,
+        "R021": 3
+      },
+      "severity_counts": {
+        "error": 3,
+        "warning": 5,
+        "info": 3
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "global_clean_before_split",
+        "preprocessing_before_split",
+        "train_metric_as_final"
+      ],
+      "github_url": "https://github.com/mohammedpanchla/hospital-readmission-prediction-ml",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "readmission",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_13",
+      "files_total": 18,
+      "files_scanned": 18,
+      "files_with_issues": 5,
+      "training_files": 9,
+      "total_findings": 8,
+      "training_file_findings": 8,
+      "rule_counts": {
+        "R008": 5,
+        "R018": 3
+      },
+      "severity_counts": {
+        "error": 0,
+        "warning": 5,
+        "info": 3
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/ursus-maritimus-714/Prediction-of-Hospital-Readmission",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "readmission",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_14",
+      "files_total": 4,
+      "files_scanned": 4,
+      "files_with_issues": 4,
+      "training_files": 4,
+      "total_findings": 12,
+      "training_file_findings": 12,
+      "rule_counts": {
+        "E000": 1,
+        "R009": 3,
+        "R019": 3,
+        "R021": 5
+      },
+      "severity_counts": {
+        "error": 1,
+        "warning": 5,
+        "info": 6
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/chayandatta/Heart_disease_prediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "heart",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_15",
+      "files_total": 1,
+      "files_scanned": 1,
+      "files_with_issues": 1,
+      "training_files": 1,
+      "total_findings": 3,
+      "training_file_findings": 3,
+      "rule_counts": {
+        "R016": 1,
+        "R019": 1,
+        "R027": 1
+      },
+      "severity_counts": {
+        "error": 1,
+        "warning": 0,
+        "info": 2
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "manual_scaling_before_split"
+      ],
+      "github_url": "https://github.com/rtflynn/Heart-Disease-Model",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "heart",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_16",
+      "files_total": 4,
+      "files_scanned": 4,
+      "files_with_issues": 3,
+      "training_files": 2,
+      "total_findings": 14,
+      "training_file_findings": 13,
+      "rule_counts": {
+        "R001": 1,
+        "R009": 1,
+        "R011": 1,
+        "R013": 5,
+        "R016": 3,
+        "R018": 1,
+        "R019": 1,
+        "R020": 1
+      },
+      "severity_counts": {
+        "error": 3,
+        "warning": 5,
+        "info": 6
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "global_clean_before_split",
+        "preprocessing_before_split",
+        "train_metric_as_final"
+      ],
+      "github_url": "https://github.com/FatineHic/chd-prediction-ml",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "heart",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_17",
+      "files_total": 9,
+      "files_scanned": 9,
+      "files_with_issues": 8,
+      "training_files": 8,
+      "total_findings": 28,
+      "training_file_findings": 28,
+      "rule_counts": {
+        "R001": 8,
+        "R009": 8,
+        "R016": 1,
+        "R018": 2,
+        "R021": 1,
+        "R022": 8
+      },
+      "severity_counts": {
+        "error": 8,
+        "warning": 9,
+        "info": 11
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "preprocessing_before_split"
+      ],
+      "github_url": "https://github.com/VenkateshBH99/Hybrid-Random-Forest-Linear-Model",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "heart",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_18",
+      "error": "clone_failed",
+      "github_url": "https://github.com/petmoreno/Heart_Failure_Predictor"
+    },
+    {
+      "paper_id": "gt_19",
+      "files_total": 20,
+      "files_scanned": 20,
+      "files_with_issues": 5,
+      "training_files": 3,
+      "total_findings": 18,
+      "training_file_findings": 8,
+      "rule_counts": {
+        "E000": 1,
+        "R002": 2,
+        "R009": 1,
+        "R016": 12,
+        "R019": 1,
+        "R021": 1
+      },
+      "severity_counts": {
+        "error": 3,
+        "warning": 1,
+        "info": 14
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "scaler_on_test"
+      ],
+      "github_url": "https://github.com/atward424/ASCVD_ML",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "heart",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_20",
+      "files_total": 1,
+      "files_scanned": 1,
+      "files_with_issues": 1,
+      "training_files": 1,
+      "total_findings": 4,
+      "training_file_findings": 4,
+      "rule_counts": {
+        "R001": 1,
+        "R004": 1,
+        "R009": 1,
+        "R010": 1
+      },
+      "severity_counts": {
+        "error": 1,
+        "warning": 2,
+        "info": 1
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "preprocessing_before_split"
+      ],
+      "github_url": "https://github.com/MYoussef885/Diabetes_Prediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "diabetes",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_21",
+      "files_total": 1,
+      "files_scanned": 1,
+      "files_with_issues": 1,
+      "training_files": 1,
+      "total_findings": 4,
+      "training_file_findings": 4,
+      "rule_counts": {
+        "R001": 1,
+        "R004": 1,
+        "R009": 1,
+        "R010": 1
+      },
+      "severity_counts": {
+        "error": 1,
+        "warning": 2,
+        "info": 1
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "preprocessing_before_split"
+      ],
+      "github_url": "https://github.com/sharmin95/Diabetes-Prediction-",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "diabetes",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_22",
+      "files_total": 2,
+      "files_scanned": 2,
+      "files_with_issues": 2,
+      "training_files": 2,
+      "total_findings": 9,
+      "training_file_findings": 9,
+      "rule_counts": {
+        "R009": 2,
+        "R010": 1,
+        "R020": 2,
+        "R022": 2,
+        "R026": 2
+      },
+      "severity_counts": {
+        "error": 4,
+        "warning": 3,
+        "info": 2
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "global_clean_before_split",
+        "fillna_before_split"
+      ],
+      "github_url": "https://github.com/ahanagangopadhyay/wids-datathon-2021-diabetes-prediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "diabetes",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_23",
+      "files_total": 8,
+      "files_scanned": 8,
+      "files_with_issues": 6,
+      "training_files": 4,
+      "total_findings": 13,
+      "training_file_findings": 9,
+      "rule_counts": {
+        "R004": 2,
+        "R008": 2,
+        "R009": 2,
+        "R016": 2,
+        "R019": 3,
+        "R022": 2
+      },
+      "severity_counts": {
+        "error": 0,
+        "warning": 6,
+        "info": 7
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/pmacinec/diabetes-patients-readmissions-prediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "diabetes",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_24",
+      "files_total": 6,
+      "files_scanned": 6,
+      "files_with_issues": 4,
+      "training_files": 3,
+      "total_findings": 8,
+      "training_file_findings": 7,
+      "rule_counts": {
+        "E000": 2,
+        "R002": 1,
+        "R016": 1,
+        "R019": 1,
+        "R021": 3
+      },
+      "severity_counts": {
+        "error": 3,
+        "warning": 3,
+        "info": 2
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "scaler_on_test"
+      ],
+      "github_url": "https://github.com/nevermind78/Early-Prediction-of-Sepsis-From-Clinical-Data",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "sepsis",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_25",
+      "files_total": 18,
+      "files_scanned": 18,
+      "files_with_issues": 2,
+      "training_files": 2,
+      "total_findings": 5,
+      "training_file_findings": 4,
+      "rule_counts": {
+        "R009": 1,
+        "R019": 1,
+        "R021": 2,
+        "R022": 1
+      },
+      "severity_counts": {
+        "error": 0,
+        "warning": 3,
+        "info": 2
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/acampillos/sepsis-prediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "sepsis",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_26",
+      "files_total": 10,
+      "files_scanned": 10,
+      "files_with_issues": 2,
+      "training_files": 1,
+      "total_findings": 5,
+      "training_file_findings": 4,
+      "rule_counts": {
+        "R003": 1,
+        "R009": 1,
+        "R013": 1,
+        "R018": 1,
+        "R019": 1
+      },
+      "severity_counts": {
+        "error": 1,
+        "warning": 1,
+        "info": 3
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "resample_on_test"
+      ],
+      "github_url": "https://github.com/Jeremy-Cleland/sepsis-early-detection",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "sepsis",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_27",
+      "files_total": 0,
+      "files_scanned": 0,
+      "files_with_issues": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "training_file_findings": 0,
+      "rule_counts": {},
+      "severity_counts": {
+        "error": 0,
+        "warning": 0,
+        "info": 0
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/Koonarm/Early_SEPSIS_ML",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "sepsis",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_28",
+      "files_total": 1,
+      "files_scanned": 1,
+      "files_with_issues": 1,
+      "training_files": 1,
+      "total_findings": 3,
+      "training_file_findings": 3,
+      "rule_counts": {
+        "R011": 1,
+        "R016": 1,
+        "R019": 1
+      },
+      "severity_counts": {
+        "error": 1,
+        "warning": 0,
+        "info": 2
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "train_metric_as_final"
+      ],
+      "github_url": "https://github.com/Helenaden/Neonatal-Sepsis-Prediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "sepsis",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_29",
+      "files_total": 1,
+      "files_scanned": 1,
+      "files_with_issues": 1,
+      "training_files": 1,
+      "total_findings": 13,
+      "training_file_findings": 13,
+      "rule_counts": {
+        "R008": 2,
+        "R009": 1,
+        "R014": 5,
+        "R018": 1,
+        "R019": 1,
+        "R020": 1,
+        "R022": 1,
+        "R026": 1
+      },
+      "severity_counts": {
+        "error": 2,
+        "warning": 8,
+        "info": 3
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "global_clean_before_split",
+        "fillna_before_split"
+      ],
+      "github_url": "https://github.com/nurahmadi/Stroke-prediction-with-ML",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "stroke",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_30",
+      "files_total": 2,
+      "files_scanned": 2,
+      "files_with_issues": 1,
+      "training_files": 2,
+      "total_findings": 2,
+      "training_file_findings": 2,
+      "rule_counts": {
+        "R018": 1,
+        "R019": 1
+      },
+      "severity_counts": {
+        "error": 0,
+        "warning": 0,
+        "info": 2
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/ajspurr/stroke_prediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "stroke",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_31",
+      "files_total": 1,
+      "files_scanned": 1,
+      "files_with_issues": 1,
+      "training_files": 1,
+      "total_findings": 12,
+      "training_file_findings": 12,
+      "rule_counts": {
+        "R008": 2,
+        "R009": 1,
+        "R016": 5,
+        "R018": 1,
+        "R019": 1,
+        "R021": 2
+      },
+      "severity_counts": {
+        "error": 0,
+        "warning": 4,
+        "info": 8
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/Devashree21/stroke-prediction-machine-learning",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "stroke",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_32",
+      "files_total": 0,
+      "files_scanned": 0,
+      "files_with_issues": 0,
+      "training_files": 0,
+      "total_findings": 0,
+      "training_file_findings": 0,
+      "rule_counts": {},
+      "severity_counts": {
+        "error": 0,
+        "warning": 0,
+        "info": 0
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/kanishksh4rma/Cancer-Prediction-in-Early-stages",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "cancer",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_33",
+      "error": "clone_failed",
+      "github_url": "https://github.com/cksajil/Breast-Cancer-Survival-Prediction"
+    },
+    {
+      "paper_id": "gt_34",
+      "files_total": 4,
+      "files_scanned": 4,
+      "files_with_issues": 2,
+      "training_files": 1,
+      "total_findings": 3,
+      "training_file_findings": 1,
+      "rule_counts": {
+        "R009": 1,
+        "R016": 1,
+        "R019": 1
+      },
+      "severity_counts": {
+        "error": 0,
+        "warning": 0,
+        "info": 3
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/Tejindersingh1/Tumor-Prediction-with-ML",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "cancer",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_35",
+      "files_total": 2,
+      "files_scanned": 2,
+      "files_with_issues": 1,
+      "training_files": 2,
+      "total_findings": 62,
+      "training_file_findings": 62,
+      "rule_counts": {
+        "R001": 6,
+        "R003": 6,
+        "R008": 18,
+        "R010": 12,
+        "R012": 18,
+        "R016": 1,
+        "R019": 1
+      },
+      "severity_counts": {
+        "error": 12,
+        "warning": 48,
+        "info": 2
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "preprocessing_before_split",
+        "resample_on_test"
+      ],
+      "github_url": "https://github.com/damiankotevski/head-and-neck-cancer-specific-survival",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "cancer",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_36",
+      "files_total": 2,
+      "files_scanned": 2,
+      "files_with_issues": 1,
+      "training_files": 1,
+      "total_findings": 1,
+      "training_file_findings": 1,
+      "rule_counts": {
+        "R009": 1
+      },
+      "severity_counts": {
+        "error": 0,
+        "warning": 0,
+        "info": 1
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/tejasnaik0509/CKD-Prediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "kidney",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_37",
+      "files_total": 14,
+      "files_scanned": 14,
+      "files_with_issues": 7,
+      "training_files": 7,
+      "total_findings": 7,
+      "training_file_findings": 7,
+      "rule_counts": {
+        "R009": 6,
+        "R021": 1
+      },
+      "severity_counts": {
+        "error": 0,
+        "warning": 1,
+        "info": 6
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/AP-Atul/Chronic-Kidney-Disease",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "kidney",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_38",
+      "files_total": 3,
+      "files_scanned": 3,
+      "files_with_issues": 2,
+      "training_files": 2,
+      "total_findings": 4,
+      "training_file_findings": 4,
+      "rule_counts": {
+        "E000": 1,
+        "R009": 1,
+        "R016": 1,
+        "R020": 1
+      },
+      "severity_counts": {
+        "error": 2,
+        "warning": 0,
+        "info": 2
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "global_clean_before_split"
+      ],
+      "github_url": "https://github.com/venkata-sreeram/Chronic-Kidney-Disease-Prediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "kidney",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_39",
+      "files_total": 1,
+      "files_scanned": 1,
+      "files_with_issues": 1,
+      "training_files": 1,
+      "total_findings": 14,
+      "training_file_findings": 14,
+      "rule_counts": {
+        "R009": 1,
+        "R010": 8,
+        "R016": 2,
+        "R019": 1,
+        "R020": 1,
+        "R022": 1
+      },
+      "severity_counts": {
+        "error": 1,
+        "warning": 9,
+        "info": 4
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "global_clean_before_split"
+      ],
+      "github_url": "https://github.com/SanikaVT/Liver-disease-prediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "liver",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_40",
+      "files_total": 2,
+      "files_scanned": 2,
+      "files_with_issues": 1,
+      "training_files": 1,
+      "total_findings": 7,
+      "training_file_findings": 7,
+      "rule_counts": {
+        "R001": 1,
+        "R008": 1,
+        "R009": 1,
+        "R018": 1,
+        "R019": 1,
+        "R020": 1,
+        "R026": 1
+      },
+      "severity_counts": {
+        "error": 3,
+        "warning": 1,
+        "info": 3
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "global_clean_before_split",
+        "fillna_before_split",
+        "preprocessing_before_split"
+      ],
+      "github_url": "https://github.com/lamavar/liver-disease-prediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "liver",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_41",
+      "files_total": 1,
+      "files_scanned": 1,
+      "files_with_issues": 1,
+      "training_files": 1,
+      "total_findings": 8,
+      "training_file_findings": 8,
+      "rule_counts": {
+        "R001": 2,
+        "R009": 1,
+        "R016": 2,
+        "R018": 1,
+        "R019": 1,
+        "R021": 1
+      },
+      "severity_counts": {
+        "error": 2,
+        "warning": 1,
+        "info": 5
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "preprocessing_before_split"
+      ],
+      "github_url": "https://github.com/SahandNamvar/Binary-classification-Alzheimer-disease",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "alzheimer",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_42",
+      "files_total": 6,
+      "files_scanned": 6,
+      "files_with_issues": 2,
+      "training_files": 5,
+      "total_findings": 5,
+      "training_file_findings": 5,
+      "rule_counts": {
+        "R009": 2,
+        "R016": 1,
+        "R019": 2
+      },
+      "severity_counts": {
+        "error": 0,
+        "warning": 0,
+        "info": 5
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/catedombrowski/Using-Machine-Learning-to-Predict-Alzheimer-s-Disease",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "alzheimer",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_43",
+      "files_total": 1,
+      "files_scanned": 1,
+      "files_with_issues": 1,
+      "training_files": 1,
+      "total_findings": 7,
+      "training_file_findings": 7,
+      "rule_counts": {
+        "R004": 2,
+        "R008": 2,
+        "R016": 1,
+        "R019": 1,
+        "R021": 1
+      },
+      "severity_counts": {
+        "error": 0,
+        "warning": 5,
+        "info": 2
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/daniel-codes/hospital-los-predictor",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "icu_los",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_44",
+      "files_total": 2,
+      "files_scanned": 2,
+      "files_with_issues": 2,
+      "training_files": 1,
+      "total_findings": 5,
+      "training_file_findings": 4,
+      "rule_counts": {
+        "E000": 1,
+        "R004": 1,
+        "R016": 2,
+        "R019": 1
+      },
+      "severity_counts": {
+        "error": 1,
+        "warning": 1,
+        "info": 3
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/igor-peres/ICU-Length-of-Stay-Prediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "icu_los",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_45",
+      "files_total": 3,
+      "files_scanned": 3,
+      "files_with_issues": 2,
+      "training_files": 2,
+      "total_findings": 38,
+      "training_file_findings": 38,
+      "rule_counts": {
+        "E000": 1,
+        "R004": 1,
+        "R009": 1,
+        "R016": 9,
+        "R019": 1,
+        "R020": 3,
+        "R021": 20,
+        "R027": 2
+      },
+      "severity_counts": {
+        "error": 6,
+        "warning": 21,
+        "info": 11
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "global_clean_before_split",
+        "manual_scaling_before_split"
+      ],
+      "github_url": "https://github.com/OcraM17/PD_Early",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "parkinson",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_46",
+      "files_total": 1,
+      "files_scanned": 1,
+      "files_with_issues": 1,
+      "training_files": 1,
+      "total_findings": 2,
+      "training_file_findings": 2,
+      "rule_counts": {
+        "R001": 1,
+        "R013": 1
+      },
+      "severity_counts": {
+        "error": 1,
+        "warning": 1,
+        "info": 0
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "preprocessing_before_split"
+      ],
+      "github_url": "https://github.com/SameetAsadullah/clinical-risk-prediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "clinical_risk",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_47",
+      "files_total": 2,
+      "files_scanned": 2,
+      "files_with_issues": 2,
+      "training_files": 2,
+      "total_findings": 28,
+      "training_file_findings": 28,
+      "rule_counts": {
+        "R001": 2,
+        "R004": 6,
+        "R005": 4,
+        "R008": 6,
+        "R015": 1,
+        "R017": 2,
+        "R019": 1,
+        "R020": 4,
+        "R027": 2
+      },
+      "severity_counts": {
+        "error": 14,
+        "warning": 13,
+        "info": 1
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "threshold_on_test",
+        "global_clean_before_split",
+        "preprocessing_before_split",
+        "early_stop_on_test",
+        "manual_scaling_before_split"
+      ],
+      "github_url": "https://github.com/mapo89/continuous-aki-predict",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "clinical_risk",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_48",
+      "files_total": 1,
+      "files_scanned": 1,
+      "files_with_issues": 1,
+      "training_files": 1,
+      "total_findings": 8,
+      "training_file_findings": 8,
+      "rule_counts": {
+        "R004": 2,
+        "R008": 2,
+        "R016": 1,
+        "R018": 1,
+        "R019": 1,
+        "R020": 1
+      },
+      "severity_counts": {
+        "error": 1,
+        "warning": 4,
+        "info": 3
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "global_clean_before_split"
+      ],
+      "github_url": "https://github.com/nishanthgampa/Hospital-Readmission-Prediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "readmission",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_49",
+      "files_total": 4,
+      "files_scanned": 4,
+      "files_with_issues": 2,
+      "training_files": 2,
+      "total_findings": 20,
+      "training_file_findings": 20,
+      "rule_counts": {
+        "R001": 10,
+        "R006": 2,
+        "R016": 4,
+        "R018": 2,
+        "R019": 2
+      },
+      "severity_counts": {
+        "error": 12,
+        "warning": 0,
+        "info": 8
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "preprocessing_before_split",
+        "feature_selection_on_full"
+      ],
+      "github_url": "https://github.com/soumyajit4419/Heart_Disease_Prediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "heart",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_50",
+      "files_total": 4,
+      "files_scanned": 4,
+      "files_with_issues": 3,
+      "training_files": 3,
+      "total_findings": 10,
+      "training_file_findings": 10,
+      "rule_counts": {
+        "R009": 1,
+        "R016": 4,
+        "R018": 1,
+        "R019": 1,
+        "R020": 3
+      },
+      "severity_counts": {
+        "error": 3,
+        "warning": 0,
+        "info": 7
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "global_clean_before_split"
+      ],
+      "github_url": "https://github.com/Glaubernaoli/MIRAGE",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "cancer",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_51",
+      "files_total": 1,
+      "files_scanned": 1,
+      "files_with_issues": 1,
+      "training_files": 1,
+      "total_findings": 7,
+      "training_file_findings": 7,
+      "rule_counts": {
+        "R001": 1,
+        "R009": 1,
+        "R018": 1,
+        "R019": 1,
+        "R020": 1,
+        "R021": 1,
+        "R026": 1
+      },
+      "severity_counts": {
+        "error": 3,
+        "warning": 1,
+        "info": 3
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "global_clean_before_split",
+        "fillna_before_split",
+        "preprocessing_before_split"
+      ],
+      "github_url": "https://github.com/shaunak-deo/liver-disease-prediction-model",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "liver",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_52",
+      "files_total": 1,
+      "files_scanned": 1,
+      "files_with_issues": 1,
+      "training_files": 1,
+      "total_findings": 8,
+      "training_file_findings": 8,
+      "rule_counts": {
+        "R001": 1,
+        "R003": 1,
+        "R004": 1,
+        "R008": 1,
+        "R014": 1,
+        "R018": 1,
+        "R019": 1,
+        "R022": 1
+      },
+      "severity_counts": {
+        "error": 2,
+        "warning": 4,
+        "info": 2
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "preprocessing_before_split",
+        "resample_on_test"
+      ],
+      "github_url": "https://github.com/aancyl/Early-Sepsis-Prediction",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "sepsis",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_53",
+      "files_total": 1,
+      "files_scanned": 1,
+      "files_with_issues": 1,
+      "training_files": 1,
+      "total_findings": 1,
+      "training_file_findings": 1,
+      "rule_counts": {
+        "R009": 1
+      },
+      "severity_counts": {
+        "error": 0,
+        "warning": 0,
+        "info": 1
+      },
+      "has_leakage_error": false,
+      "leakage_types_found": [],
+      "github_url": "https://github.com/Anny8910/Decision-Tree-Classification-on-Diabetes-Dataset",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "diabetes",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_54",
+      "files_total": 7,
+      "files_scanned": 7,
+      "files_with_issues": 5,
+      "training_files": 5,
+      "total_findings": 29,
+      "training_file_findings": 29,
+      "rule_counts": {
+        "E000": 1,
+        "R004": 3,
+        "R008": 3,
+        "R009": 3,
+        "R014": 9,
+        "R016": 2,
+        "R020": 3,
+        "R021": 1,
+        "R022": 1,
+        "R026": 3
+      },
+      "severity_counts": {
+        "error": 7,
+        "warning": 17,
+        "info": 5
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "global_clean_before_split",
+        "fillna_before_split"
+      ],
+      "github_url": "https://github.com/abhisheks008/Predicting-Death-Time-and-Mortality",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "mortality",
+      "title": ""
+    },
+    {
+      "paper_id": "gt_55",
+      "files_total": 3,
+      "files_scanned": 3,
+      "files_with_issues": 2,
+      "training_files": 2,
+      "total_findings": 10,
+      "training_file_findings": 10,
+      "rule_counts": {
+        "R009": 1,
+        "R016": 4,
+        "R019": 1,
+        "R020": 2,
+        "R026": 2
+      },
+      "severity_counts": {
+        "error": 4,
+        "warning": 0,
+        "info": 6
+      },
+      "has_leakage_error": true,
+      "leakage_types_found": [
+        "global_clean_before_split",
+        "fillna_before_split"
+      ],
+      "github_url": "https://github.com/SagarDhandare/Chronic-Kidney-Disease-Prediction-Project",
+      "doi": "",
+      "journal": "",
+      "year": 0,
+      "disease_area": "kidney",
+      "title": ""
+    }
+  ]
+}
