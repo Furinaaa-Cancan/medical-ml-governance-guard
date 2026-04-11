@@ -24,4 +24,16 @@ Gate categories:
 
 Utility:
     manifest_lock.py  <- Gate execution state management (not a gate)
+
+Import note:
+    Gates use bare imports (from _gate_framework import ...) which require
+    scripts/core/ on sys.path. This __init__.py sets that up for package
+    imports. When gates run as CLI scripts, each has its own sys.path line
+    as a fallback (redundant but harmless).
 """
+import sys as _sys
+from pathlib import Path as _Path
+
+_CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core")
+if _CORE_DIR not in _sys.path:
+    _sys.path.insert(0, _CORE_DIR)

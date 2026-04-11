@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-DAG-based pipeline executor for ml-governance-guard gates.
+[RUNNER — PRIMARY] DAG-based pipeline executor for ml-governance-guard gates.
+
+Called by mlgg_pixel.py and mlgg.py. Not invoked directly by users.
 
 Replaces the hardcoded sequential run_strict_pipeline.py with a declarative
 DAG-driven executor that provides:

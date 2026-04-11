@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-User-facing wrapper: env doctor -> schema preflight -> strict pipeline -> user summary.
+[RUNNER — WRAPPER] User-facing wrapper: env doctor → preflight → pipeline → summary.
+
+Thin orchestration layer called by mlgg_onboarding and mlgg_interactive.
 """
 
 from __future__ import annotations

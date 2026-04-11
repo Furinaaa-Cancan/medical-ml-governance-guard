@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-Novice onboarding runner for ml-governance-guard.
+[ENTRY POINT — ONBOARDING] Novice onboarding runner for ml-governance-guard.
+
+Called by `mlgg onboarding`. Not invoked directly by users.
 
 Flow:
 1) doctor

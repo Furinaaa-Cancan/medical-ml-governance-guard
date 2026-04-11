@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """
-Single-entry strict pipeline runner for medical leakage-safe prediction review.
+[RUNNER — LEGACY] Single-entry strict pipeline runner.
+
+Superseded by run_dag_pipeline.py for most use cases.
+Kept for backward compatibility with older workflows.
 """
 
 from __future__ import annotations

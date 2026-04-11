@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-ML Governance Guard -- Interactive Pipeline Wizard.
+[ENTRY POINT — TUI] ML Governance Guard — Interactive Pipeline Wizard.
+
+Registered as `mlgg-pixel` in pyproject.toml. Called by `mlgg play`.
 
 Usage:
     python3 scripts/mlgg_pixel.py

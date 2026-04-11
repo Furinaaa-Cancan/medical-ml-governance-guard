@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-Unified CLI entrypoint for ml-governance-guard.
+[ENTRY POINT — PRIMARY] Unified CLI entrypoint for ml-governance-guard.
+
+Registered as `mlgg` in pyproject.toml. All user commands go through here.
 
 This is a thin wrapper that forwards subcommands to existing scripts, so users
 can use one stable command surface in terminal workflows and agent automation.

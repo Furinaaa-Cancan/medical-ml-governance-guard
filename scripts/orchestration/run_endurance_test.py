@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-MLGG 6-Hour Endurance Test — Full-spectrum validation across all datasets,
+[INTERNAL — TEST] MLGG 6-Hour Endurance Test — Full-spectrum validation across all datasets,
 model families, seeds, and gate configurations.
 
 Phases:

@@ -23,6 +23,12 @@ if TYPE_CHECKING:
     import pandas
 
 
+
+
+# ═══════════════════════════════════════════════════════════════
+# Issue Reporting
+# ═══════════════════════════════════════════════════════════════
+
 def add_issue(
     bucket: List[Dict[str, Any]],
     code: str,
@@ -37,6 +43,12 @@ _MAX_JSON_FILE_SIZE = 100 * 1024 * 1024  # 100 MB safety limit
 _MAX_CSV_FILE_SIZE = 2 * 1024 * 1024 * 1024  # 2 GB safety limit
 _WARN_CSV_FILE_SIZE = 500 * 1024 * 1024  # 500 MB warning threshold
 
+
+
+
+# ═══════════════════════════════════════════════════════════════
+# CSV Validation
+# ═══════════════════════════════════════════════════════════════
 
 def check_csv_file_size(path: Path) -> None:
     """Warn on large CSV files, raise on extremely large ones."""
@@ -123,6 +135,12 @@ def _sanitize_for_json(obj: Any) -> Any:
     return obj
 
 
+
+
+# ═══════════════════════════════════════════════════════════════
+# File I/O
+# ═══════════════════════════════════════════════════════════════
+
 def write_json(path: Path, payload: Dict[str, Any]) -> None:
     """Atomically write a JSON object to a file.
 
@@ -150,6 +168,12 @@ _FORBIDDEN_PATH_PREFIXES = [
     "/var/run", "/boot", "/sbin",
 ]
 
+
+
+
+# ═══════════════════════════════════════════════════════════════
+# Path Security
+# ═══════════════════════════════════════════════════════════════
 
 def resolve_path(base: Path, value: str, sandbox: Optional[Path] = None) -> Path:
     """Resolve a potentially relative path against a base directory.
@@ -186,6 +210,12 @@ def resolve_path(base: Path, value: str, sandbox: Optional[Path] = None) -> Path
 
 _gate_start_time: Optional[float] = None
 
+
+
+
+# ═══════════════════════════════════════════════════════════════
+# Timing & Timeout
+# ═══════════════════════════════════════════════════════════════
 
 def start_gate_timer() -> None:
     """Record the gate start time for execution timing."""
@@ -281,6 +311,12 @@ def install_gate_timeout(
     signal.alarm(timeout_seconds)
 
 
+
+
+# ═══════════════════════════════════════════════════════════════
+# Time Parsing
+# ═══════════════════════════════════════════════════════════════
+
 def try_parse_time(value: str) -> Optional[float]:
     """Parse a time string to epoch float, trying multiple formats.
 
@@ -339,6 +375,12 @@ def epoch_to_iso(ts: Optional[float]) -> Optional[str]:
     except (OSError, OverflowError, ValueError):
         return None
 
+
+
+
+# ═══════════════════════════════════════════════════════════════
+# Type Conversion & Normalization
+# ═══════════════════════════════════════════════════════════════
 
 def to_float(value: Any) -> Optional[float]:
     """Safely convert a value to float, rejecting inf/nan and non-numeric."""
@@ -592,6 +634,12 @@ def metric_panel(
     }
     return metrics, cm
 
+
+
+
+# ═══════════════════════════════════════════════════════════════
+# Calibration Metrics
+# ═══════════════════════════════════════════════════════════════
 
 def calibration_metrics(
     y_true: "numpy.ndarray[Any, Any]",
@@ -860,6 +908,12 @@ def compute_nri_idi(
 # Multicollinearity Detection (VIF)
 # Ref: PMC4888898, PMC11093476 — VIF > 5 investigate, > 10 critical
 # ---------------------------------------------------------------------------
+
+
+
+# ═══════════════════════════════════════════════════════════════
+# Feature Analysis (VIF, Nonlinearity, Ablation)
+# ═══════════════════════════════════════════════════════════════
 
 def compute_vif(
     X: Any,
@@ -1624,6 +1678,12 @@ def bootstrap_optimism_correction(
 # Robustness Stress Test (outlier, noise, dropout)
 # ---------------------------------------------------------------------------
 
+
+
+# ═══════════════════════════════════════════════════════════════
+# Robustness & Stress Testing
+# ═══════════════════════════════════════════════════════════════
+
 def robustness_stress_test(
     estimator: Any,
     X_train: Any,
@@ -2034,6 +2094,12 @@ def temporal_drift_analysis(
 # Module 3: Model Card Generator
 # Ref: Mitchell et al. 2019 (FAT*)
 # ---------------------------------------------------------------------------
+
+
+
+# ═══════════════════════════════════════════════════════════════
+# Model Card & Reporting
+# ═══════════════════════════════════════════════════════════════
 
 def generate_model_card(
     model_name: str,

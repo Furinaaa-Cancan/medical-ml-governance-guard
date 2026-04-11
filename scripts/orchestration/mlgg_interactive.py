@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-Interactive terminal wizard for ml-governance-guard core commands.
+[ENTRY POINT — GUIDED] Interactive terminal wizard for ml-governance-guard.
+
+Called by `mlgg play` as the guided flow backend.
 
 Supported commands:
 - init

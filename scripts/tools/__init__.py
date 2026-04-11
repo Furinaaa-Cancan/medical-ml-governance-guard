@@ -22,3 +22,9 @@ External:
     fetch_papers.py, extract_paper_metadata.py, score_paper_metadata.py,
     batch_journal_review.py, peer_review_lookup.py
 """
+import sys as _sys
+from pathlib import Path as _Path
+
+_CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core")
+if _CORE_DIR not in _sys.path:
+    _sys.path.insert(0, _CORE_DIR)
