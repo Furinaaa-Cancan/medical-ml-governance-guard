@@ -1096,10 +1096,12 @@ def apply_categorical_encoding_to_external(
             result[dcol] = matched.astype(float)
         result.drop(columns=[orig], errors="ignore", inplace=True)
 
-    # Fill any still-missing encoded columns with 0.0 (OOD / not applicable)
+    # Fill missing columns with NaN (not 0) so caller can fill with train medians.
+    # Using 0 for physiological features (waist circumference, blood pressure)
+    # creates impossible values that bias predictions.
     for col in encoded_feature_names:
         if col not in result.columns:
-            result[col] = 0.0
+            result[col] = np.nan
 
     return result[encoded_feature_names]
 
@@ -3854,6 +3856,7 @@ def resolve_external_cohorts(
     feature_cols: Sequence[str],
     default_target_col: str,
     default_patient_id_col: str,
+    train_fill_values: Optional[Dict[str, float]] = None,
 ) -> List[Dict[str, Any]]:
     """Load and validate external cohort datasets from a spec.
 
@@ -3863,6 +3866,8 @@ def resolve_external_cohorts(
         feature_cols: Feature columns to extract from cohort CSVs.
         default_target_col: Fallback target column name.
         default_patient_id_col: Fallback patient ID column name.
+        train_fill_values: Per-feature fill values for missing columns
+            (typically train medians). If None, falls back to 0.0.
 
     Returns:
         List of cohort dicts with X, y, patient_ids, metadata.
@@ -3918,9 +3923,16 @@ def resolve_external_cohorts(
             cohort_encoded = apply_categorical_encoding_to_external(
                 cohort_df, list(feature_cols), all_raw_cols,
             )
-            for col in feature_cols:
-                if col not in cohort_encoded.columns:
-                    cohort_encoded[col] = 0.0
+            # Fill NaN columns (absent from external data) with train medians.
+            # apply_categorical_encoding_to_external now fills absent cols
+            # with NaN instead of 0, so we can fill with appropriate values.
+            if train_fill_values:
+                for col in feature_cols:
+                    if col in cohort_encoded.columns and cohort_encoded[col].isna().all():
+                        if col in train_fill_values:
+                            cohort_encoded[col] = train_fill_values[col]
+                        else:
+                            cohort_encoded[col] = 0.0
             cohort_df = pd.concat([cohort_df[[c for c in [target_col, patient_id_col] if c in cohort_df.columns]], cohort_encoded], axis=1)
         X_ext, y_ext = prepare_xy(cohort_df, feature_cols=feature_cols, target_col=target_col)
         if patient_id_col in cohort_df.columns:
@@ -6073,12 +6085,22 @@ def main() -> int:
         print(f"  Nonlinearity detected in {len(nonlinear_features)} features: "
               f"{nonlinear_features[:5]}")
 
+    # Compute train medians for filling missing external cohort columns.
+    # Using 0 for missing features like waist_circumference or sbp_mean
+    # is physiologically impossible and biases predictions.
+    _train_medians = {}
+    if hasattr(X_train, "columns"):
+        for col in X_train.columns:
+            med = X_train[col].median()
+            if math.isfinite(med):
+                _train_medians[col] = float(med)
     external_cohorts = resolve_external_cohorts(
         external_spec=external_spec,
         external_spec_path=args.external_cohort_spec,
         feature_cols=selected_features,
         default_target_col=args.target_col,
         default_patient_id_col=args.patient_id_col,
+        train_fill_values=_train_medians,
     )
     if args.external_cohort_spec and not external_cohorts:
         raise SystemExit("external_cohort_spec must provide at least one external cohort entry.")
