@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/tests-4578%20passed-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/gates-33%20fail--closed-critical" alt="Gates">
   <img src="https://img.shields.io/badge/datasets-14%20medical-purple" alt="Datasets">
-  <img src="https://img.shields.io/badge/code-145K%20lines-informational" alt="Code">
+  <img src="https://img.shields.io/badge/code-116K%20lines-informational" alt="Code">
   <a href="https://doi.org/10.1136/bmj-2023-078378"><img src="https://img.shields.io/badge/TRIPOD%2BAI-2024-blue" alt="TRIPOD+AI"></a>
   <a href="https://doi.org/10.1136/bmj-2024-082505"><img src="https://img.shields.io/badge/PROBAST%2BAI-2025-blue" alt="PROBAST+AI"></a>
 </p>
@@ -1189,7 +1189,7 @@ python3 -m mlgg_lint /path/to/code/
 ```
 scripts/
   core/               框架内部模块
-    _gate_framework.py   门控基类、报告信封、问题管理
+    _gate_framework.py   报告信封 v2.0.0、严重度分级、CLI helpers
     _gate_utils.py       共享数值工具、指标面板、校准、审计链
     _gate_registry.py    33 门 DAG 依赖图与层级并行
     _security.py         HMAC、AES-256-GCM、受限反序列化、路径穿越防御
@@ -1219,14 +1219,12 @@ references/
   disease-definition-knowledge-base.json   疾病定义知识库（11 种疾病）
   examples/                        26 个 JSON 模板
   skill/                           /mlgg Phase 1-9 规则
-experiments/          E2E ���准套件（4 个 UCI 数据集、对抗性检查）
-references/           60+ JSON 知识库
-  disease-definition-knowledge-base.json   疾病定义（ICD、实验室、药物）
-  error-knowledge-base.json                99 条错误诊断条目
-  literature-knowledge-base.json           58 条文献引用
-  tripod-ai-official-checklist.json        TRIPOD+AI 2024 可机器验证
-  probast-ai-signalling-questions.json     PROBAST+AI 2025 四域评估
-  peer_reviews/peer-review-kb.json         107 篇论文、375 个结构化审稿意见
+  peer_reviews/                    107 篇论文、375 个审稿意见
+  error-knowledge-base.json        107 条错误诊断
+  literature-knowledge-base.json   58 条 IF>10 文献
+  tripod-ai-official-checklist.json   TRIPOD+AI 2024
+  probast-ai-signalling-questions.json   PROBAST+AI 2025
+experiments/          E2E 基准套件（4 个 UCI 数据集、对抗性检查）
 plugin/               静态分析 Lint（R001-R020，.py + .ipynb）
   mlgg_lint/rules/     20 条规则实现
   vscode/              VS Code 插件
