@@ -101,7 +101,7 @@ def sigmoid(x: np.ndarray) -> np.ndarray:
     return 1.0 / (1.0 + np.exp(-clipped))
 
 
-def fit_calibration_slope_intercept(y_true: np.ndarray, y_score: np.ndarray, ridge: float = 0.1) -> Optional[Dict[str, float]]:
+def fit_calibration_slope_intercept(y_true: np.ndarray, y_score: np.ndarray, ridge: float = 20.0) -> Optional[Dict[str, float]]:
     if y_true.shape[0] < 3 or len(np.unique(y_true)) < 2:
         return None
     eps = 1e-6
@@ -334,8 +334,8 @@ def evaluate_cohort(
             "intercept": intercept,
             "ece_bins": ece_bins,
             "ece_min_bin_size": int(ece_min_bin_size),
-            "oe_ratio": float(oe_ratio) if math.isfinite(oe_ratio) else None,
-            "calibration_in_the_large": float(citl) if math.isfinite(citl) else None,
+            "oe_ratio": float(oe_ratio) if oe_ratio is not None and math.isfinite(oe_ratio) else None,
+            "calibration_in_the_large": float(citl) if citl is not None and math.isfinite(citl) else None,
         },
         "dca": {
             "threshold_count": int(len(dca_rows)),

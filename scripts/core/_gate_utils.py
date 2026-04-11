@@ -887,9 +887,9 @@ def compute_nri_idi(
     nonevent_nri = (down_nonevents - up_nonevents) / n_nonevents if n_nonevents > 0 else 0.0
     cat_nri = event_nri + nonevent_nri
 
-    # Continuous NRI
-    cont_event_nri = float(((p_new > p_old) & events).mean() - ((p_new < p_old) & events).mean()) if n_events > 0 else 0.0
-    cont_nonevent_nri = float(((p_new < p_old) & nonevents).mean() - ((p_new > p_old) & nonevents).mean()) if n_nonevents > 0 else 0.0
+    # Continuous NRI (Pencina 2011: proportion among events/nonevents, not full sample)
+    cont_event_nri = float((p_new[events] > p_old[events]).mean() - (p_new[events] < p_old[events]).mean()) if n_events > 0 else 0.0
+    cont_nonevent_nri = float((p_new[nonevents] < p_old[nonevents]).mean() - (p_new[nonevents] > p_old[nonevents]).mean()) if n_nonevents > 0 else 0.0
     cont_nri = cont_event_nri + cont_nonevent_nri
 
     # IDI
