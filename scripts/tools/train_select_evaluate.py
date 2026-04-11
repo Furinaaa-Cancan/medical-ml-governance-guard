@@ -5904,6 +5904,7 @@ def main() -> int:
     # ═══════════════════════════════════════════════════════════════════════
     # PHASE 0: PREFLIGHT & CONFIG → _phase0_preflight_and_config()
     # ═══════════════════════════════════════════════════════════════════════
+    print("[STEP  1/12] Preflight & config...", file=sys.stderr, flush=True)
     cfg = _phase0_preflight_and_config(args)
     fast_diagnostic_mode = cfg["fast_diagnostic_mode"]
     policy = cfg["policy"]
@@ -5932,6 +5933,7 @@ def main() -> int:
     #          groups, forbidden_features, low_mem
     # ═══════════════════════════════════════════════════════════════════════
 
+    print("[STEP  2/12] Loading data splits...", file=sys.stderr, flush=True)
     train_df = load_split(args.train)
     valid_df = load_split(args.valid) if args.valid and args.valid.strip() else pd.DataFrame()
     test_df = load_split(args.test) if args.test and args.test.strip() else pd.DataFrame()
@@ -6008,6 +6010,7 @@ def main() -> int:
     # ── Phase 2a: Filter + stability selection ────────────────────────────
 
 
+    print("[STEP  3/12] Feature engineering...", file=sys.stderr, flush=True)
     X_train_stage0, y_train = prepare_xy(train_df, stage0_features, args.target_col)
     stage1_features, stage1_report = select_features_by_filter(
         X_train_stage0,
@@ -6124,6 +6127,7 @@ def main() -> int:
     # ═══════════════════════════════════════════════════════════════════════
 
 
+    print("[STEP  4/12] Imputation & imbalance strategy...", file=sys.stderr, flush=True)
     imputation = resolve_imputation_plan(
         missingness_policy,
         train_rows=int(X_train.shape[0]),
@@ -6241,6 +6245,7 @@ def main() -> int:
     # ═══════════════════════════════════════════════════════════════════════
 
 
+    print("[STEP  5/12] Building candidate models + CV scoring...", file=sys.stderr, flush=True)
     candidates, candidate_space_meta = build_candidates(
         seed=int(args.random_seed),
         sampling_seed=int(args.random_seed),
@@ -6403,6 +6408,7 @@ def main() -> int:
     # ═══════════════════════════════════════════════════════════════════════
 
 
+    print("[STEP  6/12] Model selection (one-SE rule)...", file=sys.stderr, flush=True)
     trace = choose_model_one_se(
         [
             {
@@ -6461,6 +6467,7 @@ def main() -> int:
     # ═══════════════════════════════════════════════════════════════════════
 
 
+    print("[STEP  7/12] Calibration + threshold...", file=sys.stderr, flush=True)
     calibrator = fit_probability_calibrator(
         y_true=calibration_y,
         proba_raw=calibration_proba_raw,
@@ -6521,6 +6528,7 @@ def main() -> int:
     # ═══════════════════════════════════════════════════════════════════════
 
 
+    print("[STEP  8/12] Evaluation (metrics + bootstrap CI)...", file=sys.stderr, flush=True)
     train_proba_raw = predict_proba_1(selected_estimator, X_train)
     train_proba = apply_probability_calibrator(calibrator, train_proba_raw)
     train_metrics, train_cm = metric_panel(y_train, train_proba, selected_threshold, beta=beta)
@@ -6897,6 +6905,7 @@ def main() -> int:
 
     # ── TRIPOD+AI / PROBAST supplementary assessments ──
     # Must run AFTER overfitting callback to use final model's probabilities.
+    print("[STEP  9/12] TRIPOD+AI assessments...", file=sys.stderr, flush=True)
     epv_report = _sample_size_adequacy(
         n_events=int(np.sum(y_train)),
         n_features=int(X_train.shape[1]),
@@ -7650,6 +7659,7 @@ def main() -> int:
     # ═══════════════════════════════════════════════════════════════════════
 
 
+    print("[STEP 12/12] Writing output files...", file=sys.stderr, flush=True)
     model_selection_out = Path(args.model_selection_report_out).expanduser().resolve()
     evaluation_out = Path(args.evaluation_report_out).expanduser().resolve()
 
