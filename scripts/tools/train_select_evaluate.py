@@ -1918,7 +1918,6 @@ def _family_grid(family: str) -> List[Dict[str, Any]]:
         rest = [
             {"C": c, "l1_ratio": l1_ratio}
             for c, l1_ratio in product([0.1, 0.3, 1.5, 0.05], [0.2, 0.5, 0.8])
-            if not (float(c) == 0.8 and float(l1_ratio) == 0.5)
         ]
         return seed_first + rest
     if family == "random_forest_balanced":
