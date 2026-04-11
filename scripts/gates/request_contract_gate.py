@@ -494,6 +494,7 @@ def get_gap_pair_block(gap_thresholds: Dict[str, Any], left: str, right: str) ->
 def validate_evaluation_report_shape(
     evaluation_report_path: str,
     failures: List[Dict[str, Any]],
+    cross_sectional: bool = False,
 ) -> None:
     path = Path(evaluation_report_path).expanduser().resolve()
     try:
@@ -690,27 +691,30 @@ def validate_evaluation_report_shape(
                 },
             )
 
-        external_sha = metadata.get("external_validation_report_sha256")
-        if not isinstance(external_sha, str) or not re.fullmatch(r"[0-9a-f]{64}", external_sha.strip().lower()):
-            add_issue(
-                failures,
-                "evaluation_report_missing_external_validation_hash",
-                "evaluation_report.metadata.external_validation_report_sha256 must be 64-char lowercase hex.",
-                {
-                    "path": str(path),
-                    "migration_hint": "Add metadata.external_validation_report_sha256 computed from external_validation_report_file.",
-                },
-            )
+        # External validation checks — required for publication-grade unless
+        # study is explicitly cross-sectional without external data.
+        if not cross_sectional:
+            external_sha = metadata.get("external_validation_report_sha256")
+            if not isinstance(external_sha, str) or not re.fullmatch(r"[0-9a-f]{64}", external_sha.strip().lower()):
+                add_issue(
+                    failures,
+                    "evaluation_report_missing_external_validation_hash",
+                    "evaluation_report.metadata.external_validation_report_sha256 must be 64-char lowercase hex.",
+                    {
+                        "path": str(path),
+                        "migration_hint": "Add metadata.external_validation_report_sha256 computed from external_validation_report_file.",
+                    },
+                )
 
-        external_count = metadata.get("external_cohort_count")
-        external_count_i = to_int(external_count)
-        if external_count_i is None or external_count_i < 2:
-            add_issue(
-                failures,
-                "evaluation_report_external_cohort_count_invalid",
-                "evaluation_report.metadata.external_cohort_count must be integer >= 2 for publication-grade dual external coverage.",
-                {"path": str(path), "external_cohort_count": external_count},
-            )
+            external_count = metadata.get("external_cohort_count")
+            external_count_i = to_int(external_count)
+            if external_count_i is None or external_count_i < 2:
+                add_issue(
+                    failures,
+                    "evaluation_report_external_cohort_count_invalid",
+                    "evaluation_report.metadata.external_cohort_count must be integer >= 2 for publication-grade dual external coverage.",
+                    {"path": str(path), "external_cohort_count": external_count},
+                )
 
 
 
@@ -3186,12 +3190,15 @@ def main() -> int:
         normalized=normalized,
     )
 
+    # Robustness report requires event_time for time-slicing.
+    # Cross-sectional data has no time axis → robustness is optional.
+    _robustness_required = require_lineage and not bool(request.get("cross_sectional"))
     validate_optional_path(
         request=request,
         key="robustness_report_file",
         base=request_base,
         failures=failures,
-        required=require_lineage,
+        required=_robustness_required,
         normalized=normalized,
     )
 
@@ -3213,22 +3220,26 @@ def main() -> int:
             normalized=normalized,
             migration_hint="Add prediction_trace_file pointing to prediction_trace.csv.gz with minimal de-identified row-level scores.",
         )
-        validate_publication_v3_path(
-            request=request,
-            key="external_cohort_spec",
-            base=request_base,
-            failures=failures,
-            normalized=normalized,
-            migration_hint="Add external_cohort_spec JSON with both cross_period and cross_institution cohorts.",
-        )
-        validate_publication_v3_path(
-            request=request,
-            key="external_validation_report_file",
-            base=request_base,
-            failures=failures,
-            normalized=normalized,
-            migration_hint="Add external_validation_report_file generated from external cohort replay evaluation.",
-        )
+        # External validation paths: required for publication-grade UNLESS
+        # cross_sectional=true (no external cohorts available by design).
+        # Documented as limitation per TRIPOD+AI.
+        if not bool(request.get("cross_sectional")):
+            validate_publication_v3_path(
+                request=request,
+                key="external_cohort_spec",
+                base=request_base,
+                failures=failures,
+                normalized=normalized,
+                migration_hint="Add external_cohort_spec JSON with both cross_period and cross_institution cohorts.",
+            )
+            validate_publication_v3_path(
+                request=request,
+                key="external_validation_report_file",
+                base=request_base,
+                failures=failures,
+                normalized=normalized,
+                migration_hint="Add external_validation_report_file generated from external cohort replay evaluation.",
+            )
         validate_publication_v4_path(
             request=request,
             key="distribution_report_file",
@@ -3255,8 +3266,9 @@ def main() -> int:
         )
 
     evaluation_report_file = normalized.get("evaluation_report_file")
+    _is_cross_sectional = bool(request.get("cross_sectional")) or not require_lineage
     if isinstance(evaluation_report_file, str) and evaluation_report_file:
-        validate_evaluation_report_shape(evaluation_report_file, failures)
+        validate_evaluation_report_shape(evaluation_report_file, failures, cross_sectional=_is_cross_sectional)
     external_validation_report_file = normalized.get("external_validation_report_file")
     if isinstance(external_validation_report_file, str) and external_validation_report_file:
         validate_external_validation_report_shape(external_validation_report_file, failures)

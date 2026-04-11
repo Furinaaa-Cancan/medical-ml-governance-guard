@@ -150,11 +150,19 @@ def run_single_file_preflight(
     print(f"[INFO] Input CSV: {csv_path} ({len(df)} rows, {len(columns)} columns)")
 
     resolved: Dict[str, Any] = {}
+    # Cross-sectional sentinel: _no_time_column means time column is intentionally absent.
+    _cross_sectional = str(args.time_col).strip() in ("_no_time_column", "")
     for semantic_name, preferred, aliases in (
         ("target_col", args.target_col, TARGET_ALIASES),
         ("patient_id_col", args.patient_id_col, PATIENT_ID_ALIASES),
         ("index_time_col", args.time_col, TIME_ALIASES),
     ):
+        # For cross-sectional data, time column is optional — skip resolution
+        if semantic_name == "index_time_col" and _cross_sectional:
+            resolved[semantic_name] = None
+            resolved[f"{semantic_name}_resolution"] = "cross_sectional_skip"
+            resolved[f"{semantic_name}_alternates"] = []
+            continue
         selected, mode, alternates = resolve_column(preferred=preferred, aliases=aliases, common_columns=columns)
         resolved[semantic_name] = selected
         resolved[f"{semantic_name}_resolution"] = mode
@@ -162,7 +170,7 @@ def run_single_file_preflight(
         if selected is None:
             add_issue(
                 failures, "required_column_missing",
-                "Unable to resolve required semantic column.",
+                "Unable to resolve required semantic column across all splits.",
                 {"semantic": semantic_name, "preferred": preferred, "aliases": list(aliases)},
             )
         elif mode in {"normalized", "alias"}:
@@ -177,8 +185,13 @@ def run_single_file_preflight(
     time_col = resolved.get("index_time_col")
 
     file_stats: Dict[str, Any] = {}
-    if all(isinstance(x, str) and x for x in (target_col, patient_id_col, time_col)):
-        file_stats = split_summary(df, str(target_col), str(patient_id_col), str(time_col))
+    # For cross-sectional data, time_col is None — run summary without it
+    required_cols = [target_col, patient_id_col]
+    if time_col:
+        required_cols.append(time_col)
+    if all(isinstance(x, str) and x for x in required_cols):
+        effective_time_col = str(time_col) if time_col else str(target_col)  # dummy for split_summary signature
+        file_stats = split_summary(df, str(target_col), str(patient_id_col), effective_time_col)
         file_stats["patient_id_unique_count"] = int(df[str(patient_id_col)].nunique(dropna=True))
 
         if isinstance(file_stats.get("target_parse_error"), str):
@@ -278,11 +291,17 @@ def main() -> int:
         return finish(args, failures, warnings, {}, None)
 
     resolved: Dict[str, Any] = {}
+    _cross_sectional_split = str(args.time_col).strip() in ("_no_time_column", "")
     for semantic_name, preferred, aliases in (
         ("target_col", args.target_col, TARGET_ALIASES),
         ("patient_id_col", args.patient_id_col, PATIENT_ID_ALIASES),
         ("index_time_col", args.time_col, TIME_ALIASES),
     ):
+        if semantic_name == "index_time_col" and _cross_sectional_split:
+            resolved[semantic_name] = None
+            resolved[f"{semantic_name}_resolution"] = "cross_sectional_skip"
+            resolved[f"{semantic_name}_alternates"] = []
+            continue
         selected, mode, alternates = resolve_column(preferred=preferred, aliases=aliases, common_columns=common_columns)
         resolved[semantic_name] = selected
         resolved[f"{semantic_name}_resolution"] = mode
