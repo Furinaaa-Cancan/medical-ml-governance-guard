@@ -25,9 +25,41 @@ Pipeline 结构: `Imputer → Scaler → Classifier`
 - Numeric → 保持
 
 ### 插补
-- 默认: `SimpleImputer(median)` + missing indicator 列
-- 可选: `IterativeImputer` (MICE)，大数据自动降级
-- 树模型 (RF/XGB/LGBM/CatBoost): 不添加 indicator（原生处理缺失）
+
+**默认策略选择**（根据缺失率和目标）:
+
+| 条件 | 策略 | 理由 |
+|------|------|------|
+| 缺失率 < 5% | `SimpleImputer(median)` + indicator | 差异极小，计算快 |
+| 缺失率 5-30% + MAR | **`IterativeImputer` (MICE)** | 保留多元关系，MAR 下无偏 |
+| 缺失率 > 30% | MICE + 敏感性分析 | 高缺失下需验证 MNAR 影响 |
+| 树模型 (RF/XGB/LGBM) | 不添加 indicator | 原生处理缺失 |
+
+**MICE 参数（train_select_evaluate.py build_imputer）**:
+- `max_iter=50`: van Buuren 2018 推荐 50-100（>10% 缺失）
+- `tol=1e-3`: 提前终止
+- `sample_posterior=False`: 确定性单次插补（部署需要单模型）
+- `initial_strategy="median"`: 安全初始化
+- `imputation_order="ascending"`: 低缺失先填
+- `min_value=0.0`: 防止生理不可能的负值
+
+**单次 vs 多重插补的选择（预测模型特定）**:
+
+主流文献（Sterne 2009 BMJ）推荐 MI，但这是针对**推断**（β 系数 + CI）。
+对**预测模型**，Sisk et al. 2023 (Stat Methods Med Res) 的 simulation study 显示：
+- 单次 (regression) 插补与 MI 的预测性能 **comparable**
+- 部署时 outcome 不可用于插补模型，MI 的优势被削弱
+- Rubin's Rules 对 RF/XGB 等非参数模型**不适用**
+
+**Agent 应要求用户做 sensitivity analysis**:
+- 跑 single 和 MI(m=5, sample_posterior=True, 概率池化)
+- 比较 AUROC/PR-AUC/Brier 差异
+- 如果 Δ < 0.01 → single 足够（需报告 sensitivity analysis 结果）
+- 如果 Δ ≥ 0.01 → 使用 MI pooled predictions
+
+⚠️ **注意**：没有顶刊文献明确说 "single imputation is sufficient for prediction"。
+选择 single 的依据必须是**实证 sensitivity analysis + 部署约束**，
+不是文献权威。Methods 中必须报告 sensitivity analysis 结果。
 
 ### 缩放
 - `StandardScaler`（LR/SVM 必须，树模型统一应用）

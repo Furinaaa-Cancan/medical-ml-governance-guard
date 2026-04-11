@@ -684,6 +684,27 @@
       "url": "https://pubmed.ncbi.nlm.nih.gov/19564179/"
     },
     {
+      "id": "LIT-034b",
+      "doi": "10.1177/09622802231165001",
+      "title": "Imputation and missing indicators for handling missing data in the development and deployment of clinical prediction models: A simulation study",
+      "authors": "Sisk R, Sperrin M, Peek N, van Smeden M, Martin GP",
+      "journal": "Statistical Methods in Medical Research",
+      "year": 2023,
+      "category": "validation",
+      "impact_factor": 2.3,
+      "key_requirements": [
+        "Single (regression) imputation and MI show comparable predictive performance in simulations",
+        "At deployment, outcome cannot be in imputation model — regression imputation is pragmatic",
+        "Missing indicators can help under informative missingness but harm under MCAR",
+        "Imputation strategy at development should consider whether missingness occurs at deployment",
+        "NOT a blanket endorsement of single imputation — performance depends on missing rate and mechanism"
+      ],
+      "gates_implementing": ["missingness_policy_gate"],
+      "dimensions_affected": [3],
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37105540/",
+      "note": "Key paper for prediction-specific imputation. Supersedes general MI advice (Sterne 2009) for prediction model context."
+    },
+    {
       "id": "LIT-035",
       "doi": "10.1093/jamia/ocac093",
       "title": "The harm of class imbalance corrections for risk prediction models: illustration and simulation study",
