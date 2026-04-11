@@ -1291,27 +1291,16 @@ def main() -> int:
                 "reason": "Could not auto-detect dataset key. Specify --codebook-dataset.",
             }
 
-    # ── NHANES RAG auto-retrieval (fallback for unregistered variables) ──
-    # If data looks like NHANES and Harvard codebook TSVs are available,
-    # auto-validate ALL columns against the full 3,964-variable codebook.
-    # Manual registry has priority; RAG only checks unregistered columns.
-    _nhanes_rag_dir = Path("references/nhanes_codebook")
-    if survey_source and survey_source != "nhanes":
-        # Non-NHANES dataset detected — RAG not yet available for this source.
-        add_issue(
-            warnings_list, "CODEBOOK_RAG_NOT_AVAILABLE",
-            f"Detected survey source '{survey_source}' but codebook RAG is only "
-            f"implemented for NHANES. Variable-level validation skipped. "
-            f"Consider extending dataset-codebook-registry.json for {survey_source}.",
-            {"survey_source": survey_source},
-        )
-        study_design["nhanes_rag"] = {"status": "not_available", "reason": f"RAG not implemented for {survey_source}"}
-    if survey_source == "nhanes" and (_nhanes_rag_dir / "nhanes_variables.tsv").exists():
+    # ── Codebook RAG auto-retrieval (NHANES, BRFSS, MIMIC, etc.) ────
+    # Uses factory function to select the right codebook class:
+    #   NHANES → NHANESCodebook (Harvard TSV + BM25 + skip-chain)
+    #   BRFSS/MIMIC/other → RegistryCodebook (JSON registry only)
+    if survey_source:
         try:
             _tools_dir = str(Path(__file__).resolve().parent.parent / "tools")
             if _tools_dir not in sys.path:
                 sys.path.insert(0, _tools_dir)
-            from nhanes_codebook_lookup import NHANESCodebook
+            from nhanes_codebook_lookup import get_codebook, NHANESCodebook
 
             # Load manual registry variable codes for priority exclusion
             manual_vars: Optional[Dict[str, Any]] = None
@@ -1323,7 +1312,11 @@ def main() -> int:
                 except Exception:
                     pass
 
-            cb_rag = NHANESCodebook(str(_nhanes_rag_dir), cycle="2017-2018")
+            _registry_path = str(Path(__file__).resolve().parent.parent.parent / "references" / "dataset-codebook-registry.json")
+            cb_rag = get_codebook(survey_source, registry_path=_registry_path)
+            if cb_rag is None:
+                study_design["nhanes_rag"] = {"status": "not_available", "reason": f"No codebook for {survey_source}"}
+                raise ImportError("skip RAG")
             rag_issues = cb_rag.validate_columns(
                 list(df.columns), target_col=args.target_col,
                 manual_registry=manual_vars,
@@ -1359,12 +1352,15 @@ def main() -> int:
 
             study_design["nhanes_rag"] = {
                 "status": "completed",
+                "dataset": survey_source,
+                "codebook_type": type(cb_rag).__name__,
                 "variables_loaded": cb_rag.variable_count,
                 "issues_found": len(rag_issues),
                 "task_aware_disease": _target_disease if '_target_disease' in dir() else "",
             }
         except ImportError:
-            study_design["nhanes_rag"] = {"status": "skipped", "reason": "nhanes_codebook_lookup not available"}
+            if "nhanes_rag" not in study_design:
+                study_design["nhanes_rag"] = {"status": "skipped", "reason": "codebook lookup not available"}
         except Exception as exc:
             study_design["nhanes_rag"] = {"status": "error", "error": str(exc)}
 

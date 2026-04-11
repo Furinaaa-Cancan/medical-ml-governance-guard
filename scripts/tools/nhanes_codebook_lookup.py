@@ -619,6 +619,257 @@ class NHANESCodebook:
         }
 
 
+# ═══════════════════════════════════════════════════════════════
+# RegistryCodebook — lightweight validation from JSON registry only
+# Works for ANY dataset (BRFSS, MIMIC, etc.) without TSV files.
+# ═══════════════════════════════════════════════════════════════
+
+
+class RegistryCodebook:
+    """Validate columns against dataset-codebook-registry.json entries.
+
+    Unlike NHANESCodebook (which loads 58K Harvard TSV variables with BM25
+    and skip-chain), this class works purely from the curated registry JSON.
+    Suitable for datasets without a Harvard-style metadata source.
+
+    Usage:
+        cb = RegistryCodebook("references/dataset-codebook-registry.json", "brfss_2022")
+        issues = cb.validate_columns(["age", "bmi", "stroke", "y"], target_col="y")
+    """
+
+    def __init__(self, registry_path: str, dataset_key: str) -> None:
+        self.registry_path = Path(registry_path)
+        self.dataset_key = dataset_key
+        self._variables: Dict[str, Dict[str, Any]] = {}
+        self._friendly_map: Dict[str, str] = {}  # friendly_name → var_code
+        self._loaded = False
+
+    def _ensure_loaded(self) -> None:
+        if self._loaded:
+            return
+        if not self.registry_path.exists():
+            return
+        try:
+            with self.registry_path.open("r", encoding="utf-8") as fh:
+                reg = json.load(fh)
+        except Exception:
+            return
+        ds = reg.get("datasets", {}).get(self.dataset_key, {})
+        self._variables = ds.get("variables", {})
+        # Build reverse friendly-name map
+        for var_code, info in self._variables.items():
+            for friendly in info.get("friendly_names", []):
+                self._friendly_map[friendly.lower()] = var_code
+        self._loaded = True
+
+    @property
+    def variable_count(self) -> int:
+        self._ensure_loaded()
+        return len(self._variables)
+
+    def lookup(self, var_code: str) -> Optional[Dict[str, Any]]:
+        """Look up a variable by its raw code."""
+        self._ensure_loaded()
+        info = self._variables.get(var_code)
+        if info is None:
+            # Try friendly name reverse lookup
+            mapped = self._friendly_map.get(var_code.lower())
+            if mapped:
+                info = self._variables.get(mapped)
+                if info:
+                    info = dict(info)
+                    info["variable"] = mapped
+                    return info
+            return None
+        result = dict(info)
+        result["variable"] = var_code
+        return result
+
+    def validate_columns(
+        self,
+        column_names: List[str],
+        target_col: str = "y",
+        manual_registry: Optional[Dict[str, Dict]] = None,
+    ) -> List[Dict[str, Any]]:
+        """Validate columns against registry entries."""
+        self._ensure_loaded()
+        issues: List[Dict[str, Any]] = []
+
+        for col in column_names:
+            if col == target_col:
+                continue
+            if manual_registry and col in manual_registry:
+                continue
+
+            info = self.lookup(col)
+            if info is None:
+                continue
+
+            var_code = info.get("variable", col)
+
+            # Check 1: encoding rule
+            if info.get("encoding_rule") == "must_onehot" or info.get("type") == "nominal_categorical":
+                issues.append({
+                    "code": "CODEBOOK_ENCODING_CHECK",
+                    "message": (
+                        f"Column '{col}' maps to '{var_code}' ({info.get('label', '')}), "
+                        f"type={info.get('type')}. Verify OneHot encoding for nominal variables."
+                    ),
+                    "details": {"column": col, "var_code": var_code,
+                                "type": info.get("type"), "source": "registry"},
+                })
+
+            # Check 2: must_exclude_if_target
+            if info.get("must_exclude_if_target"):
+                targets = info.get("definition_variable_for", []) + info.get("target_adjacent_for", [])
+                issues.append({
+                    "code": "CODEBOOK_VARIABLE_MISLABEL",
+                    "message": (
+                        f"Column '{col}' ({info.get('label', '')}) is a definition/target-adjacent "
+                        f"variable for {targets}. Must be excluded from features."
+                    ),
+                    "details": {"column": col, "var_code": var_code,
+                                "targets": targets, "source": "registry"},
+                })
+
+            # Check 3: reverse causation
+            if info.get("reverse_causation_risk"):
+                issues.append({
+                    "code": "CODEBOOK_REVERSE_CAUSATION",
+                    "message": (
+                        f"Column '{col}' ({info.get('label', '')}) has reverse causation risk "
+                        f"for {info['reverse_causation_risk']}."
+                    ),
+                    "details": {"column": col, "var_code": var_code,
+                                "targets": info["reverse_causation_risk"], "source": "registry"},
+                })
+
+            # Check 4: top-coding
+            top_val = info.get("top_coded")
+            if top_val is not None:
+                issues.append({
+                    "code": "CODEBOOK_TOP_CODED",
+                    "message": (
+                        f"Column '{col}' is top-coded at {top_val}."
+                    ),
+                    "details": {"column": col, "ceiling": top_val, "source": "registry"},
+                })
+
+        return issues
+
+    def task_aware_validate(
+        self,
+        column_names: List[str],
+        target_col: str,
+        target_disease: str,
+        disease_kb_path: str,
+        manual_registry: Optional[Dict[str, Dict]] = None,
+    ) -> List[Dict[str, Any]]:
+        """Cross-reference disease-KB with registry variables."""
+        # Load disease KB
+        kb_path = Path(disease_kb_path)
+        if not kb_path.exists():
+            return []
+        try:
+            with kb_path.open("r", encoding="utf-8") as fh:
+                kb = json.load(fh)
+        except Exception:
+            return []
+
+        diseases = kb.get("diseases", {})
+        disease_block = None
+        target_lower = target_disease.lower().replace("_", " ")
+        for dk, dv in diseases.items():
+            if target_lower in dk.lower().replace("_", " ") or target_lower in dv.get("name", "").lower():
+                disease_block = dv
+                break
+        if disease_block is None:
+            return []
+
+        # Collect exclusion terms
+        exclude_terms = list(disease_block.get("definition_variables_to_exclude", []))
+        for lab in disease_block.get("lab_criteria", []):
+            exclude_terms.append(lab.get("test", ""))
+        exclude_terms.extend(disease_block.get("self_report_fields", []))
+
+        # Map to registry variables
+        self._ensure_loaded()
+        flagged: Dict[str, str] = {}
+        for term in exclude_terms:
+            if not term:
+                continue
+            info = self.lookup(term)
+            if info:
+                flagged[info.get("variable", term)] = term
+            # Also check friendly names
+            term_lower = term.lower().replace("_", " ")
+            for var_code, var_info in self._variables.items():
+                label_lower = var_info.get("label", "").lower()
+                if term_lower in label_lower or label_lower in term_lower:
+                    flagged[var_code] = term
+
+        # Check columns
+        issues: List[Dict[str, Any]] = []
+        for col in column_names:
+            if col == target_col:
+                continue
+            if manual_registry and col in manual_registry:
+                continue
+            info = self.lookup(col)
+            matched_code = None
+            if info and info.get("variable") in flagged:
+                matched_code = info["variable"]
+            elif col in flagged:
+                matched_code = col
+            if matched_code:
+                issues.append({
+                    "code": "CODEBOOK_DEFINITION_VARIABLE",
+                    "message": (
+                        f"Column '{col}' maps to '{matched_code}' which is a "
+                        f"definition variable for '{target_disease}'."
+                    ),
+                    "details": {"column": col, "var_code": matched_code,
+                                "target_disease": target_disease, "source": "registry_disease_kb"},
+                })
+        return issues
+
+    def summarize(self) -> Dict[str, Any]:
+        self._ensure_loaded()
+        return {
+            "dataset": self.dataset_key,
+            "total_variables": len(self._variables),
+            "loaded": self._loaded,
+        }
+
+
+def get_codebook(
+    survey_source: str,
+    registry_path: str = "references/dataset-codebook-registry.json",
+    nhanes_codebook_dir: str = "references/nhanes_codebook",
+) -> Optional["RegistryCodebook"]:
+    """Factory: return the appropriate codebook for a dataset.
+
+    Returns NHANESCodebook for NHANES (with full BM25 + skip-chain),
+    RegistryCodebook for BRFSS/MIMIC/others (registry-only validation).
+    """
+    _DS_KEY_MAP = {
+        "nhanes": "nhanes_2017_2020",
+        "brfss": "brfss_2022",
+        "nhis": "nhis_2022",
+        "mimic": "mimic_iv",
+    }
+    dataset_key = _DS_KEY_MAP.get(survey_source.lower(), "")
+    if not dataset_key:
+        return None
+
+    if survey_source.lower() == "nhanes":
+        nhanes_dir = Path(nhanes_codebook_dir)
+        if (nhanes_dir / "nhanes_variables.tsv").exists():
+            return NHANESCodebook(str(nhanes_dir), cycle="2017-2018")
+        # Fallback to registry if TSV not available
+    return RegistryCodebook(registry_path, dataset_key)
+
+
 # ── CLI ──────────────────────────────────────────────────
 
 def main() -> int:
