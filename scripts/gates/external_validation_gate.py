@@ -51,6 +51,22 @@ register_remediations({
     "external_validation_type_coverage_not_met": "At least one supported external cohort type (cross_period or cross_institution) must be present.",
     "external_validation_cross_period_not_met": "Publication-grade validation requires at least one passing cross_period cohort.",
     "external_validation_cross_institution_not_met": "Publication-grade validation requires at least one passing cross_institution cohort.",
+    "external_validation_low_feature_coverage": (
+        "External cohort has too many features filled with constants (train medians). "
+        "The model cannot discriminate on these features, making the validation "
+        "misleadingly optimistic or pessimistic. Use only features available in both datasets."
+    ),
+    "external_validation_prevalence_shift": (
+        "Target prevalence differs substantially between internal and external data. "
+        "This may indicate different outcome definitions, ascertainment methods, "
+        "or population composition. Document the difference and interpret calibration "
+        "metrics with caution."
+    ),
+    "external_validation_constant_features": (
+        "Features with zero variance in external cohort detected. These were likely "
+        "absent from external data and filled with a constant (train median). "
+        "The model has no discriminative power on these features for external patients."
+    ),
 })
 
 
@@ -310,6 +326,93 @@ def main() -> int:
             },
         )
         return finish(args, failures, warnings, {"thresholds": thresholds})
+
+    # ── Variable alignment quality checks ────────────────────────────────
+    # These checks detect "garbage in, garbage out" external validation:
+    # missing features filled with constants, different target definitions.
+    internal_prevalence = evaluation.get("metrics", {}).get("sensitivity")  # approximate
+    # Better: use positive_count / total from evaluation metadata
+    eval_meta = evaluation.get("metadata", {})
+    internal_feature_count = eval_meta.get("feature_count", 0)
+
+    for cohort in cohorts:
+        if not isinstance(cohort, dict):
+            continue
+        cid = cohort.get("cohort_id", "?")
+        ext_row_count = cohort.get("row_count", 0)
+        ext_pos_count = cohort.get("positive_count", 0)
+        ext_prevalence = float(ext_pos_count) / float(ext_row_count) if ext_row_count > 0 else 0.0
+
+        # Check 1: Prevalence shift (possible target definition mismatch)
+        internal_pos = evaluation.get("split_metrics", {}).get("test", {}).get("confusion_matrix", {})
+        if isinstance(internal_pos, dict):
+            int_tp = internal_pos.get("tp", 0) + internal_pos.get("fn", 0)
+            int_total = sum(internal_pos.values())
+            int_prev = float(int_tp) / float(int_total) if int_total > 0 else 0.0
+        else:
+            int_prev = 0.0
+        if int_prev > 0 and ext_prevalence > 0:
+            prev_ratio = max(int_prev, ext_prevalence) / min(int_prev, ext_prevalence)
+            if prev_ratio > 1.5:
+                add_issue(
+                    warnings,
+                    "external_validation_prevalence_shift",
+                    f"Cohort '{cid}': prevalence differs substantially "
+                    f"(internal={int_prev:.1%}, external={ext_prevalence:.1%}, "
+                    f"ratio={prev_ratio:.1f}x). May indicate different outcome "
+                    f"definitions or populations.",
+                    {"cohort_id": cid, "internal_prevalence": round(int_prev, 3),
+                     "external_prevalence": round(ext_prevalence, 3),
+                     "ratio": round(prev_ratio, 2)},
+                )
+
+        # Check 2: Constant features (zero variance = filled with median)
+        transport = cohort.get("transport_gap", {})
+        # The external validation report includes per-cohort feature info
+        # if available. Otherwise, check confusion matrix for degenerate behavior.
+        ext_metrics = cohort.get("metrics", {})
+        ext_cm = cohort.get("confusion_matrix", {})
+        tp = ext_cm.get("tp", 0)
+        fn = ext_cm.get("fn", 0)
+        fp = ext_cm.get("fp", 0)
+        tn = ext_cm.get("tn", 0)
+
+        # Degenerate detection: all-negative or all-positive predictions
+        if tp == 0 and fp == 0:
+            add_issue(
+                failures,
+                "external_validation_constant_features",
+                f"Cohort '{cid}': ALL predictions are negative (TP=0, FP=0). "
+                f"This typically means missing features were filled with values "
+                f"that push all probabilities below threshold. "
+                f"Check feature alignment between training and external data.",
+                {"cohort_id": cid, "confusion_matrix": ext_cm},
+            )
+        elif fn == 0 and tn == 0:
+            add_issue(
+                failures,
+                "external_validation_constant_features",
+                f"Cohort '{cid}': ALL predictions are positive (FN=0, TN=0). "
+                f"Check feature alignment and threshold calibration.",
+                {"cohort_id": cid, "confusion_matrix": ext_cm},
+            )
+
+        # Check 3: Feature coverage (from transport_gap or external report metadata)
+        # Count how many features have zero transport gap (identical distribution = constant fill)
+        feature_diffs = transport.get("feature_distribution_diffs", {})
+        if isinstance(feature_diffs, dict):
+            zero_diff_features = [f for f, d in feature_diffs.items()
+                                  if isinstance(d, (int, float)) and abs(d) < 1e-6]
+            if zero_diff_features and len(zero_diff_features) > 2:
+                add_issue(
+                    warnings,
+                    "external_validation_low_feature_coverage",
+                    f"Cohort '{cid}': {len(zero_diff_features)} features have "
+                    f"zero distribution difference (likely filled with constant). "
+                    f"Model has no discriminative power on: {zero_diff_features[:5]}.",
+                    {"cohort_id": cid, "constant_features": zero_diff_features,
+                     "count": len(zero_diff_features)},
+                )
 
     try:
         trace_df = pd.read_csv(trace_path)
