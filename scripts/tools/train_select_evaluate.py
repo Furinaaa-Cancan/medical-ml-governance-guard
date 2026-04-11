@@ -4087,18 +4087,25 @@ def bootstrap_ci_pr_auc(y_true: np.ndarray, proba: np.ndarray, n_resamples: int,
     if len(hits) < 200:
         raise ValueError(f"Insufficient bootstrap resamples for CI: {len(hits)}")
     arr = np.asarray(hits, dtype=float)
-    # BCa CI: compute original statistic + jackknife for acceleration
+    # BCa CI: compute original statistic + jackknife for acceleration.
+    # For large n (>2000), use subsampled jackknife (m random leave-one-out
+    # folds) to avoid O(n^2 log n) cost while preserving BCa properties.
     original_stat = float(average_precision_score(y_true, proba))
     n = len(y_true)
-    jk_stats = np.empty(n, dtype=float)
-    for i in range(n):
+    max_jk = 2000  # cap jackknife iterations for performance
+    if n <= max_jk:
+        jk_indices = range(n)
+    else:
+        jk_rng = np.random.RandomState(seed + 99)
+        jk_indices = jk_rng.choice(n, size=max_jk, replace=False)
+    jk_stats = np.empty(len(jk_indices), dtype=float)
+    for j, i in enumerate(jk_indices):
         mask = np.concatenate([np.arange(i), np.arange(i + 1, n)])
         y_jk = y_true[mask]
         if len(np.unique(y_jk)) < 2:
-            # Jackknife fold lost a class — use original stat as fallback
-            jk_stats[i] = original_stat
+            jk_stats[j] = original_stat
         else:
-            jk_stats[i] = float(average_precision_score(y_jk, proba[mask]))
+            jk_stats[j] = float(average_precision_score(y_jk, proba[mask]))
     lo, hi = _bca_ci(arr, original_stat, jk_stats, alpha=0.05)
     return float(lo), float(hi), int(len(hits))
 

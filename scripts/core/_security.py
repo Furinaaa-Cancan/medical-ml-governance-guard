@@ -82,13 +82,24 @@ def _derive_key() -> bytes:
     if env_key:
         return hashlib.sha256(env_key.encode("utf-8")).digest()
 
-    # Search upward for project root (contains SKILL.md or .git)
+    # Search upward for project root (contains SKILL.md or .git).
+    # Use 10 hops (consistent with _get_encryption_key) and try both
+    # __file__ location and cwd to handle installed packages and venvs.
     search = Path(__file__).resolve().parent
-    for _ in range(5):
+    for _ in range(10):
         if (search / "SKILL.md").exists() or (search / ".git").exists():
             break
         parent = search.parent
         if parent == search:
+            # Reached filesystem root from __file__; try from cwd
+            search = Path.cwd()
+            for _ in range(10):
+                if (search / "SKILL.md").exists() or (search / ".git").exists():
+                    break
+                parent = search.parent
+                if parent == search:
+                    break
+                search = parent
             break
         search = parent
 
@@ -955,11 +966,15 @@ def sign_execution_receipt(
 
     receipt_path = evidence_dir / ".execution_receipt.json"
     receipt_path.parent.mkdir(parents=True, exist_ok=True)
-    with receipt_path.open("w", encoding="utf-8") as fh:
+    # Atomic write: write to temp file, fsync, then rename to prevent
+    # corruption if process crashes mid-write.
+    tmp_path = receipt_path.with_suffix(".json.tmp")
+    with tmp_path.open("w", encoding="utf-8") as fh:
         json.dump(receipt, fh, indent=2)
         fh.write("\n")
         fh.flush()
         os.fsync(fh.fileno())
+    tmp_path.replace(receipt_path)
 
     return receipt_path
 

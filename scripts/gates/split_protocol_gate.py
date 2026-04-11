@@ -295,9 +295,10 @@ def main() -> int:
         )
     if requires_group_disjoint is not None and requires_group_disjoint is not True:
         add_issue(
-            failures,
+            warnings,
             "group_disjoint_not_required",
-            "requires_group_disjoint must be true for medical entity-level prediction.",
+            "requires_group_disjoint is not set to true. Recommended for medical "
+            "entity-level prediction to prevent patient overlap across splits.",
             {},
         )
     if is_cross_sectional:
@@ -310,9 +311,10 @@ def main() -> int:
         )
     elif requires_temporal_order is not None and requires_temporal_order is not True:
         add_issue(
-            failures,
+            warnings,
             "temporal_order_not_required",
-            "requires_temporal_order must be true for publication-grade temporal realism.",
+            "requires_temporal_order is not set to true. Recommended for longitudinal "
+            "data to prevent future information leaking into training.",
             {},
         )
     if allow_patient_overlap is not None and allow_patient_overlap is not False:

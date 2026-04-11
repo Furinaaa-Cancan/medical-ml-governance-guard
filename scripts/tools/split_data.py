@@ -548,8 +548,13 @@ def split_stratified_grouped(
         if n == 0:
             continue
         if n < 3:
-            # Too few patients in this class to split 3 ways; put all in train
-            # (downstream validate_splits will catch insufficient patients/samples)
+            # Too few patients in this class to split 3 ways; put all in train.
+            import logging
+            logging.warning(
+                f"Class {label_val} has only {n} patient(s) — all assigned to "
+                f"training. Test/validation will have 0 patients for this class. "
+                f"Consider using a larger dataset or the 'rare_disease' profile."
+            )
             train_patients.extend(group)
             continue
         test_ratio = 1.0 - train_ratio - valid_ratio

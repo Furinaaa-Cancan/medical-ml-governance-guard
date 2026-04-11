@@ -132,10 +132,19 @@ def _to_float(v: Any) -> Optional[float]:
 
 
 def _estimate_shrinkage(n_events: int, n_features: int) -> Optional[float]:
-    """Approximate shrinkage factor using Van Houwelingen formula.
+    """Approximate shrinkage factor using Van Houwelingen heuristic.
 
-    S ≈ (E - p) / E where E = events, p = parameters.
-    This is a rough approximation; Riley et al. provides more precise criteria.
+    S ≈ (E - p) / E where E = events, p = parameters (number of features).
+
+    NOTE: This is the Van Houwelingen (1993) heuristic, NOT the iterative
+    Riley et al. (2019) criterion which also accounts for the anticipated
+    R-squared (Cox-Snell) and prevalence. The Riley criterion requires
+    iterative computation and knowledge of the expected model performance,
+    which is unavailable at the sample-size gate stage. The Van Houwelingen
+    formula serves as a conservative lower-bound estimate: if S < 0.9 under
+    this simpler formula, it will also fail under Riley's stricter criterion.
+
+    Reference: Riley RD et al. BMJ 2019;368:m441 — Criterion (i).
     """
     if n_events <= 0 or n_features <= 0:
         return None

@@ -295,10 +295,10 @@ def _score_dimension_from_evidence(
     if primary_report is not None:
         status = primary_report.get("status", "").lower()
         if status == "pass":
-            # Primary report passes → credit half the checks automatically
-            half = total_checks // 2
-            for check in dim["checks"][:half]:
-                passed.append(check)
+            # Primary report passes → credit checks that the gate covers.
+            # We credit 1 check (the gate's primary question) rather than
+            # an arbitrary "half" — supplementary reports fill the rest.
+            passed.append(f"primary_{primary_file}_pass")
         else:
             failed.append(f"primary_report_{primary_file}_status_{status}")
 

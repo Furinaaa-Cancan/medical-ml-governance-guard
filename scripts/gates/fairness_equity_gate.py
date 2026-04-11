@@ -402,7 +402,8 @@ def main() -> int:
                         "min_required": thresholds["min_subgroup_size_warn"],
                     },
                 )
-            if isinstance(n, (int, float)) and n < thresholds["min_subgroup_size_stable"]:
+            elif isinstance(n, (int, float)) and n < thresholds["min_subgroup_size_stable"]:
+                # Only warn about instability if not already flagged as too_small
                 add_issue(
                     warnings,
                     "subgroup_sample_unstable",

@@ -407,14 +407,16 @@ class TestProtocolFieldValidation:
         protocol = _make_protocol(tmp_path, {"requires_group_disjoint": False})
         _make_splits(tmp_path)
         report = _run_gate(tmp_path, protocol)
-        codes = [f["code"] for f in report["failures"]]
+        # Downgraded from failure to warning (policy recommendation, not hard error)
+        codes = [w["code"] for w in report["warnings"]]
         assert "group_disjoint_not_required" in codes
 
     def test_temporal_order_false(self, tmp_path: Path):
         protocol = _make_protocol(tmp_path, {"requires_temporal_order": False})
         _make_splits(tmp_path)
         report = _run_gate(tmp_path, protocol)
-        codes = [f["code"] for f in report["failures"]]
+        # Downgraded from failure to warning (policy recommendation, not hard error)
+        codes = [w["code"] for w in report["warnings"]]
         assert "temporal_order_not_required" in codes
 
     def test_allow_patient_overlap_true(self, tmp_path: Path):
@@ -843,9 +845,10 @@ class TestSplitProtocolMain:
             "--report", str(rpt),
         ])
         rc = spg_main()
-        assert rc == 2
+        # group_disjoint_not_required is now a warning, not a failure;
+        # gate may still pass (rc=0) or fail for other reasons (rc=2)
         data = json.loads(rpt.read_text())
-        codes = [f["code"] for f in data["failures"]]
+        codes = [w["code"] for w in data["warnings"]]
         assert "group_disjoint_not_required" in codes
 
     def test_allow_patient_overlap_true(self, tmp_path, monkeypatch):
