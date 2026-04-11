@@ -599,6 +599,26 @@ def print_gate_result(result: Dict[str, Any]) -> None:
         for line in stderr_tail.split("\n")[-5:]:
             print(f"      {line}")
 
+    # Auto-explain: show top failures with remediation from the gate report
+    if status == "fail":
+        report_path = result.get("report_path", "")
+        if report_path and Path(report_path).exists():
+            try:
+                with open(report_path, "r", encoding="utf-8") as _rpt_fh:
+                    _rpt_data = json.load(_rpt_fh)
+                _failures = _rpt_data.get("failures", [])
+                for _f in _failures[:3]:
+                    _code = _f.get("code", "?")
+                    _msg = _f.get("message", "")[:100]
+                    _rem = _f.get("remediation", "")
+                    print(f"      \u2192 {_code}: {_msg}")
+                    if _rem:
+                        print(f"        Fix: {_rem[:120]}")
+                if len(_failures) > 3:
+                    print(f"      ... and {len(_failures) - 3} more failure(s)")
+            except Exception:
+                pass
+
 
 def print_pipeline_summary(steps: List[Dict[str, Any]], elapsed: float) -> None:
     color = _use_color()

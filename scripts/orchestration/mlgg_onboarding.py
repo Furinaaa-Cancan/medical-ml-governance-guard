@@ -1285,6 +1285,31 @@ def main() -> int:
     if not should_continue(ok):
         return finish("fail")
 
+    # Print config summary for user guidance
+    _config_dir = project_root / "configs"
+    if _config_dir.is_dir():
+        _config_meta = {
+            "request.json": ("AUTO", "Pipeline contract — do not edit manually"),
+            "feature_lineage.json": ("AUTO", "Feature ancestry — auto-derived from columns"),
+            "execution_attestation.json": ("AUTO", "Signing spec — auto-generated"),
+            "train_runtime_config.json": ("AUTO", "Training command record"),
+            "split_protocol.json": ("AUTO", "Split reproducibility spec"),
+            "performance_policy.json": ("EDIT", "Clinical floors, beta, metric thresholds"),
+            "missingness_policy.json": ("EDIT", "Imputation strategy (MICE/median)"),
+            "feature_group_spec.json": ("EDIT", "Feature groupings for stability selection"),
+            "tuning_protocol.json": ("EDIT", "Hyperparameter search config"),
+            "imbalance_policy.json": ("EDIT", "Class imbalance handling strategy"),
+            "phenotype_definitions.json": ("EDIT", "Disease definition + forbidden variables"),
+            "external_cohort_spec.json": ("EDIT", "External validation cohort paths"),
+            "reporting_bias_checklist.json": ("EDIT", "TRIPOD reporting bias items"),
+        }
+        _existing = sorted(f.name for f in _config_dir.glob("*.json"))
+        print(f"\n  Generated configs ({len(_existing)} files in {_config_dir.name}/):")
+        for fname in _existing:
+            tag, desc = _config_meta.get(fname, ("AUTO", ""))
+            print(f"    [{tag:4s}] {fname:40s} {desc}")
+        print()
+
     # ── Step 4b: Auto-detect dataset + disease + cross-sectional ─────
     # Infer codebook, phenotype spec, and study design from data
     _csv_stem = Path(user_input_csv).stem.lower() if user_input_csv else ""

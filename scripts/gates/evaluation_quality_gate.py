@@ -36,6 +36,18 @@ register_remediations({
     "baseline_delta_insufficient": "Model does not improve enough over baseline. Review model architecture or features.",
     "resamples_below_minimum": "Increase bootstrap resamples to at least the configured minimum.",
     "non_finite_metric_in_artifact": "Remove NaN/Inf values from evaluation artifact. Check computation pipeline.",
+    "ci_matrix_not_passed": (
+        "CI matrix report status must be pass. Re-run ci_matrix_gate.py in non-strict mode "
+        "first, then fix warnings before running in strict mode."
+    ),
+    "missing_ci_method": (
+        "Confidence interval method must be declared in evaluation_report.metadata.confidence_intervals.method. "
+        "Add: {\"method\": \"stratified_bootstrap\", \"n_resamples\": 1000, \"confidence_level\": 0.95}"
+    ),
+    "insufficient_ci_resamples": (
+        "Bootstrap resample count is below required minimum. "
+        "Re-run training with --bootstrap-resamples 1000 --ci-bootstrap-resamples 1000."
+    ),
 })
 
 
