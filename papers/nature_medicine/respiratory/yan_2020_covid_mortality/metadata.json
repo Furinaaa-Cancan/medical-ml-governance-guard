@@ -10,6 +10,15 @@
     "url": "",
     "pdf_filename": "paper.pdf"
   },
+  "code": {
+    "github_url": "https://github.com/HAIRLAB/Pre_Surv_COVID_19",
+    "language": "Python",
+    "framework": "XGBoost/scikit-learn",
+    "has_training_pipeline": true,
+    "has_preprocessing": true,
+    "has_evaluation": true,
+    "verified_date": "2026-04-11"
+  },
   "study_design": {
     "prediction_type": "binary_classification",
     "outcome": "COVID-19 in-hospital mortality",

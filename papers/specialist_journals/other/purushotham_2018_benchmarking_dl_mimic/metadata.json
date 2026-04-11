@@ -1,0 +1,114 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "Benchmarking deep learning models on large healthcare datasets",
+    "authors": ["Purushotham S", "Meng C", "Che Z", "Liu Y"],
+    "journal": "Journal of Biomedical Informatics",
+    "year": 2018,
+    "doi": "10.1016/j.jbi.2018.04.007",
+    "pmid": "29879470",
+    "url": "",
+    "pdf_filename": "paper.pdf"
+  },
+  "code": {
+    "github_url": "https://github.com/USC-Melady/Benchmarking_DL_MIMICIII",
+    "language": "Python",
+    "framework": "Keras/TensorFlow",
+    "has_training_pipeline": true,
+    "has_preprocessing": true,
+    "has_evaluation": true,
+    "verified_date": "2026-04-11"
+  },
+  "study_design": {
+    "prediction_type": "binary_classification",
+    "outcome": "Mortality prediction + LOS + ICD-9 code prediction",
+    "prediction_unit": "patient",
+    "prediction_horizon": "during ICU stay",
+    "setting": "ICU",
+    "study_period_start": 2001,
+    "study_period_end": 2012,
+    "is_multicenter": false,
+    "has_external_validation": false,
+    "external_cohort_description": ""
+  },
+  "dataset": {
+    "source_type": "public_dataset",
+    "source_name": "MIMIC-III",
+    "n_patients_total": null,
+    "n_events_positive": null,
+    "n_events_negative": null,
+    "prevalence_pct": null,
+    "split_strategy": "random",
+    "train_n": null,
+    "valid_n": null,
+    "test_n": null,
+    "features_n": null,
+    "has_missing_data": true,
+    "missing_data_strategy": "multiple strategies compared"
+  },
+  "model": {
+    "model_type": "deep_learning",
+    "n_candidate_models": 5,
+    "selection_criterion": "comparison of GRU, LSTM, feedforward, super learner, etc.",
+    "hyperparameter_tuning": "grid search",
+    "tuning_set": "validation_only",
+    "feature_selection_method": "clinical variables",
+    "preprocessing_pipeline": "Python scripts in repo"
+  },
+  "performance_metrics": {
+    "primary_metric": "auroc",
+    "test_auroc": null,
+    "test_auroc_ci_lower": null,
+    "test_auroc_ci_upper": null,
+    "test_auprc": null,
+    "test_sensitivity": null,
+    "test_specificity": null,
+    "test_ppv": null,
+    "test_npv": null,
+    "test_f1": null,
+    "test_brier_score": null,
+    "calibration_method": "",
+    "calibration_reported": false,
+    "dca_reported": false,
+    "bootstrap_ci_reported": false,
+    "n_bootstrap_resamples": null,
+    "external_auroc": null,
+    "external_auroc_ci_lower": null,
+    "external_auroc_ci_upper": null
+  },
+  "reporting_standards": {
+    "tripod_ai_claimed": false,
+    "probast_ai_claimed": false,
+    "stard_ai_claimed": false,
+    "equator_guideline_cited": "",
+    "limitation_section": true,
+    "code_availability": "public_github",
+    "data_availability": "restricted"
+  },
+  "leakage_risk_assessment": {
+    "patient_level_split_confirmed": null,
+    "temporal_split_confirmed": null,
+    "preprocessing_fit_on_train_only": null,
+    "tuning_used_test_data": null,
+    "target_leakage_risk": "cannot_assess",
+    "post_index_feature_risk": "cannot_assess",
+    "phenotype_definition_overlap_risk": "cannot_assess",
+    "notes": "TO BE VERIFIED VIA CODE SCAN."
+  },
+  "mlgg_audit": {
+    "audit_run_date": null,
+    "mlgg_total_score": null,
+    "mlgg_grade": null,
+    "gates_passed": null,
+    "gates_failed": null,
+    "gates_missing": null,
+    "conformance_level": null,
+    "top_gaps": []
+  },
+  "reviewer_notes": {
+    "added_by": "mlgg_team",
+    "added_date": "2026-04-11",
+    "priority": "high",
+    "notes": "CODE SCAN TARGET. USC Melady Lab MIMIC-III deep learning benchmark. Multiple model architectures at USC-Melady/Benchmarking_DL_MIMICIII."
+  }
+}

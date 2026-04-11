@@ -1,21 +1,30 @@
 {
   "_template_version": "1.0.0",
   "bibliographic": {
-    "title": "Readmission prediction via deep contextual embedding of clinical concepts",
-    "authors": ["Xiao C", "Ma T", "Dieng AB", "Blei DM", "Wang F"],
-    "journal": "PLoS ONE",
-    "year": 2018,
-    "doi": "10.1371/journal.pone.0195024",
-    "pmid": "29630604",
+    "title": "BEHRT: Transformer for Electronic Health Records",
+    "authors": ["Li Y", "Rao S", "Solares JRA", "Hassaine A", "Ramakrishnan R", "Canoy D", "Zhu Y", "Rahimi K", "Salimi-Khorshidi G"],
+    "journal": "Scientific Reports",
+    "year": 2020,
+    "doi": "10.1038/s41598-020-62922-y",
+    "pmid": "32273507",
     "url": "",
     "pdf_filename": "paper.pdf"
   },
+  "code": {
+    "github_url": "https://github.com/deepmedicine/BEHRT",
+    "language": "Python",
+    "framework": "PyTorch",
+    "has_training_pipeline": true,
+    "has_preprocessing": true,
+    "has_evaluation": true,
+    "verified_date": "2026-04-11"
+  },
   "study_design": {
     "prediction_type": "binary_classification",
-    "outcome": "Hospital readmission in congestive heart failure patients",
+    "outcome": "Disease prediction across 301 conditions",
     "prediction_unit": "patient",
-    "prediction_horizon": "30 days",
-    "setting": "Inpatient",
+    "prediction_horizon": "future disease onset",
+    "setting": "EHR longitudinal",
     "study_period_start": null,
     "study_period_end": null,
     "is_multicenter": false,
@@ -23,32 +32,32 @@
     "external_cohort_description": ""
   },
   "dataset": {
-    "source_type": "mixed",
-    "source_name": "Real-world CHF cohort + synthetic patients",
-    "n_patients_total": 8393,
+    "source_type": "EHR_single_center",
+    "source_name": "Clinical Practice Research Datalink (CPRD)",
+    "n_patients_total": 1600000,
     "n_events_positive": null,
     "n_events_negative": null,
     "prevalence_pct": null,
     "split_strategy": "random",
-    "train_n": 2000,
-    "valid_n": 500,
-    "test_n": 500,
+    "train_n": null,
+    "valid_n": null,
+    "test_n": null,
     "features_n": null,
-    "has_missing_data": null,
-    "missing_data_strategy": ""
+    "has_missing_data": false,
+    "missing_data_strategy": "discrete code sequences (no continuous features)"
   },
   "model": {
     "model_type": "deep_learning",
     "n_candidate_models": 1,
-    "selection_criterion": "TopicRNN hybrid topic-recurrent neural network",
+    "selection_criterion": "BERT-based transformer adapted for EHR",
     "hyperparameter_tuning": "not reported",
-    "tuning_set": "validation_only",
-    "feature_selection_method": "clinical codes embedded as concept vectors",
-    "preprocessing_pipeline": "embeddings likely trained on full data"
+    "tuning_set": "not_reported",
+    "feature_selection_method": "all diagnosis codes",
+    "preprocessing_pipeline": "Python scripts in repo"
   },
   "performance_metrics": {
     "primary_metric": "auroc",
-    "test_auroc": 0.6103,
+    "test_auroc": null,
     "test_auroc_ci_lower": null,
     "test_auroc_ci_upper": null,
     "test_auprc": null,
@@ -73,18 +82,18 @@
     "stard_ai_claimed": false,
     "equator_guideline_cited": "",
     "limitation_section": true,
-    "code_availability": "not_mentioned",
+    "code_availability": "public_github",
     "data_availability": "restricted"
   },
   "leakage_risk_assessment": {
     "patient_level_split_confirmed": null,
-    "temporal_split_confirmed": false,
-    "preprocessing_fit_on_train_only": false,
-    "tuning_used_test_data": false,
-    "target_leakage_risk": "medium",
-    "post_index_feature_risk": "low",
-    "phenotype_definition_overlap_risk": "low",
-    "notes": "MULTIPLE ISSUES. Synthetic data mixed with real patients — methodologically questionable. Embeddings likely trained on full data. Modest AUC (0.61) barely above random. No calibration, no CI, no temporal validation, no external validation. Clinical utility unclear."
+    "temporal_split_confirmed": null,
+    "preprocessing_fit_on_train_only": null,
+    "tuning_used_test_data": null,
+    "target_leakage_risk": "cannot_assess",
+    "post_index_feature_risk": "cannot_assess",
+    "phenotype_definition_overlap_risk": "cannot_assess",
+    "notes": "TO BE VERIFIED VIA CODE SCAN."
   },
   "mlgg_audit": {
     "audit_run_date": null,
@@ -100,6 +109,6 @@
     "added_by": "mlgg_team",
     "added_date": "2026-04-11",
     "priority": "medium",
-    "notes": "METHODOLOGICAL ISSUES. Synthetic data mixing, poor AUC (0.61), no calibration, no CI. MLGG should flag multiple gates: leakage_gate, calibration_dca_gate, ci_matrix_gate, evaluation_quality_gate, sample_size_gate."
+    "notes": "CODE SCAN TARGET. BERT for EHR (Oxford Deep Medicine). 1.6M patients. Code at deepmedicine/BEHRT."
   }
 }
