@@ -50,7 +50,10 @@ import time
 import unicodedata
 import urllib.parse
 import urllib.request
-import xml.etree.ElementTree as ET
+try:
+    import defusedxml.ElementTree as ET  # type: ignore[import-untyped]
+except ImportError:
+    import xml.etree.ElementTree as ET  # fallback; treat external XML as untrusted
 from datetime import date
 from pathlib import Path
 from typing import Any

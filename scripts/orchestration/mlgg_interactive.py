@@ -1102,7 +1102,7 @@ def run_auto_split(
         return train_path, valid_path, test_path, cmd
 
     print(f"\n[INFO] Running auto-split: {shlex.join(cmd)}")
-    proc = subprocess.run(cmd, text=True)
+    proc = subprocess.run(cmd, text=True, timeout=3600)
     if proc.returncode != 0:
         raise ValueError("Auto-split failed. Check error messages above.")
     if not Path(train_path).exists() or not Path(valid_path).exists() or not Path(test_path).exists():
@@ -1907,7 +1907,7 @@ def main() -> int:
         print("[INFO] Cancelled by user.")
         return 0
 
-    proc = subprocess.run(cmd, cwd=str(cwd), text=True)
+    proc = subprocess.run(cmd, cwd=str(cwd), text=True, timeout=7200)
     return int(proc.returncode)
 
 

@@ -52,7 +52,10 @@ import sys
 import time
 import urllib.parse
 import urllib.request
-import xml.etree.ElementTree as ET
+try:
+    import defusedxml.ElementTree as ET  # type: ignore[import-untyped]
+except ImportError:
+    import xml.etree.ElementTree as ET  # fallback; treat external XML as untrusted
 from datetime import date
 from pathlib import Path
 from typing import Any, Optional
@@ -433,6 +436,7 @@ def extract_with_deepseek(
     paper_text: str,
     paper_id: str,
     model: str = "deepseek-chat",
+    _retries: int = 5,
 ) -> ExtractionResult | None:
     """Call DeepSeek via OpenAI-compatible API with JSON mode."""
     schema_text = _extraction_schema_text()
@@ -462,10 +466,10 @@ def extract_with_deepseek(
         return None
     except Exception as exc:
         msg = str(exc)
-        if "429" in msg or "rate" in msg.lower():
-            log.warning("[%s] Rate limited, waiting 30s…", paper_id)
+        if ("429" in msg or "rate" in msg.lower()) and _retries > 0:
+            log.warning("[%s] Rate limited, waiting 30s… (%d retries left)", paper_id, _retries)
             time.sleep(30)
-            return extract_with_deepseek(client, paper_text, paper_id, model)
+            return extract_with_deepseek(client, paper_text, paper_id, model, _retries=_retries - 1)
         log.error("[%s] DeepSeek extraction failed: %s", paper_id, exc)
         return None
 
@@ -478,6 +482,7 @@ def extract_with_claude(
     paper_text: str,
     paper_id: str,
     model: str = "claude-opus-4-6",
+    _retries: int = 3,
 ) -> ExtractionResult | None:
     """Call Claude with adaptive thinking + structured output. Returns None on failure."""
     anthropic = _anthropic_mod
@@ -501,9 +506,12 @@ def extract_with_claude(
         log.error("[%s] Bad request: %s", paper_id, exc)
         return None
     except anthropic.RateLimitError:
-        log.warning("[%s] Rate limited, waiting 60s…", paper_id)
-        time.sleep(60)
-        return extract_with_claude(client, paper_text, paper_id, model)
+        if _retries > 0:
+            log.warning("[%s] Rate limited, waiting 60s… (%d retries left)", paper_id, _retries)
+            time.sleep(60)
+            return extract_with_claude(client, paper_text, paper_id, model, _retries=_retries - 1)
+        log.error("[%s] Rate limit retries exhausted", paper_id)
+        return None
     except Exception as exc:
         log.error("[%s] Claude extraction failed: %s", paper_id, exc)
         return None

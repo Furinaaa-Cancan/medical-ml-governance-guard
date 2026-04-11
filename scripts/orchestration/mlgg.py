@@ -604,6 +604,31 @@ def main() -> int:
             return 0
         return _run_subprocess(cmd, cwd)
 
+    # Built-in commands that don't dispatch to a script
+    if subcommand == "flow":
+        print("""
+  MLGG Pipeline Flow — Recommended execution order
+
+  ┌─────────────────────────────────────────────────────┐
+  │ 1. mlgg doctor          Check Python + dependencies │
+  │ 2. mlgg init            Create project scaffold     │
+  │ 3. mlgg split           Split CSV → train/valid/test│
+  │ 4. mlgg train           Train + evaluate models     │
+  │ 5. mlgg strict          Run 33-gate DAG pipeline    │
+  │ 6. mlgg summary         Human-readable results      │
+  └─────────────────────────────────────────────────────┘
+
+  Or use the all-in-one command:
+    mlgg onboarding --input-csv data.csv --target-col y
+
+  Show gate dependency DAG:
+    mlgg strict --show-dag
+
+  Diagnose a gate failure:
+    python3 scripts/tools/explain_gate.py --report evidence/<gate>_report.json
+""")
+        return 0
+
     script_path, _ = COMMANDS[subcommand]
     if not script_path.exists():
         return emit_fail(
