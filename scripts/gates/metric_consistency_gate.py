@@ -157,6 +157,10 @@ def is_auxiliary_metric_path(path: str) -> bool:
         "uncertainty",
         "threshold_selection",
         "metadata",
+        "subgroup_performance",
+        "subgroups",
+        "error_analysis",
+        "feature_ablation",
     }
     return any(token in auxiliary_tokens for token in tokens)
 

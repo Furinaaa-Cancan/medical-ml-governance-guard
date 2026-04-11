@@ -561,8 +561,10 @@ def align_demo_configs(
             }
             write_json(configs / "feature_group_spec.json", feature_group)
 
+            # Raw features have no ancestors (they are source variables).
+            # Setting ancestors=[self] creates self-cycles that fail feature_lineage_gate.
             feature_lineage = {
-                "features": {col: {"ancestors": [col]} for col in feature_cols}
+                "features": {col: {"ancestors": []} for col in feature_cols}
             }
             write_json(configs / "feature_lineage.json", feature_lineage)
 
