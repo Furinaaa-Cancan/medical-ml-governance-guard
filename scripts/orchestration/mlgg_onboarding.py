@@ -1189,12 +1189,14 @@ def main() -> int:
     # Step 3 demo data or user data split
     user_input_csv = str(getattr(args, "input_csv", "") or "").strip()
     if user_input_csv:
+        # Resolve to absolute path BEFORE any cwd changes
+        _abs_input_csv = str(Path(user_input_csv).expanduser().resolve())
         # User-data mode: split their CSV instead of generating demo data
         split_report = evidence_dir / "split_report.json"
         split_cmd = [
             python_bin,
             str(SCRIPTS_ROOT / "tools/split_data.py"),
-            "--input", user_input_csv,
+            "--input", _abs_input_csv,
             "--output-dir", str(project_root / "data"),
             "--patient-id-col", str(getattr(args, "patient_id_col", "patient_id")),
             "--target-col", str(getattr(args, "target_col", "y")),
@@ -1282,6 +1284,149 @@ def main() -> int:
     )
     if not should_continue(ok):
         return finish("fail")
+
+    # ── Step 4b: Auto-detect dataset + disease + cross-sectional ─────
+    # Infer codebook, phenotype spec, and study design from data
+    _csv_stem = Path(user_input_csv).stem.lower() if user_input_csv else ""
+    _codebook_registry = REPO_ROOT / "references" / "dataset-codebook-registry.json"
+    _codebook_dir = REPO_ROOT / "references" / "nhanes_codebook"
+
+    # Auto-detect dataset for codebook RAG
+    _DS_PATTERNS = {"nhanes": "nhanes_2017_2020", "brfss": "brfss_2022",
+                    "nhis": "nhis_2022", "mimic": "mimic_iv"}
+    _detected_dataset = ""
+    for pat, key in _DS_PATTERNS.items():
+        if pat in _csv_stem:
+            _detected_dataset = key
+            break
+
+    # Auto-detect disease from filename or target column
+    _DISEASE_PATTERNS = {"diabetes": "type_2_diabetes", "heart": "coronary_heart_disease",
+                         "ckd": "chronic_kidney_disease", "stroke": "stroke",
+                         "sepsis": "sepsis", "readmission": "readmission_30day"}
+    _detected_disease = ""
+    for pat, disease in _DISEASE_PATTERNS.items():
+        if pat in _csv_stem:
+            _detected_disease = disease
+            break
+
+    # Auto-detect cross-sectional (no time column)
+    _is_cross_sectional = not _user_time_col or _user_time_col == "_no_time_column"
+
+    # Find or generate phenotype spec
+    _phenotype_spec = ""
+    if _detected_disease:
+        # Check for dataset-specific phenotype spec
+        _candidates = [
+            REPO_ROOT / "examples" / f"{_csv_stem}_phenotype_spec.json",
+            project_root / "configs" / "phenotype_definitions.json",
+        ]
+        for cand in _candidates:
+            if cand.exists():
+                _phenotype_spec = str(cand)
+                break
+
+    if _detected_dataset or _detected_disease or _is_cross_sectional:
+        print(f"  [AUTO-DETECT] dataset={_detected_dataset or 'unknown'}, "
+              f"disease={_detected_disease or 'unknown'}, "
+              f"cross_sectional={_is_cross_sectional}")
+
+    # Run codebook RAG + definition_variable_guard as pre-train check
+    if user_input_csv and (project_root / "data" / "train.csv").exists():
+        _pretrain_gates = []
+
+        # 4b-1: Cohort definition gate with codebook RAG
+        _cohort_cmd = [
+            python_bin,
+            str(SCRIPTS_ROOT / "gates/cohort_definition_gate.py"),
+            "--data", str(project_root / "data" / "train.csv"),
+            "--target-col", _user_target_col,
+            "--id-col", _user_pid_col,
+            "--report", str(evidence_dir / "cohort_definition_report.json"),
+            "--output-dir", str(evidence_dir),
+        ]
+        if _detected_dataset and _codebook_registry.exists():
+            _cohort_cmd.extend(["--codebook", str(_codebook_registry),
+                                "--codebook-dataset", _detected_dataset])
+        if _detected_dataset:
+            _cohort_cmd.extend(["--survey-source", _detected_dataset.split("_")[0]])
+        _pretrain_gates.append(("cohort_definition_gate (codebook RAG)", _cohort_cmd))
+
+        # 4b-2: Definition variable guard with phenotype spec
+        if _phenotype_spec:
+            # Match target name to what's in the phenotype spec
+            _def_target = _detected_disease or "disease"
+            try:
+                with open(_phenotype_spec) as _pf:
+                    _pspec = json.load(_pf)
+                _spec_targets = list(_pspec.get("targets", {}).keys())
+                if _spec_targets:
+                    # Use exact spec target; if detected disease is a substring match, use it
+                    _matched = [t for t in _spec_targets if _detected_disease.replace("type_2_", "") in t]
+                    _def_target = _matched[0] if _matched else _spec_targets[0]
+            except Exception:
+                pass
+            _def_cmd = [
+                python_bin,
+                str(SCRIPTS_ROOT / "gates/definition_variable_guard.py"),
+                "--target", _def_target,
+                "--definition-spec", _phenotype_spec,
+                "--train", str(project_root / "data" / "train.csv"),
+                "--target-col", _user_target_col,
+                "--ignore-cols", f"{_user_pid_col},{_user_time_col}".rstrip(","),
+                "--report", str(evidence_dir / "definition_variable_report.json"),
+                "--strict",
+            ]
+            if (project_root / "data" / "valid.csv").exists():
+                _def_cmd.extend(["--valid", str(project_root / "data" / "valid.csv")])
+            if (project_root / "data" / "test.csv").exists():
+                _def_cmd.extend(["--test", str(project_root / "data" / "test.csv")])
+            _pretrain_gates.append(("definition_variable_guard (phenotype spec)", _def_cmd))
+
+        # 4b-3: Leakage gate
+        _leak_cmd = [
+            python_bin,
+            str(SCRIPTS_ROOT / "gates/leakage_gate.py"),
+            "--train", str(project_root / "data" / "train.csv"),
+            "--test", str(project_root / "data" / "test.csv"),
+            "--id-cols", _user_pid_col,
+            "--target-col", _user_target_col,
+            "--report", str(evidence_dir / "leakage_report.json"),
+            "--strict",
+        ]
+        if (project_root / "data" / "valid.csv").exists():
+            _leak_cmd.extend(["--valid", str(project_root / "data" / "valid.csv")])
+        _pretrain_gates.append(("leakage_gate (S01 patient isolation)", _leak_cmd))
+
+        for gate_label, gate_cmd in _pretrain_gates:
+            ok = run_command_step(
+                name=f"step4b_{gate_label.split()[0]}",
+                description=f"Pre-train gate: {gate_label}",
+                command=gate_cmd,
+                cwd=project_root,
+                mode=mode,
+                auto_yes=auto_yes,
+                steps=step_rows,
+                expected_artifacts=[],
+            )
+            if not ok and not getattr(args, "no_stop_on_fail", False):
+                print(f"  [BLOCK] {gate_label} FAILED. Fix issues before training.", file=sys.stderr)
+                return finish("fail")
+
+    # Update request.json with detected context
+    _req_path = project_root / "configs" / "request.json"
+    if _req_path.exists():
+        try:
+            _req = load_json(str(_req_path))
+            if _is_cross_sectional:
+                _req["cross_sectional"] = True
+            if _detected_disease:
+                _req["detected_disease"] = _detected_disease
+            if _detected_dataset:
+                _req["detected_dataset"] = _detected_dataset
+            write_json(_req_path, _req)
+        except Exception:
+            pass
 
     # Step 5 train
     train_cmd, train_outputs = build_train_command(
