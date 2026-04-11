@@ -331,7 +331,11 @@ def generate_certificate(
 ) -> int:
     """Generate an MLGG compliance certificate from gate reports."""
     now = datetime.now(timezone.utc)
-    expiry = now.replace(year=now.year + CERTIFICATE_EXPIRY_YEARS)
+    # Safe year addition: handles Feb 29 → Feb 28 for non-leap target years
+    try:
+        expiry = now.replace(year=now.year + CERTIFICATE_EXPIRY_YEARS)
+    except ValueError:
+        expiry = now.replace(year=now.year + CERTIFICATE_EXPIRY_YEARS, day=28)
 
     # Load request.json for study metadata
     study_meta: Dict[str, Any] = {}

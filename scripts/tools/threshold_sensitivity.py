@@ -195,11 +195,25 @@ def simulate_policy(
     metrics: List[Dict[str, Any]],
     factor: float,
 ) -> List[Dict[str, Any]]:
-    """Re-evaluate metrics under a scaled threshold (factor * original)."""
+    """Re-evaluate metrics under a scaled threshold.
+
+    For ``factor < 1`` ("tightening"):
+    - ``lower_is_better`` metrics: threshold decreases (harder to pass) — correct
+    - ``higher_is_better`` metrics: threshold increases (harder to pass) — requires 1/factor
+
+    For ``factor > 1`` ("relaxing"):
+    - ``lower_is_better`` metrics: threshold increases (easier to pass) — correct
+    - ``higher_is_better`` metrics: threshold decreases (easier to pass) — requires 1/factor
+    """
     simulated: List[Dict[str, Any]] = []
     for m in metrics:
-        new_threshold = m["threshold"] * factor
-        new_margin = compute_margin(m["value"], new_threshold, m["direction"])
+        direction = m.get("direction", "lower_is_better")
+        if direction == "higher_is_better":
+            # Invert factor: tightening (0.8) → 1/0.8 = 1.25 (raise threshold)
+            new_threshold = m["threshold"] / factor if factor != 0 else m["threshold"]
+        else:
+            new_threshold = m["threshold"] * factor
+        new_margin = compute_margin(m["value"], new_threshold, direction)
         simulated.append({
             **m,
             "threshold": round(new_threshold, 6),

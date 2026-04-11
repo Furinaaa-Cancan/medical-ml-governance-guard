@@ -584,10 +584,10 @@ def compute_dimension_scores(
             )
             assessed = pass_count + fail_count
             if assessed > 0:
-                gate_frac = pass_count / len(gate_sigs)
+                gate_frac = pass_count / assessed
                 frac = 0.4 + 0.6 * gate_frac  # Gates dominate score
-            elif not gate_reports:
-                frac = 0.0  # No evidence = zero
+            elif assessed == 0:
+                frac = 0.0  # No gates assessed for this dimension = zero
 
         # Pattern penalties
         penalty = 0.0
@@ -762,9 +762,9 @@ def render_markdown_report(report: Dict[str, Any]) -> str:
         lines.append("> **Not publishable**: Fundamental flaws detected. Comprehensive rework required.")
     lines.append("")
 
-    # 10-Dimension scores
+    # 12-Dimension scores
     lines += [
-        "## 10-Dimension Scores",
+        "## 12-Dimension Scores",
         "",
         "| # | Dimension | Score | Max | Grade |",
         "|---|-----------|-------|-----|-------|",

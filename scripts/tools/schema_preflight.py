@@ -108,18 +108,23 @@ def missing_ratio(df: pd.DataFrame) -> float:
     return float(df.isna().sum().sum() / total)
 
 
-def split_summary(df: pd.DataFrame, target_col: str, id_col: str, time_col: str) -> Dict[str, Any]:
+def split_summary(df: pd.DataFrame, target_col: str, id_col: str, time_col: Optional[str] = None) -> Dict[str, Any]:
     target, err = parse_binary_target(df[target_col])
-    parsed_time = pd.to_datetime(df[time_col], errors="coerce", utc=True)
     null_patient = int(df[id_col].isna().sum())
     unique_patient = int(df[id_col].nunique(dropna=True))
+    # Time parsing — skip if time_col is None (cross-sectional data)
+    if time_col and time_col in df.columns:
+        parsed_time = pd.to_datetime(df[time_col], errors="coerce", utc=True)
+        time_errors = int(parsed_time.isna().sum())
+    else:
+        time_errors = 0
     stats = {
         "rows": int(df.shape[0]),
         "columns": int(df.shape[1]),
         "missing_ratio": float(missing_ratio(df)),
         "patient_id_null_count": null_patient,
         "patient_id_unique_count": unique_patient,
-        "time_parse_error_count": int(parsed_time.isna().sum()),
+        "time_parse_error_count": time_errors,
         "target_parse_error": err,
     }
     if target is not None and target.size > 0:
@@ -190,8 +195,7 @@ def run_single_file_preflight(
     if time_col:
         required_cols.append(time_col)
     if all(isinstance(x, str) and x for x in required_cols):
-        effective_time_col = str(time_col) if time_col else str(target_col)  # dummy for split_summary signature
-        file_stats = split_summary(df, str(target_col), str(patient_id_col), effective_time_col)
+        file_stats = split_summary(df, str(target_col), str(patient_id_col), time_col)
         file_stats["patient_id_unique_count"] = int(df[str(patient_id_col)].nunique(dropna=True))
 
         if isinstance(file_stats.get("target_parse_error"), str):
@@ -201,7 +205,7 @@ def run_single_file_preflight(
             add_issue(failures, "patient_id_nulls_detected", "Patient ID column contains null values.",
                       {"column": patient_id_col, "null_count": file_stats["patient_id_null_count"]})
         time_err = int(file_stats.get("time_parse_error_count", 0))
-        if time_err > 0:
+        if time_col and time_err > 0:
             add_issue(failures, "index_time_parse_failed", "Index time column contains non-parseable timestamps.",
                       {"column": time_col, "invalid_count": time_err})
         pos_rate = file_stats.get("positive_rate")
@@ -326,11 +330,11 @@ def main() -> int:
     time_col = resolved.get("index_time_col")
 
     split_stats: Dict[str, Any] = {}
-    if all(isinstance(x, str) and x for x in (target_col, patient_id_col, time_col)):
+    if all(isinstance(x, str) and x for x in (target_col, patient_id_col)):
         for split_name, df in (("train", train_df), ("valid", valid_df), ("test", test_df)):
             if df is None:
                 continue
-            stats = split_summary(df, str(target_col), str(patient_id_col), str(time_col))
+            stats = split_summary(df, str(target_col), str(patient_id_col), time_col)
             split_stats[split_name] = stats
             if isinstance(stats.get("target_parse_error"), str):
                 add_issue(
