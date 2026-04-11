@@ -458,7 +458,8 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawTextHelpFormatter,
         allow_abbrev=False,
     )
-    parser.add_argument("subcommand", choices=sorted(COMMANDS.keys()), help="Subcommand to execute.")
+    _all_commands = sorted(set(COMMANDS.keys()) | {"flow", "validate"})
+    parser.add_argument("subcommand", choices=_all_commands, help="Subcommand to execute. Use 'flow' to see the recommended pipeline order.")
     parser.add_argument(
         "--python",
         default=sys.executable,
@@ -605,6 +606,31 @@ def main() -> int:
         return _run_subprocess(cmd, cwd)
 
     # Built-in commands that don't dispatch to a script
+    if subcommand == "validate":
+        # Quick validation of all JSON configs in a project directory
+        _proj = Path(cwd)
+        _configs_dir = _proj / "configs"
+        if not _configs_dir.is_dir():
+            print(f"[ERROR] No configs/ directory found in {_proj}", file=sys.stderr)
+            return 1
+        _errors = 0
+        _checked = 0
+        for _cf in sorted(_configs_dir.glob("*.json")):
+            _checked += 1
+            try:
+                with _cf.open("r", encoding="utf-8") as _fh:
+                    _data = json.load(_fh)
+                if not isinstance(_data, dict):
+                    print(f"  [WARN] {_cf.name}: root is {type(_data).__name__}, expected dict")
+                    _errors += 1
+                else:
+                    print(f"  [OK]   {_cf.name} ({len(_data)} keys)")
+            except json.JSONDecodeError as _e:
+                print(f"  [FAIL] {_cf.name}: {_e}")
+                _errors += 1
+        print(f"\n  Checked: {_checked}, Errors: {_errors}")
+        return 1 if _errors > 0 else 0
+
     if subcommand == "flow":
         print("""
   MLGG Pipeline Flow — Recommended execution order
