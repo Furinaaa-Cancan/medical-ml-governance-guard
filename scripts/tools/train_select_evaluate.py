@@ -1674,8 +1674,9 @@ def build_imputer(
     """
     if imputation_strategy == "mice":
         # MICE (Multiple Imputation by Chained Equations) via IterativeImputer.
-        # Ref: van Buuren 2018 (Flexible Imputation of Missing Data, Ch.4);
-        #      White et al., Stat Med 2011.
+        # Ref: van Buuren 2018, Flexible Imputation of Missing Data 2nd ed.,
+        #      Ch.4 (Multivariate Missing Data), §4.5.6 (Number of iterations);
+        #      White IR, Royston P, Wood AM. Stat Med 2011;30:377-399.
         #
         # max_iter=50: van Buuren recommends 50-100 for convergence with >10%
         #   missing. sklearn default (10) and our previous 20 produced
