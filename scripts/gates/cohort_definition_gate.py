@@ -417,15 +417,26 @@ def _find_columns_for_var(
 ) -> List[str]:
     """Find DataFrame columns that likely correspond to a codebook variable.
 
-    Matches by: exact var_code, lowercase label words, or known friendly names.
+    Matches by (in priority order):
+    1. Exact var_code match
+    2. Known friendly-name mappings
+    3. Label-based matching (SAS label words → column name)
     """
     matches = []
-    var_lower = var_code.lower()
-    label_lower = var_info.get("label", "").lower()
 
     # Exact match on raw code
     if var_code in col_set:
         matches.append(var_code)
+
+    # Label-based matching: if SAS label (underscored) matches a column name
+    label = var_info.get("label", "")
+    if label:
+        label_normalized = label.lower().replace(" ", "_").replace("-", "_")
+        # Check: does any column match the normalized label?
+        for col in col_set:
+            col_lower = col.lower()
+            if col_lower == label_normalized and col not in matches:
+                matches.append(col)
 
     # Common friendly-name mappings from download_nhanes.py
     _FRIENDLY_MAP = {
