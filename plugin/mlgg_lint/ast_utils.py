@@ -67,13 +67,14 @@ def call_name(node: ast.Call, im: ImportMap) -> Optional[str]:
 
 
 def _attr_chain(node: ast.expr) -> Optional[str]:
-    """``a.b.c`` -> ``"a.b.c"``."""
+    """``a.b.c`` -> ``"a.b.c"``.  Iterative to avoid RecursionError on deep nesting."""
+    parts: list[str] = []
+    while isinstance(node, ast.Attribute):
+        parts.append(node.attr)
+        node = node.value
     if isinstance(node, ast.Name):
-        return node.id
-    if isinstance(node, ast.Attribute):
-        parent = _attr_chain(node.value)
-        if parent:
-            return f"{parent}.{node.attr}"
+        parts.append(node.id)
+        return ".".join(reversed(parts))
     return None
 
 
@@ -171,7 +172,8 @@ class TaintTracker:
         if t in ("test", "valid"):
             return True
         # F4: Fallback to name heuristic for variables not tracked via split
-        if t is None:
+        # or with "unknown" taint (e.g., from `splits = train_test_split(...)`)
+        if t is None or t == "unknown":
             cls = classify_var_name(name)
             return cls in ("test", "valid")
         return False

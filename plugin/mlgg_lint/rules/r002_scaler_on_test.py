@@ -58,7 +58,9 @@ class ScalerOnTest(BaseRule):
                 continue
             arg_name = get_call_first_arg_name(node)
             if arg_name and self.taint.is_test_or_valid(arg_name):
-                taint = classify_var_name(arg_name)
+                # Use tracked taint first (handles aliases like data = X_test),
+                # fall back to name heuristic
+                taint = self.taint.get_taint(arg_name) or classify_var_name(arg_name)
                 label = "test" if taint == "test" else "validation"
                 self.report(
                     node,

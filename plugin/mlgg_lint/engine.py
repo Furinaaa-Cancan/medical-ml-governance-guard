@@ -123,21 +123,21 @@ def _build_taint_tracker(tree: ast.Module, im: ImportMap) -> TaintTracker:
     # Only propagates from already-tainted variables (single level).
     from mlgg_lint.ast_utils import classify_var_name
     for node in ast.walk(tree):
-        if isinstance(node, ast.Assign) and len(node.targets) == 1:
-            target = node.targets[0]
-            if isinstance(target, ast.Name):
-                val = node.value
-                # Simple name assignment: data = X_test
-                if isinstance(val, ast.Name):
-                    src_taint = tracker.get_taint(val.id)
-                    if src_taint is None:
-                        src_taint = classify_var_name(val.id)
-                    if src_taint:
-                        tracker.record_assignment(target.id, src_taint)
-                # Subscript: data = df[X_test] or data = splits[0]
-                elif isinstance(val, ast.Subscript) and isinstance(val.value, ast.Name):
-                    src_taint = tracker.get_taint(val.value.id)
-                    if src_taint:
+        if isinstance(node, ast.Assign):
+            val = node.value
+            # Resolve source taint from the RHS
+            src_taint = None
+            if isinstance(val, ast.Name):
+                src_taint = tracker.get_taint(val.id)
+                if src_taint is None:
+                    src_taint = classify_var_name(val.id)
+            elif isinstance(val, ast.Subscript) and isinstance(val.value, ast.Name):
+                src_taint = tracker.get_taint(val.value.id)
+
+            if src_taint:
+                # Propagate to ALL targets (handles `a = b = X_test`)
+                for target in node.targets:
+                    if isinstance(target, ast.Name):
                         tracker.record_assignment(target.id, src_taint)
 
     return tracker
@@ -232,8 +232,19 @@ def analyze_file(
             )
         ]
 
-    im = build_import_map(tree)
-    taint = _build_taint_tracker(tree, im)
+    try:
+        im = build_import_map(tree)
+        taint = _build_taint_tracker(tree, im)
+    except RecursionError:
+        return [
+            Diagnostic(
+                rule_id="E000",
+                rule_name="recursion-limit",
+                severity=Severity.ERROR,
+                message="AST too deeply nested (possible adversarial input). Skipping analysis.",
+                location=Location(file=_display_path(file_path), line=0, col=0),
+            )
+        ]
     noqa_map = _build_noqa_map(source)
 
     threshold = SEVERITY_ORDER.get(config.severity_threshold, 2)
@@ -247,7 +258,18 @@ def analyze_file(
             import_map=im,
             taint_tracker=taint,
         )
-        found = rule.check(tree)
+        try:
+            found = rule.check(tree)
+        except RecursionError:
+            found = [
+                Diagnostic(
+                    rule_id=rule_cls.id,
+                    rule_name=f"{rule_cls.name}-recursion",
+                    severity=Severity.ERROR,
+                    message=f"Rule {rule_cls.id} hit recursion limit on deeply nested AST.",
+                    location=Location(file=display, line=0, col=0),
+                )
+            ]
         for diag in found:
             if SEVERITY_ORDER.get(str(diag.severity), 2) <= threshold:
                 if not _is_suppressed(diag.location.line, diag.rule_id, noqa_map):

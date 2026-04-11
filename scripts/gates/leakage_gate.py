@@ -121,12 +121,29 @@ def parse_comma_set(raw: str) -> Set[str]:
     return {x.strip() for x in raw.split(",") if x.strip()}
 
 
-def row_signature(row: Dict[str, str], ignore_cols: Set[str]) -> str:
+def row_signature(
+    row: Dict[str, str],
+    ignore_cols: Set[str],
+    restrict_cols: Optional[Set[str]] = None,
+) -> str:
+    """Hash a CSV row into a deterministic signature.
+
+    Uses length-prefixed encoding to prevent delimiter injection:
+    each field is encoded as ``len(col):col:len(val):val`` so that
+    no combination of column names and values can produce a collision.
+
+    Args:
+        restrict_cols: If provided, only hash these columns (used when
+            splits have mismatched schemas to ensure comparable hashes).
+    """
     parts = []
     for col in sorted(row.keys()):
         if col in ignore_cols:
             continue
-        parts.append(f"{col}={row.get(col, '')}")
+        if restrict_cols is not None and col not in restrict_cols:
+            continue
+        val = row.get(col, "")
+        parts.append(f"{len(col)}:{col}:{len(val)}:{val}")
     payload = "\x1f".join(parts).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
 
@@ -248,10 +265,13 @@ def main() -> int:
         )
 
     # Row overlap.
+    # When columns differ between splits, restrict hashing to shared columns
+    # so that extra columns don't defeat the overlap check.
+    restrict = intersection_cols - ignore_cols if union_cols != intersection_cols else None
     signature_sets: Dict[str, Set[str]] = {}
     for split_name, split in splits.items():
         signature_sets[split_name] = {
-            row_signature(row, ignore_cols)
+            row_signature(row, ignore_cols, restrict_cols=restrict)
             for row in split["rows"]
         }
 
