@@ -5864,76 +5864,18 @@ def _phase0_preflight_and_config(args: argparse.Namespace) -> Dict[str, Any]:
     }
 
 
-def main() -> int:
-    """Entry point for the train-select-evaluate pipeline.
+def _phase1_data_loading(ctx: Dict[str, Any]) -> None:
+    """Phase 1: Load splits, resolve feature columns, apply group filtering.
 
-    Orchestrates 10 phases:
-
-    Phase 0: PREFLIGHT & CONFIG (args validation, policy loading)
-      Outputs: args, policy, beta, thresholds, calibration/selection config
-    Phase 1: DATA LOADING (splits, feature columns)
-      Outputs: train/valid/test_df, X/y arrays, has_valid, has_test
-    Phase 2: FEATURE ENGINEERING (filter, stability, VIF, encoding)
-      Outputs: selected_features, stage1_report, categorical_report
-    Phase 3: IMBALANCE PROBE (strategy selection)
-      Outputs: selected_imbalance_strategy, effective_class_weight
-    Phase 4: CANDIDATE POOL (build + CV score)
-      Outputs: candidates, candidate_rows, estimator_map
-    Phase 5: MODEL SELECTION (one-SE rule + fit)
-      Outputs: selected_model_id, selected_estimator
-    Phase 6: THRESHOLD & CALIBRATION
-      Outputs: calibrator, selected_threshold, threshold_info
-    Phase 7: EVALUATION (metrics + bootstrap CI)
-      Outputs: train/valid/test_metrics, all_metric_ci
-    Phase 8: DIAGNOSTICS (optimism correction, baselines, learning curve)
-      Outputs: model_selection_report, prevalence/logistic baselines
-    Phase 9: OVERFITTING CALLBACK [MUTATES 17 VARS]
-      May reassign: selected_estimator, calibrator, threshold, metrics, probas
-    Phase 10+: REPORTS & OUTPUT (external, robustness, seed, file writes)
-
-    Returns:
-        Exit code (0 for success).
-
-    Raises:
-        SystemExit: On invalid arguments or data issues.
-        ValueError: On data validation failures (e.g., empty splits).
+    Reads from ctx: args, feature_group_spec, threshold_selection_split,
+                    calibration_fit_split
+    Writes to ctx:  train_df, valid_df, test_df, groups, forbidden_features,
+                    stage0_features, ignore_cols, base_feature_cols
+    May update:     threshold_selection_split, calibration_fit_split (if no valid split)
     """
-    configure_runtime_warning_filters()
-    args = parse_args()
+    args = ctx["args"]
+    feature_group_spec = ctx["feature_group_spec"]
 
-    # ═══════════════════════════════════════════════════════════════════════
-    # PHASE 0: PREFLIGHT & CONFIG → _phase0_preflight_and_config()
-    # ═══════════════════════════════════════════════════════════════════════
-    print("[STEP  1/12] Preflight & config...", file=sys.stderr, flush=True)
-    cfg = _phase0_preflight_and_config(args)
-    fast_diagnostic_mode = cfg["fast_diagnostic_mode"]
-    policy = cfg["policy"]
-    missingness_policy = cfg["missingness_policy"]
-    external_spec = cfg["external_spec"]
-    feature_group_spec = cfg["feature_group_spec"]
-    fe_mode_cfg = cfg["fe_mode_cfg"]
-    threshold_policy = cfg["threshold_policy"]
-    clinical_floors = cfg["clinical_floors"]
-    beta = cfg["beta"]
-    sensitivity_floor = cfg["sensitivity_floor"]
-    npv_floor = cfg["npv_floor"]
-    specificity_floor = cfg["specificity_floor"]
-    ppv_floor = cfg["ppv_floor"]
-    calibration_method = cfg["calibration_method"]
-    selection_data = cfg["selection_data"]
-    threshold_selection_split = cfg["threshold_selection_split"]
-    calibration_fit_split = cfg["calibration_fit_split"]
-    model_pool_config = cfg["model_pool_config"]
-
-    # ═══════════════════════════════════════════════════════════════════════
-    # PHASE 1: DATA LOADING
-    # Inputs:  args, feature_group_spec
-    # Outputs: train_df, valid_df, test_df, has_valid, has_test,
-    #          base_feature_cols, stage0_features, ignore_cols,
-    #          groups, forbidden_features, low_mem
-    # ═══════════════════════════════════════════════════════════════════════
-
-    print("[STEP  2/12] Loading data splits...", file=sys.stderr, flush=True)
     train_df = load_split(args.train)
     valid_df = load_split(args.valid) if args.valid and args.valid.strip() else pd.DataFrame()
     test_df = load_split(args.test) if args.test and args.test.strip() else pd.DataFrame()
@@ -5943,11 +5885,12 @@ def main() -> int:
         if str(args.selection_data).strip().lower() == "valid":
             print("  [INFO] No validation split provided. Switching to --selection-data=cv_inner.")
             args.selection_data = "cv_inner"
-        if threshold_selection_split == "valid":
+        if ctx["threshold_selection_split"] == "valid":
             print("  [INFO] No validation split provided. Switching threshold selection to cv_inner.")
-            threshold_selection_split = "cv_inner"
-        if calibration_fit_split == "valid":
-            calibration_fit_split = "cv_inner"
+            ctx["threshold_selection_split"] = "cv_inner"
+        if ctx["calibration_fit_split"] == "valid":
+            ctx["calibration_fit_split"] = "cv_inner"
+
     ignore_cols = parse_ignore_cols(args.ignore_cols, args.target_col, getattr(args, "definition_cols", ""))
     base_feature_cols = select_feature_columns(train_df, ignore_cols)
     groups, forbidden_features = normalize_feature_groups(feature_group_spec)
@@ -5961,21 +5904,31 @@ def main() -> int:
     if not stage0_features:
         raise SystemExit("No usable features remain after feature-group and forbidden-feature filtering.")
 
-    # ═════════��═════════════════════════════════════════════════════════════
-    # PHASE 2: FEATURE ENGINEERING
-    # Inputs:  train_df, stage0_features, args, fe_mode_cfg
-    # Outputs: selected_features, pre_encoding_features, stage1_report,
-    #          categorical_report, stability_frequency, vif_report,
-    #          nonlinearity_report, X_train, X_valid, X_test, y_train,
-    #          y_valid, y_test, has_valid, has_test, external_cohorts
-    # ═══════════════════════════════════════════════════════════════════════
+    ctx.update({
+        "train_df": train_df, "valid_df": valid_df, "test_df": test_df,
+        "groups": groups, "forbidden_features": forbidden_features,
+        "stage0_features": stage0_features, "ignore_cols": ignore_cols,
+        "base_feature_cols": base_feature_cols,
+    })
+
+
+def _phase2_feature_engineering(ctx: Dict[str, Any]) -> None:
+    """Phase 2: Missingness filter, stability selection, encoding, VIF, external cohorts.
+
+    Reads from ctx: train_df, valid_df, test_df, stage0_features, groups,
+                    fe_mode_cfg, external_spec, args
+    Writes to ctx:  X_train, y_train, X_valid, y_valid, X_test, y_test,
+                    has_valid, has_test, selected_features, pre_encoding_features,
+                    stage1_report, categorical_report, external_cohorts
+    """
+    args = ctx["args"]
+    train_df, valid_df, test_df = ctx["train_df"], ctx["valid_df"], ctx["test_df"]
+    stage0_features = list(ctx["stage0_features"])
+    groups = ctx["groups"]
+    fe_mode_cfg = ctx["fe_mode_cfg"]
+    external_spec = ctx["external_spec"]
 
     # ── Train-only missingness check ─────────────────────────────────────
-    # Drop features with extremely high missingness in training data.
-    # NOTE: Previously this checked test/valid missingness too, but that
-    # leaks test-set characteristics into feature selection (M6 code review).
-    # Now uses only train-set missingness: features >95% missing in train
-    # are dropped as unusable regardless of other splits.
     _TRAIN_MISS_THRESHOLD = 0.95
     _features_to_drop: list[str] = []
     for feat in stage0_features:
@@ -6006,11 +5959,7 @@ def main() -> int:
             for col in _df.select_dtypes(include=["int64"]).columns:
                 _df[col] = pd.to_numeric(_df[col], downcast="integer")
 
-
-    # ── Phase 2a: Filter + stability selection ────────────────────────────
-
-
-    print("[STEP  3/12] Feature engineering...", file=sys.stderr, flush=True)
+    # ── Filter + stability selection ────────────────────────────────
     X_train_stage0, y_train = prepare_xy(train_df, stage0_features, args.target_col)
     stage1_features, stage1_report = select_features_by_filter(
         X_train_stage0,
@@ -6059,7 +6008,7 @@ def main() -> int:
     has_test = len(X_test) > 0 and len(y_test) > 0
 
     # Auto-encode detected categorical features (fit on train only, MLGG-P05)
-    pre_encoding_features = list(selected_features)  # preserve raw names for model_pool
+    pre_encoding_features = list(selected_features)
     if categorical_report.get("categorical_count", 0) > 0:
         X_train, X_valid, X_test, selected_features = encode_categorical_features(
             X_train, X_valid, X_test, categorical_report,
@@ -6067,25 +6016,21 @@ def main() -> int:
         print(f"  Categorical encoding: {categorical_report['categorical_count']} features detected, "
               f"now {len(selected_features)} columns after OneHot.")
 
-    # VIF multicollinearity detection (MLGG diagnostic, train only)
+    # VIF multicollinearity detection (train only)
     from _gate_utils import compute_vif, check_nonlinearity
-    # VIF and nonlinearity checks require imputed data (no NaN).
-    # X_train still has NaN here because imputation happens inside the Pipeline.
-    # Use median imputation as a lightweight pre-step for diagnostics only.
     _vif_data = X_train.values if hasattr(X_train, "values") else X_train
     _vif_data = np.where(np.isnan(_vif_data),
                          np.nanmedian(_vif_data, axis=0), _vif_data)
-    if _vif_data.shape[1] <= 200:  # Skip VIF for very high-dimensional data (O(p²) cost)
+    if _vif_data.shape[1] <= 200:
         vif_report = compute_vif(_vif_data, selected_features)
         stage1_report["vif_analysis"] = vif_report
         if vif_report.get("critical_features"):
             print(f"  VIF WARNING: {len(vif_report['critical_features'])} features with VIF>10: "
                   f"{vif_report['critical_features'][:5]}")
     else:
-        vif_report = {"skipped": True, "reason": f"p={_vif_data.shape[1]} > 200"}
-        stage1_report["vif_analysis"] = vif_report
+        stage1_report["vif_analysis"] = {"skipped": True, "reason": f"p={_vif_data.shape[1]} > 200"}
 
-    # Nonlinearity check for continuous features (MLGG diagnostic, train only)
+    # Nonlinearity check (train only)
     nonlinearity_report = check_nonlinearity(_vif_data, y_train, selected_features)
     nonlinear_features = [r["feature"] for r in nonlinearity_report if r.get("nonlinear")]
     stage1_report["nonlinearity_analysis"] = {
@@ -6097,9 +6042,7 @@ def main() -> int:
         print(f"  Nonlinearity detected in {len(nonlinear_features)} features: "
               f"{nonlinear_features[:5]}")
 
-    # Compute train medians for filling missing external cohort columns.
-    # Using 0 for missing features like waist_circumference or sbp_mean
-    # is physiologically impossible and biases predictions.
+    # Train medians for external cohort missing-feature fill
     _train_medians = {}
     if hasattr(X_train, "columns"):
         for col in X_train.columns:
@@ -6119,15 +6062,37 @@ def main() -> int:
     if has_valid and len(np.unique(y_valid)) < 2:
         raise SystemExit("valid split must contain both classes for threshold/model selection.")
 
-    # ═══════════════════════════════════════════════════════════════════════
-    # PHASE 3: IMPUTATION & IMBALANCE STRATEGY
-    # Inputs:  X_train, y_train, args, policy
-    # Outputs: imputation, imbalance_candidates, selected_imbalance_strategy,
-    #          effective_class_weight, strategy_probe_rows
-    # ═══════════════════════════════════════════════════════════════════════
+    ctx.update({
+        "X_train": X_train, "y_train": y_train,
+        "X_valid": X_valid, "y_valid": y_valid,
+        "X_test": X_test, "y_test": y_test,
+        "has_valid": has_valid, "has_test": has_test,
+        "selected_features": selected_features,
+        "pre_encoding_features": pre_encoding_features,
+        "stage1_features": stage1_features,
+        "stage1_report": stage1_report,
+        "categorical_report": categorical_report,
+        "external_cohorts": external_cohorts,
+        "stability_frequency": stability_frequency,
+        "group_selection_report": group_selection_report,
+        "low_mem": low_mem,
+    })
 
 
-    print("[STEP  4/12] Imputation & imbalance strategy...", file=sys.stderr, flush=True)
+def _phase3_imbalance(ctx: Dict[str, Any]) -> None:
+    """Phase 3: Resolve imputation plan and probe imbalance strategies via CV.
+
+    Reads from ctx: X_train, y_train, selected_features, missingness_policy,
+                    model_pool_config, args
+    Writes to ctx:  imputation, selected_imbalance_strategy, effective_class_weight,
+                    strategy_probe_rows, resolved_dev
+    """
+    args = ctx["args"]
+    X_train, y_train = ctx["X_train"], ctx["y_train"]
+    selected_features = ctx["selected_features"]
+    missingness_policy = ctx["missingness_policy"]
+    model_pool_config = ctx["model_pool_config"]
+
     imputation = resolve_imputation_plan(
         missingness_policy,
         train_rows=int(X_train.shape[0]),
@@ -6152,7 +6117,7 @@ def main() -> int:
     strategy_probe_rows: List[Dict[str, Any]] = []
     selected_imbalance_strategy = str(imbalance_candidates[0])
 
-    resolved_dev = resolve_device(str(getattr(args, 'device', 'cpu')))
+    resolved_dev = resolve_device(str(getattr(args, "device", "cpu")))
 
     if len(imbalance_candidates) > 1:
         probe_results: List[Dict[str, Any]] = []
@@ -6178,25 +6143,18 @@ def main() -> int:
                     score_metric=selected_imbalance_metric,
                     temporal_cv=bool(getattr(args, "temporal_cv", False)),
                 )
-                probe_results.append(
-                    {
-                        "strategy": str(strategy),
-                        "status": "pass",
-                        "selection_metric": selected_imbalance_metric,
-                        "mean": float(mean_score),
-                        "std": float(std_score),
-                        "n_folds": int(n_folds),
-                    }
-                )
+                probe_results.append({
+                    "strategy": str(strategy), "status": "pass",
+                    "selection_metric": selected_imbalance_metric,
+                    "mean": float(mean_score), "std": float(std_score),
+                    "n_folds": int(n_folds),
+                })
             except Exception as exc:
-                probe_results.append(
-                    {
-                        "strategy": str(strategy),
-                        "status": "fail",
-                        "selection_metric": selected_imbalance_metric,
-                        "error": str(exc),
-                    }
-                )
+                probe_results.append({
+                    "strategy": str(strategy), "status": "fail",
+                    "selection_metric": selected_imbalance_metric,
+                    "error": str(exc),
+                })
         passed = [row for row in probe_results if row.get("status") == "pass"]
         if not passed:
             error_tokens: List[str] = []
@@ -6204,10 +6162,9 @@ def main() -> int:
                 strategy_name = str(row.get("strategy", "unknown"))
                 err = str(row.get("error", "unknown_error")).strip() or "unknown_error"
                 error_tokens.append(f"{strategy_name}={err}")
-            detail = "; ".join(error_tokens)
             raise SystemExit(
-                "imbalance_strategy_probe_failed: all requested imbalance strategies failed during CV probe. "
-                f"details: {detail}"
+                "imbalance_strategy_probe_failed: all requested imbalance strategies "
+                f"failed during CV probe. details: {'; '.join(error_tokens)}"
             )
         selected_probe = sorted(
             passed,
@@ -6220,14 +6177,11 @@ def main() -> int:
         selected_imbalance_strategy = str(selected_probe.get("strategy"))
         strategy_probe_rows = probe_results
     else:
-        strategy_probe_rows = [
-            {
-                "strategy": str(selected_imbalance_strategy),
-                "status": "pass",
-                "selection_metric": selected_imbalance_metric,
-                "selection_mode": "single_strategy_no_probe",
-            }
-        ]
+        strategy_probe_rows = [{
+            "strategy": str(selected_imbalance_strategy), "status": "pass",
+            "selection_metric": selected_imbalance_metric,
+            "selection_mode": "single_strategy_no_probe",
+        }]
 
     effective_class_weight: Optional[str] = "balanced" if selected_imbalance_strategy == "class_weight" else None
     model_pool_config["train_rows"] = int(X_train.shape[0])
@@ -6237,6 +6191,137 @@ def main() -> int:
         model_pool_config["optuna_y_train"] = y_train
         model_pool_config["optuna_cv_splits"] = int(args.cv_splits)
         model_pool_config["optuna_trials"] = int(getattr(args, "optuna_trials", 50))
+
+    ctx.update({
+        "imputation": imputation,
+        "imbalance_candidates": imbalance_candidates,
+        "positive_count": positive_count,
+        "negative_count": negative_count,
+        "imbalance_ratio": imbalance_ratio,
+        "selected_imbalance_metric": selected_imbalance_metric,
+        "selected_imbalance_strategy": selected_imbalance_strategy,
+        "effective_class_weight": effective_class_weight,
+        "strategy_probe_rows": strategy_probe_rows,
+        "resolved_dev": resolved_dev,
+    })
+
+
+def main() -> int:
+    """Entry point for the train-select-evaluate pipeline.
+
+    Orchestrates 10 phases:
+
+    Phase 0: PREFLIGHT & CONFIG (args validation, policy loading)
+      Outputs: args, policy, beta, thresholds, calibration/selection config
+    Phase 1: DATA LOADING (splits, feature columns)
+      Outputs: train/valid/test_df, X/y arrays, has_valid, has_test
+    Phase 2: FEATURE ENGINEERING (filter, stability, VIF, encoding)
+      Outputs: selected_features, stage1_report, categorical_report
+    Phase 3: IMBALANCE PROBE (strategy selection)
+      Outputs: selected_imbalance_strategy, effective_class_weight
+    Phase 4: CANDIDATE POOL (build + CV score)
+      Outputs: candidates, candidate_rows, estimator_map
+    Phase 5: MODEL SELECTION (one-SE rule + fit)
+      Outputs: selected_model_id, selected_estimator
+    Phase 6: THRESHOLD & CALIBRATION
+      Outputs: calibrator, selected_threshold, threshold_info
+    Phase 7: EVALUATION (metrics + bootstrap CI)
+      Outputs: train/valid/test_metrics, all_metric_ci
+    Phase 8: DIAGNOSTICS (optimism correction, baselines, learning curve)
+      Outputs: model_selection_report, prevalence/logistic baselines
+    Phase 9: OVERFITTING CALLBACK [MUTATES 17 VARS]
+      May reassign: selected_estimator, calibrator, threshold, metrics, probas
+    Phase 10+: REPORTS & OUTPUT (external, robustness, seed, file writes)
+
+    Returns:
+        Exit code (0 for success).
+
+    Raises:
+        SystemExit: On invalid arguments or data issues.
+        ValueError: On data validation failures (e.g., empty splits).
+    """
+    configure_runtime_warning_filters()
+    args = parse_args()
+
+    # All pipeline state flows through ctx — a mutable dict that each phase
+    # reads from and writes to. This replaces 50+ local variables and makes
+    # Phase 9's 17-variable mutation safe (it just updates ctx keys).
+    ctx: Dict[str, Any] = {"args": args}
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # PHASE 0: PREFLIGHT & CONFIG → _phase0_preflight_and_config()
+    # ═══════════════════════════════════════════════════════════════════════
+    print("[STEP  1/12] Preflight & config...", file=sys.stderr, flush=True)
+    ctx.update(_phase0_preflight_and_config(args))
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # PHASE 1: DATA LOADING → _phase1_data_loading()
+    # ═══════════════════════════════════════════════════════════════════════
+    print("[STEP  2/12] Loading data splits...", file=sys.stderr, flush=True)
+    _phase1_data_loading(ctx)
+    # Bridge ctx → locals for phases not yet migrated to ctx
+    train_df = ctx["train_df"]
+    valid_df = ctx["valid_df"]
+    test_df = ctx["test_df"]
+    stage0_features = ctx["stage0_features"]
+    groups = ctx["groups"]
+    forbidden_features = ctx["forbidden_features"]
+    threshold_selection_split = ctx["threshold_selection_split"]
+    calibration_fit_split = ctx["calibration_fit_split"]
+    feature_group_spec = ctx["feature_group_spec"]
+    fe_mode_cfg = ctx["fe_mode_cfg"]
+    fast_diagnostic_mode = ctx["fast_diagnostic_mode"]
+    policy = ctx["policy"]
+    missingness_policy = ctx["missingness_policy"]
+    external_spec = ctx["external_spec"]
+    threshold_policy = ctx["threshold_policy"]
+    clinical_floors = ctx["clinical_floors"]
+    beta = ctx["beta"]
+    sensitivity_floor = ctx["sensitivity_floor"]
+    npv_floor = ctx["npv_floor"]
+    specificity_floor = ctx["specificity_floor"]
+    ppv_floor = ctx["ppv_floor"]
+    calibration_method = ctx["calibration_method"]
+    selection_data = ctx["selection_data"]
+    model_pool_config = ctx["model_pool_config"]
+
+    # ═════════════════════════════════════════════════════════════════════
+    # PHASE 2: FEATURE ENGINEERING → _phase2_feature_engineering()
+    # ═════════════════════════════════════════════════════════════════════
+    print("[STEP  3/12] Feature engineering...", file=sys.stderr, flush=True)
+    _phase2_feature_engineering(ctx)
+    # Bridge ctx → locals for phases not yet migrated
+    X_train = ctx["X_train"]; y_train = ctx["y_train"]
+    X_valid = ctx["X_valid"]; y_valid = ctx["y_valid"]
+    X_test = ctx["X_test"]; y_test = ctx["y_test"]
+    has_valid = ctx["has_valid"]; has_test = ctx["has_test"]
+    selected_features = ctx["selected_features"]
+    pre_encoding_features = ctx["pre_encoding_features"]
+    stage1_report = ctx["stage1_report"]
+    categorical_report = ctx["categorical_report"]
+    external_cohorts = ctx["external_cohorts"]
+    stage1_features = ctx["stage1_features"]
+    stability_frequency = ctx["stability_frequency"]
+    group_selection_report = ctx["group_selection_report"]
+    low_mem = ctx["low_mem"]
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # PHASE 3: IMPUTATION & IMBALANCE STRATEGY → _phase3_imbalance()
+    # ═══════════════════════════════════════════════════════════════════════
+    print("[STEP  4/12] Imputation & imbalance strategy...", file=sys.stderr, flush=True)
+    ctx.update({"X_train": X_train, "y_train": y_train, "selected_features": selected_features,
+                "missingness_policy": missingness_policy, "model_pool_config": model_pool_config})
+    _phase3_imbalance(ctx)
+    imputation = ctx["imputation"]
+    selected_imbalance_strategy = ctx["selected_imbalance_strategy"]
+    effective_class_weight = ctx["effective_class_weight"]
+    strategy_probe_rows = ctx["strategy_probe_rows"]
+    resolved_dev = ctx["resolved_dev"]
+    imbalance_candidates = ctx["imbalance_candidates"]
+    selected_imbalance_metric = ctx["selected_imbalance_metric"]
+    positive_count = ctx["positive_count"]
+    negative_count = ctx["negative_count"]
+    imbalance_ratio = ctx["imbalance_ratio"]
 
     # ═══════════════════════════════════════════════════════════════════════
     # PHASE 4: CANDIDATE POOL BUILD + CV SCORING
