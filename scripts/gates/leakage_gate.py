@@ -93,19 +93,26 @@ def parse_csv(path: str, split_name: str) -> Dict[str, Any]:
         raise FileNotFoundError(f"{split_name}: file not found: {path}")
     check_csv_file_size(Path(path))
 
-    with open(path, "r", encoding="utf-8-sig", newline="") as fh:
-        reader = csv.DictReader(fh)
-        if reader.fieldnames is None:
-            raise ValueError(f"{split_name}: missing CSV header row.")
+    try:
+        with open(path, "r", encoding="utf-8-sig", newline="") as fh:
+            reader = csv.DictReader(fh)
+            if reader.fieldnames is None:
+                raise ValueError(f"{split_name}: missing CSV header row.")
 
-        headers = [h.strip() if h else "" for h in reader.fieldnames]
-        rows: List[Dict[str, str]] = []
-        for raw in reader:
-            clean: Dict[str, str] = {}
-            for k, v in raw.items():
-                key = (k or "").strip()
-                clean[key] = (v or "").strip()
-            rows.append(clean)
+            headers = [h.strip() if h else "" for h in reader.fieldnames]
+            rows: List[Dict[str, str]] = []
+            for raw in reader:
+                clean: Dict[str, str] = {}
+                for k, v in raw.items():
+                    key = (k or "").strip()
+                    clean[key] = (v or "").strip()
+                rows.append(clean)
+    except UnicodeDecodeError as exc:
+        raise ValueError(
+            f"{split_name}: CSV file is not UTF-8 encoded ({path}). "
+            f"Convert to UTF-8: iconv -f latin1 -t utf-8 {path} > {path}.utf8 — "
+            f"Detail: {exc}"
+        ) from exc
 
     return {"path": path, "headers": headers, "rows": rows}
 
@@ -204,12 +211,25 @@ def main() -> int:
     if args.target_col:
         for split_name, split in splits.items():
             if args.target_col not in split["headers"]:
-                add_issue(
-                    failures,
-                    "missing_target_column",
-                    "Target column missing in split.",
-                    {"split": split_name, "target_col": args.target_col},
-                )
+                # Check for case mismatch before reporting missing
+                lower_map = {h.lower(): h for h in split["headers"]}
+                if args.target_col.lower() in lower_map:
+                    actual = lower_map[args.target_col.lower()]
+                    add_issue(
+                        failures,
+                        "missing_target_column",
+                        f"Target column '{args.target_col}' not found in {split_name}, "
+                        f"but '{actual}' exists (case mismatch). Use --target-col={actual}",
+                        {"split": split_name, "target_col": args.target_col,
+                         "actual_column": actual, "case_mismatch": True},
+                    )
+                else:
+                    add_issue(
+                        failures,
+                        "missing_target_column",
+                        "Target column missing in split.",
+                        {"split": split_name, "target_col": args.target_col},
+                    )
 
     # Suspicious headers.
     canonical_headers = splits["train"]["headers"] if "train" in splits else []

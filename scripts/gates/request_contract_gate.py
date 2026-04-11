@@ -71,6 +71,14 @@ MANDATORY_CLINICAL_METRICS = [
 # See references/gate-strictness-profiles.md for rationale.
 # ---------------------------------------------------------------------------
 
+# ── POLICY CONFIGURATION (869 lines) ─────────────────────────────────
+# TODO: Migrate to references/publication-policy-baselines.json for
+# easier auditing, versioning, and user customization.
+# Currently hardcoded as Python dicts; values are from:
+#   - Nature Methods / JAMA / Lancet DH reviewer expectations
+#   - TRIPOD+AI 2024 Items 4a, 6a, 10a, 13a
+#   - PROBAST+AI 2025 Domains 1-4
+# ─────────────────────────────────────────────────────────────────────
 _PROFILE_OVERRIDES: Dict[str, Dict[str, Any]] = {
     "standard": {},  # Default — no overrides
     "small_cohort": {
