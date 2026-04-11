@@ -1306,10 +1306,37 @@ def main() -> int:
             for issue in rag_issues:
                 add_issue(warnings_list, issue["code"], issue["message"], issue["details"])
 
+            # Task-aware validation: cross-reference disease-KB with codebook
+            # Auto-detects definition variables for the target disease
+            _disease_kb_path = Path(__file__).resolve().parent.parent.parent / "references" / "disease-definition-knowledge-base.json"
+            if _disease_kb_path.exists():
+                # Infer target disease from outcome definition or filename
+                _target_disease = ""
+                if isinstance(study_design.get("outcome_definition"), dict):
+                    _target_disease = study_design["outcome_definition"].get("subtype", "")
+                if not _target_disease:
+                    _data_stem = Path(args.data).stem.lower()
+                    for _disease in ["diabetes", "hypertension", "ckd", "heart_failure", "stroke", "copd", "depression"]:
+                        if _disease in _data_stem:
+                            _target_disease = _disease
+                            break
+                if _target_disease:
+                    task_issues = cb_rag.task_aware_validate(
+                        column_names=list(df.columns),
+                        target_col=args.target_col,
+                        target_disease=_target_disease,
+                        disease_kb_path=str(_disease_kb_path),
+                        manual_registry=manual_vars,
+                    )
+                    for issue in task_issues:
+                        add_issue(failures, issue["code"], issue["message"], issue["details"])
+                    rag_issues.extend(task_issues)
+
             study_design["nhanes_rag"] = {
                 "status": "completed",
                 "variables_loaded": cb_rag.variable_count,
                 "issues_found": len(rag_issues),
+                "task_aware_disease": _target_disease if '_target_disease' in dir() else "",
             }
         except ImportError:
             study_design["nhanes_rag"] = {"status": "skipped", "reason": "nhanes_codebook_lookup not available"}
