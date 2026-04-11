@@ -155,6 +155,10 @@ def main() -> int:
     bootstrap_recovery_source: Optional[str] = None
 
     def append_step(name: str, cmd: List[str]) -> Dict[str, Any]:
+        if _interrupt_received:
+            step = {"step": name, "status": "skipped", "reason": "interrupt_received"}
+            steps.append(step)
+            return step
         step = run_step(name, cmd)
         steps.append(step)
         return step

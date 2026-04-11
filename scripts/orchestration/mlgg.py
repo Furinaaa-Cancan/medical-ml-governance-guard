@@ -31,9 +31,10 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 # Subprocess timeout: gates can be slow (large datasets) but should not run forever.
 # Per-subprocess wall-clock limit. Adjust via MLGG_SUBPROCESS_TIMEOUT env var.
-_DEFAULT_SUBPROCESS_TIMEOUT_SECONDS = int(
-    os.environ.get("MLGG_SUBPROCESS_TIMEOUT", "3600")
-)
+_DEFAULT_SUBPROCESS_TIMEOUT_SECONDS = max(60, min(
+    int(os.environ.get("MLGG_SUBPROCESS_TIMEOUT", "3600")),
+    86400,  # cap at 24 hours
+))
 
 # Allowed --python executable names (basenames only).  Full-path executables
 # matching these basenames are also accepted.

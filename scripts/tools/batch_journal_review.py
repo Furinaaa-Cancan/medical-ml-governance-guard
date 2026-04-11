@@ -97,12 +97,30 @@ def load_manifest(path: Path) -> Tuple[List[ProjectEntry], Optional[List[str]]]:
         )
 
     entries: List[ProjectEntry] = []
+    seen_ids: set = set()
     for proj in data.get("projects", []):
+        pid = str(proj.get("id", "")).strip()
+        ppath = str(proj.get("path", "")).strip()
+        if not pid:
+            print(f"[WARN] Skipping manifest entry with empty id", file=sys.stderr)
+            continue
+        if not ppath:
+            print(f"[WARN] Skipping manifest entry '{pid}' with empty path", file=sys.stderr)
+            continue
+        if pid in seen_ids:
+            print(f"[WARN] Duplicate project id '{pid}' — skipping", file=sys.stderr)
+            continue
+        # Reject path traversal
+        resolved = Path(ppath).expanduser().resolve()
+        if ".." in Path(ppath).parts:
+            print(f"[WARN] Skipping '{pid}': path contains '..' traversal", file=sys.stderr)
+            continue
+        seen_ids.add(pid)
         entries.append(
             ProjectEntry(
-                id=str(proj.get("id", "")),
-                path=str(proj.get("path", "")),
-                label=str(proj.get("label", proj.get("id", ""))),
+                id=pid,
+                path=ppath,
+                label=str(proj.get("label", pid)),
                 notes=str(proj.get("notes", "")),
             )
         )
@@ -204,11 +222,21 @@ def run_batch_audit(
                 future_to_entry[fut] = entry
 
             for fut in as_completed(future_to_entry):
-                results.append(fut.result())
+                entry = future_to_entry[fut]
+                try:
+                    results.append(fut.result())
+                except Exception as exc:
+                    results.append(AuditResult(
+                        project_id=entry.id,
+                        project_label=entry.label,
+                        project_path=entry.path,
+                        success=False,
+                        error=f"Worker crash: {type(exc).__name__}: {exc}",
+                    ))
 
     # Sort results by original manifest order.
     id_order = {e.id: idx for idx, e in enumerate(entries)}
-    results.sort(key=lambda r: id_order.get(r.project_id, 999))
+    results.sort(key=lambda r: id_order.get(r.project_id, len(entries)))
 
     batch = BatchResult(
         target_journal=target_journal,

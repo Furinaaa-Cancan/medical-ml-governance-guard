@@ -511,10 +511,10 @@ def handle_step(step_num: int):
     return redirect(url_for("index"))
 
 
-@app.route("/advance")
+@app.route("/advance", methods=["POST"])
 def advance():
     """Advance to the next pipeline phase after a background task completes."""
-    sid = request.args.get("sid") or request.cookies.get("sid", "")
+    sid = request.form.get("sid") or request.cookies.get("sid", "")
     session = get_session(sid)
     if session["step"] == 6:
         session["step"] = 7
@@ -527,10 +527,10 @@ def advance():
     return redirect(url_for("index"))
 
 
-@app.route("/reset")
+@app.route("/reset", methods=["POST"])
 def reset():
     """Reset the session and start a new wizard run."""
-    sid = request.args.get("sid") or request.cookies.get("sid", "")
+    sid = request.form.get("sid") or request.cookies.get("sid", "")
     if sid in _sessions:
         del _sessions[sid]
     _log_queues.pop(sid, None)
@@ -568,20 +568,28 @@ def _run_cmd_with_logs(sid: str, cmd: List[str], cwd: str) -> int:
     _log_queues[sid] = q
     q.put(f"$ {shlex.join(cmd)}")
 
+    _SUBPROCESS_TIMEOUT = 3600  # 1 hour max per pipeline step
     proc = subprocess.Popen(
         cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
         cwd=cwd,
+        start_new_session=True,  # prevent orphan on request cancel
     )
     if proc.stdout is None:
         q.put("[ERROR] subprocess stdout not available")
         q.put(None)
         return 1
+    import time
+    start_time = time.monotonic()
     for line in proc.stdout:
         q.put(line.rstrip())
-    proc.wait()
+        if time.monotonic() - start_time > _SUBPROCESS_TIMEOUT:
+            proc.kill()
+            q.put(f"\n[TIMEOUT] Process killed after {_SUBPROCESS_TIMEOUT}s")
+            break
+    proc.wait(timeout=30)  # wait for cleanup, then give up
     q.put(f"\n[exit code: {proc.returncode}]")
     q.put(None)  # sentinel
     return proc.returncode
