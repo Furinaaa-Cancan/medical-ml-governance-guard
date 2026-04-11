@@ -246,8 +246,9 @@ def test_download_dataset_menu_uses_stable_triplet() -> None:
         play.select = original_select  # type: ignore[assignment]
 
 
-def test_step_config_custom_csv_supports_target_and_feature_selection() -> None:
+def test_step_config_custom_csv_supports_target_and_feature_selection(monkeypatch) -> None:
     print("\n=== play: custom csv config supports explicit target + feature selection ===")
+    monkeypatch.setattr("builtins.input", lambda *a, **kw: "")
     original_select = play.select
     original_multi_select = play.multi_select
     with tempfile.TemporaryDirectory(prefix="mlgg_cfg_") as td:

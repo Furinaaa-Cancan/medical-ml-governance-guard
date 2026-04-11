@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 
-SCRIPTS_DIR = Path(__file__).resolve().parent
+SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
 PYTHON = sys.executable
 
 PASS = "\033[32mPASS\033[0m"
