@@ -1299,13 +1299,24 @@ def main() -> int:
             _detected_dataset = key
             break
 
-    # Auto-detect disease from filename or target column
-    _DISEASE_PATTERNS = {"diabetes": "type_2_diabetes", "heart": "coronary_heart_disease",
-                         "ckd": "chronic_kidney_disease", "stroke": "stroke",
-                         "sepsis": "sepsis", "readmission": "readmission_30day"}
+    # Auto-detect disease from filename.
+    # Use word-boundary matching (split on _ and check tokens) to avoid
+    # false positives like "heatstroke" → "stroke" or "heart_rate" → "heart_disease".
+    _DISEASE_PATTERNS = {
+        "diabetes": "type_2_diabetes",
+        "heart_disease": "coronary_heart_disease",
+        "ckd": "chronic_kidney_disease",
+        "kidney": "chronic_kidney_disease",
+        "stroke": "stroke",
+        "sepsis": "sepsis",
+        "readmission": "readmission_30day",
+        "mortality": "readmission_30day",
+    }
+    _csv_tokens = set(_csv_stem.replace("-", "_").split("_"))
     _detected_disease = ""
     for pat, disease in _DISEASE_PATTERNS.items():
-        if pat in _csv_stem:
+        pat_tokens = set(pat.split("_"))
+        if pat_tokens <= _csv_tokens:  # all pattern tokens present in filename
             _detected_disease = disease
             break
 
