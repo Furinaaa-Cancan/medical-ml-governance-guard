@@ -148,6 +148,10 @@ register_remediations({
     "CODEBOOK_REVERSE_CAUSATION":
         "Feature may be a downstream consequence of the target disease rather "
         "than an independent risk factor. Document as limitation or exclude.",
+    "CODEBOOK_RAG_NOT_AVAILABLE":
+        "Codebook RAG is only implemented for NHANES. For other datasets "
+        "(BRFSS, NHIS, MIMIC), extend references/dataset-codebook-registry.json "
+        "with dataset-specific variable metadata.",
 })
 
 
@@ -451,7 +455,7 @@ def _find_columns_for_var(
         "DIQ010": ["doctor_told_diabetes"],
         "DIQ160": ["prediabetes"],
         "DIQ170": ["at_risk_diabetes"],
-        "DIQ172": ["family_history_diabetes", "feel_at_risk"],
+        "DIQ172": ["feel_at_risk"],  # NOT family_history — that's MCQ300C
         "MCQ300C": ["family_history_diabetes"],
         "BPQ020": ["hypertension_diagnosed"],
         "BPQ050A": ["bp_medication"],
@@ -1292,6 +1296,16 @@ def main() -> int:
     # auto-validate ALL columns against the full 3,964-variable codebook.
     # Manual registry has priority; RAG only checks unregistered columns.
     _nhanes_rag_dir = Path("references/nhanes_codebook")
+    if survey_source and survey_source != "nhanes":
+        # Non-NHANES dataset detected — RAG not yet available for this source.
+        add_issue(
+            warnings_list, "CODEBOOK_RAG_NOT_AVAILABLE",
+            f"Detected survey source '{survey_source}' but codebook RAG is only "
+            f"implemented for NHANES. Variable-level validation skipped. "
+            f"Consider extending dataset-codebook-registry.json for {survey_source}.",
+            {"survey_source": survey_source},
+        )
+        study_design["nhanes_rag"] = {"status": "not_available", "reason": f"RAG not implemented for {survey_source}"}
     if survey_source == "nhanes" and (_nhanes_rag_dir / "nhanes_variables.tsv").exists():
         try:
             _tools_dir = str(Path(__file__).resolve().parent.parent / "tools")

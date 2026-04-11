@@ -56,6 +56,16 @@ class NHANESCodebook:
         vars_path = self.codebook_dir / "nhanes_variables.tsv"
         cb_path = self.codebook_dir / "nhanes_variables_codebooks.tsv"
         if not vars_path.exists() or not cb_path.exists():
+            import warnings
+            missing = [str(p) for p in [vars_path, cb_path] if not p.exists()]
+            warnings.warn(
+                f"NHANES codebook TSV files not found: {missing}. "
+                f"RAG validation will be skipped. Download: "
+                f"curl -sL -o {vars_path} "
+                f'"https://raw.githubusercontent.com/ccb-hms/NHANES-metadata/master/metadata/nhanes_variables.tsv"',
+                UserWarning,
+                stacklevel=2,
+            )
             return
         self._load_variables(vars_path)
         self._load_codebooks(cb_path)
