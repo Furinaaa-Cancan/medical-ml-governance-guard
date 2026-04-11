@@ -4499,8 +4499,9 @@ def write_json(path: Path, payload: Dict[str, Any]) -> None:
     """
     ensure_parent(path)
     clean = _sanitize_for_json(payload)
+    import time as _time_mod
     tmp_path = path.with_name(
-        f".{path.name}.tmp-{os.getpid()}"
+        f".{path.name}.tmp-{os.getpid()}-{int(_time_mod.time() * 1_000_000)}"
     )
     with tmp_path.open("w", encoding="utf-8") as fh:
         json.dump(clean, fh, ensure_ascii=True, indent=2, sort_keys=True,
@@ -5968,36 +5969,32 @@ def main() -> int:
     #          y_valid, y_test, has_valid, has_test, external_cohorts
     # ═══════════════════════════════════════════════════════════════════════
 
-    # ── Cross-split missingness divergence check ────────────────────────
-    # Detect features where train missing rate differs drastically from
-    # test/valid (e.g., feature collected in one survey cycle but not another).
-    # Threshold: if test missing rate > train + 0.50, the feature is unusable.
-    _MISS_DIVERGENCE_THRESHOLD = 0.50
-    _splits_to_check = [("valid", valid_df), ("test", test_df)]
+    # ── Train-only missingness check ─────────────────────────────────────
+    # Drop features with extremely high missingness in training data.
+    # NOTE: Previously this checked test/valid missingness too, but that
+    # leaks test-set characteristics into feature selection (M6 code review).
+    # Now uses only train-set missingness: features >95% missing in train
+    # are dropped as unusable regardless of other splits.
+    _TRAIN_MISS_THRESHOLD = 0.95
     _features_to_drop: list[str] = []
-    for split_name, split_df in _splits_to_check:
-        if split_df.empty:
+    for feat in stage0_features:
+        if feat not in train_df.columns:
             continue
-        for feat in stage0_features:
-            if feat not in split_df.columns:
-                continue
-            tr_miss = train_df[feat].isna().mean() if feat in train_df.columns else 0.0
-            sp_miss = split_df[feat].isna().mean()
-            if sp_miss - tr_miss > _MISS_DIVERGENCE_THRESHOLD:
-                print(
-                    f"[WARN] cross_split_missingness_divergence: "
-                    f"'{feat}' missing {tr_miss:.1%} in train but {sp_miss:.1%} "
-                    f"in {split_name} (Δ={sp_miss - tr_miss:.1%}). "
-                    f"Dropping feature to prevent distribution shift collapse."
-                )
-                _features_to_drop.append(feat)
+        tr_miss = train_df[feat].isna().mean()
+        if tr_miss > _TRAIN_MISS_THRESHOLD:
+            print(
+                f"[WARN] high_train_missingness: "
+                f"'{feat}' missing {tr_miss:.1%} in training data. "
+                f"Dropping feature (>{_TRAIN_MISS_THRESHOLD:.0%} threshold)."
+            )
+            _features_to_drop.append(feat)
     if _features_to_drop:
         _drop_set = set(_features_to_drop)
         stage0_features = [f for f in stage0_features if f not in _drop_set]
         if not stage0_features:
             raise SystemExit(
-                "All features dropped due to cross-split missingness divergence. "
-                "Check if train and test data come from compatible sources."
+                "All features dropped due to high missingness in training data. "
+                "Check data quality or adjust inclusion criteria."
             )
 
     low_mem = getattr(args, "low_memory", False)

@@ -1369,7 +1369,7 @@ def main() -> int:
             # Match target name to what's in the phenotype spec
             _def_target = _detected_disease or "disease"
             try:
-                with open(_phenotype_spec) as _pf:
+                with open(_phenotype_spec, "r", encoding="utf-8") as _pf:
                     _pspec = json.load(_pf)
                 _spec_targets = list(_pspec.get("targets", {}).keys())
                 if _spec_targets:

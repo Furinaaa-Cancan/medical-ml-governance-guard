@@ -1317,7 +1317,7 @@ def main() -> int:
             manual_vars: Optional[Dict[str, Any]] = None
             if codebook_path and codebook_ds:
                 try:
-                    with Path(codebook_path).open() as _f:
+                    with Path(codebook_path).open("r", encoding="utf-8") as _f:
                         _reg = json.load(_f)
                     manual_vars = _reg.get("datasets", {}).get(codebook_ds, {}).get("variables")
                 except Exception:
