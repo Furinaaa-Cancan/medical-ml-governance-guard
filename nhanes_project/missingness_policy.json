@@ -1,0 +1,7 @@
+{
+  "strategy": "mice",
+  "mice_max_iterations": 10,
+  "mice_random_state": 42,
+  "justification": "NHANES exam missingness (BMI 8.5%, waist 12.3%, BP 17.5%) is likely MAR (exam non-completion correlates with health status). MICE preserves multivariate relationships and is unbiased under MAR. Median imputation would distort BP variance and BMI-waist correlation.",
+  "reference": "Madley-Dowd et al. BMJ 2019; White et al. Stat Med 2011"
+}

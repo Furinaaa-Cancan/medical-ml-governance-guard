@@ -1673,11 +1673,29 @@ def build_imputer(
         Configured imputer estimator.
     """
     if imputation_strategy == "mice":
+        # MICE (Multiple Imputation by Chained Equations) via IterativeImputer.
+        # Ref: van Buuren 2018 (Flexible Imputation of Missing Data, Ch.4);
+        #      White et al., Stat Med 2011.
+        #
+        # max_iter=50: van Buuren recommends 50-100 for convergence with >10%
+        #   missing. sklearn default (10) and our previous 20 produced
+        #   ConvergenceWarnings on NHANES BP data (17.5% missing).
+        # tol=1e-3: early stopping when imputed values stabilize.
+        # sample_posterior=False: deterministic single imputation. For multiple
+        #   imputation with Rubin's Rules, set True and run m=5-20 times.
+        # initial_strategy="median": safe initialization for skewed medical data.
+        # imputation_order="ascending": fill low-missing features first so
+        #   high-missing features benefit from more complete covariates.
         return IterativeImputer(
             random_state=seed,
-            max_iter=20,
+            max_iter=50,
+            tol=1e-3,
             initial_strategy="median",
             sample_posterior=False,
+            imputation_order="ascending",
+            # Biological floor: prevent physiologically impossible imputed values.
+            # Conservative bounds (wider than clinical normal ranges).
+            min_value=0.0,
         )
     if native_missing_support:
         # Tree-based models (XGB, LGBM, HistGBM, CatBoost) handle NaN natively.
