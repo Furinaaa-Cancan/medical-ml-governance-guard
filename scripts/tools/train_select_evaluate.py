@@ -7125,15 +7125,132 @@ def main() -> int:
 
 
     # ═══════════════════════════════════════════════════════════════════════
-    # PHASE 10: TRIPOD+AI / PROBAST SUPPLEMENTARY ASSESSMENTS
-    # Inputs:  selected_estimator, X/y arrays, test_proba, baselines
-    # Outputs: epv_report, calibration/DCA/NRI/IDI/DeLong/McNemar reports,
-    #          subgroup_report, error_analysis, ablation_report
+    # PHASES 10-12: ASSESSMENTS + REPORTS + OUTPUT
+    # → _phase10_12_reports_output()
     # ═══════════════════════════════════════════════════════════════════════
+    # Sync all remaining locals into ctx for the final mega-phase
+    ctx.update({
+        "selected_model_id": selected_model_id, "selected_estimator": selected_estimator,
+        "calibrator": calibrator, "selected_threshold": selected_threshold,
+        "threshold_info": threshold_info,
+        "X_train": X_train, "y_train": y_train, "X_valid": X_valid, "y_valid": y_valid,
+        "X_test": X_test, "y_test": y_test, "has_valid": has_valid, "has_test": has_test,
+        "train_proba": train_proba, "valid_proba": valid_proba, "test_proba": test_proba,
+        "train_metrics": train_metrics, "valid_metrics": valid_metrics,
+        "test_metrics": test_metrics, "train_cm": train_cm, "valid_cm": valid_cm,
+        "test_cm": test_cm, "ci_n": ci_n, "all_metric_ci": all_metric_ci,
+        "optimism_correction": optimism_correction, "learning_curve_report": learning_curve_report,
+        "prevalence": prevalence, "prevalence_baseline": prevalence_baseline,
+        "logistic_baseline": logistic_baseline,
+        "baseline_logit_proba_test": baseline_logit_proba_test,
+        "baseline_proba_test": baseline_proba_test, "baseline_fit_meta": baseline_fit_meta,
+        "split_fingerprints": split_fingerprints,
+        "model_selection_report": model_selection_report,
+        "overfit_risk": overfit_risk, "overfit_gaps": overfit_gaps,
+        "overfit_warnings": overfit_warnings, "overfit_recommendations": overfit_recommendations,
+        "fallback_trace": fallback_trace, "original_model_id": original_model_id,
+        "callback_activated": callback_activated,
+        "candidate_rows": candidate_rows, "estimator_map": estimator_map,
+        "candidate_space_meta": candidate_space_meta,
+        "selected_candidate_row": selected_candidate_row, "selected_fit_meta": selected_fit_meta,
+        "external_cohorts": external_cohorts, "beta": beta,
+        "fast_diagnostic_mode": fast_diagnostic_mode,
+        "imputation": imputation, "effective_class_weight": effective_class_weight,
+        "selected_imbalance_strategy": selected_imbalance_strategy,
+        "selection_data": selection_data,
+        "threshold_selection_split": threshold_selection_split,
+        "calibration_fit_split": calibration_fit_split, "calibration_method": calibration_method,
+        "sensitivity_floor": sensitivity_floor, "npv_floor": npv_floor,
+        "specificity_floor": specificity_floor, "ppv_floor": ppv_floor,
+        "model_pool_config": model_pool_config,
+        "imbalance_candidates": imbalance_candidates,
+        "selected_imbalance_metric": selected_imbalance_metric,
+        "strategy_probe_rows": strategy_probe_rows,
+        "positive_count": positive_count, "negative_count": negative_count,
+        "imbalance_ratio": imbalance_ratio,
+        "stage0_features": stage0_features, "stage1_features": stage1_features,
+        "selected_features": selected_features, "pre_encoding_features": pre_encoding_features,
+        "stage1_report": stage1_report,
+        "stability_frequency": stability_frequency,
+        "group_selection_report": group_selection_report,
+        "groups": groups, "forbidden_features": forbidden_features,
+        "fe_mode_cfg": fe_mode_cfg, "low_mem": low_mem,
+        "train_df": train_df, "valid_df": valid_df, "test_df": test_df,
+        "calibration_y": calibration_y, "resolved_dev": resolved_dev,
+        "policy": policy, "selection_trace": trace,
+    })
+    return _phase10_12_reports_output(ctx)
 
 
-    # ── TRIPOD+AI / PROBAST supplementary assessments ──
-    # Must run AFTER overfitting callback to use final model's probabilities.
+def _phase10_12_reports_output(ctx: Dict[str, Any]) -> int:
+    """Phases 10-12: TRIPOD assessments, external validation, reports, file output.
+
+    Pure output phase — no upstream mutations. Returns exit code 0.
+    """
+    args = ctx["args"]
+    selected_estimator = ctx["selected_estimator"]
+    calibrator = ctx["calibrator"]
+    selected_threshold = ctx["selected_threshold"]
+    threshold_info = ctx["threshold_info"]
+    X_train, y_train = ctx["X_train"], ctx["y_train"]
+    X_valid, y_valid = ctx["X_valid"], ctx["y_valid"]
+    X_test, y_test = ctx["X_test"], ctx["y_test"]
+    has_valid, has_test = ctx["has_valid"], ctx["has_test"]
+    train_proba, valid_proba, test_proba = ctx["train_proba"], ctx["valid_proba"], ctx["test_proba"]
+    train_metrics, valid_metrics, test_metrics = ctx["train_metrics"], ctx["valid_metrics"], ctx["test_metrics"]
+    train_cm, valid_cm, test_cm = ctx["train_cm"], ctx["valid_cm"], ctx["test_cm"]
+    ci_n, all_metric_ci = ctx["ci_n"], ctx["all_metric_ci"]
+    optimism_correction = ctx["optimism_correction"]
+    learning_curve_report = ctx["learning_curve_report"]
+    prevalence_baseline = ctx["prevalence_baseline"]
+    logistic_baseline = ctx["logistic_baseline"]
+    baseline_logit_proba_test = ctx["baseline_logit_proba_test"]
+    baseline_proba_test = ctx["baseline_proba_test"]
+    baseline_fit_meta = ctx["baseline_fit_meta"]
+    split_fingerprints = ctx["split_fingerprints"]
+    model_selection_report = ctx["model_selection_report"]
+    overfit_gaps = ctx["overfit_gaps"]; overfit_warnings = ctx["overfit_warnings"]
+    overfit_risk = ctx["overfit_risk"]
+    overfit_recommendations = ctx["overfit_recommendations"]
+    fallback_trace = ctx["fallback_trace"]
+    original_model_id = ctx["original_model_id"]
+    callback_activated = ctx["callback_activated"]
+    candidate_rows = ctx["candidate_rows"]
+    estimator_map = ctx["estimator_map"]
+    candidate_space_meta = ctx["candidate_space_meta"]
+    selected_candidate_row = ctx["selected_candidate_row"]
+    selected_fit_meta = ctx["selected_fit_meta"]
+    selected_model_id = ctx["selected_model_id"]
+    external_cohorts = ctx["external_cohorts"]
+    beta = ctx["beta"]; fast_diagnostic_mode = ctx["fast_diagnostic_mode"]
+    imputation = ctx["imputation"]; effective_class_weight = ctx["effective_class_weight"]
+    selected_imbalance_strategy = ctx["selected_imbalance_strategy"]
+    selection_data = ctx["selection_data"]
+    threshold_selection_split = ctx["threshold_selection_split"]
+    calibration_fit_split = ctx["calibration_fit_split"]
+    calibration_method = ctx["calibration_method"]
+    sensitivity_floor = ctx["sensitivity_floor"]; npv_floor = ctx["npv_floor"]
+    specificity_floor = ctx["specificity_floor"]; ppv_floor = ctx["ppv_floor"]
+    model_pool_config = ctx["model_pool_config"]
+    imbalance_candidates = ctx["imbalance_candidates"]
+    selected_imbalance_metric = ctx["selected_imbalance_metric"]
+    strategy_probe_rows = ctx["strategy_probe_rows"]
+    positive_count = ctx["positive_count"]; negative_count = ctx["negative_count"]
+    imbalance_ratio = ctx["imbalance_ratio"]
+    stage0_features = ctx["stage0_features"]; stage1_features = ctx["stage1_features"]
+    selected_features = ctx["selected_features"]
+    pre_encoding_features = ctx["pre_encoding_features"]
+    stage1_report = ctx["stage1_report"]
+    stability_frequency = ctx["stability_frequency"]
+    group_selection_report = ctx["group_selection_report"]
+    groups = ctx["groups"]; forbidden_features = ctx["forbidden_features"]
+    fe_mode_cfg = ctx["fe_mode_cfg"]; low_mem = ctx["low_mem"]
+    train_df, valid_df, test_df = ctx["train_df"], ctx["valid_df"], ctx["test_df"]
+    calibration_y = ctx["calibration_y"]
+    resolved_dev = ctx["resolved_dev"]
+    policy = ctx["policy"]
+    trace = ctx["selection_trace"]
+
     print("[STEP  9/12] TRIPOD+AI assessments...", file=sys.stderr, flush=True)
     epv_report = _sample_size_adequacy(
         n_events=int(np.sum(y_train)),
