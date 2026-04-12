@@ -449,9 +449,17 @@ class UKBCodebook:
         lines: List[str] = ["eid"]
 
         # ── 1. Standard demographics ────────────────────────────────
-        _DEMOGRAPHICS = [21022, 31, 21000, 189]
+        _DEMOGRAPHICS = [21022, 31, 21000, 189, 709, 6138]
+        # 709 = household size, 6138 = qualifications/education
         for fid in _DEMOGRAPHICS:
             lines.extend(self.field_to_rap_names(fid, instance))
+
+        # ── 1b. Genetic quality control fields ──────────────────────
+        _GENETIC_QC = [22001, 22019, 22189]
+        # 22001 = genetic sex, 22019 = sex chromosome aneuploidy
+        # 22189 = Townsend (genetic principal component derived)
+        for fid in _GENETIC_QC:
+            lines.extend(self.field_to_rap_names(fid))
 
         # ── 2. Anthropometry ────────────────────────────────────────
         _ANTHRO = [21001, 50, 21002, 48, 49]
@@ -481,21 +489,58 @@ class UKBCodebook:
                 continue
             lines.extend(self.field_to_rap_names(fid, instance))
 
+        # ── 6b. Common medical history fields ───────────────────────
+        _MEDICAL = [6148, 6150, 4041, 2986]
+        # 6148 = eye problems, 6150 = vascular/heart problems
+        # 4041 = gestational diabetes, 2986 = insulin within 1yr of DM dx
+        for fid in _MEDICAL:
+            lines.extend(self.field_to_rap_names(fid, instance))
+
         # ── 7. General self-report conditions & medications ─────────
         # 20002 = non-cancer illness codes (array)
         # 20003 = treatment/medication codes (array)
         # 20001 = cancer codes (array)
-        for fid in [20002, 20003]:
+        for fid in [20002, 20003, 20001]:
             lines.extend(self.field_to_rap_names(fid, instance))
 
-        # ── 8. Lifestyle ────────────────────────────────────────────
-        _LIFESTYLE = [20116, 20117, 1558, 1239, 1249]  # smoking, alcohol, diet basics
-        for fid in _LIFESTYLE:
+        # ── 8. Smoking (detailed) ──────────────────────────────────
+        _SMOKING = [20116, 20160, 3456, 2887, 3436, 2867, 2897, 20161, 20162]
+        # 20116 = status, 20160 = ever smoked, 3456/2887 = cigs/day
+        # 3436/2867 = age started, 2897 = age stopped, 20161-2 = pack years
+        for fid in _SMOKING:
+            lines.extend(self.field_to_rap_names(fid, instance))
+
+        # ── 8b. Alcohol (detailed) ─────────────────────────────────
+        _ALCOHOL = [20117, 1558, 1568, 1578, 1588, 1598, 1608,
+                    4407, 4418, 4429, 4440, 4451]
+        # 20117 = status, 1558 = frequency
+        # 1568-1608 = weekly intake by type, 4407-4451 = monthly intake by type
+        for fid in _ALCOHOL:
+            lines.extend(self.field_to_rap_names(fid, instance))
+
+        # ── 8c. Diet ───────────────────────────────────────────────
+        _DIET = [1239, 1249]
+        for fid in _DIET:
+            lines.extend(self.field_to_rap_names(fid, instance))
+
+        # ── 8d. Dietary nutrients (estimated daily intake) ──────────
+        _NUTRIENTS = [26002, 26005, 26008, 26013, 26014, 26017, 26018,
+                      26019, 26020, 26021, 26022, 26023, 26024, 26025,
+                      26026, 26027, 26028, 26029, 26030, 26033, 26034,
+                      26035, 26036, 26037, 26038, 26039, 26040, 26041,
+                      26043, 26047, 26051, 26054, 26057, 26058]
+        for fid in _NUTRIENTS:
             lines.extend(self.field_to_rap_names(fid, instance))
 
         # ── 9. Physical activity ────────────────────────────────────
         _ACTIVITY = [22032, 22035, 22036, 22037, 22038, 22039, 22040]
         for fid in _ACTIVITY:
+            lines.extend(self.field_to_rap_names(fid, instance))
+
+        # ── 9b. Sedentary / screen time ────────────────────────────
+        _SEDENTARY = [1070, 1080, 1090]
+        # 1070 = TV, 1080 = computer, 1090 = driving
+        for fid in _SEDENTARY:
             lines.extend(self.field_to_rap_names(fid, instance))
 
         # ── 10. Sleep ───────────────────────────────────────────────

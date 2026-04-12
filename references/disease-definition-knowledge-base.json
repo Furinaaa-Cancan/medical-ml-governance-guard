@@ -225,7 +225,9 @@
       },
       "ukb_outcome_fields": {
         "130708": "Date E11 first reported",
-        "130709": "Source of report of E11"
+        "130709": "Source of report of E11",
+        "130814": "Date E78 first reported (dyslipidemia)",
+        "130815": "Source of report E78"
       },
       "ukb_medication_fields": {
         "6177": "Medication for cholesterol, blood pressure or diabetes",
