@@ -259,6 +259,15 @@ class NHANESCodebook:
 
         return issues
 
+    def validate_columns_for_gate(
+        self,
+        column_names: List[str],
+        target_col: str = "y",
+        manual_registry: Optional[Dict[str, Dict]] = None,
+    ) -> List[Dict[str, Any]]:
+        """Alias for validate_columns — unified interface across all codebook types."""
+        return self.validate_columns(column_names, target_col, manual_registry)
+
     # ── Task-aware validation (disease-KB × codebook) ────────
 
     def task_aware_validate(
@@ -756,6 +765,15 @@ class RegistryCodebook:
                 })
 
         return issues
+
+    def validate_columns_for_gate(
+        self,
+        column_names: List[str],
+        target_col: str = "y",
+        manual_registry: Optional[Dict[str, Dict]] = None,
+    ) -> List[Dict[str, Any]]:
+        """Alias for validate_columns — unified interface across all codebook types."""
+        return self.validate_columns(column_names, target_col, manual_registry)
 
     def task_aware_validate(
         self,

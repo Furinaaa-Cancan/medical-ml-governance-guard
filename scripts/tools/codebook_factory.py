@@ -1,0 +1,90 @@
+"""Codebook factory — unified dispatch for dataset-specific codebook validation.
+
+Resolves the appropriate codebook class based on survey source:
+  NHANES  → NHANESCodebook (Harvard TSV + BM25 + skip-chain MNAR)
+  UKB     → UKBCodebook (SQLite + instance-participation MNAR)
+  BRFSS/MIMIC/other → RegistryCodebook (JSON registry only)
+
+Usage:
+    from scripts.tools.codebook_factory import get_codebook
+
+    cb = get_codebook("ukb")
+    issues = cb.validate_columns_for_gate(columns, target_col="p2443_i0")
+"""
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+
+_DS_KEY_MAP = {
+    "nhanes": "nhanes_2017_2020",
+    "brfss": "brfss_2022",
+    "nhis": "nhis_2022",
+    "mimic": "mimic_iv",
+    "ukb": "ukb",
+    "ukbiobank": "ukb",
+    "biobank": "ukb",
+}
+
+
+def get_codebook(
+    survey_source: str,
+    registry_path: str = "",
+    nhanes_codebook_dir: str = "",
+    ukb_codebook_db: str = "",
+) -> Optional[Any]:
+    """Factory: return the appropriate codebook for a dataset.
+
+    All returned codebook objects support:
+      - validate_columns_for_gate(columns, target_col, manual_registry) → List[Dict]
+      - task_aware_validate(column_names, target_col, target_disease, disease_kb_path, manual_registry) → List[Dict]
+      - variable_count (property) → int
+    """
+    if not registry_path:
+        registry_path = str(REPO_ROOT / "references" / "dataset-codebook-registry.json")
+    if not nhanes_codebook_dir:
+        nhanes_codebook_dir = str(REPO_ROOT / "references" / "nhanes_codebook")
+    if not ukb_codebook_db:
+        ukb_codebook_db = str(REPO_ROOT / "references" / "ukb_codebook" / "ukb_codebook.sqlite")
+
+    source_lower = survey_source.lower().strip()
+    dataset_key = _DS_KEY_MAP.get(source_lower, "")
+    if not dataset_key:
+        return None
+
+    # ── NHANES ──────────────────────────────────────────────────────
+    if source_lower == "nhanes":
+        nhanes_dir = Path(nhanes_codebook_dir)
+        if (nhanes_dir / "nhanes_variables.tsv").exists():
+            try:
+                from scripts.tools.nhanes_codebook_lookup import NHANESCodebook
+                return NHANESCodebook(str(nhanes_dir), cycle="2017-2018")
+            except ImportError:
+                pass
+        # Fallback to registry
+        try:
+            from scripts.tools.nhanes_codebook_lookup import RegistryCodebook
+            return RegistryCodebook(registry_path, dataset_key)
+        except ImportError:
+            return None
+
+    # ── UK Biobank ──────────────────────────────────────────────────
+    if source_lower in ("ukb", "ukbiobank", "biobank"):
+        ukb_db = Path(ukb_codebook_db)
+        if ukb_db.exists():
+            try:
+                from scripts.tools.ukb_codebook_lookup import UKBCodebook
+                return UKBCodebook(ukb_db)
+            except ImportError:
+                pass
+        return None
+
+    # ── Other (BRFSS, MIMIC, etc.) ──────────────────────────────────
+    try:
+        from scripts.tools.nhanes_codebook_lookup import RegistryCodebook
+        return RegistryCodebook(registry_path, dataset_key)
+    except ImportError:
+        return None

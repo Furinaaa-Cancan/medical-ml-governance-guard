@@ -1321,10 +1321,7 @@ def main() -> int:
     #   BRFSS/MIMIC/other → RegistryCodebook (JSON registry only)
     if survey_source:
         try:
-            _tools_dir = str(Path(__file__).resolve().parent.parent / "tools")
-            if _tools_dir not in sys.path:
-                sys.path.insert(0, _tools_dir)
-            from nhanes_codebook_lookup import get_codebook, NHANESCodebook
+            from scripts.tools.codebook_factory import get_codebook
 
             # Load manual registry variable codes for priority exclusion
             manual_vars: Optional[Dict[str, Any]] = None
@@ -1336,24 +1333,16 @@ def main() -> int:
                 except Exception:
                     pass
 
-            _registry_path = str(Path(__file__).resolve().parent.parent.parent / "references" / "dataset-codebook-registry.json")
-            cb_rag = get_codebook(survey_source, registry_path=_registry_path)
+            cb_rag = get_codebook(survey_source)
             if cb_rag is None:
                 study_design["codebook_rag"] = {"status": "not_available", "reason": f"No codebook for {survey_source}"}
                 raise ImportError("skip RAG")
 
-            # Dispatch to the right validation method depending on codebook type
-            _is_ukb = type(cb_rag).__name__ == "UKBCodebook"
-            if _is_ukb:
-                rag_issues = cb_rag.validate_columns_for_gate(
-                    list(df.columns), target_col=args.target_col,
-                    manual_registry=manual_vars,
-                )
-            else:
-                rag_issues = cb_rag.validate_columns(
-                    list(df.columns), target_col=args.target_col,
-                    manual_registry=manual_vars,
-                )
+            # Unified interface — all codebook types support validate_columns_for_gate
+            rag_issues = cb_rag.validate_columns_for_gate(
+                list(df.columns), target_col=args.target_col,
+                manual_registry=manual_vars,
+            )
             for issue in rag_issues:
                 add_issue(warnings_list, issue["code"], issue["message"], issue["details"])
 
