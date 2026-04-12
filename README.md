@@ -2,19 +2,25 @@
   <a href="./README_EN.md">English</a> | 中文
 </p>
 
+<h1 align="center">
+  <code>medical-ml-governance-guard</code>
+</h1>
+
 <p align="center">
-  <br>
   <img src="https://img.shields.io/badge/MLGG-v1.0-FF6B35?style=for-the-badge&labelColor=1a1a2e" alt="MLGG v1.0">
   <br><br>
-  <strong style="font-size: 2.5em;">ML Governance Guard</strong>
+  <strong style="font-size: 2em;">ML Governance Guard</strong>
   <br>
   <em>顶刊级审稿标准 × AI 驱动的医学预测模型治理框架</em>
   <br><br>
+  <a href="https://github.com/Furinaaa-Cancan/medical-ml-governance-guard"><img src="https://img.shields.io/badge/GitHub-Furinaaa--Cancan%2Fmedical--ml--governance--guard-181717?logo=github" alt="GitHub Repo"></a>
+  <br>
   <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/"><img src="https://img.shields.io/badge/License-PolyForm%20NC%201.0.0-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/tests-4578%20passed-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-4518%20passed-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/gates-33%20fail--closed-critical" alt="Gates">
   <img src="https://img.shields.io/badge/datasets-14%20medical-purple" alt="Datasets">
-  <img src="https://img.shields.io/badge/code-116K%20lines-informational" alt="Code">
+  <img src="https://img.shields.io/badge/code-147K%20lines-informational" alt="Code">
+  <img src="https://img.shields.io/badge/lint%20rules-27%20(R001--R027)-orange" alt="Lint Rules">
   <a href="https://doi.org/10.1136/bmj-2023-078378"><img src="https://img.shields.io/badge/TRIPOD%2BAI-2024-blue" alt="TRIPOD+AI"></a>
   <a href="https://doi.org/10.1136/bmj-2024-082505"><img src="https://img.shields.io/badge/PROBAST%2BAI-2025-blue" alt="PROBAST+AI"></a>
 </p>
@@ -24,7 +30,7 @@
 <p align="center">
 <strong>33 道 fail-closed 门控</strong> &middot; <strong>9 阶段工作流</strong> &middot; <strong>12 维量化评分</strong> &middot; <strong>3 级合规认证</strong>
 <br>
-<strong>20 个模型族</strong> &middot; <strong>14 个真实医学数据集 (526K 行)</strong> &middot; <strong>107 篇 NC 审稿证据</strong> &middot; <strong>21 项分析工具</strong>
+<strong>20 个模型族</strong> &middot; <strong>14 个真实医学数据集 (526K 行)</strong> &middot; <strong>107 篇 NC 审稿证据</strong> &middot; <strong>27 条静态分析规则</strong>
 <br><br>
 <em>每一条审查建议都引用真实顶刊审稿意见作为论据。<br>不是规则引擎，是能像 Nature Medicine 审稿人一样思考的 AI 协审系统。</em>
 </p>
