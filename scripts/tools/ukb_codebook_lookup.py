@@ -435,17 +435,6 @@ class UKBCodebook:
             List of RAP column names, one per line, with 'eid' at top.
         """
         conn = self._ensure_conn()
-
-        # Load disease KB if available
-        _kb_path = Path(__file__).resolve().parent.parent.parent / "references" / "disease-definition-knowledge-base.json"
-        disease_entry: Dict[str, Any] = {}
-        if _kb_path.exists():
-            try:
-                _kb = json.loads(_kb_path.read_text(encoding="utf-8"))
-                disease_entry = _kb.get("diseases", {}).get(disease, {})
-            except Exception:
-                pass
-
         lines: List[str] = ["eid"]
 
         # ── 1. Standard demographics ────────────────────────────────
@@ -479,21 +468,22 @@ class UKBCodebook:
         # ── 5. Assessment date ──────────────────────────────────────
         lines.extend(self.field_to_rap_names(53, instance))
 
-        # ── 6. Disease-specific self-report & medication fields ─────
-        _ukb_def = disease_entry.get("ukb_definition_fields", {})
-        _ukb_med = disease_entry.get("ukb_medication_fields", {})
-        for fid_str in list(_ukb_def.keys()) + list(_ukb_med.keys()):
-            try:
-                fid = int(fid_str)
-            except (ValueError, TypeError):
-                continue
-            lines.extend(self.field_to_rap_names(fid, instance))
-
-        # ── 6b. Common medical history fields ───────────────────────
-        _MEDICAL = [6148, 6150, 4041, 2986]
-        # 6148 = eye problems, 6150 = vascular/heart problems
-        # 4041 = gestational diabetes, 2986 = insulin within 1yr of DM dx
-        for fid in _MEDICAL:
+        # ── 6. Common self-report diagnosis & medication fields ──────
+        # These are general-purpose fields present in most UKB studies.
+        # NOT disease definitions — users must define outcomes separately.
+        _SELF_REPORT_MEDICAL = [
+            2443,   # Diabetes diagnosed by doctor
+            2966,   # Age high BP diagnosed
+            2976,   # Age diabetes diagnosed
+            2986,   # Started insulin within 1yr
+            4041,   # Gestational diabetes
+            4056,   # Age stroke diagnosed
+            6148,   # Eye problems/disorders
+            6150,   # Vascular/heart problems diagnosed
+            6153,   # Medication for BP/cholesterol/diabetes
+            6177,   # Medication for BP/cholesterol/diabetes (touchscreen)
+        ]
+        for fid in _SELF_REPORT_MEDICAL:
             lines.extend(self.field_to_rap_names(fid, instance))
 
         # ── 7. General self-report conditions & medications ─────────
@@ -548,14 +538,17 @@ class UKBCodebook:
         for fid in _SLEEP:
             lines.extend(self.field_to_rap_names(fid, instance))
 
-        # ── 11. Outcome / first-occurrence fields ───────────────────
+        # ── 11. Outcome fields ──────────────────────────────────────
+        # NOTE: We do NOT auto-select disease-specific outcome fields.
+        # Users must add their own outcome definition fields separately.
+        # We only include hospital diagnosis codes (for user to filter)
+        # and generic date fields.
         if include_outcome_fields:
-            _ukb_out = disease_entry.get("ukb_outcome_fields", {})
-            for fid_str in _ukb_out.keys():
-                try:
-                    fid = int(fid_str)
-                except (ValueError, TypeError):
-                    continue
+            # Hospital inpatient ICD-10 diagnoses (user filters for their disease)
+            for fid in [41270, 41280]:  # ICD10 diagnoses + dates
+                lines.extend(self.field_to_rap_names(fid))
+            # Hospital inpatient OPCS-4 procedures
+            for fid in [41272, 41282]:  # OPCS4 codes + dates
                 lines.extend(self.field_to_rap_names(fid))
 
         # ── 12. Death register ──────────────────────────────────────
@@ -843,9 +836,9 @@ def main() -> int:
     parser.add_argument("--target", help="Target column for leakage checks")
     parser.add_argument("--report", type=Path, help="Output JSON report path")
     parser.add_argument("--stats", action="store_true", help="Print database statistics")
-    parser.add_argument("--generate", metavar="DISEASE",
-                        help="Generate RAP field list for a disease study "
-                             "(e.g., type_2_diabetes, hypertension, stroke)")
+    parser.add_argument("--generate", nargs="?", const="baseline",
+                        help="Generate RAP field list with common baseline variables. "
+                             "Does NOT define disease outcomes — add those separately.")
     parser.add_argument("--output", "-o", type=Path,
                         help="Output .txt file path for --generate")
     parser.add_argument("--instance", type=int, default=0,
@@ -883,20 +876,22 @@ def main() -> int:
                 print(f"No results for: {args.search}", file=sys.stderr)
             return 0
 
-        if args.generate:
-            disease = args.generate.strip().lower().replace(" ", "_")
-            out = args.output or Path(f"ukb_{disease}_fields.txt")
+        if args.generate is not None:
+            out = args.output or Path("ukb_baseline_fields.txt")
             fields = cb.generate_field_list(
-                disease=disease,
+                disease=args.generate,
                 instance=args.instance,
                 include_death=not args.no_death,
                 include_cancer_register=args.with_cancer,
                 output_path=out,
             )
-            print(f"\n  Disease:    {disease}")
-            print(f"  Instance:   {args.instance} (baseline)")
+            print(f"\n  Instance:   {args.instance} (baseline)")
             print(f"  Fields:     {len(fields)}")
             print(f"  Output:     {out}")
+            print(f"\n  NOTE: This list contains common baseline variables only.")
+            print(f"  You must add your own outcome definition fields separately")
+            print(f"  (e.g., first-occurrence ICD fields from Category 1712,")
+            print(f"   or ADO fields from Category 42).")
             print(f"\n  Usage on RAP: upload {out.name} and use with Table Exporter")
             return 0
 

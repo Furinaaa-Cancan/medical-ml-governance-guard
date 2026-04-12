@@ -216,23 +216,7 @@
         "random_plasma_glucose"
       ],
       "recommended_adjudication": "at_least_two",
-      "ukb_validation": "Eastwood 2016: 75% of 'probable T2D' confirmed in primary+secondary care",
-      "ukb_definition_fields": {
-        "2443": "Diabetes diagnosed by doctor",
-        "2976": "Age diabetes diagnosed",
-        "30750": "Glycated haemoglobin (HbA1c)",
-        "30740": "Glucose"
-      },
-      "ukb_outcome_fields": {
-        "130708": "Date E11 first reported",
-        "130709": "Source of report of E11",
-        "130814": "Date E78 first reported (dyslipidemia)",
-        "130815": "Source of report E78"
-      },
-      "ukb_medication_fields": {
-        "6177": "Medication for cholesterol, blood pressure or diabetes",
-        "6153": "Medication for cholesterol, blood pressure, diabetes"
-      }
+      "ukb_validation": "Eastwood 2016: 75% of 'probable T2D' confirmed in primary+secondary care"
     },
     "hypertension": {
       "name": "Essential Hypertension",
@@ -324,20 +308,7 @@
         "systolic",
         "systolic_blood_pressure"
       ],
-      "recommended_adjudication": "at_least_two",
-      "ukb_definition_fields": {
-        "4080": "Systolic blood pressure, automated reading",
-        "4079": "Diastolic blood pressure, automated reading",
-        "2966": "Age high blood pressure diagnosed"
-      },
-      "ukb_outcome_fields": {
-        "131286": "Date I10 first reported",
-        "131287": "Source of report of I10"
-      },
-      "ukb_medication_fields": {
-        "6177": "Medication for cholesterol, blood pressure or diabetes",
-        "6153": "Medication for cholesterol, blood pressure, diabetes"
-      }
+      "recommended_adjudication": "at_least_two"
     },
     "coronary_heart_disease": {
       "name": "Coronary Heart Disease / Coronary Artery Disease",
@@ -456,17 +427,7 @@
         "troponin_i",
         "troponin_t"
       ],
-      "recommended_adjudication": "at_least_two",
-      "ukb_definition_fields": {
-        "3894": "Age heart attack diagnosed",
-        "6150": "Vascular/heart problems diagnosed by doctor"
-      },
-      "ukb_outcome_fields": {
-        "131298": "Date I21 first reported (MI)",
-        "131306": "Date I25 first reported (CHD)",
-        "42000": "Date of myocardial infarction (algorithmically defined)"
-      },
-      "ukb_medication_fields": {}
+      "recommended_adjudication": "at_least_two"
     },
     "chronic_kidney_disease": {
       "name": "Chronic Kidney Disease",
@@ -545,17 +506,7 @@
         "uacr"
       ],
       "recommended_adjudication": "at_least_two",
-      "note": "CKD-EPI 2021 removed race coefficient — use race-free formula",
-      "ukb_definition_fields": {
-        "30700": "Creatinine",
-        "30510": "Creatinine (enzymatic) in urine",
-        "30500": "Microalbumin in urine"
-      },
-      "ukb_outcome_fields": {
-        "132032": "Date N18 first reported",
-        "132033": "Source of report of N18"
-      },
-      "ukb_medication_fields": {}
+      "note": "CKD-EPI 2021 removed race coefficient — use race-free formula"
     },
     "heart_failure": {
       "name": "Heart Failure",
@@ -630,13 +581,7 @@
         "ntprobnp",
         "pro_bnp"
       ],
-      "recommended_adjudication": "at_least_two",
-      "ukb_definition_fields": {},
-      "ukb_outcome_fields": {
-        "131354": "Date I50 first reported",
-        "131355": "Source of report of I50"
-      },
-      "ukb_medication_fields": {}
+      "recommended_adjudication": "at_least_two"
     },
     "stroke": {
       "name": "Stroke (Ischaemic and Haemorrhagic)",
@@ -701,17 +646,7 @@
         "stroke_flag",
         "stroke_type"
       ],
-      "recommended_adjudication": "at_least_two",
-      "ukb_definition_fields": {
-        "4056": "Age stroke diagnosed"
-      },
-      "ukb_outcome_fields": {
-        "131366": "Date I63 first reported (cerebral infarction)",
-        "131368": "Date I64 first reported (stroke unspecified)",
-        "42006": "Date of stroke (algorithmically defined)",
-        "42008": "Source of stroke report"
-      },
-      "ukb_medication_fields": {}
+      "recommended_adjudication": "at_least_two"
     },
     "copd": {
       "name": "Chronic Obstructive Pulmonary Disease",
@@ -776,22 +711,7 @@
         "fvc",
         "spirometry"
       ],
-      "recommended_adjudication": "at_least_two",
-      "ukb_definition_fields": {
-        "22130": "Doctor diagnosed COPD",
-        "22150": "Age COPD diagnosed",
-        "3063": "FEV1 (forced expiratory volume in 1-second)",
-        "3062": "FVC (forced vital capacity)"
-      },
-      "ukb_outcome_fields": {
-        "131492": "Date J44 first reported (COPD)",
-        "131493": "Source of report of J44 (COPD)",
-        "42016": "Date of COPD report (algorithmically defined)",
-        "42017": "Source of COPD report"
-      },
-      "ukb_medication_fields": {
-        "22170": "Recent medication for COPD"
-      }
+      "recommended_adjudication": "at_least_two"
     },
     "major_depressive_disorder": {
       "name": "Major Depressive Disorder",
@@ -866,19 +786,7 @@
         "phq2_score",
         "phq9_score"
       ],
-      "recommended_adjudication": "at_least_two",
-      "ukb_definition_fields": {
-        "20123": "Single episode of probable major depression",
-        "20124": "Probable recurrent major depression (moderate)",
-        "20125": "Probable recurrent major depression (severe)",
-        "4609": "Longest period of depression",
-        "4620": "Number of depression episodes"
-      },
-      "ukb_outcome_fields": {
-        "130894": "Date F32 first reported (depressive episode)",
-        "130895": "Source of report of F32"
-      },
-      "ukb_medication_fields": {}
+      "recommended_adjudication": "at_least_two"
     },
     "cancer_any": {
       "name": "Cancer (Any Site)",
@@ -964,18 +872,7 @@
       "recommended_adjudication": "cancer_registry_primary",
       "icd10": [
         "C00-C97"
-      ],
-      "ukb_definition_fields": {
-        "134": "Number of self-reported cancers",
-        "40005": "Date of cancer diagnosis",
-        "40006": "Type of cancer: ICD10"
-      },
-      "ukb_outcome_fields": {
-        "40005": "Date of cancer diagnosis",
-        "40008": "Age at cancer diagnosis",
-        "40009": "Reported occurrences of cancer"
-      },
-      "ukb_medication_fields": {}
+      ]
     },
     "atrial_fibrillation": {
       "name": "Atrial Fibrillation",
@@ -1037,13 +934,7 @@
         "holter_result",
         "rhythm_type"
       ],
-      "recommended_adjudication": "at_least_two",
-      "ukb_definition_fields": {},
-      "ukb_outcome_fields": {
-        "131350": "Date I48 first reported (AF)",
-        "131351": "Source of report of I48"
-      },
-      "ukb_medication_fields": {}
+      "recommended_adjudication": "at_least_two"
     },
     "readmission_30day": {
       "name": "30-Day All-Cause Hospital Readmission",
@@ -1087,10 +978,7 @@
       ],
       "recommended_adjudication": "any_one",
       "note": "This is an administrative outcome, not a clinical diagnosis. Definition depends on data source (claims vs EHR). CMS definition is the de facto standard in the US.",
-      "note_no_icd": "Administrative outcome, not diagnosed by ICD codes. Defined by admission/discharge dates.",
-      "ukb_definition_fields": {},
-      "ukb_outcome_fields": {},
-      "ukb_medication_fields": {}
+      "note_no_icd": "Administrative outcome, not diagnosed by ICD codes. Defined by admission/discharge dates."
     }
   },
   "general_guidance": {

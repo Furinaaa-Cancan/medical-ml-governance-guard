@@ -605,63 +605,28 @@
         "30750": {
           "label": "Glycated haemoglobin (HbA1c)",
           "type": "continuous_lab",
-          "units": "mmol/mol",
-          "definition_variable_for": [
-            "type_2_diabetes"
-          ],
-          "threshold": {
-            "type_2_diabetes": ">=48 mmol/mol"
-          },
-          "must_exclude_if_target": true,
-          "target_adjacent_for": [
-            "type_2_diabetes"
-          ]
+          "units": "mmol/mol"
         },
         "30740": {
           "label": "Glucose",
           "type": "continuous_lab",
-          "units": "mmol/L",
-          "definition_variable_for": [
-            "type_2_diabetes"
-          ],
-          "threshold": {
-            "type_2_diabetes": ">=7.0 mmol/L (fasting)"
-          },
-          "must_exclude_if_target": true
+          "units": "mmol/L"
         },
         "4080": {
           "label": "Systolic blood pressure, automated reading",
           "type": "numeric",
           "units": "mmHg",
-          "definition_variable_for": [
-            "hypertension"
-          ],
-          "threshold": {
-            "hypertension": ">=140 mmHg"
-          },
-          "must_exclude_if_target": true,
           "measurement_protocol": "Two readings taken; use mean of available readings"
         },
         "4079": {
           "label": "Diastolic blood pressure, automated reading",
           "type": "numeric",
-          "units": "mmHg",
-          "definition_variable_for": [
-            "hypertension"
-          ],
-          "threshold": {
-            "hypertension": ">=90 mmHg"
-          },
-          "must_exclude_if_target": true
+          "units": "mmHg"
         },
         "30700": {
           "label": "Creatinine",
           "type": "continuous_lab",
           "units": "umol/L",
-          "definition_variable_for": [
-            "chronic_kidney_disease"
-          ],
-          "must_exclude_if_target": true,
           "note": "Used to compute eGFR (CKD-EPI)"
         },
         "30760": {
@@ -702,20 +667,11 @@
             "1": "Yes",
             "-1": "Do not know",
             "-3": "Prefer not to answer"
-          },
-          "definition_variable_for": [
-            "type_2_diabetes"
-          ],
-          "must_exclude_if_target": true
+          }
         },
         "6177": {
           "label": "Medication for cholesterol, blood pressure or diabetes",
           "type": "nominal_categorical",
-          "definition_variable_for": [
-            "type_2_diabetes",
-            "hypertension"
-          ],
-          "must_exclude_if_target": true,
           "note": "Encodes WHICH medication, not just yes/no"
         },
         "20116": {
@@ -743,26 +699,15 @@
         "40000": {
           "label": "Date of death",
           "type": "date",
-          "must_exclude_if_target": true,
-          "post_prediction_if_target": [
-            "all"
-          ],
           "note": "ALWAYS an outcome variable — never use as feature"
         },
         "40001": {
           "label": "Underlying (primary) cause of death: ICD10",
-          "type": "text",
-          "must_exclude_if_target": true,
-          "post_prediction_if_target": [
-            "all"
-          ]
+          "type": "text"
         },
         "41270": {
           "label": "Diagnoses - ICD10 (hospital inpatient)",
           "type": "text",
-          "reverse_causation_risk": [
-            "all"
-          ],
           "note": "Hospital records accumulate over time — verify temporal eligibility"
         }
       }
