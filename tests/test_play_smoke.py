@@ -26,8 +26,10 @@ def assert_true(cond: bool, test_name: str, detail: str = "") -> None:
     if cond:
         print(f"  [{PASS}] {test_name}")
     else:
-        print(f"  [{FAIL}] {test_name}" + (f": {detail}" if detail else ""))
+        msg = f"{test_name}: {detail}" if detail else test_name
+        print(f"  [{FAIL}] {msg}")
         _failures.append(test_name)
+        raise AssertionError(msg)
 
 
 def test_default_models_are_conservative_linear_pool() -> None:

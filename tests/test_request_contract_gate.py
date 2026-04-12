@@ -1100,3 +1100,44 @@ class TestStrictMode:
         # Strict mode should produce a stricter result
         assert "strict_mode" in report
         assert report["strict_mode"] is True
+
+
+# ── policy baselines JSON loading ────────────────────────────────────────────
+
+
+class TestPolicyBaselinesLoading:
+    """Verify publication-policy-baselines.json loads correctly with tuple keys."""
+
+    def test_baselines_loaded(self):
+        assert isinstance(rcg.PUBLICATION_POLICY_BASELINES, dict)
+        assert rcg.PUBLICATION_POLICY_BASELINES["beta"] == 2.0
+
+    def test_gap_thresholds_are_tuples(self):
+        gaps = rcg.PUBLICATION_POLICY_BASELINES["gap_thresholds_max"]
+        assert isinstance(gaps, dict)
+        for key in gaps:
+            assert isinstance(key, tuple), f"Expected tuple key, got {type(key)}: {key}"
+            assert len(key) == 3
+
+    def test_allowed_selection_splits_is_set(self):
+        splits = rcg.PUBLICATION_POLICY_BASELINES["allowed_selection_splits"]
+        assert isinstance(splits, set)
+        assert "valid" in splits
+
+    def test_profiles_loaded(self):
+        assert isinstance(rcg._PROFILE_OVERRIDES, dict)
+        assert "standard" in rcg.ALLOWED_PROFILES
+        assert "small_cohort" in rcg.ALLOWED_PROFILES
+
+    def test_profile_override_gap_keys_are_tuples(self):
+        for profile_name, overrides in rcg._PROFILE_OVERRIDES.items():
+            if "gap_thresholds_max" in overrides:
+                for key in overrides["gap_thresholds_max"]:
+                    assert isinstance(key, tuple), (
+                        f"Profile '{profile_name}' gap key is {type(key)}: {key}"
+                    )
+
+    def test_apply_profile_merges(self):
+        resolved = rcg._apply_profile(rcg.PUBLICATION_POLICY_BASELINES, "small_cohort")
+        assert resolved["clinical_floors_min"]["sensitivity_min"] == 0.75
+        assert resolved["beta"] == 2.0

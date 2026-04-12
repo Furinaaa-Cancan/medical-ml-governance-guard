@@ -32,9 +32,17 @@ class TestComputeFeatureStats(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Patch _TEST_MODE before import to avoid terminal side-effects
+        cls._orig_test_mode = os.environ.get("MLGG_PIXEL_TEST_MODE")
         os.environ["MLGG_PIXEL_TEST_MODE"] = "1"
         import mlgg_pixel
         cls.compute = staticmethod(mlgg_pixel.compute_feature_stats)
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls._orig_test_mode is None:
+            os.environ.pop("MLGG_PIXEL_TEST_MODE", None)
+        else:
+            os.environ["MLGG_PIXEL_TEST_MODE"] = cls._orig_test_mode
 
     def _tmp_csv(self, rows):
         f = tempfile.NamedTemporaryFile(
@@ -228,10 +236,18 @@ class TestFeatureHintFromStats(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        cls._orig_test_mode = os.environ.get("MLGG_PIXEL_TEST_MODE")
         os.environ["MLGG_PIXEL_TEST_MODE"] = "1"
         import mlgg_pixel
         cls.hint = staticmethod(mlgg_pixel._feature_hint_from_stats)
         mlgg_pixel.LANG = "en"
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls._orig_test_mode is None:
+            os.environ.pop("MLGG_PIXEL_TEST_MODE", None)
+        else:
+            os.environ["MLGG_PIXEL_TEST_MODE"] = cls._orig_test_mode
 
     def test_numeric_with_stats(self):
         stats = {"x": {"is_numeric": True, "missing_pct": 5.0, "variance": 10.5, "corr_target": 0.3, "distinct": 100, "warnings": []}}
