@@ -208,15 +208,22 @@ python3 scripts/orchestration/mlgg.py split -- \
   --patient-id-col patient_id --target-col y --time-col event_time \
   --strategy grouped_temporal
 
-# 3. 交互式训练
+# 3. 泄漏检测（训练前必须通过）
+python3 scripts/gates/leakage_gate.py \
+  --train /tmp/project/data/train.csv \
+  --test /tmp/project/data/test.csv \
+  --id-cols patient_id --target-col y \
+  --report /tmp/project/evidence/leakage_report.json
+
+# 4. 交互式训练
 python3 scripts/orchestration/mlgg.py train --interactive
 
-# 4. 严格审计（bootstrap 基线）
+# 5. 严格审计（bootstrap 基线）
 python3 scripts/orchestration/mlgg.py workflow \
   --request /tmp/project/configs/request.json \
   --strict --allow-missing-compare
 
-# 5. 严格对比复跑
+# 6. 严格对比复跑
 python3 scripts/orchestration/mlgg.py workflow \
   --request /tmp/project/configs/request.json \
   --strict \

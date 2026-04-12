@@ -526,6 +526,11 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> int:
+    # No arguments → show help instead of argparse error
+    if len(sys.argv) < 2:
+        build_parser().print_help()
+        return 0
+
     forwarded_help = maybe_forward_subcommand_help(sys.argv[1:])
     if forwarded_help is not None:
         return int(forwarded_help)
