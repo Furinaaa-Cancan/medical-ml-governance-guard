@@ -1343,7 +1343,7 @@ def main() -> int:
                 raise ImportError("skip RAG")
 
             # Dispatch to the right validation method depending on codebook type
-            _is_ukb = hasattr(cb_rag, "validate_columns_for_gate")
+            _is_ukb = type(cb_rag).__name__ == "UKBCodebook"
             if _is_ukb:
                 rag_issues = cb_rag.validate_columns_for_gate(
                     list(df.columns), target_col=args.target_col,

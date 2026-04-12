@@ -199,11 +199,11 @@ def classify_field(cid: Optional[int], title: str) -> Tuple[str, str]:
     # Family / early life
     if _cat_in(cid, 100033, 100034, 214, 1002, 708):
         return "questionnaire_family", "baseline"
-    # Sociodemographics
-    if _cat_in(cid, 100062, (100063, 100070), 701, 1007):
+    # Sociodemographics (100068-100070 are sex-specific, handled below)
+    if _cat_in(cid, 100062, (100063, 100067), 701, 1007):
         return "demographics", "baseline"
-    # Sex-specific
-    if _cat_in(cid, 100068, 100069, 100070):
+    # Sex-specific factors
+    if _cat_in(cid, (100068, 100070)):
         return "questionnaire_sex_specific", "baseline"
 
     # ── Accelerometry ────────────────────────────────────────────────
@@ -326,7 +326,7 @@ CREATE INDEX IF NOT EXISTS idx_encoding_values_enc ON encoding_values(encoding_i
 
 FTS_SQL = """
 CREATE VIRTUAL TABLE IF NOT EXISTS fields_fts USING fts5(
-    title, units, domain, notes,
+    title, units, domain, notes, risk_category,
     content='fields', content_rowid='field_id'
 );
 
@@ -386,7 +386,6 @@ def read_tab_file(path: Path) -> List[Dict[str, str]]:
     if not path.exists():
         print(f"  [SKIP] {path.name} not found", file=sys.stderr)
         return []
-    csv.field_size_limit(10 * 1024 * 1024)  # 10 MB — UKB hierarchical encodings can be large
     with open(path, "r", encoding="utf-8", errors="replace") as f:
         reader = csv.DictReader(f, delimiter="\t")
         return list(reader)
@@ -416,6 +415,7 @@ def safe_float(v: str) -> Optional[float]:
 
 def build_database(input_dir: Path, output: Path) -> Dict[str, int]:
     """Build SQLite from UKB Data Showcase schema files."""
+    csv.field_size_limit(10 * 1024 * 1024)  # 10 MB — UKB hierarchical encodings can be large
     print(f"Building UKB codebook from {input_dir}")
 
     if output.exists():

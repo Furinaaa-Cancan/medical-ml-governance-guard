@@ -778,12 +778,14 @@
       "ukb_definition_fields": {
         "22130": "Doctor diagnosed COPD",
         "22150": "Age COPD diagnosed",
-        "3062": "FEV1",
-        "3063": "FVC"
+        "3063": "FEV1 (forced expiratory volume in 1-second)",
+        "3062": "FVC (forced vital capacity)"
       },
       "ukb_outcome_fields": {
-        "131484": "Date J44 first reported (COPD)",
-        "131485": "Source of report of J44"
+        "131492": "Date J44 first reported (COPD)",
+        "131493": "Source of report of J44 (COPD)",
+        "42016": "Date of COPD report (algorithmically defined)",
+        "42017": "Source of COPD report"
       },
       "ukb_medication_fields": {
         "22170": "Recent medication for COPD"

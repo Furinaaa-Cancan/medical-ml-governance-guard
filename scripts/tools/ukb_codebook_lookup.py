@@ -167,9 +167,11 @@ class UKBCodebook:
     def search(self, query: str, limit: int = 20) -> List[Dict[str, Any]]:
         """Search fields by keyword using FTS5."""
         conn = self._ensure_conn()
-        # Sanitize FTS query
+        # Sanitize FTS query: strip punctuation and FTS5 operators
+        _FTS_OPERATORS = {"AND", "OR", "NOT", "NEAR"}
         safe_query = " ".join(
-            w for w in re.sub(r"[^\w\s]", " ", query).split() if w
+            w for w in re.sub(r"[^\w\s]", " ", query).split()
+            if w and w.upper() not in _FTS_OPERATORS
         )
         if not safe_query:
             return []
@@ -424,17 +426,25 @@ class UKBCodebook:
             if target_fid and fid == target_fid:
                 continue
 
-            row = conn.execute(
-                "SELECT field_id, title, domain, risk_category, "
-                "num_participants, instanced, instance_max "
-                "FROM fields WHERE field_id = ?", (fid,)
-            ).fetchone()
+            try:
+                row = conn.execute(
+                    "SELECT field_id, title, domain, risk_category, "
+                    "num_participants, instanced, instance_max "
+                    "FROM fields WHERE field_id = ?", (fid,)
+                ).fetchone()
+            except Exception:
+                # Fallback for old DB schema without risk_category column
+                row = conn.execute(
+                    "SELECT field_id, title, domain, "
+                    "num_participants, instanced "
+                    "FROM fields WHERE field_id = ?", (fid,)
+                ).fetchone()
             if not row:
                 continue
 
             title = row["title"]
             domain = row["domain"] or "other"
-            risk = row["risk_category"] or "baseline"
+            risk = (row["risk_category"] if "risk_category" in row.keys() else None) or "baseline"
             num_participants = row["num_participants"] or 0
 
             # ── Check 1: Risk-category-based leakage detection ──

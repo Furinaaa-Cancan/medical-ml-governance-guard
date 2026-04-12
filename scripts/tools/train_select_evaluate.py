@@ -4475,40 +4475,7 @@ def feature_jsd(train: pd.Series, other: pd.Series) -> Optional[float]:
     return js_divergence_from_probs(a, b)
 
 
-def _sanitize_for_json(obj: Any) -> Any:
-    """Replace non-finite floats (NaN, ±Inf) with None for JSON safety."""
-    if isinstance(obj, float):
-        return obj if math.isfinite(obj) else None
-    if isinstance(obj, dict):
-        return {k: _sanitize_for_json(v) for k, v in obj.items()}
-    if isinstance(obj, (list, tuple)):
-        return [_sanitize_for_json(v) for v in obj]
-    return obj
-
-
-def write_json(path: Path, payload: Dict[str, Any]) -> None:
-    """Atomically write a JSON file via tmp + rename.
-
-    Non-finite floats (NaN, ±Infinity) are replaced with ``null`` before
-    serialisation to prevent ``ValueError`` from ``allow_nan=False``.
-
-    Args:
-        path: Target output path.
-        payload: Dict to serialize as JSON.
-    """
-    ensure_parent(path)
-    clean = _sanitize_for_json(payload)
-    import time as _time_mod
-    tmp_path = path.with_name(
-        f".{path.name}.tmp-{os.getpid()}-{int(_time_mod.time() * 1_000_000)}"
-    )
-    with tmp_path.open("w", encoding="utf-8") as fh:
-        json.dump(clean, fh, ensure_ascii=True, indent=2, sort_keys=True,
-                  allow_nan=False)
-        fh.write("\n")
-        fh.flush()
-        os.fsync(fh.fileno())
-    tmp_path.replace(path)
+from _gate_utils import write_json  # noqa: E402 — atomic JSON write with NaN sanitization
 
 
 def summarize_seed_metric(values: Sequence[float]) -> Dict[str, float]:
@@ -5779,30 +5746,30 @@ def _phase0_preflight_and_config(args: argparse.Namespace) -> Dict[str, Any]:
     # ── Auto-exclude codebook-flagged leakage columns ─────────────────────
     # If cohort_definition_gate produced a report with codebook_auto_exclude_columns,
     # merge them into --definition-cols so they are forcibly excluded from features.
-    if not getattr(args, "skip_preflight_check", False):
-        _cohort_report_path = _evidence_dir / "cohort_definition_gate_report.json"
-        if _cohort_report_path.is_file():
-            try:
-                with _cohort_report_path.open("r", encoding="utf-8") as _fh:
-                    _cohort_rpt = json.load(_fh)
-                _auto_exclude = (_cohort_rpt.get("study_design", {})
-                                 .get("codebook_auto_exclude_columns", []))
-                if _auto_exclude:
-                    existing = set(
-                        c.strip() for c in getattr(args, "definition_cols", "").split(",") if c.strip()
+    _evidence_dir_for_codebook = Path(args.train).expanduser().resolve().parent.parent / "evidence"
+    _cohort_report_path = _evidence_dir_for_codebook / "cohort_definition_gate_report.json"
+    if _cohort_report_path.is_file():
+        try:
+            with _cohort_report_path.open("r", encoding="utf-8") as _fh:
+                _cohort_rpt = json.load(_fh)
+            _auto_exclude = (_cohort_rpt.get("study_design", {})
+                             .get("codebook_auto_exclude_columns", []))
+            if _auto_exclude:
+                existing = set(
+                    c.strip() for c in getattr(args, "definition_cols", "").split(",") if c.strip()
+                )
+                new_cols = sorted(set(_auto_exclude) - existing)
+                if new_cols:
+                    merged = ",".join(sorted(existing | set(new_cols)))
+                    args.definition_cols = merged
+                    print(
+                        f"[SAFE] codebook_auto_exclude: {len(new_cols)} column(s) flagged "
+                        f"by cohort codebook validation added to definition_cols: "
+                        f"{', '.join(new_cols)}",
+                        file=sys.stderr,
                     )
-                    new_cols = sorted(set(_auto_exclude) - existing)
-                    if new_cols:
-                        merged = ",".join(sorted(existing | set(new_cols)))
-                        args.definition_cols = merged
-                        print(
-                            f"[SAFE] codebook_auto_exclude: {len(new_cols)} column(s) flagged "
-                            f"by cohort codebook validation added to definition_cols: "
-                            f"{', '.join(new_cols)}",
-                            file=sys.stderr,
-                        )
-            except (json.JSONDecodeError, KeyError, TypeError):
-                pass  # Non-fatal: codebook exclusion is best-effort
+        except (json.JSONDecodeError, KeyError, TypeError, FileNotFoundError, OSError):
+            pass  # Non-fatal: codebook exclusion is best-effort
 
     # ── Argument validation ───────────────────────────────────────────────
     if args.cv_splits < 3:
