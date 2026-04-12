@@ -363,6 +363,182 @@ class UKBCodebook:
             "aliases": conn.execute("SELECT COUNT(*) FROM aliases").fetchone()[0],
         }
 
+    # ── RAP field list generator ────────────────────────────────────────
+    # Generates a .txt file in the exact format RAP Table Exporter accepts.
+
+    def field_to_rap_names(
+        self, field_id: int, instance: int = 0, all_instances: bool = False,
+    ) -> List[str]:
+        """Expand a single field_id into RAP column name(s).
+
+        Rules (derived from RAP Table Exporter conventions):
+          instanced=0, arrayed=0  → ["p{fid}"]
+          instanced>0, arrayed=0  → ["p{fid}_i{inst}"]
+          instanced>0, arrayed>0  → ["p{fid}_i{inst}_a0", ..., "p{fid}_i{inst}_a{arr_max}"]
+          instanced=0, arrayed>0  → ["p{fid}_a0", ..., "p{fid}_a{arr_max}"]
+
+        If all_instances=True, expands across all instances (instance_min..instance_max).
+        """
+        conn = self._ensure_conn()
+        row = conn.execute(
+            "SELECT instanced, arrayed, instance_min, instance_max, array_min, array_max "
+            "FROM fields WHERE field_id = ?", (field_id,)
+        ).fetchone()
+        if not row:
+            return [f"p{field_id}"]
+
+        instanced = row["instanced"] or 0
+        arrayed = row["arrayed"] or 0
+        inst_min = row["instance_min"] or 0
+        inst_max = row["instance_max"] or 0
+        arr_min = row["array_min"] or 0
+        arr_max = row["array_max"] or 0
+
+        instances = list(range(inst_min, inst_max + 1)) if all_instances else [instance]
+
+        names = []
+        if instanced == 0 and arrayed == 0:
+            names.append(f"p{field_id}")
+        elif instanced > 0 and arrayed == 0:
+            for inst in instances:
+                names.append(f"p{field_id}_i{inst}")
+        elif instanced > 0 and arrayed > 0:
+            for inst in instances:
+                for arr in range(arr_min, arr_max + 1):
+                    names.append(f"p{field_id}_i{inst}_a{arr}")
+        elif instanced == 0 and arrayed > 0:
+            for arr in range(arr_min, arr_max + 1):
+                names.append(f"p{field_id}_a{arr}")
+
+        return names
+
+    def generate_field_list(
+        self,
+        disease: str,
+        instance: int = 0,
+        include_outcome_fields: bool = True,
+        include_death: bool = True,
+        include_cancer_register: bool = False,
+        output_path: Optional[Path] = None,
+    ) -> List[str]:
+        """Generate a RAP-compatible field list for a disease study.
+
+        Args:
+            disease: Disease key (e.g., 'type_2_diabetes', 'hypertension').
+            instance: Assessment instance for baseline predictors (default 0).
+            include_outcome_fields: Include first-occurrence / outcome fields.
+            include_death: Include death register fields (40000, 40001).
+            include_cancer_register: Include cancer register fields (40005, 40006).
+            output_path: If given, write to this .txt file.
+
+        Returns:
+            List of RAP column names, one per line, with 'eid' at top.
+        """
+        conn = self._ensure_conn()
+
+        # Load disease KB if available
+        _kb_path = Path(__file__).resolve().parent.parent.parent / "references" / "disease-definition-knowledge-base.json"
+        disease_entry: Dict[str, Any] = {}
+        if _kb_path.exists():
+            try:
+                _kb = json.loads(_kb_path.read_text(encoding="utf-8"))
+                disease_entry = _kb.get("diseases", {}).get(disease, {})
+            except Exception:
+                pass
+
+        lines: List[str] = ["eid"]
+
+        # ── 1. Standard demographics ────────────────────────────────
+        _DEMOGRAPHICS = [21022, 31, 21000, 189]
+        for fid in _DEMOGRAPHICS:
+            lines.extend(self.field_to_rap_names(fid, instance))
+
+        # ── 2. Anthropometry ────────────────────────────────────────
+        _ANTHRO = [21001, 50, 21002, 48, 49]
+        for fid in _ANTHRO:
+            lines.extend(self.field_to_rap_names(fid, instance))
+
+        # ── 3. Laboratory (common biomarkers) ───────────────────────
+        _LAB_COMMON = [30750, 30740, 30690, 30780, 30760, 30870, 30710,
+                       30700, 30600, 30620, 30650, 30020]
+        for fid in _LAB_COMMON:
+            lines.extend(self.field_to_rap_names(fid, instance))
+
+        # ── 4. Blood pressure ───────────────────────────────────────
+        for fid in [4080, 4079]:
+            lines.extend(self.field_to_rap_names(fid, instance))
+
+        # ── 5. Assessment date ──────────────────────────────────────
+        lines.extend(self.field_to_rap_names(53, instance))
+
+        # ── 6. Disease-specific self-report & medication fields ─────
+        _ukb_def = disease_entry.get("ukb_definition_fields", {})
+        _ukb_med = disease_entry.get("ukb_medication_fields", {})
+        for fid_str in list(_ukb_def.keys()) + list(_ukb_med.keys()):
+            try:
+                fid = int(fid_str)
+            except (ValueError, TypeError):
+                continue
+            lines.extend(self.field_to_rap_names(fid, instance))
+
+        # ── 7. General self-report conditions & medications ─────────
+        # 20002 = non-cancer illness codes (array)
+        # 20003 = treatment/medication codes (array)
+        # 20001 = cancer codes (array)
+        for fid in [20002, 20003]:
+            lines.extend(self.field_to_rap_names(fid, instance))
+
+        # ── 8. Lifestyle ────────────────────────────────────────────
+        _LIFESTYLE = [20116, 20117, 1558, 1239, 1249]  # smoking, alcohol, diet basics
+        for fid in _LIFESTYLE:
+            lines.extend(self.field_to_rap_names(fid, instance))
+
+        # ── 9. Physical activity ────────────────────────────────────
+        _ACTIVITY = [22032, 22035, 22036, 22037, 22038, 22039, 22040]
+        for fid in _ACTIVITY:
+            lines.extend(self.field_to_rap_names(fid, instance))
+
+        # ── 10. Sleep ───────────────────────────────────────────────
+        _SLEEP = [1160, 1170, 1180, 1190, 1200, 1210, 1220]
+        for fid in _SLEEP:
+            lines.extend(self.field_to_rap_names(fid, instance))
+
+        # ── 11. Outcome / first-occurrence fields ───────────────────
+        if include_outcome_fields:
+            _ukb_out = disease_entry.get("ukb_outcome_fields", {})
+            for fid_str in _ukb_out.keys():
+                try:
+                    fid = int(fid_str)
+                except (ValueError, TypeError):
+                    continue
+                lines.extend(self.field_to_rap_names(fid))
+
+        # ── 12. Death register ──────────────────────────────────────
+        if include_death:
+            for fid in [40000, 40001]:
+                lines.extend(self.field_to_rap_names(fid, all_instances=True))
+
+        # ── 13. Cancer register ─────────────────────────────────────
+        if include_cancer_register:
+            for fid in [40005, 40006, 40008, 40009]:
+                lines.extend(self.field_to_rap_names(fid, all_instances=True))
+            for fid in [20001]:
+                lines.extend(self.field_to_rap_names(fid, instance))
+
+        # Deduplicate while preserving order
+        seen = set()
+        unique_lines = []
+        for line in lines:
+            if line not in seen:
+                seen.add(line)
+                unique_lines.append(line)
+
+        if output_path:
+            Path(output_path).write_text("\n".join(unique_lines) + "\n", encoding="utf-8")
+            print(f"Written {len(unique_lines)} fields to {output_path}")
+
+        return unique_lines
+
     # ── Gate-compatible interface ────────────────────────────────────────
     # Returns List[Dict] with {code, message, details} matching the format
     # expected by cohort_definition_gate.py's codebook RAG integration.
@@ -622,6 +798,17 @@ def main() -> int:
     parser.add_argument("--target", help="Target column for leakage checks")
     parser.add_argument("--report", type=Path, help="Output JSON report path")
     parser.add_argument("--stats", action="store_true", help="Print database statistics")
+    parser.add_argument("--generate", metavar="DISEASE",
+                        help="Generate RAP field list for a disease study "
+                             "(e.g., type_2_diabetes, hypertension, stroke)")
+    parser.add_argument("--output", "-o", type=Path,
+                        help="Output .txt file path for --generate")
+    parser.add_argument("--instance", type=int, default=0,
+                        help="Baseline instance for --generate (default: 0)")
+    parser.add_argument("--no-death", action="store_true",
+                        help="Exclude death register fields from --generate")
+    parser.add_argument("--with-cancer", action="store_true",
+                        help="Include cancer register fields in --generate")
     args = parser.parse_args()
 
     cb = UKBCodebook(args.db)
@@ -649,6 +836,23 @@ def main() -> int:
                     print(f"  {r['field_id']:>6d}  {r['title'][:60]:60s}  [{r['domain']}]")
             else:
                 print(f"No results for: {args.search}", file=sys.stderr)
+            return 0
+
+        if args.generate:
+            disease = args.generate.strip().lower().replace(" ", "_")
+            out = args.output or Path(f"ukb_{disease}_fields.txt")
+            fields = cb.generate_field_list(
+                disease=disease,
+                instance=args.instance,
+                include_death=not args.no_death,
+                include_cancer_register=args.with_cancer,
+                output_path=out,
+            )
+            print(f"\n  Disease:    {disease}")
+            print(f"  Instance:   {args.instance} (baseline)")
+            print(f"  Fields:     {len(fields)}")
+            print(f"  Output:     {out}")
+            print(f"\n  Usage on RAP: upload {out.name} and use with Table Exporter")
             return 0
 
         if args.data:
