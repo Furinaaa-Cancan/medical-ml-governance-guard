@@ -747,7 +747,7 @@ def calibration_metrics(
     # --- O:E ratio ---
     observed = float(y_t.sum())
     expected = float(y_s.sum())
-    oe_ratio = observed / expected if expected > 0 else float("nan")
+    oe_ratio = observed / expected if expected > 0 else None
 
     # --- ECE (Expected Calibration Error) ---
     bin_edges = np.linspace(0, 1, n_bins + 1)
@@ -798,7 +798,7 @@ def calibration_metrics(
     return {
         "calibration_intercept": round(cal_intercept, 4),
         "calibration_slope": round(cal_slope, 4),
-        "oe_ratio": round(oe_ratio, 4),
+        "oe_ratio": round(oe_ratio, 4) if oe_ratio is not None else None,
         "ece": round(ece, 4),
         "hosmer_lemeshow_chi2": round(hl_stat, 4),
         "hosmer_lemeshow_p": round(hl_p, 4),
@@ -2078,7 +2078,7 @@ def temporal_drift_analysis(
         # O:E ratio
         observed = float(yt_w.sum())
         expected = float(ys_w.sum())
-        oe = observed / expected if expected > 0 else float("nan")
+        oe = observed / expected if expected > 0 else None
 
         # ECE
         bin_edges = np.linspace(0, 1, n_bins + 1)
@@ -2101,7 +2101,7 @@ def temporal_drift_analysis(
             "time_min": round(float(t_v[start]), 2),
             "time_max": round(float(t_v[end - 1]), 2),
             "prevalence": round(prev, 4),
-            "oe_ratio": round(oe, 4),
+            "oe_ratio": round(oe, 4) if oe is not None else None,
             "ece": round(ece, 4),
         })
 

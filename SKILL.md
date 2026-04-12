@@ -20,7 +20,7 @@ description: "Publication-grade medical prediction workflow with 33 fail-closed 
 | 建模 / 训练 / "我有数据" | `/mlgg` |
 | 交互式体验 | `python3 scripts/orchestration/mlgg.py play` |
 | 查看结果 | `python3 scripts/tools/quick_summary.py <dir>` |
-| 下载数据集 | `python3 examples/download_real_data.py <name>` (heart/breast/pima/mammographic/thyroid/eeg_eye/vitaldb/framingham/diabetes130/diabetes130_full/rhc/sepsis_survival) |
+| 下载数据集 | `python3 examples/download_real_data.py <name>` (heart/breast/ckd/hepatitis/spect/dermatology/pima/mammographic/thyroid/eeg_eye/framingham/diabetes130/diabetes130_full/vitaldb/rhc/sepsis_survival) |
 | 下载 CDC 数据 | `python3 examples/download_cdc_data.py <name>` (brfss/nhis/covid/all) |
 | 下载 NHANES | `python3 examples/download_nhanes.py --cycles both --output examples/nhanes_diabetes.csv` |
 | 下载 NCI 癌症 | `python3 examples/download_nci_gdc.py --output examples/nci_gdc_cancer_survival.csv` |
@@ -201,7 +201,7 @@ R021 可检测 `holdout/held_out` 等关键词，但任意命名（如 `eval_dat
 
 ---
 
-## 可用数据集 (14 个, 526K 行)
+## 可用数据集 (16 个, 526K+ 行)
 
 | 数据集 | 行数 | 下载命令 |
 |--------|------|---------|

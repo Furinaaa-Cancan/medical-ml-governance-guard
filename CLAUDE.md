@@ -6,7 +6,7 @@
 
 ## Working Directory
 
-所有命令均在项目根目录 `/Volumes/Seagate/Skill/ml-governance-guard` 下运行。
+所有命令均在项目根目录 `/Volumes/Seagate/Skill/ml-leakage-guard` 下运行。
 
 ## Reviewer Role（始终激活）
 
