@@ -3009,6 +3009,15 @@ def main() -> int:
 
     validate_optional_path(
         request=request,
+        key="model_pool_file",
+        base=request_base,
+        failures=failures,
+        required=False,
+        normalized=normalized,
+    )
+
+    validate_optional_path(
+        request=request,
         key="seed_sensitivity_report_file",
         base=request_base,
         failures=failures,

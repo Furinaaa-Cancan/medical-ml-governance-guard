@@ -847,24 +847,7 @@ def save_csv(df: pd.DataFrame, path: Path) -> None:
     tmp.replace(path)
 
 
-def write_json(path: Path, payload: Dict[str, Any]) -> None:
-    """Atomically write a JSON file via tmp + rename.
-
-    Args:
-        path: Target output path.
-        payload: Dict to serialize as JSON.
-    """
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(
-        f".{path.name}.tmp-{os.getpid()}-{datetime.now(tz=timezone.utc).strftime('%Y%m%d%H%M%S%f')}"
-    )
-    with tmp.open("w", encoding="utf-8") as fh:
-        json.dump(payload, fh, ensure_ascii=True, indent=2, sort_keys=True,
-                  allow_nan=False)
-        fh.write("\n")
-        fh.flush()
-        os.fsync(fh.fileno())
-    tmp.replace(path)
+from _gate_utils import write_json  # noqa: E402 — atomic JSON write with NaN sanitization
 
 
 def main() -> int:

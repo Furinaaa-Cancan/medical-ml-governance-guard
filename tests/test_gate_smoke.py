@@ -331,22 +331,6 @@ def test_self_critique_weight_normalization() -> None:
 
 
 # ---------------------------------------------------------------------------
-# run_strict_pipeline: --strict enforcement
-# ---------------------------------------------------------------------------
-
-def test_run_strict_pipeline_requires_strict() -> None:
-    print("\n=== run_strict_pipeline: fails without --strict ===")
-    with tempfile.TemporaryDirectory() as tmp:
-        req = Path(tmp) / "request.json"
-        req.write_text(json.dumps({"study_id": "x"}), encoding="utf-8")
-        proc = run_gate([
-            str(SCRIPTS_DIR / "orchestration/run_strict_pipeline.py"),
-            "--request", str(req),
-        ])
-        assert_true(proc.returncode == 2, "missing --strict exits 2")
-        assert_true("strict" in proc.stderr.lower(), "--strict enforcement message present")
-
-
 # ---------------------------------------------------------------------------
 # transport_drop_ci: ci_note sentinel instead of hard-coded [0.0, 0.0]
 # ---------------------------------------------------------------------------
@@ -2356,7 +2340,6 @@ def main() -> int:
     test_leakage_gate_temporal_boundary_equal_is_overlap()
     test_leakage_gate_word_boundary_regex()
     test_self_critique_weight_normalization()
-    test_run_strict_pipeline_requires_strict()
     test_transport_drop_ci_not_computed_sentinel()
     test_feature_engineering_audit_gate_error_codes()
     test_feature_engineering_audit_gate_to_float_isfinite()

@@ -112,6 +112,7 @@ def build_request_payload(
         "test": "../data/test.csv",
     }
     payload["model_selection_report_file"] = "../evidence/model_selection_report.json"
+    payload["model_pool_file"] = "../models/model_pool.pkl"
     payload["feature_engineering_report_file"] = "../evidence/feature_engineering_report.json"
     payload["distribution_report_file"] = "../evidence/distribution_report.json"
     payload["robustness_report_file"] = "../evidence/robustness_report.json"

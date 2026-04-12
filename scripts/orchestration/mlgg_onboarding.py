@@ -200,29 +200,7 @@ def ensure_parent(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
 
 
-def _sanitize_for_json(obj: Any) -> Any:
-    """Replace non-finite floats (NaN, ±Inf) with None for JSON safety."""
-    if isinstance(obj, float):
-        return obj if math.isfinite(obj) else None
-    if isinstance(obj, dict):
-        return {k: _sanitize_for_json(v) for k, v in obj.items()}
-    if isinstance(obj, (list, tuple)):
-        return [_sanitize_for_json(v) for v in obj]
-    return obj
-
-
-def write_json(path: Path, payload: Dict[str, Any]) -> None:
-    ensure_parent(path)
-    clean = _sanitize_for_json(payload)
-    tmp = path.with_name(
-        f".{path.name}.tmp-{os.getpid()}-{datetime.now(tz=timezone.utc).strftime('%Y%m%d%H%M%S%f')}"
-    )
-    with tmp.open("w", encoding="utf-8") as fh:
-        json.dump(clean, fh, ensure_ascii=True, indent=2, allow_nan=False)
-        fh.write("\n")
-        fh.flush()
-        os.fsync(fh.fileno())
-    tmp.replace(path)
+from _gate_utils import write_json  # noqa: E402 — atomic JSON write with NaN sanitization
 
 
 def load_json(path: Path) -> Dict[str, Any]:

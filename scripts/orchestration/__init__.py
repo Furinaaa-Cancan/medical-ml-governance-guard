@@ -8,8 +8,7 @@ Entry Point Hierarchy:
     └── mlgg_interactive.py   <- Guided interactive mode (mlgg play)
 
 Pipeline Runners (called by orchestrator, not directly by users):
-    run_dag_pipeline.py       <- DAG-based gate execution (primary)
-    run_strict_pipeline.py    <- Sequential gate execution (legacy)
+    run_dag_pipeline.py       <- DAG-based gate execution
     run_productized_workflow.py <- Thin wrapper for productized runs
 
 Testing:

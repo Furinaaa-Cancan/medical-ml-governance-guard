@@ -309,18 +309,7 @@ def ensure_parent(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
 
 
-def write_json(path: Path, payload: Dict[str, Any]) -> None:
-    ensure_parent(path)
-    tmp_path = path.with_name(
-        f".{path.name}.tmp-{os.getpid()}"
-    )
-    with tmp_path.open("w", encoding="utf-8") as fh:
-        json.dump(payload, fh, ensure_ascii=True, indent=2, sort_keys=True,
-                  allow_nan=False)
-        fh.write("\n")
-        fh.flush()
-        os.fsync(fh.fileno())
-    tmp_path.replace(path)
+from _gate_utils import write_json  # noqa: E402 — atomic JSON write with NaN sanitization
 
 
 def count_lines(path: Path) -> int:
