@@ -61,36 +61,189 @@ INSTANCE_TEMPORAL_ORDER = {
     "3": {"label": "First repeat imaging visit", "year_range": "2019-ongoing", "order": 3},
 }
 
-# ── Category → domain mapping (top-level UKB categories) ────────────────────
+# ── Category-based domain + risk mapping ─────────────────────────────────────
+# Uses UKB category_id ranges for precise classification instead of keyword guessing.
 
-_CATEGORY_DOMAIN_KEYWORDS = {
-    "demographics": ["population", "sociodem", "household", "ethnic", "employment"],
-    "anthropometry": ["body", "anthropo", "impedance"],
-    "vitals": ["blood pressure", "arterial", "pulse", "ecg", "cardio"],
-    "laboratory": ["blood", "urine", "assay", "biochem", "haematol", "infect"],
-    "imaging": ["brain", "mri", "imaging", "dxa", "ultrasound", "retinal", "oct"],
-    "questionnaire_mental_health": ["mental", "psychiatr", "depression", "anxiety"],
-    "questionnaire_lifestyle": ["diet", "alcohol", "smoking", "physical activity",
-                                  "sleep", "sun exposure", "sexual"],
-    "questionnaire_medical": ["medical", "cancer", "medication", "operation",
-                               "pain", "breathing", "digest", "general health"],
-    "questionnaire_cognitive": ["cognitive", "prospective memory", "reaction time",
-                                 "fluid intelligence", "trail making", "pairs"],
-    "questionnaire_family": ["family history", "early life", "maternal"],
-    "genomics": ["genomic", "genetic", "snp", "telomer", "whole exome"],
-    "hospital_records": ["hospital", "death", "icd", "opcs", "hes", "gp"],
-    "summary": ["first occurrence", "summary"],
-    "recruitment": ["recruitment", "assessment centre", "baseline"],
-}
+def _cat_in(cid: Optional[int], *ranges) -> bool:
+    """Check if category_id falls in any of the given ranges/sets."""
+    if cid is None:
+        return False
+    for r in ranges:
+        if isinstance(r, int) and cid == r:
+            return True
+        if isinstance(r, tuple) and r[0] <= cid <= r[1]:
+            return True
+        if isinstance(r, (set, frozenset)) and cid in r:
+            return True
+    return False
 
 
-def infer_domain_from_category_path(path: str) -> str:
-    """Infer domain from the full category path string."""
-    path_lower = path.lower()
-    for domain, keywords in _CATEGORY_DOMAIN_KEYWORDS.items():
-        if any(kw in path_lower for kw in keywords):
-            return domain
-    return "other"
+def classify_field(cid: Optional[int], title: str) -> Tuple[str, str]:
+    """Return (domain, risk_category) for a UKB field.
+
+    Domain: broad data category (e.g., 'imaging_brain', 'laboratory', 'questionnaire_lifestyle').
+    Risk category:
+      - 'outcome_derived'  : first-occurrence ICD dates/sources, algorithmically-defined outcomes
+      - 'death_registry'   : death register fields
+      - 'hospital_derived' : hospital inpatient / GP record fields
+      - 'imaging'          : imaging-visit fields (inherently from later instances)
+      - 'genomics'         : time-invariant genetic data
+      - 'online_followup'  : post-baseline online questionnaires
+      - 'baseline'         : safe baseline measurements (default)
+    """
+    title_lower = title.lower()
+
+    # ── Outcome / registry derived (CRITICAL leakage risk) ───────────
+    # First occurrences (ICD code date/source fields)
+    if cid == 1712 or _cat_in(cid, (2401, 2417)):
+        return "first_occurrence_icd", "outcome_derived"
+    # Algorithmically-defined outcomes (stroke, MI, asthma, COPD, dementia, ESRD, MND, PD)
+    if _cat_in(cid, (42, 50), 91):
+        return "algorithmically_defined_outcome", "outcome_derived"
+    # Death register
+    if cid == 100093 or "death" in title_lower:
+        return "death_registry", "death_registry"
+    # Hospital inpatient records
+    if _cat_in(cid, (2000, 2006)):
+        return "hospital_inpatient", "hospital_derived"
+    # Primary care / GP records
+    if _cat_in(cid, (3000, 3001)):
+        return "primary_care", "hospital_derived"
+    # Cancer register
+    if cid == 100092:
+        return "cancer_registry", "outcome_derived"
+    # Health outcomes (externally sourced)
+    if cid == 100091:
+        return "health_outcomes_external", "outcome_derived"
+
+    # ── Imaging (temporal risk — later instances) ────────────────────
+    _BRAIN_MRI = {100, 110, 111, 112, 119, 190, 191, 192, 193, 194, 195, 196,
+                  197, 198, 200, 201, 202, 203, 204, 507, 508, 509,
+                  530, 531, 532, 533, 534, 535, 536, 537, 539}
+    _HEART_MRI = {102, 133, 157, 162, 306, 347, 348, 349,
+                  523, 524, 525, 526, 527, 528, 529, 538}
+    _DXA = {103, 124, 125, 522}
+    _ABDOMINAL = {105, 126, 131, 149, 156, 158, 159}
+    _EYE = {521, 1080, 1081, 1306, 1419, 100016, 100017}
+    if _cat_in(cid, *_BRAIN_MRI):
+        return "imaging_brain", "imaging"
+    if _cat_in(cid, *_HEART_MRI):
+        return "imaging_cardiac", "imaging"
+    if _cat_in(cid, *_DXA):
+        return "imaging_dxa", "imaging"
+    if _cat_in(cid, *_ABDOMINAL):
+        return "imaging_abdominal", "imaging"
+    if cid == 101:
+        return "imaging_carotid", "imaging"
+    if _cat_in(cid, *_EYE):
+        return "imaging_eye", "imaging"
+    if cid == 100003:
+        return "imaging_procedural", "imaging"
+    # dMRI
+    if _cat_in(cid, 134, 135):
+        return "imaging_dmri", "imaging"
+    # Regional grey matter, fMRI
+    if _cat_in(cid, 1101, 1102, 106, 109):
+        return "imaging_brain", "imaging"
+
+    # ── Genomics (time-invariant) ────────────────────────────────────
+    if _cat_in(cid, (170, 187), (263, 274), (300, 302), 100314, 100315,
+               100316, 100317, 100319, 199001):
+        return "genomics", "genomics"
+
+    # ── Laboratory ───────────────────────────────────────────────────
+    if _cat_in(cid, 17518, 18518):
+        return "laboratory_biochemistry", "baseline"
+    if _cat_in(cid, 81, 9081, 100081):
+        return "laboratory_haematology", "baseline"
+    if cid == 100080:
+        return "laboratory_blood_assays", "baseline"
+    if _cat_in(cid, 100082, 100083):
+        return "laboratory_urine_saliva", "baseline"
+    if _cat_in(cid, (220, 222)):
+        return "laboratory_nmr_metabolomics", "baseline"
+    if _cat_in(cid, (1838, 1839)):
+        return "laboratory_proteomics", "baseline"
+    if _cat_in(cid, 51428, 1307):
+        return "laboratory_infectious", "baseline"
+    if cid == 163:
+        return "laboratory_neurobiomarkers", "baseline"
+
+    # ── Anthropometry / vitals ───────────────────────────────────────
+    if _cat_in(cid, 100008, 100009, 100010):
+        return "anthropometry", "baseline"
+    if _cat_in(cid, 100007, 100011, 128):
+        return "vitals", "baseline"
+    if _cat_in(cid, 100018, 100019):
+        return "physical_measures", "baseline"
+    if cid == 100020:
+        return "spirometry", "baseline"
+    if _cat_in(cid, 104, 100012):
+        return "ecg", "baseline"
+
+    # ── Questionnaires ───────────────────────────────────────────────
+    # Mental health
+    if _cat_in(cid, (136, 146), (1500, 1513), 100060):
+        return "questionnaire_mental_health", "baseline"
+    # Lifestyle
+    if _cat_in(cid, 100050, 100051, 100052, 100053, 100054, 100055, 100056,
+               100057, 100058, (205, 213), 1039, (100100, 100118), 704):
+        return "questionnaire_lifestyle", "baseline"
+    # Medical history
+    if _cat_in(cid, 100036, (100037, 100048), 132, 153, 154, 160, 1003):
+        return "questionnaire_medical", "baseline"
+    # Cognitive
+    if _cat_in(cid, (116, 122), (501, 506), 709, 100026, (100027, 100032),
+               1358, 161, 11090):
+        return "questionnaire_cognitive", "baseline"
+    # Family / early life
+    if _cat_in(cid, 100033, 100034, 214, 1002, 708):
+        return "questionnaire_family", "baseline"
+    # Sociodemographics
+    if _cat_in(cid, 100062, (100063, 100070), 701, 1007):
+        return "demographics", "baseline"
+    # Sex-specific
+    if _cat_in(cid, 100068, 100069, 100070):
+        return "questionnaire_sex_specific", "baseline"
+
+    # ── Accelerometry ────────────────────────────────────────────────
+    if _cat_in(cid, (1008, 1013), 1020, 267):
+        return "accelerometry", "baseline"
+
+    # ── Recruitment / procedural ─────────────────────────────────────
+    if _cat_in(cid, 100000, 100001, (100002, 100006), 100021, (100022, 100025),
+               100004, 100094, 100096, 100097, 100078, (100084, 100088),
+               152, 129, 130, 164, 148, 127):
+        return "procedural", "baseline"
+
+    # ── Online follow-up (post-baseline) ─────────────────────────────
+    if _cat_in(cid, 100089, (100090, 100091), 100114):
+        return "online_followup", "online_followup"
+
+    # ── Environment / deprivation ────────────────────────────────────
+    if _cat_in(cid, 76, (113, 115), (150, 151), 123, 603,
+               (702, 703), 711):
+        return "environment", "baseline"
+
+    # ── COVID sub-studies ────────────────────────────────────────────
+    if _cat_in(cid, (989, 999), 996, 997, 998):
+        return "covid", "online_followup"
+
+    # ── PRS ──────────────────────────────────────────────────────────
+    if _cat_in(cid, (300, 302)):
+        return "polygenic_risk_scores", "genomics"
+
+    # ── Summary / derived ────────────────────────────────────────────
+    if _cat_in(cid, 1004, 1005, 1006, 54):
+        return "summary_derived", "baseline"
+
+    # ── Title-based fallback for "first occurrence" fields ───────────
+    if "date" in title_lower and "first reported" in title_lower:
+        return "first_occurrence_icd", "outcome_derived"
+    if "source of report" in title_lower:
+        return "first_occurrence_icd", "outcome_derived"
+
+    return "other", "baseline"
 
 
 # ── Schema creation ─────────────────────────────────────────────────────────
@@ -123,7 +276,8 @@ CREATE TABLE IF NOT EXISTS fields (
     num_participants INTEGER,
     item_count INTEGER,
     showcase_order REAL,
-    domain TEXT
+    domain TEXT,
+    risk_category TEXT DEFAULT 'baseline'
 );
 
 CREATE TABLE IF NOT EXISTS categories (
@@ -165,6 +319,7 @@ CREATE INDEX IF NOT EXISTS idx_fields_category ON fields(main_category);
 CREATE INDEX IF NOT EXISTS idx_fields_encoding ON fields(encoding_id);
 CREATE INDEX IF NOT EXISTS idx_fields_domain ON fields(domain);
 CREATE INDEX IF NOT EXISTS idx_fields_value_type ON fields(value_type);
+CREATE INDEX IF NOT EXISTS idx_fields_risk ON fields(risk_category);
 CREATE INDEX IF NOT EXISTS idx_categories_parent ON categories(parent_id);
 CREATE INDEX IF NOT EXISTS idx_encoding_values_enc ON encoding_values(encoding_id);
 """
@@ -395,15 +550,14 @@ def build_database(input_dir: Path, output: Path) -> Dict[str, int]:
         main_cat = safe_int(row.get("main_category", ""))
         vtype_code = row.get("value_type", "").strip()
         value_type = VALUE_TYPE_MAP.get(vtype_code, vtype_code)
+        title = row.get("title", "").strip()
 
-        # Infer domain from category path
-        domain = "other"
-        if main_cat and main_cat in cat_paths:
-            domain = infer_domain_from_category_path(cat_paths[main_cat])
+        # Classify field using category_id + title
+        domain, risk_category = classify_field(main_cat, title)
 
         field_batch.append((
             fid,
-            row.get("title", "").strip(),
+            title,
             safe_int(row.get("availability", "")),
             safe_int(row.get("stability", "")),
             safe_int(row.get("private", "")),
@@ -429,19 +583,20 @@ def build_database(input_dir: Path, output: Path) -> Dict[str, int]:
             safe_int(row.get("item_count", "")),
             safe_float(row.get("showcase_order", "")),
             domain,
+            risk_category,
         ))
         field_count += 1
 
         if len(field_batch) >= 5000:
             conn.executemany(
-                "INSERT OR IGNORE INTO fields VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                "INSERT OR IGNORE INTO fields VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 field_batch,
             )
             field_batch.clear()
 
     if field_batch:
         conn.executemany(
-            "INSERT OR IGNORE INTO fields VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            "INSERT OR IGNORE INTO fields VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             field_batch,
         )
     conn.commit()
@@ -492,6 +647,21 @@ def build_database(input_dir: Path, output: Path) -> Dict[str, int]:
     stats["instances"] = conn.execute("SELECT COUNT(*) FROM instances").fetchone()[0]
     stats["aliases"] = conn.execute("SELECT COUNT(*) FROM aliases").fetchone()[0]
     stats["domains"] = conn.execute("SELECT COUNT(DISTINCT domain) FROM fields").fetchone()[0]
+
+    # Risk category breakdown
+    print("\n  Risk category breakdown:")
+    for row in conn.execute("SELECT risk_category, COUNT(*) c FROM fields GROUP BY risk_category ORDER BY c DESC"):
+        print(f"    {row[0]:25s} {row[1]:6,}")
+
+    # Domain breakdown (top 15)
+    print("\n  Domain breakdown (top 15):")
+    for row in conn.execute("SELECT domain, COUNT(*) c FROM fields GROUP BY domain ORDER BY c DESC LIMIT 15"):
+        print(f"    {row[0]:40s} {row[1]:6,}")
+
+    # How many "other" remain?
+    other_n = conn.execute("SELECT COUNT(*) FROM fields WHERE domain='other'").fetchone()[0]
+    total_n = stats["fields"]
+    print(f"\n  Unclassified (domain='other'): {other_n}/{total_n} = {other_n/total_n:.0%}")
 
     conn.close()
     size_mb = output.stat().st_size / (1024 * 1024)
