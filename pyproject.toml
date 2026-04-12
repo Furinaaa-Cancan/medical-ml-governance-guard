@@ -59,4 +59,4 @@ markers = [
 include = ["scripts*", "experiments*", "references*", "plugin*"]
 
 [tool.setuptools.package-data]
-references = ["*.json", "*.md", "*.csv"]
+references = ["*.json", "*.md", "*.csv", "examples/*.json", "nhanes_codebook/*.tsv", "skill/*.md", "peer_reviews/*.json"]
