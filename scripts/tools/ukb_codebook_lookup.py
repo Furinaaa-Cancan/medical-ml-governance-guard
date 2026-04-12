@@ -319,6 +319,12 @@ class UKBCodebook:
 
     # ── Stats ────────────────────────────────────────────────────────────
 
+    @property
+    def variable_count(self) -> int:
+        """Number of fields in the codebook (gate-compatible property)."""
+        conn = self._ensure_conn()
+        return conn.execute("SELECT COUNT(*) FROM fields").fetchone()[0]
+
     def stats(self) -> Dict[str, int]:
         """Return database statistics."""
         conn = self._ensure_conn()
@@ -329,6 +335,216 @@ class UKBCodebook:
             "encoding_values": conn.execute("SELECT COUNT(*) FROM encoding_values").fetchone()[0],
             "aliases": conn.execute("SELECT COUNT(*) FROM aliases").fetchone()[0],
         }
+
+    # ── Gate-compatible interface ────────────────────────────────────────
+    # Returns List[Dict] with {code, message, details} matching the format
+    # expected by cohort_definition_gate.py's codebook RAG integration.
+
+    # Instance participation rates (approximate, from UKB documentation).
+    # Instance 0 = ~502K, Instance 1 = ~20K, Instance 2 = ~100K, Instance 3 = ~60K
+    _INSTANCE_PARTICIPATION = {
+        0: 502412,
+        1: 20346,
+        2: 100000,
+        3: 60000,
+    }
+
+    def validate_columns_for_gate(
+        self,
+        column_names: List[str],
+        target_col: Optional[str] = None,
+        manual_registry: Optional[Dict[str, Any]] = None,
+    ) -> List[Dict[str, Any]]:
+        """Validate columns in gate-compatible format.
+
+        Returns a list of issue dicts [{code, message, details}] matching
+        the interface of NHANESCodebook.validate_columns().
+
+        Checks:
+        1. Instance-participation MNAR — features from instances 1-3 have
+           structured missingness that is NOT random (attendance bias).
+        2. Temporal leakage — feature instance > target instance.
+        3. Outcome-as-feature — death/diagnosis date fields.
+        4. Hospital/registry derived fields — need temporal eligibility.
+        """
+        conn = self._ensure_conn()
+        issues: List[Dict[str, Any]] = []
+        instance_0_total = self._INSTANCE_PARTICIPATION[0]
+
+        target_fid, target_instance = None, 0
+        if target_col:
+            parsed = parse_ukb_column(target_col)
+            if parsed:
+                target_fid, target_instance = parsed[0], parsed[1]
+
+        for col in column_names:
+            parsed = parse_ukb_column(col)
+            if not parsed:
+                continue
+            fid, instance, array_idx = parsed
+
+            if target_fid and fid == target_fid:
+                continue
+
+            row = conn.execute(
+                "SELECT field_id, title, domain, instanced, num_participants "
+                "FROM fields WHERE field_id = ?", (fid,)
+            ).fetchone()
+            if not row:
+                continue
+
+            title = row["title"]
+            domain = row["domain"] or "other"
+            num_participants = row["num_participants"]
+
+            # ── Check 1: Instance-participation MNAR ──
+            if instance > 0:
+                inst_n = self._INSTANCE_PARTICIPATION.get(instance, 0)
+                participation_rate = inst_n / instance_0_total if instance_0_total > 0 else 0
+                expected_missing = 1.0 - participation_rate
+
+                if expected_missing > 0.5:
+                    issues.append({
+                        "code": "CODEBOOK_INSTANCE_PARTICIPATION_MNAR",
+                        "message": (
+                            f"Column '{col}' ({title}) is from instance {instance}. "
+                            f"Only ~{inst_n:,}/{instance_0_total:,} participants "
+                            f"({participation_rate:.0%}) attended this visit. "
+                            f"Expected ~{expected_missing:.0%} structural missingness. "
+                            f"This is Missing Not At Random (MNAR) — attendance correlates "
+                            f"with health status, geography, and socioeconomic factors. "
+                            f"Standard imputation will introduce bias."
+                        ),
+                        "details": {
+                            "column": col,
+                            "field_id": fid,
+                            "instance": instance,
+                            "participation_rate": round(participation_rate, 3),
+                            "expected_missing_rate": round(expected_missing, 3),
+                            "mechanism": "MNAR_instance_participation",
+                        },
+                    })
+
+            # ── Check 2: Temporal leakage ──
+            if target_fid and instance > target_instance:
+                issues.append({
+                    "code": "CODEBOOK_TEMPORAL_LEAKAGE",
+                    "message": (
+                        f"Column '{col}' ({title}) is from instance {instance}, "
+                        f"measured AFTER target instance {target_instance}. "
+                        f"Using post-baseline features to predict baseline outcomes "
+                        f"is temporal leakage."
+                    ),
+                    "details": {
+                        "column": col,
+                        "field_id": fid,
+                        "feature_instance": instance,
+                        "target_instance": target_instance,
+                    },
+                })
+
+            # ── Check 3: Outcome/death fields as features ──
+            title_lower = title.lower()
+            outcome_keywords = [
+                "date of death", "cause of death", "date of diagnosis",
+                "date of first", "age at death", "date first reported",
+                "source of report of",
+            ]
+            if any(kw in title_lower for kw in outcome_keywords):
+                issues.append({
+                    "code": "CODEBOOK_OUTCOME_AS_FEATURE",
+                    "message": (
+                        f"Column '{col}' ({title}) appears to be an outcome or "
+                        f"registry-derived post-hoc variable. Using it as a predictor "
+                        f"constitutes information leakage."
+                    ),
+                    "details": {
+                        "column": col,
+                        "field_id": fid,
+                        "title": title,
+                    },
+                })
+
+            # ── Check 4: Hospital/registry derived fields ──
+            if domain in ("hospital_records", "summary"):
+                issues.append({
+                    "code": "CODEBOOK_DERIVED_OUTCOME_FIELD",
+                    "message": (
+                        f"Column '{col}' ({title}) is from domain '{domain}'. "
+                        f"These fields are derived from hospital records / national "
+                        f"registries and contain post-baseline information. "
+                        f"Verify temporal eligibility before using as features."
+                    ),
+                    "details": {
+                        "column": col,
+                        "field_id": fid,
+                        "domain": domain,
+                    },
+                })
+
+        return issues
+
+    def task_aware_validate(
+        self,
+        column_names: List[str],
+        target_col: Optional[str] = None,
+        target_disease: str = "",
+        disease_kb_path: str = "",
+        manual_registry: Optional[Dict[str, Any]] = None,
+    ) -> List[Dict[str, Any]]:
+        """Cross-reference columns with disease knowledge base.
+
+        For UKB, the main risk is using ICD-code-derived 'first occurrence'
+        fields that define the target condition as features.
+        """
+        if not target_disease or not disease_kb_path:
+            return []
+
+        try:
+            kb = json.loads(Path(disease_kb_path).read_text(encoding="utf-8"))
+        except Exception:
+            return []
+
+        disease_entry = kb.get(target_disease, {})
+        if not disease_entry:
+            return []
+
+        # Get UKB-specific definition fields from disease KB
+        ukb_def_fields = disease_entry.get("ukb_definition_fields", [])
+        ukb_exclusion_fields = disease_entry.get("ukb_exclusion_fields", [])
+        definition_set = set(ukb_def_fields + ukb_exclusion_fields)
+
+        if not definition_set:
+            return []
+
+        issues: List[Dict[str, Any]] = []
+        for col in column_names:
+            parsed = parse_ukb_column(col)
+            if not parsed:
+                continue
+            fid = parsed[0]
+            if str(fid) in definition_set or fid in definition_set:
+                conn = self._ensure_conn()
+                row = conn.execute(
+                    "SELECT title FROM fields WHERE field_id = ?", (fid,)
+                ).fetchone()
+                title = row["title"] if row else f"field {fid}"
+                issues.append({
+                    "code": "CODEBOOK_DEFINITION_VARIABLE",
+                    "message": (
+                        f"Column '{col}' ({title}) is a definition variable for "
+                        f"'{target_disease}'. Using it as a predictor constitutes "
+                        f"circular reasoning (label leakage)."
+                    ),
+                    "details": {
+                        "column": col,
+                        "field_id": fid,
+                        "target_disease": target_disease,
+                        "source": "disease_kb_x_ukb_codebook",
+                    },
+                })
+
+        return issues
 
 
 # ── CLI ─────────────────────────────────────────────────────────────────────

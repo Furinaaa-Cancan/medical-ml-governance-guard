@@ -149,9 +149,27 @@ register_remediations({
         "Feature may be a downstream consequence of the target disease rather "
         "than an independent risk factor. Document as limitation or exclude.",
     "CODEBOOK_RAG_NOT_AVAILABLE":
-        "Codebook RAG is only implemented for NHANES. For other datasets "
+        "Codebook RAG is only implemented for NHANES and UKB. For other datasets "
         "(BRFSS, NHIS, MIMIC), extend references/dataset-codebook-registry.json "
         "with dataset-specific variable metadata.",
+    "CODEBOOK_INSTANCE_PARTICIPATION_MNAR":
+        "UK Biobank feature is from a non-baseline instance with low participation "
+        "rate. Missingness is MNAR (correlates with health status, geography, "
+        "socioeconomics). Standard imputation will introduce bias. Options: "
+        "(1) restrict to baseline instance 0, (2) use inverse probability weighting, "
+        "(3) conduct MNAR sensitivity analysis.",
+    "CODEBOOK_TEMPORAL_LEAKAGE":
+        "Feature is measured at a later instance than the target. This is temporal "
+        "leakage — the feature was not available at the prediction timepoint.",
+    "CODEBOOK_OUTCOME_AS_FEATURE":
+        "Feature appears to be an outcome or registry-derived post-hoc variable. "
+        "Using it as a predictor constitutes information leakage.",
+    "CODEBOOK_DERIVED_OUTCOME_FIELD":
+        "Feature is from hospital records or derived summary fields that may "
+        "contain post-baseline information. Verify temporal eligibility.",
+    "CODEBOOK_DEFINITION_VARIABLE":
+        "Feature is a definition variable for the target disease. Using it as "
+        "a predictor constitutes circular reasoning (label leakage).",
 })
 
 
@@ -1082,9 +1100,9 @@ def main() -> int:
     survey_source = args.survey_source.strip().lower() if args.survey_source else ""
     if not survey_source:
         _data_name = Path(args.data).stem.lower()
-        for src in ["nhanes", "brfss", "nhis", "meps", "hrs"]:
+        for src in ["nhanes", "brfss", "nhis", "meps", "hrs", "ukb", "ukbiobank", "biobank"]:
             if src in _data_name:
-                survey_source = src
+                survey_source = "ukb" if src in ("ukb", "ukbiobank", "biobank") else src
                 break
     if survey_source:
         study_design["survey_source"] = survey_source
@@ -1296,9 +1314,10 @@ def main() -> int:
                 "reason": "Could not auto-detect dataset key. Specify --codebook-dataset.",
             }
 
-    # ── Codebook RAG auto-retrieval (NHANES, BRFSS, MIMIC, etc.) ────
+    # ── Codebook RAG auto-retrieval (NHANES, UKB, BRFSS, MIMIC, etc.) ──
     # Uses factory function to select the right codebook class:
-    #   NHANES → NHANESCodebook (Harvard TSV + BM25 + skip-chain)
+    #   NHANES → NHANESCodebook (Harvard TSV + BM25 + skip-chain MNAR)
+    #   UKB    → UKBCodebook (SQLite + instance-participation MNAR)
     #   BRFSS/MIMIC/other → RegistryCodebook (JSON registry only)
     if survey_source:
         try:
@@ -1320,21 +1339,30 @@ def main() -> int:
             _registry_path = str(Path(__file__).resolve().parent.parent.parent / "references" / "dataset-codebook-registry.json")
             cb_rag = get_codebook(survey_source, registry_path=_registry_path)
             if cb_rag is None:
-                study_design["nhanes_rag"] = {"status": "not_available", "reason": f"No codebook for {survey_source}"}
+                study_design["codebook_rag"] = {"status": "not_available", "reason": f"No codebook for {survey_source}"}
                 raise ImportError("skip RAG")
-            rag_issues = cb_rag.validate_columns(
-                list(df.columns), target_col=args.target_col,
-                manual_registry=manual_vars,
-            )
+
+            # Dispatch to the right validation method depending on codebook type
+            _is_ukb = hasattr(cb_rag, "validate_columns_for_gate")
+            if _is_ukb:
+                rag_issues = cb_rag.validate_columns_for_gate(
+                    list(df.columns), target_col=args.target_col,
+                    manual_registry=manual_vars,
+                )
+            else:
+                rag_issues = cb_rag.validate_columns(
+                    list(df.columns), target_col=args.target_col,
+                    manual_registry=manual_vars,
+                )
             for issue in rag_issues:
                 add_issue(warnings_list, issue["code"], issue["message"], issue["details"])
 
             # Task-aware validation: cross-reference disease-KB with codebook
             # Auto-detects definition variables for the target disease
             _disease_kb_path = Path(__file__).resolve().parent.parent.parent / "references" / "disease-definition-knowledge-base.json"
+            _target_disease = ""
             if _disease_kb_path.exists():
                 # Infer target disease from outcome definition or filename
-                _target_disease = ""
                 if isinstance(study_design.get("outcome_definition"), dict):
                     _target_disease = study_design["outcome_definition"].get("subtype", "")
                 if not _target_disease:
@@ -1355,19 +1383,19 @@ def main() -> int:
                         add_issue(failures, issue["code"], issue["message"], issue["details"])
                     rag_issues.extend(task_issues)
 
-            study_design["nhanes_rag"] = {
+            study_design["codebook_rag"] = {
                 "status": "completed",
                 "dataset": survey_source,
                 "codebook_type": type(cb_rag).__name__,
                 "variables_loaded": cb_rag.variable_count,
                 "issues_found": len(rag_issues),
-                "task_aware_disease": _target_disease if '_target_disease' in dir() else "",
+                "task_aware_disease": _target_disease,
             }
         except ImportError:
-            if "nhanes_rag" not in study_design:
-                study_design["nhanes_rag"] = {"status": "skipped", "reason": "codebook lookup not available"}
+            if "codebook_rag" not in study_design:
+                study_design["codebook_rag"] = {"status": "skipped", "reason": "codebook lookup not available"}
         except Exception as exc:
-            study_design["nhanes_rag"] = {"status": "error", "error": str(exc)}
+            study_design["codebook_rag"] = {"status": "error", "error": str(exc)}
 
     # Cross-temporal-group feature availability check
     # If data has a temporal/cycle column (e.g., nhanes_cycle), check that

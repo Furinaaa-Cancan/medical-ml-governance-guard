@@ -846,10 +846,12 @@ def get_codebook(
     survey_source: str,
     registry_path: str = "references/dataset-codebook-registry.json",
     nhanes_codebook_dir: str = "references/nhanes_codebook",
+    ukb_codebook_db: str = "references/ukb_codebook/ukb_codebook.sqlite",
 ) -> Optional["RegistryCodebook"]:
     """Factory: return the appropriate codebook for a dataset.
 
     Returns NHANESCodebook for NHANES (with full BM25 + skip-chain),
+    UKBCodebook for UK Biobank (with instance-MNAR + temporal leakage),
     RegistryCodebook for BRFSS/MIMIC/others (registry-only validation).
     """
     _DS_KEY_MAP = {
@@ -857,16 +859,30 @@ def get_codebook(
         "brfss": "brfss_2022",
         "nhis": "nhis_2022",
         "mimic": "mimic_iv",
+        "ukb": "ukb",
+        "ukbiobank": "ukb",
     }
-    dataset_key = _DS_KEY_MAP.get(survey_source.lower(), "")
+    source_lower = survey_source.lower()
+    dataset_key = _DS_KEY_MAP.get(source_lower, "")
     if not dataset_key:
         return None
 
-    if survey_source.lower() == "nhanes":
+    if source_lower == "nhanes":
         nhanes_dir = Path(nhanes_codebook_dir)
         if (nhanes_dir / "nhanes_variables.tsv").exists():
             return NHANESCodebook(str(nhanes_dir), cycle="2017-2018")
         # Fallback to registry if TSV not available
+
+    if source_lower in ("ukb", "ukbiobank", "biobank"):
+        ukb_db = Path(ukb_codebook_db)
+        if ukb_db.exists():
+            try:
+                from ukb_codebook_lookup import UKBCodebook
+                return UKBCodebook(ukb_db)
+            except ImportError:
+                pass
+        return None
+
     return RegistryCodebook(registry_path, dataset_key)
 
 
