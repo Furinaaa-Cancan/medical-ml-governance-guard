@@ -255,6 +255,13 @@ def run_gate_subprocess(
     except Exception:
         pass  # Audit logging is best-effort; never block pipeline
 
+    # Extract --report path from the command for auto-explain on failure
+    _report_path = ""
+    for _i, _arg in enumerate(cmd):
+        if _arg == "--report" and _i + 1 < len(cmd):
+            _report_path = cmd[_i + 1]
+            break
+
     return {
         "name": gate_name,
         "command": shlex.join(cmd),
@@ -263,6 +270,7 @@ def run_gate_subprocess(
         "execution_time_seconds": round(elapsed, 3),
         "stdout_tail": stdout[-4000:],
         "stderr_tail": stderr[-4000:],
+        "report_path": _report_path,
     }
 
 

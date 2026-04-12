@@ -5885,6 +5885,7 @@ def _phase1_data_loading(ctx: Dict[str, Any]) -> None:
         if str(args.selection_data).strip().lower() == "valid":
             print("  [INFO] No validation split provided. Switching to --selection-data=cv_inner.")
             args.selection_data = "cv_inner"
+            ctx["selection_data"] = "cv_inner"
         if ctx["threshold_selection_split"] == "valid":
             print("  [INFO] No validation split provided. Switching threshold selection to cv_inner.")
             ctx["threshold_selection_split"] = "cv_inner"
