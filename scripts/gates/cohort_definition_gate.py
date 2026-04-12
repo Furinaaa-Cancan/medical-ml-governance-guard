@@ -576,10 +576,10 @@ def analyze_cohort(
 
         if pd.api.types.is_numeric_dtype(series) and nunique > 2:
             desc = series.describe()
-            profile["mean"] = _to_float(desc.get("mean", 0)) or 0.0
-            profile["std"] = _to_float(desc.get("std", 0)) or 0.0
-            profile["min"] = _to_float(desc.get("min", 0)) or 0.0
-            profile["max"] = _to_float(desc.get("max", 0)) or 0.0
+            profile["mean"] = round(_to_float(desc.get("mean", 0)) or 0.0, 4)
+            profile["std"] = round(_to_float(desc.get("std", 0)) or 0.0, 4)
+            profile["min"] = round(_to_float(desc.get("min", 0)) or 0.0, 4)
+            profile["max"] = round(_to_float(desc.get("max", 0)) or 0.0, 4)
 
         feature_profiles.append(profile)
 
@@ -1058,8 +1058,8 @@ def main() -> int:
             f"Survey weight column '{weight_col}' found. Standard ML models do NOT "
             f"incorporate survey weights. Document this as a limitation.",
             {"weight_col": weight_col, "weight_range": [
-                _to_float(df[weight_col].min()) or 0.0,
-                _to_float(df[weight_col].max()) or 0.0,
+                round(_to_float(df[weight_col].min()) or 0.0, 2),
+                round(_to_float(df[weight_col].max()) or 0.0, 2),
             ]},
         )
         study_design["survey_weight_col"] = weight_col
