@@ -550,7 +550,7 @@ def _build_aggregation_cmd(
         report_flag_map["security_audit_gate"] = "--security-audit-report"
 
     for dep_name, flag in report_flag_map.items():
-        if dep_name in report_paths:
+        if dep_name in report_paths and report_paths[dep_name].exists():
             cmd.extend([flag, str(report_paths[dep_name])])
 
     if gate_name == "self_critique_gate":
@@ -800,25 +800,6 @@ def main() -> int:
             if isinstance(val, str) and val:
                 split_paths[key] = val
 
-    # Auto-skip gates that require a test split when none exists.
-    # These gates declare --test required=True or need test-split artifacts;
-    # without a test set, they crash on argparse or produce meaningless results.
-    if "test" not in split_paths:
-        _no_test_gates = {
-            "split_protocol_gate",       # validates train/valid/test consistency
-            "covariate_shift_gate",      # detects train→test distribution shift
-            "imbalance_policy_gate",     # checks class balance across splits
-            "missingness_policy_gate",   # checks missingness across splits
-            "distribution_generalization_gate",  # JSD/classifier shift on test
-            "shap_interpretability_gate",  # SHAP explanations on test data
-            "robustness_gate",           # time-slice/group robustness on test
-        }
-        _auto_skipped = sorted(g for g in gates if g in _no_test_gates)
-        if _auto_skipped:
-            print(f"[INFO] No test split — auto-skipping {len(_auto_skipped)} gate(s): "
-                  f"{', '.join(_auto_skipped)}", file=sys.stderr)
-            gates = [g for g in gates if g not in _no_test_gates]
-
     # Load checkpoint for resume
     checkpoint = load_checkpoint(evidence_dir) if (args.resume or args.rerun_failed) and not args.force else {}
     passed_gates: Set[str] = set(checkpoint.get("passed_gates", []))
@@ -837,6 +818,25 @@ def main() -> int:
     # Determine which gates to run
     all_gates = topological_sort()
     gates_to_run = _compute_gates_to_run(args, all_gates, passed_gates)
+
+    # Auto-skip gates that require a test split when none exists.
+    # These gates declare --test required=True or need test-split artifacts;
+    # without a test set, they crash on argparse or produce meaningless results.
+    if "test" not in split_paths:
+        _no_test_gates = {
+            "split_protocol_gate",       # validates train/valid/test consistency
+            "covariate_shift_gate",      # detects train→test distribution shift
+            "imbalance_policy_gate",     # checks class balance across splits
+            "missingness_policy_gate",   # checks missingness across splits
+            "distribution_generalization_gate",  # JSD/classifier shift on test
+            "shap_interpretability_gate",  # SHAP explanations on test data
+            "robustness_gate",           # time-slice/group robustness on test
+        }
+        _auto_skipped = sorted(g for g in gates_to_run if g in _no_test_gates)
+        if _auto_skipped:
+            print(f"[INFO] No test split — auto-skipping {len(_auto_skipped)} gate(s): "
+                  f"{', '.join(_auto_skipped)}", file=sys.stderr)
+            gates_to_run = [g for g in gates_to_run if g not in _no_test_gates]
 
     if args.dry_run:
         print("\n[DRY-RUN] Would execute these gates:")

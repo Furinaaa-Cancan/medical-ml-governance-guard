@@ -161,8 +161,12 @@ class TestBuildStandardGateCmd:
 # ────────────────────────────────────────────────────────
 
 class TestBuildAggregationCmd:
-    def test_publication_gate_gets_all_reports(self):
-        report_paths = _make_report_paths(Path("/tmp/ev"))
+    def test_publication_gate_gets_all_reports(self, tmp_path: Path):
+        report_paths = _make_report_paths(tmp_path)
+        # Create all report files so .exists() passes
+        for p in report_paths.values():
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text("{}", encoding="utf-8")
         args = _make_args()
         cmd = _build_aggregation_cmd("publication_gate", report_paths, args)
         assert "--request-report" in cmd
@@ -170,13 +174,29 @@ class TestBuildAggregationCmd:
         assert "--leakage-report" in cmd
         assert "--publication-report" not in cmd
 
-    def test_self_critique_gets_publication_report(self):
-        report_paths = _make_report_paths(Path("/tmp/ev"))
+    def test_self_critique_gets_publication_report(self, tmp_path: Path):
+        report_paths = _make_report_paths(tmp_path)
+        for p in report_paths.values():
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text("{}", encoding="utf-8")
         args = _make_args()
         cmd = _build_aggregation_cmd("self_critique_gate", report_paths, args)
         assert "--publication-report" in cmd
         assert "--min-score" in cmd
         assert "95" in cmd
+
+    def test_skipped_gate_reports_omitted(self, tmp_path: Path):
+        """When a gate report file doesn't exist, its flag is omitted."""
+        report_paths = _make_report_paths(tmp_path)
+        # Only create request_contract_gate report, leave others missing
+        rp = report_paths["request_contract_gate"]
+        rp.parent.mkdir(parents=True, exist_ok=True)
+        rp.write_text("{}", encoding="utf-8")
+        args = _make_args()
+        cmd = _build_aggregation_cmd("publication_gate", report_paths, args)
+        assert "--request-report" in cmd
+        # Leakage report was not created → flag should be omitted
+        assert "--leakage-report" not in cmd
 
     def test_self_critique_forwards_allow_missing_comparison(self):
         report_paths = _make_report_paths(Path("/tmp/ev"))
