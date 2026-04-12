@@ -6483,6 +6483,407 @@ def _phase6_calibration(ctx: Dict[str, Any]) -> None:
     })
 
 
+def _phase78_eval_diagnostics(ctx: Dict[str, Any]) -> None:
+    """Phases 7-8: Evaluate all splits, compute CI, baselines, build model_selection_report.
+
+    Reads from ctx: selected_estimator, calibrator, selected_threshold, X/y arrays,
+                    has_valid, has_test, beta, fast_diagnostic_mode, imputation, etc.
+    Writes to ctx:  train/valid/test_proba, train/valid/test_metrics, train/valid/test_cm,
+                    ci_lo, ci_hi, ci_n, all_metric_ci, optimism_correction,
+                    learning_curve_report, prevalence_baseline, logistic_baseline,
+                    baseline_logit_proba_test, baseline_proba_test, split_fingerprints,
+                    model_selection_report, overfit_risk, overfit_gaps, overfit_warnings
+    """
+    args = ctx["args"]
+    selected_estimator = ctx["selected_estimator"]
+    calibrator = ctx["calibrator"]
+    selected_threshold = ctx["selected_threshold"]
+    X_train, y_train = ctx["X_train"], ctx["y_train"]
+    X_valid, y_valid = ctx["X_valid"], ctx["y_valid"]
+    X_test, y_test = ctx["X_test"], ctx["y_test"]
+    has_valid, has_test = ctx["has_valid"], ctx["has_test"]
+    beta = ctx["beta"]
+    fast_diagnostic_mode = ctx["fast_diagnostic_mode"]
+    imputation = ctx["imputation"]
+    effective_class_weight = ctx["effective_class_weight"]
+    selected_imbalance_strategy = ctx["selected_imbalance_strategy"]
+
+    # ── Metrics on all splits ────────────────────────────────────────────
+    train_proba = apply_probability_calibrator(calibrator, predict_proba_1(selected_estimator, X_train))
+    train_metrics, train_cm = metric_panel(y_train, train_proba, selected_threshold, beta=beta)
+
+    if has_valid:
+        valid_proba = apply_probability_calibrator(calibrator, predict_proba_1(selected_estimator, X_valid))
+        valid_metrics, valid_cm = metric_panel(y_valid, valid_proba, selected_threshold, beta=beta)
+    else:
+        valid_proba = np.array([])
+        valid_metrics, valid_cm = {}, {}
+
+    if has_test:
+        test_proba = apply_probability_calibrator(calibrator, predict_proba_1(selected_estimator, X_test))
+        test_metrics, test_cm = metric_panel(y_test, test_proba, selected_threshold, beta=beta)
+    else:
+        test_proba = np.array([])
+        test_metrics, test_cm = {}, {}
+
+    # ── Bootstrap CI ─────────────────────────────────────────────────────
+    if fast_diagnostic_mode:
+        ci_lo, ci_hi, ci_n = None, None, 0
+        all_metric_ci: Dict[str, Any] = {}
+    else:
+        ci_lo, ci_hi, ci_n = bootstrap_ci_pr_auc(
+            y_true=y_test, proba=test_proba,
+            n_resamples=int(args.bootstrap_resamples), seed=args.random_seed,
+        )
+        all_metric_ci, _ = bootstrap_metric_ci(
+            y_true=y_test, y_score=test_proba,
+            threshold=selected_threshold, beta=beta,
+            n_resamples=int(args.bootstrap_resamples), seed=args.random_seed,
+        )
+
+    # ── Optimism correction ──────────────────────────────────────────────
+    if fast_diagnostic_mode:
+        optimism_correction: Dict[str, Any] = {"skipped": True, "reason": "fast_diagnostic_mode"}
+    else:
+        try:
+            optimism_correction = bootstrap_optimism_correction(
+                estimator=selected_estimator, X_train=X_train, y_train=y_train,
+                threshold=selected_threshold, beta=beta,
+                n_resamples=min(int(args.bootstrap_resamples), 200), seed=args.random_seed,
+            )
+        except Exception as exc:
+            print(f"[WARN] bootstrap_optimism_correction failed: {exc}", file=sys.stderr)
+            optimism_correction = {"skipped": True, "reason": str(exc)}
+
+    # ── Learning curve ───────────────────────────────────────────────────
+    if fast_diagnostic_mode:
+        learning_curve_report: Dict[str, Any] = {"skipped": True, "reason": "fast_diagnostic_mode"}
+    else:
+        try:
+            learning_curve_report = learning_curve_data(
+                estimator=selected_estimator, X_train=X_train, y_train=y_train,
+                X_valid=X_valid, y_valid=y_valid,
+                threshold=selected_threshold, beta=beta, seed=args.random_seed,
+            )
+        except Exception as exc:
+            print(f"[WARN] learning_curve_data failed: {exc}", file=sys.stderr)
+            learning_curve_report = {"skipped": True, "reason": str(exc)}
+
+    # ── Baselines ────────────────────────────────────────────────────────
+    prevalence = float(np.mean(y_train))
+    if has_test:
+        baseline_proba_test = np.full(shape=y_test.shape[0], fill_value=prevalence, dtype=float)
+        prevalence_baseline = {
+            "roc_auc": float(roc_auc_score(y_test, baseline_proba_test)),
+            "pr_auc": float(average_precision_score(y_test, baseline_proba_test)),
+            "brier": float(brier_score_loss(y_test, baseline_proba_test)),
+        }
+    else:
+        baseline_proba_test = np.array([])
+        prevalence_baseline = {"roc_auc": None, "pr_auc": None, "brier": None}
+
+    baseline_logit = Pipeline(steps=[
+        ("imputer", build_imputer(str(imputation["executed_strategy"]), args.random_seed)),
+        ("scaler", StandardScaler()),
+        ("clf", LogisticRegression(
+            max_iter=4000, solver="liblinear", C=1.0,
+            class_weight=effective_class_weight, random_state=args.random_seed,
+        )),
+    ])
+    baseline_logit, baseline_fit_meta = fit_estimator_with_imbalance(
+        estimator=baseline_logit, X_train=X_train, y_train=y_train,
+        strategy=selected_imbalance_strategy, seed=int(args.random_seed) + 313,
+    )
+    if has_test:
+        baseline_logit_proba_test = predict_proba_1(baseline_logit, X_test)
+        logistic_baseline = {
+            "roc_auc": float(roc_auc_score(y_test, baseline_logit_proba_test)),
+            "pr_auc": float(average_precision_score(y_test, baseline_logit_proba_test)),
+            "brier": float(brier_score_loss(y_test, baseline_logit_proba_test)),
+        }
+    else:
+        baseline_logit_proba_test = np.array([])
+        logistic_baseline = {"roc_auc": None, "pr_auc": None, "brier": None}
+
+    # ── Split fingerprints ───────────────────────────────────────────────
+    split_fingerprints = {
+        "train": {
+            "path": str(Path(args.train).expanduser().resolve()),
+            "sha256": sha256_file(Path(args.train).expanduser().resolve()),
+            "row_count": int(X_train.shape[0]),
+        },
+    }
+    if has_valid and args.valid:
+        split_fingerprints["valid"] = {
+            "path": str(Path(args.valid).expanduser().resolve()),
+            "sha256": sha256_file(Path(args.valid).expanduser().resolve()),
+            "row_count": int(X_valid.shape[0]),
+        }
+    if has_test and args.test:
+        split_fingerprints["test"] = {
+            "path": str(Path(args.test).expanduser().resolve()),
+            "sha256": sha256_file(Path(args.test).expanduser().resolve()),
+            "row_count": int(X_test.shape[0]),
+        }
+
+    # ── Model selection report ───────────────────────────────────────────
+    selection_data = ctx["selection_data"]
+    model_pool_config = ctx["model_pool_config"]
+    model_selection_report = {
+        "status": "pass",
+        "primary_metric": "pr_auc",
+        "test_used_for_model_selection": False,
+        "selection_policy": {
+            "primary_metric": "pr_auc",
+            "selection_data": selection_data,
+            "one_se_rule": True,
+            "complexity_tie_breaker": "prefer_lower_complexity_rank",
+            "test_used_for_model_selection": False,
+            "imbalance_strategy": selected_imbalance_strategy,
+            "imbalance_strategy_candidates": list(ctx["imbalance_candidates"]),
+            "imbalance_selection_metric": ctx["selected_imbalance_metric"],
+            "imbalance_probe": ctx["strategy_probe_rows"],
+            "requested_model_pool": list(model_pool_config.get("requested_models", [])),
+            "model_pool": list(model_pool_config.get("model_pool", [])),
+            "required_models": list(model_pool_config.get("required_models", [])),
+            "auto_added_required_models": list(model_pool_config.get("auto_added_required_models", [])),
+            "hyperparameter_tuning": {
+                "strategy": str(model_pool_config.get("search_strategy", "random_subsample")),
+                "max_trials_per_family": int(model_pool_config.get("max_trials_per_family", 1)),
+                "sampling_seed": int(args.random_seed),
+                "n_jobs": int(model_pool_config.get("n_jobs", -1)),
+            },
+        },
+        "candidate_count": len(ctx["candidate_rows"]),
+        "candidates": ctx["candidate_rows"],
+        "selection_trace": ctx["selection_trace"],
+        "selected_model_id": ctx["selected_model_id"],
+        "selected_model_family": (ctx["selected_candidate_row"] or {}).get("base_model_id"),
+        "selected_model_hyperparameters": (ctx["selected_candidate_row"] or {}).get("hyperparameters"),
+        "selected_model_regularization_profile": (ctx["selected_candidate_row"] or {}).get("regularization_profile"),
+        "candidate_space": ctx["candidate_space_meta"],
+        "data_fingerprints": split_fingerprints,
+        "imputation": imputation,
+        "feature_engineering": {
+            "mode": str(args.feature_engineering_mode),
+            "selected_feature_count": int(len(ctx["selected_features"])),
+            "selected_features": ctx["selected_features"],
+            "selection_scope": "cv_inner_train_only" if selection_data == "cv_inner" else "train_only",
+        },
+    }
+
+    # ── Overfit risk ─────────────────────────────────────────────────────
+    overfit_risk, overfit_gaps, overfit_warnings = _compute_overfit_risk(
+        train_metrics, valid_metrics, test_metrics,
+    )
+    if overfit_warnings:
+        print(f"[WARN] Overfitting detected ({len(overfit_warnings)} signal(s)):")
+        for w in overfit_warnings:
+            print(f"  - {w}")
+
+    ctx.update({
+        "train_proba": train_proba, "train_metrics": train_metrics, "train_cm": train_cm,
+        "valid_proba": valid_proba, "valid_metrics": valid_metrics, "valid_cm": valid_cm,
+        "test_proba": test_proba, "test_metrics": test_metrics, "test_cm": test_cm,
+        "ci_lo": ci_lo, "ci_hi": ci_hi, "ci_n": ci_n, "all_metric_ci": all_metric_ci,
+        "optimism_correction": optimism_correction, "learning_curve_report": learning_curve_report,
+        "prevalence": prevalence, "prevalence_baseline": prevalence_baseline,
+        "logistic_baseline": logistic_baseline,
+        "baseline_logit_proba_test": baseline_logit_proba_test,
+        "baseline_proba_test": baseline_proba_test,
+        "baseline_fit_meta": baseline_fit_meta,
+        "split_fingerprints": split_fingerprints,
+        "model_selection_report": model_selection_report,
+        "overfit_risk": overfit_risk, "overfit_gaps": overfit_gaps,
+        "overfit_warnings": overfit_warnings,
+    })
+
+
+def _phase9_overfit_callback(ctx: Dict[str, Any]) -> None:
+    """Phase 9: If overfit_risk >= medium, evaluate alternative candidates.
+
+    May REASSIGN via ctx: selected_model_id, selected_estimator, calibrator,
+    selected_threshold, threshold_info, train/valid/test metrics/cm/proba,
+    ci_lo/hi/n, all_metric_ci, overfit_risk/gaps/warnings, selected_candidate_row.
+
+    Always writes: fallback_trace, original_model_id, callback_activated,
+                   overfit_recommendations.
+    """
+    args = ctx["args"]
+    selected_model_id = ctx["selected_model_id"]
+    selected_estimator = ctx["selected_estimator"]
+    calibrator = ctx["calibrator"]
+    selected_threshold = ctx["selected_threshold"]
+    train_metrics = ctx["train_metrics"]; valid_metrics = ctx["valid_metrics"]
+    test_metrics = ctx["test_metrics"]
+    train_proba = ctx["train_proba"]; valid_proba = ctx["valid_proba"]
+    test_proba = ctx["test_proba"]
+    train_cm = ctx["train_cm"]; valid_cm = ctx["valid_cm"]; test_cm = ctx["test_cm"]
+    overfit_risk = ctx["overfit_risk"]; overfit_gaps = ctx["overfit_gaps"]
+    overfit_warnings = ctx["overfit_warnings"]
+    candidate_rows = ctx["candidate_rows"]; estimator_map = ctx["estimator_map"]
+    selected_candidate_row = ctx["selected_candidate_row"]
+    model_selection_report = ctx["model_selection_report"]
+    X_train, y_train = ctx["X_train"], ctx["y_train"]
+    X_valid, y_valid = ctx["X_valid"], ctx["y_valid"]
+    X_test, y_test = ctx["X_test"], ctx["y_test"]
+    has_test = ctx["has_test"]
+    beta = ctx["beta"]
+    fast_diagnostic_mode = ctx["fast_diagnostic_mode"]
+    ci_lo, ci_hi, ci_n = ctx["ci_lo"], ctx["ci_hi"], ctx["ci_n"]
+    all_metric_ci = ctx["all_metric_ci"]
+    threshold_info = ctx["threshold_info"]
+
+    fallback_trace: List[Dict[str, Any]] = []
+    original_model_id = selected_model_id
+    callback_activated = overfit_risk in ("medium", "high")
+    if callback_activated:
+        print(f"[CALLBACK] Overfitting risk={overfit_risk} — evaluating alternative candidates (train-valid only)...")
+        initial_max_gap = max(
+            float(overfit_gaps.get(k, {}).get("train_valid_gap", 0.0))
+            for k in ("pr_auc", "roc_auc")
+        )
+        fallback_trace.append({
+            "round": 0, "model_id": selected_model_id,
+            "risk": overfit_risk, "max_gap": round(initial_max_gap, 6),
+            "valid_pr_auc": float(valid_metrics.get("pr_auc", 0.0)),
+            "action": "initial_selection",
+        })
+        alt_candidates = sorted(
+            [r for r in candidate_rows if r["model_id"] != selected_model_id],
+            key=lambda r: (int(r.get("complexity_rank", 999)), str(r["model_id"])),
+        )
+        eval_kwargs = dict(
+            estimator_map=estimator_map,
+            X_train=X_train, y_train=y_train, X_valid=X_valid, y_valid=y_valid,
+            threshold_selection_split=ctx["threshold_selection_split"],
+            calibration_fit_split=ctx["calibration_fit_split"],
+            calibration_method=ctx["calibration_method"],
+            beta=beta, sensitivity_floor=ctx["sensitivity_floor"],
+            npv_floor=ctx["npv_floor"], specificity_floor=ctx["specificity_floor"],
+            ppv_floor=ctx["ppv_floor"], cv_splits=args.cv_splits,
+            random_seed=args.random_seed,
+            imbalance_strategy=ctx["selected_imbalance_strategy"],
+        )
+        best_alt: Optional[Dict[str, Any]] = None
+        for rnd, alt_row in enumerate(alt_candidates, start=1):
+            alt_id = str(alt_row["model_id"])
+            try:
+                result = _full_candidate_eval(model_id=alt_id, **eval_kwargs)
+            except Exception as exc:
+                print(f"  [CALLBACK] round {rnd}: {alt_id} — error: {exc}")
+                fallback_trace.append({
+                    "round": rnd, "model_id": alt_id,
+                    "risk": "error", "max_gap": None,
+                    "valid_pr_auc": None, "action": f"error: {exc}",
+                })
+                continue
+            fallback_trace.append({
+                "round": rnd, "model_id": alt_id,
+                "risk": result["risk"], "max_gap": round(result["max_gap"], 6),
+                "valid_pr_auc": round(result["valid_pr_auc"], 4), "action": "evaluated",
+            })
+            print(f"  [CALLBACK] round {rnd}: {alt_id} — risk={result['risk']}, "
+                  f"valid-PR-AUC={result['valid_pr_auc']:.4f}, gap={result['max_gap']:.4f}")
+            if result["risk"] == "low":
+                best_alt = result
+                break
+            if best_alt is None or result["max_gap"] < best_alt["max_gap"]:
+                best_alt = result
+
+        if best_alt is not None:
+            accept = (
+                best_alt["risk"] == "low"
+                or (best_alt["risk"] == "medium" and overfit_risk == "high")
+                or best_alt["max_gap"] < initial_max_gap - 0.02
+            )
+            if accept:
+                alt_id = best_alt["model_id"]
+                print(f"  [CALLBACK] Switching to {alt_id} (risk={best_alt['risk']}, "
+                      f"gap={best_alt['max_gap']:.4f})")
+                selected_model_id = alt_id
+                selected_estimator = best_alt["estimator"]
+                calibrator = best_alt["calibrator"]
+                selected_threshold = best_alt["threshold"]
+                threshold_info = best_alt["threshold_info"]
+                train_metrics = best_alt["train_metrics"]
+                valid_metrics = best_alt["valid_metrics"]
+                train_cm = best_alt["train_cm"]; valid_cm = best_alt["valid_cm"]
+                train_proba = best_alt["train_proba"]
+                valid_proba = best_alt["valid_proba"]
+                overfit_risk = best_alt["risk"]
+                overfit_gaps = best_alt["gaps"]
+                overfit_warnings = best_alt["warnings"]
+                for row in candidate_rows:
+                    row["selected"] = bool(row["model_id"] == selected_model_id)
+                selected_candidate_row = next(
+                    (r for r in candidate_rows if bool(r.get("selected"))), None
+                )
+                if has_test:
+                    test_proba = apply_probability_calibrator(
+                        calibrator, predict_proba_1(selected_estimator, X_test),
+                    )
+                    test_metrics, test_cm = metric_panel(y_test, test_proba, selected_threshold, beta=beta)
+                    if not fast_diagnostic_mode:
+                        ci_lo, ci_hi, ci_n = bootstrap_ci_pr_auc(
+                            y_true=y_test, proba=test_proba,
+                            n_resamples=int(args.bootstrap_resamples), seed=args.random_seed,
+                        )
+                        all_metric_ci, _ = bootstrap_metric_ci(
+                            y_true=y_test, y_score=test_proba,
+                            threshold=selected_threshold, beta=beta,
+                            n_resamples=int(args.bootstrap_resamples), seed=args.random_seed,
+                        )
+                overfit_risk, overfit_gaps, overfit_warnings = _compute_overfit_risk(
+                    train_metrics, valid_metrics, test_metrics if has_test else None,
+                )
+                fallback_trace.append({
+                    "round": "final", "model_id": alt_id,
+                    "risk": best_alt["risk"], "max_gap": round(best_alt["max_gap"], 6),
+                    "valid_pr_auc": round(best_alt["valid_pr_auc"], 4), "action": "accepted",
+                })
+            else:
+                print(f"  [CALLBACK] No better alternative found — keeping {selected_model_id}")
+                fallback_trace.append({
+                    "round": "final", "model_id": selected_model_id,
+                    "risk": overfit_risk, "max_gap": round(initial_max_gap, 6),
+                    "valid_pr_auc": round(float(valid_metrics.get("pr_auc", 0.0)), 4),
+                    "action": "kept_original",
+                })
+
+    # Update model_selection_report with final model (may differ after callback)
+    model_selection_report["selected_model_id"] = selected_model_id
+    model_selection_report["selected_model_family"] = (selected_candidate_row or {}).get("base_model_id")
+    model_selection_report["selected_model_hyperparameters"] = (selected_candidate_row or {}).get("hyperparameters")
+    model_selection_report["selected_model_regularization_profile"] = (selected_candidate_row or {}).get("regularization_profile")
+
+    overfit_recommendations: List[str] = []
+    if overfit_risk in ("medium", "high"):
+        overfit_recommendations.append("Increase regularization (higher C penalty, lower max_depth).")
+        overfit_recommendations.append("Reduce feature count or apply stricter feature selection.")
+        overfit_recommendations.append("Collect more training samples if possible.")
+    if overfit_risk == "high":
+        overfit_recommendations.append("Consider a simpler model family (e.g., logistic regression).")
+        overfit_recommendations.append("Use stronger cross-validation (more folds, repeated CV).")
+
+    ctx.update({
+        "selected_model_id": selected_model_id, "selected_estimator": selected_estimator,
+        "calibrator": calibrator, "selected_threshold": selected_threshold,
+        "threshold_info": threshold_info,
+        "train_metrics": train_metrics, "valid_metrics": valid_metrics,
+        "test_metrics": test_metrics, "train_cm": train_cm, "valid_cm": valid_cm,
+        "test_cm": test_cm, "train_proba": train_proba, "valid_proba": valid_proba,
+        "test_proba": test_proba, "ci_lo": ci_lo, "ci_hi": ci_hi, "ci_n": ci_n,
+        "all_metric_ci": all_metric_ci,
+        "overfit_risk": overfit_risk, "overfit_gaps": overfit_gaps,
+        "overfit_warnings": overfit_warnings,
+        "selected_candidate_row": selected_candidate_row,
+        "overfit_recommendations": overfit_recommendations,
+        "fallback_trace": fallback_trace, "original_model_id": original_model_id,
+        "callback_activated": callback_activated,
+    })
+
+
 def main() -> int:
     """Entry point for the train-select-evaluate pipeline.
 
@@ -6641,378 +7042,86 @@ def main() -> int:
     trace = ctx["selection_trace"]
 
     # ═══════════════════════════════════════════════════════════════════════
-    # PHASE 7: EVALUATION (metrics + bootstrap CI)
-    # Inputs:  selected_estimator, calibrator, X/y arrays, threshold
-    # Outputs: train/valid/test_metrics, train/valid/test_proba,
-    #          ci_lo, ci_hi, all_metric_ci
+    # PHASES 7-8: EVALUATION + DIAGNOSTICS → _phase78_eval_diagnostics()
     # ═══════════════════════════════════════════════════════════════════════
-
-
+    ctx.update({
+        "selected_estimator": selected_estimator, "calibrator": calibrator,
+        "selected_threshold": selected_threshold, "threshold_info": threshold_info,
+        "X_train": X_train, "y_train": y_train, "X_valid": X_valid, "y_valid": y_valid,
+        "X_test": X_test, "y_test": y_test, "has_valid": has_valid, "has_test": has_test,
+        "beta": beta, "fast_diagnostic_mode": fast_diagnostic_mode,
+        "imputation": imputation, "effective_class_weight": effective_class_weight,
+        "selected_imbalance_strategy": selected_imbalance_strategy,
+        "selection_data": selection_data, "selected_model_id": selected_model_id,
+        "selected_candidate_row": selected_candidate_row,
+        "candidate_rows": candidate_rows, "candidate_space_meta": candidate_space_meta,
+        "selection_trace": trace, "selected_features": selected_features,
+        "imbalance_candidates": imbalance_candidates,
+        "selected_imbalance_metric": selected_imbalance_metric,
+        "strategy_probe_rows": strategy_probe_rows,
+        "model_pool_config": model_pool_config,
+    })
     print("[STEP  8/12] Evaluation (metrics + bootstrap CI)...", file=sys.stderr, flush=True)
-    train_proba_raw = predict_proba_1(selected_estimator, X_train)
-    train_proba = apply_probability_calibrator(calibrator, train_proba_raw)
-    train_metrics, train_cm = metric_panel(y_train, train_proba, selected_threshold, beta=beta)
-
-    if has_valid:
-        valid_proba_raw = predict_proba_1(selected_estimator, X_valid)
-        valid_proba = apply_probability_calibrator(calibrator, valid_proba_raw)
-        valid_metrics, valid_cm = metric_panel(y_valid, valid_proba, selected_threshold, beta=beta)
-    else:
-        valid_proba = np.array([])
-        valid_metrics, valid_cm = {}, {}
-
-    if has_test:
-        test_proba_raw = predict_proba_1(selected_estimator, X_test)
-        test_proba = apply_probability_calibrator(calibrator, test_proba_raw)
-        test_metrics, test_cm = metric_panel(y_test, test_proba, selected_threshold, beta=beta)
-    else:
-        test_proba = np.array([])
-        test_metrics, test_cm = {}, {}
-
-    if fast_diagnostic_mode:
-        ci_lo = None
-        ci_hi = None
-        ci_n = 0
-        all_metric_ci: Dict[str, Any] = {}
-    else:
-        ci_lo, ci_hi, ci_n = bootstrap_ci_pr_auc(
-            y_true=y_test,
-            proba=test_proba,
-            n_resamples=int(args.bootstrap_resamples),
-            seed=args.random_seed,
-        )
-        all_metric_ci, _ = bootstrap_metric_ci(
-            y_true=y_test,
-            y_score=test_proba,
-            threshold=selected_threshold,
-            beta=beta,
-            n_resamples=int(args.bootstrap_resamples),
-            seed=args.random_seed,
-        )
-
-    # Bootstrap optimism correction (Steyerberg, Clinical Prediction Models, 2019)
-    if fast_diagnostic_mode:
-        optimism_correction: Dict[str, Any] = {"skipped": True, "reason": "fast_diagnostic_mode"}
-    else:
-        try:
-            optimism_correction = bootstrap_optimism_correction(
-                estimator=selected_estimator,
-                X_train=X_train,
-                y_train=y_train,
-                threshold=selected_threshold,
-                beta=beta,
-                n_resamples=min(int(args.bootstrap_resamples), 200),
-                seed=args.random_seed,
-            )
-        except Exception as exc:
-            print(f"[WARN] bootstrap_optimism_correction failed: {exc}", file=sys.stderr)
-            optimism_correction = {"skipped": True, "reason": str(exc)}
-
-    # Learning curve convergence check
-    if fast_diagnostic_mode:
-        learning_curve_report: Dict[str, Any] = {"skipped": True, "reason": "fast_diagnostic_mode"}
-    else:
-        try:
-            learning_curve_report = learning_curve_data(
-                estimator=selected_estimator,
-                X_train=X_train,
-                y_train=y_train,
-                X_valid=X_valid,
-                y_valid=y_valid,
-                threshold=selected_threshold,
-                beta=beta,
-                seed=args.random_seed,
-            )
-        except Exception as exc:
-            print(f"[WARN] learning_curve_data failed: {exc}", file=sys.stderr)
-            learning_curve_report = {"skipped": True, "reason": str(exc)}
-
-    prevalence = float(np.mean(y_train))
-    if has_test:
-        baseline_proba_test = np.full(shape=y_test.shape[0], fill_value=prevalence, dtype=float)
-        prevalence_baseline = {
-            "roc_auc": float(roc_auc_score(y_test, baseline_proba_test)),
-            "pr_auc": float(average_precision_score(y_test, baseline_proba_test)),
-            "brier": float(brier_score_loss(y_test, baseline_proba_test)),
-        }
-    else:
-        baseline_proba_test = np.array([])
-        prevalence_baseline = {"roc_auc": None, "pr_auc": None, "brier": None}
-
-    baseline_logit = Pipeline(
-        steps=[
-            ("imputer", build_imputer(str(imputation["executed_strategy"]), args.random_seed)),
-            ("scaler", StandardScaler()),
-            (
-                "clf",
-                LogisticRegression(
-                    max_iter=4000,
-                    solver="liblinear",
-                    C=1.0,
-                    class_weight=effective_class_weight,
-                    random_state=args.random_seed,
-                ),
-            ),
-        ]
-    )
-    baseline_logit, baseline_fit_meta = fit_estimator_with_imbalance(
-        estimator=baseline_logit,
-        X_train=X_train,
-        y_train=y_train,
-        strategy=selected_imbalance_strategy,
-        seed=int(args.random_seed) + 313,
-    )
-    if has_test:
-        baseline_logit_proba_test = predict_proba_1(baseline_logit, X_test)
-        logistic_baseline = {
-            "roc_auc": float(roc_auc_score(y_test, baseline_logit_proba_test)),
-            "pr_auc": float(average_precision_score(y_test, baseline_logit_proba_test)),
-            "brier": float(brier_score_loss(y_test, baseline_logit_proba_test)),
-        }
-    else:
-        baseline_logit_proba_test = np.array([])
-        logistic_baseline = {"roc_auc": None, "pr_auc": None, "brier": None}
-
-    split_fingerprints = {
-        "train": {
-            "path": str(Path(args.train).expanduser().resolve()),
-            "sha256": sha256_file(Path(args.train).expanduser().resolve()),
-            "row_count": int(X_train.shape[0]),
-        },
-    }
-    if has_valid and args.valid:
-        split_fingerprints["valid"] = {
-            "path": str(Path(args.valid).expanduser().resolve()),
-            "sha256": sha256_file(Path(args.valid).expanduser().resolve()),
-            "row_count": int(X_valid.shape[0]),
-        }
-    if has_test and args.test:
-        split_fingerprints["test"] = {
-            "path": str(Path(args.test).expanduser().resolve()),
-            "sha256": sha256_file(Path(args.test).expanduser().resolve()),
-            "row_count": int(X_test.shape[0]),
-        }
+    _phase78_eval_diagnostics(ctx)
+    # Bridge ctx → locals for Phases 9+
+    train_proba = ctx["train_proba"]; train_metrics = ctx["train_metrics"]; train_cm = ctx["train_cm"]
+    valid_proba = ctx["valid_proba"]; valid_metrics = ctx["valid_metrics"]; valid_cm = ctx["valid_cm"]
+    test_proba = ctx["test_proba"]; test_metrics = ctx["test_metrics"]; test_cm = ctx["test_cm"]
+    ci_lo = ctx["ci_lo"]; ci_hi = ctx["ci_hi"]; ci_n = ctx["ci_n"]
+    all_metric_ci = ctx["all_metric_ci"]
+    optimism_correction = ctx["optimism_correction"]
+    learning_curve_report = ctx["learning_curve_report"]
+    prevalence_baseline = ctx["prevalence_baseline"]
+    logistic_baseline = ctx["logistic_baseline"]
+    baseline_logit_proba_test = ctx["baseline_logit_proba_test"]
+    baseline_proba_test = ctx["baseline_proba_test"]
+    split_fingerprints = ctx["split_fingerprints"]
+    model_selection_report = ctx["model_selection_report"]
+    overfit_risk = ctx["overfit_risk"]; overfit_gaps = ctx["overfit_gaps"]
+    overfit_warnings = ctx["overfit_warnings"]
+    baseline_fit_meta = ctx["baseline_fit_meta"]
+    prevalence = ctx["prevalence"]
 
 
     # ═══════════════════════════════════════════════════════════════════════
-    # PHASE 8: DIAGNOSTICS (optimism, baselines, learning curve)
-    # Inputs:  selected_estimator, X_train, y_train, y_test, test_proba
-    # Outputs: model_selection_report, prevalence/logistic baselines,
-    #          split_fingerprints, overfit_risk
+    # PHASE 9: OVERFITTING CALLBACK → _phase9_overfit_callback()
     # ═══════════════════════════════════════════════════════════════════════
-
-
-    model_selection_report = {
-        "status": "pass",
-        "primary_metric": "pr_auc",
-        "test_used_for_model_selection": False,
-        "selection_policy": {
-            "primary_metric": "pr_auc",
-            "selection_data": selection_data,
-            "one_se_rule": True,
-            "complexity_tie_breaker": "prefer_lower_complexity_rank",
-            "test_used_for_model_selection": False,
-            "imbalance_strategy": selected_imbalance_strategy,
-            "imbalance_strategy_candidates": list(imbalance_candidates),
-            "imbalance_selection_metric": selected_imbalance_metric,
-            "imbalance_probe": strategy_probe_rows,
-            "requested_model_pool": list(model_pool_config.get("requested_models", [])),
-            "model_pool": list(model_pool_config.get("model_pool", [])),
-            "required_models": list(model_pool_config.get("required_models", [])),
-            "auto_added_required_models": list(model_pool_config.get("auto_added_required_models", [])),
-            "hyperparameter_tuning": {
-                "strategy": str(model_pool_config.get("search_strategy", "random_subsample")),
-                "max_trials_per_family": int(model_pool_config.get("max_trials_per_family", 1)),
-                "sampling_seed": int(args.random_seed),
-                "n_jobs": int(model_pool_config.get("n_jobs", -1)),
-            },
-        },
-        "candidate_count": len(candidate_rows),
-        "candidates": candidate_rows,
-        "selection_trace": trace,
-        "selected_model_id": selected_model_id,
-        "selected_model_family": (selected_candidate_row or {}).get("base_model_id"),
-        "selected_model_hyperparameters": (selected_candidate_row or {}).get("hyperparameters"),
-        "selected_model_regularization_profile": (selected_candidate_row or {}).get("regularization_profile"),
-        "candidate_space": candidate_space_meta,
-        "data_fingerprints": split_fingerprints,
-        "imputation": imputation,
-        "feature_engineering": {
-            "mode": str(args.feature_engineering_mode),
-            "selected_feature_count": int(len(selected_features)),
-            "selected_features": selected_features,
-            "selection_scope": "cv_inner_train_only" if selection_data == "cv_inner" else "train_only",
-        },
-    }
-
-    # Compute overfit risk from train-valid gap ONLY (test is for reporting).
-    overfit_risk, overfit_gaps, overfit_warnings = _compute_overfit_risk(
-        train_metrics, valid_metrics, test_metrics,
-    )
-    if overfit_warnings:
-        print(f"[WARN] Overfitting detected ({len(overfit_warnings)} signal(s)):")
-        for w in overfit_warnings:
-            print(f"  - {w}")
-
-
-    # ═══════════════════════════════════════════════════════════════════════
-    # PHASE 9: OVERFITTING CALLBACK [DANGER: MUTATES 17 UPSTREAM VARS]
-    # If overfit_risk >= medium, re-evaluates alternative candidates.
-    # May REASSIGN: selected_model_id, selected_estimator, calibrator,
-    #   selected_threshold, threshold_info, train/valid/test_metrics,
-    #   train/valid/test_proba, overfit_risk/gaps/warnings
-    # ═══════════════════════════════════════════════════════════════════════
-
-
-    # ── Overfitting callback: try alternative candidates when risk >= medium ──
-    # IMPORTANT: callback uses only train-valid gap for decisions (no test leakage).
-    fallback_trace: List[Dict[str, Any]] = []
-    original_model_id = selected_model_id
-    callback_activated = overfit_risk in ("medium", "high")
-    if callback_activated:
-        print(f"[CALLBACK] Overfitting risk={overfit_risk} — evaluating alternative candidates (train-valid only)...")
-        initial_max_gap = max(
-            float(overfit_gaps.get(k, {}).get("train_valid_gap", 0.0))
-            for k in ("pr_auc", "roc_auc")
-        )
-        fallback_trace.append({
-            "round": 0, "model_id": selected_model_id,
-            "risk": overfit_risk, "max_gap": round(initial_max_gap, 6),
-            "valid_pr_auc": float(valid_metrics.get("pr_auc", 0.0)),
-            "action": "initial_selection",
-        })
-        # Sort candidates by complexity (simplest first)
-        alt_candidates = sorted(
-            [r for r in candidate_rows if r["model_id"] != selected_model_id],
-            key=lambda r: (int(r.get("complexity_rank", 999)), str(r["model_id"])),
-        )
-        eval_kwargs = dict(
-            estimator_map=estimator_map,
-            X_train=X_train, y_train=y_train,
-            X_valid=X_valid, y_valid=y_valid,
-            threshold_selection_split=threshold_selection_split,
-            calibration_fit_split=calibration_fit_split,
-            calibration_method=calibration_method,
-            beta=beta, sensitivity_floor=sensitivity_floor,
-            npv_floor=npv_floor, specificity_floor=specificity_floor,
-            ppv_floor=ppv_floor, cv_splits=args.cv_splits,
-            random_seed=args.random_seed,
-            imbalance_strategy=selected_imbalance_strategy,
-        )
-        best_alt: Optional[Dict[str, Any]] = None
-        for rnd, alt_row in enumerate(alt_candidates, start=1):
-            alt_id = str(alt_row["model_id"])
-            try:
-                result = _full_candidate_eval(model_id=alt_id, **eval_kwargs)
-            except Exception as exc:
-                print(f"  [CALLBACK] round {rnd}: {alt_id} — error: {exc}")
-                fallback_trace.append({
-                    "round": rnd, "model_id": alt_id,
-                    "risk": "error", "max_gap": None,
-                    "valid_pr_auc": None, "action": f"error: {exc}",
-                })
-                continue
-            fallback_trace.append({
-                "round": rnd, "model_id": alt_id,
-                "risk": result["risk"],
-                "max_gap": round(result["max_gap"], 6),
-                "valid_pr_auc": round(result["valid_pr_auc"], 4),
-                "action": "evaluated",
-            })
-            print(f"  [CALLBACK] round {rnd}: {alt_id} — risk={result['risk']}, "
-                  f"valid-PR-AUC={result['valid_pr_auc']:.4f}, gap={result['max_gap']:.4f}")
-            if result["risk"] == "low":
-                best_alt = result
-                break
-            if best_alt is None or result["max_gap"] < best_alt["max_gap"]:
-                best_alt = result
-
-        # Accept alternative if it has strictly lower risk or smaller train-valid gap
-        if best_alt is not None:
-            accept = (
-                best_alt["risk"] == "low"
-                or (best_alt["risk"] == "medium" and overfit_risk == "high")
-                or best_alt["max_gap"] < initial_max_gap - 0.02
-            )
-            if accept:
-                alt_id = best_alt["model_id"]
-                print(f"  [CALLBACK] Switching to {alt_id} (risk={best_alt['risk']}, "
-                      f"gap={best_alt['max_gap']:.4f})")
-                selected_model_id = alt_id
-                selected_estimator = best_alt["estimator"]
-                calibrator = best_alt["calibrator"]
-                selected_threshold = best_alt["threshold"]
-                threshold_info = best_alt["threshold_info"]
-                train_metrics = best_alt["train_metrics"]
-                valid_metrics = best_alt["valid_metrics"]
-                train_cm = best_alt["train_cm"]
-                valid_cm = best_alt["valid_cm"]
-                train_proba = best_alt["train_proba"]
-                valid_proba = best_alt["valid_proba"]
-                overfit_risk = best_alt["risk"]
-                overfit_gaps = best_alt["gaps"]
-                overfit_warnings = best_alt["warnings"]
-                # Update candidate selection flags
-                for row in candidate_rows:
-                    row["selected"] = bool(row["model_id"] == selected_model_id)
-                selected_candidate_row = next(
-                    (r for r in candidate_rows if bool(r.get("selected"))), None
-                )
-                # Recompute test metrics ONCE for the new model (single test evaluation)
-                if has_test:
-                    test_proba = apply_probability_calibrator(
-                        calibrator, predict_proba_1(selected_estimator, X_test),
-                    )
-                    test_metrics, test_cm = metric_panel(y_test, test_proba, selected_threshold, beta=beta)
-                    if not fast_diagnostic_mode:
-                        ci_lo, ci_hi, ci_n = bootstrap_ci_pr_auc(
-                            y_true=y_test, proba=test_proba,
-                            n_resamples=int(args.bootstrap_resamples),
-                            seed=args.random_seed,
-                        )
-                        all_metric_ci, _ = bootstrap_metric_ci(
-                            y_true=y_test, y_score=test_proba,
-                            threshold=selected_threshold, beta=beta,
-                            n_resamples=int(args.bootstrap_resamples),
-                            seed=args.random_seed,
-                        )
-                # Recompute overfit with available metrics
-                overfit_risk, overfit_gaps, overfit_warnings = _compute_overfit_risk(
-                    train_metrics, valid_metrics,
-                    test_metrics if has_test else None,
-                )
-                fallback_trace.append({
-                    "round": "final", "model_id": alt_id,
-                    "risk": best_alt["risk"],
-                    "max_gap": round(best_alt["max_gap"], 6),
-                    "valid_pr_auc": round(best_alt["valid_pr_auc"], 4),
-                    "action": "accepted",
-                })
-            else:
-                print(f"  [CALLBACK] No better alternative found — keeping {selected_model_id}")
-                fallback_trace.append({
-                    "round": "final", "model_id": selected_model_id,
-                    "risk": overfit_risk,
-                    "max_gap": round(initial_max_gap, 6),
-                    "valid_pr_auc": round(float(valid_metrics.get("pr_auc", 0.0)), 4),
-                    "action": "kept_original",
-                })
-
-    # Update model_selection_report with final model (may differ after callback)
-    model_selection_report["selected_model_id"] = selected_model_id
-    model_selection_report["selected_model_family"] = (selected_candidate_row or {}).get("base_model_id")
-    model_selection_report["selected_model_hyperparameters"] = (selected_candidate_row or {}).get("hyperparameters")
-    model_selection_report["selected_model_regularization_profile"] = (selected_candidate_row or {}).get("regularization_profile")
-
-    # Generate recommendations based on final risk
-    overfit_recommendations: List[str] = []
-    if overfit_risk in ("medium", "high"):
-        overfit_recommendations.append("Increase regularization (higher C penalty, lower max_depth).")
-        overfit_recommendations.append("Reduce feature count or apply stricter feature selection.")
-        overfit_recommendations.append("Collect more training samples if possible.")
-    if overfit_risk == "high":
-        overfit_recommendations.append("Consider a simpler model family (e.g., logistic regression).")
-        overfit_recommendations.append("Use stronger cross-validation (more folds, repeated CV).")
+    ctx.update({
+        "selected_model_id": selected_model_id, "selected_estimator": selected_estimator,
+        "calibrator": calibrator, "selected_threshold": selected_threshold,
+        "threshold_info": threshold_info,
+        "train_metrics": train_metrics, "valid_metrics": valid_metrics,
+        "test_metrics": test_metrics, "train_cm": train_cm, "valid_cm": valid_cm,
+        "test_cm": test_cm, "train_proba": train_proba, "valid_proba": valid_proba,
+        "test_proba": test_proba, "ci_lo": ci_lo, "ci_hi": ci_hi, "ci_n": ci_n,
+        "all_metric_ci": all_metric_ci,
+        "overfit_risk": overfit_risk, "overfit_gaps": overfit_gaps,
+        "overfit_warnings": overfit_warnings,
+        "candidate_rows": candidate_rows, "estimator_map": estimator_map,
+        "selected_candidate_row": selected_candidate_row,
+        "model_selection_report": model_selection_report,
+    })
+    _phase9_overfit_callback(ctx)
+    # Re-read all potentially mutated variables from ctx
+    selected_model_id = ctx["selected_model_id"]
+    selected_estimator = ctx["selected_estimator"]
+    calibrator = ctx["calibrator"]
+    selected_threshold = ctx["selected_threshold"]
+    threshold_info = ctx["threshold_info"]
+    train_metrics = ctx["train_metrics"]; valid_metrics = ctx["valid_metrics"]
+    test_metrics = ctx["test_metrics"]
+    train_cm = ctx["train_cm"]; valid_cm = ctx["valid_cm"]; test_cm = ctx["test_cm"]
+    train_proba = ctx["train_proba"]; valid_proba = ctx["valid_proba"]
+    test_proba = ctx["test_proba"]
+    ci_lo = ctx["ci_lo"]; ci_hi = ctx["ci_hi"]; ci_n = ctx["ci_n"]
+    all_metric_ci = ctx["all_metric_ci"]
+    overfit_risk = ctx["overfit_risk"]; overfit_gaps = ctx["overfit_gaps"]
+    overfit_warnings = ctx["overfit_warnings"]
+    selected_candidate_row = ctx["selected_candidate_row"]
+    overfit_recommendations = ctx["overfit_recommendations"]
+    fallback_trace = ctx["fallback_trace"]
+    original_model_id = ctx["original_model_id"]
+    callback_activated = ctx["callback_activated"]
 
 
     # ═══════════════════════════════════════════════════════════════════════
