@@ -54,3 +54,7 @@ experiments/overnight_run.log
 
 # NHANES codebook data (download via references/nhanes_codebook/README.md)
 references/nhanes_codebook/*.tsv
+
+# UKB codebook data (download via scripts/tools/fetch_ukb_showcase.py)
+references/ukb_codebook/*.txt
+references/ukb_codebook/*.sqlite
