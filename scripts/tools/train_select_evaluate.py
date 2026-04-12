@@ -5776,6 +5776,34 @@ def _phase0_preflight_and_config(args: argparse.Namespace) -> Dict[str, Any]:
                         f"preflight_failed: {_report_name} is not valid JSON: {_exc}"
                     )
 
+    # ── Auto-exclude codebook-flagged leakage columns ─────────────────────
+    # If cohort_definition_gate produced a report with codebook_auto_exclude_columns,
+    # merge them into --definition-cols so they are forcibly excluded from features.
+    if not getattr(args, "skip_preflight_check", False):
+        _cohort_report_path = _evidence_dir / "cohort_definition_gate_report.json"
+        if _cohort_report_path.is_file():
+            try:
+                with _cohort_report_path.open("r", encoding="utf-8") as _fh:
+                    _cohort_rpt = json.load(_fh)
+                _auto_exclude = (_cohort_rpt.get("study_design", {})
+                                 .get("codebook_auto_exclude_columns", []))
+                if _auto_exclude:
+                    existing = set(
+                        c.strip() for c in getattr(args, "definition_cols", "").split(",") if c.strip()
+                    )
+                    new_cols = sorted(set(_auto_exclude) - existing)
+                    if new_cols:
+                        merged = ",".join(sorted(existing | set(new_cols)))
+                        args.definition_cols = merged
+                        print(
+                            f"[SAFE] codebook_auto_exclude: {len(new_cols)} column(s) flagged "
+                            f"by cohort codebook validation added to definition_cols: "
+                            f"{', '.join(new_cols)}",
+                            file=sys.stderr,
+                        )
+            except (json.JSONDecodeError, KeyError, TypeError):
+                pass  # Non-fatal: codebook exclusion is best-effort
+
     # ── Argument validation ───────────────────────────────────────────────
     if args.cv_splits < 3:
         raise SystemExit("--cv-splits must be >= 3.")

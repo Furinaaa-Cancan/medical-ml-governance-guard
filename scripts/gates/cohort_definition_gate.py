@@ -1383,6 +1383,19 @@ def main() -> int:
                         add_issue(failures, issue["code"], issue["message"], issue["details"])
                     rag_issues.extend(task_issues)
 
+            # Extract columns flagged as CRITICAL (outcome/death/definition)
+            # and auto-add to definition_cols for downstream exclusion.
+            _auto_exclude = set()
+            for issue in rag_issues:
+                if issue["code"] in ("CODEBOOK_OUTCOME_AS_FEATURE",
+                                     "CODEBOOK_DEFINITION_VARIABLE"):
+                    col = issue.get("details", {}).get("column", "")
+                    if col and col in df.columns:
+                        _auto_exclude.add(col)
+            if _auto_exclude:
+                study_design.setdefault("codebook_auto_exclude_columns",
+                                        []).extend(sorted(_auto_exclude))
+
             study_design["codebook_rag"] = {
                 "status": "completed",
                 "dataset": survey_source,
@@ -1390,6 +1403,7 @@ def main() -> int:
                 "variables_loaded": cb_rag.variable_count,
                 "issues_found": len(rag_issues),
                 "task_aware_disease": _target_disease,
+                "auto_excluded_columns": sorted(_auto_exclude),
             }
         except ImportError:
             if "codebook_rag" not in study_design:
