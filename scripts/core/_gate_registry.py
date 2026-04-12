@@ -188,7 +188,7 @@ _register(GateSpec(
     script="gates/definition_variable_guard.py",
     layer=GateLayer.POLICY_AUDIT,
     description="Verify phenotype definition variables against training data columns.",
-    depends_on=frozenset({"request_contract_gate"}),
+    depends_on=frozenset({"request_contract_gate", "split_protocol_gate"}),
     request_inputs={"phenotype_definition_spec": "--definition-spec"},
     report_output="definition_guard_report.json",
     category="data_integrity",
@@ -199,7 +199,7 @@ _register(GateSpec(
     script="gates/feature_lineage_gate.py",
     layer=GateLayer.POLICY_AUDIT,
     description="Verify feature lineage spec against phenotype definition and training data.",
-    depends_on=frozenset({"request_contract_gate"}),
+    depends_on=frozenset({"request_contract_gate", "split_protocol_gate"}),
     request_inputs={
         "phenotype_definition_spec": "--definition-spec",
         "feature_lineage_spec": "--lineage-spec",
@@ -213,7 +213,7 @@ _register(GateSpec(
     script="gates/imbalance_policy_gate.py",
     layer=GateLayer.POLICY_AUDIT,
     description="Verify class imbalance handling policy against actual split prevalence.",
-    depends_on=frozenset({"request_contract_gate"}),
+    depends_on=frozenset({"request_contract_gate", "split_protocol_gate"}),
     request_inputs={
         "imbalance_policy_spec": "--policy-spec",
         "evaluation_report_file": "--evaluation-report",
@@ -227,7 +227,7 @@ _register(GateSpec(
     script="gates/missingness_policy_gate.py",
     layer=GateLayer.POLICY_AUDIT,
     description="Verify missingness handling policy against actual missing data patterns.",
-    depends_on=frozenset({"request_contract_gate"}),
+    depends_on=frozenset({"request_contract_gate", "split_protocol_gate"}),
     request_inputs={
         "missingness_policy_spec": "--policy-spec",
         "evaluation_report_file": "--evaluation-report",
@@ -241,7 +241,7 @@ _register(GateSpec(
     script="gates/tuning_leakage_gate.py",
     layer=GateLayer.POLICY_AUDIT,
     description="Verify hyperparameter tuning protocol does not leak test data.",
-    depends_on=frozenset({"request_contract_gate"}),
+    depends_on=frozenset({"request_contract_gate", "split_protocol_gate"}),
     request_inputs={"tuning_protocol_spec": "--tuning-spec"},
     report_output="tuning_leakage_report.json",
     category="data_integrity",
@@ -254,7 +254,7 @@ _register(GateSpec(
     script="gates/model_selection_audit_gate.py",
     layer=GateLayer.MODEL_AUDIT,
     description="Audit model selection process for protocol compliance and data leakage.",
-    depends_on=frozenset({"request_contract_gate"}),
+    depends_on=frozenset({"request_contract_gate", "split_protocol_gate"}),
     request_inputs={
         "model_selection_report_file": "--model-selection-report",
         "tuning_protocol_spec": "--tuning-spec",
@@ -268,7 +268,7 @@ _register(GateSpec(
     script="gates/feature_engineering_audit_gate.py",
     layer=GateLayer.MODEL_AUDIT,
     description="Audit feature engineering for reproducibility and selection leakage.",
-    depends_on=frozenset({"request_contract_gate"}),
+    depends_on=frozenset({"request_contract_gate", "split_protocol_gate"}),
     request_inputs={
         "feature_group_spec": "--feature-group-spec",
         "feature_engineering_report_file": "--feature-engineering-report",
@@ -284,7 +284,7 @@ _register(GateSpec(
     script="gates/clinical_metrics_gate.py",
     layer=GateLayer.MODEL_AUDIT,
     description="Verify clinical metric floors and operating point requirements.",
-    depends_on=frozenset({"request_contract_gate"}),
+    depends_on=frozenset({"request_contract_gate", "split_protocol_gate"}),
     request_inputs={
         "evaluation_report_file": "--evaluation-report",
         "external_validation_report_file": "--external-validation-report",
@@ -299,7 +299,7 @@ _register(GateSpec(
     script="gates/shap_interpretability_gate.py",
     layer=GateLayer.MODEL_AUDIT,
     description="Multi-model SHAP: proportional-normalized ensemble feature importance across model families.",
-    depends_on=frozenset({"request_contract_gate"}),
+    depends_on=frozenset({"request_contract_gate", "split_protocol_gate"}),
     request_inputs={
         "model_pool_file": "--model-pool",
         "feature_lineage_spec": "--feature-lineage-spec",
@@ -315,7 +315,7 @@ _register(GateSpec(
     script="gates/prediction_replay_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Replay predictions from trace and verify metric consistency with evaluation report.",
-    depends_on=frozenset({"request_contract_gate"}),
+    depends_on=frozenset({"request_contract_gate", "split_protocol_gate"}),
     request_inputs={
         "evaluation_report_file": "--evaluation-report",
         "prediction_trace_file": "--prediction-trace",
@@ -330,7 +330,7 @@ _register(GateSpec(
     script="gates/distribution_generalization_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Assess distribution shift and generalization across splits and external cohorts.",
-    depends_on=frozenset({"request_contract_gate"}),
+    depends_on=frozenset({"request_contract_gate", "split_protocol_gate"}),
     request_inputs={
         "evaluation_report_file": "--evaluation-report",
         "external_validation_report_file": "--external-validation-report",
@@ -347,7 +347,7 @@ _register(GateSpec(
     script="gates/generalization_gap_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Compute and threshold directional performance gaps between splits.",
-    depends_on=frozenset({"request_contract_gate"}),
+    depends_on=frozenset({"request_contract_gate", "split_protocol_gate"}),
     request_inputs={
         "evaluation_report_file": "--evaluation-report",
         "performance_policy_spec": "--performance-policy",
@@ -361,7 +361,7 @@ _register(GateSpec(
     script="gates/robustness_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Verify model robustness across time slices and patient subgroups.",
-    depends_on=frozenset({"request_contract_gate"}),
+    depends_on=frozenset({"request_contract_gate", "split_protocol_gate"}),
     request_inputs={
         "robustness_report_file": "--robustness-report",
         "performance_policy_spec": "--performance-policy",
@@ -375,7 +375,7 @@ _register(GateSpec(
     script="gates/seed_stability_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Verify model stability across random seed variations.",
-    depends_on=frozenset({"request_contract_gate"}),
+    depends_on=frozenset({"request_contract_gate", "split_protocol_gate"}),
     request_inputs={
         "seed_sensitivity_report_file": "--seed-sensitivity-report",
         "performance_policy_spec": "--performance-policy",
@@ -389,7 +389,7 @@ _register(GateSpec(
     script="gates/external_validation_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Validate transferability on external cohorts with metric replay.",
-    depends_on=frozenset({"request_contract_gate"}),
+    depends_on=frozenset({"request_contract_gate", "split_protocol_gate"}),
     request_inputs={
         "external_validation_report_file": "--external-validation-report",
         "prediction_trace_file": "--prediction-trace",
@@ -405,7 +405,7 @@ _register(GateSpec(
     script="gates/calibration_dca_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Validate model calibration and decision curve analysis thresholds.",
-    depends_on=frozenset({"request_contract_gate"}),
+    depends_on=frozenset({"request_contract_gate", "split_protocol_gate"}),
     request_inputs={
         "prediction_trace_file": "--prediction-trace",
         "evaluation_report_file": "--evaluation-report",
@@ -421,7 +421,7 @@ _register(GateSpec(
     script="gates/ci_matrix_gate.py",
     layer=GateLayer.MODEL_AUDIT,  # Moved from METRIC_VALIDATION to avoid intra-layer dep
     description="Validate confidence interval matrix via bootstrap resampling.",
-    depends_on=frozenset({"request_contract_gate"}),
+    depends_on=frozenset({"request_contract_gate", "split_protocol_gate"}),
     request_inputs={
         "evaluation_report_file": "--evaluation-report",
         "prediction_trace_file": "--prediction-trace",
@@ -478,7 +478,7 @@ _register(GateSpec(
     script="gates/fairness_equity_gate.py",
     layer=GateLayer.METRIC_VALIDATION,
     description="Fairness and equity: equalized odds gap, disparate impact ratio (four-fifths rule), per-subgroup metric minimums.",
-    depends_on=frozenset({"request_contract_gate"}),
+    depends_on=frozenset({"request_contract_gate", "split_protocol_gate"}),
     request_inputs={"evaluation_report_file": "--evaluation-report"},
     report_output="fairness_equity_report.json",
     parallelizable=True,
