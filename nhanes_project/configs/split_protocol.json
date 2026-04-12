@@ -1,0 +1,13 @@
+{
+  "allow_patient_overlap": false,
+  "allow_time_overlap": false,
+  "frozen_before_modeling": true,
+  "id_col": "patient_id",
+  "index_time_col": "_no_time_column",
+  "notes": "NHANES is cross-sectional; no temporal ordering. Patient-level disjoint stratified split, frozen before modeling.",
+  "requires_group_disjoint": true,
+  "requires_temporal_order": false,
+  "split_reference": "protocol-v1-locked-2026-02-24",
+  "split_seed_locked": true,
+  "split_strategy": "stratified_grouped"
+}

@@ -3922,16 +3922,23 @@ def resolve_external_cohorts(
             cohort_encoded = apply_categorical_encoding_to_external(
                 cohort_df, list(feature_cols), all_raw_cols,
             )
-            # Fill NaN columns (absent from external data) with train medians.
-            # apply_categorical_encoding_to_external now fills absent cols
-            # with NaN instead of 0, so we can fill with appropriate values.
-            if train_fill_values:
-                for col in feature_cols:
-                    if col in cohort_encoded.columns and cohort_encoded[col].isna().all():
-                        if col in train_fill_values:
-                            cohort_encoded[col] = train_fill_values[col]
-                        else:
-                            cohort_encoded[col] = 0.0
+            # Check for genuinely absent features (all-NaN after encoding).
+            # If any features are missing from the external data, skip the
+            # cohort entirely — filling with constants invalidates external
+            # validation because the model receives fabricated inputs.
+            absent_features = [
+                col for col in feature_cols
+                if col in cohort_encoded.columns and cohort_encoded[col].isna().all()
+            ]
+            if absent_features:
+                warnings.warn(
+                    f"Skipping external cohort '{cohort_id}': {len(absent_features)} "
+                    f"feature(s) absent from external data and cannot be "
+                    f"reconstructed: {absent_features}. External validation "
+                    f"requires feature-consistent datasets.",
+                    stacklevel=2,
+                )
+                continue
             cohort_df = pd.concat([cohort_df[[c for c in [target_col, patient_id_col] if c in cohort_df.columns]], cohort_encoded], axis=1)
         X_ext, y_ext = prepare_xy(cohort_df, feature_cols=feature_cols, target_col=target_col)
         if patient_id_col in cohort_df.columns:

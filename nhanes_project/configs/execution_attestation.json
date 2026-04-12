@@ -1,0 +1,97 @@
+{
+  "assurance_policy": {
+    "max_signing_key_age_days": 180,
+    "min_signing_key_bits": 3072,
+    "min_witness_count": 2,
+    "require_distinct_authority_roles": true,
+    "require_execution_log_attestation": true,
+    "require_execution_receipt": true,
+    "require_independent_execution_authority": true,
+    "require_independent_log_authority": true,
+    "require_independent_timestamp_authority": true,
+    "require_independent_witness_keys": true,
+    "require_revocation_list": true,
+    "require_timestamp_trust": true,
+    "require_transparency_log": true,
+    "require_transparency_log_signature": true,
+    "require_witness_independence_from_signing": true,
+    "require_witness_quorum": true
+  },
+  "execution_log_attestation": {
+    "artifact_name": "training_log",
+    "authority_id": "execution-log-authority-local",
+    "public_key_file": "../keys/execution_log_pub.pem",
+    "public_key_fingerprint_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "record_file": "../evidence/attestation_execution_log_record.json",
+    "signature_file": "../evidence/attestation_execution_log_record.sig"
+  },
+  "execution_receipt": {
+    "authority_id": "execution-authority-local",
+    "enforce_exit_code_zero": true,
+    "public_key_file": "../keys/execution_pub.pem",
+    "public_key_fingerprint_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "record_file": "../evidence/attestation_execution_receipt_record.json",
+    "signature_file": "../evidence/attestation_execution_receipt_record.sig"
+  },
+  "issued_at_utc": "2026-02-24T11:46:00Z",
+  "required_artifact_names": [
+    "training_log",
+    "training_config",
+    "model_artifact",
+    "model_selection_report",
+    "robustness_report",
+    "seed_sensitivity_report",
+    "evaluation_report",
+    "prediction_trace",
+    "external_validation_report"
+  ],
+  "run_id": "nhanes-diabetes-full-train-2026-04-11-001",
+  "schema_version": "1.2",
+  "signed_payload_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "signing": {
+    "key_created_at_utc": "2026-01-01T00:00:00Z",
+    "key_id": "attestation-key-2026q1",
+    "key_not_after_utc": "2026-07-01T00:00:00Z",
+    "method": "openssl-dgst-sha256",
+    "public_key_file": "../keys/attestation_pub.pem",
+    "public_key_fingerprint_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "revocation_list_file": "../keys/key_revocations.json",
+    "signature_file": "../evidence/attestation.sig",
+    "signed_payload_file": "../evidence/attestation_payload.json"
+  },
+  "study_id": "nhanes-diabetes-type2-v1",
+  "timestamp_trust": {
+    "authority_id": "timestamp-authority-local",
+    "mode": "signed_record",
+    "public_key_file": "../keys/timestamp_pub.pem",
+    "public_key_fingerprint_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "record_file": "../evidence/attestation_timestamp_record.json",
+    "signature_file": "../evidence/attestation_timestamp_record.sig"
+  },
+  "transparency_log": {
+    "log_id": "transparency-log-local",
+    "public_key_file": "../keys/transparency_pub.pem",
+    "public_key_fingerprint_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "record_file": "../evidence/attestation_transparency_record.json",
+    "signature_file": "../evidence/attestation_transparency_record.sig"
+  },
+  "witness_quorum": {
+    "min_witness_count": 2,
+    "records": [
+      {
+        "authority_id": "witness-a",
+        "public_key_file": "../keys/witness_a_pub.pem",
+        "public_key_fingerprint_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+        "record_file": "../evidence/attestation_witness_record_1.json",
+        "signature_file": "../evidence/attestation_witness_record_1.sig"
+      },
+      {
+        "authority_id": "witness-b",
+        "public_key_file": "../keys/witness_b_pub.pem",
+        "public_key_fingerprint_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+        "record_file": "../evidence/attestation_witness_record_2.json",
+        "signature_file": "../evidence/attestation_witness_record_2.sig"
+      }
+    ]
+  }
+}
