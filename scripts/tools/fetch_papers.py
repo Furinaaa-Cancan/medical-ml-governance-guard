@@ -624,7 +624,8 @@ def make_folder_id(paper: dict[str, Any]) -> str:
         # PubMed: "LastName FirstName"; others: "FirstName LastName"
         # Taking the first token gives the last name for PubMed-sourced records
         # and is a reasonable slug for all other sources.
-        first_author = _ascii_slug(paper["authors"][0].split()[0])
+        tokens = paper["authors"][0].split()
+        first_author = _ascii_slug(tokens[0]) if tokens else "unknown"
 
     year = str(paper["year"]) if paper["year"] else "nodate"
 
@@ -868,7 +869,7 @@ def write_paper(
     manifest_all.append({
         "id": folder_id,
         "path": str(paper_dir.relative_to(output_dir.parent)),
-        "label": f"{paper['authors'][0].split()[-1] if paper['authors'] else 'Unknown'}"
+        "label": f"{(paper['authors'][0].split() or ['Unknown'])[-1] if paper['authors'] else 'Unknown'}"
                  f" et al. {paper['year'] or '?'} — {paper['title'][:60]}",
         "journal": paper["journal"],
         "doi": paper["doi"],
