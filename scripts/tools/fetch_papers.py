@@ -887,7 +887,7 @@ def update_manifests(output_dir: Path, new_entries: list[dict[str, Any]]) -> Non
         log.warning("Manifest not found at %s; skipping update.", manifest_path)
         return
 
-    with open(manifest_path) as f:
+    with open(manifest_path, encoding="utf-8") as f:
         manifest = json.load(f)
 
     existing_ids = {p["id"] for p in manifest.get("projects", [])}
@@ -898,7 +898,7 @@ def update_manifests(output_dir: Path, new_entries: list[dict[str, Any]]) -> Non
             existing_ids.add(entry["id"])
             added += 1
 
-    with open(manifest_path, "w") as f:
+    with open(manifest_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
 
     log.info("Updated manifest: +%d new entries (%d total)", added, len(manifest["projects"]))

@@ -56,7 +56,7 @@ markers = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["scripts*", "experiments*", "references*", "plugin*"]
+include = ["scripts*", "references*"]
 
 [tool.setuptools.package-data]
 references = ["*.json", "*.md", "*.csv", "examples/*.json", "nhanes_codebook/*.tsv", "skill/*.md", "peer_reviews/*.json"]

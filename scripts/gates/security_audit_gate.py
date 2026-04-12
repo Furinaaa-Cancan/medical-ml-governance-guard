@@ -320,10 +320,6 @@ def main() -> int:
     args = parse_args()
 
     evidence_dir = Path(args.evidence_dir).expanduser().resolve()
-    if not evidence_dir.exists():
-        print(f"FAIL: evidence directory does not exist: {evidence_dir}", file=sys.stderr)
-        return 2
-
     model_dir = (
         Path(args.model_dir).expanduser().resolve()
         if args.model_dir
@@ -333,14 +329,26 @@ def main() -> int:
     failures: List[GateIssue] = []
     warnings: List[GateIssue] = []
 
-    # Run all security checks
-    sig_summary = _check_model_signatures(model_dir, failures, warnings)
-    manifest_summary = _check_evidence_manifest(evidence_dir, failures, warnings)
-    dep_summary = _check_dependency_integrity(failures, warnings)
-    perm_summary = _check_file_permissions(evidence_dir, warnings)
-    sensitive_summary = _check_sensitive_data(evidence_dir, failures)
-    size_summary = _check_artifact_sizes(evidence_dir, warnings)
-    audit_summary = _check_audit_chain(evidence_dir, warnings)
+    if not evidence_dir.exists():
+        failures.append(GateIssue(
+            code="evidence_dir_not_found",
+            severity=Severity.CRITICAL,
+            message=f"Evidence directory does not exist: {evidence_dir}",
+            details={"evidence_dir": str(evidence_dir)},
+        ))
+
+    # Run all security checks (skip if evidence_dir missing — failure already recorded)
+    if evidence_dir.exists():
+        sig_summary = _check_model_signatures(model_dir, failures, warnings)
+        manifest_summary = _check_evidence_manifest(evidence_dir, failures, warnings)
+        dep_summary = _check_dependency_integrity(failures, warnings)
+        perm_summary = _check_file_permissions(evidence_dir, warnings)
+        sensitive_summary = _check_sensitive_data(evidence_dir, failures)
+        size_summary = _check_artifact_sizes(evidence_dir, warnings)
+        audit_summary = _check_audit_chain(evidence_dir, warnings)
+    else:
+        sig_summary = manifest_summary = dep_summary = {}
+        perm_summary = sensitive_summary = size_summary = audit_summary = {}
 
     # Determine status: fail-closed with standard finish() pattern
     should_fail = bool(failures) or (args.strict and bool(warnings))

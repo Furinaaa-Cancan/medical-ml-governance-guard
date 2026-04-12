@@ -914,7 +914,7 @@ def main() -> int:
         if args.registry:
             reg_path = Path(args.registry)
             if reg_path.exists():
-                with reg_path.open() as f:
+                with reg_path.open(encoding="utf-8") as f:
                     reg = json.load(f)
                 ds = reg.get("datasets", {}).get("nhanes_2017_2020", {})
                 manual_reg = ds.get("variables", {})
@@ -930,7 +930,7 @@ def main() -> int:
 
         if args.report:
             Path(args.report).parent.mkdir(parents=True, exist_ok=True)
-            with open(args.report, "w") as f:
+            with open(args.report, "w", encoding="utf-8") as f:
                 json.dump(result, f, indent=2)
             print(f"Report written to {args.report}")
 

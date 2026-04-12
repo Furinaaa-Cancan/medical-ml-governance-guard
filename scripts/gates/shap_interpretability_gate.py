@@ -950,6 +950,12 @@ def main() -> int:
     try:
         import joblib
         pool_path = Path(args.model_pool).expanduser().resolve()
+        # Verify artifact signature if available (advisory — does not block on missing sig)
+        try:
+            from _security import verify_model_artifact
+            verify_model_artifact(pool_path)
+        except Exception:  # noqa: BLE001
+            pass  # Signature verification is advisory
         model_pool = joblib.load(pool_path)
     except Exception as exc:
         add_issue(

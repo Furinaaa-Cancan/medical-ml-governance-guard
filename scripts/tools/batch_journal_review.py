@@ -86,7 +86,7 @@ def load_manifest(path: Path) -> Tuple[List[ProjectEntry], Optional[List[str]]]:
     Returns:
         Tuple of (project entries, target_journals list or None).
     """
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         data = json.load(f)
 
     contract = data.get("contract_version", "")
