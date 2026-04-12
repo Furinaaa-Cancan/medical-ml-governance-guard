@@ -5210,7 +5210,8 @@ def _subgroup_performance(
     threshold: float,
     beta: float,
     feature_df: "pd.DataFrame",
-    max_subgroups: int = 5,
+    max_subgroups: int = 8,
+    max_cardinality: int = 20,
 ) -> Dict[str, Any]:
     """Compute performance metrics across subgroups for fairness assessment.
 
@@ -5224,16 +5225,20 @@ def _subgroup_performance(
         beta: Beta for F-beta score.
         feature_df: Feature DataFrame to identify subgroup columns.
         max_subgroups: Max number of features to analyze.
+        max_cardinality: Max distinct values for a column to qualify as
+            subgroup (default 20, covers race/ethnicity categories).
 
     Returns:
         Dict with per-feature subgroup performance breakdown.
     """
     results: Dict[str, Any] = {"features_analyzed": 0, "subgroups": {}}
-    # Identify candidate subgroup columns (binary or low-cardinality categorical)
+    # Identify candidate subgroup columns (binary or low-cardinality categorical).
+    # Upper bound raised from 5→20 so demographic variables like
+    # race_ethnicity (6-7 categories) are not silently excluded.
     candidates = []
     for col in feature_df.columns:
         nunique = feature_df[col].nunique()
-        if 2 <= nunique <= 5:
+        if 2 <= nunique <= max_cardinality:
             candidates.append((col, nunique))
     candidates.sort(key=lambda x: x[1])
     candidates = candidates[:max_subgroups]
@@ -7881,10 +7886,20 @@ def _phase10_12_reports_output(ctx: Dict[str, Any]) -> int:
             if selected_model_id not in seed_estimator_map:
                 raise ValueError(f"Selected model_id not found in seeded candidate map: {selected_model_id}")
             seed_estimator = clone(seed_estimator_map[selected_model_id])
+            # Bootstrap resample the training data so that deterministic
+            # models (e.g. HistGradientBoosting with subsample=1.0) still
+            # produce varied results across seeds.  This tests stability to
+            # training-set perturbation, which is the true intent of seed
+            # sensitivity analysis.
+            rng = np.random.RandomState(int(seed))
+            n_train = X_train.shape[0]
+            boot_idx = rng.choice(n_train, size=n_train, replace=True)
+            X_train_seed = X_train.iloc[boot_idx].reset_index(drop=True)
+            y_train_seed = y_train[boot_idx]
             seed_estimator, _ = fit_estimator_with_imbalance(
                 estimator=seed_estimator,
-                X_train=X_train,
-                y_train=y_train,
+                X_train=X_train_seed,
+                y_train=y_train_seed,
                 strategy=selected_imbalance_strategy,
                 seed=int(seed),
             )
