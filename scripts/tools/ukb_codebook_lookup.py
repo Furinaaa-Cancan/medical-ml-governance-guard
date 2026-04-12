@@ -381,7 +381,8 @@ class UKBCodebook:
         """
         conn = self._ensure_conn()
         row = conn.execute(
-            "SELECT instanced, arrayed, instance_min, instance_max, array_min, array_max "
+            "SELECT instanced, arrayed, instance_min, instance_max, "
+            "array_min, array_max, value_type "
             "FROM fields WHERE field_id = ?", (field_id,)
         ).fetchone()
         if not row:
@@ -393,20 +394,27 @@ class UKBCodebook:
         inst_max = row["instance_max"] or 0
         arr_min = row["array_min"] or 0
         arr_max = row["array_max"] or 0
+        value_type = row["value_type"] or ""
+
+        # RAP Table Exporter: multi-select fields are stored as embedded arrays,
+        # so _a suffix is skipped. Only non-multi-select arrays need expansion.
+        # See: UKB RAP docs "accessing-phenotypic-data"
+        is_multiselect = value_type in ("categorical_multiple",)
+        expand_array = arrayed > 0 and not is_multiselect
 
         instances = list(range(inst_min, inst_max + 1)) if all_instances else [instance]
 
         names = []
-        if instanced == 0 and arrayed == 0:
+        if instanced == 0 and not expand_array:
             names.append(f"p{field_id}")
-        elif instanced > 0 and arrayed == 0:
+        elif instanced > 0 and not expand_array:
             for inst in instances:
                 names.append(f"p{field_id}_i{inst}")
-        elif instanced > 0 and arrayed > 0:
+        elif instanced > 0 and expand_array:
             for inst in instances:
                 for arr in range(arr_min, arr_max + 1):
                     names.append(f"p{field_id}_i{inst}_a{arr}")
-        elif instanced == 0 and arrayed > 0:
+        elif instanced == 0 and expand_array:
             for arr in range(arr_min, arr_max + 1):
                 names.append(f"p{field_id}_a{arr}")
 
