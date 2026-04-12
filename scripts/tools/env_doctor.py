@@ -86,7 +86,7 @@ def main() -> int:
                 add_issue(
                     warnings,
                     "optional_backend_not_installed",
-                    "Optional backend not installed; related models will be unavailable.",
+                    f"Optional backend '{key}' not installed (pip install {module_name}).",
                     {"backend": key, "install_hint": f"pip install {module_name}"},
                 )
 

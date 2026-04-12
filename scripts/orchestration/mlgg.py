@@ -293,6 +293,7 @@ COMMANDS: Dict[str, Tuple[Path, str]] = {
 }
 INTERACTIVE_CORE_COMMANDS = ("init", "workflow", "train", "authority")
 COMMAND_PRESETS: Dict[str, Tuple[str, ...]] = {
+    "strict": ("--strict",),
     "authority-release": (
         "--include-stress-cases",
         "--stress-case-id",

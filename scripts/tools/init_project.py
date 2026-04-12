@@ -16,7 +16,7 @@ from _gate_utils import load_json_from_path as load_json, write_json
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-REFERENCES_ROOT = REPO_ROOT / "references"
+REFERENCES_ROOT = REPO_ROOT / "references" / "examples"
 
 TEMPLATE_COPY_MAP = {
     "feature-lineage.example.json": "feature_lineage.json",
