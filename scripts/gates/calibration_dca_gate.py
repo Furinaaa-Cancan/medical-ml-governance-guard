@@ -550,7 +550,7 @@ def main() -> int:
         if abs(float(calibration["intercept"])) > float(thresholds["intercept_abs_max"]):
             add_issue(
                 failures,
-                "calibration_intercept_out_of_range",
+                "calibration_intercept_too_large",
                 "Calibration intercept absolute value exceeds configured threshold.",
                 {
                     "cohort": label,

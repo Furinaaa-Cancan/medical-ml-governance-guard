@@ -96,6 +96,10 @@ register_remediations({
     "SHAP_SINGLE_MODEL":
         "Model pool contains only 1 family. Ensemble averaging is degenerate. "
         "Add more model families to the training pool for robust importance.",
+    "SHAP_RANK_IDENTICAL":
+        "One or more model pairs produced identical importance rankings "
+        "(Kendall tau = NaN). This may indicate degenerate models or "
+        "insufficient feature diversity.",
     "SHAP_RANK_DISAGREEMENT":
         "Models disagree on feature importance ranking (low Kendall tau). "
         "This may indicate that importance is model-dependent rather than "

@@ -3101,7 +3101,7 @@ def main() -> int:
         )
 
     evaluation_report_file = normalized.get("evaluation_report_file")
-    _is_cross_sectional = bool(request.get("cross_sectional")) or not require_lineage
+    _is_cross_sectional = bool(request.get("cross_sectional"))
     if isinstance(evaluation_report_file, str) and evaluation_report_file:
         validate_evaluation_report_shape(evaluation_report_file, failures, cross_sectional=_is_cross_sectional)
     external_validation_report_file = normalized.get("external_validation_report_file")

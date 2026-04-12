@@ -211,7 +211,7 @@ def bootstrap_metric_ci(
             panel = metric_panel(yb, sb, threshold, beta=beta)
         except Exception:
             continue
-        if not all(isinstance(panel.get(metric), (int, float)) and math.isfinite(float(panel.get(metric))) for metric in REQUIRED_METRICS):
+        if not all(isinstance(panel.get(metric), (int, float)) and not isinstance(panel.get(metric), bool) and math.isfinite(float(panel.get(metric))) for metric in REQUIRED_METRICS):
             continue
         for metric in REQUIRED_METRICS:
             hits[metric].append(float(panel[metric]))
