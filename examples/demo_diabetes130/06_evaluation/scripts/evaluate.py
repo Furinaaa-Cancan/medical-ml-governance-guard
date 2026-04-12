@@ -435,11 +435,13 @@ def main():
         y_prob_cal = platt.predict_proba(y_prob.reshape(-1, 1))[:, 1]
 
         # Calibration slope + intercept (Van Calster 2019)
+        # Fit on VALIDATION set (not test) to avoid MLGG-P01 violation.
         eps = 1e-7
-        clipped = np.clip(y_prob_cal, eps, 1 - eps)
-        logit_p = np.log(clipped / (1 - clipped))
+        y_prob_cal_valid = platt.predict_proba(y_prob_valid)[:, 1]
+        clipped_valid = np.clip(y_prob_cal_valid, eps, 1 - eps)
+        logit_p_valid = np.log(clipped_valid / (1 - clipped_valid))
         cal_lr = _LR(C=1e9, solver="lbfgs", max_iter=5000)
-        cal_lr.fit(logit_p.reshape(-1, 1), y_test)
+        cal_lr.fit(logit_p_valid.reshape(-1, 1), y_valid)
         cal_slope = cal_lr.coef_[0][0]
         cal_intercept = cal_lr.intercept_[0]
 

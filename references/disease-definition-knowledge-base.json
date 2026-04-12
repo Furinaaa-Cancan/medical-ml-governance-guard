@@ -83,6 +83,12 @@
       "use_case": "Very strict, research cohort",
       "specificity": "very_high",
       "sensitivity": "low"
+    },
+    "cancer_registry_primary": {
+      "description": "Cancer registry record is the primary source; ICD/pathology confirmatory",
+      "use_case": "Cancer outcomes where registry is authoritative (SEER, NCI GDC)",
+      "specificity": "very_high",
+      "sensitivity": "high"
     }
   },
   "diseases": {
