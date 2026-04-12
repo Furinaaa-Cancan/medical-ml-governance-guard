@@ -17,6 +17,7 @@
   "index_time_col": "_no_time_column",
   "label_col": "y",
   "missingness_policy_spec": "missingness_policy.json",
+  "model_pool_file": "../models/model_pool.pkl",
   "model_selection_report_file": "../evidence/model_selection_report.json",
   "patient_id_col": "patient_id",
   "performance_policy_spec": "performance_policy.json",
