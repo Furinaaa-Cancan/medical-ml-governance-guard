@@ -8,3 +8,5 @@ catboost>=1.2
 lightgbm>=3.3
 tabpfn>=0.1
 optuna>=3.0
+flask>=3.0             # Web dashboard (mlgg web)
+shap>=0.42             # SHAP interpretability gate

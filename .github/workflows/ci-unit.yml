@@ -27,10 +27,15 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install -r requirements.txt
-          python3 -m pip install pytest
+          python3 -m pip install pytest pytest-cov ruff
+
+      - name: Lint (ruff)
+        run: |
+          ruff check scripts/ || echo "::warning::ruff found lint issues (non-blocking until existing issues are resolved)"
 
       - name: Unit tests (exclude slow)
         run: |
           python3 -m pytest tests/ -m "not slow" --tb=short -q \
             --ignore=tests/test_onboarding_smoke.py \
-            --ignore=tests/test_play_smoke.py
+            --ignore=tests/test_play_smoke.py \
+            --cov=scripts --cov-report=term-missing --cov-fail-under=85

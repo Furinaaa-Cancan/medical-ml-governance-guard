@@ -385,6 +385,30 @@ def main() -> int:
             {"paths": sorted(set(suspicious_test_paths))[:30]},
         )
 
+    # ── EPV / overparameterization check (TRIPOD+AI 2024 item 4a) ──
+    dataset_stats = model_selection.get("dataset_stats") or {}
+    epv_n_events = finite_int(dataset_stats.get("n_events")) or finite_int(dataset_stats.get("n_positive"))
+    epv_n_features = finite_int(dataset_stats.get("n_features"))
+    if epv_n_events is not None and epv_n_features is not None and epv_n_features > 0:
+        epv = epv_n_events / epv_n_features
+        if epv < 5:
+            add_issue(
+                failures,
+                "overparameterized_model",
+                f"Events-per-variable (EPV) = {epv:.1f} < 5. Model is severely overparameterized; "
+                f"results are unreliable. Reduce features or increase sample size "
+                f"(Riley et al. 2019, TRIPOD+AI item 4a).",
+                {"epv": round(epv, 2), "n_events": epv_n_events, "n_features": epv_n_features},
+            )
+        elif epv < 10:
+            add_issue(
+                warnings,
+                "low_epv_warning",
+                f"Events-per-variable (EPV) = {epv:.1f} < 10. Consider penalized methods "
+                f"or feature reduction (Riley et al. 2019).",
+                {"epv": round(epv, 2), "n_events": epv_n_events, "n_features": epv_n_features},
+            )
+
     selected_model_id = str(model_selection.get("selected_model_id", "")).strip()
     if not selected_model_id:
         add_issue(

@@ -576,10 +576,10 @@ def analyze_cohort(
 
         if pd.api.types.is_numeric_dtype(series) and nunique > 2:
             desc = series.describe()
-            profile["mean"] = round(float(desc.get("mean", 0)), 4)
-            profile["std"] = round(float(desc.get("std", 0)), 4)
-            profile["min"] = round(float(desc.get("min", 0)), 4)
-            profile["max"] = round(float(desc.get("max", 0)), 4)
+            profile["mean"] = _to_float(desc.get("mean", 0)) or 0.0
+            profile["std"] = _to_float(desc.get("std", 0)) or 0.0
+            profile["min"] = _to_float(desc.get("min", 0)) or 0.0
+            profile["max"] = _to_float(desc.get("max", 0)) or 0.0
 
         feature_profiles.append(profile)
 
@@ -597,19 +597,23 @@ def analyze_cohort(
         series = pd.to_numeric(df[feat], errors="coerce").dropna()
         if len(series) < 10:
             continue
-        q1, q3 = float(series.quantile(0.25)), float(series.quantile(0.75))
+        _q1, _q3 = _to_float(series.quantile(0.25)), _to_float(series.quantile(0.75))
+        if _q1 is None or _q3 is None:
+            continue
+        q1, q3 = _q1, _q3
         iqr = q3 - q1
         if iqr <= 0:
             continue
         lower = q1 - 3 * iqr
         upper = q3 + 3 * iqr
         n_outlier = int(((series < lower) | (series > upper)).sum())
-        if n_outlier > 0:
+        _smin, _smax = _to_float(series.min()), _to_float(series.max())
+        if n_outlier > 0 and _smin is not None and _smax is not None:
             outlier_features.append({
                 "feature": feat,
                 "n_outliers": n_outlier,
                 "pct_outliers": round(n_outlier / len(series), 4),
-                "range": [round(float(series.min()), 4), round(float(series.max()), 4)],
+                "range": [round(_smin, 4), round(_smax, 4)],
                 "iqr_bounds": [round(lower, 4), round(upper, 4)],
             })
 
@@ -624,12 +628,12 @@ def analyze_cohort(
             if series.isna().all():
                 continue
             try:
-                corr = abs(float(series.corr(y_numeric)))
-                if corr > 0.8:
+                corr = _to_float(series.corr(y_numeric))
+                if corr is not None and abs(corr) > 0.8:
                     suspicious_correlations.append({
                         "feature": feat,
-                        "abs_correlation": round(corr, 4),
-                        "risk": "very_high" if corr > 0.95 else "high",
+                        "abs_correlation": round(abs(corr), 4),
+                        "risk": "very_high" if abs(corr) > 0.95 else "high",
                     })
             except Exception as exc:
                 print(f"[cohort] correlation {feat}: {exc}", file=sys.stderr)
@@ -648,7 +652,8 @@ def analyze_cohort(
             missing_flag = any_missing_per_row.astype(float)
             y_num = pd.to_numeric(df[target_col], errors="coerce")
             try:
-                outcome_miss_corr = round(abs(float(missing_flag.corr(y_num))), 4)
+                _omc = _to_float(missing_flag.corr(y_num))
+                outcome_miss_corr = round(abs(_omc), 4) if _omc is not None else None
             except Exception as exc:
                 print(f"[cohort] missingness-outcome corr: {exc}", file=sys.stderr)
 
@@ -661,9 +666,9 @@ def analyze_cohort(
                 n_miss = int(col_missing.sum())
                 if 0 < n_miss < len(df):
                     try:
-                        corr = abs(float(col_missing.astype(float).corr(y_for_mnar)))
-                        if corr > 0.1:
-                            per_feature_mnar[col] = round(corr, 4)
+                        _mc = _to_float(col_missing.astype(float).corr(y_for_mnar))
+                        if _mc is not None and abs(_mc) > 0.1:
+                            per_feature_mnar[col] = round(abs(_mc), 4)
                     except Exception:
                         pass
 
@@ -1053,8 +1058,8 @@ def main() -> int:
             f"Survey weight column '{weight_col}' found. Standard ML models do NOT "
             f"incorporate survey weights. Document this as a limitation.",
             {"weight_col": weight_col, "weight_range": [
-                round(float(df[weight_col].min()), 2),
-                round(float(df[weight_col].max()), 2),
+                _to_float(df[weight_col].min()) or 0.0,
+                _to_float(df[weight_col].max()) or 0.0,
             ]},
         )
         study_design["survey_weight_col"] = weight_col

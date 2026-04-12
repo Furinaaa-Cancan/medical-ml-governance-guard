@@ -67,14 +67,16 @@ def parse_args() -> argparse.Namespace:
         "--forbidden-feature-regex",
         default=(
             r"\b(future|leak)\b"
-            r"|(?:^|_)(target|label|outcome)(?:_|$)"
-            r"|(?:^|_)(pred|predicted|actual|confirmed|diagnosed|staging|stage_at)"
-            r"|(?:^|_)(pathology|biopsy_result|histology)"
+            r"|(?:^|_)(target|label)(?:_|$)"
+            r"|(?:^|_)outcome(?!_date|_time|_period)(?:_|$)"
+            r"|(?:^|_)(pred|predicted|actual|confirmed|diagnosed)(?:_|$)"
+            r"|(?:^|_)(staging|stage_at)(?:_|$)"
+            r"|(?:^|_)(pathology|biopsy_result|histology)(?:_|$)"
             r"|(?:^|_)(next_|future_|post_|after_)"
             r"|(?:^|_)(diagnosis_date|dx_date|diag_date|death_date|event_date|outcome_date|discharge_date)"
             r"|(?:^|_)(readmit|mortality_flag|survival_status|los_days)"
         ),
-        help="Regex for suspicious feature names. Covers: explicit markers (future, leak), target aliases, post-outcome variables (pred_, confirmed_, staging), temporal leakage (next_, post_), outcome dates, and derived outcome indicators.",
+        help="Regex for suspicious feature names. Covers: explicit markers (future, leak), target aliases, post-outcome variables (pred_, confirmed_, staging), temporal leakage (next_, post_), outcome dates, and derived outcome indicators. Note: 'outcome' allows _date/_time/_period suffixes to reduce false positives on legitimate date columns.",
     )
     parser.add_argument("--report", help="Optional path to write JSON report.")
     parser.add_argument(
