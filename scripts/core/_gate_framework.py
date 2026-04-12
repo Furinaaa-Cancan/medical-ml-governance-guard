@@ -419,17 +419,3 @@ def print_gate_summary(
             pass  # Peer review KB not available — skip silently
 
 
-# ---------------------------------------------------------------------------
-# GateBase abstract class — REMOVED
-# ---------------------------------------------------------------------------
-# GateBase was defined here (208 lines) but never subclassed by any gate.
-# All 33 gates use the legacy pattern: standalone parse_args() + main() + finish().
-# Removed to eliminate dead code. If a base class is needed in the future,
-# design it based on actual gate patterns, not speculative abstractions.
-#
-# Also removed: wrap_legacy_report() (69 lines, never imported) and
-# load_gate_report() (8 lines, shadowed by local impl in generate_compliance_certificate.py).
-# ---------------------------------------------------------------------------
-
-
-# [DELETED: class GateBase(abc.ABC) — 208 lines, 0 subclasses]

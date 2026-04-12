@@ -529,13 +529,15 @@ def _build_aggregation_cmd(
         "metric_consistency_gate": "--metric-report",
         "evaluation_quality_gate": "--evaluation-quality-report",
         "permutation_significance_gate": "--permutation-report",
+        "cohort_definition_gate": "--cohort-definition-report",
+        "shap_interpretability_gate": "--shap-interpretability-report",
+        "fairness_equity_gate": "--fairness-equity-report",
+        "sample_size_gate": "--sample-size-report",
     }
 
     if gate_name == "self_critique_gate":
         report_flag_map["publication_gate"] = "--publication-report"
         report_flag_map["security_audit_gate"] = "--security-audit-report"
-        report_flag_map["fairness_equity_gate"] = "--fairness-equity-report"
-        report_flag_map["sample_size_gate"] = "--sample-size-report"
 
     for dep_name, flag in report_flag_map.items():
         if dep_name in report_paths:
