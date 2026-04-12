@@ -356,8 +356,7 @@ def ensure_revocation_file(path: Path) -> Dict[str, Any]:
             "revoked_key_ids": [],
             "revoked_public_key_fingerprints_sha256": [],
         }
-    from _gate_utils import write_json as _write_revocation
-    _write_revocation(path, loaded)
+    write_json(path, loaded)
     return loaded
 
 

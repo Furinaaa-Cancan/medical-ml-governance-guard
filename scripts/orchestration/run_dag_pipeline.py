@@ -411,6 +411,16 @@ def _gate_specific_extras(
     elif gate_name == "execution_attestation_gate":
         extras.extend(["--study-id", study_id, "--run-id", run_id])
 
+    elif gate_name == "shap_interpretability_gate":
+        extras.extend(["--target-col", label_col])
+        if split_paths.get("train"):
+            extras.extend(["--train-data", split_paths["train"]])
+        if split_paths.get("test"):
+            extras.extend(["--test-data", split_paths["test"]])
+        prediction_trace = normalized.get("prediction_trace_file")
+        if isinstance(prediction_trace, str) and prediction_trace:
+            extras.extend(["--prediction-trace", prediction_trace])
+
     elif gate_name == "metric_consistency_gate":
         extras.extend([
             "--required-evaluation-split", "test",

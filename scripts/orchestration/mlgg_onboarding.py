@@ -684,6 +684,7 @@ def build_train_command(
         "seed_sensitivity_report": evidence / "seed_sensitivity_report.json",
         "permutation_null_metrics": evidence / "permutation_null_pr_auc.txt",
         "model_artifact": models / "demo_model.joblib",
+        "model_pool": models / "model_pool.pkl",
     }
     ignore_parts = sorted({patient_id_col, time_col} - {""})
     cmd = [
@@ -735,6 +736,8 @@ def build_train_command(
         str(out["permutation_null_metrics"]),
         "--model-out",
         str(out["model_artifact"]),
+        "--model-pool-out",
+        str(out["model_pool"]),
         "--n-jobs",
         "1",
         "--selection-data",
