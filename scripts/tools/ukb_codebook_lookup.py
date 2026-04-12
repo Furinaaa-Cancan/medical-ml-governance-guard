@@ -33,20 +33,45 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 DEFAULT_DB = REPO_ROOT / "references" / "ukb_codebook" / "ukb_codebook.sqlite"
 
 # ── UKB column name parser ──────────────────────────────────────────────────
-# UKB columns follow pattern: <field_id>-<instance>.<array>
-# Examples: 21001-0.0, 31-0.0, 4080-0.0, 4080-0.1
+# Supports multiple UKB column naming conventions:
+#
+# 1. RAP (DNAnexus) format: p<field_id>_i<instance>_a<array>
+#    Examples: p21001_i0_a0, p4080_i1_a0, p41270, p53_i0
+#
+# 2. Data Showcase format: <field_id>-<instance>.<array>
+#    Examples: 21001-0.0, 4080-1.0
+#
+# 3. Bare field ID: 21001, 4080
 
-_UKB_COL_RE = re.compile(r"^(\d+)-(\d+)\.(\d+)$")
+# RAP format: p<field>_i<inst>_a<arr> (instance/array optional)
+_RAP_COL_RE = re.compile(r"^p(\d+)(?:_i(\d+))?(?:_a(\d+))?$")
+# Showcase format: <field>-<inst>.<arr>
+_SHOWCASE_COL_RE = re.compile(r"^(\d+)-(\d+)\.(\d+)$")
 
 
 def parse_ukb_column(col: str) -> Optional[Tuple[int, int, int]]:
-    """Parse UKB column name into (field_id, instance, array_index)."""
-    m = _UKB_COL_RE.match(col.strip())
+    """Parse UKB column name into (field_id, instance, array_index).
+
+    Accepts RAP format (p21001_i0_a0), Showcase format (21001-0.0),
+    or bare field ID (21001).
+    """
+    s = col.strip()
+
+    # RAP format: p21001_i0_a0
+    m = _RAP_COL_RE.match(s)
+    if m:
+        return (int(m.group(1)),
+                int(m.group(2)) if m.group(2) else 0,
+                int(m.group(3)) if m.group(3) else 0)
+
+    # Showcase format: 21001-0.0
+    m = _SHOWCASE_COL_RE.match(s)
     if m:
         return int(m.group(1)), int(m.group(2)), int(m.group(3))
-    # Try bare field ID
+
+    # Bare field ID
     try:
-        return int(col.strip()), 0, 0
+        return int(s), 0, 0
     except ValueError:
         return None
 
