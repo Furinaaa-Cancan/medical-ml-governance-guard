@@ -1,0 +1,344 @@
+{
+  "heart": {
+    "ablation_L1": {
+      "mean": 0.9119,
+      "ci_lower": 0.8974,
+      "ci_upper": 0.9225,
+      "std": 0.0203,
+      "n": 10
+    },
+    "ablation_L2": {
+      "mean": 0.8959,
+      "ci_lower": 0.8758,
+      "ci_upper": 0.9169,
+      "std": 0.0317,
+      "n": 10
+    },
+    "ablation_L3": {
+      "mean": 0.9127,
+      "ci_lower": 0.9003,
+      "ci_upper": 0.9223,
+      "std": 0.0175,
+      "n": 10
+    },
+    "ablation_L4": {
+      "mean": 0.8979,
+      "ci_lower": 0.8785,
+      "ci_upper": 0.9165,
+      "std": 0.0308,
+      "n": 10
+    },
+    "ablation_L5": {
+      "mean": 0.9097,
+      "ci_lower": 0.8958,
+      "ci_upper": 0.9203,
+      "std": 0.0199,
+      "n": 10
+    },
+    "all_leaky": {
+      "mean": 0.9083,
+      "ci_lower": 0.8947,
+      "ci_upper": 0.9194,
+      "std": 0.0194,
+      "n": 10
+    },
+    "clean": {
+      "mean": 0.8776,
+      "ci_lower": 0.8558,
+      "ci_upper": 0.9037,
+      "std": 0.0387,
+      "n": 10
+    },
+    "_deflation": {
+      "leaky_mean": 0.9083,
+      "clean_mean": 0.8776,
+      "inflation": 0.0307,
+      "inflation_pct": 3.5
+    }
+  },
+  "breast": {
+    "ablation_L1": {
+      "mean": 0.9912,
+      "ci_lower": 0.988,
+      "ci_upper": 0.9938,
+      "std": 0.0046,
+      "n": 10
+    },
+    "ablation_L2": {
+      "mean": 0.9894,
+      "ci_lower": 0.9842,
+      "ci_upper": 0.9943,
+      "std": 0.008,
+      "n": 10
+    },
+    "ablation_L3": {
+      "mean": 0.9915,
+      "ci_lower": 0.9879,
+      "ci_upper": 0.9945,
+      "std": 0.0053,
+      "n": 10
+    },
+    "ablation_L4": {
+      "mean": 0.9936,
+      "ci_lower": 0.9902,
+      "ci_upper": 0.9964,
+      "std": 0.0049,
+      "n": 10
+    },
+    "ablation_L5": {
+      "mean": 0.9915,
+      "ci_lower": 0.988,
+      "ci_upper": 0.9944,
+      "std": 0.0052,
+      "n": 10
+    },
+    "all_leaky": {
+      "mean": 0.9915,
+      "ci_lower": 0.988,
+      "ci_upper": 0.9944,
+      "std": 0.0052,
+      "n": 10
+    },
+    "clean": {
+      "mean": 0.9813,
+      "ci_lower": 0.9755,
+      "ci_upper": 0.9873,
+      "std": 0.0093,
+      "n": 10
+    },
+    "_deflation": {
+      "leaky_mean": 0.9915,
+      "clean_mean": 0.9813,
+      "inflation": 0.0102,
+      "inflation_pct": 1.04
+    }
+  },
+  "ckd": {
+    "ablation_L1": {
+      "mean": 0.9998,
+      "ci_lower": 0.9996,
+      "ci_upper": 1.0,
+      "std": 0.0004,
+      "n": 10
+    },
+    "ablation_L2": {
+      "mean": 0.9985,
+      "ci_lower": 0.9963,
+      "ci_upper": 0.9999,
+      "std": 0.0029,
+      "n": 10
+    },
+    "ablation_L3": {
+      "mean": 0.9998,
+      "ci_lower": 0.9994,
+      "ci_upper": 1.0,
+      "std": 0.0005,
+      "n": 10
+    },
+    "ablation_L4": {
+      "mean": 0.9995,
+      "ci_lower": 0.9992,
+      "ci_upper": 0.9998,
+      "std": 0.0005,
+      "n": 10
+    },
+    "ablation_L5": {
+      "mean": 0.9998,
+      "ci_lower": 0.9996,
+      "ci_upper": 1.0,
+      "std": 0.0003,
+      "n": 10
+    },
+    "all_leaky": {
+      "mean": 0.9998,
+      "ci_lower": 0.9996,
+      "ci_upper": 1.0,
+      "std": 0.0003,
+      "n": 10
+    },
+    "clean": {
+      "mean": 0.9993,
+      "ci_lower": 0.9987,
+      "ci_upper": 0.9998,
+      "std": 0.0009,
+      "n": 10
+    },
+    "_deflation": {
+      "leaky_mean": 0.9998,
+      "clean_mean": 0.9993,
+      "inflation": 0.0004,
+      "inflation_pct": 0.04
+    }
+  },
+  "pima": {
+    "ablation_L1": {
+      "mean": 0.8869,
+      "ci_lower": 0.875,
+      "ci_upper": 0.8986,
+      "std": 0.0189,
+      "n": 10
+    },
+    "ablation_L2": {
+      "mean": 0.827,
+      "ci_lower": 0.8017,
+      "ci_upper": 0.8496,
+      "std": 0.0388,
+      "n": 10
+    },
+    "ablation_L3": {
+      "mean": 0.8877,
+      "ci_lower": 0.8771,
+      "ci_upper": 0.8981,
+      "std": 0.0166,
+      "n": 10
+    },
+    "ablation_L4": {
+      "mean": 0.8826,
+      "ci_lower": 0.8702,
+      "ci_upper": 0.895,
+      "std": 0.02,
+      "n": 10
+    },
+    "ablation_L5": {
+      "mean": 0.8877,
+      "ci_lower": 0.8771,
+      "ci_upper": 0.8981,
+      "std": 0.0166,
+      "n": 10
+    },
+    "all_leaky": {
+      "mean": 0.8877,
+      "ci_lower": 0.8771,
+      "ci_upper": 0.8981,
+      "std": 0.0166,
+      "n": 10
+    },
+    "clean": {
+      "mean": 0.8194,
+      "ci_lower": 0.8018,
+      "ci_upper": 0.8393,
+      "std": 0.0311,
+      "n": 10
+    },
+    "_deflation": {
+      "leaky_mean": 0.8877,
+      "clean_mean": 0.8194,
+      "inflation": 0.0683,
+      "inflation_pct": 8.34
+    }
+  },
+  "framingham": {
+    "ablation_L1": {
+      "mean": 0.9482,
+      "ci_lower": 0.9439,
+      "ci_upper": 0.9525,
+      "std": 0.0068,
+      "n": 10
+    },
+    "ablation_L2": {
+      "mean": 0.6545,
+      "ci_lower": 0.6472,
+      "ci_upper": 0.6621,
+      "std": 0.0122,
+      "n": 10
+    },
+    "ablation_L3": {
+      "mean": 0.9484,
+      "ci_lower": 0.9442,
+      "ci_upper": 0.9528,
+      "std": 0.0071,
+      "n": 10
+    },
+    "ablation_L4": {
+      "mean": 0.9486,
+      "ci_lower": 0.9459,
+      "ci_upper": 0.9515,
+      "std": 0.0043,
+      "n": 10
+    },
+    "ablation_L5": {
+      "mean": 0.9485,
+      "ci_lower": 0.9442,
+      "ci_upper": 0.9529,
+      "std": 0.0072,
+      "n": 10
+    },
+    "all_leaky": {
+      "mean": 0.9485,
+      "ci_lower": 0.9443,
+      "ci_upper": 0.9528,
+      "std": 0.0071,
+      "n": 10
+    },
+    "clean": {
+      "mean": 0.6717,
+      "ci_lower": 0.6554,
+      "ci_upper": 0.6864,
+      "std": 0.0244,
+      "n": 10
+    },
+    "_deflation": {
+      "leaky_mean": 0.9485,
+      "clean_mean": 0.6717,
+      "inflation": 0.2768,
+      "inflation_pct": 41.21
+    }
+  },
+  "diabetes130": {
+    "ablation_L1": {
+      "mean": 0.9698,
+      "ci_lower": 0.9684,
+      "ci_upper": 0.971,
+      "std": 0.0022,
+      "n": 10
+    },
+    "ablation_L2": {
+      "mean": 0.6007,
+      "ci_lower": 0.59,
+      "ci_upper": 0.612,
+      "std": 0.0177,
+      "n": 10
+    },
+    "ablation_L3": {
+      "mean": 0.9686,
+      "ci_lower": 0.9666,
+      "ci_upper": 0.9705,
+      "std": 0.0031,
+      "n": 10
+    },
+    "ablation_L4": {
+      "mean": 0.9674,
+      "ci_lower": 0.9652,
+      "ci_upper": 0.9698,
+      "std": 0.0036,
+      "n": 10
+    },
+    "ablation_L5": {
+      "mean": 0.9697,
+      "ci_lower": 0.968,
+      "ci_upper": 0.9711,
+      "std": 0.0026,
+      "n": 10
+    },
+    "all_leaky": {
+      "mean": 0.969,
+      "ci_lower": 0.9673,
+      "ci_upper": 0.9704,
+      "std": 0.0025,
+      "n": 10
+    },
+    "clean": {
+      "mean": 0.616,
+      "ci_lower": 0.6067,
+      "ci_upper": 0.6238,
+      "std": 0.0138,
+      "n": 10
+    },
+    "_deflation": {
+      "leaky_mean": 0.969,
+      "clean_mean": 0.616,
+      "inflation": 0.3529,
+      "inflation_pct": 57.29
+    }
+  }
+}

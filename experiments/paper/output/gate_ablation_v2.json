@@ -1,0 +1,740 @@
+{
+  "experiment": "gate_ablation",
+  "total_gates": 33,
+  "detection_gates": 16,
+  "non_detection_gates": 17,
+  "leakage_types": {
+    "L1": "Preprocessing (scaler on full data)",
+    "L2": "Resampling (SMOTE on full data)",
+    "L3": "Feature selection (on full data)",
+    "L4": "Patient-level (no grouping)",
+    "L5": "Threshold (optimized on test)"
+  },
+  "type_coverage": {
+    "L1": {
+      "detectors": [
+        "covariate_shift_gate",
+        "missingness_policy_gate",
+        "feature_engineering_audit_gate",
+        "calibration_dca_gate",
+        "evaluation_quality_gate",
+        "generalization_gap_gate",
+        "external_validation_gate",
+        "seed_stability_gate",
+        "distribution_generalization_gate",
+        "publication_gate"
+      ],
+      "n_detectors": 10
+    },
+    "L2": {
+      "detectors": [
+        "covariate_shift_gate",
+        "imbalance_policy_gate",
+        "calibration_dca_gate",
+        "evaluation_quality_gate",
+        "generalization_gap_gate",
+        "external_validation_gate",
+        "seed_stability_gate",
+        "distribution_generalization_gate",
+        "publication_gate"
+      ],
+      "n_detectors": 9
+    },
+    "L3": {
+      "detectors": [
+        "covariate_shift_gate",
+        "feature_lineage_gate",
+        "feature_engineering_audit_gate",
+        "evaluation_quality_gate",
+        "generalization_gap_gate",
+        "external_validation_gate",
+        "seed_stability_gate",
+        "publication_gate"
+      ],
+      "n_detectors": 8
+    },
+    "L4": {
+      "detectors": [
+        "leakage_gate",
+        "split_protocol_gate",
+        "generalization_gap_gate",
+        "external_validation_gate",
+        "publication_gate"
+      ],
+      "n_detectors": 5
+    },
+    "L5": {
+      "detectors": [
+        "tuning_leakage_gate",
+        "model_selection_audit_gate",
+        "publication_gate"
+      ],
+      "n_detectors": 3
+    }
+  },
+  "coverage_matrix": {
+    "request_contract_gate": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    },
+    "manifest_lock": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    },
+    "execution_attestation_gate": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    },
+    "leakage_gate": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": true,
+      "L5": false
+    },
+    "split_protocol_gate": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": true,
+      "L5": false
+    },
+    "covariate_shift_gate": {
+      "L1": true,
+      "L2": true,
+      "L3": true,
+      "L4": false,
+      "L5": false
+    },
+    "reporting_bias_gate": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    },
+    "definition_variable_guard": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    },
+    "feature_lineage_gate": {
+      "L1": false,
+      "L2": false,
+      "L3": true,
+      "L4": false,
+      "L5": false
+    },
+    "imbalance_policy_gate": {
+      "L1": false,
+      "L2": true,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    },
+    "missingness_policy_gate": {
+      "L1": true,
+      "L2": false,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    },
+    "tuning_leakage_gate": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": false,
+      "L5": true
+    },
+    "model_selection_audit_gate": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": false,
+      "L5": true
+    },
+    "feature_engineering_audit_gate": {
+      "L1": true,
+      "L2": false,
+      "L3": true,
+      "L4": false,
+      "L5": false
+    },
+    "clinical_metrics_gate": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    },
+    "metric_consistency_gate": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    },
+    "prediction_replay_gate": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    },
+    "calibration_dca_gate": {
+      "L1": true,
+      "L2": true,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    },
+    "ci_matrix_gate": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    },
+    "evaluation_quality_gate": {
+      "L1": true,
+      "L2": true,
+      "L3": true,
+      "L4": false,
+      "L5": false
+    },
+    "generalization_gap_gate": {
+      "L1": true,
+      "L2": true,
+      "L3": true,
+      "L4": true,
+      "L5": false
+    },
+    "external_validation_gate": {
+      "L1": true,
+      "L2": true,
+      "L3": true,
+      "L4": true,
+      "L5": false
+    },
+    "robustness_gate": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    },
+    "seed_stability_gate": {
+      "L1": true,
+      "L2": true,
+      "L3": true,
+      "L4": false,
+      "L5": false
+    },
+    "distribution_generalization_gate": {
+      "L1": true,
+      "L2": true,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    },
+    "permutation_significance_gate": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    },
+    "fairness_equity_gate": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    },
+    "sample_size_gate": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    },
+    "publication_gate": {
+      "L1": true,
+      "L2": true,
+      "L3": true,
+      "L4": true,
+      "L5": true
+    },
+    "self_critique_gate": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    },
+    "security_audit_gate": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    },
+    "cohort_definition_gate": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    },
+    "shap_interpretability_gate": {
+      "L1": false,
+      "L2": false,
+      "L3": false,
+      "L4": false,
+      "L5": false
+    }
+  },
+  "ablation_curve": [
+    {
+      "n_gates": 0,
+      "coverage_rate": 0.0,
+      "covered_types": [],
+      "missing_types": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "last_added": null
+    },
+    {
+      "n_gates": 1,
+      "coverage_rate": 0.8,
+      "covered_types": [
+        "L1",
+        "L2",
+        "L3",
+        "L4"
+      ],
+      "missing_types": [
+        "L5"
+      ],
+      "last_added": "generalization_gap_gate"
+    },
+    {
+      "n_gates": 2,
+      "coverage_rate": 1.0,
+      "covered_types": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "missing_types": [],
+      "last_added": "tuning_leakage_gate"
+    },
+    {
+      "n_gates": 3,
+      "coverage_rate": 1.0,
+      "covered_types": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "missing_types": [],
+      "last_added": "calibration_dca_gate"
+    },
+    {
+      "n_gates": 4,
+      "coverage_rate": 1.0,
+      "covered_types": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "missing_types": [],
+      "last_added": "covariate_shift_gate"
+    },
+    {
+      "n_gates": 5,
+      "coverage_rate": 1.0,
+      "covered_types": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "missing_types": [],
+      "last_added": "distribution_generalization_gate"
+    },
+    {
+      "n_gates": 6,
+      "coverage_rate": 1.0,
+      "covered_types": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "missing_types": [],
+      "last_added": "evaluation_quality_gate"
+    },
+    {
+      "n_gates": 7,
+      "coverage_rate": 1.0,
+      "covered_types": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "missing_types": [],
+      "last_added": "external_validation_gate"
+    },
+    {
+      "n_gates": 8,
+      "coverage_rate": 1.0,
+      "covered_types": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "missing_types": [],
+      "last_added": "feature_engineering_audit_gate"
+    },
+    {
+      "n_gates": 9,
+      "coverage_rate": 1.0,
+      "covered_types": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "missing_types": [],
+      "last_added": "feature_lineage_gate"
+    },
+    {
+      "n_gates": 10,
+      "coverage_rate": 1.0,
+      "covered_types": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "missing_types": [],
+      "last_added": "imbalance_policy_gate"
+    },
+    {
+      "n_gates": 11,
+      "coverage_rate": 1.0,
+      "covered_types": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "missing_types": [],
+      "last_added": "leakage_gate"
+    },
+    {
+      "n_gates": 12,
+      "coverage_rate": 1.0,
+      "covered_types": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "missing_types": [],
+      "last_added": "missingness_policy_gate"
+    },
+    {
+      "n_gates": 13,
+      "coverage_rate": 1.0,
+      "covered_types": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "missing_types": [],
+      "last_added": "model_selection_audit_gate"
+    },
+    {
+      "n_gates": 14,
+      "coverage_rate": 1.0,
+      "covered_types": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "missing_types": [],
+      "last_added": "seed_stability_gate"
+    },
+    {
+      "n_gates": 15,
+      "coverage_rate": 1.0,
+      "covered_types": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "missing_types": [],
+      "last_added": "split_protocol_gate"
+    }
+  ],
+  "marginal_contributions": [
+    {
+      "gate": "publication_gate",
+      "role": "aggregation",
+      "detects": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "n_detects": 5,
+      "unique_detections": [],
+      "n_unique": 0,
+      "redundancy": 1.0,
+      "description": "Aggregates all gate results — catches anything upstream catches"
+    },
+    {
+      "gate": "generalization_gap_gate",
+      "role": "detection",
+      "detects": [
+        "L1",
+        "L2",
+        "L3",
+        "L4"
+      ],
+      "n_detects": 4,
+      "unique_detections": [],
+      "n_unique": 0,
+      "redundancy": 1.0,
+      "description": "Detects inflated test performance via train-test gap analysis"
+    },
+    {
+      "gate": "external_validation_gate",
+      "role": "detection",
+      "detects": [
+        "L1",
+        "L2",
+        "L3",
+        "L4"
+      ],
+      "n_detects": 4,
+      "unique_detections": [],
+      "n_unique": 0,
+      "redundancy": 1.0,
+      "description": "External cohort reveals leakage-inflated performance"
+    },
+    {
+      "gate": "covariate_shift_gate",
+      "role": "detection",
+      "detects": [
+        "L1",
+        "L2",
+        "L3"
+      ],
+      "n_detects": 3,
+      "unique_detections": [],
+      "n_unique": 0,
+      "redundancy": 1.0,
+      "description": "Detects distribution shift — preprocessing leakage causes artificially low shift"
+    },
+    {
+      "gate": "evaluation_quality_gate",
+      "role": "detection",
+      "detects": [
+        "L1",
+        "L2",
+        "L3"
+      ],
+      "n_detects": 3,
+      "unique_detections": [],
+      "n_unique": 0,
+      "redundancy": 1.0,
+      "description": "Excessive train-test gap or suspiciously narrow CI suggests leakage"
+    },
+    {
+      "gate": "seed_stability_gate",
+      "role": "detection",
+      "detects": [
+        "L1",
+        "L2",
+        "L3"
+      ],
+      "n_detects": 3,
+      "unique_detections": [],
+      "n_unique": 0,
+      "redundancy": 1.0,
+      "description": "Seed instability suggests overfitting due to leakage"
+    },
+    {
+      "gate": "feature_engineering_audit_gate",
+      "role": "detection",
+      "detects": [
+        "L1",
+        "L3"
+      ],
+      "n_detects": 2,
+      "unique_detections": [],
+      "n_unique": 0,
+      "redundancy": 1.0,
+      "description": "Audits feature engineering — detects preprocessing/selection leakage"
+    },
+    {
+      "gate": "calibration_dca_gate",
+      "role": "detection",
+      "detects": [
+        "L1",
+        "L2"
+      ],
+      "n_detects": 2,
+      "unique_detections": [],
+      "n_unique": 0,
+      "redundancy": 1.0,
+      "description": "Poor calibration suggests data leakage (overfit to test distribution)"
+    },
+    {
+      "gate": "distribution_generalization_gate",
+      "role": "detection",
+      "detects": [
+        "L1",
+        "L2"
+      ],
+      "n_detects": 2,
+      "unique_detections": [],
+      "n_unique": 0,
+      "redundancy": 1.0,
+      "description": "Cross-split distribution analysis reveals preprocessing leakage"
+    },
+    {
+      "gate": "leakage_gate",
+      "role": "detection",
+      "detects": [
+        "L4"
+      ],
+      "n_detects": 1,
+      "unique_detections": [],
+      "n_unique": 0,
+      "redundancy": 1.0,
+      "description": "Detects patient-ID overlap and row-hash duplicates across splits"
+    },
+    {
+      "gate": "split_protocol_gate",
+      "role": "detection",
+      "detects": [
+        "L4"
+      ],
+      "n_detects": 1,
+      "unique_detections": [],
+      "n_unique": 0,
+      "redundancy": 1.0,
+      "description": "Validates split strategy, patient-level disjointness, stratification"
+    },
+    {
+      "gate": "feature_lineage_gate",
+      "role": "detection",
+      "detects": [
+        "L3"
+      ],
+      "n_detects": 1,
+      "unique_detections": [],
+      "n_unique": 0,
+      "redundancy": 1.0,
+      "description": "Verifies feature provenance — detects selection before split"
+    },
+    {
+      "gate": "imbalance_policy_gate",
+      "role": "detection",
+      "detects": [
+        "L2"
+      ],
+      "n_detects": 1,
+      "unique_detections": [],
+      "n_unique": 0,
+      "redundancy": 1.0,
+      "description": "Validates resampling policy — detects SMOTE applied to full data"
+    },
+    {
+      "gate": "missingness_policy_gate",
+      "role": "detection",
+      "detects": [
+        "L1"
+      ],
+      "n_detects": 1,
+      "unique_detections": [],
+      "n_unique": 0,
+      "redundancy": 1.0,
+      "description": "Validates imputation policy — detects imputer fit on full data"
+    },
+    {
+      "gate": "tuning_leakage_gate",
+      "role": "detection",
+      "detects": [
+        "L5"
+      ],
+      "n_detects": 1,
+      "unique_detections": [],
+      "n_unique": 0,
+      "redundancy": 1.0,
+      "description": "Detects hyperparameter/threshold tuning using test data"
+    },
+    {
+      "gate": "model_selection_audit_gate",
+      "role": "detection",
+      "detects": [
+        "L5"
+      ],
+      "n_detects": 1,
+      "unique_detections": [],
+      "n_unique": 0,
+      "redundancy": 1.0,
+      "description": "Audits model selection process — detects test-data contamination"
+    }
+  ],
+  "minimum_gate_set": {
+    "description": "Minimum gates needed for full L1-L5 coverage",
+    "n_gates": 2,
+    "gates": [
+      "generalization_gap_gate",
+      "tuning_leakage_gate"
+    ]
+  }
+}
