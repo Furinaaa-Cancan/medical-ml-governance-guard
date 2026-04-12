@@ -800,6 +800,14 @@ def main() -> int:
             if isinstance(val, str) and val:
                 split_paths[key] = val
 
+    # Auto-skip gates that require a test split when none exists
+    if "test" not in split_paths:
+        _no_test_gates = {"shap_interpretability_gate", "robustness_gate"}
+        _auto_skipped = [g for g in gates if g in _no_test_gates]
+        if _auto_skipped:
+            print(f"[INFO] No test split — auto-skipping: {', '.join(_auto_skipped)}", file=sys.stderr)
+            gates = [g for g in gates if g not in _no_test_gates]
+
     # Load checkpoint for resume
     checkpoint = load_checkpoint(evidence_dir) if (args.resume or args.rerun_failed) and not args.force else {}
     passed_gates: Set[str] = set(checkpoint.get("passed_gates", []))

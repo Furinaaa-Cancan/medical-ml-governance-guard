@@ -118,20 +118,44 @@ def load_json_optional(path: Path) -> Optional[Dict[str, Any]]:
 
 
 def _sanitize_for_json(obj: Any) -> Any:
-    """Recursively replace non-finite floats (NaN, Infinity) with None.
+    """Recursively coerce objects to JSON-safe Python primitives.
 
-    JSON spec (RFC 8259) does not permit NaN or Infinity.  Python's
-    ``json.dump`` silently emits them by default, producing invalid JSON
-    that downstream parsers reject.  This function is the global safety
-    net: even if a gate or tool forgets to guard a division, the report
-    will contain ``null`` instead of crashing or producing corrupt JSON.
+    Handles: non-finite floats (NaN/Inf → None), numpy scalars/arrays,
+    pandas Timestamps, sets, bytes. Without this, json.dump(allow_nan=False)
+    raises TypeError on numpy.int64/float64 — the most common crash path
+    when serializing sklearn/pandas outputs.
     """
     if isinstance(obj, float):
         return obj if math.isfinite(obj) else None
     if isinstance(obj, dict):
-        return {k: _sanitize_for_json(v) for k, v in obj.items()}
+        return {str(k): _sanitize_for_json(v) for k, v in obj.items()}
     if isinstance(obj, (list, tuple)):
         return [_sanitize_for_json(v) for v in obj]
+    if isinstance(obj, set):
+        return [_sanitize_for_json(v) for v in sorted(obj, key=str)]
+    # numpy scalars/arrays (imported lazily to avoid hard dep)
+    try:
+        import numpy as _np
+        if isinstance(obj, _np.integer):
+            return int(obj)
+        if isinstance(obj, _np.floating):
+            val = float(obj)
+            return val if math.isfinite(val) else None
+        if isinstance(obj, _np.ndarray):
+            return [_sanitize_for_json(v) for v in obj.tolist()]
+        if isinstance(obj, _np.bool_):
+            return bool(obj)
+    except ImportError:
+        pass
+    # pandas Timestamp
+    try:
+        import pandas as _pd
+        if isinstance(obj, _pd.Timestamp):
+            return obj.isoformat()
+    except ImportError:
+        pass
+    if isinstance(obj, bytes):
+        return obj.decode("utf-8", errors="replace")
     return obj
 
 
