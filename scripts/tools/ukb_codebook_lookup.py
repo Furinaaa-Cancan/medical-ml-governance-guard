@@ -274,30 +274,38 @@ class UKBCodebook:
                             "field_id": fid,
                         })
 
-            # ── Check 2: Outcome/death fields as features ──
-            title_lower = info["title"].lower()
-            if any(kw in title_lower for kw in
-                   ["date of death", "cause of death", "date of diagnosis",
-                    "date of first", "age at death"]):
+            # ── Check 2: Risk-category-based leakage detection ──
+            risk = info.get("risk_category") or "baseline"
+            if risk in ("outcome_derived", "death_registry"):
                 issues.append({
                     "code": "UKB_OUTCOME_AS_FEATURE",
                     "message": (
-                        f"Feature '{col}' ({info['title']}) appears to be an outcome or "
-                        f"post-hoc variable. Using it as a predictor is likely leakage."
+                        f"Feature '{col}' ({info['title']}) is classified as "
+                        f"risk={risk} (domain={domain}). This is a registry-derived "
+                        f"outcome variable — using it as a predictor is leakage."
                     ),
                     "column": col,
                     "severity": "critical",
                     "field_id": fid,
                 })
-
-            # ── Check 3: Hospital episode / first occurrence fields ──
-            if domain == "hospital_records" or domain == "summary":
+            elif risk == "hospital_derived":
                 issues.append({
                     "code": "UKB_DERIVED_OUTCOME_FIELD",
                     "message": (
-                        f"Feature '{col}' ({info['title']}) is from '{domain}' — "
-                        f"these are derived from hospital records/registries and may "
-                        f"contain post-baseline information. Verify temporal eligibility."
+                        f"Feature '{col}' ({info['title']}) is from '{domain}' "
+                        f"(risk=hospital_derived). Contains post-baseline data. "
+                        f"Verify temporal eligibility."
+                    ),
+                    "column": col,
+                    "severity": "warning",
+                    "field_id": fid,
+                })
+            elif risk == "online_followup":
+                issues.append({
+                    "code": "UKB_DERIVED_OUTCOME_FIELD",
+                    "message": (
+                        f"Feature '{col}' ({info['title']}) is post-baseline "
+                        f"online follow-up data (risk=online_followup)."
                     ),
                     "column": col,
                     "severity": "warning",
