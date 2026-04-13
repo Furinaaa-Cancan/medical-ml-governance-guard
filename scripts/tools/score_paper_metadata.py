@@ -229,7 +229,28 @@ def score_metadata(metadata: Dict[str, Any]) -> Dict[str, Any]:
         "target_leakage_risk": risk.get("target_leakage_risk"),
     }
 
-    return {
+    # Flag if scoring relied on unverified LLM-extracted fields
+    audit = metadata.get("mlgg_audit", {})
+    llm_fields = set(audit.get("_llm_extracted_fields", []))
+    validation_warnings = audit.get("_validation_warnings", [])
+
+    # Check which scored dimensions depend on LLM-extracted data
+    llm_dependent_dims: list[str] = []
+    for dim_name, dim_def in DIMENSION_CHECKS.items():
+        for _check_name, field_path, _check_fn in dim_def["checks"]:
+            if field_path in llm_fields:
+                if dim_name not in llm_dependent_dims:
+                    llm_dependent_dims.append(dim_name)
+
+    llm_note = None
+    if llm_dependent_dims:
+        llm_note = (
+            f"Scores for [{', '.join(llm_dependent_dims)}] depend on LLM-extracted data "
+            f"(source: {audit.get('_source', 'unknown')}). "
+            f"Human verification recommended before publication decisions."
+        )
+
+    result: Dict[str, Any] = {
         "contract_version": "paper_score.v1",
         "scored_at": datetime.now(timezone.utc).isoformat(),
         "total_score": total_score,
@@ -238,6 +259,11 @@ def score_metadata(metadata: Dict[str, Any]) -> Dict[str, Any]:
         "leakage_flags": leakage_flags,
         "bibliographic": metadata.get("bibliographic", {}),
     }
+    if llm_note:
+        result["_llm_confidence_note"] = llm_note
+    if validation_warnings:
+        result["_extraction_validation_warnings"] = validation_warnings
+    return result
 
 
 # ---------------------------------------------------------------------------

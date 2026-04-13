@@ -47,6 +47,7 @@ import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__f
 import argparse
 import json
 import logging
+import math
 import os
 import sys
 import time
@@ -58,7 +59,7 @@ except ImportError:
     import xml.etree.ElementTree as ET  # fallback; treat external XML as untrusted
 from datetime import date
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 try:
     from pydantic import BaseModel, Field
@@ -86,9 +87,9 @@ log = logging.getLogger("extract_metadata")
 # ---------------------------------------------------------------------------
 
 class StudyDesignOut(BaseModel):
-    prediction_type: Optional[str] = Field(None, description="binary_classification / multiclass / regression / survival")
+    prediction_type: Optional[Literal["binary_classification", "multiclass", "regression", "survival"]] = Field(None, description="binary_classification / multiclass / regression / survival")
     outcome: Optional[str] = Field(None, description="Primary outcome variable being predicted")
-    prediction_unit: Optional[str] = Field(None, description="patient / admission / visit / encounter")
+    prediction_unit: Optional[Literal["patient", "admission", "visit", "encounter"]] = Field(None, description="patient / admission / visit / encounter")
     prediction_horizon: Optional[str] = Field(None, description="e.g. '30-day mortality', 'in-hospital', '1-year'")
     setting: Optional[str] = Field(None, description="Emergency department / ICU / inpatient / outpatient / community")
     is_multicenter: Optional[bool] = Field(None, description="True if data from multiple hospitals/sites")
@@ -97,13 +98,13 @@ class StudyDesignOut(BaseModel):
 
 
 class DatasetOut(BaseModel):
-    source_type: Optional[str] = Field(None, description="EHR_single_center | EHR_multicenter | public_dataset | registry | biobank | claims_data | mixed")
+    source_type: Optional[Literal["EHR_single_center", "EHR_multicenter", "public_dataset", "registry", "biobank", "claims_data", "mixed"]] = Field(None, description="EHR_single_center | EHR_multicenter | public_dataset | registry | biobank | claims_data | mixed")
     source_name: Optional[str] = Field(None, description="Name of database or institution (e.g. MIMIC-IV, UK Biobank, Mayo Clinic)")
     n_patients_total: Optional[int] = Field(None, description="Total number of patients/subjects in the full dataset")
     n_events_positive: Optional[int] = Field(None, description="Number of positive outcomes (events)")
     n_events_negative: Optional[int] = Field(None, description="Number of negative outcomes (non-events)")
     prevalence_pct: Optional[float] = Field(None, description="Event prevalence as percentage (0-100)")
-    split_strategy: Optional[str] = Field(None, description="random | temporal | site_based | not_reported")
+    split_strategy: Optional[Literal["random", "temporal", "site_based", "not_reported"]] = Field(None, description="random | temporal | site_based | not_reported")
     train_n: Optional[int] = Field(None, description="Number of samples in training set")
     valid_n: Optional[int] = Field(None, description="Number of samples in validation set (if separate)")
     test_n: Optional[int] = Field(None, description="Number of samples in test/holdout set")
@@ -113,11 +114,11 @@ class DatasetOut(BaseModel):
 
 
 class ModelOut(BaseModel):
-    model_type: Optional[str] = Field(None, description="Primary model: logistic_regression | random_forest | xgboost | lightgbm | deep_learning | ensemble | other")
+    model_type: Optional[Literal["logistic_regression", "random_forest", "xgboost", "lightgbm", "deep_learning", "ensemble", "other"]] = Field(None, description="Primary model: logistic_regression | random_forest | xgboost | lightgbm | deep_learning | ensemble | other")
     n_candidate_models: Optional[int] = Field(None, description="How many model types/architectures were compared")
     selection_criterion: Optional[str] = Field(None, description="How the final model was selected (e.g. AUROC, Brier score, one-SE rule)")
     hyperparameter_tuning: Optional[str] = Field(None, description="Method: grid search, random search, Bayesian, cross-validation, not mentioned")
-    tuning_set: Optional[str] = Field(None, description="validation_only | train_validation | test_used | not_reported")
+    tuning_set: Optional[Literal["validation_only", "train_validation", "test_used", "not_reported"]] = Field(None, description="validation_only | train_validation | test_used | not_reported")
     feature_selection_method: Optional[str] = Field(None, description="LASSO, recursive feature elimination, importance threshold, none, not reported")
     preprocessing_pipeline: Optional[str] = Field(None, description="Brief description of preprocessing steps")
 
@@ -150,8 +151,11 @@ class ReportingStandardsOut(BaseModel):
     stard_ai_claimed: Optional[bool] = Field(None, description="True if STARD-AI or STARD mentioned")
     equator_guideline_cited: Optional[str] = Field(None, description="Which EQUATOR guideline is cited if any")
     limitation_section: Optional[bool] = Field(None, description="True if a limitations section is present")
-    code_availability: Optional[str] = Field(None, description="public_github | on_request | not_available | not_mentioned")
-    data_availability: Optional[str] = Field(None, description="public | on_request | restricted | not_available | not_mentioned")
+    code_availability: Optional[Literal["public_github", "on_request", "not_available", "not_mentioned"]] = Field(None, description="public_github | on_request | not_available | not_mentioned")
+    data_availability: Optional[Literal["public", "on_request", "restricted", "not_available", "not_mentioned"]] = Field(None, description="public | on_request | restricted | not_available | not_mentioned")
+
+
+_RISK_LEVEL = Literal["low", "medium", "high", "cannot_assess"]
 
 
 class LeakageRiskOut(BaseModel):
@@ -159,27 +163,43 @@ class LeakageRiskOut(BaseModel):
         None,
         description="True if the paper explicitly confirms patient-level (not encounter-level) train/test split — i.e., all records from one patient stay in the same split"
     )
+    patient_level_split_evidence: Optional[str] = Field(
+        None,
+        description="Direct quote from the paper supporting patient_level_split_confirmed"
+    )
     temporal_split_confirmed: Optional[bool] = Field(
         None,
         description="True if training data precedes test data in time (temporal split), avoiding look-ahead bias"
+    )
+    temporal_split_evidence: Optional[str] = Field(
+        None,
+        description="Direct quote from the paper supporting temporal_split_confirmed"
     )
     preprocessing_fit_on_train_only: Optional[bool] = Field(
         None,
         description="True if the paper states normalisation, imputation, or encoding was fit ONLY on training data"
     )
+    preprocessing_evidence: Optional[str] = Field(
+        None,
+        description="Direct quote from the paper supporting preprocessing_fit_on_train_only"
+    )
     tuning_used_test_data: Optional[bool] = Field(
         None,
         description="True (BAD) if there is evidence hyperparameter tuning used the held-out test set"
     )
-    target_leakage_risk: Optional[str] = Field(
+    tuning_evidence: Optional[str] = Field(
+        None,
+        description="Direct quote from the paper supporting tuning_used_test_data"
+    )
+    target_leakage_risk: Optional[_RISK_LEVEL] = Field(
         None,
         description="low | medium | high | cannot_assess — whether any features likely encode the outcome being predicted"
     )
-    post_index_feature_risk: Optional[str] = Field(
+    post_index_feature_risk: Optional[_RISK_LEVEL] = Field(
         None,
         description="low | medium | high | cannot_assess — whether features collected after the prediction index date are included"
     )
-    phenotype_definition_overlap_risk: Optional[str] = Field(
+    phenotype_definition_overlap_risk: Optional[_RISK_LEVEL] = Field(
         None,
         description="low | medium | high | cannot_assess — whether the outcome definition uses variables also in the feature set"
     )
@@ -196,8 +216,74 @@ class ExtractionResult(BaseModel):
     performance_metrics: PerformanceMetricsOut
     reporting_standards: ReportingStandardsOut
     leakage_risk: LeakageRiskOut
-    extraction_confidence: str = Field(description="high | medium | low — how confident based on available text")
+    extraction_confidence: Literal["high", "medium", "low"] = Field(description="high | medium | low — how confident based on available text")
     extraction_notes: str = Field(description="Caveats: what was unclear, what required inference")
+    _validation_warnings: list[str] = []
+
+    def model_post_init(self, __context: Any) -> None:
+        """Post-extraction cross-validation: flag self-contradictory numeric fields."""
+        warnings: list[str] = []
+        ds = self.dataset
+        pm = self.performance_metrics
+
+        # --- Dataset consistency ---
+        if ds.n_events_positive is not None and ds.n_events_negative is not None and ds.n_patients_total is not None:
+            expected = ds.n_events_positive + ds.n_events_negative
+            if expected != ds.n_patients_total:
+                warnings.append(
+                    f"n_events_positive({ds.n_events_positive}) + n_events_negative({ds.n_events_negative}) "
+                    f"= {expected} != n_patients_total({ds.n_patients_total})"
+                )
+
+        if ds.prevalence_pct is not None and ds.n_events_positive is not None and ds.n_patients_total is not None and ds.n_patients_total > 0:
+            computed_prev = 100.0 * ds.n_events_positive / ds.n_patients_total
+            if abs(computed_prev - ds.prevalence_pct) > 2.0:
+                warnings.append(
+                    f"prevalence_pct({ds.prevalence_pct}) inconsistent with "
+                    f"n_events_positive/n_patients_total = {computed_prev:.1f}%"
+                )
+
+        if ds.train_n is not None and ds.test_n is not None and ds.n_patients_total is not None:
+            split_sum = ds.train_n + (ds.valid_n or 0) + ds.test_n
+            if split_sum > ds.n_patients_total * 1.05:  # 5% tolerance for rounding
+                warnings.append(
+                    f"split sizes sum({split_sum}) > n_patients_total({ds.n_patients_total})"
+                )
+
+        # --- AUROC CI consistency ---
+        if pm.test_auroc is not None:
+            if not (0 <= pm.test_auroc <= 1):
+                warnings.append(f"test_auroc({pm.test_auroc}) outside [0, 1]")
+            if pm.test_auroc_ci_lower is not None and pm.test_auroc_ci_lower > pm.test_auroc:
+                warnings.append(f"test_auroc_ci_lower({pm.test_auroc_ci_lower}) > test_auroc({pm.test_auroc})")
+            if pm.test_auroc_ci_upper is not None and pm.test_auroc_ci_upper < pm.test_auroc:
+                warnings.append(f"test_auroc_ci_upper({pm.test_auroc_ci_upper}) < test_auroc({pm.test_auroc})")
+            if pm.test_auroc_ci_lower is not None and pm.test_auroc_ci_upper is not None:
+                if pm.test_auroc_ci_lower > pm.test_auroc_ci_upper:
+                    warnings.append(f"CI inverted: lower({pm.test_auroc_ci_lower}) > upper({pm.test_auroc_ci_upper})")
+
+        if pm.external_auroc is not None:
+            if not (0 <= pm.external_auroc <= 1):
+                warnings.append(f"external_auroc({pm.external_auroc}) outside [0, 1]")
+
+        # --- Metric range checks (0-1) ---
+        for fname in ("test_sensitivity", "test_specificity", "test_ppv", "test_npv", "test_f1", "test_brier_score", "test_auprc"):
+            val = getattr(pm, fname, None)
+            if val is not None and not (0 <= val <= 1):
+                warnings.append(f"{fname}({val}) outside [0, 1]")
+
+        # --- NaN / Inf guard ---
+        for fname in ("test_auroc", "test_auroc_ci_lower", "test_auroc_ci_upper", "external_auroc", "test_brier_score"):
+            val = getattr(pm, fname, None)
+            if val is not None and (math.isnan(val) or math.isinf(val)):
+                warnings.append(f"{fname} is NaN or Inf")
+
+        object.__setattr__(self, "_validation_warnings", warnings)
+
+        if warnings:
+            # Append warnings to extraction_notes so they persist in metadata.json
+            warn_text = " | VALIDATION: " + "; ".join(warnings)
+            object.__setattr__(self, "extraction_notes", self.extraction_notes + warn_text)
 
 
 # ---------------------------------------------------------------------------
@@ -216,8 +302,10 @@ EXTRACTION RULES:
    - preprocessing_fit_on_train_only: True only if Methods explicitly say preprocessing was fit on training data. If paper doesn't mention this, return null (not False).
    - tuning_used_test_data: True if there is clear evidence of test set contamination in tuning. Otherwise null or False.
    - target_leakage_risk: Assess whether any features could directly encode the outcome. "High" means obvious concern (e.g., using diagnosis codes that define the outcome as features). "Medium" means plausible concern. "Low" means no obvious concern.
+   - For each boolean leakage field, you MUST also provide the corresponding *_evidence field with a DIRECT QUOTE from the paper that supports your determination. If no supporting text exists, return null for both the field and its evidence.
 5. extraction_confidence: "high" if key fields (AUROC, sample size, split strategy) are clearly stated; "medium" if some required inference; "low" if only abstract available or poor reporting.
 6. In extraction_notes: document what was unclear, what required inference, and any methodological concerns worth flagging for MLGG audit.
+7. For categorical fields, you MUST use EXACTLY one of the allowed values listed in the schema. Do not paraphrase or use synonyms.
 
 Be precise and systematic. This data will be used for automated MLGG framework validation."""
 
@@ -405,12 +493,16 @@ def _extraction_schema_text() -> str:
   },
   "leakage_risk": {
     "patient_level_split_confirmed": "boolean|null",
+    "patient_level_split_evidence": "string|null  (direct quote from paper)",
     "temporal_split_confirmed": "boolean|null",
+    "temporal_split_evidence": "string|null  (direct quote from paper)",
     "preprocessing_fit_on_train_only": "boolean|null",
+    "preprocessing_evidence": "string|null  (direct quote from paper)",
     "tuning_used_test_data": "boolean|null  (true = BAD, contamination detected)",
-    "target_leakage_risk": "string|null  (low/medium/high/cannot_assess)",
-    "post_index_feature_risk": "string|null  (low/medium/high/cannot_assess)",
-    "phenotype_definition_overlap_risk": "string|null  (low/medium/high/cannot_assess)",
+    "tuning_evidence": "string|null  (direct quote from paper)",
+    "target_leakage_risk": "string|null  (MUST be one of: low/medium/high/cannot_assess)",
+    "post_index_feature_risk": "string|null  (MUST be one of: low/medium/high/cannot_assess)",
+    "phenotype_definition_overlap_risk": "string|null  (MUST be one of: low/medium/high/cannot_assess)",
     "notes": "string  (methodology observations, never null)"
   },
   "extraction_confidence": "string  (high/medium/low)",
@@ -525,10 +617,16 @@ def merge_extraction(
     result: ExtractionResult,
     force: bool = False,
 ) -> dict[str, Any]:
-    """Merge extracted values into metadata dict. Only fills null/empty fields unless force=True."""
-    today = date.today().isoformat()
+    """Merge extracted values into metadata dict. Only fills null/empty fields unless force=True.
 
-    def _merge_section(target: dict[str, Any], extracted: dict[str, Any]) -> None:
+    Fields written by LLM extraction are tracked in mlgg_audit._llm_extracted_fields
+    so downstream consumers (e.g. score_paper_metadata.py) can distinguish them
+    from human-verified values.
+    """
+    today = date.today().isoformat()
+    llm_fields: list[str] = []  # track which fields were set by LLM
+
+    def _merge_section(section_name: str, target: dict[str, Any], extracted: dict[str, Any]) -> None:
         for key, new_val in extracted.items():
             if key.startswith("_"):
                 continue
@@ -537,12 +635,13 @@ def merge_extraction(
             existing = target.get(key)
             if force or existing is None or existing == "" or existing == []:
                 target[key] = new_val
+                llm_fields.append(f"{section_name}.{key}")
 
-    _merge_section(metadata["study_design"], result.study_design.model_dump())
-    _merge_section(metadata["dataset"], result.dataset.model_dump())
-    _merge_section(metadata["model"], result.model.model_dump())
-    _merge_section(metadata["performance_metrics"], result.performance_metrics.model_dump())
-    _merge_section(metadata["reporting_standards"], result.reporting_standards.model_dump())
+    _merge_section("study_design", metadata["study_design"], result.study_design.model_dump())
+    _merge_section("dataset", metadata["dataset"], result.dataset.model_dump())
+    _merge_section("model", metadata["model"], result.model.model_dump())
+    _merge_section("performance_metrics", metadata["performance_metrics"], result.performance_metrics.model_dump())
+    _merge_section("reporting_standards", metadata["reporting_standards"], result.reporting_standards.model_dump())
 
     # leakage_risk_assessment section
     leak = metadata.setdefault("leakage_risk_assessment", {})
@@ -553,13 +652,16 @@ def merge_extraction(
     if new_notes:
         combined_notes = (existing_notes + "\n" + new_notes).strip() if existing_notes else new_notes
         leak["notes"] = combined_notes
-    _merge_section(leak, risk_dump)
+    _merge_section("leakage_risk_assessment", leak, risk_dump)
 
     # Audit metadata
     audit = metadata.setdefault("mlgg_audit", {})
     audit["_last_extraction_date"] = today
     audit["_extraction_confidence"] = result.extraction_confidence
     audit["_extraction_notes"] = result.extraction_notes
+    audit["_source"] = "llm_extracted"
+    audit["_llm_extracted_fields"] = llm_fields
+    audit["_validation_warnings"] = result._validation_warnings
 
     # Reviewer notes: mark as auto-extracted
     rev = metadata.setdefault("reviewer_notes", {})
@@ -670,13 +772,14 @@ def submit_batch(
     log.info("Submitting batch of %d papers…", len(pairs))
     batch_requests = []
 
+    schema_text = _extraction_schema_text()
+    system_with_schema = (
+        SYSTEM_PROMPT
+        + f"\n\nReturn your answer as a single JSON object matching this schema exactly:\n{schema_text}"
+    )
+
     for paper_dir_str, paper_text in pairs:
-        prompt = (
-            "Please extract structured metadata from the following medical prediction paper.\n\n"
-            f"{paper_text}\n\n"
-            "Extract all fields you can from the text above. Return null for fields not mentioned or unclear.\n"
-            "For leakage_risk fields, base your assessment on the described methodology."
-        )
+        prompt = _build_user_prompt(paper_text)
         # Use folder name as custom_id (sanitise)
         custom_id = Path(paper_dir_str).name[:64].replace(" ", "_")
         batch_requests.append(Request(
@@ -684,7 +787,7 @@ def submit_batch(
             params=MessageCreateParamsNonStreaming(
                 model="claude-opus-4-6",
                 max_tokens=4096,
-                system=SYSTEM_PROMPT,
+                system=system_with_schema,
                 messages=[{"role": "user", "content": prompt}],
             ),
         ))
@@ -752,9 +855,12 @@ def poll_and_apply_batch(
 
         try:
             raw = json.loads(text)
+            # leakage_risk.notes must not be None (same guard as DeepSeek path)
+            if "leakage_risk" in raw and raw["leakage_risk"].get("notes") is None:
+                raw["leakage_risk"]["notes"] = ""
             extracted = ExtractionResult(**raw)
         except Exception as exc:
-            log.warning("  [%s] Parse failed: %s", result.custom_id, exc)
+            log.warning("  [%s] Parse/validation failed: %s", result.custom_id, exc)
             failed += 1
             continue
 

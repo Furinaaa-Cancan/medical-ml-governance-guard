@@ -185,3 +185,336 @@ def test_parser_rejects_no_mode():
     parser = build_arg_parser()
     with pytest.raises(SystemExit):
         parser.parse_args([])
+
+
+# ---------------------------------------------------------------------------
+# Literal enum validation — rejects hallucinated values
+# ---------------------------------------------------------------------------
+
+@pytest.mark.skipif(not _HAS_PYDANTIC, reason="pydantic not installed")
+class TestLiteralConstraints:
+    """Literal-typed fields reject non-allowed values from LLM output."""
+
+    def test_invalid_prediction_type_rejected(self):
+        with pytest.raises(ValidationError):
+            StudyDesignOut(prediction_type="classification")  # should be binary_classification
+
+    def test_valid_prediction_type_accepted(self):
+        m = StudyDesignOut(prediction_type="binary_classification")
+        assert m.prediction_type == "binary_classification"
+
+    def test_invalid_source_type_rejected(self):
+        with pytest.raises(ValidationError):
+            DatasetOut(source_type="electronic_health_records")  # should be EHR_single_center
+
+    def test_invalid_split_strategy_rejected(self):
+        with pytest.raises(ValidationError):
+            DatasetOut(split_strategy="stratified_random")  # should be random
+
+    def test_invalid_model_type_rejected(self):
+        from extract_paper_metadata import ModelOut
+        with pytest.raises(ValidationError):
+            ModelOut(model_type="gradient_boosting")  # should be xgboost or lightgbm
+
+    def test_invalid_tuning_set_rejected(self):
+        from extract_paper_metadata import ModelOut
+        with pytest.raises(ValidationError):
+            ModelOut(tuning_set="test_set")  # should be test_used
+
+    def test_invalid_risk_level_rejected(self):
+        with pytest.raises(ValidationError):
+            LeakageRiskOut(target_leakage_risk="moderate")  # should be medium
+
+    def test_invalid_code_availability_rejected(self):
+        with pytest.raises(ValidationError):
+            ReportingStandardsOut(code_availability="github")  # should be public_github
+
+    def test_invalid_data_availability_rejected(self):
+        with pytest.raises(ValidationError):
+            ReportingStandardsOut(data_availability="available")  # should be public
+
+    def test_invalid_extraction_confidence_rejected(self):
+        with pytest.raises(ValidationError):
+            ExtractionResult(
+                study_design=StudyDesignOut(),
+                dataset=DatasetOut(),
+                model=ModelOut(),
+                performance_metrics=PerformanceMetricsOut(),
+                reporting_standards=ReportingStandardsOut(),
+                leakage_risk=LeakageRiskOut(),
+                extraction_confidence="moderate",  # should be medium
+                extraction_notes="test",
+            )
+
+    def test_null_enum_fields_accepted(self):
+        """All Literal fields should accept None."""
+        m = DatasetOut(source_type=None, split_strategy=None)
+        assert m.source_type is None
+        assert m.split_strategy is None
+
+
+# ---------------------------------------------------------------------------
+# Evidence quote fields
+# ---------------------------------------------------------------------------
+
+@pytest.mark.skipif(not _HAS_PYDANTIC, reason="pydantic not installed")
+class TestEvidenceQuotes:
+    """LeakageRiskOut evidence fields work correctly."""
+
+    def test_evidence_fields_default_none(self):
+        m = LeakageRiskOut()
+        assert m.patient_level_split_evidence is None
+        assert m.temporal_split_evidence is None
+        assert m.preprocessing_evidence is None
+        assert m.tuning_evidence is None
+
+    def test_evidence_fields_with_quotes(self):
+        m = LeakageRiskOut(
+            patient_level_split_confirmed=True,
+            patient_level_split_evidence="We ensured all records from the same patient were in the same fold.",
+            temporal_split_confirmed=False,
+            temporal_split_evidence="Random split was used for train-test partitioning.",
+        )
+        assert "same patient" in m.patient_level_split_evidence
+        assert m.temporal_split_confirmed is False
+
+
+# ---------------------------------------------------------------------------
+# Numeric cross-validation (model_post_init)
+# ---------------------------------------------------------------------------
+
+@pytest.mark.skipif(not _HAS_PYDANTIC, reason="pydantic not installed")
+class TestNumericCrossValidation:
+    """ExtractionResult model_post_init catches inconsistencies."""
+
+    def _make_result(self, **overrides):
+        """Helper to build ExtractionResult with overridable nested fields."""
+        ds_kw = overrides.pop("dataset", {})
+        pm_kw = overrides.pop("performance_metrics", {})
+        return ExtractionResult(
+            study_design=StudyDesignOut(),
+            dataset=DatasetOut(**ds_kw),
+            model=ModelOut(),
+            performance_metrics=PerformanceMetricsOut(**pm_kw),
+            reporting_standards=ReportingStandardsOut(),
+            leakage_risk=LeakageRiskOut(),
+            extraction_confidence="high",
+            extraction_notes="test",
+            **overrides,
+        )
+
+    def test_clean_data_no_warnings(self):
+        r = self._make_result(
+            dataset={"n_patients_total": 1000, "n_events_positive": 200, "n_events_negative": 800, "prevalence_pct": 20.0},
+            performance_metrics={"test_auroc": 0.85, "test_auroc_ci_lower": 0.80, "test_auroc_ci_upper": 0.90},
+        )
+        assert r._validation_warnings == []
+
+    def test_patient_count_mismatch(self):
+        r = self._make_result(
+            dataset={"n_patients_total": 1000, "n_events_positive": 200, "n_events_negative": 700},
+        )
+        assert any("n_events_positive" in w for w in r._validation_warnings)
+
+    def test_prevalence_mismatch(self):
+        r = self._make_result(
+            dataset={"n_patients_total": 1000, "n_events_positive": 200, "prevalence_pct": 50.0},
+        )
+        assert any("prevalence_pct" in w for w in r._validation_warnings)
+
+    def test_auroc_ci_inverted(self):
+        r = self._make_result(
+            performance_metrics={"test_auroc": 0.85, "test_auroc_ci_lower": 0.90, "test_auroc_ci_upper": 0.80},
+        )
+        warnings = r._validation_warnings
+        assert any("ci_lower" in w.lower() or "CI inverted" in w for w in warnings)
+
+    def test_auroc_out_of_range(self):
+        r = self._make_result(
+            performance_metrics={"test_auroc": 1.5},
+        )
+        assert any("outside [0, 1]" in w for w in r._validation_warnings)
+
+    def test_metric_out_of_range(self):
+        r = self._make_result(
+            performance_metrics={"test_sensitivity": 95.0},  # likely percentage, not decimal
+        )
+        assert any("test_sensitivity" in w for w in r._validation_warnings)
+
+    def test_split_sum_exceeds_total(self):
+        r = self._make_result(
+            dataset={"n_patients_total": 1000, "train_n": 700, "test_n": 500},
+        )
+        assert any("split sizes sum" in w for w in r._validation_warnings)
+
+    def test_warnings_appended_to_notes(self):
+        r = self._make_result(
+            performance_metrics={"test_auroc": 1.5},
+        )
+        assert "VALIDATION:" in r.extraction_notes
+
+
+# ---------------------------------------------------------------------------
+# merge_extraction — LLM source tagging
+# ---------------------------------------------------------------------------
+
+@pytest.mark.skipif(not _HAS_PYDANTIC, reason="pydantic not installed")
+class TestMergeExtraction:
+    """merge_extraction correctly merges and tags LLM-extracted fields."""
+
+    def _base_metadata(self):
+        """Minimal metadata structure matching what fetch_papers.py creates."""
+        return {
+            "study_design": {},
+            "dataset": {},
+            "model": {},
+            "performance_metrics": {},
+            "reporting_standards": {},
+            "leakage_risk_assessment": {},
+        }
+
+    def _make_result(self, **overrides):
+        return ExtractionResult(
+            study_design=StudyDesignOut(prediction_type="binary_classification"),
+            dataset=DatasetOut(n_patients_total=5000, split_strategy="temporal"),
+            model=ModelOut(model_type="xgboost"),
+            performance_metrics=PerformanceMetricsOut(test_auroc=0.85),
+            reporting_standards=ReportingStandardsOut(),
+            leakage_risk=LeakageRiskOut(
+                target_leakage_risk="low",
+                patient_level_split_confirmed=True,
+                patient_level_split_evidence="All records grouped by patient ID.",
+                notes="Well-described methodology.",
+            ),
+            extraction_confidence="high",
+            extraction_notes="Full text available.",
+            **overrides,
+        )
+
+    def test_merge_fills_empty_fields(self):
+        from extract_paper_metadata import merge_extraction
+        metadata = self._base_metadata()
+        result = self._make_result()
+        merged = merge_extraction(metadata, result)
+
+        assert merged["study_design"]["prediction_type"] == "binary_classification"
+        assert merged["dataset"]["n_patients_total"] == 5000
+        assert merged["model"]["model_type"] == "xgboost"
+        assert merged["performance_metrics"]["test_auroc"] == 0.85
+
+    def test_merge_does_not_overwrite_existing(self):
+        from extract_paper_metadata import merge_extraction
+        metadata = self._base_metadata()
+        metadata["dataset"]["n_patients_total"] = 3000  # human-set value
+        result = self._make_result()
+        merged = merge_extraction(metadata, result, force=False)
+
+        assert merged["dataset"]["n_patients_total"] == 3000  # preserved
+
+    def test_merge_force_overwrites(self):
+        from extract_paper_metadata import merge_extraction
+        metadata = self._base_metadata()
+        metadata["dataset"]["n_patients_total"] = 3000
+        result = self._make_result()
+        merged = merge_extraction(metadata, result, force=True)
+
+        assert merged["dataset"]["n_patients_total"] == 5000  # overwritten
+
+    def test_llm_source_tagging(self):
+        from extract_paper_metadata import merge_extraction
+        metadata = self._base_metadata()
+        result = self._make_result()
+        merged = merge_extraction(metadata, result)
+
+        audit = merged["mlgg_audit"]
+        assert audit["_source"] == "llm_extracted"
+        assert "dataset.n_patients_total" in audit["_llm_extracted_fields"]
+        assert "study_design.prediction_type" in audit["_llm_extracted_fields"]
+        assert isinstance(audit["_validation_warnings"], list)
+
+    def test_leakage_notes_appended(self):
+        from extract_paper_metadata import merge_extraction
+        metadata = self._base_metadata()
+        metadata["leakage_risk_assessment"]["notes"] = "Existing note."
+        result = self._make_result()
+        merged = merge_extraction(metadata, result)
+
+        notes = merged["leakage_risk_assessment"]["notes"]
+        assert "Existing note." in notes
+        assert "Well-described methodology." in notes
+
+    def test_evidence_fields_merged(self):
+        from extract_paper_metadata import merge_extraction
+        metadata = self._base_metadata()
+        result = self._make_result()
+        merged = merge_extraction(metadata, result)
+
+        leak = merged["leakage_risk_assessment"]
+        assert leak["patient_level_split_evidence"] == "All records grouped by patient ID."
+
+
+# ---------------------------------------------------------------------------
+# assemble_paper_text
+# ---------------------------------------------------------------------------
+
+@pytest.mark.skipif(not _HAS_PYDANTIC, reason="pydantic not installed")
+class TestAssemblePaperText:
+    """assemble_paper_text builds prompt text correctly."""
+
+    def test_empty_metadata_returns_empty(self):
+        from extract_paper_metadata import assemble_paper_text
+        result = assemble_paper_text({}, abstract_only=True)
+        assert result == ""
+
+    def test_title_and_abstract(self):
+        from extract_paper_metadata import assemble_paper_text
+        metadata = {
+            "bibliographic": {"title": "Prediction of AF", "journal": "Nature Medicine", "year": "2023"},
+            "auto_classification": {"abstract_snippet": "We developed a model..."},
+        }
+        text = assemble_paper_text(metadata, abstract_only=True)
+        assert "Prediction of AF" in text
+        assert "Nature Medicine" in text
+        assert "We developed a model" in text
+
+    def test_abstract_only_skips_fulltext(self):
+        from extract_paper_metadata import assemble_paper_text
+        metadata = {
+            "bibliographic": {"title": "Test", "pmcid": "PMC1234567"},
+            "auto_classification": {"abstract_snippet": "Abstract text."},
+        }
+        # abstract_only=True should not attempt PMC fetch
+        text = assemble_paper_text(metadata, abstract_only=True)
+        assert "FULL TEXT" not in text
+
+
+# ---------------------------------------------------------------------------
+# _extract_pmc_sections — XML parsing
+# ---------------------------------------------------------------------------
+
+@pytest.mark.skipif(not _HAS_PYDANTIC, reason="pydantic not installed")
+class TestExtractPmcSections:
+    """XML section extraction from PMC full-text."""
+
+    def test_extracts_methods_section(self):
+        from extract_paper_metadata import _extract_pmc_sections
+        xml = b"""<article>
+        <body>
+            <sec><title>Introduction</title><p>Short intro.</p></sec>
+            <sec><title>Methods</title><p>%s</p></sec>
+            <sec><title>Results</title><p>%s</p></sec>
+        </body>
+        </article>""" % (b"X " * 100, b"Y " * 100)
+        result = _extract_pmc_sections(xml)
+        assert "Methods" in result or "X " in result
+        assert "Results" in result or "Y " in result
+
+    def test_invalid_xml_returns_empty(self):
+        from extract_paper_metadata import _extract_pmc_sections
+        assert _extract_pmc_sections(b"not xml at all") == ""
+
+    def test_fallback_to_body_text(self):
+        from extract_paper_metadata import _extract_pmc_sections
+        xml = b"""<article><body><sec><title>Unusual Title</title><p>%s</p></sec></body></article>""" % (b"Z " * 200)
+        result = _extract_pmc_sections(xml)
+        assert len(result) > 0  # should fall back to body text
