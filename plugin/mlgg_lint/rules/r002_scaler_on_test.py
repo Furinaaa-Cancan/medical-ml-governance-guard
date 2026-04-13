@@ -1,4 +1,10 @@
-"""R002: Preprocessor fit/fit_transform called on test/validation data."""
+"""R002: .fit() or .fit_transform() called on test/validation data.
+
+Catches any sklearn-style .fit() on holdout data, including scalers,
+imputers, GridSearchCV, and other estimators.  Fitting on holdout data
+leaks holdout statistics (for preprocessors) or causes overfitting to
+the holdout set (for hyperparameter search).
+"""
 
 from __future__ import annotations
 
@@ -24,11 +30,13 @@ class ScalerOnTest(BaseRule):
     name = "scaler-fit-on-test"
     severity = Severity.ERROR
     description = (
-        "Preprocessor .fit() or .fit_transform() called with test/validation data. "
-        "This contaminates the preprocessing with holdout information."
+        ".fit() or .fit_transform() called with test/validation data. "
+        "For preprocessors this leaks holdout statistics; for GridSearchCV "
+        "this overfits hyperparameters to the holdout set."
     )
     remediation = (
         "Only call .fit() on training data. Use .transform() for test/validation sets. "
+        "For hyperparameter search, use cross-validation on training data only. "
         "Wrap the full pipeline in sklearn.pipeline.Pipeline for safety."
     )
     tags = ("leakage", "preprocessing")

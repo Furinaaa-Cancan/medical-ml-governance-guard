@@ -58,6 +58,26 @@ class TargetAsFeature(BaseRule):
                         self._var_source[var_name] = src
                         self._drop_derived.add(var_name)
 
+            # Pattern: X = df[df.columns.difference(["target"])]
+            # .columns.difference() explicitly excludes columns — equivalent to .drop()
+            if isinstance(node.value, ast.Subscript):
+                sl = node.value.slice
+                if (
+                    isinstance(sl, ast.Call)
+                    and isinstance(sl.func, ast.Attribute)
+                    and sl.func.attr == "difference"
+                ):
+                    # Check if .difference() is called on .columns
+                    columns_obj = sl.func.value
+                    if (
+                        isinstance(columns_obj, ast.Attribute)
+                        and columns_obj.attr == "columns"
+                    ):
+                        src = self._get_name(columns_obj.value)
+                        if src:
+                            self._var_source[var_name] = src
+                            self._drop_derived.add(var_name)
+
             # Pattern: y = df['target'] or X = df[[col1, col2, ...]]
             if isinstance(node.value, ast.Subscript):
                 src = self._get_name(node.value.value)
