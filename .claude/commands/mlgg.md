@@ -48,14 +48,12 @@ python3 scripts/gates/cohort_definition_gate.py \
 
 ### P-2. 数据划分 + 配置初始化（<1min）
 ```bash
-# 初始化 configs（首次）
-mkdir -p configs data evidence models
-cp references/templates/split-protocol.example.json configs/split-protocol.json
-cp references/templates/tuning-protocol.example.json configs/tuning-protocol.json
-cp references/templates/request-schema.example.json configs/request.json
-cp references/templates/feature-lineage.example.json configs/feature-lineage.json
-cp references/templates/reporting-bias-checklist.example.json configs/reporting-bias-checklist.json
-# 根据 P-1 信息编辑 configs/*.json
+# 一键初始化 configs（自动根据 n 选择 profile 和调参策略）
+python3 scripts/tools/init_project.py \
+  --project-root . \
+  --study-id <推断的study名> --target-name <疾病/结局> \
+  --label-col y --patient-id-col <ID> --index-time-col <时间列或空> \
+  --n-total <P-1观察到的行数> [--cross-sectional] --force
 
 # 划分（已有 train/test 则跳过，只跑 gate）
 python3 scripts/tools/split_data.py \
@@ -66,10 +64,11 @@ python3 scripts/gates/leakage_gate.py \
   --train data/train.csv --test data/test.csv [--valid data/valid.csv] \
   --id-cols <ID> --target-col y --report evidence/leakage_report.json --strict
 python3 scripts/gates/split_protocol_gate.py \
-  --protocol-spec configs/split-protocol.json \
+  --protocol-spec configs/split_protocol.json \
   --train data/train.csv --test data/test.csv --id-col <ID> --target-col y \
   [--cross-sectional] --report evidence/split_protocol_report.json --strict
 ```
+**init_project 自动处理**: profile 选择（n≤200→rare_disease, n≤500→small_cohort）、tuning_protocol 适配、optional evidence 字段裁剪。
 **通过**: 零患者重叠, 时序正确, prevalence drift < 3%。
 
 ### P-3. 训练 + 评估（5-30min，使用 run_in_background）

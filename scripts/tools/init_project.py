@@ -42,7 +42,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--index-time-col", default="event_time", help="index_time_col for request.json.")
     parser.add_argument("--label-col", default="y", help="label_col for request.json.")
     parser.add_argument("--patient-id-col", default="patient_id", help="patient_id_col for request.json.")
-    parser.add_argument("--claim-tier", default="publication-grade", choices=["publication-grade"], help="Claim tier.")
+    parser.add_argument("--claim-tier", default="publication-grade", choices=["publication-grade", "leakage-audited"], help="Claim tier.")
+    parser.add_argument("--primary-metric", default="pr_auc", help="Primary evaluation metric.")
+    parser.add_argument("--n-total", type=int, default=0, help="Total sample size. Auto-selects profile: <=500→small_cohort, <=200→rare_disease.")
+    parser.add_argument("--cross-sectional", action="store_true", help="Mark as cross-sectional (no temporal structure).")
     parser.add_argument("--force", action="store_true", help="Overwrite existing config files.")
     parser.add_argument("--report", help="Optional output JSON report path.")
     return parser.parse_args()
@@ -74,6 +77,26 @@ def make_phenotype_template(target_name: str) -> Dict[str, Any]:
     }
 
 
+def _auto_profile(n_total: int) -> str:
+    """Select profile based on sample size."""
+    if n_total <= 0:
+        return "standard"
+    if n_total <= 200:
+        return "rare_disease"
+    if n_total <= 500:
+        return "small_cohort"
+    return "standard"
+
+
+def _auto_selection_data(n_total: int) -> str:
+    """Select model selection strategy based on sample size."""
+    if n_total <= 0:
+        return "cv_inner"
+    if n_total < 1000:
+        return "cv_inner"
+    return "nested_cv"
+
+
 def build_request_payload(
     template: Dict[str, Any],
     study_id: str,
@@ -84,6 +107,9 @@ def build_request_payload(
     label_col: str,
     patient_id_col: str,
     claim_tier: str,
+    primary_metric: str = "pr_auc",
+    n_total: int = 0,
+    cross_sectional: bool = False,
 ) -> Dict[str, Any]:
     payload = dict(template)
     payload["study_id"] = study_id
@@ -93,8 +119,23 @@ def build_request_payload(
     payload["index_time_col"] = index_time_col
     payload["label_col"] = label_col
     payload["patient_id_col"] = patient_id_col
+    payload["primary_metric"] = primary_metric
     payload["claim_tier_target"] = claim_tier
     payload["actual_primary_metric"] = 0.0
+
+    # Auto-select profile based on sample size
+    profile = _auto_profile(n_total)
+    thresholds = payload.get("thresholds", {})
+    if not isinstance(thresholds, dict):
+        thresholds = {}
+    thresholds["profile"] = profile
+    payload["thresholds"] = thresholds
+
+    # Cross-sectional flag
+    if cross_sectional:
+        payload["cross_sectional"] = True
+
+    # Config spec paths (relative to configs/)
     payload["phenotype_definition_spec"] = "phenotype_definitions.json"
     payload["feature_lineage_spec"] = "feature_lineage.json"
     payload["feature_group_spec"] = "feature_group_spec.json"
@@ -103,27 +144,44 @@ def build_request_payload(
     payload["missingness_policy_spec"] = "missingness_policy.json"
     payload["tuning_protocol_spec"] = "tuning_protocol.json"
     payload["performance_policy_spec"] = "performance_policy.json"
-    payload["external_cohort_spec"] = "external_cohort_spec.json"
     payload["reporting_bias_checklist_spec"] = "reporting_bias_checklist.json"
     payload["execution_attestation_spec"] = "execution_attestation.json"
+
+    # Split paths
     payload["split_paths"] = {
         "train": "../data/train.csv",
         "valid": "../data/valid.csv",
         "test": "../data/test.csv",
     }
+
+    # Evidence file paths
     payload["model_selection_report_file"] = "../evidence/model_selection_report.json"
-    payload["model_pool_file"] = "../models/model_pool.pkl"
-    payload["feature_engineering_report_file"] = "../evidence/feature_engineering_report.json"
-    payload["distribution_report_file"] = "../evidence/distribution_report.json"
-    payload["robustness_report_file"] = "../evidence/robustness_report.json"
-    payload["seed_sensitivity_report_file"] = "../evidence/seed_sensitivity_report.json"
+    payload["model_pool_file"] = "../evidence/model_pool.pkl"
     payload["evaluation_report_file"] = "../evidence/evaluation_report.json"
     payload["prediction_trace_file"] = "../evidence/prediction_trace.csv.gz"
-    payload["external_validation_report_file"] = "../evidence/external_validation_report.json"
+    payload["distribution_report_file"] = "../evidence/distribution_report.json"
+    payload["robustness_report_file"] = "../evidence/robustness_report.json"
     payload["ci_matrix_report_file"] = "../evidence/ci_matrix_report.json"
-    payload["permutation_null_metrics_file"] = "../evidence/permutation_null_pr_auc.txt"
+    payload["permutation_null_metrics_file"] = "../evidence/permutation_null_metrics.json"
+
+    # Optional evidence — only include if profile is standard (large datasets).
+    # For relaxed profiles, remove these fields so request_contract_gate
+    # doesn't require evidence the researcher cannot produce.
+    _optional_evidence_keys = [
+        "seed_sensitivity_report_file",
+        "feature_engineering_report_file",
+        "external_cohort_spec",
+        "external_validation_report_file",
+    ]
+    if profile != "standard":
+        for key in _optional_evidence_keys:
+            payload.pop(key, None)
+
     payload["context"] = {
-        "notes": "Fill dataset-specific medical context and confirm disease-definition variables are excluded.",
+        "notes": "Auto-initialized by init_project.py.",
+        "profile": profile,
+        "n_total": n_total,
+        "cross_sectional": cross_sectional,
     }
     return payload
 
@@ -166,6 +224,18 @@ def main() -> int:
         write_json(phenotype_path, make_phenotype_template(str(args.target_name)))
         file_status[str(phenotype_path)] = "written"
 
+    # Auto-adapt tuning_protocol to match sample size
+    tuning_path = configs_dir / "tuning_protocol.json"
+    if tuning_path.exists() and args.n_total > 0:
+        tp = load_json(tuning_path)
+        selection_data = _auto_selection_data(args.n_total)
+        tp["model_selection_data"] = selection_data
+        # final_model_refit_scope: train for small data (no valid holdout waste),
+        # train_plus_valid for large data
+        tp["final_model_refit_scope"] = "train" if args.n_total < 1000 else "train_plus_valid"
+        write_json(tuning_path, tp)
+        file_status[str(tuning_path)] = "adapted"
+
     _req_path = REFERENCES_ROOT / "templates" / "request-schema.example.json"
     if not _req_path.exists():
         _req_path = REFERENCES_ROOT / "request-schema.example.json"
@@ -180,6 +250,9 @@ def main() -> int:
         label_col=str(args.label_col),
         patient_id_col=str(args.patient_id_col),
         claim_tier=str(args.claim_tier),
+        primary_metric=str(args.primary_metric),
+        n_total=int(args.n_total),
+        cross_sectional=bool(args.cross_sectional),
     )
     request_path = configs_dir / "request.json"
     if request_path.exists() and not args.force:
