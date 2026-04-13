@@ -105,6 +105,18 @@ try:
 except (ImportError, OSError):
     optuna = None  # type: ignore
 
+# Ensemble imbalance classifiers (imblearn) — optional dependency
+try:
+    from imblearn.ensemble import (  # type: ignore
+        BalancedRandomForestClassifier,
+        EasyEnsembleClassifier,
+        RUSBoostClassifier,
+    )
+except (ImportError, OSError):
+    BalancedRandomForestClassifier = None  # type: ignore
+    EasyEnsembleClassifier = None  # type: ignore
+    RUSBoostClassifier = None  # type: ignore
+
 
 SUPPORTED_MODEL_FAMILIES = {
     "logistic_l1",
@@ -124,10 +136,18 @@ SUPPORTED_MODEL_FAMILIES = {
     "decision_tree",
     "mlp",
     "tabpfn",
+    "balanced_random_forest",
+    "easy_ensemble",
+    "rusboost",
     "soft_voting",
     "weighted_voting",
     "stacking",
 }
+
+# Families that handle imbalance internally — do NOT apply external
+# resampling (apply_imbalance_strategy_to_train) or class_weight to these.
+# Calibration should be verified post-hoc (van den Goorbergh 2022).
+INTERNAL_IMBALANCE_FAMILIES = {"balanced_random_forest", "easy_ensemble", "rusboost"}
 
 ENSEMBLE_FAMILIES = {"soft_voting", "weighted_voting", "stacking"}
 DEFAULT_ENSEMBLE_TOP_K = 3
@@ -156,6 +176,9 @@ MODEL_ALIASES = {
     "svm_lin": "svm_linear",
     "voting": "soft_voting",
     "stack": "stacking",
+    "brf": "balanced_random_forest",
+    "easy_ens": "easy_ensemble",
+    "rusboost": "rusboost",
 }
 
 
@@ -2115,6 +2138,40 @@ def _family_grid(family: str) -> List[Dict[str, Any]]:
         ]
     if family == "tabpfn":
         return [{"n_estimators": 16}]
+    # ── Ensemble imbalance families (imblearn) ────────────────────────
+    # These handle class imbalance internally via balanced bootstrap or
+    # undersampling within the ensemble. Calibration should be verified
+    # post-hoc (van den Goorbergh 2022 warns resampling harms calibration).
+    if family == "balanced_random_forest":
+        return [
+            {
+                "n_estimators": n_est,
+                "max_depth": md,
+                "min_samples_split": mss,
+                "min_samples_leaf": msl,
+                "max_features": mf,
+            }
+            for n_est, md, mss, msl, mf in product(
+                [200, 400],
+                [4, 6, 9],
+                [10, 20],
+                [5, 10],
+                ["sqrt", 0.6],
+            )
+        ]
+    if family == "easy_ensemble":
+        return [
+            {"n_estimators": n_est}
+            for n_est in [10, 20, 30, 50]
+        ]
+    if family == "rusboost":
+        return [
+            {"n_estimators": n_est, "learning_rate": lr}
+            for n_est, lr in product(
+                [50, 100, 200],
+                [0.1, 0.5, 1.0],
+            )
+        ]
     raise ValueError(f"Unsupported family: {family}")
 
 
@@ -2145,6 +2202,9 @@ def _family_base_complexity(family: str) -> int:
         "catboost": 15,
         "lightgbm": 16,
         "tabpfn": 17,
+        "balanced_random_forest": 11,
+        "easy_ensemble": 12,
+        "rusboost": 13,
     }
     return int(order.get(family, 99))
 
@@ -2176,6 +2236,9 @@ def _family_friendly_name(family: str) -> str:
         "decision_tree": "decision_tree",
         "mlp": "multilayer_perceptron",
         "tabpfn": "tabpfn",
+        "balanced_random_forest": "balanced_random_forest",
+        "easy_ensemble": "easy_ensemble",
+        "rusboost": "rusboost",
     }
     return names.get(family, family)
 
@@ -2322,6 +2385,26 @@ def _regularization_profile(family: str, params: Dict[str, Any]) -> Dict[str, An
         return {"type": "svm_margin", "C": float(params["C"]), "kernel": "rbf", "gamma": params.get("gamma", "scale")}
     if family == "tabpfn":
         return {"type": "pretrained_foundation", "n_estimators": int(params.get("n_estimators", 16))}
+    if family == "balanced_random_forest":
+        return {
+            "type": "tree_complexity_balanced_bootstrap",
+            "max_depth": params.get("max_depth"),
+            "min_samples_leaf": int(params["min_samples_leaf"]),
+            "imbalance_handling": "internal_balanced_bootstrap",
+        }
+    if family == "easy_ensemble":
+        return {
+            "type": "ensemble_undersampling",
+            "n_estimators": int(params["n_estimators"]),
+            "imbalance_handling": "internal_random_undersampling_per_learner",
+        }
+    if family == "rusboost":
+        return {
+            "type": "boosting_undersampling",
+            "n_estimators": int(params["n_estimators"]),
+            "learning_rate": float(params["learning_rate"]),
+            "imbalance_handling": "internal_random_undersampling_per_iteration",
+        }
     return {"type": "unknown"}
 
 
@@ -2399,6 +2482,7 @@ def _build_estimator_for_family(
         "random_forest_balanced", "extra_trees_balanced",
         "hist_gradient_boosting_l2", "adaboost",
         "xgboost", "catboost", "lightgbm", "decision_tree",
+        "balanced_random_forest", "easy_ensemble", "rusboost",
     }
     native_missing = family in _TREE_FAMILIES
     imputer = build_imputer(imputation_strategy, seed, native_missing_support=native_missing)
@@ -2705,6 +2789,72 @@ def _build_estimator_for_family(
         tabpfn_device = str(params.get("device", device))
         clf = TabPFNClassifier(n_estimators=n_ensemble, device=tabpfn_device)
         return Pipeline(steps=[("imputer", imputer), ("clf", clf)])
+    # ── Ensemble imbalance families (imblearn) ────────────────────────
+    # These classifiers handle imbalance internally — do NOT pass
+    # class_weight to them (they use balanced bootstrap / undersampling).
+    # Calibration warning: resampling-based methods can shift predicted
+    # probabilities. Always verify calibration post-hoc (calibration gate).
+    if family == "balanced_random_forest":
+        if BalancedRandomForestClassifier is None:
+            raise RuntimeError(
+                "balanced_random_forest requires imbalanced-learn. "
+                "Install with: pip install imbalanced-learn>=0.12"
+            )
+        return Pipeline(
+            steps=[
+                ("imputer", imputer),
+                (
+                    "clf",
+                    BalancedRandomForestClassifier(
+                        n_estimators=int(params["n_estimators"]),
+                        max_depth=params.get("max_depth"),
+                        min_samples_split=int(params.get("min_samples_split", 10)),
+                        min_samples_leaf=int(params.get("min_samples_leaf", 5)),
+                        max_features=params.get("max_features", "sqrt"),
+                        random_state=seed,
+                        n_jobs=n_jobs,
+                    ),
+                ),
+            ]
+        )
+    if family == "easy_ensemble":
+        if EasyEnsembleClassifier is None:
+            raise RuntimeError(
+                "easy_ensemble requires imbalanced-learn. "
+                "Install with: pip install imbalanced-learn>=0.12"
+            )
+        return Pipeline(
+            steps=[
+                ("imputer", imputer),
+                (
+                    "clf",
+                    EasyEnsembleClassifier(
+                        n_estimators=int(params["n_estimators"]),
+                        random_state=seed,
+                        n_jobs=n_jobs,
+                    ),
+                ),
+            ]
+        )
+    if family == "rusboost":
+        if RUSBoostClassifier is None:
+            raise RuntimeError(
+                "rusboost requires imbalanced-learn. "
+                "Install with: pip install imbalanced-learn>=0.12"
+            )
+        return Pipeline(
+            steps=[
+                ("imputer", imputer),
+                (
+                    "clf",
+                    RUSBoostClassifier(
+                        n_estimators=int(params["n_estimators"]),
+                        learning_rate=float(params.get("learning_rate", 1.0)),
+                        random_state=seed,
+                    ),
+                ),
+            ]
+        )
     raise ValueError(f"Unsupported family: {family}")
 
 
@@ -2799,6 +2949,20 @@ def build_candidates(
                         f"Remove 'tabpfn' from model pool or reduce dataset dimensions."
                     )
                 continue
+        # imblearn ensemble families — optional dependency
+        _IMBLEARN_FAMILIES = {
+            "balanced_random_forest": BalancedRandomForestClassifier,
+            "easy_ensemble": EasyEnsembleClassifier,
+            "rusboost": RUSBoostClassifier,
+        }
+        if family in _IMBLEARN_FAMILIES and _IMBLEARN_FAMILIES[family] is None:
+            unavailable.append(family)
+            if family in explicit_cli_models:
+                raise SystemExit(
+                    f"model_backend_unavailable: {family} requires imbalanced-learn. "
+                    f"Install with `pip install imbalanced-learn>=0.12`."
+                )
+            continue
 
         if search_strategy == "optuna" and family not in {"tabpfn"} and optuna_X_train is not None:
             chosen_grid = _optuna_search_family(
@@ -2836,13 +3000,19 @@ def build_candidates(
                 "search_strategy": search_strategy if search_strategy != "optuna" else "random_subsample",
             }
         family_total_configs = int(family_search_space[family]["total_configurations"])
+        # Internal-imbalance families handle class imbalance inside the
+        # estimator (balanced bootstrap / undersampling) — do NOT pass
+        # class_weight or apply external resampling on top.
+        is_internal_imbalance = family in INTERNAL_IMBALANCE_FAMILIES
+        effective_cw = None if is_internal_imbalance else class_weight
+
         for trial_idx, params in enumerate(chosen_grid, start=1):
             estimator = _build_estimator_for_family(
                 family=family,
                 params=params,
                 seed=seed,
                 imputation_strategy=imputation_strategy,
-                class_weight=class_weight,
+                class_weight=effective_cw,
                 n_jobs=n_jobs,
                 device=device,
             )
@@ -2857,6 +3027,7 @@ def build_candidates(
                     "hyperparameters": params,
                     "regularization_profile": _regularization_profile(family, params),
                     "estimator": estimator,
+                    "_internal_imbalance": is_internal_imbalance,
                     "search_meta": {
                         "trial_index": int(trial_idx),
                         "family_total_configurations": family_total_configs,
@@ -6270,11 +6441,13 @@ def _phase4_candidates(ctx: Dict[str, Any]) -> None:
             print(f"[PROGRESS] {cand_idx + 1}/{n_candidates} {mid} (cached)", file=sys.stderr, flush=True)
             continue
         print(f"[PROGRESS] {cand_idx + 1}/{n_candidates} {mid}", file=sys.stderr, flush=True)
+        # Internal-imbalance families skip external resampling
+        cand_imbalance = "none" if cand.get("_internal_imbalance") else selected_imbalance_strategy
         if selection_data == "cv_inner":
             mean_score, std_score, n_folds, fold_scores = cv_score_pr_auc(
                 cand["estimator"], X_train, y_train,
                 n_splits=args.cv_splits, seed=args.random_seed,
-                imbalance_strategy=selected_imbalance_strategy,
+                imbalance_strategy=cand_imbalance,
                 score_metric="pr_auc",
                 temporal_cv=bool(getattr(args, "temporal_cv", False)),
             )
@@ -6284,7 +6457,7 @@ def _phase4_candidates(ctx: Dict[str, Any]) -> None:
             model = clone(cand["estimator"])
             model, _ = fit_estimator_with_imbalance(
                 estimator=model, X_train=X_train, y_train=y_train,
-                strategy=selected_imbalance_strategy, seed=int(args.random_seed),
+                strategy=cand_imbalance, seed=int(args.random_seed),
             )
             valid_proba = predict_proba_1(model, X_valid)
             mean_score = float(average_precision_score(y_valid, valid_proba))
