@@ -848,15 +848,28 @@ class UKBCodebook:
         ukb_exclusion_fields = disease_entry.get("ukb_exclusion_fields", [])
         definition_set = set(ukb_def_fields + ukb_exclusion_fields)
 
-        if not definition_set:
-            return []
-
-        # Also collect self-report codes (Pomegranate-derived).
-        # Fields like 20002 (Non-cancer illness) are array fields where only
-        # specific coded values define the disease.  If a user includes the
-        # entire field as a feature, the model can see the disease code.
-        self_report_codes = disease_entry.get("ukb_self_report_codes", {})
+        # Load Pomegranate self-report codes from independent file.
+        # Separated from disease-KB for single-responsibility: disease-KB
+        # defines clinical criteria, Pomegranate defines UKB data source codes.
+        self_report_codes: Dict[str, Any] = {}
+        _pom_path = Path(disease_kb_path).parent.parent / "codebooks" / "ukb" / "pomegranate-phenotypes.json"
+        if _pom_path.is_file():
+            try:
+                _pom = json.loads(_pom_path.read_text(encoding="utf-8"))
+                _pom_disease = _pom.get("diseases", {}).get(target_disease, {})
+                if not _pom_disease:
+                    # Fuzzy match
+                    for _pk, _pv in _pom.get("diseases", {}).items():
+                        if target_disease.lower().replace("_", " ") in _pk.lower().replace("_", " "):
+                            _pom_disease = _pv
+                            break
+                self_report_codes = _pom_disease.get("self_report_codes", {})
+            except (json.JSONDecodeError, OSError):
+                pass
         self_report_field_ids = {int(k) for k in self_report_codes}
+
+        if not definition_set and not self_report_field_ids:
+            return []
 
         issues: List[Dict[str, Any]] = []
         for col in column_names:

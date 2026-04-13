@@ -238,15 +238,6 @@
         "130709"
       ],
       "ukb_definition_fields_note": "30750=HbA1c, 30740=Glucose, 2443=Diabetes diagnosed by doctor, 2976=Age diabetes diagnosed, 2986=Started insulin within 1yr, 4041=Gestational diabetes, 130708/9=Date/Source E11 first reported",
-      "ukb_self_report_codes": {
-        "20002": [
-          {
-            "code": "1223",
-            "desc": "type 2 diabetes"
-          }
-        ]
-      },
-      "pomegranate_ref": "diabetes_t2.yaml",
       "recommended_adjudication": "at_least_two",
       "ukb_validation": "Eastwood 2016: 75% of 'probable T2D' confirmed in primary+secondary care"
     },
@@ -351,16 +342,7 @@
         "131287"
       ],
       "ukb_definition_fields_note": "4080/4079=SBP/DBP automated, 93/94=SBP/DBP manual, 6150=Vascular problems diagnosed, 2966=Age high BP diagnosed, 131286/7=Date/Source I10 first reported",
-      "recommended_adjudication": "at_least_two",
-      "ukb_self_report_codes": {
-        "20002": [
-          {
-            "code": "1072",
-            "desc": "essential hypertension"
-          }
-        ]
-      },
-      "pomegranate_ref": "hypertension.yaml"
+      "recommended_adjudication": "at_least_two"
     },
     "coronary_heart_disease": {
       "name": "Coronary Heart Disease / Coronary Artery Disease",
@@ -486,16 +468,7 @@
         "131299"
       ],
       "ukb_definition_fields_note": "3894=Age heart attack diagnosed, 6150=Vascular/heart problems, 131298/9=Date/Source I21 first reported",
-      "recommended_adjudication": "at_least_two",
-      "ukb_self_report_codes": {
-        "20002": [
-          {
-            "code": "1066",
-            "desc": "heart/cardiac problem"
-          }
-        ]
-      },
-      "pomegranate_ref": "CHD_NOS.yaml"
+      "recommended_adjudication": "at_least_two"
     },
     "chronic_kidney_disease": {
       "name": "Chronic Kidney Disease",
@@ -581,34 +554,7 @@
       ],
       "ukb_definition_fields_note": "30700=Creatinine, 30720=Cystatin C (used to compute eGFR)",
       "recommended_adjudication": "at_least_two",
-      "note": "CKD-EPI 2021 removed race coefficient — use race-free formula",
-      "ukb_self_report_codes": {
-        "20002": [
-          {
-            "code": "1192",
-            "desc": "renal/kidney failure"
-          },
-          {
-            "code": "1193",
-            "desc": "renal failure requiring dialysis"
-          },
-          {
-            "code": "1194",
-            "desc": "renal failure not requiring dialysis"
-          }
-        ],
-        "20004": [
-          {
-            "code": "1580",
-            "desc": "dialysis access surgery"
-          },
-          {
-            "code": "1476",
-            "desc": "fistula for dialysis"
-          }
-        ]
-      },
-      "pomegranate_ref": "CKD.yaml"
+      "note": "CKD-EPI 2021 removed race coefficient — use race-free formula"
     },
     "heart_failure": {
       "name": "Heart Failure",
@@ -689,16 +635,7 @@
         "131355"
       ],
       "ukb_definition_fields_note": "24103=LV ejection fraction, 131354/5=Date/Source I50 first reported",
-      "recommended_adjudication": "at_least_two",
-      "ukb_self_report_codes": {
-        "20002": [
-          {
-            "code": "1076",
-            "desc": "heart failure/pulmonary oedema"
-          }
-        ]
-      },
-      "pomegranate_ref": "hf.yaml"
+      "recommended_adjudication": "at_least_two"
     },
     "stroke": {
       "name": "Stroke (Ischaemic and Haemorrhagic)",
@@ -771,16 +708,7 @@
         "131363"
       ],
       "ukb_definition_fields_note": "4056=Age stroke diagnosed, 131366/7=Date/Source I63 (ischaemic) first reported, 131362/3=Date/Source I61 (haemorrhagic) first reported",
-      "recommended_adjudication": "at_least_two",
-      "ukb_self_report_codes": {
-        "20002": [
-          {
-            "code": "1583",
-            "desc": "ischaemic stroke"
-          }
-        ]
-      },
-      "pomegranate_ref": "Isch_stroke.yaml"
+      "recommended_adjudication": "at_least_two"
     },
     "copd": {
       "name": "Chronic Obstructive Pulmonary Disease",
@@ -855,20 +783,7 @@
         "22170"
       ],
       "ukb_definition_fields_note": "3063=FEV1, 3062=FVC (used to compute FEV1/FVC ratio for GOLD staging); Pomegranate: 22130=Doctor diagnosed COPD, 22170=Recent medication for COPD",
-      "recommended_adjudication": "at_least_two",
-      "ukb_self_report_codes": {
-        "20002": [
-          {
-            "code": "1112",
-            "desc": "chronic obstructive airways disease/copd"
-          },
-          {
-            "code": "1472",
-            "desc": "emphysema"
-          }
-        ]
-      },
-      "pomegranate_ref": "COPD.yaml"
+      "recommended_adjudication": "at_least_two"
     },
     "major_depressive_disorder": {
       "name": "Major Depressive Disorder",
@@ -951,16 +866,7 @@
         "21063"
       ],
       "ukb_definition_fields_note": "20126=Bipolar and major depression status, 20127=Neuroticism score (derived from questionnaire items); Pomegranate: 20126=Bipolar/depression status, 20446=Prolonged sadness, 20544=Diagnosed by professional, 21063=Offered treatment",
-      "recommended_adjudication": "at_least_two",
-      "ukb_self_report_codes": {
-        "20002": [
-          {
-            "code": "1286",
-            "desc": "depression"
-          }
-        ]
-      },
-      "pomegranate_ref": "depression.yaml"
+      "recommended_adjudication": "at_least_two"
     },
     "cancer_any": {
       "name": "Cancer (Any Site)",
@@ -1123,20 +1029,7 @@
         "131351"
       ],
       "ukb_definition_fields_note": "12653=ECG automated diagnoses, 24613=AFib Burden, 131350/1=Date/Source I48 first reported",
-      "recommended_adjudication": "at_least_two",
-      "ukb_self_report_codes": {
-        "20002": [
-          {
-            "code": "1471",
-            "desc": "atrial fibrillation"
-          },
-          {
-            "code": "1483",
-            "desc": "atrial flutter"
-          }
-        ]
-      },
-      "pomegranate_ref": "AF.yaml"
+      "recommended_adjudication": "at_least_two"
     },
     "readmission_30day": {
       "name": "30-Day All-Cause Hospital Readmission",
