@@ -911,17 +911,26 @@ class TestImbalancedBuildEstimator:
         assert clf.n_estimators == 100
         assert clf.learning_rate == 0.5
 
-    def test_class_weight_not_passed_to_imblearn(self, _common_kwargs):
-        """imblearn estimators must NOT receive class_weight (they handle imbalance internally)."""
-        params = {"n_estimators": 50, "max_depth": 4, "min_samples_split": 10,
-                  "min_samples_leaf": 5, "max_features": "sqrt"}
-        # Even if we pass class_weight='balanced', the Pipeline's clf should not get it
-        pipe = tse._build_estimator_for_family("balanced_random_forest", params,
-                                                seed=42, imputation_strategy="median",
-                                                class_weight="balanced", n_jobs=1)
-        clf = pipe.named_steps["clf"]
-        # BRF has sampling_strategy, not class_weight — confirm no class_weight attr set
-        assert not hasattr(clf, "class_weight") or clf.get_params().get("class_weight") is None
+    def test_class_weight_not_passed_to_imblearn(self):
+        """build_candidates nullifies class_weight for internal-imbalance families."""
+        candidates, _ = tse.build_candidates(
+            seed=42, sampling_seed=42, imputation_strategy="median",
+            class_weight="balanced",
+            model_pool_config={
+                "model_pool": ["balanced_random_forest", "logistic_l2"],
+                "max_trials_per_family": 1,
+                "search_strategy": "fixed_grid",
+            },
+        )
+        brf_cand = next(c for c in candidates if c["base_model_id"] == "balanced_random_forest")
+        lr_cand = next(c for c in candidates if c["base_model_id"] == "logistic_l2")
+        # BRF pipeline clf should NOT receive class_weight='balanced'
+        # (BRF inherits class_weight param from sklearn base but it should be None)
+        brf_clf = brf_cand["estimator"].named_steps["clf"]
+        assert brf_clf.get_params().get("class_weight") is None
+        # LR pipeline clf SHOULD have class_weight='balanced'
+        lr_clf = lr_cand["estimator"].named_steps["clf"]
+        assert lr_clf.get_params()["class_weight"] == "balanced"
 
 
 class TestInternalImbalanceFlag:

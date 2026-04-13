@@ -549,7 +549,7 @@ class TestVerifyNumericsInSource:
             dataset={"n_patients_total": 5000, "train_n": 3500, "test_n": 1500},
             performance_metrics={"test_auroc": 0.85, "test_sensitivity": 0.72},
         )
-        text = "We enrolled 5000 patients. Training set: 3500, test set: 1500. AUROC 0.85, sensitivity 0.72."
+        text = "We enrolled 5000 patients. Training set: 3500, test set: 1500. AUROC 0.85, sensitivity 0.72. " + "x " * 500
         warnings = verify_numerics_in_source(result, text)
         assert warnings == []
 
@@ -558,7 +558,7 @@ class TestVerifyNumericsInSource:
         result = self._make_result(
             performance_metrics={"test_auroc": 0.91},
         )
-        text = "The model achieved an AUROC of 0.85 on the test set."
+        text = "The model achieved an AUROC of 0.85 on the test set. " + "x " * 500
         warnings = verify_numerics_in_source(result, text)
         assert any("test_auroc" in w for w in warnings)
 
@@ -567,7 +567,7 @@ class TestVerifyNumericsInSource:
         result = self._make_result(
             dataset={"n_patients_total": 12345},
         )
-        text = "We used data from 10000 patients."
+        text = "We used data from 10000 patients. " + "x " * 500
         warnings = verify_numerics_in_source(result, text)
         assert any("n_patients_total" in w for w in warnings)
 
@@ -576,7 +576,7 @@ class TestVerifyNumericsInSource:
         result = self._make_result(
             performance_metrics={"test_auroc": 0.85},
         )
-        text = "The model achieved 85% accuracy."
+        text = "The model achieved 85% accuracy. " + "x " * 500
         warnings = verify_numerics_in_source(result, text)
         assert not any("test_auroc" in w for w in warnings)
 
@@ -585,15 +585,26 @@ class TestVerifyNumericsInSource:
         result = self._make_result(
             dataset={"n_patients_total": 101766},
         )
-        text = "We included 101,766 patients in the study."
+        text = "We included 101,766 patients in the study. " + "x " * 500
         warnings = verify_numerics_in_source(result, text)
         assert not any("n_patients_total" in w for w in warnings)
 
     def test_null_values_skipped(self):
         from extract_paper_metadata import verify_numerics_in_source
         result = self._make_result()  # all None
-        warnings = verify_numerics_in_source(result, "Some paper text")
+        warnings = verify_numerics_in_source(result, "Some paper text " * 100)  # >1000 chars
         assert warnings == []
+
+    def test_abstract_only_short_circuit(self):
+        """Short text (<1000 chars) is skipped to avoid abstract-only false positives."""
+        from extract_paper_metadata import verify_numerics_in_source
+        result = self._make_result(
+            dataset={"n_patients_total": 99999},  # clearly not in text
+            performance_metrics={"test_auroc": 0.99},
+        )
+        short_text = "A short abstract about a prediction model."  # <1000 chars
+        warnings = verify_numerics_in_source(result, short_text)
+        assert warnings == []  # should skip, not flag
 
 
 @pytest.mark.skipif(not _HAS_PYDANTIC, reason="pydantic not installed")
