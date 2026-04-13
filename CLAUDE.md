@@ -48,6 +48,18 @@ Agent 在本项目中**始终**以 Nature Methods / JAMA 级 SCI 审稿人身份
 - Tests: pytest, ≥85% 覆盖率, 使用 `tmp_path` fixture
 - **禁止**: `eval()`, `exec()`, `compile()`, `subprocess.Popen(shell=True)`, `os.system()`
 
+## Agent 分工
+
+| 职责 | 归属 | 入口 |
+|------|------|------|
+| **代码审计** (lint + gate + 语义审查) | Claude Code (本 agent) | `mlgg lint`, `mlgg audit`, `audit-mode.md` |
+| **全流程执行** (9 阶段 pipeline) | Claude Code (本 agent) | `/mlgg`, `mlgg workflow` |
+| **论文元数据提取** (PDF → metadata) | API agents (`agents/extractor.yaml`) | 纯文本推理，无需工具 |
+| **论文量化评审** (metadata → 评分) | API agents (`agents/reviewer.yaml`) | 纯文本推理，无需工具 |
+
+代码审计和全流程执行**仅限 Claude Code**——需要文件读写 + 命令执行 + git 权限。
+API agents 只做论文文本分析，详见 `agents/README.md`。
+
 ## File Layout
 
 ```
@@ -58,6 +70,7 @@ scripts/
 └── tools/          # 报告/训练/数据工具
 tests/              # pytest 测试
 examples/           # 数据集下载器
+agents/             # API agent 配置 (reviewer + extractor)
 references/
 ├── standards/      # 报告标准 (TRIPOD, PROBAST, STARD, 期刊要求)
 ├── methodology/    # 方法学知识 (泄漏分类, 疾病定义, 文献)

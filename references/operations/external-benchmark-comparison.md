@@ -34,7 +34,7 @@
   - `SKILL.md` workflow, output contract, strict rules, and script inventory
   - `references/standards/top-tier-rigor-checklist.md`
   - `references/templates/report-template.md`
-  - `agents/openai.yaml` default prompt
+  - `agents/reviewer.yaml` system prompt
 
 ## Implemented Improvement (Execution Non-Repudiation)
 - Added `scripts/gates/execution_attestation_gate.py` to verify detached signatures and signed artifact hashes.
