@@ -846,12 +846,14 @@ def _compute_pdp_ice(
     grid_points: int = 20,
     warnings_list: Optional[List[Dict[str, Any]]] = None,
 ) -> List[Dict[str, Any]]:
-    """Compute Partial Dependence for top features across all model families.
+    """Compute Partial Dependence Plot (PDP) for top features across all model families.
 
-    Uses sklearn.inspection.partial_dependence (kind='average') for PDP
-    and (kind='individual') for ICE summary statistics.
+    Uses sklearn.inspection.partial_dependence (kind='average') for PDP.
 
-    Returns list of dicts, one per (feature, family) pair, suitable for CSV.
+    Note: ICE (Individual Conditional Expectation) is not currently computed
+    despite the function name. Only the averaged PDP values are returned.
+
+    Returns list of dicts, one per (feature, family, grid_point), suitable for CSV.
     """
     import numpy as _np
 

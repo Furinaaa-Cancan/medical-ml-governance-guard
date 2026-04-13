@@ -368,8 +368,11 @@ class TestRobustnessStressTest:
         rng = np.random.default_rng(42)
         X = np.vstack([rng.normal(-5, 0.1, (100, 3)), rng.normal(5, 0.1, (100, 3))])
         y = np.array([0]*100 + [1]*100)
-        rf = RandomForestClassifier(n_estimators=10, random_state=42).fit(X[:150], y[:150])
-        r = robustness_stress_test(rf, X[:150], y[:150], X[150:], y[150:])
+        # Stratified split: ensure both classes in train and test
+        rf = RandomForestClassifier(n_estimators=10, random_state=42).fit(X[:160:2], y[:160:2])
+        X_test = np.vstack([X[1:160:2], X[160:]])
+        y_test = np.concatenate([y[1:160:2], y[160:]])
+        r = robustness_stress_test(rf, X[:160:2], y[:160:2], X_test, y_test)
         assert r["max_relative_drop_pct"] < 10  # perfect sep → robust
 
     def test_estimator_unchanged(self):

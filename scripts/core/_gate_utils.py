@@ -1453,6 +1453,13 @@ def baseline_comparisons(
     n = len(y_t)
     prev = float(y_t.mean())
 
+    # Guard: both classes required for AUC metrics
+    if len(np.unique(y_t)) < 2:
+        return {
+            "error": "single_class_y_true",
+            "message": "baseline_comparisons requires both classes in y_true.",
+        }
+
     # Model performance (use pr_auc/roc_auc consistently with metric_panel)
     model = {
         "roc_auc": round(float(roc_auc_score(y_t, y_s)), 4),
@@ -1813,8 +1820,8 @@ def robustness_stress_test(
 
     if X_te.shape[0] == 0 or y_te.size == 0:
         return {"error": "empty_test_set", "robust": False, "verdict": "error"}
-    if len(np.unique(y_te)) < 2 and metric != "pr_auc":
-        # roc_auc_score requires both classes; pr_auc works with single class
+    if len(np.unique(y_te)) < 2:
+        # Both roc_auc_score and average_precision_score require both classes
         return {"error": "single_class_test_set", "robust": False, "verdict": "error"}
 
     score_fn = average_precision_score if metric == "pr_auc" else roc_auc_score
@@ -2016,12 +2023,14 @@ def mnar_sensitivity_analysis(
             f"{metric}": round(score, 4) if score is not None else None,
         })
 
-    # Tipping point: smallest |δ| where score drops below prevalence baseline
+    # Tipping point: smallest |δ| where score drops below no-skill baseline
+    # For pr_auc the no-skill baseline is prevalence; for roc_auc it is 0.5
     prevalence = float(np.mean(y_test))
+    no_skill_baseline = prevalence if metric == "pr_auc" else 0.5
     tipping_point = None
     for r in results:
         s = r.get(metric)
-        if s is not None and s <= prevalence and r["delta"] != 0.0:
+        if s is not None and s <= no_skill_baseline and r["delta"] != 0.0:
             if tipping_point is None or abs(r["delta"]) < abs(tipping_point):
                 tipping_point = r["delta"]
 
@@ -2029,7 +2038,7 @@ def mnar_sensitivity_analysis(
         "delta_results": results,
         "baseline_score": round(baseline_score, 4) if baseline_score is not None else None,
         "tipping_point": tipping_point,
-        "tipping_threshold": round(prevalence, 4),
+        "tipping_threshold": round(no_skill_baseline, 4),
         "metric": metric,
         "n_deltas_tested": len(deltas),
     }
@@ -2131,7 +2140,7 @@ def temporal_drift_analysis(
 
     # CUSUM on O:E ratio deviations from 1.0
     if len(windows) >= 3:
-        oe_values = [w["oe_ratio"] for w in windows if np.isfinite(w["oe_ratio"])]
+        oe_values = [w["oe_ratio"] for w in windows if w["oe_ratio"] is not None and np.isfinite(w["oe_ratio"])]
         cusum = []
         s = 0.0
         drift_point = None
@@ -2267,8 +2276,9 @@ def generate_model_card(
                 "|------|---------|-------------------|",
             ])
             for f in top_feats:
-                lines.append(f"| {f.get('rank', '')} | {f.get('feature', '')} | "
-                             f"{f.get('ensemble_proportion', ''):.4f} |")
+                ep = f.get('ensemble_proportion')
+                ep_str = f"{ep:.4f}" if isinstance(ep, (int, float)) else str(ep or "")
+                lines.append(f"| {f.get('rank', '')} | {f.get('feature', '')} | {ep_str} |")
 
     # Limitations
     lines.extend([
