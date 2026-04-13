@@ -16,7 +16,7 @@ from _gate_utils import load_json_from_path as load_json, write_json
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-REFERENCES_ROOT = REPO_ROOT / "references" / "examples"
+REFERENCES_ROOT = REPO_ROOT / "references"
 
 TEMPLATE_COPY_MAP = {
     "feature-lineage.example.json": "feature_lineage.json",
@@ -166,7 +166,7 @@ def main() -> int:
         write_json(phenotype_path, make_phenotype_template(str(args.target_name)))
         file_status[str(phenotype_path)] = "written"
 
-    _req_path = REFERENCES_ROOT / "examples" / "request-schema.example.json"
+    _req_path = REFERENCES_ROOT / "templates" / "request-schema.example.json"
     if not _req_path.exists():
         _req_path = REFERENCES_ROOT / "request-schema.example.json"
     request_template = load_json(_req_path)
