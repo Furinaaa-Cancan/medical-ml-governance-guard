@@ -49,7 +49,7 @@ import subprocess
 import sys
 import time as _time
 from pathlib import Path
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from _gate_utils import (
     load_json_from_path as load_json,
@@ -299,7 +299,7 @@ def build_gate_command(
     elif spec.name == "security_audit_gate":
         cmd.extend(["--evidence-dir", str(evidence_dir)])
     else:
-        cmd.extend(_build_standard_gate_cmd(spec, normalized, split_paths, report_paths))
+        cmd.extend(_build_standard_gate_cmd(spec, normalized, split_paths, report_paths, evidence_dir=evidence_dir))
 
     cmd.extend(["--report", str(report_paths[spec.name])])
 
@@ -314,6 +314,7 @@ def _build_standard_gate_cmd(
     normalized: Dict[str, Any],
     split_paths: Dict[str, str],
     report_paths: Dict[str, Path],
+    evidence_dir: Optional[Path] = None,
 ) -> List[str]:
     """Build CLI args for a standard validation gate."""
     cmd: List[str] = []
@@ -346,7 +347,7 @@ def _build_standard_gate_cmd(
             cmd.extend([cli_flag, str(report_paths[dep_gate])])
 
     # Gate-specific extra arguments
-    cmd.extend(_gate_specific_extras(spec.name, normalized, split_paths))
+    cmd.extend(_gate_specific_extras(spec.name, normalized, split_paths, evidence_dir=evidence_dir))
 
     return cmd
 
@@ -355,6 +356,7 @@ def _gate_specific_extras(
     gate_name: str,
     normalized: Dict[str, Any],
     split_paths: Dict[str, str],
+    evidence_dir: Optional[Path] = None,
 ) -> List[str]:
     """Return gate-specific CLI arguments not covered by spec mappings."""
     extras: List[str] = []
@@ -367,7 +369,17 @@ def _gate_specific_extras(
     run_id = str(normalized.get("run_id", ""))
     valid = split_paths.get("valid", "")
 
-    if gate_name == "leakage_gate":
+    if gate_name == "cohort_definition_gate":
+        # cohort_definition_gate expects --data (raw CSV or train split)
+        # and --target-col. Use train split as input data.
+        data = split_paths.get("train", "")
+        if data:
+            extras.extend(["--data", data])
+        extras.extend(["--target-col", label_col])
+        if id_col:
+            extras.extend(["--id-col", id_col])
+
+    elif gate_name == "leakage_gate":
         extras.extend(["--id-cols", id_col, "--time-col", time_col, "--target-col", label_col])
 
     elif gate_name == "split_protocol_gate":
@@ -395,8 +407,8 @@ def _gate_specific_extras(
         extras.extend(["--target-col", label_col, "--ignore-cols", f"{id_col},{time_col}"])
         # Pass cohort_definition_gate report if available — enables
         # codebook-confirmed MNAR to skip statistical mechanism tests.
-        _cohort_rpt = evidence_dir / "cohort_definition_gate_report.json"
-        if _cohort_rpt.is_file():
+        _cohort_rpt = evidence_dir / "cohort_definition_report.json" if evidence_dir else None
+        if _cohort_rpt is not None and _cohort_rpt.is_file():
             extras.extend(["--cohort-report", str(_cohort_rpt)])
 
     elif gate_name == "tuning_leakage_gate":
