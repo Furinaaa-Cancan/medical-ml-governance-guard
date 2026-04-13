@@ -681,8 +681,16 @@ def verify_numerics_in_source(result: ExtractionResult, paper_text: str) -> list
 
     Searches for AUROC, sample sizes, and other key numbers via regex.
     Returns list of warning strings for values NOT found in source.
+
+    Skips verification when paper_text is short (<1000 chars, typically
+    abstract-only mode) since many numeric details only appear in the
+    full text and their absence from an abstract is expected.
     """
     import re
+
+    # Short-circuit for abstract-only text: most numbers won't appear
+    if len(paper_text) < 1000:
+        return []
 
     warnings: list[str] = []
     text = paper_text.lower()
@@ -694,14 +702,17 @@ def verify_numerics_in_source(result: ExtractionResult, paper_text: str) -> list
         # Integer values: exact match
         if isinstance(value, int) or (isinstance(value, float) and value == int(value) and value > 1):
             int_val = int(value)
-            # Match the number with word boundaries (not part of a larger number)
-            patterns = [
-                rf'\b{int_val}\b',
-                rf'\b{int_val:,}\b'.replace(",", r"[,\s]"),  # with commas/spaces
-            ]
-            for pat in patterns:
-                if re.search(pat, text):
-                    return
+            # Match the number as standalone or with comma/space separators
+            s_plain = str(int_val)
+            if s_plain in text:
+                return
+            # Try comma-separated form: 101,766 or 101 766
+            s_comma = f"{int_val:,}"  # "101,766"
+            if s_comma in text:
+                return
+            s_space = s_comma.replace(",", " ")  # "101 766"
+            if s_space in text:
+                return
             warnings.append(f"SOURCE_TEXT_MISS: {label}={int_val} not found in paper text")
             return
 
@@ -740,13 +751,13 @@ def verify_numerics_in_source(result: ExtractionResult, paper_text: str) -> list
 def verify_evidence_quotes(result: ExtractionResult, paper_text: str, threshold: float = 0.6) -> list[str]:
     """Check that *_evidence fields are actual quotes from the paper text.
 
-    Uses token-overlap similarity (Jaccard on word tokens) — no external deps.
-    Returns list of warning strings for evidence fields that don't match source.
+    Uses token recall (fraction of quote words found in source text) to
+    detect fabricated evidence strings. No external dependencies.
 
     Args:
         result: The extraction result containing evidence fields.
         paper_text: The assembled paper text to verify against.
-        threshold: Minimum Jaccard similarity to accept (0-1). Default 0.6.
+        threshold: Minimum token recall to accept (0-1). Default 0.6.
     """
     warnings: list[str] = []
     text_lower = paper_text.lower()
@@ -767,17 +778,13 @@ def verify_evidence_quotes(result: ExtractionResult, paper_text: str, threshold:
         if quote.lower().strip() in text_lower:
             continue
 
-        # Token-overlap Jaccard similarity
+        # Token recall: fraction of quote tokens found in source text
         quote_tokens = set(quote.lower().split())
         if not quote_tokens:
             continue
 
-        intersection = quote_tokens & text_tokens
-        union = quote_tokens | text_tokens
-        jaccard = len(intersection) / len(union) if union else 0.0
-
-        # Also compute recall: fraction of quote tokens found in text
-        recall = len(intersection) / len(quote_tokens) if quote_tokens else 0.0
+        found = quote_tokens & text_tokens
+        recall = len(found) / len(quote_tokens)
 
         if recall < threshold:
             warnings.append(

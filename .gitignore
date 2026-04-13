@@ -54,8 +54,11 @@ experiments/authority-e2e/_benchmark_matrix_runs/
 experiments/overnight_2*/
 experiments/overnight_run.log
 
-# NHANES codebook data (download via references/codebooks/nhanes/README.md)
+# NHANES codebook data (symlinked from ../nhanes-codebook/)
 references/codebooks/nhanes/*.tsv
+references/codebooks/nhanes/*.sqlite
+references/codebooks/nhanes/*.sqlite-shm
+references/codebooks/nhanes/*.sqlite-wal
 
 # UKB codebook data (download via scripts/tools/fetch_ukb_showcase.py)
 references/codebooks/ukb/*.txt

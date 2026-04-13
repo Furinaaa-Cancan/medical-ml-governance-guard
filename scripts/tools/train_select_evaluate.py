@@ -4975,8 +4975,8 @@ def _annotate_calibration_resampling_risk(
     predicted probabilities and inflates calibration slope (van den
     Goorbergh et al., BMC Med Res Methodol 2022;22:312).
 
-    Annotates calibration_assessment with a warning if slope deviates
-    from 1.0 by more than 0.15 for these families.
+    Always annotates calibration_assessment with a resampling risk
+    note for these families, including the actual slope deviation.
     """
     if not isinstance(calibration, dict) or calibration.get("skipped"):
         return calibration
@@ -5001,7 +5001,7 @@ def _annotate_calibration_resampling_risk(
             f"(deviation={deviation:.3f} from ideal 1.0). "
             f"Post-hoc recalibration (Platt/isotonic) is recommended. "
             f"Ref: van den Goorbergh et al., BMC Med Res Methodol 2022;22:312."
-        ) if deviation > 0.15 else None,
+        ),
     }
     return calibration
 
