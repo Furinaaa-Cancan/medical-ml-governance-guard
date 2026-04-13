@@ -1168,49 +1168,161 @@ python3 -m mlgg_lint /path/to/code/
 ## Project Structure
 
 ```
-scripts/
-  core/               Internal framework modules
-    _gate_framework.py   Gate base class, report envelope, issue management
-    _gate_utils.py       Shared numerical utilities, metric panels, calibration, audit chain
-    _gate_registry.py    33-gate DAG dependency graph & layer-parallel execution
-    _security.py         HMAC, AES-256-GCM, restricted deserialization, path traversal defense
-    _audit_shared.py     Audit report shared utilities
-    _peer_review_retrieval.py   Peer review knowledge base retrieval
-  gates/              33 fail-closed gate scripts
-  orchestration/      CLI entry points & pipeline runners
-    mlgg.py              Unified CLI (20+ subcommands)
-    run_dag_pipeline.py  Parallel DAG executor with checkpoint resume
-    run_strict_pipeline.py  Sequential strict executor
-    run_productized_workflow.py  doctor -> preflight -> strict -> summary
-    mlgg_onboarding.py   Guided onboarding wizard
-    mlgg_interactive.py  Interactive wizard
-    mlgg_pixel.py        Pixel-art terminal UI
-  tools/              Reports, training, splitting, utilities
-    train_select_evaluate.py  7000-line training engine (20 model families)
-    split_data.py        Safe data splitting
-    generate_audit_report.py  12-dimension audit report generator
-    audit_external_project.py  External project auditor
-    ...33 more tool scripts
-tests/                117 pytest modules (85%+ coverage, incl. e2e/stress/red-team)
-examples/             16 medical datasets + 4 downloaders + 2 project templates (demo + scaffold)
-references/           Knowledge bases organized by domain
-  standards/           Reporting standards (TRIPOD+AI 2024, PROBAST+AI 2025, STARD+AI, journal rigor)
-  methodology/         Methodology (disease definition KB, leakage taxonomy, literature)
-  codebooks/           Data dictionaries (NHANES 58K vars + UKB 12K fields + generic registry)
-  case-studies/        Peer review KB (107 NC papers, 375 structured review opinions)
-  templates/           28 JSON templates (request, split, evaluation, attestation, etc.)
-  operations/          Runtime KBs (error-KB, scoring, gate-matrix)
-  protocols/           Phase 1-9 rules + audit/blind-audit/sampling protocols
-  docs/                Developer docs (Architecture, API-Reference, Quickstart)
-papers/               Paper audit library (our reviews: PDF + metadata + 12-dim scoring)
-agents/               Multi-agent configs (extractor + reviewer, Anthropic/Google/OpenAI)
-experiments/          E2E benchmark suite (4 UCI datasets, adversarial checks)
-plugin/               Static analysis Lint (R001-R027, .py + .ipynb, independent sub-package)
-  mlgg_lint/rules/     27 rule implementations
-  vscode/              VS Code extension
-.claude/              Claude Code skill definitions + prompt template library
-.github/workflows/    CI/CD (unit/security/nightly-full/weekly-extended)
+medical-ml-governance-guard/
+│
+├── scripts/                              # ─── Core Code (91 files, ~70K lines) ───
+│   ├── core/              (7)            # Framework foundation
+│   │   ├── _gate_framework.py            #   GateIssue/Severity, report envelope v2.0, CLI contract
+│   │   ├── _gate_registry.py             #   33-gate DAG (8-layer topological sort, parallel markers)
+│   │   ├── _gate_utils.py                #   60+ stat/IO/security functions (calibration, VIF, NRI...)
+│   │   ├── _audit_shared.py              #   12-dimension scoring + 12 code anti-pattern regex scan
+│   │   ├── _peer_review_retrieval.py     #   375 review opinions BM25 retrieval + tag synonym expansion
+│   │   └── _security.py                  #   HMAC signing, AES-256-GCM, RBAC, RestrictedUnpickler
+│   │
+│   ├── gates/             (34)           # 33 fail-closed gates (standalone CLI, exit 0/2)
+│   │   ├── cohort_definition_gate.py     #   Layer 0: Cohort definition + codebook RAG validation
+│   │   ├── request_contract_gate.py      #   Layer 0: Request contract validation
+│   │   ├── manifest_lock.py              #   Layer 1: Evidence file integrity locking
+│   │   ├── execution_attestation_gate.py #   Layer 2: Execution proof signing
+│   │   ├── leakage_gate.py               #   Layer 3: Data leakage detection
+│   │   ├── split_protocol_gate.py        #   Layer 3: Split protocol validation
+│   │   ├── definition_variable_guard.py  #   Layer 4: Definition variable leakage guard
+│   │   ├── feature_lineage_gate.py       #   Layer 4: Feature lineage tracking
+│   │   ├── model_selection_audit_gate.py #   Layer 5: Model selection audit
+│   │   ├── calibration_dca_gate.py       #   Layer 6: Calibration + Decision Curve Analysis
+│   │   ├── fairness_equity_gate.py       #   Layer 6: Fairness + subgroup analysis
+│   │   ├── publication_gate.py           #   Layer 7: TRIPOD+AI / PROBAST+AI compliance
+│   │   ├── self_critique_gate.py         #   Layer 8: AI self-critique
+│   │   ├── security_audit_gate.py        #   Layer 8: Security audit
+│   │   └── ... (19 more gates)           #   Covers covariate shift, robustness, seed stability, etc.
+│   │
+│   ├── orchestration/     (8)            # Workflow orchestration
+│   │   ├── mlgg.py                       #   Unified CLI entry (20+ subcommands, state machine)
+│   │   ├── mlgg_onboarding.py            #   Project init + auto-detect data source/disease/codebook
+│   │   ├── mlgg_interactive.py           #   Interactive wizard (play mode)
+│   │   ├── mlgg_pixel.py                 #   Pixel-art terminal UI + i18n
+│   │   ├── run_dag_pipeline.py           #   Parallel DAG executor (checkpoint resume, layer-parallel)
+│   │   ├── run_productized_workflow.py   #   Production pipeline (doctor → preflight → strict → summary)
+│   │   └── run_endurance_test.py         #   Endurance benchmark runner
+│   │
+│   └── tools/             (42)           # Standalone tool scripts
+│       ├── train_select_evaluate.py      #   Training engine (20 model families, MICE/median, tuning)
+│       ├── split_data.py                 #   Patient-level safe splitting (group, temporal, stratified)
+│       ├── codebook_factory.py           #   Codebook unified factory (NHANES/UKB/BRFSS/MIMIC)
+│       ├── nhanes_codebook_lookup.py     #   NHANES 58K variable BM25 + trigram hybrid retrieval
+│       ├── ukb_codebook_lookup.py        #   UKB 12K field validation + temporal leakage detection
+│       ├── generate_audit_report.py      #   12-dimension quantitative audit report generator
+│       ├── audit_external_project.py     #   External project audit (code scan + gate execution)
+│       ├── export_latex.py               #   LaTeX/paper format export
+│       ├── visualize_results.py          #   Result visualization
+│       └── ... (33 more tools)           #   evidence_digest, compare_runs, policy_generator, etc.
+│
+├── tests/                  (117)         # ─── Tests (~30K lines) ───
+│   ├── conftest.py                       #   Shared fixtures (tmp_path, path injection, test data)
+│   ├── test_*_gate.py      (31)          #   One test file per gate
+│   ├── test_*_e2e.py       (8)           #   End-to-end flow tests (onboarding, workflow, train, split)
+│   ├── test_stress_*.py    (5)           #   Stress tests (audit chain, pipeline, numeric, security)
+│   ├── test_security*.py   (5)           #   Security + red team tests
+│   └── SKILL_RED_TEAM.md                 #   Red team attack scenario documentation
+│
+├── references/                           # ─── Knowledge Bases (8 domain subdirectories) ───
+│   ├── standards/          (6)           # Reporting standards
+│   │   ├── tripod-ai-official-checklist.json     # TRIPOD+AI 2024 (27 machine-verifiable items)
+│   │   ├── probast-ai-signalling-questions.json  # PROBAST+AI 2025 (4-domain bias assessment)
+│   │   ├── stard-ai-checklist.json               # STARD+AI diagnostic accuracy
+│   │   └── journal-rigor-standards.json          # 5 top-tier journal review standards
+│   │
+│   ├── methodology/        (5)           # Methodology knowledge
+│   │   ├── disease-definition-knowledge-base.json  # 11 diseases (ICD, labs, meds, UKB fields)
+│   │   ├── leakage-taxonomy.md                     # Kapoor 8-type leakage classification
+│   │   └── literature-knowledge-base.json          # 58 IF>10 literature citations
+│   │
+│   ├── codebooks/                        # Data dictionaries
+│   │   ├── nhanes/         (8+SQLite)    #   Harvard 58K vars + 202K codebook entries + BM25 index
+│   │   ├── ukb/            (12+SQLite)   #   UKB Data Showcase 12K fields + FTS5 full-text search
+│   │   └── dataset-codebook-registry.json  # Generic registry (BRFSS/NHIS/MIMIC)
+│   │
+│   ├── case-studies/                     # Peer review KB ("others review others" → structured KB)
+│   │   ├── peer-review-kb.json           #   375 structured review opinions (indexed by gate/dim/tag)
+│   │   ├── nature_communications/        #   107 NC paper review PDFs + parsed JSON
+│   │   └── <journal>/<disease>/          #   5 journals × 10 disease domains
+│   │
+│   ├── templates/          (28)          # JSON templates (request, split, evaluation, attestation...)
+│   ├── operations/         (12)          # Runtime KBs (107 error diagnoses, scoring, gate matrix)
+│   ├── protocols/          (16)          # Phase 1-9 rules + audit/blind-audit/sampling protocols
+│   └── docs/               (9)           # Architecture, API-Reference, Quickstart, Troubleshooting
+│
+├── plugin/                               # ─── Static Analysis Lint (independent sub-package) ───
+│   ├── mlgg_lint/          (9+29 rules)  # AST-level 27 leakage detection rules (R001-R027)
+│   │   └── rules/                        #   fit_before_split, smote_on_test, target_encoding_leak...
+│   ├── tests/              (5+60 samples)# good/bad samples + CLI/engine tests
+│   ├── vscode/             (4)           # VS Code extension
+│   └── pyproject.toml                    # Independent package config (pip install -e plugin/)
+│
+├── agents/                 (3)           # ─── Multi-Agent Configs ───
+│   ├── extractor.yaml                    #   Paper → metadata.json (Sonnet/Gemini/GPT-4o)
+│   ├── reviewer.yaml                     #   metadata → 12-dim review (Sonnet/Gemini/GPT-4o)
+│   └── README.md                         #   Agent role separation docs
+│
+├── examples/               (22)          # ─── Example Data + Project Templates ───
+│   ├── *.csv               (16)          #   16 medical datasets (526K+ rows, UCI/CDC/NHANES/NCI)
+│   ├── download_*.py       (4)           #   Data downloaders (real_data, cdc, nhanes, nci_gdc)
+│   ├── demo_diabetes130/                 #   Complete 9-phase reference implementation
+│   └── template/                         #   Reusable project scaffold (cp -r, then add your data)
+│
+├── papers/                               # ─── Paper Audit Library ("we review others") ───
+│   ├── README.md                         #   Metadata review methodology + 12-dim scoring standard
+│   ├── templates/                        #   paper_metadata_template.json
+│   └── <journal>/<disease>/<author>/     #   PDF + metadata.json + audit_output/
+│
+├── experiments/                          # ─── E2E Benchmark Suite ───
+│   └── authority-e2e/                    #   4 UCI dataset adversarial validation + benchmark matrix
+│
+├── .claude/                              # ─── Claude Code Configuration ───
+│   ├── commands/mlgg.md                  #   /mlgg skill definition (9-phase state machine)
+│   └── QUEUE_PROMPTS.md                  #   Prompt template library (66KB, gate review/dev tasks)
+│
+├── .github/workflows/      (5)          # ─── CI/CD ───
+│   ├── ci-unit.yml                       #   Fast unit tests (2-5 min)
+│   ├── ci-extended.yml                   #   Extended tests (30-45 min)
+│   ├── ci-full.yml                       #   Full tests + benchmarks (60+ min)
+│   ├── ci-overnight.yml                  #   Authority benchmarks + stress tests (overnight)
+│   └── ci-security.yml                   #   Security audit + red team + RBAC
+│
+└── ROOT FILES
+    ├── CLAUDE.md                         #   Agent operating protocol (reviewer role + safety bounds)
+    ├── SKILL.md                          #   /mlgg skill definition (9-phase methodology guide)
+    ├── pyproject.toml                    #   Package metadata + dependency declarations
+    ├── README.md / README_EN.md          #   Project documentation (Chinese / English)
+    ├── CONTRIBUTING.md                   #   Development standards
+    ├── CHANGELOG.md                      #   Version history
+    └── LICENSE                           #   PolyForm Noncommercial 1.0.0
 ```
+
+### Data Flow
+
+```
+User CSV ──→ /mlgg (orchestration)
+              │
+              ├─ Phase 1: cohort_definition_gate ←── codebooks/ (variable semantic validation)
+              ├─ Phase 2: split_data.py + split_protocol_gate
+              ├─ Phase 3-4: leakage/feature gates ←── methodology/ (leakage taxonomy)
+              ├─ Phase 5: train_select_evaluate.py + model gates
+              ├─ Phase 6: calibration/evaluation gates ←── standards/ (TRIPOD+AI)
+              ├─ Phase 7-8: SHAP/fairness gates
+              └─ Phase 9: publication_gate + self_critique_gate
+                            │
+                            ├─ evidence/ (JSON reports + HMAC audit chain)
+                            └─ case-studies/peer-review-kb.json (citing review opinions)
+```
+
+### Three Audit Paths
+
+| Path | Executor | Input | Output |
+|------|----------|-------|--------|
+| **A. Paper metadata review** | API agents (`agents/extractor.yaml` → `reviewer.yaml`) | Paper PDF | 12-dim score + Major/Minor/Questions |
+| **B. 33-gate full pipeline** | Claude Code (`/mlgg`) | User data + code | evidence/ reports + compliance cert |
+| **C. Static Lint scan** | Claude Code (`mlgg lint`) | Python source (.py/.ipynb) | R001-R027 leakage detection report |
 
 ---
 

@@ -1203,50 +1203,161 @@ python3 -m mlgg_lint /path/to/code/
 ## 项目结构
 
 ```
-scripts/
-  core/               框架内部模块
-    _gate_framework.py   报告信封 v2.0.0、严重度分级、CLI helpers
-    _gate_utils.py       共享数值工具、指标面板、校准、审计链
-    _gate_registry.py    33 门 DAG 依赖图与层级并行
-    _security.py         HMAC、AES-256-GCM、受限反序列化、路径穿越防御
-    _audit_shared.py     审计报告共享工具
-    _peer_review_retrieval.py   同行评审知识库检索
-  gates/              33 道 fail-closed 门控脚本
-  orchestration/      CLI 入口与管线运行器
-    mlgg.py              统一 CLI（20+ 子命令）
-    run_dag_pipeline.py  并行 DAG 执行器，支持断点续跑
-    run_strict_pipeline.py  顺序严格执行器
-    run_productized_workflow.py  doctor -> preflight -> strict -> summary
-    mlgg_onboarding.py   新手引导式入门
-    mlgg_interactive.py  交互式向导
-    mlgg_pixel.py        像素风终端 UI
-  tools/              报告、训练、划分、工具
-    train_select_evaluate.py  训练引擎（20 模型族, MICE/median 插补, Phase 0-12 标注）
-    nhanes_codebook_lookup.py  NHANES Codebook RAG（BM25 + trigram 混合检索）
-    split_data.py        安全数据划分（患者级隔离）
-    generate_audit_report.py  12 维审计报告生成器
-    audit_external_project.py  外部项目审计器
-    ...另外 32 个工具脚本
-tests/                117 个 pytest 模块（覆盖率 85%+，含 e2e/压力/红队测试）
-examples/             16 个医学数据集 + 4 个下载器 + 2 个项目模板（demo + template）
-references/           知识库（按领域组织）
-  standards/           报告标准（TRIPOD+AI 2024、PROBAST+AI 2025、STARD+AI、期刊要求）
-  methodology/         方法学知识（疾病定义 KB、泄漏分类、文献库）
-  codebooks/           数据字典（NHANES 58K 变量 + UKB 12K 字段 + 通用 registry）
-  case-studies/        审稿案例知识库（107 篇 NC 论文、375 个结构化审稿意见）
-  templates/           28 个 JSON 格式模板（request、split、evaluation 等）
-  operations/          运行时知识库（error-KB、scoring、gate-matrix）
-  protocols/           Phase 1-9 规则 + 审计/盲审/采样协议
-  docs/                开发者文档（Architecture、API-Reference、Quickstart）
-papers/               论文审查库（我们审别人：PDF + metadata + 12 维评分）
-agents/               多 Agent 配置（extractor + reviewer，支持 Anthropic/Google/OpenAI）
-experiments/          E2E 基准套件（4 个 UCI 数据集、对抗性检查）
-plugin/               静态分析 Lint（R001-R027，.py + .ipynb，独立子包）
-  mlgg_lint/rules/     27 条规则实现
-  vscode/              VS Code 插件
-.claude/              Claude Code skill 定义 + prompt 模板库
-.github/workflows/    CI/CD（单元/安全/每夜完整/每周扩展）
+medical-ml-governance-guard/
+│
+├── scripts/                              # ─── 核心代码 (91 files, ~70K lines) ───
+│   ├── core/              (7)            # 框架底座
+│   │   ├── _gate_framework.py            #   GateIssue/Severity、report envelope v2.0、CLI 契约
+│   │   ├── _gate_registry.py             #   33 gate DAG (8 层拓扑排序、依赖解析、并行标记)
+│   │   ├── _gate_utils.py                #   60+ 统计/IO/安全函数 (to_float, calibration, VIF, NRI...)
+│   │   ├── _audit_shared.py              #   12 维评分 + 12 代码反模式正则扫描
+│   │   ├── _peer_review_retrieval.py     #   375 条审稿意见 BM25 检索 + tag 同义词扩展
+│   │   └── _security.py                  #   HMAC 签名、AES-256-GCM 加密、RBAC、RestrictedUnpickler
+│   │
+│   ├── gates/             (34)           # 33 道 fail-closed 门控 (每个独立 CLI，exit 0/2)
+│   │   ├── cohort_definition_gate.py     #   Layer 0: 队列定义 + codebook RAG 验证
+│   │   ├── request_contract_gate.py      #   Layer 0: 请求契约验证
+│   │   ├── manifest_lock.py              #   Layer 1: 证据文件完整性锁定
+│   │   ├── execution_attestation_gate.py #   Layer 2: 执行证明签名
+│   │   ├── leakage_gate.py               #   Layer 3: 数据泄漏检测
+│   │   ├── split_protocol_gate.py        #   Layer 3: 数据划分协议
+│   │   ├── definition_variable_guard.py  #   Layer 4: 定义变量泄漏防护
+│   │   ├── feature_lineage_gate.py       #   Layer 4: 特征血统追踪
+│   │   ├── model_selection_audit_gate.py #   Layer 5: 模型选择审计
+│   │   ├── calibration_dca_gate.py       #   Layer 6: 校准 + 决策曲线分析
+│   │   ├── fairness_equity_gate.py       #   Layer 6: 公平性 + 亚组分析
+│   │   ├── publication_gate.py           #   Layer 7: TRIPOD+AI / PROBAST+AI 合规
+│   │   ├── self_critique_gate.py         #   Layer 8: AI 自我审查
+│   │   ├── security_audit_gate.py        #   Layer 8: 安全审计
+│   │   └── ... (19 more gates)           #   涵盖 covariate shift, robustness, seed stability 等
+│   │
+│   ├── orchestration/     (8)            # 工作流编排
+│   │   ├── mlgg.py                       #   统一 CLI 入口 (20+ 子命令, state machine)
+│   │   ├── mlgg_onboarding.py            #   项目初始化 + 自动检测数据源/疾病/codebook
+│   │   ├── mlgg_interactive.py           #   交互式向导 (play 模式)
+│   │   ├── mlgg_pixel.py                 #   像素风终端 UI + i18n
+│   │   ├── run_dag_pipeline.py           #   并行 DAG 执行器 (断点续跑, 层级并行)
+│   │   ├── run_productized_workflow.py   #   生产流水线 (doctor → preflight → strict → summary)
+│   │   └── run_endurance_test.py         #   耐久性基准测试
+│   │
+│   └── tools/             (42)           # 独立工具脚本
+│       ├── train_select_evaluate.py      #   训练引擎 (20 模型族, MICE/median 插补, 超参调优)
+│       ├── split_data.py                 #   患者级安全划分 (group split, temporal, stratified)
+│       ├── codebook_factory.py           #   Codebook 统一工厂 (NHANES/UKB/BRFSS/MIMIC)
+│       ├── nhanes_codebook_lookup.py     #   NHANES 58K 变量 BM25 + trigram 混合检索
+│       ├── ukb_codebook_lookup.py        #   UKB 12K 字段验证 + 时序泄漏检测
+│       ├── generate_audit_report.py      #   12 维量化审计报告生成器
+│       ├── audit_external_project.py     #   外部项目审计 (代码扫描 + gate 执行)
+│       ├── export_latex.py               #   LaTeX/论文格式导出
+│       ├── visualize_results.py          #   结果可视化
+│       └── ... (33 more tools)           #   evidence_digest, compare_runs, policy_generator 等
+│
+├── tests/                  (117)         # ─── 测试 (~30K lines) ───
+│   ├── conftest.py                       #   统一 fixture (tmp_path, 路径注入, 共享数据)
+│   ├── test_*_gate.py      (31)          #   每个 gate 对应一个测试文件
+│   ├── test_*_e2e.py       (8)           #   端到端流程测试 (onboarding, workflow, train, split)
+│   ├── test_stress_*.py    (5)           #   压力测试 (audit chain, pipeline, numeric, security)
+│   ├── test_security*.py   (5)           #   安全 + 红队测试
+│   └── SKILL_RED_TEAM.md                 #   红队攻击场景文档
+│
+├── references/                           # ─── 知识库 (8 个领域子目录) ───
+│   ├── standards/          (6)           # 报告标准
+│   │   ├── tripod-ai-official-checklist.json     # TRIPOD+AI 2024 (27 项机器可验证)
+│   │   ├── probast-ai-signalling-questions.json  # PROBAST+AI 2025 (4 域偏倚评估)
+│   │   ├── stard-ai-checklist.json               # STARD+AI 诊断准确性
+│   │   └── journal-rigor-standards.json          # 5 大期刊审稿标准
+│   │
+│   ├── methodology/        (5)           # 方法学知识
+│   │   ├── disease-definition-knowledge-base.json  # 11 种疾病定义 (ICD, 实验室, 药物, UKB 字段)
+│   │   ├── leakage-taxonomy.md                     # Kapoor 八型泄漏分类
+│   │   └── literature-knowledge-base.json          # 58 篇 IF>10 文献索引
+│   │
+│   ├── codebooks/                        # 数据字典
+│   │   ├── nhanes/         (8+SQLite)    #   Harvard 58K 变量 + 202K codebook entries + BM25 索引
+│   │   ├── ukb/            (12+SQLite)   #   UKB Data Showcase 12K 字段 + FTS5 全文检索
+│   │   └── dataset-codebook-registry.json  # 通用 registry (BRFSS/NHIS/MIMIC)
+│   │
+│   ├── case-studies/                     # 审稿案例知识库 ("别人审别人" → 结构化 KB)
+│   │   ├── peer-review-kb.json           #   375 条结构化审稿意见 (按 gate/dimension/tag 索引)
+│   │   ├── nature_communications/        #   107 篇 NC 论文审稿意见 PDF + parsed JSON
+│   │   └── <journal>/<disease>/          #   5 期刊 × 10 疾病领域的论文分析
+│   │
+│   ├── templates/          (28)          # JSON 模板 (request, split, evaluation, attestation...)
+│   ├── operations/         (12)          # 运行时 KB (error 诊断 107 条, 评分方法, gate 矩阵)
+│   ├── protocols/          (16)          # Phase 1-9 规则 + 审计/盲审/采样协议
+│   └── docs/               (9)           # Architecture, API-Reference, Quickstart, Troubleshooting
+│
+├── plugin/                               # ─── 静态分析 Lint (独立子包) ───
+│   ├── mlgg_lint/          (9+29 rules)  # AST 级 27 条泄漏检测规则 (R001-R027)
+│   │   └── rules/                        #   fit_before_split, smote_on_test, target_encoding_leak...
+│   ├── tests/              (5+60 samples)# good/bad 样本 + CLI/engine 测试
+│   ├── vscode/             (4)           # VS Code 扩展
+│   └── pyproject.toml                    # 独立包配置 (pip install -e plugin/)
+│
+├── agents/                 (3)           # ─── 多 Agent 配置 ───
+│   ├── extractor.yaml                    #   论文 → metadata.json (Sonnet/Gemini/GPT-4o)
+│   ├── reviewer.yaml                     #   metadata → 12 维评审 (Sonnet/Gemini/GPT-4o)
+│   └── README.md                         #   Agent 分工说明
+│
+├── examples/               (22)          # ─── 示例数据 + 项目模板 ───
+│   ├── *.csv               (16)          #   16 个医学数据集 (526K+ 行, UCI/CDC/NHANES/NCI)
+│   ├── download_*.py       (4)           #   数据下载器 (real_data, cdc, nhanes, nci_gdc)
+│   ├── demo_diabetes130/                 #   完整 9 阶段参考实现
+│   └── template/                         #   可复用项目脚手架 (cp -r 后填入数据)
+│
+├── papers/                               # ─── 论文审查库 ("我们审别人") ───
+│   ├── README.md                         #   元数据评审方法学 + 12 维评分标准
+│   ├── templates/                        #   paper_metadata_template.json
+│   └── <journal>/<disease>/<author>/     #   PDF + metadata.json + audit_output/
+│
+├── experiments/                          # ─── E2E 基准套件 ───
+│   └── authority-e2e/                    #   4 个 UCI 数据集对抗性验证 + 基准矩阵
+│
+├── .claude/                              # ─── Claude Code 配置 ───
+│   ├── commands/mlgg.md                  #   /mlgg skill 定义 (9 阶段 state machine)
+│   └── QUEUE_PROMPTS.md                  #   Prompt 模板库 (66KB, gate review/开发任务)
+│
+├── .github/workflows/      (5)          # ─── CI/CD ───
+│   ├── ci-unit.yml                       #   快速单元测试 (2-5 min)
+│   ├── ci-extended.yml                   #   扩展测试 (30-45 min)
+│   ├── ci-full.yml                       #   完整测试 + 基准 (60+ min)
+│   ├── ci-overnight.yml                  #   权威基准 + 压力测试 (overnight)
+│   └── ci-security.yml                   #   安全审计 + 红队 + RBAC
+│
+└── ROOT FILES
+    ├── CLAUDE.md                         #   Agent 操作协议 (审稿人角色 + 安全边界)
+    ├── SKILL.md                          #   /mlgg 技能定义 (9 阶段方法学指南)
+    ├── pyproject.toml                    #   包元数据 + 依赖声明
+    ├── README.md / README_EN.md          #   项目文档 (中/英双语)
+    ├── CONTRIBUTING.md                   #   开发规范
+    ├── CHANGELOG.md                      #   版本历史
+    └── LICENSE                           #   PolyForm Noncommercial 1.0.0
 ```
+
+### 数据流
+
+```
+用户 CSV ──→ /mlgg (orchestration)
+              │
+              ├─ Phase 1: cohort_definition_gate ←── codebooks/ (变量语义验证)
+              ├─ Phase 2: split_data.py + split_protocol_gate
+              ├─ Phase 3-4: leakage/feature gates ←── methodology/ (泄漏分类)
+              ├─ Phase 5: train_select_evaluate.py + model gates
+              ├─ Phase 6: calibration/evaluation gates ←── standards/ (TRIPOD+AI)
+              ├─ Phase 7-8: SHAP/fairness gates
+              └─ Phase 9: publication_gate + self_critique_gate
+                            │
+                            ├─ evidence/ (JSON 报告 + HMAC 审计链)
+                            └─ case-studies/peer-review-kb.json (引用审稿意见)
+```
+
+### 三条审查路径
+
+| 路径 | 执行者 | 输入 | 输出 |
+|------|--------|------|------|
+| **A. 论文元数据评审** | API agents (`agents/extractor.yaml` → `reviewer.yaml`) | 论文 PDF | 12 维评分 + Major/Minor/Questions |
+| **B. 33 Gate 全流程** | Claude Code (`/mlgg`) | 用户数据 + 代码 | evidence/ 报告 + 合规认证 |
+| **C. 静态 Lint 扫描** | Claude Code (`mlgg lint`) | Python 源码 (.py/.ipynb) | R001-R027 泄漏检测报告 |
 
 ---
 
