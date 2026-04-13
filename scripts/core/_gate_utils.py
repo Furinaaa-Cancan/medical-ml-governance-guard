@@ -445,6 +445,9 @@ def to_float(value: Any) -> Optional[float]:
         except ValueError:
             return None
         return parsed if math.isfinite(parsed) else None
+    # Reject bytes/bytearray (float(b"42") succeeds but is not intended).
+    if isinstance(value, (bytes, bytearray)):
+        return None
     # numpy scalar types (np.int64, np.float32, etc.) — not subclasses of
     # Python int/float since numpy 2.x.  Use duck-typing: if float()
     # succeeds and the result is finite, accept it.  Reject numpy bool_.
