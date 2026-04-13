@@ -851,12 +851,21 @@ class UKBCodebook:
         if not definition_set:
             return []
 
+        # Also collect self-report codes (Pomegranate-derived).
+        # Fields like 20002 (Non-cancer illness) are array fields where only
+        # specific coded values define the disease.  If a user includes the
+        # entire field as a feature, the model can see the disease code.
+        self_report_codes = disease_entry.get("ukb_self_report_codes", {})
+        self_report_field_ids = {int(k) for k in self_report_codes}
+
         issues: List[Dict[str, Any]] = []
         for col in column_names:
             parsed = parse_ukb_column(col)
             if not parsed:
                 continue
             fid = parsed[0]
+
+            # Check 1: Direct definition field match
             if str(fid) in definition_set or fid in definition_set:
                 conn = self._ensure_conn()
                 row = conn.execute(
@@ -875,6 +884,37 @@ class UKBCodebook:
                         "field_id": fid,
                         "target_disease": target_disease,
                         "source": "disease_kb_x_ukb_codebook",
+                    },
+                })
+
+            # Check 2: Self-report array field containing disease-specific codes
+            # (Pomegranate phenotyping: e.g., field 20002 code=1223 defines T2D)
+            elif fid in self_report_field_ids:
+                codes = self_report_codes[str(fid)]
+                code_strs = ", ".join(
+                    f"{c['code']}={c.get('desc', '?')}" for c in codes
+                )
+                conn = self._ensure_conn()
+                row = conn.execute(
+                    "SELECT title FROM fields WHERE field_id = ?", (fid,)
+                ).fetchone()
+                title = row["title"] if row else f"field {fid}"
+                issues.append({
+                    "code": "CODEBOOK_SELF_REPORT_LEAKAGE",
+                    "message": (
+                        f"Column '{col}' ({title}) is a self-report array field "
+                        f"that contains disease-defining codes for "
+                        f"'{target_disease}': [{code_strs}]. "
+                        f"If any array element holds these codes, the model can "
+                        f"directly observe the outcome. Exclude this field or "
+                        f"remove the specific codes before training."
+                    ),
+                    "details": {
+                        "column": col,
+                        "field_id": fid,
+                        "target_disease": target_disease,
+                        "disease_codes": codes,
+                        "source": "pomegranate_x_ukb_codebook",
                     },
                 })
 
