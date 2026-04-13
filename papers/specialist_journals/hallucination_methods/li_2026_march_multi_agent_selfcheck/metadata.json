@@ -1,0 +1,34 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "MARCH: Multi-Agent Reinforced Self-Check for LLM Hallucination",
+    "authors": ["Li Z", "Zhang Y", "Cheng P", "Song J", "Zhou M", "Li H", "Hu S", "Qin Y", "Zhao E", "Jiang X", "Jiang G"],
+    "journal": "arXiv",
+    "year": 2026,
+    "doi": "",
+    "pmid": "",
+    "arxiv_id": "2603.24579",
+    "url": "https://arxiv.org/abs/2603.24579",
+    "pdf_filename": "paper.pdf"
+  },
+  "topic": "multi_agent_hallucination_detection",
+  "relevance_to_mlgg": "Multi-agent architecture (Solver/Proposer/Checker) with deliberate information asymmetry. 8B model matches proprietary systems. Architecture pattern applicable to MLGG extraction verification.",
+  "key_methods": [
+    "Three-agent architecture: Solver, Proposer, Checker",
+    "Deliberate information asymmetry between agents",
+    "Decomposition into verifiable claims",
+    "Multi-agent reinforcement learning",
+    "Evidence-based proposition validation"
+  ],
+  "key_findings": [
+    "8B parameter model achieves performance comparable to proprietary systems",
+    "Information asymmetry forces evidence-grounded verification",
+    "Claim decomposition enables granular hallucination detection",
+    "Multi-agent RL training improves detection over time"
+  ],
+  "actionable_for_mlgg": [
+    "Decompose extraction results into verifiable claims (e.g., 'AUROC = 0.85 on test set')",
+    "Use separate verification agent to check claims against paper text",
+    "Information asymmetry: verifier sees only paper text, not extraction prompt"
+  ]
+}

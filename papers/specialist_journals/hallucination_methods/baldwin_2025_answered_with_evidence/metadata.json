@@ -1,0 +1,33 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "Introducing Answered with Evidence — a framework for evaluating whether LLM responses to biomedical questions are founded in evidence",
+    "authors": ["Baldwin JD", "Dinh C", "Mukerji A", "Sanghavi N", "Gombar S"],
+    "journal": "arXiv",
+    "year": 2025,
+    "doi": "",
+    "pmid": "",
+    "arxiv_id": "2507.02975",
+    "url": "https://arxiv.org/abs/2507.02975",
+    "pdf_filename": "paper.pdf"
+  },
+  "topic": "evidence_grounded_biomedical_qa",
+  "relevance_to_mlgg": "Framework for evaluating evidence-grounding of LLM biomedical answers. PubMed-based evidence retrieval methodology directly applicable to validating leakage_risk_assessment evidence quotes.",
+  "key_methods": [
+    "Evidence-grounding evaluation framework",
+    "PubMed-based retrieval augmentation",
+    "Alexandria custom evidence library",
+    "Multi-source evidence combination"
+  ],
+  "key_findings": [
+    "PubMed-based systems: ~44% evidence-supported answers",
+    "Custom evidence library (Alexandria): ~50% evidence-supported",
+    "Combined sources: >70% evidence coverage",
+    "Evidence grounding significantly improves answer reliability"
+  ],
+  "actionable_for_mlgg": [
+    "Validate *_evidence fields against PubMed source text",
+    "Combine PMC full-text + abstract for maximum grounding coverage",
+    "Measure evidence-support rate for extracted leakage_risk fields"
+  ]
+}
