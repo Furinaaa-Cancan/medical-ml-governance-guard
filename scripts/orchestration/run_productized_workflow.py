@@ -170,7 +170,10 @@ def main() -> int:
 
     def append_step(name: str, cmd: List[str]) -> Dict[str, Any]:
         if _interrupt_received:
-            step = {"step": name, "status": "skipped", "reason": "interrupt_received"}
+            step = {"name": name, "command": "", "exit_code": -1,
+                    "status": "skip", "execution_time_seconds": 0,
+                    "stdout_tail": "", "stderr_tail": "Skipped: interrupt received",
+                    "report_path": ""}
             steps.append(step)
             return step
         step = run_step(name, cmd)
