@@ -673,6 +673,122 @@ def merge_extraction(
 
 
 # ---------------------------------------------------------------------------
+# Post-extraction source-text verification (zero API cost)
+# ---------------------------------------------------------------------------
+
+def verify_numerics_in_source(result: ExtractionResult, paper_text: str) -> list[str]:
+    """Check that extracted numeric values actually appear in the paper text.
+
+    Searches for AUROC, sample sizes, and other key numbers via regex.
+    Returns list of warning strings for values NOT found in source.
+    """
+    import re
+
+    warnings: list[str] = []
+    text = paper_text.lower()
+
+    def _number_appears(value: float | int, label: str) -> None:
+        """Check if a number appears in the text in common formats."""
+        if value is None:
+            return
+        # Integer values: exact match
+        if isinstance(value, int) or (isinstance(value, float) and value == int(value) and value > 1):
+            int_val = int(value)
+            # Match the number with word boundaries (not part of a larger number)
+            patterns = [
+                rf'\b{int_val}\b',
+                rf'\b{int_val:,}\b'.replace(",", r"[,\s]"),  # with commas/spaces
+            ]
+            for pat in patterns:
+                if re.search(pat, text):
+                    return
+            warnings.append(f"SOURCE_TEXT_MISS: {label}={int_val} not found in paper text")
+            return
+
+        # Float values (0-1 range, like AUROC): try multiple formats
+        if isinstance(value, float) and 0 < value < 1:
+            fval = value
+            # Try: 0.72, .72, 72%, 0·72 (Lancet style)
+            s2 = f"{fval:.2f}"   # "0.72"
+            s3 = f"{fval:.3f}"   # "0.720"
+            pct = f"{fval * 100:.0f}%"   # "72%"
+            pct1 = f"{fval * 100:.1f}"   # "72.0"
+            dot_only = s2[1:]    # ".72"
+            lancet = s2.replace(".", "\u00b7")  # "0·72"
+            for candidate in (s2, s3, dot_only, pct, pct1, lancet):
+                if candidate.lower() in text:
+                    return
+            warnings.append(f"SOURCE_TEXT_MISS: {label}={fval} not found in paper text")
+
+    ds = result.dataset
+    pm = result.performance_metrics
+
+    _number_appears(ds.n_patients_total, "n_patients_total")
+    _number_appears(ds.n_events_positive, "n_events_positive")
+    _number_appears(ds.train_n, "train_n")
+    _number_appears(ds.test_n, "test_n")
+    _number_appears(pm.test_auroc, "test_auroc")
+    _number_appears(pm.test_auroc_ci_lower, "test_auroc_ci_lower")
+    _number_appears(pm.test_auroc_ci_upper, "test_auroc_ci_upper")
+    _number_appears(pm.external_auroc, "external_auroc")
+    _number_appears(pm.test_sensitivity, "test_sensitivity")
+    _number_appears(pm.test_specificity, "test_specificity")
+
+    return warnings
+
+
+def verify_evidence_quotes(result: ExtractionResult, paper_text: str, threshold: float = 0.6) -> list[str]:
+    """Check that *_evidence fields are actual quotes from the paper text.
+
+    Uses token-overlap similarity (Jaccard on word tokens) — no external deps.
+    Returns list of warning strings for evidence fields that don't match source.
+
+    Args:
+        result: The extraction result containing evidence fields.
+        paper_text: The assembled paper text to verify against.
+        threshold: Minimum Jaccard similarity to accept (0-1). Default 0.6.
+    """
+    warnings: list[str] = []
+    text_lower = paper_text.lower()
+    text_tokens = set(text_lower.split())
+
+    evidence_fields = [
+        ("patient_level_split_evidence", result.leakage_risk.patient_level_split_evidence),
+        ("temporal_split_evidence", result.leakage_risk.temporal_split_evidence),
+        ("preprocessing_evidence", result.leakage_risk.preprocessing_evidence),
+        ("tuning_evidence", result.leakage_risk.tuning_evidence),
+    ]
+
+    for field_name, quote in evidence_fields:
+        if not quote or len(quote.strip()) < 10:
+            continue
+
+        # Quick exact substring check first
+        if quote.lower().strip() in text_lower:
+            continue
+
+        # Token-overlap Jaccard similarity
+        quote_tokens = set(quote.lower().split())
+        if not quote_tokens:
+            continue
+
+        intersection = quote_tokens & text_tokens
+        union = quote_tokens | text_tokens
+        jaccard = len(intersection) / len(union) if union else 0.0
+
+        # Also compute recall: fraction of quote tokens found in text
+        recall = len(intersection) / len(quote_tokens) if quote_tokens else 0.0
+
+        if recall < threshold:
+            warnings.append(
+                f"EVIDENCE_MISMATCH: {field_name} — only {recall:.0%} of quote tokens "
+                f"found in paper text (threshold {threshold:.0%}). Possible fabrication."
+            )
+
+    return warnings
+
+
+# ---------------------------------------------------------------------------
 # Single paper processor
 # ---------------------------------------------------------------------------
 def process_paper(
@@ -712,6 +828,16 @@ def process_paper(
     result = extractor(paper_text, paper_dir.name)
     if result is None:
         return False
+
+    # Post-extraction source-text verification (zero API cost)
+    src_warnings = verify_numerics_in_source(result, paper_text)
+    src_warnings += verify_evidence_quotes(result, paper_text)
+    if src_warnings:
+        combined = " | ".join(src_warnings)
+        log.warning("  Source verification: %s", combined)
+        current_notes = result.extraction_notes
+        object.__setattr__(result, "extraction_notes", current_notes + " | " + combined)
+        result._validation_warnings.extend(src_warnings)
 
     merged = merge_extraction(metadata, result, force=force)
 

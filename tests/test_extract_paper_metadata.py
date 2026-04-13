@@ -518,3 +518,140 @@ class TestExtractPmcSections:
         xml = b"""<article><body><sec><title>Unusual Title</title><p>%s</p></sec></body></article>""" % (b"Z " * 200)
         result = _extract_pmc_sections(xml)
         assert len(result) > 0  # should fall back to body text
+
+
+# ---------------------------------------------------------------------------
+# Source-text verification (P1 — zero-cost hallucination checks)
+# ---------------------------------------------------------------------------
+
+@pytest.mark.skipif(not _HAS_PYDANTIC, reason="pydantic not installed")
+class TestVerifyNumericsInSource:
+    """verify_numerics_in_source catches fabricated numbers."""
+
+    def _make_result(self, **overrides):
+        ds_kw = overrides.pop("dataset", {})
+        pm_kw = overrides.pop("performance_metrics", {})
+        return ExtractionResult(
+            study_design=StudyDesignOut(),
+            dataset=DatasetOut(**ds_kw),
+            model=ModelOut(),
+            performance_metrics=PerformanceMetricsOut(**pm_kw),
+            reporting_standards=ReportingStandardsOut(),
+            leakage_risk=LeakageRiskOut(),
+            extraction_confidence="high",
+            extraction_notes="test",
+            **overrides,
+        )
+
+    def test_all_numbers_present(self):
+        from extract_paper_metadata import verify_numerics_in_source
+        result = self._make_result(
+            dataset={"n_patients_total": 5000, "train_n": 3500, "test_n": 1500},
+            performance_metrics={"test_auroc": 0.85, "test_sensitivity": 0.72},
+        )
+        text = "We enrolled 5000 patients. Training set: 3500, test set: 1500. AUROC 0.85, sensitivity 0.72."
+        warnings = verify_numerics_in_source(result, text)
+        assert warnings == []
+
+    def test_missing_auroc_flagged(self):
+        from extract_paper_metadata import verify_numerics_in_source
+        result = self._make_result(
+            performance_metrics={"test_auroc": 0.91},
+        )
+        text = "The model achieved an AUROC of 0.85 on the test set."
+        warnings = verify_numerics_in_source(result, text)
+        assert any("test_auroc" in w for w in warnings)
+
+    def test_missing_sample_size_flagged(self):
+        from extract_paper_metadata import verify_numerics_in_source
+        result = self._make_result(
+            dataset={"n_patients_total": 12345},
+        )
+        text = "We used data from 10000 patients."
+        warnings = verify_numerics_in_source(result, text)
+        assert any("n_patients_total" in w for w in warnings)
+
+    def test_percentage_format_accepted(self):
+        from extract_paper_metadata import verify_numerics_in_source
+        result = self._make_result(
+            performance_metrics={"test_auroc": 0.85},
+        )
+        text = "The model achieved 85% accuracy."
+        warnings = verify_numerics_in_source(result, text)
+        assert not any("test_auroc" in w for w in warnings)
+
+    def test_comma_separated_number(self):
+        from extract_paper_metadata import verify_numerics_in_source
+        result = self._make_result(
+            dataset={"n_patients_total": 101766},
+        )
+        text = "We included 101,766 patients in the study."
+        warnings = verify_numerics_in_source(result, text)
+        assert not any("n_patients_total" in w for w in warnings)
+
+    def test_null_values_skipped(self):
+        from extract_paper_metadata import verify_numerics_in_source
+        result = self._make_result()  # all None
+        warnings = verify_numerics_in_source(result, "Some paper text")
+        assert warnings == []
+
+
+@pytest.mark.skipif(not _HAS_PYDANTIC, reason="pydantic not installed")
+class TestVerifyEvidenceQuotes:
+    """verify_evidence_quotes catches fabricated evidence quotes."""
+
+    def _make_result(self, **leak_kw):
+        return ExtractionResult(
+            study_design=StudyDesignOut(),
+            dataset=DatasetOut(),
+            model=ModelOut(),
+            performance_metrics=PerformanceMetricsOut(),
+            reporting_standards=ReportingStandardsOut(),
+            leakage_risk=LeakageRiskOut(**leak_kw),
+            extraction_confidence="high",
+            extraction_notes="test",
+        )
+
+    def test_exact_quote_passes(self):
+        from extract_paper_metadata import verify_evidence_quotes
+        paper_text = "We ensured all records from the same patient were assigned to the same fold."
+        result = self._make_result(
+            patient_level_split_confirmed=True,
+            patient_level_split_evidence="all records from the same patient were assigned to the same fold",
+        )
+        warnings = verify_evidence_quotes(result, paper_text)
+        assert warnings == []
+
+    def test_fabricated_quote_flagged(self):
+        from extract_paper_metadata import verify_evidence_quotes
+        paper_text = "We used a random 80/20 split for training and testing."
+        result = self._make_result(
+            patient_level_split_confirmed=True,
+            patient_level_split_evidence="Patient-level clustering was applied using hierarchical grouping to prevent data leakage across folds",
+        )
+        warnings = verify_evidence_quotes(result, paper_text)
+        assert any("EVIDENCE_MISMATCH" in w and "patient_level_split_evidence" in w for w in warnings)
+
+    def test_partial_overlap_below_threshold(self):
+        from extract_paper_metadata import verify_evidence_quotes
+        paper_text = "Data was split randomly into training and test sets."
+        result = self._make_result(
+            temporal_split_confirmed=True,
+            temporal_split_evidence="Data was split temporally using calendar year cutoffs to ensure prospective validation",
+        )
+        warnings = verify_evidence_quotes(result, paper_text, threshold=0.6)
+        assert any("EVIDENCE_MISMATCH" in w for w in warnings)
+
+    def test_none_evidence_skipped(self):
+        from extract_paper_metadata import verify_evidence_quotes
+        result = self._make_result()  # all evidence fields None
+        warnings = verify_evidence_quotes(result, "Some paper text")
+        assert warnings == []
+
+    def test_short_evidence_skipped(self):
+        from extract_paper_metadata import verify_evidence_quotes
+        result = self._make_result(
+            patient_level_split_evidence="yes",  # too short (<10 chars)
+        )
+        warnings = verify_evidence_quotes(result, "Some paper text")
+        assert warnings == []
