@@ -57,6 +57,14 @@ class GateSpec:
     # Maps: request_field_name -> CLI_flag
     request_inputs: Dict[str, str] = field(default_factory=dict)
 
+    # Maps: request_field_name -> CLI_flag for string value arguments
+    # (as opposed to request_inputs which are file paths).
+    # e.g. {"label_col": "--target-col", "patient_id_col": "--id-col"}
+    value_inputs: Dict[str, str] = field(default_factory=dict)
+
+    # Whether this gate needs --train/--valid/--test split file arguments.
+    requires_splits: bool = False
+
     # CLI argument names that accept other gate report paths.
     # Maps: dependency_gate_name -> CLI_flag
     report_inputs: Dict[str, str] = field(default_factory=dict)
@@ -100,6 +108,7 @@ _register(GateSpec(
     description="Phase 1: Cohort definition, EPV adequacy, data type detection, missingness profile.",
     depends_on=frozenset(),
     request_inputs={"data_file": "--data"},
+    value_inputs={"label_col": "--target-col", "patient_id_col": "--id-col"},
     report_output="cohort_definition_report.json",
     category="data",
     aggregation_flag="--cohort-definition-report",
@@ -141,6 +150,7 @@ _register(GateSpec(
         "execution_attestation_spec": "--attestation-spec",
         "evaluation_report_file": "--evaluation-report",
     },
+    value_inputs={"study_id": "--study-id", "run_id": "--run-id"},
     report_output="execution_attestation_report.json",
     category="integrity",
     aggregation_flag="--execution-attestation-report",
@@ -154,6 +164,8 @@ _register(GateSpec(
     layer=GateLayer.DATA_VALIDATION,
     description="Detect patient ID leakage, temporal leakage, and row-hash overlap across splits.",
     depends_on=frozenset({"request_contract_gate"}),
+    value_inputs={"patient_id_col": "--id-cols", "index_time_col": "--time-col", "label_col": "--target-col"},
+    requires_splits=True,
     report_output="leakage_report.json",
     category="data_integrity",
     aggregation_flag="--leakage-report",
@@ -166,6 +178,8 @@ _register(GateSpec(
     description="Verify split protocol compliance: stratification, temporal ordering, size requirements.",
     depends_on=frozenset({"request_contract_gate"}),
     request_inputs={"split_protocol_spec": "--protocol-spec"},
+    value_inputs={"patient_id_col": "--id-col", "index_time_col": "--time-col", "label_col": "--target-col"},
+    requires_splits=True,
     report_output="split_protocol_report.json",
     category="data_integrity",
     aggregation_flag="--split-protocol-report",
@@ -177,6 +191,8 @@ _register(GateSpec(
     layer=GateLayer.DATA_VALIDATION,
     description="Detect covariate distribution shift between training and evaluation splits.",
     depends_on=frozenset({"request_contract_gate"}),
+    value_inputs={"label_col": "--target-col"},
+    requires_splits=True,
     report_output="covariate_shift_report.json",
     category="data_integrity",
     aggregation_flag="--covariate-shift-report",
@@ -203,6 +219,8 @@ _register(GateSpec(
     description="Verify phenotype definition variables against training data columns.",
     depends_on=frozenset({"request_contract_gate", "split_protocol_gate"}),
     request_inputs={"phenotype_definition_spec": "--definition-spec"},
+    value_inputs={"target_name": "--target", "label_col": "--target-col"},
+    requires_splits=True,
     report_output="definition_guard_report.json",
     category="data_integrity",
     aggregation_flag="--definition-report",
@@ -218,6 +236,8 @@ _register(GateSpec(
         "phenotype_definition_spec": "--definition-spec",
         "feature_lineage_spec": "--lineage-spec",
     },
+    value_inputs={"target_name": "--target", "label_col": "--target-col"},
+    requires_splits=True,
     report_output="lineage_report.json",
     category="data_integrity",
     aggregation_flag="--lineage-report",
@@ -233,6 +253,8 @@ _register(GateSpec(
         "imbalance_policy_spec": "--policy-spec",
         "evaluation_report_file": "--evaluation-report",
     },
+    value_inputs={"label_col": "--target-col"},
+    requires_splits=True,
     report_output="imbalance_policy_report.json",
     category="policy",
     aggregation_flag="--imbalance-report",
@@ -248,6 +270,8 @@ _register(GateSpec(
         "missingness_policy_spec": "--policy-spec",
         "evaluation_report_file": "--evaluation-report",
     },
+    value_inputs={"label_col": "--target-col"},
+    requires_splits=True,
     report_output="missingness_policy_report.json",
     category="policy",
     aggregation_flag="--missingness-report",
@@ -260,6 +284,7 @@ _register(GateSpec(
     description="Verify hyperparameter tuning protocol does not leak test data.",
     depends_on=frozenset({"request_contract_gate", "split_protocol_gate"}),
     request_inputs={"tuning_protocol_spec": "--tuning-spec"},
+    value_inputs={"patient_id_col": "--id-col"},
     report_output="tuning_leakage_report.json",
     category="data_integrity",
     aggregation_flag="--tuning-report",
@@ -277,6 +302,8 @@ _register(GateSpec(
         "model_selection_report_file": "--model-selection-report",
         "tuning_protocol_spec": "--tuning-spec",
     },
+    value_inputs={"primary_metric": "--expected-primary-metric"},
+    requires_splits=True,
     report_output="model_selection_audit_report.json",
     category="model",
     aggregation_flag="--model-selection-audit-report",
@@ -325,6 +352,7 @@ _register(GateSpec(
         "model_pool_file": "--model-pool",
         "feature_lineage_spec": "--feature-lineage-spec",
     },
+    value_inputs={"label_col": "--target-col"},
     report_output="shap_interpretability_report.json",
     category="model",
     aggregation_flag="--shap-interpretability-report",
@@ -361,6 +389,8 @@ _register(GateSpec(
         "performance_policy_spec": "--performance-policy",
         "distribution_report_file": "--distribution-report",
     },
+    value_inputs={"label_col": "--target-col"},
+    requires_splits=True,
     report_output="distribution_generalization_report.json",
     category="generalization",
     aggregation_flag="--distribution-generalization-report",
@@ -472,6 +502,7 @@ _register(GateSpec(
     request_inputs={
         "evaluation_report_file": "--evaluation-report",
     },
+    value_inputs={"primary_metric": "--metric-name", "actual_primary_metric": "--expected"},
     report_output="metric_consistency_report.json",
     category="performance",
     aggregation_flag="--metric-report",
@@ -487,6 +518,7 @@ _register(GateSpec(
         "evaluation_report_file": "--evaluation-report",
         "ci_matrix_report_file": "--ci-matrix-report",
     },
+    value_inputs={"primary_metric": "--metric-name", "actual_primary_metric": "--primary-metric"},
     report_output="evaluation_quality_report.json",
     category="performance",
     aggregation_flag="--evaluation-quality-report",
@@ -501,6 +533,7 @@ _register(GateSpec(
     request_inputs={
         "permutation_null_metrics_file": "--null-metrics-file",
     },
+    value_inputs={"primary_metric": "--metric-name", "actual_primary_metric": "--actual"},
     report_output="permutation_report.json",
     category="performance",
     aggregation_flag="--permutation-report",

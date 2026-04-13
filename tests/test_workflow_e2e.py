@@ -30,8 +30,9 @@ def _run_workflow(request_path: Path, evidence_dir: Path, report_path: Path,
                           cwd=str(REPO_ROOT))
 
 
-class TestWorkflowRequiresStrict:
-    def test_no_strict_fails(self, tmp_path: Path):
+class TestWorkflowDefaultStrict:
+    def test_default_strict_runs(self, tmp_path: Path):
+        """--strict is now the default; workflow proceeds without explicit flag."""
         req = tmp_path / "request.json"
         req.write_text("{}", encoding="utf-8")
         cmd = [
@@ -39,8 +40,9 @@ class TestWorkflowRequiresStrict:
             "--request", str(req),
         ]
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        # May fail on missing split_paths, but not on missing --strict
         assert result.returncode == 2
-        assert "strict" in result.stderr.lower()
+        assert "strict" not in result.stderr.lower() or "split_paths" in result.stderr.lower()
 
 
 class TestWorkflowMissingRequest:

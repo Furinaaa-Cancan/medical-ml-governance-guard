@@ -40,17 +40,27 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--evidence-dir", default="evidence", help="Evidence output directory.")
     parser.add_argument("--compare-manifest", help="Optional manifest baseline for strict pipeline.")
     parser.add_argument("--allow-missing-compare", action="store_true", help="Allow bootstrap run without baseline compare.")
-    parser.add_argument("--strict", action="store_true", help="Run strict pipeline (required for publication-grade).")
+    parser.add_argument(
+        "--strict", action="store_true", default=True,
+        help="Run strict pipeline (default: True for publication-grade).",
+    )
+    parser.add_argument(
+        "--no-strict", dest="strict", action="store_false",
+        help="Run in exploratory mode (warnings not promoted to failures).",
+    )
     parser.add_argument("--continue-on-fail", action="store_true", help="Pass through to strict pipeline diagnostic mode.")
     parser.add_argument("--python", default=sys.executable, help="Python executable for child scripts.")
     parser.add_argument("--report", help="Optional summary JSON report path for this wrapper.")
     return parser.parse_args()
 
 
-_STEP_TIMEOUT = max(60, min(
-    int(os.environ.get("MLGG_SUBPROCESS_TIMEOUT", "3600")),
-    86400,
-))
+try:
+    _STEP_TIMEOUT = max(60, min(
+        int(os.environ.get("MLGG_SUBPROCESS_TIMEOUT", "3600")),
+        86400,
+    ))
+except (ValueError, TypeError):
+    _STEP_TIMEOUT = 3600
 
 
 def run_step(name: str, cmd: List[str], *, _check_interrupt: Any = None) -> Dict[str, Any]:
@@ -105,10 +115,10 @@ def main() -> int:
     args = parse_args()
     if not bool(args.strict):
         print(
-            "[FAIL] run_productized_workflow.py requires --strict for publication-grade workflow.",
+            "[INFO] Running productized workflow in exploratory mode (--no-strict). "
+            "Publication eligibility requires --strict (default).",
             file=sys.stderr,
         )
-        return 2
 
     # Graceful shutdown on SIGINT/SIGTERM
     _interrupt_received = False
@@ -212,8 +222,11 @@ def main() -> int:
         str(request_path),
         "--evidence-dir",
         str(evidence_dir),
-        "--strict",
     ]
+    if args.strict:
+        dag_cmd.append("--strict")
+    else:
+        dag_cmd.append("--no-strict")
     if args.compare_manifest:
         dag_cmd.extend(["--compare-manifest", str(resolve_path(project_base, args.compare_manifest))])
     if args.allow_missing_compare:
@@ -259,7 +272,7 @@ def main() -> int:
                 str(request_path),
                 "--evidence-dir",
                 str(evidence_dir),
-                "--strict",
+                "--strict" if args.strict else "--no-strict",
                 "--compare-manifest",
                 str(bootstrap_baseline_path),
             ]

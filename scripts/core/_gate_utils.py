@@ -2558,75 +2558,77 @@ def append_audit_entry(
     log_path = evidence_dir / _AUDIT_LOG_NAME
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Read last chain hash — seek to end of file to avoid loading everything
-    prev_hash = "0" * 64
-    if log_path.exists():
-        try:
-            with log_path.open("rb") as fh:
-                fh.seek(0, 2)  # seek to end
-                pos = fh.tell()
-                if pos > 0:
-                    # Read progressively larger chunks until we find a
-                    # complete JSON line (one that parses successfully).
-                    for chunk_size in (8192, 65536, 524288, pos):
-                        chunk_size = min(chunk_size, pos)
-                        fh.seek(pos - chunk_size)
-                        raw = fh.read(chunk_size)
-                        try:
-                            tail = raw.decode("utf-8")
-                        except UnicodeDecodeError:
-                            continue
-                        # Walk lines from end to find last parseable JSON
-                        for candidate in reversed(tail.strip().splitlines()):
-                            candidate = candidate.strip()
-                            if not candidate:
-                                continue
+    # Use fcntl advisory lock to cover the entire read-hash → compute → append
+    # sequence, preventing parallel subprocesses from computing identical
+    # predecessor hashes (which would break verify_audit_chain).
+    _lock_fh = None
+    try:
+        import fcntl
+        _lock_fh = log_path.with_suffix(".lock").open("w")
+        fcntl.flock(_lock_fh.fileno(), fcntl.LOCK_EX)
+    except (ImportError, OSError):
+        _lock_fh = None  # fcntl unavailable (Windows) — fall back to best-effort
+
+    try:
+        # Read last chain hash — seek to end of file to avoid loading everything
+        prev_hash = "0" * 64
+        if log_path.exists():
+            try:
+                with log_path.open("rb") as fh:
+                    fh.seek(0, 2)  # seek to end
+                    pos = fh.tell()
+                    if pos > 0:
+                        for chunk_size in (8192, 65536, 524288, pos):
+                            chunk_size = min(chunk_size, pos)
+                            fh.seek(pos - chunk_size)
+                            raw = fh.read(chunk_size)
                             try:
-                                last = json.loads(candidate)
-                                prev_hash = last.get("chain_hash", prev_hash)
-                                break
-                            except json.JSONDecodeError:
-                                continue  # Partial line, try next
-                        else:
-                            continue  # No valid line in this chunk
-                        break  # Found a valid line
-        except (json.JSONDecodeError, OSError, KeyError):
-            pass
+                                tail = raw.decode("utf-8")
+                            except UnicodeDecodeError:
+                                continue
+                            for candidate in reversed(tail.strip().splitlines()):
+                                candidate = candidate.strip()
+                                if not candidate:
+                                    continue
+                                try:
+                                    last = json.loads(candidate)
+                                    prev_hash = last.get("chain_hash", prev_hash)
+                                    break
+                                except json.JSONDecodeError:
+                                    continue
+                            else:
+                                continue
+                            break
+            except (json.JSONDecodeError, OSError, KeyError):
+                pass
 
-    entry: Dict[str, Any] = {
-        "timestamp_utc": _dt.datetime.now(_dt.timezone.utc).isoformat(),
-        "gate_name": gate_name,
-        "status": status,
-        "failure_count": failure_count,
-        "warning_count": warning_count,
-        "execution_time_seconds": round(execution_time, 3),
-        "pid": os.getpid(),
-        "hostname": platform.node(),
-    }
-    if extra:
-        entry["extra"] = extra
+        entry: Dict[str, Any] = {
+            "timestamp_utc": _dt.datetime.now(_dt.timezone.utc).isoformat(),
+            "gate_name": gate_name,
+            "status": status,
+            "failure_count": failure_count,
+            "warning_count": warning_count,
+            "execution_time_seconds": round(execution_time, 3),
+            "pid": os.getpid(),
+            "hostname": platform.node(),
+        }
+        if extra:
+            entry["extra"] = extra
 
-    entry_json = json.dumps(entry, ensure_ascii=True, sort_keys=True)
-    entry["chain_hash"] = _hmac_chain(prev_hash, entry_json)
-    # Re-serialize only once (entry now includes chain_hash)
-    final_line = json.dumps(entry, ensure_ascii=True, sort_keys=True)
+        entry_json = json.dumps(entry, ensure_ascii=True, sort_keys=True)
+        entry["chain_hash"] = _hmac_chain(prev_hash, entry_json)
+        final_line = json.dumps(entry, ensure_ascii=True, sort_keys=True)
 
-    with log_path.open("a", encoding="utf-8") as fh:
-        # Use fcntl advisory lock to prevent interleaved writes when
-        # parallel gate subprocesses append concurrently (M1 fix).
-        try:
-            import fcntl
-            fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
-        except (ImportError, OSError):
-            pass  # fcntl unavailable (Windows) — fall back to best-effort
-        try:
+        with log_path.open("a", encoding="utf-8") as fh:
             fh.write(final_line + "\n")
             fh.flush()
             os.fsync(fh.fileno())
-        finally:
+    finally:
+        if _lock_fh is not None:
             try:
                 import fcntl
-                fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
+                fcntl.flock(_lock_fh.fileno(), fcntl.LOCK_UN)
+                _lock_fh.close()
             except (ImportError, OSError):
                 pass
 

@@ -100,7 +100,14 @@ Examples:
         "--evidence-dir", default="evidence",
         help="Directory for gate artifacts and reports (default: evidence).",
     )
-    run_group.add_argument("--strict", action="store_true", help="Run all gates in strict mode.")
+    run_group.add_argument(
+        "--strict", action="store_true", default=True,
+        help="Run all gates in strict mode (default: True for publication-grade).",
+    )
+    run_group.add_argument(
+        "--no-strict", dest="strict", action="store_false",
+        help="Run in exploratory mode: warnings stay as warnings, not promoted to failures.",
+    )
     run_group.add_argument(
         "--python", default=sys.executable,
         help="Python executable for running gate scripts.",
@@ -214,10 +221,13 @@ def save_checkpoint(evidence_dir: Path, state: Dict[str, Any]) -> None:
 # Gate execution
 # ---------------------------------------------------------------------------
 
-_SUBPROCESS_TIMEOUT = max(60, min(
-    int(os.environ.get("MLGG_SUBPROCESS_TIMEOUT", "3600")),
-    86400,
-))
+try:
+    _SUBPROCESS_TIMEOUT = max(60, min(
+        int(os.environ.get("MLGG_SUBPROCESS_TIMEOUT", "3600")),
+        86400,
+    ))
+except (ValueError, TypeError):
+    _SUBPROCESS_TIMEOUT = 3600
 
 
 def run_gate_subprocess(
@@ -316,15 +326,8 @@ def _build_standard_gate_cmd(
     """Build CLI args for a standard validation gate."""
     cmd: List[str] = []
 
-    # Split file arguments (common across many gates)
-    needs_splits = {
-        "leakage_gate", "split_protocol_gate", "covariate_shift_gate",
-        "definition_variable_guard", "feature_lineage_gate",
-        "imbalance_policy_gate", "missingness_policy_gate",
-        "distribution_generalization_gate", "model_selection_audit_gate",
-    }
-
-    if spec.name in needs_splits:
+    # Split file arguments (declared in GateSpec.requires_splits)
+    if spec.requires_splits:
         if split_paths.get("train"):
             cmd.extend(["--train", split_paths["train"]])
         if split_paths.get("valid"):
@@ -332,8 +335,14 @@ def _build_standard_gate_cmd(
         if split_paths.get("test"):
             cmd.extend(["--test", split_paths["test"]])
 
-    # Gate-specific request input mappings
+    # File path inputs from normalized request
     for req_field, cli_flag in spec.request_inputs.items():
+        value = normalized.get(req_field)
+        if value is not None:
+            cmd.extend([cli_flag, str(value)])
+
+    # String value inputs from normalized request
+    for req_field, cli_flag in spec.value_inputs.items():
         value = normalized.get(req_field)
         if value is not None:
             cmd.extend([cli_flag, str(value)])
@@ -343,7 +352,7 @@ def _build_standard_gate_cmd(
         if dep_gate in report_paths:
             cmd.extend([cli_flag, str(report_paths[dep_gate])])
 
-    # Gate-specific extra arguments
+    # Gate-specific extra arguments (composite/conditional only)
     cmd.extend(_gate_specific_extras(spec.name, normalized, split_paths, evidence_dir=evidence_dir))
 
     return cmd
@@ -355,78 +364,43 @@ def _gate_specific_extras(
     split_paths: Dict[str, str],
     evidence_dir: Optional[Path] = None,
 ) -> List[str]:
-    """Return gate-specific CLI arguments not covered by spec mappings."""
+    """Return gate-specific CLI arguments that require composite or conditional logic.
+
+    Simple field→flag mappings are handled by GateSpec.value_inputs in the
+    registry. This function only covers cases that need string concatenation,
+    conditional presence, or nested field access.
+    """
     extras: List[str] = []
     id_col = str(normalized.get("patient_id_col", ""))
     time_col = str(normalized.get("index_time_col", ""))
-    label_col = str(normalized.get("label_col", ""))
-    target_name = str(normalized.get("target_name", ""))
-    metric_name = str(normalized.get("primary_metric", ""))
-    study_id = str(normalized.get("study_id", ""))
-    run_id = str(normalized.get("run_id", ""))
     valid = split_paths.get("valid", "")
 
+    # Composite --ignore-cols (id_col + time_col concatenation)
+    _ignore_cols_gates = {
+        "covariate_shift_gate", "definition_variable_guard",
+        "feature_lineage_gate", "missingness_policy_gate",
+        "distribution_generalization_gate",
+    }
+    if gate_name in _ignore_cols_gates:
+        extras.extend(["--ignore-cols", f"{id_col},{time_col}"])
+
     if gate_name == "cohort_definition_gate":
-        # cohort_definition_gate expects --data (raw CSV or train split)
-        # and --target-col. Use train split as input data.
+        # Use train split as input data (not a request field mapping)
         data = split_paths.get("train", "")
         if data:
             extras.extend(["--data", data])
-        extras.extend(["--target-col", label_col])
-        if id_col:
-            extras.extend(["--id-col", id_col])
-
-    elif gate_name == "leakage_gate":
-        extras.extend(["--id-cols", id_col, "--time-col", time_col, "--target-col", label_col])
-
-    elif gate_name == "split_protocol_gate":
-        extras.extend(["--id-col", id_col, "--time-col", time_col, "--target-col", label_col])
-
-    elif gate_name == "covariate_shift_gate":
-        extras.extend(["--target-col", label_col, "--ignore-cols", f"{id_col},{time_col}"])
-
-    elif gate_name == "definition_variable_guard":
-        extras.extend([
-            "--target", target_name, "--target-col", label_col,
-            "--ignore-cols", f"{id_col},{time_col}",
-        ])
-
-    elif gate_name == "feature_lineage_gate":
-        extras.extend([
-            "--target", target_name, "--target-col", label_col,
-            "--ignore-cols", f"{id_col},{time_col}",
-        ])
-
-    elif gate_name == "imbalance_policy_gate":
-        extras.extend(["--target-col", label_col])
 
     elif gate_name == "missingness_policy_gate":
-        extras.extend(["--target-col", label_col, "--ignore-cols", f"{id_col},{time_col}"])
-        # Pass cohort_definition_gate report if available — enables
-        # codebook-confirmed MNAR to skip statistical mechanism tests.
+        # Pass cohort report if available for codebook-confirmed MNAR
         _cohort_rpt = evidence_dir / "cohort_definition_report.json" if evidence_dir else None
         if _cohort_rpt is not None and _cohort_rpt.is_file():
             extras.extend(["--cohort-report", str(_cohort_rpt)])
 
     elif gate_name == "tuning_leakage_gate":
-        extras.extend(["--id-col", id_col])
         if valid:
             extras.append("--has-valid-split")
 
-    elif gate_name == "model_selection_audit_gate":
-        extras.extend(["--expected-primary-metric", metric_name])
-
-    elif gate_name == "distribution_generalization_gate":
-        extras.extend([
-            "--target-col", label_col,
-            "--ignore-cols", f"{id_col},{time_col}",
-        ])
-
-    elif gate_name == "execution_attestation_gate":
-        extras.extend(["--study-id", study_id, "--run-id", run_id])
-
     elif gate_name == "shap_interpretability_gate":
-        extras.extend(["--target-col", label_col])
         if split_paths.get("train"):
             extras.extend(["--train-data", split_paths["train"]])
         if split_paths.get("test"):
@@ -436,11 +410,7 @@ def _gate_specific_extras(
             extras.extend(["--prediction-trace", prediction_trace])
 
     elif gate_name == "metric_consistency_gate":
-        extras.extend([
-            "--required-evaluation-split", "test",
-            "--metric-name", metric_name,
-            "--expected", str(normalized.get("actual_primary_metric", "")),
-        ])
+        extras.extend(["--required-evaluation-split", "test"])
         eval_metric_path = normalized.get("evaluation_metric_path")
         if isinstance(eval_metric_path, str) and eval_metric_path:
             extras.extend(["--metric-path", eval_metric_path])
@@ -450,8 +420,6 @@ def _gate_specific_extras(
         if not isinstance(thresholds, dict):
             thresholds = {}
         extras.extend([
-            "--metric-name", metric_name,
-            "--primary-metric", str(normalized.get("actual_primary_metric", "")),
             "--min-resamples", str(int(float(thresholds.get("ci_min_resamples", 200)))),
             "--min-baseline-delta", str(float(thresholds.get("min_baseline_delta", 0.0))),
             "--max-ci-width", str(float(thresholds.get("ci_max_width", 0.50))),
@@ -465,8 +433,6 @@ def _gate_specific_extras(
         if not isinstance(thresholds, dict):
             thresholds = {}
         extras.extend([
-            "--metric-name", metric_name,
-            "--actual", str(normalized.get("actual_primary_metric", "")),
             "--alpha", str(float(thresholds.get("alpha", 0.01))),
             "--min-delta", str(float(thresholds.get("min_delta", 0.03))),
         ])
@@ -537,10 +503,14 @@ def _build_aggregation_cmd(
         flag = spec.aggregation_flag
         if not flag:
             continue
-        # publication_gate only receives reports from its declared deps
+        # For gates with explicit dependency lists, only forward reports
+        # from declared deps.  self_critique_gate also needs peers
+        # registered after it (e.g. security_audit_gate) that share
+        # the same layer, so we allow same-layer gates through.
         if target_spec and dep_name not in target_spec.depends_on:
-            # self_critique_gate depends on everything, so this naturally includes all
-            continue
+            dep_spec = GATE_REGISTRY.get(dep_name)
+            if not dep_spec or dep_spec.layer != target_spec.layer:
+                continue
         if dep_name in report_paths and report_paths[dep_name].exists():
             cmd.extend([flag, str(report_paths[dep_name])])
 
@@ -704,11 +674,11 @@ def main() -> int:
 
     if not args.strict:
         print(
-            "[FAIL] run_dag_pipeline.py requires --strict for publication-grade. "
-            "Re-run with --strict.",
+            "[INFO] Running in exploratory mode (--no-strict). "
+            "Warnings will not be promoted to failures. "
+            "Use --strict (default) for publication-grade validation.",
             file=sys.stderr,
         )
-        return 2
 
     request_path = Path(args.request).expanduser().resolve()
     if not request_path.exists():
@@ -780,12 +750,18 @@ def main() -> int:
         return _finalize(args, evidence_dir, steps, False, pipeline_t0)
 
     claim_tier = str(normalized.get("claim_tier_target", ""))
-    if claim_tier != "publication-grade":
+    if claim_tier != "publication-grade" and args.strict:
         print(
-            f"[FAIL] Only publication-grade supported (got: {claim_tier}).",
+            f"[FAIL] Strict mode requires claim_tier_target='publication-grade' (got: {claim_tier!r}).",
             file=sys.stderr,
         )
         return _finalize(args, evidence_dir, steps, False, pipeline_t0)
+    if claim_tier != "publication-grade":
+        print(
+            f"[INFO] Exploratory mode: claim_tier_target={claim_tier!r} "
+            f"(publication-grade required for --strict).",
+            file=sys.stderr,
+        )
 
     split_paths_raw = normalized.get("split_paths", {})
     split_paths: Dict[str, str] = {}
@@ -843,6 +819,7 @@ def main() -> int:
                     "name": g, "command": "(dry-run)", "exit_code": -1,
                     "status": "skip", "execution_time_seconds": 0,
                     "stdout_tail": "", "stderr_tail": "dry-run: not executed",
+                    "report_path": "",
                 })
         return _finalize(args, evidence_dir, steps, True, pipeline_t0)
 
@@ -885,6 +862,7 @@ def main() -> int:
                     "name": bg, "command": "", "exit_code": -1,
                     "status": "skip", "execution_time_seconds": 0,
                     "stdout_tail": "", "stderr_tail": "Skipped: dependency not met",
+                    "report_path": "",
                 })
 
         if not ready:

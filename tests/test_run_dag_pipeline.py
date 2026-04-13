@@ -65,34 +65,22 @@ def _make_report_paths(evidence_dir: Path) -> Dict[str, Path]:
 # ────────────────────────────────────────────────────────
 
 class TestGateSpecificExtras:
-    def test_leakage_gate_extras(self):
-        normalized = {
-            "patient_id_col": "pid",
-            "index_time_col": "ts",
-            "label_col": "y",
-        }
-        extras = _gate_specific_extras("leakage_gate", normalized, {})
-        assert "--id-cols" in extras
-        assert "pid" in extras
-        assert "--time-col" in extras
-        assert "--target-col" in extras
+    """Test _gate_specific_extras for composite/conditional args only.
 
-    def test_split_protocol_gate_extras(self):
-        normalized = {
-            "patient_id_col": "pid",
-            "index_time_col": "ts",
-            "label_col": "y",
-        }
-        extras = _gate_specific_extras("split_protocol_gate", normalized, {})
-        assert "--id-col" in extras
-        assert "--time-col" in extras
-        assert "--target-col" in extras
+    Simple field->flag mappings are now in GateSpec.value_inputs and tested
+    via TestBuildStandardGateCmd and TestValueInputsInRegistry.
+    """
+
+    def test_ignore_cols_composite(self):
+        normalized = {"patient_id_col": "pid", "index_time_col": "ts"}
+        extras = _gate_specific_extras("covariate_shift_gate", normalized, {})
+        assert "--ignore-cols" in extras
+        assert "pid,ts" in extras
 
     def test_tuning_leakage_gate_with_valid(self):
         normalized = {"patient_id_col": "pid"}
         split_paths = {"valid": "/data/valid.csv"}
         extras = _gate_specific_extras("tuning_leakage_gate", normalized, split_paths)
-        assert "--id-col" in extras
         assert "--has-valid-split" in extras
 
     def test_tuning_leakage_gate_without_valid(self):
@@ -104,18 +92,43 @@ class TestGateSpecificExtras:
         extras = _gate_specific_extras("nonexistent_gate", {}, {})
         assert extras == []
 
-    def test_metric_consistency_gate_extras(self):
+    def test_metric_consistency_conditional_extras(self):
         normalized = {
             "primary_metric": "pr_auc",
             "actual_primary_metric": "0.85",
             "evaluation_metric_path": "metrics.test.pr_auc",
         }
         extras = _gate_specific_extras("metric_consistency_gate", normalized, {})
-        assert "--metric-name" in extras
-        assert "pr_auc" in extras
-        assert "--expected" in extras
-        assert "0.85" in extras
+        # Simple mappings (--metric-name, --expected) are now in value_inputs
+        assert "--required-evaluation-split" in extras
         assert "--metric-path" in extras
+
+
+class TestValueInputsInRegistry:
+    """Verify that simple field->flag mappings are declared in GateSpec.value_inputs."""
+
+    def test_leakage_gate(self):
+        spec = GATE_REGISTRY["leakage_gate"]
+        assert spec.value_inputs.get("patient_id_col") == "--id-cols"
+        assert spec.value_inputs.get("index_time_col") == "--time-col"
+        assert spec.value_inputs.get("label_col") == "--target-col"
+        assert spec.requires_splits is True
+
+    def test_split_protocol_gate(self):
+        spec = GATE_REGISTRY["split_protocol_gate"]
+        assert spec.value_inputs.get("patient_id_col") == "--id-col"
+        assert spec.value_inputs.get("index_time_col") == "--time-col"
+        assert spec.value_inputs.get("label_col") == "--target-col"
+
+    def test_metric_consistency_gate(self):
+        spec = GATE_REGISTRY["metric_consistency_gate"]
+        assert spec.value_inputs.get("primary_metric") == "--metric-name"
+        assert spec.value_inputs.get("actual_primary_metric") == "--expected"
+
+    def test_execution_attestation_gate(self):
+        spec = GATE_REGISTRY["execution_attestation_gate"]
+        assert spec.value_inputs.get("study_id") == "--study-id"
+        assert spec.value_inputs.get("run_id") == "--run-id"
 
 
 # ────────────────────────────────────────────────────────
