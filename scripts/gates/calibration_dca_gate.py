@@ -73,8 +73,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--report", help="Optional output report JSON path.")
     parser.add_argument("--strict", action="store_true", help="Fail on warnings.")
     # Calibration ridge regularization
-    parser.add_argument("--calibration-ridge", type=float, default=20.0,
-                        help="Ridge regularization strength for calibration slope/intercept fitting (default: 20.0).")
+    parser.add_argument("--calibration-ridge", type=float, default=1.0,
+                        help="Ridge regularization strength for calibration slope/intercept fitting (default: 1.0).")
     # O/E ratio thresholds (BMJ 2024)
     parser.add_argument("--oe-ratio-fail-lower", type=float, default=0.70,
                         help="O/E ratio lower bound for failure (default: 0.70).")
@@ -110,9 +110,9 @@ def fit_calibration_slope_intercept(y_true: np.ndarray, y_score: np.ndarray, rid
     X = np.column_stack([np.ones_like(z), z]).astype(float)
     beta = np.array([0.0, 1.0], dtype=float)
     prior = np.array([0.0, 1.0], dtype=float)
-    # Weak regularization for numerical stability only (BMJ 2024 LIT-045:
-    # unregularized logistic calibration preferred; ridge=20 was too strong
-    # and pulled slope toward 1.0 even for poorly calibrated models).
+    # Minimal regularization for numerical stability only (BMJ 2024 LIT-045:
+    # unregularized logistic calibration preferred).  Ridge=1.0 prevents
+    # Hessian singularity without materially biasing slope toward 1.0.
 
     for _ in range(80):
         eta = X @ beta
@@ -434,6 +434,20 @@ def main() -> int:
             "prediction_trace_score_invalid",
             "prediction_trace y_score must be finite and in [0,1].",
             {},
+        )
+        return finish(args, failures, warnings, {"thresholds": thresholds})
+
+    # Early detection of degenerate predictions (all same value).
+    # Constant y_score makes calibration slope undefined, ECE meaningless,
+    # and DCA net benefit trivially zero — a likely sign of a broken model.
+    if y_score_all.size > 1 and np.allclose(y_score_all, y_score_all[0], atol=1e-8):
+        add_issue(
+            failures,
+            "degenerate_predictions",
+            f"All y_score values are constant ({y_score_all[0]:.6f}). "
+            f"Calibration and DCA are undefined for degenerate predictions. "
+            f"This usually indicates a broken model or data pipeline.",
+            {"constant_value": float(y_score_all[0]), "n_predictions": int(y_score_all.size)},
         )
         return finish(args, failures, warnings, {"thresholds": thresholds})
 

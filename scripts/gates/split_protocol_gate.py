@@ -440,7 +440,9 @@ def main() -> int:
         right_min = splits[right]["time_min"]
         if left_max is None or right_min is None:
             return
-        if left_max >= right_min:
+        # Strict inequality: allow equal timestamps at split boundaries.
+        # See leakage_gate.py for rationale.
+        if left_max > right_min:
             add_issue(
                 failures,
                 "temporal_boundary_violation",

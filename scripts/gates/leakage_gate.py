@@ -372,7 +372,11 @@ def main() -> int:
             right_min = time_bounds[right]["min"]
             if left_max is None or right_min is None:
                 return
-            if left_max >= right_min:
+            # Strict inequality: allow equal timestamps at boundaries.
+            # Clinical cohorts often have multiple patients with the same
+            # index timestamp (e.g., enrollment date).  train_max == valid_min
+            # is NOT leakage — it means the boundary falls on that timestamp.
+            if left_max > right_min:
                 add_issue(
                     failures,
                     "temporal_overlap",

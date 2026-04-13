@@ -512,7 +512,11 @@ class TestTemporalOrdering:
         assert "temporal_boundary_violation" in codes
 
     def test_temporal_boundary_equal(self, tmp_path: Path):
-        """Boundary case: train max == valid min should fail (>= check)."""
+        """Boundary case: train max == valid min should PASS (strict > comparison).
+
+        Clinical cohorts often enroll multiple patients on the same date.
+        Equal timestamps at boundaries are not temporal leakage.
+        """
         protocol = _make_protocol(tmp_path)
         _make_splits(tmp_path,
             train_rows=["P001,2023-06-15,1", "P002,2023-06-15,0"],
@@ -521,7 +525,7 @@ class TestTemporalOrdering:
         )
         report = _run_gate(tmp_path, protocol)
         codes = [f["code"] for f in report["failures"]]
-        assert "temporal_boundary_violation" in codes
+        assert "temporal_boundary_violation" not in codes
 
     def test_correct_temporal_order(self, tmp_path: Path):
         protocol = _make_protocol(tmp_path)

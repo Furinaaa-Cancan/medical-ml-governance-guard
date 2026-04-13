@@ -338,7 +338,12 @@ class TestCLI:
         assert result.returncode == 0
 
     def test_temporal_boundary_exact(self, tmp_path: Path):
-        """Train max == test min: SHOULD trigger overlap (uses >=, fail-closed)."""
+        """Train max == test min: SHOULD pass (strict > comparison).
+
+        Clinical cohorts often have multiple patients with the same index
+        timestamp.  train_max == valid_min means the boundary falls on that
+        timestamp — no future data leaks into training.
+        """
         train_p = tmp_path / "train.csv"
         test_p = tmp_path / "test.csv"
         _write_csv(train_p, ["pid", "y", "t"],
@@ -347,10 +352,9 @@ class TestCLI:
                    [["C", "0", "2024-06-01"], ["D", "1", "2024-12-01"]])
         splits = {"train": train_p, "test": test_p}
         self._run(tmp_path, splits, extra_args=["--time-col", "t"])
-        # left_max >= right_min is the check (fail-closed), so equal times SHOULD fail
         report = json.loads((tmp_path / "report.json").read_text())
         temporal_failures = [f for f in report["failures"] if f["code"] == "temporal_overlap"]
-        assert len(temporal_failures) == 1
+        assert len(temporal_failures) == 0, "Equal boundary timestamps should NOT trigger overlap"
 
     def test_suspicious_feature_names(self, tmp_path: Path):
         train_p = tmp_path / "train.csv"
