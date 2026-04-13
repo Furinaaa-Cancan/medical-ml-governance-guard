@@ -464,6 +464,8 @@ def main() -> int:
                 {
                     "model_family": _resamp_risk.get("model_family"),
                     "slope_deviation": _resamp_risk.get("slope_deviation_from_unity"),
+                    "auto_calibrated": _resamp_risk.get("auto_calibrated", False),
+                    "calibration_method": _resamp_risk.get("calibration_method"),
                 },
             )
 

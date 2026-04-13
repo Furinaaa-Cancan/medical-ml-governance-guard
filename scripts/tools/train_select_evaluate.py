@@ -4967,6 +4967,7 @@ def _calibration_assessment(
 def _annotate_calibration_resampling_risk(
     calibration: Dict[str, Any],
     candidate_row: Optional[Dict[str, Any]],
+    calibration_method: str = "none",
 ) -> Dict[str, Any]:
     """Add resampling calibration warning for internal-imbalance models.
 
@@ -4992,16 +4993,28 @@ def _annotate_calibration_resampling_risk(
         return calibration
 
     deviation = abs(float(slope) - 1.0)
-    calibration["resampling_calibration_risk"] = {
-        "model_family": family,
-        "slope_deviation_from_unity": round(deviation, 4),
-        "warning": (
+    auto_calibrated = calibration_method != "none"
+    if auto_calibrated:
+        warning = (
+            f"{family} uses internal resampling — auto-calibrated with "
+            f"{calibration_method}. Post-calibration slope={slope:.3f} "
+            f"(deviation={deviation:.3f}). "
+            f"Ref: van den Goorbergh et al., BMC Med Res Methodol 2022;22:312."
+        )
+    else:
+        warning = (
             f"{family} uses internal resampling (balanced bootstrap / undersampling) "
             f"which shifts predicted probabilities. Calibration slope={slope:.3f} "
             f"(deviation={deviation:.3f} from ideal 1.0). "
             f"Post-hoc recalibration (Platt/isotonic) is recommended. "
             f"Ref: van den Goorbergh et al., BMC Med Res Methodol 2022;22:312."
-        ),
+        )
+    calibration["resampling_calibration_risk"] = {
+        "model_family": family,
+        "slope_deviation_from_unity": round(deviation, 4),
+        "auto_calibrated": auto_calibrated,
+        "calibration_method": calibration_method,
+        "warning": warning,
     }
     return calibration
 
@@ -7263,7 +7276,9 @@ def main() -> int:
     _phase5_selection(ctx)
     print("[STEP  7/12] Calibration + threshold...", file=sys.stderr, flush=True)
     _phase6_calibration(ctx)
-    # Bridge ctx → locals
+    # Bridge ctx → locals (re-read calibration_method — may have been
+    # auto-upgraded from 'none' to 'sigmoid' for imblearn models)
+    calibration_method = ctx["calibration_method"]
     candidates = ctx["candidates"]
     candidate_space_meta = ctx["candidate_space_meta"]
     candidate_rows = ctx["candidate_rows"]
@@ -7589,7 +7604,7 @@ def _phase10_12_reports_output(ctx: Dict[str, Any]) -> int:
             "fallback_trace": fallback_trace if fallback_trace else None,
         },
         "calibration_assessment": _annotate_calibration_resampling_risk(
-            calibration_test, selected_candidate_row,
+            calibration_test, selected_candidate_row, calibration_method,
         ),
         "bootstrap_optimism_correction": optimism_correction,
         "learning_curve": learning_curve_report,
