@@ -2612,9 +2612,23 @@ def append_audit_entry(
     final_line = json.dumps(entry, ensure_ascii=True, sort_keys=True)
 
     with log_path.open("a", encoding="utf-8") as fh:
-        fh.write(final_line + "\n")
-        fh.flush()
-        os.fsync(fh.fileno())
+        # Use fcntl advisory lock to prevent interleaved writes when
+        # parallel gate subprocesses append concurrently (M1 fix).
+        try:
+            import fcntl
+            fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
+        except (ImportError, OSError):
+            pass  # fcntl unavailable (Windows) — fall back to best-effort
+        try:
+            fh.write(final_line + "\n")
+            fh.flush()
+            os.fsync(fh.fileno())
+        finally:
+            try:
+                import fcntl
+                fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
+            except (ImportError, OSError):
+                pass
 
 
 def verify_audit_chain(evidence_dir: Path) -> Dict[str, Any]:

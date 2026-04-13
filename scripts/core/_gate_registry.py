@@ -73,6 +73,11 @@ class GateSpec:
     # Human-readable category for summary grouping.
     category: str = "general"
 
+    # CLI flag name used by publication_gate/self_critique_gate to receive
+    # this gate's report (e.g. "--leakage-report"). Empty string means this
+    # gate is not passed to aggregation gates.
+    aggregation_flag: str = ""
+
 
 # ---------------------------------------------------------------------------
 # The full gate registry
@@ -97,6 +102,7 @@ _register(GateSpec(
     request_inputs={"data_file": "--data"},
     report_output="cohort_definition_report.json",
     category="data",
+    aggregation_flag="--cohort-definition-report",
 ))
 
 _register(GateSpec(
@@ -107,6 +113,7 @@ _register(GateSpec(
     request_inputs={"request": "--request"},
     report_output="request_contract_report.json",
     category="contract",
+    aggregation_flag="--request-report",
 ))
 
 # -- Layer 1: Manifest lock --
@@ -119,6 +126,7 @@ _register(GateSpec(
     depends_on=frozenset({"request_contract_gate"}),
     report_output="manifest.json",
     category="integrity",
+    aggregation_flag="--manifest",
 ))
 
 # -- Layer 2: Execution attestation --
@@ -135,6 +143,7 @@ _register(GateSpec(
     },
     report_output="execution_attestation_report.json",
     category="integrity",
+    aggregation_flag="--execution-attestation-report",
 ))
 
 # -- Layer 3: Data validation (parallelizable) --
@@ -147,6 +156,7 @@ _register(GateSpec(
     depends_on=frozenset({"request_contract_gate"}),
     report_output="leakage_report.json",
     category="data_integrity",
+    aggregation_flag="--leakage-report",
 ))
 
 _register(GateSpec(
@@ -158,6 +168,7 @@ _register(GateSpec(
     request_inputs={"split_protocol_spec": "--protocol-spec"},
     report_output="split_protocol_report.json",
     category="data_integrity",
+    aggregation_flag="--split-protocol-report",
 ))
 
 _register(GateSpec(
@@ -168,6 +179,7 @@ _register(GateSpec(
     depends_on=frozenset({"request_contract_gate"}),
     report_output="covariate_shift_report.json",
     category="data_integrity",
+    aggregation_flag="--covariate-shift-report",
 ))
 
 _register(GateSpec(
@@ -179,6 +191,7 @@ _register(GateSpec(
     request_inputs={"reporting_bias_checklist_spec": "--checklist-spec"},
     report_output="reporting_bias_report.json",
     category="compliance",
+    aggregation_flag="--reporting-bias-report",
 ))
 
 # -- Layer 4: Policy & lineage audits (parallelizable) --
@@ -192,6 +205,7 @@ _register(GateSpec(
     request_inputs={"phenotype_definition_spec": "--definition-spec"},
     report_output="definition_guard_report.json",
     category="data_integrity",
+    aggregation_flag="--definition-report",
 ))
 
 _register(GateSpec(
@@ -206,6 +220,7 @@ _register(GateSpec(
     },
     report_output="lineage_report.json",
     category="data_integrity",
+    aggregation_flag="--lineage-report",
 ))
 
 _register(GateSpec(
@@ -220,6 +235,7 @@ _register(GateSpec(
     },
     report_output="imbalance_policy_report.json",
     category="policy",
+    aggregation_flag="--imbalance-report",
 ))
 
 _register(GateSpec(
@@ -234,6 +250,7 @@ _register(GateSpec(
     },
     report_output="missingness_policy_report.json",
     category="policy",
+    aggregation_flag="--missingness-report",
 ))
 
 _register(GateSpec(
@@ -245,6 +262,7 @@ _register(GateSpec(
     request_inputs={"tuning_protocol_spec": "--tuning-spec"},
     report_output="tuning_leakage_report.json",
     category="data_integrity",
+    aggregation_flag="--tuning-report",
 ))
 
 # -- Layer 5: Model & feature audits (parallelizable) --
@@ -261,6 +279,7 @@ _register(GateSpec(
     },
     report_output="model_selection_audit_report.json",
     category="model",
+    aggregation_flag="--model-selection-audit-report",
 ))
 
 _register(GateSpec(
@@ -277,6 +296,7 @@ _register(GateSpec(
     },
     report_output="feature_engineering_audit_report.json",
     category="model",
+    aggregation_flag="--feature-engineering-audit-report",
 ))
 
 _register(GateSpec(
@@ -292,6 +312,7 @@ _register(GateSpec(
     },
     report_output="clinical_metrics_report.json",
     category="performance",
+    aggregation_flag="--clinical-metrics-report",
 ))
 
 _register(GateSpec(
@@ -306,6 +327,7 @@ _register(GateSpec(
     },
     report_output="shap_interpretability_report.json",
     category="model",
+    aggregation_flag="--shap-interpretability-report",
 ))
 
 # -- Layer 6: Metric validation (mostly parallelizable) --
@@ -323,6 +345,7 @@ _register(GateSpec(
     },
     report_output="prediction_replay_report.json",
     category="performance",
+    aggregation_flag="--prediction-replay-report",
 ))
 
 _register(GateSpec(
@@ -340,6 +363,7 @@ _register(GateSpec(
     },
     report_output="distribution_generalization_report.json",
     category="generalization",
+    aggregation_flag="--distribution-generalization-report",
 ))
 
 _register(GateSpec(
@@ -354,6 +378,7 @@ _register(GateSpec(
     },
     report_output="generalization_gap_report.json",
     category="generalization",
+    aggregation_flag="--generalization-gap-report",
 ))
 
 _register(GateSpec(
@@ -368,6 +393,7 @@ _register(GateSpec(
     },
     report_output="robustness_gate_report.json",
     category="generalization",
+    aggregation_flag="--robustness-report",
 ))
 
 _register(GateSpec(
@@ -382,6 +408,7 @@ _register(GateSpec(
     },
     report_output="seed_stability_report.json",
     category="generalization",
+    aggregation_flag="--seed-stability-report",
 ))
 
 _register(GateSpec(
@@ -398,6 +425,7 @@ _register(GateSpec(
     },
     report_output="external_validation_gate_report.json",
     category="generalization",
+    aggregation_flag="--external-validation-report",
 ))
 
 _register(GateSpec(
@@ -414,6 +442,7 @@ _register(GateSpec(
     },
     report_output="calibration_dca_report.json",
     category="performance",
+    aggregation_flag="--calibration-dca-report",
 ))
 
 _register(GateSpec(
@@ -431,6 +460,7 @@ _register(GateSpec(
     },
     report_output="ci_matrix_gate_report.json",
     category="performance",
+    aggregation_flag="--ci-matrix-report",
 ))
 
 _register(GateSpec(
@@ -444,6 +474,7 @@ _register(GateSpec(
     },
     report_output="metric_consistency_report.json",
     category="performance",
+    aggregation_flag="--metric-report",
 ))
 
 _register(GateSpec(
@@ -458,6 +489,7 @@ _register(GateSpec(
     },
     report_output="evaluation_quality_report.json",
     category="performance",
+    aggregation_flag="--evaluation-quality-report",
 ))
 
 _register(GateSpec(
@@ -471,6 +503,7 @@ _register(GateSpec(
     },
     report_output="permutation_report.json",
     category="performance",
+    aggregation_flag="--permutation-report",
 ))
 
 _register(GateSpec(
@@ -483,6 +516,7 @@ _register(GateSpec(
     report_output="fairness_equity_report.json",
     parallelizable=True,
     category="fairness",
+    aggregation_flag="--fairness-equity-report",
 ))
 
 _register(GateSpec(
@@ -495,6 +529,7 @@ _register(GateSpec(
     report_output="sample_size_report.json",
     parallelizable=True,
     category="statistical",
+    aggregation_flag="--sample-size-report",
 ))
 
 # -- Layer 7: Aggregation --
@@ -511,6 +546,7 @@ _register(GateSpec(
     report_output="publication_gate_report.json",
     parallelizable=False,
     category="aggregation",
+    aggregation_flag="--publication-report",
 ))
 
 # -- Layer 8: Final self-critique --
@@ -527,6 +563,7 @@ _register(GateSpec(
     report_output="self_critique_report.json",
     parallelizable=False,
     category="aggregation",
+    aggregation_flag="",
 ))
 
 _register(GateSpec(
@@ -538,6 +575,7 @@ _register(GateSpec(
     report_output="security_audit_gate_report.json",
     parallelizable=False,
     category="security",
+    aggregation_flag="--security-audit-report",
 ))
 
 
@@ -584,6 +622,7 @@ _cached_topo_order: Optional[List[str]] = None
 def topological_sort() -> List[str]:
     """Return all gate names in a valid topological execution order.
 
+    Raises ValueError if a cycle is detected.
     Results are cached after first computation since the registry is static.
     Thread-safe via ``_cache_lock``.
     """
@@ -593,17 +632,23 @@ def topological_sort() -> List[str]:
             return list(_cached_topo_order)
 
         visited: Set[str] = set()
+        in_stack: Set[str] = set()  # track current DFS path for cycle detection
         order: List[str] = []
 
         def _visit(name: str) -> None:
             if name in visited:
                 return
-            visited.add(name)
+            if name in in_stack:
+                raise ValueError(f"Cycle detected in gate DAG involving: {name}")
+            in_stack.add(name)
             spec = GATE_REGISTRY.get(name)
             if spec is None:
+                in_stack.discard(name)
                 return
             for dep in sorted(spec.depends_on):
                 _visit(dep)
+            in_stack.discard(name)
+            visited.add(name)
             order.append(name)
 
         for name in sorted(GATE_REGISTRY.keys()):
@@ -675,7 +720,8 @@ def validate_dag() -> List[str]:
             if dep not in GATE_REGISTRY:
                 errors.append(f"{name}: dependency '{dep}' not in registry")
 
-    # Cycle detection via Kahn's algorithm
+    # Cycle detection via Kahn's algorithm (using deque for O(1) popleft)
+    from collections import deque as _deque
     adj: Dict[str, List[str]] = {name: [] for name in GATE_REGISTRY}
     for name, spec in GATE_REGISTRY.items():
         for dep in spec.depends_on:
@@ -684,11 +730,11 @@ def validate_dag() -> List[str]:
 
     in_deg: Dict[str, int] = {name: len(spec.depends_on & frozenset(GATE_REGISTRY.keys()))
                                for name, spec in GATE_REGISTRY.items()}
-    queue = [n for n, d in in_deg.items() if d == 0]
+    queue = _deque(n for n, d in in_deg.items() if d == 0)
     order: List[str] = []
 
     while queue:
-        node = queue.pop(0)
+        node = queue.popleft()
         order.append(node)
         for child in adj.get(node, []):
             in_deg[child] -= 1

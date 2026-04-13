@@ -214,21 +214,29 @@ def save_checkpoint(evidence_dir: Path, state: Dict[str, Any]) -> None:
 # Gate execution
 # ---------------------------------------------------------------------------
 
+_SUBPROCESS_TIMEOUT = max(60, min(
+    int(os.environ.get("MLGG_SUBPROCESS_TIMEOUT", "3600")),
+    86400,
+))
+
+
 def run_gate_subprocess(
     gate_name: str,
     cmd: List[str],
+    report_path: str = "",
+    evidence_dir: Optional[Path] = None,
 ) -> Dict[str, Any]:
     """Run a single gate as a subprocess and return structured result."""
     t0 = _time.time()
     try:
-        proc = subprocess.run(cmd, text=True, capture_output=True, timeout=3600)
+        proc = subprocess.run(cmd, text=True, capture_output=True, timeout=_SUBPROCESS_TIMEOUT)
         exit_code = proc.returncode
         stdout = proc.stdout or ""
         stderr = proc.stderr or ""
     except subprocess.TimeoutExpired:
         exit_code = 2
         stdout = ""
-        stderr = f"TIMEOUT: {gate_name} exceeded 3600s subprocess limit."
+        stderr = f"TIMEOUT: {gate_name} exceeded {_SUBPROCESS_TIMEOUT}s subprocess limit."
     except (OSError, ValueError) as exc:
         exit_code = 2
         stdout = ""
@@ -240,27 +248,16 @@ def run_gate_subprocess(
     # Tamper-evident audit log entry
     try:
         from _gate_utils import append_audit_entry
-        # Try to find evidence dir from --report or --evidence-dir args
-        for i, arg in enumerate(cmd):
-            if arg in ("--report", "--evidence-dir") and i + 1 < len(cmd):
-                audit_dir = Path(cmd[i + 1]).expanduser().resolve().parent
-                if audit_dir.exists():
-                    append_audit_entry(
-                        evidence_dir=audit_dir,
-                        gate_name=gate_name,
-                        status=status,
-                        execution_time=elapsed,
-                    )
-                    break
+        audit_dir = evidence_dir or (Path(report_path).expanduser().resolve().parent if report_path else None)
+        if audit_dir is not None and audit_dir.exists():
+            append_audit_entry(
+                evidence_dir=audit_dir,
+                gate_name=gate_name,
+                status=status,
+                execution_time=elapsed,
+            )
     except Exception:
         pass  # Audit logging is best-effort; never block pipeline
-
-    # Extract --report path from the command for auto-explain on failure
-    _report_path = ""
-    for _i, _arg in enumerate(cmd):
-        if _arg == "--report" and _i + 1 < len(cmd):
-            _report_path = cmd[_i + 1]
-            break
 
     return {
         "name": gate_name,
@@ -270,7 +267,7 @@ def run_gate_subprocess(
         "execution_time_seconds": round(elapsed, 3),
         "stdout_tail": stdout[-4000:],
         "stderr_tail": stderr[-4000:],
-        "report_path": _report_path,
+        "report_path": report_path,
     }
 
 
@@ -526,47 +523,24 @@ def _build_aggregation_cmd(
     report_paths: Dict[str, Path],
     args: argparse.Namespace,
 ) -> List[str]:
-    """Build CLI args for publication_gate and self_critique_gate."""
+    """Build CLI args for publication_gate and self_critique_gate.
+
+    The flag mapping is read from GateSpec.aggregation_flag in the registry
+    so that new gates are automatically included without manual dict updates.
+    """
     cmd: List[str] = []
 
-    report_flag_map = {
-        "request_contract_gate": "--request-report",
-        "manifest_lock": "--manifest",
-        "execution_attestation_gate": "--execution-attestation-report",
-        "reporting_bias_gate": "--reporting-bias-report",
-        "leakage_gate": "--leakage-report",
-        "split_protocol_gate": "--split-protocol-report",
-        "covariate_shift_gate": "--covariate-shift-report",
-        "definition_variable_guard": "--definition-report",
-        "feature_lineage_gate": "--lineage-report",
-        "imbalance_policy_gate": "--imbalance-report",
-        "missingness_policy_gate": "--missingness-report",
-        "tuning_leakage_gate": "--tuning-report",
-        "model_selection_audit_gate": "--model-selection-audit-report",
-        "feature_engineering_audit_gate": "--feature-engineering-audit-report",
-        "clinical_metrics_gate": "--clinical-metrics-report",
-        "prediction_replay_gate": "--prediction-replay-report",
-        "distribution_generalization_gate": "--distribution-generalization-report",
-        "generalization_gap_gate": "--generalization-gap-report",
-        "robustness_gate": "--robustness-report",
-        "seed_stability_gate": "--seed-stability-report",
-        "external_validation_gate": "--external-validation-report",
-        "calibration_dca_gate": "--calibration-dca-report",
-        "ci_matrix_gate": "--ci-matrix-report",
-        "metric_consistency_gate": "--metric-report",
-        "evaluation_quality_gate": "--evaluation-quality-report",
-        "permutation_significance_gate": "--permutation-report",
-        "cohort_definition_gate": "--cohort-definition-report",
-        "shap_interpretability_gate": "--shap-interpretability-report",
-        "fairness_equity_gate": "--fairness-equity-report",
-        "sample_size_gate": "--sample-size-report",
-    }
-
-    if gate_name == "self_critique_gate":
-        report_flag_map["publication_gate"] = "--publication-report"
-        report_flag_map["security_audit_gate"] = "--security-audit-report"
-
-    for dep_name, flag in report_flag_map.items():
+    target_spec = GATE_REGISTRY.get(gate_name)
+    for dep_name, spec in GATE_REGISTRY.items():
+        if dep_name == gate_name:
+            continue
+        flag = spec.aggregation_flag
+        if not flag:
+            continue
+        # publication_gate only receives reports from its declared deps
+        if target_spec and dep_name not in target_spec.depends_on:
+            # self_critique_gate depends on everything, so this naturally includes all
+            continue
         if dep_name in report_paths and report_paths[dep_name].exists():
             cmd.extend([flag, str(report_paths[dep_name])])
 
@@ -786,7 +760,11 @@ def main() -> int:
     pipeline_t0 = _time.time()
 
     print_gate_start("request_contract_gate", request_cmd)
-    result = run_gate_subprocess("request_contract_gate", request_cmd)
+    result = run_gate_subprocess(
+        "request_contract_gate", request_cmd,
+        report_path=str(report_paths["request_contract_gate"]),
+        evidence_dir=evidence_dir,
+    )
     steps.append(result)
     print_gate_result(result)
 
@@ -933,10 +911,10 @@ def main() -> int:
                 newly_passed.add(r["name"])
             elif r["status"] == "fail":
                 had_failure = True
-                if not continue_on_fail:
-                    # Save checkpoint before early exit
-                    _save_progress(evidence_dir, passed_gates | newly_passed, steps)
-                    return _finalize(args, evidence_dir, steps, False, pipeline_t0)
+            # Save checkpoint after each gate to minimize data loss on SIGINT
+            _save_progress(evidence_dir, passed_gates | newly_passed, steps)
+            if r["status"] == "fail" and not continue_on_fail:
+                return _finalize(args, evidence_dir, steps, False, pipeline_t0)
 
     # Save final checkpoint
     all_passed = passed_gates | newly_passed
@@ -1007,12 +985,17 @@ def _run_sequential(
                 "name": gate_name, "command": "", "exit_code": -1,
                 "status": "skip", "execution_time_seconds": 0,
                 "stdout_tail": "", "stderr_tail": "Skipped: earlier gate in layer failed",
+                "report_path": "",
             })
             continue
         spec = GATE_REGISTRY[gate_name]
         cmd = build_gate_command(spec, args, scripts_dir, evidence_dir, normalized, report_paths, split_paths)
         print_gate_start(gate_name, cmd)
-        result = run_gate_subprocess(gate_name, cmd)
+        result = run_gate_subprocess(
+            gate_name, cmd,
+            report_path=str(report_paths.get(gate_name, "")),
+            evidence_dir=evidence_dir,
+        )
         results.append(result)
         if result["exit_code"] != 0 and not args.continue_on_fail:
             failed = True
@@ -1029,17 +1012,20 @@ def _run_parallel(
     split_paths: Dict[str, str],
     max_workers: int,
 ) -> List[Dict[str, Any]]:
-    tasks: List[Tuple[str, List[str]]] = []
+    tasks: List[Tuple[str, List[str], str]] = []
     for gate_name in gate_names:
         spec = GATE_REGISTRY[gate_name]
         cmd = build_gate_command(spec, args, scripts_dir, evidence_dir, normalized, report_paths, split_paths)
-        tasks.append((gate_name, cmd))
+        tasks.append((gate_name, cmd, str(report_paths.get(gate_name, ""))))
 
     results: List[Dict[str, Any]] = [{} for _ in range(len(tasks))]
     with concurrent.futures.ThreadPoolExecutor(max_workers=min(max_workers, len(tasks))) as pool:
         future_map = {
-            pool.submit(run_gate_subprocess, name, cmd): i
-            for i, (name, cmd) in enumerate(tasks)
+            pool.submit(
+                run_gate_subprocess, name, cmd,
+                report_path=rpath, evidence_dir=evidence_dir,
+            ): i
+            for i, (name, cmd, rpath) in enumerate(tasks)
         }
         for future in concurrent.futures.as_completed(future_map):
             idx = future_map[future]
@@ -1051,6 +1037,7 @@ def _run_parallel(
                     "name": name, "command": shlex.join(tasks[idx][1]),
                     "exit_code": 2, "status": "fail", "execution_time_seconds": 0,
                     "stdout_tail": "", "stderr_tail": f"EXCEPTION in parallel runner: {exc}",
+                    "report_path": tasks[idx][2],
                 }
 
     return results

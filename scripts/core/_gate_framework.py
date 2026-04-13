@@ -84,6 +84,9 @@ class GateIssue:
         self.remediation = remediation
         self.source_file = source_file
 
+    def __repr__(self) -> str:
+        return f"GateIssue({self.code!r}, {self.severity.value}, {self.message!r})"
+
     def to_dict(self) -> Dict[str, Any]:
         d: Dict[str, Any] = {
             "code": self.code,

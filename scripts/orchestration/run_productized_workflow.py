@@ -10,6 +10,7 @@ from __future__ import annotations
 import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core"); _sys.path.insert(0, _CORE_DIR) if _CORE_DIR not in _sys.path else None  # noqa: E702
 
 import argparse
+import os
 import shlex
 import signal
 import subprocess
@@ -46,7 +47,10 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-_STEP_TIMEOUT = 3600  # 1 hour per step
+_STEP_TIMEOUT = max(60, min(
+    int(os.environ.get("MLGG_SUBPROCESS_TIMEOUT", "3600")),
+    86400,
+))
 
 
 def run_step(name: str, cmd: List[str], *, _check_interrupt: Any = None) -> Dict[str, Any]:
