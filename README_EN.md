@@ -1194,15 +1194,17 @@ scripts/
 tests/                4000+ pytest tests (85%+ coverage)
 examples/             14 medical datasets + 9-phase templates
 experiments/          E2E benchmark suite (4 UCI datasets, adversarial checks)
-references/           60+ JSON knowledge bases
-  disease-definition-knowledge-base.json   Disease definitions (ICD, lab, medications)
-  error-knowledge-base.json                99 error diagnosis entries
-  literature-knowledge-base.json           58 literature citations
-  tripod-ai-official-checklist.json        TRIPOD+AI 2024 machine-verifiable
-  probast-ai-signalling-questions.json     PROBAST+AI 2025 4-domain assessment
-  peer_reviews/peer-review-kb.json         107 papers, 375 structured review opinions
-plugin/               Static analysis Lint (R001-R020, .py + .ipynb)
-  mlgg_lint/rules/     20 rule implementations
+references/           Knowledge bases organized by domain
+  standards/           Reporting standards (TRIPOD+AI 2024, PROBAST+AI 2025, STARD+AI, journal rigor)
+  methodology/         Methodology (disease definition KB, leakage taxonomy, literature)
+  codebooks/           Data dictionaries (NHANES 58K vars + UKB 12K fields + generic registry)
+  case-studies/        107 NC papers, 375 structured review opinions
+  templates/           28 JSON templates (request, split, evaluation, attestation, etc.)
+  operations/          Runtime KBs (error-KB, scoring, gate-matrix)
+  protocols/           Phase 1-9 rules + audit/blind-audit/sampling protocols
+  docs/                Developer docs (Architecture, API-Reference, Quickstart)
+plugin/               Static analysis Lint (R001-R027, .py + .ipynb)
+  mlgg_lint/rules/     27 rule implementations
   vscode/              VS Code extension
 docs/                 Architecture documentation
 .github/workflows/    CI/CD (unit/security/nightly-full/weekly-extended)

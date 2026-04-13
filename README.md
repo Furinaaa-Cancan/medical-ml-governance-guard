@@ -1230,19 +1230,17 @@ scripts/
 tests/                4578 pytest 测试（conftest.py 统一路径，覆盖率 85%+）
 examples/             14 个医学数据集 + 9 阶段模板 + NHANES phenotype spec
 references/
-  dataset-codebook-registry.json   数据集变量 codebook（NHANES 21 变量验证）
-  nhanes_codebook/                 Harvard CCB-HMS 元数据（58K 变量）
-  disease-definition-knowledge-base.json   疾病定义知识库（11 种疾病）
-  examples/                        26 个 JSON 模板
-  skill/                           /mlgg Phase 1-9 规则
-  peer_reviews/                    107 篇论文、375 个审稿意见
-  error-knowledge-base.json        107 条错误诊断
-  literature-knowledge-base.json   58 条 IF>10 文献
-  tripod-ai-official-checklist.json   TRIPOD+AI 2024
-  probast-ai-signalling-questions.json   PROBAST+AI 2025
+  standards/           报告标准（TRIPOD+AI 2024、PROBAST+AI 2025、STARD+AI、期刊要求）
+  methodology/         方法学知识（疾病定义 KB、泄漏分类、文献库）
+  codebooks/           数据字典（NHANES 58K 变量 + UKB 12K 字段 + 通用 registry）
+  case-studies/        107 篇 NC 论文、375 个结构化审稿意见
+  templates/           28 个 JSON 格式模板（request、split、evaluation 等）
+  operations/          运行时知识库（error-KB、scoring、gate-matrix）
+  protocols/           Phase 1-9 规则 + 审计/盲审/采样协议
+  docs/                开发者文档（Architecture、API-Reference、Quickstart）
 experiments/          E2E 基准套件（4 个 UCI 数据集、对抗性检查）
-plugin/               静态分析 Lint（R001-R020，.py + .ipynb）
-  mlgg_lint/rules/     20 条规则实现
+plugin/               静态分析 Lint（R001-R027，.py + .ipynb）
+  mlgg_lint/rules/     27 条规则实现
   vscode/              VS Code 插件
 docs/                 架构文档
 .github/workflows/    CI/CD（单元/安全/每夜完整/每周扩展）
