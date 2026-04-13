@@ -22,7 +22,7 @@
 如果 `configs/` 目录不存在，先初始化：
 ```bash
 mkdir -p configs
-cp references/split-protocol.example.json configs/split-protocol.json
+cp references/templates/split-protocol.example.json configs/split-protocol.json
 ```
 然后编辑 `configs/split-protocol.json`：
 - `id_col` → 实际患者 ID 列名
@@ -59,7 +59,7 @@ python3 scripts/gates/leakage_gate.py \
 
 # 2. 分割协议验证
 # 如果 configs/split-protocol.json 不存在，先从模板创建:
-#   cp references/split-protocol.example.json configs/split-protocol.json
+#   cp references/templates/split-protocol.example.json configs/split-protocol.json
 #   然后根据实际划分参数编辑
 python3 scripts/gates/split_protocol_gate.py \
   --protocol-spec configs/split-protocol.json \

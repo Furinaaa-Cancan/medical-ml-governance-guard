@@ -43,7 +43,7 @@
   "thresholds": {
     "profile": "standard",
     "_profile_options": ["standard", "small_cohort", "rare_disease", "exploratory"],
-    "_profile_doc": "See references/gate-strictness-profiles.md for threshold values per profile. Profile sets defaults; individual overrides below take precedence.",
+    "_profile_doc": "See references/operations/gate-strictness-profiles.md for threshold values per profile. Profile sets defaults; individual overrides below take precedence.",
     "alpha": 0.01,
     "min_delta": 0.03,
     "min_baseline_delta": 0.01,

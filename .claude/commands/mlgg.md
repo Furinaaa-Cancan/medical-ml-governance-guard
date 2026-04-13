@@ -50,11 +50,11 @@ python3 scripts/gates/cohort_definition_gate.py \
 ```bash
 # 初始化 configs（首次）
 mkdir -p configs data evidence models
-cp references/split-protocol.example.json configs/split-protocol.json
-cp references/tuning-protocol.example.json configs/tuning-protocol.json
-cp references/request-schema.example.json configs/request.json
-cp references/feature-lineage.example.json configs/feature-lineage.json
-cp references/reporting-bias-checklist.example.json configs/reporting-bias-checklist.json
+cp references/templates/split-protocol.example.json configs/split-protocol.json
+cp references/templates/tuning-protocol.example.json configs/tuning-protocol.json
+cp references/templates/request-schema.example.json configs/request.json
+cp references/templates/feature-lineage.example.json configs/feature-lineage.json
+cp references/templates/reporting-bias-checklist.example.json configs/reporting-bias-checklist.json
 # 根据 P-1 信息编辑 configs/*.json
 
 # 划分（已有 train/test 则跳过，只跑 gate）

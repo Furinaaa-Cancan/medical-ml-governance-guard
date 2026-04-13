@@ -83,7 +83,7 @@ jobs:
           import json, sys
           sys.path.insert(0, 'scripts/core')
           from _gate_registry import GATE_REGISTRY
-          data = json.load(open('references/error-knowledge-base.json'))
+          data = json.load(open('references/operations/error-knowledge-base.json'))
           gates_covered = {e.get('gate') for e in data['entries'] if e.get('gate')}
           all_gates = set(GATE_REGISTRY.keys())
           missing = sorted(all_gates - gates_covered)
@@ -96,15 +96,15 @@ jobs:
 
       - name: Knowledge base JSON validity
         run: |
-          for f in references/error-knowledge-base.json \
-                   references/literature-knowledge-base.json \
-                   references/tripod-ai-official-checklist.json \
-                   references/probast-ai-signalling-questions.json \
-                   references/journal-rigor-standards.json \
-                   references/mlgg-standard-specification.json \
-                   references/mlgg-compliance-certificate.schema.json \
-                   references/gate-applicability-matrix.json \
-                   references/prediction-type-registry.json; do
+          for f in references/operations/error-knowledge-base.json \
+                   references/methodology/literature-knowledge-base.json \
+                   references/standards/tripod-ai-official-checklist.json \
+                   references/standards/probast-ai-signalling-questions.json \
+                   references/standards/journal-rigor-standards.json \
+                   references/_unused/mlgg-standard-specification.json \
+                   references/_unused/mlgg-compliance-certificate.schema.json \
+                   references/operations/gate-applicability-matrix.json \
+                   references/_unused/prediction-type-registry.json; do
             python3 -c "import json; json.load(open('$f')); print('OK:', '$f')"
           done
 
@@ -112,7 +112,7 @@ jobs:
         run: |
           python3 -c "
           import json, sys
-          d = json.load(open('references/tripod-ai-official-checklist.json'))
+          d = json.load(open('references/standards/tripod-ai-official-checklist.json'))
           items = d.get('items', [])
           if len(items) != 27:
               print(f'FAIL: Expected 27 TRIPOD+AI items, got {len(items)}')

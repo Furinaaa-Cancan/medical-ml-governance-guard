@@ -11,7 +11,7 @@
 
 ```bash
 # 如果 configs/reporting-bias-checklist.json 不存在，先从模板创建:
-#   cp references/reporting-bias-checklist.example.json configs/reporting-bias-checklist.json
+#   cp references/templates/reporting-bias-checklist.example.json configs/reporting-bias-checklist.json
 #   然后根据实际报告状态编辑每个 checklist item
 
 # 1. 报告偏倚检查（TRIPOD+AI / PROBAST+AI / STARD-AI）

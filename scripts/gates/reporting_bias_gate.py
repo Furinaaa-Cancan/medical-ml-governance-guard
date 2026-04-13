@@ -41,7 +41,7 @@ register_remediations({
 
 # TRIPOD+AI 2024 (Collins et al. BMJ 2024;385:e078378) — official item mapping.
 # Key: checklist spec variable name. Value: official TRIPOD+AI item ID.
-# Reference: references/tripod-ai-official-checklist.json
+# Reference: references/standards/tripod-ai-official-checklist.json
 TRIPOD_ITEM_ID_MAP: Dict[str, str] = {
     "title_identifies_prediction_model": "1",
     "abstract_structured_summary": "2",

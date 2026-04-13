@@ -786,7 +786,7 @@
       "applicable_study_types": ["diagnostic_test_accuracy"],
       "gates_implementing": ["reporting_bias_gate"],
       "dimensions_affected": [8],
-      "mlgg_reference_file": "references/stard-ai-checklist.json",
+      "mlgg_reference_file": "references/standards/stard-ai-checklist.json",
       "url": "https://bmjopen.bmj.com/content/11/6/e047709"
     },
     {
@@ -810,7 +810,7 @@
       "applies_to_prediction_types": ["binary", "multiclass", "regression", "survival"],
       "gates_implementing": ["reporting_bias_gate"],
       "dimensions_affected": [8],
-      "mlgg_reference_file": "references/probast-ai-signalling-questions.json",
+      "mlgg_reference_file": "references/standards/probast-ai-signalling-questions.json",
       "url": "https://pubmed.ncbi.nlm.nih.gov/30596875/"
     },
     {

@@ -1181,7 +1181,7 @@ python3 -m mlgg_lint /path/to/code/
 
 **外部验证对齐检查**：`external_validation_gate` 自动检测 degenerate prediction（全阴性/全阳性）、prevalence shift、常数特征，防止无意义的外部验证。缺失特征使用训练集中位数填充。
 
-详见 `references/dataset-codebook-registry.json` 和 `scripts/tools/nhanes_codebook_lookup.py`。
+详见 `references/codebooks/dataset-codebook-registry.json` 和 `scripts/tools/nhanes_codebook_lookup.py`。
 
 ---
 

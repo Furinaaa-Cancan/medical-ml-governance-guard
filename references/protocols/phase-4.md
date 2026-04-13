@@ -22,7 +22,7 @@
 
 ```bash
 # 如果 configs/feature-lineage.json 不存在，先从模板创建:
-#   cp references/feature-lineage.example.json configs/feature-lineage.json
+#   cp references/templates/feature-lineage.example.json configs/feature-lineage.json
 #   cp references/methodology/disease-definition-knowledge-base.json configs/definition-spec.json
 #   然后根据实际特征来源编辑（记录每个特征的来源和时间归属）
 python3 scripts/gates/feature_lineage_gate.py \

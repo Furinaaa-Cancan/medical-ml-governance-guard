@@ -151,9 +151,9 @@ python3 scripts/batch_journal_review.py \
 | 60–74 | Major issues | 重大方法论问题 |
 | <60 | Not publishable | 不应作为方法论参考 |
 
-**评分公式**：`total_score = Σ (dimension_fraction × weight)`，12 维度 41 项检查，详见 `references/scoring-methodology.md`。
+**评分公式**：`total_score = Σ (dimension_fraction × weight)`，12 维度 41 项检查，详见 `references/operations/scoring-methodology.md`。
 
-**与代码扫描的关系**：元数据评分（路径 A）评估"作者声称做了什么"；代码扫描 R001-R020（路径 C）评估"代码实际做了什么"。两者应交叉比对，矛盾说明报告不一致。详见 `references/paper-audit-workflow.md`。
+**与代码扫描的关系**：元数据评分（路径 A）评估"作者声称做了什么"；代码扫描 R001-R020（路径 C）评估"代码实际做了什么"。两者应交叉比对，矛盾说明报告不一致。详见 `references/protocols/paper-audit-workflow.md`。
 
 ---
 
@@ -174,12 +174,12 @@ python3 scripts/batch_journal_review.py \
 
 | 文档 | 位置 | 内容 |
 |------|------|------|
-| 评分方法学 | `references/scoring-methodology.md` | 公式、维度→字段映射、权重依据 |
-| 泄漏规则映射 | `references/leakage-rule-taxonomy-mapping.md` | R001-R020 ↔ Kapoor 八型泄漏 |
-| 元数据验证 | `references/metadata-validation-rules.md` | 字段范围、一致性校验 |
-| 端到端工作流 | `references/paper-audit-workflow.md` | 从 PDF 到评分报告的完整步骤 |
-| 盲审协议 | `references/blind-audit-protocol.md` | Phase 2 三审员盲审 + kappa 计算 |
-| 抽样策略 | `references/phase-sampling-strategy.md` | Phase 1→2 抽样设计 + 统计检验力 |
+| 评分方法学 | `references/operations/scoring-methodology.md` | 公式、维度→字段映射、权重依据 |
+| 泄漏规则映射 | `references/methodology/leakage-rule-taxonomy-mapping.md` | R001-R020 ↔ Kapoor 八型泄漏 |
+| 元数据验证 | `references/operations/metadata-validation-rules.md` | 字段范围、一致性校验 |
+| 端到端工作流 | `references/protocols/paper-audit-workflow.md` | 从 PDF 到评分报告的完整步骤 |
+| 盲审协议 | `references/protocols/blind-audit-protocol.md` | Phase 2 三审员盲审 + kappa 计算 |
+| 抽样策略 | `references/protocols/phase-sampling-strategy.md` | Phase 1→2 抽样设计 + 统计检验力 |
 | 系统性综述协议 | `experiments/paper/REVIEW_PROTOCOL.md` | PRISMA 2020 格式的完整 protocol |
 
 ---

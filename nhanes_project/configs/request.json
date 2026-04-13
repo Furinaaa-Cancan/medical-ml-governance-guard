@@ -38,7 +38,7 @@
   "study_id": "user-data-study",
   "target_name": "disease_risk",
   "thresholds": {
-    "_profile_doc": "See references/gate-strictness-profiles.md for threshold values per profile. Profile sets defaults; individual overrides below take precedence.",
+    "_profile_doc": "See references/operations/gate-strictness-profiles.md for threshold values per profile. Profile sets defaults; individual overrides below take precedence.",
     "_profile_options": [
       "standard",
       "small_cohort",

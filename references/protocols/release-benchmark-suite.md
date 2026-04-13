@@ -38,7 +38,7 @@ Reproducibility hard gate (recommended):
 python3 scripts/orchestration/mlgg.py benchmark-suite \
   --profile release \
   --repeat 3 \
-  --registry-file references/benchmark-registry.json \
+  --registry-file references/operations/benchmark-registry.json \
   --suite-timeout-seconds 7200 \
   --emit-junit /tmp/mlgg_release_benchmark.junit.xml
 ```
@@ -115,7 +115,7 @@ python3 scripts/orchestration/mlgg.py benchmark-suite --profile release
 python3 scripts/orchestration/mlgg.py benchmark-suite \
   --profile release \
   --repeat 3 \
-  --registry-file references/benchmark-registry.json \
+  --registry-file references/operations/benchmark-registry.json \
   --suite-timeout-seconds 7200 \
   --emit-junit /tmp/mlgg_release_benchmark.junit.xml
 ```

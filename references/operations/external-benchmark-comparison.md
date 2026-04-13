@@ -71,7 +71,7 @@
   - precision==PPV and confusion-matrix formula consistency checks
 - Added `scripts/gates/generalization_gap_gate.py`:
   - train/valid/test directional gap thresholds with warning/fail tiers
-- Added policy artifact `references/performance-policy.example.json`.
+- Added policy artifact `references/templates/performance-policy.example.json`.
 - Integrated all three gates into strict pipeline + publication gate + self-critique gate.
 
 ## Implemented Improvement (V3: Replay + External Cohort + Calibration/DCA)

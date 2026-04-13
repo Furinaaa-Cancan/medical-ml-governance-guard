@@ -63,7 +63,7 @@ NEAR_ZERO_VARIANCE_COLS = [
 
 # --- Missingness Strategy (tiered, per Madley-Dowd 2019 / Jakobsen 2017) ---
 # Mechanism > proportion. No automatic exclusion by threshold alone.
-# See: ml-governance-guard/references/missingness-policy.example.json v2.0
+# See: ml-governance-guard/references/templates/missingness-policy.example.json v2.0
 MISSINGNESS_STRATEGY = {
     # Tier 4 (>80%): drop original value, keep missing indicator
     # Rationale: MNAR in EHR — "not tested" is a clinical decision with predictive value

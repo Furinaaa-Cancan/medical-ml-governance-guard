@@ -67,7 +67,7 @@ python3 scripts/tools/train_select_evaluate.py \
 
 ```bash
 # 如果 configs/tuning-protocol.json 不存在，先从模板创建:
-#   cp references/tuning-protocol.example.json configs/tuning-protocol.json
+#   cp references/templates/tuning-protocol.example.json configs/tuning-protocol.json
 #   然后根据实际调参策略编辑（确保 model_selection_data 与训练配置一致）
 
 # 1. 调优泄漏

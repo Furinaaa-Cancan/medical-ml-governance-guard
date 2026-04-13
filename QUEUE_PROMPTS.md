@@ -528,7 +528,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 - strict 模式下 finish() 行为？
 - to_float 使用是否正确（是否有 math.isfinite guard）？
 
-**第三步：检查与 `references/split-protocol.example.json` 的一致性。** gate 是否验证了 example 中定义的所有字段？
+**第三步：检查与 `references/templates/split-protocol.example.json` 的一致性。** gate 是否验证了 example 中定义的所有字段？
 
 **第四步-第七步：修复 → 验证 → 再审查 → 提交。**
 
@@ -564,7 +564,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 - not_applicable 是否对 required items 允许？
 - strict 模式行为？
 
-**第三步：对照 `references/reporting-bias-checklist.example.json` 验证覆盖完整性。**
+**第三步：对照 `references/templates/reporting-bias-checklist.example.json` 验证覆盖完整性。**
 
 **第四步-第七步：修复 → 验证 → 再审查 → 提交。**
 
@@ -580,7 +580,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 - one-SE rule replay 逻辑（验证选中模型的 metric 在 best - 1SE 范围内？）
 - test isolation：选择过程中是否有任何 test 数据参与？
 - 报告中 ranking/scores 的正确性
-- 与 `references/evaluation-report.example.json` 的 model_selection 字段对齐
+- 与 `references/templates/evaluation-report.example.json` 的 model_selection 字段对齐
 
 **第三步-第七步：修复 → 验证 → 再审查 → 提交。**
 
@@ -726,7 +726,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 - transport-drop CI 计算
 - internal 和 external cohort 的分别处理
 - CI width 阈值判断
-- 与 `references/ci-matrix-report.example.json` 的 schema 一致性
+- 与 `references/templates/ci-matrix-report.example.json` 的 schema 一致性
 
 **第三步-第七步：修复 → 验证 → 再审查 → 提交。**
 
@@ -938,7 +938,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 - external 数据加载和预处理（是否使用 train 的 preprocessor？）
 - transport-drop 计算：external_metric - internal_test_metric
 - 分别处理多个外部队列
-- 报告格式与 `references/external-validation-report.example.json` 一致性
+- 报告格式与 `references/templates/external-validation-report.example.json` 一致性
 
 **第三步-第七步：修复 → 验证 → 再审查 → 提交。**
 
@@ -950,7 +950,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 **第一步：定位所有 report/artifact 写入代码。**
 
 **第二步：逐一验证输出格式：**
-- model_selection_report.json vs `references/evaluation-report.example.json`
+- model_selection_report.json vs `references/templates/evaluation-report.example.json`
 - evaluation_report.json 的所有必填字段
 - prediction_trace.csv(.gz) 的列名和格式
 - distribution_report.json 的格式
@@ -1045,7 +1045,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 
 **第二步：逐行检查：**
 - 创建的目录列表（configs/, data/, evidence/, models/, keys/）
-- 生成的 request.json 模板内容是否与 `references/request-schema.example.json` 一致？
+- 生成的 request.json 模板内容是否与 `references/templates/request-schema.example.json` 一致？
 - 幂等性：重复执行是否安全？是否覆盖已有文件？
 - 路径处理：相对 vs 绝对？含空格？含中文？
 - 权限问题处理
@@ -1153,7 +1153,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ### 58
 添加训练结果展示步骤。
 
-**第一步：了解 model_selection_report.json 和 evaluation_report.json 的格式。** 阅读 `references/evaluation-report.example.json`。
+**第一步：了解 model_selection_report.json 和 evaluation_report.json 的格式。** 阅读 `references/templates/evaluation-report.example.json`。
 
 **第二步：在 step_run 成功完成后，添加结果解析和展示逻辑。** 读取报告 JSON，提取关键指标（AUC, PR-AUC, sensitivity, specificity, accuracy），用 box() 在终端展示。
 
@@ -1299,7 +1299,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ### 66
 扩展 Troubleshooting 文档。
 
-**第一步：阅读现有 `references/Troubleshooting-Top20.md`。** 理解格式和已有条目。
+**第一步：阅读现有 `references/docs/Troubleshooting-Top20.md`。** 理解格式和已有条目。
 
 **第二步：阅读所有 gate 脚本中的 `add_issue` 调用，收集所有 issue codes。**
 
@@ -1320,7 +1320,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 
 **第二步：为每个脚本编写标准化文档：** 用途（一句话）、参数列表（名称/类型/必填/默认值/说明）、输入文件、输出文件、exit code（0=pass, 2=fail）、示例命令。
 
-**第三步：编写 `references/API-Reference.md`。**
+**第三步：编写 `references/docs/API-Reference.md`。**
 
 **第四步：严格审查。** 逐个对照源码确认参数列表完整、默认值正确。
 
@@ -1380,7 +1380,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 
 **第二步：用 Mermaid 语法绘制：** 33 gate 的执行顺序流程图、每个 gate 的输入/输出文件、数据流方向。
 
-**第三步：编写 `references/Architecture.md`。** 包含流程图、gate 简介表格、依赖关系说明。
+**第三步：编写 `references/docs/Architecture.md`。** 包含流程图、gate 简介表格、依赖关系说明。
 
 **第四步：严格审查。** 检查流程图是否与 SKILL.md 一致、文件名是否正确。
 

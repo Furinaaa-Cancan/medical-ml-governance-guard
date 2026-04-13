@@ -129,7 +129,7 @@ python3 experiments/paper/extract_paper_metadata.py \
 
 ### Step 3: 验证 metadata
 
-参照 `references/metadata-validation-rules.md` 检查：
+参照 `references/operations/metadata-validation-rules.md` 检查：
 
 **必检项（ERROR 级别）**：
 - [ ] 所有数值字段在合理范围内

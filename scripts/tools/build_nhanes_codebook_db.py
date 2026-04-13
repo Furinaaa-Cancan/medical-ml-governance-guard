@@ -4,7 +4,7 @@
 Reads:
   references/codebooks/nhanes/nhanes_variables.tsv        (58K variables)
   references/codebooks/nhanes/nhanes_variables_codebooks.tsv (202K codebook entries)
-  references/dataset-codebook-registry.json               (curated annotations)
+  references/codebooks/dataset-codebook-registry.json     (curated annotations)
 
 Produces:
   references/codebooks/nhanes/nhanes_codebook.sqlite

@@ -959,15 +959,15 @@ def build_next_actions(failure_codes: Sequence[str], status: str, lang: str, mod
         verify = absolutize_repo_python_command(spec["verify"])
         if lang_mode == "zh":
             actions.append(
-                f"{code}: 诊断 `{diagnose}`; 修复请参考 `references/Troubleshooting-Top20.md`; 复验 `{verify}`"
+                f"{code}: 诊断 `{diagnose}`; 修复请参考 `references/docs/Troubleshooting-Top20.md`; 复验 `{verify}`"
             )
         elif lang_mode == "en":
             actions.append(
-                f"{code}: diagnose `{diagnose}`; apply fix in `references/Troubleshooting-Top20.md`; verify `{verify}`"
+                f"{code}: diagnose `{diagnose}`; apply fix in `references/docs/Troubleshooting-Top20.md`; verify `{verify}`"
             )
         else:
             actions.append(
-                f"{code}: diagnose/诊断 `{diagnose}`; fix/修复参见 `references/Troubleshooting-Top20.md`; verify/复验 `{verify}`"
+                f"{code}: diagnose/诊断 `{diagnose}`; fix/修复参见 `references/docs/Troubleshooting-Top20.md`; verify/复验 `{verify}`"
             )
     if not actions:
         if lang_mode == "zh":

@@ -25,7 +25,7 @@ curl -sL -o references/codebooks/nhanes/nhanes_variables_codebooks.tsv \
 
 ## Usage
 
-These files are used to cross-validate `references/dataset-codebook-registry.json`.
+These files are used to cross-validate `references/codebooks/dataset-codebook-registry.json`.
 The registry contains a curated subset of variables relevant to MLGG datasets,
 with additional annotations (skip patterns, gated missingness, encoding rules)
 not present in the raw Harvard data.

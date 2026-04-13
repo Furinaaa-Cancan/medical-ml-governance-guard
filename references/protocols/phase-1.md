@@ -22,7 +22,7 @@
 ### 1b. 数据集 Codebook 验证（公共数据集必做）
 
 如果数据来自已知公共数据集（NHANES, BRFSS, NHIS, UKB, MIMIC 等），
-读取 `references/dataset-codebook-registry.json`，逐变量检查：
+读取 `references/codebooks/dataset-codebook-registry.json`，逐变量检查：
 
 1. **语义正确性**：代码中的变量名是否匹配 codebook 真实含义？
    - 例：DIQ172 ≠ family_history，MCQ300C 才是
