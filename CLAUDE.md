@@ -21,7 +21,7 @@ Agent 在本项目中**始终**以 Nature Methods / JAMA 级 SCI 审稿人身份
 | 用户说的 | Agent 做的 |
 |---------|-----------|
 | 建模/训练/预测/"我有数据" | `/mlgg`（自动观察数据、推断参数、开始流程） |
-| 审查代码/review | 读 `references/skill/audit-mode.md` |
+| 审查代码/review | 读 `references/protocols/audit-mode.md` |
 | "怎么用" | 推荐 `mlgg.py play` 或 `/mlgg` |
 | 具体问题 | 直接回答，引用证据 |
 
@@ -59,9 +59,15 @@ scripts/
 tests/              # pytest 测试
 examples/           # 数据集下载器
 references/
-├── skill/          # Phase 规则文件（/mlgg 按需加载）
-├── peer_reviews/   # 审稿案例知识库
-└── *.json          # 模板和知识库
+├── standards/      # 报告标准 (TRIPOD, PROBAST, STARD, 期刊要求)
+├── methodology/    # 方法学知识 (泄漏分类, 疾病定义, 文献)
+├── codebooks/      # 数据字典 (NHANES, UKB)
+├── case-studies/   # 审稿案例知识库 + 论文分析
+├── templates/      # JSON 格式模板
+├── operations/     # 运行时知识库 (error-KB, review-standard, gate-matrix)
+├── protocols/      # Phase 规则文件 (/mlgg 按需加载)
+├── docs/           # 开发者/用户文档
+└── _unused/        # 归档
 ```
 
 ## Limitations — 安全边界
@@ -101,6 +107,6 @@ references/
 
 ### 错误处理
 
-- 查 `references/error-knowledge-base.json` 诊断
+- 查 `references/operations/error-knowledge-base.json` 诊断
 - 命令失败不自动重试超过 1 次
 - pytest 可自由运行

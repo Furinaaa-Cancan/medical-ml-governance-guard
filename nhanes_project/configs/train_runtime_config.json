@@ -1,0 +1,19 @@
+{
+  "run_id": "nhanes_diabetes_full",
+  "generated_at_utc": "2026-04-11T03:11:00.291769Z",
+  "train_command": "/usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/tools/train_select_evaluate.py --train /Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/data/train.csv --valid /Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/data/valid.csv --test /Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/data/test.csv --target-col y --patient-id-col patient_id --ignore-cols patient_id --performance-policy /Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/configs/performance_policy.json --missingness-policy /Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/configs/missingness_policy.json --feature-group-spec /Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/configs/feature_group_spec.json --external-cohort-spec /Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/configs/external_cohort_spec.json --model-selection-report-out /Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/evidence/model_selection_report.json --evaluation-report-out /Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/evidence/evaluation_report.json --prediction-trace-out /Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/evidence/prediction_trace.csv.gz --external-validation-report-out /Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/evidence/external_validation_report.json --ci-matrix-report-out /Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/evidence/ci_matrix_report.json --distribution-report-out /Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/evidence/distribution_report.json --feature-engineering-report-out /Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/evidence/feature_engineering_report.json --robustness-report-out /Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/evidence/robustness_report.json --robustness-time-slices 3 --robustness-group-count 2 --seed-sensitivity-out /Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/evidence/seed_sensitivity_report.json --permutation-null-out /Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/evidence/permutation_null_pr_auc.txt --model-out /Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/models/demo_model.joblib --n-jobs 1 --selection-data valid --calibration-method power",
+  "outputs": {
+    "model_selection_report": "/Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/evidence/model_selection_report.json",
+    "evaluation_report": "/Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/evidence/evaluation_report.json",
+    "prediction_trace": "/Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/evidence/prediction_trace.csv.gz",
+    "external_validation_report": "/Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/evidence/external_validation_report.json",
+    "ci_matrix_report": "/Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/evidence/ci_matrix_report.json",
+    "distribution_report": "/Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/evidence/distribution_report.json",
+    "feature_engineering_report": "/Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/evidence/feature_engineering_report.json",
+    "robustness_report": "/Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/evidence/robustness_report.json",
+    "seed_sensitivity_report": "/Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/evidence/seed_sensitivity_report.json",
+    "permutation_null_metrics": "/Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/evidence/permutation_null_pr_auc.txt",
+    "model_artifact": "/Volumes/Seagate/Skill/ml-leakage-guard/nhanes_project/models/demo_model.joblib"
+  },
+  "seed": 42
+}

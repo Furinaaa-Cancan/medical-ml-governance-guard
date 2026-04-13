@@ -1,0 +1,33 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "Mitigating Hallucination in Large Language Models (LLMs): An Application-Oriented Survey on RAG, Reasoning, and Agentic Systems",
+    "authors": ["Li Y", "Fu X", "Verma G", "Buitelaar P", "Liu M"],
+    "journal": "arXiv",
+    "year": 2025,
+    "doi": "",
+    "pmid": "",
+    "arxiv_id": "2510.24476",
+    "url": "https://arxiv.org/abs/2510.24476",
+    "pdf_filename": "paper.pdf"
+  },
+  "topic": "hallucination_mitigation_rag",
+  "relevance_to_mlgg": "Distinguishes knowledge-based vs logic-based hallucination. RAG and reasoning strategies directly applicable to grounding extract_paper_metadata.py against PubMed/PMC sources.",
+  "key_methods": [
+    "RAG for knowledge-based hallucination mitigation",
+    "Chain-of-thought reasoning for logic-based hallucination",
+    "Agentic system integration (retrieval + reasoning + verification)",
+    "Knowledge vs logic hallucination taxonomy"
+  ],
+  "key_findings": [
+    "RAG effective against knowledge-based hallucination (wrong facts)",
+    "Reasoning enhancement effective against logic-based hallucination (wrong inference)",
+    "Agentic systems combine both for robust mitigation",
+    "Application-oriented benchmarks show real-world effectiveness"
+  ],
+  "actionable_for_mlgg": [
+    "RAG: retrieve PMC full-text sections as grounding context (already partially implemented)",
+    "Reasoning: chain-of-thought prompting for leakage_risk assessment inference",
+    "Agentic verification: second-pass agent validates extracted values against source text"
+  ]
+}

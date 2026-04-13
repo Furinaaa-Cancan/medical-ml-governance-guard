@@ -1,0 +1,1828 @@
+{
+  "papers_scored": 10,
+  "score_summary": {
+    "mean": 32.2,
+    "std": 10.5,
+    "median": 27.7,
+    "min": 23.2,
+    "max": 52.1,
+    "publication_grade": 0,
+    "solid": 0,
+    "major_issues": 0,
+    "not_publishable": 10
+  },
+  "dimension_aggregation": {
+    "data_integrity": {
+      "mean_fraction": 0.3833,
+      "std": 0.2692,
+      "min": 0.1667
+    },
+    "leakage_prevention": {
+      "mean_fraction": 0.0833,
+      "std": 0.2007,
+      "min": 0.0
+    },
+    "pipeline_isolation": {
+      "mean_fraction": 0.4667,
+      "std": 0.1633,
+      "min": 0.3333
+    },
+    "model_selection_rigor": {
+      "mean_fraction": 0.85,
+      "std": 0.1225,
+      "min": 0.75
+    },
+    "statistical_validity": {
+      "mean_fraction": 0.0,
+      "std": 0.0,
+      "min": 0.0
+    },
+    "generalization_evidence": {
+      "mean_fraction": 0.0333,
+      "std": 0.1,
+      "min": 0.0
+    },
+    "clinical_completeness": {
+      "mean_fraction": 0.32,
+      "std": 0.1833,
+      "min": 0.2
+    },
+    "reporting_standards": {
+      "mean_fraction": 0.3333,
+      "std": 0.0,
+      "min": 0.3333
+    },
+    "reproducibility": {
+      "mean_fraction": 0.6,
+      "std": 0.2,
+      "min": 0.5
+    },
+    "security_provenance": {
+      "mean_fraction": 1.0,
+      "std": 0.0,
+      "min": 1.0
+    },
+    "fairness_equity": {
+      "mean_fraction": 0.0,
+      "std": 0.0,
+      "min": 0.0
+    },
+    "sample_size_adequacy": {
+      "mean_fraction": 0.25,
+      "std": 0.4031,
+      "min": 0.0
+    }
+  },
+  "leakage_prevalence": {
+    "patient_split_confirmed": 1,
+    "temporal_split_confirmed": 0,
+    "preprocess_isolated": 0,
+    "test_used_for_tuning": 0,
+    "high_leakage_risk": 1
+  },
+  "results": [
+    {
+      "contract_version": "paper_score.v1",
+      "scored_at": "2026-04-11T12:45:57.323911+00:00",
+      "total_score": 50.4,
+      "grade": "Not publishable",
+      "dimensions": {
+        "data_integrity": {
+          "score": 10.0,
+          "max": 12,
+          "fraction": 0.8333,
+          "passed": [
+            "split_reported",
+            "train_test_sizes",
+            "test_size",
+            "total_n_reported",
+            "prevalence_reported"
+          ],
+          "failed": [
+            "temporal_split"
+          ]
+        },
+        "leakage_prevention": {
+          "score": 2.5,
+          "max": 15,
+          "fraction": 0.1667,
+          "passed": [
+            "no_test_tuning"
+          ],
+          "failed": [
+            "patient_level_split",
+            "temporal_split_confirmed",
+            "preprocess_train_only",
+            "low_target_leakage",
+            "low_post_index_risk"
+          ]
+        },
+        "pipeline_isolation": {
+          "score": 8.0,
+          "max": 12,
+          "fraction": 0.6667,
+          "passed": [
+            "tuning_set_valid_only",
+            "missing_data_handled"
+          ],
+          "failed": [
+            "preprocess_isolated"
+          ]
+        },
+        "model_selection_rigor": {
+          "score": 10.0,
+          "max": 10,
+          "fraction": 1.0,
+          "passed": [
+            "multiple_candidates",
+            "hyperparameter_tuning",
+            "tuning_not_on_test",
+            "feature_selection_described"
+          ],
+          "failed": []
+        },
+        "statistical_validity": {
+          "score": 0.0,
+          "max": 12,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "ci_reported",
+            "ci_bounds",
+            "calibration_reported",
+            "dca_reported",
+            "brier_reported"
+          ]
+        },
+        "generalization_evidence": {
+          "score": 0.0,
+          "max": 10,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "external_validation",
+            "external_auroc",
+            "multicenter"
+          ]
+        },
+        "clinical_completeness": {
+          "score": 5.6,
+          "max": 7,
+          "fraction": 0.8,
+          "passed": [
+            "auroc_reported",
+            "sensitivity_reported",
+            "specificity_reported",
+            "primary_metric_named"
+          ],
+          "failed": [
+            "ppv_npv_reported"
+          ]
+        },
+        "reporting_standards": {
+          "score": 2.33,
+          "max": 7,
+          "fraction": 0.3333,
+          "passed": [
+            "limitation_section"
+          ],
+          "failed": [
+            "tripod_claimed",
+            "equator_cited"
+          ]
+        },
+        "reproducibility": {
+          "score": 6.0,
+          "max": 6,
+          "fraction": 1.0,
+          "passed": [
+            "code_available",
+            "data_available"
+          ],
+          "failed": []
+        },
+        "security_provenance": {
+          "score": 3.0,
+          "max": 3,
+          "fraction": 1.0,
+          "passed": [
+            "code_or_data_shared"
+          ],
+          "failed": []
+        },
+        "fairness_equity": {
+          "score": 0.0,
+          "max": 3,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "multicenter_or_subgroup"
+          ]
+        },
+        "sample_size_adequacy": {
+          "score": 3.0,
+          "max": 3,
+          "fraction": 1.0,
+          "passed": [
+            "events_reported",
+            "epv_adequate"
+          ],
+          "failed": []
+        }
+      },
+      "leakage_flags": {
+        "patient_split": false,
+        "temporal_split": false,
+        "preprocess_isolated": false,
+        "test_used_for_tuning": false,
+        "target_leakage_risk": "medium"
+      },
+      "bibliographic": {
+        "title": "Machine learning prediction of 30-day hospital readmission for diabetes patients",
+        "authors": [
+          "OConnor PJ"
+        ],
+        "journal": "JAMA Internal Medicine (representative)",
+        "year": 2021,
+        "doi": "",
+        "pmid": ""
+      },
+      "source_file": "papers/jama/diabetes/oconnor_2021_t2dm_readmission/metadata.json"
+    },
+    {
+      "contract_version": "paper_score.v1",
+      "scored_at": "2026-04-11T12:45:57.324221+00:00",
+      "total_score": 38.5,
+      "grade": "Not publishable",
+      "dimensions": {
+        "data_integrity": {
+          "score": 8.0,
+          "max": 12,
+          "fraction": 0.6667,
+          "passed": [
+            "train_test_sizes",
+            "test_size",
+            "total_n_reported",
+            "prevalence_reported"
+          ],
+          "failed": [
+            "split_reported",
+            "temporal_split"
+          ]
+        },
+        "leakage_prevention": {
+          "score": 0.0,
+          "max": 15,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "patient_level_split",
+            "temporal_split_confirmed",
+            "preprocess_train_only",
+            "no_test_tuning",
+            "low_target_leakage",
+            "low_post_index_risk"
+          ]
+        },
+        "pipeline_isolation": {
+          "score": 4.0,
+          "max": 12,
+          "fraction": 0.3333,
+          "passed": [
+            "missing_data_handled"
+          ],
+          "failed": [
+            "preprocess_isolated",
+            "tuning_set_valid_only"
+          ]
+        },
+        "model_selection_rigor": {
+          "score": 7.5,
+          "max": 10,
+          "fraction": 0.75,
+          "passed": [
+            "hyperparameter_tuning",
+            "tuning_not_on_test",
+            "feature_selection_described"
+          ],
+          "failed": [
+            "multiple_candidates"
+          ]
+        },
+        "statistical_validity": {
+          "score": 0.0,
+          "max": 12,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "ci_reported",
+            "ci_bounds",
+            "calibration_reported",
+            "dca_reported",
+            "brier_reported"
+          ]
+        },
+        "generalization_evidence": {
+          "score": 3.33,
+          "max": 10,
+          "fraction": 0.3333,
+          "passed": [
+            "external_auroc"
+          ],
+          "failed": [
+            "external_validation",
+            "multicenter"
+          ]
+        },
+        "clinical_completeness": {
+          "score": 2.8,
+          "max": 7,
+          "fraction": 0.4,
+          "passed": [
+            "auroc_reported",
+            "primary_metric_named"
+          ],
+          "failed": [
+            "sensitivity_reported",
+            "specificity_reported",
+            "ppv_npv_reported"
+          ]
+        },
+        "reporting_standards": {
+          "score": 2.33,
+          "max": 7,
+          "fraction": 0.3333,
+          "passed": [
+            "limitation_section"
+          ],
+          "failed": [
+            "tripod_claimed",
+            "equator_cited"
+          ]
+        },
+        "reproducibility": {
+          "score": 6.0,
+          "max": 6,
+          "fraction": 1.0,
+          "passed": [
+            "code_available",
+            "data_available"
+          ],
+          "failed": []
+        },
+        "security_provenance": {
+          "score": 3.0,
+          "max": 3,
+          "fraction": 1.0,
+          "passed": [
+            "code_or_data_shared"
+          ],
+          "failed": []
+        },
+        "fairness_equity": {
+          "score": 0.0,
+          "max": 3,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "multicenter_or_subgroup"
+          ]
+        },
+        "sample_size_adequacy": {
+          "score": 1.5,
+          "max": 3,
+          "fraction": 0.5,
+          "passed": [
+            "events_reported"
+          ],
+          "failed": [
+            "epv_adequate"
+          ]
+        }
+      },
+      "leakage_flags": {
+        "patient_split": false,
+        "temporal_split": false,
+        "preprocess_isolated": null,
+        "test_used_for_tuning": null,
+        "target_leakage_risk": "high"
+      },
+      "bibliographic": {
+        "title": "An interpretable mortality prediction model for COVID-19 patients",
+        "authors": [
+          "Yan L",
+          "Zhang HT",
+          "Goncalves J",
+          "Xiao Y",
+          "Wang M",
+          "Guo Y"
+        ],
+        "journal": "Nature Machine Intelligence",
+        "year": 2020,
+        "doi": "10.1038/s42256-020-0180-7",
+        "pmid": "32607449",
+        "url": "",
+        "pdf_filename": "paper.pdf"
+      },
+      "source_file": "papers/nature_medicine/respiratory/yan_2020_covid_mortality/metadata.json"
+    },
+    {
+      "contract_version": "paper_score.v1",
+      "scored_at": "2026-04-11T12:45:57.324319+00:00",
+      "total_score": 30.6,
+      "grade": "Not publishable",
+      "dimensions": {
+        "data_integrity": {
+          "score": 4.0,
+          "max": 12,
+          "fraction": 0.3333,
+          "passed": [
+            "split_reported",
+            "total_n_reported"
+          ],
+          "failed": [
+            "train_test_sizes",
+            "test_size",
+            "prevalence_reported",
+            "temporal_split"
+          ]
+        },
+        "leakage_prevention": {
+          "score": 0.0,
+          "max": 15,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "patient_level_split",
+            "temporal_split_confirmed",
+            "preprocess_train_only",
+            "no_test_tuning",
+            "low_target_leakage",
+            "low_post_index_risk"
+          ]
+        },
+        "pipeline_isolation": {
+          "score": 8.0,
+          "max": 12,
+          "fraction": 0.6667,
+          "passed": [
+            "tuning_set_valid_only",
+            "missing_data_handled"
+          ],
+          "failed": [
+            "preprocess_isolated"
+          ]
+        },
+        "model_selection_rigor": {
+          "score": 7.5,
+          "max": 10,
+          "fraction": 0.75,
+          "passed": [
+            "hyperparameter_tuning",
+            "tuning_not_on_test",
+            "feature_selection_described"
+          ],
+          "failed": [
+            "multiple_candidates"
+          ]
+        },
+        "statistical_validity": {
+          "score": 0.0,
+          "max": 12,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "ci_reported",
+            "ci_bounds",
+            "calibration_reported",
+            "dca_reported",
+            "brier_reported"
+          ]
+        },
+        "generalization_evidence": {
+          "score": 0.0,
+          "max": 10,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "external_validation",
+            "external_auroc",
+            "multicenter"
+          ]
+        },
+        "clinical_completeness": {
+          "score": 2.8,
+          "max": 7,
+          "fraction": 0.4,
+          "passed": [
+            "auroc_reported",
+            "primary_metric_named"
+          ],
+          "failed": [
+            "sensitivity_reported",
+            "specificity_reported",
+            "ppv_npv_reported"
+          ]
+        },
+        "reporting_standards": {
+          "score": 2.33,
+          "max": 7,
+          "fraction": 0.3333,
+          "passed": [
+            "limitation_section"
+          ],
+          "failed": [
+            "tripod_claimed",
+            "equator_cited"
+          ]
+        },
+        "reproducibility": {
+          "score": 3.0,
+          "max": 6,
+          "fraction": 0.5,
+          "passed": [
+            "code_available"
+          ],
+          "failed": [
+            "data_available"
+          ]
+        },
+        "security_provenance": {
+          "score": 3.0,
+          "max": 3,
+          "fraction": 1.0,
+          "passed": [
+            "code_or_data_shared"
+          ],
+          "failed": []
+        },
+        "fairness_equity": {
+          "score": 0.0,
+          "max": 3,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "multicenter_or_subgroup"
+          ]
+        },
+        "sample_size_adequacy": {
+          "score": 0.0,
+          "max": 3,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "events_reported",
+            "epv_adequate"
+          ]
+        }
+      },
+      "leakage_flags": {
+        "patient_split": null,
+        "temporal_split": null,
+        "preprocess_isolated": null,
+        "test_used_for_tuning": null,
+        "target_leakage_risk": "cannot_assess"
+      },
+      "bibliographic": {
+        "title": "RETAIN: An Interpretable Predictive Model for Healthcare using Reverse Time Attention Mechanism",
+        "authors": [
+          "Choi E",
+          "Bahadori MT",
+          "Sun J",
+          "Kulas J",
+          "Schuetz A",
+          "Stewart W"
+        ],
+        "journal": "NeurIPS",
+        "year": 2016,
+        "doi": "",
+        "pmid": "",
+        "url": "",
+        "pdf_filename": "paper.pdf"
+      },
+      "source_file": "papers/specialist_journals/cardiovascular/choi_2016_retain_hf/metadata.json"
+    },
+    {
+      "contract_version": "paper_score.v1",
+      "scored_at": "2026-04-11T12:45:57.324411+00:00",
+      "total_score": 23.2,
+      "grade": "Not publishable",
+      "dimensions": {
+        "data_integrity": {
+          "score": 2.0,
+          "max": 12,
+          "fraction": 0.1667,
+          "passed": [
+            "split_reported"
+          ],
+          "failed": [
+            "train_test_sizes",
+            "test_size",
+            "total_n_reported",
+            "prevalence_reported",
+            "temporal_split"
+          ]
+        },
+        "leakage_prevention": {
+          "score": 0.0,
+          "max": 15,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "patient_level_split",
+            "temporal_split_confirmed",
+            "preprocess_train_only",
+            "no_test_tuning",
+            "low_target_leakage",
+            "low_post_index_risk"
+          ]
+        },
+        "pipeline_isolation": {
+          "score": 4.0,
+          "max": 12,
+          "fraction": 0.3333,
+          "passed": [
+            "missing_data_handled"
+          ],
+          "failed": [
+            "preprocess_isolated",
+            "tuning_set_valid_only"
+          ]
+        },
+        "model_selection_rigor": {
+          "score": 7.5,
+          "max": 10,
+          "fraction": 0.75,
+          "passed": [
+            "hyperparameter_tuning",
+            "tuning_not_on_test",
+            "feature_selection_described"
+          ],
+          "failed": [
+            "multiple_candidates"
+          ]
+        },
+        "statistical_validity": {
+          "score": 0.0,
+          "max": 12,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "ci_reported",
+            "ci_bounds",
+            "calibration_reported",
+            "dca_reported",
+            "brier_reported"
+          ]
+        },
+        "generalization_evidence": {
+          "score": 0.0,
+          "max": 10,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "external_validation",
+            "external_auroc",
+            "multicenter"
+          ]
+        },
+        "clinical_completeness": {
+          "score": 1.4,
+          "max": 7,
+          "fraction": 0.2,
+          "passed": [
+            "primary_metric_named"
+          ],
+          "failed": [
+            "auroc_reported",
+            "sensitivity_reported",
+            "specificity_reported",
+            "ppv_npv_reported"
+          ]
+        },
+        "reporting_standards": {
+          "score": 2.33,
+          "max": 7,
+          "fraction": 0.3333,
+          "passed": [
+            "limitation_section"
+          ],
+          "failed": [
+            "tripod_claimed",
+            "equator_cited"
+          ]
+        },
+        "reproducibility": {
+          "score": 3.0,
+          "max": 6,
+          "fraction": 0.5,
+          "passed": [
+            "code_available"
+          ],
+          "failed": [
+            "data_available"
+          ]
+        },
+        "security_provenance": {
+          "score": 3.0,
+          "max": 3,
+          "fraction": 1.0,
+          "passed": [
+            "code_or_data_shared"
+          ],
+          "failed": []
+        },
+        "fairness_equity": {
+          "score": 0.0,
+          "max": 3,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "multicenter_or_subgroup"
+          ]
+        },
+        "sample_size_adequacy": {
+          "score": 0.0,
+          "max": 3,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "events_reported",
+            "epv_adequate"
+          ]
+        }
+      },
+      "leakage_flags": {
+        "patient_split": null,
+        "temporal_split": null,
+        "preprocess_isolated": null,
+        "test_used_for_tuning": null,
+        "target_leakage_risk": "cannot_assess"
+      },
+      "bibliographic": {
+        "title": "Recurrent Neural Networks for Multivariate Time Series with Missing Values",
+        "authors": [
+          "Che Z",
+          "Purushotham S",
+          "Cho K",
+          "Sontag D",
+          "Liu Y"
+        ],
+        "journal": "Scientific Reports",
+        "year": 2018,
+        "doi": "10.1038/s41598-018-24271-9",
+        "pmid": "29636515",
+        "url": "",
+        "pdf_filename": "paper.pdf"
+      },
+      "source_file": "papers/specialist_journals/other/che_2018_grud_missing_values/metadata.json"
+    },
+    {
+      "contract_version": "paper_score.v1",
+      "scored_at": "2026-04-11T12:45:57.324500+00:00",
+      "total_score": 25.7,
+      "grade": "Not publishable",
+      "dimensions": {
+        "data_integrity": {
+          "score": 2.0,
+          "max": 12,
+          "fraction": 0.1667,
+          "passed": [
+            "split_reported"
+          ],
+          "failed": [
+            "train_test_sizes",
+            "test_size",
+            "total_n_reported",
+            "prevalence_reported",
+            "temporal_split"
+          ]
+        },
+        "leakage_prevention": {
+          "score": 0.0,
+          "max": 15,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "patient_level_split",
+            "temporal_split_confirmed",
+            "preprocess_train_only",
+            "no_test_tuning",
+            "low_target_leakage",
+            "low_post_index_risk"
+          ]
+        },
+        "pipeline_isolation": {
+          "score": 4.0,
+          "max": 12,
+          "fraction": 0.3333,
+          "passed": [
+            "missing_data_handled"
+          ],
+          "failed": [
+            "preprocess_isolated",
+            "tuning_set_valid_only"
+          ]
+        },
+        "model_selection_rigor": {
+          "score": 10.0,
+          "max": 10,
+          "fraction": 1.0,
+          "passed": [
+            "multiple_candidates",
+            "hyperparameter_tuning",
+            "tuning_not_on_test",
+            "feature_selection_described"
+          ],
+          "failed": []
+        },
+        "statistical_validity": {
+          "score": 0.0,
+          "max": 12,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "ci_reported",
+            "ci_bounds",
+            "calibration_reported",
+            "dca_reported",
+            "brier_reported"
+          ]
+        },
+        "generalization_evidence": {
+          "score": 0.0,
+          "max": 10,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "external_validation",
+            "external_auroc",
+            "multicenter"
+          ]
+        },
+        "clinical_completeness": {
+          "score": 1.4,
+          "max": 7,
+          "fraction": 0.2,
+          "passed": [
+            "primary_metric_named"
+          ],
+          "failed": [
+            "auroc_reported",
+            "sensitivity_reported",
+            "specificity_reported",
+            "ppv_npv_reported"
+          ]
+        },
+        "reporting_standards": {
+          "score": 2.33,
+          "max": 7,
+          "fraction": 0.3333,
+          "passed": [
+            "limitation_section"
+          ],
+          "failed": [
+            "tripod_claimed",
+            "equator_cited"
+          ]
+        },
+        "reproducibility": {
+          "score": 3.0,
+          "max": 6,
+          "fraction": 0.5,
+          "passed": [
+            "code_available"
+          ],
+          "failed": [
+            "data_available"
+          ]
+        },
+        "security_provenance": {
+          "score": 3.0,
+          "max": 3,
+          "fraction": 1.0,
+          "passed": [
+            "code_or_data_shared"
+          ],
+          "failed": []
+        },
+        "fairness_equity": {
+          "score": 0.0,
+          "max": 3,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "multicenter_or_subgroup"
+          ]
+        },
+        "sample_size_adequacy": {
+          "score": 0.0,
+          "max": 3,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "events_reported",
+            "epv_adequate"
+          ]
+        }
+      },
+      "leakage_flags": {
+        "patient_split": null,
+        "temporal_split": null,
+        "preprocess_isolated": null,
+        "test_used_for_tuning": null,
+        "target_leakage_risk": "cannot_assess"
+      },
+      "bibliographic": {
+        "title": "Reproducibility in critical care: a mortality prediction case study",
+        "authors": [
+          "Johnson AEW",
+          "Pollard TJ",
+          "Mark RG"
+        ],
+        "journal": "MLHC (Machine Learning for Healthcare)",
+        "year": 2017,
+        "doi": "",
+        "pmid": "",
+        "url": "",
+        "pdf_filename": "paper.pdf"
+      },
+      "source_file": "papers/specialist_journals/other/johnson_2017_reproducibility_mimic/metadata.json"
+    },
+    {
+      "contract_version": "paper_score.v1",
+      "scored_at": "2026-04-11T12:45:57.324574+00:00",
+      "total_score": 25.2,
+      "grade": "Not publishable",
+      "dimensions": {
+        "data_integrity": {
+          "score": 4.0,
+          "max": 12,
+          "fraction": 0.3333,
+          "passed": [
+            "split_reported",
+            "total_n_reported"
+          ],
+          "failed": [
+            "train_test_sizes",
+            "test_size",
+            "prevalence_reported",
+            "temporal_split"
+          ]
+        },
+        "leakage_prevention": {
+          "score": 0.0,
+          "max": 15,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "patient_level_split",
+            "temporal_split_confirmed",
+            "preprocess_train_only",
+            "no_test_tuning",
+            "low_target_leakage",
+            "low_post_index_risk"
+          ]
+        },
+        "pipeline_isolation": {
+          "score": 4.0,
+          "max": 12,
+          "fraction": 0.3333,
+          "passed": [
+            "missing_data_handled"
+          ],
+          "failed": [
+            "preprocess_isolated",
+            "tuning_set_valid_only"
+          ]
+        },
+        "model_selection_rigor": {
+          "score": 7.5,
+          "max": 10,
+          "fraction": 0.75,
+          "passed": [
+            "hyperparameter_tuning",
+            "tuning_not_on_test",
+            "feature_selection_described"
+          ],
+          "failed": [
+            "multiple_candidates"
+          ]
+        },
+        "statistical_validity": {
+          "score": 0.0,
+          "max": 12,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "ci_reported",
+            "ci_bounds",
+            "calibration_reported",
+            "dca_reported",
+            "brier_reported"
+          ]
+        },
+        "generalization_evidence": {
+          "score": 0.0,
+          "max": 10,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "external_validation",
+            "external_auroc",
+            "multicenter"
+          ]
+        },
+        "clinical_completeness": {
+          "score": 1.4,
+          "max": 7,
+          "fraction": 0.2,
+          "passed": [
+            "primary_metric_named"
+          ],
+          "failed": [
+            "auroc_reported",
+            "sensitivity_reported",
+            "specificity_reported",
+            "ppv_npv_reported"
+          ]
+        },
+        "reporting_standards": {
+          "score": 2.33,
+          "max": 7,
+          "fraction": 0.3333,
+          "passed": [
+            "limitation_section"
+          ],
+          "failed": [
+            "tripod_claimed",
+            "equator_cited"
+          ]
+        },
+        "reproducibility": {
+          "score": 3.0,
+          "max": 6,
+          "fraction": 0.5,
+          "passed": [
+            "code_available"
+          ],
+          "failed": [
+            "data_available"
+          ]
+        },
+        "security_provenance": {
+          "score": 3.0,
+          "max": 3,
+          "fraction": 1.0,
+          "passed": [
+            "code_or_data_shared"
+          ],
+          "failed": []
+        },
+        "fairness_equity": {
+          "score": 0.0,
+          "max": 3,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "multicenter_or_subgroup"
+          ]
+        },
+        "sample_size_adequacy": {
+          "score": 0.0,
+          "max": 3,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "events_reported",
+            "epv_adequate"
+          ]
+        }
+      },
+      "leakage_flags": {
+        "patient_split": null,
+        "temporal_split": null,
+        "preprocess_isolated": null,
+        "test_used_for_tuning": null,
+        "target_leakage_risk": "cannot_assess"
+      },
+      "bibliographic": {
+        "title": "BEHRT: Transformer for Electronic Health Records",
+        "authors": [
+          "Li Y",
+          "Rao S",
+          "Solares JRA",
+          "Hassaine A",
+          "Ramakrishnan R",
+          "Canoy D",
+          "Zhu Y",
+          "Rahimi K",
+          "Salimi-Khorshidi G"
+        ],
+        "journal": "Scientific Reports",
+        "year": 2020,
+        "doi": "10.1038/s41598-020-62922-y",
+        "pmid": "32273507",
+        "url": "",
+        "pdf_filename": "paper.pdf"
+      },
+      "source_file": "papers/specialist_journals/other/li_2020_behrt_transformer/metadata.json"
+    },
+    {
+      "contract_version": "paper_score.v1",
+      "scored_at": "2026-04-11T12:45:57.324645+00:00",
+      "total_score": 29.7,
+      "grade": "Not publishable",
+      "dimensions": {
+        "data_integrity": {
+          "score": 2.0,
+          "max": 12,
+          "fraction": 0.1667,
+          "passed": [
+            "split_reported"
+          ],
+          "failed": [
+            "train_test_sizes",
+            "test_size",
+            "total_n_reported",
+            "prevalence_reported",
+            "temporal_split"
+          ]
+        },
+        "leakage_prevention": {
+          "score": 0.0,
+          "max": 15,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "patient_level_split",
+            "temporal_split_confirmed",
+            "preprocess_train_only",
+            "no_test_tuning",
+            "low_target_leakage",
+            "low_post_index_risk"
+          ]
+        },
+        "pipeline_isolation": {
+          "score": 8.0,
+          "max": 12,
+          "fraction": 0.6667,
+          "passed": [
+            "tuning_set_valid_only",
+            "missing_data_handled"
+          ],
+          "failed": [
+            "preprocess_isolated"
+          ]
+        },
+        "model_selection_rigor": {
+          "score": 10.0,
+          "max": 10,
+          "fraction": 1.0,
+          "passed": [
+            "multiple_candidates",
+            "hyperparameter_tuning",
+            "tuning_not_on_test",
+            "feature_selection_described"
+          ],
+          "failed": []
+        },
+        "statistical_validity": {
+          "score": 0.0,
+          "max": 12,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "ci_reported",
+            "ci_bounds",
+            "calibration_reported",
+            "dca_reported",
+            "brier_reported"
+          ]
+        },
+        "generalization_evidence": {
+          "score": 0.0,
+          "max": 10,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "external_validation",
+            "external_auroc",
+            "multicenter"
+          ]
+        },
+        "clinical_completeness": {
+          "score": 1.4,
+          "max": 7,
+          "fraction": 0.2,
+          "passed": [
+            "primary_metric_named"
+          ],
+          "failed": [
+            "auroc_reported",
+            "sensitivity_reported",
+            "specificity_reported",
+            "ppv_npv_reported"
+          ]
+        },
+        "reporting_standards": {
+          "score": 2.33,
+          "max": 7,
+          "fraction": 0.3333,
+          "passed": [
+            "limitation_section"
+          ],
+          "failed": [
+            "tripod_claimed",
+            "equator_cited"
+          ]
+        },
+        "reproducibility": {
+          "score": 3.0,
+          "max": 6,
+          "fraction": 0.5,
+          "passed": [
+            "code_available"
+          ],
+          "failed": [
+            "data_available"
+          ]
+        },
+        "security_provenance": {
+          "score": 3.0,
+          "max": 3,
+          "fraction": 1.0,
+          "passed": [
+            "code_or_data_shared"
+          ],
+          "failed": []
+        },
+        "fairness_equity": {
+          "score": 0.0,
+          "max": 3,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "multicenter_or_subgroup"
+          ]
+        },
+        "sample_size_adequacy": {
+          "score": 0.0,
+          "max": 3,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "events_reported",
+            "epv_adequate"
+          ]
+        }
+      },
+      "leakage_flags": {
+        "patient_split": null,
+        "temporal_split": null,
+        "preprocess_isolated": null,
+        "test_used_for_tuning": null,
+        "target_leakage_risk": "cannot_assess"
+      },
+      "bibliographic": {
+        "title": "Benchmarking deep learning models on large healthcare datasets",
+        "authors": [
+          "Purushotham S",
+          "Meng C",
+          "Che Z",
+          "Liu Y"
+        ],
+        "journal": "Journal of Biomedical Informatics",
+        "year": 2018,
+        "doi": "10.1016/j.jbi.2018.04.007",
+        "pmid": "29879470",
+        "url": "",
+        "pdf_filename": "paper.pdf"
+      },
+      "source_file": "papers/specialist_journals/other/purushotham_2018_benchmarking_dl_mimic/metadata.json"
+    },
+    {
+      "contract_version": "paper_score.v1",
+      "scored_at": "2026-04-11T12:45:57.324725+00:00",
+      "total_score": 52.1,
+      "grade": "Not publishable",
+      "dimensions": {
+        "data_integrity": {
+          "score": 10.0,
+          "max": 12,
+          "fraction": 0.8333,
+          "passed": [
+            "split_reported",
+            "train_test_sizes",
+            "test_size",
+            "total_n_reported",
+            "prevalence_reported"
+          ],
+          "failed": [
+            "temporal_split"
+          ]
+        },
+        "leakage_prevention": {
+          "score": 10.0,
+          "max": 15,
+          "fraction": 0.6667,
+          "passed": [
+            "patient_level_split",
+            "no_test_tuning",
+            "low_target_leakage",
+            "low_post_index_risk"
+          ],
+          "failed": [
+            "temporal_split_confirmed",
+            "preprocess_train_only"
+          ]
+        },
+        "pipeline_isolation": {
+          "score": 8.0,
+          "max": 12,
+          "fraction": 0.6667,
+          "passed": [
+            "tuning_set_valid_only",
+            "missing_data_handled"
+          ],
+          "failed": [
+            "preprocess_isolated"
+          ]
+        },
+        "model_selection_rigor": {
+          "score": 10.0,
+          "max": 10,
+          "fraction": 1.0,
+          "passed": [
+            "multiple_candidates",
+            "hyperparameter_tuning",
+            "tuning_not_on_test",
+            "feature_selection_described"
+          ],
+          "failed": []
+        },
+        "statistical_validity": {
+          "score": 0.0,
+          "max": 12,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "ci_reported",
+            "ci_bounds",
+            "calibration_reported",
+            "dca_reported",
+            "brier_reported"
+          ]
+        },
+        "generalization_evidence": {
+          "score": 0.0,
+          "max": 10,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "external_validation",
+            "external_auroc",
+            "multicenter"
+          ]
+        },
+        "clinical_completeness": {
+          "score": 2.8,
+          "max": 7,
+          "fraction": 0.4,
+          "passed": [
+            "auroc_reported",
+            "primary_metric_named"
+          ],
+          "failed": [
+            "sensitivity_reported",
+            "specificity_reported",
+            "ppv_npv_reported"
+          ]
+        },
+        "reporting_standards": {
+          "score": 2.33,
+          "max": 7,
+          "fraction": 0.3333,
+          "passed": [
+            "limitation_section"
+          ],
+          "failed": [
+            "tripod_claimed",
+            "equator_cited"
+          ]
+        },
+        "reproducibility": {
+          "score": 3.0,
+          "max": 6,
+          "fraction": 0.5,
+          "passed": [
+            "code_available"
+          ],
+          "failed": [
+            "data_available"
+          ]
+        },
+        "security_provenance": {
+          "score": 3.0,
+          "max": 3,
+          "fraction": 1.0,
+          "passed": [
+            "code_or_data_shared"
+          ],
+          "failed": []
+        },
+        "fairness_equity": {
+          "score": 0.0,
+          "max": 3,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "multicenter_or_subgroup"
+          ]
+        },
+        "sample_size_adequacy": {
+          "score": 3.0,
+          "max": 3,
+          "fraction": 1.0,
+          "passed": [
+            "events_reported",
+            "epv_adequate"
+          ],
+          "failed": []
+        }
+      },
+      "leakage_flags": {
+        "patient_split": true,
+        "temporal_split": false,
+        "preprocess_isolated": null,
+        "test_used_for_tuning": false,
+        "target_leakage_risk": "low"
+      },
+      "bibliographic": {
+        "title": "Multitask learning and benchmarking with clinical time series data",
+        "authors": [
+          "Harutyunyan H",
+          "Khachatrian H",
+          "Kale DC",
+          "Ver Steeg G",
+          "Galstyan A"
+        ],
+        "journal": "Scientific Data",
+        "year": 2019,
+        "doi": "10.1038/s41597-019-0103-9",
+        "pmid": "31160594",
+        "url": "",
+        "pdf_filename": "paper.pdf"
+      },
+      "source_file": "papers/specialist_journals/sepsis_icu/harutyunyan_2019_mimic3_benchmarks/metadata.json"
+    },
+    {
+      "contract_version": "paper_score.v1",
+      "scored_at": "2026-04-11T12:45:57.324803+00:00",
+      "total_score": 23.2,
+      "grade": "Not publishable",
+      "dimensions": {
+        "data_integrity": {
+          "score": 2.0,
+          "max": 12,
+          "fraction": 0.1667,
+          "passed": [
+            "split_reported"
+          ],
+          "failed": [
+            "train_test_sizes",
+            "test_size",
+            "total_n_reported",
+            "prevalence_reported",
+            "temporal_split"
+          ]
+        },
+        "leakage_prevention": {
+          "score": 0.0,
+          "max": 15,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "patient_level_split",
+            "temporal_split_confirmed",
+            "preprocess_train_only",
+            "no_test_tuning",
+            "low_target_leakage",
+            "low_post_index_risk"
+          ]
+        },
+        "pipeline_isolation": {
+          "score": 4.0,
+          "max": 12,
+          "fraction": 0.3333,
+          "passed": [
+            "missing_data_handled"
+          ],
+          "failed": [
+            "preprocess_isolated",
+            "tuning_set_valid_only"
+          ]
+        },
+        "model_selection_rigor": {
+          "score": 7.5,
+          "max": 10,
+          "fraction": 0.75,
+          "passed": [
+            "hyperparameter_tuning",
+            "tuning_not_on_test",
+            "feature_selection_described"
+          ],
+          "failed": [
+            "multiple_candidates"
+          ]
+        },
+        "statistical_validity": {
+          "score": 0.0,
+          "max": 12,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "ci_reported",
+            "ci_bounds",
+            "calibration_reported",
+            "dca_reported",
+            "brier_reported"
+          ]
+        },
+        "generalization_evidence": {
+          "score": 0.0,
+          "max": 10,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "external_validation",
+            "external_auroc",
+            "multicenter"
+          ]
+        },
+        "clinical_completeness": {
+          "score": 1.4,
+          "max": 7,
+          "fraction": 0.2,
+          "passed": [
+            "primary_metric_named"
+          ],
+          "failed": [
+            "auroc_reported",
+            "sensitivity_reported",
+            "specificity_reported",
+            "ppv_npv_reported"
+          ]
+        },
+        "reporting_standards": {
+          "score": 2.33,
+          "max": 7,
+          "fraction": 0.3333,
+          "passed": [
+            "limitation_section"
+          ],
+          "failed": [
+            "tripod_claimed",
+            "equator_cited"
+          ]
+        },
+        "reproducibility": {
+          "score": 3.0,
+          "max": 6,
+          "fraction": 0.5,
+          "passed": [
+            "code_available"
+          ],
+          "failed": [
+            "data_available"
+          ]
+        },
+        "security_provenance": {
+          "score": 3.0,
+          "max": 3,
+          "fraction": 1.0,
+          "passed": [
+            "code_or_data_shared"
+          ],
+          "failed": []
+        },
+        "fairness_equity": {
+          "score": 0.0,
+          "max": 3,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "multicenter_or_subgroup"
+          ]
+        },
+        "sample_size_adequacy": {
+          "score": 0.0,
+          "max": 3,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "events_reported",
+            "epv_adequate"
+          ]
+        }
+      },
+      "leakage_flags": {
+        "patient_split": null,
+        "temporal_split": false,
+        "preprocess_isolated": null,
+        "test_used_for_tuning": null,
+        "target_leakage_risk": "cannot_assess"
+      },
+      "bibliographic": {
+        "title": "An attention based deep learning model of clinical events in the intensive care unit",
+        "authors": [
+          "Kaji DA",
+          "Zelber-Sagi S",
+          "Engel T"
+        ],
+        "journal": "PLoS ONE",
+        "year": 2019,
+        "doi": "10.1371/journal.pone.0211057",
+        "pmid": "30759094",
+        "url": "",
+        "pdf_filename": "paper.pdf"
+      },
+      "source_file": "papers/specialist_journals/sepsis_icu/kaji_2019_attention_lstm_icu/metadata.json"
+    },
+    {
+      "contract_version": "paper_score.v1",
+      "scored_at": "2026-04-11T12:45:57.324872+00:00",
+      "total_score": 23.2,
+      "grade": "Not publishable",
+      "dimensions": {
+        "data_integrity": {
+          "score": 2.0,
+          "max": 12,
+          "fraction": 0.1667,
+          "passed": [
+            "split_reported"
+          ],
+          "failed": [
+            "train_test_sizes",
+            "test_size",
+            "total_n_reported",
+            "prevalence_reported",
+            "temporal_split"
+          ]
+        },
+        "leakage_prevention": {
+          "score": 0.0,
+          "max": 15,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "patient_level_split",
+            "temporal_split_confirmed",
+            "preprocess_train_only",
+            "no_test_tuning",
+            "low_target_leakage",
+            "low_post_index_risk"
+          ]
+        },
+        "pipeline_isolation": {
+          "score": 4.0,
+          "max": 12,
+          "fraction": 0.3333,
+          "passed": [
+            "missing_data_handled"
+          ],
+          "failed": [
+            "preprocess_isolated",
+            "tuning_set_valid_only"
+          ]
+        },
+        "model_selection_rigor": {
+          "score": 7.5,
+          "max": 10,
+          "fraction": 0.75,
+          "passed": [
+            "hyperparameter_tuning",
+            "tuning_not_on_test",
+            "feature_selection_described"
+          ],
+          "failed": [
+            "multiple_candidates"
+          ]
+        },
+        "statistical_validity": {
+          "score": 0.0,
+          "max": 12,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "ci_reported",
+            "ci_bounds",
+            "calibration_reported",
+            "dca_reported",
+            "brier_reported"
+          ]
+        },
+        "generalization_evidence": {
+          "score": 0.0,
+          "max": 10,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "external_validation",
+            "external_auroc",
+            "multicenter"
+          ]
+        },
+        "clinical_completeness": {
+          "score": 1.4,
+          "max": 7,
+          "fraction": 0.2,
+          "passed": [
+            "primary_metric_named"
+          ],
+          "failed": [
+            "auroc_reported",
+            "sensitivity_reported",
+            "specificity_reported",
+            "ppv_npv_reported"
+          ]
+        },
+        "reporting_standards": {
+          "score": 2.33,
+          "max": 7,
+          "fraction": 0.3333,
+          "passed": [
+            "limitation_section"
+          ],
+          "failed": [
+            "tripod_claimed",
+            "equator_cited"
+          ]
+        },
+        "reproducibility": {
+          "score": 3.0,
+          "max": 6,
+          "fraction": 0.5,
+          "passed": [
+            "code_available"
+          ],
+          "failed": [
+            "data_available"
+          ]
+        },
+        "security_provenance": {
+          "score": 3.0,
+          "max": 3,
+          "fraction": 1.0,
+          "passed": [
+            "code_or_data_shared"
+          ],
+          "failed": []
+        },
+        "fairness_equity": {
+          "score": 0.0,
+          "max": 3,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "multicenter_or_subgroup"
+          ]
+        },
+        "sample_size_adequacy": {
+          "score": 0.0,
+          "max": 3,
+          "fraction": 0.0,
+          "passed": [],
+          "failed": [
+            "events_reported",
+            "epv_adequate"
+          ]
+        }
+      },
+      "leakage_flags": {
+        "patient_split": null,
+        "temporal_split": null,
+        "preprocess_isolated": null,
+        "test_used_for_tuning": null,
+        "target_leakage_risk": "cannot_assess"
+      },
+      "bibliographic": {
+        "title": "Early Recognition of Sepsis with Gaussian Process Temporal Convolutional Networks and Dynamic Time Warping",
+        "authors": [
+          "Moor M",
+          "Horn M",
+          "Rieck B",
+          "Roqueiro D",
+          "Borgwardt K"
+        ],
+        "journal": "MLHC (Machine Learning for Healthcare)",
+        "year": 2019,
+        "doi": "",
+        "pmid": "",
+        "url": "",
+        "pdf_filename": "paper.pdf"
+      },
+      "source_file": "papers/specialist_journals/sepsis_icu/moor_2019_mgp_tcn_sepsis/metadata.json"
+    }
+  ]
+}

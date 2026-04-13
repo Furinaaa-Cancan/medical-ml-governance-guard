@@ -7,14 +7,14 @@ and provides lookup/validation for any NHANES variable by code or friendly name.
 
 Usage as library:
     from nhanes_codebook_lookup import NHANESCodebook
-    cb = NHANESCodebook("references/nhanes_codebook")
+    cb = NHANESCodebook("references/codebooks/nhanes")
     info = cb.lookup("DIQ172", cycle="2017-2018")
     issues = cb.validate_columns(df, target_col="y")
 
 Usage as CLI:
     python3 scripts/tools/nhanes_codebook_lookup.py \
         --data examples/nhanes_diabetes.csv \
-        --codebook-dir references/nhanes_codebook \
+        --codebook-dir references/codebooks/nhanes \
         --cycle 2017-2018 \
         --report /tmp/nhanes_rag_report.json
 """
@@ -672,7 +672,7 @@ class RegistryCodebook:
     Suitable for datasets without a Harvard-style metadata source.
 
     Usage:
-        cb = RegistryCodebook("references/dataset-codebook-registry.json", "brfss_2022")
+        cb = RegistryCodebook("references/codebooks/dataset-codebook-registry.json", "brfss_2022")
         issues = cb.validate_columns(["age", "bmi", "stroke", "y"], target_col="y")
     """
 
@@ -892,9 +892,9 @@ class RegistryCodebook:
 
 def get_codebook(
     survey_source: str,
-    registry_path: str = "references/dataset-codebook-registry.json",
-    nhanes_codebook_dir: str = "references/nhanes_codebook",
-    ukb_codebook_db: str = "references/ukb_codebook/ukb_codebook.sqlite",
+    registry_path: str = "references/codebooks/dataset-codebook-registry.json",
+    nhanes_codebook_dir: str = "references/codebooks/nhanes",
+    ukb_codebook_db: str = "references/codebooks/ukb/ukb_codebook.sqlite",
 ) -> Optional["RegistryCodebook"]:
     """Factory: return the appropriate codebook for a dataset.
 
@@ -942,7 +942,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="NHANES Codebook RAG lookup.")
     parser.add_argument("--data", help="Path to CSV — validate all columns.")
     parser.add_argument("--var", help="Look up a single variable by code.")
-    parser.add_argument("--codebook-dir", default="references/nhanes_codebook",
+    parser.add_argument("--codebook-dir", default="references/codebooks/nhanes",
                         help="Path to directory containing Harvard TSV files.")
     parser.add_argument("--cycle", default="2017-2018", help="NHANES cycle.")
     parser.add_argument("--report", help="Write JSON report to this path.")
@@ -954,7 +954,7 @@ def main() -> int:
 
     if not cb._loaded and not (Path(args.codebook_dir) / "nhanes_variables.tsv").exists():
         print(f"[ERROR] Codebook TSV files not found in {args.codebook_dir}.", file=sys.stderr)
-        print("Run: curl -sL -o references/nhanes_codebook/nhanes_variables.tsv "
+        print("Run: curl -sL -o references/codebooks/nhanes/nhanes_variables.tsv "
               '"https://raw.githubusercontent.com/ccb-hms/NHANES-metadata/master/metadata/nhanes_variables.tsv"',
               file=sys.stderr)
         return 1

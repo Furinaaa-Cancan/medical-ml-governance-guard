@@ -26,8 +26,8 @@ from typing import Any, Dict, List
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-KB_PATH = REPO_ROOT / "references" / "peer_reviews" / "peer-review-kb.json"
-STATS_PATH = REPO_ROOT / "references" / "peer_reviews" / "peer-review-kb-stats.json"
+KB_PATH = REPO_ROOT / "references" / "case-studies" / "peer-review-kb.json"
+STATS_PATH = REPO_ROOT / "references" / "case-studies" / "peer-review-kb-stats.json"
 
 
 def load_kb() -> List[Dict[str, Any]]:

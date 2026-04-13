@@ -58,11 +58,11 @@ def get_codebook(
             If empty, auto-detects from dataset_key or defaults to "2017-2018".
     """
     if not registry_path:
-        registry_path = str(REPO_ROOT / "references" / "dataset-codebook-registry.json")
+        registry_path = str(REPO_ROOT / "references" / "codebooks" / "dataset-codebook-registry.json")
     if not nhanes_codebook_dir:
-        nhanes_codebook_dir = str(REPO_ROOT / "references" / "nhanes_codebook")
+        nhanes_codebook_dir = str(REPO_ROOT / "references" / "codebooks" / "nhanes")
     if not ukb_codebook_db:
-        ukb_codebook_db = str(REPO_ROOT / "references" / "ukb_codebook" / "ukb_codebook.sqlite")
+        ukb_codebook_db = str(REPO_ROOT / "references" / "codebooks" / "ukb" / "ukb_codebook.sqlite")
 
     source_lower = survey_source.lower().strip()
     dataset_key = _DS_KEY_MAP.get(source_lower, "")

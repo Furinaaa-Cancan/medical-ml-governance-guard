@@ -1,0 +1,114 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "Multitask learning and benchmarking with clinical time series data",
+    "authors": ["Harutyunyan H", "Khachatrian H", "Kale DC", "Ver Steeg G", "Galstyan A"],
+    "journal": "Scientific Data",
+    "year": 2019,
+    "doi": "10.1038/s41597-019-0103-9",
+    "pmid": "31160594",
+    "url": "",
+    "pdf_filename": "paper.pdf"
+  },
+  "code": {
+    "github_url": "https://github.com/YerevaNN/mimic3-benchmarks",
+    "language": "Python",
+    "framework": "Keras/TensorFlow",
+    "has_training_pipeline": true,
+    "has_preprocessing": true,
+    "has_evaluation": true,
+    "verified_date": "2026-04-11"
+  },
+  "study_design": {
+    "prediction_type": "binary_classification",
+    "outcome": "In-hospital mortality + decompensation + LOS + phenotyping",
+    "prediction_unit": "patient",
+    "prediction_horizon": "48 hours (mortality), real-time (decompensation)",
+    "setting": "ICU",
+    "study_period_start": 2001,
+    "study_period_end": 2012,
+    "is_multicenter": false,
+    "has_external_validation": false,
+    "external_cohort_description": ""
+  },
+  "dataset": {
+    "source_type": "public_dataset",
+    "source_name": "MIMIC-III",
+    "n_patients_total": 42276,
+    "n_events_positive": 5426,
+    "n_events_negative": 36850,
+    "prevalence_pct": 12.8,
+    "split_strategy": "random",
+    "train_n": 33822,
+    "valid_n": 4227,
+    "test_n": 4227,
+    "features_n": 17,
+    "has_missing_data": true,
+    "missing_data_strategy": "forward fill + masking"
+  },
+  "model": {
+    "model_type": "deep_learning",
+    "n_candidate_models": 5,
+    "selection_criterion": "comparison of LSTM, channel-wise LSTM, multitask LSTM, logistic regression, standard RNN",
+    "hyperparameter_tuning": "grid search",
+    "tuning_set": "validation_only",
+    "feature_selection_method": "17 clinical variables (vitals + labs)",
+    "preprocessing_pipeline": "Python scripts in mimic3benchmark/scripts/"
+  },
+  "performance_metrics": {
+    "primary_metric": "auroc",
+    "test_auroc": 0.87,
+    "test_auroc_ci_lower": null,
+    "test_auroc_ci_upper": null,
+    "test_auprc": 0.52,
+    "test_sensitivity": null,
+    "test_specificity": null,
+    "test_ppv": null,
+    "test_npv": null,
+    "test_f1": null,
+    "test_brier_score": null,
+    "calibration_method": "",
+    "calibration_reported": false,
+    "dca_reported": false,
+    "bootstrap_ci_reported": false,
+    "n_bootstrap_resamples": null,
+    "external_auroc": null,
+    "external_auroc_ci_lower": null,
+    "external_auroc_ci_upper": null
+  },
+  "reporting_standards": {
+    "tripod_ai_claimed": false,
+    "probast_ai_claimed": false,
+    "stard_ai_claimed": false,
+    "equator_guideline_cited": "",
+    "limitation_section": true,
+    "code_availability": "public_github",
+    "data_availability": "restricted"
+  },
+  "leakage_risk_assessment": {
+    "patient_level_split_confirmed": true,
+    "temporal_split_confirmed": false,
+    "preprocessing_fit_on_train_only": null,
+    "tuning_used_test_data": false,
+    "target_leakage_risk": "low",
+    "post_index_feature_risk": "low",
+    "phenotype_definition_overlap_risk": "low",
+    "notes": "TO BE VERIFIED VIA CODE SCAN. Random split, not temporal. Patient-level claimed but needs code verification. No CI, no calibration. This is the most widely used MIMIC-III benchmark — code scan results will be highly impactful."
+  },
+  "mlgg_audit": {
+    "audit_run_date": null,
+    "mlgg_total_score": null,
+    "mlgg_grade": null,
+    "gates_passed": null,
+    "gates_failed": null,
+    "gates_missing": null,
+    "conformance_level": null,
+    "top_gaps": []
+  },
+  "reviewer_notes": {
+    "added_by": "mlgg_team",
+    "added_date": "2026-04-11",
+    "priority": "high",
+    "notes": "CODE SCAN TARGET. Most cited MIMIC-III benchmark. Full Python pipeline available at YerevaNN/mimic3-benchmarks. Ideal first target for MLGG lint + gate validation."
+  }
+}

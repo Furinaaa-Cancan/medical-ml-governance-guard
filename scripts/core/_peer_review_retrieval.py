@@ -52,8 +52,8 @@ TAG_SYNONYMS: Dict[str, List[str]] = {
     "overstatement": ["overstatement", "overclaimed", "overclaimed_novelty", "overclaimed_improvement", "overclaimed_public_health", "title_overstatement"],
 }
 
-_KB_PATH = Path(__file__).resolve().parent.parent.parent / "references" / "peer_reviews" / "peer-review-kb.json"
-_STATS_PATH = Path(__file__).resolve().parent.parent.parent / "references" / "peer_reviews" / "peer-review-kb-stats.json"
+_KB_PATH = Path(__file__).resolve().parent.parent.parent / "references" / "case-studies" / "peer-review-kb.json"
+_STATS_PATH = Path(__file__).resolve().parent.parent.parent / "references" / "case-studies" / "peer-review-kb-stats.json"
 
 _kb_cache: Optional[Dict[str, Any]] = None
 

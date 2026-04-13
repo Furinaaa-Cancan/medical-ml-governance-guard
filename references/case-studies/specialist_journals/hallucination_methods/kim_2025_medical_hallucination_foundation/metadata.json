@@ -1,0 +1,35 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "Medical Hallucinations in Foundation Models and Their Impact on Healthcare",
+    "authors": ["Kim Y", "Jeong H", "Chen S", "Li SS", "Park C", "Lu M", "Alhamoud K", "Mun J", "Grau C", "Jung M", "Gameiro R", "Fan L", "Park E", "Lin T", "Yoon J", "Yoon W", "Sap M", "Tsvetkov Y", "Liang P", "Xu X", "Liu X", "Park CJ", "Lee H", "Park HW", "McDuff D", "Tulebaev S", "Breazeal C"],
+    "journal": "arXiv / MIT Media Lab",
+    "year": 2025,
+    "doi": "",
+    "pmid": "",
+    "arxiv_id": "2503.05777",
+    "url": "https://arxiv.org/abs/2503.05777",
+    "pdf_filename": "paper.pdf"
+  },
+  "topic": "medical_hallucination_foundation_models",
+  "relevance_to_mlgg": "Large-scale evaluation of 11 foundation models across 7 medical tasks. Key finding: general-purpose models hallucinate LESS than medical-specialized models. Chain-of-thought reduces hallucination significantly. Directly informs MLGG provider selection.",
+  "key_methods": [
+    "11 foundation model evaluation (general + medical-specialized)",
+    "7 medical task benchmark",
+    "Chain-of-thought prompting evaluation",
+    "Physician review panel",
+    "Clinician survey (n=300+)"
+  ],
+  "key_findings": [
+    "General-purpose models: 76.6% hallucination-free vs medical-specialized: 51.3%",
+    "Chain-of-thought reduced hallucination in 86.4% of comparisons",
+    "Gemini-2.5 Pro + CoT exceeded 97% accuracy",
+    "84.7% of clinicians consider hallucinations capable of causing patient harm"
+  ],
+  "actionable_for_mlgg": [
+    "Prefer general-purpose models (Claude, GPT-4o) over medical-specialized for extraction",
+    "Enable chain-of-thought / adaptive thinking (already using adaptive thinking for Claude)",
+    "Quantify hallucination-free rate for MLGG extraction as quality metric",
+    "Provider comparison: Claude vs DeepSeek accuracy benchmarking needed"
+  ]
+}

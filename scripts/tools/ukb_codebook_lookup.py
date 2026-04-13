@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-DEFAULT_DB = REPO_ROOT / "references" / "ukb_codebook" / "ukb_codebook.sqlite"
+DEFAULT_DB = REPO_ROOT / "references" / "codebooks" / "ukb" / "ukb_codebook.sqlite"
 
 # ── UKB column name parser ──────────────────────────────────────────────────
 # Supports multiple UKB column naming conventions:

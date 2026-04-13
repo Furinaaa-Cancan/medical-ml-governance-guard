@@ -30,8 +30,8 @@ COMPONENT_URLS = {
 }
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-OUTPUT_VARS = REPO_ROOT / "references" / "nhanes_codebook" / "nhanes_2021_2023_variables.tsv"
-OUTPUT_CODES = REPO_ROOT / "references" / "nhanes_codebook" / "nhanes_2021_2023_codebooks.tsv"
+OUTPUT_VARS = REPO_ROOT / "references" / "codebooks" / "nhanes" / "nhanes_2021_2023_variables.tsv"
+OUTPUT_CODES = REPO_ROOT / "references" / "codebooks" / "nhanes" / "nhanes_2021_2023_codebooks.tsv"
 
 
 # ── HTML Parsing ─────────────────────────────────────────────────────────────

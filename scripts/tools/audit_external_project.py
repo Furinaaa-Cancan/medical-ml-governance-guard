@@ -345,7 +345,7 @@ def _load_journal_standards(
     if not target_journal:
         return None
     standards_path = (
-        Path(__file__).resolve().parent.parent.parent / "references" / "journal-rigor-standards.json"
+        Path(__file__).resolve().parent.parent.parent / "references" / "standards" / "journal-rigor-standards.json"
     )
     data = _load_json_safe(standards_path)
     if data is None:

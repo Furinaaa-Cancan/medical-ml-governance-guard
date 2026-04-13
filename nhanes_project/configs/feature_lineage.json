@@ -1,0 +1,40 @@
+{
+  "features": {
+    "age": {
+      "ancestors": []
+    },
+    "gender": {
+      "ancestors": []
+    },
+    "race_ethnicity": {
+      "ancestors": []
+    },
+    "bmi": {
+      "ancestors": []
+    },
+    "waist_circumference": {
+      "ancestors": []
+    },
+    "sbp_mean": {
+      "ancestors": []
+    },
+    "dbp_mean": {
+      "ancestors": []
+    },
+    "ever_smoked": {
+      "ancestors": []
+    },
+    "bp_medication": {
+      "ancestors": []
+    },
+    "coronary_heart_disease": {
+      "ancestors": []
+    },
+    "stroke": {
+      "ancestors": []
+    },
+    "nhanes_cycle": {
+      "ancestors": []
+    }
+  }
+}

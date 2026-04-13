@@ -1,0 +1,32 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "MedHallu: A Comprehensive Benchmark for Detecting Medical Hallucinations in Large Language Models",
+    "authors": ["Pandit S", "Xu J", "Hong J", "Wang Z", "Chen T", "Xu K", "Ding Y"],
+    "journal": "EMNLP 2025 / arXiv",
+    "year": 2025,
+    "doi": "",
+    "pmid": "",
+    "arxiv_id": "2502.14302",
+    "url": "https://arxiv.org/abs/2502.14302",
+    "pdf_filename": "paper.pdf"
+  },
+  "topic": "hallucination_detection",
+  "relevance_to_mlgg": "Provides 10k expert-annotated medical QA pairs for hallucination detection. Benchmark methodology applicable to validating extract_paper_metadata.py outputs. Key finding: domain-specific knowledge improves detection by up to 38%.",
+  "key_methods": [
+    "PubMedQA-based hallucination benchmark",
+    "Binary hallucination detection task",
+    "Domain-knowledge augmented prompting",
+    "Expert annotation pipeline"
+  ],
+  "key_findings": [
+    "GPT-4o and Llama-3.1 struggle with binary hallucination detection",
+    "Domain-specific knowledge improved performance by up to 38%",
+    "10,000 QA pairs: 1,000 expert-labeled + 9,000 generated"
+  ],
+  "actionable_for_mlgg": [
+    "Adapt PubMedQA benchmark approach to create ground-truth for metadata extraction validation",
+    "Use domain-knowledge augmentation in system prompt to reduce extraction hallucination",
+    "Binary detection framework applicable to verifying individual extracted fields"
+  ]
+}

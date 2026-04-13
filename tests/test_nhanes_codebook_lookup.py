@@ -8,8 +8,8 @@ from pathlib import Path
 import pytest
 
 
-CODEBOOK_DIR = Path(__file__).resolve().parent.parent / "references" / "nhanes_codebook"
-REGISTRY_PATH = Path(__file__).resolve().parent.parent / "references" / "dataset-codebook-registry.json"
+CODEBOOK_DIR = Path(__file__).resolve().parent.parent / "references" / "codebooks" / "nhanes"
+REGISTRY_PATH = Path(__file__).resolve().parent.parent / "references" / "codebooks" / "dataset-codebook-registry.json"
 
 
 @pytest.fixture(scope="module")
@@ -174,7 +174,7 @@ class TestRAGConsistency:
 # P0: Disease-KB × Codebook RAG (task-aware)
 # ────────────────────────────────────────────────────────
 
-DISEASE_KB_PATH = Path(__file__).resolve().parent.parent / "references" / "disease-definition-knowledge-base.json"
+DISEASE_KB_PATH = Path(__file__).resolve().parent.parent / "references" / "methodology" / "disease-definition-knowledge-base.json"
 
 
 class TestTaskAwareValidation:

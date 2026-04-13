@@ -150,7 +150,7 @@ register_remediations({
         "than an independent risk factor. Document as limitation or exclude.",
     "CODEBOOK_RAG_NOT_AVAILABLE":
         "Codebook RAG is only implemented for NHANES and UKB. For other datasets "
-        "(BRFSS, NHIS, MIMIC), extend references/dataset-codebook-registry.json "
+        "(BRFSS, NHIS, MIMIC), extend references/codebooks/dataset-codebook-registry.json "
         "with dataset-specific variable metadata.",
     "CODEBOOK_INSTANCE_PARTICIPATION_MNAR":
         "UK Biobank feature is from a non-baseline instance with low participation "
@@ -1009,7 +1009,7 @@ def parse_args() -> argparse.Namespace:
     )
     study.add_argument(
         "--codebook", default="",
-        help="Path to dataset codebook registry JSON (references/dataset-codebook-registry.json). "
+        help="Path to dataset codebook registry JSON (references/codebooks/dataset-codebook-registry.json). "
              "Enables variable-level semantic validation against the original data dictionary.",
     )
     study.add_argument(
@@ -1360,7 +1360,7 @@ def main() -> int:
 
             # Task-aware validation: cross-reference disease-KB with codebook
             # Auto-detects definition variables for the target disease
-            _disease_kb_path = Path(__file__).resolve().parent.parent.parent / "references" / "disease-definition-knowledge-base.json"
+            _disease_kb_path = Path(__file__).resolve().parent.parent.parent / "references" / "methodology" / "disease-definition-knowledge-base.json"
             _target_disease = ""
             if _disease_kb_path.exists():
                 # Infer target disease from outcome definition or filename

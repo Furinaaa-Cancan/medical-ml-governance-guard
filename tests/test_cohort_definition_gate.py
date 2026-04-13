@@ -306,7 +306,7 @@ class TestE2ESubprocess:
 # Codebook validation tests
 # ────────────────────────────────────────────────────────
 
-CODEBOOK_REGISTRY = Path(__file__).resolve().parent.parent / "references" / "dataset-codebook-registry.json"
+CODEBOOK_REGISTRY = Path(__file__).resolve().parent.parent / "references" / "codebooks" / "dataset-codebook-registry.json"
 
 
 class TestCodebookValidation:

@@ -76,43 +76,43 @@ class KnowledgeBases:
 
     @property
     def error_entries(self) -> List[Dict[str, Any]]:
-        d = self._load(_REFERENCES_DIR / "error-knowledge-base.json")
+        d = self._load(_REFERENCES_DIR / "operations" / "error-knowledge-base.json")
         v = d.get("entries", [])
         return v if isinstance(v, list) else []
 
     @property
     def lit_entries(self) -> List[Dict[str, Any]]:
-        d = self._load(_REFERENCES_DIR / "literature-knowledge-base.json")
+        d = self._load(_REFERENCES_DIR / "methodology" / "literature-knowledge-base.json")
         v = d.get("entries", [])
         return v if isinstance(v, list) else []
 
     @property
     def tripod_items(self) -> List[Dict[str, Any]]:
-        d = self._load(_REFERENCES_DIR / "tripod-ai-official-checklist.json")
+        d = self._load(_REFERENCES_DIR / "standards" / "tripod-ai-official-checklist.json")
         v = d.get("items", [])
         return v if isinstance(v, list) else []
 
     @property
     def tripod_variable_map(self) -> Dict[str, str]:
-        d = self._load(_REFERENCES_DIR / "tripod-ai-official-checklist.json")
+        d = self._load(_REFERENCES_DIR / "standards" / "tripod-ai-official-checklist.json")
         v = d.get("variable_name_to_item_id", {})
         return v if isinstance(v, dict) else {}
 
     @property
     def probast_domains(self) -> Dict[str, Any]:
-        d = self._load(_REFERENCES_DIR / "probast-ai-signalling-questions.json")
+        d = self._load(_REFERENCES_DIR / "standards" / "probast-ai-signalling-questions.json")
         v = d.get("domains", {})
         return v if isinstance(v, dict) else {}
 
     @property
     def probast_gate_mapping(self) -> Dict[str, Any]:
-        d = self._load(_REFERENCES_DIR / "probast-ai-signalling-questions.json")
+        d = self._load(_REFERENCES_DIR / "standards" / "probast-ai-signalling-questions.json")
         v = d.get("mlgg_gate_mapping", {})
         return v if isinstance(v, dict) else {}
 
     @property
     def journal_standards(self) -> Dict[str, Any]:
-        d = self._load(_REFERENCES_DIR / "journal-rigor-standards.json")
+        d = self._load(_REFERENCES_DIR / "standards" / "journal-rigor-standards.json")
         v = d.get("journals", {})
         return v if isinstance(v, dict) else {}
 

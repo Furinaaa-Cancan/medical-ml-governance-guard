@@ -1,0 +1,114 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "Recurrent Neural Networks for Multivariate Time Series with Missing Values",
+    "authors": ["Che Z", "Purushotham S", "Cho K", "Sontag D", "Liu Y"],
+    "journal": "Scientific Reports",
+    "year": 2018,
+    "doi": "10.1038/s41598-018-24271-9",
+    "pmid": "29636515",
+    "url": "",
+    "pdf_filename": "paper.pdf"
+  },
+  "code": {
+    "github_url": "https://github.com/PeterChe1990/GRU-D",
+    "language": "Python",
+    "framework": "Keras/TensorFlow",
+    "has_training_pipeline": true,
+    "has_preprocessing": true,
+    "has_evaluation": true,
+    "verified_date": "2026-04-11"
+  },
+  "study_design": {
+    "prediction_type": "binary_classification",
+    "outcome": "Mortality classification from clinical time series",
+    "prediction_unit": "patient",
+    "prediction_horizon": "during ICU stay",
+    "setting": "ICU",
+    "study_period_start": null,
+    "study_period_end": null,
+    "is_multicenter": false,
+    "has_external_validation": false,
+    "external_cohort_description": ""
+  },
+  "dataset": {
+    "source_type": "public_dataset",
+    "source_name": "MIMIC-III + PhysioNet Challenge 2012",
+    "n_patients_total": null,
+    "n_events_positive": null,
+    "n_events_negative": null,
+    "prevalence_pct": null,
+    "split_strategy": "random",
+    "train_n": null,
+    "valid_n": null,
+    "test_n": null,
+    "features_n": 33,
+    "has_missing_data": true,
+    "missing_data_strategy": "GRU-D decay mechanism (learned missing data handling)"
+  },
+  "model": {
+    "model_type": "deep_learning",
+    "n_candidate_models": 1,
+    "selection_criterion": "GRU-D (GRU with trainable decay for missing values)",
+    "hyperparameter_tuning": "not reported",
+    "tuning_set": "not_reported",
+    "feature_selection_method": "33 clinical time series variables",
+    "preprocessing_pipeline": "Python scripts in repo"
+  },
+  "performance_metrics": {
+    "primary_metric": "auroc",
+    "test_auroc": null,
+    "test_auroc_ci_lower": null,
+    "test_auroc_ci_upper": null,
+    "test_auprc": null,
+    "test_sensitivity": null,
+    "test_specificity": null,
+    "test_ppv": null,
+    "test_npv": null,
+    "test_f1": null,
+    "test_brier_score": null,
+    "calibration_method": "",
+    "calibration_reported": false,
+    "dca_reported": false,
+    "bootstrap_ci_reported": false,
+    "n_bootstrap_resamples": null,
+    "external_auroc": null,
+    "external_auroc_ci_lower": null,
+    "external_auroc_ci_upper": null
+  },
+  "reporting_standards": {
+    "tripod_ai_claimed": false,
+    "probast_ai_claimed": false,
+    "stard_ai_claimed": false,
+    "equator_guideline_cited": "",
+    "limitation_section": true,
+    "code_availability": "public_github",
+    "data_availability": "restricted"
+  },
+  "leakage_risk_assessment": {
+    "patient_level_split_confirmed": null,
+    "temporal_split_confirmed": null,
+    "preprocessing_fit_on_train_only": null,
+    "tuning_used_test_data": null,
+    "target_leakage_risk": "cannot_assess",
+    "post_index_feature_risk": "cannot_assess",
+    "phenotype_definition_overlap_risk": "cannot_assess",
+    "notes": "TO BE VERIFIED VIA CODE SCAN."
+  },
+  "mlgg_audit": {
+    "audit_run_date": null,
+    "mlgg_total_score": null,
+    "mlgg_grade": null,
+    "gates_passed": null,
+    "gates_failed": null,
+    "gates_missing": null,
+    "conformance_level": null,
+    "top_gaps": []
+  },
+  "reviewer_notes": {
+    "added_by": "mlgg_team",
+    "added_date": "2026-04-11",
+    "priority": "medium",
+    "notes": "CODE SCAN TARGET. GRU-D for clinical time series with missing values. Code at PeterChe1990/GRU-D."
+  }
+}

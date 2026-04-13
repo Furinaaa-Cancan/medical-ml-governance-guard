@@ -68,11 +68,11 @@ MANDATORY_CLINICAL_METRICS = [
 
 # ---------------------------------------------------------------------------
 # Profile-based threshold overrides
-# Loaded from references/publication-policy-baselines.json at import time.
-# See references/gate-strictness-profiles.md for rationale.
+# Loaded from references/standards/publication-policy-baselines.json at import time.
+# See references/operations/gate-strictness-profiles.md for rationale.
 # ---------------------------------------------------------------------------
 
-_POLICY_JSON_PATH = Path(__file__).resolve().parent.parent.parent / "references" / "publication-policy-baselines.json"
+_POLICY_JSON_PATH = Path(__file__).resolve().parent.parent.parent / "references" / "standards" / "publication-policy-baselines.json"
 
 
 def _decode_gap_keys(d: Dict[str, Any]) -> Dict[str, Any]:
@@ -2657,6 +2657,7 @@ def validate_optional_path(
     failures: List[Dict[str, Any]],
     required: bool,
     normalized: Dict[str, Any],
+    warnings: Optional[List[Dict[str, Any]]] = None,
 ) -> None:
     value = request.get(key)
     if value is None:
@@ -2681,11 +2682,13 @@ def validate_optional_path(
     resolved = resolve_path(base, value.strip())
     normalized[key] = str(resolved)
     if not resolved.exists():
+        # Required paths → failure; optional declared paths → warning only
+        target = failures if required else (warnings if warnings is not None else failures)
         add_issue(
-            failures,
+            target,
             "path_not_found",
-            "Path field points to a missing file.",
-            {"field": key, "path": str(resolved)},
+            f"{'Required' if required else 'Optional'} path field points to a missing file.",
+            {"field": key, "path": str(resolved), "required": required},
         )
     elif not resolved.is_file():
         add_issue(
@@ -2703,6 +2706,7 @@ def validate_publication_v3_path(
     failures: List[Dict[str, Any]],
     normalized: Dict[str, Any],
     migration_hint: str,
+    warnings: Optional[List[Dict[str, Any]]] = None,
 ) -> None:
     if request.get(key) is None:
         add_issue(
@@ -2719,6 +2723,7 @@ def validate_publication_v3_path(
         failures=failures,
         required=False,
         normalized=normalized,
+        warnings=warnings,
     )
 
 
@@ -2729,6 +2734,7 @@ def validate_publication_v4_path(
     failures: List[Dict[str, Any]],
     normalized: Dict[str, Any],
     migration_hint: str,
+    warnings: Optional[List[Dict[str, Any]]] = None,
 ) -> None:
     if request.get(key) is None:
         add_issue(
@@ -2745,6 +2751,7 @@ def validate_publication_v4_path(
         failures=failures,
         required=False,
         normalized=normalized,
+        warnings=warnings,
     )
 
 
@@ -2924,6 +2931,7 @@ def main() -> int:
         failures=failures,
         required=require_lineage,
         normalized=normalized,
+        warnings=warnings,
     )
 
     validate_optional_path(
@@ -2933,6 +2941,7 @@ def main() -> int:
         failures=failures,
         required=require_lineage,
         normalized=normalized,
+        warnings=warnings,
     )
 
     validate_optional_path(
@@ -2942,6 +2951,7 @@ def main() -> int:
         failures=failures,
         required=require_lineage,
         normalized=normalized,
+        warnings=warnings,
     )
 
     validate_optional_path(
@@ -2951,6 +2961,7 @@ def main() -> int:
         failures=failures,
         required=require_lineage,
         normalized=normalized,
+        warnings=warnings,
     )
 
     validate_optional_path(
@@ -2960,6 +2971,7 @@ def main() -> int:
         failures=failures,
         required=require_lineage,
         normalized=normalized,
+        warnings=warnings,
     )
 
     validate_optional_path(
@@ -2969,6 +2981,7 @@ def main() -> int:
         failures=failures,
         required=require_lineage,
         normalized=normalized,
+        warnings=warnings,
     )
 
     validate_optional_path(
@@ -2978,6 +2991,7 @@ def main() -> int:
         failures=failures,
         required=require_lineage,
         normalized=normalized,
+        warnings=warnings,
     )
 
     validate_optional_path(
@@ -2987,6 +3001,7 @@ def main() -> int:
         failures=failures,
         required=require_lineage,
         normalized=normalized,
+        warnings=warnings,
     )
 
     validate_optional_path(
@@ -2996,6 +3011,7 @@ def main() -> int:
         failures=failures,
         required=require_lineage,
         normalized=normalized,
+        warnings=warnings,
     )
 
     validate_optional_path(
@@ -3005,6 +3021,7 @@ def main() -> int:
         failures=failures,
         required=require_lineage,
         normalized=normalized,
+        warnings=warnings,
     )
 
     validate_optional_path(
@@ -3014,6 +3031,7 @@ def main() -> int:
         failures=failures,
         required=False,
         normalized=normalized,
+        warnings=warnings,
     )
 
     validate_optional_path(
@@ -3023,6 +3041,7 @@ def main() -> int:
         failures=failures,
         required=require_lineage,
         normalized=normalized,
+        warnings=warnings,
     )
 
     # Robustness report requires event_time for time-slicing.
@@ -3035,6 +3054,7 @@ def main() -> int:
         failures=failures,
         required=_robustness_required,
         normalized=normalized,
+        warnings=warnings,
     )
 
     validate_optional_path(
@@ -3044,6 +3064,7 @@ def main() -> int:
         failures=failures,
         required=require_lineage,
         normalized=normalized,
+        warnings=warnings,
     )
 
     if require_lineage:
@@ -3054,6 +3075,7 @@ def main() -> int:
             failures=failures,
             normalized=normalized,
             migration_hint="Add prediction_trace_file pointing to prediction_trace.csv.gz with minimal de-identified row-level scores.",
+            warnings=warnings,
         )
         # External validation paths: required for publication-grade UNLESS
         # cross_sectional=true (no external cohorts available by design).
@@ -3066,6 +3088,7 @@ def main() -> int:
                 failures=failures,
                 normalized=normalized,
                 migration_hint="Add external_cohort_spec JSON with both cross_period and cross_institution cohorts.",
+                warnings=warnings,
             )
             validate_publication_v3_path(
                 request=request,
@@ -3074,6 +3097,7 @@ def main() -> int:
                 failures=failures,
                 normalized=normalized,
                 migration_hint="Add external_validation_report_file generated from external cohort replay evaluation.",
+                warnings=warnings,
             )
         validate_publication_v4_path(
             request=request,
@@ -3082,6 +3106,7 @@ def main() -> int:
             failures=failures,
             normalized=normalized,
             migration_hint="Add distribution_report_file generated from distribution_generalization analysis.",
+            warnings=warnings,
         )
         validate_publication_v4_path(
             request=request,
@@ -3090,6 +3115,7 @@ def main() -> int:
             failures=failures,
             normalized=normalized,
             migration_hint="Add feature_engineering_report_file with grouped selection stability and reproducibility evidence.",
+            warnings=warnings,
         )
         validate_publication_v4_path(
             request=request,
@@ -3098,6 +3124,7 @@ def main() -> int:
             failures=failures,
             normalized=normalized,
             migration_hint="Add ci_matrix_report_file with full split/external metric 95% CI matrix and transport-drop CI.",
+            warnings=warnings,
         )
 
     evaluation_report_file = normalized.get("evaluation_report_file")
@@ -3213,6 +3240,7 @@ def main() -> int:
         failures=failures,
         required=null_required,
         normalized=normalized,
+        warnings=warnings,
     )
 
     # NOTE: validate_thresholds MUST run before validate_performance_policy_spec

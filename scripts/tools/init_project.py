@@ -51,8 +51,8 @@ def parse_args() -> argparse.Namespace:
 def copy_template_json(src_name: str, dst_path: Path, force: bool) -> str:
     if dst_path.exists() and not force:
         return "preserved"
-    # Example templates stored in references/examples/ subdirectory
-    src_path = REFERENCES_ROOT / "examples" / src_name
+    # Example templates stored in references/templates/ subdirectory
+    src_path = REFERENCES_ROOT / "templates" / src_name
     if not src_path.exists():
         # Fallback to top-level for backward compatibility
         src_path = REFERENCES_ROOT / src_name

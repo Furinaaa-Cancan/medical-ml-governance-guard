@@ -7,9 +7,9 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-UKB_DB = REPO_ROOT / "references" / "ukb_codebook" / "ukb_codebook.sqlite"
-DISEASE_KB = REPO_ROOT / "references" / "disease-definition-knowledge-base.json"
-REGISTRY_PATH = REPO_ROOT / "references" / "dataset-codebook-registry.json"
+UKB_DB = REPO_ROOT / "references" / "codebooks" / "ukb" / "ukb_codebook.sqlite"
+DISEASE_KB = REPO_ROOT / "references" / "methodology" / "disease-definition-knowledge-base.json"
+REGISTRY_PATH = REPO_ROOT / "references" / "codebooks" / "dataset-codebook-registry.json"
 
 
 # ── parse_ukb_column ───────────────────────────────────────────────
@@ -183,7 +183,7 @@ class TestCodebookFactory:
 
     def test_nhanes_returns_codebook(self):
         from scripts.tools.codebook_factory import get_codebook
-        nhanes_dir = REPO_ROOT / "references" / "nhanes_codebook"
+        nhanes_dir = REPO_ROOT / "references" / "codebooks" / "nhanes"
         if not (nhanes_dir / "nhanes_variables.tsv").exists():
             pytest.skip("NHANES TSV not found")
         cb = get_codebook("nhanes")
@@ -192,7 +192,7 @@ class TestCodebookFactory:
 
     def test_nhanes_cycle_override(self):
         from scripts.tools.codebook_factory import get_codebook
-        nhanes_dir = REPO_ROOT / "references" / "nhanes_codebook"
+        nhanes_dir = REPO_ROOT / "references" / "codebooks" / "nhanes"
         if not (nhanes_dir / "nhanes_variables.tsv").exists():
             pytest.skip("NHANES TSV not found")
         cb = get_codebook("nhanes", nhanes_cycle="2019-2020")

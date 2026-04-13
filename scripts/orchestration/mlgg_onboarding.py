@@ -1294,7 +1294,7 @@ def main() -> int:
     # ── Step 4b: Auto-detect dataset + disease + cross-sectional ─────
     # Infer codebook, phenotype spec, and study design from data
     _csv_stem = Path(user_input_csv).stem.lower() if user_input_csv else ""
-    _codebook_registry = REPO_ROOT / "references" / "dataset-codebook-registry.json"
+    _codebook_registry = REPO_ROOT / "references" / "codebooks" / "dataset-codebook-registry.json"
 
     # Auto-detect dataset for codebook RAG
     _DS_PATTERNS = {"nhanes": "nhanes_2017_2020", "brfss": "brfss_2022",

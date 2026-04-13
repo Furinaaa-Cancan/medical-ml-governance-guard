@@ -2,20 +2,20 @@
 """Build UK Biobank codebook SQLite database from Data Showcase schema files.
 
 Reads:
-  references/ukb_codebook/field.txt          (field definitions)
-  references/ukb_codebook/encoding.txt       (encoding metadata)
-  references/ukb_codebook/category.txt       (category definitions)
-  references/ukb_codebook/esimpint.txt       (integer encoding values)
-  references/ukb_codebook/esimpstring.txt    (string encoding values)
-  references/ukb_codebook/esimpreal.txt      (real encoding values)
-  references/ukb_codebook/esimpdate.txt      (date encoding values)
-  references/ukb_codebook/ehierint.txt       (hierarchical int encoding values)
-  references/ukb_codebook/ehierstring.txt    (hierarchical string encoding values)
-  references/ukb_codebook/catbrowse.txt      (category browse tree)
-  references/ukb_codebook/insvalue.txt       (instance definitions)
+  references/codebooks/ukb/field.txt          (field definitions)
+  references/codebooks/ukb/encoding.txt       (encoding metadata)
+  references/codebooks/ukb/category.txt       (category definitions)
+  references/codebooks/ukb/esimpint.txt       (integer encoding values)
+  references/codebooks/ukb/esimpstring.txt    (string encoding values)
+  references/codebooks/ukb/esimpreal.txt      (real encoding values)
+  references/codebooks/ukb/esimpdate.txt      (date encoding values)
+  references/codebooks/ukb/ehierint.txt       (hierarchical int encoding values)
+  references/codebooks/ukb/ehierstring.txt    (hierarchical string encoding values)
+  references/codebooks/ukb/catbrowse.txt      (category browse tree)
+  references/codebooks/ukb/insvalue.txt       (instance definitions)
 
 Produces:
-  references/ukb_codebook/ukb_codebook.sqlite
+  references/codebooks/ukb/ukb_codebook.sqlite
 
 Usage:
   python3 scripts/tools/build_ukb_codebook_db.py
@@ -32,7 +32,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-DEFAULT_DIR = REPO_ROOT / "references" / "ukb_codebook"
+DEFAULT_DIR = REPO_ROOT / "references" / "codebooks" / "ukb"
 DEFAULT_OUTPUT = DEFAULT_DIR / "ukb_codebook.sqlite"
 
 # ── UKB value type mapping ──────────────────────────────────────────────────

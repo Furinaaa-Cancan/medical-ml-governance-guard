@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 _REFERENCES_DIR = Path(__file__).resolve().parent.parent.parent / "references"
-_MATRIX_PATH = _REFERENCES_DIR / "gate-applicability-matrix.json"
+_MATRIX_PATH = _REFERENCES_DIR / "operations" / "gate-applicability-matrix.json"
 
 # Valid prediction types
 SUPPORTED_TYPES = frozenset(["binary", "multiclass", "regression", "survival"])

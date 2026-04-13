@@ -9,7 +9,7 @@
 
 1. `ls` 项目目录 → 检查 `data/*.csv`, `*.py`, `evidence/`, `configs/`
 2. 有 CSV? → `head -5` + `wc -l` → 推断 target-col, id-col, 行数, 特征数
-3. 用户提到疾病? → 读 `references/disease-definition-knowledge-base.json` → 自动获取 outcome-definition + 泄漏变量黑名单
+3. 用户提到疾病? → 读 `references/methodology/disease-definition-knowledge-base.json` → 自动获取 outcome-definition + 泄漏变量黑名单
 4. 推断不出 target? → **仅问 1 个问题**: "预测什么结局？"
 5. 不支持 (非二分类/非表格)? → 立即告知 "MLGG 仅支持结构化表格二分类"，停止
 
@@ -141,7 +141,7 @@ python3 scripts/orchestration/mlgg.py workflow --request configs/request.json --
 | 8 公平性 | `phase-8.md` | fairness_equity_gate |
 | 9 报告 | `phase-9.md` | publication_gate + self_critique_gate |
 
-**每个 Phase**: 读 `references/skill/phase-N.md` → 审查用户代码 → 运行 gate → 评审循环 → 总结卡 → 下一步。
+**每个 Phase**: 读 `references/protocols/phase-N.md` → 审查用户代码 → 运行 gate → 评审循环 → 总结卡 → 下一步。
 
 **中途恢复**: 检查 evidence/ 中最后存在的报告。每份报告必须包含 `gate_name`、`envelope_version`、`execution_timestamp_utc` 字段——缺少任一字段视为无效报告，必须重跑对应 gate。
 

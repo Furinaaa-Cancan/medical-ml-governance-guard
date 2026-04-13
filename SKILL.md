@@ -8,8 +8,8 @@ description: "Publication-grade medical prediction workflow with 33 fail-closed 
 ## 架构
 
 - `/mlgg` → 加载 `.claude/commands/mlgg.md`（状态机 + 评审循环，~200 行）
-- 每个 Phase → 按需读 `references/skill/phase-N.md`（仅 Research 模式）
-- 审计模式 → `references/skill/audit-mode.md`
+- 每个 Phase → 按需读 `references/protocols/phase-N.md`（仅 Research 模式）
+- 审计模式 → `references/protocols/audit-mode.md`
 
 ---
 
@@ -54,7 +54,7 @@ description: "Publication-grade medical prediction workflow with 33 fail-closed 
 
 ## Peer Review Evidence Protocol
 
-Agent 审查代码时，**必须**查阅 `references/peer_reviews/peer-review-kb.json`（107 篇 NC 论文，375 条审稿意见）。
+Agent 审查代码时，**必须**查阅 `references/case-studies/peer-review-kb.json`（107 篇 NC 论文，375 条审稿意见）。
 
 > 审稿人的原话比规则更有说服力——"NC Reviewer #2 在类似论文中指出了完全相同的问题"。
 
@@ -102,7 +102,7 @@ Agent 审查或构建模型时，**必须**执行以下临床检查（自动 gat
 这些变量**不能**出现在特征列表中。Agent 必须检查:
 1. 标签是如何构建的（查找 `df["label"] = ...` 的定义逻辑）
 2. 定义中用到的列是否出现在 `features = [...]` 或 `X = df.drop(...)` 中
-3. 如果结局 = 疾病诊断，读 `references/disease-definition-knowledge-base.json` 获取泄漏黑名单
+3. 如果结局 = 疾病诊断，读 `references/methodology/disease-definition-knowledge-base.json` 获取泄漏黑名单
 
 ### Variable Aliasing (Lint R021 可部分检测)
 用户可能将 test set 赋给别名变量后用于调参:
@@ -156,7 +156,7 @@ R021 可检测 `holdout/held_out` 等关键词，但任意命名（如 `eval_dat
 
 ≥90 顶刊级 · 75-89 需补充 · 60-74 重大缺陷 · <60 不可发表
 
-期刊标准映射: `references/journal-rigor-standards.json` (Nature Medicine, Lancet DH, JAMA, BMJ, npj DM)
+期刊标准映射: `references/standards/journal-rigor-standards.json` (Nature Medicine, Lancet DH, JAMA, BMJ, npj DM)
 
 ---
 
@@ -251,15 +251,15 @@ R021 可检测 `holdout/held_out` 等关键词，但任意命名（如 `eval_dat
 ## Phase 文件参考
 
 ```
-references/skill/
+references/protocols/
 ├── review-protocol.md    # 评审循环详细协议
 ├── phase-1.md ~ phase-9.md  # 各阶段详细规则
 └── audit-mode.md         # 快速审计模式
 ```
 
-疾病定义知识库: `references/disease-definition-knowledge-base.json` (10 种常见疾病)
-错误知识库: `references/error-knowledge-base.json`
-文献知识库: `references/literature-knowledge-base.json` (30 条顶刊)
+疾病定义知识库: `references/methodology/disease-definition-knowledge-base.json` (10 种常见疾病)
+错误知识库: `references/operations/error-knowledge-base.json`
+文献知识库: `references/methodology/literature-knowledge-base.json` (30 条顶刊)
 
 Agent Quick Reference:
 ```

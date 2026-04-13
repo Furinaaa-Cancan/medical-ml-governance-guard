@@ -5,17 +5,17 @@ Downloads field definitions, encoding dictionaries, category hierarchy, and
 instance metadata from the UKB Data Showcase bulk download endpoint.
 
 Produces:
-  references/ukb_codebook/field.txt          (~12K fields)
-  references/ukb_codebook/encoding.txt       (encoding metadata)
-  references/ukb_codebook/catbrowse.txt      (category tree)
-  references/ukb_codebook/esimpint.txt       (integer encoding values)
-  references/ukb_codebook/esimpstring.txt    (string encoding values)
-  references/ukb_codebook/esimpreal.txt      (real encoding values)
-  references/ukb_codebook/esimpdate.txt      (date encoding values)
-  references/ukb_codebook/ehierint.txt       (hierarchical int values, e.g. ICD-10)
-  references/ukb_codebook/ehierstring.txt    (hierarchical string values)
-  references/ukb_codebook/insvalue.txt       (instance definitions)
-  references/ukb_codebook/category.txt       (category definitions)
+  references/codebooks/ukb/field.txt          (~12K fields)
+  references/codebooks/ukb/encoding.txt       (encoding metadata)
+  references/codebooks/ukb/catbrowse.txt      (category tree)
+  references/codebooks/ukb/esimpint.txt       (integer encoding values)
+  references/codebooks/ukb/esimpstring.txt    (string encoding values)
+  references/codebooks/ukb/esimpreal.txt      (real encoding values)
+  references/codebooks/ukb/esimpdate.txt      (date encoding values)
+  references/codebooks/ukb/ehierint.txt       (hierarchical int values, e.g. ICD-10)
+  references/codebooks/ukb/ehierstring.txt    (hierarchical string values)
+  references/codebooks/ukb/insvalue.txt       (instance definitions)
+  references/codebooks/ukb/category.txt       (category definitions)
 
 Usage:
   python3 scripts/tools/fetch_ukb_showcase.py
@@ -31,7 +31,7 @@ from urllib.request import urlopen, Request
 from urllib.error import URLError, HTTPError
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-DEFAULT_OUTPUT = REPO_ROOT / "references" / "ukb_codebook"
+DEFAULT_OUTPUT = REPO_ROOT / "references" / "codebooks" / "ukb"
 
 BASE_URL = "https://biobank.ndph.ox.ac.uk/ukb/scdown.cgi"
 

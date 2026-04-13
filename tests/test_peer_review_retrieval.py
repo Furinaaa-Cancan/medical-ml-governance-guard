@@ -26,8 +26,8 @@ from _peer_review_retrieval import (
     retrieve_by_text,
 )
 
-KB_PATH = Path(__file__).resolve().parents[1] / "references" / "peer_reviews" / "peer-review-kb.json"
-STATS_PATH = Path(__file__).resolve().parents[1] / "references" / "peer_reviews" / "peer-review-kb-stats.json"
+KB_PATH = Path(__file__).resolve().parents[1] / "references" / "case-studies" / "peer-review-kb.json"
+STATS_PATH = Path(__file__).resolve().parents[1] / "references" / "case-studies" / "peer-review-kb-stats.json"
 
 
 class TestSortBySeverity:

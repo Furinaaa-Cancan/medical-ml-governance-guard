@@ -2,12 +2,12 @@
 """Build NHANES codebook SQLite database from Harvard CCB-HMS TSV files.
 
 Reads:
-  references/nhanes_codebook/nhanes_variables.tsv        (58K variables)
-  references/nhanes_codebook/nhanes_variables_codebooks.tsv (202K codebook entries)
+  references/codebooks/nhanes/nhanes_variables.tsv        (58K variables)
+  references/codebooks/nhanes/nhanes_variables_codebooks.tsv (202K codebook entries)
   references/dataset-codebook-registry.json               (curated annotations)
 
 Produces:
-  references/nhanes_codebook/nhanes_codebook.sqlite
+  references/codebooks/nhanes/nhanes_codebook.sqlite
 
 Usage:
   python3 scripts/tools/build_nhanes_codebook_db.py
@@ -25,10 +25,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-DEFAULT_VARS_TSV = REPO_ROOT / "references" / "nhanes_codebook" / "nhanes_variables.tsv"
-DEFAULT_CODES_TSV = REPO_ROOT / "references" / "nhanes_codebook" / "nhanes_variables_codebooks.tsv"
-DEFAULT_CURATED = REPO_ROOT / "references" / "dataset-codebook-registry.json"
-DEFAULT_OUTPUT = REPO_ROOT / "references" / "nhanes_codebook" / "nhanes_codebook.sqlite"
+DEFAULT_VARS_TSV = REPO_ROOT / "references" / "codebooks" / "nhanes" / "nhanes_variables.tsv"
+DEFAULT_CODES_TSV = REPO_ROOT / "references" / "codebooks" / "nhanes" / "nhanes_variables_codebooks.tsv"
+DEFAULT_CURATED = REPO_ROOT / "references" / "codebooks" / "dataset-codebook-registry.json"
+DEFAULT_OUTPUT = REPO_ROOT / "references" / "codebooks" / "nhanes" / "nhanes_codebook.sqlite"
 
 # ── Cycle detection ──────────────────────────────────────────────────────────
 

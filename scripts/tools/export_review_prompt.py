@@ -24,9 +24,9 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 REFERENCES_DIR = Path(__file__).resolve().parent.parent.parent / "references"
-REVIEW_STANDARD_PATH = REFERENCES_DIR / "mlgg-review-standard.json"
-JOURNAL_STANDARDS_PATH = REFERENCES_DIR / "journal-rigor-standards.json"
-LITERATURE_KB_PATH = REFERENCES_DIR / "literature-knowledge-base.json"
+REVIEW_STANDARD_PATH = REFERENCES_DIR / "operations" / "mlgg-review-standard.json"
+JOURNAL_STANDARDS_PATH = REFERENCES_DIR / "standards" / "journal-rigor-standards.json"
+LITERATURE_KB_PATH = REFERENCES_DIR / "methodology" / "literature-knowledge-base.json"
 
 LEVEL_LABELS = {
     "quick": "Quick (18 red-line criteria, ~5 min)",

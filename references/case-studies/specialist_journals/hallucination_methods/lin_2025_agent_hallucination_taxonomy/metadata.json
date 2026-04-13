@@ -1,0 +1,32 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "LLM-based Agents Suffer from Hallucinations: A Survey of Taxonomy, Methods, and Directions",
+    "authors": ["Lin X", "Ning Y", "Zhang J", "Dong Y", "Liu Y", "Wu Y", "Qi X", "Sun N", "Shang Y", "Wang K", "Cao P", "Wang Q", "Zou L", "Chen X", "Zhou C", "Wu J", "Zhang P", "Wen Q", "Pan S", "Wang B", "Cao Y", "Chen K", "Hu S", "Guo L"],
+    "journal": "arXiv",
+    "year": 2025,
+    "doi": "",
+    "pmid": "",
+    "arxiv_id": "2509.18970",
+    "url": "https://arxiv.org/abs/2509.18970",
+    "pdf_filename": "paper.pdf"
+  },
+  "topic": "agent_hallucination_taxonomy",
+  "relevance_to_mlgg": "Taxonomy of hallucination in LLM-based agents at different pipeline stages. Identifies 18 underlying causes. Directly relevant to MLGG's agentic extraction workflow.",
+  "key_methods": [
+    "Stage-wise hallucination taxonomy for agents",
+    "18 root cause identification",
+    "Mitigation strategies per agent stage",
+    "Detection approaches for agentic systems"
+  ],
+  "key_findings": [
+    "Agent hallucinations differ from raw LLM hallucinations (tool use, planning, memory)",
+    "18 distinct causes across perception, reasoning, action stages",
+    "Stage-specific mitigation more effective than generic approaches"
+  ],
+  "actionable_for_mlgg": [
+    "Classify extraction errors by stage: input parsing, reasoning, output formatting",
+    "Address perception hallucination: ensure paper text is correctly parsed before extraction",
+    "Address action hallucination: validate extracted values match schema constraints"
+  ]
+}
