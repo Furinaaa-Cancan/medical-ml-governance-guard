@@ -10,17 +10,23 @@ import pytest
 
 from _gate_utils import (
     baseline_comparisons,
+    bonferroni_adjusted_threshold,
+    bootstrap_optimism_correction,
+    calibration_bin_ci,
     calibration_metrics,
     check_nonlinearity,
     compute_nri_idi,
     compute_resource_report,
     compute_vif,
+    export_model_coefficients,
+    fdr_bh_correction,
     feature_ablation,
     generate_model_card,
     imputation_sensitivity,
     learning_curve_data,
     mnar_sensitivity_analysis,
     robustness_stress_test,
+    rubins_rules_combine,
     subgroup_dca,
     temporal_drift_analysis,
 )
@@ -385,3 +391,235 @@ class TestRobustnessStressTest:
         robustness_stress_test(rf, X[:150], y[:150], X[150:], y[150:])
         pred_after = rf.predict_proba(X[150:])
         np.testing.assert_array_equal(pred_before, pred_after)
+
+
+# ─── FDR BH Correction ───
+
+class TestFdrBhCorrection:
+    def test_all_significant(self):
+        pvals = [0.001, 0.002, 0.003, 0.004]
+        r = fdr_bh_correction(pvals, alpha=0.05)
+        assert r["n_tests"] == 4
+        assert r["n_rejected"] == 4
+        assert all(r["rejected"])
+        # Adjusted p-values should be >= raw p-values
+        for raw, adj in zip(r["pvalues_raw"], r["pvalues_adjusted"]):
+            assert adj >= raw
+
+    def test_none_significant(self):
+        pvals = [0.5, 0.6, 0.7, 0.8]
+        r = fdr_bh_correction(pvals, alpha=0.05)
+        assert r["n_rejected"] == 0
+        assert not any(r["rejected"])
+
+    def test_mixed(self):
+        pvals = [0.001, 0.04, 0.5, 0.9]
+        r = fdr_bh_correction(pvals, alpha=0.05)
+        assert r["n_rejected"] >= 1
+        # First p-value should be rejected
+        assert r["rejected"][0] is True
+
+    def test_empty(self):
+        r = fdr_bh_correction([], alpha=0.05)
+        assert r["n_tests"] == 0
+        assert r["n_rejected"] == 0
+
+    def test_single(self):
+        r = fdr_bh_correction([0.03], alpha=0.05)
+        assert r["n_rejected"] == 1
+        assert r["pvalues_adjusted"][0] == pytest.approx(0.03, abs=1e-9)
+
+    def test_nan_and_inf_treated_as_nonsignificant(self):
+        r = fdr_bh_correction([0.001, float("nan"), float("inf")])
+        assert r["n_tests"] == 3
+        # nan/inf become 1.0 → not rejected
+        assert r["rejected"][0] is True
+        assert r["rejected"][1] is False
+        assert r["rejected"][2] is False
+
+    def test_monotonicity(self):
+        """Adjusted p-values should be monotonically non-decreasing when sorted by raw p-value."""
+        pvals = [0.01, 0.03, 0.05, 0.10, 0.20]
+        r = fdr_bh_correction(pvals)
+        # Sort by raw p-value and check adjusted are non-decreasing
+        pairs = sorted(zip(r["pvalues_raw"], r["pvalues_adjusted"]))
+        adjusted_sorted = [adj for _, adj in pairs]
+        for i in range(len(adjusted_sorted) - 1):
+            assert adjusted_sorted[i] <= adjusted_sorted[i + 1] + 1e-12
+
+
+# ─── Bonferroni Adjusted Threshold ───
+
+class TestBonferroniAdjustedThreshold:
+    def test_basic(self):
+        assert bonferroni_adjusted_threshold(0.05, 10) == pytest.approx(0.005)
+
+    def test_single_comparison(self):
+        assert bonferroni_adjusted_threshold(0.05, 1) == 0.05
+
+    def test_zero_comparisons(self):
+        # n<=1 returns original threshold
+        assert bonferroni_adjusted_threshold(0.05, 0) == 0.05
+
+
+# ─── Bootstrap Optimism Correction ───
+
+class TestBootstrapOptimismCorrection:
+    def test_basic(self):
+        from sklearn.linear_model import LogisticRegression
+        rng = np.random.default_rng(42)
+        X = rng.standard_normal((200, 3))
+        y = (X[:, 0] + 0.5 * X[:, 1] > 0).astype(int)
+        r = bootstrap_optimism_correction(
+            LogisticRegression(max_iter=500), X, y,
+            n_bootstrap=50, metric="roc_auc", seed=42,
+        )
+        assert "error" not in r
+        assert r["apparent"] > 0.5
+        assert r["mean_optimism"] >= 0  # optimism is typically positive
+        assert r["corrected"] <= r["apparent"]
+        assert r["metric"] == "roc_auc"
+        assert r["n_valid_bootstrap"] >= 10
+        assert r["shrinkage_factor"] is not None
+        assert 0 < r["shrinkage_factor"] <= 1.0
+
+    def test_pr_auc_metric(self):
+        from sklearn.linear_model import LogisticRegression
+        rng = np.random.default_rng(42)
+        X = rng.standard_normal((200, 3))
+        y = (X[:, 0] > 0).astype(int)
+        r = bootstrap_optimism_correction(
+            LogisticRegression(max_iter=500), X, y,
+            n_bootstrap=50, metric="pr_auc", seed=42,
+        )
+        assert "error" not in r
+        assert r["metric"] == "pr_auc"
+
+    def test_too_few_samples(self):
+        from sklearn.linear_model import LogisticRegression
+        X = np.array([[1], [2]])
+        y = np.array([0, 1])
+        r = bootstrap_optimism_correction(
+            LogisticRegression(), X, y, n_bootstrap=5,
+        )
+        assert "error" in r
+
+
+# ─── Export Model Coefficients ───
+
+class TestExportModelCoefficients:
+    def test_logistic_regression(self):
+        from sklearn.linear_model import LogisticRegression
+        rng = np.random.default_rng(42)
+        X = rng.standard_normal((100, 3))
+        y = (X[:, 0] > 0).astype(int)
+        lr = LogisticRegression(max_iter=200).fit(X, y)
+        r = export_model_coefficients(lr, ["a", "b", "c"])
+        assert r is not None
+        assert len(r) == 3
+        assert r[0]["rank"] == 1
+        assert "coefficient" in r[0]
+        assert "abs_coefficient" in r[0]
+        # Ranks are 1-based and ordered by abs coefficient descending
+        assert r[0]["abs_coefficient"] >= r[1]["abs_coefficient"]
+
+    def test_random_forest(self):
+        from sklearn.ensemble import RandomForestClassifier
+        rng = np.random.default_rng(42)
+        X = rng.standard_normal((100, 3))
+        y = (X[:, 0] > 0).astype(int)
+        rf = RandomForestClassifier(n_estimators=10, random_state=42).fit(X, y)
+        r = export_model_coefficients(rf, ["a", "b", "c"])
+        assert r is not None
+        assert len(r) == 3
+        assert "importance" in r[0]
+
+    def test_pipeline(self):
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.pipeline import Pipeline
+        from sklearn.preprocessing import StandardScaler
+        rng = np.random.default_rng(42)
+        X = rng.standard_normal((100, 2))
+        y = (X[:, 0] > 0).astype(int)
+        pipe = Pipeline([("scaler", StandardScaler()), ("clf", LogisticRegression(max_iter=200))])
+        pipe.fit(X, y)
+        r = export_model_coefficients(pipe, ["a", "b"])
+        assert r is not None
+        assert len(r) == 2
+
+    def test_unsupported_estimator(self):
+        from sklearn.neighbors import KNeighborsClassifier
+        knn = KNeighborsClassifier().fit([[0], [1]], [0, 1])
+        r = export_model_coefficients(knn, ["x"])
+        assert r is None
+
+    def test_mismatched_features(self):
+        from sklearn.linear_model import LogisticRegression
+        lr = LogisticRegression(max_iter=200).fit([[0, 1], [1, 0]], [0, 1])
+        r = export_model_coefficients(lr, ["only_one"])
+        assert r is None
+
+
+# ─── Calibration Bin CI ───
+
+class TestCalibrationBinCI:
+    def test_basic(self):
+        rng = np.random.default_rng(42)
+        n = 500
+        y_score = rng.random(n)
+        y_true = (rng.random(n) < y_score).astype(int)
+        bins = calibration_bin_ci(y_true, y_score, n_bins=5, n_bootstrap=200, seed=42)
+        assert len(bins) == 5
+        for b in bins:
+            assert "bin" in b
+            assert "mean_predicted" in b
+            assert "fraction_positive" in b
+            if b["n"] >= 2:
+                assert b["ci_lower"] is not None
+                assert b["ci_upper"] is not None
+                assert b["ci_lower"] <= b["fraction_positive"] <= b["ci_upper"]
+
+    def test_sparse_bins(self):
+        """Bins with <2 samples should have None CI."""
+        y_true = np.array([0, 1])
+        y_score = np.array([0.05, 0.95])
+        bins = calibration_bin_ci(y_true, y_score, n_bins=10, n_bootstrap=50)
+        # Most bins will be empty or have 1 sample
+        empty_bins = [b for b in bins if b["n"] < 2]
+        for b in empty_bins:
+            assert b["ci_lower"] is None
+            assert b["ci_upper"] is None
+
+
+# ─── Rubin's Rules ───
+
+class TestRubinsRulesCombine:
+    def test_basic_with_variances(self):
+        estimates = [0.75, 0.78, 0.73, 0.76, 0.77]
+        variances = [0.01, 0.012, 0.011, 0.009, 0.01]
+        r = rubins_rules_combine(estimates, variances)
+        assert r["n_imputations"] == 5
+        assert r["pooled_estimate"] == pytest.approx(np.mean(estimates), abs=1e-4)
+        assert r["between_variance"] > 0
+        assert r["within_variance"] is not None
+        assert r["total_variance"] > r["between_variance"]
+        assert r["total_se"] > 0
+        assert r["degrees_of_freedom"] > 0
+
+    def test_without_variances(self):
+        estimates = [0.80, 0.82, 0.79]
+        r = rubins_rules_combine(estimates)
+        assert r["n_imputations"] == 3
+        assert r["within_variance"] is None
+        assert r["total_variance"] > 0
+        assert r["degrees_of_freedom"] == 2  # m-1
+
+    def test_single_imputation_error(self):
+        r = rubins_rules_combine([0.75])
+        assert "error" in r
+        assert r["pooled_estimate"] == pytest.approx(0.75)
+
+    def test_identical_estimates(self):
+        r = rubins_rules_combine([0.80, 0.80, 0.80])
+        assert r["between_variance"] == pytest.approx(0.0, abs=1e-10)
+        assert r["pooled_estimate"] == pytest.approx(0.80, abs=1e-6)

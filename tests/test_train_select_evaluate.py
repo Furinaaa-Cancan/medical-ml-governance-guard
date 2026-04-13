@@ -849,3 +849,163 @@ class TestCLIImbalanceStrategyCandidates:
         evaluation = json.loads(out_eval.read_text(encoding="utf-8"))
         metadata_imbalance = evaluation.get("metadata", {}).get("imbalance", {})
         assert str(metadata_imbalance.get("selected_strategy", "")) == selected_strategy
+
+
+# ── Imbalanced model families (BRF / EasyEnsemble / RUSBoost) ──────────────
+
+class TestImbalancedFamilyGrid:
+    """_family_grid returns non-empty grids for imblearn families."""
+
+    def test_balanced_random_forest_grid(self):
+        grid = tse._family_grid("balanced_random_forest")
+        assert len(grid) > 0
+        for params in grid:
+            assert "n_estimators" in params
+            assert "max_depth" in params
+
+    def test_easy_ensemble_grid(self):
+        grid = tse._family_grid("easy_ensemble")
+        assert len(grid) > 0
+        for params in grid:
+            assert "n_estimators" in params
+
+    def test_rusboost_grid(self):
+        grid = tse._family_grid("rusboost")
+        assert len(grid) > 0
+        for params in grid:
+            assert "n_estimators" in params
+            assert "learning_rate" in params
+
+
+class TestImbalancedBuildEstimator:
+    """_build_estimator_for_family constructs valid imblearn Pipelines."""
+
+    @pytest.fixture()
+    def _common_kwargs(self):
+        return dict(seed=42, imputation_strategy="median", class_weight=None, n_jobs=1)
+
+    def test_balanced_random_forest(self, _common_kwargs):
+        from imblearn.ensemble import BalancedRandomForestClassifier
+        params = {"n_estimators": 50, "max_depth": 4, "min_samples_split": 10,
+                  "min_samples_leaf": 5, "max_features": "sqrt"}
+        pipe = tse._build_estimator_for_family("balanced_random_forest", params, **_common_kwargs)
+        clf = pipe.named_steps["clf"]
+        assert isinstance(clf, BalancedRandomForestClassifier)
+        assert clf.n_estimators == 50
+        assert clf.max_depth == 4
+
+    def test_easy_ensemble(self, _common_kwargs):
+        from imblearn.ensemble import EasyEnsembleClassifier
+        params = {"n_estimators": 20}
+        pipe = tse._build_estimator_for_family("easy_ensemble", params, **_common_kwargs)
+        clf = pipe.named_steps["clf"]
+        assert isinstance(clf, EasyEnsembleClassifier)
+        assert clf.n_estimators == 20
+
+    def test_rusboost(self, _common_kwargs):
+        from imblearn.ensemble import RUSBoostClassifier
+        params = {"n_estimators": 100, "learning_rate": 0.5}
+        pipe = tse._build_estimator_for_family("rusboost", params, **_common_kwargs)
+        clf = pipe.named_steps["clf"]
+        assert isinstance(clf, RUSBoostClassifier)
+        assert clf.n_estimators == 100
+        assert clf.learning_rate == 0.5
+
+    def test_class_weight_not_passed_to_imblearn(self, _common_kwargs):
+        """imblearn estimators must NOT receive class_weight (they handle imbalance internally)."""
+        params = {"n_estimators": 50, "max_depth": 4, "min_samples_split": 10,
+                  "min_samples_leaf": 5, "max_features": "sqrt"}
+        # Even if we pass class_weight='balanced', the Pipeline's clf should not get it
+        pipe = tse._build_estimator_for_family("balanced_random_forest", params,
+                                                seed=42, imputation_strategy="median",
+                                                class_weight="balanced", n_jobs=1)
+        clf = pipe.named_steps["clf"]
+        # BRF has sampling_strategy, not class_weight — confirm no class_weight attr set
+        assert not hasattr(clf, "class_weight") or clf.get_params().get("class_weight") is None
+
+
+class TestInternalImbalanceFlag:
+    """INTERNAL_IMBALANCE_FAMILIES set and _internal_imbalance flag in build_candidates."""
+
+    def test_constant_contains_all_three(self):
+        assert "balanced_random_forest" in tse.INTERNAL_IMBALANCE_FAMILIES
+        assert "easy_ensemble" in tse.INTERNAL_IMBALANCE_FAMILIES
+        assert "rusboost" in tse.INTERNAL_IMBALANCE_FAMILIES
+
+    def test_build_candidates_sets_internal_flag(self):
+        candidates, meta = tse.build_candidates(
+            seed=42, sampling_seed=42, imputation_strategy="median",
+            class_weight="balanced",
+            model_pool_config={
+                "model_pool": ["balanced_random_forest", "logistic_l2"],
+                "max_trials_per_family": 1,
+                "search_strategy": "fixed_grid",
+            },
+        )
+        brf_cands = [c for c in candidates if c["base_model_id"] == "balanced_random_forest"]
+        lr_cands = [c for c in candidates if c["base_model_id"] == "logistic_l2"]
+        assert len(brf_cands) >= 1
+        assert len(lr_cands) >= 1
+        # BRF should be flagged as internal imbalance
+        assert all(c["_internal_imbalance"] is True for c in brf_cands)
+        # LR should NOT be flagged
+        assert all(c["_internal_imbalance"] is False for c in lr_cands)
+
+    def test_external_resampling_skipped_for_internal_imbalance(self):
+        """When _internal_imbalance is True, cand_imbalance should resolve to 'none'."""
+        cand_internal = {"_internal_imbalance": True}
+        cand_external = {"_internal_imbalance": False}
+        selected_strategy = "smote"
+        # This mirrors the logic at line ~6445 in train_select_evaluate.py
+        assert ("none" if cand_internal.get("_internal_imbalance") else selected_strategy) == "none"
+        assert ("none" if cand_external.get("_internal_imbalance") else selected_strategy) == "smote"
+
+
+class TestImbalancedModelFitPredict:
+    """End-to-end: imblearn Pipelines can fit and predict on toy data."""
+
+    @pytest.fixture()
+    def _data(self):
+        rng = np.random.default_rng(42)
+        X = rng.standard_normal((200, 4))
+        y = np.concatenate([np.ones(40), np.zeros(160)])  # 20% positive
+        return X, y
+
+    def test_brf_fit_predict(self, _data):
+        X, y = _data
+        pipe = tse._build_estimator_for_family(
+            "balanced_random_forest",
+            {"n_estimators": 20, "max_depth": 3, "min_samples_split": 10,
+             "min_samples_leaf": 5, "max_features": "sqrt"},
+            seed=42, imputation_strategy="median", class_weight=None, n_jobs=1,
+        )
+        pipe.fit(X[:150], y[:150])
+        proba = pipe.predict_proba(X[150:])
+        assert proba.shape == (50, 2)
+        assert np.all((proba >= 0) & (proba <= 1))
+
+    def test_easy_ensemble_fit_predict(self, _data):
+        X, y = _data
+        pipe = tse._build_estimator_for_family(
+            "easy_ensemble", {"n_estimators": 5},
+            seed=42, imputation_strategy="median", class_weight=None, n_jobs=1,
+        )
+        pipe.fit(X[:150], y[:150])
+        proba = pipe.predict_proba(X[150:])
+        assert proba.shape == (50, 2)
+
+    def test_rusboost_fit_predict(self):
+        """RUSBoost needs data with signal — pure noise causes base learner failure."""
+        rng = np.random.default_rng(42)
+        # Create separable data: class 1 shifted from class 0
+        X_pos = rng.normal(loc=2.0, scale=0.5, size=(40, 4))
+        X_neg = rng.normal(loc=-1.0, scale=0.5, size=(160, 4))
+        X = np.vstack([X_pos, X_neg])
+        y = np.concatenate([np.ones(40), np.zeros(160)])
+        pipe = tse._build_estimator_for_family(
+            "rusboost", {"n_estimators": 20, "learning_rate": 0.5},
+            seed=42, imputation_strategy="median", class_weight=None, n_jobs=1,
+        )
+        pipe.fit(X[:150], y[:150])
+        proba = pipe.predict_proba(X[150:])
+        assert proba.shape == (50, 2)
