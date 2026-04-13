@@ -19,8 +19,8 @@ Extracted fields (automatically filled — no manual work needed):
 Usage:
     # DeepSeek (default, cheapest)
     export DEEPSEEK_API_KEY=sk-...
-    python3 scripts/extract_paper_metadata.py --paper-dir papers/nature_medicine/cardiovascular/smith_2023_af_ehr
-    python3 scripts/extract_paper_metadata.py --all --output-dir papers/
+    python3 scripts/extract_paper_metadata.py --paper-dir references/case-studies/nature_medicine/cardiovascular/smith_2023_af_ehr
+    python3 scripts/extract_paper_metadata.py --all --output-dir references/case-studies/
 
     # Claude (more accurate leakage risk assessment)
     export ANTHROPIC_API_KEY=sk-ant-...
@@ -1079,7 +1079,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         default=None,
         help="Override model name (deepseek default: deepseek-chat; claude default: claude-opus-4-6)",
     )
-    p.add_argument("--output-dir", type=Path, default=Path("papers"), help="Root papers/ directory")
+    p.add_argument("--output-dir", type=Path, default=Path("references/case-studies"), help="Root case-studies directory")
     p.add_argument("--journal", help="Filter by journal tier (e.g. nature_medicine)")
     p.add_argument("--domain", help="Filter by disease domain (e.g. cardiovascular)")
     p.add_argument("--abstract-only", action="store_true", help="Use abstract only, skip full-text fetch")

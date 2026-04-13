@@ -173,7 +173,7 @@ def test_output_dir_default():
 
     parser = build_arg_parser()
     args = parser.parse_args(["--all"])
-    assert args.output_dir == Path("papers")
+    assert args.output_dir == Path("references/case-studies")
 
 
 def test_parser_rejects_no_mode():

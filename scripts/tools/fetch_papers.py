@@ -10,14 +10,14 @@ Usage examples:
         --query "machine learning clinical prediction" \\
         --sources pubmed semantic_scholar \\
         --max-results 50 \\
-        --output-dir papers/
+        --output-dir references/case-studies/
 
     # Multi-keyword search with PDF download (open-access only)
     python3 scripts/fetch_papers.py \\
         --query "deep learning atrial fibrillation EHR" \\
         --sources pubmed pmc arxiv \\
         --max-results 30 \\
-        --output-dir papers/ \\
+        --output-dir references/case-studies/ \\
         --download-pdf
 
     # Dry-run: print what would be created without writing files
@@ -25,7 +25,7 @@ Usage examples:
         --query "XGBoost sepsis prediction ICU" \\
         --sources pubmed openalex \\
         --max-results 20 \\
-        --output-dir papers/ \\
+        --output-dir references/case-studies/ \\
         --dry-run
 
     # Add a rate-limit email for PubMed (recommended for large fetches)
@@ -33,7 +33,7 @@ Usage examples:
         --query "random forest diabetes prediction" \\
         --sources pubmed \\
         --max-results 200 \\
-        --output-dir papers/ \\
+        --output-dir references/case-studies/ \\
         --email your@email.com
 """
 
@@ -941,8 +941,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--output-dir",
         type=Path,
-        default=Path("papers"),
-        help="Root papers directory (default: papers/)",
+        default=Path("references/case-studies"),
+        help="Root papers directory (default: references/case-studies/)",
     )
     p.add_argument(
         "--download-pdf",

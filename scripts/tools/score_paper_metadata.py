@@ -12,11 +12,11 @@ plus TRIPOD+AI item coverage and PROBAST+AI risk-of-bias assessment.
 
 Usage:
   python3 scripts/score_paper_metadata.py \\
-      --metadata papers/nature_medicine/cardiovascular/smith_2023/metadata.json
+      --metadata references/case-studies/nature_medicine/cardiovascular/smith_2023/metadata.json
 
   # Batch mode
   python3 scripts/score_paper_metadata.py \\
-      --batch-dir papers/ --output papers/audit_results/batch_scores.json
+      --batch-dir references/case-studies/ --output references/case-studies/audit_results/batch_scores.json
 """
 from __future__ import annotations
 
