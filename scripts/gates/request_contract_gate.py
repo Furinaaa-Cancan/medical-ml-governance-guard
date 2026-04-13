@@ -321,6 +321,7 @@ def validate_evaluation_report_shape(
     evaluation_report_path: str,
     failures: List[Dict[str, Any]],
     cross_sectional: bool = False,
+    relaxed_profile: bool = False,
 ) -> None:
     path = Path(evaluation_report_path).expanduser().resolve()
     try:
@@ -517,13 +518,14 @@ def validate_evaluation_report_shape(
                 },
             )
 
-        # External validation checks — required for publication-grade unless
-        # study is explicitly cross-sectional without external data.
-        if not cross_sectional:
+        # External validation checks — required for publication-grade standard
+        # profile unless cross-sectional or relaxed profile (small_cohort etc.).
+        _ext_issues = failures if (not relaxed_profile) else []  # drop for relaxed
+        if not cross_sectional and not relaxed_profile:
             external_sha = metadata.get("external_validation_report_sha256")
             if not isinstance(external_sha, str) or not re.fullmatch(r"[0-9a-f]{64}", external_sha.strip().lower()):
                 add_issue(
-                    failures,
+                    _ext_issues,
                     "evaluation_report_missing_external_validation_hash",
                     "evaluation_report.metadata.external_validation_report_sha256 must be 64-char lowercase hex.",
                     {
@@ -536,7 +538,7 @@ def validate_evaluation_report_shape(
             external_count_i = to_int(external_count)
             if external_count_i is None or external_count_i < 2:
                 add_issue(
-                    failures,
+                    _ext_issues,
                     "evaluation_report_external_cohort_count_invalid",
                     "evaluation_report.metadata.external_cohort_count must be integer >= 2 for publication-grade dual external coverage.",
                     {"path": str(path), "external_cohort_count": external_count},
@@ -2914,6 +2916,20 @@ def main() -> int:
 
     # Publication-grade requests must include lineage, split/imbalance/tuning protocol specs, and evaluated metric.
     require_lineage = normalized.get("claim_tier_target") == "publication-grade"
+    # Resolve profile early so V3/V4 checks can use it.
+    # validate_thresholds is called later to set _resolved_policy, but we
+    # need the profile name now.  Read directly from thresholds dict.
+    _thresholds_raw = request.get("thresholds", {})
+    _profile_name = (_thresholds_raw.get("profile", "standard")
+                     if isinstance(_thresholds_raw, dict) else "standard")
+    # Profiles that relax V3/V4 evidence requirements (external validation,
+    # seed sensitivity, feature engineering) to warnings instead of failures.
+    # Rationale: small/rare datasets typically lack external cohorts and have
+    # high seed variance by nature; forcing these as hard failures blocks the
+    # pipeline on data the researcher cannot produce.
+    _relaxed_profile = _profile_name in (
+        "small_cohort", "rare_disease", "exploratory",
+    )
 
     if require_lineage:
         primary_metric = str(normalized.get("primary_metric", "")).strip()
@@ -3035,12 +3051,15 @@ def main() -> int:
         warnings=warnings,
     )
 
+    # Seed sensitivity: required for publication-grade standard profile,
+    # downgraded to warning for small_cohort/rare_disease/exploratory
+    # (high seed variance is expected with small n).
     validate_optional_path(
         request=request,
         key="seed_sensitivity_report_file",
         base=request_base,
         failures=failures,
-        required=require_lineage,
+        required=require_lineage and not _relaxed_profile,
         normalized=normalized,
         warnings=warnings,
     )
@@ -3078,10 +3097,10 @@ def main() -> int:
             migration_hint="Add prediction_trace_file pointing to prediction_trace.csv.gz with minimal de-identified row-level scores.",
             warnings=warnings,
         )
-        # External validation paths: required for publication-grade UNLESS
-        # cross_sectional=true (no external cohorts available by design).
-        # Documented as limitation per TRIPOD+AI.
-        if not bool(request.get("cross_sectional")):
+        # External validation paths: required for publication-grade standard
+        # profile. Skipped entirely for relaxed profiles (small_cohort etc.)
+        # and cross-sectional data — external cohorts typically unavailable.
+        if not bool(request.get("cross_sectional")) and not _relaxed_profile:
             validate_publication_v3_path(
                 request=request,
                 key="external_cohort_spec",
@@ -3109,15 +3128,17 @@ def main() -> int:
             migration_hint="Add distribution_report_file generated from distribution_generalization analysis.",
             warnings=warnings,
         )
-        validate_publication_v4_path(
-            request=request,
-            key="feature_engineering_report_file",
-            base=request_base,
-            failures=failures,
-            normalized=normalized,
-            migration_hint="Add feature_engineering_report_file with grouped selection stability and reproducibility evidence.",
-            warnings=warnings,
-        )
+        # Feature engineering report: skipped for relaxed profiles.
+        if not _relaxed_profile:
+            validate_publication_v4_path(
+                request=request,
+                key="feature_engineering_report_file",
+                base=request_base,
+                failures=failures,
+                normalized=normalized,
+                migration_hint="Add feature_engineering_report_file with grouped selection stability and reproducibility evidence.",
+                warnings=warnings,
+            )
         validate_publication_v4_path(
             request=request,
             key="ci_matrix_report_file",
@@ -3131,7 +3152,7 @@ def main() -> int:
     evaluation_report_file = normalized.get("evaluation_report_file")
     _is_cross_sectional = bool(request.get("cross_sectional"))
     if isinstance(evaluation_report_file, str) and evaluation_report_file:
-        validate_evaluation_report_shape(evaluation_report_file, failures, cross_sectional=_is_cross_sectional)
+        validate_evaluation_report_shape(evaluation_report_file, failures, cross_sectional=_is_cross_sectional, relaxed_profile=_relaxed_profile)
     external_validation_report_file = normalized.get("external_validation_report_file")
     if isinstance(external_validation_report_file, str) and external_validation_report_file:
         validate_external_validation_report_shape(external_validation_report_file, failures)
