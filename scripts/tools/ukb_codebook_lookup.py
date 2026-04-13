@@ -848,7 +848,63 @@ class UKBCodebook:
         ukb_exclusion_fields = disease_entry.get("ukb_exclusion_fields", [])
         definition_set = set(ukb_def_fields + ukb_exclusion_fields)
 
-        if not definition_set:
+        # Build self-report leakage set from our own UKB encoding_values table.
+        # No external dependency — uses encoding data already in our SQLite.
+        # For self-report array fields (20002=illness, 20004=operation),
+        # search encoding_values for terms matching the target disease.
+        conn = self._ensure_conn()
+        _SELF_REPORT_FIELDS = {20002: 6, 20004: 5}  # field_id → encoding_id
+        _self_report_matches: Dict[int, List[Dict[str, str]]] = {}
+
+        # Build precise search phrases from disease name and key.
+        # Use full phrases to avoid false positives (e.g., "kidney" matching
+        # "kidney stone" when predicting CKD).
+        disease_name = disease_entry.get("name", target_disease).lower()
+        _search_phrases = [
+            target_disease.lower().replace("_", " "),  # "type_2_diabetes" → "type 2 diabetes"
+        ]
+        # Add the canonical short name if different
+        # Map common disease keys to the exact UKB self-report wording
+        _DISEASE_TO_SEARCH = {
+            "type_2_diabetes": ["type 2 diabetes", "diabetes"],
+            "hypertension": ["hypertension"],
+            "coronary_heart_disease": ["heart attack", "angina", "coronary"],
+            "chronic_kidney_disease": ["renal failure", "kidney failure"],
+            "heart_failure": ["heart failure"],
+            "stroke": ["stroke"],
+            "copd": ["copd", "chronic obstructive"],
+            "major_depressive_disorder": ["depression"],
+            "cancer_any": ["cancer"],
+            "atrial_fibrillation": ["atrial fibrillation", "atrial flutter"],
+        }
+        _search_phrases = _DISEASE_TO_SEARCH.get(target_disease, _search_phrases)
+
+        for sr_fid, sr_enc_id in _SELF_REPORT_FIELDS.items():
+            try:
+                for phrase in _search_phrases:
+                    rows = conn.execute(
+                        "SELECT code, meaning FROM encoding_values "
+                        "WHERE encoding_id = ? AND LOWER(meaning) LIKE ?",
+                        (sr_enc_id, f"%{phrase}%"),
+                    ).fetchall()
+                    for r in rows:
+                        _self_report_matches.setdefault(sr_fid, []).append({
+                            "code": str(r["code"]),
+                            "meaning": r["meaning"],
+                        })
+            except Exception:
+                pass
+        # Deduplicate
+        for sr_fid in _self_report_matches:
+            seen = set()
+            unique = []
+            for m in _self_report_matches[sr_fid]:
+                if m["code"] not in seen:
+                    seen.add(m["code"])
+                    unique.append(m)
+            _self_report_matches[sr_fid] = unique
+
+        if not definition_set and not _self_report_matches:
             return []
 
         issues: List[Dict[str, Any]] = []
@@ -857,8 +913,9 @@ class UKBCodebook:
             if not parsed:
                 continue
             fid = parsed[0]
+
+            # Check 1: Direct definition field match
             if str(fid) in definition_set or fid in definition_set:
-                conn = self._ensure_conn()
                 row = conn.execute(
                     "SELECT title FROM fields WHERE field_id = ?", (fid,)
                 ).fetchone()
@@ -875,6 +932,35 @@ class UKBCodebook:
                         "field_id": fid,
                         "target_disease": target_disease,
                         "source": "disease_kb_x_ukb_codebook",
+                    },
+                })
+
+            # Check 2: Self-report array field containing disease-relevant codes
+            # Data source: our own UKB SQLite encoding_values (no external dependency)
+            elif fid in _self_report_matches:
+                matches = _self_report_matches[fid]
+                code_strs = ", ".join(
+                    f"{m['code']}={m['meaning']}" for m in matches[:5]
+                )
+                row = conn.execute(
+                    "SELECT title FROM fields WHERE field_id = ?", (fid,)
+                ).fetchone()
+                title = row["title"] if row else f"field {fid}"
+                issues.append({
+                    "code": "CODEBOOK_SELF_REPORT_LEAKAGE",
+                    "message": (
+                        f"Column '{col}' ({title}) is a self-report array field "
+                        f"that contains codes related to '{target_disease}': "
+                        f"[{code_strs}]. If any array element holds these codes, "
+                        f"the model can directly observe the outcome. Exclude "
+                        f"this field or remove the disease-specific codes."
+                    ),
+                    "details": {
+                        "column": col,
+                        "field_id": fid,
+                        "target_disease": target_disease,
+                        "matching_codes": matches,
+                        "source": "ukb_encoding_values",
                     },
                 })
 

@@ -170,6 +170,42 @@ class TestUKBEncodingCheck:
         assert len(encoding) == 0
 
 
+class TestUKBSelfReportLeakage:
+    """Self-report array fields (20002) containing disease codes → leakage.
+
+    Uses our own UKB encoding_values table (no external dependency).
+    """
+
+    def test_self_report_illness_flagged_for_diabetes(self, ukb_codebook):
+        if not DISEASE_KB.exists():
+            pytest.skip("Disease KB not found")
+        issues = ukb_codebook.task_aware_validate(
+            column_names=["p20002_i0_a0", "p21001_i0_a0"],
+            target_col="p2443_i0",
+            target_disease="type_2_diabetes",
+            disease_kb_path=str(DISEASE_KB),
+        )
+        sr = [i for i in issues if i["code"] == "CODEBOOK_SELF_REPORT_LEAKAGE"]
+        assert len(sr) == 1
+        assert sr[0]["details"]["field_id"] == 20002
+        assert sr[0]["details"]["source"] == "ukb_encoding_values"
+        # Must contain code 1223 (type 2 diabetes)
+        codes = {m["code"] for m in sr[0]["details"]["matching_codes"]}
+        assert "1223" in codes
+
+    def test_safe_features_no_self_report_match(self, ukb_codebook):
+        if not DISEASE_KB.exists():
+            pytest.skip("Disease KB not found")
+        issues = ukb_codebook.task_aware_validate(
+            column_names=["p21001_i0_a0", "p31"],
+            target_col="p2443_i0",
+            target_disease="type_2_diabetes",
+            disease_kb_path=str(DISEASE_KB),
+        )
+        sr = [i for i in issues if i["code"] == "CODEBOOK_SELF_REPORT_LEAKAGE"]
+        assert len(sr) == 0
+
+
 class TestUKBTaskAwareValidate:
 
     def test_diabetes_definition_fields_flagged(self, ukb_codebook):
