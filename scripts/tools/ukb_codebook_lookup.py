@@ -848,27 +848,7 @@ class UKBCodebook:
         ukb_exclusion_fields = disease_entry.get("ukb_exclusion_fields", [])
         definition_set = set(ukb_def_fields + ukb_exclusion_fields)
 
-        # Load Pomegranate self-report codes from independent file.
-        # Separated from disease-KB for single-responsibility: disease-KB
-        # defines clinical criteria, Pomegranate defines UKB data source codes.
-        self_report_codes: Dict[str, Any] = {}
-        _pom_path = Path(disease_kb_path).parent.parent / "codebooks" / "ukb" / "pomegranate-phenotypes.json"
-        if _pom_path.is_file():
-            try:
-                _pom = json.loads(_pom_path.read_text(encoding="utf-8"))
-                _pom_disease = _pom.get("diseases", {}).get(target_disease, {})
-                if not _pom_disease:
-                    # Fuzzy match
-                    for _pk, _pv in _pom.get("diseases", {}).items():
-                        if target_disease.lower().replace("_", " ") in _pk.lower().replace("_", " "):
-                            _pom_disease = _pv
-                            break
-                self_report_codes = _pom_disease.get("self_report_codes", {})
-            except (json.JSONDecodeError, OSError):
-                pass
-        self_report_field_ids = {int(k) for k in self_report_codes}
-
-        if not definition_set and not self_report_field_ids:
+        if not definition_set:
             return []
 
         issues: List[Dict[str, Any]] = []
@@ -877,8 +857,6 @@ class UKBCodebook:
             if not parsed:
                 continue
             fid = parsed[0]
-
-            # Check 1: Direct definition field match
             if str(fid) in definition_set or fid in definition_set:
                 conn = self._ensure_conn()
                 row = conn.execute(
@@ -897,37 +875,6 @@ class UKBCodebook:
                         "field_id": fid,
                         "target_disease": target_disease,
                         "source": "disease_kb_x_ukb_codebook",
-                    },
-                })
-
-            # Check 2: Self-report array field containing disease-specific codes
-            # (Pomegranate phenotyping: e.g., field 20002 code=1223 defines T2D)
-            elif fid in self_report_field_ids:
-                codes = self_report_codes[str(fid)]
-                code_strs = ", ".join(
-                    f"{c['code']}={c.get('desc', '?')}" for c in codes
-                )
-                conn = self._ensure_conn()
-                row = conn.execute(
-                    "SELECT title FROM fields WHERE field_id = ?", (fid,)
-                ).fetchone()
-                title = row["title"] if row else f"field {fid}"
-                issues.append({
-                    "code": "CODEBOOK_SELF_REPORT_LEAKAGE",
-                    "message": (
-                        f"Column '{col}' ({title}) is a self-report array field "
-                        f"that contains disease-defining codes for "
-                        f"'{target_disease}': [{code_strs}]. "
-                        f"If any array element holds these codes, the model can "
-                        f"directly observe the outcome. Exclude this field or "
-                        f"remove the specific codes before training."
-                    ),
-                    "details": {
-                        "column": col,
-                        "field_id": fid,
-                        "target_disease": target_disease,
-                        "disease_codes": codes,
-                        "source": "pomegranate_x_ukb_codebook",
                     },
                 })
 
