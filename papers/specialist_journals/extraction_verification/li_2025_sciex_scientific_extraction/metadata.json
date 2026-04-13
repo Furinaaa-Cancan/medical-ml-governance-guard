@@ -1,0 +1,37 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "Exploring LLMs for Scientific Information Extraction using the SciEx Framework",
+    "authors": ["Li S", "Sadekar A", "Self N", "Su Y", "Andersland L", "Chaplin M", "Zhang A", "Yang H", "Henderson JB", "Wigginton K", "Marr L", "Murali TM", "Ramakrishnan N"],
+    "journal": "AAAI 2026 (KGML Bridge)",
+    "year": 2025,
+    "doi": "",
+    "arxiv_id": "2512.10004",
+    "url": "https://arxiv.org/abs/2512.10004",
+    "pdf_filename": "paper.pdf"
+  },
+  "topic": "scientific_ie_framework",
+  "relevance_to_mlgg": "Most architecturally similar to MLGG. Retrieval-Extraction-Verification closed loop with schema-constrained decoding, provenance tracking (document ID + chunk + figure ref per extracted value), and self-verification triggering re-retrieval for low-confidence fields.",
+  "key_methods": [
+    "Retrieval-Extraction-Verification (REV) closed loop",
+    "Schema-constrained decoding for extraction",
+    "Provenance annotation per extracted value",
+    "Self-verification triggers re-retrieval for uncertain fields",
+    "Multi-modal extraction (text + tables + figures)",
+    "Cross-document aggregation and conflict resolution",
+    "Consistency voting across prompts/models"
+  ],
+  "key_findings": [
+    "GPT-4o outperforms Gemini-2.5-Flash across all datasets",
+    "Precision low (0.17-0.33), recall moderate (0.27-0.61) on complex datasets",
+    "Cross-sentence reasoning is a major error source",
+    "Table extraction error-prone due to structural variability",
+    "Numeric interpretation from figures: multiple error sources (axes, scales)"
+  ],
+  "actionable_for_mlgg": [
+    "Add provenance: store which section/paragraph each extracted value came from",
+    "Implement REV loop: low-confidence fields trigger PMC re-retrieval + second extraction",
+    "Separate table/figure extraction from text extraction",
+    "Schema-constrained decoding already implemented via Pydantic Literal types"
+  ]
+}

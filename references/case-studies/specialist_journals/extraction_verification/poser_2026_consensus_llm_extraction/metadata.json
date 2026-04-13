@@ -1,0 +1,33 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "Improving reliability and accuracy of structured data extraction using a consensus large-language model approach -- a use case description in multiple sclerosis",
+    "authors": ["Poser PL", "Klimas R", "Luerweg J", "Reuter E", "Hanefeld C", "Gold R", "Salmen A", "Motte J"],
+    "journal": "Frontiers in Artificial Intelligence",
+    "year": 2026,
+    "doi": "10.3389/frai.2026.1658575",
+    "url": "https://www.frontiersin.org/journals/artificial-intelligence/articles/10.3389/frai.2026.1658575/full",
+    "pdf_filename": "paper.pdf"
+  },
+  "topic": "consensus_llm_structured_extraction",
+  "relevance_to_mlgg": "Most directly applicable paper. Multi-LLM consensus (Sonnet 3.7 + Gemini-2-pro + o3-mini) achieves 1.48% true-error rate on structured clinical data extraction, comparable to neurologist specialists (~2%). 9 rounds of prompt iteration. Method directly replicable for MLGG.",
+  "key_methods": [
+    "3 LLM consensus voting (Sonnet 3.7, Gemini-2-pro, o3-mini)",
+    "9 rounds of iterative prompt refinement",
+    "Reference standard by neurology specialists",
+    "True-error rate metric (content deviations only, not format)",
+    "19 structured variables extracted from clinical reports"
+  ],
+  "key_findings": [
+    "Consensus true-error rate: 1.48% (vs neurologist ~2%)",
+    "Individual LLM error rates higher; consensus overcomes ceiling effect",
+    "Prompt iteration reduced error rate from >10% to 1.48%",
+    "Format errors eliminated by structured output functions",
+    "LLM consensus comparable to medical specialist accuracy"
+  ],
+  "actionable_for_mlgg": [
+    "Implement dual-provider consensus: Claude + DeepSeek extract same paper, flag disagreements",
+    "Iterative prompt refinement: measure accuracy, refine SYSTEM_PROMPT, repeat",
+    "Use true-error rate (content only) as quality metric, not format errors"
+  ]
+}

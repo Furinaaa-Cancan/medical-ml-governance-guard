@@ -1,0 +1,34 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "Exploring the Use of a Large Language Model for Data Extraction in Systematic Reviews: a Rapid Feasibility Study",
+    "authors": ["Schmidt L", "Hair K", "Graziosi S", "Campbell F", "Kapp C", "Khanteymoori A", "Craig D", "Engelbert M", "Thomas J"],
+    "journal": "ALTARS 2024 Workshop",
+    "year": 2024,
+    "doi": "",
+    "arxiv_id": "2405.14445",
+    "url": "https://arxiv.org/abs/2405.14445",
+    "pdf_filename": "paper.pdf"
+  },
+  "topic": "llm_systematic_review_feasibility",
+  "relevance_to_mlgg": "GPT-4 extraction from paper abstracts: ~80% accuracy across domains. Key finding: causal inference methods and study design are hardest to extract (maps to MLGG's leakage_risk inference). Prompt wording sensitivity documented.",
+  "key_methods": [
+    "GPT-4 zero-shot extraction from abstracts",
+    "3-domain evaluation (clinical 82%, animal 80%, social science 72%)",
+    "PICO extraction from EBM-NLP dataset",
+    "Gold standard by human reviewers",
+    "BLEU/ROUGE scoring vs manual evaluation"
+  ],
+  "key_findings": [
+    "Overall ~80% accuracy with domain variability",
+    "Causal inference methods and study design: most extraction errors",
+    "Participants and intervention: >80% accuracy",
+    "Outcomes: most challenging to extract",
+    "Prompt sensitive to minor wording changes and field ordering"
+  ],
+  "actionable_for_mlgg": [
+    "Expect leakage_risk fields to have highest error rate (inferential, like study design)",
+    "Prompt engineering: field label naming matters (n_participants > study_size)",
+    "Separate factual extraction (AUROC, sample size) from inferential assessment (leakage risk)"
+  ]
+}

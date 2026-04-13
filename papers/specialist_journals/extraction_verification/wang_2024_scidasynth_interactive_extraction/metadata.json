@@ -1,0 +1,31 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "SciDaSynth: Interactive Structured Data Extraction from Scientific Literature with Large Language Model",
+    "authors": ["Wang X", "Huey SL", "Sheng R", "Mehta S", "Wang F"],
+    "journal": "Campbell Systematic Reviews",
+    "year": 2024,
+    "doi": "",
+    "arxiv_id": "2404.13765",
+    "url": "https://arxiv.org/abs/2404.13765",
+    "pdf_filename": "paper.pdf"
+  },
+  "topic": "interactive_scientific_data_extraction",
+  "relevance_to_mlgg": "RAG-based interactive extraction from scientific literature with cross-document validation and inconsistency resolution. Multi-modal (text + tables + figures). User study shows significant time savings with maintained quality.",
+  "key_methods": [
+    "RAG framework for scientific document extraction",
+    "Cross-document validation and inconsistency resolution",
+    "Multi-modal content integration",
+    "Interactive human-in-the-loop refinement",
+    "Semantic grouping for cross-study comparison"
+  ],
+  "key_findings": [
+    "Significant time reduction vs manual extraction",
+    "Cross-document validation catches single-source errors",
+    "Interactive refinement improves extraction quality iteratively"
+  ],
+  "actionable_for_mlgg": [
+    "Cross-paper consistency checks when extracting batches (e.g., same dataset should have same n_patients)",
+    "Interactive mode for human review of low-confidence extractions"
+  ]
+}

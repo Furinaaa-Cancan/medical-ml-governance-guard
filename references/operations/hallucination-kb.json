@@ -1,212 +1,169 @@
 {
-  "_version": "1.0.0",
+  "_version": "2.0.0",
   "_created": "2026-04-13",
-  "_description": "Knowledge base for LLM hallucination detection and mitigation, curated for MLGG extraction pipeline hardening.",
-  "_paper_count": 9,
+  "_updated": "2026-04-13",
+  "_description": "Knowledge base for LLM structured extraction verification, curated for MLGG extract_paper_metadata.py pipeline. Focused on document-grounded information extraction accuracy, not general chatbot hallucination.",
+  "_paper_count": 8,
 
-  "taxonomy": {
-    "hallucination_types": [
-      {
-        "type": "factual_fabrication",
-        "description": "LLM invents values not present in source text (e.g., fabricated AUROC, patient count)",
-        "risk_in_mlgg": "critical",
-        "detection": ["evidence quote verification", "source text keyword search", "numeric pattern matching"],
-        "mitigation": ["Literal enum constraints", "evidence quote fields", "structured output enforcement"],
-        "papers": ["pandit_2025", "alansari_2025"]
-      },
-      {
-        "type": "value_drift",
-        "description": "LLM returns semantically similar but schema-invalid values (e.g., 'moderate' instead of 'medium')",
-        "risk_in_mlgg": "high",
-        "detection": ["Pydantic Literal type validation"],
-        "mitigation": ["Literal type constraints (implemented)", "constrained decoding"],
-        "papers": ["alansari_2025", "pesaranghader_2026"]
-      },
-      {
-        "type": "numeric_inconsistency",
-        "description": "Extracted numbers are internally contradictory (e.g., events + non-events != total)",
-        "risk_in_mlgg": "high",
-        "detection": ["cross-field arithmetic validation (implemented)", "range checks"],
-        "mitigation": ["model_post_init validator (implemented)", "multi-pass extraction"],
-        "papers": ["pesaranghader_2026", "zeba_2025"]
-      },
-      {
-        "type": "inference_hallucination",
-        "description": "LLM makes unsupported inferential judgments (e.g., leakage risk assessment without evidence)",
-        "risk_in_mlgg": "critical",
-        "detection": ["evidence quote requirement (implemented)", "claim decomposition"],
-        "mitigation": ["chain-of-thought prompting", "evidence grounding", "human-in-the-loop"],
-        "papers": ["kim_2025", "baldwin_2025", "li_2026_march"]
-      },
-      {
-        "type": "omission",
-        "description": "LLM returns null for fields that are clearly stated in the text",
-        "risk_in_mlgg": "medium",
-        "detection": ["coverage metrics vs ground truth", "keyword presence check"],
-        "mitigation": ["full-text retrieval (PMC)", "explicit instruction to extract all available fields"],
-        "papers": ["kim_2025"]
-      }
-    ]
-  },
-
-  "detection_methods": {
-    "implemented_in_mlgg": [
-      {
-        "method": "literal_enum_constraint",
-        "description": "Pydantic Literal types reject non-allowed categorical values at parse time",
-        "covers": ["value_drift"],
-        "file": "scripts/tools/extract_paper_metadata.py",
-        "effectiveness": "100% for covered fields (syntactic guarantee)"
-      },
-      {
-        "method": "numeric_cross_validation",
-        "description": "model_post_init checks arithmetic consistency, CI ordering, range bounds",
-        "covers": ["numeric_inconsistency"],
-        "file": "scripts/tools/extract_paper_metadata.py",
-        "effectiveness": "catches 7 types of numeric contradiction"
-      },
-      {
-        "method": "evidence_quote_tracing",
-        "description": "4 *_evidence fields require LLM to cite paper text for boolean leakage determinations",
-        "covers": ["inference_hallucination", "factual_fabrication"],
-        "file": "scripts/tools/extract_paper_metadata.py",
-        "effectiveness": "enables human audit; does not prevent fabricated quotes"
-      },
-      {
-        "method": "llm_source_tagging",
-        "description": "_llm_extracted_fields list and _source tag in mlgg_audit",
-        "covers": ["all types"],
-        "file": "scripts/tools/extract_paper_metadata.py, scripts/tools/score_paper_metadata.py",
-        "effectiveness": "transparency layer; downstream consumers can differentiate LLM vs human data"
-      }
+  "problem_definition": {
+    "task": "Extract structured metadata (AUROC, sample sizes, split strategy, leakage risk) from medical ML papers into Pydantic schema",
+    "tool": "scripts/tools/extract_paper_metadata.py",
+    "providers": ["Claude (Anthropic)", "DeepSeek"],
+    "risk_types": [
+      "numeric_fabrication: LLM invents values not in paper text",
+      "value_drift: LLM returns schema-invalid categorical values",
+      "numeric_inconsistency: extracted numbers are self-contradictory",
+      "inference_error: LLM makes unsupported methodology judgments (leakage risk)",
+      "omission: LLM returns null for fields clearly stated in text"
     ],
-    "recommended_additions": [
-      {
-        "method": "self_consistency_voting",
-        "description": "Run extraction N times (N>=3), take majority vote per field. Disagreements flag potential hallucination.",
-        "covers": ["factual_fabrication", "inference_hallucination"],
-        "complexity": "low (N API calls per paper, no new infrastructure)",
-        "papers": ["alansari_2025", "li_2026_march"],
-        "expected_improvement": "significant for numeric fields and boolean judgments"
-      },
-      {
-        "method": "evidence_quote_verification",
-        "description": "Check that *_evidence strings actually appear (fuzzy match) in the source paper text.",
-        "covers": ["factual_fabrication"],
-        "complexity": "low (string matching, no API calls)",
-        "papers": ["baldwin_2025"],
-        "expected_improvement": "eliminates fabricated quotes"
-      },
-      {
-        "method": "numeric_source_grounding",
-        "description": "Verify extracted numbers (AUROC, n_patients, etc.) appear in the paper text via regex.",
-        "covers": ["factual_fabrication", "numeric_inconsistency"],
-        "complexity": "low (regex search in paper text)",
-        "papers": ["zeba_2025", "pesaranghader_2026"],
-        "expected_improvement": "high for numeric fields"
-      },
-      {
-        "method": "independent_fact_checker",
-        "description": "Separate LLM call or rule-based module verifies claims without seeing extraction prompt.",
-        "covers": ["all types"],
-        "complexity": "medium (separate agent, information asymmetry design)",
-        "papers": ["li_2026_march", "zeba_2025"],
-        "expected_improvement": "highest potential; avoids self-verification bias"
-      },
-      {
-        "method": "ground_truth_benchmark",
-        "description": "10-20 manually annotated papers as regression test set for extraction accuracy.",
-        "covers": ["all types"],
-        "complexity": "medium (one-time annotation effort)",
-        "papers": ["pandit_2025"],
-        "expected_improvement": "enables quantitative tracking of extraction quality over time"
-      }
-    ]
+    "not_the_problem": "This is NOT general chatbot hallucination or medical QA — it is document-grounded structured IE"
   },
 
-  "key_statistics": {
-    "medical_hallucination_rate_general_purpose": "23.4% (median across 11 models, Kim 2025)",
-    "medical_hallucination_rate_specialized": "48.7% (median, medical-specialized models, Kim 2025)",
-    "cot_improvement": "86.4% of comparisons showed reduced hallucination with chain-of-thought (Kim 2025)",
-    "clinical_extraction_hallucination_rate": "1.47% with structured prompting (npj Digital Medicine 2025)",
-    "medhallu_benchmark_size": "10,000 QA pairs (1,000 expert-labeled + 9,000 generated)",
-    "fact_checking_f1": "0.8556 (independent fact-checker, Zeba 2025)",
-    "evidence_coverage_pubmed": "44% of biomedical questions evidence-supported (Baldwin 2025)",
-    "evidence_coverage_combined": ">70% with multiple sources (Baldwin 2025)"
+  "implemented_defenses": [
+    {
+      "defense": "literal_enum_constraints",
+      "description": "Pydantic Literal types reject non-allowed categorical values at parse time",
+      "covers": ["value_drift"],
+      "file": "scripts/tools/extract_paper_metadata.py",
+      "effectiveness": "100% for covered fields (syntactic guarantee)"
+    },
+    {
+      "defense": "numeric_cross_validation",
+      "description": "model_post_init checks arithmetic consistency, CI ordering, range bounds",
+      "covers": ["numeric_inconsistency"],
+      "file": "scripts/tools/extract_paper_metadata.py",
+      "effectiveness": "catches 7 types of numeric contradiction"
+    },
+    {
+      "defense": "evidence_quote_tracing",
+      "description": "4 *_evidence fields require LLM to cite paper text for boolean leakage determinations",
+      "covers": ["inference_error"],
+      "file": "scripts/tools/extract_paper_metadata.py",
+      "effectiveness": "enables human audit; does not yet verify quotes against source"
+    },
+    {
+      "defense": "llm_source_tagging",
+      "description": "_llm_extracted_fields list and _source tag in mlgg_audit, downstream score_paper_metadata emits _llm_confidence_note",
+      "covers": ["all types — transparency layer"],
+      "file": "scripts/tools/extract_paper_metadata.py, scripts/tools/score_paper_metadata.py",
+      "effectiveness": "consumers can distinguish LLM vs human data"
+    }
+  ],
+
+  "recommended_next_steps": [
+    {
+      "priority": 1,
+      "method": "numeric_source_grounding",
+      "description": "Regex check: do extracted numbers (AUROC, n_patients, prevalence) actually appear in the paper text?",
+      "covers": ["numeric_fabrication"],
+      "complexity": "~50 lines, zero API calls",
+      "evidence": "SciEx verifies 'every extracted value must be traceable to its source context'. Zeba 2025 uses numerical tests against EHR records.",
+      "papers": ["li_2025_sciex", "zeba_2025"]
+    },
+    {
+      "priority": 2,
+      "method": "evidence_quote_verification",
+      "description": "Fuzzy match (difflib.SequenceMatcher) check: do *_evidence strings actually appear in the paper source text?",
+      "covers": ["inference_error — fabricated quotes"],
+      "complexity": "~30 lines, zero API calls",
+      "evidence": "SciEx provenance annotation requires traceability. MARCH decomposes into verifiable claims.",
+      "papers": ["li_2025_sciex", "li_2026_march"]
+    }
+  ],
+
+  "key_benchmarks_from_literature": {
+    "extraction_accuracy": {
+      "otto_sr_vs_human": "93.1% vs 79.7% (Cao 2025, 7 systematic reviews, 4459 data points)",
+      "consensus_3_llm": "1.48% true-error rate ≈ neurologist level (Poser 2026, 30 MS reports)",
+      "gpt4_abstract_extraction": "~80% across domains, 72-82% range (Schmidt 2024, 36 studies)",
+      "dual_llm_concordant_accuracy": "0.94 accuracy for concordant GPT-4-turbo + Claude-3-Opus responses (JAMIA 2024)"
+    },
+    "hardest_fields_to_extract": [
+      "causal inference methods / study design (Schmidt 2024)",
+      "outcomes (Schmidt 2024)",
+      "cross-sentence reasoning (SciEx 2025)",
+      "table structural variability (SciEx 2025)"
+    ],
+    "prompt_engineering_insights": [
+      "Field label naming matters: 'n_participants' >> 'study_size' (Schmidt 2024)",
+      "Prompt sequence order affects results (Schmidt 2024)",
+      "9 rounds of prompt iteration to reach 1.48% error (Poser 2026)",
+      "Variable description prompting improves extraction (otto-SR)"
+    ]
   },
 
   "papers": [
-    {
-      "id": "pandit_2025",
-      "title": "MedHallu: A Comprehensive Benchmark for Detecting Medical Hallucinations in LLMs",
-      "arxiv": "2502.14302",
-      "year": 2025,
-      "path": "papers/specialist_journals/hallucination_methods/pandit_2025_medhallu_benchmark/",
-      "primary_contribution": "First medical hallucination detection benchmark (10k QA pairs)"
-    },
-    {
-      "id": "alansari_2025",
-      "title": "Large Language Models Hallucination: A Comprehensive Survey",
-      "arxiv": "2510.06265",
-      "year": 2025,
-      "path": "papers/specialist_journals/hallucination_methods/alansari_2025_hallucination_comprehensive_survey/",
-      "primary_contribution": "Taxonomy of causes, detection (5 categories), and mitigation strategies"
-    },
     {
       "id": "pesaranghader_2026",
       "title": "Hallucination Detection and Mitigation in Large Language Models",
       "arxiv": "2601.09929",
       "year": 2026,
-      "path": "papers/specialist_journals/hallucination_methods/pesaranghader_2026_hallucination_detection_mitigation/",
-      "primary_contribution": "Operational framework for regulated environments; financial extraction case study"
-    },
-    {
-      "id": "li_2025_rag",
-      "title": "Mitigating Hallucination in LLMs: Survey on RAG, Reasoning, and Agentic Systems",
-      "arxiv": "2510.24476",
-      "year": 2025,
-      "path": "papers/specialist_journals/hallucination_methods/li_2025_hallucination_rag_reasoning_agentic/",
-      "primary_contribution": "Knowledge vs logic hallucination distinction; RAG + reasoning integration"
+      "path": "references/case-studies/specialist_journals/extraction_verification/pesaranghader_2026_hallucination_detection_mitigation/",
+      "relevance": "HIGH — operational framework for hallucination in regulated document extraction (financial case study)",
+      "key_takeaway": "Root cause-aware detection+mitigation cycle; Table 1 maps detection methods to ground truth requirements; Table 2 compares open vs closed-weight model capabilities"
     },
     {
       "id": "li_2026_march",
       "title": "MARCH: Multi-Agent Reinforced Self-Check for LLM Hallucination",
       "arxiv": "2603.24579",
       "year": 2026,
-      "path": "papers/specialist_journals/hallucination_methods/li_2026_march_multi_agent_selfcheck/",
-      "primary_contribution": "Solver/Proposer/Checker architecture with information asymmetry; 8B matches proprietary"
-    },
-    {
-      "id": "lin_2025",
-      "title": "LLM-based Agents Suffer from Hallucinations: Taxonomy, Methods, and Directions",
-      "arxiv": "2509.18970",
-      "year": 2025,
-      "path": "papers/specialist_journals/hallucination_methods/lin_2025_agent_hallucination_taxonomy/",
-      "primary_contribution": "Agent-specific hallucination taxonomy; 18 root causes across stages"
-    },
-    {
-      "id": "baldwin_2025",
-      "title": "Answered with Evidence: Evaluating LLM Biomedical Responses",
-      "arxiv": "2507.02975",
-      "year": 2025,
-      "path": "papers/specialist_journals/hallucination_methods/baldwin_2025_answered_with_evidence/",
-      "primary_contribution": "Evidence-grounding evaluation framework; PubMed retrieval for verification"
-    },
-    {
-      "id": "kim_2025",
-      "title": "Medical Hallucinations in Foundation Models and Their Impact on Healthcare",
-      "arxiv": "2503.05777",
-      "year": 2025,
-      "path": "papers/specialist_journals/hallucination_methods/kim_2025_medical_hallucination_foundation/",
-      "primary_contribution": "11-model evaluation; general > specialized; CoT reduces hallucination 86.4%"
+      "path": "references/case-studies/specialist_journals/extraction_verification/li_2026_march_multi_agent_selfcheck/",
+      "relevance": "MODERATE — Solver/Proposer/Checker architecture with information asymmetry",
+      "key_takeaway": "Claim decomposition + blinded verification pattern. Implementation requires MARL training (not practical for MLGG), but architectural concept applicable"
     },
     {
       "id": "zeba_2025",
       "title": "Mitigating Hallucinations in Healthcare LLMs with Granular Fact-Checking",
       "arxiv": "2512.16189",
       "year": 2025,
-      "path": "papers/specialist_journals/hallucination_methods/zeba_2025_mitigating_hallucinations_healthcare/",
-      "primary_contribution": "LLM-independent fact-checker (F1=0.8556); MIMIC-III validation"
+      "path": "references/case-studies/specialist_journals/extraction_verification/zeba_2025_mitigating_hallucinations_healthcare/",
+      "relevance": "MODERATE — independent fact-checker concept (F1=0.8556 on MIMIC-III)",
+      "key_takeaway": "Decouple verification from extraction LLM to avoid self-verification bias. Numerical tests + discrete logic NLP patterns"
+    },
+    {
+      "id": "poser_2026",
+      "title": "Improving reliability and accuracy of structured data extraction using a consensus LLM approach",
+      "doi": "10.3389/frai.2026.1658575",
+      "year": 2026,
+      "path": "references/case-studies/specialist_journals/extraction_verification/poser_2026_consensus_llm_extraction/",
+      "relevance": "CRITICAL — most directly applicable method for MLGG",
+      "key_takeaway": "3-LLM consensus achieves 1.48% error rate on structured clinical data extraction. 9 prompt iteration rounds. Method directly replicable"
+    },
+    {
+      "id": "cao_2025",
+      "title": "Automation of Systematic Reviews with Large Language Models (otto-SR)",
+      "doi": "10.1101/2025.06.13.25329541",
+      "year": 2025,
+      "path": "references/case-studies/specialist_journals/extraction_verification/cao_2025_ottosr_automated_reviews/",
+      "relevance": "CRITICAL — largest-scale extraction accuracy benchmark",
+      "key_takeaway": "93.1% extraction accuracy vs human 79.7%. Blinded adjudication resolves discrepancies. 12 Cochrane reviews in 2 days"
+    },
+    {
+      "id": "schmidt_2024",
+      "title": "Exploring the Use of a Large Language Model for Data Extraction in Systematic Reviews",
+      "arxiv": "2405.14445",
+      "year": 2024,
+      "path": "references/case-studies/specialist_journals/extraction_verification/schmidt_2024_llm_systematic_review_extraction/",
+      "relevance": "HIGH — error pattern analysis directly maps to MLGG",
+      "key_takeaway": "~80% accuracy; study design and causal inference hardest (= MLGG leakage_risk); prompt wording sensitivity documented"
+    },
+    {
+      "id": "li_2025_sciex",
+      "title": "Exploring LLMs for Scientific Information Extraction using the SciEx Framework",
+      "arxiv": "2512.10004",
+      "year": 2025,
+      "path": "references/case-studies/specialist_journals/extraction_verification/li_2025_sciex_scientific_extraction/",
+      "relevance": "CRITICAL — most architecturally similar to MLGG",
+      "key_takeaway": "Retrieval-Extract-Verify closed loop; provenance per value; schema-constrained decoding; self-verification triggers re-retrieval"
+    },
+    {
+      "id": "wang_2024_scidasynth",
+      "title": "SciDaSynth: Interactive Structured Data Extraction from Scientific Literature with LLM",
+      "arxiv": "2404.13765",
+      "year": 2024,
+      "path": "references/case-studies/specialist_journals/extraction_verification/wang_2024_scidasynth_interactive_extraction/",
+      "relevance": "MODERATE — cross-document validation and inconsistency resolution",
+      "key_takeaway": "RAG + cross-document consistency checks; interactive refinement for low-confidence extractions"
     }
   ]
 }

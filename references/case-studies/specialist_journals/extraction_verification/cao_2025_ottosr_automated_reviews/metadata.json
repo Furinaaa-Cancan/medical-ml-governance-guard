@@ -1,0 +1,33 @@
+{
+  "_template_version": "1.0.0",
+  "bibliographic": {
+    "title": "Automation of Systematic Reviews with Large Language Models",
+    "authors": ["Cao C", "Arora R", "Cento P", "Manta K", "Farahani E", "Cecere M", "Selemon A", "Sang J", "Gong LX", "Kloosterman R", "Jiang S", "Saleh R", "Margalik D", "Lin J", "Jomy J", "Xie J", "Chen D", "Gorla J", "Lee S", "Zhang K", "Whelan M", "Teja B", "Leung A", "Ghosn L", "Arora RK", "Noeel M", "Emerson DB", "Boutron I", "Moher D", "Church G", "Bobrovitz N"],
+    "journal": "medRxiv",
+    "year": 2025,
+    "doi": "10.1101/2025.06.13.25329541",
+    "arxiv_id": "",
+    "url": "https://www.medrxiv.org/content/10.1101/2025.06.13.25329541v1",
+    "pdf_filename": "paper.pdf"
+  },
+  "topic": "automated_systematic_review_extraction",
+  "relevance_to_mlgg": "End-to-end SR automation: 93.1% extraction accuracy vs human 79.7%. Uses o3-mini-high for extraction with blinded adjudication. Reproduced 12 Cochrane reviews in 2 days (= 12 work-years). Direct benchmark for MLGG extraction accuracy.",
+  "key_methods": [
+    "GPT-4.1 screening agent + o3-mini-high extraction agent",
+    "PDF to markdown conversion (Gemini 2.0 Flash)",
+    "Blinded adjudication for discrepancy resolution",
+    "LLM-as-a-judge accuracy evaluation",
+    "Variable description-driven extraction prompts"
+  ],
+  "key_findings": [
+    "Extraction accuracy: otto-SR 93.1% vs human 79.7% vs Elicit 74.8%",
+    "Blinded panel sided with otto-SR in 69.3% of discrepancies",
+    "0.6% of errors from inaccessible data, 0.67% from parsing errors, 0.49% from extraction errors",
+    "12 Cochrane reviews reproduced in 2 days"
+  ],
+  "actionable_for_mlgg": [
+    "Benchmark target: MLGG extraction should aim for >90% accuracy on test set",
+    "Blinded adjudication protocol for resolving extraction disagreements",
+    "Variable description prompting: describe each field in extraction prompt"
+  ]
+}
