@@ -1,181 +1,146 @@
-# Beginner Quickstart / 新手快速开始
+# 5 分钟快速体验 / 5-Minute Quickstart
 
-This guide gives a reproducible first run for users who are not familiar with the full gate stack.
+从零到看到第一份审查报告，只需要 2 步。
 
-本指南给新手提供可复现的首跑路径，不需要先理解全部 gate 细节。
+From zero to your first audit report in 2 steps.
 
 ---
 
-## 1. Prerequisites / 环境前置
-
-English:
-- Python 3.10+
-- `openssl` in PATH (required for attestation generation)
-
-中文：
-- Python 3.10+
-- PATH 中可用 `openssl`（生成 attestation 必需）
-
-Install dependencies / 安装依赖：
+## Step 1: 安装 / Install
 
 ```bash
-python3 -m pip install -r requirements.txt
+git clone https://github.com/Furinaaa-Cancan/medical-ml-governance-guard.git
+cd medical-ml-governance-guard
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
-Check environment / 检查环境:
-
+验证 / Verify:
 ```bash
 python3 scripts/orchestration/mlgg.py doctor
 ```
 
 ---
 
-## 2. Fastest First Run (Recommended) / 推荐首跑（最快）
+## Step 2: 跑你的第一个审查 / Run Your First Audit
 
-English:
-- Run onboarding once; it will execute an 8-step strict flow with offline synthetic medical data.
-
-中文：
-- 直接跑 onboarding；它会使用离线合成医学数据执行固定 8 步严格流程。
+### 选项 A: 用自带数据（最快，30 秒）
 
 ```bash
-python3 scripts/orchestration/mlgg.py onboarding --project-root /tmp/mlgg_demo --mode guided --yes
+# 划分数据（患者级隔离 + 时序分割）
+python3 scripts/tools/split_data.py \
+  --input examples/heart_disease.csv \
+  --output-dir /tmp/mlgg_first_run \
+  --target-col y --patient-id-col patient_id --time-col event_time \
+  --strategy grouped_temporal --seed 42
+
+# 检测数据泄漏
+python3 scripts/gates/leakage_gate.py \
+  --train /tmp/mlgg_first_run/train.csv \
+  --valid /tmp/mlgg_first_run/valid.csv \
+  --test /tmp/mlgg_first_run/test.csv \
+  --target-col y --id-cols patient_id --time-col event_time \
+  --report /tmp/mlgg_first_run/leakage_report.json
 ```
 
-Need full diagnostics without early stop:
-
-```bash
-python3 scripts/orchestration/mlgg.py onboarding --project-root /tmp/mlgg_demo --mode auto --no-stop-on-fail
+你会看到:
+```
+Gate: leakage_gate
+Status: PASS  |  Failures: 0  |  Warnings: 0
 ```
 
-Expected key outputs:
-- `/tmp/mlgg_demo/evidence/onboarding_report.json`
-- `/tmp/mlgg_demo/evidence/user_summary.md`
-- `/tmp/mlgg_demo/evidence/dag_pipeline_report.json`
+这说明：没有患者跨 split 泄漏、没有时序泄漏、没有行重复。
 
----
-
-## 3. Preview-Only Mode / 仅预览命令模式
-
-English:
-- If you want to inspect commands without running anything:
-
-中文：
-- 如果只想看完整命令而不执行：
+### 选项 B: 用自己的 CSV
 
 ```bash
-python3 scripts/orchestration/mlgg.py onboarding --project-root /tmp/mlgg_demo --mode preview
+# 把上面的 examples/heart_disease.csv 换成你的文件
+# 把 patient_id、y、event_time 换成你的列名
+python3 scripts/tools/split_data.py \
+  --input /path/to/your_data.csv \
+  --output-dir /tmp/my_project \
+  --target-col 你的目标列 --patient-id-col 你的患者ID列 \
+  --strategy grouped_temporal --seed 42
+
+python3 scripts/gates/leakage_gate.py \
+  --train /tmp/my_project/train.csv \
+  --test /tmp/my_project/test.csv \
+  --target-col 你的目标列 --id-cols 你的患者ID列 \
+  --report /tmp/my_project/leakage_report.json
 ```
 
-Preview semantics:
-- `onboarding_report.json` records `preview_only=true` and `display_status=preview`.
-- No training/gate execution happens in preview mode.
-
-预览语义：
-- `onboarding_report.json` 会记录 `preview_only=true` 与 `display_status=preview`。
-- preview 模式不会执行训练和 gate。
-
----
-
-## 4. Manual Advanced Path / 手动进阶路径
-
-English:
-1. Initialize project template.
-2. Train/evaluate and generate evidence.
-3. Bootstrap manifest baseline.
-4. Re-run against baseline manifest.
-
-中文：
-1. 初始化项目模板。
-2. 训练评估并生成证据工件。
-3. 首跑 bootstrap 生成 baseline manifest。
-4. 使用 baseline manifest 复跑对比。
+### 选项 C: 完整的 AI 审稿人体验（需要 Claude Code）
 
 ```bash
-python3 scripts/orchestration/mlgg.py init --project-root /tmp/mlgg_demo
-python3 scripts/orchestration/mlgg.py train --interactive
-python3 scripts/orchestration/mlgg.py workflow --request /tmp/mlgg_demo/configs/request.json --strict --allow-missing-compare
-python3 scripts/orchestration/mlgg.py workflow --request /tmp/mlgg_demo/configs/request.json --strict --compare-manifest /tmp/mlgg_demo/evidence/manifest_baseline.bootstrap.json
+claude          # 打开 Claude Code
+/mlgg           # 输入 /mlgg，AI 审稿人全程引导 9 阶段
 ```
 
 ---
 
-## 5. How To Read Result Status / 如何判断结果是否通过
+## Step 3（可选）: 看更多门控 / Try More Gates
 
-English:
-- `dag_pipeline_report.json`:
-  - `status=pass`: all strict gates passed.
-  - `status=fail`: at least one hard gate blocked release.
-- `onboarding_report.json`:
-  - Contract `onboarding_report.v2`.
-  - Step-level command, exit code, and error tails.
-  - `display_status=preview` for preview mode.
-  - `preview_only=true` indicates no execution.
-  - `stop_on_fail` and `termination_reason` show run-stop semantics.
-  - `failure_codes` and `next_actions` provide fail-closed diagnosis guidance.
-  - `copy_ready_commands` gives direct rerun/benchmark commands with absolute `mlgg.py` path.
-- `user_summary.md`:
-  - Human-readable pass/fail summary and key evidence links.
-
-中文：
-- `dag_pipeline_report.json`：
-  - `status=pass`：所有严格门通过。
-  - `status=fail`：至少一个硬门阻断发布。
-- `onboarding_report.json`：
-  - 契约版本为 `onboarding_report.v2`。
-  - 包含逐步命令、退出码和错误尾部信息。
-  - preview 模式下 `display_status=preview`。
-  - `preview_only=true` 表示仅预览未执行。
-  - `stop_on_fail` 与 `termination_reason` 反映终止语义。
-  - `failure_codes` 与 `next_actions` 提供 fail-closed 诊断动作。
-  - `copy_ready_commands` 提供带绝对 `mlgg.py` 路径的复跑/基准命令。
-- `user_summary.md`：
-  - 人类可读的通过/失败摘要与关键证据路径。
-
----
-
-## 6. Common Next Commands / 常用后续命令
+leakage_gate 只检查数据泄漏。MLGG 有 33 道门控，覆盖 9 个阶段。试试：
 
 ```bash
-# Unified CLI help
-python3 scripts/orchestration/mlgg.py --help
-python3 scripts/orchestration/mlgg.py onboarding --help
-python3 scripts/orchestration/mlgg.py train --interactive --help
+# 校准检测（你的模型预测概率准不准？）
+python3 scripts/gates/calibration_dca_gate.py \
+  --prediction-trace /path/to/prediction_trace.csv \
+  --evaluation-report /path/to/evaluation_report.json \
+  --report /tmp/calibration_report.json
 
-# Recommended release-grade authority benchmark
-python3 scripts/orchestration/mlgg.py authority-release
+# 静态代码扫描（你的 Python 代码有没有泄漏？）
+python3 -m mlgg_lint check /path/to/your_script.py
 
-# Advanced heart research/high-pressure benchmark
-python3 scripts/orchestration/mlgg.py authority-research-heart --stress-seed-min 20250003 --stress-seed-max 20250060
-
-# Interactive wizard (init/workflow/train/authority)
-python3 scripts/orchestration/mlgg.py interactive --command train
-
-# Gate smoke tests
-python3 scripts/test_gate_smoke.py
-
-# Onboarding smoke tests
-python3 scripts/test_onboarding_smoke.py
+# 一键全量审计（不需要配置文件）
+python3 scripts/tools/generate_audit_report.py --project-dir /path/to/project
 ```
-
-Notes:
-- `authority-release` and `authority-research-heart` are fixed-route wrappers; conflicting route flags are rejected fail-closed.
-- `authority-research-heart` is advanced mode and may fail by design under strict fixed floors.
-- If guided onboarding runs in non-interactive shell, use `--yes` or `--mode auto`; otherwise it fails closed with `onboarding_interactive_input_unavailable`.
-
-说明：
-- `authority-release` 与 `authority-research-heart` 是固定路线封装；冲突路线参数会被 fail-closed 拒绝。
-- `authority-research-heart` 是高级研究模式，在固定严格阈值下可能按设计失败。
-- 若 guided onboarding 在无交互 shell 下运行，请加 `--yes` 或改用 `--mode auto`；否则会以 `onboarding_interactive_input_unavailable` fail-closed。
 
 ---
 
-## 7. Troubleshooting Entry / 故障入口
+## 常见问题 / FAQ
 
-English:
-- Use failure codes from `dag_pipeline_report.json` and map them in:
-  - `references/docs/Troubleshooting-Top20.md`
+**Q: 我没有 patient_id 列怎么办？**
 
-中文：
-- 从 `dag_pipeline_report.json` 读取 failure code，再到下列文档定位修复动作：
-  - `references/docs/Troubleshooting-Top20.md`
+如果每行是独立样本（不是同一患者的多次就诊），可以用行号做 ID：
+```bash
+--patient-id-col ""  # 空字符串 = 每行独立
+```
+
+**Q: 我的数据是横截面的（没有时间列）怎么办？**
+
+省略 `--time-col` 参数即可：
+```bash
+python3 scripts/tools/split_data.py \
+  --input data.csv --output-dir /tmp/out \
+  --target-col y --patient-id-col pid \
+  --strategy stratified_grouped --seed 42
+```
+
+**Q: gate 报了 FAIL，我该怎么修？**
+
+每个 failure 都附有修复建议。查看报告 JSON 中的 `failures[].remediation` 字段，或：
+```bash
+python3 scripts/tools/explain_gate.py --gate leakage_gate
+```
+
+**Q: 我想跑完整 33 道门控怎么做？**
+
+```bash
+# 方式 1: 交互式（推荐新手）
+python3 scripts/orchestration/mlgg.py onboarding \
+  --project-root /tmp/my_project --mode guided --yes
+
+# 方式 2: Claude Code AI 审稿人（最强体验）
+claude
+/mlgg
+```
+
+---
+
+## 下一步 / Next Steps
+
+- 完整文档：[README.md](../../README.md)
+- 故障排除：[Troubleshooting-Top20.md](Troubleshooting-Top20.md)
+- 架构说明：[Architecture.md](Architecture.md)
+- API 参考：[API-Reference.md](API-Reference.md)

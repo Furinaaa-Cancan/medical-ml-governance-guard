@@ -145,89 +145,55 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 
 ## 快速开始
 
-### 方式一：Claude Code + `/mlgg`（推荐 — AI 审稿人全程引导）
+### 30 秒体验：检测你的数据有没有泄漏
 
 ```bash
-# 1. 克隆项目
 git clone https://github.com/Furinaaa-Cancan/medical-ml-governance-guard.git
 cd medical-ml-governance-guard
+pip install -r requirements.txt
 
-# 2. 打开 Claude Code
-claude
+# 用自带的心脏病数据集：划分 → 检测泄漏（2 条命令）
+python3 scripts/tools/split_data.py \
+  --input examples/heart_disease.csv --output-dir /tmp/mlgg_demo \
+  --target-col y --patient-id-col patient_id --time-col event_time \
+  --strategy grouped_temporal --seed 42
 
-# 3. 输入 /mlgg 启动完整方法学指导模式
-/mlgg
+python3 scripts/gates/leakage_gate.py \
+  --train /tmp/mlgg_demo/train.csv --valid /tmp/mlgg_demo/valid.csv \
+  --test /tmp/mlgg_demo/test.csv \
+  --target-col y --id-cols patient_id --time-col event_time \
+  --report /tmp/mlgg_demo/leakage_report.json
 ```
 
-输入 `/mlgg` 后，AI 审稿人会自动引导你走完 9 阶段工作流：
+输出 `Status: PASS` = 数据划分正确，没有患者跨 split、没有时序泄漏。把 `heart_disease.csv` 换成你自己的 CSV 和列名就行。
 
-1. 观察你的数据（自动推断列名、目标变量、患者 ID）
-2. 划分数据（患者级分组 + 时序隔离）
-3. 训练模型（20 个模型族自动筛选 + one-SE 规则）
-4. 运行 33 道门控审查
-5. 生成发表级报告（含 TRIPOD+AI 合规证书）
+> 完整 5 分钟教程见 [Beginner-Quickstart.md](references/docs/Beginner-Quickstart.md)
 
-每一步检测到问题时，会引用 107 篇 Nature Communications 论文的真实审稿意见作为论据。
-
-### 方式二：命令行
+### AI 审稿人全程引导（推荐）
 
 ```bash
-# 安装
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-pip install -r requirements-optional.txt  # XGBoost, CatBoost, LightGBM, SHAP, ...
+claude          # 打开 Claude Code
+/mlgg           # AI 审稿人自动引导 9 阶段
+```
 
-# 验证安装
-python3 scripts/orchestration/mlgg.py doctor
+自动完成：观察数据 → 划分 → 训练 20 模型族 → 33 道门控审查 → TRIPOD+AI 合规报告。每一步引用真实审稿意见作为论据。
 
-# 交互式像素风终端 UI（5 分钟完整体验）
-python3 scripts/orchestration/mlgg.py play
+### 更多入口
 
-# 从零开始引导式建模
+```bash
+python3 scripts/orchestration/mlgg.py doctor         # 验证安装
+python3 scripts/orchestration/mlgg.py play           # 像素风终端 UI
+
+# 引导式建模（无需 Claude Code）
 python3 scripts/orchestration/mlgg.py onboarding \
   --project-root /tmp/mlgg_demo --mode guided --yes
 
 # 审计任何 ML 项目（无需配置）
 python3 scripts/tools/generate_audit_report.py --project-dir /path/to/project
 
-# 发布级严格管线
-python3 scripts/orchestration/mlgg.py workflow \
-  --request configs/request.json --strict
-```
-
-### 方式三：自有 CSV 最短严格闭环
-
-```bash
-# 1. 初始化项目
-python3 scripts/orchestration/mlgg.py init --project-root /tmp/project
-
-# 2. 安全划分
-python3 scripts/orchestration/mlgg.py split -- \
-  --input /path/to/data.csv \
-  --output-dir /tmp/project/data \
-  --patient-id-col patient_id --target-col y --time-col event_time \
-  --strategy grouped_temporal
-
-# 3. 泄漏检测（训练前必须通过）
-python3 scripts/gates/leakage_gate.py \
-  --train /tmp/project/data/train.csv \
-  --test /tmp/project/data/test.csv \
-  --id-cols patient_id --target-col y \
-  --report /tmp/project/evidence/leakage_report.json
-
-# 4. 交互式训练
-python3 scripts/orchestration/mlgg.py train --interactive
-
-# 5. 严格审计（bootstrap 基线）
-python3 scripts/orchestration/mlgg.py workflow \
-  --request /tmp/project/configs/request.json \
-  --strict --allow-missing-compare
-
-# 6. 严格对比复跑
-python3 scripts/orchestration/mlgg.py workflow \
-  --request /tmp/project/configs/request.json \
-  --strict \
-  --compare-manifest /tmp/project/evidence/manifest_baseline.bootstrap.json
+# 静态代码扫描（27 条 AST 泄漏规则）
+cd plugin && pip install -e . && cd ..
+python3 -m mlgg_lint check /path/to/your_script.py
 ```
 
 ---

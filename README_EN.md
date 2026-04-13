@@ -138,79 +138,55 @@ Raw Data ──→ 9-Phase Workflow ──→ 33-Gate Audit ──→ Compliance
 
 ## Quick Start
 
-### Option 1: Claude Code (Recommended &mdash; AI Reviewer Full Guidance)
+### 30 Seconds: Check Your Data for Leakage
 
 ```bash
-# 1. Clone the project
 git clone https://github.com/Furinaaa-Cancan/medical-ml-governance-guard.git
 cd medical-ml-governance-guard
+pip install -r requirements.txt
 
-# 2. Open Claude Code
-claude
+# Built-in heart disease dataset: split → detect leakage (2 commands)
+python3 scripts/tools/split_data.py \
+  --input examples/heart_disease.csv --output-dir /tmp/mlgg_demo \
+  --target-col y --patient-id-col patient_id --time-col event_time \
+  --strategy grouped_temporal --seed 42
 
-# 3. Just describe what you want to do:
-#    "Help me build a diabetes prediction model with this CSV"
-#    "Review my code for data leakage"
-#    "My model has AUC 0.85, what else do I need to publish in Nature Medicine?"
-#
-# Or type /mlgg to start the full methodology guidance mode.
-# The AI will automatically guide you through the 9-phase workflow,
-# check for methodological errors in real-time, and cite
-# 107 peer review papers as evidence.
+python3 scripts/gates/leakage_gate.py \
+  --train /tmp/mlgg_demo/train.csv --valid /tmp/mlgg_demo/valid.csv \
+  --test /tmp/mlgg_demo/test.csv \
+  --target-col y --id-cols patient_id --time-col event_time \
+  --report /tmp/mlgg_demo/leakage_report.json
 ```
 
-### Option 2: Command Line
+Output `Status: PASS` = correct split, no patient overlap, no temporal leakage. Replace `heart_disease.csv` with your own CSV and column names.
+
+> Full 5-minute tutorial: [Beginner-Quickstart.md](references/docs/Beginner-Quickstart.md)
+
+### AI Reviewer Full Guidance (Recommended)
 
 ```bash
-# Install
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-pip install -r requirements-optional.txt  # XGBoost, CatBoost, LightGBM, SHAP, ...
+claude          # Open Claude Code
+/mlgg           # AI reviewer guides 9-phase workflow
+```
 
-# Verify installation
-python3 scripts/orchestration/mlgg.py doctor
+Auto-completes: observe data → split → train 20 model families → 33-gate audit → TRIPOD+AI compliance report. Cites real peer review opinions at each step.
 
-# Interactive pixel-art terminal UI (5-minute full experience)
-python3 scripts/orchestration/mlgg.py play
+### More Entry Points
 
-# Guided modeling from scratch
+```bash
+python3 scripts/orchestration/mlgg.py doctor         # Verify installation
+python3 scripts/orchestration/mlgg.py play           # Pixel-art terminal UI
+
+# Guided modeling (no Claude Code needed)
 python3 scripts/orchestration/mlgg.py onboarding \
   --project-root /tmp/mlgg_demo --mode guided --yes
 
 # Audit any ML project (zero configuration)
 python3 scripts/tools/generate_audit_report.py --project-dir /path/to/project
 
-# Publication-grade strict pipeline
-python3 scripts/orchestration/mlgg.py workflow \
-  --request configs/request.json --strict
-```
-
-### Option 3: Shortest Strict Loop with Your Own CSV
-
-```bash
-# 1. Initialize project
-python3 scripts/orchestration/mlgg.py init --project-root /tmp/project
-
-# 2. Safe splitting
-python3 scripts/orchestration/mlgg.py split -- \
-  --input /path/to/data.csv \
-  --output-dir /tmp/project/data \
-  --patient-id-col patient_id --target-col y --time-col event_time \
-  --strategy grouped_temporal
-
-# 3. Interactive training
-python3 scripts/orchestration/mlgg.py train --interactive
-
-# 4. Strict audit (bootstrap baseline)
-python3 scripts/orchestration/mlgg.py workflow \
-  --request /tmp/project/configs/request.json \
-  --strict --allow-missing-compare
-
-# 5. Strict comparison re-run
-python3 scripts/orchestration/mlgg.py workflow \
-  --request /tmp/project/configs/request.json \
-  --strict \
-  --compare-manifest /tmp/project/evidence/manifest_baseline.bootstrap.json
+# Static code scan (27 AST leakage rules)
+cd plugin && pip install -e . && cd ..
+python3 -m mlgg_lint check /path/to/your_script.py
 ```
 
 ---
