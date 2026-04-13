@@ -325,7 +325,12 @@ class NHANESCodebook:
             results = self.search(term, top_k=2, min_score=3.0)
             for r in results:
                 if r["score"] >= 5.0:
-                    flagged_codes[r["variable"]] = term
+                    # Semantic guard: require at least one medical content word
+                    # from the query to appear in the candidate label.
+                    # This prevents BM25 noise like "diabetes_status" → "Marital status"
+                    # (matching only on the generic word "status").
+                    if self._term_overlaps_label(term, r["sas_label"]):
+                        flagged_codes[r["variable"]] = term
 
         # Also try alias-based reverse lookup
         for term in exclude_terms:
@@ -458,6 +463,31 @@ class NHANESCodebook:
                  "do", "does", "did", "ever", "been", "told", "other"}
         tokens = re.findall(r"[a-z0-9]+", text.lower())
         return [t for t in tokens if t not in _STOP and len(t) > 1]
+
+    @staticmethod
+    def _term_overlaps_label(query_term: str, candidate_label: str) -> bool:
+        """Check that at least one medical content word from query appears in label.
+
+        Prevents BM25 noise where generic words ("status", "flag", "result",
+        "oral") cause false matches.  We tokenize both sides, remove a
+        curated set of non-medical stopwords, and require ≥1 overlapping
+        token.  The alias/reverse-lookup path is unaffected (exact match).
+        """
+        _GENERIC = {
+            "status", "flag", "result", "results", "code", "level", "test",
+            "type", "value", "data", "total", "mean", "count", "rate",
+            "history", "number", "first", "last", "age", "time", "day",
+            "days", "year", "years", "month", "diagnosis", "diagnosed",
+            "doctor", "told", "ever", "self", "report", "reported",
+            "non", "cancer", "illness", "oral",
+        }
+        q_tokens = set(re.findall(r"[a-z0-9]+", query_term.lower())) - _GENERIC
+        l_tokens = set(re.findall(r"[a-z0-9]+", candidate_label.lower())) - _GENERIC
+        if not q_tokens:
+            # Query is entirely generic words — fall back to accepting the match
+            # to avoid silently dropping valid but generically-named exclusion terms.
+            return True
+        return bool(q_tokens & l_tokens)
 
     @staticmethod
     def _trigrams(text: str) -> List[str]:

@@ -1343,8 +1343,20 @@ def main() -> int:
                 list(df.columns), target_col=args.target_col,
                 manual_registry=manual_vars,
             )
+            # Deduplicate: skip RAG issues whose (code, column) already
+            # appeared in the manual registry validation above.
+            _existing_issue_keys = {
+                (w["code"], w.get("details", {}).get("column", ""))
+                for w in warnings_list
+            } | {
+                (f["code"], f.get("details", {}).get("column", ""))
+                for f in failures
+            }
             for issue in rag_issues:
-                add_issue(warnings_list, issue["code"], issue["message"], issue["details"])
+                _key = (issue["code"], issue.get("details", {}).get("column", ""))
+                if _key not in _existing_issue_keys:
+                    add_issue(warnings_list, issue["code"], issue["message"], issue["details"])
+                    _existing_issue_keys.add(_key)
 
             # Task-aware validation: cross-reference disease-KB with codebook
             # Auto-detects definition variables for the target disease

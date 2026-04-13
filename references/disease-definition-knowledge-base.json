@@ -206,13 +206,19 @@
         ]
       },
       "definition_variables_to_exclude": [
+        "c_peptide",
         "diabetes_diagnosis",
         "diabetes_status",
         "dm_flag",
         "fasting_glucose",
         "fasting_plasma_glucose",
         "fpg",
+        "glycohemoglobin",
         "hba1c",
+        "homa_ir",
+        "insulin",
+        "insulin_level",
+        "insulin_resistance",
         "ogtt",
         "ogtt_result",
         "oral_glucose_tolerance",
@@ -221,6 +227,11 @@
         "random_glucose_result",
         "random_plasma_glucose"
       ],
+      "ukb_definition_fields": [
+        "30750", "30740", "2443", "2976", "2986", "4041",
+        "130708", "130709"
+      ],
+      "ukb_definition_fields_note": "30750=HbA1c, 30740=Glucose, 2443=Diabetes diagnosed by doctor, 2976=Age diabetes diagnosed, 2986=Started insulin within 1yr, 4041=Gestational diabetes, 130708/9=Date/Source E11 first reported",
       "recommended_adjudication": "at_least_two",
       "ukb_validation": "Eastwood 2016: 75% of 'probable T2D' confirmed in primary+secondary care"
     },
@@ -314,6 +325,11 @@
         "systolic",
         "systolic_blood_pressure"
       ],
+      "ukb_definition_fields": [
+        "4080", "4079", "93", "94", "6150", "2966",
+        "131286", "131287"
+      ],
+      "ukb_definition_fields_note": "4080/4079=SBP/DBP automated, 93/94=SBP/DBP manual, 6150=Vascular problems diagnosed, 2966=Age high BP diagnosed, 131286/7=Date/Source I10 first reported",
       "recommended_adjudication": "at_least_two"
     },
     "coronary_heart_disease": {
@@ -433,6 +449,10 @@
         "troponin_i",
         "troponin_t"
       ],
+      "ukb_definition_fields": [
+        "3894", "6150", "131298", "131299"
+      ],
+      "ukb_definition_fields_note": "3894=Age heart attack diagnosed, 6150=Vascular/heart problems, 131298/9=Date/Source I21 first reported",
       "recommended_adjudication": "at_least_two"
     },
     "chronic_kidney_disease": {
@@ -502,6 +522,8 @@
       ],
       "definition_variables_to_exclude": [
         "albumin_creatinine_ratio",
+        "blood_urea_nitrogen",
+        "bun",
         "ckd_stage",
         "creatinine",
         "creatinine_serum",
@@ -511,6 +533,10 @@
         "serum_creatinine",
         "uacr"
       ],
+      "ukb_definition_fields": [
+        "30700", "30720"
+      ],
+      "ukb_definition_fields_note": "30700=Creatinine, 30720=Cystatin C (used to compute eGFR)",
       "recommended_adjudication": "at_least_two",
       "note": "CKD-EPI 2021 removed race coefficient — use race-free formula"
     },
@@ -587,6 +613,10 @@
         "ntprobnp",
         "pro_bnp"
       ],
+      "ukb_definition_fields": [
+        "24103", "131354", "131355"
+      ],
+      "ukb_definition_fields_note": "24103=LV ejection fraction, 131354/5=Date/Source I50 first reported",
       "recommended_adjudication": "at_least_two"
     },
     "stroke": {
@@ -652,6 +682,10 @@
         "stroke_flag",
         "stroke_type"
       ],
+      "ukb_definition_fields": [
+        "4056", "131366", "131367", "131362", "131363"
+      ],
+      "ukb_definition_fields_note": "4056=Age stroke diagnosed, 131366/7=Date/Source I63 (ischaemic) first reported, 131362/3=Date/Source I61 (haemorrhagic) first reported",
       "recommended_adjudication": "at_least_two"
     },
     "copd": {
@@ -715,8 +749,15 @@
         "fev1_percent_predicted",
         "fev1_predicted",
         "fvc",
+        "peak_expiratory_flow",
+        "peak_flow",
+        "pef",
         "spirometry"
       ],
+      "ukb_definition_fields": [
+        "3063", "3062"
+      ],
+      "ukb_definition_fields_note": "3063=FEV1, 3062=FVC (used to compute FEV1/FVC ratio for GOLD staging)",
       "recommended_adjudication": "at_least_two"
     },
     "major_depressive_disorder": {
@@ -792,6 +833,10 @@
         "phq2_score",
         "phq9_score"
       ],
+      "ukb_definition_fields": [
+        "20126", "20127"
+      ],
+      "ukb_definition_fields_note": "20126=Bipolar and major depression status, 20127=Neuroticism score (derived from questionnaire items)",
       "recommended_adjudication": "at_least_two"
     },
     "cancer_any": {
@@ -875,6 +920,10 @@
         "tnm_stage",
         "tumor_stage"
       ],
+      "ukb_definition_fields": [
+        "40005", "40006", "40008", "40009", "20001"
+      ],
+      "ukb_definition_fields_note": "40005/6=Date/type of cancer (register), 40008/9=Age/histology, 20001=Self-reported cancer codes",
       "recommended_adjudication": "cancer_registry_primary",
       "icd10": [
         "C00-C97"
@@ -940,6 +989,10 @@
         "holter_result",
         "rhythm_type"
       ],
+      "ukb_definition_fields": [
+        "12653", "24613", "131350", "131351"
+      ],
+      "ukb_definition_fields_note": "12653=ECG automated diagnoses, 24613=AFib Burden, 131350/1=Date/Source I48 first reported",
       "recommended_adjudication": "at_least_two"
     },
     "readmission_30day": {

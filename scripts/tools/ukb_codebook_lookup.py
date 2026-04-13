@@ -796,7 +796,17 @@ class UKBCodebook:
         except Exception:
             return []
 
-        disease_entry = kb.get(target_disease, {})
+        diseases = kb.get("diseases", kb)
+        disease_entry = diseases.get(target_disease, {})
+        if not disease_entry:
+            # Fuzzy match: try case-insensitive / underscore-space normalization
+            target_lower = target_disease.lower().replace("_", " ").replace("-", " ")
+            for dk, dv in diseases.items():
+                dk_lower = dk.lower().replace("_", " ")
+                name_lower = (dv.get("name", "") if isinstance(dv, dict) else "").lower()
+                if target_lower in dk_lower or target_lower in name_lower or dk_lower in target_lower:
+                    disease_entry = dv
+                    break
         if not disease_entry:
             return []
 
