@@ -6,7 +6,11 @@
     "schema_version": "1.2",
     "diseases_available": 313,
     "diseases_extracted": 9,
-    "extraction_note": "Extracted self-report codes (field 20002/20003/20004) and disease-specific field IDs for diseases covered by MLGG disease-definition-knowledge-base."
+    "extraction_note": "Extracted self-report codes (field 20002/20003/20004) and disease-specific field IDs for diseases covered by MLGG disease-definition-knowledge-base.",
+    "extraction_date": "2026-04-13",
+    "upstream_commits_at_extraction": 7,
+    "license_status": "UNLICENSED — repository has no LICENSE file. Paper (Sci Rep 2025) is CC BY 4.0. Self-report codes are factual medical coding standards (ICD-10/Read v2) not original creative work. Use at own risk.",
+    "verification_note": "ICD-10 codes cross-verified against WHO ICD-10 standard. Self-report codes (field 20002) verified against UKB Data Showcase encoding 6 (non-cancer illness codes)."
   },
   "diseases": {
     "type_2_diabetes": {
