@@ -659,11 +659,12 @@ class UKBCodebook:
             try:
                 row = conn.execute(
                     "SELECT field_id, title, domain, risk_category, "
+                    "value_type, encoding_id, "
                     "num_participants, instanced, instance_max "
                     "FROM fields WHERE field_id = ?", (fid,)
                 ).fetchone()
             except Exception:
-                # Fallback for old DB schema without risk_category column
+                # Fallback for old DB schema without risk_category/value_type
                 row = conn.execute(
                     "SELECT field_id, title, domain, "
                     "num_participants, instanced "
@@ -772,6 +773,38 @@ class UKBCodebook:
                                 "mechanism": "MNAR_instance_participation",
                             },
                         })
+
+            # ── Check 4: Categorical encoding type ──
+            # UKB categorical fields (categorical_single, categorical_multiple)
+            # should NOT be treated as numeric.  Numeric encoding of nominal
+            # categories (e.g., ethnic_background codes 1/1001/1002/2/2001)
+            # implies a false ordinal relationship.
+            value_type = (row["value_type"] if "value_type" in row.keys() else None) or ""
+            if value_type in ("categorical_single", "categorical_multiple"):
+                encoding_id = row["encoding_id"] if "encoding_id" in row.keys() else None
+                n_values = 0
+                if encoding_id:
+                    n_values = conn.execute(
+                        "SELECT COUNT(*) FROM encoding_values WHERE encoding_id = ?",
+                        (encoding_id,),
+                    ).fetchone()[0]
+                # Only warn for fields with >2 categories (binary is OK as 0/1)
+                if n_values > 2:
+                    issues.append({
+                        "code": "CODEBOOK_ENCODING_CHECK",
+                        "message": (
+                            f"Column '{col}' ({title}) is {value_type} with "
+                            f"{n_values} categories. If stored as numeric, the "
+                            f"model will learn a false ordinal relationship. "
+                            f"Use one-hot encoding for nominal categories."
+                        ),
+                        "details": {
+                            "column": col, "field_id": fid,
+                            "value_type": value_type,
+                            "n_categories": n_values,
+                            "source": "ukb_codebook",
+                        },
+                    })
 
         return issues
 

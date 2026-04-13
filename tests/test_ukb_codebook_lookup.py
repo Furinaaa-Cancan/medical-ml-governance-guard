@@ -139,6 +139,37 @@ class TestUKBValidateColumnsForGate:
         assert len(critical) == 0
 
 
+class TestUKBEncodingCheck:
+
+    def test_categorical_multi_value_flagged(self, ukb_codebook):
+        """Categorical field with >2 values should trigger encoding check."""
+        issues = ukb_codebook.validate_columns_for_gate(
+            column_names=["p21000_i0"],  # Ethnic background, 22 categories
+            target_col="p2443_i0",
+        )
+        encoding = [i for i in issues if i["code"] == "CODEBOOK_ENCODING_CHECK"]
+        assert len(encoding) >= 1
+        assert encoding[0]["details"]["n_categories"] > 2
+
+    def test_binary_categorical_not_flagged(self, ukb_codebook):
+        """Binary categorical (Sex, 2 values) should NOT trigger encoding check."""
+        issues = ukb_codebook.validate_columns_for_gate(
+            column_names=["p31"],  # Sex (Male/Female)
+            target_col="p2443_i0",
+        )
+        encoding = [i for i in issues if i["code"] == "CODEBOOK_ENCODING_CHECK"]
+        assert len(encoding) == 0
+
+    def test_continuous_not_flagged(self, ukb_codebook):
+        """Continuous field should NOT trigger encoding check."""
+        issues = ukb_codebook.validate_columns_for_gate(
+            column_names=["p21001_i0_a0"],  # BMI (continuous)
+            target_col="p2443_i0",
+        )
+        encoding = [i for i in issues if i["code"] == "CODEBOOK_ENCODING_CHECK"]
+        assert len(encoding) == 0
+
+
 class TestUKBTaskAwareValidate:
 
     def test_diabetes_definition_fields_flagged(self, ukb_codebook):
