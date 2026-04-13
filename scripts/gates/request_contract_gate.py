@@ -1199,6 +1199,7 @@ def load_json_object(path: str) -> Optional[Dict[str, Any]]:
 def validate_cross_artifact_alignment(
     normalized: Dict[str, Any],
     failures: List[Dict[str, Any]],
+    warnings_list: Optional[List[Dict[str, Any]]] = None,
 ) -> None:
     perf_path = normalized.get("performance_policy_spec")
     eval_path = normalized.get("evaluation_report_file")
@@ -1349,7 +1350,7 @@ def validate_cross_artifact_alignment(
                         print(f"[WARN] prediction trace hash failed: {exc}", file=sys.stderr)
                         if recorded_trace_sha and re.fullmatch(r"[0-9a-f]{64}", recorded_trace_sha):
                             add_issue(
-                                warnings_list,
+                                warnings_list if warnings_list is not None else failures,
                                 "prediction_trace_hash_unverifiable",
                                 f"Cannot verify prediction trace hash: {exc}",
                                 {"recorded_sha256": recorded_trace_sha},
@@ -1381,7 +1382,7 @@ def validate_cross_artifact_alignment(
                         print(f"[WARN] external report hash failed: {exc}", file=sys.stderr)
                         if recorded_external_sha and re.fullmatch(r"[0-9a-f]{64}", recorded_external_sha):
                             add_issue(
-                                warnings_list,
+                                warnings_list if warnings_list is not None else failures,
                                 "external_report_hash_unverifiable",
                                 f"Cannot verify external report hash: {exc}",
                                 {"recorded_sha256": recorded_external_sha},
@@ -3175,7 +3176,7 @@ def main() -> int:
     execution_attestation_spec = normalized.get("execution_attestation_spec")
     if isinstance(execution_attestation_spec, str) and execution_attestation_spec:
         validate_execution_attestation_shape(execution_attestation_spec, failures)
-    validate_cross_artifact_alignment(normalized, failures)
+    validate_cross_artifact_alignment(normalized, failures, warnings_list=warnings)
 
     metric_path = request.get("evaluation_metric_path")
     if metric_path is None:
