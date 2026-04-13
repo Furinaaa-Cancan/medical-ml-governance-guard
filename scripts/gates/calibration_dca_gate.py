@@ -50,6 +50,7 @@ register_remediations({
     "calibration_in_the_large_too_large": "Calibration-in-the-large should be near 0.0 (Collins et al. BMJ 2024;384:e074819). Recalibrate.",
     "hosmer_lemeshow_discouraged": "Replace Hosmer-Lemeshow with calibration slope, O/E ratio, and calibration plots (Collins et al. BMJ 2024;384:e074819).",
     "dca_threshold_grid_not_prespecified": "Pre-specify and justify DCA threshold grid in the study protocol (TRIPOD+AI 2024).",
+    "resampling_calibration_risk": "Model uses internal resampling (balanced bootstrap / undersampling) which shifts predicted probabilities. Apply post-hoc recalibration (Platt / isotonic). Ref: van den Goorbergh et al., BMC Med Res Methodol 2022;22:312.",
 })
 
 
@@ -450,6 +451,21 @@ def main() -> int:
             {"constant_value": float(y_score_all[0]), "n_predictions": int(y_score_all.size)},
         )
         return finish(args, failures, warnings, {"thresholds": thresholds})
+
+    # Check for resampling calibration risk from internal-imbalance models
+    _cal_assessment = _eval_report.get("calibration_assessment")
+    if isinstance(_cal_assessment, dict):
+        _resamp_risk = _cal_assessment.get("resampling_calibration_risk")
+        if isinstance(_resamp_risk, dict) and _resamp_risk.get("warning"):
+            add_issue(
+                warnings,
+                "resampling_calibration_risk",
+                str(_resamp_risk["warning"]),
+                {
+                    "model_family": _resamp_risk.get("model_family"),
+                    "slope_deviation": _resamp_risk.get("slope_deviation_from_unity"),
+                },
+            )
 
     cohorts_to_check: List[Dict[str, str]] = [{"scope": "test", "cohort_id": "internal_test", "label": "internal_test"}]
     ext_cohorts = ext_report.get("cohorts")

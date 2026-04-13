@@ -4964,6 +4964,48 @@ def _calibration_assessment(
     return result
 
 
+def _annotate_calibration_resampling_risk(
+    calibration: Dict[str, Any],
+    candidate_row: Optional[Dict[str, Any]],
+) -> Dict[str, Any]:
+    """Add resampling calibration warning for internal-imbalance models.
+
+    Models in INTERNAL_IMBALANCE_FAMILIES (BRF, EasyEnsemble, RUSBoost)
+    use balanced bootstrap or undersampling internally. This shifts
+    predicted probabilities and inflates calibration slope (van den
+    Goorbergh et al., BMC Med Res Methodol 2022;22:312).
+
+    Annotates calibration_assessment with a warning if slope deviates
+    from 1.0 by more than 0.15 for these families.
+    """
+    if not isinstance(calibration, dict) or calibration.get("skipped"):
+        return calibration
+    if not isinstance(candidate_row, dict):
+        return calibration
+
+    family = str(candidate_row.get("base_model_id", ""))
+    if family not in INTERNAL_IMBALANCE_FAMILIES:
+        return calibration
+
+    slope = calibration.get("calibration_slope")
+    if slope is None:
+        return calibration
+
+    deviation = abs(float(slope) - 1.0)
+    calibration["resampling_calibration_risk"] = {
+        "model_family": family,
+        "slope_deviation_from_unity": round(deviation, 4),
+        "warning": (
+            f"{family} uses internal resampling (balanced bootstrap / undersampling) "
+            f"which shifts predicted probabilities. Calibration slope={slope:.3f} "
+            f"(deviation={deviation:.3f} from ideal 1.0). "
+            f"Post-hoc recalibration (Platt/isotonic) is recommended. "
+            f"Ref: van den Goorbergh et al., BMC Med Res Methodol 2022;22:312."
+        ) if deviation > 0.15 else None,
+    }
+    return calibration
+
+
 def _decision_curve_analysis(
     y_true: "np.ndarray",
     proba: "np.ndarray",
@@ -7531,7 +7573,9 @@ def _phase10_12_reports_output(ctx: Dict[str, Any]) -> int:
             "original_model_id": original_model_id if callback_activated else None,
             "fallback_trace": fallback_trace if fallback_trace else None,
         },
-        "calibration_assessment": calibration_test,
+        "calibration_assessment": _annotate_calibration_resampling_risk(
+            calibration_test, selected_candidate_row,
+        ),
         "bootstrap_optimism_correction": optimism_correction,
         "learning_curve": learning_curve_report,
         "decision_curve_analysis": dca_test,
