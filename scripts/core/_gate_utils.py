@@ -422,11 +422,20 @@ def epoch_to_iso(ts: Optional[float]) -> Optional[str]:
 # ═══════════════════════════════════════════════════════════════
 
 def to_float(value: Any) -> Optional[float]:
-    """Safely convert a value to float, rejecting inf/nan and non-numeric."""
+    """Safely convert a value to float, rejecting inf/nan and non-numeric.
+
+    Handles Python int/float, numpy scalar types (np.int64, np.float64),
+    and numeric strings.  Rejects bool (Python and numpy) to prevent
+    True/False masquerading as 1.0/0.0.
+    """
+    # Reject booleans first (must come before int check because bool < int).
     if isinstance(value, bool):
         return None
-    if isinstance(value, (int, float)) and math.isfinite(float(value)):
-        return float(value)
+    # Fast path: Python native int/float.
+    if isinstance(value, (int, float)):
+        f = float(value)
+        return f if math.isfinite(f) else None
+    # Numeric strings.
     if isinstance(value, str):
         token = value.strip()
         if not token:
@@ -436,7 +445,19 @@ def to_float(value: Any) -> Optional[float]:
         except ValueError:
             return None
         return parsed if math.isfinite(parsed) else None
-    return None
+    # numpy scalar types (np.int64, np.float32, etc.) — not subclasses of
+    # Python int/float since numpy 2.x.  Use duck-typing: if float()
+    # succeeds and the result is finite, accept it.  Reject numpy bool_.
+    try:
+        if hasattr(value, "dtype"):
+            # numpy bool_ check (np.bool_ is NOT subclass of bool in numpy 2.x)
+            import numpy as _np
+            if isinstance(value, _np.bool_):
+                return None
+        f = float(value)
+        return f if math.isfinite(f) else None
+    except (TypeError, ValueError):
+        return None
 
 
 # ---------------------------------------------------------------------------

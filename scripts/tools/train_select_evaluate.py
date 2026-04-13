@@ -2114,7 +2114,7 @@ def _family_grid(family: str) -> List[Dict[str, Any]]:
             )
         ]
     if family == "tabpfn":
-        return [{"N_ensemble_configurations": 16}]
+        return [{"n_estimators": 16}]
     raise ValueError(f"Unsupported family: {family}")
 
 
@@ -2250,7 +2250,7 @@ def _candidate_complexity_rank(family: str, params: Dict[str, Any]) -> int:
         gamma_penalty = 50 if isinstance(gamma, (int, float)) else 20
         return int(base + round(float(params.get("C", 1.0)) * 30) + gamma_penalty)
     if family == "tabpfn":
-        return int(base + int(params.get("N_ensemble_configurations", 16)))
+        return int(base + int(params.get("n_estimators", 16)))
     return int(base + 999)
 
 
@@ -2321,7 +2321,7 @@ def _regularization_profile(family: str, params: Dict[str, Any]) -> Dict[str, An
     if family == "svm_rbf":
         return {"type": "svm_margin", "C": float(params["C"]), "kernel": "rbf", "gamma": params.get("gamma", "scale")}
     if family == "tabpfn":
-        return {"type": "pretrained_foundation", "N_ensemble_configurations": int(params.get("N_ensemble_configurations", 16))}
+        return {"type": "pretrained_foundation", "n_estimators": int(params.get("n_estimators", 16))}
     return {"type": "unknown"}
 
 
@@ -2701,9 +2701,9 @@ def _build_estimator_for_family(
     if family == "tabpfn":
         if TabPFNClassifier is None:
             raise RuntimeError("tabpfn backend is not installed.")
-        n_ensemble = int(params.get("N_ensemble_configurations", 16))
+        n_ensemble = int(params.get("n_estimators", 16))
         tabpfn_device = str(params.get("device", device))
-        clf = TabPFNClassifier(N_ensemble_configurations=n_ensemble, device=tabpfn_device)
+        clf = TabPFNClassifier(n_estimators=n_ensemble, device=tabpfn_device)
         return Pipeline(steps=[("imputer", imputer), ("clf", clf)])
     raise ValueError(f"Unsupported family: {family}")
 
