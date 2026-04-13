@@ -1451,6 +1451,22 @@ def main() -> int:
         except Exception:
             pass
 
+    # Sync cross_sectional flag to split_protocol.json.
+    # Without this, split_protocol_gate sees cross_sectional=null (from
+    # template) while request.json has cross_sectional=true → mismatch
+    # causes spurious time_col failures on cross-sectional datasets.
+    if _is_cross_sectional:
+        _sp_path = project_root / "configs" / "split_protocol.json"
+        if _sp_path.exists():
+            try:
+                _sp = load_json(str(_sp_path))
+                _sp["cross_sectional"] = True
+                _sp["requires_temporal_order"] = False
+                _sp["allow_time_overlap"] = True
+                write_json(_sp_path, _sp)
+            except Exception:
+                pass
+
     # Step 5 train
     train_cmd, train_outputs = build_train_command(
         project_root=project_root, python_bin=python_bin,
