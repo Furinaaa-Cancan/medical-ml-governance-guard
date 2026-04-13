@@ -100,6 +100,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--report", help="Optional output JSON report path.")
     parser.add_argument("--strict", action="store_true", help="Fail on warnings.")
+    parser.add_argument(
+        "--cohort-report",
+        help="Optional cohort_definition_gate report JSON. If provided, "
+             "codebook-diagnosed MNAR (gated missingness) variables are "
+             "auto-classified — no statistical test required for those columns.",
+    )
     return parser.parse_args()
 
 
@@ -313,6 +319,32 @@ def main() -> int:
                 "Unable to parse evaluation report JSON for imputation execution checks.",
                 {"path": str(Path(args.evaluation_report).expanduser()), "error": str(exc)},
             )
+
+    # ── Load codebook-diagnosed MNAR variables from cohort_definition_gate ──
+    # If cohort gate detected CODEBOOK_GATED_MISSINGNESS for a column,
+    # that column's missingness is *confirmed* MNAR (skip-pattern design),
+    # not merely suspected.  We skip the statistical mechanism assessment
+    # for those columns and instead require proper encoding (fill with 0,
+    # not impute).
+    _codebook_mnar_columns: Dict[str, Dict[str, Any]] = {}
+    if getattr(args, "cohort_report", None):
+        _cohort_path = Path(args.cohort_report).expanduser().resolve()
+        if _cohort_path.is_file():
+            try:
+                _cohort_rpt = json.loads(_cohort_path.read_text(encoding="utf-8"))
+                for _w in _cohort_rpt.get("warnings", []):
+                    if _w.get("code") == "CODEBOOK_GATED_MISSINGNESS":
+                        _col = _w.get("details", {}).get("column", "")
+                        if _col:
+                            _codebook_mnar_columns[_col] = {
+                                "var_code": _w["details"].get("var_code", ""),
+                                "upstream_gating": _w["details"].get("upstream_gating"),
+                                "missing_rate": _w["details"].get("missing_rate")
+                                                or _w["details"].get("null_rate"),
+                                "mechanism": "MNAR_gated_by_design",
+                            }
+            except (json.JSONDecodeError, KeyError, OSError):
+                pass  # Non-critical: fall back to statistical detection
 
     strategy = require_str(policy, "strategy", failures)
     imputer_fit_scope = require_str(policy, "imputer_fit_scope", failures)
@@ -740,30 +772,72 @@ def main() -> int:
                     },
                 )
 
+    # ── Codebook-diagnosed MNAR: emit per-column advisory ────────────────
+    # If cohort_definition_gate confirmed skip-pattern MNAR for specific
+    # columns, surface that information here so the user knows *why*
+    # the column is missing and how to handle it (encode as 0, not impute).
+    if _codebook_mnar_columns and train_stats:
+        for col, mnar_info in _codebook_mnar_columns.items():
+            _col_ratio = ratio_by_col.get(col)
+            if _col_ratio is not None and _col_ratio > 0.01:
+                add_issue(
+                    warnings,
+                    "codebook_confirmed_mnar",
+                    f"Column '{col}' ({mnar_info.get('var_code', '?')}) has "
+                    f"codebook-confirmed gated missingness "
+                    f"({_col_ratio:.0%} NaN). Mechanism: MNAR by survey "
+                    f"skip-pattern design — NaN means 'question not asked', "
+                    f"not 'value unknown'. Encode as 0 or create a binary "
+                    f"indicator; do NOT impute with mean/median.",
+                    {
+                        "column": col,
+                        "var_code": mnar_info.get("var_code"),
+                        "missing_ratio": round(_col_ratio, 4),
+                        "mechanism": "MNAR_gated_by_design",
+                        "upstream_gating": mnar_info.get("upstream_gating"),
+                        "remediation": "encode_as_zero_or_indicator",
+                    },
+                )
+
     # ── Mechanism assessment enforcement ─────────────────────────────────
     # Madley-Dowd 2019: missingness mechanism determines strategy, not
     # proportion alone.  >5% → must document mechanism.  >40% → must run
     # MNAR sensitivity analysis (Cro 2020).
+    #
+    # Optimization: if ALL high-missingness columns are codebook-confirmed
+    # MNAR, the mechanism is already known — skip the statistical test
+    # requirement and tipping-point analysis for those columns.
     if train_stats:
         _MECHANISM_THRESHOLD = 0.05
         _MNAR_THRESHOLD = 0.40
         _max_miss_ratio = 0.0
+        # Compute max missingness, excluding codebook-confirmed MNAR columns
+        # (their mechanism is already known — no statistical test needed).
+        _max_miss_ratio_non_codebook = 0.0
         for col in feature_headers:
             r = ratio_by_col.get(col)
             if r is not None and r > _max_miss_ratio:
                 _max_miss_ratio = r
+            if r is not None and col not in _codebook_mnar_columns and r > _max_miss_ratio_non_codebook:
+                _max_miss_ratio_non_codebook = r
 
-        if _max_miss_ratio > _MECHANISM_THRESHOLD:
+        if _max_miss_ratio_non_codebook > _MECHANISM_THRESHOLD:
             mechanism = policy.get("mechanism_assessment")
             if not isinstance(mechanism, dict):
+                _non_cb_cols = [c for c in feature_headers
+                                if ratio_by_col.get(c, 0) > _MECHANISM_THRESHOLD
+                                and c not in _codebook_mnar_columns]
                 add_issue(
                     failures,
                     "mechanism_assessment_required",
-                    "Feature missingness >5% detected; mechanism_assessment is required in policy.",
+                    "Feature missingness >5% detected; mechanism_assessment is required in policy."
+                    + (f" Note: {len(_codebook_mnar_columns)} column(s) with codebook-confirmed "
+                       f"MNAR are excluded from this check." if _codebook_mnar_columns else ""),
                     {
-                        "max_feature_missing_ratio_observed": round(_max_miss_ratio, 4),
+                        "max_feature_missing_ratio_observed": round(_max_miss_ratio_non_codebook, 4),
                         "threshold": _MECHANISM_THRESHOLD,
                         "required_fields": ["method", "conclusion"],
+                        "codebook_confirmed_mnar_excluded": sorted(_codebook_mnar_columns.keys()) if _codebook_mnar_columns else [],
                     },
                 )
             else:
@@ -785,17 +859,21 @@ def main() -> int:
                         {"conclusion": mechanism.get("conclusion"), "valid": sorted(_valid_conclusions)},
                     )
 
-        if _max_miss_ratio > _MNAR_THRESHOLD:
+        if _max_miss_ratio_non_codebook > _MNAR_THRESHOLD:
             mnar = policy.get("mnar_sensitivity")
             if not isinstance(mnar, dict) or mnar.get("performed") is not True:
                 add_issue(
                     failures,
                     "mnar_sensitivity_required",
-                    "Feature missingness >40% detected; MNAR sensitivity analysis is required.",
+                    "Feature missingness >40% detected; MNAR sensitivity analysis is required."
+                    + (f" Note: {len(_codebook_mnar_columns)} codebook-confirmed MNAR column(s) "
+                       f"excluded — their mechanism is known (skip-pattern)."
+                       if _codebook_mnar_columns else ""),
                     {
-                        "max_feature_missing_ratio_observed": round(_max_miss_ratio, 4),
+                        "max_feature_missing_ratio_observed": round(_max_miss_ratio_non_codebook, 4),
                         "threshold": _MNAR_THRESHOLD,
                         "hint": "Run mnar_sensitivity_analysis() and add result to policy as mnar_sensitivity.",
+                        "codebook_confirmed_mnar_excluded": sorted(_codebook_mnar_columns.keys()) if _codebook_mnar_columns else [],
                     },
                 )
             elif mnar.get("performed") is True:

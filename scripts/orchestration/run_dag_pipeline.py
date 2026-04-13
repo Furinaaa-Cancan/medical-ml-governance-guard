@@ -393,6 +393,11 @@ def _gate_specific_extras(
 
     elif gate_name == "missingness_policy_gate":
         extras.extend(["--target-col", label_col, "--ignore-cols", f"{id_col},{time_col}"])
+        # Pass cohort_definition_gate report if available — enables
+        # codebook-confirmed MNAR to skip statistical mechanism tests.
+        _cohort_rpt = evidence_dir / "cohort_definition_gate_report.json"
+        if _cohort_rpt.is_file():
+            extras.extend(["--cohort-report", str(_cohort_rpt)])
 
     elif gate_name == "tuning_leakage_gate":
         extras.extend(["--id-col", id_col])
