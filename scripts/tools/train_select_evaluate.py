@@ -6664,6 +6664,21 @@ def _phase6_calibration(ctx: Dict[str, Any]) -> None:
     X_valid, y_valid = ctx["X_valid"], ctx["y_valid"]
     selected_imbalance_strategy = ctx["selected_imbalance_strategy"]
 
+    # Auto-enable Platt calibration for internal-imbalance models.
+    # Balanced bootstrap / undersampling shifts predicted probabilities
+    # (van den Goorbergh et al., BMC Med Res Methodol 2022;22:312).
+    # Sigmoid (Platt) scaling corrects this with minimal overhead.
+    selected_row = ctx.get("selected_candidate_row") or {}
+    family = str(selected_row.get("base_model_id", ""))
+    if family in INTERNAL_IMBALANCE_FAMILIES and calibration_method == "none":
+        calibration_method = "sigmoid"
+        ctx["calibration_method"] = calibration_method
+        print(
+            f"[AUTO] calibration_method upgraded none→sigmoid for {family} "
+            f"(internal resampling shifts probabilities; van den Goorbergh 2022)",
+            file=sys.stderr, flush=True,
+        )
+
     calibrator = fit_probability_calibrator(
         y_true=ctx["calibration_y"], proba_raw=ctx["calibration_proba_raw"],
         method=calibration_method, seed=int(args.random_seed),
