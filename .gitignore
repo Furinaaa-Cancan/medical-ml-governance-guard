@@ -17,8 +17,10 @@ experiments/authority-e2e/stress_seed_*.json
 experiments/authority-e2e/_feasibility_scan_auto/
 experiments/authority-e2e/*.auto.json
 
+# Runtime working directories (created by /mlgg pipeline runs)
 evidence/
 output/
+nhanes_project/
 build/
 dist/
 .coverage

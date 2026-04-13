@@ -22,8 +22,11 @@ Gate categories:
     Security:         security_audit, execution_attestation, request_contract
     Model:            model_selection_audit, ci_matrix
 
-Utility:
-    manifest_lock.py  <- Gate execution state management (not a gate)
+Naming note:
+    31 gates use the *_gate.py suffix. Two use different suffixes but are
+    full gates registered in the DAG (Layer 1 and Layer 4 respectively):
+    - manifest_lock.py           (Layer 1: artifact integrity locking)
+    - definition_variable_guard.py (Layer 4: definition variable leakage)
 
 Import note:
     Gates use bare imports (from _gate_framework import ...) which require

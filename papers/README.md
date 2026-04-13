@@ -2,6 +2,8 @@
 
 本目录用于收录医疗 ML 预测/分类文章，通过 MLGG 框架对其进行量化审查，验证框架的检测能力和覆盖范围。
 
+> **与 `references/case-studies/` 的关系**：本目录是"我们审别人"（输入论文 PDF + 代码 → 产出 12 维评分）。`references/case-studies/` 是"别人审别人"（Nature Communications 公开审稿意见 → 结构化知识库），供 gate 引用审稿案例作为论据。
+
 ---
 
 ## 目录结构

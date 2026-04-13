@@ -1,21 +1,19 @@
 # mlgg-lint
 
-Static analysis tool for ML Python code — detects data leakage, improper preprocessing, and evaluation malpractice.
+Static analysis tool for ML Python code — detects data leakage, improper preprocessing, and evaluation malpractice. 27 AST-level rules (R001-R027).
 
-Part of [ML Governance Guard](https://github.com/Furinaaa-Cancan/medical-ml-governance-guard).
+Part of [ML Governance Guard](https://github.com/Furinaaa-Cancan/medical-ml-governance-guard). This is an **independent sub-package** within the monorepo — it has its own `pyproject.toml` and can be installed separately. `pip install .` from the project root installs the main MLGG framework but does NOT include mlgg-lint; install it explicitly if needed.
 
 ## Install
 
 ```bash
+# Option 1: Install as standalone package
 cd plugin
 pip install -e .
-```
 
-Or use directly without installing:
-
-```bash
+# Option 2: Use via MLGG CLI (no separate install needed)
 cd ml-governance-guard
-python3 scripts/mlgg.py lint check <file.py>
+python3 scripts/orchestration/mlgg.py lint check <file.py>
 ```
 
 ## Usage
