@@ -1191,22 +1191,24 @@ scripts/
     generate_audit_report.py  12-dimension audit report generator
     audit_external_project.py  External project auditor
     ...33 more tool scripts
-tests/                4000+ pytest tests (85%+ coverage)
-examples/             14 medical datasets + 9-phase templates
-experiments/          E2E benchmark suite (4 UCI datasets, adversarial checks)
+tests/                117 pytest modules (85%+ coverage, incl. e2e/stress/red-team)
+examples/             16 medical datasets + 4 downloaders + 2 project templates (demo + scaffold)
 references/           Knowledge bases organized by domain
   standards/           Reporting standards (TRIPOD+AI 2024, PROBAST+AI 2025, STARD+AI, journal rigor)
   methodology/         Methodology (disease definition KB, leakage taxonomy, literature)
   codebooks/           Data dictionaries (NHANES 58K vars + UKB 12K fields + generic registry)
-  case-studies/        107 NC papers, 375 structured review opinions
+  case-studies/        Peer review KB (107 NC papers, 375 structured review opinions)
   templates/           28 JSON templates (request, split, evaluation, attestation, etc.)
   operations/          Runtime KBs (error-KB, scoring, gate-matrix)
   protocols/           Phase 1-9 rules + audit/blind-audit/sampling protocols
   docs/                Developer docs (Architecture, API-Reference, Quickstart)
-plugin/               Static analysis Lint (R001-R027, .py + .ipynb)
+papers/               Paper audit library (our reviews: PDF + metadata + 12-dim scoring)
+agents/               Multi-agent configs (extractor + reviewer, Anthropic/Google/OpenAI)
+experiments/          E2E benchmark suite (4 UCI datasets, adversarial checks)
+plugin/               Static analysis Lint (R001-R027, .py + .ipynb, independent sub-package)
   mlgg_lint/rules/     27 rule implementations
   vscode/              VS Code extension
-docs/                 Architecture documentation
+.claude/              Claude Code skill definitions + prompt template library
 .github/workflows/    CI/CD (unit/security/nightly-full/weekly-extended)
 ```
 

@@ -1227,22 +1227,24 @@ scripts/
     generate_audit_report.py  12 维审计报告生成器
     audit_external_project.py  外部项目审计器
     ...另外 32 个工具脚本
-tests/                4578 pytest 测试（conftest.py 统一路径，覆盖率 85%+）
-examples/             14 个医学数据集 + 9 阶段模板 + NHANES phenotype spec
-references/
+tests/                117 个 pytest 模块（覆盖率 85%+，含 e2e/压力/红队测试）
+examples/             16 个医学数据集 + 4 个下载器 + 2 个项目模板（demo + template）
+references/           知识库（按领域组织）
   standards/           报告标准（TRIPOD+AI 2024、PROBAST+AI 2025、STARD+AI、期刊要求）
   methodology/         方法学知识（疾病定义 KB、泄漏分类、文献库）
   codebooks/           数据字典（NHANES 58K 变量 + UKB 12K 字段 + 通用 registry）
-  case-studies/        107 篇 NC 论文、375 个结构化审稿意见
+  case-studies/        审稿案例知识库（107 篇 NC 论文、375 个结构化审稿意见）
   templates/           28 个 JSON 格式模板（request、split、evaluation 等）
   operations/          运行时知识库（error-KB、scoring、gate-matrix）
   protocols/           Phase 1-9 规则 + 审计/盲审/采样协议
   docs/                开发者文档（Architecture、API-Reference、Quickstart）
+papers/               论文审查库（我们审别人：PDF + metadata + 12 维评分）
+agents/               多 Agent 配置（extractor + reviewer，支持 Anthropic/Google/OpenAI）
 experiments/          E2E 基准套件（4 个 UCI 数据集、对抗性检查）
-plugin/               静态分析 Lint（R001-R027，.py + .ipynb）
+plugin/               静态分析 Lint（R001-R027，.py + .ipynb，独立子包）
   mlgg_lint/rules/     27 条规则实现
   vscode/              VS Code 插件
-docs/                 架构文档
+.claude/              Claude Code skill 定义 + prompt 模板库
 .github/workflows/    CI/CD（单元/安全/每夜完整/每周扩展）
 ```
 
