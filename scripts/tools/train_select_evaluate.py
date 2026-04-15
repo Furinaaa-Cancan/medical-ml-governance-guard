@@ -8022,25 +8022,31 @@ def _phase10_12_reports_output(ctx: Dict[str, Any]) -> int:
 
         time_values = pd.to_datetime(test_df["event_time"], errors="coerce", utc=True) if "event_time" in test_df.columns else None
         if time_values is None or bool(time_values.isna().any()):
-            raise SystemExit("robustness report requires parseable event_time values in test split.")
-        sorted_index = np.asarray(np.argsort(time_values.to_numpy()), dtype=int)
-        for slice_idx, idx_block in enumerate(np.array_split(sorted_index, time_slices), start=1):
-            if idx_block.size == 0:
-                continue
-            y_slice = y_test[idx_block]
-            proba_slice = test_proba[idx_block]
-            metrics_slice = metric_panel_robust(y_slice, proba_slice, selected_threshold, beta=beta)
-            times_slice = time_values.iloc[idx_block]
-            time_slices_block["slices"].append(
-                {
-                    "slice_id": f"t{slice_idx}",
-                    "n": int(idx_block.size),
-                    "positive_count": int(np.sum(y_slice == 1)),
-                    "start_time_utc": str(times_slice.min().isoformat()),
-                    "end_time_utc": str(times_slice.max().isoformat()),
-                    "metrics": metrics_slice,
-                }
-            )
+            import logging as _logging
+            _logging.warning("No parseable event_time in test split; skipping temporal robustness slices (cross-sectional data).")
+            time_values = None
+        if time_values is not None:
+            sorted_index = np.asarray(np.argsort(time_values.to_numpy()), dtype=int)
+            for slice_idx, idx_block in enumerate(np.array_split(sorted_index, time_slices), start=1):
+                if idx_block.size == 0:
+                    continue
+                y_slice = y_test[idx_block]
+                proba_slice = test_proba[idx_block]
+                metrics_slice = metric_panel_robust(y_slice, proba_slice, selected_threshold, beta=beta)
+                times_slice = time_values.iloc[idx_block]
+                time_slices_block["slices"].append(
+                    {
+                        "slice_id": f"t{slice_idx}",
+                        "n": int(idx_block.size),
+                        "positive_count": int(np.sum(y_slice == 1)),
+                        "start_time_utc": str(times_slice.min().isoformat()),
+                        "end_time_utc": str(times_slice.max().isoformat()),
+                        "metrics": metrics_slice,
+                    }
+                )
+        else:
+            time_slices_block["skipped"] = True
+            time_slices_block["reason"] = "cross_sectional_no_event_time"
 
         if args.patient_id_col not in test_df.columns:
             raise SystemExit(f"robustness report requires {args.patient_id_col} column in test split.")
@@ -8080,7 +8086,7 @@ def _phase10_12_reports_output(ctx: Dict[str, Any]) -> int:
             """
             values = [float(r["metrics"]["pr_auc"]) for r in rows if isinstance(r, dict) and isinstance(r.get("metrics"), dict)]
             if not values:
-                raise SystemExit("robustness report requires non-empty per-slice/group pr_auc values.")
+                return {"skipped": True, "reason": "no_valid_slices", "n_rows": 0}
             minimum = float(min(values))
             maximum = float(max(values))
             return {

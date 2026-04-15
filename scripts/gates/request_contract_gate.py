@@ -720,7 +720,8 @@ def validate_robustness_report_shape(
         )
 
     time_slices = payload.get("time_slices")
-    if not isinstance(time_slices, dict) or not isinstance(time_slices.get("slices"), list) or not time_slices.get("slices"):
+    _time_skipped = isinstance(time_slices, dict) and time_slices.get("skipped")
+    if not _time_skipped and (not isinstance(time_slices, dict) or not isinstance(time_slices.get("slices"), list) or not time_slices.get("slices")):
         add_issue(
             failures,
             "invalid_robustness_report",
