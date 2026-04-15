@@ -1171,61 +1171,146 @@ python3 -m mlgg_lint /path/to/code/
 ```
 medical-ml-governance-guard/
 │
-├── scripts/                              # ─── 核心代码 (91 files, ~70K lines) ───
-│   ├── core/              (7)            # 框架底座
-│   │   ├── _gate_framework.py            #   GateIssue/Severity、report envelope v2.0、CLI 契约
-│   │   ├── _gate_registry.py             #   33 gate DAG (8 层拓扑排序、依赖解析、并行标记)
-│   │   ├── _gate_utils.py                #   60+ 统计/IO/安全函数 (to_float, calibration, VIF, NRI...)
-│   │   ├── _audit_shared.py              #   12 维评分 + 12 代码反模式正则扫描
-│   │   ├── _peer_review_retrieval.py     #   375 条审稿意见 BM25 检索 + tag 同义词扩展
-│   │   └── _security.py                  #   HMAC 签名、AES-256-GCM 加密、RBAC、RestrictedUnpickler
+├── scripts/                              # ─── 核心代码 (91 files, ~70K LOC) ───
 │   │
-│   ├── gates/             (34)           # 33 道 fail-closed 门控 (每个独立 CLI，exit 0/2)
-│   │   ├── cohort_definition_gate.py     #   Layer 0: 队列定义 + codebook RAG 验证
-│   │   ├── request_contract_gate.py      #   Layer 0: 请求契约验证
-│   │   ├── leakage_gate.py               #   Layer 1: 数据泄漏检测
-│   │   ├── calibration_dca_gate.py       #   校准 + 决策曲线分析
-│   │   ├── publication_gate.py           #   TRIPOD+AI / PROBAST+AI 合规 (依赖全部 30 gate)
-│   │   └── ... (28 more gates)           #   涵盖 split, fairness, SHAP, robustness, seed stability 等
+│   ├── core/              (6 files, 6.1K LOC)   # 框架底座 — 所有 gate 共享的基础设施
+│   │   ├── _gate_framework.py            #   424  报告信封 v2.0, GateIssue/Severity, CLI 契约 (exit 0/2)
+│   │   ├── _gate_registry.py             #   809  33 gate DAG 拓扑排序 + 依赖解析 + 层级并行
+│   │   ├── _gate_utils.py                #  2756  60+ 统计函数: calibration, VIF, NRI/IDI, DCA, bootstrap CI
+│   │   ├── _audit_shared.py              #   238  12 维评分 + 代码反模式正则扫描
+│   │   ├── _peer_review_retrieval.py     #   482  375 条审稿意见 BM25 检索 + tag 同义词扩展
+│   │   └── _security.py                  #  1426  HMAC 签名, AES-256-GCM 加密, 受限反序列化
 │   │
-│   ├── orchestration/     (10)           # 工作流编排 + CLI 入口
-│   │   ├── mlgg.py                       #   [入口] 统一 CLI 路由 (30+ 子命令)
-│   │   ├── mlgg_onboarding.py            #   引导式工作流 (auto/guided 模式)
-│   │   ├── run_dag_pipeline.py           #   DAG 执行器 (拓扑排序, 断点续跑)
-│   │   ├── run_productized_workflow.py   #   生产流水线 (doctor → preflight → DAG → summary)
-│   │   ├── mlgg_interactive.py           #   交互式向导
-│   │   └── mlgg_pixel.py                 #   像素风终端 UI
+│   ├── gates/             (33 files, 26K LOC)   # 33 道 fail-closed 门控 (每个独立 CLI)
+│   │   │
+│   │   │  ┌─ Layer 0: 入口验证 ─────────────────────────────────────────────┐
+│   │   ├── request_contract_gate.py      #  3342  请求契约验证 (所有 gate 的前置条件)
+│   │   ├── cohort_definition_gate.py     #  1528  队列定义 + codebook RAG 验证
+│   │   │  └──────────────────────────────────────────────────────────────────┘
+│   │   │
+│   │   │  ┌─ Layer 1: 数据完整性 ───────────────────────────────────────────┐
+│   │   ├── leakage_gate.py               #   466  行/实体/时序泄漏检测
+│   │   ├── split_protocol_gate.py        #   546  train-valid-test 划分协议审计
+│   │   ├── manifest_lock.py              #   313  evidence 文件完整性锁定
+│   │   │  └──────────────────────────────────────────────────────────────────┘
+│   │   │
+│   │   │  ┌─ Layer 2-3: 特征与模型审计 ────────────────────────────────────┐
+│   │   ├── definition_variable_guard.py  #   444  定义变量泄漏防护 (HbA1c 定义糖尿病又作特征)
+│   │   ├── feature_lineage_gate.py       #   533  特征血统追踪
+│   │   ├── feature_engineering_audit_gate.py #  377  编码/缩放/工程审计
+│   │   ├── tuning_leakage_gate.py        #   470  超参调优隔离验证
+│   │   ├── model_selection_audit_gate.py  #   783  one-SE 规则 + 候选池充分性
+│   │   ├── imbalance_policy_gate.py      #   650  SMOTE/加权规则审查
+│   │   ├── missingness_policy_gate.py    #  1022  缺失值处理隔离 + MNAR 敏感性
+│   │   │  └──────────────────────────────────────────────────────────────────┘
+│   │   │
+│   │   │  ┌─ Layer 4-5: 评估与校准 ────────────────────────────────────────┐
+│   │   ├── evaluation_quality_gate.py    #   680  14 指标面板 + CI 方法验证
+│   │   ├── calibration_dca_gate.py       #   773  ECE/O:E/CITL 校准 + 决策曲线分析
+│   │   ├── ci_matrix_gate.py             #   758  95% CI 矩阵 (bootstrap percentile)
+│   │   ├── clinical_metrics_gate.py      #   810  PPV/Sensitivity 临床阈值审查
+│   │   ├── metric_consistency_gate.py    #   472  跨指标统计一致性
+│   │   ├── permutation_significance_gate.py #  278  置换检验显著性
+│   │   ├── sample_size_gate.py           #   528  EPV ≥ 10, Riley shrinkage ≥ 0.90
+│   │   │  └──────────────────────────────────────────────────────────────────┘
+│   │   │
+│   │   │  ┌─ Layer 5-6: 泛化与公平性 ──────────────────────────────────────┐
+│   │   ├── shap_interpretability_gate.py #  1390  多模型 SHAP + Spearman 排名一致性
+│   │   ├── fairness_equity_gate.py       #   750  均等化赔率 + 差异影响比
+│   │   ├── external_validation_gate.py   #   779  外部队列漂移检测
+│   │   ├── distribution_generalization_gate.py # 783  协变量偏移 EODD/CMMD
+│   │   ├── covariate_shift_gate.py       #   877  分布漂移统计检验
+│   │   ├── generalization_gap_gate.py    #   276  训练-测试差距阈值
+│   │   ├── robustness_gate.py            #   498  超参扰动 + 时序/分组鲁棒性
+│   │   ├── seed_stability_gate.py        #   425  种子敏感性验证
+│   │   ├── reporting_bias_gate.py        #   402  选择性报告偏倚
+│   │   ├── prediction_replay_gate.py     #   536  预测可复现性验证
+│   │   │  └──────────────────────────────────────────────────────────────────┘
+│   │   │
+│   │   │  ┌─ Layer 7-8: 终极聚合 ──────────────────────────────────────────┐
+│   │   ├── execution_attestation_gate.py #  3067  执行证明签名验证
+│   │   ├── publication_gate.py           #   603  TRIPOD+AI 2024 / PROBAST+AI 2025 合规
+│   │   ├── security_audit_gate.py        #   389  代码安全审计 (AST 扫描)
+│   │   └── self_critique_gate.py         #   451  LLM 自我审查
+│   │      └──────────────────────────────────────────────────────────────────┘
 │   │
-│   ├── training/          (6)            # 模型训练与数据准备
-│   │   ├── train_select_evaluate.py      #   训练引擎 (5+ 模型族, one-SE 选择, 14 指标评估)
-│   │   ├── split_data.py                 #   患者级安全划分 (grouped_temporal / stratified)
-│   │   ├── init_project.py               #   项目脚手架 (configs/ + data/ + evidence/)
-│   │   ├── schema_preflight.py           #   CSV 列/类型/语义验证
-│   │   └── generate_execution_attestation.py  # 签名认证生成
+│   ├── training/          (6 files, 11.8K LOC)  # 模型训练与数据准备
+│   │   ├── train_select_evaluate.py      #  8525  训练引擎: 5 模型族, CV, one-SE 选择, 14 指标评估
+│   │   │                                 #        LR(L1/L2/EN) + RandomForest + HistGradientBoosting
+│   │   │                                 #        产出: evaluation_report, model_selection_report,
+│   │   │                                 #              prediction_trace, ci_matrix, robustness, seed_sensitivity
+│   │   ├── split_data.py                 #  1129  患者级安全划分: grouped_temporal / stratified_grouped
+│   │   │                                 #        保证同一患者不跨 split, 时序不穿越
+│   │   ├── init_project.py               #   290  项目脚手架: 创建 configs/ + data/ + evidence/ + keys/
+│   │   ├── schema_preflight.py           #   447  CSV 列名/类型/语义验证 + 自动映射建议
+│   │   ├── generate_execution_attestation.py # 1188  HMAC 签名认证 + 时间戳 + 见证人多签
+│   │   └── generate_demo_medical_dataset.py #  222  离线 demo 数据集生成器
 │   │
-│   ├── reporting/         (14)           # 报告、审计与导出
-│   │   ├── audit_metrics.py              #   [轻量入口] 零依赖指标审查 (贴 Table 2 即可)
-│   │   ├── audit_external_project.py     #   10 维项目审计 (100 分制)
-│   │   ├── generate_audit_report.py      #   TRIPOD+AI/PROBAST+AI 审计报告
-│   │   ├── render_user_summary.py        #   人类可读 evidence 摘要
-│   │   ├── export_latex.py               #   发表级 LaTeX 表格
-│   │   └── ...                           #   compliance_certificate, explain_gate, compare_runs 等
+│   ├── reporting/         (14 files, 5.7K LOC)  # 报告、审计与导出
+│   │   ├── audit_metrics.py              #   387  [轻量入口] 零依赖指标审查 — 贴 Table 2 查漏
+│   │   │                                 #        检查: 指标完整性 / 样本量 / 校准 / DCA / TRIPOD
+│   │   ├── audit_external_project.py     #   681  10 维项目审计 (100 分制), 扫代码 + 跑 gate
+│   │   ├── generate_audit_report.py      #  1260  TRIPOD+AI/PROBAST+AI 合规报告 + 文献引用
+│   │   ├── generate_compliance_certificate.py # 668  3 级合规证书 (L1 泄漏审计 / L2 统计 / L3 发表级)
+│   │   ├── render_user_summary.py        #   316  从 evidence/ 生成人类可读 Markdown 摘要
+│   │   ├── export_latex.py               #   277  发表级 LaTeX 表格 (指标面板 + CI)
+│   │   ├── export_review_prompt.py       #   346  导出审查提示词 (无需本地部署, 贴到任意 LLM)
+│   │   ├── explain_gate.py               #   263  Gate 失败代码解释器 (failure code → 人话)
+│   │   ├── remediation_plan.py           #   412  从 evidence/ 生成优先级修复计划
+│   │   ├── compare_runs.py               #   262  两次运行对比 (指标 diff + gate 变化)
+│   │   ├── evidence_comparator.py        #   265  evidence 文件级差异对比
+│   │   ├── evidence_digest.py            #   252  evidence 目录紧凑摘要
+│   │   ├── quick_summary.py              #   325  一条命令查看训练结果
+│   │   └── report_health_check.py        #   235  evidence 完整性仪表盘
 │   │
-│   ├── codebooks/         (8)            # 数据字典工具
-│   │   ├── nhanes_codebook_lookup.py     #   NHANES 60K 变量 FTS5 全文检索
-│   │   ├── ukb_codebook_lookup.py        #   UKB 12K 字段验证 + 时序泄漏检测
-│   │   └── ...                           #   build/fetch/verify + codebook_factory
+│   ├── codebooks/         (8 files, 4.1K LOC)   # 数据字典工具 (NHANES / UK Biobank)
+│   │   ├── nhanes_codebook_lookup.py     #  1016  NHANES 60K 变量 FTS5 全文检索 + RAG 验证
+│   │   ├── ukb_codebook_lookup.py        #  1085  UKB 12K 字段验证 + 时序泄漏检测 + 别名
+│   │   ├── codebook_factory.py           #   105  统一工厂: NHANES/UKB/BRFSS → 同一接口
+│   │   ├── build_nhanes_codebook_db.py   #   531  Harvard CCB-HMS TSV → SQLite (60K vars + 204K codes)
+│   │   ├── build_ukb_codebook_db.py      #   706  UKB Data Showcase → SQLite (12K fields + FTS5)
+│   │   ├── fetch_nhanes_2021_2023.py     #   273  CDC 2021-2023 新周期数据爬取
+│   │   ├── fetch_ukb_showcase.py         #   107  UKB Schema 文件下载 (公开, 无需登录)
+│   │   └── verify_nhanes_codebook.py     #   261  SQLite vs CDC XPT 地面真值验证
 │   │
-│   ├── review/            (5)            # 论文分析与审稿案例
-│   │   ├── peer_review_lookup.py         #   107 篇 NC 论文 × 375 条审稿意见检索
-│   │   ├── batch_journal_review.py       #   批量期刊审查
-│   │   └── ...                           #   extract/score_paper_metadata, fetch_papers
+│   ├── review/            (5 files, 3.7K LOC)   # 论文分析与审稿案例
+│   │   ├── peer_review_lookup.py         #   133  107 篇 NC 论文 × 375 条审稿意见, 按 gate/tag 检索
+│   │   ├── batch_journal_review.py       #   776  批量期刊审查 (多论文 × 多期刊标准)
+│   │   ├── extract_paper_metadata.py     #  1236  PDF → 结构化 metadata.json (LLM 驱动)
+│   │   ├── score_paper_metadata.py       #   562  metadata → 12 维评分 + Major/Minor/Questions
+│   │   └── fetch_papers.py              #  1031  论文批量下载 + 去重 + 元数据提取
 │   │
-│   └── diagnostics/       (9)            # 环境诊断与配置工具
-│       ├── env_doctor.py                 #   依赖健康检查
-│       ├── init_guide.py                 #   交互式项目指南
-│       ├── mlgg_web.py                   #   Flask Web UI
-│       └── ...                           #   gate 可视化, 阈值分析, 策略生成
+│   ├── diagnostics/       (9 files, 3.7K LOC)   # 环境诊断与配置工具
+│   │   ├── env_doctor.py                 #   169  依赖健康检查 (core + optional backends)
+│   │   ├── init_guide.py                 #  1035  交互式项目方法学指南生成器
+│   │   ├── mlgg_web.py                   #   701  Flask Web UI (legacy 本地向导)
+│   │   ├── gate_coverage_matrix.py       #   229  Gate × 数据集适配矩阵
+│   │   ├── gate_timeline.py              #   282  Gate 执行时间线可视化
+│   │   ├── gate_applicability.py         #   131  Gate 适用场景匹配
+│   │   ├── threshold_sensitivity.py      #   431  决策阈值敏感性分析
+│   │   ├── visualize_results.py          #   304  训练结果可视化
+│   │   └── policy_generator.py           #   387  组织级治理策略模板生成
+│   │
+│   └── orchestration/     (10 files, 12.5K LOC) # 工作流编排 + CLI 入口
+│       │
+│       │  ┌─ 用户入口 ──────────────────────────────────────────────────────┐
+│       ├── mlgg.py                       #   731  [主入口] 统一 CLI, 30+ 子命令路由
+│       ├── mlgg_onboarding.py            #  1794  引导式工作流: CSV → split → train → attest → DAG
+│       ├── mlgg_interactive.py           #  1919  交互式向导 (init/workflow/train/authority)
+│       ├── mlgg_pixel.py                 #  5187  像素风终端 UI (TUI)
+│       │  └──────────────────────────────────────────────────────────────────┘
+│       │
+│       │  ┌─ 执行引擎 ──────────────────────────────────────────────────────┐
+│       ├── run_dag_pipeline.py           #  1224  DAG 执行: 拓扑排序, 断点续跑, 层级并行
+│       ├── run_productized_workflow.py   #   379  生产流水线: doctor → preflight → DAG → summary
+│       │  └──────────────────────────────────────────────────────────────────┘
+│       │
+│       │  ┌─ 辅助模块 ──────────────────────────────────────────────────────┐
+│       ├── triage.py                     #   362  智能 gate 路由 (跳过不适用的 gate)
+│       ├── semantic_audit.py             #   250  LLM 语义审查层 (规则 gate 之后)
+│       ├── failure_diagnosis.py          #   142  Gate 失败时 LLM 修复建议
+│       └── run_endurance_test.py         #   767  6 小时耐久性测试
+│          └──────────────────────────────────────────────────────────────────┘
 │
 ├── tests/                  (117)         # ─── 测试 (~30K lines) ───
 │   ├── conftest.py                       #   统一 fixture (tmp_path, 路径注入, 共享数据)
