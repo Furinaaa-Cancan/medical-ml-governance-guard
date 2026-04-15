@@ -288,6 +288,10 @@ COMMANDS: Dict[str, Tuple[Path, str]] = {
         REPO_ROOT / "plugin" / "mlgg_lint" / "__main__.py",
         "Static analysis for ML code — detect data leakage and best-practice violations.",
     ),
+    "audit-metrics": (
+        SCRIPTS_ROOT / "tools" / "audit_metrics.py",
+        "Quick publication-readiness check from metrics JSON — no data files needed.",
+    ),
     "init-guide": (
         SCRIPTS_ROOT / "tools" / "init_guide.py",
         "Generate MLGG methodology guide (.mlgg/ + CLAUDE.md) for any ML project.",

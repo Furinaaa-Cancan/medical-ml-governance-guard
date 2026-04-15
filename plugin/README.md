@@ -70,16 +70,23 @@ cd plugin && PYTHONPATH=. python3 -m mlgg_lint check <file.py>
 | R017 | ERROR | early-stop-on-test | `eval_set` uses test data for early stopping |
 | R018 | INFO | scaling-before-trees | Feature scaling applied before tree-based models |
 | R019 | INFO | multiple-comparison | 3+ models compared without correction (Bonferroni/Holm) |
-| R020 | WARNING | global-clean-before-split | `fillna(df.mean())` before split leaks test distribution |
+| R020 | ERROR | global-clean-before-split | `fillna(df.mean())` before split leaks test distribution |
+| R021 | WARNING | test-loop-tuning | Test/holdout data evaluated inside a loop (hyperparameter tuning on test) |
+| R022 | WARNING | single-metric-report | Only AUROC reported without AUPRC, calibration, or MCC |
+| R023 | ERROR | target-encoding-leak | Target encoding via `groupby().transform()` on label column |
+| R024 | WARNING | frequency-encoding-leak | Frequency/count encoding on full dataset before split |
+| R025 | ERROR | smote-after-model-in-pipeline | SMOTE/resampling placed after estimator in Pipeline |
+| R026 | ERROR | fillna-before-split | `fillna()` with data-dependent statistics before split |
+| R027 | ERROR | manual-scaling-before-split | Manual scaling/normalization on full data before split |
 
 ### Coverage by category
 
 | Category | Rules | Severity |
 |----------|-------|----------|
-| **Data leakage** | R001 fit-before-split, R002 scaler-on-test, R003 SMOTE-on-test, R005 threshold-on-test, R006 feature-selection-full, R007 target-as-feature, R017 early-stop-on-test, R020 global-clean-before-split | ERROR |
+| **Data leakage** | R001, R002, R003, R005, R006, R007, R017, R020, R023, R024, R025, R026, R027 | ERROR |
 | **Split issues** | R004 split-without-group, R008 temporal-shuffle, R015 small-test-set | WARNING |
 | **Cross-validation** | R011 CV-internal-SMOTE, R012 accuracy-on-imbalanced | ERROR / WARNING |
-| **Evaluation misuse** | R010 train-metric-as-final, R013 hardcoded-threshold | WARNING |
+| **Evaluation misuse** | R010 train-metric-as-final, R013 hardcoded-threshold, R021 test-loop-tuning, R022 single-metric-report | WARNING |
 | **Preprocessing** | R014 LabelEncoder-on-features, R018 scaling-before-trees | WARNING / INFO |
 | **Reproducibility** | R016 no-random-state | INFO |
 | **Statistical rigor** | R009 no-CI, R019 multiple-comparison | INFO |
