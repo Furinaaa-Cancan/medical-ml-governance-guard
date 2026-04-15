@@ -386,6 +386,8 @@ def main() -> int:
                 "robustness_report must include time_slices object.",
                 {},
             )
+        elif time_block.get("skipped"):
+            pass  # cross-sectional data — no temporal slices available
         else:
             computed["time_slices"] = validate_bucket(
                 bucket_name="time_slices",

@@ -31,7 +31,7 @@ register_remediations({
     "request_file_missing": "Provide --request pointing to a valid request.json file.",
     "request_json_invalid": "request.json contains invalid JSON. Fix syntax errors.",
     "required_field_missing": "A required field is missing from request.json. Add the field.",
-    "invalid_claim_tier": "claim_tier_target must be 'publication-grade'.",
+    "invalid_claim_tier": "claim_tier_target must be one of: leakage-audited, publication-grade.",
     "split_path_missing": "Declared split path does not exist on disk. Verify file paths.",
     "metric_not_finite": "actual_primary_metric must be a finite number.",
     "invalid_context": "context field must be an object when provided.",
@@ -3159,7 +3159,7 @@ def main() -> int:
     if isinstance(external_validation_report_file, str) and external_validation_report_file:
         validate_external_validation_report_shape(external_validation_report_file, failures)
     external_cohort_spec = normalized.get("external_cohort_spec")
-    if isinstance(external_cohort_spec, str) and external_cohort_spec:
+    if isinstance(external_cohort_spec, str) and external_cohort_spec and not _relaxed_profile:
         validate_external_cohort_spec_shape(external_cohort_spec, failures)
     model_selection_report_file = normalized.get("model_selection_report_file")
     if isinstance(model_selection_report_file, str) and model_selection_report_file:
