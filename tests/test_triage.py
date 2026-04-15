@@ -106,6 +106,15 @@ class TestRuleTriage:
         assert "prediction_replay_gate" in skip_list
         assert "calibration_dca_gate" in skip_list
 
+    def test_cascade_skips_dependents(self, minimal_project):
+        """When ci_matrix_gate is skipped, evaluation_quality_gate must also be skipped."""
+        normalized, split_paths = minimal_project
+        skip_list = triage_gates(normalized, split_paths, verbose=False)
+        assert "ci_matrix_gate" in skip_list
+        assert "evaluation_quality_gate" in skip_list, (
+            "evaluation_quality_gate depends on ci_matrix_gate and should be cascaded"
+        )
+
     def test_full_project_skips_nothing(self, full_project):
         normalized, split_paths = full_project
         skip_list = triage_gates(normalized, split_paths, verbose=False)

@@ -27,7 +27,7 @@ _CORE_DIR = str(Path(__file__).resolve().parent.parent / "core")
 if _CORE_DIR not in sys.path:
     sys.path.insert(0, _CORE_DIR)
 
-from _gate_registry import GATE_REGISTRY  # noqa: E402
+from _gate_registry import GATE_REGISTRY, get_dependents  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -303,11 +303,25 @@ def triage_gates(
             llm_decisions = _llm_triage(uncertain, normalized, split_paths)
             decisions.update(llm_decisions)
 
-    # Collect skip list
-    skip_list = sorted(
+    # Collect skip list and cascade to dependents
+    raw_skip = {
         g for g, d in decisions.items()
         if d.action == "skip" and g not in MANDATORY_GATES
-    )
+    }
+    # BFS: if a gate is skipped, also skip non-mandatory gates that depend on it
+    queue = list(raw_skip)
+    while queue:
+        current = queue.pop(0)
+        for dep in get_dependents(current):
+            if dep not in raw_skip and dep not in MANDATORY_GATES:
+                raw_skip.add(dep)
+                decisions[dep] = TriageDecision(
+                    gate=dep, action="skip",
+                    reason=f"Dependency {current} was skipped",
+                    source="rule",
+                )
+                queue.append(dep)
+    skip_list = sorted(raw_skip)
 
     if verbose and skip_list:
         total = len(GATE_REGISTRY)
