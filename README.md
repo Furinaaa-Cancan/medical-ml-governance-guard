@@ -16,7 +16,7 @@
   <a href="https://github.com/Furinaaa-Cancan/medical-ml-governance-guard"><img src="https://img.shields.io/badge/GitHub-Furinaaa--Cancan%2Fmedical--ml--governance--guard-181717?logo=github" alt="GitHub Repo"></a>
   <br>
   <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/"><img src="https://img.shields.io/badge/License-PolyForm%20NC%201.0.0-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/tests-4518%20passed-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-4721%20passed-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/gates-33%20fail--closed-critical" alt="Gates">
   <img src="https://img.shields.io/badge/datasets-14%20medical-purple" alt="Datasets">
   <img src="https://img.shields.io/badge/code-147K%20lines-informational" alt="Code">
@@ -57,8 +57,8 @@
 - [33 条方法论规则](#31-条方法论规则)
 - [20 个模型族](#20-个模型族)
 - [14 个医学数据集](#14-个医学数据集)
-- [25 条静态分析规则 (R001-R025)](#20-条静态分析规则-r001-r020)
-- [21 项分析工具](#21-项分析工具)
+- [27 条静态分析规则 (R001-R027)](#27-条静态分析规则-r001-r027)
+- [分析工具](#分析工具)
 - [安全加固层](#安全加固层)
 - [项目结构](#项目结构)
 - [安装指南](#安装指南)
@@ -102,7 +102,7 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 
 | 层 | 机制 | 能抓到什么 |
 |:---|:-----|:----------|
-| **第一层：25 条 AST 静态分析** | 代码模式匹配 (R001-R025) | `scaler.fit(X)` 在 split 前、SMOTE 用在 test 上、阈值在 test 选 |
+| **第一层：27 条 AST 静态分析** | 代码模式匹配 (R001-R027) | `scaler.fit(X)` 在 split 前、SMOTE 用在 test 上、阈值在 test 选 |
 | **第二层：33 道 fail-closed 门控** | 运行时验证，报告 JSON 产出 | 患者跨 split、校准 ECE > 0.1、EPV < 10、CI 宽度 > 0.20 |
 | **第三层：临床语义审查 + 审稿证据** | AI agent 理解代码含义 + 107 篇审稿 KB | 出院后变量预测出院后结局、HbA1c 定义泄漏、亚组校准缺失 |
 
@@ -1084,7 +1084,7 @@ python3 examples/download_real_data.py pima     # 768 rows
 
 ---
 
-## 25 条静态分析规则 (R001-R025)
+## 27 条静态分析规则 (R001-R027)
 
 | 类别 | 规则 | 严重度 |
 |:---------|:------|:---------|
@@ -1183,40 +1183,49 @@ medical-ml-governance-guard/
 │   ├── gates/             (34)           # 33 道 fail-closed 门控 (每个独立 CLI，exit 0/2)
 │   │   ├── cohort_definition_gate.py     #   Layer 0: 队列定义 + codebook RAG 验证
 │   │   ├── request_contract_gate.py      #   Layer 0: 请求契约验证
-│   │   ├── manifest_lock.py              #   Layer 1: 证据文件完整性锁定
-│   │   ├── execution_attestation_gate.py #   Layer 2: 执行证明签名
-│   │   ├── leakage_gate.py               #   Layer 3: 数据泄漏检测
-│   │   ├── split_protocol_gate.py        #   Layer 3: 数据划分协议
-│   │   ├── definition_variable_guard.py  #   Layer 4: 定义变量泄漏防护
-│   │   ├── feature_lineage_gate.py       #   Layer 4: 特征血统追踪
-│   │   ├── model_selection_audit_gate.py #   Layer 5: 模型选择审计
-│   │   ├── calibration_dca_gate.py       #   Layer 6: 校准 + 决策曲线分析
-│   │   ├── fairness_equity_gate.py       #   Layer 6: 公平性 + 亚组分析
-│   │   ├── publication_gate.py           #   Layer 7: TRIPOD+AI / PROBAST+AI 合规
-│   │   ├── self_critique_gate.py         #   Layer 8: AI 自我审查
-│   │   ├── security_audit_gate.py        #   Layer 8: 安全审计
-│   │   └── ... (19 more gates)           #   涵盖 covariate shift, robustness, seed stability 等
+│   │   ├── leakage_gate.py               #   Layer 1: 数据泄漏检测
+│   │   ├── calibration_dca_gate.py       #   校准 + 决策曲线分析
+│   │   ├── publication_gate.py           #   TRIPOD+AI / PROBAST+AI 合规 (依赖全部 30 gate)
+│   │   └── ... (28 more gates)           #   涵盖 split, fairness, SHAP, robustness, seed stability 等
 │   │
-│   ├── orchestration/     (8)            # 工作流编排
-│   │   ├── mlgg.py                       #   统一 CLI 入口 (20+ 子命令, state machine)
-│   │   ├── mlgg_onboarding.py            #   项目初始化 + 自动检测数据源/疾病/codebook
-│   │   ├── mlgg_interactive.py           #   交互式向导 (play 模式)
-│   │   ├── mlgg_pixel.py                 #   像素风终端 UI + i18n
-│   │   ├── run_dag_pipeline.py           #   并行 DAG 执行器 (断点续跑, 层级并行)
-│   │   ├── run_productized_workflow.py   #   生产流水线 (doctor → preflight → strict → summary)
-│   │   └── run_endurance_test.py         #   耐久性基准测试
+│   ├── orchestration/     (10)           # 工作流编排 + CLI 入口
+│   │   ├── mlgg.py                       #   [入口] 统一 CLI 路由 (30+ 子命令)
+│   │   ├── mlgg_onboarding.py            #   引导式工作流 (auto/guided 模式)
+│   │   ├── run_dag_pipeline.py           #   DAG 执行器 (拓扑排序, 断点续跑)
+│   │   ├── run_productized_workflow.py   #   生产流水线 (doctor → preflight → DAG → summary)
+│   │   ├── mlgg_interactive.py           #   交互式向导
+│   │   └── mlgg_pixel.py                 #   像素风终端 UI
 │   │
-│   └── tools/             (42)           # 独立工具脚本
-│       ├── train_select_evaluate.py      #   训练引擎 (20 模型族, MICE/median 插补, 超参调优)
-│       ├── split_data.py                 #   患者级安全划分 (group split, temporal, stratified)
-│       ├── codebook_factory.py           #   Codebook 统一工厂 (NHANES/UKB/BRFSS/MIMIC)
-│       ├── nhanes_codebook_lookup.py     #   NHANES 58K 变量 BM25 + trigram 混合检索
-│       ├── ukb_codebook_lookup.py        #   UKB 12K 字段验证 + 时序泄漏检测
-│       ├── generate_audit_report.py      #   12 维量化审计报告生成器
-│       ├── audit_external_project.py     #   外部项目审计 (代码扫描 + gate 执行)
-│       ├── export_latex.py               #   LaTeX/论文格式导出
-│       ├── visualize_results.py          #   结果可视化
-│       └── ... (33 more tools)           #   evidence_digest, compare_runs, policy_generator 等
+│   ├── training/          (6)            # 模型训练与数据准备
+│   │   ├── train_select_evaluate.py      #   训练引擎 (5+ 模型族, one-SE 选择, 14 指标评估)
+│   │   ├── split_data.py                 #   患者级安全划分 (grouped_temporal / stratified)
+│   │   ├── init_project.py               #   项目脚手架 (configs/ + data/ + evidence/)
+│   │   ├── schema_preflight.py           #   CSV 列/类型/语义验证
+│   │   └── generate_execution_attestation.py  # 签名认证生成
+│   │
+│   ├── reporting/         (14)           # 报告、审计与导出
+│   │   ├── audit_metrics.py              #   [轻量入口] 零依赖指标审查 (贴 Table 2 即可)
+│   │   ├── audit_external_project.py     #   10 维项目审计 (100 分制)
+│   │   ├── generate_audit_report.py      #   TRIPOD+AI/PROBAST+AI 审计报告
+│   │   ├── render_user_summary.py        #   人类可读 evidence 摘要
+│   │   ├── export_latex.py               #   发表级 LaTeX 表格
+│   │   └── ...                           #   compliance_certificate, explain_gate, compare_runs 等
+│   │
+│   ├── codebooks/         (8)            # 数据字典工具
+│   │   ├── nhanes_codebook_lookup.py     #   NHANES 60K 变量 FTS5 全文检索
+│   │   ├── ukb_codebook_lookup.py        #   UKB 12K 字段验证 + 时序泄漏检测
+│   │   └── ...                           #   build/fetch/verify + codebook_factory
+│   │
+│   ├── review/            (5)            # 论文分析与审稿案例
+│   │   ├── peer_review_lookup.py         #   107 篇 NC 论文 × 375 条审稿意见检索
+│   │   ├── batch_journal_review.py       #   批量期刊审查
+│   │   └── ...                           #   extract/score_paper_metadata, fetch_papers
+│   │
+│   └── diagnostics/       (9)            # 环境诊断与配置工具
+│       ├── env_doctor.py                 #   依赖健康检查
+│       ├── init_guide.py                 #   交互式项目指南
+│       ├── mlgg_web.py                   #   Flask Web UI
+│       └── ...                           #   gate 可视化, 阈值分析, 策略生成
 │
 ├── tests/                  (117)         # ─── 测试 (~30K lines) ───
 │   ├── conftest.py                       #   统一 fixture (tmp_path, 路径注入, 共享数据)
@@ -1303,27 +1312,36 @@ medical-ml-governance-guard/
 ### 数据流
 
 ```
-用户 CSV ──→ /mlgg (orchestration)
+用户 CSV ──→ /mlgg (orchestration/)
               │
               ├─ Phase 1: cohort_definition_gate ←── codebooks/ (变量语义验证)
-              ├─ Phase 2: split_data.py + split_protocol_gate
-              ├─ Phase 3-4: leakage/feature gates ←── methodology/ (泄漏分类)
-              ├─ Phase 5: train_select_evaluate.py + model gates
-              ├─ Phase 6: calibration/evaluation gates ←── standards/ (TRIPOD+AI)
+              ├─ Phase 2: training/split_data.py + split_protocol_gate
+              ├─ Phase 3-4: leakage/feature gates ←── references/methodology/ (泄漏分类)
+              ├─ Phase 5: training/train_select_evaluate.py + model gates
+              ├─ Phase 6: calibration/evaluation gates ←── references/standards/ (TRIPOD+AI)
               ├─ Phase 7-8: SHAP/fairness gates
               └─ Phase 9: publication_gate + self_critique_gate
                             │
                             ├─ evidence/ (JSON 报告 + HMAC 审计链)
-                            └─ case-studies/peer-review-kb.json (引用审稿意见)
+                            └─ references/case-studies/ (引用审稿意见)
 ```
+
+### 三个产品入口
+
+| 入口 | 安装 | 用途 | 依赖 |
+|------|------|------|------|
+| **mlgg-lint** | `pip install mlgg-lint` | 扫描代码 data leakage（27 条 AST 规则） | 零依赖 |
+| **audit-metrics** | 内置 | 投稿前指标查漏（贴 Table 2 数字即可） | 零依赖 |
+| **mlgg onboarding** | `pip install -r requirements.txt` | 完整 33-gate pipeline | numpy/pandas/sklearn |
 
 ### 三条审查路径
 
 | 路径 | 执行者 | 输入 | 输出 |
 |------|--------|------|------|
-| **A. 论文元数据评审** | API agents (`agents/extractor.yaml` → `reviewer.yaml`) | 论文 PDF | 12 维评分 + Major/Minor/Questions |
-| **B. 33 Gate 全流程** | Claude Code (`/mlgg`) | 用户数据 + 代码 | evidence/ 报告 + 合规认证 |
-| **C. 静态 Lint 扫描** | Claude Code (`mlgg lint`) | Python 源码 (.py/.ipynb) | R001-R027 泄漏检测报告 |
+| **A. 代码扫描** | `mlgg-lint check code.py` | Python 源码 (.py/.ipynb) | R001-R027 泄漏检测报告 |
+| **B. 指标审查** | `mlgg audit-metrics --metrics '{}'` | 论文 Table 2 数字 | TRIPOD+AI 合规缺口报告 |
+| **C. 全流程审查** | `mlgg onboarding --input-csv` | 用户数据 CSV | evidence/ 报告 + 33 gate 验证 |
+| **D. 论文元数据评审** | API agents (`agents/`) | 论文 PDF | 12 维评分 |
 
 ---
 
