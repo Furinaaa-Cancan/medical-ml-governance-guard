@@ -51,6 +51,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--continue-on-fail", action="store_true", help="Pass through to strict pipeline diagnostic mode.")
     parser.add_argument("--python", default=sys.executable, help="Python executable for child scripts.")
     parser.add_argument("--report", help="Optional summary JSON report path for this wrapper.")
+    parser.add_argument("--triage", action="store_true", help="Auto-skip gates whose input artifacts are missing.")
+    parser.add_argument("--triage-llm", action="store_true", help="Enable LLM-assisted triage (implies --triage).")
+    parser.add_argument("--diagnose", action="store_true", help="Generate LLM-powered fix suggestions on gate failure.")
     return parser.parse_args()
 
 
@@ -236,6 +239,12 @@ def main() -> int:
         dag_cmd.append("--allow-missing-compare")
     if args.continue_on_fail:
         dag_cmd.append("--continue-on-fail")
+    if getattr(args, "triage", False) or getattr(args, "triage_llm", False):
+        dag_cmd.append("--triage")
+    if getattr(args, "triage_llm", False):
+        dag_cmd.append("--triage-llm")
+    if getattr(args, "diagnose", False):
+        dag_cmd.append("--diagnose")
     strict_step = append_step("run_dag_pipeline", dag_cmd)
 
     def _publication_missing_manifest(evidence: Path, min_mtime_epoch: float) -> tuple[bool, Optional[str]]:
@@ -281,6 +290,12 @@ def main() -> int:
             ]
             if args.continue_on_fail:
                 retry_cmd.append("--continue-on-fail")
+            if getattr(args, "triage", False) or getattr(args, "triage_llm", False):
+                retry_cmd.append("--triage")
+            if getattr(args, "triage_llm", False):
+                retry_cmd.append("--triage-llm")
+            if getattr(args, "diagnose", False):
+                retry_cmd.append("--diagnose")
             retry_step = append_step("run_dag_pipeline_with_bootstrap_baseline", retry_cmd)
             strict_exit = int(retry_step["exit_code"])
             if strict_exit == 0:
