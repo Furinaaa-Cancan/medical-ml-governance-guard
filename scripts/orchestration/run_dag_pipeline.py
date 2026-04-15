@@ -652,6 +652,74 @@ def print_pipeline_summary(steps: List[Dict[str, Any]], elapsed: float) -> None:
     print()
 
 
+def _print_prioritized_issues(
+    steps: List[Dict[str, Any]],
+    evidence_dir: Path,
+) -> None:
+    """Aggregate issues from all gate reports and print a priority-sorted list."""
+    severity_order = {"critical": 0, "error": 1, "warning": 2, "info": 3}
+    all_issues: List[Dict[str, Any]] = []
+
+    for step in steps:
+        if step.get("status") != "fail":
+            continue
+        report_path = step.get("report_path", "")
+        if not report_path:
+            continue
+        rp = Path(report_path)
+        if not rp.exists():
+            continue
+        try:
+            with open(rp) as f:
+                report = json.load(f)
+            for issue in report.get("issues", []):
+                sev = issue.get("severity", "info")
+                if sev in ("critical", "error", "warning"):
+                    all_issues.append({
+                        "gate": step["name"],
+                        "severity": sev,
+                        "code": issue.get("code", ""),
+                        "message": issue.get("message", ""),
+                        "remediation": issue.get("remediation", ""),
+                    })
+        except (json.JSONDecodeError, OSError):
+            continue
+
+    if not all_issues:
+        return
+
+    all_issues.sort(key=lambda i: severity_order.get(i["severity"], 99))
+
+    color = _use_color()
+    sev_colors = {
+        "critical": "\033[1;31m",
+        "error": "\033[31m",
+        "warning": "\033[33m",
+    }
+    reset = "\033[0m" if color else ""
+
+    print(f"\n{'─' * 60}")
+    print("  PRIORITIZED FIX LIST")
+    print(f"{'─' * 60}")
+    for i, issue in enumerate(all_issues, 1):
+        sev = issue["severity"].upper()
+        gate = issue["gate"]
+        msg = issue["message"]
+        if color:
+            sev_c = sev_colors.get(issue["severity"], "")
+            print(f"  {i:2d}. {sev_c}[{sev}]{reset} {gate}: {msg}")
+        else:
+            print(f"  {i:2d}. [{sev}] {gate}: {msg}")
+        if issue["remediation"]:
+            print(f"      Fix: {issue['remediation']}")
+    print(f"{'─' * 60}")
+    crit = sum(1 for i in all_issues if i["severity"] == "critical")
+    err = sum(1 for i in all_issues if i["severity"] == "error")
+    warn = sum(1 for i in all_issues if i["severity"] == "warning")
+    print(f"  Total: {crit} critical, {err} error, {warn} warning")
+    print(f"  Fix critical issues first, then errors.\n")
+
+
 # ---------------------------------------------------------------------------
 # Main execution engine
 # ---------------------------------------------------------------------------
@@ -1081,6 +1149,9 @@ def _finalize(
     elapsed = _time.time() - pipeline_t0
 
     print_pipeline_summary(steps, elapsed)
+
+    # Aggregate issues from all gate reports, sorted by severity
+    _print_prioritized_issues(steps, evidence_dir)
 
     summary = {
         "contract_version": PIPELINE_REPORT_VERSION,
