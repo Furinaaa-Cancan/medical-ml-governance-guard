@@ -233,6 +233,7 @@ COMMANDS: Dict[str, Tuple[Path, str]] = {
     "preflight": (SCRIPTS_ROOT / "tools" / "schema_preflight.py", "Validate train/valid/test schema and semantic mapping."),
     "workflow": (SCRIPTS_ROOT / "orchestration" / "run_productized_workflow.py", "Run doctor -> preflight -> strict -> summary."),
     "strict": (SCRIPTS_ROOT / "orchestration" / "run_dag_pipeline.py", "Run strict fail-closed DAG gate pipeline."),
+    "semantic-audit": (SCRIPTS_ROOT / "orchestration" / "semantic_audit.py", "LLM-powered semantic leakage detection on feature columns."),
     "summary": (SCRIPTS_ROOT / "tools" / "render_user_summary.py", "Render user-facing markdown/json summary."),
     "train": (SCRIPTS_ROOT / "tools" / "train_select_evaluate.py", "Train/select/evaluate and emit evidence artifacts."),
     "authority": (EXPERIMENTS_ROOT / "run_authority_e2e.py", "Run authority E2E benchmark suite."),
