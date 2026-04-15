@@ -170,6 +170,20 @@ Examples:
         help="Print the DAG structure and exit.",
     )
 
+    triage_group = parser.add_argument_group("Triage — intelligent gate routing")
+    triage_group.add_argument(
+        "--triage", action="store_true",
+        help="Auto-skip gates whose input artifacts are missing (rule-based triage).",
+    )
+    triage_group.add_argument(
+        "--triage-llm", action="store_true",
+        help="Enable LLM-assisted triage for ambiguous cases (implies --triage).",
+    )
+    triage_group.add_argument(
+        "--diagnose", action="store_true",
+        help="On gate failure, generate LLM-powered actionable fix suggestions.",
+    )
+
     manifest_group = parser.add_argument_group("Manifest comparison")
     manifest_group.add_argument("--compare-manifest", help="Baseline manifest JSON path.")
     manifest_group.add_argument(
@@ -791,6 +805,17 @@ def main() -> int:
     all_gates = topological_sort()
     gates_to_run = _compute_gates_to_run(args, all_gates, passed_gates)
 
+    # Triage: intelligently skip gates based on project characteristics
+    if getattr(args, "triage", False) or getattr(args, "triage_llm", False):
+        try:
+            from triage import triage_gates as _triage
+            use_llm = getattr(args, "triage_llm", False)
+            triage_skip = _triage(normalized, split_paths, use_llm=use_llm)
+            if triage_skip:
+                gates_to_run = [g for g in gates_to_run if g not in triage_skip]
+        except ImportError:
+            print("[WARN] triage module not found, skipping triage.", file=sys.stderr)
+
     # Auto-skip gates that require a test split when none exists.
     # These gates declare --test required=True or need test-split artifacts;
     # without a test set, they crash on argparse or produce meaningless results.
@@ -892,8 +917,17 @@ def main() -> int:
                 had_failure = True
             # Save checkpoint after each gate to minimize data loss on SIGINT
             _save_progress(evidence_dir, passed_gates | newly_passed, steps)
-            if r["status"] == "fail" and not continue_on_fail:
-                return _finalize(args, evidence_dir, steps, False, pipeline_t0)
+            if r["status"] == "fail":
+                if getattr(args, "diagnose", False):
+                    try:
+                        from failure_diagnosis import diagnose_failure
+                        rp = report_paths.get(r["name"])
+                        if rp:
+                            diagnose_failure(r["name"], rp, normalized)
+                    except ImportError:
+                        pass
+                if not continue_on_fail:
+                    return _finalize(args, evidence_dir, steps, False, pipeline_t0)
 
     # Save final checkpoint
     all_passed = passed_gates | newly_passed
