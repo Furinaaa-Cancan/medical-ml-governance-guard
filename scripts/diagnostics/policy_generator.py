@@ -10,10 +10,10 @@ Users can review and customize the generated policy before committing
 it to their project.
 
 Usage:
-    python3 scripts/policy_generator.py --evidence-dir evidence/
-    python3 scripts/policy_generator.py --evidence-dir evidence/ --margin 0.10
-    python3 scripts/policy_generator.py --evidence-dir evidence/ --output policy.json
-    python3 scripts/policy_generator.py --evidence-dir evidence/ --preset strict
+    python3 scripts/diagnostics/policy_generator.py --evidence-dir evidence/
+    python3 scripts/diagnostics/policy_generator.py --evidence-dir evidence/ --margin 0.10
+    python3 scripts/diagnostics/policy_generator.py --evidence-dir evidence/ --output policy.json
+    python3 scripts/diagnostics/policy_generator.py --evidence-dir evidence/ --preset strict
 """
 
 from __future__ import annotations

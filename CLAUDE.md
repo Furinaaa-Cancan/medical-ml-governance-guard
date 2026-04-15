@@ -66,8 +66,12 @@ API agents 只做论文文本分析，详见 `agents/README.md`。
 scripts/
 ├── core/           # 内部框架
 ├── gates/          # 33 道 Gate 门控
-├── orchestration/  # 编排器
-└── tools/          # 报告/训练/数据工具
+├── orchestration/  # 编排器 + CLI 入口
+├── training/       # 训练、拆分、初始化
+├── reporting/      # 报告、审计、导出
+├── codebooks/      # 数据字典 (NHANES, UKB)
+├── review/         # 论文分析、审稿案例
+└── diagnostics/    # 环境检查、可视化
 tests/              # pytest 测试
 examples/           # 数据集下载器
 agents/             # API agent 配置 (reviewer + extractor)

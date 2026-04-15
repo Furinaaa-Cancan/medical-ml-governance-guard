@@ -7,7 +7,7 @@ that instructs Claude Code / Cursor to guide users through rigorous medical
 binary classification following MLGG standards.
 
 Usage:
-    python3 scripts/init_guide.py --output /path/to/my_project
+    python3 scripts/diagnostics/init_guide.py --output /path/to/my_project
     python3 scripts/mlgg.py init-guide -- --output /path/to/my_project
 """
 
@@ -942,8 +942,8 @@ def main() -> int:
             "     Installs /mlgg slash command for Claude Code\n"
             "     (works in ANY project without init-guide)\n\n"
             "Examples:\n"
-            "  python3 scripts/init_guide.py --output /path/to/my_project\n"
-            "  python3 scripts/init_guide.py --install-command\n"
+            "  python3 scripts/diagnostics/init_guide.py --output /path/to/my_project\n"
+            "  python3 scripts/diagnostics/init_guide.py --install-command\n"
             "  python3 scripts/mlgg.py init-guide -- --output .\n"
             "  python3 scripts/mlgg.py init-guide -- --install-command\n"
         ),

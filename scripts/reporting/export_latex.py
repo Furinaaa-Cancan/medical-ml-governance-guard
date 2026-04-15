@@ -9,11 +9,11 @@ following common medical journal conventions:
   - Table 3: External Validation (if available)
 
 Usage:
-    python3 scripts/export_latex.py \
+    python3 scripts/reporting/export_latex.py \
         --evaluation-report evidence/evaluation_report.json \
         --output evidence/tables.tex
 
-    python3 scripts/export_latex.py \
+    python3 scripts/reporting/export_latex.py \
         --evaluation-report evidence/evaluation_report.json \
         --external-report evidence/external_validation_gate_report.json \
         --output evidence/tables.tex
