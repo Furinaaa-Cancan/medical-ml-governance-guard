@@ -156,7 +156,7 @@ def build_request_payload(
 
     # Evidence file paths
     payload["model_selection_report_file"] = "../evidence/model_selection_report.json"
-    payload["model_pool_file"] = "../evidence/model_pool.pkl"
+    payload["model_pool_file"] = "../models/model_pool.pkl"
     payload["evaluation_report_file"] = "../evidence/evaluation_report.json"
     payload["prediction_trace_file"] = "../evidence/prediction_trace.csv.gz"
     payload["distribution_report_file"] = "../evidence/distribution_report.json"

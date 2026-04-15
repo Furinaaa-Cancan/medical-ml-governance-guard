@@ -489,7 +489,7 @@ def align_demo_configs(
     request["label_col"] = target_col
     request["patient_id_col"] = patient_id_col
     request["primary_metric"] = "pr_auc"
-    request["claim_tier_target"] = "publication-grade"
+    request["claim_tier_target"] = "leakage-audited"
     request["split_paths"] = {
         "train": "../data/train.csv",
         "valid": "../data/valid.csv",

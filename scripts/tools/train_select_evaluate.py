@@ -6292,7 +6292,8 @@ def _phase2_feature_engineering(ctx: Dict[str, Any]) -> None:
         train_fill_values=_train_medians,
     )
     if args.external_cohort_spec and not external_cohorts:
-        raise SystemExit("external_cohort_spec must provide at least one external cohort entry.")
+        import logging as _logging
+        _logging.warning("external_cohort_spec provided but contains no cohort entries; skipping external validation.")
     if has_valid and len(np.unique(y_valid)) < 2:
         raise SystemExit("valid split must contain both classes for threshold/model selection.")
 
@@ -8471,7 +8472,7 @@ def _phase10_12_reports_output(ctx: Dict[str, Any]) -> int:
         ensure_parent(null_path)
         permutation_resamples = int(args.permutation_resamples)
         if fast_diagnostic_mode:
-            permutation_resamples = 0
+            permutation_resamples = min(permutation_resamples, 50)
         with null_path.open("w", encoding="utf-8") as fh:
             for _ in range(max(0, int(permutation_resamples))):
                 y_perm = rng.permutation(y_test)

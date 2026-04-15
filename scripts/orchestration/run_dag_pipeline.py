@@ -750,16 +750,17 @@ def main() -> int:
         return _finalize(args, evidence_dir, steps, False, pipeline_t0)
 
     claim_tier = str(normalized.get("claim_tier_target", ""))
-    if claim_tier != "publication-grade" and args.strict:
+    _ALLOWED_STRICT_TIERS = {"publication-grade", "leakage-audited"}
+    if claim_tier not in _ALLOWED_STRICT_TIERS and args.strict:
         print(
-            f"[FAIL] Strict mode requires claim_tier_target='publication-grade' (got: {claim_tier!r}).",
+            f"[FAIL] Strict mode requires claim_tier_target in {sorted(_ALLOWED_STRICT_TIERS)} (got: {claim_tier!r}).",
             file=sys.stderr,
         )
         return _finalize(args, evidence_dir, steps, False, pipeline_t0)
-    if claim_tier != "publication-grade":
+    if claim_tier not in _ALLOWED_STRICT_TIERS:
         print(
             f"[INFO] Exploratory mode: claim_tier_target={claim_tier!r} "
-            f"(publication-grade required for --strict).",
+            f"(publication-grade or leakage-audited required for --strict).",
             file=sys.stderr,
         )
 

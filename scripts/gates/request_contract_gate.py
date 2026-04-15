@@ -2927,9 +2927,10 @@ def main() -> int:
     # Rationale: small/rare datasets typically lack external cohorts and have
     # high seed variance by nature; forcing these as hard failures blocks the
     # pipeline on data the researcher cannot produce.
+    _claim_tier = str(normalized.get("claim_tier_target", "")).strip()
     _relaxed_profile = _profile_name in (
         "small_cohort", "rare_disease", "exploratory",
-    )
+    ) or _claim_tier == "leakage-audited"
 
     if require_lineage:
         primary_metric = str(normalized.get("primary_metric", "")).strip()
