@@ -689,7 +689,7 @@ def build_train_command(
     ignore_parts = sorted({patient_id_col, time_col} - {""})
     cmd = [
         python_bin,
-        str(SCRIPTS_ROOT / "tools/train_select_evaluate.py"),
+        str(SCRIPTS_ROOT / "training/train_select_evaluate.py"),
         "--train",
         str(data / "train.csv"),
         "--valid",
@@ -1116,7 +1116,7 @@ def main() -> int:
     ok = run_command_step(
         name="step1_doctor",
         description="Environment check for core/optional dependencies.",
-        command=[python_bin, str(SCRIPTS_ROOT / "tools/env_doctor.py"), "--report", str(doctor_report)],
+        command=[python_bin, str(SCRIPTS_ROOT / "diagnostics/env_doctor.py"), "--report", str(doctor_report)],
         cwd=project_root,
         mode=mode,
         auto_yes=auto_yes,
@@ -1138,7 +1138,7 @@ def main() -> int:
         description="Initialize project directories and baseline config templates.",
         command=[
             python_bin,
-            str(SCRIPTS_ROOT / "tools/init_project.py"),
+            str(SCRIPTS_ROOT / "training/init_project.py"),
             "--project-root",
             str(project_root),
             "--study-id",
@@ -1176,7 +1176,7 @@ def main() -> int:
         split_report = evidence_dir / "split_report.json"
         split_cmd = [
             python_bin,
-            str(SCRIPTS_ROOT / "tools/split_data.py"),
+            str(SCRIPTS_ROOT / "training/split_data.py"),
             "--input", _abs_input_csv,
             "--output-dir", str(project_root / "data"),
             "--patient-id-col", str(getattr(args, "patient_id_col", "patient_id")),
@@ -1212,7 +1212,7 @@ def main() -> int:
             description="Generate offline synthetic medical splits (train/valid/test + dual external cohorts).",
             command=[
                 python_bin,
-                str(SCRIPTS_ROOT / "tools/generate_demo_medical_dataset.py"),
+                str(SCRIPTS_ROOT / "training/generate_demo_medical_dataset.py"),
                 "--project-root",
                 str(project_root),
                 "--seed",
@@ -1552,7 +1552,7 @@ def main() -> int:
         study_id = str(req.get("study_id", "demo-medical-governance-guard"))
         cmd = [
             python_bin,
-            str(SCRIPTS_ROOT / "tools/generate_execution_attestation.py"),
+            str(SCRIPTS_ROOT / "training/generate_execution_attestation.py"),
             "--study-id",
             study_id,
             "--run-id",

@@ -36,7 +36,7 @@ def _discover_gate_scripts() -> List[str]:
 def _discover_all_scripts_with_main() -> List[str]:
     """Return names of all scripts that define a main() function."""
     results = []
-    for subdir in ["gates", "tools", "orchestration"]:
+    for subdir in ["gates", "training", "reporting", "codebooks", "review", "diagnostics", "orchestration"]:
         for p in sorted((SCRIPTS_DIR / subdir).glob("*.py")):
             if p.name.startswith("._") or p.name.startswith("test_") or p.name.startswith("__"):
                 continue
@@ -55,7 +55,7 @@ ALL_SCRIPTS_WITH_MAIN = _discover_all_scripts_with_main()
 
 def _find_script(name: str) -> Path:
     """Find a script by name across all subdirectories."""
-    for subdir in ["gates", "tools", "orchestration"]:
+    for subdir in ["gates", "training", "reporting", "codebooks", "review", "diagnostics", "orchestration"]:
         candidate = SCRIPTS_DIR / subdir / f"{name}.py"
         if candidate.exists():
             return candidate

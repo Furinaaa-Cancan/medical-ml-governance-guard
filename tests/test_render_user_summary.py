@@ -13,7 +13,7 @@ from pathlib import Path
 
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
-GATE_SCRIPT = SCRIPTS_DIR / "tools/render_user_summary.py"
+GATE_SCRIPT = SCRIPTS_DIR / "reporting/render_user_summary.py"
 
 import render_user_summary as rus
 

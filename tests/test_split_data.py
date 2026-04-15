@@ -664,7 +664,7 @@ class TestCLI:
                    time_col: str = "", extra_args: Optional[list] = None) -> subprocess.CompletedProcess:
         out_dir = tmp_path / "output" / "data"
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "tools/split_data.py"),
+            sys.executable, str(SCRIPTS_DIR / "training/split_data.py"),
             "--input", str(csv_path),
             "--output-dir", str(out_dir),
             "--patient-id-col", "patient_id",

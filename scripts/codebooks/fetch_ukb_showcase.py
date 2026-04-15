@@ -18,8 +18,8 @@ Produces:
   references/codebooks/ukb/category.txt       (category definitions)
 
 Usage:
-  python3 scripts/tools/fetch_ukb_showcase.py
-  python3 scripts/tools/fetch_ukb_showcase.py --output-dir /tmp/ukb_raw
+  python3 scripts/codebooks/fetch_ukb_showcase.py
+  python3 scripts/codebooks/fetch_ukb_showcase.py --output-dir /tmp/ukb_raw
 """
 from __future__ import annotations
 

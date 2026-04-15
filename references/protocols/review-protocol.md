@@ -75,19 +75,19 @@ Fix: 修复方案
 用 CLI 工具按字段匹配：
 ```bash
 # 按 gate 名匹配
-python3 scripts/tools/peer_review_lookup.py --gate <gate_name>
+python3 scripts/review/peer_review_lookup.py --gate <gate_name>
 
 # 按问题标签匹配
-python3 scripts/tools/peer_review_lookup.py --tags "<tag1>,<tag2>"
+python3 scripts/review/peer_review_lookup.py --tags "<tag1>,<tag2>"
 
 # 按维度+严重度匹配
-python3 scripts/tools/peer_review_lookup.py --dimension <N> --severity HIGH
+python3 scripts/review/peer_review_lookup.py --dimension <N> --severity HIGH
 
 # 按关键词搜索
-python3 scripts/tools/peer_review_lookup.py --search "<keyword>"
+python3 scripts/review/peer_review_lookup.py --search "<keyword>"
 
 # 查看统计概况
-python3 scripts/tools/peer_review_lookup.py --stats
+python3 scripts/review/peer_review_lookup.py --stats
 ```
 
 输出引用：
@@ -167,22 +167,22 @@ NC 参考: 38/375 审稿意见要求可复现性验证
 
 ```bash
 # 统计概况（每次审查开始时可先看一眼）
-python3 scripts/tools/peer_review_lookup.py --stats
+python3 scripts/review/peer_review_lookup.py --stats
 
 # 按问题类别查
-python3 scripts/tools/peer_review_lookup.py --category evaluation_metrics --limit 3
+python3 scripts/review/peer_review_lookup.py --category evaluation_metrics --limit 3
 
 # 按 gate 名查（gate 失败时用）
-python3 scripts/tools/peer_review_lookup.py --gate calibration_dca_gate
+python3 scripts/review/peer_review_lookup.py --gate calibration_dca_gate
 
 # 按标签查（发现具体问题时用）
-python3 scripts/tools/peer_review_lookup.py --tags "missing_calibration,no_dca"
+python3 scripts/review/peer_review_lookup.py --tags "missing_calibration,no_dca"
 
 # 按维度+严重度查（Phase checkpoint 时用）
-python3 scripts/tools/peer_review_lookup.py --dimension 5 --severity HIGH
+python3 scripts/review/peer_review_lookup.py --dimension 5 --severity HIGH
 
 # 自由文本搜索
-python3 scripts/tools/peer_review_lookup.py --search "calibration missing AUC"
+python3 scripts/review/peer_review_lookup.py --search "calibration missing AUC"
 ```
 
 增强说服力时，引用 `references/case-studies/peer-review-kb-stats.json` 中的统计数据：

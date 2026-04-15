@@ -18,8 +18,8 @@ Produces:
   references/codebooks/ukb/ukb_codebook.sqlite
 
 Usage:
-  python3 scripts/tools/build_ukb_codebook_db.py
-  python3 scripts/tools/build_ukb_codebook_db.py --output /tmp/ukb_test.sqlite
+  python3 scripts/codebooks/build_ukb_codebook_db.py
+  python3 scripts/codebooks/build_ukb_codebook_db.py --output /tmp/ukb_test.sqlite
 """
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Tests for scripts/tools/generate_demo_medical_dataset.py.
+"""Tests for scripts/training/generate_demo_medical_dataset.py.
 
 Focused on: output file creation, column schema, patient ID disjointness,
 binary target, deterministic seeding, and CLI --help smoke test.
@@ -14,7 +14,7 @@ import pandas as pd
 import pytest
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
-TOOL_SCRIPT = SCRIPTS_DIR / "tools" / "generate_demo_medical_dataset.py"
+TOOL_SCRIPT = SCRIPTS_DIR / "training" / "generate_demo_medical_dataset.py"
 
 
 import generate_demo_medical_dataset as gd

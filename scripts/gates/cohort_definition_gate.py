@@ -1321,7 +1321,7 @@ def main() -> int:
     #   BRFSS/MIMIC/other → RegistryCodebook (JSON registry only)
     if survey_source:
         try:
-            from scripts.tools.codebook_factory import get_codebook
+            from scripts.codebooks.codebook_factory import get_codebook
 
             # Load manual registry variable codes for priority exclusion
             manual_vars: Optional[Dict[str, Any]] = None

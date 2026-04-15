@@ -26,7 +26,7 @@ def _split_data(tmp_path: Path) -> Path:
     """Pre-split heart data into train/valid/test under tmp_path/data."""
     out_dir = tmp_path / "data"
     cmd = [
-        sys.executable, str(SCRIPTS_DIR / "tools/split_data.py"),
+        sys.executable, str(SCRIPTS_DIR / "training/split_data.py"),
         "--input", str(HEART_CSV),
         "--output-dir", str(out_dir),
         "--patient-id-col", "patient_id",
@@ -60,7 +60,7 @@ def _run_train(tmp_path: Path, data_dir: Path, extra_args: list = None,
     feature_group_spec = _write_feature_group_spec(tmp_path)
 
     cmd = [
-        sys.executable, str(SCRIPTS_DIR / "tools/train_select_evaluate.py"),
+        sys.executable, str(SCRIPTS_DIR / "training/train_select_evaluate.py"),
         "--train", str(data_dir / "train.csv"),
         "--valid", str(data_dir / "valid.csv"),
         "--test", str(data_dir / "test.csv"),
@@ -182,7 +182,7 @@ class TestTrainMinimal:
 
     def test_missing_train_file(self, tmp_path: Path):
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "tools/train_select_evaluate.py"),
+            sys.executable, str(SCRIPTS_DIR / "training/train_select_evaluate.py"),
             "--train", str(tmp_path / "nonexistent.csv"),
             "--valid", str(tmp_path / "nonexistent.csv"),
             "--test", str(tmp_path / "nonexistent.csv"),

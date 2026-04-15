@@ -33,7 +33,7 @@ class TestTwoWaySplit:
         data = _make_data(tmp_path)
         out = tmp_path / "out"
         result = subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "tools/split_data.py"),
+            [sys.executable, str(SCRIPTS_DIR / "training/split_data.py"),
              "--input", str(data), "--output-dir", str(out),
              "--patient-id-col", "pid", "--target-col", "y",
              "--strategy", "stratified_grouped",
@@ -54,7 +54,7 @@ class TestTwoWaySplit:
         data = _make_data(tmp_path)
         out = tmp_path / "out"
         subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "tools/split_data.py"),
+            [sys.executable, str(SCRIPTS_DIR / "training/split_data.py"),
              "--input", str(data), "--output-dir", str(out),
              "--patient-id-col", "pid", "--target-col", "y",
              "--strategy", "stratified_grouped",
@@ -71,7 +71,7 @@ class TestTwoWaySplit:
         out = tmp_path / "out"
         report_path = tmp_path / "report.json"
         subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "tools/split_data.py"),
+            [sys.executable, str(SCRIPTS_DIR / "training/split_data.py"),
              "--input", str(data), "--output-dir", str(out),
              "--patient-id-col", "pid", "--target-col", "y",
              "--strategy", "stratified_grouped",
@@ -93,7 +93,7 @@ class TestCVOnlySplit:
         data = _make_data(tmp_path)
         out = tmp_path / "out"
         result = subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "tools/split_data.py"),
+            [sys.executable, str(SCRIPTS_DIR / "training/split_data.py"),
              "--input", str(data), "--output-dir", str(out),
              "--patient-id-col", "pid", "--target-col", "y",
              "--strategy", "stratified_grouped",
@@ -113,7 +113,7 @@ class TestCVOnlySplit:
         out = tmp_path / "out"
         report_path = tmp_path / "report.json"
         subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "tools/split_data.py"),
+            [sys.executable, str(SCRIPTS_DIR / "training/split_data.py"),
              "--input", str(data), "--output-dir", str(out),
              "--patient-id-col", "pid", "--target-col", "y",
              "--strategy", "stratified_grouped",
@@ -134,7 +134,7 @@ class TestThreeWaySplitUnchanged:
         data = _make_data(tmp_path)
         out = tmp_path / "out"
         result = subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "tools/split_data.py"),
+            [sys.executable, str(SCRIPTS_DIR / "training/split_data.py"),
              "--input", str(data), "--output-dir", str(out),
              "--patient-id-col", "pid", "--target-col", "y",
              "--strategy", "stratified_grouped",
@@ -159,7 +159,7 @@ class TestInvalidRatios:
         """valid_ratio between 0 and 0.05 should be rejected."""
         data = _make_data(tmp_path)
         result = subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "tools/split_data.py"),
+            [sys.executable, str(SCRIPTS_DIR / "training/split_data.py"),
              "--input", str(data), "--output-dir", str(tmp_path / "x"),
              "--patient-id-col", "pid", "--target-col", "y",
              "--strategy", "stratified_grouped",

@@ -194,14 +194,14 @@ def main() -> int:
     env_report = evidence_dir / "env_doctor_report.json"
     append_step(
         "env_doctor",
-        [args.python, str(scripts_dir / "tools/env_doctor.py"), "--report", str(env_report)],
+        [args.python, str(scripts_dir / "diagnostics/env_doctor.py"), "--report", str(env_report)],
     )
 
     schema_report = evidence_dir / "schema_preflight_report.json"
     schema_mapping = evidence_dir / "schema_mapping.json"
     _preflight_cmd = [
         args.python,
-        str(scripts_dir / "tools/schema_preflight.py"),
+        str(scripts_dir / "training/schema_preflight.py"),
         "--train",
         str(train_path),
         *(["--valid", str(valid_path)] if valid_path else []),
@@ -311,7 +311,7 @@ def main() -> int:
         "render_user_summary",
         [
             args.python,
-            str(scripts_dir / "tools/render_user_summary.py"),
+            str(scripts_dir / "reporting/render_user_summary.py"),
             "--evidence-dir",
             str(evidence_dir),
             "--request",

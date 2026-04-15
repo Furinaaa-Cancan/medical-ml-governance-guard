@@ -6,7 +6,7 @@ for the latest cycle (_L suffix), then outputs in the same TSV format
 as Harvard CCB-HMS metadata for merging.
 
 Usage:
-  python3 scripts/tools/fetch_nhanes_2021_2023.py
+  python3 scripts/codebooks/fetch_nhanes_2021_2023.py
 """
 from __future__ import annotations
 

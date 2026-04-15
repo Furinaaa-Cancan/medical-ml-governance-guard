@@ -19,7 +19,7 @@ description: "Publication-grade medical prediction workflow with 33 fail-closed 
 |---------|------|
 | 建模 / 训练 / "我有数据" | `/mlgg` |
 | 交互式体验 | `python3 scripts/orchestration/mlgg.py play` |
-| 查看结果 | `python3 scripts/tools/quick_summary.py <dir>` |
+| 查看结果 | `python3 scripts/reporting/quick_summary.py <dir>` |
 | 下载数据集 | `python3 examples/download_real_data.py <name>` (heart/breast/ckd/hepatitis/spect/dermatology/pima/mammographic/thyroid/eeg_eye/framingham/diabetes130/diabetes130_full/vitaldb/rhc/sepsis_survival) |
 | 下载 CDC 数据 | `python3 examples/download_cdc_data.py <name>` (brfss/nhis/covid/all) |
 | 下载 NHANES | `python3 examples/download_nhanes.py --cycles both --output examples/nhanes_diabetes.csv` |
@@ -27,9 +27,9 @@ description: "Publication-grade medical prediction workflow with 33 fail-closed 
 | 严格审计 | `python3 scripts/orchestration/mlgg.py workflow --strict` |
 | 检查环境 | `python3 scripts/orchestration/mlgg.py doctor` |
 | 初始化项目 | `python3 scripts/orchestration/mlgg.py onboarding` |
-| 对比两次运行 | `python3 scripts/tools/compare_runs.py --run-a <dir1> --run-b <dir2>` |
-| 生成修复计划 | `python3 scripts/tools/remediation_plan.py --evidence-dir <dir>` |
-| 解释 gate 失败 | `python3 scripts/tools/explain_gate.py --report <gate_report.json>` |
+| 对比两次运行 | `python3 scripts/reporting/compare_runs.py --run-a <dir1> --run-b <dir2>` |
+| 生成修复计划 | `python3 scripts/reporting/remediation_plan.py --evidence-dir <dir>` |
+| 解释 gate 失败 | `python3 scripts/reporting/explain_gate.py --report <gate_report.json>` |
 | 检查代码泄漏 | `python3 scripts/orchestration/mlgg.py lint check <file.py>` |
 | SHAP 可解释性 | `python3 scripts/gates/shap_interpretability_gate.py --model-pool evidence/model_pool.pkl --train-data data/train.csv --test-data data/test.csv --target-col y --report evidence/shap_report.json` |
 | 校准指标 | `calibration_metrics()` in `_gate_utils.py` |
@@ -42,13 +42,13 @@ description: "Publication-grade medical prediction workflow with 33 fail-closed 
 | 插补敏感性 | `imputation_sensitivity()` in `_gate_utils.py` |
 | 亚组 DCA | `subgroup_dca()` in `_gate_utils.py` |
 | 消融实验 | `feature_ablation()` in `_gate_utils.py` |
-| LaTeX 表格 | `python3 scripts/tools/export_latex.py --evaluation-report evidence/evaluation_report.json` |
-| 合规证书 | `python3 scripts/tools/generate_compliance_certificate.py --evidence-dir evidence/` |
-| 查审稿案例 | `python3 scripts/tools/peer_review_lookup.py --stats` |
-| 审稿人怎么看？ | `python3 scripts/tools/peer_review_lookup.py --tags "<tags>"` |
-| gate 抓过什么？ | `python3 scripts/tools/peer_review_lookup.py --gate <gate_name>` |
-| 审查论文 Methods | `python3 scripts/tools/score_paper_metadata.py --metadata <metadata.json>` |
-| 批量评审 | `python3 scripts/tools/batch_journal_review.py --manifest batch_manifest.json` |
+| LaTeX 表格 | `python3 scripts/reporting/export_latex.py --evaluation-report evidence/evaluation_report.json` |
+| 合规证书 | `python3 scripts/reporting/generate_compliance_certificate.py --evidence-dir evidence/` |
+| 查审稿案例 | `python3 scripts/review/peer_review_lookup.py --stats` |
+| 审稿人怎么看？ | `python3 scripts/review/peer_review_lookup.py --tags "<tags>"` |
+| gate 抓过什么？ | `python3 scripts/review/peer_review_lookup.py --gate <gate_name>` |
+| 审查论文 Methods | `python3 scripts/review/score_paper_metadata.py --metadata <metadata.json>` |
+| 批量评审 | `python3 scripts/review/batch_journal_review.py --manifest batch_manifest.json` |
 
 ---
 
@@ -73,9 +73,9 @@ Agent 审查代码时，**必须**查阅 `references/case-studies/peer-review-kb
 **统计引用**: "107 篇 NC 论文中，119/375 (31.7%) 审稿意见要求完善评估指标"
 
 ```bash
-python3 scripts/tools/peer_review_lookup.py --stats
-python3 scripts/tools/peer_review_lookup.py --gate leakage_gate
-python3 scripts/tools/peer_review_lookup.py --tags "missing_calibration,no_dca"
+python3 scripts/review/peer_review_lookup.py --stats
+python3 scripts/review/peer_review_lookup.py --gate leakage_gate
+python3 scripts/review/peer_review_lookup.py --tags "missing_calibration,no_dca"
 ```
 
 ---
@@ -168,7 +168,7 @@ R021 可检测 `holdout/held_out` 等关键词，但任意命名（如 `eval_dat
 3. `scripts/orchestration/mlgg_pixel.py` → i18n + `PLAY_DOWNLOAD_DATASETS`
 
 ### 添加新模型族
-`scripts/tools/train_select_evaluate.py` 5 处: `SUPPORTED_MODEL_FAMILIES`, `_family_grid()`, `_build_estimator_for_family()`, `_family_base_complexity()`, `_family_friendly_name()`
+`scripts/training/train_select_evaluate.py` 5 处: `SUPPORTED_MODEL_FAMILIES`, `_family_grid()`, `_build_estimator_for_family()`, `_family_base_complexity()`, `_family_friendly_name()`
 
 ### 添加新 Gate
 统一 CLI 契约: `--report`, `--strict`, exit 0/2, `build_report_envelope()`, `start_gate_timer()`, 注册到 `_gate_registry.py`。
@@ -185,7 +185,7 @@ R021 可检测 `holdout/held_out` 等关键词，但任意命名（如 `eval_dat
 | `candidate_pool_too_small` | 增加模型族或 `--max-trials-per-family` |
 | 训练超时 (>20min) | 减少模型数/trials |
 | `FileNotFoundError` | 检查 `data/` 下 CSV |
-| Gate 失败 | `python3 scripts/tools/explain_gate.py --report evidence/<gate>_report.json` |
+| Gate 失败 | `python3 scripts/reporting/explain_gate.py --report evidence/<gate>_report.json` |
 
 ---
 

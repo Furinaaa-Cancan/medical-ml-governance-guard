@@ -1,4 +1,4 @@
-"""Tests for scripts/tools/init_guide.py.
+"""Tests for scripts/diagnostics/init_guide.py.
 
 Focused on: .mlgg/ directory creation, rules.json structure, CLAUDE.md
 generation, --force overwrite, CLI --help, and metric naming consistency.
@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
-TOOL_SCRIPT = SCRIPTS_DIR / "tools" / "init_guide.py"
+TOOL_SCRIPT = SCRIPTS_DIR / "diagnostics" / "init_guide.py"
 
 
 import init_guide as ig

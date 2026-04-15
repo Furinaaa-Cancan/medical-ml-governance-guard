@@ -88,7 +88,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - High warning (EPV < 5): shows overfitting risk estimate
 
 - **Quick Results Viewer** (`quick_summary.py`)
-  - One-command view of training results: `python3 scripts/tools/quick_summary.py /path/to/output`
+  - One-command view of training results: `python3 scripts/reporting/quick_summary.py /path/to/output`
   - Shows key metrics with 95% CI, overfitting risk assessment, model selection top-10
   - Supports `--json` output and `--eval` direct file path
   - 21 unit tests (93% coverage)

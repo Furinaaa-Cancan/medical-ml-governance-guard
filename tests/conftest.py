@@ -30,7 +30,11 @@ _PATHS_TO_ADD = [
     str(SCRIPTS_DIR),
     str(SCRIPTS_DIR / "core"),
     str(SCRIPTS_DIR / "gates"),
-    str(SCRIPTS_DIR / "tools"),
+    str(SCRIPTS_DIR / "training"),
+    str(SCRIPTS_DIR / "reporting"),
+    str(SCRIPTS_DIR / "codebooks"),
+    str(SCRIPTS_DIR / "review"),
+    str(SCRIPTS_DIR / "diagnostics"),
     str(SCRIPTS_DIR / "orchestration"),
 ]
 for p in _PATHS_TO_ADD:

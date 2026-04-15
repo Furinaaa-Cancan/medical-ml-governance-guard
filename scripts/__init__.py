@@ -14,7 +14,7 @@ Import convention:
     usage (tests, orchestration), import via the package:
 
         from scripts.gates.leakage_gate import main
-        from scripts.tools.train_select_evaluate import metric_panel
+        from scripts.training.train_select_evaluate import metric_panel
 
     For pytest, tests/conftest.py sets up sys.path globally.
 """

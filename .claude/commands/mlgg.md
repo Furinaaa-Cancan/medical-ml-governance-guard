@@ -49,14 +49,14 @@ python3 scripts/gates/cohort_definition_gate.py \
 ### P-2. 数据划分 + 配置初始化（<1min）
 ```bash
 # 一键初始化 configs（自动根据 n 选择 profile 和调参策略）
-python3 scripts/tools/init_project.py \
+python3 scripts/training/init_project.py \
   --project-root . \
   --study-id <推断的study名> --target-name <疾病/结局> \
   --label-col y --patient-id-col <ID> --index-time-col <时间列或空> \
   --n-total <P-1观察到的行数> [--cross-sectional] --force
 
 # 划分（已有 train/test 则跳过，只跑 gate）
-python3 scripts/tools/split_data.py \
+python3 scripts/training/split_data.py \
   --input <CSV> --output-dir data/ --patient-id-col <ID> --target-col y \
   --strategy stratified_grouped
 # 验证
@@ -174,7 +174,7 @@ strict 模式: WARNING 也阻断。
 | shap — tau < 0.5 | 模型间排名不一致 | 增加模型族 |
 | permutation — p > 0.05 | 模型不比随机好 | 检查特征质量 |
 
-更详细: `python3 scripts/tools/explain_gate.py --report evidence/<gate>_report.json`
+更详细: `python3 scripts/reporting/explain_gate.py --report evidence/<gate>_report.json`
 
 ---
 

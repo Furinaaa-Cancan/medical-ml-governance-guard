@@ -1,4 +1,4 @@
-"""Tests for scripts/tools/extract_paper_metadata.py — LLM-powered metadata extraction.
+"""Tests for scripts/review/extract_paper_metadata.py — LLM-powered metadata extraction.
 
 Mostly smoke tests since the tool depends on external APIs (DeepSeek / Claude).
 Does NOT make actual API calls.
@@ -15,7 +15,7 @@ import pytest
 TOOL_PATH = (
     Path(__file__).resolve().parent.parent
     / "scripts"
-    / "tools"
+    / "review"
     / "extract_paper_metadata.py"
 )
 

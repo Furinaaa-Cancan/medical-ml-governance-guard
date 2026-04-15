@@ -1,7 +1,7 @@
 {
   "contract_version": "batch_manifest.v1",
   "_description": "全量 batch 审查清单——包含所有已录入文章，供 batch_journal_review.py 使用",
-  "_usage": "python3 scripts/tools/batch_journal_review.py --manifest papers/manifests/batch_manifest_all.json --output papers/audit_results/batch_all.json",
+  "_usage": "python3 scripts/review/batch_journal_review.py --manifest papers/manifests/batch_manifest_all.json --output papers/audit_results/batch_all.json",
   "target_journals": ["nature_medicine", "lancet_digital_health", "jama", "bmj", "npj_digital_medicine"],
   "projects": [
     {

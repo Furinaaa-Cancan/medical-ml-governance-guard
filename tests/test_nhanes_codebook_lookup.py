@@ -1,4 +1,4 @@
-"""Tests for scripts/tools/nhanes_codebook_lookup.py — NHANES Codebook RAG."""
+"""Tests for scripts/codebooks/nhanes_codebook_lookup.py — NHANES Codebook RAG."""
 from __future__ import annotations
 
 import json

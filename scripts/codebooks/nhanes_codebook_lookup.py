@@ -12,7 +12,7 @@ Usage as library:
     issues = cb.validate_columns(df, target_col="y")
 
 Usage as CLI:
-    python3 scripts/tools/nhanes_codebook_lookup.py \
+    python3 scripts/codebooks/nhanes_codebook_lookup.py \
         --data examples/nhanes_diabetes.csv \
         --codebook-dir references/codebooks/nhanes \
         --cycle 2017-2018 \

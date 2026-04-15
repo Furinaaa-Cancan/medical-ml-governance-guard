@@ -153,7 +153,7 @@ cd medical-ml-governance-guard
 pip install -r requirements.txt
 
 # 用自带的心脏病数据集：划分 → 检测泄漏（2 条命令）
-python3 scripts/tools/split_data.py \
+python3 scripts/training/split_data.py \
   --input examples/heart_disease.csv --output-dir /tmp/mlgg_demo \
   --target-col y --patient-id-col patient_id --time-col event_time \
   --strategy grouped_temporal --seed 42
@@ -189,7 +189,7 @@ python3 scripts/orchestration/mlgg.py onboarding \
   --project-root /tmp/mlgg_demo --mode guided --yes
 
 # 审计任何 ML 项目（无需配置）
-python3 scripts/tools/generate_audit_report.py --project-dir /path/to/project
+python3 scripts/reporting/generate_audit_report.py --project-dir /path/to/project
 
 # 静态代码扫描（27 条 AST 泄漏规则）
 cd plugin && pip install -e . && cd ..
@@ -1147,7 +1147,7 @@ python3 -m mlgg_lint /path/to/code/
 
 **外部验证对齐检查**：`external_validation_gate` 自动检测 degenerate prediction（全阴性/全阳性）、prevalence shift、常数特征，防止无意义的外部验证。缺失特征使用训练集中位数填充。
 
-详见 `references/codebooks/dataset-codebook-registry.json` 和 `scripts/tools/nhanes_codebook_lookup.py`。
+详见 `references/codebooks/dataset-codebook-registry.json` 和 `scripts/codebooks/nhanes_codebook_lookup.py`。
 
 ---
 
@@ -1352,7 +1352,7 @@ python3 scripts/orchestration/mlgg.py doctor
 
 | 目标 | 命令 |
 |:-----|:--------|
-| 审计外部项目 | `python3 scripts/tools/generate_audit_report.py --project-dir /path` |
+| 审计外部项目 | `python3 scripts/reporting/generate_audit_report.py --project-dir /path` |
 | 交互式探索 | `python3 scripts/orchestration/mlgg.py play` |
 | 引导式首跑 | `python3 scripts/orchestration/mlgg.py onboarding --project-root /tmp/demo --mode guided --yes` |
 | 发布级判定 | `python3 scripts/orchestration/mlgg.py workflow --request <project>/configs/request.json --strict` |
@@ -1363,7 +1363,7 @@ python3 scripts/orchestration/mlgg.py doctor
 | 静态 Lint | `python3 -m mlgg_lint /path/to/code/` |
 | 下载数据集 | `python3 examples/download_real_data.py heart` |
 | DAG 可视化 | `python3 scripts/orchestration/run_dag_pipeline.py --show-dag` |
-| 导出审查提示词 | `python3 scripts/tools/export_review_prompt.py` |
+| 导出审查提示词 | `python3 scripts/reporting/export_review_prompt.py` |
 | 批量期刊审查 | `python3 scripts/orchestration/mlgg.py batch-review --manifest manifest.json` |
 
 ---

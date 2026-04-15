@@ -341,7 +341,7 @@ def test_transport_drop_ci_not_computed_sentinel() -> None:
 
     # Minimal stub: simulate the build_ci_matrix_report transport block directly
     # by importing the function and constructing minimal payloads.
-    spec_path = SCRIPTS_DIR / "tools/train_select_evaluate.py"
+    spec_path = SCRIPTS_DIR / "training/train_select_evaluate.py"
     loader = importlib.util.spec_from_file_location("tse", spec_path)
     assert loader is not None
     mod = importlib.util.module_from_spec(loader)
@@ -1733,7 +1733,7 @@ def test_render_user_summary_propagates_fail_status() -> None:
         out_json = evidence_dir / "user_summary.json"
         proc = run_gate(
             [
-                str(SCRIPTS_DIR / "tools/render_user_summary.py"),
+                str(SCRIPTS_DIR / "reporting/render_user_summary.py"),
                 "--evidence-dir",
                 str(evidence_dir),
                 "--out-markdown",

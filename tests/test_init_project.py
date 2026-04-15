@@ -12,7 +12,7 @@ from pathlib import Path
 
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
-GATE_SCRIPT = SCRIPTS_DIR / "tools/init_project.py"
+GATE_SCRIPT = SCRIPTS_DIR / "training/init_project.py"
 
 import init_project as ip
 

@@ -7,16 +7,16 @@ structure.
 
 Usage:
   # Single field lookup
-  python3 scripts/tools/ukb_codebook_lookup.py --field 21001
+  python3 scripts/codebooks/ukb_codebook_lookup.py --field 21001
 
   # Search by keyword
-  python3 scripts/tools/ukb_codebook_lookup.py --search "blood pressure"
+  python3 scripts/codebooks/ukb_codebook_lookup.py --search "blood pressure"
 
   # Validate CSV columns
-  python3 scripts/tools/ukb_codebook_lookup.py --data my_ukb_extract.csv --report report.json
+  python3 scripts/codebooks/ukb_codebook_lookup.py --data my_ukb_extract.csv --report report.json
 
   # Lookup by common name
-  python3 scripts/tools/ukb_codebook_lookup.py --field bmi
+  python3 scripts/codebooks/ukb_codebook_lookup.py --field bmi
 """
 from __future__ import annotations
 
@@ -90,8 +90,8 @@ class UKBCodebook:
             if not self._db_path.exists():
                 raise FileNotFoundError(
                     f"UKB codebook database not found: {self._db_path}\n"
-                    f"Run: python3 scripts/tools/fetch_ukb_showcase.py && "
-                    f"python3 scripts/tools/build_ukb_codebook_db.py"
+                    f"Run: python3 scripts/codebooks/fetch_ukb_showcase.py && "
+                    f"python3 scripts/codebooks/build_ukb_codebook_db.py"
                 )
             self._conn = sqlite3.connect(str(self._db_path))
             self._conn.row_factory = sqlite3.Row

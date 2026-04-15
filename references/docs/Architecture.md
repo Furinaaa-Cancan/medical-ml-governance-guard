@@ -144,7 +144,7 @@ All reports are written to the `evidence/` directory. A final
                    ▼
 ┌─────────────────────────────────────────────────────────┐
 │              Training & Evaluation                      │
-│  scripts/tools/train_select_evaluate.py                       │
+│  scripts/training/train_select_evaluate.py                       │
 │  Produces: model_selection_report.json                  │
 │            evaluation_report.json                       │
 │            prediction_trace.csv.gz                      │

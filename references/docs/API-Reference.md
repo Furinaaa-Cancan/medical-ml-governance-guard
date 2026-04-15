@@ -475,7 +475,7 @@ python3 scripts/orchestration/mlgg_pixel.py [--lang {en,zh}] [--dry-run]
 **Purpose:** Generate a recommended `performance_policy.json` from evidence reports.
 
 ```
-python3 scripts/tools/policy_generator.py --evidence-dir <dir> [--margin 0.15] [--preset {lenient,standard,strict}] [--text] [--output <path>]
+python3 scripts/diagnostics/policy_generator.py --evidence-dir <dir> [--margin 0.15] [--preset {lenient,standard,strict}] [--text] [--output <path>]
 ```
 
 | Parameter | Type | Required | Default | Description |
@@ -491,7 +491,7 @@ python3 scripts/tools/policy_generator.py --evidence-dir <dir> [--margin 0.15] [
 **Purpose:** Analyze gate execution timeline from an evidence directory.
 
 ```
-python3 scripts/tools/gate_timeline.py --evidence-dir <dir> [--json] [--top 5] [--output <path>]
+python3 scripts/diagnostics/gate_timeline.py --evidence-dir <dir> [--json] [--top 5] [--output <path>]
 ```
 
 | Parameter | Type | Required | Default | Description |
@@ -506,7 +506,7 @@ python3 scripts/tools/gate_timeline.py --evidence-dir <dir> [--json] [--top 5] [
 **Purpose:** Generate a gate coverage matrix from an evidence directory against the full gate registry.
 
 ```
-python3 scripts/tools/gate_coverage_matrix.py --evidence-dir <dir> [--json] [--output <path>]
+python3 scripts/diagnostics/gate_coverage_matrix.py --evidence-dir <dir> [--json] [--output <path>]
 ```
 
 | Parameter | Type | Required | Default | Description |
@@ -520,7 +520,7 @@ python3 scripts/tools/gate_coverage_matrix.py --evidence-dir <dir> [--json] [--o
 **Purpose:** Compare two evidence directories (baseline vs current) and show gate-level diffs.
 
 ```
-python3 scripts/tools/evidence_comparator.py --baseline <dir> --current <dir> [--json] [--output <path>]
+python3 scripts/reporting/evidence_comparator.py --baseline <dir> --current <dir> [--json] [--output <path>]
 ```
 
 | Parameter | Type | Required | Default | Description |

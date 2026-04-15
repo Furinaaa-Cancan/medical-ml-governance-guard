@@ -8,9 +8,9 @@ This is the ground-truth verification — XPT files are the authoritative
 source, not HTML pages or third-party metadata.
 
 Usage:
-  python3 scripts/tools/verify_nhanes_codebook.py --cycle 2017-2018
-  python3 scripts/tools/verify_nhanes_codebook.py --cycle 2021-2023 --max-tables 10
-  python3 scripts/tools/verify_nhanes_codebook.py --all-cycles --max-tables 5
+  python3 scripts/codebooks/verify_nhanes_codebook.py --cycle 2017-2018
+  python3 scripts/codebooks/verify_nhanes_codebook.py --cycle 2021-2023 --max-tables 10
+  python3 scripts/codebooks/verify_nhanes_codebook.py --all-cycles --max-tables 5
 """
 from __future__ import annotations
 

@@ -35,7 +35,7 @@ cp references/templates/split-protocol.example.json configs/split-protocol.json
 ## 执行命令
 
 ```bash
-python3 scripts/tools/split_data.py \
+python3 scripts/training/split_data.py \
   --input <CSV> \
   --output-dir data/ \
   --patient-id-col <ID> \

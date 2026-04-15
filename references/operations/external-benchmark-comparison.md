@@ -38,7 +38,7 @@
 
 ## Implemented Improvement (Execution Non-Repudiation)
 - Added `scripts/gates/execution_attestation_gate.py` to verify detached signatures and signed artifact hashes.
-- Added `scripts/tools/generate_execution_attestation.py` to improve personal-user UX for payload/signature/spec generation.
+- Added `scripts/training/generate_execution_attestation.py` to improve personal-user UX for payload/signature/spec generation.
 - Added strict artifact: `evidence/execution_attestation_report.json`.
 - Integrated attestation gate into strict pipeline + publication/self-critique aggregate gates.
 - Updated request contract to require `run_id` + `execution_attestation_spec` for publication-grade claims.
@@ -51,7 +51,7 @@
 
 ## Implemented Improvement (Witness Quorum)
 - Added `witness_quorum` support in execution attestation spec and strict gate.
-- Added signed witness-record generation in `scripts/tools/generate_execution_attestation.py`.
+- Added signed witness-record generation in `scripts/training/generate_execution_attestation.py`.
 - Added fail-closed quorum checks in `scripts/gates/execution_attestation_gate.py`:
   - minimum validated witness count
   - witness signature verification

@@ -79,7 +79,7 @@ def test_full_pipeline(dataset, strategy, tuning, dataset_cache, tmp_path):
 
     # Step 1: Split
     split_cmd = [
-        PYTHON, str(SCRIPTS_DIR / "tools/split_data.py"),
+        PYTHON, str(SCRIPTS_DIR / "training/split_data.py"),
         "--input", str(csv_path),
         "--output-dir", str(data_dir),
         "--patient-id-col", "patient_id",
@@ -97,7 +97,7 @@ def test_full_pipeline(dataset, strategy, tuning, dataset_cache, tmp_path):
 
     # Step 2: Train
     train_cmd = [
-        PYTHON, str(SCRIPTS_DIR / "tools/train_select_evaluate.py"),
+        PYTHON, str(SCRIPTS_DIR / "training/train_select_evaluate.py"),
         "--train", str(train_csv),
         "--test", str(test_csv),
         "--target-col", "y",
@@ -154,7 +154,7 @@ def test_single_smoke(dataset, dataset_cache, tmp_path):
 
     # Split
     result = _run([
-        PYTHON, str(SCRIPTS_DIR / "tools/split_data.py"),
+        PYTHON, str(SCRIPTS_DIR / "training/split_data.py"),
         "--input", str(csv_path),
         "--output-dir", str(data_dir),
         "--patient-id-col", "patient_id",
@@ -166,7 +166,7 @@ def test_single_smoke(dataset, dataset_cache, tmp_path):
 
     # Train with single model
     train_cmd = [
-        PYTHON, str(SCRIPTS_DIR / "tools/train_select_evaluate.py"),
+        PYTHON, str(SCRIPTS_DIR / "training/train_select_evaluate.py"),
         "--train", str(data_dir / "train.csv"),
         "--test", str(data_dir / "test.csv"),
         "--target-col", "y",

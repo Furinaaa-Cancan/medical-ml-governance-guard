@@ -374,7 +374,7 @@ class TestSplitSummary:
 class TestCLISplitMode:
     def _run(self, tmp_path, splits, extra_args=None):
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "tools/schema_preflight.py"),
+            sys.executable, str(SCRIPTS_DIR / "training/schema_preflight.py"),
             "--train", str(splits["train"]),
             "--valid", str(splits["valid"]),
             "--test", str(splits["test"]),
@@ -477,7 +477,7 @@ class TestCLISplitMode:
 class TestCLISingleFileMode:
     def _run(self, tmp_path, csv_path, extra_args=None):
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "tools/schema_preflight.py"),
+            sys.executable, str(SCRIPTS_DIR / "training/schema_preflight.py"),
             "--input-csv", str(csv_path),
             "--report", str(tmp_path / "report.json"),
         ]

@@ -54,6 +54,6 @@ python3 scripts/orchestration/mlgg.py lint check <file.py>
 python3 scripts/orchestration/mlgg.py audit --project-dir <dir>
 
 # API Agent: 生成可移植的 review prompt
-python3 scripts/tools/export_review_prompt.py --level standard --journal nature_medicine
+python3 scripts/reporting/export_review_prompt.py --level standard --journal nature_medicine
 # 输出粘贴到任意 LLM，或由编排器使用 yaml 配置调 API
 ```

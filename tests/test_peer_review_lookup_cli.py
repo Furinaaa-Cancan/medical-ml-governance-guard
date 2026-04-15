@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-TOOL_PATH = str(Path(__file__).resolve().parents[1] / "scripts" / "tools" / "peer_review_lookup.py")
+TOOL_PATH = str(Path(__file__).resolve().parents[1] / "scripts" / "review" / "peer_review_lookup.py")
 
 
 def _run(*args: str, timeout: int = 30) -> subprocess.CompletedProcess:

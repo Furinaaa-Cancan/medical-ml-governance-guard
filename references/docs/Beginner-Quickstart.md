@@ -28,7 +28,7 @@ python3 scripts/orchestration/mlgg.py doctor
 
 ```bash
 # 划分数据（患者级隔离 + 时序分割）
-python3 scripts/tools/split_data.py \
+python3 scripts/training/split_data.py \
   --input examples/heart_disease.csv \
   --output-dir /tmp/mlgg_first_run \
   --target-col y --patient-id-col patient_id --time-col event_time \
@@ -56,7 +56,7 @@ Status: PASS  |  Failures: 0  |  Warnings: 0
 ```bash
 # 把上面的 examples/heart_disease.csv 换成你的文件
 # 把 patient_id、y、event_time 换成你的列名
-python3 scripts/tools/split_data.py \
+python3 scripts/training/split_data.py \
   --input /path/to/your_data.csv \
   --output-dir /tmp/my_project \
   --target-col 你的目标列 --patient-id-col 你的患者ID列 \
@@ -93,7 +93,7 @@ python3 scripts/gates/calibration_dca_gate.py \
 python3 -m mlgg_lint check /path/to/your_script.py
 
 # 一键全量审计（不需要配置文件）
-python3 scripts/tools/generate_audit_report.py --project-dir /path/to/project
+python3 scripts/reporting/generate_audit_report.py --project-dir /path/to/project
 ```
 
 ---
@@ -111,7 +111,7 @@ python3 scripts/tools/generate_audit_report.py --project-dir /path/to/project
 
 省略 `--time-col` 参数即可：
 ```bash
-python3 scripts/tools/split_data.py \
+python3 scripts/training/split_data.py \
   --input data.csv --output-dir /tmp/out \
   --target-col y --patient-id-col pid \
   --strategy stratified_grouped --seed 42
@@ -121,7 +121,7 @@ python3 scripts/tools/split_data.py \
 
 每个 failure 都附有修复建议。查看报告 JSON 中的 `failures[].remediation` 字段，或：
 ```bash
-python3 scripts/tools/explain_gate.py --gate leakage_gate
+python3 scripts/reporting/explain_gate.py --gate leakage_gate
 ```
 
 **Q: 我想跑完整 33 道门控怎么做？**

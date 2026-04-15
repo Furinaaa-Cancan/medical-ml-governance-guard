@@ -38,9 +38,9 @@ SUPPORTED_COMMANDS = ("init", "workflow", "train", "authority")
 PROMPT_AUTO_ACCEPT_DEFAULTS = False
 
 COMMAND_SCRIPT: Dict[str, Path] = {
-    "init": SCRIPTS_ROOT / "tools/init_project.py",
+    "init": SCRIPTS_ROOT / "training/init_project.py",
     "workflow": SCRIPTS_ROOT / "orchestration/run_productized_workflow.py",
-    "train": SCRIPTS_ROOT / "tools/train_select_evaluate.py",
+    "train": SCRIPTS_ROOT / "training/train_select_evaluate.py",
     "authority": EXPERIMENTS_ROOT / "run_authority_e2e.py",
 }
 
@@ -1077,7 +1077,7 @@ def run_auto_split(
     print_only: bool = False,
 ) -> Tuple[str, str, str, List[str]]:
     """Run split_data.py and return (train_path, valid_path, test_path, cmd)."""
-    split_script = str(SCRIPTS_ROOT / "tools/split_data.py")
+    split_script = str(SCRIPTS_ROOT / "training/split_data.py")
     cmd = [
         sys.executable, split_script,
         "--input", input_csv,

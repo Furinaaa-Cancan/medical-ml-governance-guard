@@ -35,9 +35,9 @@
 ---
 
 ### 2
-为 `scripts/tools/split_data.py` 编写完整单元测试。
+为 `scripts/training/split_data.py` 编写完整单元测试。
 
-**第一步：通读源码。** 完整阅读 `scripts/tools/split_data.py`（每一行都要看），理解：
+**第一步：通读源码。** 完整阅读 `scripts/training/split_data.py`（每一行都要看），理解：
 - argparse 参数定义（input, output-dir, patient-id-col, target-col, time-col, strategy, train-ratio, valid-ratio, test-ratio）
 - 三种 split 策略的具体算法（grouped_temporal, grouped_random, stratified_grouped）
 - 安全检查：NaN patient_id 排除、NaN target 排除、min 10 pos/neg per split、min 5 patients per split、prevalence shift warning、row count preservation、SHA256 fingerprint
@@ -103,9 +103,9 @@
 ---
 
 ### 4
-为 `scripts/tools/schema_preflight.py` 编写完整单元测试。
+为 `scripts/training/schema_preflight.py` 编写完整单元测试。
 
-**第一步：完整阅读 `scripts/tools/schema_preflight.py` 源码。** 理解两种模式（单文件 pre-split 检查 vs split 后三文件检查）、所有验证项（列存在性、类型检查、target 值域、patient_id NaN、time 格式、语义列自动映射）、报告 JSON 格式和所有可能的 issue codes。
+**第一步：完整阅读 `scripts/training/schema_preflight.py` 源码。** 理解两种模式（单文件 pre-split 检查 vs split 后三文件检查）、所有验证项（列存在性、类型检查、target 值域、patient_id NaN、time 格式、语义列自动映射）、报告 JSON 格式和所有可能的 issue codes。
 
 **第二步：设计测试矩阵（至少 10 个 case）：**
 - 正常 CSV → pass
@@ -370,7 +370,7 @@ subprocess.run([sys.executable, "scripts/orchestration/mlgg.py", "onboarding",
 ### 17
 创建完整的 split E2E 测试。
 
-**第一步：阅读 `scripts/tools/split_data.py` 的 argparse 和主流程。** 理解输入输出约定。
+**第一步：阅读 `scripts/training/split_data.py` 的 argparse 和主流程。** 理解输入输出约定。
 
 **第二步：编写 `tests/test_split_e2e.py`。** 使用 `examples/heart_disease.csv` 真实数据，通过 subprocess 调用 split：
 ```
@@ -398,7 +398,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ### 18
 创建完整的 train E2E 测试。
 
-**第一步：阅读 `scripts/tools/train_select_evaluate.py` 的参数和输出。**
+**第一步：阅读 `scripts/training/train_select_evaluate.py` 的参数和输出。**
 
 **第二步：编写 `tests/test_train_e2e.py`。** 流程：
 1. 用 subprocess 生成 demo 数据（或使用 examples/ 数据 split 后的结果）
@@ -791,7 +791,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 40
-严格审查 `scripts/tools/generate_execution_attestation.py`。
+严格审查 `scripts/training/generate_execution_attestation.py`。
 
 **第一步：完整阅读全文。**
 
@@ -847,7 +847,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ## D. 训练核心代码审查（43-48）
 
 ### 43
-严格审查 `scripts/tools/train_select_evaluate.py` — 模型训练部分。
+严格审查 `scripts/training/train_select_evaluate.py` — 模型训练部分。
 
 **第一步：定位并阅读模型训练相关代码。** 用 code_search 找到 fit/train 相关函数。
 
@@ -869,7 +869,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 44
-严格审查 `scripts/tools/train_select_evaluate.py` — 模型选择部分。
+严格审查 `scripts/training/train_select_evaluate.py` — 模型选择部分。
 
 **第一步：定位模型选择/排名代码。**
 
@@ -885,7 +885,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 45
-严格审查 `scripts/tools/train_select_evaluate.py` — 评估部分。
+严格审查 `scripts/training/train_select_evaluate.py` — 评估部分。
 
 **第一步：定位评估代码。**
 
@@ -912,7 +912,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 46
-严格审查 `scripts/tools/train_select_evaluate.py` — 超参搜索部分。
+严格审查 `scripts/training/train_select_evaluate.py` — 超参搜索部分。
 
 **第一步：定位超参搜索代码。**
 
@@ -929,7 +929,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 47
-严格审查 `scripts/tools/train_select_evaluate.py` — 外部验证部分。
+严格审查 `scripts/training/train_select_evaluate.py` — 外部验证部分。
 
 **第一步：定位外部验证代码。**
 
@@ -945,7 +945,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 48
-严格审查 `scripts/tools/train_select_evaluate.py` — 输出工件部分。
+严格审查 `scripts/training/train_select_evaluate.py` — 输出工件部分。
 
 **第一步：定位所有 report/artifact 写入代码。**
 
@@ -1039,7 +1039,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 52
-严格审查 `scripts/tools/init_project.py`。
+严格审查 `scripts/training/init_project.py`。
 
 **第一步：完整阅读全文。**
 
@@ -1055,7 +1055,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 53
-严格审查 `scripts/tools/env_doctor.py`。
+严格审查 `scripts/diagnostics/env_doctor.py`。
 
 **第一步：完整阅读全文。**
 
@@ -1072,7 +1072,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 54
-严格审查 `scripts/tools/render_user_summary.py`。
+严格审查 `scripts/reporting/render_user_summary.py`。
 
 **第一步：完整阅读全文。**
 
@@ -1088,7 +1088,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 ---
 
 ### 55
-严格审查 `scripts/tools/generate_demo_medical_dataset.py`。
+严格审查 `scripts/training/generate_demo_medical_dataset.py`。
 
 **第一步：完整阅读全文。**
 
@@ -1644,7 +1644,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 
 **第一步：设计 Web wizard 的页面结构（9 步对应 9 个页面）。**
 
-**第二步：选择框架（Flask + Jinja2 或 FastAPI + 前端），创建 `scripts/tools/mlgg_web.py`。** 实现：步骤进度条、配置表单（对应 wizard 的每个 step）、文件上传（CSV）、实时日志流（SSE/WebSocket）、结果展示。
+**第二步：选择框架（Flask + Jinja2 或 FastAPI + 前端），创建 `scripts/diagnostics/mlgg_web.py`。** 实现：步骤进度条、配置表单（对应 wizard 的每个 step）、文件上传（CSV）、实时日志流（SSE/WebSocket）、结果展示。
 
 **第三步：绑定到 127.0.0.1:8501，不对外暴露。**
 
@@ -1695,7 +1695,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 
 **第一步：收集所有 failure code 到 code→explanation 映射。** 阅读每个 gate 脚本的 `add_issue` 调用。
 
-**第二步：创建 `scripts/tools/explain_gate.py`。** 输入一个 gate 报告 JSON，输出人类可读的中英文解释。每个 failure code 映射到诊断步骤和修复建议。
+**第二步：创建 `scripts/reporting/explain_gate.py`。** 输入一个 gate 报告 JSON，输出人类可读的中英文解释。每个 failure code 映射到诊断步骤和修复建议。
 
 **第三步：验证对所有已知 failure codes 的覆盖。**
 
@@ -1710,7 +1710,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 
 **第一步：了解 evaluation_report.json 和 prediction_trace.csv 的格式。**
 
-**第二步：创建 `scripts/tools/visualize_results.py`。** 使用 matplotlib 生成：ROC 曲线（带 AUC）、PR 曲线（带 AP）、Calibration 曲线、DCA 曲线、Feature Importance Top-20。
+**第二步：创建 `scripts/diagnostics/visualize_results.py`。** 使用 matplotlib 生成：ROC 曲线（带 AUC）、PR 曲线（带 AP）、Calibration 曲线、DCA 曲线、Feature Importance Top-20。
 
 **第三步：输出 PNG 到 evidence/ 目录。**
 
@@ -1742,7 +1742,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 
 **第一步：设计 diff report 格式（变化的 gate 状态、指标变化、failure code 变化）。**
 
-**第二步：创建 `scripts/tools/compare_runs.py`。** 输入两个 evidence 目录，输出 JSON diff 和 Markdown 摘要。
+**第二步：创建 `scripts/reporting/compare_runs.py`。** 输入两个 evidence 目录，输出 JSON diff 和 Markdown 摘要。
 
 **第三步：用两次 onboarding 运行的结果测试。**
 
@@ -1772,7 +1772,7 @@ mlgg.py split -- --input examples/heart_disease.csv --output-dir <tmp>/data
 
 **第一步：了解医学论文常见的表格格式（Table 1: Baseline、Table 2: Performance、Table 3: External）。**
 
-**第二步：创建 `scripts/tools/export_latex.py`。** 从 evidence JSON 生成 LaTeX tabular 代码。
+**第二步：创建 `scripts/reporting/export_latex.py`。** 从 evidence JSON 生成 LaTeX tabular 代码。
 
 **第三步：验证生成的 LaTeX 可编译。**
 

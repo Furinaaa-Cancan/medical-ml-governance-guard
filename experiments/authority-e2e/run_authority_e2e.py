@@ -3184,7 +3184,7 @@ def prepare_case_artifacts(
             "--witness",
             f"witness-b|{key_pairs['witness_b'][1]}|{key_pairs['witness_b'][0]}",
             "--command",
-            f"python scripts/tools/train_select_evaluate.py --train {data_dir / 'train.csv'} --valid {data_dir / 'valid.csv'} --test {data_dir / 'test.csv'} --primary-metric pr_auc --performance-policy {cfg_dir / 'performance_policy.json'} --missingness-policy {cfg_dir / 'missingness_policy.json'} --prediction-trace-out {prediction_trace_path} --external-cohort-spec {cfg_dir / 'external_cohort_spec.json'} --external-validation-report-out {external_validation_report_path}",
+            f"python scripts/training/train_select_evaluate.py --train {data_dir / 'train.csv'} --valid {data_dir / 'valid.csv'} --test {data_dir / 'test.csv'} --primary-metric pr_auc --performance-policy {cfg_dir / 'performance_policy.json'} --missingness-policy {cfg_dir / 'missingness_policy.json'} --prediction-trace-out {prediction_trace_path} --external-cohort-spec {cfg_dir / 'external_cohort_spec.json'} --external-validation-report-out {external_validation_report_path}",
             "--artifact",
             f"training_log={train_log_path}",
             "--artifact",

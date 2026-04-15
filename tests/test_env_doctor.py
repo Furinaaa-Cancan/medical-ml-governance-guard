@@ -12,7 +12,7 @@ from pathlib import Path
 
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
-GATE_SCRIPT = SCRIPTS_DIR / "tools/env_doctor.py"
+GATE_SCRIPT = SCRIPTS_DIR / "diagnostics/env_doctor.py"
 
 import env_doctor as ed
 

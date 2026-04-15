@@ -146,7 +146,7 @@ cd medical-ml-governance-guard
 pip install -r requirements.txt
 
 # Built-in heart disease dataset: split → detect leakage (2 commands)
-python3 scripts/tools/split_data.py \
+python3 scripts/training/split_data.py \
   --input examples/heart_disease.csv --output-dir /tmp/mlgg_demo \
   --target-col y --patient-id-col patient_id --time-col event_time \
   --strategy grouped_temporal --seed 42
@@ -182,7 +182,7 @@ python3 scripts/orchestration/mlgg.py onboarding \
   --project-root /tmp/mlgg_demo --mode guided --yes
 
 # Audit any ML project (zero configuration)
-python3 scripts/tools/generate_audit_report.py --project-dir /path/to/project
+python3 scripts/reporting/generate_audit_report.py --project-dir /path/to/project
 
 # Static code scan (27 AST leakage rules)
 cd plugin && pip install -e . && cd ..
@@ -1327,7 +1327,7 @@ python3 scripts/orchestration/mlgg.py doctor
 
 | Goal | Command |
 |:-----|:--------|
-| Audit external project | `python3 scripts/tools/generate_audit_report.py --project-dir /path` |
+| Audit external project | `python3 scripts/reporting/generate_audit_report.py --project-dir /path` |
 | Interactive exploration | `python3 scripts/orchestration/mlgg.py play` |
 | Guided first run | `python3 scripts/orchestration/mlgg.py onboarding --project-root /tmp/demo --mode guided --yes` |
 | Publication-grade verdict | `python3 scripts/orchestration/mlgg.py workflow --request <project>/configs/request.json --strict` |
@@ -1338,7 +1338,7 @@ python3 scripts/orchestration/mlgg.py doctor
 | Static Lint | `python3 -m mlgg_lint /path/to/code/` |
 | Download datasets | `python3 examples/download_real_data.py heart` |
 | DAG visualization | `python3 scripts/orchestration/run_dag_pipeline.py --show-dag` |
-| Export review prompt | `python3 scripts/tools/export_review_prompt.py` |
+| Export review prompt | `python3 scripts/reporting/export_review_prompt.py` |
 | Batch journal review | `python3 scripts/orchestration/mlgg.py batch-review --manifest manifest.json` |
 
 ---

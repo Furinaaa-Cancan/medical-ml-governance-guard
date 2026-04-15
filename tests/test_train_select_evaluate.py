@@ -743,7 +743,7 @@ class TestPermutationImportance:
 class TestCLIMissingFile:
     def test_missing_train(self, tmp_path):
         cmd = [
-            sys.executable, str(SCRIPTS_DIR / "tools/train_select_evaluate.py"),
+            sys.executable, str(SCRIPTS_DIR / "training/train_select_evaluate.py"),
             "--train", str(tmp_path / "nope.csv"),
             "--valid", str(tmp_path / "nope2.csv"),
             "--test", str(tmp_path / "nope3.csv"),
@@ -792,7 +792,7 @@ class TestCLIImbalanceStrategyCandidates:
 
         cmd = [
             sys.executable,
-            str(SCRIPTS_DIR / "tools/train_select_evaluate.py"),
+            str(SCRIPTS_DIR / "training/train_select_evaluate.py"),
             "--train",
             str(train_csv),
             "--valid",

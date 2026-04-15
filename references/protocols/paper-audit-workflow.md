@@ -149,11 +149,11 @@ python3 experiments/paper/extract_paper_metadata.py \
 
 ```bash
 # 单篇评分
-python3 scripts/tools/score_paper_metadata.py \
+python3 scripts/review/score_paper_metadata.py \
   --metadata papers/nature_medicine/cardiovascular/smith_2023_af_ehr_prediction/metadata.json
 
 # 输出到文件
-python3 scripts/tools/score_paper_metadata.py \
+python3 scripts/review/score_paper_metadata.py \
   --metadata papers/nature_medicine/cardiovascular/smith_2023_af_ehr_prediction/metadata.json \
   --output papers/nature_medicine/cardiovascular/smith_2023_af_ehr_prediction/audit_output/metadata_score.json
 ```
@@ -198,7 +198,7 @@ python3 experiments/paper/scan_published_repos.py \
 #### 路径 B：项目审计（适用于有完整 evidence/ 目录的 MLGG 项目）
 
 ```bash
-python3 scripts/tools/audit_external_project.py \
+python3 scripts/reporting/audit_external_project.py \
   --project-dir /path/to/project \
   --target-journal nature_medicine \
   --output papers/.../audit_output/project_audit.json
@@ -239,7 +239,7 @@ python3 scripts/tools/audit_external_project.py \
 ### 3.1 批量元数据评分
 
 ```bash
-python3 scripts/tools/score_paper_metadata.py \
+python3 scripts/review/score_paper_metadata.py \
   --batch-dir papers/ \
   --output papers/audit_results/batch_scores.json
 ```
@@ -258,7 +258,7 @@ python3 experiments/paper/scan_published_repos.py \
 ### 3.3 批量项目审计
 
 ```bash
-python3 scripts/tools/batch_journal_review.py \
+python3 scripts/review/batch_journal_review.py \
   --manifest papers/manifests/batch_manifest_nature_medicine.json \
   --target-journal nature_medicine \
   --output papers/audit_results/batch_nature_medicine.json \
@@ -313,14 +313,14 @@ mkdir -p papers/<journal>/<disease>/<author_year_keyword>
 cp papers/templates/paper_metadata_template.json papers/<...>/metadata.json
 
 # 2. 评分
-python3 scripts/tools/score_paper_metadata.py --metadata papers/<...>/metadata.json
+python3 scripts/review/score_paper_metadata.py --metadata papers/<...>/metadata.json
 
 # 3. 代码扫描（如有）
 python3 experiments/paper/scan_published_repos.py --repo <github_url> --output papers/<...>/audit_output/code_scan.json
 
 # 4. 批量评分
-python3 scripts/tools/score_paper_metadata.py --batch-dir papers/ --output papers/audit_results/batch_scores.json
+python3 scripts/review/score_paper_metadata.py --batch-dir papers/ --output papers/audit_results/batch_scores.json
 
 # 5. 批量项目审计
-python3 scripts/tools/batch_journal_review.py --manifest papers/manifests/<manifest>.json --output papers/audit_results/<output>.json
+python3 scripts/review/batch_journal_review.py --manifest papers/manifests/<manifest>.json --output papers/audit_results/<output>.json
 ```

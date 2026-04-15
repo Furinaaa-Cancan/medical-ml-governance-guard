@@ -15,8 +15,8 @@ import numpy as np
 import pandas as pd
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
-SPLIT_SCRIPT = str(SCRIPTS_DIR / "tools/split_data.py")
-PREFLIGHT_SCRIPT = str(SCRIPTS_DIR / "tools/schema_preflight.py")
+SPLIT_SCRIPT = str(SCRIPTS_DIR / "training/split_data.py")
+PREFLIGHT_SCRIPT = str(SCRIPTS_DIR / "training/schema_preflight.py")
 PYTHON = sys.executable
 
 

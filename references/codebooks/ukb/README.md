@@ -44,13 +44,13 @@ fields_fts      — FTS5 full-text search index
 
 ```bash
 # Rebuild from scratch
-python3 scripts/tools/fetch_ukb_showcase.py     # download schema files
-python3 scripts/tools/build_ukb_codebook_db.py  # build SQLite
+python3 scripts/codebooks/fetch_ukb_showcase.py     # download schema files
+python3 scripts/codebooks/build_ukb_codebook_db.py  # build SQLite
 
 # Lookup
-python3 scripts/tools/ukb_codebook_lookup.py --field bmi
-python3 scripts/tools/ukb_codebook_lookup.py --search "blood pressure"
-python3 scripts/tools/ukb_codebook_lookup.py --data my_extract.csv --target 130708-0.0
+python3 scripts/codebooks/ukb_codebook_lookup.py --field bmi
+python3 scripts/codebooks/ukb_codebook_lookup.py --search "blood pressure"
+python3 scripts/codebooks/ukb_codebook_lookup.py --data my_extract.csv --target 130708-0.0
 
 # Python API
 from scripts.tools.ukb_codebook_lookup import UKBCodebook

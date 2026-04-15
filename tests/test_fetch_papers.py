@@ -8,7 +8,7 @@ from unittest.mock import patch
 import pytest
 
 
-TOOL_PATH = str(Path(__file__).resolve().parents[1] / "scripts" / "tools" / "fetch_papers.py")
+TOOL_PATH = str(Path(__file__).resolve().parents[1] / "scripts" / "review" / "fetch_papers.py")
 
 
 # ---------------------------------------------------------------------------

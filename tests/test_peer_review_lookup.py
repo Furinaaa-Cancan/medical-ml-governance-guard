@@ -1,4 +1,4 @@
-"""Tests for scripts/tools/peer_review_lookup.py."""
+"""Tests for scripts/review/peer_review_lookup.py."""
 from __future__ import annotations
 
 import subprocess
@@ -14,7 +14,7 @@ class TestCLI:
     """Test the CLI interface of peer_review_lookup.py."""
 
     def _run(self, args: list) -> subprocess.CompletedProcess:
-        cmd = [sys.executable, str(SCRIPTS_DIR / "tools/peer_review_lookup.py")] + args
+        cmd = [sys.executable, str(SCRIPTS_DIR / "review/peer_review_lookup.py")] + args
         return subprocess.run(cmd, capture_output=True, text=True, timeout=30)
 
     def test_help_exits_zero(self):

@@ -1,4 +1,4 @@
-"""Tests for scripts/tools/mlgg_web.py — Flask web UI wizard.
+"""Tests for scripts/diagnostics/mlgg_web.py — Flask web UI wizard.
 
 Covers security helpers, CSRF tokens, rate limiter, and app creation.
 Does NOT start the actual Flask server.
@@ -14,7 +14,7 @@ from pathlib import Path
 import pytest
 
 # Ensure the tool is importable
-TOOL_PATH = Path(__file__).resolve().parent.parent / "scripts" / "tools" / "mlgg_web.py"
+TOOL_PATH = Path(__file__).resolve().parent.parent / "scripts" / "diagnostics" / "mlgg_web.py"
 
 
 # ---------------------------------------------------------------------------

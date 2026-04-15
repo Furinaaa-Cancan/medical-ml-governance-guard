@@ -20,7 +20,7 @@
 
 ```bash
 # 标准模式（有 test.csv）
-python3 scripts/tools/train_select_evaluate.py \
+python3 scripts/training/train_select_evaluate.py \
   --train data/train.csv \
   --test data/test.csv \
   [--valid data/valid.csv] \
@@ -41,7 +41,7 @@ python3 scripts/tools/train_select_evaluate.py \
 #        hgb (HistGradientBoosting), xgb (需装 xgboost), lgbm (需装 lightgbm)
 
 # CV-only 模式（无 test.csv，n < 1000）
-python3 scripts/tools/train_select_evaluate.py \
+python3 scripts/training/train_select_evaluate.py \
   --train data/train.csv \
   --selection-data cv_inner \
   --target-col y \

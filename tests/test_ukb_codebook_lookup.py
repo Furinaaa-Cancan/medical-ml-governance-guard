@@ -18,35 +18,35 @@ class TestParseUKBColumn:
     """Test UKB column name parsing across all supported formats."""
 
     def test_rap_format_full(self):
-        from scripts.tools.ukb_codebook_lookup import parse_ukb_column
+        from scripts.codebooks.ukb_codebook_lookup import parse_ukb_column
         assert parse_ukb_column("p21001_i0_a0") == (21001, 0, 0)
 
     def test_rap_format_no_array(self):
-        from scripts.tools.ukb_codebook_lookup import parse_ukb_column
+        from scripts.codebooks.ukb_codebook_lookup import parse_ukb_column
         assert parse_ukb_column("p4080_i1") == (4080, 1, 0)
 
     def test_rap_format_no_instance_no_array(self):
-        from scripts.tools.ukb_codebook_lookup import parse_ukb_column
+        from scripts.codebooks.ukb_codebook_lookup import parse_ukb_column
         assert parse_ukb_column("p41270") == (41270, 0, 0)
 
     def test_showcase_format(self):
-        from scripts.tools.ukb_codebook_lookup import parse_ukb_column
+        from scripts.codebooks.ukb_codebook_lookup import parse_ukb_column
         assert parse_ukb_column("21001-0.0") == (21001, 0, 0)
 
     def test_showcase_format_instance1(self):
-        from scripts.tools.ukb_codebook_lookup import parse_ukb_column
+        from scripts.codebooks.ukb_codebook_lookup import parse_ukb_column
         assert parse_ukb_column("4080-1.0") == (4080, 1, 0)
 
     def test_bare_field_id(self):
-        from scripts.tools.ukb_codebook_lookup import parse_ukb_column
+        from scripts.codebooks.ukb_codebook_lookup import parse_ukb_column
         assert parse_ukb_column("21001") == (21001, 0, 0)
 
     def test_non_ukb_column(self):
-        from scripts.tools.ukb_codebook_lookup import parse_ukb_column
+        from scripts.codebooks.ukb_codebook_lookup import parse_ukb_column
         assert parse_ukb_column("age") is None
 
     def test_non_ukb_column_with_underscore(self):
-        from scripts.tools.ukb_codebook_lookup import parse_ukb_column
+        from scripts.codebooks.ukb_codebook_lookup import parse_ukb_column
         assert parse_ukb_column("blood_pressure") is None
 
 
@@ -56,7 +56,7 @@ class TestParseUKBColumn:
 def ukb_codebook():
     if not UKB_DB.exists():
         pytest.skip("UKB codebook database not found")
-    from scripts.tools.ukb_codebook_lookup import UKBCodebook
+    from scripts.codebooks.ukb_codebook_lookup import UKBCodebook
     cb = UKBCodebook(UKB_DB)
     yield cb
     cb.close()
@@ -249,7 +249,7 @@ class TestUKBTaskAwareValidate:
 class TestCodebookFactory:
 
     def test_nhanes_returns_codebook(self):
-        from scripts.tools.codebook_factory import get_codebook
+        from scripts.codebooks.codebook_factory import get_codebook
         nhanes_dir = REPO_ROOT / "references" / "codebooks" / "nhanes"
         if not (nhanes_dir / "nhanes_variables.tsv").exists():
             pytest.skip("NHANES TSV not found")
@@ -258,7 +258,7 @@ class TestCodebookFactory:
         assert cb.variable_count > 0
 
     def test_nhanes_cycle_override(self):
-        from scripts.tools.codebook_factory import get_codebook
+        from scripts.codebooks.codebook_factory import get_codebook
         nhanes_dir = REPO_ROOT / "references" / "codebooks" / "nhanes"
         if not (nhanes_dir / "nhanes_variables.tsv").exists():
             pytest.skip("NHANES TSV not found")
@@ -267,7 +267,7 @@ class TestCodebookFactory:
         assert cb.cycle == "2019-2020"
 
     def test_ukb_returns_codebook(self):
-        from scripts.tools.codebook_factory import get_codebook
+        from scripts.codebooks.codebook_factory import get_codebook
         if not UKB_DB.exists():
             pytest.skip("UKB DB not found")
         cb = get_codebook("ukb")
@@ -275,7 +275,7 @@ class TestCodebookFactory:
         assert cb.variable_count > 0
 
     def test_ukb_aliases(self):
-        from scripts.tools.codebook_factory import get_codebook
+        from scripts.codebooks.codebook_factory import get_codebook
         if not UKB_DB.exists():
             pytest.skip("UKB DB not found")
         for alias in ("ukbiobank", "biobank"):
@@ -283,7 +283,7 @@ class TestCodebookFactory:
             assert cb is not None
 
     def test_brfss_returns_registry(self):
-        from scripts.tools.codebook_factory import get_codebook
+        from scripts.codebooks.codebook_factory import get_codebook
         if not REGISTRY_PATH.exists():
             pytest.skip("Registry JSON not found")
         cb = get_codebook("brfss")
@@ -291,11 +291,11 @@ class TestCodebookFactory:
         assert cb.__class__.__name__ == "RegistryCodebook"
 
     def test_unknown_source_returns_none(self):
-        from scripts.tools.codebook_factory import get_codebook
+        from scripts.codebooks.codebook_factory import get_codebook
         assert get_codebook("unknown_survey_xyz") is None
 
     def test_all_codebooks_have_unified_interface(self):
-        from scripts.tools.codebook_factory import get_codebook
+        from scripts.codebooks.codebook_factory import get_codebook
         for source in ("nhanes", "ukb", "brfss"):
             cb = get_codebook(source)
             if cb is None:

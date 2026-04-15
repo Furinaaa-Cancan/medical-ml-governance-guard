@@ -29,7 +29,7 @@ register_remediations({
     "component_strict_mode_off": "A component gate was not run in strict mode. Re-run with --strict.",
     "component_not_passed": (
         "Required component report did not pass. Open the individual gate report "
-        "to see specific failures. Run: python3 scripts/tools/explain_gate.py --report <report.json>"
+        "to see specific failures. Run: python3 scripts/reporting/explain_gate.py --report <report.json>"
     ),
     "component_has_failures": (
         "Component report contains failures. Fix the failures in the individual gate, "
@@ -42,7 +42,7 @@ register_remediations({
     "execution_attestation_incomplete": "Execution attestation report is incomplete. Ensure all attestation checks pass.",
     "execution_attestation_policy_missing": (
         "Execution attestation summary missing key_assurance.policy. "
-        "Generate signing keys: python3 scripts/tools/generate_execution_attestation.py --help"
+        "Generate signing keys: python3 scripts/training/generate_execution_attestation.py --help"
     ),
 })
 

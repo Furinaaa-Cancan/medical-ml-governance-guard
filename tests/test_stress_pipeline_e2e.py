@@ -239,7 +239,7 @@ class TestAuditReportStress:
         project = tmp_path / "empty"
         project.mkdir()
         result = subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "tools/audit_external_project.py"),
+            [sys.executable, str(SCRIPTS_DIR / "reporting/audit_external_project.py"),
              "--project-dir", str(project), "--json"],
             capture_output=True, text=True, timeout=120,
             env={**dict(__import__("os").environ), "PYTHONPATH": str(SCRIPTS_DIR)},
@@ -252,7 +252,7 @@ class TestAuditReportStress:
         """Full audit on a synthetic project."""
         project = _make_dataset(tmp_path, n=500)
         result = subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "tools/audit_external_project.py"),
+            [sys.executable, str(SCRIPTS_DIR / "reporting/audit_external_project.py"),
              "--project-dir", str(project), "--json"],
             capture_output=True, text=True, timeout=180,
             env={**dict(__import__("os").environ), "PYTHONPATH": str(SCRIPTS_DIR)},
@@ -274,7 +274,7 @@ class TestAuditReportStress:
                 prevalence=0.1 + i * 0.08,
             )
             result = subprocess.run(
-                [sys.executable, str(SCRIPTS_DIR / "tools/audit_external_project.py"),
+                [sys.executable, str(SCRIPTS_DIR / "reporting/audit_external_project.py"),
                  "--project-dir", str(project), "--json"],
                 capture_output=True, text=True, timeout=120,
                 env={**dict(__import__("os").environ), "PYTHONPATH": str(SCRIPTS_DIR)},

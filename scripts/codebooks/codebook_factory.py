@@ -6,7 +6,7 @@ Resolves the appropriate codebook class based on survey source:
   BRFSS/MIMIC/other → RegistryCodebook (JSON registry only)
 
 Usage:
-    from scripts.tools.codebook_factory import get_codebook
+    from scripts.codebooks.codebook_factory import get_codebook
 
     cb = get_codebook("ukb")
     issues = cb.validate_columns_for_gate(columns, target_col="p2443_i0")
@@ -75,13 +75,13 @@ def get_codebook(
         cycle = nhanes_cycle or _DATASET_KEY_TO_CYCLE.get(dataset_key, "2017-2018")
         if (nhanes_dir / "nhanes_variables.tsv").exists():
             try:
-                from scripts.tools.nhanes_codebook_lookup import NHANESCodebook
+                from scripts.codebooks.nhanes_codebook_lookup import NHANESCodebook
                 return NHANESCodebook(str(nhanes_dir), cycle=cycle)
             except ImportError:
                 pass
         # Fallback to registry
         try:
-            from scripts.tools.nhanes_codebook_lookup import RegistryCodebook
+            from scripts.codebooks.nhanes_codebook_lookup import RegistryCodebook
             return RegistryCodebook(registry_path, dataset_key)
         except ImportError:
             return None
@@ -91,7 +91,7 @@ def get_codebook(
         ukb_db = Path(ukb_codebook_db)
         if ukb_db.exists():
             try:
-                from scripts.tools.ukb_codebook_lookup import UKBCodebook
+                from scripts.codebooks.ukb_codebook_lookup import UKBCodebook
                 return UKBCodebook(ukb_db)
             except ImportError:
                 pass
@@ -99,7 +99,7 @@ def get_codebook(
 
     # ── Other (BRFSS, MIMIC, etc.) ──────────────────────────────────
     try:
-        from scripts.tools.nhanes_codebook_lookup import RegistryCodebook
+        from scripts.codebooks.nhanes_codebook_lookup import RegistryCodebook
         return RegistryCodebook(registry_path, dataset_key)
     except ImportError:
         return None

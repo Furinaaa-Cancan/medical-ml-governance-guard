@@ -41,7 +41,7 @@
       "category": "statistical",
       "severity": "WARNING",
       "affected_files": [
-        "scripts/tools/train_select_evaluate.py"
+        "scripts/training/train_select_evaluate.py"
       ],
       "first_seen": "2025-07",
       "resolved": true
@@ -88,7 +88,7 @@
       "category": "model",
       "severity": "WARNING",
       "affected_files": [
-        "scripts/tools/train_select_evaluate.py"
+        "scripts/training/train_select_evaluate.py"
       ],
       "first_seen": "2025-07",
       "resolved": true
@@ -103,7 +103,7 @@
       "category": "model",
       "severity": "ERROR",
       "affected_files": [
-        "scripts/tools/train_select_evaluate.py"
+        "scripts/training/train_select_evaluate.py"
       ],
       "first_seen": "2025-06",
       "resolved": true
@@ -118,8 +118,8 @@
       "category": "data",
       "severity": "ERROR",
       "affected_files": [
-        "scripts/tools/train_select_evaluate.py",
-        "scripts/tools/split_data.py"
+        "scripts/training/train_select_evaluate.py",
+        "scripts/training/split_data.py"
       ],
       "first_seen": "2025-05",
       "resolved": true
@@ -134,7 +134,7 @@
       "category": "model",
       "severity": "WARNING",
       "affected_files": [
-        "scripts/tools/train_select_evaluate.py"
+        "scripts/training/train_select_evaluate.py"
       ],
       "first_seen": "2025-06",
       "resolved": true
@@ -149,7 +149,7 @@
       "category": "data",
       "severity": "WARNING",
       "affected_files": [
-        "scripts/tools/split_data.py"
+        "scripts/training/split_data.py"
       ],
       "first_seen": "2025-06",
       "resolved": true
@@ -165,7 +165,7 @@
       "severity": "ERROR",
       "affected_files": [
         "scripts/gates/execution_attestation_gate.py",
-        "scripts/tools/generate_execution_attestation.py"
+        "scripts/training/generate_execution_attestation.py"
       ],
       "first_seen": "2025-07",
       "resolved": true
@@ -304,7 +304,7 @@
       "category": "statistical",
       "severity": "WARNING",
       "affected_files": [
-        "scripts/tools/train_select_evaluate.py"
+        "scripts/training/train_select_evaluate.py"
       ],
       "first_seen": "2026-03",
       "resolved": true
@@ -319,7 +319,7 @@
       "category": "model",
       "severity": "INFO",
       "affected_files": [
-        "scripts/tools/train_select_evaluate.py"
+        "scripts/training/train_select_evaluate.py"
       ],
       "first_seen": "2026-03",
       "resolved": false,
@@ -383,7 +383,7 @@
       "category": "config",
       "severity": "ERROR",
       "affected_files": [
-        "scripts/tools/batch_journal_review.py"
+        "scripts/review/batch_journal_review.py"
       ],
       "first_seen": "2026-03",
       "resolved": true
@@ -398,7 +398,7 @@
       "category": "config",
       "severity": "ERROR",
       "affected_files": [
-        "scripts/tools/batch_journal_review.py"
+        "scripts/review/batch_journal_review.py"
       ],
       "first_seen": "2026-03",
       "resolved": true
@@ -413,7 +413,7 @@
       "category": "data",
       "severity": "CRITICAL",
       "affected_files": [
-        "scripts/tools/split_data.py",
+        "scripts/training/split_data.py",
         "scripts/gates/split_protocol_gate.py"
       ],
       "first_seen": "2026-03-15",
@@ -430,7 +430,7 @@
       "category": "leakage",
       "severity": "CRITICAL",
       "affected_files": [
-        "scripts/tools/split_data.py",
+        "scripts/training/split_data.py",
         "scripts/gates/leakage_gate.py"
       ],
       "first_seen": "2026-03-15",
@@ -447,7 +447,7 @@
       "category": "model",
       "severity": "ERROR",
       "affected_files": [
-        "scripts/tools/train_select_evaluate.py",
+        "scripts/training/train_select_evaluate.py",
         "scripts/gates/clinical_metrics_gate.py"
       ],
       "first_seen": "2026-03-15",
@@ -498,7 +498,7 @@
       "severity": "CRITICAL",
       "affected_files": [
         "scripts/gates/security_audit_gate.py",
-        "scripts/tools/generate_execution_attestation.py"
+        "scripts/training/generate_execution_attestation.py"
       ],
       "first_seen": "2026-03-15",
       "resolved": true,
@@ -531,7 +531,7 @@
       "severity": "CRITICAL",
       "affected_files": [
         "scripts/gates/tuning_leakage_gate.py",
-        "scripts/tools/train_select_evaluate.py"
+        "scripts/training/train_select_evaluate.py"
       ],
       "first_seen": "2026-03-15",
       "resolved": true,
@@ -548,7 +548,7 @@
       "severity": "ERROR",
       "affected_files": [
         "scripts/gates/model_selection_audit_gate.py",
-        "scripts/tools/train_select_evaluate.py"
+        "scripts/training/train_select_evaluate.py"
       ],
       "first_seen": "2026-03-15",
       "resolved": true,
@@ -580,7 +580,7 @@
       "category": "statistical",
       "severity": "ERROR",
       "affected_files": [
-        "scripts/tools/train_select_evaluate.py",
+        "scripts/training/train_select_evaluate.py",
         "scripts/gates/ci_matrix_gate.py"
       ],
       "first_seen": "2026-03-15",
@@ -597,7 +597,7 @@
       "category": "config",
       "severity": "ERROR",
       "affected_files": [
-        "scripts/tools/train_select_evaluate.py",
+        "scripts/training/train_select_evaluate.py",
         "scripts/gates/imbalance_policy_gate.py"
       ],
       "first_seen": "2026-03-15",
@@ -615,7 +615,7 @@
       "severity": "ERROR",
       "affected_files": [
         "scripts/gates/prediction_replay_gate.py",
-        "scripts/tools/train_select_evaluate.py"
+        "scripts/training/train_select_evaluate.py"
       ],
       "first_seen": "2026-03-15",
       "resolved": true,
@@ -632,7 +632,7 @@
       "severity": "ERROR",
       "affected_files": [
         "scripts/gates/calibration_dca_gate.py",
-        "scripts/tools/train_select_evaluate.py"
+        "scripts/training/train_select_evaluate.py"
       ],
       "first_seen": "2026-03-15",
       "resolved": true,
@@ -697,7 +697,7 @@
       "severity": "ERROR",
       "affected_files": [
         "scripts/gates/evaluation_quality_gate.py",
-        "scripts/tools/train_select_evaluate.py"
+        "scripts/training/train_select_evaluate.py"
       ],
       "first_seen": "2026-03-15",
       "resolved": true,
@@ -810,7 +810,7 @@
       "severity": "ERROR",
       "affected_files": [
         "scripts/gates/metric_consistency_gate.py",
-        "scripts/tools/train_select_evaluate.py"
+        "scripts/training/train_select_evaluate.py"
       ],
       "first_seen": "2026-03-15",
       "resolved": true,
@@ -854,13 +854,13 @@
       "code": "request_contract_schema_violation",
       "symptom": "request_contract_gate fails schema validation — required field missing or value type mismatch in request.json",
       "root_cause": "The request.json configuration file does not conform to the expected schema (references/templates/request-schema.example.json), either due to a missing required field, an invalid enum value, or a type mismatch",
-      "fix": "Validate request.json against the schema using: python3 scripts/tools/schema_preflight.py --request request.json. Fix all reported violations before running the pipeline.",
+      "fix": "Validate request.json against the schema using: python3 scripts/training/schema_preflight.py --request request.json. Fix all reported violations before running the pipeline.",
       "prevention": "Use mlgg.py onboarding to generate a valid request.json template. Run schema_preflight.py as part of the init step before any gate execution.",
       "category": "config",
       "severity": "ERROR",
       "affected_files": [
         "scripts/gates/request_contract_gate.py",
-        "scripts/tools/schema_preflight.py"
+        "scripts/training/schema_preflight.py"
       ],
       "first_seen": "2026-03-15",
       "resolved": true,
@@ -1097,7 +1097,7 @@
       "category": "gate",
       "severity": "ERROR",
       "affected_files": [
-        "scripts/tools/render_user_summary.py"
+        "scripts/reporting/render_user_summary.py"
       ],
       "first_seen": "2026-03",
       "resolved": true
@@ -1112,8 +1112,8 @@
       "category": "gate",
       "severity": "WARNING",
       "affected_files": [
-        "scripts/tools/report_health_check.py",
-        "scripts/tools/remediation_plan.py"
+        "scripts/reporting/report_health_check.py",
+        "scripts/reporting/remediation_plan.py"
       ],
       "first_seen": "2026-03",
       "resolved": true
@@ -1128,9 +1128,9 @@
       "category": "gate",
       "severity": "WARNING",
       "affected_files": [
-        "scripts/tools/quick_summary.py",
-        "scripts/tools/visualize_results.py",
-        "scripts/tools/train_select_evaluate.py"
+        "scripts/reporting/quick_summary.py",
+        "scripts/diagnostics/visualize_results.py",
+        "scripts/training/train_select_evaluate.py"
       ],
       "first_seen": "2026-03",
       "resolved": true
@@ -1145,7 +1145,7 @@
       "category": "security",
       "severity": "WARNING",
       "affected_files": [
-        "scripts/tools/mlgg_web.py"
+        "scripts/diagnostics/mlgg_web.py"
       ],
       "first_seen": "2026-03",
       "resolved": true
@@ -1160,7 +1160,7 @@
       "category": "security",
       "severity": "ERROR",
       "affected_files": [
-        "scripts/tools/mlgg_web.py"
+        "scripts/diagnostics/mlgg_web.py"
       ],
       "first_seen": "2026-03",
       "resolved": true
@@ -1220,8 +1220,8 @@
       "category": "gate",
       "severity": "WARNING",
       "affected_files": [
-        "scripts/tools/evidence_digest.py",
-        "scripts/tools/compare_runs.py"
+        "scripts/reporting/evidence_digest.py",
+        "scripts/reporting/compare_runs.py"
       ],
       "first_seen": "2026-03",
       "resolved": true
@@ -1286,7 +1286,7 @@
       "category": "security",
       "severity": "ERROR",
       "affected_files": [
-        "scripts/tools/mlgg_web.py"
+        "scripts/diagnostics/mlgg_web.py"
       ],
       "first_seen": "2026-03",
       "resolved": true
@@ -1301,7 +1301,7 @@
       "category": "gate",
       "severity": "ERROR",
       "affected_files": [
-        "scripts/tools/generate_audit_report.py"
+        "scripts/reporting/generate_audit_report.py"
       ],
       "first_seen": "2026-03",
       "resolved": true
@@ -1346,10 +1346,10 @@
       "category": "gate",
       "severity": "ERROR",
       "affected_files": [
-        "scripts/tools/report_health_check.py",
-        "scripts/tools/remediation_plan.py",
-        "scripts/tools/evidence_digest.py",
-        "scripts/tools/compare_runs.py"
+        "scripts/reporting/report_health_check.py",
+        "scripts/reporting/remediation_plan.py",
+        "scripts/reporting/evidence_digest.py",
+        "scripts/reporting/compare_runs.py"
       ],
       "first_seen": "2026-03",
       "resolved": true
@@ -1454,7 +1454,7 @@
       "category": "config",
       "severity": "ERROR",
       "affected_files": [
-        "scripts/tools/score_paper_metadata.py"
+        "scripts/review/score_paper_metadata.py"
       ]
     },
     {
@@ -1467,7 +1467,7 @@
       "category": "config",
       "severity": "ERROR",
       "affected_files": [
-        "scripts/tools/score_paper_metadata.py"
+        "scripts/review/score_paper_metadata.py"
       ]
     },
     {
@@ -1480,7 +1480,7 @@
       "category": "config",
       "severity": "WARNING",
       "affected_files": [
-        "scripts/tools/score_paper_metadata.py"
+        "scripts/review/score_paper_metadata.py"
       ]
     },
     {

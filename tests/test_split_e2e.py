@@ -23,7 +23,7 @@ def _run_split(tmp_path: Path, strategy: str, input_csv: Path = HEART_CSV,
                extra_args: list = None, timeout: int = 60) -> subprocess.CompletedProcess:
     out_dir = tmp_path / "data"
     cmd = [
-        sys.executable, str(SCRIPTS_DIR / "tools/split_data.py"),
+        sys.executable, str(SCRIPTS_DIR / "training/split_data.py"),
         "--input", str(input_csv),
         "--output-dir", str(out_dir),
         "--patient-id-col", "patient_id",

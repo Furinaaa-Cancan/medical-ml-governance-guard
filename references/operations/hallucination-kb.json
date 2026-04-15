@@ -7,7 +7,7 @@
 
   "problem_definition": {
     "task": "Extract structured metadata (AUROC, sample sizes, split strategy, leakage risk) from medical ML papers into Pydantic schema",
-    "tool": "scripts/tools/extract_paper_metadata.py",
+    "tool": "scripts/review/extract_paper_metadata.py",
     "providers": ["Claude (Anthropic)", "DeepSeek"],
     "risk_types": [
       "numeric_fabrication: LLM invents values not in paper text",
@@ -24,28 +24,28 @@
       "defense": "literal_enum_constraints",
       "description": "Pydantic Literal types reject non-allowed categorical values at parse time",
       "covers": ["value_drift"],
-      "file": "scripts/tools/extract_paper_metadata.py",
+      "file": "scripts/review/extract_paper_metadata.py",
       "effectiveness": "100% for covered fields (syntactic guarantee)"
     },
     {
       "defense": "numeric_cross_validation",
       "description": "model_post_init checks arithmetic consistency, CI ordering, range bounds",
       "covers": ["numeric_inconsistency"],
-      "file": "scripts/tools/extract_paper_metadata.py",
+      "file": "scripts/review/extract_paper_metadata.py",
       "effectiveness": "catches 7 types of numeric contradiction"
     },
     {
       "defense": "evidence_quote_tracing",
       "description": "4 *_evidence fields require LLM to cite paper text for boolean leakage determinations",
       "covers": ["inference_error"],
-      "file": "scripts/tools/extract_paper_metadata.py",
+      "file": "scripts/review/extract_paper_metadata.py",
       "effectiveness": "enables human audit; does not yet verify quotes against source"
     },
     {
       "defense": "llm_source_tagging",
       "description": "_llm_extracted_fields list and _source tag in mlgg_audit, downstream score_paper_metadata emits _llm_confidence_note",
       "covers": ["all types — transparency layer"],
-      "file": "scripts/tools/extract_paper_metadata.py, scripts/tools/score_paper_metadata.py",
+      "file": "scripts/review/extract_paper_metadata.py, scripts/review/score_paper_metadata.py",
       "effectiveness": "consumers can distinguish LLM vs human data"
     }
   ],

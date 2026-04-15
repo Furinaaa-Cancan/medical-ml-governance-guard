@@ -10,8 +10,8 @@ Produces:
   references/codebooks/nhanes/nhanes_codebook.sqlite
 
 Usage:
-  python3 scripts/tools/build_nhanes_codebook_db.py
-  python3 scripts/tools/build_nhanes_codebook_db.py --output /tmp/test.sqlite
+  python3 scripts/codebooks/build_nhanes_codebook_db.py
+  python3 scripts/codebooks/build_nhanes_codebook_db.py --output /tmp/test.sqlite
 """
 from __future__ import annotations
 

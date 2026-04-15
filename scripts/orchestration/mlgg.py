@@ -227,15 +227,15 @@ COMMANDS: Dict[str, Tuple[Path, str]] = {
         SCRIPTS_ROOT / "orchestration" / "mlgg_interactive.py",
         "Launch interactive wizard for core commands (init/workflow/train/authority).",
     ),
-    "init": (SCRIPTS_ROOT / "tools" / "init_project.py", "Initialize project folders and config templates."),
-    "split": (SCRIPTS_ROOT / "tools" / "split_data.py", "Split a single CSV into train/valid/test with medical safety guarantees."),
-    "doctor": (SCRIPTS_ROOT / "tools" / "env_doctor.py", "Check runtime dependencies and optional backends."),
-    "preflight": (SCRIPTS_ROOT / "tools" / "schema_preflight.py", "Validate train/valid/test schema and semantic mapping."),
+    "init": (SCRIPTS_ROOT / "training" / "init_project.py", "Initialize project folders and config templates."),
+    "split": (SCRIPTS_ROOT / "training" / "split_data.py", "Split a single CSV into train/valid/test with medical safety guarantees."),
+    "doctor": (SCRIPTS_ROOT / "diagnostics" / "env_doctor.py", "Check runtime dependencies and optional backends."),
+    "preflight": (SCRIPTS_ROOT / "training" / "schema_preflight.py", "Validate train/valid/test schema and semantic mapping."),
     "workflow": (SCRIPTS_ROOT / "orchestration" / "run_productized_workflow.py", "Run doctor -> preflight -> strict -> summary."),
     "strict": (SCRIPTS_ROOT / "orchestration" / "run_dag_pipeline.py", "Run strict fail-closed DAG gate pipeline."),
     "semantic-audit": (SCRIPTS_ROOT / "orchestration" / "semantic_audit.py", "LLM-powered semantic leakage detection on feature columns."),
-    "summary": (SCRIPTS_ROOT / "tools" / "render_user_summary.py", "Render user-facing markdown/json summary."),
-    "train": (SCRIPTS_ROOT / "tools" / "train_select_evaluate.py", "Train/select/evaluate and emit evidence artifacts."),
+    "summary": (SCRIPTS_ROOT / "reporting" / "render_user_summary.py", "Render user-facing markdown/json summary."),
+    "train": (SCRIPTS_ROOT / "training" / "train_select_evaluate.py", "Train/select/evaluate and emit evidence artifacts."),
     "authority": (EXPERIMENTS_ROOT / "run_authority_e2e.py", "Run authority E2E benchmark suite."),
     "benchmark-suite": (
         EXPERIMENTS_ROOT / "run_release_benchmark_matrix.py",
@@ -262,7 +262,7 @@ COMMANDS: Dict[str, Tuple[Path, str]] = {
         "Launch pixel-art interactive CLI launcher (guided menu experience).",
     ),
     "audit": (
-        SCRIPTS_ROOT / "tools" / "audit_external_project.py",
+        SCRIPTS_ROOT / "reporting" / "audit_external_project.py",
         "Quantitative 10-dimension audit of a medical ML project (100-point scale).",
     ),
     "fairness": (
@@ -274,15 +274,15 @@ COMMANDS: Dict[str, Tuple[Path, str]] = {
         "Validate sample size adequacy (EPV, shrinkage factor, Riley criteria).",
     ),
     "batch-review": (
-        SCRIPTS_ROOT / "tools" / "batch_journal_review.py",
+        SCRIPTS_ROOT / "review" / "batch_journal_review.py",
         "Batch audit N projects against journal standards with comparison matrix.",
     ),
     "audit-report": (
-        SCRIPTS_ROOT / "tools" / "generate_audit_report.py",
+        SCRIPTS_ROOT / "reporting" / "generate_audit_report.py",
         "Generate comprehensive audit report with TRIPOD+AI/PROBAST+AI coverage, error KB lookup, and literature citations.",
     ),
     "export-review-prompt": (
-        SCRIPTS_ROOT / "tools" / "export_review_prompt.py",
+        SCRIPTS_ROOT / "reporting" / "export_review_prompt.py",
         "Export MLGG review criteria as a portable LLM prompt. Users paste the output into any LLM (Claude, GPT-4, Gemini) to review a paper without local deployment.",
     ),
     "lint": (
@@ -290,11 +290,11 @@ COMMANDS: Dict[str, Tuple[Path, str]] = {
         "Static analysis for ML code — detect data leakage and best-practice violations.",
     ),
     "audit-metrics": (
-        SCRIPTS_ROOT / "tools" / "audit_metrics.py",
+        SCRIPTS_ROOT / "reporting" / "audit_metrics.py",
         "Quick publication-readiness check from metrics JSON — no data files needed.",
     ),
     "init-guide": (
-        SCRIPTS_ROOT / "tools" / "init_guide.py",
+        SCRIPTS_ROOT / "diagnostics" / "init_guide.py",
         "Generate MLGG methodology guide (.mlgg/ + CLAUDE.md) for any ML project.",
     ),
 }
@@ -664,7 +664,7 @@ def main() -> int:
     mlgg strict --show-dag
 
   Diagnose a gate failure:
-    python3 scripts/tools/explain_gate.py --report evidence/<gate>_report.json
+    python3 scripts/reporting/explain_gate.py --report evidence/<gate>_report.json
 """)
         return 0
 

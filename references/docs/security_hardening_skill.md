@@ -187,9 +187,9 @@
 | `scripts/_gate_registry.py` | 修改 | 注册 security_audit_gate |
 | `scripts/orchestration/run_dag_pipeline.py` | 修改 | 审计日志集成, security_audit_gate 命令构建, --encrypt/--sign-receipt/--secure-cleanup/--require-role 安全后处理 |
 | `scripts/orchestration/run_strict_pipeline.py` | 修改 | --encrypt/--sign-receipt/--secure-cleanup 安全后处理对齐 |
-| `scripts/tools/mlgg_web.py` | 修改 | CSP headers, rate limiting, 文件名清洗, 路径防护 |
-| `scripts/tools/split_data.py` | 修改 | CSV 大小限制 |
-| `scripts/tools/train_select_evaluate.py` | 修改 | CSV 大小限制, categorical_analysis 嵌入 |
+| `scripts/diagnostics/mlgg_web.py` | 修改 | CSP headers, rate limiting, 文件名清洗, 路径防护 |
+| `scripts/training/split_data.py` | 修改 | CSV 大小限制 |
+| `scripts/training/train_select_evaluate.py` | 修改 | CSV 大小限制, categorical_analysis 嵌入 |
 | `tests/test_security_audit_gate.py` | 新增 | 13 个 gate 测试 |
 | `tests/test_audit_logging.py` | 新增 | 14 个审计日志测试 + 5 个路径防护测试 |
 | `tests/test_security_deep.py` | 新增 | 24 个深层安全测试 |
@@ -198,12 +198,12 @@
 | `README.md` | 修改 | 安全章节扩展 |
 | `SKILL.md` | 修改 | Gate 计数、序列、输出合约更新 |
 | `.gitignore` | 修改 | 新增安全工件排除项 |
-| `scripts/tools/evidence_digest.py` | 修改 | 添加 security_audit_gate_report 到 gate_files 列表 |
-| `scripts/tools/render_user_summary.py` | 修改 | 添加 security_audit_gate 到用户摘要 |
+| `scripts/reporting/evidence_digest.py` | 修改 | 添加 security_audit_gate_report 到 gate_files 列表 |
+| `scripts/reporting/render_user_summary.py` | 修改 | 添加 security_audit_gate 到用户摘要 |
 | `tests/test_evidence_digest.py` | 修改 | gate 计数 28→29 |
-| `scripts/tools/compare_runs.py` | 修改 | 添加 security_audit_gate_report 到 REPORT_FILES |
-| `scripts/tools/report_health_check.py` | 修改 | 添加 security_audit_gate_report 到健康检查列表 |
-| `scripts/tools/remediation_plan.py` | 修改 | 添加 security_audit 到 GATE_REPORTS |
+| `scripts/reporting/compare_runs.py` | 修改 | 添加 security_audit_gate_report 到 REPORT_FILES |
+| `scripts/reporting/report_health_check.py` | 修改 | 添加 security_audit_gate_report 到健康检查列表 |
+| `scripts/reporting/remediation_plan.py` | 修改 | 添加 security_audit 到 GATE_REPORTS |
 | `scripts/orchestration/run_strict_pipeline.py` | 修改 | 添加 Step 29 (security_audit_gate) |
 | `CHANGELOG.md` | 修改 | gate 计数 28→29 (3处) |
 | `CONTRIBUTING.md` | 修改 | gate 计数 28→29 |
