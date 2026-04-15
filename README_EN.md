@@ -1181,17 +1181,32 @@ medical-ml-governance-guard/
 │   │   ├── run_productized_workflow.py   #   Production pipeline (doctor → preflight → strict → summary)
 │   │   └── run_endurance_test.py         #   Endurance benchmark runner
 │   │
-│   └── tools/             (42)           # Standalone tool scripts
-│       ├── train_select_evaluate.py      #   Training engine (20 model families, MICE/median, tuning)
-│       ├── split_data.py                 #   Patient-level safe splitting (group, temporal, stratified)
-│       ├── codebook_factory.py           #   Codebook unified factory (NHANES/UKB/BRFSS/MIMIC)
-│       ├── nhanes_codebook_lookup.py     #   NHANES 58K variable BM25 + trigram hybrid retrieval
-│       ├── ukb_codebook_lookup.py        #   UKB 12K field validation + temporal leakage detection
-│       ├── generate_audit_report.py      #   12-dimension quantitative audit report generator
-│       ├── audit_external_project.py     #   External project audit (code scan + gate execution)
-│       ├── export_latex.py               #   LaTeX/paper format export
-│       ├── visualize_results.py          #   Result visualization
-│       └── ... (33 more tools)           #   evidence_digest, compare_runs, policy_generator, etc.
+│   ├── training/          (6)            # Model training & data preparation
+│   │   ├── train_select_evaluate.py      #   Training engine (5+ model families, one-SE selection)
+│   │   ├── split_data.py                 #   Patient-level safe splitting (grouped_temporal / stratified)
+│   │   ├── init_project.py               #   Project scaffolding (configs/ + data/ + evidence/)
+│   │   └── schema_preflight.py           #   CSV column/type/semantic validation
+│   │
+│   ├── reporting/         (14)           # Reports, audits & exports
+│   │   ├── audit_metrics.py              #   Zero-dep publication-readiness checker
+│   │   ├── audit_external_project.py     #   10-dimension project audit (100-point scale)
+│   │   ├── generate_audit_report.py      #   TRIPOD+AI/PROBAST+AI audit report
+│   │   ├── export_latex.py               #   Publication-ready LaTeX tables
+│   │   └── ...                           #   render_user_summary, compliance_certificate, etc.
+│   │
+│   ├── codebooks/         (8)            # Data dictionary tools
+│   │   ├── nhanes_codebook_lookup.py     #   NHANES 60K variable FTS5 full-text search
+│   │   ├── ukb_codebook_lookup.py        #   UKB 12K field validation + leakage detection
+│   │   └── ...                           #   build/fetch/verify + codebook_factory
+│   │
+│   ├── review/            (5)            # Paper analysis & peer review
+│   │   ├── peer_review_lookup.py         #   107 NC papers × 375 review opinions
+│   │   └── ...                           #   batch_journal_review, extract/score metadata
+│   │
+│   └── diagnostics/       (9)            # Environment & runtime tools
+│       ├── env_doctor.py                 #   Dependency health check
+│       ├── mlgg_web.py                   #   Flask Web UI
+│       └── ...                           #   gate visualization, threshold analysis
 │
 ├── tests/                  (117)         # ─── Tests (~30K lines) ───
 │   ├── conftest.py                       #   Shared fixtures (tmp_path, path injection, test data)

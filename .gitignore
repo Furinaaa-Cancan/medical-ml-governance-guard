@@ -60,6 +60,6 @@ references/codebooks/nhanes/*.sqlite
 references/codebooks/nhanes/*.sqlite-shm
 references/codebooks/nhanes/*.sqlite-wal
 
-# UKB codebook data (download via scripts/tools/fetch_ukb_showcase.py)
+# UKB codebook data (download via scripts/codebooks/fetch_ukb_showcase.py)
 references/codebooks/ukb/*.txt
 references/codebooks/ukb/*.sqlite
