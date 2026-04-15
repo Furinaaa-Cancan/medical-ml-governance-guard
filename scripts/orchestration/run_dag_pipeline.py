@@ -661,7 +661,7 @@ def _print_prioritized_issues(
     all_issues: List[Dict[str, Any]] = []
 
     for step in steps:
-        if step.get("status") != "fail":
+        if step.get("status") not in ("fail", "pass"):
             continue
         report_path = step.get("report_path", "")
         if not report_path:
@@ -873,8 +873,10 @@ def main() -> int:
     all_gates = topological_sort()
     gates_to_run = _compute_gates_to_run(args, all_gates, passed_gates)
 
-    # Triage: intelligently skip gates based on project characteristics
-    if getattr(args, "triage", False) or getattr(args, "triage_llm", False):
+    # Triage: intelligently skip gates based on project characteristics.
+    # When enabled, triage subsumes the legacy auto-skip logic below.
+    _triage_active = getattr(args, "triage", False) or getattr(args, "triage_llm", False)
+    if _triage_active:
         try:
             from triage import triage_gates as _triage
             use_llm = getattr(args, "triage_llm", False)
@@ -882,12 +884,14 @@ def main() -> int:
             if triage_skip:
                 gates_to_run = [g for g in gates_to_run if g not in triage_skip]
         except ImportError:
-            print("[WARN] triage module not found, skipping triage.", file=sys.stderr)
+            print("[WARN] triage module not found, falling back to legacy auto-skip.", file=sys.stderr)
+            _triage_active = False
 
     # Auto-skip gates that require a test split when none exists.
+    # Skipped when triage is active (triage handles this + more).
     # These gates declare --test required=True or need test-split artifacts;
     # without a test set, they crash on argparse or produce meaningless results.
-    if "test" not in split_paths:
+    if "test" not in split_paths and not _triage_active:
         _no_test_gates = {
             "split_protocol_gate",       # validates train/valid/test consistency
             "covariate_shift_gate",      # detects train→test distribution shift

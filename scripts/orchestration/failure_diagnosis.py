@@ -23,8 +23,11 @@ def _load_report(report_path: Path) -> Dict[str, Any]:
     """Load a gate report JSON file."""
     if not report_path.exists():
         return {}
-    with open(report_path) as f:
-        return json.load(f)
+    try:
+        with open(report_path) as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return {}
 
 
 def _extract_issues(report: Dict[str, Any]) -> list:
@@ -33,11 +36,12 @@ def _extract_issues(report: Dict[str, Any]) -> list:
     for issue in report.get("issues", []):
         sev = issue.get("severity", "info")
         if sev in ("critical", "error", "warning"):
+            # Omit 'details' to avoid leaking PHI/data values into LLM prompts.
+            # Only pass structural info: code, severity, message, remediation.
             issues.append({
                 "code": issue.get("code", ""),
                 "severity": sev,
                 "message": issue.get("message", ""),
-                "details": issue.get("details", {}),
                 "remediation": issue.get("remediation", ""),
             })
     return issues

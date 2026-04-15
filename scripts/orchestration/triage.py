@@ -16,19 +16,18 @@ Usage:
 from __future__ import annotations
 
 import json
-import os
 import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List
 
 # Import gate registry
 _CORE_DIR = str(Path(__file__).resolve().parent.parent / "core")
 if _CORE_DIR not in sys.path:
     sys.path.insert(0, _CORE_DIR)
 
-from _gate_registry import GATE_REGISTRY, GateSpec  # noqa: E402
+from _gate_registry import GATE_REGISTRY  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -36,7 +35,7 @@ from _gate_registry import GATE_REGISTRY, GateSpec  # noqa: E402
 # ---------------------------------------------------------------------------
 
 # These gates are NEVER skipped — compliance/integrity requirements
-MANDATORY_GATES: frozenset = frozenset({
+MANDATORY_GATES: frozenset[str] = frozenset({
     "request_contract_gate",
     "cohort_definition_gate",
     "manifest_lock",
@@ -256,10 +255,13 @@ Rules:
         items = json.loads(raw)
 
         decisions = {}
+        _valid_actions = {"run", "skip"}
         for item in items:
             gate = item.get("gate", "")
-            action = item.get("action", "run")
+            action = str(item.get("action", "run")).lower().strip()
             reason = item.get("reason", "")
+            if action not in _valid_actions:
+                action = "run"  # fail-safe: unknown action → run
             if gate in GATE_REGISTRY and gate not in MANDATORY_GATES:
                 decisions[gate] = TriageDecision(
                     gate=gate, action=action,
