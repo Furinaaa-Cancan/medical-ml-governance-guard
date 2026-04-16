@@ -44,7 +44,7 @@ ml-leakage-guard/
 │   ├── support2-benchmark/          # SUPPORT2 (9105 rows, ROC-AUC 0.892)
 │   ├── nhanes-benchmark/           # NHANES (15549 rows, ROC-AUC 0.810)
 │   ├── rhc-benchmark/              # RHC ICU (5735 rows, ROC-AUC 0.750)
-│   ├── ckd-benchmark/              # CKD (399 rows, ROC-AUC 0.983)
+│   ├── ckd-benchmark/              # CKD (399 rows, ROC-AUC 0.999)
 │   └── sepsis-benchmark/           # Sepsis (129K rows, ROC-AUC 0.689)
 │
 ├── agents/              (2 YAMLs)   # API agent configs (paper extractor + reviewer)
@@ -118,7 +118,7 @@ Report: { status, failure_count, warning_count, failures[], warnings[],
 
 | Dataset | Rows | Features | Prevalence | ROC-AUC | PR-AUC | Calibration | Benchmark |
 |---------|------|----------|-----------|---------|--------|-------------|-----------|
-| **CKD** | **399** | **17** | 63% | **0.983** | **0.992** | slope=3.08 | `experiments/ckd-benchmark/` |
+| **CKD** | **399** | **22** | 63% | **0.999** | **1.000** | slope=3.08 | `experiments/ckd-benchmark/` |
 | Pima Diabetes | 768 | 8 | 34% | 0.845 | 0.789 | — | — |
 | Framingham Heart | 4,240 | 16 | 16% | 0.737 | — | — | — |
 | **RHC ICU** | **5,735** | **37** | 65% | **0.750** | **0.834** | slope=0.977 | `experiments/rhc-benchmark/` |
