@@ -1,0 +1,246 @@
+{
+  "artifacts": {
+    "advanced_authority_command": "python3 scripts/mlgg.py authority-research-heart --stress-seed-min 20250003 --stress-seed-max 20250060 --summary-file <project>/evidence/authority_research_heart_summary.json",
+    "ci_matrix_report": "/private/tmp/mlgg_sepsis/evidence/ci_matrix_report.json",
+    "distribution_report": "/private/tmp/mlgg_sepsis/evidence/distribution_report.json",
+    "env_doctor_report": "/private/tmp/mlgg_sepsis/evidence/env_doctor_report.json",
+    "evaluation_report": "/private/tmp/mlgg_sepsis/evidence/evaluation_report.json",
+    "external_validation_report": "/private/tmp/mlgg_sepsis/evidence/external_validation_report.json",
+    "feature_engineering_report": "/private/tmp/mlgg_sepsis/evidence/feature_engineering_report.json",
+    "init_report": "/private/tmp/mlgg_sepsis/evidence/init_report.json",
+    "model_artifact": "/private/tmp/mlgg_sepsis/models/demo_model.joblib",
+    "model_pool": "/private/tmp/mlgg_sepsis/models/model_pool.pkl",
+    "model_selection_report": "/private/tmp/mlgg_sepsis/evidence/model_selection_report.json",
+    "onboarding_report": "/private/tmp/mlgg_sepsis/report.json",
+    "permutation_null_metrics": "/private/tmp/mlgg_sepsis/evidence/permutation_null_pr_auc.txt",
+    "prediction_trace": "/private/tmp/mlgg_sepsis/evidence/prediction_trace.csv.gz",
+    "project_root": "/private/tmp/mlgg_sepsis",
+    "recommended_authority_command": "python3 scripts/mlgg.py authority-release --summary-file <project>/evidence/authority_release_summary.json",
+    "request_actual_primary_metric": 0.15903303179530137,
+    "request_file": "/private/tmp/mlgg_sepsis/configs/request.json",
+    "robustness_report": "/private/tmp/mlgg_sepsis/evidence/robustness_report.json",
+    "seed_sensitivity_report": "/private/tmp/mlgg_sepsis/evidence/seed_sensitivity_report.json",
+    "split_report": "/private/tmp/mlgg_sepsis/evidence/split_report.json",
+    "train_log": "/private/tmp/mlgg_sepsis/evidence/train_command.log",
+    "train_runtime_config": "/private/tmp/mlgg_sepsis/configs/train_runtime_config.json",
+    "workflow_report_bootstrap": "/private/tmp/mlgg_sepsis/evidence/workflow_report_bootstrap.json",
+    "workflow_report_compare": "/private/tmp/mlgg_sepsis/evidence/workflow_report_compare.json"
+  },
+  "contract_version": "onboarding_report.v2",
+  "copy_ready_commands": {
+    "adversarial": "python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/orchestration/mlgg.py adversarial",
+    "authority_release": "python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/orchestration/mlgg.py authority-release --summary-file /private/tmp/mlgg_sepsis/evidence/authority_release_summary.json",
+    "authority_research_heart": "python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/orchestration/mlgg.py authority-research-heart --stress-seed-min 20250003 --stress-seed-max 20250060 --summary-file /private/tmp/mlgg_sepsis/evidence/authority_research_heart_summary.json",
+    "workflow_bootstrap": "python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/orchestration/mlgg.py workflow --request /private/tmp/mlgg_sepsis/configs/request.json --strict --allow-missing-compare",
+    "workflow_compare": "python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/orchestration/mlgg.py workflow --request /private/tmp/mlgg_sepsis/configs/request.json --strict --compare-manifest /private/tmp/mlgg_sepsis/evidence/manifest_baseline.bootstrap.json"
+  },
+  "display_status": "fail",
+  "failure_codes": [
+    "performance_policy_missing_required_metric",
+    "clinical_floor_sensitivity_not_met",
+    "clinical_floor_ppv_not_met",
+    "unsupported_missingness_strategy",
+    "imputation_execution_mismatch"
+  ],
+  "generated_at_utc": "2026-04-16T12:37:56.337209Z",
+  "lang": "bilingual",
+  "mode": "auto",
+  "next_actions": [
+    "performance_policy_missing_required_metric: inspect gate report / \u67e5\u770b <project>/evidence \u4e0b\u5bf9\u5e94 gate \u62a5\u544a\u5e76\u4fee\u590d\u3002",
+    "clinical_floor_sensitivity_not_met: inspect gate report / \u67e5\u770b <project>/evidence \u4e0b\u5bf9\u5e94 gate \u62a5\u544a\u5e76\u4fee\u590d\u3002",
+    "clinical_floor_ppv_not_met: diagnose/\u8bca\u65ad `python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/clinical_metrics_gate.py --evaluation-report <project>/evidence/evaluation_report.json --external-validation-report <project>/evidence/external_validation_report.json --performance-policy <project>/configs/performance_policy.json --strict`; fix/\u4fee\u590d\u53c2\u89c1 `references/docs/Troubleshooting-Top20.md`; verify/\u590d\u9a8c `python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/mlgg.py workflow --request <project>/configs/request.json --strict --compare-manifest <project>/evidence/manifest_baseline.bootstrap.json`",
+    "unsupported_missingness_strategy: inspect gate report / \u67e5\u770b <project>/evidence \u4e0b\u5bf9\u5e94 gate \u62a5\u544a\u5e76\u4fee\u590d\u3002",
+    "imputation_execution_mismatch: inspect gate report / \u67e5\u770b <project>/evidence \u4e0b\u5bf9\u5e94 gate \u62a5\u544a\u5e76\u4fee\u590d\u3002"
+  ],
+  "preview_only": false,
+  "project_root": "/private/tmp/mlgg_sepsis",
+  "run_id": "onboarding-20260416T123604Z",
+  "status": "fail",
+  "steps": [
+    {
+      "command": "/usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/diagnostics/env_doctor.py --report /private/tmp/mlgg_sepsis/evidence/env_doctor_report.json",
+      "description": "Environment check for core/optional dependencies.",
+      "end_utc": "2026-04-16T12:36:06.891737Z",
+      "exit_code": 0,
+      "expected_artifacts": [
+        "/private/tmp/mlgg_sepsis/evidence/env_doctor_report.json"
+      ],
+      "name": "step1_doctor",
+      "start_utc": "2026-04-16T12:36:04.672175Z",
+      "status": "pass",
+      "stderr_tail": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.2.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\n",
+      "stdout_tail": "Status: pass\nFailures: 0 | Warnings: 0 | Strict: False\n"
+    },
+    {
+      "command": "/usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/training/init_project.py --project-root /private/tmp/mlgg_sepsis --study-id user-data-study --run-id onboarding-20260416T123604Z --target-name disease_risk --label-col y --patient-id-col patient_id --index-time-col event_time --force --report /private/tmp/mlgg_sepsis/evidence/init_report.json",
+      "description": "Initialize project directories and baseline config templates.",
+      "end_utc": "2026-04-16T12:36:07.133019Z",
+      "exit_code": 0,
+      "expected_artifacts": [
+        "/private/tmp/mlgg_sepsis/configs/request.json",
+        "/private/tmp/mlgg_sepsis/evidence/init_report.json"
+      ],
+      "name": "step2_init",
+      "start_utc": "2026-04-16T12:36:06.891862Z",
+      "status": "pass",
+      "stderr_tail": "",
+      "stdout_tail": "Status: pass\nProjectRoot: /private/tmp/mlgg_sepsis\nRequestFile: /private/tmp/mlgg_sepsis/configs/request.json\nNext:\n- Place split CSV files at data/train.csv, data/valid.csv, data/test.csv.\n- Run train_select_evaluate.py (or `mlgg.py train --interactive`) to generate required evidence artifacts.\n- Run productized strict workflow with `--allow-missing-compare` on first run to bootstrap manifest baseline.\n"
+    },
+    {
+      "command": "/usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/training/split_data.py --input /Volumes/Seagate/Skill/ml-leakage-guard/examples/sepsis_survival.csv --output-dir /private/tmp/mlgg_sepsis/data --patient-id-col patient_id --target-col y --strategy grouped_temporal --seed 20260227 --report /private/tmp/mlgg_sepsis/evidence/split_report.json --time-col event_time",
+      "description": "Auto-split user CSV (examples/sepsis_survival.csv) into train/valid/test with medical safety guarantees.",
+      "end_utc": "2026-04-16T12:36:07.656799Z",
+      "exit_code": 0,
+      "expected_artifacts": [
+        "/private/tmp/mlgg_sepsis/data/train.csv",
+        "/private/tmp/mlgg_sepsis/data/valid.csv",
+        "/private/tmp/mlgg_sepsis/data/test.csv",
+        "/private/tmp/mlgg_sepsis/evidence/split_report.json"
+      ],
+      "name": "step3_split_user_data",
+      "start_utc": "2026-04-16T12:36:07.133962Z",
+      "status": "pass",
+      "stderr_tail": "",
+      "stdout_tail": "[INFO] Loaded 129392 rows, 6 columns from /Volumes/Seagate/Skill/ml-leakage-guard/examples/sepsis_survival.csv\n[INFO] 129392 unique patients, 129392 rows (excluded 0), strategy: grouped_temporal\n\n[INFO] Split complete:\n  Train: /private/tmp/mlgg_sepsis/data/train.csv (77635 rows, 77635 patients, pos_rate=0.091)\n  Valid: /private/tmp/mlgg_sepsis/data/valid.csv (25879 rows, 25879 patients, pos_rate=0.088)\n  Test:  /private/tmp/mlgg_sepsis/data/test.csv (25878 rows, 25878 patients, pos_rate=0.093)\n  Protocol: /private/tmp/mlgg_sepsis/configs/split_protocol.json\n  Report: /private/tmp/mlgg_sepsis/evidence/split_report.json\n\nStatus: pass\n"
+    },
+    {
+      "command": "internal: align_demo_configs(project_root, run_id)",
+      "description": "Align request/spec files with schema and publication-grade artifact paths.",
+      "end_utc": "2026-04-16T12:36:07.860501Z",
+      "exit_code": 0,
+      "expected_artifacts": [
+        "/private/tmp/mlgg_sepsis/configs/request.json",
+        "/private/tmp/mlgg_sepsis/configs/feature_group_spec.json",
+        "/private/tmp/mlgg_sepsis/configs/feature_lineage.json",
+        "/private/tmp/mlgg_sepsis/configs/external_cohort_spec.json"
+      ],
+      "name": "step4_align_configs",
+      "start_utc": "2026-04-16T12:36:07.656877Z",
+      "status": "pass",
+      "stderr_tail": "",
+      "stdout_tail": ""
+    },
+    {
+      "command": "/usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/gates/cohort_definition_gate.py --data /private/tmp/mlgg_sepsis/data/train.csv --target-col y --id-col patient_id --report /private/tmp/mlgg_sepsis/evidence/cohort_definition_report.json --output-dir /private/tmp/mlgg_sepsis/evidence",
+      "description": "Pre-train gate: cohort_definition_gate (codebook RAG)",
+      "end_utc": "2026-04-16T12:36:08.172910Z",
+      "exit_code": 0,
+      "expected_artifacts": [],
+      "name": "step4b_cohort_definition_gate",
+      "start_utc": "2026-04-16T12:36:07.861282Z",
+      "status": "pass",
+      "stderr_tail": "",
+      "stdout_tail": "  Cohort: 77635 rows, 4 features\n  Events: 7037 positive, prevalence=0.091, EPV=1759.2\n  Tables written to: /private/tmp/mlgg_sepsis/evidence/\n\n============================================================\nGate: cohort_definition_gate\nStatus: PASS  |  Failures: 0  |  Warnings: 1  |  Strict: False  |  Time: 0.1s\n============================================================\n\n[WARN] COHORT_OUTCOME_DEFINITION_UNDOCUMENTED: No outcome definition specification provided. Top-tier journals (Nature Med, Lancet, JAMA) require a rigorous, multi-source outcome definition. Provide via --outcome-definition with the following structure:\n{\n  \"criteria\": [                        \u2190 Diagnostic criteria (list ALL sources)\n    {\"source\": \"icd\", \"codes\": [\"E11\"], \"system\": \"ICD-10\"},\n    {\"source\": \"lab\", \"test\": \"HbA1c\", \"threshold\": \">=6.5%\"},\n    {\"source\": \"lab\", \"test\": \"FPG\", \"threshold\": \">=7.0 mmol/L\"},\n    {\"source\": \"medication\", \"drugs\": [\"metformin\", \"insulin\"]},\n    {\"source\": \"self_report\", \"question\": \"doctor_diagnosed_diabetes\"}\n  ],\n  \"adjudication\": \"any_one\" | \"at_least_two\" | \"all\",  \u2190 How many sources needed?\n  \"subtype\": \"type_2_diabetes\",         \u2190 Disease subtype\n  \"exclusions\": [\"type_1\", \"gestational\", \"secondary\"],\n  \"time_window\": \"prevalent_at_baseline\" | \"30_day\" | \"1_year\",\n  \"ascertainment\": [\"ehr\", \"registry\", \"questionnaire\"],\n  \"validation\": \"cross_source_concordance\" | \"chart_review\" | \"none\"\n}\nRef: Eastwood 2016 (PLOS ONE) \u2014 UK Biobank diabetes adjudication;\n     TRIPOD+AI 2024 Item 6a \u2014 Outcome definition.\n\n"
+    },
+    {
+      "command": "/usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/gates/definition_variable_guard.py --target disease_risk --definition-spec /private/tmp/mlgg_sepsis/configs/phenotype_definitions.json --train /private/tmp/mlgg_sepsis/data/train.csv --target-col y --ignore-cols patient_id,event_time --report /private/tmp/mlgg_sepsis/evidence/definition_variable_report.json --strict --valid /private/tmp/mlgg_sepsis/data/valid.csv --test /private/tmp/mlgg_sepsis/data/test.csv",
+      "description": "Pre-train gate: definition_variable_guard (phenotype spec)",
+      "end_utc": "2026-04-16T12:36:08.404899Z",
+      "exit_code": 2,
+      "expected_artifacts": [],
+      "name": "step4b_definition_variable_guard",
+      "start_utc": "2026-04-16T12:36:08.172978Z",
+      "status": "fail",
+      "stderr_tail": "",
+      "stdout_tail": "\n============================================================\nGate: definition_variable_guard\nStatus: FAIL  |  Failures: 0  |  Warnings: 1  |  Strict: True  |  Time: 0.2s\n============================================================\n\n[WARN] temporal_spec_missing: Phenotype definition should document prediction_time and follow_up_window.\n       \u2192 Fix: Publication-grade models must document prediction_time and follow_up_window in the phenotype definition spec. Add these fields to the target block.\n\n"
+    },
+    {
+      "command": "/usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/gates/leakage_gate.py --train /private/tmp/mlgg_sepsis/data/train.csv --test /private/tmp/mlgg_sepsis/data/test.csv --id-cols patient_id --target-col y --report /private/tmp/mlgg_sepsis/evidence/leakage_report.json --strict --valid /private/tmp/mlgg_sepsis/data/valid.csv",
+      "description": "Pre-train gate: leakage_gate (S01 patient isolation)",
+      "end_utc": "2026-04-16T12:36:09.098513Z",
+      "exit_code": 0,
+      "expected_artifacts": [],
+      "name": "step4b_leakage_gate",
+      "start_utc": "2026-04-16T12:36:08.404972Z",
+      "status": "pass",
+      "stderr_tail": "",
+      "stdout_tail": "\n============================================================\nGate: leakage_gate\nStatus: PASS  |  Failures: 0  |  Warnings: 0  |  Strict: True  |  Time: 0.6s\n============================================================\n"
+    },
+    {
+      "command": "/usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/training/train_select_evaluate.py --train /private/tmp/mlgg_sepsis/data/train.csv --valid /private/tmp/mlgg_sepsis/data/valid.csv --test /private/tmp/mlgg_sepsis/data/test.csv --target-col y --patient-id-col patient_id --ignore-cols event_time,patient_id --performance-policy /private/tmp/mlgg_sepsis/configs/performance_policy.json --missingness-policy /private/tmp/mlgg_sepsis/configs/missingness_policy.json --feature-group-spec /private/tmp/mlgg_sepsis/configs/feature_group_spec.json --external-cohort-spec /private/tmp/mlgg_sepsis/configs/external_cohort_spec.json --model-selection-report-out /private/tmp/mlgg_sepsis/evidence/model_selection_report.json --evaluation-report-out /private/tmp/mlgg_sepsis/evidence/evaluation_report.json --prediction-trace-out /private/tmp/mlgg_sepsis/evidence/prediction_trace.csv.gz --external-validation-report-out /private/tmp/mlgg_sepsis/evidence/external_validation_report.json --ci-matrix-report-out /private/tmp/mlgg_sepsis/evidence/ci_matrix_report.json --distribution-report-out /private/tmp/mlgg_sepsis/evidence/distribution_report.json --feature-engineering-report-out /private/tmp/mlgg_sepsis/evidence/feature_engineering_report.json --robustness-report-out /private/tmp/mlgg_sepsis/evidence/robustness_report.json --robustness-time-slices 3 --robustness-group-count 2 --seed-sensitivity-out /private/tmp/mlgg_sepsis/evidence/seed_sensitivity_report.json --permutation-null-out /private/tmp/mlgg_sepsis/evidence/permutation_null_pr_auc.txt --model-out /private/tmp/mlgg_sepsis/models/demo_model.joblib --model-pool-out /private/tmp/mlgg_sepsis/models/model_pool.pkl --n-jobs 1 --selection-data valid --calibration-method power",
+      "description": "Train/select/evaluate and emit full publication-grade evidence artifacts.",
+      "end_utc": "2026-04-16T12:37:24.416520Z",
+      "exit_code": 0,
+      "expected_artifacts": [
+        "/private/tmp/mlgg_sepsis/evidence/model_selection_report.json",
+        "/private/tmp/mlgg_sepsis/evidence/evaluation_report.json",
+        "/private/tmp/mlgg_sepsis/evidence/prediction_trace.csv.gz",
+        "/private/tmp/mlgg_sepsis/evidence/external_validation_report.json",
+        "/private/tmp/mlgg_sepsis/evidence/ci_matrix_report.json",
+        "/private/tmp/mlgg_sepsis/evidence/distribution_report.json",
+        "/private/tmp/mlgg_sepsis/evidence/feature_engineering_report.json",
+        "/private/tmp/mlgg_sepsis/evidence/robustness_report.json",
+        "/private/tmp/mlgg_sepsis/evidence/seed_sensitivity_report.json",
+        "/private/tmp/mlgg_sepsis/evidence/permutation_null_pr_auc.txt",
+        "/private/tmp/mlgg_sepsis/models/demo_model.joblib",
+        "/private/tmp/mlgg_sepsis/models/model_pool.pkl",
+        "/private/tmp/mlgg_sepsis/evidence/train_command.log",
+        "/private/tmp/mlgg_sepsis/configs/train_runtime_config.json"
+      ],
+      "name": "step5_train",
+      "start_utc": "2026-04-16T12:36:09.103026Z",
+      "status": "pass",
+      "stderr_tail": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.2.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\n[STEP  1/12] Preflight & config...\n[STEP  2/12] Loading data splits...\n[STEP  3/12] Feature engineering...\n/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1170: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters\n  warnings.warn(\n/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1170: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters\n  warnings.warn(\nWARNING:root:external_cohort_spec provided but contains no cohort entries; skipping external validation.\n[STEP  4/12] Imputation & imbalance strategy...\n[STEP  5/12] Building candidate models + CV scoring...\n[PROGRESS] 1/5 logistic_l1__t01_7a90008f\n[PROGRESS] 2/5 logistic_l2__t01_85b0b8f1\n[PROGRESS] 3/5 logistic_elasticnet__t01_933320f0\n[PROGRESS] 4/5 random_forest_balanced__t01_867801ea\n[PROGRESS] 5/5 hist_gradient_boosting_l2__t01_5e0c7f98\n[STEP  6/12] Model selection (one-SE rule)...\n[STEP  7/12] Calibration + threshold...\n[STEP  8/12] Evaluation (metrics + bootstrap CI)...\n[STEP  9/12] TRIPOD+AI assessments...\n/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1170: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters\n  warnings.warn(\n/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.2.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\n/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.2.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\n[STEP 12/12] Writing output files...\n",
+      "stdout_tail": "  Categorical encoding: 2 features detected, now 2 columns after OneHot.\n  Nonlinearity detected in 1 features: ['age_years']\nModelPool: /private/tmp/mlgg_sepsis/models/model_pool.pkl (3 families)\nSelectedModel: logistic_l1__t01_7a90008f\nPrimaryMetric(pr_auc,test): 0.159033\nModelSelectionReport: /private/tmp/mlgg_sepsis/evidence/model_selection_report.json\nEvaluationReport: /private/tmp/mlgg_sepsis/evidence/evaluation_report.json\nPredictionTrace: /private/tmp/mlgg_sepsis/evidence/prediction_trace.csv.gz\nExternalValidationReport: /private/tmp/mlgg_sepsis/evidence/external_validation_report.json\nRobustnessReport: /private/tmp/mlgg_sepsis/evidence/robustness_report.json\nSeedSensitivityReport: /private/tmp/mlgg_sepsis/evidence/seed_sensitivity_report.json\nFeatureEngineeringReport: /private/tmp/mlgg_sepsis/evidence/feature_engineering_report.json\nDistributionReport: /private/tmp/mlgg_sepsis/evidence/distribution_report.json\nCIMatrixReport: /private/tmp/mlgg_sepsis/evidence/ci_matrix_report.json\n"
+    },
+    {
+      "command": "internal: generate_execution_attestation_bundle",
+      "description": "Generate keys, payload signatures, witness records, and execution_attestation spec.",
+      "end_utc": "2026-04-16T12:37:25.626824Z",
+      "exit_code": 0,
+      "expected_artifacts": [
+        "/private/tmp/mlgg_sepsis/configs/execution_attestation.json",
+        "/private/tmp/mlgg_sepsis/evidence/attestation_payload.json",
+        "/private/tmp/mlgg_sepsis/evidence/attestation.sig",
+        "/private/tmp/mlgg_sepsis/evidence/attestation_timestamp_record.json",
+        "/private/tmp/mlgg_sepsis/evidence/attestation_transparency_record.json",
+        "/private/tmp/mlgg_sepsis/evidence/attestation_execution_receipt_record.json",
+        "/private/tmp/mlgg_sepsis/evidence/attestation_execution_log_record.json",
+        "/private/tmp/mlgg_sepsis/evidence/attestation_witness_record_1.json",
+        "/private/tmp/mlgg_sepsis/evidence/attestation_witness_record_2.json"
+      ],
+      "name": "step6_attestation",
+      "start_utc": "2026-04-16T12:37:24.417258Z",
+      "status": "pass",
+      "stderr_tail": "",
+      "stdout_tail": ""
+    },
+    {
+      "command": "/usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/orchestration/run_productized_workflow.py --request /private/tmp/mlgg_sepsis/configs/request.json --evidence-dir /private/tmp/mlgg_sepsis/evidence --strict --allow-missing-compare --continue-on-fail --report /private/tmp/mlgg_sepsis/evidence/workflow_report_bootstrap.json",
+      "description": "Run strict workflow with bootstrap baseline generation.",
+      "end_utc": "2026-04-16T12:37:40.974667Z",
+      "exit_code": 2,
+      "expected_artifacts": [
+        "/private/tmp/mlgg_sepsis/evidence/dag_pipeline_report.json",
+        "/private/tmp/mlgg_sepsis/evidence/manifest_baseline.bootstrap.json",
+        "/private/tmp/mlgg_sepsis/evidence/user_summary.md",
+        "/private/tmp/mlgg_sepsis/evidence/workflow_report_bootstrap.json"
+      ],
+      "name": "step7_workflow_bootstrap",
+      "start_utc": "2026-04-16T12:37:25.626957Z",
+      "status": "fail",
+      "stderr_tail": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.2.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\n",
+      "stdout_tail": "in/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/gates/seed_stability_gate.py --seed-sensitivity-report /private/tmp/mlgg_sepsis/evidence/seed_sensitivity_report.json --performance-policy /private/tmp/mlgg_sepsis/configs/performance_policy.json --report /private/tmp/mlgg_sepsis/evidence/seed_stability_report.json --strict\n    [FAIL] calibration_dca_gate  (0.2s)\n                                     [--oe-ratio-warn-lower OE_RATIO_WARN_LOWER]\n                                     [--oe-ratio-warn-upper OE_RATIO_WARN_UPPER]\n                                     [--citl-fail-threshold CITL_FAIL_THRESHOLD]\n                                     [--citl-warn-threshold CITL_WARN_THRESHOLD]\n      calibration_dca_gate.py: error: the following arguments are required: --prediction-trace\n    [FAIL] distribution_generalization_gate  (0.7s)\n                                                 [--ignore-cols IGNORE_COLS]\n                                                 [--performance-policy PERFORMANCE_POLICY]\n                                                 [--distribution-report DISTRIBUTION_REPORT]\n                                                 [--report REPORT] [--strict]\n      distribution_generalization_gate.py: error: the following arguments are required: --external-validation-report\n    [FAIL] external_validation_gate  (0.2s)\n                                         --prediction-trace PREDICTION_TRACE\n                                         --evaluation-report EVALUATION_REPORT\n                                         [--performance-policy PERFORMANCE_POLICY]\n                                         [--report REPORT] [--strict]\n      external_validation_gate.py: error: the following arguments are required: --prediction-trace\n    [OK] fairness_equity_gate  (0.2s)\n    [OK] generalization_gap_gate  (0.2s)\n    [OK] permutation_significance_gate  (0.2s)\n    [FAIL] prediction_replay_gate  (0.2s)\n      usage: prediction_replay_gate.py [-h] --evaluation-report EVALUATION_REPORT\n                                       --prediction-trace PREDICTION_TRACE\n                                       [--performance-policy PERFORMANCE_POLICY]\n                                       [--report REPORT] [--strict]\n      prediction_replay_gate.py: error: the following arguments are required: --prediction-trace\n    [OK] robustness_gate  (0.2s)\n    [OK] sample_size_gate  (0.2s)\n    [OK] seed_stability_gate  (0.2s)\n\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n  Pipeline: 11 FAILED  (18/33 passed, 4 skipped, 12.2s)\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n\n  Failed gates:\n    \u2717 cohort_definition_gate\n    \u2717 definition_variable_guard\n    \u2717 missingness_policy_gate\n    \u2717 ci_matrix_gate\n    \u2717 clinical_metrics_gate\n    \u2717 feature_engineering_audit_gate\n    \u2717 shap_interpretability_gate\n    \u2717 calibration_dca_gate\n    \u2717 distribution_generalization_gate\n    \u2717 external_validation_gate\n    \u2717 prediction_replay_gate\n\n  Slowest gates:\n        3.2s  shap_interpretability_gate\n        0.8s  leakage_gate\n        0.7s  distribution_generalization_gate\n        0.7s  ci_matrix_gate\n        0.6s  covariate_shift_gate\n\nPipeline report: /private/tmp/mlgg_sepsis/evidence/dag_pipeline_report.json\n\n== Step: render_user_summary ==\n$ /usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/reporting/render_user_summary.py --evidence-dir /private/tmp/mlgg_sepsis/evidence --request /private/tmp/mlgg_sepsis/configs/request.json --out-markdown /private/tmp/mlgg_sepsis/evidence/user_summary.md --out-json /private/tmp/mlgg_sepsis/evidence/user_summary.json\nStatus: fail\nUserSummaryMarkdown: /private/tmp/mlgg_sepsis/evidence/user_summary.md\nUserSummaryJSON: /private/tmp/mlgg_sepsis/evidence/user_summary.json\n\nOverallStatus: fail\nWrapperReport: /private/tmp/mlgg_sepsis/evidence/workflow_report_bootstrap.json\nUserSummaryMarkdown: /private/tmp/mlgg_sepsis/evidence/user_summary.md\nUserSummaryJSON: /private/tmp/mlgg_sepsis/evidence/user_summary.json\n"
+    },
+    {
+      "command": "/usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/orchestration/run_productized_workflow.py --request /private/tmp/mlgg_sepsis/configs/request.json --evidence-dir /private/tmp/mlgg_sepsis/evidence --strict --compare-manifest /private/tmp/mlgg_sepsis/evidence/manifest_baseline.bootstrap.json --continue-on-fail --report /private/tmp/mlgg_sepsis/evidence/workflow_report_compare.json",
+      "description": "Rerun strict workflow against locked baseline manifest.",
+      "end_utc": "2026-04-16T12:37:56.334759Z",
+      "exit_code": 2,
+      "expected_artifacts": [
+        "/private/tmp/mlgg_sepsis/evidence/manifest_baseline.bootstrap.json",
+        "/private/tmp/mlgg_sepsis/evidence/dag_pipeline_report.json",
+        "/private/tmp/mlgg_sepsis/evidence/user_summary.md",
+        "/private/tmp/mlgg_sepsis/evidence/workflow_report_compare.json"
+      ],
+      "name": "step8_workflow_compare",
+      "start_utc": "2026-04-16T12:37:40.974904Z",
+      "status": "fail",
+      "stderr_tail": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.2.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\n",
+      "stdout_tail": "s/Seagate/Skill/ml-leakage-guard/scripts/gates/seed_stability_gate.py --seed-sensitivity-report /private/tmp/mlgg_sepsis/evidence/seed_sensitivity_report.json --performance-policy /private/tmp/mlgg_sepsis/configs/performance_policy.json --report /private/tmp/mlgg_sepsis/evidence/seed_stability_report.json --strict\n    [FAIL] calibration_dca_gate  (0.2s)\n                                     [--oe-ratio-warn-lower OE_RATIO_WARN_LOWER]\n                                     [--oe-ratio-warn-upper OE_RATIO_WARN_UPPER]\n                                     [--citl-fail-threshold CITL_FAIL_THRESHOLD]\n                                     [--citl-warn-threshold CITL_WARN_THRESHOLD]\n      calibration_dca_gate.py: error: the following arguments are required: --prediction-trace\n    [FAIL] distribution_generalization_gate  (0.7s)\n                                                 [--ignore-cols IGNORE_COLS]\n                                                 [--performance-policy PERFORMANCE_POLICY]\n                                                 [--distribution-report DISTRIBUTION_REPORT]\n                                                 [--report REPORT] [--strict]\n      distribution_generalization_gate.py: error: the following arguments are required: --external-validation-report\n    [FAIL] external_validation_gate  (0.2s)\n                                         --prediction-trace PREDICTION_TRACE\n                                         --evaluation-report EVALUATION_REPORT\n                                         [--performance-policy PERFORMANCE_POLICY]\n                                         [--report REPORT] [--strict]\n      external_validation_gate.py: error: the following arguments are required: --prediction-trace\n    [OK] fairness_equity_gate  (0.2s)\n    [OK] generalization_gap_gate  (0.2s)\n    [OK] permutation_significance_gate  (0.2s)\n    [FAIL] prediction_replay_gate  (0.2s)\n      usage: prediction_replay_gate.py [-h] --evaluation-report EVALUATION_REPORT\n                                       --prediction-trace PREDICTION_TRACE\n                                       [--performance-policy PERFORMANCE_POLICY]\n                                       [--report REPORT] [--strict]\n      prediction_replay_gate.py: error: the following arguments are required: --prediction-trace\n    [OK] robustness_gate  (0.2s)\n    [OK] sample_size_gate  (0.2s)\n    [OK] seed_stability_gate  (0.2s)\n\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n  Pipeline: 12 FAILED  (17/33 passed, 4 skipped, 12.2s)\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n\n  Failed gates:\n    \u2717 cohort_definition_gate\n    \u2717 manifest_lock\n    \u2717 definition_variable_guard\n    \u2717 missingness_policy_gate\n    \u2717 ci_matrix_gate\n    \u2717 clinical_metrics_gate\n    \u2717 feature_engineering_audit_gate\n    \u2717 shap_interpretability_gate\n    \u2717 calibration_dca_gate\n    \u2717 distribution_generalization_gate\n    \u2717 external_validation_gate\n    \u2717 prediction_replay_gate\n\n  Slowest gates:\n        3.1s  shap_interpretability_gate\n        0.8s  leakage_gate\n        0.7s  distribution_generalization_gate\n        0.7s  ci_matrix_gate\n        0.6s  covariate_shift_gate\n\nPipeline report: /private/tmp/mlgg_sepsis/evidence/dag_pipeline_report.json\n\n== Step: render_user_summary ==\n$ /usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/reporting/render_user_summary.py --evidence-dir /private/tmp/mlgg_sepsis/evidence --request /private/tmp/mlgg_sepsis/configs/request.json --out-markdown /private/tmp/mlgg_sepsis/evidence/user_summary.md --out-json /private/tmp/mlgg_sepsis/evidence/user_summary.json\nStatus: fail\nUserSummaryMarkdown: /private/tmp/mlgg_sepsis/evidence/user_summary.md\nUserSummaryJSON: /private/tmp/mlgg_sepsis/evidence/user_summary.json\n\nOverallStatus: fail\nWrapperReport: /private/tmp/mlgg_sepsis/evidence/workflow_report_compare.json\nUserSummaryMarkdown: /private/tmp/mlgg_sepsis/evidence/user_summary.md\nUserSummaryJSON: /private/tmp/mlgg_sepsis/evidence/user_summary.json\n"
+    }
+  ],
+  "stop_on_fail": false,
+  "strict_mode": true,
+  "termination_reason": "completed_with_failures"
+}

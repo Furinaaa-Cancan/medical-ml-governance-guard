@@ -41,9 +41,11 @@ ml-leakage-guard/
 │
 ├── experiments/                     # ─── Benchmarks & Test Results ───
 │   ├── authority-e2e/               # 4-dataset adversarial benchmark suite
-│   ├── support2-benchmark/          # SUPPORT2 reference (9105 rows, ROC-AUC 0.892)
-│   ├── nhanes-benchmark/           # NHANES reference (15549 rows, ROC-AUC 0.810)
-│   └── rhc-benchmark/              # RHC ICU reference (5735 rows, ROC-AUC 0.750)
+│   ├── support2-benchmark/          # SUPPORT2 (9105 rows, ROC-AUC 0.892)
+│   ├── nhanes-benchmark/           # NHANES (15549 rows, ROC-AUC 0.810)
+│   ├── rhc-benchmark/              # RHC ICU (5735 rows, ROC-AUC 0.750)
+│   ├── ckd-benchmark/              # CKD (399 rows, ROC-AUC 0.983)
+│   └── sepsis-benchmark/           # Sepsis (129K rows, ROC-AUC 0.689)
 │
 ├── agents/              (2 YAMLs)   # API agent configs (paper extractor + reviewer)
 │
@@ -114,10 +116,12 @@ Report: { status, failure_count, warning_count, failures[], warnings[],
 
 ## Tested Datasets
 
-| Dataset | Rows | Features | ROC-AUC | PR-AUC | Calibration | Benchmark |
-|---------|------|----------|---------|--------|-------------|-----------|
-| Pima Diabetes | 768 | 8 | 0.845 | 0.789 | — | — |
-| Framingham Heart | 4,240 | 16 | 0.737 | — | — | — |
-| **RHC ICU** | **5,735** | **37** | **0.750** | **0.834** | slope=0.977 | `experiments/rhc-benchmark/` |
-| **SUPPORT2** | **9,105** | **46** | **0.892** | **0.635** | slope=0.745 | `experiments/support2-benchmark/` |
-| **NHANES Diabetes** | **15,549** | **13** | **0.810** | **0.443** | — | `experiments/nhanes-benchmark/` |
+| Dataset | Rows | Features | Prevalence | ROC-AUC | PR-AUC | Calibration | Benchmark |
+|---------|------|----------|-----------|---------|--------|-------------|-----------|
+| **CKD** | **399** | **17** | 63% | **0.983** | **0.992** | slope=3.08 | `experiments/ckd-benchmark/` |
+| Pima Diabetes | 768 | 8 | 34% | 0.845 | 0.789 | — | — |
+| Framingham Heart | 4,240 | 16 | 16% | 0.737 | — | — | — |
+| **RHC ICU** | **5,735** | **37** | 65% | **0.750** | **0.834** | slope=0.977 | `experiments/rhc-benchmark/` |
+| **SUPPORT2** | **9,105** | **46** | 17% | **0.892** | **0.635** | slope=0.745 | `experiments/support2-benchmark/` |
+| **NHANES** | **15,549** | **13** | 18% | **0.810** | **0.443** | — | `experiments/nhanes-benchmark/` |
+| **Sepsis** | **129,392** | **3** | 9% | **0.689** | **0.159** | slope=0.804 | `experiments/sepsis-benchmark/` |

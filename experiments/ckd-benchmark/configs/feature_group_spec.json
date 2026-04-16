@@ -1,0 +1,56 @@
+{
+  "forbidden_features": [
+    "sg",
+    "al",
+    "rbc",
+    "hemo",
+    "pcv",
+    "rbcc",
+    "htn"
+  ],
+  "groups": {
+    "available_at_prediction": {
+      "features": [
+        "age",
+        "bp",
+        "su",
+        "pcc",
+        "ba",
+        "bu",
+        "pot",
+        "wbcc",
+        "cad",
+        "pe",
+        "ane"
+      ],
+      "timing": "at_prediction"
+    },
+    "excluded_post_prediction": {
+      "features": [
+        "sg",
+        "al",
+        "rbc",
+        "hemo",
+        "pcv",
+        "rbcc",
+        "htn"
+      ],
+      "note": "Auto-excluded: forbidden pattern match or |correlation|>0.6.",
+      "timing": "after_prediction"
+    },
+    "needs_review": {
+      "features": [
+        "pc",
+        "bgr",
+        "sc",
+        "sod",
+        "dm",
+        "appet"
+      ],
+      "note": "Moderate correlation with target (|r|>0.4). Verify these are available at prediction time.",
+      "timing": "unknown"
+    }
+  },
+  "notes": "Auto-generated with timing classification. Review 'needs_review' group.",
+  "prediction_time": "See study protocol \u2014 document when predictions are made."
+}

@@ -1,0 +1,13 @@
+{
+  "features": {
+    "age_years": {
+      "ancestors": []
+    },
+    "episode_number": {
+      "ancestors": []
+    },
+    "sex_0male_1female": {
+      "ancestors": []
+    }
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "changelog": "v2.0: Replaced fixed max_feature_missing_ratio with literature-backed tiered strategy per Madley-Dowd 2019, Jakobsen 2017, Sterne 2009",
+  "core_principle": "Missingness mechanism (MCAR/MAR/MNAR) determines strategy, not proportion alone (Madley-Dowd 2019: 'The proportion of missing data should not be used to guide decisions on multiple imputation')",
+  "forbid_test_usage": true,
+  "imputer_fit_scope": "train_only",
+  "literature_references": [
+    {
+      "citation": "Madley-Dowd P, Hughes R, Tilling K, Heron J. The proportion of missing data should not be used to guide decisions on multiple imputation. J Clin Epidemiol. 2019;110:63-73.",
+      "doi": "10.1016/j.jclinepi.2019.02.016",
+      "id": "MISS-REF-001",
+      "key_finding": "Bias depends on mechanism, not proportion. MI works well even at 90% missing under correct MAR model."
+    },
+    {
+      "citation": "Jakobsen JC, Gluud C, Wetterslev J, Winkel P. When and how should multiple imputation be used for handling missing data in randomised clinical trials. BMC Med Res Methodol. 2017;17:162.",
+      "doi": "10.1186/s12874-017-0442-1",
+      "id": "MISS-REF-002",
+      "key_finding": "40% threshold for MI stability in RCTs. Does NOT apply to feature selection in prediction models."
+    },
+    {
+      "citation": "Sterne JAC, White IR, Carlin JB, et al. Multiple imputation for missing data in epidemiological and clinical research: potential and pitfalls. BMJ. 2009;338:b2393.",
+      "doi": "10.1136/bmj.b2393",
+      "id": "MISS-REF-003",
+      "key_finding": "No fixed threshold endorsed. Decision based on mechanism, not proportion."
+    },
+    {
+      "citation": "Sperrin M, Martin GP, et al. Missing data should be handled differently for prediction than for description or causal inference. J Clin Epidemiol. 2020;125:183-187.",
+      "doi": "10.1016/j.jclinepi.2020.03.028",
+      "id": "MISS-REF-004",
+      "key_finding": "Missing indicator method is legitimate for prediction models."
+    },
+    {
+      "citation": "Groenwold RHH, et al. Missing covariate data in clinical research: when and when not to use the missing-indicator method for analysis. CMAJ. 2012;184(11):1265-1269.",
+      "doi": "10.1503/cmaj.110977",
+      "id": "MISS-REF-005",
+      "key_finding": "Missing indicator valid for prediction, invalid for causal inference."
+    },
+    {
+      "citation": "Nijman SWJ, et al. Missing data is poorly handled and reported in prediction model studies using machine learning. J Clin Epidemiol. 2022;142:218-229.",
+      "doi": "10.1016/j.jclinepi.2021.11.023",
+      "id": "MISS-REF-006",
+      "key_finding": "Most ML studies use ad hoc deletion thresholds without justification. Recommends missing indicators."
+    },
+    {
+      "citation": "van Buuren S. Flexible Imputation of Missing Data. 2nd ed. Chapman & Hall/CRC; 2018.",
+      "doi": "10.1201/9780429492259",
+      "id": "MISS-REF-007",
+      "key_finding": "No fixed threshold for MI failure. Predictive mean matching robust to high missingness."
+    },
+    {
+      "citation": "Bennett DA. How can I deal with missing data in my study? Aust N Z J Public Health. 2001;25(5):464-469.",
+      "doi": "10.1111/j.1467-842X.2001.tb00294.x",
+      "id": "MISS-REF-008",
+      "key_finding": ">10% missingness can bias complete-case analysis, but threshold is for CCA validity, not feature exclusion."
+    },
+    {
+      "citation": "Dong Y, Peng CYJ. Principled missing data methods for researchers. SpringerPlus. 2013;2:222.",
+      "doi": "10.1186/2193-1801-2-222",
+      "id": "MISS-REF-009",
+      "key_finding": "Warns against relying on any single threshold. Method choice driven by mechanism."
+    }
+  ],
+  "mechanism_assessment": {
+    "methods": [
+      "Little's MCAR test (statistical)",
+      "Missingness pattern visualization (heatmap)",
+      "Logistic regression: predict missingness from other observed variables (MAR evidence)",
+      "Clinical domain knowledge for MNAR assessment"
+    ],
+    "note": "EHR data: assume MAR or MNAR by default. MCAR is rare in clinical data \u2014 a missing lab value reflects clinical decision-making.",
+    "required": true
+  },
+  "missing_indicator_policy": {
+    "evidence_against": "Jones 1996, Knol 2010 (biased for causal inference \u2014 does NOT apply to prediction models)",
+    "evidence_for": "Sperrin 2020 (valid for prediction, not causal inference); Groenwold 2012 (CMAJ: valid for prediction); Nijman 2022 (recommends for ML prediction)",
+    "implementation": "Add binary column <feature>_missing before imputation, on each split independently",
+    "when_required": "missingness >10% OR missingness plausibly informative (MNAR)"
+  },
+  "reporting_requirements_tripod_ai": {
+    "item_7a": "Report number and proportion missing per variable",
+    "item_7b": "Report handling method with justification",
+    "item_7c": "Describe imputation model (variables, n_imputations, software)",
+    "item_7d": "Report sensitivity analyses for missing data assumptions"
+  },
+  "scale_guard": {
+    "fallback_strategy": "simple_with_indicator",
+    "fallback_triggered": false,
+    "mice_max_cols": 200,
+    "mice_max_rows": 200000,
+    "note": "MICE computational cost scales quadratically. For large datasets, use simple imputation + missing indicator as auditable fallback."
+  },
+  "scale_guard_evidence": {
+    "fallback_strategy": "simple_with_indicator",
+    "fallback_triggered": false,
+    "feature_count_seen": 3,
+    "train_rows_seen": 77635
+  },
+  "strategy": "tiered_mechanism_first",
+  "tiered_strategy": {
+    "tier_1_trivial": {
+      "action": "Simple imputation (median for numeric, mode for categorical)",
+      "justification": "Universally accepted as negligible; complete-case analysis also acceptable (Bennett 2001, Dong & Peng 2013)",
+      "missing_indicator": false,
+      "range": "<5%",
+      "sensitivity_analysis": false
+    },
+    "tier_2_moderate": {
+      "action": "Multiple imputation (MICE preferred) with mechanism assessment",
+      "justification": "Jakobsen 2017: MI reliable in this range under MAR; Sterne 2009: MI preferred over complete-case",
+      "missing_indicator": "required if missingness may be informative (>10%)",
+      "range": "5-40%",
+      "sensitivity_analysis": "recommended"
+    },
+    "tier_3_high": {
+      "action": "MI + missing indicator + mandatory sensitivity analysis (MNAR scenario)",
+      "justification": "Madley-Dowd 2019: MI can perform well even at 90% under correct MAR model; Jakobsen 2017 caution applies to MI stability, not to feature retention",
+      "missing_indicator": true,
+      "range": "40-80%",
+      "sensitivity_analysis": true
+    },
+    "tier_4_extreme": {
+      "action": "Per-feature clinical review required. Options: (a) retain as missing indicator only, (b) MI if clinically critical and imputation model well-specified, (c) drop with documented justification",
+      "auto_drop": false,
+      "justification": "No literature supports automatic exclusion at any threshold. EHR missingness is almost never MCAR (Sperrin 2020). Decision must be per-feature with clinical rationale.",
+      "missing_indicator": true,
+      "range": ">80%",
+      "sensitivity_analysis": true
+    }
+  },
+  "use_target_in_imputation": false,
+  "valid_used_for_fit": false,
+  "version": "2.0",
+  "version_date": "2026-04-04"
+}

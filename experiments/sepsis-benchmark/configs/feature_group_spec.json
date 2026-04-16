@@ -1,0 +1,15 @@
+{
+  "forbidden_features": [],
+  "groups": {
+    "available_at_prediction": {
+      "features": [
+        "age_years",
+        "sex_0male_1female",
+        "episode_number"
+      ],
+      "timing": "at_prediction"
+    }
+  },
+  "notes": "Auto-generated with timing classification. Review 'needs_review' group.",
+  "prediction_time": "See study protocol \u2014 document when predictions are made."
+}
