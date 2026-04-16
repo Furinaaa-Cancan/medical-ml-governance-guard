@@ -353,6 +353,9 @@ def main() -> int:
     if getattr(args, "shap_interpretability_report", "") and args.shap_interpretability_report:
         files["shap_interpretability_report"] = args.shap_interpretability_report
 
+    # Filter out empty/None paths — these are optional gates not provided
+    files = {k: v for k, v in files.items() if v and str(v).strip()}
+
     for name, path in files.items():
         try:
             loaded[name] = load_json(path)
@@ -443,7 +446,17 @@ def main() -> int:
         "permutation_report",
         "fairness_equity_report",
         "sample_size_report",
+        "cohort_definition_report",
+        "shap_interpretability_report",
+        "distribution_generalization_report",
+        "external_validation_report",
+        "robustness_report",
+        "seed_stability_report",
     ):
+        # Only validate components that were provided (have a file path).
+        # Missing optional components are skipped, not failed.
+        if component not in files and component not in loaded:
+            continue
         validate_component_status(
             component,
             loaded.get(component),

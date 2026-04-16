@@ -270,12 +270,25 @@ def main() -> int:
     # When columns differ between splits, restrict hashing to shared columns
     # so that extra columns don't defeat the overlap check.
     restrict = intersection_cols - ignore_cols if union_cols != intersection_cols else None
-    signature_sets: Dict[str, Set[str]] = {}
-    for split_name, split in splits.items():
-        signature_sets[split_name] = {
-            row_signature(row, ignore_cols, restrict_cols=restrict)
-            for row in split["rows"]
-        }
+    # Guard: if shared columns (after ignoring IDs) are empty, skip row overlap
+    # to avoid false positives from hashing empty payloads.
+    if restrict is not None and not restrict:
+        add_issue(
+            warnings,
+            "row_overlap_skipped",
+            "No shared feature columns across splits after excluding ID/time columns. "
+            "Row overlap check skipped to avoid false positives.",
+            {"intersection_cols": sorted(intersection_cols), "ignore_cols": sorted(ignore_cols)},
+        )
+        restrict = None  # fall through to skip row overlap
+        signature_sets: Dict[str, Set[str]] = {}
+    else:
+        signature_sets: Dict[str, Set[str]] = {}
+        for split_name, split in splits.items():
+            signature_sets[split_name] = {
+                row_signature(row, ignore_cols, restrict_cols=restrict)
+                for row in split["rows"]
+            }
 
     for a, b in itertools.combinations(signature_sets.keys(), 2):
         overlap = signature_sets[a] & signature_sets[b]
