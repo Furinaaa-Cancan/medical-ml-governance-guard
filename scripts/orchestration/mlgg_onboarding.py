@@ -718,6 +718,31 @@ def build_train_command(
         except Exception as _exc:
             print(f"[WARN] Could not load phenotype definitions for auto-exclusion: {_exc}")
 
+    # Auto-exclude features with |correlation| > 0.5 to target (likely outcome proxies)
+    train_path = data / "train.csv"
+    if train_path.exists():
+        try:
+            import pandas as _pd
+            _df = _pd.read_csv(train_path, nrows=5000)  # sample for speed
+            _y = _pd.to_numeric(_df[target_col], errors="coerce")
+            _corr_excluded = []
+            for _col in _df.columns:
+                if _col in ignore_parts or _col in (target_col, patient_id_col, time_col):
+                    continue
+                _series = _pd.to_numeric(_df[_col], errors="coerce")
+                if _series.isna().all():
+                    continue
+                _corr = _series.corr(_y)
+                if _corr is not None and abs(_corr) > 0.5:
+                    _corr_excluded.append((_col, round(_corr, 3)))
+            if _corr_excluded:
+                _names = [c[0] for c in _corr_excluded]
+                ignore_parts = sorted(set(ignore_parts) | set(_names))
+                print(f"[WARN] Auto-excluded {len(_corr_excluded)} high-correlation features (|r|>0.5): "
+                      f"{[f'{n} (r={r:+.3f})' for n, r in _corr_excluded]}")
+        except Exception as _exc:
+            print(f"[WARN] Correlation-based exclusion failed: {_exc}")
+
     cmd = [
         python_bin,
         str(SCRIPTS_ROOT / "training/train_select_evaluate.py"),

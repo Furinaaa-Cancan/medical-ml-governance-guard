@@ -67,10 +67,17 @@ def copy_template_json(src_name: str, dst_path: Path, force: bool) -> str:
 def make_phenotype_template(target_name: str) -> Dict[str, Any]:
     return {
         "global_forbidden_patterns": [
+            # Outcome / label
             "(?i)target", "(?i)label", "(?i)outcome",
+            # Survival / prognosis
             "(?i)surv\\d", "(?i)survival", "(?i)prognos", "(?i)prg\\d",
             "(?i)mortality", "(?i)death", "(?i)died",
-            "(?i)readmit", "(?i)los$", "(?i)length.of.stay",
+            "(?i)readmit",
+            # Post-discharge / future information
+            "(?i)^charges$", "(?i)^totcst$", "(?i)^totmcst$",
+            "(?i)cost", "(?i)^los$", "(?i)^slos$", "(?i)length.of.stay",
+            "(?i)discharge", "(?i)^hday$", "(?i)^dnr",
+            "(?i)days?.in?.(?:hospital|icu|unit)",
         ],
         "targets": {
             target_name: {
