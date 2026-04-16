@@ -159,12 +159,18 @@ See `vscode/` directory. The extension:
 - ANSI escapes stripped from messages in no-color mode
 - Malformed TOML configs handled gracefully (defaults used)
 
+## Known Limitations
+
+- **R001 scope**: R001 (fit-before-split) only scans module-level code. Leakage inside function or class bodies is not flagged — the tool cannot determine whether a function is called before or after splitting. All other rules (R002-R027) work inside functions.
+- **Single-file analysis**: Each file is analyzed independently. Cross-file leakage (e.g., `helper.py` fits a scaler, `main.py` splits) is not detected. This is consistent with flake8/ruff.
+- **Jupyter notebooks**: Cells are concatenated and analyzed as a single script. Cross-cell leakage is detected correctly.
+
 ## Tests
 
 ```bash
 cd plugin
 PYTHONPATH=. python3 -m pytest tests/ -v
-# 69+ tests, ~0.15s
+# 111 tests, ~0.3s
 ```
 
 ## Architecture
