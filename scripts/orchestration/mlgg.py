@@ -297,6 +297,10 @@ COMMANDS: Dict[str, Tuple[Path, str]] = {
         SCRIPTS_ROOT / "diagnostics" / "init_guide.py",
         "Generate MLGG methodology guide (.mlgg/ + CLAUDE.md) for any ML project.",
     ),
+    "record-session": (
+        SCRIPTS_ROOT / "reporting" / "record_session.py",
+        "Append a session log entry from evidence directory.",
+    ),
 }
 INTERACTIVE_CORE_COMMANDS = ("init", "workflow", "train", "authority")
 COMMAND_PRESETS: Dict[str, Tuple[str, ...]] = {
