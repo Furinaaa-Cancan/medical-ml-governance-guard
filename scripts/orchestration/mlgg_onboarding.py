@@ -718,7 +718,10 @@ def build_train_command(
         except Exception as _exc:
             print(f"[WARN] Could not load phenotype definitions for auto-exclusion: {_exc}")
 
-    # Auto-exclude features with |correlation| > 0.5 to target (likely outcome proxies)
+    # Auto-exclude features with very high |correlation| to target (likely outcome proxies).
+    # Threshold 0.6 balances catching surv2m (r=-0.58) while keeping legitimate
+    # severity scores like avtisst (TISS, r=+0.56) and aps (APACHE, r=+0.49).
+    _CORR_EXCLUDE_THRESHOLD = 0.6
     train_path = data / "train.csv"
     if train_path.exists():
         try:
@@ -733,12 +736,13 @@ def build_train_command(
                 if _series.isna().all():
                     continue
                 _corr = _series.corr(_y)
-                if _corr is not None and abs(_corr) > 0.5:
+                if _corr is not None and abs(_corr) > _CORR_EXCLUDE_THRESHOLD:
                     _corr_excluded.append((_col, round(_corr, 3)))
             if _corr_excluded:
                 _names = [c[0] for c in _corr_excluded]
                 ignore_parts = sorted(set(ignore_parts) | set(_names))
-                print(f"[WARN] Auto-excluded {len(_corr_excluded)} high-correlation features (|r|>0.5): "
+                print(f"[WARN] Auto-excluded {len(_corr_excluded)} high-correlation features "
+                      f"(|r|>{_CORR_EXCLUDE_THRESHOLD}): "
                       f"{[f'{n} (r={r:+.3f})' for n, r in _corr_excluded]}")
         except Exception as _exc:
             print(f"[WARN] Correlation-based exclusion failed: {_exc}")

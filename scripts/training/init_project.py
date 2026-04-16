@@ -68,16 +68,18 @@ def make_phenotype_template(target_name: str) -> Dict[str, Any]:
     return {
         "global_forbidden_patterns": [
             # Outcome / label
-            "(?i)target", "(?i)label", "(?i)outcome",
-            # Survival / prognosis
-            "(?i)surv\\d", "(?i)survival", "(?i)prognos", "(?i)prg\\d",
-            "(?i)mortality", "(?i)death", "(?i)died",
-            "(?i)readmit",
-            # Post-discharge / future information
+            "(?i)^target$", "(?i)^label$", "(?i)^outcome$",
+            # Survival / prognosis scores
+            "(?i)surv\\d", "(?i)^survival", "(?i)prognos", "(?i)prg\\d",
+            "(?i)^mortality", "(?i)^death$", "(?i)^died$",
+            "(?i)^readmit",
+            # Post-discharge / future information (anchored to avoid false matches)
             "(?i)^charges$", "(?i)^totcst$", "(?i)^totmcst$",
-            "(?i)cost", "(?i)^los$", "(?i)^slos$", "(?i)length.of.stay",
-            "(?i)discharge", "(?i)^hday$", "(?i)^dnr",
-            "(?i)days?.in?.(?:hospital|icu|unit)",
+            "(?i)^total.cost$", "(?i)^los$", "(?i)^slos$",
+            "(?i)^length.of.stay$",
+            "(?i)^discharge.date", "(?i)^hday$",
+            "(?i)^dnr$", "(?i)^dnrday$",
+            "(?i)^days?.in?.(?:hospital|icu|unit)",
         ],
         "targets": {
             target_name: {

@@ -865,6 +865,10 @@ def select_features_by_filter(
         if not math.isfinite(missing_ratio) or missing_ratio > float(max_missing_ratio):
             dropped_missing.append(feature)
             continue
+        # Skip variance check for non-numeric columns (they'll be encoded later)
+        if series.dtype == object or str(series.dtype) == "category":
+            kept.append(feature)
+            continue
         numeric = pd.to_numeric(series, errors="coerce")
         variance = float(numeric.var(skipna=True)) if numeric.notna().any() else 0.0
         if not math.isfinite(variance) or variance <= float(min_variance):
@@ -929,6 +933,14 @@ def detect_categorical_features(
         nunique = int(series.nunique(dropna=True))
         is_numeric = pd.api.types.is_numeric_dtype(series)
         if nunique <= max_cardinality:
+            # Skip numeric columns that look ordinal (range >> cardinality)
+            # e.g. scoma (0-100, 11 unique values) should stay numeric, not OneHot
+            if is_numeric and nunique >= 3:
+                vals = series.dropna()
+                val_range = float(vals.max() - vals.min())
+                if val_range > nunique * 3:
+                    continue  # ordinal numeric — keep as-is
+
             entry: Dict[str, Any] = {
                 "feature": feat,
                 "cardinality": nunique,
