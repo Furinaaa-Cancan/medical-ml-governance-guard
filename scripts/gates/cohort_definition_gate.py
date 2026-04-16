@@ -647,11 +647,11 @@ def analyze_cohort(
                 continue
             try:
                 corr = _to_float(series.corr(y_numeric))
-                if corr is not None and abs(corr) > 0.8:
+                if corr is not None and abs(corr) > 0.4:
                     suspicious_correlations.append({
                         "feature": feat,
                         "abs_correlation": round(abs(corr), 4),
-                        "risk": "very_high" if abs(corr) > 0.95 else "high",
+                        "risk": "very_high" if abs(corr) > 0.8 else "high" if abs(corr) > 0.6 else "moderate",
                     })
             except Exception as exc:
                 print(f"[cohort] correlation {feat}: {exc}", file=sys.stderr)
@@ -923,22 +923,23 @@ def _run_checks(
     sus_corr = analysis.get("suspicious_correlations", [])
     if sus_corr:
         very_high = [s for s in sus_corr if s["risk"] == "very_high"]
+        high = [s for s in sus_corr if s["risk"] == "high"]
         if very_high:
             add_issue(
                 failures, "COHORT_OUTCOME_DEFINITION_LEAKAGE",
-                f"{len(very_high)} feature(s) have |correlation| > 0.95 with target: "
+                f"{len(very_high)} feature(s) have |correlation| > 0.8 with target: "
                 f"{[s['feature'] for s in very_high]}. "
                 f"This almost certainly indicates data leakage — the feature may "
                 f"encode or directly derive from the outcome.",
                 {"features": very_high},
             )
-        else:
+        if high:
             add_issue(
                 warnings_list, "COHORT_OUTCOME_DEFINITION_LEAKAGE",
-                f"{len(sus_corr)} feature(s) have |correlation| > 0.8 with target: "
-                f"{[s['feature'] for s in sus_corr[:5]]}. "
+                f"{len(high)} feature(s) have |correlation| > 0.6 with target: "
+                f"{[s['feature'] for s in high[:5]]}. "
                 f"Investigate whether these derive from the outcome definition.",
-                {"features": sus_corr[:5]},
+                {"features": high[:5]},
             )
 
     # Missingness-outcome correlation (MNAR signal)
@@ -1262,7 +1263,9 @@ def main() -> int:
         # Heuristic: warn if common definition variables are present
         _DEF_PATTERNS = ["hba1c", "a1c", "glucose", "fasting_glucose", "fbg",
                          "ogtt", "icd", "diagnosis", "dx_code", "confirmed",
-                         "lab_result", "test_result"]
+                         "lab_result", "test_result",
+                         "surv2m", "surv6m", "survival", "prognos", "prg2m", "prg6m",
+                         "mortality", "death", "died", "readmit"]
         suspected = [c for c in df.columns
                      if any(p in c.lower() for p in _DEF_PATTERNS)
                      and c != args.target_col]
