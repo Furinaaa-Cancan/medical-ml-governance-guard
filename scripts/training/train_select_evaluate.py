@@ -936,20 +936,24 @@ def detect_categorical_features(
         nunique = int(series.nunique(dropna=True))
         is_numeric = pd.api.types.is_numeric_dtype(series)
         if nunique <= max_cardinality:
-            # Skip numeric columns that look ordinal (range >> cardinality)
-            # e.g. scoma (0-100, 11 unique values) should stay numeric, not OneHot.
-            # But NOT sparse codes like ICD (1,2,3,50,100) where gaps are large
-            # but values aren't meaningfully ordered — check that values are
-            # roughly evenly spaced (std of gaps < mean of gaps).
+            # Keep numeric columns that look ordinal as numeric (not OneHot).
+            # Two heuristics:
+            #   a) Small consecutive integers (0,1,2,3 or 1,2,3,4,5) — Likert/severity
+            #   b) Wide range with even gaps (0,10,20,...,100) — scores like scoma
+            # Exclude sparse codes (1,2,50,100) where gaps vary wildly.
             if is_numeric and nunique >= 3:
                 vals = sorted(series.dropna().unique())
                 val_range = float(vals[-1] - vals[0])
-                if val_range > nunique * 3 and len(vals) >= 3:
+                # (a) Small consecutive integers: range == nunique - 1
+                if val_range <= nunique and all(float(v).is_integer() for v in vals):
+                    continue  # ordinal integer scale (0-4, 1-5, etc.)
+                # (b) Wide range with even gaps
+                if val_range > nunique * 2 and len(vals) >= 3:
                     gaps = [float(vals[i+1] - vals[i]) for i in range(len(vals)-1)]
                     mean_gap = sum(gaps) / len(gaps)
                     std_gap = (sum((g - mean_gap)**2 for g in gaps) / len(gaps)) ** 0.5
                     if mean_gap > 0 and std_gap / mean_gap < 1.0:
-                        continue  # evenly spaced ordinal — keep as-is
+                        continue  # evenly spaced ordinal (scoma 0-100)
 
             entry: Dict[str, Any] = {
                 "feature": feat,
@@ -8052,10 +8056,17 @@ def _phase10_12_reports_output(ctx: Dict[str, Any]) -> int:
         }
 
         time_values = pd.to_datetime(test_df["event_time"], errors="coerce", utc=True) if "event_time" in test_df.columns else None
-        if time_values is None or bool(time_values.isna().any()):
+        if time_values is None or bool(time_values.isna().all()):
             import logging as _logging
             _logging.warning("No parseable event_time in test split; skipping temporal robustness slices (cross-sectional data).")
             time_values = None
+        elif time_values is not None and bool(time_values.isna().any()):
+            # Drop rows with unparseable timestamps, keep the rest
+            import logging as _logging
+            _n_bad = int(time_values.isna().sum())
+            _logging.warning(f"Dropped {_n_bad} rows with unparseable event_time from temporal robustness analysis.")
+            _valid_mask = time_values.notna()
+            time_values = time_values[_valid_mask]
         if time_values is not None:
             sorted_index = np.asarray(np.argsort(time_values.to_numpy()), dtype=int)
             for slice_idx, idx_block in enumerate(np.array_split(sorted_index, time_slices), start=1):
@@ -8452,8 +8463,11 @@ def _phase10_12_reports_output(ctx: Dict[str, Any]) -> int:
         try:
             from _security import sign_model_artifact, ArtifactManifest
             sign_model_artifact(model_out)
-        except Exception:  # noqa: BLE001
-            pass  # Signing is advisory; do not block pipeline
+        except ImportError:
+            pass  # _security module not available — skip signing
+        except Exception as _sign_exc:  # noqa: BLE001
+            import logging as _logging
+            _logging.warning(f"Model signing failed for {model_out}: {_sign_exc}")
 
     if getattr(args, "model_pool_out", None):
         pool_out = Path(args.model_pool_out).expanduser().resolve()
@@ -8499,8 +8513,11 @@ def _phase10_12_reports_output(ctx: Dict[str, Any]) -> int:
         try:
             from _security import sign_model_artifact
             sign_model_artifact(pool_out)
-        except Exception:  # noqa: BLE001 — signing advisory
+        except ImportError:
             pass
+        except Exception as _sign_exc:  # noqa: BLE001
+            import logging as _logging
+            _logging.warning(f"Model pool signing failed for {pool_out}: {_sign_exc}")
         print(f"ModelPool: {pool_out} ({len(pool_families)} families)")
 
     if args.permutation_null_out:

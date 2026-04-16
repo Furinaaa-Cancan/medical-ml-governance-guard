@@ -31,7 +31,8 @@
       "ancestors": []
     },
     "charges": {
-      "ancestors": []
+      "ancestors": [],
+      "forbidden": true
     },
     "crea": {
       "ancestors": []
@@ -43,10 +44,12 @@
       "ancestors": []
     },
     "dnr": {
-      "ancestors": []
+      "ancestors": [],
+      "forbidden": true
     },
     "dnrday": {
-      "ancestors": []
+      "ancestors": [],
+      "forbidden": true
     },
     "dzclass": {
       "ancestors": []
@@ -61,7 +64,8 @@
       "ancestors": []
     },
     "hday": {
-      "ancestors": []
+      "ancestors": [],
+      "forbidden": true
     },
     "hrt": {
       "ancestors": []
@@ -82,10 +86,12 @@
       "ancestors": []
     },
     "prg2m": {
-      "ancestors": []
+      "ancestors": [],
+      "forbidden": true
     },
     "prg6m": {
-      "ancestors": []
+      "ancestors": [],
+      "forbidden": true
     },
     "race": {
       "ancestors": []
@@ -100,7 +106,8 @@
       "ancestors": []
     },
     "slos": {
-      "ancestors": []
+      "ancestors": [],
+      "forbidden": true
     },
     "sod": {
       "ancestors": []
@@ -109,19 +116,23 @@
       "ancestors": []
     },
     "surv2m": {
-      "ancestors": []
+      "ancestors": [],
+      "forbidden": true
     },
     "surv6m": {
-      "ancestors": []
+      "ancestors": [],
+      "forbidden": true
     },
     "temp": {
       "ancestors": []
     },
     "totcst": {
-      "ancestors": []
+      "ancestors": [],
+      "forbidden": true
     },
     "totmcst": {
-      "ancestors": []
+      "ancestors": [],
+      "forbidden": true
     },
     "urine": {
       "ancestors": []
