@@ -356,9 +356,10 @@ def _build_standard_gate_cmd(
             cmd.extend([cli_flag, str(value)])
 
     # String value inputs from normalized request
+    _SENTINEL_SKIP_VALUES = {"_no_time_column"}
     for req_field, cli_flag in spec.value_inputs.items():
         value = normalized.get(req_field)
-        if value is not None:
+        if value is not None and str(value) not in _SENTINEL_SKIP_VALUES:
             cmd.extend([cli_flag, str(value)])
 
     # Report input mappings (cross-gate dependencies)
@@ -942,13 +943,23 @@ def main() -> int:
         ready: List[str] = []
         for gate_name in runnable_in_layer:
             spec = GATE_REGISTRY[gate_name]
-            deps_met = all(
-                (d in passed_gates or d in newly_passed or d not in gates_to_run)
-                and (d not in gates_to_run
-                     or (evidence_dir / GATE_REGISTRY[d].report_output).exists()
-                     if d in GATE_REGISTRY else True)
-                for d in spec.depends_on
-            )
+            if continue_on_fail:
+                # In continue-on-fail mode, run the gate if its dependency
+                # report files exist on disk (even if the dep failed).
+                deps_met = all(
+                    (d not in gates_to_run)
+                    or (d in passed_gates or d in newly_passed)
+                    or (d in GATE_REGISTRY and (evidence_dir / GATE_REGISTRY[d].report_output).exists())
+                    for d in spec.depends_on
+                )
+            else:
+                deps_met = all(
+                    (d in passed_gates or d in newly_passed or d not in gates_to_run)
+                    and (d not in gates_to_run
+                         or (evidence_dir / GATE_REGISTRY[d].report_output).exists()
+                         if d in GATE_REGISTRY else True)
+                    for d in spec.depends_on
+                )
             if deps_met:
                 ready.append(gate_name)
             else:
