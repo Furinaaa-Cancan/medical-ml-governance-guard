@@ -941,24 +941,22 @@ def main() -> int:
             continue
 
         # Check if all dependencies have passed
+        # In continue-on-fail mode, accept dependency reports written
+        # during this pipeline run (mtime within threshold).
+        _STALE_REPORT_SECONDS = 28800  # 8 hours — covers long-running pipelines
+        def _dep_report_current(dep_name: str) -> bool:
+            if dep_name not in GATE_REGISTRY:
+                return True
+            rp = evidence_dir / GATE_REGISTRY[dep_name].report_output
+            if not rp.exists():
+                return False
+            return (time.time() - rp.stat().st_mtime) < _STALE_REPORT_SECONDS
+
         blocked: List[str] = []
         ready: List[str] = []
         for gate_name in runnable_in_layer:
             spec = GATE_REGISTRY[gate_name]
             if continue_on_fail:
-                # In continue-on-fail mode, run the gate if its dependency
-                # report files exist on disk (even if the dep failed).
-                # Check mtime to avoid stale reports from previous runs.
-                def _dep_report_current(dep_name: str) -> bool:
-                    if dep_name not in GATE_REGISTRY:
-                        return True
-                    rp = evidence_dir / GATE_REGISTRY[dep_name].report_output
-                    if not rp.exists():
-                        return False
-                    # Accept if written during this pipeline run (within last hour)
-                    import time as _time
-                    return (_time.time() - rp.stat().st_mtime) < 3600
-
                 deps_met = all(
                     (d not in gates_to_run)
                     or (d in passed_gates or d in newly_passed)

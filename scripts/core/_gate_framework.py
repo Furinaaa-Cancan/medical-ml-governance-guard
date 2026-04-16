@@ -241,13 +241,15 @@ def build_report_envelope(
             if k not in _RESERVED:
                 envelope[k] = v
 
-    # Embed peer review context into report when gate has failures
+    # Always include peer_review_context for deterministic report schema.
+    # Empty list when no failures or KB unavailable.
+    _peer_ctx: list = []
     if failures:
         try:
             from _peer_review_retrieval import retrieve_by_gate
             peer_results = retrieve_by_gate(gate_name, limit=5)
             if peer_results:
-                envelope["peer_review_context"] = [
+                _peer_ctx = [
                     {
                         "concern_id": c.get("concern_id", ""),
                         "paper_id": c.get("_paper_id", c.get("paper_id", c.get("concern_id", "")[:6])),
@@ -259,7 +261,8 @@ def build_report_envelope(
                     for c in peer_results
                 ]
         except (ImportError, FileNotFoundError):
-            pass  # Peer review KB not available — skip silently
+            pass
+    envelope["peer_review_context"] = _peer_ctx
 
     return envelope
 
