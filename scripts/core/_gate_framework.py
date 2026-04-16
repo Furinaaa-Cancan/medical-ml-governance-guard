@@ -241,6 +241,26 @@ def build_report_envelope(
             if k not in _RESERVED:
                 envelope[k] = v
 
+    # Embed peer review context into report when gate has failures
+    if failures:
+        try:
+            from _peer_review_retrieval import retrieve_by_gate
+            peer_results = retrieve_by_gate(gate_name, limit=5)
+            if peer_results:
+                envelope["peer_review_context"] = [
+                    {
+                        "concern_id": c.get("concern_id", ""),
+                        "paper_id": c.get("paper_id", c.get("concern_id", "")[:6]),
+                        "severity": c.get("severity", ""),
+                        "concern": c.get("concern_text", c.get("concern", ""))[:200],
+                        "fix": c.get("author_response", c.get("fix", ""))[:200],
+                        "tags": c.get("tags", []),
+                    }
+                    for c in peer_results
+                ]
+        except Exception:
+            pass  # Peer review KB not available — skip silently
+
     return envelope
 
 

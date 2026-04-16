@@ -124,6 +124,10 @@ def _format_failed_gates(dag: Optional[Dict]) -> str:
                         reason = failures[0].get("code", "")
                     elif warnings:
                         reason = f"warning: {warnings[0].get('code', '')}"
+                    # Check for peer review context
+                    peer = report.get("peer_review_context", [])
+                    if peer:
+                        reason += f" | {len(peer)} NC paper citations"
             suffix = f" ({reason})" if reason else ""
             lines.append(f"- `{name}`{suffix}")
     return "\n".join(lines) if lines else "*No failures*"
