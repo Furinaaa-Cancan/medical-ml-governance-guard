@@ -250,15 +250,15 @@ def build_report_envelope(
                 envelope["peer_review_context"] = [
                     {
                         "concern_id": c.get("concern_id", ""),
-                        "paper_id": c.get("paper_id", c.get("concern_id", "")[:6]),
+                        "paper_id": c.get("_paper_id", c.get("paper_id", c.get("concern_id", "")[:6])),
                         "severity": c.get("severity", ""),
-                        "concern": c.get("concern_text", c.get("concern", ""))[:200],
-                        "fix": c.get("author_response", c.get("fix", ""))[:200],
+                        "concern": c.get("concern_text", "")[:200],
+                        "fix": c.get("author_response", "")[:200],
                         "tags": c.get("tags", []),
                     }
                     for c in peer_results
                 ]
-        except Exception:
+        except (ImportError, FileNotFoundError):
             pass  # Peer review KB not available — skip silently
 
     return envelope

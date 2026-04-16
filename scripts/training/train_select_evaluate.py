@@ -937,12 +937,19 @@ def detect_categorical_features(
         is_numeric = pd.api.types.is_numeric_dtype(series)
         if nunique <= max_cardinality:
             # Skip numeric columns that look ordinal (range >> cardinality)
-            # e.g. scoma (0-100, 11 unique values) should stay numeric, not OneHot
+            # e.g. scoma (0-100, 11 unique values) should stay numeric, not OneHot.
+            # But NOT sparse codes like ICD (1,2,3,50,100) where gaps are large
+            # but values aren't meaningfully ordered — check that values are
+            # roughly evenly spaced (std of gaps < mean of gaps).
             if is_numeric and nunique >= 3:
-                vals = series.dropna()
-                val_range = float(vals.max() - vals.min())
-                if val_range > nunique * 3:
-                    continue  # ordinal numeric — keep as-is
+                vals = sorted(series.dropna().unique())
+                val_range = float(vals[-1] - vals[0])
+                if val_range > nunique * 3 and len(vals) >= 3:
+                    gaps = [float(vals[i+1] - vals[i]) for i in range(len(vals)-1)]
+                    mean_gap = sum(gaps) / len(gaps)
+                    std_gap = (sum((g - mean_gap)**2 for g in gaps) / len(gaps)) ** 0.5
+                    if mean_gap > 0 and std_gap / mean_gap < 1.0:
+                        continue  # evenly spaced ordinal — keep as-is
 
             entry: Dict[str, Any] = {
                 "feature": feat,
@@ -6009,7 +6016,7 @@ def _phase0_preflight_and_config(args: argparse.Namespace) -> Dict[str, Any]:
     # If cohort_definition_gate produced a report with codebook_auto_exclude_columns,
     # merge them into --definition-cols so they are forcibly excluded from features.
     _evidence_dir_for_codebook = Path(args.train).expanduser().resolve().parent.parent / "evidence"
-    _cohort_report_path = _evidence_dir_for_codebook / "cohort_definition_gate_report.json"
+    _cohort_report_path = _evidence_dir_for_codebook / "cohort_definition_report.json"
     if _cohort_report_path.is_file():
         try:
             with _cohort_report_path.open("r", encoding="utf-8") as _fh:
@@ -7871,9 +7878,9 @@ def _phase10_12_reports_output(ctx: Dict[str, Any]) -> int:
                 model_id=selected_model_id,
             )
         )
-        pr_auc_drop = float(test_metrics["pr_auc"] - metrics_ext["pr_auc"])
-        f2_drop = float(test_metrics["f2_beta"] - metrics_ext["f2_beta"])
-        brier_increase = float(metrics_ext["brier"] - test_metrics["brier"])
+        pr_auc_drop = float(test_metrics["pr_auc"] - metrics_ext["pr_auc"]) if "pr_auc" in test_metrics else None
+        f2_drop = float(test_metrics["f2_beta"] - metrics_ext["f2_beta"]) if "f2_beta" in test_metrics else None
+        brier_increase = float(metrics_ext["brier"] - test_metrics["brier"]) if "brier" in test_metrics else None
         external_rows.append(
             {
                 "cohort_id": cohort_id,

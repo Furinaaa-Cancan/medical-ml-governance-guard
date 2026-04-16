@@ -355,8 +355,10 @@ def _build_standard_gate_cmd(
         if value is not None:
             cmd.extend([cli_flag, str(value)])
 
-    # String value inputs from normalized request
-    _SENTINEL_SKIP_VALUES = {"_no_time_column"}
+    # String value inputs from normalized request.
+    # Skip sentinel values that signal "not applicable" (e.g., cross-sectional
+    # data has no time column). Prefix with __ to avoid collision with real column names.
+    _SENTINEL_SKIP_VALUES = {"_no_time_column", "__no_time_column"}
     for req_field, cli_flag in spec.value_inputs.items():
         value = normalized.get(req_field)
         if value is not None and str(value) not in _SENTINEL_SKIP_VALUES:
@@ -946,10 +948,21 @@ def main() -> int:
             if continue_on_fail:
                 # In continue-on-fail mode, run the gate if its dependency
                 # report files exist on disk (even if the dep failed).
+                # Check mtime to avoid stale reports from previous runs.
+                def _dep_report_current(dep_name: str) -> bool:
+                    if dep_name not in GATE_REGISTRY:
+                        return True
+                    rp = evidence_dir / GATE_REGISTRY[dep_name].report_output
+                    if not rp.exists():
+                        return False
+                    # Accept if written during this pipeline run (within last hour)
+                    import time as _time
+                    return (_time.time() - rp.stat().st_mtime) < 3600
+
                 deps_met = all(
                     (d not in gates_to_run)
                     or (d in passed_gates or d in newly_passed)
-                    or (d in GATE_REGISTRY and (evidence_dir / GATE_REGISTRY[d].report_output).exists())
+                    or _dep_report_current(d)
                     for d in spec.depends_on
                 )
             else:
