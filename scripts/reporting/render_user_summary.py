@@ -54,6 +54,8 @@ def _get_summary_field(payload: Dict[str, Any], key: str, default: Any = None) -
 def summarize_gate(name: str, payload: Optional[Dict[str, Any]]) -> Dict[str, Any]:
     if not isinstance(payload, dict):
         return {"name": name, "status": "missing", "failure_count": None, "warning_count": None}
+    peer_ctx = payload.get("peer_review_context", [])
+    peer_count = len(peer_ctx) if isinstance(peer_ctx, list) else 0
     return {
         "name": name,
         "status": str(payload.get("status", "unknown")),
@@ -61,6 +63,7 @@ def summarize_gate(name: str, payload: Optional[Dict[str, Any]]) -> Dict[str, An
         "warning_count": payload.get("warning_count"),
         "envelope_version": payload.get("envelope_version"),
         "execution_time_seconds": payload.get("execution_time_seconds"),
+        "peer_review_citations": peer_count,
     }
 
 

@@ -937,18 +937,14 @@ def detect_categorical_features(
         is_numeric = pd.api.types.is_numeric_dtype(series)
         if nunique <= max_cardinality:
             # Keep numeric columns that look ordinal as numeric (not OneHot).
-            # Two heuristics:
-            #   a) Small consecutive integers (0,1,2,3 or 1,2,3,4,5) — Likert/severity
-            #   b) Wide range with even gaps (0,10,20,...,100) — scores like scoma
-            # Exclude sparse codes (1,2,50,100) where gaps vary wildly.
+            # Only for WIDE-RANGE scores like scoma (0-100, 11 values).
+            # Do NOT skip OneHot for small-range integers (1-5) because
+            # they could be nominal codes (race=1,2,3,4,5).
             if is_numeric and nunique >= 3:
                 vals = sorted(series.dropna().unique())
                 val_range = float(vals[-1] - vals[0])
-                # (a) Small consecutive integers: range == nunique - 1
-                if val_range <= nunique and all(float(v).is_integer() for v in vals):
-                    continue  # ordinal integer scale (0-4, 1-5, etc.)
-                # (b) Wide range with even gaps
-                if val_range > nunique * 2 and len(vals) >= 3:
+                # Wide range with even gaps (range must be >> cardinality)
+                if val_range > nunique * 5 and len(vals) >= 3:
                     gaps = [float(vals[i+1] - vals[i]) for i in range(len(vals)-1)]
                     mean_gap = sum(gaps) / len(gaps)
                     std_gap = (sum((g - mean_gap)**2 for g in gaps) / len(gaps)) ** 0.5
