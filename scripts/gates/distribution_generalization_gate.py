@@ -355,7 +355,14 @@ def group_drift_summary(feature_rows: List[Dict[str, Any]], groups: Dict[str, Li
         missing_values: List[float] = []
         covered = 0
         for feature in group_features:
+            # Direct match or OneHot prefix match (e.g., "dzgroup" → "dzgroup_CHF")
             row = by_feature.get(feature)
+            if not isinstance(row, dict):
+                # Try prefix match for OneHot-encoded columns
+                for encoded_name, encoded_row in by_feature.items():
+                    if encoded_name.startswith(feature + "_") and isinstance(encoded_row, dict):
+                        row = encoded_row
+                        break
             if not isinstance(row, dict):
                 continue
             covered += 1

@@ -612,9 +612,13 @@ def align_demo_configs(
             write_json(configs / "feature_group_spec.json", feature_group)
 
             # Raw features have no ancestors (they are source variables).
-            # Setting ancestors=[self] creates self-cycles that fail feature_lineage_gate.
+            # Exclude forbidden/after_prediction features from lineage.
+            _forbidden_set = set(_after_prediction) if '_after_prediction' in dir() else set()
             feature_lineage = {
-                "features": {col: {"ancestors": []} for col in feature_cols}
+                "features": {
+                    col: {"ancestors": [], "forbidden": col in _forbidden_set}
+                    for col in feature_cols
+                }
             }
             write_json(configs / "feature_lineage.json", feature_lineage)
 

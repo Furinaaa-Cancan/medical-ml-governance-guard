@@ -87,7 +87,7 @@ def collect_forbidden_features(lineage_payload: Dict[str, Any]) -> Set[str]:
             continue
         if not isinstance(payload, dict):
             continue
-        if payload.get("forbidden_for_modeling") is True:
+        if payload.get("forbidden_for_modeling") is True or payload.get("forbidden") is True:
             forbidden.add(feature_name.strip())
             continue
         ancestors = payload.get("ancestors")
@@ -214,7 +214,18 @@ def main() -> int:
     else:
         selected_features = [str(x).strip() for x in selected_features_raw if isinstance(x, str) and str(x).strip()]
 
-    missing_grouped = [f for f in selected_features if f not in feature_to_group]
+    # Match selected features to groups, allowing OneHot-encoded names
+    # (e.g., "dzgroup_CHF" matches group containing "dzgroup")
+    def _feature_in_groups(feat: str, group_map: Dict[str, str]) -> bool:
+        if feat in group_map:
+            return True
+        # Check if feat is a OneHot expansion of a grouped feature (prefix_value)
+        for raw_name in group_map:
+            if feat.startswith(raw_name + "_"):
+                return True
+        return False
+
+    missing_grouped = [f for f in selected_features if not _feature_in_groups(f, feature_to_group)]
     if missing_grouped:
         add_issue(
             failures,
