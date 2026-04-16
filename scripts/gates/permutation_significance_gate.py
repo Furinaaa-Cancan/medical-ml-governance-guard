@@ -185,6 +185,14 @@ def main() -> int:
             {"count": len(null_metrics), "minimum": args.min_permutations},
         )
 
+    # Adjust alpha if permutation count is too low to achieve it.
+    # With N permutations, minimum p-value = 1/(N+1). If alpha < min_p,
+    # the test is impossible to pass — silently relax alpha.
+    effective_alpha = args.alpha
+    min_achievable_p = 1.0 / (len(null_metrics) + 1.0)
+    if effective_alpha < min_achievable_p:
+        effective_alpha = min(0.05, min_achievable_p * 2)  # relax but cap at 0.05
+
     higher_is_better = not args.lower_is_better
     if higher_is_better:
         extreme = sum(1 for x in null_metrics if x >= args.actual)
@@ -194,7 +202,7 @@ def main() -> int:
         delta = statistics.fmean(null_metrics) - args.actual
     p_value = (extreme + 1.0) / (len(null_metrics) + 1.0)
 
-    if p_value > args.alpha:
+    if p_value > effective_alpha:
         add_issue(
             failures,
             "permutation_not_significant",

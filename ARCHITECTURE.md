@@ -86,12 +86,15 @@ User CSV
   │             produces: evidence/*.json (evaluation, model_selection, CI, robustness, ...)
   │
   └─ 33 Gate DAG ──→ validate all evidence artifacts
-      ├─ Layer 0: request_contract, cohort_definition
-      ├─ Layer 1-2: leakage, split_protocol, manifest_lock, attestation
-      ├─ Layer 3-4: feature lineage, definition variable, missingness, tuning
-      ├─ Layer 5: model selection, CI matrix, SHAP, clinical metrics
-      ├─ Layer 6: calibration, fairness, generalization, robustness, seed stability
-      └─ Layer 7: publication_gate (aggregator), security_audit, self_critique
+      ├─ Layer 0 (CONTRACT): request_contract, cohort_definition
+      ├─ Layer 1 (MANIFEST): manifest_lock
+      ├─ Layer 2 (ATTESTATION): execution_attestation
+      ├─ Layer 3 (DATA_VALIDATION): leakage, split_protocol, covariate_shift, reporting_bias
+      ├─ Layer 4 (POLICY_AUDIT): feature_lineage, definition_variable, imbalance, missingness, tuning
+      ├─ Layer 5 (MODEL_AUDIT): model_selection, CI_matrix, SHAP, clinical_metrics, feature_engineering, metric_consistency
+      ├─ Layer 6 (METRIC_VALIDATION): calibration_dca, fairness, external_validation, generalization_gap, distribution, permutation, prediction_replay, robustness, sample_size, seed_stability, evaluation_quality
+      ├─ Layer 7 (AGGREGATION): publication_gate
+      └─ Layer 8 (FINAL): security_audit, self_critique
 ```
 
 ## Gate Contract

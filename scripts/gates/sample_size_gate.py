@@ -476,8 +476,8 @@ def main() -> int:
         info,
         "sample_size_summary",
         f"EPV={epv:.1f}, events={n_events_int}, features={n_features_int}, "
-        f"shrinkage={shrinkage:.3f}" if shrinkage else
-        f"EPV={epv:.1f}, events={n_events_int}, features={n_features_int}",
+        f"shrinkage={shrinkage:.3f}" if shrinkage and epv is not None else
+        f"EPV={'N/A' if epv is None else f'{epv:.1f}'}, events={n_events_int}, features={n_features_int}",
         summary,
     )
 
