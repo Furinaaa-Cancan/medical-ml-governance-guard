@@ -1,0 +1,186 @@
+{
+  "beta": 2.0,
+  "calibration_dca_thresholds": {
+    "ece_bins": 10,
+    "ece_max": 0.06,
+    "ece_min_bin_size": 15,
+    "intercept_abs_max": 1.0,
+    "min_advantage_coverage": 0.5,
+    "min_average_advantage": 0.0,
+    "min_net_benefit_advantage": 0.0,
+    "min_positives": 10,
+    "min_rows": 50,
+    "slope_max": 2.0,
+    "slope_min": 0.8,
+    "threshold_grid": {
+      "end": 0.5,
+      "start": 0.05,
+      "step": 0.05
+    }
+  },
+  "ci_policy": {
+    "max_resamples_supported": 4000,
+    "max_width": 0.2,
+    "metric_tolerance": 1e-06,
+    "n_resamples": 2000,
+    "transport_ci_required": true,
+    "width_gate_metrics": [
+      "pr_auc",
+      "f2_beta",
+      "brier"
+    ]
+  },
+  "clinical_floors": {
+    "npv_min": 0.9,
+    "ppv_min": 0.55,
+    "sensitivity_min": 0.85,
+    "specificity_min": 0.4
+  },
+  "clinical_operating_point_v2": {
+    "beta": 2.0,
+    "floors": {
+      "npv_min": 0.9,
+      "ppv_min": 0.55,
+      "sensitivity_min": 0.85,
+      "specificity_min": 0.4
+    },
+    "strategy": "maximize_fbeta_under_floors"
+  },
+  "distribution_thresholds_v2": {
+    "high_shift_feature_fraction_fail": 0.3,
+    "high_shift_feature_fraction_warn": 0.2,
+    "missing_ratio_delta_fail": 0.2,
+    "missing_ratio_delta_warn": 0.12,
+    "prevalence_delta_fail": 0.2,
+    "prevalence_delta_warn": 0.1,
+    "split_classifier_auc_fail": 0.75,
+    "split_classifier_auc_warn": 0.68,
+    "top_feature_jsd_fail": 0.3,
+    "top_feature_jsd_warn": 0.2
+  },
+  "external_validation_thresholds": {
+    "beta": 2.0,
+    "max_brier_increase": 0.05,
+    "max_f2_beta_drop": 0.1,
+    "max_pr_auc_drop": 0.08,
+    "metric_tolerance": 1e-06,
+    "min_cohort_count": 1,
+    "min_positive_per_cohort": 3,
+    "min_rows_per_cohort": 20,
+    "require_cross_institution": true,
+    "require_cross_period": true
+  },
+  "feature_engineering_policy": {
+    "allowed_selection_scopes": [
+      "train_only",
+      "cv_inner_train_only"
+    ],
+    "disallow_valid_test_external_for_selection": true,
+    "min_feature_selection_frequency": 0.5,
+    "min_group_selection_frequency": 0.5,
+    "require_explicit_feature_groups": true,
+    "require_reproducibility_fields": true,
+    "require_stability_evidence": true
+  },
+  "gap_thresholds": {
+    "train_test": {
+      "f2_beta": {
+        "fail": 0.1,
+        "warn": 0.07
+      }
+    },
+    "train_valid": {
+      "pr_auc": {
+        "fail": 0.08,
+        "warn": 0.05
+      }
+    },
+    "valid_test": {
+      "brier": {
+        "fail": 0.03,
+        "warn": 0.02
+      },
+      "pr_auc": {
+        "fail": 0.06,
+        "warn": 0.04
+      }
+    }
+  },
+  "model_pool": {
+    "include_optional_models": false,
+    "max_trials_per_family": 1,
+    "models": [
+      "logistic_l1",
+      "logistic_l2",
+      "logistic_elasticnet",
+      "random_forest_balanced",
+      "hist_gradient_boosting_l2"
+    ],
+    "n_jobs": -1,
+    "required_models": [
+      "logistic_l2"
+    ],
+    "search_strategy": "fixed_grid"
+  },
+  "notes": "Publication-grade V4 policy: distribution/generalization hard gates, explicit feature-engineering audit, full-matrix CI hard gate, dual external type coverage, and dual-side clinical floors.",
+  "prediction_replay_thresholds": {
+    "beta": 2.0,
+    "metric_tolerance": 1e-06,
+    "threshold_tolerance": 1e-09
+  },
+  "primary_metric": "pr_auc",
+  "required_metrics": [
+    "accuracy",
+    "precision",
+    "ppv",
+    "npv",
+    "sensitivity",
+    "specificity",
+    "f1",
+    "f2_beta",
+    "roc_auc",
+    "pr_auc",
+    "brier"
+  ],
+  "robustness_thresholds": {
+    "patient_hash_groups": {
+      "min_positive": 2,
+      "min_slice_size": 8,
+      "pr_auc_drop_fail": 0.14,
+      "pr_auc_drop_warn": 0.1,
+      "pr_auc_range_fail": 0.2,
+      "pr_auc_range_warn": 0.15
+    },
+    "time_slices": {
+      "min_positive": 2,
+      "min_slice_size": 8,
+      "pr_auc_drop_fail": 0.14,
+      "pr_auc_drop_warn": 0.1,
+      "pr_auc_range_fail": 0.2,
+      "pr_auc_range_warn": 0.15
+    }
+  },
+  "seed_stability_thresholds": {
+    "brier_range_max": 0.05,
+    "brier_std_max": 0.02,
+    "f2_beta_range_max": 0.12,
+    "f2_beta_std_max": 0.05,
+    "pr_auc_range_max": 0.08,
+    "pr_auc_std_max": 0.03
+  },
+  "threshold_policy": {
+    "allowed_selection_splits": [
+      "valid",
+      "cv_inner",
+      "nested_cv"
+    ],
+    "clinical_floors": {
+      "npv_min": 0.9,
+      "ppv_min": 0.55,
+      "sensitivity_min": 0.85,
+      "specificity_min": 0.4
+    },
+    "selection_split": "valid",
+    "strategy": "maximize_fbeta_under_floors"
+  }
+}

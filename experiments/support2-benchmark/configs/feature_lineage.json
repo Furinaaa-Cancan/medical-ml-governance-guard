@@ -1,0 +1,133 @@
+{
+  "features": {
+    "adlp": {
+      "ancestors": []
+    },
+    "adls": {
+      "ancestors": []
+    },
+    "adlsc": {
+      "ancestors": []
+    },
+    "age": {
+      "ancestors": []
+    },
+    "alb": {
+      "ancestors": []
+    },
+    "aps": {
+      "ancestors": []
+    },
+    "avtisst": {
+      "ancestors": []
+    },
+    "bili": {
+      "ancestors": []
+    },
+    "bun": {
+      "ancestors": []
+    },
+    "ca": {
+      "ancestors": []
+    },
+    "charges": {
+      "ancestors": []
+    },
+    "crea": {
+      "ancestors": []
+    },
+    "dementia": {
+      "ancestors": []
+    },
+    "diabetes": {
+      "ancestors": []
+    },
+    "dnr": {
+      "ancestors": []
+    },
+    "dnrday": {
+      "ancestors": []
+    },
+    "dzclass": {
+      "ancestors": []
+    },
+    "dzgroup": {
+      "ancestors": []
+    },
+    "edu": {
+      "ancestors": []
+    },
+    "glucose": {
+      "ancestors": []
+    },
+    "hday": {
+      "ancestors": []
+    },
+    "hrt": {
+      "ancestors": []
+    },
+    "income": {
+      "ancestors": []
+    },
+    "meanbp": {
+      "ancestors": []
+    },
+    "num.co": {
+      "ancestors": []
+    },
+    "pafi": {
+      "ancestors": []
+    },
+    "ph": {
+      "ancestors": []
+    },
+    "prg2m": {
+      "ancestors": []
+    },
+    "prg6m": {
+      "ancestors": []
+    },
+    "race": {
+      "ancestors": []
+    },
+    "resp": {
+      "ancestors": []
+    },
+    "scoma": {
+      "ancestors": []
+    },
+    "sex": {
+      "ancestors": []
+    },
+    "slos": {
+      "ancestors": []
+    },
+    "sod": {
+      "ancestors": []
+    },
+    "sps": {
+      "ancestors": []
+    },
+    "surv2m": {
+      "ancestors": []
+    },
+    "surv6m": {
+      "ancestors": []
+    },
+    "temp": {
+      "ancestors": []
+    },
+    "totcst": {
+      "ancestors": []
+    },
+    "totmcst": {
+      "ancestors": []
+    },
+    "urine": {
+      "ancestors": []
+    },
+    "wblc": {
+      "ancestors": []
+    }
+  }
+}

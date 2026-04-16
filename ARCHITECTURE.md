@@ -1,147 +1,122 @@
 # Architecture
 
-## Directory Structure
+## Repository Layout
 
 ```
 ml-leakage-guard/
 │
-├── plugin/                          # Product A: mlgg-lint (independent package)
-│   ├── pyproject.toml               #   pip install mlgg-lint
-│   └── mlgg_lint/                   #   27 AST rules, zero external deps
-│       └── rules/                   #   r001–r027
+├── scripts/                         # ─── Core Code ───
+│   ├── core/            (6 files)   # Framework internals shared by all gates
+│   ├── gates/          (33 files)   # 33 fail-closed quality gates (each standalone CLI)
+│   ├── training/        (6 files)   # Model training, data splitting, project init
+│   ├── reporting/      (14 files)   # Reports, audits, exports, session recording
+│   ├── codebooks/       (8 files)   # NHANES + UK Biobank data dictionaries
+│   ├── review/          (5 files)   # Paper analysis, peer review lookup
+│   ├── diagnostics/     (9 files)   # Environment checks, visualization, web UI
+│   └── orchestration/  (10 files)   # CLI entry point, pipeline orchestration
 │
-├── scripts/
-│   ├── core/                        # Internal framework (shared by all gates)
-│   │   ├── _gate_framework.py       #   Report envelope, severity, remediation registry
-│   │   ├── _gate_registry.py        #   33-gate DAG registry + topological sort
-│   │   ├── _gate_utils.py           #   Calibration, VIF, NRI/IDI, SHAP, DCA, bootstrap CI
-│   │   ├── _security.py             #   Pickle validation, path traversal defense
-│   │   ├── _audit_shared.py         #   Code pattern scanning
-│   │   └── _peer_review_retrieval.py#   107-paper KB query engine
-│   │
-│   ├── gates/                       # 33 fail-closed gates (each a standalone CLI)
-│   │   ├── request_contract_gate.py #   Input contract validator (DAG entry point)
-│   │   ├── leakage_gate.py          #   Row/entity/temporal overlap
-│   │   ├── calibration_dca_gate.py  #   Calibration + decision curve analysis
-│   │   ├── publication_gate.py      #   TRIPOD+AI/PROBAST+AI aggregator (depends on all)
-│   │   └── ...                      #   30 more gates
-│   │
-│   ├── training/                    # Model training and data preparation
-│   │   ├── train_select_evaluate.py #   5-model CV + one-SE selection + 14-metric eval
-│   │   ├── split_data.py            #   Stratified/temporal split with entity isolation
-│   │   ├── init_project.py          #   Project scaffolding (configs/, data/, evidence/)
-│   │   ├── schema_preflight.py      #   CSV schema validation
-│   │   ├── generate_demo_medical_dataset.py
-│   │   └── generate_execution_attestation.py
-│   │
-│   ├── reporting/                   # Reports, audits, and output generation
-│   │   ├── audit_metrics.py         #   Product B: lightweight metrics checker (zero deps)
-│   │   ├── audit_external_project.py#   10-dimension project audit
-│   │   ├── generate_audit_report.py #   TRIPOD+AI/PROBAST+AI report
-│   │   ├── render_user_summary.py   #   Human-readable summary from evidence/
-│   │   ├── export_latex.py          #   Publication-ready LaTeX tables
-│   │   └── ...                      #   8 more tools
-│   │
-│   ├── codebooks/                   # Data dictionary tools (NHANES, UK Biobank)
-│   │   ├── nhanes_codebook_lookup.py#   60K variables, FTS5 search
-│   │   ├── ukb_codebook_lookup.py   #   UK Biobank variable lookup
-│   │   ├── build_nhanes_codebook_db.py
-│   │   └── ...                      #   5 more tools
-│   │
-│   ├── review/                      # Paper analysis and peer review
-│   │   ├── peer_review_lookup.py    #   107-paper reviewer concern database
-│   │   ├── batch_journal_review.py  #   Multi-paper audit
-│   │   ├── extract_paper_metadata.py#   PDF → structured metadata
-│   │   └── ...
-│   │
-│   ├── diagnostics/                 # Environment and runtime tools
-│   │   ├── env_doctor.py            #   Dependency health check
-│   │   ├── init_guide.py            #   Interactive project guide
-│   │   ├── mlgg_web.py              #   Flask web UI
-│   │   └── ...
-│   │
-│   └── orchestration/               # Pipeline orchestration
-│       ├── mlgg.py                  #   [ENTRY POINT] Unified CLI router
-│       ├── mlgg_onboarding.py       #   Guided novice workflow (auto mode)
-│       ├── run_dag_pipeline.py      #   DAG-based gate execution
-│       ├── run_productized_workflow.py # doctor → preflight → DAG → summary
-│       ├── mlgg_interactive.py      #   Interactive wizard
-│       └── mlgg_pixel.py            #   Terminal pixel-art UI
+├── plugin/                          # ─── Product A: mlgg-lint ───
+│   ├── mlgg_lint/       (27 rules)  # pip install mlgg-lint (zero deps, standalone)
+│   └── pyproject.toml               # Independent package
 │
-├── tests/                           # 4000+ test functions
-├── references/                      # Knowledge base (standards, case studies, protocols)
-├── examples/                        # 16 medical datasets + downloaders
-└── nhanes-codebook/                 # Companion: 60K NHANES variables (SQLite)
+├── tests/             (117 files)   # ─── 4700+ test functions ───
+│
+├── references/                      # ─── Knowledge Base ───
+│   ├── standards/                   # TRIPOD+AI 2024, PROBAST+AI 2025, STARD+AI
+│   ├── methodology/                 # Leakage taxonomy, disease definitions
+│   ├── case-studies/                # 107 NC papers × 375 reviewer concerns
+│   ├── codebooks/                   # NHANES/UKB variable metadata + SQLite
+│   ├── protocols/                   # 9-phase workflow specifications
+│   ├── operations/                  # Error KB, gate matrix, scoring
+│   └── templates/                   # JSON schema templates
+│
+├── examples/            (16 CSVs)   # ─── Medical Datasets ───
+│   ├── heart_disease.csv            # UCI, 297 rows
+│   ├── pima_diabetes.csv            # UCI, 768 rows
+│   ├── framingham_heart.csv         # Framingham, 4240 rows
+│   ├── support2.csv                 # Vanderbilt SUPPORT2, 9105 rows
+│   ├── nhanes_diabetes.csv          # CDC NHANES, 15549 rows
+│   ├── sepsis_survival.csv          # MIMIC-derived, 129K rows
+│   └── ...                          # 10 more datasets (526K+ total rows)
+│
+├── experiments/                     # ─── Benchmarks & Test Results ───
+│   ├── authority-e2e/               # 4-dataset adversarial benchmark suite
+│   └── support2-benchmark/          # SUPPORT2 reference run (clean, no leakage)
+│       ├── configs/                 #   request.json, phenotype_definitions.json, etc.
+│       └── evidence/                #   33 gate reports, evaluation, session_log.md
+│
+├── agents/              (2 YAMLs)   # API agent configs (paper extractor + reviewer)
+│
+├── ARCHITECTURE.md                  # This file
+├── CLAUDE.md                        # Agent operating protocol
+├── SKILL.md                         # /mlgg skill definition
+├── README.md                        # Project documentation (中文)
+├── README_EN.md                     # Project documentation (English)
+└── pyproject.toml                   # Package metadata
 ```
 
 ## Three Product Entry Points
 
 ```
-Users encounter MLGG through three progressively deeper interfaces:
-
 1. mlgg-lint          pip install mlgg-lint && mlgg-lint check code.py
-                      Zero deps, 5 seconds, catches data leakage in existing code.
+                      Zero deps. 27 AST rules. Catches data leakage in 5 seconds.
 
 2. audit-metrics      python3 scripts/reporting/audit_metrics.py --metrics '{...}'
-                      Zero deps, instant, checks publication readiness from Table 2 numbers.
+                      Zero deps. Checks publication readiness from Table 2 numbers.
 
 3. mlgg onboarding    python3 -m scripts.orchestration.mlgg onboarding --input-csv data.csv
-                      Full 33-gate pipeline, trains models, generates evidence directory.
+                      Full pipeline: split → train → 33 gates → evidence report.
 ```
 
-## Call Graph
+## Data Flow
 
 ```
-mlgg.py (CLI router)
-  ├── onboarding ──→ mlgg_onboarding.py
-  │   ├── env_doctor.py           (diagnostics/)
-  │   ├── init_project.py         (training/)
-  │   ├── split_data.py           (training/)
-  │   ├── train_select_evaluate.py(training/)     ← largest file, 8500 LOC
-  │   ├── generate_execution_attestation.py (training/)
-  │   └── run_productized_workflow.py (orchestration/)
-  │       ├── env_doctor.py
-  │       ├── schema_preflight.py
-  │       ├── run_dag_pipeline.py ──→ 33 gates (topological order)
-  │       │   ├── request_contract_gate  (layer 0 — must pass first)
-  │       │   ├── cohort_definition_gate (layer 0)
-  │       │   ├── leakage_gate           (layer 1)
-  │       │   ├── split_protocol_gate    (layer 1)
-  │       │   ├── ...                    (layers 2-5)
-  │       │   ├── publication_gate       (layer 6 — depends on all 30 gates)
-  │       │   ├── security_audit_gate    (layer 7)
-  │       │   └── self_critique_gate     (layer 7)
-  │       └── render_user_summary.py
+User CSV
   │
-  ├── train ──→ train_select_evaluate.py (direct)
-  ├── lint ──→ plugin/mlgg_lint (independent package)
-  ├── audit ──→ audit_external_project.py (reporting/)
-  └── audit-metrics ──→ audit_metrics.py (reporting/)
+  ├─ Feature Timing Review ──→ classify each column as:
+  │   ├─ at_prediction (safe)
+  │   ├─ after_prediction (auto-excluded by pattern + correlation)
+  │   └─ unknown (flagged for user review)
+  │
+  ├─ Split ──→ train / valid / test (patient-disjoint, temporal ordering)
+  │
+  ├─ Train ──→ 5 model families, one-SE selection on valid, 14-metric eval on test
+  │             produces: evidence/*.json (evaluation, model_selection, CI, robustness, ...)
+  │
+  └─ 33 Gate DAG ──→ validate all evidence artifacts
+      ├─ Layer 0: request_contract, cohort_definition
+      ├─ Layer 1-2: leakage, split_protocol, manifest_lock, attestation
+      ├─ Layer 3-4: feature lineage, definition variable, missingness, tuning
+      ├─ Layer 5: model selection, CI matrix, SHAP, clinical metrics
+      ├─ Layer 6: calibration, fairness, generalization, robustness, seed stability
+      └─ Layer 7: publication_gate (aggregator), security_audit, self_critique
 ```
 
 ## Gate Contract
 
-Every gate follows the same CLI contract:
-
 ```
-python3 scripts/gates/<gate>.py --report <output.json> [--strict] [gate-specific args]
+python3 scripts/gates/<gate>.py --report <output.json> [--strict] [args]
 
-Exit codes:
-  0 = PASS (no failures; warnings allowed unless --strict)
-  2 = FAIL (failures found, or warnings in --strict mode)
-  1 = ERROR (unexpected crash)
+Exit 0 = PASS    Exit 2 = FAIL    Exit 1 = ERROR
 
-Report envelope (v2.0.0):
-  { status, failure_count, warning_count, failures[], warnings[],
-    execution_time_seconds, envelope_version }
+Report: { status, failure_count, warning_count, failures[], warnings[],
+          execution_time_seconds, envelope_version: "2.0.0" }
 ```
 
 ## Key Design Decisions
 
-- **Subprocess isolation**: Gates and tools communicate via subprocess + JSON files,
-  not Python imports. This prevents state leakage between pipeline stages.
-- **Fail-closed**: Gates default to FAIL when evidence is missing or unparseable.
-- **DAG ordering**: `_gate_registry.py` defines dependencies; `run_dag_pipeline.py`
-  executes in topological order and stops at first failure (unless --continue-on-fail).
-- **Two claim tiers**: `publication-grade` (requires external validation) and
-  `leakage-audited` (relaxed, no external data needed).
+- **Subprocess isolation**: Gates communicate via JSON files, not imports.
+- **Fail-closed**: Missing or unparseable evidence = FAIL.
+- **Continue-on-fail**: Onboarding runs all 33 gates even if some fail.
+- **Feature timing**: Pre-training review classifies columns as at/after/unknown prediction time.
+- **Two claim tiers**: `publication-grade` (requires external validation) vs `leakage-audited` (relaxed).
+- **Categorical preservation**: String columns bypass numeric feature selection, encoded after selection.
+
+## Tested Datasets
+
+| Dataset | Rows | Features | ROC-AUC | Status |
+|---------|------|----------|---------|--------|
+| Framingham Heart | 4,240 | 16 | 0.737 | Steps 1-6 PASS |
+| NHANES Diabetes | 15,549 | 14 | 0.805 | 16/33 gates PASS |
+| Pima Diabetes | 768 | 8 | 0.845 | 15/33 gates PASS |
+| **SUPPORT2** | **9,105** | **46** | **0.892** | **Reference benchmark** |

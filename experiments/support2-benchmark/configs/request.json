@@ -1,0 +1,62 @@
+{
+  "actual_primary_metric": 0.6346683272644067,
+  "ci_matrix_report_file": "../evidence/ci_matrix_report.json",
+  "claim_tier_target": "leakage-audited",
+  "context": {
+    "notes": "Onboarding demo dataset. All predictors are available at/before index time and exclude disease definition variables."
+  },
+  "distribution_report_file": "../evidence/distribution_report.json",
+  "evaluation_metric_path": "metrics.pr_auc",
+  "evaluation_report_file": "../evidence/evaluation_report.json",
+  "execution_attestation_spec": "execution_attestation.json",
+  "external_cohort_spec": "external_cohort_spec.json",
+  "external_validation_report_file": "../evidence/external_validation_report.json",
+  "feature_engineering_report_file": "../evidence/feature_engineering_report.json",
+  "feature_group_spec": "feature_group_spec.json",
+  "feature_lineage_spec": "feature_lineage.json",
+  "imbalance_policy_spec": "imbalance_policy.json",
+  "index_time_col": "event_time",
+  "label_col": "y",
+  "missingness_policy_spec": "missingness_policy.json",
+  "model_pool_file": "../models/model_pool.pkl",
+  "model_selection_report_file": "../evidence/model_selection_report.json",
+  "patient_id_col": "patient_id",
+  "performance_policy_spec": "performance_policy.json",
+  "permutation_null_metrics_file": "../evidence/permutation_null_pr_auc.txt",
+  "phenotype_definition_spec": "phenotype_definitions.json",
+  "prediction_trace_file": "../evidence/prediction_trace.csv.gz",
+  "prediction_unit": "patient-episode",
+  "primary_metric": "pr_auc",
+  "reporting_bias_checklist_spec": "reporting_bias_checklist.json",
+  "robustness_report_file": "../evidence/robustness_report.json",
+  "run_id": "onboarding-20260416T114610Z",
+  "seed_sensitivity_report_file": "../evidence/seed_sensitivity_report.json",
+  "split_paths": {
+    "test": "../data/test.csv",
+    "train": "../data/train.csv",
+    "valid": "../data/valid.csv"
+  },
+  "split_protocol_spec": "split_protocol.json",
+  "stress_evidence_files": {
+    "seed_search_report": "../evidence/stress_seed_search_report.json",
+    "seed_selection": "../evidence/stress_seed_selection.json"
+  },
+  "study_id": "user-data-study",
+  "target_name": "disease_risk",
+  "thresholds": {
+    "_profile_doc": "See references/operations/gate-strictness-profiles.md for threshold values per profile. Profile sets defaults; individual overrides below take precedence.",
+    "_profile_options": [
+      "standard",
+      "small_cohort",
+      "rare_disease",
+      "exploratory"
+    ],
+    "alpha": 0.01,
+    "ci_max_width": 0.2,
+    "ci_min_resamples": 200,
+    "min_baseline_delta": 0.01,
+    "min_delta": 0.03,
+    "profile": "standard"
+  },
+  "tuning_protocol_spec": "tuning_protocol.json"
+}

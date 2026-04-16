@@ -1,0 +1,79 @@
+{
+  "forbidden_features": [
+    "slos",
+    "charges",
+    "totcst",
+    "totmcst",
+    "surv2m",
+    "surv6m",
+    "hday",
+    "prg2m",
+    "prg6m",
+    "dnr",
+    "dnrday"
+  ],
+  "groups": {
+    "available_at_prediction": {
+      "features": [
+        "age",
+        "sex",
+        "dzgroup",
+        "dzclass",
+        "num.co",
+        "edu",
+        "income",
+        "scoma",
+        "race",
+        "diabetes",
+        "dementia",
+        "ca",
+        "meanbp",
+        "wblc",
+        "hrt",
+        "resp",
+        "temp",
+        "pafi",
+        "alb",
+        "bili",
+        "crea",
+        "sod",
+        "ph",
+        "glucose",
+        "bun",
+        "urine",
+        "adlp",
+        "adls",
+        "adlsc"
+      ],
+      "timing": "at_prediction"
+    },
+    "excluded_post_prediction": {
+      "features": [
+        "slos",
+        "charges",
+        "totcst",
+        "totmcst",
+        "surv2m",
+        "surv6m",
+        "hday",
+        "prg2m",
+        "prg6m",
+        "dnr",
+        "dnrday"
+      ],
+      "note": "Auto-excluded: forbidden pattern match or |correlation|>0.6.",
+      "timing": "after_prediction"
+    },
+    "needs_review": {
+      "features": [
+        "avtisst",
+        "sps",
+        "aps"
+      ],
+      "note": "Moderate correlation with target (|r|>0.4). Verify these are available at prediction time.",
+      "timing": "unknown"
+    }
+  },
+  "notes": "Auto-generated with timing classification. Review 'needs_review' group.",
+  "prediction_time": "See study protocol \u2014 document when predictions are made."
+}
