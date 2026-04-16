@@ -1,0 +1,97 @@
+{
+  "assurance_policy": {
+    "max_signing_key_age_days": 180,
+    "min_signing_key_bits": 3072,
+    "min_witness_count": 2,
+    "require_distinct_authority_roles": true,
+    "require_execution_log_attestation": true,
+    "require_execution_receipt": true,
+    "require_independent_execution_authority": true,
+    "require_independent_log_authority": true,
+    "require_independent_timestamp_authority": true,
+    "require_independent_witness_keys": true,
+    "require_revocation_list": true,
+    "require_timestamp_trust": true,
+    "require_transparency_log": true,
+    "require_transparency_log_signature": true,
+    "require_witness_independence_from_signing": true,
+    "require_witness_quorum": true
+  },
+  "execution_log_attestation": {
+    "artifact_name": "training_log",
+    "authority_id": "execution-log-authority-local",
+    "public_key_file": "../keys/execution_log_pub.pem",
+    "public_key_fingerprint_sha256": "a238f470c64d18b075a3786c27a3b9fd8218299cd332de5a1f78884b9fb08567",
+    "record_file": "../evidence/attestation_execution_log_record.json",
+    "signature_file": "../evidence/attestation_execution_log_record.sig"
+  },
+  "execution_receipt": {
+    "authority_id": "execution-authority-local",
+    "enforce_exit_code_zero": true,
+    "public_key_file": "../keys/execution_pub.pem",
+    "public_key_fingerprint_sha256": "dee3f23eeeacf4cd9f1fd97c53b812f3a186137e1dafc50b043eb684379a1e51",
+    "record_file": "../evidence/attestation_execution_receipt_record.json",
+    "signature_file": "../evidence/attestation_execution_receipt_record.sig"
+  },
+  "issued_at_utc": "2026-04-16T12:28:48.114194Z",
+  "required_artifact_names": [
+    "training_log",
+    "training_config",
+    "model_artifact",
+    "model_selection_report",
+    "robustness_report",
+    "seed_sensitivity_report",
+    "evaluation_report",
+    "prediction_trace",
+    "external_validation_report"
+  ],
+  "run_id": "onboarding-20260416T122809Z",
+  "schema_version": "1.2",
+  "signed_payload_sha256": "d3950c46de6f4e1b22e62f0643aadc88a5ee5fa49f6d0e5c70d7e267d0cd052d",
+  "signing": {
+    "key_created_at_utc": "2026-04-16T12:28:48.114021Z",
+    "key_id": "attestation-key-default",
+    "key_not_after_utc": "2026-10-13T12:28:48.114021Z",
+    "method": "openssl-dgst-sha256",
+    "public_key_file": "../keys/attestation_pub.pem",
+    "public_key_fingerprint_sha256": "fe3f2cf198053e1349aa5b49f1df329a926b435de969f6477d94f831bca0e2a7",
+    "revocation_list_file": "key_revocations.json",
+    "signature_file": "../evidence/attestation.sig",
+    "signed_payload_file": "../evidence/attestation_payload.json"
+  },
+  "study_id": "user-data-study",
+  "timestamp_trust": {
+    "authority_id": "timestamp-authority-local",
+    "mode": "signed_record",
+    "public_key_file": "../keys/timestamp_pub.pem",
+    "public_key_fingerprint_sha256": "699a7ecbfbd97a2f3c9a698b4d2bc8599a9be5f543955756ce8ec90ef6769bb0",
+    "record_file": "../evidence/attestation_timestamp_record.json",
+    "signature_file": "../evidence/attestation_timestamp_record.sig"
+  },
+  "transparency_log": {
+    "log_id": "transparency-log-local",
+    "public_key_file": "../keys/transparency_pub.pem",
+    "public_key_fingerprint_sha256": "d03b88c44bba09c5b605566ceb37334cfafbf2b1b6ec63730b701bab22f28bf8",
+    "record_file": "../evidence/attestation_transparency_record.json",
+    "signature_file": "../evidence/attestation_transparency_record.sig"
+  },
+  "witness_quorum": {
+    "min_witness_count": 2,
+    "records": [
+      {
+        "authority_id": "witness-a",
+        "public_key_file": "../keys/witness_a_pub.pem",
+        "public_key_fingerprint_sha256": "a10ae685914f7bde55f1d0ca6a5da58a8e656e20f3a9410bef0edf05cd5b5319",
+        "record_file": "../evidence/attestation_witness_record_1.json",
+        "signature_file": "../evidence/attestation_witness_record_1.sig"
+      },
+      {
+        "authority_id": "witness-b",
+        "public_key_file": "../keys/witness_b_pub.pem",
+        "public_key_fingerprint_sha256": "850bf7129f19a3f7123f04608f94f1d08f60bae83525d4af62a74341c82e5a56",
+        "record_file": "../evidence/attestation_witness_record_2.json",
+        "signature_file": "../evidence/attestation_witness_record_2.sig"
+      }
+    ]
+  }
+}

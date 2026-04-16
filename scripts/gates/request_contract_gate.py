@@ -1034,6 +1034,9 @@ def validate_feature_group_spec_shape(
                 {"path": str(path), "group": group_name},
             )
             continue
+        # Support timing-aware format: {"timing": "...", "features": [...]}
+        if isinstance(features, dict) and "features" in features:
+            features = features["features"]
         if not isinstance(features, list) or not features:
             add_issue(
                 failures,
