@@ -688,64 +688,99 @@ def build_train_command(
     }
     ignore_parts = sorted({patient_id_col, time_col} - {""})
 
-    # Auto-exclude columns matching phenotype forbidden_patterns (leakage prevention)
-    pheno_path = cfg / "phenotype_definitions.json"
-    if pheno_path.exists():
-        try:
-            import json as _json, re as _re
-            with pheno_path.open("r", encoding="utf-8") as _fh:
-                _pheno = _json.load(_fh)
-            _patterns = _pheno.get("global_forbidden_patterns", [])
-            train_path = data / "train.csv"
-            if train_path.exists() and _patterns:
-                import csv as _csv
-                with train_path.open("r", encoding="utf-8") as _tf:
-                    _header = next(_csv.reader(_tf))
-                _excluded = []
-                for col in _header:
-                    if col in (target_col, patient_id_col, time_col):
-                        continue
-                    for pat in _patterns:
-                        try:
-                            if _re.search(pat, col):
-                                _excluded.append(col)
-                                break
-                        except _re.error:
-                            pass
-                if _excluded:
-                    ignore_parts = sorted(set(ignore_parts) | set(_excluded))
-                    print(f"[INFO] Auto-excluded {len(_excluded)} columns matching forbidden patterns: {_excluded}")
-        except Exception as _exc:
-            print(f"[WARN] Could not load phenotype definitions for auto-exclusion: {_exc}")
-
-    # Auto-exclude features with very high |correlation| to target (likely outcome proxies).
-    # Threshold 0.6 balances catching surv2m (r=-0.58) while keeping legitimate
-    # severity scores like avtisst (TISS, r=+0.56) and aps (APACHE, r=+0.49).
+    # ── Pre-training feature review ──────────────────────────────────────
+    # Two-layer auto-exclusion + human-readable report
     _CORR_EXCLUDE_THRESHOLD = 0.6
+    _CORR_REVIEW_THRESHOLD = 0.4
+    _pattern_excluded: list = []
+    _corr_excluded: list = []
+    _needs_review: list = []
+    _high_missing: list = []
+
     train_path = data / "train.csv"
-    if train_path.exists():
-        try:
-            import pandas as _pd
-            _df = _pd.read_csv(train_path, nrows=5000)  # sample for speed
+    pheno_path = cfg / "phenotype_definitions.json"
+
+    try:
+        import json as _json, re as _re, csv as _csv
+        import pandas as _pd
+
+        # Load phenotype patterns
+        _patterns: list = []
+        if pheno_path.exists():
+            with pheno_path.open("r", encoding="utf-8") as _fh:
+                _patterns = _json.load(_fh).get("global_forbidden_patterns", [])
+
+        if train_path.exists():
+            _df = _pd.read_csv(train_path, nrows=5000)
             _y = _pd.to_numeric(_df[target_col], errors="coerce")
-            _corr_excluded = []
-            for _col in _df.columns:
-                if _col in ignore_parts or _col in (target_col, patient_id_col, time_col):
-                    continue
-                _series = _pd.to_numeric(_df[_col], errors="coerce")
-                if _series.isna().all():
-                    continue
-                _corr = _series.corr(_y)
-                if _corr is not None and abs(_corr) > _CORR_EXCLUDE_THRESHOLD:
-                    _corr_excluded.append((_col, round(_corr, 3)))
+            _feature_cols = [c for c in _df.columns if c not in (target_col, patient_id_col, time_col)]
+
+            for col in _feature_cols:
+                # Check forbidden patterns
+                _matched_pattern = None
+                for pat in _patterns:
+                    try:
+                        if _re.search(pat, col):
+                            _matched_pattern = pat
+                            break
+                    except _re.error:
+                        pass
+
+                # Compute correlation
+                _series = _pd.to_numeric(_df[col], errors="coerce")
+                _corr = None
+                if not _series.isna().all():
+                    _corr = _series.corr(_y)
+
+                # Compute missingness
+                _miss = float(_df[col].isna().mean())
+
+                if _matched_pattern:
+                    _pattern_excluded.append((col, _matched_pattern, _corr))
+                elif _corr is not None and abs(_corr) > _CORR_EXCLUDE_THRESHOLD:
+                    _corr_excluded.append((col, _corr))
+                elif _corr is not None and abs(_corr) > _CORR_REVIEW_THRESHOLD:
+                    _needs_review.append((col, _corr))
+
+                if _miss > 0.5:
+                    _high_missing.append((col, _miss))
+
+            # Apply exclusions
+            _all_excluded = [c[0] for c in _pattern_excluded] + [c[0] for c in _corr_excluded]
+            if _all_excluded:
+                ignore_parts = sorted(set(ignore_parts) | set(_all_excluded))
+
+            # Print feature review report
+            print()
+            print("=" * 60)
+            print("FEATURE REVIEW (pre-training)")
+            print("=" * 60)
+            if _pattern_excluded:
+                print(f"\n  EXCLUDED ({len(_pattern_excluded)} — forbidden pattern match):")
+                for col, pat, corr in _pattern_excluded:
+                    corr_str = f"corr={corr:+.3f}" if corr is not None else "corr=N/A"
+                    print(f"    {col:25s} pattern={pat:20s} {corr_str}")
             if _corr_excluded:
-                _names = [c[0] for c in _corr_excluded]
-                ignore_parts = sorted(set(ignore_parts) | set(_names))
-                print(f"[WARN] Auto-excluded {len(_corr_excluded)} high-correlation features "
-                      f"(|r|>{_CORR_EXCLUDE_THRESHOLD}): "
-                      f"{[f'{n} (r={r:+.3f})' for n, r in _corr_excluded]}")
-        except Exception as _exc:
-            print(f"[WARN] Correlation-based exclusion failed: {_exc}")
+                print(f"\n  EXCLUDED ({len(_corr_excluded)} — |correlation| > {_CORR_EXCLUDE_THRESHOLD}):")
+                for col, corr in _corr_excluded:
+                    print(f"    {col:25s} corr={corr:+.3f}")
+            if _needs_review:
+                print(f"\n  ⚠ NEEDS REVIEW ({len(_needs_review)} — |correlation| > {_CORR_REVIEW_THRESHOLD}):")
+                for col, corr in _needs_review:
+                    print(f"    {col:25s} corr={corr:+.3f}  ← verify available at prediction time")
+            if _high_missing:
+                print(f"\n  HIGH MISSINGNESS (>{50}%):")
+                for col, miss in sorted(_high_missing, key=lambda x: -x[1]):
+                    print(f"    {col:25s} {miss:.1%} missing")
+
+            _used_count = len(_feature_cols) - len(_all_excluded)
+            print(f"\n  USED: {_used_count} features")
+            print(f"  TOTAL: {len(_feature_cols)} columns → {len(_all_excluded)} excluded → {_used_count} kept")
+            print("=" * 60)
+            print()
+
+    except Exception as _exc:
+        print(f"[WARN] Feature review failed: {_exc}")
 
     cmd = [
         python_bin,
