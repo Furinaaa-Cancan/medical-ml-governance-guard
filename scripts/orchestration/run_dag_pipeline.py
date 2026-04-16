@@ -950,7 +950,7 @@ def main() -> int:
             rp = evidence_dir / GATE_REGISTRY[dep_name].report_output
             if not rp.exists():
                 return False
-            return (time.time() - rp.stat().st_mtime) < _STALE_REPORT_SECONDS
+            return (_time.time() - rp.stat().st_mtime) < _STALE_REPORT_SECONDS
 
         blocked: List[str] = []
         ready: List[str] = []
