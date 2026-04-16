@@ -1,13 +1,5 @@
 {
-  "forbidden_features": [
-    "sg",
-    "al",
-    "rbc",
-    "hemo",
-    "pcv",
-    "rbcc",
-    "htn"
-  ],
+  "forbidden_features": [],
   "groups": {
     "available_at_prediction": {
       "features": [
@@ -25,29 +17,23 @@
       ],
       "timing": "at_prediction"
     },
-    "excluded_post_prediction": {
+    "needs_review": {
       "features": [
         "sg",
         "al",
         "rbc",
-        "hemo",
-        "pcv",
-        "rbcc",
-        "htn"
-      ],
-      "note": "Auto-excluded: forbidden pattern match or |correlation|>0.6.",
-      "timing": "after_prediction"
-    },
-    "needs_review": {
-      "features": [
         "pc",
         "bgr",
         "sc",
         "sod",
+        "hemo",
+        "pcv",
+        "rbcc",
+        "htn",
         "dm",
         "appet"
       ],
-      "note": "Moderate correlation with target (|r|>0.4). Verify these are available at prediction time.",
+      "note": "Correlation |r|>0.4 with target. Kept in model but verify timing.",
       "timing": "unknown"
     }
   },

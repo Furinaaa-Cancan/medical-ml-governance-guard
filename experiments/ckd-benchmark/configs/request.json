@@ -1,5 +1,5 @@
 {
-  "actual_primary_metric": 0.9918771116699014,
+  "actual_primary_metric": 0.9996505939902165,
   "ci_matrix_report_file": "../evidence/ci_matrix_report.json",
   "claim_tier_target": "leakage-audited",
   "context": {
@@ -29,7 +29,7 @@
   "primary_metric": "pr_auc",
   "reporting_bias_checklist_spec": "reporting_bias_checklist.json",
   "robustness_report_file": "../evidence/robustness_report.json",
-  "run_id": "onboarding-20260416T123403Z",
+  "run_id": "onboarding-20260416T124348Z",
   "seed_sensitivity_report_file": "../evidence/seed_sensitivity_report.json",
   "split_paths": {
     "test": "../data/test.csv",

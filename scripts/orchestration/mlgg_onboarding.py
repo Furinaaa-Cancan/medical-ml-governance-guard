@@ -578,9 +578,7 @@ def align_demo_configs(
                     if not _s.isna().all():
                         _corr = _s.corr(_y)
 
-                if _corr is not None and abs(_corr) > 0.6:
-                    _after_prediction.append(col)
-                elif _corr is not None and abs(_corr) > 0.4:
+                if _corr is not None and abs(_corr) > 0.4:
                     _unknown.append(col)
                 else:
                     _safe.append(col)
@@ -596,13 +594,13 @@ def align_demo_configs(
                 _groups["needs_review"] = {
                     "timing": "unknown",
                     "features": _unknown,
-                    "note": "Moderate correlation with target (|r|>0.4). Verify these are available at prediction time.",
+                    "note": "Correlation |r|>0.4 with target. Kept in model but verify timing.",
                 }
             if _after_prediction:
                 _groups["excluded_post_prediction"] = {
                     "timing": "after_prediction",
                     "features": _after_prediction,
-                    "note": "Auto-excluded: forbidden pattern match or |correlation|>0.6.",
+                    "note": "Auto-excluded: forbidden pattern match.",
                 }
 
             feature_group = {
@@ -763,12 +761,16 @@ def build_train_command(
     ignore_parts = sorted({patient_id_col, time_col} - {""})
 
     # ── Pre-training feature review ──────────────────────────────────────
-    # Two-layer auto-exclusion + human-readable report
-    _CORR_EXCLUDE_THRESHOLD = 0.6
-    _CORR_REVIEW_THRESHOLD = 0.4
+    # Pattern-based auto-exclusion + correlation flagging for review.
+    # Design: only PATTERNS auto-exclude (known post-discharge variable names).
+    # High correlation is flagged but NOT auto-excluded — it could be
+    # legitimate (hemo for CKD) or leakage (surv2m for mortality).
+    # Only a domain expert can tell the difference.
+    _CORR_HIGH_THRESHOLD = 0.6   # flag for review
+    _CORR_MODERATE_THRESHOLD = 0.4  # flag for review
     _pattern_excluded: list = []
-    _corr_excluded: list = []
-    _needs_review: list = []
+    _high_corr_review: list = []
+    _moderate_corr_review: list = []
     _high_missing: list = []
 
     train_path = data / "train.csv"
@@ -811,16 +813,16 @@ def build_train_command(
 
                 if _matched_pattern:
                     _pattern_excluded.append((col, _matched_pattern, _corr))
-                elif _corr is not None and abs(_corr) > _CORR_EXCLUDE_THRESHOLD:
-                    _corr_excluded.append((col, _corr))
-                elif _corr is not None and abs(_corr) > _CORR_REVIEW_THRESHOLD:
-                    _needs_review.append((col, _corr))
+                elif _corr is not None and abs(_corr) > _CORR_HIGH_THRESHOLD:
+                    _high_corr_review.append((col, _corr))
+                elif _corr is not None and abs(_corr) > _CORR_MODERATE_THRESHOLD:
+                    _moderate_corr_review.append((col, _corr))
 
                 if _miss > 0.5:
                     _high_missing.append((col, _miss))
 
-            # Apply exclusions
-            _all_excluded = [c[0] for c in _pattern_excluded] + [c[0] for c in _corr_excluded]
+            # Only pattern-matched features are auto-excluded
+            _all_excluded = [c[0] for c in _pattern_excluded]
             if _all_excluded:
                 ignore_parts = sorted(set(ignore_parts) | set(_all_excluded))
 
@@ -834,13 +836,15 @@ def build_train_command(
                 for col, pat, corr in _pattern_excluded:
                     corr_str = f"corr={corr:+.3f}" if corr is not None else "corr=N/A"
                     print(f"    {col:25s} pattern={pat:20s} {corr_str}")
-            if _corr_excluded:
-                print(f"\n  EXCLUDED ({len(_corr_excluded)} — |correlation| > {_CORR_EXCLUDE_THRESHOLD}):")
-                for col, corr in _corr_excluded:
+            if _high_corr_review:
+                print(f"\n  ⚠ HIGH CORRELATION ({len(_high_corr_review)} — |r| > {_CORR_HIGH_THRESHOLD}):")
+                print(f"    These are KEPT but may be outcome proxies or definition variables.")
+                print(f"    If post-discharge/outcome-derived, add to phenotype forbidden_patterns.")
+                for col, corr in sorted(_high_corr_review, key=lambda x: -abs(x[1])):
                     print(f"    {col:25s} corr={corr:+.3f}")
-            if _needs_review:
-                print(f"\n  ⚠ NEEDS REVIEW ({len(_needs_review)} — |correlation| > {_CORR_REVIEW_THRESHOLD}):")
-                for col, corr in _needs_review:
+            if _moderate_corr_review:
+                print(f"\n  ⚠ MODERATE CORRELATION ({len(_moderate_corr_review)} — |r| > {_CORR_MODERATE_THRESHOLD}):")
+                for col, corr in sorted(_moderate_corr_review, key=lambda x: -abs(x[1])):
                     print(f"    {col:25s} corr={corr:+.3f}  ← verify available at prediction time")
             if _high_missing:
                 print(f"\n  HIGH MISSINGNESS (>{50}%):")
