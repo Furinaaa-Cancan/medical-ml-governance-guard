@@ -16,9 +16,9 @@
   <a href="https://github.com/Furinaaa-Cancan/medical-ml-governance-guard"><img src="https://img.shields.io/badge/GitHub-Furinaaa--Cancan%2Fmedical--ml--governance--guard-181717?logo=github" alt="GitHub Repo"></a>
   <br>
   <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/"><img src="https://img.shields.io/badge/License-PolyForm%20NC%201.0.0-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/tests-4721%20passed-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-4722%20passed-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/gates-33%20fail--closed-critical" alt="Gates">
-  <img src="https://img.shields.io/badge/datasets-14%20medical-purple" alt="Datasets">
+  <img src="https://img.shields.io/badge/datasets-16%20medical-purple" alt="Datasets">
   <img src="https://img.shields.io/badge/code-147K%20lines-informational" alt="Code">
   <img src="https://img.shields.io/badge/lint%20rules-27%20(R001--R027)-orange" alt="Lint Rules">
   <a href="https://doi.org/10.1136/bmj-2023-078378"><img src="https://img.shields.io/badge/TRIPOD%2BAI-2024-blue" alt="TRIPOD+AI"></a>
@@ -30,7 +30,7 @@
 <p align="center">
 <strong>33 道 fail-closed 门控</strong> &middot; <strong>9 阶段工作流</strong> &middot; <strong>12 维量化评分</strong> &middot; <strong>3 级合规认证</strong>
 <br>
-<strong>20 个模型族</strong> &middot; <strong>14 个真实医学数据集 (526K 行)</strong> &middot; <strong>107 篇 NC 审稿证据</strong> &middot; <strong>27 条静态分析规则</strong>
+<strong>20 个模型族</strong> &middot; <strong>16 个真实医学数据集 (526K+ 行)</strong> &middot; <strong>107 篇 NC 审稿证据</strong> &middot; <strong>27 条静态分析规则</strong>
 <br><br>
 <em>每一条审查建议都引用真实顶刊审稿意见作为论据。<br>不是规则引擎，是能像 Nature Medicine 审稿人一样思考的 AI 协审系统。</em>
 </p>
@@ -1166,6 +1166,22 @@ python3 -m mlgg_lint /path/to/code/
 
 ---
 
+## 基准测试结果
+
+5 个医学数据集的端到端基准（全部存入 `experiments/`）：
+
+| 数据集 | 行数 | 特征 | Prevalence | ROC-AUC | PR-AUC | 校准 (slope) | 关键发现 |
+|--------|------|------|-----------|---------|--------|-------------|---------|
+| CKD 慢性肾病 | 399 | 22 | 63% | 0.999 | 1.000 | 3.08 | 极小样本，诊断特征区分度极高 |
+| RHC ICU 死亡率 | 5,735 | 37 | 65% | 0.750 | 0.834 | **0.977** | 校准最优，高 prevalence 队列 |
+| SUPPORT2 重症 | 9,105 | 46 | 17% | 0.892 | 0.635 | 0.745 | 发现并排除 11 个泄漏/事后变量 |
+| NHANES 糖尿病 | 15,549 | 13 | 18% | 0.810 | 0.443 | — | 横截面数据，无时序 |
+| Sepsis 脓毒症 | 129,392 | 3 | 9% | 0.689 | 0.159 | 0.804 | 仅 3 特征，性能受限（正确反映） |
+
+> 每个基准包含完整的 evidence 报告（33 gate 结果 + session_log）。通过 SUPPORT2 测试发现并修复了 6 个 pipeline bug（特征泄漏检测、分类变量保留、scoma 编码等）。
+
+---
+
 ## 项目结构
 
 ```
@@ -1370,8 +1386,13 @@ medical-ml-governance-guard/
 │   ├── templates/                        #   paper_metadata_template.json
 │   └── <journal>/<disease>/<author>/     #   PDF + metadata.json + audit_output/
 │
-├── experiments/                          # ─── E2E 基准套件 ───
-│   └── authority-e2e/                    #   4 个 UCI 数据集对抗性验证 + 基准矩阵
+├── experiments/                          # ─── 基准测试套件 ───
+│   ├── authority-e2e/                    #   4 个 UCI 数据集对抗性验证 + 基准矩阵
+│   ├── support2-benchmark/              #   SUPPORT2 重症预后 (9105 行, ROC-AUC 0.892)
+│   ├── nhanes-benchmark/                #   NHANES 糖尿病 (15549 行, ROC-AUC 0.810)
+│   ├── rhc-benchmark/                   #   RHC ICU 死亡率 (5735 行, ROC-AUC 0.750)
+│   ├── ckd-benchmark/                   #   CKD 慢性肾病 (399 行, ROC-AUC 0.999)
+│   └── sepsis-benchmark/                #   Sepsis 脓毒症 (129K 行, ROC-AUC 0.689)
 │
 ├── .claude/                              # ─── Claude Code 配置 ───
 │   ├── commands/mlgg.md                  #   /mlgg skill 定义 (9 阶段 state machine)
