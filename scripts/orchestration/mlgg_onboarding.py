@@ -524,7 +524,7 @@ def align_demo_configs(
     write_json(request_path, request)
 
     if is_user_data:
-        # User data mode: generate minimal feature_group_spec from actual CSV columns
+        # User data mode: generate feature_group_spec with timing classification
         train_csv = project_root / "data" / "train.csv"
         if train_csv.exists():
             with train_csv.open("r", encoding="utf-8", newline="") as fh:
@@ -532,10 +532,84 @@ def align_demo_configs(
                 header = next(reader, [])
             non_feature_cols = {patient_id_col, time_col, target_col}
             feature_cols = [c for c in header if c.strip() and c.strip() not in non_feature_cols]
+
+            # Classify features by timing using heuristics
+            import re as _re
+            import pandas as _pd
+
+            _pheno_path = configs / "phenotype_definitions.json"
+            _patterns: list = []
+            if _pheno_path.exists():
+                try:
+                    _pheno = json.load(_pheno_path.open("r", encoding="utf-8"))
+                    _patterns = _pheno.get("global_forbidden_patterns", [])
+                except Exception:
+                    pass
+
+            _after_prediction: list = []
+            _unknown: list = []
+            _safe: list = []
+
+            try:
+                _df = _pd.read_csv(train_csv, nrows=5000)
+                _y = _pd.to_numeric(_df[target_col], errors="coerce")
+            except Exception:
+                _df = None
+                _y = None
+
+            for col in feature_cols:
+                # Check forbidden patterns
+                _matched = False
+                for pat in _patterns:
+                    try:
+                        if _re.search(pat, col):
+                            _matched = True
+                            break
+                    except _re.error:
+                        pass
+                if _matched:
+                    _after_prediction.append(col)
+                    continue
+
+                # Check correlation
+                _corr = None
+                if _df is not None and _y is not None and col in _df.columns:
+                    _s = _pd.to_numeric(_df[col], errors="coerce")
+                    if not _s.isna().all():
+                        _corr = _s.corr(_y)
+
+                if _corr is not None and abs(_corr) > 0.6:
+                    _after_prediction.append(col)
+                elif _corr is not None and abs(_corr) > 0.4:
+                    _unknown.append(col)
+                else:
+                    _safe.append(col)
+
+            # Build timing-aware feature group spec
+            _groups: dict = {}
+            if _safe:
+                _groups["available_at_prediction"] = {
+                    "timing": "at_prediction",
+                    "features": _safe,
+                }
+            if _unknown:
+                _groups["needs_review"] = {
+                    "timing": "unknown",
+                    "features": _unknown,
+                    "note": "Moderate correlation with target (|r|>0.4). Verify these are available at prediction time.",
+                }
+            if _after_prediction:
+                _groups["excluded_post_prediction"] = {
+                    "timing": "after_prediction",
+                    "features": _after_prediction,
+                    "note": "Auto-excluded: forbidden pattern match or |correlation|>0.6.",
+                }
+
             feature_group = {
-                "groups": {"all_features": feature_cols},
-                "forbidden_features": [],
-                "notes": "Auto-generated from user CSV columns by onboarding --input-csv mode.",
+                "prediction_time": "See study protocol — document when predictions are made.",
+                "groups": _groups,
+                "forbidden_features": _after_prediction,
+                "notes": "Auto-generated with timing classification. Review 'needs_review' group.",
             }
             write_json(configs / "feature_group_spec.json", feature_group)
 

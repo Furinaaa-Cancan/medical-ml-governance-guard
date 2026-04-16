@@ -810,6 +810,9 @@ def normalize_feature_groups(payload: Dict[str, Any]) -> Tuple[Dict[str, List[st
         for key, values in groups_raw.items():
             if not isinstance(key, str) or not key.strip():
                 continue
+            # Support both old format (list) and new timing-aware format (dict with "features" key)
+            if isinstance(values, dict) and "features" in values:
+                values = values["features"]
             if not isinstance(values, list):
                 continue
             clean = [str(x).strip() for x in values if isinstance(x, str) and str(x).strip()]
