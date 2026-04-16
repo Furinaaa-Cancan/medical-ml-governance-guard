@@ -1043,6 +1043,9 @@ def encode_categorical_features(
         elif card <= max_onehot_cardinality:
             to_onehot.append(feat)
 
+    # Deduplicate to_onehot (a feature may be added by both the safety scan and cat_features)
+    to_onehot = list(dict.fromkeys(to_onehot))
+
     if not to_onehot:
         return X_train, X_valid, X_test, list(X_train.columns)
 
@@ -1603,8 +1606,13 @@ def group_preselect_features(
             }
             continue
 
+        # Always keep string/categorical columns — they'll be encoded later.
+        # Only rank numeric columns by correlation + stability.
+        auto_keep = [f for f in available if not pd.api.types.is_numeric_dtype(X_train[f])]
+        rankable = [f for f in available if pd.api.types.is_numeric_dtype(X_train[f])]
+
         scored: List[Tuple[str, float, float, float]] = []
-        for feature in available:
+        for feature in rankable:
             series = pd.to_numeric(X_train[feature], errors="coerce")
             if series.notna().any():
                 corr = abs(float(series.fillna(series.median(skipna=True)).corr(pd.Series(y))))
@@ -1619,11 +1627,12 @@ def group_preselect_features(
         scored = sorted(scored, key=lambda x: (x[1], x[2], x[3], x[0]), reverse=True)
         keep_n = max(1, int(math.ceil(float(keep_ratio) * float(len(scored)))))
         keep_n = min(keep_n, len(scored))
-        chosen = [item[0] for item in scored[:keep_n]]
+        chosen = auto_keep + [item[0] for item in scored[:keep_n]]
         selected.extend(chosen)
         report_groups[group_name] = {
             "declared_count": len(group_features),
             "available_count": len(available),
+            "auto_kept_categorical": auto_keep,
             "selected_count": len(chosen),
             "selected_features": chosen,
             "ranked_features": [
