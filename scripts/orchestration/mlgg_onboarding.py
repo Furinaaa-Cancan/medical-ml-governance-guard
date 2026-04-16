@@ -687,6 +687,37 @@ def build_train_command(
         "model_pool": models / "model_pool.pkl",
     }
     ignore_parts = sorted({patient_id_col, time_col} - {""})
+
+    # Auto-exclude columns matching phenotype forbidden_patterns (leakage prevention)
+    pheno_path = cfg / "phenotype_definitions.json"
+    if pheno_path.exists():
+        try:
+            import json as _json, re as _re
+            with pheno_path.open("r", encoding="utf-8") as _fh:
+                _pheno = _json.load(_fh)
+            _patterns = _pheno.get("global_forbidden_patterns", [])
+            train_path = data / "train.csv"
+            if train_path.exists() and _patterns:
+                import csv as _csv
+                with train_path.open("r", encoding="utf-8") as _tf:
+                    _header = next(_csv.reader(_tf))
+                _excluded = []
+                for col in _header:
+                    if col in (target_col, patient_id_col, time_col):
+                        continue
+                    for pat in _patterns:
+                        try:
+                            if _re.search(pat, col):
+                                _excluded.append(col)
+                                break
+                        except _re.error:
+                            pass
+                if _excluded:
+                    ignore_parts = sorted(set(ignore_parts) | set(_excluded))
+                    print(f"[INFO] Auto-excluded {len(_excluded)} columns matching forbidden patterns: {_excluded}")
+        except Exception as _exc:
+            print(f"[WARN] Could not load phenotype definitions for auto-exclusion: {_exc}")
+
     cmd = [
         python_bin,
         str(SCRIPTS_ROOT / "training/train_select_evaluate.py"),
