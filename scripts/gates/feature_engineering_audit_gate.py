@@ -57,6 +57,9 @@ def extract_groups(spec: Dict[str, Any]) -> Dict[str, List[str]]:
     for group_name, features in raw.items():
         if not isinstance(group_name, str) or not group_name.strip():
             continue
+        # Support timing-aware format: {"timing": "...", "features": [...]}
+        if isinstance(features, dict) and "features" in features:
+            features = features["features"]
         if not isinstance(features, list):
             continue
         clean = [str(x).strip() for x in features if isinstance(x, str) and str(x).strip()]

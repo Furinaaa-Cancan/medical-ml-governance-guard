@@ -467,6 +467,8 @@ def main() -> int:
     for key, values in groups_raw.items():
         if not isinstance(key, str) or not key.strip():
             continue
+        if isinstance(values, dict) and "features" in values:
+            values = values["features"]
         if not isinstance(values, list):
             continue
         clean = [str(x).strip() for x in values if isinstance(x, str) and str(x).strip()]
