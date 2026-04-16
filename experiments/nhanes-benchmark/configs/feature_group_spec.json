@@ -1,0 +1,24 @@
+{
+  "forbidden_features": [],
+  "groups": {
+    "available_at_prediction": {
+      "features": [
+        "age",
+        "gender",
+        "race_ethnicity",
+        "bmi",
+        "waist_circumference",
+        "sbp_mean",
+        "dbp_mean",
+        "ever_smoked",
+        "bp_medication",
+        "coronary_heart_disease",
+        "stroke",
+        "nhanes_cycle"
+      ],
+      "timing": "at_prediction"
+    }
+  },
+  "notes": "Auto-generated with timing classification. Review 'needs_review' group.",
+  "prediction_time": "See study protocol \u2014 document when predictions are made."
+}

@@ -30,6 +30,12 @@
       "brier"
     ]
   },
+  "clinical_floors": {
+    "npv_min": 0.9,
+    "ppv_min": 0.55,
+    "sensitivity_min": 0.85,
+    "specificity_min": 0.4
+  },
   "clinical_operating_point_v2": {
     "beta": 2.0,
     "floors": {
@@ -134,8 +140,7 @@
     "f2_beta",
     "roc_auc",
     "pr_auc",
-    "brier",
-    "mcc"
+    "brier"
   ],
   "robustness_thresholds": {
     "patient_hash_groups": {
@@ -177,11 +182,5 @@
     },
     "selection_split": "valid",
     "strategy": "maximize_fbeta_under_floors"
-  },
-  "clinical_floors": {
-    "sensitivity_min": 0.85,
-    "specificity_min": 0.4,
-    "ppv_min": 0.55,
-    "npv_min": 0.9
   }
 }

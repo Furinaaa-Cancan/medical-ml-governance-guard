@@ -3,25 +3,7 @@
     "age": {
       "ancestors": []
     },
-    "gender": {
-      "ancestors": []
-    },
-    "race_ethnicity": {
-      "ancestors": []
-    },
     "bmi": {
-      "ancestors": []
-    },
-    "waist_circumference": {
-      "ancestors": []
-    },
-    "sbp_mean": {
-      "ancestors": []
-    },
-    "dbp_mean": {
-      "ancestors": []
-    },
-    "ever_smoked": {
       "ancestors": []
     },
     "bp_medication": {
@@ -30,10 +12,28 @@
     "coronary_heart_disease": {
       "ancestors": []
     },
-    "stroke": {
+    "dbp_mean": {
+      "ancestors": []
+    },
+    "ever_smoked": {
+      "ancestors": []
+    },
+    "gender": {
       "ancestors": []
     },
     "nhanes_cycle": {
+      "ancestors": []
+    },
+    "race_ethnicity": {
+      "ancestors": []
+    },
+    "sbp_mean": {
+      "ancestors": []
+    },
+    "stroke": {
+      "ancestors": []
+    },
+    "waist_circumference": {
       "ancestors": []
     }
   }

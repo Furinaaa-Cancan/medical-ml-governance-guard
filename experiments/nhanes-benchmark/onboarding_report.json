@@ -1,0 +1,238 @@
+{
+  "artifacts": {
+    "advanced_authority_command": "python3 scripts/mlgg.py authority-research-heart --stress-seed-min 20250003 --stress-seed-max 20250060 --summary-file <project>/evidence/authority_research_heart_summary.json",
+    "ci_matrix_report": "/private/tmp/mlgg_nhanes_benchmark/evidence/ci_matrix_report.json",
+    "distribution_report": "/private/tmp/mlgg_nhanes_benchmark/evidence/distribution_report.json",
+    "env_doctor_report": "/private/tmp/mlgg_nhanes_benchmark/evidence/env_doctor_report.json",
+    "evaluation_report": "/private/tmp/mlgg_nhanes_benchmark/evidence/evaluation_report.json",
+    "external_validation_report": "/private/tmp/mlgg_nhanes_benchmark/evidence/external_validation_report.json",
+    "feature_engineering_report": "/private/tmp/mlgg_nhanes_benchmark/evidence/feature_engineering_report.json",
+    "init_report": "/private/tmp/mlgg_nhanes_benchmark/evidence/init_report.json",
+    "model_artifact": "/private/tmp/mlgg_nhanes_benchmark/models/demo_model.joblib",
+    "model_pool": "/private/tmp/mlgg_nhanes_benchmark/models/model_pool.pkl",
+    "model_selection_report": "/private/tmp/mlgg_nhanes_benchmark/evidence/model_selection_report.json",
+    "onboarding_report": "/private/tmp/mlgg_nhanes_benchmark/report.json",
+    "permutation_null_metrics": "/private/tmp/mlgg_nhanes_benchmark/evidence/permutation_null_pr_auc.txt",
+    "prediction_trace": "/private/tmp/mlgg_nhanes_benchmark/evidence/prediction_trace.csv.gz",
+    "project_root": "/private/tmp/mlgg_nhanes_benchmark",
+    "recommended_authority_command": "python3 scripts/mlgg.py authority-release --summary-file <project>/evidence/authority_release_summary.json",
+    "request_actual_primary_metric": 0.4431624135585097,
+    "request_file": "/private/tmp/mlgg_nhanes_benchmark/configs/request.json",
+    "robustness_report": "/private/tmp/mlgg_nhanes_benchmark/evidence/robustness_report.json",
+    "seed_sensitivity_report": "/private/tmp/mlgg_nhanes_benchmark/evidence/seed_sensitivity_report.json",
+    "split_report": "/private/tmp/mlgg_nhanes_benchmark/evidence/split_report.json",
+    "train_log": "/private/tmp/mlgg_nhanes_benchmark/evidence/train_command.log",
+    "train_runtime_config": "/private/tmp/mlgg_nhanes_benchmark/configs/train_runtime_config.json",
+    "workflow_report_bootstrap": "/private/tmp/mlgg_nhanes_benchmark/evidence/workflow_report_bootstrap.json",
+    "workflow_report_compare": "/private/tmp/mlgg_nhanes_benchmark/evidence/workflow_report_compare.json"
+  },
+  "contract_version": "onboarding_report.v2",
+  "copy_ready_commands": {
+    "adversarial": "python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/orchestration/mlgg.py adversarial",
+    "authority_release": "python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/orchestration/mlgg.py authority-release --summary-file /private/tmp/mlgg_nhanes_benchmark/evidence/authority_release_summary.json",
+    "authority_research_heart": "python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/orchestration/mlgg.py authority-research-heart --stress-seed-min 20250003 --stress-seed-max 20250060 --summary-file /private/tmp/mlgg_nhanes_benchmark/evidence/authority_research_heart_summary.json",
+    "workflow_bootstrap": "python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/orchestration/mlgg.py workflow --request /private/tmp/mlgg_nhanes_benchmark/configs/request.json --strict --allow-missing-compare",
+    "workflow_compare": "python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/orchestration/mlgg.py workflow --request /private/tmp/mlgg_nhanes_benchmark/configs/request.json --strict --compare-manifest /private/tmp/mlgg_nhanes_benchmark/evidence/manifest_baseline.bootstrap.json"
+  },
+  "display_status": "fail",
+  "failure_codes": [
+    "feature_group_spec_missing_or_invalid"
+  ],
+  "generated_at_utc": "2026-04-16T12:09:19.949215Z",
+  "lang": "bilingual",
+  "mode": "auto",
+  "next_actions": [
+    "feature_group_spec_missing_or_invalid: inspect gate report / \u67e5\u770b <project>/evidence \u4e0b\u5bf9\u5e94 gate \u62a5\u544a\u5e76\u4fee\u590d\u3002"
+  ],
+  "preview_only": false,
+  "project_root": "/private/tmp/mlgg_nhanes_benchmark",
+  "run_id": "onboarding-20260416T120719Z",
+  "status": "fail",
+  "steps": [
+    {
+      "command": "/usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/diagnostics/env_doctor.py --report /private/tmp/mlgg_nhanes_benchmark/evidence/env_doctor_report.json",
+      "description": "Environment check for core/optional dependencies.",
+      "end_utc": "2026-04-16T12:07:28.760641Z",
+      "exit_code": 0,
+      "expected_artifacts": [
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/env_doctor_report.json"
+      ],
+      "name": "step1_doctor",
+      "start_utc": "2026-04-16T12:07:19.325663Z",
+      "status": "pass",
+      "stderr_tail": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.2.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\n",
+      "stdout_tail": "Status: pass\nFailures: 0 | Warnings: 0 | Strict: False\n"
+    },
+    {
+      "command": "/usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/training/init_project.py --project-root /private/tmp/mlgg_nhanes_benchmark --study-id user-data-study --run-id onboarding-20260416T120719Z --target-name disease_risk --label-col y --patient-id-col patient_id --index-time-col event_time --force --report /private/tmp/mlgg_nhanes_benchmark/evidence/init_report.json",
+      "description": "Initialize project directories and baseline config templates.",
+      "end_utc": "2026-04-16T12:07:29.192065Z",
+      "exit_code": 0,
+      "expected_artifacts": [
+        "/private/tmp/mlgg_nhanes_benchmark/configs/request.json",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/init_report.json"
+      ],
+      "name": "step2_init",
+      "start_utc": "2026-04-16T12:07:28.760919Z",
+      "status": "pass",
+      "stderr_tail": "",
+      "stdout_tail": "Status: pass\nProjectRoot: /private/tmp/mlgg_nhanes_benchmark\nRequestFile: /private/tmp/mlgg_nhanes_benchmark/configs/request.json\nNext:\n- Place split CSV files at data/train.csv, data/valid.csv, data/test.csv.\n- Run train_select_evaluate.py (or `mlgg.py train --interactive`) to generate required evidence artifacts.\n- Run productized strict workflow with `--allow-missing-compare` on first run to bootstrap manifest baseline.\n"
+    },
+    {
+      "command": "/usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/training/split_data.py --input /Volumes/Seagate/Skill/ml-leakage-guard/examples/nhanes_diabetes.csv --output-dir /private/tmp/mlgg_nhanes_benchmark/data --patient-id-col patient_id --target-col y --strategy stratified_grouped --seed 20260227 --report /private/tmp/mlgg_nhanes_benchmark/evidence/split_report.json",
+      "description": "Auto-split user CSV (examples/nhanes_diabetes.csv) into train/valid/test with medical safety guarantees.",
+      "end_utc": "2026-04-16T12:07:29.751827Z",
+      "exit_code": 0,
+      "expected_artifacts": [
+        "/private/tmp/mlgg_nhanes_benchmark/data/train.csv",
+        "/private/tmp/mlgg_nhanes_benchmark/data/valid.csv",
+        "/private/tmp/mlgg_nhanes_benchmark/data/test.csv",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/split_report.json"
+      ],
+      "name": "step3_split_user_data",
+      "start_utc": "2026-04-16T12:07:29.193350Z",
+      "status": "pass",
+      "stderr_tail": "\n[WARN] Strategy 'stratified_grouped' does not enforce temporal ordering. The downstream split_protocol_gate requires temporal order for publication-grade claims. Use --strategy grouped_temporal for full pipeline compatibility.\n",
+      "stdout_tail": "[INFO] Loaded 15549 rows, 14 columns from /Volumes/Seagate/Skill/ml-leakage-guard/examples/nhanes_diabetes.csv\n[INFO] 15549 unique patients, 15549 rows (excluded 0), strategy: stratified_grouped\n\n[INFO] Split complete:\n  Train: /private/tmp/mlgg_nhanes_benchmark/data/train.csv (9329 rows, 9329 patients, pos_rate=0.179)\n  Valid: /private/tmp/mlgg_nhanes_benchmark/data/valid.csv (3111 rows, 3111 patients, pos_rate=0.179)\n  Test:  /private/tmp/mlgg_nhanes_benchmark/data/test.csv (3109 rows, 3109 patients, pos_rate=0.178)\n  Protocol: /private/tmp/mlgg_nhanes_benchmark/configs/split_protocol.json\n  Report: /private/tmp/mlgg_nhanes_benchmark/evidence/split_report.json\n\nStatus: pass\n"
+    },
+    {
+      "command": "internal: align_demo_configs(project_root, run_id)",
+      "description": "Align request/spec files with schema and publication-grade artifact paths.",
+      "end_utc": "2026-04-16T12:07:29.968102Z",
+      "exit_code": 0,
+      "expected_artifacts": [
+        "/private/tmp/mlgg_nhanes_benchmark/configs/request.json",
+        "/private/tmp/mlgg_nhanes_benchmark/configs/feature_group_spec.json",
+        "/private/tmp/mlgg_nhanes_benchmark/configs/feature_lineage.json",
+        "/private/tmp/mlgg_nhanes_benchmark/configs/external_cohort_spec.json"
+      ],
+      "name": "step4_align_configs",
+      "start_utc": "2026-04-16T12:07:29.751956Z",
+      "status": "pass",
+      "stderr_tail": "",
+      "stdout_tail": ""
+    },
+    {
+      "command": "/usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/gates/cohort_definition_gate.py --data /private/tmp/mlgg_nhanes_benchmark/data/train.csv --target-col y --id-col patient_id --report /private/tmp/mlgg_nhanes_benchmark/evidence/cohort_definition_report.json --output-dir /private/tmp/mlgg_nhanes_benchmark/evidence --codebook /Volumes/Seagate/Skill/ml-leakage-guard/references/codebooks/dataset-codebook-registry.json --codebook-dataset nhanes_2017_2020 --survey-source nhanes",
+      "description": "Pre-train gate: cohort_definition_gate (codebook RAG)",
+      "end_utc": "2026-04-16T12:07:30.265968Z",
+      "exit_code": 0,
+      "expected_artifacts": [],
+      "name": "step4b_cohort_definition_gate",
+      "start_utc": "2026-04-16T12:07:29.970419Z",
+      "status": "pass",
+      "stderr_tail": "",
+      "stdout_tail": "  Cohort: 9329 rows, 12 features\n  Events: 1666 positive, prevalence=0.179, EPV=138.8\n  Tables written to: /private/tmp/mlgg_nhanes_benchmark/evidence/\n\n============================================================\nGate: cohort_definition_gate\nStatus: PASS  |  Failures: 0  |  Warnings: 5  |  Strict: False  |  Time: 0.0s\n============================================================\n\n[WARN] COHORT_SURVEY_WEIGHTS_MISSING: Data appears to be from survey database 'NHANES'. Complex survey design (stratification, clustering, weights) is NOT incorporated in standard ML modeling. This MUST be documented as a limitation per STROBE/TRIPOD+AI.\n[WARN] COHORT_OUTCOME_DEFINITION_UNDOCUMENTED: No outcome definition specification provided. Top-tier journals (Nature Med, Lancet, JAMA) require a rigorous, multi-source outcome definition. Provide via --outcome-definition with the following structure:\n{\n  \"criteria\": [                        \u2190 Diagnostic criteria (list ALL sources)\n    {\"source\": \"icd\", \"codes\": [\"E11\"], \"system\": \"ICD-10\"},\n    {\"source\": \"lab\", \"test\": \"HbA1c\", \"threshold\": \">=6.5%\"},\n    {\"source\": \"lab\", \"test\": \"FPG\", \"threshold\": \">=7.0 mmol/L\"},\n    {\"source\": \"medication\", \"drugs\": [\"metformin\", \"insulin\"]},\n    {\"source\": \"self_report\", \"question\": \"doctor_diagnosed_diabetes\"}\n  ],\n  \"adjudication\": \"any_one\" | \"at_least_two\" | \"all\",  \u2190 How many sources needed?\n  \"subtype\": \"type_2_diabetes\",         \u2190 Disease subtype\n  \"exclusions\": [\"type_1\", \"gestational\", \"secondary\"],\n  \"time_window\": \"prevalent_at_baseline\" | \"30_day\" | \"1_year\",\n  \"ascertainment\": [\"ehr\", \"registry\", \"questionnaire\"],\n  \"validation\": \"cross_source_concordance\" | \"chart_review\" | \"none\"\n}\nRef: Eastwood 2016 (PLOS ONE) \u2014 UK Biobank diabetes adjudication;\n     TRIPOD+AI 2024 Item 6a \u2014 Outcome definition.\n[WARN] CODEBOOK_TOP_CODED: Column 'age' has 7.1% of values at ceiling value 80 (80 or older).\n[WARN] CODEBOOK_REVERSE_CAUSATION: Column 'coronary_heart_disease' (Ever told had coronary heart disease) has reverse causation risk for targets ['diabetes']. DM \u2192 CVD pathway well-established. Using CHD to predict DM may capture reverse causation rather than genuine risk.\n[WARN] CODEBOOK_REVERSE_CAUSATION: Column 'stroke' (Ever told had stroke) has reverse causation risk for targets ['diabetes']. Same reverse causation concern as CHD.\n\n"
+    },
+    {
+      "command": "/usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/gates/definition_variable_guard.py --target diabetes --definition-spec /Volumes/Seagate/Skill/ml-leakage-guard/examples/nhanes_diabetes_phenotype_spec.json --train /private/tmp/mlgg_nhanes_benchmark/data/train.csv --target-col y --ignore-cols patient_id --report /private/tmp/mlgg_nhanes_benchmark/evidence/definition_variable_report.json --strict --valid /private/tmp/mlgg_nhanes_benchmark/data/valid.csv --test /private/tmp/mlgg_nhanes_benchmark/data/test.csv",
+      "description": "Pre-train gate: definition_variable_guard (phenotype spec)",
+      "end_utc": "2026-04-16T12:07:30.697303Z",
+      "exit_code": 0,
+      "expected_artifacts": [],
+      "name": "step4b_definition_variable_guard",
+      "start_utc": "2026-04-16T12:07:30.266051Z",
+      "status": "pass",
+      "stderr_tail": "",
+      "stdout_tail": "\n============================================================\nGate: definition_variable_guard\nStatus: PASS  |  Failures: 0  |  Warnings: 0  |  Strict: True  |  Time: 0.2s\n============================================================\n"
+    },
+    {
+      "command": "/usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/gates/leakage_gate.py --train /private/tmp/mlgg_nhanes_benchmark/data/train.csv --test /private/tmp/mlgg_nhanes_benchmark/data/test.csv --id-cols patient_id --target-col y --report /private/tmp/mlgg_nhanes_benchmark/evidence/leakage_report.json --strict --valid /private/tmp/mlgg_nhanes_benchmark/data/valid.csv",
+      "description": "Pre-train gate: leakage_gate (S01 patient isolation)",
+      "end_utc": "2026-04-16T12:07:31.053833Z",
+      "exit_code": 0,
+      "expected_artifacts": [],
+      "name": "step4b_leakage_gate",
+      "start_utc": "2026-04-16T12:07:30.697382Z",
+      "status": "pass",
+      "stderr_tail": "",
+      "stdout_tail": "\n============================================================\nGate: leakage_gate\nStatus: PASS  |  Failures: 0  |  Warnings: 0  |  Strict: True  |  Time: 0.3s\n============================================================\n"
+    },
+    {
+      "command": "/usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/training/train_select_evaluate.py --train /private/tmp/mlgg_nhanes_benchmark/data/train.csv --valid /private/tmp/mlgg_nhanes_benchmark/data/valid.csv --test /private/tmp/mlgg_nhanes_benchmark/data/test.csv --target-col y --patient-id-col patient_id --ignore-cols patient_id --performance-policy /private/tmp/mlgg_nhanes_benchmark/configs/performance_policy.json --missingness-policy /private/tmp/mlgg_nhanes_benchmark/configs/missingness_policy.json --feature-group-spec /private/tmp/mlgg_nhanes_benchmark/configs/feature_group_spec.json --external-cohort-spec /private/tmp/mlgg_nhanes_benchmark/configs/external_cohort_spec.json --model-selection-report-out /private/tmp/mlgg_nhanes_benchmark/evidence/model_selection_report.json --evaluation-report-out /private/tmp/mlgg_nhanes_benchmark/evidence/evaluation_report.json --prediction-trace-out /private/tmp/mlgg_nhanes_benchmark/evidence/prediction_trace.csv.gz --external-validation-report-out /private/tmp/mlgg_nhanes_benchmark/evidence/external_validation_report.json --ci-matrix-report-out /private/tmp/mlgg_nhanes_benchmark/evidence/ci_matrix_report.json --distribution-report-out /private/tmp/mlgg_nhanes_benchmark/evidence/distribution_report.json --feature-engineering-report-out /private/tmp/mlgg_nhanes_benchmark/evidence/feature_engineering_report.json --robustness-report-out /private/tmp/mlgg_nhanes_benchmark/evidence/robustness_report.json --robustness-time-slices 3 --robustness-group-count 2 --seed-sensitivity-out /private/tmp/mlgg_nhanes_benchmark/evidence/seed_sensitivity_report.json --permutation-null-out /private/tmp/mlgg_nhanes_benchmark/evidence/permutation_null_pr_auc.txt --model-out /private/tmp/mlgg_nhanes_benchmark/models/demo_model.joblib --model-pool-out /private/tmp/mlgg_nhanes_benchmark/models/model_pool.pkl --n-jobs 1 --selection-data valid --calibration-method power",
+      "description": "Train/select/evaluate and emit full publication-grade evidence artifacts.",
+      "end_utc": "2026-04-16T12:08:59.050815Z",
+      "exit_code": 0,
+      "expected_artifacts": [
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/model_selection_report.json",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/evaluation_report.json",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/prediction_trace.csv.gz",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/external_validation_report.json",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/ci_matrix_report.json",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/distribution_report.json",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/feature_engineering_report.json",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/robustness_report.json",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/seed_sensitivity_report.json",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/permutation_null_pr_auc.txt",
+        "/private/tmp/mlgg_nhanes_benchmark/models/demo_model.joblib",
+        "/private/tmp/mlgg_nhanes_benchmark/models/model_pool.pkl",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/train_command.log",
+        "/private/tmp/mlgg_nhanes_benchmark/configs/train_runtime_config.json"
+      ],
+      "name": "step5_train",
+      "start_utc": "2026-04-16T12:07:31.062647Z",
+      "status": "pass",
+      "stderr_tail": "ning: Setting penalty=None will ignore the C and l1_ratio parameters\n  warnings.warn(\n/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1170: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters\n  warnings.warn(\nWARNING:root:external_cohort_spec provided but contains no cohort entries; skipping external validation.\n[STEP  4/12] Imputation & imbalance strategy...\n[STEP  5/12] Building candidate models + CV scoring...\n[PROGRESS] 1/5 logistic_l1__t01_7a90008f\n[PROGRESS] 2/5 logistic_l2__t01_85b0b8f1\n[PROGRESS] 3/5 logistic_elasticnet__t01_933320f0\n[PROGRESS] 4/5 random_forest_balanced__t01_867801ea\n[PROGRESS] 5/5 hist_gradient_boosting_l2__t01_5e0c7f98\n[STEP  6/12] Model selection (one-SE rule)...\n[STEP  7/12] Calibration + threshold...\n[STEP  8/12] Evaluation (metrics + bootstrap CI)...\n[STEP  9/12] TRIPOD+AI assessments...\n/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1170: UserWarning: Setting penalty=None will ignore the C and l1_ratio parameters\n  warnings.warn(\n/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.2.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\n/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.2.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\n/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.2.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\n/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.2.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\n/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.2.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\n/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.2.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\n/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.2.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\n/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.2.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\n/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.2.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\n/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.2.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\n/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.2.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\nWARNING:root:No parseable event_time in test split; skipping temporal robustness slices (cross-sectional data).\n[STEP 12/12] Writing output files...\n",
+      "stdout_tail": "  Categorical encoding: 7 features detected, now 13 columns after OneHot.\n  VIF WARNING: 8 features with VIF>10: ['nhanes_cycle_0.0', 'nhanes_cycle_1.0', 'race_ethnicity_mexican_american', 'race_ethnicity_nh_asian', 'race_ethnicity_nh_black']\n  Nonlinearity detected in 4 features: ['age', 'bmi', 'sbp_mean', 'waist_circumference']\nModelPool: /private/tmp/mlgg_nhanes_benchmark/models/model_pool.pkl (3 families)\nSelectedModel: hist_gradient_boosting_l2__t01_5e0c7f98\nPrimaryMetric(pr_auc,test): 0.443162\nModelSelectionReport: /private/tmp/mlgg_nhanes_benchmark/evidence/model_selection_report.json\nEvaluationReport: /private/tmp/mlgg_nhanes_benchmark/evidence/evaluation_report.json\nPredictionTrace: /private/tmp/mlgg_nhanes_benchmark/evidence/prediction_trace.csv.gz\nExternalValidationReport: /private/tmp/mlgg_nhanes_benchmark/evidence/external_validation_report.json\nRobustnessReport: /private/tmp/mlgg_nhanes_benchmark/evidence/robustness_report.json\nSeedSensitivityReport: /private/tmp/mlgg_nhanes_benchmark/evidence/seed_sensitivity_report.json\nFeatureEngineeringReport: /private/tmp/mlgg_nhanes_benchmark/evidence/feature_engineering_report.json\nDistributionReport: /private/tmp/mlgg_nhanes_benchmark/evidence/distribution_report.json\nCIMatrixReport: /private/tmp/mlgg_nhanes_benchmark/evidence/ci_matrix_report.json\n"
+    },
+    {
+      "command": "internal: generate_execution_attestation_bundle",
+      "description": "Generate keys, payload signatures, witness records, and execution_attestation spec.",
+      "end_utc": "2026-04-16T12:09:05.605173Z",
+      "exit_code": 0,
+      "expected_artifacts": [
+        "/private/tmp/mlgg_nhanes_benchmark/configs/execution_attestation.json",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/attestation_payload.json",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/attestation.sig",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/attestation_timestamp_record.json",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/attestation_transparency_record.json",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/attestation_execution_receipt_record.json",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/attestation_execution_log_record.json",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/attestation_witness_record_1.json",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/attestation_witness_record_2.json"
+      ],
+      "name": "step6_attestation",
+      "start_utc": "2026-04-16T12:08:59.052046Z",
+      "status": "pass",
+      "stderr_tail": "",
+      "stdout_tail": ""
+    },
+    {
+      "command": "/usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/orchestration/run_productized_workflow.py --request /private/tmp/mlgg_nhanes_benchmark/configs/request.json --evidence-dir /private/tmp/mlgg_nhanes_benchmark/evidence --strict --allow-missing-compare --continue-on-fail --report /private/tmp/mlgg_nhanes_benchmark/evidence/workflow_report_bootstrap.json",
+      "description": "Run strict workflow with bootstrap baseline generation.",
+      "end_utc": "2026-04-16T12:09:13.953025Z",
+      "exit_code": 2,
+      "expected_artifacts": [
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/dag_pipeline_report.json",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/manifest_baseline.bootstrap.json",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/user_summary.md",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/workflow_report_bootstrap.json"
+      ],
+      "name": "step7_workflow_bootstrap",
+      "start_utc": "2026-04-16T12:09:05.605310Z",
+      "status": "fail",
+      "stderr_tail": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.2.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\n[FAIL] request_contract_gate failed. Cannot proceed.\n",
+      "stdout_tail": "\n== Step: env_doctor ==\n$ /usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/diagnostics/env_doctor.py --report /private/tmp/mlgg_nhanes_benchmark/evidence/env_doctor_report.json\nStatus: pass\nFailures: 0 | Warnings: 0 | Strict: False\n\n== Step: schema_preflight ==\n$ /usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/training/schema_preflight.py --train /private/tmp/mlgg_nhanes_benchmark/data/train.csv --valid /private/tmp/mlgg_nhanes_benchmark/data/valid.csv --test /private/tmp/mlgg_nhanes_benchmark/data/test.csv --target-col y --patient-id-col patient_id --time-col _no_time_column --strict --mapping-out /private/tmp/mlgg_nhanes_benchmark/evidence/schema_mapping.json --report /private/tmp/mlgg_nhanes_benchmark/evidence/schema_preflight_report.json\nStatus: pass\nFailures: 0 | Warnings: 0 | Strict: True\n\n== Step: run_dag_pipeline ==\n$ /usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/orchestration/run_dag_pipeline.py --request /private/tmp/mlgg_nhanes_benchmark/configs/request.json --evidence-dir /private/tmp/mlgg_nhanes_benchmark/evidence --strict --allow-missing-compare --continue-on-fail\n\n  > request_contract_gate\n    $ /usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/gates/request_contract_gate.py --request /private/tmp/mlgg_nhanes_benchmark/configs/request.json --report /private/tmp/mlgg_nhanes_benchmark/evidence/request_contract_report.json --strict\n    [FAIL] request_contract_gate  (2.6s)\n      \u2192 feature_group_spec_missing_or_invalid: Each feature_group_spec group must map to non-empty feature list.\n\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n  Pipeline: 1 FAILED  (0/1 passed, 0 skipped, 2.6s)\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n\n  Failed gates:\n    \u2717 request_contract_gate\n\n  Slowest gates:\n        2.6s  request_contract_gate\n\nPipeline report: /private/tmp/mlgg_nhanes_benchmark/evidence/dag_pipeline_report.json\n\n== Step: render_user_summary ==\n$ /usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/reporting/render_user_summary.py --evidence-dir /private/tmp/mlgg_nhanes_benchmark/evidence --request /private/tmp/mlgg_nhanes_benchmark/configs/request.json --out-markdown /private/tmp/mlgg_nhanes_benchmark/evidence/user_summary.md --out-json /private/tmp/mlgg_nhanes_benchmark/evidence/user_summary.json\nStatus: fail\nUserSummaryMarkdown: /private/tmp/mlgg_nhanes_benchmark/evidence/user_summary.md\nUserSummaryJSON: /private/tmp/mlgg_nhanes_benchmark/evidence/user_summary.json\n\nOverallStatus: fail\nWrapperReport: /private/tmp/mlgg_nhanes_benchmark/evidence/workflow_report_bootstrap.json\nUserSummaryMarkdown: /private/tmp/mlgg_nhanes_benchmark/evidence/user_summary.md\nUserSummaryJSON: /private/tmp/mlgg_nhanes_benchmark/evidence/user_summary.json\n"
+    },
+    {
+      "command": "/usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/orchestration/run_productized_workflow.py --request /private/tmp/mlgg_nhanes_benchmark/configs/request.json --evidence-dir /private/tmp/mlgg_nhanes_benchmark/evidence --strict --compare-manifest /private/tmp/mlgg_nhanes_benchmark/evidence/manifest_baseline.bootstrap.json --continue-on-fail --report /private/tmp/mlgg_nhanes_benchmark/evidence/workflow_report_compare.json",
+      "description": "Rerun strict workflow against locked baseline manifest.",
+      "end_utc": "2026-04-16T12:09:19.945932Z",
+      "exit_code": 2,
+      "expected_artifacts": [
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/manifest_baseline.bootstrap.json",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/dag_pipeline_report.json",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/user_summary.md",
+        "/private/tmp/mlgg_nhanes_benchmark/evidence/workflow_report_compare.json"
+      ],
+      "name": "step8_workflow_compare",
+      "start_utc": "2026-04-16T12:09:13.953219Z",
+      "status": "fail",
+      "stderr_tail": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.2.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\n[FAIL] request_contract_gate failed. Cannot proceed.\n",
+      "stdout_tail": "\n== Step: env_doctor ==\n$ /usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/diagnostics/env_doctor.py --report /private/tmp/mlgg_nhanes_benchmark/evidence/env_doctor_report.json\nStatus: pass\nFailures: 0 | Warnings: 0 | Strict: False\n\n== Step: schema_preflight ==\n$ /usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/training/schema_preflight.py --train /private/tmp/mlgg_nhanes_benchmark/data/train.csv --valid /private/tmp/mlgg_nhanes_benchmark/data/valid.csv --test /private/tmp/mlgg_nhanes_benchmark/data/test.csv --target-col y --patient-id-col patient_id --time-col _no_time_column --strict --mapping-out /private/tmp/mlgg_nhanes_benchmark/evidence/schema_mapping.json --report /private/tmp/mlgg_nhanes_benchmark/evidence/schema_preflight_report.json\nStatus: pass\nFailures: 0 | Warnings: 0 | Strict: True\n\n== Step: run_dag_pipeline ==\n$ /usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/orchestration/run_dag_pipeline.py --request /private/tmp/mlgg_nhanes_benchmark/configs/request.json --evidence-dir /private/tmp/mlgg_nhanes_benchmark/evidence --strict --compare-manifest /private/tmp/mlgg_nhanes_benchmark/evidence/manifest_baseline.bootstrap.json --continue-on-fail\n\n  > request_contract_gate\n    $ /usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/gates/request_contract_gate.py --request /private/tmp/mlgg_nhanes_benchmark/configs/request.json --report /private/tmp/mlgg_nhanes_benchmark/evidence/request_contract_report.json --strict\n    [FAIL] request_contract_gate  (2.1s)\n      \u2192 feature_group_spec_missing_or_invalid: Each feature_group_spec group must map to non-empty feature list.\n\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n  Pipeline: 1 FAILED  (0/1 passed, 0 skipped, 2.1s)\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n\n  Failed gates:\n    \u2717 request_contract_gate\n\n  Slowest gates:\n        2.1s  request_contract_gate\n\nPipeline report: /private/tmp/mlgg_nhanes_benchmark/evidence/dag_pipeline_report.json\n\n== Step: render_user_summary ==\n$ /usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/reporting/render_user_summary.py --evidence-dir /private/tmp/mlgg_nhanes_benchmark/evidence --request /private/tmp/mlgg_nhanes_benchmark/configs/request.json --out-markdown /private/tmp/mlgg_nhanes_benchmark/evidence/user_summary.md --out-json /private/tmp/mlgg_nhanes_benchmark/evidence/user_summary.json\nStatus: fail\nUserSummaryMarkdown: /private/tmp/mlgg_nhanes_benchmark/evidence/user_summary.md\nUserSummaryJSON: /private/tmp/mlgg_nhanes_benchmark/evidence/user_summary.json\n\nOverallStatus: fail\nWrapperReport: /private/tmp/mlgg_nhanes_benchmark/evidence/workflow_report_compare.json\nUserSummaryMarkdown: /private/tmp/mlgg_nhanes_benchmark/evidence/user_summary.md\nUserSummaryJSON: /private/tmp/mlgg_nhanes_benchmark/evidence/user_summary.json\n"
+    }
+  ],
+  "stop_on_fail": false,
+  "strict_mode": true,
+  "termination_reason": "completed_with_failures"
+}

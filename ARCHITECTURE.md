@@ -41,9 +41,12 @@ ml-leakage-guard/
 │
 ├── experiments/                     # ─── Benchmarks & Test Results ───
 │   ├── authority-e2e/               # 4-dataset adversarial benchmark suite
-│   └── support2-benchmark/          # SUPPORT2 reference run (clean, no leakage)
-│       ├── configs/                 #   request.json, phenotype_definitions.json, etc.
-│       └── evidence/                #   33 gate reports, evaluation, session_log.md
+│   ├── support2-benchmark/          # SUPPORT2 reference (9105 rows, ROC-AUC 0.892)
+│   │   ├── configs/                 #   request.json, phenotype_definitions.json, etc.
+│   │   └── evidence/                #   gate reports, evaluation, session_log.md
+│   └── nhanes-benchmark/           # NHANES reference (15549 rows, ROC-AUC 0.810)
+│       ├── configs/                 #   横截面数据，stratified_grouped 分割
+│       └── evidence/                #   gate reports, evaluation, session_log.md
 │
 ├── agents/              (2 YAMLs)   # API agent configs (paper extractor + reviewer)
 │
@@ -114,9 +117,9 @@ Report: { status, failure_count, warning_count, failures[], warnings[],
 
 ## Tested Datasets
 
-| Dataset | Rows | Features | ROC-AUC | Status |
-|---------|------|----------|---------|--------|
-| Framingham Heart | 4,240 | 16 | 0.737 | Steps 1-6 PASS |
-| NHANES Diabetes | 15,549 | 14 | 0.805 | 16/33 gates PASS |
-| Pima Diabetes | 768 | 8 | 0.845 | 15/33 gates PASS |
-| **SUPPORT2** | **9,105** | **46** | **0.892** | **Reference benchmark** |
+| Dataset | Rows | Features | ROC-AUC | Status | Benchmark |
+|---------|------|----------|---------|--------|-----------|
+| Framingham Heart | 4,240 | 16 | 0.737 | Steps 1-6 PASS | — |
+| Pima Diabetes | 768 | 8 | 0.845 | 15/33 gates PASS | — |
+| **NHANES Diabetes** | **15,549** | **13** | **0.810** | Steps 1-6 PASS | `experiments/nhanes-benchmark/` |
+| **SUPPORT2** | **9,105** | **46** | **0.892** | Reference | `experiments/support2-benchmark/` |

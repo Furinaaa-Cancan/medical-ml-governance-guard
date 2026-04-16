@@ -21,7 +21,7 @@
     "artifact_name": "training_log",
     "authority_id": "execution-log-authority-local",
     "public_key_file": "../keys/execution_log_pub.pem",
-    "public_key_fingerprint_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "public_key_fingerprint_sha256": "83c7ccae2b582bb79cd92b32de2519ee02d35ad66de05f8473895778683a0455",
     "record_file": "../evidence/attestation_execution_log_record.json",
     "signature_file": "../evidence/attestation_execution_log_record.sig"
   },
@@ -29,11 +29,11 @@
     "authority_id": "execution-authority-local",
     "enforce_exit_code_zero": true,
     "public_key_file": "../keys/execution_pub.pem",
-    "public_key_fingerprint_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "public_key_fingerprint_sha256": "66119eea9e34ac0caba3b707e1f84f8454bd8aa214ba4c24c90593f39ef8a8a5",
     "record_file": "../evidence/attestation_execution_receipt_record.json",
     "signature_file": "../evidence/attestation_execution_receipt_record.sig"
   },
-  "issued_at_utc": "2026-02-24T11:46:00Z",
+  "issued_at_utc": "2026-04-16T12:09:05.239667Z",
   "required_artifact_names": [
     "training_log",
     "training_config",
@@ -45,33 +45,33 @@
     "prediction_trace",
     "external_validation_report"
   ],
-  "run_id": "nhanes-diabetes-full-train-2026-04-11-001",
+  "run_id": "onboarding-20260416T120719Z",
   "schema_version": "1.2",
-  "signed_payload_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "signed_payload_sha256": "d4dace481b005140a43e452762fd5eea0498a6cf402caaca9a2e26b74db0ee8d",
   "signing": {
-    "key_created_at_utc": "2026-01-01T00:00:00Z",
-    "key_id": "attestation-key-2026q1",
-    "key_not_after_utc": "2026-07-01T00:00:00Z",
+    "key_created_at_utc": "2026-04-16T12:09:05.239365Z",
+    "key_id": "attestation-key-default",
+    "key_not_after_utc": "2026-10-13T12:09:05.239365Z",
     "method": "openssl-dgst-sha256",
     "public_key_file": "../keys/attestation_pub.pem",
-    "public_key_fingerprint_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-    "revocation_list_file": "../keys/key_revocations.json",
+    "public_key_fingerprint_sha256": "58f8d2f90dc540a559210c8d19cf234261f8dce74eea78f3c0cbe0d37e4d1b58",
+    "revocation_list_file": "key_revocations.json",
     "signature_file": "../evidence/attestation.sig",
     "signed_payload_file": "../evidence/attestation_payload.json"
   },
-  "study_id": "nhanes-diabetes-type2-v1",
+  "study_id": "user-data-study",
   "timestamp_trust": {
     "authority_id": "timestamp-authority-local",
     "mode": "signed_record",
     "public_key_file": "../keys/timestamp_pub.pem",
-    "public_key_fingerprint_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "public_key_fingerprint_sha256": "527c507f6128bc6f9793b199c67c1a48b8190d09fc12b2f4d5f203b4a3e04b05",
     "record_file": "../evidence/attestation_timestamp_record.json",
     "signature_file": "../evidence/attestation_timestamp_record.sig"
   },
   "transparency_log": {
     "log_id": "transparency-log-local",
     "public_key_file": "../keys/transparency_pub.pem",
-    "public_key_fingerprint_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "public_key_fingerprint_sha256": "0ef3c4852100508851c510e4f063f2b067d7164fa0de8008b34786a758a1f131",
     "record_file": "../evidence/attestation_transparency_record.json",
     "signature_file": "../evidence/attestation_transparency_record.sig"
   },
@@ -81,14 +81,14 @@
       {
         "authority_id": "witness-a",
         "public_key_file": "../keys/witness_a_pub.pem",
-        "public_key_fingerprint_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+        "public_key_fingerprint_sha256": "7eb58c1010f8b9d851fed7471c9b4b70c3ed13fe83766eab6ad83a88aaeb7d9e",
         "record_file": "../evidence/attestation_witness_record_1.json",
         "signature_file": "../evidence/attestation_witness_record_1.sig"
       },
       {
         "authority_id": "witness-b",
         "public_key_file": "../keys/witness_b_pub.pem",
-        "public_key_fingerprint_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+        "public_key_fingerprint_sha256": "c1620c45e9afcccf6750c3a00092a6c287e7c36bc34a7bf33b38770e7171ce78",
         "record_file": "../evidence/attestation_witness_record_2.json",
         "signature_file": "../evidence/attestation_witness_record_2.sig"
       }

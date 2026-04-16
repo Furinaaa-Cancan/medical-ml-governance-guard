@@ -7,17 +7,16 @@
     "hist_gradient_boosting_l2"
   ],
   "cv": {
-    "enabled": false,
+    "enabled": true,
     "group_col": "patient_id",
     "n_splits": 5,
     "nested": false,
-    "type": "stratified_group_k_fold",
-    "note": "CV is not used for model selection when selection_data=valid. The dedicated validation set replaces CV scoring."
+    "type": "stratified_group_k_fold"
   },
   "early_stopping_data": "cv_inner",
   "feature_selection_scope": "fold_train_only",
   "final_model_refit_scope": "train_only",
-  "hyperparameter_trials": 1,
+  "hyperparameter_trials": 60,
   "max_trials_per_family": 1,
   "model_selection_data": "valid",
   "n_jobs": -1,
@@ -26,8 +25,8 @@
   "preprocessing_fit_scope": "fold_train_only",
   "random_seed_controlled": true,
   "resampling_scope": "fold_train_only",
-  "search_method": "fixed_grid",
-  "search_strategy": "fixed_grid",
+  "search_method": "random_search",
+  "search_strategy": "random_subsample",
   "test_used_for_calibration": false,
   "test_used_for_early_stopping": false,
   "test_used_for_model_selection": false,

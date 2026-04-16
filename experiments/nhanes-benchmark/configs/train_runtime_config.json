@@ -1,0 +1,20 @@
+{
+  "generated_at_utc": "2026-04-16T12:07:31.062137Z",
+  "outputs": {
+    "ci_matrix_report": "/private/tmp/mlgg_nhanes_benchmark/evidence/ci_matrix_report.json",
+    "distribution_report": "/private/tmp/mlgg_nhanes_benchmark/evidence/distribution_report.json",
+    "evaluation_report": "/private/tmp/mlgg_nhanes_benchmark/evidence/evaluation_report.json",
+    "external_validation_report": "/private/tmp/mlgg_nhanes_benchmark/evidence/external_validation_report.json",
+    "feature_engineering_report": "/private/tmp/mlgg_nhanes_benchmark/evidence/feature_engineering_report.json",
+    "model_artifact": "/private/tmp/mlgg_nhanes_benchmark/models/demo_model.joblib",
+    "model_pool": "/private/tmp/mlgg_nhanes_benchmark/models/model_pool.pkl",
+    "model_selection_report": "/private/tmp/mlgg_nhanes_benchmark/evidence/model_selection_report.json",
+    "permutation_null_metrics": "/private/tmp/mlgg_nhanes_benchmark/evidence/permutation_null_pr_auc.txt",
+    "prediction_trace": "/private/tmp/mlgg_nhanes_benchmark/evidence/prediction_trace.csv.gz",
+    "robustness_report": "/private/tmp/mlgg_nhanes_benchmark/evidence/robustness_report.json",
+    "seed_sensitivity_report": "/private/tmp/mlgg_nhanes_benchmark/evidence/seed_sensitivity_report.json"
+  },
+  "run_id": "onboarding-20260416T120719Z",
+  "seed": 20260227,
+  "train_command": "/usr/local/bin/python3 /Volumes/Seagate/Skill/ml-leakage-guard/scripts/training/train_select_evaluate.py --train /private/tmp/mlgg_nhanes_benchmark/data/train.csv --valid /private/tmp/mlgg_nhanes_benchmark/data/valid.csv --test /private/tmp/mlgg_nhanes_benchmark/data/test.csv --target-col y --patient-id-col patient_id --ignore-cols patient_id --performance-policy /private/tmp/mlgg_nhanes_benchmark/configs/performance_policy.json --missingness-policy /private/tmp/mlgg_nhanes_benchmark/configs/missingness_policy.json --feature-group-spec /private/tmp/mlgg_nhanes_benchmark/configs/feature_group_spec.json --external-cohort-spec /private/tmp/mlgg_nhanes_benchmark/configs/external_cohort_spec.json --model-selection-report-out /private/tmp/mlgg_nhanes_benchmark/evidence/model_selection_report.json --evaluation-report-out /private/tmp/mlgg_nhanes_benchmark/evidence/evaluation_report.json --prediction-trace-out /private/tmp/mlgg_nhanes_benchmark/evidence/prediction_trace.csv.gz --external-validation-report-out /private/tmp/mlgg_nhanes_benchmark/evidence/external_validation_report.json --ci-matrix-report-out /private/tmp/mlgg_nhanes_benchmark/evidence/ci_matrix_report.json --distribution-report-out /private/tmp/mlgg_nhanes_benchmark/evidence/distribution_report.json --feature-engineering-report-out /private/tmp/mlgg_nhanes_benchmark/evidence/feature_engineering_report.json --robustness-report-out /private/tmp/mlgg_nhanes_benchmark/evidence/robustness_report.json --robustness-time-slices 3 --robustness-group-count 2 --seed-sensitivity-out /private/tmp/mlgg_nhanes_benchmark/evidence/seed_sensitivity_report.json --permutation-null-out /private/tmp/mlgg_nhanes_benchmark/evidence/permutation_null_pr_auc.txt --model-out /private/tmp/mlgg_nhanes_benchmark/models/demo_model.joblib --model-pool-out /private/tmp/mlgg_nhanes_benchmark/models/model_pool.pkl --n-jobs 1 --selection-data valid --calibration-method power"
+}

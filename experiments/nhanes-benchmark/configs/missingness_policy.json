@@ -60,9 +60,14 @@
     }
   ],
   "mechanism_assessment": {
-    "method": "Clinical domain knowledge + codebook skip-pattern analysis",
-    "conclusion": "mar",
-    "justification": "NHANES exam missingness (BMI 8.5%, waist 12.3%, BP 17.5%) reflects participant non-completion of exam components. Missingness is associated with observed covariates (age, health status) but not with the missing values themselves conditional on observed data \u2192 MAR assumption. Gated questionnaire missingness (bp_medication, CHD, stroke) was explicitly coded as 0 based on codebook skip patterns (not imputed)."
+    "methods": [
+      "Little's MCAR test (statistical)",
+      "Missingness pattern visualization (heatmap)",
+      "Logistic regression: predict missingness from other observed variables (MAR evidence)",
+      "Clinical domain knowledge for MNAR assessment"
+    ],
+    "note": "EHR data: assume MAR or MNAR by default. MCAR is rare in clinical data \u2014 a missing lab value reflects clinical decision-making.",
+    "required": true
   },
   "missing_indicator_policy": {
     "evidence_against": "Jones 1996, Knol 2010 (biased for causal inference \u2014 does NOT apply to prediction models)",
@@ -83,7 +88,13 @@
     "mice_max_rows": 200000,
     "note": "MICE computational cost scales quadratically. For large datasets, use simple imputation + missing indicator as auditable fallback."
   },
-  "strategy": "mice",
+  "scale_guard_evidence": {
+    "fallback_strategy": "simple_with_indicator",
+    "fallback_triggered": false,
+    "feature_count_seen": 12,
+    "train_rows_seen": 9329
+  },
+  "strategy": "tiered_mechanism_first",
   "tiered_strategy": {
     "tier_1_trivial": {
       "action": "Simple imputation (median for numeric, mode for categorical)",
@@ -118,11 +129,5 @@
   "use_target_in_imputation": false,
   "valid_used_for_fit": false,
   "version": "2.0",
-  "version_date": "2026-04-04",
-  "scale_guard_evidence": {
-    "fallback_triggered": false,
-    "fallback_strategy": "simple_with_indicator",
-    "train_rows_seen": 9329,
-    "feature_count_seen": 12
-  }
+  "version_date": "2026-04-04"
 }
