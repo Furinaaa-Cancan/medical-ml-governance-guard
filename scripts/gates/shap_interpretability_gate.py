@@ -729,13 +729,25 @@ def _run_validation_checks(
             {"feature": feature_names[max_idx], "proportion": max_prop},
         )
 
-    # Check: suspicious top features (from feature lineage spec)
+    # Check: suspicious top features (from feature lineage spec).
+    # features may be a list of {name, temporal_category, ...} dicts OR
+    # a {name: metadata} dict (onboarding-generated format, 2026-04).
     if feature_lineage_spec:
         post_outcome_features = set()
-        for entry in feature_lineage_spec.get("features", []):
+        _features_block = feature_lineage_spec.get("features", [])
+        if isinstance(_features_block, dict):
+            _features_iter = [
+                {"name": k, **(v if isinstance(v, dict) else {})}
+                for k, v in _features_block.items()
+            ]
+        elif isinstance(_features_block, list):
+            _features_iter = [e for e in _features_block if isinstance(e, dict)]
+        else:
+            _features_iter = []
+        for entry in _features_iter:
             if entry.get("temporal_category") in ("post_outcome", "post-outcome"):
                 post_outcome_features.add(entry.get("name", ""))
-            if entry.get("leakage_risk", "").lower() in ("high", "critical"):
+            if str(entry.get("leakage_risk", "")).lower() in ("high", "critical"):
                 post_outcome_features.add(entry.get("name", ""))
 
         if post_outcome_features:
@@ -1024,7 +1036,10 @@ def main() -> int:
         # Try auto-encoding: model_pool may include original_features
         original_features = model_pool.get("original_features")
         if original_features:
-            _tools_dir = str(Path(__file__).resolve().parent.parent / "tools")
+            # Path updated 2026-04-17: scripts/tools/ was refactored into
+            # domain subdirs (commit 530969a); apply_categorical_encoding_to_external
+            # now lives in scripts/training/train_select_evaluate.
+            _tools_dir = str(Path(__file__).resolve().parent.parent / "training")
             try:
                 sys.path.insert(0, _tools_dir)
                 from train_select_evaluate import apply_categorical_encoding_to_external

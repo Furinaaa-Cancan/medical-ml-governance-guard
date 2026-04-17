@@ -9,7 +9,7 @@ import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__f
 
 import argparse
 from pathlib import Path
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Optional, Set
 
 from _gate_framework import (
     GateIssue,
@@ -274,14 +274,40 @@ def main() -> int:
             )
             group_freq = {}
 
+    # One-hot encoded categorical features carry post-encoding names like
+    # "race_ethnicity_nh_black" or "nhanes_cycle_0.0"; training emits
+    # selection_frequency keyed by the PRE-encoding original column name
+    # ("race_ethnicity", "nhanes_cycle"). When the lookup misses, fall back
+    # to the longest matching original-column prefix so the audit inherits
+    # the group's stability score. Dogfood fix 2026-04-17.
+    _original_keys = sorted(feature_freq.keys(), key=len, reverse=True) if isinstance(feature_freq, dict) else []
+
+    def _resolve_freq(feat: str) -> tuple[Optional[float], Optional[str]]:
+        if not isinstance(feature_freq, dict):
+            return None, None
+        direct = to_float(feature_freq.get(feat))
+        if direct is not None:
+            return direct, feat
+        for orig in _original_keys:
+            # Require <orig>_<value> shape to avoid "age" → "bmi" false match.
+            if feat.startswith(orig + "_"):
+                via = to_float(feature_freq.get(orig))
+                if via is not None:
+                    return via, orig
+        return None, None
+
     for feature in selected_features:
-        value = to_float(feature_freq.get(feature)) if isinstance(feature_freq, dict) else None
+        value, matched_orig = _resolve_freq(feature)
         if value is None or not (0.0 <= value <= 1.0):
             add_issue(
                 failures,
                 "feature_stability_evidence_missing",
                 "Selected feature is missing valid selection frequency evidence.",
-                {"feature": feature, "selection_frequency": feature_freq.get(feature) if isinstance(feature_freq, dict) else None},
+                {
+                    "feature": feature,
+                    "selection_frequency": feature_freq.get(feature) if isinstance(feature_freq, dict) else None,
+                    "original_column_tried": matched_orig,
+                },
             )
 
     for group_name in groups:
