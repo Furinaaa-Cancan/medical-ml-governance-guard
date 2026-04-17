@@ -76,8 +76,10 @@ The prevalence of data leakage and methodological flaws in medical ML papers far
 | Report only AUROC without MCC and LR+/LR- | AUROC 0.65 looks acceptable, but MCC 0.12 means near-random | Gate E02: Complete 14-metric panel |
 | Use train-test gap for model selection | No literature support, may select suboptimal model | Gate M04: Validation PR-AUC + one-SE |
 | Feature selection on full data | Information leaks from test to training set | Gate F03: Training-set-only constraint |
-| HbA1c both defines diabetes and serves as predictor | Perfect leakage, model learns the definition itself | Gate C02: Definition column forced exclusion |
+| HbA1c both defines diabetes and serves as predictor | Perfect leakage, model learns the definition itself | Gate C02: Definition column forced exclusion (disease-scoped — glucose is only flagged when the target is diabetes, not e.g. 30-day mortality) |
 | Bootstrap CI with normal approximation | Unreliable for small samples/asymmetric distributions | Gate E01: Forced percentile bootstrap |
+| `time_in_hospital` / `num_medications` / `discharge_*` used as features | Textbook post-index leakage (diabetes_130 / MIMIC canonical pattern) | Gate L01: feature-name regex catches 5 post-index pattern groups + `forbidden_features` blacklist |
+| Doctor-provided `surv2m` / `prg6m` as features | Clinician estimate of the target — near-perfect target leak | Gate C02 + Gate F03: 3 regex families (`surv\d` / `prognos` / `prg\d`) + feature-lineage tracing |
 
 > **MLGG is not yet another ML toolkit.** It is an AI co-review system meeting top-journal review standards &mdash; 33 fail-closed gates + 107 real Nature Communications peer review opinions as a knowledge base. Every recommendation can cite reviewer quotes as evidence.
 
@@ -95,13 +97,13 @@ Your code ──→ /mlgg review ──→ Find issues ──→ Cite reviewer q
 
 | Layer | Mechanism | What It Catches |
 |:------|:----------|:----------------|
-| **Layer 1: 25 AST Static Analysis Rules** | Code pattern matching (R001-R025) | `scaler.fit(X)` before split, SMOTE on test, threshold selected on test |
-| **Layer 2: 33 Fail-Closed Gates** | Runtime validation, JSON report output | Patient cross-split, calibration ECE > 0.1, EPV < 10, CI width > 0.20 |
-| **Layer 3: Clinical Semantic Review + Peer Review Evidence** | AI agent understands code semantics + 107 peer review KB | Post-discharge variables predicting post-discharge outcomes, HbA1c definition leakage, missing subgroup calibration |
+| **Layer 1: 27 AST Static Analysis Rules** | Code pattern matching (R001-R027) | `scaler.fit(X)` before split, SMOTE on test, threshold selected on test |
+| **Layer 2: 33 Fail-Closed Gates** | Runtime validation, JSON report output | Patient cross-split, calibration ECE > 0.1, EPV < 10, CI width > 0.20; **post-index feature-name detection** (time_in_hospital / num_medications / discharge / ventilation / vasopressor); **disease-scoped definition-variable matching** (glucose only for diabetes targets) |
+| **Layer 3: Clinical Semantic Review + Peer Review Evidence** | AI agent understands code semantics + 106 peer review KB + **issue-code-aware retrieval** | Post-discharge variables predicting post-discharge outcomes, HbA1c definition leakage, missing subgroup calibration. RAG re-ranks by keyword overlap with the actual failure codes — not just severity |
 
 **Peer Review Knowledge Base:**
 
-Structurally extracted 375 review opinions from 107 Nature Communications medical ML papers:
+Structurally extracted 375 review opinions from 106 Nature Communications medical ML papers. **Retrieval precision refactored 2026-04**: the previous `retrieve_by_gate(gate_name)` filtered by `mlgg_gates` then sorted by severity alone (~20% precision on clinical_metrics_gate's ppv-specific failures). The replacement `retrieve_for_failure(gate_name, issue_codes)` tokenizes the failure code list, filters stopwords, and re-ranks by `3 × tag_overlap + text_overlap`; falls back to severity-only when no keywords match so coverage never regresses to empty.
 
 | Category | Proportion | Example Reviewer Quote |
 |:---------|:-----------|:-----------------------|
@@ -110,7 +112,11 @@ Structurally extracted 375 review opinions from 107 Nature Communications medica
 | Reporting Standards | 13.9% | *"Should report calibration and net benefit analysis."* |
 | External Validation | 5.6% | *"External validation on independent cohort is essential."* |
 
-> When MLGG finds an issue in your code, it doesn't just say "violated rule E02" &mdash; it tells you: *"NC reviewers requested improved evaluation metrics 119 times (31.7%) across 107 papers. This is the most frequently raised concern category."*
+**KB index completeness**: all 375 concerns now have at least one `mlgg_gates` mapping (before the 2026-04 backfill, 73.6% were empty arrays and `peer_review_lookup.py --gate` silently missed ~75% of the KB). Warning-only gates (failed via `--strict` warning-upgrade) now also retrieve context — previously they left `peer_review_context: []` because the retrieval was guarded on `failures` only.
+
+**Honest coverage caveat**: the KB is peer-review opinions on already-published NC papers. The pre-publication filter removes egregious leakage, so leakage-category concerns are rare by design (≈4%). The KB is strong on evaluation / reporting / external validation; for leakage failures rely on `leakage_gate` + `mlgg-lint` R001-R027 rather than the KB.
+
+> When MLGG finds an issue in your code, it doesn't just say "violated rule E02" &mdash; it tells you: *"NC reviewers requested improved evaluation metrics 119 times (31.7%) across 106 papers. This is the most frequently raised concern category."*
 
 ---
 

@@ -6,6 +6,222 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+23 commits driven by a first-principles audit plus three real-dataset
+dogfood runs (NHANES 15549 rows × 14 features, diabetes_130 10000 × 19,
+SUPPORT2 9105 × 46). Grouped by theme.
+
+### Leakage detection — core capability extended
+
+- **`leakage_gate` regex now catches post-index feature names**. Added
+  five pattern groups for classic post-admission/discharge leakage that
+  SKILL.md §"Feature Timeline Audit" explicitly calls out but the gate
+  was previously silent on:
+  - `time_in_hospital` / `length_of_stay` / `los` — stay duration
+  - `num_medications` / `num_procedures` / `num_lab_procedures`
+  - `discharge` / `discharged_*` — discharge disposition
+  - `ventilation_hours` / `ventilation_duration` — ICU in-stay
+  - `vasopressor_*` — ICU in-stay
+  Verified on diabetes_130 dogfood: 5 of 6 clear post-index features
+  caught in one shot (83% recall, 100% precision, `change_yes` missed
+  by design — name is too generic to gate on). Under `--strict`
+  (onboarding default) preflight correctly aborts before training.
+- **`cohort_definition_gate` pattern list now disease-scoped**. Previous
+  flat `_DEF_PATTERNS` mixed generic target-adjacent markers (mortality,
+  death, readmit, surv\d) with diabetes-specific lab names (hba1c,
+  glucose, fbg, ogtt), causing false positives on non-diabetes targets
+  (SUPPORT2 mortality target: `glucose` was flagged as a definition
+  variable). Split into `_GENERIC_PATTERNS` (always fire) and
+  `_DISEASE_SPECIFIC_PATTERNS` (fire only when target-disease inferred
+  matches: diabetes / ckd / heart_failure / copd). Details include
+  `inferred_target_disease` and `pattern_scope` for audit.
+
+### Peer-review KB — retrieval accuracy
+
+- **Retrieval is now issue-code-aware, not severity-only**.
+  `retrieve_by_gate(gate_name, limit=5)` sorted candidates by severity
+  after filtering on `mlgg_gates`, returning CRITICAL-severity
+  topically-irrelevant concerns ahead of on-target ones
+  (clinical_metrics ppv failure returned target_leakage concerns first
+  — ~20% precision). New `retrieve_for_failure(gate_name, issue_codes)`
+  tokenizes the code list, filters stopwords, and re-ranks by
+  `3 × tag_overlap + text_overlap`. Falls back to severity-only when no
+  keyword hits so coverage never regresses to empty.
+- **`_gate_framework` now retrieves peer-review context for
+  warnings-only gates too**. The previous `if failures:` guard left
+  warning-only failed gates (cohort_definition, split_protocol,
+  missingness_policy under `--strict`) with empty context arrays. Fix
+  triggers retrieval for `failures or warnings`.
+- **KB `mlgg_gates` index rebuilt**. 276 of 375 concerns (73.6%) had
+  empty `mlgg_gates` arrays — `peer_review_lookup.py --gate` silently
+  missed ~75% of the KB. Added `scripts/review/backfill_peer_review_gates.py`
+  (idempotent, deterministic category+tags → gates rule table);
+  brought empty count to 0/375. Also corrected a `subgroup` tag
+  over-match that wrongly routed 4 concerns (confounder stratification
+  / clinical heterogeneity / small subgroup / selective reporting) to
+  `fairness_equity_gate`.
+- **Leakage coverage on existing KB bumped via surgical
+  re-tagging**. 10 concerns with leakage-adjacent `tags`
+  (target_leakage / data_leakage_via_imputation / patient_overlap /
+  train_test_overlap / data_leakage_via_tuning / etc.) but missing
+  `leakage_gate` in their `mlgg_gates` list have been augmented.
+  `--gate leakage_gate` retrieval went from 3 → 13 concerns.
+
+### Knowledge base provenance — disease definitions
+
+- **Disease KB now declares per-entry provenance**. All 11 entries in
+  `references/methodology/disease-definition-knowledge-base.json` now
+  have a `provenance` block declaring `source=llm_compiled` and
+  `clinician_review_status=pending`. The KB was consumed by
+  `cohort_definition_gate` and `definition_variable_guard` as ground
+  truth; now downstream NHANES+UKB+Registry `task_aware_validate`
+  propagate `kb_provenance` into each emitted issue's details and
+  append "[KB entry is LLM-compiled and not yet clinician-reviewed]"
+  to messages. A shared helper
+  `scripts/codebooks/_kb_provenance.extract_kb_provenance()` dedupes
+  the three consumer paths.
+  See `references/methodology/DISEASE_KB_REVIEW.md` for the clinician
+  review checklist.
+
+### Paper-review agent — evidence-backing audit
+
+- **Reviewer agent now penalizes unsubstantiated methodology claims**.
+  `score_paper_metadata.py` audits each positive leakage-assessment
+  claim (patient_level_split / temporal_split / preprocessing_fit /
+  tuning_used_test_data) against its paired `_evidence` quote field.
+  Missing quotes emit `unsubstantiated_claims` findings and set
+  `leakage_flags._has_unsubstantiated_claims`. `agents/extractor.yaml`
+  rule #6 and `agents/reviewer.yaml` evidence-backing rule direct the
+  LLMs to leave a boolean as null rather than over-claim without a
+  verbatim quote. Contract version bumped to `paper_score.v1.1`.
+- **Reviewer 12-dimension scoring now includes "Leakage Prevention"
+  (weight 15, the maximum)**. Previous `agents/reviewer.yaml` 12-dim
+  scheme had no leakage dimension at all — tool named `ml-leakage-guard`
+  was scoring papers without evaluating leakage. Added
+  `tests/test_scoring_consistency.py` as a drift regression guard.
+
+### Tier and cross-sectional awareness
+
+- **Cross-sectional dataset support**. When the request sets
+  `cross_sectional: true` (auto-set by onboarding for single-CSV runs
+  without a time column), `run_dag_pipeline` forwards
+  `--cross-sectional` to `definition_variable_guard` (suppresses
+  `temporal_spec_missing` warning because prediction_time / follow_up_window
+  don't apply) and `split_protocol_gate` (treats cross_sectional as
+  user-acknowledged; suppresses reminder).
+- **Onboarding auto-generates outcome_definition stub** for
+  exploratory runs. `configs/outcome_definition.json` is written with
+  `source: "exploratory_auto_generated"` so cohort_definition_gate
+  skips the publication-grade rigor checks (≥2 sources, adjudication,
+  exclusions list, time_window) that would spam warnings on every
+  `--input-csv` onboarding. Real rigor checks still fire on
+  user-curated specs.
+
+### `request_contract` path normalization
+
+- **Leakage-audited tier now normalizes path fields used by Layer 5/6
+  gates**. `prediction_trace_file`, `ci_matrix_report_file`, and
+  `feature_engineering_report_file` were previously gated behind
+  `require_lineage` (publication-grade only). For leakage-audited runs
+  this left downstream gates (calibration_dca, prediction_replay,
+  ci_matrix, feature_engineering_audit) crashing at argparse on
+  required CLI flags. Path normalization is now unconditional for
+  these fields; content-shape validation (rigid report structure
+  checks) remains tier-gated.
+
+### Gate reliability fixes
+
+- **`distribution_generalization_gate`**: `--external-validation-report`
+  is now argparse-optional. When omitted (leakage-audited tier without
+  external cohort), the gate evaluates internal drift only rather than
+  crashing at `Path(None)`.
+- **`calibration_dca_gate` / `ci_matrix_gate`**: removed
+  `no_external_validation` / `transport_ci_skipped` warnings when the
+  ext report was absent-by-design (leakage-audited), which
+  `--strict`-mode had promoted to false failures.
+- **`self_critique_gate`**: added two argparse flags
+  (`--cohort-definition-report`, `--shap-interpretability-report`)
+  that run_dag_pipeline was passing per gate_registry but argparse
+  didn't know.
+- **`feature_engineering_audit_gate`**: selection-frequency lookup now
+  falls back to longest-prefix match for one-hot encoded features
+  (`race_ethnicity_nh_black` inherits its group's score from the
+  pre-encoding `race_ethnicity` entry). Resolves the 8
+  "feature_stability_evidence_missing" failures that were an
+  interface mismatch between training and gate.
+- **`shap_interpretability_gate`**: fixed stale `sys.path` pointing to
+  `scripts/tools/` (refactored into `scripts/training/` in commit
+  530969a); now resolves `apply_categorical_encoding_to_external`.
+  Also handles `feature_lineage_spec.features` as either dict or list
+  (dogfood run crashed on `'str'.get()`).
+- **`missingness_policy_gate`**: accepts v2.0 policy schema
+  (`tiered_mechanism_first` meta-strategy; `mechanism_assessment.methods`
+  plural list alongside `method` singular string; `conclusion=None`
+  for unperformed-assessment treated as warning not failure).
+
+### Documentation consistency
+
+- **Single source of truth for the 12-dimension scoring table**.
+  SKILL.md is canonical; README.md / README_EN.md / reviewer.yaml
+  were drifting (8 name mismatches: "防泄漏" vs "泄漏防护", "Leakage
+  Prevention" vs "Leakage Protection", etc.). All drift resolved.
+  Added `scripts/diagnostics/check_docs_consistency.py` as a CI-ready
+  drift guard (exit 2 on mismatch).
+- **SKILL.md updates**:
+  - 3 canonical entry points (`/mlgg`, `mlgg <sub>`, `mlgg-lint`)
+    promoted above the Quick Dispatch utility list
+  - Decision helper "workflow vs audit vs lint" — clarifies that
+    `mlgg audit` (not `mlgg workflow`) is the right entry for
+    projects without MLGG-produced evidence/*.json
+  - Honest capability boundary table (strong / medium / weak /
+    out-of-scope) distinguishing training-pipeline governance
+    (strong) from cohort selection bias (covered only superficially)
+    from deployment drift (out of scope)
+  - Peer-review KB section rewritten to disclose actual coverage
+    (evaluation/reporting strong; leakage underrepresented due to
+    publication-filter selection bias)
+  - Removed references to "27 AST rules" documentation drift
+    (corrected count)
+- **`performance-policy.example.json`**: added `mcc` to
+  `required_metrics` (clinical_metrics_gate's mandatory panel
+  includes MCC; prior template was missing it).
+- **`extractor.yaml` `Required Fields` JSON schema** rewritten to
+  match the newer `leakage_risk_assessment` + paired `_evidence`
+  fields that `score_paper_metadata.py` actually consumes.
+
+### Pre-existing CLI fix
+
+- **`scripts/codebooks/fetch_nhanes_2021_2023.py`** had no argparse
+  so `--help` triggered network I/O and timed out in
+  `tests/test_stress_gate_cli.py`. Added minimal `--help` guard.
+
+### Tests — session total
+
+- 29 new tests added across 6 files:
+  - `test_scoring_consistency.py` (12-dim drift guard)
+  - `test_disease_kb_provenance.py` (provenance schema + 3 consumer
+    regression tests — Registry/NHANES/UKB)
+  - `test_evidence_backing_audit.py` (positive-claim evidence check)
+  - `test_kb_provenance_helper.py` (shared helper unit tests)
+  - `test_peer_review_retrieval_precision.py` (issue-code keyword
+    extraction + ranking)
+  - `test_cohort_definition_pattern_scope.py` (disease-scope
+    regression for glucose false positive)
+- 4740+ pre-existing tests pass unchanged.
+
+### Observed but not fixed (by design)
+
+- Calibration ECE threshold (≤0.06), slope bounds ([0.8, 2.0]),
+  external validation `min_cohort_count ≥ 1` and
+  `require_cross_period` / `require_cross_institution` are hardcoded
+  publication-grade baselines. They do not participate in the
+  `profile_overrides` system. For exploratory leakage-audited runs
+  on datasets where these bars are unreachable (SUPPORT2 ICU: ECE
+  naturally > 0.06), the gate correctly emits hard failures. Making
+  these tier-aware would require extending
+  `references/standards/publication-policy-baselines.json` structure
+  and removing a `value < 1.0` hardcoded check — deferred as a
+  separate architectural refactor.
+
 ## [1.0.0] - 2026-04-09
 
 ### Changed
