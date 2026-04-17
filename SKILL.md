@@ -23,6 +23,12 @@ MLGG 对外暴露 3 条稳定入口，其他所有功能都是它们的子命令
 | **`mlgg <subcommand>`** | 终端 / 脚本自动化 | 29 个子命令（见下），包含 play / workflow / onboarding / audit / doctor / lint 等 |
 | **`mlgg-lint`** | CI / pre-commit | 独立 pip 包，27 条 AST 规则，零依赖，5 秒扫完单文件 |
 
+### 怎么选？`workflow` vs `audit`
+
+- **项目是你用 MLGG 自己跑出来的**（`evidence/*.json` 存在、`configs/request.json` 符合 schema）→ `mlgg workflow --strict`，跑全部 33 gate 验证证据。
+- **项目是别人写的、没有 MLGG 格式的 evidence**（只有 train.csv / notebook / 模型 pickle / metrics.json）→ `mlgg audit <dir>`，基于代码模式扫描 + 文件结构检查打分，不会因缺 `evidence/*.json` 而爆 noisy failure。
+- **CI 里只想检查单文件代码泄漏** → `mlgg-lint check <file.py>`（零依赖，几秒出结果）。
+
 ## Quick Dispatch
 
 | 用户说的 | 命令 |
