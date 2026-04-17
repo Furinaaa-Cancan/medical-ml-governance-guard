@@ -1272,14 +1272,49 @@ def main() -> int:
                 {"excluded_columns": present_def_cols, "action": "auto_excluded"},
             )
     else:
-        # Heuristic: warn if common definition variables are present
-        _DEF_PATTERNS = ["hba1c", "a1c", "glucose", "fasting_glucose", "fbg",
-                         "ogtt", "icd", "diagnosis", "dx_code", "confirmed",
-                         "lab_result", "test_result",
-                         "surv2m", "surv6m", "survival", "prognos", "prg2m", "prg6m",
-                         "mortality", "death", "died", "readmit"]
+        # Heuristic: warn if common definition/outcome-adjacent variables are present.
+        #
+        # Split the pattern list so disease-specific markers only fire when the
+        # target actually matches that disease. Otherwise we false-positive on
+        # legitimate vital signs — e.g. SUPPORT2 (target=30-day mortality) has
+        # `glucose` as an ICU vital sign, not a diabetes-defining lab value.
+        # 2026-04-17 dogfood fix.
+        _GENERIC_PATTERNS = [
+            # Target/label aliases & outcome-adjacent — always suspicious
+            "mortality", "death", "died", "readmit",
+            # Survival/prognosis proxies (doctor-provided, often target-leaking)
+            "surv2m", "surv6m", "survival", "prognos", "prg2m", "prg6m",
+            # Generic clinical record markers
+            "icd", "diagnosis", "dx_code", "confirmed",
+        ]
+        _DISEASE_SPECIFIC_PATTERNS: Dict[str, List[str]] = {
+            "diabetes": ["hba1c", "a1c", "glucose", "fasting_glucose", "fbg", "ogtt"],
+            "ckd":      ["egfr", "albuminuria", "acr", "creatinine_clearance"],
+            "heart_failure": ["bnp", "nt_probnp", "ejection_fraction", "lvef"],
+            "copd":     ["fev1", "fvc", "fev1_fvc_ratio", "spirometry"],
+        }
+
+        # Lightweight target-disease inference (reuses logic below, but earlier)
+        _inferred_disease = ""
+        if isinstance(study_design.get("outcome_definition"), dict):
+            _inferred_disease = str(
+                study_design["outcome_definition"].get("subtype", "")
+            ).lower()
+        if not _inferred_disease:
+            _stem = Path(args.data).stem.lower()
+            for _d in ["diabetes", "hypertension", "ckd", "heart_failure",
+                       "stroke", "copd", "depression"]:
+                if _d in _stem:
+                    _inferred_disease = _d
+                    break
+
+        # Build the active pattern set: generic + matching-disease-specific only.
+        active_patterns = list(_GENERIC_PATTERNS)
+        if _inferred_disease in _DISEASE_SPECIFIC_PATTERNS:
+            active_patterns.extend(_DISEASE_SPECIFIC_PATTERNS[_inferred_disease])
+
         suspected = [c for c in df.columns
-                     if any(p in c.lower() for p in _DEF_PATTERNS)
+                     if any(p in c.lower() for p in active_patterns)
                      and c != args.target_col]
         if suspected:
             add_issue(
@@ -1288,7 +1323,11 @@ def main() -> int:
                 f"{suspected[:8]}. If any of these were used to DEFINE the outcome "
                 f"(not just correlated with it), they MUST be excluded. "
                 f"Specify --definition-cols to explicitly declare them.",
-                {"suspected_columns": suspected[:8]},
+                {
+                    "suspected_columns": suspected[:8],
+                    "inferred_target_disease": _inferred_disease or None,
+                    "pattern_scope": "generic+disease_specific" if _inferred_disease in _DISEASE_SPECIFIC_PATTERNS else "generic_only",
+                },
             )
 
     # Determine feature columns
