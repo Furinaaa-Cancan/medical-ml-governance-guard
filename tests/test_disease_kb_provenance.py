@@ -71,7 +71,7 @@ def test_clinician_reviewed_entries_have_reviewer_info(kb):
             assert prov.get("last_reviewed"), f"{name}: reviewed but no date"
 
 
-def test_consumers_propagate_provenance(tmp_path):
+def test_registry_consumer_propagates_provenance(tmp_path):
     """RegistryCodebook.task_aware_validate (registry-backed, no SQLite) must
     include kb_provenance in issue details when a match is found."""
     import sys
@@ -79,7 +79,6 @@ def test_consumers_propagate_provenance(tmp_path):
     sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
     from codebooks.nhanes_codebook_lookup import RegistryCodebook  # type: ignore
 
-    # Build a tiny in-memory registry so lookup has a variable to match.
     fake_registry = {
         "datasets": {
             "synthetic": {
@@ -98,7 +97,6 @@ def test_consumers_propagate_provenance(tmp_path):
     reg_path.write_text(json.dumps(fake_registry))
 
     cb = RegistryCodebook(str(reg_path), "synthetic")
-
     issues = cb.task_aware_validate(
         column_names=["HBA1C", "age"],
         target_col="y",
@@ -106,16 +104,97 @@ def test_consumers_propagate_provenance(tmp_path):
         disease_kb_path=str(KB_PATH),
     )
     assert issues, "Expected at least one definition-variable issue"
-    assert any(
-        "kb_provenance" in (i.get("details") or {})
-        for i in issues
-    ), f"No issue surfaced kb_provenance. Got: {issues}"
-    # The provenance should reflect pending review status.
-    for issue in issues:
-        prov = (issue.get("details") or {}).get("kb_provenance")
-        if prov:
-            assert prov["clinician_review_status"] == "pending"
-            break
+    match = next(
+        (i for i in issues if "kb_provenance" in (i.get("details") or {})), None
+    )
+    assert match is not None, f"No issue surfaced kb_provenance. Got: {issues}"
+    assert match["details"]["kb_provenance"]["clinician_review_status"] == "pending"
+    assert "LLM-compiled" in match["message"]
+
+
+def test_nhanes_consumer_propagates_provenance(monkeypatch):
+    """NHANESCodebook.task_aware_validate (BM25 + SQLite path) must also
+    propagate kb_provenance. Stubs the BM25 internals via monkeypatch so the
+    test doesn't require an actual NHANES SQLite file.
+
+    Guard for the fix in P0-2 that both consumer paths (registry + NHANES)
+    surface kb_provenance identically.
+    """
+    import sys
+    sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
+    from codebooks.nhanes_codebook_lookup import NHANESCodebook  # type: ignore
+
+    cb = NHANESCodebook.__new__(NHANESCodebook)
+    # Minimal stubs: avoid __init__ which needs a real codebook_dir
+    cb._variables = {"LBXGH": {"variable": "LBXGH", "sas_label": "Glycohemoglobin (HbA1c)"}}
+    monkeypatch.setattr(cb, "_ensure_index", lambda: None)
+    monkeypatch.setattr(cb, "search", lambda term, **kw: [
+        {"variable": "LBXGH", "sas_label": "Glycohemoglobin (HbA1c)", "score": 10.0}
+    ] if "hba1c" in term.lower() or "glycated" in term.lower() else [])
+    monkeypatch.setattr(cb, "_term_overlaps_label", lambda t, l: True)
+    monkeypatch.setattr(cb, "_reverse_lookup", lambda t: None)
+    monkeypatch.setattr(cb, "lookup", lambda c: cb._variables.get(c))
+
+    issues = cb.task_aware_validate(
+        column_names=["LBXGH", "RIDAGEYR"],
+        target_col="y",
+        target_disease="type_2_diabetes",
+        disease_kb_path=str(KB_PATH),
+    )
+    assert issues, "Expected NHANES match for HbA1c + diabetes"
+    match = next(
+        (i for i in issues if "kb_provenance" in (i.get("details") or {})), None
+    )
+    assert match is not None, f"NHANES consumer did not surface kb_provenance. Got: {issues}"
+    assert match["details"]["kb_provenance"]["clinician_review_status"] == "pending"
+    assert "LLM-compiled" in match["message"]
+
+
+def test_ukb_consumer_propagates_provenance(monkeypatch, tmp_path):
+    """UKBCodebook.task_aware_validate must also propagate kb_provenance.
+    Stubs the SQLite connection + parse_ukb_column so the test is self-contained."""
+    import sys
+    sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
+    import codebooks.ukb_codebook_lookup as ukb_mod  # type: ignore
+
+    # Inject a fake ukb_definition_fields into the disease entry so we hit the
+    # definition-variable branch. Do this via a wrapped KB copy on disk.
+    kb = json.loads(KB_PATH.read_text(encoding="utf-8"))
+    kb["diseases"]["type_2_diabetes"]["ukb_definition_fields"] = [130708]  # fake
+    fake_kb = tmp_path / "disease_kb.json"
+    fake_kb.write_text(json.dumps(kb))
+
+    cb = ukb_mod.UKBCodebook.__new__(ukb_mod.UKBCodebook)
+    # Stub _ensure_conn to return an object whose execute() returns an iterable
+    # matching what the method expects (fetchone → dict-like row with 'title').
+    class _FakeRow(dict):
+        def __getitem__(self, k): return super().__getitem__(k)
+    class _FakeCursor:
+        def __init__(self, rows): self._rows = rows
+        def fetchone(self): return self._rows[0] if self._rows else None
+        def fetchall(self): return self._rows
+    class _FakeConn:
+        def execute(self, sql, params=()):
+            # Called for both `SELECT title FROM fields` and for encoding_values lookups.
+            if "fields" in sql:
+                return _FakeCursor([_FakeRow({"title": "Date E11 first reported"})])
+            return _FakeCursor([])
+    monkeypatch.setattr(cb, "_ensure_conn", lambda: _FakeConn())
+    monkeypatch.setattr(ukb_mod, "parse_ukb_column", lambda col: (130708, 0, 0) if col == "p130708_i0" else None)
+
+    issues = cb.task_aware_validate(
+        column_names=["p130708_i0", "p21022"],
+        target_col="y",
+        target_disease="type_2_diabetes",
+        disease_kb_path=str(fake_kb),
+    )
+    assert issues, f"Expected UKB definition-variable match. Got: {issues}"
+    match = next(
+        (i for i in issues if "kb_provenance" in (i.get("details") or {})), None
+    )
+    assert match is not None, "UKB consumer did not surface kb_provenance"
+    assert match["details"]["kb_provenance"]["clinician_review_status"] == "pending"
+    assert "LLM-compiled" in match["message"]
 
 
 if __name__ == "__main__":

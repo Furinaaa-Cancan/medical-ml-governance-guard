@@ -63,41 +63,84 @@ system_prompt: |
 
   ## Required Fields
 
+  The downstream scorer (`scripts/review/score_paper_metadata.py`) consumes this
+  exact structure. Do NOT omit the `leakage_risk_assessment` block or its
+  paired `_evidence` fields — the scorer penalizes positive booleans whose
+  evidence quote is empty (rule #6 above).
+
   ```json
   {
-    "title": "string",
-    "authors": ["string"],
-    "year": "int",
-    "journal": "string",
-    "doi": "string or null",
-    "prediction_type": "binary | multiclass | regression | survival",
-    "target_outcome": "string (what is being predicted)",
-    "study_design": "prospective | retrospective | cross-sectional | registry",
-    "sample_size": {"total": "int", "events": "int or null", "event_rate": "float or null"},
-    "features": {"count": "int or null", "types": ["demographics", "labs", "vitals", "imaging", "genetic", "other"]},
-    "split_method": "random | stratified | temporal | grouped | CV-only | null",
-    "patient_level_split": "true | false | null",
-    "preprocessing": {
-      "missing_data_strategy": "string or null",
-      "scaling": "string or null",
-      "encoding": "string or null",
-      "fit_on_train_only": "true | false | null"
+    "bibliographic": {
+      "title": "string",
+      "authors": ["string"],
+      "year": "int",
+      "journal": "string",
+      "doi": "string or null"
     },
-    "models_evaluated": ["string"],
-    "best_model": "string or null",
-    "metrics_reported": {
-      "auroc": "float or null",
-      "auprc": "float or null",
-      "sensitivity": "float or null",
-      "specificity": "float or null",
+    "study_design": {
+      "outcome": "string (what is being predicted)",
+      "prediction_horizon": "string or null",
+      "setting": "prospective | retrospective | cross-sectional | registry | null",
+      "is_multicenter": "true | false | null",
+      "has_external_validation": "true | false | null"
+    },
+    "dataset": {
+      "source_type": "ehr | biobank | registry | trial | simulation | other",
+      "source_name": "string or null",
+      "n_patients_total": "int or null",
+      "n_events_positive": "int or null",
+      "prevalence_pct": "float or null",
+      "features_n": "int or null",
+      "split_strategy": "random | stratified | temporal | grouped | CV-only | not_reported",
+      "train_n": "int or null",
+      "test_n": "int or null",
+      "missing_data_strategy": "string or null"
+    },
+    "model": {
+      "model_type": "string",
+      "n_candidate_models": "int or null",
+      "hyperparameter_tuning": "string or null",
+      "tuning_set": "validation_only | train_validation | test_used | not_reported",
+      "feature_selection_method": "string or null"
+    },
+    "performance_metrics": {
+      "primary_metric": "string or null",
+      "test_auroc": "float or null",
+      "test_auroc_ci_lower": "float or null",
+      "test_auroc_ci_upper": "float or null",
+      "test_auprc": "float or null",
+      "test_sensitivity": "float or null",
+      "test_specificity": "float or null",
+      "test_ppv": "float or null",
+      "test_brier_score": "float or null",
       "calibration_reported": "true | false",
-      "confidence_intervals": "true | false",
-      "dca_reported": "true | false"
+      "bootstrap_ci_reported": "true | false",
+      "dca_reported": "true | false",
+      "external_auroc": "float or null"
     },
-    "external_validation": {"performed": "true | false", "cohort_description": "string or null"},
-    "code_availability": "true | false | null",
-    "tripod_mentioned": "true | false",
-    "limitations_discussed": ["string"]
+    "reporting_standards": {
+      "tripod_ai_claimed": "true | false",
+      "equator_guideline_cited": "string or null",
+      "limitation_section": "true | false",
+      "code_availability": "public_github | on_request | not_mentioned | null",
+      "data_availability": "public | on_request | restricted | not_mentioned | null"
+    },
+    "leakage_risk_assessment": {
+      "patient_level_split_confirmed": "true | false | null",
+      "patient_level_split_evidence": "verbatim quote (<=280 chars) or empty string",
+      "temporal_split_confirmed": "true | false | null",
+      "temporal_split_evidence": "verbatim quote or empty string",
+      "preprocessing_fit_on_train_only": "true | false | null",
+      "preprocessing_evidence": "verbatim quote or empty string",
+      "tuning_used_test_data": "true | false | null  (True = BAD)",
+      "tuning_evidence": "verbatim quote or empty string",
+      "target_leakage_risk": "low | medium | high | cannot_assess",
+      "post_index_feature_risk": "low | medium | high | cannot_assess",
+      "phenotype_definition_overlap_risk": "low | medium | high | cannot_assess",
+      "notes": "string — key observations that inform the leakage assessment"
+    },
+    "extraction_confidence": "high | medium | low",
+    "extraction_notes": "string — caveats, unclear passages, inferences made"
   }
   ```
 

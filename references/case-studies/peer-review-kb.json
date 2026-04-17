@@ -1,5 +1,5 @@
 {
-  "contract_version": "peer_review_kb.v1.2",
+  "contract_version": "peer_review_kb.v1.3",
   "total_papers": 106,
   "total_concerns": 375,
   "entries": [
@@ -1036,8 +1036,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate",
-            "fairness_equity_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "For immunotherapy treatment — were patients treated with single agent or combination with chemo? If mixed, the analysis needs to be divided to study single agent and combination separately. It is unclear how heterogeneous this group is.",
@@ -5497,8 +5496,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 5,
           "mlgg_gates": [
-            "evaluation_quality_gate",
-            "fairness_equity_gate"
+            "evaluation_quality_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Statistical analysis needs improvement: p-values not adjusted for multiple comparisons. Stepwise elimination lacks adjustment for known confounders (sex, hypertension, dyslipidemia). Must show model works in stratified analyses for young participants and non-smokers.",
@@ -7551,8 +7549,7 @@
           "mlgg_dimension": 7,
           "mlgg_gates": [
             "calibration_dca_gate",
-            "clinical_metrics_gate",
-            "fairness_equity_gate"
+            "clinical_metrics_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Associations between OS and bevacizumab use are questionable. Only 30 patients with mixed treatment histories — too small to make conclusions about response prediction to bevacizumab.",
@@ -8657,8 +8654,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 8,
           "mlgg_gates": [
-            "reporting_bias_gate",
-            "fairness_equity_gate"
+            "reporting_bias_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "In supplemental Fig 3B, lung-risk HR of [65,75] category is not significant in multivariate model. The claim 'CXR Lung-Risk remained independently associated with lung disease mortality in both subpopulations' is misleading.",
@@ -11317,6 +11313,11 @@
       "version": "v1.2",
       "date": "2026-04-17",
       "change": "P0-3b: backfilled mlgg_gates for concerns with empty arrays using deterministic category+tags rule table (scripts/review/backfill_peer_review_gates.py). Patched 272 concerns; empty count 0/375."
+    },
+    {
+      "version": "v1.3",
+      "date": "2026-04-17",
+      "change": "Codex-review fix: removed fairness_equity_gate from 4 concerns where it was assigned via the over-broad 'subgroup' substring rule. Narrower fairness rules (subgroup_disparity / subgroup_fairness / gender_bias / racial_bias / ethnic_bias) now gate this."
     }
   ]
 }

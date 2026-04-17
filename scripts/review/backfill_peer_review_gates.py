@@ -83,13 +83,20 @@ TAG_OVERLAYS: list[tuple[str, list[str]]] = [
     ("imbalanced", ["imbalance_policy_gate", "evaluation_quality_gate"]),
     ("smote", ["imbalance_policy_gate", "leakage_gate"]),
     ("class_weight", ["imbalance_policy_gate"]),
-    # Fairness
+    # Fairness — narrow matches only. `subgroup` alone is too broad:
+    # it also fires on clinical-interpretation subgroup analyses, confounder
+    # stratification, underpowered subsets, and selective reporting — none of
+    # which are fairness concerns (Codex review 2026-04-17).
     ("fairness", ["fairness_equity_gate"]),
-    ("subgroup", ["fairness_equity_gate"]),
     ("equity", ["fairness_equity_gate"]),
     ("disparate", ["fairness_equity_gate"]),
     ("equalized_odds", ["fairness_equity_gate"]),
     ("demographic_parity", ["fairness_equity_gate"]),
+    ("subgroup_fairness", ["fairness_equity_gate"]),
+    ("subgroup_disparity", ["fairness_equity_gate"]),
+    ("gender_bias", ["fairness_equity_gate"]),
+    ("racial_bias", ["fairness_equity_gate"]),
+    ("ethnic_bias", ["fairness_equity_gate"]),
     # Missingness
     ("missing_data", ["missingness_policy_gate"]),
     ("imputation", ["missingness_policy_gate"]),
@@ -249,22 +256,38 @@ def main() -> None:
         print("\n(dry-run; pass --apply to write)")
         return
 
-    # Bump contract version + add change log entry
-    kb["contract_version"] = "peer_review_kb.v1.2"
-    kb.setdefault("change_log", []).append(
-        {
-            "version": "v1.2",
-            "date": "2026-04-17",
-            "change": (
-                "P0-3b: backfilled mlgg_gates for concerns with empty arrays using "
-                "deterministic category+tags rule table "
-                "(scripts/review/backfill_peer_review_gates.py). "
-                f"Patched {patched} concerns; empty count {empty_after}/{len(all_concerns)}."
-            ),
-        }
-    )
+    if patched == 0:
+        # Idempotency guard (Codex review 2026-04-17): re-running --apply with
+        # no material changes must NOT append a duplicate change_log entry.
+        print("\nNothing to write (patched=0); skipping file update.")
+        return
 
-    KB_PATH.write_text(json.dumps(kb, indent=2, ensure_ascii=False) + "\n")
+    # Bump contract version + add change log entry — only once per distinct migration.
+    kb["contract_version"] = "peer_review_kb.v1.2"
+    change_log = kb.setdefault("change_log", [])
+    _mode = "force-re-derived" if args.force else "backfilled empty arrays"
+    new_entry = {
+        "version": "v1.2",
+        "date": "2026-04-17",
+        "change": (
+            f"P0-3b: {_mode} mlgg_gates using deterministic category+tags rule table "
+            f"(scripts/review/backfill_peer_review_gates.py). "
+            f"Patched {patched} concerns; empty count {empty_after}/{len(all_concerns)}."
+        ),
+    }
+    # Skip if an entry with the same version AND change text already exists.
+    if not any(
+        e.get("version") == new_entry["version"] and e.get("change") == new_entry["change"]
+        for e in change_log
+    ):
+        change_log.append(new_entry)
+
+    # Atomic write via temp file + rename (prevents partial-write corruption
+    # on concurrent invocations).
+    import os
+    tmp_path = KB_PATH.with_suffix(KB_PATH.suffix + ".tmp")
+    tmp_path.write_text(json.dumps(kb, indent=2, ensure_ascii=False) + "\n")
+    os.replace(tmp_path, KB_PATH)
     print(f"\nWrote {KB_PATH}")
 
     # Regenerate stats

@@ -91,11 +91,15 @@
   },
 
   "leakage_risk_assessment": {
-    "_instructions": "Fill after reading the methods section carefully",
+    "_instructions": "Fill after reading the methods section carefully. For each *_confirmed boolean set to true, include a verbatim quote in the paired *_evidence field (<=280 chars). A true claim without evidence is treated as unverified by the scorer (paper_score.v1.1+).",
     "patient_level_split_confirmed": null,
+    "patient_level_split_evidence": "",
     "temporal_split_confirmed": null,
+    "temporal_split_evidence": "",
     "preprocessing_fit_on_train_only": null,
+    "preprocessing_evidence": "",
     "tuning_used_test_data": null,
+    "tuning_evidence": "",
     "target_leakage_risk": "",
     "_leakage_risk_options": ["low", "medium", "high", "cannot_assess"],
     "post_index_feature_risk": "",

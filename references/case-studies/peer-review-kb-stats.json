@@ -50,7 +50,6 @@
     "shap_interpretability_gate": 15,
     "missingness_policy_gate": 15,
     "sample_size_gate": 8,
-    "fairness_equity_gate": 5,
     "split_protocol_gate": 3,
     "distribution_generalization_gate": 3,
     "ci_matrix_gate": 3,
@@ -58,7 +57,8 @@
     "covariate_shift_gate": 1,
     "feature_lineage_gate": 1,
     "imbalance_policy_gate": 1,
-    "generalization_gap_gate": 1
+    "generalization_gap_gate": 1,
+    "fairness_equity_gate": 1
   },
   "concerns_with_empty_gates": 0
 }
