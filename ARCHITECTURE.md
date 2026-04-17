@@ -121,10 +121,12 @@ Report: { status, failure_count, warning_count, failures[], warnings[],
 
 | Dataset | Rows | Features | Prevalence | ROC-AUC | PR-AUC | Calibration | Benchmark |
 |---------|------|----------|-----------|---------|--------|-------------|-----------|
-| **CKD** | **399** | **22** | 63% | **0.999** | **1.000** | slope=3.08 | `experiments/ckd-benchmark/` |
-| Pima Diabetes | 768 | 8 | 34% | 0.845 | 0.789 | — | — |
-| Framingham Heart | 4,240 | 16 | 16% | 0.737 | — | — | — |
-| **RHC ICU** | **5,735** | **37** | 65% | **0.750** | **0.834** | slope=0.977 | `experiments/rhc-benchmark/` |
-| **SUPPORT2** | **9,105** | **46** | 17% | **0.892** | **0.635** | slope=0.745 | `experiments/support2-benchmark/` |
-| **NHANES** | **15,549** | **13** | 18% | **0.810** | **0.443** | — | `experiments/nhanes-benchmark/` |
+| **CKD** | **399** | **24** | 63% | **0.999** | **1.000** | slope=3.08 | `experiments/ckd-benchmark/` |
+| Pima Diabetes | 768 | 8 | 35% | 0.845 | 0.789 | — | — |
+| Framingham Heart | 4,240 | 15 | 15% | 0.737 | — | — | — |
+| **RHC ICU** | **5,735** | **54** | 65% | **0.750** | **0.834** | slope=0.977 | `experiments/rhc-benchmark/` |
+| **SUPPORT2** | **9,105** | **43** | 26% | **0.892** | **0.635** | slope=0.745 | `experiments/support2-benchmark/` |
+| **NHANES** | **15,549** | **12** | 18% | **0.810** | **0.443** | — | `experiments/nhanes-benchmark/` |
 | **Sepsis** | **129,392** | **3** | 9% | **0.689** | **0.159** | slope=0.804 | `experiments/sepsis-benchmark/` |
+
+Feature counts exclude `patient_id`, `event_time`, `y` meta columns.
