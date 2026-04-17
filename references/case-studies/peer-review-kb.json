@@ -1,5 +1,5 @@
 {
-  "contract_version": "peer_review_kb.v1",
+  "contract_version": "peer_review_kb.v1.1",
   "total_papers": 106,
   "total_concerns": 375,
   "entries": [
@@ -27,7 +27,8 @@
           "severity": "CRITICAL",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate"
+            "cohort_definition_gate",
+            "leakage_gate"
           ],
           "mlgg_rules": [
             "MLGG-F02",
@@ -50,7 +51,8 @@
           "severity": "HIGH",
           "mlgg_dimension": 7,
           "mlgg_gates": [
-            "clinical_metrics_gate"
+            "clinical_metrics_gate",
+            "leakage_gate"
           ],
           "mlgg_rules": [
             "MLGG-F01"
@@ -544,7 +546,8 @@
           "severity": "HIGH",
           "mlgg_dimension": 3,
           "mlgg_gates": [
-            "missingness_policy_gate"
+            "missingness_policy_gate",
+            "leakage_gate"
           ],
           "mlgg_rules": [
             "MLGG-P04"
@@ -1920,7 +1923,8 @@
           "severity": "HIGH",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "split_protocol_gate"
+            "split_protocol_gate",
+            "leakage_gate"
           ],
           "mlgg_rules": [
             "MLGG-S02"
@@ -3264,7 +3268,9 @@
           "category": "study_design",
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "leakage_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Were PGS from all ancestry used, or only PGS trained from East Asian samples? Was there any attempt at handling population stratification? Were there any attempts to avoid sample overlap?",
           "author_response": "We included all-ancestry PGS and added population stratification adjustment via principal components. Assessed and excluded overlapping samples.",
@@ -4627,7 +4633,8 @@
           "severity": "HIGH",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "split_protocol_gate"
+            "split_protocol_gate",
+            "leakage_gate"
           ],
           "mlgg_rules": [
             "MLGG-S01"
@@ -5044,7 +5051,10 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "leakage_gate",
+            "tuning_leakage_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Unclear how external validation dataset was chosen. Manuscript mentions splitting into folds but explanation vague. How are AUC and other metrics independent of tuning and training?",
           "author_response": "Clarified validation strategy with explicit held-out external datasets.",
@@ -5124,7 +5134,8 @@
           "severity": "HIGH",
           "mlgg_dimension": 6,
           "mlgg_gates": [
-            "external_validation_gate"
+            "external_validation_gate",
+            "leakage_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Seven cohorts used but unclear how independent the external validation truly is. Need clear delineation of which cohorts used for development vs validation.",
@@ -8374,7 +8385,9 @@
           "category": "reporting",
           "severity": "HIGH",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "leakage_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Unclear how the feature (ProRS?) is calculated from model output. Cross-validation procedure needs more detail — is the full NN + survival pipeline done leave-one-region-out or has some steps been carried for all data?",
           "author_response": "Clarified ProRS calculation and full CV pipeline details.",
@@ -9054,7 +9067,9 @@
             "data_leakage_via_correlated_phenotypes",
             "train_test_overlap"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "leakage_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -10658,6 +10673,25 @@
       "outcome": "reporting_summary_only",
       "key_methodology_issues": [],
       "key_methodology_strengths": []
+    }
+  ],
+  "change_log": [
+    {
+      "version": "v1.1",
+      "date": "2026-04-17",
+      "change": "P0-3a: backfilled mlgg_gates for 10 leakage-tagged concerns (audit: peer-review-kb-audit-2026-04.md)",
+      "concerns_affected": [
+        "PR-001-C01",
+        "PR-001-C02",
+        "PR-003-C03",
+        "PR-010-C02",
+        "PR-019-C03",
+        "PR-029-C03",
+        "PR-032-C05",
+        "PR-033-C02",
+        "PR-064-C01",
+        "PR-072-C01"
+      ]
     }
   ]
 }
