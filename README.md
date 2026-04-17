@@ -58,7 +58,7 @@
 - [23 个模型族](#23-个模型族)
 - [14 个医学数据集](#14-个医学数据集)
 - [27 条静态分析规则 (R001-R027)](#27-条静态分析规则-r001-r027)
-- [分析工具](#分析工具)
+- [21 项分析工具](#21-项分析工具)
 - [安全加固层](#安全加固层)
 - [项目结构](#项目结构)
 - [安装指南](#安装指南)
@@ -1200,7 +1200,7 @@ medical-ml-governance-guard/
 │   │   ├── _gate_registry.py             #   809  33 gate DAG 拓扑排序 + 依赖解析 + 层级并行
 │   │   ├── _gate_utils.py                #  2756  60+ 统计函数: calibration, VIF, NRI/IDI, DCA, bootstrap CI
 │   │   ├── _audit_shared.py              #   238  12 维评分 + 代码反模式正则扫描
-│   │   ├── _peer_review_retrieval.py     #   482  375 条审稿意见 BM25 检索 + tag 同义词扩展
+│   │   ├── _peer_review_retrieval.py     #   580  375 条审稿意见 BM25 检索 + tag 同义词扩展 + issue-code 加权重排
 │   │   └── _security.py                  #  1426  HMAC 签名, AES-256-GCM 加密, 受限反序列化
 │   │
 │   ├── gates/             (33 files, 26K LOC)   # 33 道 fail-closed 门控 (每个独立 CLI)
@@ -1219,7 +1219,7 @@ medical-ml-governance-guard/
 │   │   │  ┌─ Layer 2-3: 特征与模型审计 ────────────────────────────────────┐
 │   │   ├── definition_variable_guard.py  #   444  定义变量泄漏防护 (HbA1c 定义糖尿病又作特征)
 │   │   ├── feature_lineage_gate.py       #   533  特征血统追踪
-│   │   ├── feature_engineering_audit_gate.py #  377  编码/缩放/工程审计
+│   │   ├── feature_engineering_audit_gate.py #  417  编码/缩放/工程审计 + 一次-hot 特征谱系映射
 │   │   ├── tuning_leakage_gate.py        #   470  超参调优隔离验证
 │   │   ├── model_selection_audit_gate.py  #   783  one-SE 规则 + 候选池充分性
 │   │   ├── imbalance_policy_gate.py      #   650  SMOTE/加权规则审查
@@ -1299,7 +1299,7 @@ medical-ml-governance-guard/
 │   │   ├── peer_review_lookup.py         #   133  106 篇 NC 论文 × 375 条审稿意见, 按 gate/tag 检索
 │   │   ├── batch_journal_review.py       #   776  批量期刊审查 (多论文 × 多期刊标准)
 │   │   ├── extract_paper_metadata.py     #  1236  PDF → 结构化 metadata.json (LLM 驱动)
-│   │   ├── score_paper_metadata.py       #   562  metadata → 12 维评分 + Major/Minor/Questions
+│   │   ├── score_paper_metadata.py       #   620  metadata → 12 维评分 + Major/Minor/Questions + evidence-backing audit
 │   │   └── fetch_papers.py              #  1031  论文批量下载 + 去重 + 元数据提取
 │   │
 │   ├── diagnostics/       (9 files, 3.7K LOC)   # 环境诊断与配置工具
@@ -1317,7 +1317,7 @@ medical-ml-governance-guard/
 │       │
 │       │  ┌─ 用户入口 ──────────────────────────────────────────────────────┐
 │       ├── mlgg.py                       #   731  [主入口] 统一 CLI, 30+ 子命令路由
-│       ├── mlgg_onboarding.py            #  1794  引导式工作流: CSV → split → train → attest → DAG
+│       ├── mlgg_onboarding.py            #  2006  引导式工作流: CSV → split → train → attest → DAG
 │       ├── mlgg_interactive.py           #  1919  交互式向导 (init/workflow/train/authority)
 │       ├── mlgg_pixel.py                 #  5187  像素风终端 UI (TUI)
 │       │  └──────────────────────────────────────────────────────────────────┘
@@ -1352,7 +1352,7 @@ medical-ml-governance-guard/
 │   ├── methodology/        (5)           # 方法学知识
 │   │   ├── disease-definition-knowledge-base.json  # 11 种疾病定义 (ICD, 实验室, 药物, UKB 字段)
 │   │   ├── leakage-taxonomy.md                     # Kapoor 八型泄漏分类
-│   │   └── literature-knowledge-base.json          # 58 篇 IF>10 文献索引
+│   │   └── literature-knowledge-base.json          # 59 篇 IF>10 文献索引
 │   │
 │   ├── codebooks/                        # 数据字典
 │   │   ├── nhanes/         (8+SQLite)    #   Harvard 58K 变量 + 202K codebook entries + BM25 索引
