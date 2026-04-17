@@ -13,42 +13,50 @@ description: "Publication-grade medical prediction workflow with 33 fail-closed 
 
 ---
 
+## Entry Points（3 条正式入口）
+
+MLGG 对外暴露 3 条稳定入口，其他所有功能都是它们的子命令或辅助脚本。
+
+| 入口 | 面向 | 场景 |
+|---|---|---|
+| **`/mlgg`** | 人类用户（Claude Code 内） | 建模 / 训练 / "我有数据" —— 自动观察数据、推断参数、走 9 阶段 pipeline |
+| **`mlgg <subcommand>`** | 终端 / 脚本自动化 | 29 个子命令（见下），包含 play / workflow / onboarding / audit / doctor / lint 等 |
+| **`mlgg-lint`** | CI / pre-commit | 独立 pip 包，27 条 AST 规则，零依赖，5 秒扫完单文件 |
+
 ## Quick Dispatch
 
 | 用户说的 | 命令 |
 |---------|------|
 | 建模 / 训练 / "我有数据" | `/mlgg` |
-| 交互式体验 | `python3 scripts/orchestration/mlgg.py play` |
+| 交互式体验 | `mlgg play` |
+| 初始化项目 | `mlgg onboarding` |
+| 跑完整 9 阶段 pipeline | `mlgg workflow --strict` |
+| 检查环境 | `mlgg doctor` |
+| 审计外部项目 | `mlgg audit <dir>` |
 | 查看结果 | `python3 scripts/reporting/quick_summary.py <dir>` |
-| 下载数据集 | `python3 examples/download_real_data.py <name>` (heart/breast/ckd/hepatitis/spect/dermatology/pima/mammographic/thyroid/eeg_eye/framingham/diabetes130/diabetes130_full/vitaldb/rhc/sepsis_survival) |
-| 下载 CDC 数据 | `python3 examples/download_cdc_data.py <name>` (brfss/nhis/covid/all) |
-| 下载 NHANES | `python3 examples/download_nhanes.py --cycles both --output examples/nhanes_diabetes.csv` |
-| 下载 NCI 癌症 | `python3 examples/download_nci_gdc.py --output examples/nci_gdc_cancer_survival.csv` |
-| 严格审计 | `python3 scripts/orchestration/mlgg.py workflow --strict` |
-| 检查环境 | `python3 scripts/orchestration/mlgg.py doctor` |
-| 初始化项目 | `python3 scripts/orchestration/mlgg.py onboarding` |
-| 对比两次运行 | `python3 scripts/reporting/compare_runs.py --run-a <dir1> --run-b <dir2>` |
+| 对比两次运行 | `python3 scripts/reporting/compare_runs.py --run-a <d1> --run-b <d2>` |
 | 生成修复计划 | `python3 scripts/reporting/remediation_plan.py --evidence-dir <dir>` |
 | 解释 gate 失败 | `python3 scripts/reporting/explain_gate.py --report <gate_report.json>` |
-| 检查代码泄漏 | `python3 scripts/orchestration/mlgg.py lint check <file.py>` |
-| SHAP 可解释性 | `python3 scripts/gates/shap_interpretability_gate.py --model-pool evidence/model_pool.pkl --train-data data/train.csv --test-data data/test.csv --target-col y --report evidence/shap_report.json` |
-| 校准指标 | `calibration_metrics()` in `_gate_utils.py` |
-| NRI/IDI 模型比较 | `compute_nri_idi()` in `_gate_utils.py` |
-| VIF 共线性 | `compute_vif()` in `_gate_utils.py` |
-| 非线性检验 | `check_nonlinearity()` in `_gate_utils.py` |
-| MNAR 敏感性 | `mnar_sensitivity_analysis()` in `_gate_utils.py` |
-| 时序漂移 | `temporal_drift_analysis()` in `_gate_utils.py` |
-| Model Card | `generate_model_card()` in `_gate_utils.py` |
-| 插补敏感性 | `imputation_sensitivity()` in `_gate_utils.py` |
-| 亚组 DCA | `subgroup_dca()` in `_gate_utils.py` |
-| 消融实验 | `feature_ablation()` in `_gate_utils.py` |
-| LaTeX 表格 | `python3 scripts/reporting/export_latex.py --evaluation-report evidence/evaluation_report.json` |
-| 合规证书 | `python3 scripts/reporting/generate_compliance_certificate.py --evidence-dir evidence/` |
+| 检查代码泄漏（CI 单文件） | `mlgg-lint check <file.py>`（或 `mlgg lint check`） |
 | 查审稿案例 | `python3 scripts/review/peer_review_lookup.py --stats` |
 | 审稿人怎么看？ | `python3 scripts/review/peer_review_lookup.py --tags "<tags>"` |
 | gate 抓过什么？ | `python3 scripts/review/peer_review_lookup.py --gate <gate_name>` |
 | 审查论文 Methods | `python3 scripts/review/score_paper_metadata.py --metadata <metadata.json>` |
 | 批量评审 | `python3 scripts/review/batch_journal_review.py --manifest batch_manifest.json` |
+| LaTeX 表格 | `python3 scripts/reporting/export_latex.py --evaluation-report evidence/evaluation_report.json` |
+| 合规证书 | `python3 scripts/reporting/generate_compliance_certificate.py --evidence-dir evidence/` |
+| 下载数据集 | `python3 examples/download_real_data.py <name>` (heart/breast/ckd/pima/framingham/diabetes130/diabetes130_full/rhc/sepsis_survival/...) |
+| 下载 CDC 数据 | `python3 examples/download_cdc_data.py <name>` (brfss/nhis/covid/all) |
+| 下载 NHANES | `python3 examples/download_nhanes.py --cycles both --output examples/nhanes_diabetes.csv` |
+| 下载 NCI 癌症 | `python3 examples/download_nci_gdc.py --output examples/nci_gdc_cancer_survival.csv` |
+
+**`_gate_utils.py` 内部工具函数**（gate 实现中调用，非独立 CLI）：
+`calibration_metrics()` / `compute_nri_idi()` / `compute_vif()` / `check_nonlinearity()` /
+`mnar_sensitivity_analysis()` / `temporal_drift_analysis()` / `generate_model_card()` /
+`imputation_sensitivity()` / `subgroup_dca()` / `feature_ablation()`。
+
+**SHAP 可解释性 gate 直接调用**（通常由 workflow 自动触发）：
+`python3 scripts/gates/shap_interpretability_gate.py --model-pool evidence/model_pool.pkl --train-data data/train.csv --test-data data/test.csv --target-col y --report evidence/shap_report.json`
 
 ---
 
