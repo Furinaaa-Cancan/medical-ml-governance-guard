@@ -242,8 +242,22 @@ R021 可检测 `holdout/held_out` 等关键词，但任意命名（如 `eval_dat
 
 ## 能力边界
 
-**能做**: 表格型医学二分类 (EHR/临床/注册), 20 个 sklearn 模型族 + 4 个可选后端, 33 gate 全生命周期治理
-**不能做**: 图像/文本/时序, 多分类/回归, 深度学习, 模型部署
+MLGG 是**训练管线治理工具**，不是全栈 publication readiness。下面的分层请诚实读。
+
+| 维度 | 覆盖 | 说明 |
+|---|---|---|
+| 数据划分 / 泄漏检测 / 管线隔离 | ✅ 强 | 33 gate 的核心设计目标；有代码扫描 + 运行时检测 |
+| 模型选择 / 评估指标 / 校准 / DCA | ✅ 强 | 完整 14 指标面板，Bootstrap CI，TRIPOD+AI 对齐 |
+| 公平性 / 亚组分析 | ✅ 中 | `fairness_equity_gate` 查等均化 odds + disparate impact |
+| 样本量 / EPV | ✅ 中 | Riley 2019/2025 + van Houwelingen 阈值 |
+| **Cohort selection bias**（谁进入队列、谁被排除、selection 机制） | ⚠️ 弱 | `cohort_definition_gate` 只查 cohort 大小 / 类分布 / EPV，不对比总体人群。诊断工具在 P2-9 roadmap |
+| **Label ascertainment validity**（结局如何被记录、coding 误差） | ❌ 超范围 | 需临床核验 + EHR 元信息，不是代码问题 |
+| **Post-deployment monitoring**（上线后漂移、性能衰减） | ❌ 超范围 | MLGG 是离线治理，推荐 Evidently AI / WhyLabs 等 |
+
+**模态**: 表格型医学二分类 (EHR / 临床 / 注册)。20 个 sklearn 模型族 + 4 个可选后端。
+**不支持**: 图像 / 文本 / 时序、多分类 / 回归、深度学习、模型部署流水线。
+
+用"publication-grade"时请具体到哪个维度："本项目已过 MLGG 训练管线治理（33 gate），但 cohort selection bias 未评估，label ascertainment 依赖临床核验"——不要泛泛声称论文级就绪。
 
 ---
 
