@@ -242,12 +242,20 @@ def build_report_envelope(
                 envelope[k] = v
 
     # Always include peer_review_context for deterministic report schema.
-    # Empty list when no failures or KB unavailable.
+    # Empty list when no failures/warnings or KB unavailable.
+    #
+    # 2026-04-17 fix: previously this block only ran on `failures`, leaving
+    # warning-only "failed" gates (strict-mode-upgrade pattern: cohort,
+    # split, definition, missingness) with no backing evidence. Also
+    # switched from `retrieve_by_gate` (severity-only sort, ~20% precision
+    # on failure-specific relevance) to `retrieve_for_failure` which re-ranks
+    # by issue-code keyword overlap with concern tags/text.
     _peer_ctx: list = []
-    if failures:
+    if failures or warnings:
         try:
-            from _peer_review_retrieval import retrieve_by_gate
-            peer_results = retrieve_by_gate(gate_name, limit=5)
+            from _peer_review_retrieval import retrieve_for_failure
+            _issue_codes = [i.code for i in failures] + [i.code for i in warnings]
+            peer_results = retrieve_for_failure(gate_name, _issue_codes, limit=5)
             if peer_results:
                 _peer_ctx = [
                     {

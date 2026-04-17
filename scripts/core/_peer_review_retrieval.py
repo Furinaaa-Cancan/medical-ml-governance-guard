@@ -190,6 +190,104 @@ def retrieve_by_gate(
     )
 
 
+# Tokens that carry no signal when decoding issue codes. Chosen from observed
+# gate outputs (clinical_floor_sensitivity_not_met, baseline_improvement_
+# insufficient, mechanism_assessment_required, etc.). Keep this list minimal.
+_CODE_TOKEN_STOPWORDS = frozenset({
+    "not", "met", "required", "missing", "invalid", "insufficient",
+    "unsupported", "recommended", "reported", "failed", "empty",
+    "undocumented", "unknown", "assessment", "evidence", "policy",
+    "spec", "value", "field", "type", "error",
+})
+
+
+def _issue_code_keywords(codes: List[str]) -> Set[str]:
+    """Split snake_case / UPPER_CASE issue codes into a keyword set suitable
+    for tag-overlap scoring. Filters common stopwords and 1-2 char fragments.
+
+    Examples:
+      ['clinical_floor_sensitivity_not_met', 'clinical_floor_ppv_not_met']
+        → {'clinical', 'floor', 'sensitivity', 'ppv'}
+      ['baseline_improvement_insufficient']
+        → {'baseline', 'improvement'}
+    """
+    kws: Set[str] = set()
+    for code in codes:
+        if not isinstance(code, str):
+            continue
+        for tok in code.lower().replace("-", "_").split("_"):
+            if len(tok) >= 3 and tok not in _CODE_TOKEN_STOPWORDS:
+                kws.add(tok)
+    return kws
+
+
+def retrieve_for_failure(
+    gate_name: str,
+    issue_codes: List[str],
+    limit: int = 5,
+    kb_path: Optional[Path] = None,
+) -> List[Dict]:
+    """Retrieve concerns for a gate failure, ranked by issue-code relevance.
+
+    Bug fix 2026-04-17: `retrieve_by_gate` surfaces up to 5 concerns mapped to
+    a gate and sorts them by severity only, which surfaces CRITICAL-severity
+    topically-irrelevant concerns ahead of HIGH-severity on-target ones. For
+    a clinical_metrics_gate failure on `clinical_floor_ppv_not_met`, this
+    returned PR-001-C02 (target_leakage) ahead of lower-severity PPV-specific
+    concerns. Precision was ~20% against failure semantics.
+
+    This function scores each candidate by (tag-keyword-overlap, concern-text-
+    keyword-overlap) extracted from the actual issue codes, and ranks tag
+    overlap 3× higher. Falls back to severity-only ranking when no scored
+    matches exist (so RAG never goes empty just because of keyword mismatch).
+
+    Args:
+        gate_name: Gate script name (as written in mlgg_gates field).
+        issue_codes: List of failure/warning codes from the gate's report.
+        limit: Max results.
+        kb_path: Optional KB path for tests.
+
+    Returns:
+        Enriched concern dicts, ranked by (score desc, severity rank asc).
+    """
+    kb = _load_kb(kb_path)
+
+    # Collect ALL candidates first (no limit), then re-rank.
+    candidates = _collect_concerns(
+        kb,
+        lambda c, _: gate_name in c.get("mlgg_gates", []),
+        limit=10_000,
+    )
+    if not candidates:
+        return []
+
+    keywords = _issue_code_keywords(issue_codes or [])
+    if not keywords:
+        return candidates[:limit]
+
+    def _score(c: Dict) -> int:
+        tags_joined = " ".join(str(t).lower() for t in (c.get("tags") or []))
+        tag_overlap = sum(1 for kw in keywords if kw in tags_joined)
+        text = (c.get("concern_text") or "").lower()[:600]
+        text_overlap = sum(1 for kw in keywords if kw in text)
+        return 3 * tag_overlap + text_overlap
+
+    def _sev_rank(c: Dict) -> int:
+        return _SEVERITY_ORDER.get(c.get("severity", ""), 99)
+
+    scored = [(c, _score(c)) for c in candidates]
+    # Stable sort by (-score, sev_rank). Scored ties broken by severity.
+    scored.sort(key=lambda pair: (-pair[1], _sev_rank(pair[0])))
+    ranked = [c for c, s in scored]
+
+    # If nothing scored above 0 on keywords, fall back to severity-only
+    # (the old behavior) so reports are never empty just because of
+    # vocabulary mismatch.
+    if scored[0][1] == 0:
+        return candidates[:limit]
+    return ranked[:limit]
+
+
 def retrieve_by_tags(
     tags: List[str],
     match_any: bool = True,
