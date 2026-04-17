@@ -47,7 +47,7 @@ def main() -> None:
     # Import the updated rule engine so corrections follow the current rules.
     import sys as _sys
     _sys.path.insert(0, str(ROOT / "scripts" / "review"))
-    from backfill_peer_review_gates import _derive_gates  # type: ignore
+    from backfill_peer_review_gates import _derive_gates
 
     kb = json.loads(KB_PATH.read_text(encoding="utf-8"))
     changes: list[tuple[str, list[str], list[str]]] = []
