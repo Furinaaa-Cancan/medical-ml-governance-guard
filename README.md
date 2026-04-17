@@ -30,7 +30,7 @@
 <p align="center">
 <strong>33 道 fail-closed 门控</strong> &middot; <strong>9 阶段工作流</strong> &middot; <strong>12 维量化评分</strong> &middot; <strong>3 级合规认证</strong>
 <br>
-<strong>20 个模型族</strong> &middot; <strong>16 个真实医学数据集 (526K+ 行)</strong> &middot; <strong>107 篇 NC 审稿证据</strong> &middot; <strong>27 条静态分析规则</strong>
+<strong>23 个模型族</strong> &middot; <strong>16 个真实医学数据集 (630K+ 行)</strong> &middot; <strong>106 篇 NC 审稿证据</strong> &middot; <strong>27 条静态分析规则</strong>
 <br><br>
 <em>每一条审查建议都引用真实顶刊审稿意见作为论据。<br>不是规则引擎，是能像 Nature Medicine 审稿人一样思考的 AI 协审系统。</em>
 </p>
@@ -55,7 +55,7 @@
 - [33 道安全门控 (Gate DAG)](#33-道安全门控-gate-dag)
 - [12 维量化评分](#12-维量化评分)
 - [33 条方法论规则](#33-条方法论规则)
-- [20 个模型族](#20-个模型族)
+- [23 个模型族](#23-个模型族)
 - [14 个医学数据集](#14-个医学数据集)
 - [27 条静态分析规则 (R001-R027)](#27-条静态分析规则-r001-r027)
 - [分析工具](#分析工具)
@@ -88,7 +88,7 @@
 | `time_in_hospital` / `num_medications` / `discharge_*` 作特征 | 教科书 post-index 泄漏（diabetes_130 / MIMIC 经典模式） | Gate L01: 特征名正则抓 5 类 post-index 模式 + `forbidden_features` 拉黑 |
 | Doctor-provided `surv2m` / `prg6m` 作特征 | 医生预估目标，近完美 target leak | Gate C02 + Gate F03: 3 套正则（surv\d / prognos / prg\d）+ 特征谱系溯源 |
 
-> **MLGG 不是又一个 ML 工具包。** 它是一套达到顶刊审稿标准的 AI 协审系统——33 道 fail-closed 门控 + 107 篇 Nature Communications 真实审稿意见作为知识库。每一条建议都能引用审稿人原文作为论据。
+> **MLGG 不是又一个 ML 工具包。** 它是一套达到顶刊审稿标准的 AI 协审系统——33 道 fail-closed 门控 + 106 篇 Nature Communications 真实审稿意见作为知识库。每一条建议都能引用审稿人原文作为论据。
 
 ---
 
@@ -138,11 +138,11 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 | **33 道安全门控** | fail-closed DAG 架构，覆盖泄漏/可解释性/公平性/校准/鲁棒性/TRIPOD+AI/PROBAST+AI | 9 层并行执行 |
 | **12 维量化评分** | 数据完整性/防泄漏/流水线隔离/模型选择/统计有效性/泛化证据/临床完整性/报告标准/可重复性/安全与溯源/公平性/样本量 | 0-100 分 |
 | **3 级合规** | L1 (12 门, 泄漏审计) / L2 (25 门, 统计有效) / L3 (全部 33 门, 发布级) | 渐进认证 |
-| **20 个模型族** | LR (L1/L2/ElasticNet) / SVM / RF / XGBoost / CatBoost / LightGBM / KNN / MLP / TabPFN + 集成 | 自动超参搜索 |
-| **14 个真实数据集** | UCI / CDC / NCI / Vanderbilt 官方数据 | 总计 526K 行 |
+| **23 个模型族** | LR (L1/L2/ElasticNet) / SVM (linear/RBF) / RandomForest (balanced) / ExtraTrees / XGBoost / CatBoost / LightGBM / HistGradientBoosting / KNN / MLP / AdaBoost / RUSBoost / EasyEnsemble / BalancedRandomForest / GaussianNB / DecisionTree / TabPFN + Stacking / Soft-Voting / Weighted-Voting | 自动超参搜索 |
+| **16 个真实数据集** | UCI / CDC / NCI / Vanderbilt / MIT-LCP / Framingham / Vanderbilt SUPPORT2 官方数据 | 总计 630K+ 行 |
 | **多模型 SHAP 集成引擎** | 多族 L1 归一化集成 + Kendall tau 一致性 (FDR-BH 校正) + 跨模型 Spearman 排名相关 + 5 张发表级 CSV | RF/XGB/CatBoost/LGBM/LR |
 | **学术合规引擎** | TRIPOD+AI 2024 (27 项) / PROBAST+AI 2025 (4 域) / STARD-AI | 全项逐条验证 |
-| **审稿证据库** | 107 篇 NC 论文 × 375 条结构化审稿意见，按 gate/tag/severity 检索 | 每条建议引用原文 |
+| **审稿证据库** | 106 篇 NC 论文 × 375 条结构化审稿意见，按 gate/tag/severity 检索 | 每条建议引用原文 |
 | **27 条 Lint 规则** | 静态分析检测代码级泄漏反模式 (R001-R027) | .py + .ipynb |
 | **安全加固层** | HMAC-SHA256 / AES-256-GCM / 链式审计日志 / 路径穿越防护 / 受限反序列化 | fail-closed |
 | **21 个分析工具** | Riley 样本量 / 校准三件套 / NRI-IDI / 学习曲线 / VIF / MNAR 敏感性 / PDP 边际效应 / FDR-BH 校正 / 时序漂移 / ... | 100% 覆盖 Nature ML Checklist |
@@ -443,7 +443,7 @@ Pipeline([
 
 #### 5.2 候选模型族（MLGG-M03：>= 3）
 
-MLGG 支持 20 个模型族（详见 [20 个模型族](#20-个模型族) 节），推荐至少比较 3 族：
+MLGG 支持 23 个模型族（详见 [23 个模型族](#23-个模型族) 节），推荐至少比较 3 族：
 
 | 推荐族 | 优势 | 典型超参网格 |
 |:-------|:-----|:------------|
@@ -1018,7 +1018,7 @@ SHAP 对相关特征可能产生误导（联盟博弈论假设）。PDP 提供�
 
 ---
 
-## 20 个模型族
+## 23 个模型族
 
 | 模型族 | 别名 | 类型 | 说明 |
 |:-------|:------|:-----|:------|
@@ -1086,7 +1086,7 @@ python3 examples/download_real_data.py pima     # 768 rows
 
 </details>
 
-所有数据来自官方机构（CDC / UCI / NCI-NIH / Vanderbilt），无需注册，一键下载。总计 526K 行。
+所有数据来自官方机构（CDC / UCI / NCI-NIH / Vanderbilt），无需注册，一键下载。总计 630K 行。
 
 ---
 
@@ -1296,7 +1296,7 @@ medical-ml-governance-guard/
 │   │   └── verify_nhanes_codebook.py     #   261  SQLite vs CDC XPT 地面真值验证
 │   │
 │   ├── review/            (5 files, 3.7K LOC)   # 论文分析与审稿案例
-│   │   ├── peer_review_lookup.py         #   133  107 篇 NC 论文 × 375 条审稿意见, 按 gate/tag 检索
+│   │   ├── peer_review_lookup.py         #   133  106 篇 NC 论文 × 375 条审稿意见, 按 gate/tag 检索
 │   │   ├── batch_journal_review.py       #   776  批量期刊审查 (多论文 × 多期刊标准)
 │   │   ├── extract_paper_metadata.py     #  1236  PDF → 结构化 metadata.json (LLM 驱动)
 │   │   ├── score_paper_metadata.py       #   562  metadata → 12 维评分 + Major/Minor/Questions
@@ -1361,7 +1361,7 @@ medical-ml-governance-guard/
 │   │
 │   ├── case-studies/                     # 审稿案例知识库 ("别人审别人" → 结构化 KB)
 │   │   ├── peer-review-kb.json           #   375 条结构化审稿意见 (按 gate/dimension/tag 索引)
-│   │   ├── nature_communications/        #   107 篇 NC 论文审稿意见 PDF + parsed JSON
+│   │   ├── nature_communications/        #   106 篇 NC 论文审稿意见 PDF + parsed JSON
 │   │   └── <journal>/<disease>/          #   5 期刊 × 10 疾病领域的论文分析
 │   │
 │   ├── templates/          (28)          # JSON 模板 (request, split, evaluation, attestation...)
@@ -1382,7 +1382,7 @@ medical-ml-governance-guard/
 │   └── README.md                         #   Agent 分工说明
 │
 ├── examples/               (22)          # ─── 示例数据 + 项目模板 ───
-│   ├── *.csv               (16)          #   16 个医学数据集 (526K+ 行, UCI/CDC/NHANES/NCI)
+│   ├── *.csv               (16)          #   16 个医学数据集 (630K+ 行, UCI/CDC/NHANES/NCI)
 │   ├── download_*.py       (4)           #   数据下载器 (real_data, cdc, nhanes, nci_gdc)
 │   ├── demo_diabetes130/                 #   完整 9 阶段参考实现
 │   └── template/                         #   可复用项目脚手架 (cp -r 后填入数据)
@@ -1593,7 +1593,7 @@ MLGG 提供 Claude Code slash command `/mlgg`。激活后 Claude 切换为 Natur
 
 AI 会自动：
 - 主动提问引导 9 个阶段
-- 引用 107 篇同行评审论文（375 个结构化审稿意见）作为论据
+- 引用 106 篇同行评审论文（375 个结构化审稿意见）作为论据
 - 自动检测代码中的常见泄漏模式
 - 生成结构化审计报告和修复方案
 

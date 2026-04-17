@@ -227,7 +227,7 @@ R021 可检测 `holdout/held_out` 等关键词，但任意命名（如 `eval_dat
 
 ---
 
-## 可用数据集 (16 个, 526K+ 行)
+## 可用数据集 (16 个, 630K+ 行)
 
 | 数据集 | 行数 | 下载命令 |
 |--------|------|---------|
@@ -254,7 +254,7 @@ MLGG 是**训练管线治理工具**，不是全栈 publication readiness。下�
 | **Label ascertainment validity**（结局如何被记录、coding 误差） | ❌ 超范围 | 需临床核验 + EHR 元信息，不是代码问题 |
 | **Post-deployment monitoring**（上线后漂移、性能衰减） | ❌ 超范围 | MLGG 是离线治理，推荐 Evidently AI / WhyLabs 等 |
 
-**模态**: 表格型医学二分类 (EHR / 临床 / 注册)。20 个 sklearn 模型族 + 4 个可选后端。
+**模态**: 表格型医学二分类 (EHR / 临床 / 注册)。23 个 sklearn 模型族 + 4 个可选后端（XGBoost / CatBoost / LightGBM / TabPFN）。
 **不支持**: 图像 / 文本 / 时序、多分类 / 回归、深度学习、模型部署流水线。
 
 用"publication-grade"时请具体到哪个维度："本项目已过 MLGG 训练管线治理（33 gate），但 cohort selection bias 未评估，label ascertainment 依赖临床核验"——不要泛泛声称论文级就绪。

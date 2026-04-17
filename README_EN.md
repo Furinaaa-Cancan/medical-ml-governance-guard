@@ -24,7 +24,7 @@
 <p align="center">
 <strong>33 Fail-Closed Gates</strong> &middot; <strong>9-Phase Workflow</strong> &middot; <strong>12-Dimension Scoring</strong> &middot; <strong>3-Level Compliance</strong>
 <br>
-<strong>20 Model Families</strong> &middot; <strong>14 Real Medical Datasets (526K rows)</strong> &middot; <strong>107 NC Peer Review Evidence</strong> &middot; <strong>21 Analysis Tools</strong>
+<strong>23 Model Families</strong> &middot; <strong>16 Real Medical Datasets (630K+ rows)</strong> &middot; <strong>106 NC Peer Review Evidence</strong> &middot; <strong>21 Analysis Tools</strong>
 <br><br>
 <em>Every audit recommendation cites real top-journal peer review opinions as evidence.<br>Not a rule engine &mdash; an AI co-review system that thinks like a Nature Medicine reviewer.</em>
 </p>
@@ -49,7 +49,7 @@
 - [33 Safety Gates (Gate DAG)](#33-safety-gates-gate-dag)
 - [12-Dimension Scoring](#12-dimension-scoring)
 - [33 Methodology Rules](#33-methodology-rules)
-- [20 Model Families](#20-model-families)
+- [23 Model Families](#23-model-families)
 - [14 Medical Datasets](#14-medical-datasets)
 - [25 Static Analysis Rules (R001-R025)](#25-static-analysis-rules-r001-r025)
 - [21 Analysis Tools](#21-analysis-tools)
@@ -131,11 +131,11 @@ Raw Data ──→ 9-Phase Workflow ──→ 33-Gate Audit ──→ Compliance
 | **33 Safety Gates** | Fail-closed DAG architecture covering leakage/interpretability/fairness/calibration/robustness/TRIPOD+AI/PROBAST+AI | 9-layer parallel execution |
 | **12-Dimension Scoring** | Data integrity/leakage protection/pipeline isolation/model selection/statistical validity/generalization evidence/clinical completeness/reporting standards/reproducibility/security/fairness/sample size | 0-100 score |
 | **3-Level Compliance** | L1 (12 gates, leakage audit) / L2 (25 gates, statistically valid) / L3 (all 33 gates, publication-grade) | Progressive certification |
-| **20 Model Families** | LR (L1/L2/ElasticNet) / SVM / RF / XGBoost / CatBoost / LightGBM / KNN / MLP / TabPFN + ensembles | Auto hyperparameter search |
-| **14 Real Datasets** | UCI / CDC / NCI / Vanderbilt official data | 526K total rows |
+| **23 Model Families** | LR (L1/L2/ElasticNet) / SVM (linear/RBF) / RandomForest (balanced) / ExtraTrees / XGBoost / CatBoost / LightGBM / HistGradientBoosting / KNN / MLP / AdaBoost / RUSBoost / EasyEnsemble / BalancedRandomForest / GaussianNB / DecisionTree / TabPFN + Stacking / Soft-Voting / Weighted-Voting | Auto hyperparameter search |
+| **16 Real Datasets** | UCI / CDC / NCI / Vanderbilt official data | 630K+ total rows |
 | **Multi-Model SHAP Engine** | Multi-family L1-normalized ensemble + Kendall tau consistency (FDR-BH correction) + cross-model Spearman rank correlation + 5 publication-grade CSVs | RF/XGB/CatBoost/LGBM/LR |
 | **Academic Compliance Engine** | TRIPOD+AI 2024 (27 items) / PROBAST+AI 2025 (4 domains) / STARD-AI | Item-by-item verification |
-| **Peer Review Evidence Base** | 107 NC papers &times; 375 structured review opinions, retrieved by gate/tag/severity | Each recommendation cites original text |
+| **Peer Review Evidence Base** | 106 NC papers &times; 375 structured review opinions, retrieved by gate/tag/severity | Each recommendation cites original text |
 | **25 Lint Rules** | Static analysis detecting code-level leakage anti-patterns (R001-R025) | .py + .ipynb |
 | **Security Hardening Layer** | HMAC-SHA256 / AES-256-GCM / chained audit log / path traversal defense / restricted deserialization | fail-closed |
 | **21 Analysis Tools** | Riley sample size / calibration triple / NRI-IDI / learning curve / VIF / MNAR sensitivity / PDP marginal effects / FDR-BH correction / temporal drift / ... | 100% Nature ML Checklist coverage |
@@ -175,7 +175,7 @@ claude          # Open Claude Code
 /mlgg           # AI reviewer guides 9-phase workflow
 ```
 
-Auto-completes: observe data → split → train 20 model families → 33-gate audit → TRIPOD+AI compliance report. Cites real peer review opinions at each step.
+Auto-completes: observe data → split → train 23 model families → 33-gate audit → TRIPOD+AI compliance report. Cites real peer review opinions at each step.
 
 ### More Entry Points
 
@@ -436,7 +436,7 @@ Pipeline([
 
 #### 5.2 Candidate Model Families (MLGG-M03: >= 3)
 
-MLGG supports 20 model families (see [20 Model Families](#20-model-families)), recommending comparison of at least 3:
+MLGG supports 23 model families (see [23 Model Families](#23-model-families)), recommending comparison of at least 3:
 
 | Recommended Family | Advantages | Typical Hyperparameter Grid |
 |:-------------------|:-----------|:---------------------------|
@@ -1011,7 +1011,7 @@ Each dimension scored independently, weighted sum yields total score (0-100):
 
 ---
 
-## 20 Model Families
+## 23 Model Families
 
 | Model Family | Alias | Type | Description |
 |:-------------|:------|:-----|:------------|
@@ -1079,7 +1079,7 @@ python3 examples/download_real_data.py pima     # 768 rows
 
 </details>
 
-All data from official institutions (CDC / UCI / NCI-NIH / Vanderbilt), no registration required, one-click download. Total 526K rows.
+All data from official institutions (CDC / UCI / NCI-NIH / Vanderbilt), no registration required, one-click download. Total 630K+ rows.
 
 ---
 
@@ -1206,7 +1206,7 @@ medical-ml-governance-guard/
 │   │   └── ...                           #   build/fetch/verify + codebook_factory
 │   │
 │   ├── review/            (5)            # Paper analysis & peer review
-│   │   ├── peer_review_lookup.py         #   107 NC papers × 375 review opinions
+│   │   ├── peer_review_lookup.py         #   106 NC papers × 375 review opinions
 │   │   └── ...                           #   batch_journal_review, extract/score metadata
 │   │
 │   └── diagnostics/       (9)            # Environment & runtime tools
@@ -1241,7 +1241,7 @@ medical-ml-governance-guard/
 │   │
 │   ├── case-studies/                     # Peer review KB ("others review others" → structured KB)
 │   │   ├── peer-review-kb.json           #   375 structured review opinions (indexed by gate/dim/tag)
-│   │   ├── nature_communications/        #   107 NC paper review PDFs + parsed JSON
+│   │   ├── nature_communications/        #   106 NC paper review PDFs + parsed JSON
 │   │   └── <journal>/<disease>/          #   5 journals × 10 disease domains
 │   │
 │   ├── templates/          (28)          # JSON templates (request, split, evaluation, attestation...)
@@ -1262,7 +1262,7 @@ medical-ml-governance-guard/
 │   └── README.md                         #   Agent role separation docs
 │
 ├── examples/               (22)          # ─── Example Data + Project Templates ───
-│   ├── *.csv               (16)          #   16 medical datasets (526K+ rows, UCI/CDC/NHANES/NCI)
+│   ├── *.csv               (16)          #   16 medical datasets (630K+ rows, UCI/CDC/NHANES/NCI)
 │   ├── download_*.py       (4)           #   Data downloaders (real_data, cdc, nhanes, nci_gdc)
 │   ├── demo_diabetes130/                 #   Complete 9-phase reference implementation
 │   └── template/                         #   Reusable project scaffold (cp -r, then add your data)

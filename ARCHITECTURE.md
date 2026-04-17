@@ -19,7 +19,7 @@ ml-leakage-guard/
 │   ├── mlgg_lint/       (27 rules)  # pip install mlgg-lint (zero deps, standalone)
 │   └── pyproject.toml               # Independent package
 │
-├── tests/             (117 files)   # ─── 4700+ test functions ───
+├── tests/             (122 files)   # ─── 4760+ test functions ───
 │
 ├── references/                      # ─── Knowledge Base ───
 │   ├── standards/                   # TRIPOD+AI 2024, PROBAST+AI 2025, STARD+AI
