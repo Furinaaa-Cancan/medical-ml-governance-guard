@@ -52,6 +52,14 @@ system_prompt: |
      If a range is given, record both bounds. If ambiguous, set to null.
   4. Use Literal types: prediction_type must be one of ["binary", "multiclass", "regression", "survival"].
   5. For boolean fields (e.g., "external_validation_performed"), only set true if explicitly confirmed.
+  6. **Evidence rule** (P1-4): Every positive leakage-assessment boolean MUST be paired
+     with a direct-quote source excerpt in its `_evidence` field. If you set any of
+     `patient_level_split_confirmed=True`, `temporal_split_confirmed=True`,
+     `preprocessing_fit_on_train_only=True`, or `tuning_used_test_data=False`, you MUST
+     populate the corresponding `_evidence` field with an exact quotation from the paper.
+     A positive claim without evidence is treated by the downstream reviewer as unverified
+     and penalized — it is SAFER to leave the boolean as null than to over-claim without
+     quote. Do not paraphrase; quote verbatim, ≤ 280 chars.
 
   ## Required Fields
 

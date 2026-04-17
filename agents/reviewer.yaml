@@ -80,4 +80,12 @@ system_prompt: |
   - Cite specific metadata fields in every finding.
   - For Leakage Prevention (D2): inspect feature_list against label_definition for definition-variable
     leakage; inspect temporal_fields against prediction_time for future leakage.
+  - **Evidence-backing rule** (P1-4): For every leakage_risk_assessment claim
+    (patient_level_split_confirmed, temporal_split_confirmed, preprocessing_fit_on_train_only,
+    tuning_used_test_data), the paired `_evidence` field MUST contain a direct quote from
+    the source text. If a positive compliance claim (e.g., patient_level_split_confirmed=True)
+    has an empty evidence field, treat that claim as **unverified** — downgrade the relevant
+    dimension by one severity tier (CRITICAL→HIGH, HIGH→MEDIUM). Do not give full credit to
+    claims extractor could not substantiate. Surface these in Major Concerns as
+    "Unsubstantiated methodology claim — re-read source before accepting."
   - Do NOT execute code, read files, or perform any actions — you are text-only.

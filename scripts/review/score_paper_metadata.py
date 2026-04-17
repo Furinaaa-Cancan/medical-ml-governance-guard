@@ -159,6 +159,55 @@ def _check_epv(metadata: Dict) -> bool:
     return False
 
 
+_CLAIM_EVIDENCE_PAIRS: tuple[tuple[str, str, str], ...] = (
+    # (scoring key, boolean claim field, evidence quote field)
+    ("patient_level_split",
+     "leakage_risk_assessment.patient_level_split_confirmed",
+     "leakage_risk_assessment.patient_level_split_evidence"),
+    ("temporal_split_confirmed",
+     "leakage_risk_assessment.temporal_split_confirmed",
+     "leakage_risk_assessment.temporal_split_evidence"),
+    ("preprocess_train_only",
+     "leakage_risk_assessment.preprocessing_fit_on_train_only",
+     "leakage_risk_assessment.preprocessing_evidence"),
+    ("no_test_tuning",
+     "leakage_risk_assessment.tuning_used_test_data",
+     "leakage_risk_assessment.tuning_evidence"),
+)
+
+
+def _audit_evidence_backing(metadata: Dict[str, Any]) -> List[Dict[str, str]]:
+    """P1-4 cross-verification: for each leakage claim, check it has a
+    supporting evidence quote. Unsubstantiated positive claims are the
+    highest-risk failure mode — extractor may have hallucinated compliance.
+
+    Returns a list of findings with severity + recommendation for the reviewer.
+    """
+    findings: List[Dict[str, str]] = []
+    for key, claim_path, evidence_path in _CLAIM_EVIDENCE_PAIRS:
+        claim = _get_nested(metadata, claim_path)
+        evidence = _get_nested(metadata, evidence_path) or ""
+        evidence_str = str(evidence).strip()
+        # Only audit positive compliance claims (True for most, False for tuning_used_test_data).
+        is_positive_claim = (
+            (key != "no_test_tuning" and claim is True)
+            or (key == "no_test_tuning" and claim is False)
+        )
+        if is_positive_claim and not evidence_str:
+            findings.append({
+                "claim": key,
+                "claim_path": claim_path,
+                "severity": "HIGH",
+                "message": (
+                    f"Positive methodology claim without supporting evidence quote. "
+                    f"Extractor marked {claim_path}={claim} but left "
+                    f"{evidence_path} empty. Reviewer should downgrade confidence "
+                    f"on this dimension until the source text is re-read."
+                ),
+            })
+    return findings
+
+
 def score_metadata(metadata: Dict[str, Any]) -> Dict[str, Any]:
     """Score a paper's metadata against MLGG review criteria.
 
@@ -250,8 +299,13 @@ def score_metadata(metadata: Dict[str, Any]) -> Dict[str, Any]:
             f"Human verification recommended before publication decisions."
         )
 
+    # P1-4: evidence-backing audit. Flags positive compliance claims that
+    # lack a supporting source quote from the PDF — a signal that extractor
+    # may have over-claimed and reviewer should look again.
+    unsubstantiated = _audit_evidence_backing(metadata)
+
     result: Dict[str, Any] = {
-        "contract_version": "paper_score.v1",
+        "contract_version": "paper_score.v1.1",
         "scored_at": datetime.now(timezone.utc).isoformat(),
         "total_score": total_score,
         "grade": grade,
@@ -263,6 +317,10 @@ def score_metadata(metadata: Dict[str, Any]) -> Dict[str, Any]:
         result["_llm_confidence_note"] = llm_note
     if validation_warnings:
         result["_extraction_validation_warnings"] = validation_warnings
+    if unsubstantiated:
+        result["unsubstantiated_claims"] = unsubstantiated
+        # Flag in leakage_flags so downstream reviewer UIs surface it prominently
+        result["leakage_flags"]["_has_unsubstantiated_claims"] = True
     return result
 
 
