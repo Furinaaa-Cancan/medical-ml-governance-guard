@@ -203,7 +203,22 @@ def fetch_url(url: str, retries: int = 3) -> str:
             raise
 
 
+def _print_help_and_exit() -> int:
+    print(__doc__ or "Fetch NHANES 2021-2023 codebook metadata from CDC.")
+    print()
+    print("Usage: python3 scripts/codebooks/fetch_nhanes_2021_2023.py")
+    print()
+    print("No arguments. Scrapes CDC NHANES website and writes:")
+    print(f"  {OUTPUT_VARS.relative_to(REPO_ROOT)}")
+    print(f"  {OUTPUT_CODES.relative_to(REPO_ROOT)}")
+    return 0
+
+
 def main() -> int:
+    # Support --help for CLI uniformity (exercised by tests/test_stress_gate_cli.py).
+    if any(arg in ("-h", "--help") for arg in sys.argv[1:]):
+        return _print_help_and_exit()
+
     all_variables: List[Dict] = []
     all_codebooks: List[Dict] = []
 

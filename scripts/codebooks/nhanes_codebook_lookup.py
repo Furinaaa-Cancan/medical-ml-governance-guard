@@ -321,12 +321,8 @@ class NHANESCodebook:
 
         # P0-2: surface KB provenance so users can arbitrate false positives
         # from LLM-compiled entries. Missing provenance is treated as "unknown".
-        _prov = disease_block.get("provenance", {}) if isinstance(disease_block, dict) else {}
-        kb_provenance = {
-            "source": _prov.get("source", "unknown"),
-            "clinician_review_status": _prov.get("clinician_review_status", "unknown"),
-            "last_reviewed": _prov.get("last_reviewed"),
-        }
+        from _kb_provenance import extract_kb_provenance
+        kb_provenance, _shared_prov_hint = extract_kb_provenance(disease_block)
 
         # Map abstract terms to NHANES codes via hybrid search
         flagged_codes: Dict[str, str] = {}  # nhanes_code → matched_term
@@ -372,13 +368,7 @@ class NHANESCodebook:
                 var_info = self.lookup(matched_code)
                 label = var_info["sas_label"] if var_info else matched_code
                 term = flagged_codes[matched_code]
-                _prov_hint = ""
-                if kb_provenance.get("clinician_review_status") == "pending":
-                    _prov_hint = (
-                        " [KB entry is LLM-compiled and not yet clinician-reviewed; "
-                        "if this is a false positive, mark the disease entry as "
-                        "clinician_reviewed in disease-definition-knowledge-base.json.]"
-                    )
+                _prov_hint = _shared_prov_hint
                 issues.append({
                     "code": "CODEBOOK_DEFINITION_VARIABLE",
                     "message": (
@@ -859,12 +849,8 @@ class RegistryCodebook:
         exclude_terms.extend(disease_block.get("self_report_fields", []))
 
         # P0-2: propagate KB provenance into issue details
-        _prov = disease_block.get("provenance", {}) if isinstance(disease_block, dict) else {}
-        kb_provenance = {
-            "source": _prov.get("source", "unknown"),
-            "clinician_review_status": _prov.get("clinician_review_status", "unknown"),
-            "last_reviewed": _prov.get("last_reviewed"),
-        }
+        from _kb_provenance import extract_kb_provenance
+        kb_provenance, _shared_prov_hint = extract_kb_provenance(disease_block)
 
         # Map to registry variables
         self._ensure_loaded()
@@ -896,16 +882,11 @@ class RegistryCodebook:
             elif col in flagged:
                 matched_code = col
             if matched_code:
-                _prov_hint = ""
-                if kb_provenance.get("clinician_review_status") == "pending":
-                    _prov_hint = (
-                        " [KB entry is LLM-compiled and not yet clinician-reviewed.]"
-                    )
                 issues.append({
                     "code": "CODEBOOK_DEFINITION_VARIABLE",
                     "message": (
                         f"Column '{col}' maps to '{matched_code}' which is a "
-                        f"definition variable for '{target_disease}'.{_prov_hint}"
+                        f"definition variable for '{target_disease}'.{_shared_prov_hint}"
                     ),
                     "details": {"column": col, "var_code": matched_code,
                                 "target_disease": target_disease,

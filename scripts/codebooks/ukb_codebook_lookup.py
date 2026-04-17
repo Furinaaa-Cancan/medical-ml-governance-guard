@@ -849,17 +849,8 @@ class UKBCodebook:
         definition_set = set(ukb_def_fields + ukb_exclusion_fields)
 
         # P0-2: propagate KB provenance into each emitted issue
-        _prov = disease_entry.get("provenance", {}) if isinstance(disease_entry, dict) else {}
-        kb_provenance = {
-            "source": _prov.get("source", "unknown"),
-            "clinician_review_status": _prov.get("clinician_review_status", "unknown"),
-            "last_reviewed": _prov.get("last_reviewed"),
-        }
-        _prov_hint = (
-            " [KB entry is LLM-compiled and not yet clinician-reviewed.]"
-            if kb_provenance.get("clinician_review_status") == "pending"
-            else ""
-        )
+        from _kb_provenance import extract_kb_provenance
+        kb_provenance, _prov_hint = extract_kb_provenance(disease_entry)
 
         # Build self-report leakage set from our own UKB encoding_values table.
         # No external dependency — uses encoding data already in our SQLite.

@@ -20,10 +20,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 KB_PATH = ROOT / "references" / "methodology" / "disease-definition-knowledge-base.json"
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _kb_provenance import REVIEW_STATUS_PENDING  # noqa: E402
 
 DEFAULT_PROVENANCE = {
     "source": "llm_compiled",
@@ -35,7 +39,7 @@ DEFAULT_PROVENANCE = {
         "per-disease variable enumerations have NOT been individually verified "
         "by a clinician for this KB version."
     ),
-    "clinician_review_status": "pending",
+    "clinician_review_status": REVIEW_STATUS_PENDING,
     "last_reviewed": None,
     "reviewer": None,
     "review_checklist": "references/methodology/DISEASE_KB_REVIEW.md",
