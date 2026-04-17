@@ -1160,9 +1160,21 @@ def main() -> int:
                     outcome_spec = json.load(fh)
             study_design["outcome_definition"] = outcome_spec
 
-            # Quality assessment of the definition
+            # Quality assessment of the definition.
+            # Skip publication-grade-level rigor checks when the spec is
+            # explicitly marked as exploratory_auto_generated. These checks
+            # (≥2 sources, exclusions list, time_window, adjudication strategy)
+            # are appropriate for publication-grade claims but would spam
+            # warnings on every leakage-audited exploratory run. User can
+            # opt in by replacing source="exploratory_auto_generated" in
+            # outcome_definition.json.
+            _is_exploratory_stub = str(outcome_spec.get("source", "")).lower() == "exploratory_auto_generated"
             criteria = outcome_spec.get("criteria", [])
-            if isinstance(criteria, list):
+            if _is_exploratory_stub:
+                study_design["definition_quality"] = "exploratory_stub"
+                study_design["definition_sources"] = ["user_provided"]
+                study_design["definition_source_count"] = 1
+            if isinstance(criteria, list) and not _is_exploratory_stub:
                 sources_used = set()
                 criteria_count = 0
                 for c in criteria:
@@ -1195,11 +1207,11 @@ def main() -> int:
                 else:
                     study_design["definition_quality"] = "moderate"
 
-            # Check adjudication strategy
+            # Check adjudication strategy (skipped for exploratory stubs)
             adjudication = outcome_spec.get("adjudication", "")
             if adjudication:
                 study_design["adjudication_strategy"] = adjudication
-            else:
+            elif not _is_exploratory_stub:
                 add_issue(
                     warnings_list, "COHORT_OUTCOME_DEFINITION_UNDOCUMENTED",
                     "Outcome definition does not specify adjudication strategy. "
@@ -1209,9 +1221,9 @@ def main() -> int:
                     {"missing_field": "adjudication"},
                 )
 
-            # Check exclusions
+            # Check exclusions (skipped for exploratory stubs)
             exclusions = outcome_spec.get("exclusions", [])
-            if not exclusions:
+            if not exclusions and not _is_exploratory_stub:
                 add_issue(
                     warnings_list, "COHORT_OUTCOME_DEFINITION_UNDOCUMENTED",
                     "Outcome definition does not specify exclusion criteria. "
@@ -1221,9 +1233,9 @@ def main() -> int:
                 )
             study_design["exclusion_criteria"] = exclusions
 
-            # Check time window
+            # Check time window (skipped for exploratory stubs)
             time_window = outcome_spec.get("time_window", "")
-            if not time_window:
+            if not time_window and not _is_exploratory_stub:
                 add_issue(
                     warnings_list, "COHORT_OUTCOME_DEFINITION_UNDOCUMENTED",
                     "Outcome definition does not specify time window. "

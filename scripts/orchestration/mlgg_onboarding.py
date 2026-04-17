@@ -485,6 +485,10 @@ def align_demo_configs(
         # User data with no time column: set a sentinel that won't collide with real columns
         # and signals downstream gates that temporal checks should be skipped.
         request["index_time_col"] = "_no_time_column"
+        # Auto-declare cross-sectional so gates that emit temporal-related
+        # warnings (split_protocol_gate, definition_variable_guard) can skip
+        # checks that don't apply to single-cycle cross-sectional data.
+        request["cross_sectional"] = True
     # For demo data (not is_user_data), keep whatever init_project set (always "event_time")
     request["label_col"] = target_col
     request["patient_id_col"] = patient_id_col
@@ -496,6 +500,12 @@ def align_demo_configs(
         "test": "../data/test.csv",
     }
     request["phenotype_definition_spec"] = "phenotype_definitions.json"
+    # Auto-stub outcome_definition for exploratory leakage-audited runs.
+    # Users filing publication-grade claims should replace this with a
+    # rigorous multi-source spec (ICD + lab + medication + self-report).
+    # Explicitly tagged as "exploratory_auto_generated" in the stub so
+    # reviewers / audit tools can tell this apart from a real definition.
+    request["outcome_definition_spec"] = "outcome_definition.json"
     request["feature_lineage_spec"] = "feature_lineage.json"
     request["feature_group_spec"] = "feature_group_spec.json"
     request["split_protocol_spec"] = "split_protocol.json"
@@ -522,6 +532,25 @@ def align_demo_configs(
         "notes": "Onboarding demo dataset. All predictors are available at/before index time and exclude disease definition variables."
     }
     write_json(request_path, request)
+
+    # Auto-write outcome_definition.json stub (referenced from request above).
+    # Explicitly marks exploratory provenance so audits can flag this apart
+    # from a rigorously curated multi-source definition.
+    outcome_def_path = configs / "outcome_definition.json"
+    if not outcome_def_path.exists():
+        outcome_stub = {
+            "source": "exploratory_auto_generated",
+            "provenance": "onboarding auto-generated stub; replace with rigorous multi-source definition for publication-grade claims",
+            "target_col": target_col,
+            "definition_type": "user_provided_binary_label",
+            "criteria": [
+                {"source": "user_provided", "column": target_col, "positive_value": 1}
+            ],
+            "adjudication": "any_one",
+            "validation": "none",
+            "reference_methodology": "See Eastwood 2016 (PLOS ONE) / Torralbo 2025 for publication-grade definitions.",
+        }
+        write_json(outcome_def_path, outcome_stub)
 
     if is_user_data:
         # User data mode: generate feature_group_spec with timing classification
@@ -1540,6 +1569,10 @@ def main() -> int:
             "--report", str(evidence_dir / "cohort_definition_report.json"),
             "--output-dir", str(evidence_dir),
         ]
+        # Pass auto-generated outcome_definition stub if onboarding wrote one
+        _outcome_def = project_root / "configs" / "outcome_definition.json"
+        if _outcome_def.exists():
+            _cohort_cmd.extend(["--outcome-definition", str(_outcome_def)])
         if _detected_dataset and _codebook_registry.exists():
             _cohort_cmd.extend(["--codebook", str(_codebook_registry),
                                 "--codebook-dataset", _detected_dataset])

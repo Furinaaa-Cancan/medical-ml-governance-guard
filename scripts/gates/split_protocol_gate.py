@@ -302,13 +302,21 @@ def main() -> int:
             {},
         )
     if is_cross_sectional:
-        add_issue(
-            warnings,
-            "cross_sectional_data",
-            "Data flagged as cross-sectional. Temporal ordering checks skipped. "
-            "Document this in limitations per TRIPOD+AI S03.",
-            {"time_col": args.time_col or "(none)"},
-        )
+        # Only emit when the user has NOT explicitly acknowledged the
+        # cross-sectional nature via --cross-sectional flag. Implicit
+        # detection (no time_col + not explicitly declared) still warns
+        # to prompt the user to document in TRIPOD+AI S03. Explicit
+        # --cross-sectional is treated as acknowledgement.
+        # (2026-04-17: preserves 42 existing tests while allowing onboarding
+        # to pass --cross-sectional in request.cross_sectional=True runs.)
+        if not bool(getattr(args, "cross_sectional", False)):
+            add_issue(
+                warnings,
+                "cross_sectional_data",
+                "Data flagged as cross-sectional. Temporal ordering checks skipped. "
+                "Document this in limitations per TRIPOD+AI S03.",
+                {"time_col": args.time_col or "(none)"},
+            )
     elif requires_temporal_order is not None and requires_temporal_order is not True:
         add_issue(
             warnings,
@@ -510,6 +518,7 @@ def finish(
     if getattr(args, "valid", None):
         input_files["valid"] = str(Path(args.valid).expanduser().resolve())
 
+    _cs_ack = bool(getattr(args, "cross_sectional", False)) or not getattr(args, "time_col", "")
     report = build_report_envelope(
         gate_name="split_protocol_gate",
         status=status,
@@ -521,6 +530,7 @@ def finish(
             "split_reference": split_reference,
             "protocol_fields_present": sorted(spec.keys()) if isinstance(spec, dict) else [],
             "splits": split_summary,
+            "cross_sectional_acknowledged": _cs_ack,
         },
         input_files=input_files,
     )

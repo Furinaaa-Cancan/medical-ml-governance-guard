@@ -107,7 +107,10 @@ _register(GateSpec(
     layer=GateLayer.CONTRACT,
     description="Phase 1: Cohort definition, EPV adequacy, data type detection, missingness profile.",
     depends_on=frozenset(),
-    request_inputs={"data_file": "--data"},
+    request_inputs={
+        "data_file": "--data",
+        "outcome_definition_spec": "--outcome-definition",
+    },
     value_inputs={"label_col": "--target-col", "patient_id_col": "--id-col"},
     report_output="cohort_definition_report.json",
     category="data",

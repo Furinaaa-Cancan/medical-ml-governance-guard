@@ -401,6 +401,15 @@ def _gate_specific_extras(
     if gate_name in _ignore_cols_gates:
         extras.extend(["--ignore-cols", f"{id_col},{time_col}"])
 
+    # Forward --cross-sectional flag to gates that support it, when the
+    # request declares cross_sectional data (e.g., NHANES single-cycle).
+    # Gates that then suppress temporal-related warnings:
+    #   - definition_variable_guard: skip temporal_spec_missing warning
+    #   - split_protocol_gate: skip cross_sectional_data warning (explicit ack)
+    _cross_sectional_gates = {"definition_variable_guard", "split_protocol_gate"}
+    if gate_name in _cross_sectional_gates and bool(normalized.get("cross_sectional")):
+        extras.append("--cross-sectional")
+
     if gate_name == "cohort_definition_gate":
         # Use train split as input data (not a request field mapping)
         data = split_paths.get("train", "")

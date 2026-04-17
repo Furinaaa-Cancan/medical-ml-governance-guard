@@ -2918,6 +2918,33 @@ def main() -> int:
                 {"path": str(resolved)},
             )
 
+    # outcome_definition_spec — optional path to a rigorous outcome-definition
+    # JSON. Onboarding auto-writes a minimal exploratory_auto_generated stub
+    # when the user provides a single CSV without their own definition. Always
+    # normalize when present so cohort_definition_gate can consume via
+    # --outcome-definition (2026-04-17 dogfood fix).
+    # Source from raw request since this field isn't in REQUIRED_STRING_FIELDS.
+    _raw_outcome_def = request.get("outcome_definition_spec")
+    if isinstance(_raw_outcome_def, str) and _raw_outcome_def.strip():
+        normalized["outcome_definition_spec"] = _raw_outcome_def.strip()
+    # Also propagate `cross_sectional` boolean flag so run_dag_pipeline can
+    # forward --cross-sectional to gates that support it.
+    if request.get("cross_sectional") is not None:
+        normalized["cross_sectional"] = bool(request.get("cross_sectional"))
+    _outcome_def_path = normalized.get("outcome_definition_spec")
+    if _outcome_def_path:
+        _resolved_od = resolve_path(request_base, _outcome_def_path)
+        normalized["outcome_definition_spec"] = str(_resolved_od)
+        if not _resolved_od.exists():
+            # Soft warning for leakage-audited; hard fail only for publication-grade.
+            _target_list = failures if normalized.get("claim_tier_target") == "publication-grade" else warnings
+            add_issue(
+                _target_list,
+                "outcome_definition_spec_not_found",
+                "outcome_definition_spec path does not exist.",
+                {"path": str(_resolved_od)},
+            )
+
     # Publication-grade requests must include lineage, split/imbalance/tuning protocol specs, and evaluated metric.
     require_lineage = normalized.get("claim_tier_target") == "publication-grade"
     # Resolve profile early so V3/V4 checks can use it.

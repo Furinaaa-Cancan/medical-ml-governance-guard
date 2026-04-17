@@ -71,6 +71,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--report", help="Optional JSON report path.")
     parser.add_argument("--strict", action="store_true", help="Fail on warnings.")
     parser.add_argument(
+        "--cross-sectional",
+        action="store_true",
+        help="Declare data as cross-sectional (no temporal dimension). "
+        "Suppresses temporal_spec_missing warning since prediction_time/"
+        "follow_up_window do not apply to single-cycle cross-sectional data.",
+    )
+    parser.add_argument(
         "--allow-missing-target",
         action="store_true",
         help="Allow missing target in spec and use only global forbidden rules.",
@@ -317,8 +324,10 @@ def main() -> int:
 
     # ── Temporal specification enforcement ─────────────────────────
     # Publication-grade models must document when the prediction is made
-    # and how long the follow-up window is.
-    if target_block:
+    # and how long the follow-up window is. Skipped for cross-sectional
+    # data where these concepts do not apply (no temporal dimension exists
+    # at the cohort level).
+    if target_block and not getattr(args, "cross_sectional", False):
         has_prediction_time = bool(target_block.get("prediction_time"))
         has_follow_up = bool(target_block.get("follow_up_window"))
         if not has_prediction_time or not has_follow_up:
