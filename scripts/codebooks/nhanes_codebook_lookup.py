@@ -319,6 +319,15 @@ class NHANESCodebook:
         exclude_terms.extend(disease_block.get("self_report_fields", []))
         exclude_terms = [t for t in exclude_terms if t]
 
+        # P0-2: surface KB provenance so users can arbitrate false positives
+        # from LLM-compiled entries. Missing provenance is treated as "unknown".
+        _prov = disease_block.get("provenance", {}) if isinstance(disease_block, dict) else {}
+        kb_provenance = {
+            "source": _prov.get("source", "unknown"),
+            "clinician_review_status": _prov.get("clinician_review_status", "unknown"),
+            "last_reviewed": _prov.get("last_reviewed"),
+        }
+
         # Map abstract terms to NHANES codes via hybrid search
         flagged_codes: Dict[str, str] = {}  # nhanes_code → matched_term
         for term in exclude_terms:
@@ -363,6 +372,13 @@ class NHANESCodebook:
                 var_info = self.lookup(matched_code)
                 label = var_info["sas_label"] if var_info else matched_code
                 term = flagged_codes[matched_code]
+                _prov_hint = ""
+                if kb_provenance.get("clinician_review_status") == "pending":
+                    _prov_hint = (
+                        " [KB entry is LLM-compiled and not yet clinician-reviewed; "
+                        "if this is a false positive, mark the disease entry as "
+                        "clinician_reviewed in disease-definition-knowledge-base.json.]"
+                    )
                 issues.append({
                     "code": "CODEBOOK_DEFINITION_VARIABLE",
                     "message": (
@@ -370,6 +386,7 @@ class NHANESCodebook:
                         f"which is a definition/exclusion variable for "
                         f"'{target_disease}' (matched term: '{term}'). "
                         f"Using it as a predictor constitutes target leakage (MLGG-F01)."
+                        f"{_prov_hint}"
                     ),
                     "details": {
                         "column": col,
@@ -378,6 +395,7 @@ class NHANESCodebook:
                         "matched_term": term,
                         "target_disease": target_disease,
                         "source": "disease_kb_x_codebook_rag",
+                        "kb_provenance": kb_provenance,
                     },
                 })
 
@@ -840,6 +858,14 @@ class RegistryCodebook:
             exclude_terms.append(lab.get("test", ""))
         exclude_terms.extend(disease_block.get("self_report_fields", []))
 
+        # P0-2: propagate KB provenance into issue details
+        _prov = disease_block.get("provenance", {}) if isinstance(disease_block, dict) else {}
+        kb_provenance = {
+            "source": _prov.get("source", "unknown"),
+            "clinician_review_status": _prov.get("clinician_review_status", "unknown"),
+            "last_reviewed": _prov.get("last_reviewed"),
+        }
+
         # Map to registry variables
         self._ensure_loaded()
         flagged: Dict[str, str] = {}
@@ -870,14 +896,21 @@ class RegistryCodebook:
             elif col in flagged:
                 matched_code = col
             if matched_code:
+                _prov_hint = ""
+                if kb_provenance.get("clinician_review_status") == "pending":
+                    _prov_hint = (
+                        " [KB entry is LLM-compiled and not yet clinician-reviewed.]"
+                    )
                 issues.append({
                     "code": "CODEBOOK_DEFINITION_VARIABLE",
                     "message": (
                         f"Column '{col}' maps to '{matched_code}' which is a "
-                        f"definition variable for '{target_disease}'."
+                        f"definition variable for '{target_disease}'.{_prov_hint}"
                     ),
                     "details": {"column": col, "var_code": matched_code,
-                                "target_disease": target_disease, "source": "registry_disease_kb"},
+                                "target_disease": target_disease,
+                                "source": "registry_disease_kb",
+                                "kb_provenance": kb_provenance},
                 })
         return issues
 

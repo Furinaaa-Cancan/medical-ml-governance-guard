@@ -848,6 +848,19 @@ class UKBCodebook:
         ukb_exclusion_fields = disease_entry.get("ukb_exclusion_fields", [])
         definition_set = set(ukb_def_fields + ukb_exclusion_fields)
 
+        # P0-2: propagate KB provenance into each emitted issue
+        _prov = disease_entry.get("provenance", {}) if isinstance(disease_entry, dict) else {}
+        kb_provenance = {
+            "source": _prov.get("source", "unknown"),
+            "clinician_review_status": _prov.get("clinician_review_status", "unknown"),
+            "last_reviewed": _prov.get("last_reviewed"),
+        }
+        _prov_hint = (
+            " [KB entry is LLM-compiled and not yet clinician-reviewed.]"
+            if kb_provenance.get("clinician_review_status") == "pending"
+            else ""
+        )
+
         # Build self-report leakage set from our own UKB encoding_values table.
         # No external dependency — uses encoding data already in our SQLite.
         # For self-report array fields (20002=illness, 20004=operation),
@@ -925,13 +938,14 @@ class UKBCodebook:
                     "message": (
                         f"Column '{col}' ({title}) is a definition variable for "
                         f"'{target_disease}'. Using it as a predictor constitutes "
-                        f"circular reasoning (label leakage)."
+                        f"circular reasoning (label leakage).{_prov_hint}"
                     ),
                     "details": {
                         "column": col,
                         "field_id": fid,
                         "target_disease": target_disease,
                         "source": "disease_kb_x_ukb_codebook",
+                        "kb_provenance": kb_provenance,
                     },
                 })
 
@@ -953,7 +967,7 @@ class UKBCodebook:
                         f"that contains codes related to '{target_disease}': "
                         f"[{code_strs}]. If any array element holds these codes, "
                         f"the model can directly observe the outcome. Exclude "
-                        f"this field or remove the disease-specific codes."
+                        f"this field or remove the disease-specific codes.{_prov_hint}"
                     ),
                     "details": {
                         "column": col,
@@ -961,6 +975,7 @@ class UKBCodebook:
                         "target_disease": target_disease,
                         "matching_codes": matches,
                         "source": "ukb_encoding_values",
+                        "kb_provenance": kb_provenance,
                     },
                 })
 

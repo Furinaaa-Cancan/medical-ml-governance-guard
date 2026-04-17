@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "description": "Disease definition knowledge base for clinical prediction models. Based on UK Biobank phenotyping methodology (Torralbo 2025, Eastwood 2016). Provides multi-source definition templates that can be adapted to any dataset, not just UKB.",
   "methodology_reference": {
     "framework": "Torralbo et al. A computational framework for defining and validating reproducible phenotyping algorithms of 313 diseases. Scientific Reports. 2025;15. doi:10.1038/s41598-025-05838-9",
@@ -239,7 +239,15 @@
       ],
       "ukb_definition_fields_note": "30750=HbA1c, 30740=Glucose, 2443=Diabetes diagnosed by doctor, 2976=Age diabetes diagnosed, 2986=Started insulin within 1yr, 4041=Gestational diabetes, 130708/9=Date/Source E11 first reported",
       "recommended_adjudication": "at_least_two",
-      "ukb_validation": "Eastwood 2016: 75% of 'probable T2D' confirmed in primary+secondary care"
+      "ukb_validation": "Eastwood 2016: 75% of 'probable T2D' confirmed in primary+secondary care",
+      "provenance": {
+        "source": "llm_compiled",
+        "description": "ICD/medication/lab lists compiled by LLM against the Torralbo 2025 + Eastwood 2016 methodology references in the top-level methodology_reference block. The overall structure (5 evidence layers, multi-source adjudication) follows established literature; the specific per-disease variable enumerations have NOT been individually verified by a clinician for this KB version.",
+        "clinician_review_status": "pending",
+        "last_reviewed": null,
+        "reviewer": null,
+        "review_checklist": "references/methodology/DISEASE_KB_REVIEW.md"
+      }
     },
     "hypertension": {
       "name": "Essential Hypertension",
@@ -342,7 +350,15 @@
         "131287"
       ],
       "ukb_definition_fields_note": "4080/4079=SBP/DBP automated, 93/94=SBP/DBP manual, 6150=Vascular problems diagnosed, 2966=Age high BP diagnosed, 131286/7=Date/Source I10 first reported",
-      "recommended_adjudication": "at_least_two"
+      "recommended_adjudication": "at_least_two",
+      "provenance": {
+        "source": "llm_compiled",
+        "description": "ICD/medication/lab lists compiled by LLM against the Torralbo 2025 + Eastwood 2016 methodology references in the top-level methodology_reference block. The overall structure (5 evidence layers, multi-source adjudication) follows established literature; the specific per-disease variable enumerations have NOT been individually verified by a clinician for this KB version.",
+        "clinician_review_status": "pending",
+        "last_reviewed": null,
+        "reviewer": null,
+        "review_checklist": "references/methodology/DISEASE_KB_REVIEW.md"
+      }
     },
     "coronary_heart_disease": {
       "name": "Coronary Heart Disease / Coronary Artery Disease",
@@ -468,7 +484,15 @@
         "131299"
       ],
       "ukb_definition_fields_note": "3894=Age heart attack diagnosed, 6150=Vascular/heart problems, 131298/9=Date/Source I21 first reported",
-      "recommended_adjudication": "at_least_two"
+      "recommended_adjudication": "at_least_two",
+      "provenance": {
+        "source": "llm_compiled",
+        "description": "ICD/medication/lab lists compiled by LLM against the Torralbo 2025 + Eastwood 2016 methodology references in the top-level methodology_reference block. The overall structure (5 evidence layers, multi-source adjudication) follows established literature; the specific per-disease variable enumerations have NOT been individually verified by a clinician for this KB version.",
+        "clinician_review_status": "pending",
+        "last_reviewed": null,
+        "reviewer": null,
+        "review_checklist": "references/methodology/DISEASE_KB_REVIEW.md"
+      }
     },
     "chronic_kidney_disease": {
       "name": "Chronic Kidney Disease",
@@ -554,7 +578,15 @@
       ],
       "ukb_definition_fields_note": "30700=Creatinine, 30720=Cystatin C (used to compute eGFR)",
       "recommended_adjudication": "at_least_two",
-      "note": "CKD-EPI 2021 removed race coefficient — use race-free formula"
+      "note": "CKD-EPI 2021 removed race coefficient — use race-free formula",
+      "provenance": {
+        "source": "llm_compiled",
+        "description": "ICD/medication/lab lists compiled by LLM against the Torralbo 2025 + Eastwood 2016 methodology references in the top-level methodology_reference block. The overall structure (5 evidence layers, multi-source adjudication) follows established literature; the specific per-disease variable enumerations have NOT been individually verified by a clinician for this KB version.",
+        "clinician_review_status": "pending",
+        "last_reviewed": null,
+        "reviewer": null,
+        "review_checklist": "references/methodology/DISEASE_KB_REVIEW.md"
+      }
     },
     "heart_failure": {
       "name": "Heart Failure",
@@ -635,7 +667,15 @@
         "131355"
       ],
       "ukb_definition_fields_note": "24103=LV ejection fraction, 131354/5=Date/Source I50 first reported",
-      "recommended_adjudication": "at_least_two"
+      "recommended_adjudication": "at_least_two",
+      "provenance": {
+        "source": "llm_compiled",
+        "description": "ICD/medication/lab lists compiled by LLM against the Torralbo 2025 + Eastwood 2016 methodology references in the top-level methodology_reference block. The overall structure (5 evidence layers, multi-source adjudication) follows established literature; the specific per-disease variable enumerations have NOT been individually verified by a clinician for this KB version.",
+        "clinician_review_status": "pending",
+        "last_reviewed": null,
+        "reviewer": null,
+        "review_checklist": "references/methodology/DISEASE_KB_REVIEW.md"
+      }
     },
     "stroke": {
       "name": "Stroke (Ischaemic and Haemorrhagic)",
@@ -708,7 +748,15 @@
         "131363"
       ],
       "ukb_definition_fields_note": "4056=Age stroke diagnosed, 131366/7=Date/Source I63 (ischaemic) first reported, 131362/3=Date/Source I61 (haemorrhagic) first reported",
-      "recommended_adjudication": "at_least_two"
+      "recommended_adjudication": "at_least_two",
+      "provenance": {
+        "source": "llm_compiled",
+        "description": "ICD/medication/lab lists compiled by LLM against the Torralbo 2025 + Eastwood 2016 methodology references in the top-level methodology_reference block. The overall structure (5 evidence layers, multi-source adjudication) follows established literature; the specific per-disease variable enumerations have NOT been individually verified by a clinician for this KB version.",
+        "clinician_review_status": "pending",
+        "last_reviewed": null,
+        "reviewer": null,
+        "review_checklist": "references/methodology/DISEASE_KB_REVIEW.md"
+      }
     },
     "copd": {
       "name": "Chronic Obstructive Pulmonary Disease",
@@ -783,7 +831,15 @@
         "22170"
       ],
       "ukb_definition_fields_note": "3063=FEV1, 3062=FVC (used to compute FEV1/FVC ratio for GOLD staging); Pomegranate: 22130=Doctor diagnosed COPD, 22170=Recent medication for COPD",
-      "recommended_adjudication": "at_least_two"
+      "recommended_adjudication": "at_least_two",
+      "provenance": {
+        "source": "llm_compiled",
+        "description": "ICD/medication/lab lists compiled by LLM against the Torralbo 2025 + Eastwood 2016 methodology references in the top-level methodology_reference block. The overall structure (5 evidence layers, multi-source adjudication) follows established literature; the specific per-disease variable enumerations have NOT been individually verified by a clinician for this KB version.",
+        "clinician_review_status": "pending",
+        "last_reviewed": null,
+        "reviewer": null,
+        "review_checklist": "references/methodology/DISEASE_KB_REVIEW.md"
+      }
     },
     "major_depressive_disorder": {
       "name": "Major Depressive Disorder",
@@ -866,7 +922,15 @@
         "21063"
       ],
       "ukb_definition_fields_note": "20126=Bipolar and major depression status, 20127=Neuroticism score (derived from questionnaire items); Pomegranate: 20126=Bipolar/depression status, 20446=Prolonged sadness, 20544=Diagnosed by professional, 21063=Offered treatment",
-      "recommended_adjudication": "at_least_two"
+      "recommended_adjudication": "at_least_two",
+      "provenance": {
+        "source": "llm_compiled",
+        "description": "ICD/medication/lab lists compiled by LLM against the Torralbo 2025 + Eastwood 2016 methodology references in the top-level methodology_reference block. The overall structure (5 evidence layers, multi-source adjudication) follows established literature; the specific per-disease variable enumerations have NOT been individually verified by a clinician for this KB version.",
+        "clinician_review_status": "pending",
+        "last_reviewed": null,
+        "reviewer": null,
+        "review_checklist": "references/methodology/DISEASE_KB_REVIEW.md"
+      }
     },
     "cancer_any": {
       "name": "Cancer (Any Site)",
@@ -960,7 +1024,15 @@
       "recommended_adjudication": "cancer_registry_primary",
       "icd10": [
         "C00-C97"
-      ]
+      ],
+      "provenance": {
+        "source": "llm_compiled",
+        "description": "ICD/medication/lab lists compiled by LLM against the Torralbo 2025 + Eastwood 2016 methodology references in the top-level methodology_reference block. The overall structure (5 evidence layers, multi-source adjudication) follows established literature; the specific per-disease variable enumerations have NOT been individually verified by a clinician for this KB version.",
+        "clinician_review_status": "pending",
+        "last_reviewed": null,
+        "reviewer": null,
+        "review_checklist": "references/methodology/DISEASE_KB_REVIEW.md"
+      }
     },
     "atrial_fibrillation": {
       "name": "Atrial Fibrillation",
@@ -1029,7 +1101,15 @@
         "131351"
       ],
       "ukb_definition_fields_note": "12653=ECG automated diagnoses, 24613=AFib Burden, 131350/1=Date/Source I48 first reported",
-      "recommended_adjudication": "at_least_two"
+      "recommended_adjudication": "at_least_two",
+      "provenance": {
+        "source": "llm_compiled",
+        "description": "ICD/medication/lab lists compiled by LLM against the Torralbo 2025 + Eastwood 2016 methodology references in the top-level methodology_reference block. The overall structure (5 evidence layers, multi-source adjudication) follows established literature; the specific per-disease variable enumerations have NOT been individually verified by a clinician for this KB version.",
+        "clinician_review_status": "pending",
+        "last_reviewed": null,
+        "reviewer": null,
+        "review_checklist": "references/methodology/DISEASE_KB_REVIEW.md"
+      }
     },
     "readmission_30day": {
       "name": "30-Day All-Cause Hospital Readmission",
@@ -1073,7 +1153,15 @@
       ],
       "recommended_adjudication": "any_one",
       "note": "This is an administrative outcome, not a clinical diagnosis. Definition depends on data source (claims vs EHR). CMS definition is the de facto standard in the US.",
-      "note_no_icd": "Administrative outcome, not diagnosed by ICD codes. Defined by admission/discharge dates."
+      "note_no_icd": "Administrative outcome, not diagnosed by ICD codes. Defined by admission/discharge dates.",
+      "provenance": {
+        "source": "llm_compiled",
+        "description": "ICD/medication/lab lists compiled by LLM against the Torralbo 2025 + Eastwood 2016 methodology references in the top-level methodology_reference block. The overall structure (5 evidence layers, multi-source adjudication) follows established literature; the specific per-disease variable enumerations have NOT been individually verified by a clinician for this KB version.",
+        "clinician_review_status": "pending",
+        "last_reviewed": null,
+        "reviewer": null,
+        "review_checklist": "references/methodology/DISEASE_KB_REVIEW.md"
+      }
     }
   },
   "general_guidance": {
@@ -1095,5 +1183,12 @@
       "Not excluding conditions that mimic the target (e.g., T1D misclassified as T2D)",
       "Applying adult criteria to pediatric populations or vice versa"
     ]
-  }
+  },
+  "change_log": [
+    {
+      "version": "1.1",
+      "date": "2026-04-17",
+      "change": "P0-2: added per-disease provenance field. All 11 entries initialized as llm_compiled / clinician_review_status=pending. Downstream consumers (cohort_definition_gate, codebook task_aware_validate) surface provenance to the user for manual arbitration."
+    }
+  ]
 }
