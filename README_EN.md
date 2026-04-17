@@ -939,7 +939,7 @@ Each dimension scored independently, weighted sum yields total score (0-100):
 | # | Dimension | Weight | Assessment Content |
 |:--|:----------|:------:|:-------------------|
 | 1 | Data Integrity | 12 | Split isolation, patient non-overlap, temporal correctness, no duplicate rows |
-| 2 | Leakage Protection | 15 | Target leakage, definition variables, post-index features, feature name patterns |
+| 2 | Leakage Prevention | 15 | Target leakage, definition variables, post-index features, feature name patterns |
 | 3 | Pipeline Isolation | 12 | Training-set-only preprocessing, imputer/scaler/resampling scope enforcement |
 | 4 | Model Selection Rigor | 10 | Candidate pool diversity, one-SE rule, test set isolation, baseline comparison |
 | 5 | Statistical Validity | 12 | Bootstrap CI, permutation test, calibration triple, DCA, metric consistency |
@@ -948,8 +948,8 @@ Each dimension scored independently, weighted sum yields total score (0-100):
 | 8 | Reporting Standards | 7 | TRIPOD+AI 2024, PROBAST+AI 2025, exclusion criteria, limitations |
 | 9 | Reproducibility | 6 | Seed locking, version tracking, execution attestation, fingerprint locking |
 | 10 | Security & Provenance | 3 | HMAC-SHA256 signatures, AES-256-GCM, audit chain, restricted deserialization |
-| 11 | Fairness & Equity | 3 | Subgroup analysis, equalized odds, disparate impact ratio, HEAL FPR/FNR |
-| 12 | Sample Size Adequacy | 3 | EPV criteria, Riley triple criteria, shrinkage factor, effective sample size |
+| 11 | Fairness | 3 | Subgroup analysis, equalized odds, disparate impact ratio, HEAL FPR/FNR |
+| 12 | Sample Size | 3 | EPV criteria, Riley triple criteria, shrinkage factor, effective sample size |
 
 **Score Interpretation**:
 

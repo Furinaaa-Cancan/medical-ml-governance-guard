@@ -113,5 +113,23 @@ def test_reviewer_yaml_and_skill_md_weight_totals_agree():
     assert skill_total == reviewer_total == 100
 
 
+def test_docs_consistency_script_passes():
+    """P1-6: the diagnostics script must confirm SKILL.md / reviewer.yaml /
+    README.md / README_EN.md agree on the 12-dim weights and names."""
+    import subprocess
+    script = PROJECT_ROOT / "scripts" / "diagnostics" / "check_docs_consistency.py"
+    result = subprocess.run(
+        ["python3", str(script)],
+        capture_output=True,
+        text=True,
+        cwd=str(PROJECT_ROOT),
+    )
+    assert result.returncode == 0, (
+        f"check_docs_consistency.py failed:\n"
+        f"stdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
