@@ -3092,16 +3092,47 @@ def main() -> int:
         warnings=warnings,
     )
 
-    if require_lineage:
-        validate_publication_v3_path(
+    # prediction_trace_file: always normalize when provided, regardless of
+    # claim_tier. Downstream calibration_dca_gate / prediction_replay_gate
+    # / ci_matrix_gate declare this as a required CLI input in the gate
+    # registry (scripts/core/_gate_registry.py), so even `leakage-audited`
+    # runs need it normalized or those gates crash at argparse with
+    # "the following arguments are required: --prediction-trace".
+    # Surfaced by dogfood run on NHANES 15549-row dataset (2026-04-17).
+    validate_optional_path(
+        request=request,
+        key="prediction_trace_file",
+        base=request_base,
+        failures=failures,
+        required=require_lineage,
+        normalized=normalized,
+        warnings=warnings,
+    )
+
+    # external_validation_report_file / ci_matrix_report_file /
+    # distribution_report_file / feature_engineering_report_file: always
+    # normalize when provided. Same reason as prediction_trace_file above —
+    # downstream gates (calibration_dca / ci_matrix / distribution_generalization)
+    # declare these as required --cli-flags in the gate registry regardless
+    # of claim_tier. Without the path in `normalized`, they crash at argparse.
+    # Content-shape validation (require_lineage) remains tier-gated below.
+    for _path_field in (
+        "external_validation_report_file",
+        "ci_matrix_report_file",
+        "distribution_report_file",
+        "feature_engineering_report_file",
+    ):
+        validate_optional_path(
             request=request,
-            key="prediction_trace_file",
+            key=_path_field,
             base=request_base,
             failures=failures,
+            required=False,
             normalized=normalized,
-            migration_hint="Add prediction_trace_file pointing to prediction_trace.csv.gz with minimal de-identified row-level scores.",
             warnings=warnings,
         )
+
+    if require_lineage:
         # External validation paths: required for publication-grade standard
         # profile. Skipped entirely for relaxed profiles (small_cohort etc.)
         # and cross-sectional data — external cohorts typically unavailable.
@@ -3115,6 +3146,11 @@ def main() -> int:
                 migration_hint="Add external_cohort_spec JSON with both cross_period and cross_institution cohorts.",
                 warnings=warnings,
             )
+            # For publication-grade this field must not only normalize but
+            # also satisfy V3 validation (exists, is file) as a hard fail.
+            # validate_publication_v3_path adds those extra checks; it also
+            # calls validate_optional_path internally so re-adding it is a
+            # no-op except for the stricter failure logic.
             validate_publication_v3_path(
                 request=request,
                 key="external_validation_report_file",
@@ -3159,7 +3195,11 @@ def main() -> int:
     if isinstance(evaluation_report_file, str) and evaluation_report_file:
         validate_evaluation_report_shape(evaluation_report_file, failures, cross_sectional=_is_cross_sectional, relaxed_profile=_relaxed_profile)
     external_validation_report_file = normalized.get("external_validation_report_file")
-    if isinstance(external_validation_report_file, str) and external_validation_report_file:
+    # Content-shape check (cohorts list non-empty, cohort_type enum, etc.) is
+    # only enforced for publication-grade tier. For leakage-audited the path
+    # is still normalized above so downstream gates get it, but we don't fail
+    # on empty/skeletal cohort lists at contract time.
+    if isinstance(external_validation_report_file, str) and external_validation_report_file and require_lineage:
         validate_external_validation_report_shape(external_validation_report_file, failures)
     external_cohort_spec = normalized.get("external_cohort_spec")
     if isinstance(external_cohort_spec, str) and external_cohort_spec and not _relaxed_profile:
@@ -3190,14 +3230,18 @@ def main() -> int:
     feature_group_spec = normalized.get("feature_group_spec")
     if isinstance(feature_group_spec, str) and feature_group_spec:
         validate_feature_group_spec_shape(feature_group_spec, failures)
+    # Content-shape validation of downstream report artifacts is only
+    # enforced for publication-grade. For leakage-audited the path is still
+    # normalized (above) so gate CLIs get their --flag, but we don't fail on
+    # empty/skeletal report contents at contract time.
     distribution_report_file = normalized.get("distribution_report_file")
-    if isinstance(distribution_report_file, str) and distribution_report_file:
+    if isinstance(distribution_report_file, str) and distribution_report_file and require_lineage:
         validate_distribution_report_shape(distribution_report_file, failures)
     feature_engineering_report_file = normalized.get("feature_engineering_report_file")
-    if isinstance(feature_engineering_report_file, str) and feature_engineering_report_file:
+    if isinstance(feature_engineering_report_file, str) and feature_engineering_report_file and require_lineage:
         validate_feature_engineering_report_shape(feature_engineering_report_file, failures)
     ci_matrix_report_file = normalized.get("ci_matrix_report_file")
-    if isinstance(ci_matrix_report_file, str) and ci_matrix_report_file:
+    if isinstance(ci_matrix_report_file, str) and ci_matrix_report_file and require_lineage:
         validate_ci_matrix_report_shape(ci_matrix_report_file, failures)
     execution_attestation_spec = normalized.get("execution_attestation_spec")
     if isinstance(execution_attestation_spec, str) and execution_attestation_spec:
