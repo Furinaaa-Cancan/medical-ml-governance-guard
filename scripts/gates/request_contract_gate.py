@@ -3109,28 +3109,33 @@ def main() -> int:
         warnings=warnings,
     )
 
-    # external_validation_report_file / ci_matrix_report_file /
-    # distribution_report_file / feature_engineering_report_file: always
-    # normalize when provided. Same reason as prediction_trace_file above —
-    # downstream gates (calibration_dca / ci_matrix / distribution_generalization)
-    # declare these as required --cli-flags in the gate registry regardless
-    # of claim_tier. Without the path in `normalized`, they crash at argparse.
-    # Content-shape validation (require_lineage) remains tier-gated below.
-    for _path_field in (
-        "external_validation_report_file",
+    # ci_matrix_report_file + feature_engineering_report_file:
+    # unconditionally normalized because their consumer gates declare
+    # --ci-matrix-report / --feature-engineering-report as REQUIRED in
+    # argparse (they are artifact paths, not optional references). Without
+    # this, leakage-audited tier runs crash at argparse. Content-shape
+    # validation for these artifacts remains tier-gated below.
+    for _required_artifact_field in (
         "ci_matrix_report_file",
-        "distribution_report_file",
         "feature_engineering_report_file",
     ):
         validate_optional_path(
             request=request,
-            key=_path_field,
+            key=_required_artifact_field,
             base=request_base,
             failures=failures,
             required=False,
             normalized=normalized,
             warnings=warnings,
         )
+
+    # NOTE: external_validation_report_file / distribution_report_file /
+    # feature_engineering_report_file stay tier-gated. Downstream gates
+    # (calibration_dca / ci_matrix / distribution_generalization) declare
+    # those flags as OPTIONAL in argparse. If onboarding produces a skeletal
+    # external_validation_report with cohorts=[] and we forward it, the
+    # gate's "external_cohorts_empty" error fires — worse than leaving the
+    # flag off entirely (which triggers a soft-skip warning).
 
     if require_lineage:
         # External validation paths: required for publication-grade standard
@@ -3195,11 +3200,7 @@ def main() -> int:
     if isinstance(evaluation_report_file, str) and evaluation_report_file:
         validate_evaluation_report_shape(evaluation_report_file, failures, cross_sectional=_is_cross_sectional, relaxed_profile=_relaxed_profile)
     external_validation_report_file = normalized.get("external_validation_report_file")
-    # Content-shape check (cohorts list non-empty, cohort_type enum, etc.) is
-    # only enforced for publication-grade tier. For leakage-audited the path
-    # is still normalized above so downstream gates get it, but we don't fail
-    # on empty/skeletal cohort lists at contract time.
-    if isinstance(external_validation_report_file, str) and external_validation_report_file and require_lineage:
+    if isinstance(external_validation_report_file, str) and external_validation_report_file:
         validate_external_validation_report_shape(external_validation_report_file, failures)
     external_cohort_spec = normalized.get("external_cohort_spec")
     if isinstance(external_cohort_spec, str) and external_cohort_spec and not _relaxed_profile:
@@ -3230,16 +3231,20 @@ def main() -> int:
     feature_group_spec = normalized.get("feature_group_spec")
     if isinstance(feature_group_spec, str) and feature_group_spec:
         validate_feature_group_spec_shape(feature_group_spec, failures)
-    # Content-shape validation of downstream report artifacts is only
-    # enforced for publication-grade. For leakage-audited the path is still
-    # normalized (above) so gate CLIs get their --flag, but we don't fail on
-    # empty/skeletal report contents at contract time.
     distribution_report_file = normalized.get("distribution_report_file")
-    if isinstance(distribution_report_file, str) and distribution_report_file and require_lineage:
+    if isinstance(distribution_report_file, str) and distribution_report_file:
         validate_distribution_report_shape(distribution_report_file, failures)
+    # feature_engineering_report_file shape is tier-gated (leakage-audited
+    # runs use a skeletal report; the path is normalized above only so the
+    # consumer gate's required --feature-engineering-report argparse flag
+    # is satisfied).
     feature_engineering_report_file = normalized.get("feature_engineering_report_file")
     if isinstance(feature_engineering_report_file, str) and feature_engineering_report_file and require_lineage:
         validate_feature_engineering_report_shape(feature_engineering_report_file, failures)
+    # ci_matrix_report_file shape is still tier-gated (leakage-audited doesn't
+    # require the full transport-drop CI matrix; the artifact path is
+    # normalized above only so ci_matrix_gate's required --ci-matrix-report
+    # argparse flag is satisfied).
     ci_matrix_report_file = normalized.get("ci_matrix_report_file")
     if isinstance(ci_matrix_report_file, str) and ci_matrix_report_file and require_lineage:
         validate_ci_matrix_report_shape(ci_matrix_report_file, failures)

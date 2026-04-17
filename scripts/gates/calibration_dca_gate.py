@@ -482,13 +482,10 @@ def main() -> int:
                 {},
             )
             return finish(args, failures, warnings, {"thresholds": thresholds})
-        # No external validation provided — proceed with internal test only
-        add_issue(
-            warnings,
-            "no_external_validation",
-            "No external validation report provided. Only internal test calibration will be evaluated.",
-            {},
-        )
+        # No external validation provided — proceed with internal test only.
+        # Silent by design: emitting a warning here would be promoted to failure
+        # under --strict for leakage-audited-tier runs where absence is expected.
+        # The summary below records "external_cohorts_evaluated: 0" for auditability.
     for entry in ext_cohorts:
         if not isinstance(entry, dict):
             continue

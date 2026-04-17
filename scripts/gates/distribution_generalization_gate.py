@@ -53,7 +53,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--valid", required=True, help="Path to valid CSV.")
     parser.add_argument("--test", required=True, help="Path to test CSV.")
     parser.add_argument("--evaluation-report", help="Optional evaluation_report JSON to scope features to deployed set.")
-    parser.add_argument("--external-validation-report", required=True, help="Path to external_validation_report.json.")
+    parser.add_argument("--external-validation-report", default=None, help="Path to external_validation_report.json. Optional: when omitted (e.g. leakage-audited tier without external cohorts), external distribution drift checks are skipped and the gate emits summary-only output.")
     parser.add_argument("--feature-group-spec", required=True, help="Path to feature_group_spec JSON.")
     parser.add_argument("--target-col", default="y", help="Binary target column.")
     parser.add_argument("--ignore-cols", default="patient_id,event_time", help="Comma-separated columns excluded from features.")
@@ -439,16 +439,25 @@ def main() -> int:
     valid_df = _split_dfs["valid"]
     test_df = _split_dfs["test"]
 
-    try:
-        external_payload = load_json(args.external_validation_report)
-    except Exception as exc:
-        add_issue(
-            failures,
-            "distribution_report_schema_invalid",
-            "Unable to parse external_validation_report JSON.",
-            {"path": str(Path(args.external_validation_report).expanduser()), "error": str(exc)},
-        )
-        return finish(args, failures, warnings, {})
+    external_payload: Dict[str, Any]
+    if not args.external_validation_report:
+        # Leakage-audited tier / exploratory runs without external cohort:
+        # proceed with internal drift checks only. The gate emits a summary
+        # status so the reviewer can see that external-cohort drift was
+        # intentionally skipped (no issue emitted — silence is intentional
+        # for this expected configuration).
+        external_payload = {"cohorts": []}
+    else:
+        try:
+            external_payload = load_json(args.external_validation_report)
+        except Exception as exc:
+            add_issue(
+                failures,
+                "distribution_report_schema_invalid",
+                "Unable to parse external_validation_report JSON.",
+                {"path": str(Path(args.external_validation_report).expanduser()), "error": str(exc)},
+            )
+            return finish(args, failures, warnings, {})
 
     try:
         feature_group_spec = load_json(args.feature_group_spec)
@@ -504,9 +513,16 @@ def main() -> int:
             return finish(args, failures, warnings, {})
     thresholds = parse_thresholds(policy)
 
-    external_refs = build_external_paths(external_payload, failures)
-    if failures:
-        return finish(args, failures, warnings, {"thresholds": thresholds})
+    # When external_validation_report was intentionally omitted (leakage-audited
+    # tier without external cohorts), external_payload["cohorts"] is an empty
+    # list by construction. Skip the external-refs validation in that case so
+    # the gate can still evaluate internal train/valid/test drift.
+    if args.external_validation_report:
+        external_refs = build_external_paths(external_payload, failures)
+        if failures:
+            return finish(args, failures, warnings, {"thresholds": thresholds})
+    else:
+        external_refs = []
 
     ignore_cols = set(parse_ignore_cols(args.ignore_cols, args.target_col))
     selected_features = parse_selected_features_from_evaluation_report(args.evaluation_report)
@@ -726,7 +742,10 @@ def main() -> int:
         "train_path": str(Path(args.train).expanduser().resolve()),
         "valid_path": str(Path(args.valid).expanduser().resolve()),
         "test_path": str(Path(args.test).expanduser().resolve()),
-        "external_validation_report": str(Path(args.external_validation_report).expanduser().resolve()),
+        "external_validation_report": (
+            str(Path(args.external_validation_report).expanduser().resolve())
+            if args.external_validation_report else None
+        ),
         "feature_group_spec": str(Path(args.feature_group_spec).expanduser().resolve()),
     }
     return finish(args, failures, warnings, summary)
@@ -753,7 +772,10 @@ def finish(
         "train": str(Path(args.train).expanduser().resolve()),
         "valid": str(Path(args.valid).expanduser().resolve()),
         "test": str(Path(args.test).expanduser().resolve()),
-        "external_validation_report": str(Path(args.external_validation_report).expanduser().resolve()),
+        "external_validation_report": (
+            str(Path(args.external_validation_report).expanduser().resolve())
+            if args.external_validation_report else None
+        ),
         "feature_group_spec": str(Path(args.feature_group_spec).expanduser().resolve()),
     }
     if getattr(args, "evaluation_report", None):

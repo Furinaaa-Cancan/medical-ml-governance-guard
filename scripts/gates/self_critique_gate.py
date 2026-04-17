@@ -72,6 +72,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--security-audit-report", default="", help="Path to security audit gate report JSON.")
     parser.add_argument("--fairness-equity-report", default="", help="Path to fairness & equity gate report JSON.")
     parser.add_argument("--sample-size-report", default="", help="Path to sample size adequacy gate report JSON.")
+    # Added 2026-04-17 during dogfood run — orchestrator passes these two
+    # reports as report_inputs per _gate_registry.py but self_critique had
+    # no matching argparse flags. Accept silently: self_critique doesn't
+    # currently analyze these reports' content, but tolerating the flags
+    # prevents argparse from crashing the whole aggregation step.
+    parser.add_argument("--cohort-definition-report", default="", help="Path to cohort definition gate report JSON.")
+    parser.add_argument("--shap-interpretability-report", default="", help="Path to SHAP interpretability report JSON.")
     parser.add_argument("--min-score", type=float, default=95.0, help="Minimum score for publication-grade readiness.")
     parser.add_argument(
         "--allow-missing-comparison",
