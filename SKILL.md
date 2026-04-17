@@ -54,11 +54,25 @@ description: "Publication-grade medical prediction workflow with 33 fail-closed 
 
 ## Peer Review Evidence Protocol
 
-Agent 审查代码时，**必须**查阅 `references/case-studies/peer-review-kb.json`（107 篇 NC 论文，375 条审稿意见）。
+Agent 审查代码时，查阅 `references/case-studies/peer-review-kb.json`（106 篇 NC 论文，375 条审稿意见）作为**补充背书**——当适用时可以引用，但不要把缺引用当作 gate 判定的依据。
 
-> 审稿人的原话比规则更有说服力——"NC Reviewer #2 在类似论文中指出了完全相同的问题"。
+> 审稿人的原话是有力的旁证，但不是 ground truth。KB 是 Nature Communications 已发表论文的审稿意见集合，**经过了 pre-publication filter**——有严重泄漏的论文在发表前就被拒，因此 KB 中 leakage 类审稿意见稀少（≈4% with leakage_gate mapping）。
 
-**KB 结构**: `concern_id`, `category`, `severity`, `mlgg_dimension`, `mlgg_gates`, `tags`, `concern_text`, `author_response`。
+**KB 强在哪 / 弱在哪**（2026-04 audit，见 `references/case-studies/peer-review-kb-audit-2026-04.md`）:
+
+| 覆盖强 | Concerns 数 | 覆盖弱 | Concerns 数 |
+|---|---|---|---|
+| 评估指标不全（AUPRC / MCC / Brier） | 119 | 数据泄漏直接证据 | 3 (category) + 10 (tag-derived) |
+| 报告规范（TRIPOD / 图表完整性） | 52 | Split protocol | 3 |
+| 外部验证缺失 | 21 | | |
+| 模型选择 / 调参 | 17 | | |
+
+**含义**：
+- Gate 失败类型是 **evaluation / reporting / external validation** → KB 是有力背书
+- Gate 失败类型是 **leakage** → 优先引用 `leakage_gate` 机制 + lint 规则 R001-R027，KB 只作为辅助
+- **不要**用 "KB 里也没提过这种问题" 来反推某个 leakage 不存在
+
+**KB 结构**: `concern_id`, `category`, `severity`, `mlgg_dimension`, `mlgg_gates`, `tags`, `concern_text`, `author_response`。每条 concern 至少映射到 1 个 `mlgg_gates`（P0-3b 已完成回填，0 条空数组）。
 
 **检索策略**:
 | 场景 | 检索字段 |
@@ -69,8 +83,6 @@ Agent 审查代码时，**必须**查阅 `references/case-studies/peer-review-kb
 | 严重度过滤 | `severity` |
 
 **引用格式**: `[PEER-REVIEW] PR-XXX-CYY (Nature Communications, 20XX) 审稿人: "..." 修复: "..."`
-
-**统计引用**: "107 篇 NC 论文中，119/375 (31.7%) 审稿意见要求完善评估指标"
 
 ```bash
 python3 scripts/review/peer_review_lookup.py --stats
