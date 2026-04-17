@@ -36,22 +36,29 @@
     "9": 16
   },
   "concerns_by_gate": {
-    "evaluation_quality_gate": 17,
-    "cohort_definition_gate": 16,
-    "leakage_gate": 13,
-    "external_validation_gate": 12,
-    "calibration_dca_gate": 12,
-    "missingness_policy_gate": 9,
-    "model_selection_audit_gate": 7,
-    "reporting_bias_gate": 6,
-    "clinical_metrics_gate": 4,
-    "shap_interpretability_gate": 4,
-    "sample_size_gate": 4,
+    "evaluation_quality_gate": 104,
+    "cohort_definition_gate": 80,
+    "reporting_bias_gate": 50,
+    "clinical_metrics_gate": 38,
+    "calibration_dca_gate": 29,
+    "model_selection_audit_gate": 21,
+    "external_validation_gate": 19,
+    "feature_engineering_audit_gate": 17,
+    "seed_stability_gate": 16,
+    "execution_attestation_gate": 16,
+    "leakage_gate": 15,
+    "shap_interpretability_gate": 15,
+    "missingness_policy_gate": 15,
+    "sample_size_gate": 8,
+    "fairness_equity_gate": 5,
     "split_protocol_gate": 3,
+    "distribution_generalization_gate": 3,
     "ci_matrix_gate": 3,
-    "distribution_generalization_gate": 2,
     "tuning_leakage_gate": 2,
-    "covariate_shift_gate": 1
+    "covariate_shift_gate": 1,
+    "feature_lineage_gate": 1,
+    "imbalance_policy_gate": 1,
+    "generalization_gap_gate": 1
   },
-  "concerns_with_empty_gates": 272
+  "concerns_with_empty_gates": 0
 }

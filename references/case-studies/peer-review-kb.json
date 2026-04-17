@@ -1,5 +1,5 @@
 {
-  "contract_version": "peer_review_kb.v1.1",
+  "contract_version": "peer_review_kb.v1.2",
   "total_papers": 106,
   "total_concerns": 375,
   "entries": [
@@ -192,7 +192,9 @@
           "category": "study_design",
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The authors should exercise caution in their claims of causality, as biomarkers may reflect processes already in motion and may not necessarily indicate a causal relationship.",
           "author_response": "We have toned down causal language throughout and explicitly state that associations are observational.",
@@ -673,7 +675,10 @@
           "category": "reproducibility",
           "severity": "HIGH",
           "mlgg_dimension": 9,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "seed_stability_gate",
+            "execution_attestation_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "I did not find the file with code.",
           "author_response": "Code has been uploaded to GitHub and the repository link has been added to the Data Availability section.",
@@ -690,7 +695,10 @@
           "category": "reproducibility",
           "severity": "MEDIUM",
           "mlgg_dimension": 9,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "seed_stability_gate",
+            "execution_attestation_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "I may have missed something, but I didn't see a link to the code.",
           "author_response": "Code repository link added.",
@@ -707,7 +715,9 @@
           "category": "evaluation_metrics",
           "severity": "LOW",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "I would like to better understand the extent to which LEF1-AS1 expression is independent of age and gender, which are both known risk factors. How correlated is LEF1-AS1 expression with these demographic variables?",
           "author_response": "LEF1-AS1 was weakly and negatively correlated to age (r=-0.21 discovery, r=-0.35 validation). Added correlation plot as Figure 2D.",
@@ -861,7 +871,10 @@
           "category": "clinical_utility",
           "severity": "MEDIUM",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "calibration_dca_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Prediction of pancreatic cancer ICD-10 codes one visit prior may not be clinically useful. The documentation of a code is not equivalent to the first diagnosis. The duration between visits may differ greatly — predicting in 1 year may be much more useful than if next visit is in 1 week.",
           "author_response": "We added a new prediction window (12-36 months) for pancreatic cancer onset and updated results for this clinically meaningful timeframe.",
@@ -879,7 +892,9 @@
           "category": "preprocessing",
           "severity": "MEDIUM",
           "mlgg_dimension": 3,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "feature_engineering_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The use of PHI data like actual visit dates will highly impact both usability and generalizability. Recommend using day differences between events instead.",
           "author_response": "We implemented daysdiff embedding and showed no significant performance difference vs date-specific embedding, while improving privacy protection.",
@@ -980,7 +995,9 @@
           "category": "interpretability",
           "severity": "HIGH",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "shap_interpretability_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Given that stage is a very good determinant of prognosis, how do we know that the ML model isn't merely measuring tumor size and using this to determine prognosis? What other features other than size is the model using? How do we know it isn't merely using clinicopathological characteristics already readily available?",
           "author_response": "We added ablation analysis removing size-related features and showed the model captures additional information beyond tumor size. Multivariate analysis demonstrates DLS is independent of stage.",
@@ -1018,7 +1035,10 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate",
+            "fairness_equity_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "For immunotherapy treatment — were patients treated with single agent or combination with chemo? If mixed, the analysis needs to be divided to study single agent and combination separately. It is unclear how heterogeneous this group is.",
           "author_response": "We clarified treatment regimens and performed subgroup analyses by treatment type.",
@@ -1035,7 +1055,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The AUCs seem similar to their previous work (Jiang et al, Lancet Digital Health). Why AUC is used for measuring survival performance? Is the endpoint classification only at 5 years?",
           "author_response": "We clarified the survival endpoint definition and added time-dependent AUC analysis and C-index for survival prediction.",
@@ -1053,7 +1075,9 @@
           "category": "interpretability",
           "severity": "MEDIUM",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "shap_interpretability_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The choice of being more concerned with interpretability than explainability appears trenchant. If the authors have a strategy for dealing with explainability and determining criteria to select significant features, they should describe it.",
           "author_response": "We expanded the discussion to address both interpretability (biology-guided architecture) and explainability (feature attribution maps).",
@@ -1070,7 +1094,10 @@
           "category": "reproducibility",
           "severity": "HIGH",
           "mlgg_dimension": 9,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "seed_stability_gate",
+            "execution_attestation_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "There is a general lack of details (data more than code) for the work to be reproduced.",
           "author_response": "We expanded methods section with full implementation details and made code available on GitHub.",
@@ -1088,7 +1115,9 @@
           "category": "study_design",
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "How many pathologists were involved in the TME classification? Was this done independently? How were conflicts resolved in TME assessments?",
           "author_response": "Two pathologists independently classified TME with a third resolving conflicts. Inter-rater agreement (kappa) reported.",
@@ -1256,7 +1285,10 @@
           "category": "study_design",
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "In the construction of the HLS — it is unclear why these particular predictors were chosen and how cut-off thresholds were defined. The 'traditional model' includes some but not all lifestyle predictors. Authors reference a pre-existing validated lifestyle model (Cheng et al) — is there a reason this was not used?",
           "author_response": "We justified predictor selection based on WHO guidelines and existing literature. Comparison with Cheng et al model added.",
@@ -1438,7 +1470,10 @@
           "category": "reproducibility",
           "severity": "HIGH",
           "mlgg_dimension": 9,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "seed_stability_gate",
+            "execution_attestation_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The unusual nature of the training set (nearly 50% malignant) and the lack of detail about how human input was provided makes it impossible to reproduce the work.",
           "author_response": "We expanded methods with full HITL protocol details, reader selection criteria, and scoring methodology.",
@@ -1456,7 +1491,10 @@
           "category": "interpretability",
           "severity": "MEDIUM",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "shap_interpretability_gate",
+            "calibration_dca_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The authors did not explain what DL specifically finds in ultrasound images. The explanation that it 'highlighted the most important areas' is laconic. Should explain what extent and localization of hotspots mean in benign vs malignant lesions.",
           "author_response": "We added quantitative analysis of Grad-CAM hotspot patterns comparing benign vs malignant, including hotspot area percentage and spatial distribution.",
@@ -1474,7 +1512,9 @@
           "category": "reporting",
           "severity": "LOW",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Development of RF model serving as OvcaFinder lacks details. How were the sets of different predictors identified? Please expand the description.",
           "author_response": "We expanded the RF model development section with feature selection process and hyperparameter tuning details.",
@@ -1553,7 +1593,9 @@
           "category": "preprocessing",
           "severity": "HIGH",
           "mlgg_dimension": 3,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "feature_engineering_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Adjustments for the duration or type of ART use are conspicuously missing from the models. Several ART either act directly on viral or host proteins or indirectly through transcription. This could enhance models' accuracy.",
           "author_response": "We added ART duration and type as covariates in sensitivity analyses. Results remained robust after adjustment.",
@@ -1571,7 +1613,9 @@
           "category": "preprocessing",
           "severity": "MEDIUM",
           "mlgg_dimension": 3,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "feature_engineering_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Adjusting protein expression for renal function is important as several studies report the impact of renal function on protein expression due to the kidney's role in filtering and inflammatory response.",
           "author_response": "We added eGFR as a covariate and performed sensitivity analysis stratified by renal function.",
@@ -1609,7 +1653,9 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The paper fails to describe potential confounders. The time of plasma isolation and preservative type could introduce methodological artifacts. The time between plasma collection and death is not described. Authors state protein expression was altered 'right before' death but provide no time data.",
           "author_response": "We clarified sample collection protocols, added time-to-death analysis, and corrected temporal language.",
@@ -1627,7 +1673,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The statistical approaches were not clear. Table 1 showed three P-values where ANOVA followed by post-hoc test should have been used. Tables include data not significant after FDR correction, making interpretation difficult.",
           "author_response": "We corrected statistical tests and removed non-significant results from main tables.",
@@ -1665,7 +1713,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Several unsubstantiated statements imply causality throughout the results section. Introduction states 'traditional biomarkers are challenging for predicting mortality' but Discussion says they have 'potential for predicting mortality' — these are contradictory.",
           "author_response": "We revised causal language to associational framing and resolved the logical inconsistency between introduction and discussion.",
@@ -1771,7 +1821,9 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The abstract states the model 'was validated prospectively on data from 2021-2023' but Mamba was first introduced in 2023. It appears the model was 'retrospectively validated' on previously collected prospective data. Please clarify.",
           "author_response": "We clarified that the prospective data collection preceded model development, and the model was applied retrospectively to this prospectively collected dataset.",
@@ -1810,7 +1862,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Authors claim 'first SSM model application to clinical data' but there are multiple prior studies applying state-space models to clinical data (Yin 2021, Ghassemi 2017, Nemati 2013). Please explain how the proposed SSM differs from prior works.",
           "author_response": "We corrected the novelty claim to 'first Mamba-based SSM application' and added comparison with prior SSM clinical works.",
@@ -1828,7 +1882,9 @@
           "category": "reporting",
           "severity": "LOW",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Results for the temporal cohort were relegated to supplementary material. An extra column for the temporal cohort would not take up much space in the main article.",
           "author_response": "We moved temporal validation results to the main text.",
@@ -1990,7 +2046,11 @@
           "category": "reproducibility",
           "severity": "HIGH",
           "mlgg_dimension": 9,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "seed_stability_gate",
+            "execution_attestation_gate",
+            "feature_engineering_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "It is not clear how features were actually merged from 24-hour epochs. How were values combined — average, range, median, mean? It would not be possible to reproduce these models and test the results or apply them clinically.",
           "author_response": "We added detailed feature engineering description with aggregation functions (mean, min, max, last) for each variable type.",
@@ -2008,7 +2068,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "On numerous occasions they say that identifying patients at risk will improve their outcome — that is a hope rather than a proven reality; they should avoid the hyperbole.",
           "author_response": "We toned down claims about clinical outcome improvement and framed as potential benefit requiring prospective validation.",
@@ -2026,7 +2088,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Results appearing in the discussion and methods appearing throughout. Comparators only show up in discussion where they don't belong. Paper presented in a somewhat jumbled fashion.",
           "author_response": "We reorganized the manuscript to separate methods, results, and discussion clearly.",
@@ -2148,7 +2212,10 @@
           "category": "reporting",
           "severity": "HIGH",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate",
+            "missingness_policy_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The data sources in both internal and external validation require more details. What were the clinical settings? Were patients consecutive? Why were patients dropped for 1 missing observation? How many were dropped?",
           "author_response": "We added detailed data source descriptions, patient flow diagrams, and missing data handling documentation.",
@@ -2167,7 +2234,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The collaborative model, touted as most successful, is unclear. How is post-test judgment quantified? How is it combined numerically?",
           "author_response": "We added detailed description of the logistic regression combining ML scores and cardiologist post-test probability.",
@@ -2185,7 +2254,9 @@
           "category": "evaluation_metrics",
           "severity": "LOW",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [
             "MLGG-E02"
           ],
@@ -2274,7 +2345,9 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Healthy individuals are not the appropriate controls for COVID-19. Please include age-matched hospitalized patients with phenotypically similar disease states to identify differences unique to SARS-CoV-2 infection.",
           "author_response": "We acknowledged this limitation and discussed the difficulty of obtaining appropriate disease-matched controls during the pandemic.",
@@ -2292,7 +2365,9 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Significant difference in gender between the 3 immunophenotypes — more males in EXI and LAI. Whole data could be explained by higher propensity of males for proinflammatory cytokines. Statistical analysis should be reanalyzed normalizing for age, gender, and DFSO using multivariate analysis.",
           "author_response": "We added multivariate analysis adjusting for age, gender, and DFSO. Immunophenotype effects remained significant after adjustment.",
@@ -2310,7 +2385,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Lot of overlap in the data and significance is driven by few outliers especially in EXI group. May be just driven by these few outliers in EXI/LAI compared with BRI.",
           "author_response": "We performed robust analysis excluding outliers and showed consistent findings.",
@@ -2327,7 +2404,9 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "IL-6, IL-8 and IL-10 are main markers of disease severity and their levels can easily explain disease outcome among immunotypes. So that brings into question the rationale of the whole study.",
           "author_response": "We showed that immunophenotyping provides additional prognostic value beyond these individual cytokines through interaction effects.",
@@ -2345,7 +2424,10 @@
           "category": "clinical_utility",
           "severity": "MEDIUM",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "calibration_dca_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Authors conclude this immunophenotyping can be applied rapidly in clinic. It's unclear how this extensive analysis can be practically applied where the patient deteriorates in days — during pandemic with shortage of resources, this approach is impractical.",
           "author_response": "We toned down clinical implementation claims and discussed this as a research framework rather than a point-of-care tool.",
@@ -2424,7 +2506,10 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The authors focus on rate of change, but variability in rates between patients plays a significant role. These two factors determine 'sensitivity' of a longitudinal marker (signal to noise). Could the authors provide insight into variability between patients relative to the average rate of decline?",
           "author_response": "We added between-patient variability analysis showing coefficient of variation for each feature's rate of change.",
@@ -2442,7 +2527,9 @@
           "category": "reporting",
           "severity": "HIGH",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The monitoring protocol is quite extensive with 4 accelerometers per patient. Could the authors provide insight into adherence? How many patients managed to complete the 7-day wear-time period? Metrics of patient burden and retention would be insightful.",
           "author_response": "We added adherence statistics showing completion rates, dropout reasons, and wear-time compliance by visit.",
@@ -2461,7 +2548,10 @@
           "category": "reproducibility",
           "severity": "HIGH",
           "mlgg_dimension": 9,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "seed_stability_gate",
+            "execution_attestation_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "From the methods it is unclear how the rate of decline was calculated. There are no longitudinal models reported. It looks like per-patient regression was fitted and slope extracted, but this information is not provided — the statistical analysis cannot be replicated.",
           "author_response": "We added detailed description of per-patient linear mixed-effects models used to estimate rates of decline.",
@@ -2479,7 +2569,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The ICC is based on 'first half vs second half of days'. This likely gives a systematic difference as patients may be more active in the first half due to fatigue. Day 1 vs Day 2 comparison would be more accurate.",
           "author_response": "We added day-by-day ICC analysis as supplementary comparison.",
@@ -2497,7 +2589,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Using 'the limb with the fastest progression rate' has complexities. This can be done after data collection, but for clinical trials outcomes must be prespecified — this could result in increased type 1 error.",
           "author_response": "We discussed this limitation for clinical trial application and suggested prespecifying the primary limb based on initial assessment.",
@@ -2515,7 +2609,9 @@
           "category": "reporting",
           "severity": "LOW",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The pairwise comparison model description is lacking clarity. The formula and outcome encoding need clearer explanation for the less statistical reader.",
           "author_response": "We rewrote the pairwise model description with step-by-step worked example.",
@@ -2585,7 +2681,9 @@
           "category": "study_design",
           "severity": "CRITICAL",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "There is no evidence that there actually is any data leakage in the classification model in the first place — therefore it is not clear there is anything to be fixed, which is the objective of the paper. Classification models learn category assignments, not patient-specific information.",
           "author_response": "We added discussion clarifying the precautionary principle and referenced recent membership inference attacks on clinical NLP models.",
@@ -2603,7 +2701,9 @@
           "category": "model_selection",
           "severity": "HIGH",
           "mlgg_dimension": 4,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "model_selection_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The proposed models are not compared with any other methods, only an uninformative model. LLMs like ChatGPT have been proven effective for extracting structured data from clinical notes. Open-source LLMs on in-house servers could protect privacy without the teacher-student paradigm.",
           "author_response": "We added comparison with GPT-4 and open-source LLM baselines, showing trade-offs between accuracy, cost, and privacy.",
@@ -2621,7 +2721,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "What is the benefit of training the student model with soft logit output vs hard prediction labels? There is only a difference between soft and hard labels. Authors need to illustrate benefits of soft label training.",
           "author_response": "We added ablation comparing soft vs hard label training showing soft labels preserve calibration and improve minority class performance.",
@@ -2639,7 +2741,9 @@
           "category": "reporting",
           "severity": "LOW",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "It should be stressed that the privacy-preserving approach has only been demonstrated to work on the relatively narrowly defined task of outcome extraction. A richer illustration in Figure 1 showing data boundaries would help.",
           "author_response": "We added clearer figure showing data flow boundaries and scoped the claims to outcome extraction tasks.",
@@ -2720,7 +2824,10 @@
           "category": "reproducibility",
           "severity": "CRITICAL",
           "mlgg_dimension": 9,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "seed_stability_gate",
+            "execution_attestation_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "My fundamental objection to nearly all synthetic data papers: Is the real input data available? Is the synthetic data available? Where is the public code repository? They cannot answer 'yes' to all three. How could someone reproduce this?",
           "author_response": "We released code on GitHub, made synthetic MIMIC data available, and documented that the claims data is proprietary but synthetic output is shareable.",
@@ -2739,7 +2846,9 @@
           "category": "reporting",
           "severity": "LOW",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Which modules or components are specifically devised for handling the high-dimension issue? This should be more clearly discussed.",
           "author_response": "We added focused discussion of the masked linear layer for high-dimensional intra-visit modeling and transformer for inter-visit modeling.",
@@ -2795,7 +2904,10 @@
           "category": "preprocessing",
           "severity": "CRITICAL",
           "mlgg_dimension": 3,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "feature_engineering_audit_gate",
+            "sample_size_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The model has too many parameters. 24 parameters with 47+40 cases — model is overparametrized. Maximum ~8-10 parameters. They've got (10+10+19)×3=117 parameters — almost infinite ways to extract n from 117 to build models. How did they arrive at these models/parameters?",
           "author_response": "We performed LASSO regularization with nested cross-validation and reported the number of retained features. Added comparison with simpler models.",
@@ -2814,7 +2926,9 @@
           "category": "preprocessing",
           "severity": "HIGH",
           "mlgg_dimension": 3,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "feature_engineering_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Calculated subtraction images without dividing by precontrast image — makes comparison of histogram features (mean, range, min, max) across patients highly dubious. Both in-plane resolution and slice thickness vary — should interpolate to same resolution prior to feature calculations.",
           "author_response": "We added image normalization and resampling to uniform resolution. Results remain consistent after standardization.",
@@ -2852,7 +2966,10 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "model_selection_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Figure 4d and 7d appear to be training set performance — if so should NOT be reported as it is not representative of unseen data.",
           "author_response": "We clarified these are cross-validated results, not training performance, and relabeled figures.",
@@ -2870,7 +2987,10 @@
           "category": "clinical_utility",
           "severity": "MEDIUM",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "calibration_dca_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Several gene expression signatures for breast cancer (Mammaprint, OncotypeDX) are clinically used. Authors have to study how their proposed biomarkers add additional prognostic value on top of these existing prognostic biomarkers.",
           "author_response": "We added comparison with established genomic signatures and showed complementary prognostic information.",
@@ -2888,7 +3008,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "IRB/informed consent information not provided. Radiomics methodology needs more detail — software validation, grey level reduction, normalization method.",
           "author_response": "We added IRB information and detailed radiomics methodology including software (PyRadiomics), grey levels, and normalization steps.",
@@ -2906,7 +3028,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "MRI data quality is no longer state-of-the-art/outdated. Since the TCGA/I-SPY studies there have been significant improvements in MRI software and hardware. Results may not be representative of current MRI radiomics potential.",
           "author_response": "We acknowledged the data age limitation and discussed how modern MRI would likely improve results.",
@@ -2968,7 +3092,9 @@
           "category": "model_selection",
           "severity": "HIGH",
           "mlgg_dimension": 4,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "model_selection_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Given the very good performance of 'weighted lassosum2', I wonder whether the extra gain from PROSPER comes from the L2-penalty sharing effects across populations, or from the super learning step? You could also add super learning step for lassosum2 to answer this question.",
           "author_response": "We added ablation: super learning alone on lassosum2 vs PROSPER's L2 penalty. Both contribute, but L2 penalty provides the larger gain.",
@@ -2986,7 +3112,9 @@
           "category": "study_design",
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Is it reasonable to assume genetic effects are similarly similar across populations (constant c)? I might expect this similarity to decrease with genetic distance between populations. Any literature to support either claim?",
           "author_response": "We cited literature supporting similar effect sizes across closely related populations and acknowledged this may break down for more distant populations.",
@@ -3004,7 +3132,9 @@
           "category": "preprocessing",
           "severity": "MEDIUM",
           "mlgg_dimension": 3,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "feature_engineering_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "LD references computed from 1000G. Have you tried using more individuals (e.g., UKBB)? AMR in 1000G is used for Latino ancestry — is it really the same ancestry?",
           "author_response": "We compared 1000G vs UKBB LD references showing minimal impact for European ancestry but noted limitations for admixed populations.",
@@ -3022,7 +3152,10 @@
           "category": "reproducibility",
           "severity": "MEDIUM",
           "mlgg_dimension": 9,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "seed_stability_gate",
+            "execution_attestation_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Analysis code is publicly shared but I cannot find the code corresponding to LDpred2 analyses. I am surprised LDpred2 performs consistently worse than lassosum2 — maybe consider extending the grid to the one currently recommended in the tutorial.",
           "author_response": "We added LDpred2 code and re-ran with recommended grid parameters. Performance gap narrowed but PROSPER still outperforms.",
@@ -3040,7 +3173,10 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Did the authors consider using machine learning methods for the super-learner step? Also, how large a tuning dataset would you recommend?",
           "author_response": "We tested ML methods (random forest, gradient boosting) in the super-learner — linear combination performed comparably. Added tuning set size sensitivity analysis.",
@@ -3100,7 +3236,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "For PRStuning based on C+T, AUC increases when threshold decreases. For LDpred, highest AUC is at parameter 0.3. Is this an indication of overfitting or convergence issues? Based on Tables 4 and 5, is it concluded that P+T is better than LDpred?",
           "author_response": "We clarified that this pattern reflects the polygenicity of the trait. Added convergence diagnostics for LDpred Gibbs chains.",
@@ -3118,7 +3256,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Would it be possible to include confounders such as age, sex as part of the AUC calculation?",
           "author_response": "We showed that covariate adjustment has minimal impact on relative ranking of PRS methods but added adjusted AUC as supplementary analysis.",
@@ -3135,7 +3275,10 @@
           "category": "study_design",
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "How does the method handle the HLA region of Chromosome 6? Is the chosen LD radius (5) large enough? Please define LD radius in terms of SNPs/megabase pairs.",
           "author_response": "We defined LD radius as 5Mb and showed that the HLA region is adequately captured. Added sensitivity analysis with larger radius.",
@@ -3153,7 +3296,9 @@
           "category": "external_validation",
           "severity": "HIGH",
           "mlgg_dimension": 6,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "external_validation_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "As summary statistics of T2D, CAD, and IBD are available, could authors generate PRS using traditional LDpred2 with UKBB data and compare AUC with LDpred based PRStuning? Include computational time comparison.",
           "author_response": "We added traditional LDpred2 comparison and computational time benchmarks showing PRStuning is 10× faster.",
@@ -3171,7 +3316,9 @@
           "category": "external_validation",
           "severity": "MEDIUM",
           "mlgg_dimension": 6,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "external_validation_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Author mentioned they applied the framework in European ancestral group only. Would it be possible to include non-European population in the training datasets?",
           "author_response": "We acknowledged European-only limitation and discussed extension to multi-ancestry as future work.",
@@ -3250,7 +3397,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "In the abstract, authors stated significant incremental predictive performance, but the methods and results do not include any analyses investigating the incremental performance of PGS — only full model analyses with covariates were included.",
           "author_response": "We added incremental analysis: PGS-only model vs covariates-only vs combined, with delta-AUC and NRI for each trait.",
@@ -3288,7 +3437,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "For the t-test and Wilcoxon test, were there any attempts to control for covariates such as age, sex, and population stratification? Was the metric reported based on PGS only, or the full model?",
           "author_response": "We clarified that all association tests control for age, sex, and top 10 PCs. Both PGS-only and full model metrics now reported.",
@@ -3305,7 +3456,9 @@
           "category": "reporting",
           "severity": "LOW",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Figure 1 annotations unclear — n and m were not annotated. Add a box between 'Access medical records' and 'Identified phenotype' stating post-QC sample size.",
           "author_response": "We improved Figure 1 with clear annotations for sample sizes at each step.",
@@ -3426,7 +3579,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Comparison with human experts unfair due to differing dataset sizes (model on full data vs radiologists on N=200).",
           "author_response": "Added model performance on same N=200 subset.",
@@ -3443,7 +3598,9 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "LLNM-Net trained on cancerous nodules only — most thyroid nodules are benign. Cannot be used for population screening.",
           "author_response": "Clarified intended use is pre-surgical planning, not screening.",
@@ -3501,7 +3658,9 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "CVD mortality as binary label is over-simplification — it is right-censored time-to-event data. Should stratify by cut-off years like cancer risk task.",
           "author_response": "Added time-stratified CVD analysis.",
@@ -3518,7 +3677,9 @@
           "category": "study_design",
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Clinical metadata encoded as predefined-rule text — fundamentally differs from natural language. Is this necessary vs simply encoding as array?",
           "author_response": "Added ablation comparing text vs tabular encoding.",
@@ -3535,7 +3696,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "AUC improvements for MT-MM are small in some cases. Need critical perspective balancing gains vs extra effort.",
           "author_response": "Added cost analysis and honest discussion of marginal gains.",
@@ -3552,7 +3715,9 @@
           "category": "interpretability",
           "severity": "MEDIUM",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "shap_interpretability_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Heatmaps show apparently useless tokens ('brother', '142') as important. Can multi-source information be shown to be composed in complementary way?",
           "author_response": "Added token-level attribution analysis.",
@@ -3629,7 +3794,10 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Cut-off in Orpheus for high-risk classification not specified. Does it vary across populations?",
           "author_response": "Reported cut-off with cross-cohort sensitivity analysis.",
@@ -3646,7 +3814,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Claim that Orpheus enhances beyond Oncotype DX needs tempering — linear models developed within Oncotype risk groups, comparison may not be equitable.",
           "author_response": "Tempered claims and added independent evaluation.",
@@ -3702,7 +3872,10 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Type I error simulations only 100 times — not enough at 0.05 level. Need ≥1,000. Also need FDR threshold sensitivity analysis.",
           "author_response": "Increased to 1,000 simulations with FDR sensitivity.",
@@ -3720,7 +3893,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Only simulated on chromosome 22 — heritability disproportionally large, samples highly related. Need whole-genome simulation.",
           "author_response": "Added whole-genome simulations.",
@@ -3738,7 +3913,9 @@
           "category": "external_validation",
           "severity": "HIGH",
           "mlgg_dimension": 6,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "external_validation_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Only East Asian and European. Transferability to African samples is harder. Should apply to AFR samples.",
           "author_response": "Added African ancestry analysis using PAGE.",
@@ -3755,7 +3932,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "X-Wing only marginally better than PRS-CSx. Need scenario simulations showing when each method wins.",
           "author_response": "Added scenario-based simulations.",
@@ -3833,7 +4012,9 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Fundamental difference between predicting probability cancer is already present vs probability of developing cancer in the future. These concepts are conflated.",
           "author_response": "Revised terminology: 'risk of cancer diagnosis' instead of 'cancer risk'.",
@@ -3871,7 +4052,10 @@
           "category": "feature_selection",
           "severity": "MEDIUM",
           "mlgg_dimension": 4,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "feature_engineering_audit_gate",
+            "feature_lineage_gate"
+          ],
           "mlgg_rules": [
             "MLGG-F04"
           ],
@@ -3909,7 +4093,10 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate",
+            "calibration_dca_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "DCA not commonly used — need explanation. Cancer-specific DCA needed, aggregate 'any cancer' DCA makes little sense.",
           "author_response": "Added cancer-specific DCA with interpretation.",
@@ -3926,7 +4113,10 @@
           "category": "reproducibility",
           "severity": "HIGH",
           "mlgg_dimension": 9,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "seed_stability_gate",
+            "execution_attestation_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Model coefficients and variables need to be clearly provided to allow further validation.",
           "author_response": "Provided full coefficients in supplementary tables.",
@@ -4048,7 +4238,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Multiple testing concerns remain unaddressed — no clear adjustment for multiple comparisons across numerous statistical tests performed.",
           "author_response": "We added Bonferroni correction for multiple comparisons and flagged results that do not survive correction.",
@@ -4066,7 +4258,10 @@
           "category": "study_design",
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The authors categorize MCD or FSGS as combined feature. It is reasonable to combine primary MCD/FSGS as podocytopathies, but secondary FSGS is much more frequent and has different clinical management.",
           "author_response": "We discussed the MCD/FSGS distinction and added sensitivity analysis separating primary vs secondary FSGS.",
@@ -4084,7 +4279,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The Net Reclassification Index (NRI) has well-documented issues with the category-free version and should be interpreted with caution. The term 'metadata' is confusing — it relates to actual clinical data, not metadata.",
           "author_response": "We clarified NRI limitations and changed 'metadata' to 'clinical data' throughout.",
@@ -4195,7 +4392,11 @@
           "category": "clinical_utility",
           "severity": "MEDIUM",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "calibration_dca_gate",
+            "clinical_metrics_gate",
+            "missingness_policy_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "How would this model be deployed in real-time prehospital settings? What are the latency requirements? What happens when data is missing (common in trauma settings)?",
           "author_response": "We described the real-time deployment architecture, measured inference latency (<1s), and added analysis of model robustness to missing prehospital variables.",
@@ -4306,7 +4507,11 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "imbalance_policy_gate",
+            "leakage_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Class imbalance is a major issue — subjects at later stages naturally have higher mortality. Difference between 1-year and 10-year models may simply reflect class imbalance rather than genuine finding. Need class-balanced resampling or class-weighted loss.",
           "author_response": "Added class-weighted analysis and SMOTE sensitivity analysis. Results robust to rebalancing.",
@@ -4324,7 +4529,9 @@
           "category": "reporting",
           "severity": "HIGH",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Missing result figures. Discussion mentions survival analysis differed across dementia types but corresponding figures cannot be found in manuscript or supplementary material.",
           "author_response": "Added missing survival curves by dementia subtype.",
@@ -4341,7 +4548,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Model performance evaluated only with AUC. Additional metrics like sensitivity, specificity, F1, and calibration should be reported for clinical applicability.",
           "author_response": "Added full metric panel including sensitivity, specificity, PPV, NPV, F1.",
@@ -4358,7 +4567,9 @@
           "category": "study_design",
           "severity": "LOW",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Whether adding genetic or multi-omics data may improve prediction further in future studies should be discussed.",
           "author_response": "Added discussion of potential for genomic/proteomic data integration.",
@@ -4446,7 +4657,9 @@
           "category": "model_selection",
           "severity": "MEDIUM",
           "mlgg_dimension": 4,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "model_selection_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Why LightGBM as first choice? There are many time-series models like LSTM that may better capture temporal patterns. Also, SOFA score uses much less variables — for parsimony, SOFA seems better for practical use.",
           "author_response": "Compared with LSTM and showed LightGBM competitive. SOFA comparison added showing ML model significantly outperforms.",
@@ -4464,7 +4677,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The outcome variable is imbalanced data. What is the proportion of deceased during the time frame?",
           "author_response": "Added mortality proportion and class imbalance handling discussion.",
@@ -4481,7 +4696,9 @@
           "category": "model_selection",
           "severity": "LOW",
           "mlgg_dimension": 4,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "model_selection_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Will stacked ensemble model further improve performance? There is evidence that ensemble models achieve better accuracy than any individual model alone.",
           "author_response": "Discussed ensemble potential in future directions.",
@@ -4498,7 +4715,9 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Why update every 24 hours to predict 48-hour mortality, rather than every hour or every 6/12 hours for shorter horizons? Need clear rationale for this design choice.",
           "author_response": "Added clinical rationale: 24h update aligns with ICU rounding schedules and clinical decision cycles.",
@@ -4516,7 +4735,10 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "PPV remains low indicating many false alarms. How to interpret or handle these false alarms?",
           "author_response": "Added false alarm analysis with risk stratification tiers to reduce alarm fatigue.",
@@ -4534,7 +4756,10 @@
           "category": "clinical_utility",
           "severity": "MEDIUM",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "calibration_dca_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "While model accuracy is important, it may not translate to clinical benefits such as reducing mortality in ICU. More work needed to test effectiveness.",
           "author_response": "Added discussion of implementation pathway and need for prospective impact study.",
@@ -4592,7 +4817,9 @@
           "category": "study_design",
           "severity": "CRITICAL",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Most literature uses discharge data for 3-month outcomes, or uses time-varying data for in-hospital outcomes. Using 72h data to predict 3-month outcome — by the time prediction is made, patient status will change many times. Median LOS is 7-10 days for ischemic stroke. The 72h prediction becomes irrelevant. Authors should either predict at discharge, or predict in-hospital outcomes.",
           "author_response": "Added analysis at discharge timepoint and discussed clinical decision points where 72h prediction is relevant (early transfer decisions).",
@@ -4655,7 +4882,9 @@
           "category": "model_selection",
           "severity": "MEDIUM",
           "mlgg_dimension": 4,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "model_selection_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "XGBoost has equivalent or better performance compared to transformer. XGBoost doesn't incorporate varying time-series. Why should clinicians prefer a more complex model that is harder to implement?",
           "author_response": "Added complexity-performance trade-off analysis. Recommended XGBoost for practical deployment.",
@@ -4673,7 +4902,9 @@
           "category": "study_design",
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "ICD codes are notoriously inaccurate — over 30% of patients in claims with acute ischemic stroke did not actually have the condition. Recommend independent audit of random sample.",
           "author_response": "Added chart review validation of 200 random patients confirming >95% accuracy of ICD coding.",
@@ -4691,7 +4922,9 @@
           "category": "study_design",
           "severity": "LOW",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The study period involves initial phases of COVID-19. Do models account for whether a patient's stroke was provoked by COVID-19?",
           "author_response": "Added COVID-19 status as covariate in sensitivity analysis.",
@@ -4753,7 +4986,10 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "67% accuracy defined as benchmark for clinical usefulness. Unclear why a 33% error rate should be good enough for clinical practice. Base rate of the binary variable (50% symptom reduction yes/no) should be reported to evaluate prediction quality.",
           "author_response": "Added base rate reporting and clinical justification for the 67% threshold based on existing literature.",
@@ -4771,7 +5007,9 @@
           "category": "reporting",
           "severity": "HIGH",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Introduction seems superficial and does not consider relevant literature on predictive models in psychotherapy research, especially for binary outcomes. Comparable recent papers in dropout prediction not cited.",
           "author_response": "Expanded introduction with relevant psychotherapy prediction literature.",
@@ -4808,7 +5046,10 @@
           "category": "reproducibility",
           "severity": "MEDIUM",
           "mlgg_dimension": 9,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "seed_stability_gate",
+            "execution_attestation_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Great that ML pipeline is available, but code is hard to read from a PDF. Please upload to GitHub.",
           "author_response": "Code uploaded to GitHub repository.",
@@ -4866,7 +5107,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Results are not very impressive — mainly the difference between sensitivity and specificity. Existing approaches show much better performance up to 97% accuracy. Technical contributions are limited.",
           "author_response": "Clarified that the novelty is cross-dataset generalization (ADNI→AMARANTH without retraining), not raw accuracy. Added context for existing methods.",
@@ -4884,7 +5127,11 @@
           "category": "reporting",
           "severity": "HIGH",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate",
+            "generalization_gap_gate",
+            "distribution_generalization_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The most critical element — that the model was trained on ADNI and applied to AMARANTH without retraining — is not sufficiently emphasised. This represents the key contribution and should be made clear earlier.",
           "author_response": "Restructured introduction and abstract to emphasize cross-dataset generalization upfront.",
@@ -4902,7 +5149,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Since the true treatment effect in clinical trials is inherently unknown, further discussion of what evidence supports the model's consistency across datasets would strengthen the manuscript.",
           "author_response": "Added discussion of external consistency evidence and limitations of post-hoc trial analysis.",
@@ -4920,7 +5169,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Figures need axes labels and units. The outcomes and methodology are not reflecting the claim of interpretable AI model.",
           "author_response": "Improved all figure labels and added interpretability analysis section.",
@@ -4978,7 +5229,10 @@
           "category": "clinical_utility",
           "severity": "HIGH",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "calibration_dca_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "GPs usually do not have access to MRI scanner — one of the most important features is MRI-based. For clinical trials, biomarker evidence for amyloid pathology would be preferred but is not included.",
           "author_response": "Added analysis of model performance without MRI and discussed deployment scenarios.",
@@ -4996,7 +5250,10 @@
           "category": "study_design",
           "severity": "CRITICAL",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate",
+            "missingness_policy_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Model trained on clinical diagnosis — up to 30% of individuals with clinical AD dementia do not have AD pathology. Comparison with clinicians reflects differences between new vs old clinicians, not model superiority. Also APOE is missing for non-AD cohorts — presence of APOE alone could predict AD vs non-AD almost perfectly.",
           "author_response": "Added neuropathological validation subset and discussed diagnostic label noise. APOE missingness handled with explicit analysis.",
@@ -5015,7 +5272,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Dementia vs non-dementia classification is trivial — diagnosis determined based on neuropsych test scores and MMSE, so it's circular that these features predict the diagnosis perfectly. The harder and more relevant task is AD vs non-AD dementias.",
           "author_response": "Added focused analysis on AD vs non-AD subtypes and discussed the circular nature of the dementia vs non-dementia classification.",
@@ -5033,7 +5292,10 @@
           "category": "preprocessing",
           "severity": "HIGH",
           "mlgg_dimension": 3,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "feature_engineering_audit_gate",
+            "missingness_policy_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "How were MRI scans harmonised across cohorts? How were cohort-specific missing data dealt with? APOE is missing in entire Parkinson and FTD cohorts — this creates a confound.",
           "author_response": "Added MRI harmonization details and missing data handling methodology.",
@@ -5153,7 +5415,9 @@
           "category": "study_design",
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The clinical utility depends on whether this replaces PET scanning. How does the model perform in the specific clinical scenario where PET is being considered but not yet obtained?",
           "author_response": "Added analysis of model as PET pre-screening tool with cost-effectiveness comparison.",
@@ -5232,7 +5496,10 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "fairness_equity_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Statistical analysis needs improvement: p-values not adjusted for multiple comparisons. Stepwise elimination lacks adjustment for known confounders (sex, hypertension, dyslipidemia). Must show model works in stratified analyses for young participants and non-smokers.",
           "author_response": "Added multiple comparison correction and consistent confounder adjustment across all cohorts.",
@@ -5250,7 +5517,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Bland-Altman plots show >100% variation in smaller volumes (<100mL). How many patients change risk groups between T0 and T1? This has huge clinical impact and could lead to major misclassifications and potentially harm.",
           "author_response": "Added reclassification analysis showing proportion changing risk groups and clinical impact assessment.",
@@ -5268,7 +5537,10 @@
           "category": "reproducibility",
           "severity": "MEDIUM",
           "mlgg_dimension": 9,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "seed_stability_gate",
+            "execution_attestation_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The model should be uploaded to an open-access repository, not only available on reasonable request, as this limits reproducibility.",
           "author_response": "Model uploaded to open-access repository.",
@@ -5286,7 +5558,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "CAC and structural results are so confounded by age, sex, smoking, diabetes that there seems little value in non-risk-adjusted results. ROC for clinical models should be in main figure, not supplementary.",
           "author_response": "Moved clinical model ROC to main Figure 6 and de-emphasized unadjusted results.",
@@ -5365,7 +5639,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Among 20 features, 'Use of diuretics', 'Admission to ICU', and 'Use of human albumin' vary between centers and have most significant SHAP contribution. This could limit stability and generalizability.",
           "author_response": "Added center-specific performance analysis and leave-one-center-out validation.",
@@ -5403,7 +5679,10 @@
           "category": "preprocessing",
           "severity": "HIGH",
           "mlgg_dimension": 3,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "feature_engineering_audit_gate",
+            "missingness_policy_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Imputing normal values for procalcitonin/troponin when not tested is problematic — if 80% of cohort has imputed normal values, this creates systematic bias. Tests not ordered may indicate clinical judgment that the patient is lower risk.",
           "author_response": "Added missingness indicator variables and analysis of informative missingness.",
@@ -5441,7 +5720,9 @@
           "category": "study_design",
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "5.4% having AKI across total cohort seems low. 40% of AKI in ICU also seems low. How were duplicate patients handled if same patient had AKI during repeat admission?",
           "author_response": "Added AKI incidence comparison with literature and clarified duplicate patient handling.",
@@ -5530,7 +5811,10 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "shap_interpretability_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "XGBoost coefficients in Figure 5 — how were they derived and why are they all positive? Also, lactate and log-transformed lactate both included is hard to interpret — were original and log-transformed predictors in variable selection simultaneously?",
           "author_response": "Clarified XGBoost feature importance (not coefficients). Removed log-transformed duplicate.",
@@ -5548,7 +5832,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Line 184, please explain how the 'minority class was oversampled to correct for class imbalance'. Multiple technical terms unexplained: one-hot encoded, passive imputation, AUPR, ICI.",
           "author_response": "Added explanations of all technical terms and detailed oversampling methodology.",
@@ -5566,7 +5852,10 @@
           "category": "clinical_utility",
           "severity": "MEDIUM",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "calibration_dca_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Slightly uncertain how much small model performance drifts impact on clinical care when models are used as adjunct only. Practicalities and cost of applying and maintaining the dynamic updating system on larger scale not well discussed.",
           "author_response": "Added discussion of implementation cost and clinical impact of calibration drift.",
@@ -5626,7 +5915,9 @@
           "category": "model_selection",
           "severity": "HIGH",
           "mlgg_dimension": 4,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "model_selection_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Empirical validation uses logistic regression which is simple and linearly scales. Rationale for distributed file system is undermotivated for 100-variable LR. Need to demonstrate with significantly larger and more complex models.",
           "author_response": "Added XGBoost and MLP experiments.",
@@ -5644,7 +5935,9 @@
           "category": "model_selection",
           "severity": "HIGH",
           "mlgg_dimension": 4,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "model_selection_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "XGBoost and MLP are still conventional models. Would be more relevant with transformers, CNNs, LSTM. The concept of federated learning is not new, blockchain technology not new — fail to see significant novelty and technical contributions.",
           "author_response": "Clarified that clinical contribution (privacy-preserving multi-site prediction) is the novelty, not the FL algorithm itself.",
@@ -5662,7 +5955,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [
             "MLGG-E02"
           ],
@@ -5703,7 +5998,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Characteristics of each dataset including demographics and covariates should be clearly outlined in a table.",
           "author_response": "Added comprehensive demographics table per site.",
@@ -5760,7 +6057,10 @@
           "category": "clinical_utility",
           "severity": "CRITICAL",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "calibration_dca_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Model showed adequate predictive accuracy but no effect on clinical decision-making or clinical outcomes. Clinical course changed for only 1 single patient of over 600 in the intervention arm. This is a 'negative example' of how NOT to implement a clinical risk score.",
           "author_response": "Reframed paper as an implementation science contribution — valuable negative example showing that even accurate models fail without workflow integration.",
@@ -5779,7 +6079,9 @@
           "category": "reporting",
           "severity": "HIGH",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Insufficient detail on implementation: no information about what physicians received about the trial beforehand, how the score was integrated into workflow, what training was provided, how alert fatigue was managed.",
           "author_response": "Added detailed implementation strategy section with training protocol, workflow integration, and lessons learned.",
@@ -5798,7 +6100,10 @@
           "category": "clinical_utility",
           "severity": "MEDIUM",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "calibration_dca_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Consider 7-day mortality risk instead of 31-day as avenue for better adoption. Future work should involve more user-friendly integration and risk 'zones' (e.g., infection, respiratory concern) rather than a single number.",
           "author_response": "Added 7-day mortality analysis and discussed risk zone framework for future implementation.",
@@ -5956,7 +6261,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "The paper lacks detailed comparisons across the 12 ML methods used. How do individual models compare? What is the rationale for the specific ensemble strategy?",
           "author_response": "Added individual model performance comparison table and ensemble ablation analysis.",
@@ -5973,7 +6280,10 @@
           "category": "preprocessing",
           "severity": "MEDIUM",
           "mlgg_dimension": 3,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "feature_engineering_audit_gate",
+            "missingness_policy_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Could authors clarify about the database — are these all hospitalization records or both inpatient and outpatient? Missing values — how much data was missing?",
           "author_response": "Clarified data source and added comprehensive missing data summary.",
@@ -6072,7 +6382,9 @@
           "category": "study_design",
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Sepsis definition and labeling methodology need more detail. How were sepsis cases identified — Sepsis-3 criteria? What was the timing of sepsis onset relative to features used?",
           "author_response": "Clarified Sepsis-3 criteria usage and temporal relationship between features and onset.",
@@ -6129,7 +6441,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "PpgAge predicts chronological age well but lacks evaluation in predicting age-related outcomes like mortality, incident diseases, or functional outcomes. Must demonstrate additional predictive ability with these outcomes.",
           "author_response": "Added disease association analysis and mortality prediction comparison.",
@@ -6147,7 +6461,9 @@
           "category": "preprocessing",
           "severity": "HIGH",
           "mlgg_dimension": 3,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "feature_engineering_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Detailed breakdowns of consumer wearable types and software versions needed. Are all participants using the same smartwatch model? No comparison of Apple Watch PPG to ground truth. Data processing lacks details on wear time, data quality, missing data handling.",
           "author_response": "Added device-specific analysis, PPG validation against clinical-grade devices, and detailed preprocessing workflow.",
@@ -6166,7 +6482,9 @@
           "category": "interpretability",
           "severity": "HIGH",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "shap_interpretability_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Unclear how PpgAge could be interpreted in practical settings. If an individual has PpgAge gap of +2 years, what drives this? What is the practical implication for this specific individual?",
           "author_response": "Added interpretability analysis showing which PPG features drive age gap predictions.",
@@ -6203,7 +6521,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "'Wearable-based biomarker of aging' in the title may be an overstatement given current results. Please consider revising to more accurately reflect the study — central focus is chronological age prediction from PPG.",
           "author_response": "Revised title to be more precise.",
@@ -6262,7 +6582,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "All survival analyses: using enrollment as start of follow-up is inappropriate. Time scale should be age, not calendar time. This is particularly important for Kaplan-Meier curves — age is not accommodated. Including age as covariate is typically not sufficient.",
           "author_response": "Re-ran all survival analyses with age as time scale.",
@@ -6280,7 +6602,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "When looking at individual cancer entities, multiple testing adjustment should be considered. Renal pelvis cancer and leukemia will not be significant after correction.",
           "author_response": "Added Bonferroni correction and FDR-adjusted p-values.",
@@ -6298,7 +6622,10 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate",
+            "leakage_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Cannot use future information on diabetes status to stratify at baseline in KM curves. Only baseline diabetes status is valid. In Cox model, diabetes could be a time-varying exposure.",
           "author_response": "Restricted to baseline diabetes status for KM. Added time-varying diabetes in Cox models.",
@@ -6316,7 +6643,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "BMI-adjusted and unadjusted analyses done in different individuals (94,782 vs 20,938). Differences in effect sizes could be due to population differences, not BMI adjustment.",
           "author_response": "Re-ran both analyses in same population.",
@@ -6334,7 +6663,9 @@
           "category": "study_design",
           "severity": "CRITICAL",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Major concern about novelty — the metabolic syndrome is a well-known syndrome of insulin resistance with known cancer risk, easy to define clinically. Nowhere in the article do authors discuss the metabolic syndrome. Background literature linking metabolic syndrome to cancer is missing.",
           "author_response": "Added comprehensive metabolic syndrome comparison and discussion.",
@@ -6352,7 +6683,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "All lung cancer findings need to be adjusted or stratified by smoking status initially. Otherwise extremely difficult to interpret.",
           "author_response": "Added smoking-stratified analyses for all lung cancer associations.",
@@ -6430,7 +6763,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Reported AUC improvements over age-only control seem very high (41%). Does age-only control have AUC <0.5? Results should be reported per clinic with 95% CI and paired DeLong test.",
           "author_response": "Added per-clinic AUC with CI and DeLong tests. Clarified age-only baseline.",
@@ -6449,7 +6784,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Use TRIPOD+AI terminology ('internal validation data' not 'de novo model validation test set'). Missing descriptive table with differences between clinics. Need limitations section.",
           "author_response": "Adopted TRIPOD+AI terminology and added clinic comparison table and limitations.",
@@ -6467,7 +6804,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Discussion gets too commercial ('Like many innovative products...', 'MLCS-based counseling reports...'). The commercial side should be toned down.",
           "author_response": "Removed commercial language.",
@@ -6485,7 +6824,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Only aggregated data presented without individual center data. Either provide per-center data including number of patients, or change manuscript scope.",
           "author_response": "Added per-center performance tables and patient counts.",
@@ -6546,7 +6887,9 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Why focus only on MRSA when the clinical problem is more often 'should I give antibiotics for possible severe infection (sepsis)?' rather than specifically for MRSA? The narrow focus limits clinical utility.",
           "author_response": "Discussed MRSA as proof-of-concept with clearer outcome definition than sepsis. Future work will expand to broader infection prediction.",
@@ -6564,7 +6907,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Table 4 suggests benefits vs clinical judgment, but how was 'clinical judgment' determined? Was it based on antibiotic usage? How did authors check if antibiotic was given for MRSA vs something else? Should compare AUROC of DL model vs clinical judgment directly.",
           "author_response": "Clarified clinical judgment proxy and added direct AUROC comparison.",
@@ -6582,7 +6927,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Authors acknowledge using antibiotic prescribing as proxy for clinical judgment is a weakness. MRSA-specific antibiotics not exclusively used for MRSA (daptomycin/linezolid also target VRE).",
           "author_response": "Discussed limitations of antibiotic proxy and added sensitivity analysis.",
@@ -6637,7 +6984,9 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Hard to understand what model is predicting. Age not associated with skin cancer risk (line 181) but later stated as most important predictor (line 246). What are these conflicting results? Classification into ancestries also problematic — 'Hispanic' is not an ancestry, it is an ethnicity.",
           "author_response": "Clarified prediction target and ancestry vs ethnicity distinction. Resolved age contradiction.",
@@ -6655,7 +7004,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Given age was single most important predictor, how does an age-only model fare? PPV still substantially lower for non-Europeans — would worse performance be due to sample size or genuine differences?",
           "author_response": "Added age-only baseline comparison and sample-size sensitivity analysis for non-European groups.",
@@ -6673,7 +7024,9 @@
           "category": "study_design",
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "How were people classified into ancestries — self-report or PCA? How was Admixed group defined? Native American ancestry not included. Self-reported race vs genotype PCA — do they overlap?",
           "author_response": "Added PCA-based ancestry comparison alongside self-report.",
@@ -6691,7 +7044,9 @@
           "category": "preprocessing",
           "severity": "MEDIUM",
           "mlgg_dimension": 3,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "feature_engineering_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Only participants with complete data used (no NA values). How many participants remained after this exclusion?",
           "author_response": "Reported sample reduction and added sensitivity analysis with imputed data.",
@@ -6811,7 +7166,10 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Metabolites could be triggered by other diseases — GSH:GSSG imbalance associated with lung cancers, HIV, immune dysfunction. Neopterin elevated in measles, influenza. How specific are the suggested biomarkers for gastric cancer?",
           "author_response": "Added disease-specificity analysis and multi-disease comparison.",
@@ -6829,7 +7187,10 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "sample_size_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Prognostic model with 28 variables but only 34 deceased cases — heavily biased toward survival. Should adopt orthogonal modeling or one-class approach, or prove model is unbiased.",
           "author_response": "Added class-weight adjustment and one-vs-rest validation.",
@@ -6847,7 +7208,9 @@
           "category": "study_design",
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Metabolites could be affected by diet habit, aging, or other diseases. Missing from cohort information: possible other underlying diseases and nutritional habits. ML model's false positive discovery rate should be addressed.",
           "author_response": "Added diet and comorbidity data as confounders.",
@@ -6865,7 +7228,9 @@
           "category": "preprocessing",
           "severity": "MEDIUM",
           "mlgg_dimension": 3,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "feature_engineering_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "258 vs 147 metabolites discrepancy. LOQ, LODs, ion transitions for MRM, main adduct ions and retention time should be provided. How is relative abundance calculated — quantitative or normalized peak area?",
           "author_response": "Clarified metabolite filtering pipeline and added analytical validation parameters.",
@@ -6922,7 +7287,9 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Most samples were already analyzed in previous publications from same group. Prognostic association of ctDNA is not novel — the strength is the AI prediction tool. Title and narrative should center on the predictive tool, not the prognostic role of ctDNA.",
           "author_response": "Restructured narrative to emphasize the prediction tool as main contribution.",
@@ -6940,7 +7307,9 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Patients exposed to taxanes had increased cfDNA and ctDNA fraction. How does the prediction model account for ctDNA variance due to different therapies if these variables were not incorporated?",
           "author_response": "Added therapy-stratified analysis and discussed model behavior across treatment lines.",
@@ -6958,7 +7327,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "cfDNA concentration seems to be the highest predictor of ctDNA fraction and is inter-correlated with LDH/ALP. But authors don't explore cfDNA concentration's prognostic role or compare it to ctDNA.",
           "author_response": "Added cfDNA concentration as standalone prognostic factor comparison.",
@@ -7017,7 +7388,10 @@
           "category": "clinical_utility",
           "severity": "HIGH",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "calibration_dca_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Most patients (even in academic centers) do not undergo WGS/WTS. It would be of great practical relevance to study model performance with targeted panel sequencing data as input, ideally in a separate cohort.",
           "author_response": "Discussed panel sequencing as future work and showed which features are capturable by commercial panels.",
@@ -7035,7 +7409,10 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Not clear how treatment response to ARSI can be differentiated from overall prognosis. Is the model predicting aggressive disease rather than features specific to ARSI response?",
           "author_response": "Added treatment-specific interaction analysis and discussed prognostic vs predictive biomarkers.",
@@ -7053,7 +7430,9 @@
           "category": "reporting",
           "severity": "HIGH",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Figure legends too small to be readable. Figure resolution poor. Distribution of variables not shown. No exploration of how validation cohort differs from training cohort.",
           "author_response": "Improved all figures and added cohort comparison.",
@@ -7071,7 +7450,9 @@
           "category": "model_selection",
           "severity": "MEDIUM",
           "mlgg_dimension": 4,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "model_selection_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Choice of sparse PCA as feature reduction is well-established but not without difficulties. Covariance of features, captured variance for number of components should be shown. Why logistic regression and not other methods?",
           "author_response": "Added PCA variance explained plots and comparison with other classifiers.",
@@ -7129,7 +7510,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Outcome used in benchmarking is 3-year recurrence, but several benchmark methods were developed for 5-year OS/RFS. Should tabulate timepoint and outcome metric for each benchmark method — risk of comparing apples and pears.",
           "author_response": "Added table comparing timepoints and outcome metrics across all benchmarked methods.",
@@ -7147,7 +7530,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Can performance be benchmarked to mIHC scores such as ImmunoScore and SIA? Should include iCMS system and CRPS system (Nunes 2024) for comparison.",
           "author_response": "Added ImmunoScore and CRPS comparison.",
@@ -7164,7 +7549,11 @@
           "category": "clinical_utility",
           "severity": "MEDIUM",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "calibration_dca_gate",
+            "clinical_metrics_gate",
+            "fairness_equity_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Associations between OS and bevacizumab use are questionable. Only 30 patients with mixed treatment histories — too small to make conclusions about response prediction to bevacizumab.",
           "author_response": "Toned down bevacizumab response claims and noted as exploratory analysis.",
@@ -7219,7 +7608,11 @@
           "category": "reproducibility",
           "severity": "HIGH",
           "mlgg_dimension": 9,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "seed_stability_gate",
+            "execution_attestation_gate",
+            "model_selection_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Section on Model Development is unclear and poorly explained. Many details missing regarding architecture and optimization. No hyperparameter tuning described. No schematic figure of model architecture. In current form, difficult to reproduce.",
           "author_response": "Added architecture diagram, hyperparameter details, and optimization pipeline.",
@@ -7237,7 +7630,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Model seems to overlook other factors that typically influence survival and are considered for adjuvant treatment. Should revisit analyses to better illustrate additional benefits compared to current prognostic classification.",
           "author_response": "Added multivariate analysis including standard prognostic factors.",
@@ -7255,7 +7650,10 @@
           "category": "study_design",
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "12% of DACHS cohort and 10% of Galaxy cohort received neoadjuvant treatment. How did you deal with pathological changes due to therapy? Can you justify this does not affect the model?",
           "author_response": "Added sensitivity analysis excluding neoadjuvant patients.",
@@ -7273,7 +7671,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "All results sections start with methods explanations — does not help understand the whole picture. Manuscript needs restructuring. Multiple terminology inconsistencies (transformer vs Vision Transformer, foundation model vs pretrained model).",
           "author_response": "Restructured manuscript and unified terminology.",
@@ -7332,7 +7732,9 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Many prior studies have demonstrated prognostic value of DL applied to H&E slides in breast cancer. The claim that H&E slides contain prognostic information beyond clinico-pathology is well-established. Discussion does not sufficiently acknowledge prior work from 2018-2024.",
           "author_response": "Expanded literature review with recent 2023-2024 studies and positioned novelty more carefully.",
@@ -7350,7 +7752,10 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Study uses a single cutoff to distinguish high from low risk — authors should at minimum assess how sensitive performance is to the choice of cutoff. Use hazard ratio and concordance index in addition to AUC.",
           "author_response": "Added cutoff sensitivity analysis, hazard ratio, and C-index.",
@@ -7368,7 +7773,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "How does RlapsRiskBC compare to the online tool Predict Breast Cancer in these datasets? This would be a relevant addition.",
           "author_response": "Added comparison with Predict tool.",
@@ -7385,7 +7792,9 @@
           "category": "study_design",
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Training and validation cohorts have different staining protocols (HES vs HE). While the revised study used HE for both, not all validation was on HE. How robust is the model to staining differences?",
           "author_response": "Added staining protocol robustness analysis.",
@@ -7444,7 +7853,9 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "What is the added novelty compared to the previous study on ccRCC? Why use lncRNA but not mRNA or other molecular features? Would integration of mRNA/miRNA/methylation result in better predictions?",
           "author_response": "Discussed pRCC-specific biology and added mRNA comparison showing lncRNA provides unique prognostic information.",
@@ -7462,7 +7873,9 @@
           "category": "reporting",
           "severity": "HIGH",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Data inconsistencies: why different cutoff from training set applied to validation but different median for TCGA? P-value is 0.004 or 0.042, not <0.001 as stated. Number at risk and survival plot do not match.",
           "author_response": "Corrected all data inconsistencies and unified cutoff methodology.",
@@ -7481,7 +7894,10 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Cut-off defined by median — differs between cohorts. Should define absolute risk value universally usable between cohorts. This would allow total evaluation across all cohorts and be very useful for implementation.",
           "author_response": "Added absolute cutoff analysis derived from training set and applied uniformly.",
@@ -7499,7 +7915,10 @@
           "category": "clinical_utility",
           "severity": "MEDIUM",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "calibration_dca_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Authors claim system can inform strategies for adjuvant therapy but provide no evidence of therapeutic significance.",
           "author_response": "Toned down therapeutic claims and framed as hypothesis-generating.",
@@ -7577,7 +7996,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Class imbalance between centers may affect federated learning convergence. This is very important for clinical application but not evaluated or discussed.",
           "author_response": "Added class balance analysis per center and convergence diagnostics.",
@@ -7595,7 +8016,9 @@
           "category": "reporting",
           "severity": "HIGH",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Too many different adjectives for features ('common', 'distinct', 'individual', 'personality information', etc.) — need to be consolidated and precisely defined. Discussion in Results section difficult before model details are provided.",
           "author_response": "Unified terminology and restructured manuscript.",
@@ -7613,7 +8036,10 @@
           "category": "reproducibility",
           "severity": "HIGH",
           "mlgg_dimension": 9,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "seed_stability_gate",
+            "execution_attestation_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "More details needed to evaluate privacy properties. Should include pseudo-code showing exactly what information is transmitted between sites.",
           "author_response": "Added privacy protocol pseudo-code and communication analysis.",
@@ -7631,7 +8057,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Need table with sufficient clinical information for all patients — tumor stage, gender, age distributions. How many radiologists defined ROI? For gastric cancer, tumor area identification is difficult.",
           "author_response": "Added demographics table and ROI annotation protocol.",
@@ -7690,7 +8118,9 @@
           "category": "study_design",
           "severity": "CRITICAL",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Most cancers are advanced stage (e.g., PDAC all but 1 are stage III-IV). Utility for multi-cancer 'early' detection is unclear and not supported by provided data. Title claims early detection but data is mostly late-stage.",
           "author_response": "Revised to clarify limitations of staging distribution and added subgroup analysis by stage.",
@@ -7728,7 +8158,9 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Age distributions among cases and controls appear quite different. Is there an association between biomarker values and age/sex? Were patients fasted when blood was collected? Important confounders not assessed.",
           "author_response": "Added age/sex-adjusted analysis and fasting status reporting.",
@@ -7746,7 +8178,9 @@
           "category": "study_design",
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Although authors include autoimmune and infection controls, other benign conditions pertinent to the field of cancer detection are missing.",
           "author_response": "Added discussion of benign condition controls as future work.",
@@ -7804,7 +8238,9 @@
           "category": "model_selection",
           "severity": "CRITICAL",
           "mlgg_dimension": 4,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "model_selection_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Analytical approach is outdated and simplistic — many publications already describe similar strategies with much more advanced deep learning methods. Authors must show (i) PPI-guided selection beats unguided penalized regression, (ii) drug-target proximity beats random pathway selection, (iii) organoid data beats large-scale cell line screens (GDSC/CCLE), (iv) method works better than existing network-guided regression.",
           "author_response": "Added comprehensive comparisons with GDSC, random pathway controls, and deep learning baselines.",
@@ -7823,7 +8259,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Results from a unique drug response prediction don't look convincing. Should perform validation using much more comprehensive pharmacogenomics datasets encompassing thousands of observations across hundreds of compounds.",
           "author_response": "Added pan-drug validation across GDSC and CCLE.",
@@ -7841,7 +8279,9 @@
           "category": "study_design",
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Authors do not account for biases from reference network topology — over-characterized genes with more connections will always be 'proximal'. Need proper randomization to estimate this bias.",
           "author_response": "Added degree-preserving random network controls.",
@@ -7901,7 +8341,9 @@
           "category": "model_selection",
           "severity": "HIGH",
           "mlgg_dimension": 4,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "model_selection_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Feature set is neither complicated nor high-dimensional. Not clear the need or benefit of feedforward neural network — it can only overfit without improvements over linear models. Also, GBDT CAN be easily fine-tuned (contrary to authors' claim).",
           "author_response": "Added LR and GBDT fine-tuning comparisons showing similar performance.",
@@ -7919,7 +8361,9 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Very little time discussing how Vietnam data were labeled. Using ICD codes? Were hospitals testing for COVID during the dataset period? What kinds of tests? Any test results to validate diagnoses? Labeling is crucial for interpreting results.",
           "author_response": "Added COVID testing protocols by hospital and label validation analysis.",
@@ -7937,7 +8381,9 @@
           "category": "reporting",
           "severity": "HIGH",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Need overall diagram explaining entire study design. Detailed inclusion/exclusion cascade needed. Need justification why deploying such a model in low-income countries is desired given many such models already exist.",
           "author_response": "Added study design diagram, CONSORT flow, and justified LMIC deployment need.",
@@ -7955,7 +8401,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Paper is quite long and confusing for a simple fact. Remove many acronyms for datasets and replace with intelligible words.",
           "author_response": "Shortened paper and replaced acronyms.",
@@ -8034,7 +8482,10 @@
           "category": "clinical_utility",
           "severity": "MEDIUM",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "calibration_dca_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Number of diagnosed aneurysms was very low. Did any diagnosed aneurysm have further assessment with CT/angiography or treatment? What would be the consequence of such a diagnosis for a woman? Incidence higher in breast cancer group — any explanations?",
           "author_response": "Added clinical follow-up data for detected aneurysms and discussed cancer-aortic association.",
@@ -8052,7 +8503,9 @@
           "category": "reporting",
           "severity": "LOW",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "How long does analysis take per case? How could the analysis be included in reporting workflow? Could the algorithm also be used for lung cancer screening CT as a blueprint?",
           "author_response": "Added inference time analysis and discussed broader screening applications.",
@@ -8160,7 +8613,10 @@
           "category": "reproducibility",
           "severity": "CRITICAL",
           "mlgg_dimension": 9,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "seed_stability_gate",
+            "execution_attestation_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "DL model description is vague: loss function completely missing, training details (optimizer, dev split, epochs) absent, image preprocessing completely missing (DICOM→PNG, dimensions, cropping, augmentation). Why 20 models with random hyperparameters? How are they combined? Extreme ensemble learning is only used in ML contests but rarely in clinical settings.",
           "author_response": "Added complete training pipeline details, preprocessing steps, and individual model performance.",
@@ -8180,7 +8636,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "How does each individual model perform? Using 20-model ensemble is unacceptable without showing individual performance. This is extreme ensemble that would not be practical clinically.",
           "author_response": "Added individual model performance table showing ensemble is necessary for stability.",
@@ -8198,7 +8656,10 @@
           "category": "reporting",
           "severity": "HIGH",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate",
+            "fairness_equity_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "In supplemental Fig 3B, lung-risk HR of [65,75] category is not significant in multivariate model. The claim 'CXR Lung-Risk remained independently associated with lung disease mortality in both subpopulations' is misleading.",
           "author_response": "Corrected the claim with appropriate caveats.",
@@ -8257,7 +8718,9 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "No molecular definition provided for glioblastoma — training data likely contains IDH-mutant tumors, and TCGA data likely contains entities no longer diagnosed as glioblastoma. These samples should be removed.",
           "author_response": "Added IDH status filtering and removed non-GBM entities.",
@@ -8275,7 +8738,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Multivariate analysis only includes the five cell-type states. Should include other prognostic factors like patient age and tumour size. Even if states no longer significant, findings are still important.",
           "author_response": "Added age and tumor size to multivariate model.",
@@ -8292,7 +8757,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "TCGA clinical annotation is limited — survival data should be treated with more caution. Number of slides in training data is relatively low.",
           "author_response": "Added caveats about TCGA annotation quality and discussed sample size limitations.",
@@ -8309,7 +8776,9 @@
           "category": "study_design",
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Line 321: 'Genes related to low aggressiveness associated with neuronal development' could be due to lower tumor purity rather than biology. Tumor purity not accounted for.",
           "author_response": "Added tumor purity analysis as confounder.",
@@ -8326,7 +8795,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Discussion is mainly a recap of results with no discussion of study limitations or comparative efforts.",
           "author_response": "Added limitations and comparison with existing AI approaches.",
@@ -8405,7 +8876,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "GitHub link does not work. Why is network called a 'residual network' when no residual connections are used? Several sentences are unclear.",
           "author_response": "Fixed GitHub link, corrected terminology, improved clarity.",
@@ -8423,7 +8896,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "What does 'before and after baseline' mean? Does each patient appear with different covariates for different outcomes? The comorbid network claim of 'overwhelmingly estimating health conditions' is unclear.",
           "author_response": "Clarified temporal modeling and toned down claims.",
@@ -8510,7 +8985,9 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "What was defined as 'healthy individuals' for training? Were patients screened for diseases or self-reported absence sufficient? How to account for patients with undiagnosed diseases? Were corticosteroid users excluded (secondary cataracts)?",
           "author_response": "Added detailed inclusion/exclusion criteria with disease screening protocol.",
@@ -8528,7 +9005,9 @@
           "category": "preprocessing",
           "severity": "MEDIUM",
           "mlgg_dimension": 3,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "feature_engineering_audit_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "A variety of slit-lamps were used (BQ-900, BX-900, OVS-II, PSL-Classic). Did every participant have photographs from all slit-lamps? What was the distribution of slit-lamp models in the dataset?",
           "author_response": "Added device distribution analysis and robustness to different slit-lamp models.",
@@ -8546,7 +9025,9 @@
           "category": "interpretability",
           "severity": "HIGH",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "shap_interpretability_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Explainability analysis needed — what specific lens features drive the LensAge prediction? Is it nuclear sclerosis, cortical changes, posterior subcapsular changes? Grad-CAM only shows where, not what.",
           "author_response": "Added ophthalmologist-graded lens feature correlation analysis.",
@@ -8605,7 +9086,9 @@
           "category": "interpretability",
           "severity": "HIGH",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "shap_interpretability_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Three-phase model achieves best performance but authors haven't shown what each phase contributes. Which radiological phenotypes in each phase correlate with predictions?",
           "author_response": "Added phase-specific contribution analysis and CAM visualization per phase.",
@@ -8622,7 +9105,9 @@
           "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Only one slice with maximum tumour extracted per CT — ignores spatial heterogeneity. Should test with smaller tumour slice. nnUNet segmentation may fail for difficult images from TCIA.",
           "author_response": "Added multi-slice analysis and segmentation failure rate reporting.",
@@ -8640,7 +9125,9 @@
           "category": "interpretability",
           "severity": "HIGH",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "shap_interpretability_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "After segmentation, why not focus on kidney areas by masking background? Benign CAM in Figure C shows attention paid to background areas. Why not include segmentation results as additional input?",
           "author_response": "Added masked-kidney-only model comparison.",
@@ -8658,7 +9145,9 @@
           "category": "study_design",
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Intra-observer variability of three pathologists in revaluating tumour subtypes not reported. Arterial phase segmentation labelled by only one radiologist — annotation bias.",
           "author_response": "Added inter-rater agreement and second reader validation.",
@@ -8675,7 +9164,10 @@
           "category": "reproducibility",
           "severity": "MEDIUM",
           "mlgg_dimension": 9,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "seed_stability_gate",
+            "execution_attestation_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Code available but trained weights not shared. Checked code in repository — seems reasonable but can't run without pre-trained model.",
           "author_response": "Uploaded trained weights to repository.",
@@ -8733,7 +9225,9 @@
           "category": "evaluation_metrics",
           "severity": "HIGH",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "More meaningful clinical comparison would be to USPSTF recommendation (screen persons aged 35-70 with BMI≥25). How does CXR DL model perform compared to USPSTF? Within USPSTF-eligible subset, how would this affect number of people tested/diagnosed/missed?",
           "author_response": "Added USPSTF comparison analysis.",
@@ -8751,7 +9245,9 @@
           "category": "reporting",
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Results section very difficult to read without Methods. Model should be explained how it would be used in clinical practice. Statistical testing should highlight utility for decision making.",
           "author_response": "Restructured results with clinical workflow context.",
@@ -8768,7 +9264,9 @@
           "category": "evaluation_metrics",
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Despite rebuttal, would like to see correlation of DL-score and HbA1c. Many patients have consistent HbA1c levels over time — presence/absence of association provides insights into whether glycemia or adiposity features relate to diabetes detection from CXR.",
           "author_response": "Added DL-score vs HbA1c correlation analysis.",
@@ -8786,7 +9284,9 @@
           "category": "interpretability",
           "severity": "LOW",
           "mlgg_dimension": 7,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "shap_interpretability_gate"
+          ],
           "mlgg_rules": [],
           "concern_text": "Speculation that rib attenuation relates to osteoporosis should be cautious — T2D and osteoporosis correlation is subtle. More likely that rib attenuation results from increased subcutaneous fat.",
           "author_response": "Revised interpretation discussion.",
@@ -8872,7 +9372,9 @@
           "tags": [
             "biomarker_selection_rationale"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -8888,7 +9390,9 @@
           "tags": [
             "covariate_adjustment_one_size_fits_all"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -8931,7 +9435,9 @@
             "human_validation_needed",
             "boundary_testing"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -8948,7 +9454,10 @@
             "abstract_only_insufficient",
             "code_not_open_source"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "seed_stability_gate",
+            "execution_attestation_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -8965,7 +9474,9 @@
             "privacy_concern",
             "proprietary_api"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9007,7 +9518,9 @@
             "prediction_window_justification",
             "proof_of_concept_vs_clinical"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9025,7 +9538,9 @@
             "codes_not_names",
             "writing_quality"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9087,7 +9602,9 @@
             "suboptimal_model",
             "narrow_model_search"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "model_selection_audit_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9104,7 +9621,9 @@
             "binary_simulation",
             "oversimplified_scenarios"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9147,7 +9666,9 @@
             "limited_classification_scope",
             "clinical_utility_limited"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9164,7 +9685,9 @@
             "label_validation_2M",
             "limited_image_formats"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9181,7 +9704,10 @@
             "ecg_feature_extraction",
             "explainability_opportunity"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "shap_interpretability_gate",
+            "feature_engineering_audit_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9225,7 +9751,9 @@
             "pattern_vs_disease",
             "clinical_terminology"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9242,7 +9770,9 @@
             "outcome_definition_ambiguous",
             "treatment_response_unclear"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9258,7 +9788,9 @@
           "tags": [
             "discussion_vs_methods_mismatch"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9301,7 +9833,9 @@
             "collinear_covariates",
             "bsa_indexing"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9318,7 +9852,9 @@
             "model_details_missing",
             "metrics_missing"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9361,7 +9897,9 @@
             "power_loss_from_grouping",
             "power_comparison_missing"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9379,7 +9917,9 @@
             "strong_effect_sizes",
             "comprehensive_comparison_needed"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9396,7 +9936,10 @@
             "ppv_specificity_missing",
             "auc_vs_sens_spec"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9439,7 +9982,9 @@
             "multimodal_not_significantly_better",
             "existing_unimodal_competitive"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9457,7 +10002,9 @@
             "existing_algorithms_only",
             "prior_work_missed"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9474,7 +10021,9 @@
             "case_study_only",
             "biomarker_validation_missing"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9519,7 +10068,9 @@
             "contradictory_definitions",
             "misclassification"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9537,7 +10088,9 @@
             "too_many_imaging_features",
             "clinical_applicability"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9555,7 +10108,11 @@
             "gender_bias",
             "age_threshold_unjustified"
           ],
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate",
+            "fairness_equity_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9595,7 +10152,10 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "calibration_dca_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9611,7 +10171,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9651,7 +10213,10 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9668,7 +10233,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9710,7 +10277,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "feature_engineering_audit_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9727,7 +10296,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9744,7 +10315,10 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "model_selection_audit_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9785,7 +10359,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9802,7 +10378,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "sample_size_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9842,7 +10420,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9880,7 +10460,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "external_validation_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9897,7 +10479,10 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "calibration_dca_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9938,7 +10523,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9976,7 +10563,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -9993,7 +10582,10 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "clinical_metrics_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -10033,7 +10625,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -10073,7 +10667,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "reporting_bias_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -10090,7 +10686,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -10131,7 +10729,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -10169,7 +10769,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "external_validation_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -10209,7 +10811,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -10249,7 +10853,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -10290,7 +10896,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "sample_size_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -10331,7 +10939,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "external_validation_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -10372,7 +10982,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -10410,7 +11022,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -10469,7 +11083,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "external_validation_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -10509,7 +11125,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -10526,7 +11144,9 @@
           ],
           "reviewer": "Reviewer #1",
           "round": 1,
-          "mlgg_gates": [],
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
           "resolved": true
@@ -10692,6 +11312,11 @@
         "PR-064-C01",
         "PR-072-C01"
       ]
+    },
+    {
+      "version": "v1.2",
+      "date": "2026-04-17",
+      "change": "P0-3b: backfilled mlgg_gates for concerns with empty arrays using deterministic category+tags rule table (scripts/review/backfill_peer_review_gates.py). Patched 272 concerns; empty count 0/375."
     }
   ]
 }
