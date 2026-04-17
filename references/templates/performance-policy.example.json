@@ -27,7 +27,8 @@
     "f2_beta",
     "roc_auc",
     "pr_auc",
-    "brier"
+    "brier",
+    "mcc"
   ],
   "beta": 2.0,
   "threshold_policy": {
