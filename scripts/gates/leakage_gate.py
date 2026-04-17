@@ -75,8 +75,22 @@ def parse_args() -> argparse.Namespace:
             r"|(?:^|_)(next_|future_|post_|after_)"
             r"|(?:^|_)(diagnosis_date|dx_date|diag_date|death_date|event_date|outcome_date|discharge_date)"
             r"|(?:^|_)(readmit|mortality_flag|survival_status|los_days)"
+            # Post-index / in-stay features (added 2026-04-17 after diabetes_130
+            # dogfood run). These are outcomes of the hospitalization itself,
+            # not predictors available at admission time:
+            #  - time_in_hospital / length_of_stay / los — stay duration
+            #  - num_medications / num_procedures / num_lab_procedures — in-stay counts
+            #  - discharge / discharged_to / discharged_home — discharge disposition
+            #  - ventilation_hours / vasopressor_* — ICU in-stay
+            # SKILL.md §"Feature Timeline Audit" explicitly lists these as
+            # Diabetes 130 / MIMIC classic leakage patterns.
+            r"|(?:^|_)(time_in_hospital|length_of_stay|los)(?:_|$)"
+            r"|(?:^|_)(num_medications|num_procedures|num_lab_procedures)(?:_|$)"
+            r"|(?:^|_)(discharge|discharged)(?:_|$)"
+            r"|(?:^|_)(ventilation_hours|ventilation_duration)(?:_|$)"
+            r"|(?:^|_)(vasopressor)(?:_|$)"
         ),
-        help="Regex for suspicious feature names. Covers: explicit markers (future, leak), target aliases, post-outcome variables (pred_, confirmed_, staging), temporal leakage (next_, post_), outcome dates, and derived outcome indicators. Note: 'outcome' allows _date/_time/_period suffixes to reduce false positives on legitimate date columns.",
+        help="Regex for suspicious feature names. Covers: explicit markers (future, leak), target aliases, post-outcome variables (pred_, confirmed_, staging), temporal leakage (next_, post_, time_in_hospital, num_medications, etc.), outcome dates, derived outcome indicators, and ICU in-stay features (ventilation, vasopressor). Note: 'outcome' allows _date/_time/_period suffixes to reduce false positives on legitimate date columns.",
     )
     parser.add_argument("--report", help="Optional path to write JSON report.")
     parser.add_argument(
