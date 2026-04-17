@@ -401,6 +401,10 @@ def main() -> int:
             "missforest",
             "knn",
             "drop_rows",
+            # Meta-strategy (v2.0 policy template, 2026-04) — picks concrete
+            # strategy at runtime based on missingness mechanism + proportion.
+            # Declares intent only; actual execution runs one of the above.
+            "tiered_mechanism_first",
         }
         if strategy not in allowed_strategies:
             add_issue(
@@ -652,7 +656,31 @@ def main() -> int:
             else:
                 executed_strategy = str(imputation_meta.get("executed_strategy", "")).strip().lower()
                 reported_policy_strategy = str(imputation_meta.get("policy_strategy", "")).strip().lower()
-                if strategy and reported_policy_strategy and reported_policy_strategy != strategy:
+                # For the tiered_mechanism_first meta-strategy the policy spec
+                # declares intent; the pipeline resolves that to a concrete
+                # strategy at runtime (typically via scale_guard fallback).
+                # In that case expect reported_policy_strategy to match one of
+                # the tier's allowed resolutions rather than the literal string
+                # "tiered_mechanism_first".
+                _META_STRATEGY_RESOLUTIONS = {
+                    "tiered_mechanism_first": {
+                        "simple", "simple_with_indicator", "mice",
+                        "mice_with_scale_guard", "drop_rows",
+                    },
+                }
+                if strategy in _META_STRATEGY_RESOLUTIONS:
+                    if reported_policy_strategy and reported_policy_strategy not in _META_STRATEGY_RESOLUTIONS[strategy]:
+                        add_issue(
+                            failures,
+                            "imputation_execution_mismatch",
+                            "Executed policy strategy is not a valid resolution of the declared meta-strategy.",
+                            {
+                                "meta_strategy": strategy,
+                                "policy_strategy_reported": reported_policy_strategy,
+                                "allowed_resolutions": sorted(_META_STRATEGY_RESOLUTIONS[strategy]),
+                            },
+                        )
+                elif strategy and reported_policy_strategy and reported_policy_strategy != strategy:
                     add_issue(
                         failures,
                         "imputation_execution_mismatch",
@@ -672,6 +700,14 @@ def main() -> int:
                     expected_strategies = {"simple_with_indicator"}
                 elif strategy == "simple":
                     expected_strategies = {"simple", "simple_with_indicator"}
+                elif strategy == "tiered_mechanism_first":
+                    # Meta-strategy: accept any of the tier's concrete resolutions.
+                    # scale_guard_should_trigger drives whether MICE or simple_with_indicator
+                    # is the expected executed strategy.
+                    expected_strategies = (
+                        {"simple_with_indicator"} if scale_guard_should_trigger
+                        else {"simple", "simple_with_indicator", "mice", "mice_with_scale_guard"}
+                    )
 
                 if expected_strategies is not None and executed_strategy not in expected_strategies:
                     add_issue(
@@ -841,17 +877,40 @@ def main() -> int:
                     },
                 )
             else:
-                _method = mechanism.get("method")
+                # Accept either `method` (singular string, original schema) or
+                # `methods` (list of strings, v2.0 policy template). The v2.0
+                # template uses `methods` because mechanism assessment
+                # legitimately combines multiple tests (Little's MCAR +
+                # pattern visualization + domain knowledge).
+                _method_single = mechanism.get("method")
+                _methods_list = mechanism.get("methods")
+                _method_is_valid_single = isinstance(_method_single, str) and _method_single.strip()
+                _method_is_valid_list = (
+                    isinstance(_methods_list, list)
+                    and any(isinstance(m, str) and m.strip() for m in _methods_list)
+                )
                 _conclusion = str(mechanism.get("conclusion", "")).strip().lower()
                 _valid_conclusions = {"mcar", "mar", "mnar", "mixed"}
-                if not isinstance(_method, str) or not _method.strip():
+                if not (_method_is_valid_single or _method_is_valid_list):
                     add_issue(
                         failures,
                         "mechanism_assessment_invalid",
-                        "mechanism_assessment.method must be a non-empty string describing the test used.",
-                        {"method": _method},
+                        "mechanism_assessment.method (or .methods) must describe the test(s) used.",
+                        {"method": _method_single, "methods": _methods_list},
                     )
-                if _conclusion not in _valid_conclusions:
+                # v2.0 template declares mechanism_assessment.required=True
+                # without pre-filling conclusion (user must run the tests and
+                # write back their finding). For leakage-audited exploratory
+                # runs a missing conclusion is a warning, not a failure —
+                # the audit can continue with "mechanism unassessed" flagged.
+                if mechanism.get("required") is True and not _conclusion:
+                    add_issue(
+                        warnings,
+                        "mechanism_assessment_not_performed",
+                        "mechanism_assessment is marked required but conclusion is absent — run the declared tests and record the mechanism finding.",
+                        {"declared_methods": _methods_list or _method_single},
+                    )
+                elif _conclusion and _conclusion not in _valid_conclusions:
                     add_issue(
                         failures,
                         "mechanism_assessment_invalid",
