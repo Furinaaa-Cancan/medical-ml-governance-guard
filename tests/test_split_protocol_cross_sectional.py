@@ -62,8 +62,40 @@ def _make_protocol_spec(tmp_path: Path, cross_sectional=False):
 
 
 class TestCrossSectionalMode:
-    def test_cross_sectional_no_time_col(self, tmp_path):
-        """Cross-sectional data (no time column) should pass with warning."""
+    """Post-add53c5 semantics (2026-04):
+    - **Implicit** cross-sectional (no `--time-col` AND no `--cross-sectional`) → WARN,
+      prompting the user to either supply --cross-sectional or document the
+      limitation per TRIPOD+AI S03.
+    - **Explicit** `--cross-sectional` → treated as user acknowledgement; no warning.
+    - Implicit + `--strict` → warning promotes to failure (exit 2).
+    """
+
+    def test_cross_sectional_implicit_warns(self, tmp_path):
+        """No time column AND no --cross-sectional flag → warning emitted
+        to prompt user to either acknowledge or add temporal data."""
+        train_path, test_path = _make_splits(tmp_path, add_time_col=False)
+        spec_path = _make_protocol_spec(tmp_path, cross_sectional=True)
+        report_path = tmp_path / "report.json"
+
+        result = subprocess.run(
+            [sys.executable, str(SCRIPTS_DIR / "gates/split_protocol_gate.py"),
+             "--protocol-spec", str(spec_path),
+             "--train", str(train_path),
+             "--test", str(test_path),
+             "--id-col", "patient_id",
+             # No --cross-sectional — implicit path.
+             "--report", str(report_path)],
+            capture_output=True, text=True, timeout=30,
+        )
+        assert result.returncode == 0, f"Failed: {result.stdout}\n{result.stderr}"
+        report = json.loads(report_path.read_text())
+        assert report["status"] == "pass"
+        warning_codes = [w["code"] for w in report.get("warnings", [])]
+        assert "cross_sectional_data" in warning_codes
+
+    def test_cross_sectional_explicit_flag_suppresses_warning(self, tmp_path):
+        """--cross-sectional flag set → user has explicitly acknowledged;
+        the cross_sectional_data warning is suppressed (add53c5)."""
         train_path, test_path = _make_splits(tmp_path, add_time_col=False)
         spec_path = _make_protocol_spec(tmp_path, cross_sectional=True)
         report_path = tmp_path / "report.json"
@@ -81,12 +113,13 @@ class TestCrossSectionalMode:
         assert result.returncode == 0, f"Failed: {result.stdout}\n{result.stderr}"
         report = json.loads(report_path.read_text())
         assert report["status"] == "pass"
-        # Should have cross_sectional_data warning
         warning_codes = [w["code"] for w in report.get("warnings", [])]
-        assert "cross_sectional_data" in warning_codes
+        assert "cross_sectional_data" not in warning_codes, (
+            f"Explicit --cross-sectional should suppress the warning; got {warning_codes}"
+        )
 
-    def test_cross_sectional_strict_warns(self, tmp_path):
-        """Cross-sectional + strict should fail (warning promoted)."""
+    def test_cross_sectional_implicit_strict_fails(self, tmp_path):
+        """Implicit cross-sectional + --strict → warning promotes to failure."""
         train_path, test_path = _make_splits(tmp_path, add_time_col=False)
         spec_path = _make_protocol_spec(tmp_path, cross_sectional=True)
         report_path = tmp_path / "report.json"
@@ -97,7 +130,7 @@ class TestCrossSectionalMode:
              "--train", str(train_path),
              "--test", str(test_path),
              "--id-col", "patient_id",
-             "--cross-sectional",
+             # No --cross-sectional → implicit → warning emitted → strict promotes.
              "--strict",
              "--report", str(report_path)],
             capture_output=True, text=True, timeout=30,
