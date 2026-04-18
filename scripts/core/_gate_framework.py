@@ -267,10 +267,24 @@ def build_report_envelope(
             )
             peer_results = retrieve_for_failure(gate_name, _issue_codes, limit=5)
             if peer_results:
+                # _paper_id is always set by _enrich_concern (from entry["id"]),
+                # but keep a regex parse of concern_id as a belt-and-braces
+                # fallback. Previous behavior was `concern_id[:6]`, which
+                # silently truncated wrong on 4-digit paper IDs (PR-1000-Cxx
+                # → "PR-100"). Explicit regex fails loudly via empty string
+                # on malformed IDs.
+                import re as _re
+                _pid_re = _re.compile(r"^(PR-\d+)-C\d+$")
+                def _derive_paper_id(c: dict) -> str:
+                    pid = c.get("_paper_id") or c.get("paper_id")
+                    if pid:
+                        return pid
+                    m = _pid_re.match(c.get("concern_id", ""))
+                    return m.group(1) if m else ""
                 _peer_ctx = [
                     {
                         "concern_id": c.get("concern_id", ""),
-                        "paper_id": c.get("_paper_id", c.get("paper_id", c.get("concern_id", "")[:6])),
+                        "paper_id": _derive_paper_id(c),
                         "severity": c.get("severity", ""),
                         "concern": c.get("concern_text", "")[:200],
                         "fix": c.get("author_response", "")[:200],

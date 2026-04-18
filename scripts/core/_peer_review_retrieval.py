@@ -74,7 +74,20 @@ _kb_cache: Optional[Dict[str, Any]] = None
 
 
 def _load_kb(kb_path: Optional[Path] = None) -> Dict[str, Any]:
-    """Load and cache the peer review knowledge base."""
+    """Load and cache the peer review knowledge base.
+
+    Caching policy (intentional — do not "fix" without discussion):
+
+    - Default path (kb_path is None): cache hit/populate. Production
+      callers hit a single `_KB_PATH` and benefit from one JSON parse
+      amortized across 33 gates × N runs.
+    - Custom path (kb_path given): always re-read, never cache. Tests
+      pass custom paths to avoid poisoning production cache; caching
+      per-path would let stale fixtures leak across tests and would
+      also mask mid-test file edits. If a future use case needs
+      persistent custom-path caching, reach for a keyed LRU — do not
+      widen this branch.
+    """
     global _kb_cache
     if _kb_cache is not None and kb_path is None:
         return _kb_cache

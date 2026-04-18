@@ -128,6 +128,15 @@ TAG_OVERLAYS: list[tuple[str, list[str]]] = [
     ("probast", ["reporting_bias_gate"]),
     ("transparent_reporting", ["reporting_bias_gate"]),
     ("stard", ["reporting_bias_gate"]),
+    # Robustness
+    ("robustness_to", ["robustness_gate"]),
+    # Permutation / statistical significance
+    # Narrow needles only — generic `significance` would over-match
+    # clinical_significance / clinical_significance_of_findings, which are
+    # clinical-utility concerns, not falsification tests.
+    ("p_value_selection", ["permutation_significance_gate"]),
+    ("p_value_error", ["permutation_significance_gate"]),
+    ("statistical_significance_missing", ["permutation_significance_gate"]),
     # Reproducibility
     ("seed", ["seed_stability_gate"]),
     ("random_state", ["seed_stability_gate"]),

@@ -25,7 +25,6 @@
   },
   "concerns_by_dimension": {
     "1": 84,
-    "12": 6,
     "2": 3,
     "3": 24,
     "4": 19,
@@ -33,7 +32,8 @@
     "6": 21,
     "7": 33,
     "8": 51,
-    "9": 16
+    "9": 16,
+    "12": 6
   },
   "concerns_by_gate": {
     "evaluation_quality_gate": 104,
@@ -53,7 +53,9 @@
     "split_protocol_gate": 3,
     "distribution_generalization_gate": 3,
     "ci_matrix_gate": 3,
+    "permutation_significance_gate": 3,
     "tuning_leakage_gate": 2,
+    "robustness_gate": 2,
     "covariate_shift_gate": 1,
     "feature_lineage_gate": 1,
     "imbalance_policy_gate": 1,

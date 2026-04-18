@@ -2385,7 +2385,8 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
           "mlgg_gates": [
-            "evaluation_quality_gate"
+            "evaluation_quality_gate",
+            "robustness_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Lot of overlap in the data and significance is driven by few outliers especially in EXI group. May be just driven by these few outliers in EXI/LAI compared with BRI.",
@@ -4053,7 +4054,8 @@
           "mlgg_dimension": 4,
           "mlgg_gates": [
             "feature_engineering_audit_gate",
-            "feature_lineage_gate"
+            "feature_lineage_gate",
+            "permutation_significance_gate"
           ],
           "mlgg_rules": [
             "MLGG-F04"
@@ -7790,7 +7792,8 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate"
+            "cohort_definition_gate",
+            "robustness_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Training and validation cohorts have different staining protocols (HES vs HE). While the revised study used HE for both, not all validation was on HE. How robust is the model to staining differences?",
@@ -7871,7 +7874,8 @@
           "severity": "HIGH",
           "mlgg_dimension": 8,
           "mlgg_gates": [
-            "reporting_bias_gate"
+            "reporting_bias_gate",
+            "permutation_significance_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Data inconsistencies: why different cutoff from training set applied to validation but different median for TCGA? P-value is 0.004 or 0.042, not <0.001 as stated. Number at risk and survival plot do not match.",
@@ -10293,7 +10297,8 @@
           "reviewer": "Reviewer #1",
           "round": 1,
           "mlgg_gates": [
-            "evaluation_quality_gate"
+            "evaluation_quality_gate",
+            "permutation_significance_gate"
           ],
           "mlgg_rules": [],
           "author_response": "Addressed in revision.",
