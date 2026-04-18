@@ -579,16 +579,29 @@ def format_peer_context(
     return "\n".join(lines)
 
 
-def format_gate_peer_context(gate_name: str, kb_path: Optional[Path] = None) -> str:
+def format_gate_peer_context(
+    gate_name: str,
+    issue_codes: Optional[List[str]] = None,
+    kb_path: Optional[Path] = None,
+) -> str:
     """Generate peer review context string for a specific gate failure.
 
     Args:
-        gate_name: Name of the failed gate
+        gate_name: Name of the failed gate.
+        issue_codes: Optional failure codes from the gate. When provided,
+            uses the same issue-code-aware ranking as the JSON envelope
+            (`retrieve_for_failure`). Without codes, falls back to
+            severity-only ranking via `retrieve_by_gate` so callers that
+            don't track codes still work.
+        kb_path: Optional KB path for tests.
 
     Returns:
-        Formatted string suitable for appending to gate summary output
+        Formatted string suitable for appending to gate summary output.
     """
-    concerns = retrieve_by_gate(gate_name, limit=10, kb_path=kb_path)
+    if issue_codes:
+        concerns = retrieve_for_failure(gate_name, issue_codes, limit=10, kb_path=kb_path)
+    else:
+        concerns = retrieve_by_gate(gate_name, limit=10, kb_path=kb_path)
     if not concerns:
         return ""
 

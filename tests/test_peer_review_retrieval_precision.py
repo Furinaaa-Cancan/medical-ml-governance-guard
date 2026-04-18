@@ -225,6 +225,39 @@ def test_gate_framework_prefers_failure_codes_over_warning_codes() -> None:
     )
 
 
+def test_envelope_and_format_gate_peer_context_agree_on_ranking() -> None:
+    """Interface-unification regression: the JSON envelope's
+    `peer_review_context` and the terminal-print `format_gate_peer_context`
+    must surface the same top concerns for the same (gate, issue_codes)
+    pair. Before 2026-04-18, the terminal path used severity-only
+    `retrieve_by_gate` while the envelope used `retrieve_for_failure`,
+    so the two paths could disagree for the same gate failure."""
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).resolve().parent.parent / "scripts" / "core"))
+
+    from _peer_review_retrieval import (  # noqa: E402
+        format_gate_peer_context,
+        retrieve_for_failure,
+    )
+
+    codes = ["clinical_floor_ppv_not_met"]
+    envelope_results = retrieve_for_failure("clinical_metrics_gate", codes, limit=10)
+    envelope_ids = [c.get("concern_id") for c in envelope_results][:3]
+
+    # format_gate_peer_context renders a string; extract concern IDs from it.
+    rendered = format_gate_peer_context("clinical_metrics_gate", issue_codes=codes)
+    import re as _re
+    rendered_ids = _re.findall(r"(PR-\d+-C\d+)", rendered)[:3]
+
+    assert rendered_ids == envelope_ids, (
+        f"format_gate_peer_context ({rendered_ids}) disagrees with the "
+        f"envelope ranking ({envelope_ids}) for the same gate + issue codes. "
+        "Both paths must route through retrieve_for_failure so reports and "
+        "terminal output cite the same peer review evidence."
+    )
+
+
 def test_retrieve_by_text_min_match_ratio_uses_ceil() -> None:
     """math.ceil floor: a 3-term query with ratio=0.4 must require ≥2 hits
     (67% ≥ 40%), not 1 hit (33% < 40%). The previous int() truncation

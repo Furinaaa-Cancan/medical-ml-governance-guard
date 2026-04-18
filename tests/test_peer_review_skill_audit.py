@@ -52,7 +52,15 @@ class TestScenario02_MissingCalibration:
         assert len(r) >= 3
 
     def test_text_search(self):
-        r = retrieve_by_text("only reports AUROC no calibration", kb_path=KB_PATH)
+        # 2026-04-18: min_match_ratio now uses math.ceil (honest contract).
+        # For this 3-term query at the default 0.4 ratio, only 1 NC concern
+        # matches ≥2/3 (the ceiling). Pass an explicit loose ratio to keep
+        # the "multiple matches for missing-calibration scenario" intent.
+        r = retrieve_by_text(
+            "only reports AUROC no calibration",
+            kb_path=KB_PATH,
+            min_match_ratio=0.3,
+        )
         assert len(r) >= 2
 
     def test_has_high_severity(self):

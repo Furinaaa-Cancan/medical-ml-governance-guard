@@ -25,6 +25,7 @@ from _peer_review_retrieval import (
     retrieve_by_gate,
     retrieve_by_tags,
     retrieve_by_text,
+    retrieve_for_failure,
 )
 
 DIMENSION_NAMES = {
@@ -81,8 +82,23 @@ def cmd_query(args):
         results = retrieve_by_dimension(args.dimension, severity=args.severity, limit=args.limit)
 
     elif args.gate:
-        title = f"Gate: {args.gate}"
-        results = retrieve_by_gate(args.gate, severity=args.severity, limit=args.limit)
+        if args.issue_codes:
+            codes = [c.strip() for c in args.issue_codes.split(",") if c.strip()]
+            title = f"Gate: {args.gate} (re-ranked by issue codes: {', '.join(codes)})"
+            # retrieve_for_failure does not accept a severity filter — it
+            # ranks by issue-code relevance, falling back to severity only
+            # when keyword score is zero. Severity filter would fight the
+            # keyword signal. Warn the user if both were passed.
+            if args.severity:
+                print(
+                    f"  Note: --severity ignored when --issue-codes is given "
+                    f"(ranking already severity-aware on tie).\n",
+                    file=sys.stderr,
+                )
+            results = retrieve_for_failure(args.gate, codes, limit=args.limit)
+        else:
+            title = f"Gate: {args.gate}"
+            results = retrieve_by_gate(args.gate, severity=args.severity, limit=args.limit)
 
     elif args.tags:
         tag_list = [t.strip() for t in args.tags.split(",")]
@@ -113,6 +129,16 @@ def main():
     parser.add_argument("--stats", action="store_true", help="Show KB statistics")
     parser.add_argument("--dimension", type=int, help="MLGG dimension (1-12)")
     parser.add_argument("--gate", type=str, help="Gate name (e.g., leakage_gate)")
+    parser.add_argument(
+        "--issue-codes",
+        type=str,
+        help=(
+            "Comma-separated failure codes (e.g., 'clinical_floor_ppv_not_met,"
+            "baseline_improvement_insufficient'). Only used with --gate. "
+            "Re-ranks candidates by issue-code keyword overlap so output "
+            "matches the JSON envelope's peer_review_context."
+        ),
+    )
     parser.add_argument("--tags", type=str, help="Comma-separated tags")
     parser.add_argument("--category", type=str, help="Concern category")
     parser.add_argument("--domain", type=str, help="Clinical domain")

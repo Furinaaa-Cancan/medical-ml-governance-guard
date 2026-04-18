@@ -451,11 +451,19 @@ def print_gate_summary(
         print(f"  \u26a0  {critical_count} CRITICAL issue(s) require immediate attention.")
         print()
 
-    # Peer Review RAG context — show similar issues from NC papers
-    if failures:
+    # Peer Review RAG context — show similar issues from NC papers.
+    # Mirror the JSON envelope routing: failures-first issue codes, fall
+    # back to warning codes only when there are no failures. Keeps the
+    # terminal summary consistent with the `peer_review_context` field.
+    if failures or warnings:
         try:
             from _peer_review_retrieval import format_gate_peer_context
-            peer_ctx = format_gate_peer_context(gate_name)
+            _codes = (
+                [i.code for i in failures]
+                if failures
+                else [i.code for i in warnings]
+            )
+            peer_ctx = format_gate_peer_context(gate_name, issue_codes=_codes)
             if peer_ctx:
                 print(peer_ctx)
                 print()
