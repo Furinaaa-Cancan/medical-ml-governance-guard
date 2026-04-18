@@ -79,10 +79,15 @@ def _load_yaml_cases():
                 current[key] = val.strip('"').strip("'")
                 current_list_key = None
             continue
-        # List item under current_list_key
+        # List item under current_list_key — strip any inline '# comment'
         m = re.match(r"^\s{6}-\s*(.*)$", line)
         if m and current_list_key:
-            current[current_list_key].append(m.group(1).strip())
+            item = m.group(1)
+            # Strip trailing comment (`PR-001-C01  # future_info_leakage`).
+            hash_pos = item.find("#")
+            if hash_pos >= 0:
+                item = item[:hash_pos]
+            current[current_list_key].append(item.strip())
     if current:
         cases.append(current)
     return cases

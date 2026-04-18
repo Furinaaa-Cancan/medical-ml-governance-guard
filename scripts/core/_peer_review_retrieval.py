@@ -233,19 +233,56 @@ def _issue_code_keywords(codes: List[str]) -> Set[str]:
     """Split snake_case / UPPER_CASE issue codes into a keyword set suitable
     for tag-overlap scoring. Filters common stopwords and 1-2 char fragments.
 
+    Also applies TAG_SYNONYMS expansion when a whole issue code (or its
+    snake_case form) is a known synonym key — this lets issue codes like
+    `fit_before_split_detected` pull in the KB tag family
+    `future_information_leakage / data_leakage_via_imputation`, which the
+    bare token split would never reach.
+
     Examples:
       ['clinical_floor_sensitivity_not_met', 'clinical_floor_ppv_not_met']
         → {'clinical', 'floor', 'sensitivity', 'ppv'}
       ['baseline_improvement_insufficient']
         → {'baseline', 'improvement'}
+      ['fit_before_split_detected']  (synonym key present)
+        → {'fit', 'before', 'split', 'detected', 'future', 'information',
+           'leakage', 'target', 'temporal', 'data', 'imputation'}
     """
     kws: Set[str] = set()
+    # Collect the normalized whole-code forms we can probe against synonyms:
+    # the raw code lowercased (with hyphens as underscores), plus the code
+    # minus common trailing verbs ("_detected" / "_missing" / "_failed" / ...)
+    # since issue codes often encode the observation as a suffix.
+    _TRAILING_VERBS = (
+        "_detected", "_missing", "_failed", "_required",
+        "_not_met", "_insufficient", "_unreported",
+        "_exceeded", "_below_threshold", "_not_tested",
+    )
+    synonym_probes: Set[str] = set()
     for code in codes:
         if not isinstance(code, str):
             continue
-        for tok in code.lower().replace("-", "_").split("_"):
+        norm = code.lower().replace("-", "_")
+        synonym_probes.add(norm)
+        for suffix in _TRAILING_VERBS:
+            if norm.endswith(suffix):
+                synonym_probes.add(norm[: -len(suffix)])
+        for tok in norm.split("_"):
             if len(tok) >= 3 and tok not in _CODE_TOKEN_STOPWORDS:
                 kws.add(tok)
+
+    # Synonym expansion: for each probe that matches a TAG_SYNONYMS key,
+    # add the sub-tokens of each target tag to the keyword set. We tokenize
+    # the synonym targets too so matching still uses the set-membership
+    # path in _score (word-level, not substring).
+    for probe in synonym_probes:
+        synonyms = TAG_SYNONYMS.get(probe)
+        if not synonyms:
+            continue
+        for tag in synonyms:
+            for tok in _tokenize(str(tag)):
+                if len(tok) >= 3 and tok not in _CODE_TOKEN_STOPWORDS:
+                    kws.add(tok)
     return kws
 
 

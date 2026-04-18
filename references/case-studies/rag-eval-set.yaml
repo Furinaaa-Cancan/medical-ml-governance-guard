@@ -113,10 +113,26 @@ cases:
 
   - id: synonym_fit_before_split
     gate: leakage_gate
-    # Issue code whose TOKENS don't directly match the KB tags, but
-    # TAG_SYNONYMS maps `fit_before_split` → future_information_leakage
-    # etc. This case is the one that exposes whether synonym expansion
-    # is applied to retrieve_for_failure (as of 2026-04-18: NOT applied).
+    # Issue code whose TOKENS don't directly match any KB tag as a word,
+    # but TAG_SYNONYMS maps the `fit_before_split` key to the full leakage
+    # family: future_information_leakage, target_leakage, temporal_leakage,
+    # data_leakage_via_imputation. The canary for synonym expansion.
+    #
+    # "Relevant" means: concerns about a leakage pattern in the same
+    # semantic family as fit_before_split (the user's most likely
+    # failure context), NOT just target_leakage.
     issue_codes: [fit_before_split_detected]
-    relevant_concern_ids: [PR-001-C02]
-    rationale: "Canary for synonym expansion in retrieve_for_failure"
+    relevant_concern_ids:
+      - PR-001-C01  # future_information_leakage
+      - PR-001-C02  # target_leakage / definition_variable
+      - PR-003-C03  # data_leakage_via_imputation
+      - PR-010-C01  # temporal_leakage / bidirectional_rnn_leakage
+      - PR-010-C02  # temporal_split_missing
+      - PR-072-C01  # data_leakage_via_correlated + train_test_overlap
+    rationale: >-
+      Synonym expansion canary. Before 2026-04-18, retrieve_for_failure
+      did not apply TAG_SYNONYMS, so `fit_before_split_detected`
+      tokenized to {fit, before, split, detected} — no KB tag tokens
+      match, fallback to severity-only ranking. After expansion, all 4
+      synonym-target tag families become keyword-eligible and the top
+      5 concerns are the entire leakage-pattern family.
