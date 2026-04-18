@@ -530,6 +530,156 @@ python3 scripts/reporting/evidence_comparator.py --baseline <dir> --current <dir
 | `--json` | flag | | `false` | Output JSON instead of text |
 | `--output` | str | | — | Write output to file (default: stdout) |
 
+### `export_latex.py`
+
+**Purpose:** Export evidence reports as publication-ready LaTeX tables (performance, model selection, external validation, CI matrix).
+
+```
+python3 scripts/reporting/export_latex.py --evaluation-report <path> [--model-selection-report <path>] [--external-report <path>] [--ci-matrix-report <path>] [--output <path>] [--decimal-places N]
+```
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `--evaluation-report` | str | ✅ | — | Path to `evaluation_report.json` |
+| `--model-selection-report` | str | | — | Path to `model_selection_report.json` |
+| `--external-report` | str | | — | Path to `external_validation_gate_report.json` |
+| `--ci-matrix-report` | str | | — | Path to `ci_matrix_gate_report.json` |
+| `--output` | str | | `tables.tex` | Output `.tex` file path |
+| `--decimal-places` | int | | `3` | Decimal places for metrics |
+
+### `generate_compliance_certificate.py`
+
+**Purpose:** Generate and verify MLGG compliance certificates (L1/L2/L3) from gate evidence. Supports `generate` / `verify` subcommands; flat flags kept for backward compatibility.
+
+```
+python3 scripts/reporting/generate_compliance_certificate.py generate --evidence-dir <dir> [--request <path>] [--output <path>]
+python3 scripts/reporting/generate_compliance_certificate.py verify <certificate.json> [--summary]
+```
+
+| Subcommand | Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|---|
+| `generate` | `--evidence-dir` | str | ✅ | — | Directory containing gate report JSONs |
+| `generate` | `--request` | str | | — | Path to `request.json` (study metadata) |
+| `generate` | `--output` | str | | `mlgg-compliance-certificate.json` | Output certificate path |
+| `verify` | `certificate` | str | ✅ | — | Path to certificate JSON to verify |
+| `verify` | `--summary` | flag | | `false` | Print full summary |
+
+---
+
+## Review & Paper Analysis
+
+### `peer_review_lookup.py`
+
+**Purpose:** Query the Peer Review KB (106 NC papers × 375 structured concerns) by gate / tag / dimension / domain / severity. Used by RAG retrieval and for manual evidence gathering.
+
+```
+python3 scripts/review/peer_review_lookup.py [--stats] [--gate <name>] [--tags "a,b,c"] [--dimension N] [--category C] [--domain D] [--severity S] [--search TEXT] [--limit N]
+```
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `--stats` | flag | | `false` | Show KB statistics (papers / concerns / gate-coverage) |
+| `--dimension` | int | | — | MLGG dimension filter (1–12) |
+| `--gate` | str | | — | Gate name, e.g. `leakage_gate` |
+| `--tags` | str | | — | Comma-separated tags |
+| `--category` | str | | — | Concern category |
+| `--domain` | str | | — | Clinical domain |
+| `--search` | str | | — | Free-text search in concern text |
+| `--severity` | str | | — | Filter by severity |
+| `--limit` | int | | `5` | Max results |
+
+### `score_paper_metadata.py`
+
+**Purpose:** Score a paper's metadata against MLGG review criteria for a target journal. Single-paper or batch mode.
+
+```
+python3 scripts/review/score_paper_metadata.py (--metadata <path> | --batch-dir <dir>) [--output <path>] [--target-journal <name>] [--validate]
+```
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `--metadata` | str | one of | — | Path to a single `metadata.json` |
+| `--batch-dir` | str | the two | — | Directory to search for `metadata.json` files |
+| `--output` | str | | — | Output JSON path (default: stdout) |
+| `--target-journal` | str | | `nature_medicine` | Target journal for context |
+| `--validate` | flag | | `false` | Run validation checks before scoring |
+
+### `batch_journal_review.py`
+
+**Purpose:** Audit N medical ML projects in parallel. Emits comparison matrix, cross-cutting analysis, and aggregated remediation priorities.
+
+```
+python3 scripts/review/batch_journal_review.py --manifest <path> [--target-journal <name>] [--output <path>] [--format json|markdown|text] [--summary-csv <path>] [--workers N]
+```
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `--manifest` | str | ✅ | — | Path to batch manifest JSON |
+| `--target-journal` | choice | | — | `nature_medicine` / `lancet_digital_health` / `jama` / `bmj` / `npj_digital_medicine` |
+| `--output` | str | | — | Output file path (default: stdout) |
+| `--format` | choice | | `json` | `json` / `markdown` / `text` |
+| `--summary-csv` | str | | — | Also emit a summary CSV file |
+| `--workers` | int | | `2` | Max parallel workers |
+
+---
+
+## Data Examples
+
+Demo dataset downloaders under `examples/`. All output CSVs follow the schema `patient_id, event_time, y, <features...>`.
+
+### `download_real_data.py`
+
+**Purpose:** Download and prepare UCI / Framingham / Vanderbilt / Physionet medical datasets.
+
+```
+python3 examples/download_real_data.py <dataset> [--output <path>]
+```
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `dataset` | choice | ✅ | — | `heart` / `breast` / `ckd` / `hepatitis` / `spect` / `dermatology` / `pima` / `mammographic` / `thyroid` / `eeg_eye` / `framingham` / `diabetes130` / `diabetes130_full` / `vitaldb` / `rhc` / `sepsis_survival` / `all` |
+| `--output` | str | | `examples/<dataset>.csv` | Output CSV path |
+
+### `download_cdc_data.py`
+
+**Purpose:** Download CDC public-health datasets (BRFSS / NHIS / COVID-19).
+
+```
+python3 examples/download_cdc_data.py <dataset> [--output <path>] [--max-rows N]
+```
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `dataset` | choice | ✅ | — | `brfss` (~100K) / `nhis` (~28K) / `covid` (~100K) / `all` |
+| `--output` | str | | — | Output CSV path |
+| `--max-rows` | int | | `100000` | Max rows for BRFSS; `0` = full ~350K |
+
+### `download_nhanes.py`
+
+**Purpose:** Download NHANES diabetes prediction dataset (2017-2018 or pooled).
+
+```
+python3 examples/download_nhanes.py [--output <path>] [--cycles 2017-2018|both]
+```
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `--output` | str | | `examples/nhanes_diabetes.csv` | Output CSV path |
+| `--cycles` | choice | | `2017-2018` | `2017-2018` / `both` |
+
+### `download_nci_gdc.py`
+
+**Purpose:** Download NCI GDC cancer clinical survival data.
+
+```
+python3 examples/download_nci_gdc.py [--output <path>] [--max-rows N]
+```
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `--output` | str | | `examples/nci_gdc_cancer_survival.csv` | Output CSV path |
+| `--max-rows` | int | | `25000` | Max rows to fetch |
+
 ---
 
 ## Notes

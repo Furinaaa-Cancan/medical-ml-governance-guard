@@ -315,3 +315,82 @@ python3 -m pytest tests/test_gate_framework.py tests/test_gate_registry.py tests
 | `test_gate_registry.py` | Registry integrity (33 gates), DAG validation, topological sort, execution layers, dependencies, runnable subset |
 | `test_run_dag_pipeline.py` | Gate-specific CLI extras, standard/aggregation command building, checkpoint save/load/integrity, run_gate_subprocess |
 | `test_dag_pipeline_e2e.py` | --show-dag, dry-run behavior, request_contract_gate envelope format, --only flag, pipeline report format, CLI validation |
+
+---
+
+## 9. Analysis Helpers in `_gate_utils.py`
+
+Gate implementations compose these helpers rather than reimplementing standard
+statistical machinery. All live in `scripts/core/_gate_utils.py`; none are
+standalone CLIs — call them from within a gate or from notebooks.
+
+Grouped by what a gate typically calls them for.
+
+### Calibration
+
+| Function | Signature | Summary |
+|---|---|---|
+| `calibration_metrics` | `(y_true, y_score, n_bins=10)` | Calibration three-piece suite (intercept → 0, slope → 1, O:E → 1) + ECE / HL χ², per Van Calster 2019. |
+| `calibration_bin_ci` | `(y_true, y_score, n_bins=10, n_bootstrap=1000, ci_level=0.95, ...)` | Bootstrap 95 % CI for calibration per risk-decile bin. |
+| `temporal_drift_analysis` | `(y_true, y_score, time_values, n_windows=4, n_bins=10)` | Detect calibration drift across time windows post-deployment. |
+
+### Discrimination & Reclassification
+
+| Function | Signature | Summary |
+|---|---|---|
+| `compute_nri_idi` | `(y_true, y_score_old, y_score_new, threshold=0.5)` | Net Reclassification Improvement + Integrated Discrimination Improvement (Pencina 2008). |
+| `baseline_comparisons` | `(y_true, y_score, y_pred)` | Compare model against trivial baselines (prevalence / random / majority). |
+
+### Feature diagnostics
+
+| Function | Signature | Summary |
+|---|---|---|
+| `compute_vif` | `(X, feature_names, threshold_warn=5.0, threshold_critical=10.0)` | Variance Inflation Factor per feature; VIF > 10 → CRITICAL (skipped automatically when > 200 features). |
+| `check_nonlinearity` | `(X, y, feature_names, n_knots=4, p_threshold=0.05, ...)` | Likelihood-ratio test for linearity on continuous predictors. |
+| `export_model_coefficients` | `(estimator, feature_names)` | Export coefficients or feature importances as a table (shipped as Table in reports). |
+| `feature_ablation` | `(estimator, X_train, y_train, X_test, y_test, ...)` | Performance drop when removing top-K features. |
+
+### Robustness & validation
+
+| Function | Signature | Summary |
+|---|---|---|
+| `bootstrap_optimism_correction` | `(estimator, X_train, y_train, n_bootstrap=200, metric=...)` | Optimism-corrected apparent performance (Steyerberg 2019 Ch.17). |
+| `robustness_stress_test` | `(estimator, X_train, y_train, X_test, y_test, ...)` | Stability under outliers / noise / feature drop perturbations. |
+| `learning_curve_data` | `(estimator, X_train, y_train, X_test, y_test, ...)` | Performance vs. training-set fraction — check if data is sufficient. |
+
+### Missingness & multiple imputation
+
+| Function | Signature | Summary |
+|---|---|---|
+| `mnar_sensitivity_analysis` | `(estimator, X_train, y_train, X_test, y_test, ...)` | δ-adjustment sensitivity — what if MAR assumption is wrong? |
+| `imputation_sensitivity` | `(X_raw, y, estimator, feature_names, test_size=..., ...)` | Compare model performance across imputation methods (mean / median / MICE / ...). |
+| `rubins_rules_combine` | `(estimates, variances)` | Combine estimates across multiple imputations per Rubin's rules. |
+
+### Fairness & multiple testing
+
+| Function | Signature | Summary |
+|---|---|---|
+| `subgroup_dca` | `(y_true, y_score, group_labels, thresholds)` | Decision Curve Analysis stratified by subgroup — equity gap = max − min net benefit. |
+| `fdr_bh_correction` | `(pvalues, alpha=0.05)` | Benjamini-Hochberg FDR correction for multiple p-values. |
+
+### Reporting
+
+| Function | Signature | Summary |
+|---|---|---|
+| `generate_model_card` | `(model_name, model_type, evaluation_report, cohort_report, fairness_report, ...)` | Structured Model Card in Markdown (Mitchell 2019). |
+| `compute_resource_report` | `(start_time, end_time, model_name, n_train, n_features)` | Computational resource report (wall time / peak memory / hardware). |
+
+### Infrastructure helpers (not analysis)
+
+The following are used by every gate and documented for completeness:
+`start_gate_timer`, `get_gate_elapsed`, `inject_execution_time`,
+`build_report_envelope` (in `_gate_framework.py`), `write_json`, `load_json`,
+`resolve_path` (sandboxed path resolution), `install_gate_timeout`,
+`add_issue`, `confusion_counts`, `metric_panel`, `to_float`, `to_int`.
+See the `_gate_utils.py` source docstrings for exact contracts.
+
+### Source of truth
+
+`scripts/core/_gate_utils.py` is authoritative. When this table disagrees with
+the source, the source wins — docstrings in the module include full parameter
+descriptions, return-type schemas, and literature citations.
