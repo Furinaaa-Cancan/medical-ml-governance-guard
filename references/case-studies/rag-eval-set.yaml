@@ -1,0 +1,122 @@
+# RAG retrieval evaluation set
+#
+# Hand-validated (gate, issue_codes) → ground-truth concern_ids mapping,
+# used to compute MRR@5 and Recall@5 for retrieve_for_failure().
+#
+# Purpose: lock in retrieval quality so architectural upgrades
+# (synonym expansion, BM25, hybrid dense+sparse, reranker) can be
+# A/B-compared against a stable baseline instead of "vibes".
+#
+# Selection rules for ground-truth concern_ids:
+#   1. The concern is already mapped to `gate` via its `mlgg_gates` field.
+#   2. At least one of its `tags` or the first 400 chars of `concern_text`
+#      contains a keyword semantically matching the failure scenario.
+#   3. "Semantically matching" judged by hand (inspection of concern_text).
+#
+# Maintenance: when add_robustness_permutation_gates.py or
+# backfill_peer_review_gates.py add new gate mappings, revisit this file.
+#
+# Metric contract:
+#   - Recall@5 ≥ 0.55 (at least half of ground-truth surfaces in top 5)
+#   - MRR@5 ≥ 0.45 (the top hit is relevant more than half the time)
+# These thresholds are the current baseline. Raise them as retrieval
+# improves.
+version: 1
+cases:
+  - id: clinical_metrics_ppv
+    gate: clinical_metrics_gate
+    issue_codes: [clinical_floor_ppv_not_met, clinical_floor_sensitivity_not_met]
+    relevant_concern_ids: [PR-004-C02, PR-028-C06, PR-076-C03, PR-086-C02]
+    rationale: "PPV/sensitivity-specific concerns mapped to clinical_metrics_gate"
+
+  - id: evaluation_quality_baseline
+    gate: evaluation_quality_gate
+    issue_codes: [baseline_improvement_insufficient, baseline_model_missing]
+    relevant_concern_ids: [PR-003-C06, PR-037-C03, PR-045-C02]
+    rationale: "Missing baseline comparison concerns mapped to evaluation_quality_gate"
+
+  - id: leakage_target_in_features
+    gate: leakage_gate
+    issue_codes: [target_in_features_detected, definition_variable_used_as_feature]
+    relevant_concern_ids: [PR-001-C02]
+    rationale: "Classic target/definition-variable leakage; KB has 1 direct match"
+
+  - id: calibration_missing
+    gate: calibration_dca_gate
+    issue_codes: [calibration_intercept_out_of_bounds, calibration_plot_missing]
+    relevant_concern_ids:
+      - PR-002-C01
+      - PR-002-C07
+      - PR-003-C05
+      - PR-022-C01
+    rationale: "Calibration-specific concerns; top 4 by tag exactness"
+
+  - id: missingness_imputation
+    gate: missingness_policy_gate
+    issue_codes: [imputation_method_unreported, mice_not_justified]
+    relevant_concern_ids: [PR-003-C02, PR-003-C03, PR-006-C05, PR-011-C04]
+    rationale: "Imputation-related concerns; top 4 by tag exactness"
+
+  - id: split_patient_overlap
+    gate: split_protocol_gate
+    issue_codes: [patient_overlap_detected, multiple_admissions_not_grouped]
+    relevant_concern_ids: [PR-002-C05, PR-029-C03]
+    rationale: "Patient-overlap / split-unit concerns — KB has 2 direct matches"
+
+  - id: external_validation_missing
+    gate: external_validation_gate
+    issue_codes: [external_cohort_missing, same_cohort_validation]
+    relevant_concern_ids: [PR-001-C06, PR-006-C04, PR-028-C01, PR-040-C01]
+    rationale: "No-external-validation concerns; top 4"
+
+  - id: sample_size_epv
+    gate: sample_size_gate
+    issue_codes: [epv_below_threshold, too_many_features_for_events]
+    relevant_concern_ids: [PR-012-C07, PR-016-C01, PR-025-C01, PR-048-C02]
+    rationale: "EPV/sample-size concerns; top 4"
+
+  - id: cohort_definition_contamination
+    gate: cohort_definition_gate
+    issue_codes: [inclusion_criteria_missing, case_contamination_suspected]
+    relevant_concern_ids: [PR-001-C05, PR-063-C01]
+    rationale: "Cohort-contamination / inclusion concerns; 2 direct matches"
+
+  - id: shap_shallow
+    gate: shap_interpretability_gate
+    issue_codes: [shap_analysis_missing, feature_importance_not_reported]
+    relevant_concern_ids: [PR-001-C07, PR-003-C07, PR-005-C06, PR-007-C06]
+    rationale: "SHAP/feature-importance concerns; top 4"
+
+  - id: reporting_bias_tripod
+    gate: reporting_bias_gate
+    issue_codes: [tripod_item_incomplete, reporting_completeness_below_threshold]
+    relevant_concern_ids: [PR-003-C04, PR-026-C04, PR-009-C06, PR-006-C07]
+    rationale: "TRIPOD / reporting-completeness concerns; top 4"
+
+  - id: imbalance_smote
+    gate: imbalance_policy_gate
+    issue_codes: [smote_required, class_imbalance_detected]
+    relevant_concern_ids: [PR-027-C02]
+    rationale: "Class-imbalance / SMOTE concerns; 1 direct match in KB"
+
+  - id: robustness_outliers
+    gate: robustness_gate
+    issue_codes: [outlier_sensitivity_exceeded, protocol_variation_not_tested]
+    relevant_concern_ids: [PR-012-C04, PR-053-C04]
+    rationale: "Robustness-to-outliers/protocol concerns (added 2026-04-18)"
+
+  - id: permutation_significance_missing
+    gate: permutation_significance_gate
+    issue_codes: [significance_test_missing, p_value_abuse_suspected]
+    relevant_concern_ids: [PR-024-C04, PR-054-C02, PR-081-C02]
+    rationale: "p-value / significance-test concerns (added 2026-04-18)"
+
+  - id: synonym_fit_before_split
+    gate: leakage_gate
+    # Issue code whose TOKENS don't directly match the KB tags, but
+    # TAG_SYNONYMS maps `fit_before_split` → future_information_leakage
+    # etc. This case is the one that exposes whether synonym expansion
+    # is applied to retrieve_for_failure (as of 2026-04-18: NOT applied).
+    issue_codes: [fit_before_split_detected]
+    relevant_concern_ids: [PR-001-C02]
+    rationale: "Canary for synonym expansion in retrieve_for_failure"
