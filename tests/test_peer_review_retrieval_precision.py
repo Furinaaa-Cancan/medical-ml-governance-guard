@@ -258,6 +258,124 @@ def test_envelope_and_format_gate_peer_context_agree_on_ranking() -> None:
     )
 
 
+def test_retrieve_for_failure_tags_results_with_retrieval_mode() -> None:
+    """Every concern returned by retrieve_for_failure must carry a
+    `_retrieval_mode` indicator so consumers can tell keyword matches
+    apart from severity-only fallbacks. Without this, an audit reading
+    `peer_review_context` cannot judge how strongly to rely on a cited
+    concern."""
+    kw_match = retrieve_for_failure(
+        "clinical_metrics_gate",
+        ["clinical_floor_ppv_not_met"],
+        limit=5,
+    )
+    assert kw_match
+    for c in kw_match:
+        assert c.get("_retrieval_mode") == "keyword_match", (
+            f"Expected keyword_match, got {c.get('_retrieval_mode')} "
+            f"on {c.get('concern_id')}"
+        )
+
+    fb = retrieve_for_failure(
+        "clinical_metrics_gate",
+        ["xxqqzz_aaabbb_ccdd_ffgghh"],
+        limit=5,
+    )
+    assert fb
+    for c in fb:
+        assert c.get("_retrieval_mode") == "severity_fallback"
+
+
+def test_envelope_emits_peer_review_status() -> None:
+    """build_report_envelope must expose an explicit peer_review_status
+    alongside peer_review_context so a consumer can differentiate five
+    cases: keyword_match / severity_fallback / no_mapped_concerns /
+    kb_unavailable / skipped_no_issues."""
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).resolve().parent.parent / "scripts" / "core"))
+
+    from _gate_framework import (  # noqa: E402
+        GateIssue,
+        Severity,
+        build_report_envelope,
+        register_remediations,
+    )
+    register_remediations({
+        "clinical_floor_ppv_not_met": "Report PPV.",
+        "xxqqzz_aaabbb_ccddee": "Diagnostic.",
+        "any_code": "Diagnostic.",
+    })
+
+    env = build_report_envelope("clinical_metrics_gate", "pass", False, [], [])
+    assert env["peer_review_status"] == "skipped_no_issues"
+    assert env["peer_review_context"] == []
+
+    failure = GateIssue("clinical_floor_ppv_not_met", Severity.CRITICAL, "msg")
+    env = build_report_envelope(
+        "clinical_metrics_gate", "fail", False, [failure], []
+    )
+    assert env["peer_review_status"] == "keyword_match"
+    assert env["peer_review_context"]
+
+    miss = GateIssue("xxqqzz_aaabbb_ccddee", Severity.CRITICAL, "msg")
+    env = build_report_envelope(
+        "clinical_metrics_gate", "fail", False, [miss], []
+    )
+    assert env["peer_review_status"] == "severity_fallback"
+    assert env["peer_review_context"]
+
+    # manifest_lock has no KB coverage — emits no_mapped_concerns.
+    miss2 = GateIssue("any_code", Severity.CRITICAL, "msg")
+    env = build_report_envelope(
+        "manifest_lock", "fail", False, [miss2], []
+    )
+    assert env["peer_review_status"] == "no_mapped_concerns"
+    assert env["peer_review_context"] == []
+
+
+def test_envelope_retries_failure_plus_warning_when_stage1_falls_back() -> None:
+    """2-stage retry contract: if failures-only retrieval lands in
+    severity_fallback (no keyword match), augment with warning codes
+    and retry. A vocabulary-poor failure should borrow signal from its
+    warning codes — without letting warnings dominate when failures
+    already match."""
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).resolve().parent.parent / "scripts" / "core"))
+
+    from _gate_framework import (  # noqa: E402
+        GateIssue,
+        Severity,
+        build_report_envelope,
+        register_remediations,
+    )
+    register_remediations({
+        "vague_fail": "Diagnostic.",
+        "clinical_floor_ppv_not_met": "Report PPV.",
+    })
+
+    failure = GateIssue("vague_fail", Severity.CRITICAL, "msg")
+    warning = GateIssue("clinical_floor_ppv_not_met", Severity.WARNING, "msg")
+    env = build_report_envelope(
+        "clinical_metrics_gate", "fail", False, [failure], [warning]
+    )
+    assert env["peer_review_status"] == "keyword_match", (
+        f"2-stage retry didn't promote: status={env['peer_review_status']}"
+    )
+    top = env["peer_review_context"][0]
+    top_tokens = set()
+    for t in top.get("tags") or []:
+        top_tokens |= {
+            tok
+            for tok in str(t).lower().replace("-", "_").split("_")
+            if tok
+        }
+    assert "ppv" in top_tokens, (
+        f"Retry top={top.get('concern_id')} not PPV-tagged; tags={top.get('tags')}"
+    )
+
+
 def test_retrieve_by_text_min_match_ratio_uses_ceil() -> None:
     """math.ceil floor: a 3-term query with ratio=0.4 must require ≥2 hits
     (67% ≥ 40%), not 1 hit (33% < 40%). The previous int() truncation

@@ -326,9 +326,16 @@ def retrieve_for_failure(
     if not candidates:
         return []
 
+    def _tag_result(results: List[Dict], mode: str) -> List[Dict]:
+        """Annotate each result with the retrieval mode that surfaced it.
+        Consumers (gate envelope, CLI formatter, audit logs) can tell
+        whether a cited concern is a keyword match or just a severity-
+        sorted fallback — which matters for how strongly to rely on it."""
+        return [{**c, "_retrieval_mode": mode} for c in results]
+
     keywords = _issue_code_keywords(issue_codes or [])
     if not keywords:
-        return candidates[:limit]
+        return _tag_result(candidates[:limit], "severity_fallback")
 
     def _score(c: Dict) -> int:
         tag_tokens: Set[str] = set()
@@ -351,8 +358,8 @@ def retrieve_for_failure(
     # (the old behavior) so reports are never empty just because of
     # vocabulary mismatch.
     if scored[0][1] == 0:
-        return candidates[:limit]
-    return ranked[:limit]
+        return _tag_result(candidates[:limit], "severity_fallback")
+    return _tag_result(ranked[:limit], "keyword_match")
 
 
 def retrieve_by_tags(

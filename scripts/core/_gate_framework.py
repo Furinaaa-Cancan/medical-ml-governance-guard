@@ -256,17 +256,50 @@ def build_report_envelope(
     # when a gate emitted many more warnings than failures (the warnings'
     # keywords dominated the signal). Fallback to warning codes only when
     # there are no failures, preserving the strict-mode-upgrade coverage.
+    #
+    # 2026-04-18 (later): also emit an explicit peer_review_status so a
+    # consumer can tell why peer_review_context is empty/full:
+    #   - keyword_match       : RAG found keyword-scored matches
+    #   - severity_fallback   : no keyword match; returned severity-sorted
+    #   - no_mapped_concerns  : this gate has no KB coverage (honest empty)
+    #   - kb_unavailable      : retrieval module missing / load failed
+    #   - skipped_no_issues   : no failures or warnings to route
+    # AND a 2-stage retry: if the failures-only pass lands in
+    # severity_fallback (no keyword hit), retry with failure+warning codes
+    # so a faint failure code can borrow signal from its warning codes.
     _peer_ctx: list = []
+    _peer_status = "skipped_no_issues"
     if failures or warnings:
         try:
             from _peer_review_retrieval import retrieve_for_failure
-            _issue_codes = (
-                [i.code for i in failures]
-                if failures
-                else [i.code for i in warnings]
+
+            _failure_codes = [i.code for i in failures]
+            _warning_codes = [i.code for i in warnings]
+            # Stage 1: failures-first (fallback to warnings if no failures).
+            _primary_codes = _failure_codes if failures else _warning_codes
+            peer_results = retrieve_for_failure(
+                gate_name, _primary_codes, limit=5
             )
-            peer_results = retrieve_for_failure(gate_name, _issue_codes, limit=5)
+            # Stage 2 retry: failures existed AND stage 1 landed in fallback
+            # (i.e. no keyword hit on failure codes alone). Augment with
+            # warnings so the retrieval gets more signal without losing
+            # failure-first preference.
+            if (
+                failures
+                and _warning_codes
+                and peer_results
+                and peer_results[0].get("_retrieval_mode") == "severity_fallback"
+            ):
+                peer_results = retrieve_for_failure(
+                    gate_name,
+                    _failure_codes + _warning_codes,
+                    limit=5,
+                )
+
             if peer_results:
+                _peer_status = peer_results[0].get(
+                    "_retrieval_mode", "keyword_match"
+                )
                 # _paper_id is always set by _enrich_concern (from entry["id"]),
                 # but keep a regex parse of concern_id as a belt-and-braces
                 # fallback. Previous behavior was `concern_id[:6]`, which
@@ -292,9 +325,13 @@ def build_report_envelope(
                     }
                     for c in peer_results
                 ]
+            else:
+                # Retrieval returned no candidates — this gate has no KB coverage.
+                _peer_status = "no_mapped_concerns"
         except (ImportError, FileNotFoundError):
-            pass
+            _peer_status = "kb_unavailable"
     envelope["peer_review_context"] = _peer_ctx
+    envelope["peer_review_status"] = _peer_status
 
     return envelope
 
