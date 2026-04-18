@@ -19,7 +19,7 @@ MLGG 对外暴露 3 条稳定入口，其他所有功能都是它们的子命令
 
 | 入口 | 面向 | 场景 |
 |---|---|---|
-| **`/mlgg`** | 人类用户（Claude Code 内） | 建模 / 训练 / "我有数据" —— 自动观察数据、推断参数、走 9 阶段 pipeline |
+| **`/mlgg`** | 人类用户（Claude Code 内） | 建模 / 训练 / "我有数据" —— 自动观察数据、推断参数、走 Pipeline 模式 6 步（仅 CSV）或 Research 模式 9 阶段（含用户代码） |
 | **`mlgg <subcommand>`** | 终端 / 脚本自动化 | 29 个子命令（见下），包含 play / workflow / onboarding / audit / doctor / lint 等 |
 | **`mlgg-lint`** | CI / pre-commit | 独立 pip 包，27 条 AST 规则，零依赖，5 秒扫完单文件 |
 
@@ -44,25 +44,10 @@ MLGG 对外暴露 3 条稳定入口，其他所有功能都是它们的子命令
 | 生成修复计划 | `python3 scripts/reporting/remediation_plan.py --evidence-dir <dir>` |
 | 解释 gate 失败 | `python3 scripts/reporting/explain_gate.py --report <gate_report.json>` |
 | 检查代码泄漏（CI 单文件） | `mlgg-lint check <file.py>`（或 `mlgg lint check`） |
-| 查审稿案例 | `python3 scripts/review/peer_review_lookup.py --stats` |
-| 审稿人怎么看？ | `python3 scripts/review/peer_review_lookup.py --tags "<tags>"` |
-| gate 抓过什么？ | `python3 scripts/review/peer_review_lookup.py --gate <gate_name>` |
-| 审查论文 Methods | `python3 scripts/review/score_paper_metadata.py --metadata <metadata.json>` |
-| 批量评审 | `python3 scripts/review/batch_journal_review.py --manifest batch_manifest.json` |
-| LaTeX 表格 | `python3 scripts/reporting/export_latex.py --evaluation-report evidence/evaluation_report.json` |
-| 合规证书 | `python3 scripts/reporting/generate_compliance_certificate.py --evidence-dir evidence/` |
-| 下载数据集 | `python3 examples/download_real_data.py <name>` (heart/breast/ckd/pima/framingham/diabetes130/diabetes130_full/rhc/sepsis_survival/...) |
-| 下载 CDC 数据 | `python3 examples/download_cdc_data.py <name>` (brfss/nhis/covid/all) |
-| 下载 NHANES | `python3 examples/download_nhanes.py --cycles both --output examples/nhanes_diabetes.csv` |
-| 下载 NCI 癌症 | `python3 examples/download_nci_gdc.py --output examples/nci_gdc_cancer_survival.csv` |
+| 论文审稿系列 | `scripts/review/` 下 `peer_review_lookup.py` / `score_paper_metadata.py` / `batch_journal_review.py`(详见 `references/docs/API-Reference.md`) |
+| LaTeX / 合规证书 / 下载数据集 | `scripts/reporting/export_latex.py` / `scripts/reporting/generate_compliance_certificate.py` / `examples/download_*.py`(详见 `references/docs/API-Reference.md`) |
 
-**`_gate_utils.py` 内部工具函数**（gate 实现中调用，非独立 CLI）：
-`calibration_metrics()` / `compute_nri_idi()` / `compute_vif()` / `check_nonlinearity()` /
-`mnar_sensitivity_analysis()` / `temporal_drift_analysis()` / `generate_model_card()` /
-`imputation_sensitivity()` / `subgroup_dca()` / `feature_ablation()`。
-
-**SHAP 可解释性 gate 直接调用**（通常由 workflow 自动触发）：
-`python3 scripts/gates/shap_interpretability_gate.py --model-pool evidence/model_pool.pkl --train-data data/train.csv --test-data data/test.csv --target-col y --report evidence/shap_report.json`
+内部工具函数（`_gate_utils.py`）和 SHAP gate 直接调用见 `references/docs/gate-framework-developer-guide.md`。
 
 ---
 
@@ -72,37 +57,14 @@ Agent 审查代码时，查阅 `references/case-studies/peer-review-kb.json`（1
 
 > 审稿人的原话是有力的旁证，但不是 ground truth。KB 是 Nature Communications 已发表论文的审稿意见集合，**经过了 pre-publication filter**——有严重泄漏的论文在发表前就被拒，因此 KB 中 leakage 类审稿意见稀少（≈4% with leakage_gate mapping）。
 
-**KB 强在哪 / 弱在哪**（2026-04 audit，见 `references/case-studies/peer-review-kb-audit-2026-04.md`）:
-
-| 覆盖强 | Concerns 数 | 覆盖弱 | Concerns 数 |
-|---|---|---|---|
-| 评估指标不全（AUPRC / MCC / Brier） | 119 | 数据泄漏直接证据 | 3 (category) + 10 (tag-derived) |
-| 报告规范（TRIPOD / 图表完整性） | 52 | Split protocol | 3 |
-| 外部验证缺失 | 21 | | |
-| 模型选择 / 调参 | 17 | | |
-
-**含义**：
-- Gate 失败类型是 **evaluation / reporting / external validation** → KB 是有力背书
-- Gate 失败类型是 **leakage** → 优先引用 `leakage_gate` 机制 + lint 规则 R001-R027，KB 只作为辅助
-- **不要**用 "KB 里也没提过这种问题" 来反推某个 leakage 不存在
-
-**KB 结构**: `concern_id`, `category`, `severity`, `mlgg_dimension`, `mlgg_gates`, `tags`, `concern_text`, `author_response`。每条 concern 至少映射到 1 个 `mlgg_gates`（P0-3b 已完成回填，0 条空数组）。
-
-**检索策略**:
-| 场景 | 检索字段 |
-|------|---------|
-| Gate 失败 | `mlgg_gates` 包含该 gate |
-| 发现具体问题 | `tags` 匹配 |
-| Phase checkpoint | `mlgg_dimension` |
-| 严重度过滤 | `severity` |
+**强弱覆盖、KB 结构、检索策略详见** `references/case-studies/peer-review-kb-audit-2026-04.md`。要点:
+- Gate 失败 = evaluation / reporting / external validation → KB 是有力背书
+- Gate 失败 = leakage → 优先 `leakage_gate` + lint R001-R027,KB 仅辅助(prepub filter 后 KB 中 leakage 案例稀少)
+- **不要**用 "KB 里没提过" 反推 leakage 不存在
 
 **引用格式**: `[PEER-REVIEW] PR-XXX-CYY (Nature Communications, 20XX) 审稿人: "..." 修复: "..."`
 
-```bash
-python3 scripts/review/peer_review_lookup.py --stats
-python3 scripts/review/peer_review_lookup.py --gate leakage_gate
-python3 scripts/review/peer_review_lookup.py --tags "missing_calibration,no_dca"
-```
+检索: `python3 scripts/review/peer_review_lookup.py --stats|--gate <name>|--tags "<tags>"`
 
 ---
 
@@ -186,24 +148,6 @@ R021 可检测 `holdout/held_out` 等关键词，但任意命名（如 `eval_dat
 
 ---
 
-## Developer Reference
-
-### 添加新数据集
-1. `examples/download_real_data.py` → `URLS` + `prepare_<name>()` + `PREPARE` dict
-2. 输出: `patient_id, event_time, y, features...`
-3. `scripts/orchestration/mlgg_pixel.py` → i18n + `PLAY_DOWNLOAD_DATASETS`
-
-### 添加新模型族
-`scripts/training/train_select_evaluate.py` 5 处: `SUPPORTED_MODEL_FAMILIES`, `_family_grid()`, `_build_estimator_for_family()`, `_family_base_complexity()`, `_family_friendly_name()`
-
-### 添加新 Gate
-统一 CLI 契约: `--report`, `--strict`, exit 0/2, `build_report_envelope()`, `start_gate_timer()`, 注册到 `_gate_registry.py`。
-
-### 添加新 Lint 规则
-`plugin/mlgg_lint/rules/r0xx_rule_name.py` + `plugin/tests/samples/r0xx_bad.py` + `r0xx_good.py`
-
----
-
 ## 常见错误恢复
 
 | 错误 | 修复 |
@@ -224,19 +168,6 @@ R021 可检测 `holdout/held_out` 等关键词，但任意命名（如 `eval_dat
 | `rare_disease` | N<200 | 5 | 20 |
 
 在 `request.json` 中指定: `"thresholds": {"profile": "rare_disease"}`
-
----
-
-## 可用数据集 (16 个, 630K+ 行)
-
-| 数据集 | 行数 | 下载命令 |
-|--------|------|---------|
-| Sepsis Survival | 129K | `download_real_data.py sepsis_survival` |
-| Diabetes 130 Full | 102K | `download_real_data.py diabetes130_full` |
-| BRFSS 2022 | 100K | `download_cdc_data.py brfss` |
-| NHANES | 16K | `download_nhanes.py --cycles both` |
-| RHC | 5.7K | `download_real_data.py rhc` |
-| Heart/Breast/Pima | <1K | `download_real_data.py heart` |
 
 ---
 
@@ -290,22 +221,5 @@ MLGG 是**训练管线治理工具**，不是全栈 publication readiness。下�
 
 ## Phase 文件参考
 
-```
-references/protocols/
-├── review-protocol.md    # 评审循环详细协议
-├── phase-1.md ~ phase-9.md  # 各阶段详细规则
-└── audit-mode.md         # 快速审计模式
-```
-
-疾病定义知识库: `references/methodology/disease-definition-knowledge-base.json` (10 种常见疾病)
-错误知识库: `references/operations/error-knowledge-base.json`
-文献知识库: `references/methodology/literature-knowledge-base.json` (30 条顶刊)
-
-Agent Quick Reference:
-```
-构建新项目:  mlgg.py onboarding --mode auto
-审计项目:    audit_external_project.py
-修复计划:    remediation_plan.py --evidence-dir <dir>
-证据对比:    evidence_comparator.py
-LaTeX导出:   export_latex.py
-```
+`references/protocols/` 下:`review-protocol.md`、`phase-1.md` ~ `phase-9.md`、`audit-mode.md`。
+疾病/错误/文献知识库:`references/methodology/disease-definition-knowledge-base.json`、`references/operations/error-knowledge-base.json`、`references/methodology/literature-knowledge-base.json`。

@@ -161,3 +161,25 @@ gate reference table, and data flow diagram.
 - **Backward compatibility**: Gate report JSON schemas should be extended
   additively. Do not remove or rename existing fields without a major
   version bump.
+
+---
+
+## Adding Components
+
+### New dataset
+1. `examples/download_real_data.py` → add to `URLS` + `prepare_<name>()` + `PREPARE` dict
+2. Output schema: `patient_id, event_time, y, features...`
+3. `scripts/orchestration/mlgg_pixel.py` → i18n + `PLAY_DOWNLOAD_DATASETS`
+
+### New model family
+`scripts/training/train_select_evaluate.py` 5 hooks:
+`SUPPORTED_MODEL_FAMILIES`, `_family_grid()`, `_build_estimator_for_family()`,
+`_family_base_complexity()`, `_family_friendly_name()`
+
+### New gate
+Standard CLI contract: `--report`, `--strict`, exit 0/2,
+`build_report_envelope()`, `start_gate_timer()`, register in `_gate_registry.py`.
+
+### New lint rule
+`plugin/mlgg_lint/rules/r0xx_rule_name.py` +
+`plugin/tests/samples/r0xx_bad.py` + `r0xx_good.py`

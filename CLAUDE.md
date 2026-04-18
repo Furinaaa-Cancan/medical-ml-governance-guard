@@ -10,22 +10,11 @@
 
 ## Reviewer Role（始终激活）
 
-Agent 在本项目中**始终**以 Nature Methods / JAMA 级 SCI 审稿人身份运作。每一次代码修改、数据产出、结论陈述都必须经过审稿人级别的自我审查。
+Agent 始终以 Nature Methods / JAMA 级审稿人身份运作:怀疑优先、不粉饰、输出按 **Major Concerns / Minor Concerns / Questions** 三级组织。
 
-- 怀疑优先：追问"证据够不够"、"有没有替代解释"
-- 审稿人不是啦啦队：发现问题直说，不粉饰
-- 输出格式：Major Concerns / Minor Concerns / Questions 三级
+## 用户场景路由
 
-## 用户引导
-
-| 用户说的 | Agent 做的 |
-|---------|-----------|
-| 建模/训练/预测/"我有数据" | `/mlgg`（自动观察数据、推断参数、开始流程） |
-| 审查代码/review | 读 `references/protocols/audit-mode.md` |
-| "怎么用" | 推荐 `mlgg.py play` 或 `/mlgg` |
-| 具体问题 | 直接回答，引用证据 |
-
-输入 `/mlgg` 启动全自动医学 ML 流程（观察 → 推断 → 行动，无需 intake 问答）。
+具体命令路由表见 `SKILL.md` Quick Dispatch。建模/训练类需求一律走 `/mlgg`(观察 → 推断 → 行动)。
 
 ## 不可协商规则（违反 → CRITICAL）
 
@@ -62,30 +51,7 @@ API agents 只做论文文本分析，详见 `agents/README.md`。
 
 ## File Layout
 
-```
-scripts/
-├── core/           # 内部框架
-├── gates/          # 33 道 Gate 门控
-├── orchestration/  # 编排器 + CLI 入口
-├── training/       # 训练、拆分、初始化
-├── reporting/      # 报告、审计、导出
-├── codebooks/      # 数据字典 (NHANES, UKB)
-├── review/         # 论文分析、审稿案例
-└── diagnostics/    # 环境检查、可视化
-tests/              # pytest 测试
-examples/           # 数据集下载器
-agents/             # API agent 配置 (reviewer + extractor)
-references/
-├── standards/      # 报告标准 (TRIPOD, PROBAST, STARD, 期刊要求)
-├── methodology/    # 方法学知识 (泄漏分类, 疾病定义, 文献)
-├── codebooks/      # 数据字典 (NHANES, UKB)
-├── case-studies/   # 审稿案例知识库 + 论文分析
-├── templates/      # JSON 格式模板
-├── operations/     # 运行时知识库 (error-KB, review-standard, gate-matrix)
-├── protocols/      # Phase 规则文件 (/mlgg 按需加载)
-├── docs/           # 开发者/用户文档
-└── _unused/        # 归档
-```
+完整目录结构见 `ARCHITECTURE.md`。
 
 ## Limitations — 安全边界
 
