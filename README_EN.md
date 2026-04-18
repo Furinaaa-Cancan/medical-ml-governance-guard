@@ -50,8 +50,8 @@
 - [12-Dimension Scoring](#12-dimension-scoring)
 - [33 Methodology Rules](#33-methodology-rules)
 - [23 Model Families](#23-model-families)
-- [14 Medical Datasets](#14-medical-datasets)
-- [25 Static Analysis Rules (R001-R025)](#25-static-analysis-rules-r001-r025)
+- [16 Medical Datasets](#16-medical-datasets)
+- [27 Static Analysis Rules (R001-R027)](#27-static-analysis-rules-r001-r027)
 - [21 Analysis Tools](#21-analysis-tools)
 - [Security Hardening Layer](#security-hardening-layer)
 - [Project Structure](#project-structure)
@@ -136,7 +136,7 @@ Raw Data ──→ 9-Phase Workflow ──→ 33-Gate Audit ──→ Compliance
 | **Multi-Model SHAP Engine** | Multi-family L1-normalized ensemble + Kendall tau consistency (FDR-BH correction) + cross-model Spearman rank correlation + 5 publication-grade CSVs | RF/XGB/CatBoost/LGBM/LR |
 | **Academic Compliance Engine** | TRIPOD+AI 2024 (27 items) / PROBAST+AI 2025 (4 domains) / STARD-AI | Item-by-item verification |
 | **Peer Review Evidence Base** | 106 NC papers &times; 375 structured review opinions, retrieved by gate/tag/severity | Each recommendation cites original text |
-| **25 Lint Rules** | Static analysis detecting code-level leakage anti-patterns (R001-R025) | .py + .ipynb |
+| **27 Lint Rules** | Static analysis detecting code-level leakage anti-patterns (R001-R027) | .py + .ipynb |
 | **Security Hardening Layer** | HMAC-SHA256 / AES-256-GCM / chained audit log / path traversal defense / restricted deserialization | fail-closed |
 | **21 Analysis Tools** | Riley sample size / calibration triple / NRI-IDI / learning curve / VIF / MNAR sensitivity / PDP marginal effects / FDR-BH correction / temporal drift / ... | 100% Nature ML Checklist coverage |
 
@@ -1040,7 +1040,7 @@ Complexity ranking: Gaussian NB (1) < LR (2-4) < DT (5) < KNN (6) < SVM (7-8) < 
 
 ---
 
-## 14 Medical Datasets
+## 16 Medical Datasets
 
 <details>
 <summary><strong>Large Datasets (>10K rows)</strong></summary>
@@ -1083,14 +1083,14 @@ All data from official institutions (CDC / UCI / NCI-NIH / Vanderbilt), no regis
 
 ---
 
-## 25 Static Analysis Rules (R001-R025)
+## 27 Static Analysis Rules (R001-R027)
 
 | Category | Rules | Severity |
 |:---------|:------|:---------|
-| **Data Leakage** | R001 fit-before-split, R002 scaler-on-test, R003 SMOTE-on-test, R005 threshold-on-test, R006 feature-selection-full, R007 target-as-feature, R017 early-stop-on-test, R020 global-clean-before-split | ERROR |
+| **Data Leakage** | R001 fit-before-split, R002 scaler-on-test, R003 SMOTE-on-test, R005 threshold-on-test, R006 feature-selection-full, R007 target-as-feature, R017 early-stop-on-test, R020 global-clean-before-split, R023 target-encoding-leak, R024 frequency-encoding-leak, R026 fillna-before-split, R027 manual-scaling-before-split | ERROR |
 | **Splitting Issues** | R004 split-without-group, R008 temporal-shuffle, R015 small-test-set | WARNING |
-| **Cross-Validation** | R011 CV-internal-SMOTE, R012 accuracy-on-imbalanced | ERROR/WARNING |
-| **Evaluation Misuse** | R010 train-metric-as-final, R013 hardcoded-threshold | WARNING |
+| **Cross-Validation** | R011 CV-internal-SMOTE, R012 accuracy-on-imbalanced, R025 smote-after-model-in-pipeline | ERROR/WARNING |
+| **Evaluation Misuse** | R010 train-metric-as-final, R013 hardcoded-threshold, R021 test-loop-tuning, R022 single-metric-report | WARNING |
 | **Preprocessing** | R014 LabelEncoder-on-features, R018 scaling-before-trees | WARNING/INFO |
 | **Reproducibility** | R016 no-random-state | INFO |
 | **Statistical Rigor** | R009 no-CI, R019 multiple-comparison | INFO |
@@ -1250,7 +1250,7 @@ medical-ml-governance-guard/
 │   └── docs/               (9)           # Architecture, API-Reference, Quickstart, Troubleshooting
 │
 ├── plugin/                               # ─── Static Analysis Lint (independent sub-package) ───
-│   ├── mlgg_lint/          (9+29 rules)  # AST-level 27 leakage detection rules (R001-R027)
+│   ├── mlgg_lint/          (9+29 files)  # AST-level 27 leakage detection rules (R001-R027)
 │   │   └── rules/                        #   fit_before_split, smote_on_test, target_encoding_leak...
 │   ├── tests/              (5+60 samples)# good/bad samples + CLI/engine tests
 │   ├── vscode/             (4)           # VS Code extension

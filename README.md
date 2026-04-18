@@ -56,7 +56,7 @@
 - [12 维量化评分](#12-维量化评分)
 - [33 条方法论规则](#33-条方法论规则)
 - [23 个模型族](#23-个模型族)
-- [14 个医学数据集](#14-个医学数据集)
+- [16 个医学数据集](#16-个医学数据集)
 - [27 条静态分析规则 (R001-R027)](#27-条静态分析规则-r001-r027)
 - [21 项分析工具](#21-项分析工具)
 - [安全加固层](#安全加固层)
@@ -182,7 +182,7 @@ claude          # 打开 Claude Code
 /mlgg           # AI 审稿人自动引导 9 阶段
 ```
 
-自动完成：观察数据 → 划分 → 训练 20 模型族 → 33 道门控审查 → TRIPOD+AI 合规报告。每一步引用真实审稿意见作为论据。
+自动完成：观察数据 → 划分 → 训练 23 模型族 → 33 道门控审查 → TRIPOD+AI 合规报告。每一步引用真实审稿意见作为论据。
 
 ### 更多入口
 
@@ -1047,7 +1047,7 @@ SHAP 对相关特征可能产生误导（联盟博弈论假设）。PDP 提供�
 
 ---
 
-## 14 个医学数据集
+## 16 个医学数据集
 
 <details>
 <summary><strong>大型数据集（>10K 行）</strong></summary>
@@ -1370,7 +1370,7 @@ medical-ml-governance-guard/
 │   └── docs/               (9)           # Architecture, API-Reference, Quickstart, Troubleshooting
 │
 ├── plugin/                               # ─── 静态分析 Lint (独立子包) ───
-│   ├── mlgg_lint/          (9+29 rules)  # AST 级 27 条泄漏检测规则 (R001-R027)
+│   ├── mlgg_lint/          (9+29 files)  # AST 级 27 条泄漏检测规则 (R001-R027)
 │   │   └── rules/                        #   fit_before_split, smote_on_test, target_encoding_leak...
 │   ├── tests/              (5+60 samples)# good/bad 样本 + CLI/engine 测试
 │   ├── vscode/             (4)           # VS Code 扩展
