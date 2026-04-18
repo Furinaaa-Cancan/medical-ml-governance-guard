@@ -250,11 +250,21 @@ def build_report_envelope(
     # switched from `retrieve_by_gate` (severity-only sort, ~20% precision
     # on failure-specific relevance) to `retrieve_for_failure` which re-ranks
     # by issue-code keyword overlap with concern tags/text.
+    #
+    # 2026-04-18 fix: issue-code pool is now failures-first, not concatenated.
+    # Mixing warning codes with failure codes diluted re-ranking precision
+    # when a gate emitted many more warnings than failures (the warnings'
+    # keywords dominated the signal). Fallback to warning codes only when
+    # there are no failures, preserving the strict-mode-upgrade coverage.
     _peer_ctx: list = []
     if failures or warnings:
         try:
             from _peer_review_retrieval import retrieve_for_failure
-            _issue_codes = [i.code for i in failures] + [i.code for i in warnings]
+            _issue_codes = (
+                [i.code for i in failures]
+                if failures
+                else [i.code for i in warnings]
+            )
             peer_results = retrieve_for_failure(gate_name, _issue_codes, limit=5)
             if peer_results:
                 _peer_ctx = [

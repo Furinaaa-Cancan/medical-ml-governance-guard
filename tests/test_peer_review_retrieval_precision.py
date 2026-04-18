@@ -122,6 +122,133 @@ def test_retrieve_for_failure_matches_old_retrieve_by_gate_when_codes_empty() ->
     assert [c.get("concern_id") for c in new] == [c.get("concern_id") for c in old]
 
 
+# ─── 2026-04-18 precision hardening (P0 + P2) ──────────────────────────────
+
+
+def test_retrieve_for_failure_no_substring_false_positive_on_short_tokens() -> None:
+    """A 3-char keyword like 'idi' must NOT substring-match tags that happen
+    to contain it as part of a longer word (`comorbidity`, `validity`,
+    `bidirectional`). Before 2026-04-18 the scoring used `kw in tags_joined`
+    which promoted `confounding_by_comorbidity` to top-1 for `idi_not_reported`
+    — a semantically unrelated concern.
+    """
+    results = retrieve_for_failure(
+        "clinical_metrics_gate",
+        ["idi_not_reported"],
+        limit=5,
+    )
+    # The known false-positive PR-048-C01 (tag: confounding_by_comorbidity)
+    # must no longer appear in the top 5 for `idi` alone.
+    false_positive_ids = {"PR-048-C01"}
+    returned_ids = {c.get("concern_id") for c in results}
+    assert not (returned_ids & false_positive_ids), (
+        f"Substring false-positive regressed: {returned_ids & false_positive_ids} "
+        "appeared in top-5 for `idi_not_reported`. After tokenization, `idi` "
+        "should only match concerns where 'idi' is an actual token, not a "
+        "substring of 'comorbidity'/'validity'/'bidirectional'."
+    )
+
+
+def test_retrieve_for_failure_ppv_top_rank_is_actually_ppv_tagged() -> None:
+    """Stronger than the existing 'at least one' assertion: for a PPV-specific
+    failure, the top-1 result should be explicitly PPV-tagged. Before the
+    substring fix, CRITICAL-severity non-PPV concerns could ride the
+    3×tag-overlap signal via spurious matches."""
+    results = retrieve_for_failure(
+        "clinical_metrics_gate",
+        ["clinical_floor_ppv_not_met"],
+        limit=5,
+    )
+    assert results
+    top = results[0]
+    top_tokens = set()
+    for t in top.get("tags") or []:
+        top_tokens |= {tok for tok in str(t).lower().replace("-", "_").split("_") if tok}
+    assert "ppv" in top_tokens, (
+        f"Top-1 concern for `clinical_floor_ppv_not_met` is "
+        f"{top.get('concern_id')} with tags {top.get('tags')} — expected "
+        "`ppv` as an actual token in tags."
+    )
+
+
+def test_gate_framework_prefers_failure_codes_over_warning_codes() -> None:
+    """Reproduce the 2026-04-18 fix in build_report_envelope: when a gate has
+    BOTH failures and warnings, the issue-code pool used for RAG re-ranking
+    must contain only the failure codes. Otherwise warnings' keywords
+    dilute precision when a gate emits many warnings + one failure.
+    """
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).resolve().parent.parent / "scripts" / "core"))
+
+    from _gate_framework import (  # noqa: E402
+        GateIssue,
+        Severity,
+        build_report_envelope,
+        register_remediations,
+    )
+
+    # Register remediations so GateIssue.code can be looked up.
+    register_remediations({
+        "clinical_floor_ppv_not_met": "Report PPV alongside sensitivity.",
+        "baseline_improvement_insufficient": "Compare against a published baseline.",
+    })
+
+    failure = GateIssue(code="clinical_floor_ppv_not_met",
+                       severity=Severity.CRITICAL,
+                       message="PPV below clinical floor.")
+    warnings = [
+        GateIssue(code="baseline_improvement_insufficient",
+                  severity=Severity.WARNING,
+                  message="Weak baseline.")
+        for _ in range(10)
+    ]
+
+    env = build_report_envelope(
+        gate_name="clinical_metrics_gate",
+        status="fail",
+        strict_mode=False,
+        failures=[failure],
+        warnings=warnings,
+    )
+    peer = env.get("peer_review_context", [])
+    assert peer, "peer_review_context should be populated"
+    # Top result should reflect the PPV failure, not the baseline warnings.
+    top = peer[0]
+    top_tokens = set()
+    for t in top.get("tags") or []:
+        top_tokens |= {tok for tok in str(t).lower().replace("-", "_").split("_") if tok}
+    assert "ppv" in top_tokens or "ppv" in (top.get("concern") or "").lower(), (
+        f"Failure-first routing broken: with failure=PPV + 10 baseline warnings, "
+        f"top result is {top.get('concern_id')} with tags {top.get('tags')} "
+        "(expected PPV-relevant, not baseline-relevant)."
+    )
+
+
+def test_retrieve_by_text_min_match_ratio_uses_ceil() -> None:
+    """math.ceil floor: a 3-term query with ratio=0.4 must require ≥2 hits
+    (67% ≥ 40%), not 1 hit (33% < 40%). The previous int() truncation
+    silently admitted matches below the declared ratio floor."""
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).resolve().parent.parent / "scripts" / "core"))
+
+    from _peer_review_retrieval import retrieve_by_text  # noqa: E402
+
+    # A query with 3 unique terms; ratio 0.4 should demand ≥ ceil(1.2) = 2.
+    results = retrieve_by_text(
+        "calibration missing plot",
+        limit=50,
+        min_match_ratio=0.4,
+    )
+    for c in results:
+        ratio = c.get("_match_ratio", 0)
+        assert ratio >= 2 / 3 - 1e-9, (
+            f"Concern {c.get('concern_id')} returned with match_ratio={ratio:.3f}, "
+            "below the 2/3 floor enforced by math.ceil(3 * 0.4)."
+        )
+
+
 if __name__ == "__main__":
     import pytest
     pytest.main([__file__, "-v"])

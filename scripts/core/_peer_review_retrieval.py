@@ -10,8 +10,23 @@ This module is READ-ONLY — it never modifies the knowledge base.
 from __future__ import annotations
 
 import json
+import math
+import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
+
+# Tag/text tokenizer: split on any non-alphanumeric-non-underscore run,
+# then further split on `_` since tags are snake_case. Used by
+# retrieve_for_failure to match keywords against tokens rather than raw
+# substrings — substring matching falsely linked short tokens like `idi`
+# to unrelated tags such as `confounding_by_comorbidity` (`comorb-idi-ty`).
+_TOKEN_SPLIT = re.compile(r"[^a-z0-9]+")
+
+
+def _tokenize(text: str) -> Set[str]:
+    """Tokenize a lowercased string into a set of alphanumeric tokens,
+    splitting on underscores and non-word characters."""
+    return {tok for tok in _TOKEN_SPLIT.split(text.lower()) if tok}
 
 _SEVERITY_ORDER = {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3}
 
@@ -266,10 +281,12 @@ def retrieve_for_failure(
         return candidates[:limit]
 
     def _score(c: Dict) -> int:
-        tags_joined = " ".join(str(t).lower() for t in (c.get("tags") or []))
-        tag_overlap = sum(1 for kw in keywords if kw in tags_joined)
-        text = (c.get("concern_text") or "").lower()[:600]
-        text_overlap = sum(1 for kw in keywords if kw in text)
+        tag_tokens: Set[str] = set()
+        for t in (c.get("tags") or []):
+            tag_tokens |= _tokenize(str(t))
+        tag_overlap = sum(1 for kw in keywords if kw in tag_tokens)
+        text_tokens = _tokenize((c.get("concern_text") or "")[:600])
+        text_overlap = sum(1 for kw in keywords if kw in text_tokens)
         return 3 * tag_overlap + text_overlap
 
     def _sev_rank(c: Dict) -> int:
@@ -453,7 +470,9 @@ def retrieve_by_text(
     if not terms:
         return []
 
-    min_hits = max(1, int(len(terms) * min_match_ratio))
+    # Use ceil so a 3-term query with ratio=0.4 actually requires 2/3 (≥40%),
+    # not 1/3 (33%). int() truncated below the declared floor.
+    min_hits = max(1, math.ceil(len(terms) * min_match_ratio))
     kb = _load_kb(kb_path)
 
     scored = []
