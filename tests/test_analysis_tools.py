@@ -239,6 +239,34 @@ class TestCalibrationEdgeCases:
         r = calibration_metrics(y, y_score)
         assert "error" in r
 
+    def test_hl_df_tracks_populated_bins(self):
+        """Regression test for 2026-04-19: Hosmer-Lemeshow df must
+        reflect bins that ACTUALLY contributed to the chi-sq sum, not
+        the nominal n_bins. If predictions cluster in a few bins, empty
+        bins are silently skipped above and df must drop accordingly —
+        otherwise the p-value is inflated and calibration looks better
+        than it is."""
+        rng = np.random.default_rng(0)
+        n = 500
+        # Predictions clustered in [0.0, 0.3] — bins 0-2 populated, 3-9 empty.
+        y_score = rng.uniform(0.0, 0.3, n)
+        # Well-calibrated labels around these scores.
+        y_true = (rng.uniform(0, 1, n) < y_score).astype(int)
+        r = calibration_metrics(y_true, y_score, n_bins=10)
+        assert "error" not in r
+        populated = sum(1 for b in r["bin_data"] if b["n"] > 0)
+        assert populated < 10, (
+            "Test setup precondition: need some empty bins in [0.3, 1.0]"
+        )
+        # df should equal populated-2 (or 1 for tiny cases), NOT nominal 8.
+        assert r["hosmer_lemeshow_df"] == max(populated - 2, 1), (
+            f"HL df drifted from populated bins. populated={populated}, "
+            f"reported_df={r['hosmer_lemeshow_df']}, expected={max(populated-2, 1)}"
+        )
+        assert r["hosmer_lemeshow_df"] < 8, (
+            "df must be less than n_bins-2 when some bins are empty"
+        )
+
 
 # ─── NRI edge cases ───
 
@@ -391,6 +419,45 @@ class TestRobustnessStressTest:
         robustness_stress_test(rf, X[:150], y[:150], X[150:], y[150:])
         pred_after = rf.predict_proba(X[150:])
         np.testing.assert_array_equal(pred_before, pred_after)
+
+    def test_feature_zeroing_enters_verdict(self):
+        """Regression test for 2026-04-19 fix: feature_zeroing must be
+        surfaced as `relative_drop_pct` so it counts toward the robust/
+        sensitive verdict. Before the fix, a model that collapsed when
+        its top feature was zeroed could still be certified as robust
+        because the verdict loop only inspected relative_drop_pct, which
+        feature_zeroing never emitted."""
+        from sklearn.linear_model import LogisticRegression
+        rng = np.random.default_rng(0)
+        # Single-feature-dominant model: LR with one predictive feature
+        # and four pure-noise features. Zeroing out the top variance
+        # feature (the predictive one) should collapse performance.
+        n = 400
+        x_signal = rng.standard_normal(n) * 10  # high variance → top-ranked
+        noise = rng.standard_normal((n, 4)) * 0.01
+        X = np.column_stack([x_signal, noise])
+        y = (x_signal > 0).astype(int)
+        lr = LogisticRegression(max_iter=300).fit(X[:300], y[:300])
+        r = robustness_stress_test(
+            lr, X[:300], y[:300], X[300:], y[300:],
+            top_n_features=1,
+        )
+        # feature_zeroing perturbation must expose relative_drop_pct
+        fz = next(p for p in r["perturbations"] if "feature_zeroing" in p["type"])
+        assert fz.get("relative_drop_pct") is not None, (
+            "feature_zeroing must emit relative_drop_pct for verdict aggregation"
+        )
+        assert fz["relative_drop_pct"] > 0, fz
+        # And the verdict must acknowledge it — zeroing the only predictive
+        # feature should never certify the model as robust.
+        assert r["max_relative_drop_pct"] >= fz["relative_drop_pct"], (
+            "max_relative_drop_pct must include feature_zeroing's drop; "
+            f"got max={r['max_relative_drop_pct']} vs fz={fz['relative_drop_pct']}"
+        )
+        assert not r["robust"], (
+            f"Collapsing under feature zeroing must flip robust=False; "
+            f"got verdict={r['verdict']}, perturbations={r['perturbations']}"
+        )
 
 
 # ─── FDR BH Correction ───

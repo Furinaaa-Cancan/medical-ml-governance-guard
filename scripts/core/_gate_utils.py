@@ -778,6 +778,7 @@ def calibration_metrics(
     ece = 0.0
     bin_data = []
     hl_stat = 0.0  # Hosmer-Lemeshow chi-sq
+    hl_populated_bins = 0  # HL df must track ACTUAL bins contributing, not n_bins
 
     for i in range(n_bins):
         mask = (y_s >= bin_edges[i]) & (y_s < bin_edges[i + 1])
@@ -800,6 +801,7 @@ def calibration_metrics(
             hl_stat += (o_pos - e_pos) ** 2 / e_pos
         if e_neg > 0:
             hl_stat += (o_neg - e_neg) ** 2 / e_neg
+        hl_populated_bins += 1
 
         bin_data.append({
             "bin": i,
@@ -808,9 +810,14 @@ def calibration_metrics(
             "fraction_positive": round(frac_pos, 4),
         })
 
-    # HL p-value (chi-sq with n_bins - 2 df)
+    # HL p-value — df = (populated bins) - 2, NOT n_bins - 2.
+    # Before 2026-04-19 df was always `n_bins - 2` even when bins were
+    # empty and silently skipped above. For ill-distributed y_score, df
+    # was too large, inflating the HL p-value and letting calibration
+    # look better than it is. Guard lower bound at 1 to keep chi2.cdf
+    # well-defined when only 3 bins are populated.
     from scipy.stats import chi2
-    hl_df = max(n_bins - 2, 1)
+    hl_df = max(hl_populated_bins - 2, 1)
     hl_p = float(1 - chi2.cdf(hl_stat, hl_df))
 
     # --- Brier Skill Score ---
@@ -1895,9 +1902,24 @@ def robustness_stress_test(
             })
         except Exception as exc:
             print(f"[robustness] feature_zero fi={fi}: {exc}", file=sys.stderr)
+    # feature_zeroing emits per-feature deltas (negative = score dropped).
+    # Surface the worst-case drop as relative_drop_pct so the verdict
+    # aggregation below treats it the same as outlier/noise/dropout
+    # perturbations. Before 2026-04-19 the verdict read only
+    # `relative_drop_pct` and this perturbation only had `max_drop`, so a
+    # catastrophic feature-zeroing collapse never flipped `robust=False`.
+    if feat_zero_results:
+        worst_delta = min(f["delta"] for f in feat_zero_results)
+        fz_relative_drop = round(
+            (-worst_delta) / max(baseline, 1e-10) * 100, 2
+        )
+    else:
+        worst_delta = None
+        fz_relative_drop = None
     results["perturbations"].append({
         "type": f"feature_zeroing_top{top_n_features}", "per_feature": feat_zero_results,
-        "max_drop": round(min(f["delta"] for f in feat_zero_results), 4) if feat_zero_results else None,
+        "max_drop": round(worst_delta, 4) if worst_delta is not None else None,
+        "relative_drop_pct": fz_relative_drop,
     })
 
     # Verdict
