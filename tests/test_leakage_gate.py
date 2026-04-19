@@ -638,3 +638,85 @@ class TestLeakageGateMain:
         ])
         rc = leak_main()
         assert rc == 0
+
+
+# ── Immortal time bias regex + detection ───────────────────────────────────
+
+from leakage_gate import IMMORTAL_TIME_RE
+
+
+class TestImmortalTimeRegex:
+    @pytest.mark.parametrize("name", [
+        "received_drug_x",
+        "prescribed_metformin",
+        "administered_vasopressor",
+        "treated_with_aspirin",
+        "underwent_surgery",
+        "started_on_ssri",
+        "initiated_dialysis",
+        "assigned_to_arm_a",
+        "given_warfarin",
+    ])
+    def test_matches_treatment_patterns(self, name):
+        assert IMMORTAL_TIME_RE.search(name) is not None, (
+            f"{name} should match immortal time bias pattern"
+        )
+
+    @pytest.mark.parametrize("name", [
+        "age", "sex", "bmi", "baseline_creatinine", "receiving_treatment",
+        "receiver_status", "treatment_group", "drug_dose",
+    ])
+    def test_does_not_flag_benign_names(self, name):
+        assert IMMORTAL_TIME_RE.search(name) is None, (
+            f"{name} should NOT match immortal time bias pattern"
+        )
+
+
+class TestImmortalTimeDetection:
+    """End-to-end: the red-team test_38 fixture pattern must FAIL."""
+
+    def test_red_team_test_38_fixture_fails(self, tmp_path, monkeypatch):
+        """Mirrors experiments/paper/redteam/r4/test_38_immortal_time_bias.py
+        feature set — received_drug_x must be caught as immortal time bias."""
+        headers = [
+            "patient_id", "age", "sex", "baseline_sofa",
+            "received_drug_x", "baseline_creatinine", "baseline_lactate",
+            "y",
+        ]
+        rows_train = [[f"P{i:03d}", "55", "1", "8", "1", "1.2", "2.1", "0"]
+                      for i in range(10)]
+        rows_test = [[f"Q{i:03d}", "60", "0", "9", "0", "1.5", "3.0", "1"]
+                     for i in range(5)]
+        train = tmp_path / "train.csv"
+        test = tmp_path / "test.csv"
+        _write_csv(train, headers, rows_train)
+        _write_csv(test, headers, rows_test)
+        rpt = tmp_path / "rpt.json"
+        monkeypatch.setattr("sys.argv", [
+            "lg", "--train", str(train), "--test", str(test),
+            "--id-cols", "patient_id", "--target-col", "y",
+            "--report", str(rpt),
+        ])
+        rc = leak_main()
+        assert rc == 2, "immortal time bias must FAIL-CLOSED (not just warn)"
+        report = json.loads(rpt.read_text())
+        codes = [f["code"] for f in report.get("failures", [])]
+        assert "immortal_time_bias_pattern" in codes
+        details = next(f for f in report["failures"]
+                       if f["code"] == "immortal_time_bias_pattern")
+        assert "received_drug_x" in details["details"]["columns"]
+
+    def test_benign_features_pass(self, tmp_path, monkeypatch):
+        splits = _make_clean_splits(tmp_path, with_time=False)
+        rpt = tmp_path / "rpt.json"
+        monkeypatch.setattr("sys.argv", [
+            "lg", "--train", str(splits["train"]),
+            "--test", str(splits["test"]),
+            "--target-col", "y",
+            "--report", str(rpt),
+        ])
+        rc = leak_main()
+        assert rc == 0
+        report = json.loads(rpt.read_text())
+        codes = [f["code"] for f in report.get("failures", [])]
+        assert "immortal_time_bias_pattern" not in codes

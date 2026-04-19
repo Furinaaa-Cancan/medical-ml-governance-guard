@@ -39,6 +39,18 @@ register_remediations({
     "column_mismatch": "Ensure all split CSV files have identical column headers. Regenerate splits from the same source.",
     "missing_target_column": "The target column specified by --target-col is missing from the split CSV. Check column names.",
     "suspicious_feature_names": "Features matching leakage patterns detected. Rename or remove columns that encode future/target information.",
+    "immortal_time_bias_pattern":
+        "Feature name suggests a post-index treatment/intervention event "
+        "(received_*, prescribed_*, administered_*, underwent_*, started_*, "
+        "initiated_*, treated_with_*). Using this as a predictor creates "
+        "IMMORTAL TIME BIAS: to 'receive' the treatment, the patient must "
+        "survive to the treatment window; non-survivors are systematically "
+        "assigned to the untreated group, artificially inflating the "
+        "treatment group's survival. "
+        "Fix: restrict cohort to patients who survived the landmark period, "
+        "OR use a time-dependent covariate / landmark analysis, OR clone-"
+        "censor-weight. "
+        "Ref: Suissa 2008 Am J Epidemiol; Hernán 2016 J Clin Epidemiol.",
     "row_overlap": "Identical rows found across splits. This indicates a split generation bug. Regenerate splits with proper deduplication.",
     "missing_id_columns": "ID columns specified by --id-cols are missing from the split CSV. Check column names.",
     "id_overlap": "Patient/entity IDs overlap between splits. Fix split generation to ensure strict ID separation.",
@@ -48,6 +60,20 @@ register_remediations({
     "no_parseable_time_values": "No valid timestamps found. Cannot perform temporal leakage checks.",
     "temporal_overlap": "Training data timestamps overlap with validation/test. Ensure strict temporal ordering in split boundaries.",
 })
+
+
+# Immortal time bias — post-index treatment/intervention patterns that
+# leak survival information because receiving the intervention implies
+# surviving to the intervention window. Kept separate from the generic
+# suspicious-feature regex so the diagnostic points at the specific
+# methodological error (Suissa 2008; Hernán 2016).
+IMMORTAL_TIME_RE = re.compile(
+    r"(?:^|_)("
+    r"received|prescribed|administered|treated_with|underwent|"
+    r"started_on|initiated|assigned_to|given"
+    r")_",
+    re.IGNORECASE,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -278,6 +304,24 @@ def main() -> int:
             "suspicious_feature_names",
             "Feature names match leakage-prone patterns.",
             {"columns": suspicious},
+        )
+
+    # Immortal time bias — treatment/intervention events as predictors.
+    # Orthogonal to generic suspicious patterns: here the concern is that a
+    # "received X" flag implies the patient survived long enough to receive X,
+    # leaking outcome information (Suissa 2008; Hernán 2016).
+    immortal_hits = []
+    for h in canonical_headers:
+        if args.target_col and h == args.target_col:
+            continue
+        if IMMORTAL_TIME_RE.search(h):
+            immortal_hits.append(h)
+    if immortal_hits:
+        add_issue(
+            failures,
+            "immortal_time_bias_pattern",
+            "Feature names indicate post-index treatment/intervention events.",
+            {"columns": immortal_hits},
         )
 
     # Row overlap.
