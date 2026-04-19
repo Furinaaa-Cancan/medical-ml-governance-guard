@@ -20,8 +20,8 @@ MLGG 对外暴露 3 条稳定入口，其他所有功能都是它们的子命令
 | 入口 | 面向 | 场景 |
 |---|---|---|
 | **`/mlgg`** | 人类用户（Claude Code 内） | 建模 / 训练 / "我有数据" —— 自动观察数据、推断参数、走 Pipeline 模式 6 步（仅 CSV）或 Research 模式 9 阶段（含用户代码） |
-| **`mlgg <subcommand>`** | 终端 / 脚本自动化 | 29 个子命令（见下），包含 play / workflow / onboarding / audit / doctor / lint 等 |
-| **`mlgg-lint`** | CI / pre-commit | 独立 pip 包，27 条 AST 规则，零依赖，5 秒扫完单文件 |
+| **`mlgg <subcommand>`** | 终端 / 脚本自动化 | 28 个子命令（见 Quick Dispatch 分组表），包含 play / workflow / onboarding / audit / doctor / lint 等 |
+| **`mlgg-lint`** | CI / pre-commit | 独立 pip 包，28 条 AST 规则（R001-R028，含 R028 omics 模态守卫），零依赖，5 秒扫完单文件 |
 
 ### 怎么选？`workflow` vs `audit`
 
@@ -31,21 +31,84 @@ MLGG 对外暴露 3 条稳定入口，其他所有功能都是它们的子命令
 
 ## Quick Dispatch
 
-| 用户说的 | 命令 |
-|---------|------|
-| 建模 / 训练 / "我有数据" | `/mlgg` |
-| 交互式体验 | `mlgg play` |
-| 初始化项目 | `mlgg onboarding` |
-| 跑完整 9 阶段 pipeline | `mlgg workflow --strict` |
-| 检查环境 | `mlgg doctor` |
-| 审计外部项目 | `mlgg audit <dir>` |
-| 查看结果 | `python3 scripts/reporting/quick_summary.py <dir>` |
-| 对比两次运行 | `python3 scripts/reporting/compare_runs.py --run-a <d1> --run-b <d2>` |
-| 生成修复计划 | `python3 scripts/reporting/remediation_plan.py --evidence-dir <dir>` |
-| 解释 gate 失败 | `python3 scripts/reporting/explain_gate.py --report <gate_report.json>` |
-| 检查代码泄漏（CI 单文件） | `mlgg-lint check <file.py>`（或 `mlgg lint check`） |
-| 论文审稿系列 | `scripts/review/` 下 `peer_review_lookup.py` / `score_paper_metadata.py` / `batch_journal_review.py`(详见 `references/docs/API-Reference.md`) |
-| LaTeX / 合规证书 / 下载数据集 | `scripts/reporting/export_latex.py` / `scripts/reporting/generate_compliance_certificate.py` / `examples/download_*.py`(详见 `references/docs/API-Reference.md`) |
+Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部 28 个子命令的分组索引（`mlgg flow` 显示推荐顺序，`mlgg --help` 显示全表）。
+
+**主流程（90% 场景）**
+
+| 子命令 | 用途 |
+|---|---|
+| `onboarding` | 新手引导：demo data → train → attestation → strict workflow 一条龙 |
+| `workflow` | 生产级：doctor → preflight → strict → summary |
+| `strict` | 直接跑 33-gate fail-closed DAG |
+| `train` | Train / select / evaluate + 产出 evidence artifacts |
+| `summary` | 渲染用户可读的 markdown / JSON 摘要 |
+
+**流水线步骤（需要拆步时）**
+
+| 子命令 | 用途 |
+|---|---|
+| `init` | 生成项目目录和 config 模板 |
+| `preflight` | 验证 train/valid/test schema 和语义映射 |
+| `split` | 把单个 CSV 拆成 train/valid/test（患者级隔离） |
+| `semantic-audit` | LLM 对特征列做语义泄漏检测 |
+
+**交互入口**
+
+| 子命令 | 用途 |
+|---|---|
+| `interactive` | 向导式 init/workflow/train/authority |
+| `play` | Pixel-art 菜单式启动器 |
+
+**环境 / 元数据**
+
+| 子命令 | 用途 |
+|---|---|
+| `doctor` | 运行时依赖和可选后端检查 |
+| `init-guide` | 为任意 ML 项目生成 MLGG 方法学指南（`.mlgg/` + CLAUDE.md） |
+| `record-session` | 把 evidence 目录追加到 session 日志 |
+
+**单 gate 直调**
+
+| 子命令 | 用途 |
+|---|---|
+| `fairness` | Subgroup equalized odds / disparate impact |
+| `sample-size` | EPV / shrinkage / Riley criteria |
+
+**审计外部项目**
+
+| 子命令 | 用途 |
+|---|---|
+| `audit` | 10 维定量打分（100 分制）审计外部 ML 项目 |
+| `audit-report` | 综合审计报告（TRIPOD+AI / PROBAST+AI + error KB + 文献引用） |
+| `audit-metrics` | 只从 metrics JSON 做 publication-readiness 快检（无需数据文件） |
+| `batch-review` | 批量对 N 个项目做期刊标准审查 + 对比矩阵 |
+| `export-review-prompt` | 导出 MLGG 评审规则为便携 LLM prompt（可粘到任意 LLM） |
+| `lint` | 等价 `mlgg-lint`（AST 代码泄漏检测，零依赖） |
+
+**Benchmark（内部用，release 前跑）**
+
+| 子命令 | 用途 |
+|---|---|
+| `authority` | Authority E2E 基准套件 |
+| `authority-release` | CKD release-grade 压力路由 |
+| `authority-research-heart` | 心脏研究场景高压路由 |
+| `benchmark-suite` | 多数据集稳定性矩阵（authority + adversarial） |
+| `scan-diabetes` | 糖尿病 feasibility 扫描（跨 target mode 和行上限） |
+| `adversarial` | Adversarial fail-closed gate 场景 |
+
+---
+
+**Script-level 工具（非 `mlgg` 子命令，直接 python3 调用）**
+
+| 用途 | 脚本 |
+|---|---|
+| 查看结果 | `scripts/reporting/quick_summary.py <dir>` |
+| 对比两次运行 | `scripts/reporting/compare_runs.py --run-a <d1> --run-b <d2>` |
+| 生成修复计划 | `scripts/reporting/remediation_plan.py --evidence-dir <dir>` |
+| 解释 gate 失败 | `scripts/reporting/explain_gate.py --report <gate_report.json>` |
+| LaTeX / 合规证书 | `scripts/reporting/export_latex.py` / `generate_compliance_certificate.py` |
+| 论文审稿 | `scripts/review/peer_review_lookup.py` / `score_paper_metadata.py` |
+| 下载数据集 | `examples/download_*.py`（详见 `references/docs/API-Reference.md`） |
 
 内部工具函数（`_gate_utils.py`）和 SHAP gate 直接调用见 `references/docs/gate-framework-developer-guide.md`。
 

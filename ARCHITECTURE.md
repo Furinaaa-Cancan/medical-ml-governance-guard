@@ -57,18 +57,39 @@ ml-leakage-guard/
 └── pyproject.toml                   # Package metadata
 ```
 
-## Three Product Entry Points
+## Entry Points
+
+Two independently-packaged products + one unified CLI surface.
 
 ```
-1. mlgg-lint          pip install mlgg-lint && mlgg-lint check code.py
-                      Zero deps. 27 AST rules. Catches data leakage in 5 seconds.
+┌─ Products ────────────────────────────────────────────────────────────┐
+│                                                                       │
+│  mlgg-lint      pip install mlgg-lint && mlgg-lint check code.py      │
+│                 Zero deps. 28 AST rules (R001-R028). 5s per file.     │
+│                 R028 refuses omics modalities (gene_/snp_/ENSG).      │
+│                                                                       │
+│  mlgg           pip install ml-governance-guard                       │
+│                 Unified CLI with 28 subcommands (see SKILL.md).       │
+│                 Scope: retrospective-cohort binary classification.    │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
 
-2. audit-metrics      python3 scripts/reporting/audit_metrics.py --metrics '{...}'
-                      Zero deps. Checks publication readiness from Table 2 numbers.
+Canonical flows (see `mlgg flow` for the full DAG):
 
-3. mlgg onboarding    python3 -m scripts.orchestration.mlgg onboarding --input-csv data.csv
-                      Full pipeline: split → train → 33 gates → evidence report.
+  Full pipeline       mlgg onboarding --input-csv data.csv --target-col y
+                      → split → train → 33 gates → evidence report
+
+  Quick scoring       mlgg audit-metrics --metrics '{"auroc": 0.82, ...}'
+                      → publication-readiness from Table 2 only, no data
+
+  External audit      mlgg audit <project-dir>
+                      → 10-dimension 100-point scan of someone else's code
+
+  Single gate         mlgg fairness / mlgg sample-size
+                      → invoke one gate without the full DAG
 ```
+
+Full subcommand index: `SKILL.md` §"Quick Dispatch" (grouped by intent).
 
 ## Data Flow
 
