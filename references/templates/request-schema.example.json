@@ -56,5 +56,21 @@
     "_study_type_options": ["clinical_prediction", "rare_disease", "feasibility", "methods_comparison"],
     "estimated_total_events": 500,
     "notes": "No disease-defining variables are allowed in predictors."
+  },
+  "cohort_spec": {
+    "_doc": "Consumed by cohort_definition_gate via --cohort-spec. Required for claim_tier_target=publication-grade. Declares the inclusion/exclusion cascade and index date.",
+    "inclusion_criteria": [
+      {"step": "all patients in registry", "n_initial": 50000},
+      {"step": "age >= 18 at index", "n_after": 42000},
+      {"step": "has >= 1 year of history", "n_after": 35000},
+      {"step": "no prior diagnosis of outcome", "n_after": 28000}
+    ],
+    "exclusion_criteria": [
+      {"step": "pregnant at index", "n_removed": 1200},
+      {"step": "died before index_date + 1d", "n_removed": 340}
+    ],
+    "index_date_col": "index_date",
+    "eligibility_start_col": "enrollment_date",
+    "final_cohort_size": 26460
   }
 }

@@ -244,14 +244,14 @@ MLGG 是**训练管线治理工具**，不是全栈 publication readiness。下�
 | 模型选择 / 评估指标 / 校准 / DCA | ✅ 强 | 完整 14 指标面板，Bootstrap CI，TRIPOD+AI 对齐 |
 | 公平性 / 亚组分析 | ✅ 中 | `fairness_equity_gate` 查等均化 odds + disparate impact |
 | 样本量 / EPV | ✅ 中 | Riley 2019/2025 + van Houwelingen 阈值 |
-| **Cohort selection bias**（谁进入队列、谁被排除、selection 机制） | ⚠️ 弱 | `cohort_definition_gate` 只查 cohort 大小 / 类分布 / EPV，不对比总体人群。诊断工具在 P2-9 roadmap |
+| **Cohort selection bias**（谁进入队列、谁被排除、selection 机制） | ✅ 中 | `cohort_definition_gate` 现在验证 `--cohort-spec` JSON 声明的 inclusion/exclusion cascade（monotonicity + final_cohort_size 对账）、生成 `cohort_table_one.csv`（TRIPOD+AI Item 13a）、检查 `index_date_col` 存在性；`claim_tier=publication-grade` 时未声明 cascade → FAIL。仍不做与人群参考（NHANES/census）的 Table 1 对比，也不做 immortal-time-bias 值域检测（下放 `feature_lineage_gate`）。|
 | **Label ascertainment validity**（结局如何被记录、coding 误差） | ❌ 超范围 | 需临床核验 + EHR 元信息，不是代码问题 |
 | **Post-deployment monitoring**（上线后漂移、性能衰减） | ❌ 超范围 | MLGG 是离线治理，推荐 Evidently AI / WhyLabs 等 |
 
 **模态**: 回顾性队列研究的二分类预测（EHR / 临床 / 注册 / 病例对照 / 横断面）。23 个 sklearn 模型族 + 4 个可选后端（XGBoost / CatBoost / LightGBM / TabPFN）。
 **不支持**: 组学/基因组 (TCGA bulk、scRNA-seq、GWAS、甲基化) / 影像 / 文本 / 时序、多分类 / 回归、深度学习、部署流水线、survival/time-to-event (roadmap)。模态守卫: `mlgg-lint` R028 会在检测到 `gene_/probe_/snp_/cpg_/rs#/ENSG` 特征时直接拒绝。
 
-用"publication-grade"时请具体到哪个维度："本项目已过 MLGG 训练管线治理（33 gate），但 cohort selection bias 未评估，label ascertainment 依赖临床核验"——不要泛泛声称论文级就绪。
+用"publication-grade"时请具体到哪个维度："本项目已过 MLGG 训练管线治理（33 gate），cohort cascade 已声明+对账、Table 1 已生成，但 label ascertainment 依赖临床核验"——不要泛泛声称论文级就绪。
 
 ---
 

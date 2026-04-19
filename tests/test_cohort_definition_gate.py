@@ -467,3 +467,140 @@ class TestCodebookValidation:
         validate_codebook(df, str(tmp_path / "nope.json"), "nhanes", "y", failures, warnings)
         assert len(failures) == 0
         assert len(warnings) == 1
+
+
+# ─── P1: cohort_spec cascade + Table 1 + index_date ───
+
+from cohort_definition_gate import (
+    _load_cohort_spec,
+    _validate_cohort_cascade,
+    _validate_index_date,
+    _generate_table_one,
+)
+
+
+class TestLoadCohortSpec:
+    def test_empty(self):
+        assert _load_cohort_spec("") is None
+        assert _load_cohort_spec("   ") is None
+
+    def test_inline_json(self):
+        spec = _load_cohort_spec('{"final_cohort_size": 100}')
+        assert spec == {"final_cohort_size": 100}
+
+    def test_file_path(self, tmp_path: Path):
+        p = tmp_path / "spec.json"
+        p.write_text('{"inclusion_criteria": [{"step": "a", "n_initial": 10}]}')
+        spec = _load_cohort_spec(str(p))
+        assert spec["inclusion_criteria"][0]["step"] == "a"
+
+
+class TestValidateCohortCascade:
+    def test_undocumented_leakage_audited_is_warn(self):
+        failures, warnings = [], []
+        result = _validate_cohort_cascade(None, 100, failures, warnings,
+                                          claim_tier="leakage-audited")
+        assert result["declared"] is False
+        assert len(failures) == 0
+        assert len(warnings) == 1
+        assert warnings[0]["code"] == "COHORT_CASCADE_UNDOCUMENTED"
+
+    def test_undocumented_publication_grade_is_fail(self):
+        failures, warnings = [], []
+        _validate_cohort_cascade(None, 100, failures, warnings,
+                                 claim_tier="publication-grade")
+        assert len(failures) == 1
+        assert failures[0]["code"] == "COHORT_CASCADE_UNDOCUMENTED"
+
+    def test_monotonicity_violation_fails(self):
+        spec = {"inclusion_criteria": [
+            {"step": "registry", "n_initial": 1000},
+            {"step": "age>=18", "n_after": 800},
+            {"step": "added back somehow", "n_after": 900},  # BUG
+        ]}
+        failures, warnings = [], []
+        _validate_cohort_cascade(spec, 900, failures, warnings,
+                                 claim_tier="leakage-audited")
+        mono = [f for f in failures if f["code"] == "COHORT_CASCADE_MONOTONICITY"]
+        assert len(mono) >= 1
+
+    def test_valid_cascade_no_failure(self):
+        spec = {
+            "inclusion_criteria": [
+                {"step": "registry", "n_initial": 1000},
+                {"step": "age>=18", "n_after": 800},
+                {"step": "1y history", "n_after": 600},
+            ],
+            "final_cohort_size": 600,
+        }
+        failures, warnings = [], []
+        result = _validate_cohort_cascade(spec, 600, failures, warnings,
+                                          claim_tier="publication-grade")
+        assert result["declared"] is True
+        assert result["n_inclusion_steps"] == 3
+        cascade_failures = [f for f in failures
+                            if f["code"].startswith("COHORT_CASCADE")]
+        assert len(cascade_failures) == 0
+
+    def test_size_mismatch_fails(self):
+        spec = {"final_cohort_size": 1000}
+        failures, warnings = [], []
+        _validate_cohort_cascade(spec, 500, failures, warnings,
+                                 claim_tier="leakage-audited")
+        mismatch = [f for f in failures if f["code"] == "COHORT_CASCADE_MISMATCH"]
+        assert len(mismatch) == 1
+
+    def test_size_within_tolerance_passes(self):
+        spec = {"final_cohort_size": 1000}
+        failures, warnings = [], []
+        _validate_cohort_cascade(spec, 1005, failures, warnings,
+                                 claim_tier="leakage-audited")
+        mismatch = [f for f in failures if f["code"] == "COHORT_CASCADE_MISMATCH"]
+        assert len(mismatch) == 0
+
+
+class TestValidateIndexDate:
+    def test_no_spec_returns_empty(self):
+        failures = []
+        result = _validate_index_date(None, ["a", "b"], failures)
+        assert result == {}
+        assert len(failures) == 0
+
+    def test_declared_and_present(self):
+        failures = []
+        spec = {"index_date_col": "index_dt"}
+        result = _validate_index_date(spec, ["index_dt", "age"], failures)
+        assert result == {"index_date_col": "index_dt", "present": True}
+        assert len(failures) == 0
+
+    def test_declared_missing_fails(self):
+        failures = []
+        spec = {"index_date_col": "missing_col"}
+        _validate_index_date(spec, ["age", "sex"], failures)
+        assert len(failures) == 1
+        assert failures[0]["code"] == "COHORT_INDEX_DATE_MISSING"
+
+
+class TestGenerateTableOne:
+    def test_emits_csv_with_groups(self, tmp_path: Path):
+        df = pd.DataFrame({
+            "age": [25, 35, 45, 55, 65, 75],
+            "sex": [0, 1, 0, 1, 0, 1],
+            "race": ["white", "black", "asian", "white", "black", "asian"],
+            "y": [0, 0, 0, 1, 1, 1],
+        })
+        path = tmp_path / "t1.csv"
+        result = _generate_table_one(df, "y", ["age", "sex", "race"], path)
+        assert result["status"] == "written"
+        assert result["n_features"] == 3
+        assert result["n_outcome_positive"] == 3
+        assert result["n_outcome_negative"] == 3
+        assert path.exists()
+        text = path.read_text(encoding="utf-8")
+        assert "age" in text and "sex" in text and "race" in text
+        assert "continuous" in text and "binary" in text and "categorical" in text
+
+    def test_missing_target_is_skipped(self, tmp_path: Path):
+        df = pd.DataFrame({"x": [1, 2, 3]})
+        result = _generate_table_one(df, "nope", ["x"], tmp_path / "t1.csv")
+        assert result["status"] == "skipped"

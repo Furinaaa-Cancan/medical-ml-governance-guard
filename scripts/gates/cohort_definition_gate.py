@@ -170,6 +170,27 @@ register_remediations({
     "CODEBOOK_DEFINITION_VARIABLE":
         "Feature is a definition variable for the target disease. Using it as "
         "a predictor constitutes circular reasoning (label leakage).",
+    "COHORT_CASCADE_UNDOCUMENTED":
+        "No inclusion/exclusion cascade provided in --cohort-spec. "
+        "Retrospective cohorts must document the filter cascade (CONSORT-style) "
+        "to let reviewers audit selection bias. Provide a JSON file via "
+        "--cohort-spec with inclusion_criteria list; each entry needs step + n_after. "
+        "Ref: TRIPOD+AI 2024 Item 4a; STROBE Items 6-9.",
+    "COHORT_CASCADE_MONOTONICITY":
+        "Cohort cascade is not monotonically decreasing. An inclusion step has "
+        "n_after greater than the previous step — cohorts only shrink as filters "
+        "apply. Either swap the steps or fix the recorded counts.",
+    "COHORT_CASCADE_MISMATCH":
+        "Declared final_cohort_size does not match the actual CSV row count "
+        "(>1% deviation). Either update the declaration or explain the gap "
+        "(post-cascade QC drops, deduplication, etc.) in notes.",
+    "COHORT_INDEX_DATE_MISSING":
+        "Declared index_date_col was not found in the CSV. Check the column name "
+        "in --cohort-spec matches the CSV header; case-sensitive.",
+    "COHORT_TABLE_ONE_WRITTEN":
+        "Table 1 (descriptive statistics by outcome group) was generated as "
+        "evidence/cohort_table_one.csv. Required for publication per TRIPOD+AI 2024 "
+        "Item 13a — include in manuscript and verify distributions are clinically plausible.",
 })
 
 
@@ -784,6 +805,230 @@ def _write_feature_profile_csv(
 
 
 # ---------------------------------------------------------------------------
+# Cohort spec helpers (P1 cohort-selection-bias controls)
+# ---------------------------------------------------------------------------
+
+def _load_cohort_spec(spec_arg: str) -> Optional[Dict[str, Any]]:
+    """Parse --cohort-spec input as either a JSON file path or an inline JSON string.
+
+    Returns None if the arg is empty. Raises ValueError on malformed JSON.
+    """
+    spec_arg = (spec_arg or "").strip()
+    if not spec_arg:
+        return None
+    spec_path = Path(spec_arg).expanduser()
+    if spec_path.exists() and spec_path.is_file():
+        with spec_path.open("r", encoding="utf-8") as fh:
+            return json.load(fh)
+    return json.loads(spec_arg)
+
+
+def _validate_cohort_cascade(
+    cohort_spec: Optional[Dict[str, Any]],
+    n_rows_actual: int,
+    failures: List[Dict[str, Any]],
+    warnings_list: List[Dict[str, Any]],
+    *,
+    claim_tier: str,
+) -> Dict[str, Any]:
+    """Validate cohort inclusion/exclusion cascade declaration.
+
+    Rules:
+      - No cohort_spec at publication-grade tier → FAIL; otherwise WARN.
+      - inclusion_criteria must be monotonically non-increasing in n_after.
+      - final_cohort_size must match CSV row count within 1% tolerance.
+    """
+    result: Dict[str, Any] = {"declared": False}
+
+    if cohort_spec is None:
+        severity_list = failures if claim_tier == "publication-grade" else warnings_list
+        add_issue(
+            severity_list, "COHORT_CASCADE_UNDOCUMENTED",
+            f"No cohort_spec provided (claim_tier='{claim_tier}'). "
+            f"Cohort selection bias cannot be audited without the filter cascade.",
+            {"claim_tier": claim_tier},
+        )
+        return result
+
+    result["declared"] = True
+    inclusion = cohort_spec.get("inclusion_criteria") or []
+    exclusion = cohort_spec.get("exclusion_criteria") or []
+    final_declared = cohort_spec.get("final_cohort_size")
+
+    result["n_inclusion_steps"] = len(inclusion)
+    result["n_exclusion_steps"] = len(exclusion)
+
+    # Monotonicity check on inclusion cascade
+    prev_n: Optional[int] = None
+    for i, step in enumerate(inclusion):
+        n_here = step.get("n_after", step.get("n_initial"))
+        if not isinstance(n_here, (int, float)) or n_here < 0:
+            continue
+        n_here_int = int(n_here)
+        if prev_n is not None and n_here_int > prev_n:
+            add_issue(
+                failures, "COHORT_CASCADE_MONOTONICITY",
+                f"Inclusion step #{i} ('{step.get('step', '?')}') has "
+                f"n_after={n_here_int} > previous step n={prev_n}. "
+                f"Cohorts only shrink as filters apply.",
+                {"step_index": i, "n_here": n_here_int, "n_previous": prev_n},
+            )
+        prev_n = n_here_int
+
+    # Final cohort size vs actual CSV rows
+    if isinstance(final_declared, (int, float)):
+        declared_int = int(final_declared)
+        result["final_cohort_size_declared"] = declared_int
+        result["final_cohort_size_actual"] = n_rows_actual
+        if n_rows_actual > 0:
+            deviation = abs(declared_int - n_rows_actual) / n_rows_actual
+            result["deviation_pct"] = round(deviation * 100, 2)
+            if deviation > 0.01:
+                add_issue(
+                    failures, "COHORT_CASCADE_MISMATCH",
+                    f"Declared final_cohort_size={declared_int} vs actual CSV "
+                    f"rows={n_rows_actual} ({deviation*100:.2f}% off). "
+                    f"Either fix the declaration or document the gap.",
+                    {"declared": declared_int, "actual": n_rows_actual,
+                     "deviation_pct": round(deviation * 100, 2)},
+                )
+
+    return result
+
+
+def _validate_index_date(
+    cohort_spec: Optional[Dict[str, Any]],
+    df_columns: List[str],
+    failures: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    """Validate declared index_date_col exists in CSV.
+
+    Note: full immortal-time-bias value-range detection is performed in
+    feature_lineage_gate; here we only confirm the column is declared and present.
+    """
+    if not cohort_spec:
+        return {}
+    index_col = (cohort_spec.get("index_date_col") or "").strip()
+    if not index_col:
+        return {}
+    if index_col not in df_columns:
+        add_issue(
+            failures, "COHORT_INDEX_DATE_MISSING",
+            f"Declared index_date_col='{index_col}' not found in CSV columns. "
+            f"Case-sensitive match required.",
+            {"index_date_col": index_col, "csv_columns_sample": df_columns[:10]},
+        )
+        return {"index_date_col": index_col, "present": False}
+    return {"index_date_col": index_col, "present": True}
+
+
+def _generate_table_one(
+    df: pd.DataFrame,
+    target_col: str,
+    feature_cols: List[str],
+    path: Path,
+) -> Dict[str, Any]:
+    """Emit evidence/cohort_table_one.csv — descriptive statistics by outcome group.
+
+    TRIPOD+AI 2024 Item 13a requires Table 1 at submission. We generate the
+    structural skeleton here (one row per feature, stratified by outcome) so
+    the user can paste it directly into the manuscript.
+
+    Formatting:
+      - Numeric (≥3 unique): mean (SD)
+      - Binary (0/1): n (%)
+      - Categorical: one row per level "level=v: n (%)"
+    """
+    if target_col not in df.columns:
+        return {"status": "skipped", "reason": "target column not found"}
+
+    y = df[target_col]
+    mask_pos = y == 1
+    mask_neg = y == 0
+    n_total = len(df)
+    n_pos = int(mask_pos.sum())
+    n_neg = int(mask_neg.sum())
+
+    header = [
+        "Feature",
+        "Type",
+        f"Overall (N={n_total})",
+        f"Outcome=0 (N={n_neg})",
+        f"Outcome=1 (N={n_pos})",
+        "N_Missing",
+    ]
+    rows: List[List[str]] = []
+
+    def _fmt_mean_sd(s: pd.Series) -> str:
+        s_clean = s.dropna()
+        if s_clean.empty:
+            return "N/A"
+        mean = _to_float(s_clean.mean())
+        sd = _to_float(s_clean.std())
+        if mean is None or sd is None:
+            return "N/A"
+        return f"{mean:.2f} ({sd:.2f})"
+
+    def _fmt_count_pct(n: int, denom: int) -> str:
+        if denom <= 0:
+            return f"{n} (—)"
+        return f"{n} ({100.0 * n / denom:.1f}%)"
+
+    for feat in feature_cols:
+        if feat not in df.columns:
+            continue
+        series = df[feat]
+        n_missing = int(series.isna().sum())
+        dtype_class = _classify_dtype(series)
+
+        if pd.api.types.is_numeric_dtype(series) and series.nunique(dropna=True) > 2:
+            rows.append([
+                feat, "continuous (mean (SD))",
+                _fmt_mean_sd(series),
+                _fmt_mean_sd(series[mask_neg]),
+                _fmt_mean_sd(series[mask_pos]),
+                str(n_missing),
+            ])
+        elif dtype_class == "binary":
+            n1_overall = int((series == 1).sum())
+            n1_neg = int(((series == 1) & mask_neg).sum())
+            n1_pos = int(((series == 1) & mask_pos).sum())
+            rows.append([
+                feat, "binary (n (%) of 1)",
+                _fmt_count_pct(n1_overall, n_total),
+                _fmt_count_pct(n1_neg, n_neg),
+                _fmt_count_pct(n1_pos, n_pos),
+                str(n_missing),
+            ])
+        else:
+            # Categorical — one summary row, with levels listed inline
+            vc = series.value_counts(dropna=True).head(5)
+            levels_text = "; ".join(
+                f"{k}={_fmt_count_pct(int(v), n_total)}" for k, v in vc.items()
+            )
+            rows.append([
+                feat, f"categorical ({series.nunique(dropna=True)} levels)",
+                levels_text or "N/A",
+                "(see overall)",
+                "(see overall)",
+                str(n_missing),
+            ])
+
+    with path.open("w", newline="", encoding="utf-8") as fh:
+        writer = csv.writer(fh)
+        writer.writerow(header)
+        writer.writerows(rows)
+
+    return {
+        "status": "written",
+        "path": str(path),
+        "n_features": len(rows),
+        "n_outcome_positive": n_pos,
+        "n_outcome_negative": n_neg,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Validation checks
 # ---------------------------------------------------------------------------
 
@@ -1017,6 +1262,19 @@ def parse_args() -> argparse.Namespace:
         "--codebook-dataset", default="",
         help="Dataset key within the codebook registry (e.g., 'nhanes_2017_2020'). "
              "Auto-detected from filename if omitted.",
+    )
+    study.add_argument(
+        "--cohort-spec", default="",
+        help="Path to JSON file (or inline JSON) declaring the cohort cascade: "
+             "{inclusion_criteria: [{step, n_initial|n_after}], "
+             "exclusion_criteria: [...], index_date_col, final_cohort_size}. "
+             "Required for claim_tier=publication-grade.",
+    )
+    study.add_argument(
+        "--claim-tier", default="leakage-audited",
+        choices=["leakage-audited", "publication-grade"],
+        help="Publication claim tier — publication-grade promotes "
+             "undocumented cascade from WARN to FAIL.",
     )
 
     cfg = parser.add_argument_group("Thresholds")
@@ -1518,6 +1776,45 @@ def main() -> int:
     _write_cohort_summary_csv(output_dir / "cohort_summary.csv", analysis)
     _write_feature_profile_csv(output_dir / "feature_profile.csv", analysis.get("feature_profiles", []))
 
+    # ── P1 cohort-selection-bias controls ──
+    try:
+        cohort_spec = _load_cohort_spec(args.cohort_spec)
+    except (json.JSONDecodeError, OSError) as exc:
+        cohort_spec = None
+        add_issue(
+            warnings_list, "COHORT_CASCADE_UNDOCUMENTED",
+            f"Failed to parse --cohort-spec: {exc}. Treating as undocumented.",
+            {"error": str(exc)},
+        )
+
+    cascade_result = _validate_cohort_cascade(
+        cohort_spec,
+        analysis["n_rows"],
+        failures,
+        warnings_list,
+        claim_tier=args.claim_tier,
+    )
+    index_date_result = _validate_index_date(
+        cohort_spec, list(df.columns), failures
+    )
+    study_design["cohort_cascade"] = cascade_result
+    if index_date_result:
+        study_design["index_date"] = index_date_result
+
+    table_one_result = _generate_table_one(
+        df, args.target_col, feature_cols,
+        output_dir / "cohort_table_one.csv",
+    )
+    if table_one_result.get("status") == "written":
+        add_issue(
+            warnings_list, "COHORT_TABLE_ONE_WRITTEN",
+            f"Table 1 generated at {table_one_result['path']} "
+            f"({table_one_result['n_features']} features × outcome groups). "
+            f"Verify distributions are clinically plausible before manuscript submission.",
+            table_one_result,
+        )
+    analysis["study_design"] = study_design
+
     print(f"  Cohort: {analysis['n_rows']} rows, {analysis['n_features']} features")
     target = analysis.get("target", {})
     if "epv" in target:
@@ -1532,6 +1829,8 @@ def main() -> int:
     summary["tables_written"] = {
         "cohort_summary": str(output_dir / "cohort_summary.csv"),
         "feature_profile": str(output_dir / "feature_profile.csv"),
+        "cohort_table_one": str(output_dir / "cohort_table_one.csv")
+            if table_one_result.get("status") == "written" else None,
     }
 
     return _finish(args, failures, warnings_list, summary)
