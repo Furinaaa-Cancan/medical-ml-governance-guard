@@ -961,3 +961,57 @@ def test_r020_clip_quantile_before_split_flagged():
     diags = check_sample("r020_bad_clip_quantile.py")
     r020 = [d for d in diags if d.rule_id == "R020"]
     assert len(r020) >= 1, "R020 should detect clip with quantile bounds before split"
+
+
+# ── R028: omics feature prefix (modality scope guard) ───────────────────────
+
+def test_r028_bad_has_diagnostics():
+    """R028 must flag a feature list dominated by omics-pattern names."""
+    diags = check_sample("r028_bad.py")
+    r028 = [d for d in diags if d.rule_id == "R028"]
+    assert len(r028) >= 1
+    assert (
+        "omics" in r028[0].message.lower()
+        or "gene_" in r028[0].message.lower()
+        or "scope" in r028[0].message.lower()
+    )
+
+
+def test_r028_good_no_r028():
+    """R028 must NOT flag a regular EHR feature list."""
+    diags = check_sample("r028_good.py")
+    r028 = [d for d in diags if d.rule_id == "R028"]
+    assert len(r028) == 0
+
+
+def test_r028_below_threshold_not_flagged(tmp_path):
+    """R028 must not trigger on <3 omics-pattern names — avoids single-column false positive."""
+    code = tmp_path / "single_gene.py"
+    code.write_text(
+        "features = ['age', 'gene_count', 'sex']\n"
+    )
+    diags = analyze_file(code)
+    r028 = [d for d in diags if d.rule_id == "R028"]
+    assert len(r028) == 0, "R028 should need ≥3 omics-pattern names to fire"
+
+
+def test_r028_rsid_pattern_detected(tmp_path):
+    """R028 must detect dbSNP rsIDs (GWAS variants)."""
+    code = tmp_path / "gwas.py"
+    code.write_text(
+        "features = ['rs12345', 'rs67890', 'rs11111', 'age']\n"
+    )
+    diags = analyze_file(code)
+    r028 = [d for d in diags if d.rule_id == "R028"]
+    assert len(r028) >= 1, "R028 should detect rsID pattern (GWAS)"
+
+
+def test_r028_ensembl_pattern_detected(tmp_path):
+    """R028 must detect Ensembl gene IDs (ENSG...)."""
+    code = tmp_path / "ensg.py"
+    code.write_text(
+        "cols = ['ENSG00000141510', 'ENSG00000012048', 'ENSG00000157764']\n"
+    )
+    diags = analyze_file(code)
+    r028 = [d for d in diags if d.rule_id == "R028"]
+    assert len(r028) >= 1, "R028 should detect Ensembl gene IDs"

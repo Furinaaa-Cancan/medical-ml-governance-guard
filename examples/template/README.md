@@ -1,6 +1,6 @@
 # Medical ML Project Template
 
-基于 MLGG（Medical ML Governance Guard）方法学标准的医学二分类预测项目模板。
+基于 MLGG（Medical ML Governance Guard）方法学标准的回顾性队列二分类预测项目模板（EHR / 注册 / 病例对照 / 横断面）。
 
 内置 AI 审稿人，在你写代码的过程中实时检查数据泄漏、方法学错误和报告缺陷。
 

@@ -2,7 +2,7 @@
 
 ## Project
 
-**ml-governance-guard (MLGG)** — 面向医学二分类预测的发布级模型治理框架。33 道 fail-closed 门控，覆盖数据泄漏检测、校准验证、公平性审查、TRIPOD+AI 2024 / PROBAST+AI 2025 合规等全生命周期治理。
+**ml-governance-guard (MLGG)** — 面向**回顾性队列研究**（EHR / 注册 / 病例对照 / 横断面）的**二分类预测**发布级治理框架。33 道 fail-closed 门控，覆盖数据泄漏检测、校准验证、公平性审查、TRIPOD+AI 2024 / PROBAST+AI 2025 合规等全生命周期治理。**模态边界**: 不覆盖组学 (TCGA/scRNA/GWAS)、影像、文本、survival——omics 走 Scanpy/limma/PLINK 原生工具链。
 
 ## Working Directory
 
