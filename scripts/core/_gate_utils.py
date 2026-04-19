@@ -2165,6 +2165,37 @@ def temporal_drift_analysis(
     window_edges = np.linspace(0, len(y_t), n_windows + 1, dtype=int)
     windows = []
 
+    # Per-window calibration fit reuses the same joint-fit + CITL logic
+    # as calibration_metrics. Import here to avoid a circular module-init
+    # path when _gate_utils is imported standalone during tests.
+    from sklearn.linear_model import LogisticRegression
+    import sklearn as _sk
+    _sk_ver = tuple(int(x) for x in _sk.__version__.split(".")[:2])
+
+    def _window_calibration(yt_w, ys_w):
+        """Return (slope, intercept_joint, intercept_citl) for a window,
+        or (None, None, None) when the window is degenerate (single
+        class, constant score, too few samples)."""
+        if len(yt_w) < 20 or len(np.unique(yt_w)) < 2 or np.allclose(ys_w, ys_w[0]):
+            return None, None, None
+        eps = 1e-7
+        ys_clip = np.clip(ys_w, eps, 1 - eps)
+        logit_s = np.log(ys_clip / (1 - ys_clip))
+        if _sk_ver >= (1, 8):
+            lr = LogisticRegression(C=np.inf, solver="lbfgs", max_iter=1000)
+        elif _sk_ver >= (1, 2):
+            lr = LogisticRegression(penalty=None, solver="lbfgs", max_iter=1000)
+        else:
+            lr = LogisticRegression(C=1e10, solver="lbfgs", max_iter=1000)
+        try:
+            lr.fit(logit_s.reshape(-1, 1), yt_w)
+            slope = float(lr.coef_[0][0])
+            joint = float(lr.intercept_[0])
+        except Exception:
+            return None, None, None
+        citl = _fit_citl_intercept(yt_w.astype(float), logit_s)
+        return slope, joint, citl
+
     for i in range(n_windows):
         start, end = window_edges[i], window_edges[i + 1]
         if end - start < 10:
@@ -2192,6 +2223,12 @@ def temporal_drift_analysis(
         # Prevalence
         prev = float(yt_w.mean())
 
+        # Calibration slope + intercept (joint fit) and CITL (offset
+        # fit) per window — per docstring contract. Before 2026-04-19
+        # only prevalence / O:E / ECE were emitted, silently breaking
+        # the "calibration drift" promise.
+        slope, intercept_joint, intercept_citl = _window_calibration(yt_w, ys_w)
+
         windows.append({
             "window": i,
             "n_samples": end - start,
@@ -2200,19 +2237,34 @@ def temporal_drift_analysis(
             "prevalence": round(prev, 4),
             "oe_ratio": round(oe, 4) if oe is not None else None,
             "ece": round(ece, 4),
+            "calibration_slope": round(slope, 4) if slope is not None else None,
+            "calibration_intercept": (
+                round(intercept_citl, 4) if intercept_citl is not None
+                else (round(intercept_joint, 4) if intercept_joint is not None else None)
+            ),
+            "calibration_intercept_joint": round(intercept_joint, 4) if intercept_joint is not None else None,
         })
 
-    # CUSUM on O:E ratio deviations from 1.0
+    # CUSUM on O:E ratio deviations from 1.0.
+    # 2026-04-19 Codex minor fix: track the ORIGINAL window index that
+    # first trips CUSUM. Previously `drift_point` indexed into the
+    # filtered `oe_values` list, so any None-valued window before the
+    # drift would offset the reported window index. Now we pair each
+    # CUSUM step with the `window` field from the source window dict.
     if len(windows) >= 3:
-        oe_values = [w["oe_ratio"] for w in windows if w["oe_ratio"] is not None and np.isfinite(w["oe_ratio"])]
+        oe_pairs = [
+            (w["window"], w["oe_ratio"])
+            for w in windows
+            if w["oe_ratio"] is not None and np.isfinite(w["oe_ratio"])
+        ]
         cusum = []
         s = 0.0
         drift_point = None
-        for i, oe in enumerate(oe_values):
+        for window_id, oe in oe_pairs:
             s = max(0, s + abs(oe - 1.0) - cusum_allowance)
             cusum.append(round(s, 4))
             if s > cusum_threshold and drift_point is None:
-                drift_point = i
+                drift_point = window_id
     else:
         cusum = []
         drift_point = None

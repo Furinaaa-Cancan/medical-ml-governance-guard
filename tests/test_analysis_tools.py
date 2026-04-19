@@ -142,6 +142,90 @@ class TestTemporalDrift:
         assert len(r["per_window"]) == 5
         assert len(r["cusum_values"]) >= 3
 
+    def test_per_window_emits_calibration_slope_and_intercept(self):
+        """Regression test for 2026-04-19: the docstring promises
+        per-window calibration drift — slope AND intercept — but the
+        implementation previously only emitted prevalence / O:E / ECE.
+        Pin the return-contract so the calibration-drift story isn't
+        silently reduced to prevalence drift.
+        """
+        rng = np.random.default_rng(11)
+        n = 1500
+        # Well-calibrated first half, over-confident second half
+        # (logit scaled × 2) to force calibration slope drift.
+        logit_true = rng.standard_normal(n) - 0.5
+        p_true = 1.0 / (1.0 + np.exp(-logit_true))
+        y = (rng.uniform(0, 1, n) < p_true).astype(int)
+        logit_emit = logit_true.copy()
+        logit_emit[n // 2:] *= 2.0  # over-confident in later windows
+        y_score = 1.0 / (1.0 + np.exp(-logit_emit))
+        times = np.arange(n, dtype=float)
+        r = temporal_drift_analysis(y, y_score, times, n_windows=5)
+
+        # Every populated window must carry slope + intercept.
+        populated = [w for w in r["per_window"] if w["n_samples"] > 0]
+        assert populated
+        for w in populated:
+            assert "calibration_slope" in w, w
+            assert "calibration_intercept" in w, w
+            assert "calibration_intercept_joint" in w, w
+            # At this sample size, the fit should succeed (non-None).
+            assert w["calibration_slope"] is not None, w
+            assert w["calibration_intercept"] is not None, w
+
+        # Earlier windows should have slope ≈ 1 (well calibrated);
+        # later windows should deviate from 1 (over-confidence).
+        slopes = [w["calibration_slope"] for w in populated]
+        early = np.mean(slopes[:2])
+        late = np.mean(slopes[-2:])
+        assert early > late, (
+            "Expected later windows to have lower calibration slope "
+            f"(more over-confident); got early={early:.3f}, late={late:.3f}"
+        )
+
+    def test_drift_point_window_uses_source_index(self):
+        """Regression test for 2026-04-19 Codex minor: when some
+        windows yield oe_ratio=None (e.g., expected sum is 0 because
+        predictions are all near zero in that window), the reported
+        drift_point_window must index into the ORIGINAL window field,
+        not the filtered oe_values list."""
+        rng = np.random.default_rng(17)
+        # Build 6 windows. Window 0 has predictions clamped to ~0 so
+        # its O:E becomes None. Windows 1-5 have real predictions,
+        # later windows drift upward.
+        n_per = 200
+        total = n_per * 6
+        y = rng.choice([0, 1], total, p=[0.6, 0.4])
+        y_score = np.full(total, 0.4)
+        # Window 0: predictions ~ 0 (O:E → None branch)
+        y_score[:n_per] = 0.0
+        # Windows 3-5: drift upward (predict too high)
+        for w in range(3, 6):
+            y_score[w * n_per : (w + 1) * n_per] = 0.85
+        times = np.arange(total, dtype=float)
+        r = temporal_drift_analysis(
+            y, y_score, times, n_windows=6, cusum_threshold=1.0
+        )
+        # Ensure window 0 really did emit oe_ratio=None so the fix matters.
+        oe0 = r["per_window"][0]["oe_ratio"]
+        if oe0 is not None:  # environment variance; skip if KB-side is fine
+            pytest.skip("Could not construct a None-O:E window in this env")
+        if r["drift_detected"]:
+            dp = r["drift_point_window"]
+            assert dp is not None
+            # The drift point must be a REAL window index, not filtered index.
+            window_ids = [w["window"] for w in r["per_window"]]
+            assert dp in window_ids, (
+                f"drift_point_window={dp} is not a valid source window index "
+                f"(should be one of {window_ids})"
+            )
+            # And since windows 3-5 are the drifted ones, drift_point must be >= 3.
+            assert dp >= 3, (
+                f"Drift starts at window 3; got drift_point_window={dp}. "
+                "A pre-fix off-by-one would report dp=2 (index into the "
+                "filtered oe_values list after window 0 was skipped)."
+            )
+
 
 # ─── Model Card ───
 
