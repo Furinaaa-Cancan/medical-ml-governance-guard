@@ -1381,7 +1381,20 @@ def export_model_coefficients(
     coef_type = "coefficient"
 
     if hasattr(clf, "coef_"):
-        coefs = clf.coef_.ravel()
+        raw = clf.coef_
+        # Reject multiclass loudly. ravel() would otherwise return
+        # n_classes * n_features values and fall through to the
+        # silent len-mismatch path below, hiding a real schema error.
+        if raw.ndim == 2 and raw.shape[0] > 1:
+            print(
+                f"[export_model_coefficients] unsupported multiclass model: "
+                f"coef_.shape={raw.shape}. This helper targets binary "
+                f"classification only. Use sklearn.inspection directly for "
+                f"multiclass coefficient tables.",
+                file=sys.stderr,
+            )
+            return None
+        coefs = raw.ravel()
         coef_type = "coefficient"
     elif hasattr(clf, "feature_importances_"):
         coefs = clf.feature_importances_
@@ -1447,7 +1460,12 @@ def rubins_rules_combine(
         u_bar = float(vars_arr.mean())
         # Total variance: Rubin's formula
         t = u_bar + (1 + 1 / m) * b
-        # Degrees of freedom (Barnard-Rubin)
+        # Degrees of freedom — Rubin (1987) large-sample formula.
+        # NOT the Barnard-Rubin (1999) small-sample adjustment, which
+        # additionally requires the complete-data df (degrees of
+        # freedom for the hypothetical full dataset) as an input
+        # parameter; we don't accept that here so we cannot compute
+        # the Barnard-Rubin df.
         if b > 0 and u_bar > 0:
             r = (1 + 1 / m) * b / u_bar
             df = (m - 1) * (1 + 1 / r) ** 2
@@ -1509,11 +1527,28 @@ def baseline_comparisons(
             "message": "baseline_comparisons requires both classes in y_true.",
         }
 
-    # Model performance (use pr_auc/roc_auc consistently with metric_panel)
+    # Model performance (use pr_auc/roc_auc consistently with metric_panel).
+    # Also emit threshold-based metrics from y_pred so the output format
+    # matches the all_positive / all_negative baselines below (before
+    # 2026-04-19, y_pred was accepted but never used — model metrics
+    # were only continuous AUC/Brier, while baselines were sens/spec/
+    # PPV/NPV, making the comparison format-inconsistent).
+    tp = int(((y_t == 1) & (y_p == 1)).sum())
+    fp = int(((y_t == 0) & (y_p == 1)).sum())
+    tn = int(((y_t == 0) & (y_p == 0)).sum())
+    fn = int(((y_t == 1) & (y_p == 0)).sum())
+    sens = tp / (tp + fn) if (tp + fn) > 0 else None
+    spec = tn / (tn + fp) if (tn + fp) > 0 else None
+    ppv = tp / (tp + fp) if (tp + fp) > 0 else None
+    npv = tn / (tn + fn) if (tn + fn) > 0 else None
     model = {
         "roc_auc": round(float(roc_auc_score(y_t, y_s)), 4),
         "pr_auc": round(float(average_precision_score(y_t, y_s)), 4),
         "brier": round(float(brier_score_loss(y_t, y_s)), 4),
+        "sensitivity": round(sens, 4) if sens is not None else None,
+        "specificity": round(spec, 4) if spec is not None else None,
+        "ppv": round(ppv, 4) if ppv is not None else None,
+        "npv": round(npv, 4) if npv is not None else None,
     }
 
     # Prevalence baseline: predict P(y=1) for everyone
@@ -1608,9 +1643,14 @@ def feature_ablation(
         print(f"[feature_ablation] full model fit failed: {exc}", file=sys.stderr)
         return []
 
-    # Permutation importance to determine ablation order
+    # Permutation importance to determine ablation order. Features whose
+    # permutation scoring fails are EXCLUDED from ranking rather than
+    # silently given importance 0.0 (previous behavior). A 0.0 score
+    # would still sort the feature alongside genuine zero-importance
+    # ones and eat a slot in the top_n ablation — masking the failure.
     rng = np.random.default_rng(seed)
     importances = []
+    skipped: list = []
     for j in range(min(len(feature_names), X_te.shape[1])):
         X_perm = X_te.copy()
         X_perm[:, j] = rng.permutation(X_perm[:, j])
@@ -1618,8 +1658,9 @@ def feature_ablation(
             perm_score = float(score_fn(y_te, full_est.predict_proba(X_perm)[:, 1]))
             importances.append((j, full_score - perm_score))
         except Exception as exc:
-            print(f"[feature_ablation] permutation j={j}: {exc}", file=sys.stderr)
-            importances.append((j, 0.0))
+            fname = feature_names[j] if j < len(feature_names) else f"feature_{j}"
+            print(f"[feature_ablation] permutation j={j} ({fname}): {exc}", file=sys.stderr)
+            skipped.append(fname)
 
     # Sort by importance descending
     importances.sort(key=lambda x: -x[1])
@@ -2369,15 +2410,28 @@ def generate_model_card(
             if isinstance(v, (int, float)):
                 lines.append(f"| {k} | {v:.4f} |")
 
-    # Fairness
+    # Fairness — emit only groups that carry an explicit numeric
+    # disparity field. Before 2026-04-19 the filter was
+    # `"disparity" in str(group_data)`, which fuzzy-matched ANY key
+    # containing the substring "disparity" (e.g., a literal field like
+    # {"no_disparity_detected": True} got rendered into the card as a
+    # fairness finding — inverted meaning).
     if fairness_report and isinstance(fairness_report.get("summary"), dict):
-        lines.extend([
-            "",
-            "## Fairness Analysis",
-        ])
         fs = fairness_report["summary"]
+        rows = []
         for group_name, group_data in fs.items():
-            if isinstance(group_data, dict) and "disparity" in str(group_data):
+            if not isinstance(group_data, dict):
+                continue
+            # Accept common canonical keys; still a lenient check but
+            # much tighter than substring-of-stringified-dict.
+            disparity = group_data.get("disparity")
+            if disparity is None:
+                disparity = group_data.get("equity_gap")
+            if isinstance(disparity, (int, float)):
+                rows.append((group_name, group_data, disparity))
+        if rows:
+            lines.extend(["", "## Fairness Analysis"])
+            for group_name, group_data, _d in rows:
                 lines.append(f"- **{group_name}**: {group_data}")
 
     # Interpretability

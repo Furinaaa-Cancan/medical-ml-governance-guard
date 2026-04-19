@@ -250,6 +250,42 @@ class TestGenerateModelCard:
         assert "1000" in card
         assert "## Training Data" in card
 
+    def test_fairness_only_emits_on_numeric_disparity(self):
+        """Regression test for 2026-04-19: the fairness section must
+        use a proper numeric-field check, not `"disparity" in str(dict)`
+        substring match. Otherwise a group annotated with a negation
+        field (e.g., `no_disparity_detected: True`) renders as a
+        fairness finding with inverted meaning.
+        """
+        # A fairness_report whose summary says NO disparity was
+        # detected must NOT produce a "## Fairness Analysis" section.
+        card = generate_model_card(
+            "Model", "LR",
+            {"summary": {"metrics": {"auroc": 0.8}}},
+            fairness_report={
+                "summary": {
+                    "race": {"no_disparity_detected": True},
+                    "gender": {"no_disparity_detected": True},
+                }
+            },
+        )
+        assert "## Fairness Analysis" not in card, (
+            "Card falsely emitted Fairness Analysis on a no-disparity report"
+        )
+        # A fairness_report with a REAL numeric disparity field should
+        # emit the section.
+        card2 = generate_model_card(
+            "Model", "LR",
+            {"summary": {"metrics": {"auroc": 0.8}}},
+            fairness_report={
+                "summary": {
+                    "race": {"disparity": 0.07, "auc_gap": 0.07},
+                }
+            },
+        )
+        assert "## Fairness Analysis" in card2
+        assert "race" in card2
+
 
 # ─── Imputation Sensitivity ───
 
@@ -453,6 +489,29 @@ class TestBaselineComparisons:
         assert r["all_positive"]["sensitivity"] == 1.0
         assert r["all_negative"]["specificity"] == 1.0
 
+    def test_model_emits_threshold_metrics_from_y_pred(self):
+        """Regression test for 2026-04-19: baseline_comparisons must
+        use the y_pred argument (it was silently ignored pre-fix).
+        Model output should now include sens / spec / ppv / npv on
+        equal footing with the all_positive / all_negative baselines,
+        so the comparison is format-consistent instead of
+        apples-to-oranges (continuous model vs threshold baseline)."""
+        rng = np.random.default_rng(3)
+        n = 300
+        y = rng.choice([0, 1], n, p=[0.6, 0.4])
+        y_score = np.clip(y * 0.6 + rng.normal(0.3, 0.1, n), 0.01, 0.99)
+        y_pred = (y_score > 0.5).astype(int)
+        r = baseline_comparisons(y, y_score, y_pred)
+        for k in ("sensitivity", "specificity", "ppv", "npv"):
+            assert k in r["model"], f"{k} missing from model metrics"
+            assert r["model"][k] is not None, f"{k} is None"
+
+        # Swapping y_pred to the trivial all-one predictor must change
+        # the reported sensitivity to 1.0 — proving y_pred is actually
+        # consulted (the pre-fix function would ignore it).
+        r_allpos = baseline_comparisons(y, y_score, np.ones(n, dtype=int))
+        assert r_allpos["model"]["sensitivity"] == 1.0
+
 
 # ─── Feature Ablation (NC 4F) ───
 
@@ -478,6 +537,39 @@ class TestFeatureAblation:
             np.array([[1]]), np.array([0]), ["x"], top_n=1,
         )
         assert results == []
+
+    def test_permutation_exception_excludes_feature(self):
+        """Regression test for 2026-04-19: when permutation importance
+        fails on a feature, it must NOT be silently given importance
+        0.0 and ranked alongside genuine zero-importance features.
+
+        Constructs a scorer that raises on a specific feature index by
+        wrapping the estimator's predict_proba. This avoids depending
+        on sklearn's NaN-tolerance (RandomForest tolerates NaN;
+        LogisticRegression doesn't — test stability matters more than
+        which specific API surface raises).
+        """
+        from sklearn.linear_model import LogisticRegression
+        rng = np.random.default_rng(5)
+        X = rng.standard_normal((200, 4))
+        y = (X[:, 0] + X[:, 1] > 0).astype(int)
+        X_train, X_test = X[:150], X[150:].copy()
+        y_train, y_test = y[:150], y[150:]
+        # Corrupt feature 3 in the test set with +inf. LR's predict_proba
+        # fails with a finite-value check, so permutation scoring on
+        # column 3 errors while columns 0-2 still work.
+        X_test[:, 3] = np.inf
+        lr = LogisticRegression(max_iter=300)
+        results = feature_ablation(
+            lr, X_train, y_train, X_test, y_test,
+            ["f0", "f1", "f2", "f3"], top_n=3,
+        )
+        # Feature f3 errored on permutation and must be excluded.
+        names = [r["feature"] for r in results]
+        assert "f3" not in names, (
+            "Permutation-failing feature leaked into results despite "
+            f"the exception; got {names}"
+        )
 
 
 # ─── Compute Resource Report (NC 5A/5B) ───
@@ -751,6 +843,26 @@ class TestExportModelCoefficients:
         lr = LogisticRegression(max_iter=200).fit([[0, 1], [1, 0]], [0, 1])
         r = export_model_coefficients(lr, ["only_one"])
         assert r is None
+
+    def test_multiclass_returns_none_with_warning(self, capsys):
+        """Regression test for 2026-04-19: multiclass models must be
+        rejected LOUDLY with an informative stderr message instead of
+        silently returning None via a len-mismatch fallthrough. The
+        previous behavior could hide a real schema bug in a caller
+        that passed a multiclass pipeline by mistake."""
+        from sklearn.linear_model import LogisticRegression
+        import numpy as np
+        rng = np.random.default_rng(19)
+        X = rng.standard_normal((150, 3))
+        # 3-class target
+        y = np.tile([0, 1, 2], 50)
+        lr = LogisticRegression(max_iter=500).fit(X, y)
+        r = export_model_coefficients(lr, ["a", "b", "c"])
+        assert r is None
+        captured = capsys.readouterr()
+        assert "multiclass" in captured.err.lower(), (
+            f"Expected explicit multiclass stderr warning; got {captured.err!r}"
+        )
 
 
 # ─── Calibration Bin CI ───
