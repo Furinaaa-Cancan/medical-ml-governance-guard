@@ -239,6 +239,48 @@ class TestCalibrationEdgeCases:
         r = calibration_metrics(y, y_score)
         assert "error" in r
 
+    def test_calibration_intercept_is_citl_not_joint(self):
+        """Regression test for 2026-04-19: `calibration_intercept` must
+        be Van Calster 2019 calibration-in-the-large (offset fit with
+        slope=1), not the joint-fit α. The two diverge when the
+        underlying miscalibration affects the SLOPE (over-/under-
+        confidence) rather than just the level.
+
+        Setup: low-prevalence task (logit_true ~ N(-1.5, 1), prev ≈ 0.15).
+        Biased predictor doubles the logit — `logit(p_biased) = 2·logit_true`
+        — so predictions are too extreme in both directions.
+          Joint fit should recover β ≈ 0.5 and α ≈ 0 (inverts the scale).
+          CITL must compensate with slope fixed at 1, so α ≠ 0.
+        """
+        rng = np.random.default_rng(7)
+        n = 4000
+        logit_true = rng.standard_normal(n) - 1.5  # skewed-negative logit
+        p_true = 1.0 / (1.0 + np.exp(-logit_true))
+        y = (rng.uniform(0, 1, n) < p_true).astype(int)
+        # Over-confident predictor (slope = 2 in logit space).
+        p_biased = 1.0 / (1.0 + np.exp(-2.0 * logit_true))
+
+        r = calibration_metrics(y, p_biased, n_bins=10)
+        assert "error" not in r
+        assert "calibration_intercept" in r
+        assert "calibration_intercept_joint" in r
+        citl = r["calibration_intercept"]
+        joint = r["calibration_intercept_joint"]
+        slope = r["calibration_slope"]
+        # Slope should be ≈ 0.5 (inverting the 2x over-confidence).
+        assert 0.3 < slope < 0.7, f"Expected joint slope ≈ 0.5, got {slope}"
+        # Joint-fit α near 0 (symmetric miscalibration + best β).
+        assert abs(joint) < 0.3, f"Expected joint α ≈ 0, got {joint}"
+        # CITL has to absorb the mis-scale with intercept alone → nontrivial.
+        assert citl > 0.8, (
+            f"Expected CITL α substantially > 0 on over-confident predictor; "
+            f"got citl={citl}, joint={joint}"
+        )
+        assert abs(citl - joint) > 0.5, (
+            f"CITL and joint-fit intercept should differ materially when "
+            f"slope ≠ 1; got citl={citl}, joint={joint}, slope={slope}"
+        )
+
     def test_hl_df_tracks_populated_bins(self):
         """Regression test for 2026-04-19: Hosmer-Lemeshow df must
         reflect bins that ACTUALLY contributed to the chi-sq sum, not

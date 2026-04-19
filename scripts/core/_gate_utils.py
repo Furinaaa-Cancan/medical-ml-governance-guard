@@ -704,6 +704,34 @@ def metric_panel(
 # Calibration Metrics
 # ═══════════════════════════════════════════════════════════════
 
+def _fit_citl_intercept(
+    y_true: "numpy.ndarray[Any, Any]",
+    logit_p: "numpy.ndarray[Any, Any]",
+) -> Optional[float]:
+    """Fit calibration-in-the-large intercept α in the offset model
+    `logit(P(y=1)) = α + 1 · logit(p)` — Van Calster 2019, Steyerberg
+    2019 Ch.15. This differs from the joint-fit intercept (which lets
+    slope vary) and is what the literature calls "CITL". Solved by
+    Newton on the score equation Σ (y_i − σ(α + logit_p_i)) = 0.
+
+    Returns None if the score has no finite root in [-20, 20] (pathological
+    inputs like all-zero or all-one y).
+    """
+    import numpy as np
+    from scipy.optimize import brentq
+
+    def _score(alpha: float) -> float:
+        return float(np.sum(y_true - 1.0 / (1.0 + np.exp(-(alpha + logit_p)))))
+
+    lo, hi = -20.0, 20.0
+    try:
+        if _score(lo) * _score(hi) > 0:
+            return None  # no sign change → no interior root
+        return float(brentq(_score, lo, hi, xtol=1e-8))
+    except (ValueError, RuntimeError):
+        return None
+
+
 def calibration_metrics(
     y_true: "numpy.ndarray[Any, Any]",
     y_score: "numpy.ndarray[Any, Any]",
@@ -712,9 +740,14 @@ def calibration_metrics(
     """Compute calibration three-piece suite per Van Calster 2019.
 
     Returns:
-        Dict with calibration_intercept, calibration_slope, oe_ratio,
-        ece, hosmer_lemeshow_stat, hosmer_lemeshow_p, brier_skill_score,
-        and per-bin calibration data.
+        Dict with:
+          - calibration_intercept : CITL (offset fit, slope fixed at 1).
+            This is the Van Calster 2019 "calibration-in-the-large".
+          - calibration_intercept_joint : diagnostic — the intercept
+            from the same joint fit that yields calibration_slope.
+            Agrees with CITL only when slope ≈ 1.
+          - calibration_slope : β from joint fit (standard).
+          - oe_ratio, ece, hosmer_lemeshow_*, brier_*, bin_data.
 
     References:
         Van Calster B et al. BMC Med. 2019;17:230.
@@ -765,8 +798,16 @@ def calibration_metrics(
         # Fallback: very large C ≈ no regularisation
         lr = LogisticRegression(C=1e10, solver="lbfgs", max_iter=1000)
     lr.fit(logit_s.reshape(-1, 1), y_t)
-    cal_intercept = float(lr.intercept_[0])
+    cal_intercept_joint = float(lr.intercept_[0])
     cal_slope = float(lr.coef_[0][0])
+
+    # Calibration-in-the-large (CITL) — offset fit with slope=1.
+    # Before 2026-04-19 the joint-fit intercept was returned as
+    # `calibration_intercept`, which disagrees with Van Calster 2019
+    # CITL whenever slope ≠ 1. Users comparing reported intercept to
+    # the published convention would see different numbers.
+    citl = _fit_citl_intercept(y_t, logit_s)
+    cal_intercept = citl if citl is not None else cal_intercept_joint
 
     # --- O:E ratio ---
     observed = float(y_t.sum())
@@ -828,6 +869,7 @@ def calibration_metrics(
 
     return {
         "calibration_intercept": round(cal_intercept, 4),
+        "calibration_intercept_joint": round(cal_intercept_joint, 4),
         "calibration_slope": round(cal_slope, 4),
         "oe_ratio": round(oe_ratio, 4) if oe_ratio is not None else None,
         "ece": round(ece, 4),

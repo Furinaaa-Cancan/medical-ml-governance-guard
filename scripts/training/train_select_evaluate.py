@@ -4959,11 +4959,28 @@ def _calibration_assessment(
         cal_lr = _LR(max_iter=2000, solver="lbfgs", C=np.inf)
         cal_lr.fit(logit_p.reshape(-1, 1), y_true)
         result["calibration_slope"] = round(float(cal_lr.coef_[0, 0]), 4)
-        result["calibration_intercept"] = round(float(cal_lr.intercept_[0]), 4)
+        # Joint-fit intercept kept for diagnostic; the user-visible
+        # calibration_intercept is Van Calster 2019 CITL below.
+        result["calibration_intercept_joint"] = round(float(cal_lr.intercept_[0]), 4)
+        # CITL: offset fit with slope fixed at 1 (Van Calster 2019 /
+        # Steyerberg 2019 Ch.15). Solves Σ (y - σ(α + logit_p)) = 0 for α.
+        from scipy.optimize import brentq as _brentq
+        def _citl_score(alpha: float) -> float:
+            return float(np.sum(y_true - 1.0 / (1.0 + np.exp(-(alpha + logit_p)))))
+        try:
+            if _citl_score(-20.0) * _citl_score(20.0) > 0:
+                result["calibration_intercept"] = result["calibration_intercept_joint"]
+            else:
+                result["calibration_intercept"] = round(
+                    float(_brentq(_citl_score, -20.0, 20.0, xtol=1e-8)), 4
+                )
+        except (ValueError, RuntimeError):
+            result["calibration_intercept"] = result["calibration_intercept_joint"]
     except Exception as exc:
         print(f"[WARN] calibration_slope computation failed: {exc}", file=sys.stderr)
         result["calibration_slope"] = None
         result["calibration_intercept"] = None
+        result["calibration_intercept_joint"] = None
     # Expected Calibration Error (equal-frequency bins)
     try:
         n_samples = len(y_true)
