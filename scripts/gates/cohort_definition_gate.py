@@ -990,14 +990,28 @@ def _generate_table_one(
                 str(n_missing),
             ])
         elif dtype_class == "binary":
-            n1_overall = int((series == 1).sum())
-            n1_neg = int(((series == 1) & mask_neg).sum())
-            n1_pos = int(((series == 1) & mask_pos).sum())
+            # Enumerate both actual levels so encodings other than 0/1
+            # (e.g., male/female, Yes/No, 1/2) render correctly.
+            levels = series.dropna().unique().tolist()
+            try:
+                levels_sorted = sorted(levels)
+            except TypeError:
+                levels_sorted = sorted(levels, key=str)
+            cells_overall: List[str] = []
+            cells_neg: List[str] = []
+            cells_pos: List[str] = []
+            for lv in levels_sorted[:2]:
+                n_ov = int((series == lv).sum())
+                n_ng = int(((series == lv) & mask_neg).sum())
+                n_ps = int(((series == lv) & mask_pos).sum())
+                cells_overall.append(f"{lv}={_fmt_count_pct(n_ov, n_total)}")
+                cells_neg.append(f"{lv}={_fmt_count_pct(n_ng, n_neg)}")
+                cells_pos.append(f"{lv}={_fmt_count_pct(n_ps, n_pos)}")
             rows.append([
-                feat, "binary (n (%) of 1)",
-                _fmt_count_pct(n1_overall, n_total),
-                _fmt_count_pct(n1_neg, n_neg),
-                _fmt_count_pct(n1_pos, n_pos),
+                feat, "binary (n (%) per level)",
+                "; ".join(cells_overall),
+                "; ".join(cells_neg),
+                "; ".join(cells_pos),
                 str(n_missing),
             ])
         else:

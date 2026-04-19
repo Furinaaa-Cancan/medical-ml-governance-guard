@@ -604,3 +604,29 @@ class TestGenerateTableOne:
         df = pd.DataFrame({"x": [1, 2, 3]})
         result = _generate_table_one(df, "nope", ["x"], tmp_path / "t1.csv")
         assert result["status"] == "skipped"
+
+    def test_binary_string_encoding_renders_both_levels(self, tmp_path: Path):
+        """Binary column encoded as male/female must show both levels, not drop to 0."""
+        df = pd.DataFrame({
+            "sex": ["male", "female", "male", "female", "male", "female"],
+            "y":   [0,      0,        0,      1,        1,      1],
+        })
+        path = tmp_path / "t1.csv"
+        result = _generate_table_one(df, "y", ["sex"], path)
+        assert result["status"] == "written"
+        text = path.read_text(encoding="utf-8")
+        assert "male=" in text, "male level must appear with count"
+        assert "female=" in text, "female level must appear with count"
+        # Regression guard for the earlier bug where '== 1' gave 0 counts
+        assert "sex,binary (n (%) per level),male=0 (0.0%); female=0 (0.0%)" not in text
+
+    def test_binary_numeric_01_still_works(self, tmp_path: Path):
+        """Legacy 0/1 encoding must keep rendering both levels."""
+        df = pd.DataFrame({
+            "flag": [0, 1, 0, 1, 0, 1],
+            "y":    [0, 0, 0, 1, 1, 1],
+        })
+        path = tmp_path / "t1.csv"
+        _generate_table_one(df, "y", ["flag"], path)
+        text = path.read_text(encoding="utf-8")
+        assert "0=" in text and "1=" in text
