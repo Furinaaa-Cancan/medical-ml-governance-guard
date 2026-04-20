@@ -42,6 +42,13 @@ register_remediations({
         "evaluation_report.json must contain 'sample_size_adequacy' or "
         "sufficient metadata (n_train, n_features) for EPV computation."
     ),
+    "zero_features_declared": (
+        "n_features is 0 — model cannot be sample-size adequate by any "
+        "definition. Previously this condition silently passed the gate; "
+        "fixed 2026-04-20. Check evaluation_report.metadata.n_features; "
+        "if the model was intentionally trained with no predictors, this "
+        "is a workflow error, not a threshold to relax."
+    ),
     "epv_below_minimum": (
         "Events per variable (EPV) is below the minimum threshold. "
         "Options: 1) Collect more data, 2) Reduce predictors via feature selection, "
@@ -272,11 +279,28 @@ def main() -> int:
     n_events_int = int(n_events)
     n_features_int = int(n_features)
 
+    # Zero-features is an upstream misconfiguration, not a benign "EPV undefined"
+    # condition. Previously this silently set epv=None and continued, which
+    # caused the gate to PASS despite nonsensical inputs. Fail-closed is the
+    # correct behavior — a model with zero features cannot be sample-size
+    # adequate by any definition. Surfaced by Round-2 code review (MATH4).
+    if n_features_int == 0:
+        add_issue(
+            failures,
+            "zero_features_declared",
+            (
+                "n_features is 0 — cannot compute EPV or sample-size adequacy. "
+                "This indicates an upstream misconfiguration (evaluation report "
+                "metadata missing feature_count, or the model was trained with "
+                "no predictors). Review evaluation_report.metadata.n_features."
+            ),
+            {"n_events": n_events_int, "n_features": 0},
+        )
+        return _finish(args, failures, warnings, info, thresholds, eval_report)
+
     # Compute EPV if not provided
     if epv is None and n_features_int > 0:
         epv = n_events / n_features
-    elif n_features_int == 0:
-        epv = None  # No features → EPV undefined; avoid JSON-incompatible Infinity
 
     # Check EPV
     if epv is not None and epv < thresholds["epv_minimum"]:

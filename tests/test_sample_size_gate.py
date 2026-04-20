@@ -314,3 +314,48 @@ class TestCliContract:
             capture_output=True, text=True,
         )
         assert result.returncode == 2
+
+
+# ── MATH4: zero-features must fail (Round-2 code review) ───────────────────
+
+class TestZeroFeaturesFails:
+    """Previously, n_features=0 silently set epv=None and passed the gate.
+    A model with zero predictors cannot be sample-size adequate by any
+    definition — this is an upstream misconfiguration, not a benign
+    'EPV undefined' condition."""
+
+    def test_zero_features_declared_fails(self, tmp_path: Path):
+        report = {
+            "sample_size_adequacy": {
+                "n_events": 100,
+                "n_non_events": 900,
+                "n_features": 0,   # ← the bug
+                "n_total": 1000,
+            }
+        }
+        p = _write_report(tmp_path, report)
+        _, rpt = _run_with_report(tmp_path, p)
+        data = json.loads(rpt.read_text())
+        assert data["status"] == "fail"
+        codes = [f["code"] for f in data.get("failures", [])]
+        assert "zero_features_declared" in codes
+
+    def test_one_feature_still_evaluates(self, tmp_path: Path):
+        """Sanity: the fix only affects n_features=0; n_features=1 should
+        continue through normal EPV evaluation (and fail on low EPV)."""
+        report = {
+            "sample_size_adequacy": {
+                "n_events": 5,
+                "n_non_events": 95,
+                "n_features": 1,
+                "n_total": 100,
+                "events_per_variable": 5.0,
+            }
+        }
+        p = _write_report(tmp_path, report)
+        _, rpt = _run_with_report(tmp_path, p)
+        data = json.loads(rpt.read_text())
+        codes = [f["code"] for f in data.get("failures", [])]
+        # EPV=5 is below minimum of 10 → epv_below_minimum fires.
+        # The point is: zero_features_declared must NOT fire.
+        assert "zero_features_declared" not in codes

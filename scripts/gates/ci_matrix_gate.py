@@ -195,15 +195,33 @@ def bootstrap_metric_ci(
     beta: float,
     n_resamples: int,
     seed: int,
-) -> Tuple[Dict[str, Dict[str, float]], int]:
+) -> Tuple[Dict[str, Dict[str, float]], int, str]:
+    """Stratified bootstrap CI for required metrics.
+
+    Returns (summary, effective_count, termination_reason) where
+    termination_reason is one of:
+      "completed"            — reached n_resamples cleanly.
+      "degenerate_classes"   — y_true has no positives or no negatives,
+                               stratified bootstrap impossible.
+      "max_attempts_exhausted" — metric_panel raised or produced non-finite
+                               values on too many resamples (>=5x budget
+                               of failures). Indicates numerically unstable
+                               metrics (e.g., MCC with zero variance cohort).
+    Surfacing the reason in gate diagnostics is critical for triage:
+    a "0 effective resamples" result from degenerate classes has a
+    different remediation (cohort definition) than one from metric
+    instability (loosened thresholds or relaxed metric set).
+    """
     rng = np.random.default_rng(seed)
     hits: Dict[str, List[float]] = {name: [] for name in REQUIRED_METRICS}
     attempts = 0
     max_attempts = max(5 * int(n_resamples), 8000)
+    termination = "completed"
     while len(hits["pr_auc"]) < int(n_resamples) and attempts < max_attempts:
         attempts += 1
         idx = stratified_bootstrap_indices(y_true, rng)
         if idx is None:
+            termination = "degenerate_classes"
             break
         yb = y_true[idx]
         sb = y_score[idx]
@@ -215,6 +233,11 @@ def bootstrap_metric_ci(
             continue
         for metric in REQUIRED_METRICS:
             hits[metric].append(float(panel[metric]))
+
+    # If the loop exited due to attempt exhaustion (not the break above),
+    # distinguish that termination cause.
+    if termination == "completed" and attempts >= max_attempts and len(hits["pr_auc"]) < int(n_resamples):
+        termination = "max_attempts_exhausted"
 
     effective = min((len(v) for v in hits.values()), default=0)
     summary: Dict[str, Dict[str, float]] = {}
@@ -229,7 +252,7 @@ def bootstrap_metric_ci(
             "ci_upper": float(hi),
             "ci_width": float(hi - lo),
         }
-    return summary, int(effective)
+    return summary, int(effective), termination
 
 
 def extract_split_rows(trace_df: pd.DataFrame, scope: str) -> pd.DataFrame:
@@ -399,7 +422,7 @@ def main() -> int:
             )
             continue
         point_metrics = metric_panel(y_true, y_score, threshold, beta=beta)
-        ci_summary, effective = bootstrap_metric_ci(
+        ci_summary, effective, termination_reason = bootstrap_metric_ci(
             y_true=y_true,
             y_score=y_score,
             threshold=threshold,
@@ -411,8 +434,16 @@ def main() -> int:
             add_issue(
                 failures,
                 "ci_resamples_insufficient",
-                "Effective CI bootstrap resamples are below policy requirement.",
-                {"split": split_name, "effective_resamples": effective, "required_resamples": n_resamples},
+                (
+                    "Effective CI bootstrap resamples are below policy requirement "
+                    f"(termination reason: {termination_reason})."
+                ),
+                {
+                    "split": split_name,
+                    "effective_resamples": effective,
+                    "required_resamples": n_resamples,
+                    "termination_reason": termination_reason,
+                },
             )
         metrics_block: Dict[str, Any] = {}
         for metric in REQUIRED_METRICS:
@@ -527,7 +558,7 @@ def main() -> int:
             )
             continue
         point_metrics = metric_panel(y_true, y_score, threshold, beta=beta)
-        ci_summary, effective = bootstrap_metric_ci(
+        ci_summary, effective, termination_reason = bootstrap_metric_ci(
             y_true=y_true,
             y_score=y_score,
             threshold=threshold,
@@ -539,8 +570,16 @@ def main() -> int:
             add_issue(
                 failures,
                 "ci_resamples_insufficient",
-                "External cohort effective CI resamples are below policy requirement.",
-                {"cohort_id": cohort_id, "effective_resamples": effective, "required_resamples": n_resamples},
+                (
+                    "External cohort effective CI resamples are below policy "
+                    f"requirement (termination reason: {termination_reason})."
+                ),
+                {
+                    "cohort_id": cohort_id,
+                    "effective_resamples": effective,
+                    "required_resamples": n_resamples,
+                    "termination_reason": termination_reason,
+                },
             )
         metrics_block: Dict[str, Any] = {}
         for metric in REQUIRED_METRICS:

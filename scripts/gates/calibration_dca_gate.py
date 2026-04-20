@@ -705,35 +705,41 @@ def main() -> int:
             {},
         )
 
-    # BMJ 2024: DCA threshold pre-specification check
+    # BMJ 2024 / TRIPOD+AI Item 23: DCA threshold pre-specification check.
+    # Rationale: TRIPOD+AI requires that the clinically-relevant decision
+    # threshold(s) used for Decision Curve Analysis be pre-specified and
+    # justified in the study protocol. Silently using defaults undermines
+    # this claim. Behavior:
+    #   * non-strict → WARNING (soft signal; user can ignore at their peril)
+    #   * strict     → FAILURE (enforced for publication-grade pipelines)
+    # In all cases we record `threshold_grid_prespecified: bool` in the
+    # summary payload so downstream reporters (export_latex, compliance
+    # certificate) can surface it even when the warning gets filtered.
     _default_grid = {"start": 0.05, "end": 0.50, "step": 0.05}
     _active_grid = thresholds.get("threshold_grid", {})
-    if _active_grid == _default_grid:
-        # Check whether the policy explicitly specified the grid
-        _policy_block = None
-        if isinstance(policy, dict):
-            _policy_block = policy.get("calibration_dca_thresholds")
-        _explicitly_set = (
-            isinstance(_policy_block, dict)
-            and isinstance(_policy_block.get("threshold_grid"), dict)
+    _policy_block = policy.get("calibration_dca_thresholds") if isinstance(policy, dict) else None
+    _explicitly_set = (
+        isinstance(_policy_block, dict)
+        and isinstance(_policy_block.get("threshold_grid"), dict)
+    )
+    if _active_grid == _default_grid and not _explicitly_set:
+        target_list = failures if args.strict else warnings
+        add_issue(
+            target_list,
+            "dca_threshold_grid_not_prespecified",
+            "DCA threshold grid uses default values [0.05, 0.50, step 0.05] "
+            "without explicit justification in performance_policy. "
+            "Pre-specify and justify thresholds (BMJ 2024; TRIPOD+AI 2024 Item 23). "
+            "Non-strict: WARNING; strict or publication-grade: FAILURE.",
+            {"threshold_grid": _active_grid, "default_used": True},
         )
-        if not _explicitly_set:
-            # Strict mode: failure (TRIPOD+AI Item 23 requires pre-specified
-            # clinical thresholds). Non-strict: warning.
-            target_list = failures if args.strict else warnings
-            add_issue(
-                target_list,
-                "dca_threshold_grid_not_prespecified",
-                "DCA threshold grid uses default values without explicit justification "
-                "in performance_policy. Pre-specify and justify thresholds (BMJ 2024).",
-                {"threshold_grid": _active_grid},
-            )
 
     summary = {
         "prediction_trace": str(trace_path),
         "evaluation_report": str(eval_path),
         "external_validation_report": str(ext_path) if ext_path else None,
         "thresholds": thresholds,
+        "threshold_grid_prespecified": bool(_explicitly_set),
         "cohort_results": cohort_results,
     }
     return finish(args, failures, warnings, summary)
