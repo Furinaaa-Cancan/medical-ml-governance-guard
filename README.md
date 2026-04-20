@@ -87,6 +87,9 @@
 | Bootstrap CI 用正态近似 | 小样本/非对称分布不可靠 | Gate E01: 强制 percentile bootstrap |
 | `time_in_hospital` / `num_medications` / `discharge_*` 作特征 | 教科书 post-index 泄漏（diabetes_130 / MIMIC 经典模式） | Gate L01: 特征名正则抓 5 类 post-index 模式 + `forbidden_features` 拉黑 |
 | Doctor-provided `surv2m` / `prg6m` 作特征 | 医生预估目标，近完美 target leak | Gate C02 + Gate F03: 3 套正则（surv\d / prognos / prg\d）+ 特征谱系溯源 |
+| `received_drug_x` / `prescribed_statin` 作特征 | Immortal time bias：接受治疗的患者必然存活到治疗窗口 (Suissa 2008; Hernán 2016) | Gate L01 `IMMORTAL_TIME_RE`: 9 类治疗动词前缀，排除 `history_*` / `prior_*` / `ever_*` / `_before_enrollment` 等合法基线 |
+| 未声明队列筛选级联，审稿人无从审 selection bias | NC 审稿拒点 top-3 | Gate C01 `--cohort-spec`: 声明 inclusion/exclusion cascade → 单调性 + 最终行数一致性校验；publication-grade tier 不声明直接 FAIL |
+| 特征列命名 `gene_BRCA1` / `rs12345` / `ENSG00000...` | 把组学数据拿来跑 MLGG 是 scope 错配 | `mlgg-lint` R028: ≥3 个组学命名前缀匹配即拒绝，引导到 Scanpy / TCGAbiolinks / PLINK |
 
 > **MLGG 不是又一个 ML 工具包。** 它是一套达到顶刊审稿标准的 AI 协审系统——33 道 fail-closed 门控 + 106 篇 Nature Communications 真实审稿意见作为知识库。每一条建议都能引用审稿人原文作为论据。
 
@@ -1439,22 +1442,23 @@ medical-ml-governance-guard/
                             └─ references/case-studies/ (引用审稿意见)
 ```
 
-### 三个产品入口
+### 两个产品 + 一套 28-子命令 CLI
 
 | 入口 | 安装 | 用途 | 依赖 |
 |------|------|------|------|
-| **mlgg-lint** | `pip install mlgg-lint` | 扫描代码 data leakage（28 条 AST 规则） | 零依赖 |
-| **audit-metrics** | 内置 | 投稿前指标查漏（贴 Table 2 数字即可） | 零依赖 |
-| **mlgg onboarding** | `pip install -r requirements.txt` | 完整 33-gate pipeline | numpy/pandas/sklearn |
+| **mlgg-lint** | `pip install mlgg-lint` | 扫描 Python 代码 data leakage（28 条 AST 规则，含 R028 组学守卫） | 零依赖 |
+| **mlgg** | `pip install ml-governance-guard` | 28 个子命令 CLI（onboarding / workflow / audit / audit-metrics / fairness / sample-size / lint / ...），完整 33-gate pipeline | numpy/pandas/sklearn |
 
-### 三条审查路径
+子命令全表见 `SKILL.md` §"Quick Dispatch"。`audit-metrics` 是 `mlgg` 子命令之一，不是独立包。
+
+### 四条审查路径
 
 | 路径 | 执行者 | 输入 | 输出 |
 |------|--------|------|------|
 | **A. 代码扫描** | `mlgg-lint check code.py` | Python 源码 (.py/.ipynb) | R001-R028 泄漏检测报告 |
 | **B. 指标审查** | `mlgg audit-metrics --metrics '{}'` | 论文 Table 2 数字 | TRIPOD+AI 合规缺口报告 |
-| **C. 全流程审查** | `mlgg onboarding --input-csv` | 用户数据 CSV | evidence/ 报告 + 33 gate 验证 |
-| **D. 论文元数据评审** | API agents (`agents/`) | 论文 PDF | 12 维评分 |
+| **C. 全流程审查** | `mlgg onboarding --input-csv` | 用户数据 CSV（可选 `--cohort-spec` 声明 inclusion/exclusion cascade） | evidence/ 报告 + 33 gate 验证 + Table 1 (TRIPOD+AI 13a) |
+| **D. 论文元数据评审** | API agents (`agents/`) | 论文 PDF（含 prompt-injection 防御：paper 文本作为 untrusted data 隔离） | 12 维评分 |
 
 ---
 
@@ -1466,7 +1470,7 @@ cd medical-ml-governance-guard
 python3 -m venv .venv && source .venv/bin/activate
 python3 -m pip install -r requirements.txt
 
-# 可选：模型后端
+# 可选：模型后端 + 类别不平衡（imbalanced-learn）+ 可视化
 python3 -m pip install -r requirements-optional.txt
 
 # 验证
@@ -1475,7 +1479,21 @@ python3 scripts/orchestration/mlgg.py doctor
 
   **环境要求**: Python 3.10+, numpy, pandas, scikit-learn, scipy, joblib.
 
-  **可选**: xgboost, catboost, lightgbm, tabpfn, optuna, shap, flask, cryptography.
+  **可选**: xgboost, catboost, lightgbm, tabpfn, optuna, shap, flask, cryptography, imbalanced-learn.
+
+### 开发者：本地 pre-commit 钩子（推荐）
+
+同一套 CI 规则，本地 3 秒反馈，装好后每次 `git commit` 自动跑：
+
+```bash
+python3 -m pip install --user pre-commit
+pre-commit install
+```
+
+配置在 `.pre-commit-config.yaml`，包含：
+- `ruff` — 与 `ci-unit.yml` 相同 ruleset（E/F/W，排除 ML 代码常见 E501/E741 等）
+- `mlgg-lint-selfcheck` — 用 28 条 AST 规则审查 `mlgg-lint` 自身源码（dog-fooding）
+- `docs-consistency` — SKILL.md / README(_EN).md / agents/reviewer.yaml 变更时校验 12 维评分权重一致
 
 ---
 

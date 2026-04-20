@@ -80,6 +80,9 @@ The prevalence of data leakage and methodological flaws in medical ML papers far
 | Bootstrap CI with normal approximation | Unreliable for small samples/asymmetric distributions | Gate E01: Forced percentile bootstrap |
 | `time_in_hospital` / `num_medications` / `discharge_*` used as features | Textbook post-index leakage (diabetes_130 / MIMIC canonical pattern) | Gate L01: feature-name regex catches 5 post-index pattern groups + `forbidden_features` blacklist |
 | Doctor-provided `surv2m` / `prg6m` as features | Clinician estimate of the target — near-perfect target leak | Gate C02 + Gate F03: 3 regex families (`surv\d` / `prognos` / `prg\d`) + feature-lineage tracing |
+| `received_drug_x` / `prescribed_statin` as features | Immortal time bias: patients who received treatment necessarily survived to the treatment window (Suissa 2008; Hernán 2016) | Gate L01 `IMMORTAL_TIME_RE`: 9 treatment-verb prefixes with exemptions for `history_*` / `prior_*` / `ever_*` / `_before_enrollment` legitimate baselines |
+| Cohort filter cascade undocumented — reviewers cannot audit selection bias | Top-3 cause of NC peer-review rejections | Gate C01 `--cohort-spec`: declare inclusion/exclusion cascade → monotonicity + final row-count consistency check; publication-grade tier fails without it |
+| Feature names `gene_BRCA1` / `rs12345` / `ENSG00000...` | Out-of-scope: using MLGG for omics data is a modality mismatch | `mlgg-lint` R028: ≥3 omics-pattern name matches → rejected with pointers to Scanpy / TCGAbiolinks / PLINK |
 
 > **MLGG is not yet another ML toolkit.** It is an AI co-review system meeting top-journal review standards &mdash; 33 fail-closed gates + 107 real Nature Communications peer review opinions as a knowledge base. Every recommendation can cite reviewer quotes as evidence.
 
@@ -1314,13 +1317,16 @@ User CSV ──→ /mlgg (orchestration)
                             └─ case-studies/peer-review-kb.json (citing review opinions)
 ```
 
-### Three Audit Paths
+### Four Audit Paths
 
 | Path | Executor | Input | Output |
 |------|----------|-------|--------|
-| **A. Paper metadata review** | API agents (`agents/extractor.yaml` → `reviewer.yaml`) | Paper PDF | 12-dim score + Major/Minor/Questions |
-| **B. 33-gate full pipeline** | Claude Code (`/mlgg`) | User data + code | evidence/ reports + compliance cert |
+| **A. Paper metadata review** | API agents (`agents/extractor.yaml` → `reviewer.yaml`) | Paper PDF (paper text treated as untrusted data, prompt-injection defended) | 12-dim score + Major/Minor/Questions |
+| **B. 33-gate full pipeline** | Claude Code (`/mlgg`) | User data + code (optional `--cohort-spec` for inclusion/exclusion cascade) | evidence/ reports + Table 1 (TRIPOD+AI 13a) + compliance cert |
 | **C. Static Lint scan** | Claude Code (`mlgg lint`) | Python source (.py/.ipynb) | R001-R028 leakage detection report |
+| **D. Quick metrics audit** | `mlgg audit-metrics --metrics '{}'` | Paper Table 2 numbers (no data files needed) | TRIPOD+AI compliance gap report |
+
+Packaging: two pip packages (`mlgg-lint` standalone, `ml-governance-guard` bundles the 28-subcommand CLI). `audit-metrics` is a subcommand under `mlgg`, not a separate package. Full subcommand inventory: see `SKILL.md` §"Quick Dispatch".
 
 ---
 
@@ -1332,7 +1338,7 @@ cd medical-ml-governance-guard
 python3 -m venv .venv && source .venv/bin/activate
 python3 -m pip install -r requirements.txt
 
-# Optional: model backends
+# Optional: model backends + class-imbalance helpers + visualization
 python3 -m pip install -r requirements-optional.txt
 
 # Verify
@@ -1341,7 +1347,21 @@ python3 scripts/orchestration/mlgg.py doctor
 
 **Requirements**: Python 3.10+, numpy, pandas, scikit-learn, scipy, joblib.
 
-**Optional**: xgboost, catboost, lightgbm, tabpfn, optuna, shap, flask, cryptography.
+**Optional**: xgboost, catboost, lightgbm, tabpfn, optuna, shap, flask, cryptography, imbalanced-learn.
+
+### Developers: local pre-commit hooks (recommended)
+
+Same rule set as CI, ~3 second local feedback before push:
+
+```bash
+python3 -m pip install --user pre-commit
+pre-commit install
+```
+
+Configured in `.pre-commit-config.yaml`:
+- `ruff` — identical to `ci-unit.yml` (E/F/W, excluding ML-code-common E501/E741/etc)
+- `mlgg-lint-selfcheck` — lints `mlgg-lint`'s own source with the 28 AST rules (dog-fooding)
+- `docs-consistency` — when SKILL.md / README(_EN).md / agents/reviewer.yaml change, verifies the 12-dimension scoring weights stay in sync
 
 ---
 
