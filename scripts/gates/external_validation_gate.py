@@ -330,10 +330,6 @@ def main() -> int:
     # ── Variable alignment quality checks ────────────────────────────────
     # These checks detect "garbage in, garbage out" external validation:
     # missing features filled with constants, different target definitions.
-    internal_prevalence = evaluation.get("metrics", {}).get("sensitivity")  # approximate
-    # Better: use positive_count / total from evaluation metadata
-    eval_meta = evaluation.get("metadata", {})
-    internal_feature_count = eval_meta.get("feature_count", 0)
 
     for cohort in cohorts:
         if not isinstance(cohort, dict):
@@ -370,7 +366,6 @@ def main() -> int:
         transport = cohort.get("transport_gap", {})
         # The external validation report includes per-cohort feature info
         # if available. Otherwise, check confusion matrix for degenerate behavior.
-        ext_metrics = cohort.get("metrics", {})
         ext_cm = cohort.get("confusion_matrix", {})
         tp = ext_cm.get("tp", 0)
         fn = ext_cm.get("fn", 0)

@@ -1040,7 +1040,6 @@ def encode_categorical_features(
                     if df.empty or feat not in df.columns:
                         continue
                     mapped = df[feat].map(mapping)
-                    ood_mask = mapped.isna() & df[feat].notna()
                     # OOD safety: fill with prevalence-neutral 0.5 (not 0.0)
                     # to avoid conflation with either binary class.
                     # Note: do NOT add _ood indicator columns here — they would
@@ -4367,7 +4366,6 @@ def bootstrap_optimism_correction(
         return {}
     apparent_panel, _ = metric_panel(y_train, train_proba, threshold, beta=beta)
 
-    lower_is_better = {"brier"}
     max_attempts = max(3 * n_resamples, 1000)
     attempts = 0
     completed = 0
@@ -7246,14 +7244,10 @@ def main() -> int:
     forbidden_features = ctx["forbidden_features"]
     threshold_selection_split = ctx["threshold_selection_split"]
     calibration_fit_split = ctx["calibration_fit_split"]
-    feature_group_spec = ctx["feature_group_spec"]
     fe_mode_cfg = ctx["fe_mode_cfg"]
     fast_diagnostic_mode = ctx["fast_diagnostic_mode"]
     policy = ctx["policy"]
     missingness_policy = ctx["missingness_policy"]
-    external_spec = ctx["external_spec"]
-    threshold_policy = ctx["threshold_policy"]
-    clinical_floors = ctx["clinical_floors"]
     beta = ctx["beta"]
     sensitivity_floor = ctx["sensitivity_floor"]
     npv_floor = ctx["npv_floor"]
@@ -7276,7 +7270,6 @@ def main() -> int:
     selected_features = ctx["selected_features"]
     pre_encoding_features = ctx["pre_encoding_features"]
     stage1_report = ctx["stage1_report"]
-    categorical_report = ctx["categorical_report"]
     external_cohorts = ctx["external_cohorts"]
     stage1_features = ctx["stage1_features"]
     stability_frequency = ctx["stability_frequency"]
@@ -7328,7 +7321,6 @@ def main() -> int:
     # Bridge ctx → locals (re-read calibration_method — may have been
     # auto-upgraded from 'none' to 'sigmoid' for imblearn models)
     calibration_method = ctx["calibration_method"]
-    candidates = ctx["candidates"]
     candidate_space_meta = ctx["candidate_space_meta"]
     candidate_rows = ctx["candidate_rows"]
     estimator_map = ctx["estimator_map"]
@@ -7339,7 +7331,6 @@ def main() -> int:
     calibrator = ctx["calibrator"]
     selected_threshold = ctx["selected_threshold"]
     threshold_info = ctx["threshold_info"]
-    threshold_y = ctx["threshold_y"]
     calibration_y = ctx["calibration_y"]
     trace = ctx["selection_trace"]
 
@@ -7551,7 +7542,6 @@ def _phase10_12_reports_output(ctx: Dict[str, Any]) -> int:
     calibration_y = ctx["calibration_y"]
     resolved_dev = ctx["resolved_dev"]
     policy = ctx["policy"]
-    trace = ctx["selection_trace"]
 
     print("[STEP  9/12] TRIPOD+AI assessments...", file=sys.stderr, flush=True)
     epv_report = _sample_size_adequacy(

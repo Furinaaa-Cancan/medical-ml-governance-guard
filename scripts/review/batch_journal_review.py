@@ -110,8 +110,9 @@ def load_manifest(path: Path) -> Tuple[List[ProjectEntry], Optional[List[str]]]:
         if pid in seen_ids:
             print(f"[WARN] Duplicate project id '{pid}' — skipping", file=sys.stderr)
             continue
-        # Reject path traversal
-        resolved = Path(ppath).expanduser().resolve()
+        # Reject path traversal (raw-path check; not using Path.resolve()
+        # here because we don't want to follow symlinks — the user's intent
+        # is to block literal '..' segments, not traverse them).
         if ".." in Path(ppath).parts:
             print(f"[WARN] Skipping '{pid}': path contains '..' traversal", file=sys.stderr)
             continue

@@ -449,7 +449,8 @@ class UKBCodebook:
         Returns:
             List of RAP column names, one per line, with 'eid' at top.
         """
-        conn = self._ensure_conn()
+        # Side-effect call (opens DB conn if not yet open); return value unused.
+        self._ensure_conn()
         lines: List[str] = ["eid"]
 
         # ── 1. Standard demographics ────────────────────────────────
@@ -675,7 +676,6 @@ class UKBCodebook:
             title = row["title"]
             domain = row["domain"] or "other"
             risk = (row["risk_category"] if "risk_category" in row.keys() else None) or "baseline"
-            num_participants = row["num_participants"] or 0
 
             # ── Check 1: Risk-category-based leakage detection ──
             if risk == "outcome_derived":
@@ -862,7 +862,6 @@ class UKBCodebook:
         # Build precise search phrases from disease name and key.
         # Use full phrases to avoid false positives (e.g., "kidney" matching
         # "kidney stone" when predicting CKD).
-        disease_name = disease_entry.get("name", target_disease).lower()
         _search_phrases = [
             target_disease.lower().replace("_", " "),  # "type_2_diabetes" → "type 2 diabetes"
         ]

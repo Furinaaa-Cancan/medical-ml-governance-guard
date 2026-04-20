@@ -57,7 +57,9 @@ def download_xpt(table_name: str, cycle: str) -> Optional[pd.DataFrame]:
     tmp = tempfile.mktemp(suffix=".xpt")
 
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "MLGG-Verify/1.0"})
+        # Request object built but not used — urlretrieve ignores the headers
+        # argument (known urllib limitation). Left as TODO if custom headers
+        # are required in future; for now the default User-Agent is acceptable.
         urllib.request.urlretrieve(url, tmp)
         df = pd.read_sas(tmp, format="xport")
         return df
