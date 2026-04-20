@@ -815,6 +815,15 @@ def calibration_metrics(
     oe_ratio = observed / expected if expected > 0 else None
 
     # --- ECE (Expected Calibration Error) ---
+    # Design note — equal-WIDTH bins (Steyerberg 2019, §15) rather than
+    # equal-frequency. This coexists with the equal-FREQUENCY ECE in
+    # calibration_dca_gate.expected_calibration_error (Van Calster 2019).
+    # Equal-width is required here because the co-located Hosmer-Lemeshow
+    # chi-square test is defined on fixed probability intervals; switching
+    # to quantile bins would invalidate the HL df calculation and break
+    # the 2026-04-19 scientific-integrity fix that tracks populated bins
+    # (see test_analysis_tools.test_hl_df_tracks_populated_bins).
+    # Both ECE numbers are legitimate; report which convention was used.
     bin_edges = np.linspace(0, 1, n_bins + 1)
     ece = 0.0
     bin_data = []

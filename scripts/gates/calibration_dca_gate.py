@@ -143,6 +143,28 @@ def expected_calibration_error(
     n_bins: int,
     min_bin_size: int,
 ) -> float:
+    """Expected Calibration Error with equal-frequency (quantile) bins.
+
+    Design note — two ECE implementations coexist in MLGG:
+      * This one uses EQUAL-FREQUENCY binning (Van Calster 2019 BMC Med
+        17:230). Each bin has roughly n/n_bins observations. Stable for
+        small cohorts and non-uniform score distributions; matches the
+        decile-of-risk convention used in modern prediction-model papers.
+      * _gate_utils.calibration_metrics uses EQUAL-WIDTH binning
+        (np.linspace(0,1,n_bins+1)) to match the traditional Hosmer-
+        Lemeshow chi-square test (Steyerberg 2019 Clinical Prediction
+        Models, §15). Equal-width is required for HL df calculation.
+
+    Keep this divergence intentional. Do NOT silently unify — the two
+    ECE values report calibration under different operational assumptions.
+    When publishing, report which binning was used and why. The
+    calibration_dca_gate report includes this function's value; the
+    evaluation_quality_gate (via calibration_metrics) includes the other.
+
+    Ref: Van Calster B et al. BMC Med. 2019;17:230 — "A calibration
+    hierarchy for risk models was defined". Equal-frequency ECE
+    recommended for stability with small n.
+    """
     n = int(y_true.shape[0])
     if n <= 0:
         return 1.0
