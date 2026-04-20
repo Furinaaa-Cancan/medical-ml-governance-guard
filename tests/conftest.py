@@ -12,9 +12,13 @@ import json
 import sys
 from pathlib import Path
 
-import numpy as np
-import pandas as pd
 import pytest
+
+# numpy / pandas are imported lazily inside the fixtures that need them
+# so ci-security (which deliberately installs only pytest to test the
+# zero-numpy-dependency code paths) can load this conftest without
+# ModuleNotFoundError. Fixtures that use numpy/pandas will still fail
+# loudly at call time if those libs are absent.
 
 # ────────────────────────────────────────────────────────
 # Path setup (replaces per-file sys.path hacks)
@@ -85,6 +89,9 @@ def write_json_file(tmp_path):
 @pytest.fixture()
 def make_binary_csv(tmp_path):
     """Factory fixture: create a binary classification CSV with configurable params."""
+    import numpy as np
+    import pandas as pd
+
     def _make(
         n: int = 500,
         n_features: int = 5,
