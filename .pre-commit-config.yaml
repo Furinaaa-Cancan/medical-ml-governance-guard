@@ -1,0 +1,43 @@
+# MLGG pre-commit hooks — fast local feedback before push.
+#
+# Install:
+#   pip install pre-commit
+#   pre-commit install
+#
+# Run manually on all files:
+#   pre-commit run --all-files
+#
+# Design notes:
+# - ruff is authoritative per ruff.toml; CI enforces the same ruleset.
+# - mlgg-lint runs against its own source (plugin/mlgg_lint/) only —
+#   running it on scripts/ produces false positives because gate code
+#   legitimately calls dropna()/fit() on internal evidence dataframes
+#   (not user CSVs). See ci-unit.yml for the same scoping.
+# - Docs-consistency script is a local hook because it needs the repo
+#   file layout and cannot be pip-installed.
+# - No auto-fix for ruff (--fix) — developers should see and decide.
+#   Use `ruff check scripts/ --fix` manually when wanted.
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.0
+    hooks:
+      - id: ruff
+        args: [--no-fix]
+        files: ^scripts/
+
+  - repo: local
+    hooks:
+      - id: mlgg-lint-selfcheck
+        name: mlgg-lint on its own source
+        entry: python3 -m mlgg_lint check plugin/mlgg_lint/ --exit-code
+        language: system
+        pass_filenames: false
+        files: ^plugin/mlgg_lint/.*\.py$
+
+      - id: docs-consistency
+        name: 12-dim scoring doc consistency
+        entry: python3 scripts/diagnostics/check_docs_consistency.py
+        language: system
+        pass_filenames: false
+        files: ^(SKILL\.md|README(_EN)?\.md|agents/reviewer\.yaml)$

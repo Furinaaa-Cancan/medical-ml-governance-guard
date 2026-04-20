@@ -24,6 +24,31 @@ python3 -m pip install -r requirements-optional.txt
 python3 scripts/orchestration/mlgg.py doctor
 ```
 
+### Pre-commit hooks (recommended)
+
+Local pre-commit hooks catch the same issues CI enforces, saving a
+push-and-wait round-trip. Installed once, they run automatically on
+every `git commit`:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+Hooks configured in `.pre-commit-config.yaml`:
+- `ruff` — same rule set as `ci-unit.yml` (scripts/ only, no auto-fix)
+- `mlgg-lint-selfcheck` — lints plugin/mlgg_lint/ source with the
+  plugin's own rules (dog-fooding the 28 AST rules)
+- `docs-consistency` — when SKILL.md / README(_EN).md /
+  agents/reviewer.yaml change, verifies the 12-dimension scoring
+  table stays in sync
+
+Run manually on the whole tree when adding the hook or after a rebase:
+
+```bash
+pre-commit run --all-files
+```
+
 ---
 
 ## Code Style
