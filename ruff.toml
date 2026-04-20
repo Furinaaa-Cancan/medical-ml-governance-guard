@@ -11,4 +11,8 @@ ignore = [
     "E402",  # module import not at top — conditional imports in existing code
     "E741",  # ambiguous variable name — common in ML code (l, I, O)
     "W605",  # invalid escape sequence — handled by raw strings
+    "F841",  # unused local variable — 18 legacy sites, some with side-effect
+             # calls (e.g., conn = self._ensure_conn()) that --unsafe-fixes
+             # would incorrectly delete. Tracked for manual cleanup; when
+             # count drops to 0, re-enable via a dedicated commit.
 ]

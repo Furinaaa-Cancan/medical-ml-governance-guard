@@ -218,7 +218,6 @@ def _compute_shap_for_family(
 
     Returns dict with raw_shap (n_explain x n_features), or None on failure.
     """
-    import shap
 
     clf, bg_transformed = _extract_clf_and_transform(estimator, X_background)
     _, ex_transformed = _extract_clf_and_transform(estimator, X_explain)

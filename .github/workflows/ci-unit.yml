@@ -28,10 +28,21 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install -r requirements.txt
           python3 -m pip install pytest pytest-cov ruff
+          # Install mlgg-lint as an editable package so its CLI is on PATH.
+          python3 -m pip install -e plugin/
 
       - name: Lint (ruff)
+        run: ruff check scripts/
+
+      - name: Self-lint (mlgg-lint on its own source)
         run: |
-          ruff check scripts/ || echo "::warning::ruff found lint issues (non-blocking until existing issues are resolved)"
+          # Dog-fooding: mlgg-lint must stay clean on its own 28 rule
+          # implementations. Framework code in scripts/ is excluded —
+          # those files contain gate logic that legitimately does things
+          # like dropna() on internal evidence dataframes (not user CSVs),
+          # which would produce benign false positives. Examples are also
+          # excluded because they include deliberately flawed demos.
+          python3 -m mlgg_lint check plugin/mlgg_lint/ --exit-code
 
       - name: Unit tests (exclude slow)
         run: |

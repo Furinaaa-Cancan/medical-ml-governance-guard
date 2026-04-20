@@ -11,7 +11,12 @@ interface:
 
 providers:
   anthropic:
-    model: claude-sonnet-4-20250514
+    # Use undated alias so the agent tracks the latest stable Sonnet 4.x
+    # release instead of being pinned to the 2025-05-14 snapshot (which
+    # will eventually be retired per Anthropic model lifecycle). If a
+    # specific snapshot is required for reproducibility, pin via env
+    # var MLGG_ANTHROPIC_MODEL (consumed by the caller, not this YAML).
+    model: claude-sonnet-4-5
     api_base: "https://api.anthropic.com/v1"
     auth:
       type: api_key

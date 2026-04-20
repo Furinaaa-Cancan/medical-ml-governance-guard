@@ -23,7 +23,7 @@ import tempfile
 import time
 import urllib.request
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional
 
 import pandas as pd
 
@@ -233,7 +233,7 @@ def main() -> int:
 
     # Summary
     print(f"\n{'='*60}")
-    print(f"VERIFICATION SUMMARY")
+    print("VERIFICATION SUMMARY")
     print(f"{'='*60}")
     print(f"Tables verified:     {total_tables}")
     print(f"Column lists match:  {total_col_match}/{total_tables} ({total_col_match/max(total_tables,1)*100:.0f}%)")

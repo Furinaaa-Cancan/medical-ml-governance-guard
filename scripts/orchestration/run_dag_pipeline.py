@@ -729,7 +729,7 @@ def _print_prioritized_issues(
     err = sum(1 for i in all_issues if i["severity"] == "error")
     warn = sum(1 for i in all_issues if i["severity"] == "warning")
     print(f"  Total: {crit} critical, {err} error, {warn} warning")
-    print(f"  Fix critical issues first, then errors.\n")
+    print("  Fix critical issues first, then errors.\n")
 
 
 # ---------------------------------------------------------------------------

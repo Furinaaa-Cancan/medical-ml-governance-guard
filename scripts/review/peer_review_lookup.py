@@ -12,9 +12,7 @@ Usage:
 """
 
 import argparse
-import json
 import sys
-from pathlib import Path
 
 from _peer_review_retrieval import (
     format_peer_context,
@@ -91,8 +89,8 @@ def cmd_query(args):
             # keyword signal. Warn the user if both were passed.
             if args.severity:
                 print(
-                    f"  Note: --severity ignored when --issue-codes is given "
-                    f"(ranking already severity-aware on tie).\n",
+                    "  Note: --severity ignored when --issue-codes is given "
+                    "(ranking already severity-aware on tie).\n",
                     file=sys.stderr,
                 )
             results = retrieve_for_failure(args.gate, codes, limit=args.limit)

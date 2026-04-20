@@ -538,7 +538,6 @@ class SecureModelLoader:
             SecurityError: If verification fails.
             ValueError: If model file is invalid.
         """
-        import joblib
 
         model_path = Path(model_path).expanduser().resolve()
 

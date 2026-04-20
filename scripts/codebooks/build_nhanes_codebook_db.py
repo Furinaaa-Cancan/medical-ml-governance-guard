@@ -22,7 +22,7 @@ import re
 import sqlite3
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Tuple
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 DEFAULT_VARS_TSV = REPO_ROOT / "references" / "codebooks" / "nhanes" / "nhanes_variables.tsv"
@@ -494,7 +494,7 @@ def build_database(
     stats["file_size_mb"] = round(size_mb, 1)
 
     print(f"\n{'='*50}")
-    print(f"NHANES Codebook SQLite built successfully!")
+    print("NHANES Codebook SQLite built successfully!")
     print(f"{'='*50}")
     print(f"  Variables:    {stats['variables']:,}")
     print(f"  Value codes:  {stats['value_codes']:,}")

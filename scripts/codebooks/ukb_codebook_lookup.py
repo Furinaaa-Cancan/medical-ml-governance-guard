@@ -22,12 +22,11 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import re
 import sqlite3
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 DEFAULT_DB = REPO_ROOT / "references" / "codebooks" / "ukb" / "ukb_codebook.sqlite"
@@ -1039,10 +1038,10 @@ def main() -> int:
             print(f"\n  Instance:   {args.instance} (baseline)")
             print(f"  Fields:     {len(fields)}")
             print(f"  Output:     {out}")
-            print(f"\n  NOTE: This list contains common baseline variables only.")
-            print(f"  You must add your own outcome definition fields separately")
-            print(f"  (e.g., first-occurrence ICD fields from Category 1712,")
-            print(f"   or ADO fields from Category 42).")
+            print("\n  NOTE: This list contains common baseline variables only.")
+            print("  You must add your own outcome definition fields separately")
+            print("  (e.g., first-occurrence ICD fields from Category 1712,")
+            print("   or ADO fields from Category 42).")
             print(f"\n  Usage on RAP: upload {out.name} and use with Table Exporter")
             return 0
 

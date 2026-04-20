@@ -32,7 +32,6 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-import numpy as np
 import pandas as pd
 
 from _gate_framework import (
@@ -310,7 +309,6 @@ def validate_codebook(
     5. Measurement protocol — multi-reading rules
     6. Variable mislabeling — common_mislabel warnings
     """
-    import re as _re
 
     cb_path = Path(codebook_path).expanduser().resolve()
     if not cb_path.exists():

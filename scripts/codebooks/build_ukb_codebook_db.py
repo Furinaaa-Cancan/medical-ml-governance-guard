@@ -25,11 +25,10 @@ from __future__ import annotations
 
 import argparse
 import csv
-import json
 import sqlite3
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 DEFAULT_DIR = REPO_ROOT / "references" / "codebooks" / "ukb"
@@ -668,7 +667,7 @@ def build_database(input_dir: Path, output: Path) -> Dict[str, int]:
     stats["file_size_mb"] = round(size_mb, 1)
 
     print(f"\n{'='*50}")
-    print(f"UK Biobank Codebook SQLite built successfully!")
+    print("UK Biobank Codebook SQLite built successfully!")
     print(f"{'='*50}")
     print(f"  Fields:           {stats['fields']:,}")
     print(f"  Categories:       {stats['categories']:,}")
@@ -695,7 +694,7 @@ def main() -> int:
     for fname in required:
         if not (args.input_dir / fname).exists():
             print(f"ERROR: Required file not found: {args.input_dir / fname}", file=sys.stderr)
-            print(f"Run fetch_ukb_showcase.py first to download schema files.", file=sys.stderr)
+            print("Run fetch_ukb_showcase.py first to download schema files.", file=sys.stderr)
             return 2
 
     build_database(args.input_dir, args.output)

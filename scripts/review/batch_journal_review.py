@@ -102,7 +102,7 @@ def load_manifest(path: Path) -> Tuple[List[ProjectEntry], Optional[List[str]]]:
         pid = str(proj.get("id", "")).strip()
         ppath = str(proj.get("path", "")).strip()
         if not pid:
-            print(f"[WARN] Skipping manifest entry with empty id", file=sys.stderr)
+            print("[WARN] Skipping manifest entry with empty id", file=sys.stderr)
             continue
         if not ppath:
             print(f"[WARN] Skipping manifest entry '{pid}' with empty path", file=sys.stderr)

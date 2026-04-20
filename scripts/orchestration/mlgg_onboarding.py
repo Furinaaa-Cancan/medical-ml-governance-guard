@@ -22,8 +22,6 @@ import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__f
 import argparse
 import csv
 import json
-import math
-import os
 import re
 import shlex
 import shutil
@@ -810,7 +808,7 @@ def build_train_command(
     pheno_path = cfg / "phenotype_definitions.json"
 
     try:
-        import json as _json, re as _re, csv as _csv
+        import json as _json, re as _re
         import pandas as _pd
 
         # Load phenotype patterns
@@ -871,8 +869,8 @@ def build_train_command(
                     print(f"    {col:25s} pattern={pat:20s} {corr_str}")
             if _high_corr_review:
                 print(f"\n  ⚠ HIGH CORRELATION ({len(_high_corr_review)} — |r| > {_CORR_HIGH_THRESHOLD}):")
-                print(f"    These are KEPT but may be outcome proxies or definition variables.")
-                print(f"    If post-discharge/outcome-derived, add to phenotype forbidden_patterns.")
+                print("    These are KEPT but may be outcome proxies or definition variables.")
+                print("    If post-discharge/outcome-derived, add to phenotype forbidden_patterns.")
                 for col, corr in sorted(_high_corr_review, key=lambda x: -abs(x[1])):
                     print(f"    {col:25s} corr={corr:+.3f}")
             if _moderate_corr_review:

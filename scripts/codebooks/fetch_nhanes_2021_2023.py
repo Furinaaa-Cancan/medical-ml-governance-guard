@@ -17,7 +17,7 @@ import time
 import urllib.request
 from html.parser import HTMLParser
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 CDC_BASE = "https://wwwn.cdc.gov"
 
@@ -196,7 +196,7 @@ def fetch_url(url: str, retries: int = 3) -> str:
             req = urllib.request.Request(url, headers={"User-Agent": "MLGG-NHANES-Codebook/1.0"})
             with urllib.request.urlopen(req, timeout=30) as resp:
                 return resp.read().decode("utf-8", errors="replace")
-        except Exception as e:
+        except Exception:
             if attempt < retries - 1:
                 time.sleep(2 * (attempt + 1))
                 continue

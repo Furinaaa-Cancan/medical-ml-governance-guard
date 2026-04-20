@@ -10,7 +10,7 @@ import math
 import re
 import sys
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 STANDARD_METRICS: Tuple[str, ...] = (
     "roc_auc", "pr_auc", "sensitivity", "specificity", "ppv", "npv", "f1",

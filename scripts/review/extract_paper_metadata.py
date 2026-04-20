@@ -686,7 +686,6 @@ def verify_numerics_in_source(result: ExtractionResult, paper_text: str) -> list
     abstract-only mode) since many numeric details only appear in the
     full text and their absence from an abstract is expected.
     """
-    import re
 
     # Short-circuit for abstract-only text: most numbers won't appear
     if len(paper_text) < 1000:

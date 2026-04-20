@@ -2365,8 +2365,8 @@ def generate_model_card(
         "",
         "## Model Details",
         f"- **Model type**: {model_type}",
-        f"- **Framework**: ML Governance Guard (MLGG) v1.0",
-        f"- **Training framework**: scikit-learn Pipeline (imputer → scaler → classifier)",
+        "- **Framework**: ML Governance Guard (MLGG) v1.0",
+        "- **Training framework**: scikit-learn Pipeline (imputer → scaler → classifier)",
     ]
 
     # Intended Use
