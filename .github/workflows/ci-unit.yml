@@ -31,7 +31,7 @@ jobs:
           # corresponding model families (imblearn → test_train_select_evaluate
           # imbalanced estimators; shap → shap_interpretability_gate tests).
           python3 -m pip install -r requirements-optional.txt
-          python3 -m pip install pytest pytest-cov ruff
+          python3 -m pip install pytest pytest-cov ruff hypothesis
           # Install mlgg-lint as an editable package so its CLI is on PATH.
           python3 -m pip install -e plugin/
 
