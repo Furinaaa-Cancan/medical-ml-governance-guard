@@ -6,6 +6,99 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### 2026-04-19 session — cohort selection-bias P1 + scope focus + CI rescue
+
+Six commits narrowing MLGG's self-declared scope to retrospective-cohort
+binary-classification and closing the self-flagged cohort-selection-bias
+weakness.
+
+#### Scope narrowed + omics modality guard
+
+- **Positioning**: 能力边界 now states "retrospective cohort" (EHR / registry /
+  case-control / cross-sectional) binary-classification. Removes the
+  previous `医学二分类` framing that invited TCGA / scRNA-seq / GWAS users
+  who hit noisy EPV failures. Synced across SKILL.md, CLAUDE.md,
+  `examples/template/README.md`, `scripts/diagnostics/init_guide.py`.
+- **`mlgg-lint` R028 — omics feature prefix guard** (ERROR). Rule fires
+  when ≥3 feature-list literals match
+  `gene_/probe_/snp_/cpg_/rs\d+/ENSG\d+/ENST\d+`; directs users to
+  Scanpy / TCGAbiolinks+limma/DESeq2 / PLINK+GCTA instead of MLGG.
+  +5 unit tests including rsID and Ensembl patterns. Commit `35d4d59`.
+
+#### Documentation calibration
+
+- **ARCHITECTURE.md** "Three Product Entry Points" was wrong — `audit-metrics`
+  is a subcommand under `mlgg`, not a standalone product. Corrected to
+  "Two Products + 28-subcommand CLI" with canonical-flow examples.
+- **SKILL.md Quick Dispatch** previously surfaced 8/28 subcommands (28%
+  coverage). Expanded to all 28 subcommands grouped by intent:
+  主流程 (5) / 流水线步骤 (4) / 交互入口 (2) / 环境元数据 (3) /
+  单 gate 直调 (2) / 审计外部项目 (6) / Benchmark 内部 (6). Commit `842590c`.
+
+#### P1: cohort selection-bias controls
+
+- **`cohort_definition_gate`** — three new structural checks closing
+  the ⚠️ 弱 self-flag in SKILL.md §"能力边界":
+  - `--cohort-spec` JSON declares inclusion/exclusion cascade;
+    new failures: `COHORT_CASCADE_UNDOCUMENTED`
+    (FAIL at `claim_tier=publication-grade`, WARN otherwise),
+    `COHORT_CASCADE_MONOTONICITY` (n_after must be non-increasing),
+    `COHORT_CASCADE_MISMATCH` (declared final_cohort_size vs actual
+    CSV rows, >1% tolerance → FAIL).
+  - **Table 1 auto-generation** per TRIPOD+AI 2024 Item 13a — emits
+    `evidence/cohort_table_one.csv` with continuous features rendered
+    as mean (SD), binary as n (%) per level, categorical as top-5
+    levels; stratified by outcome. Zero external deps (no `tableone`
+    package). Artifact-only, never triggers fail.
+  - `--claim-tier` flag (`leakage-audited` default vs.
+    `publication-grade`) gates cascade severity.
+  - `--cohort-spec.index_date_col` existence check; actual
+    immortal-time value-range detection is deferred (see below).
+  - `references/templates/request-schema.example.json` gains
+    `cohort_spec` block.
+  +14 unit tests (cascade monotonicity, size mismatch, tier severity,
+  index-date presence, Table 1 structure). Commit `538e4bc`.
+- **Table 1 binary rendering fix**. Binary columns encoded as
+  non-0/1 values (male/female in SUPPORT2, Yes/No, 1/2) were dropping
+  to "0 (0.0%)" because the `(series == 1).sum()` shortcut returned
+  zero on string-encoded data. Now enumerates both unique levels and
+  renders `level_A=n (p%); level_B=n (p%)` with deterministic sort;
+  +2 tests (string encoding, 0/1 regression guard). Commit `870bec5`.
+
+#### Immortal time bias detection
+
+- **`leakage_gate`** gains `IMMORTAL_TIME_RE` matching post-index
+  treatment/intervention patterns: `received_*` / `prescribed_*` /
+  `administered_*` / `treated_with_*` / `underwent_*` / `started_on_*` /
+  `initiated_*` / `assigned_to_*` / `given_*`. New code
+  `immortal_time_bias_pattern` (FAIL, not WARN) with Suissa 2008
+  Am J Epidemiol and Hernán 2016 JCE citations in remediation.
+  Closes red-team fixture
+  `experiments/paper/redteam/r4/test_38_immortal_time_bias.py`
+  (`received_drug_x` was previously uncaught by any gate). +12 tests
+  (regex matches, benign-name non-matches, integration test
+  reproducing the red-team feature set). Zero false positives across
+  all 16 example CSVs. Level 1 date-value-range detection
+  (column values > declared `index_date_col`) remains on the
+  roadmap — name heuristic closes the concrete red-team hole; the
+  value-range check requires cross-referencing cohort_spec with CSV
+  values and is best done as a dedicated follow-up. Commit `22dcc42`.
+
+#### CI infrastructure — ci-security rescue
+
+- **`tests/conftest.py`** was eager-importing `numpy` and `pandas` at
+  module load, which broke `ci-security` because that workflow
+  deliberately installs only `pytest` (the five test files under test
+  genuinely don't need numpy/pandas). Every push since commit `6a5b1ce`
+  had been failing `ci-security` with
+  `ModuleNotFoundError: No module named 'numpy'` + pytest exit code 4.
+  Fix moves the imports into `make_binary_csv` (the sole fixture that
+  uses them). Verified in a clean venv with only pytest installed:
+  294 passed, 3 skipped across the 5 ci-security test files.
+  Commit `8ce09dc`.
+
+### 2026-04 earlier session — first-principles audit + three dogfood runs
+
 23 commits driven by a first-principles audit plus three real-dataset
 dogfood runs (NHANES 15549 rows × 14 features, diabetes_130 10000 × 19,
 SUPPORT2 9105 × 46). Grouped by theme.

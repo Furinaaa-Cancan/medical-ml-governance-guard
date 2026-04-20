@@ -51,7 +51,7 @@
 - [33 Methodology Rules](#33-methodology-rules)
 - [23 Model Families](#23-model-families)
 - [16 Medical Datasets](#16-medical-datasets)
-- [27 Static Analysis Rules (R001-R027)](#27-static-analysis-rules-r001-r027)
+- [28 Static Analysis Rules (R001-R028)](#27-static-analysis-rules-r001-r027)
 - [21 Analysis Tools](#21-analysis-tools)
 - [Security Hardening Layer](#security-hardening-layer)
 - [Project Structure](#project-structure)
@@ -97,7 +97,7 @@ Your code ──→ /mlgg review ──→ Find issues ──→ Cite reviewer q
 
 | Layer | Mechanism | What It Catches |
 |:------|:----------|:----------------|
-| **Layer 1: 27 AST Static Analysis Rules** | Code pattern matching (R001-R027) | `scaler.fit(X)` before split, SMOTE on test, threshold selected on test |
+| **Layer 1: 28 AST Static Analysis Rules** | Code pattern matching (R001-R028) | `scaler.fit(X)` before split, SMOTE on test, threshold selected on test |
 | **Layer 2: 33 Fail-Closed Gates** | Runtime validation, JSON report output | Patient cross-split, calibration ECE > 0.1, EPV < 10, CI width > 0.20; **post-index feature-name detection** (time_in_hospital / num_medications / discharge / ventilation / vasopressor); **disease-scoped definition-variable matching** (glucose only for diabetes targets) |
 | **Layer 3: Clinical Semantic Review + Peer Review Evidence** | AI agent understands code semantics + 106 peer review KB + **issue-code-aware retrieval** | Post-discharge variables predicting post-discharge outcomes, HbA1c definition leakage, missing subgroup calibration. RAG re-ranks by keyword overlap with the actual failure codes — not just severity |
 
@@ -114,7 +114,7 @@ Structurally extracted 375 review opinions from 106 Nature Communications medica
 
 **KB index completeness**: all 375 concerns now have at least one `mlgg_gates` mapping (before the 2026-04 backfill, 73.6% were empty arrays and `peer_review_lookup.py --gate` silently missed ~75% of the KB). Warning-only gates (failed via `--strict` warning-upgrade) now also retrieve context — previously they left `peer_review_context: []` because the retrieval was guarded on `failures` only.
 
-**Honest coverage caveat**: the KB is peer-review opinions on already-published NC papers. The pre-publication filter removes egregious leakage, so leakage-category concerns are rare by design (≈4%). The KB is strong on evaluation / reporting / external validation; for leakage failures rely on `leakage_gate` + `mlgg-lint` R001-R027 rather than the KB.
+**Honest coverage caveat**: the KB is peer-review opinions on already-published NC papers. The pre-publication filter removes egregious leakage, so leakage-category concerns are rare by design (≈4%). The KB is strong on evaluation / reporting / external validation; for leakage failures rely on `leakage_gate` + `mlgg-lint` R001-R028 rather than the KB.
 
 > When MLGG finds an issue in your code, it doesn't just say "violated rule E02" &mdash; it tells you: *"NC reviewers requested improved evaluation metrics 119 times (31.7%) across 106 papers. This is the most frequently raised concern category."*
 
@@ -136,7 +136,7 @@ Raw Data ──→ 9-Phase Workflow ──→ 33-Gate Audit ──→ Compliance
 | **Multi-Model SHAP Engine** | Multi-family L1-normalized ensemble + Kendall tau consistency (FDR-BH correction) + cross-model Spearman rank correlation + 5 publication-grade CSVs | RF/XGB/CatBoost/LGBM/LR |
 | **Academic Compliance Engine** | TRIPOD+AI 2024 (27 items) / PROBAST+AI 2025 (4 domains) / STARD-AI | Item-by-item verification |
 | **Peer Review Evidence Base** | 106 NC papers &times; 375 structured review opinions, retrieved by gate/tag/severity | Each recommendation cites original text |
-| **27 Lint Rules** | Static analysis detecting code-level leakage anti-patterns (R001-R027) | .py + .ipynb |
+| **28 Lint Rules** | Static analysis detecting code-level leakage anti-patterns (R001-R028) | .py + .ipynb |
 | **Security Hardening Layer** | HMAC-SHA256 / AES-256-GCM / chained audit log / path traversal defense / restricted deserialization | fail-closed |
 | **21 Analysis Tools** | Riley sample size / calibration triple / NRI-IDI / learning curve / VIF / MNAR sensitivity / PDP marginal effects / FDR-BH correction / temporal drift / ... | 100% Nature ML Checklist coverage |
 
@@ -190,7 +190,7 @@ python3 scripts/orchestration/mlgg.py onboarding \
 # Audit any ML project (zero configuration)
 python3 scripts/reporting/generate_audit_report.py --project-dir /path/to/project
 
-# Static code scan (27 AST leakage rules)
+# Static code scan (28 AST leakage rules)
 cd plugin && pip install -e . && cd ..
 python3 -m mlgg_lint check /path/to/your_script.py
 ```
@@ -1083,7 +1083,7 @@ All data from official institutions (CDC / UCI / NCI-NIH / Vanderbilt), no regis
 
 ---
 
-## 27 Static Analysis Rules (R001-R027)
+## 28 Static Analysis Rules (R001-R028)
 
 | Category | Rules | Severity |
 |:---------|:------|:---------|
@@ -1094,6 +1094,7 @@ All data from official institutions (CDC / UCI / NCI-NIH / Vanderbilt), no regis
 | **Preprocessing** | R014 LabelEncoder-on-features, R018 scaling-before-trees | WARNING/INFO |
 | **Reproducibility** | R016 no-random-state | INFO |
 | **Statistical Rigor** | R009 no-CI, R019 multiple-comparison | INFO |
+| **Modality Guard** | R028 omics-feature-prefix (rejects `gene_/probe_/snp_/cpg_/rs#/ENSG` feature names; directs users to Scanpy/TCGAbiolinks/PLINK) | ERROR |
 
 ```bash
 # Run static analysis on any Python project
@@ -1250,7 +1251,7 @@ medical-ml-governance-guard/
 │   └── docs/               (9)           # Architecture, API-Reference, Quickstart, Troubleshooting
 │
 ├── plugin/                               # ─── Static Analysis Lint (independent sub-package) ───
-│   ├── mlgg_lint/          (9+29 files)  # AST-level 27 leakage detection rules (R001-R027)
+│   ├── mlgg_lint/          (9+30 files)  # AST-level 28 leakage detection rules (R001-R028)
 │   │   └── rules/                        #   fit_before_split, smote_on_test, target_encoding_leak...
 │   ├── tests/              (5+60 samples)# good/bad samples + CLI/engine tests
 │   ├── vscode/             (4)           # VS Code extension
@@ -1319,7 +1320,7 @@ User CSV ──→ /mlgg (orchestration)
 |------|----------|-------|--------|
 | **A. Paper metadata review** | API agents (`agents/extractor.yaml` → `reviewer.yaml`) | Paper PDF | 12-dim score + Major/Minor/Questions |
 | **B. 33-gate full pipeline** | Claude Code (`/mlgg`) | User data + code | evidence/ reports + compliance cert |
-| **C. Static Lint scan** | Claude Code (`mlgg lint`) | Python source (.py/.ipynb) | R001-R027 leakage detection report |
+| **C. Static Lint scan** | Claude Code (`mlgg lint`) | Python source (.py/.ipynb) | R001-R028 leakage detection report |
 
 ---
 

@@ -16,7 +16,7 @@ ml-leakage-guard/
 │   └── orchestration/  (10 files)   # CLI entry point, pipeline orchestration
 │
 ├── plugin/                          # ─── Product A: mlgg-lint ───
-│   ├── mlgg_lint/       (27 rules)  # pip install mlgg-lint (zero deps, standalone)
+│   ├── mlgg_lint/       (28 rules)  # pip install mlgg-lint (zero deps, standalone)
 │   └── pyproject.toml               # Independent package
 │
 ├── tests/             (123 files)   # ─── 4760+ test functions ───

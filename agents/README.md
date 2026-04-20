@@ -12,7 +12,7 @@ MLGG 使用多 agent 分工协作，每个 agent 做它最擅长的事。
 
 | 能力 | 命令 |
 |------|------|
-| 静态 lint 扫描 (27 条 AST 规则) | `mlgg lint check <file> --format json` |
+| 静态 lint 扫描 (28 条 AST 规则) | `mlgg lint check <file> --format json` |
 | 项目级量化审计 (10 维 100 分) | `audit_external_project.py --project-dir <dir>` |
 | 完整审计报告 (TRIPOD+AI/PROBAST+AI) | `generate_audit_report.py --project-dir <dir>` |
 | 临床语义审查 (Lint 抓不到的问题) | 读代码 + 理解特征时间线/定义变量泄漏 |

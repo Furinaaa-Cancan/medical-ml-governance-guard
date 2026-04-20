@@ -20,7 +20,7 @@
   <img src="https://img.shields.io/badge/gates-33%20fail--closed-critical" alt="Gates">
   <img src="https://img.shields.io/badge/datasets-16%20medical-purple" alt="Datasets">
   <img src="https://img.shields.io/badge/code-147K%20lines-informational" alt="Code">
-  <img src="https://img.shields.io/badge/lint%20rules-27%20(R001--R027)-orange" alt="Lint Rules">
+  <img src="https://img.shields.io/badge/lint%20rules-28%20(R001--R028)-orange" alt="Lint Rules">
   <a href="https://doi.org/10.1136/bmj-2023-078378"><img src="https://img.shields.io/badge/TRIPOD%2BAI-2024-blue" alt="TRIPOD+AI"></a>
   <a href="https://doi.org/10.1136/bmj-2024-082505"><img src="https://img.shields.io/badge/PROBAST%2BAI-2025-blue" alt="PROBAST+AI"></a>
 </p>
@@ -30,7 +30,7 @@
 <p align="center">
 <strong>33 道 fail-closed 门控</strong> &middot; <strong>9 阶段工作流</strong> &middot; <strong>12 维量化评分</strong> &middot; <strong>3 级合规认证</strong>
 <br>
-<strong>23 个模型族</strong> &middot; <strong>16 个真实医学数据集 (630K+ 行)</strong> &middot; <strong>106 篇 NC 审稿证据</strong> &middot; <strong>27 条静态分析规则</strong>
+<strong>23 个模型族</strong> &middot; <strong>16 个真实医学数据集 (630K+ 行)</strong> &middot; <strong>106 篇 NC 审稿证据</strong> &middot; <strong>28 条静态分析规则</strong>
 <br><br>
 <em>每一条审查建议都引用真实顶刊审稿意见作为论据。<br>不是规则引擎，是能像 Nature Medicine 审稿人一样思考的 AI 协审系统。</em>
 </p>
@@ -57,7 +57,7 @@
 - [33 条方法论规则](#33-条方法论规则)
 - [23 个模型族](#23-个模型族)
 - [16 个医学数据集](#16-个医学数据集)
-- [27 条静态分析规则 (R001-R027)](#27-条静态分析规则-r001-r027)
+- [28 条静态分析规则 (R001-R028)](#27-条静态分析规则-r001-r027)
 - [21 项分析工具](#21-项分析工具)
 - [安全加固层](#安全加固层)
 - [项目结构](#项目结构)
@@ -104,7 +104,7 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 
 | 层 | 机制 | 能抓到什么 |
 |:---|:-----|:----------|
-| **第一层：27 条 AST 静态分析** | 代码模式匹配 (R001-R027) | `scaler.fit(X)` 在 split 前、SMOTE 用在 test 上、阈值在 test 选 |
+| **第一层：28 条 AST 静态分析** | 代码模式匹配 (R001-R028) | `scaler.fit(X)` 在 split 前、SMOTE 用在 test 上、阈值在 test 选 |
 | **第二层：33 道 fail-closed 门控** | 运行时验证，报告 JSON 产出 | 患者跨 split、校准 ECE > 0.1、EPV < 10、CI 宽度 > 0.20、**post-index 特征名模式抓取**（time_in_hospital / num_medications / discharge / ventilation / vasopressor）、**疾病作用域匹配**（glucose 只对糖尿病 target 报） |
 | **第三层：临床语义审查 + 审稿证据** | AI agent 理解代码含义 + 106 篇审稿 KB + **issue-code 重排检索** | 出院后变量预测出院后结局、HbA1c 定义泄漏、亚组校准缺失。RAG 不只按 severity 排，而是基于失败代码的关键词（ppv / baseline / imputation）对 tag 和原文重排 |
 
@@ -121,7 +121,7 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 
 **KB 索引完整性**：所有 375 条 concerns 现在都有至少 1 个 `mlgg_gates` 映射（旧版 73.6% 是空数组，retrieval 对四分之三 KB 失效）。Warning-only gate（strict 模式升 fail 的）现在也会拉取 peer review context——不再因为"只有 warning 没有 failure"而背书为空。
 
-**KB 覆盖诚实说明**：KB 是 NC 已发表论文的审稿意见——pre-publication filter 已经筛掉了严重 leakage。结果：leakage 类审稿意见稀少（≈4%）；KB 强在 evaluation / reporting / external validation，弱在 leakage。遇到 leakage 失败时优先依赖 `leakage_gate` + `mlgg-lint` R001-R027，不依赖 KB。
+**KB 覆盖诚实说明**：KB 是 NC 已发表论文的审稿意见——pre-publication filter 已经筛掉了严重 leakage。结果：leakage 类审稿意见稀少（≈4%）；KB 强在 evaluation / reporting / external validation，弱在 leakage。遇到 leakage 失败时优先依赖 `leakage_gate` + `mlgg-lint` R001-R028，不依赖 KB。
 
 > 当 MLGG 发现你的代码有问题时，它不只是说"违反了规则 E02"——它会告诉你：*"NC 审稿人在 106 篇论文中 119 次（31.7%）要求完善评估指标。这是审稿人最常提出的问题类别。"*
 
@@ -143,7 +143,7 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 | **多模型 SHAP 集成引擎** | 多族 L1 归一化集成 + Kendall tau 一致性 (FDR-BH 校正) + 跨模型 Spearman 排名相关 + 5 张发表级 CSV | RF/XGB/CatBoost/LGBM/LR |
 | **学术合规引擎** | TRIPOD+AI 2024 (27 项) / PROBAST+AI 2025 (4 域) / STARD-AI | 全项逐条验证 |
 | **审稿证据库** | 106 篇 NC 论文 × 375 条结构化审稿意见，按 gate/tag/severity 检索 | 每条建议引用原文 |
-| **27 条 Lint 规则** | 静态分析检测代码级泄漏反模式 (R001-R027) | .py + .ipynb |
+| **28 条 Lint 规则** | 静态分析检测代码级泄漏反模式 (R001-R028) | .py + .ipynb |
 | **安全加固层** | HMAC-SHA256 / AES-256-GCM / 链式审计日志 / 路径穿越防护 / 受限反序列化 | fail-closed |
 | **21 个分析工具** | Riley 样本量 / 校准三件套 / NRI-IDI / 学习曲线 / VIF / MNAR 敏感性 / PDP 边际效应 / FDR-BH 校正 / 时序漂移 / ... | 100% 覆盖 Nature ML Checklist |
 
@@ -197,7 +197,7 @@ python3 scripts/orchestration/mlgg.py onboarding \
 # 审计任何 ML 项目（无需配置）
 python3 scripts/reporting/generate_audit_report.py --project-dir /path/to/project
 
-# 静态代码扫描（27 条 AST 泄漏规则）
+# 静态代码扫描（28 条 AST 泄漏规则）
 cd plugin && pip install -e . && cd ..
 python3 -m mlgg_lint check /path/to/your_script.py
 ```
@@ -1090,7 +1090,7 @@ python3 examples/download_real_data.py pima     # 768 rows
 
 ---
 
-## 27 条静态分析规则 (R001-R027)
+## 28 条静态分析规则 (R001-R028)
 
 | 类别 | 规则 | 严重度 |
 |:---------|:------|:---------|
@@ -1101,6 +1101,7 @@ python3 examples/download_real_data.py pima     # 768 rows
 |   **预处理** | R014 LabelEncoder-on-features, R018 scaling-before-trees | WARNING/INFO |
 |   **可复现性** | R016 no-random-state | INFO |
 |   **统计严谨性** | R009 no-CI, R019 multiple-comparison | INFO |
+|   **模态守卫** | R028 omics-feature-prefix（拒绝 `gene_/probe_/snp_/cpg_/rs#/ENSG` 特征，指向 Scanpy/TCGAbiolinks/PLINK） | ERROR |
 
 ```bash
 # 对任何 Python 项目运行静态分析
@@ -1370,7 +1371,7 @@ medical-ml-governance-guard/
 │   └── docs/               (9)           # Architecture, API-Reference, Quickstart, Troubleshooting
 │
 ├── plugin/                               # ─── 静态分析 Lint (独立子包) ───
-│   ├── mlgg_lint/          (9+29 files)  # AST 级 27 条泄漏检测规则 (R001-R027)
+│   ├── mlgg_lint/          (9+30 files)  # AST 级 28 条泄漏检测规则 (R001-R028)
 │   │   └── rules/                        #   fit_before_split, smote_on_test, target_encoding_leak...
 │   ├── tests/              (5+60 samples)# good/bad 样本 + CLI/engine 测试
 │   ├── vscode/             (4)           # VS Code 扩展
@@ -1442,7 +1443,7 @@ medical-ml-governance-guard/
 
 | 入口 | 安装 | 用途 | 依赖 |
 |------|------|------|------|
-| **mlgg-lint** | `pip install mlgg-lint` | 扫描代码 data leakage（27 条 AST 规则） | 零依赖 |
+| **mlgg-lint** | `pip install mlgg-lint` | 扫描代码 data leakage（28 条 AST 规则） | 零依赖 |
 | **audit-metrics** | 内置 | 投稿前指标查漏（贴 Table 2 数字即可） | 零依赖 |
 | **mlgg onboarding** | `pip install -r requirements.txt` | 完整 33-gate pipeline | numpy/pandas/sklearn |
 
@@ -1450,7 +1451,7 @@ medical-ml-governance-guard/
 
 | 路径 | 执行者 | 输入 | 输出 |
 |------|--------|------|------|
-| **A. 代码扫描** | `mlgg-lint check code.py` | Python 源码 (.py/.ipynb) | R001-R027 泄漏检测报告 |
+| **A. 代码扫描** | `mlgg-lint check code.py` | Python 源码 (.py/.ipynb) | R001-R028 泄漏检测报告 |
 | **B. 指标审查** | `mlgg audit-metrics --metrics '{}'` | 论文 Table 2 数字 | TRIPOD+AI 合规缺口报告 |
 | **C. 全流程审查** | `mlgg onboarding --input-csv` | 用户数据 CSV | evidence/ 报告 + 33 gate 验证 |
 | **D. 论文元数据评审** | API agents (`agents/`) | 论文 PDF | 12 维评分 |

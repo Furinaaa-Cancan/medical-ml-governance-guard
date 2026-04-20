@@ -903,8 +903,18 @@ def _validate_index_date(
 ) -> Dict[str, Any]:
     """Validate declared index_date_col exists in CSV.
 
-    Note: full immortal-time-bias value-range detection is performed in
-    feature_lineage_gate; here we only confirm the column is declared and present.
+    Scope (this gate): only confirms the column is declared and present.
+
+    Related detection (other gates / not yet implemented):
+      - leakage_gate.IMMORTAL_TIME_RE — name-heuristic Level-2 detection
+        of post-index treatment/intervention columns (received_*,
+        prescribed_*, etc.). Already implemented.
+      - Level-1 value-range detection ("column values > index_date" on
+        CSV rows) — NOT YET IMPLEMENTED. Proper home is leakage_gate
+        (row-value, temporal, leakage-specific) per Codex review
+        2026-04-20; previous doc claimed feature_lineage_gate but that
+        was wrong — feature_lineage_gate scopes to lineage/definition
+        headers only. Tracked in MEMORY (project_skill_ux_roadmap).
     """
     if not cohort_spec:
         return {}

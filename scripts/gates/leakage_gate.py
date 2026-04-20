@@ -67,6 +67,13 @@ register_remediations({
 # surviving to the intervention window. Kept separate from the generic
 # suspicious-feature regex so the diagnostic points at the specific
 # methodological error (Suissa 2008; Hernán 2016).
+#
+# False-positive guard: exempt columns whose names include
+# pre-index / historical markers (e.g., ever_received_vaccine,
+# started_on_drug_before_enrollment, history_prescribed_statin) —
+# those are valid baseline covariates, not immortal time leakage.
+# Also exempts demographic identifier suffixes like _name to avoid
+# matching "patient_given_name".
 IMMORTAL_TIME_RE = re.compile(
     r"(?:^|_)("
     r"received|prescribed|administered|treated_with|underwent|"
@@ -74,6 +81,28 @@ IMMORTAL_TIME_RE = re.compile(
     r")_",
     re.IGNORECASE,
 )
+
+# If any of these tokens appear in the column name, treat the column as
+# a baseline/historical/demographic indicator and do NOT flag as
+# immortal time. Case-insensitive.
+_IMMORTAL_TIME_EXEMPTIONS = re.compile(
+    # Pre-index / historical tokens as whole words
+    r"(?:^|_)(ever|history|hx|prior|past|baseline|pre[_-]?index|"
+    r"before|at_birth|lifetime|previously)(?:$|_)"
+    # Demographic identifier suffixes (e.g., patient_given_name, last_name)
+    r"|_name$",
+    re.IGNORECASE,
+)
+
+
+def is_immortal_time_suspect(col_name: str) -> bool:
+    """Return True if a column name triggers the immortal-time regex
+    AND is not exempted as a pre-index / historical / demographic marker."""
+    if not IMMORTAL_TIME_RE.search(col_name):
+        return False
+    if _IMMORTAL_TIME_EXEMPTIONS.search(col_name):
+        return False
+    return True
 
 
 def parse_args() -> argparse.Namespace:
@@ -314,7 +343,7 @@ def main() -> int:
     for h in canonical_headers:
         if args.target_col and h == args.target_col:
             continue
-        if IMMORTAL_TIME_RE.search(h):
+        if is_immortal_time_suspect(h):
             immortal_hits.append(h)
     if immortal_hits:
         add_issue(

@@ -642,7 +642,7 @@ class TestLeakageGateMain:
 
 # ── Immortal time bias regex + detection ───────────────────────────────────
 
-from leakage_gate import IMMORTAL_TIME_RE
+from leakage_gate import IMMORTAL_TIME_RE, is_immortal_time_suspect
 
 
 class TestImmortalTimeRegex:
@@ -669,6 +669,45 @@ class TestImmortalTimeRegex:
     def test_does_not_flag_benign_names(self, name):
         assert IMMORTAL_TIME_RE.search(name) is None, (
             f"{name} should NOT match immortal time bias pattern"
+        )
+
+
+class TestImmortalTimeExemptions:
+    """Codex second-opinion review surfaced 7 false-positive scenarios.
+    These must NOT trigger the immortal-time flag because they describe
+    pre-index / historical / demographic context, not post-index events."""
+
+    @pytest.mark.parametrize("name", [
+        "ever_received_influenza_vaccine",
+        "history_prescribed_statin_past_year",
+        "underwent_appendectomy_before_baseline",
+        "administered_hepb_vaccine_at_birth",
+        "started_on_antihypertensive_before_enrollment",
+        "treated_with_tcm_herbal_formula_past_12m",
+        "patient_given_name",
+        "hx_prescribed_warfarin",
+        "prior_received_transplant",
+        "baseline_treated_with_chemo",
+        "lifetime_prescribed_opioids",
+    ])
+    def test_pre_index_baseline_not_flagged(self, name):
+        assert not is_immortal_time_suspect(name), (
+            f"{name} is a baseline/historical column and must NOT be "
+            f"flagged as immortal time bias"
+        )
+
+    @pytest.mark.parametrize("name", [
+        "received_drug_x",
+        "prescribed_metformin",
+        "administered_vasopressor",
+        "treated_with_aspirin",
+        "underwent_surgery",
+        "started_on_ssri",
+        "initiated_dialysis",
+    ])
+    def test_post_index_still_flagged(self, name):
+        assert is_immortal_time_suspect(name), (
+            f"{name} is a post-index treatment event and MUST be flagged"
         )
 
 

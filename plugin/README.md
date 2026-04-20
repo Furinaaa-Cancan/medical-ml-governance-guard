@@ -1,6 +1,6 @@
 # mlgg-lint
 
-Static analysis tool for ML Python code — detects data leakage, improper preprocessing, and evaluation malpractice. 27 AST-level rules (R001-R027).
+Static analysis tool for ML Python code — detects data leakage, improper preprocessing, and evaluation malpractice. 28 AST-level rules (R001-R028, including R028 omics-modality guard).
 
 Part of [ML Governance Guard](https://github.com/Furinaaa-Cancan/medical-ml-governance-guard). This is an **independent sub-package** within the monorepo — it has its own `pyproject.toml` and can be installed separately. `pip install .` from the project root installs the main MLGG framework but does NOT include mlgg-lint; install it explicitly if needed.
 
@@ -78,6 +78,7 @@ cd plugin && PYTHONPATH=. python3 -m mlgg_lint check <file.py>
 | R025 | ERROR | smote-after-model-in-pipeline | SMOTE/resampling placed after estimator in Pipeline |
 | R026 | ERROR | fillna-before-split | `fillna()` with data-dependent statistics before split |
 | R027 | ERROR | manual-scaling-before-split | Manual scaling/normalization on full data before split |
+| R028 | ERROR | omics-feature-prefix | Feature list dominated by omics-pattern names (`gene_/probe_/snp_/cpg_/rs#/ENSG`) — out of MLGG scope |
 
 ### Coverage by category
 
@@ -90,6 +91,7 @@ cd plugin && PYTHONPATH=. python3 -m mlgg_lint check <file.py>
 | **Preprocessing** | R014 LabelEncoder-on-features, R018 scaling-before-trees | WARNING / INFO |
 | **Reproducibility** | R016 no-random-state | INFO |
 | **Statistical rigor** | R009 no-CI, R019 multiple-comparison | INFO |
+| **Modality guard** | R028 omics-feature-prefix | ERROR |
 
 ### Detection capabilities
 
@@ -161,7 +163,7 @@ See `vscode/` directory. The extension:
 
 ## Known Limitations
 
-- **R001 scope**: R001 (fit-before-split) only scans module-level code. Leakage inside function or class bodies is not flagged — the tool cannot determine whether a function is called before or after splitting. All other rules (R002-R027) work inside functions.
+- **R001 scope**: R001 (fit-before-split) only scans module-level code. Leakage inside function or class bodies is not flagged — the tool cannot determine whether a function is called before or after splitting. All other rules (R002-R028) work inside functions.
 - **Single-file analysis**: Each file is analyzed independently. Cross-file leakage (e.g., `helper.py` fits a scaler, `main.py` splits) is not detected. This is consistent with flake8/ruff.
 - **Jupyter notebooks**: Cells are concatenated and analyzed as a single script. Cross-cell leakage is detected correctly.
 

@@ -122,7 +122,7 @@ Agent 审查代码时，查阅 `references/case-studies/peer-review-kb.json`（1
 
 **强弱覆盖、KB 结构、检索策略详见** `references/case-studies/peer-review-kb-audit-2026-04.md`。要点:
 - Gate 失败 = evaluation / reporting / external validation → KB 是有力背书
-- Gate 失败 = leakage → 优先 `leakage_gate` + lint R001-R027,KB 仅辅助(prepub filter 后 KB 中 leakage 案例稀少)
+- Gate 失败 = leakage → 优先 `leakage_gate` + lint R001-R028,KB 仅辅助(prepub filter 后 KB 中 leakage 案例稀少)
 - **不要**用 "KB 里没提过" 反推 leakage 不存在
 
 **引用格式**: `[PEER-REVIEW] PR-XXX-CYY (Nature Communications, 20XX) 审稿人: "..." 修复: "..."`
