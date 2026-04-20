@@ -10,3 +10,9 @@ tabpfn>=0.1
 optuna>=3.0
 flask>=3.0             # Web dashboard (mlgg web)
 shap>=0.42             # SHAP interpretability gate
+
+# Class-imbalance helpers (scripts/training/train_select_evaluate.py —
+# balanced_random_forest, easy_ensemble, rusboost model families).
+# CI installs this because tests/test_train_select_evaluate.py covers
+# these model families; users with class-imbalance problems should too.
+imbalanced-learn>=0.12
