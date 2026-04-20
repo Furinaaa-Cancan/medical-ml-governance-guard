@@ -241,6 +241,37 @@ def bootstrap_metric_ci(
 
     effective = min((len(v) for v in hits.values()), default=0)
     summary: Dict[str, Dict[str, float]] = {}
+    # Design note — percentile method (not BCa).
+    #
+    # We use the empirical percentile bootstrap (2.5% / 97.5% quantiles of
+    # the resampled metric distribution) rather than bias-corrected and
+    # accelerated (BCa). Three reasons, in order of weight:
+    #
+    # 1. Reproducibility surface. Percentile CI only depends on
+    #    (n_resamples, seed). BCa additionally requires jackknife
+    #    estimates of acceleration and bias, each adding inputs that
+    #    downstream replay / audit tooling would need to track and
+    #    reproduce deterministically. MLGG's prediction_replay_gate
+    #    compares reported CIs within a fixed tolerance; a simpler
+    #    estimator keeps that replay contract tight.
+    #
+    # 2. Stratification already bounds skew. Our bootstrap is
+    #    stratified (see stratified_bootstrap_indices), which preserves
+    #    class prevalence in every resample. The primary scenario BCa
+    #    corrects — class-imbalanced metrics whose resample
+    #    distribution is skewed by prevalence drift — is largely
+    #    neutralized by the stratification step.
+    #
+    # 3. Concordance with sklearn convention. sklearn.utils and
+    #    scipy.stats.bootstrap default to percentile; reviewers
+    #    comparing our CI widths to sklearn notebooks will see
+    #    matching behavior.
+    #
+    # When BCa is required (heavy skew on non-stratifiable metrics like
+    # decision-threshold-free Brier under extreme imbalance), reviewers
+    # can re-compute CIs from the raw resample values stored in
+    # prediction_trace.csv.gz. Don't silently switch to BCa here — the
+    # reproducibility hit is not worth the marginal precision gain.
     for metric in REQUIRED_METRICS:
         values = np.asarray(hits[metric][:effective], dtype=float)
         if values.size == 0:
