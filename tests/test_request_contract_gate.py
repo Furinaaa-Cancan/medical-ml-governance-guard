@@ -1141,3 +1141,86 @@ class TestPolicyBaselinesLoading:
         resolved = rcg._apply_profile(rcg.PUBLICATION_POLICY_BASELINES, "small_cohort")
         assert resolved["clinical_floors_min"]["sensitivity_min"] == 0.75
         assert resolved["beta"] == 2.0
+
+
+# ── SEC2 path-sandbox regression (Codex second-opinion finding) ──────────────
+
+class TestPathSandboxEscape:
+    """Round-2 Codex audit surfaced a gap: `resolve_path()` accepts a
+    `sandbox` parameter but no call site in request_contract_gate was using
+    it. A malicious request could declare `split_paths.train` at
+    ~/other-user/secrets.csv and the gate would happily open it.
+    These tests lock in that sandbox is now enforced."""
+
+    def _make_request_in_subdir(self, tmp_path: Path, train_path: Path) -> Path:
+        """Create request.json inside tmp_path/configs/ so sandbox =
+        tmp_path. Splits can then be steered outside the sandbox."""
+        configs = tmp_path / "configs"
+        configs.mkdir(exist_ok=True)
+        data = tmp_path / "data"
+        data.mkdir(exist_ok=True)
+        # Create valid/test under data/ (legitimate layout)
+        valid = data / "valid.csv"
+        test = data / "test.csv"
+        for f in (valid, test):
+            f.write_text("patient_id,y\nP001,0\nP002,1\n")
+        pheno = data / "pheno.json"
+        pheno.write_text(json.dumps({"definition": "test"}))
+
+        request = {
+            "study_id": "study-001",
+            "run_id": "run-001",
+            "target_name": "readmission",
+            "prediction_unit": "admission",
+            "index_time_col": "event_time",
+            "label_col": "y",
+            "patient_id_col": "patient_id",
+            "primary_metric": "pr_auc",
+            "phenotype_definition_spec": "../data/pheno.json",
+            "claim_tier_target": "leakage-audited",
+            "split_paths": {
+                "train": str(train_path),
+                "valid": "../data/valid.csv",
+                "test": "../data/test.csv",
+            },
+            "thresholds": {"alpha": 0.05, "min_delta": 0.03},
+        }
+        req_path = configs / "request.json"
+        req_path.write_text(json.dumps(request))
+        return req_path
+
+    def test_train_split_outside_sandbox_fails(self, tmp_path: Path, tmp_path_factory):
+        """A train.csv declared outside the project root must be rejected
+        with path_escapes_sandbox, not silently opened."""
+        # Create a file in a DIFFERENT tmp directory — outside tmp_path's sandbox
+        outside_dir = tmp_path_factory.mktemp("outside")
+        outside_csv = outside_dir / "secrets.csv"
+        outside_csv.write_text("patient_id,y\nP001,0\n")
+
+        req = self._make_request_in_subdir(tmp_path, outside_csv)
+        report_path = tmp_path / "report.json"
+        report = _run_gate(req, report_path)
+
+        assert report["status"] == "fail"
+        codes = [f["code"] for f in report["failures"]]
+        assert "path_escapes_sandbox" in codes, (
+            f"Sandbox escape should be flagged; got codes: {codes}"
+        )
+
+    def test_legitimate_subdir_path_passes_sandbox(self, tmp_path: Path):
+        """The canonical configs/../data layout must still pass — sandbox
+        should NOT false-positive on legitimate relative paths."""
+        # train.csv under tmp_path/data/ — i.e., under the sandbox root
+        data = tmp_path / "data"
+        data.mkdir(exist_ok=True)
+        train = data / "train.csv"
+        train.write_text("patient_id,y\nP001,0\nP002,1\n")
+
+        req = self._make_request_in_subdir(tmp_path, train)
+        report_path = tmp_path / "report.json"
+        report = _run_gate(req, report_path)
+
+        codes = [f["code"] for f in report.get("failures", [])]
+        assert "path_escapes_sandbox" not in codes, (
+            f"Legitimate sibling-dir path should pass sandbox; got codes: {codes}"
+        )

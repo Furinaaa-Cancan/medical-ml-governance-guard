@@ -873,6 +873,11 @@ def validate_external_cohort_spec_shape(
                 {"path": str(path), "index": idx},
             )
             continue
+        # External cohort paths are deliberately not sandbox-restricted:
+        # external validation cohorts routinely live outside the project
+        # tree (e.g., /shared/cohorts/, another hospital's data mount).
+        # The _FORBIDDEN_PATH_PREFIXES denylist inside resolve_path still
+        # blocks /etc, /proc, /sys, etc.
         resolved = resolve_path(path.parent, data_path.strip())
         if not resolved.exists() or not resolved.is_file():
             add_issue(
@@ -2665,6 +2670,7 @@ def validate_optional_path(
     required: bool,
     normalized: Dict[str, Any],
     warnings: Optional[List[Dict[str, Any]]] = None,
+    sandbox: Optional[Path] = None,
 ) -> None:
     value = request.get(key)
     if value is None:
@@ -2686,7 +2692,21 @@ def validate_optional_path(
         )
         return
 
-    resolved = resolve_path(base, value.strip())
+    # Sandbox defaults to the parent of `base` (i.e., the project root when
+    # base is the request.json's directory). This permits the canonical
+    # configs/../data, configs/../evidence, configs/../models layout while
+    # blocking `../../../home/other-user/secrets.csv` traversals.
+    effective_sandbox = sandbox if sandbox is not None else base.parent
+    try:
+        resolved = resolve_path(base, value.strip(), sandbox=effective_sandbox)
+    except ValueError as exc:
+        add_issue(
+            failures,
+            "path_escapes_sandbox",
+            f"Path field '{key}' escapes the project sandbox: {exc}",
+            {"field": key, "sandbox": str(effective_sandbox)},
+        )
+        return
     normalized[key] = str(resolved)
     if not resolved.exists():
         # Required paths → failure; optional declared paths → warning only
@@ -2805,7 +2825,13 @@ def main() -> int:
         return finish(args, failures, warnings, normalized)
 
     request_base = request_path.parent
+    # Sandbox for all user-declared paths: project root = parent of the
+    # request.json's directory. Permits configs/../data, configs/../evidence,
+    # configs/../models (canonical MLGG layout) while blocking traversals
+    # to ~/other-user/ or absolute paths outside the project.
+    path_sandbox = request_base.parent
     normalized["path_resolution_base"] = str(request_base)
+    normalized["path_resolution_sandbox"] = str(path_sandbox)
 
     for key in REQUIRED_STRING_FIELDS:
         value = must_be_non_empty_str(request, key, failures)
@@ -2841,7 +2867,16 @@ def main() -> int:
                     {"split": key},
                 )
                 continue
-            resolved = resolve_path(request_base, val.strip())
+            try:
+                resolved = resolve_path(request_base, val.strip(), sandbox=path_sandbox)
+            except ValueError as exc:
+                add_issue(
+                    failures,
+                    "path_escapes_sandbox",
+                    f"Split path '{key}' escapes the project sandbox: {exc}",
+                    {"split": key, "sandbox": str(path_sandbox)},
+                )
+                continue
             normalized_splits[key] = str(resolved)
             if not resolved.exists():
                 add_issue(
@@ -2868,22 +2903,32 @@ def main() -> int:
                     {},
                 )
             else:
-                resolved = resolve_path(request_base, valid_val.strip())
-                normalized_splits["valid"] = str(resolved)
-                if not resolved.exists():
+                try:
+                    resolved = resolve_path(request_base, valid_val.strip(), sandbox=path_sandbox)
+                except ValueError as exc:
                     add_issue(
                         failures,
-                        "split_path_not_found",
-                        "Split file path does not exist.",
-                        {"split": "valid", "path": str(resolved)},
+                        "path_escapes_sandbox",
+                        f"Valid split path escapes the project sandbox: {exc}",
+                        {"sandbox": str(path_sandbox)},
                     )
-                elif not resolved.is_file():
-                    add_issue(
-                        failures,
-                        "split_path_not_file",
-                        "Split path must point to a file.",
-                        {"split": "valid", "path": str(resolved)},
-                    )
+                    resolved = None
+                if resolved is not None:
+                    normalized_splits["valid"] = str(resolved)
+                    if not resolved.exists():
+                        add_issue(
+                            failures,
+                            "split_path_not_found",
+                            "Split file path does not exist.",
+                            {"split": "valid", "path": str(resolved)},
+                        )
+                    elif not resolved.is_file():
+                        add_issue(
+                            failures,
+                            "split_path_not_file",
+                            "Split path must point to a file.",
+                            {"split": "valid", "path": str(resolved)},
+                        )
         elif args.strict:
             add_issue(
                 warnings,
@@ -2908,15 +2953,25 @@ def main() -> int:
 
     phenotype_path = normalized.get("phenotype_definition_spec")
     if phenotype_path:
-        resolved = resolve_path(request_base, phenotype_path)
-        normalized["phenotype_definition_spec"] = str(resolved)
-        if not resolved.exists():
+        try:
+            resolved = resolve_path(request_base, phenotype_path, sandbox=path_sandbox)
+        except ValueError as exc:
             add_issue(
                 failures,
-                "phenotype_definition_spec_not_found",
-                "phenotype_definition_spec path does not exist.",
-                {"path": str(resolved)},
+                "path_escapes_sandbox",
+                f"phenotype_definition_spec escapes the project sandbox: {exc}",
+                {"sandbox": str(path_sandbox)},
             )
+            resolved = None
+        if resolved is not None:
+            normalized["phenotype_definition_spec"] = str(resolved)
+            if not resolved.exists():
+                add_issue(
+                    failures,
+                    "phenotype_definition_spec_not_found",
+                    "phenotype_definition_spec path does not exist.",
+                    {"path": str(resolved)},
+                )
 
     # outcome_definition_spec — optional path to a rigorous outcome-definition
     # JSON. Onboarding auto-writes a minimal exploratory_auto_generated stub
@@ -2933,17 +2988,27 @@ def main() -> int:
         normalized["cross_sectional"] = bool(request.get("cross_sectional"))
     _outcome_def_path = normalized.get("outcome_definition_spec")
     if _outcome_def_path:
-        _resolved_od = resolve_path(request_base, _outcome_def_path)
-        normalized["outcome_definition_spec"] = str(_resolved_od)
-        if not _resolved_od.exists():
-            # Soft warning for leakage-audited; hard fail only for publication-grade.
-            _target_list = failures if normalized.get("claim_tier_target") == "publication-grade" else warnings
+        try:
+            _resolved_od = resolve_path(request_base, _outcome_def_path, sandbox=path_sandbox)
+        except ValueError as exc:
             add_issue(
-                _target_list,
-                "outcome_definition_spec_not_found",
-                "outcome_definition_spec path does not exist.",
-                {"path": str(_resolved_od)},
+                failures,
+                "path_escapes_sandbox",
+                f"outcome_definition_spec escapes the project sandbox: {exc}",
+                {"sandbox": str(path_sandbox)},
             )
+            _resolved_od = None
+        if _resolved_od is not None:
+            normalized["outcome_definition_spec"] = str(_resolved_od)
+            if not _resolved_od.exists():
+                # Soft warning for leakage-audited; hard fail only for publication-grade.
+                _target_list = failures if normalized.get("claim_tier_target") == "publication-grade" else warnings
+                add_issue(
+                    _target_list,
+                    "outcome_definition_spec_not_found",
+                    "outcome_definition_spec path does not exist.",
+                    {"path": str(_resolved_od)},
+                )
 
     # Publication-grade requests must include lineage, split/imbalance/tuning protocol specs, and evaluated metric.
     require_lineage = normalized.get("claim_tier_target") == "publication-grade"
