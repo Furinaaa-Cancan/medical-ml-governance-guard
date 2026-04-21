@@ -48,6 +48,30 @@ register_remediations({
         "Bootstrap resample count is below required minimum. "
         "Re-run training with --bootstrap-resamples 1000 --ci-bootstrap-resamples 1000."
     ),
+    "improper_primary_metric": (
+        "Primary metric is a thresholded classification measure (F1, accuracy, "
+        "balanced accuracy). Van Calster et al. (STRATOS TG6, Lancet Digital "
+        "Health 2025-12 doi:10.1016/j.landig.2025.100916) classify these as "
+        "IMPROPER for risk-prediction model evaluation: they compress "
+        "calibration, discrimination and clinical utility into a single "
+        "thresholded decision and conceal clinically relevant failure modes. "
+        "Fix: choose a proper primary metric that reflects the modelling goal — "
+        "discrimination (roc_auc, pr_auc), calibration (brier, ece, log_loss), "
+        "or clinical utility (net_benefit from decision curve analysis). "
+        "Thresholded measures may still be reported in a metric panel but MUST "
+        "NOT be the single primary metric."
+    ),
+})
+
+
+# Primary metrics formally classified as "improper" by Van Calster et al.
+# (STRATOS TG6, Lancet Digital Health 2025-12 doi:10.1016/j.landig.2025.100916).
+# Tokens are already normalized via _gate_utils.canonical_metric_token, which
+# strips non-alphanumerics and lowercases. Comparison is exact-match on the
+# canonical form.
+IMPROPER_PRIMARY_METRICS = frozenset({
+    "f1", "f1score", "macrof1", "microf1", "weightedf1", "samplesf1",
+    "accuracy", "acc", "balancedaccuracy", "bacc",
 })
 
 
@@ -341,6 +365,32 @@ def main() -> int:
     args = parse_args()
     failures: List[Dict[str, Any]] = []
     warnings: List[Dict[str, Any]] = []
+
+    # STRATOS TG6 improper-metric guard — reject thresholded classification
+    # measures as primary metric regardless of whether a value is present.
+    metric_token = canonical_metric_token(args.metric_name or "")
+    if metric_token in IMPROPER_PRIMARY_METRICS:
+        add_issue(
+            failures,
+            "improper_primary_metric",
+            f"'{args.metric_name}' is classified as an improper primary metric "
+            f"for risk-prediction evaluation.",
+            {
+                "metric_name": args.metric_name,
+                "canonical_token": metric_token,
+                "reference": "Van Calster et al. STRATOS TG6, Lancet Digital Health 2025-12 "
+                             "doi:10.1016/j.landig.2025.100916",
+                "suggested_primary_metrics": [
+                    "roc_auc", "pr_auc",              # discrimination
+                    "brier", "ece", "log_loss",       # calibration
+                    "net_benefit",                    # clinical utility
+                ],
+            },
+        )
+        return finish(args, failures, warnings, summary={
+            "metric_name": args.metric_name,
+            "improper_primary_metric_rejected": True,
+        })
 
     if args.min_resamples < 1:
         add_issue(

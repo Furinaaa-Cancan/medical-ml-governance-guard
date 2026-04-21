@@ -822,3 +822,79 @@ class TestBaselineExtractionEdgeCases:
         ev = {"baselines": "not_a_dict"}
         result = eqg.extract_baseline_metrics(ev, "roc_auc")
         assert result == {}
+
+
+# ── STRATOS TG6 improper-metric guard (Van Calster 2025) ─────────────
+
+class TestImproperPrimaryMetric:
+    """Reject F1 / accuracy / balanced accuracy as primary metric per
+    Van Calster et al. Lancet Digital Health 2025-12."""
+
+    def _run_with_metric(self, tmp_path: Path, metric_name: str):
+        eval_path = _write_json(tmp_path / "eval.json", _good_eval_report())
+        cmd = [
+            sys.executable, str(SCRIPTS_DIR / "gates/evaluation_quality_gate.py"),
+            "--evaluation-report", str(eval_path),
+            "--metric-name", metric_name,
+            "--report", str(tmp_path / "report.json"),
+        ]
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+
+    def test_f1_is_rejected(self, tmp_path: Path):
+        r = self._run_with_metric(tmp_path, "f1")
+        assert r.returncode == 2, r.stdout + r.stderr
+        report = json.loads((tmp_path / "report.json").read_text())
+        codes = [f["code"] for f in report["failures"]]
+        assert "improper_primary_metric" in codes
+
+    def test_f1_score_variant_is_rejected(self, tmp_path: Path):
+        # Canonicalization strips non-alphanumerics; "F1 Score" → "f1score"
+        r = self._run_with_metric(tmp_path, "F1 Score")
+        assert r.returncode == 2
+        report = json.loads((tmp_path / "report.json").read_text())
+        codes = [f["code"] for f in report["failures"]]
+        assert "improper_primary_metric" in codes
+
+    def test_accuracy_is_rejected(self, tmp_path: Path):
+        r = self._run_with_metric(tmp_path, "accuracy")
+        assert r.returncode == 2
+        report = json.loads((tmp_path / "report.json").read_text())
+        codes = [f["code"] for f in report["failures"]]
+        assert "improper_primary_metric" in codes
+
+    def test_balanced_accuracy_is_rejected(self, tmp_path: Path):
+        r = self._run_with_metric(tmp_path, "balanced_accuracy")
+        assert r.returncode == 2
+        report = json.loads((tmp_path / "report.json").read_text())
+        codes = [f["code"] for f in report["failures"]]
+        assert "improper_primary_metric" in codes
+
+    def test_macro_f1_is_rejected(self, tmp_path: Path):
+        r = self._run_with_metric(tmp_path, "macro_f1")
+        assert r.returncode == 2
+
+    def test_roc_auc_is_proper(self, tmp_path: Path):
+        # _good_eval_report has roc_auc=0.85 — should pass all checks
+        r = self._run_with_metric(tmp_path, "roc_auc")
+        assert r.returncode == 0, r.stdout + r.stderr
+        report = json.loads((tmp_path / "report.json").read_text())
+        codes = [f["code"] for f in report.get("failures", [])]
+        assert "improper_primary_metric" not in codes
+
+    def test_brier_is_proper(self, tmp_path: Path):
+        # Calibration metric — not in improper set; may fail on other checks
+        # (missing in eval report) but NOT on the improper-metric guard.
+        self._run_with_metric(tmp_path, "brier")
+        report = json.loads((tmp_path / "report.json").read_text())
+        codes = [f["code"] for f in report.get("failures", [])]
+        assert "improper_primary_metric" not in codes
+
+    def test_improper_failure_cites_reference(self, tmp_path: Path):
+        r = self._run_with_metric(tmp_path, "f1")
+        assert r.returncode == 2
+        report = json.loads((tmp_path / "report.json").read_text())
+        fail = next(f for f in report["failures"]
+                    if f["code"] == "improper_primary_metric")
+        assert "Van Calster" in fail["details"]["reference"]
+        assert "10.1016/j.landig.2025.100916" in fail["details"]["reference"]
+        assert "roc_auc" in fail["details"]["suggested_primary_metrics"]
