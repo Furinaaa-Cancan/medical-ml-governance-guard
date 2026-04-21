@@ -1,7 +1,9 @@
 """Tests for UKBCodebook and codebook_factory."""
 from __future__ import annotations
 
-import json
+import subprocess
+import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -99,18 +101,15 @@ class TestUKBValidateColumnsForGate:
 
     def test_outcome_derived_flagged(self, ukb_codebook):
         """Fields from first_occurrence_icd domain should be flagged as outcome."""
-        # 131298 = Date I21 first reported (outcome_derived)
+        # 131298 = Date I21 first reported (acute MI) — risk_category=outcome_derived
         issues = ukb_codebook.validate_columns_for_gate(
             column_names=["p131298", "p21001_i0_a0"],
             target_col="p2443_i0",
         )
         outcome_issues = [i for i in issues if i["code"] == "CODEBOOK_OUTCOME_AS_FEATURE"]
-        # 131298 should be flagged if its risk_category is outcome_derived
-        # (depends on DB build; we check the structure is valid)
+        assert any(i["details"]["field_id"] == 131298 for i in outcome_issues)
         for i in issues:
-            assert "code" in i
-            assert "message" in i
-            assert "details" in i
+            assert {"code", "message", "details"}.issubset(i.keys())
 
     def test_temporal_leakage_detected(self, ukb_codebook):
         """Feature from instance 2 with target at instance 0 → temporal leakage."""
@@ -327,3 +326,76 @@ class TestCodebookFactory:
             finally:
                 _safe_close(cb)
             assert hasattr(cb, "variable_count")
+
+
+# ── manual_registry parity (P1) ──────────────────────────────────────
+
+class TestManualRegistry:
+    """Columns listed in manual_registry must be skipped by both entry points."""
+
+    def test_gate_path_respects_manual_registry(self, ukb_codebook):
+        # 40000 = Date of death → would normally emit CODEBOOK_OUTCOME_AS_FEATURE
+        raw = ukb_codebook.validate_columns_for_gate(["p40000_i0"])
+        assert any(i["code"] == "CODEBOOK_OUTCOME_AS_FEATURE" for i in raw)
+
+        overridden = ukb_codebook.validate_columns_for_gate(
+            ["p40000_i0"], manual_registry={"p40000_i0": {"reviewed": True}}
+        )
+        assert all(i["code"] != "CODEBOOK_OUTCOME_AS_FEATURE" for i in overridden)
+
+    def test_task_aware_respects_manual_registry(self, ukb_codebook):
+        raw = ukb_codebook.task_aware_validate(
+            column_names=["p20002_i0"],
+            target_disease="type_2_diabetes",
+            disease_kb_path=str(DISEASE_KB),
+        )
+        assert any(i["code"] == "CODEBOOK_SELF_REPORT_LEAKAGE" for i in raw)
+
+        overridden = ukb_codebook.task_aware_validate(
+            column_names=["p20002_i0"],
+            target_disease="type_2_diabetes",
+            disease_kb_path=str(DISEASE_KB),
+            manual_registry={"p20002_i0": {"reviewed": True}},
+        )
+        assert all(i["code"] != "CODEBOOK_SELF_REPORT_LEAKAGE" for i in overridden)
+
+
+# ── CLI / gate output unification (P3) ────────────────────────────────
+
+@pytest.mark.skipif(not UKB_DB.exists(), reason="UKB DB not found")
+class TestCLIUnifiedCodes:
+    """CLI --data output uses the same CODEBOOK_* codes as the gate path."""
+
+    _CLI = REPO_ROOT / "scripts" / "codebooks" / "ukb_codebook_lookup.py"
+
+    def _run_cli(self, columns, report_path):
+        import pandas as pd  # local import — only needed for this test
+        with tempfile.TemporaryDirectory() as d:
+            csv = Path(d) / "x.csv"
+            pd.DataFrame(columns=columns).to_csv(csv, index=False)
+            return subprocess.run(
+                [sys.executable, str(self._CLI),
+                 "--data", str(csv), "--report", str(report_path)],
+                capture_output=True, text=True,
+            )
+
+    def test_death_registry_emits_codebook_prefix_and_exits_critical(self, tmp_path):
+        report = tmp_path / "report.json"
+        result = self._run_cli(
+            ["eid", "p21001_i0", "p40000_i0", "p4080_i0_a0"], report
+        )
+        assert result.returncode == 2, result.stdout + result.stderr
+        assert "CODEBOOK_OUTCOME_AS_FEATURE" in result.stdout
+        assert "UKB_OUTCOME_AS_FEATURE" not in result.stdout
+
+        import json as _json
+        payload = _json.loads(report.read_text())
+        codes = {i["code"] for i in payload["issues"]}
+        assert "CODEBOOK_OUTCOME_AS_FEATURE" in codes
+        assert all(c.startswith("CODEBOOK_") for c in codes)
+        assert any(i.get("severity") == "critical" for i in payload["issues"])
+
+    def test_safe_columns_exit_zero(self, tmp_path):
+        report = tmp_path / "report.json"
+        result = self._run_cli(["eid", "p21001_i0", "p4080_i0_a0"], report)
+        assert result.returncode == 0, result.stdout + result.stderr
