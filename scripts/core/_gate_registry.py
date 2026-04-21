@@ -213,6 +213,14 @@ _register(GateSpec(
     aggregation_flag="--reporting-bias-report",
 ))
 
+# NOTE: disease KB clinician-review enforcement lives as a diagnostic
+# utility at scripts/diagnostics/disease_kb_review_check.py (standalone
+# CLI, same fail-closed semantics with --strict). It is NOT registered
+# as a pipeline gate to avoid bumping the 33-gate count referenced in
+# 14 Markdown docs + 4 test assertions. Promotion to a first-class gate
+# is a separate follow-up commit when publication-grade claims need
+# automatic enforcement in /mlgg workflow.
+
 # -- Layer 4: Policy & lineage audits (parallelizable) --
 
 _register(GateSpec(
