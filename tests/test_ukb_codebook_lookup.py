@@ -12,6 +12,12 @@ DISEASE_KB = REPO_ROOT / "references" / "methodology" / "disease-definition-know
 REGISTRY_PATH = REPO_ROOT / "references" / "codebooks" / "dataset-codebook-registry.json"
 
 
+def _safe_close(cb) -> None:
+    """Release SQLite handles held by UKBCodebook/NHANESCodebook instances."""
+    if cb is not None and hasattr(cb, "close"):
+        cb.close()
+
+
 # ── parse_ukb_column ───────────────────────────────────────────────
 
 class TestParseUKBColumn:
@@ -254,8 +260,11 @@ class TestCodebookFactory:
         if not (nhanes_dir / "nhanes_variables.tsv").exists():
             pytest.skip("NHANES TSV not found")
         cb = get_codebook("nhanes")
-        assert cb is not None
-        assert cb.variable_count > 0
+        try:
+            assert cb is not None
+            assert cb.variable_count > 0
+        finally:
+            _safe_close(cb)
 
     def test_nhanes_cycle_override(self):
         from scripts.codebooks.codebook_factory import get_codebook
@@ -263,16 +272,22 @@ class TestCodebookFactory:
         if not (nhanes_dir / "nhanes_variables.tsv").exists():
             pytest.skip("NHANES TSV not found")
         cb = get_codebook("nhanes", nhanes_cycle="2019-2020")
-        assert cb is not None
-        assert cb.cycle == "2019-2020"
+        try:
+            assert cb is not None
+            assert cb.cycle == "2019-2020"
+        finally:
+            _safe_close(cb)
 
     def test_ukb_returns_codebook(self):
         from scripts.codebooks.codebook_factory import get_codebook
         if not UKB_DB.exists():
             pytest.skip("UKB DB not found")
         cb = get_codebook("ukb")
-        assert cb is not None
-        assert cb.variable_count > 0
+        try:
+            assert cb is not None
+            assert cb.variable_count > 0
+        finally:
+            _safe_close(cb)
 
     def test_ukb_aliases(self):
         from scripts.codebooks.codebook_factory import get_codebook
@@ -280,15 +295,21 @@ class TestCodebookFactory:
             pytest.skip("UKB DB not found")
         for alias in ("ukbiobank", "biobank"):
             cb = get_codebook(alias)
-            assert cb is not None
+            try:
+                assert cb is not None
+            finally:
+                _safe_close(cb)
 
     def test_brfss_returns_registry(self):
         from scripts.codebooks.codebook_factory import get_codebook
         if not REGISTRY_PATH.exists():
             pytest.skip("Registry JSON not found")
         cb = get_codebook("brfss")
-        assert cb is not None
-        assert cb.__class__.__name__ == "RegistryCodebook"
+        try:
+            assert cb is not None
+            assert cb.__class__.__name__ == "RegistryCodebook"
+        finally:
+            _safe_close(cb)
 
     def test_unknown_source_returns_none(self):
         from scripts.codebooks.codebook_factory import get_codebook
@@ -300,6 +321,9 @@ class TestCodebookFactory:
             cb = get_codebook(source)
             if cb is None:
                 continue
-            assert hasattr(cb, "validate_columns_for_gate")
-            assert hasattr(cb, "task_aware_validate")
+            try:
+                assert hasattr(cb, "validate_columns_for_gate")
+                assert hasattr(cb, "task_aware_validate")
+            finally:
+                _safe_close(cb)
             assert hasattr(cb, "variable_count")

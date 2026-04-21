@@ -101,6 +101,12 @@ class UKBCodebook:
             self._conn.close()
             self._conn = None
 
+    def __enter__(self) -> "UKBCodebook":
+        return self
+
+    def __exit__(self, *exc) -> None:
+        self.close()
+
     # ── Alias resolution ─────────────────────────────────────────────────
 
     def resolve_alias(self, name: str) -> Optional[int]:
@@ -188,149 +194,116 @@ class UKBCodebook:
 
     # ── Column validation for leakage detection ──────────────────────────
 
+    # Maps CODEBOOK_* issue codes to CLI/report severity labels.
+    # The gate-facing API (validate_columns_for_gate) is severity-free; this
+    # table is applied only when wrapping for the CLI/report-style dict.
+    _SEVERITY_BY_CODE: Dict[str, str] = {
+        "CODEBOOK_OUTCOME_AS_FEATURE": "critical",
+        "CODEBOOK_TEMPORAL_LEAKAGE": "critical",
+        "CODEBOOK_DEFINITION_VARIABLE": "critical",
+        "CODEBOOK_SELF_REPORT_LEAKAGE": "critical",
+        "CODEBOOK_DERIVED_OUTCOME_FIELD": "warning",
+        "CODEBOOK_INSTANCE_PARTICIPATION_MNAR": "warning",
+        "CODEBOOK_ENCODING_CHECK": "info",
+        "CODEBOOK_UNKNOWN_FIELD": "info",
+        "CODEBOOK_DUPLICATE_FIELD": "info",
+    }
+
     def validate_columns(
         self,
         columns: List[str],
         target_col: Optional[str] = None,
+        manual_registry: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        """Validate a list of UKB-style column names for leakage and data quality.
+        """Validate UKB-style column names for leakage and data quality.
 
-        Returns a dict with:
-          - field_summary: per-field metadata
-          - issues: list of detected problems
-          - domain_breakdown: count by domain
+        Thin wrapper that delegates issue detection to
+        ``validate_columns_for_gate`` (canonical CODEBOOK_* codes), then adds
+        CLI-only diagnostics (field_summary, domain_breakdown, UNKNOWN_FIELD,
+        DUPLICATE_FIELD) and attaches a ``severity`` label per issue.
         """
         conn = self._ensure_conn()
-        issues: List[Dict[str, Any]] = []
         field_summary: List[Dict[str, Any]] = []
         domain_counts: Dict[str, int] = {}
-        seen_fields: Dict[int, str] = {}  # field_id -> first column name
+        seen_fields: Dict[int, str] = {}
+        extra_issues: List[Dict[str, Any]] = []
 
-        # Parse target
         target_fid = None
         if target_col:
-            parsed = parse_ukb_column(target_col)
-            if parsed:
-                target_fid = parsed[0]
+            parsed_t = parse_ukb_column(target_col)
+            if parsed_t:
+                target_fid = parsed_t[0]
 
         for col in columns:
+            if manual_registry and col in manual_registry:
+                continue
+
             parsed = parse_ukb_column(col)
             if not parsed:
-                # Not a UKB-format column, skip
                 field_summary.append({"column": col, "recognized": False})
                 continue
 
             fid, instance, array_idx = parsed
-
-            # Skip target itself
             if target_fid and fid == target_fid:
                 continue
 
             row = conn.execute(
-                "SELECT * FROM fields WHERE field_id = ?", (fid,)
+                "SELECT field_id, title, value_type, domain "
+                "FROM fields WHERE field_id = ?", (fid,)
             ).fetchone()
             if not row:
                 field_summary.append({"column": col, "recognized": False, "field_id": fid})
-                issues.append({
-                    "code": "UKB_UNKNOWN_FIELD",
+                extra_issues.append({
+                    "code": "CODEBOOK_UNKNOWN_FIELD",
                     "message": f"Field {fid} not found in UKB Data Showcase.",
-                    "column": col,
-                    "severity": "info",
+                    "details": {"column": col, "field_id": fid},
                 })
                 continue
 
-            info = dict(row)
-            domain = info.get("domain", "other")
+            domain = row["domain"] or "other"
             domain_counts[domain] = domain_counts.get(domain, 0) + 1
-
             field_summary.append({
                 "column": col,
                 "recognized": True,
                 "field_id": fid,
-                "title": info["title"],
-                "value_type": info["value_type"],
+                "title": row["title"],
+                "value_type": row["value_type"],
                 "domain": domain,
                 "instance": instance,
                 "array_index": array_idx,
             })
 
-            # ── Check 1: Temporal leakage (using later instance to predict earlier) ──
-            if target_col and target_fid:
-                target_parsed = parse_ukb_column(target_col)
-                if target_parsed:
-                    target_instance = target_parsed[1]
-                    if instance > target_instance:
-                        issues.append({
-                            "code": "UKB_TEMPORAL_LEAKAGE",
-                            "message": (
-                                f"Feature '{col}' is from instance {instance} "
-                                f"(later than target instance {target_instance}). "
-                                f"This is temporal leakage — feature measured AFTER the "
-                                f"prediction timepoint."
-                            ),
-                            "column": col,
-                            "severity": "critical",
-                            "field_id": fid,
-                        })
-
-            # ── Check 2: Risk-category-based leakage detection ──
-            risk = info.get("risk_category") or "baseline"
-            if risk in ("outcome_derived", "death_registry"):
-                issues.append({
-                    "code": "UKB_OUTCOME_AS_FEATURE",
-                    "message": (
-                        f"Feature '{col}' ({info['title']}) is classified as "
-                        f"risk={risk} (domain={domain}). This is a registry-derived "
-                        f"outcome variable — using it as a predictor is leakage."
-                    ),
-                    "column": col,
-                    "severity": "critical",
-                    "field_id": fid,
-                })
-            elif risk == "hospital_derived":
-                issues.append({
-                    "code": "UKB_DERIVED_OUTCOME_FIELD",
-                    "message": (
-                        f"Feature '{col}' ({info['title']}) is from '{domain}' "
-                        f"(risk=hospital_derived). Contains post-baseline data. "
-                        f"Verify temporal eligibility."
-                    ),
-                    "column": col,
-                    "severity": "warning",
-                    "field_id": fid,
-                })
-            elif risk == "online_followup":
-                issues.append({
-                    "code": "UKB_DERIVED_OUTCOME_FIELD",
-                    "message": (
-                        f"Feature '{col}' ({info['title']}) is post-baseline "
-                        f"online follow-up data (risk=online_followup)."
-                    ),
-                    "column": col,
-                    "severity": "warning",
-                    "field_id": fid,
-                })
-
-            # ── Check 4: Duplicate field across instances ──
             if fid in seen_fields:
-                issues.append({
-                    "code": "UKB_DUPLICATE_FIELD",
+                extra_issues.append({
+                    "code": "CODEBOOK_DUPLICATE_FIELD",
                     "message": (
                         f"Field {fid} appears as both '{seen_fields[fid]}' and '{col}'. "
                         f"Multiple instances of the same field — ensure this is intentional."
                     ),
-                    "column": col,
-                    "severity": "info",
-                    "field_id": fid,
+                    "details": {"column": col, "field_id": fid},
                 })
             else:
                 seen_fields[fid] = col
+
+        gate_issues = self.validate_columns_for_gate(
+            columns, target_col=target_col, manual_registry=manual_registry,
+        )
+        all_issues: List[Dict[str, Any]] = []
+        for issue in gate_issues + extra_issues:
+            merged = dict(issue)
+            merged["severity"] = self._SEVERITY_BY_CODE.get(issue["code"], "info")
+            details = merged.get("details") or {}
+            if "column" in details and "column" not in merged:
+                merged["column"] = details["column"]
+            if "field_id" in details and "field_id" not in merged:
+                merged["field_id"] = details["field_id"]
+            all_issues.append(merged)
 
         return {
             "total_columns": len(columns),
             "recognized": sum(1 for fs in field_summary if fs.get("recognized")),
             "field_summary": field_summary,
-            "issues": issues,
+            "issues": all_issues,
             "domain_breakdown": domain_counts,
         }
 
@@ -648,6 +621,11 @@ class UKBCodebook:
                 target_fid, target_instance = parsed[0], parsed[1]
 
         for col in column_names:
+            # Manual registry has priority: skip columns already classified
+            # by caller (matches NHANESCodebook.validate_columns semantics).
+            if manual_registry and col in manual_registry:
+                continue
+
             parsed = parse_ukb_column(col)
             if not parsed:
                 continue
@@ -911,6 +889,9 @@ class UKBCodebook:
 
         issues: List[Dict[str, Any]] = []
         for col in column_names:
+            if manual_registry and col in manual_registry:
+                continue
+
             parsed = parse_ukb_column(col)
             if not parsed:
                 continue
