@@ -51,6 +51,20 @@ register_remediations({
         "OR use a time-dependent covariate / landmark analysis, OR clone-"
         "censor-weight. "
         "Ref: Suissa 2008 Am J Epidemiol; Hernán 2016 J Clin Epidemiol.",
+    "discharge_finalized_icd_as_feature":
+        "Feature name embeds an ICD-10 code that is only assignable AT or "
+        "AFTER discharge (palliative-care encounter Z51.5, DNR status Z66, "
+        "brain death G93.82, ill-defined mortality R99, unspecified cardiac "
+        "arrest I46.9). Presence of such a code as an admission-time "
+        "predictor implies the outcome is already known, producing "
+        "artificially inflated discrimination. "
+        "Ramadan et al. (JAMA Netw Open 2025-12 "
+        "doi:10.1001/jamanetworkopen.2025.50454) audited MIMIC mortality "
+        "models and found 40.2% used discharge-finalized ICD codes as "
+        "features, yielding AUROC 0.97-0.98. "
+        "Fix: drop these columns, OR restrict ICD features to codes present "
+        "on admission (POA flag=Y), OR move to a prospective design where "
+        "the prediction timepoint precedes coding.",
     "row_overlap": "Identical rows found across splits. This indicates a split generation bug. Regenerate splits with proper deduplication.",
     "missing_id_columns": "ID columns specified by --id-cols are missing from the split CSV. Check column names.",
     "id_overlap": "Patient/entity IDs overlap between splits. Fix split generation to ensure strict ID separation.",
@@ -103,6 +117,47 @@ def is_immortal_time_suspect(col_name: str) -> bool:
     if _IMMORTAL_TIME_EXEMPTIONS.search(col_name):
         return False
     return True
+
+
+# Discharge-finalized ICD-10 codes — only assignable at or after discharge,
+# so their presence as admission-time predictors implies the outcome is
+# already known (Ramadan et al. JAMA Netw Open 2025-12
+# doi:10.1001/jamanetworkopen.2025.50454 — 40% of audited MIMIC mortality
+# models used these, yielding AUROC 0.97-0.98).
+#
+# Scope is intentionally narrow: only codes whose definition is effectively
+# "outcome-adjacent at the encounter level". Broader ICD codes (e.g., I21
+# acute MI) may legitimately be on-admission (POA=Y) and are out of scope.
+DISCHARGE_FINALIZED_ICD_CODES = (
+    # Palliative-care / end-of-life encounters
+    "Z51_5", "Z515", "Z51.5",
+    # DNR / code-status
+    "Z66",
+    # Ill-defined / unknown cause of mortality (postmortem-only)
+    "R99",
+    # Unspecified cardiac arrest
+    "I46_9", "I469", "I46.9",
+    # Brain death (ICD-10-CM)
+    "G93_82", "G9382", "G93.82",
+)
+
+_DISCHARGE_ICD_RE = re.compile(
+    r"(?:^|[_\-\.])(?:"
+    + "|".join(re.escape(c).replace(r"\.", r"\.") for c in DISCHARGE_FINALIZED_ICD_CODES)
+    + r")(?:[_\-\.]|$)",
+    re.IGNORECASE,
+)
+
+
+def is_discharge_finalized_icd_column(col_name: str) -> bool:
+    """Return True if a column name embeds an ICD-10 code that is only
+    assignable at or after discharge.
+
+    Detects variants commonly produced by one-hot encoding of ICD codes,
+    e.g., ``icd10_Z51_5``, ``dx_code_R99``, ``diagnosis_I46.9``,
+    ``has_G93_82_braindeath``.
+    """
+    return bool(_DISCHARGE_ICD_RE.search(col_name))
 
 
 def parse_args() -> argparse.Namespace:
@@ -351,6 +406,21 @@ def main() -> int:
             "immortal_time_bias_pattern",
             "Feature names indicate post-index treatment/intervention events.",
             {"columns": immortal_hits},
+        )
+
+    # Discharge-finalized ICD codes as features — Ramadan et al. 2025-12.
+    discharge_icd_hits = []
+    for h in canonical_headers:
+        if args.target_col and h == args.target_col:
+            continue
+        if is_discharge_finalized_icd_column(h):
+            discharge_icd_hits.append(h)
+    if discharge_icd_hits:
+        add_issue(
+            failures,
+            "discharge_finalized_icd_as_feature",
+            "Feature names embed ICD-10 codes only assignable at/after discharge.",
+            {"columns": discharge_icd_hits},
         )
 
     # Row overlap.
