@@ -226,15 +226,22 @@ class TestScenario15_MLGGRulesValid:
     """All MLGG rules in KB have valid format."""
 
     def test_rule_format(self):
+        """mlgg_rules values must follow one of two accepted forms:
+        - Canonical short form per CLAUDE.md's 'non-negotiable rules' table
+          (e.g., S01, P01, F01, M01, E01). Letter = rule family, digits = id.
+        - Legacy 'MLGG-X##' long form left over from earlier ingestion runs.
+
+        Either form is acceptable for now; this test only guards against
+        freeform strings slipping into the KB via a bad parse.
+        """
+        import re
         with open(KB_PATH) as f:
             kb = json.load(f)
-        valid_prefixes = ["MLGG-S", "MLGG-P", "MLGG-F", "MLGG-M",
-                         "MLGG-E", "MLGG-C", "MLGG-T", "MLGG-R",
-                         "MLGG-Z", "MLGG-Q"]
+        rule_re = re.compile(r"^(?:MLGG-)?[A-Z]\d{2,3}$")
         for e in kb["entries"]:
             for c in e.get("reviewer_concerns", []):
                 for r in c.get("mlgg_rules", []):
-                    assert any(r.startswith(p) for p in valid_prefixes), f"Invalid rule: {r}"
+                    assert rule_re.match(r), f"Invalid rule format: {r!r}"
 
 
 class TestPreprocessColumnDetection:
