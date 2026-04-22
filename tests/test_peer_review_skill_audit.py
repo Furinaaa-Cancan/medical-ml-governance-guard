@@ -204,11 +204,22 @@ class TestScenario14_StatsConsistency:
     """KB statistics are internally consistent."""
 
     def test_counts_match(self):
+        """Stats totals must match live KB counts and per-category /
+        per-severity buckets must sum to the same total. No hardcoded
+        numbers — those rot on every KB extension."""
+        kb = json.load(open(KB_PATH))
+        live_papers = len(kb["entries"])
+        live_concerns = sum(len(e.get("reviewer_concerns", [])) for e in kb["entries"])
+
         stats = get_stats_summary(kb_path=STATS_PATH)
-        assert stats["total_papers"] == 106
-        assert stats["total_concerns"] == 375
-        assert sum(stats["concerns_by_category"].values()) == 375
-        assert sum(stats["concerns_by_severity"].values()) == 375
+        assert stats["total_papers"] == live_papers, (
+            f"paper count drift: stats={stats['total_papers']} vs kb={live_papers}"
+        )
+        assert stats["total_concerns"] == live_concerns, (
+            f"concern count drift: stats={stats['total_concerns']} vs kb={live_concerns}"
+        )
+        assert sum(stats["concerns_by_category"].values()) == live_concerns
+        assert sum(stats["concerns_by_severity"].values()) == live_concerns
 
 
 class TestScenario15_MLGGRulesValid:

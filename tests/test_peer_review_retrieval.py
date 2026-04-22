@@ -104,9 +104,24 @@ class TestRetrieveByDomain:
 
 class TestGetStatsSummary:
     def test_stats_loads(self):
+        """Stats file must stay consistent with the live KB. Rather than
+        pinning counts that rot on every KB extension, assert stats totals
+        equal the KB's actual entry/concern counts.
+        """
+        import json as _json
+        kb = _json.loads(KB_PATH.read_text())
+        live_papers = len(kb["entries"])
+        live_concerns = sum(len(e.get("reviewer_concerns", [])) for e in kb["entries"])
+
         stats = get_stats_summary(kb_path=STATS_PATH)
-        assert stats["total_papers"] == 106
-        assert stats["total_concerns"] == 375
+        assert stats["total_papers"] == live_papers, (
+            f"stats/paper count drift: stats={stats['total_papers']} vs "
+            f"kb={live_papers} — regenerate peer-review-kb-stats.json"
+        )
+        assert stats["total_concerns"] == live_concerns, (
+            f"stats/concern count drift: stats={stats['total_concerns']} vs "
+            f"kb={live_concerns} — regenerate peer-review-kb-stats.json"
+        )
         assert "concerns_by_category" in stats
         assert "concerns_by_severity" in stats
 
