@@ -57,6 +57,18 @@ APPROVED_STATUSES = frozenset({
     "signed_off",
 })
 
+# Explicit non-terminal statuses — when clinician_review_status is one of
+# these, the entry is NOT approved regardless of what 'source' claims. This
+# prevents a stale 'source: clinician_reviewed' from masking an in-flight
+# re-review that set status back to pending.
+PENDING_STATUSES = frozenset({
+    "pending",
+    "unreviewed",
+    "in_review",
+    "under_review",
+    "awaiting_review",
+})
+
 
 register_remediations({
     "kb_not_found": (
@@ -116,6 +128,16 @@ def classify_disease(
 
     source = str(prov.get("source", "")).strip().lower()
     status = str(prov.get("clinician_review_status", "")).strip().lower()
+
+    # A pending status is a hard override: if a reviewer explicitly marked
+    # the entry as not-yet-approved, no 'source' value can overrule it.
+    if status in PENDING_STATUSES:
+        return "pending", {
+            "disease": key,
+            "name": entry.get("name", key),
+            "source": source or None,
+            "clinician_review_status": status,
+        }
 
     if source in APPROVED_STATUSES or status in APPROVED_STATUSES:
         return "approved", {

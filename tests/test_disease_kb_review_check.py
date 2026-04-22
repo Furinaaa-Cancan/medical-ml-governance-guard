@@ -131,6 +131,29 @@ class TestReviewStatus:
         out = json.loads((tmp_path / "r.json").read_text())
         assert out["summary"]["approved_count"] == 3
 
+    def test_pending_status_overrides_stale_approved_source(self, tmp_path: Path):
+        """Regression: OR-logic bug let 'source: clinician_reviewed' mask an
+        in-flight 'status: pending'. Status must win when explicitly pending.
+        """
+        kb = tmp_path / "kb.json"
+        _write_kb(kb, {
+            "d1": {"name": "D1",
+                   "provenance": {"source": "clinician_reviewed",
+                                  "clinician_review_status": "pending"}},
+            "d2": {"name": "D2",
+                   "provenance": {"source": "signed_off",
+                                  "clinician_review_status": "under_review"}},
+        })
+        r = _run_check(kb, tmp_path / "r.json", strict=False)
+        assert r.returncode == 0
+        s = json.loads((tmp_path / "r.json").read_text())["summary"]
+        assert s["approved_count"] == 0, \
+            "source=clinician_reviewed with status=pending must NOT count as approved"
+        assert s["pending_count"] == 2
+        # Strict mode must fail on pending.
+        r = _run_check(kb, tmp_path / "r2.json", strict=True)
+        assert r.returncode == 2
+
     def test_mixed_state_reports_counts(self, tmp_path: Path):
         kb = tmp_path / "kb.json"
         _write_kb(kb, {
