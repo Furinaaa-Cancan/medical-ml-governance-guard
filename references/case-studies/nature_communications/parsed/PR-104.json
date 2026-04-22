@@ -1,0 +1,147 @@
+{
+  "id": "PR-104",
+  "paper_doi": "10.1038/s41467-025-58283-7",
+  "paper_title": "External validation of artificial intelligence for detection of heart failure with preserved ejection fraction",
+  "year": 2025,
+  "domain": "cardiovascular",
+  "prediction_task": "Binary classification of HFpEF cases vs matched controls using TTE-based deep-learning model (EchoGo) versus H2FPEF and HFA-PEFF clinical scores",
+  "model_types": [
+    "deep_learning_tte"
+  ],
+  "data_type": "echocardiogram_video",
+  "sample_size": 496,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-104-C01",
+      "category": "external_validation",
+      "severity": "HIGH",
+      "mlgg_dimension": 6,
+      "concern_text": "Substantial performance drop from internal (AUROC 0.95) to external (0.798) validation; potential causes and implications of generalization cost warrant detailed discussion.",
+      "tags": [
+        "performance_degradation_external",
+        "internal_external_gap",
+        "optimism_bias"
+      ],
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "mlgg_gates": [
+        "external_validation_gate",
+        "generalization_gap_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Added discussion of V1 to V2 model updates, site-specificity of Mayo training cohort, and typical optimism observed on external validation.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-104-C02",
+      "category": "evaluation_metrics",
+      "severity": "HIGH",
+      "mlgg_dimension": 5,
+      "concern_text": "Categorical sensitivity/specificity comparisons at arbitrary cutpoints bias comparison vs continuous H2FPEF score (near-identical AUROC); claims of higher classification performance not sufficiently justified.",
+      "tags": [
+        "threshold_selection",
+        "unfair_comparison",
+        "threshold_justification"
+      ],
+      "reviewer": "Reviewer #2",
+      "round": 2,
+      "mlgg_gates": [
+        "evaluation_quality_gate",
+        "metric_consistency_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Added decile-based comparisons showing near-identical performance; contextualized cutpoint-based comparisons and documented cutpoint derivation.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-104-C03",
+      "category": "study_design",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 1,
+      "concern_text": "Selection bias concerns: ~20% excluded for image quality, ~50% for missing biplane LVEF, case/control matching before image-quality filter; adjudicator blinding unclear.",
+      "tags": [
+        "selection_bias",
+        "case_ascertainment_unclear",
+        "exclusion_criteria_questionable"
+      ],
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "mlgg_gates": [
+        "cohort_definition_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Added limitation paragraph on image quality exclusions; clarified biplane LVEF was a selection criterion; explained adjudication workflow.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-104-C04",
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "concern_text": "NRI/IDI analyses inconsistent across figures; NRI+ and NRI- components not reported separately; percentile-based NRI not performed despite miscalibration of both scores.",
+      "tags": [
+        "nri_limitations",
+        "calibration_presentation",
+        "nri_analysis"
+      ],
+      "reviewer": "Reviewer #2",
+      "round": 2,
+      "mlgg_gates": [
+        "calibration_dca_gate",
+        "evaluation_quality_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Clarified NRI computation, reported NRI+/NRI- separately, added percentile-based NRI to address miscalibration concerns.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-104-C05",
+      "category": "evaluation_metrics",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "concern_text": "PPV/NPV reported from case-control design with artificially inflated prevalence; not adjusted for expected real-world prevalence, hindering clinical translation.",
+      "tags": [
+        "prevalence_bias",
+        "low_ppv",
+        "rare_event_ppv"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 2,
+      "mlgg_gates": [
+        "clinical_metrics_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Clarified case-control up-sampling effect on PPV/NPV interpretation in revised text.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-104-C06",
+      "category": "interpretability",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "concern_text": "Unexpected non-monotonic behavior: quartile 3 of AI HFpEF shows lower observed risk than quartile 2, indicating miscalibration and potential model behavior issue requiring explanation.",
+      "tags": [
+        "calibration_drift_impact",
+        "model_transparency"
+      ],
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "mlgg_gates": [
+        "calibration_dca_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Addressed in revision.",
+      "resolved": true
+    }
+  ],
+  "journal": "Nature Communications",
+  "review_rounds": 3,
+  "reviewer_strengths": [],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": [],
+  "key_methodology_issues": [
+    "performance_degradation_external",
+    "threshold_selection",
+    "selection_bias"
+  ]
+}

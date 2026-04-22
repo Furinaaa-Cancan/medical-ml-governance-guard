@@ -51,7 +51,8 @@
     "PR-078-C03"
   ],
   "aggregated_only": [
-    "PR-043-C05"
+    "PR-043-C05",
+    "PR-102-C02"
   ],
   "aggregation_functions": [
     "PR-010-C05"
@@ -147,7 +148,8 @@
     "PR-037-C04"
   ],
   "auc_overoptimistic": [
-    "PR-009-C04"
+    "PR-009-C04",
+    "PR-106-C04"
   ],
   "auc_vs_cindex": [
     "PR-005-C05"
@@ -205,7 +207,8 @@
     "PR-048-C01"
   ],
   "biomarker_validation_missing": [
-    "PR-077-C03"
+    "PR-077-C03",
+    "PR-101-C06"
   ],
   "blood_tests_unhelpful": [
     "PR-024-C05"
@@ -215,7 +218,8 @@
     "PR-042-C02"
   ],
   "bootstrap_vs_model_uncertainty": [
-    "PR-009-C02"
+    "PR-009-C02",
+    "PR-106-C02"
   ],
   "borderline_tumors": [
     "PR-007-C03"
@@ -233,7 +237,8 @@
     "PR-075-C01"
   ],
   "calibration_drift_impact": [
-    "PR-036-C04"
+    "PR-036-C04",
+    "PR-104-C06"
   ],
   "calibration_in_supplement": [
     "PR-025-C03"
@@ -242,23 +247,28 @@
     "PR-024-C05"
   ],
   "calibration_metrics": [
-    "PR-026-C02"
+    "PR-026-C02",
+    "PR-105-C04"
   ],
   "calibration_plot_missing": [
     "PR-022-C01",
-    "PR-043-C01"
+    "PR-043-C01",
+    "PR-102-C01"
   ],
   "calibration_presentation": [
-    "PR-026-C02"
+    "PR-026-C02",
+    "PR-104-C04"
   ],
   "cam_on_background": [
     "PR-066-C03"
   ],
   "cancer_specific_dca": [
-    "PR-024-C06"
+    "PR-024-C06",
+    "PR-105-C04"
   ],
   "case_ascertainment_unclear": [
-    "PR-006-C07"
+    "PR-006-C07",
+    "PR-104-C03"
   ],
   "case_contamination": [
     "PR-001-C05"
@@ -328,7 +338,8 @@
     "PR-002-C01",
     "PR-010-C04",
     "PR-027-C02",
-    "PR-028-C03"
+    "PR-028-C03",
+    "PR-101-C03"
   ],
   "class_imbalance_across_centers": [
     "PR-055-C02"
@@ -417,7 +428,8 @@
     "PR-030-C01"
   ],
   "clinical_utility": [
-    "PR-009-C04"
+    "PR-009-C04",
+    "PR-106-C04"
   ],
   "clinical_utility_in_easy_cases": [
     "PR-007-C01"
@@ -448,7 +460,8 @@
     "PR-035-C03"
   ],
   "clinician_adjudication": [
-    "PR-009-C04"
+    "PR-009-C04",
+    "PR-106-C04"
   ],
   "clinician_evaluation": [
     "PR-087-C01"
@@ -475,7 +488,8 @@
     "PR-071-C02"
   ],
   "coefficients_not_provided": [
-    "PR-024-C07"
+    "PR-024-C07",
+    "PR-105-C03"
   ],
   "cohort_comparison_missing": [
     "PR-050-C03"
@@ -508,7 +522,8 @@
     "PR-036-C02"
   ],
   "commercial_language": [
-    "PR-043-C04"
+    "PR-043-C04",
+    "PR-102-C06"
   ],
   "commercial_promotion": [
     "PR-088-C01"
@@ -545,7 +560,8 @@
     "PR-045-C04"
   ],
   "complexity_mismatch": [
-    "PR-037-C01"
+    "PR-037-C01",
+    "PR-106-C01"
   ],
   "complexity_vs_performance": [
     "PR-029-C04"
@@ -568,11 +584,13 @@
   ],
   "computational_cost": [
     "PR-009-C01",
-    "PR-018-C04"
+    "PR-018-C04",
+    "PR-106-C03"
   ],
   "conflict_of_interest": [
     "PR-043-C04",
-    "PR-088-C01"
+    "PR-088-C01",
+    "PR-102-C04"
   ],
   "confounded_by_missing_data": [
     "PR-032-C02"
@@ -584,7 +602,8 @@
     "PR-034-C02"
   ],
   "confounders": [
-    "PR-056-C03"
+    "PR-056-C03",
+    "PR-102-C05"
   ],
   "confounders_in_auc": [
     "PR-018-C02"
@@ -596,7 +615,8 @@
     "PR-008-C05"
   ],
   "confounding": [
-    "PR-003-C11"
+    "PR-003-C11",
+    "PR-102-C05"
   ],
   "confounding_by_cohort": [
     "PR-032-C04"
@@ -737,7 +757,8 @@
     "PR-020-C03"
   ],
   "dca_explanation_needed": [
-    "PR-024-C06"
+    "PR-024-C06",
+    "PR-105-C04"
   ],
   "deep_learning_alternatives": [
     "PR-057-C01"
@@ -749,7 +770,8 @@
     "PR-057-C03"
   ],
   "delong_test": [
-    "PR-043-C02"
+    "PR-043-C02",
+    "PR-102-C01"
   ],
   "delta_auc": [
     "PR-019-C02"
@@ -774,7 +796,8 @@
     "PR-099-C01"
   ],
   "diagnosis_vs_prediction": [
-    "PR-024-C01"
+    "PR-024-C01",
+    "PR-105-C01"
   ],
   "diet_confounder": [
     "PR-048-C03"
@@ -865,7 +888,8 @@
     "PR-058-C04"
   ],
   "exclusion_criteria_questionable": [
-    "PR-035-C03"
+    "PR-035-C03",
+    "PR-104-C03"
   ],
   "exclusion_rationale": [
     "PR-083-C01"
@@ -880,7 +904,8 @@
     "PR-007-C06"
   ],
   "explainability_missing": [
-    "PR-041-C03"
+    "PR-041-C03",
+    "PR-101-C05"
   ],
   "explainability_opportunity": [
     "PR-073-C03"
@@ -895,7 +920,8 @@
     "PR-034-C01"
   ],
   "external_validation_needed": [
-    "PR-099-C01"
+    "PR-099-C01",
+    "PR-101-C06"
   ],
   "extreme_class_imbalance": [
     "PR-048-C02"
@@ -907,7 +933,8 @@
     "PR-019-C01"
   ],
   "fair_comparison": [
-    "PR-017-C04"
+    "PR-017-C04",
+    "PR-106-C03"
   ],
   "false_alarm": [
     "PR-028-C06"
@@ -950,7 +977,8 @@
     "PR-064-C01"
   ],
   "feature_importance": [
-    "PR-003-C07"
+    "PR-003-C07",
+    "PR-101-C05"
   ],
   "feature_importance_vs_coefficients": [
     "PR-036-C02"
@@ -965,10 +993,14 @@
     "PR-050-C04"
   ],
   "feature_selection_justification": [
-    "PR-006-C06"
+    "PR-006-C06",
+    "PR-101-C04",
+    "PR-105-C05"
   ],
   "feature_selection_process": [
-    "PR-007-C07"
+    "PR-007-C07",
+    "PR-101-C04",
+    "PR-105-C05"
   ],
   "feature_standardization": [
     "PR-016-C02"
@@ -1128,7 +1160,8 @@
     "PR-010-C06"
   ],
   "hyperparameters_missing": [
-    "PR-052-C01"
+    "PR-052-C01",
+    "PR-106-C06"
   ],
   "icc_calculation": [
     "PR-013-C04"
@@ -1151,6 +1184,9 @@
   ],
   "imaging_protocol_unclear": [
     "PR-005-C01"
+  ],
+  "imbalance_policy_gate": [
+    "PR-101-C03"
   ],
   "immortal_time_bias": [
     "PR-042-C03"
@@ -1186,7 +1222,8 @@
     "PR-006-C05"
   ],
   "imputation_transparency": [
-    "PR-003-C02"
+    "PR-003-C02",
+    "PR-105-C02"
   ],
   "imputation_unclear": [
     "PR-025-C02"
@@ -1231,7 +1268,8 @@
     "PR-019-C02"
   ],
   "incremental_value_questioned": [
-    "PR-012-C05"
+    "PR-012-C05",
+    "PR-105-C06"
   ],
   "incremental_value_vs_standard": [
     "PR-052-C02",
@@ -1297,7 +1335,8 @@
     "PR-008-C08"
   ],
   "internal_external_gap": [
-    "PR-007-C04"
+    "PR-007-C04",
+    "PR-104-C01"
   ],
   "internal_split_only": [
     "PR-001-C06"
@@ -1398,7 +1437,8 @@
   ],
   "low_ppv": [
     "PR-004-C02",
-    "PR-028-C06"
+    "PR-028-C06",
+    "PR-104-C05"
   ],
   "low_prevalence": [
     "PR-059-C02"
@@ -1418,7 +1458,8 @@
     "PR-004-C07",
     "PR-009-C01",
     "PR-021-C03",
-    "PR-023-C04"
+    "PR-023-C04",
+    "PR-105-C06"
   ],
   "matching_strategy": [
     "PR-008-C01"
@@ -1457,7 +1498,8 @@
     "PR-085-C01"
   ],
   "metrics_in_supplement_only": [
-    "PR-004-C01"
+    "PR-004-C01",
+    "PR-105-C04"
   ],
   "metrics_missing": [
     "PR-075-C02"
@@ -1490,7 +1532,8 @@
     "PR-002-C07",
     "PR-003-C05",
     "PR-033-C01",
-    "PR-040-C02"
+    "PR-040-C02",
+    "PR-102-C01"
   ],
   "missing_ci": [
     "PR-015-C01"
@@ -1532,7 +1575,8 @@
   "missing_data_unreported": [
     "PR-003-C02",
     "PR-039-C03",
-    "PR-039-C06"
+    "PR-039-C06",
+    "PR-105-C02"
   ],
   "missing_dca": [
     "PR-003-C05",
@@ -1555,7 +1599,8 @@
     "PR-002-C08"
   ],
   "missing_not_at_random": [
-    "PR-035-C04"
+    "PR-035-C04",
+    "PR-105-C02"
   ],
   "missing_ppv_npv": [
     "PR-002-C01"
@@ -1580,7 +1625,8 @@
     "PR-039-C03"
   ],
   "mnar_not_addressed": [
-    "PR-024-C03"
+    "PR-024-C03",
+    "PR-105-C02"
   ],
   "modality_contribution": [
     "PR-020-C01"
@@ -1607,10 +1653,15 @@
   "model_justification": [
     "PR-009-C01",
     "PR-027-C01",
-    "PR-028-C02"
+    "PR-028-C02",
+    "PR-101-C02",
+    "PR-102-C03",
+    "PR-106-C01"
   ],
   "model_transparency": [
-    "PR-024-C07"
+    "PR-024-C07",
+    "PR-104-C06",
+    "PR-105-C03"
   ],
   "modest_performance": [
     "PR-011-C01",
@@ -1662,7 +1713,8 @@
     "PR-029-C03"
   ],
   "multiple_model_comparison": [
-    "PR-003-C08"
+    "PR-003-C08",
+    "PR-101-C02"
   ],
   "multiple_testing": [
     "PR-025-C04",
@@ -1692,7 +1744,8 @@
     "PR-044-C01"
   ],
   "narrow_model_search": [
-    "PR-072-C02"
+    "PR-072-C02",
+    "PR-102-C03"
   ],
   "negative_rct": [
     "PR-038-C01"
@@ -1711,7 +1764,9 @@
   ],
   "no_code_availability": [
     "PR-003-C09",
-    "PR-003-C10"
+    "PR-003-C10",
+    "PR-102-C04",
+    "PR-105-C03"
   ],
   "no_comparison": [
     "PR-063-C05"
@@ -1726,7 +1781,8 @@
     "PR-001-C06",
     "PR-028-C01",
     "PR-040-C01",
-    "PR-041-C04"
+    "PR-041-C04",
+    "PR-101-C06"
   ],
   "no_external_validation_for_combined": [
     "PR-006-C04"
@@ -1738,7 +1794,8 @@
     "PR-063-C05"
   ],
   "no_limitations_section": [
-    "PR-043-C03"
+    "PR-043-C03",
+    "PR-102-C06"
   ],
   "no_multivariate_adjustment": [
     "PR-016-C03"
@@ -1789,13 +1846,15 @@
     "PR-054-C01"
   ],
   "nri_analysis": [
-    "PR-006-C03"
+    "PR-006-C03",
+    "PR-104-C04"
   ],
   "nri_idi_needed": [
     "PR-100-C01"
   ],
   "nri_limitations": [
-    "PR-025-C06"
+    "PR-025-C06",
+    "PR-104-C04"
   ],
   "nri_missing": [
     "PR-019-C02"
@@ -1804,7 +1863,8 @@
     "PR-034-C04"
   ],
   "optimism_bias": [
-    "PR-006-C01"
+    "PR-006-C01",
+    "PR-104-C01"
   ],
   "os_validation_needed": [
     "PR-096-C01"
@@ -1883,7 +1943,8 @@
     "PR-010-C03"
   ],
   "overfitting_risk": [
-    "PR-002-C04"
+    "PR-002-C04",
+    "PR-101-C01"
   ],
   "overinterpreted_mechanism": [
     "PR-067-C04"
@@ -1905,7 +1966,8 @@
     "PR-006-C08",
     "PR-010-C06",
     "PR-012-C06",
-    "PR-054-C04"
+    "PR-054-C04",
+    "PR-106-C05"
   ],
   "overtreatment": [
     "PR-020-C02"
@@ -1914,7 +1976,8 @@
     "PR-054-C02"
   ],
   "p_value_selection": [
-    "PR-024-C04"
+    "PR-024-C04",
+    "PR-105-C05"
   ],
   "pan_drug": [
     "PR-057-C02"
@@ -1953,19 +2016,22 @@
     "PR-074-C01"
   ],
   "per_center_missing": [
-    "PR-043-C05"
+    "PR-043-C05",
+    "PR-102-C02"
   ],
   "per_clinic_calibration": [
     "PR-043-C01"
   ],
   "per_clinic_results": [
-    "PR-043-C02"
+    "PR-043-C02",
+    "PR-102-C02"
   ],
   "per_site_characteristics": [
     "PR-037-C05"
   ],
   "performance_degradation_external": [
-    "PR-007-C04"
+    "PR-007-C04",
+    "PR-104-C01"
   ],
   "pet_replacement": [
     "PR-033-C03"
@@ -2036,6 +2102,9 @@
   "predict_tool": [
     "PR-053-C03"
   ],
+  "prediction_horizon_justification": [
+    "PR-105-C01"
+  ],
   "prediction_horizon_mismatch": [
     "PR-029-C01"
   ],
@@ -2056,7 +2125,8 @@
   ],
   "prediction_window_justification": [
     "PR-028-C05",
-    "PR-071-C01"
+    "PR-071-C01",
+    "PR-106-C02"
   ],
   "predictive_validity": [
     "PR-041-C01"
@@ -2074,7 +2144,8 @@
     "PR-062-C01"
   ],
   "prevalence_bias": [
-    "PR-007-C02"
+    "PR-007-C02",
+    "PR-104-C05"
   ],
   "prior_work_missed": [
     "PR-077-C02"
@@ -2114,7 +2185,8 @@
     "PR-036-C01"
   ],
   "prospective_vs_retrospective": [
-    "PR-009-C03"
+    "PR-009-C03",
+    "PR-106-C05"
   ],
   "proxy_outcome_limitation": [
     "PR-044-C03"
@@ -2141,7 +2213,8 @@
     "PR-086-C02"
   ],
   "rare_event_ppv": [
-    "PR-009-C04"
+    "PR-009-C04",
+    "PR-104-C05"
   ],
   "rare_pediatric": [
     "PR-093-C01"
@@ -2202,7 +2275,9 @@
     "PR-005-C07",
     "PR-007-C05",
     "PR-015-C02",
-    "PR-030-C04"
+    "PR-030-C04",
+    "PR-102-C04",
+    "PR-106-C06"
   ],
   "resolution_impact": [
     "PR-081-C01"
@@ -2220,13 +2295,15 @@
     "PR-067-C02"
   ],
   "retrospective_vs_prospective": [
-    "PR-001-C01"
+    "PR-001-C01",
+    "PR-106-C05"
   ],
   "risk_reclassification": [
     "PR-034-C03"
   ],
   "risk_vs_diagnosis": [
-    "PR-024-C02"
+    "PR-024-C02",
+    "PR-105-C01"
   ],
   "risk_zones": [
     "PR-038-C03"
@@ -2295,7 +2372,8 @@
     "PR-066-C03"
   ],
   "selection_bias": [
-    "PR-008-C01"
+    "PR-008-C01",
+    "PR-104-C03"
   ],
   "selective_referral": [
     "PR-011-C02"
@@ -2334,7 +2412,8 @@
     "PR-001-C07"
   ],
   "shap_requested": [
-    "PR-003-C07"
+    "PR-003-C07",
+    "PR-101-C05"
   ],
   "signal_to_noise": [
     "PR-013-C01"
@@ -2350,7 +2429,8 @@
   ],
   "simpler_model_competitive": [
     "PR-009-C01",
-    "PR-029-C04"
+    "PR-029-C04",
+    "PR-106-C03"
   ],
   "simulation_too_simple": [
     "PR-023-C02"
@@ -2381,7 +2461,8 @@
     "PR-026-C01"
   ],
   "single_model_type": [
-    "PR-027-C01"
+    "PR-027-C01",
+    "PR-102-C03"
   ],
   "single_slice_only": [
     "PR-066-C02"
@@ -2401,7 +2482,8 @@
   ],
   "small_sample": [
     "PR-012-C07",
-    "PR-093-C01"
+    "PR-093-C01",
+    "PR-101-C01"
   ],
   "small_subgroup_overclaimed": [
     "PR-051-C03"
@@ -2554,7 +2636,8 @@
     "PR-009-C06"
   ],
   "terminology_conflated": [
-    "PR-024-C02"
+    "PR-024-C02",
+    "PR-105-C01"
   ],
   "terminology_confusing": [
     "PR-025-C06"
@@ -2590,11 +2673,13 @@
     "PR-006-C06"
   ],
   "threshold_justification": [
-    "PR-011-C01"
+    "PR-011-C01",
+    "PR-104-C02"
   ],
   "threshold_selection": [
     "PR-002-C07",
-    "PR-080-C01"
+    "PR-080-C01",
+    "PR-104-C02"
   ],
   "threshold_unclear": [
     "PR-022-C02"
@@ -2609,7 +2694,8 @@
     "PR-028-C02"
   ],
   "time_to_event_vs_binary": [
-    "PR-009-C02"
+    "PR-009-C02",
+    "PR-106-C02"
   ],
   "time_varying_covariate": [
     "PR-042-C03"
@@ -2627,7 +2713,8 @@
     "PR-056-C01"
   ],
   "tone": [
-    "PR-043-C04"
+    "PR-043-C04",
+    "PR-102-C06"
   ],
   "too_long": [
     "PR-058-C04"
@@ -2645,7 +2732,8 @@
     "PR-072-C01"
   ],
   "training_details_missing": [
-    "PR-062-C01"
+    "PR-062-C01",
+    "PR-106-C06"
   ],
   "training_metrics_overemphasized": [
     "PR-010-C03"
@@ -2688,7 +2776,8 @@
   ],
   "tripod_compliance": [
     "PR-026-C04",
-    "PR-043-C01"
+    "PR-043-C01",
+    "PR-102-C01"
   ],
   "tripod_terminology": [
     "PR-043-C03"
@@ -2720,7 +2809,8 @@
   "underpowered": [
     "PR-025-C01",
     "PR-056-C02",
-    "PR-082-C02"
+    "PR-082-C02",
+    "PR-101-C01"
   ],
   "undiagnosed_disease": [
     "PR-065-C02"
@@ -2732,7 +2822,8 @@
     "PR-051-C01"
   ],
   "unfair_comparison": [
-    "PR-020-C04"
+    "PR-020-C04",
+    "PR-104-C02"
   ],
   "unfair_model_comparison": [
     "PR-078-C02"
@@ -2741,7 +2832,8 @@
     "PR-058-C01"
   ],
   "unnecessary_complexity": [
-    "PR-021-C02"
+    "PR-021-C02",
+    "PR-106-C01"
   ],
   "unproven_clinical_benefit": [
     "PR-010-C06"
@@ -2807,6 +2899,7 @@
     "PR-008-C06"
   ],
   "xgboost_suggestion": [
-    "PR-003-C08"
+    "PR-003-C08",
+    "PR-101-C02"
   ]
 }

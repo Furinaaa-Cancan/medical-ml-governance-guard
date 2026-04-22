@@ -1,66 +1,209 @@
 {
-  "total_papers": 106,
-  "total_concerns": 375,
+  "total_papers": 111,
+  "total_concerns": 405,
   "total_strengths": 76,
   "concerns_by_category": {
-    "evaluation_metrics": 119,
-    "study_design": 81,
-    "reporting": 52,
-    "preprocessing": 24,
-    "external_validation": 21,
-    "clinical_utility": 18,
-    "model_selection": 17,
-    "reproducibility": 16,
-    "interpretability": 14,
-    "sample_size": 6,
+    "evaluation_metrics": 125,
+    "study_design": 84,
+    "reporting": 54,
+    "preprocessing": 26,
+    "external_validation": 23,
+    "model_selection": 21,
+    "clinical_utility": 21,
+    "reproducibility": 19,
+    "interpretability": 16,
+    "sample_size": 7,
     "split_protocol": 3,
     "data_leakage": 3,
-    "feature_selection": 1
+    "feature_selection": 3
   },
   "concerns_by_severity": {
-    "HIGH": 187,
-    "MEDIUM": 147,
+    "HIGH": 197,
+    "MEDIUM": 166,
     "CRITICAL": 25,
-    "LOW": 16
+    "LOW": 17
   },
   "concerns_by_dimension": {
-    "1": 84,
+    "1": 86,
     "2": 3,
     "3": 24,
-    "4": 19,
-    "5": 118,
-    "6": 21,
-    "7": 33,
-    "8": 51,
-    "9": 16,
-    "12": 6
+    "4": 26,
+    "5": 126,
+    "6": 24,
+    "7": 37,
+    "8": 53,
+    "9": 19,
+    "12": 7
   },
-  "concerns_by_gate": {
-    "evaluation_quality_gate": 104,
-    "cohort_definition_gate": 80,
-    "reporting_bias_gate": 50,
-    "clinical_metrics_gate": 38,
-    "calibration_dca_gate": 29,
-    "model_selection_audit_gate": 21,
-    "external_validation_gate": 19,
-    "feature_engineering_audit_gate": 17,
-    "seed_stability_gate": 16,
-    "execution_attestation_gate": 16,
-    "leakage_gate": 15,
-    "shap_interpretability_gate": 15,
-    "missingness_policy_gate": 15,
-    "sample_size_gate": 8,
-    "split_protocol_gate": 3,
-    "distribution_generalization_gate": 3,
-    "ci_matrix_gate": 3,
-    "permutation_significance_gate": 3,
-    "tuning_leakage_gate": 2,
-    "robustness_gate": 2,
-    "covariate_shift_gate": 1,
-    "feature_lineage_gate": 1,
-    "imbalance_policy_gate": 1,
-    "generalization_gap_gate": 1,
-    "fairness_equity_gate": 1
+  "top_30_tags": [
+    {
+      "tag": "reproducibility",
+      "count": 9
+    },
+    {
+      "tag": "sensitivity_analysis",
+      "count": 7
+    },
+    {
+      "tag": "missing_calibration",
+      "count": 6
+    },
+    {
+      "tag": "overstatement",
+      "count": 6
+    },
+    {
+      "tag": "model_justification",
+      "count": 6
+    },
+    {
+      "tag": "missing_baseline_comparison",
+      "count": 5
+    },
+    {
+      "tag": "no_external_validation",
+      "count": 5
+    },
+    {
+      "tag": "outcome_definition",
+      "count": 5
+    },
+    {
+      "tag": "incomplete_metrics",
+      "count": 5
+    },
+    {
+      "tag": "class_imbalance",
+      "count": 5
+    },
+    {
+      "tag": "marginal_improvement",
+      "count": 5
+    },
+    {
+      "tag": "missing_data_unreported",
+      "count": 4
+    },
+    {
+      "tag": "missing_dca",
+      "count": 4
+    },
+    {
+      "tag": "comparison_with_existing",
+      "count": 4
+    },
+    {
+      "tag": "no_code_availability",
+      "count": 4
+    },
+    {
+      "tag": "generalizability",
+      "count": 4
+    },
+    {
+      "tag": "underpowered",
+      "count": 4
+    },
+    {
+      "tag": "multiple_testing",
+      "count": 4
+    },
+    {
+      "tag": "threshold_selection",
+      "count": 3
+    },
+    {
+      "tag": "missing_demographics",
+      "count": 3
+    },
+    {
+      "tag": "low_ppv",
+      "count": 3
+    },
+    {
+      "tag": "cost_effectiveness",
+      "count": 3
+    },
+    {
+      "tag": "incremental_value",
+      "count": 3
+    },
+    {
+      "tag": "feature_selection_justification",
+      "count": 3
+    },
+    {
+      "tag": "feature_selection_process",
+      "count": 3
+    },
+    {
+      "tag": "computational_cost",
+      "count": 3
+    },
+    {
+      "tag": "simpler_model_competitive",
+      "count": 3
+    },
+    {
+      "tag": "small_sample",
+      "count": 3
+    },
+    {
+      "tag": "calibration_plot_missing",
+      "count": 3
+    },
+    {
+      "tag": "model_transparency",
+      "count": 3
+    }
+  ],
+  "resolution_rate": 0.998,
+  "papers_by_domain": {
+    "oncology": 28,
+    "neurology": 10,
+    "infectious_disease": 8,
+    "cardiovascular": 8,
+    "critical_care": 6,
+    "nephrology": 5,
+    "genomics": 5,
+    "ehr_methodology": 2,
+    "emergency_medicine": 2,
+    "reproductive_medicine": 2,
+    "dermatology": 2,
+    "pulmonology": 2,
+    "endocrinology": 2,
+    "cardiology": 2,
+    "hematology": 2,
+    "pediatric_oncology": 2,
+    "musculoskeletal": 1,
+    "ehr_clinical": 1,
+    "mental_health": 1,
+    "digital_health": 1,
+    "oncology_epidemiology": 1,
+    "microbiome": 1,
+    "global_health": 1,
+    "proteomics": 1,
+    "ophthalmology": 1,
+    "clinical_trials": 1,
+    "llm_clinical": 1,
+    "autoimmune": 1,
+    "metabolomics": 1,
+    "pathology": 1,
+    "health_systems": 1,
+    "sleep_medicine": 1,
+    "rheumatology_autoimmune": 1,
+    "maternal_perinatal": 1,
+    "oncology_primary_care": 1,
+    "pediatric_cardiology": 1,
+    "gastroenterology": 1,
+    "geriatrics": 1,
+    "rheumatology": 1
   },
-  "concerns_with_empty_gates": 0
+  "papers_by_outcome": {
+    "accepted_after_major_revision": 86,
+    "accepted_after_revision": 9,
+    "reporting_summary_only": 7,
+    "accepted_after_minor_revision": 5,
+    "accepted_minimal_review": 4
+  }
 }

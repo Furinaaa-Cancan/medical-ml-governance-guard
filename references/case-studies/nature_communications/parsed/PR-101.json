@@ -1,0 +1,145 @@
+{
+  "id": "PR-101",
+  "paper_doi": "10.1038/s41467-025-62032-1",
+  "paper_title": "A longitudinal cohort study uncovers plasma protein biomarkers predating clinical onset and treatment response of rheumatoid arthritis",
+  "year": 2025,
+  "domain": "rheumatology_autoimmune",
+  "prediction_task": "Binary prediction of RA treatment response (responder vs non-responder) to MTX+LEF or MTX+HCQ from plasma proteome",
+  "model_types": [
+    "lasso_logistic_regression",
+    "random_forest",
+    "xgboost"
+  ],
+  "data_type": "plasma_proteomics",
+  "sample_size": 59,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-101-C01",
+      "category": "sample_size",
+      "severity": "HIGH",
+      "mlgg_dimension": 12,
+      "concern_text": "Small sample sizes (MTX+HCQ n=59) limit robustness of ML models; larger cohorts needed to ensure reliability of treatment-response predictions.",
+      "tags": [
+        "small_sample",
+        "underpowered",
+        "overfitting_risk"
+      ],
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "mlgg_gates": [
+        "sample_size_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Acknowledged as limitation; used 100-round resampling, added independent ELISA validation cohort (n=65) with consistent biomarker findings.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-101-C02",
+      "category": "model_selection",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 4,
+      "concern_text": "Study should compare LASSO against alternative ML methods (XGBoost, Random Forest) to ensure chosen approach is not arbitrarily selected.",
+      "tags": [
+        "multiple_model_comparison",
+        "xgboost_suggestion",
+        "model_justification"
+      ],
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "mlgg_gates": [
+        "model_selection_audit_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Added RF and XGBoost comparisons; LASSO yielded higher median ROC (0.88 vs 0.79/0.73), likely due to small sample size favoring simpler models.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-101-C03",
+      "category": "preprocessing",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 5,
+      "concern_text": "Class imbalance between responders and non-responders not explicitly addressed; needs documentation of imbalance handling strategy.",
+      "tags": [
+        "class_imbalance",
+        "imbalance_policy_gate"
+      ],
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "mlgg_gates": [
+        "imbalance_policy_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Ensured equal numbers of responders/non-responders per random sampling; improved median training ROC from 0.87 to 0.92 for MTX+HCQ.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-101-C04",
+      "category": "feature_selection",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 4,
+      "concern_text": "Stability of LASSO-selected biomarkers across alternative feature selection methods not demonstrated; need to show same biomarkers selected by multiple approaches.",
+      "tags": [
+        "feature_selection_justification",
+        "feature_selection_process"
+      ],
+      "reviewer": "Reviewer #5",
+      "round": 3,
+      "mlgg_gates": [
+        "feature_engineering_audit_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Evaluated biomarker rankings across 5 feature selection methods (ElasticNet, XGBoost, RF, RFE-SVM, stability selection); ECI2 and key biomarkers consistently top-10.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-101-C05",
+      "category": "interpretability",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 4,
+      "concern_text": "Model interpretability via post-hoc explainability tools (e.g., SHAP) not provided; feature importance plots needed to identify most predictive proteins.",
+      "tags": [
+        "shap_requested",
+        "feature_importance",
+        "explainability_missing"
+      ],
+      "reviewer": "Reviewer #5",
+      "round": 3,
+      "mlgg_gates": [
+        "shap_interpretability_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Added SHAP analysis for both MTX+LEF and MTX+HCQ models; SHAP feature-effect directions consistent with LASSO-identified biomarkers.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-101-C06",
+      "category": "external_validation",
+      "severity": "HIGH",
+      "mlgg_dimension": 6,
+      "concern_text": "No independent validation cohort for treatment-response biomarker panel; need ELISA/MRM-based validation in additional patients to confirm reliability.",
+      "tags": [
+        "no_external_validation",
+        "biomarker_validation_missing",
+        "external_validation_needed"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [
+        "external_validation_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Recruited independent cohort (46 MTX+HCQ, 19 MTX+LEF); ELISA validation confirmed biomarker panel with ROC 0.90 (LEF) and 0.86 (HCQ).",
+      "resolved": true
+    }
+  ],
+  "journal": "Nature Communications",
+  "review_rounds": 3,
+  "reviewer_strengths": [],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": [],
+  "key_methodology_issues": [
+    "small_sample",
+    "feature_selection_stability",
+    "explainability_missing"
+  ]
+}
