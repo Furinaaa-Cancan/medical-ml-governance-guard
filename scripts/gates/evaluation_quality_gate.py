@@ -67,12 +67,34 @@ register_remediations({
 # Primary metrics formally classified as "improper" by Van Calster et al.
 # (STRATOS TG6, Lancet Digital Health 2025-12 doi:10.1016/j.landig.2025.100916).
 # Tokens are already normalized via _gate_utils.canonical_metric_token, which
-# strips non-alphanumerics and lowercases. Comparison is exact-match on the
-# canonical form.
+# strips non-alphanumerics and lowercases. is_improper_primary_metric() also
+# strips a trailing "score" suffix so sklearn-style aliases like f1_score,
+# macro_f1_score, balanced_accuracy_score all resolve to the same set.
 IMPROPER_PRIMARY_METRICS = frozenset({
     "f1", "f1score", "macrof1", "microf1", "weightedf1", "samplesf1",
-    "accuracy", "acc", "balancedaccuracy", "bacc",
+    "accuracy", "acc", "balancedaccuracy", "bacc", "balancedacc",
 })
+
+
+def is_improper_primary_metric(canonical_token: str) -> bool:
+    """Return True if the canonical metric token is in the STRATOS-rejected
+    set, accounting for sklearn "_score" suffix aliases.
+
+    Examples:
+        f1 / f1score / f1_score → True
+        macro_f1_score → macrof1score → (strip score) → macrof1 → True
+        balanced_accuracy_score → balancedaccuracyscore → balancedaccuracy → True
+        roc_auc → rocauc → not improper → False
+    """
+    if not canonical_token:
+        return False
+    if canonical_token in IMPROPER_PRIMARY_METRICS:
+        return True
+    if canonical_token.endswith("score"):
+        stripped = canonical_token[:-len("score")]
+        if stripped and stripped in IMPROPER_PRIMARY_METRICS:
+            return True
+    return False
 
 
 def parse_args() -> argparse.Namespace:
@@ -369,7 +391,7 @@ def main() -> int:
     # STRATOS TG6 improper-metric guard — reject thresholded classification
     # measures as primary metric regardless of whether a value is present.
     metric_token = canonical_metric_token(args.metric_name or "")
-    if metric_token in IMPROPER_PRIMARY_METRICS:
+    if is_improper_primary_metric(metric_token):
         add_issue(
             failures,
             "improper_primary_metric",

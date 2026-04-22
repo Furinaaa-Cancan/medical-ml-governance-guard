@@ -6,6 +6,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 
 import evaluation_quality_gate as eqg
 from evaluation_quality_gate import (
@@ -872,6 +874,28 @@ class TestImproperPrimaryMetric:
     def test_macro_f1_is_rejected(self, tmp_path: Path):
         r = self._run_with_metric(tmp_path, "macro_f1")
         assert r.returncode == 2
+
+    @pytest.mark.parametrize("alias", [
+        "macro_f1_score",         # sklearn canonical
+        "weighted_f1_score",
+        "micro_f1_score",
+        "samples_f1_score",
+        "balanced_accuracy_score",
+        "accuracy_score",
+        "balanced_acc",           # short form
+    ])
+    def test_sklearn_score_aliases_are_rejected(self, tmp_path: Path, alias: str):
+        """Regression: '_score' suffix bypassed the STRATOS guard because
+        exact-match missed macrof1score / balancedaccuracyscore. Strip suffix
+        and re-check."""
+        r = self._run_with_metric(tmp_path, alias)
+        assert r.returncode == 2, (
+            f"alias {alias!r} must be rejected as improper primary metric "
+            f"(stdout={r.stdout[:200]}, stderr={r.stderr[:200]})"
+        )
+        report = json.loads((tmp_path / "report.json").read_text())
+        codes = [f["code"] for f in report["failures"]]
+        assert "improper_primary_metric" in codes
 
     def test_roc_auc_is_proper(self, tmp_path: Path):
         # _good_eval_report has roc_auc=0.85 — should pass all checks
