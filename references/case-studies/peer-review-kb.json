@@ -10701,7 +10701,7 @@
           "mlgg_gates": [
             "calibration_dca_gate",
             "ci_matrix_gate",
-            "reporting_compliance_gate"
+            "reporting_bias_gate"
           ],
           "mlgg_rules": [],
           "author_response": "Added calibration plots (Figure 1A; Supplemental Figure 2 per-clinic), Brier scores (Table 4), and paired DeLong test results at clinic level (Supplementary Tables 1-2).",
@@ -10721,7 +10721,7 @@
           "reviewer": "Reviewer #1",
           "round": 1,
           "mlgg_gates": [
-            "reporting_compliance_gate"
+            "reporting_bias_gate"
           ],
           "mlgg_rules": [],
           "author_response": "Added per-clinic summary table (Table 3), per-clinic reclassification tables (Supplementary Tables 5A-F), and per-clinic calibration plots.",
@@ -11057,7 +11057,7 @@
           "round": 1,
           "mlgg_gates": [
             "calibration_dca_gate",
-            "reporting_compliance_gate"
+            "reporting_bias_gate"
           ],
           "mlgg_rules": [],
           "author_response": "Added calibration summary with intercept/slope values to main text; moved Supp Table 10 (site-specific sens/spec at 3% threshold) to Table 1; added DCA interpretation.",
@@ -11244,7 +11244,7 @@
           "reviewer": "Reviewer #2",
           "round": 1,
           "mlgg_gates": [
-            "reporting_compliance_gate"
+            "reporting_bias_gate"
           ],
           "mlgg_rules": [],
           "author_response": "Clarified Optuna-based hyperparameter tuning; reported optimal hyperparameters and search space (Supplementary Table S6).",
@@ -11370,7 +11370,7 @@
           "reviewer": "Reviewer #3",
           "round": 1,
           "mlgg_gates": [
-            "reporting_compliance_gate"
+            "reporting_bias_gate"
           ],
           "mlgg_rules": [],
           "author_response": "Added explicit hyperparameter section: input dim d=160, pool ratio 0.8, hidden dims H1=256/H2=128, output d=128 representation + d=2 classifier.",
@@ -11656,7 +11656,6 @@
           "reviewer": "Reviewer #2",
           "round": 1,
           "mlgg_gates": [
-            "reporting_compliance_gate",
             "reporting_bias_gate"
           ],
           "mlgg_rules": [],
@@ -11850,7 +11849,7 @@
           "reviewer": "Reviewer #2",
           "round": 1,
           "mlgg_gates": [
-            "reporting_compliance_gate",
+            "reporting_bias_gate",
             "publication_gate"
           ],
           "mlgg_rules": [],
@@ -11927,9 +11926,10 @@
           "reviewer": "Reviewer #5",
           "round": 1,
           "mlgg_gates": [
-            "reporting_compliance_gate",
-            "reproducibility",
-            "feature_engineering_audit_gate"
+            "reporting_bias_gate",
+            "feature_engineering_audit_gate",
+            "seed_stability_gate",
+            "execution_attestation_gate"
           ],
           "mlgg_rules": [],
           "author_response": "Added 'Computational packages utilized' section, clarified LogisticRegression(penalty='l2') with default scikit-learn 1.5.1, corrected 'linear'->'logistic', published code on GitHub.",
@@ -12160,7 +12160,7 @@
           "reviewer": "Reviewer #3",
           "round": 1,
           "mlgg_gates": [
-            "reporting_compliance_gate",
+            "reporting_bias_gate",
             "publication_gate",
             "metric_consistency_gate"
           ],
@@ -12289,7 +12289,7 @@
           "round": 1,
           "mlgg_gates": [
             "model_selection_audit_gate",
-            "reporting_compliance_gate",
+            "reporting_bias_gate",
             "feature_engineering_audit_gate"
           ],
           "mlgg_rules": [],
@@ -12334,7 +12334,7 @@
           "reviewer": "Reviewer #1",
           "round": 1,
           "mlgg_gates": [
-            "reporting_compliance_gate",
+            "reporting_bias_gate",
             "execution_attestation_gate"
           ],
           "mlgg_rules": [],
@@ -12424,7 +12424,7 @@
         },
         {
           "concern_id": "PR-114-C03",
-          "category": "cohort_definition",
+          "category": "study_design",
           "severity": "HIGH",
           "mlgg_dimension": 1,
           "concern_text": "Bacterial/viral infection patients used as non-sepsis controls while sepsis mimickers (cancer, cardiogenic shock, ACS, IBD — 15-18% of suspected-sepsis cohorts) underrepresented, biasing specificity estimates.",
