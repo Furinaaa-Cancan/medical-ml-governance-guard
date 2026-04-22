@@ -794,21 +794,31 @@ class TestDischargeFinalizedICDDetector:
         "heart_rate",
         "z66abc",              # Word continues past code → not a boundary match
         "I469999_long_tail",   # Extra digits break code boundary
-        "icd10_I469_admission_flag",  # Safety guard: POA=Y context (token still
-                                      # matches — documented false positive)
     ])
     def test_benign_names_not_flagged(self, name):
-        # Note: icd10_I469_admission_flag still matches because the I46_9
-        # token appears at a boundary — this is a known limitation.
-        # We assert on the tighter benign set only:
-        if "I469" in name.upper() and "ADMISSION" not in name.upper():
-            return  # skip ambiguous case
-        if "I469_ADMISSION" in name.upper():
-            # Acknowledged false positive — detector is conservative,
-            # user must drop/rename POA=Y variants
-            return
         assert not is_discharge_finalized_icd_column(name), (
             f"{name} does not embed a discharge-finalized ICD code"
+        )
+
+    @pytest.mark.parametrize("name", [
+        "icd10_I469_admission_flag",    # POA=Y scoped
+        "icd10_I469_poa",
+        "icd10_I469_poa_flag",
+        "icd10_I469_on_admission",
+        "icd10_I469_at_admission",
+        "icd10_I469_at_onset",
+        "icd10_I469_preindex",
+        "icd10_I469_pre_index",
+        "icd10_I469_baseline",
+        "Z51_5_baseline",
+    ])
+    def test_admission_scoped_suffix_overrides(self, name):
+        """Regression: POA / admission-scoped suffix declarations must
+        override the discharge hit, because POA-coded conditions ARE
+        legitimately known at admission (Ramadan 2025 does not apply).
+        """
+        assert not is_discharge_finalized_icd_column(name), (
+            f"{name} has an admission-scoped suffix and must NOT be flagged"
         )
 
     def test_code_list_is_nonempty_and_uppercase_stable(self):
@@ -849,6 +859,68 @@ class TestDischargeFinalizedICDEndToEnd:
             if f["code"] == "discharge_finalized_icd_as_feature"
         )
         assert "icd10_Z51_5" in details["details"]["columns"]
+
+    def test_leak_only_in_test_split_still_fails(self, tmp_path, monkeypatch):
+        """Regression: scan used to read train headers only. A leak present
+        only in the holdout split (e.g., different ETL pipelines) must still
+        fail the gate and be reported under the correct split.
+        """
+        headers_train = ["patient_id", "age", "sex", "heart_rate", "y"]
+        headers_test = headers_train + ["icd10_R99"]  # leak appears only in test
+        rows_train = [[f"P{i:03d}", "65", "1", "88", "0"] for i in range(8)]
+        rows_test = [[f"Q{i:03d}", "70", "0", "92", "1", "0"] for i in range(4)]
+        train = tmp_path / "train.csv"
+        test = tmp_path / "test.csv"
+        _write_csv(train, headers_train, rows_train)
+        _write_csv(test, headers_test, rows_test)
+        rpt = tmp_path / "rpt.json"
+        monkeypatch.setattr("sys.argv", [
+            "lg", "--train", str(train), "--test", str(test),
+            "--id-cols", "patient_id", "--target-col", "y",
+            "--report", str(rpt),
+        ])
+        rc = leak_main()
+        assert rc == 2, "holdout-only leakage must still FAIL-CLOSED"
+        report = json.loads(rpt.read_text())
+        fail = next(
+            (f for f in report.get("failures", [])
+             if f["code"] == "discharge_finalized_icd_as_feature"),
+            None,
+        )
+        assert fail is not None
+        assert "icd10_R99" in fail["details"]["columns"]
+        # Reported under correct split.
+        assert "test" in fail["details"]["columns_by_split"]
+        assert "icd10_R99" in fail["details"]["columns_by_split"]["test"]
+
+    def test_poa_flag_is_not_flagged(self, tmp_path, monkeypatch):
+        """Regression: admission-scoped suffixes (POA, _admission, _baseline)
+        declare the feature is known at admission, so the discharge rule
+        does not apply. These columns must NOT be flagged as leakage.
+        """
+        headers = [
+            "patient_id", "age", "sex",
+            "icd10_I469_admission_flag",  # cardiac arrest POA=Y
+            "icd10_Z66_poa",              # DNR already documented at admission
+            "y",
+        ]
+        rows_train = [[f"P{i:03d}", "65", "1", "0", "0", "0"] for i in range(8)]
+        rows_test = [[f"Q{i:03d}", "70", "0", "0", "0", "1"] for i in range(4)]
+        train = tmp_path / "train.csv"
+        test = tmp_path / "test.csv"
+        _write_csv(train, headers, rows_train)
+        _write_csv(test, headers, rows_test)
+        rpt = tmp_path / "rpt.json"
+        monkeypatch.setattr("sys.argv", [
+            "lg", "--train", str(train), "--test", str(test),
+            "--id-cols", "patient_id", "--target-col", "y",
+            "--report", str(rpt),
+        ])
+        rc = leak_main()
+        assert rc == 0, "POA / admission-scoped suffix must override discharge rule"
+        report = json.loads(rpt.read_text())
+        codes = [f["code"] for f in report.get("failures", [])]
+        assert "discharge_finalized_icd_as_feature" not in codes
 
     def test_legit_icd_on_admission_passes(self, tmp_path, monkeypatch):
         headers = [

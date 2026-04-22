@@ -148,6 +148,22 @@ _DISCHARGE_ICD_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Suffixes declaring that a feature is scoped to admission-time / present-on-
+# admission, i.e., the coder affirms the value is knowable BEFORE the
+# discharge-finalized coding happens. Trusting these suffixes is consistent
+# with how POA flags work in CMS UB-04 and AHRQ data dictionaries. If a user
+# abuses this declaration, that is a data-provenance issue upstream of the
+# gate, not a regex-widening problem.
+_ADMISSION_SCOPED_SUFFIX_RE = re.compile(
+    r"(?:^|[_\-])(?:"
+    r"admission|admit|"
+    r"poa|present_on_admission|on_admission|at_admission|"
+    r"baseline|preindex|pre_index|index|indexdate|"
+    r"onset|at_onset|pre_admission"
+    r")(?:[_\-](?:flag|ind|indicator))?$",
+    re.IGNORECASE,
+)
+
 
 def is_discharge_finalized_icd_column(col_name: str) -> bool:
     """Return True if a column name embeds an ICD-10 code that is only
@@ -156,8 +172,17 @@ def is_discharge_finalized_icd_column(col_name: str) -> bool:
     Detects variants commonly produced by one-hot encoding of ICD codes,
     e.g., ``icd10_Z51_5``, ``dx_code_R99``, ``diagnosis_I46.9``,
     ``has_G93_82_braindeath``.
+
+    Returns False when the column name carries an explicit admission-time
+    scope suffix (e.g., ``_admission_flag``, ``_poa``, ``_on_admission``,
+    ``_at_onset``). Those declarations override the discharge hit because
+    POA-coded conditions ARE legitimately known at admission.
     """
-    return bool(_DISCHARGE_ICD_RE.search(col_name))
+    if not _DISCHARGE_ICD_RE.search(col_name):
+        return False
+    if _ADMISSION_SCOPED_SUFFIX_RE.search(col_name):
+        return False
+    return True
 
 
 def parse_args() -> argparse.Namespace:
@@ -409,18 +434,31 @@ def main() -> int:
         )
 
     # Discharge-finalized ICD codes as features — Ramadan et al. 2025-12.
-    discharge_icd_hits = []
-    for h in canonical_headers:
-        if args.target_col and h == args.target_col:
-            continue
-        if is_discharge_finalized_icd_column(h):
-            discharge_icd_hits.append(h)
-    if discharge_icd_hits:
+    # Scan every split's headers, not only train: a leak isolated to valid /
+    # test headers (e.g., when holdout comes from a different ETL) still
+    # compromises the evaluation.
+    discharge_icd_hits_by_split: Dict[str, List[str]] = {}
+    seen: set = set()
+    for split_name, split_data in splits.items():
+        for h in split_data["headers"]:
+            if args.target_col and h == args.target_col:
+                continue
+            key = (split_name, h)
+            if key in seen:
+                continue
+            if is_discharge_finalized_icd_column(h):
+                discharge_icd_hits_by_split.setdefault(split_name, []).append(h)
+                seen.add(key)
+    if discharge_icd_hits_by_split:
+        flat_hits = sorted({h for hits in discharge_icd_hits_by_split.values() for h in hits})
         add_issue(
             failures,
             "discharge_finalized_icd_as_feature",
             "Feature names embed ICD-10 codes only assignable at/after discharge.",
-            {"columns": discharge_icd_hits},
+            {
+                "columns": flat_hits,
+                "columns_by_split": discharge_icd_hits_by_split,
+            },
         )
 
     # Row overlap.
