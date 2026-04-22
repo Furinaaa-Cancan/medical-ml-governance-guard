@@ -1,0 +1,151 @@
+{
+  "id": "PR-108",
+  "paper_doi": "10.1038/s41467-025-61931-7",
+  "paper_title": "Raised Leptin and Pappalysin2 cell-free RNAs as hallmarks of pregnancies complicated by preeclampsia with fetal growth restriction",
+  "year": 2025,
+  "domain": "obstetric_maternal",
+  "prediction_task": "Binary classification of PE+FGR pregnancies versus uncomplicated controls (1:4 case-control) from maternal plasma cfRNA at 12/20/28/36 weeks gestation",
+  "model_types": [
+    "elastic_net",
+    "adaboost",
+    "glparallel",
+    "super_learner_ensemble"
+  ],
+  "data_type": "case_control_cfrna",
+  "sample_size": 195,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-108-C01",
+      "category": "split_protocol",
+      "severity": "HIGH",
+      "mlgg_dimension": 6,
+      "concern_text": "Discovery/validation split by preterm (<37wk) vs term (>=37wk) delivery may bias model to early-onset disease markers; early-onset placental insufficiency is biologically distinct from late-onset.",
+      "tags": [
+        "split_protocol",
+        "disease_heterogeneity",
+        "subgroup_bias"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [
+        "split_protocol_gate",
+        "distribution_generalization_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Re-analyzed by pooling both cohorts into combined 28wk set; LEP+PAPPA2 still selected; combined-model external AUC (0.944) slightly lower than original preterm-only model (0.951). Added Supplementary Data 9.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-108-C02",
+      "category": "sample_size",
+      "severity": "HIGH",
+      "mlgg_dimension": 12,
+      "concern_text": "Only n=13-15 effective cases in discovery cohort at 28wk severely constrains multivariable model stability; 2-predictor ceiling is a symptom of underpowering.",
+      "tags": [
+        "small_sample",
+        "underpowered",
+        "epv_violation"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [
+        "sample_size_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Acknowledged case count limitation; justified 2-predictor model as mitigation. External validation on Munchel cohort (AUC 0.95) supports stability.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-108-C03",
+      "category": "model_selection",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 4,
+      "concern_text": "AdaBoost (used by Munchel et al) omitted from 11-model super-learner comparison; rationale for excluding ensembles undocumented.",
+      "tags": [
+        "multiple_model_comparison",
+        "benchmarking_missing",
+        "model_justification"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [
+        "model_selection_audit_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Added AdaBoost to evaluation; results included in updated Table 2 and Figure 3A.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-108-C04",
+      "category": "feature_selection",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 4,
+      "concern_text": "Labelling 17 genes as 'core genes' from overlap of DESeq2/edgeR/AUC/AIC without rationale reconciling divergent statistical assumptions of each ranking method appears arbitrary.",
+      "tags": [
+        "feature_selection_justification",
+        "feature_selection_process",
+        "terminology_overreach"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [
+        "feature_engineering_audit_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Reworded 'core genes' to 'shared genes' throughout manuscript; expanded justification of multi-method overlap approach.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-108-C05",
+      "category": "study_design",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 7,
+      "concern_text": "Longitudinal sampling structure (same patient sampled at 4 gestational timepoints in same batch) not leveraged; model trained only on 28wk cross-sectional snapshot despite data being ideal for repeated-measures analysis.",
+      "tags": [
+        "longitudinal_structure_ignored",
+        "repeated_measures",
+        "clinical_applicability"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [],
+      "mlgg_rules": [],
+      "author_response": "Added longitudinal mixed-effects analysis in new Figure 5B and Supplementary Figures 4-6; identified 129 gestation-associated cfRNAs via random-intercept models with quadratic GA terms.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-108-C06",
+      "category": "evaluation_metrics",
+      "severity": "LOW",
+      "mlgg_dimension": 5,
+      "concern_text": "Full AUC may overweight irrelevant ROC regions; partial AUC (pAUC) at high specificity recommended for clinically meaningful screening performance ranking.",
+      "tags": [
+        "partial_auc_missing",
+        "auc_only",
+        "clinical_relevance"
+      ],
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "mlgg_gates": [
+        "evaluation_quality_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Declined to switch to pAUC; retained AUC given nascent cfRNA antenatal diagnostics field lacks prior on specificity thresholds, full ROC plots provided for readers.",
+      "resolved": true
+    }
+  ],
+  "journal": "Nature Communications",
+  "review_rounds": 2,
+  "reviewer_strengths": [
+    "external_validation_munchel",
+    "robust_signal_across_ml_methods",
+    "comprehensive_github_documentation"
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": [],
+  "key_methodology_issues": [
+    "preterm_split_bias",
+    "small_case_count",
+    "longitudinal_data_underused"
+  ]
+}

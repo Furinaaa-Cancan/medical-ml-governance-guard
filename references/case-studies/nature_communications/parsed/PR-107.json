@@ -1,0 +1,150 @@
+{
+  "id": "PR-107",
+  "paper_doi": "10.1038/s41467-025-63366-6",
+  "paper_title": "InfEHR: clinical phenotype resolution via deep geometric learning on electronic health records",
+  "year": 2025,
+  "domain": "pediatric_postoperative",
+  "prediction_task": "Binary classification of neonatal culture-negative sepsis (CN-S) and postoperative acute kidney injury (PO-AKI) from whole EHR using deep geometric learning (GNN)",
+  "model_types": [
+    "graph_neural_network",
+    "gru_d",
+    "seft"
+  ],
+  "data_type": "ehr",
+  "sample_size": 5213,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-107-C01",
+      "category": "external_validation",
+      "severity": "HIGH",
+      "mlgg_dimension": 6,
+      "concern_text": "CN-S cohort lacks external validation; performance reported only on training data initially, no separate held-out validation described for CN-S.",
+      "tags": [
+        "no_external_validation",
+        "same_cohort_validation",
+        "single_center"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [
+        "external_validation_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Performed stratified 80/20 train/test split on CN-S by birth weight; acknowledged lack of external CN-S validation as limitation in discussion.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-107-C02",
+      "category": "study_design",
+      "severity": "HIGH",
+      "mlgg_dimension": 1,
+      "concern_text": "Cohort definition unclear: missing baseline characteristics table, no accounting of patients excluded during preprocessing, positive rates for CN-S and PO-AKI not reported.",
+      "tags": [
+        "cohort_definition",
+        "missing_demographics",
+        "outcome_definition"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [
+        "cohort_definition_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Added baseline demographic tables for both cohorts with train/validation splits; documented exclusion counts (CN-S retained n=5213 excluded n=2854; PO-AKI retained n=4276 excluded n=3764).",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-107-C03",
+      "category": "model_selection",
+      "severity": "HIGH",
+      "mlgg_dimension": 4,
+      "concern_text": "No benchmarking against comparable deep learning time-series models (GRU-D, SeFT, Life2Vec) - limits ability to judge whether geometric GNN choice is justified.",
+      "tags": [
+        "multiple_model_comparison",
+        "model_justification",
+        "benchmarking_missing"
+      ],
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "mlgg_gates": [
+        "model_selection_audit_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Implemented GRU-D and SeFT benchmarks on UCIMC dataset; reported results in Table 2. Life2Vec excluded due to feature incompatibility (socioeconomic data unavailable).",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-107-C04",
+      "category": "data_leakage",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 2,
+      "concern_text": "Reliance on ICD/diagnosis codes for label generation avoided, but weakly-labeled propagation (MAP@1 0.71-0.79) raises questions about noisy labels cascading into downstream training.",
+      "tags": [
+        "label_validity",
+        "weak_supervision",
+        "noisy_labels"
+      ],
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "mlgg_gates": [
+        "definition_variable_guard"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Justified medium-density regime per Ratner et al. data programming theory; authors argue imperfect labels are acceptable in weak supervision and GNN denoises. Avoided diagnosis codes due to post-hoc application timing.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-107-C05",
+      "category": "reproducibility",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 9,
+      "concern_text": "Chosen hyperparameters (embedding dimensions, pooling ratio) not stated in manuscript, limiting reproducibility of the GNN tuning.",
+      "tags": [
+        "hyperparameter_reporting",
+        "irreproducible_methods"
+      ],
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "mlgg_gates": [
+        "reporting_compliance_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Added explicit hyperparameter section: input dim d=160, pool ratio 0.8, hidden dims H1=256/H2=128, output d=128 representation + d=2 classifier.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-107-C06",
+      "category": "preprocessing",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 1,
+      "concern_text": "Handling of unstructured clinical narratives unclear: NLP pipeline for free-text extraction not described; ontology standardization (SNOMED/UMLS) not specified.",
+      "tags": [
+        "nlp_pipeline_unclear",
+        "feature_engineering_opaque"
+      ],
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "mlgg_gates": [
+        "feature_engineering_audit_gate",
+        "feature_lineage_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Documented QuickUMLS extraction + TF-IDF + NMF topic filtering pipeline for note-derived nodes; acknowledged temporality/semantics limitations and noted SNOMED-CT integration as future work.",
+      "resolved": true
+    }
+  ],
+  "journal": "Nature Communications",
+  "review_rounds": 2,
+  "reviewer_strengths": [
+    "large_scale_dataset",
+    "dual_rare_common_evaluation",
+    "code_available"
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": [],
+  "key_methodology_issues": [
+    "no_external_validation_cns",
+    "weak_label_propagation",
+    "benchmarking_gap"
+  ]
+}
