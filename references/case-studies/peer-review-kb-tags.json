@@ -4,7 +4,9 @@
   ],
   "ablation_missing": [
     "PR-014-C03",
-    "PR-020-C01"
+    "PR-020-C01",
+    "PR-111-C06",
+    "PR-113-C04"
   ],
   "ablation_needed": [
     "PR-015-C01",
@@ -15,6 +17,9 @@
   ],
   "absolute_threshold_needed": [
     "PR-054-C03"
+  ],
+  "abstract_mismatch": [
+    "PR-112-C05"
   ],
   "abstract_only_insufficient": [
     "PR-070-C02"
@@ -168,6 +173,9 @@
   "base_rate_unreported": [
     "PR-030-C01"
   ],
+  "baseline_comparison_incomplete": [
+    "PR-111-C06"
+  ],
   "benchmark": [
     "PR-018-C04"
   ],
@@ -215,7 +223,8 @@
   ],
   "biomarker_validation_missing": [
     "PR-077-C03",
-    "PR-101-C06"
+    "PR-101-C06",
+    "PR-113-C03"
   ],
   "blood_tests_unhelpful": [
     "PR-024-C05"
@@ -283,6 +292,9 @@
   ],
   "case_contamination": [
     "PR-001-C05"
+  ],
+  "case_control_bias": [
+    "PR-112-C04"
   ],
   "case_definition_error": [
     "PR-078-C01"
@@ -454,6 +466,9 @@
   "clinical_utility_limited": [
     "PR-073-C01"
   ],
+  "clinical_utility_marginal": [
+    "PR-114-C02"
+  ],
   "clinical_utility_of_continuous": [
     "PR-092-C01"
   ],
@@ -521,7 +536,9 @@
     "PR-001-C05",
     "PR-107-C02",
     "PR-109-C05",
-    "PR-110-C01"
+    "PR-110-C01",
+    "PR-112-C03",
+    "PR-114-C03"
   ],
   "cohort_description": [
     "PR-002-C06"
@@ -636,7 +653,9 @@
   ],
   "confounding": [
     "PR-003-C11",
-    "PR-102-C05"
+    "PR-102-C05",
+    "PR-111-C05",
+    "PR-112-C03"
   ],
   "confounding_by_cohort": [
     "PR-032-C04"
@@ -673,7 +692,8 @@
   ],
   "control_matching": [
     "PR-001-C05",
-    "PR-086-C01"
+    "PR-086-C01",
+    "PR-114-C03"
   ],
   "convergence_diagnostics": [
     "PR-018-C01"
@@ -716,6 +736,9 @@
   "cross_cohort_harmonization": [
     "PR-032-C04"
   ],
+  "cross_cohort_stability": [
+    "PR-114-C05"
+  ],
   "cross_dataset_generalization": [
     "PR-031-C02"
   ],
@@ -736,6 +759,10 @@
   ],
   "cv_procedure_unclear": [
     "PR-064-C01"
+  ],
+  "cv_strategy_unspecified": [
+    "PR-111-C02",
+    "PR-113-C01"
   ],
   "data_acquisition": [
     "PR-005-C01"
@@ -767,6 +794,9 @@
   "data_source_unclear": [
     "PR-039-C06"
   ],
+  "data_split_ambiguous": [
+    "PR-113-C01"
+  ],
   "dataset_size_mismatch": [
     "PR-020-C04"
   ],
@@ -783,8 +813,14 @@
   "deep_learning_alternatives": [
     "PR-057-C01"
   ],
+  "definition_drift": [
+    "PR-114-C01"
+  ],
   "definition_variable": [
     "PR-001-C02"
+  ],
+  "definition_variable_guard": [
+    "PR-113-C05"
   ],
   "degree_bias": [
     "PR-057-C03"
@@ -807,6 +843,9 @@
   ],
   "deployment_unclear": [
     "PR-084-C02"
+  ],
+  "design_limitation": [
+    "PR-112-C04"
   ],
   "device_heterogeneity": [
     "PR-041-C02",
@@ -847,6 +886,12 @@
   ],
   "disease_subtype_imbalance": [
     "PR-039-C01"
+  ],
+  "distribution_shift": [
+    "PR-112-C01"
+  ],
+  "documentation_missing": [
+    "PR-113-C06"
   ],
   "domain_shift": [
     "PR-004-C04"
@@ -939,6 +984,12 @@
   "explainability_what_not_where": [
     "PR-065-C04"
   ],
+  "external_auc_drop": [
+    "PR-112-C01"
+  ],
+  "external_validation_depth": [
+    "PR-114-C05"
+  ],
   "external_validation_details": [
     "PR-090-C01"
   ],
@@ -961,6 +1012,9 @@
   "fair_comparison": [
     "PR-017-C04",
     "PR-106-C03"
+  ],
+  "fairness": [
+    "PR-111-C05"
   ],
   "false_alarm": [
     "PR-028-C06"
@@ -1018,6 +1072,9 @@
   "feature_meaning": [
     "PR-007-C06"
   ],
+  "feature_quality": [
+    "PR-111-C03"
+  ],
   "feature_reduction_justification": [
     "PR-050-C04"
   ],
@@ -1032,6 +1089,9 @@
     "PR-101-C04",
     "PR-105-C05",
     "PR-108-C04"
+  ],
+  "feature_selection_rationale": [
+    "PR-113-C05"
   ],
   "feature_standardization": [
     "PR-016-C02"
@@ -1103,15 +1163,20 @@
     "PR-007-C02",
     "PR-018-C05",
     "PR-026-C01",
-    "PR-035-C02"
+    "PR-035-C02",
+    "PR-111-C04"
   ],
   "generalizability_limited": [
     "PR-014-C04",
     "PR-065-C01",
-    "PR-109-C02"
+    "PR-109-C02",
+    "PR-112-C04"
   ],
   "generalizability_to_modern_data": [
     "PR-016-C07"
+  ],
+  "generalization_gap": [
+    "PR-112-C01"
   ],
   "genetic_architecture": [
     "PR-019-C01"
@@ -1198,6 +1263,9 @@
     "PR-107-C05",
     "PR-109-C04"
   ],
+  "hyperparameter_unreported": [
+    "PR-113-C04"
+  ],
   "hyperparameters_missing": [
     "PR-052-C01",
     "PR-106-C06"
@@ -1260,6 +1328,9 @@
   ],
   "imputation_method": [
     "PR-006-C05"
+  ],
+  "imputation_policy": [
+    "PR-111-C03"
   ],
   "imputation_transparency": [
     "PR-003-C02",
@@ -1394,7 +1465,9 @@
     "PR-010-C05",
     "PR-052-C01",
     "PR-107-C05",
-    "PR-109-C04"
+    "PR-109-C04",
+    "PR-111-C02",
+    "PR-113-C06"
   ],
   "iterative_testing": [
     "PR-035-C05"
@@ -1442,6 +1515,12 @@
   "ld_reference_quality": [
     "PR-017-C03"
   ],
+  "leakage_risk": [
+    "PR-113-C01"
+  ],
+  "leave_one_out_cv": [
+    "PR-112-C02"
+  ],
   "limited_benchmarking": [
     "PR-072-C02"
   ],
@@ -1478,11 +1557,17 @@
   "loss_function_missing": [
     "PR-062-C01"
   ],
+  "low_auc_ed": [
+    "PR-114-C02"
+  ],
   "low_event_count": [
     "PR-110-C02"
   ],
   "low_incidence_suspicious": [
     "PR-035-C06"
+  ],
+  "low_npv": [
+    "PR-114-C02"
   ],
   "low_ppv": [
     "PR-004-C02",
@@ -1522,6 +1607,9 @@
   "mechanism_unclear": [
     "PR-067-C03"
   ],
+  "mechanistic_explanation": [
+    "PR-114-C06"
+  ],
   "mechanistic_insight": [
     "PR-001-C08"
   ],
@@ -1558,7 +1646,8 @@
   ],
   "misleading_claim": [
     "PR-009-C03",
-    "PR-062-C03"
+    "PR-062-C03",
+    "PR-114-C06"
   ],
   "misleading_figure": [
     "PR-016-C04"
@@ -1586,7 +1675,8 @@
     "PR-110-C03"
   ],
   "missing_ci": [
-    "PR-015-C01"
+    "PR-015-C01",
+    "PR-113-C02"
   ],
   "missing_citations": [
     "PR-030-C02"
@@ -1626,7 +1716,8 @@
     "PR-003-C02",
     "PR-039-C03",
     "PR-039-C06",
-    "PR-105-C02"
+    "PR-105-C02",
+    "PR-111-C03"
   ],
   "missing_dca": [
     "PR-003-C05",
@@ -1638,7 +1729,8 @@
     "PR-003-C01",
     "PR-037-C05",
     "PR-055-C05",
-    "PR-107-C02"
+    "PR-107-C02",
+    "PR-111-C05"
   ],
   "missing_demographics_table": [
     "PR-002-C06"
@@ -1669,6 +1761,9 @@
   "missing_variance_explained": [
     "PR-006-C02"
   ],
+  "missingness_reporting": [
+    "PR-111-C03"
+  ],
   "ml_contest_approach": [
     "PR-062-C01"
   ],
@@ -1690,7 +1785,8 @@
   ],
   "model_description_unclear": [
     "PR-011-C05",
-    "PR-013-C06"
+    "PR-013-C06",
+    "PR-111-C02"
   ],
   "model_details_missing": [
     "PR-075-C02"
@@ -1709,7 +1805,12 @@
     "PR-102-C03",
     "PR-106-C01",
     "PR-107-C03",
-    "PR-108-C03"
+    "PR-108-C03",
+    "PR-111-C06",
+    "PR-113-C04"
+  ],
+  "model_selection_on_test": [
+    "PR-111-C01"
   ],
   "model_transparency": [
     "PR-024-C07",
@@ -1718,7 +1819,8 @@
   ],
   "modest_performance": [
     "PR-011-C01",
-    "PR-031-C01"
+    "PR-031-C01",
+    "PR-114-C02"
   ],
   "molecular_correlation_weak": [
     "PR-079-C02"
@@ -1734,6 +1836,9 @@
   ],
   "mrsa_vs_sepsis": [
     "PR-044-C01"
+  ],
+  "multi_cohort_refit": [
+    "PR-114-C04"
   ],
   "multi_group_comparison": [
     "PR-008-C04"
@@ -1776,7 +1881,8 @@
     "PR-025-C04",
     "PR-034-C02",
     "PR-035-C05",
-    "PR-042-C02"
+    "PR-042-C02",
+    "PR-111-C01"
   ],
   "multiple_testing_correction": [
     "PR-008-C06"
@@ -1826,7 +1932,9 @@
     "PR-003-C10",
     "PR-102-C04",
     "PR-105-C03",
-    "PR-109-C04"
+    "PR-109-C04",
+    "PR-111-C02",
+    "PR-113-C06"
   ],
   "no_comparison": [
     "PR-063-C05"
@@ -1837,13 +1945,18 @@
   "no_cross_validation": [
     "PR-002-C04"
   ],
+  "no_delong_test": [
+    "PR-113-C02"
+  ],
   "no_external_validation": [
     "PR-001-C06",
     "PR-028-C01",
     "PR-040-C01",
     "PR-041-C04",
     "PR-101-C06",
-    "PR-107-C01"
+    "PR-107-C01",
+    "PR-111-C04",
+    "PR-113-C03"
   ],
   "no_external_validation_for_combined": [
     "PR-006-C04"
@@ -1865,7 +1978,8 @@
     "PR-025-C01"
   ],
   "no_prospective_validation": [
-    "PR-059-C01"
+    "PR-059-C01",
+    "PR-113-C03"
   ],
   "no_sensitivity_analysis": [
     "PR-025-C02"
@@ -1900,7 +2014,8 @@
   "novelty_questioned": [
     "PR-031-C01",
     "PR-037-C02",
-    "PR-077-C02"
+    "PR-077-C02",
+    "PR-113-C04"
   ],
   "novelty_questioned_fundamentally": [
     "PR-042-C05"
@@ -1929,6 +2044,9 @@
     "PR-006-C01",
     "PR-104-C01"
   ],
+  "optimistic_model": [
+    "PR-112-C04"
+  ],
   "os_validation_needed": [
     "PR-096-C01"
   ],
@@ -1945,7 +2063,8 @@
     "PR-007-C03",
     "PR-011-C02",
     "PR-107-C02",
-    "PR-109-C05"
+    "PR-109-C05",
+    "PR-114-C01"
   ],
   "outcome_definition_ambiguous": [
     "PR-074-C02"
@@ -2032,7 +2151,9 @@
     "PR-010-C06",
     "PR-012-C06",
     "PR-054-C04",
-    "PR-106-C05"
+    "PR-106-C05",
+    "PR-112-C01",
+    "PR-114-C06"
   ],
   "overtreatment": [
     "PR-020-C02"
@@ -2244,6 +2365,9 @@
   "privacy_leakage_unproven": [
     "PR-014-C01"
   ],
+  "prognostic_vs_diagnostic": [
+    "PR-114-C01"
+  ],
   "prognostic_vs_predictive": [
     "PR-050-C02"
   ],
@@ -2342,7 +2466,8 @@
   "reporting_completeness": [
     "PR-006-C07",
     "PR-009-C06",
-    "PR-110-C06"
+    "PR-110-C06",
+    "PR-112-C05"
   ],
   "reporting_guidelines": [
     "PR-003-C04"
@@ -2396,6 +2521,9 @@
   "risk_zones": [
     "PR-038-C03"
   ],
+  "rna_extraction_variance": [
+    "PR-114-C05"
+  ],
   "robustness_to_outliers": [
     "PR-012-C04"
   ],
@@ -2432,6 +2560,9 @@
   "sample_size_insufficient": [
     "PR-006-C08"
   ],
+  "sample_size_justification": [
+    "PR-114-C04"
+  ],
   "sample_size_vs_genuine": [
     "PR-045-C02"
   ],
@@ -2465,13 +2596,16 @@
   "selection_bias": [
     "PR-008-C01",
     "PR-104-C03",
-    "PR-110-C01"
+    "PR-110-C01",
+    "PR-112-C03",
+    "PR-114-C03"
   ],
   "selective_referral": [
     "PR-011-C02"
   ],
   "selective_reporting": [
-    "PR-062-C03"
+    "PR-062-C03",
+    "PR-112-C05"
   ],
   "self_report_vs_genetic": [
     "PR-045-C03"
@@ -2494,8 +2628,14 @@
   "sensor_validation": [
     "PR-041-C02"
   ],
+  "sepsis3_label_inconsistency": [
+    "PR-114-C01"
+  ],
   "sepsis_definition": [
     "PR-040-C03"
+  ],
+  "sepsis_mimickers": [
+    "PR-114-C03"
   ],
   "shap_interpretation_shallow": [
     "PR-011-C03"
@@ -2563,7 +2703,9 @@
   ],
   "single_split": [
     "PR-002-C04",
-    "PR-029-C02"
+    "PR-029-C02",
+    "PR-111-C01",
+    "PR-111-C04"
   ],
   "site_effects": [
     "PR-007-C04"
@@ -2579,7 +2721,8 @@
     "PR-093-C01",
     "PR-101-C01",
     "PR-108-C02",
-    "PR-110-C02"
+    "PR-110-C02",
+    "PR-112-C02"
   ],
   "small_subgroup_overclaimed": [
     "PR-051-C03"
@@ -2598,6 +2741,9 @@
   ],
   "smoking_confounder": [
     "PR-042-C06"
+  ],
+  "smote_before_split": [
+    "PR-113-C01"
   ],
   "smote_needed": [
     "PR-027-C02"
@@ -2632,6 +2778,9 @@
   "standard_prognostic_factors_missing": [
     "PR-063-C02"
   ],
+  "statistical_comparison_missing": [
+    "PR-113-C02"
+  ],
   "statistical_model_missing": [
     "PR-013-C03"
   ],
@@ -2649,6 +2798,9 @@
   ],
   "subgroup_analysis": [
     "PR-001-C08"
+  ],
+  "subgroup_analysis_missing": [
+    "PR-111-C05"
   ],
   "subgroup_bias": [
     "PR-108-C01"
@@ -2756,6 +2908,9 @@
   ],
   "tertiary_center_bias": [
     "PR-007-C02"
+  ],
+  "test_set_reuse": [
+    "PR-111-C01"
   ],
   "test_set_underreported": [
     "PR-010-C03"
@@ -2877,6 +3032,9 @@
   "treatment_heterogeneity": [
     "PR-005-C04"
   ],
+  "treatment_imbalance": [
+    "PR-112-C03"
+  ],
   "treatment_response_unclear": [
     "PR-074-C02"
   ],
@@ -2900,6 +3058,9 @@
   "tumor_purity_confounder": [
     "PR-063-C04"
   ],
+  "tuning_leakage": [
+    "PR-114-C04"
+  ],
   "tuning_set_size": [
     "PR-017-C05"
   ],
@@ -2921,7 +3082,9 @@
     "PR-082-C02",
     "PR-101-C01",
     "PR-108-C02",
-    "PR-110-C02"
+    "PR-110-C02",
+    "PR-112-C02",
+    "PR-114-C04"
   ],
   "undiagnosed_disease": [
     "PR-065-C02"
@@ -2962,6 +3125,9 @@
   "uspstf_guideline": [
     "PR-067-C01"
   ],
+  "validation_cohort_missing": [
+    "PR-111-C04"
+  ],
   "validation_imputation": [
     "PR-003-C03"
   ],
@@ -2973,6 +3139,12 @@
   ],
   "validation_strategy_unclear": [
     "PR-032-C05"
+  ],
+  "validation_variability": [
+    "PR-112-C02"
+  ],
+  "variable_definition_ambiguous": [
+    "PR-113-C05"
   ],
   "variable_distribution": [
     "PR-050-C03"

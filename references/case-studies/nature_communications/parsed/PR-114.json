@@ -1,0 +1,172 @@
+{
+  "id": "PR-114",
+  "paper_doi": "10.1038/s41467-025-59227-x",
+  "paper_title": "A machine learning and centrifugal microfluidics platform for bedside prediction of sepsis (Sepset signature, PREDICT platform)",
+  "year": 2025,
+  "domain": "critical_care_sepsis",
+  "prediction_task": "Binary prediction of clinical deterioration (SOFA worsening >=2) within 24 h in ED/ICU patients with suspected sepsis from a 6-gene transcriptomic signature plus 2 housekeeping genes, deployed via on-chip ddPCR",
+  "model_types": [
+    "random_forest",
+    "logistic_regression"
+  ],
+  "data_type": "whole_blood_transcriptomic",
+  "sample_size": 3764,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-114-C01",
+      "category": "study_design",
+      "severity": "CRITICAL",
+      "mlgg_dimension": 7,
+      "concern_text": "Outcome definition confounds prognosis vs diagnosis: SOFA >=2 is prognostic of organ dysfunction, not of infection; pre-Sepsis-3 cohorts split 'sepsis' vs 'severe sepsis' where severe is now the Sepsis-3 sepsis, creating label inconsistency across cohorts.",
+      "tags": [
+        "outcome_definition",
+        "definition_drift",
+        "sepsis3_label_inconsistency",
+        "prognostic_vs_diagnostic"
+      ],
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "mlgg_gates": [
+        "definition_variable_guard",
+        "cohort_definition_gate",
+        "clinical_metrics_gate"
+      ],
+      "mlgg_rules": [
+        "F01",
+        "F02"
+      ],
+      "author_response": "Clarified SOFA>=2 is Sepsis-3 operational definition (old 'severe sepsis' = current 'sepsis'); edited manuscript to state score used 'to discriminate sepsis from non-sepsis'; distinguished diagnosis vs prognostication concepts.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-114-C02",
+      "category": "clinical_utility",
+      "severity": "HIGH",
+      "mlgg_dimension": 7,
+      "concern_text": "AUROC 0.69 and NPV 67% in ED setting deemed effectively a negative result: cannot reliably rule out adverse outcomes at true T0, undermining point-of-care value proposition.",
+      "tags": [
+        "low_auc_ed",
+        "low_npv",
+        "clinical_utility_marginal",
+        "modest_performance"
+      ],
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "mlgg_gates": [
+        "clinical_metrics_gate",
+        "calibration_dca_gate",
+        "evaluation_quality_gate"
+      ],
+      "mlgg_rules": [
+        "E02"
+      ],
+      "author_response": "Contextualized vs prior tests at ~50% accuracy; argued accuracy rises to ~90% by ICU admission; suggested 6-12 h retest strategy; attributed ED under-performance to early antibiotics preventing progression.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-114-C03",
+      "category": "cohort_definition",
+      "severity": "HIGH",
+      "mlgg_dimension": 1,
+      "concern_text": "Bacterial/viral infection patients used as non-sepsis controls while sepsis mimickers (cancer, cardiogenic shock, ACS, IBD — 15-18% of suspected-sepsis cohorts) underrepresented, biasing specificity estimates.",
+      "tags": [
+        "control_matching",
+        "sepsis_mimickers",
+        "selection_bias",
+        "cohort_definition"
+      ],
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "mlgg_gates": [
+        "cohort_definition_gate",
+        "definition_variable_guard",
+        "covariate_shift_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Cited Table 1 rows 11-14 testing 3171 mimicker patients with AUCs 0.50-0.53 (chance-level), framing as desired specificity against non-sepsis; reinforced SOFA>=2 correlation anchors predictions.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-114-C04",
+      "category": "sample_size",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 12,
+      "concern_text": "Derivation/validation cohorts smaller than claimed; no prospective power analysis presented per setting; refitting six-gene signature across ED vs ICU vs multi-country cohorts risks tuning leakage.",
+      "tags": [
+        "underpowered",
+        "sample_size_justification",
+        "tuning_leakage",
+        "multi_cohort_refit"
+      ],
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "mlgg_gates": [
+        "sample_size_gate",
+        "tuning_leakage_gate",
+        "split_protocol_gate"
+      ],
+      "mlgg_rules": [
+        "M01"
+      ],
+      "author_response": "Supplied DeLong-based power calc (n=376 for 90% power vs PCT); n=586 used in derivation; asserted ddPCR results consistent with RNA-seq across follow-on cohorts in Table 1 bottom rows.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-114-C05",
+      "category": "external_validation",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 6,
+      "concern_text": "Independence of 15 'external' test datasets questioned — reviewer asked explicitly whether signatures were ever tuned/refit on these cohorts, with limited detail on RNA extraction and HKG stability across populations.",
+      "tags": [
+        "external_validation_depth",
+        "cross_cohort_stability",
+        "rna_extraction_variance"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [
+        "external_validation_gate",
+        "distribution_generalization_gate",
+        "robustness_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Listed 2 training sets + 9 sepsis test cohorts + 6 non-sepsis test cohorts; showed automated vs manual RNA extraction gave similar Ct (delta Ct <1); HKGs PTP4A2 and CHTOP selected for low variance across 2,833-candidate screen.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-114-C06",
+      "category": "interpretability",
+      "severity": "LOW",
+      "mlgg_dimension": 7,
+      "concern_text": "Pathophysiological link between the 6-gene immunosuppression/reprogramming signature and SOFA-defined deterioration requires deeper mechanistic discussion; over-reach in claiming test replaces other clinical variables.",
+      "tags": [
+        "mechanistic_explanation",
+        "overstatement",
+        "misleading_claim"
+      ],
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "mlgg_gates": [
+        "shap_interpretability_gate",
+        "reporting_bias_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Added mechanistic paragraph linking positive SepsetER to dysfunctional host response; softened claim that 'no other information should be needed' by adding 'although other clinical predictors could complement this test.'",
+      "resolved": true
+    }
+  ],
+  "journal": "Nature Communications",
+  "review_rounds": 2,
+  "reviewer_strengths": [
+    "point_of_care_turnaround",
+    "platform_microfluidic_integration",
+    "multi_cohort_testing"
+  ],
+  "outcome": "accepted_after_minor_revision",
+  "key_methodology_strengths": [],
+  "key_methodology_issues": [
+    "sepsis3_definition_drift_across_cohorts",
+    "control_mimicker_mismatch",
+    "ed_auroc_marginal"
+  ]
+}

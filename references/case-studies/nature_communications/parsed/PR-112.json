@@ -1,0 +1,144 @@
+{
+  "id": "PR-112",
+  "paper_doi": "10.1038/s41467-025-64215-2",
+  "paper_title": "Maternal plasma cell-free RNA as a predictor of early and late-onset preeclampsia throughout pregnancy",
+  "year": 2025,
+  "domain": "obstetric_maternal",
+  "prediction_task": "Binary prediction of early-onset (EOPE) and late-onset (LOPE) preeclampsia at 1st (T1) and 2nd (T2) trimester from maternal plasma cfRNA signatures, 8-18 weeks before clinical onset, case-control design",
+  "model_types": [
+    "lasso_logistic_regression",
+    "neural_network"
+  ],
+  "data_type": "cfrna_transcriptomics",
+  "sample_size": 216,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-112-C01",
+      "category": "external_validation",
+      "severity": "CRITICAL",
+      "mlgg_dimension": 6,
+      "concern_text": "External Validation 2 (GSE192902) AUCs dropped sharply (e.g., 0.88 -> 0.68 range; T1 LOPE AUC 0.63), contradicting 'robustness and translational potential' claim; performance gap not transparently reported.",
+      "tags": [
+        "external_auc_drop",
+        "generalization_gap",
+        "overstatement",
+        "distribution_shift"
+      ],
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "mlgg_gates": [
+        "external_validation_gate",
+        "distribution_generalization_gate",
+        "generalization_gap_gate",
+        "reporting_bias_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Removed overstatements; reframed Validation 2 as supporting signature relevance with acknowledged modest performance drop due to technical/sampling variability; added full sens/spec/AUC metrics to Results and abstract.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-112-C02",
+      "category": "sample_size",
+      "severity": "CRITICAL",
+      "mlgg_dimension": 12,
+      "concern_text": "Validation 2 cohort very small (especially T2 subset); balanced case-control down-sampling plus leave-one-out CV on tiny n yields high-variance estimates easily confounded with technical differences.",
+      "tags": [
+        "small_sample",
+        "underpowered",
+        "leave_one_out_cv",
+        "validation_variability"
+      ],
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "mlgg_gates": [
+        "sample_size_gate",
+        "split_protocol_gate",
+        "external_validation_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Explained variability as function of external cohort design/metadata; detailed balanced down-sampling across signature genes + gestational window; evaluated via leave-one-out CV with standard metrics; added methods text.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-112-C03",
+      "category": "study_design",
+      "severity": "HIGH",
+      "mlgg_dimension": 1,
+      "concern_text": "Severe aspirin-prophylaxis imbalance (71% EOPE / 53% LOPE cases vs 7.6% controls received aspirin) not stratified; cfRNA signature could reflect treatment rather than disease biology and fail in aspirin-naive controls.",
+      "tags": [
+        "confounding",
+        "treatment_imbalance",
+        "selection_bias",
+        "cohort_definition"
+      ],
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "mlgg_gates": [
+        "cohort_definition_gate",
+        "definition_variable_guard",
+        "covariate_shift_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Ran PCA, limma-Voom DEG, and classifier-score stratification by aspirin status — no separation or score shift detected; noted T1 sampling preceded aspirin initiation; added clarifying text.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-112-C04",
+      "category": "study_design",
+      "severity": "HIGH",
+      "mlgg_dimension": 6,
+      "concern_text": "Case-control discovery design instead of case-cohort/nested cohort risks overly optimistic models likely to fail in population-based deployment; limitation not originally acknowledged.",
+      "tags": [
+        "case_control_bias",
+        "optimistic_model",
+        "generalizability_limited",
+        "design_limitation"
+      ],
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "mlgg_gates": [
+        "cohort_definition_gate",
+        "distribution_generalization_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Added discussion paragraph conceding case-control optimization limitation; cited ongoing large prospective iPregnostic trial (NCT06716242) for population-level validation.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-112-C05",
+      "category": "reporting",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 8,
+      "concern_text": "External validation results originally buried in figures/tables and omitted from abstract; reduced T1 LOPE AUC (0.68) and Validation 2 AUC (0.63) hidden while discussion touted 'robustness'.",
+      "tags": [
+        "reporting_completeness",
+        "selective_reporting",
+        "abstract_mismatch"
+      ],
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "mlgg_gates": [
+        "reporting_compliance_gate",
+        "publication_gate",
+        "metric_consistency_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Rewrote Results with sens/spec/AUC inline for external validation; added T1 LOPE (0.68) and Val2 (0.63) AUCs to abstract within 150-word limit per Reviewer #3 round-2 request.",
+      "resolved": true
+    }
+  ],
+  "journal": "Nature Communications",
+  "review_rounds": 2,
+  "reviewer_strengths": [
+    "longitudinal_timepoints",
+    "external_validation_included",
+    "flowchart_clarity"
+  ],
+  "outcome": "accepted_after_minor_revision",
+  "key_methodology_strengths": [],
+  "key_methodology_issues": [
+    "external_auc_drop_underreported",
+    "aspirin_confounding",
+    "case_control_optimism"
+  ]
+}

@@ -1,0 +1,173 @@
+{
+  "id": "PR-113",
+  "paper_doi": "10.1038/s41467-025-65365-z",
+  "paper_title": "Explainable AI unravels sepsis heterogeneity via coagulation-inflammation profiles for prognosis and stratification (SepsisFormer / SMART)",
+  "year": 2025,
+  "domain": "critical_care_sepsis",
+  "prediction_task": "Binary prediction of 28-day mortality in septic ICU patients from routine coagulation-inflammatory labs using a Transformer (SepsisFormer) with domain-adaptive SMOTE; downstream SMART scorecard and CIS1/CIS2 subphenotyping",
+  "model_types": [
+    "transformer",
+    "gru",
+    "xgboost",
+    "logistic_regression"
+  ],
+  "data_type": "ehr_icu_mixed",
+  "sample_size": 12408,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-113-C01",
+      "category": "split_protocol",
+      "severity": "CRITICAL",
+      "mlgg_dimension": 3,
+      "concern_text": "Cross-validation / train-validation-test strategy unclear; MIMIC-III and MIMIC-IV merged with SMOTE applied on pooled data before the 7:3 split risked leaking synthetic samples into internal test and inflating AUC 0.9301.",
+      "tags": [
+        "cv_strategy_unspecified",
+        "smote_before_split",
+        "data_split_ambiguous",
+        "leakage_risk"
+      ],
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "mlgg_gates": [
+        "split_protocol_gate",
+        "leakage_gate",
+        "tuning_leakage_gate",
+        "imbalance_policy_gate"
+      ],
+      "mlgg_rules": [
+        "S01",
+        "M01"
+      ],
+      "author_response": "Clarified MIMIC-III+eICU-CRD used as pretraining Cohort 1 (7:3 internal split, SMOTE for augmentation); MIMIC-IV (Cohort 2) and local ICU (Cohort 3) as external targets evaluated via 10-fold CV; added fine-tuning + MMID-SMOTE parameters (k=4, 1:1 ratio, fixed seed).",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-113-C02",
+      "category": "evaluation_metrics",
+      "severity": "HIGH",
+      "mlgg_dimension": 5,
+      "concern_text": "No DeLong test or confidence intervals reported when comparing SepsisFormer (AUC 0.9301) against qSOFA/SOFA/APACHE II/GRU/XGBoost; superiority claims statistically unsupported.",
+      "tags": [
+        "missing_ci",
+        "no_delong_test",
+        "statistical_comparison_missing"
+      ],
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "mlgg_gates": [
+        "ci_matrix_gate",
+        "evaluation_quality_gate",
+        "permutation_significance_gate"
+      ],
+      "mlgg_rules": [
+        "E01"
+      ],
+      "author_response": "Added DeLong's test via MLstatkit.stats comparing SepsisFormer to all baselines across cohorts; reported p-values (e.g., vs GRU p=0.41 indicating parity with GRU) in figure legends.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-113-C03",
+      "category": "external_validation",
+      "severity": "HIGH",
+      "mlgg_dimension": 6,
+      "concern_text": "No prospective validation of SepsisFormer in real-time ICU settings; transcriptomic biomarkers (STAT5B, MTHFR, HPSE, AAK1, MX1) lack validation in independent cohort.",
+      "tags": [
+        "no_prospective_validation",
+        "no_external_validation",
+        "biomarker_validation_missing"
+      ],
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "mlgg_gates": [
+        "external_validation_gate",
+        "distribution_generalization_gate",
+        "prediction_replay_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Added small prospective real-time cohort (n=40, Chongqing, IRB 2025-55) monitoring SMART + subphenotype vs 28-day mortality; argued full SepsisFormer prospective trial beyond scope; deferred transcriptomic external validation.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-113-C04",
+      "category": "model_selection",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 4,
+      "concern_text": "No ablation of SepsisFormer components (e.g., contribution of domain-adaptation vs base Transformer); hyperparameter choices and MMID-SMOTE 'novelty' vs existing SMOTE unclear.",
+      "tags": [
+        "ablation_missing",
+        "hyperparameter_unreported",
+        "model_justification",
+        "novelty_questioned"
+      ],
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "mlgg_gates": [
+        "model_selection_audit_gate",
+        "reporting_compliance_gate",
+        "feature_engineering_audit_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Ran systematic hyperparameter sensitivity analysis; added ablation comparing MMID-SMOTE vs no-adaptation and other DA methods; renamed method MMID-SMOTE and provided 5-step algorithm in Supplementary Method 1.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-113-C05",
+      "category": "feature_selection",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 1,
+      "concern_text": "Rationale for restricting SMART to 7 coagulation-inflammation markers + age unclear — Figure 2 suggests >8 candidate variables and two clustering analyses (alpha/beta on 36 vars, CIS1/CIS2 on 7) with overlapping role cause confusion.",
+      "tags": [
+        "feature_selection_rationale",
+        "definition_variable_guard",
+        "variable_definition_ambiguous"
+      ],
+      "reviewer": "Reviewer #3",
+      "round": 2,
+      "mlgg_gates": [
+        "definition_variable_guard",
+        "feature_lineage_gate",
+        "feature_engineering_audit_gate"
+      ],
+      "mlgg_rules": [
+        "F01"
+      ],
+      "author_response": "Added explicit selection-process figure + text rationalizing 7-variable SMART; distinguished GMM-on-36 (alpha/beta) vs GMM-on-7 (CIS1/CIS2); clarified post-hoc XAI interpretation is not built into model.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-113-C06",
+      "category": "reporting",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 9,
+      "concern_text": "Code not available at initial submission; only pseudocode provided; documentation insufficient to reproduce analyses or link scripts to specific figures/transcriptomic results.",
+      "tags": [
+        "no_code_availability",
+        "irreproducible_methods",
+        "documentation_missing"
+      ],
+      "reviewer": "Reviewer #1",
+      "round": 1,
+      "mlgg_gates": [
+        "reporting_compliance_gate",
+        "execution_attestation_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Uploaded code repository with STROBE-style diagram, execution videos; by round 2 improved README, dependency list, script-to-result mapping; transcriptomic reproducibility partially resolved.",
+      "resolved": true
+    }
+  ],
+  "journal": "Nature Communications",
+  "review_rounds": 3,
+  "reviewer_strengths": [
+    "multi_cohort_external_validation",
+    "translational_scorecard_SMART",
+    "explainability_analysis"
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": [],
+  "key_methodology_issues": [
+    "smote_leakage_risk_pre_split",
+    "cv_split_strategy_ambiguous",
+    "missing_statistical_comparison_auc"
+  ]
+}

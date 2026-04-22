@@ -1,0 +1,168 @@
+{
+  "id": "PR-111",
+  "paper_doi": "10.1038/s41467-025-61515-5",
+  "paper_title": "Plasma proteomics for biomarker discovery in childhood tuberculosis",
+  "year": 2025,
+  "domain": "pediatric_infectious_disease",
+  "prediction_task": "Binary classification of Confirmed TB vs Unlikely TB (non-TB respiratory disease) in children using plasma proteomic signatures from DIA-PASEF mass spectrometry (untargeted proteomics, case-control design, cross-sectional)",
+  "model_types": [
+    "lasso_logistic_regression",
+    "logistic_regression"
+  ],
+  "data_type": "plasma_proteomics",
+  "sample_size": 511,
+  "reviewer_concerns": [
+    {
+      "concern_id": "PR-111-C01",
+      "category": "split_protocol",
+      "severity": "CRITICAL",
+      "mlgg_dimension": 2,
+      "concern_text": "Every candidate model from the all-combinations search was evaluated on the 25% test set, effectively turning the test set into a second training step and inflating performance via multiple testing.",
+      "tags": [
+        "test_set_reuse",
+        "multiple_testing",
+        "model_selection_on_test",
+        "single_split"
+      ],
+      "reviewer": "Reviewer #5",
+      "round": 2,
+      "mlgg_gates": [
+        "split_protocol_gate",
+        "leakage_gate",
+        "tuning_leakage_gate",
+        "model_selection_audit_gate"
+      ],
+      "mlgg_rules": [
+        "M01"
+      ],
+      "author_response": "Conceded the caveat; added limitations-section statement that biosignatures were evaluated on a test set (not fully independent hold-out) and performance should be read as exploratory rather than confirmatory.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-111-C02",
+      "category": "reporting",
+      "severity": "HIGH",
+      "mlgg_dimension": 9,
+      "concern_text": "LASSO cross-validation type, hyperparameters, and software details not specified; combinatorial 'linear' models were actually logistic regression, and scikit-learn call / CV scheme for feature selection unreported.",
+      "tags": [
+        "cv_strategy_unspecified",
+        "irreproducible_methods",
+        "model_description_unclear",
+        "no_code_availability"
+      ],
+      "reviewer": "Reviewer #5",
+      "round": 1,
+      "mlgg_gates": [
+        "reporting_compliance_gate",
+        "reproducibility",
+        "feature_engineering_audit_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Added 'Computational packages utilized' section, clarified LogisticRegression(penalty='l2') with default scikit-learn 1.5.1, corrected 'linear'->'logistic', published code on GitHub.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-111-C03",
+      "category": "preprocessing",
+      "severity": "HIGH",
+      "mlgg_dimension": 1,
+      "concern_text": "Two different imputation strategies applied at 50% and 10% missingness thresholds without rationale, and per-marker missingness (up to >70% for IGLL5, IGLV3-9) not originally reported, risking spurious biomarker selection.",
+      "tags": [
+        "imputation_policy",
+        "missingness_reporting",
+        "missing_data_unreported",
+        "feature_quality"
+      ],
+      "reviewer": "Reviewer #5",
+      "round": 1,
+      "mlgg_gates": [
+        "missingness_policy_gate",
+        "feature_lineage_gate",
+        "feature_engineering_audit_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Provided mechanistic rationale for dual imputation (detection-limit vs absent); re-ran biosignature with 50% missingness cap pre-LASSO, dropped IGLs, new 5/6-protein signatures at AUC 0.87/0.88.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-111-C04",
+      "category": "external_validation",
+      "severity": "HIGH",
+      "mlgg_dimension": 6,
+      "concern_text": "No independent validation cohort; 25% held-out split presented as 'validation' serves only bioinformatic role; generalization across countries/age/HIV subgroups untested.",
+      "tags": [
+        "no_external_validation",
+        "single_split",
+        "generalizability",
+        "validation_cohort_missing"
+      ],
+      "reviewer": "Reviewer #2",
+      "round": 1,
+      "mlgg_gates": [
+        "external_validation_gate",
+        "distribution_generalization_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Acknowledged lack of independent cohort; noted planned prospective validation several years away; added it as a future-direction limitation.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-111-C05",
+      "category": "study_design",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 11,
+      "concern_text": "No subgroup analyses by age <2, sex, HIV, nutritional status despite significant HIV/malnutrition imbalance between TB and Unlikely TB groups (potential confounding of proteomic signature).",
+      "tags": [
+        "subgroup_analysis_missing",
+        "confounding",
+        "fairness",
+        "missing_demographics"
+      ],
+      "reviewer": "Reviewer #3",
+      "round": 1,
+      "mlgg_gates": [
+        "fairness_equity_gate",
+        "cohort_definition_gate",
+        "covariate_shift_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Ran chi-square tests — HIV (p=0.033) and malnutrition (p=0.012) significantly associated with TB; added Table 1 statistics and limitation text; declined subgroup model refits due to sample size.",
+      "resolved": true
+    },
+    {
+      "concern_id": "PR-111-C06",
+      "category": "model_selection",
+      "severity": "MEDIUM",
+      "mlgg_dimension": 4,
+      "concern_text": "Only logistic regression evaluated; tree-based and non-linear methods not reported; rationale for restricting to logistic was post-hoc and results of other methods (XGBoost, RF, SVM) were 'data not shown'.",
+      "tags": [
+        "model_justification",
+        "ablation_missing",
+        "baseline_comparison_incomplete"
+      ],
+      "reviewer": "Reviewer #5",
+      "round": 2,
+      "mlgg_gates": [
+        "model_selection_audit_gate",
+        "reporting_bias_gate"
+      ],
+      "mlgg_rules": [],
+      "author_response": "Stated NaiveBayes, SVM, RF, AdaBoost, XGBoost and ensembling were evaluated internally with similar performance; logistic chosen for interpretability and stability on small feature subsets.",
+      "resolved": true
+    }
+  ],
+  "journal": "Nature Communications",
+  "review_rounds": 3,
+  "reviewer_strengths": [
+    "large_pediatric_cohort",
+    "geographic_diversity",
+    "clinically_relevant_control_arm"
+  ],
+  "outcome": "accepted_after_major_revision",
+  "key_methodology_strengths": [],
+  "key_methodology_issues": [
+    "test_set_reuse_across_combinations",
+    "missingness_imputation_policy",
+    "single_split_no_external_cohort"
+  ]
+}
