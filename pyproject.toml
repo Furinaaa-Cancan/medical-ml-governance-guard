@@ -58,6 +58,19 @@ markers = [
     "slow: marks tests as slow (skipped in ci-unit with -m 'not slow')",
     "timeout: marks tests with a maximum execution timeout (requires pytest-timeout)",
 ]
+# Scenario scripts under experiments/paper/redteam/r* are executable demos
+# (pandas.read_csv at module level against missing fixtures), not pytest
+# test modules. They were causing 54 collection errors when pytest scanned
+# the repo. Keep them as documentation, exclude from collection.
+norecursedirs = [
+    "experiments/paper/redteam/r1",
+    "experiments/paper/redteam/r2",
+    "experiments/paper/redteam/r3",
+    "experiments/paper/redteam/r4",
+    "experiments/paper/benchmark/snippets",
+    ".git", ".hypothesis", ".mypy_cache", ".pytest_cache", ".ruff_cache",
+    "build", "dist", "node_modules",
+]
 
 [tool.setuptools.packages.find]
 include = ["scripts*", "references*"]
