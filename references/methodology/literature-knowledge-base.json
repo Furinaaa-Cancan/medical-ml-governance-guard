@@ -1,7 +1,7 @@
 {
   "contract_version": "literature_knowledge_base.v1",
   "description": "Curated top-journal literature database for medical ML prediction methodology. Only includes publications from high-impact journals (IF>10), authoritative guidelines (EQUATOR/Cochrane/FDA), or foundational statistical methods papers. Agents should query this database when evaluating methodology or justifying gate requirements.",
-  "last_updated": "2026-03-20",
+  "last_updated": "2026-04-22",
   "categories": {
     "reporting_guideline": "报告指南 — TRIPOD+AI, STARD-AI, CONSORT-AI, SPIRIT-AI",
     "risk_of_bias": "偏倚风险评估 — PROBAST+AI, risk of bias tools",
@@ -12,9 +12,10 @@
     "validation": "外部验证方法学 — external validation, transport, generalization",
     "reproducibility": "可重复性与透明性 — SLSA, attestation, open science",
     "systematic_review": "系统评价方法学 — ML vs regression, data quality, meta-analysis",
-    "statistical_validity": "统计有效性方法学 — multiplicity, pre-specification, power"
+    "statistical_validity": "统计有效性方法学 — multiplicity, pre-specification, power",
+    "deployment_monitoring": "后部署监控 — drift monitoring / silent trials / postmarket surveillance / deployment lifecycle"
   },
-  "total_entries_note": "LIT-001 through LIT-058 as of 2026-03-20. Next entry: LIT-059.",
+  "total_entries_note": "LIT-001 through LIT-066 as of 2026-04-22. Next entry: LIT-067.",
   "quality_criteria": {
     "inclusion": [
       "Published in journal with IF > 10 OR domain-leading specialty journal",
@@ -46,8 +47,12 @@
         "Harmonized terminology between ML and clinical research",
         "Abstract checklist (TRIPOD+AI for Abstracts)"
       ],
-      "gates_implementing": ["reporting_bias_gate"],
-      "dimensions_affected": [8],
+      "gates_implementing": [
+        "reporting_bias_gate"
+      ],
+      "dimensions_affected": [
+        8
+      ],
       "url": "https://pubmed.ncbi.nlm.nih.gov/38626948/"
     },
     {
@@ -66,8 +71,12 @@
         "Aligned with TRIPOD+AI for consistent reporting",
         "High interrater reliability demonstrated"
       ],
-      "gates_implementing": ["reporting_bias_gate"],
-      "dimensions_affected": [8],
+      "gates_implementing": [
+        "reporting_bias_gate"
+      ],
+      "dimensions_affected": [
+        8
+      ],
       "url": "https://pubmed.ncbi.nlm.nih.gov/40127903/"
     },
     {
@@ -86,8 +95,12 @@
         "Algorithmic bias and fairness considerations",
         "Applicability and generalizability assessment"
       ],
-      "gates_implementing": ["reporting_bias_gate"],
-      "dimensions_affected": [8],
+      "gates_implementing": [
+        "reporting_bias_gate"
+      ],
+      "dimensions_affected": [
+        8
+      ],
       "url": "https://pubmed.ncbi.nlm.nih.gov/40954311/"
     },
     {
@@ -107,7 +120,9 @@
       ],
       "gates_implementing": [],
       "applicability_note": "Not applicable to binary classification pipeline gates; LLM-specific reporting standard",
-      "dimensions_affected": [8],
+      "dimensions_affected": [
+        8
+      ],
       "url": "https://www.nature.com/articles/s41591-024-03425-5"
     },
     {
@@ -126,8 +141,12 @@
         "pmsampsize R package for calculation",
         "Four criteria: small optimism, small absolute difference, precise overall risk, precise CI"
       ],
-      "gates_implementing": ["sample_size_gate"],
-      "dimensions_affected": [5],
+      "gates_implementing": [
+        "sample_size_gate"
+      ],
+      "dimensions_affected": [
+        5
+      ],
       "url": "https://pubmed.ncbi.nlm.nih.gov/30357870/"
     },
     {
@@ -145,8 +164,12 @@
         "Synthetic dataset for joint predictor distribution",
         "Assurance-based targeting of predictive performance"
       ],
-      "gates_implementing": ["sample_size_gate"],
-      "dimensions_affected": [5],
+      "gates_implementing": [
+        "sample_size_gate"
+      ],
+      "dimensions_affected": [
+        5
+      ],
       "url": "https://arxiv.org/abs/2504.18730"
     },
     {
@@ -164,8 +187,12 @@
         "ML models likely require larger sample than regression",
         "Median deficit of 302 event participants"
       ],
-      "gates_implementing": ["sample_size_gate"],
-      "dimensions_affected": [5],
+      "gates_implementing": [
+        "sample_size_gate"
+      ],
+      "dimensions_affected": [
+        5
+      ],
       "url": "https://www.sciencedirect.com/science/article/pii/S0895435625000083"
     },
     {
@@ -183,8 +210,12 @@
         "Good Machine Learning Practice (FDA/MHRA/HC) principles apply",
         "Sample size considerations critical for model reliability"
       ],
-      "gates_implementing": ["sample_size_gate"],
-      "dimensions_affected": [5],
+      "gates_implementing": [
+        "sample_size_gate"
+      ],
+      "dimensions_affected": [
+        5
+      ],
       "url": "https://www.thelancet.com/journals/landig/article/PIIS2589-7500(25)00021-4/fulltext"
     },
     {
@@ -202,8 +233,15 @@
         "Small samples amplify leakage effects",
         "Must account for all leakage sources before claiming performance"
       ],
-      "gates_implementing": ["leakage_gate", "split_protocol_gate", "feature_engineering_audit_gate"],
-      "dimensions_affected": [1, 2],
+      "gates_implementing": [
+        "leakage_gate",
+        "split_protocol_gate",
+        "feature_engineering_audit_gate"
+      ],
+      "dimensions_affected": [
+        1,
+        2
+      ],
       "url": "https://www.nature.com/articles/s41467-024-46150-w"
     },
     {
@@ -221,8 +259,13 @@
         "Temporal awareness needed for diagnosis code predictors",
         "Codes assigned during encounter may encode the predicted outcome"
       ],
-      "gates_implementing": ["definition_variable_guard", "feature_lineage_gate"],
-      "dimensions_affected": [2],
+      "gates_implementing": [
+        "definition_variable_guard",
+        "feature_lineage_gate"
+      ],
+      "dimensions_affected": [
+        2
+      ],
       "url": "https://jamanetwork.com/journals/jamanetworkopen/fullarticle/2843179"
     },
     {
@@ -240,8 +283,14 @@
         "When corrected, ML models did not outperform older methods",
         "Proposed model info sheets for prevention"
       ],
-      "gates_implementing": ["leakage_gate", "tuning_leakage_gate"],
-      "dimensions_affected": [2, 3],
+      "gates_implementing": [
+        "leakage_gate",
+        "tuning_leakage_gate"
+      ],
+      "dimensions_affected": [
+        2,
+        3
+      ],
       "url": "https://www.cell.com/patterns/fulltext/S2666-3899(23)00159-9"
     },
     {
@@ -259,8 +308,13 @@
         "REFORMS and PROBAST-AI quality assessment recommended",
         "Careful exclusion of biased studies needed in meta-analyses"
       ],
-      "gates_implementing": ["leakage_gate", "publication_gate"],
-      "dimensions_affected": [2],
+      "gates_implementing": [
+        "leakage_gate",
+        "publication_gate"
+      ],
+      "dimensions_affected": [
+        2
+      ],
       "url": "https://www.nature.com/articles/s41380-025-03336-y"
     },
     {
@@ -278,8 +332,14 @@
         "Mitigation via disentanglement, federated learning, explainability",
         "Framework for assessing AI fairness in clinical workflows"
       ],
-      "gates_implementing": ["fairness_equity_gate", "robustness_gate"],
-      "dimensions_affected": [6, 7],
+      "gates_implementing": [
+        "fairness_equity_gate",
+        "robustness_gate"
+      ],
+      "dimensions_affected": [
+        6,
+        7
+      ],
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10632090/"
     },
     {
@@ -297,8 +357,12 @@
         "Applicable across multiple medical disciplines",
         "Label-efficient approach for fairness improvement"
       ],
-      "gates_implementing": ["fairness_equity_gate"],
-      "dimensions_affected": [6],
+      "gates_implementing": [
+        "fairness_equity_gate"
+      ],
+      "dimensions_affected": [
+        6
+      ],
       "url": "https://www.nature.com/articles/s41591-024-02838-6"
     },
     {
@@ -316,8 +380,12 @@
         "Data collection must reflect population diversity",
         "Special consideration for subgroup nuances"
       ],
-      "gates_implementing": ["fairness_equity_gate"],
-      "dimensions_affected": [6],
+      "gates_implementing": [
+        "fairness_equity_gate"
+      ],
+      "dimensions_affected": [
+        6
+      ],
       "url": "https://www.nature.com/articles/s41746-025-01503-7"
     },
     {
@@ -334,8 +402,12 @@
         "Evidence gaps in clinical AI fairness implementation",
         "Need for standardized fairness assessment frameworks"
       ],
-      "gates_implementing": ["fairness_equity_gate"],
-      "dimensions_affected": [6],
+      "gates_implementing": [
+        "fairness_equity_gate"
+      ],
+      "dimensions_affected": [
+        6
+      ],
       "url": "https://www.nature.com/articles/s41746-025-01667-2"
     },
     {
@@ -353,8 +425,12 @@
         "Accuracy reduction must be <10% after mitigation",
         "Alert rate change must be <20% after mitigation"
       ],
-      "gates_implementing": ["fairness_equity_gate"],
-      "dimensions_affected": [6],
+      "gates_implementing": [
+        "fairness_equity_gate"
+      ],
+      "dimensions_affected": [
+        6
+      ],
       "url": "https://www.nature.com/articles/s41746-025-01732-w"
     },
     {
@@ -373,7 +449,9 @@
       ],
       "gates_implementing": [],
       "applicability_note": "Not applicable to binary classification pipeline gates; RCT intervention-specific reporting standard",
-      "dimensions_affected": [8],
+      "dimensions_affected": [
+        8
+      ],
       "url": "https://www.thelancet.com/journals/landig/article/PIIS2589-7500(20)30218-1/fulltext"
     },
     {
@@ -392,7 +470,9 @@
       ],
       "gates_implementing": [],
       "applicability_note": "Not applicable to binary classification pipeline gates; RCT protocol-specific reporting standard",
-      "dimensions_affected": [8],
+      "dimensions_affected": [
+        8
+      ],
       "url": "https://www.thelancet.com/journals/landig/article/PIIS2589-7500(20)30219-3/fulltext"
     },
     {
@@ -410,8 +490,13 @@
         "Category-based and category-free (continuous) NRI",
         "Standard method for comparing prediction models"
       ],
-      "gates_implementing": ["evaluation_quality_gate"],
-      "dimensions_affected": [5, 7],
+      "gates_implementing": [
+        "evaluation_quality_gate"
+      ],
+      "dimensions_affected": [
+        5,
+        7
+      ],
       "url": "https://pubmed.ncbi.nlm.nih.gov/17907247/"
     },
     {
@@ -428,8 +513,12 @@
         "Standard method for model comparison in medical prediction",
         "Required by Nature Medicine, JAMA, Lancet for model comparisons"
       ],
-      "gates_implementing": ["evaluation_quality_gate"],
-      "dimensions_affected": [5],
+      "gates_implementing": [
+        "evaluation_quality_gate"
+      ],
+      "dimensions_affected": [
+        5
+      ],
       "url": "https://pubmed.ncbi.nlm.nih.gov/3203132/"
     },
     {
@@ -447,8 +536,13 @@
         "Standard for demonstrating model value in clinical practice",
         "Required by BMJ, Lancet DH for prediction model studies"
       ],
-      "gates_implementing": ["calibration_dca_gate"],
-      "dimensions_affected": [5, 7],
+      "gates_implementing": [
+        "calibration_dca_gate"
+      ],
+      "dimensions_affected": [
+        5,
+        7
+      ],
       "url": "https://pubmed.ncbi.nlm.nih.gov/16818232/"
     },
     {
@@ -466,8 +560,16 @@
         "Platform-trust-boundary guarantees",
         "Standardized attestation envelope format"
       ],
-      "gates_implementing": ["execution_attestation_gate", "security_audit_gate", "manifest_lock", "prediction_replay_gate"],
-      "dimensions_affected": [9, 10],
+      "gates_implementing": [
+        "execution_attestation_gate",
+        "security_audit_gate",
+        "manifest_lock",
+        "prediction_replay_gate"
+      ],
+      "dimensions_affected": [
+        9,
+        10
+      ],
       "url": "https://slsa.dev/spec/v1.0/requirements"
     },
     {
@@ -485,8 +587,12 @@
         "No single algorithm excels across all metrics",
         "Fairness, accuracy, generalizability, stability, parsimony must be balanced"
       ],
-      "gates_implementing": ["model_selection_audit_gate"],
-      "dimensions_affected": [4],
+      "gates_implementing": [
+        "model_selection_audit_gate"
+      ],
+      "dimensions_affected": [
+        4
+      ],
       "url": "https://www.jmir.org/2025/1/e77721"
     },
     {
@@ -503,8 +609,14 @@
         "Train/test distribution drift checks",
         "Feature drift monitoring"
       ],
-      "gates_implementing": ["covariate_shift_gate", "leakage_gate"],
-      "dimensions_affected": [1, 2],
+      "gates_implementing": [
+        "covariate_shift_gate",
+        "leakage_gate"
+      ],
+      "dimensions_affected": [
+        1,
+        2
+      ],
       "url": "https://github.com/deepchecks/deepchecks"
     },
     {
@@ -523,8 +635,14 @@
         "Representative data for intended patient population",
         "Focus on model performance on clinically relevant subgroups"
       ],
-      "gates_implementing": ["reporting_bias_gate", "fairness_equity_gate"],
-      "dimensions_affected": [6, 8],
+      "gates_implementing": [
+        "reporting_bias_gate",
+        "fairness_equity_gate"
+      ],
+      "dimensions_affected": [
+        6,
+        8
+      ],
       "url": "https://www.fda.gov/medical-devices/software-medical-device-samd/good-machine-learning-practice-medical-device-development-guiding-principles"
     },
     {
@@ -542,8 +660,12 @@
         "ML algorithms likely require even larger samples than regression",
         "Sample size applies to penalized regression and ML alike"
       ],
-      "gates_implementing": ["sample_size_gate"],
-      "dimensions_affected": [5],
+      "gates_implementing": [
+        "sample_size_gate"
+      ],
+      "dimensions_affected": [
+        5
+      ],
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12106283/"
     },
     {
@@ -560,8 +682,12 @@
         "Demonstrated on COVID-19 screening and discharge prediction",
         "Addresses fairness-accuracy tradeoff"
       ],
-      "gates_implementing": ["fairness_equity_gate"],
-      "dimensions_affected": [6],
+      "gates_implementing": [
+        "fairness_equity_gate"
+      ],
+      "dimensions_affected": [
+        6
+      ],
       "url": "https://www.nature.com/articles/s42256-023-00697-3"
     },
     {
@@ -579,8 +705,14 @@
         "Calibration alongside discrimination is essential",
         "Multi-metric evaluation framework for medical AI"
       ],
-      "gates_implementing": ["calibration_dca_gate", "clinical_metrics_gate"],
-      "dimensions_affected": [5, 7],
+      "gates_implementing": [
+        "calibration_dca_gate",
+        "clinical_metrics_gate"
+      ],
+      "dimensions_affected": [
+        5,
+        7
+      ],
       "url": "https://www.thelancet.com/journals/landig/article/PIIS2589-7500(25)00098-6/fulltext"
     },
     {
@@ -599,8 +731,13 @@
         "Data governance and bias prevention requirements",
         "Post-market monitoring obligations"
       ],
-      "gates_implementing": ["security_audit_gate"],
-      "dimensions_affected": [8, 10],
+      "gates_implementing": [
+        "security_audit_gate"
+      ],
+      "dimensions_affected": [
+        8,
+        10
+      ],
       "url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj"
     },
     {
@@ -619,8 +756,13 @@
         "Report transportability: performance gap between development and external cohort",
         "Recalibration strategies when external performance degrades"
       ],
-      "gates_implementing": ["external_validation_gate", "distribution_generalization_gate"],
-      "dimensions_affected": [6],
+      "gates_implementing": [
+        "external_validation_gate",
+        "distribution_generalization_gate"
+      ],
+      "dimensions_affected": [
+        6
+      ],
       "url": "https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1001381"
     },
     {
@@ -639,8 +781,14 @@
         "Train-test gap analysis must account for temporal and geographic distribution differences",
         "Clinicians should understand that AI performance metrics may not generalize"
       ],
-      "gates_implementing": ["generalization_gap_gate", "covariate_shift_gate", "distribution_generalization_gate"],
-      "dimensions_affected": [6],
+      "gates_implementing": [
+        "generalization_gap_gate",
+        "covariate_shift_gate",
+        "distribution_generalization_gate"
+      ],
+      "dimensions_affected": [
+        6
+      ],
       "url": "https://www.nejm.org/doi/10.1056/NEJMc2104626"
     },
     {
@@ -659,8 +807,16 @@
         "Multi-metric evaluation is more robust than single-metric ranking",
         "Statistical significance testing required before claiming superiority of one method"
       ],
-      "gates_implementing": ["seed_stability_gate", "robustness_gate", "ci_matrix_gate"],
-      "dimensions_affected": [5, 6, 9],
+      "gates_implementing": [
+        "seed_stability_gate",
+        "robustness_gate",
+        "ci_matrix_gate"
+      ],
+      "dimensions_affected": [
+        5,
+        6,
+        9
+      ],
       "url": "https://www.nature.com/articles/s41467-018-07619-7"
     },
     {
@@ -679,8 +835,12 @@
         "Imputation model must include outcome variable and all predictors",
         "Number of imputations should reflect fraction of missing information"
       ],
-      "gates_implementing": ["missingness_policy_gate"],
-      "dimensions_affected": [3],
+      "gates_implementing": [
+        "missingness_policy_gate"
+      ],
+      "dimensions_affected": [
+        3
+      ],
       "url": "https://pubmed.ncbi.nlm.nih.gov/19564179/"
     },
     {
@@ -699,8 +859,12 @@
         "Imputation strategy at development should consider whether missingness occurs at deployment",
         "NOT a blanket endorsement of single imputation — performance depends on missing rate and mechanism"
       ],
-      "gates_implementing": ["missingness_policy_gate"],
-      "dimensions_affected": [3],
+      "gates_implementing": [
+        "missingness_policy_gate"
+      ],
+      "dimensions_affected": [
+        3
+      ],
       "url": "https://pubmed.ncbi.nlm.nih.gov/37105540/",
       "note": "Key paper for prediction-specific imputation. Supersedes general MI advice (Sterne 2009) for prediction model context."
     },
@@ -720,8 +884,15 @@
         "Prevalence-adjusted metrics (PR-AUC, Brier score) are preferable to accuracy for imbalanced data",
         "Decision curve analysis should be used to evaluate clinical utility under true prevalence"
       ],
-      "gates_implementing": ["imbalance_policy_gate", "metric_consistency_gate", "calibration_dca_gate"],
-      "dimensions_affected": [5, 7],
+      "gates_implementing": [
+        "imbalance_policy_gate",
+        "metric_consistency_gate",
+        "calibration_dca_gate"
+      ],
+      "dimensions_affected": [
+        5,
+        7
+      ],
       "url": "https://pubmed.ncbi.nlm.nih.gov/35640166/"
     },
     {
@@ -740,8 +911,12 @@
         "Appropriate for any performance metric (AUC, PR-AUC, accuracy) without distributional assumptions",
         "Minimum 1000 permutation iterations recommended for stable p-value estimation"
       ],
-      "gates_implementing": ["permutation_significance_gate"],
-      "dimensions_affected": [5],
+      "gates_implementing": [
+        "permutation_significance_gate"
+      ],
+      "dimensions_affected": [
+        5
+      ],
       "url": "https://www.jmlr.org/papers/v11/ojala10a.html"
     },
     {
@@ -760,8 +935,15 @@
         "Limitation documentation is required for honest scientific communication",
         "Self-assessment of methodological rigor should precede peer review"
       ],
-      "gates_implementing": ["self_critique_gate", "request_contract_gate", "reporting_bias_gate"],
-      "dimensions_affected": [8, 9],
+      "gates_implementing": [
+        "self_critique_gate",
+        "request_contract_gate",
+        "reporting_bias_gate"
+      ],
+      "dimensions_affected": [
+        8,
+        9
+      ],
       "url": "https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1001098"
     },
     {
@@ -782,10 +964,18 @@
         "Subgroup analysis and failure mode analysis required for publication",
         "AI system availability (commercial vs open source) must be stated"
       ],
-      "applies_to_prediction_types": ["binary"],
-      "applicable_study_types": ["diagnostic_test_accuracy"],
-      "gates_implementing": ["reporting_bias_gate"],
-      "dimensions_affected": [8],
+      "applies_to_prediction_types": [
+        "binary"
+      ],
+      "applicable_study_types": [
+        "diagnostic_test_accuracy"
+      ],
+      "gates_implementing": [
+        "reporting_bias_gate"
+      ],
+      "dimensions_affected": [
+        8
+      ],
       "mlgg_reference_file": "references/standards/stard-ai-checklist.json",
       "url": "https://bmjopen.bmj.com/content/11/6/e047709"
     },
@@ -807,9 +997,18 @@
         "Calibration assessment required for Low ROB in Analysis domain",
         "Baseline comparator required for Low ROB in Analysis domain"
       ],
-      "applies_to_prediction_types": ["binary", "multiclass", "regression", "survival"],
-      "gates_implementing": ["reporting_bias_gate"],
-      "dimensions_affected": [8],
+      "applies_to_prediction_types": [
+        "binary",
+        "multiclass",
+        "regression",
+        "survival"
+      ],
+      "gates_implementing": [
+        "reporting_bias_gate"
+      ],
+      "dimensions_affected": [
+        8
+      ],
       "mlgg_reference_file": "references/standards/probast-ai-signalling-questions.json",
       "url": "https://pubmed.ncbi.nlm.nih.gov/30596875/"
     },
@@ -829,9 +1028,20 @@
         "Model architecture, training data characteristics, and inference speed should be reported",
         "Comparison to human expert performance recommended for diagnostic AI"
       ],
-      "applies_to_prediction_types": ["binary", "multiclass"],
-      "gates_implementing": ["reporting_bias_gate", "fairness_equity_gate", "external_validation_gate"],
-      "dimensions_affected": [6, 7, 8],
+      "applies_to_prediction_types": [
+        "binary",
+        "multiclass"
+      ],
+      "gates_implementing": [
+        "reporting_bias_gate",
+        "fairness_equity_gate",
+        "external_validation_gate"
+      ],
+      "dimensions_affected": [
+        6,
+        7,
+        8
+      ],
       "url": "https://www.nature.com/articles/s41591-021-01614-0"
     },
     {
@@ -853,9 +1063,17 @@
         "Discrimination (AUC) and calibration both required",
         "Internal and external validation described separately"
       ],
-      "applies_to_prediction_types": ["binary", "multiclass", "regression"],
-      "gates_implementing": ["reporting_bias_gate"],
-      "dimensions_affected": [8],
+      "applies_to_prediction_types": [
+        "binary",
+        "multiclass",
+        "regression"
+      ],
+      "gates_implementing": [
+        "reporting_bias_gate"
+      ],
+      "dimensions_affected": [
+        8
+      ],
       "url": "https://pubmed.ncbi.nlm.nih.gov/25592542/"
     },
     {
@@ -874,9 +1092,14 @@
         "Per-class sensitivity floors should be specified for each class separately",
         "Confusion matrix completeness (K×K) is required for multiclass reporting"
       ],
-      "applies_to_prediction_types": ["multiclass"],
+      "applies_to_prediction_types": [
+        "multiclass"
+      ],
       "gates_implementing": [],
-      "dimensions_affected": [5, 7],
+      "dimensions_affected": [
+        5,
+        7
+      ],
       "note": "Cited as methodology reference for planned multiclass gate pack (MLGG v1.1)",
       "url": "https://pubmed.ncbi.nlm.nih.gov/33303504/"
     },
@@ -896,9 +1119,18 @@
         "Net reclassification improvement (NRI) and IDI require careful interpretation",
         "Decision curve analysis preferred over NRI for clinical utility assessment"
       ],
-      "applies_to_prediction_types": ["binary", "survival"],
-      "gates_implementing": ["calibration_dca_gate", "external_validation_gate"],
-      "dimensions_affected": [5, 6],
+      "applies_to_prediction_types": [
+        "binary",
+        "survival"
+      ],
+      "gates_implementing": [
+        "calibration_dca_gate",
+        "external_validation_gate"
+      ],
+      "dimensions_affected": [
+        5,
+        6
+      ],
       "url": "https://pubmed.ncbi.nlm.nih.gov/23539986/"
     },
     {
@@ -916,9 +1148,18 @@
         "Pre-specified primary outcome required before analysis",
         "For prediction studies: pre-specified primary metric in request.json prevents metric cherry-picking"
       ],
-      "applies_to_prediction_types": ["binary", "multiclass", "regression"],
-      "gates_implementing": ["request_contract_gate", "clinical_metrics_gate"],
-      "dimensions_affected": [5],
+      "applies_to_prediction_types": [
+        "binary",
+        "multiclass",
+        "regression"
+      ],
+      "gates_implementing": [
+        "request_contract_gate",
+        "clinical_metrics_gate"
+      ],
+      "dimensions_affected": [
+        5
+      ],
       "url": "https://pubmed.ncbi.nlm.nih.gov/35363650/"
     },
     {
@@ -938,8 +1179,14 @@
         "Subgroup fairness evaluation required",
         "Do NOT use Hosmer-Lemeshow test"
       ],
-      "gates_implementing": ["calibration_dca_gate", "evaluation_quality_gate"],
-      "dimensions_affected": [5, 6],
+      "gates_implementing": [
+        "calibration_dca_gate",
+        "evaluation_quality_gate"
+      ],
+      "dimensions_affected": [
+        5,
+        6
+      ],
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10772854/"
     },
     {
@@ -960,8 +1207,16 @@
         "Cox-Snell R-squared for future sample size calculations",
         "Do NOT use Hosmer-Lemeshow test"
       ],
-      "gates_implementing": ["calibration_dca_gate", "external_validation_gate", "clinical_metrics_gate"],
-      "dimensions_affected": [5, 6, 7],
+      "gates_implementing": [
+        "calibration_dca_gate",
+        "external_validation_gate",
+        "clinical_metrics_gate"
+      ],
+      "dimensions_affected": [
+        5,
+        6,
+        7
+      ],
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10788734/"
     },
     {
@@ -981,8 +1236,14 @@
         "pmvalsampsize R/Stata package for calculations",
         "Inflate for anticipated missing data"
       ],
-      "gates_implementing": ["sample_size_gate", "external_validation_gate"],
-      "dimensions_affected": [6, 12],
+      "gates_implementing": [
+        "sample_size_gate",
+        "external_validation_gate"
+      ],
+      "dimensions_affected": [
+        6,
+        12
+      ],
       "url": "https://pubmed.ncbi.nlm.nih.gov/38253388/"
     },
     {
@@ -1004,8 +1265,16 @@
         "Do NOT categorize continuous predictors",
         "Decision curve analysis mandatory"
       ],
-      "gates_implementing": ["model_selection_audit_gate", "evaluation_quality_gate", "missingness_policy_gate"],
-      "dimensions_affected": [4, 5, 9],
+      "gates_implementing": [
+        "model_selection_audit_gate",
+        "evaluation_quality_gate",
+        "missingness_policy_gate"
+      ],
+      "dimensions_affected": [
+        4,
+        5,
+        9
+      ],
       "url": "https://pubmed.ncbi.nlm.nih.gov/39227063/"
     },
     {
@@ -1024,8 +1293,12 @@
         "Use DALYs/YLLs as equity-informing health outcome measures",
         "Subgroup analysis by race/ethnicity, sex, age"
       ],
-      "gates_implementing": ["fairness_equity_gate"],
-      "dimensions_affected": [11],
+      "gates_implementing": [
+        "fairness_equity_gate"
+      ],
+      "dimensions_affected": [
+        11
+      ],
       "url": "https://www.thelancet.com/journals/eclinm/article/PIIS2589-5370(24)00058-0/fulltext"
     },
     {
@@ -1043,8 +1316,12 @@
         "Bias propagation across ML pipeline stages",
         "Context-dependent metric selection"
       ],
-      "gates_implementing": ["fairness_equity_gate"],
-      "dimensions_affected": [11],
+      "gates_implementing": [
+        "fairness_equity_gate"
+      ],
+      "dimensions_affected": [
+        11
+      ],
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12436242/"
     },
     {
@@ -1062,8 +1339,13 @@
         "Clinical threshold probability must be pre-specified",
         "Traditional loss functions do not account for clinical consequences"
       ],
-      "gates_implementing": ["calibration_dca_gate"],
-      "dimensions_affected": [5, 7],
+      "gates_implementing": [
+        "calibration_dca_gate"
+      ],
+      "dimensions_affected": [
+        5,
+        7
+      ],
       "url": "https://www.sciencedirect.com/science/article/abs/pii/S1386505625000619"
     },
     {
@@ -1081,8 +1363,13 @@
         "Only 3/52 journals mandated CONSORT-AI",
         "Most under-reported: algorithm version, code accessibility, protocol references"
       ],
-      "gates_implementing": ["reporting_bias_gate"],
-      "dimensions_affected": [8, 9],
+      "gates_implementing": [
+        "reporting_bias_gate"
+      ],
+      "dimensions_affected": [
+        8,
+        9
+      ],
       "url": "https://www.nature.com/articles/s41467-024-45355-3"
     },
     {
@@ -1100,8 +1387,13 @@
         "Temporal feature audit: verify features available at prediction time point",
         "Features with OR >100 are potential leakage indicators"
       ],
-      "gates_implementing": ["leakage_gate", "definition_variable_guard"],
-      "dimensions_affected": [2],
+      "gates_implementing": [
+        "leakage_gate",
+        "definition_variable_guard"
+      ],
+      "dimensions_affected": [
+        2
+      ],
       "url": "https://jamanetwork.com/journals/jamanetworkopen/fullarticle/2843179"
     },
     {
@@ -1119,8 +1411,13 @@
         "Peer reviewers must scrutinize feature sets for temporal leakage",
         "Features with extreme predictive power (OR >100) are leakage red flags"
       ],
-      "gates_implementing": ["leakage_gate", "definition_variable_guard"],
-      "dimensions_affected": [2],
+      "gates_implementing": [
+        "leakage_gate",
+        "definition_variable_guard"
+      ],
+      "dimensions_affected": [
+        2
+      ],
       "url": "https://jamanetwork.com/journals/jamanetworkopen/fullarticle/2843183"
     },
     {
@@ -1136,8 +1433,12 @@
         "Updated assessment tool for measuring TRIPOD+AI adherence",
         "Standardized scoring methodology for compliance evaluation"
       ],
-      "gates_implementing": ["reporting_bias_gate"],
-      "dimensions_affected": [8],
+      "gates_implementing": [
+        "reporting_bias_gate"
+      ],
+      "dimensions_affected": [
+        8
+      ],
       "url": "https://www.sciencedirect.com/science/article/abs/pii/S0895435625004512"
     },
     {
@@ -1154,8 +1455,12 @@
         "CONSORT-AI and SPIRIT-AI extensions should be revisited for 2025",
         "Gap in unified AI trial reporting standards"
       ],
-      "gates_implementing": ["reporting_bias_gate"],
-      "dimensions_affected": [8],
+      "gates_implementing": [
+        "reporting_bias_gate"
+      ],
+      "dimensions_affected": [
+        8
+      ],
       "url": "https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(25)01268-1/fulltext"
     },
     {
@@ -1171,8 +1476,12 @@
         "High interrater reliability demonstrated for PROBAST",
         "Supports validity as standardized assessment instrument"
       ],
-      "gates_implementing": ["reporting_bias_gate"],
-      "dimensions_affected": [8],
+      "gates_implementing": [
+        "reporting_bias_gate"
+      ],
+      "dimensions_affected": [
+        8
+      ],
       "url": "https://www.jclinepi.com/article/S0895-4356(25)00152-0/fulltext"
     },
     {
@@ -1189,9 +1498,211 @@
         "Three criteria: global shrinkage ≤10%, optimism ≤0.05 in R-squared, precise average risk estimation",
         "Validates pmsampsize approach"
       ],
-      "gates_implementing": ["sample_size_gate"],
-      "dimensions_affected": [12],
+      "gates_implementing": [
+        "sample_size_gate"
+      ],
+      "dimensions_affected": [
+        12
+      ],
       "url": "https://link.springer.com/article/10.1186/s12874-024-02268-5"
+    },
+    {
+      "id": "LIT-059",
+      "doi": "10.1038/s41467-025-58606-8",
+      "title": "Data splitting to avoid information leakage with DataSAIL",
+      "authors": "Joeres R, Blumenthal DB, Kalinina OV",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "category": "leakage",
+      "impact_factor": 16.6,
+      "key_requirements": [
+        "Information leakage during training risks memorization rather than generalization, inflating performance metrics at deployment",
+        "Leakage-reduced splits should be formulated as combinatorial optimization, not naive random partitioning",
+        "Tool-enforced split protocols (clustering + ILP) demonstrate lower optimism than ad-hoc stratification for biomedical data",
+        "NP-hard formulation implies practical splits require scalable heuristics — declare the splitting algorithm in reports"
+      ],
+      "gates_implementing": [
+        "leakage_gate",
+        "split_protocol_gate"
+      ],
+      "dimensions_affected": [
+        1,
+        2
+      ],
+      "url": "https://www.nature.com/articles/s41467-025-58606-8"
+    },
+    {
+      "id": "LIT-060",
+      "doi": "10.1056/AIp2401116",
+      "title": "Challenges in the Postmarket Surveillance of Clinical Prediction Models",
+      "authors": "Ansari S, Baur B, Singh K, Admon AJ",
+      "journal": "NEJM AI",
+      "year": 2025,
+      "category": "deployment_monitoring",
+      "impact_factor": null,
+      "key_requirements": [
+        "Dataset shift causes post-deployment performance decay, but naive monitoring conflates decay with confounding medical interventions (treatment-outcome feedback)",
+        "Continuous monitoring is required by regulators but lacks actionable statistical procedures — papers claiming deployment must pre-specify a monitoring plan",
+        "Causal / counterfactual modeling should be considered to distinguish real decay from intervention-induced metric drift before retraining",
+        "Unwarranted retraining from mis-attributed decay is itself a governance risk"
+      ],
+      "gates_implementing": [
+        "covariate_shift_gate"
+      ],
+      "dimensions_affected": [
+        0,
+        7
+      ],
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40873499/"
+    },
+    {
+      "id": "LIT-061",
+      "doi": "10.1056/AIra2400657",
+      "title": "Not All Clinical AI Monitoring Systems Are Created Equal: Review and Recommendations",
+      "authors": "Feng J, Xia F, Singh K, Pirracchio R",
+      "journal": "NEJM AI",
+      "year": 2025,
+      "category": "deployment_monitoring",
+      "impact_factor": null,
+      "key_requirements": [
+        "Monitoring system design choices (criterion, data source, statistical test) materially change false-alarm and miss rates",
+        "Label-agnostic vs. outcome-conditional monitoring have different blind spots — both should be declared",
+        "Many operational monitoring pipelines lack transparent statistical justification and are not interchangeable",
+        "Recommend pre-specification of monitoring metric, threshold, re-assessment cadence before deployment"
+      ],
+      "gates_implementing": [
+        "covariate_shift_gate"
+      ],
+      "dimensions_affected": [
+        0,
+        7
+      ],
+      "url": "https://ai.nejm.org/doi/full/10.1056/AIra2400657"
+    },
+    {
+      "id": "LIT-062",
+      "doi": "10.1056/AIp2401088",
+      "title": "Tackling Algorithmic Bias and Promoting Transparency in Health Datasets: The STANDING Together Consensus Recommendations",
+      "authors": "Alderman JE, Palmer J, Laws E, McCradden MD, et al.",
+      "journal": "NEJM AI",
+      "year": 2025,
+      "category": "fairness",
+      "impact_factor": null,
+      "key_requirements": [
+        "29 Delphi-consensus recommendations (194 voters, 58 countries) for dataset documentation and use",
+        "Dataset curators must disclose composition, limitations, and subgroup representation",
+        "Dataset users must proactively evaluate model performance across subpopulations and document mitigation",
+        "Applies equally to tabular EHR/registry/case-control datasets feeding clinical prediction models"
+      ],
+      "gates_implementing": [
+        "fairness_equity_gate",
+        "reporting_bias_gate"
+      ],
+      "dimensions_affected": [
+        8,
+        9
+      ],
+      "url": "https://ai.nejm.org/doi/10.1056/AIp2401088"
+    },
+    {
+      "id": "LIT-063",
+      "doi": "10.1038/s41591-024-03364-1",
+      "title": "CANAIRI: the Collaboration for Translational Artificial Intelligence Trials in healthcare",
+      "authors": "McCradden MD, et al.",
+      "journal": "Nature Medicine",
+      "year": 2025,
+      "category": "reporting_guideline",
+      "impact_factor": 82.9,
+      "key_requirements": [
+        "International consensus process to standardize silent / translational evaluation of clinical AI before interventional trials",
+        "Bridges the gap between TRIPOD+AI (dev), DECIDE-AI (early clinical), and CONSORT-AI (RCT)",
+        "Prospective silent evaluation should be pre-registered and follow consistent reporting capabilities",
+        "Applies to binary clinical prediction models intended for deployment, not only imaging"
+      ],
+      "gates_implementing": [
+        "external_validation_gate",
+        "reporting_bias_gate"
+      ],
+      "dimensions_affected": [
+        3,
+        7,
+        8
+      ],
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39762426/"
+    },
+    {
+      "id": "LIT-064",
+      "doi": "10.1038/s41746-025-01506-4",
+      "title": "Clinical trials informed framework for real world clinical implementation and deployment of artificial intelligence applications",
+      "authors": "You JG, Hernandez-Boussard T, Pfeffer MA, Landman A, Mishuris RG",
+      "journal": "npj Digital Medicine",
+      "year": 2025,
+      "category": "validation",
+      "impact_factor": 15.1,
+      "key_requirements": [
+        "Four-phase framework: (1) Safety, (2) Efficacy, (3) Effectiveness vs existing standard, (4) Monitoring",
+        "Safety phase includes silent-mode observation (predictions logged but not acted on) before efficacy assessment",
+        "Phase gating before clinical act-upon deployment must be declared in publications",
+        "Ongoing monitoring phase must be institutionalized, not optional"
+      ],
+      "gates_implementing": [
+        "external_validation_gate"
+      ],
+      "dimensions_affected": [
+        7,
+        8
+      ],
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39962232/"
+    },
+    {
+      "id": "LIT-065",
+      "doi": "10.1038/s44360-025-00048-z",
+      "title": "A scoping review of silent trials for medical artificial intelligence",
+      "authors": "Tikhomirov L, et al.",
+      "journal": "Nature Health",
+      "year": 2026,
+      "category": "systematic_review",
+      "impact_factor": null,
+      "key_requirements": [
+        "75 silent-evaluation studies (2015-2025) analyzed; only 15 used the explicit 'silent' label — nomenclature inconsistency impedes reproducibility",
+        "Most silent evaluations concentrated in USA/China/UK — geographic generalizability gap",
+        "Implementation features (duration, clinician blinding, trigger criteria) are under-reported",
+        "Papers proposing clinical deployment should explicitly describe silent-evaluation design or justify its absence"
+      ],
+      "gates_implementing": [
+        "external_validation_gate"
+      ],
+      "dimensions_affected": [
+        7,
+        8
+      ],
+      "url": "https://www.nature.com/articles/s44360-025-00048-z"
+    },
+    {
+      "id": "LIT-066",
+      "doi": "10.1001/jamanetworkopen.2025.13685",
+      "title": "Detecting and Remediating Harmful Data Shifts for the Responsible Deployment of Clinical AI Models",
+      "authors": "Subasri V, et al.",
+      "journal": "JAMA Network Open",
+      "year": 2025,
+      "category": "validation",
+      "impact_factor": 10.5,
+      "key_requirements": [
+        "Label-agnostic monitoring pipeline using Maximum Mean Discrepancy (MMD) + black-box shift estimator detected drift without waiting for outcome labels",
+        "Empirically demonstrated across 143,049 patients from 7 Toronto hospitals (2010-2020) — multi-site retrospective cohort",
+        "Drift-triggered continual learning and transfer learning preserved discrimination and calibration; naive re-deployment did not",
+        "Papers claiming portable deployment across sites must report subgroup-level drift detection, not only aggregate AUROC"
+      ],
+      "gates_implementing": [
+        "covariate_shift_gate",
+        "distribution_generalization_gate",
+        "external_validation_gate"
+      ],
+      "dimensions_affected": [
+        7,
+        8
+      ],
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40465297/"
     }
   ],
   "agent_instructions": {
@@ -1200,6 +1711,38 @@
     "on_update": "If a guideline is updated (e.g., TRIPOD 2015 → TRIPOD+AI 2024), mark the old entry with 'superseded_by' field pointing to new entry ID",
     "quality_gate": "Only include: (1) Published in IF>10 journal OR domain-leading specialty, (2) Guidelines from EQUATOR/Cochrane/FDA/MHRA/EMA, (3) Foundational methodology papers (>500 citations), (4) Systematic reviews following PRISMA",
     "id_format": "LIT-NNN where NNN is zero-padded sequential number",
-    "required_fields": ["id", "doi", "title", "authors", "journal", "year", "category", "impact_factor", "key_requirements", "gates_implementing", "dimensions_affected", "url"]
-  }
+    "required_fields": [
+      "id",
+      "doi",
+      "title",
+      "authors",
+      "journal",
+      "year",
+      "category",
+      "impact_factor",
+      "key_requirements",
+      "gates_implementing",
+      "dimensions_affected",
+      "url"
+    ]
+  },
+  "change_log": [
+    {
+      "date": "2026-04-22",
+      "entries_added": [
+        "LIT-059",
+        "LIT-060",
+        "LIT-061",
+        "LIT-062",
+        "LIT-063",
+        "LIT-064",
+        "LIT-065",
+        "LIT-066"
+      ],
+      "categories_added": [
+        "deployment_monitoring"
+      ],
+      "note": "Targeted 2024-2026 top-journal methodology scan after NC / Nat Med / Lancet DH / NEJM AI / JAMA Open / npj Digital Medicine review. Adds: 1x Nature Communications (DataSAIL combinatorial split optimization), 3x NEJM AI (postmarket surveillance, monitoring-system review, STANDING Together consensus), 1x Nature Medicine (CANAIRI translational trials standard), 1x npj Digital Medicine (four-phase deployment framework), 1x Nature Health (silent-trial scoping review), 1x JAMA Netw Open (7-hospital drift-detection empirical). Each DOI WebFetch-verified. Surfaces two future-gate candidates that are NOT yet implemented in MLGG: silent_trial_gate, postmarket_surveillance_gate — tracked here as deployment_monitoring category entries for when MLGG scope extends to full deployment lifecycle."
+    }
+  ]
 }
