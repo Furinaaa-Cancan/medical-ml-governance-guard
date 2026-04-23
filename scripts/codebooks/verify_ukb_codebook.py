@@ -42,7 +42,7 @@ _COUNTS = {
     "fields_total":        ("SELECT COUNT(*) FROM fields;",                                                11821, 0.5),
     "categories_total":    ("SELECT COUNT(*) FROM categories;",                                              410, 5.0),
     "encodings_total":     ("SELECT COUNT(*) FROM encodings;",                                               858, 5.0),
-    "encoding_values":     ("SELECT COUNT(*) FROM encoding_values;",                                      466803, 1.0),
+    "encoding_values":     ("SELECT COUNT(*) FROM encoding_values;",                                      466907, 1.0),
     "icd10_codes":         ("SELECT COUNT(*) FROM encoding_values WHERE encoding_id=19;",                  19190, 0.5),
     "icd9_codes":          ("SELECT COUNT(*) FROM encoding_values WHERE encoding_id=87;",                  13709, 0.5),
     "opcs4_codes":         ("SELECT COUNT(*) FROM encoding_values WHERE encoding_id=240;",                 11288, 0.5),
@@ -115,13 +115,14 @@ _HARD = {
         "Private=1 fields must NEVER be labeled 'baseline' "
         "(leakage-guard would treat them as safe).",
     ),
-    # Alias floor: we committed 102 entries as of 2026-04-23. Dropping
-    # below this means someone deleted mappings; _HARD equality means
-    # any drift alerts, but additions are welcome (grow past this by
-    # bumping the number in the same commit).
+    # Alias floor: we committed 106 entries as of 2026-04-23 (after
+    # semantic audit fixed 5 incorrect first-occurrence mappings and
+    # added 4 specific-disease aliases). Drift alerts on any change;
+    # additions welcome — grow past this by bumping the number in
+    # the same commit.
     "alias_floor": (
         "SELECT COUNT(*) FROM aliases;",
-        102,
+        106,
         "Alias table shrank — medical-term lookups degrade. Re-add "
         "removed mappings in COMMON_ALIASES (build_ukb_codebook_db.py).",
     ),
@@ -160,6 +161,68 @@ _HARD = {
         264,
         "ICD-10 block-level codes must carry selectable=0. "
         "selectable parser may have regressed to Y/N heuristic.",
+    ),
+    # Hierarchical heading preservation: 2026-04-23 strict audit found
+    # 104 category-heading rows silently collapsed because the previous
+    # PK (encoding_id, code) didn't tolerate repeated code='-1' rows
+    # that UKB uses for non-leaf nodes in encodings 3/5/6/1003/1005/1006
+    # (Cancer / Operation / Non-cancer Illness self-reported trees, used
+    # by fields 20001/20002/20004). Fixed by widening PK with node_id
+    # (UKB's internal code_id). Pin the exact source-row counts so the
+    # bug can't silently return.
+    "enc5_operation_rows_complete": (
+        "SELECT COUNT(*) FROM encoding_values WHERE encoding_id=5;",
+        270,
+        "Operation tree (encoding 5, field 20004) lost rows — check "
+        "build PK / node_id handling in hierarchical loader.",
+    ),
+    "enc6_noncancer_illness_rows_complete": (
+        "SELECT COUNT(*) FROM encoding_values WHERE encoding_id=6;",
+        474,
+        "Non-cancer-illness tree (encoding 6, field 20002) lost rows.",
+    ),
+    "enc3_cancer_rows_complete": (
+        "SELECT COUNT(*) FROM encoding_values WHERE encoding_id=3;",
+        89,
+        "Cancer tree (encoding 3, field 20001) lost rows.",
+    ),
+    "enc1006_noncancer_retyped_rows_complete": (
+        "SELECT COUNT(*) FROM encoding_values WHERE encoding_id=1006;",
+        479,
+        "Non-cancer illness (re-typed) tree lost rows.",
+    ),
+    # Every hierarchical row with a parent_node_id must point to an
+    # existing node in the same encoding — verifies the heading-to-
+    # heading DAG is fully connected.
+    "hierarchical_parent_node_orphans": (
+        "SELECT COUNT(*) FROM encoding_values child "
+        "WHERE child.parent_node_id IS NOT NULL "
+        "AND NOT EXISTS ("
+        "  SELECT 1 FROM encoding_values parent "
+        "  WHERE parent.encoding_id=child.encoding_id "
+        "  AND parent.node_id=child.parent_node_id"
+        ");",
+        0,
+        "Some hierarchical rows reference a parent_node_id that doesn't "
+        "exist — DAG broken. Heading preservation or code_id parsing may "
+        "have regressed.",
+    ),
+    # FTS5 ↔ fields parity: every field must be searchable, no phantom
+    # FTS rows. If rebuild() was skipped or the trigger to sync missed
+    # an insert, lookups silently return nothing.
+    "fts_matches_fields_count": (
+        "SELECT (SELECT COUNT(*) FROM fields_fts) = (SELECT COUNT(*) FROM fields);",
+        1, "FTS5 row count drifted from fields — index out of sync.",
+    ),
+    "fts_missing_no_fields": (
+        "SELECT COUNT(*) FROM fields WHERE field_id NOT IN "
+        "(SELECT rowid FROM fields_fts);",
+        0, "Some fields have no FTS row — rebuild fields_fts.",
+    ),
+    "fts_no_phantom_rows": (
+        "SELECT COUNT(*) FROM fields_fts WHERE rowid NOT IN "
+        "(SELECT field_id FROM fields);",
+        0, "FTS5 has rows without a backing field — stale index.",
     ),
 }
 

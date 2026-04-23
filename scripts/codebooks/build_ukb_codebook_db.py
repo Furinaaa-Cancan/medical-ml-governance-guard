@@ -328,9 +328,28 @@ CREATE TABLE IF NOT EXISTS encoding_values (
     code TEXT NOT NULL,
     meaning TEXT NOT NULL,
     selectable INTEGER DEFAULT 1,
+    -- parent_code: parent's display value string. Sufficient when
+    -- the parent is uniquely identifiable by its code (ICD-10, OPCS-4).
+    -- Ambiguous when parent is a heading (value='-1') — use
+    -- parent_node_id in that case.
     parent_code TEXT,
-    PRIMARY KEY (encoding_id, code)
+    -- node_id: UKB's internal code_id for hierarchical rows; 0 for
+    -- simple encodings. Needed in PK because hierarchical encodings
+    -- (Cancer / Operation / Non-cancer Illness trees used by fields
+    -- 20001/20002/20004) use value='-1' as a placeholder on every
+    -- category-heading row. Keying by code alone collapsed 104
+    -- heading rows into 7 survivors. Fixed 2026-04-23 after strict
+    -- audit. Lookup by display code remains cheap via idx_ev_code.
+    node_id INTEGER NOT NULL DEFAULT 0,
+    -- parent_node_id: UKB's raw parent_id (= parent row's code_id),
+    -- NULL for root nodes. Use this for unambiguous heading-to-
+    -- heading traversal: JOIN parent ON parent.encoding_id=child.
+    -- encoding_id AND parent.node_id=child.parent_node_id.
+    parent_node_id INTEGER,
+    PRIMARY KEY (encoding_id, node_id, code)
 );
+
+CREATE INDEX IF NOT EXISTS idx_ev_code ON encoding_values(encoding_id, code);
 
 CREATE TABLE IF NOT EXISTS instances (
     instance_id INTEGER PRIMARY KEY,
@@ -379,7 +398,11 @@ COMMON_ALIASES = {
     "diastolic": 4079, "dbp": 4079, "diastolic_bp": 4079,
     # Blood biomarkers
     "hba1c": 30750, "glycated_haemoglobin": 30750, "a1c": 30750,
-    "glucose": 30740, "fasting_glucose": 30740,
+    # NOTE: 30740 is UKB's non-fasting serum glucose — do NOT alias
+    # `fasting_glucose` to it (participants were not fasted at baseline).
+    # Removed 2026-04-23: previous alias misled users into treating it
+    # as a true fasting measurement.
+    "glucose": 30740, "random_glucose": 30740, "serum_glucose": 30740,
     "cholesterol": 30690, "total_cholesterol": 30690,
     "hdl": 30760, "hdl_cholesterol": 30760,
     "ldl": 30780, "ldl_cholesterol": 30780,
@@ -402,11 +425,21 @@ COMMON_ALIASES = {
     "diabetes": 130708,                       # E11 T2D (was 130706 = E10 T1D)
     "type2_diabetes": 130708, "t2dm": 130708, "t2d": 130708,
     "type1_diabetes": 130706, "t1dm": 130706, "t1d": 130706,
-    "gestational_diabetes": 130714,           # E14 as proxy until O24 added
+    # 2026-04-23 alias-semantics audit fixes:
+    #   gestational_diabetes was pointing to 130714 (E14 "unspecified
+    #   diabetes"); correct ICD-10 is O24 = 132202.
+    "gestational_diabetes": 132202,           # O24 diabetes in pregnancy
     "hypertension": 131286, "htn": 131286, "high_blood_pressure": 131286,
-    "stroke": 131366,                         # I63 cerebral infarction
-    "ischaemic_stroke": 131368, "ischemic_stroke": 131368,
-    "hemorrhagic_stroke": 131370,             # I61 intracerebral haemorrhage
+    "stroke": 131366,                         # I63 cerebral infarction (~85% of strokes)
+    # Strict audit 2026-04-23:
+    #   ischaemic_stroke was pointing to I64 "stroke unspecified" —
+    #   semantically wrong. Ischemic stroke = I63 cerebral infarction.
+    #   hemorrhagic_stroke was pointing to I65 precerebral artery
+    #   occlusion, which is neither ischemic nor hemorrhagic. Correct
+    #   hemorrhagic-stroke code is I61 intracerebral haemorrhage.
+    "ischaemic_stroke": 131366, "ischemic_stroke": 131366,  # I63
+    "hemorrhagic_stroke": 131362,              # I61 intracerebral haemorrhage
+    "stroke_unspecified": 131368,              # I64 — kept under its own name
     "heart_failure": 131354, "chf": 131354, "congestive_heart_failure": 131354,
     "myocardial_infarction": 131298, "mi": 131298, "infarction": 131298,
     "acute_mi": 131298, "ami": 131298,
@@ -419,9 +452,20 @@ COMMON_ALIASES = {
     "ckd": 132032, "chronic_kidney_disease": 132032,
     "chronic_renal_failure": 132032, "n18": 132032,
     "esrd": 132034, "end_stage_renal_disease": 132034,
-    "dementia": 130836, "alzheimers": 130838, "alzheimer": 130838,
+    # 2026-04-23 audit fix:
+    #   alzheimers was pointing to F01 "vascular dementia" — an entirely
+    #   different disease. G30 (131036) is the primary ICD-10 code for
+    #   Alzheimer's disease. F00 (130836) is "dementia in Alzheimer's"
+    #   (narrower). Keep `dementia` at F00 as the broadest single code
+    #   and move `alzheimers` to G30.
+    "dementia": 130836,                        # F00 dementia in AD
+    "alzheimers": 131036, "alzheimer": 131036, # G30 Alzheimer's disease
+    "vascular_dementia": 130838,               # F01 (kept under its own name)
     "depression": 130894, "major_depression": 130894,
-    "anxiety": 130908,                        # F41 other anxiety disorders
+    # 2026-04-23 audit fix: anxiety was pointing to F42 (OCD) — wrong.
+    # F41 "other anxiety disorders" is the generic anxiety code.
+    "anxiety": 130906,                        # F41 other anxiety disorders
+    "ocd": 130908,                            # F42 OCD (kept under its own name)
     "cancer": 40005, "date_cancer_diagnosis": 40005,
     "cancer_type": 40006,
     # Death
@@ -551,7 +595,9 @@ def build_database(input_dir: Path, output: Path) -> Dict[str, int]:
     ev_count = 0
     ev_batch = []
 
-    # Simple encoding values (integer, string, real, date)
+    # Simple encoding values (integer, string, real, date).
+    # node_id=0 for all simple rows — they're uniquely identified by
+    # (encoding_id, code) alone, so the PK tie-breaker is unused.
     for fname in ("esimpint.txt", "esimpstring.txt", "esimpreal.txt", "esimpdate.txt"):
         rows = read_tab_file(input_dir / fname)
         for row in rows:
@@ -559,11 +605,11 @@ def build_database(input_dir: Path, output: Path) -> Dict[str, int]:
             code = row.get("value", "").strip()
             meaning = row.get("meaning", "").strip()
             if eid is not None and code:
-                ev_batch.append((eid, code, meaning, 1, None))
+                ev_batch.append((eid, code, meaning, 1, None, 0, None))
                 ev_count += 1
                 if len(ev_batch) >= 10000:
                     conn.executemany(
-                        "INSERT OR IGNORE INTO encoding_values VALUES (?,?,?,?,?)",
+                        "INSERT OR IGNORE INTO encoding_values VALUES (?,?,?,?,?,?,?)",
                         ev_batch,
                     )
                     ev_batch.clear()
@@ -597,11 +643,14 @@ def build_database(input_dir: Path, output: Path) -> Dict[str, int]:
             if eid is not None and code_id and value:
                 code_id_to_value[(eid, code_id)] = value
 
-    # Pass 2: insert with resolved parent_code.
+    # Pass 2: insert with resolved parent_code and node_id.
+    # node_id = UKB's internal code_id. Keeping it in PK guarantees
+    # heading rows (which all share value='-1') don't collapse.
     for fname in ("ehierint.txt", "ehierstring.txt"):
         rows = read_tab_file(input_dir / fname)
         for row in rows:
             eid = safe_int(row.get("encoding_id", ""))
+            code_id = safe_int(row.get("code_id", ""))
             code = row.get("coding", row.get("value", "")).strip()
             meaning = row.get("meaning", "").strip()
             parent_id_raw = (row.get("parent_id", row.get("parent", "")) or "").strip()
@@ -615,19 +664,25 @@ def build_database(input_dir: Path, output: Path) -> Dict[str, int]:
             # Anything != 1 (including 0 and unparseable) → 0 (not selectable).
             sel_raw = (row.get("selectable", "") or "").strip()
             selectable = 1 if sel_raw == "1" else 0
-            if eid is not None and code:
-                ev_batch.append((eid, code, meaning, selectable, parent))
+            parent_node_id: Optional[int] = None
+            if parent_id_raw and parent_id_raw != "0":
+                try:
+                    parent_node_id = int(parent_id_raw)
+                except ValueError:
+                    parent_node_id = None
+            if eid is not None and code and code_id is not None:
+                ev_batch.append((eid, code, meaning, selectable, parent, code_id, parent_node_id))
                 ev_count += 1
                 if len(ev_batch) >= 10000:
                     conn.executemany(
-                        "INSERT OR IGNORE INTO encoding_values VALUES (?,?,?,?,?)",
+                        "INSERT OR IGNORE INTO encoding_values VALUES (?,?,?,?,?,?,?)",
                         ev_batch,
                     )
                     ev_batch.clear()
 
     if ev_batch:
         conn.executemany(
-            "INSERT OR IGNORE INTO encoding_values VALUES (?,?,?,?,?)",
+            "INSERT OR IGNORE INTO encoding_values VALUES (?,?,?,?,?,?,?)",
             ev_batch,
         )
     conn.commit()
