@@ -1289,15 +1289,19 @@ medical-ml-governance-guard/
 │   │   ├── quick_summary.py              #   325  一条命令查看训练结果
 │   │   └── report_health_check.py        #   235  evidence 完整性仪表盘
 │   │
-│   ├── codebooks/         (8 files, 4.1K LOC)   # 数据字典工具 (NHANES / UK Biobank)
-│   │   ├── nhanes_codebook_lookup.py     #  1016  NHANES 60K 变量 FTS5 全文检索 + RAG 验证
-│   │   ├── ukb_codebook_lookup.py        #  1085  UKB 12K 字段验证 + 时序泄漏检测 + 别名
+│   ├── codebooks/         (13 files, 6.6K LOC)  # 数据字典工具 (NHANES / UK Biobank)
+│   │   ├── nhanes_codebook_lookup.py     #  1030  NHANES 60K 变量 FTS5 全文检索 + RAG 验证
+│   │   ├── ukb_codebook_lookup.py        #  1286  UKB 12K 字段验证 + 时序泄漏检测 + 别名
 │   │   ├── codebook_factory.py           #   105  统一工厂: NHANES/UKB/BRFSS → 同一接口
-│   │   ├── build_nhanes_codebook_db.py   #   531  Harvard CCB-HMS TSV → SQLite (60K vars + 204K codes)
-│   │   ├── build_ukb_codebook_db.py      #   706  UKB Data Showcase → SQLite (12K fields + FTS5)
-│   │   ├── fetch_nhanes_2021_2023.py     #   273  CDC 2021-2023 新周期数据爬取
-│   │   ├── fetch_ukb_showcase.py         #   107  UKB Schema 文件下载 (公开, 无需登录)
-│   │   └── verify_nhanes_codebook.py     #   261  SQLite vs CDC XPT 地面真值验证
+│   │   ├── build_nhanes_codebook_db.py   #   525  Harvard CCB-HMS TSV → SQLite (60K vars + 204K codes)
+│   │   ├── build_ukb_codebook_db.py      #  1018  UKB Data Showcase → SQLite (12K 字段 + FTS5 + 533K encoding values)
+│   │   ├── fetch_nhanes_2021_2023.py     #   288  CDC 2021-2023 新周期数据爬取
+│   │   ├── fetch_ukb_showcase.py         #   215  UKB Schema 文件下载 (公开, 无需登录) + sha256 manifest
+│   │   ├── verify_nhanes_codebook.py     #   263  SQLite vs CDC XPT 地面真值验证
+│   │   ├── verify_ukb_codebook.py        #  1455  UKB 8 层验证: L1 sha / L2 48 HARD + 源-vs-DB + 源编码 / L2c 全 cell / L3 216 seeds / L3b disease-KB / content-hash
+│   │   ├── verify_ukb_against_live.py    #   288  L4 对 UKB 官网 live 交叉核验 (11 .txt sha / 100+ 字段 title+cat / 5 encoding 行数 / 20 units)
+│   │   ├── add_disease_kb_provenance.py  #   --   disease KB provenance 批量标注
+│   │   └── _kb_provenance.py / __init__.py
 │   │
 │   ├── review/            (5 files, 3.7K LOC)   # 论文分析与审稿案例
 │   │   ├── peer_review_lookup.py         #   133  119 篇 NC 论文 × 452 条审稿意见, 按 gate/tag 检索
@@ -1360,7 +1364,7 @@ medical-ml-governance-guard/
 │   │
 │   ├── codebooks/                        # 数据字典
 │   │   ├── nhanes/         (8+SQLite)    #   Harvard 58K 变量 + 202K codebook entries + BM25 索引
-│   │   ├── ukb/            (12+SQLite)   #   UKB Data Showcase 12K 字段 + FTS5 全文检索
+│   │   ├── ukb/            (12+SQLite)   #   UKB Data Showcase 11,821 字段 + 533,286 encoding values + 216 golden seeds + 106 aliases + 8 层验证 (source_manifest.json + ukb_golden_fields.yaml + KNOWN_GAPS.md)
 │   │   └── dataset-codebook-registry.json  # 通用 registry (BRFSS/NHIS/MIMIC)
 │   │
 │   ├── case-studies/                     # 审稿案例知识库 ("别人审别人" → 结构化 KB)

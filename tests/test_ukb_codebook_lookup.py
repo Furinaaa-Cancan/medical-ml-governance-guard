@@ -13,11 +13,254 @@ UKB_DB = REPO_ROOT / "references" / "codebooks" / "ukb" / "ukb_codebook.sqlite"
 DISEASE_KB = REPO_ROOT / "references" / "methodology" / "disease-definition-knowledge-base.json"
 REGISTRY_PATH = REPO_ROOT / "references" / "codebooks" / "dataset-codebook-registry.json"
 
+# Make build_ukb_codebook_db importable for classify_field unit tests.
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "codebooks"))
+
 
 def _safe_close(cb) -> None:
     """Release SQLite handles held by UKBCodebook/NHANESCodebook instances."""
     if cb is not None and hasattr(cb, "close"):
         cb.close()
+
+
+# ── classify_field() ────────────────────────────────────────────────
+# Direct unit tests of build_ukb_codebook_db.classify_field — 300+ lines
+# with 59 return branches that every parallel deep-check round has to
+# revisit. Previously this code was only indirectly tested via the
+# whole-DB risk_category count pins, so a regression took a full
+# rebuild + verify run to surface. Table-driven fixtures let pytest
+# pinpoint the exact branch that broke.
+
+
+class TestClassifyField:
+    """Golden fixtures — every (category, title, private=1 flag) triple
+    MUST map to the recorded (domain, risk_category) tuple.
+
+    When a new classify_field rule lands, add a fixture here that
+    covers its branch. When a rule changes intentionally, update the
+    matching fixture in the same commit. A fixture should fail only
+    if classify_field behavior drifted — that's the whole point.
+    """
+
+    # ─── Precedence guards ──────────────────────────────────────────
+    # EMBARGOED and private=1 override category-based classification.
+    # If these break, downstream leakage gates treat PHI/future-data
+    # as safe features.
+
+    @pytest.mark.parametrize("cid,title,private,expected", [
+        # EMBARGOED wins even when category would say 'imaging'
+        (100, "EMBARGOED: Brain MRI future release", None,
+            ("embargoed_future_release", "embargoed")),
+        (None, "Embargoed future field", 1,
+            ("embargoed_future_release", "embargoed")),
+        # private=1 wins regardless of category (PHI)
+        (100094, "Year of birth", 1,
+            ("identifier_birth", "identifier_direct")),
+        (702, "Home location 1km coordinate east", 1,
+            ("identifier_location", "identifier_direct")),
+        (702, "Home full postcode", 1,
+            ("identifier_location", "identifier_direct")),
+        (100001, "Other identifier", 1,
+            ("identifier_other", "identifier_direct")),
+        # private=1 even overrides 'outcome' categories — cat 348/349
+        # cardiac monitoring fields are exactly this case.
+        (348, "AFib - First Occurrence", 1,
+            ("identifier_other", "identifier_direct")),
+        # 'birth weight' must NOT trigger identifier_birth (legitimate covariate)
+        (100010, "Birth weight", 1,
+            ("identifier_other", "identifier_direct")),
+    ])
+    def test_precedence_rules(self, cid, title, private, expected):
+        from build_ukb_codebook_db import classify_field
+        assert classify_field(cid, title, private) == expected
+
+    # ─── Outcome-bearing categories ─────────────────────────────────
+    @pytest.mark.parametrize("cid,title,expected", [
+        # First occurrence (cat 1712 direct + range 2401-2416)
+        (1712, "Date I10 first reported", ("first_occurrence_icd", "outcome_derived")),
+        (2401, "Date E11 first reported", ("first_occurrence_icd", "outcome_derived")),
+        (2416, "Date any ICD10 first reported", ("first_occurrence_icd", "outcome_derived")),
+        # Algorithmically defined outcomes (42-50, 91)
+        (42, "Date of myocardial infarction", ("algorithmically_defined_outcome", "outcome_derived")),
+        (43, "Date of stroke", ("algorithmically_defined_outcome", "outcome_derived")),
+        (91, "Date of dementia", ("algorithmically_defined_outcome", "outcome_derived")),
+        # Death register (cat 100093 OR title-based 'death')
+        (100093, "Date of death", ("death_registry", "death_registry")),
+        # Hospital inpatient (2000-2006)
+        (2000, "Diagnosis ICD10 summary", ("hospital_inpatient", "hospital_derived")),
+        (2006, "Inpatient operation OPCS4", ("hospital_inpatient", "hospital_derived")),
+        # Primary care (3000-3001)
+        (3000, "GP clinical record", ("primary_care", "hospital_derived")),
+        # Cancer registry
+        (100092, "Cancer diagnosis date", ("cancer_registry", "outcome_derived")),
+        # Externally sourced outcomes
+        (100091, "OMOP concept id", ("health_outcomes_external", "outcome_derived")),
+    ])
+    def test_outcome_categories(self, cid, title, expected):
+        from build_ukb_codebook_db import classify_field
+        assert classify_field(cid, title, None) == expected
+
+    # ─── Imaging (temporal-risk) ────────────────────────────────────
+    @pytest.mark.parametrize("cid,title,expected_domain", [
+        (100, "Brain MRI T1 volume", "imaging_brain"),
+        (110, "Brain MRI dMRI-derived", "imaging_brain"),
+        (102, "Heart MRI LV ejection fraction", "imaging_cardiac"),
+        (103, "DXA body composition", "imaging_dxa"),
+        (105, "Abdominal MRI liver fat", "imaging_abdominal"),
+        (101, "Carotid ultrasound plaque", "imaging_carotid"),
+        (521, "Optical coherence tomography", "imaging_eye"),
+        (100003, "Imaging procedure metadata", "imaging_procedural"),
+        (134, "dMRI tract metrics", "imaging_dmri"),
+    ])
+    def test_imaging_categories_all_map_to_imaging_risk(
+        self, cid, title, expected_domain,
+    ):
+        from build_ukb_codebook_db import classify_field
+        domain, risk = classify_field(cid, title, None)
+        assert domain == expected_domain, f"{cid} → {domain}, expected {expected_domain}"
+        assert risk == "imaging"
+
+    # ─── Laboratory and baseline measurements ───────────────────────
+    @pytest.mark.parametrize("cid,title,expected_domain", [
+        (17518, "HbA1c", "laboratory_biochemistry"),
+        (81, "Haemoglobin concentration", "laboratory_haematology"),
+        (100080, "Blood count - neutrophil percentage", "laboratory_blood_assays"),
+        (100082, "Urine microalbumin", "laboratory_urine_saliva"),
+        (220, "Total cholesterol (NMR)", "laboratory_nmr_metabolomics"),
+        (1838, "Olink protein metadata", "laboratory_proteomics"),
+        (163, "Neurobiomarker assay", "laboratory_neurobiomarkers"),
+        # Anthropometry / vitals / physical
+        (100010, "Body mass index (BMI)", "anthropometry"),
+        (100011, "Pulse rate", "vitals"),
+        (100018, "Hand grip strength", "physical_measures"),
+        (100020, "Forced expiratory volume", "spirometry"),
+    ])
+    def test_baseline_measurements(self, cid, title, expected_domain):
+        from build_ukb_codebook_db import classify_field
+        domain, risk = classify_field(cid, title, None)
+        assert domain == expected_domain, f"{cid}/{title}: {domain}"
+        assert risk == "baseline"
+
+    # ─── ECG split: automated diagnosis (outcome) vs raw (baseline) ─
+    def test_ecg_automated_diagnosis_is_outcome(self):
+        from build_ukb_codebook_db import classify_field
+        # Field 12653 "ECG automated diagnoses" must be outcome_derived
+        # (round-4 fix: ecg_diagnosis domain).
+        assert classify_field(104, "ECG automated diagnoses", None) == (
+            "ecg_diagnosis", "outcome_derived"
+        )
+
+    def test_ecg_raw_stays_baseline(self):
+        from build_ukb_codebook_db import classify_field
+        # Raw ECG measurements in cat 104 are baseline.
+        assert classify_field(104, "ECG amplitude at P wave", None) == (
+            "ecg", "baseline"
+        )
+
+    # ─── COVID self-report (cat 1511 outcome override) ──────────────
+    def test_covid_selfreport_cat_1511_is_outcome(self):
+        from build_ukb_codebook_db import classify_field
+        # Round-4: cat 1511 overrides the mental-health range rule.
+        # Fields 29156-29161 etc. are COVID infection events, not
+        # mental-health items.
+        assert classify_field(1511, "COVID diagnosis date", None) == (
+            "covid_selfreport", "outcome_derived"
+        )
+
+    # ─── Cat 2 participant admin (title-scoped, round-7) ────────────
+    @pytest.mark.parametrize("title,expected", [
+        # Title contains 'lost to follow-up' → participant_admin
+        ("Reason lost to follow-up", ("participant_admin", "online_followup")),
+        ("Date lost to follow-up", ("participant_admin", "online_followup")),
+        # Title contains 'personal contact' → participant_admin
+        ("Date of last personal contact with UK Biobank",
+            ("participant_admin", "online_followup")),
+        ("Number of personal contacts with UK Biobank",
+            ("participant_admin", "online_followup")),
+        # Title contains 'newsletter' → participant_admin
+        ("Newsletter communications, date sent",
+            ("participant_admin", "online_followup")),
+        # Email access (cat 2, no match) → demographics baseline
+        ("Email access", ("demographics", "baseline")),
+    ])
+    def test_cat_2_participant_admin_title_scoped(self, title, expected):
+        from build_ukb_codebook_db import classify_field
+        assert classify_field(2, title, None) == expected
+
+    # ─── Accelerometry / cardiac monitoring (round-6 post-baseline) ─
+    def test_accelerometry_is_followup_not_baseline(self):
+        from build_ukb_codebook_db import classify_field
+        # Round 6: UKB shipped accelerometers by mail 2013-2015, i.e.
+        # several years AFTER baseline (2006-2010). Using accelerometry
+        # as a baseline predictor is temporal leakage.
+        assert classify_field(1008, "Overall acceleration average", None) == (
+            "accelerometry", "online_followup"
+        )
+
+    def test_cardiac_monitoring_is_followup(self):
+        from build_ukb_codebook_db import classify_field
+        # cats 347-349 are the Phase 1/2/3 wearable-device sub-study.
+        # Previously mis-classified as cardiac MRI.
+        assert classify_field(347, "Cardiac monitoring wear time", None) == (
+            "cardiac_monitoring", "online_followup"
+        )
+
+    # ─── VO2max split from accelerometry (round-6) ──────────────────
+    def test_vo2max_cat_267_is_baseline(self):
+        from build_ukb_codebook_db import classify_field
+        # Cat 267: baseline assessment-centre ECG-during-exercise.
+        # NOT accelerometry despite the naming overlap.
+        assert classify_field(267, "VO2max predicted", None) == (
+            "vo2max_exercise", "baseline"
+        )
+
+    # ─── COVID sub-studies (cat 97 + 989-999 range) ─────────────────
+    @pytest.mark.parametrize("cid", [97, 989, 996, 999])
+    def test_covid_substudy_is_online_followup(self, cid):
+        from build_ukb_codebook_db import classify_field
+        domain, risk = classify_field(cid, "Sample COVID field", None)
+        assert domain == "covid"
+        assert risk == "online_followup"
+
+    # ─── Genomics / PRS / online followup / environment / default ──
+    @pytest.mark.parametrize("cid,title,expected", [
+        # Genomics range
+        (170, "Genotype concordance", ("genomics", "genomics")),
+        (187, "Exome coverage", ("genomics", "genomics")),
+        # PRS (overlaps with genomics range — PRS rule runs later so
+        # the genomics rule already catches 300-302)
+        (300, "Polygenic risk score: T2D", ("genomics", "genomics")),
+        # Online follow-up direct categories
+        (100089, "Online questionnaire sample", ("online_followup", "online_followup")),
+        (517, "ADHD self-report", ("online_followup", "online_followup")),
+        # Environment (baseline)
+        (76, "Air pollution PM2.5", ("environment", "baseline")),
+        # Summary / derived
+        (1004, "Summary derived field", ("summary_derived", "baseline")),
+        # Title fallback — any field with 'first reported' title goes
+        # outcome_derived even if category doesn't trigger one of the
+        # specific rules above.
+        (99999, "Date X first reported", ("first_occurrence_icd", "outcome_derived")),
+        (99999, "Source of report of I10", ("first_occurrence_icd", "outcome_derived")),
+        # Default fallback for anything not matched
+        (999999, "Mystery field with no match", ("other", "baseline")),
+    ])
+    def test_remaining_branches(self, cid, title, expected):
+        from build_ukb_codebook_db import classify_field
+        assert classify_field(cid, title, None) == expected
+
+    # ─── Baseline leakage-keyword reverse-scan invariant ────────────
+    # Mirrors the _HARD verify invariant: no 'baseline' risk output
+    # should carry a leakage-suggesting title. If classify_field
+    # regressed to mis-classify these, baseline fields would
+    # reappear with death/follow-up titles.
+
+    def test_death_title_routes_to_death_registry(self):
+        from build_ukb_codebook_db import classify_field
+        # Even with no matching category, a 'death'-in-title field
+        # gets death_registry risk (line 151 of classify_field).
+        _, risk = classify_field(999, "Cause of death date", None)
+        assert risk == "death_registry"
 
 
 # ── parse_ukb_column ───────────────────────────────────────────────

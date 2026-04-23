@@ -1204,10 +1204,13 @@ medical-ml-governance-guard/
 │   │   ├── export_latex.py               #   Publication-ready LaTeX tables
 │   │   └── ...                           #   render_user_summary, compliance_certificate, etc.
 │   │
-│   ├── codebooks/         (8)            # Data dictionary tools
+│   ├── codebooks/         (13)           # Data dictionary tools (6.6K LOC)
 │   │   ├── nhanes_codebook_lookup.py     #   NHANES 60K variable FTS5 full-text search
-│   │   ├── ukb_codebook_lookup.py        #   UKB 12K field validation + leakage detection
-│   │   └── ...                           #   build/fetch/verify + codebook_factory
+│   │   ├── ukb_codebook_lookup.py        #   UKB 12K field validation + leakage detection + aliases
+│   │   ├── build_ukb_codebook_db.py      #   UKB Showcase → SQLite (11,821 fields + 533K encoding values)
+│   │   ├── verify_ukb_codebook.py        #   UKB 8-layer verify: L1 sha / L2 48 HARD + src-vs-DB / L2c cell-by-cell / L3 216 seeds / L3b disease-KB / content-hash
+│   │   ├── verify_ukb_against_live.py    #   L4 live cross-check vs biobank.ndph.ox.ac.uk
+│   │   └── ...                           #   fetch/build/verify for NHANES + codebook_factory
 │   │
 │   ├── review/            (5)            # Paper analysis & peer review
 │   │   ├── peer_review_lookup.py         #   119 NC papers × 452 review opinions
@@ -1240,7 +1243,7 @@ medical-ml-governance-guard/
 │   │
 │   ├── codebooks/                        # Data dictionaries
 │   │   ├── nhanes/         (8+SQLite)    #   Harvard 58K vars + 202K codebook entries + BM25 index
-│   │   ├── ukb/            (12+SQLite)   #   UKB Data Showcase 12K fields + FTS5 full-text search
+│   │   ├── ukb/            (12+SQLite)   #   UKB Showcase 11,821 fields + 533,286 encoding values + 216 golden seeds + 106 aliases + 8-layer verification (source_manifest.json + ukb_golden_fields.yaml + KNOWN_GAPS.md)
 │   │   └── dataset-codebook-registry.json  # Generic registry (BRFSS/NHIS/MIMIC)
 │   │
 │   ├── case-studies/                     # Peer review KB ("others review others" → structured KB)

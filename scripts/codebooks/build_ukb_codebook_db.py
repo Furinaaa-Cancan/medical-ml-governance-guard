@@ -201,6 +201,17 @@ def classify_field(cid: Optional[int], title: str, private: Optional[int] = None
     if _cat_in(cid, 1101, 1102, 106, 109):
         return "imaging_brain", "imaging"
 
+    # ── VO2max exercise test — rule-order fix ───────────────────────
+    # Cat 267 "VO2max during exercise" is an Assessment-centre physical
+    # measure (ECG-during-exercise derived). It must be checked BEFORE
+    # the genomics range rule below — the range (263, 274) otherwise
+    # swallows it into 'genomics', mis-classifying 4 fields (30035-30038)
+    # that round-6 deep-check already intended to split out. The original
+    # fix added a cid==267 check further down but rule-ordering put it
+    # after genomics, so the split never actually happened.
+    if cid == 267:
+        return "vo2max_exercise", "baseline"
+
     # ── Genomics (time-invariant) ────────────────────────────────────
     # 100313 = Genotyping process and sample QC (deep-check 2026-04-23)
     # 100035 = HLA imputation values (deep-check 2026-04-23)
@@ -307,11 +318,8 @@ def classify_field(cid: Optional[int], title: str, private: Optional[int] = None
     if _cat_in(cid, (100068, 100070)):
         return "questionnaire_sex_specific", "baseline"
 
-    # VO2max exercise test (cat 267) is a baseline Assessment-centre
-    # ECG-during-exercise measurement, NOT accelerometry. Was lumped
-    # into the accelerometry rule by mistake. Fixed 2026-04-23.
-    if cid == 267:
-        return "vo2max_exercise", "baseline"
+    # (cat 267 VO2max handled earlier — above the genomics range rule
+    # — because the range (263, 274) otherwise swallows it.)
 
     # ── Accelerometry (POST-BASELINE by mail) ────────────────────────
     # UKB shipped accelerometers by mail 2013-2015, i.e., several
