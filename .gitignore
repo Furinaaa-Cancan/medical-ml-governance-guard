@@ -63,3 +63,9 @@ references/codebooks/nhanes/*.sqlite-wal
 # UKB codebook data (download via scripts/codebooks/fetch_ukb_showcase.py)
 references/codebooks/ukb/*.txt
 references/codebooks/ukb/*.sqlite
+
+# Transient PDF-text extraction cache from peer-review-kb ingestion.
+# Only the parsed/*.json outputs are the source of truth for the KB;
+# text/ is a pdftotext intermediate that gets regenerated from the PDFs
+# and would balloon the repo if accidentally staged.
+references/case-studies/nature_communications/text/
