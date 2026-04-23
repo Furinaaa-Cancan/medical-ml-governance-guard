@@ -221,9 +221,10 @@ def load_checkpoint(evidence_dir: Path) -> Dict[str, Any]:
     if not cp_path.exists():
         return {}
     try:
-        with cp_path.open("r", encoding="utf-8") as fh:
-            return json.load(fh)
-    except (json.JSONDecodeError, OSError):
+        # Use load_json (_gate_utils) which enforces the 100MB JSON cap
+        # so a corrupted/tampered checkpoint can't OOM the pipeline.
+        return load_json(cp_path)
+    except (json.JSONDecodeError, OSError, ValueError):
         return {}
 
 
@@ -611,8 +612,10 @@ def print_gate_result(result: Dict[str, Any]) -> None:
         report_path = result.get("report_path", "")
         if report_path and Path(report_path).exists():
             try:
-                with open(report_path, "r", encoding="utf-8") as _rpt_fh:
-                    _rpt_data = json.load(_rpt_fh)
+                # Size-capped load (load_json enforces MAX_JSON_FILE_SIZE).
+                # Prevents a runaway / malicious gate report from OOM-ing
+                # the orchestrator when summarizing failures.
+                _rpt_data = load_json(Path(report_path))
                 _failures = _rpt_data.get("failures", [])
                 for _f in _failures[:3]:
                     _code = _f.get("code", "?")
@@ -682,8 +685,8 @@ def _print_prioritized_issues(
         if not rp.exists():
             continue
         try:
-            with open(rp) as f:
-                report = json.load(f)
+            # Size-capped load — same rationale as above.
+            report = load_json(rp)
             for issue in report.get("issues", []):
                 sev = issue.get("severity", "info")
                 if sev in ("critical", "error", "warning"):
