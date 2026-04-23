@@ -964,15 +964,54 @@ def main() -> int:
         return _finish(args, failures, warnings_list, {})
 
     # --- Load model pool ---
+    #
+    # SECURITY (Codex-follow-up 2026-04-23): the old path here called
+    # verify_model_artifact() then SILENTLY IGNORED the return value
+    # ("advisory — does not block on missing sig"), then ran
+    # joblib.load() unconditionally. joblib.load uses standard pickle
+    # internally and WILL execute __reduce__ hooks on any .pkl bytes.
+    # An attacker who could write a model_pool.pkl into the evidence
+    # directory therefore got arbitrary code execution inside the
+    # SHAP gate process.
+    #
+    # Fix: fail-closed on signature failure, THEN load. This mirrors
+    # the correct pattern already used in SecureModelLoader
+    # (_security.py:672) and security_audit_gate (L100-113).
     try:
         import joblib
         pool_path = Path(args.model_pool).expanduser().resolve()
-        # Verify artifact signature if available (advisory — does not block on missing sig)
+
+        # Signature check — fail-closed. Any raise/mismatch blocks load.
         try:
             from _security import verify_model_artifact
-            verify_model_artifact(pool_path)
-        except Exception:  # noqa: BLE001
-            pass  # Signature verification is advisory
+        except ImportError:
+            add_issue(
+                failures, "SHAP_POOL_LOAD_FAILED",
+                "_security module unavailable; cannot verify model pool "
+                "signature. Refusing to joblib.load an unverified artifact.",
+                {"path": str(pool_path)},
+            )
+            return _finish(args, failures, warnings_list, {})
+
+        sig_result = verify_model_artifact(pool_path)
+        if not sig_result.get("verified", False):
+            add_issue(
+                failures, "SHAP_POOL_LOAD_FAILED",
+                "Model pool HMAC signature verification failed — refusing "
+                "to joblib.load (pickle RCE surface). "
+                f"Reason: {sig_result.get('reason', 'unknown')}.",
+                {
+                    "path": str(pool_path),
+                    "signature_status": sig_result.get("reason", "unknown"),
+                    "remediation": (
+                        "Re-run train_select_evaluate.py to produce a signed "
+                        "model pool, or ensure .mlgg_model_key is present "
+                        "and readable."
+                    ),
+                },
+            )
+            return _finish(args, failures, warnings_list, {})
+
         model_pool = joblib.load(pool_path)
     except Exception as exc:
         add_issue(

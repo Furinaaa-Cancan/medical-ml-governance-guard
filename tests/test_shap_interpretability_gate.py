@@ -113,6 +113,21 @@ def _make_model_pool(tmp_path: Path, X_train, y_train, feature_names):
 
     pool_path = tmp_path / "model_pool.pkl"
     joblib.dump(model_pool, pool_path)
+    # Sign the pool — the SHAP gate now (as of 2026-04-23 Codex-
+    # follow-up) requires a valid HMAC signature before joblib.load.
+    # Unsigned artifacts are refused as a pickle-RCE defense.
+    try:
+        import sys as _sys
+        _core = Path(__file__).resolve().parent.parent / "scripts" / "core"
+        if str(_core) not in _sys.path:
+            _sys.path.insert(0, str(_core))
+        from _security import sign_model_artifact
+        sign_model_artifact(pool_path)
+    except Exception:
+        # If _security isn't importable in a given test env, the gate
+        # under test will correctly fail. Test assertions below catch
+        # the SHAP_POOL_LOAD_FAILED outcome.
+        pass
     return pool_path
 
 
@@ -557,26 +572,65 @@ class TestIntegrationSHAP:
         assert report["gate_name"] == "shap_interpretability_gate"
         assert report["status"] == "pass"
         assert "summary" in report
-
         summary = report["summary"]
         assert summary["model_count"] == 2
         assert "random_forest_balanced" in summary["families_analyzed"]
         assert "logistic_l2" in summary["families_analyzed"]
         assert len(summary["ensemble_top_features"]) == 5
         assert len(summary["rank_correlations"]) == 1
-
-        # Verify CSV tables
         assert (tmp_path / "shap_table_a_ensemble_importance.csv").exists()
         assert (tmp_path / "shap_table_b_per_model_detail.csv").exists()
         assert (tmp_path / "shap_table_c_rank_agreement.csv").exists()
         assert (tmp_path / "shap_table_d_case_explanations.csv").exists()
-
-        # Verify Table A structure (skip comment row)
         table_a = pd.read_csv(tmp_path / "shap_table_a_ensemble_importance.csv", comment="#")
         assert list(table_a.columns[:4]) == ["Rank", "Feature", "Ensemble_Proportion", "Direction"]
         assert len(table_a) == 5
-        # Proportions should sum to less than 1 (only top-N features)
         assert table_a["Ensemble_Proportion"].sum() <= 1.0 + 1e-6
+
+    def test_unsigned_pool_refused(self, tmp_path):
+        """Regression (Codex-follow-up 2026-04-23): the gate used to
+        call verify_model_artifact() then ignore its result, then
+        joblib.load() the artifact. An attacker writing a malicious
+        model_pool.pkl got arbitrary code execution. The gate now
+        fail-closes on unverified signature BEFORE joblib.load."""
+        import joblib
+        train_path, test_path, feature_names, X_train, y_train = _make_synthetic_data(tmp_path)
+        # Create pool but DO NOT sign it — simulates an attacker drop.
+        pool_path = tmp_path / "unsigned_pool.pkl"
+        joblib.dump({"schema_version": 1, "families": {},
+                     "features": feature_names, "selected_model_id": "x"},
+                    pool_path)
+        # Ensure no .sig sidecar is left over.
+        sig_path = pool_path.with_suffix(".pkl.sig")
+        if sig_path.exists():
+            sig_path.unlink()
+
+        report_path = tmp_path / "report.json"
+        result = subprocess.run(
+            [sys.executable,
+             str(SCRIPTS_DIR / "gates/shap_interpretability_gate.py"),
+             "--model-pool", str(pool_path),
+             "--train-data", str(train_path),
+             "--test-data", str(test_path),
+             "--target-col", "y",
+             "--report", str(report_path)],
+            capture_output=True, text=True, timeout=60,
+        )
+        assert result.returncode == 2, (
+            f"Unsigned model pool must be refused.\n"
+            f"stdout={result.stdout[:200]}\nstderr={result.stderr[:200]}"
+        )
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        codes = [f["code"] for f in report.get("failures", [])]
+        assert "SHAP_POOL_LOAD_FAILED" in codes
+        # Failure details should reference signature verification.
+        details = [f.get("details", {}) for f in report.get("failures", [])
+                   if f["code"] == "SHAP_POOL_LOAD_FAILED"]
+        assert any(
+            "signature" in str(d).lower() or "verified" in str(d).lower()
+            or "sign" in str(d).lower()
+            for d in details
+        ), f"Failure details must mention signature; got {details}"
 
     def test_e2e_strict_mode(self, tmp_path):
         """Strict mode with a single model should produce warning → fail."""
@@ -602,6 +656,16 @@ class TestIntegrationSHAP:
         }
         pool_path = tmp_path / "pool.pkl"
         joblib.dump(pool, pool_path)
+        # Sign the pool — 2026-04-23 fail-closed HMAC check.
+        try:
+            import sys as _sys
+            _core = Path(__file__).resolve().parent.parent / "scripts" / "core"
+            if str(_core) not in _sys.path:
+                _sys.path.insert(0, str(_core))
+            from _security import sign_model_artifact
+            sign_model_artifact(pool_path)
+        except Exception:
+            pass
 
         report_path = tmp_path / "report.json"
         result = subprocess.run(
