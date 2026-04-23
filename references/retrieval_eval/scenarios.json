@@ -1,0 +1,61 @@
+{
+  "version": "1.0",
+  "description": "Seed scenarios for retrieval end-to-end evaluation. Each scenario simulates a realistic gate failure and declares which categories/tags a human reviewer would expect the top-5 retrieved concerns to share. 'expected' lists are any-of (not all-of) — retrieval passes if at least one top-5 result shares at least one expected tag AND at least one shares an expected category. Scenarios curated 2026-04-23; add to this file (do not edit existing ones) when extending coverage.",
+  "scenarios": [
+    {
+      "scenario_id": "leakage_discharge_icd",
+      "description": "Retrospective ICU cohort using icd10_I469 and icd10_Z51_5 as features — discharge-finalized codes that leak outcome (Ramadan JAMA 2025). Dataset: UKB / MIMIC style ICU mortality prediction.",
+      "gate_name": "leakage_gate",
+      "failure_codes": [
+        "discharge_finalized_icd_as_feature",
+        "suspicious_feature_names"
+      ],
+      "expected_categories": ["data_leakage"],
+      "expected_tags": [
+        "outcome_definition",
+        "temporal_leakage",
+        "future_information_leakage",
+        "target_leakage",
+        "feature_is_outcome_proxy",
+        "definition_variable"
+      ]
+    },
+    {
+      "scenario_id": "evaluation_improper_f1_primary",
+      "description": "Imbalanced binary-classification outcome with macro_f1_score reported as primary — STRATOS TG6 2025 rejects thresholded measures as improper primary metric for clinical risk prediction. Dataset: NHANES CKD or similar rare-outcome cohort.",
+      "gate_name": "evaluation_quality_gate",
+      "failure_codes": [
+        "improper_primary_metric",
+        "missing_primary_metric_ci",
+        "missing_calibration_metric"
+      ],
+      "expected_categories": ["evaluation_metrics", "clinical_utility"],
+      "expected_tags": [
+        "missing_calibration",
+        "incomplete_metrics",
+        "missing_dca",
+        "class_imbalance",
+        "no_bootstrap_ci",
+        "suspiciously_narrow_ci"
+      ]
+    },
+    {
+      "scenario_id": "no_external_validation_single_center",
+      "description": "Single-center retrospective cohort, 80/20 random split, no independent external validation site. Dataset: typical institutional EHR prediction paper.",
+      "gate_name": "external_validation_gate",
+      "failure_codes": [
+        "no_external_validation",
+        "single_center_only"
+      ],
+      "expected_categories": ["external_validation"],
+      "expected_tags": [
+        "no_external_validation",
+        "single_center",
+        "internal_split_only",
+        "single_split",
+        "generalizability",
+        "same_cohort_validation"
+      ]
+    }
+  ]
+}

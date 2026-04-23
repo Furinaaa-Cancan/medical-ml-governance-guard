@@ -1,0 +1,256 @@
+{
+  "scenarios_file": "/Volumes/Seagate/Skill/ml-leakage-guard/references/retrieval_eval/scenarios.json",
+  "kb_path": "/Volumes/Seagate/Skill/ml-leakage-guard/references/case-studies/peer-review-kb.json",
+  "top_k": 5,
+  "scenarios": [
+    {
+      "scenario_id": "leakage_discharge_icd",
+      "description": "Retrospective ICU cohort using icd10_I469 and icd10_Z51_5 as features \u2014 discharge-finalized codes that leak outcome (Ramadan JAMA 2025). Dataset: UKB / MIMIC style ICU mortality prediction.",
+      "gate_name": "leakage_gate",
+      "retrieved_count": 5,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.167,
+      "matched_expected_categories": [
+        "data_leakage"
+      ],
+      "matched_expected_tags": [
+        "temporal_leakage"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-006-C01",
+          "paper_id": "PR-006",
+          "severity": "CRITICAL",
+          "category": "data_leakage",
+          "tags": [
+            "same_data_gwas_and_prs",
+            "overfitting",
+            "optimism_bias",
+            "discovery_validation_overlap"
+          ],
+          "retrieval_mode": "severity_fallback"
+        },
+        {
+          "concern_id": "PR-010-C01",
+          "paper_id": "PR-010",
+          "severity": "CRITICAL",
+          "category": "data_leakage",
+          "tags": [
+            "temporal_leakage",
+            "bidirectional_rnn_leakage",
+            "future_data_used",
+            "critical_flaw"
+          ],
+          "retrieval_mode": "severity_fallback"
+        },
+        {
+          "concern_id": "PR-111-C01",
+          "paper_id": "PR-111",
+          "severity": "CRITICAL",
+          "category": "split_protocol",
+          "tags": [
+            "test_set_reuse",
+            "multiple_testing",
+            "model_selection_on_test",
+            "single_split"
+          ],
+          "retrieval_mode": "severity_fallback"
+        },
+        {
+          "concern_id": "PR-113-C01",
+          "paper_id": "PR-113",
+          "severity": "CRITICAL",
+          "category": "split_protocol",
+          "tags": [
+            "cv_strategy_unspecified",
+            "smote_before_split",
+            "data_split_ambiguous",
+            "leakage_risk"
+          ],
+          "retrieval_mode": "severity_fallback"
+        },
+        {
+          "concern_id": "PR-002-C05",
+          "paper_id": "PR-002",
+          "severity": "HIGH",
+          "category": "split_protocol",
+          "tags": [
+            "patient_level_split",
+            "split_unit_unclear",
+            "potential_patient_overlap"
+          ],
+          "retrieval_mode": "severity_fallback"
+        }
+      ]
+    },
+    {
+      "scenario_id": "evaluation_improper_f1_primary",
+      "description": "Imbalanced binary-classification outcome with macro_f1_score reported as primary \u2014 STRATOS TG6 2025 rejects thresholded measures as improper primary metric for clinical risk prediction. Dataset: NHANES CKD or similar rare-outcome cohort.",
+      "gate_name": "evaluation_quality_gate",
+      "retrieved_count": 5,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.667,
+      "matched_expected_categories": [
+        "evaluation_metrics"
+      ],
+      "matched_expected_tags": [
+        "class_imbalance",
+        "incomplete_metrics",
+        "missing_calibration",
+        "missing_dca"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-002-C01",
+          "paper_id": "PR-002",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "incomplete_metrics",
+            "missing_calibration",
+            "class_imbalance",
+            "missing_ppv_npv"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-003-C05",
+          "paper_id": "PR-003",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "auc_insufficient",
+            "missing_calibration",
+            "missing_dca",
+            "comparison_with_existing"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-110-C03",
+          "paper_id": "PR-110",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "missing_calibration",
+            "calibration_plot_missing",
+            "rebalancing_distortion"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-004-C01",
+          "paper_id": "PR-004",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "inappropriate_metric",
+            "jaccard_for_classification",
+            "metrics_in_supplement_only"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-104-C04",
+          "paper_id": "PR-104",
+          "severity": "MEDIUM",
+          "category": "evaluation_metrics",
+          "tags": [
+            "nri_limitations",
+            "calibration_presentation",
+            "nri_analysis"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
+    },
+    {
+      "scenario_id": "no_external_validation_single_center",
+      "description": "Single-center retrospective cohort, 80/20 random split, no independent external validation site. Dataset: typical institutional EHR prediction paper.",
+      "gate_name": "external_validation_gate",
+      "retrieved_count": 5,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.833,
+      "matched_expected_categories": [
+        "external_validation"
+      ],
+      "matched_expected_tags": [
+        "generalizability",
+        "no_external_validation",
+        "same_cohort_validation",
+        "single_center",
+        "single_split"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-026-C01",
+          "paper_id": "PR-026",
+          "severity": "HIGH",
+          "category": "external_validation",
+          "tags": [
+            "limited_geographic_validation",
+            "single_external_center",
+            "generalizability"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-107-C01",
+          "paper_id": "PR-107",
+          "severity": "HIGH",
+          "category": "external_validation",
+          "tags": [
+            "no_external_validation",
+            "same_cohort_validation",
+            "single_center"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-040-C01",
+          "paper_id": "PR-040",
+          "severity": "HIGH",
+          "category": "external_validation",
+          "tags": [
+            "no_external_validation",
+            "single_center"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-041-C04",
+          "paper_id": "PR-041",
+          "severity": "HIGH",
+          "category": "external_validation",
+          "tags": [
+            "no_external_validation",
+            "single_cohort"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-111-C04",
+          "paper_id": "PR-111",
+          "severity": "HIGH",
+          "category": "external_validation",
+          "tags": [
+            "no_external_validation",
+            "single_split",
+            "generalizability",
+            "validation_cohort_missing"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
+    }
+  ],
+  "aggregate": {
+    "total_scenarios": 3,
+    "coverage_rate": 1.0,
+    "hit_at_k_rate": 1.0,
+    "mean_tag_precision": 0.556
+  }
+}
