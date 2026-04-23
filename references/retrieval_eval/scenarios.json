@@ -357,6 +357,200 @@
         "interpretability_claim_unsupported",
         "multi_model_shap"
       ]
+    },
+    {
+      "scenario_id": "covariate_shift_train_test",
+      "description": "Train from 2015-2019 data, test on 2023 data — no PSI / Jensen-Shannon / feature-drift analysis. Drug prescribing patterns, diagnostic codes, and demographics all shifted over the gap. KB uses broad tags like 'confounding' / 'selection_bias' / 'cohort_definition' for this class, not the ML-textbook term 'covariate shift'.",
+      "gate_name": "covariate_shift_gate",
+      "failure_codes": [
+        "covariate_shift_detected",
+        "feature_psi_exceeded",
+        "prevalence_drift_between_splits"
+      ],
+      "expected_categories": ["external_validation", "study_design"],
+      "expected_tags": [
+        "domain_shift",
+        "distribution_shift",
+        "temporal_drift",
+        "population_shift_external",
+        "calibration_drift_impact",
+        "generalizability",
+        "generalizability_limited",
+        "portability",
+        "time_varying_covariate",
+        "confounding",
+        "selection_bias",
+        "cohort_definition",
+        "multicollinearity",
+        "correlated_features"
+      ]
+    },
+    {
+      "scenario_id": "distribution_generalization_temporal",
+      "description": "Internal temporal validation: model trained on 2015-2018, internal-split 2019-2020, reported as 'temporal validation'. But there is no external site. Generalization claim uses the wrong reference population.",
+      "gate_name": "distribution_generalization_gate",
+      "failure_codes": [
+        "generalization_claim_unjustified",
+        "temporal_split_same_population",
+        "no_geographic_validation"
+      ],
+      "expected_categories": ["external_validation"],
+      "expected_tags": [
+        "generalizability",
+        "generalizability_limited",
+        "generalizability_to_modern_data",
+        "temporal_split_missing",
+        "same_cohort_validation",
+        "single_center",
+        "portability",
+        "distribution_shift",
+        "domain_shift",
+        "population_difference",
+        "generalization_gap",
+        "external_auc_drop",
+        "validation_cohort_missing",
+        "no_external_validation"
+      ]
+    },
+    {
+      "scenario_id": "feature_lineage_undocumented",
+      "description": "Feature 'lab_panel_composite_score' computed via a pandas pipeline that isn't in the shared code repo. Lineage spec has no DAG node for it. Reader can't reproduce the feature, and it's later the #1 SHAP-ranked predictor.",
+      "gate_name": "feature_lineage_gate",
+      "failure_codes": [
+        "feature_lineage_missing",
+        "derivation_dag_incomplete",
+        "pipeline_step_unmapped"
+      ],
+      "expected_categories": ["reproducibility", "preprocessing"],
+      "expected_tags": [
+        "reproducibility",
+        "irreproducible_methods",
+        "methods_irreproducible",
+        "partial_reproducibility",
+        "no_code_availability",
+        "feature_engineering_unclear",
+        "feature_engineering_opaque",
+        "feature_quality"
+      ]
+    },
+    {
+      "scenario_id": "generalization_gap_optimistic",
+      "description": "Train AUROC 0.95, test AUROC 0.62 — 33-point gap, classic overfitting. KB has only 2 concerns mapped to generalization_gap_gate specifically, but reviewers often write about this under external-validation terminology (external_auc_drop, performance_degradation_external).",
+      "gate_name": "generalization_gap_gate",
+      "failure_codes": [
+        "train_test_gap_excessive",
+        "overfitting_detected",
+        "optimistic_generalization_claim"
+      ],
+      "expected_categories": ["evaluation_metrics", "model_selection", "external_validation"],
+      "expected_tags": [
+        "overfitting",
+        "overfitting_risk",
+        "overfitting_concern",
+        "overfitting_presentation",
+        "auc_overoptimistic",
+        "optimistic_model",
+        "optimism_bias",
+        "goal_post_shift",
+        "generalization_gap",
+        "external_auc_drop",
+        "performance_degradation_external",
+        "internal_external_gap",
+        "distribution_shift",
+        "overstatement"
+      ]
+    },
+    {
+      "scenario_id": "metric_consistency_cross_split",
+      "description": "Primary metric AUROC reported differently across the evaluation report, the discussion section, and Supplementary Table S4. 0.83 vs 0.85 vs 0.81 — reader cannot reconcile. Breaks the internal-consistency contract that everything cite the same source of truth.",
+      "gate_name": "metric_consistency_gate",
+      "failure_codes": [
+        "metric_value_inconsistent_across_sections",
+        "rounding_inconsistent",
+        "eval_report_vs_paper_mismatch"
+      ],
+      "expected_categories": ["reporting", "evaluation_metrics"],
+      "expected_tags": [
+        "data_inconsistency",
+        "cutoff_inconsistency",
+        "threshold_consistency_across_cohorts",
+        "reporting_completeness",
+        "reporting_guidelines",
+        "reporting_quality",
+        "methods_inconsistent_with_results",
+        "supplementary_vs_main_text",
+        "selective_reporting",
+        "abstract_mismatch",
+        "metrics_in_supplement_only"
+      ]
+    },
+    {
+      "scenario_id": "permutation_significance_missing",
+      "description": "Paper claims the model 'significantly outperforms baselines' with no permutation test, no Bonferroni correction, no null-distribution histogram. Documents a KB coverage gap: only 1 concern maps to permutation_significance_gate today. Scenario value is the coverage signal — retrieval will surface via broader stat-rigor tags (missing_ci, no_delong_test, statistical_comparison_missing).",
+      "gate_name": "permutation_significance_gate",
+      "failure_codes": [
+        "permutation_test_missing",
+        "null_distribution_unreported",
+        "multiple_testing_unadjusted"
+      ],
+      "expected_categories": ["evaluation_metrics", "reporting"],
+      "expected_tags": [
+        "multiple_testing",
+        "p_value_selection",
+        "p_value_error",
+        "statistical_significance_missing",
+        "missing_baseline_comparison",
+        "benchmarking_missing",
+        "missing_ci",
+        "no_delong_test",
+        "statistical_comparison_missing"
+      ]
+    },
+    {
+      "scenario_id": "prediction_replay_irreproducible",
+      "description": "Rerunning shipped inference code produces predictions that differ from paper's reported ones. KB coverage gap: only 1 concern mapped to prediction_replay_gate today. Scenario documents the gap; retrieval surfaces generic reproducibility/external-validation concerns.",
+      "gate_name": "prediction_replay_gate",
+      "failure_codes": [
+        "prediction_reproduction_failed",
+        "bitwise_divergence_from_reference",
+        "seed_dependent_predictions"
+      ],
+      "expected_categories": ["reproducibility", "external_validation"],
+      "expected_tags": [
+        "reproducibility",
+        "irreproducible_methods",
+        "methods_irreproducible",
+        "partial_reproducibility",
+        "no_code_availability",
+        "software_not_specified",
+        "hyperparameters_missing",
+        "weights_not_shared",
+        "no_prospective_validation",
+        "no_external_validation",
+        "biomarker_validation_missing"
+      ]
+    },
+    {
+      "scenario_id": "robustness_no_perturbation_test",
+      "description": "No sensitivity analysis to input perturbations. KB coverage gap: only 1 concern mapped to robustness_gate today. Documents the gap; retrieval surfaces external-validation and cross-cohort-stability concerns instead.",
+      "gate_name": "robustness_gate",
+      "failure_codes": [
+        "robustness_analysis_missing",
+        "noise_sensitivity_untested",
+        "robustness_claim_unsupported"
+      ],
+      "expected_categories": ["reporting", "model_selection", "external_validation"],
+      "expected_tags": [
+        "sensitivity_analysis",
+        "no_sensitivity_analysis",
+        "sensitivity_analysis_for_size",
+        "robustness_to_outliers",
+        "robustness_to_protocol",
+        "ablation_missing",
+        "ablation_study_missing",
+        "external_validation_depth",
+        "cross_cohort_stability"
+      ]
     }
   ]
 }

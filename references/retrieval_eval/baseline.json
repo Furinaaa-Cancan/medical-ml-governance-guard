@@ -1387,12 +1387,418 @@
           "retrieval_mode": "keyword_match"
         }
       ]
+    },
+    {
+      "scenario_id": "covariate_shift_train_test",
+      "description": "Train from 2015-2019 data, test on 2023 data \u2014 no PSI / Jensen-Shannon / feature-drift analysis. Drug prescribing patterns, diagnostic codes, and demographics all shifted over the gap. KB uses broad tags like 'confounding' / 'selection_bias' / 'cohort_definition' for this class, not the ML-textbook term 'covariate shift'.",
+      "gate_name": "covariate_shift_gate",
+      "retrieved_count": 5,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.357,
+      "matched_expected_categories": [
+        "study_design"
+      ],
+      "matched_expected_tags": [
+        "cohort_definition",
+        "confounding",
+        "correlated_features",
+        "multicollinearity",
+        "selection_bias"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-111-C05",
+          "paper_id": "PR-111",
+          "severity": "MEDIUM",
+          "category": "study_design",
+          "tags": [
+            "subgroup_analysis_missing",
+            "confounding",
+            "fairness",
+            "missing_demographics"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-112-C03",
+          "paper_id": "PR-112",
+          "severity": "HIGH",
+          "category": "study_design",
+          "tags": [
+            "confounding",
+            "treatment_imbalance",
+            "selection_bias",
+            "cohort_definition"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-114-C03",
+          "paper_id": "PR-114",
+          "severity": "HIGH",
+          "category": "study_design",
+          "tags": [
+            "control_matching",
+            "sepsis_mimickers",
+            "selection_bias",
+            "cohort_definition"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-001-C04",
+          "paper_id": "PR-001",
+          "severity": "MEDIUM",
+          "category": "preprocessing",
+          "tags": [
+            "multicollinearity",
+            "correlated_features"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-102-C05",
+          "paper_id": "PR-102",
+          "severity": "MEDIUM",
+          "category": "study_design",
+          "tags": [
+            "confounding",
+            "confounders"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
+    },
+    {
+      "scenario_id": "distribution_generalization_temporal",
+      "description": "Internal temporal validation: model trained on 2015-2018, internal-split 2019-2020, reported as 'temporal validation'. But there is no external site. Generalization claim uses the wrong reference population.",
+      "gate_name": "distribution_generalization_gate",
+      "retrieved_count": 5,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.571,
+      "matched_expected_categories": [
+        "external_validation"
+      ],
+      "matched_expected_tags": [
+        "distribution_shift",
+        "domain_shift",
+        "external_auc_drop",
+        "generalizability",
+        "generalization_gap",
+        "no_external_validation",
+        "population_difference",
+        "validation_cohort_missing"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-111-C04",
+          "paper_id": "PR-111",
+          "severity": "HIGH",
+          "category": "external_validation",
+          "tags": [
+            "no_external_validation",
+            "single_split",
+            "generalizability",
+            "validation_cohort_missing"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-112-C01",
+          "paper_id": "PR-112",
+          "severity": "CRITICAL",
+          "category": "external_validation",
+          "tags": [
+            "external_auc_drop",
+            "generalization_gap",
+            "overstatement",
+            "distribution_shift"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-108-C01",
+          "paper_id": "PR-108",
+          "severity": "HIGH",
+          "category": "split_protocol",
+          "tags": [
+            "split_protocol",
+            "disease_heterogeneity",
+            "subgroup_bias"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-004-C04",
+          "paper_id": "PR-004",
+          "severity": "HIGH",
+          "category": "external_validation",
+          "tags": [
+            "domain_shift",
+            "population_difference",
+            "transfer_learning"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-113-C03",
+          "paper_id": "PR-113",
+          "severity": "HIGH",
+          "category": "external_validation",
+          "tags": [
+            "no_prospective_validation",
+            "no_external_validation",
+            "biomarker_validation_missing"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
+    },
+    {
+      "scenario_id": "feature_lineage_undocumented",
+      "description": "Feature 'lab_panel_composite_score' computed via a pandas pipeline that isn't in the shared code repo. Lineage spec has no DAG node for it. Reader can't reproduce the feature, and it's later the #1 SHAP-ranked predictor.",
+      "gate_name": "feature_lineage_gate",
+      "retrieved_count": 3,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.25,
+      "matched_expected_categories": [
+        "preprocessing"
+      ],
+      "matched_expected_tags": [
+        "feature_engineering_opaque",
+        "feature_quality"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-107-C06",
+          "paper_id": "PR-107",
+          "severity": "MEDIUM",
+          "category": "preprocessing",
+          "tags": [
+            "nlp_pipeline_unclear",
+            "feature_engineering_opaque"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-111-C03",
+          "paper_id": "PR-111",
+          "severity": "HIGH",
+          "category": "preprocessing",
+          "tags": [
+            "imputation_policy",
+            "missingness_reporting",
+            "missing_data_unreported",
+            "feature_quality"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-113-C05",
+          "paper_id": "PR-113",
+          "severity": "MEDIUM",
+          "category": "feature_selection",
+          "tags": [
+            "feature_selection_rationale",
+            "definition_variable_guard",
+            "variable_definition_ambiguous"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
+    },
+    {
+      "scenario_id": "generalization_gap_optimistic",
+      "description": "Train AUROC 0.95, test AUROC 0.62 \u2014 33-point gap, classic overfitting. KB has only 2 concerns mapped to generalization_gap_gate specifically, but reviewers often write about this under external-validation terminology (external_auc_drop, performance_degradation_external).",
+      "gate_name": "generalization_gap_gate",
+      "retrieved_count": 2,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.5,
+      "matched_expected_categories": [
+        "external_validation"
+      ],
+      "matched_expected_tags": [
+        "distribution_shift",
+        "external_auc_drop",
+        "generalization_gap",
+        "internal_external_gap",
+        "optimism_bias",
+        "overstatement",
+        "performance_degradation_external"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-112-C01",
+          "paper_id": "PR-112",
+          "severity": "CRITICAL",
+          "category": "external_validation",
+          "tags": [
+            "external_auc_drop",
+            "generalization_gap",
+            "overstatement",
+            "distribution_shift"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-104-C01",
+          "paper_id": "PR-104",
+          "severity": "HIGH",
+          "category": "external_validation",
+          "tags": [
+            "performance_degradation_external",
+            "internal_external_gap",
+            "optimism_bias"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
+    },
+    {
+      "scenario_id": "metric_consistency_cross_split",
+      "description": "Primary metric AUROC reported differently across the evaluation report, the discussion section, and Supplementary Table S4. 0.83 vs 0.85 vs 0.81 \u2014 reader cannot reconcile. Breaks the internal-consistency contract that everything cite the same source of truth.",
+      "gate_name": "metric_consistency_gate",
+      "retrieved_count": 2,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.273,
+      "matched_expected_categories": [
+        "evaluation_metrics",
+        "reporting"
+      ],
+      "matched_expected_tags": [
+        "abstract_mismatch",
+        "reporting_completeness",
+        "selective_reporting"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-112-C05",
+          "paper_id": "PR-112",
+          "severity": "MEDIUM",
+          "category": "reporting",
+          "tags": [
+            "reporting_completeness",
+            "selective_reporting",
+            "abstract_mismatch"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-104-C02",
+          "paper_id": "PR-104",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "threshold_selection",
+            "unfair_comparison",
+            "threshold_justification"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
+    },
+    {
+      "scenario_id": "permutation_significance_missing",
+      "description": "Paper claims the model 'significantly outperforms baselines' with no permutation test, no Bonferroni correction, no null-distribution histogram. Documents a KB coverage gap: only 1 concern maps to permutation_significance_gate today. Scenario value is the coverage signal \u2014 retrieval will surface via broader stat-rigor tags (missing_ci, no_delong_test, statistical_comparison_missing).",
+      "gate_name": "permutation_significance_gate",
+      "retrieved_count": 1,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.333,
+      "matched_expected_categories": [
+        "evaluation_metrics"
+      ],
+      "matched_expected_tags": [
+        "missing_ci",
+        "no_delong_test",
+        "statistical_comparison_missing"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-113-C02",
+          "paper_id": "PR-113",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "missing_ci",
+            "no_delong_test",
+            "statistical_comparison_missing"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
+    },
+    {
+      "scenario_id": "prediction_replay_irreproducible",
+      "description": "Rerunning shipped inference code produces predictions that differ from paper's reported ones. KB coverage gap: only 1 concern mapped to prediction_replay_gate today. Scenario documents the gap; retrieval surfaces generic reproducibility/external-validation concerns.",
+      "gate_name": "prediction_replay_gate",
+      "retrieved_count": 1,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.273,
+      "matched_expected_categories": [
+        "external_validation"
+      ],
+      "matched_expected_tags": [
+        "biomarker_validation_missing",
+        "no_external_validation",
+        "no_prospective_validation"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-113-C03",
+          "paper_id": "PR-113",
+          "severity": "HIGH",
+          "category": "external_validation",
+          "tags": [
+            "no_prospective_validation",
+            "no_external_validation",
+            "biomarker_validation_missing"
+          ],
+          "retrieval_mode": "severity_fallback"
+        }
+      ]
+    },
+    {
+      "scenario_id": "robustness_no_perturbation_test",
+      "description": "No sensitivity analysis to input perturbations. KB coverage gap: only 1 concern mapped to robustness_gate today. Documents the gap; retrieval surfaces external-validation and cross-cohort-stability concerns instead.",
+      "gate_name": "robustness_gate",
+      "retrieved_count": 1,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.222,
+      "matched_expected_categories": [
+        "external_validation"
+      ],
+      "matched_expected_tags": [
+        "cross_cohort_stability",
+        "external_validation_depth"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-114-C05",
+          "paper_id": "PR-114",
+          "severity": "MEDIUM",
+          "category": "external_validation",
+          "tags": [
+            "external_validation_depth",
+            "cross_cohort_stability",
+            "rna_extraction_variance"
+          ],
+          "retrieval_mode": "severity_fallback"
+        }
+      ]
     }
   ],
   "aggregate": {
-    "total_scenarios": 18,
+    "total_scenarios": 26,
     "coverage_rate": 1.0,
     "hit_at_k_rate": 1.0,
-    "mean_tag_precision": 0.601
+    "mean_tag_precision": 0.523
   }
 }
