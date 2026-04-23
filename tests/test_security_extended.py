@@ -38,19 +38,19 @@ class TestEncryptionFailClosed:
                                               "cryptography.hazmat.primitives.ciphers": None,
                                               "cryptography.hazmat.primitives.ciphers.aead": None}):
             with pytest.raises(RuntimeError, match="cryptography"):
-                encrypt_evidence(data, key)
+                encrypt_evidence(data, aad=b"ctx", key=key)
 
     def test_decrypt_raises_without_cryptography(self):
         key = b"0123456789abcdef0123456789abcdef"
-        # Fabricate a blob with valid header
-        fake_blob = b"MLGG-ENC-v1\x00" + b"\x00" * 12 + b"\x00" * 20
+        # Fabricate a blob with valid v2 header (v1 would be rejected earlier).
+        fake_blob = b"MLGG-ENC-v2\x00" + b"\x00" * 12 + b"\x00" * 20
         with mock.patch.dict("sys.modules", {"cryptography": None,
                                               "cryptography.hazmat": None,
                                               "cryptography.hazmat.primitives": None,
                                               "cryptography.hazmat.primitives.ciphers": None,
                                               "cryptography.hazmat.primitives.ciphers.aead": None}):
             with pytest.raises(RuntimeError, match="cryptography"):
-                decrypt_evidence(fake_blob, key)
+                decrypt_evidence(fake_blob, aad=b"ctx", key=key)
 
 
 # ────────────────────────────────────────────────────────

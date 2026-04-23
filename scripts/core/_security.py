@@ -701,7 +701,14 @@ def safe_pickle_load(file_obj: Any) -> Any:
 # 8. Evidence encryption at rest (AES-256-GCM)
 # ---------------------------------------------------------------------------
 
-_ENC_HEADER = b"MLGG-ENC-v1\x00"
+# AES-GCM envelope version.
+#   v1 (legacy, Codex 2026-04-23 found unsafe): aad=None. Ciphertext
+#        was not bound to any context — a valid blob for evidence slot
+#        A could be replayed into slot B that shared the same key.
+#        Decrypt now REFUSES to read v1 blobs; rotate keys + re-encrypt.
+#   v2: aad required; caller-supplied context string is authenticated.
+_ENC_HEADER_V1 = b"MLGG-ENC-v1\x00"
+_ENC_HEADER = b"MLGG-ENC-v2\x00"
 _ENC_KEY_FILE = ".mlgg_encryption_key"
 
 
@@ -772,16 +779,35 @@ def _get_encryption_key() -> bytes:
     return key
 
 
-def encrypt_evidence(data: bytes, key: Optional[bytes] = None) -> bytes:
-    """Encrypt evidence data using AES-256-GCM.
+def encrypt_evidence(
+    data: bytes,
+    *,
+    aad: bytes,
+    key: Optional[bytes] = None,
+) -> bytes:
+    """Encrypt evidence data using AES-256-GCM with authenticated context.
 
     Args:
         data: Plaintext bytes to encrypt.
+        aad: Associated data binding ciphertext to context. Required
+            (keyword-only). Example: b"mlgg-evidence-chain-v1" or
+            b"audit-log-entry:<run_id>". A ciphertext produced with
+            one aad cannot be decrypted with a different aad, which
+            prevents cross-context replay.
         key: 32-byte AES key. Auto-derived if None.
 
     Returns:
         Encrypted blob: header + nonce(12) + tag(16) + ciphertext.
+
+    Raises:
+        ValueError: aad is empty (unbound ciphertext is refused).
     """
+    if not aad:
+        raise ValueError(
+            "encrypt_evidence requires a non-empty aad to bind ciphertext "
+            "to context. Unbound ciphertext is replayable across evidence "
+            "slots — see Codex review 2026-04-23."
+        )
     if key is None:
         key = _get_encryption_key()
 
@@ -790,7 +816,7 @@ def encrypt_evidence(data: bytes, key: Optional[bytes] = None) -> bytes:
     try:
         from cryptography.hazmat.primitives.ciphers.aead import AESGCM
         aesgcm = AESGCM(key)
-        ciphertext = bytes(aesgcm.encrypt(nonce, data, None))
+        ciphertext = bytes(aesgcm.encrypt(nonce, data, aad))
         # ciphertext includes the 16-byte tag appended by cryptography lib
         return _ENC_HEADER + nonce + ciphertext
     except ImportError:
@@ -801,23 +827,44 @@ def encrypt_evidence(data: bytes, key: Optional[bytes] = None) -> bytes:
         )
 
 
-def decrypt_evidence(blob: bytes, key: Optional[bytes] = None) -> bytes:
+def decrypt_evidence(
+    blob: bytes,
+    *,
+    aad: bytes,
+    key: Optional[bytes] = None,
+) -> bytes:
     """Decrypt evidence data encrypted with encrypt_evidence.
 
     Args:
         blob: Encrypted blob from encrypt_evidence.
+        aad: Same context bytes passed to encrypt_evidence. Must match
+            or decryption fails with an integrity error (this is the
+            authentication that prevents cross-context replay).
         key: 32-byte AES key. Auto-derived if None.
 
     Returns:
         Decrypted plaintext bytes.
 
     Raises:
-        SecurityError: If decryption or integrity check fails.
+        SecurityError: If decryption or integrity check fails, or if
+            the blob uses the legacy v1 envelope (which had no AAD).
     """
+    if not aad:
+        raise ValueError(
+            "decrypt_evidence requires the same non-empty aad used for "
+            "encrypt_evidence."
+        )
     if key is None:
         key = _get_encryption_key()
 
     header_len = len(_ENC_HEADER)
+    if blob.startswith(_ENC_HEADER_V1):
+        raise SecurityError(
+            "Legacy v1 ciphertext refused: v1 blobs had no AAD binding "
+            "and can be replayed across contexts. Rotate the encryption "
+            "key and re-encrypt data with encrypt_evidence(..., aad=<ctx>). "
+            "See Codex review 2026-04-23."
+        )
     if not blob.startswith(_ENC_HEADER):
         raise SecurityError("Invalid encryption header")
 
@@ -827,7 +874,7 @@ def decrypt_evidence(blob: bytes, key: Optional[bytes] = None) -> bytes:
         from cryptography.hazmat.primitives.ciphers.aead import AESGCM
         aesgcm = AESGCM(key)
         ciphertext_with_tag = blob[header_len + 12:]
-        return bytes(aesgcm.decrypt(nonce, ciphertext_with_tag, None))
+        return bytes(aesgcm.decrypt(nonce, ciphertext_with_tag, aad))
     except ImportError:
         raise RuntimeError(
             "AES-256-GCM decryption requires the 'cryptography' package. "
@@ -835,22 +882,61 @@ def decrypt_evidence(blob: bytes, key: Optional[bytes] = None) -> bytes:
         )
 
 
-def encrypt_file(path: Path, key: Optional[bytes] = None) -> Path:
+def _default_file_aad(path: Path) -> bytes:
+    """Context-binding AAD for file-level encrypt/decrypt. The filename
+    is the natural context discriminator — encrypting `evidence_A` vs
+    `evidence_B` under the same key must produce non-interchangeable
+    ciphertext. Uses just the basename so relocating the file (which
+    is common) does not break decryption.
+    """
+    return f"mlgg-file-v1:{path.name}".encode("utf-8")
+
+
+def encrypt_file(
+    path: Path,
+    *,
+    aad: Optional[bytes] = None,
+    key: Optional[bytes] = None,
+) -> Path:
     """Encrypt a file in-place, adding .enc extension.
+
+    Args:
+        path: File to encrypt.
+        aad: Optional override for the AAD. Defaults to a filename-
+            based context string so the ciphertext cannot be swapped
+            into a different file slot.
+        key: Optional 32-byte AES key; auto-derived if None.
 
     Returns path to encrypted file.
     """
     data = path.read_bytes()
-    encrypted = encrypt_evidence(data, key)
+    encrypted = encrypt_evidence(
+        data, aad=aad if aad is not None else _default_file_aad(path), key=key,
+    )
     enc_path = path.with_suffix(path.suffix + ".enc")
     enc_path.write_bytes(encrypted)
     return enc_path
 
 
-def decrypt_file(enc_path: Path, key: Optional[bytes] = None) -> bytes:
-    """Decrypt an .enc file and return plaintext bytes."""
+def decrypt_file(
+    enc_path: Path,
+    *,
+    aad: Optional[bytes] = None,
+    key: Optional[bytes] = None,
+) -> bytes:
+    """Decrypt an .enc file and return plaintext bytes.
+
+    Note: the caller must pass the same aad used at encrypt time. When
+    aad=None, the filename-based default is derived from the ORIGINAL
+    file name (stripping the trailing .enc suffix) so that
+    encrypt_file(foo.json) → decrypt_file(foo.json.enc) round-trips.
+    """
     blob = enc_path.read_bytes()
-    return decrypt_evidence(blob, key)
+    if aad is None:
+        # Strip the .enc suffix to recover the plaintext name used in aad.
+        original_name = enc_path.name[:-len(".enc")] if enc_path.suffix == ".enc" else enc_path.name
+        aad = f"mlgg-file-v1:{original_name}".encode("utf-8")
+    return decrypt_evidence(blob, aad=aad, key=key)
 
 
 # ---------------------------------------------------------------------------
