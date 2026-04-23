@@ -650,12 +650,394 @@
           "retrieval_mode": "keyword_match"
         }
       ]
+    },
+    {
+      "scenario_id": "reporting_missing_tripod_checklist",
+      "description": "Clinical-prediction paper ships with no TRIPOD+AI 2024 completion table, no PROBAST+AI 2025 risk-of-bias assessment, no CONSORT-style flow diagram. Reporting completeness failure \u2014 very common reviewer concern.",
+      "gate_name": "reporting_bias_gate",
+      "retrieved_count": 5,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.857,
+      "matched_expected_categories": [
+        "reporting"
+      ],
+      "matched_expected_tags": [
+        "consort",
+        "missing_flow_diagram",
+        "no_tripod",
+        "reporting_completeness",
+        "reporting_guidelines",
+        "tripod_compliance"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-110-C06",
+          "paper_id": "PR-110",
+          "severity": "MEDIUM",
+          "category": "reporting",
+          "tags": [
+            "no_tripod",
+            "reporting_completeness",
+            "flow_diagram_missing"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-002-C08",
+          "paper_id": "PR-002",
+          "severity": "LOW",
+          "category": "reporting",
+          "tags": [
+            "missing_flow_diagram",
+            "consort"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-039-C02",
+          "paper_id": "PR-039",
+          "severity": "HIGH",
+          "category": "reporting",
+          "tags": [
+            "no_tripod",
+            "outcome_definition_unclear",
+            "all_cause_vs_specific"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-026-C04",
+          "paper_id": "PR-026",
+          "severity": "LOW",
+          "category": "reporting",
+          "tags": [
+            "tripod_compliance",
+            "reporting_quality"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-003-C04",
+          "paper_id": "PR-003",
+          "severity": "HIGH",
+          "category": "reporting",
+          "tags": [
+            "no_tripod",
+            "reporting_guidelines"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
+    },
+    {
+      "scenario_id": "clinical_threshold_no_sensitivity_specificity",
+      "description": "Rare-outcome binary classifier reports AUROC=0.85 but never discloses sensitivity/specificity or PPV/NPV at the deployed threshold. For rare-event clinical prediction the PPV can be <10% even at AUROC 0.85 \u2014 this is the failure mode that makes AUROC-only evaluation misleading.",
+      "gate_name": "clinical_metrics_gate",
+      "retrieved_count": 5,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.6,
+      "matched_expected_categories": [
+        "clinical_utility",
+        "evaluation_metrics"
+      ],
+      "matched_expected_tags": [
+        "auc_overoptimistic",
+        "clinical_utility_questionable",
+        "false_positive_burden",
+        "low_ppv",
+        "prevalence_bias",
+        "rare_event_ppv"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-004-C02",
+          "paper_id": "PR-004",
+          "severity": "CRITICAL",
+          "category": "clinical_utility",
+          "tags": [
+            "low_ppv",
+            "clinical_utility_questionable",
+            "false_positive_burden",
+            "cost_effectiveness"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-104-C05",
+          "paper_id": "PR-104",
+          "severity": "MEDIUM",
+          "category": "evaluation_metrics",
+          "tags": [
+            "prevalence_bias",
+            "low_ppv",
+            "rare_event_ppv"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-007-C01",
+          "paper_id": "PR-007",
+          "severity": "HIGH",
+          "category": "clinical_utility",
+          "tags": [
+            "clinical_utility_in_easy_cases",
+            "subgroup_performance",
+            "hard_cases"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-106-C04",
+          "paper_id": "PR-106",
+          "severity": "HIGH",
+          "category": "clinical_utility",
+          "tags": [
+            "clinician_adjudication",
+            "auc_overoptimistic",
+            "clinical_utility"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-020-C02",
+          "paper_id": "PR-020",
+          "severity": "CRITICAL",
+          "category": "clinical_utility",
+          "tags": [
+            "potential_harm",
+            "overtreatment",
+            "clinical_significance_of_findings"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
+    },
+    {
+      "scenario_id": "definition_variable_outcome_in_feature",
+      "description": "Outcome is 'AKI' defined as creatinine rise \u22650.3 mg/dL over 48h \u2014 then 'peak_creatinine_48h' is used as a predictor. Classic definition-variable leak: feature is (part of) the outcome itself. Complements the discharge-ICD leakage scenario by targeting the non-ICD form of outcome-in-feature.",
+      "gate_name": "definition_variable_guard",
+      "retrieved_count": 5,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.444,
+      "matched_expected_categories": [
+        "feature_selection",
+        "study_design"
+      ],
+      "matched_expected_tags": [
+        "definition_drift",
+        "definition_variable_guard",
+        "outcome_definition",
+        "variable_definition_ambiguous"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-113-C05",
+          "paper_id": "PR-113",
+          "severity": "MEDIUM",
+          "category": "feature_selection",
+          "tags": [
+            "feature_selection_rationale",
+            "definition_variable_guard",
+            "variable_definition_ambiguous"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-114-C01",
+          "paper_id": "PR-114",
+          "severity": "CRITICAL",
+          "category": "study_design",
+          "tags": [
+            "outcome_definition",
+            "definition_drift",
+            "sepsis3_label_inconsistency",
+            "prognostic_vs_diagnostic"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-112-C03",
+          "paper_id": "PR-112",
+          "severity": "HIGH",
+          "category": "study_design",
+          "tags": [
+            "confounding",
+            "treatment_imbalance",
+            "selection_bias",
+            "cohort_definition"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-114-C03",
+          "paper_id": "PR-114",
+          "severity": "HIGH",
+          "category": "study_design",
+          "tags": [
+            "control_matching",
+            "sepsis_mimickers",
+            "selection_bias",
+            "cohort_definition"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-105-C01",
+          "paper_id": "PR-105",
+          "severity": "HIGH",
+          "category": "study_design",
+          "tags": [
+            "diagnosis_vs_prediction",
+            "risk_vs_diagnosis",
+            "terminology_conflated",
+            "prediction_horizon_justification"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
+    },
+    {
+      "scenario_id": "imbalance_smote_without_justification",
+      "description": "Extreme class imbalance (1% positive class) handled by SMOTE to 50/50 without discussion of distortion to calibration or reporting of performance on the ORIGINAL imbalanced test distribution. Common mishandling in rare-outcome NC papers.",
+      "gate_name": "imbalance_policy_gate",
+      "retrieved_count": 3,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.5,
+      "matched_expected_categories": [
+        "preprocessing"
+      ],
+      "matched_expected_tags": [
+        "class_imbalance",
+        "imbalance_policy_gate",
+        "resampling_distortion"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-110-C04",
+          "paper_id": "PR-110",
+          "severity": "MEDIUM",
+          "category": "preprocessing",
+          "tags": [
+            "class_imbalance",
+            "resampling_distortion",
+            "imbalance_policy_gate"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-113-C01",
+          "paper_id": "PR-113",
+          "severity": "CRITICAL",
+          "category": "split_protocol",
+          "tags": [
+            "cv_strategy_unspecified",
+            "smote_before_split",
+            "data_split_ambiguous",
+            "leakage_risk"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-101-C03",
+          "paper_id": "PR-101",
+          "severity": "MEDIUM",
+          "category": "preprocessing",
+          "tags": [
+            "class_imbalance",
+            "imbalance_policy_gate"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
+    },
+    {
+      "scenario_id": "feature_selection_data_leakage",
+      "description": "Feature-engineering report declares selection_scope='full_data' or data_scopes_used includes 'test'/'external' \u2014 the exact failures feature_engineering_audit_gate emits. Real code strings: feature_selection_data_leakage + feature_engineering_scope_violation. Represents the 'preprocessing fit on concatenated train+test' class (Kapoor & Narayanan 2023 R002).",
+      "gate_name": "feature_engineering_audit_gate",
+      "retrieved_count": 5,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.5,
+      "matched_expected_categories": [
+        "feature_selection",
+        "preprocessing"
+      ],
+      "matched_expected_tags": [
+        "feature_engineering_opaque",
+        "feature_selection_justification",
+        "feature_selection_process"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-101-C04",
+          "paper_id": "PR-101",
+          "severity": "MEDIUM",
+          "category": "feature_selection",
+          "tags": [
+            "feature_selection_justification",
+            "feature_selection_process"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-111-C03",
+          "paper_id": "PR-111",
+          "severity": "HIGH",
+          "category": "preprocessing",
+          "tags": [
+            "imputation_policy",
+            "missingness_reporting",
+            "missing_data_unreported",
+            "feature_quality"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-105-C05",
+          "paper_id": "PR-105",
+          "severity": "MEDIUM",
+          "category": "feature_selection",
+          "tags": [
+            "p_value_selection",
+            "feature_selection_justification",
+            "feature_selection_process"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-107-C06",
+          "paper_id": "PR-107",
+          "severity": "MEDIUM",
+          "category": "preprocessing",
+          "tags": [
+            "nlp_pipeline_unclear",
+            "feature_engineering_opaque"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-108-C04",
+          "paper_id": "PR-108",
+          "severity": "MEDIUM",
+          "category": "feature_selection",
+          "tags": [
+            "feature_selection_justification",
+            "feature_selection_process",
+            "terminology_overreach"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
     }
   ],
   "aggregate": {
-    "total_scenarios": 8,
+    "total_scenarios": 13,
     "coverage_rate": 1.0,
     "hit_at_k_rate": 1.0,
-    "mean_tag_precision": 0.617
+    "mean_tag_precision": 0.603
   }
 }

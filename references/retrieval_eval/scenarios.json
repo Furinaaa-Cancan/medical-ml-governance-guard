@@ -152,6 +152,109 @@
         "missing_data_unreported",
         "normal_imputation_bias"
       ]
+    },
+    {
+      "scenario_id": "reporting_missing_tripod_checklist",
+      "description": "Clinical-prediction paper ships with no TRIPOD+AI 2024 completion table, no PROBAST+AI 2025 risk-of-bias assessment, no CONSORT-style flow diagram. Reporting completeness failure — very common reviewer concern.",
+      "gate_name": "reporting_bias_gate",
+      "failure_codes": [
+        "tripod_ai_checklist_incomplete",
+        "probast_ai_assessment_missing",
+        "consort_flow_diagram_missing"
+      ],
+      "expected_categories": ["reporting"],
+      "expected_tags": [
+        "no_tripod",
+        "tripod_compliance",
+        "reporting_completeness",
+        "consort",
+        "consort_flow_missing",
+        "missing_flow_diagram",
+        "reporting_guidelines"
+      ]
+    },
+    {
+      "scenario_id": "clinical_threshold_no_sensitivity_specificity",
+      "description": "Rare-outcome binary classifier reports AUROC=0.85 but never discloses sensitivity/specificity or PPV/NPV at the deployed threshold. For rare-event clinical prediction the PPV can be <10% even at AUROC 0.85 — this is the failure mode that makes AUROC-only evaluation misleading.",
+      "gate_name": "clinical_metrics_gate",
+      "failure_codes": [
+        "clinical_floor_ppv_not_met",
+        "clinical_floor_sensitivity_not_met",
+        "missing_sensitivity_specificity_at_threshold"
+      ],
+      "expected_categories": ["evaluation_metrics", "clinical_utility"],
+      "expected_tags": [
+        "low_ppv",
+        "rare_event_ppv",
+        "missing_ppv_npv",
+        "missing_sensitivity_specificity",
+        "cutoff_sensitivity",
+        "incomplete_metrics",
+        "clinical_utility_questionable",
+        "false_positive_burden",
+        "prevalence_bias",
+        "auc_overoptimistic"
+      ]
+    },
+    {
+      "scenario_id": "definition_variable_outcome_in_feature",
+      "description": "Outcome is 'AKI' defined as creatinine rise ≥0.3 mg/dL over 48h — then 'peak_creatinine_48h' is used as a predictor. Classic definition-variable leak: feature is (part of) the outcome itself. Complements the discharge-ICD leakage scenario by targeting the non-ICD form of outcome-in-feature.",
+      "gate_name": "definition_variable_guard",
+      "failure_codes": [
+        "feature_is_in_outcome_definition",
+        "definition_variable_leak_detected",
+        "outcome_defined_by_predictor"
+      ],
+      "expected_categories": ["data_leakage", "feature_selection", "study_design"],
+      "expected_tags": [
+        "definition_variable",
+        "definition_variable_guard",
+        "variable_definition_ambiguous",
+        "definition_drift",
+        "outcome_defined_by_features",
+        "feature_is_outcome_proxy",
+        "circular_prediction",
+        "circular_evaluation",
+        "outcome_definition"
+      ]
+    },
+    {
+      "scenario_id": "imbalance_smote_without_justification",
+      "description": "Extreme class imbalance (1% positive class) handled by SMOTE to 50/50 without discussion of distortion to calibration or reporting of performance on the ORIGINAL imbalanced test distribution. Common mishandling in rare-outcome NC papers.",
+      "gate_name": "imbalance_policy_gate",
+      "failure_codes": [
+        "smote_calibration_distortion",
+        "resampled_test_evaluation",
+        "class_weight_unjustified"
+      ],
+      "expected_categories": ["preprocessing", "evaluation_metrics"],
+      "expected_tags": [
+        "class_imbalance",
+        "extreme_class_imbalance",
+        "resampling_distortion",
+        "smote_needed",
+        "imbalance_policy_gate",
+        "rebalancing_distortion"
+      ]
+    },
+    {
+      "scenario_id": "feature_selection_data_leakage",
+      "description": "Feature-engineering report declares selection_scope='full_data' or data_scopes_used includes 'test'/'external' — the exact failures feature_engineering_audit_gate emits. Real code strings: feature_selection_data_leakage + feature_engineering_scope_violation. Represents the 'preprocessing fit on concatenated train+test' class (Kapoor & Narayanan 2023 R002).",
+      "gate_name": "feature_engineering_audit_gate",
+      "failure_codes": [
+        "feature_selection_data_leakage",
+        "feature_engineering_scope_violation",
+        "feature_engineering_reproducibility_missing"
+      ],
+      "expected_categories": ["preprocessing", "feature_selection"],
+      "expected_tags": [
+        "feature_selection_justification",
+        "feature_selection_process",
+        "feature_engineering_unclear",
+        "data_leakage_via_imputation",
+        "validation_imputation",
+        "feature_engineering_opaque"
+      ]
     }
   ]
 }
