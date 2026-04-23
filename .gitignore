@@ -69,3 +69,9 @@ references/codebooks/ukb/*.sqlite
 # text/ is a pdftotext intermediate that gets regenerated from the PDFs
 # and would balloon the repo if accidentally staged.
 references/case-studies/nature_communications/text/
+
+# Per-project anti-downgrade state. Each project tracks its own
+# claim_tier history locally — this is per-developer scratch, not
+# cross-team shared state. See request_contract_gate.py
+# _check_and_update_downgrade for the mechanism.
+.mlgg/claim_tier_history.json

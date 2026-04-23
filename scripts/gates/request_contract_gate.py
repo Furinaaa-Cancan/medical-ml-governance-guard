@@ -13,6 +13,7 @@ import json
 import math
 import re
 import sys
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -73,6 +74,149 @@ _PROJECT_ROOT_MARKERS = (
     "pyproject.toml",     # python project root
     ".mlgg_model_key",    # deployed-project marker
 )
+
+
+# ── Cross-run anti-downgrade state (Codex 2026-04-23 Contract #4) ──
+#
+# Tracks the highest claim_tier_target ever asserted for each
+# study_id, persisted at <project_sandbox>/.mlgg/claim_tier_history.json.
+# Refuses any subsequent request that would regress below the
+# previously-established tier.
+#
+# Rationale: a publication-grade run has already asserted (through
+# external validation, calibration, etc.) that the cohort definition
+# for study_id X meets the high bar. A later run at leakage-audited
+# for the same study_id either means the cohort definition changed
+# and should be a NEW study_id, or someone is attempting to
+# post-hoc weaken the claim. Both warrant explicit refusal.
+
+_DOWNGRADE_STATE_DIR = ".mlgg"
+_DOWNGRADE_STATE_FILE = "claim_tier_history.json"
+_DOWNGRADE_SCHEMA = "mlgg-claim-tier-history-v1"
+
+
+def _downgrade_state_path(sandbox: Path) -> Path:
+    return sandbox / _DOWNGRADE_STATE_DIR / _DOWNGRADE_STATE_FILE
+
+
+def _load_downgrade_history(sandbox: Path) -> Dict[str, Any]:
+    """Read the per-project claim-tier history file. Returns an
+    empty-but-valid history structure if the file is missing OR
+    malformed (we don't want a corrupted history file to wedge every
+    future run — the new run will rewrite it). Malformed files are
+    logged to stderr for visibility.
+    """
+    path = _downgrade_state_path(sandbox)
+    if not path.exists():
+        return {"schema": _DOWNGRADE_SCHEMA, "study_ids": {}}
+    try:
+        with path.open("r", encoding="utf-8") as fh:
+            data = json.load(fh)
+        if not isinstance(data, dict) or "study_ids" not in data:
+            raise ValueError("history file missing 'study_ids' object")
+        if not isinstance(data["study_ids"], dict):
+            raise ValueError("'study_ids' must be an object")
+        return data
+    except Exception as exc:
+        print(
+            f"WARN: claim-tier history at {path} malformed "
+            f"({exc}); starting fresh. Investigate before the next run.",
+            file=sys.stderr,
+        )
+        return {"schema": _DOWNGRADE_SCHEMA, "study_ids": {}}
+
+
+def _check_and_update_downgrade(
+    sandbox: Path,
+    study_id: str,
+    run_id: str,
+    current_tier: str,
+    failures: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    """Check current claim_tier_target against study_id's historical
+    high-water mark. Append a downgrade failure when current < high;
+    otherwise update the history file.
+
+    Returns a summary dict for inclusion in the normalized request
+    envelope (so callers and downstream gates see what was checked).
+    """
+    history = _load_downgrade_history(sandbox)
+    current_rank = _CLAIM_TIER_RANK.get(current_tier, 0)
+    entry = history["study_ids"].get(study_id)
+    summary = {
+        "history_path": str(_downgrade_state_path(sandbox)),
+        "current_tier": current_tier,
+        "current_rank": current_rank,
+        "previous_tier": entry.get("highest_tier") if entry else None,
+        "is_new_study_id": entry is None,
+    }
+    if entry is not None:
+        prior_tier = entry.get("highest_tier", "")
+        prior_rank = _CLAIM_TIER_RANK.get(prior_tier, 0)
+        if current_rank < prior_rank:
+            add_issue(
+                failures,
+                "publication_grade_downgrade_cross_run",
+                "study_id was previously asserted at a stricter claim tier. "
+                "Downgrading is refused — either fix this request to match "
+                "the previously-asserted tier, or use a new study_id if the "
+                "cohort has genuinely changed.",
+                {
+                    "study_id": study_id,
+                    "previous_highest_tier": prior_tier,
+                    "previous_run_id": entry.get("last_run_id"),
+                    "previous_timestamp": entry.get("last_timestamp"),
+                    "current_tier": current_tier,
+                    "remediation": (
+                        f"Set claim_tier_target >= {prior_tier}, or use a "
+                        f"new study_id for a legitimately-different cohort. "
+                        f"History: {_downgrade_state_path(sandbox)}"
+                    ),
+                },
+            )
+            summary["downgrade_detected"] = True
+            return summary
+
+    # No downgrade — update the high-water mark and append to history.
+    new_entry = {
+        "highest_tier": (
+            current_tier if entry is None or current_rank > _CLAIM_TIER_RANK.get(
+                entry.get("highest_tier", ""), 0,
+            ) else entry["highest_tier"]
+        ),
+        "first_timestamp": (
+            entry["first_timestamp"] if entry else time.strftime(
+                "%Y-%m-%dT%H:%M:%SZ", time.gmtime(),
+            )
+        ),
+        "last_timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "last_run_id": run_id,
+        "history": (entry.get("history", []) if entry else []) + [{
+            "tier": current_tier,
+            "run_id": run_id,
+            "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        }],
+    }
+    # Truncate history to last 50 entries to avoid unbounded growth.
+    new_entry["history"] = new_entry["history"][-50:]
+    history["study_ids"][study_id] = new_entry
+
+    try:
+        state_path = _downgrade_state_path(sandbox)
+        state_path.parent.mkdir(parents=True, exist_ok=True)
+        with state_path.open("w", encoding="utf-8") as fh:
+            json.dump(history, fh, indent=2, sort_keys=True)
+            fh.write("\n")
+    except OSError as exc:
+        print(
+            f"WARN: failed to persist claim-tier history at {state_path}: "
+            f"{exc}. Downgrade protection will regress on next run.",
+            file=sys.stderr,
+        )
+
+    summary["downgrade_detected"] = False
+    summary["updated_highest_tier"] = new_entry["highest_tier"]
+    return summary
 
 
 def _detect_project_root(start: Path, max_hops: int = 10) -> Optional[Path]:
@@ -175,6 +319,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--request", required=True, help="Path to request JSON.")
     parser.add_argument("--report", help="Optional output JSON report path.")
     parser.add_argument("--strict", action="store_true", help="Enable strict contract requirements.")
+    parser.add_argument(
+        "--allow-tier-downgrade",
+        action="store_true",
+        help=(
+            "Explicitly permit this run to use a LOWER claim_tier_target "
+            "than the study_id has been at before (reverse of the "
+            "Codex-2026-04-23 anti-downgrade check). Use only for "
+            "deliberate research-only rollbacks; a publication-grade "
+            "result then loses its monotone-strictness guarantee."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -2919,6 +3074,28 @@ def main() -> int:
             "claim_tier_target must be one of the allowed values.",
             {"allowed": sorted(ALLOWED_CLAIM_TIERS), "actual": claim_tier},
         )
+
+    # Cross-run anti-downgrade (Codex 2026-04-23 Contract #4).
+    # Only run when we have a valid claim_tier AND both study_id/run_id
+    # — otherwise there's nothing to check yet (earlier failures will
+    # already have fired). Also gated on not args.allow_downgrade so CI
+    # or a deliberate rollback can override by explicit consent.
+    _study_id = normalized.get("study_id")
+    _run_id = normalized.get("run_id")
+    if (
+        claim_tier in ALLOWED_CLAIM_TIERS
+        and _study_id
+        and _run_id
+        and not getattr(args, "allow_tier_downgrade", False)
+    ):
+        downgrade_summary = _check_and_update_downgrade(
+            sandbox=path_sandbox,
+            study_id=_study_id,
+            run_id=_run_id,
+            current_tier=claim_tier,
+            failures=failures,
+        )
+        normalized["claim_tier_history"] = downgrade_summary
 
     split_paths = request.get("split_paths")
     if not isinstance(split_paths, dict):

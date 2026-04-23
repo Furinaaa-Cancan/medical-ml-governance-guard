@@ -1377,6 +1377,162 @@ class TestProjectRootAnchoring:
         assert "path_sandbox_unanchored" not in warn_codes
 
 
+class TestCrossRunAntiDowngrade:
+    """Contract #4 (Codex 2026-04-23): README promised per-study_id
+    anti-downgrade protection but no implementation existed. Now
+    claim_tier_history.json persists the highest tier seen for each
+    study_id, and a subsequent run trying to regress is refused
+    unless --allow-tier-downgrade is explicitly passed."""
+
+    def _setup_project(self, tmp_path: Path) -> Path:
+        """Canonical layout with .git marker so sandbox anchors
+        correctly and the .mlgg/claim_tier_history.json lands at
+        tmp_path/.mlgg/."""
+        (tmp_path / ".git").mkdir()
+        (tmp_path / "configs").mkdir()
+        (tmp_path / "data").mkdir()
+        for fn in ("train.csv", "valid.csv", "test.csv"):
+            (tmp_path / "data" / fn).write_text("patient_id,y\nP001,0\n")
+        (tmp_path / "data" / "pheno.json").write_text('{"definition":"t"}')
+        return tmp_path / "configs" / "request.json"
+
+    def _write_request(self, req_path: Path, *, study_id: str, run_id: str, tier: str):
+        req = {
+            "study_id": study_id, "run_id": run_id, "target_name": "t",
+            "prediction_unit": "admission", "index_time_col": "tc",
+            "label_col": "y", "patient_id_col": "patient_id",
+            "primary_metric": "pr_auc",
+            "phenotype_definition_spec": "../data/pheno.json",
+            "claim_tier_target": tier,
+            "split_paths": {
+                "train": "../data/train.csv",
+                "valid": "../data/valid.csv",
+                "test": "../data/test.csv",
+            },
+            "thresholds": {"alpha": 0.05, "min_delta": 0.03},
+        }
+        req_path.write_text(json.dumps(req))
+
+    def test_first_run_records_history(self, tmp_path: Path):
+        req_path = self._setup_project(tmp_path)
+        self._write_request(req_path, study_id="S001", run_id="r1",
+                            tier="leakage-audited")
+        report_path = tmp_path / "report.json"
+        report = _run_gate(req_path, report_path)
+        assert report["status"] == "pass"
+        hist = report["normalized_request"]["claim_tier_history"]
+        assert hist["is_new_study_id"] is True
+        assert hist["previous_tier"] is None
+        assert hist["current_tier"] == "leakage-audited"
+        # File materialized.
+        state_file = tmp_path / ".mlgg" / "claim_tier_history.json"
+        assert state_file.exists()
+        state = json.loads(state_file.read_text())
+        assert "S001" in state["study_ids"]
+
+    def test_upgrade_allowed(self, tmp_path: Path):
+        req_path = self._setup_project(tmp_path)
+        # Run 1: leakage-audited
+        self._write_request(req_path, study_id="S002", run_id="r1",
+                            tier="leakage-audited")
+        _run_gate(req_path, tmp_path / "report1.json")
+        # Run 2: publication-grade (strictly higher) — must pass
+        self._write_request(req_path, study_id="S002", run_id="r2",
+                            tier="publication-grade")
+        report = _run_gate(req_path, tmp_path / "report2.json")
+        codes = [f["code"] for f in report.get("failures", [])]
+        assert "publication_grade_downgrade_cross_run" not in codes
+        hist = report["normalized_request"]["claim_tier_history"]
+        assert hist["previous_tier"] == "leakage-audited"
+        assert hist.get("updated_highest_tier") == "publication-grade"
+
+    def test_downgrade_refused(self, tmp_path: Path):
+        """The core Codex-surfaced README-promise regression."""
+        req_path = self._setup_project(tmp_path)
+        # Run 1: publication-grade
+        self._write_request(req_path, study_id="S003", run_id="r1",
+                            tier="publication-grade")
+        r1 = _run_gate(req_path, tmp_path / "r1.json")
+        # publication-grade bundle usually requires external_cohort_spec
+        # etc. — so r1 may have other validation failures. What matters
+        # for THIS test is that study_id S003 is now recorded at
+        # publication-grade (the downgrade check runs regardless of
+        # other failures because the history write is on the
+        # success-path AND the earlier check reads history — confirm
+        # by reading the state file directly).
+        state = json.loads((tmp_path / ".mlgg" / "claim_tier_history.json").read_text())
+        assert state["study_ids"]["S003"]["highest_tier"] == "publication-grade"
+
+        # Run 2: leakage-audited (downgrade) — must fail.
+        self._write_request(req_path, study_id="S003", run_id="r2",
+                            tier="leakage-audited")
+        r2 = _run_gate(req_path, tmp_path / "r2.json")
+        codes = [f["code"] for f in r2.get("failures", [])]
+        assert "publication_grade_downgrade_cross_run" in codes, (
+            f"Downgrade must fail-closed. Got: {codes}"
+        )
+        details = next(
+            f["details"] for f in r2["failures"]
+            if f["code"] == "publication_grade_downgrade_cross_run"
+        )
+        assert details["previous_highest_tier"] == "publication-grade"
+        assert details["current_tier"] == "leakage-audited"
+
+    def test_allow_tier_downgrade_escape_hatch(self, tmp_path: Path):
+        """--allow-tier-downgrade explicitly permits the regression."""
+        req_path = self._setup_project(tmp_path)
+        self._write_request(req_path, study_id="S004", run_id="r1",
+                            tier="publication-grade")
+        _run_gate(req_path, tmp_path / "r1.json")
+        self._write_request(req_path, study_id="S004", run_id="r2",
+                            tier="leakage-audited")
+        # With escape hatch:
+        result = subprocess.run(
+            [sys.executable, str(GATE_SCRIPT),
+             "--request", str(req_path),
+             "--report", str(tmp_path / "r2.json"),
+             "--allow-tier-downgrade"],
+            capture_output=True, text=True, timeout=30, cwd=str(SCRIPTS_DIR),
+        )
+        r2 = json.loads((tmp_path / "r2.json").read_text())
+        codes = [f["code"] for f in r2.get("failures", [])]
+        assert "publication_grade_downgrade_cross_run" not in codes, (
+            "--allow-tier-downgrade should suppress the downgrade refusal"
+        )
+
+    def test_different_study_id_not_affected(self, tmp_path: Path):
+        """Downgrade state is per-study_id. A different study_id
+        should not be constrained by an earlier publication-grade
+        run on a sibling study."""
+        req_path = self._setup_project(tmp_path)
+        self._write_request(req_path, study_id="S_A", run_id="r1",
+                            tier="publication-grade")
+        _run_gate(req_path, tmp_path / "ra.json")
+        # Different study_id at leakage-audited — no downgrade.
+        self._write_request(req_path, study_id="S_B", run_id="r1",
+                            tier="leakage-audited")
+        r = _run_gate(req_path, tmp_path / "rb.json")
+        codes = [f["code"] for f in r.get("failures", [])]
+        assert "publication_grade_downgrade_cross_run" not in codes
+
+    def test_malformed_history_file_recovers(self, tmp_path: Path):
+        """A corrupted history file is logged and treated as empty
+        (the new run rewrites it). Don't wedge every future run."""
+        req_path = self._setup_project(tmp_path)
+        # Pre-create a malformed history file.
+        state_dir = tmp_path / ".mlgg"
+        state_dir.mkdir()
+        (state_dir / "claim_tier_history.json").write_text("{corrupt")
+        self._write_request(req_path, study_id="S_corrupt", run_id="r1",
+                            tier="leakage-audited")
+        report = _run_gate(req_path, tmp_path / "report.json")
+        # Gate still runs; history rewritten cleanly.
+        hist = report["normalized_request"]["claim_tier_history"]
+        assert hist["is_new_study_id"] is True
+        rewritten = json.loads((state_dir / "claim_tier_history.json").read_text())
+        assert rewritten["schema"] == "mlgg-claim-tier-history-v1"
+
+
 class TestReportPathSandbox:
     """Regression (Codex 2026-04-23): `--report <path>` was written raw
     with Path.expanduser().resolve(), so an operator (or malicious user
