@@ -245,12 +245,417 @@
           "retrieval_mode": "keyword_match"
         }
       ]
+    },
+    {
+      "scenario_id": "cohort_definition_selection_bias",
+      "description": "Cohort assembled by convenience from EHR pulls without explicit inclusion/exclusion criteria or CONSORT-style flow diagram; selection bias and cohort-definition ambiguity are reviewer-level-1 concerns.",
+      "gate_name": "cohort_definition_gate",
+      "retrieved_count": 5,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.6,
+      "matched_expected_categories": [
+        "study_design"
+      ],
+      "matched_expected_tags": [
+        "cohort_definition",
+        "exclusion_criteria_questionable",
+        "selection_bias"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-110-C01",
+          "paper_id": "PR-110",
+          "severity": "HIGH",
+          "category": "study_design",
+          "tags": [
+            "selection_bias",
+            "cohort_definition",
+            "eligibility_criteria_missing"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-104-C03",
+          "paper_id": "PR-104",
+          "severity": "MEDIUM",
+          "category": "study_design",
+          "tags": [
+            "selection_bias",
+            "case_ascertainment_unclear",
+            "exclusion_criteria_questionable"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-035-C03",
+          "paper_id": "PR-035",
+          "severity": "HIGH",
+          "category": "study_design",
+          "tags": [
+            "exclusion_criteria_questionable",
+            "high_risk_excluded",
+            "clinically_relevant_exclusion"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-008-C01",
+          "paper_id": "PR-008",
+          "severity": "HIGH",
+          "category": "study_design",
+          "tags": [
+            "selection_bias",
+            "representativeness",
+            "matching_strategy"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-112-C03",
+          "paper_id": "PR-112",
+          "severity": "HIGH",
+          "category": "study_design",
+          "tags": [
+            "confounding",
+            "treatment_imbalance",
+            "selection_bias",
+            "cohort_definition"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
+    },
+    {
+      "scenario_id": "calibration_plot_missing_no_dca",
+      "description": "Clinical-prediction paper reports AUROC only; no calibration plot, no Hosmer-Lemeshow, no DCA. Top review concern for publication-grade binary-classification risk scores.",
+      "gate_name": "calibration_dca_gate",
+      "retrieved_count": 5,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.5,
+      "matched_expected_categories": [
+        "evaluation_metrics"
+      ],
+      "matched_expected_tags": [
+        "calibration_plot_missing",
+        "missing_calibration",
+        "missing_dca"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-022-C01",
+          "paper_id": "PR-022",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "correlation_not_prediction",
+            "individual_level_accuracy",
+            "calibration_plot_missing"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-033-C01",
+          "paper_id": "PR-033",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "missing_calibration",
+            "missing_dca",
+            "clinical_applicability"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-043-C01",
+          "paper_id": "PR-043",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "calibration_plot_missing",
+            "tripod_compliance",
+            "per_clinic_calibration"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-102-C01",
+          "paper_id": "PR-102",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "missing_calibration",
+            "calibration_plot_missing",
+            "tripod_compliance",
+            "delong_test"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-110-C03",
+          "paper_id": "PR-110",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "missing_calibration",
+            "calibration_plot_missing",
+            "rebalancing_distortion"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
+    },
+    {
+      "scenario_id": "model_selection_cherry_picked_seed",
+      "description": "Paper compares 12 model families on test set, reports only the best, no Bonferroni/Holm for multiple testing, no reported seed variance. Classic model-selection audit failure.",
+      "gate_name": "model_selection_audit_gate",
+      "retrieved_count": 5,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.667,
+      "matched_expected_categories": [
+        "model_selection"
+      ],
+      "matched_expected_tags": [
+        "benchmarking_missing",
+        "model_selection_on_test",
+        "multiple_model_comparison",
+        "multiple_testing"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-111-C01",
+          "paper_id": "PR-111",
+          "severity": "CRITICAL",
+          "category": "split_protocol",
+          "tags": [
+            "test_set_reuse",
+            "multiple_testing",
+            "model_selection_on_test",
+            "single_split"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-108-C03",
+          "paper_id": "PR-108",
+          "severity": "MEDIUM",
+          "category": "model_selection",
+          "tags": [
+            "multiple_model_comparison",
+            "benchmarking_missing",
+            "model_justification"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-003-C08",
+          "paper_id": "PR-003",
+          "severity": "MEDIUM",
+          "category": "model_selection",
+          "tags": [
+            "model_diversity",
+            "xgboost_suggestion",
+            "multiple_model_comparison"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-107-C03",
+          "paper_id": "PR-107",
+          "severity": "HIGH",
+          "category": "model_selection",
+          "tags": [
+            "multiple_model_comparison",
+            "model_justification",
+            "benchmarking_missing"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-101-C02",
+          "paper_id": "PR-101",
+          "severity": "MEDIUM",
+          "category": "model_selection",
+          "tags": [
+            "multiple_model_comparison",
+            "xgboost_suggestion",
+            "model_justification"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
+    },
+    {
+      "scenario_id": "split_smote_before_split",
+      "description": "Class-imbalanced cohort; author applied SMOTE on the full dataset before train/test split \u2014 the split-protocol leakage pattern called out explicitly in Kapoor & Narayanan 2023 and flagged in several NC papers.",
+      "gate_name": "split_protocol_gate",
+      "retrieved_count": 5,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.5,
+      "matched_expected_categories": [
+        "split_protocol"
+      ],
+      "matched_expected_tags": [
+        "cv_strategy_unspecified",
+        "patient_level_split",
+        "smote_before_split"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-002-C05",
+          "paper_id": "PR-002",
+          "severity": "HIGH",
+          "category": "split_protocol",
+          "tags": [
+            "patient_level_split",
+            "split_unit_unclear",
+            "potential_patient_overlap"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-113-C01",
+          "paper_id": "PR-113",
+          "severity": "CRITICAL",
+          "category": "split_protocol",
+          "tags": [
+            "cv_strategy_unspecified",
+            "smote_before_split",
+            "data_split_ambiguous",
+            "leakage_risk"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-029-C03",
+          "paper_id": "PR-029",
+          "severity": "HIGH",
+          "category": "split_protocol",
+          "tags": [
+            "multiple_admissions_per_patient",
+            "patient_overlap",
+            "positive_bias"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-108-C01",
+          "paper_id": "PR-108",
+          "severity": "HIGH",
+          "category": "split_protocol",
+          "tags": [
+            "split_protocol",
+            "disease_heterogeneity",
+            "subgroup_bias"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-111-C01",
+          "paper_id": "PR-111",
+          "severity": "CRITICAL",
+          "category": "split_protocol",
+          "tags": [
+            "test_set_reuse",
+            "multiple_testing",
+            "model_selection_on_test",
+            "single_split"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
+    },
+    {
+      "scenario_id": "missingness_normal_range_imputation",
+      "description": "EHR cohort with 30% missing labs; author imputed missing values to 'normal range' instead of median/MICE \u2014 treats missingness as MCAR when it is almost certainly MNAR (informative missingness). Calibration + reported performance both inflated.",
+      "gate_name": "missingness_policy_gate",
+      "retrieved_count": 5,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.833,
+      "matched_expected_categories": [
+        "preprocessing"
+      ],
+      "matched_expected_tags": [
+        "imputation_method",
+        "imputation_transparency",
+        "informative_missingness",
+        "missing_data_unreported",
+        "missing_not_at_random"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-111-C03",
+          "paper_id": "PR-111",
+          "severity": "HIGH",
+          "category": "preprocessing",
+          "tags": [
+            "imputation_policy",
+            "missingness_reporting",
+            "missing_data_unreported",
+            "feature_quality"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-039-C03",
+          "paper_id": "PR-039",
+          "severity": "HIGH",
+          "category": "preprocessing",
+          "tags": [
+            "imputation_justification",
+            "mnar_concern",
+            "informative_missingness",
+            "missing_data_unreported"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-006-C05",
+          "paper_id": "PR-006",
+          "severity": "MEDIUM",
+          "category": "preprocessing",
+          "tags": [
+            "missing_data_handling_unclear",
+            "imputation_method"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-105-C02",
+          "paper_id": "PR-105",
+          "severity": "HIGH",
+          "category": "preprocessing",
+          "tags": [
+            "missing_not_at_random",
+            "mnar_not_addressed",
+            "missing_data_unreported",
+            "imputation_transparency"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-035-C01",
+          "paper_id": "PR-035",
+          "severity": "HIGH",
+          "category": "preprocessing",
+          "tags": [
+            "missing_data_threshold",
+            "imputation_in_validation",
+            "non_routine_features"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
     }
   ],
   "aggregate": {
-    "total_scenarios": 3,
+    "total_scenarios": 8,
     "coverage_rate": 1.0,
     "hit_at_k_rate": 1.0,
-    "mean_tag_precision": 0.611
+    "mean_tag_precision": 0.617
   }
 }

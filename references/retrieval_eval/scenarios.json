@@ -56,6 +56,102 @@
         "generalizability",
         "same_cohort_validation"
       ]
+    },
+    {
+      "scenario_id": "cohort_definition_selection_bias",
+      "description": "Cohort assembled by convenience from EHR pulls without explicit inclusion/exclusion criteria or CONSORT-style flow diagram; selection bias and cohort-definition ambiguity are reviewer-level-1 concerns.",
+      "gate_name": "cohort_definition_gate",
+      "failure_codes": [
+        "inclusion_criteria_undocumented",
+        "exclusion_criteria_ambiguous",
+        "selection_bias_risk",
+        "missing_cohort_flow_diagram"
+      ],
+      "expected_categories": ["study_design"],
+      "expected_tags": [
+        "cohort_definition",
+        "selection_bias",
+        "exclusion_criteria_questionable",
+        "missing_flow_diagram",
+        "inclusion_criteria"
+      ]
+    },
+    {
+      "scenario_id": "calibration_plot_missing_no_dca",
+      "description": "Clinical-prediction paper reports AUROC only; no calibration plot, no Hosmer-Lemeshow, no DCA. Top review concern for publication-grade binary-classification risk scores.",
+      "gate_name": "calibration_dca_gate",
+      "failure_codes": [
+        "missing_calibration_plot",
+        "missing_calibration_intercept_slope",
+        "missing_decision_curve_analysis",
+        "missing_net_benefit_plot"
+      ],
+      "expected_categories": ["evaluation_metrics", "clinical_utility"],
+      "expected_tags": [
+        "missing_calibration",
+        "calibration_plot_missing",
+        "missing_dca",
+        "dca_explanation_needed",
+        "calibration_presentation",
+        "net_benefit"
+      ]
+    },
+    {
+      "scenario_id": "model_selection_cherry_picked_seed",
+      "description": "Paper compares 12 model families on test set, reports only the best, no Bonferroni/Holm for multiple testing, no reported seed variance. Classic model-selection audit failure.",
+      "gate_name": "model_selection_audit_gate",
+      "failure_codes": [
+        "multiple_model_comparison_unadjusted",
+        "best_seed_selection_on_test",
+        "missing_hyperparameter_search_protocol"
+      ],
+      "expected_categories": ["model_selection"],
+      "expected_tags": [
+        "multiple_model_comparison",
+        "multiple_testing",
+        "model_selection_on_test",
+        "hyperparameter_tuning",
+        "cherry_picked_results",
+        "benchmarking_missing"
+      ]
+    },
+    {
+      "scenario_id": "split_smote_before_split",
+      "description": "Class-imbalanced cohort; author applied SMOTE on the full dataset before train/test split — the split-protocol leakage pattern called out explicitly in Kapoor & Narayanan 2023 and flagged in several NC papers.",
+      "gate_name": "split_protocol_gate",
+      "failure_codes": [
+        "smote_before_split_detected",
+        "resampling_on_full_dataset",
+        "patient_level_overlap"
+      ],
+      "expected_categories": ["split_protocol", "data_leakage"],
+      "expected_tags": [
+        "smote_before_split",
+        "class_imbalance",
+        "patient_level_split",
+        "resampling_distortion",
+        "cv_strategy_unspecified",
+        "training_test_overlap"
+      ]
+    },
+    {
+      "scenario_id": "missingness_normal_range_imputation",
+      "description": "EHR cohort with 30% missing labs; author imputed missing values to 'normal range' instead of median/MICE — treats missingness as MCAR when it is almost certainly MNAR (informative missingness). Calibration + reported performance both inflated.",
+      "gate_name": "missingness_policy_gate",
+      "failure_codes": [
+        "missingness_mcar_assumption_unjustified",
+        "normal_range_imputation_detected",
+        "imputation_method_undocumented"
+      ],
+      "expected_categories": ["preprocessing"],
+      "expected_tags": [
+        "informative_missingness",
+        "missing_not_at_random",
+        "imputation_transparency",
+        "imputation_method",
+        "missing_data_unreported",
+        "normal_imputation_bias"
+      ]
     }
   ]
 }
