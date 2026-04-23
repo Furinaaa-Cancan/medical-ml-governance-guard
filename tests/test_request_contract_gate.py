@@ -1300,3 +1300,73 @@ class TestCrossSectionalCoercion:
         report = _run_gate(req_path, report_path)
         codes = [f["code"] for f in report.get("failures", [])]
         assert "invalid_cross_sectional" not in codes
+
+
+class TestReportPathSandbox:
+    """Regression (Codex 2026-04-23): `--report <path>` was written raw
+    with Path.expanduser().resolve(), so an operator (or malicious user
+    controlling the CLI args) could pass --report ../sibling_gate/
+    report.json and silently overwrite a neighboring gate's attestation.
+    Sandbox check now refuses paths that escape the request's project
+    root (request_path.parent.parent)."""
+
+    def test_report_inside_sandbox_accepted(self, tmp_path: Path):
+        """Legitimate path under request root must still work — this
+        is the normal case and most tests rely on it."""
+        req = _make_minimal_request(tmp_path)
+        # Report directly next to request → inside sandbox.
+        report_path = tmp_path / "report.json"
+        report = _run_gate(req, report_path)
+        assert report.get("status") in ("pass", "fail")  # report was written
+        assert "normalized_request" in report
+
+    def test_report_sibling_subdir_accepted(self, tmp_path: Path):
+        """evidence/report.json — sibling directory under project root
+        is a legitimate target."""
+        req = _make_minimal_request(tmp_path)
+        (tmp_path / "evidence").mkdir()
+        report_path = tmp_path / "evidence" / "report.json"
+        report = _run_gate(req, report_path)
+        assert report.get("status") in ("pass", "fail")
+
+    def test_report_escape_to_parent_refused(self, tmp_path: Path):
+        """--report pointing outside the project sandbox must be blocked.
+
+        Note: the 'sandbox' in this gate is request_base.parent, so
+        the test has to nest the request deeper to make the sandbox
+        tight enough that an escape attempt is meaningful. The
+        canonical MLGG layout (configs/request.json under a project
+        root) gives the sandbox = project root. We mirror that here."""
+        import tempfile
+        # Canonical layout: project/configs/request.json → sandbox = project/.
+        configs = tmp_path / "configs"
+        configs.mkdir()
+        # Copy request into configs and rewrite split paths as absolute
+        # under project root (tmp_path).
+        req_flat = _make_minimal_request(tmp_path)
+        req_data = json.loads(req_flat.read_text())
+        req_path = configs / "request.json"
+        req_path.write_text(json.dumps(req_data))
+
+        # Attacker target: absolute path outside tmp_path entirely.
+        outside_root = Path(tempfile.mkdtemp(prefix="mlgg_escape_test_"))
+        try:
+            evil_report_path = outside_root / "stolen_attestation.json"
+            result = subprocess.run(
+                [sys.executable, str(GATE_SCRIPT),
+                 "--request", str(req_path),
+                 "--report", str(evil_report_path)],
+                capture_output=True, text=True, timeout=30,
+                cwd=str(SCRIPTS_DIR),
+            )
+            assert result.returncode != 0, (
+                f"Sandbox should reject out-of-tree report path.\n"
+                f"stdout={result.stdout[:300]}\nstderr={result.stderr[:300]}"
+            )
+            assert not evil_report_path.exists(), (
+                f"Sandbox failed: report leaked to {evil_report_path}"
+            )
+            assert "escape" in (result.stderr + result.stdout).lower()
+        finally:
+            import shutil
+            shutil.rmtree(outside_root, ignore_errors=True)

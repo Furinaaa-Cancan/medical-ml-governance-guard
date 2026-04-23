@@ -3499,7 +3499,30 @@ def finish(
     )
 
     if args.report:
-        _write_report(Path(args.report).expanduser().resolve(), report)
+        # Sandbox the report path to the request's project root — without
+        # this constraint, `--report ../sibling_gate/report.json` could
+        # overwrite a neighbor gate's attestation (Codex review 2026-04-23
+        # overwrite-primitive). When request_path is available (normal
+        # case), use its parent.parent as sandbox — same derivation the
+        # path validator in main() uses, keeping the two consistent.
+        # When request_path is None (very early parse failure), fall back
+        # to the legacy behavior but emit a warning.
+        try:
+            if request_path is not None:
+                _req_parent = request_path.parent
+                _sandbox = _req_parent.parent
+                _report_path = resolve_path(
+                    _req_parent, str(args.report), sandbox=_sandbox,
+                )
+            else:
+                _report_path = Path(args.report).expanduser().resolve()
+        except ValueError as exc:
+            print(
+                f"ERROR: --report path escapes request sandbox: {exc}",
+                file=sys.stderr,
+            )
+            return 2
+        _write_report(_report_path, report)
 
     print_gate_summary(
         gate_name="request_contract_gate",
