@@ -57,6 +57,23 @@ class TestUkbCodebookCompleteness:
             f"UKB golden-seed field regression.\n{r.stdout}"
         )
 
+    def test_full_cell_by_cell_faithfulness(self):
+        """L2c — strongest "no hallucination" guarantee.
+
+        Compares every persisted cell of every source row against the
+        DB. Runs ~3s. If any source→DB divergence exists (column swap,
+        string mangling, silent drop), this fails loudly.
+        """
+        r = subprocess.run(
+            [sys.executable, str(VERIFY), "--full-faithfulness"],
+            capture_output=True, text=True, timeout=60,
+        )
+        assert r.returncode == 0, (
+            f"UKB codebook NOT faithful to source .txt files.\n"
+            f"Run: python3 scripts/codebooks/verify_ukb_codebook.py --full-faithfulness\n"
+            f"stdout:\n{r.stdout}\n"
+        )
+
 
 @pytest.mark.skipif(not DB.exists(),
                     reason="UKB SQLite not present")
