@@ -82,6 +82,24 @@ _HARD = {
         "Some instances missing title — insvalue.txt column mapping "
         "may have regressed (columns are instance_id / descript / num_members).",
     ),
+    # UKB ships 319 private=1 direct-identifier fields (DOB, home
+    # location coords, etc.). Before 2026-04-23 fix these were all
+    # mis-labeled risk_category='baseline', which would let a
+    # leakage-guard treat them as safe features. Assert every
+    # private=1 field carries the 'identifier_direct' risk label.
+    "phi_fields_correctly_flagged": (
+        "SELECT COUNT(*) FROM fields WHERE private=1 AND risk_category='identifier_direct';",
+        319,
+        "Private=1 (direct PHI identifier) fields must carry "
+        "risk_category='identifier_direct'. A regression here means "
+        "classify_field() stopped honoring the private flag.",
+    ),
+    "no_private_labeled_baseline": (
+        "SELECT COUNT(*) FROM fields WHERE private=1 AND risk_category='baseline';",
+        0,
+        "Private=1 fields must NEVER be labeled 'baseline' "
+        "(leakage-guard would treat them as safe).",
+    ),
 }
 
 # Ceiling checks — values we tolerate today but flag as technical debt

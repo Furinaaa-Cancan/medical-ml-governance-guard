@@ -77,11 +77,16 @@ def _cat_in(cid: Optional[int], *ranges) -> bool:
     return False
 
 
-def classify_field(cid: Optional[int], title: str) -> Tuple[str, str]:
+def classify_field(cid: Optional[int], title: str, private: Optional[int] = None) -> Tuple[str, str]:
     """Return (domain, risk_category) for a UKB field.
 
     Domain: broad data category (e.g., 'imaging_brain', 'laboratory', 'questionnaire_lifestyle').
     Risk category:
+      - 'identifier_direct': UKB `private=1` fields — direct PHI identifiers
+                             (date of birth, home location coords, etc.).
+                             Takes precedence over any category-based
+                             classification because these can re-identify
+                             participants regardless of how they're used.
       - 'outcome_derived'  : first-occurrence ICD dates/sources, algorithmically-defined outcomes
       - 'death_registry'   : death register fields
       - 'hospital_derived' : hospital inpatient / GP record fields
@@ -90,6 +95,22 @@ def classify_field(cid: Optional[int], title: str) -> Tuple[str, str]:
       - 'online_followup'  : post-baseline online questionnaires
       - 'baseline'         : safe baseline measurements (default)
     """
+    # Direct-identifier fields ALWAYS get the PHI flag, regardless of
+    # category. UKB marks these with private=1 in field.txt (date of
+    # birth, parents' DOB components, home-location 1km coords,
+    # full-resolution postcode, etc.). Strict audit 2026-04-23 caught
+    # all 319 private=1 fields being mis-labeled 'baseline' before
+    # this, which would make a leakage gate treat them as safe inputs.
+    if private == 1:
+        # Still return a meaningful domain so dashboards / by-domain
+        # queries work; risk_category is the sensitive column.
+        title_lower_early = title.lower()
+        if "birth" in title_lower_early and "weight" not in title_lower_early:
+            return "identifier_birth", "identifier_direct"
+        if "location" in title_lower_early or "coordinate" in title_lower_early or "postcode" in title_lower_early:
+            return "identifier_location", "identifier_direct"
+        return "identifier_other", "identifier_direct"
+
     title_lower = title.lower()
 
     # ── Outcome / registry derived (CRITICAL leakage risk) ───────────
@@ -558,16 +579,20 @@ def build_database(input_dir: Path, output: Path) -> Dict[str, int]:
         vtype_code = row.get("value_type", "").strip()
         value_type = VALUE_TYPE_MAP.get(vtype_code, vtype_code)
         title = row.get("title", "").strip()
+        private = safe_int(row.get("private", ""))
 
-        # Classify field using category_id + title
-        domain, risk_category = classify_field(main_cat, title)
+        # Classify field using category_id + title + private flag.
+        # private=1 promotes the field to risk_category=identifier_direct
+        # regardless of category — direct PHI identifiers must not be
+        # silently re-labeled as 'baseline'.
+        domain, risk_category = classify_field(main_cat, title, private)
 
         field_batch.append((
             fid,
             title,
             safe_int(row.get("availability", "")),
             safe_int(row.get("stability", "")),
-            safe_int(row.get("private", "")),
+            private,
             value_type,
             row.get("base_type", "").strip() or None,
             row.get("item_type", "").strip() or None,
