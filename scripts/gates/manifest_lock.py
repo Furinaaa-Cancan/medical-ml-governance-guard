@@ -26,6 +26,11 @@ from _gate_utils import get_gate_elapsed, resolve_path, start_gate_timer, write_
 GATE_NAME = "manifest_lock"
 GATE_VERSION = "1.0.0"
 
+# Bumped when the manifest schema changes. Consumers (compare_manifest,
+# execution_attestation_gate) can version-gate their parsers instead of
+# silently accepting old shapes (Codex review 2026-04-23 gap).
+MANIFEST_SCHEMA_VERSION = "mlgg-manifest-v1"
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Lock dataset/config fingerprints into a manifest.")
@@ -156,6 +161,7 @@ def main() -> int:
     warnings: List[GateIssue] = []
 
     manifest: Dict[str, Any] = {
+        "schema_version": MANIFEST_SCHEMA_VERSION,
         "status": "pass",
         "created_at_utc": utc_now(),
         "hash_algorithm": args.algo,
@@ -280,6 +286,17 @@ def _finish_gate(
     warnings: List[GateIssue],
 ) -> int:
     """Write manifest, emit gate report envelope, print summary, return exit code."""
+    # NOTE (Codex 2026-04-23 review deferred): --output / --report are
+    # not sandboxed against a project-root anchor. The orchestrator
+    # (run_dag_pipeline.py) always supplies an absolute path under the
+    # evidence dir, so the practical attack surface requires an operator
+    # passing a crafted relative path with '..' — which argparse does
+    # not constrain. resolve_path()'s _FORBIDDEN_PATH_PREFIXES still
+    # blocks writes under /etc / /sys / /boot etc. Explicit sandbox
+    # enforcement was tried and broke 22 tests because the anchor
+    # either went to the real MLGG repo (via Path.cwd()) or became
+    # self-certifying (via output.parent). Revisit when we can gate
+    # the orchestrator's call sites to always pass --sandbox-root.
     output_path = Path(args.output).expanduser().resolve()
     from _gate_utils import write_json as _write_manifest
     _write_manifest(output_path, manifest)

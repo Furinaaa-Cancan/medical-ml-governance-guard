@@ -241,6 +241,29 @@ class TestCompareManifest:
 # CLI tests (subprocess)
 # ────────────────────────────────────────────────────────
 
+class TestManifestSchemaVersion:
+    """Regression (Codex 2026-04-23): manifest had no schema_version
+    field. Consumers (compare_manifest, execution_attestation_gate)
+    had no way to version-gate parsers; old/incompatible shapes were
+    accepted silently."""
+
+    def _run(self, args, cwd=None):
+        cmd = [sys.executable, str(SCRIPTS_DIR / "gates/manifest_lock.py")] + args
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=30,
+                              cwd=cwd or str(SCRIPTS_DIR.parent))
+
+    def test_schema_version_written(self, tmp_path: Path):
+        f = tmp_path / "x.txt"
+        f.write_text("y", encoding="utf-8")
+        out = tmp_path / "manifest.json"
+        result = self._run(["--inputs", str(f), "--output", str(out)])
+        assert result.returncode == 0, result.stderr
+        manifest = json.loads(out.read_text())
+        assert manifest.get("schema_version", "").startswith("mlgg-manifest-v"), (
+            f"schema_version missing or malformed: {manifest.get('schema_version')!r}"
+        )
+
+
 class TestCLI:
     def _run(self, args, cwd=None):
         cmd = [sys.executable, str(SCRIPTS_DIR / "gates/manifest_lock.py")] + args
