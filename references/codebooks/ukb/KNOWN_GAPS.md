@@ -54,34 +54,56 @@ currently tolerates this as the DB reflects UKB's actual structure.
 Code searching by category SHOULD traverse the `catbrowse` tree, not
 filter on `main_category` only.
 
-## ⚠️ Alias table thin (67 entries)
+## ⚠️ Alias table thin
 
-`aliases` table has 67 colloquial-term → field_id mappings. "bmi" /
-"hba1c" / "systolic bp" work; less common terms ("甘油三酯" /
-"triglycerides" / "fasting glucose") may not. L2 verifier emits a
-warning if this count stays low — add entries over time.
+`aliases` maps colloquial medical terms to field_id. L2 floor invariant
+pins the current count (106 as of 2026-04-23). "bmi" / "hba1c" /
+"systolic bp" work; less common terms ("甘油三酯" / "fasting glucose")
+may not yet — add entries in `COMMON_ALIASES`
+(`scripts/codebooks/build_ukb_codebook_db.py`). Additions are welcome;
+bump the floor in the same commit.
 
 ## Reproducibility guarantee
 
-Four verification layers. L1-L3 are offline/deterministic (run every
-commit); L4 hits the live UKB website (run before publication-grade
-claims or when drift is suspected).
+Seven verification layers. L1-L3b + content-hashes are offline and
+deterministic (run every commit); L4 hits the live UKB website (run
+before publication-grade claims or when drift is suspected).
 
 | Layer | What it checks | Against | When |
 |-------|---------------|---------|------|
-| L1 | .txt file fidelity | committed sha256 in `source_manifest.json` | pre-commit, CI |
-| L2 | structural invariants (counts, FK, flag logic) | SQL queries | pre-commit, CI |
-| L3 | golden-seed fields survive | `ukb_golden_fields.yaml` | pre-commit, CI |
-| L4 | local DB == live UKB website | `biobank.ndph.ox.ac.uk/ukb` | manual, pre-publication |
+| **L1** | `.txt` source fidelity | committed sha256 in `source_manifest.json` | pre-commit, CI |
+| **L2** | structural invariants — counts within tolerance, 30+ `_HARD` facts (FK integrity, ICD/OPCS parent chain, PHI totals, risk-category pins, encoding FK completeness, leakage-keyword reverse-scan on baseline titles) | SQL queries | pre-commit, CI |
+| **L3** | golden-seed fields + ICD codes survive with expected metadata | `ukb_golden_fields.yaml` | pre-commit, CI |
+| **L3b** | `disease-definition-knowledge-base.json`'s `ukb_definition_fields` all exist in DB and land in a risk_category allowed for outcome definition (baseline / outcome_derived / hospital_derived / death_registry / online_followup) | `references/methodology/disease-definition-knowledge-base.json` | pre-commit, CI |
+| **content-hashes** | sha256 per content facet — `source_titles`, `classification`, `encoding_values`, `aliases` — catches silent drift (e.g. 1000 fields quietly flipped baseline → online_followup) that counts + golden seeds both miss | optional `content_hashes` block in `source_manifest.json` | reported every run; enforced with `--strict-content-hashes` |
+| **L4 (schema)** | all 11 live `.txt` files still match committed sha256 | `biobank.ndph.ox.ac.uk/ukb` | manual, pre-publication |
+| **L4 (fields)** | title + category of 38 probe fields match live UKB field pages | `biobank.ndph.ox.ac.uk/ukb` | manual, pre-publication |
 
 **L1-L3 alone are self-consistent but circular** — they verify the
 local .txt files haven't been corrupted since ingest, but say nothing
 about whether UKB has since updated its schema or whether our build
 faithfully reflected the source at ingest time. L4 closes that loop.
 
+**Content-hashes sit between L2 and L4** — they're offline so cheap
+to run every commit, but unlike L2's specific-fact pins they catch
+*any* semantic change across the four facets. Ideal for CI log audit
+trails: a `classification` hash change visible in diff means
+`classify_field()` got updated; if that wasn't expected, investigate.
+
 ```sh
 # Offline layers (fast, deterministic)
 python3 scripts/codebooks/verify_ukb_codebook.py
+
+# Skip individual layers
+python3 scripts/codebooks/verify_ukb_codebook.py --skip-l1
+python3 scripts/codebooks/verify_ukb_codebook.py --skip-l3
+python3 scripts/codebooks/verify_ukb_codebook.py --skip-disease-kb
+
+# Content hash pinning workflow
+python3 scripts/codebooks/verify_ukb_codebook.py --print-content-hashes
+# → emits JSON; paste under 'content_hashes' in source_manifest.json
+python3 scripts/codebooks/verify_ukb_codebook.py --strict-content-hashes
+# → any drift vs pinned = exit 2 (release-gate mode)
 
 # Live external-authority layer (network-bound, ~20s)
 python3 scripts/codebooks/verify_ukb_against_live.py           # default 38 probes
@@ -100,3 +122,22 @@ investigate before trusting the codebook.
 The committed `source_manifest.json` pins every .txt file's sha256;
 `fetch_ukb_showcase.py` refuses silent drift unless
 `--update-manifest` is explicitly passed.
+
+### What each layer is *not* good at
+
+- **L1** cannot see a bug in our build-time transform — the .txt is
+  perfect but we misread a column. → L2 + L4-fields.
+- **L2** specific-fact pins (30+) cover the facts we thought to pin.
+  Anything else, including *"1799 fields flipped risk_category since
+  last build"*, slides through the ±0.5% count tolerance. → content-hashes.
+- **L3** golden-seeds cover ~200 field_ids and ~20 ICD codes by
+  name — high-confidence but shallow. → L3b + content-hashes.
+- **L3b** disease-KB join only touches ~50 definition field_ids
+  across ~10 diseases. Everything outside that is unchecked. → L4.
+- **content-hashes** show that *something* moved but not *what*. Pair
+  with `git diff` of the commit that moved them to identify the
+  rule change. → (manual) reverse-scan per-risk-category breakdown.
+- **L4** is the only layer proving our DB reflects reality, but it's
+  network-bound and probabilistic (38 probes out of 11,821 fields).
+  → run larger probe sample (`--probes 200`) before any publication-
+  grade claim.
