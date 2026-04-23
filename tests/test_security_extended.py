@@ -112,18 +112,78 @@ class TestSecurityAuditEdgeCases:
     def test_sensitive_data_detected(self, tmp_path: Path):
         evidence = tmp_path / "evidence"
         evidence.mkdir()
-        # Write a report that contains a sensitive pattern
-        from _security import SENSITIVE_DATA_PATTERNS
-        if SENSITIVE_DATA_PATTERNS:
-            pattern = list(SENSITIVE_DATA_PATTERNS)[0]
-            suspicious = evidence / "leak.json"
-            suspicious.write_text(
-                json.dumps({"data": f"contains {pattern} in output"}),
-                encoding="utf-8",
-            )
-            report = run_security_audit(evidence)
-            sensitive = [i for i in report["issues"] if i["code"] == "sensitive_data_exposure"]
-            assert len(sensitive) >= 1
+        # Write a report that contains a sensitive pattern.
+        suspicious = evidence / "leak.json"
+        suspicious.write_text(
+            json.dumps({"data": "contains api_key in output"}),
+            encoding="utf-8",
+        )
+        report = run_security_audit(evidence)
+        sensitive = [i for i in report["issues"] if i["code"] == "sensitive_data_exposure"]
+        assert len(sensitive) >= 1
+
+
+class TestScanSensitiveData:
+    """Regression (Codex 2026-04-23): the old SENSITIVE_DATA_PATTERNS
+    was a lowercase-substring tuple — it missed numeric-only SSN,
+    fullwidth-dash variants, and every 2025 API-key prefix. The
+    replacement scan_sensitive_data() runs regex over NFKC-normalized
+    content."""
+
+    def _scan(self, content: str):
+        from _security import scan_sensitive_data
+        return scan_sensitive_data(content)
+
+    def test_dashed_ssn(self):
+        assert self._scan("patient id 123-45-6789")
+
+    def test_undashed_ssn(self):
+        assert self._scan("ssn=123456789")
+
+    def test_fullwidth_dash_ssn_via_nfkc(self):
+        """Regression: NFKC normalization before matching catches
+        Unicode-fullwidth variants a naive substring scanner misses."""
+        # U+FF0D is fullwidth hyphen-minus; NFKC maps it to ASCII -
+        ssn_fw = "123\uff0d45\uff0d6789"
+        hits = self._scan(f"record {ssn_fw} filed")
+        assert hits, f"NFKC-normalized fullwidth SSN missed: {ssn_fw}"
+
+    @pytest.mark.parametrize("secret,label", [
+        ("sk-ant-abcdef1234567890abcdef1234567890",           "anthropic_api_key"),
+        ("sk-proj-abcdef1234567890abcdef1234567890",          "openai_project_key"),
+        ("gho_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",           "github_personal_token"),
+        ("github_pat_abcdef1234567890ABCDEF12345",             "github_pat_v2"),
+        ("glpat-AAAAAAAAAAAAAAAAAAAA",                          "gitlab_pat"),
+        ("AIzaSyDqfr_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",            "google_api_key"),
+        ("AKIAIOSFODNN7EXAMPLE",                                "aws_access_key_id"),
+        ("xoxb-123456789012-1234567890123",                     "slack_token"),
+    ])
+    def test_2025_api_key_prefixes(self, secret, label):
+        hits = self._scan(f"prefix {secret} suffix")
+        labels = {h[0] for h in hits}
+        assert label in labels, (
+            f"pattern '{label}' failed to match known-format token {secret!r}: "
+            f"got {labels}"
+        )
+
+    def test_pem_private_block(self):
+        content = "-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBA...\n"
+        assert self._scan(content)
+
+    def test_no_false_positive_on_tokenizer(self):
+        """'tokenizer' ≠ 'token'. The compound regex pattern
+        boundaries avoid the ML-library false positive that the
+        original substring matcher had."""
+        hits = self._scan("class Tokenizer: ... tokenizer_config_path")
+        labels = {h[0] for h in hits}
+        # None of the token-family patterns should fire for bare
+        # 'tokenizer'. api_key etc. are also absent.
+        assert not any(
+            lbl.endswith("_token") or lbl == "credential" for lbl in labels
+        ), f"false positive on tokenizer: {labels}"
+
+    def test_empty_input(self):
+        assert self._scan("") == []
 
     def test_no_manifest_warning(self, tmp_path: Path):
         evidence = tmp_path / "evidence"

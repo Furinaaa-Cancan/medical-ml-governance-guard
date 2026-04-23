@@ -49,7 +49,7 @@ register_remediations({
 GATE_NAME = "security_audit_gate"
 GATE_VERSION = "1.0.0"
 
-from _security import SENSITIVE_DATA_PATTERNS as _SENSITIVE_PATTERNS
+from _security import scan_sensitive_data as _scan_sensitive_data
 
 _MAX_ARTIFACT_SIZE_MB = 500
 
@@ -241,18 +241,18 @@ def _check_sensitive_data(
     for fpath in evidence_dir.glob("*.json"):
         summary["files_scanned"] += 1
         try:
-            content = fpath.read_text(encoding="utf-8").lower()
-            for pattern in _SENSITIVE_PATTERNS:
-                if pattern in content:
-                    summary["exposures_found"] += 1
-                    failures.append(GateIssue(
-                        code="sensitive_data_in_evidence",
-                        severity=Severity.ERROR,
-                        message=f"{fpath.name} may contain sensitive data (pattern: '{pattern}').",
-                        details={"path": str(fpath.name), "pattern": pattern},
-                        remediation=get_remediation("sensitive_data_in_evidence"),
-                    ))
-                    break  # One finding per file is enough
+            content = fpath.read_text(encoding="utf-8")
+            hits = _scan_sensitive_data(content)
+            if hits:
+                label, _match = hits[0]
+                summary["exposures_found"] += 1
+                failures.append(GateIssue(
+                    code="sensitive_data_in_evidence",
+                    severity=Severity.ERROR,
+                    message=f"{fpath.name} may contain sensitive data (pattern: '{label}').",
+                    details={"path": str(fpath.name), "pattern": label},
+                    remediation=get_remediation("sensitive_data_in_evidence"),
+                ))
         except OSError as exc:
             print(f"[WARN] security scan: {exc}", file=sys.stderr)
 

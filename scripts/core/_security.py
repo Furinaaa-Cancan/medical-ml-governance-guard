@@ -25,6 +25,7 @@ import hmac
 import json
 import os
 import pickle
+import re
 import secrets
 import sys
 import time
@@ -51,21 +52,95 @@ _HMAC_HEADER = b"MLGG-SIGNED-v1\x00"
 _HMAC_ALGO = "sha256"
 
 # Shared sensitive data patterns — single source of truth for _security.py
-# and security_audit_gate.py. Use compound keywords to avoid false positives
-# in ML contexts (e.g. "token" would match "tokenizer").
-SENSITIVE_DATA_PATTERNS: Tuple[str, ...] = (
-    # Authentication & secrets
-    "password", "api_key", "secret_key", "private_key",
-    "access_key", "credential", "ssn", "social_security",
-    "credit_card", "auth_token", "bearer_token",
-    "api_secret", "client_secret",
-    # Token & session patterns (compound to avoid "tokenizer" FP)
-    "refresh_token", "session_token", "oauth_token",
-    # Key file patterns
-    "-----begin rsa", "-----begin private", "-----begin ec",
-    # Medical identifiers (PHI under HIPAA)
-    "medical_record", "mrn_number", "insurance_id",
+# and security_audit_gate.py.
+#
+# Format: tuple of (label, compiled_regex). Codex review 2026-04-23
+# replaced the previous lowercase-substring tuple because:
+#   1. Plain substrings miss numeric-only SSN (`123456789`) and
+#      fullwidth-dash variants (`123-45-6789` with U+FF0D).
+#   2. No 2025 API-key prefixes (sk-ant-, sk-proj-, github_pat_,
+#      glpat-, gho_, AIza, AKIA...).
+#   3. Unicode normalization wasn't applied before matching.
+#
+# scan_sensitive_data() below normalizes (NFKC + casefold) before
+# matching. All patterns are case-insensitive by flag.
+SENSITIVE_DATA_PATTERNS: Tuple[Tuple[str, "re.Pattern[str]"], ...] = (
+    # ── Generic secret/credential keywords (compound to avoid ML FPs) ──
+    ("password",        re.compile(r"\bpassword\b", re.IGNORECASE)),
+    ("api_key",         re.compile(r"\bapi[_\s-]?key\b", re.IGNORECASE)),
+    ("secret_key",      re.compile(r"\bsecret[_\s-]?key\b", re.IGNORECASE)),
+    ("private_key",     re.compile(r"\bprivate[_\s-]?key\b", re.IGNORECASE)),
+    ("access_key",      re.compile(r"\baccess[_\s-]?key\b", re.IGNORECASE)),
+    ("credential",      re.compile(r"\bcredential\b", re.IGNORECASE)),
+    ("auth_token",      re.compile(r"\bauth[_\s-]?token\b", re.IGNORECASE)),
+    ("bearer_token",    re.compile(r"\bbearer[_\s-]?token\b", re.IGNORECASE)),
+    ("api_secret",      re.compile(r"\bapi[_\s-]?secret\b", re.IGNORECASE)),
+    ("client_secret",   re.compile(r"\bclient[_\s-]?secret\b", re.IGNORECASE)),
+    ("refresh_token",   re.compile(r"\brefresh[_\s-]?token\b", re.IGNORECASE)),
+    ("session_token",   re.compile(r"\bsession[_\s-]?token\b", re.IGNORECASE)),
+    ("oauth_token",     re.compile(r"\boauth[_\s-]?token\b", re.IGNORECASE)),
+
+    # ── 2025 API-key formats (concrete leak indicators) ─────────────
+    ("anthropic_api_key",   re.compile(r"sk-ant-[A-Za-z0-9_-]{20,}")),
+    ("openai_project_key",  re.compile(r"sk-proj-[A-Za-z0-9_-]{20,}")),
+    ("openai_user_key",     re.compile(r"\bsk-[A-Za-z0-9]{20,}")),
+    ("github_personal_token", re.compile(r"\b(?:gho|ghp|ghu|ghs|ghr)_[A-Za-z0-9]{36}\b")),
+    ("github_pat_v2",       re.compile(r"\bgithub_pat_[A-Za-z0-9_]{22,}\b")),
+    ("gitlab_pat",          re.compile(r"\bglpat-[A-Za-z0-9_-]{20}\b")),
+    ("google_api_key",      re.compile(r"\bAIza[0-9A-Za-z_-]{35}\b")),
+    ("aws_access_key_id",   re.compile(r"\b(?:AKIA|ASIA|AGPA|AIDA)[0-9A-Z]{16}\b")),
+    ("aws_secret_access_key", re.compile(r"\baws_secret_access_key\b", re.IGNORECASE)),
+    ("slack_token",         re.compile(r"\bxox[baprs]-[A-Za-z0-9-]{10,}\b")),
+
+    # ── PEM key blocks ──────────────────────────────────────────────
+    ("pem_rsa",             re.compile(r"-----BEGIN RSA PRIVATE KEY-----", re.IGNORECASE)),
+    ("pem_private",         re.compile(r"-----BEGIN (?:OPENSSH |EC |DSA )?PRIVATE KEY-----", re.IGNORECASE)),
+
+    # ── PII / PHI identifiers ───────────────────────────────────────
+    # SSN: both dashed (123-45-6789) and undashed (123456789) forms.
+    # \b boundaries prevent matching phone-number or credit-card digits.
+    ("ssn",                 re.compile(r"\bssn\b|\bsocial[_\s-]?security\b", re.IGNORECASE)),
+    ("ssn_dashed",          re.compile(r"\b\d{3}-\d{2}-\d{4}\b")),
+    ("ssn_undashed",        re.compile(r"(?<!\d)\d{9}(?!\d)")),
+    # Credit card (generic Luhn-ish — 13-19 digits with optional groups)
+    ("credit_card",         re.compile(r"\bcredit[_\s-]?card\b", re.IGNORECASE)),
+    ("credit_card_number",  re.compile(r"\b(?:\d[ -]?){13,19}\b")),
+    # HIPAA medical identifiers
+    ("medical_record",      re.compile(r"\bmedical[_\s-]?record\b", re.IGNORECASE)),
+    ("mrn",                 re.compile(r"\bmrn[_\s-]?(?:number|id)?\b", re.IGNORECASE)),
+    ("insurance_id",        re.compile(r"\binsurance[_\s-]?id\b", re.IGNORECASE)),
 )
+
+
+def scan_sensitive_data(content: str) -> List[Tuple[str, str]]:
+    """Scan a string for sensitive-data patterns.
+
+    Normalizes with NFKC (fullwidth → ASCII) before matching so a
+    value like ``123－45－6789`` (fullwidth minus) still hits the SSN
+    pattern. Patterns themselves are case-insensitive; the explicit
+    casefold avoids per-pattern re.IGNORECASE overhead.
+
+    Returns:
+        List of (label, matched_text) pairs — one per pattern hit.
+        Empty list when nothing matches. Callers usually care about
+        the FIRST hit (audit says "flagged"), but the full list is
+        useful for reporting which kinds of data leaked.
+    """
+    if not content:
+        return []
+    import unicodedata
+    # NFKC only (no casefold) — patterns that care about case
+    # distinction (AKIA*, AIza*, github gho_*) use explicit case
+    # semantics in the regex, and applying casefold would break them.
+    # Keyword patterns use re.IGNORECASE, so mixed-case content like
+    # "API_KEY" still matches.
+    normalized = unicodedata.normalize("NFKC", content)
+    hits: List[Tuple[str, str]] = []
+    for label, pattern in SENSITIVE_DATA_PATTERNS:
+        m = pattern.search(normalized)
+        if m:
+            hits.append((label, m.group(0)))
+    return hits
 _KEY_ENV_VAR = "MLGG_MODEL_SECRET"
 _KEY_FILE_NAME = ".mlgg_model_key"
 
@@ -1397,15 +1472,15 @@ def run_security_audit(evidence_dir: Path) -> Dict[str, Any]:
                     "code": "world_writable",
                     "message": f"{fpath.name} is world-writable (mode {oct(mode)})",
                 })
-            content = fpath.read_text(encoding="utf-8").lower()
-            for pattern in SENSITIVE_DATA_PATTERNS:
-                if pattern in content:
-                    issues.append({
-                        "severity": "high",
-                        "code": "sensitive_data_exposure",
-                        "message": f"{fpath.name} may contain sensitive data (pattern: {pattern})",
-                    })
-                    break
+            content = fpath.read_text(encoding="utf-8")
+            hits = scan_sensitive_data(content)
+            if hits:
+                label, _match = hits[0]
+                issues.append({
+                    "severity": "high",
+                    "code": "sensitive_data_exposure",
+                    "message": f"{fpath.name} may contain sensitive data (pattern: {label})",
+                })
         except OSError:
             pass
 
