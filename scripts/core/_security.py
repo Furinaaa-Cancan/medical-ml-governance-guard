@@ -755,12 +755,41 @@ _BLOCKED_CALLABLES = frozenset({
 
 
 class RestrictedUnpickler(pickle.Unpickler):
-    """Unpickler that only allows whitelisted modules/classes.
+    """Unpickler with a module allow-list and callable blocklist.
 
-    Blocks arbitrary code execution during model deserialization by rejecting
-    any module not in the allow-list. This prevents attacks where a malicious
-    .pkl file contains instructions to execute os.system(), subprocess.Popen(),
-    or other dangerous callables.
+    Threat model & honest limits (Codex review 2026-04-23):
+
+    This class reduces the attack surface of pickle deserialization
+    but is NOT a complete sandbox. The allow-list has to include
+    sklearn, numpy, scipy, pandas, joblib, copyreg, builtins, codecs
+    — any narrower list breaks legitimate model loading. Gadget
+    chaining through reconstruction helpers in those exact modules
+    (e.g., joblib.numpy_pickle factories, numpy._core.multiarray._
+    reconstruct, copyreg.__newobj__) is a known residual risk. Only
+    `find_class()` is overridden; REDUCE/BUILD opcodes still
+    execute, so a crafted pickle calling an allowed reconstructor
+    with attacker-chosen arguments can still trigger surprising
+    side-effects inside those modules.
+
+    **Primary defense is the HMAC signature check** —
+    verify_model_artifact() MUST be called (and succeed) before any
+    model file is fed to safe_pickle_load(). With HMAC in place, an
+    attacker cannot produce a tampered .pkl that the pipeline would
+    ever load. Without it, this sandbox buys "blocks os.system",
+    nothing more.
+
+    Blocks at find_class():
+      - Explicit callables in _BLOCKED_CALLABLES (os.system, exec,
+        subprocess.*, etc.)
+      - Any module outside _ALLOWED_PICKLE_MODULES.
+
+    Does NOT block:
+      - REDUCE / BUILD opcodes against allowed-module reconstructors.
+      - Gadget chains fully internal to allow-listed modules.
+
+    If you need a true deserialization sandbox, replace pickle with
+    safetensors / JSON-native schemas. That's out of scope for this
+    module's role as a defense-in-depth layer.
     """
 
     def find_class(self, module: str, name: str) -> Any:
@@ -788,6 +817,18 @@ class RestrictedUnpickler(pickle.Unpickler):
 
 def safe_pickle_load(file_obj: Any) -> Any:
     """Load a pickle stream using the restricted unpickler.
+
+    WARNING: "safe_pickle_load" is a misnomer — pickle is never fully
+    safe against an attacker who controls the file bytes. This only
+    reduces the attack surface (blocks obviously dangerous modules /
+    callables) and does NOT close gadget chains through allowed
+    modules like joblib, numpy, copyreg. See RestrictedUnpickler
+    docstring for the full threat model.
+
+    Callers that load untrusted .pkl files MUST verify an HMAC
+    signature via verify_model_artifact() FIRST. If the signature
+    passes, the file bytes are known to come from the signer, so the
+    residual pickle-sandbox risks do not apply.
 
     Args:
         file_obj: File-like object opened in binary mode.
