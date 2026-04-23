@@ -154,7 +154,11 @@ def classify_field(cid: Optional[int], title: str, private: Optional[int] = None
                   523, 524, 525, 526, 527, 528, 529, 538}
     _DXA = {103, 124, 125, 522}
     _ABDOMINAL = {105, 126, 131, 149, 156, 158, 159}
-    _EYE = {521, 1080, 1081, 1306, 1419, 100016, 100017}
+    _EYE = {521, 1080, 1081, 1306, 1419, 100016, 100017,
+            # Deep-check 2026-04-23: these UKB eye sub-categories were
+            # landing in domain='other'. Refractometry / IOP / OCT /
+            # surgery are all Assessment centre > Eye measures.
+            100013, 100014, 100015, 100079, 100099}
     if _cat_in(cid, *_BRAIN_MRI):
         return "imaging_brain", "imaging"
     if _cat_in(cid, *_HEART_MRI):
@@ -170,15 +174,17 @@ def classify_field(cid: Optional[int], title: str, private: Optional[int] = None
     if cid == 100003:
         return "imaging_procedural", "imaging"
     # dMRI
-    if _cat_in(cid, 134, 135):
+    if _cat_in(cid, 134, 135, 107):  # 107 = Diffusion brain MRI parent pipeline
         return "imaging_dmri", "imaging"
     # Regional grey matter, fMRI
     if _cat_in(cid, 1101, 1102, 106, 109):
         return "imaging_brain", "imaging"
 
     # ── Genomics (time-invariant) ────────────────────────────────────
-    if _cat_in(cid, (170, 187), (263, 274), (300, 302), 100314, 100315,
-               100316, 100317, 100319, 199001):
+    # 100313 = Genotyping process and sample QC (deep-check 2026-04-23)
+    # 100035 = HLA imputation values (deep-check 2026-04-23)
+    if _cat_in(cid, (170, 187), (263, 274), (300, 302), 100035, 100313,
+               100314, 100315, 100316, 100317, 100319, 199001):
         return "genomics", "genomics"
 
     # ── Laboratory ───────────────────────────────────────────────────
@@ -206,6 +212,8 @@ def classify_field(cid: Optional[int], title: str, private: Optional[int] = None
         return "vitals", "baseline"
     if _cat_in(cid, 100018, 100019):
         return "physical_measures", "baseline"
+    if cid == 100049:  # Hearing test (Assessment centre > Physical measures)
+        return "hearing_test", "baseline"
     if cid == 100020:
         return "spirometry", "baseline"
     if _cat_in(cid, 104, 100012):
@@ -219,8 +227,10 @@ def classify_field(cid: Optional[int], title: str, private: Optional[int] = None
     if _cat_in(cid, 100050, 100051, 100052, 100053, 100054, 100055, 100056,
                100057, 100058, (205, 213), 1039, (100100, 100118), 704):
         return "questionnaire_lifestyle", "baseline"
-    # Medical history
-    if _cat_in(cid, 100036, (100037, 100048), 132, 153, 154, 160, 1003):
+    # Medical history (incl. verbal-interview sub-cats:
+    # 100072 early life, 100074 medical conditions, 100075 meds, 100076 operations)
+    if _cat_in(cid, 100036, (100037, 100048), 100072, 100074, 100075, 100076,
+               132, 153, 154, 160, 1003):
         return "questionnaire_medical", "baseline"
     # Cognitive
     if _cat_in(cid, (116, 122), (501, 506), 709, 100026, (100027, 100032),
@@ -230,7 +240,9 @@ def classify_field(cid: Optional[int], title: str, private: Optional[int] = None
     if _cat_in(cid, 100033, 100034, 214, 1002, 708):
         return "questionnaire_family", "baseline"
     # Sociodemographics (100068-100070 are sex-specific, handled below)
-    if _cat_in(cid, 100062, (100063, 100067), 701, 1007):
+    # cat 2 = Population characteristics > Ongoing characteristics
+    # (loss-to-follow-up, participant status) — fits here.
+    if _cat_in(cid, 2, 100062, (100063, 100067), 701, 1007):
         return "demographics", "baseline"
     # Sex-specific factors
     if _cat_in(cid, (100068, 100070)):
@@ -247,7 +259,13 @@ def classify_field(cid: Optional[int], title: str, private: Optional[int] = None
         return "procedural", "baseline"
 
     # ── Online follow-up (post-baseline) ─────────────────────────────
-    if _cat_in(cid, 100089, (100090, 100091), 100114):
+    # 100098 = Diet by 24-hour recall > Estimated nutrients yesterday
+    # 155 = Cognitive function online > Mood
+    # 215, 216 = Sleep (Lifestyle routines, Recent feelings)
+    # 517-520 = Social Interactions and Focus (ADHD, Autism Spectrum,
+    #           Emotional Dysregulation, SPQ-10)
+    if _cat_in(cid, 100089, (100090, 100091), 100098, 100114,
+               155, 215, 216, (517, 520)):
         return "online_followup", "online_followup"
 
     # ── Environment / deprivation ────────────────────────────────────
@@ -256,7 +274,8 @@ def classify_field(cid: Optional[int], title: str, private: Optional[int] = None
         return "environment", "baseline"
 
     # ── COVID sub-studies ────────────────────────────────────────────
-    if _cat_in(cid, (989, 999), 996, 997, 998):
+    # 97 = Records of COVID-19 test results (deep-check 2026-04-23)
+    if _cat_in(cid, 97, (989, 999), 996, 997, 998):
         return "covid", "online_followup"
 
     # ── PRS ──────────────────────────────────────────────────────────
@@ -535,7 +554,28 @@ def build_database(input_dir: Path, output: Path) -> Dict[str, int]:
             cat_titles[cid] = title
             cat_parents[cid] = pid
 
-    # Build full paths
+    # Load catbrowse edges — these are the AUTHORITATIVE parent-child
+    # relationships for UKB categories. category.txt does NOT carry a
+    # parent_id column (the public Showcase schema only has
+    # category_id, title, availability, group_type, descript, notes),
+    # so without loading catbrowse every categories.parent_id would
+    # remain NULL and tree-traversal queries (find all descendants of
+    # a cat) would return nothing. Fixed 2026-04-23 after strict audit.
+    #
+    # Must load catbrowse BEFORE computing full_path — otherwise every
+    # path collapses to just the category's own title because parent
+    # lookups return None. 2026-04-23 deep-check audit found 362/410
+    # full_paths were wrong for exactly this reason.
+    browse_rows = read_tab_file(input_dir / "catbrowse.txt")
+    for row in browse_rows:
+        cid = safe_int(row.get("child_id", ""))
+        pid = safe_int(row.get("parent_id", ""))
+        if cid is not None and pid is not None:
+            # Always prefer catbrowse over category.txt because
+            # category.txt doesn't carry parent info at all.
+            cat_parents[cid] = pid
+
+    # Build full paths AFTER catbrowse is merged in.
     def get_cat_path(cid: int, visited: Optional[Set[int]] = None) -> str:
         if visited is None:
             visited = set()
@@ -549,22 +589,6 @@ def build_database(input_dir: Path, output: Path) -> Dict[str, int]:
         return title
 
     cat_paths: Dict[int, str] = {cid: get_cat_path(cid) for cid in cat_titles}
-
-    # Load catbrowse edges — these are the AUTHORITATIVE parent-child
-    # relationships for UKB categories. category.txt does NOT carry a
-    # parent_id column (the public Showcase schema only has
-    # category_id, title, availability, group_type, descript, notes),
-    # so without loading catbrowse every categories.parent_id would
-    # remain NULL and tree-traversal queries (find all descendants of
-    # a cat) would return nothing. Fixed 2026-04-23 after strict audit.
-    browse_rows = read_tab_file(input_dir / "catbrowse.txt")
-    for row in browse_rows:
-        cid = safe_int(row.get("child_id", ""))
-        pid = safe_int(row.get("parent_id", ""))
-        if cid is not None and pid is not None:
-            # Always prefer catbrowse over category.txt because
-            # category.txt doesn't carry parent info at all.
-            cat_parents[cid] = pid
 
     cat_batch = [
         (cid, cat_parents.get(cid), cat_titles.get(cid, ""), cat_paths.get(cid, ""))

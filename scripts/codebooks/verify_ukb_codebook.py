@@ -207,6 +207,24 @@ _HARD = {
         "exist — DAG broken. Heading preservation or code_id parsing may "
         "have regressed.",
     ),
+    # Category full_path hierarchy: 2026-04-23 deep-check found 362/410
+    # paths were wrong (only single-title stubs) because the builder
+    # computed paths BEFORE catbrowse.txt was merged, so parent lookups
+    # returned None for every non-root. Fix: compute after catbrowse.
+    # Pin exact counts so the step ordering can't silently regress.
+    "categories_with_hierarchy_path": (
+        "SELECT COUNT(*) FROM categories WHERE full_path LIKE '%>%';",
+        361,
+        "Hierarchical full_path count dropped — build_ukb_codebook_db.py "
+        "may have reverted catbrowse-before-path ordering.",
+    ),
+    "categories_depth_ge_3": (
+        "SELECT COUNT(*) FROM categories "
+        "WHERE (length(full_path) - length(replace(full_path, '>', ''))) >= 2;",
+        316,
+        "Deep-hierarchy category count dropped — full_path walk may "
+        "be terminating too early (visited-set bug or parent mismatch).",
+    ),
     # FTS5 ↔ fields parity: every field must be searchable, no phantom
     # FTS rows. If rebuild() was skipped or the trigger to sync missed
     # an insert, lookups silently return nothing.
@@ -233,6 +251,16 @@ _CEILINGS = {
         "SELECT COUNT(*) FROM fields f WHERE f.main_category NOT IN (SELECT category_id FROM categories);",
         126,
         "Fields pointing to a main_category that is not in categories table.",
+    ),
+    # 2026-04-23 deep-check: classifier misses reduced 498 → 15 by
+    # adding eye/genomics/covid/dMRI/hearing/verbal-interview/online-
+    # follow-up sub-categories. If this climbs, UKB has added new
+    # categories that need mapping in classify_field().
+    "unclassified_domain_other": (
+        "SELECT COUNT(*) FROM fields WHERE domain='other';",
+        20,
+        "Unclassified fields (domain='other') rising — extend "
+        "classify_field() with new UKB sub-category ids.",
     ),
     # Note: removed the "alias_thinness" ceiling — the check direction
     # was inverted (growth is GOOD, not a warning). Floor enforced in
