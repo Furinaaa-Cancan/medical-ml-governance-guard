@@ -714,3 +714,195 @@ class TestCLISpecValidation:
         report = json.loads(report_path.read_text())
         codes = [f["code"] for f in report["failures"]]
         assert any("evaluation_report" in c for c in codes)
+
+
+# ────────────────────────────────────────────────────────────
+# Trust anchor + freshness + sandbox (Codex review 2026-04-23)
+# ────────────────────────────────────────────────────────────
+
+class TestLoadTrustedSigners:
+    def test_missing_file_records_failure(self, tmp_path):
+        failures = []
+        result = eag.load_trusted_signers(tmp_path / "missing.json", failures)
+        assert result is None
+        assert any(f["code"] == "trusted_signers_missing" for f in failures)
+
+    def test_invalid_json_records_failure(self, tmp_path):
+        bad = tmp_path / "t.json"
+        bad.write_text("{not json", encoding="utf-8")
+        failures = []
+        assert eag.load_trusted_signers(bad, failures) is None
+        assert any(f["code"] == "trusted_signers_invalid_json" for f in failures)
+
+    def test_wrong_shape_records_failure(self, tmp_path):
+        bad = tmp_path / "t.json"
+        bad.write_text('[]', encoding="utf-8")
+        failures = []
+        assert eag.load_trusted_signers(bad, failures) is None
+        assert any(f["code"] == "trusted_signers_invalid_shape" for f in failures)
+
+    def test_empty_signers_list_fails(self, tmp_path):
+        bad = tmp_path / "t.json"
+        bad.write_text('{"signers": []}', encoding="utf-8")
+        failures = []
+        assert eag.load_trusted_signers(bad, failures) is None
+        assert any(f["code"] == "trusted_signers_empty" for f in failures)
+
+    def test_bad_fingerprint_skipped(self, tmp_path):
+        bad = tmp_path / "t.json"
+        bad.write_text(json.dumps({"signers": [
+            {"fingerprint_sha256": "too-short"},
+            {"fingerprint_sha256": "A" * 64, "signer_name": "Real"},
+        ]}), encoding="utf-8")
+        failures = []
+        result = eag.load_trusted_signers(bad, failures)
+        assert result is not None and len(result) == 1
+        assert result[0]["fingerprint_sha256"] == "a" * 64  # normalized lowercase
+        assert any(f["code"] == "trusted_signers_bad_fingerprint" for f in failures)
+
+
+class TestCheckSignerTrusted:
+    _FP = "a" * 64
+
+    def _signers(self, **overrides):
+        entry = {
+            "fingerprint_sha256": self._FP,
+            "signer_name": "test",
+            "active_from": "2026-01-01T00:00:00Z",
+            "active_until": "2027-01-01T00:00:00Z",
+            "revoked": False,
+        }
+        entry.update(overrides)
+        return [entry]
+
+    def _now(self, when="2026-06-01T00:00:00Z"):
+        return eag.parse_iso_ts(when)
+
+    def test_trusted_active_passes(self):
+        failures = []
+        assert eag.check_signer_trusted(self._FP, self._signers(),
+                                         failures, now=self._now()) is True
+        assert failures == []
+
+    def test_unknown_fingerprint_fails(self):
+        failures = []
+        assert eag.check_signer_trusted("b" * 64, self._signers(),
+                                         failures, now=self._now()) is False
+        assert any(f["code"] == "signer_not_trusted" for f in failures)
+
+    def test_revoked_key_fails(self):
+        failures = []
+        assert eag.check_signer_trusted(self._FP,
+                                         self._signers(revoked=True),
+                                         failures, now=self._now()) is False
+        assert any(f["code"] == "signer_revoked" for f in failures)
+
+    def test_not_yet_active_fails(self):
+        failures = []
+        assert eag.check_signer_trusted(
+            self._FP, self._signers(active_from="2099-01-01T00:00:00Z"),
+            failures, now=self._now(),
+        ) is False
+        assert any(f["code"] == "signer_not_yet_active" for f in failures)
+
+    def test_expired_fails(self):
+        failures = []
+        assert eag.check_signer_trusted(
+            self._FP, self._signers(active_until="2025-01-01T00:00:00Z"),
+            failures, now=self._now(),
+        ) is False
+        assert any(f["code"] == "signer_expired" for f in failures)
+
+    def test_case_insensitive_fingerprint_match(self):
+        failures = []
+        signers = self._signers(fingerprint_sha256="A" * 64)
+        # load_trusted_signers would lowercase, but check_signer_trusted
+        # must handle either case at comparison time defensively.
+        assert eag.check_signer_trusted(self._FP.upper(), signers,
+                                         failures, now=self._now()) is True
+
+
+class TestCheckAttestationFreshness:
+    def test_fresh_passes(self):
+        now = eag.parse_iso_ts("2026-06-01T12:00:00Z")
+        issued = eag.parse_iso_ts("2026-06-01T10:00:00Z")
+        failures = []
+        assert eag.check_attestation_freshness(issued, 168.0, failures,
+                                                now=now) is True
+
+    def test_stale_fails(self):
+        now = eag.parse_iso_ts("2026-06-01T00:00:00Z")
+        issued = eag.parse_iso_ts("2026-05-01T00:00:00Z")  # 31 days old
+        failures = []
+        assert eag.check_attestation_freshness(issued, 168.0, failures,
+                                                now=now) is False
+        assert any(f["code"] == "attestation_stale" for f in failures)
+
+    def test_future_dated_fails(self):
+        """issued_at > now + 5 min is rejected — forged or clock bug."""
+        now = eag.parse_iso_ts("2026-06-01T00:00:00Z")
+        issued = eag.parse_iso_ts("2026-06-01T01:00:00Z")  # 1 hour ahead
+        failures = []
+        assert eag.check_attestation_freshness(issued, 168.0, failures,
+                                                now=now) is False
+        assert any(f["code"] == "attestation_in_future" for f in failures)
+
+    def test_small_clock_skew_tolerated(self):
+        """Clients slightly ahead of server (< 5 min) must not fail."""
+        now = eag.parse_iso_ts("2026-06-01T00:00:00Z")
+        issued = eag.parse_iso_ts("2026-06-01T00:02:00Z")  # 2 min ahead
+        failures = []
+        assert eag.check_attestation_freshness(issued, 168.0, failures,
+                                                now=now) is True
+
+
+class TestCollectRequiredPathSandbox:
+    """Regression: attestation bundles must not be able to reference
+    files outside their own directory, whether via absolute path or
+    via symlink escape. collect_required_path now defaults sandbox to
+    spec_base and resolves symlinks before the sandbox check."""
+
+    def test_absolute_escape_rejected(self, tmp_path):
+        spec_base = tmp_path / "bundle"
+        spec_base.mkdir()
+        outside = tmp_path / "secret.txt"
+        outside.write_text("classified")
+        failures = []
+        result = eag.collect_required_path(
+            spec_base,
+            {"f": str(outside)},
+            "f", failures, "test",
+        )
+        assert result is None
+        assert any(f["code"] == "path_escapes_sandbox" for f in failures)
+
+    def test_symlink_escape_rejected(self, tmp_path):
+        spec_base = tmp_path / "bundle"
+        spec_base.mkdir()
+        outside = tmp_path / "secret.txt"
+        outside.write_text("classified")
+        link = spec_base / "link.txt"
+        link.symlink_to(outside)
+        failures = []
+        result = eag.collect_required_path(
+            spec_base,
+            {"f": "link.txt"},
+            "f", failures, "test",
+        )
+        # .resolve() follows symlinks, so the resolved target path is
+        # outside_file, which fails the sandbox check.
+        assert result is None
+        assert any(f["code"] == "path_escapes_sandbox" for f in failures)
+
+    def test_inside_bundle_accepted(self, tmp_path):
+        spec_base = tmp_path / "bundle"
+        spec_base.mkdir()
+        inner = spec_base / "payload.json"
+        inner.write_text("{}")
+        failures = []
+        result = eag.collect_required_path(
+            spec_base, {"f": "payload.json"},
+            "f", failures, "test",
+        )
+        assert result == inner.resolve()
+        assert failures == []

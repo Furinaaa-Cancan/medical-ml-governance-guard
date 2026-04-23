@@ -59,12 +59,50 @@ PUBLIC_KEY_BITS_RE = re.compile(r"Public-Key:\s*\((\d+)\s*bit\)", re.IGNORECASE)
 
 # ── parse_args (9 lines) ──────────────────────────
 
+_DEFAULT_TRUSTED_SIGNERS = (
+    Path(__file__).resolve().parent.parent.parent
+    / "references" / "attestation" / "trusted_signers.json"
+)
+DEFAULT_MAX_AGE_HOURS = 168.0  # 7 days — long enough for academic workflows
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Verify signed execution attestation and artifact integrity.")
     parser.add_argument("--attestation-spec", required=True, help="Path to execution attestation spec JSON.")
     parser.add_argument("--evaluation-report", required=True, help="Path to canonical evaluation report JSON.")
     parser.add_argument("--study-id", help="Expected study_id from request contract.")
     parser.add_argument("--run-id", help="Expected run_id from request contract or orchestrator.")
+    parser.add_argument(
+        "--trusted-signers",
+        type=Path,
+        default=_DEFAULT_TRUSTED_SIGNERS,
+        help=(
+            "Path to trusted_signers.json allowlist. Signature verification is "
+            "necessary but NOT sufficient on its own — the signing public key's "
+            "SHA-256 fingerprint must be present and active in this file. "
+            "Default: references/attestation/trusted_signers.json."
+        ),
+    )
+    parser.add_argument(
+        "--max-age-hours",
+        type=float,
+        default=DEFAULT_MAX_AGE_HOURS,
+        help=(
+            "Reject attestations whose issued_at_utc is older than this many "
+            f"hours from now (prevents replay). Default: {DEFAULT_MAX_AGE_HOURS} "
+            "hours (7 days)."
+        ),
+    )
+    parser.add_argument(
+        "--allow-unsigned",
+        action="store_true",
+        help=(
+            "DEV/DEBUG ONLY. Skip trust-anchor and freshness enforcement. "
+            "NEVER enable this on a pipeline that produces publication-grade "
+            "claims — the gate degenerates to an internal-consistency check "
+            "and cannot stop an attacker with filesystem access."
+        ),
+    )
     parser.add_argument("--report", help="Optional output JSON report path.")
     parser.add_argument("--strict", action="store_true", help="Fail on warnings.")
     return parser.parse_args()
@@ -82,6 +120,228 @@ def parse_iso_ts(raw: str) -> Optional[dt.datetime]:
     if parsed.tzinfo is None:
         parsed = parsed.replace(tzinfo=dt.timezone.utc)
     return parsed.astimezone(dt.timezone.utc)
+
+
+# ═══════════════════════════════════════════════════════════════
+# Trust anchor + freshness (Codex review 2026-04-23 hardening)
+# ═══════════════════════════════════════════════════════════════
+#
+# Before this change, signature verification was "self-authenticating":
+# the gate accepted whatever public_key_file the attestation bundle
+# itself pointed to. A filesystem-write attacker could generate fresh
+# keys, sign a fresh bundle, and pass every check. Additionally, there
+# was no freshness check — an old valid bundle could be replayed
+# indefinitely.
+#
+# load_trusted_signers() reads an out-of-band allowlist (sha256 public
+# key fingerprints, active windows, revocation flag) that is NOT part
+# of the bundle. The public key DER used for verification must match
+# an entry here — otherwise the signature alone is a no-op.
+#
+# check_attestation_freshness() compares issued_at_utc to wall-clock
+# now, rejecting bundles older than --max-age-hours. A replayed old
+# bundle fails this.
+
+
+def _now_utc() -> dt.datetime:
+    """Separated for tests to patch."""
+    return dt.datetime.now(dt.timezone.utc)
+
+
+def load_trusted_signers(
+    path: Path,
+    failures: List[Dict[str, Any]],
+) -> Optional[List[Dict[str, Any]]]:
+    """Load and validate the trusted-signers allowlist.
+
+    Expected schema:
+        {
+          "version": "1.0",
+          "signers": [
+            {
+              "fingerprint_sha256": "<64 hex>",
+              "signer_name": "human-readable label",
+              "active_from": "ISO-8601",
+              "active_until": "ISO-8601",
+              "revoked": false,
+              "notes": "optional"
+            },
+            ...
+          ]
+        }
+
+    Returns the signers list on success. Returns None and records a
+    failure on any problem — callers should treat None as fail-closed.
+    """
+    if not path.exists():
+        add_issue(
+            failures,
+            "trusted_signers_missing",
+            "Trusted-signers allowlist file not found.",
+            {
+                "path": str(path),
+                "remediation": (
+                    "Create references/attestation/trusted_signers.json per "
+                    "trusted_signers.example.json; list the SHA-256 "
+                    "fingerprints of keys authorized to sign attestations "
+                    "for this project. Signature verification alone is NOT "
+                    "a security control without this allowlist."
+                ),
+            },
+        )
+        return None
+    try:
+        with path.open("r", encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (OSError, json.JSONDecodeError) as exc:
+        add_issue(
+            failures,
+            "trusted_signers_invalid_json",
+            "Trusted-signers file is not valid JSON.",
+            {"path": str(path), "error": str(exc)},
+        )
+        return None
+    if not isinstance(data, dict):
+        add_issue(failures, "trusted_signers_invalid_shape",
+                  "Trusted-signers root must be a JSON object.",
+                  {"path": str(path)})
+        return None
+    signers = data.get("signers")
+    if not isinstance(signers, list):
+        add_issue(failures, "trusted_signers_invalid_shape",
+                  "Trusted-signers 'signers' must be a list.",
+                  {"path": str(path)})
+        return None
+    valid: List[Dict[str, Any]] = []
+    for idx, entry in enumerate(signers):
+        if not isinstance(entry, dict):
+            add_issue(failures, "trusted_signers_bad_entry",
+                      "Entry must be an object.",
+                      {"index": idx, "path": str(path)})
+            continue
+        fp = entry.get("fingerprint_sha256")
+        if not isinstance(fp, str) or not re.fullmatch(r"[0-9a-fA-F]{64}", fp):
+            add_issue(failures, "trusted_signers_bad_fingerprint",
+                      "fingerprint_sha256 must be 64 hex chars.",
+                      {"index": idx, "path": str(path),
+                       "actual": str(fp)[:80]})
+            continue
+        # Normalize.
+        entry = dict(entry)
+        entry["fingerprint_sha256"] = fp.lower()
+        valid.append(entry)
+    if not valid:
+        add_issue(failures, "trusted_signers_empty",
+                  "Trusted-signers allowlist has no valid entries.",
+                  {"path": str(path)})
+        return None
+    return valid
+
+
+def check_signer_trusted(
+    fingerprint: str,
+    signers: List[Dict[str, Any]],
+    failures: List[Dict[str, Any]],
+    now: Optional[dt.datetime] = None,
+) -> bool:
+    """Look up fingerprint in allowlist, honoring revocation + active
+    window. Records a failure and returns False on any mismatch, so
+    'signed but not by a trusted signer' fails fail-closed.
+    """
+    if now is None:
+        now = _now_utc()
+    fp = fingerprint.lower()
+    match = next((s for s in signers
+                  if s.get("fingerprint_sha256", "").lower() == fp), None)
+    if match is None:
+        add_issue(
+            failures,
+            "signer_not_trusted",
+            "Signing public key is not in the trusted-signers allowlist.",
+            {
+                "fingerprint_sha256": fp,
+                "remediation": (
+                    "Either this attestation was produced with an unauthorized "
+                    "key — investigate provenance — or this is a legitimate "
+                    "new key that needs to be added to "
+                    "references/attestation/trusted_signers.json."
+                ),
+            },
+        )
+        return False
+    if match.get("revoked") is True:
+        add_issue(
+            failures,
+            "signer_revoked",
+            "Signing key is present in allowlist but marked revoked.",
+            {
+                "fingerprint_sha256": fp,
+                "signer_name": match.get("signer_name"),
+                "notes": match.get("notes"),
+            },
+        )
+        return False
+    active_from = parse_iso_ts(match["active_from"]) if match.get("active_from") else None
+    active_until = parse_iso_ts(match["active_until"]) if match.get("active_until") else None
+    if active_from and now < active_from:
+        add_issue(failures, "signer_not_yet_active",
+                  "Signing key is listed but its active_from is in the future.",
+                  {"fingerprint_sha256": fp, "active_from": match["active_from"]})
+        return False
+    if active_until and now > active_until:
+        add_issue(failures, "signer_expired",
+                  "Signing key active_until has passed.",
+                  {"fingerprint_sha256": fp, "active_until": match["active_until"]})
+        return False
+    return True
+
+
+def check_attestation_freshness(
+    issued_at: dt.datetime,
+    max_age_hours: float,
+    failures: List[Dict[str, Any]],
+    now: Optional[dt.datetime] = None,
+) -> bool:
+    """Reject attestations older than max_age_hours from now. Also
+    rejects attestations dated in the future beyond a small skew window
+    (5 minutes) — that's almost always a clock or forged-timestamp bug.
+    """
+    if now is None:
+        now = _now_utc()
+    age = now - issued_at
+    clock_skew = dt.timedelta(minutes=5)
+    if issued_at - now > clock_skew:
+        add_issue(
+            failures,
+            "attestation_in_future",
+            "issued_at_utc is in the future beyond clock-skew tolerance.",
+            {
+                "issued_at_utc": issued_at.isoformat(),
+                "now_utc": now.isoformat(),
+                "skew_tolerance_minutes": 5,
+            },
+        )
+        return False
+    max_age = dt.timedelta(hours=max_age_hours)
+    if age > max_age:
+        add_issue(
+            failures,
+            "attestation_stale",
+            "Attestation is older than max-age-hours — possible replay.",
+            {
+                "issued_at_utc": issued_at.isoformat(),
+                "now_utc": now.isoformat(),
+                "age_hours": round(age.total_seconds() / 3600.0, 2),
+                "max_age_hours": max_age_hours,
+                "remediation": (
+                    "Regenerate the attestation from the current pipeline run, "
+                    "or raise --max-age-hours if this workflow legitimately "
+                    "validates old runs."
+                ),
+            },
+        )
+        return False
+    return True
 
 
 def require_str(obj: Dict[str, Any], key: str, failures: List[Dict[str, Any]], where: str) -> Optional[str]:
@@ -532,12 +792,49 @@ def public_key_bits(public_key_file: Path, failures: List[Dict[str, Any]]) -> Op
 
 
 def collect_required_path(
-    spec_base: Path, parent: Dict[str, Any], key: str, failures: List[Dict[str, Any]], where: str
+    spec_base: Path,
+    parent: Dict[str, Any],
+    key: str,
+    failures: List[Dict[str, Any]],
+    where: str,
+    sandbox: Optional[Path] = None,
 ) -> Optional[Path]:
+    """Resolve a required file path from a spec block.
+
+    When ``sandbox`` is provided, the resolved path (after .resolve()
+    follows symlinks) must be under the sandbox directory. This blocks
+    an attestation spec from pointing outside its own bundle — e.g.,
+    referencing /etc/passwd or using a symlink to escape to sibling
+    project directories. The sandbox IS enforced against symlink
+    escape because Path.resolve() yields the canonical target path.
+
+    When ``sandbox`` is None (the default), sandbox is implicitly set
+    to ``spec_base`` — every path referenced by the attestation spec
+    must live under the spec's parent directory. Callers that need a
+    wider sandbox (e.g., an evaluation report that lives next to, not
+    under, the bundle) should pass sandbox=spec_base.parent explicitly.
+    """
+    if sandbox is None:
+        sandbox = spec_base
     value = require_str(parent, key, failures, where)
     if value is None:
         return None
-    path = resolve_path(spec_base, value)
+    try:
+        path = resolve_path(spec_base, value, sandbox=sandbox)
+    except ValueError as exc:
+        add_issue(
+            failures,
+            "path_escapes_sandbox",
+            "Referenced path escapes the attestation bundle sandbox.",
+            {
+                "where": where,
+                "field": key,
+                "raw_value": value,
+                "sandbox": str(sandbox) if sandbox else None,
+                "error": str(exc),
+            },
+        )
+        return None
     if not path.exists():
         add_issue(
             failures,
@@ -2666,6 +2963,14 @@ def main() -> int:
             {"issued_at_utc": issued_at_raw},
         )
 
+    # Freshness / replay-resistance — a bundle whose internal timestamps
+    # are self-consistent can still be replayed from months ago. Compare
+    # to wall-clock now and fail if older than --max-age-hours.
+    if issued_at_ts and not args.allow_unsigned:
+        check_attestation_freshness(
+            issued_at_ts, args.max_age_hours, failures,
+        )
+
     signing = spec.get("signing")
     if not isinstance(signing, dict):
         add_issue(
@@ -2682,6 +2987,11 @@ def main() -> int:
     public_key_file = collect_required_path(spec_base, signing, "public_key_file", failures, "attestation_spec.signing")
 
     signature_verification: Dict[str, Any] = {}
+    trust_verification: Dict[str, Any] = {
+        "checked": False,
+        "trusted": False,
+        "allow_unsigned_mode": bool(args.allow_unsigned),
+    }
     if payload_file and signature_file and public_key_file and signing_method:
         signature_verification = verify_detached_signature(
             data_file=payload_file,
@@ -2691,10 +3001,38 @@ def main() -> int:
             failures=failures,
             scope="attestation_payload",
         )
+        # Trust-anchor check — signature alone verifies the signer had
+        # the private key matching public_key_file, but NOT that that
+        # key is authorized to produce attestations for this project.
+        # Without this check a filesystem-write attacker can mint fresh
+        # keys + fresh bundle and pass. See load_trusted_signers docstring.
+        if signature_verification.get("verified") and not args.allow_unsigned:
+            fingerprint = public_key_fingerprint_sha256(public_key_file, failures)
+            trust_verification["fingerprint_sha256"] = fingerprint
+            if fingerprint:
+                trusted_path = Path(args.trusted_signers).expanduser().resolve()
+                trust_verification["trusted_signers_path"] = str(trusted_path)
+                signers = load_trusted_signers(trusted_path, failures)
+                trust_verification["checked"] = True
+                if signers is not None:
+                    trust_verification["trusted"] = check_signer_trusted(
+                        fingerprint, signers, failures,
+                    )
+        elif args.allow_unsigned:
+            add_issue(
+                warnings,
+                "trust_anchor_bypassed",
+                "--allow-unsigned is active: trust-anchor and freshness checks "
+                "are SKIPPED. This gate run provides NO security guarantee.",
+                {"mode": "dev_only"},
+            )
 
     payload = load_json_obj(payload_file, failures, "signed_payload") if payload_file else None
     if payload is None:
-        return finish(args, failures, warnings, {"signature_verification": signature_verification}, {})
+        return finish(args, failures, warnings,
+                      {"signature_verification": signature_verification,
+                       "trust_verification": trust_verification},
+                      {})
 
     payload_study_id = require_str(payload, "study_id", failures, "signed_payload")
     payload_run_id = require_str(payload, "run_id", failures, "signed_payload")

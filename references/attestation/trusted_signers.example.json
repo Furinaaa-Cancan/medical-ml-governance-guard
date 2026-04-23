@@ -1,0 +1,16 @@
+{
+  "version": "1.0",
+  "schema": "mlgg-trusted-signers",
+  "description": "Out-of-band allowlist of public keys authorized to sign MLGG execution attestations. Copy this file to trusted_signers.json and fill in your own key fingerprints. The attestation gate REQUIRES the signing public key's SHA-256 fingerprint to appear here and to be active (not revoked, within active window) — otherwise signature verification alone is a no-op since the attacker controls the key material inside the bundle.",
+  "how_to_compute_fingerprint": "openssl pkey -pubin -in your_pub.pem -outform DER | openssl dgst -sha256 -binary | xxd -p -c 256",
+  "signers": [
+    {
+      "fingerprint_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "signer_name": "MLGG Release Key 2026 (example — replace with yours)",
+      "active_from": "2026-01-01T00:00:00Z",
+      "active_until": "2027-01-01T00:00:00Z",
+      "revoked": false,
+      "notes": "Primary release-signing key. Rotate annually; add new entry instead of editing an existing one so audit history stays intact."
+    }
+  ]
+}
