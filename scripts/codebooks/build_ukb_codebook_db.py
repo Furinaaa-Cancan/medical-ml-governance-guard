@@ -24,11 +24,27 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import codecs
 import csv
 import sqlite3
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
+
+
+# ── UKB source encoding quirk ──────────────────────────────────────
+# UKB .txt exports are almost pure UTF-8, but category.txt has 2
+# stray 0x97 bytes (cp1252 em-dash) that are invalid UTF-8. Previous
+# `errors="replace"` silently turned them into `�`, corrupting the
+# notes field of category 100079 ("Advanced boundary segmentation
+# [TABS]"). Round-9 strict-review found this. Register a handler
+# that decodes the offending byte as cp1252 — preserves the em-dash
+# while leaving valid UTF-8 multi-byte sequences intact.
+def _cp1252_fallback(err: UnicodeDecodeError):
+    return (err.object[err.start:err.end].decode("cp1252", errors="replace"),
+            err.end)
+
+codecs.register_error("ukb_cp1252_fallback", _cp1252_fallback)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 DEFAULT_DIR = REPO_ROOT / "references" / "codebooks" / "ukb"
@@ -572,7 +588,7 @@ def read_tab_file(path: Path) -> List[Dict[str, str]]:
     if not path.exists():
         print(f"  [SKIP] {path.name} not found", file=sys.stderr)
         return []
-    with open(path, "r", encoding="utf-8", errors="replace") as f:
+    with open(path, "r", encoding="utf-8", errors="ukb_cp1252_fallback") as f:
         reader = csv.DictReader(f, delimiter="\t", quoting=csv.QUOTE_NONE)
         return list(reader)
 

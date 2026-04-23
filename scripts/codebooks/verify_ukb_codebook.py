@@ -675,6 +675,38 @@ def check_ceilings(conn: sqlite3.Connection) -> List[str]:
     return warnings
 
 
+def check_source_encoding(ukb_dir: Path) -> Tuple[List[str], Dict[str, int]]:
+    """Count non-UTF-8 bytes per source file.
+
+    UKB .txt files are mostly UTF-8 but round-9 strict-review found
+    category.txt has 2 stray 0x97 bytes (cp1252 em-dash). The builder
+    now recovers these via a cp1252 fallback handler, but we still
+    track the total so a sudden surge (UKB switching encoding) fires
+    a loud warning. Zero would be ideal; >5 triggers investigation.
+    """
+    issues: List[str] = []
+    detail: Dict[str, int] = {}
+    for txt in sorted(ukb_dir.glob("*.txt")):
+        raw = txt.read_bytes()
+        bad = 0
+        pos = 0
+        while pos < len(raw):
+            try:
+                raw[pos:].decode("utf-8")
+                break
+            except UnicodeDecodeError as exc:
+                bad += 1
+                pos += exc.start + 1
+        detail[txt.name] = bad
+        if bad > 5:
+            issues.append(
+                f"{txt.name}: {bad} non-UTF-8 bytes (threshold 5). UKB "
+                "may have switched encoding; investigate before trusting "
+                "text-heavy fields (notes, descriptions)."
+            )
+    return issues, detail
+
+
 def check_source_vs_db_row_counts(
     ukb_dir: Path, conn: sqlite3.Connection,
 ) -> List[str]:
@@ -1033,17 +1065,21 @@ def main() -> int:
         count_issues, count_detail = check_counts(conn)
         hard_issues = check_hard_invariants(conn)
         source_vs_db_issues = check_source_vs_db_row_counts(UKB_DIR, conn)
+        enc_issues, enc_detail = check_source_encoding(UKB_DIR)
         ceiling_warnings = check_ceilings(conn)
         summary["layers"]["l2_structural"] = {
             "count_issues": len(count_issues),
             "hard_invariant_issues": len(hard_issues),
             "source_vs_db_issues": len(source_vs_db_issues),
+            "source_encoding_issues": len(enc_issues),
+            "source_encoding_detail": enc_detail,
             "ceiling_warnings": len(ceiling_warnings),
             "counts": count_detail,
         }
         all_issues.extend(f"[L2] {i}" for i in count_issues)
         all_issues.extend(f"[L2] {i}" for i in hard_issues)
         all_issues.extend(f"[L2-src-vs-db] {i}" for i in source_vs_db_issues)
+        all_issues.extend(f"[L2-src-encoding] {i}" for i in enc_issues)
         all_warnings.extend(f"[L2] {w}" for w in ceiling_warnings)
 
         # L3
