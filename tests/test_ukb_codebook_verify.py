@@ -180,6 +180,65 @@ class TestContentFacetHashes:
         assert warnings == []
         assert detail["pinned"] == {}
 
+    def test_source_manifest_has_content_hashes_pinned(self):
+        """Once pinned, future commits must keep the four facets pinned.
+
+        If someone removes the content_hashes block entirely,
+        --strict-content-hashes silently degrades to a no-op because
+        check_content_hash_drift returns no warnings for unpinned
+        facets. This test catches that regression.
+        """
+        import json
+        manifest = json.loads(
+            (REPO_ROOT / "references" / "codebooks" / "ukb" / "source_manifest.json")
+            .read_text()
+        )
+        assert "content_hashes" in manifest, (
+            "source_manifest.json lost its content_hashes block — pinning "
+            "was intentional; regenerate via --print-content-hashes."
+        )
+        assert set(manifest["content_hashes"].keys()) == {
+            "source_titles", "classification", "encoding_values", "aliases",
+        }
+        for key, h in manifest["content_hashes"].items():
+            assert isinstance(h, str) and len(h) == 64, (
+                f"content_hashes[{key!r}] is not a 64-char sha256: {h!r}"
+            )
+
+    def test_strict_flag_exits_nonzero_on_drift(self, tmp_path):
+        """--strict-content-hashes must make drift a hard failure.
+
+        Builds a fake manifest with wrong content_hashes and empty
+        `files` block (so L1 passes vacuously with --skip-l1), points
+        verify at it with --strict-content-hashes, asserts exit 2.
+        """
+        import json
+        fake = tmp_path / "fake_manifest.json"
+        fake.write_text(json.dumps({
+            "schema_version": "fake",
+            "content_hashes": {
+                "source_titles":   "0" * 64,
+                "classification":  "0" * 64,
+                "encoding_values": "0" * 64,
+                "aliases":         "0" * 64,
+            },
+            "files": {},
+        }))
+        r = subprocess.run(
+            [sys.executable, str(VERIFY),
+             "--manifest", str(fake),
+             "--skip-l1", "--skip-l3", "--skip-disease-kb",
+             "--strict-content-hashes"],
+            capture_output=True, text=True, timeout=60,
+        )
+        assert r.returncode == 2, (
+            f"expected strict drift to exit 2, got {r.returncode}\n"
+            f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+        )
+        assert "content-hash" in r.stdout, (
+            "drift was not reported as a content-hash issue"
+        )
+
 
 @pytest.mark.skipif(not DB.exists(), reason="UKB SQLite not present")
 class TestVerifierSilentFailureGuards:

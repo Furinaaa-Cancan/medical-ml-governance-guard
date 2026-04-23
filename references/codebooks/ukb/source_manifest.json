@@ -2,6 +2,12 @@
   "schema_version": "2026-04-12",
   "source": "https://biobank.ndph.ox.ac.uk/ukb/scdown.cgi",
   "captured_at_utc": "2026-04-23T00:00:00Z",
+  "content_hashes": {
+    "source_titles": "6524a3e036cc618bb807db206bc4d56f7997d64971e728ebdcd11646b617a575",
+    "classification": "9008576e5b7fd6fad98dbbe433bbca597305ed78a8f7e06e46ea40262ed3affc",
+    "encoding_values": "1c7f69304c7405e6124223941fe522da41c75fb2705f08687919a164e8ea0077",
+    "aliases": "7d1b38a2e969b95177e12ca677d9d7353d306808f4ebbc80a618d2540bb1de66"
+  },
   "files": {
     "catbrowse.txt": {
       "sha256": "c2a09cf905c4e67ccc2b76b62ad73851e77e75a28d2c841b0d1f9fd9c6ef829f",
