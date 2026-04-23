@@ -20,9 +20,9 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
 
 try:
-    from _gate_utils import add_timeout_argument, get_gate_elapsed
+    from _gate_utils import get_gate_elapsed
 except ImportError:
-    from scripts.core._gate_utils import add_timeout_argument, get_gate_elapsed  # type: ignore[no-redef]
+    from scripts.core._gate_utils import get_gate_elapsed  # type: ignore[no-redef]
 
 
 # ---------------------------------------------------------------------------
@@ -365,7 +365,6 @@ def add_common_arguments(parser: argparse.ArgumentParser) -> None:
         action="store_true",
         help="Validate inputs and arguments only; do not run gate logic.",
     )
-    add_timeout_argument(parser)
 
 
 def add_input_file_argument(

@@ -8,11 +8,9 @@ from this module is optional and does not change gate semantics.
 
 from __future__ import annotations
 
-import argparse
 import json
 import math
 import os
-import signal
 import sys
 import time
 from pathlib import Path
@@ -254,85 +252,19 @@ def get_gate_elapsed() -> float:
     return time.time() - _gate_start_time
 
 
-def inject_execution_time(report: Dict[str, Any]) -> Dict[str, Any]:
-    """Add execution_time_seconds to a gate report dict.
-
-    Args:
-        report: Gate report dict to augment.
-
-    Returns:
-        The same dict with execution_time_seconds added.
-    """
-    report["execution_time_seconds"] = round(get_gate_elapsed(), 3)
-    return report
-
-
-class GateTimeoutError(Exception):
-    """Raised when a gate exceeds its configured timeout."""
-
-
-def add_timeout_argument(parser: argparse.ArgumentParser) -> None:
-    """Add a --timeout argument to a gate argparse parser.
-
-    Args:
-        parser: ArgumentParser to add the --timeout flag to.
-    """
-    parser.add_argument(
-        "--timeout",
-        type=int,
-        default=0,
-        help="Maximum execution time in seconds (0=unlimited).",
-    )
-
-
-def install_gate_timeout(
-    timeout_seconds: int,
-    report_path: Optional[Path] = None,
-    gate_name: str = "unknown_gate",
-) -> None:
-    """Install a SIGALRM-based timeout for a gate script.
-
-    When the timeout fires, a timeout report is written (if report_path
-    is provided) and the process exits with code 2 (fail).
-
-    Args:
-        timeout_seconds: Seconds before timeout (0 = disabled).
-        report_path: Path to write the timeout report JSON.
-        gate_name: Name of the gate for the report.
-    """
-    if timeout_seconds <= 0:
-        return
-    if not hasattr(signal, "SIGALRM"):
-        return
-
-    def _handler(signum: int, frame: Any) -> None:
-        payload: Dict[str, Any] = {
-            "status": "fail",
-            "gate_name": gate_name,
-            "strict_mode": True,
-            "timeout_seconds": timeout_seconds,
-            "failures": [
-                {
-                    "code": "gate_timeout",
-                    "message": f"Gate exceeded {timeout_seconds}s timeout.",
-                    "details": {"timeout_seconds": timeout_seconds},
-                }
-            ],
-            "warnings": [],
-        }
-        if report_path is not None:
-            try:
-                write_json(report_path, payload)
-            except Exception:
-                pass
-        print(
-            f"TIMEOUT: {gate_name} exceeded {timeout_seconds}s limit.",
-            file=sys.stderr,
-        )
-        sys.exit(2)
-
-    signal.signal(signal.SIGALRM, _handler)
-    signal.alarm(timeout_seconds)
+# NOTE: inject_execution_time / add_timeout_argument /
+# install_gate_timeout / GateTimeoutError were removed on 2026-04-23.
+#
+# They formed a half-wired timeout feature: _gate_framework added a
+# --timeout CLI arg to every gate, but no call to install_gate_timeout
+# ever fired, so the arg was accepted and silently ignored — worse than
+# not having it at all. inject_execution_time was also unused because
+# build_report_envelope already injects execution_time_seconds via
+# get_gate_elapsed() directly.
+#
+# If a real timeout feature is needed, wire it properly through a
+# shared gate entrypoint (e.g., run_gate_main()) rather than
+# resurrecting the ghost CLI arg.
 
 
 

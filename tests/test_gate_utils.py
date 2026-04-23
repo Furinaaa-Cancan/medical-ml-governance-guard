@@ -12,12 +12,10 @@ import pytest
 # Ensure scripts/ is importable
 from _gate_utils import (
     add_issue,
-    add_timeout_argument,
     canonical_metric_token,
     confusion_counts,
     epoch_to_iso,
     get_gate_elapsed,
-    inject_execution_time,
     is_finite_number,
     load_json,
     load_json_from_path,
@@ -648,53 +646,6 @@ class TestGateTimer:
 
 
 # ────────────────────────────────────────────────────────
-# inject_execution_time
-# ────────────────────────────────────────────────────────
-
-class TestInjectExecutionTime:
-    def test_adds_key(self):
-        start_gate_timer()
-        report: dict = {"status": "pass"}
-        result = inject_execution_time(report)
-        assert "execution_time_seconds" in result
-        assert isinstance(result["execution_time_seconds"], float)
-        assert result is report  # mutates in place
-
-    def test_overwrites_existing(self):
-        start_gate_timer()
-        report = {"execution_time_seconds": -1}
-        inject_execution_time(report)
-        assert report["execution_time_seconds"] >= 0
-
-
-# ────────────────────────────────────────────────────────
-# add_timeout_argument
-# ────────────────────────────────────────────────────────
-
-class TestAddTimeoutArgument:
-    def test_adds_timeout_flag(self):
-        import argparse
-        parser = argparse.ArgumentParser()
-        add_timeout_argument(parser)
-        args = parser.parse_args([])
-        assert args.timeout == 0
-
-    def test_custom_timeout(self):
-        import argparse
-        parser = argparse.ArgumentParser()
-        add_timeout_argument(parser)
-        args = parser.parse_args(["--timeout", "30"])
-        assert args.timeout == 30
-
-    def test_negative_timeout(self):
-        import argparse
-        parser = argparse.ArgumentParser()
-        add_timeout_argument(parser)
-        args = parser.parse_args(["--timeout", "-1"])
-        assert args.timeout == -1
-
-
-# ────────────────────────────────────────────────────────
 # try_parse_time
 # ────────────────────────────────────────────────────────
 
@@ -904,34 +855,6 @@ class TestMetricPanel:
         p = np.array([1, 0])
         metrics, _ = metric_panel(y, s, p, beta=2.0)
         assert metrics["brier"] < 0.01
-
-
-# ────────────────────────────────────────────────────────
-# install_gate_timeout
-# ────────────────────────────────────────────────────────
-
-class TestInstallGateTimeout:
-    def test_zero_timeout_is_noop(self):
-        from _gate_utils import install_gate_timeout
-        install_gate_timeout(0, None, "test_gate")
-
-    def test_negative_timeout_is_noop(self):
-        from _gate_utils import install_gate_timeout
-        install_gate_timeout(-1, None, "test_gate")
-
-    def test_positive_timeout_installs_alarm(self):
-        import signal
-        from _gate_utils import install_gate_timeout
-        if not hasattr(signal, "SIGALRM"):
-            pytest.skip("SIGALRM not available on this platform")
-        old_handler = signal.getsignal(signal.SIGALRM)
-        try:
-            install_gate_timeout(9999, None, "test_gate")
-            new_handler = signal.getsignal(signal.SIGALRM)
-            assert new_handler is not old_handler
-            signal.alarm(0)
-        finally:
-            signal.signal(signal.SIGALRM, old_handler if callable(old_handler) else signal.SIG_DFL)
 
 
 # ── FDR-BH correction ──────────────────────────────────────────────────
