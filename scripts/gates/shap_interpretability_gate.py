@@ -46,7 +46,7 @@ from _gate_framework import (
     print_gate_summary,
     register_remediations,
 )
-from _gate_utils import add_issue, check_csv_file_size, start_gate_timer, get_gate_elapsed, write_json
+from _gate_utils import finite_float, add_issue, check_csv_file_size, start_gate_timer, get_gate_elapsed, write_json
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -812,11 +812,11 @@ def parse_args() -> argparse.Namespace:
         help="Number of highest/lowest risk cases in Table D (default 5).",
     )
     cfg.add_argument(
-        "--min-rank-correlation", type=float, default=_DEFAULT_MIN_RANK_CORRELATION,
+        "--min-rank-correlation", type=finite_float, default=_DEFAULT_MIN_RANK_CORRELATION,
         help=f"Warn if mean Kendall tau < this (default {_DEFAULT_MIN_RANK_CORRELATION}).",
     )
     cfg.add_argument(
-        "--rank-correlation-fail", type=float, default=_DEFAULT_RANK_CORRELATION_FAIL,
+        "--rank-correlation-fail", type=finite_float, default=_DEFAULT_RANK_CORRELATION_FAIL,
         help=f"Fail if mean Kendall tau < this (default {_DEFAULT_RANK_CORRELATION_FAIL}).",
     )
 

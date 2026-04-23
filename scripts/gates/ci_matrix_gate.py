@@ -24,7 +24,7 @@ from _gate_framework import (
     print_gate_summary,
     register_remediations,
 )
-from _gate_utils import add_issue, load_json_from_str as load_json, normalize_binary as _shared_normalize_binary, safe_ratio as _shared_safe_ratio, to_float, to_int as _shared_to_int
+from _gate_utils import finite_float, add_issue, load_json_from_str as load_json, normalize_binary as _shared_normalize_binary, safe_ratio as _shared_safe_ratio, to_float, to_int as _shared_to_int
 
 
 register_remediations({

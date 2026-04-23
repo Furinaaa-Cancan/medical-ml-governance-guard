@@ -19,7 +19,7 @@ from _gate_framework import (
     print_gate_summary,
     register_remediations,
 )
-from _gate_utils import add_issue, load_json_from_str as load_json
+from _gate_utils import add_issue, finite_float, load_json_from_str as load_json
 
 
 register_remediations({
@@ -79,7 +79,7 @@ def parse_args() -> argparse.Namespace:
     # prevents argparse from crashing the whole aggregation step.
     parser.add_argument("--cohort-definition-report", default="", help="Path to cohort definition gate report JSON.")
     parser.add_argument("--shap-interpretability-report", default="", help="Path to SHAP interpretability report JSON.")
-    parser.add_argument("--min-score", type=float, default=95.0, help="Minimum score for publication-grade readiness.")
+    parser.add_argument("--min-score", type=finite_float, default=95.0, help="Minimum score for publication-grade readiness.")
     parser.add_argument(
         "--allow-missing-comparison",
         action="store_true",

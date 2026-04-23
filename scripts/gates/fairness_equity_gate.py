@@ -23,7 +23,7 @@ import math
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from _gate_utils import add_issue, get_gate_elapsed, load_json_from_path as load_json_object
+from _gate_utils import finite_float, add_issue, get_gate_elapsed, load_json_from_path as load_json_object
 from _gate_framework import (
     GateIssue,
     Severity,
@@ -183,13 +183,13 @@ def parse_args() -> argparse.Namespace:
     # Threshold overrides
     parser.add_argument(
         "--equalized-odds-gap-fail",
-        type=float,
+        type=finite_float,
         default=None,
         help="Override equalized odds gap fail threshold.",
     )
     parser.add_argument(
         "--disparate-impact-ratio-fail",
-        type=float,
+        type=finite_float,
         default=None,
         help="Override disparate impact ratio fail threshold.",
     )

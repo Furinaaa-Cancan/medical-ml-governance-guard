@@ -20,7 +20,7 @@ import math
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from _gate_utils import add_issue, get_gate_elapsed, load_json_from_path as load_json_object, write_json as _write_report
+from _gate_utils import add_issue, finite_float, get_gate_elapsed, load_json_from_path as load_json_object, write_json as _write_report
 from _gate_framework import (
     GateIssue,
     Severity,
@@ -180,7 +180,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--epv-minimum",
-        type=float,
+        type=finite_float,
         default=None,
         help="Override minimum EPV threshold.",
     )

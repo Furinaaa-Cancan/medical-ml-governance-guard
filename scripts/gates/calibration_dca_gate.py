@@ -27,7 +27,7 @@ from _gate_framework import (
     print_gate_summary,
     register_remediations,
 )
-from _gate_utils import add_issue, load_json_from_str as load_json_obj, normalize_binary as _shared_normalize_binary, to_float
+from _gate_utils import finite_float, add_issue, load_json_from_str as load_json_obj, normalize_binary as _shared_normalize_binary, to_float
 
 
 register_remediations({
@@ -74,21 +74,21 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--report", help="Optional output report JSON path.")
     parser.add_argument("--strict", action="store_true", help="Fail on warnings.")
     # Calibration ridge regularization
-    parser.add_argument("--calibration-ridge", type=float, default=1.0,
+    parser.add_argument("--calibration-ridge", type=finite_float, default=1.0,
                         help="Ridge regularization strength for calibration slope/intercept fitting (default: 1.0).")
     # O/E ratio thresholds (BMJ 2024)
-    parser.add_argument("--oe-ratio-fail-lower", type=float, default=0.70,
+    parser.add_argument("--oe-ratio-fail-lower", type=finite_float, default=0.70,
                         help="O/E ratio lower bound for failure (default: 0.70).")
-    parser.add_argument("--oe-ratio-fail-upper", type=float, default=1.43,
+    parser.add_argument("--oe-ratio-fail-upper", type=finite_float, default=1.43,
                         help="O/E ratio upper bound for failure (default: 1.43).")
-    parser.add_argument("--oe-ratio-warn-lower", type=float, default=0.80,
+    parser.add_argument("--oe-ratio-warn-lower", type=finite_float, default=0.80,
                         help="O/E ratio lower bound for warning (default: 0.80).")
-    parser.add_argument("--oe-ratio-warn-upper", type=float, default=1.25,
+    parser.add_argument("--oe-ratio-warn-upper", type=finite_float, default=1.25,
                         help="O/E ratio upper bound for warning (default: 1.25).")
     # CITL thresholds (BMJ 2024)
-    parser.add_argument("--citl-fail-threshold", type=float, default=0.10,
+    parser.add_argument("--citl-fail-threshold", type=finite_float, default=0.10,
                         help="Calibration-in-the-large absolute threshold for failure (default: 0.10).")
-    parser.add_argument("--citl-warn-threshold", type=float, default=0.05,
+    parser.add_argument("--citl-warn-threshold", type=finite_float, default=0.05,
                         help="Calibration-in-the-large absolute threshold for warning (default: 0.05).")
     return parser.parse_args()
 

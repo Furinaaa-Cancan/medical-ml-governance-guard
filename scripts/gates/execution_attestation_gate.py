@@ -35,7 +35,7 @@ from _gate_framework import (
     print_gate_summary,
     register_remediations,
 )
-from _gate_utils import _check_json_file_size, add_issue, resolve_path
+from _gate_utils import _check_json_file_size, add_issue, finite_float, resolve_path
 
 
 register_remediations({
@@ -85,7 +85,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--max-age-hours",
-        type=float,
+        type=finite_float,
         default=DEFAULT_MAX_AGE_HOURS,
         help=(
             "Reject attestations whose issued_at_utc is older than this many "

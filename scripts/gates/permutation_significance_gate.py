@@ -22,7 +22,7 @@ from _gate_framework import (
     print_gate_summary,
     register_remediations,
 )
-from _gate_utils import add_issue
+from _gate_utils import finite_float, add_issue
 
 
 register_remediations({
@@ -37,7 +37,7 @@ register_remediations({
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Evaluate whether model metric beats permutation null.")
     parser.add_argument("--metric-name", required=True, help="Metric name, e.g. roc_auc.")
-    parser.add_argument("--actual", type=float, required=True, help="Observed metric on real labels.")
+    parser.add_argument("--actual", type=finite_float, required=True, help="Observed metric on real labels.")
     parser.add_argument(
         "--null-metrics-file",
         required=True,
@@ -46,8 +46,8 @@ def parse_args() -> argparse.Namespace:
     direction = parser.add_mutually_exclusive_group()
     direction.add_argument("--higher-is-better", action="store_true")
     direction.add_argument("--lower-is-better", action="store_true")
-    parser.add_argument("--alpha", type=float, default=0.01, help="One-sided significance threshold.")
-    parser.add_argument("--min-delta", type=float, default=0.0, help="Minimum gap between actual and null mean.")
+    parser.add_argument("--alpha", type=finite_float, default=0.01, help="One-sided significance threshold.")
+    parser.add_argument("--min-delta", type=finite_float, default=0.0, help="Minimum gap between actual and null mean.")
     parser.add_argument(
         "--min-permutations",
         type=int,

@@ -27,7 +27,7 @@ from _gate_framework import (
     print_gate_summary,
     register_remediations,
 )
-from _gate_utils import add_issue, load_json_from_str as load_json, normalize_binary as _shared_normalize_binary, to_float
+from _gate_utils import finite_float, add_issue, load_json_from_str as load_json, normalize_binary as _shared_normalize_binary, to_float
 
 
 register_remediations({

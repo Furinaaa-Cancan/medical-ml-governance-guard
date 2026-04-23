@@ -34,6 +34,73 @@ from _gate_utils import (
 
 
 # ────────────────────────────────────────────────────────
+# finite_float argparse type
+# ────────────────────────────────────────────────────────
+
+class TestFiniteFloat:
+    """Regression (Codex 2026-04-23): argparse type=float silently
+    accepts 'nan', 'inf', '-inf'. Any threshold comparison downstream
+    becomes a no-op (x > nan is always False), so an operator passing
+    --threshold nan silently disables the check. finite_float rejects
+    these at parse time via argparse.ArgumentTypeError."""
+
+    def _import(self):
+        from _gate_utils import finite_float, finite_nonnegative_float, finite_positive_float
+        return finite_float, finite_positive_float, finite_nonnegative_float
+
+    def test_finite_value_accepted(self):
+        f, _, _ = self._import()
+        assert f("0.5") == 0.5
+        assert f("-3.14") == -3.14
+        assert f("0") == 0.0
+        assert f("1e-12") == 1e-12
+
+    @pytest.mark.parametrize("bad", ["nan", "NaN", "NAN", "inf", "Inf",
+                                      "+inf", "-inf", "Infinity"])
+    def test_non_finite_rejected(self, bad):
+        import argparse
+        f, _, _ = self._import()
+        with pytest.raises(argparse.ArgumentTypeError, match="finite"):
+            f(bad)
+
+    def test_non_numeric_rejected(self):
+        f, _, _ = self._import()
+        with pytest.raises(ValueError):  # float() raises ValueError for non-numeric
+            f("not-a-number")
+
+    def test_finite_positive_rejects_zero_and_negative(self):
+        import argparse
+        _, fp, _ = self._import()
+        assert fp("1") == 1.0
+        with pytest.raises(argparse.ArgumentTypeError, match="> 0"):
+            fp("0")
+        with pytest.raises(argparse.ArgumentTypeError, match="> 0"):
+            fp("-0.5")
+
+    def test_finite_nonnegative_accepts_zero(self):
+        import argparse
+        _, _, fnn = self._import()
+        assert fnn("0") == 0.0
+        assert fnn("0.5") == 0.5
+        with pytest.raises(argparse.ArgumentTypeError, match=">= 0"):
+            fnn("-0.001")
+
+    def test_argparse_integration(self):
+        """Full argparse flow: --threshold nan is refused at CLI time,
+        not silently passed through. This is the actual attack surface."""
+        import argparse
+        f, _, _ = self._import()
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--threshold", type=f)
+        # Valid parses cleanly.
+        args = parser.parse_args(["--threshold", "0.05"])
+        assert args.threshold == 0.05
+        # nan raises SystemExit via argparse.error.
+        with pytest.raises(SystemExit):
+            parser.parse_args(["--threshold", "nan"])
+
+
+# ────────────────────────────────────────────────────────
 # add_issue
 # ────────────────────────────────────────────────────────
 

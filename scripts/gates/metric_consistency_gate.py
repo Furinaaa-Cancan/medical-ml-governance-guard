@@ -21,7 +21,7 @@ from _gate_framework import (
     print_gate_summary,
     register_remediations,
 )
-from _gate_utils import _check_json_file_size, add_issue, canonical_metric_token as _shared_canonical_metric_token, is_finite_number as _shared_is_finite_number, to_float
+from _gate_utils import finite_float, _check_json_file_size, add_issue, canonical_metric_token as _shared_canonical_metric_token, is_finite_number as _shared_is_finite_number, to_float
 
 
 register_remediations({
@@ -43,12 +43,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--expected",
-        type=float,
+        type=finite_float,
         help="Optional expected metric value from request contract.",
     )
     parser.add_argument(
         "--tolerance",
-        type=float,
+        type=finite_float,
         default=1e-12,
         help="Absolute tolerance for expected metric comparison.",
     )

@@ -28,7 +28,7 @@ from _gate_framework import (
     print_gate_summary,
     register_remediations,
 )
-from _gate_utils import add_issue, canonical_metric_token as _shared_canonical_metric_token, is_finite_number as _shared_is_finite_number, to_float
+from _gate_utils import finite_float, add_issue, canonical_metric_token as _shared_canonical_metric_token, is_finite_number as _shared_is_finite_number, to_float
 
 
 register_remediations({
@@ -103,11 +103,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--ci-matrix-report", help="Optional CI matrix report JSON path.")
     parser.add_argument("--metric-name", required=True, help="Primary metric name (for example: roc_auc).")
     parser.add_argument("--metric-path", help="Optional dot path to primary metric value in evaluation report.")
-    parser.add_argument("--primary-metric", type=float, help="Optional expected primary metric value.")
-    parser.add_argument("--tolerance", type=float, default=1e-12, help="Absolute tolerance for primary metric comparison.")
+    parser.add_argument("--primary-metric", type=finite_float, help="Optional expected primary metric value.")
+    parser.add_argument("--tolerance", type=finite_float, default=1e-12, help="Absolute tolerance for primary metric comparison.")
     parser.add_argument("--min-resamples", type=int, default=200, help="Minimum required bootstrap/resampling count.")
-    parser.add_argument("--min-baseline-delta", type=float, default=0.01, help="Minimum required margin over baseline.")
-    parser.add_argument("--max-ci-width", type=float, default=0.20, help="Warning threshold for CI width.")
+    parser.add_argument("--min-baseline-delta", type=finite_float, default=0.01, help="Minimum required margin over baseline.")
+    parser.add_argument("--max-ci-width", type=finite_float, default=0.20, help="Warning threshold for CI width.")
     parser.add_argument("--report", help="Optional output JSON report path.")
     parser.add_argument("--strict", action="store_true", help="Fail on warnings.")
     return parser.parse_args()

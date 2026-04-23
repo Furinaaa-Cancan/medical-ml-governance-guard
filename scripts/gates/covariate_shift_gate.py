@@ -28,7 +28,7 @@ from _gate_framework import (
     print_gate_summary,
     register_remediations,
 )
-from _gate_utils import add_issue
+from _gate_utils import finite_float, add_issue
 
 
 register_remediations({
@@ -84,49 +84,49 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--numeric-detection-threshold",
-        type=float,
+        type=finite_float,
         default=0.98,
         help="Required numeric-parse ratio to treat feature as numeric.",
     )
     parser.add_argument(
         "--high-shift-jsd",
-        type=float,
+        type=finite_float,
         default=0.12,
         help="JSD threshold defining a high-shift feature.",
     )
     parser.add_argument(
         "--max-top-feature-jsd",
-        type=float,
+        type=finite_float,
         default=0.35,
         help="Maximum allowed top-feature JSD before hard failure.",
     )
     parser.add_argument(
         "--max-mean-top10-jsd",
-        type=float,
+        type=finite_float,
         default=0.18,
         help="Maximum allowed mean JSD across top-10 shifted features before hard failure.",
     )
     parser.add_argument(
         "--max-high-shift-feature-fraction",
-        type=float,
+        type=finite_float,
         default=0.30,
         help="Maximum allowed fraction of high-shift features before hard failure.",
     )
     parser.add_argument(
         "--max-missing-ratio-delta",
-        type=float,
+        type=finite_float,
         default=0.20,
         help="Maximum allowed missing-ratio delta before warning.",
     )
     parser.add_argument(
         "--warn-prevalence-delta",
-        type=float,
+        type=finite_float,
         default=0.10,
         help="Warning threshold for split prevalence delta.",
     )
     parser.add_argument(
         "--max-prevalence-delta",
-        type=float,
+        type=finite_float,
         default=0.25,
         help="Hard-failure threshold for split prevalence delta.",
     )

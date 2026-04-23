@@ -374,18 +374,20 @@ class TestMainStrictWarning:
 
 class TestMainInvalidActual:
     def test_nan_actual(self, tmp_path, monkeypatch):
-        """Non-finite actual → invalid_actual_metric."""
+        """Non-finite actual is rejected at CLI-parse time now (argparse
+        type=finite_float refuses nan/inf) — earlier than the previous
+        in-gate invalid_actual_metric check. This is the Codex 2026-04-23
+        defense against silent threshold bypass via nan."""
         null_path = _write_null_list(tmp_path / "null.json", [0.50] * 10)
         rpt = tmp_path / "rpt.json"
         monkeypatch.setattr("sys.argv", [
             "psg", "--metric-name", "roc_auc", "--actual", "nan",
             "--null-metrics-file", str(null_path), "--report", str(rpt),
         ])
-        rc = psg.main()
-        assert rc == 2
-        out = json.loads(rpt.read_text())
-        codes = [f["code"] for f in out["failures"]]
-        assert "invalid_actual_metric" in codes
+        # argparse exits 2 via SystemExit on type-conversion failure.
+        with pytest.raises(SystemExit) as exc_info:
+            psg.main()
+        assert exc_info.value.code == 2
 
 
 class TestMainInvalidAlpha:

@@ -28,6 +28,7 @@ from _gate_framework import (
 from _gate_utils import (
     add_issue,
     check_csv_file_size,
+    finite_float,
     confusion_counts as _shared_confusion_counts,
     load_json_from_str as load_json_obj,
     metric_panel as _shared_metric_panel,

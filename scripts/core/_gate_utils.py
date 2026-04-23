@@ -8,6 +8,7 @@ from this module is optional and does not change gate semantics.
 
 from __future__ import annotations
 
+import argparse
 import json
 import math
 import os
@@ -35,6 +36,65 @@ def add_issue(
 ) -> None:
     """Append a structured issue dict to a bucket list."""
     bucket.append({"code": code, "message": message, "details": details})
+
+
+# ═══════════════════════════════════════════════════════════════
+# argparse CLI type helpers
+# ═══════════════════════════════════════════════════════════════
+#
+# Context (2026-04-23 project-wide scan): argparse `type=float`
+# silently accepts `nan`, `inf`, `-inf`. Any threshold-based comparison
+# downstream becomes a no-op because `x > nan` and `x > inf` are both
+# useless — the check is present but never fires. An operator or a
+# malicious orchestrator passing e.g. `--oe-ratio-fail-lower nan` can
+# therefore disable publication-grade policy checks silently.
+#
+# Use finite_float / finite_positive_float in every gate that has a
+# numeric threshold or tolerance argument.
+
+
+def finite_float(value: str) -> float:
+    """argparse ``type=`` callable that parses a finite float.
+
+    Rejects NaN and ±∞ at CLI-parse time so downstream comparisons
+    (``threshold > x``, ``abs(a - b) <= tolerance``) cannot be silently
+    short-circuited by a non-finite sentinel. Same signature contract
+    as ``float``; argparse wraps any ValueError into a user-friendly
+    error message.
+    """
+    v = float(value)  # raises ValueError for non-numeric → argparse error
+    if not math.isfinite(v):
+        raise argparse.ArgumentTypeError(
+            f"{value!r} is not a finite number (got {v}). "
+            "NaN / +-inf are refused because they silently disable "
+            "threshold-based comparisons."
+        )
+    return v
+
+
+def finite_positive_float(value: str) -> float:
+    """``finite_float`` but also rejects values ≤ 0. Use for
+    scale / tolerance / probability-width arguments where a zero or
+    negative value makes no physical sense.
+    """
+    v = finite_float(value)
+    if v <= 0:
+        raise argparse.ArgumentTypeError(
+            f"{value!r} must be > 0 (got {v})."
+        )
+    return v
+
+
+def finite_nonnegative_float(value: str) -> float:
+    """Like ``finite_positive_float`` but allows 0. Use for thresholds
+    where 0 is a meaningful "no tolerance" setting.
+    """
+    v = finite_float(value)
+    if v < 0:
+        raise argparse.ArgumentTypeError(
+            f"{value!r} must be >= 0 (got {v})."
+        )
+    return v
 
 
 _MAX_JSON_FILE_SIZE = 100 * 1024 * 1024  # 100 MB safety limit

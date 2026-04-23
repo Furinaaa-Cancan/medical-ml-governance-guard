@@ -20,7 +20,7 @@ from _gate_framework import (
     print_gate_summary,
     register_remediations,
 )
-from _gate_utils import add_issue, canonical_metric_token as _shared_canonical_metric_token, load_json_from_str as load_json, to_float, to_int as _shared_to_int
+from _gate_utils import add_issue, finite_float, canonical_metric_token as _shared_canonical_metric_token, load_json_from_str as load_json, to_float, to_int as _shared_to_int
 
 
 register_remediations({
@@ -84,7 +84,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--evaluation-report", required=True, help="Path to evaluation report JSON.")
     parser.add_argument("--external-validation-report", help="Optional external_validation_report JSON path.")
     parser.add_argument("--performance-policy", help="Optional performance policy JSON path.")
-    parser.add_argument("--tolerance", type=float, default=1e-6, help="Numeric tolerance for metric consistency checks.")
+    parser.add_argument("--tolerance", type=finite_float, default=1e-6, help="Numeric tolerance for metric consistency checks.")
     parser.add_argument("--report", help="Optional output report JSON path.")
     parser.add_argument("--strict", action="store_true", help="Fail on warnings.")
     return parser.parse_args()
