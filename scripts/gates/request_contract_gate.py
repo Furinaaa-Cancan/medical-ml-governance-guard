@@ -2984,8 +2984,41 @@ def main() -> int:
         normalized["outcome_definition_spec"] = _raw_outcome_def.strip()
     # Also propagate `cross_sectional` boolean flag so run_dag_pipeline can
     # forward --cross-sectional to gates that support it.
-    if request.get("cross_sectional") is not None:
-        normalized["cross_sectional"] = bool(request.get("cross_sectional"))
+    #
+    # Strict coercion (Codex review 2026-04-23 critical): the previous
+    # `bool(request.get("cross_sectional"))` made every non-empty string
+    # truthy — so `"false"` / `"no"` / `"0"` all silently set
+    # cross_sectional=True, which suppresses external-validation and
+    # robustness requirements downstream. Accept only proper booleans
+    # or the literal ASCII-case strings "true"/"false"; anything else
+    # (int, list, dict, other strings) becomes a request-validation
+    # failure.
+    _cs_raw = request.get("cross_sectional")
+    if _cs_raw is not None:
+        if isinstance(_cs_raw, bool):
+            normalized["cross_sectional"] = _cs_raw
+        elif isinstance(_cs_raw, str):
+            _cs_norm = _cs_raw.strip().lower()
+            if _cs_norm in ("true", "yes", "1"):
+                normalized["cross_sectional"] = True
+            elif _cs_norm in ("false", "no", "0"):
+                normalized["cross_sectional"] = False
+            else:
+                add_issue(
+                    failures,
+                    "invalid_cross_sectional",
+                    "cross_sectional must be a boolean (or 'true'/'false' string); "
+                    "non-recognized strings are refused because Python-truthy "
+                    "coercion would silently enable publication-grade bypass.",
+                    {"actual": _cs_raw},
+                )
+        else:
+            add_issue(
+                failures,
+                "invalid_cross_sectional",
+                "cross_sectional must be a boolean.",
+                {"actual_type": type(_cs_raw).__name__},
+            )
     _outcome_def_path = normalized.get("outcome_definition_spec")
     if _outcome_def_path:
         try:

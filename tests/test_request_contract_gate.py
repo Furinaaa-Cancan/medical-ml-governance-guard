@@ -1224,3 +1224,79 @@ class TestPathSandboxEscape:
         assert "path_escapes_sandbox" not in codes, (
             f"Legitimate sibling-dir path should pass sandbox; got codes: {codes}"
         )
+
+
+class TestCrossSectionalCoercion:
+    """Regression (Codex 2026-04-23): the previous
+    `bool(request.get('cross_sectional'))` made EVERY non-empty string
+    Python-truthy — so the literal value 'false' silently enabled the
+    cross-sectional bypass, which suppresses external-validation and
+    robustness requirements for publication-grade runs. The new coercion
+    accepts only booleans or the literal ASCII strings true/false/
+    yes/no/0/1 (case-insensitive); anything else is a request-validation
+    failure."""
+
+    def _build(self, tmp_path: Path, cross_sectional_value):
+        req_path = _make_minimal_request(tmp_path)
+        req = json.loads(req_path.read_text())
+        req["cross_sectional"] = cross_sectional_value
+        req_path.write_text(json.dumps(req))
+        return req_path
+
+    def test_literal_false_string_is_parsed_as_false(self, tmp_path: Path):
+        req = self._build(tmp_path, "false")
+        report_path = tmp_path / "report.json"
+        report = _run_gate(req, report_path)
+        # Must not silently become True.
+        norm = report.get("normalized_request", {})
+        assert norm.get("cross_sectional") is False, (
+            f"String 'false' must parse as False, got "
+            f"{norm.get('cross_sectional')!r}"
+        )
+        # And no validation error — 'false' is a recognized string.
+        codes = [f["code"] for f in report.get("failures", [])]
+        assert "invalid_cross_sectional" not in codes
+
+    def test_literal_true_string_is_parsed_as_true(self, tmp_path: Path):
+        req = self._build(tmp_path, "true")
+        report_path = tmp_path / "report.json"
+        report = _run_gate(req, report_path)
+        norm = report.get("normalized_request", {})
+        assert norm.get("cross_sectional") is True
+
+    def test_bare_boolean_true(self, tmp_path: Path):
+        req = self._build(tmp_path, True)
+        report_path = tmp_path / "report.json"
+        report = _run_gate(req, report_path)
+        norm = report.get("normalized_request", {})
+        assert norm.get("cross_sectional") is True
+
+    def test_bare_boolean_false(self, tmp_path: Path):
+        req = self._build(tmp_path, False)
+        report_path = tmp_path / "report.json"
+        report = _run_gate(req, report_path)
+        norm = report.get("normalized_request", {})
+        assert norm.get("cross_sectional") is False
+
+    def test_unknown_string_is_rejected(self, tmp_path: Path):
+        """A value like 'maybe' used to be Python-truthy. Now must fail."""
+        req = self._build(tmp_path, "maybe")
+        report_path = tmp_path / "report.json"
+        report = _run_gate(req, report_path)
+        codes = [f["code"] for f in report.get("failures", [])]
+        assert "invalid_cross_sectional" in codes
+
+    def test_non_boolean_non_string_rejected(self, tmp_path: Path):
+        req = self._build(tmp_path, [1, 2])  # list — clearly not intended
+        report_path = tmp_path / "report.json"
+        report = _run_gate(req, report_path)
+        codes = [f["code"] for f in report.get("failures", [])]
+        assert "invalid_cross_sectional" in codes
+
+    def test_missing_field_is_not_an_error(self, tmp_path: Path):
+        req_path = _make_minimal_request(tmp_path)
+        # Don't set cross_sectional at all.
+        report_path = tmp_path / "report.json"
+        report = _run_gate(req_path, report_path)
+        codes = [f["code"] for f in report.get("failures", [])]
+        assert "invalid_cross_sectional" not in codes
