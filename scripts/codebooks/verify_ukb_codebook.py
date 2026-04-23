@@ -359,6 +359,102 @@ _HARD = {
         "Email access (20005) must remain baseline. If this fails, the "
         "participant_admin rule was broadened to a raw cat==2 check.",
     ),
+    # ── Leakage-keyword reverse scan ────────────────────────────────
+    # Positive guardrail: no field in risk_category='baseline' may
+    # carry a title that clearly describes a post-baseline/outcome/
+    # death event. The 6-round deep-check audits kept finding misses
+    # by manual inspection; this pins the pattern automatically.
+    # Keyword list is deliberately conservative (all currently yield
+    # zero hits on a clean DB) — so this will only fire on a real
+    # regression, not on borderline cases. If a true positive ever
+    # appears that should legitimately stay baseline, add an
+    # explicit field_id carveout comment and a separate _HARD rule
+    # rather than weakening this check.
+    "baseline_titles_no_lost_to_followup": (
+        "SELECT COUNT(*) FROM fields WHERE risk_category='baseline' "
+        "AND LOWER(title) LIKE '%lost to follow%';",
+        0,
+        "Baseline field has 'lost to follow-up' in its title — this is "
+        "cohort attrition, an outcome. classify_field's "
+        "participant_admin rule should catch it.",
+    ),
+    "baseline_titles_no_death_event": (
+        "SELECT COUNT(*) FROM fields WHERE risk_category='baseline' "
+        "AND (LOWER(title) LIKE '%date of death%' "
+        "     OR LOWER(title) LIKE '%cause of death%' "
+        "     OR LOWER(title) LIKE '%deceased%');",
+        0,
+        "Baseline field has a death-event title — this is a registry "
+        "outcome, not a baseline covariate. Move to death_registry.",
+    ),
+    "baseline_titles_no_first_occurrence": (
+        "SELECT COUNT(*) FROM fields WHERE risk_category='baseline' "
+        "AND (LOWER(title) LIKE '%first reported%' "
+        "     OR LOWER(title) LIKE '%first occurrence%');",
+        0,
+        "Baseline field has 'first reported' / 'first occurrence' in "
+        "title — this is a first-occurrence ICD date, outcome_derived.",
+    ),
+    "baseline_titles_no_algorithmically_defined": (
+        "SELECT COUNT(*) FROM fields WHERE risk_category='baseline' "
+        "AND LOWER(title) LIKE '%algorithmically defined%';",
+        0,
+        "Baseline field has 'algorithmically defined' in title — this "
+        "is a derived outcome label, should be outcome_derived.",
+    ),
+    "baseline_titles_no_followup_years": (
+        "SELECT COUNT(*) FROM fields WHERE risk_category='baseline' "
+        "AND LOWER(title) LIKE '%years%follow%up%';",
+        0,
+        "Baseline field has 'years follow-up' — this is a cohort "
+        "follow-up duration, not a baseline covariate.",
+    ),
+
+    # ── Encoding FK completeness (C) ────────────────────────────────
+    # fields_with_orphan_encoding (above) checks against the
+    # `encodings` metadata table. But an encoding_id can exist in
+    # `encodings` with ZERO rows in `encoding_values` — the encoding
+    # is registered but empty. A field that lookups through it gets
+    # an unresolvable label. Pin that this never happens for the
+    # encoding types we actually load.
+    #
+    # Exclusion: coded_as='61' is UKB's time type. UKB does NOT ship
+    # an esimptime.txt alongside esimpint/string/real/date, so every
+    # coded_as=61 encoding ends up with zero rows on our side even
+    # though `encodings` advertises them. Known values: encoding_ids
+    # 439 ("Not performed") and 1439 ("Time conditions"), used by
+    # time-valued fields like 3166 "Time blood sample collected" and
+    # the AFib first-occurrence timestamps. These are an upstream
+    # schema quirk, not a builder regression.
+    "fields_pointing_to_empty_encoding": (
+        "SELECT COUNT(DISTINCT f.encoding_id) FROM fields f "
+        "WHERE f.encoding_id IS NOT NULL AND f.encoding_id != 0 "
+        "AND NOT EXISTS (SELECT 1 FROM encoding_values ev "
+        "                WHERE ev.encoding_id=f.encoding_id) "
+        "AND (SELECT coded_as FROM encodings e "
+        "     WHERE e.encoding_id=f.encoding_id) != '61';",
+        0,
+        "A non-time encoding is referenced by a field but has zero "
+        "rows in encoding_values — lookup will silently return empty "
+        "labels. Check the hierarchical/simple loaders populated "
+        "every encoding that the `encodings` table advertises.",
+    ),
+    # Companion invariant: the known coded_as=61 orphan count is
+    # expected to be exactly 2. If UKB adds a new time-encoded
+    # lookup this will climb, and we'll want to notice.
+    "time_encodings_known_orphans": (
+        "SELECT COUNT(DISTINCT f.encoding_id) FROM fields f "
+        "WHERE f.encoding_id IS NOT NULL AND f.encoding_id != 0 "
+        "AND NOT EXISTS (SELECT 1 FROM encoding_values ev "
+        "                WHERE ev.encoding_id=f.encoding_id) "
+        "AND (SELECT coded_as FROM encodings e "
+        "     WHERE e.encoding_id=f.encoding_id) = '61';",
+        2,
+        "Time-typed orphan encoding count drifted from 2 (439, 1439). "
+        "Either UKB added a new time encoding (investigate — may need "
+        "a new esimptime.txt loader) or one of the known two got "
+        "populated unexpectedly.",
+    ),
 }
 
 # Ceiling checks — values we tolerate today but flag as technical debt
@@ -575,6 +671,106 @@ def check_golden_fields(
     }
 
 
+# ── L3b: Disease-KB × codebook consistency ──────────────────────────
+# A silent failure we had no protection against: disease-definition-
+# knowledge-base.json lists `ukb_definition_fields` per disease. If
+# UKB deprecates one of those field_ids, the KB keeps pointing at it,
+# generate_field_list keeps emitting `p{fid}_i0` into the RAP .txt,
+# RAP returns "column not found", the user's outcome label is built
+# from partial data, and the model ships with silently-missing cases.
+#
+# Scan the KB once per build and fail fast if any claimed field_id
+# doesn't exist in the codebook, or lives in an unexpected risk
+# category. Scope: defensive, not prescriptive — warns on unusual
+# placements (e.g. 'imaging' risk on a diabetes definition field)
+# but errors only when the field is entirely missing.
+
+_DISEASE_DEFINITION_ALLOWED_RISKS = {
+    "baseline",          # labs, biometrics, visit self-report
+    "outcome_derived",   # first-occurrence ICD, algo-defined outcomes
+    "hospital_derived",  # inpatient ICD, OPCS, GP records
+    "death_registry",    # date/cause of death (e.g. fatal MI)
+    "online_followup",   # post-baseline self-report used as definition
+}
+
+
+def check_disease_kb_consistency(
+    conn: sqlite3.Connection,
+    kb_path: Path,
+) -> Tuple[List[str], List[str], Dict[str, Any]]:
+    """Cross-check disease-definition-knowledge-base.json against DB.
+
+    Returns (errors, warnings, summary). Errors = missing field_id in
+    DB (hard fail). Warnings = field lives in a risk_category outside
+    the allowed-for-definition set (soft — may be intentional).
+    """
+    errors: List[str] = []
+    warnings: List[str] = []
+    summary: Dict[str, Any] = {
+        "diseases_checked": 0, "fields_checked": 0,
+        "missing_fields": [], "unusual_risk_placements": [],
+    }
+
+    if not kb_path.exists():
+        warnings.append(f"disease-KB not found at {kb_path} — skipped")
+        return errors, warnings, summary
+
+    try:
+        kb = json.loads(kb_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        errors.append(f"disease-KB unreadable: {exc}")
+        return errors, warnings, summary
+
+    diseases = kb.get("diseases", kb)
+    for disease_key, entry in diseases.items():
+        if not isinstance(entry, dict):
+            continue
+        summary["diseases_checked"] += 1
+        for raw_fid in (entry.get("ukb_definition_fields") or []):
+            try:
+                fid = int(raw_fid)
+            except (TypeError, ValueError):
+                errors.append(
+                    f"disease '{disease_key}' ukb_definition_fields "
+                    f"entry {raw_fid!r} is not an integer"
+                )
+                continue
+            summary["fields_checked"] += 1
+            row = conn.execute(
+                "SELECT title, risk_category, private "
+                "FROM fields WHERE field_id=?", (fid,),
+            ).fetchone()
+            if row is None:
+                errors.append(
+                    f"disease '{disease_key}': ukb_definition_fields "
+                    f"entry {fid} not in codebook — UKB may have "
+                    f"deprecated it. Remove from KB or migrate to its "
+                    f"replacement."
+                )
+                summary["missing_fields"].append(
+                    {"disease": disease_key, "field_id": fid}
+                )
+                continue
+            title, risk, private = row[0], row[1], row[2]
+            # (Note: UKB's `availability` column is NOT a deprecation
+            # flag — 98% of fields including BMI and HbA1c carry
+            # availability=0. Do not use it as a liveness signal.)
+            if risk not in _DISEASE_DEFINITION_ALLOWED_RISKS:
+                warnings.append(
+                    f"disease '{disease_key}' field {fid} ({title!r}) "
+                    f"has unusual risk_category={risk!r}"
+                    + (f" (private=1 — UKB restricts access)" if private == 1 else "")
+                    + f". Allowed for definition fields: "
+                    f"{sorted(_DISEASE_DEFINITION_ALLOWED_RISKS)}."
+                )
+                summary["unusual_risk_placements"].append(
+                    {"disease": disease_key, "field_id": fid,
+                     "risk_category": risk, "private": bool(private)}
+                )
+
+    return errors, warnings, summary
+
+
 # ── Orchestration ──────────────────────────────────────────────────
 
 def main() -> int:
@@ -586,6 +782,12 @@ def main() -> int:
                         help="Skip source-file manifest check")
     parser.add_argument("--skip-l3", action="store_true",
                         help="Skip golden-field assertions")
+    parser.add_argument("--skip-disease-kb", action="store_true",
+                        help="Skip disease-KB consistency check (L3b)")
+    parser.add_argument("--disease-kb", type=Path,
+                        default=REPO_ROOT / "references" / "methodology"
+                                / "disease-definition-knowledge-base.json",
+                        help="Path to disease-definition-knowledge-base.json")
     parser.add_argument("--report", type=Path, help="Write JSON report")
     args = parser.parse_args()
 
@@ -627,6 +829,19 @@ def main() -> int:
                 "issues": len(golden_issues), "detail": golden_detail,
             }
             all_issues.extend(f"[L3] {i}" for i in golden_issues)
+
+        # L3b — disease-KB × codebook consistency
+        if not args.skip_disease_kb:
+            kb_errors, kb_warnings, kb_detail = check_disease_kb_consistency(
+                conn, args.disease_kb,
+            )
+            summary["layers"]["l3b_disease_kb"] = {
+                "errors": len(kb_errors),
+                "warnings": len(kb_warnings),
+                "detail": kb_detail,
+            }
+            all_issues.extend(f"[L3b] {e}" for e in kb_errors)
+            all_warnings.extend(f"[L3b] {w}" for w in kb_warnings)
 
     # Report
     print("=" * 60)

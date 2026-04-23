@@ -743,6 +743,56 @@ class TestGenerateFieldList:
         assert a == b
         assert out_a.read_bytes() == out_b.read_bytes()
 
+    def test_template_sections_every_field_exists(self, ukb_codebook):
+        """Every hardcoded field_id in _TEMPLATE_SECTIONS must exist in DB.
+
+        If UKB deprecates a template field_id, generate_field_list will
+        silently emit `p{fid}_i0` into the RAP .txt; the user uploads
+        to RAP Table Exporter, which returns 'column not found' for
+        that column, and the downstream feature-matrix is built
+        without it — a silent capacity loss. Pin every entry.
+        """
+        from scripts.codebooks.ukb_codebook_lookup import UKBCodebook
+        conn = ukb_codebook._ensure_conn()
+        missing: list = []
+        for section_name, fids, _all_inst in UKBCodebook._TEMPLATE_SECTIONS:
+            for fid in fids:
+                row = conn.execute(
+                    "SELECT 1 FROM fields WHERE field_id=?", (fid,),
+                ).fetchone()
+                if not row:
+                    missing.append((section_name, fid))
+        assert not missing, (
+            f"Template section field_ids missing from DB: {missing}. "
+            f"UKB may have deprecated these — update _TEMPLATE_SECTIONS "
+            f"in ukb_codebook_lookup.py."
+        )
+
+    def test_outcome_death_cancer_hardcoded_fields_exist(self, ukb_codebook):
+        """Non-template hardcoded field_ids in generate_field_list.
+
+        These live as literals inside the function body (hospital ICD,
+        OPCS, death register, cancer register). Same silent-failure
+        risk as _TEMPLATE_SECTIONS — pin them too.
+        """
+        conn = ukb_codebook._ensure_conn()
+        # Kept in sync with generate_field_list bodies:
+        #   hospital_icd10       -> [41270, 41280]
+        #   hospital_opcs4       -> [41272, 41282]
+        #   death_register       -> [40000, 40001]
+        #   cancer_register_core -> [40005, 40006, 40008, 40009]
+        #   cancer_selfreport    -> [20001]
+        for fid in [41270, 41280, 41272, 41282,
+                    40000, 40001,
+                    40005, 40006, 40008, 40009, 20001]:
+            row = conn.execute(
+                "SELECT 1 FROM fields WHERE field_id=?", (fid,),
+            ).fetchone()
+            assert row, (
+                f"Hardcoded outcome/death/cancer field {fid} missing "
+                f"from DB — generate_field_list body needs update."
+            )
+
     def test_deduplication_keeps_first_section_ownership(self, ukb_codebook, tmp_path):
         # Field 30750 (HbA1c) is in BOTH laboratory_common AND T2D KB.
         # Deduplication must keep the column ONCE and attribute it to
