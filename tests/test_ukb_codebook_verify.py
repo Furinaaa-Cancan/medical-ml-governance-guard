@@ -108,9 +108,13 @@ class TestUkbLiveCrossCheck:
     """
 
     def _run(self, *extra_args: str):
+        # 360s: schema-drift check downloads 11 .txt files (up to
+        # 18 MB each for esimpstring). UKB connection speed varies;
+        # 180s was tight enough to trip on slow days even when the
+        # content was fine. Separate network flakiness from correctness.
         return subprocess.run(
             [sys.executable, str(VERIFY_LIVE), *extra_args],
-            capture_output=True, text=True, timeout=180,
+            capture_output=True, text=True, timeout=360,
         )
 
     def test_schema_files_identical_to_live(self):
