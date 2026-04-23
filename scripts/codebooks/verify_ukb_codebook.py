@@ -472,6 +472,68 @@ _HARD = {
         "a new esimptime.txt loader) or one of the known two got "
         "populated unexpectedly.",
     ),
+
+    # ── Round-2 structural audit (2026-04-23) ────────────────────────
+    # The three pins below come from a systematic sweep after all the
+    # classify_field deep-check rounds. Each catches a different class
+    # of silent failure:
+
+    # (1) First-occurrence fields escaping outcome_derived.
+    # Any field whose title reads 'First Occurrence' / 'First Reported'
+    # MUST carry risk_category='outcome_derived' OR 'identifier_direct'
+    # (the latter because UKB's cardiac monitoring cat 348/349 fields
+    # — 12 of them — are private=1, which takes priority in
+    # classify_field). If UKB ever drops the private=1 flag on those
+    # cats, they would fall through to 'baseline' silently and a
+    # leakage gate would pass them as safe features. This invariant
+    # catches that flip.
+    "first_occurrence_titles_in_outcome_or_phi": (
+        "SELECT COUNT(*) FROM fields "
+        "WHERE (LOWER(title) LIKE '%first reported%' "
+        "       OR LOWER(title) LIKE '%first occurrence%') "
+        "AND risk_category NOT IN ('outcome_derived', 'identifier_direct');",
+        0,
+        "First-occurrence title fields must be 'outcome_derived' or "
+        "'identifier_direct'. If they land anywhere else (esp. "
+        "'baseline' or 'imaging'), classify_field() regressed — "
+        "investigate cat 348/349 cardiac monitoring and cat 1712 "
+        "first-occurrence rules.",
+    ),
+
+    # (2) COVID schema quirk: fields 41000 and 41001 declare
+    # instanced=0 but instance_min=instance_max=3. UKB's upstream
+    # schema is inconsistent on these two. Our field_to_rap_names()
+    # returns 'p41000' (bare, honoring instanced=0), which may or may
+    # not match what RAP actually serves — we can only know via a
+    # real RAP smoke test. Pin the count at 2 so any NEW instance of
+    # this quirk surfaces for investigation.
+    "instanced_zero_with_instance_max_known": (
+        "SELECT COUNT(*) FROM fields "
+        "WHERE (instanced=0 OR instanced IS NULL) "
+        "AND instance_max IS NOT NULL AND instance_max > 0;",
+        2,
+        "Fields with instanced=0 but instance_max>0 drifted from 2 "
+        "(known: 41000/41001 COVID imaging repeat). RAP column name "
+        "for any new such field is ambiguous — investigate whether "
+        "field_to_rap_names() should emit p{fid} or p{fid}_i{inst_max}.",
+    ),
+
+    # (3) Hierarchical encoding_values parent_code self-loops.
+    # 65 rows have parent_code == code — all are UKB's '-1' heading
+    # sentinel in encodings 5/6/1005/1006 (Operation / Non-cancer
+    # Illness trees). Tree-traversal code that walks parent_code
+    # hits infinite recursion on these. Known structural quirk;
+    # pinned to catch any new self-loop.
+    "parent_code_self_loops_known": (
+        "SELECT COUNT(*) FROM encoding_values "
+        "WHERE parent_code IS NOT NULL AND parent_code=code;",
+        65,
+        "parent_code self-loop count drifted from 65 (known UKB "
+        "heading sentinel convention in encodings 5/6/1005/1006). "
+        "Any new self-loop breaks hierarchical traversal — either "
+        "the build script regressed or UKB added a new hierarchy "
+        "with the same convention.",
+    ),
 }
 
 # Ceiling checks — values we tolerate today but flag as technical debt
