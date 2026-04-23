@@ -27,6 +27,7 @@ from _gate_framework import (
 )
 from _gate_utils import (
     add_issue,
+    check_csv_file_size,
     confusion_counts as _shared_confusion_counts,
     load_json_from_str as load_json_obj,
     metric_panel as _shared_metric_panel,
@@ -410,6 +411,9 @@ def main() -> int:
                 )
 
     try:
+        # Cap CSV size BEFORE load — unbounded pd.read_csv on a 10GB
+        # file would OOM the process (request.json-controlled path).
+        check_csv_file_size(trace_path)
         trace_df = pd.read_csv(trace_path)
     except Exception as exc:
         add_issue(

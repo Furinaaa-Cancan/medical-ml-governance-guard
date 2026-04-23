@@ -46,7 +46,7 @@ from _gate_framework import (
     print_gate_summary,
     register_remediations,
 )
-from _gate_utils import add_issue, start_gate_timer, get_gate_elapsed, write_json
+from _gate_utils import add_issue, check_csv_file_size, start_gate_timer, get_gate_elapsed, write_json
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -1009,7 +1009,11 @@ def main() -> int:
     import pandas as pd
 
     try:
-        train_df = pd.read_csv(Path(args.train_data).expanduser().resolve())
+        # Cap CSV size BEFORE load — attacker-controlled paths (via
+        # request.json.split_paths) could otherwise OOM the process.
+        _train_path = Path(args.train_data).expanduser().resolve()
+        check_csv_file_size(_train_path)
+        train_df = pd.read_csv(_train_path)
     except Exception as exc:
         add_issue(
             failures, "file_not_found",
@@ -1019,7 +1023,9 @@ def main() -> int:
         return _finish(args, failures, warnings_list, {})
 
     try:
-        test_df = pd.read_csv(Path(args.test_data).expanduser().resolve())
+        _test_path = Path(args.test_data).expanduser().resolve()
+        check_csv_file_size(_test_path)
+        test_df = pd.read_csv(_test_path)
     except Exception as exc:
         add_issue(
             failures, "file_not_found",
@@ -1103,6 +1109,7 @@ def main() -> int:
     if args.prediction_trace:
         try:
             trace_path = Path(args.prediction_trace).expanduser().resolve()
+            check_csv_file_size(trace_path)
             trace_df = pd.read_csv(trace_path)
             test_trace = trace_df[trace_df["scope"] == "test"]
             if "y_score" in test_trace.columns and len(test_trace) >= ex_n:
