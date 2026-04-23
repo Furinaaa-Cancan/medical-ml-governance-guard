@@ -53,6 +53,18 @@ repos:
         pass_filenames: false
         files: ^(references/case-studies/peer-review-kb\.json|scripts/core/_gate_registry\.py|scripts/review/backfill_peer_review_gates\.py)$
 
+      # UKB codebook completeness — L1 source fidelity + L2 structural
+      # invariants + L3 golden-seed fields. Runs on any change to the
+      # UKB .txt files, SQLite, manifest, or golden-seed YAML. Refuses
+      # commits that introduce silent drift (e.g., a stale copy or an
+      # unintended schema change).
+      - id: ukb-codebook-verify
+        name: UKB codebook 3-layer completeness check
+        entry: python3 scripts/codebooks/verify_ukb_codebook.py
+        language: system
+        pass_filenames: false
+        files: ^references/codebooks/ukb/(.*\.txt|.*\.sqlite.*|source_manifest\.json|ukb_golden_fields\.yaml)$
+
       # README numeric-claim drift: "106 papers" vs live "119",
       # "4722 tests" vs actual. Runs on any edit to either README
       # or to the KB (which is the ground truth for most claims).

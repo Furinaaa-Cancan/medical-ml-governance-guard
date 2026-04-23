@@ -1,0 +1,62 @@
+{
+  "schema_version": "2026-04-12",
+  "source": "https://biobank.ndph.ox.ac.uk/ukb/scdown.cgi",
+  "captured_at_utc": "2026-04-23T00:00:00Z",
+  "files": {
+    "catbrowse.txt": {
+      "sha256": "c2a09cf905c4e67ccc2b76b62ad73851e77e75a28d2c841b0d1f9fd9c6ef829f",
+      "bytes": 5084,
+      "lines": 363
+    },
+    "category.txt": {
+      "sha256": "1c50d4e998a57084e9a8fd67021c9aa4c72eedf17f081f5ec69ead0524b46c9d",
+      "bytes": 176100,
+      "lines": 411
+    },
+    "ehierint.txt": {
+      "sha256": "d7ef33d2825a5668b2825786ca2720ecd7ed5a18c21696e4f05e0d357bd08f20",
+      "bytes": 1468003,
+      "lines": 28901
+    },
+    "ehierstring.txt": {
+      "sha256": "f2eb7023dc5441bb4821a1b2bd2378b92ff30612d9d1b0065e5008d6b8f4e15d",
+      "bytes": 3455271,
+      "lines": 46928
+    },
+    "encoding.txt": {
+      "sha256": "0d90138f567f6fb22675e44434cbbc4c2f7e3c208d83cf7609963cdca88dc7ef",
+      "bytes": 77591,
+      "lines": 859
+    },
+    "esimpdate.txt": {
+      "sha256": "003465beaa2f72c83600b3cfa6be69af9635c691bac3635a493fa18943c7448a",
+      "bytes": 1041,
+      "lines": 19
+    },
+    "esimpint.txt": {
+      "sha256": "19d1a4d63d3d507c3bbf208369d766059c40ac0f209a5fbf7b90306128c48088",
+      "bytes": 664626,
+      "lines": 18079
+    },
+    "esimpreal.txt": {
+      "sha256": "99eb94602c54e72dc18e6a5cf305fe049cacb71e46121e6554db4be43dcaf524",
+      "bytes": 790,
+      "lines": 18
+    },
+    "esimpstring.txt": {
+      "sha256": "f9bfe0434650e48c271d4c915353aa599991e223917e0d0e1564d2504629d2fb",
+      "bytes": 18783925,
+      "lines": 439347
+    },
+    "field.txt": {
+      "sha256": "2d7b5f394457002a5a41e278074d64c3b56811f4c50fd916599145aa10210cc6",
+      "bytes": 4164390,
+      "lines": 11822
+    },
+    "insvalue.txt": {
+      "sha256": "d4177566873c9b8558e6a378d4dac2b050044b1f8a09461541e3ab064e9ffcd4",
+      "bytes": 1530,
+      "lines": 13
+    }
+  }
+}

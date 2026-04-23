@@ -1,0 +1,140 @@
+# UKB golden-seed fields (L3 completeness check).
+#
+# Each entry declares a field/code that MUST exist in our local
+# codebook with the stated metadata. Additions are welcome; never
+# remove an entry without investigating why it's missing from the
+# live DB (that's the exact regression this file catches).
+#
+# Schema:
+#   - field_id: <int>
+#     title_contains: <str, optional>   # substring match, case-insensitive
+#     title: <str, optional>             # exact match
+#     main_category: <int, optional>
+#   - icd10: <str>
+#     title_contains: <str, optional>
+#
+# Groupings below are organizational only — the verifier loads all
+# entries flat.
+
+# ── Demographics (cat 100094 Baseline characteristics) ─────────────
+- field_id: 31
+  title: "Sex"
+  main_category: 100094
+- field_id: 34
+  title: "Year of birth"
+  main_category: 100094
+
+# ── Anthropometry (cat 100010) ─────────────────────────────────────
+- field_id: 21001
+  title: "Body mass index (BMI)"
+  main_category: 100010
+- field_id: 21002
+  title: "Weight"
+  main_category: 100010
+- field_id: 50
+  title: "Standing height"
+  main_category: 100010
+
+# ── Visit / age ────────────────────────────────────────────────────
+- field_id: 21003
+  title_contains: "Age when attended assessment centre"
+  main_category: 100024
+
+# ── Blood pressure (cat 100011) ────────────────────────────────────
+- field_id: 4080
+  title_contains: "Systolic blood pressure"
+  main_category: 100011
+- field_id: 4079
+  title_contains: "Diastolic blood pressure"
+  main_category: 100011
+
+# ── Serum biochemistry (cat 17518) ─────────────────────────────────
+- field_id: 30750
+  title: "Glycated haemoglobin (HbA1c)"
+  main_category: 17518
+- field_id: 30740
+  title: "Glucose"
+  main_category: 17518
+- field_id: 30690
+  title: "Cholesterol"
+  main_category: 17518
+- field_id: 30760
+  title: "HDL cholesterol"
+  main_category: 17518
+- field_id: 30780
+  title_contains: "LDL direct"
+  main_category: 17518
+- field_id: 30870
+  title: "Triglycerides"
+  main_category: 17518
+- field_id: 30700
+  title: "Creatinine"
+  main_category: 17518
+
+# ── Nightingale NMR metabolomics (cat 220) ─────────────────────────
+- field_id: 23439
+  title: "Apolipoprotein B"
+  main_category: 220
+- field_id: 23440
+  title: "Apolipoprotein A1"
+  main_category: 220
+- field_id: 23480
+  title: "Glycoprotein Acetyls"
+  main_category: 220
+
+# ── Lifestyle ──────────────────────────────────────────────────────
+- field_id: 1558
+  title_contains: "Alcohol intake frequency"
+  main_category: 100051
+- field_id: 20160
+  title: "Ever smoked"
+  main_category: 100058
+
+# ── Self-report disease (cat 100044) ───────────────────────────────
+- field_id: 6150
+  title_contains: "Vascular/heart problems"
+  main_category: 100044
+
+# ── Algorithmic outcomes (cat 43 Cerebrovascular, cat 44 Cardiac) ──
+- field_id: 42000
+  title: "Date of myocardial infarction"
+  main_category: 44
+- field_id: 42006
+  title: "Date of stroke"
+  main_category: 43
+- field_id: 42008
+  title: "Date of ischaemic stroke"
+  main_category: 43
+- field_id: 42012
+  title_contains: "subarachnoid haemorrhage"
+  main_category: 43
+
+# ── First-occurrence (cat 2401-2416, per UKB release after 2022) ──
+# User's 2026-04 audit noted these hang on subcats 2401-2416 instead
+# of parent cat 1712 — pin one here so any future reshuffle surfaces.
+- field_id: 131286
+  title_contains: "Date I10 first reported"
+  # essential (primary) hypertension first-occurrence date
+
+# ── ICD-10 dictionary — known heroes (encoding_id=19) ─────────────
+# UKB uses WHO's original ICD-10 1990s terminology — NOT the modern
+# re-branded names ("Type 2 DM" vs "Non-insulin-dependent DM", "CKD"
+# vs "Chronic renal failure"). Golden seeds target the exact strings
+# the DB holds, so a regression (different WHO revision imported)
+# surfaces immediately.
+- icd10: "E11"
+  title_contains: "non-insulin-dependent diabetes"
+- icd10: "I21"
+  title_contains: "myocardial infarction"
+- icd10: "I63"
+  title_contains: "cerebral infarction"
+- icd10: "C50"
+  title_contains: "breast"
+- icd10: "J18"
+  title_contains: "pneumonia"
+- icd10: "N18"
+  title_contains: "chronic renal failure"
+- icd10: "F32"
+  title_contains: "depress"
+- icd10: "K70"
+  title_contains: "alcohol"
