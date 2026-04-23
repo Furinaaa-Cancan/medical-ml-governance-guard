@@ -70,41 +70,64 @@ _KEY_ENV_VAR = "MLGG_MODEL_SECRET"
 _KEY_FILE_NAME = ".mlgg_model_key"
 
 
+def _check_key_file_mode(key_path: Path) -> None:
+    """Fail-closed if the key file is world- or group-readable.
+
+    A cryptographic root-of-trust file with lax permissions lets any
+    local user on a shared machine read the key and forge signatures.
+    POSIX-only; Windows is detected via AttributeError on st_mode
+    and skipped (Windows ACLs work differently, chmod is cosmetic).
+    """
+    try:
+        mode = key_path.stat().st_mode
+    except (OSError, AttributeError):
+        return
+    # Any group/world read/write/execute bit set is a failure.
+    if mode & 0o077:
+        raise SecurityError(
+            f"Key file {key_path} has unsafe permissions "
+            f"(mode={oct(mode & 0o777)}). Expected 0o600 (owner-only). "
+            f"Fix with: chmod 0o600 {key_path}"
+        )
+
+
 def _derive_key() -> bytes:
     """Derive HMAC key from environment variable or auto-generated key file.
 
     Priority:
         1. MLGG_MODEL_SECRET environment variable
-        2. .mlgg_model_key file in project root
+        2. .mlgg_model_key file in project root (anchored to this file's
+           location, NOT cwd — CWD-based discovery was removable-
+           attacker-planted-key-in-working-dir vector).
         3. Auto-generate and persist a new key
+
+    Notes:
+        The env-var path still uses a raw SHA-256 finalization for key
+        sizing; strength against brute force depends entirely on the
+        caller setting a high-entropy MLGG_MODEL_SECRET (recommend
+        32+ bytes random, not a human secret). A PBKDF2 layer is a
+        separate hardening item (Security #3).
     """
     env_key = os.environ.get(_KEY_ENV_VAR, "").strip()
     if env_key:
         return hashlib.sha256(env_key.encode("utf-8")).digest()
 
     # Search upward for project root (contains SKILL.md or .git).
-    # Use 10 hops (consistent with _get_encryption_key) and try both
-    # __file__ location and cwd to handle installed packages and venvs.
+    # Anchored to THIS FILE only — not Path.cwd() — so an attacker who
+    # controls the process's working directory cannot plant a rogue
+    # .mlgg_model_key that wins the search.
     search = Path(__file__).resolve().parent
     for _ in range(10):
         if (search / "SKILL.md").exists() or (search / ".git").exists():
             break
         parent = search.parent
         if parent == search:
-            # Reached filesystem root from __file__; try from cwd
-            search = Path.cwd()
-            for _ in range(10):
-                if (search / "SKILL.md").exists() or (search / ".git").exists():
-                    break
-                parent = search.parent
-                if parent == search:
-                    break
-                search = parent
             break
         search = parent
 
     key_path = search / _KEY_FILE_NAME
     if key_path.exists():
+        _check_key_file_mode(key_path)
         raw = key_path.read_bytes().strip()
         if len(raw) >= 32:
             try:
@@ -687,7 +710,9 @@ def _get_encryption_key() -> bytes:
 
     Key sources (in priority order):
         1. MLGG_ENCRYPTION_KEY environment variable (hex-encoded)
-        2. .mlgg_encryption_key file in project root
+        2. .mlgg_encryption_key file anchored to this file's project root
+           (NOT Path.cwd() — that was a CWD-based-key-substitution attack
+           vector; see Codex review 2026-04-23)
         3. Auto-generate and persist a new key
     """
     env_key = os.environ.get("MLGG_ENCRYPTION_KEY", "").strip()
@@ -699,10 +724,12 @@ def _get_encryption_key() -> bytes:
         except ValueError:
             pass
 
-    search = Path.cwd()
+    # Anchor to __file__, not cwd — same reasoning as _derive_key.
+    search = Path(__file__).resolve().parent
     for _ in range(10):
         candidate = search / _ENC_KEY_FILE
         if candidate.exists():
+            _check_key_file_mode(candidate)
             raw = candidate.read_bytes().strip()
             try:
                 key = bytes.fromhex(raw.decode("ascii"))
@@ -710,6 +737,20 @@ def _get_encryption_key() -> bytes:
                     return key[:32]
             except (ValueError, UnicodeDecodeError):
                 pass
+            break
+        # Stop at project root marker or filesystem root.
+        if (search / "SKILL.md").exists() or (search / ".git").exists():
+            # Root found; check for key at root.
+            candidate = search / _ENC_KEY_FILE
+            if candidate.exists():
+                _check_key_file_mode(candidate)
+                raw = candidate.read_bytes().strip()
+                try:
+                    key = bytes.fromhex(raw.decode("ascii"))
+                    if len(key) >= 32:
+                        return key[:32]
+                except (ValueError, UnicodeDecodeError):
+                    pass
             break
         parent = search.parent
         if parent == search:

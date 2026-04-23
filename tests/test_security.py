@@ -20,6 +20,7 @@ from _security import (
     ArtifactManifest,
     SecureModelLoader,
     SecurityError,
+    _check_key_file_mode,
     check_csv_row_limit,
     check_file_size,
     compute_hmac,
@@ -48,6 +49,35 @@ def _make_model_file(tmp: Path) -> Path:
 
 
 # ── HMAC signing / verification ──────────────────────────────────────────────
+
+class TestKeyFilePermissions:
+    """Regression: a chmod-0644 .mlgg_model_key lets any local user read
+    the HMAC signing key and forge model signatures. The loader must
+    reject world/group-readable key files loudly."""
+
+    def _make_key(self, tmp: Path, mode: int) -> Path:
+        key = tmp / ".mlgg_model_key"
+        key.write_bytes(b"a" * 64 + b"\n")  # 64 hex chars → 32 bytes
+        key.chmod(mode)
+        return key
+
+    def test_owner_only_mode_accepted(self, tmp_path: Path):
+        k = self._make_key(tmp_path, 0o600)
+        # No raise
+        _check_key_file_mode(k)
+
+    @pytest.mark.parametrize("bad_mode", [0o644, 0o640, 0o604, 0o660, 0o666, 0o777])
+    def test_permissive_modes_rejected(self, tmp_path: Path, bad_mode: int):
+        if sys.platform == "win32":
+            pytest.skip("POSIX permission bits do not apply on Windows")
+        k = self._make_key(tmp_path, bad_mode)
+        with pytest.raises(SecurityError, match="unsafe permissions"):
+            _check_key_file_mode(k)
+
+    def test_nonexistent_file_is_noop(self, tmp_path: Path):
+        # No raise — absence of file is handled upstream.
+        _check_key_file_mode(tmp_path / "nope.key")
+
 
 class TestHMACSigning:
     def test_sign_creates_sig_file(self, tmp_path: Path) -> None:
