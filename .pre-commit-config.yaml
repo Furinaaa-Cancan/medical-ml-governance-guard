@@ -41,3 +41,14 @@ repos:
         language: system
         pass_filenames: false
         files: ^(SKILL\.md|README(_EN)?\.md|agents/reviewer\.yaml)$
+
+      # Runs on any KB-adjacent edit. Catches invalid gate names,
+      # categories outside the 13-allowlist, non-enum severities,
+      # and malformed mlgg_rules ids — the exact class of pollution
+      # Codex found 13 instances of during the 2026-04-23 review.
+      - id: kb-hygiene
+        name: peer-review-kb hygiene (gate refs, category allowlist, severity)
+        entry: python3 scripts/diagnostics/kb_hygiene_check.py --strict
+        language: system
+        pass_filenames: false
+        files: ^(references/case-studies/peer-review-kb\.json|scripts/core/_gate_registry\.py|scripts/review/backfill_peer_review_gates\.py)$
