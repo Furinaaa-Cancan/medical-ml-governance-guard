@@ -69,7 +69,6 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--report", help="Output JSON report path.")
     parser.add_argument("--strict", action="store_true", help="Promote warnings to failures.")
-    parser.add_argument("--timeout", type=int, default=0, help="Timeout in seconds (0=unlimited).")
     return parser.parse_args()
 
 
