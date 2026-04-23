@@ -44,6 +44,33 @@ def _atomic_json_write(path: Path, payload: Any, **kwargs: Any) -> None:
     tmp.replace(path)
 
 
+# 100MB ceiling for any JSON file this module parses. An attacker who
+# can drop a multi-GB file into a path we read (signature sidecar,
+# manifest, RBAC config, execution receipt) would otherwise OOM the
+# verifier — same class the orchestrator json.load sites had.
+_MAX_SECURITY_JSON_SIZE = 100 * 1024 * 1024
+
+
+def _size_capped_json_load(path: Path) -> Any:
+    """json.load with a 100MB file-size pre-check.
+
+    Raises ValueError on oversize (same type json.load would raise for
+    malformed content, so existing callers' `except (json.JSONDecodeError,
+    OSError, ValueError)` continue to catch it).
+    """
+    try:
+        size = path.stat().st_size
+    except OSError as exc:
+        raise ValueError(f"stat_failed: {exc}") from exc
+    if size > _MAX_SECURITY_JSON_SIZE:
+        raise ValueError(
+            f"json_too_large: {size} bytes exceeds {_MAX_SECURITY_JSON_SIZE} "
+            f"(path={path})"
+        )
+    with path.open("r", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
 # ---------------------------------------------------------------------------
 # 1. HMAC-signed model artifact serialization
 # ---------------------------------------------------------------------------
@@ -312,9 +339,8 @@ def verify_model_artifact(model_path: Path, key: Optional[bytes] = None) -> Dict
         return {"verified": False, "reason": "signature_file_missing"}
 
     try:
-        with sig_path.open("r", encoding="utf-8") as fh:
-            sig_payload = json.load(fh)
-    except (json.JSONDecodeError, OSError) as exc:
+        sig_payload = _size_capped_json_load(sig_path)
+    except (json.JSONDecodeError, OSError, ValueError) as exc:
         return {"verified": False, "reason": f"signature_file_corrupt: {exc}"}
 
     model_data = model_path.read_bytes()
@@ -543,8 +569,12 @@ class ArtifactManifest:
         if not manifest_path.exists():
             return False, ["manifest_file_missing"]
 
-        with manifest_path.open("r", encoding="utf-8") as fh:
-            manifest = json.load(fh)
+        try:
+            manifest = _size_capped_json_load(manifest_path)
+        except ValueError as exc:
+            return False, [f"manifest_too_large_or_corrupt: {exc}"]
+        except (json.JSONDecodeError, OSError) as exc:
+            return False, [f"manifest_corrupt: {exc}"]
 
         issues: List[str] = []
         base_dir = manifest_path.parent
@@ -1137,10 +1167,9 @@ class AccessControl:
         self._config_path = config_path
         if config_path and config_path.exists():
             try:
-                with config_path.open("r", encoding="utf-8") as fh:
-                    data = json.load(fh)
+                data = _size_capped_json_load(config_path)
                 self._user_roles = data.get("user_roles", {})
-            except (json.JSONDecodeError, OSError):
+            except (json.JSONDecodeError, OSError, ValueError):
                 pass
 
     def assign_role(self, username: str, role: str) -> None:
@@ -1266,9 +1295,8 @@ def verify_execution_receipt(
         return {"valid": False, "reason": "receipt_not_found"}
 
     try:
-        with receipt_path.open("r", encoding="utf-8") as fh:
-            receipt = json.load(fh)
-    except (json.JSONDecodeError, OSError) as exc:
+        receipt = _size_capped_json_load(receipt_path)
+    except (json.JSONDecodeError, OSError, ValueError) as exc:
         return {"valid": False, "reason": f"receipt_corrupt: {exc}"}
 
     stored_sig = receipt.pop("hmac_signature", None)
