@@ -181,6 +181,64 @@ class TestContentFacetHashes:
         assert detail["pinned"] == {}
 
 
+@pytest.mark.skipif(not DB.exists(), reason="UKB SQLite not present")
+class TestVerifierSilentFailureGuards:
+    """Round-9 strict-review regression guards — L3 must loudly fail
+    on three silent-failure shapes that previously returned ✅:
+      - empty / all-comments YAML (None parse → silent fallback to [])
+      - wrong top-level structure (dict instead of list)
+      - per-entry typo key (e.g., 'field_idx' silently skipped)
+      - entry count dropping below committed floor
+    """
+
+    def test_empty_golden_file_raises(self, tmp_path):
+        import sys
+        sys.path.insert(0, str(REPO_ROOT / "scripts" / "codebooks"))
+        from verify_ukb_codebook import _load_golden
+        empty = tmp_path / "empty.yaml"
+        empty.write_text("# just comments\n")
+        with pytest.raises(ValueError, match="empty|all-comments"):
+            _load_golden(empty)
+
+    def test_non_list_golden_file_raises(self, tmp_path):
+        import sys
+        sys.path.insert(0, str(REPO_ROOT / "scripts" / "codebooks"))
+        from verify_ukb_codebook import _load_golden
+        as_dict = tmp_path / "as_dict.yaml"
+        as_dict.write_text("field_id: 21001\n")  # valid YAML, but a dict
+        with pytest.raises(ValueError, match="expected list"):
+            _load_golden(as_dict)
+
+    def test_unknown_yaml_key_surfaces_issue(self, tmp_path):
+        """A typo like 'field_idx' used to silently skip the entry.
+        Now it must produce an issue."""
+        import sqlite3
+        import sys
+        sys.path.insert(0, str(REPO_ROOT / "scripts" / "codebooks"))
+        from verify_ukb_codebook import check_golden_fields
+        typo_file = tmp_path / "typo.yaml"
+        typo_file.write_text("- field_idx: 21001\n  title: Body mass index (BMI)\n")
+        with sqlite3.connect(str(DB)) as conn:
+            issues, detail = check_golden_fields(conn, typo_file)
+        assert any("unknown key" in i for i in issues), (
+            f"Typo 'field_idx' should surface as issue, got: {issues}"
+        )
+
+    def test_below_floor_surfaces_issue(self, tmp_path):
+        import sqlite3
+        import sys
+        sys.path.insert(0, str(REPO_ROOT / "scripts" / "codebooks"))
+        from verify_ukb_codebook import check_golden_fields
+        skinny = tmp_path / "skinny.yaml"
+        skinny.write_text("- field_id: 21001\n")
+        with sqlite3.connect(str(DB)) as conn:
+            issues, _ = check_golden_fields(conn, skinny)
+        assert any("below floor" in i or "floor" in i for i in issues), (
+            f"A 1-entry golden file should fail the _GOLDEN_MIN_ENTRIES "
+            f"floor guard. Got: {issues}"
+        )
+
+
 @pytest.mark.skipif(
     not DB.exists() or os.environ.get("MLGG_UKB_LIVE_CHECK") != "1",
     reason="L4 live UKB check is opt-in; set MLGG_UKB_LIVE_CHECK=1 to run",

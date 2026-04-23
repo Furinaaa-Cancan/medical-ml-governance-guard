@@ -559,12 +559,21 @@ COMMON_ALIASES = {
 # ── File parsers ────────────────────────────────────────────────────────────
 
 def read_tab_file(path: Path) -> List[Dict[str, str]]:
-    """Read a UKB schema tab-separated file."""
+    """Read a UKB schema tab-separated file.
+
+    Uses quoting=csv.QUOTE_NONE because UKB's .txt exports are pure
+    TSV — `"` in meanings is literal text, NOT a field delimiter.
+    Default csv.DictReader treats `"` as a quote char and merges
+    rows until it finds a closing quote, silently losing data.
+    Round-9 strict-review found this dropped 66,379 of 332,115 CTV3
+    clinical code rows (esimpstring.txt encoding 7128) because 1180
+    unbalanced quote characters triggered multi-line field parsing.
+    """
     if not path.exists():
         print(f"  [SKIP] {path.name} not found", file=sys.stderr)
         return []
     with open(path, "r", encoding="utf-8", errors="replace") as f:
-        reader = csv.DictReader(f, delimiter="\t")
+        reader = csv.DictReader(f, delimiter="\t", quoting=csv.QUOTE_NONE)
         return list(reader)
 
 

@@ -42,7 +42,13 @@ _COUNTS = {
     "fields_total":        ("SELECT COUNT(*) FROM fields;",                                                11821, 0.5),
     "categories_total":    ("SELECT COUNT(*) FROM categories;",                                              410, 5.0),
     "encodings_total":     ("SELECT COUNT(*) FROM encodings;",                                               858, 5.0),
-    "encoding_values":     ("SELECT COUNT(*) FROM encoding_values;",                                      466907, 1.0),
+    # Round-9 strict-review: csv.QUOTE_NONE fix recovered 66,379
+    # rows of CTV3 clinical codes (encoding 7128 in esimpstring.txt)
+    # that were silently dropped by csv.DictReader's default quote
+    # handling. Total 466,907 → 533,286.
+    # Tolerance tightened 1% → 0.1% (±533 rows). Per-encoding pins
+    # for enc3/5/6/1006 (HARD above) catch full category drops.
+    "encoding_values":     ("SELECT COUNT(*) FROM encoding_values;",                                      533286, 0.1),
     "icd10_codes":         ("SELECT COUNT(*) FROM encoding_values WHERE encoding_id=19;",                  19190, 0.5),
     "icd9_codes":          ("SELECT COUNT(*) FROM encoding_values WHERE encoding_id=87;",                  13710, 0.5),
     "opcs4_codes":         ("SELECT COUNT(*) FROM encoding_values WHERE encoding_id=240;",                 11288, 0.5),
@@ -190,6 +196,17 @@ _HARD = {
         "SELECT COUNT(*) FROM encoding_values WHERE encoding_id=1006;",
         479,
         "Non-cancer illness (re-typed) tree lost rows.",
+    ),
+    # Round-9: CTV3 clinical codes (used in UK primary care / GP
+    # records). 66,379 of 332,115 rows were silently dropped by the
+    # csv.DictReader default-quoting bug until the QUOTE_NONE fix.
+    # Pin at exact source-file count so any regression trips here
+    # before downstream GP-code lookups start returning NULL.
+    "enc7128_ctv3_complete": (
+        "SELECT COUNT(*) FROM encoding_values WHERE encoding_id=7128;",
+        332115,
+        "CTV3 clinical codes (encoding 7128) lost rows — check the "
+        "csv.QUOTE_NONE setting in read_tab_file().",
     ),
     # Every hierarchical row with a parent_node_id must point to an
     # existing node in the same encoding — verifies the heading-to-
@@ -658,6 +675,59 @@ def check_ceilings(conn: sqlite3.Connection) -> List[str]:
     return warnings
 
 
+def check_source_vs_db_row_counts(
+    ukb_dir: Path, conn: sqlite3.Connection,
+) -> List[str]:
+    """Compare raw-source row count to DB row count per table.
+
+    Round-9 strict-review found 66,379 silent row drops from the CSV
+    quote-merge bug — undetectable by existing checks because the
+    source manifest only pins file sha256 (correct) and the L2
+    encoding_values count was ±1% tolerance (too loose). This check
+    counts source lines directly and compares to the DB row count,
+    catching any future silent-drop regressions regardless of cause.
+
+    Returns issues. Expected: zero diff for fields / encodings /
+    categories / encoding_values. instances is +1 because the
+    builder seeds well-known instances 0-3; that +1 is tolerated.
+    """
+    issues: List[str] = []
+    tables = {
+        "fields": "field.txt",
+        "encodings": "encoding.txt",
+        "categories": "category.txt",
+    }
+    for tbl, fname in tables.items():
+        path = ukb_dir / fname
+        if not path.exists():
+            continue
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            src = sum(1 for _ in f) - 1  # minus header
+        dbc = _row(conn, f"SELECT COUNT(*) FROM {tbl}")
+        if src != dbc:
+            issues.append(
+                f"{tbl}: source={src} vs db={dbc} (diff={src - dbc}). "
+                "A silent-drop bug in the builder. Start with "
+                "read_tab_file and any per-row `if` filters."
+            )
+    # encoding_values: sum of all 4 simp + 2 hier files.
+    ev_src = 0
+    for fname in ("esimpint.txt", "esimpstring.txt", "esimpreal.txt",
+                  "esimpdate.txt", "ehierint.txt", "ehierstring.txt"):
+        path = ukb_dir / fname
+        if path.exists():
+            with open(path, "r", encoding="utf-8", errors="replace") as f:
+                ev_src += sum(1 for _ in f) - 1
+    ev_db = _row(conn, "SELECT COUNT(*) FROM encoding_values")
+    if ev_src != ev_db:
+        issues.append(
+            f"encoding_values: source={ev_src} vs db={ev_db} "
+            f"(diff={ev_src - ev_db}). Silent-drop bug — see round-9 "
+            "CSV QUOTE_NONE fix for precedent."
+        )
+    return issues
+
+
 # ── L3 ──────────────────────────────────────────────────────────────
 
 def _load_golden(path: Path) -> List[Dict[str, Any]]:
@@ -820,6 +890,13 @@ _DISEASE_DEFINITION_ALLOWED_RISKS = {
     "hospital_derived",  # inpatient ICD, OPCS, GP records
     "death_registry",    # date/cause of death (e.g. fatal MI)
     "online_followup",   # post-baseline self-report used as definition
+    # Round-9 strict-review addition: for heart failure and some
+    # stroke subtypes, imaging-derived metrics ARE the canonical
+    # definition (HFrEF diagnosed at LVEF<40% via cardiac MRI /
+    # echocardiography; territorial infarction via MRI). An imaging
+    # field listed under ukb_definition_fields for these diseases
+    # should not trigger an "unusual risk" warning — it's standard.
+    "imaging",
 }
 
 
@@ -955,15 +1032,18 @@ def main() -> int:
     with sqlite3.connect(str(args.db)) as conn:
         count_issues, count_detail = check_counts(conn)
         hard_issues = check_hard_invariants(conn)
+        source_vs_db_issues = check_source_vs_db_row_counts(UKB_DIR, conn)
         ceiling_warnings = check_ceilings(conn)
         summary["layers"]["l2_structural"] = {
             "count_issues": len(count_issues),
             "hard_invariant_issues": len(hard_issues),
+            "source_vs_db_issues": len(source_vs_db_issues),
             "ceiling_warnings": len(ceiling_warnings),
             "counts": count_detail,
         }
         all_issues.extend(f"[L2] {i}" for i in count_issues)
         all_issues.extend(f"[L2] {i}" for i in hard_issues)
+        all_issues.extend(f"[L2-src-vs-db] {i}" for i in source_vs_db_issues)
         all_warnings.extend(f"[L2] {w}" for w in ceiling_warnings)
 
         # L3
