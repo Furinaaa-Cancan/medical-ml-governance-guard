@@ -91,6 +91,96 @@ class TestUkbDocumentedGaps:
         assert n == 251, f"NMR cat 220 has {n} fields, expected 251."
 
 
+@pytest.mark.skipif(not DB.exists(), reason="UKB SQLite not present")
+class TestContentFacetHashes:
+    """Meta-review layer: content-facet hashes.
+
+    classify_field() rule changes routinely shift thousands of field
+    classifications. L1 pins upstream .txt files; L2 pins specific
+    counts/facts; neither can see "1000 fields quietly moved from
+    baseline to online_followup". These four hashes make every such
+    shift visible in CI logs and support optional strict pinning via
+    source_manifest.json's content_hashes block.
+    """
+
+    def test_compute_is_deterministic(self):
+        import sqlite3
+        import sys
+        sys.path.insert(0, str(REPO_ROOT / "scripts" / "codebooks"))
+        from verify_ukb_codebook import compute_content_hashes
+        with sqlite3.connect(str(DB)) as conn:
+            a = compute_content_hashes(conn)
+        with sqlite3.connect(str(DB)) as conn:
+            b = compute_content_hashes(conn)
+        assert a == b, "compute_content_hashes must be deterministic across runs"
+
+    def test_four_facets_with_hex_sha256(self):
+        import sqlite3
+        import sys
+        sys.path.insert(0, str(REPO_ROOT / "scripts" / "codebooks"))
+        from verify_ukb_codebook import compute_content_hashes
+        with sqlite3.connect(str(DB)) as conn:
+            h = compute_content_hashes(conn)
+        assert set(h.keys()) == {
+            "source_titles", "classification", "encoding_values", "aliases",
+        }
+        for key, value in h.items():
+            assert len(value) == 64, f"{key}: expected 64-char sha256, got {len(value)}"
+            int(value, 16)  # must be valid hex — raises ValueError otherwise
+
+    def test_print_flag_outputs_pasteable_json(self):
+        r = subprocess.run(
+            [sys.executable, str(VERIFY), "--print-content-hashes"],
+            capture_output=True, text=True, timeout=60,
+        )
+        assert r.returncode == 0, r.stderr
+        import json
+        payload = json.loads(r.stdout)
+        assert "content_hashes" in payload
+        assert set(payload["content_hashes"].keys()) == {
+            "source_titles", "classification", "encoding_values", "aliases",
+        }
+
+    def test_drift_detection_against_fake_manifest(self, tmp_path):
+        # Write a manifest with deliberately WRONG pinned hashes; drift
+        # detection must report all four facets as drifted.
+        import json
+        import sqlite3
+        import sys
+        sys.path.insert(0, str(REPO_ROOT / "scripts" / "codebooks"))
+        from verify_ukb_codebook import (
+            compute_content_hashes, check_content_hash_drift,
+        )
+        with sqlite3.connect(str(DB)) as conn:
+            computed = compute_content_hashes(conn)
+        fake_manifest = tmp_path / "manifest.json"
+        fake_manifest.write_text(json.dumps({
+            "content_hashes": {k: "0" * 64 for k in computed},
+        }))
+        warnings, detail = check_content_hash_drift(computed, fake_manifest)
+        assert len(warnings) == 4
+        assert all("drifted to" in w for w in warnings)
+
+    def test_no_drift_when_manifest_lacks_content_hashes(self, tmp_path):
+        # Manifest without a content_hashes block → no warnings, no drift.
+        # Supports the rollout path where content hashes are reported for
+        # a while before the user decides to pin them.
+        import json
+        import sqlite3
+        import sys
+        sys.path.insert(0, str(REPO_ROOT / "scripts" / "codebooks"))
+        from verify_ukb_codebook import (
+            compute_content_hashes, check_content_hash_drift,
+        )
+        with sqlite3.connect(str(DB)) as conn:
+            computed = compute_content_hashes(conn)
+        unpinned_manifest = tmp_path / "manifest.json"
+        unpinned_manifest.write_text(json.dumps({"files": {}}))
+        warnings, detail = check_content_hash_drift(computed, unpinned_manifest)
+        assert warnings == []
+        assert detail["pinned"] == {}
+
+
 @pytest.mark.skipif(
     not DB.exists() or os.environ.get("MLGG_UKB_LIVE_CHECK") != "1",
     reason="L4 live UKB check is opt-in; set MLGG_UKB_LIVE_CHECK=1 to run",

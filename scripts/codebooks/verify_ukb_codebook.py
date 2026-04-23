@@ -490,6 +490,89 @@ def _row(conn: sqlite3.Connection, sql: str) -> int:
     return int(result[0]) if result else 0
 
 
+# ── Content-facet hashes ─────────────────────────────────────────────
+# L1 pins .txt sha256 (upstream source). L2 pins counts + specific
+# facts. But neither catches silent content drift: e.g. classify_field
+# quietly flips 1000 fields from baseline→online_followup — counts can
+# move inside tolerance, L2 facts stay green, and no audit trail
+# notices. These four facet hashes make every such change visible.
+#
+# Each facet drifts at a different rate, so they're reported
+# separately:
+#   - source_titles   : field_id → title. Changes only when UKB
+#                       refreshes the Showcase (→ L1 sha256 drifts too).
+#   - classification  : field_id → (domain, risk_category). Changes
+#                       every classify_field() update — expect 5-10
+#                       commits per round of deep-check.
+#   - encoding_values : (encoding_id, code) → (meaning, selectable,
+#                       parent_code). Changes only with UKB schema
+#                       refresh.
+#   - aliases         : alias → field_id. Changes with curation.
+#
+# By default these are only REPORTED (printed + in --report JSON).
+# If source_manifest.json has a content_hashes block, drift against
+# it is emitted as a warning. Use --strict-content-hashes to fail
+# the verify on drift — useful for release-gate CI.
+
+
+def compute_content_hashes(conn: sqlite3.Connection) -> Dict[str, str]:
+    """Compute sha256 per content-facet. Deterministic across runs."""
+    import hashlib
+
+    def _h(rows, fmt: str) -> str:
+        payload = "\n".join(fmt.format(*r) for r in rows).encode("utf-8")
+        return hashlib.sha256(payload).hexdigest()
+
+    source_rows = conn.execute(
+        "SELECT field_id, COALESCE(title,'') FROM fields ORDER BY field_id"
+    ).fetchall()
+    classification_rows = conn.execute(
+        "SELECT field_id, COALESCE(domain,''), COALESCE(risk_category,'') "
+        "FROM fields ORDER BY field_id"
+    ).fetchall()
+    encoding_rows = conn.execute(
+        "SELECT encoding_id, code, COALESCE(meaning,''), "
+        "COALESCE(selectable,-1), COALESCE(parent_code,'') "
+        "FROM encoding_values ORDER BY encoding_id, code"
+    ).fetchall()
+    alias_rows = conn.execute(
+        "SELECT alias, field_id FROM aliases ORDER BY alias, field_id"
+    ).fetchall()
+
+    return {
+        "source_titles":   _h(source_rows, "{0}|{1}"),
+        "classification":  _h(classification_rows, "{0}|{1}|{2}"),
+        "encoding_values": _h(encoding_rows, "{0}|{1}|{2}|{3}|{4}"),
+        "aliases":         _h(alias_rows, "{0}|{1}"),
+    }
+
+
+def check_content_hash_drift(
+    computed: Dict[str, str],
+    manifest_path: Path,
+) -> Tuple[List[str], Dict[str, Any]]:
+    """Compare computed hashes against the optional `content_hashes`
+    block in source_manifest.json. Returns (drift_warnings, detail).
+    """
+    warnings: List[str] = []
+    pinned: Dict[str, str] = {}
+    if manifest_path.exists():
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            pinned = manifest.get("content_hashes") or {}
+        except (OSError, json.JSONDecodeError):
+            pass
+    for key, c_hash in computed.items():
+        p_hash = pinned.get(key)
+        if p_hash and p_hash != c_hash:
+            warnings.append(
+                f"{key}: pinned {p_hash[:12]}… drifted to {c_hash[:12]}… "
+                f"— investigate build logs or regenerate with "
+                f"--print-content-hashes if this change is intentional"
+            )
+    return warnings, {"pinned": pinned, "computed": computed}
+
+
 # ── L1 ──────────────────────────────────────────────────────────────
 
 def check_source_manifest(
@@ -578,20 +661,44 @@ def check_ceilings(conn: sqlite3.Connection) -> List[str]:
 # ── L3 ──────────────────────────────────────────────────────────────
 
 def _load_golden(path: Path) -> List[Dict[str, Any]]:
-    """Load golden-seed YAML (YAML is optional; fall back to JSON)."""
+    """Load golden-seed YAML (YAML is optional; fall back to JSON).
+
+    Returns [] only when the file is truly missing. A file that exists
+    but parses to a non-list / all-comments structure raises — deep-
+    check round-8 strict-review found: with the prior silent `or []`
+    fallback, emptying or corrupting the file made L3 pass with 0
+    checks and report ✅.
+    """
     if not path.exists():
         return []
     text = path.read_text(encoding="utf-8")
     try:
         import yaml  # type: ignore
-        return yaml.safe_load(text) or []
+        parsed = yaml.safe_load(text)
     except ImportError:
-        # Allow a JSON fallback so this module has zero external deps
-        # in the minimal install path.
-        try:
-            return json.loads(text)
-        except json.JSONDecodeError:
-            return []
+        parsed = json.loads(text)
+    if parsed is None:
+        raise ValueError(
+            f"golden-seed file {path} is empty or all-comments — "
+            "L3 would silently pass with 0 checks."
+        )
+    if not isinstance(parsed, list):
+        raise ValueError(
+            f"golden-seed file {path} parsed to {type(parsed).__name__}, "
+            "expected list."
+        )
+    return parsed
+
+
+# Minimum golden-seed entries expected (after round-8 expansion). If
+# the list shrinks below this, someone deleted entries — fail loudly.
+_GOLDEN_MIN_ENTRIES = 200
+
+# Acceptable top-level keys per entry shape. Anything else is a typo
+# (e.g., "field_idx" instead of "field_id") that previously made the
+# entry silently skipped — now surfaces as a hard issue.
+_GOLDEN_FIELD_KEYS = {"field_id", "title", "title_contains", "main_category"}
+_GOLDEN_ICD10_KEYS = {"icd10", "title_contains"}
 
 
 def check_golden_fields(
@@ -601,10 +708,32 @@ def check_golden_fields(
     matches expected properties."""
     issues: List[str] = []
     golden = _load_golden(golden_path)
+    if golden_path.exists() and len(golden) < _GOLDEN_MIN_ENTRIES:
+        issues.append(
+            f"golden-seed count {len(golden)} below floor "
+            f"{_GOLDEN_MIN_ENTRIES} — entries deleted. Re-add or "
+            "bump _GOLDEN_MIN_ENTRIES intentionally."
+        )
     checked = 0
     missing = 0
     mismatches = 0
     for entry in golden:
+        # Reject entries with unrecognized keys — catches YAML typos
+        # that would otherwise make the entry silently skipped.
+        if not isinstance(entry, dict):
+            issues.append(f"golden entry {entry!r} not a dict — check YAML syntax")
+            mismatches += 1
+            continue
+        keys = set(entry.keys())
+        if not (keys <= _GOLDEN_FIELD_KEYS or keys <= _GOLDEN_ICD10_KEYS):
+            unknown = keys - (_GOLDEN_FIELD_KEYS | _GOLDEN_ICD10_KEYS)
+            issues.append(
+                f"golden entry has unknown key(s) {sorted(unknown)}: "
+                f"{entry!r}. Valid keys: field_id/title/title_contains/"
+                "main_category or icd10/title_contains."
+            )
+            mismatches += 1
+            continue
         if "field_id" in entry:
             checked += 1
             field_id = int(entry["field_id"])
@@ -789,11 +918,26 @@ def main() -> int:
                                 / "disease-definition-knowledge-base.json",
                         help="Path to disease-definition-knowledge-base.json")
     parser.add_argument("--report", type=Path, help="Write JSON report")
+    parser.add_argument("--print-content-hashes", action="store_true",
+                        help="Print the four content-facet hashes as a JSON "
+                             "snippet you can paste into source_manifest.json "
+                             "under 'content_hashes'. No other checks run.")
+    parser.add_argument("--strict-content-hashes", action="store_true",
+                        help="Treat content-hash drift as error (exit 2) "
+                             "rather than warning. Only enforced when the "
+                             "manifest already has a content_hashes block.")
     args = parser.parse_args()
 
     if not args.db.exists():
         print(f"ERROR: UKB SQLite not found at {args.db}", file=sys.stderr)
         return 2
+
+    # Fast-path for --print-content-hashes: just emit the JSON snippet.
+    if args.print_content_hashes:
+        with sqlite3.connect(str(args.db)) as conn:
+            hashes = compute_content_hashes(conn)
+        print(json.dumps({"content_hashes": hashes}, indent=2))
+        return 0
 
     all_issues: List[str] = []
     all_warnings: List[str] = []
@@ -843,6 +987,22 @@ def main() -> int:
             all_issues.extend(f"[L3b] {e}" for e in kb_errors)
             all_warnings.extend(f"[L3b] {w}" for w in kb_warnings)
 
+        # Content-facet hashes — informational + optional drift check
+        content_hashes = compute_content_hashes(conn)
+        drift_warnings, drift_detail = check_content_hash_drift(
+            content_hashes, args.manifest,
+        )
+        summary["layers"]["content_hashes"] = {
+            "computed": content_hashes,
+            "pinned": drift_detail["pinned"],
+            "drift": drift_warnings,
+        }
+        if drift_warnings:
+            if args.strict_content_hashes:
+                all_issues.extend(f"[content-hash] {w}" for w in drift_warnings)
+            else:
+                all_warnings.extend(f"[content-hash] {w}" for w in drift_warnings)
+
     # Report
     print("=" * 60)
     print("UKB codebook verification")
@@ -857,6 +1017,16 @@ def main() -> int:
             print(f"  ❌ {i}")
     else:
         print("\n✅ All checks passed.")
+
+    # Always surface the content-facet hashes so CI logs have a stable
+    # audit trail even on green runs. Cheap to print (~60 chars).
+    ch = summary.get("layers", {}).get("content_hashes", {}).get("computed", {})
+    if ch:
+        print("\nContent hashes (12-char prefix — see --print-content-hashes "
+              "for full):")
+        for key in ("source_titles", "classification", "encoding_values", "aliases"):
+            if key in ch:
+                print(f"  {key:<18} {ch[key][:12]}…")
     print("=" * 60)
 
     if args.report:
