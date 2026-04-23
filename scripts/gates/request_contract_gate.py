@@ -52,6 +52,51 @@ REQUIRED_STRING_FIELDS = [
 ]
 
 ALLOWED_CLAIM_TIERS = {"leakage-audited", "publication-grade"}
+
+# Rank-ordered claim tiers (monotone by strictness). Used by the
+# cross-run anti-downgrade check — once a study_id has been at
+# publication-grade, a subsequent run at leakage-audited is refused.
+# Lower rank = less strict. Add new tiers here in order.
+_CLAIM_TIER_RANK = {
+    "leakage-audited": 1,
+    "publication-grade": 2,
+}
+
+
+# Files / dirs that mark an MLGG project root. Used to anchor the
+# path sandbox tightly instead of trusting the request file's
+# parent-of-parent blindly (Codex 2026-04-23 caller-controlled
+# sandbox finding).
+_PROJECT_ROOT_MARKERS = (
+    "SKILL.md",           # MLGG-specific marker
+    ".git",               # git root
+    "pyproject.toml",     # python project root
+    ".mlgg_model_key",    # deployed-project marker
+)
+
+
+def _detect_project_root(start: Path, max_hops: int = 10) -> Optional[Path]:
+    """Ascend from ``start`` looking for a project-root marker.
+
+    Returns the first directory containing any marker in
+    ``_PROJECT_ROOT_MARKERS``, or None if nothing is found within
+    ``max_hops`` parent directories.
+
+    This is the source of truth for path_sandbox anchoring. If this
+    returns None, the caller should fall back to a permissive sandbox
+    (request_base.parent) AND emit a warning — that configuration is
+    intentionally more risky and operators should see it.
+    """
+    current = start.resolve()
+    for _ in range(max_hops):
+        for marker in _PROJECT_ROOT_MARKERS:
+            if (current / marker).exists():
+                return current
+        parent = current.parent
+        if parent == current:
+            return None
+        current = parent
+    return None
 MANDATORY_CLINICAL_METRICS = [
     "accuracy",
     "precision",
@@ -2825,13 +2870,41 @@ def main() -> int:
         return finish(args, failures, warnings, normalized)
 
     request_base = request_path.parent
-    # Sandbox for all user-declared paths: project root = parent of the
-    # request.json's directory. Permits configs/../data, configs/../evidence,
-    # configs/../models (canonical MLGG layout) while blocking traversals
-    # to ~/other-user/ or absolute paths outside the project.
-    path_sandbox = request_base.parent
+    # Sandbox for all user-declared paths. Anchor to a project-root
+    # marker (SKILL.md / .git / pyproject.toml / .mlgg_model_key)
+    # ascending from request_base. Codex 2026-04-23 flagged the old
+    # `path_sandbox = request_base.parent` as caller-controlled: a
+    # request placed at /tmp/request.json would yield sandbox=/,
+    # silently widening every downstream resolve_path() check. The
+    # marker-based anchor keeps the sandbox = project root regardless
+    # of where the request file is dropped.
+    detected_root = _detect_project_root(request_base)
+    if detected_root is not None:
+        path_sandbox = detected_root
+        path_sandbox_source = "project_marker"
+    else:
+        # Degraded mode: no project marker found. Fall back to the
+        # legacy parent-of-parent, but emit a warning so operators see
+        # the sandbox is not tightly anchored. Without this warning,
+        # running a gate from /tmp/ for a quick test could be confused
+        # with a real publication-grade run that lost its anchor.
+        path_sandbox = request_base.parent
+        path_sandbox_source = "fallback_parent_of_parent"
+        add_issue(
+            warnings,
+            "path_sandbox_unanchored",
+            "No project-root marker (SKILL.md / .git / pyproject.toml / "
+            ".mlgg_model_key) found ascending from the request file. "
+            "path_sandbox fell back to request_base.parent; downstream "
+            "path validation is weaker than normal. Place the request "
+            "under a project with one of these markers for tight "
+            "sandboxing.",
+            {"request_base": str(request_base),
+             "fallback_sandbox": str(path_sandbox)},
+        )
     normalized["path_resolution_base"] = str(request_base)
     normalized["path_resolution_sandbox"] = str(path_sandbox)
+    normalized["path_resolution_sandbox_source"] = path_sandbox_source
 
     for key in REQUIRED_STRING_FIELDS:
         value = must_be_non_empty_str(request, key, failures)

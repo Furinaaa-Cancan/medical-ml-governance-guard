@@ -1302,6 +1302,81 @@ class TestCrossSectionalCoercion:
         assert "invalid_cross_sectional" not in codes
 
 
+class TestProjectRootAnchoring:
+    """Regression (Codex 2026-04-23): the old `path_sandbox =
+    request_base.parent` made the sandbox caller-controlled — a request
+    planted at /tmp/request.json would yield sandbox=/, silently
+    widening every downstream path check. New behavior: ascend from the
+    request file looking for a project-root marker (SKILL.md, .git,
+    pyproject.toml, .mlgg_model_key). If nothing found, fall back with
+    a clearly logged warning so operators see the degraded state."""
+
+    def test_marker_git_anchors_sandbox(self, tmp_path: Path):
+        """With .git present at project root, sandbox snaps to that
+        root regardless of where the request file lives within it."""
+        # Project layout with .git marker at tmp_path/
+        (tmp_path / ".git").mkdir()
+        (tmp_path / "configs").mkdir()
+        (tmp_path / "data").mkdir()
+        for fn in ("train.csv", "valid.csv", "test.csv"):
+            (tmp_path / "data" / fn).write_text("patient_id,y\nP001,0\n")
+        (tmp_path / "data" / "pheno.json").write_text('{"definition":"t"}')
+        req = {
+            "study_id": "s", "run_id": "r", "target_name": "t",
+            "prediction_unit": "admission", "index_time_col": "tc",
+            "label_col": "y", "patient_id_col": "patient_id",
+            "primary_metric": "pr_auc",
+            "phenotype_definition_spec": "../data/pheno.json",
+            "claim_tier_target": "leakage-audited",
+            "split_paths": {
+                "train": "../data/train.csv",
+                "valid": "../data/valid.csv",
+                "test": "../data/test.csv",
+            },
+            "thresholds": {"alpha": 0.05, "min_delta": 0.03},
+        }
+        req_path = tmp_path / "configs" / "request.json"
+        req_path.write_text(json.dumps(req))
+        report_path = tmp_path / "report.json"
+        report = _run_gate(req_path, report_path)
+        assert report["status"] == "pass", (
+            f"Sandbox-anchored run should pass.\n"
+            f"failures={report.get('failures')}"
+        )
+        # Sandbox source is the marker.
+        norm = report["normalized_request"]
+        assert norm["path_resolution_sandbox_source"] == "project_marker"
+        assert norm["path_resolution_sandbox"] == str(tmp_path.resolve())
+        # And no unanchored warning.
+        warn_codes = [w["code"] for w in report.get("warnings", [])]
+        assert "path_sandbox_unanchored" not in warn_codes
+
+    def test_no_marker_emits_warning(self, tmp_path: Path):
+        """When the request lives outside any marked project, the gate
+        still runs (for dev-mode convenience) but emits a loud warning."""
+        # Plain tmp_path with no .git / SKILL.md / pyproject.toml etc.
+        req = _make_minimal_request(tmp_path)
+        report_path = tmp_path / "report.json"
+        report = _run_gate(req, report_path)
+        norm = report["normalized_request"]
+        assert norm["path_resolution_sandbox_source"] == "fallback_parent_of_parent"
+        warn_codes = [w["code"] for w in report.get("warnings", [])]
+        assert "path_sandbox_unanchored" in warn_codes, (
+            f"Unanchored fallback must surface a warning; got {warn_codes}"
+        )
+
+    def test_skill_md_marker_also_works(self, tmp_path: Path):
+        """SKILL.md marker (MLGG-specific) is equivalent to .git."""
+        (tmp_path / "SKILL.md").write_text("# marker")
+        req = _make_minimal_request(tmp_path)
+        report_path = tmp_path / "report.json"
+        report = _run_gate(req, report_path)
+        norm = report["normalized_request"]
+        assert norm["path_resolution_sandbox_source"] == "project_marker"
+        warn_codes = [w["code"] for w in report.get("warnings", [])]
+        assert "path_sandbox_unanchored" not in warn_codes
+
+
 class TestReportPathSandbox:
     """Regression (Codex 2026-04-23): `--report <path>` was written raw
     with Path.expanduser().resolve(), so an operator (or malicious user
