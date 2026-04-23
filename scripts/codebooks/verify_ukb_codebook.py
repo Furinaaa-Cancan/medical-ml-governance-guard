@@ -295,6 +295,33 @@ _HARD = {
         "(SELECT field_id FROM fields);",
         0, "FTS5 has rows without a backing field — stale index.",
     ),
+    # Cat 2 follow-up audit (2026-04-23): fields 190/191 (lost-to-follow-up)
+    # and 20143/20144/20145/110007 (post-baseline recontact/communication
+    # log) were previously swept into 'demographics, baseline' by the
+    # generic cat=2 rule. A leakage-guard would then treat cohort
+    # attrition outcomes as safe predictors. The targeted
+    # participant_admin rule in classify_field() must keep them flagged.
+    "cat2_followup_fields_flagged": (
+        "SELECT COUNT(*) FROM fields "
+        "WHERE field_id IN (190, 191, 20143, 20144, 20145, 110007) "
+        "AND risk_category='online_followup';",
+        6,
+        "Cat 2 lost-to-follow-up / contact-log fields must carry "
+        "risk_category='online_followup'. If this drops, the "
+        "participant_admin rule in classify_field() may have been "
+        "broadened or removed and these fields fell back to 'baseline'.",
+    ),
+    "field_20005_stays_baseline": (
+        # Email access is asked at the assessment visit itself — NOT a
+        # post-baseline artifact — and shares cat 2 with the follow-up/
+        # admin fields. A too-broad rule would sweep it up. The guard
+        # asserts the title-scoped rule doesn't reach this field.
+        "SELECT COUNT(*) FROM fields "
+        "WHERE field_id=20005 AND risk_category='baseline';",
+        1,
+        "Email access (20005) must remain baseline. If this fails, the "
+        "participant_admin rule was broadened to a raw cat==2 check.",
+    ),
 }
 
 # Ceiling checks — values we tolerate today but flag as technical debt
