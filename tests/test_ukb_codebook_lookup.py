@@ -1132,3 +1132,102 @@ class TestExcludeRisk:
                           "online_followup", "imaging", "genomics"],
         )
         assert fields[0] == "eid"
+
+
+# ── API completeness: decode_value + validate_columns full wrapper ──
+
+
+class TestDecodeValue:
+    """decode_value(field_id, code) → label. Used by downstream label
+    resolution in the gate and any UI. Previously zero direct coverage.
+    """
+
+    def test_decode_sex_field(self, ukb_codebook):
+        # Field 31 Sex, encoding 9: 0=Female, 1=Male
+        assert ukb_codebook.decode_value(31, 0) == "Female"
+        assert ukb_codebook.decode_value(31, 1) == "Male"
+        # String code matches too (we stringify internally)
+        assert ukb_codebook.decode_value(31, "0") == "Female"
+
+    def test_decode_icd10_hierarchy(self, ukb_codebook):
+        # Field 41270 is the hospital ICD-10 column; enc_id=19.
+        label = ukb_codebook.decode_value(41270, "E11")
+        assert label is not None
+        assert "diabetes" in label.lower()
+
+    def test_decode_unknown_field_returns_none(self, ukb_codebook):
+        assert ukb_codebook.decode_value(999999999, "0") is None
+
+    def test_decode_continuous_field_returns_none(self, ukb_codebook):
+        # Field 21001 BMI has no encoding (continuous value).
+        assert ukb_codebook.decode_value(21001, "25.0") is None
+
+    def test_decode_nonexistent_code_returns_none(self, ukb_codebook):
+        # Valid field, invalid code → None (not a crash).
+        assert ukb_codebook.decode_value(31, 99) is None
+
+
+class TestValidateColumnsFullWrapper:
+    """validate_columns() wraps validate_columns_for_gate with CLI-
+    specific diagnostics (field_summary, domain_breakdown, severity
+    labels, UNKNOWN_FIELD + DUPLICATE_FIELD codes). The gate-facing
+    entry point is tested elsewhere; this covers the wrapper shape.
+    """
+
+    def test_return_shape_has_required_keys(self, ukb_codebook):
+        result = ukb_codebook.validate_columns(["p21001_i0", "p31"])
+        assert set(result.keys()) >= {
+            "total_columns", "recognized", "field_summary",
+            "issues", "domain_breakdown",
+        }
+
+    def test_recognized_count_matches_valid_columns(self, ukb_codebook):
+        result = ukb_codebook.validate_columns(
+            ["p21001_i0",  # valid: BMI
+             "p31",         # valid: Sex
+             "garbage",     # unrecognized — not parseable as UKB column
+             "p999999999"]  # parses but not in DB
+        )
+        assert result["total_columns"] == 4
+        # p21001_i0 and p31 are recognized; the other two are not.
+        assert result["recognized"] == 2
+
+    def test_unknown_field_emits_issue_code(self, ukb_codebook):
+        result = ukb_codebook.validate_columns(["p999999999"])
+        codes = {i["code"] for i in result["issues"]}
+        assert "CODEBOOK_UNKNOWN_FIELD" in codes
+
+    def test_duplicate_field_emits_issue_code(self, ukb_codebook):
+        # Same field_id via two different instances = duplicate-field warning.
+        result = ukb_codebook.validate_columns(["p21001_i0", "p21001_i2"])
+        codes = {i["code"] for i in result["issues"]}
+        assert "CODEBOOK_DUPLICATE_FIELD" in codes
+
+    def test_every_issue_has_severity_label(self, ukb_codebook):
+        # Feed one of each common issue-triggering shape.
+        result = ukb_codebook.validate_columns(
+            ["p131286",       # outcome_derived → critical
+             "p21001_i2_a0",  # instance=2 with target i0 → temporal leak
+             "p999999999"],   # unknown field → info
+            target_col="p2443_i0",
+        )
+        for issue in result["issues"]:
+            assert issue["severity"] in {"critical", "warning", "info"}
+
+    def test_domain_breakdown_aggregates_known_columns(self, ukb_codebook):
+        result = ukb_codebook.validate_columns(
+            ["p21001_i0",     # anthropometry
+             "p30750_i0",     # laboratory_biochemistry
+             "p4080_i0_a0"]   # vitals
+        )
+        assert sum(result["domain_breakdown"].values()) == 3
+        assert "anthropometry" in result["domain_breakdown"]
+
+    def test_field_summary_marks_unrecognized_columns(self, ukb_codebook):
+        result = ukb_codebook.validate_columns(["eid", "not_a_ukb_column"])
+        unrecognized = [fs for fs in result["field_summary"]
+                        if not fs.get("recognized")]
+        assert len(unrecognized) == 2
+        # Every entry carries the original column name for debugging.
+        for fs in unrecognized:
+            assert "column" in fs

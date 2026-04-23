@@ -315,6 +315,109 @@ class TestVerifierSilentFailureGuards:
         )
 
 
+class TestL4HtmlParsers:
+    """Offline unit tests for verify_ukb_against_live.py's regex parsers.
+
+    The live-check's field-page cross-check hinges on three regexes
+    that pull Description + Category off UKB's field.cgi HTML. Those
+    parsers were only exercised against live UKB — meaning a subtle
+    UKB front-end change wouldn't surface until someone ran L4 and
+    the results silently made no sense. These tests use offline HTML
+    fixtures so the parsers are covered on every commit.
+    """
+
+    @pytest.fixture
+    def live_module(self):
+        import sys
+        sys.path.insert(0, str(REPO_ROOT / "scripts" / "codebooks"))
+        import verify_ukb_against_live as mod
+        return mod
+
+    def test_desc_re_extracts_title(self, live_module):
+        html = '<tr><td>Description:</td><td>Body mass index (BMI)</td></tr>'
+        m = live_module._DESC_RE.search(html)
+        assert m is not None
+        assert m.group(1).strip() == "Body mass index (BMI)"
+
+    def test_desc_re_misses_when_structure_changes(self, live_module):
+        # If UKB rewrites the HTML (e.g., swap <td> for <th>), this
+        # fixture demonstrates a failure mode — parser returns no match.
+        html = '<tr><th>Description:</th><th>BMI</th></tr>'
+        assert live_module._DESC_RE.search(html) is None
+
+    def test_cat_row_re_finds_category_cell(self, live_module):
+        html = (
+            "<tr><td>Description:</td><td>HbA1c</td></tr>"
+            "<tr><td>Category:</td>"
+            "<td><a href='label.cgi?id=1'>Assessment</a>"
+            " > <a href='label.cgi?id=100010'>Physical</a>"
+            " > <a href='label.cgi?id=17518'>Biochem</a></td></tr>"
+        )
+        m = live_module._CAT_ROW_RE.search(html)
+        assert m is not None
+        cat_cell = m.group(1)
+        assert "label.cgi?id=17518" in cat_cell
+
+    def test_cat_id_re_picks_last_deepest_id(self, live_module):
+        cat_cell = (
+            "<a href='label.cgi?id=1'>Assessment</a> > "
+            "<a href='label.cgi?id=100010'>Physical</a> > "
+            "<a href='label.cgi?id=17518'>Biochem</a>"
+        )
+        ids = live_module._CAT_ID_RE.findall(cat_cell)
+        # The last id is the deepest (most specific) category.
+        assert ids == ["1", "100010", "17518"]
+        assert int(ids[-1]) == 17518
+
+    def test_fetch_field_meta_end_to_end_with_fake_http(self, live_module,
+                                                        monkeypatch):
+        """Simulate a UKB field.cgi response and confirm
+        fetch_field_meta returns the correct (title, cat_id) tuple.
+        """
+        fake_html = (
+            "<html><body><table>"
+            "<tr><td>Description:</td><td>Glycated haemoglobin (HbA1c)</td></tr>"
+            "<tr><td>Units:</td><td>mmol/mol</td></tr>"
+            "<tr><td>Category:</td><td>"
+            "<a href='label.cgi?id=100080'>Assays</a> &gt; "
+            "<a href='label.cgi?id=17518'>Serum biochemistry</a>"
+            "</td></tr>"
+            "</table></body></html>"
+        ).encode("utf-8")
+        monkeypatch.setattr(live_module, "_http", lambda url, timeout=30: fake_html)
+        title, cat_id = live_module.fetch_field_meta(30750)
+        assert title == "Glycated haemoglobin (HbA1c)"
+        assert cat_id == 17518
+
+    def test_fetch_field_meta_missing_category_returns_none_cat(
+        self, live_module, monkeypatch,
+    ):
+        """A field page with no Category row — cat_id must be None,
+        not a crash. Protects against UKB pages that render
+        differently for deprecated or embargoed fields.
+        """
+        fake_html = (
+            "<html><body><table>"
+            "<tr><td>Description:</td><td>Mystery field</td></tr>"
+            "</table></body></html>"
+        ).encode("utf-8")
+        monkeypatch.setattr(live_module, "_http", lambda url, timeout=30: fake_html)
+        title, cat_id = live_module.fetch_field_meta(999999)
+        assert title == "Mystery field"
+        assert cat_id is None
+
+    def test_fetch_field_meta_empty_html_returns_empty_title(
+        self, live_module, monkeypatch,
+    ):
+        """Defensive: a 200 OK with unexpected content — we get
+        empty title + None cat, not an exception.
+        """
+        monkeypatch.setattr(live_module, "_http", lambda url, timeout=30: b"")
+        title, cat_id = live_module.fetch_field_meta(123)
+        assert title == ""
+        assert cat_id is None
+
+
 @pytest.mark.skipif(
     not DB.exists() or os.environ.get("MLGG_UKB_LIVE_CHECK") != "1",
     reason="L4 live UKB check is opt-in; set MLGG_UKB_LIVE_CHECK=1 to run",
