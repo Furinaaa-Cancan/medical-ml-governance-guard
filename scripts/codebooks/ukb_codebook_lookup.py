@@ -503,6 +503,24 @@ class UKBCodebook:
         except (OSError, json.JSONDecodeError):
             return None
 
+    def field_ids_by_risk(self, risk_categories: List[str]) -> List[int]:
+        """Return field_ids whose risk_category is in the given set.
+
+        Used by ``--exclude-risk`` to turn leakage-labeled fields (e.g.
+        ``outcome_derived``, ``death_registry``) into a blocklist for
+        extraction generation. One batch query instead of N per-field
+        lookups.
+        """
+        if not risk_categories:
+            return []
+        conn = self._ensure_conn()
+        placeholders = ",".join("?" * len(risk_categories))
+        rows = conn.execute(
+            f"SELECT field_id FROM fields WHERE risk_category IN ({placeholders})",
+            tuple(risk_categories),
+        ).fetchall()
+        return [r[0] for r in rows]
+
     def generate_field_list(
         self,
         disease: str,
@@ -513,6 +531,7 @@ class UKBCodebook:
         output_path: Optional[Path] = None,
         disease_kb_path: Optional[Path] = None,
         write_provenance: bool = True,
+        exclude_risk: Optional[List[str]] = None,
     ) -> List[str]:
         """Generate a RAP-compatible field list for a disease study.
 
@@ -536,6 +555,13 @@ class UKBCodebook:
                 ``<output_path>.provenance.json`` sidecar documenting which
                 section contributed each field, disease match result, and
                 codebook schema_version. Set False for pristine output only.
+            exclude_risk: List of risk_category values whose fields must be
+                omitted from the output (e.g. ``['outcome_derived',
+                'death_registry', 'hospital_derived']``). Applied AFTER the
+                disease-KB join — definition fields in an excluded
+                risk_category are still dropped, so the resulting .txt is
+                safe to feed into models as feature inputs. The list of
+                dropped field_ids is recorded in the provenance sidecar.
 
         Returns:
             List of RAP column names, one per line, with 'eid' at top.
@@ -543,12 +569,18 @@ class UKBCodebook:
         self._ensure_conn()
         if disease_kb_path is None:
             disease_kb_path = DEFAULT_DISEASE_KB
+        exclude_risk = [r.strip() for r in (exclude_risk or []) if r and r.strip()]
+        excluded_fids = set(self.field_ids_by_risk(exclude_risk))
 
         sections: Dict[str, List[str]] = {"eid": ["eid"]}
+        excluded_hits: List[int] = []  # field_ids actually dropped by --exclude-risk
 
         def add_section(name: str, field_ids: List[int], all_instances: bool) -> None:
             cols: List[str] = []
             for fid in field_ids:
+                if fid in excluded_fids:
+                    excluded_hits.append(fid)
+                    continue
                 cols.extend(
                     self.field_to_rap_names(fid, instance, all_instances=all_instances)
                 )
@@ -609,6 +641,8 @@ class UKBCodebook:
                     "include_outcome_fields": include_outcome_fields,
                     "include_death": include_death,
                     "include_cancer_register": include_cancer_register,
+                    "exclude_risk": sorted(set(exclude_risk)),
+                    "excluded_field_ids": sorted(set(excluded_hits)),
                     "codebook_schema_version":
                         self._source_manifest_version(DEFAULT_SOURCE_MANIFEST),
                     "total_columns": len(unique_lines),
@@ -1044,6 +1078,13 @@ def main() -> int:
                              "Pass a non-existent path to disable the KB join.")
     parser.add_argument("--no-provenance", action="store_true",
                         help="Do not write the <output>.provenance.json sidecar.")
+    parser.add_argument("--exclude-risk", default="",
+                        help="Comma-separated risk_category values to omit from "
+                             "--generate output (e.g. "
+                             "'outcome_derived,death_registry,hospital_derived' "
+                             "for a strictly pre-outcome feature extraction). "
+                             "Applies after the disease-KB join, so definition "
+                             "fields in an excluded category are still dropped.")
     args = parser.parse_args()
 
     cb = UKBCodebook(args.db)
@@ -1075,6 +1116,7 @@ def main() -> int:
 
         if args.generate is not None:
             out = args.output or Path("ukb_baseline_fields.txt")
+            exclude_risk = [s.strip() for s in args.exclude_risk.split(",") if s.strip()]
             fields = cb.generate_field_list(
                 disease=args.generate,
                 instance=args.instance,
@@ -1083,6 +1125,7 @@ def main() -> int:
                 output_path=out,
                 disease_kb_path=args.disease_kb,
                 write_provenance=not args.no_provenance,
+                exclude_risk=exclude_risk,
             )
             _, kb_info = cb._disease_kb_fields(args.generate, args.disease_kb)
             print(f"\n  Disease:    {args.generate}"
@@ -1091,6 +1134,8 @@ def main() -> int:
                      if kb_info.get("matched")
                      else " → no KB match (template-only output)"))
             print(f"  Instance:   {args.instance} (baseline)")
+            if exclude_risk:
+                print(f"  Exclude:    risk_category ∈ {{{', '.join(exclude_risk)}}}")
             print(f"  Fields:     {len(fields)}")
             print(f"  Output:     {out}")
             if not kb_info.get("matched"):

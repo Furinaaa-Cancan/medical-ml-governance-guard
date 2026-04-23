@@ -150,7 +150,12 @@ def classify_field(cid: Optional[int], title: str, private: Optional[int] = None
     _BRAIN_MRI = {100, 110, 111, 112, 119, 190, 191, 192, 193, 194, 195, 196,
                   197, 198, 200, 201, 202, 203, 204, 507, 508, 509,
                   530, 531, 532, 533, 534, 535, 536, 537, 539}
-    _HEART_MRI = {102, 133, 157, 162, 306, 347, 348, 349,
+    # Cardiac-monitoring wearable sub-study cats (347/348/349) were
+    # mistakenly bucketed with cardiac-MRI. They're a separate UKB
+    # sub-study using a portable cardiac monitor device, not MRI.
+    # Removed 2026-04-23 round-6 deep-check; now handled by the
+    # cardiac_monitoring rule below (online_followup risk).
+    _HEART_MRI = {102, 133, 157, 162, 306,
                   523, 524, 525, 526, 527, 528, 529, 538}
     _DXA = {103, 124, 125, 522}
     _ABDOMINAL = {105, 126, 131, 149, 156, 158, 159}
@@ -275,9 +280,27 @@ def classify_field(cid: Optional[int], title: str, private: Optional[int] = None
     if _cat_in(cid, (100068, 100070)):
         return "questionnaire_sex_specific", "baseline"
 
-    # ── Accelerometry ────────────────────────────────────────────────
-    if _cat_in(cid, (1008, 1013), 1020, 267):
-        return "accelerometry", "baseline"
+    # VO2max exercise test (cat 267) is a baseline Assessment-centre
+    # ECG-during-exercise measurement, NOT accelerometry. Was lumped
+    # into the accelerometry rule by mistake. Fixed 2026-04-23.
+    if cid == 267:
+        return "vo2max_exercise", "baseline"
+
+    # ── Accelerometry (POST-BASELINE by mail) ────────────────────────
+    # UKB shipped accelerometers by mail 2013-2015, i.e., several
+    # years AFTER baseline assessment (2006-2010). Using these as
+    # "baseline" features introduces temporal leakage. Classify
+    # as online_followup risk while preserving the accelerometry
+    # domain. Caught 2026-04-23 round-6 deep-check.
+    if _cat_in(cid, (1008, 1013), 1020):
+        return "accelerometry", "online_followup"
+
+    # ── Cardiac-monitoring sub-study (POST-BASELINE) ─────────────────
+    # Cats 347/348/349 are a cardiology follow-up sub-study (ECG and
+    # oscillometry phases 1 & 2), recruited years after baseline.
+    # Same temporal-leakage concern as accelerometry.
+    if _cat_in(cid, 347, 348, 349):
+        return "cardiac_monitoring", "online_followup"
 
     # ── Recruitment / procedural ─────────────────────────────────────
     if _cat_in(cid, 100000, 100001, (100002, 100006), 100021, (100022, 100025),

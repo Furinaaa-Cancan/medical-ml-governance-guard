@@ -268,6 +268,24 @@ _HARD = {
         "'baseline' — they're collected AFTER the baseline visit. "
         "Check the online-followup override in build_ukb_codebook_db.py.",
     ),
+    # 2026-04-23 round-6: accelerometry (cats 1008-1013, 1020) are
+    # POST-BASELINE by mail — UKB shipped accelerometers 2013-2015,
+    # years after baseline (2006-2010). Previously labeled 'baseline'.
+    # 211 fields must now carry online_followup risk.
+    "accelerometry_is_online_followup": (
+        "SELECT COUNT(*) FROM fields WHERE domain='accelerometry' "
+        "AND risk_category='online_followup';",
+        211,
+        "Accelerometry fields must be online_followup, not baseline. "
+        "UKB wore-by-mail device is post-baseline data.",
+    ),
+    "no_accelerometry_baseline": (
+        "SELECT COUNT(*) FROM fields WHERE domain='accelerometry' "
+        "AND risk_category='baseline';",
+        0,
+        "Accelerometry fields must not be risk_category='baseline' — "
+        "leakage-guard would treat post-baseline sensor data as safe.",
+    ),
     # Every field with encoding_id must reference a real encoding.
     # Previous L1 sha-pin catches source corruption; this catches
     # builder-side FK breakage.

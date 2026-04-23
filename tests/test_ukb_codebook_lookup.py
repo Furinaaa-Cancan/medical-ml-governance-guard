@@ -551,3 +551,86 @@ class TestGenerateFieldList:
         prov = _json.loads(out.with_suffix(".txt.provenance.json").read_text())
         assert "p30750_i0" in prov["section_columns"]["laboratory_common"]
         assert "p30750_i0" not in prov["section_columns"].get("disease_kb", [])
+
+
+class TestExcludeRisk:
+    """--exclude-risk drops field_ids whose risk_category is blocklisted."""
+
+    def test_field_ids_by_risk_returns_expected_shape(self, ukb_codebook):
+        # Must return only field_ids matching the risk set — no NULLs, no junk.
+        fids = ukb_codebook.field_ids_by_risk(["death_registry"])
+        assert fids, "death_registry must yield >=1 field"
+        assert all(isinstance(f, int) for f in fids)
+        # Sanity: 40000 (Date of death) is the canonical death_registry field
+        assert 40000 in fids
+
+    def test_empty_risk_list_returns_empty(self, ukb_codebook):
+        assert ukb_codebook.field_ids_by_risk([]) == []
+
+    def test_exclude_outcome_derived_drops_first_occurrence(self, ukb_codebook, tmp_path):
+        # T2D definition fields include 130708 (E11 first occurrence,
+        # risk=outcome_derived). With --exclude-risk outcome_derived, it
+        # must disappear from the extraction.
+        out = tmp_path / "clean.txt"
+        fields = ukb_codebook.generate_field_list(
+            "type_2_diabetes",
+            output_path=out,
+            exclude_risk=["outcome_derived"],
+        )
+        assert "p130708" not in fields, "E11 first-occurrence must be excluded"
+        # Baseline labs / anthropometry / BP still there
+        assert "p21001_i0" in fields   # BMI
+        assert "p30750_i0" in fields   # HbA1c (risk=baseline)
+        assert "p4080_i0_a0" in fields  # Systolic BP
+
+    def test_exclude_cascade_death_hospital_outcome(self, ukb_codebook, tmp_path):
+        # Typical "clean feature extraction" invocation: drop all three
+        # post-baseline outcome families at once.
+        out = tmp_path / "feat.txt"
+        fields = ukb_codebook.generate_field_list(
+            "type_2_diabetes",
+            output_path=out,
+            exclude_risk=["outcome_derived", "death_registry", "hospital_derived"],
+        )
+        for excluded in ["p40000_i0", "p40001_i0", "p41270", "p41272",
+                         "p41280", "p41282", "p130708", "p130709"]:
+            assert excluded not in fields, f"{excluded} must be excluded"
+
+    def test_exclude_is_recorded_in_provenance(self, ukb_codebook, tmp_path):
+        out = tmp_path / "prov.txt"
+        ukb_codebook.generate_field_list(
+            "type_2_diabetes",
+            output_path=out,
+            exclude_risk=["outcome_derived", "death_registry"],
+        )
+        import json as _json
+        prov = _json.loads(out.with_suffix(".txt.provenance.json").read_text())
+        assert prov["exclude_risk"] == ["death_registry", "outcome_derived"]
+        assert 40000 in prov["excluded_field_ids"]
+        assert 130708 in prov["excluded_field_ids"]
+
+    def test_exclude_unknown_risk_label_noops(self, ukb_codebook, tmp_path):
+        # Passing a risk_category that doesn't exist should silently do nothing,
+        # not crash. Protects against typos like "outcome_derivd".
+        out_a = tmp_path / "baseline.txt"
+        out_b = tmp_path / "typo.txt"
+        baseline = ukb_codebook.generate_field_list(
+            "type_2_diabetes", output_path=out_a,
+        )
+        with_typo = ukb_codebook.generate_field_list(
+            "type_2_diabetes", output_path=out_b,
+            exclude_risk=["outcome_derivd"],  # typo
+        )
+        assert baseline == with_typo
+
+    def test_exclude_risk_does_not_affect_eid(self, ukb_codebook, tmp_path):
+        # Even with aggressive exclusion the `eid` column must stay — it's
+        # the primary key, RAP extraction is useless without it.
+        out = tmp_path / "eid.txt"
+        fields = ukb_codebook.generate_field_list(
+            "type_2_diabetes",
+            output_path=out,
+            exclude_risk=["outcome_derived", "death_registry", "hospital_derived",
+                          "online_followup", "imaging", "genomics"],
+        )
+        assert fields[0] == "eid"
