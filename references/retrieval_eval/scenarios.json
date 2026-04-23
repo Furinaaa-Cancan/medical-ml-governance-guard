@@ -255,6 +255,108 @@
         "validation_imputation",
         "feature_engineering_opaque"
       ]
+    },
+    {
+      "scenario_id": "tuning_hyperparameter_on_test_set",
+      "description": "Paper reports a grid search over 200+ hyperparameter combinations with the best configuration selected by test-set AUROC. Classic tuning-leakage pattern — the test set becomes a validation set by proxy, inflating reported performance. Real reviewer critique across multiple NC papers.",
+      "gate_name": "tuning_leakage_gate",
+      "failure_codes": [
+        "tuning_on_test_set_detected",
+        "hyperparameter_search_uses_test",
+        "no_nested_cv_protocol"
+      ],
+      "expected_categories": ["model_selection", "data_leakage"],
+      "expected_tags": [
+        "hyperparameter_tuning",
+        "hyperparameters_missing",
+        "hyperparameter_reporting",
+        "model_selection_on_test",
+        "tuning_set_size",
+        "cv_strategy_unspecified",
+        "multiple_testing"
+      ]
+    },
+    {
+      "scenario_id": "ci_missing_or_suspiciously_narrow",
+      "description": "Primary metric (AUROC=0.912) reported as point estimate only, or with a suspiciously narrow CI [0.910, 0.914] on a 500-patient cohort — violates the discriminative-measure CI reporting requirement and suggests either no bootstrap or insufficient resamples. Frequent reviewer-level-1 concern.",
+      "gate_name": "ci_matrix_gate",
+      "failure_codes": [
+        "primary_metric_ci_missing",
+        "ci_width_suspiciously_narrow",
+        "bootstrap_iterations_insufficient"
+      ],
+      "expected_categories": ["evaluation_metrics", "reporting"],
+      "expected_tags": [
+        "missing_ci",
+        "no_bootstrap_ci",
+        "suspiciously_narrow_ci",
+        "bootstrap_vs_model_uncertainty",
+        "incomplete_metrics"
+      ]
+    },
+    {
+      "scenario_id": "fairness_subgroup_performance_gap",
+      "description": "Model reports overall AUROC=0.85 but disaggregated analysis shows female+non-white subgroup AUROC=0.71, never addressed in the paper. Subgroup-performance disparity is called out explicitly by reviewers for any clinical-deployment claim.",
+      "gate_name": "fairness_equity_gate",
+      "failure_codes": [
+        "subgroup_performance_gap_detected",
+        "demographic_parity_violated",
+        "fairness_analysis_missing"
+      ],
+      "expected_categories": ["study_design", "reporting", "clinical_utility"],
+      "expected_tags": [
+        "subgroup_analysis",
+        "subgroup_analysis_missing",
+        "subgroup_performance",
+        "subgroup_by_treatment",
+        "fairness",
+        "ethnicity_data",
+        "ancestry_mismatch",
+        "small_subgroups",
+        "missing_demographics",
+        "generalizability_limited",
+        "portability"
+      ]
+    },
+    {
+      "scenario_id": "sample_size_epv_violated",
+      "description": "Multivariable logistic regression with 15 predictors trained on 380 patients and 42 positive outcomes — EPV = 2.8, far below Riley et al. 2019 minimum. No a priori sample-size justification. Peeking at test-AUROC for 'feasibility' is not a substitute.",
+      "gate_name": "sample_size_gate",
+      "failure_codes": [
+        "epv_below_threshold",
+        "no_sample_size_calculation",
+        "riley_criteria_violated"
+      ],
+      "expected_categories": ["sample_size", "study_design"],
+      "expected_tags": [
+        "epv_violation",
+        "underpowered",
+        "sample_size_insufficient",
+        "no_power_calculation",
+        "small_sample",
+        "small_subgroups"
+      ]
+    },
+    {
+      "scenario_id": "interpretability_shap_shallow",
+      "description": "SHAP plot shown for top-10 features with no per-subgroup analysis, no axis labels on the beeswarm, no sanity check against domain knowledge. 'We used SHAP' ≠ interpretable model — classic reviewer pushback in NC AI papers.",
+      "gate_name": "shap_interpretability_gate",
+      "failure_codes": [
+        "shap_interpretation_shallow",
+        "no_domain_knowledge_sanity_check",
+        "shap_presentation_incomplete"
+      ],
+      "expected_categories": ["interpretability"],
+      "expected_tags": [
+        "shap_interpretation_shallow",
+        "shap_presentation",
+        "shap_requested",
+        "feature_importance",
+        "explainability_missing",
+        "explainability_insufficient",
+        "interpretability_claim_unsupported",
+        "multi_model_shap"
+      ]
     }
   ]
 }

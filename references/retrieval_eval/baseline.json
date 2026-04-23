@@ -1032,12 +1032,367 @@
           "retrieval_mode": "keyword_match"
         }
       ]
+    },
+    {
+      "scenario_id": "tuning_hyperparameter_on_test_set",
+      "description": "Paper reports a grid search over 200+ hyperparameter combinations with the best configuration selected by test-set AUROC. Classic tuning-leakage pattern \u2014 the test set becomes a validation set by proxy, inflating reported performance. Real reviewer critique across multiple NC papers.",
+      "gate_name": "tuning_leakage_gate",
+      "retrieved_count": 4,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.429,
+      "matched_expected_categories": [
+        "data_leakage"
+      ],
+      "matched_expected_tags": [
+        "cv_strategy_unspecified",
+        "model_selection_on_test",
+        "multiple_testing"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-111-C01",
+          "paper_id": "PR-111",
+          "severity": "CRITICAL",
+          "category": "split_protocol",
+          "tags": [
+            "test_set_reuse",
+            "multiple_testing",
+            "model_selection_on_test",
+            "single_split"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-114-C04",
+          "paper_id": "PR-114",
+          "severity": "MEDIUM",
+          "category": "sample_size",
+          "tags": [
+            "underpowered",
+            "sample_size_justification",
+            "tuning_leakage",
+            "multi_cohort_refit"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-113-C01",
+          "paper_id": "PR-113",
+          "severity": "CRITICAL",
+          "category": "split_protocol",
+          "tags": [
+            "cv_strategy_unspecified",
+            "smote_before_split",
+            "data_split_ambiguous",
+            "leakage_risk"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-010-C01",
+          "paper_id": "PR-010",
+          "severity": "CRITICAL",
+          "category": "data_leakage",
+          "tags": [
+            "temporal_leakage",
+            "bidirectional_rnn_leakage",
+            "future_data_used",
+            "critical_flaw"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
+    },
+    {
+      "scenario_id": "ci_missing_or_suspiciously_narrow",
+      "description": "Primary metric (AUROC=0.912) reported as point estimate only, or with a suspiciously narrow CI [0.910, 0.914] on a 500-patient cohort \u2014 violates the discriminative-measure CI reporting requirement and suggests either no bootstrap or insufficient resamples. Frequent reviewer-level-1 concern.",
+      "gate_name": "ci_matrix_gate",
+      "retrieved_count": 5,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.6,
+      "matched_expected_categories": [
+        "evaluation_metrics"
+      ],
+      "matched_expected_tags": [
+        "bootstrap_vs_model_uncertainty",
+        "no_bootstrap_ci",
+        "suspiciously_narrow_ci"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-035-C05",
+          "paper_id": "PR-035",
+          "severity": "MEDIUM",
+          "category": "evaluation_metrics",
+          "tags": [
+            "suspiciously_narrow_ci",
+            "iterative_testing",
+            "multiple_testing"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-029-C02",
+          "paper_id": "PR-029",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "single_split",
+            "no_bootstrap_ci",
+            "cherry_picking_risk"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-106-C02",
+          "paper_id": "PR-106",
+          "severity": "MEDIUM",
+          "category": "evaluation_metrics",
+          "tags": [
+            "bootstrap_vs_model_uncertainty",
+            "time_to_event_vs_binary",
+            "prediction_window_justification"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-009-C02",
+          "paper_id": "PR-009",
+          "severity": "MEDIUM",
+          "category": "evaluation_metrics",
+          "tags": [
+            "bootstrap_vs_model_uncertainty",
+            "time_to_event_vs_binary"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-109-C06",
+          "paper_id": "PR-109",
+          "severity": "LOW",
+          "category": "evaluation_metrics",
+          "tags": [
+            "ci_reporting",
+            "bootstrap_needed"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
+    },
+    {
+      "scenario_id": "fairness_subgroup_performance_gap",
+      "description": "Model reports overall AUROC=0.85 but disaggregated analysis shows female+non-white subgroup AUROC=0.71, never addressed in the paper. Subgroup-performance disparity is called out explicitly by reviewers for any clinical-deployment claim.",
+      "gate_name": "fairness_equity_gate",
+      "retrieved_count": 2,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.545,
+      "matched_expected_categories": [
+        "study_design"
+      ],
+      "matched_expected_tags": [
+        "ancestry_mismatch",
+        "fairness",
+        "generalizability_limited",
+        "missing_demographics",
+        "portability",
+        "subgroup_analysis_missing"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-111-C05",
+          "paper_id": "PR-111",
+          "severity": "MEDIUM",
+          "category": "study_design",
+          "tags": [
+            "subgroup_analysis_missing",
+            "confounding",
+            "fairness",
+            "missing_demographics"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-109-C02",
+          "paper_id": "PR-109",
+          "severity": "HIGH",
+          "category": "external_validation",
+          "tags": [
+            "ancestry_mismatch",
+            "generalizability_limited",
+            "portability"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
+    },
+    {
+      "scenario_id": "sample_size_epv_violated",
+      "description": "Multivariable logistic regression with 15 predictors trained on 380 patients and 42 positive outcomes \u2014 EPV = 2.8, far below Riley et al. 2019 minimum. No a priori sample-size justification. Peeking at test-AUROC for 'feasibility' is not a substitute.",
+      "gate_name": "sample_size_gate",
+      "retrieved_count": 5,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.667,
+      "matched_expected_categories": [
+        "sample_size"
+      ],
+      "matched_expected_tags": [
+        "epv_violation",
+        "sample_size_insufficient",
+        "small_sample",
+        "underpowered"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-012-C07",
+          "paper_id": "PR-012",
+          "severity": "MEDIUM",
+          "category": "sample_size",
+          "tags": [
+            "small_sample",
+            "sensitivity_analysis_for_size"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-056-C02",
+          "paper_id": "PR-056",
+          "severity": "HIGH",
+          "category": "sample_size",
+          "tags": [
+            "tiny_sample_size",
+            "underpowered",
+            "proof_of_concept"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-108-C02",
+          "paper_id": "PR-108",
+          "severity": "HIGH",
+          "category": "sample_size",
+          "tags": [
+            "small_sample",
+            "underpowered",
+            "epv_violation"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-006-C08",
+          "paper_id": "PR-006",
+          "severity": "MEDIUM",
+          "category": "sample_size",
+          "tags": [
+            "sample_size_insufficient",
+            "power_analysis",
+            "overstatement"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-114-C04",
+          "paper_id": "PR-114",
+          "severity": "MEDIUM",
+          "category": "sample_size",
+          "tags": [
+            "underpowered",
+            "sample_size_justification",
+            "tuning_leakage",
+            "multi_cohort_refit"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
+    },
+    {
+      "scenario_id": "interpretability_shap_shallow",
+      "description": "SHAP plot shown for top-10 features with no per-subgroup analysis, no axis labels on the beeswarm, no sanity check against domain knowledge. 'We used SHAP' \u2260 interpretable model \u2014 classic reviewer pushback in NC AI papers.",
+      "gate_name": "shap_interpretability_gate",
+      "retrieved_count": 5,
+      "coverage": 1.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.75,
+      "matched_expected_categories": [
+        "interpretability"
+      ],
+      "matched_expected_tags": [
+        "explainability_missing",
+        "feature_importance",
+        "multi_model_shap",
+        "shap_interpretation_shallow",
+        "shap_presentation",
+        "shap_requested"
+      ],
+      "top_k_summary": [
+        {
+          "concern_id": "PR-011-C03",
+          "paper_id": "PR-011",
+          "severity": "MEDIUM",
+          "category": "interpretability",
+          "tags": [
+            "shap_interpretation_shallow",
+            "ecg_feature_meaning",
+            "positive_negative_examples"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-001-C07",
+          "paper_id": "PR-001",
+          "severity": "MEDIUM",
+          "category": "interpretability",
+          "tags": [
+            "shap_presentation",
+            "multi_model_shap"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-101-C05",
+          "paper_id": "PR-101",
+          "severity": "MEDIUM",
+          "category": "interpretability",
+          "tags": [
+            "shap_requested",
+            "feature_importance",
+            "explainability_missing"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-001-C08",
+          "paper_id": "PR-001",
+          "severity": "HIGH",
+          "category": "interpretability",
+          "tags": [
+            "clinical_interpretation",
+            "subgroup_analysis",
+            "mechanistic_insight"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-003-C07",
+          "paper_id": "PR-003",
+          "severity": "MEDIUM",
+          "category": "interpretability",
+          "tags": [
+            "shap_requested",
+            "feature_importance"
+          ],
+          "retrieval_mode": "keyword_match"
+        }
+      ]
     }
   ],
   "aggregate": {
-    "total_scenarios": 13,
+    "total_scenarios": 18,
     "coverage_rate": 1.0,
     "hit_at_k_rate": 1.0,
-    "mean_tag_precision": 0.603
+    "mean_tag_precision": 0.601
   }
 }
