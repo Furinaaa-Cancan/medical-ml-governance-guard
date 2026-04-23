@@ -10,27 +10,15 @@
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.167,
+      "tag_precision": 0.333,
       "matched_expected_categories": [
         "data_leakage"
       ],
       "matched_expected_tags": [
+        "target_leakage",
         "temporal_leakage"
       ],
       "top_k_summary": [
-        {
-          "concern_id": "PR-006-C01",
-          "paper_id": "PR-006",
-          "severity": "CRITICAL",
-          "category": "data_leakage",
-          "tags": [
-            "same_data_gwas_and_prs",
-            "overfitting",
-            "optimism_bias",
-            "discovery_validation_overlap"
-          ],
-          "retrieval_mode": "severity_fallback"
-        },
         {
           "concern_id": "PR-010-C01",
           "paper_id": "PR-010",
@@ -42,20 +30,19 @@
             "future_data_used",
             "critical_flaw"
           ],
-          "retrieval_mode": "severity_fallback"
+          "retrieval_mode": "keyword_match"
         },
         {
-          "concern_id": "PR-111-C01",
-          "paper_id": "PR-111",
-          "severity": "CRITICAL",
-          "category": "split_protocol",
+          "concern_id": "PR-109-C01",
+          "paper_id": "PR-109",
+          "severity": "HIGH",
+          "category": "data_leakage",
           "tags": [
-            "test_set_reuse",
-            "multiple_testing",
-            "model_selection_on_test",
-            "single_split"
+            "sample_overlap",
+            "target_leakage",
+            "training_test_overlap"
           ],
-          "retrieval_mode": "severity_fallback"
+          "retrieval_mode": "keyword_match"
         },
         {
           "concern_id": "PR-113-C01",
@@ -68,19 +55,32 @@
             "data_split_ambiguous",
             "leakage_risk"
           ],
-          "retrieval_mode": "severity_fallback"
+          "retrieval_mode": "keyword_match"
         },
         {
-          "concern_id": "PR-002-C05",
-          "paper_id": "PR-002",
-          "severity": "HIGH",
-          "category": "split_protocol",
+          "concern_id": "PR-110-C04",
+          "paper_id": "PR-110",
+          "severity": "MEDIUM",
+          "category": "preprocessing",
           "tags": [
-            "patient_level_split",
-            "split_unit_unclear",
-            "potential_patient_overlap"
+            "class_imbalance",
+            "resampling_distortion",
+            "imbalance_policy_gate"
           ],
-          "retrieval_mode": "severity_fallback"
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-006-C01",
+          "paper_id": "PR-006",
+          "severity": "CRITICAL",
+          "category": "data_leakage",
+          "tags": [
+            "same_data_gwas_and_prs",
+            "overfitting",
+            "optimism_bias",
+            "discovery_validation_overlap"
+          ],
+          "retrieval_mode": "keyword_match"
         }
       ]
     },
@@ -251,6 +251,6 @@
     "total_scenarios": 3,
     "coverage_rate": 1.0,
     "hit_at_k_rate": 1.0,
-    "mean_tag_precision": 0.556
+    "mean_tag_precision": 0.611
   }
 }

@@ -98,6 +98,39 @@ TAG_SYNONYMS: Dict[str, List[str]] = {
     "no_bootstrap": ["missing_ci", "no_bootstrap_ci", "suspiciously_narrow_ci", "single_split"],
     "temporal_leak": ["temporal_leakage", "temporal_split_missing", "future_data_used", "future_information_leakage", "bidirectional_rnn_leakage"],
     "label_leakage": ["target_leakage", "definition_variable", "feature_is_outcome_proxy", "circular_prediction", "outcome_defined_by_features"],
+    # Discharge-finalized ICD / post-index code / POA-absent failure codes
+    # from leakage_gate. Failure-code tokens (discharge, finalized, icd,
+    # feature) do not overlap any KB tag, so without these synonyms the
+    # retrieval falls back to severity-only ranking and scenario precision
+    # sits at 0.167 (baseline captured 2026-04-23). Entries below map the
+    # failure codes — and a handful of adjacent phrasings reviewers use —
+    # onto the KB tag family that actually describes outcome-in-feature
+    # and temporal leakage.
+    "discharge_finalized_icd_as_feature": [
+        "feature_is_outcome_proxy", "future_information_leakage",
+        "outcome_defined_by_features", "circular_prediction",
+        "target_leakage", "temporal_leakage", "definition_variable",
+    ],
+    "discharge_finalized_icd": [
+        "feature_is_outcome_proxy", "future_information_leakage",
+        "outcome_defined_by_features", "circular_prediction",
+    ],
+    "suspicious_feature_names": [
+        "feature_is_outcome_proxy", "outcome_defined_by_features",
+        "target_leakage", "definition_variable",
+    ],
+    "immortal_time_bias_pattern": [
+        "future_information_leakage", "temporal_leakage",
+        "survivor_bias", "target_leakage",
+    ],
+    "post_index_code": [
+        "feature_is_outcome_proxy", "future_information_leakage",
+        "temporal_leakage", "future_data_used",
+    ],
+    "poa_absent": [
+        "feature_is_outcome_proxy", "outcome_defined_by_features",
+        "target_leakage",
+    ],
     "no_reproducibility": ["no_code_availability", "reproducibility", "irreproducible_methods", "code_as_pdf", "weights_not_shared", "broken_github_link"],
     "confounding": ["confounders", "missing_confounder", "confounders_undisclosed", "confounding_by_gender", "confounding_unadjusted", "covariate_adjustment_one_size_fits_all"],
     "overstatement": ["overstatement", "overclaimed", "overclaimed_novelty", "overclaimed_improvement", "overclaimed_public_health", "title_overstatement"],
