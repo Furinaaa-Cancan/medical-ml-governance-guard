@@ -169,6 +169,15 @@ register_remediations({
     "CODEBOOK_DEFINITION_VARIABLE":
         "Feature is a definition variable for the target disease. Using it as "
         "a predictor constitutes circular reasoning (label leakage).",
+    "CODEBOOK_PHI_IDENTIFIER_AS_FEATURE":
+        "Feature is a direct PHI identifier (e.g., date of birth, full "
+        "postcode, home coordinates). Using it violates participant privacy "
+        "AND creates identifiability leakage (coordinates ≈ SES proxy). "
+        "Auto-excluded from feature set.",
+    "CODEBOOK_EMBARGOED_FIELD":
+        "Feature is an EMBARGOED future-release placeholder with no actual "
+        "data. Using it feeds empty columns to the model. Auto-excluded "
+        "from feature set.",
     "COHORT_CASCADE_UNDOCUMENTED":
         "No inclusion/exclusion cascade provided in --cohort-spec. "
         "Retrospective cohorts must document the filter cascade (CONSORT-style) "
@@ -1718,12 +1727,17 @@ def main() -> int:
                         add_issue(failures, issue["code"], issue["message"], issue["details"])
                     rag_issues.extend(task_issues)
 
-            # Extract columns flagged as CRITICAL (outcome/death/definition)
-            # and auto-add to definition_cols for downstream exclusion.
+            # Extract columns flagged as CRITICAL (outcome/death/definition
+            # /PHI identifier/embargoed) and auto-add to definition_cols for
+            # downstream exclusion. Added PHI + embargoed 2026-04-23
+            # round-7 — without this, UKB date-of-birth and EMBARGOED
+            # placeholders would silently pass through feature selection.
             _auto_exclude = set()
             for issue in rag_issues:
                 if issue["code"] in ("CODEBOOK_OUTCOME_AS_FEATURE",
-                                     "CODEBOOK_DEFINITION_VARIABLE"):
+                                     "CODEBOOK_DEFINITION_VARIABLE",
+                                     "CODEBOOK_PHI_IDENTIFIER_AS_FEATURE",
+                                     "CODEBOOK_EMBARGOED_FIELD"):
                     col = issue.get("details", {}).get("column", "")
                     if col and col in df.columns:
                         _auto_exclude.add(col)

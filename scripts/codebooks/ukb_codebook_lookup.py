@@ -175,8 +175,32 @@ class UKBCodebook:
 
     # ── Full-text search ─────────────────────────────────────────────────
 
+    # Columns returned by search() / resolve-alias fallbacks — kept in
+    # one place so both code paths emit identical row shapes. Written
+    # without a table alias; search() prefixes with `f.` where needed.
+    _SEARCH_COLS = (
+        "field_id, title, value_type, units, domain, "
+        "num_participants, main_category"
+    )
+
     def search(self, query: str, limit: int = 20) -> List[Dict[str, Any]]:
-        """Search fields by keyword using FTS5."""
+        """Search fields by keyword using FTS5, with canonical-match promotion.
+
+        FTS5 BM25 alone gives the wrong answer for canonical medical
+        acronyms. E.g., 'hba1c' returns 30755 (missing reason) / 30751
+        (assay date) / 30754 (correction reason) ahead of 30750 (the
+        actual HbA1c measurement) — every field's title contains the
+        same 'Glycated haemoglobin (HbA1c)' prefix and BM25 doesn't
+        know which one the user means.
+
+        Fix: post-sort FTS5 results into priority tiers:
+          0. aliases-table hit for the query term (explicit curation)
+          1. field.title equals the query (case-insensitive)
+          2. query is a prefix of title AND title is short (< 40 chars)
+          3. everything else — original BM25 order preserved
+
+        Ties within a tier keep BM25's ordering (Python sort is stable).
+        """
         conn = self._ensure_conn()
         # Sanitize FTS query: strip punctuation and FTS5 operators
         _FTS_OPERATORS = {"AND", "OR", "NOT", "NEAR"}
@@ -187,16 +211,48 @@ class UKBCodebook:
         if not safe_query:
             return []
 
+        fts_cols = ", ".join(f"f.{c}" for c in self._SEARCH_COLS.split(", "))
         rows = conn.execute(
-            "SELECT f.field_id, f.title, f.value_type, f.units, f.domain, "
-            "f.num_participants, f.main_category "
+            f"SELECT {fts_cols} "
             "FROM fields_fts fts "
             "JOIN fields f ON f.field_id = fts.rowid "
             "WHERE fields_fts MATCH ? "
             "ORDER BY rank LIMIT ?",
             (safe_query, limit),
         ).fetchall()
-        return [dict(r) for r in rows]
+        results = [dict(r) for r in rows]
+
+        # ── Promotion layer ──────────────────────────────────────────
+        query_norm = query.lower().strip()
+        alias_fid = self.resolve_alias(query_norm)
+
+        # Alias hit not in BM25 top-N? Fetch and prepend it so the
+        # curated mapping is never buried below irrelevant noise.
+        if alias_fid is not None and not any(
+            r["field_id"] == alias_fid for r in results
+        ):
+            extra = conn.execute(
+                f"SELECT {self._SEARCH_COLS} FROM fields WHERE field_id = ?",
+                (alias_fid,),
+            ).fetchone()
+            if extra:
+                results.insert(0, dict(extra))
+
+        def _priority(r: Dict[str, Any]) -> Tuple[int, int]:
+            title = (r.get("title") or "").lower()
+            fid = r.get("field_id")
+            if alias_fid is not None and fid == alias_fid:
+                return (0, 0)
+            if title == query_norm:
+                return (1, len(title))
+            if title.startswith(query_norm) and len(title) < 40:
+                return (2, len(title))
+            if query_norm in title and len(title) < 40:
+                return (3, len(title))
+            return (4, 0)
+
+        results.sort(key=_priority)
+        return results[:limit]
 
     # ── Column validation for leakage detection ──────────────────────────
 
@@ -793,6 +849,44 @@ class UKBCodebook:
                     "message": (
                         f"Column '{col}' ({title}) is from online follow-up "
                         f"(risk=online_followup). This is post-baseline data collection."
+                    ),
+                    "details": {
+                        "column": col, "field_id": fid,
+                        "domain": domain, "risk_category": risk,
+                    },
+                })
+            elif risk == "identifier_direct":
+                # UKB private=1 fields: date of birth, full postcode,
+                # home coordinates, etc. Using these as features is a
+                # privacy violation AND a leakage source (DOB ≈ age,
+                # coordinates ≈ SES proxy — both correlate with many
+                # outcomes). Added 2026-04-23 round-7 deep-check after
+                # finding the validator had no handler.
+                issues.append({
+                    "code": "CODEBOOK_PHI_IDENTIFIER_AS_FEATURE",
+                    "message": (
+                        f"Column '{col}' ({title}) is a direct PHI identifier "
+                        f"(risk=identifier_direct, domain={domain}). Remove from "
+                        f"the feature set — using it violates participant privacy "
+                        f"and creates identifiability leakage."
+                    ),
+                    "details": {
+                        "column": col, "field_id": fid,
+                        "domain": domain, "risk_category": risk,
+                    },
+                })
+            elif risk == "embargoed":
+                # UKB 'EMBARGOED' prefix fields are placeholders for
+                # pre-announced future releases (DXA, rfMRI surfaces,
+                # etc.). No real data, using as feature means feeding
+                # empty columns to the model. Added 2026-04-23 round-7.
+                issues.append({
+                    "code": "CODEBOOK_EMBARGOED_FIELD",
+                    "message": (
+                        f"Column '{col}' ({title}) is an EMBARGOED "
+                        f"future-release placeholder (risk=embargoed). "
+                        f"This field has no data yet — remove from the "
+                        f"feature set or wait for UKB to release it."
                     ),
                     "details": {
                         "column": col, "field_id": fid,

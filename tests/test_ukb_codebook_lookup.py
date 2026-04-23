@@ -143,6 +143,38 @@ class TestUKBValidateColumnsForGate:
                                       "CODEBOOK_TEMPORAL_LEAKAGE")]
         assert len(critical) == 0
 
+    def test_phi_identifier_flagged(self, ukb_codebook):
+        """UKB private=1 PHI fields must trip the privacy/leakage flag.
+
+        Field 33 = Date of birth (private=1). Year of birth (34) is
+        deliberately coarsened by UKB and NOT private=1 — that's the
+        public safe version. Field 20033 = Home location east coord
+        (private=1, identifier_location).
+        """
+        issues = ukb_codebook.validate_columns_for_gate(
+            column_names=["p33", "p20033", "p21001_i0_a0"],
+            target_col="p2443_i0",
+        )
+        phi = [i for i in issues if i["code"] == "CODEBOOK_PHI_IDENTIFIER_AS_FEATURE"]
+        flagged_fids = {i["details"]["field_id"] for i in phi}
+        assert 33 in flagged_fids, "Date of birth must raise PHI leakage"
+        assert 20033 in flagged_fids, "Home coordinate must raise PHI leakage"
+        for i in phi:
+            assert i["details"]["risk_category"] == "identifier_direct"
+
+    def test_accelerometry_flagged_as_followup(self, ukb_codebook):
+        """Accelerometry fields were previously baseline — now online_followup.
+
+        Regression guard for 2026-04-23 round-6 fix (211 fields moved).
+        """
+        issues = ukb_codebook.validate_columns_for_gate(
+            column_names=["p90012_i0", "p21001_i0_a0"],  # accelerometry + BMI
+            target_col="p2443_i0",
+        )
+        fu = [i for i in issues if i["code"] == "CODEBOOK_DERIVED_OUTCOME_FIELD"
+              and i["details"]["risk_category"] == "online_followup"]
+        assert len(fu) >= 1, "Accelerometry must be flagged online_followup"
+
 
 class TestUKBEncodingCheck:
 
