@@ -375,9 +375,11 @@ _CEILINGS = {
     # categories that need mapping in classify_field().
     "unclassified_domain_other": (
         "SELECT COUNT(*) FROM fields WHERE domain='other';",
-        20,
+        5,
         "Unclassified fields (domain='other') rising — extend "
-        "classify_field() with new UKB sub-category ids.",
+        "classify_field() with new UKB sub-category ids. 2026-04-23 "
+        "round-7 drove this to 0 by mapping cats 147/100061/100073/"
+        "100077/100095.",
     ),
     # Note: removed the "alias_thinness" ceiling — the check direction
     # was inverted (growth is GOOD, not a warning). Floor enforced in

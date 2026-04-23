@@ -240,7 +240,9 @@ def classify_field(cid: Optional[int], title: str, private: Optional[int] = None
     if cid == 1511:
         return "covid_selfreport", "outcome_derived"
     # Mental health
-    if _cat_in(cid, (136, 146), (1500, 1513), 100060):
+    # Cat 147 (Happiness and subjective well-being, online follow-up).
+    # The online-followup tree override promotes risk separately.
+    if _cat_in(cid, (136, 146), 147, (1500, 1513), 100060):
         return "questionnaire_mental_health", "baseline"
     # Lifestyle
     if _cat_in(cid, 100050, 100051, 100052, 100053, 100054, 100055, 100056,
@@ -252,12 +254,21 @@ def classify_field(cid: Optional[int], title: str, private: Optional[int] = None
                132, 153, 154, 160, 1003):
         return "questionnaire_medical", "baseline"
     # Cognitive
+    # Cat 100077 = Word production (pilot). Deep-check 2026-04-23.
     if _cat_in(cid, (116, 122), (501, 506), 709, 100026, (100027, 100032),
-               1358, 161, 11090):
+               100077, 1358, 161, 11090):
         return "questionnaire_cognitive", "baseline"
     # Family / early life
     if _cat_in(cid, 100033, 100034, 214, 1002, 708):
         return "questionnaire_family", "baseline"
+    # Psychosocial (social support), baseline touchscreen.
+    # Deep-check 2026-04-23: cat 100061 had 4 fields stuck in 'other'.
+    if cid == 100061:
+        return "questionnaire_psychosocial", "baseline"
+    # Employment / job codes (baseline verbal interview).
+    # Deep-check 2026-04-23: cat 100073 had 3 fields stuck in 'other'.
+    if cid == 100073:
+        return "questionnaire_employment", "baseline"
     # ── Cat 2 participant admin — lost-to-follow-up & contact log ────
     # Cat 2 = Population characteristics > Ongoing characteristics.
     # This is the cohort attrition outcome (fields 190/191) and the
@@ -303,8 +314,10 @@ def classify_field(cid: Optional[int], title: str, private: Optional[int] = None
         return "cardiac_monitoring", "online_followup"
 
     # ── Recruitment / procedural ─────────────────────────────────────
+    # Cat 100095 = Urine sample collection (sample timestamps /
+    # no-sample reason). Deep-check 2026-04-23.
     if _cat_in(cid, 100000, 100001, (100002, 100006), 100021, (100022, 100025),
-               100004, 100094, 100096, 100097, 100078, (100084, 100088),
+               100004, 100094, 100095, 100096, 100097, 100078, (100084, 100088),
                152, 129, 130, 164, 148, 127):
         return "procedural", "baseline"
 

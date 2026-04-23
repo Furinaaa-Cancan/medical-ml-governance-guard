@@ -96,6 +96,57 @@ class TestUKBLookup:
     def test_variable_count(self, ukb_codebook):
         assert ukb_codebook.variable_count > 0
 
+    # ── Search canonical-match promotion ────────────────────────────
+    # FTS5 BM25 alone buried canonical fields behind peripheral ones:
+    # 'hba1c' returned 30755 (missing reason) / 30751 (assay date) /
+    # 30754 (correction reason) before 30750 (the actual HbA1c
+    # measurement). These regressions pin the alias + exact-title
+    # promotion so that canonical acronyms always surface first.
+
+    def test_search_hba1c_promotes_canonical_field(self, ukb_codebook):
+        results = ukb_codebook.search("hba1c", limit=5)
+        assert results, "must return >=1 result"
+        assert results[0]["field_id"] == 30750, (
+            "Canonical HbA1c field (30750) must be top; was "
+            f"{results[0]['field_id']} {results[0]['title']!r}. "
+            "Alias-promotion layer regressed."
+        )
+
+    def test_search_bmi_promotes_21001_not_23104(self, ukb_codebook):
+        # Both 21001 (baseline BMI) and 23104 (imaging-derived BMI)
+        # carry the exact title 'Body mass index (BMI)'. The alias
+        # explicitly maps BMI -> 21001, so that curation must win.
+        results = ukb_codebook.search("bmi", limit=5)
+        assert results[0]["field_id"] == 21001
+
+    def test_search_exact_title_match_wins_without_alias(self, ukb_codebook):
+        # 'Waist circumference' (field 48) — no alias entry for the
+        # full phrase, but title is an exact match. Tier-1 promotion
+        # must surface it over any co-occurring partial match.
+        results = ukb_codebook.search("waist circumference", limit=5)
+        assert results[0]["field_id"] == 48
+
+    def test_search_multi_word_no_alias_falls_back_to_bm25(self, ukb_codebook):
+        # 'blood pressure' has no alias and no exact-title field. An
+        # over-eager "title starts with query" promotion earlier caused
+        # 'Blood pressure device ID' (36) to top the list. We want
+        # BM25 to decide in this case — assert 36 is NOT first.
+        results = ukb_codebook.search("blood pressure", limit=5)
+        assert results, "must return >=1 result"
+        assert results[0]["field_id"] != 36, (
+            "Tier-2/3 over-promotion regressed: 'Blood pressure device "
+            "ID' should not leapfrog BM25 ordering for an ambiguous "
+            "multi-word query."
+        )
+
+    def test_search_alias_prepended_when_not_in_bm25_topN(self, ukb_codebook):
+        # Even with limit=1, if the alias target isn't in BM25's
+        # top-N, it must be inserted at the front. Covers the case
+        # where a noisy peripheral field would crowd the alias out.
+        results = ukb_codebook.search("hba1c", limit=1)
+        assert len(results) == 1
+        assert results[0]["field_id"] == 30750
+
 
 class TestUKBValidateColumnsForGate:
 

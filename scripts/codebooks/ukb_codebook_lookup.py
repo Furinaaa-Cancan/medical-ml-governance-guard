@@ -196,10 +196,16 @@ class UKBCodebook:
         Fix: post-sort FTS5 results into priority tiers:
           0. aliases-table hit for the query term (explicit curation)
           1. field.title equals the query (case-insensitive)
-          2. query is a prefix of title AND title is short (< 40 chars)
-          3. everything else — original BM25 order preserved
+          2. everything else — original BM25 order preserved
 
         Ties within a tier keep BM25's ordering (Python sort is stable).
+
+        Deliberately narrow: earlier drafts also promoted "title starts
+        with query" and "query in short title" but those over-fired on
+        peripheral fields (e.g. 'blood pressure' → '36 Blood pressure
+        device ID' ahead of the actual 4080 systolic BP). For multi-
+        word queries where the user's intent is ambiguous, BM25's
+        ordering is the less-surprising default.
         """
         conn = self._ensure_conn()
         # Sanitize FTS query: strip punctuation and FTS5 operators
@@ -245,11 +251,7 @@ class UKBCodebook:
                 return (0, 0)
             if title == query_norm:
                 return (1, len(title))
-            if title.startswith(query_norm) and len(title) < 40:
-                return (2, len(title))
-            if query_norm in title and len(title) < 40:
-                return (3, len(title))
-            return (4, 0)
+            return (2, 0)
 
         results.sort(key=_priority)
         return results[:limit]
