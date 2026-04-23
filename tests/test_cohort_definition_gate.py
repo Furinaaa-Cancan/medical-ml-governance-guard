@@ -239,6 +239,55 @@ class TestCSVWriters:
 
 # ─── E2E subprocess ───
 
+class TestReportPathSandbox:
+    """Regression (Codex-follow-up 2026-04-23): --report was resolved
+    raw via Path(...).expanduser().resolve(). Combined with the
+    mkdir(parents=True, exist_ok=True) below it, this let any operator
+    use --report to clobber a neighboring gate's attestation. Sandbox
+    now requires the report path to live under the data file's
+    project tree (data.parent.parent)."""
+
+    def test_report_inside_data_tree_accepted(self, tmp_path):
+        """Canonical layout works — data/*.csv + evidence/report.json."""
+        data_dir = tmp_path / "data"
+        data_dir.mkdir()
+        evidence = tmp_path / "evidence"
+        evidence.mkdir()
+        path, _ = _make_csv(data_dir, n=500, prevalence=0.15, n_features=5)
+        report_path = evidence / "cohort_report.json"
+        result = subprocess.run(
+            [sys.executable, str(SCRIPTS_DIR / "gates/cohort_definition_gate.py"),
+             "--data", str(path), "--target-col", "y", "--id-col", "patient_id",
+             "--report", str(report_path), "--output-dir", str(evidence)],
+            capture_output=True, text=True, timeout=30,
+        )
+        assert result.returncode == 0, result.stderr
+        assert report_path.exists()
+
+    def test_report_absolute_escape_refused(self, tmp_path):
+        """--report pointing entirely outside the data project tree
+        must fail closed."""
+        import tempfile
+        path, _ = _make_csv(tmp_path, n=500, prevalence=0.15, n_features=5)
+        outside_dir = Path(tempfile.mkdtemp(prefix="mlgg_cohort_escape_"))
+        try:
+            evil_report = outside_dir / "stolen.json"
+            result = subprocess.run(
+                [sys.executable, str(SCRIPTS_DIR / "gates/cohort_definition_gate.py"),
+                 "--data", str(path), "--target-col", "y",
+                 "--report", str(evil_report), "--output-dir", str(tmp_path)],
+                capture_output=True, text=True, timeout=30,
+            )
+            assert result.returncode != 0
+            assert not evil_report.exists(), (
+                f"Report leaked to {evil_report}\nstderr={result.stderr}"
+            )
+            assert "escape" in (result.stderr + result.stdout).lower()
+        finally:
+            import shutil
+            shutil.rmtree(outside_dir, ignore_errors=True)
+
+
 class TestE2ESubprocess:
     def test_pass(self, tmp_path):
         path, _ = _make_csv(tmp_path, n=500, prevalence=0.15, n_features=5)

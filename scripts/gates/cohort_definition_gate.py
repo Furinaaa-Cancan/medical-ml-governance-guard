@@ -1883,6 +1883,25 @@ def _finish(
 
     if args.report:
         report_path = Path(args.report).expanduser().resolve()
+        # Sandbox report writes to the data file's project tree —
+        # without this, --report ../sibling_gate/report.json would
+        # overwrite a neighbor gate's attestation (same overwrite
+        # primitive Codex flagged on request_contract_gate, commit
+        # 42eae5c). Anchor: the data file's grandparent (mirrors the
+        # canonical layout where data/ and evidence/ are siblings
+        # under a project root).
+        try:
+            _data_path = Path(args.data).expanduser().resolve()
+            _sandbox = _data_path.parent.parent
+            report_path.relative_to(_sandbox)
+        except (OSError, ValueError) as exc:
+            print(
+                f"ERROR: --report path {report_path} escapes the data "
+                f"file's project sandbox: {exc}. Place the report "
+                f"under the project root (data file's grandparent).",
+                file=sys.stderr,
+            )
+            return 2
         report_path.parent.mkdir(parents=True, exist_ok=True)
         write_json(report_path, report)
 
