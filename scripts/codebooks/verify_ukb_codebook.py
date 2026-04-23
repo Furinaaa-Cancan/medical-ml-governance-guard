@@ -207,6 +207,59 @@ _HARD = {
         "exist — DAG broken. Heading preservation or code_id parsing may "
         "have regressed.",
     ),
+    # parent_code must agree with parent_node_id when both are set —
+    # the two-pass builder translates parent_id → parent's value via
+    # the code_id_to_value map. Any mismatch means the translation
+    # logic has drifted (e.g., the map was overwritten during a
+    # heading collision before the PK fix). 0 means perfect
+    # consistency.
+    "parent_code_agrees_with_parent_node": (
+        "SELECT COUNT(*) FROM encoding_values child "
+        "WHERE child.parent_code IS NOT NULL "
+        "AND child.parent_node_id IS NOT NULL "
+        "AND NOT EXISTS ("
+        "  SELECT 1 FROM encoding_values parent "
+        "  WHERE parent.encoding_id=child.encoding_id "
+        "  AND parent.node_id=child.parent_node_id "
+        "  AND parent.code=child.parent_code"
+        ");",
+        0,
+        "parent_code disagrees with parent_node_id — translation logic "
+        "regressed. Check two-pass code_id_to_value build in the "
+        "hierarchical loader.",
+    ),
+    # 2026-04-23 deep-check: ECG automated-diagnoses fields and the
+    # COVID self-report cat (1511) were classified as baseline, which
+    # would let a leakage-guard treat them as safe features. Both are
+    # outcome labels. Pin field 12653 and cat-1511 fields as
+    # outcome_derived so a classifier regression is caught.
+    "ecg_diagnoses_are_outcome": (
+        "SELECT COUNT(*) FROM fields WHERE field_id=12653 "
+        "AND risk_category='outcome_derived';",
+        1,
+        "Field 12653 (ECG automated diagnoses) must be outcome_derived. "
+        "If this fails the 'automated diagnos' rule in classify_field() "
+        "regressed.",
+    ),
+    "covid_selfreport_outcome_count": (
+        "SELECT COUNT(*) FROM fields WHERE main_category=1511 "
+        "AND risk_category='outcome_derived';",
+        8,
+        "Cat 1511 (COVID self-report) fields must all be outcome_derived. "
+        "If this drops, classify_field() lost the cat==1511 override and "
+        "COVID diagnosis events are back to baseline.",
+    ),
+    # Every field with encoding_id must reference a real encoding.
+    # Previous L1 sha-pin catches source corruption; this catches
+    # builder-side FK breakage.
+    "fields_with_orphan_encoding": (
+        "SELECT COUNT(*) FROM fields WHERE encoding_id IS NOT NULL "
+        "AND encoding_id != 0 AND encoding_id NOT IN "
+        "(SELECT encoding_id FROM encodings);",
+        0,
+        "Some fields reference an encoding_id that doesn't exist in "
+        "the encodings table — FK broken.",
+    ),
     # Category full_path hierarchy: 2026-04-23 deep-check found 362/410
     # paths were wrong (only single-title stubs) because the builder
     # computed paths BEFORE catbrowse.txt was merged, so parent lookups

@@ -216,10 +216,24 @@ def classify_field(cid: Optional[int], title: str, private: Optional[int] = None
         return "hearing_test", "baseline"
     if cid == 100020:
         return "spirometry", "baseline"
+    # ECG automated diagnoses (e.g., field 12653) are derived labels,
+    # not raw measurements. Using them as features would leak the
+    # outcome in cardiac-event prediction. Caught in 2026-04-23
+    # deep-check. Catches any future ECG-diagnosis fields too.
+    if "automated diagnos" in title_lower and _cat_in(cid, 104, 100012):
+        return "ecg_diagnosis", "outcome_derived"
     if _cat_in(cid, 104, 100012):
         return "ecg", "baseline"
 
     # ── Questionnaires ───────────────────────────────────────────────
+    # Cat 1511 = Online follow-up > Mental well-being > COVID-19.
+    # UKB parks COVID-19 self-reported diagnosis events (29156-29161)
+    # under the Mental-well-being folder because they ship in the same
+    # online questionnaire, but the FIELDS themselves are infection
+    # dates / methods of diagnosis / recovery status — outcome
+    # variables, not mental-health items. Caught 2026-04-23 deep-check.
+    if cid == 1511:
+        return "covid_selfreport", "outcome_derived"
     # Mental health
     if _cat_in(cid, (136, 146), (1500, 1513), 100060):
         return "questionnaire_mental_health", "baseline"
@@ -239,9 +253,22 @@ def classify_field(cid: Optional[int], title: str, private: Optional[int] = None
     # Family / early life
     if _cat_in(cid, 100033, 100034, 214, 1002, 708):
         return "questionnaire_family", "baseline"
+    # ── Cat 2 participant admin — lost-to-follow-up & contact log ────
+    # Cat 2 = Population characteristics > Ongoing characteristics.
+    # This is the cohort attrition outcome (fields 190/191) and the
+    # post-baseline recontact/communication log (20143/20144/20145/
+    # 110007). Previously lumped under 'demographics, baseline' via
+    # the rule below, which would let a leakage-guard treat attrition
+    # status as a safe baseline predictor. Split them off here BEFORE
+    # the demographics bucket. Email access (20005) stays baseline —
+    # it's asked at the baseline assessment, not a follow-up artifact.
+    if cid == 2 and (
+        "lost to follow-up" in title_lower
+        or "personal contact" in title_lower
+        or "newsletter" in title_lower
+    ):
+        return "participant_admin", "online_followup"
     # Sociodemographics (100068-100070 are sex-specific, handled below)
-    # cat 2 = Population characteristics > Ongoing characteristics
-    # (loss-to-follow-up, participant status) — fits here.
     if _cat_in(cid, 2, 100062, (100063, 100067), 701, 1007):
         return "demographics", "baseline"
     # Sex-specific factors
