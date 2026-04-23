@@ -168,6 +168,49 @@ _HARD = {
         "ICD-10 block-level codes must carry selectable=0. "
         "selectable parser may have regressed to Y/N heuristic.",
     ),
+    # ICD-9 and OPCS-4 use a stricter hierarchy convention than ICD-10:
+    # selectable=0 iff the code has children. Round-3 audit (2026-04-23)
+    # confirmed every selectable=0 row in encodings 87 (ICD-9) and 240
+    # (OPCS-4) is a true aggregator — 0 leaf rows. Pinning this invariant
+    # catches any future regression where a leaf code gets marked
+    # non-selectable (lookup would silently skip it) or an aggregator
+    # gets marked selectable (diagnoses would be coded at the wrong level).
+    "icd9_selectable_zero_iff_has_children": (
+        "SELECT COUNT(*) FROM encoding_values ev "
+        "WHERE ev.encoding_id=87 AND ev.selectable=0 "
+        "AND NOT EXISTS (SELECT 1 FROM encoding_values c "
+        "                WHERE c.encoding_id=87 AND c.parent_code=ev.code);",
+        0,
+        "ICD-9 has selectable=0 rows without children — either a leaf "
+        "got mis-parsed as non-selectable, or a broken hierarchy dropped "
+        "the children. Round-3 invariant: every non-selectable ICD-9 "
+        "code must be a true aggregator (has >=1 child).",
+    ),
+    "opcs4_selectable_zero_iff_has_children": (
+        "SELECT COUNT(*) FROM encoding_values ev "
+        "WHERE ev.encoding_id=240 AND ev.selectable=0 "
+        "AND NOT EXISTS (SELECT 1 FROM encoding_values c "
+        "                WHERE c.encoding_id=240 AND c.parent_code=ev.code);",
+        0,
+        "OPCS-4 has selectable=0 rows without children — same failure "
+        "shape as ICD-9. Either selectable parser regressed or the "
+        "hierarchical loader dropped children on a category.",
+    ),
+    # Companion count invariants for ICD-9 / OPCS-4 aggregator totals,
+    # mirroring the ICD-10 block-level pin above. 2026-04-23 values:
+    # ICD-9 = 153 aggregators, OPCS-4 = 1590 aggregators.
+    "icd9_aggregator_count": (
+        "SELECT COUNT(*) FROM encoding_values WHERE encoding_id=87 AND selectable=0;",
+        2073,
+        "ICD-9 non-selectable (aggregator) count drifted from 2073. "
+        "UKB may have refreshed the ICD-9 dictionary — investigate.",
+    ),
+    "opcs4_aggregator_count": (
+        "SELECT COUNT(*) FROM encoding_values WHERE encoding_id=240 AND selectable=0;",
+        1590,
+        "OPCS-4 non-selectable (aggregator) count drifted from 1590. "
+        "UKB may have refreshed the OPCS-4 dictionary — investigate.",
+    ),
     # Hierarchical heading preservation: 2026-04-23 strict audit found
     # 104 category-heading rows silently collapsed because the previous
     # PK (encoding_id, code) didn't tolerate repeated code='-1' rows
