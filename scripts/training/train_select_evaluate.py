@@ -8462,15 +8462,30 @@ def _phase10_12_reports_output(ctx: Dict[str, Any]) -> int:
             "schema_version": 2,
         }
         joblib.dump(model_bundle, model_out)
-        # Security: HMAC-sign the model artifact
+        # Security: HMAC-sign the model artifact. Failure here is
+        # visible: downstream gates (security_audit_gate, SHAP gate
+        # after 09aae9e) refuse unsigned/mis-signed artifacts and
+        # fail-close the pipeline. A silent pass is dangerous because
+        # the training process returns 0 while the pipeline then
+        # fails later with an opaque 'signature_file_missing'. Emit
+        # a loud stderr warning so operators see the downgrade at the
+        # moment of training, not three gates later.
         try:
-            from _security import sign_model_artifact, ArtifactManifest
+            from _security import sign_model_artifact, ArtifactManifest  # noqa: F401
             sign_model_artifact(model_out)
         except ImportError:
-            pass  # _security module not available — skip signing
-        except Exception as _sign_exc:  # noqa: BLE001
-            import logging as _logging
-            _logging.warning(f"Model signing failed for {model_out}: {_sign_exc}")
+            print(
+                f"WARN: _security module unavailable; {model_out} is NOT "
+                f"HMAC-signed. Downstream SHAP / security_audit gates "
+                f"will refuse to load this artifact.",
+                file=sys.stderr,
+            )
+        except (OSError, ValueError) as _sign_exc:
+            print(
+                f"WARN: HMAC signing failed for {model_out}: {_sign_exc}. "
+                f"Downstream gates will refuse this artifact.",
+                file=sys.stderr,
+            )
 
     if getattr(args, "model_pool_out", None):
         pool_out = Path(args.model_pool_out).expanduser().resolve()
@@ -8517,8 +8532,12 @@ def _phase10_12_reports_output(ctx: Dict[str, Any]) -> int:
             from _security import sign_model_artifact
             sign_model_artifact(pool_out)
         except ImportError:
-            pass
-        except Exception as _sign_exc:  # noqa: BLE001
+            print(
+                f"WARN: _security module unavailable; {pool_out} is NOT "
+                f"HMAC-signed. SHAP gate will refuse this pool.",
+                file=sys.stderr,
+            )
+        except (OSError, ValueError) as _sign_exc:
             import logging as _logging
             _logging.warning(f"Model pool signing failed for {pool_out}: {_sign_exc}")
         print(f"ModelPool: {pool_out} ({len(pool_families)} families)")
@@ -8555,7 +8574,11 @@ def _phase10_12_reports_output(ctx: Dict[str, Any]) -> int:
     if ci_matrix_out is not None:
         print(f"CIMatrixReport: {ci_matrix_out}")
 
-    # Security: create evidence integrity manifest
+    # Security: create evidence integrity manifest (.manifest.json).
+    # Downstream execution_attestation_gate cross-checks artifact
+    # hashes against this manifest — its absence breaks the
+    # reproducibility chain. Narrow except to real I/O errors and
+    # surface to stderr so the operator sees the gap at training time.
     try:
         from _security import ArtifactManifest
         manifest = ArtifactManifest()
@@ -8566,8 +8589,19 @@ def _phase10_12_reports_output(ctx: Dict[str, Any]) -> int:
                 manifest.add_file(Path(epath))
         manifest_out = evaluation_out.parent / ".manifest.json"
         manifest.save(manifest_out)
-    except Exception:  # noqa: BLE001
-        pass  # Manifest is advisory; do not block pipeline
+    except ImportError:
+        print(
+            "WARN: _security.ArtifactManifest unavailable; .manifest.json "
+            "not written. execution_attestation_gate will report missing "
+            "manifest downstream.",
+            file=sys.stderr,
+        )
+    except (OSError, ValueError) as _manifest_exc:
+        print(
+            f"WARN: manifest save failed ({_manifest_exc}); "
+            ".manifest.json not written.",
+            file=sys.stderr,
+        )
 
     return 0
 
