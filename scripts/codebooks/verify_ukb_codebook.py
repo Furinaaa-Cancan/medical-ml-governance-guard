@@ -100,6 +100,52 @@ _HARD = {
         "Private=1 fields must NEVER be labeled 'baseline' "
         "(leakage-guard would treat them as safe).",
     ),
+    # Alias floor: we committed 102 entries as of 2026-04-23. Dropping
+    # below this means someone deleted mappings; _HARD equality means
+    # any drift alerts, but additions are welcome (grow past this by
+    # bumping the number in the same commit).
+    "alias_floor": (
+        "SELECT COUNT(*) FROM aliases;",
+        102,
+        "Alias table shrank — medical-term lookups degrade. Re-add "
+        "removed mappings in COMMON_ALIASES (build_ukb_codebook_db.py).",
+    ),
+    # ICD-10 / ICD-9 / OPCS-4 parent chain — previously 100%
+    # broken (parent_code stored UKB-internal numeric code_id instead
+    # of the actual parent value string). After 2026-04-23 two-pass
+    # fix, every parent_code resolves to a real code in the same
+    # encoding, or is NULL for root nodes.
+    "icd10_orphan_parents": (
+        "SELECT COUNT(*) FROM encoding_values ev "
+        "WHERE ev.encoding_id=19 AND ev.parent_code IS NOT NULL "
+        "AND ev.parent_code NOT IN (SELECT code FROM encoding_values WHERE encoding_id=19);",
+        0,
+        "Some ICD-10 parent_code values don't exist in the table. "
+        "build_ukb_codebook_db.py hierarchical loader likely regressed.",
+    ),
+    "icd9_orphan_parents": (
+        "SELECT COUNT(*) FROM encoding_values ev "
+        "WHERE ev.encoding_id=87 AND ev.parent_code IS NOT NULL "
+        "AND ev.parent_code NOT IN (SELECT code FROM encoding_values WHERE encoding_id=87);",
+        0, "ICD-9 parent chain broken.",
+    ),
+    "opcs4_orphan_parents": (
+        "SELECT COUNT(*) FROM encoding_values ev "
+        "WHERE ev.encoding_id=240 AND ev.parent_code IS NOT NULL "
+        "AND ev.parent_code NOT IN (SELECT code FROM encoding_values WHERE encoding_id=240);",
+        0, "OPCS-4 parent chain broken.",
+    ),
+    # Block-level aggregators (e.g., "Block A00-A09") must be marked
+    # selectable=0 so lookups don't silently include them. Before the
+    # 2026-04-23 fix selectable was mis-parsed as Y/N heuristic and
+    # always returned 1.
+    "icd10_block_level_nonselectable": (
+        "SELECT COUNT(*) FROM encoding_values "
+        "WHERE encoding_id=19 AND selectable=0 AND code LIKE 'Block %';",
+        264,
+        "ICD-10 block-level codes must carry selectable=0. "
+        "selectable parser may have regressed to Y/N heuristic.",
+    ),
 }
 
 # Ceiling checks — values we tolerate today but flag as technical debt
@@ -110,12 +156,9 @@ _CEILINGS = {
         126,
         "Fields pointing to a main_category that is not in categories table.",
     ),
-    "alias_thinness": (
-        "SELECT COUNT(*) FROM aliases;",
-        67,
-        "Colloquial-term alias table is thin; colloquial lookups miss outside "
-        "the seeded 67 entries. Not fatal — extend over time.",
-    ),
+    # Note: removed the "alias_thinness" ceiling — the check direction
+    # was inverted (growth is GOOD, not a warning). Floor enforced in
+    # _HARD below.
 }
 
 

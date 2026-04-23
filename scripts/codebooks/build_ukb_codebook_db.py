@@ -384,18 +384,39 @@ COMMON_ALIASES = {
     "smoking": 20116, "smoking_status": 20116,
     "alcohol": 20117, "alcohol_status": 20117,
     "physical_activity": 22032, "ipaq": 22032,
-    # Conditions (first occurrence fields)
-    "diabetes": 130706, "type2_diabetes": 130708,
-    "hypertension": 131286,
-    "stroke": 131366, "ischaemic_stroke": 131368,
-    "heart_failure": 131354,
-    "myocardial_infarction": 131298, "mi": 131298,
-    "atrial_fibrillation": 131350, "af": 131350,
-    "copd": 131484,
-    "dementia": 130836, "alzheimers": 130838,
-    "depression": 130894,
+    # Conditions (first occurrence fields). Strict audit 2026-04-23:
+    # - "diabetes" now points to E11 (T2D, 95% of cases) not E10 (T1D)
+    # - "copd" now points to J44 (proper COPD) not J40 (bronchitis)
+    # - Added infarction / chf / asthma / ckd / esrd / pneumonia /
+    #   cancer families that the 15-term alias audit showed missing.
+    "diabetes": 130708,                       # E11 T2D (was 130706 = E10 T1D)
+    "type2_diabetes": 130708, "t2dm": 130708, "t2d": 130708,
+    "type1_diabetes": 130706, "t1dm": 130706, "t1d": 130706,
+    "gestational_diabetes": 130714,           # E14 as proxy until O24 added
+    "hypertension": 131286, "htn": 131286, "high_blood_pressure": 131286,
+    "stroke": 131366,                         # I63 cerebral infarction
+    "ischaemic_stroke": 131368, "ischemic_stroke": 131368,
+    "hemorrhagic_stroke": 131370,             # I61 intracerebral haemorrhage
+    "heart_failure": 131354, "chf": 131354, "congestive_heart_failure": 131354,
+    "myocardial_infarction": 131298, "mi": 131298, "infarction": 131298,
+    "acute_mi": 131298, "ami": 131298,
+    "atrial_fibrillation": 131350, "af": 131350, "afib": 131350,
+    "copd": 131492,                           # J44 (was 131484 = J40 bronchitis)
+    "j44": 131492,
+    "bronchitis": 131484,                     # J40 kept here under its own name
+    "asthma": 131494, "j45": 131494,
+    "pneumonia": 131456,                      # J18 pneumonia organism unspec
+    "ckd": 132032, "chronic_kidney_disease": 132032,
+    "chronic_renal_failure": 132032, "n18": 132032,
+    "esrd": 132034, "end_stage_renal_disease": 132034,
+    "dementia": 130836, "alzheimers": 130838, "alzheimer": 130838,
+    "depression": 130894, "major_depression": 130894,
+    "anxiety": 130908,                        # F41 other anxiety disorders
+    "cancer": 40005, "date_cancer_diagnosis": 40005,
+    "cancer_type": 40006,
     # Death
     "date_of_death": 40000, "cause_of_death": 40001,
+    "death": 40000, "mortality": 40000,
 }
 
 
@@ -537,15 +558,53 @@ def build_database(input_dir: Path, output: Path) -> Dict[str, int]:
                     )
                     ev_batch.clear()
 
-    # Hierarchical encoding values (ICD-10, OPCS-4, etc.)
+    # Hierarchical encoding values (ICD-10, OPCS-4, etc.).
+    #
+    # Strict audit 2026-04-23 fixed 2 real bugs here:
+    #
+    # BUG A — parent_code was storing the UKB-internal code_id (a
+    # numeric), not the parent's actual value string. Every ICD-10
+    # parent_code referenced a number (e.g., "230") that never
+    # appeared as a code anywhere in the table, so recursive
+    # block→chapter traversal returned nothing. Fix: build a
+    # (encoding_id, code_id) → value map over two passes, then
+    # translate each parent_id to the parent's value string on
+    # insert.
+    #
+    # BUG B — selectable parsed with a Y/N heuristic but the file
+    # has integer 1/0. Any value that wasn't the literal string "N"
+    # became 1, so every hierarchical code was marked selectable=1
+    # even for block-level aggregation labels (I70-I79 etc.) which
+    # must not be selected. Fix: parse selectable as int.
+    #
+    # Pass 1: build code_id → value lookup per encoding.
+    code_id_to_value: Dict[Tuple[int, str], str] = {}
+    for fname in ("ehierint.txt", "ehierstring.txt"):
+        for row in read_tab_file(input_dir / fname):
+            eid = safe_int(row.get("encoding_id", ""))
+            code_id = (row.get("code_id", "") or "").strip()
+            value = row.get("value", "").strip()
+            if eid is not None and code_id and value:
+                code_id_to_value[(eid, code_id)] = value
+
+    # Pass 2: insert with resolved parent_code.
     for fname in ("ehierint.txt", "ehierstring.txt"):
         rows = read_tab_file(input_dir / fname)
         for row in rows:
             eid = safe_int(row.get("encoding_id", ""))
             code = row.get("coding", row.get("value", "")).strip()
             meaning = row.get("meaning", "").strip()
-            parent = row.get("parent_id", row.get("parent", "")).strip() or None
-            selectable = 1 if row.get("selectable", "Y").strip().upper() != "N" else 0
+            parent_id_raw = (row.get("parent_id", row.get("parent", "")) or "").strip()
+            # Resolve parent_id (internal) → parent's value string.
+            # If parent_id is 0 or the lookup fails, set parent_code=NULL
+            # (root node or unresolvable reference).
+            parent: Optional[str] = None
+            if parent_id_raw and parent_id_raw != "0" and eid is not None:
+                parent = code_id_to_value.get((eid, parent_id_raw))
+            # selectable: parse as 0/1 integer per UKB Showcase format.
+            # Anything != 1 (including 0 and unparseable) → 0 (not selectable).
+            sel_raw = (row.get("selectable", "") or "").strip()
+            selectable = 1 if sel_raw == "1" else 0
             if eid is not None and code:
                 ev_batch.append((eid, code, meaning, selectable, parent))
                 ev_count += 1
