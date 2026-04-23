@@ -31,8 +31,60 @@
 
 ---
 
+## MLGG vs Claude Skill — Architecture Boundary
+
+**MLGG is NOT a pure skill; it's a hybrid**: the outer shell is a Claude Code skill (routed by `SKILL.md`), but the core is 40K+ lines of deterministic Python plus 50 MB of human-curated references. **Hallucination risk is strictly confined to the shell; all hard decisions live in code and static data.**
+
+```
+┌─────────────────────────────────────────────────┐
+│  SKILL.md / CLAUDE.md  (~350 lines)             │  ← LLM reads (may hallucinate)
+│  └─ Soft decisions: which gate, user intent     │
+└─────────────────────────────────────────────────┘
+                      ↓ invokes
+┌─────────────────────────────────────────────────┐
+│  33 gates  (~40K LOC Python)                    │  ← Deterministic (zero hallucination)
+│  └─ Hard decisions: pass / fail / critical      │
+│  └─ Same input → same output, CI-reproducible   │
+└─────────────────────────────────────────────────┘
+                      ↓ consults
+┌─────────────────────────────────────────────────┐
+│  references/  (~50 MB human-curated)            │  ← Static data (zero hallucination)
+│  └─ peer-review-kb.json (119 NC reviews)        │
+│  └─ codebooks/ukb (8 verification layers,       │
+│      1.87M cells validated vs live UKB)         │
+│  └─ methodology/disease-kb.json                 │
+└─────────────────────────────────────────────────┘
+```
+
+### Hallucination-risk boundary
+
+| Behaviour | Layer | Hallucination risk |
+|---|---|---|
+| Claude picks workflow from `/mlgg` | skill | ⚠️ yes (worst case: extra/missed run; gate still reaches correct verdict) |
+| `leakage_gate.py` detects label leakage | Python | ✅ none (deterministic algorithm) |
+| `calibration_dca_gate.py` computes ICI/DCA | Python | ✅ none (pure numeric computation) |
+| Quoting reviewer opinions from `peer-review-kb.json` | references | ✅ none (SQL/JSON lookup) |
+| `verify_ukb_codebook.py` runs 8-layer verify | Python | ✅ none (1.87M cell-level comparison) |
+| Claude summarises gate output for the user | skill | ⚠️ yes (wording bias, but cannot change verdict) |
+
+### Two usage paths
+
+1. **Through Claude Code / SKILL**: `/mlgg` → Claude identifies task → auto-runs 9-phase pipeline (interactive use)
+2. **Bypass the skill, call Python directly**: `python3 scripts/gates/leakage_gate.py --data x.csv` (CI / automation, **zero-hallucination guarantee**)
+
+So the peace-of-mind guarantee is: **even if Claude misreads intent, the final Python verdict is identical every run**. SKILL.md is the "user interface" accelerator, not a correctness layer.
+
+### Design rules (enforced)
+
+- **Keep SKILL.md lean** — currently 277 lines, within Claude Code's official <500-line guidance; longer docs split into `docs/` or gate docstrings.
+- **Auto-enforce doc consistency** — `scripts/diagnostics/check_docs_consistency.py` catches number drift across SKILL.md ↔ README ↔ reviewer.yaml (pre-commit hook).
+- **No prompt-as-logic** — every pass/fail threshold, validator rule, and detection algorithm lives as Python constants + functions, not as markdown prose.
+
+---
+
 ## Table of Contents
 
+- [MLGG vs Claude Skill — Architecture Boundary](#mlgg-vs-claude-skill--architecture-boundary)
 - [Why MLGG](#why-mlgg)
 - [System Overview](#system-overview)
 - [Quick Start](#quick-start)
