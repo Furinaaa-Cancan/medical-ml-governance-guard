@@ -25,37 +25,37 @@ def _safe_close(cb) -> None:
 class TestParseUKBColumn:
     """Test UKB column name parsing across all supported formats."""
 
-    def test_rap_format_full(self):
+    @pytest.mark.parametrize("column,expected", [
+        # RAP (DNAnexus) format: p<field>_i<inst>_a<arr>
+        ("p21001_i0_a0", (21001, 0, 0)),
+        ("p4080_i1", (4080, 1, 0)),
+        ("p41270", (41270, 0, 0)),
+        ("p20002_i2", (20002, 2, 0)),
+        # Data Showcase format: <field>-<inst>.<arr>
+        ("21001-0.0", (21001, 0, 0)),
+        ("4080-1.0", (4080, 1, 0)),
+        ("30750-2.0", (30750, 2, 0)),
+        # Bare field ID (assume instance=0, array=0)
+        ("21001", (21001, 0, 0)),
+        ("131286", (131286, 0, 0)),
+        # Whitespace is stripped
+        ("  p21001  ", (21001, 0, 0)),
+    ])
+    def test_parse_valid(self, column, expected):
         from scripts.codebooks.ukb_codebook_lookup import parse_ukb_column
-        assert parse_ukb_column("p21001_i0_a0") == (21001, 0, 0)
+        assert parse_ukb_column(column) == expected
 
-    def test_rap_format_no_array(self):
+    @pytest.mark.parametrize("column", [
+        "age",                   # bare word
+        "blood_pressure",        # underscore but no digits
+        "eid",                   # primary key column
+        "p",                     # 'p' without field_id
+        "p_i0",                  # underscore with missing field
+        "",                      # empty string
+    ])
+    def test_parse_unrecognized(self, column):
         from scripts.codebooks.ukb_codebook_lookup import parse_ukb_column
-        assert parse_ukb_column("p4080_i1") == (4080, 1, 0)
-
-    def test_rap_format_no_instance_no_array(self):
-        from scripts.codebooks.ukb_codebook_lookup import parse_ukb_column
-        assert parse_ukb_column("p41270") == (41270, 0, 0)
-
-    def test_showcase_format(self):
-        from scripts.codebooks.ukb_codebook_lookup import parse_ukb_column
-        assert parse_ukb_column("21001-0.0") == (21001, 0, 0)
-
-    def test_showcase_format_instance1(self):
-        from scripts.codebooks.ukb_codebook_lookup import parse_ukb_column
-        assert parse_ukb_column("4080-1.0") == (4080, 1, 0)
-
-    def test_bare_field_id(self):
-        from scripts.codebooks.ukb_codebook_lookup import parse_ukb_column
-        assert parse_ukb_column("21001") == (21001, 0, 0)
-
-    def test_non_ukb_column(self):
-        from scripts.codebooks.ukb_codebook_lookup import parse_ukb_column
-        assert parse_ukb_column("age") is None
-
-    def test_non_ukb_column_with_underscore(self):
-        from scripts.codebooks.ukb_codebook_lookup import parse_ukb_column
-        assert parse_ukb_column("blood_pressure") is None
+        assert parse_ukb_column(column) is None
 
 
 # ── UKBCodebook ────────────────────────────────────────────────────
@@ -100,31 +100,37 @@ class TestUKBLookup:
     # FTS5 BM25 alone buried canonical fields behind peripheral ones:
     # 'hba1c' returned 30755 (missing reason) / 30751 (assay date) /
     # 30754 (correction reason) before 30750 (the actual HbA1c
-    # measurement). These regressions pin the alias + exact-title
-    # promotion so that canonical acronyms always surface first.
+    # measurement). Alias + exact-title promotion must surface the
+    # canonical field first.
 
-    def test_search_hba1c_promotes_canonical_field(self, ukb_codebook):
-        results = ukb_codebook.search("hba1c", limit=5)
-        assert results, "must return >=1 result"
-        assert results[0]["field_id"] == 30750, (
-            "Canonical HbA1c field (30750) must be top; was "
-            f"{results[0]['field_id']} {results[0]['title']!r}. "
-            "Alias-promotion layer regressed."
+    @pytest.mark.parametrize("query,expected_fid,reason", [
+        # Medical acronyms curated in the aliases table — all of these
+        # MUST surface their canonical field, not a peripheral one.
+        ("hba1c", 30750, "regressions here cost real researcher time"),
+        ("bmi", 21001, "21001 is baseline BMI; 23104 is imaging-derived"),
+        ("glucose", 30740, "non-fasting serum glucose"),
+        ("creatinine", 30700, "serum creatinine — eGFR denominator"),
+        ("ldl", 30780, "LDL direct measurement"),
+        ("hdl", 30760, "HDL cholesterol"),
+        ("crp", 30710, "C-reactive protein (inflammation)"),
+        ("triglycerides", 30870, "serum triglycerides"),
+        ("sbp", 4080, "systolic BP — the aliased primary"),
+        ("dbp", 4079, "diastolic BP — the aliased primary"),
+        # Exact-title tier (no alias entry for full phrase)
+        ("waist circumference", 48, "tier-1 exact-title match"),
+        # Full-form aliases (avoids ambiguity with medical acronyms)
+        ("t2dm", 130708, "Type 2 diabetes first-occurrence alias"),
+    ])
+    def test_search_promotes_canonical_field(
+        self, ukb_codebook, query, expected_fid, reason,
+    ):
+        results = ukb_codebook.search(query, limit=5)
+        assert results, f"search({query!r}) returned nothing"
+        assert results[0]["field_id"] == expected_fid, (
+            f"query={query!r} ({reason}): expected field_id={expected_fid}, "
+            f"got {results[0]['field_id']} {results[0]['title']!r}. "
+            f"Alias/title promotion layer regressed."
         )
-
-    def test_search_bmi_promotes_21001_not_23104(self, ukb_codebook):
-        # Both 21001 (baseline BMI) and 23104 (imaging-derived BMI)
-        # carry the exact title 'Body mass index (BMI)'. The alias
-        # explicitly maps BMI -> 21001, so that curation must win.
-        results = ukb_codebook.search("bmi", limit=5)
-        assert results[0]["field_id"] == 21001
-
-    def test_search_exact_title_match_wins_without_alias(self, ukb_codebook):
-        # 'Waist circumference' (field 48) — no alias entry for the
-        # full phrase, but title is an exact match. Tier-1 promotion
-        # must surface it over any co-occurring partial match.
-        results = ukb_codebook.search("waist circumference", limit=5)
-        assert results[0]["field_id"] == 48
 
     def test_search_multi_word_no_alias_falls_back_to_bm25(self, ukb_codebook):
         # 'blood pressure' has no alias and no exact-title field. An
@@ -146,6 +152,13 @@ class TestUKBLookup:
         results = ukb_codebook.search("hba1c", limit=1)
         assert len(results) == 1
         assert results[0]["field_id"] == 30750
+
+    def test_search_fts_only_operators_returns_empty_not_error(self, ukb_codebook):
+        # "AND OR NOT" is pure FTS5 operator tokens — after sanitization
+        # nothing remains. Must return [] cleanly, not crash.
+        assert ukb_codebook.search("AND OR NOT") == []
+        assert ukb_codebook.search("  ") == []
+        assert ukb_codebook.search("") == []
 
 
 class TestUKBValidateColumnsForGate:
@@ -530,6 +543,81 @@ class TestFieldToRAPNames:
         names = ukb_codebook.field_to_rap_names(9999999)
         assert names == ["p9999999"]
 
+    # ── M5 offline guardrail for categorical_multiple ──────────────
+    # UKB RAP Table Exporter stores `categorical_multiple` (value_type
+    # =22) fields as array-typed single columns — so our generator
+    # must emit `p{fid}_i{inst}` (NO `_a{arr}` suffix). If this rule
+    # ever flips back to per-array expansion, RAP will return "column
+    # not found" and the user's model ends up trained on empty data —
+    # a silent failure. Pin a representative sample of the 171
+    # categorical_multiple fields so the rule has offline coverage
+    # even though end-to-end verification requires RAP access.
+
+    @pytest.mark.parametrize("fid,description", [
+        (20002, "Non-cancer illness self-reported (common predictor)"),
+        (20003, "Medication treatment codes (common predictor)"),
+        (20004, "Operation code self-reported"),
+        (20001, "Cancer code self-reported"),
+        (20107, "Illness of father (family history)"),
+        (20110, "Illness of mother (family history)"),
+        (20111, "Illness of siblings (family history)"),
+        (6177, "Medication for BP/chol/diabetes (male)"),
+        (6153, "Medication for BP/chol/diabetes (female)"),
+        (6150, "Vascular/heart problems diagnosed"),
+    ])
+    def test_categorical_multiple_never_expands_array(
+        self, ukb_codebook, fid, description,
+    ):
+        names = ukb_codebook.field_to_rap_names(fid, instance=0)
+        # Verify the DB actually says this field is categorical_multiple —
+        # otherwise the test silently skips the contract it claims to pin.
+        import sqlite3 as _sql
+        conn = _sql.connect(str(UKB_DB))
+        row = conn.execute(
+            "SELECT value_type, arrayed FROM fields WHERE field_id=?", (fid,),
+        ).fetchone()
+        conn.close()
+        assert row, f"field {fid} not in DB — test fixture stale"
+        assert row[0] == "categorical_multiple", (
+            f"field {fid} ({description}): value_type={row[0]!r}, not "
+            f"'categorical_multiple' — UKB may have reclassified; update test."
+        )
+        for n in names:
+            assert "_a" not in n, (
+                f"field {fid} ({description}): emitted {n!r}. "
+                f"categorical_multiple fields MUST NOT carry _a suffix on "
+                f"RAP — downstream extraction will silently return empty."
+            )
+        # And positive shape assertion — it should be exactly one column
+        # per instance (or per all_instances expansion).
+        assert len(names) == 1
+        assert names[0] == f"p{fid}_i0"
+
+    @pytest.mark.parametrize("fid,instance", [
+        (21001, 0), (21001, 2),  # BMI
+        (30750, 0),              # HbA1c
+        (4080, 0),               # Systolic BP (arrayed)
+        (20002, 1),              # categorical_multiple
+        (31, 0),                 # Sex (not instanced)
+        (41270, 0),              # Hospital ICD10 (not instanced)
+    ])
+    def test_parse_build_roundtrip(self, ukb_codebook, fid, instance):
+        """Any column we emit must re-parse back to the same (fid, inst, arr).
+
+        Guards against any future RAP format drift: if field_to_rap_names
+        starts emitting a format parse_ukb_column doesn't recognize, the
+        codebook contract is broken.
+        """
+        from scripts.codebooks.ukb_codebook_lookup import parse_ukb_column
+        for col in ukb_codebook.field_to_rap_names(fid, instance=instance):
+            parsed = parse_ukb_column(col)
+            assert parsed is not None, f"emitted {col!r} failed to re-parse"
+            p_fid, p_inst, _ = parsed
+            assert p_fid == fid, f"{col!r}: parsed fid={p_fid}, expected {fid}"
+            assert p_inst == instance, (
+                f"{col!r}: parsed instance={p_inst}, expected {instance}"
+            )
+
 
 class TestGenerateFieldList:
     """Test the disease-aware RAP .txt generator — the user's primary RAG entry point."""
@@ -612,14 +700,48 @@ class TestGenerateFieldList:
 
     def test_output_is_pristine_for_rap(self, ukb_codebook, tmp_path):
         # RAP Table Exporter expects ONE column name per line and nothing else.
-        # No comment lines, no blank lines, no BOM.
+        # No comment lines, no blank lines, no BOM, no trailing whitespace,
+        # no tabs. All columns must parse back to a valid UKB triple.
+        from scripts.codebooks.ukb_codebook_lookup import parse_ukb_column
         out = tmp_path / "rap.txt"
         ukb_codebook.generate_field_list("type_2_diabetes", output_path=out)
         text = out.read_text(encoding="utf-8")
-        assert not text.startswith("﻿"), "No BOM"
-        for i, line in enumerate(text.splitlines()):
-            assert line.strip(), f"line {i} is blank"
+        assert not text.startswith("﻿"), "RAP .txt must not carry a BOM"
+        lines = text.splitlines()
+        assert lines, "output file is empty"
+        assert lines[0] == "eid", "eid must be the very first line"
+        seen: set = set()
+        for i, line in enumerate(lines):
+            assert line == line.strip(), (
+                f"line {i} has leading/trailing whitespace: {line!r}"
+            )
+            assert line, f"line {i} is blank"
             assert not line.startswith("#"), f"line {i} is a comment: {line!r}"
+            assert "\t" not in line, f"line {i} contains a tab: {line!r}"
+            assert line not in seen, (
+                f"line {i} duplicates an earlier column: {line!r}"
+            )
+            seen.add(line)
+            if line != "eid":
+                assert parse_ukb_column(line) is not None, (
+                    f"line {i} {line!r} does not parse as a UKB column"
+                )
+
+    def test_output_is_deterministic(self, ukb_codebook, tmp_path):
+        # Running twice with the same args must produce byte-identical
+        # output. Catches nondeterministic ordering (set iteration, dict
+        # iteration pre-3.7 artefacts, random seed leaks) that would make
+        # audit trails disagree across reruns.
+        out_a = tmp_path / "run_a.txt"
+        out_b = tmp_path / "run_b.txt"
+        a = ukb_codebook.generate_field_list(
+            "type_2_diabetes", output_path=out_a, write_provenance=False,
+        )
+        b = ukb_codebook.generate_field_list(
+            "type_2_diabetes", output_path=out_b, write_provenance=False,
+        )
+        assert a == b
+        assert out_a.read_bytes() == out_b.read_bytes()
 
     def test_deduplication_keeps_first_section_ownership(self, ukb_codebook, tmp_path):
         # Field 30750 (HbA1c) is in BOTH laboratory_common AND T2D KB.
