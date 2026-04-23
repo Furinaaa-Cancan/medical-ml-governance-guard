@@ -454,12 +454,20 @@ def build_database(input_dir: Path, output: Path) -> Dict[str, int]:
 
     cat_paths: Dict[int, str] = {cid: get_cat_path(cid) for cid in cat_titles}
 
-    # Also load catbrowse for supplementary parent-child relations
+    # Load catbrowse edges — these are the AUTHORITATIVE parent-child
+    # relationships for UKB categories. category.txt does NOT carry a
+    # parent_id column (the public Showcase schema only has
+    # category_id, title, availability, group_type, descript, notes),
+    # so without loading catbrowse every categories.parent_id would
+    # remain NULL and tree-traversal queries (find all descendants of
+    # a cat) would return nothing. Fixed 2026-04-23 after strict audit.
     browse_rows = read_tab_file(input_dir / "catbrowse.txt")
     for row in browse_rows:
         cid = safe_int(row.get("child_id", ""))
         pid = safe_int(row.get("parent_id", ""))
-        if cid is not None and cid not in cat_parents:
+        if cid is not None and pid is not None:
+            # Always prefer catbrowse over category.txt because
+            # category.txt doesn't carry parent info at all.
             cat_parents[cid] = pid
 
     cat_batch = [
@@ -602,6 +610,12 @@ def build_database(input_dir: Path, output: Path) -> Dict[str, int]:
     print(f"    {field_count} fields loaded")
 
     # ── Step 5: Load instances ───────────────────────────────────────────
+    # Fixed 2026-04-23 strict audit: insvalue.txt columns are
+    # (instance_id, descript, num_members) — there's no "title" or
+    # "description" column in the Showcase export. Old code looked
+    # for wrong column names and got empty strings for 9 of 13
+    # instances (Coronavirus serology, Accelerometer wearing,
+    # Vaccination events, Cancer/Death registry etc.).
     print("  Loading instances...")
     ins_rows = read_tab_file(input_dir / "insvalue.txt")
     ins_batch = []
@@ -609,12 +623,15 @@ def build_database(input_dir: Path, output: Path) -> Dict[str, int]:
         iid = safe_int(row.get("instance_id", ""))
         if iid is not None:
             temporal = INSTANCE_TEMPORAL_ORDER.get(str(iid), {})
-            ins_batch.append((
-                iid,
-                row.get("title", "").strip() or temporal.get("label"),
-                row.get("description", "").strip() or None,
-                temporal.get("order"),
-            ))
+            descript = row.get("descript", "").strip()
+            # Use first 80 chars of descript as title if no hardcoded
+            # label; full descript goes to description. Preserves the
+            # hardcoded human-friendly labels for the canonical
+            # visits 0-3 while resurrecting the other 9 instances'
+            # metadata.
+            title = temporal.get("label") or (descript[:80] if descript else None)
+            description = descript or None
+            ins_batch.append((iid, title, description, temporal.get("order")))
 
     # Also insert well-known instances if not already present
     for inst_str, meta in INSTANCE_TEMPORAL_ORDER.items():

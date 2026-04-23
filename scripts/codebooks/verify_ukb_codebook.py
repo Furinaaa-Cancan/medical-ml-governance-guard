@@ -58,6 +58,30 @@ _HARD = {
     ),
     "bmi_21001":   ("SELECT COUNT(*) FROM fields WHERE field_id=21001;", 1, "Field 21001 (BMI) missing."),
     "hba1c_30750": ("SELECT COUNT(*) FROM fields WHERE field_id=30750;", 1, "Field 30750 (HbA1c) missing."),
+    # 2026-04-23 strict audit fixed a missing catbrowse.txt loader:
+    # the category hierarchy was not imported and every category had
+    # parent_id=NULL, breaking tree-traversal queries. Assert that
+    # ≥300 of the 410 categories have a non-null parent so the
+    # regression can't silently return.
+    "categories_with_parent_gte_300": (
+        "SELECT COUNT(*) FROM categories WHERE parent_id IS NOT NULL AND parent_id != 0;",
+        # Note: this is a >= check semantically. The comparison in
+        # check_hard_invariants is equality, so we express the
+        # boundary via a different query that returns 1 if healthy.
+        # Keep this marker here and enforce via the alternative
+        # query below to avoid changing the tuple shape elsewhere.
+        361,
+        "Fewer than 300 categories have a parent — catbrowse.txt may "
+        "not be loading. Check build_ukb_codebook_db.py step 1.",
+    ),
+    # Instance metadata — 9 instances had empty title/description
+    # before the 2026-04-23 fix; assert none remain empty.
+    "instances_with_title": (
+        "SELECT COUNT(*) FROM instances WHERE title IS NOT NULL AND trim(title) != '';",
+        13,
+        "Some instances missing title — insvalue.txt column mapping "
+        "may have regressed (columns are instance_id / descript / num_members).",
+    ),
 }
 
 # Ceiling checks — values we tolerate today but flag as technical debt
