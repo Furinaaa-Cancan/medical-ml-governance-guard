@@ -82,17 +82,32 @@ _HARD = {
         "Some instances missing title — insvalue.txt column mapping "
         "may have regressed (columns are instance_id / descript / num_members).",
     ),
-    # UKB ships 319 private=1 direct-identifier fields (DOB, home
-    # location coords, etc.). Before 2026-04-23 fix these were all
-    # mis-labeled risk_category='baseline', which would let a
-    # leakage-guard treat them as safe features. Assert every
-    # private=1 field carries the 'identifier_direct' risk label.
+    # UKB ships 319 private=1 fields. 2026-04-23 strict audit split
+    # these into:
+    #   - 193 real PHI identifiers → risk_category='identifier_direct'
+    #   - 126 EMBARGOED future-release imaging → risk_category='embargoed'
+    # Sum must still equal 319 (the private=1 total from UKB); any
+    # drift means either UKB changed the count OR our classifier
+    # stopped distinguishing the two categories.
     "phi_fields_correctly_flagged": (
         "SELECT COUNT(*) FROM fields WHERE private=1 AND risk_category='identifier_direct';",
+        193,
+        "Private=1 real-PHI fields must carry risk_category="
+        "'identifier_direct'. If this drops, classify_field() may be "
+        "misclassifying DOB / home-location etc. as embargoed.",
+    ),
+    "embargoed_count": (
+        "SELECT COUNT(*) FROM fields WHERE risk_category='embargoed';",
+        126,
+        "EMBARGOED future-release fields count changed. UKB may have "
+        "unlocked some (good — migrate to real category) or removed "
+        "the EMBARGOED prefix convention.",
+    ),
+    "private_total_still_319": (
+        "SELECT COUNT(*) FROM fields WHERE private=1;",
         319,
-        "Private=1 (direct PHI identifier) fields must carry "
-        "risk_category='identifier_direct'. A regression here means "
-        "classify_field() stopped honoring the private flag.",
+        "UKB private=1 field total drifted. Either UKB revised "
+        "privacy flags or fetch returned a different snapshot.",
     ),
     "no_private_labeled_baseline": (
         "SELECT COUNT(*) FROM fields WHERE private=1 AND risk_category='baseline';",

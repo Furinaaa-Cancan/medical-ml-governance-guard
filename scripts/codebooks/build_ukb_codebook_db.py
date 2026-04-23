@@ -95,6 +95,17 @@ def classify_field(cid: Optional[int], title: str, private: Optional[int] = None
       - 'online_followup'  : post-baseline online questionnaires
       - 'baseline'         : safe baseline measurements (default)
     """
+    title_lower_early = title.lower()
+
+    # UKB's 'EMBARGOED' private=1 fields are pre-announced future
+    # imaging releases (DXA, MRI, rfMRI surfaces etc.) gated behind
+    # a cat=1000 placeholder. They're private not because they're
+    # PHI but because data isn't unlocked yet. Classify separately
+    # so a leakage-guard isn't confused — these WILL have a proper
+    # risk_category once UKB releases them under their real category.
+    if "EMBARGOED" in title.upper() or "embargoed" in title_lower_early:
+        return "embargoed_future_release", "embargoed"
+
     # Direct-identifier fields ALWAYS get the PHI flag, regardless of
     # category. UKB marks these with private=1 in field.txt (date of
     # birth, parents' DOB components, home-location 1km coords,
@@ -104,7 +115,6 @@ def classify_field(cid: Optional[int], title: str, private: Optional[int] = None
     if private == 1:
         # Still return a meaningful domain so dashboards / by-domain
         # queries work; risk_category is the sensitive column.
-        title_lower_early = title.lower()
         if "birth" in title_lower_early and "weight" not in title_lower_early:
             return "identifier_birth", "identifier_direct"
         if "location" in title_lower_early or "coordinate" in title_lower_early or "postcode" in title_lower_early:
