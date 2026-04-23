@@ -739,6 +739,32 @@ def build_database(input_dir: Path, output: Path) -> Dict[str, int]:
     conn.commit()
     print(f"    {ev_count} encoding values loaded")
 
+    # Compute the full set of Online-follow-up descendant category_ids.
+    # UKB's "Online follow-up" tree (root = cat 100089) contains ~80
+    # sub-categories of post-baseline questionnaires. 2026-04-23
+    # deep-check found 1625 of 1833 fields in this tree were labeled
+    # risk_category='baseline', which would let a leakage-guard treat
+    # them as safe baseline predictors. Apply a post-classify override
+    # below so the domain stays meaningful (questionnaire_mental_health
+    # etc.) but risk correctly reflects temporal position.
+    online_followup_cats: Set[int] = set()
+    online_root = next(
+        (cid for cid, t in cat_titles.items() if t == "Online follow-up"),
+        None,
+    )
+    if online_root is not None:
+        stack, seen = [online_root], set()
+        while stack:
+            current = stack.pop()
+            if current in seen:
+                continue
+            seen.add(current)
+            online_followup_cats.add(current)
+            for child_cid, parent_cid in cat_parents.items():
+                if parent_cid == current and child_cid not in seen:
+                    stack.append(child_cid)
+    print(f"    Online-follow-up descendants: {len(online_followup_cats)} cats")
+
     # ── Step 4: Load fields ──────────────────────────────────────────────
     print("  Loading fields...")
     field_rows = read_tab_file(input_dir / "field.txt")
@@ -761,6 +787,15 @@ def build_database(input_dir: Path, output: Path) -> Dict[str, int]:
         # regardless of category — direct PHI identifiers must not be
         # silently re-labeled as 'baseline'.
         domain, risk_category = classify_field(main_cat, title, private)
+
+        # Temporal-position override: any field under the Online
+        # follow-up tree that would otherwise be labeled 'baseline'
+        # gets promoted to 'online_followup' because its data was
+        # collected AFTER the baseline visit. Leaves other risk
+        # categories intact (PHI / outcome / imaging already take
+        # precedence correctly).
+        if risk_category == "baseline" and main_cat in online_followup_cats:
+            risk_category = "online_followup"
 
         field_batch.append((
             fid,

@@ -249,6 +249,25 @@ _HARD = {
         "If this drops, classify_field() lost the cat==1511 override and "
         "COVID diagnosis events are back to baseline.",
     ),
+    # 2026-04-23 deep-check: 1625 fields under UKB's "Online follow-up"
+    # tree (root cat 100089, ~79 descendant cats) were labeled baseline
+    # because classifier domain rules (mental_health, cognitive,
+    # lifestyle, medical) map them to baseline risk. These are
+    # POST-BASELINE questionnaires — using them as baseline features
+    # in a temporal-leakage-sensitive model is wrong. Build-time
+    # override promotes baseline→online_followup for any descendant
+    # of cat 100089. Pin: ZERO fields in this tree may be 'baseline'.
+    "no_baseline_under_online_followup_tree": (
+        "SELECT COUNT(*) FROM fields WHERE risk_category='baseline' "
+        "AND main_category IN (WITH RECURSIVE d(cid) AS ("
+        "  SELECT category_id FROM categories WHERE title='Online follow-up' "
+        "  UNION ALL SELECT c.category_id FROM categories c JOIN d ON c.parent_id=d.cid"
+        ") SELECT cid FROM d);",
+        0,
+        "Fields under the Online follow-up tree must not be risk "
+        "'baseline' — they're collected AFTER the baseline visit. "
+        "Check the online-followup override in build_ukb_codebook_db.py.",
+    ),
     # Every field with encoding_id must reference a real encoding.
     # Previous L1 sha-pin catches source corruption; this catches
     # builder-side FK breakage.
