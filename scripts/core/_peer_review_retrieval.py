@@ -22,6 +22,42 @@ from typing import Any, Dict, List, Optional, Set
 # to unrelated tags such as `confounding_by_comorbidity` (`comorb-idi-ty`).
 _TOKEN_SPLIT = re.compile(r"[^a-z0-9]+")
 
+# Control bytes the KB text is allowed to contain when rendered to a
+# terminal or markdown: ordinary whitespace (tab \x09, LF \x0a, CR \x0d).
+# Everything else in the [0x00-0x1f, 0x7f] range is stripped — especially
+# ESC (\x1b) which would let a malicious concern body inject ANSI color
+# escapes or cursor-movement sequences into gate output. Reviewer-concern
+# text in an NC paper KB should not need these.
+_CONTROL_CHAR_RE = re.compile(r"[\x00-\x08\x0b-\x0c\x0e-\x1f\x7f]")
+
+
+def _sanitize_text(value: Any, *, max_len: Optional[int] = None) -> str:
+    """Coerce KB text to a clean, truncated string safe for terminal /
+    markdown output. Non-strings become empty. Control bytes (including
+    ANSI ESC) are stripped. Length-capped when max_len is given.
+    """
+    if not isinstance(value, str):
+        return ""
+    out = _CONTROL_CHAR_RE.sub("", value)
+    if max_len is not None and len(out) > max_len:
+        out = out[:max_len]
+    return out
+
+
+def _sanitize_tags(values: Any, *, max_items: int = 4) -> List[str]:
+    """Sanitize a list of tag strings. Non-list → empty. Non-string
+    items dropped. Control bytes stripped. Truncated to max_items.
+    """
+    if not isinstance(values, list):
+        return []
+    clean: List[str] = []
+    for v in values:
+        if isinstance(v, str):
+            clean.append(_CONTROL_CHAR_RE.sub("", v))
+        if len(clean) >= max_items:
+            break
+    return clean
+
 
 def _tokenize(text: str) -> Set[str]:
     """Tokenize a lowercased string into a set of alphanumeric tokens,
@@ -73,6 +109,40 @@ _STATS_PATH = Path(__file__).resolve().parent.parent.parent / "references" / "ca
 _kb_cache: Optional[Dict[str, Any]] = None
 
 
+class KBMalformedError(ValueError):
+    """Raised when peer-review-kb.json has a structural shape that
+    retrieval cannot safely process. Callers (notably
+    _gate_framework.py) are expected to catch this and degrade the
+    peer_review_context to an empty list with status=kb_unavailable,
+    so a broken KB never crashes a gate's report envelope.
+    """
+
+
+def _validate_kb_shape(data: Any) -> None:
+    """Minimum shape contract. We don't validate every field here —
+    retrieval functions handle missing concern-level fields defensively.
+    This guard only rejects shapes that would make the top-level
+    traversal itself raise (dict.get on a list, list iteration on a
+    dict, etc.).
+    """
+    if not isinstance(data, dict):
+        raise KBMalformedError(
+            f"KB root must be a JSON object, got {type(data).__name__}"
+        )
+    entries = data.get("entries")
+    if not isinstance(entries, list):
+        raise KBMalformedError(
+            f"KB 'entries' must be a list, got {type(entries).__name__}"
+        )
+    # Sampling check: non-dict entries would crash retrieval loops the
+    # moment they iterate .get("reviewer_concerns"). Fail loudly.
+    for idx, entry in enumerate(entries[:5]):
+        if not isinstance(entry, dict):
+            raise KBMalformedError(
+                f"KB entries[{idx}] must be a dict, got {type(entry).__name__}"
+            )
+
+
 def _load_kb(kb_path: Optional[Path] = None) -> Dict[str, Any]:
     """Load and cache the peer review knowledge base.
 
@@ -87,13 +157,22 @@ def _load_kb(kb_path: Optional[Path] = None) -> Dict[str, Any]:
       also mask mid-test file edits. If a future use case needs
       persistent custom-path caching, reach for a keyed LRU — do not
       widen this branch.
+
+    Raises:
+        FileNotFoundError: KB file missing.
+        KBMalformedError: KB is not valid JSON, or root shape fails the
+            retrieval contract (dict with 'entries' list of dicts).
     """
     global _kb_cache
     if _kb_cache is not None and kb_path is None:
         return _kb_cache
     path = kb_path or _KB_PATH
     with open(path, encoding="utf-8") as f:
-        data = json.load(f)
+        try:
+            data = json.load(f)
+        except json.JSONDecodeError as exc:
+            raise KBMalformedError(f"KB is not valid JSON: {exc}") from exc
+    _validate_kb_shape(data)
     if kb_path is None:
         _kb_cache = data
     return data
@@ -611,20 +690,20 @@ def format_peer_context(
 
     lines = []
     for i, c in enumerate(concerns[:max_display]):
-        cid = c.get("concern_id", "?")
-        paper = c.get("_paper_id", "?")
-        year = c.get("_year", "?")
-        sev = c.get("severity", "?")
+        cid = _sanitize_text(c.get("concern_id", "?"), max_len=40) or "?"
+        paper = _sanitize_text(c.get("_paper_id", "?"), max_len=20) or "?"
+        year = _sanitize_text(str(c.get("_year", "?")), max_len=10) or "?"
+        sev = _sanitize_text(c.get("severity", "?"), max_len=16) or "?"
         # CRITICAL concerns get more text
         text_limit = 250 if sev == "CRITICAL" else max_text_len
-        text = c.get("concern_text", "")[:text_limit]
-        fix = c.get("author_response", "")
-        tags = ", ".join(c.get("tags", [])[:4])
+        text = _sanitize_text(c.get("concern_text", ""), max_len=text_limit)
+        fix = _sanitize_text(c.get("author_response", ""), max_len=120)
+        tags = ", ".join(_sanitize_tags(c.get("tags", []), max_items=4))
 
         lines.append(f"  [{sev}] {cid} ({paper}, NC {year})")
         lines.append(f"    Concern: {text}...")
         if fix and fix not in _GENERIC_FIXES:
-            lines.append(f"    Fix: {fix[:120]}...")
+            lines.append(f"    Fix: {fix}...")
         lines.append(f"    Tags: {tags}")
         if i < max_display - 1:
             lines.append("")

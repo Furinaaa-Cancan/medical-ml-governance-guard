@@ -356,6 +356,102 @@ class TestEdgeCases:
         assert fmt.count("x") > 150
 
 
+class TestKBMalformedDegrades:
+    """Regression: malformed KB must not propagate an uncaught exception
+    through retrieval. _gate_framework expects KBMalformedError (or any
+    Exception) to be raised here so the framework can degrade to
+    peer_review_status='kb_error:...' without breaking the 0/2 contract.
+    """
+
+    def test_malformed_json_raises_kb_error(self, tmp_path: Path):
+        from _peer_review_retrieval import KBMalformedError
+        bad = tmp_path / "kb.json"
+        bad.write_text("{not valid json", encoding="utf-8")
+        with pytest.raises(KBMalformedError):
+            retrieve_by_gate("leakage_gate", kb_path=bad)
+
+    def test_root_not_dict_raises_kb_error(self, tmp_path: Path):
+        from _peer_review_retrieval import KBMalformedError
+        bad = tmp_path / "kb.json"
+        bad.write_text('["this is an array not an object"]', encoding="utf-8")
+        with pytest.raises(KBMalformedError):
+            retrieve_by_gate("leakage_gate", kb_path=bad)
+
+    def test_missing_entries_key_raises_kb_error(self, tmp_path: Path):
+        from _peer_review_retrieval import KBMalformedError
+        bad = tmp_path / "kb.json"
+        bad.write_text('{"version": "bad", "concerns": []}', encoding="utf-8")
+        with pytest.raises(KBMalformedError):
+            retrieve_by_gate("leakage_gate", kb_path=bad)
+
+    def test_entries_not_list_raises_kb_error(self, tmp_path: Path):
+        from _peer_review_retrieval import KBMalformedError
+        bad = tmp_path / "kb.json"
+        bad.write_text('{"entries": {"a": "b"}}', encoding="utf-8")
+        with pytest.raises(KBMalformedError):
+            retrieve_by_gate("leakage_gate", kb_path=bad)
+
+    def test_entries_contains_non_dict_raises_kb_error(self, tmp_path: Path):
+        from _peer_review_retrieval import KBMalformedError
+        bad = tmp_path / "kb.json"
+        bad.write_text('{"entries": ["oops not a dict"]}', encoding="utf-8")
+        with pytest.raises(KBMalformedError):
+            retrieve_by_gate("leakage_gate", kb_path=bad)
+
+
+class TestOutputSanitization:
+    """ANSI escape sequences and control bytes in KB text must NOT
+    survive into peer_review_context output. Regression guard against a
+    malicious concern body injecting terminal control codes."""
+
+    def test_ansi_escape_stripped(self):
+        mock = [{"concern_id": "T-01", "severity": "HIGH",
+                 "concern_text": "Normal text \x1b[31mRED\x1b[0m tail",
+                 "author_response": "fix \x1b[1mbold\x1b[0m",
+                 "_paper_id": "T", "_year": 2024,
+                 "tags": ["t1", "t\x1b[31m2"]}]
+        fmt = format_peer_context(mock, max_display=1)
+        assert "\x1b" not in fmt, "ESC (0x1b) must be stripped from output"
+        assert "RED" in fmt, "text content around the escape must survive"
+        assert "bold" in fmt
+
+    def test_null_bytes_and_bell_stripped(self):
+        mock = [{"concern_id": "T-02", "severity": "HIGH",
+                 "concern_text": "A\x00B\x07C\x7fD",
+                 "author_response": "",
+                 "_paper_id": "T", "_year": 2024,
+                 "tags": []}]
+        fmt = format_peer_context(mock, max_display=1)
+        for bad in ("\x00", "\x07", "\x7f"):
+            assert bad not in fmt
+        # ABCD should remain with the control chars removed.
+        assert "ABCD" in fmt
+
+    def test_non_string_tags_silently_dropped(self):
+        """Non-string tags (None, int) must not crash or render as 'None'
+        in output."""
+        mock = [{"concern_id": "T-03", "severity": "HIGH",
+                 "concern_text": "x",
+                 "author_response": "",
+                 "_paper_id": "T", "_year": 2024,
+                 "tags": ["valid", None, 42, "also_valid"]}]
+        fmt = format_peer_context(mock, max_display=1)
+        assert "None" not in fmt
+        assert "42" not in fmt
+        assert "valid" in fmt and "also_valid" in fmt
+
+    def test_non_string_text_fields_coerced_empty(self):
+        """If concern_text is missing/non-string, output must not crash
+        or render Python repr."""
+        mock = [{"concern_id": "T-04", "severity": "HIGH",
+                 "concern_text": None,
+                 "author_response": 12345,
+                 "_paper_id": "T", "_year": 2024,
+                 "tags": []}]
+        fmt = format_peer_context(mock, max_display=1)
+        assert "None" not in fmt and "12345" not in fmt
+
+
 class TestAllMajorGates:
     """Ensure peer review context exists for all major gates."""
 

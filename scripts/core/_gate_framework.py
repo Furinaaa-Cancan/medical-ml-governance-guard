@@ -330,6 +330,14 @@ def build_report_envelope(
                 _peer_status = "no_mapped_concerns"
         except (ImportError, FileNotFoundError):
             _peer_status = "kb_unavailable"
+        except Exception as _peer_exc:  # noqa: BLE001
+            # Final defense: any failure from retrieval (malformed KB —
+            # KBMalformedError / JSONDecodeError / schema mismatch, OR
+            # an AttributeError/KeyError from a legacy shape) must NOT
+            # crash the gate's report. Gates exit 0/2 per CLI contract;
+            # an uncaught exception would give exit 1 and break the
+            # contract. We log the reason so ops can regenerate the KB.
+            _peer_status = f"kb_error:{type(_peer_exc).__name__}"
     envelope["peer_review_context"] = _peer_ctx
     envelope["peer_review_status"] = _peer_status
 

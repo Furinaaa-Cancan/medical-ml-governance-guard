@@ -236,6 +236,47 @@ class TestBuildReportEnvelope:
 # ────────────────────────────────────────────────────────
 
 
+class TestPeerReviewRetrievalDegradation:
+    """Regression: a malformed peer-review-kb must not propagate any
+    exception out of build_report_envelope(). The gate's exit code
+    contract is 0/2 — an uncaught exception → exit 1 breaks the contract.
+    """
+
+    def _make_issues(self, fails: int):
+        return [GateIssue(code=f"c{i}", message=f"m{i}", severity=Severity.ERROR)
+                for i in range(fails)]
+
+    def test_malformed_kb_does_not_crash_envelope(self, tmp_path, monkeypatch):
+        # Point the retrieval module's default KB at a broken file.
+        import _peer_review_retrieval as prr
+        bad_kb = tmp_path / "peer-review-kb.json"
+        bad_kb.write_text("{not json", encoding="utf-8")
+        monkeypatch.setattr(prr, "_KB_PATH", bad_kb)
+        prr.clear_cache()
+
+        fi = self._make_issues(1)
+        env = build_report_envelope(
+            gate_name="leakage_gate", status="fail", strict_mode=False,
+            failures=fi, warnings=[],
+        )
+        # Must have landed in the error branch, not propagated.
+        assert env["peer_review_context"] == []
+        assert env["peer_review_status"].startswith("kb_error:") or \
+            env["peer_review_status"] == "kb_unavailable"
+
+    def test_kb_missing_does_not_crash_envelope(self, tmp_path, monkeypatch):
+        import _peer_review_retrieval as prr
+        monkeypatch.setattr(prr, "_KB_PATH", tmp_path / "does_not_exist.json")
+        prr.clear_cache()
+        fi = self._make_issues(1)
+        env = build_report_envelope(
+            gate_name="leakage_gate", status="fail", strict_mode=False,
+            failures=fi, warnings=[],
+        )
+        assert env["peer_review_context"] == []
+        assert env["peer_review_status"] == "kb_unavailable"
+
+
 # ────────────────────────────────────────────────────────
 # validate_input_files
 # ────────────────────────────────────────────────────────
