@@ -39,6 +39,10 @@ directories.
 
 ## Setting up
 
+See [ONBOARDING.md](./ONBOARDING.md) for the full 7-step walkthrough
+(key generation → fingerprint registration → signing → verification →
+rotation). The short version:
+
 1. Generate a signing keypair (one-time, on an air-gapped or
    hardware-backed machine):
 
