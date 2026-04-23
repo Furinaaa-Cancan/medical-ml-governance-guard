@@ -50,6 +50,56 @@ def _make_model_file(tmp: Path) -> Path:
 
 # ── HMAC signing / verification ──────────────────────────────────────────────
 
+class TestEnvVarKeyDerivation:
+    """Regression (Codex 2026-04-23): raw SHA-256 on MLGG_MODEL_SECRET
+    is offline-brute-forceable for human secrets. Now uses PBKDF2-
+    HMAC-SHA256 with 600k iterations + salt, matching OWASP 2023."""
+
+    def test_pbkdf2_differs_from_raw_sha256(self, monkeypatch):
+        import _security
+        secret = "hunter2"
+        monkeypatch.setenv("MLGG_MODEL_SECRET", secret)
+        monkeypatch.delenv("MLGG_MODEL_SECRET_HEX_RAW", raising=False)
+        derived = _security._derive_key()
+        raw_sha256 = hashlib.sha256(secret.encode()).digest()
+        assert derived != raw_sha256, (
+            "_derive_key must use PBKDF2, not raw SHA256 — otherwise "
+            "the brute-force vulnerability is not fixed."
+        )
+        assert len(derived) == 32
+
+    def test_pbkdf2_is_deterministic(self, monkeypatch):
+        """Same secret → same key across calls (required for
+        signature verification to work across machines)."""
+        import _security
+        monkeypatch.setenv("MLGG_MODEL_SECRET", "deterministic-test")
+        monkeypatch.delenv("MLGG_MODEL_SECRET_HEX_RAW", raising=False)
+        k1 = _security._derive_key()
+        k2 = _security._derive_key()
+        assert k1 == k2
+
+    def test_hex_raw_escape_hatch(self, monkeypatch):
+        """For known-random keys, skip PBKDF2 to avoid the 100ms
+        cost per derive — controlled by MLGG_MODEL_SECRET_HEX_RAW=1."""
+        import _security
+        key_hex = "a" * 64  # 32 bytes of 0xaa
+        monkeypatch.setenv("MLGG_MODEL_SECRET", key_hex)
+        monkeypatch.setenv("MLGG_MODEL_SECRET_HEX_RAW", "1")
+        derived = _security._derive_key()
+        assert derived == bytes.fromhex(key_hex)
+
+    def test_hex_raw_flag_with_malformed_hex_falls_back_to_pbkdf2(self, monkeypatch):
+        """Escape hatch must not create a silent downgrade path —
+        bad hex under MLGG_MODEL_SECRET_HEX_RAW=1 still runs PBKDF2."""
+        import _security
+        monkeypatch.setenv("MLGG_MODEL_SECRET", "not-valid-hex-!!!")
+        monkeypatch.setenv("MLGG_MODEL_SECRET_HEX_RAW", "1")
+        derived = _security._derive_key()
+        # PBKDF2 result, not raw SHA256
+        assert derived != hashlib.sha256(b"not-valid-hex-!!!").digest()
+        assert len(derived) == 32
+
+
 class TestKeyFilePermissions:
     """Regression: a chmod-0644 .mlgg_model_key lets any local user read
     the HMAC signing key and forge model signatures. The loader must

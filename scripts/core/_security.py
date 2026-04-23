@@ -69,6 +69,17 @@ SENSITIVE_DATA_PATTERNS: Tuple[str, ...] = (
 _KEY_ENV_VAR = "MLGG_MODEL_SECRET"
 _KEY_FILE_NAME = ".mlgg_model_key"
 
+# PBKDF2 parameters for deriving a signing key from a (potentially
+# human-chosen) MLGG_MODEL_SECRET env var. OWASP 2023 guidance is
+# 600,000 iterations for PBKDF2-HMAC-SHA256 (~100ms on typical
+# hardware). Salt is fixed per-project so signatures produced on
+# different machines still verify against the same key — the salt's
+# job is not per-call freshness (it's deterministic derivation) but
+# to differ the derived key from a raw SHA256, breaking rainbow
+# tables for the common "password: hunter2" pitfall.
+_PBKDF2_ITERATIONS = 600_000
+_PBKDF2_SALT = b"mlgg-key-derivation-salt-v1"
+
 
 def _check_key_file_mode(key_path: Path) -> None:
     """Fail-closed if the key file is world- or group-readable.
@@ -102,15 +113,33 @@ def _derive_key() -> bytes:
         3. Auto-generate and persist a new key
 
     Notes:
-        The env-var path still uses a raw SHA-256 finalization for key
-        sizing; strength against brute force depends entirely on the
-        caller setting a high-entropy MLGG_MODEL_SECRET (recommend
-        32+ bytes random, not a human secret). A PBKDF2 layer is a
-        separate hardening item (Security #3).
+        The env-var path uses PBKDF2-HMAC-SHA256 (600k iterations) so
+        a human-chosen MLGG_MODEL_SECRET (e.g., "hunter2") is not
+        cheaply brute-forceable offline given a signed artifact. Raw
+        SHA-256 was replaced per Codex review 2026-04-23. If you want
+        to skip the iteration cost for a known-random key, hex-encode
+        32 bytes of randomness and set MLGG_MODEL_SECRET_HEX_RAW=1
+        to use raw decoding instead (for CI / automated testing).
     """
     env_key = os.environ.get(_KEY_ENV_VAR, "").strip()
     if env_key:
-        return hashlib.sha256(env_key.encode("utf-8")).digest()
+        # Escape hatch: known-random 64-hex-char key goes through
+        # fast-path decode (skips PBKDF2 — no security benefit for
+        # already-uniformly-random keys).
+        if os.environ.get("MLGG_MODEL_SECRET_HEX_RAW", "").strip() == "1":
+            try:
+                raw = bytes.fromhex(env_key)
+                if len(raw) == 32:
+                    return raw
+            except ValueError:
+                pass  # Fall through to PBKDF2 on malformed hex.
+        return hashlib.pbkdf2_hmac(
+            "sha256",
+            env_key.encode("utf-8"),
+            _PBKDF2_SALT,
+            _PBKDF2_ITERATIONS,
+            dklen=32,
+        )
 
     # Search upward for project root (contains SKILL.md or .git).
     # Anchored to THIS FILE only — not Path.cwd() — so an attacker who
