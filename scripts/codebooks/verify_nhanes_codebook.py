@@ -294,15 +294,17 @@ def verify_table(
 
 # ── L2b: source TSV ↔ DB row count (offline) ────────────────────────────────
 
-# Source TSVs used by build_nhanes_codebook_db.py. Keep in sync with the
-# VARS_TSV_SOURCES / CODES_TSV_SOURCES below so L2b captures every feed.
+# Source TSVs used by build_nhanes_codebook_db.py. Keep in sync with
+# DEFAULT_VARS_TSVS / DEFAULT_CODES_TSVS there so L2b captures every feed.
 VARS_TSV_SOURCES = (
     "nhanes_variables.tsv",
     "nhanes_2021_2023_variables.tsv",
+    "nhanes_xpt_supplement_variables.tsv",
 )
 CODES_TSV_SOURCES = (
     "nhanes_variables_codebooks.tsv",
     "nhanes_2021_2023_codebooks.tsv",
+    "nhanes_xpt_supplement_codebooks.tsv",
 )
 
 
@@ -324,15 +326,16 @@ def check_source_vs_db_row_counts(
 ) -> Dict[str, Any]:
     """L2b: every TSV (var, table) pair must appear in DB.
 
-    Direction is **one-way** (TSV ⊆ DB), not set-equality, because DB
-    legitimately contains XPT-supplement rows added directly from CDC's
-    .XPT ground-truth files when the Harvard CCB-HMS TSV export was
-    incomplete (see commit ed992bc — supplemented 2021-2023 +22 vars and
-    1999-2000 +97 vars from XPT, plus later waves).
+    Direction is one-way (TSV ⊆ DB). Three TSV feeds are unioned:
+    main Harvard export + 2021-2023 incremental + XPT-supplement (retro-
+    exported from the DB in commit TBD so historical XPT-only rows are
+    now reproducible from source).
 
     `tsv_minus_db` (TSV rows missing from DB) is the HARD failure: it
-    means the pipeline lost source metadata. `db_minus_tsv` is logged
-    as XPT-supplement provenance, not a failure.
+    means the pipeline lost source metadata. `xpt_supplement_rows` (DB
+    rows not in any TSV) should be 0 after the retro-export; any non-zero
+    value indicates someone added data directly to the DB again, breaking
+    reproducibility — worth surfacing as a soft warning.
     """
     # Variables TSVs — union across all feeds
     tsv_var_pairs: set = set()

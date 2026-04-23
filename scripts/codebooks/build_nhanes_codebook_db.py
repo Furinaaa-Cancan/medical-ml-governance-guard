@@ -26,16 +26,22 @@ from typing import Dict, List, Optional, Tuple
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 NHANES_DIR = REPO_ROOT / "references" / "codebooks" / "nhanes"
-# Variables and codebooks are split across two feeds: the main Harvard CCB-HMS
-# export (1999-2018) and the incremental 2021-2023 fetcher output. Both must
-# be ingested or a rebuild loses the 2021-2023 cycle entirely.
+# Variables and codebooks are split across three feeds:
+#   1. Harvard CCB-HMS main export (1999-2018, 59,677 variables)
+#   2. fetch_nhanes_2021_2023.py incremental output (884 variables)
+#   3. XPT ground-truth supplement (919 vars added directly from CDC XPT files
+#      in commit ed992bc where the Harvard export was incomplete)
+# All three must be ingested or a rebuild loses rows. Feed #3 was retro-exported
+# from the SQLite DB so the build becomes fully reproducible from source TSVs.
 DEFAULT_VARS_TSVS = [
     NHANES_DIR / "nhanes_variables.tsv",
     NHANES_DIR / "nhanes_2021_2023_variables.tsv",
+    NHANES_DIR / "nhanes_xpt_supplement_variables.tsv",
 ]
 DEFAULT_CODES_TSVS = [
     NHANES_DIR / "nhanes_variables_codebooks.tsv",
     NHANES_DIR / "nhanes_2021_2023_codebooks.tsv",
+    NHANES_DIR / "nhanes_xpt_supplement_codebooks.tsv",
 ]
 # Back-compat single-file defaults (some external callers still pass --vars-tsv)
 DEFAULT_VARS_TSV = DEFAULT_VARS_TSVS[0]
