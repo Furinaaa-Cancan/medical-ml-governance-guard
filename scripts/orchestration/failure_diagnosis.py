@@ -18,15 +18,19 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "core"))
+from _gate_utils import load_json_from_path as _load_json_capped  # noqa: E402
+
 
 def _load_report(report_path: Path) -> Dict[str, Any]:
-    """Load a gate report JSON file."""
+    """Load a gate report JSON file (size-capped via _gate_utils)."""
     if not report_path.exists():
         return {}
     try:
-        with open(report_path) as f:
-            return json.load(f)
-    except (json.JSONDecodeError, OSError):
+        # Size-capped load: a runaway gate emitting a multi-GB report
+        # should not OOM the diagnosis run (mirrors adddd80).
+        return _load_json_capped(report_path)
+    except (json.JSONDecodeError, OSError, ValueError):
         return {}
 
 

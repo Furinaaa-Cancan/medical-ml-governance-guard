@@ -22,6 +22,9 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "core"))
+from _gate_utils import load_json_from_path as _load_json_capped  # noqa: E402
+
 
 def _read_columns_from_split(split_path: str, max_rows: int = 5) -> tuple[list[str], list[dict]]:
     """Read column names and a few sample rows (values only, no PHI) from a CSV."""
@@ -149,8 +152,8 @@ def audit_from_evidence(
     contract_report = evidence_dir / "request_contract_report.json"
     if contract_report.exists():
         try:
-            with open(contract_report) as f:
-                report = json.load(f)
+            # Size-capped load — gate reports up to 100MB (mirrors adddd80).
+            report = _load_json_capped(contract_report)
             normalized = report.get("normalized_request", {})
             target_name = normalized.get("target_name", "")
             target_col = normalized.get("label_col", "")
@@ -169,8 +172,8 @@ def audit_from_evidence(
         cohort_report = evidence_dir / "cohort_definition_report.json"
         if cohort_report.exists():
             try:
-                with open(cohort_report) as f:
-                    report = json.load(f)
+                # Size-capped load — see adddd80 rationale.
+                report = _load_json_capped(cohort_report)
                 columns = report.get("columns", [])
                 if not columns:
                     columns = list(report.get("column_types", {}).keys())
