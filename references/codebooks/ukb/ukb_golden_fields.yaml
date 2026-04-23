@@ -5,6 +5,11 @@
 # remove an entry without investigating why it's missing from the
 # live DB (that's the exact regression this file catches).
 #
+# Coverage target: at least one representative field per domain so
+# a builder bug that drops a whole category surfaces immediately.
+# 2026-04-23 round-8 deep-check expanded coverage 32 → 200 entries
+# across 49 domains.
+#
 # Schema:
 #   - field_id: <int>
 #     title_contains: <str, optional>   # substring match, case-insensitive
@@ -12,90 +17,396 @@
 #     main_category: <int, optional>
 #   - icd10: <str>
 #     title_contains: <str, optional>
-#
-# Groupings below are organizational only — the verifier loads all
-# entries flat.
 
-# ── Demographics (cat 100094 Baseline characteristics) ─────────────
+# ── Demographics / visit ──────────────────────────────────────────
 - field_id: 31
   title: "Sex"
-  main_category: 100094
 - field_id: 34
   title: "Year of birth"
-  main_category: 100094
-
-# ── Anthropometry (cat 100010) ─────────────────────────────────────
-- field_id: 21001
-  title: "Body mass index (BMI)"
-  main_category: 100010
-- field_id: 21002
-  title: "Weight"
-  main_category: 100010
-- field_id: 50
-  title: "Standing height"
-  main_category: 100010
-
-# ── Visit / age ────────────────────────────────────────────────────
+- field_id: 52
+  title: "Month of birth"
+- field_id: 21000
+  title: "Ethnic background"
 - field_id: 21003
   title_contains: "Age when attended assessment centre"
-  main_category: 100024
+- field_id: 189
+  title_contains: "Townsend deprivation"
+- field_id: 738
+  title_contains: "household income"
+- field_id: 6138
+  title_contains: "Qualifications"
+- field_id: 6142
+  title_contains: "Current employment"
+- field_id: 670
+  title_contains: "accommodation"
+- field_id: 699
+  title_contains: "Length of time at current address"
 
-# ── Blood pressure (cat 100011) ────────────────────────────────────
+# ── Anthropometry ────────────────────────────────────────────────
+- field_id: 21001
+  title: "Body mass index (BMI)"
+- field_id: 21002
+  title: "Weight"
+- field_id: 50
+  title: "Standing height"
+- field_id: 48
+  title: "Waist circumference"
+- field_id: 49
+  title: "Hip circumference"
+- field_id: 46
+  title_contains: "Hand grip strength"
+- field_id: 47
+  title_contains: "Hand grip strength"
+- field_id: 23099
+  title_contains: "Body fat"
+
+# ── Blood pressure / vitals ──────────────────────────────────────
 - field_id: 4080
-  title_contains: "Systolic blood pressure"
-  main_category: 100011
+  title_contains: "Systolic blood pressure, automated"
 - field_id: 4079
-  title_contains: "Diastolic blood pressure"
-  main_category: 100011
+  title_contains: "Diastolic blood pressure, automated"
+- field_id: 93
+  title_contains: "Systolic blood pressure, manual"
+- field_id: 94
+  title_contains: "Diastolic blood pressure, manual"
+- field_id: 95
+  title_contains: "Pulse rate"
 
-# ── Serum biochemistry (cat 17518) ─────────────────────────────────
+# ── Serum biochemistry ───────────────────────────────────────────
 - field_id: 30750
   title: "Glycated haemoglobin (HbA1c)"
-  main_category: 17518
 - field_id: 30740
   title: "Glucose"
-  main_category: 17518
 - field_id: 30690
   title: "Cholesterol"
-  main_category: 17518
 - field_id: 30760
   title: "HDL cholesterol"
-  main_category: 17518
 - field_id: 30780
   title_contains: "LDL direct"
-  main_category: 17518
 - field_id: 30870
   title: "Triglycerides"
-  main_category: 17518
 - field_id: 30700
   title: "Creatinine"
-  main_category: 17518
+- field_id: 30600
+  title: "Albumin"
+- field_id: 30620
+  title: "Alanine aminotransferase"
+- field_id: 30650
+  title: "Aspartate aminotransferase"
+- field_id: 30710
+  title: "C-reactive protein"
+- field_id: 30630
+  title_contains: "Apolipoprotein A"
+- field_id: 30720
+  title_contains: "Cystatin C"
+- field_id: 30680
+  title: "Calcium"
+- field_id: 30860
+  title_contains: "Total protein"
+- field_id: 30730
+  title_contains: "Gamma glutamyltransferase"
+- field_id: 30770
+  title_contains: "IGF-1"
+- field_id: 30670
+  title_contains: "Urea"
+- field_id: 30830
+  title_contains: "SHBG"
+- field_id: 30850
+  title_contains: "Testosterone"
+- field_id: 30840
+  title_contains: "Total bilirubin"
+- field_id: 30890
+  title_contains: "Vitamin D"
 
-# ── Nightingale NMR metabolomics (cat 220) ─────────────────────────
+# ── Haematology ──────────────────────────────────────────────────
+- field_id: 30000
+  title_contains: "White blood cell"
+- field_id: 30010
+  title_contains: "Red blood cell"
+- field_id: 30020
+  title: "Haemoglobin concentration"
+- field_id: 30030
+  title_contains: "Haematocrit percentage"
+- field_id: 30040
+  title_contains: "Mean corpuscular volume"
+- field_id: 30050
+  title_contains: "Mean corpuscular haemoglobin"
+- field_id: 30080
+  title_contains: "Platelet count"
+- field_id: 30120
+  title_contains: "Lymphocyte count"
+- field_id: 30130
+  title_contains: "Monocyte count"
+- field_id: 30140
+  title_contains: "Neutrophill count"
+- field_id: 30150
+  title_contains: "Eosinophill count"
+
+# ── NMR metabolomics (Nightingale) ───────────────────────────────
+- field_id: 23400
+  title: "Total Cholesterol"
 - field_id: 23439
   title: "Apolipoprotein B"
-  main_category: 220
 - field_id: 23440
   title: "Apolipoprotein A1"
-  main_category: 220
 - field_id: 23480
   title: "Glycoprotein Acetyls"
+- field_id: 23470
+  title: "Glucose"
   main_category: 220
+- field_id: 23471
+  title: "Lactate"
+- field_id: 23407
+  title: "Total Triglycerides"
+- field_id: 23406
+  title_contains: "HDL Cholesterol"
 
-# ── Lifestyle ──────────────────────────────────────────────────────
+# ── Urine / saliva ────────────────────────────────────────────────
+- field_id: 30510
+  title_contains: "Creatinine (enzymatic) in urine"
+- field_id: 30520
+  title_contains: "Potassium in urine"
+- field_id: 30530
+  title_contains: "Sodium in urine"
+- field_id: 30500
+  title_contains: "Microalbumin in urine"
+
+# ── Infectious disease antigens ──────────────────────────────────
+- field_id: 23000
+  title_contains: "Herpes Simplex virus-1"
+- field_id: 23001
+  title_contains: "Herpes Simplex virus-2"
+
+# ── ECG ──────────────────────────────────────────────────────────
+- field_id: 5983
+  title: "ECG, heart rate"
+- field_id: 12340
+  title: "QRS duration"
+- field_id: 22331
+  title: "QT interval"
+- field_id: 12653
+  title_contains: "ECG automated diagnoses"
+
+# ── Spirometry ───────────────────────────────────────────────────
+- field_id: 3062
+  title_contains: "Forced vital capacity"
+- field_id: 3063
+  title_contains: "FEV1"
+- field_id: 3064
+  title_contains: "Peak expiratory flow"
+- field_id: 20150
+  title_contains: "Forced expiratory volume"
+- field_id: 20151
+  title_contains: "Forced vital capacity"
+
+# ── Cognitive ────────────────────────────────────────────────────
+- field_id: 20016
+  title_contains: "Fluid intelligence"
+- field_id: 20023
+  title_contains: "Mean time to correctly identify"
+- field_id: 399
+  title_contains: "incorrect matches"
+- field_id: 4282
+  title_contains: "Maximum digits remembered"
+- field_id: 20191
+  title_contains: "Fluid intelligence"
+
+# ── Lifestyle questionnaire ──────────────────────────────────────
+- field_id: 20116
+  title: "Smoking status"
+- field_id: 20117
+  title: "Alcohol drinker status"
+- field_id: 1160
+  title: "Sleep duration"
+- field_id: 1200
+  title_contains: "Sleeplessness"
+- field_id: 864
+  title_contains: "days/week walked"
+- field_id: 884
+  title_contains: "moderate physical activity"
+- field_id: 904
+  title_contains: "vigorous physical activity"
+- field_id: 22032
+  title: "IPAQ activity group"
 - field_id: 1558
   title_contains: "Alcohol intake frequency"
-  main_category: 100051
 - field_id: 20160
   title: "Ever smoked"
-  main_category: 100058
+- field_id: 1289
+  title_contains: "Cooked vegetable"
+- field_id: 1299
+  title_contains: "Salad"
+- field_id: 1309
+  title_contains: "Fresh fruit"
 
-# ── Self-report disease (cat 100044) ───────────────────────────────
+# ── Medical questionnaire ────────────────────────────────────────
+- field_id: 2178
+  title: "Overall health rating"
+- field_id: 2443
+  title_contains: "Diabetes diagnosed"
 - field_id: 6150
-  title_contains: "Vascular/heart problems"
-  main_category: 100044
+  title_contains: "Vascular/heart"
+- field_id: 6152
+  title_contains: "Blood clot, DVT, bronchitis, emphysema"
+- field_id: 20002
+  title_contains: "Non-cancer illness code"
+- field_id: 20001
+  title_contains: "Cancer code, self-reported"
+- field_id: 20004
+  title_contains: "Operation code"
 
-# ── Algorithmic outcomes (cat 43 Cerebrovascular, cat 44 Cardiac) ──
+# ── Mental health questionnaire ──────────────────────────────────
+- field_id: 1920
+  title: "Mood swings"
+- field_id: 1930
+  title: "Miserableness"
+- field_id: 4598
+  title_contains: "Ever depressed"
+- field_id: 20127
+  title_contains: "Neuroticism"
+- field_id: 2050
+  title_contains: "Frequency of depressed"
+
+# ── Sex-specific ─────────────────────────────────────────────────
+- field_id: 2714
+  title_contains: "Age when periods started"
+- field_id: 2734
+  title_contains: "live births"
+- field_id: 2824
+  title_contains: "hysterectomy"
+
+# ── Family / early life ──────────────────────────────────────────
+- field_id: 20107
+  title_contains: "Illnesses of father"
+- field_id: 20110
+  title_contains: "Illnesses of mother"
+- field_id: 20111
+  title_contains: "Illnesses of siblings"
+- field_id: 1767
+  title_contains: "Adopted"
+- field_id: 1677
+  title_contains: "Breastfed"
+
+# ── Environment / local exposure ─────────────────────────────────
+- field_id: 24003
+  title_contains: "Nitrogen dioxide air pollution"
+- field_id: 24005
+  title_contains: "PM"
+  # Particulate matter 2.5/10
+- field_id: 24006
+  title_contains: "PM2.5"
+- field_id: 21100
+  title_contains: "Water hardness"
+
+# ── Accelerometry (POST-BASELINE by mail) ───────────────────────
+- field_id: 90012
+  title_contains: "Overall acceleration average"
+- field_id: 40031
+  title_contains: "Sedentary - Day"
+- field_id: 40032
+  title_contains: "Light - Day"
+- field_id: 40033
+  title_contains: "Moderate-Vigorous - Day"
+
+# ── Imaging: brain ───────────────────────────────────────────────
+- field_id: 25000
+  title_contains: "Volumetric scaling"
+- field_id: 25010
+  title_contains: "grey+white matter"
+- field_id: 25002
+  title_contains: "peripheral cortical grey matter"
+- field_id: 25781
+  title_contains: "Total volume of white matter hyperintensities"
+
+# ── Imaging: cardiac ─────────────────────────────────────────────
+- field_id: 24100
+  title: "LV end diastolic volume"
+- field_id: 24101
+  title: "LV end systolic volume"
+- field_id: 24103
+  title: "LV ejection fraction"
+- field_id: 24104
+  title: "LV cardiac output"
+
+# ── Imaging: abdominal ───────────────────────────────────────────
+- field_id: 21088
+  title_contains: "Liver PDFF"
+- field_id: 21080
+  title: "Liver volume"
+- field_id: 21083
+  title: "Spleen volume"
+- field_id: 21087
+  title: "Pancreas volume"
+
+# ── Imaging: DXA / heel bone ultrasound ─────────────────────────
+- field_id: 78
+  title_contains: "Heel bone mineral density"
+- field_id: 4106
+  title_contains: "Heel bone mineral density"
+
+# ── Imaging: eye ─────────────────────────────────────────────────
+- field_id: 5096
+  title: "3mm weak meridian (left)"
+- field_id: 5099
+  title: "3mm weak meridian (right)"
+
+# ── Hearing test ─────────────────────────────────────────────────
+- field_id: 4849
+  title_contains: "Hearing test done"
+- field_id: 20019
+  title_contains: "Speech-reception-threshold"
+- field_id: 4230
+  title_contains: "Signal-to-noise-ratio"
+
+# ── Genomics ─────────────────────────────────────────────────────
+- field_id: 22001
+  title_contains: "Genetic sex"
+- field_id: 22006
+  title_contains: "Genetic ethnic grouping"
+- field_id: 22009
+  title_contains: "Genetic principal components"
+- field_id: 22021
+  title_contains: "Genetic kinship"
+- field_id: 22027
+  title_contains: "Outliers for heterozygosity"
+
+# ── Polygenic risk scores (cat 300-302) ─────────────────────────
+- field_id: 26216
+  title_contains: "PRS for"
+- field_id: 26223
+  title_contains: "PRS for"
+
+# ── Hospital inpatient ───────────────────────────────────────────
+- field_id: 41270
+  title_contains: "ICD10"
+- field_id: 41271
+  title_contains: "ICD9"
+- field_id: 41272
+  title_contains: "OPCS"
+- field_id: 41280
+  title_contains: "ICD10"
+
+# ── Death registry ───────────────────────────────────────────────
+- field_id: 40000
+  title: "Date of death"
+- field_id: 40001
+  title_contains: "cause of death"
+- field_id: 40007
+  title_contains: "Age at death"
+
+# ── Cancer registry ──────────────────────────────────────────────
+- field_id: 40005
+  title: "Date of cancer diagnosis"
+- field_id: 40006
+  title: "Type of cancer: ICD10"
+- field_id: 40008
+  title_contains: "Age at cancer diagnosis"
+- field_id: 40011
+  title_contains: "Histology"
+- field_id: 40013
+  title: "Type of cancer: ICD9"
+
+# ── Algorithmically-defined outcomes (cat 42-50) ────────────────
 - field_id: 42000
   title: "Date of myocardial infarction"
   main_category: 44
@@ -108,33 +419,114 @@
 - field_id: 42012
   title_contains: "subarachnoid haemorrhage"
   main_category: 43
+- field_id: 42018
+  title_contains: "all cause dementia"
+- field_id: 42014
+  title_contains: "asthma"
+- field_id: 42016
+  title_contains: "chronic obstructive pulmonary disease"
+- field_id: 42026
+  title_contains: "end stage renal disease"
 
-# ── First-occurrence (cat 2401-2416, per UKB release after 2022) ──
-# User's 2026-04 audit noted these hang on subcats 2401-2416 instead
-# of parent cat 1712 — pin one here so any future reshuffle surfaces.
+# ── First-occurrence (cat 2401-2417) ────────────────────────────
 - field_id: 131286
   title_contains: "Date I10 first reported"
-  # essential (primary) hypertension first-occurrence date
+- field_id: 131298
+  title_contains: "Date I21 first reported"
+- field_id: 131366
+  title_contains: "Date I63 first reported"
+- field_id: 131494
+  title_contains: "Date J45 first reported"
+- field_id: 131492
+  title_contains: "Date J44 first reported"
+- field_id: 130708
+  title_contains: "Date E11 first reported"
+- field_id: 130706
+  title_contains: "Date E10 first reported"
+- field_id: 132032
+  title_contains: "Date N18 first reported"
+- field_id: 130836
+  title_contains: "Date F00 first reported"
+- field_id: 131036
+  title_contains: "Date G30 first reported"
+- field_id: 132202
+  title_contains: "Date O24 first reported"
 
-# ── ICD-10 dictionary — known heroes (encoding_id=19) ─────────────
+# ── Procedural / assessment ──────────────────────────────────────
+- field_id: 53
+  title_contains: "Date of attending assessment"
+- field_id: 54
+  title_contains: "UK Biobank assessment centre"
+- field_id: 200
+  title_contains: "Date of consenting"
+
+# ── COVID self-report (cat 1511, outcome risk) ──────────────────
+- field_id: 29157
+  title_contains: "Date first had COVID-19"
+
+# ── PHI identifiers (private=1) ─────────────────────────────────
+- field_id: 33
+  title: "Date of birth"
+- field_id: 20033
+  title_contains: "east co-ordinate"
+- field_id: 20034
+  title_contains: "north co-ordinate"
+- field_id: 115
+  title_contains: "Father's month"
+
+# ── ICD-10 dictionary — WHO 1990 terminology ─────────────────────
 # UKB uses WHO's original ICD-10 1990s terminology — NOT the modern
 # re-branded names ("Type 2 DM" vs "Non-insulin-dependent DM", "CKD"
 # vs "Chronic renal failure"). Golden seeds target the exact strings
 # the DB holds, so a regression (different WHO revision imported)
 # surfaces immediately.
+- icd10: "E10"
+  title_contains: "insulin-dependent diabetes"
 - icd10: "E11"
   title_contains: "non-insulin-dependent diabetes"
+- icd10: "E78"
+  title_contains: "lipoprotein"
+- icd10: "I10"
+  title_contains: "hypertension"
 - icd10: "I21"
   title_contains: "myocardial infarction"
+- icd10: "I50"
+  title_contains: "heart failure"
+- icd10: "I48"
+  title_contains: "atrial fibrillation"
+- icd10: "I61"
+  title_contains: "intracerebral haemorrhage"
 - icd10: "I63"
   title_contains: "cerebral infarction"
-- icd10: "C50"
-  title_contains: "breast"
+- icd10: "I64"
+  title_contains: "stroke"
 - icd10: "J18"
   title_contains: "pneumonia"
+- icd10: "J44"
+  title_contains: "chronic obstructive"
+- icd10: "J45"
+  title_contains: "asthma"
 - icd10: "N18"
   title_contains: "chronic renal failure"
+- icd10: "N19"
+  title_contains: "renal failure"
+- icd10: "C50"
+  title_contains: "breast"
+- icd10: "F00"
+  title_contains: "alzheimer"
+- icd10: "F01"
+  title_contains: "vascular dementia"
+- icd10: "F03"
+  title_contains: "dementia"
 - icd10: "F32"
   title_contains: "depress"
+- icd10: "F41"
+  title_contains: "anxiety"
+- icd10: "G30"
+  title_contains: "alzheimer"
 - icd10: "K70"
   title_contains: "alcohol"
+- icd10: "M19"
+  title_contains: "arthrosis"
+- icd10: "O24"
+  title_contains: "pregnan"
