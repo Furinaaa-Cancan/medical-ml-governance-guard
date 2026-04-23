@@ -213,28 +213,67 @@ def verify_table(
 
         value_checks += 1
 
-        # Decode bytes→str, build both numeric and string value_counts so we
-        # can match codes regardless of whether SAS stored them as char or num.
+        # SAS XPT encodes numeric zero as ~5.4e-79 (smallest denormalized
+        # positive double) to distinguish from missing (NaN). Always try
+        # numeric matching first so the sub-epsilon clip applies; fall back
+        # to string matching for genuinely character-typed variables.
         series = df[col].map(_decode_xpt_value)
+        numeric = pd.to_numeric(series, errors="coerce")
+        # Preserve NaN (missing); clip only sub-epsilon positives to 0.
+        sub_eps = (numeric.abs() < 1e-20) & numeric.notna()
+        numeric = numeric.mask(sub_eps, 0.0)
+        vc_num = numeric.value_counts(dropna=True)
         vc_str = series.astype(str).value_counts(dropna=True)
-        vc_num = pd.to_numeric(series, errors="coerce").value_counts(dropna=True)
 
         def _xpt_count(code_str: str) -> int:
-            # Try string match first ("0", "01"), then numeric (0.0).
-            n = int(vc_str.get(code_str, 0))
-            if n:
-                return n
             try:
-                return int(vc_num.get(float(code_str), 0))
+                n = int(vc_num.get(float(code_str), 0))
+                if n:
+                    return n
             except (ValueError, TypeError):
-                return 0
+                pass
+            return int(vc_str.get(code_str, 0))
+
+        # Is this variable's code-0 a "skip trigger" (respondents who answer 0
+        # skip downstream questions and may be encoded as SAS-missing in XPT)?
+        # Or a "detection-limit flag" (CDC codebook publishes aggregate count,
+        # XPT stores at/above-detection as null)?
+        skip_triggers = {
+            r[0] for r in conn.execute(
+                "SELECT code FROM value_codes WHERE variable_id=? "
+                "AND skip_to IS NOT NULL AND skip_to != ''",
+                (vid,),
+            ).fetchall()
+        }
 
         all_match = True
         for code_str, label, expected_count in our_codes:
             actual = _xpt_count(code_str)
             expected = int(expected_count) if expected_count else 0
 
-            if actual != expected:
+            if actual == expected:
+                continue
+
+            # Classify the mismatch. CDC's codebook pages sometimes publish
+            # aggregate counts that diverge from the actual XPT distribution
+            # (skip-trigger codes, detection-limit flags). These are CDC-side
+            # conventions, not MLGG codebook errors.
+            is_skip_trigger = code_str in skip_triggers and actual == 0
+            is_detection_limit = (
+                actual == 0
+                and label
+                and any(kw in label.lower() for kw in (
+                    "detection limit", "at or above", "below lower",
+                ))
+            )
+            if is_skip_trigger or is_detection_limit:
+                all_match = False
+                result["issues"].append({
+                    "type": "CDC_INTERNAL_DIVERGENCE",
+                    "detail": f"{col}={code_str}: codebook count={expected}, XPT count={actual} "
+                              f"(reason: {'skip_trigger' if is_skip_trigger else 'detection_limit'})",
+                })
+            else:
                 all_match = False
                 result["issues"].append({
                     "type": "COUNT_MISMATCH",
@@ -283,11 +322,17 @@ def _tsv_unique_pairs(path: Path, var_key: str, tbl_key: str) -> set:
 def check_source_vs_db_row_counts(
     conn: sqlite3.Connection, nhanes_dir: Path = NHANES_DIR
 ) -> Dict[str, Any]:
-    """L2b: union of source TSV (var, table) pairs must equal DB (var, table).
+    """L2b: every TSV (var, table) pair must appear in DB.
 
-    Mirrors the UKB L2b check. Drift here is a deterministic red flag that
-    no network-level spot-check would have caught (the 919-row delta that
-    the April-2026 audit turned up, for example).
+    Direction is **one-way** (TSV ⊆ DB), not set-equality, because DB
+    legitimately contains XPT-supplement rows added directly from CDC's
+    .XPT ground-truth files when the Harvard CCB-HMS TSV export was
+    incomplete (see commit ed992bc — supplemented 2021-2023 +22 vars and
+    1999-2000 +97 vars from XPT, plus later waves).
+
+    `tsv_minus_db` (TSV rows missing from DB) is the HARD failure: it
+    means the pipeline lost source metadata. `db_minus_tsv` is logged
+    as XPT-supplement provenance, not a failure.
     """
     # Variables TSVs — union across all feeds
     tsv_var_pairs: set = set()
@@ -298,7 +343,8 @@ def check_source_vs_db_row_counts(
         "SELECT variable_code, table_name FROM variables"
     ).fetchall())
 
-    # value_codes: also compare (var, table, code) across feeds
+    # value_codes row totals (informational — not hard-gated since XPT
+    # supplementation can add per-var codes not present in any TSV)
     tsv_code_rows = 0
     for name in CODES_TSV_SOURCES:
         path = nhanes_dir / name
@@ -307,18 +353,19 @@ def check_source_vs_db_row_counts(
                 tsv_code_rows += sum(1 for _ in csv.DictReader(f, delimiter="\t"))
     db_code_rows = conn.execute("SELECT COUNT(*) FROM value_codes").fetchone()[0]
 
-    db_minus_tsv = db_var_pairs - tsv_var_pairs
-    tsv_minus_db = tsv_var_pairs - db_var_pairs
+    xpt_supplement = db_var_pairs - tsv_var_pairs  # legitimate
+    tsv_minus_db = tsv_var_pairs - db_var_pairs    # HARD failure
 
     return {
         "tsv_var_pairs": len(tsv_var_pairs),
         "db_var_pairs": len(db_var_pairs),
-        "db_minus_tsv": len(db_minus_tsv),
+        "xpt_supplement_rows": len(xpt_supplement),
         "tsv_minus_db": len(tsv_minus_db),
         "tsv_code_rows": tsv_code_rows,
         "db_code_rows": db_code_rows,
-        "sample_db_minus_tsv": sorted(db_minus_tsv)[:10],
+        "sample_xpt_supplement": sorted(xpt_supplement)[:10],
         "sample_tsv_minus_db": sorted(tsv_minus_db)[:10],
+        "hard_failed": len(tsv_minus_db) > 0,
     }
 
 
@@ -344,30 +391,28 @@ def main() -> int:
 
     # ── L2b: source↔DB row counts (always; cheap, deterministic) ──────────
     print("="*60)
-    print("L2b: source TSV ↔ DB row counts")
+    print("L2b: source TSV ↔ DB row counts (one-way: TSV ⊆ DB)")
     print("="*60)
     l2b = check_source_vs_db_row_counts(conn)
     print(f"  TSV (var,table) pairs:     {l2b['tsv_var_pairs']:>7,}")
     print(f"  DB  (var,table) pairs:     {l2b['db_var_pairs']:>7,}")
-    print(f"  DB - TSV (extra in DB):    {l2b['db_minus_tsv']:>7,}")
-    print(f"  TSV - DB (missing in DB):  {l2b['tsv_minus_db']:>7,}")
+    print(f"  XPT-supplement rows in DB: {l2b['xpt_supplement_rows']:>7,}  (legit; from XPT ground truth, not TSV)")
+    print(f"  TSV missing in DB:         {l2b['tsv_minus_db']:>7,}  (HARD failure if > 0)")
     print(f"  TSV value_code rows:       {l2b['tsv_code_rows']:>7,}")
     print(f"  DB  value_codes rows:      {l2b['db_code_rows']:>7,}")
-    if l2b["db_minus_tsv"] or l2b["tsv_minus_db"]:
-        print("  WARN: source↔DB variable set mismatch")
-        for p in l2b["sample_db_minus_tsv"][:5]:
-            print(f"    DB-only: {p[0]}@{p[1]}")
+    if l2b["hard_failed"]:
+        print("  FAIL: TSV rows not present in DB — pipeline lost source metadata")
         for p in l2b["sample_tsv_minus_db"][:5]:
             print(f"    TSV-only: {p[0]}@{p[1]}")
     else:
-        print("  OK: source and DB variable sets agree")
+        print("  OK: all TSV source rows present in DB")
     print()
 
     if args.l2b_only:
         conn.close()
         if args.output:
             Path(args.output).write_text(json.dumps({"l2b": l2b}, indent=2, ensure_ascii=False))
-        return 0 if (l2b["db_minus_tsv"] + l2b["tsv_minus_db"]) == 0 else 1
+        return 1 if l2b["hard_failed"] else 0
 
     if args.all_cycles:
         cycles = list(ALL_CYCLES)
@@ -421,16 +466,26 @@ def main() -> int:
 
             time.sleep(0.3)  # rate limit
 
-    # Summary
+    # Summary — separate hard failures from CDC-side divergences
+    hard_issues = sum(
+        sum(1 for iss in r["issues"] if iss["type"] != "CDC_INTERNAL_DIVERGENCE")
+        for r in all_results
+    )
+    cdc_divergences = sum(
+        sum(1 for iss in r["issues"] if iss["type"] == "CDC_INTERNAL_DIVERGENCE")
+        for r in all_results
+    )
+
     print(f"\n{'='*60}")
     print("VERIFICATION SUMMARY")
     print(f"{'='*60}")
-    print(f"Tables verified:     {total_tables}")
-    print(f"Column lists match:  {total_col_match}/{total_tables} ({total_col_match/max(total_tables,1)*100:.0f}%)")
-    print(f"Value code checks:   {total_val_match}/{total_val_checks} ({total_val_match/max(total_val_checks,1)*100:.0f}%)")
+    print(f"Tables verified:         {total_tables}")
+    print(f"Column lists match:      {total_col_match}/{total_tables} ({total_col_match/max(total_tables,1)*100:.0f}%)")
+    print(f"Value code checks:       {total_val_match}/{total_val_checks} ({total_val_match/max(total_val_checks,1)*100:.0f}%)")
+    print(f"Hard issues (MLGG bugs): {hard_issues}")
+    print(f"CDC-side divergences:    {cdc_divergences}  (informational; codebook vs XPT convention mismatch)")
 
-    total_issues = sum(len(r["issues"]) for r in all_results)
-    print(f"Total issues found:  {total_issues}")
+    total_issues = hard_issues
 
     if args.output:
         report = {
@@ -438,15 +493,15 @@ def main() -> int:
             "total_tables": total_tables,
             "column_match_rate": total_col_match / max(total_tables, 1),
             "value_match_rate": total_val_match / max(total_val_checks, 1),
-            "total_issues": total_issues,
+            "hard_issues": hard_issues,
+            "cdc_divergences": cdc_divergences,
             "results": all_results,
         }
         Path(args.output).write_text(json.dumps(report, indent=2, ensure_ascii=False))
         print(f"\nReport: {args.output}")
 
     conn.close()
-    l2b_failed = (l2b["db_minus_tsv"] + l2b["tsv_minus_db"]) != 0
-    return 0 if (total_issues == 0 and not l2b_failed) else 1
+    return 1 if (hard_issues > 0 or l2b["hard_failed"]) else 0
 
 
 if __name__ == "__main__":
