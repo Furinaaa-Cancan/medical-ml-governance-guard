@@ -23,6 +23,29 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install -r requirements.txt
 
+      - name: KB hygiene (peer-review-kb gate refs + category + severity)
+        # Fails the nightly if a past commit introduced invalid gate
+        # references, out-of-allowlist categories, or non-enum severity
+        # values. Pre-commit catches these at author time; nightly
+        # catches cases where pre-commit was bypassed or the registry
+        # changed after the fact.
+        run: |
+          python3 scripts/diagnostics/kb_hygiene_check.py --strict \
+            --report /tmp/mlgg_kb_hygiene_report.json
+
+      - name: Retrieval end-to-end regression (seed scenarios)
+        # Runs the 3-scenario retrieval eval and compares to the pinned
+        # baseline in references/retrieval_eval/baseline.json. Fails
+        # if any scenario drops below its baseline coverage / hit@K /
+        # tag_precision-floor. Catches KB rewording or synonym-table
+        # changes that silently tank retrieval quality.
+        run: |
+          python3 scripts/diagnostics/retrieval_eval_harness.py \
+            --scenarios references/retrieval_eval/scenarios.json \
+            --baseline references/retrieval_eval/baseline.json \
+            --report /tmp/mlgg_retrieval_eval_report.json \
+            --strict
+
       - name: Full onboarding (guided demo)
         run: |
           python3 scripts/orchestration/mlgg.py onboarding \
@@ -50,6 +73,12 @@ jobs:
           fi
           if [ -d /tmp/mlgg_release_benchmark_runs ]; then
             cp -R /tmp/mlgg_release_benchmark_runs /tmp/mlgg_ci_artifacts/
+          fi
+          if [ -f /tmp/mlgg_kb_hygiene_report.json ]; then
+            cp /tmp/mlgg_kb_hygiene_report.json /tmp/mlgg_ci_artifacts/
+          fi
+          if [ -f /tmp/mlgg_retrieval_eval_report.json ]; then
+            cp /tmp/mlgg_retrieval_eval_report.json /tmp/mlgg_ci_artifacts/
           fi
 
       - name: Upload artifacts
