@@ -57,6 +57,12 @@ SCHEMAS = {
     13: "catbrowse.txt",
 }
 
+# Encodings to cross-check row counts against UKB's `codown.cgi` dump.
+# Covers the three big clinical code systems (ICD-10, ICD-9, OPCS-4)
+# plus two tiny sanity checks (Sex, Pass/Fail) to detect total ingest
+# failure even when a large system happens to round-match.
+LIVE_ENCODING_PROBES = [19, 87, 240, 9, 100]
+
 # Golden-seed fields used for live cross-check. Mix of baseline,
 # biochem, PHI, first-occurrence, and imaging to catch category-
 # specific regressions.
@@ -141,6 +147,41 @@ def fetch_field_meta(fid: int, timeout: int = 30) -> Tuple[str, Optional[int]]:
     return title, cat_id
 
 
+def check_encoding_counts(
+    conn: sqlite3.Connection, encodings: List[int], pause: float = 0.4,
+) -> List[str]:
+    """For each encoding, fetch UKB's codown.cgi and diff row count."""
+    issues = []
+    print(f"\n── Encoding row-count cross-check ({len(encodings)} encodings) ──")
+    print(f"{'enc':>6}  {'title':<30} {'live':>8} {'db':>8}  {'OK':>3}")
+    for enc_id in encodings:
+        url = f"{BASE_URL}/codown.cgi?id={enc_id}"
+        try:
+            data = _http(url, timeout=90).decode("utf-8", errors="replace")
+        except (URLError, HTTPError, TimeoutError) as exc:
+            issues.append(f"encoding {enc_id}: fetch failed ({exc})")
+            continue
+        # UKB codown.cgi returns TSV with header; non-empty data lines
+        # are the actual rows. Skip blank lines and comments defensively.
+        live_rows = [l for l in data.splitlines() if l.strip() and not l.startswith("#")]
+        live_count = max(0, len(live_rows) - 1)  # minus header
+        row = conn.execute(
+            "SELECT e.title, (SELECT COUNT(*) FROM encoding_values ev WHERE ev.encoding_id=e.encoding_id) "
+            "FROM encodings e WHERE e.encoding_id=?", (enc_id,),
+        ).fetchone()
+        if row is None:
+            issues.append(f"encoding {enc_id}: not in local DB")
+            continue
+        title, db_count = row
+        ok = live_count == db_count
+        if not ok:
+            issues.append(f"encoding {enc_id} ({title}): live={live_count} db={db_count}")
+        print(f"{enc_id:>6}  {(title or '')[:30]:<30} {live_count:>8} {db_count:>8}  "
+              f"{'✓' if ok else '✗':>3}")
+        time.sleep(pause)
+    return issues
+
+
 def check_field_pages(
     conn: sqlite3.Connection, probes: List[int], pause: float = 0.4,
 ) -> List[str]:
@@ -187,9 +228,11 @@ def main() -> int:
     p.add_argument("--db", type=Path, default=DEFAULT_DB)
     p.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     p.add_argument("--schema-only", action="store_true",
-                   help="Skip field-page cross-check (schema drift only).")
+                   help="Skip field-page and encoding-count cross-check (schema drift only).")
     p.add_argument("--field-only", action="store_true",
-                   help="Skip schema re-download (field-page only).")
+                   help="Skip schema and encoding checks (field-page only).")
+    p.add_argument("--skip-encodings", action="store_true",
+                   help="Skip encoding row-count cross-check.")
     p.add_argument("--probes", type=int, default=0,
                    help="Number of RANDOM additional fields to probe beyond "
                         "the golden-seed defaults.")
@@ -207,6 +250,12 @@ def main() -> int:
 
     if not args.field_only:
         all_issues.extend(check_schema_drift(args.manifest))
+
+    if not args.schema_only and not args.field_only and not args.skip_encodings:
+        with sqlite3.connect(str(args.db)) as conn:
+            all_issues.extend(check_encoding_counts(
+                conn, LIVE_ENCODING_PROBES, args.pause,
+            ))
 
     if not args.schema_only:
         probes = list(DEFAULT_PROBE_FIELDS)

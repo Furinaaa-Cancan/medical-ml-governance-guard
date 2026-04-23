@@ -44,7 +44,7 @@ _COUNTS = {
     "encodings_total":     ("SELECT COUNT(*) FROM encodings;",                                               858, 5.0),
     "encoding_values":     ("SELECT COUNT(*) FROM encoding_values;",                                      466907, 1.0),
     "icd10_codes":         ("SELECT COUNT(*) FROM encoding_values WHERE encoding_id=19;",                  19190, 0.5),
-    "icd9_codes":          ("SELECT COUNT(*) FROM encoding_values WHERE encoding_id=87;",                  13709, 0.5),
+    "icd9_codes":          ("SELECT COUNT(*) FROM encoding_values WHERE encoding_id=87;",                  13710, 0.5),
     "opcs4_codes":         ("SELECT COUNT(*) FROM encoding_values WHERE encoding_id=240;",                 11288, 0.5),
     "nmr_cat_220":         ("SELECT COUNT(*) FROM fields WHERE main_category=220;",                          251, 0.5),
 }
