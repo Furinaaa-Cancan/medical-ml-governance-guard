@@ -204,6 +204,31 @@ class NHANESCodebook:
 
             var_code = info["variable"]
 
+            # Check 0: PHI identifier used as a feature (analog of UKB
+            # CODEBOOK_PHI_IDENTIFIER_AS_FEATURE). NHANES has exactly one
+            # identifier-class variable — SEQN (Respondent sequence number),
+            # the cross-table join key. Using it as a predictor is always
+            # wrong (it is effectively a random participant ID after CDC
+            # de-identification). NHANES has no EMBARGOED analogue, so only
+            # the identifier half of the UKB handler carries over.
+            if var_code == "SEQN":
+                issues.append({
+                    "code": "CODEBOOK_PHI_IDENTIFIER_AS_FEATURE",
+                    "message": (
+                        f"Column '{col}' maps to NHANES 'SEQN' "
+                        f"(Respondent sequence number) — the cross-table join key, "
+                        f"not a feature. Remove from the feature set."
+                    ),
+                    "details": {
+                        "column": col, "var_code": var_code,
+                        "domain": "identifier",
+                        "sas_label": info.get("sas_label"),
+                        "source": "nhanes_rag_auto",
+                    },
+                })
+                # SEQN triggers no other checks — skip the rest.
+                continue
+
             # Check 1: Gated missingness
             # Source A: variable's own skip pattern + high missing
             # Source B: upstream gating chain (variable is skipped by another question)

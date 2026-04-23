@@ -86,10 +86,25 @@ class TestValidation:
             ["SEQN", "DIQ172", "RIDRETH3", "y"], target_col="y"
         )
         codes = [i["code"] for i in issues]
+        # SEQN is the cross-table join key — flagged as PHI identifier
+        assert "CODEBOOK_PHI_IDENTIFIER_AS_FEATURE" in codes
         # DIQ172 has skip pattern + missing → gated
         assert "CODEBOOK_GATED_MISSINGNESS" in codes
         # RIDRETH3 is categorical
         assert "CODEBOOK_ENCODING_CHECK" in codes
+
+    def test_seqn_only_triggers_identifier_handler(self, codebook):
+        """SEQN must trigger CODEBOOK_PHI_IDENTIFIER_AS_FEATURE and skip downstream
+        checks; non-identifier vars must not be flagged as identifiers."""
+        issues = codebook.validate_columns(
+            ["SEQN", "BMXBMI", "LBXGH"], target_col="y"
+        )
+        phi = [i for i in issues if i["code"] == "CODEBOOK_PHI_IDENTIFIER_AS_FEATURE"]
+        assert len(phi) == 1
+        assert phi[0]["details"]["column"] == "SEQN"
+        # SEQN must not produce additional issues (continue after handler)
+        seqn_issues = [i for i in issues if i["details"].get("column") == "SEQN"]
+        assert len(seqn_issues) == 1
 
     def test_clean_friendly_names_no_issues(self, codebook, manual_registry):
         """Friendly-named columns already in manual registry → skipped by RAG."""

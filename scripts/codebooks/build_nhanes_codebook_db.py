@@ -25,10 +25,23 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-DEFAULT_VARS_TSV = REPO_ROOT / "references" / "codebooks" / "nhanes" / "nhanes_variables.tsv"
-DEFAULT_CODES_TSV = REPO_ROOT / "references" / "codebooks" / "nhanes" / "nhanes_variables_codebooks.tsv"
+NHANES_DIR = REPO_ROOT / "references" / "codebooks" / "nhanes"
+# Variables and codebooks are split across two feeds: the main Harvard CCB-HMS
+# export (1999-2018) and the incremental 2021-2023 fetcher output. Both must
+# be ingested or a rebuild loses the 2021-2023 cycle entirely.
+DEFAULT_VARS_TSVS = [
+    NHANES_DIR / "nhanes_variables.tsv",
+    NHANES_DIR / "nhanes_2021_2023_variables.tsv",
+]
+DEFAULT_CODES_TSVS = [
+    NHANES_DIR / "nhanes_variables_codebooks.tsv",
+    NHANES_DIR / "nhanes_2021_2023_codebooks.tsv",
+]
+# Back-compat single-file defaults (some external callers still pass --vars-tsv)
+DEFAULT_VARS_TSV = DEFAULT_VARS_TSVS[0]
+DEFAULT_CODES_TSV = DEFAULT_CODES_TSVS[0]
 DEFAULT_CURATED = REPO_ROOT / "references" / "codebooks" / "dataset-codebook-registry.json"
-DEFAULT_OUTPUT = REPO_ROOT / "references" / "codebooks" / "nhanes" / "nhanes_codebook.sqlite"
+DEFAULT_OUTPUT = NHANES_DIR / "nhanes_codebook.sqlite"
 
 # ── Cycle detection ──────────────────────────────────────────────────────────
 
@@ -264,14 +277,24 @@ COMMON_ALIASES = {
 # ── Main build ───────────────────────────────────────────────────────────────
 
 def build_database(
-    vars_tsv: Path,
-    codes_tsv: Path,
+    vars_tsvs: "Path | List[Path]",
+    codes_tsvs: "Path | List[Path]",
     curated_path: Optional[Path],
     output: Path,
 ) -> Dict[str, int]:
-    """Build SQLite from TSV sources."""
-    print(f"Reading variables from {vars_tsv}...")
-    print(f"Reading codebooks from {codes_tsv}...")
+    """Build SQLite from TSV sources.
+
+    Accepts either a single Path (back-compat) or a list of Paths. When a
+    list is given, rows are unioned across all feeds via INSERT OR IGNORE so
+    duplicate (var, table) entries from overlapping exports are deduped.
+    """
+    if isinstance(vars_tsvs, Path):
+        vars_tsvs = [vars_tsvs]
+    if isinstance(codes_tsvs, Path):
+        codes_tsvs = [codes_tsvs]
+
+    for p in vars_tsvs + codes_tsvs:
+        print(f"Reading {p}...")
 
     # Remove existing database
     if output.exists():
@@ -284,104 +307,112 @@ def build_database(
 
     # ── Step 1: Load variables ────────────────────────────────────────────
     var_count = 0
-    with open(vars_tsv, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f, delimiter="\t")
-        batch = []
-        for row in reader:
-            var_code = row.get("Variable", "").strip()
-            table = row.get("Table", "").strip()
-            if not var_code or not table:
-                continue
+    batch: List[Tuple] = []
+    for vars_tsv in vars_tsvs:
+        if not vars_tsv.exists():
+            print(f"  WARN: {vars_tsv} not found, skipping")
+            continue
+        with open(vars_tsv, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f, delimiter="\t")
+            for row in reader:
+                var_code = row.get("Variable", "").strip()
+                table = row.get("Table", "").strip()
+                if not var_code or not table:
+                    continue
 
-            vid = f"{var_code}@{table}"
-            cycle = infer_cycle(table)
-            domain = infer_domain(table, var_code)
+                vid = f"{var_code}@{table}"
+                cycle = infer_cycle(table)
+                domain = infer_domain(table, var_code)
 
-            batch.append((
-                vid, var_code, table, cycle,
-                row.get("SASLabel", "").strip() or None,
-                row.get("EnglishText", "").strip() or None,
-                row.get("EnglishInstructions", "").strip() or None,
-                row.get("Target", "").strip() or None,
-                None,  # data_type — filled after codebook pass
-                domain,
-                None,  # unit
-                None,  # missing_rate
-                row.get("IsPhenotype", "").strip().upper() == "TRUE",
-                row.get("OntologyMapped", "").strip().upper() == "TRUE",
-            ))
-            var_count += 1
+                batch.append((
+                    vid, var_code, table, cycle,
+                    row.get("SASLabel", "").strip() or None,
+                    row.get("EnglishText", "").strip() or None,
+                    row.get("EnglishInstructions", "").strip() or None,
+                    row.get("Target", "").strip() or None,
+                    None,  # data_type — filled after codebook pass
+                    domain,
+                    None,  # unit
+                    None,  # missing_rate
+                    row.get("IsPhenotype", "").strip().upper() == "TRUE",
+                    row.get("OntologyMapped", "").strip().upper() == "TRUE",
+                ))
+                var_count += 1
 
-            if len(batch) >= 5000:
-                conn.executemany(
-                    "INSERT OR IGNORE INTO variables VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    batch,
-                )
-                batch.clear()
+                if len(batch) >= 5000:
+                    conn.executemany(
+                        "INSERT OR IGNORE INTO variables VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                        batch,
+                    )
+                    batch.clear()
 
-        if batch:
-            conn.executemany(
-                "INSERT OR IGNORE INTO variables VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                batch,
-            )
+    if batch:
+        conn.executemany(
+            "INSERT OR IGNORE INTO variables VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            batch,
+        )
     conn.commit()
-    print(f"  Loaded {var_count} variables")
+    print(f"  Loaded {var_count} variable rows (before dedup)")
 
     # ── Step 2: Load codebook entries ─────────────────────────────────────
     code_count = 0
     # Group codes by variable@table for type inference and missing rate
     var_codes: Dict[str, List[Dict[str, str]]] = {}
 
-    with open(codes_tsv, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f, delimiter="\t")
-        batch = []
-        for row in reader:
-            var_code = row.get("Variable", "").strip().strip('"')
-            table = row.get("Table", "").strip().strip('"')
-            code_val = row.get("CodeOrValue", "").strip().strip('"')
-            label = row.get("ValueDescription", "").strip().strip('"')
-            count_str = row.get("Count", "").strip().strip('"')
-            cumul_str = row.get("Cumulative", "").strip().strip('"')
-            skip_to = row.get("SkipToItem", "").strip().strip('"') or None
+    batch = []
+    for codes_tsv in codes_tsvs:
+        if not codes_tsv.exists():
+            print(f"  WARN: {codes_tsv} not found, skipping")
+            continue
+        with open(codes_tsv, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f, delimiter="\t")
+            for row in reader:
+                var_code = row.get("Variable", "").strip().strip('"')
+                table = row.get("Table", "").strip().strip('"')
+                code_val = row.get("CodeOrValue", "").strip().strip('"')
+                label = row.get("ValueDescription", "").strip().strip('"')
+                count_str = row.get("Count", "").strip().strip('"')
+                cumul_str = row.get("Cumulative", "").strip().strip('"')
+                skip_to = row.get("SkipToItem", "").strip().strip('"') or None
 
-            if not var_code or not table:
-                continue
+                if not var_code or not table:
+                    continue
 
-            vid = f"{var_code}@{table}"
-            is_missing = label in _MISSING_LABELS or code_val == "."
+                vid = f"{var_code}@{table}"
+                is_missing = label in _MISSING_LABELS or code_val == "."
 
-            try:
-                count_int = int(count_str) if count_str else None
-            except ValueError:
-                count_int = None
-            try:
-                cumul_int = int(cumul_str) if cumul_str else None
-            except ValueError:
-                cumul_int = None
+                try:
+                    count_int = int(count_str) if count_str else None
+                except ValueError:
+                    count_int = None
+                try:
+                    cumul_int = int(cumul_str) if cumul_str else None
+                except ValueError:
+                    cumul_int = None
 
-            batch.append((vid, code_val, label, count_int, cumul_int, skip_to, is_missing))
-            code_count += 1
+                batch.append((vid, code_val, label, count_int, cumul_int, skip_to, is_missing))
+                code_count += 1
 
-            # Collect for type inference
-            var_codes.setdefault(vid, []).append({
-                "code": code_val, "label": label,
-                "count": count_str, "cumulative": cumul_str,
-            })
+                # Collect for type inference
+                var_codes.setdefault(vid, []).append({
+                    "code": code_val, "label": label,
+                    "count": count_str, "cumulative": cumul_str,
+                })
 
-            if len(batch) >= 10000:
-                conn.executemany(
-                    "INSERT OR IGNORE INTO value_codes VALUES (?,?,?,?,?,?,?)",
-                    batch,
-                )
-                batch.clear()
+                if len(batch) >= 10000:
+                    conn.executemany(
+                        "INSERT OR IGNORE INTO value_codes VALUES (?,?,?,?,?,?,?)",
+                        batch,
+                    )
+                    batch.clear()
 
-        if batch:
-            conn.executemany(
-                "INSERT OR IGNORE INTO value_codes VALUES (?,?,?,?,?,?,?)",
-                batch,
-            )
+    if batch:
+        conn.executemany(
+            "INSERT OR IGNORE INTO value_codes VALUES (?,?,?,?,?,?,?)",
+            batch,
+        )
     conn.commit()
-    print(f"  Loaded {code_count} codebook entries")
+    print(f"  Loaded {code_count} codebook rows (before dedup)")
 
     # ── Step 3: Infer data types and missing rates ────────────────────────
     print("  Inferring data types and missing rates...")
@@ -510,20 +541,32 @@ def build_database(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Build NHANES codebook SQLite database")
-    parser.add_argument("--vars-tsv", type=Path, default=DEFAULT_VARS_TSV)
-    parser.add_argument("--codes-tsv", type=Path, default=DEFAULT_CODES_TSV)
+    parser.add_argument(
+        "--vars-tsv", type=Path, action="append",
+        help="Variables TSV path (repeatable). Default: main + 2021-2023 feeds.",
+    )
+    parser.add_argument(
+        "--codes-tsv", type=Path, action="append",
+        help="Codebooks TSV path (repeatable). Default: main + 2021-2023 feeds.",
+    )
     parser.add_argument("--curated", type=Path, default=DEFAULT_CURATED)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args()
 
-    if not args.vars_tsv.exists():
-        print(f"ERROR: Variables TSV not found: {args.vars_tsv}", file=sys.stderr)
+    vars_tsvs = args.vars_tsv or DEFAULT_VARS_TSVS
+    codes_tsvs = args.codes_tsv or DEFAULT_CODES_TSVS
+
+    # Require at least one of each feed to exist; warn on missing optional feeds
+    missing_required = [p for p in vars_tsvs if not p.exists()]
+    if len(missing_required) == len(vars_tsvs):
+        print(f"ERROR: no variables TSV found (tried {vars_tsvs})", file=sys.stderr)
         return 2
-    if not args.codes_tsv.exists():
-        print(f"ERROR: Codebooks TSV not found: {args.codes_tsv}", file=sys.stderr)
+    missing_required = [p for p in codes_tsvs if not p.exists()]
+    if len(missing_required) == len(codes_tsvs):
+        print(f"ERROR: no codebooks TSV found (tried {codes_tsvs})", file=sys.stderr)
         return 2
 
-    build_database(args.vars_tsv, args.codes_tsv, args.curated, args.output)
+    build_database(vars_tsvs, codes_tsvs, args.curated, args.output)
     return 0
 
 
