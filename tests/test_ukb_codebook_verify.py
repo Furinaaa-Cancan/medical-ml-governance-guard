@@ -6,6 +6,7 @@ scripts/codebooks/verify_ukb_codebook.py for details.
 """
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -14,6 +15,7 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 VERIFY = REPO_ROOT / "scripts" / "codebooks" / "verify_ukb_codebook.py"
+VERIFY_LIVE = REPO_ROOT / "scripts" / "codebooks" / "verify_ukb_against_live.py"
 UKB_DIR = REPO_ROOT / "references" / "codebooks" / "ukb"
 DB = UKB_DIR / "ukb_codebook.sqlite"
 
@@ -87,3 +89,40 @@ class TestUkbDocumentedGaps:
             )
             n = cur.fetchone()[0]
         assert n == 251, f"NMR cat 220 has {n} fields, expected 251."
+
+
+@pytest.mark.skipif(
+    not DB.exists() or os.environ.get("MLGG_UKB_LIVE_CHECK") != "1",
+    reason="L4 live UKB check is opt-in; set MLGG_UKB_LIVE_CHECK=1 to run",
+)
+class TestUkbLiveCrossCheck:
+    """L4 — external authority layer.
+
+    Hits the live UKB Showcase to catch drift that L1-L3 cannot see:
+      - upstream .txt files changed since our last fetch
+      - a build-time transform silently lost/corrupted field metadata
+
+    Network-bound and slow (~20s), so disabled by default. Enable with
+    `MLGG_UKB_LIVE_CHECK=1 pytest tests/test_ukb_codebook_verify.py`
+    before publication-grade runs.
+    """
+
+    def _run(self, *extra_args: str):
+        return subprocess.run(
+            [sys.executable, str(VERIFY_LIVE), *extra_args],
+            capture_output=True, text=True, timeout=180,
+        )
+
+    def test_schema_files_identical_to_live(self):
+        """11/11 .txt sha256 must match live UKB Showcase."""
+        r = self._run("--schema-only")
+        assert r.returncode == 0, (
+            f"L4 schema-drift detected vs live UKB.\n{r.stdout}\n{r.stderr}"
+        )
+
+    def test_golden_seed_fields_match_live_pages(self):
+        """Probe fields must have identical title + category on UKB."""
+        r = self._run("--field-only", "--pause", "0.2")
+        assert r.returncode == 0, (
+            f"L4 field-page mismatch vs live UKB.\n{r.stdout}\n{r.stderr}"
+        )

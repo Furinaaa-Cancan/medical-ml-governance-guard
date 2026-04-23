@@ -63,14 +63,39 @@ warning if this count stays low — add entries over time.
 
 ## Reproducibility guarantee
 
-Before trusting the codebook for a publication-grade run:
+Four verification layers. L1-L3 are offline/deterministic (run every
+commit); L4 hits the live UKB website (run before publication-grade
+claims or when drift is suspected).
+
+| Layer | What it checks | Against | When |
+|-------|---------------|---------|------|
+| L1 | .txt file fidelity | committed sha256 in `source_manifest.json` | pre-commit, CI |
+| L2 | structural invariants (counts, FK, flag logic) | SQL queries | pre-commit, CI |
+| L3 | golden-seed fields survive | `ukb_golden_fields.yaml` | pre-commit, CI |
+| L4 | local DB == live UKB website | `biobank.ndph.ox.ac.uk/ukb` | manual, pre-publication |
+
+**L1-L3 alone are self-consistent but circular** — they verify the
+local .txt files haven't been corrupted since ingest, but say nothing
+about whether UKB has since updated its schema or whether our build
+faithfully reflected the source at ingest time. L4 closes that loop.
 
 ```sh
+# Offline layers (fast, deterministic)
 python3 scripts/codebooks/verify_ukb_codebook.py
+
+# Live external-authority layer (network-bound, ~20s)
+python3 scripts/codebooks/verify_ukb_against_live.py           # default 38 probes
+python3 scripts/codebooks/verify_ukb_against_live.py --probes 100   # 38 + 100 random
+python3 scripts/codebooks/verify_ukb_against_live.py --schema-only  # just .txt sha
 ```
 
-Exit 0 = source fidelity + structural invariants + golden-seed
-fields all pass. Exit 2 = at least one check fails; do NOT proceed.
+L4 re-downloads all 11 Showcase .txt files and diffs sha256 against
+the manifest, then fetches `field.cgi?id=<fid>` HTML for each probe
+field and compares Description + Category to our DB. Last run
+(2026-04-23): **11/11 .txt identical, 19/19 probe fields exact match**.
+
+Exit 0 = clean; Exit 2 = at least one drift or mismatch detected —
+investigate before trusting the codebook.
 
 The committed `source_manifest.json` pins every .txt file's sha256;
 `fetch_ukb_showcase.py` refuses silent drift unless
