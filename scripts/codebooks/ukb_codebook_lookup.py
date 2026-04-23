@@ -30,6 +30,12 @@ from typing import Any, Dict, List, Optional, Tuple
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 DEFAULT_DB = REPO_ROOT / "references" / "codebooks" / "ukb" / "ukb_codebook.sqlite"
+DEFAULT_DISEASE_KB = (
+    REPO_ROOT / "references" / "methodology" / "disease-definition-knowledge-base.json"
+)
+DEFAULT_SOURCE_MANIFEST = (
+    REPO_ROOT / "references" / "codebooks" / "ukb" / "source_manifest.json"
+)
 
 # ── UKB column name parser ──────────────────────────────────────────────────
 # Supports multiple UKB column naming conventions:
@@ -400,6 +406,103 @@ class UKBCodebook:
 
         return names
 
+    # Preset template — common baseline covariates for most cohort studies.
+    # Order of sections matters: later sections can add fields not in earlier
+    # sections, and per-section tracking is preserved for the provenance sidecar.
+    # Fields here are TEMPLATE-DRIVEN (hardcoded); disease-specific fields come
+    # from disease KB join in _disease_kb_fields().
+    _TEMPLATE_SECTIONS: List[Tuple[str, List[int], bool]] = [
+        # (section_name, [field_ids], expand_all_instances)
+        ("demographics", [21022, 31, 21000, 189, 709, 6138], False),
+        ("genetic_qc", [22001, 22019, 22189], False),
+        ("anthropometry", [21001, 50, 21002, 48, 49], False),
+        ("laboratory_common", [30750, 30740, 30690, 30780, 30760, 30870,
+                               30710, 30700, 30600, 30620, 30650, 30020], False),
+        ("blood_pressure", [4080, 4079], False),
+        ("assessment_date", [53], False),
+        ("self_report_medical", [2443, 2966, 2976, 2986, 4041, 4056,
+                                 6148, 6150, 6153, 6177], False),
+        ("self_report_general", [20002, 20003, 20001], False),
+        ("smoking", [20116, 20160, 3456, 2887, 3436, 2867, 2897, 20161, 20162], False),
+        ("alcohol", [20117, 1558, 1568, 1578, 1588, 1598, 1608,
+                     4407, 4418, 4429, 4440, 4451], False),
+        ("diet", [1239, 1249], False),
+        ("nutrients", [26002, 26005, 26008, 26013, 26014, 26017, 26018,
+                       26019, 26020, 26021, 26022, 26023, 26024, 26025,
+                       26026, 26027, 26028, 26029, 26030, 26033, 26034,
+                       26035, 26036, 26037, 26038, 26039, 26040, 26041,
+                       26043, 26047, 26051, 26054, 26057, 26058], False),
+        ("physical_activity", [22032, 22035, 22036, 22037, 22038, 22039, 22040], False),
+        ("sedentary", [1070, 1080, 1090], False),
+        ("sleep", [1160, 1170, 1180, 1190, 1200, 1210, 1220], False),
+    ]
+
+    def _disease_kb_fields(
+        self,
+        disease: str,
+        kb_path: Path,
+    ) -> Tuple[List[int], Dict[str, Any]]:
+        """Resolve a disease key → (field_ids, match_info).
+
+        Returns ([], {"matched": False, ...}) if KB missing or key not found.
+        Matches exact key first, then fuzzy (case-insensitive, _/- normalized)
+        on key + name — mirrors task_aware_validate's resolution so users see
+        consistent behavior between extraction and post-hoc leakage audit.
+        """
+        info: Dict[str, Any] = {
+            "matched": False, "key": None, "name": None,
+            "kb_path": str(kb_path), "fields": [],
+        }
+        try:
+            kb = json.loads(kb_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            info["error"] = f"kb_unreadable: {exc}"
+            return [], info
+
+        diseases = kb.get("diseases", kb)
+        entry = diseases.get(disease)
+        matched_key = disease if entry else None
+
+        if entry is None:
+            target = disease.lower().replace("_", " ").replace("-", " ")
+            for dk, dv in diseases.items():
+                dk_norm = dk.lower().replace("_", " ")
+                name_norm = (dv.get("name", "") if isinstance(dv, dict) else "").lower()
+                if target in dk_norm or target in name_norm or dk_norm in target:
+                    entry = dv
+                    matched_key = dk
+                    break
+
+        if not entry:
+            return [], info
+
+        raw = (entry.get("ukb_definition_fields", []) or []) + (
+            entry.get("ukb_exclusion_fields", []) or []
+        )
+        fids: List[int] = []
+        for v in raw:
+            try:
+                fids.append(int(v))
+            except (TypeError, ValueError):
+                continue
+
+        info.update({
+            "matched": True,
+            "key": matched_key,
+            "name": entry.get("name"),
+            "fields": fids,
+            "note": entry.get("ukb_definition_fields_note"),
+        })
+        return fids, info
+
+    def _source_manifest_version(self, manifest_path: Path) -> Optional[str]:
+        """Return the codebook schema_version from source_manifest.json if present."""
+        try:
+            data = json.loads(manifest_path.read_text(encoding="utf-8"))
+            return data.get("schema_version")
+        except (OSError, json.JSONDecodeError):
+            return None
+
     def generate_field_list(
         self,
         disease: str,
@@ -408,161 +511,117 @@ class UKBCodebook:
         include_death: bool = True,
         include_cancer_register: bool = False,
         output_path: Optional[Path] = None,
+        disease_kb_path: Optional[Path] = None,
+        write_provenance: bool = True,
     ) -> List[str]:
         """Generate a RAP-compatible field list for a disease study.
 
         Args:
             disease: Disease key (e.g., 'type_2_diabetes', 'hypertension').
+                Matched against ``disease_kb_path``; if the key resolves,
+                the disease's ``ukb_definition_fields`` and
+                ``ukb_exclusion_fields`` are unioned into the output so the
+                extracted dataset carries everything needed to build the
+                outcome definition. A literal 'baseline' (or any unknown key)
+                falls through to the template-only output.
             instance: Assessment instance for baseline predictors (default 0).
             include_outcome_fields: Include first-occurrence / outcome fields.
             include_death: Include death register fields (40000, 40001).
             include_cancer_register: Include cancer register fields (40005, 40006).
             output_path: If given, write to this .txt file.
+            disease_kb_path: Path to disease-definition-knowledge-base.json.
+                Defaults to ``DEFAULT_DISEASE_KB``. Pass an explicit
+                non-existent path to disable the KB join.
+            write_provenance: If True AND output_path is given, also write a
+                ``<output_path>.provenance.json`` sidecar documenting which
+                section contributed each field, disease match result, and
+                codebook schema_version. Set False for pristine output only.
 
         Returns:
             List of RAP column names, one per line, with 'eid' at top.
         """
-        # Side-effect call (opens DB conn if not yet open); return value unused.
         self._ensure_conn()
-        lines: List[str] = ["eid"]
+        if disease_kb_path is None:
+            disease_kb_path = DEFAULT_DISEASE_KB
 
-        # ── 1. Standard demographics ────────────────────────────────
-        _DEMOGRAPHICS = [21022, 31, 21000, 189, 709, 6138]
-        # 709 = household size, 6138 = qualifications/education
-        for fid in _DEMOGRAPHICS:
-            lines.extend(self.field_to_rap_names(fid, instance))
+        sections: Dict[str, List[str]] = {"eid": ["eid"]}
 
-        # ── 1b. Genetic quality control fields ──────────────────────
-        _GENETIC_QC = [22001, 22019, 22189]
-        # 22001 = genetic sex, 22019 = sex chromosome aneuploidy
-        # 22189 = Townsend (genetic principal component derived)
-        for fid in _GENETIC_QC:
-            lines.extend(self.field_to_rap_names(fid))
+        def add_section(name: str, field_ids: List[int], all_instances: bool) -> None:
+            cols: List[str] = []
+            for fid in field_ids:
+                cols.extend(
+                    self.field_to_rap_names(fid, instance, all_instances=all_instances)
+                )
+            if cols:
+                sections[name] = cols
 
-        # ── 2. Anthropometry ────────────────────────────────────────
-        _ANTHRO = [21001, 50, 21002, 48, 49]
-        for fid in _ANTHRO:
-            lines.extend(self.field_to_rap_names(fid, instance))
+        # ── Baseline template (hardcoded curated list) ───────────────
+        for name, fids, all_inst in self._TEMPLATE_SECTIONS:
+            add_section(name, fids, all_inst)
 
-        # ── 3. Laboratory (common biomarkers) ───────────────────────
-        _LAB_COMMON = [30750, 30740, 30690, 30780, 30760, 30870, 30710,
-                       30700, 30600, 30620, 30650, 30020]
-        for fid in _LAB_COMMON:
-            lines.extend(self.field_to_rap_names(fid, instance))
-
-        # ── 4. Blood pressure ───────────────────────────────────────
-        for fid in [4080, 4079]:
-            lines.extend(self.field_to_rap_names(fid, instance))
-
-        # ── 5. Assessment date ──────────────────────────────────────
-        lines.extend(self.field_to_rap_names(53, instance))
-
-        # ── 6. Common self-report diagnosis & medication fields ──────
-        # These are general-purpose fields present in most UKB studies.
-        # NOT disease definitions — users must define outcomes separately.
-        _SELF_REPORT_MEDICAL = [
-            2443,   # Diabetes diagnosed by doctor
-            2966,   # Age high BP diagnosed
-            2976,   # Age diabetes diagnosed
-            2986,   # Started insulin within 1yr
-            4041,   # Gestational diabetes
-            4056,   # Age stroke diagnosed
-            6148,   # Eye problems/disorders
-            6150,   # Vascular/heart problems diagnosed
-            6153,   # Medication for BP/cholesterol/diabetes
-            6177,   # Medication for BP/cholesterol/diabetes (touchscreen)
-        ]
-        for fid in _SELF_REPORT_MEDICAL:
-            lines.extend(self.field_to_rap_names(fid, instance))
-
-        # ── 7. General self-report conditions & medications ─────────
-        # 20002 = non-cancer illness codes (array)
-        # 20003 = treatment/medication codes (array)
-        # 20001 = cancer codes (array)
-        for fid in [20002, 20003, 20001]:
-            lines.extend(self.field_to_rap_names(fid, instance))
-
-        # ── 8. Smoking (detailed) ──────────────────────────────────
-        _SMOKING = [20116, 20160, 3456, 2887, 3436, 2867, 2897, 20161, 20162]
-        # 20116 = status, 20160 = ever smoked, 3456/2887 = cigs/day
-        # 3436/2867 = age started, 2897 = age stopped, 20161-2 = pack years
-        for fid in _SMOKING:
-            lines.extend(self.field_to_rap_names(fid, instance))
-
-        # ── 8b. Alcohol (detailed) ─────────────────────────────────
-        _ALCOHOL = [20117, 1558, 1568, 1578, 1588, 1598, 1608,
-                    4407, 4418, 4429, 4440, 4451]
-        # 20117 = status, 1558 = frequency
-        # 1568-1608 = weekly intake by type, 4407-4451 = monthly intake by type
-        for fid in _ALCOHOL:
-            lines.extend(self.field_to_rap_names(fid, instance))
-
-        # ── 8c. Diet ───────────────────────────────────────────────
-        _DIET = [1239, 1249]
-        for fid in _DIET:
-            lines.extend(self.field_to_rap_names(fid, instance))
-
-        # ── 8d. Dietary nutrients (estimated daily intake) ──────────
-        _NUTRIENTS = [26002, 26005, 26008, 26013, 26014, 26017, 26018,
-                      26019, 26020, 26021, 26022, 26023, 26024, 26025,
-                      26026, 26027, 26028, 26029, 26030, 26033, 26034,
-                      26035, 26036, 26037, 26038, 26039, 26040, 26041,
-                      26043, 26047, 26051, 26054, 26057, 26058]
-        for fid in _NUTRIENTS:
-            lines.extend(self.field_to_rap_names(fid, instance))
-
-        # ── 9. Physical activity ────────────────────────────────────
-        _ACTIVITY = [22032, 22035, 22036, 22037, 22038, 22039, 22040]
-        for fid in _ACTIVITY:
-            lines.extend(self.field_to_rap_names(fid, instance))
-
-        # ── 9b. Sedentary / screen time ────────────────────────────
-        _SEDENTARY = [1070, 1080, 1090]
-        # 1070 = TV, 1080 = computer, 1090 = driving
-        for fid in _SEDENTARY:
-            lines.extend(self.field_to_rap_names(fid, instance))
-
-        # ── 10. Sleep ───────────────────────────────────────────────
-        _SLEEP = [1160, 1170, 1180, 1190, 1200, 1210, 1220]
-        for fid in _SLEEP:
-            lines.extend(self.field_to_rap_names(fid, instance))
-
-        # ── 11. Outcome fields ──────────────────────────────────────
-        # NOTE: We do NOT auto-select disease-specific outcome fields.
-        # Users must add their own outcome definition fields separately.
-        # We only include hospital diagnosis codes (for user to filter)
-        # and generic date fields.
+        # ── Outcome capture (generic, user filters downstream) ───────
         if include_outcome_fields:
-            # Hospital inpatient ICD-10 diagnoses (user filters for their disease)
-            for fid in [41270, 41280]:  # ICD10 diagnoses + dates
-                lines.extend(self.field_to_rap_names(fid))
-            # Hospital inpatient OPCS-4 procedures
-            for fid in [41272, 41282]:  # OPCS4 codes + dates
-                lines.extend(self.field_to_rap_names(fid))
-
-        # ── 12. Death register ──────────────────────────────────────
+            add_section("hospital_icd10", [41270, 41280], False)
+            add_section("hospital_opcs4", [41272, 41282], False)
         if include_death:
-            for fid in [40000, 40001]:
-                lines.extend(self.field_to_rap_names(fid, all_instances=True))
-
-        # ── 13. Cancer register ─────────────────────────────────────
+            add_section("death_register", [40000, 40001], True)
         if include_cancer_register:
-            for fid in [40005, 40006, 40008, 40009]:
-                lines.extend(self.field_to_rap_names(fid, all_instances=True))
-            for fid in [20001]:
-                lines.extend(self.field_to_rap_names(fid, instance))
+            add_section("cancer_register_core", [40005, 40006, 40008, 40009], True)
+            add_section("cancer_register_selfreport", [20001], False)
 
-        # Deduplicate while preserving order
-        seen = set()
-        unique_lines = []
-        for line in lines:
-            if line not in seen:
-                seen.add(line)
-                unique_lines.append(line)
+        # ── Disease KB join (the point of the `disease` argument) ─────
+        # This is what makes the function actually disease-aware. Adds
+        # the disease's definition fields so the downstream user has the
+        # raw material needed to build the outcome label.
+        kb_fields, kb_info = self._disease_kb_fields(disease, disease_kb_path)
+        if kb_fields:
+            add_section("disease_kb", kb_fields, False)
+
+        # Flatten, deduplicating while preserving first-seen order and
+        # recording which section claimed each column. Order of iteration
+        # here determines provenance ownership when two sections would
+        # both emit the same column — first wins.
+        seen: Dict[str, str] = {}
+        unique_lines: List[str] = []
+        for section_name, cols in sections.items():
+            for col in cols:
+                if col not in seen:
+                    seen[col] = section_name
+                    unique_lines.append(col)
 
         if output_path:
             Path(output_path).write_text("\n".join(unique_lines) + "\n", encoding="utf-8")
             print(f"Written {len(unique_lines)} fields to {output_path}")
+
+            if write_provenance:
+                import datetime as _dt
+                sidecar = Path(str(output_path) + ".provenance.json")
+                # Build per-section column ownership (reverse of `seen`)
+                ownership: Dict[str, List[str]] = {}
+                for col, owner in seen.items():
+                    ownership.setdefault(owner, []).append(col)
+                prov = {
+                    "generated_at_utc": _dt.datetime.now(_dt.timezone.utc)
+                        .replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+                    "disease_requested": disease,
+                    "disease_kb": kb_info,
+                    "instance": instance,
+                    "include_outcome_fields": include_outcome_fields,
+                    "include_death": include_death,
+                    "include_cancer_register": include_cancer_register,
+                    "codebook_schema_version":
+                        self._source_manifest_version(DEFAULT_SOURCE_MANIFEST),
+                    "total_columns": len(unique_lines),
+                    "section_column_counts": {
+                        s: len(cols) for s, cols in ownership.items()
+                    },
+                    "section_columns": ownership,
+                }
+                sidecar.write_text(
+                    json.dumps(prov, indent=2, ensure_ascii=False) + "\n",
+                    encoding="utf-8",
+                )
+                print(f"Provenance sidecar written to {sidecar}")
 
         return unique_lines
 
@@ -967,8 +1026,11 @@ def main() -> int:
     parser.add_argument("--report", type=Path, help="Output JSON report path")
     parser.add_argument("--stats", action="store_true", help="Print database statistics")
     parser.add_argument("--generate", nargs="?", const="baseline",
-                        help="Generate RAP field list with common baseline variables. "
-                             "Does NOT define disease outcomes — add those separately.")
+                        help="Generate RAP field list. Pass a disease key from "
+                             "disease-definition-knowledge-base.json (e.g. "
+                             "'type_2_diabetes', 'hypertension') to union the "
+                             "disease's ukb_definition_fields into the output. "
+                             "Pass 'baseline' (or any unknown key) for template only.")
     parser.add_argument("--output", "-o", type=Path,
                         help="Output .txt file path for --generate")
     parser.add_argument("--instance", type=int, default=0,
@@ -977,6 +1039,11 @@ def main() -> int:
                         help="Exclude death register fields from --generate")
     parser.add_argument("--with-cancer", action="store_true",
                         help="Include cancer register fields in --generate")
+    parser.add_argument("--disease-kb", type=Path, default=DEFAULT_DISEASE_KB,
+                        help="Path to disease-definition-knowledge-base.json. "
+                             "Pass a non-existent path to disable the KB join.")
+    parser.add_argument("--no-provenance", action="store_true",
+                        help="Do not write the <output>.provenance.json sidecar.")
     args = parser.parse_args()
 
     cb = UKBCodebook(args.db)
@@ -1014,14 +1081,22 @@ def main() -> int:
                 include_death=not args.no_death,
                 include_cancer_register=args.with_cancer,
                 output_path=out,
+                disease_kb_path=args.disease_kb,
+                write_provenance=not args.no_provenance,
             )
-            print(f"\n  Instance:   {args.instance} (baseline)")
+            _, kb_info = cb._disease_kb_fields(args.generate, args.disease_kb)
+            print(f"\n  Disease:    {args.generate}"
+                  + (f" → matched '{kb_info['key']}' ({len(kb_info['fields'])} "
+                     f"definition fields added)"
+                     if kb_info.get("matched")
+                     else " → no KB match (template-only output)"))
+            print(f"  Instance:   {args.instance} (baseline)")
             print(f"  Fields:     {len(fields)}")
             print(f"  Output:     {out}")
-            print("\n  NOTE: This list contains common baseline variables only.")
-            print("  You must add your own outcome definition fields separately")
-            print("  (e.g., first-occurrence ICD fields from Category 1712,")
-            print("   or ADO fields from Category 42).")
+            if not kb_info.get("matched"):
+                print("\n  NOTE: No disease match — output is the generic baseline "
+                      "template only. For disease-specific outcome definition "
+                      "fields, pass a key that exists in the disease KB.")
             print(f"\n  Usage on RAP: upload {out.name} and use with Table Exporter")
             return 0
 
