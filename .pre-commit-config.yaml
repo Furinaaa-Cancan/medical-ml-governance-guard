@@ -52,3 +52,13 @@ repos:
         language: system
         pass_filenames: false
         files: ^(references/case-studies/peer-review-kb\.json|scripts/core/_gate_registry\.py|scripts/review/backfill_peer_review_gates\.py)$
+
+      # README numeric-claim drift: "106 papers" vs live "119",
+      # "4722 tests" vs actual. Runs on any edit to either README
+      # or to the KB (which is the ground truth for most claims).
+      - id: readme-stats-drift
+        name: README stats parity + freshness (CN ↔ EN, vs live KB)
+        entry: python3 scripts/diagnostics/check_readme_stats.py
+        language: system
+        pass_filenames: false
+        files: ^(README\.md|README_EN\.md|references/case-studies/peer-review-kb\.json|scripts/core/_gate_registry\.py)$
