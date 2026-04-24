@@ -504,3 +504,113 @@ class TestCliHelp:
         assert "--evaluation-report" in result.stdout
         assert "--strict" in result.stdout
         assert "--report" in result.stdout
+
+
+# ── Regression tests: nested subgroups shape (introduced 2026-04) ───────────
+
+def _write_report(tmp_path: Path, data: dict) -> Path:
+    p = tmp_path / "evaluation_report.json"
+    p.write_text(json.dumps(data))
+    return p
+
+
+class TestNestedSubgroupShape:
+    """train_select_evaluate emits subgroup_performance with a nested
+    `subgroups` dict, not flat feature keys. Pre-fix, the gate treated
+    the nested dict as a single feature named "subgroups" and silently
+    passed — masking real fairness failures (e.g. SUPPORT2 dzclass_Cancer
+    sens=0.18, disparate_impact=0.77). These tests pin the drill-in.
+    """
+
+    def _nested_report(self) -> dict:
+        return {
+            "subgroup_performance": {
+                "disparate_impact_ratio": 0.77,
+                "features_analyzed": ["race", "sex"],
+                "subgroups": {
+                    "race": {
+                        "equalized_odds_gap": 0.25,
+                        "groups": [
+                            {"group_label": "white", "n": 500, "pr_auc": 0.72,
+                             "sensitivity": 0.80, "ppv": 0.55},
+                            {"group_label": "black", "n": 200, "pr_auc": 0.48,
+                             "sensitivity": 0.55, "ppv": 0.30},
+                        ],
+                    },
+                    "sex": {
+                        "equalized_odds_gap": 0.05,
+                        "groups": [
+                            {"group_label": "M", "n": 400, "pr_auc": 0.75,
+                             "sensitivity": 0.82, "ppv": 0.57},
+                            {"group_label": "F", "n": 300, "pr_auc": 0.73,
+                             "sensitivity": 0.77, "ppv": 0.53},
+                        ],
+                    },
+                },
+            }
+        }
+
+    def test_drills_into_nested_subgroups(self, tmp_path: Path):
+        p = _write_report(tmp_path, self._nested_report())
+        rpt = tmp_path / "fairness.json"
+        subprocess.run(
+            [sys.executable, str(GATE_SCRIPT),
+             "--evaluation-report", str(p), "--report", str(rpt)],
+            capture_output=True, text=True,
+        )
+        data = json.loads(rpt.read_text())
+        # Two features ("race", "sex") must be analyzed, not one "subgroups"
+        assert data["summary"]["n_features_analyzed"] == 2
+        assert set(data["summary"]["features_analyzed"]) == {"race", "sex"}
+
+    def test_nested_eo_gap_fires_fail(self, tmp_path: Path):
+        p = _write_report(tmp_path, self._nested_report())
+        rpt = tmp_path / "fairness.json"
+        result = subprocess.run(
+            [sys.executable, str(GATE_SCRIPT),
+             "--evaluation-report", str(p), "--report", str(rpt)],
+            capture_output=True, text=True,
+        )
+        data = json.loads(rpt.read_text())
+        # race eo_gap=0.25 exceeds default fail threshold 0.15
+        codes = {f["code"] for f in data["failures"]}
+        assert "equalized_odds_gap_exceeds_threshold" in codes
+        assert result.returncode == 2
+
+    def test_nested_top_level_di_ratio_fires(self, tmp_path: Path):
+        """Top-level disparate_impact_ratio 0.77 < 0.80 fail threshold."""
+        p = _write_report(tmp_path, self._nested_report())
+        rpt = tmp_path / "fairness.json"
+        subprocess.run(
+            [sys.executable, str(GATE_SCRIPT),
+             "--evaluation-report", str(p), "--report", str(rpt)],
+            capture_output=True, text=True,
+        )
+        data = json.loads(rpt.read_text())
+        codes = {f["code"] for f in data["failures"]}
+        assert "disparate_impact_below_threshold" in codes
+
+    def test_flat_shape_still_works(self, tmp_path: Path):
+        """Backward compat: flat {feat: {...}} shape should still iterate."""
+        flat = {
+            "subgroup_performance": {
+                "sex": {
+                    "equalized_odds_gap": 0.05,
+                    "disparate_impact_ratio": 0.92,
+                    "groups": [
+                        {"group_label": "M", "n": 200, "pr_auc": 0.75},
+                        {"group_label": "F", "n": 180, "pr_auc": 0.72},
+                    ],
+                }
+            }
+        }
+        p = _write_report(tmp_path, flat)
+        rpt = tmp_path / "fairness.json"
+        subprocess.run(
+            [sys.executable, str(GATE_SCRIPT),
+             "--evaluation-report", str(p), "--report", str(rpt)],
+            capture_output=True, text=True,
+        )
+        data = json.loads(rpt.read_text())
+        assert data["summary"]["n_features_analyzed"] == 1
+        assert data["summary"]["features_analyzed"] == ["sex"]

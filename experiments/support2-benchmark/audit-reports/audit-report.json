@@ -1,6 +1,6 @@
 {
   "report_version": "audit_report.v2",
-  "generated_at": "2026-04-24T05:05:47.252836+00:00",
+  "generated_at": "2026-04-24T09:51:44.762600+00:00",
   "project_dir": "/Volumes/Seagate/Skill/ml-leakage-guard/experiments/support2-benchmark",
   "prediction_type": "binary",
   "total_score": 37.2,
@@ -395,6 +395,56 @@
       "error_code": "path_escapes_sandbox",
       "root_cause": "Gate execution_attestation failed: Referenced path escapes the attestation bundle sandbox.",
       "fix": "Review gate requirements for execution_attestation and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "fairness_equity",
+      "severity": "ERROR",
+      "description": "Overall disparate impact ratio 0.785 < fail threshold 0.8.",
+      "error_code": "disparate_impact_below_threshold",
+      "root_cause": "Gate fairness_equity failed: Overall disparate impact ratio 0.785 < fail threshold 0.8.",
+      "fix": "Review gate requirements for fairness_equity and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "fairness_equity",
+      "severity": "ERROR",
+      "description": "Equalized odds gap for 'ca_metastatic' is 0.179 (fail threshold: 0.150).",
+      "error_code": "equalized_odds_gap_exceeds_threshold",
+      "root_cause": "Gate fairness_equity failed: Equalized odds gap for 'ca_metastatic' is 0.179 (fail threshold: 0.150).",
+      "fix": "Review gate requirements for fairness_equity and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "fairness_equity",
+      "severity": "ERROR",
+      "description": "Equalized odds gap for 'dzclass_ARF/MOSF' is 0.341 (fail threshold: 0.150).",
+      "error_code": "equalized_odds_gap_exceeds_threshold",
+      "root_cause": "Gate fairness_equity failed: Equalized odds gap for 'dzclass_ARF/MOSF' is 0.341 (fail threshold: 0.150).",
+      "fix": "Review gate requirements for fairness_equity and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "fairness_equity",
+      "severity": "ERROR",
+      "description": "PPV gap for 'dzclass_ARF/MOSF' is 0.158 (fail threshold: 0.150).",
+      "error_code": "ppv_parity_exceeds_threshold",
+      "root_cause": "Gate fairness_equity failed: PPV gap for 'dzclass_ARF/MOSF' is 0.158 (fail threshold: 0.150).",
+      "fix": "Review gate requirements for fairness_equity and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "fairness_equity",
+      "severity": "ERROR",
+      "description": "Equalized odds gap for 'dzclass_COPD/CHF/Cirrhosis' is 0.538 (fail threshold: 0.150).",
+      "error_code": "equalized_odds_gap_exceeds_threshold",
+      "root_cause": "Gate fairness_equity failed: Equalized odds gap for 'dzclass_COPD/CHF/Cirrhosis' is 0.538 (fail threshold: 0.150).",
+      "fix": "Review gate requirements for fairness_equity and address the listed failure.",
       "prevention": "Run gates regularly during development, not just at publication."
     },
     {

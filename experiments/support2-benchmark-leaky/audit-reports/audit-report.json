@@ -1,6 +1,6 @@
 {
   "report_version": "audit_report.v2",
-  "generated_at": "2026-04-24T08:34:45.263041+00:00",
+  "generated_at": "2026-04-24T09:51:44.828037+00:00",
   "project_dir": "/Volumes/Seagate/Skill/ml-leakage-guard/experiments/support2-benchmark-leaky",
   "prediction_type": "binary",
   "total_score": 14.64,
@@ -484,6 +484,56 @@
       "error_code": "baseline_improvement_insufficient",
       "root_cause": "Gate evaluation_quality failed: Primary metric improvement over baseline is below required margin.",
       "fix": "Review gate requirements for evaluation_quality and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "fairness_equity",
+      "severity": "ERROR",
+      "description": "Equalized odds gap for 'dnr_dnr after sadm' is 0.232 (fail threshold: 0.150).",
+      "error_code": "equalized_odds_gap_exceeds_threshold",
+      "root_cause": "Gate fairness_equity failed: Equalized odds gap for 'dnr_dnr after sadm' is 0.232 (fail threshold: 0.150).",
+      "fix": "Review gate requirements for fairness_equity and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "fairness_equity",
+      "severity": "ERROR",
+      "description": "PPV gap for 'dnr_dnr after sadm' is 0.324 (fail threshold: 0.150).",
+      "error_code": "ppv_parity_exceeds_threshold",
+      "root_cause": "Gate fairness_equity failed: PPV gap for 'dnr_dnr after sadm' is 0.324 (fail threshold: 0.150).",
+      "fix": "Review gate requirements for fairness_equity and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "fairness_equity",
+      "severity": "ERROR",
+      "description": "PPV gap for 'dnr_dnr before sadm' is 0.182 (fail threshold: 0.150).",
+      "error_code": "ppv_parity_exceeds_threshold",
+      "root_cause": "Gate fairness_equity failed: PPV gap for 'dnr_dnr before sadm' is 0.182 (fail threshold: 0.150).",
+      "fix": "Review gate requirements for fairness_equity and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "fairness_equity",
+      "severity": "ERROR",
+      "description": "Equalized odds gap for 'dnr_no dnr' is 0.267 (fail threshold: 0.150).",
+      "error_code": "equalized_odds_gap_exceeds_threshold",
+      "root_cause": "Gate fairness_equity failed: Equalized odds gap for 'dnr_no dnr' is 0.267 (fail threshold: 0.150).",
+      "fix": "Review gate requirements for fairness_equity and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "fairness_equity",
+      "severity": "ERROR",
+      "description": "PPV gap for 'dnr_no dnr' is 0.309 (fail threshold: 0.150).",
+      "error_code": "ppv_parity_exceeds_threshold",
+      "root_cause": "Gate fairness_equity failed: PPV gap for 'dnr_no dnr' is 0.309 (fail threshold: 0.150).",
+      "fix": "Review gate requirements for fairness_equity and address the listed failure.",
       "prevention": "Run gates regularly during development, not just at publication."
     },
     {

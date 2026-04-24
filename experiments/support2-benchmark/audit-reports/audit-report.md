@@ -2,7 +2,7 @@
 
 **Project**: `support2-benchmark`  
 **Path**: `/Volumes/Seagate/Skill/ml-leakage-guard/experiments/support2-benchmark`  
-**Generated**: 2026-04-24T05:05:47.252836+00:00  
+**Generated**: 2026-04-24T09:51:44.762600+00:00  
 **MLGG Version**: 1.0 (33-gate pipeline)  
 **Standard References**: TRIPOD+AI 2024, PROBAST+AI 2025, STARD-AI 2021
 
@@ -74,7 +74,7 @@
 
 ## Issues Found
 
-**Total**: 35 issues (35 critical/error, 0 warning, 0 info)
+**Total**: 40 issues (40 critical/error, 0 warning, 0 info)
 
 ### Critical / Error Issues
 
@@ -141,31 +141,31 @@
 **Fix**: Review gate requirements for execution_attestation and address the listed failure.  
 **Prevention**: Run gates regularly during development, not just at publication.  
 
-#### [ERROR] Target not found in definition spec.
+#### [ERROR] Overall disparate impact ratio 0.785 < fail threshold 0.8.
 
-**Source**: Gate: `definition_guard`  
-**Error Code**: `target_not_found`  
-**Root Cause**: Gate definition_guard failed: Target not found in definition spec.  
+**Source**: Gate: `fairness_equity`  
+**Error Code**: `disparate_impact_below_threshold`  
+**Root Cause**: Gate fairness_equity failed: Overall disparate impact ratio 0.785 < fail threshold 0.8.  
 
-**Fix**: Review gate requirements for definition_guard and address the listed failure.  
+**Fix**: Review gate requirements for fairness_equity and address the listed failure.  
 **Prevention**: Run gates regularly during development, not just at publication.  
 
-#### [ERROR] Target not found in definition spec.
+#### [ERROR] Equalized odds gap for 'ca_metastatic' is 0.179 (fail threshold: 0.150).
 
-**Source**: Gate: `lineage`  
-**Error Code**: `target_not_found`  
-**Root Cause**: Gate lineage failed: Target not found in definition spec.  
+**Source**: Gate: `fairness_equity`  
+**Error Code**: `equalized_odds_gap_exceeds_threshold`  
+**Root Cause**: Gate fairness_equity failed: Equalized odds gap for 'ca_metastatic' is 0.179 (fail threshold: 0.150).  
 
-**Fix**: Review gate requirements for lineage and address the listed failure.  
+**Fix**: Review gate requirements for fairness_equity and address the listed failure.  
 **Prevention**: Run gates regularly during development, not just at publication.  
 
-#### [ERROR] Feature missingness exceeds policy threshold.
+#### [ERROR] Equalized odds gap for 'dzclass_ARF/MOSF' is 0.341 (fail threshold: 0.150).
 
-**Source**: Gate: `missingness_policy`  
-**Error Code**: `feature_missingness_too_high`  
-**Root Cause**: Gate missingness_policy failed: Feature missingness exceeds policy threshold.  
+**Source**: Gate: `fairness_equity`  
+**Error Code**: `equalized_odds_gap_exceeds_threshold`  
+**Root Cause**: Gate fairness_equity failed: Equalized odds gap for 'dzclass_ARF/MOSF' is 0.341 (fail threshold: 0.150).  
 
-**Fix**: Review gate requirements for missingness_policy and address the listed failure.  
+**Fix**: Review gate requirements for fairness_equity and address the listed failure.  
 **Prevention**: Run gates regularly during development, not just at publication.  
 
 ## Remediation Plan

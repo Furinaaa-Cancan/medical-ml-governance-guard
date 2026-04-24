@@ -2,7 +2,7 @@
 
 **Project**: `support2-benchmark-leaky`  
 **Path**: `/Volumes/Seagate/Skill/ml-leakage-guard/experiments/support2-benchmark-leaky`  
-**Generated**: 2026-04-24T08:34:45.263041+00:00  
+**Generated**: 2026-04-24T09:51:44.828037+00:00  
 **MLGG Version**: 1.0 (33-gate pipeline)  
 **Standard References**: TRIPOD+AI 2024, PROBAST+AI 2025, STARD-AI 2021
 
@@ -74,7 +74,7 @@
 
 ## Issues Found
 
-**Total**: 32 issues (32 critical/error, 0 warning, 0 info)
+**Total**: 37 issues (37 critical/error, 0 warning, 0 info)
 
 ### Critical / Error Issues
 

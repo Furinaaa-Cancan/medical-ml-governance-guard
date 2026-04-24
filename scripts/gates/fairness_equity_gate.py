@@ -286,8 +286,37 @@ def main() -> int:
     subgroup_details: List[Dict[str, Any]] = []
     total_fairness_metrics_reported: int = 0
 
+    # train_select_evaluate emits two possible shapes:
+    #   (1) flat: {feat_a: {...}, feat_b: {...}}
+    #   (2) nested: {disparate_impact_ratio: 0.77, features_analyzed: [...],
+    #               subgroups: {feat_a: {...}, feat_b: {...}}}
+    # Detect shape (2) and drill into .subgroups; otherwise iterate flat.
     if isinstance(subgroup_perf, dict):
-        items = subgroup_perf.items()
+        nested = subgroup_perf.get("subgroups")
+        if isinstance(nested, dict) and nested:
+            items = nested.items()
+            # Propagate precomputed top-level disparate-impact ratio to the
+            # per-feature accumulator so the gate can evaluate it even when
+            # the nested feature blocks don't carry their own copy.
+            top_di = _to_float(subgroup_perf.get("disparate_impact_ratio"))
+            if top_di is not None and top_di > 0:
+                all_disparate_impact_ratios.append(top_di)
+                if top_di < thresholds["disparate_impact_ratio_fail"]:
+                    add_issue(
+                        failures, "disparate_impact_below_threshold",
+                        f"Overall disparate impact ratio {top_di:.3f} < fail threshold "
+                        f"{thresholds['disparate_impact_ratio_fail']}.",
+                        {"ratio": top_di, "threshold": thresholds["disparate_impact_ratio_fail"]},
+                    )
+                elif top_di < thresholds["disparate_impact_ratio_warn"]:
+                    add_issue(
+                        warnings, "disparate_impact_below_threshold",
+                        f"Overall disparate impact ratio {top_di:.3f} < warn threshold "
+                        f"{thresholds['disparate_impact_ratio_warn']}.",
+                        {"ratio": top_di, "threshold": thresholds["disparate_impact_ratio_warn"]},
+                    )
+        else:
+            items = subgroup_perf.items()
     elif isinstance(subgroup_perf, list):
         items = [(entry.get("feature", f"feature_{i}"), entry) for i, entry in enumerate(subgroup_perf)]
     else:
