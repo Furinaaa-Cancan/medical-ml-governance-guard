@@ -33,56 +33,55 @@
 
 ## MLGG vs Claude Skill — Architecture Boundary
 
-> **TL;DR**: MLGG is a **hybrid**. The Claude Skill is only the UX shell — every pass/fail verdict is produced by 40K+ lines of deterministic Python. **Even if Claude hallucinates, the gate verdict does not change.**
+> **MLGG is hybrid**: Claude Skill is the shell, Python gates are the core. **Hallucination can change *which gates ran*, but not *whether each gate passed*.**
 
-### Three layers
+### Three layers (hallucination risk annotated in-place)
 
 ```
-┌─────────────────────────────────────────────────┐
-│  SKILL.md / CLAUDE.md  (~350 lines)             │  ← LLM reads (may hallucinate)
-│  └─ Soft decisions: which gate, user intent     │
-└─────────────────────────────────────────────────┘
-                      ↓ invokes
-┌─────────────────────────────────────────────────┐
-│  33 gates  (~40K LOC Python)                    │  ← Deterministic (zero hallucination)
-│  └─ Hard verdicts: pass / fail / critical       │
-│  └─ Same input → same output, CI-reproducible   │
-└─────────────────────────────────────────────────┘
-                      ↓ consults
-┌─────────────────────────────────────────────────┐
-│  references/  (~50 MB human-curated)            │  ← Static data (zero hallucination)
-│  └─ peer-review-kb.json (119 NC reviews)        │
-│  └─ codebooks/ukb (8 verification layers,       │
-│      1.87M cells validated vs live UKB)         │
-│  └─ methodology/disease-kb.json                 │
-└─────────────────────────────────────────────────┘
+┌──────────────────────────────────────────┐
+│  SKILL.md + CLAUDE.md  ~350 lines        │  ⚠️ may hallucinate
+│  Soft decisions: which stage, intent     │  Consumer: LLM
+└──────────────────────────────────────────┘
+                  ↓ orchestrates
+┌──────────────────────────────────────────┐
+│  33 gates  ~40K LOC Python               │  ✅ zero hallucination
+│  Hard verdict: pass / fail / critical    │  Consumer: CPython
+│  Same input → same output, CI-replayable │
+└──────────────────────────────────────────┘
+                  ↓ KB lookups
+┌──────────────────────────────────────────┐
+│  references/  ~50 MB human-curated       │  ✅ zero hallucination
+│  peer-review-kb.json (119 NC reviews)    │  Consumer: SQL / JSON
+│  codebooks/ukb (8-layer verify, 1.87M)   │
+│  methodology/disease-kb.json             │
+└──────────────────────────────────────────┘
 ```
 
-### Two usage paths (same verdict)
+**Hallucination is locked in the top layer** — the lower two always resolve pass/fail via deterministic code + static data.
 
-| Path | Command | When | Can hallucination change the verdict? |
+### Per-action risk: what can hallucination touch?
+
+| Action | Layer | Hallucination risk | Can it change the verdict? |
 |---|---|---|---|
-| **Via `/mlgg` in Claude Code** | `/mlgg` → auto-runs the 9-phase pipeline | interactive, exploratory, semi-auto | ❌ No (affects only *what* gets run) |
-| **Call Python gates directly** | `python3 scripts/gates/leakage_gate.py --data x.csv` | CI, automation, publication-grade | ❌ No (skill is out of the loop) |
+| `/mlgg` picks which workflow to run | Skill | ⚠️ | ❌ May skip or double-run, but **each gate that runs is still deterministic** |
+| Claude narrates gate output in natural language | Skill | ⚠️ | ❌ Presentation-layer bias only |
+| `leakage_gate.py` detects label leakage | Python | ✅ | ❌ Deterministic algorithm |
+| `calibration_dca_gate.py` computes ICI / DCA | Python | ✅ | ❌ Pure numeric computation |
+| `verify_ukb_codebook.py` runs 8-layer verify | Python | ✅ | ❌ 1.87M cell-level comparison |
+| Quoting reviewer opinions from `peer-review-kb.json` | references | ✅ | ❌ Exact SQL / JSON lookup |
 
-Both paths execute the same Python gate with the same inputs. The skill layer accelerates interaction but **does not carry correctness responsibility**.
+### Two usage paths, one verdict
 
-### Hallucination-risk boundary
+- **Interactive**: `/mlgg` → Claude interprets intent → auto-orchestrates the 9-phase pipeline
+- **CI / publication-grade**: `python3 scripts/gates/leakage_gate.py --data x.csv` — skips the Skill entirely, calls the gate directly
 
-| Behaviour | Layer | Hallucination risk | Effect on verdict |
-|---|---|---|---|
-| Claude picks workflow from `/mlgg` | skill | ⚠️ yes | At worst: extra/missed gate run. **Each gate's verdict is still its deterministic output.** |
-| `leakage_gate.py` detects label leakage | Python | ✅ none | Deterministic algorithm; same input → same pass/fail |
-| `calibration_dca_gate.py` computes ICI / DCA | Python | ✅ none | Pure numeric computation |
-| Quoting reviewer opinions from `peer-review-kb.json` | references | ✅ none | Exact SQL / JSON lookup |
-| `verify_ukb_codebook.py` runs 8-layer verify | Python | ✅ none | 1.87M cell-level comparison |
-| Claude summarises gate output in natural language | skill | ⚠️ yes | Wording bias at the presentation layer — **does not alter the underlying pass/fail** |
+Both end up running the **same Python gate**. The Skill saves keystrokes, not correctness.
 
-### Design rules (enforced)
+### Engineering guarantees (not just aspirations)
 
-- **Keep SKILL.md lean** — currently 277 lines, within Claude Code's official <500-line guidance; longer docs live under `docs/` or inside gate docstrings.
-- **Auto-enforce doc consistency** — `scripts/diagnostics/check_docs_consistency.py` catches number drift across `SKILL.md ↔ README ↔ reviewer.yaml` (pre-commit hook).
-- **No prompt-as-logic** — every pass/fail threshold, validator rule, and detection algorithm lives as Python constants + functions, never as markdown prose.
+- **SKILL.md ≤ 500 lines**: currently 277 lines, within Claude Code's official guidance; longer content lives under `docs/` or inside gate docstrings.
+- **Pre-commit doc-number check**: `check_docs_consistency.py` + `check_readme_stats.py` catch drift across `SKILL.md ↔ README ↔ reviewer.yaml`; **PRs fail before merge**, not after.
+- **Thresholds are code, not prompts**: every pass/fail threshold, validator rule, and detection algorithm is a Python constant + function. Gates do not consult markdown for verdict logic.
 
 ---
 
@@ -1239,7 +1238,7 @@ medical-ml-governance-guard/
 │   │   ├── security_audit_gate.py        #   Layer 8: Security audit
 │   │   └── ... (19 more gates)           #   Covers covariate shift, robustness, seed stability, etc.
 │   │
-│   ├── orchestration/     (10)           # Workflow orchestration
+│   ├── orchestration/     (11)           # Workflow orchestration
 │   │   ├── mlgg.py                       #   Unified CLI entry (28+ subcommands, state machine)
 │   │   ├── mlgg_onboarding.py            #   Project init + auto-detect data source/disease/codebook
 │   │   ├── mlgg_interactive.py           #   Interactive wizard (play mode)
@@ -1249,13 +1248,13 @@ medical-ml-governance-guard/
 │   │   ├── run_endurance_test.py         #   Endurance benchmark runner
 │   │   └── triage.py / semantic_audit.py / failure_diagnosis.py
 │   │
-│   ├── training/          (6)            # Model training & data preparation
+│   ├── training/          (7)            # Model training & data preparation
 │   │   ├── train_select_evaluate.py      #   Training engine (5+ model families, one-SE selection)
 │   │   ├── split_data.py                 #   Patient-level safe splitting (grouped_temporal / stratified)
 │   │   ├── init_project.py               #   Project scaffolding (configs/ + data/ + evidence/)
 │   │   └── schema_preflight.py           #   CSV column/type/semantic validation
 │   │
-│   ├── reporting/         (15)           # Reports, audits & exports
+│   ├── reporting/         (16)           # Reports, audits & exports
 │   │   ├── audit_metrics.py              #   Zero-dep publication-readiness checker
 │   │   ├── audit_external_project.py     #   10-dimension project audit (100-point scale)
 │   │   ├── generate_audit_report.py      #   TRIPOD+AI/PROBAST+AI audit report
@@ -1271,14 +1270,14 @@ medical-ml-governance-guard/
 │   │   ├── verify_ukb_against_live.py    #   L4 live cross-check vs biobank.ndph.ox.ac.uk
 │   │   └── ...                           #   fetch/build/verify for NHANES + codebook_factory
 │   │
-│   ├── review/            (8)            # Paper analysis & peer review
+│   ├── review/            (9)            # Paper analysis & peer review
 │   │   ├── peer_review_lookup.py         #   119 NC papers × 452 review opinions
 │   │   ├── backfill_peer_review_gates.py #   Backfill reviews into gate × tag index
 │   │   ├── add_robustness_permutation_gates.py  # Extend review index with robustness/permutation
 │   │   ├── correct_subgroup_overmatch.py #   Fix subgroup over-match in review index
 │   │   └── ...                           #   batch_journal_review, extract/score metadata
 │   │
-│   └── diagnostics/       (15)           # Environment, docs-consistency & KB hygiene
+│   └── diagnostics/       (16)           # Environment, docs-consistency & KB hygiene
 │       ├── env_doctor.py                 #   Dependency health check
 │       ├── mlgg_web.py                   #   Flask Web UI
 │       ├── check_docs_consistency.py     #   SKILL.md ↔ README ↔ reviewer.yaml drift detector (pre-commit)

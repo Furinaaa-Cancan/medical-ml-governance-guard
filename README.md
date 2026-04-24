@@ -39,55 +39,55 @@
 
 ## MLGG vs Claude Skill — 架构边界
 
-> **TL;DR**：MLGG 是 **hybrid 架构**——Claude Skill 只是 UX 外壳，所有 pass/fail 判定都落在 40K+ 行的确定性 Python 里。**即便 Claude 幻觉了，gate 的结论也不会变。**
+> **MLGG 是 hybrid**：Claude Skill 做外壳，Python gate 做内核。**幻觉最多改变「跑了哪些 gate」，改变不了「每个 gate 的 pass/fail」。**
 
-### 三层结构
+### 三层结构（层内标注了各自的幻觉风险）
 
 ```
-┌─────────────────────────────────────────────────┐
-│  SKILL.md / CLAUDE.md  （~350 行）              │  ← LLM 读（可能幻觉）
-│  └─ 软决策：跑哪个阶段、理解用户意图            │
-└─────────────────────────────────────────────────┘
-                      ↓ 调用
-┌─────────────────────────────────────────────────┐
-│  33 道 gate  （~40K LOC Python）                │  ← 确定性执行（0 幻觉）
-│  └─ 硬决策：pass / fail / critical 三态结论     │
-│  └─ 同输入同输出，CI 可回归                     │
-└─────────────────────────────────────────────────┘
-                      ↓ 参考
-┌─────────────────────────────────────────────────┐
-│  references/  （~50 MB human-curated）          │  ← 静态数据（0 幻觉）
-│  └─ peer-review-kb.json （119 篇 NC 审稿意见）  │
-│  └─ codebooks/ukb （8 层验证，1.87M cells 对过）│
-│  └─ methodology/disease-kb.json                 │
-└─────────────────────────────────────────────────┘
+┌──────────────────────────────────────────┐
+│  SKILL.md + CLAUDE.md  ~350 行           │  ⚠️ 可能幻觉
+│  软决策：跑哪个阶段、理解用户意图        │  读者：LLM
+└──────────────────────────────────────────┘
+                  ↓ 编排调用
+┌──────────────────────────────────────────┐
+│  33 道 gate  ~40K 行 Python              │  ✅ 0 幻觉
+│  硬决策：pass / fail / critical 三态     │  读者：CPython
+│  同输入同输出，CI 可回归                 │
+└──────────────────────────────────────────┘
+                  ↓ KB 查询
+┌──────────────────────────────────────────┐
+│  references/  ~50 MB human-curated       │  ✅ 0 幻觉
+│  peer-review-kb.json （119 篇 NC 审稿）  │  读者：SQL / JSON
+│  codebooks/ukb （8 层验证，1.87M cells） │
+│  methodology/disease-kb.json             │
+└──────────────────────────────────────────┘
 ```
 
-### 两条使用路径（同一份结论）
+**幻觉锁在最顶层**——下面两层永远拿确定性算法 + 静态数据算 pass/fail。
 
-| 路径 | 命令 | 场景 | 幻觉能影响结论吗 |
+### 逐行风险：哪些动作可能被幻觉影响？
+
+| 动作 | 层 | 幻觉风险 | 能否改变 pass/fail |
 |---|---|---|---|
-| **经 `/mlgg` 经 Claude Code** | `/mlgg` → 自动跑 9 阶段 pipeline | 交互、探索、半自动 | ❌ 不能（只影响"跑了什么"） |
-| **直接调 Python gate** | `python3 scripts/gates/leakage_gate.py --data x.csv` | CI、自动化、发布级 | ❌ 不能（skill 未参与） |
+| `/mlgg` 决定跑哪个 workflow | Skill | ⚠️ | ❌ 可能多/漏跑，但**每个跑了的 gate 结论仍然确定** |
+| Claude 用自然语言总结 gate 输出 | Skill | ⚠️ | ❌ 只是表达层偏差 |
+| `leakage_gate.py` 判定标签泄漏 | Python | ✅ | ❌ 确定性算法 |
+| `calibration_dca_gate.py` 算 ICI/DCA | Python | ✅ | ❌ 纯数值计算 |
+| `verify_ukb_codebook.py` 8 层验证 | Python | ✅ | ❌ 1.87M cell 全量对账 |
+| 从 `peer-review-kb.json` 引审稿意见 | references | ✅ | ❌ SQL / JSON 精确查找 |
 
-两条路径跑同一套 Python gate，同输入同输出。Skill 层只是加速用户交互，**不承担正确性**。
+### 两种用法，底层同一份 pass/fail
 
-### 幻觉风险边界
+- **交互**：`/mlgg` → Claude 读你的意图 → 自动编排 9 阶段 pipeline
+- **CI / 发布级**：`python3 scripts/gates/leakage_gate.py --data x.csv` —— 跳过 Skill，直接调底层
 
-| 行为 | 所在层 | 幻觉风险 | 对结论的影响 |
-|---|---|---|---|
-| Claude 从 `/mlgg` 决定跑哪个工作流 | skill | ⚠️ 有 | 最多多跑或漏跑 gate，**结果仍是每个 gate 的确定性输出** |
-| `leakage_gate.py` 检测标签泄漏 | Python | ✅ 无 | 确定性算法，同输入同 pass/fail |
-| `calibration_dca_gate.py` 计算 ICI/DCA | Python | ✅ 无 | 纯数值计算 |
-| 从 `peer-review-kb.json` 引用审稿意见 | references | ✅ 无 | SQL / JSON 精确查找 |
-| `verify_ukb_codebook.py` 跑 8 层验证 | Python | ✅ 无 | 1.87M cell 全量对比 |
-| Claude 用自然语言总结 gate 输出 | skill | ⚠️ 有 | 表达层偏差，**不改变底层 pass/fail** |
+两种用法最终跑的是**同一份 Python gate**。Skill 省的是「敲命令的时间」，不承担正确性。
 
-### 设计准则（已实施）
+### 工程保证（而不只是愿景）
 
-- **SKILL.md 瘦身**——当前 277 行，符合 Claude Code 官方 <500 行建议；长文档拆到独立 `docs/` 或 gate docstring。
-- **docs 一致性自动校验**——`scripts/diagnostics/check_docs_consistency.py` 抓 `SKILL.md ↔ README ↔ reviewer.yaml` 的数字漂移（pre-commit hook）。
-- **硬决策不做成 prompt**——所有 pass/fail 阈值、validator 逻辑、检测规则都是 Python 常量 + 函数，不是 markdown prose。
+- **SKILL.md ≤ 500 行**：当前 277 行，符合 Claude Code 官方建议；超长内容拆到 `docs/` 或 gate docstring。
+- **文档数字 pre-commit 校验**：`check_docs_consistency.py` + `check_readme_stats.py` 抓 `SKILL.md ↔ README ↔ reviewer.yaml` 的 parity 和 KB freshness drift，**PR 会被 fail 而不是 merge 后才发现**。
+- **阈值是代码不是 prompt**：所有 pass/fail 阈值、validator 规则、检测算法都是 Python 常量 + 函数，gate 不从 markdown 读判定逻辑。
 
 ---
 
@@ -1347,7 +1347,7 @@ medical-ml-governance-guard/
 │   │   ├── record_session.py             #   --   交互会话记录（用于后续审计回放）
 │   │   └── report_health_check.py        #   235  evidence 完整性仪表盘
 │   │
-│   ├── codebooks/         (13 files, 7.0K LOC)  # 数据字典工具 (NHANES / UK Biobank)
+│   ├── codebooks/         (12 files, 7.0K LOC)  # 数据字典工具 (NHANES / UK Biobank)
 │   │   ├── nhanes_codebook_lookup.py     #  1055  NHANES 60K 变量 FTS5 全文检索 + RAG 验证
 │   │   ├── ukb_codebook_lookup.py        #  1286  UKB 12K 字段验证 + 时序泄漏检测 + 别名 + disease-KB join + --exclude-risk
 │   │   ├── codebook_factory.py           #   105  统一工厂: NHANES/UKB/BRFSS → 同一接口

@@ -56,6 +56,101 @@ def _live_gate_count() -> int:
     return len(GATE_REGISTRY)
 
 
+# ── Project structure drift detection ───────────────────────────────
+# The README project-structure section drifts faster than any other
+# piece of the doc — every parallel session adds files. Catching it
+# at pre-commit saves us the "oh the README says 9 diagnostics/ files
+# but there are 15" embarrassment.
+#
+# CN convention: "core/ (6 files, 7.0K LOC)" — excludes __init__.py
+# EN convention: "core/ (7)"                  — includes __init__.py
+# Both are checked independently so the two doc styles can coexist.
+
+_SUBDIRS: List[str] = [
+    "core", "gates", "training", "reporting",
+    "codebooks", "review", "diagnostics", "orchestration",
+]
+
+
+def _live_scripts_subdir_counts() -> Dict[str, Tuple[int, int]]:
+    """Return {subdir: (count_excl_init, count_incl_init)} for scripts/*/."""
+    counts: Dict[str, Tuple[int, int]] = {}
+    for d in _SUBDIRS:
+        path = ROOT / "scripts" / d
+        pyfiles = list(path.glob("*.py")) if path.is_dir() else []
+        counts[d] = (
+            sum(1 for p in pyfiles if p.name != "__init__.py"),
+            len(pyfiles),
+        )
+    return counts
+
+
+def _live_tests_counts() -> Dict[str, int]:
+    """Return file-count snapshots for tests/ patterns cited in both READMEs.
+
+    Globs stay aligned with the README tree (test_*_gate.py, test_*_e2e.py,
+    test_stress_*.py, test_security*.py plus total test_*.py).
+    """
+    tests = ROOT / "tests"
+    if not tests.is_dir():
+        return {k: 0 for k in ("total", "gate", "e2e", "stress", "security")}
+    return {
+        "total":    len(list(tests.glob("test_*.py"))),
+        "gate":     len(list(tests.glob("test_*_gate.py"))),
+        "e2e":      len(list(tests.glob("test_*e2e*.py"))),
+        "stress":   len(list(tests.glob("test_stress*.py"))),
+        "security": len(list(tests.glob("test_security*.py"))),
+    }
+
+
+def _build_structure_claims() -> List[Dict[str, object]]:
+    """Generate the structure-tree claim list procedurally.
+
+    One claim per (subdir, doc) for scripts/*/, one per (pattern, doc)
+    for tests/*. 2 × 8 + 2 × 5 = 26 claims.
+    """
+    claims: List[Dict[str, object]] = []
+
+    for d in _SUBDIRS:
+        # CN: "├── core/              (6 files, 7.0K LOC)"
+        #     excludes __init__.py; regex captures first number before "files"
+        claims.append({
+            "name": f"scripts_{d}_excl_cn",
+            "doc": CN,
+            "regex": rf"── {d}/\s+\((\d+)\s*files",
+            "source": f"scripts_{d}_excl",
+            "description": f"CN scripts/{d}/ file count (excl __init__)",
+        })
+        # EN: "├── core/              (7)"  (includes __init__.py)
+        claims.append({
+            "name": f"scripts_{d}_incl_en",
+            "doc": EN,
+            "regex": rf"── {d}/\s+\((\d+)\)",
+            "source": f"scripts_{d}_incl",
+            "description": f"EN scripts/{d}/ file count (incl __init__)",
+        })
+
+    # tests/ - same number in CN and EN (parity check kicks in naturally)
+    tests_patterns = [
+        ("total",    r"── tests/\s+\((\d+)\)",             "tests/ total file count"),
+        ("gate",     r"test_\*_gate\.py\s+\((\d+)\)",      "test_*_gate.py count"),
+        ("e2e",      r"test_\*_e2e\.py\s+\((\d+)\)",       "test_*_e2e.py count"),
+        ("stress",   r"test_stress_\*\.py\s+\((\d+)\)",    "test_stress_*.py count"),
+        ("security", r"test_security\*\.py\s+\((\d+)\)",   "test_security*.py count"),
+    ]
+    for key, regex, desc in tests_patterns:
+        for doc, where in ((CN, "cn"), (EN, "en")):
+            claims.append({
+                "name": f"tests_{key}_{where}",
+                "doc": doc,
+                "regex": regex,
+                "source": f"tests_{key}",
+                "description": f"{where.upper()} tests tree: {desc}",
+            })
+
+    return claims
+
+
 # Patterns keyed by (claim_name, pattern, fmt). The pattern MUST capture
 # exactly one integer. fmt is "cn" / "en" / "both" — where to check.
 # Each entry carries a short description for the error message.
@@ -128,16 +223,26 @@ def check() -> Tuple[int, List[str]]:
 
     papers, concerns = _live_kb_stats()
     gates = _live_gate_count()
-    truth = {
+    subdirs = _live_scripts_subdir_counts()
+    tests = _live_tests_counts()
+
+    truth: Dict[str, int] = {
         "kb_papers": papers,
         "kb_concerns": concerns,
         "gate_count": gates,
     }
+    for d, (excl, incl) in subdirs.items():
+        truth[f"scripts_{d}_excl"] = excl
+        truth[f"scripts_{d}_incl"] = incl
+    for k, n in tests.items():
+        truth[f"tests_{k}"] = n
+
+    all_claims = _CLAIMS + _build_structure_claims()
 
     cn_values: Dict[str, Optional[int]] = {}
     en_values: Dict[str, Optional[int]] = {}
 
-    for claim in _CLAIMS:
+    for claim in all_claims:
         doc = claim["doc"]  # type: ignore[index]
         text = doc.read_text(encoding="utf-8")  # type: ignore[union-attr]
         regex = str(claim["regex"])
@@ -190,8 +295,16 @@ def main() -> int:
     elif args.verbose:
         papers, concerns = _live_kb_stats()
         gates = _live_gate_count()
-        print(f"OK: CN/EN agree; live truth = {papers} papers, "
-              f"{concerns} concerns, {gates} gates.")
+        subdirs = _live_scripts_subdir_counts()
+        tests = _live_tests_counts()
+        print("OK: CN/EN agree; live truth:")
+        print(f"  KB:     {papers} papers, {concerns} concerns, {gates} gates")
+        print(f"  scripts/ subdirs (excl __init__ / incl __init__):")
+        for d, (excl, incl) in subdirs.items():
+            print(f"    {d:15s} {excl:3d} / {incl:3d}")
+        print(f"  tests/:  total={tests['total']}, gate={tests['gate']}, "
+              f"e2e={tests['e2e']}, stress={tests['stress']}, "
+              f"security={tests['security']}")
     return exit_code
 
 
