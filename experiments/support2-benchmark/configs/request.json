@@ -1,5 +1,5 @@
 {
-  "actual_primary_metric": 0.6346683272644067,
+  "actual_primary_metric": 0.609955366976332,
   "ci_matrix_report_file": "../evidence/ci_matrix_report.json",
   "claim_tier_target": "leakage-audited",
   "context": {
@@ -18,13 +18,13 @@
   "index_time_col": "event_time",
   "label_col": "y",
   "missingness_policy_spec": "missingness_policy.json",
-  "model_pool_file": "../models/model_pool.pkl",
+  "model_pool_file": "../evidence/model_pool.pkl",
   "model_selection_report_file": "../evidence/model_selection_report.json",
   "patient_id_col": "patient_id",
   "performance_policy_spec": "performance_policy.json",
   "permutation_null_metrics_file": "../evidence/permutation_null_pr_auc.txt",
   "phenotype_definition_spec": "phenotype_definitions.json",
-  "prediction_trace_file": "../evidence/prediction_trace.csv.gz",
+  "prediction_trace_file": "../evidence/prediction_trace.csv",
   "prediction_unit": "patient-episode",
   "primary_metric": "pr_auc",
   "reporting_bias_checklist_spec": "reporting_bias_checklist.json",
@@ -58,5 +58,6 @@
     "min_delta": 0.03,
     "profile": "standard"
   },
-  "tuning_protocol_spec": "tuning_protocol.json"
+  "tuning_protocol_spec": "tuning_protocol.json",
+  "cross_sectional": true
 }

@@ -10,7 +10,10 @@
     "prg2m",
     "prg6m",
     "dnr",
-    "dnrday"
+    "dnrday",
+    "avtisst",
+    "aps",
+    "sps"
   ],
   "groups": {
     "available_at_prediction": {
@@ -59,21 +62,15 @@
         "prg2m",
         "prg6m",
         "dnr",
-        "dnrday"
-      ],
-      "note": "Auto-excluded: forbidden pattern match or |correlation|>0.6.",
-      "timing": "after_prediction"
-    },
-    "needs_review": {
-      "features": [
+        "dnrday",
         "avtisst",
-        "sps",
-        "aps"
+        "aps",
+        "sps"
       ],
-      "note": "Moderate correlation with target (|r|>0.4). Verify these are available at prediction time.",
-      "timing": "unknown"
+      "note": "Auto-excluded: forbidden pattern match or |correlation|>0.6. Strict path moved avtisst/aps/sps here (scaffold had them in needs_review) — they are post-admission aggregate (TISS) and derived severity-score outputs (APACHE/SUPPORT) respectively, not raw at-admission features.",
+      "timing": "after_prediction"
     }
   },
-  "notes": "Auto-generated with timing classification. Review 'needs_review' group.",
-  "prediction_time": "See study protocol \u2014 document when predictions are made."
+  "notes": "Strict-path review (2026-04-24): avtisst/aps/sps moved from needs_review to forbidden_features + excluded_post_prediction. scoma kept in available_at_prediction (GCS measured at admission = legitimate baseline).",
+  "prediction_time": "Admission (first 24 hours); features used must be available on ICU/hospital admission, not computed later in the stay."
 }
