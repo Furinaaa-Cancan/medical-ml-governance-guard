@@ -1212,7 +1212,8 @@ python3 -m mlgg_lint /path/to/code/
 ```
 medical-ml-governance-guard/
 │
-├── scripts/                              # ─── Core Code (91 files, ~70K lines) ───
+├── scripts/                              # ─── Core Code (106 files, ~83K lines) ───
+│   │                                     # File / LOC snapshot 2026-04-24; counts drift per commit.
 │   ├── core/              (7)            # Framework foundation
 │   │   ├── _gate_framework.py            #   GateIssue/Severity, report envelope v2.0, CLI contract
 │   │   ├── _gate_registry.py             #   33-gate DAG (8-layer topological sort, parallel markers)
@@ -1238,14 +1239,15 @@ medical-ml-governance-guard/
 │   │   ├── security_audit_gate.py        #   Layer 8: Security audit
 │   │   └── ... (19 more gates)           #   Covers covariate shift, robustness, seed stability, etc.
 │   │
-│   ├── orchestration/     (8)            # Workflow orchestration
-│   │   ├── mlgg.py                       #   Unified CLI entry (20+ subcommands, state machine)
+│   ├── orchestration/     (10)           # Workflow orchestration
+│   │   ├── mlgg.py                       #   Unified CLI entry (28+ subcommands, state machine)
 │   │   ├── mlgg_onboarding.py            #   Project init + auto-detect data source/disease/codebook
 │   │   ├── mlgg_interactive.py           #   Interactive wizard (play mode)
 │   │   ├── mlgg_pixel.py                 #   Pixel-art terminal UI + i18n
 │   │   ├── run_dag_pipeline.py           #   Parallel DAG executor (checkpoint resume, layer-parallel)
 │   │   ├── run_productized_workflow.py   #   Production pipeline (doctor → preflight → strict → summary)
-│   │   └── run_endurance_test.py         #   Endurance benchmark runner
+│   │   ├── run_endurance_test.py         #   Endurance benchmark runner
+│   │   └── triage.py / semantic_audit.py / failure_diagnosis.py
 │   │
 │   ├── training/          (6)            # Model training & data preparation
 │   │   ├── train_select_evaluate.py      #   Training engine (5+ model families, one-SE selection)
@@ -1253,36 +1255,45 @@ medical-ml-governance-guard/
 │   │   ├── init_project.py               #   Project scaffolding (configs/ + data/ + evidence/)
 │   │   └── schema_preflight.py           #   CSV column/type/semantic validation
 │   │
-│   ├── reporting/         (14)           # Reports, audits & exports
+│   ├── reporting/         (15)           # Reports, audits & exports
 │   │   ├── audit_metrics.py              #   Zero-dep publication-readiness checker
 │   │   ├── audit_external_project.py     #   10-dimension project audit (100-point scale)
 │   │   ├── generate_audit_report.py      #   TRIPOD+AI/PROBAST+AI audit report
 │   │   ├── export_latex.py               #   Publication-ready LaTeX tables
+│   │   ├── record_session.py             #   Interactive session recorder (audit replay)
 │   │   └── ...                           #   render_user_summary, compliance_certificate, etc.
 │   │
-│   ├── codebooks/         (13)           # Data dictionary tools (6.6K LOC)
+│   ├── codebooks/         (13)           # Data dictionary tools (7.0K LOC)
 │   │   ├── nhanes_codebook_lookup.py     #   NHANES 60K variable FTS5 full-text search
-│   │   ├── ukb_codebook_lookup.py        #   UKB 12K field validation + leakage detection + aliases
+│   │   ├── ukb_codebook_lookup.py        #   UKB 12K field + disease-KB join + --exclude-risk
 │   │   ├── build_ukb_codebook_db.py      #   UKB Showcase → SQLite (11,821 fields + 533K encoding values)
-│   │   ├── verify_ukb_codebook.py        #   UKB 8-layer verify: L1 sha / L2 48 HARD + src-vs-DB / L2c cell-by-cell / L3 216 seeds / L3b disease-KB / content-hash
+│   │   ├── verify_ukb_codebook.py        #   UKB 8-layer verify: L1 sha / L2 49 HARD invariants / L2c cell-by-cell / L3 golden seeds / L3b disease-KB / content-facet hash / (L4 live)
 │   │   ├── verify_ukb_against_live.py    #   L4 live cross-check vs biobank.ndph.ox.ac.uk
 │   │   └── ...                           #   fetch/build/verify for NHANES + codebook_factory
 │   │
-│   ├── review/            (5)            # Paper analysis & peer review
+│   ├── review/            (8)            # Paper analysis & peer review
 │   │   ├── peer_review_lookup.py         #   119 NC papers × 452 review opinions
+│   │   ├── backfill_peer_review_gates.py #   Backfill reviews into gate × tag index
+│   │   ├── add_robustness_permutation_gates.py  # Extend review index with robustness/permutation
+│   │   ├── correct_subgroup_overmatch.py #   Fix subgroup over-match in review index
 │   │   └── ...                           #   batch_journal_review, extract/score metadata
 │   │
-│   └── diagnostics/       (9)            # Environment & runtime tools
+│   └── diagnostics/       (15)           # Environment, docs-consistency & KB hygiene
 │       ├── env_doctor.py                 #   Dependency health check
 │       ├── mlgg_web.py                   #   Flask Web UI
-│       └── ...                           #   gate visualization, threshold analysis
+│       ├── check_docs_consistency.py     #   SKILL.md ↔ README ↔ reviewer.yaml drift detector (pre-commit)
+│       ├── check_readme_stats.py         #   README CN/EN stat parity + live-KB freshness
+│       ├── disease_kb_review_check.py    #   Disease-KB clinical review checklist generator
+│       ├── kb_hygiene_check.py           #   KB provenance / citation / freshness check
+│       ├── retrieval_eval_harness.py     #   Peer-review retrieval precision benchmark
+│       └── ...                           #   gate visualization, threshold analysis, policy generator
 │
-├── tests/                  (117)         # ─── Tests (~30K lines) ───
+├── tests/                  (131)         # ─── Tests (~35K lines) ───
 │   ├── conftest.py                       #   Shared fixtures (tmp_path, path injection, test data)
-│   ├── test_*_gate.py      (31)          #   One test file per gate
-│   ├── test_*_e2e.py       (8)           #   End-to-end flow tests (onboarding, workflow, train, split)
+│   ├── test_*_gate.py      (32)          #   One test file per gate
+│   ├── test_*_e2e.py       (7)           #   End-to-end flow tests (onboarding, workflow, train, split)
 │   ├── test_stress_*.py    (5)           #   Stress tests (audit chain, pipeline, numeric, security)
-│   ├── test_security*.py   (5)           #   Security + red team tests
+│   ├── test_security*.py   (4)           #   Security + red team tests
 │   └── SKILL_RED_TEAM.md                 #   Red team attack scenario documentation
 │
 ├── references/                           # ─── Knowledge Bases (8 domain subdirectories) ───
@@ -1292,7 +1303,7 @@ medical-ml-governance-guard/
 │   │   ├── stard-ai-checklist.json               # STARD+AI diagnostic accuracy
 │   │   └── journal-rigor-standards.json          # 5 top-tier journal review standards
 │   │
-│   ├── methodology/        (5)           # Methodology knowledge
+│   ├── methodology/        (6)           # Methodology knowledge
 │   │   ├── disease-definition-knowledge-base.json  # 11 diseases (ICD, labs, meds, UKB fields)
 │   │   ├── leakage-taxonomy.md                     # Kapoor 8-type leakage classification
 │   │   └── literature-knowledge-base.json          # 58 IF>10 literature citations
@@ -1307,10 +1318,12 @@ medical-ml-governance-guard/
 │   │   ├── nature_communications/        #   119 NC paper review PDFs + parsed JSON
 │   │   └── <journal>/<disease>/          #   5 journals × 10 disease domains
 │   │
-│   ├── templates/          (28)          # JSON templates (request, split, evaluation, attestation...)
-│   ├── operations/         (12)          # Runtime KBs (107 error diagnoses, scoring, gate matrix)
+│   ├── templates/          (27)          # JSON templates (request, split, evaluation, attestation...)
+│   ├── operations/         (13)          # Runtime KBs (107 error diagnoses, scoring, gate matrix)
 │   ├── protocols/          (16)          # Phase 1-9 rules + audit/blind-audit/sampling protocols
-│   └── docs/               (9)           # Architecture, API-Reference, Quickstart, Troubleshooting
+│   ├── attestation/        (3)           # HMAC signing onboarding + trusted-signers template
+│   ├── retrieval_eval/     (2)           # Peer-review retrieval benchmarks (baseline + scenarios)
+│   └── docs/               (8)           # Architecture, API-Reference, Quickstart, Troubleshooting
 │
 ├── plugin/                               # ─── Static Analysis Lint (independent sub-package) ───
 │   ├── mlgg_lint/          (9+30 files)  # AST-level 28 leakage detection rules (R001-R028)
