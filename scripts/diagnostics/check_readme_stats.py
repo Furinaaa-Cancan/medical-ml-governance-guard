@@ -103,6 +103,59 @@ def _live_tests_counts() -> Dict[str, int]:
     }
 
 
+def _live_skill_md_lines() -> int:
+    """Current SKILL.md line count. Cited in both READMEs under the
+    '≤ 500 lines' engineering-guarantee bullet."""
+    p = ROOT / "SKILL.md"
+    if not p.exists():
+        return 0
+    return len(p.read_text(encoding="utf-8").splitlines())
+
+
+def _live_curated_references_mb() -> int:
+    """Size of human-curated references content (JSON/YAML/MD/TXT only).
+
+    Excludes generated SQLite DBs and PDF source papers because those
+    are bulky artifacts, not 'curated' knowledge.
+    """
+    refs = ROOT / "references"
+    if not refs.is_dir():
+        return 0
+    total = 0
+    for ext in ("*.json", "*.yaml", "*.md", "*.txt"):
+        for p in refs.rglob(ext):
+            try:
+                total += p.stat().st_size
+            except OSError:
+                pass
+    return round(total / (1024 * 1024))
+
+
+def _live_pytest_collect_count() -> int:
+    """Authoritative pytest test count via `--collect-only`. Used for
+    the README header badge `tests-NNNN passed`.
+
+    Slow-ish (~4s), so the check is opt-in via env var to keep
+    pre-commit snappy. When `MLGG_CHECK_PYTEST_COUNT=1`, the live
+    value is computed; otherwise this returns -1 and the badge
+    claim is skipped.
+    """
+    import os
+    import subprocess
+    if os.environ.get("MLGG_CHECK_PYTEST_COUNT") != "1":
+        return -1
+    try:
+        proc = subprocess.run(
+            [sys.executable, "-m", "pytest", "--collect-only", "-q",
+             "tests/", "plugin/tests/"],
+            cwd=ROOT, capture_output=True, text=True, timeout=60,
+        )
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        return -1
+    match = re.search(r"(\d+)\s+tests?\s+collected", proc.stdout)
+    return int(match.group(1)) if match else -1
+
+
 def _build_structure_claims() -> List[Dict[str, object]]:
     """Generate the structure-tree claim list procedurally.
 
@@ -147,6 +200,68 @@ def _build_structure_claims() -> List[Dict[str, object]]:
                 "source": f"tests_{key}",
                 "description": f"{where.upper()} tests tree: {desc}",
             })
+
+    # SKILL.md line count — cited in both READMEs' "engineering
+    # guarantees" bullet as "currently NNN lines". Claude Code
+    # recommends <500 lines; we're tracking to catch unexpected growth.
+    claims.append({
+        "name": "skill_md_lines_cn",
+        "doc": CN,
+        "regex": r"当前\s*(\d+)\s*行，符合 Claude Code 官方",
+        "source": "skill_md_lines",
+        "description": "CN SKILL.md current-line claim",
+    })
+    claims.append({
+        "name": "skill_md_lines_en",
+        "doc": EN,
+        "regex": r"currently\s*(\d+)\s*lines,\s*within\s+Claude\s+Code",
+        "source": "skill_md_lines",
+        "description": "EN SKILL.md current-line claim",
+    })
+
+    # references/ curated size — the "~NN MB human-curated" label in
+    # the architecture diagram. Tolerance: ±10 MB (any single PR can
+    # reasonably move curated KB by a few MB without it being drift).
+    claims.append({
+        "name": "refs_curated_mb_cn",
+        "doc": CN,
+        "regex": r"references/\s+~(\d+)\s*MB human-curated",
+        "source": "refs_curated_mb",
+        "description": "CN references/ '~NN MB human-curated' label",
+        "tolerance": 10,
+    })
+    claims.append({
+        "name": "refs_curated_mb_en",
+        "doc": EN,
+        "regex": r"references/\s+~(\d+)\s*MB human-curated",
+        "source": "refs_curated_mb",
+        "description": "EN references/ '~NN MB human-curated' label",
+        "tolerance": 10,
+    })
+
+    # Pytest test count in the header badge. Only enforced when the
+    # env var MLGG_CHECK_PYTEST_COUNT=1 is set (test collection is
+    # ~4s which makes pre-commit slow if always on). Tolerance ±100
+    # so typical PR-level test adds/removes don't trigger drift on
+    # the rounded badge number.
+    claims.append({
+        "name": "pytest_count_cn",
+        "doc": CN,
+        "regex": r"tests-(\d+)%20passed-brightgreen",
+        "source": "pytest_count",
+        "description": "CN header badge 'tests-NNNN passed'",
+        "tolerance": 100,
+        "skip_when": -1,
+    })
+    claims.append({
+        "name": "pytest_count_en",
+        "doc": EN,
+        "regex": r"tests-(\d+)%20passed-brightgreen",
+        "source": "pytest_count",
+        "description": "EN header badge 'tests-NNNN passed'",
+        "tolerance": 100,
+        "skip_when": -1,
+    })
 
     return claims
 
@@ -230,6 +345,9 @@ def check() -> Tuple[int, List[str]]:
         "kb_papers": papers,
         "kb_concerns": concerns,
         "gate_count": gates,
+        "skill_md_lines": _live_skill_md_lines(),
+        "refs_curated_mb": _live_curated_references_mb(),
+        "pytest_count": _live_pytest_collect_count(),
     }
     for d, (excl, incl) in subdirs.items():
         truth[f"scripts_{d}_excl"] = excl
@@ -250,6 +368,14 @@ def check() -> Tuple[int, List[str]]:
         actual: Optional[int] = int(match.group(1)) if match else None
         expected = truth[str(claim["source"])]
 
+        # Skip this claim entirely when the live truth is the sentinel
+        # value (e.g. MLGG_CHECK_PYTEST_COUNT=0 → pytest_count=-1).
+        skip_when = claim.get("skip_when")
+        if skip_when is not None and expected == skip_when:
+            continue
+
+        tolerance = int(claim.get("tolerance") or 0)  # type: ignore[arg-type]
+
         where = "CN" if doc == CN else "EN"
         name = str(claim["name"])
         if actual is None:
@@ -259,10 +385,11 @@ def check() -> Tuple[int, List[str]]:
                 f"the regex in check_readme_stats.py or restore the claim."
             )
             continue
-        if actual != expected:
+        if abs(actual - expected) > tolerance:
+            detail = (f" (tolerance ±{tolerance})" if tolerance > 0 else "")
             errors.append(
                 f"[{where}] {name}: README says {actual}, truth is "
-                f"{expected} ({claim['description']})"
+                f"{expected}{detail} ({claim['description']})"
             )
         if where == "CN":
             cn_values[name.replace("_cn", "").replace("_mission", "")] = actual
@@ -297,8 +424,17 @@ def main() -> int:
         gates = _live_gate_count()
         subdirs = _live_scripts_subdir_counts()
         tests = _live_tests_counts()
+        skill_lines = _live_skill_md_lines()
+        refs_mb = _live_curated_references_mb()
+        pytest_count = _live_pytest_collect_count()
         print("OK: CN/EN agree; live truth:")
-        print(f"  KB:     {papers} papers, {concerns} concerns, {gates} gates")
+        print(f"  KB:           {papers} papers, {concerns} concerns, {gates} gates")
+        print(f"  SKILL.md:     {skill_lines} lines")
+        print(f"  refs curated: ~{refs_mb} MB (JSON/YAML/MD/TXT, excl SQLite & PDF)")
+        if pytest_count >= 0:
+            print(f"  pytest:       {pytest_count} tests collected")
+        else:
+            print(f"  pytest:       [skipped — set MLGG_CHECK_PYTEST_COUNT=1 to enable]")
         print(f"  scripts/ subdirs (excl __init__ / incl __init__):")
         for d, (excl, incl) in subdirs.items():
             print(f"    {d:15s} {excl:3d} / {incl:3d}")

@@ -11,7 +11,7 @@
   <em>Top-Journal Review Standards &times; AI-Driven Medical Prediction Model Governance Framework</em>
   <br><br>
   <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/"><img src="https://img.shields.io/badge/License-PolyForm%20NC%201.0.0-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/tests-5295%20passed-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-5501%20passed-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/gates-33%20fail--closed-critical" alt="Gates">
   <img src="https://img.shields.io/badge/datasets-14%20medical-purple" alt="Datasets">
   <img src="https://img.shields.io/badge/code-145K%20lines-informational" alt="Code">
@@ -39,7 +39,7 @@
 
 ```
 ┌──────────────────────────────────────────┐
-│  SKILL.md + CLAUDE.md  ~350 lines        │  ⚠️ may hallucinate
+│  SKILL.md + CLAUDE.md  ~380 lines        │  ⚠️ may hallucinate
 │  Soft decisions: which stage, intent     │  Consumer: LLM
 └──────────────────────────────────────────┘
                   ↓ orchestrates
@@ -50,7 +50,7 @@
 └──────────────────────────────────────────┘
                   ↓ KB lookups
 ┌──────────────────────────────────────────┐
-│  references/  ~50 MB human-curated       │  ✅ zero hallucination
+│  references/  ~30 MB human-curated       │  ✅ zero hallucination
 │  peer-review-kb.json (119 NC reviews)    │  Consumer: SQL / JSON
 │  codebooks/ukb (8-layer verify, 1.87M)   │
 │  methodology/disease-kb.json             │
@@ -79,7 +79,7 @@ Both end up running the **same Python gate**. The Skill saves keystrokes, not co
 
 ### Engineering guarantees (not just aspirations)
 
-- **SKILL.md ≤ 500 lines**: currently 277 lines, within Claude Code's official guidance; longer content lives under `docs/` or inside gate docstrings.
+- **SKILL.md ≤ 500 lines**: currently 288 lines, within Claude Code's official guidance; longer content lives under `docs/` or inside gate docstrings.
 - **Pre-commit doc-number check**: `check_docs_consistency.py` + `check_readme_stats.py` catch drift across `SKILL.md ↔ README ↔ reviewer.yaml`; **PRs fail before merge**, not after.
 - **Thresholds are code, not prompts**: every pass/fail threshold, validator rule, and detection algorithm is a Python constant + function. Gates do not consult markdown for verdict logic.
 

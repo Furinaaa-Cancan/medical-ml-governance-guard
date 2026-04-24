@@ -16,7 +16,7 @@
   <a href="https://github.com/Furinaaa-Cancan/medical-ml-governance-guard"><img src="https://img.shields.io/badge/GitHub-Furinaaa--Cancan%2Fmedical--ml--governance--guard-181717?logo=github" alt="GitHub Repo"></a>
   <br>
   <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/"><img src="https://img.shields.io/badge/License-PolyForm%20NC%201.0.0-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/tests-5295%20passed-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-5501%20passed-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/gates-33%20fail--closed-critical" alt="Gates">
   <img src="https://img.shields.io/badge/datasets-16%20medical-purple" alt="Datasets">
   <img src="https://img.shields.io/badge/code-147K%20lines-informational" alt="Code">
@@ -45,7 +45,7 @@
 
 ```
 ┌──────────────────────────────────────────┐
-│  SKILL.md + CLAUDE.md  ~350 行           │  ⚠️ 可能幻觉
+│  SKILL.md + CLAUDE.md  ~380 行           │  ⚠️ 可能幻觉
 │  软决策：跑哪个阶段、理解用户意图        │  读者：LLM
 └──────────────────────────────────────────┘
                   ↓ 编排调用
@@ -56,7 +56,7 @@
 └──────────────────────────────────────────┘
                   ↓ KB 查询
 ┌──────────────────────────────────────────┐
-│  references/  ~50 MB human-curated       │  ✅ 0 幻觉
+│  references/  ~30 MB human-curated       │  ✅ 0 幻觉
 │  peer-review-kb.json （119 篇 NC 审稿）  │  读者：SQL / JSON
 │  codebooks/ukb （8 层验证，1.87M cells） │
 │  methodology/disease-kb.json             │
@@ -85,7 +85,7 @@
 
 ### 工程保证（而不只是愿景）
 
-- **SKILL.md ≤ 500 行**：当前 277 行，符合 Claude Code 官方建议；超长内容拆到 `docs/` 或 gate docstring。
+- **SKILL.md ≤ 500 行**：当前 288 行，符合 Claude Code 官方建议；超长内容拆到 `docs/` 或 gate docstring。
 - **文档数字 pre-commit 校验**：`check_docs_consistency.py` + `check_readme_stats.py` 抓 `SKILL.md ↔ README ↔ reviewer.yaml` 的 parity 和 KB freshness drift，**PR 会被 fail 而不是 merge 后才发现**。
 - **阈值是代码不是 prompt**：所有 pass/fail 阈值、validator 规则、检测算法都是 Python 常量 + 函数，gate 不从 markdown 读判定逻辑。
 
