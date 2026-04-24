@@ -33,7 +33,9 @@
 
 ## MLGG vs Claude Skill — Architecture Boundary
 
-**MLGG is NOT a pure skill; it's a hybrid**: the outer shell is a Claude Code skill (routed by `SKILL.md`), but the core is 40K+ lines of deterministic Python plus 50 MB of human-curated references. **Hallucination risk is strictly confined to the shell; all hard decisions live in code and static data.**
+> **TL;DR**: MLGG is a **hybrid**. The Claude Skill is only the UX shell — every pass/fail verdict is produced by 40K+ lines of deterministic Python. **Even if Claude hallucinates, the gate verdict does not change.**
+
+### Three layers
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -43,7 +45,7 @@
                       ↓ invokes
 ┌─────────────────────────────────────────────────┐
 │  33 gates  (~40K LOC Python)                    │  ← Deterministic (zero hallucination)
-│  └─ Hard decisions: pass / fail / critical      │
+│  └─ Hard verdicts: pass / fail / critical       │
 │  └─ Same input → same output, CI-reproducible   │
 └─────────────────────────────────────────────────┘
                       ↓ consults
@@ -56,29 +58,31 @@
 └─────────────────────────────────────────────────┘
 ```
 
+### Two usage paths (same verdict)
+
+| Path | Command | When | Can hallucination change the verdict? |
+|---|---|---|---|
+| **Via `/mlgg` in Claude Code** | `/mlgg` → auto-runs the 9-phase pipeline | interactive, exploratory, semi-auto | ❌ No (affects only *what* gets run) |
+| **Call Python gates directly** | `python3 scripts/gates/leakage_gate.py --data x.csv` | CI, automation, publication-grade | ❌ No (skill is out of the loop) |
+
+Both paths execute the same Python gate with the same inputs. The skill layer accelerates interaction but **does not carry correctness responsibility**.
+
 ### Hallucination-risk boundary
 
-| Behaviour | Layer | Hallucination risk |
-|---|---|---|
-| Claude picks workflow from `/mlgg` | skill | ⚠️ yes (worst case: extra/missed run; gate still reaches correct verdict) |
-| `leakage_gate.py` detects label leakage | Python | ✅ none (deterministic algorithm) |
-| `calibration_dca_gate.py` computes ICI/DCA | Python | ✅ none (pure numeric computation) |
-| Quoting reviewer opinions from `peer-review-kb.json` | references | ✅ none (SQL/JSON lookup) |
-| `verify_ukb_codebook.py` runs 8-layer verify | Python | ✅ none (1.87M cell-level comparison) |
-| Claude summarises gate output for the user | skill | ⚠️ yes (wording bias, but cannot change verdict) |
-
-### Two usage paths
-
-1. **Through Claude Code / SKILL**: `/mlgg` → Claude identifies task → auto-runs 9-phase pipeline (interactive use)
-2. **Bypass the skill, call Python directly**: `python3 scripts/gates/leakage_gate.py --data x.csv` (CI / automation, **zero-hallucination guarantee**)
-
-So the peace-of-mind guarantee is: **even if Claude misreads intent, the final Python verdict is identical every run**. SKILL.md is the "user interface" accelerator, not a correctness layer.
+| Behaviour | Layer | Hallucination risk | Effect on verdict |
+|---|---|---|---|
+| Claude picks workflow from `/mlgg` | skill | ⚠️ yes | At worst: extra/missed gate run. **Each gate's verdict is still its deterministic output.** |
+| `leakage_gate.py` detects label leakage | Python | ✅ none | Deterministic algorithm; same input → same pass/fail |
+| `calibration_dca_gate.py` computes ICI / DCA | Python | ✅ none | Pure numeric computation |
+| Quoting reviewer opinions from `peer-review-kb.json` | references | ✅ none | Exact SQL / JSON lookup |
+| `verify_ukb_codebook.py` runs 8-layer verify | Python | ✅ none | 1.87M cell-level comparison |
+| Claude summarises gate output in natural language | skill | ⚠️ yes | Wording bias at the presentation layer — **does not alter the underlying pass/fail** |
 
 ### Design rules (enforced)
 
-- **Keep SKILL.md lean** — currently 277 lines, within Claude Code's official <500-line guidance; longer docs split into `docs/` or gate docstrings.
-- **Auto-enforce doc consistency** — `scripts/diagnostics/check_docs_consistency.py` catches number drift across SKILL.md ↔ README ↔ reviewer.yaml (pre-commit hook).
-- **No prompt-as-logic** — every pass/fail threshold, validator rule, and detection algorithm lives as Python constants + functions, not as markdown prose.
+- **Keep SKILL.md lean** — currently 277 lines, within Claude Code's official <500-line guidance; longer docs live under `docs/` or inside gate docstrings.
+- **Auto-enforce doc consistency** — `scripts/diagnostics/check_docs_consistency.py` catches number drift across `SKILL.md ↔ README ↔ reviewer.yaml` (pre-commit hook).
+- **No prompt-as-logic** — every pass/fail threshold, validator rule, and detection algorithm lives as Python constants + functions, never as markdown prose.
 
 ---
 

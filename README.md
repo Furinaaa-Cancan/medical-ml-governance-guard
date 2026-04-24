@@ -39,51 +39,55 @@
 
 ## MLGG vs Claude Skill — 架构边界
 
-**MLGG 不是纯 skill,是 hybrid**:外壳是 Claude Code skill(有 `SKILL.md` 路由),内核是 40K+ 行确定性 Python + 50MB human-curated references。**幻觉风险严格限制在外壳,核心决策全部在代码和静态数据里**。
+> **TL;DR**：MLGG 是 **hybrid 架构**——Claude Skill 只是 UX 外壳，所有 pass/fail 判定都落在 40K+ 行的确定性 Python 里。**即便 Claude 幻觉了，gate 的结论也不会变。**
+
+### 三层结构
 
 ```
 ┌─────────────────────────────────────────────────┐
-│  SKILL.md / CLAUDE.md  (~350 行)                │  ← LLM 读(可能幻觉)
-│  └─ 软决策:哪个阶段跑哪个 gate、用户意图解读   │
+│  SKILL.md / CLAUDE.md  （~350 行）              │  ← LLM 读（可能幻觉）
+│  └─ 软决策：跑哪个阶段、理解用户意图            │
 └─────────────────────────────────────────────────┘
                       ↓ 调用
 ┌─────────────────────────────────────────────────┐
-│  33 道 gate  (~40K LOC Python)                  │  ← 确定性执行(0 幻觉)
-│  └─ 硬决策:pass / fail / critical 二元结论     │
-│  └─ 每次同输入同输出,CI 可回归                  │
+│  33 道 gate  （~40K LOC Python）                │  ← 确定性执行（0 幻觉）
+│  └─ 硬决策：pass / fail / critical 三态结论     │
+│  └─ 同输入同输出，CI 可回归                     │
 └─────────────────────────────────────────────────┘
                       ↓ 参考
 ┌─────────────────────────────────────────────────┐
-│  references/  (~50MB human-curated)             │  ← 静态数据(0 幻觉)
-│  └─ peer-review-kb.json (119 NC 审稿意见)       │
-│  └─ codebooks/ukb (8 层验证,1.87M cells 对过)   │
+│  references/  （~50 MB human-curated）          │  ← 静态数据（0 幻觉）
+│  └─ peer-review-kb.json （119 篇 NC 审稿意见）  │
+│  └─ codebooks/ukb （8 层验证，1.87M cells 对过）│
 │  └─ methodology/disease-kb.json                 │
 └─────────────────────────────────────────────────┘
 ```
 
-### 幻觉风险边界表
+### 两条使用路径（同一份结论）
 
-| 行为 | 所在层 | 幻觉风险 |
-|---|---|---|
-| Claude 从 `/mlgg` 判断要跑哪个工作流 | skill | ⚠️ 有(最多多跑/漏跑,gate 会兜底) |
-| `leakage_gate.py` 检测标签泄漏 | Python | ✅ 无(确定性算法) |
-| `calibration_dca_gate.py` 计算 ICI/DCA | Python | ✅ 无(纯数值计算) |
-| 从 `peer-review-kb.json` 引用审稿意见 | references | ✅ 无(SQL/JSON 查找) |
-| `verify_ukb_codebook.py` 跑 8 层验证 | Python | ✅ 无(1.87M cell 全量对比) |
-| Claude 总结 gate 输出给用户 | skill | ⚠️ 有(表达偏差,但不改变 gate 结论) |
+| 路径 | 命令 | 场景 | 幻觉能影响结论吗 |
+|---|---|---|---|
+| **经 `/mlgg` 经 Claude Code** | `/mlgg` → 自动跑 9 阶段 pipeline | 交互、探索、半自动 | ❌ 不能（只影响"跑了什么"） |
+| **直接调 Python gate** | `python3 scripts/gates/leakage_gate.py --data x.csv` | CI、自动化、发布级 | ❌ 不能（skill 未参与） |
 
-### 使用上的两条路径
+两条路径跑同一套 Python gate，同输入同输出。Skill 层只是加速用户交互，**不承担正确性**。
 
-1. **经 Claude Code / SKILL**:`/mlgg` → Claude 识别任务 → 自动跑 9 阶段 pipeline(适合交互场景)
-2. **绕过 skill 直接跑 Python**:`python3 scripts/gates/leakage_gate.py --data x.csv`(CI / 自动化场景,**保证零幻觉**)
+### 幻觉风险边界
 
-**所以能放心的是**:即便 Claude 理解偏了,只要最后跑的是 Python gate,pass/fail 结论永远一致。SKILL.md 只是加速用户交互的"用户界面",不承担正确性。
+| 行为 | 所在层 | 幻觉风险 | 对结论的影响 |
+|---|---|---|---|
+| Claude 从 `/mlgg` 决定跑哪个工作流 | skill | ⚠️ 有 | 最多多跑或漏跑 gate，**结果仍是每个 gate 的确定性输出** |
+| `leakage_gate.py` 检测标签泄漏 | Python | ✅ 无 | 确定性算法，同输入同 pass/fail |
+| `calibration_dca_gate.py` 计算 ICI/DCA | Python | ✅ 无 | 纯数值计算 |
+| 从 `peer-review-kb.json` 引用审稿意见 | references | ✅ 无 | SQL / JSON 精确查找 |
+| `verify_ukb_codebook.py` 跑 8 层验证 | Python | ✅ 无 | 1.87M cell 全量对比 |
+| Claude 用自然语言总结 gate 输出 | skill | ⚠️ 有 | 表达层偏差，**不改变底层 pass/fail** |
 
-### 相关设计准则(已实施)
+### 设计准则（已实施）
 
-- **SKILL.md 保持瘦** — 当前 277 行,符合 Claude Code 官方 <500 行建议;长文档拆分到独立 `docs/` 或 gate docstring
-- **docs 一致性自动校验** — `scripts/diagnostics/check_docs_consistency.py` 抓 SKILL.md ↔ README ↔ reviewer.yaml 的数字漂移(pre-commit hook)
-- **硬决策不做成 prompt** — 所有 pass/fail 阈值、validator 逻辑、检测规则都是 Python 常量 + 函数,不是 markdown
+- **SKILL.md 瘦身**——当前 277 行，符合 Claude Code 官方 <500 行建议；长文档拆到独立 `docs/` 或 gate docstring。
+- **docs 一致性自动校验**——`scripts/diagnostics/check_docs_consistency.py` 抓 `SKILL.md ↔ README ↔ reviewer.yaml` 的数字漂移（pre-commit hook）。
+- **硬决策不做成 prompt**——所有 pass/fail 阈值、validator 逻辑、检测规则都是 Python 常量 + 函数，不是 markdown prose。
 
 ---
 
