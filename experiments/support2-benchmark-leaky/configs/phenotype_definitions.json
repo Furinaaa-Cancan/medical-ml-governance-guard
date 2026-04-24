@@ -1,0 +1,18 @@
+{
+  "global_forbidden_patterns": [
+    "(?i)^target$",
+    "(?i)^label$",
+    "(?i)^outcome$"
+  ],
+  "targets": {
+    "six_month_mortality": {
+      "defining_variables": [],
+      "forbidden_patterns": [
+        "(?i)^target$",
+        "(?i)^label$",
+        "(?i)^outcome$"
+      ],
+      "notes": "C path: intentionally LEAKY \u2014 avtisst/aps/sps kept as features to stress-test whether MLGG's leakage_gate / feature_engineering_audit / clinical_metrics fire appropriately."
+    }
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "features": {
+    "adlp": {
+      "ancestors": []
+    },
+    "adls": {
+      "ancestors": []
+    },
+    "adlsc": {
+      "ancestors": []
+    },
+    "age": {
+      "ancestors": []
+    },
+    "alb": {
+      "ancestors": []
+    },
+    "aps": {
+      "ancestors": []
+    },
+    "avtisst": {
+      "ancestors": []
+    },
+    "bili": {
+      "ancestors": []
+    },
+    "bun": {
+      "ancestors": []
+    },
+    "ca": {
+      "ancestors": []
+    },
+    "charges": {
+      "ancestors": [],
+      "forbidden": true
+    },
+    "crea": {
+      "ancestors": []
+    },
+    "dementia": {
+      "ancestors": []
+    },
+    "diabetes": {
+      "ancestors": []
+    },
+    "dnr": {
+      "ancestors": [],
+      "forbidden": true
+    },
+    "dnrday": {
+      "ancestors": [],
+      "forbidden": true
+    },
+    "dzclass": {
+      "ancestors": []
+    },
+    "dzgroup": {
+      "ancestors": []
+    },
+    "edu": {
+      "ancestors": []
+    },
+    "glucose": {
+      "ancestors": []
+    },
+    "hday": {
+      "ancestors": [],
+      "forbidden": true
+    },
+    "hrt": {
+      "ancestors": []
+    },
+    "income": {
+      "ancestors": []
+    },
+    "meanbp": {
+      "ancestors": []
+    },
+    "num.co": {
+      "ancestors": []
+    },
+    "pafi": {
+      "ancestors": []
+    },
+    "ph": {
+      "ancestors": []
+    },
+    "prg2m": {
+      "ancestors": [],
+      "forbidden": true
+    },
+    "prg6m": {
+      "ancestors": [],
+      "forbidden": true
+    },
+    "race": {
+      "ancestors": []
+    },
+    "resp": {
+      "ancestors": []
+    },
+    "scoma": {
+      "ancestors": []
+    },
+    "sex": {
+      "ancestors": []
+    },
+    "slos": {
+      "ancestors": [],
+      "forbidden": true
+    },
+    "sod": {
+      "ancestors": []
+    },
+    "sps": {
+      "ancestors": []
+    },
+    "surv2m": {
+      "ancestors": [],
+      "forbidden": true
+    },
+    "surv6m": {
+      "ancestors": [],
+      "forbidden": true
+    },
+    "temp": {
+      "ancestors": []
+    },
+    "totcst": {
+      "ancestors": [],
+      "forbidden": true
+    },
+    "totmcst": {
+      "ancestors": [],
+      "forbidden": true
+    },
+    "urine": {
+      "ancestors": []
+    },
+    "wblc": {
+      "ancestors": []
+    }
+  }
+}

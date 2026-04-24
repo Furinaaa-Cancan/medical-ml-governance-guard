@@ -1,0 +1,887 @@
+{
+  "report_version": "audit_report.v2",
+  "generated_at": "2026-04-24T08:34:45.263041+00:00",
+  "project_dir": "/Volumes/Seagate/Skill/ml-leakage-guard/experiments/support2-benchmark-leaky",
+  "prediction_type": "binary",
+  "total_score": 14.64,
+  "max_score": 100,
+  "score_capped_by_external_validation": false,
+  "external_validation_absent": true,
+  "grade_en": "Not publishable",
+  "grade_zh": "不可发表",
+  "py_files_scanned": 0,
+  "gate_reports_found": 41,
+  "gate_reports_assessed": 41,
+  "gates_skipped_na": [],
+  "dimension_scores": {
+    "data_integrity": {
+      "id": 1,
+      "name": "Data Integrity",
+      "weight": 12,
+      "score_fraction": 0.12,
+      "weighted_score": 1.44,
+      "max_possible": 12
+    },
+    "leakage_prevention": {
+      "id": 2,
+      "name": "Leakage Prevention",
+      "weight": 15,
+      "score_fraction": 0.0,
+      "weighted_score": 0.0,
+      "max_possible": 15
+    },
+    "pipeline_isolation": {
+      "id": 3,
+      "name": "Pipeline Isolation",
+      "weight": 12,
+      "score_fraction": 0.0,
+      "weighted_score": 0.0,
+      "max_possible": 12
+    },
+    "model_selection_rigor": {
+      "id": 4,
+      "name": "Model Selection Rigor",
+      "weight": 10,
+      "score_fraction": 0.0,
+      "weighted_score": 0.0,
+      "max_possible": 10
+    },
+    "statistical_validity": {
+      "id": 5,
+      "name": "Statistical Validity",
+      "weight": 12,
+      "score_fraction": 1.0,
+      "weighted_score": 12.0,
+      "max_possible": 12
+    },
+    "generalization_evidence": {
+      "id": 6,
+      "name": "Generalization Evidence",
+      "weight": 10,
+      "score_fraction": 0.0,
+      "weighted_score": 0.0,
+      "max_possible": 10
+    },
+    "clinical_completeness": {
+      "id": 7,
+      "name": "Clinical Completeness",
+      "weight": 7,
+      "score_fraction": 0.0,
+      "weighted_score": 0.0,
+      "max_possible": 7
+    },
+    "reporting_standards": {
+      "id": 8,
+      "name": "Reporting Standards",
+      "weight": 7,
+      "score_fraction": 0.0,
+      "weighted_score": 0.0,
+      "max_possible": 7
+    },
+    "reproducibility": {
+      "id": 9,
+      "name": "Reproducibility",
+      "weight": 6,
+      "score_fraction": 0.0,
+      "weighted_score": 0.0,
+      "max_possible": 6
+    },
+    "security_provenance": {
+      "id": 10,
+      "name": "Security & Provenance",
+      "weight": 3,
+      "score_fraction": 0.4,
+      "weighted_score": 1.2,
+      "max_possible": 3
+    },
+    "fairness_equity": {
+      "id": 11,
+      "name": "Fairness & Equity",
+      "weight": 3,
+      "score_fraction": 0.0,
+      "weighted_score": 0.0,
+      "max_possible": 3
+    },
+    "sample_size_adequacy": {
+      "id": 12,
+      "name": "Sample Size Adequacy",
+      "weight": 3,
+      "score_fraction": 0.0,
+      "weighted_score": 0.0,
+      "max_possible": 3
+    }
+  },
+  "tripod_coverage": {
+    "reference": "Collins et al. BMJ 2024;385:e078378",
+    "total_required": 17,
+    "covered_count": 0,
+    "coverage_fraction": 0.0,
+    "item_status": {
+      "1": "not_assessed",
+      "4": "not_assessed",
+      "5": "not_assessed",
+      "6a": "not_assessed",
+      "6b": "not_assessed",
+      "7": "not_assessed",
+      "8": "not_assessed",
+      "10": "not_assessed",
+      "11": "not_assessed",
+      "12": "not_assessed",
+      "15b": "not_assessed",
+      "16": "not_assessed",
+      "17": "not_assessed",
+      "18": "not_assessed",
+      "20": "not_assessed",
+      "21": "not_assessed",
+      "27": "not_assessed"
+    },
+    "items": [
+      {
+        "item_id": "1",
+        "label": "Title",
+        "text": "Identify the study as developing, validating, or updating a clinical prediction model, specifying the type of model (e.g., prediction model, diagnostic model, prognostic model) and target population.",
+        "ai_specific": false,
+        "status": "not_assessed",
+        "gate_check": "reporting_bias_gate → tripod_ai.title_identifies_prediction_model = true"
+      },
+      {
+        "item_id": "4",
+        "label": "Source of Data",
+        "text": "Describe the source of data (e.g., existing dataset, prospective cohort, routinely collected data, registry), including the setting(s), recruitment period, and any linkage of datasets.",
+        "ai_specific": false,
+        "status": "not_assessed",
+        "gate_check": "reporting_bias_gate → tripod_ai.study_design_and_data_source_described = true"
+      },
+      {
+        "item_id": "5",
+        "label": "Participants",
+        "text": "Specify the key elements of the study design (observational, trial, registry), the eligibility criteria for participants (inclusion and exclusion criteria), and the method of recruitment and sampling.",
+        "ai_specific": false,
+        "status": "not_assessed",
+        "gate_check": "reporting_bias_gate → tripod_ai.target_population_defined = true"
+      },
+      {
+        "item_id": "6a",
+        "label": "Item 6a",
+        "text": "",
+        "ai_specific": false,
+        "status": "not_assessed",
+        "gate_check": ""
+      },
+      {
+        "item_id": "6b",
+        "label": "Item 6b",
+        "text": "",
+        "ai_specific": false,
+        "status": "not_assessed",
+        "gate_check": ""
+      },
+      {
+        "item_id": "7",
+        "label": "Sample Size",
+        "text": "Explain how the study size (number of participants, number of events) was determined, including formal sample size or events-per-variable calculations if performed.",
+        "ai_specific": false,
+        "status": "not_assessed",
+        "gate_check": "reporting_bias_gate → tripod_ai.sample_size_justification_reported = true; sample_size_gate → status = pass"
+      },
+      {
+        "item_id": "8",
+        "label": "Missing Data",
+        "text": "Describe how missing data were handled in the analysis, including what variables had missing values, the missing data mechanism assumed (MCAR/MAR/MNAR), and the imputation strategy used.",
+        "ai_specific": false,
+        "status": "not_assessed",
+        "gate_check": "reporting_bias_gate → tripod_ai.missing_data_handling_reported = true; missingness_policy_gate → status = pass"
+      },
+      {
+        "item_id": "10",
+        "label": "Model Development",
+        "text": "",
+        "ai_specific": true,
+        "status": "not_assessed",
+        "gate_check": "reporting_bias_gate → tripod_ai.model_building_procedure_reported = true; tuning_leakage_gate → status = pass"
+      },
+      {
+        "item_id": "11",
+        "label": "Internal Validation",
+        "text": "Describe the internal validation strategy (e.g., cross-validation, bootstrap, split-sample) and the purpose (optimism correction, performance estimation). Specify how train/validation/test splits were created.",
+        "ai_specific": false,
+        "status": "not_assessed",
+        "gate_check": "reporting_bias_gate → tripod_ai.internal_validation_strategy_reported = true; split_protocol_gate → status = pass"
+      },
+      {
+        "item_id": "12",
+        "label": "Fairness and Equity Assessment",
+        "text": "Describe how fairness and equity across subgroups (e.g., age, sex, race/ethnicity, socioeconomic status) was assessed during model development, including which fairness metrics were used and how disparities were handled.",
+        "ai_specific": true,
+        "status": "not_assessed",
+        "gate_check": "reporting_bias_gate → tripod_ai.fairness_assessment_reported = true; fairness_equity_gate → status = pass"
+      },
+      {
+        "item_id": "15b",
+        "label": "Item 15b",
+        "text": "",
+        "ai_specific": false,
+        "status": "not_assessed",
+        "gate_check": ""
+      },
+      {
+        "item_id": "16",
+        "label": "Model Specification",
+        "text": "Present the final model in full (regression coefficients, tree structure, or model architecture), including all predictors, their coding, and any transformations, so that the model can be reproduced or applied by others.",
+        "ai_specific": false,
+        "status": "not_assessed",
+        "gate_check": "reporting_bias_gate → tripod_ai.full_model_specification_reported = true"
+      },
+      {
+        "item_id": "17",
+        "label": "Model Performance",
+        "text": "Report model performance statistics (including calibration and discrimination) with measures of uncertainty (confidence intervals) for both the development and validation datasets.",
+        "ai_specific": false,
+        "status": "not_assessed",
+        "gate_check": "reporting_bias_gate → tripod_ai.performance_measures_with_ci_reported = true; ci_matrix_gate → status = pass; calibration_dca_gate → status = pass"
+      },
+      {
+        "item_id": "18",
+        "label": "Model Uncertainty",
+        "text": "For AI/ML models, report measures of model uncertainty (e.g., prediction intervals, bootstrap variance, conformal prediction sets) to quantify the reliability of individual predictions.",
+        "ai_specific": true,
+        "status": "not_assessed",
+        "gate_check": "ci_matrix_gate → status = pass; reporting_bias_gate → tripod_ai.model_uncertainty_quantified = true"
+      },
+      {
+        "item_id": "20",
+        "label": "Fairness Results",
+        "text": "Report the results of fairness and equity assessments, including performance metrics stratified by relevant subgroups and any identified performance disparities with absolute differences and confidence intervals.",
+        "ai_specific": true,
+        "status": "not_assessed",
+        "gate_check": "fairness_equity_gate → status = pass; reporting_bias_gate → tripod_ai.fairness_results_reported = true"
+      },
+      {
+        "item_id": "21",
+        "label": "Limitations",
+        "text": "Discuss the limitations of the study, including potential sources of bias, limitations of the data and methods, limitations of the model (e.g., generalizability restrictions), and implications for clinical use.",
+        "ai_specific": false,
+        "status": "not_assessed",
+        "gate_check": "reporting_bias_gate → tripod_ai.limitations_and_clinical_use_reported = true"
+      },
+      {
+        "item_id": "27",
+        "label": "Funding, Conflicts of Interest, and Data/Code Availability",
+        "text": "Give the sources of funding, the role of the funders in the study, and any conflicts of interest. State the availability of data and code: whether they are publicly available, under controlled access, or unavailable, with reasons.",
+        "ai_specific": true,
+        "status": "not_assessed",
+        "gate_check": "reporting_bias_gate → tripod_ai.model_availability_or_code_sharing_reported = true AND tripod_ai.data_availability_statement_provided = true"
+      }
+    ]
+  },
+  "probast_coverage": {
+    "reference": "Wolff et al. PROBAST+AI 2025",
+    "overall_risk_of_bias": "unclear",
+    "domains": [
+      {
+        "domain_id": "D1_participants",
+        "name": "Participant Selection",
+        "rob_status": "unclear",
+        "gates_assessed": [
+          "split_protocol_gate",
+          "external_validation_gate",
+          "sample_size_gate"
+        ]
+      },
+      {
+        "domain_id": "D2_predictors",
+        "name": "Predictors / Features",
+        "rob_status": "unclear",
+        "gates_assessed": [
+          "leakage_gate",
+          "definition_variable_guard",
+          "feature_lineage_gate"
+        ]
+      },
+      {
+        "domain_id": "D3_outcome",
+        "name": "Outcome",
+        "rob_status": "unclear",
+        "gates_assessed": [
+          "reporting_bias_gate",
+          "clinical_metrics_gate"
+        ]
+      },
+      {
+        "domain_id": "D4_analysis",
+        "name": "Analysis",
+        "rob_status": "unclear",
+        "gates_assessed": [
+          "leakage_gate",
+          "tuning_leakage_gate",
+          "split_protocol_gate",
+          "model_selection_audit_gate",
+          "calibration_dca_gate",
+          "permutation_significance_gate",
+          "reporting_bias_gate",
+          "fairness_equity_gate"
+        ]
+      }
+    ],
+    "meets_publication_requirement": false
+  },
+  "issues": [
+    {
+      "issue_type": "gate_failure",
+      "gate": "leakage",
+      "severity": "ERROR",
+      "description": "Temporal boundary violation detected.",
+      "error_code": "temporal_overlap",
+      "root_cause": "Gate leakage failed: Temporal boundary violation detected.",
+      "fix": "Review gate requirements for leakage and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "leakage",
+      "severity": "ERROR",
+      "description": "Temporal boundary violation detected.",
+      "error_code": "temporal_overlap",
+      "root_cause": "Gate leakage failed: Temporal boundary violation detected.",
+      "fix": "Review gate requirements for leakage and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "leakage",
+      "severity": "ERROR",
+      "description": "Temporal boundary violation detected.",
+      "error_code": "temporal_overlap",
+      "root_cause": "Gate leakage failed: Temporal boundary violation detected.",
+      "fix": "Review gate requirements for leakage and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "execution_attestation",
+      "severity": "ERROR",
+      "description": "Attestation is older than max-age-hours — possible replay.",
+      "error_code": "attestation_stale",
+      "root_cause": "Gate execution_attestation failed: Attestation is older than max-age-hours — possible replay.",
+      "fix": "Review gate requirements for execution_attestation and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "execution_attestation",
+      "severity": "ERROR",
+      "description": "Referenced path escapes the attestation bundle sandbox.",
+      "error_code": "path_escapes_sandbox",
+      "root_cause": "Gate execution_attestation failed: Referenced path escapes the attestation bundle sandbox.",
+      "fix": "Review gate requirements for execution_attestation and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "execution_attestation",
+      "severity": "ERROR",
+      "description": "Referenced path escapes the attestation bundle sandbox.",
+      "error_code": "path_escapes_sandbox",
+      "root_cause": "Gate execution_attestation failed: Referenced path escapes the attestation bundle sandbox.",
+      "fix": "Review gate requirements for execution_attestation and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "execution_attestation",
+      "severity": "ERROR",
+      "description": "Referenced path escapes the attestation bundle sandbox.",
+      "error_code": "path_escapes_sandbox",
+      "root_cause": "Gate execution_attestation failed: Referenced path escapes the attestation bundle sandbox.",
+      "fix": "Review gate requirements for execution_attestation and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "feature_engineering_audit",
+      "severity": "ERROR",
+      "description": "Selected feature set includes lineage-forbidden features.",
+      "error_code": "feature_selection_data_leakage",
+      "root_cause": "Gate feature_engineering_audit failed: Selected feature set includes lineage-forbidden features.",
+      "fix": "Review gate requirements for feature_engineering_audit and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "definition_guard",
+      "severity": "ERROR",
+      "description": "Target not found in definition spec.",
+      "error_code": "target_not_found",
+      "root_cause": "Gate definition_guard failed: Target not found in definition spec.",
+      "fix": "Review gate requirements for definition_guard and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "lineage",
+      "severity": "ERROR",
+      "description": "Target not found in definition spec.",
+      "error_code": "target_not_found",
+      "root_cause": "Gate lineage failed: Target not found in definition spec.",
+      "fix": "Review gate requirements for lineage and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "missingness_policy",
+      "severity": "ERROR",
+      "description": "Feature missingness exceeds policy threshold.",
+      "error_code": "feature_missingness_too_high",
+      "root_cause": "Gate missingness_policy failed: Feature missingness exceeds policy threshold.",
+      "fix": "Review gate requirements for missingness_policy and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "missingness_policy",
+      "severity": "ERROR",
+      "description": "Feature missingness >40% detected; MNAR sensitivity analysis is required.",
+      "error_code": "mnar_sensitivity_required",
+      "root_cause": "Gate missingness_policy failed: Feature missingness >40% detected; MNAR sensitivity analysis is required.",
+      "fix": "Review gate requirements for missingness_policy and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "clinical_metrics",
+      "severity": "ERROR",
+      "description": "performance_policy.required_metrics must include the full mandatory clinical panel.",
+      "error_code": "performance_policy_missing_required_metric",
+      "root_cause": "Gate clinical_metrics failed: performance_policy.required_metrics must include the full mandatory clinical panel.",
+      "fix": "Review gate requirements for clinical_metrics and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "metric_consistency",
+      "severity": "ERROR",
+      "description": "Expected metric does not match evaluation report metric.",
+      "error_code": "metric_mismatch",
+      "root_cause": "Gate metric_consistency failed: Expected metric does not match evaluation report metric.",
+      "fix": "Review gate requirements for metric_consistency and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "evaluation_quality",
+      "severity": "ERROR",
+      "description": "Primary metric does not match expected metric value.",
+      "error_code": "primary_metric_mismatch",
+      "root_cause": "Gate evaluation_quality failed: Primary metric does not match expected metric value.",
+      "fix": "Review gate requirements for evaluation_quality and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "evaluation_quality",
+      "severity": "ERROR",
+      "description": "Primary metric improvement over baseline is below required margin.",
+      "error_code": "baseline_improvement_insufficient",
+      "root_cause": "Gate evaluation_quality failed: Primary metric improvement over baseline is below required margin.",
+      "fix": "Review gate requirements for evaluation_quality and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "permutation",
+      "severity": "ERROR",
+      "description": "Null metrics file not found.",
+      "error_code": "missing_null_metrics_file",
+      "root_cause": "Gate permutation failed: Null metrics file not found.",
+      "fix": "Review gate requirements for permutation and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "publication_gate",
+      "severity": "ERROR",
+      "description": "Manifest status is not pass.",
+      "error_code": "manifest_not_passed",
+      "root_cause": "publication_gate is a fail-closed aggregator: it issues a publication-ready attestation only when ALL 33 gates have passed. Any single gate failure propagates to block publication.",
+      "fix": "Read gate_results_summary.json to identify failed gates. Fix each failure in order of severity (CRITICAL first). Re-run the full pipeline until all 33 gates show status=pass.",
+      "prevention": "Run gates in the canonical pipeline order via mlgg.py workflow. Never skip gates. Publication declaration is only valid when all 33 gates pass in the same pipeline run.",
+      "kb_reference": "ERR-029",
+      "literature_citations": [
+        {
+          "id": "LIT-012",
+          "title": "Data leakage in machine learning studies creep into meta-analytic estimates of predictive performance",
+          "journal": "Molecular Psychiatry",
+          "year": 2025,
+          "doi": "10.1038/s41380-025-03336-y"
+        }
+      ],
+      "literature_note": "See cited works for methodological standards underlying this check."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "publication_gate",
+      "severity": "ERROR",
+      "description": "Manifest contains errors.",
+      "error_code": "manifest_has_errors",
+      "root_cause": "publication_gate is a fail-closed aggregator: it issues a publication-ready attestation only when ALL 33 gates have passed. Any single gate failure propagates to block publication.",
+      "fix": "Read gate_results_summary.json to identify failed gates. Fix each failure in order of severity (CRITICAL first). Re-run the full pipeline until all 33 gates show status=pass.",
+      "prevention": "Run gates in the canonical pipeline order via mlgg.py workflow. Never skip gates. Publication declaration is only valid when all 33 gates pass in the same pipeline run.",
+      "kb_reference": "ERR-029",
+      "literature_citations": [
+        {
+          "id": "LIT-012",
+          "title": "Data leakage in machine learning studies creep into meta-analytic estimates of predictive performance",
+          "journal": "Molecular Psychiatry",
+          "year": 2025,
+          "doi": "10.1038/s41380-025-03336-y"
+        }
+      ],
+      "literature_note": "See cited works for methodological standards underlying this check."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "publication_gate",
+      "severity": "ERROR",
+      "description": "Required component report did not pass.",
+      "error_code": "component_not_passed",
+      "root_cause": "publication_gate is a fail-closed aggregator: it issues a publication-ready attestation only when ALL 33 gates have passed. Any single gate failure propagates to block publication.",
+      "fix": "Read gate_results_summary.json to identify failed gates. Fix each failure in order of severity (CRITICAL first). Re-run the full pipeline until all 33 gates show status=pass.",
+      "prevention": "Run gates in the canonical pipeline order via mlgg.py workflow. Never skip gates. Publication declaration is only valid when all 33 gates pass in the same pipeline run.",
+      "kb_reference": "ERR-029",
+      "literature_citations": [
+        {
+          "id": "LIT-012",
+          "title": "Data leakage in machine learning studies creep into meta-analytic estimates of predictive performance",
+          "journal": "Molecular Psychiatry",
+          "year": 2025,
+          "doi": "10.1038/s41380-025-03336-y"
+        }
+      ],
+      "literature_note": "See cited works for methodological standards underlying this check."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "publication_gate",
+      "severity": "ERROR",
+      "description": "Component report contains failures.",
+      "error_code": "component_has_failures",
+      "root_cause": "publication_gate is a fail-closed aggregator: it issues a publication-ready attestation only when ALL 33 gates have passed. Any single gate failure propagates to block publication.",
+      "fix": "Read gate_results_summary.json to identify failed gates. Fix each failure in order of severity (CRITICAL first). Re-run the full pipeline until all 33 gates show status=pass.",
+      "prevention": "Run gates in the canonical pipeline order via mlgg.py workflow. Never skip gates. Publication declaration is only valid when all 33 gates pass in the same pipeline run.",
+      "kb_reference": "ERR-029",
+      "literature_citations": [
+        {
+          "id": "LIT-012",
+          "title": "Data leakage in machine learning studies creep into meta-analytic estimates of predictive performance",
+          "journal": "Molecular Psychiatry",
+          "year": 2025,
+          "doi": "10.1038/s41380-025-03336-y"
+        }
+      ],
+      "literature_note": "See cited works for methodological standards underlying this check."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "publication_gate",
+      "severity": "ERROR",
+      "description": "Required component report did not pass.",
+      "error_code": "component_not_passed",
+      "root_cause": "publication_gate is a fail-closed aggregator: it issues a publication-ready attestation only when ALL 33 gates have passed. Any single gate failure propagates to block publication.",
+      "fix": "Read gate_results_summary.json to identify failed gates. Fix each failure in order of severity (CRITICAL first). Re-run the full pipeline until all 33 gates show status=pass.",
+      "prevention": "Run gates in the canonical pipeline order via mlgg.py workflow. Never skip gates. Publication declaration is only valid when all 33 gates pass in the same pipeline run.",
+      "kb_reference": "ERR-029",
+      "literature_citations": [
+        {
+          "id": "LIT-012",
+          "title": "Data leakage in machine learning studies creep into meta-analytic estimates of predictive performance",
+          "journal": "Molecular Psychiatry",
+          "year": 2025,
+          "doi": "10.1038/s41380-025-03336-y"
+        }
+      ],
+      "literature_note": "See cited works for methodological standards underlying this check."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "security_audit_gate",
+      "severity": "ERROR",
+      "description": ".manifest.json may contain sensitive data (pattern: 'ssn_undashed').",
+      "error_code": "sensitive_data_in_evidence",
+      "root_cause": "The model file was overwritten, re-serialized, or corrupted after the HMAC signature was computed and stored in the attestation record",
+      "fix": "If modification was intentional (re-training): re-sign the new artifact using generate_execution_attestation.py --re-sign. If accidental: restore the originally signed version from backup.",
+      "prevention": "Treat signed model artifacts as immutable. Never overwrite a signed model file. If re-training is needed, increment the model version and create a new signed artifact.",
+      "kb_reference": "ERR-031",
+      "literature_citations": [
+        {
+          "id": "LIT-023",
+          "title": "SLSA Supply-chain Levels for Software Artifacts: Requirements v1.0",
+          "journal": "slsa.dev (standard)",
+          "year": 2023,
+          "doi": null
+        },
+        {
+          "id": "LIT-030",
+          "title": "Regulation (EU) 2024/1689 — Artificial Intelligence Act",
+          "journal": "Official Journal of the European Union",
+          "year": 2024,
+          "doi": null
+        }
+      ],
+      "literature_note": "See cited works for methodological standards underlying this check."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "security_audit_gate",
+      "severity": "ERROR",
+      "description": "feature_engineering_report.json may contain sensitive data (pattern: 'credit_card_number').",
+      "error_code": "sensitive_data_in_evidence",
+      "root_cause": "The model file was overwritten, re-serialized, or corrupted after the HMAC signature was computed and stored in the attestation record",
+      "fix": "If modification was intentional (re-training): re-sign the new artifact using generate_execution_attestation.py --re-sign. If accidental: restore the originally signed version from backup.",
+      "prevention": "Treat signed model artifacts as immutable. Never overwrite a signed model file. If re-training is needed, increment the model version and create a new signed artifact.",
+      "kb_reference": "ERR-031",
+      "literature_citations": [
+        {
+          "id": "LIT-023",
+          "title": "SLSA Supply-chain Levels for Software Artifacts: Requirements v1.0",
+          "journal": "slsa.dev (standard)",
+          "year": 2023,
+          "doi": null
+        },
+        {
+          "id": "LIT-030",
+          "title": "Regulation (EU) 2024/1689 — Artificial Intelligence Act",
+          "journal": "Official Journal of the European Union",
+          "year": 2024,
+          "doi": null
+        }
+      ],
+      "literature_note": "See cited works for methodological standards underlying this check."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "security_audit_gate",
+      "severity": "ERROR",
+      "description": "distribution_report.json may contain sensitive data (pattern: 'credit_card_number').",
+      "error_code": "sensitive_data_in_evidence",
+      "root_cause": "The model file was overwritten, re-serialized, or corrupted after the HMAC signature was computed and stored in the attestation record",
+      "fix": "If modification was intentional (re-training): re-sign the new artifact using generate_execution_attestation.py --re-sign. If accidental: restore the originally signed version from backup.",
+      "prevention": "Treat signed model artifacts as immutable. Never overwrite a signed model file. If re-training is needed, increment the model version and create a new signed artifact.",
+      "kb_reference": "ERR-031",
+      "literature_citations": [
+        {
+          "id": "LIT-023",
+          "title": "SLSA Supply-chain Levels for Software Artifacts: Requirements v1.0",
+          "journal": "slsa.dev (standard)",
+          "year": 2023,
+          "doi": null
+        },
+        {
+          "id": "LIT-030",
+          "title": "Regulation (EU) 2024/1689 — Artificial Intelligence Act",
+          "journal": "Official Journal of the European Union",
+          "year": 2024,
+          "doi": null
+        }
+      ],
+      "literature_note": "See cited works for methodological standards underlying this check."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "security_audit_gate",
+      "severity": "ERROR",
+      "description": "ci_matrix_report.json may contain sensitive data (pattern: 'credit_card_number').",
+      "error_code": "sensitive_data_in_evidence",
+      "root_cause": "The model file was overwritten, re-serialized, or corrupted after the HMAC signature was computed and stored in the attestation record",
+      "fix": "If modification was intentional (re-training): re-sign the new artifact using generate_execution_attestation.py --re-sign. If accidental: restore the originally signed version from backup.",
+      "prevention": "Treat signed model artifacts as immutable. Never overwrite a signed model file. If re-training is needed, increment the model version and create a new signed artifact.",
+      "kb_reference": "ERR-031",
+      "literature_citations": [
+        {
+          "id": "LIT-023",
+          "title": "SLSA Supply-chain Levels for Software Artifacts: Requirements v1.0",
+          "journal": "slsa.dev (standard)",
+          "year": 2023,
+          "doi": null
+        },
+        {
+          "id": "LIT-030",
+          "title": "Regulation (EU) 2024/1689 — Artificial Intelligence Act",
+          "journal": "Official Journal of the European Union",
+          "year": 2024,
+          "doi": null
+        }
+      ],
+      "literature_note": "See cited works for methodological standards underlying this check."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "security_audit_gate",
+      "severity": "ERROR",
+      "description": "model_selection_report.json may contain sensitive data (pattern: 'ssn_undashed').",
+      "error_code": "sensitive_data_in_evidence",
+      "root_cause": "The model file was overwritten, re-serialized, or corrupted after the HMAC signature was computed and stored in the attestation record",
+      "fix": "If modification was intentional (re-training): re-sign the new artifact using generate_execution_attestation.py --re-sign. If accidental: restore the originally signed version from backup.",
+      "prevention": "Treat signed model artifacts as immutable. Never overwrite a signed model file. If re-training is needed, increment the model version and create a new signed artifact.",
+      "kb_reference": "ERR-031",
+      "literature_citations": [
+        {
+          "id": "LIT-023",
+          "title": "SLSA Supply-chain Levels for Software Artifacts: Requirements v1.0",
+          "journal": "slsa.dev (standard)",
+          "year": 2023,
+          "doi": null
+        },
+        {
+          "id": "LIT-030",
+          "title": "Regulation (EU) 2024/1689 — Artificial Intelligence Act",
+          "journal": "Official Journal of the European Union",
+          "year": 2024,
+          "doi": null
+        }
+      ],
+      "literature_note": "See cited works for methodological standards underlying this check."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "self_critique",
+      "severity": "ERROR",
+      "description": "Failed to load required artifact.",
+      "error_code": "missing_or_invalid_artifact",
+      "root_cause": "Gate self_critique failed: Failed to load required artifact.",
+      "fix": "Review gate requirements for self_critique and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "self_critique",
+      "severity": "ERROR",
+      "description": "Failed to load required artifact.",
+      "error_code": "missing_or_invalid_artifact",
+      "root_cause": "Gate self_critique failed: Failed to load required artifact.",
+      "fix": "Review gate requirements for self_critique and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "self_critique",
+      "severity": "ERROR",
+      "description": "Component report status is not pass.",
+      "error_code": "component_not_passed",
+      "root_cause": "Gate self_critique failed: Component report status is not pass.",
+      "fix": "Review gate requirements for self_critique and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "self_critique",
+      "severity": "ERROR",
+      "description": "Component report contains failures.",
+      "error_code": "component_has_failures",
+      "root_cause": "Gate self_critique failed: Component report contains failures.",
+      "fix": "Review gate requirements for self_critique and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    },
+    {
+      "issue_type": "gate_failure",
+      "gate": "self_critique",
+      "severity": "ERROR",
+      "description": "Component report status is not pass.",
+      "error_code": "component_not_passed",
+      "root_cause": "Gate self_critique failed: Component report status is not pass.",
+      "fix": "Review gate requirements for self_critique and address the listed failure.",
+      "prevention": "Run gates regularly during development, not just at publication."
+    }
+  ],
+  "remediation_plan": [
+    {
+      "priority": "P0",
+      "severity": "ERROR",
+      "description": "Temporal boundary violation detected.",
+      "error_code": "temporal_overlap",
+      "fix": "Review gate requirements for leakage and address the listed failure."
+    },
+    {
+      "priority": "P0",
+      "severity": "ERROR",
+      "description": "Temporal boundary violation detected.",
+      "error_code": "temporal_overlap",
+      "fix": "Review gate requirements for leakage and address the listed failure."
+    },
+    {
+      "priority": "P0",
+      "severity": "ERROR",
+      "description": "Temporal boundary violation detected.",
+      "error_code": "temporal_overlap",
+      "fix": "Review gate requirements for leakage and address the listed failure."
+    },
+    {
+      "priority": "P0",
+      "severity": "ERROR",
+      "description": "Attestation is older than max-age-hours — possible replay.",
+      "error_code": "attestation_stale",
+      "fix": "Review gate requirements for execution_attestation and address the listed failure."
+    },
+    {
+      "priority": "P0",
+      "severity": "ERROR",
+      "description": "Referenced path escapes the attestation bundle sandbox.",
+      "error_code": "path_escapes_sandbox",
+      "fix": "Review gate requirements for execution_attestation and address the listed failure."
+    },
+    {
+      "priority": "P2",
+      "severity": "INFO",
+      "description": "Improve Leakage Prevention dimension score (0.0/15)",
+      "dimension": "Leakage Prevention",
+      "fix": "Address all failing checks in the Leakage Prevention dimension."
+    },
+    {
+      "priority": "P2",
+      "severity": "INFO",
+      "description": "Improve Pipeline Isolation dimension score (0.0/12)",
+      "dimension": "Pipeline Isolation",
+      "fix": "Address all failing checks in the Pipeline Isolation dimension."
+    },
+    {
+      "priority": "P2",
+      "severity": "INFO",
+      "description": "Improve Model Selection Rigor dimension score (0.0/10)",
+      "dimension": "Model Selection Rigor",
+      "fix": "Address all failing checks in the Model Selection Rigor dimension."
+    }
+  ],
+  "structure_checks": {
+    "has_train_csv": true,
+    "has_valid_csv": true,
+    "has_test_csv": true,
+    "has_request_json": true,
+    "has_evidence_dir": true,
+    "has_model_artifact": true,
+    "has_requirements": false,
+    "has_git": false
+  },
+  "journal_gap_analysis": {
+    "target_journal": "Nature Medicine",
+    "minimum_score": 92,
+    "current_score": 14.64,
+    "score_gap": 77.36,
+    "meets_threshold": false,
+    "mandatory_met": [
+      "Bootstrap confidence intervals for all reported metrics",
+      "Subgroup analysis across key demographics"
+    ],
+    "mandatory_unmet": [
+      "Independent external validation on geographically/temporally distinct cohort",
+      "Complete TRIPOD+AI checklist",
+      "Calibration assessment (calibration plot + ECE)",
+      "Decision curve analysis demonstrating clinical utility",
+      "Comparison with established clinical models/scores",
+      "Clear temporal split preventing data leakage",
+      "Patient-level data splitting (no patient in multiple splits)",
+      "Transparent feature selection process",
+      "Fairness & equity analysis: equalized odds gap <0.15, disparate impact ratio >0.80",
+      "Sample size adequacy: EPV ≥10, shrinkage ≥0.90, ≥100 events"
+    ],
+    "mandatory_compliance": "2/12"
+  }
+}
