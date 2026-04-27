@@ -42,6 +42,7 @@ import math
 import os
 import sys
 import warnings
+from dataclasses import dataclass, field, fields
 from itertools import product
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -180,6 +181,211 @@ MODEL_ALIASES = {
     "easy_ens": "easy_ensemble",
     "rusboost": "rusboost",
 }
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Pipeline State Container
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# TrainContext is the single source of truth for all state flowing through
+# phases 0-12 of the train/select/evaluate pipeline. It replaces the prior
+# `ctx: Dict[str, Any]` bag-of-state, giving:
+#
+#   - Static field schema (mypy + IDE autocomplete + typo-detection at write)
+#   - Stable contract between phases (each phase's read/write surface is
+#     visible from this class definition)
+#   - Agent-friendly debug surface (callers can serialize state on failure)
+#
+# The dict-compatibility methods below (__getitem__/__setitem__/update/get)
+# let the existing phase functions continue to use `ctx["key"]` syntax during
+# the migration. They are intentionally retained even after migration, because
+# downstream agents and gates occasionally inject state via dict semantics.
+#
+# IMPORTANT — public schema fields (do NOT rename without bumping the evidence
+# schema version, since gates and agents read these names from JSON reports):
+#
+#   evaluation_report.json:
+#     train_metrics, valid_metrics, test_metrics, train_cm, valid_cm, test_cm,
+#     ci_lo, ci_hi, ci_n, all_metric_ci, prevalence, selected_threshold,
+#     threshold_info, calibration_method
+#   model_selection_report.json:
+#     candidate_rows, selected_model_id, selection_trace, overfit_risk,
+#     overfit_gaps, overfit_warnings, candidate_space_meta
+#   manifest.json:
+#     split_fingerprints, selected_features
+#
+# Internal-only fields (safe to rename in future refactors):
+#   estimator_map, threshold_y, threshold_proba_raw, calibration_y,
+#   calibration_proba_raw, resolved_dev
+
+
+@dataclass
+class TrainContext:
+    """Mutable state container for the train_select_evaluate pipeline.
+
+    Fields are grouped by the phase that first populates them. Phase 9
+    intentionally reassigns several fields (selected_estimator, calibrator,
+    metrics, etc.) when overfit-callback fallback is triggered.
+
+    Args:
+        args: Parsed CLI arguments (required — populated by main()).
+
+    All other fields default to None or empty containers and are filled
+    by the corresponding phase. Downstream code MUST tolerate None for
+    fields populated by later phases.
+    """
+
+    # ── Phase 0: Preflight & Config (populated by main → phase0) ─────────
+    args: argparse.Namespace
+    fast_diagnostic_mode: bool = False
+    policy: Dict[str, Any] = field(default_factory=dict)
+    missingness_policy: Dict[str, Any] = field(default_factory=dict)
+    external_spec: Optional[Dict[str, Any]] = None
+    feature_group_spec: Optional[Dict[str, Any]] = None
+    fe_mode_cfg: Dict[str, Any] = field(default_factory=dict)
+    threshold_policy: Optional[Dict[str, Any]] = None
+    clinical_floors: Optional[Dict[str, Any]] = None
+    beta: float = 1.0
+    sensitivity_floor: Optional[float] = None
+    npv_floor: Optional[float] = None
+    specificity_floor: Optional[float] = None
+    ppv_floor: Optional[float] = None
+    calibration_method: str = "none"
+    selection_data: str = "valid"
+    threshold_selection_split: str = "valid"
+    calibration_fit_split: str = "valid"
+    model_pool_config: Dict[str, Any] = field(default_factory=dict)
+
+    # ── Phase 1: Data Loading ────────────────────────────────────────────
+    train_df: Optional[pd.DataFrame] = None
+    valid_df: Optional[pd.DataFrame] = None
+    test_df: Optional[pd.DataFrame] = None
+    groups: Optional[np.ndarray] = None
+    forbidden_features: List[str] = field(default_factory=list)
+    stage0_features: List[str] = field(default_factory=list)
+    ignore_cols: List[str] = field(default_factory=list)
+    base_feature_cols: List[str] = field(default_factory=list)
+
+    # ── Phase 2: Feature Engineering ─────────────────────────────────────
+    X_train: Optional[pd.DataFrame] = None
+    y_train: Optional[np.ndarray] = None
+    X_valid: Optional[pd.DataFrame] = None
+    y_valid: Optional[np.ndarray] = None
+    X_test: Optional[pd.DataFrame] = None
+    y_test: Optional[np.ndarray] = None
+    has_valid: bool = False
+    has_test: bool = False
+    selected_features: List[str] = field(default_factory=list)
+    pre_encoding_features: List[str] = field(default_factory=list)
+    stage1_features: List[str] = field(default_factory=list)
+    stage1_report: Dict[str, Any] = field(default_factory=dict)
+    categorical_report: Dict[str, Any] = field(default_factory=dict)
+    external_cohorts: List[Any] = field(default_factory=list)
+    stability_frequency: Optional[Dict[str, Any]] = None
+    group_selection_report: Optional[Dict[str, Any]] = None
+    low_mem: bool = False
+
+    # ── Phase 3: Imputation & Imbalance ──────────────────────────────────
+    imputation: Optional[Dict[str, Any]] = None
+    imbalance_candidates: List[str] = field(default_factory=list)
+    positive_count: int = 0
+    negative_count: int = 0
+    imbalance_ratio: float = 1.0
+    selected_imbalance_metric: str = ""
+    selected_imbalance_strategy: str = "none"
+    effective_class_weight: Optional[Any] = None
+    strategy_probe_rows: List[Dict[str, Any]] = field(default_factory=list)
+    resolved_dev: str = "cpu"
+
+    # ── Phase 4: Candidate Pool ──────────────────────────────────────────
+    candidates: List[Any] = field(default_factory=list)
+    candidate_space_meta: Dict[str, Any] = field(default_factory=dict)
+    candidate_rows: List[Dict[str, Any]] = field(default_factory=list)
+    estimator_map: Dict[str, Any] = field(default_factory=dict)
+
+    # ── Phase 5: Model Selection ─────────────────────────────────────────
+    selected_model_id: Optional[str] = None
+    selected_estimator: Optional[BaseEstimator] = None
+    selected_candidate_row: Optional[Dict[str, Any]] = None
+    selected_fit_meta: Optional[Dict[str, Any]] = None
+    selection_trace: Optional[Dict[str, Any]] = None
+    threshold_y: Optional[np.ndarray] = None
+    threshold_proba_raw: Optional[np.ndarray] = None
+    calibration_y: Optional[np.ndarray] = None
+    calibration_proba_raw: Optional[np.ndarray] = None
+
+    # ── Phase 6: Calibration & Threshold ─────────────────────────────────
+    calibrator: Optional[Any] = None
+    selected_threshold: Optional[float] = None
+    threshold_info: Optional[Dict[str, Any]] = None
+
+    # ── Phase 7-8: Evaluation & Diagnostics ──────────────────────────────
+    train_proba: Optional[np.ndarray] = None
+    train_metrics: Optional[Dict[str, Any]] = None
+    train_cm: Optional[Dict[str, Any]] = None
+    valid_proba: Optional[np.ndarray] = None
+    valid_metrics: Optional[Dict[str, Any]] = None
+    valid_cm: Optional[Dict[str, Any]] = None
+    test_proba: Optional[np.ndarray] = None
+    test_metrics: Optional[Dict[str, Any]] = None
+    test_cm: Optional[Dict[str, Any]] = None
+    ci_lo: Optional[float] = None
+    ci_hi: Optional[float] = None
+    ci_n: Optional[int] = None
+    all_metric_ci: Optional[Dict[str, Any]] = None
+    optimism_correction: Optional[Dict[str, Any]] = None
+    learning_curve_report: Optional[Dict[str, Any]] = None
+    prevalence: Optional[float] = None
+    prevalence_baseline: Optional[Dict[str, Any]] = None
+    logistic_baseline: Optional[Dict[str, Any]] = None
+    baseline_logit_proba_test: Optional[np.ndarray] = None
+    baseline_proba_test: Optional[np.ndarray] = None
+    baseline_fit_meta: Optional[Dict[str, Any]] = None
+    split_fingerprints: Optional[Dict[str, Any]] = None
+    model_selection_report: Optional[Dict[str, Any]] = None
+    overfit_risk: Optional[str] = None
+    overfit_gaps: Optional[Dict[str, Any]] = None
+    overfit_warnings: List[str] = field(default_factory=list)
+
+    # ── Phase 9: Overfit Callback ────────────────────────────────────────
+    fallback_trace: Optional[Dict[str, Any]] = None
+    original_model_id: Optional[str] = None
+    callback_activated: bool = False
+    overfit_recommendations: List[str] = field(default_factory=list)
+
+    # ── Dict-compatibility shim ──────────────────────────────────────────
+    #
+    # Phase functions still call ctx["x"] / ctx.update({...}) / ctx.get("x").
+    # These four methods make TrainContext behave as a typed dict for those
+    # callers. Typo'd keys raise immediately with a helpful field list,
+    # which is a strict improvement over silent KeyError on plain dict.
+
+    def __getitem__(self, key: str) -> Any:
+        try:
+            return getattr(self, key)
+        except AttributeError:
+            raise KeyError(
+                f"TrainContext has no field {key!r}. "
+                f"Available: {sorted(f.name for f in fields(self))}"
+            ) from None
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        if not any(f.name == key for f in fields(self)):
+            raise KeyError(
+                f"TrainContext has no field {key!r}. "
+                f"Refusing to set unknown field. "
+                f"Available: {sorted(f.name for f in fields(self))}"
+            )
+        setattr(self, key, value)
+
+    def update(self, mapping: Dict[str, Any]) -> None:
+        """Bulk-assign fields. Mirrors dict.update() for phase functions."""
+        for k, v in mapping.items():
+            self[k] = v
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """Mirrors dict.get() — used by phase 6 for selected_candidate_row."""
+        return getattr(self, key, default)
 
 
 def resolve_device(requested: str) -> str:
@@ -7219,10 +7425,12 @@ def main() -> int:
     configure_runtime_warning_filters()
     args = parse_args()
 
-    # All pipeline state flows through ctx — a mutable dict that each phase
-    # reads from and writes to. This replaces 50+ local variables and makes
-    # Phase 9's 17-variable mutation safe (it just updates ctx keys).
-    ctx: Dict[str, Any] = {"args": args}
+    # All pipeline state flows through ctx — a TrainContext dataclass with
+    # dict-compatibility methods (__getitem__/__setitem__/update/get).
+    # Phase functions still use ctx["key"] syntax during the migration.
+    # The dataclass gives static field schema, typo detection at write,
+    # and a single place where the phase contract is documented.
+    ctx: TrainContext = TrainContext(args=args)
 
     # ═══════════════════════════════════════════════════════════════════════
     # PHASE 0: PREFLIGHT & CONFIG → _phase0_preflight_and_config()
