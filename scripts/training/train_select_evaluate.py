@@ -184,6 +184,46 @@ MODEL_ALIASES = {
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# Structured Error for Agent-Driven Recovery
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# MlggError carries an `error_code` (machine-readable tag) and a
+# `remediation_hint` (one-line human/agent-readable fix instruction).
+# When training fails with one of these, main()'s except handler writes
+# both into the debug snapshot, so downstream agents (/mlgg, mlgg_onboarding
+# auto-retry, etc.) can surface a structured fix without parsing tracebacks.
+#
+# Subclassing ValueError preserves backward compat: existing
+# `except ValueError` blocks (in tests, in subprocess wrappers) still
+# catch these. Callers that want the structured fields use
+# `except MlggError` instead.
+#
+# Naming convention: error codes are snake_case, prefixed by the phase
+# where they originate. This matches the runtime use case (an agent
+# reading the snapshot needs to know "which phase, which check") and
+# leaves room for the historical references/operations/error-knowledge-base.json
+# (which uses freeform descriptors) to coexist without clashing.
+
+
+class MlggError(ValueError):
+    """Training pipeline error with structured remediation metadata.
+
+    Attributes:
+        error_code: snake_case tag, e.g. 'train_target_col_missing'.
+            Stable across mlgg versions (treat as part of the agent
+            interface contract — do not rename without bumping schema).
+        remediation_hint: One-line fix instruction agents can surface
+            directly to the user. May reference CLI flags or upstream
+            scripts (split_data.py etc.) that should be re-run.
+    """
+
+    def __init__(self, message: str, *, error_code: str, remediation_hint: str = "") -> None:
+        super().__init__(message)
+        self.error_code = error_code
+        self.remediation_hint = remediation_hint
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # Pipeline State Container
 # ═══════════════════════════════════════════════════════════════════════════
 #
@@ -398,7 +438,11 @@ class TrainContext:
     # shape descriptors so the snapshot stays small (< 1 MB) and free of
     # PHI.
 
-    def to_debug_snapshot(self, output_path: Path) -> Path:
+    def to_debug_snapshot(
+        self,
+        output_path: Path,
+        exc: Optional[BaseException] = None,
+    ) -> Path:
         """Serialize current state to JSON for agent self-diagnosis.
 
         DataFrame / ndarray fields are replaced by shape descriptors so
@@ -406,19 +450,37 @@ class TrainContext:
         Limitations §"医学数据安全"). Non-JSON-serializable objects fall
         back to type + truncated repr.
 
+        If `exc` is an MlggError, its structured error_code and
+        remediation_hint are written into the snapshot's `_failure`
+        section, giving agents a direct lookup path to the fix instead
+        of having to parse the traceback.
+
         Args:
             output_path: Destination JSON path. Parent directory must exist.
+            exc: The exception that triggered this snapshot, if any.
 
         Returns:
             The output_path that was written.
         """
         snapshot: Dict[str, Any] = {
-            "_schema_version": "1.0",
+            "_schema_version": "1.1",
             "_field_count": len(fields(self)),
             "_populated_fields": [],
             "_unpopulated_fields": [],
             "fields": {},
         }
+        if exc is not None:
+            failure: Dict[str, Any] = {
+                "exception_type": type(exc).__name__,
+                "message": str(exc)[:500],
+            }
+            if isinstance(exc, MlggError):
+                failure["error_code"] = exc.error_code
+                failure["remediation_hint"] = exc.remediation_hint
+                failure["structured"] = True
+            else:
+                failure["structured"] = False
+            snapshot["_failure"] = failure
         for f in fields(self):
             val = getattr(self, f.name)
             is_empty = (
@@ -1964,16 +2026,54 @@ def prepare_xy(df: pd.DataFrame, feature_cols: Sequence[str], target_col: str) -
             contains non-finite values, or target is not binary (0/1).
     """
     if target_col not in df.columns:
-        raise ValueError(f"Missing target column: {target_col}")
+        raise MlggError(
+            f"Missing target column: {target_col}",
+            error_code="train_target_col_missing",
+            remediation_hint=(
+                f"The target column '{target_col}' is not present in the input "
+                f"DataFrame. Verify --target-col matches a column in your "
+                f"train/valid/test CSVs. Available columns: "
+                f"{list(df.columns)[:20]}"
+            ),
+        )
     missing_features = [c for c in feature_cols if c not in df.columns]
     if missing_features:
-        raise ValueError(f"Missing feature columns: {missing_features[:10]}")
+        raise MlggError(
+            f"Missing feature columns: {missing_features[:10]}",
+            error_code="train_feature_cols_missing",
+            remediation_hint=(
+                f"{len(missing_features)} feature column(s) declared by upstream "
+                f"phases are absent from this split. Likely cause: train/valid/test "
+                f"CSVs have inconsistent schemas. Re-run split_data.py from a "
+                f"single source CSV to guarantee column alignment."
+            ),
+        )
     X = df[list(feature_cols)].copy()
     y = pd.to_numeric(df[target_col], errors="coerce").to_numpy(dtype=float)
     if np.any(~np.isfinite(y)):
-        raise ValueError("Target contains non-finite values.")
+        raise MlggError(
+            "Target contains non-finite values.",
+            error_code="train_target_non_finite",
+            remediation_hint=(
+                f"Column '{target_col}' contains NaN or non-numeric values that "
+                f"could not be coerced. Drop rows with missing target before "
+                f"splitting, or filter upstream so the target is fully observed."
+            ),
+        )
     if not np.all(np.isin(y, [0.0, 1.0])):
-        raise ValueError("Target must be binary (0/1).")
+        unique_vals = sorted(set(y.tolist()))[:10]
+        raise MlggError(
+            "Target must be binary (0/1).",
+            error_code="train_target_not_binary",
+            remediation_hint=(
+                f"Target column '{target_col}' has values {unique_vals!r}. "
+                f"mlgg only supports binary classification (labels in {{0, 1}}). "
+                f"For multi-class, collapse to a binary outcome (e.g. "
+                f"'positive vs all') before training. For survival, use a "
+                f"specialized survival pipeline — mlgg refuses survival "
+                f"modalities (CLAUDE.md §Project)."
+            ),
+        )
     return X, y.astype(int)
 
 
@@ -7343,14 +7443,23 @@ def main() -> int:
         try:
             snapshot_dir.mkdir(parents=True, exist_ok=True)
             snapshot_path = ctx.to_debug_snapshot(
-                snapshot_dir / "_train_context_snapshot.json"
+                snapshot_dir / "_train_context_snapshot.json",
+                exc=exc,
             )
-            print(
-                f"[FAIL] Pipeline raised {type(exc).__name__}; "
-                f"state snapshot: {snapshot_path}",
-                file=sys.stderr,
-                flush=True,
-            )
+            if isinstance(exc, MlggError):
+                print(
+                    f"[FAIL] {exc.error_code}: {exc} "
+                    f"(snapshot: {snapshot_path})",
+                    file=sys.stderr,
+                    flush=True,
+                )
+            else:
+                print(
+                    f"[FAIL] Pipeline raised {type(exc).__name__}; "
+                    f"state snapshot: {snapshot_path}",
+                    file=sys.stderr,
+                    flush=True,
+                )
         except Exception as snap_exc:
             print(
                 f"[FAIL] Pipeline raised {type(exc).__name__}; "

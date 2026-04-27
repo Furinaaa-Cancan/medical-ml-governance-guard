@@ -1018,3 +1018,60 @@ class TestImbalancedModelFitPredict:
         pipe.fit(X[:150], y[:150])
         proba = pipe.predict_proba(X[150:])
         assert proba.shape == (50, 2)
+
+
+class TestMlggErrorAndSnapshot:
+    """Verify structured-error → snapshot wiring (agent failure-recovery PoC)."""
+
+    def test_mlgg_error_is_value_error_subclass(self):
+        """Existing `except ValueError` callers must still catch MlggError."""
+        try:
+            raise tse.MlggError("boom", error_code="x", remediation_hint="y")
+        except ValueError as exc:
+            assert isinstance(exc, tse.MlggError)
+            assert exc.error_code == "x"
+            assert exc.remediation_hint == "y"
+
+    def test_prepare_xy_raises_mlgg_error_for_missing_target(self):
+        df = pd.DataFrame({"feat1": [1.0, 2.0], "feat2": [3.0, 4.0]})
+        with pytest.raises(tse.MlggError) as ei:
+            tse.prepare_xy(df, ["feat1", "feat2"], "label")
+        assert ei.value.error_code == "train_target_col_missing"
+        assert "label" in ei.value.remediation_hint
+        assert "feat1" in ei.value.remediation_hint  # available cols listed
+
+    def test_prepare_xy_raises_mlgg_error_for_non_binary_target(self):
+        df = pd.DataFrame({"f": [1.0, 2.0, 3.0], "y": [0, 1, 2]})
+        with pytest.raises(tse.MlggError) as ei:
+            tse.prepare_xy(df, ["f"], "y")
+        assert ei.value.error_code == "train_target_not_binary"
+        assert "binary" in str(ei.value).lower()
+
+    def test_snapshot_captures_error_code_and_hint(self, tmp_path):
+        ctx = tse.TrainContext(args=argparse.Namespace())
+        exc = tse.MlggError(
+            "Target must be binary (0/1).",
+            error_code="train_target_not_binary",
+            remediation_hint="Encode label to 0/1.",
+        )
+        path = ctx.to_debug_snapshot(tmp_path / "snap.json", exc=exc)
+        data = json.loads(path.read_text())
+        assert data["_failure"]["structured"] is True
+        assert data["_failure"]["error_code"] == "train_target_not_binary"
+        assert data["_failure"]["remediation_hint"] == "Encode label to 0/1."
+        assert data["_failure"]["exception_type"] == "MlggError"
+
+    def test_snapshot_marks_unstructured_for_plain_exception(self, tmp_path):
+        ctx = tse.TrainContext(args=argparse.Namespace())
+        exc = RuntimeError("kaboom")
+        path = ctx.to_debug_snapshot(tmp_path / "snap.json", exc=exc)
+        data = json.loads(path.read_text())
+        assert data["_failure"]["structured"] is False
+        assert "error_code" not in data["_failure"]
+        assert data["_failure"]["exception_type"] == "RuntimeError"
+
+    def test_snapshot_without_exception_has_no_failure_section(self, tmp_path):
+        ctx = tse.TrainContext(args=argparse.Namespace())
+        path = ctx.to_debug_snapshot(tmp_path / "snap.json")
+        data = json.loads(path.read_text())
+        assert "_failure" not in data
