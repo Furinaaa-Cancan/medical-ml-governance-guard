@@ -387,6 +387,69 @@ class TrainContext:
         """Mirrors dict.get() — used by phase 6 for selected_candidate_row."""
         return getattr(self, key, default)
 
+    # ── Agent-facing failure-recovery surface ────────────────────────────
+    #
+    # When the training pipeline crashes mid-flight, downstream agents
+    # (Claude Code via /mlgg, mlgg_onboarding's auto-retry loop, etc.)
+    # need to know *which phase* populated *which fields* before the
+    # failure, so they can either retry from a sensible point or surface
+    # an actionable diagnosis. to_debug_snapshot() emits a JSON file that
+    # captures that, with large arrays (DataFrame/ndarray) replaced by
+    # shape descriptors so the snapshot stays small (< 1 MB) and free of
+    # PHI.
+
+    def to_debug_snapshot(self, output_path: Path) -> Path:
+        """Serialize current state to JSON for agent self-diagnosis.
+
+        DataFrame / ndarray fields are replaced by shape descriptors so
+        no patient-level data leaks into the snapshot (per CLAUDE.md
+        Limitations §"医学数据安全"). Non-JSON-serializable objects fall
+        back to type + truncated repr.
+
+        Args:
+            output_path: Destination JSON path. Parent directory must exist.
+
+        Returns:
+            The output_path that was written.
+        """
+        snapshot: Dict[str, Any] = {
+            "_schema_version": "1.0",
+            "_field_count": len(fields(self)),
+            "_populated_fields": [],
+            "_unpopulated_fields": [],
+            "fields": {},
+        }
+        for f in fields(self):
+            val = getattr(self, f.name)
+            is_empty = (
+                val is None
+                or (isinstance(val, (list, dict)) and not val)
+            )
+            if is_empty:
+                snapshot["_unpopulated_fields"].append(f.name)
+            else:
+                snapshot["_populated_fields"].append(f.name)
+
+            if isinstance(val, (pd.DataFrame, np.ndarray)):
+                snapshot["fields"][f.name] = {
+                    "_type": type(val).__name__,
+                    "shape": list(getattr(val, "shape", ())),
+                    "dtype": str(getattr(val, "dtype", "")),
+                }
+            elif val is None:
+                snapshot["fields"][f.name] = None
+            else:
+                try:
+                    json.dumps(val)
+                    snapshot["fields"][f.name] = val
+                except TypeError:
+                    snapshot["fields"][f.name] = {
+                        "_type": type(val).__name__,
+                        "_repr": repr(val)[:200],
+                    }
+        output_path.write_text(json.dumps(snapshot, indent=2, default=str))
+        return output_path
+
 
 def resolve_device(requested: str) -> str:
     """Resolve compute device string to an available backend.
@@ -7438,38 +7501,88 @@ def main() -> int:
     print("[STEP  1/12] Preflight & config...", file=sys.stderr, flush=True)
     ctx.update(_phase0_preflight_and_config(args))
 
-    # ═══════════════════════════════════════════════════════════════════════
-    # PHASE 1: DATA LOADING → _phase1_data_loading()
-    # ═══════════════════════════════════════════════════════════════════════
     # All inter-phase state lives on ctx (TrainContext). Each phase reads
     # from ctx and writes to ctx — main() does not need to unpack/repack
     # locals between calls. Phase 9 may reassign metrics/estimator/calibrator
     # in place; that's safe because subsequent phases re-read from ctx.
+    #
+    # Failures inside any phase trigger a debug snapshot dump (state at
+    # the point of failure) for downstream agents to diagnose. The
+    # snapshot path is reported on stderr so /mlgg, mlgg_onboarding,
+    # and other auto-retry callers can locate it without parsing logs.
+    try:
+        print("[STEP  2/12] Loading data splits...", file=sys.stderr, flush=True)
+        _phase1_data_loading(ctx)
 
-    print("[STEP  2/12] Loading data splits...", file=sys.stderr, flush=True)
-    _phase1_data_loading(ctx)
+        print("[STEP  3/12] Feature engineering...", file=sys.stderr, flush=True)
+        _phase2_feature_engineering(ctx)
 
-    print("[STEP  3/12] Feature engineering...", file=sys.stderr, flush=True)
-    _phase2_feature_engineering(ctx)
+        print("[STEP  4/12] Imputation & imbalance strategy...", file=sys.stderr, flush=True)
+        _phase3_imbalance(ctx)
 
-    print("[STEP  4/12] Imputation & imbalance strategy...", file=sys.stderr, flush=True)
-    _phase3_imbalance(ctx)
+        print("[STEP  5/12] Building candidate models + CV scoring...", file=sys.stderr, flush=True)
+        _phase4_candidates(ctx)
 
-    print("[STEP  5/12] Building candidate models + CV scoring...", file=sys.stderr, flush=True)
-    _phase4_candidates(ctx)
+        print("[STEP  6/12] Model selection (one-SE rule)...", file=sys.stderr, flush=True)
+        _phase5_selection(ctx)
 
-    print("[STEP  6/12] Model selection (one-SE rule)...", file=sys.stderr, flush=True)
-    _phase5_selection(ctx)
+        print("[STEP  7/12] Calibration + threshold...", file=sys.stderr, flush=True)
+        _phase6_calibration(ctx)
 
-    print("[STEP  7/12] Calibration + threshold...", file=sys.stderr, flush=True)
-    _phase6_calibration(ctx)
+        print("[STEP  8/12] Evaluation (metrics + bootstrap CI)...", file=sys.stderr, flush=True)
+        _phase78_eval_diagnostics(ctx)
 
-    print("[STEP  8/12] Evaluation (metrics + bootstrap CI)...", file=sys.stderr, flush=True)
-    _phase78_eval_diagnostics(ctx)
+        _phase9_overfit_callback(ctx)
 
-    _phase9_overfit_callback(ctx)
+        return _phase10_12_reports_output(ctx)
+    except (SystemExit, KeyboardInterrupt):
+        # Don't swallow user-initiated interrupts or argparse exits; let
+        # them propagate. Snapshots for these are not useful.
+        raise
+    except Exception as exc:
+        # Best-effort snapshot. If snapshot dump itself fails, emit the
+        # original exception — never mask the root cause with a snapshot
+        # serialization bug.
+        snapshot_dir = _resolve_snapshot_dir(args)
+        try:
+            snapshot_dir.mkdir(parents=True, exist_ok=True)
+            snapshot_path = ctx.to_debug_snapshot(
+                snapshot_dir / "_train_context_snapshot.json"
+            )
+            print(
+                f"[FAIL] Pipeline raised {type(exc).__name__}; "
+                f"state snapshot: {snapshot_path}",
+                file=sys.stderr,
+                flush=True,
+            )
+        except Exception as snap_exc:
+            print(
+                f"[FAIL] Pipeline raised {type(exc).__name__}; "
+                f"snapshot dump also failed ({type(snap_exc).__name__}: {snap_exc})",
+                file=sys.stderr,
+                flush=True,
+            )
+        raise
 
-    return _phase10_12_reports_output(ctx)
+
+def _resolve_snapshot_dir(args: argparse.Namespace) -> Path:
+    """Pick a directory for the failure snapshot.
+
+    Prefers the parent of --evaluation-report-out (typically evidence/),
+    falls back to CWD. Never reads or writes outside project paths the
+    user explicitly chose via CLI args.
+    """
+    candidates = [
+        getattr(args, "evaluation_report_out", None),
+        getattr(args, "model_selection_report_out", None),
+    ]
+    for c in candidates:
+        if c:
+            try:
+                return Path(c).expanduser().resolve().parent
+            except (OSError, ValueError):
+                continue
+    return Path.cwd()
 
 
 def _phase10_12_reports_output(ctx: "TrainContext") -> int:
