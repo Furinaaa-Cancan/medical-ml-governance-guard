@@ -6349,7 +6349,7 @@ def _phase0_preflight_and_config(args: argparse.Namespace) -> Dict[str, Any]:
     }
 
 
-def _phase1_data_loading(ctx: Dict[str, Any]) -> None:
+def _phase1_data_loading(ctx: "TrainContext") -> None:
     """Phase 1: Load splits, resolve feature columns, apply group filtering.
 
     Reads from ctx: args, feature_group_spec, threshold_selection_split,
@@ -6398,7 +6398,7 @@ def _phase1_data_loading(ctx: Dict[str, Any]) -> None:
     })
 
 
-def _phase2_feature_engineering(ctx: Dict[str, Any]) -> None:
+def _phase2_feature_engineering(ctx: "TrainContext") -> None:
     """Phase 2: Missingness filter, stability selection, encoding, VIF, external cohorts.
 
     Reads from ctx: train_df, valid_df, test_df, stage0_features, groups,
@@ -6566,7 +6566,7 @@ def _phase2_feature_engineering(ctx: Dict[str, Any]) -> None:
     })
 
 
-def _phase3_imbalance(ctx: Dict[str, Any]) -> None:
+def _phase3_imbalance(ctx: "TrainContext") -> None:
     """Phase 3: Resolve imputation plan and probe imbalance strategies via CV.
 
     Reads from ctx: X_train, y_train, selected_features, missingness_policy,
@@ -6693,7 +6693,7 @@ def _phase3_imbalance(ctx: Dict[str, Any]) -> None:
     })
 
 
-def _phase4_candidates(ctx: Dict[str, Any]) -> None:
+def _phase4_candidates(ctx: "TrainContext") -> None:
     """Phase 4: Build candidate model pool and score via CV or validation.
 
     Reads from ctx: args, X_train, y_train, X_valid, y_valid, has_valid,
@@ -6841,7 +6841,7 @@ def _phase4_candidates(ctx: Dict[str, Any]) -> None:
     })
 
 
-def _phase5_selection(ctx: Dict[str, Any]) -> None:
+def _phase5_selection(ctx: "TrainContext") -> None:
     """Phase 5: Select best model via one-SE rule, fit on full train set.
 
     Reads from ctx: candidate_rows, estimator_map, X_train, y_train, X_valid,
@@ -6911,7 +6911,7 @@ def _phase5_selection(ctx: Dict[str, Any]) -> None:
     })
 
 
-def _phase6_calibration(ctx: Dict[str, Any]) -> None:
+def _phase6_calibration(ctx: "TrainContext") -> None:
     """Phase 6: Fit probability calibrator and choose clinical threshold.
 
     Reads from ctx: calibration_y, calibration_proba_raw, threshold_proba_raw,
@@ -6987,7 +6987,7 @@ def _phase6_calibration(ctx: Dict[str, Any]) -> None:
     })
 
 
-def _phase78_eval_diagnostics(ctx: Dict[str, Any]) -> None:
+def _phase78_eval_diagnostics(ctx: "TrainContext") -> None:
     """Phases 7-8: Evaluate all splits, compute CI, baselines, build model_selection_report.
 
     Reads from ctx: selected_estimator, calibrator, selected_threshold, X/y arrays,
@@ -7203,7 +7203,7 @@ def _phase78_eval_diagnostics(ctx: Dict[str, Any]) -> None:
     })
 
 
-def _phase9_overfit_callback(ctx: Dict[str, Any]) -> None:
+def _phase9_overfit_callback(ctx: "TrainContext") -> None:
     """Phase 9: If overfit_risk >= medium, evaluate alternative candidates.
 
     May REASSIGN via ctx: selected_model_id, selected_estimator, calibrator,
@@ -7441,249 +7441,38 @@ def main() -> int:
     # ═══════════════════════════════════════════════════════════════════════
     # PHASE 1: DATA LOADING → _phase1_data_loading()
     # ═══════════════════════════════════════════════════════════════════════
+    # All inter-phase state lives on ctx (TrainContext). Each phase reads
+    # from ctx and writes to ctx — main() does not need to unpack/repack
+    # locals between calls. Phase 9 may reassign metrics/estimator/calibrator
+    # in place; that's safe because subsequent phases re-read from ctx.
+
     print("[STEP  2/12] Loading data splits...", file=sys.stderr, flush=True)
     _phase1_data_loading(ctx)
-    # Bridge ctx → locals for phases not yet migrated to ctx
-    train_df = ctx["train_df"]
-    valid_df = ctx["valid_df"]
-    test_df = ctx["test_df"]
-    stage0_features = ctx["stage0_features"]
-    groups = ctx["groups"]
-    forbidden_features = ctx["forbidden_features"]
-    threshold_selection_split = ctx["threshold_selection_split"]
-    calibration_fit_split = ctx["calibration_fit_split"]
-    fe_mode_cfg = ctx["fe_mode_cfg"]
-    fast_diagnostic_mode = ctx["fast_diagnostic_mode"]
-    policy = ctx["policy"]
-    missingness_policy = ctx["missingness_policy"]
-    beta = ctx["beta"]
-    sensitivity_floor = ctx["sensitivity_floor"]
-    npv_floor = ctx["npv_floor"]
-    specificity_floor = ctx["specificity_floor"]
-    ppv_floor = ctx["ppv_floor"]
-    calibration_method = ctx["calibration_method"]
-    selection_data = ctx["selection_data"]
-    model_pool_config = ctx["model_pool_config"]
 
-    # ═════════════════════════════════════════════════════════════════════
-    # PHASE 2: FEATURE ENGINEERING → _phase2_feature_engineering()
-    # ═════════════════════════════════════════════════════════════════════
     print("[STEP  3/12] Feature engineering...", file=sys.stderr, flush=True)
     _phase2_feature_engineering(ctx)
-    # Bridge ctx → locals for phases not yet migrated
-    X_train = ctx["X_train"]; y_train = ctx["y_train"]
-    X_valid = ctx["X_valid"]; y_valid = ctx["y_valid"]
-    X_test = ctx["X_test"]; y_test = ctx["y_test"]
-    has_valid = ctx["has_valid"]; has_test = ctx["has_test"]
-    selected_features = ctx["selected_features"]
-    pre_encoding_features = ctx["pre_encoding_features"]
-    stage1_report = ctx["stage1_report"]
-    external_cohorts = ctx["external_cohorts"]
-    stage1_features = ctx["stage1_features"]
-    stability_frequency = ctx["stability_frequency"]
-    group_selection_report = ctx["group_selection_report"]
-    low_mem = ctx["low_mem"]
 
-    # ═══════════════════════════════════════════════════════════════════════
-    # PHASE 3: IMPUTATION & IMBALANCE STRATEGY → _phase3_imbalance()
-    # ═══════════════════════════════════════════════════════════════════════
     print("[STEP  4/12] Imputation & imbalance strategy...", file=sys.stderr, flush=True)
-    ctx.update({"X_train": X_train, "y_train": y_train, "selected_features": selected_features,
-                "missingness_policy": missingness_policy, "model_pool_config": model_pool_config})
     _phase3_imbalance(ctx)
-    imputation = ctx["imputation"]
-    selected_imbalance_strategy = ctx["selected_imbalance_strategy"]
-    effective_class_weight = ctx["effective_class_weight"]
-    strategy_probe_rows = ctx["strategy_probe_rows"]
-    resolved_dev = ctx["resolved_dev"]
-    imbalance_candidates = ctx["imbalance_candidates"]
-    selected_imbalance_metric = ctx["selected_imbalance_metric"]
-    positive_count = ctx["positive_count"]
-    negative_count = ctx["negative_count"]
-    imbalance_ratio = ctx["imbalance_ratio"]
 
-    # ═══════════════════════════════════════════════════════════════════════
-    # PHASES 4-6: CANDIDATE POOL → MODEL SELECTION → CALIBRATION
-    # → _phase4_candidates(), _phase5_selection(), _phase6_calibration()
-    # ═══════════════════════════════════════════════════════════════════════
-    ctx.update({
-        "X_train": X_train, "y_train": y_train, "X_valid": X_valid, "y_valid": y_valid,
-        "has_valid": has_valid, "selected_features": selected_features,
-        "imputation": imputation, "effective_class_weight": effective_class_weight,
-        "model_pool_config": model_pool_config, "resolved_dev": resolved_dev,
-        "selected_imbalance_strategy": selected_imbalance_strategy,
-        "selection_data": selection_data,
-        "threshold_selection_split": threshold_selection_split,
-        "calibration_fit_split": calibration_fit_split,
-        "calibration_method": calibration_method,
-        "beta": beta, "sensitivity_floor": sensitivity_floor,
-        "npv_floor": npv_floor, "specificity_floor": specificity_floor,
-        "ppv_floor": ppv_floor,
-    })
     print("[STEP  5/12] Building candidate models + CV scoring...", file=sys.stderr, flush=True)
     _phase4_candidates(ctx)
+
     print("[STEP  6/12] Model selection (one-SE rule)...", file=sys.stderr, flush=True)
     _phase5_selection(ctx)
+
     print("[STEP  7/12] Calibration + threshold...", file=sys.stderr, flush=True)
     _phase6_calibration(ctx)
-    # Bridge ctx → locals (re-read calibration_method — may have been
-    # auto-upgraded from 'none' to 'sigmoid' for imblearn models)
-    calibration_method = ctx["calibration_method"]
-    candidate_space_meta = ctx["candidate_space_meta"]
-    candidate_rows = ctx["candidate_rows"]
-    estimator_map = ctx["estimator_map"]
-    selected_model_id = ctx["selected_model_id"]
-    selected_estimator = ctx["selected_estimator"]
-    selected_candidate_row = ctx["selected_candidate_row"]
-    selected_fit_meta = ctx["selected_fit_meta"]
-    calibrator = ctx["calibrator"]
-    selected_threshold = ctx["selected_threshold"]
-    threshold_info = ctx["threshold_info"]
-    calibration_y = ctx["calibration_y"]
-    trace = ctx["selection_trace"]
 
-    # ═══════════════════════════════════════════════════════════════════════
-    # PHASES 7-8: EVALUATION + DIAGNOSTICS → _phase78_eval_diagnostics()
-    # ═══════════════════════════════════════════════════════════════════════
-    ctx.update({
-        "selected_estimator": selected_estimator, "calibrator": calibrator,
-        "selected_threshold": selected_threshold, "threshold_info": threshold_info,
-        "X_train": X_train, "y_train": y_train, "X_valid": X_valid, "y_valid": y_valid,
-        "X_test": X_test, "y_test": y_test, "has_valid": has_valid, "has_test": has_test,
-        "beta": beta, "fast_diagnostic_mode": fast_diagnostic_mode,
-        "imputation": imputation, "effective_class_weight": effective_class_weight,
-        "selected_imbalance_strategy": selected_imbalance_strategy,
-        "selection_data": selection_data, "selected_model_id": selected_model_id,
-        "selected_candidate_row": selected_candidate_row,
-        "candidate_rows": candidate_rows, "candidate_space_meta": candidate_space_meta,
-        "selection_trace": trace, "selected_features": selected_features,
-        "imbalance_candidates": imbalance_candidates,
-        "selected_imbalance_metric": selected_imbalance_metric,
-        "strategy_probe_rows": strategy_probe_rows,
-        "model_pool_config": model_pool_config,
-    })
     print("[STEP  8/12] Evaluation (metrics + bootstrap CI)...", file=sys.stderr, flush=True)
     _phase78_eval_diagnostics(ctx)
-    # Bridge ctx → locals for Phases 9+
-    train_proba = ctx["train_proba"]; train_metrics = ctx["train_metrics"]; train_cm = ctx["train_cm"]
-    valid_proba = ctx["valid_proba"]; valid_metrics = ctx["valid_metrics"]; valid_cm = ctx["valid_cm"]
-    test_proba = ctx["test_proba"]; test_metrics = ctx["test_metrics"]; test_cm = ctx["test_cm"]
-    ci_lo = ctx["ci_lo"]; ci_hi = ctx["ci_hi"]; ci_n = ctx["ci_n"]
-    all_metric_ci = ctx["all_metric_ci"]
-    optimism_correction = ctx["optimism_correction"]
-    learning_curve_report = ctx["learning_curve_report"]
-    prevalence_baseline = ctx["prevalence_baseline"]
-    logistic_baseline = ctx["logistic_baseline"]
-    baseline_logit_proba_test = ctx["baseline_logit_proba_test"]
-    baseline_proba_test = ctx["baseline_proba_test"]
-    split_fingerprints = ctx["split_fingerprints"]
-    model_selection_report = ctx["model_selection_report"]
-    overfit_risk = ctx["overfit_risk"]; overfit_gaps = ctx["overfit_gaps"]
-    overfit_warnings = ctx["overfit_warnings"]
-    baseline_fit_meta = ctx["baseline_fit_meta"]
-    prevalence = ctx["prevalence"]
 
-
-    # ═══════════════════════════════════════════════════════════════════════
-    # PHASE 9: OVERFITTING CALLBACK → _phase9_overfit_callback()
-    # ═══════════════════════════════════════════════════════════════════════
-    ctx.update({
-        "selected_model_id": selected_model_id, "selected_estimator": selected_estimator,
-        "calibrator": calibrator, "selected_threshold": selected_threshold,
-        "threshold_info": threshold_info,
-        "train_metrics": train_metrics, "valid_metrics": valid_metrics,
-        "test_metrics": test_metrics, "train_cm": train_cm, "valid_cm": valid_cm,
-        "test_cm": test_cm, "train_proba": train_proba, "valid_proba": valid_proba,
-        "test_proba": test_proba, "ci_lo": ci_lo, "ci_hi": ci_hi, "ci_n": ci_n,
-        "all_metric_ci": all_metric_ci,
-        "overfit_risk": overfit_risk, "overfit_gaps": overfit_gaps,
-        "overfit_warnings": overfit_warnings,
-        "candidate_rows": candidate_rows, "estimator_map": estimator_map,
-        "selected_candidate_row": selected_candidate_row,
-        "model_selection_report": model_selection_report,
-    })
     _phase9_overfit_callback(ctx)
-    # Re-read all potentially mutated variables from ctx
-    selected_model_id = ctx["selected_model_id"]
-    selected_estimator = ctx["selected_estimator"]
-    calibrator = ctx["calibrator"]
-    selected_threshold = ctx["selected_threshold"]
-    threshold_info = ctx["threshold_info"]
-    train_metrics = ctx["train_metrics"]; valid_metrics = ctx["valid_metrics"]
-    test_metrics = ctx["test_metrics"]
-    train_cm = ctx["train_cm"]; valid_cm = ctx["valid_cm"]; test_cm = ctx["test_cm"]
-    train_proba = ctx["train_proba"]; valid_proba = ctx["valid_proba"]
-    test_proba = ctx["test_proba"]
-    ci_lo = ctx["ci_lo"]; ci_hi = ctx["ci_hi"]; ci_n = ctx["ci_n"]
-    all_metric_ci = ctx["all_metric_ci"]
-    overfit_risk = ctx["overfit_risk"]; overfit_gaps = ctx["overfit_gaps"]
-    overfit_warnings = ctx["overfit_warnings"]
-    selected_candidate_row = ctx["selected_candidate_row"]
-    overfit_recommendations = ctx["overfit_recommendations"]
-    fallback_trace = ctx["fallback_trace"]
-    original_model_id = ctx["original_model_id"]
-    callback_activated = ctx["callback_activated"]
 
-
-    # ═══════════════════════════════════════════════════════════════════════
-    # PHASES 10-12: ASSESSMENTS + REPORTS + OUTPUT
-    # → _phase10_12_reports_output()
-    # ═══════════════════════════════════════════════════════════════════════
-    # Sync all remaining locals into ctx for the final mega-phase
-    ctx.update({
-        "selected_model_id": selected_model_id, "selected_estimator": selected_estimator,
-        "calibrator": calibrator, "selected_threshold": selected_threshold,
-        "threshold_info": threshold_info,
-        "X_train": X_train, "y_train": y_train, "X_valid": X_valid, "y_valid": y_valid,
-        "X_test": X_test, "y_test": y_test, "has_valid": has_valid, "has_test": has_test,
-        "train_proba": train_proba, "valid_proba": valid_proba, "test_proba": test_proba,
-        "train_metrics": train_metrics, "valid_metrics": valid_metrics,
-        "test_metrics": test_metrics, "train_cm": train_cm, "valid_cm": valid_cm,
-        "test_cm": test_cm, "ci_n": ci_n, "all_metric_ci": all_metric_ci,
-        "optimism_correction": optimism_correction, "learning_curve_report": learning_curve_report,
-        "prevalence": prevalence, "prevalence_baseline": prevalence_baseline,
-        "logistic_baseline": logistic_baseline,
-        "baseline_logit_proba_test": baseline_logit_proba_test,
-        "baseline_proba_test": baseline_proba_test, "baseline_fit_meta": baseline_fit_meta,
-        "split_fingerprints": split_fingerprints,
-        "model_selection_report": model_selection_report,
-        "overfit_risk": overfit_risk, "overfit_gaps": overfit_gaps,
-        "overfit_warnings": overfit_warnings, "overfit_recommendations": overfit_recommendations,
-        "fallback_trace": fallback_trace, "original_model_id": original_model_id,
-        "callback_activated": callback_activated,
-        "candidate_rows": candidate_rows, "estimator_map": estimator_map,
-        "candidate_space_meta": candidate_space_meta,
-        "selected_candidate_row": selected_candidate_row, "selected_fit_meta": selected_fit_meta,
-        "external_cohorts": external_cohorts, "beta": beta,
-        "fast_diagnostic_mode": fast_diagnostic_mode,
-        "imputation": imputation, "effective_class_weight": effective_class_weight,
-        "selected_imbalance_strategy": selected_imbalance_strategy,
-        "selection_data": selection_data,
-        "threshold_selection_split": threshold_selection_split,
-        "calibration_fit_split": calibration_fit_split, "calibration_method": calibration_method,
-        "sensitivity_floor": sensitivity_floor, "npv_floor": npv_floor,
-        "specificity_floor": specificity_floor, "ppv_floor": ppv_floor,
-        "model_pool_config": model_pool_config,
-        "imbalance_candidates": imbalance_candidates,
-        "selected_imbalance_metric": selected_imbalance_metric,
-        "strategy_probe_rows": strategy_probe_rows,
-        "positive_count": positive_count, "negative_count": negative_count,
-        "imbalance_ratio": imbalance_ratio,
-        "stage0_features": stage0_features, "stage1_features": stage1_features,
-        "selected_features": selected_features, "pre_encoding_features": pre_encoding_features,
-        "stage1_report": stage1_report,
-        "stability_frequency": stability_frequency,
-        "group_selection_report": group_selection_report,
-        "groups": groups, "forbidden_features": forbidden_features,
-        "fe_mode_cfg": fe_mode_cfg, "low_mem": low_mem,
-        "train_df": train_df, "valid_df": valid_df, "test_df": test_df,
-        "calibration_y": calibration_y, "resolved_dev": resolved_dev,
-        "policy": policy, "selection_trace": trace,
-    })
     return _phase10_12_reports_output(ctx)
 
 
-def _phase10_12_reports_output(ctx: Dict[str, Any]) -> int:
+def _phase10_12_reports_output(ctx: "TrainContext") -> int:
     """Phases 10-12: TRIPOD assessments, external validation, reports, file output.
 
     Pure output phase — no upstream mutations. Returns exit code 0.
