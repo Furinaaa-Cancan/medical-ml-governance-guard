@@ -1264,7 +1264,7 @@ medical-ml-governance-guard/
 │   │   ├── _peer_review_retrieval.py     #   781  452 条审稿意见 BM25 检索 + tag 同义词扩展 + issue-code 加权重排
 │   │   └── _security.py                  #  1725  HMAC 签名, AES-256-GCM 加密, 受限反序列化
 │   │
-│   ├── gates/             (33 files, 28K LOC)   # 33 道 fail-closed 门控 (每个独立 CLI)
+│   ├── gates/             (37 files, 28K LOC)   # 33 道 fail-closed 门控 (每个独立 CLI)
 │   │   │
 │   │   │  ┌─ Layer 0: 入口验证 ─────────────────────────────────────────────┐
 │   │   ├── request_contract_gate.py      #  3792  请求契约验证 (所有 gate 的前置条件)
@@ -1317,7 +1317,7 @@ medical-ml-governance-guard/
 │   │   └── self_critique_gate.py         #   458  LLM 自我审查
 │   │      └──────────────────────────────────────────────────────────────────┘
 │   │
-│   ├── training/          (6 files, 11.9K LOC)  # 模型训练与数据准备
+│   ├── training/          (10 files, 11.9K LOC) # 模型训练与数据准备
 │   │   ├── train_select_evaluate.py      #  8610  训练引擎: 5 模型族, CV, one-SE 选择, 14 指标评估
 │   │   │                                 #        LR(L1/L2/EN) + RandomForest + HistGradientBoosting
 │   │   │                                 #        产出: evaluation_report, model_selection_report,
@@ -1347,7 +1347,7 @@ medical-ml-governance-guard/
 │   │   ├── record_session.py             #   --   交互会话记录（用于后续审计回放）
 │   │   └── report_health_check.py        #   235  evidence 完整性仪表盘
 │   │
-│   ├── codebooks/         (12 files, 7.0K LOC)  # 数据字典工具 (NHANES / UK Biobank)
+│   ├── codebooks/         (15 files, 7.0K LOC)  # 数据字典工具 (NHANES / UK Biobank)
 │   │   ├── nhanes_codebook_lookup.py     #  1055  NHANES 60K 变量 FTS5 全文检索 + RAG 验证
 │   │   ├── ukb_codebook_lookup.py        #  1286  UKB 12K 字段验证 + 时序泄漏检测 + 别名 + disease-KB join + --exclude-risk
 │   │   ├── codebook_factory.py           #   105  统一工厂: NHANES/UKB/BRFSS → 同一接口
@@ -1371,7 +1371,7 @@ medical-ml-governance-guard/
 │   │   ├── add_robustness_permutation_gates.py # --   为现有审稿意见补 robustness / permutation 条目
 │   │   └── correct_subgroup_overmatch.py #   --   修复审稿意见的亚组 over-match 问题
 │   │
-│   ├── diagnostics/       (15 files, 5.3K LOC)  # 环境诊断 + 文档一致性 + KB 卫生
+│   ├── diagnostics/       (18 files, 5.3K LOC)  # 环境诊断 + 文档一致性 + KB 卫生
 │   │   ├── env_doctor.py                 #   169  依赖健康检查 (core + optional backends)
 │   │   ├── init_guide.py                 #  1035  交互式项目方法学指南生成器
 │   │   ├── mlgg_web.py                   #   701  Flask Web UI (legacy 本地向导)
@@ -1388,7 +1388,7 @@ medical-ml-governance-guard/
 │   │   ├── kb_hygiene_check.py           #   --   KB 字段 provenance / 引用 / 更新时间卫生检查
 │   │   └── retrieval_eval_harness.py     #   --   peer-review 检索精度基准 (scenarios.json + baseline.json)
 │   │
-│   └── orchestration/     (10 files, 12.5K LOC) # 工作流编排 + CLI 入口
+│   └── orchestration/     (11 files, 12.5K LOC) # 工作流编排 + CLI 入口
 │       │
 │       │  ┌─ 用户入口 ──────────────────────────────────────────────────────┐
 │       ├── mlgg.py                       #   731  [主入口] 统一 CLI, 30+ 子命令路由

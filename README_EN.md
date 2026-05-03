@@ -1221,7 +1221,7 @@ medical-ml-governance-guard/
 │   │   ├── _peer_review_retrieval.py     #   452 review opinions BM25 retrieval + tag synonym expansion
 │   │   └── _security.py                  #   HMAC signing, AES-256-GCM, RBAC, RestrictedUnpickler
 │   │
-│   ├── gates/             (34)           # 33 fail-closed gates (standalone CLI, exit 0/2)
+│   ├── gates/             (38)           # 33 fail-closed gates (standalone CLI, exit 0/2)
 │   │   ├── cohort_definition_gate.py     #   Layer 0: Cohort definition + codebook RAG validation
 │   │   ├── request_contract_gate.py      #   Layer 0: Request contract validation
 │   │   ├── manifest_lock.py              #   Layer 1: Evidence file integrity locking
@@ -1238,7 +1238,7 @@ medical-ml-governance-guard/
 │   │   ├── security_audit_gate.py        #   Layer 8: Security audit
 │   │   └── ... (19 more gates)           #   Covers covariate shift, robustness, seed stability, etc.
 │   │
-│   ├── orchestration/     (11)           # Workflow orchestration
+│   ├── orchestration/     (12)           # Workflow orchestration
 │   │   ├── mlgg.py                       #   Unified CLI entry (28+ subcommands, state machine)
 │   │   ├── mlgg_onboarding.py            #   Project init + auto-detect data source/disease/codebook
 │   │   ├── mlgg_interactive.py           #   Interactive wizard (play mode)
@@ -1248,7 +1248,7 @@ medical-ml-governance-guard/
 │   │   ├── run_endurance_test.py         #   Endurance benchmark runner
 │   │   └── triage.py / semantic_audit.py / failure_diagnosis.py
 │   │
-│   ├── training/          (7)            # Model training & data preparation
+│   ├── training/          (11)           # Model training & data preparation
 │   │   ├── train_select_evaluate.py      #   Training engine (5+ model families, one-SE selection)
 │   │   ├── split_data.py                 #   Patient-level safe splitting (grouped_temporal / stratified)
 │   │   ├── init_project.py               #   Project scaffolding (configs/ + data/ + evidence/)
@@ -1262,7 +1262,7 @@ medical-ml-governance-guard/
 │   │   ├── record_session.py             #   Interactive session recorder (audit replay)
 │   │   └── ...                           #   render_user_summary, compliance_certificate, etc.
 │   │
-│   ├── codebooks/         (13)           # Data dictionary tools (7.0K LOC)
+│   ├── codebooks/         (16)           # Data dictionary tools (7.0K LOC)
 │   │   ├── nhanes_codebook_lookup.py     #   NHANES 60K variable FTS5 full-text search
 │   │   ├── ukb_codebook_lookup.py        #   UKB 12K field + disease-KB join + --exclude-risk
 │   │   ├── build_ukb_codebook_db.py      #   UKB Showcase → SQLite (11,821 fields + 533K encoding values)
@@ -1277,7 +1277,7 @@ medical-ml-governance-guard/
 │   │   ├── correct_subgroup_overmatch.py #   Fix subgroup over-match in review index
 │   │   └── ...                           #   batch_journal_review, extract/score metadata
 │   │
-│   └── diagnostics/       (16)           # Environment, docs-consistency & KB hygiene
+│   └── diagnostics/       (19)           # Environment, docs-consistency & KB hygiene
 │       ├── env_doctor.py                 #   Dependency health check
 │       ├── mlgg_web.py                   #   Flask Web UI
 │       ├── check_docs_consistency.py     #   SKILL.md ↔ README ↔ reviewer.yaml drift detector (pre-commit)
