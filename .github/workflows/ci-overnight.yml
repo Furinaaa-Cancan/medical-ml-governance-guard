@@ -30,6 +30,13 @@ jobs:
           # before any test runs — which is what was killing this workflow
           # in 40s for the past 5+ nightly runs.
           python3 -m pip install pytest hypothesis
+          # mlgg-lint is a separate package under plugin/. Its 28 leakage
+          # rule unit tests (test_lint_rules.py and tests/lint_rule_fixtures/)
+          # exec the rule engine via the installed CLI; without `pip install
+          # -e plugin/` they collect fine but every rule reports "no rules
+          # fired" because the engine entry-point isn't on PATH. ci-unit
+          # already installs it; mirror that here.
+          python3 -m pip install -e plugin/
 
       - name: Fast tests (full suite, non-slow)
         run: python3 -m pytest tests/ -m "not slow" --tb=short -q
