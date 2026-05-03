@@ -107,7 +107,7 @@ def verify_against_manifest(
     issues = []
     entry = reference.get("files", {}).get(filename)
     if entry is None:
-        return [f"not in reference manifest (new file?)"]
+        return ["not in reference manifest (new file?)"]
     if entry.get("sha256") != sha:
         issues.append(
             f"sha256 drift: ref={entry.get('sha256', '?')[:16]}... "

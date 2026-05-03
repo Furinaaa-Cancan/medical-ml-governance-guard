@@ -46,7 +46,7 @@ if _CORE_DIR not in _sys.path:
 import argparse
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from _peer_review_retrieval import retrieve_for_failure
 

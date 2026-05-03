@@ -32,7 +32,7 @@ import tempfile
 import time
 import urllib.request
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional
 
 import pandas as pd
 
@@ -487,8 +487,6 @@ def main() -> int:
     print(f"Value code checks:       {total_val_match}/{total_val_checks} ({total_val_match/max(total_val_checks,1)*100:.0f}%)")
     print(f"Hard issues (MLGG bugs): {hard_issues}")
     print(f"CDC-side divergences:    {cdc_divergences}  (informational; codebook vs XPT convention mismatch)")
-
-    total_issues = hard_issues
 
     if args.output:
         report = {

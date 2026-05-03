@@ -434,8 +434,8 @@ def main() -> int:
         if pytest_count >= 0:
             print(f"  pytest:       {pytest_count} tests collected")
         else:
-            print(f"  pytest:       [skipped — set MLGG_CHECK_PYTEST_COUNT=1 to enable]")
-        print(f"  scripts/ subdirs (excl __init__ / incl __init__):")
+            print("  pytest:       [skipped — set MLGG_CHECK_PYTEST_COUNT=1 to enable]")
+        print("  scripts/ subdirs (excl __init__ / incl __init__):")
         for d, (excl, incl) in subdirs.items():
             print(f"    {d:15s} {excl:3d} / {incl:3d}")
         print(f"  tests/:  total={tests['total']}, gate={tests['gate']}, "

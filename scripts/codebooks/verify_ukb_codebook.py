@@ -25,7 +25,7 @@ import json
 import sqlite3
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 UKB_DIR = REPO_ROOT / "references" / "codebooks" / "ukb"
@@ -1277,7 +1277,7 @@ def check_disease_kb_consistency(
                 warnings.append(
                     f"disease '{disease_key}' field {fid} ({title!r}) "
                     f"has unusual risk_category={risk!r}"
-                    + (f" (private=1 — UKB restricts access)" if private == 1 else "")
+                    + (" (private=1 — UKB restricts access)" if private == 1 else "")
                     + f". Allowed for definition fields: "
                     f"{sorted(_DISEASE_DEFINITION_ALLOWED_RISKS)}."
                 )
