@@ -8002,13 +8002,21 @@ def _phase10_12_reports_output(ctx: "TrainContext") -> int:
     distribution_report_payload: Optional[Dict[str, Any]] = None
     if compute_distribution_summary:
         external_frames = [{"cohort_id": c["cohort_id"], "frame": c["frame"]} for c in external_cohorts]
+        # Pass pre_encoding_features (NOT selected_features). The DataFrames
+        # passed in (train/valid/test/external) are raw splits with original
+        # column representations. selected_features is the POST-OneHot
+        # column list — using it here would KeyError on any categorical
+        # feature ("comorbidity_index_0" doesn't exist in raw train_df).
+        # JSD on raw categorical columns is also more meaningful for
+        # distribution-shift monitoring than JSD on individual one-hot
+        # dummies (which mostly measure marginal class frequency).
         distribution_report_payload = build_distribution_report(
             train_df=train_df,
             valid_df=valid_df,
             test_df=test_df,
             external_frames=external_frames,
             target_col=args.target_col,
-            feature_cols=selected_features,
+            feature_cols=pre_encoding_features,
         )
         evaluation_report["distribution_summary"] = {
             "split_count": int(len(distribution_report_payload.get("distribution_matrix", []))),

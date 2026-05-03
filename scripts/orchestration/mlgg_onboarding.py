@@ -1554,7 +1554,15 @@ def main() -> int:
     # Run codebook RAG + definition_variable_guard as pre-train check
     if user_input_csv and not (project_root / "data" / "train.csv").exists():
         print("  [WARN] train.csv not found — pre-train RAG/gate checks SKIPPED.", file=sys.stderr)
-    if user_input_csv and (project_root / "data" / "train.csv").exists():
+    # Run pre-train gates whenever train.csv exists, regardless of whether
+    # the data came from --input-csv or the demo generator. train_select_evaluate
+    # has a hard preflight that requires evidence/leakage_report.json — without
+    # running leakage_gate first, demo mode's step5_train fails immediately
+    # with "preflight_failed: leakage_gate report missing", which is what's
+    # been killing ci-full's `Full onboarding (guided demo)` step for 30+
+    # consecutive runs. Demo-generated data is intentionally clean so all
+    # pre-train gates pass; running them just satisfies the preflight contract.
+    if (project_root / "data" / "train.csv").exists():
         _pretrain_gates = []
 
         # 4b-1: Cohort definition gate with codebook RAG
