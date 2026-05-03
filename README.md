@@ -56,7 +56,7 @@
 └──────────────────────────────────────────┘
                   ↓ KB 查询
 ┌──────────────────────────────────────────┐
-│  references/  ~30 MB human-curated       │  ✅ 0 幻觉
+│  references/  ~2 MB human-curated KB     │  ✅ 0 幻觉
 │  peer-review-kb.json （119 篇 NC 审稿）  │  读者：SQL / JSON
 │  codebooks/ukb （8 层验证，1.87M cells） │
 │  methodology/disease-kb.json             │

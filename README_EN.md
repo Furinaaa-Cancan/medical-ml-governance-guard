@@ -50,7 +50,7 @@
 └──────────────────────────────────────────┘
                   ↓ KB lookups
 ┌──────────────────────────────────────────┐
-│  references/  ~30 MB human-curated       │  ✅ zero hallucination
+│  references/  ~2 MB human-curated KB     │  ✅ zero hallucination
 │  peer-review-kb.json (119 NC reviews)    │  Consumer: SQL / JSON
 │  codebooks/ukb (8-layer verify, 1.87M)   │
 │  methodology/disease-kb.json             │

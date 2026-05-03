@@ -130,18 +130,47 @@ def _live_curated_references_mb() -> int:
     """Size of human-curated references content (JSON/YAML/MD/TXT only).
 
     Excludes generated SQLite DBs and PDF source papers because those
-    are bulky artifacts, not 'curated' knowledge.
+    are bulky artifacts, not 'curated' knowledge. Also excludes
+    gitignored content (e.g. references/case-studies/nature_communications/
+    text/*.txt — paper full-texts kept locally but not committed for
+    copyright reasons): without this filter, the script reports ~30 MB
+    on dev machines that have downloaded the texts but ~2 MB on CI
+    runners (clean clones), which makes the README pernamenently
+    drift in one direction or the other.
+
+    Uses `git ls-files` for authority — same number on dev and CI
+    regardless of what extra files happen to sit in the working tree.
+    Falls back to filesystem rglob if git is unavailable (e.g. running
+    from a tarball release).
     """
     refs = ROOT / "references"
     if not refs.is_dir():
         return 0
     total = 0
-    for ext in ("*.json", "*.yaml", "*.md", "*.txt"):
-        for p in refs.rglob(ext):
+    try:
+        import subprocess
+        result = subprocess.run(
+            ["git", "-C", str(ROOT), "ls-files", "references/"],
+            capture_output=True, text=True, check=True, timeout=10,
+        )
+        tracked = [
+            ROOT / line.strip()
+            for line in result.stdout.splitlines()
+            if line.strip().endswith((".json", ".yaml", ".md", ".txt"))
+        ]
+        for p in tracked:
             try:
                 total += p.stat().st_size
             except OSError:
                 pass
+    except (subprocess.SubprocessError, FileNotFoundError, OSError):
+        # No git available — fall back to filesystem walk.
+        for ext in ("*.json", "*.yaml", "*.md", "*.txt"):
+            for p in refs.rglob(ext):
+                try:
+                    total += p.stat().st_size
+                except OSError:
+                    pass
     return round(total / (1024 * 1024))
 
 
