@@ -24,7 +24,12 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install -r requirements.txt
-          python3 -m pip install pytest
+          # hypothesis is a dev dep used by tests/test_math_properties.py
+          # (property-based fuzzing of calibration/DCA/sample-size math).
+          # Without it, pytest collection fails with ModuleNotFoundError
+          # before any test runs — which is what was killing this workflow
+          # in 40s for the past 5+ nightly runs.
+          python3 -m pip install pytest hypothesis
 
       - name: Fast tests (full suite, non-slow)
         run: python3 -m pytest tests/ -m "not slow" --tb=short -q
