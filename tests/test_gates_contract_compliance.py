@@ -26,10 +26,19 @@ GATES_DIR = PROJECT_ROOT / "scripts" / "gates"
 
 
 def _discover_gate_scripts() -> list[Path]:
-    """Return every gate script (excluding __init__.py)."""
+    """Return every gate script (excluding __init__.py and dotfiles).
+
+    Skips dot-prefixed files because macOS creates AppleDouble metadata
+    siblings ("._foo_gate.py") when files are copied to/from external
+    volumes. Those siblings are 4 KB binary blobs, not Python; running
+    `--help` on them produces a SyntaxError and pollutes CI test output
+    on contributors who happen to develop from such a volume. The CI
+    runner never sees them, but local pytest sweeps do.
+    """
     return sorted(
         p for p in GATES_DIR.glob("*.py")
         if p.name != "__init__.py"
+        and not p.name.startswith(".")
     )
 
 

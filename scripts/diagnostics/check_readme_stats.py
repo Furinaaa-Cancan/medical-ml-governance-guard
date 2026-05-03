@@ -73,11 +73,21 @@ _SUBDIRS: List[str] = [
 
 
 def _live_scripts_subdir_counts() -> Dict[str, Tuple[int, int]]:
-    """Return {subdir: (count_excl_init, count_incl_init)} for scripts/*/."""
+    """Return {subdir: (count_excl_init, count_incl_init)} for scripts/*/.
+
+    Excludes dot-prefixed files (macOS AppleDouble metadata "._foo.py"
+    siblings on external volumes). Without this, drift counts diverge
+    between dev (4+ extra "files") and CI (no AppleDouble), and the
+    README ends up perpetually wrong on one of the two.
+    """
     counts: Dict[str, Tuple[int, int]] = {}
     for d in _SUBDIRS:
         path = ROOT / "scripts" / d
-        pyfiles = list(path.glob("*.py")) if path.is_dir() else []
+        pyfiles = (
+            [p for p in path.glob("*.py") if not p.name.startswith(".")]
+            if path.is_dir()
+            else []
+        )
         counts[d] = (
             sum(1 for p in pyfiles if p.name != "__init__.py"),
             len(pyfiles),
@@ -94,12 +104,16 @@ def _live_tests_counts() -> Dict[str, int]:
     tests = ROOT / "tests"
     if not tests.is_dir():
         return {k: 0 for k in ("total", "gate", "e2e", "stress", "security")}
+    # Exclude AppleDouble dotfiles ("._test_foo.py") for the same reason
+    # as _live_scripts_subdir_counts above.
+    def _glob(pattern: str) -> list:
+        return [p for p in tests.glob(pattern) if not p.name.startswith(".")]
     return {
-        "total":    len(list(tests.glob("test_*.py"))),
-        "gate":     len(list(tests.glob("test_*_gate.py"))),
-        "e2e":      len(list(tests.glob("test_*e2e*.py"))),
-        "stress":   len(list(tests.glob("test_stress*.py"))),
-        "security": len(list(tests.glob("test_security*.py"))),
+        "total":    len(_glob("test_*.py")),
+        "gate":     len(_glob("test_*_gate.py")),
+        "e2e":      len(_glob("test_*e2e*.py")),
+        "stress":   len(_glob("test_stress*.py")),
+        "security": len(_glob("test_security*.py")),
     }
 
 
