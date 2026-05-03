@@ -21,21 +21,21 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
+        # Mirror ci-unit's install step exactly. Each piece below was
+        # added because a specific test in the "Fast tests" sweep failed
+        # without it:
+        #   requirements-optional.txt → imblearn (BalancedRandomForest /
+        #     EasyEnsemble / RUSBoost test families)
+        #   pytest hypothesis → test_math_properties (property-based)
+        #   pip install -e plugin/ → mlgg-lint rule fixture tests
+        # When divergent install steps exist, ci-unit and ci-overnight
+        # will report different test failures on the same code, which
+        # is exactly what was happening through 5+ nightly red runs.
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install -r requirements.txt
-          # hypothesis is a dev dep used by tests/test_math_properties.py
-          # (property-based fuzzing of calibration/DCA/sample-size math).
-          # Without it, pytest collection fails with ModuleNotFoundError
-          # before any test runs — which is what was killing this workflow
-          # in 40s for the past 5+ nightly runs.
+          python3 -m pip install -r requirements-optional.txt
           python3 -m pip install pytest hypothesis
-          # mlgg-lint is a separate package under plugin/. Its 28 leakage
-          # rule unit tests (test_lint_rules.py and tests/lint_rule_fixtures/)
-          # exec the rule engine via the installed CLI; without `pip install
-          # -e plugin/` they collect fine but every rule reports "no rules
-          # fired" because the engine entry-point isn't on PATH. ci-unit
-          # already installs it; mirror that here.
           python3 -m pip install -e plugin/
 
       - name: Fast tests (full suite, non-slow)
