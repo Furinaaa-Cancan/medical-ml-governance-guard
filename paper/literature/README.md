@@ -13,7 +13,6 @@ convenience; original sources linked below.
 | 04 | `04-Varoquaux2022-methodological-failures-npjdm.pdf` | Varoquaux & Cheplygina 2022, *npj Digital Medicine* 5:48 | Review article documenting failure modes in medical imaging ML. mlgg's structural claim that "current peer review misses systematic issues" cites this. |
 | 05 | `05-Oala2021-algorithm-auditing-qc-jmedsys.pdf` | Oala et al. 2021, *J Med Syst* 45(12):105 | Editorial calling for ML4H algorithm auditing. mlgg responds to this call with concrete tooling. |
 | 06 | `06-Vasey2022-decide-ai-natmed.pdf` | Vasey et al. 2022, *Nat Med* 28:924–933 | DECIDE-AI checklist for early-stage clinical evaluation. Out of mlgg's pre-publication scope but cited as ecosystem context. |
-| 08 | `08-Norgeot2020-mi-claim-natmed.pdf` | Norgeot et al. 2020, *Nat Med* 26:1320–1324 | MI-CLAIM minimum information checklist. One of the 11+ reporting checklists mlgg's executable validators map to. |
 
 ## ⚠️ Could not auto-download (Cloudflare / reCAPTCHA blocked)
 
@@ -50,6 +49,16 @@ These need to be opened in a real browser. URLs below.
 - **Radiology AI**: https://pubs.rsna.org/doi/full/10.1148/ryai.240300
 - **PMC**: https://pmc.ncbi.nlm.nih.gov/articles/PMC11304031
 - **PubMed**: https://pubmed.ncbi.nlm.nih.gov/38809149/
+
+### 08 — Norgeot et al. 2020 "MI-CLAIM"
+
+> Minimum information about clinical AI modeling. One of 11+ reporting
+> checklists; manual self-disclosure model.
+
+- **Nature Medicine**: https://www.nature.com/articles/s41591-020-1041-y
+- **PDF direct**: https://www.nature.com/articles/s41591-020-1041-y.pdf
+- **PMC**: https://pmc.ncbi.nlm.nih.gov/articles/PMC8210907
+- **PubMed**: https://pubmed.ncbi.nlm.nih.gov/32908275/
 
 ---
 
