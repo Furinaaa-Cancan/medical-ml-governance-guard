@@ -37,6 +37,63 @@ Out of scope (not feasible with mlgg's contribution):
 > published high-impact medical ML papers, and (3) recovers reviewer
 > concerns that take human peer review months to surface.
 
+### 1.3 Competitive positioning
+
+Detailed competitive analysis: `paper/lit-review.md`.
+
+Existing approaches to medical ML governance fall into five categories:
+
+1. **Reporting checklists** requiring author self-disclosure (TRIPOD+AI,
+   PROBAST+AI, CLAIM, DECIDE-AI, MI-CLAIM, CONSORT-AI, SPIRIT-AI,
+   FUTURE-AI, STARD-AI, PRISMA-AI, TRIPOD-LLM).
+2. **Review articles** documenting failure modes (Kapoor 2023 Patterns,
+   Varoquaux & Cheplygina 2022 npj Digital Medicine).
+3. **Procedural audit frameworks** for deployed systems (Liu et al. 2022
+   "The medical algorithmic audit," Lancet Digital Health).
+4. **Organizational governance maturity models** (HAIRA 2026 npjDM).
+5. **General-purpose reproducibility tools** (ReproAudit, Microsoft RepDL,
+   Repro, SciSpace TRIPOD-AI Checklist Agent).
+
+**No existing tool combines all four properties that define mlgg**:
+
+- **Executable** validators (run on actual code/data/config/metrics).
+- **Fail-closed** semantics (downstream stages refuse on upstream fail).
+- **Comprehensive TRIPOD+AI / PROBAST+AI coverage** through executable
+  mapping.
+- **Scope-bounded to retrospective cohort binary classification** with
+  explicit refusal of out-of-scope modalities.
+
+The closest neighbours match 1–2 of these properties at most. The
+unfilled corner of the matrix is mlgg's contribution.
+
+### 1.4 Numbered positioning paragraph (for paper introduction)
+
+> Existing approaches to governance of medical machine learning fall into
+> five categories: (i) reporting checklists requiring voluntary author
+> self-disclosure [TRIPOD+AI, PROBAST+AI, CLAIM, DECIDE-AI, MI-CLAIM,
+> CONSORT-AI / SPIRIT-AI]; (ii) review articles documenting failure
+> modes [Kapoor 2023, Varoquaux 2022]; (iii) procedural audit frameworks
+> for deployed systems [Liu 2022 medical algorithmic audit]; (iv)
+> organizational governance maturity models [HAIRA]; and (v)
+> general-purpose reproducibility tools [ReproAudit, RepDL, Repro,
+> SciSpace TRIPOD-AI Agent]. None combine **executable validators**,
+> **fail-closed semantics**, and **comprehensive TRIPOD+AI / PROBAST+AI
+> coverage** into a single automated framework targeted at retrospective
+> cohort binary classification — the workhorse of clinical prediction
+> modeling. mlgg fills this gap with 33 gates organized in a
+> dependency-aware DAG, producing machine-readable evidence consumable
+> by downstream agents.
+
+### 1.5 Citation risks (monitored)
+
+- **ReproAudit** may publish a tool paper before us → submit within 6 months.
+- **PROBAST-AI** v1 may release → must map mlgg gates within 1 week.
+- **SciSpace TRIPOD-AI Agent** may be published as peer-reviewed tool →
+  baseline comparator on our corpus to show mlgg detects what
+  manuscript-only auditors miss.
+- **Liu et al. 2022 follow-up** if any of the seven authors releases an
+  executable extension → recruit one as senior co-author preemptively.
+
 ### 1.3 Title candidates
 
 **Primary**:
