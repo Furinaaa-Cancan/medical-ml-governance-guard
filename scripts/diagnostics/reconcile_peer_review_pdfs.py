@@ -146,7 +146,28 @@ def main() -> int:
         eid = e["id"]
         kb_doi = e.get("paper_doi", "").strip()
         kb_title = e.get("paper_title", "").strip()
-        # Strategy 0: manual override (visually verified pairings)
+        # Strategy 0a: filename literally contains paper_id (the new downloader
+        # saves files as PR-NNN_<slug>_peer_review.pdf, so this is the strongest
+        # possible signal when present).
+        for pi in pdf_index:
+            if pi["name"].startswith(f"{eid}_"):
+                results.append({
+                    "id": eid,
+                    "kb_doi": kb_doi,
+                    "kb_title": kb_title[:100],
+                    "pdf_path": pi["path"],
+                    "pdf_name": pi["name"],
+                    "confidence": "high",
+                    "method": "filename_paper_id",
+                    "note": f"PDF filename starts with paper_id {eid}_",
+                })
+                break
+        else:
+            # No PR-NNN_ filename match; fall through to other strategies
+            pass
+        if results and results[-1]["id"] == eid:
+            continue
+        # Strategy 0b: manual override (visually verified pairings)
         if eid in MANUAL_OVERRIDES:
             ov_path = MANUAL_OVERRIDES[eid]
             ov_pi = next((pi for pi in pdf_index if pi["path"] == ov_path), None)

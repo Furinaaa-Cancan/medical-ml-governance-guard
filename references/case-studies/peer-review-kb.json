@@ -259,7 +259,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -485,12 +485,12 @@
         "unstructured_data_integration",
         "clinical_validation"
       ],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-002_artificial_intelligence_in_sepsis_early__peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.50",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-002_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -769,7 +769,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -959,7 +959,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -1148,12 +1148,12 @@
         "multi_task_learning",
         "multicenter_validation"
       ],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-005_biology_guided_deep_learning_predicts_pr_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.60",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-005_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -1364,12 +1364,12 @@
         "lifestyle_integration",
         "web_tool"
       ],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-006_integration_of_pathologic_characteristic_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.75",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-006_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -1553,7 +1553,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -1752,7 +1752,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -1932,7 +1932,7 @@
         "method": "title_substring_multi",
         "confidence": "high_multi",
         "note": "Title substring matched 2 PDFs; chose by overlap 0.00",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -2126,7 +2126,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -2301,7 +2301,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -2478,7 +2478,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -2645,7 +2645,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -2766,7 +2766,7 @@
         "method": "manual_override",
         "confidence": "high",
         "note": "Visually verified mapping (abbreviation/filename mismatch)",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -2871,7 +2871,7 @@
         "method": "manual_override",
         "confidence": "high",
         "note": "Visually verified mapping (abbreviation/filename mismatch)",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -3048,7 +3048,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -3188,7 +3188,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -3326,7 +3326,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -3464,7 +3464,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -3608,7 +3608,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -3724,7 +3724,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -3823,7 +3823,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -3941,7 +3941,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -4116,12 +4116,12 @@
         "15_cancer_types",
         "external_validation"
       ],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-024_development_and_external_validation_of_p_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.75",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-024_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -4291,12 +4291,12 @@
         "noninvasive_approach",
         "prospective_cohort"
       ],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-025_a_noninvasive_model_for_chronic_kidney_d_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.50",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-025_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -4435,7 +4435,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -4577,12 +4577,12 @@
         "multi_dementia_types",
         "shap_interpretability"
       ],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-027_machine_learning_models_identify_predict_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.50",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-027_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -4755,7 +4755,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -4920,7 +4920,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -5039,12 +5039,12 @@
         "systematic_methodology",
         "clinical_usefulness_focus"
       ],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-030_methodological_choices_and_clinical_usef_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.50",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-030_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -5162,7 +5162,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -5301,7 +5301,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -5406,7 +5406,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -5539,12 +5539,12 @@
         "multicohort",
         "fast_inference"
       ],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-034_predicting_mortality_from_ai_based_cardi_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.80",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-034_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -5717,7 +5717,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -5835,12 +5835,12 @@
         "large_multicenter",
         "calibration_monitoring"
       ],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-036_development_and_validation_of_self_monit_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.75",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-036_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -5983,7 +5983,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -6096,7 +6096,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -6268,7 +6268,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -6367,12 +6367,12 @@
         "large_cohort",
         "real_time_potential"
       ],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-040_sepsis_management_prediction_model_infer_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.67",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-040_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -6512,7 +6512,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -6668,7 +6668,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -6809,7 +6809,7 @@
         "method": "title_substring_multi",
         "confidence": "high_multi",
         "note": "Title substring matched 2 PDFs; chose by overlap 0.47",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -6909,7 +6909,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -7028,7 +7028,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -7056,12 +7056,12 @@
         "chinese_population"
       ],
       "_note": "This PDF contained only the reporting summary form, not the actual peer review comments. Minimal reviewer feedback available.",
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-046_genetic_architecture_and_risk_prediction_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.67",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-046_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -7097,12 +7097,12 @@
         "microbiome_based"
       ],
       "_note": "Only final round reviewer comments available — previous round comments from another journal not published. Reviewer confirmed all concerns addressed.",
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-047_faecal_microbiome_based_machine_learning_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.50",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-047_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -7222,7 +7222,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -7318,12 +7318,12 @@
         "clinical_prediction_tool",
         "external_validation"
       ],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-049_prediction_of_plasma_ctdna_fraction_and__peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.67",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-049_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -7443,7 +7443,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -7539,7 +7539,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -7659,7 +7659,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -7777,7 +7777,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -7898,7 +7898,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -8038,7 +8038,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -8159,7 +8159,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -8257,12 +8257,12 @@
         "network_guided",
         "organoid_validation"
       ],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-057_network_based_machine_learning_in_colore_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.60",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-057_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -8383,7 +8383,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -8487,7 +8487,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -8519,7 +8519,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -8550,7 +8550,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -8654,7 +8654,7 @@
         "method": "manual_override",
         "confidence": "high",
         "note": "Visually verified mapping (abbreviation/filename mismatch)",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -8789,7 +8789,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -8894,12 +8894,12 @@
         "14_disease_categories",
         "representation_learning"
       ],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-064_plasma_proteomic_profiles_predict_indivi_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.75",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-064_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -9021,7 +9021,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -9156,7 +9156,7 @@
         "method": "manual_override",
         "confidence": "high",
         "note": "Visually verified mapping (abbreviation/filename mismatch)",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -9273,7 +9273,7 @@
         "method": "manual_override",
         "confidence": "high",
         "note": "Visually verified mapping (abbreviation/filename mismatch)",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -9305,7 +9305,7 @@
         "method": "manual_override",
         "confidence": "high",
         "note": "Visually verified mapping (abbreviation/filename mismatch)",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -9365,12 +9365,12 @@
       "reviewer_strengths": [],
       "outcome": "accepted_after_major_revision",
       "key_methodology_strengths": [],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-069_biomarker_panels_for_improved_risk_predi_peer_review.pdf",
       "pdf_verification": {
-        "method": "title_jaccard",
-        "confidence": "low",
-        "note": "Title Jaccard 0.55",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-069_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -9455,7 +9455,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -9521,7 +9521,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -9606,7 +9606,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -9690,7 +9690,7 @@
         "method": "manual_override",
         "confidence": "high",
         "note": "Visually verified mapping (abbreviation/filename mismatch)",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -9768,12 +9768,12 @@
       "reviewer_strengths": [],
       "outcome": "accepted_after_major_revision",
       "key_methodology_strengths": [],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-074_interstitial_lung_disease_diagnosis_and__peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.50",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-074_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -9840,7 +9840,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -9926,7 +9926,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -10011,7 +10011,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -10099,7 +10099,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -10161,7 +10161,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -10226,7 +10226,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -10309,7 +10309,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -10374,7 +10374,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -10413,12 +10413,12 @@
       "outcome": "accepted_after_major_revision",
       "key_methodology_strengths": [],
       "key_methodology_issues": [],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-083_a_machine_learning_contest_enhances_auto_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.50",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-083_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -10482,7 +10482,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -10523,12 +10523,12 @@
       "outcome": "accepted_after_major_revision",
       "key_methodology_strengths": [],
       "key_methodology_issues": [],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-085_multi_ancestry_and_multi_trait_gwas_meta_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.50",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-085_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -10592,7 +10592,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -10632,12 +10632,12 @@
       "outcome": "accepted_after_major_revision",
       "key_methodology_strengths": [],
       "key_methodology_issues": [],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-087_dermatologist_like_explainable_ai_enhanc_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.75",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-087_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -10704,7 +10704,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -10744,12 +10744,12 @@
       "outcome": "accepted_after_major_revision",
       "key_methodology_strengths": [],
       "key_methodology_issues": [],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-089_ml_supported_framework_for_classificatio_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.75",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-089_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -10791,12 +10791,12 @@
       "key_methodology_issues": [
         "external_validation_details"
       ],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-090_cell_free_dna_testing_for_detection_and__peer_review.pdf",
       "pdf_verification": {
-        "method": "title_jaccard",
-        "confidence": "low",
-        "note": "Title Jaccard 0.62",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-090_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -10843,7 +10843,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -10890,7 +10890,7 @@
         "method": "manual_override",
         "confidence": "high",
         "note": "Visually verified mapping (abbreviation/filename mismatch)",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -10933,12 +10933,12 @@
       "key_methodology_issues": [
         "rare_pediatric"
       ],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-093_multiparametric_mri_along_with_machine_l_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.75",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-093_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -10986,7 +10986,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -11032,7 +11032,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -11072,12 +11072,12 @@
       "outcome": "accepted_after_major_revision",
       "key_methodology_strengths": [],
       "key_methodology_issues": [],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-096_early_favorable_prostate_specific_antige_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.50",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-096_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -11100,12 +11100,12 @@
       "outcome": "accepted_after_major_revision",
       "key_methodology_strengths": [],
       "key_methodology_issues": [],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-097_sepsis_bedside_prediction_via_ml_and_cen_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.67",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-097_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -11152,7 +11152,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -11216,7 +11216,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -11368,7 +11368,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -11522,7 +11522,7 @@
         "method": "title_substring_multi",
         "confidence": "high_multi",
         "note": "Title substring matched 2 PDFs; chose by overlap 0.47",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -11676,7 +11676,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -11827,12 +11827,12 @@
         "mnar_not_addressed",
         "coefficients_not_provided"
       ],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-105_development_and_external_validation_of_p_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.75",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-105_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -11987,7 +11987,7 @@
         "method": "title_substring_multi",
         "confidence": "high_multi",
         "note": "Title substring matched 2 PDFs; chose by overlap 0.00",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -12139,12 +12139,12 @@
         "weak_label_propagation",
         "benchmarking_gap"
       ],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-107_infehr_clinical_phenotype_resolution_via_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.50",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-107_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -12302,7 +12302,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -12462,7 +12462,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -12619,12 +12619,12 @@
         "low_event_count",
         "calibration_resampling_distortion"
       ],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-110_development_and_validation_of_a_wearable_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.67",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-110_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -12800,7 +12800,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -12951,7 +12951,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -13131,7 +13131,7 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -13307,10 +13307,10 @@
       ],
       "peer_review_pdf_path": "references/case-studies/nature_communications/114_sepsis_microfluidics_peer_review.pdf",
       "pdf_verification": {
-        "method": "title_substring",
-        "confidence": "high",
-        "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "title_substring_multi",
+        "confidence": "high_multi",
+        "note": "Title substring matched 2 PDFs; chose by overlap 0.53",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -13336,7 +13336,7 @@
         "method": "manual_override",
         "confidence": "high",
         "note": "Visually verified mapping (abbreviation/filename mismatch)",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -13362,7 +13362,7 @@
         "method": "manual_override",
         "confidence": "high",
         "note": "Visually verified mapping (abbreviation/filename mismatch)",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -13383,12 +13383,12 @@
       "outcome": "reporting_summary_only",
       "key_methodology_issues": [],
       "key_methodology_strengths": [],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-RO-03_plasma_proteomic_profiles_predict_crohn__peer_review.pdf",
       "pdf_verification": {
-        "method": "no_match",
-        "confidence": "none",
-        "note": "No overlap with any PDF",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-RO-03_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -13409,12 +13409,12 @@
       "outcome": "reporting_summary_only",
       "key_methodology_issues": [],
       "key_methodology_strengths": [],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-RO-04_ml_based_meta_analysis_reveals_gut_micro_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.75",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-RO-04_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -13435,12 +13435,12 @@
       "outcome": "reporting_summary_only",
       "key_methodology_issues": [],
       "key_methodology_strengths": [],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-RO-05_wearable_ai_for_on_device_frailty_assess_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.75",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-RO-05_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -13461,12 +13461,12 @@
       "outcome": "reporting_summary_only",
       "key_methodology_issues": [],
       "key_methodology_strengths": [],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-RO-06_deep_molecular_profiling_identifies_sign_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.60",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-RO-06_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
     {
@@ -13487,17 +13487,17 @@
       "outcome": "reporting_summary_only",
       "key_methodology_issues": [],
       "key_methodology_strengths": [],
-      "peer_review_pdf_path": null,
+      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-RO-07_ml_driven_strategies_for_adapting_immuno_peer_review.pdf",
       "pdf_verification": {
-        "method": "filename_keywords",
-        "confidence": "low",
-        "note": "Filename keyword overlap 0.75",
-        "verified_at": "2026-05-09T13:33:26.294339+00:00"
+        "method": "filename_paper_id",
+        "confidence": "high",
+        "note": "PDF filename starts with paper_id PR-RO-07_",
+        "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     }
   ],
   "provenance": {
-    "last_reconciled_utc": "2026-05-09T13:33:26.294339+00:00",
+    "last_reconciled_utc": "2026-05-09T17:21:26.644014+00:00",
     "reconciliation_script": "scripts/diagnostics/reconcile_peer_review_pdfs.py",
     "pdf_dir": "references/case-studies/nature_communications",
     "match_strategy": "Layered: (0) manual override for known abbreviation cases, (1) DOI substring in PDF first 5 pages, (2) KB title first-7-words substring in normalized first 12000 chars of PDF text, (3) title Jaccard >= 0.7 / 0.5 fallback, (4) filename keyword overlap fallback. Peer review PDFs typically do NOT contain the DOI; substring of paper title is the dominant signal.",
