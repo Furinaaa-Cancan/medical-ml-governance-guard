@@ -1,0 +1,541 @@
+{
+  "generated_at_utc": "2026-05-09T16:58:24.089069+00:00",
+  "corpus_size": 21,
+  "stats": {
+    "fetch_ok": 21,
+    "has_github": 13,
+    "has_zenodo": 1,
+    "has_any_code_host": 15,
+    "has_code_availability_section": 21
+  },
+  "results": [
+    {
+      "id": "PR-001",
+      "doi": "10.1038/s41467-024-46663-4",
+      "title": "Data-driven identification of predictive risk biomarkers for subgroups of osteoarthritis using interpretable machine learning",
+      "fetch_status": "ok",
+      "html_bytes": 582119,
+      "code_section": "All analyses were performed on publicly available software, and all parameters are provided in methods wherever relevant. The code used for this study was tailored to the UK Biobank data and is no use as a standalone without access to the UK Biobank. However, code to reproduce the machine learning model, figures as well as files describing input data formats, are provided at https://github.com/novonordisk-research/xOAML . The authors welcome being contacted to provide more information to reproduce the results presented in this paper if needed.",
+      "data_section": "UK Biobank is available to researchers following application to the UK Biobank database ( https://www.ukbiobank.ac.uk/enable-your-research/apply-for-access ). All field IDs and clinical codes used for extraction of data have been provided in Supplementary Data. The use of UK Biobank for this study was performed under research application numbers 53639 and 65851. Source data that is not patient-sensitive data are provided with this paper to reproduce figures and tables in the main manuscript in https://github.com/novonordisk-research/xOAML , including links to any publicly-available datasets used in the analyses. In the case of individual-level sensitive data from UK Biobank mock data describing input file formats is provided alongside code used to reproduce the figures and tables. The OA GWAS summary statistics files used to generate the genetic risk scores were created as part of a published study by Boer et al., Cell 2021.",
+      "urls_in_code_section": [
+        "https://github.com/novonordisk-research/xOAML"
+      ],
+      "urls_in_data_section": [
+        "https://github.com/novonordisk-research/xOAML"
+      ],
+      "urls_by_host": {
+        "github.com": [
+          "https://github.com/novonordisk-research/xOAML"
+        ]
+      },
+      "all_urls": [
+        "https://github.com/novonordisk-research/xOAML"
+      ],
+      "primary_repo": "https://github.com/novonordisk-research/xOAML",
+      "primary_repo_method": "auto_github"
+    },
+    {
+      "id": "PR-004",
+      "doi": "10.1038/s41467-023-43715-z",
+      "title": "TransformEHR: transformer-based encoder-decoder generative model to enhance prediction of disease outcomes using electronic health records",
+      "fetch_status": "ok",
+      "html_bytes": 420126,
+      "code_section": "Our finetuning code is publicly available on https://github.com/whaleloops/TransformEHR/ . Experiments were conducted using Python version 3.8, torch version 1.9.0, transformer library version 4.16.2. Visualization was obtained using Python packages matplotlib version 3.3.2.",
+      "data_section": "The study protocol was approved by the Institutional Review Board at the VA Bedford Healthcare System under the waiver of informed consent. The study was exempted because the research involves only information collection and analysis involving the investigator’s use of identifiable information when that use is regulated under 45 Code of Federal Regulations (CFR) parts 160 and 164, subparts A and E, for the purposes of health care operations or research as those terms are defined at 45 CFR 164.512(b). The VHA EHR data are available under restricted access for Veterans’ privacy and data security laws, access can be obtained by relevant approvals through VA Informatics and Computing Infrastructure (VINCI) (contact: VINCI@va.gov). Individuals who wish to use this data for research purposes must fulfill the research credentialing requirements as outlined by the VA Office of Research and Development, with the approval process expected to take from 1 month to 1 year. The MIMIC-IV raw data is publicly available through Physionet. aiming to utilize this data for research will be required to meet research credentialing requirements as outlined at the Physionet’s web site: https://physionet.org/content/mimiciv/2.2/ . Requests are normally processed within a week. We release a minimum dataset to illustrate the training process on https://github.com/whaleloops/TransformEHR .",
+      "urls_in_code_section": [
+        "https://github.com/whaleloops/TransformEHR/"
+      ],
+      "urls_in_data_section": [
+        "https://github.com/whaleloops/TransformEHR"
+      ],
+      "urls_by_host": {
+        "github.com": [
+          "https://github.com/whaleloops/TransformEHR",
+          "https://github.com/whaleloops/TransformEHR/"
+        ]
+      },
+      "all_urls": [
+        "https://github.com/whaleloops/TransformEHR",
+        "https://github.com/whaleloops/TransformEHR/"
+      ],
+      "primary_repo": "https://github.com/whaleloops/TransformEHR",
+      "primary_repo_method": "auto_github"
+    },
+    {
+      "id": "PR-007",
+      "doi": "10.1038/s41467-024-46700-2",
+      "title": "Development and validation of an interpretable model integrating multimodal information for improving ovarian cancer diagnosis",
+      "fetch_status": "ok",
+      "html_bytes": 384630,
+      "code_section": "The codes of the proposed model in this study have been deposited at github ( https://github.com/Xiao-OMG/OvcaFinder ) and Zenodo ( https://doi.org/10.5281/zenodo.10691378 ), which can only be used for non-commercial research purposes.",
+      "data_section": "The original ultrasound images and clinical data used in this study are not publicly available due to the restrictions of hospital regulations and patient privacy. All data supporting the findings of this study are available on requests for non-commercial purposes from the corresponding authors X.L. and H.C. typically within two weeks. The data generated in this study for creation of figures and tables are provided with this paper. Source data are provided with this paper.",
+      "urls_in_code_section": [
+        "https://doi.org/10.5281/zenodo.10691378",
+        "https://github.com/Xiao-OMG/OvcaFinder"
+      ],
+      "urls_in_data_section": [],
+      "urls_by_host": {
+        "doi.org": [
+          "https://doi.org/10.5281/zenodo.10691378"
+        ],
+        "github.com": [
+          "https://github.com/Xiao-OMG/OvcaFinder"
+        ]
+      },
+      "all_urls": [
+        "https://doi.org/10.5281/zenodo.10691378",
+        "https://github.com/Xiao-OMG/OvcaFinder"
+      ],
+      "primary_repo": "https://github.com/Xiao-OMG/OvcaFinder",
+      "primary_repo_method": "auto_github"
+    },
+    {
+      "id": "PR-010",
+      "doi": "10.1038/s41467-023-39474-6",
+      "title": "Predicting in-hospital outcomes of patients with acute kidney injury",
+      "fetch_status": "ok",
+      "html_bytes": 419530,
+      "code_section": "The data analysis by AKIEPM was coded by TensorFlow 1.15 and Python 3.7 with patient data, whose code is available at https://github.com/yunzhangwww/AKIEPM .",
+      "data_section": "Data for figures are provided with this paper and are available at https://github.com/yunzhangwww/AKIEPM . Currently, CRDS data is only free to share with participating collaborators who have signed the cooperation agreement. If you are willing to cooperate, please contact the CRDS database administrator via the official email address: ncrckd@163.com ( http://www.crds-network.org.cn/#/joinUs/joinus ), and they will respond within 1 month.",
+      "urls_in_code_section": [
+        "https://github.com/yunzhangwww/AKIEPM"
+      ],
+      "urls_in_data_section": [
+        "https://github.com/yunzhangwww/AKIEPM"
+      ],
+      "urls_by_host": {
+        "github.com": [
+          "https://github.com/yunzhangwww/AKIEPM"
+        ]
+      },
+      "all_urls": [
+        "https://github.com/yunzhangwww/AKIEPM"
+      ],
+      "primary_repo": "https://github.com/yunzhangwww/AKIEPM",
+      "primary_repo_method": "auto_github"
+    },
+    {
+      "id": "PR-015",
+      "doi": "10.1038/s41467-023-41093-0",
+      "title": "Synthesize high-dimensional longitudinal electronic health records via hierarchical autoregressive language model",
+      "fetch_status": "ok",
+      "html_bytes": 398586,
+      "code_section": "We make our code for the inpatient dataset experiments, including dataset construction, modeling building, training, and evaluation, available at https://github.com/btheodorou99/HALO_Inpatient 46 . Between this and the public availability of that dataset, all inpatient results can be fully reproduced. Furthermore, HALO is also included in the open-source machine learning package for healthcare PyHealth 47 , where it is available for easy use in concert with various machine learning tasks.",
+      "data_section": "The MIMIC-III inpatient EHR dataset 25 that we use is publicly available and may be downloaded and used freely after performing training and applying on physionet.org . Furthermore, we also released the synthetic data for each of our compared methods for both the inpatient and outpatient datasets at https://figshare.com/articles/dataset/HALO_Synthetic_Data/23811162 . These datasets can then be used to reproduce the results and data statistics.",
+      "urls_in_code_section": [
+        "https://github.com/btheodorou99/HALO_Inpatient"
+      ],
+      "urls_in_data_section": [
+        "https://figshare.com/articles/dataset/HALO_Synthetic_Data/23811162"
+      ],
+      "urls_by_host": {
+        "figshare.com": [
+          "https://figshare.com/articles/dataset/HALO_Synthetic_Data/23811162"
+        ],
+        "github.com": [
+          "https://github.com/btheodorou99/HALO_Inpatient"
+        ]
+      },
+      "all_urls": [
+        "https://figshare.com/articles/dataset/HALO_Synthetic_Data/23811162",
+        "https://github.com/btheodorou99/HALO_Inpatient"
+      ],
+      "primary_repo": "https://github.com/btheodorou99/HALO_Inpatient",
+      "primary_repo_method": "auto_github"
+    },
+    {
+      "id": "PR-019",
+      "doi": "10.1038/s41467-024-47472-5",
+      "title": "Utility of polygenic scores across diverse diseases in a hospital cohort for predictive modeling",
+      "fetch_status": "ok",
+      "html_bytes": 417233,
+      "code_section": "All codes used for data download, processing, calculation, and graphing are recorded in the Supplementary Software. Please refer to this document for detailed information.",
+      "data_section": "The raw SNP array data are protected and are not available due to data privacy laws. However, we are committed to fostering collaboration and promoting transparency in scientific research. As such, we welcome collaborative projects and discussions with fellow researchers who may require access to the data. Please provide your identity, employer, purpose of data access, and IRB approval to the mailbox of the corresponding author, Dr. F.-J.T. (000704@tool.caaumed.org.tw). We will meet within one month to discuss and respond. The statistical results generated in this study are provided on the GeneAnaBase website, which can be found at https://pgscatalog.azure.nihxcmuh.org/#/ . Source data are provided with this paper.",
+      "urls_in_code_section": [],
+      "urls_in_data_section": [],
+      "urls_by_host": {},
+      "all_urls": [],
+      "primary_repo": null,
+      "primary_repo_method": "no_url_in_section"
+    },
+    {
+      "id": "PR-026",
+      "doi": "10.1038/s41467-025-68198-y",
+      "title": "Prehospital real-time AI for trauma mortality prediction: a multi-institutional and multi-national validation study",
+      "fetch_status": "ok",
+      "html_bytes": 413558,
+      "code_section": "The statistical and analytic code is available ( https://github.com/ohnaeun111/Pre_hospital_mortality ) and has been archived in Zenodo under https://doi.org/10.5281/zenodo.17531434 .",
+      "data_section": "The data are not publicly available due to restrictions from KTDB policy and belong to the National Emergency Medical Center (NEMC) of Korea. De-identified KTDB data can be requested for nonprofit academic research through the NEMC website ( https://dw.nemc.or.kr ) following the institutional data access procedures. The external validation dataset contains potentially sensitive patient information and can be shared only upon approval by the respective institutional review boards to ensure compliance with ethical and privacy regulations. Source data are provided with this paper. To enhance reproducibility, a small sample dataset that does not contain any personally identifiable information has been made publicly available at the project’s GitHub repository ( https://github.com/ohnaeun111/Pre_hospital_mortality ). Source data are provided with this paper.",
+      "urls_in_code_section": [
+        "https://doi.org/10.5281/zenodo.17531434",
+        "https://github.com/ohnaeun111/Pre_hospital_mortality"
+      ],
+      "urls_in_data_section": [
+        "https://github.com/ohnaeun111/Pre_hospital_mortality"
+      ],
+      "urls_by_host": {
+        "doi.org": [
+          "https://doi.org/10.5281/zenodo.17531434"
+        ],
+        "github.com": [
+          "https://github.com/ohnaeun111/Pre_hospital_mortality"
+        ]
+      },
+      "all_urls": [
+        "https://doi.org/10.5281/zenodo.17531434",
+        "https://github.com/ohnaeun111/Pre_hospital_mortality"
+      ],
+      "primary_repo": "https://github.com/ohnaeun111/Pre_hospital_mortality",
+      "primary_repo_method": "auto_github"
+    },
+    {
+      "id": "PR-028",
+      "doi": "10.1038/s43856-025-01192-z",
+      "title": "An interpretable machine learning algorithm enables dynamic 48-hour mortality prediction during an ICU stay",
+      "fetch_status": "ok",
+      "html_bytes": 436243,
+      "code_section": "The code used for data preprocessing, model training and evaluation will be made available upon reasonable request for academic, non-commercial use. Requests should be directed to the corresponding author and will be subject to approval by the relevant institutional committees and in accordance with all applicable laws and regulations. All code was written using R Statistical Software (v4.2.3) 21 and the tidymodels framework package (v1.0.0) 22 .",
+      "data_section": "The datasets generated and/or analyzed during the current study are not publicly available. Data will be made available upon reasonable request to the corresponding author, subject to approval by the relevant institutional committees and in accordance with all applicable laws and regulations. Requests will be processed within 6–8 weeks. Data usage will be governed by a data use agreement that prohibits re-identification and limits usage to the approved scientific purpose. Source data for all main figures are provided as Supplementary Data in Excel format.",
+      "urls_in_code_section": [],
+      "urls_in_data_section": [],
+      "urls_by_host": {},
+      "all_urls": [],
+      "primary_repo": null,
+      "primary_repo_method": "no_url_in_section"
+    },
+    {
+      "id": "PR-029",
+      "doi": "10.1038/s43856-024-00666-w",
+      "title": "Machine learning for early dynamic prediction of functional outcome after stroke",
+      "fetch_status": "ok",
+      "html_bytes": 514100,
+      "code_section": "The computer code, as well as model weights used in this study are open-source and available at https://github.com/JulianKlug/OPSUM (or https://doi.org/10.5281/zenodo.11473804 88 ) and https://doi.org/10.5281/zenodo.10848070 89 respectively. An interactive demo can be accessed at https://opsum.julianklug.com/ .",
+      "data_section": "The Geneva Stroke dataset cannot be made publicly available to protect patient confidentiality but is available from the corresponding author upon reasonable request. MIMIC-III can be freely accessed over the physionet.org platform. Researchers need to formally request access after completing a recognized course in protecting human research participants that includes Health Insurance Portability and Accountability Act requirements and signing a data use agreement, outlining appropriate data usage and security standards 53 . Supplementary Data 1 and 2 respectively contain the list of all variables used along with their accepted range and missingness and performance metrics for all evaluated models to predict predict in hospital mortality, as well as good functional outcome (mRS 0-2) and mortality at 3 months in the Geneva Stroke (internal validation) and MIMIC-III datasets (external validation). Data used for the creation of Figs. 2 – 4 is available at https://doi.org/10.5281/zenodo.13694271 87 . For Fig. 2 , ground truth labels and final predictions for all models and target outcomes are available. For Fig. 3 , ground truth labels and predictions at every timestep are available for every fold and every target. For Fig. 5 , SHAP values derived from the final transformer model are available for every target outcome and every timestep. For Fig. 4 , predictions for an anonymized example patient are available.",
+      "urls_in_code_section": [
+        "https://doi.org/10.5281/zenodo.10848070",
+        "https://doi.org/10.5281/zenodo.11473804",
+        "https://github.com/JulianKlug/OPSUM"
+      ],
+      "urls_in_data_section": [
+        "https://doi.org/10.5281/zenodo.13694271"
+      ],
+      "urls_by_host": {
+        "doi.org": [
+          "https://doi.org/10.5281/zenodo.10848070",
+          "https://doi.org/10.5281/zenodo.11473804",
+          "https://doi.org/10.5281/zenodo.13694271"
+        ],
+        "github.com": [
+          "https://github.com/JulianKlug/OPSUM"
+        ]
+      },
+      "all_urls": [
+        "https://doi.org/10.5281/zenodo.10848070",
+        "https://doi.org/10.5281/zenodo.11473804",
+        "https://doi.org/10.5281/zenodo.13694271",
+        "https://github.com/JulianKlug/OPSUM"
+      ],
+      "primary_repo": "https://github.com/JulianKlug/OPSUM",
+      "primary_repo_method": "auto_github"
+    },
+    {
+      "id": "PR-035",
+      "doi": "10.1038/s41467-024-55629-5",
+      "title": "Development and validation of a real-time prediction model for acute kidney injury in hospitalized patients",
+      "fetch_status": "ok",
+      "html_bytes": 484498,
+      "code_section": "We developed Java program to extract data from Oracle database (12c) 12.1.0.2.0 where dataset is stored. The data analysis was coded by scikit-learn 1.3.0 and Python 3.9.12., whose code is available on Code Ocean ( https://doi.org/10.24433/CO.9261428.v1 ).",
+      "data_section": "Currently, the de-identified clinical data used in this study are only available to researchers who are willing to sign a data use agreement upon requests to Data Management Committee via email address kdcp_data@163.com for reproducibility of the current study or other non-commercial scientific purposes. A research plan for data use is needed in the email, and a response is anticipated within one month from the date of inquiry. Due to data privacy policies, utilization of the data is required within the confines of hospital intranet environment through an approved Virtual Private Network account. Data should also be used in accordance with regulations from Chinese Office of Human Genetics. The duration of data availability is three months once access has been granted. The source data for all figures generated in this study are provided in Source data files. Demo data are provided for reproducibility of code available on Code Ocean (DOI: 10.24433/CO.9261428.v1). Source data are provided with this paper.",
+      "urls_in_code_section": [
+        "https://doi.org/10.24433/CO.9261428.v1"
+      ],
+      "urls_in_data_section": [],
+      "urls_by_host": {
+        "doi.org": [
+          "https://doi.org/10.24433/CO.9261428.v1"
+        ]
+      },
+      "all_urls": [
+        "https://doi.org/10.24433/CO.9261428.v1"
+      ],
+      "primary_repo": "https://doi.org/10.24433/CO.9261428.v1",
+      "primary_repo_method": "auto_codeocean_doi"
+    },
+    {
+      "id": "PR-037",
+      "doi": "10.1038/s41467-025-56510-9",
+      "title": "Distributed cross-learning for equitable federated models — privacy-preserving prediction on data from five California hospitals",
+      "fetch_status": "ok",
+      "html_bytes": 490807,
+      "code_section": "The D-CLEF software is available in the Zenodo database under accession code: 10.5281/zenodo.14052533 ( https://doi.org/10.5281/zenodo.14052533 ) 69 . Also, the data preprocessor to preprocess/split the raw data for horizontal and vertical D-CLEF is available in the Zenodo database under accession code: 10.5281/zenodo.14052494 ( https://doi.org/10.5281/zenodo.14052494 ) 70 .",
+      "data_section": "The University of California Health COVID-19 Research Data Set (UC CORDS, dataset X) is not publicly available due to institutional privacy restrictions. The data is incorporated into the UC Data Discovery Platform and is available to UC Health researchers via an internal process developed for granting access to this data, and there is currently no limitation of the data access time period. Access can be obtained by UC Health affiliated researchers with permission from the Center for Data-Driven Insights and Innovation (CDI2, https://www.ucop.edu/uc-health/departments/center-for-data-driven-insights-and-innovations-cdi2.html ). The timeframe of response to requests and availability of data will be determined by CDI2. The links to the request forms are only available to UC Health researchers. The researcher needs to be affiliated with UC Health to access the data. The data usage via Data Use Agreement (DUA) is restricted to UC Health researchers. The UC San Diego (UCSD) Total Hip Arthroplasty (THA) surgery data (dataset Y) are available to researchers under restricted access governed by UCSD policy and US/California law. Access to the data requires approval by the UCSD Institutional Review Board (IRB), approval by the UCSD Health Data Oversight Committee (HDOC), and the successful execution of a DUA between UCSD and the researcher receiving the data. Researchers seeking access should contact Dr. Rodney A. Gabriel (ragabriel@health.ucsd.edu) to undertake this process. The timef",
+      "urls_in_code_section": [
+        "https://doi.org/10.5281/zenodo.14052494",
+        "https://doi.org/10.5281/zenodo.14052533"
+      ],
+      "urls_in_data_section": [],
+      "urls_by_host": {
+        "doi.org": [
+          "https://doi.org/10.5281/zenodo.14052494",
+          "https://doi.org/10.5281/zenodo.14052533"
+        ]
+      },
+      "all_urls": [
+        "https://doi.org/10.5281/zenodo.14052494",
+        "https://doi.org/10.5281/zenodo.14052533"
+      ],
+      "primary_repo": "https://doi.org/10.5281/zenodo.14052494",
+      "primary_repo_method": "auto_zenodo_doi"
+    },
+    {
+      "id": "PR-038",
+      "doi": "10.1038/s41467-025-66947-7",
+      "title": "Machine learning for risk stratification in the emergency department (MARS-ED): a randomized controlled trial",
+      "fetch_status": "ok",
+      "html_bytes": 384107,
+      "code_section": "The source code for the data analysis and in-house developed interface is available in a public repository ( https://github.com/wptmdoorn/marsedstudy ).",
+      "data_section": "Data associated with this study are provided in the manuscript and/or Supplementary Information. Individual-level data involving human participants are not publicly available because they contain potentially identifying or sensitive clinical information. De-identified participant-level data and supporting clinical documents will be made available to external researchers upon request, after review and approval by the sponsor and the medical ethics committee, and following the signing of a data access and/or materials transfer agreement. Requests should be directed to the corresponding author.",
+      "urls_in_code_section": [
+        "https://github.com/wptmdoorn/marsedstudy"
+      ],
+      "urls_in_data_section": [],
+      "urls_by_host": {
+        "github.com": [
+          "https://github.com/wptmdoorn/marsedstudy"
+        ]
+      },
+      "all_urls": [
+        "https://github.com/wptmdoorn/marsedstudy"
+      ],
+      "primary_repo": "https://github.com/wptmdoorn/marsedstudy",
+      "primary_repo_method": "auto_github"
+    },
+    {
+      "id": "PR-044",
+      "doi": "10.1038/s41467-024-46211-0",
+      "title": "Deep learning model for personalized prediction of positive MRSA culture using time-series electronic health records",
+      "fetch_status": "ok",
+      "html_bytes": 379998,
+      "code_section": "The Original Pytorch_EHR code and sample codes used in this work are publicly available 29 , 41 .",
+      "data_section": "MHHS data that support the findings of this study are not openly available due to reasons of sensitivity and are available from the corresponding author upon requests and our institutional IRB approvals. MIMIC-IV data v2.1, used in this study as an external validation, is publicly available after data use agreement on the website. ( https://physionet.org/content/mimiciv/2.1/ ).",
+      "urls_in_code_section": [],
+      "urls_in_data_section": [],
+      "urls_by_host": {},
+      "all_urls": [],
+      "primary_repo": null,
+      "primary_repo_method": "no_url_in_section"
+    },
+    {
+      "id": "PR-045",
+      "doi": "10.1038/s41467-025-64556-y",
+      "title": "A highly accurate risk factor-based XGBoost multiethnic model for identifying patients with skin cancer",
+      "fetch_status": "ok",
+      "html_bytes": 428288,
+      "code_section": "Code is available as Jupyter notebooks on Figshare: https://figshare.com/s/6c041849df0ef57eadad . The repository is licensed under the MIT License, an open-source license approved by the Open Source Initiative.",
+      "data_section": "All analyses were performed on the All of Us Researcher Workbench ( https://www.researchallofus.org/data-tools/workbench/ ) in the “Impact of global and local ancestries on genome-wide association V7 studies” workspace (Controlled Tier data). As per AoU policies, we cannot share participant-level information or data on sets that include &lt;20 participants. All other data is available as Supplemental Tables.",
+      "urls_in_code_section": [
+        "https://figshare.com/s/6c041849df0ef57eadad"
+      ],
+      "urls_in_data_section": [],
+      "urls_by_host": {
+        "figshare.com": [
+          "https://figshare.com/s/6c041849df0ef57eadad"
+        ]
+      },
+      "all_urls": [
+        "https://figshare.com/s/6c041849df0ef57eadad"
+      ],
+      "primary_repo": "https://figshare.com/s/6c041849df0ef57eadad",
+      "primary_repo_method": "auto_figshare"
+    },
+    {
+      "id": "PR-050",
+      "doi": "10.1038/s41467-023-37647-x",
+      "title": "Predicting response to enzalutamide and abiraterone in metastatic prostate cancer using whole-omics machine learning",
+      "fetch_status": "ok",
+      "html_bytes": 534253,
+      "code_section": "The initial workflows and software for the processing of the WGS data are available at https://github.com/hartwigmedical/ . Any additional custom code and scripts used within this study (processing, analysis, and visualization) have been deposited on Zenodo: DOI: 10.5281/zenodo.7712610 62 The custom R-based workflow (R2CPCT) used to further analyze the WGS-data obtained from HMF and CPCT-02 study is available on GitHub under the GPL-3.0 license: https://github.com/J0bbie/R2CPCT The code used to further annotate genomic variants (as retrieved from HMF) using VEP is available on GitHub under the GPL-3.0 license: https://github.com/J0bbie/VariantAnnotation_VEP .",
+      "data_section": "The WGS, RNA-Seq and corresponding clinical data used in this study was made available by the Hartwig Medical Foundation (Dutch nonprofit biobank organization) after signing a license agreement stating data cannot be made publicly available via third party organizations. Therefore, the data are available under restricted access and can be requested upon by contacting the Hartwig Medical Foundation ( https://www.hartwigmedicalfoundation.nl/applying-for-data/ ) under the accession code: DR-071 20 . In addition, we performed analysis on the patients of the previously reported WCDT cohort, who were treated directly after biopsy with ARSI and for who WGS and/or WTS was previously performed 21 , 35 . For a detailed description of data availability, we refer to this paper 21 . Requests for data can be directed towards prof. dr. Felix Feng, E: Felix.Feng@ucsf.edu. The data generated in this study are provided in the Source Data file. Source data are provided with this paper.",
+      "urls_in_code_section": [
+        "https://github.com/J0bbie/R2CPCT",
+        "https://github.com/J0bbie/VariantAnnotation_VEP",
+        "https://github.com/hartwigmedical/"
+      ],
+      "urls_in_data_section": [],
+      "urls_by_host": {
+        "github.com": [
+          "https://github.com/J0bbie/R2CPCT",
+          "https://github.com/J0bbie/VariantAnnotation_VEP",
+          "https://github.com/hartwigmedical/"
+        ]
+      },
+      "all_urls": [
+        "https://github.com/J0bbie/R2CPCT",
+        "https://github.com/J0bbie/VariantAnnotation_VEP",
+        "https://github.com/hartwigmedical/"
+      ],
+      "primary_repo": "https://github.com/J0bbie/R2CPCT",
+      "primary_repo_method": "auto_github"
+    },
+    {
+      "id": "PR-058",
+      "doi": "10.1038/s41467-024-52618-6",
+      "title": "Generalizability assessment of AI models across hospitals in a low-middle and high income country",
+      "fetch_status": "ok",
+      "html_bytes": 425376,
+      "code_section": "Code can be found in: https://github.com/yangjenny/standard_algorithms ( https://doi.org/10.5281/zenodo.12789225 ) 31",
+      "data_section": "Data from OUH studied here are available from the Infections in Oxfordshire Research Database ( https://oxfordbrc.nihr.ac.uk/research-themes/modernizing-medical-microbiology-and-big-infection-diagnostics/infections-in-oxfordshire-research-database-iord/ ), subject to an application meeting the ethical and governance requirements of the Database. Data from UHB, PUH and BH are available by direct request to the hospitals, subject to HRA and research &amp; governance approvals at the individual Trusts. These raw datasets are protected and are not publicly available due to data privacy regulations. Data from HTD and NHTD are available through a managed access policy at OUCRU, through the CCAA Vietnam Data Access Committee, subject to an application meeting the ethical and governance requirements. The data sharing policy can be found here: https://www.oucru.org/data-sharing-policy/ . These raw datasets are protected and are not publicly available due to data privacy regulations. Please contact Dr. Louise Thwaites (lthwaites@oucru.org) if you would like help accessing the data. Source data for result Tables and Figures are provided with this paper. Source data are provided with this paper.",
+      "urls_in_code_section": [
+        "https://doi.org/10.5281/zenodo.12789225",
+        "https://github.com/yangjenny/standard_algorithms"
+      ],
+      "urls_in_data_section": [],
+      "urls_by_host": {
+        "doi.org": [
+          "https://doi.org/10.5281/zenodo.12789225"
+        ],
+        "github.com": [
+          "https://github.com/yangjenny/standard_algorithms"
+        ]
+      },
+      "all_urls": [
+        "https://doi.org/10.5281/zenodo.12789225",
+        "https://github.com/yangjenny/standard_algorithms"
+      ],
+      "primary_repo": "https://github.com/yangjenny/standard_algorithms",
+      "primary_repo_method": "auto_github"
+    },
+    {
+      "id": "PR-068",
+      "doi": "10.1038/s41467-025-57181-2",
+      "title": "Pretrained transformers applied to clinical studies improve predictions of treatment efficacy and associated biomarkers",
+      "fetch_status": "ok",
+      "html_bytes": 529647,
+      "code_section": "The code used in this study is available at: https://doi.org/10.24433/CO.6684503.v1",
+      "data_section": "All datasets (except for the MYSTIC clinical trial) are publicly available at the sources listed in Table 1 . For MYSTIC, the data are available under restricted access to fulfill legal and ethical obligations regarding patient data. AstraZeneca group of companies allows researchers to submit a request to access anonymized patient-level clinical data, aggregated clinical or genomics data (when available), and/or anonymized clinical study documents through the Vivli ( https://vivli.org ) web-based data request platform, in accordance with AstraZeneca’s clinical data access policy: https://www.astrazenecaclinicaltrials.com/our-transparency-commitments . An independent Scientific Review Board will review requests and time to request fulfillment may take up to a year. Source data are provided with this paper.",
+      "urls_in_code_section": [
+        "https://doi.org/10.24433/CO.6684503.v1"
+      ],
+      "urls_in_data_section": [],
+      "urls_by_host": {
+        "doi.org": [
+          "https://doi.org/10.24433/CO.6684503.v1"
+        ]
+      },
+      "all_urls": [
+        "https://doi.org/10.24433/CO.6684503.v1"
+      ],
+      "primary_repo": "https://doi.org/10.24433/CO.6684503.v1",
+      "primary_repo_method": "auto_codeocean_doi"
+    },
+    {
+      "id": "PR-070",
+      "doi": "10.1038/s41467-025-64430-x",
+      "title": "AgentMD: Empowering language agents for risk prediction with large-scale clinical tool learning",
+      "fetch_status": "ok",
+      "html_bytes": 358261,
+      "code_section": "The MIMIC-III preprocessing code is available at https://github.com/bvanaken/clinical-outcome-prediction and https://github.com/YerevaNN/mimic3-benchmarks . The MedCPT encoders are available at https://github.com/ncbi/MedCPT . The Faiss package is available at https://github.com/facebookresearch/faiss . The source code of AgentMD is publicly available at: https://github.com/ncbi-nlp/Clinical-Tool-Learning 36 .",
+      "data_section": "PubMed abstracts can be downloaded at https://ftp.ncbi.nlm.nih.gov/pubmed/baseline/ . The MIMIC-III dataset is available at https://physionet.org/content/mimiciii/1.4/ . The raw emergency department provider notes contain sensitive health information and cannot be publicly shared due to HIPAA and institutional policies. Controlled access may be granted to qualified researchers who enter into a data use agreement that prohibits re-identification or redistribution of the data and limits use to research purposes only. Requests should be directed to the corresponding author and will be addressed promptly. The RiskCalcs collection and the RiskQA dataset generated in this study have been deposited at: https://github.com/ncbi-nlp/Clinical-Tool-Learning . Source data are provided in this paper.",
+      "urls_in_code_section": [
+        "https://github.com/YerevaNN/mimic3-benchmarks",
+        "https://github.com/bvanaken/clinical-outcome-prediction",
+        "https://github.com/facebookresearch/faiss",
+        "https://github.com/ncbi-nlp/Clinical-Tool-Learning",
+        "https://github.com/ncbi/MedCPT"
+      ],
+      "urls_in_data_section": [
+        "https://github.com/ncbi-nlp/Clinical-Tool-Learning"
+      ],
+      "urls_by_host": {
+        "github.com": [
+          "https://github.com/YerevaNN/mimic3-benchmarks",
+          "https://github.com/bvanaken/clinical-outcome-prediction",
+          "https://github.com/facebookresearch/faiss",
+          "https://github.com/ncbi-nlp/Clinical-Tool-Learning",
+          "https://github.com/ncbi/MedCPT"
+        ]
+      },
+      "all_urls": [
+        "https://github.com/YerevaNN/mimic3-benchmarks",
+        "https://github.com/bvanaken/clinical-outcome-prediction",
+        "https://github.com/facebookresearch/faiss",
+        "https://github.com/ncbi-nlp/Clinical-Tool-Learning",
+        "https://github.com/ncbi/MedCPT"
+      ],
+      "primary_repo": "https://github.com/ncbi-nlp/Clinical-Tool-Learning",
+      "primary_repo_method": "manual_override"
+    },
+    {
+      "id": "PR-084",
+      "doi": "10.1038/s41467-023-44595-z",
+      "title": "A machine learning-driven virtual biopsy system for kidney transplant patients",
+      "fetch_status": "ok",
+      "html_bytes": 506740,
+      "code_section": "Complete code to reproduce the figures is available in the synapse public Synapse database ( https://www.synapse.org/#!Synapse:syn51702348/files/ ) 53 . A sign-in process is required to access the code.",
+      "data_section": "The figure data generated in this study have been deposited in the public Synapse database ( https://www.synapse.org/#!Synapse:syn51702348/files/ ) 53 . The figure data can be obtained by the signing-in process. The raw data are available from the corresponding author. Source data are provided with this paper.",
+      "urls_in_code_section": [],
+      "urls_in_data_section": [],
+      "urls_by_host": {},
+      "all_urls": [],
+      "primary_repo": null,
+      "primary_repo_method": "no_url_in_section"
+    },
+    {
+      "id": "PR-086",
+      "doi": "10.1038/s41467-025-65693-0",
+      "title": "A noninvasive machine learning model using a complete blood count for screening of primary vitreoretinal lymphoma",
+      "fetch_status": "ok",
+      "html_bytes": 387030,
+      "code_section": "The analysis code was written in Python (version 3.11) and relies on standard open-source libraries (NumPy, Pandas, scikit-learn, XGBoost), used in compliance with their MIT and BSD licenses. All reused components retain their original license and attribution. The code for the model development and the statistical analyses is available at https://github.com/fudanRenjun/Primary-vitreoretinal-lymphoma/tree/master and has been archived in Zenodo at https://zenodo.org/records/17189239 31 . The repository is released under the MIT License and is freely accessible without restrictions.",
+      "data_section": "Access to comprehensive, individual-level clinical data is restricted to protect sensitive human subject information and to comply with the terms of informed consent. Requests for access to the de-identified data can be made to the corresponding author by providing a study protocol and ethical approval documentation. Requests for raw data will be reviewed by the corresponding author, who will facilitate further communications with the cohort leaders and relevant ancillary study committees as appropriate. The corresponding author typically responds to such requests within 8 weeks. A data use agreement will be established between the requesting party and the data holder, specifying that the data may only be used for the pre-specified project described in the request and that any resulting manuscript must reference the data source. The data generated in this study are provided in the Supplementary Information / Source data file. Source data supporting the findings of this study are provided in this paper. Source data are provided with this paper.",
+      "urls_in_code_section": [
+        "https://github.com/fudanRenjun/Primary-vitreoretinal-lymphoma/tree/master",
+        "https://zenodo.org/records/17189239"
+      ],
+      "urls_in_data_section": [],
+      "urls_by_host": {
+        "github.com": [
+          "https://github.com/fudanRenjun/Primary-vitreoretinal-lymphoma/tree/master"
+        ],
+        "zenodo.org": [
+          "https://zenodo.org/records/17189239"
+        ]
+      },
+      "all_urls": [
+        "https://github.com/fudanRenjun/Primary-vitreoretinal-lymphoma/tree/master",
+        "https://zenodo.org/records/17189239"
+      ],
+      "primary_repo": "https://github.com/fudanRenjun/Primary-vitreoretinal-lymphoma/tree/master",
+      "primary_repo_method": "auto_github"
+    },
+    {
+      "id": "PR-113",
+      "doi": "10.1038/s41467-025-65365-z",
+      "title": "Explainable AI unravels sepsis heterogeneity via coagulation-inflammation profiles for prognosis and stratification (SepsisFormer / SMART)",
+      "fetch_status": "ok",
+      "html_bytes": 508943,
+      "code_section": "Source data are provided ( https://github.com/zhuli19031218/SepsisFormer/tree/main/SourceData ). In this study, EHR data were obtained from the First Affiliated Hospital of Chongqing Medical University and three publicly available databases: MIMIC-III( https://physionet.org/content/mimiciii/1.4/ ), MIMIC-IV( https://physionet.org/content/mimiciv/2.2/ ), and eICU-CRD ( https://www.physionet.org/content/eicu-crd/2.0/ ). For the public EHR data, we adhered to all data use agreements, conducting experiments on observational, retrospective data. All three datasets require user registration and a signed data use agreement for timely access.Transcriptomic data were obtained from the Ningbo Medical Center Lihuili Hospital and four publicly available datasets: the Gene Expression Omnibus (GEO, https://www.ncbi.nlm.nih.gov/geo/ ), the Kyoto Encyclopedia of Genes and Genomes (KEGG, https://www.genome.jp/kegg/ ), GeneCards ( https://www.genecards.org/ ), and DisGeNET ( https://www.disgenet.org/ ). To promote transparency, reproducibility, and clinical applicability, we have made the following resources publicly available. We developed an interactive web-based online platform for real-time sepsis subphenotyping and risk prediction, enabling clinicians and researchers to use their own data without coding or technical expertise ( http://smartsepsis.org.cn ). All raw data, preprocessed datasets, and fully documented source code are available in our GitHub repository( https://github.com/zhuli",
+      "data_section": "Source data are provided ( https://github.com/zhuli19031218/SepsisFormer/tree/main/SourceData ). In this study, EHR data were obtained from the First Affiliated Hospital of Chongqing Medical University and three publicly available databases: MIMIC-III( https://physionet.org/content/mimiciii/1.4/ ), MIMIC-IV( https://physionet.org/content/mimiciv/2.2/ ), and eICU-CRD ( https://www.physionet.org/content/eicu-crd/2.0/ ). For the public EHR data, we adhered to all data use agreements, conducting experiments on observational, retrospective data. All three datasets require user registration and a signed data use agreement for timely access.Transcriptomic data were obtained from the Ningbo Medical Center Lihuili Hospital and four publicly available datasets: the Gene Expression Omnibus (GEO, https://www.ncbi.nlm.nih.gov/geo/ ), the Kyoto Encyclopedia of Genes and Genomes (KEGG, https://www.genome.jp/kegg/ ), GeneCards ( https://www.genecards.org/ ), and DisGeNET ( https://www.disgenet.org/ ). To promote transparency, reproducibility, and clinical applicability, we have made the following resources publicly available. We developed an interactive web-based online platform for real-time sepsis subphenotyping and risk prediction, enabling clinicians and researchers to use their own data without coding or technical expertise ( http://smartsepsis.org.cn ). All raw data, preprocessed datasets, and fully documented source code are available in our GitHub repository( https://github.com/zhuli",
+      "urls_in_code_section": [
+        "https://github.com/zhuli",
+        "https://github.com/zhuli19031218/SepsisFormer/tree/main/SourceData"
+      ],
+      "urls_in_data_section": [
+        "https://github.com/zhuli",
+        "https://github.com/zhuli19031218/SepsisFormer/tree/main/SourceData"
+      ],
+      "urls_by_host": {
+        "github.com": [
+          "https://github.com/zhuli",
+          "https://github.com/zhuli19031218/SepsisFormer/tree/main/SourceData"
+        ]
+      },
+      "all_urls": [
+        "https://github.com/zhuli",
+        "https://github.com/zhuli19031218/SepsisFormer/tree/main/SourceData"
+      ],
+      "primary_repo": "https://github.com/zhuli19031218/SepsisFormer/tree/main/SourceData",
+      "primary_repo_method": "auto_github"
+    }
+  ]
+}
