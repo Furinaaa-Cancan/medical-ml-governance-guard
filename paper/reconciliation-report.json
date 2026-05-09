@@ -1,0 +1,1283 @@
+{
+  "generated_at_utc": "2026-05-09T13:33:26.290253+00:00",
+  "kb_path": "references/case-studies/peer-review-kb.json",
+  "pdf_dir": "references/case-studies/nature_communications",
+  "pdfs_total": 120,
+  "pdfs_parse_errors": 0,
+  "kb_entries_total": 119,
+  "matches": {
+    "high (DOI single match)": 82,
+    "high_multi (DOI matches multiple)": 4,
+    "medium (title >= 0.7)": 0,
+    "low (title 0.5–0.7)": 32,
+    "none (no match)": 1
+  },
+  "kb_entries_with_verified_pdf": 86,
+  "pdfs_unmatched_to_any_kb_entry": 12,
+  "results": [
+    {
+      "id": "PR-001",
+      "kb_doi": "10.1038/s41467-024-46663-4",
+      "kb_title": "Data-driven identification of predictive risk biomarkers for subgroups of osteoarthritis using inter",
+      "pdf_path": "references/case-studies/nature_communications/02_osteoarthritis_risk_ML_peer_review.pdf",
+      "pdf_name": "02_osteoarthritis_risk_ML_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-002",
+      "kb_doi": "10.1038/s41467-021-20910-4",
+      "kb_title": "Artificial intelligence in sepsis early prediction and diagnosis using unstructured data in healthca",
+      "pdf_path": "references/case-studies/nature_communications/04_AI_sepsis_prediction_peer_review.pdf",
+      "pdf_name": "04_AI_sepsis_prediction_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.50"
+    },
+    {
+      "id": "PR-003",
+      "kb_doi": "10.1038/s41467-024-47557-1",
+      "kb_title": "Development of a long noncoding RNA-based machine learning model to predict COVID-19 in-hospital mor",
+      "pdf_path": "references/case-studies/nature_communications/27_COVID_mortality_ML_peer_review.pdf",
+      "pdf_name": "27_COVID_mortality_ML_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-004",
+      "kb_doi": "10.1038/s41467-023-43715-z",
+      "kb_title": "TransformEHR: transformer-based encoder-decoder generative model to enhance prediction of disease ou",
+      "pdf_path": "references/case-studies/nature_communications/03_TransformEHR_peer_review.pdf",
+      "pdf_name": "03_TransformEHR_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-005",
+      "kb_doi": "10.1038/s41467-023-40890-x",
+      "kb_title": "Biology-guided deep learning predicts prognosis and cancer immunotherapy response",
+      "pdf_path": "references/case-studies/nature_communications/08_biology_guided_DL_cancer_peer_review.pdf",
+      "pdf_name": "08_biology_guided_DL_cancer_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.60"
+    },
+    {
+      "id": "PR-006",
+      "kb_doi": "10.1038/s41467-024-47204-9",
+      "kb_title": "Integration of pathologic characteristics, genetic risk and lifestyle exposure for colorectal cancer",
+      "pdf_path": "references/case-studies/nature_communications/09_colorectal_cancer_survival_peer_review.pdf",
+      "pdf_name": "09_colorectal_cancer_survival_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.75"
+    },
+    {
+      "id": "PR-007",
+      "kb_doi": "10.1038/s41467-024-46700-2",
+      "kb_title": "Development and validation of an interpretable model integrating multimodal information for improvin",
+      "pdf_path": "references/case-studies/nature_communications/11_ovarian_cancer_interpretable_peer_review.pdf",
+      "pdf_name": "11_ovarian_cancer_interpretable_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-008",
+      "kb_doi": "10.1038/s41467-025-59242-y",
+      "kb_title": "Targeted plasma proteomics reveals organ damage signatures of AIDS- and noncommunicable disease-rela",
+      "pdf_path": "references/case-studies/nature_communications/12_plasma_proteomics_AIDS_peer_review.pdf",
+      "pdf_name": "12_plasma_proteomics_AIDS_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-009",
+      "kb_doi": "10.1038/s41467-025-62121-1",
+      "kb_title": "Real-time prediction of intensive care unit patient acuity and therapy requirements using state-spac",
+      "pdf_path": "references/case-studies/nature_communications/106_ICU_acuity_mamba_peer_review.pdf",
+      "pdf_name": "106_ICU_acuity_mamba_peer_review.pdf",
+      "confidence": "high_multi",
+      "method": "title_substring_multi",
+      "note": "Title substring matched 2 PDFs; chose by overlap 0.00"
+    },
+    {
+      "id": "PR-010",
+      "kb_doi": "10.1038/s41467-023-39474-6",
+      "kb_title": "Predicting in-hospital outcomes of patients with acute kidney injury",
+      "pdf_path": "references/case-studies/nature_communications/23_AKI_outcomes_prediction_peer_review.pdf",
+      "pdf_name": "23_AKI_outcomes_prediction_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-011",
+      "kb_doi": "10.1038/s41467-024-49390-y",
+      "kb_title": "Enhancing the diagnosis of functionally relevant coronary artery disease with machine learning",
+      "pdf_path": "references/case-studies/nature_communications/26_CAD_ML_diagnosis_peer_review.pdf",
+      "pdf_name": "26_CAD_ML_diagnosis_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-012",
+      "kb_doi": "10.1038/s41467-022-28621-0",
+      "kb_title": "Stratification of hospitalised COVID-19 patients into clinical severity progression groups by immuno",
+      "pdf_path": "references/case-studies/nature_communications/38_COVID_immunophenotype_ML_peer_review.pdf",
+      "pdf_name": "38_COVID_immunophenotype_ML_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-013",
+      "kb_doi": "10.1038/s41467-023-40917-3",
+      "kb_title": "At-home wearables and machine learning sensitively capture disease progression in amyotrophic latera",
+      "pdf_path": "references/case-studies/nature_communications/41_ALS_wearable_ML_peer_review.pdf",
+      "pdf_name": "41_ALS_wearable_ML_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-014",
+      "kb_doi": "10.1038/s41467-024-54071-x",
+      "kb_title": "Shareable artificial intelligence to extract cancer outcomes from electronic health records for prec",
+      "pdf_path": "references/case-studies/nature_communications/42_cancer_NLP_EHR_peer_review.pdf",
+      "pdf_name": "42_cancer_NLP_EHR_peer_review.pdf",
+      "confidence": "high",
+      "method": "manual_override",
+      "note": "Visually verified mapping (abbreviation/filename mismatch)"
+    },
+    {
+      "id": "PR-015",
+      "kb_doi": "10.1038/s41467-023-41093-0",
+      "kb_title": "Synthesize high-dimensional longitudinal electronic health records via hierarchical autoregressive l",
+      "pdf_path": "references/case-studies/nature_communications/43_synthetic_EHR_HALO_peer_review.pdf",
+      "pdf_name": "43_synthetic_EHR_HALO_peer_review.pdf",
+      "confidence": "high",
+      "method": "manual_override",
+      "note": "Visually verified mapping (abbreviation/filename mismatch)"
+    },
+    {
+      "id": "PR-016",
+      "kb_doi": "10.1038/s41467-020-18703-2",
+      "kb_title": "Radiogenomic signatures reveal multiscale intratumour heterogeneity associated with biological funct",
+      "pdf_path": "references/case-studies/nature_communications/53_radiogenomics_breast_peer_review.pdf",
+      "pdf_name": "53_radiogenomics_breast_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-017",
+      "kb_doi": "10.1038/s41467-024-47357-7",
+      "kb_title": "An ensemble penalized regression method for multi-ancestry polygenic risk prediction",
+      "pdf_path": "references/case-studies/nature_communications/56_multi_ancestry_PRS_peer_review.pdf",
+      "pdf_name": "56_multi_ancestry_PRS_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-018",
+      "kb_doi": "10.1038/s41467-023-44009-0",
+      "kb_title": "Tuning parameters for polygenic risk score methods using GWAS summary statistics from training data",
+      "pdf_path": "references/case-studies/nature_communications/57_PRS_tuning_GWAS_peer_review.pdf",
+      "pdf_name": "57_PRS_tuning_GWAS_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-019",
+      "kb_doi": "10.1038/s41467-024-47472-5",
+      "kb_title": "Utility of polygenic scores across diverse diseases in a hospital cohort for predictive modeling",
+      "pdf_path": "references/case-studies/nature_communications/58_PRS_utility_hospital_peer_review.pdf",
+      "pdf_name": "58_PRS_utility_hospital_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-020",
+      "kb_doi": "10.1038/s41467-025-62042-z",
+      "kb_title": "Explainable multimodal deep learning for predicting thyroid cancer lateral lymph node metastasis usi",
+      "pdf_path": "references/case-studies/nature_communications/64_thyroid_multimodal_DL_peer_review.pdf",
+      "pdf_name": "64_thyroid_multimodal_DL_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-021",
+      "kb_doi": "10.1038/s41467-025-56822-w",
+      "kb_title": "Medical multimodal multitask foundation model for lung cancer screening",
+      "pdf_path": "references/case-studies/nature_communications/65_lung_cancer_multimodal_peer_review.pdf",
+      "pdf_name": "65_lung_cancer_multimodal_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-022",
+      "kb_doi": "10.1038/s41467-025-57283-x",
+      "kb_title": "Multimodal histopathologic models stratify hormone receptor-positive early breast cancer",
+      "pdf_path": "references/case-studies/nature_communications/66_breast_cancer_multimodal_peer_review.pdf",
+      "pdf_name": "66_breast_cancer_multimodal_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-023",
+      "kb_doi": "10.1038/s41467-023-36544-7",
+      "kb_title": "Quantifying portable genetic effects and improving cross-ancestry genetic prediction with GWAS summa",
+      "pdf_path": "references/case-studies/nature_communications/69_cross_ancestry_PRS_peer_review.pdf",
+      "pdf_name": "69_cross_ancestry_PRS_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-024",
+      "kb_doi": "10.1038/s41467-025-57990-5",
+      "kb_title": "Development and external validation of prediction algorithms to improve early diagnosis of cancer",
+      "pdf_path": "references/case-studies/nature_communications/105_cancer_early_diagnosis_peer_review.pdf",
+      "pdf_name": "105_cancer_early_diagnosis_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.75"
+    },
+    {
+      "id": "PR-025",
+      "kb_doi": "10.1038/s41467-025-62273-0",
+      "kb_title": "A noninvasive model for chronic kidney disease screening and common pathological type identification",
+      "pdf_path": "references/case-studies/nature_communications/NC_CKD_retinal_screening_peer_review.pdf",
+      "pdf_name": "NC_CKD_retinal_screening_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.50"
+    },
+    {
+      "id": "PR-026",
+      "kb_doi": "10.1038/s41467-025-68198-y",
+      "kb_title": "Prehospital real-time AI for trauma mortality prediction: a multi-institutional and multi-national v",
+      "pdf_path": "references/case-studies/nature_communications/NC_prehospital_trauma_AI_peer_review.pdf",
+      "pdf_name": "NC_prehospital_trauma_AI_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-027",
+      "kb_doi": "10.1038/s43856-024-00437-7",
+      "kb_title": "Machine learning models identify predictive features of patient mortality across dementia types",
+      "pdf_path": "references/case-studies/nature_communications/CM_dementia_mortality_ML_peer_review.pdf",
+      "pdf_name": "CM_dementia_mortality_ML_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.50"
+    },
+    {
+      "id": "PR-028",
+      "kb_doi": "10.1038/s43856-025-01192-z",
+      "kb_title": "An interpretable machine learning algorithm enables dynamic 48-hour mortality prediction during an I",
+      "pdf_path": "references/case-studies/nature_communications/CM_ICU_48h_mortality_ML_peer_review.pdf",
+      "pdf_name": "CM_ICU_48h_mortality_ML_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-029",
+      "kb_doi": "10.1038/s43856-024-00666-w",
+      "kb_title": "Machine learning for early dynamic prediction of functional outcome after stroke",
+      "pdf_path": "references/case-studies/nature_communications/CM_stroke_outcome_ML_peer_review.pdf",
+      "pdf_name": "CM_stroke_outcome_ML_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-030",
+      "kb_doi": "10.1038/s43856-024-00626-4",
+      "kb_title": "Methodological choices and clinical usefulness for machine learning predictions of outcome in Intern",
+      "pdf_path": "references/case-studies/nature_communications/CM_ML_clinical_usefulness_peer_review.pdf",
+      "pdf_name": "CM_ML_clinical_usefulness_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.50"
+    },
+    {
+      "id": "PR-031",
+      "kb_doi": "10.1038/s41467-025-61355-3",
+      "kb_title": "AI-guided patient stratification improves outcomes and efficiency in the AMARANTH Alzheimer's Diseas",
+      "pdf_path": "references/case-studies/nature_communications/NC_AD_clinical_trial_AI_peer_review.pdf",
+      "pdf_name": "NC_AD_clinical_trial_AI_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-032",
+      "kb_doi": "10.1038/s41467-022-31037-5",
+      "kb_title": "Multimodal deep learning for Alzheimer's disease dementia assessment",
+      "pdf_path": "references/case-studies/nature_communications/NC_AD_multimodal_DL_peer_review.pdf",
+      "pdf_name": "NC_AD_multimodal_DL_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-033",
+      "kb_doi": "10.1038/s41467-025-62590-4",
+      "kb_title": "AI-driven fusion of multimodal data for Alzheimer's disease biomarker assessment",
+      "pdf_path": "references/case-studies/nature_communications/NC_AD_multimodal_AI_fusion_peer_review.pdf",
+      "pdf_name": "NC_AD_multimodal_AI_fusion_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-034",
+      "kb_doi": "10.1038/s41467-024-46977-3",
+      "kb_title": "Predicting mortality from AI-based cardiac volumes, mass, and coronary calcium on chest CT",
+      "pdf_path": "references/case-studies/nature_communications/NC_cardiac_CT_mortality_AI_peer_review.pdf",
+      "pdf_name": "NC_cardiac_CT_mortality_AI_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.80"
+    },
+    {
+      "id": "PR-035",
+      "kb_doi": "10.1038/s41467-024-55629-5",
+      "kb_title": "Development and validation of a real-time prediction model for acute kidney injury in hospitalized p",
+      "pdf_path": "references/case-studies/nature_communications/NC_AKI_realtime_v2_peer_review.pdf",
+      "pdf_name": "NC_AKI_realtime_v2_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-036",
+      "kb_doi": "10.1038/s41467-022-34646-2",
+      "kb_title": "Development and validation of self-monitoring auto-updating prognostic models of survival for hospit",
+      "pdf_path": "references/case-studies/nature_communications/NC_COVID_auto_updating_peer_review.pdf",
+      "pdf_name": "NC_COVID_auto_updating_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.75"
+    },
+    {
+      "id": "PR-037",
+      "kb_doi": "10.1038/s41467-025-56510-9",
+      "kb_title": "Distributed cross-learning for equitable federated models — privacy-preserving prediction on data fr",
+      "pdf_path": "references/case-studies/nature_communications/NC_federated_DCLEF_peer_review.pdf",
+      "pdf_name": "NC_federated_DCLEF_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-038",
+      "kb_doi": "10.1038/s41467-025-66947-7",
+      "kb_title": "Machine learning for risk stratification in the emergency department (MARS-ED): a randomized control",
+      "pdf_path": "references/case-studies/nature_communications/NC_ED_risk_stratification_RCT_peer_review.pdf",
+      "pdf_name": "NC_ED_risk_stratification_RCT_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-039",
+      "kb_doi": "10.1038/s41467-024-50415-9",
+      "kb_title": "AI hybrid survival assessment for advanced heart failure patients with renal dysfunction",
+      "pdf_path": "references/case-studies/nature_communications/NC_heart_failure_v2_peer_review.pdf",
+      "pdf_name": "NC_heart_failure_v2_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-040",
+      "kb_doi": "10.1038/s41467-024-48643-0",
+      "kb_title": "Sepsis management prediction model (inferred from PDF content)",
+      "pdf_path": "references/case-studies/nature_communications/NC_sepsis_management_peer_review.pdf",
+      "pdf_name": "NC_sepsis_management_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.67"
+    },
+    {
+      "id": "PR-041",
+      "kb_doi": "10.1038/s41467-025-64275-4",
+      "kb_title": "A wearable-based aging clock associates with disease and behavior",
+      "pdf_path": "references/case-studies/nature_communications/NC_wearable_aging_clock_peer_review.pdf",
+      "pdf_name": "NC_wearable_aging_clock_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-042",
+      "kb_doi": "10.1038/s41467-026-68355-x",
+      "kb_title": "Machine learning-predicted insulin resistance is a risk factor for 12 types of cancer",
+      "pdf_path": "references/case-studies/nature_communications/NC_insulin_resistance_cancer_peer_review.pdf",
+      "pdf_name": "NC_insulin_resistance_cancer_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-043",
+      "kb_doi": "10.1038/s41467-025-58744-z",
+      "kb_title": "Machine learning center-specific models show improved IVF live birth predictions over US national re",
+      "pdf_path": "references/case-studies/nature_communications/102_IVF_live_birth_MLCS_peer_review.pdf",
+      "pdf_name": "102_IVF_live_birth_MLCS_peer_review.pdf",
+      "confidence": "high_multi",
+      "method": "title_substring_multi",
+      "note": "Title substring matched 2 PDFs; chose by overlap 0.47"
+    },
+    {
+      "id": "PR-044",
+      "kb_doi": "10.1038/s41467-024-46211-0",
+      "kb_title": "Deep learning model for personalized prediction of positive MRSA culture using time-series electroni",
+      "pdf_path": "references/case-studies/nature_communications/NC_MRSA_prediction_EHR_peer_review.pdf",
+      "pdf_name": "NC_MRSA_prediction_EHR_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-045",
+      "kb_doi": "10.1038/s41467-025-64556-y",
+      "kb_title": "A highly accurate risk factor-based XGBoost multiethnic model for identifying patients with skin can",
+      "pdf_path": "references/case-studies/nature_communications/NC_skin_cancer_XGBoost_peer_review.pdf",
+      "pdf_name": "NC_skin_cancer_XGBoost_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-046",
+      "kb_doi": "10.1038/s41467-025-59442-6",
+      "kb_title": "Genetic architecture and risk prediction of gestational diabetes mellitus in Chinese pregnancies",
+      "pdf_path": "references/case-studies/nature_communications/NC_gestational_diabetes_peer_review.pdf",
+      "pdf_name": "NC_gestational_diabetes_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.67"
+    },
+    {
+      "id": "PR-047",
+      "kb_doi": "10.1038/s41467-022-34405-3",
+      "kb_title": "Faecal microbiome-based machine learning for multi-class disease diagnosis",
+      "pdf_path": "references/case-studies/nature_communications/NC_microbiome_disease_ML_peer_review.pdf",
+      "pdf_name": "NC_microbiome_disease_ML_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.50"
+    },
+    {
+      "id": "PR-048",
+      "kb_doi": "10.1038/s41467-024-46043-y",
+      "kb_title": "Metabolomic machine learning predictor for diagnosis and prognosis of gastric cancer",
+      "pdf_path": "references/case-studies/nature_communications/NC_gastric_metabolomics_peer_review.pdf",
+      "pdf_name": "NC_gastric_metabolomics_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-049",
+      "kb_doi": "10.1038/s41467-024-45475-w",
+      "kb_title": "Prediction of plasma ctDNA fraction and prognostic implications of liquid biopsy in advanced prostat",
+      "pdf_path": "references/case-studies/nature_communications/NC_prostate_ctDNA_peer_review.pdf",
+      "pdf_name": "NC_prostate_ctDNA_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.67"
+    },
+    {
+      "id": "PR-050",
+      "kb_doi": "10.1038/s41467-023-37647-x",
+      "kb_title": "Predicting response to enzalutamide and abiraterone in metastatic prostate cancer using whole-omics ",
+      "pdf_path": "references/case-studies/nature_communications/NC_prostate_omics_drug_peer_review.pdf",
+      "pdf_name": "NC_prostate_omics_drug_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-051",
+      "kb_doi": "10.1038/s41467-025-61713-1",
+      "kb_title": "Personalized risk stratification in colorectal cancer via PIANOS system",
+      "pdf_path": "references/case-studies/nature_communications/NC_CRC_PIANOS_risk_peer_review.pdf",
+      "pdf_name": "NC_CRC_PIANOS_risk_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-052",
+      "kb_doi": "10.1038/s41467-025-62910-8",
+      "kb_title": "HIBRID: histology-based risk-stratification with deep learning and ctDNA in colorectal cancer",
+      "pdf_path": "references/case-studies/nature_communications/NC_CRC_HIBRID_ctDNA_peer_review.pdf",
+      "pdf_name": "NC_CRC_HIBRID_ctDNA_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-053",
+      "kb_doi": "10.1038/s41467-025-60824-z",
+      "kb_title": "Deep learning assessment of metastatic relapse risk from digitized breast cancer histological slides",
+      "pdf_path": "references/case-studies/nature_communications/NC_breast_metastasis_DL_peer_review.pdf",
+      "pdf_name": "NC_breast_metastasis_DL_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-054",
+      "kb_doi": "10.1038/s41467-024-50369-y",
+      "kb_title": "A multi-classifier system integrated by clinico-histology-genomic analysis for predicting recurrence",
+      "pdf_path": "references/case-studies/nature_communications/NC_renal_cancer_recurrence_peer_review.pdf",
+      "pdf_name": "NC_renal_cancer_recurrence_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-055",
+      "kb_doi": "10.1038/s41467-024-44946-4",
+      "kb_title": "Robustly federated learning model for identifying high-risk patients with postoperative gastric canc",
+      "pdf_path": "references/case-studies/nature_communications/NC_gastric_cancer_federated_peer_review.pdf",
+      "pdf_name": "NC_gastric_cancer_federated_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-056",
+      "kb_doi": "10.1038/s41467-025-61685-2",
+      "kb_title": "Immunodiagnostic plasma amino acid residue biomarkers detect cancer early and predict treatment resp",
+      "pdf_path": "references/case-studies/nature_communications/NC_cancer_early_detect_plasma_peer_review.pdf",
+      "pdf_name": "NC_cancer_early_detect_plasma_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-057",
+      "kb_doi": "10.1038/s41467-020-19313-8",
+      "kb_title": "Network-based machine learning in colorectal and bladder organoid models predicts anti-cancer drug e",
+      "pdf_path": "references/case-studies/nature_communications/NC_drug_efficacy_organoid_ML_peer_review.pdf",
+      "pdf_name": "NC_drug_efficacy_organoid_ML_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.60"
+    },
+    {
+      "id": "PR-058",
+      "kb_doi": "10.1038/s41467-024-52618-6",
+      "kb_title": "Generalizability assessment of AI models across hospitals in a low-middle and high income country",
+      "pdf_path": "references/case-studies/nature_communications/NC_AI_generalizability_LMIC_peer_review.pdf",
+      "pdf_name": "NC_AI_generalizability_LMIC_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-059",
+      "kb_doi": "10.1038/s41467-025-59694-2",
+      "kb_title": "AI-based screening for thoracic aortic aneurysms in routine breast MRI",
+      "pdf_path": "references/case-studies/nature_communications/NC_aortic_aneurysm_AI_peer_review.pdf",
+      "pdf_name": "NC_aortic_aneurysm_AI_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-060",
+      "kb_doi": "10.1038/s41467-025-65365-z",
+      "kb_title": "Explainable AI unravels sepsis heterogeneity via coagulation-inflammation profiles for prognosis and",
+      "pdf_path": "references/case-studies/nature_communications/113_sepsis_SepsisFormer_peer_review.pdf",
+      "pdf_name": "113_sepsis_SepsisFormer_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-061",
+      "kb_doi": "10.1038/s41467-025-58283-7",
+      "kb_title": "External validation of artificial intelligence for detection of heart failure with preserved ejectio",
+      "pdf_path": "references/case-studies/nature_communications/104_HFpEF_external_validation_peer_review.pdf",
+      "pdf_name": "104_HFpEF_external_validation_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-062",
+      "kb_doi": "10.1038/s41467-023-37758-5",
+      "kb_title": "Deep learning to estimate lung disease mortality from chest radiographs",
+      "pdf_path": "references/case-studies/nature_communications/NC_lung_mortality_CXR_DL_peer_review.pdf",
+      "pdf_name": "NC_lung_mortality_CXR_DL_peer_review.pdf",
+      "confidence": "high",
+      "method": "manual_override",
+      "note": "Visually verified mapping (abbreviation/filename mismatch)"
+    },
+    {
+      "id": "PR-063",
+      "kb_doi": "10.1038/s41467-023-39933-0",
+      "kb_title": "Spatial cellular architecture predicts prognosis in glioblastoma",
+      "pdf_path": "references/case-studies/nature_communications/NC_glioblastoma_spatial_peer_review.pdf",
+      "pdf_name": "NC_glioblastoma_spatial_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-064",
+      "kb_doi": "10.1038/s41467-023-43575-7",
+      "kb_title": "Plasma proteomic profiles predict individual future health risk",
+      "pdf_path": "references/case-studies/nature_communications/NC_plasma_future_health_peer_review.pdf",
+      "pdf_name": "NC_plasma_future_health_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.75"
+    },
+    {
+      "id": "PR-065",
+      "kb_doi": "10.1038/s41467-023-42934-8",
+      "kb_title": "LensAge index as a deep learning-based biological age for self-monitoring the risks of age-related d",
+      "pdf_path": "references/case-studies/nature_communications/NC_LensAge_biological_age_peer_review.pdf",
+      "pdf_name": "NC_LensAge_biological_age_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-066",
+      "kb_doi": "10.1038/s41467-025-56784-z",
+      "kb_title": "Artificial intelligence links CT images to pathologic features and survival outcomes of renal masses",
+      "pdf_path": "references/case-studies/nature_communications/NC_renal_mass_CT_AI_peer_review.pdf",
+      "pdf_name": "NC_renal_mass_CT_AI_peer_review.pdf",
+      "confidence": "high",
+      "method": "manual_override",
+      "note": "Visually verified mapping (abbreviation/filename mismatch)"
+    },
+    {
+      "id": "PR-067",
+      "kb_doi": "10.1038/s41467-023-39631-x",
+      "kb_title": "Opportunistic detection of type 2 diabetes using deep learning from frontal chest radiographs",
+      "pdf_path": "references/case-studies/nature_communications/NC_T2D_chest_xray_DL_peer_review.pdf",
+      "pdf_name": "NC_T2D_chest_xray_DL_peer_review.pdf",
+      "confidence": "high",
+      "method": "manual_override",
+      "note": "Visually verified mapping (abbreviation/filename mismatch)"
+    },
+    {
+      "id": "PR-068",
+      "kb_doi": "10.1038/s41467-025-57181-2",
+      "kb_title": "Pretrained transformers applied to clinical studies improve predictions of treatment efficacy and as",
+      "pdf_path": "references/case-studies/nature_communications/NC_pretrained_transformer_trials_peer_review.pdf",
+      "pdf_name": "NC_pretrained_transformer_trials_peer_review.pdf",
+      "confidence": "high",
+      "method": "manual_override",
+      "note": "Visually verified mapping (abbreviation/filename mismatch)"
+    },
+    {
+      "id": "PR-069",
+      "kb_doi": "10.1038/s41467-025-62218-7",
+      "kb_title": "Biomarker panels for improved risk prediction in atrial fibrillation",
+      "pdf_path": "references/case-studies/nature_communications/NC_AF_biomarker_risk_peer_review.pdf",
+      "pdf_name": "NC_AF_biomarker_risk_peer_review.pdf",
+      "confidence": "low",
+      "method": "title_jaccard",
+      "note": "Title Jaccard 0.55"
+    },
+    {
+      "id": "PR-070",
+      "kb_doi": "10.1038/s41467-025-64430-x",
+      "kb_title": "AgentMD: Empowering language agents for risk prediction with large-scale clinical tool learning",
+      "pdf_path": "references/case-studies/nature_communications/NC_AgentMD_LLM_risk_peer_review.pdf",
+      "pdf_name": "NC_AgentMD_LLM_risk_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-071",
+      "kb_doi": "10.1038/s41467-024-49763-3",
+      "kb_title": "Data-driven prediction of continuous renal replacement therapy survival",
+      "pdf_path": "references/case-studies/nature_communications/NC_CRRT_survival_peer_review.pdf",
+      "pdf_name": "NC_CRRT_survival_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-072",
+      "kb_doi": "10.1038/s41467-025-60056-1",
+      "kb_title": "Performance of deep-learning based approaches to improve polygenic scores",
+      "pdf_path": "references/case-studies/nature_communications/NC_DL_polygenic_scores_peer_review.pdf",
+      "pdf_name": "NC_DL_polygenic_scores_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-073",
+      "kb_doi": "10.1038/s41467-022-29153-3",
+      "kb_title": "Automated multilabel diagnosis on electrocardiographic images and signals",
+      "pdf_path": "references/case-studies/nature_communications/NC_ECG_multilabel_DL_peer_review.pdf",
+      "pdf_name": "NC_ECG_multilabel_DL_peer_review.pdf",
+      "confidence": "high",
+      "method": "manual_override",
+      "note": "Visually verified mapping (abbreviation/filename mismatch)"
+    },
+    {
+      "id": "PR-074",
+      "kb_doi": "10.1038/s41467-023-37720-5",
+      "kb_title": "Interstitial lung disease diagnosis and prognosis using an AI system integrating longitudinal data",
+      "pdf_path": "references/case-studies/nature_communications/NC_ILD_diagnosis_AI_peer_review.pdf",
+      "pdf_name": "NC_ILD_diagnosis_AI_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.50"
+    },
+    {
+      "id": "PR-075",
+      "kb_doi": "10.1038/s41467-024-48229-w",
+      "kb_title": "Deep learning of left atrial structure and function provides link to atrial fibrillation risk",
+      "pdf_path": "references/case-studies/nature_communications/NC_LA_AF_risk_DL_peer_review.pdf",
+      "pdf_name": "NC_LA_AF_risk_DL_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-076",
+      "kb_doi": "10.1038/s41467-025-58214-6",
+      "kb_title": "Enhanced diagnosis of multi-drug-resistant microbes using group association modeling and machine lea",
+      "pdf_path": "references/case-studies/nature_communications/NC_MDR_microbe_ML_peer_review.pdf",
+      "pdf_name": "NC_MDR_microbe_ML_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-077",
+      "kb_doi": "10.1038/s41467-025-55847-5",
+      "kb_title": "Integration of clinical, pathological, radiological, and transcriptomic data improves prediction for",
+      "pdf_path": "references/case-studies/nature_communications/NC_NSCLC_immunotherapy_multi_peer_review.pdf",
+      "pdf_name": "NC_NSCLC_immunotherapy_multi_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-078",
+      "kb_doi": "10.1038/s41467-024-48618-1",
+      "kb_title": "AI-enhanced integration of genetic and medical imaging data for risk assessment of Type 2 diabetes",
+      "pdf_path": "references/case-studies/nature_communications/NC_T2D_genetic_imaging_AI_peer_review.pdf",
+      "pdf_name": "NC_T2D_genetic_imaging_AI_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-079",
+      "kb_doi": "10.1038/s41467-023-39676-y",
+      "kb_title": "Computational analysis of peripheral blood smears detects disease-associated cytomorphologies",
+      "pdf_path": "references/case-studies/nature_communications/NC_blood_smear_cytomorphology_peer_review.pdf",
+      "pdf_name": "NC_blood_smear_cytomorphology_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-080",
+      "kb_doi": "10.1038/s41467-026-70204-w",
+      "kb_title": "Fragmentomic liquid biopsy enables early breast cancer detection, molecular subtyping and lymph node",
+      "pdf_path": "references/case-studies/nature_communications/NC_breast_fragmentomics_peer_review.pdf",
+      "pdf_name": "NC_breast_fragmentomics_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-081",
+      "kb_doi": "10.1038/s41467-025-57587-y",
+      "kb_title": "A foundation model for generalizable cancer diagnosis and survival prediction from histopathological",
+      "pdf_path": "references/case-studies/nature_communications/NC_cancer_FM_survival_peer_review.pdf",
+      "pdf_name": "NC_cancer_FM_survival_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-082",
+      "kb_doi": "10.1038/s41467-025-56756-3",
+      "kb_title": "Performance of plasma biomarkers for diagnosis and prediction of dementia in a Brazilian cohort",
+      "pdf_path": "references/case-studies/nature_communications/NC_dementia_plasma_Brazil_peer_review.pdf",
+      "pdf_name": "NC_dementia_plasma_Brazil_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-083",
+      "kb_doi": "10.1038/s41467-024-49027-0",
+      "kb_title": "A machine learning contest enhances automated freezing of gait detection and reveals time-of-day eff",
+      "pdf_path": "references/case-studies/nature_communications/NC_gait_freezing_ML_peer_review.pdf",
+      "pdf_name": "NC_gait_freezing_ML_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.50"
+    },
+    {
+      "id": "PR-084",
+      "kb_doi": "10.1038/s41467-023-44595-z",
+      "kb_title": "A machine learning-driven virtual biopsy system for kidney transplant patients",
+      "pdf_path": "references/case-studies/nature_communications/NC_kidney_transplant_biopsy_ML_peer_review.pdf",
+      "pdf_name": "NC_kidney_transplant_biopsy_ML_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-085",
+      "kb_doi": "10.1038/s41467-023-36306-5",
+      "kb_title": "Multi-ancestry and multi-trait GWAS meta-analyses inform clinical risk prediction for systemic lupus",
+      "pdf_path": "references/case-studies/nature_communications/56_multi_ancestry_PRS_peer_review.pdf",
+      "pdf_name": "56_multi_ancestry_PRS_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.50"
+    },
+    {
+      "id": "PR-086",
+      "kb_doi": "10.1038/s41467-025-65693-0",
+      "kb_title": "A noninvasive machine learning model using a complete blood count for screening of primary vitreoret",
+      "pdf_path": "references/case-studies/nature_communications/NC_lymphoma_CBC_ML_peer_review.pdf",
+      "pdf_name": "NC_lymphoma_CBC_ML_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-087",
+      "kb_doi": "10.1038/s41467-023-43095-4",
+      "kb_title": "Dermatologist-like explainable AI enhances trust and confidence in diagnosing melanoma",
+      "pdf_path": "references/case-studies/nature_communications/NC_melanoma_explainable_AI_peer_review.pdf",
+      "pdf_name": "NC_melanoma_explainable_AI_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.75"
+    },
+    {
+      "id": "PR-088",
+      "kb_doi": "10.1038/s41467-024-54357-0",
+      "kb_title": "Metabolomic and genomic prediction of common diseases in 700,217 participants in three national biob",
+      "pdf_path": "references/case-studies/nature_communications/NC_metabolomic_genomic_biobank_peer_review.pdf",
+      "pdf_name": "NC_metabolomic_genomic_biobank_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-089",
+      "kb_doi": "10.1038/s41467-025-66994-0",
+      "kb_title": "ML-supported framework for classification of mpox infection and MVA immunization from multiplexed se",
+      "pdf_path": "references/case-studies/nature_communications/NC_mpox_ML_serology_peer_review.pdf",
+      "pdf_name": "NC_mpox_ML_serology_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.75"
+    },
+    {
+      "id": "PR-090",
+      "kb_doi": "10.1038/s41467-025-61890-z",
+      "kb_title": "Cell-free DNA testing for detection and prognosis prediction of pancreatic cancer",
+      "pdf_path": "references/case-studies/nature_communications/NC_pancreatic_cfDNA_peer_review.pdf",
+      "pdf_name": "NC_pancreatic_cfDNA_peer_review.pdf",
+      "confidence": "low",
+      "method": "title_jaccard",
+      "note": "Title Jaccard 0.62"
+    },
+    {
+      "id": "PR-091",
+      "kb_doi": "10.1038/s41467-025-62685-y",
+      "kb_title": "Cell free RNA detection of pancreatic cancer in pre-diagnostic high risk and symptomatic patients",
+      "pdf_path": "references/case-studies/nature_communications/NC_pancreatic_cfRNA_peer_review.pdf",
+      "pdf_name": "NC_pancreatic_cfRNA_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-092",
+      "kb_doi": "10.1038/s41467-024-45589-1",
+      "kb_title": "Regression-based deep learning predicts molecular biomarkers from pathology slides",
+      "pdf_path": "references/case-studies/nature_communications/NC_pathology_biomarker_DL_peer_review.pdf",
+      "pdf_name": "NC_pathology_biomarker_DL_peer_review.pdf",
+      "confidence": "high",
+      "method": "manual_override",
+      "note": "Visually verified mapping (abbreviation/filename mismatch)"
+    },
+    {
+      "id": "PR-093",
+      "kb_doi": "10.1038/s41467-024-55659-z",
+      "kb_title": "Multiparametric MRI along with machine learning predicts prognosis and treatment response in pediatr",
+      "pdf_path": "references/case-studies/nature_communications/NC_pediatric_glioma_MRI_peer_review.pdf",
+      "pdf_name": "NC_pediatric_glioma_MRI_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.75"
+    },
+    {
+      "id": "PR-094",
+      "kb_doi": "10.1038/s41467-024-47926-w",
+      "kb_title": "Individualized protein-based prognostic model to stratify pediatric patients with papillary thyroid ",
+      "pdf_path": "references/case-studies/nature_communications/NC_pediatric_thyroid_prognosis_peer_review.pdf",
+      "pdf_name": "NC_pediatric_thyroid_prognosis_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-095",
+      "kb_doi": "10.1038/s41467-025-60865-4",
+      "kb_title": "A machine learning model using clinical notes to identify physician fatigue",
+      "pdf_path": "references/case-studies/nature_communications/NC_physician_fatigue_ML_peer_review.pdf",
+      "pdf_name": "NC_physician_fatigue_ML_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-096",
+      "kb_doi": "10.1038/s41467-025-67298-z",
+      "kb_title": "Early favorable prostate-specific antigen response prediction in metastatic hormone sensitive prosta",
+      "pdf_path": "references/case-studies/nature_communications/105_cancer_early_diagnosis_peer_review.pdf",
+      "pdf_name": "105_cancer_early_diagnosis_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.50"
+    },
+    {
+      "id": "PR-097",
+      "kb_doi": "10.1038/s41467-025-59227-x",
+      "kb_title": "Sepsis bedside prediction via ML and centrifugal microfluidics",
+      "pdf_path": "references/case-studies/nature_communications/114_sepsis_microfluidics_peer_review.pdf",
+      "pdf_name": "114_sepsis_microfluidics_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.67"
+    },
+    {
+      "id": "PR-099",
+      "kb_doi": "10.1038/s41467-023-40604-3",
+      "kb_title": "Deep learning for obstructive sleep apnea diagnosis based on single channel oximetry",
+      "pdf_path": "references/case-studies/nature_communications/NC_sleep_apnea_DL_peer_review.pdf",
+      "pdf_name": "NC_sleep_apnea_DL_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-100",
+      "kb_doi": "10.1038/s41467-026-68956-6",
+      "kb_title": "AI-based multiomics profiling reveals complementary omics contributions to personalized prediction o",
+      "pdf_path": "references/case-studies/nature_communications/NC_CVD_multiomics_v2_peer_review.pdf",
+      "pdf_name": "NC_CVD_multiomics_v2_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-101",
+      "kb_doi": "10.1038/s41467-025-62032-1",
+      "kb_title": "A longitudinal cohort study uncovers plasma protein biomarkers predating clinical onset and treatmen",
+      "pdf_path": "references/case-studies/nature_communications/101_RA_proteome_treatment_response_peer_review.pdf",
+      "pdf_name": "101_RA_proteome_treatment_response_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-102",
+      "kb_doi": "10.1038/s41467-025-58744-z",
+      "kb_title": "Machine learning center-specific models show improved IVF live birth predictions over US national re",
+      "pdf_path": "references/case-studies/nature_communications/102_IVF_live_birth_MLCS_peer_review.pdf",
+      "pdf_name": "102_IVF_live_birth_MLCS_peer_review.pdf",
+      "confidence": "high_multi",
+      "method": "title_substring_multi",
+      "note": "Title substring matched 2 PDFs; chose by overlap 0.47"
+    },
+    {
+      "id": "PR-104",
+      "kb_doi": "10.1038/s41467-025-58283-7",
+      "kb_title": "External validation of artificial intelligence for detection of heart failure with preserved ejectio",
+      "pdf_path": "references/case-studies/nature_communications/104_HFpEF_external_validation_peer_review.pdf",
+      "pdf_name": "104_HFpEF_external_validation_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-105",
+      "kb_doi": "10.1038/s41467-025-57990-5",
+      "kb_title": "Development and external validation of prediction algorithms to improve early diagnosis of cancer",
+      "pdf_path": "references/case-studies/nature_communications/105_cancer_early_diagnosis_peer_review.pdf",
+      "pdf_name": "105_cancer_early_diagnosis_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.75"
+    },
+    {
+      "id": "PR-106",
+      "kb_doi": "10.1038/s41467-025-62121-1",
+      "kb_title": "Real-time prediction of intensive care unit patient acuity and therapy requirements using state-spac",
+      "pdf_path": "references/case-studies/nature_communications/106_ICU_acuity_mamba_peer_review.pdf",
+      "pdf_name": "106_ICU_acuity_mamba_peer_review.pdf",
+      "confidence": "high_multi",
+      "method": "title_substring_multi",
+      "note": "Title substring matched 2 PDFs; chose by overlap 0.00"
+    },
+    {
+      "id": "PR-107",
+      "kb_doi": "10.1038/s41467-025-63366-6",
+      "kb_title": "InfEHR: clinical phenotype resolution via deep geometric learning on electronic health records",
+      "pdf_path": "references/case-studies/nature_communications/107_InfEHR_peer_review.pdf",
+      "pdf_name": "107_InfEHR_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.50"
+    },
+    {
+      "id": "PR-108",
+      "kb_doi": "10.1038/s41467-025-61931-7",
+      "kb_title": "Raised Leptin and Pappalysin2 cell-free RNAs as hallmarks of pregnancies complicated by preeclampsia",
+      "pdf_path": "references/case-studies/nature_communications/108_cfRNA_preeclampsia_peer_review.pdf",
+      "pdf_name": "108_cfRNA_preeclampsia_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-109",
+      "kb_doi": "10.1038/s41467-024-55636-6",
+      "kb_title": "Integrating electronic health records and GWAS summary statistics to predict the progression of auto",
+      "pdf_path": "references/case-studies/nature_communications/109_GPS_autoimmune_peer_review.pdf",
+      "pdf_name": "109_GPS_autoimmune_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-110",
+      "kb_doi": "10.1038/s41467-025-65219-8",
+      "kb_title": "Development and validation of a wearable deep learning continuous in-hospital deterioration predicti",
+      "pdf_path": "references/case-studies/nature_communications/110_wearable_deterioration_peer_review.pdf",
+      "pdf_name": "110_wearable_deterioration_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.67"
+    },
+    {
+      "id": "PR-111",
+      "kb_doi": "10.1038/s41467-025-61515-5",
+      "kb_title": "Plasma proteomics for biomarker discovery in childhood tuberculosis",
+      "pdf_path": "references/case-studies/nature_communications/111_childhood_TB_peer_review.pdf",
+      "pdf_name": "111_childhood_TB_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-112",
+      "kb_doi": "10.1038/s41467-025-64215-2",
+      "kb_title": "Maternal plasma cell-free RNA as a predictor of early and late-onset preeclampsia throughout pregnan",
+      "pdf_path": "references/case-studies/nature_communications/112_preeclampsia_cfRNA_peer_review.pdf",
+      "pdf_name": "112_preeclampsia_cfRNA_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-113",
+      "kb_doi": "10.1038/s41467-025-65365-z",
+      "kb_title": "Explainable AI unravels sepsis heterogeneity via coagulation-inflammation profiles for prognosis and",
+      "pdf_path": "references/case-studies/nature_communications/113_sepsis_SepsisFormer_peer_review.pdf",
+      "pdf_name": "113_sepsis_SepsisFormer_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-114",
+      "kb_doi": "10.1038/s41467-025-59227-x",
+      "kb_title": "A machine learning and centrifugal microfluidics platform for bedside prediction of sepsis (Sepset s",
+      "pdf_path": "references/case-studies/nature_communications/114_sepsis_microfluidics_peer_review.pdf",
+      "pdf_name": "114_sepsis_microfluidics_peer_review.pdf",
+      "confidence": "high",
+      "method": "title_substring",
+      "note": "First 7 words of KB title found in PDF text"
+    },
+    {
+      "id": "PR-RO-01",
+      "kb_doi": "10.1038/s41467-025-61650-z",
+      "kb_title": "Machine learning in Alzheimer's disease genetics",
+      "pdf_path": "references/case-studies/nature_communications/NC_AD_genetics_ML_peer_review.pdf",
+      "pdf_name": "NC_AD_genetics_ML_peer_review.pdf",
+      "confidence": "high",
+      "method": "manual_override",
+      "note": "Visually verified mapping (abbreviation/filename mismatch)"
+    },
+    {
+      "id": "PR-RO-02",
+      "kb_doi": "10.1038/s41467-026-68415-2",
+      "kb_title": "Identification of modifiable plasma protein markers of cardiometabolic risk in children",
+      "pdf_path": "references/case-studies/nature_communications/NC_cardiometab_children_peer_review.pdf",
+      "pdf_name": "NC_cardiometab_children_peer_review.pdf",
+      "confidence": "high",
+      "method": "manual_override",
+      "note": "Visually verified mapping (abbreviation/filename mismatch)"
+    },
+    {
+      "id": "PR-RO-03",
+      "kb_doi": "10.1038/s41467-025-66483-4",
+      "kb_title": "Plasma proteomic profiles predict Crohn's disease up to 16 years before onset",
+      "pdf_path": null,
+      "pdf_name": null,
+      "confidence": "none",
+      "method": "no_match",
+      "note": "No overlap with any PDF"
+    },
+    {
+      "id": "PR-RO-04",
+      "kb_doi": "10.1038/s41467-025-56829-3",
+      "kb_title": "ML-based meta-analysis reveals gut microbiome alterations associated with Parkinson's disease",
+      "pdf_path": "references/case-studies/nature_communications/NC_microbiome_disease_ML_peer_review.pdf",
+      "pdf_name": "NC_microbiome_disease_ML_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.75"
+    },
+    {
+      "id": "PR-RO-05",
+      "kb_doi": "10.1038/s41467-025-67728-y",
+      "kb_title": "Wearable AI for on-device frailty assessment",
+      "pdf_path": "references/case-studies/nature_communications/NC_wearable_frailty_AI_peer_review.pdf",
+      "pdf_name": "NC_wearable_frailty_AI_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.75"
+    },
+    {
+      "id": "PR-RO-06",
+      "kb_doi": "10.1038/s41467-025-60987-9",
+      "kb_title": "Deep molecular profiling identifies signatures predictive of treatment response in RA",
+      "pdf_path": "references/case-studies/nature_communications/101_RA_proteome_treatment_response_peer_review.pdf",
+      "pdf_name": "101_RA_proteome_treatment_response_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.60"
+    },
+    {
+      "id": "PR-RO-07",
+      "kb_doi": "10.1038/s41467-025-61823-w",
+      "kb_title": "ML-driven strategies for adapting immunotherapy in metastatic NSCLC",
+      "pdf_path": "references/case-studies/nature_communications/NC_NSCLC_immunotherapy_ML_peer_review.pdf",
+      "pdf_name": "NC_NSCLC_immunotherapy_ML_peer_review.pdf",
+      "confidence": "low",
+      "method": "filename_keywords",
+      "note": "Filename keyword overlap 0.75"
+    }
+  ],
+  "unmatched_pdfs": [
+    {
+      "name": "17_ICU_acuity_realtime_peer_review.pdf",
+      "size_bytes": 410682,
+      "title_snippet": "This file contains all reviewer reports in order by version, followed by all author rebuttals in order by version.",
+      "dois_found": []
+    },
+    {
+      "name": "18_cardiac_signals_DL_peer_review.pdf",
+      "size_bytes": 232190,
+      "title_snippet": "Remarks to the Author:",
+      "dois_found": []
+    },
+    {
+      "name": "NC_AD_tau_prediction_ML_peer_review.pdf",
+      "size_bytes": 6876819,
+      "title_snippet": "REVIEWER COMMENTS</B>",
+      "dois_found": []
+    },
+    {
+      "name": "NC_HBV_liver_failure_proteo_peer_review.pdf",
+      "size_bytes": 77600,
+      "title_snippet": "1 natureportfolio|reportingsummaryApril2023",
+      "dois_found": []
+    },
+    {
+      "name": "NC_HFpEF_AI_validation_peer_review.pdf",
+      "size_bytes": 109890,
+      "title_snippet": "1 natureportfolio|reportingsummaryApril2023",
+      "dois_found": []
+    },
+    {
+      "name": "NC_IVF_live_birth_ML_peer_review.pdf",
+      "size_bytes": 209002,
+      "title_snippet": "Machine learning center-specific models show improved IVF",
+      "dois_found": []
+    },
+    {
+      "name": "NC_RA_plasma_biomarkers_peer_review.pdf",
+      "size_bytes": 244440,
+      "title_snippet": "1 natureportfolio|reportingsummaryApril2023",
+      "dois_found": []
+    },
+    {
+      "name": "NC_cancer_diagnosis_prediction_peer_review.pdf",
+      "size_bytes": 526939,
+      "title_snippet": "Development and external validation of new prediction",
+      "dois_found": []
+    },
+    {
+      "name": "NC_lupus_PRS_multiancestry_peer_review.pdf",
+      "size_bytes": 2059453,
+      "title_snippet": "Multi-ancestry and multi-trait genome-wide association",
+      "dois_found": []
+    },
+    {
+      "name": "NC_microbiome_parkinson_ML_peer_review.pdf",
+      "size_bytes": 104207,
+      "title_snippet": "1 natureportfolio|reportingsummaryApril2023",
+      "dois_found": []
+    },
+    {
+      "name": "NC_prostate_PSA_response_peer_review.pdf",
+      "size_bytes": 203802,
+      "title_snippet": "Early Favorable PSA Response Prediction in Metastatic",
+      "dois_found": []
+    },
+    {
+      "name": "NC_sepsis_XAI_coagulation_peer_review.pdf",
+      "size_bytes": 78804,
+      "title_snippet": "1 natureportfolio|reportingsummaryApril2023",
+      "dois_found": []
+    }
+  ]
+}
