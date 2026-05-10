@@ -10,7 +10,12 @@ from typing import Dict, FrozenSet, List, Optional, Sequence
 from mlgg_lint.ast_utils import ImportMap, TaintTracker, build_import_map
 from mlgg_lint.config import LintConfig, load_config
 from mlgg_lint.models import Diagnostic, Location, Severity
-from mlgg_lint.notebook import CellMapping, extract_notebook_source, map_line_to_cell
+from mlgg_lint.notebook import (
+    CellMapping,
+    SkippedCell,
+    extract_notebook_source_with_validation,
+    map_line_to_cell,
+)
 from mlgg_lint.rules import get_enabled_rules
 
 # Maximum file size to analyze (16 MB).  Prevents memory exhaustion from
@@ -188,10 +193,18 @@ def analyze_file(
         ]
 
     cell_mappings: List[CellMapping] = []
+    skipped_cells: List[SkippedCell] = []
+    notebook_info_diags: List[Diagnostic] = []
 
     if is_notebook:
-        source, cell_mappings = extract_notebook_source(file_path)
-        if not source:
+        source, cell_mappings, skipped_cells = (
+            extract_notebook_source_with_validation(file_path)
+        )
+        # If the notebook is structurally invalid (bad JSON / nbformat < 4
+        # / no cells list), preserve legacy behaviour: a single E000 ERROR.
+        # We detect this by: empty source AND empty mappings AND empty
+        # skipped_cells (no per-cell info means the file itself is broken).
+        if not source and not cell_mappings and not skipped_cells:
             return [
                 Diagnostic(
                     rule_id="E000",
@@ -201,6 +214,46 @@ def analyze_file(
                     location=Location(file=_display_path(file_path), line=0, col=0),
                 )
             ]
+
+        # Emit one INFO diagnostic per skipped cell so users can see what
+        # was excluded.  These are non-fatal; analysis continues on the
+        # remaining well-formed cells.
+        display = _display_path(file_path)
+        for sk in skipped_cells:
+            notebook_info_diags.append(
+                Diagnostic(
+                    rule_id="E000",
+                    rule_name="notebook-cell-skipped",
+                    severity=Severity.INFO,
+                    message=(
+                        f"Skipped cell {sk.cell_index}: {sk.error}"
+                        + (f" ({sk.first_line_excerpt!r})"
+                           if sk.first_line_excerpt else "")
+                    ),
+                    location=Location(
+                        file=f"{display}[cell {sk.cell_index}]",
+                        line=1,
+                        col=0,
+                    ),
+                )
+            )
+
+        # If after skipping non-Python / unparseable cells nothing is left,
+        # surface a single INFO diagnostic so the file isn't silently empty.
+        if not source:
+            notebook_info_diags.append(
+                Diagnostic(
+                    rule_id="E000",
+                    rule_name="notebook-no-python-cells",
+                    severity=Severity.INFO,
+                    message=(
+                        "Notebook contains no analysable Python cells "
+                        f"(skipped {len(skipped_cells)} non-Python cell(s))."
+                    ),
+                    location=Location(file=display, line=0, col=0),
+                )
+            )
+            return notebook_info_diags
     else:
         try:
             source = file_path.read_text(encoding="utf-8")
@@ -276,6 +329,12 @@ def analyze_file(
                     if is_notebook and cell_mappings:
                         diag = _remap_notebook_location(diag, display, cell_mappings)
                     diagnostics.append(diag)
+
+    # Merge in per-cell INFO diagnostics for notebooks (skipped cells).
+    # These respect the severity threshold like any other diagnostic.
+    for nd in notebook_info_diags:
+        if SEVERITY_ORDER.get(str(nd.severity), 2) <= threshold:
+            diagnostics.append(nd)
 
     diagnostics.sort(key=lambda d: (d.location.line, d.location.col))
     return diagnostics

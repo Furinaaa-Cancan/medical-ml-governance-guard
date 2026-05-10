@@ -1,0 +1,1289 @@
+[
+  {
+    "paper_id": "PR-EXP-0064",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0064-C1",
+    "concern_summary_short": "Add ICU/length-of-stay info to demographics table",
+    "concern_topic_tags": ["reproducibility", "other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0064",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0064-C2",
+    "concern_summary_short": "Specify bacterial culture identification and AST methodology",
+    "concern_topic_tags": ["reproducibility", "outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0064",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0064-C3",
+    "concern_summary_short": "Justify focusing only on ciprofloxacin among antibiotics",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0064",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0064-C4",
+    "concern_summary_short": "Cite influential variables in prior cipro-resistance models",
+    "concern_topic_tags": ["interpretability", "other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0064",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0064-C5",
+    "concern_summary_short": "Missing CSV files in GitHub repo, reproducibility concern",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0064",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0064-C6",
+    "concern_summary_short": "Clarify EMR feature engineering: manual or scripted",
+    "concern_topic_tags": ["feature_engineering", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0064",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0064-C7",
+    "concern_summary_short": "Specify CLSI/EUCAST susceptibility breakpoint guideline used",
+    "concern_topic_tags": ["outcome_definition", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0064",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0064-C8",
+    "concern_summary_short": "Low resistance counts in some species threaten model validity",
+    "concern_topic_tags": ["imbalanced_data", "sample_size"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0064",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0064-C9",
+    "concern_summary_short": "Will model generalize beyond elderly cohort to younger patients",
+    "concern_topic_tags": ["external_validation", "fairness"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0064",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0064-C10",
+    "concern_summary_short": "Decision curve analysis description unclear for general readers",
+    "concern_topic_tags": ["clinical_utility", "evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0064",
+    "round": "R1",
+    "reviewer": "Reviewer #3",
+    "concern_id": "PR-EXP-0064-C11",
+    "concern_summary_short": "Time-based train/test split risks confounding by temporal trends",
+    "concern_topic_tags": ["leakage", "external_validation"],
+    "mlgg_rule_match": ["R008"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0064",
+    "round": "R1",
+    "reviewer": "Reviewer #3",
+    "concern_id": "PR-EXP-0064-C12",
+    "concern_summary_short": "Hyperparameter tuning data may overlap with train/test sets",
+    "concern_topic_tags": ["leakage", "evaluation_metric"],
+    "mlgg_rule_match": ["R021"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0064",
+    "round": "R2",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0064-C13",
+    "concern_summary_short": "Bacterial nomenclature italics still needed in figure",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+
+  {
+    "paper_id": "PR-EXP-0079",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0079-C1",
+    "concern_summary_short": "AUROC improvement is small, possibly not clinically relevant",
+    "concern_topic_tags": ["clinical_utility", "evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0079",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0079-C2",
+    "concern_summary_short": "DXA image analysis treated as black box without interpretability",
+    "concern_topic_tags": ["interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0079",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0079-C3",
+    "concern_summary_short": "Title misleading: study did not prove body composition causality",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0079",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0079-C4",
+    "concern_summary_short": "Discussion lacks context, limitations, related work",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0079",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0079-C5",
+    "concern_summary_short": "Justify rationale for chosen train/val/test split",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0079",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0079-C6",
+    "concern_summary_short": "Generalizability concern: limited cohort and DXA FOV truncation",
+    "concern_topic_tags": ["external_validation", "sample_size"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0079",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0079-C7",
+    "concern_summary_short": "Provide rationale for missing data handling and inclusion criteria",
+    "concern_topic_tags": ["missing_data", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0079",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0079-C8",
+    "concern_summary_short": "Use ethnicity terminology consistently and add Hispanic strata",
+    "concern_topic_tags": ["fairness", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0079",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0079-C9",
+    "concern_summary_short": "Perform clustering of comorbid disease features for predictive subgroups",
+    "concern_topic_tags": ["feature_engineering", "interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0079",
+    "round": "R2",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0079-C10",
+    "concern_summary_short": "Itemize cohort by diagnoses/cause-of-death to check prediction biases",
+    "concern_topic_tags": ["fairness", "outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0079",
+    "round": "R2",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0079-C11",
+    "concern_summary_short": "Discuss DXA vs CT clinical role for elderly mortality prediction",
+    "concern_topic_tags": ["clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0079",
+    "round": "R2",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0079-C12",
+    "concern_summary_short": "Explain biological meaning of saliency-highlighted muscle/adipose regions",
+    "concern_topic_tags": ["interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0104-C1",
+    "concern_summary_short": "Define exclusion criteria for the 300k+ excluded studies clearly",
+    "concern_topic_tags": ["reproducibility", "missing_data"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0104-C2",
+    "concern_summary_short": "Summarize scanner types and acquisition protocols across centers",
+    "concern_topic_tags": ["reproducibility", "external_validation"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0104-C3",
+    "concern_summary_short": "Justify DDPM versus other self-supervised pretraining options",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0104-C4",
+    "concern_summary_short": "Add lung-nodule benchmark on LUNA16 against nnU-Net 2D",
+    "concern_topic_tags": ["evaluation_metric", "external_validation"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0104-C5",
+    "concern_summary_short": "Clarify slice-to-patient aggregation for prognosis prediction",
+    "concern_topic_tags": ["evaluation_metric", "outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0104-C6",
+    "concern_summary_short": "Release pretrained model weights for reproducibility",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0104-C7",
+    "concern_summary_short": "Discuss accuracy of the 2000 manually annotated training reports",
+    "concern_topic_tags": ["reproducibility", "outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0104-C8",
+    "concern_summary_short": "Describe NLP classifier architecture used to label reports",
+    "concern_topic_tags": ["reproducibility", "feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0104-C9",
+    "concern_summary_short": "Specify input image size, HU range, windowing applied",
+    "concern_topic_tags": ["reproducibility", "feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0104-C10",
+    "concern_summary_short": "Add dedicated section on statistical analysis and CIs",
+    "concern_topic_tags": ["evaluation_metric", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0104-C11",
+    "concern_summary_short": "Performance gains over baselines lack p-value significance testing",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0104-C12",
+    "concern_summary_short": "Position contribution against recent CT foundation model literature",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0104-C13",
+    "concern_summary_short": "Model is unimodal image-only without clinical/biomarker integration",
+    "concern_topic_tags": ["clinical_utility", "feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0104-C14",
+    "concern_summary_short": "2D-only modeling discards 3D volumetric/spatial context",
+    "concern_topic_tags": ["feature_engineering", "clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0104-C15",
+    "concern_summary_short": "Pixel-task test sets too small for robust performance claims",
+    "concern_topic_tags": ["sample_size", "evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0104-C16",
+    "concern_summary_short": "Address risk of bias propagation in the large pretraining set",
+    "concern_topic_tags": ["fairness", "ethics"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0104-C17",
+    "concern_summary_short": "Add clinical metrics beyond RMSE/SSIM/PSNR for image tasks",
+    "concern_topic_tags": ["evaluation_metric", "clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0104-C18",
+    "concern_summary_short": "Detail NLP curation pipeline including evaluation of extraction",
+    "concern_topic_tags": ["reproducibility", "outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0104-C19",
+    "concern_summary_short": "Code, weights, and dataset not openly available",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["R029"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0104-C20",
+    "concern_summary_short": "Compare against multimodal models trained with text data too",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0104-C21",
+    "concern_summary_short": "Use more recent SOTA baselines beyond MAE and ResNet",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0104-C22",
+    "concern_summary_short": "Zero-shot capability claimed but no zero-shot experiments shown",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0104-C23",
+    "concern_summary_short": "Cite and compare lung foundation/vision-language baselines",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0104-C24",
+    "concern_summary_short": "Justify DDPM versus CLIP/BLIP multimodal foundation alternatives",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0104-C25",
+    "concern_summary_short": "Report standard deviations on results figures",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R1",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0104-C26",
+    "concern_summary_short": "Open-source the LungCT-28M dataset for community use",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R2",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0104-C27",
+    "concern_summary_short": "Report sex distribution percentage of LungCT-28M dataset",
+    "concern_topic_tags": ["fairness", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R2",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0104-C28",
+    "concern_summary_short": "Describe imaging protocols across sites for reproducibility",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R2",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0104-C29",
+    "concern_summary_short": "Clarify NLP report language and translation methodology",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R2",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0104-C30",
+    "concern_summary_short": "Still no benchmark vs vision-language foundation models",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R2",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0104-C31",
+    "concern_summary_short": "Reports are underutilized despite being available with images",
+    "concern_topic_tags": ["feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R2",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0104-C32",
+    "concern_summary_short": "Method does not actually demonstrate zero-shot per definition",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R3",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0104-C33",
+    "concern_summary_short": "Reports still underused; consider retitling or limitations discussion",
+    "concern_topic_tags": ["feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R4",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0104-C34",
+    "concern_summary_short": "Evaluate on more disease types and datasets like LUNA16/COVIDx",
+    "concern_topic_tags": ["external_validation", "evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0104",
+    "round": "R4",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0104-C35",
+    "concern_summary_short": "Public dataset release statement missing in revised manuscript",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+
+  {
+    "paper_id": "PR-EXP-0116",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0116-C1",
+    "concern_summary_short": "Dataset size limits performance and inter-cohort consistency",
+    "concern_topic_tags": ["sample_size", "external_validation"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0116",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0116-C2",
+    "concern_summary_short": "Report cancer detection model performance on validation cohorts",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0116",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0116-C3",
+    "concern_summary_short": "Cell classification model performance unclear; possible bias propagation",
+    "concern_topic_tags": ["evaluation_metric", "interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0116",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0116-C4",
+    "concern_summary_short": "Use cross-validation to address overfitting from small dataset",
+    "concern_topic_tags": ["evaluation_metric", "sample_size"],
+    "mlgg_rule_match": ["R022"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0116",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0116-C5",
+    "concern_summary_short": "External cohort used to fine-tune model selection causes leakage",
+    "concern_topic_tags": ["leakage", "evaluation_metric"],
+    "mlgg_rule_match": ["R021"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0116",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0116-C6",
+    "concern_summary_short": "Add table of all AUC and performance scores",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0116",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0116-C7",
+    "concern_summary_short": "Why does multiscale ensemble perform worse than single-scale models",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0116",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0116-C8",
+    "concern_summary_short": "Clarify PFI training: separate models, threshold rule, binarization",
+    "concern_topic_tags": ["outcome_definition", "evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0116",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0116-C9",
+    "concern_summary_short": "Compare transcriptomes of true vs false predicted responders",
+    "concern_topic_tags": ["interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0116",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0116-C10",
+    "concern_summary_short": "Tone down clinical-transformation claim given modest AUC",
+    "concern_topic_tags": ["clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0116",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0116-C11",
+    "concern_summary_short": "Define internal vs external dataset assignments explicitly",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0116",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0116-C12",
+    "concern_summary_short": "Justify favorable/poor 12-month prognostic group cutoff",
+    "concern_topic_tags": ["outcome_definition", "clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0116",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0116-C13",
+    "concern_summary_short": "Validate breast-trained segmentation model on HGSOC tissue",
+    "concern_topic_tags": ["external_validation", "feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0116",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0116-C14",
+    "concern_summary_short": "Explain calculation of slide-level predictive value",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0116",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0116-C15",
+    "concern_summary_short": "Justify Takaya HRD algorithm versus newer mutational signature methods",
+    "concern_topic_tags": ["feature_engineering", "outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0116",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0116-C16",
+    "concern_summary_short": "Use cross-validation to mitigate variability of random splits",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["R022"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0116",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0116-C17",
+    "concern_summary_short": "Missing PARP inhibitor info in TCGA cohort affects generalization",
+    "concern_topic_tags": ["missing_data", "external_validation"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0116",
+    "round": "R1",
+    "reviewer": "Reviewer #3",
+    "concern_id": "PR-EXP-0116-C18",
+    "concern_summary_short": "Limited cohort size restricts robustness for routine practice",
+    "concern_topic_tags": ["sample_size", "clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+
+  {
+    "paper_id": "PR-EXP-0127",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0127-C1",
+    "concern_summary_short": "Reduce display items, condense figures and tables",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0127",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0127-C2",
+    "concern_summary_short": "Define the uni-modal rhpc baseline model explicitly",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0127",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0127-C3",
+    "concern_summary_short": "Clarify rhpc usage as dual targets and inputs in MLP",
+    "concern_topic_tags": ["leakage", "feature_engineering"],
+    "mlgg_rule_match": ["R018"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0127",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0127-C4",
+    "concern_summary_short": "Compare to rhpc-only model to isolate imaging contribution",
+    "concern_topic_tags": ["evaluation_metric", "interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0127",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0127-C5",
+    "concern_summary_short": "External Duke cohort small, especially for HER2+ subgroups",
+    "concern_topic_tags": ["external_validation", "sample_size"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0127",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0127-C6",
+    "concern_summary_short": "Pre-NAT model offers no advantage over established biomarkers",
+    "concern_topic_tags": ["clinical_utility", "evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0127",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0127-C7",
+    "concern_summary_short": "Conclusion to forgo surgery in pCR cases is clinically misleading",
+    "concern_topic_tags": ["ethics", "clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0127",
+    "round": "R1",
+    "reviewer": "Reviewer #3",
+    "concern_id": "PR-EXP-0127-C8",
+    "concern_summary_short": "Duke external dataset only contains pre-NAT MRI, limited test scope",
+    "concern_topic_tags": ["external_validation", "missing_data"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0127",
+    "round": "R1",
+    "reviewer": "Reviewer #3",
+    "concern_id": "PR-EXP-0127-C9",
+    "concern_summary_short": "Define unified pCR ground truth and DCIS handling",
+    "concern_topic_tags": ["outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0127",
+    "round": "R1",
+    "reviewer": "Reviewer #3",
+    "concern_id": "PR-EXP-0127-C10",
+    "concern_summary_short": "Selection of 120 test cohort A patients seems non-random",
+    "concern_topic_tags": ["leakage", "sample_size"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0127",
+    "round": "R1",
+    "reviewer": "Reviewer #3",
+    "concern_id": "PR-EXP-0127-C11",
+    "concern_summary_short": "Justify mammography over ultrasound for NAT response monitoring",
+    "concern_topic_tags": ["clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0127",
+    "round": "R1",
+    "reviewer": "Reviewer #3",
+    "concern_id": "PR-EXP-0127-C12",
+    "concern_summary_short": "Improvement may not be statistically significant; temper claims",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+
+  {
+    "paper_id": "PR-EXP-0152",
+    "round": "R3",
+    "reviewer": "Reviewer #3",
+    "concern_id": "PR-EXP-0152-C1",
+    "concern_summary_short": "Confirm validation AMLSG cohort molecular profiles taken at diagnosis",
+    "concern_topic_tags": ["outcome_definition", "external_validation"],
+    "mlgg_rule_match": ["R027"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0152",
+    "round": "R3",
+    "reviewer": "Reviewer #3",
+    "concern_id": "PR-EXP-0152-C2",
+    "concern_summary_short": "AMLSG reference is incorrect; please correct citation",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0185-C1",
+    "concern_summary_short": "AUC reported is much higher than benchmark studies; explain",
+    "concern_topic_tags": ["evaluation_metric", "imbalanced_data"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0185-C2",
+    "concern_summary_short": "Validate model on public datasets like EyePACS or Messidor-2",
+    "concern_topic_tags": ["external_validation"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0185-C3",
+    "concern_summary_short": "Clarify uncategorized image handling in close-world classification",
+    "concern_topic_tags": ["outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0185-C4",
+    "concern_summary_short": "Document quality control algorithm and exclusion statistics",
+    "concern_topic_tags": ["reproducibility", "missing_data"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0185-C5",
+    "concern_summary_short": "Report inter-grader and intra-grader agreement statistics",
+    "concern_topic_tags": ["outcome_definition", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0185-C6",
+    "concern_summary_short": "Patient imaged before and after 2018: discard from test?",
+    "concern_topic_tags": ["leakage"],
+    "mlgg_rule_match": ["R002"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0185-C7",
+    "concern_summary_short": "Document labeling process for multihospital and public test sets",
+    "concern_topic_tags": ["outcome_definition", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0185-C8",
+    "concern_summary_short": "39 categories mix diseases, findings, postoperative findings",
+    "concern_topic_tags": ["outcome_definition", "clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0185-C9",
+    "concern_summary_short": "External test sets are all DR-only, overoptimistic claims",
+    "concern_topic_tags": ["external_validation", "evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0185-C10",
+    "concern_summary_short": "Address overlap between class categories with multi-label setup",
+    "concern_topic_tags": ["outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0185-C11",
+    "concern_summary_short": "Architecture not novel yet performance unusually high; explain",
+    "concern_topic_tags": ["evaluation_metric", "imbalanced_data"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0185-C12",
+    "concern_summary_short": "Clarify use of REFUGE-pretrained optic disc localizer",
+    "concern_topic_tags": ["leakage", "external_validation"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0185-C13",
+    "concern_summary_short": "Clarify inclusion/exclusion criteria for non-consensus images",
+    "concern_topic_tags": ["outcome_definition", "missing_data"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0185-C14",
+    "concern_summary_short": "Clarify whether all 250k images were rated by 20 ophthalmologists",
+    "concern_topic_tags": ["outcome_definition", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0185-C15",
+    "concern_summary_short": "Quantify localization accuracy of generated heatmaps",
+    "concern_topic_tags": ["interpretability", "evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R1",
+    "reviewer": "Reviewer #3",
+    "concern_id": "PR-EXP-0185-C16",
+    "concern_summary_short": "Heterogeneous classes mix screening signs and postoperative finds",
+    "concern_topic_tags": ["outcome_definition", "clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R1",
+    "reviewer": "Reviewer #3",
+    "concern_id": "PR-EXP-0185-C17",
+    "concern_summary_short": "Add referable-condition triage labels rather than binary referable",
+    "concern_topic_tags": ["clinical_utility", "outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R1",
+    "reviewer": "Reviewer #3",
+    "concern_id": "PR-EXP-0185-C18",
+    "concern_summary_short": "Provide inter and intra-grader reproducibility data for 10 teams",
+    "concern_topic_tags": ["outcome_definition", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R2",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0185-C19",
+    "concern_summary_short": "Number mismatch between line 460 and Supplementary Figure 2",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R2",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0185-C20",
+    "concern_summary_short": "Document number of unclassifiable images excluded by experts",
+    "concern_topic_tags": ["missing_data", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "round": "R2",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0185-C21",
+    "concern_summary_short": "Add control-flow figure for 105 uncategorized images discarded",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+
+  {
+    "paper_id": "PR-EXP-0207",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0207-C1",
+    "concern_summary_short": "Several introduction claims about CT vs CXR unsupported",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0207",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0207-C2",
+    "concern_summary_short": "Algorithm performed worse on younger patients; sub-classify by severity",
+    "concern_topic_tags": ["fairness", "outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0207",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0207-C3",
+    "concern_summary_short": "Selection bias: most patients admitted; mild cases under-represented",
+    "concern_topic_tags": ["fairness", "external_validation"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0207",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0207-C4",
+    "concern_summary_short": "Address breath-hold artifacts and CXR vs CT usability",
+    "concern_topic_tags": ["clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0207",
+    "round": "R1",
+    "reviewer": "Reviewer #1",
+    "concern_id": "PR-EXP-0207-C5",
+    "concern_summary_short": "Performance for patients with comorbid pulmonary or cardiac disease",
+    "concern_topic_tags": ["fairness", "external_validation"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0207",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0207-C6",
+    "concern_summary_short": "Did multiple CTs from one patient appear in train and test",
+    "concern_topic_tags": ["leakage"],
+    "mlgg_rule_match": ["R002"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0207",
+    "round": "R1",
+    "reviewer": "Reviewer #2",
+    "concern_id": "PR-EXP-0207-C7",
+    "concern_summary_short": "Define ambiguous term stage in study (severity vs scan order)",
+    "concern_topic_tags": ["outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0207",
+    "round": "R1",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0207-C8",
+    "concern_summary_short": "Paired CT and CXR offers limited novelty over CT alone",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0207",
+    "round": "R1",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0207-C9",
+    "concern_summary_short": "Lack of comparison with prior AI lung-disease diagnosis literature",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0207",
+    "round": "R1",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0207-C10",
+    "concern_summary_short": "Private dataset hampers reproducibility; validate on public set",
+    "concern_topic_tags": ["reproducibility", "external_validation"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0207",
+    "round": "R1",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0207-C11",
+    "concern_summary_short": "Report lung segmentation performance and failure handling",
+    "concern_topic_tags": ["evaluation_metric", "feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0207",
+    "round": "R1",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0207-C12",
+    "concern_summary_short": "Justify averaging top-K slice probabilities and how K is chosen",
+    "concern_topic_tags": ["evaluation_metric", "feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0207",
+    "round": "R1",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0207-C13",
+    "concern_summary_short": "External validation retrains the model, breaking holdout independence",
+    "concern_topic_tags": ["leakage", "external_validation"],
+    "mlgg_rule_match": ["R021"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0207",
+    "round": "R1",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0207-C14",
+    "concern_summary_short": "Report multi-class performance and confusion matrix",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0207",
+    "round": "R2",
+    "reviewer": "Reviewer #4",
+    "concern_id": "PR-EXP-0207-C15",
+    "concern_summary_short": "Validate fairness across demographic subgroups",
+    "concern_topic_tags": ["fairness"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  }
+]

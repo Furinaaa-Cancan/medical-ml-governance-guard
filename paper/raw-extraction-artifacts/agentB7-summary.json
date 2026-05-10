@@ -1,0 +1,112 @@
+{
+  "agent": "B7",
+  "task": "Per-cell parse fallback for E000 in notebooks (15/92 papers, 16% impact)",
+  "files_modified": [
+    {
+      "path": "plugin/mlgg_lint/notebook.py",
+      "lines": 300,
+      "delta": "+~210 lines (added SkippedCell, heuristics for R/bash/cell-magic, extract_notebook_source_with_validation)"
+    },
+    {
+      "path": "plugin/mlgg_lint/engine.py",
+      "lines": 437,
+      "delta": "+~50 lines (replaced extract_notebook_source call with validation variant; emit per-cell INFO + notebook-no-python-cells)"
+    },
+    {
+      "path": "plugin/mlgg_lint/__init__.py",
+      "lines": 3,
+      "delta": "version bump 0.2.0 -> 0.3.0"
+    }
+  ],
+  "files_created": [
+    {
+      "path": "plugin/tests/test_notebook_per_cell.py",
+      "lines": 289,
+      "tests_added": 10
+    },
+    {
+      "path": "plugin/tests/samples/notebooks/mixed_r_python.ipynb",
+      "lines": 47,
+      "purpose": "1 R cell + 2 Python cells (R009/R016 trigger downstream)"
+    },
+    {
+      "path": "plugin/tests/samples/notebooks/cell_magic_bash.ipynb",
+      "lines": 37,
+      "purpose": "1 %%bash cell + 1 Python cell"
+    },
+    {
+      "path": "plugin/tests/samples/notebooks/all_r.ipynb",
+      "lines": 47,
+      "purpose": "3 R cells, no Python -> notebook-no-python-cells INFO"
+    }
+  ],
+  "tests_added": {
+    "file": "plugin/tests/test_notebook_per_cell.py",
+    "count": 10,
+    "names": [
+      "test_mixed_r_python_skips_r_cell_only",
+      "test_cell_magic_bash_skipped_as_info",
+      "test_all_r_emits_no_python_cells_info",
+      "test_nbformat_below_4_preserves_error",
+      "test_unicode_only_string_no_false_skip",
+      "test_extract_with_validation_returns_skipped_cells",
+      "test_python_with_line_magic_not_skipped",
+      "test_syntax_error_cell_skipped_with_reason",
+      "test_legacy_extract_notebook_source_compat",
+      "test_severity_threshold_excludes_info"
+    ]
+  },
+  "pytest_result": {
+    "command": "python3 -m pytest plugin/tests/ -x --tb=short",
+    "passed": 134,
+    "failed": 0,
+    "preexisting_tests_passed": 124,
+    "new_tests_passed": 10,
+    "coverage_engine_pct": 88,
+    "coverage_notebook_pct": 88,
+    "above_85_threshold": true
+  },
+  "design_decisions": [
+    "Backward-compat: kept extract_notebook_source(path) returning (source, mappings) by delegating to the new function and dropping the third tuple element.",
+    "Order of cell classification: cell_magic (%%) first, then non_python_r, then non_python_bash, then ast.parse fallback. This keeps %%bash diagnostics labelled as cell_magic (more specific) rather than non_python_bash.",
+    "R-language heuristic requires BOTH '<-' (whitespace-bounded) AND one of library(/function(/c(/read.csv to avoid false positives on Python 'a < -1' comparisons.",
+    "Bash heuristic looks at the FIRST non-comment line for cd/mkdir/for-do.",
+    "Per-cell INFO diagnostics use rule_id='E000' rule_name='notebook-cell-skipped' with severity=INFO; respect severity_threshold filtering.",
+    "Empty-virtual-source after skipping -> single E000 INFO 'notebook-no-python-cells' (not ERROR). nbformat<4 / malformed JSON still produces E000 ERROR (legacy preserved)."
+  ],
+  "compatibility_risks": [
+    {
+      "risk": "Public API extract_notebook_source kept as 2-tuple wrapper around new function. Any external caller using 2-tuple unpacking continues to work; callers wanting skip info must use extract_notebook_source_with_validation.",
+      "severity": "low"
+    },
+    {
+      "risk": "Existing leaky_notebook.ipynb test (test_notebook_basic / test_notebook_clean / test_notebook_directory_scan / test_notebook_cell_location / test_notebook_malformed) all still pass — line numbers in that fixture were not affected because no cells get skipped (all are valid Python).",
+      "severity": "none"
+    },
+    {
+      "risk": "If a notebook contains both R-style assignments AND legitimate Python comparisons in OTHER cells, only cells where the R heuristic matches both conditions are skipped. Pure-Python cells with 'a < -1' inside but no library/function/c/read.csv hint pass cleanly. Verified via test_unicode_only_string_no_false_skip + manual review of regex.",
+      "severity": "low"
+    },
+    {
+      "risk": "Cell-magic detection treats ANY %% line as cell magic. If someone uses an ipynb cell that BEGINS with a string literal containing '%%' as the first non-empty line (unlikely in practice), it would be mis-skipped. Acceptable given real-world notebook conventions.",
+      "severity": "very-low"
+    },
+    {
+      "risk": "Per-cell INFO can increase diagnostic volume in formatters/SARIF output for notebooks with many non-Python cells. Output remains correctly typed; consumers filtering by severity 'error' or 'warning' will not see these.",
+      "severity": "low"
+    },
+    {
+      "risk": "No existing R009/R022 fixture line-number assertions broke (verified by full pytest run). No remediation needed.",
+      "severity": "none"
+    }
+  ],
+  "scope_compliance": {
+    "touched_only_allowed_files": true,
+    "rules_directory_untouched": true,
+    "diagnostic_schema_unchanged": true,
+    "severity_enum_unchanged": true,
+    "no_other_versions_bumped": true,
+    "papers_references_scripts_untouched": true
+  },
+  "notes_for_main_process": "All 134 plugin tests pass (124 pre-existing + 10 new). Coverage on engine.py and notebook.py both at 88% (>=85% target). The fix transforms a fatal E000 ERROR into per-cell INFO records, allowing analysis to continue on well-formed Python cells. This should reduce the 15/92 (16%) E000 hit rate by allowing R/bash/magic-mixed notebooks (PR-EXP-0157, PR-EXP-0072, PR-EXP-0152) to be partially analysed instead of fully aborting."
+}

@@ -1,0 +1,63 @@
+{
+  "agent": "B2",
+  "papers_assigned": 8,
+  "papers_processed": 8,
+  "papers_failed": 0,
+  "total_concerns": 173,
+  "concerns_per_paper": {
+    "PR-EXP-0047": 19,
+    "PR-EXP-0066": 14,
+    "PR-EXP-0084": 49,
+    "PR-EXP-0108": 4,
+    "PR-EXP-0121": 23,
+    "PR-EXP-0142": 15,
+    "PR-EXP-0157": 16,
+    "PR-EXP-0192": 33
+  },
+  "severity_breakdown": {
+    "minor": 125,
+    "major": 48
+  },
+  "round_breakdown": {
+    "1": 124,
+    "2": 46,
+    "3": 3
+  },
+  "reviewer_breakdown": {
+    "R1": 88,
+    "R2": 37,
+    "R3": 43,
+    "R4": 5
+  },
+  "topic_tag_counts": {
+    "reproducibility": 49,
+    "other": 34,
+    "interpretability": 28,
+    "feature_engineering": 15,
+    "evaluation_metric": 38,
+    "clinical_utility": 13,
+    "imbalanced_data": 6,
+    "external_validation": 14,
+    "fairness": 5,
+    "outcome_definition": 13,
+    "missing_data": 4,
+    "sample_size": 3,
+    "leakage": 3
+  },
+  "mlgg_rule_match_counts": {
+    "none": 167,
+    "R013": 1,
+    "R021": 5
+  },
+  "concerns_with_mlgg_match": 6,
+  "concerns_no_mlgg_match": 167,
+  "anomalies": [
+    "PR-EXP-0047 (DDI/KG) is a knowledge-graph methodology paper rather than retrospective clinical cohort prediction; few mlgg rules apply.",
+    "PR-EXP-0108 had only round-2 minor reviewer comments (previously reviewed at another journal); 4 minor concerns total.",
+    "PR-EXP-0142 finding_count=10 in paper-list, extracted 15 concerns (R1-R3 across rounds 1+2).",
+    "PR-EXP-0157 paper-list reports finding_count=40 but only 16 distinct reviewer concerns extracted (R1=6, R2=4, R3=5, R1-rd2=1); finding_count likely counts mlgg internal findings, not reviewer concerns.",
+    "PR-EXP-0121 contains embedded credentials in code-availability text (Code Ocean username/password) \u2014 relevant to R029 but not raised by reviewers, so not coded as a concern.",
+    "PR-EXP-0066 R3-round2 comment 'CKD diagnosis without renal-function data is hazardous' aligns with R001 Outcome Definition concept but no exact mlgg rule match.",
+    "Multiple papers (esp PR-EXP-0084) had reviewer comments touching leakage/CV-tuning that mapped to R021 (test-set hyperparameter reuse) but most reviewer language focused on reproducibility rather than explicit leakage rules."
+  ]
+}

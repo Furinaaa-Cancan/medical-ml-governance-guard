@@ -1,0 +1,92 @@
+{
+  "agent": "B8",
+  "task": "Revise R021 to fix 0/4 TP rate (100% FP) from A3 stratified review",
+  "completed_at_utc": "2026-05-10T00:00:00Z",
+  "files_modified": [
+    "/Volumes/Seagate/Skill/ml-leakage-guard/plugin/mlgg_lint/rules/r021_test_loop_tuning.py"
+  ],
+  "files_added": [
+    "/Volumes/Seagate/Skill/ml-leakage-guard/plugin/tests/test_r021_revision.py"
+  ],
+  "design_summary": {
+    "old_behavior": "R021 fired on any test-prediction call (predict/predict_proba/score/holdout-metric) inside any loop. This produced 100% FP on plain k-fold CV evaluation patterns where cv.split() yields per-fold (train, test) and predict_proba(X_test) is the canonical reporting call.",
+    "new_behavior": "R021 only fires when the loop body simultaneously contains (a) a test-prediction/holdout-metric call AND (b) a hyperparameter-mutation pattern. HP mutation is detected by any of: model.set_params(...), attribute assignment to a known sklearn HP name (model.C = c, model.alpha = a, ...), parametrized re-instantiation where a constructor kwarg (or positional arg) references a loop variable (e.g. SVC(C=c) inside `for c in grid`), or a nested for-loop iterating an HP-named iterable (alphas, C_grid, n_estimators_list, *_grid/_values/_range/_list/_choices/_space).",
+    "scope": "Rule structure changed from per-Call counting to per-Loop scanning. visit_For/visit_While now drives _check_loop, which calls _loop_body_mutates_hyperparameters first and only then iterates test-prediction calls in the body."
+  },
+  "tests_added": [
+    "test_r021_plain_cv_loop_not_flagged - canonical cv.split + predict_proba (must NOT fire)",
+    "test_r021_fold_by_fold_auc_not_flagged - fold loop + roc_auc_score (must NOT fire)",
+    "test_r021_pr086_fp_files_suppressed - regression: 4 PR-086 audit files now zero R021 (skips if cache absent)",
+    "test_r021_hp_grid_reinstantiation_flagged - for c in grid: SVC(C=c) (must fire)",
+    "test_r021_set_params_flagged - set_params + predict_proba (must fire)",
+    "test_r021_hp_attribute_assign_flagged - m.alpha = a + score (must fire)",
+    "test_r021_nested_hp_sweep_flagged - nested for over n_estimators_grid (must fire)",
+    "test_r021_loop_with_no_estimator_call_not_flagged - HP mutation but no test-pred (must NOT fire)"
+  ],
+  "tests_changed": [],
+  "pytest_result": {
+    "test_r021_revision.py": "8 passed in 0.22s",
+    "full_suite": "124 passed in 0.35s",
+    "regressions": "none"
+  },
+  "fp_examples_now_suppressed": [
+    {
+      "finding_id": 198,
+      "file": ".cache/audit-repos/PR-086/Gradient Boosting-5倍交叉验证.py",
+      "line": 53,
+      "before": "FP - flagged predict_proba(X_test)[:, 1] in cv.split() loop",
+      "after": "no R021 (loop body has no HP mutation; pure CV evaluation)"
+    },
+    {
+      "finding_id": 225,
+      "file": ".cache/audit-repos/PR-086/RF-5倍交叉验证.py",
+      "line": 46,
+      "before": "FP - same pattern",
+      "after": "no R021"
+    },
+    {
+      "finding_id": 245,
+      "file": ".cache/audit-repos/PR-086/adaboost-5倍交叉验证.py",
+      "line": 48,
+      "before": "FP - same pattern",
+      "after": "no R021"
+    },
+    {
+      "finding_id": 254,
+      "file": ".cache/audit-repos/PR-086/xgb-5倍交叉验证.py",
+      "line": 43,
+      "before": "FP - same pattern",
+      "after": "no R021"
+    }
+  ],
+  "tp_examples_still_fire": [
+    {
+      "scenario": "Synthetic SVC grid search reusing X_test",
+      "code": "for C in [0.001, 0.01, 0.1, 1, 10, 100]: m = SVC(C=C); m.fit(X_train, y_train); score = m.score(X_test, y_test)",
+      "fires": true,
+      "trigger": "parametrized re-instantiation (SVC(C=C) where C is loop var) + score(X_test)"
+    },
+    {
+      "scenario": "set_params sweep",
+      "code": "for n in n_estimators_list: m.set_params(n_estimators=n); m.fit(X_tr); m.predict_proba(X_test)",
+      "fires": true,
+      "trigger": "set_params call + predict_proba(X_test)"
+    },
+    {
+      "scenario": "Attribute mutation sweep",
+      "code": "for alpha in alphas: m.alpha = alpha; m.fit(X_tr); m.score(X_test)",
+      "fires": true,
+      "trigger": "attribute assign to known HP name + score(X_test)"
+    }
+  ],
+  "flagged_test_failures": [],
+  "risks": [
+    "Estimator-constructor heuristic _looks_like_estimator_ctor relies on naming conventions (CamelCase + suffix Classifier/Regressor/CV/Boost/Forest/Tree/Net/Machine/Model, plus a small allow-list including SVC/Lasso/Ridge/etc.). Custom estimator class names that don't match either heuristic will be missed in the re-instantiation pattern. Mitigation: set_params and attribute-assign patterns still fire and cover most real cases.",
+    "Nested HP-sweep detection uses iterable-name heuristics (_grid/_values/_range/_list/_choices/_space suffixes, or HP-name parts). A user iterating over an unconventionally named list (e.g. `for c in my_choices_xyz`) where the body re-instantiates with the loop var will still fire via the parametrized-reassignment path. Pure HP sweeps without re-instantiation could be missed if the iterable is named opaquely.",
+    "_HYPERPARAM_NAMES is a curated allow-list. Novel HPs (cutting-edge libraries, custom estimators) won't be caught via attribute-assign. set_params and parametrized re-instantiation continue to work because those paths don't depend on the HP name.",
+    "Rule remains WARNING severity (unchanged). Existing R021 entries in audit reports for prior runs remain valid; the change only affects future analyses."
+  ],
+  "noqa_changes": [],
+  "version_changes": [],
+  "schema_changes": []
+}

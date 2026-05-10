@@ -1,0 +1,46 @@
+{
+  "agent": "B4",
+  "papers_processed": 8,
+  "total_concerns_extracted": 187,
+  "concerns_by_paper": {
+    "PR-EXP-0060": 25,
+    "PR-EXP-0071": 10,
+    "PR-EXP-0101": 35,
+    "PR-EXP-0112": 28,
+    "PR-EXP-0123": 20,
+    "PR-EXP-0148": 21,
+    "PR-EXP-0166": 47,
+    "PR-EXP-0201": 1
+  },
+  "concerns_by_round": {
+    "1": 152,
+    "2": 31,
+    "3": 4
+  },
+  "concerns_by_severity": {
+    "major": 63,
+    "minor": 124
+  },
+  "concerns_by_topic_tag": {
+    "other": 38,
+    "sample_size": 5,
+    "evaluation_metric": 63,
+    "reproducibility": 49,
+    "clinical_utility": 16,
+    "external_validation": 14,
+    "outcome_definition": 15,
+    "leakage": 11,
+    "imbalanced_data": 3,
+    "feature_engineering": 14,
+    "interpretability": 12,
+    "ethics": 6,
+    "fairness": 7,
+    "calibration": 1
+  },
+  "concerns_with_mlgg_rule_match": 16,
+  "anomalies": [
+    "PR-EXP-0201 (s41467-020-17280-8) had prior reviewer reports redacted in the Nature Communications PDF; only one R2 generic acknowledgment was capturable (1 concern).",
+    "PR-EXP-0123 (BayesNF) is a non-clinical spatiotemporal prediction paper (climate/weather/epidemiology); reviewer concerns are methodological-DL with limited mapping to clinical-leakage mlgg rules.",
+    "Most papers involve modalities outside MLGG tabular EHR scope per project CLAUDE.md (histopathology WSI, CT/MRI, NLP text, knowledge graphs); rule mappings concentrated on R021 (HP-tune-test-leak) and R002 (patient-cross-split) when applicable."
+  ]
+}

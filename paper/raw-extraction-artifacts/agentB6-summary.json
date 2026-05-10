@@ -1,0 +1,55 @@
+{
+  "agent": "B6",
+  "papers_processed": 8,
+  "total_concerns_extracted": 128,
+  "per_paper_counts": {
+    "PR-EXP-0064": 13,
+    "PR-EXP-0079": 12,
+    "PR-EXP-0104": 35,
+    "PR-EXP-0116": 18,
+    "PR-EXP-0127": 12,
+    "PR-EXP-0152": 2,
+    "PR-EXP-0185": 21,
+    "PR-EXP-0207": 15
+  },
+  "severity_distribution": {
+    "major": 74,
+    "minor": 54
+  },
+  "topic_tag_frequency": {
+    "leakage": 9,
+    "external_validation": 19,
+    "evaluation_metric": 30,
+    "reproducibility": 33,
+    "outcome_definition": 22,
+    "interpretability": 9,
+    "feature_engineering": 13,
+    "missing_data": 8,
+    "imbalanced_data": 2,
+    "fairness": 9,
+    "clinical_utility": 17,
+    "ethics": 2,
+    "sample_size": 9,
+    "calibration": 0,
+    "other": 17
+  },
+  "mlgg_rule_matches": {
+    "R002": 2,
+    "R008": 1,
+    "R018": 1,
+    "R021": 3,
+    "R022": 2,
+    "R027": 1,
+    "R029": 1,
+    "none": 117
+  },
+  "notes": [
+    "PR-EXP-0152 (AML): peer-review file contains only the final round at Nature Communications (prior reviews redacted from another journal), so concern count is only 2.",
+    "PR-EXP-0079 (DXA mortality), PR-EXP-0104 (LCTfound), PR-EXP-0116 (HGSOC) and PR-EXP-0185 (fundus DL) are imaging studies that fall outside MLGG retrospective tabular EHR scope, so most concerns map to ['none'] for mlgg rule but are still topic-tagged.",
+    "PR-EXP-0207 (COVID-19 CT) had original prior-journal reviews redacted; numbering reflects only Nature Communications rounds available.",
+    "Direct leakage concerns mapped to mlgg rules: R002 (patient cross-split, PR-EXP-0185 C6 and PR-EXP-0207 C6), R008 (temporal split, PR-EXP-0064 C11), R021 (HP/test leak, PR-EXP-0064 C12, PR-EXP-0116 C5, PR-EXP-0207 C13), R022 (CV needed, PR-EXP-0116 C4 and C16), R018 (outcome-as-feature suggested, PR-EXP-0127 C3 — author uses rhpc both as target and as input), R027 (derived feature pre-treatment timing, PR-EXP-0152 C1 — molecular profile timing concern), R029 (creds/availability, PR-EXP-0104 C19).",
+    "All concerns paraphrased; no verbatim reviewer text >15 words reproduced, in compliance with project IP rule."
+  ],
+  "papers_with_unreadable_sections": [],
+  "extraction_method": "Paraphrased reviewer remarks per round; ignored author response sections; round labels reflect per-paper round numbering as visible in the peer-review file."
+}

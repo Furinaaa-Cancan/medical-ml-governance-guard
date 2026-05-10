@@ -1,0 +1,138 @@
+{
+  "agent": "B10",
+  "task": "outline-v0.3",
+  "output_file": "/Volumes/Seagate/Skill/ml-leakage-guard/paper/outline-v0.3.md",
+  "metrics": {
+    "line_count": 514,
+    "word_count": 6742,
+    "section_count": 15,
+    "target_line_range": "500-600",
+    "within_target": true
+  },
+  "main_sections": [
+    "0. Diff summary vs v0.2",
+    "1. Title and abstract draft (250 words)",
+    "2. Introduction (5 paragraphs, 700-900 words)",
+    "3. Methods (3.1 Corpus / 3.2 Rules / 3.3 Lint audit / 3.4 Stratified review / 3.5 Inter-rater / 3.6 Reviewer-concerns alignment)",
+    "4. Results (4.1 Prevalence / 4.2 TP-FP precision HEADLINE / 4.3 Three rules revised / 4.4 R029 / 4.5 Reviewer-concerns illustrative)",
+    "5. Discussion (5.1 76% TP / 5.2 audit-revise cycle / 5.3 Limitations / 5.4 Generalizability / 5.5 Governance role)",
+    "6. Open questions Q15-Q19",
+    "7. Author candidate list",
+    "8. Versioning",
+    "9. References",
+    "10. IP-compliance note",
+    "11. Supplementary methods and reproducibility",
+    "12. Bridge to Results (3 headline numbers / 3 explicit non-headlines)",
+    "13. Submission target and journal fit",
+    "14. Timeline to submission",
+    "15. Cross-references to repository artifacts"
+  ],
+  "key_restructure_decisions": [
+    {
+      "decision": "Promote A3 stratified TP/FP audit to main quantitative Result",
+      "rationale": "n=50 with 76% TP rate is in hand; v0.2's Fig 4 confusion matrix needed reviewer-concerns extraction for 48 PR-EXP papers (multi-week B1-B6 critical path)",
+      "section_impact": "§4.2 is new headline result; previous Fig 4 expansion target n=22 explicitly downgraded to v0.4/follow-up"
+    },
+    {
+      "decision": "Downgrade reviewer-concerns alignment to illustrative case study (n<=5)",
+      "rationale": "Only PR-NNN curated cohort has reviewer_concerns; PR-EXP layer has zero extracted; cannot make precision/recall claim at n=5",
+      "section_impact": "§4.5 reframed; Fig 3 becomes Sankey-style face-validity illustration not confusion matrix"
+    },
+    {
+      "decision": "Surface 3 rules requiring revision (R021/R008/R004)",
+      "rationale": "Per-rule precision under 50% on stratified sample; revisions documented as audit-driven feedback loop demo",
+      "section_impact": "§4.3 new; §5.2 audit-revise-reaudit cycle as methodological contribution"
+    },
+    {
+      "decision": "Embed PRISMA-2020 by reference rather than narrative",
+      "rationale": "v0.2 had corpus details scattered across sections 2/6/7; v0.3 cites paper/prisma-flow.md as canonical artifact",
+      "section_impact": "§3.1 condensed; one summary table referencing prisma-flow.md"
+    },
+    {
+      "decision": "Add §11 supplementary methods and reproduction commands",
+      "rationale": "Pre-registration of A3 protocol (seed=42, 8-per-rule cap, blinded) needs explicit Methods anchor for reviewer scrutiny",
+      "section_impact": "Reproduction commands shipped; freezes /tmp/agent03-tpfp-sample.json as canonical seed-42 artifact"
+    }
+  ],
+  "tbds_flagged": [
+    {
+      "id": "TBD-1",
+      "section": "abstract / 5.1",
+      "item": "False-positive review burden comparison reference (1 in 4 false alerts in clinical operations)",
+      "blocker": "literature search needed"
+    },
+    {
+      "id": "TBD-2",
+      "section": "3.5",
+      "item": "Cohen's kappa on 2nd annotator for n=50 sample",
+      "blocker": "Q16 second annotator identity"
+    },
+    {
+      "id": "TBD-3",
+      "section": "4.4",
+      "item": "R029 manual confirmation count on 92-repo corpus",
+      "blocker": "B5/B7 follow-up"
+    },
+    {
+      "id": "TBD-4",
+      "section": "4.5 / Fig 3 caption",
+      "item": "Annotator agreement count and overlap fraction at concept-level matching",
+      "blocker": "B-wave alignment task on 5 PR-NNN papers"
+    },
+    {
+      "id": "TBD-5",
+      "section": "5.5",
+      "item": "Per-paper violation precision",
+      "blocker": "depends on TBD-2 (kappa) plus per-paper aggregation protocol"
+    },
+    {
+      "id": "TBD-6",
+      "section": "1.2 / 11.4",
+      "item": "Funding statement and conflict-of-interest declarations",
+      "blocker": "co-author recruitment (Q1, Q16)"
+    },
+    {
+      "id": "TBD-7",
+      "section": "2.2 / 5.4",
+      "item": "Reddy 2025 verbatim citation details (DOI confirmed; full author list not yet pulled)",
+      "blocker": "literature/README.md still has only URL"
+    }
+  ],
+  "citations_list": [
+    {"key": "Kapoor 2023", "venue": "Patterns 4(9):100804", "role": "foundational problem statement; closest conceptual prior art"},
+    {"key": "Liu 2022", "venue": "Lancet Digit Health 4(5):e384-e397", "role": "closest medical-domain prior art; senior co-author cohort"},
+    {"key": "Collins 2024", "venue": "BMJ 385:e078378", "role": "TRIPOD+AI canonical reporting guideline mlgg maps to"},
+    {"key": "Varoquaux 2022", "venue": "npj Digit Med 5:48", "role": "methodological-failure review; supports problem framing"},
+    {"key": "Oala 2021", "venue": "J Med Syst 45(12):105", "role": "editorial calling for ML4H algorithm auditing; mlgg responds"},
+    {"key": "Tejani 2024", "venue": "Radiol Artif Intell 6(4):e240300", "role": "CLAIM 2024 ecosystem context"},
+    {"key": "Norgeot 2020", "venue": "Nat Med 26:1320-1324", "role": "MI-CLAIM ecosystem context"},
+    {"key": "Vasey 2022", "venue": "Nat Med 28:924-933", "role": "DECIDE-AI ecosystem context"},
+    {"key": "Liu 2020", "venue": "Nat Med 26:1364-1374", "role": "CONSORT-AI scope-bound (out of mlgg scope)"},
+    {"key": "Collins 2021", "venue": "BMJ Open 11:e048008", "role": "TRIPOD-AI / PROBAST-AI protocol"},
+    {"key": "Reddy 2025", "venue": "Lancet Digit Health", "role": "landscape review of AI reporting guidelines proliferation"},
+    {"key": "SciSpace TRIPOD-AI agent", "venue": "scispace.com/agents/tripod-ai-checklist-a70kfdk5", "role": "closest automation prior art (manuscript-text-only)"},
+    {"key": "ReproAudit", "venue": "reproaudit.com", "role": "general-purpose competitor monitor"},
+    {"key": "Microsoft RepDL", "venue": "github.com/microsoft/RepDL", "role": "low-level PyTorch reproducibility"},
+    {"key": "HAIRA 2026", "venue": "npj Digit Med (s41746-026-02418-7)", "role": "organizational governance maturity model; complementary"}
+  ],
+  "downgrades_vs_v0_2": [
+    "Fig 4 confusion matrix at n=31 (target n=22 expansion) -> illustrative case study at n<=5 (v0.4/follow-up scope)",
+    "Track B (Kapoor positive) + Track C (sklearn negative) Fig 2 calibration -> moved from M1 to M1.5 since A3 stratified precision is now the calibration headline",
+    "n=31 trustable subset -> superseded as primary input by A3 stratified random sample (n=50)"
+  ],
+  "promotions_vs_v0_2": [
+    "8-paper baseline lint -> 92-repo corpus lint with 448 findings, 48 with-finding repos",
+    "Track A.5 (TP/FP audit, 'protocol locked, awaiting 2nd annotator') -> A3 single-annotator complete (76% TP rate)",
+    "R029 'rule pending Agent-5 output' -> A2 corpus shows 1 confirmed fire (PR-EXP-0185)",
+    "PRISMA flow scattered -> single canonical artifact paper/prisma-flow.md cited from §3.1",
+    "3 rules with precision <50% surfaced and revised in this work"
+  ],
+  "compliance_check": {
+    "file_path_correct": "/Volumes/Seagate/Skill/ml-leakage-guard/paper/outline-v0.3.md",
+    "v0_2_not_modified": true,
+    "no_verbatim_source_>15_words": true,
+    "no_speculated_B1_B6_numbers": true,
+    "fig4_n22_explicitly_downgraded": true,
+    "no_code_plugin_KB_touched": true
+  }
+}

@@ -1,0 +1,141 @@
+{
+  "validated_at_utc": "2026-05-10",
+  "papers_validated": 14,
+  "papers_failed": 0,
+  "papers_skipped": [
+    "PR-EXP-0157 (tensorflow/models, too large)"
+  ],
+  "e000_error_before": 25,
+  "e000_error_after": 9,
+  "e000_info_after": 101,
+  "error_reduction_pct": 64.0,
+  "per_paper": [
+    {
+      "id": "PR-EXP-0084",
+      "status": "ok",
+      "e000_old_total": 1,
+      "e000_new_total": 2,
+      "e000_new_error": 0,
+      "e000_new_info": 2,
+      "other_findings": 6
+    },
+    {
+      "id": "PR-EXP-0068",
+      "status": "ok",
+      "e000_old_total": 1,
+      "e000_new_total": 0,
+      "e000_new_error": 0,
+      "e000_new_info": 0,
+      "other_findings": 4
+    },
+    {
+      "id": "PR-EXP-0071",
+      "status": "ok",
+      "e000_old_total": 2,
+      "e000_new_total": 0,
+      "e000_new_error": 0,
+      "e000_new_info": 0,
+      "other_findings": 0
+    },
+    {
+      "id": "PR-EXP-0101",
+      "status": "ok",
+      "e000_old_total": 1,
+      "e000_new_total": 1,
+      "e000_new_error": 1,
+      "e000_new_info": 0,
+      "other_findings": 0
+    },
+    {
+      "id": "PR-EXP-0104",
+      "status": "ok",
+      "e000_old_total": 1,
+      "e000_new_total": 1,
+      "e000_new_error": 1,
+      "e000_new_info": 0,
+      "other_findings": 0
+    },
+    {
+      "id": "PR-EXP-0107",
+      "status": "ok",
+      "e000_old_total": 1,
+      "e000_new_total": 1,
+      "e000_new_error": 1,
+      "e000_new_info": 0,
+      "other_findings": 2
+    },
+    {
+      "id": "PR-EXP-0114",
+      "status": "ok",
+      "e000_old_total": 1,
+      "e000_new_total": 1,
+      "e000_new_error": 1,
+      "e000_new_info": 0,
+      "other_findings": 1
+    },
+    {
+      "id": "PR-EXP-0145",
+      "status": "ok",
+      "e000_old_total": 1,
+      "e000_new_total": 1,
+      "e000_new_error": 1,
+      "e000_new_info": 0,
+      "other_findings": 0
+    },
+    {
+      "id": "PR-EXP-0166",
+      "status": "ok",
+      "e000_old_total": 1,
+      "e000_new_total": 3,
+      "e000_new_error": 0,
+      "e000_new_info": 3,
+      "other_findings": 12
+    },
+    {
+      "id": "PR-EXP-0172",
+      "status": "ok",
+      "e000_old_total": 1,
+      "e000_new_total": 1,
+      "e000_new_error": 0,
+      "e000_new_info": 1,
+      "other_findings": 0
+    },
+    {
+      "id": "PR-EXP-0072",
+      "status": "ok",
+      "e000_old_total": 6,
+      "e000_new_total": 57,
+      "e000_new_error": 0,
+      "e000_new_info": 57,
+      "other_findings": 2
+    },
+    {
+      "id": "PR-EXP-0203",
+      "status": "ok",
+      "e000_old_total": 2,
+      "e000_new_total": 6,
+      "e000_new_error": 0,
+      "e000_new_info": 6,
+      "other_findings": 0
+    },
+    {
+      "id": "PR-EXP-0128",
+      "status": "ok",
+      "e000_old_total": 2,
+      "e000_new_total": 2,
+      "e000_new_error": 2,
+      "e000_new_info": 0,
+      "other_findings": 14
+    },
+    {
+      "id": "PR-EXP-0152",
+      "status": "ok",
+      "e000_old_total": 4,
+      "e000_new_total": 34,
+      "e000_new_error": 2,
+      "e000_new_info": 32,
+      "other_findings": 0
+    }
+  ],
+  "failures": []
+}

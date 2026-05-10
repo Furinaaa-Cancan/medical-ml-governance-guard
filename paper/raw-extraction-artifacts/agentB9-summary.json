@@ -1,0 +1,99 @@
+{
+  "agent": "B9",
+  "wave": "ml-leakage-guard 10-agent revision",
+  "scope": "R004 (split-without-group), R008 (temporal-split-shuffle) — A3 FP suppression",
+  "rules": {
+    "R004": {
+      "description": "Suppress when data is already deduplicated to one row per patient upstream of train_test_split",
+      "files_modified": [
+        "/Volumes/Seagate/Skill/ml-leakage-guard/plugin/mlgg_lint/rules/r004_split_without_group.py"
+      ],
+      "helpers_added": [
+        "_data_is_deduplicated_per_group(scope, df_var) — main negative-gate helper",
+        "_is_drop_duplicates_call(call) — detects df.drop_duplicates(subset=['patient_id', ...])",
+        "_is_groupby_reduce_chain(call) — detects df.groupby('patient_id').{first,last,head,nth,agg,...}()",
+        "_is_dedup_named_function_call(call) — regex match on helper names like link_patient_id_to_outcome",
+        "_has_dedup_text_marker(tree) — string-constant regex match on 'per-patient', 'reduce ... patient', 'avoid duplicates', 'one row per patient', 'to_outcome', 'link_patient_id', 'patient_level' etc.",
+        "_collect_dedup_vars(scope) — taint-style propagation across simple var assignments",
+        "_split_arg_root_name(call) — walks .tolist()/Subscript/Attribute chains to find the root variable name fed into train_test_split",
+        "_string_literals_match_group_hint(node) — checks string args of groupby/drop_duplicates name a patient-like column"
+      ],
+      "tests_added": [
+        "plugin/tests/test_r004_revision.py: 10 tests (7 suppression cases, 3 must-fire cases)"
+      ],
+      "tests_passed": 10,
+      "tests_failed": 0,
+      "fp_examples_now_suppressed": [
+        "finding_id 39 — PR-029 shapley_explanations.ipynb[cell 9]:7 (link_patient_id_to_outcome upstream)",
+        "finding_id 54 — PR-029 visualise_subject_prediction.ipynb[cell 10]:3 (link_patient_id_to_outcome upstream)",
+        "finding_id 56 — PR-029 LSTM_trainer.py:99 (link_patient_id_to_outcome + 'patient id' docstring)"
+      ],
+      "tp_still_detected": [
+        "finding_id 7 — PR-015 build_dataset.py:100 (longitudinal records, no dedup)",
+        "finding_id 82 — PR-029 original_ThorsenMeyer_perceptron.py:73 (raw merged_data.values, no dedup)"
+      ],
+      "regressions": []
+    },
+    "R008": {
+      "description": "Require strong evidence of forecasting/sequence task before firing on shuffled train_test_split",
+      "files_modified": [
+        "/Volumes/Seagate/Skill/ml-leakage-guard/plugin/mlgg_lint/rules/r008_temporal_split.py",
+        "/Volumes/Seagate/Skill/ml-leakage-guard/plugin/tests/samples/r008_bad.py"
+      ],
+      "helpers_added": [
+        "_evidence_of_temporal_task(scope, split_call) — main positive-gate helper",
+        "_has_pd_to_datetime_call(tree) — detects pd.to_datetime(...) / DatetimeIndex(...) / Timestamp(...) calls",
+        "_has_datetime_index_assignment(tree) — detects df.index = pd.to_datetime(...)",
+        "_has_sequence_kwarg_or_name(tree) — detects time_column, time_idx, seq_len, sequence_length, lookback, look_back, look_ahead, horizon, forecast_horizon, n_lags, n_steps, window, window_size",
+        "_has_sequence_model_call(tree) — detects LSTM/GRU/SimpleRNN/ConvLSTM2D/Bidirectional/TimeDistributed/Conv1D instantiation",
+        "_split_arg_is_3d(call, tree) — checks first positional arg of split is shaped (n, T, F) via 3-deep slice or .reshape(>=3 dims)",
+        "_expr_indicates_3d(val) — recursive helper that walks shape-preserving method chains (.astype, .copy, .squeeze, .transpose, .swapaxes, .moveaxis, .rollaxis, .view) when checking 3D shape"
+      ],
+      "tests_added": [
+        "plugin/tests/test_r008_revision.py: 8 tests (2 suppression cases, 6 must-fire cases including 3D LSTM, DatetimeIndex, pd.to_datetime, seq_len, LSTM layer, shuffle=False)"
+      ],
+      "tests_passed": 8,
+      "tests_failed": 0,
+      "fp_examples_now_suppressed": [
+        "finding_id 42 — PR-029 test_at_multiple_timecourse_lengths.ipynb[cell 5]:6 (split arg is 1D patient_id list, no DatetimeIndex / no seq_len / no 3D LSTM input on the split arg itself)"
+      ],
+      "fp_examples_still_firing_per_spec": [
+        "finding_id 22 — PR-029 mimic_calibration_exploration.ipynb[cell 22]:3. Note: spec MUST-fire test case 'LSTM input pipeline with 3D (n, timesteps, features) shape' explicitly requires this to fire because test_X_np is shape (n, T, F). A3 verdict was FP, but the user-supplied revision spec overrides A3 here."
+      ],
+      "regressions": [
+        "plugin/tests/samples/r008_bad.py was a temporal-keyword-only example that no longer fires under the new strong-evidence policy. Sample updated to add 'df.index = pd.to_datetime(...)' so it remains a valid bad case. test_r008_bad_has_diagnostics still passes."
+      ]
+    }
+  },
+  "implementation_notes": [
+    "Did NOT touch R021 (B8 territory) or notebook code (B7 territory).",
+    "Did NOT bump versions or change Diagnostic schema.",
+    "Did NOT touch paper/, references/, or scripts/ directories.",
+    "Both helpers operate on the module-level AST passed via BaseRule.check(tree); no source-text reading was needed because the FP examples in PR-029 use either function-name patterns (link_patient_id_to_outcome) or triple-quoted docstrings ('Splitting is done by patient id ... Reduce every patient to a single outcome'), both of which survive in the AST as Call/Constant nodes.",
+    "_data_is_deduplicated_per_group operates on the function/module scope rather than tracking flow precisely; this is conservative and acceptable per the user's spec ('simple AST walk inside the function/scope is fine').",
+    "For R008, mere presence of a temporal keyword (e.g. 'admission' inside 'case_admission_id') is no longer sufficient. The new gate requires DatetimeIndex assignment, pd.to_datetime call, sequence-style kwargs/vars, 3D LSTM input, or a recurrent-layer instantiation."
+  ],
+  "pytest_summary": {
+    "total_tests": 152,
+    "passed": 152,
+    "failed": 0,
+    "command": "python3 -m pytest plugin/tests/ -x --tb=short",
+    "baseline_before_changes": 116,
+    "tests_added_in_this_wave": 18,
+    "samples_updated": ["plugin/tests/samples/r008_bad.py"]
+  },
+  "fp_suppression_confirmation": {
+    "R004": {
+      "A3_FP_count": 3,
+      "now_suppressed": 3,
+      "still_firing": 0,
+      "details": "All three R004 FP cases (finding_id 39, 54, 56) in PR-029 now correctly suppress."
+    },
+    "R008": {
+      "A3_FP_count": 2,
+      "now_suppressed": 1,
+      "still_firing": 1,
+      "details": "finding_id 42 suppressed; finding_id 22 still fires because spec MUST-fire test for 3D LSTM input was explicitly specified by the user and that takes precedence over the A3 verdict."
+    }
+  }
+}

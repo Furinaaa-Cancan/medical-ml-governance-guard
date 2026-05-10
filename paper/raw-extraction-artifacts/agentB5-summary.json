@@ -1,0 +1,266 @@
+{
+  "agent_id": "B5",
+  "synthesized_at_utc": "2026-05-10T09:01:20+00:00",
+  "note": "Summary reconstructed by coordinator from concerns.json; agent itself failed at summary write step (32MB tool input limit).",
+  "papers_processed": 8,
+  "total_concerns": 127,
+  "concerns_by_severity": {
+    "minor": 81,
+    "major": 46
+  },
+  "concerns_by_round": {
+    "2": 11,
+    "1": 116
+  },
+  "global_topic_tag_distribution": {
+    "reproducibility": 40,
+    "other": 12,
+    "external_validation": 20,
+    "feature_engineering": 17,
+    "clinical_utility": 17,
+    "outcome_definition": 23,
+    "interpretability": 22,
+    "evaluation_metric": 39,
+    "sample_size": 5,
+    "fairness": 5,
+    "leakage": 10,
+    "imbalanced_data": 3,
+    "ethics": 2
+  },
+  "global_mlgg_rule_match_distribution": {
+    "none": 112,
+    "R029": 2,
+    "R005": 5,
+    "R013": 5,
+    "R002": 3,
+    "R004": 3,
+    "R021": 3,
+    "R019": 2,
+    "R010": 1,
+    "R022": 1
+  },
+  "mlgg_rule_match_nonempty_count": 15,
+  "papers": {
+    "PR-EXP-0061": {
+      "rounds_extracted": [
+        2
+      ],
+      "reviewers": [
+        "Reviewer #3"
+      ],
+      "concern_count": 2,
+      "major_count": 0,
+      "minor_count": 2,
+      "topic_tag_distribution": {
+        "reproducibility": 2,
+        "other": 1,
+        "external_validation": 1
+      },
+      "mlgg_rule_match_distribution": {
+        "none": 1,
+        "R029": 1
+      }
+    },
+    "PR-EXP-0072": {
+      "rounds_extracted": [
+        1
+      ],
+      "reviewers": [
+        "Reviewer #1",
+        "Reviewer #2"
+      ],
+      "concern_count": 6,
+      "major_count": 3,
+      "minor_count": 3,
+      "topic_tag_distribution": {
+        "feature_engineering": 3,
+        "reproducibility": 2,
+        "clinical_utility": 4,
+        "outcome_definition": 1,
+        "interpretability": 2
+      },
+      "mlgg_rule_match_distribution": {
+        "none": 6
+      }
+    },
+    "PR-EXP-0102": {
+      "rounds_extracted": [
+        1
+      ],
+      "reviewers": [
+        "Reviewer #2",
+        "Reviewer #3"
+      ],
+      "concern_count": 12,
+      "major_count": 9,
+      "minor_count": 3,
+      "topic_tag_distribution": {
+        "evaluation_metric": 5,
+        "clinical_utility": 3,
+        "sample_size": 2,
+        "fairness": 1,
+        "reproducibility": 6,
+        "interpretability": 2,
+        "feature_engineering": 1,
+        "other": 1,
+        "external_validation": 2
+      },
+      "mlgg_rule_match_distribution": {
+        "none": 11,
+        "R005": 1,
+        "R013": 1
+      }
+    },
+    "PR-EXP-0114": {
+      "rounds_extracted": [
+        1,
+        2
+      ],
+      "reviewers": [
+        "Reviewer #1",
+        "Reviewer #2",
+        "Reviewer #3"
+      ],
+      "concern_count": 18,
+      "major_count": 6,
+      "minor_count": 12,
+      "topic_tag_distribution": {
+        "external_validation": 3,
+        "other": 3,
+        "leakage": 9,
+        "evaluation_metric": 5,
+        "reproducibility": 6,
+        "sample_size": 1,
+        "interpretability": 1,
+        "feature_engineering": 1
+      },
+      "mlgg_rule_match_distribution": {
+        "none": 12,
+        "R005": 3,
+        "R013": 3,
+        "R002": 3,
+        "R004": 3,
+        "R021": 1
+      }
+    },
+    "PR-EXP-0124": {
+      "rounds_extracted": [
+        1,
+        2
+      ],
+      "reviewers": [
+        "Reviewer #1",
+        "Reviewer #2"
+      ],
+      "concern_count": 7,
+      "major_count": 3,
+      "minor_count": 4,
+      "topic_tag_distribution": {
+        "reproducibility": 3,
+        "outcome_definition": 2,
+        "evaluation_metric": 3,
+        "external_validation": 2,
+        "fairness": 2
+      },
+      "mlgg_rule_match_distribution": {
+        "none": 7
+      }
+    },
+    "PR-EXP-0150": {
+      "rounds_extracted": [
+        1,
+        2
+      ],
+      "reviewers": [
+        "Reviewer #1",
+        "Reviewer #2",
+        "Reviewer #3",
+        "Reviewer #4"
+      ],
+      "concern_count": 36,
+      "major_count": 14,
+      "minor_count": 22,
+      "topic_tag_distribution": {
+        "other": 3,
+        "external_validation": 9,
+        "feature_engineering": 9,
+        "interpretability": 2,
+        "outcome_definition": 9,
+        "reproducibility": 8,
+        "evaluation_metric": 13,
+        "imbalanced_data": 2,
+        "clinical_utility": 3,
+        "sample_size": 1,
+        "ethics": 1
+      },
+      "mlgg_rule_match_distribution": {
+        "none": 32,
+        "R005": 1,
+        "R013": 1,
+        "R019": 2,
+        "R029": 1
+      }
+    },
+    "PR-EXP-0172": {
+      "rounds_extracted": [
+        1
+      ],
+      "reviewers": [
+        "Reviewer #1",
+        "Reviewer #2",
+        "Reviewer #3"
+      ],
+      "concern_count": 23,
+      "major_count": 9,
+      "minor_count": 14,
+      "topic_tag_distribution": {
+        "outcome_definition": 7,
+        "evaluation_metric": 7,
+        "clinical_utility": 5,
+        "interpretability": 4,
+        "other": 2,
+        "external_validation": 3,
+        "sample_size": 1,
+        "feature_engineering": 2,
+        "reproducibility": 4,
+        "ethics": 1,
+        "fairness": 2
+      },
+      "mlgg_rule_match_distribution": {
+        "none": 22,
+        "R021": 1
+      }
+    },
+    "PR-EXP-0203": {
+      "rounds_extracted": [
+        1,
+        2
+      ],
+      "reviewers": [
+        "Reviewer #1",
+        "Reviewer #2",
+        "Reviewer #3"
+      ],
+      "concern_count": 23,
+      "major_count": 2,
+      "minor_count": 21,
+      "topic_tag_distribution": {
+        "interpretability": 11,
+        "clinical_utility": 2,
+        "feature_engineering": 1,
+        "reproducibility": 9,
+        "outcome_definition": 4,
+        "evaluation_metric": 6,
+        "other": 2,
+        "imbalanced_data": 1,
+        "leakage": 1
+      },
+      "mlgg_rule_match_distribution": {
+        "none": 21,
+        "R010": 1,
+        "R021": 1,
+        "R022": 1
+      }
+    }
+  }
+}

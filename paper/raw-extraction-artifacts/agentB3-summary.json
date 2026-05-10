@@ -1,0 +1,295 @@
+{
+  "agent_id": "B3",
+  "papers_processed": 8,
+  "total_concerns": 182,
+  "concerns_by_severity": {
+    "major": 72,
+    "minor": 110
+  },
+  "concerns_by_round": {
+    "1": 151,
+    "2": 31
+  },
+  "global_topic_tag_distribution": {
+    "other": 42,
+    "feature_engineering": 38,
+    "reproducibility": 36,
+    "outcome_definition": 29,
+    "clinical_utility": 29,
+    "evaluation_metric": 27,
+    "external_validation": 25,
+    "interpretability": 22,
+    "missing_data": 18,
+    "sample_size": 6,
+    "fairness": 5,
+    "leakage": 2,
+    "calibration": 2,
+    "ethics": 1
+  },
+  "global_mlgg_rule_match_distribution": {
+    "none": 176,
+    "R008": 2,
+    "R019": 1,
+    "R002": 1,
+    "R009": 1,
+    "R027": 1
+  },
+  "mlgg_rule_match_nonempty_count": 6,
+  "papers": {
+    "PR-EXP-0051": {
+      "doi": "10.1038/s43856-024-00549-0",
+      "title": "Long COVID risk factors / RECOVER EHR",
+      "rounds_extracted": [
+        1,
+        2
+      ],
+      "reviewers": [
+        "R1",
+        "R2",
+        "R3",
+        "R4"
+      ],
+      "concern_count": 34,
+      "major_count": 15,
+      "minor_count": 19,
+      "topic_tag_distribution": {
+        "outcome_definition": 8,
+        "other": 17,
+        "feature_engineering": 14,
+        "clinical_utility": 2,
+        "reproducibility": 5,
+        "missing_data": 4,
+        "evaluation_metric": 1
+      },
+      "mlgg_rule_match_distribution": {
+        "none": 33,
+        "R019": 1
+      }
+    },
+    "PR-EXP-0068": {
+      "doi": "10.1038/s43856-023-00282-0",
+      "title": "Lymph node metastasis / colorectal histology",
+      "rounds_extracted": [
+        1,
+        2
+      ],
+      "reviewers": [
+        "R1",
+        "R2"
+      ],
+      "concern_count": 18,
+      "major_count": 10,
+      "minor_count": 8,
+      "topic_tag_distribution": {
+        "clinical_utility": 4,
+        "evaluation_metric": 6,
+        "sample_size": 1,
+        "external_validation": 2,
+        "feature_engineering": 4,
+        "interpretability": 6,
+        "reproducibility": 5,
+        "other": 2
+      },
+      "mlgg_rule_match_distribution": {
+        "none": 17,
+        "R008": 1
+      }
+    },
+    "PR-EXP-0095": {
+      "doi": "10.1038/s41467-025-59197-0",
+      "title": "ViT for recurrent HCC treatment",
+      "rounds_extracted": [
+        1,
+        2
+      ],
+      "reviewers": [
+        "R1",
+        "R2",
+        "R4",
+        "R5"
+      ],
+      "concern_count": 31,
+      "major_count": 12,
+      "minor_count": 19,
+      "topic_tag_distribution": {
+        "reproducibility": 5,
+        "feature_engineering": 5,
+        "missing_data": 1,
+        "external_validation": 10,
+        "outcome_definition": 4,
+        "other": 6,
+        "leakage": 2,
+        "evaluation_metric": 3,
+        "fairness": 3,
+        "ethics": 1,
+        "clinical_utility": 10,
+        "interpretability": 4
+      },
+      "mlgg_rule_match_distribution": {
+        "none": 30,
+        "R002": 1
+      }
+    },
+    "PR-EXP-0111": {
+      "doi": "10.1038/s41467-024-45879-8",
+      "title": "LLMs streamline AutoML for clinical studies",
+      "rounds_extracted": [
+        1
+      ],
+      "reviewers": [
+        "R1",
+        "R2"
+      ],
+      "concern_count": 4,
+      "major_count": 0,
+      "minor_count": 4,
+      "topic_tag_distribution": {
+        "interpretability": 1,
+        "reproducibility": 2,
+        "external_validation": 1,
+        "missing_data": 1
+      },
+      "mlgg_rule_match_distribution": {
+        "none": 3,
+        "R009": 1
+      }
+    },
+    "PR-EXP-0122": {
+      "doi": "10.1038/s41467-024-51465-9",
+      "title": "In-context VLM for cancer pathology",
+      "rounds_extracted": [
+        1,
+        2
+      ],
+      "reviewers": [
+        "R2",
+        "R3"
+      ],
+      "concern_count": 22,
+      "major_count": 5,
+      "minor_count": 17,
+      "topic_tag_distribution": {
+        "reproducibility": 8,
+        "other": 5,
+        "feature_engineering": 1,
+        "evaluation_metric": 6,
+        "external_validation": 3,
+        "interpretability": 3,
+        "outcome_definition": 2,
+        "clinical_utility": 2
+      },
+      "mlgg_rule_match_distribution": {
+        "none": 22
+      }
+    },
+    "PR-EXP-0145": {
+      "doi": "10.1038/s41467-023-43172-8",
+      "title": "Cell spatial organization deep learning",
+      "rounds_extracted": [
+        1,
+        2
+      ],
+      "reviewers": [
+        "R1",
+        "R2"
+      ],
+      "concern_count": 21,
+      "major_count": 5,
+      "minor_count": 16,
+      "topic_tag_distribution": {
+        "reproducibility": 5,
+        "sample_size": 3,
+        "other": 3,
+        "outcome_definition": 5,
+        "clinical_utility": 2,
+        "evaluation_metric": 5,
+        "interpretability": 1,
+        "feature_engineering": 3,
+        "missing_data": 2
+      },
+      "mlgg_rule_match_distribution": {
+        "none": 21
+      }
+    },
+    "PR-EXP-0160": {
+      "doi": "10.1038/s41467-020-20816-7",
+      "title": "CovEWS COVID mortality prediction",
+      "rounds_extracted": [
+        1,
+        2
+      ],
+      "reviewers": [
+        "R1",
+        "R2",
+        "R3"
+      ],
+      "concern_count": 35,
+      "major_count": 20,
+      "minor_count": 15,
+      "topic_tag_distribution": {
+        "outcome_definition": 7,
+        "reproducibility": 5,
+        "external_validation": 8,
+        "clinical_utility": 8,
+        "interpretability": 2,
+        "feature_engineering": 4,
+        "missing_data": 8,
+        "other": 6,
+        "calibration": 2,
+        "fairness": 2,
+        "evaluation_metric": 4,
+        "sample_size": 2
+      },
+      "mlgg_rule_match_distribution": {
+        "none": 33,
+        "R008": 1,
+        "R027": 1
+      }
+    },
+    "PR-EXP-0197": {
+      "doi": "10.1038/s41467-019-14225-8",
+      "title": "CLL infection risk ML",
+      "rounds_extracted": [
+        1
+      ],
+      "reviewers": [
+        "R1",
+        "R2"
+      ],
+      "concern_count": 17,
+      "major_count": 5,
+      "minor_count": 12,
+      "topic_tag_distribution": {
+        "outcome_definition": 3,
+        "missing_data": 2,
+        "other": 3,
+        "feature_engineering": 7,
+        "interpretability": 5,
+        "clinical_utility": 1,
+        "evaluation_metric": 2,
+        "external_validation": 1,
+        "reproducibility": 1
+      },
+      "mlgg_rule_match_distribution": {
+        "none": 17
+      }
+    }
+  },
+  "anomalies": [
+    "PR-EXP-0111: PDF only contains a single (minor-revision) round; first journal review was elsewhere and not included in this PDF.",
+    "PR-EXP-0197: Round 2 has no substantive reviewer concerns (\"no comments\" from R1, R2 satisfied).",
+    "paper-list claims PR-EXP-0122 data_type is clinical_tabular but content is histopathology imaging (CRC100K/PCam/MHIST).",
+    "paper-list finding_count values do not match number of distinct reviewer concerns extracted; finding_count appears to use a different scoring rubric."
+  ],
+  "output_files": {
+    "concerns": "/tmp/agentB3-concerns.json",
+    "summary": "/tmp/agentB3-summary.json",
+    "pdf_text_cache": "/tmp/agentB3-pdftext/"
+  },
+  "methodology_notes": [
+    "Reviewer concerns extracted from all rounds present in the peer review PDF; author rebuttals deliberately excluded.",
+    "All concern_summary_short strings are agent paraphrases under 12 words; no verbatim reviewer text was reproduced.",
+    "Co-reviewer (Early Career Researcher) entries with no substantive comment were skipped.",
+    "mlgg_rule_match conservative: only assigned where reviewer concern maps cleanly to a listed rule; otherwise \"none\"."
+  ]
+}

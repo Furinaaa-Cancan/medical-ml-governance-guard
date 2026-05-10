@@ -1,0 +1,41 @@
+{
+  "papers_processed": 8,
+  "papers_with_no_extractable_concerns": [],
+  "total_concerns_extracted": 132,
+  "concerns_by_paper": {
+    "PR-EXP-0005": 12,
+    "PR-EXP-0065": 30,
+    "PR-EXP-0080": 17,
+    "PR-EXP-0107": 24,
+    "PR-EXP-0117": 11,
+    "PR-EXP-0128": 20,
+    "PR-EXP-0153": 9,
+    "PR-EXP-0187": 9
+  },
+  "concerns_by_topic_tag": {
+    "reproducibility": 33,
+    "evaluation_metric": 29,
+    "interpretability": 24,
+    "feature_engineering": 22,
+    "external_validation": 19,
+    "other": 18,
+    "clinical_utility": 17,
+    "fairness": 12,
+    "leakage": 8,
+    "outcome_definition": 7,
+    "calibration": 6,
+    "sample_size": 4,
+    "missing_data": 3,
+    "imbalanced_data": 3,
+    "ethics": 1
+  },
+  "concerns_with_mlgg_rule_match": 24,
+  "anomalies": [
+    "PR-EXP-0117 reviewers numbered as R1, R4, R6 (manuscript was previously reviewed at another journal per editorial note); kept original R-numbers as anonymization labels.",
+    "PR-EXP-0065 had 5 distinct reviewers (R1-R5) in V0; high concern count (30) reflects very long initial review.",
+    "PR-EXP-0128 had 3 review rounds (V0, V1, V2) with R3 raising new ddG-related concerns each round; captured 20 distinct concerns across rounds.",
+    "Papers PR-EXP-0117 and PR-EXP-0128 are non-medical (Klebsiella phage prediction; protein-protein interaction structure); kept tags like 'leakage'/'external_validation' where conceptually applicable but most concerns map to 'none' for mlgg rules since mlgg focuses on retrospective clinical binary classification.",
+    "PR-EXP-0117 R1's only round-1 concern is essentially a scope criticism (noted at low severity).",
+    "Some R-number assignments inferred from order in PDF (e.g. R4 in PR-EXP-0065 is Reviewer #4, R5 is Reviewer #5)."
+  ]
+}

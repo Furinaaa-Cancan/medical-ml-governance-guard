@@ -1,0 +1,1739 @@
+[
+  {
+    "paper_id": "PR-EXP-0047",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0047-C1",
+    "concern_summary_short": "Notation/path direction inconsistency in subgraph construction",
+    "concern_topic_tags": ["reproducibility", "other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0047",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0047-C2",
+    "concern_summary_short": "Method may not actually capture missing edges as claimed",
+    "concern_topic_tags": ["interpretability", "other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0047",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0047-C3",
+    "concern_summary_short": "Visualization figure unclear and edge directionality undefined",
+    "concern_topic_tags": ["interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0047",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0047-C4",
+    "concern_summary_short": "Embedding visualization fails to demonstrate claimed advantage",
+    "concern_topic_tags": ["interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0047",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0047-C5",
+    "concern_summary_short": "Necessity of generic node embedding component unjustified",
+    "concern_topic_tags": ["feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0047",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0047-C6",
+    "concern_summary_short": "Effect of path length hyperparameter not analyzed",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0047",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0047-C7",
+    "concern_summary_short": "Rationale for subgraph embedding integration unexplained",
+    "concern_topic_tags": ["feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0047",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0047-C8",
+    "concern_summary_short": "Missing related-work citations for KG-based DDI methods",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0047",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0047-C9",
+    "concern_summary_short": "Abstract framing of KG purpose is inaccurate",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0047",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0047-C10",
+    "concern_summary_short": "Incorrect claim of being first downstream-task DDI method",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0047",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0047-C11",
+    "concern_summary_short": "Dataset extraction and description missing in manuscript",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0047",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0047-C12",
+    "concern_summary_short": "Inference procedure for multiclass/multilabel DDI not illustrated",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0047",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0047-C13",
+    "concern_summary_short": "Similarity-chain interpretability claim is strained, lacks support",
+    "concern_topic_tags": ["interpretability", "clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0047",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0047-C14",
+    "concern_summary_short": "Refinement transformation needs more detailed formal description",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0047",
+    "round": 1,
+    "reviewer": "R4",
+    "concern_id": "PR-EXP-0047-C15",
+    "concern_summary_short": "Method is incremental over SumGNN; needs proper ablation",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0047",
+    "round": 1,
+    "reviewer": "R4",
+    "concern_id": "PR-EXP-0047-C16",
+    "concern_summary_short": "Performance gain on TWOSIDES too small to be convincing",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0047",
+    "round": 1,
+    "reviewer": "R4",
+    "concern_id": "PR-EXP-0047-C17",
+    "concern_summary_short": "Missing baseline comparisons against recent KG-based DDI methods",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0047",
+    "round": 1,
+    "reviewer": "R4",
+    "concern_id": "PR-EXP-0047-C18",
+    "concern_summary_short": "Per-class DDI performance and rare-class behavior not reported",
+    "concern_topic_tags": ["evaluation_metric", "imbalanced_data", "clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0047",
+    "round": 1,
+    "reviewer": "R4",
+    "concern_id": "PR-EXP-0047-C19",
+    "concern_summary_short": "Code and data not provided for review",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+
+  {
+    "paper_id": "PR-EXP-0066",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0066-C1",
+    "concern_summary_short": "Missing comparison and differentiation from prior similar studies",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0066",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0066-C2",
+    "concern_summary_short": "Insufficient hardware/software training spec for reproducibility",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0066",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0066-C3",
+    "concern_summary_short": "Performance gap with similar Kwon study unexplained",
+    "concern_topic_tags": ["external_validation", "evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0066",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0066-C4",
+    "concern_summary_short": "Mix of inpatient and outpatient ECGs may confound model",
+    "concern_topic_tags": ["other", "feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0066",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0066-C5",
+    "concern_summary_short": "Adding non-ECG variables may strengthen model performance",
+    "concern_topic_tags": ["feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0066",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0066-C6",
+    "concern_summary_short": "Subgroup performance by electrolyte/sex/race/etiology not reported",
+    "concern_topic_tags": ["fairness", "evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0066",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0066-C7",
+    "concern_summary_short": "PPV/NPV missing; low PPV may limit utility",
+    "concern_topic_tags": ["evaluation_metric", "clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0066",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0066-C8",
+    "concern_summary_short": "Lacks novelty/innovation for high-impact journal",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0066",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0066-C9",
+    "concern_summary_short": "Clinical utility unclear given existing cheap CKD tests",
+    "concern_topic_tags": ["clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0066",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0066-C10",
+    "concern_summary_short": "CKD outcome confirmation unclear when 51% lack renal labs",
+    "concern_topic_tags": ["outcome_definition", "missing_data"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0066",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0066-C11",
+    "concern_summary_short": "Ambiguous denominator: 50.7 percent of ECGs vs patients",
+    "concern_topic_tags": ["reproducibility", "outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0066",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0066-C12",
+    "concern_summary_short": "Patients without eGFR data may be mislabeled controls",
+    "concern_topic_tags": ["outcome_definition", "missing_data"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0066",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0066-C13",
+    "concern_summary_short": "CKD-stage Table 1 numbers inconsistent with eGFR criteria",
+    "concern_topic_tags": ["outcome_definition", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0066",
+    "round": 2,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0066-C14",
+    "concern_summary_short": "ICD-only CKD label without renal-function data remains hazardous",
+    "concern_topic_tags": ["outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C1",
+    "concern_summary_short": "Abstract misleading on VAE input scope",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C2",
+    "concern_summary_short": "Introduction lacks justification of referenced studies",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C3",
+    "concern_summary_short": "VAE not guaranteed informative for downstream prediction",
+    "concern_topic_tags": ["feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C4",
+    "concern_summary_short": "Study population definition contradictory regarding T2D timing",
+    "concern_topic_tags": ["outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C5",
+    "concern_summary_short": "Exclusion of major medical conditions unjustified",
+    "concern_topic_tags": ["other", "clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C6",
+    "concern_summary_short": "Validation data description vague; variables not specified",
+    "concern_topic_tags": ["external_validation", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C7",
+    "concern_summary_short": "Diabetes outcome definitions location not specified",
+    "concern_topic_tags": ["outcome_definition", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C8",
+    "concern_summary_short": "Outlier removal/rank normalization unjustified, no sensitivity analysis",
+    "concern_topic_tags": ["feature_engineering"],
+    "mlgg_rule_match": ["R013"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C9",
+    "concern_summary_short": "Control selection rationale and ratio insufficiently justified",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C10",
+    "concern_summary_short": "VAE choice unjustified vs simpler LASSO/Elastic-Net alternatives",
+    "concern_topic_tags": ["feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C11",
+    "concern_summary_short": "Reproduction impossible without CV folds and hyperparameter spaces",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["R021"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C12",
+    "concern_summary_short": "Accuracy ill-suited for class imbalance; threshold choice missing",
+    "concern_topic_tags": ["evaluation_metric", "imbalanced_data"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C13",
+    "concern_summary_short": "VAE feature extraction details ambiguous",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C14",
+    "concern_summary_short": "Feature importance method inadequately described",
+    "concern_topic_tags": ["interpretability", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C15",
+    "concern_summary_short": "No code availability prevents reproduction",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0084-C16",
+    "concern_summary_short": "Justification for Chinese-population uniqueness missing",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0084-C17",
+    "concern_summary_short": "Limited long-term follow-up may bias tree learning",
+    "concern_topic_tags": ["sample_size", "outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0084-C18",
+    "concern_summary_short": "Lipid signal vs HbA1c finding suspect; possible liver-disease confounding",
+    "concern_topic_tags": ["other", "feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0084-C19",
+    "concern_summary_short": "BMI-ethnicity interaction may mask phenotype effects",
+    "concern_topic_tags": ["fairness", "feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0084-C20",
+    "concern_summary_short": "DR retinopathy grade definitions and discrepancies unaddressed",
+    "concern_topic_tags": ["outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0084-C21",
+    "concern_summary_short": "Case:control imbalance may distort VAE learning",
+    "concern_topic_tags": ["imbalanced_data"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0084-C22",
+    "concern_summary_short": "Center inclusion criteria and accessibility undefined",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0084-C23",
+    "concern_summary_short": "Choice of exactly ten features unexplained",
+    "concern_topic_tags": ["feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0084-C24",
+    "concern_summary_short": "DDRTree axes and regression descriptions missing",
+    "concern_topic_tags": ["interpretability", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0084-C25",
+    "concern_summary_short": "Low HbA1c importance warrants explanation",
+    "concern_topic_tags": ["interpretability", "fairness"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0084-C26",
+    "concern_summary_short": "Phenotype-shift complications follow-up analysis missing",
+    "concern_topic_tags": ["clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0084-C27",
+    "concern_summary_short": "Tree-coordinate variable-influence determination undocumented",
+    "concern_topic_tags": ["interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0084-C28",
+    "concern_summary_short": "Fine-Gray with death competing risk needs justification",
+    "concern_topic_tags": ["evaluation_metric", "outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0084-C29",
+    "concern_summary_short": "Baseline definition phrasing for T2D diagnosis confusing",
+    "concern_topic_tags": ["outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C30",
+    "concern_summary_short": "Pipeline figures and method text remain inconsistent",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C31",
+    "concern_summary_short": "VAE role across pipeline still unclear and unsupported",
+    "concern_topic_tags": ["feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C32",
+    "concern_summary_short": "Hyperparameter search spaces and leakage safeguards unspecified",
+    "concern_topic_tags": ["leakage", "reproducibility"],
+    "mlgg_rule_match": ["R021"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C33",
+    "concern_summary_short": "Stability metric based on cosine across VAEs is invalid",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C34",
+    "concern_summary_short": "Non-diabetic controls in feature learning may obscure T2D signal",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C35",
+    "concern_summary_short": "Claims of phenotypic shift, superiority, early intervention unsupported",
+    "concern_topic_tags": ["clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C36",
+    "concern_summary_short": "Outlier counts in revised table inconsistent with text",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C37",
+    "concern_summary_short": "LASSO/Elastic-Net comparison hyperparameter tuning unclear",
+    "concern_topic_tags": ["reproducibility", "evaluation_metric"],
+    "mlgg_rule_match": ["R021"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C38",
+    "concern_summary_short": "Distance-based mapping algorithm to Scottish tree unspecified",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C39",
+    "concern_summary_short": "Outcome predictions may need adjustment for sex and age",
+    "concern_topic_tags": ["fairness", "evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C40",
+    "concern_summary_short": "Case:control ratio in VAE training still unjustified",
+    "concern_topic_tags": ["imbalanced_data"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C41",
+    "concern_summary_short": "Reconstruction accuracy 0.85-1.0 suggests memorization risk",
+    "concern_topic_tags": ["leakage", "evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C42",
+    "concern_summary_short": "GBC selection based on 10-fold CV; tuning details missing",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["R021"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C43",
+    "concern_summary_short": "Confounding-mitigation claim from VAE not rigorously justified",
+    "concern_topic_tags": ["interpretability", "feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C44",
+    "concern_summary_short": "DDRTree comparisons against traditional clustering missing",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C45",
+    "concern_summary_short": "VAE encoder/loss/architecture descriptions inconsistent",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C46",
+    "concern_summary_short": "Train/test split timing relative to model selection unclear",
+    "concern_topic_tags": ["leakage"],
+    "mlgg_rule_match": ["R021"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C47",
+    "concern_summary_short": "Full-feature vs 10-feature model comparison missing",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C48",
+    "concern_summary_short": "Ribbon-chart group definitions and unassigned individuals unclear",
+    "concern_topic_tags": ["interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "round": 3,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0084-C49",
+    "concern_summary_short": "Minor typos and wording fixes only",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+
+  {
+    "paper_id": "PR-EXP-0108",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0108-C1",
+    "concern_summary_short": "Remove unsupported qualifier word in abstract",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0108",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0108-C2",
+    "concern_summary_short": "Discrepancy between Figure 1 and eFigure MS counts",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0108",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0108-C3",
+    "concern_summary_short": "MS case classification arithmetic does not reconcile",
+    "concern_topic_tags": ["reproducibility", "outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0108",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0108-C4",
+    "concern_summary_short": "Acknowledge GRS uses only autosomal variants",
+    "concern_topic_tags": ["feature_engineering", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0121-C1",
+    "concern_summary_short": "Generalization to other LCMS datasets not demonstrated",
+    "concern_topic_tags": ["external_validation"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0121-C2",
+    "concern_summary_short": "Linear correlation only; nonlinear confounding not addressed",
+    "concern_topic_tags": ["feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0121-C3",
+    "concern_summary_short": "CCLE dataset not described; minimum sample size unstated",
+    "concern_topic_tags": ["sample_size", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0121-C4",
+    "concern_summary_short": "Heatmap derivation method unclear",
+    "concern_topic_tags": ["interpretability", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0121-C5",
+    "concern_summary_short": "Peak identification confidence unjustified for PIUMet input",
+    "concern_topic_tags": ["interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0121-C6",
+    "concern_summary_short": "Batch effect removal mechanism unexplained at architecture level",
+    "concern_topic_tags": ["interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0121-C7",
+    "concern_summary_short": "Three-hospital batch effects beyond ten batches unaddressed",
+    "concern_topic_tags": ["external_validation"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0121-C8",
+    "concern_summary_short": "Ensemble model details and resampling strategy unclear",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0121-C9",
+    "concern_summary_short": "PIUMet/MetaboAnalyst pathway analysis details lacking",
+    "concern_topic_tags": ["interpretability", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0121-C10",
+    "concern_summary_short": "Code Ocean inaccessible; GitHub heatmap reproduction unclear",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0121-C11",
+    "concern_summary_short": "Prior work and library specifications missing",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0121-C12",
+    "concern_summary_short": "Transformer architecture not benchmarked",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0121-C13",
+    "concern_summary_short": "Layer-wise batch effect removal needs supporting evidence",
+    "concern_topic_tags": ["interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0121-C14",
+    "concern_summary_short": "Per-submodel ensemble contributions not analyzed",
+    "concern_topic_tags": ["interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0121-C15",
+    "concern_summary_short": "Colon cohort: uncertainty metrics and split protocol unclear",
+    "concern_topic_tags": ["external_validation", "evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0121-C16",
+    "concern_summary_short": "CCLE pan-cancer dataset performance not reported",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0121-C17",
+    "concern_summary_short": "Heatmap resolution may obscure individual peak contributions",
+    "concern_topic_tags": ["interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0121-C18",
+    "concern_summary_short": "Unvalidated PIUMet metabolites and supplementary scoring unclear",
+    "concern_topic_tags": ["interpretability", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0121-C19",
+    "concern_summary_short": "Threshold ablation effect on baseline accuracy unclear",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0121-C20",
+    "concern_summary_short": "Architecture sequential vs parallel layer mapping unclear",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0121-C21",
+    "concern_summary_short": "Per-submodel hyperparameter differences unspecified",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0121-C22",
+    "concern_summary_short": "PIUMet edge correlation meaning ambiguous",
+    "concern_topic_tags": ["interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0121",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0121-C23",
+    "concern_summary_short": "Compute resources, install instructions, input formats unclear",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+
+  {
+    "paper_id": "PR-EXP-0142",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0142-C1",
+    "concern_summary_short": "Other sens/spec tradeoffs beyond balanced point not explored",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0142",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0142-C2",
+    "concern_summary_short": "Behavior under different reference/test distribution shapes unclear",
+    "concern_topic_tags": ["external_validation"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0142",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0142-C3",
+    "concern_summary_short": "Single CNN architecture limits generalizability conclusions",
+    "concern_topic_tags": ["external_validation"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0142",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0142-C4",
+    "concern_summary_short": "Title implies broader scope than acquisition-shift-only",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0142",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0142-C5",
+    "concern_summary_short": "Interplay with other distribution shifts not investigated",
+    "concern_topic_tags": ["external_validation"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0142",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0142-C6",
+    "concern_summary_short": "Add MCC as imbalance-aware sanity-check metric",
+    "concern_topic_tags": ["evaluation_metric", "imbalanced_data"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0142",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0142-C7",
+    "concern_summary_short": "Sens-equals-spec mislabeled as optimal operating point",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0142",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0142-C8",
+    "concern_summary_short": "Method may be wrongly applied to other shift types in workflow",
+    "concern_topic_tags": ["clinical_utility", "external_validation"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0142",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0142-C9",
+    "concern_summary_short": "Linear CDF matching may not generalize across vendors",
+    "concern_topic_tags": ["external_validation"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0142",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0142-C10",
+    "concern_summary_short": "Method does not actually detect drift automatically",
+    "concern_topic_tags": ["clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0142",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0142-C11",
+    "concern_summary_short": "Mixed shift types could mislead automatic application",
+    "concern_topic_tags": ["clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0142",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0142-C12",
+    "concern_summary_short": "Site-to-scanner grouping and per-set scanner type unspecified",
+    "concern_topic_tags": ["reproducibility", "external_validation"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0142",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0142-C13",
+    "concern_summary_short": "Discussion-final paragraph too broad and out of scope",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0142",
+    "round": 2,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0142-C14",
+    "concern_summary_short": "ROC-AUC-stable assumption contradicts adaptive AI scenarios",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0142",
+    "round": 2,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0142-C15",
+    "concern_summary_short": "Last sentence of discussion not understandable",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+
+  {
+    "paper_id": "PR-EXP-0157",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0157-C1",
+    "concern_summary_short": "PPV/NPV/sens/spec/F1 missing or not compared with SOTA",
+    "concern_topic_tags": ["evaluation_metric", "clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0157",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0157-C2",
+    "concern_summary_short": "Twenty-two percent flagged predictions lacks comparative interpretation",
+    "concern_topic_tags": ["evaluation_metric", "interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0157",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0157-C3",
+    "concern_summary_short": "Source code not available; provide GitHub or DOI",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0157",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0157-C4",
+    "concern_summary_short": "Adherence to TRIPOD/STARD reporting guidelines required",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0157",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0157-C5",
+    "concern_summary_short": "More educational and pathology-image figures needed",
+    "concern_topic_tags": ["interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0157",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0157-C6",
+    "concern_summary_short": "Method does not convincingly improve hard endpoints over SOTA",
+    "concern_topic_tags": ["evaluation_metric", "clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0157",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0157-C7",
+    "concern_summary_short": "External-data scanner training scope ambiguous in figures",
+    "concern_topic_tags": ["external_validation", "reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0157",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0157-C8",
+    "concern_summary_short": "Underlying AI architecture details from prior paper missing",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0157",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0157-C9",
+    "concern_summary_short": "Related conformal-prediction WSI work not cited",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0157",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0157-C10",
+    "concern_summary_short": "Table 1 mixes proportions and percentages",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0157",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0157-C11",
+    "concern_summary_short": "Training-slide selection rationale needs disclosure",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0157",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0157-C12",
+    "concern_summary_short": "Single-cohort training; multi-center expansion needed",
+    "concern_topic_tags": ["external_validation", "fairness"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0157",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0157-C13",
+    "concern_summary_short": "Atypical-tissue sample size too small; expand cases",
+    "concern_topic_tags": ["sample_size"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0157",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0157-C14",
+    "concern_summary_short": "Conformal prediction not benchmarked against alternative uncertainty methods",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0157",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0157-C15",
+    "concern_summary_short": "Acronym LE not defined at first use",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0157",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0157-C16",
+    "concern_summary_short": "Underlying-model code release feasibility disputed",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0192-C1",
+    "concern_summary_short": "Clustering not externally validated across ADNI1 vs ADNI2",
+    "concern_topic_tags": ["external_validation"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0192-C2",
+    "concern_summary_short": "Disease-stage assumption claims inaccurate; mixed-pathology methods missed",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0192-C3",
+    "concern_summary_short": "Discussion lacks references for LATE and A/T/N framework",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0192-C4",
+    "concern_summary_short": "Limbic-predominant atrophy subtype absent from results",
+    "concern_topic_tags": ["other", "clinical_utility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0192-C5",
+    "concern_summary_short": "Subset and subject counts per analysis insufficiently specified",
+    "concern_topic_tags": ["reproducibility", "missing_data"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0192-C6",
+    "concern_summary_short": "Inclusion/exclusion and diagnostic criteria across cohorts unclear",
+    "concern_topic_tags": ["reproducibility", "outcome_definition"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0192-C7",
+    "concern_summary_short": "Cross-sectional vs longitudinal patterns not separated in figure",
+    "concern_topic_tags": ["interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0192-C8",
+    "concern_summary_short": "Figure 3b interpretation difficult",
+    "concern_topic_tags": ["interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0192-C9",
+    "concern_summary_short": "Color scheme in Fig 4a/b not intuitive across groups",
+    "concern_topic_tags": ["interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0192-C10",
+    "concern_summary_short": "Hazard p-value reference group and plot type undocumented",
+    "concern_topic_tags": ["interpretability", "evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0192-C11",
+    "concern_summary_short": "Statistical significance between groups in fig 5c/d unclear",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0192-C12",
+    "concern_summary_short": "Significance and labelling missing in figure 6a",
+    "concern_topic_tags": ["evaluation_metric", "interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0192-C13",
+    "concern_summary_short": "Figure 7 needs simplification for readability",
+    "concern_topic_tags": ["interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0192-C14",
+    "concern_summary_short": "CSF abeta/p-tau availability per clinical group not described",
+    "concern_topic_tags": ["missing_data"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0192-C15",
+    "concern_summary_short": "MRI sequence and CSF quantification methods unstated",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R2",
+    "concern_id": "PR-EXP-0192-C16",
+    "concern_summary_short": "ADNI composite score derivation details missing",
+    "concern_topic_tags": ["reproducibility"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0192-C17",
+    "concern_summary_short": "Method lacks statistical verification; permutation test needed",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0192-C18",
+    "concern_summary_short": "Uniform Z distribution may misrepresent rare subtypes",
+    "concern_topic_tags": ["imbalanced_data"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0192-C19",
+    "concern_summary_short": "Equal Lipschitz constants for f and g unjustified",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0192-C20",
+    "concern_summary_short": "Weight clipping for Lipschitz constraint contradicts Wasserstein-GAN guidance",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 1,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0192-C21",
+    "concern_summary_short": "ARI version cited inconsistently with author critique",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0192-C22",
+    "concern_summary_short": "ROI-volume features may not be comparable to image-patch CNNs",
+    "concern_topic_tags": ["feature_engineering"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0192-C23",
+    "concern_summary_short": "Wording implies voxel-level features that are actually ROI-level",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0192-C24",
+    "concern_summary_short": "ROI-vs-finer-grained future direction must be acknowledged",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0192-C25",
+    "concern_summary_short": "k-means and GMM baseline implementation details insufficient",
+    "concern_topic_tags": ["reproducibility", "evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 2,
+    "reviewer": "R1",
+    "concern_id": "PR-EXP-0192-C26",
+    "concern_summary_short": "Figure 7 derivation (cross-sectional vs longitudinal) unclear",
+    "concern_topic_tags": ["interpretability"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 2,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0192-C27",
+    "concern_summary_short": "Permutation count of 50 too small; need 1000 reps",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "major"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 2,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0192-C28",
+    "concern_summary_short": "Permutation procedure description vague; pseudocode needed",
+    "concern_topic_tags": ["reproducibility", "evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 2,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0192-C29",
+    "concern_summary_short": "Need M sensitivity analysis across multiple cluster counts",
+    "concern_topic_tags": ["evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 2,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0192-C30",
+    "concern_summary_short": "Word 'Domain' usage and ROI dimensionality ambiguous",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 2,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0192-C31",
+    "concern_summary_short": "Atrophy and ROI definitions need explicit early statement",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 3,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0192-C32",
+    "concern_summary_short": "Algorithm 2 ARI computation on unshuffled data unclear",
+    "concern_topic_tags": ["reproducibility", "evaluation_metric"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  },
+  {
+    "paper_id": "PR-EXP-0192",
+    "round": 3,
+    "reviewer": "R3",
+    "concern_id": "PR-EXP-0192-C33",
+    "concern_summary_short": "Replace jargon term 'domain' with simpler word",
+    "concern_topic_tags": ["other"],
+    "mlgg_rule_match": ["none"],
+    "reviewer_severity": "minor"
+  }
+]
