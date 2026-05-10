@@ -96,7 +96,12 @@ def main() -> int:
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
 
     # --- 1. Index all PDFs ---
-    pdfs = sorted(PDF_DIR.glob("*.pdf"))
+    pdf_dirs = [
+        PDF_DIR,  # nature_communications/
+        ROOT / "references" / "case-studies" / "communications_medicine",
+        ROOT / "references" / "case-studies" / "npj_digital_medicine",
+    ]
+    pdfs = sorted(p for d in pdf_dirs if d.exists() for p in d.glob("*.pdf"))
     print(f"Indexing {len(pdfs)} PDFs (extracting first 2 pages each)...", file=sys.stderr)
     pdf_index: list[dict] = []
     parse_errors = 0
@@ -146,6 +151,28 @@ def main() -> int:
         eid = e["id"]
         kb_doi = e.get("paper_doi", "").strip()
         kb_title = e.get("paper_title", "").strip()
+        # Strategy 0c: filename matches DOI shorthand (for OpenAlex-discovered PDFs
+        # which are saved as <doi-short>_peer_review.pdf, e.g. s41467-024-12345-x_peer_review.pdf).
+        # Matched by filename prefix being identical to paper_doi without the 10.1038/ part.
+        if kb_doi:
+            doi_short = kb_doi.replace('10.1038/', '').replace('10.1038%2F','').lower()
+            for pi in pdf_index:
+                fname_lc = pi['name'].lower()
+                if fname_lc.startswith(doi_short + '_') or fname_lc == f"{doi_short}.pdf":
+                    results.append({
+                        "id": eid,
+                        "kb_doi": kb_doi,
+                        "kb_title": kb_title[:100],
+                        "pdf_path": pi["path"],
+                        "pdf_name": pi["name"],
+                        "confidence": "high",
+                        "method": "filename_doi_shorthand",
+                        "note": f"PDF filename matches DOI shorthand {doi_short}",
+                    })
+                    break
+            if results and results[-1]["id"] == eid:
+                continue
+
         # Strategy 0a: filename literally contains paper_id (the new downloader
         # saves files as PR-NNN_<slug>_peer_review.pdf, so this is the strongest
         # possible signal when present).

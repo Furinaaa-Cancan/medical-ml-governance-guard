@@ -1,6 +1,6 @@
 # Peer-review KB ↔ PDF reconciliation report
 
-**Generated**: 2026-05-09T17:21:26.641033+00:00
+**Generated**: 2026-05-10T04:43:31.930137+00:00
 **KB**: `references/case-studies/peer-review-kb.json`
 **PDF dir**: `references/case-studies/nature_communications`
 
@@ -8,20 +8,20 @@
 
 | Metric | Count |
 |---|---|
-| KB entries | 119 |
-| PDFs in directory | 186 |
-| PDFs that failed to parse | 33 |
-| KB entries with **high-confidence** PDF (DOI match, single) | **114** |
+| KB entries | 335 |
+| PDFs in directory | 374 |
+| PDFs that failed to parse | 11 |
+| KB entries with **high-confidence** PDF (DOI match, single) | **330** |
 | KB entries with high-multi (DOI match, ambiguous) | 5 |
 | KB entries with medium (title overlap ≥0.7) | 0 |
 | KB entries with low (title overlap 0.5–0.7) | 0 |
 | KB entries with **no match** | **0** |
-| PDFs not matched to any KB entry | 71 |
+| PDFs not matched to any KB entry | 43 |
 
 ## What this means for the paper
 
-- Trustable corpus (KB entry + verified PDF link): **114 papers**
-- With looser title-jaccard 0.7+: **119 papers**
+- Trustable corpus (KB entry + verified PDF link): **330 papers**
+- With looser title-jaccard 0.7+: **335 papers**
 - Speculative (no PDF link found): **0 papers**
 
 ## KB entries with no PDF match
@@ -33,39 +33,11 @@
 
 | File | Size | DOI in text | Title snippet |
 |---|---:|---|---|
-| `._PR-002_artificial_intelligence_in_sepsis_early__peer_review.pdf` | 4 KB | — | — |
-| `._PR-005_biology_guided_deep_learning_predicts_pr_peer_review.pdf` | 4 KB | — | — |
-| `._PR-006_integration_of_pathologic_characteristic_peer_review.pdf` | 4 KB | — | — |
-| `._PR-024_development_and_external_validation_of_p_peer_review.pdf` | 4 KB | — | — |
-| `._PR-025_a_noninvasive_model_for_chronic_kidney_d_peer_review.pdf` | 4 KB | — | — |
-| `._PR-027_machine_learning_models_identify_predict_peer_review.pdf` | 4 KB | — | — |
-| `._PR-030_methodological_choices_and_clinical_usef_peer_review.pdf` | 4 KB | — | — |
-| `._PR-034_predicting_mortality_from_ai_based_cardi_peer_review.pdf` | 4 KB | — | — |
-| `._PR-036_development_and_validation_of_self_monit_peer_review.pdf` | 4 KB | — | — |
-| `._PR-040_sepsis_management_prediction_model_infer_peer_review.pdf` | 4 KB | — | — |
 | `._PR-046_genetic_architecture_and_risk_prediction_peer_review.pdf` | 4 KB | — | — |
 | `._PR-047_faecal_microbiome_based_machine_learning_peer_review.pdf` | 4 KB | — | — |
 | `._PR-049_prediction_of_plasma_ctdna_fraction_and__peer_review.pdf` | 4 KB | — | — |
 | `._PR-057_network_based_machine_learning_in_colore_peer_review.pdf` | 4 KB | — | — |
 | `._PR-064_plasma_proteomic_profiles_predict_indivi_peer_review.pdf` | 4 KB | — | — |
-| `._PR-069_biomarker_panels_for_improved_risk_predi_peer_review.pdf` | 4 KB | — | — |
-| `._PR-074_interstitial_lung_disease_diagnosis_and__peer_review.pdf` | 4 KB | — | — |
-| `._PR-083_a_machine_learning_contest_enhances_auto_peer_review.pdf` | 4 KB | — | — |
-| `._PR-085_multi_ancestry_and_multi_trait_gwas_meta_peer_review.pdf` | 4 KB | — | — |
-| `._PR-087_dermatologist_like_explainable_ai_enhanc_peer_review.pdf` | 4 KB | — | — |
-| `._PR-089_ml_supported_framework_for_classificatio_peer_review.pdf` | 4 KB | — | — |
-| `._PR-090_cell_free_dna_testing_for_detection_and__peer_review.pdf` | 4 KB | — | — |
-| `._PR-093_multiparametric_mri_along_with_machine_l_peer_review.pdf` | 4 KB | — | — |
-| `._PR-096_early_favorable_prostate_specific_antige_peer_review.pdf` | 4 KB | — | — |
-| `._PR-097_sepsis_bedside_prediction_via_ml_and_cen_peer_review.pdf` | 4 KB | — | — |
-| `._PR-105_development_and_external_validation_of_p_peer_review.pdf` | 4 KB | — | — |
-| `._PR-107_infehr_clinical_phenotype_resolution_via_peer_review.pdf` | 4 KB | — | — |
-| `._PR-110_development_and_validation_of_a_wearable_peer_review.pdf` | 4 KB | — | — |
-| `._PR-RO-03_plasma_proteomic_profiles_predict_crohn__peer_review.pdf` | 4 KB | — | — |
-| `._PR-RO-04_ml_based_meta_analysis_reveals_gut_micro_peer_review.pdf` | 4 KB | — | — |
-| `._PR-RO-05_wearable_ai_for_on_device_frailty_assess_peer_review.pdf` | 4 KB | — | — |
-| `._PR-RO-06_deep_molecular_profiling_identifies_sign_peer_review.pdf` | 4 KB | — | — |
-| `._PR-RO-07_ml_driven_strategies_for_adapting_immuno_peer_review.pdf` | 4 KB | — | — |
 | `04_AI_sepsis_prediction_peer_review.pdf` | 919 KB | — | Remarks to the Author: |
 | `08_biology_guided_DL_cancer_peer_review.pdf` | 5918 KB | — | International License, which permits use, sharing, adaptation, distribution and |
 | `09_colorectal_cancer_survival_peer_review.pdf` | 4495 KB | s41586-021-03243-6 | International License, which permits use, sharing, adaptation, distribution and |
@@ -83,5 +55,24 @@
 | `NC_HBV_liver_failure_proteo_peer_review.pdf` | 75 KB | — | 1 natureportfolio|reportingsummaryApril2023 |
 | `NC_HFpEF_AI_validation_peer_review.pdf` | 107 KB | — | 1 natureportfolio|reportingsummaryApril2023 |
 | `NC_ILD_diagnosis_AI_peer_review.pdf` | 4285 KB | — | International License, which permits use, sharing, adaptation, distribution and |
-
-... and 21 more.
+| `NC_IVF_live_birth_ML_peer_review.pdf` | 204 KB | — | Machine learning center-specific models show improved IVF |
+| `NC_NSCLC_immunotherapy_ML_peer_review.pdf` | 864 KB | — | Corresponding author(s): |
+| `NC_RA_plasma_biomarkers_peer_review.pdf` | 238 KB | — | 1 natureportfolio|reportingsummaryApril2023 |
+| `NC_cancer_diagnosis_prediction_peer_review.pdf` | 514 KB | — | Development and external validation of new prediction |
+| `NC_cardiac_CT_mortality_AI_peer_review.pdf` | 4173 KB | — | Editorial Note: This manuscript has been previously reviewed at another journal  |
+| `NC_drug_efficacy_organoid_ML_peer_review.pdf` | 2147 KB | s42003-019-0305-x | Remarks to the Author: |
+| `NC_gait_freezing_ML_peer_review.pdf` | 4032 KB | — | Reviewers' Comments: |
+| `NC_gestational_diabetes_peer_review.pdf` | 855 KB | — | 2 natureportfolio|reportingsummaryApril2023 |
+| `NC_lupus_PRS_multiancestry_peer_review.pdf` | 2011 KB | — | Multi-ancestry and multi-trait genome-wide association |
+| `NC_melanoma_explainable_AI_peer_review.pdf` | 3287 KB | — | International License, which permits use, sharing, adaptation, distribution and |
+| `NC_microbiome_disease_ML_peer_review.pdf` | 3655 KB | — | Editorial Note: This manuscript has been previously reviewed at another journal  |
+| `NC_microbiome_parkinson_ML_peer_review.pdf` | 101 KB | — | 1 natureportfolio|reportingsummaryApril2023 |
+| `NC_mpox_ML_serology_peer_review.pdf` | 973 KB | — | Machine learning-supported framework for the classification |
+| `NC_pancreatic_cfDNA_peer_review.pdf` | 2062 KB | — | Cell-Free DNA Testing for the Detection and Prognosis |
+| `NC_pediatric_glioma_MRI_peer_review.pdf` | 3563 KB | s41598-021-89114-6 | Editorial Note: This manuscript has been previously reviewed at another journal  |
+| `NC_plasma_future_health_peer_review.pdf` | 3557 KB | — | Reviewers' Comments: |
+| `NC_prostate_PSA_response_peer_review.pdf` | 199 KB | — | Early Favorable PSA Response Prediction in Metastatic |
+| `NC_prostate_ctDNA_peer_review.pdf` | 4666 KB | — | Editorial Note: This manuscript has been previously reviewed at another journal  |
+| `NC_sepsis_XAI_coagulation_peer_review.pdf` | 76 KB | — | 1 natureportfolio|reportingsummaryApril2023 |
+| `NC_sepsis_management_peer_review.pdf` | 2348 KB | — | Two telomere-to-telomere gapless genomes reveal insights |
+| `NC_wearable_frailty_AI_peer_review.pdf` | 97 KB | — | 1 natureportfolio|reportingsummaryApril2023 |

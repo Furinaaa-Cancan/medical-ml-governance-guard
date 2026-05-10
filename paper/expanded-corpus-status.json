@@ -1,0 +1,44 @@
+{
+  "generated_at_utc": "2026-05-10T03:05:03.774476+00:00",
+  "candidates_processed": 5,
+  "status_counts": {
+    "no_peer_review_file": 2,
+    "downloaded": 3
+  },
+  "results": [
+    {
+      "doi": "10.1038/s43856-025-01181-2",
+      "journal": "Communications Medicine",
+      "status": "no_peer_review_file"
+    },
+    {
+      "doi": "10.1038/s43856-025-01206-w",
+      "journal": "Communications Medicine",
+      "status": "downloaded",
+      "msg": "downloaded_792kb",
+      "pr_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-01206-w/MediaObjects/43856_2025_1206_MOESM1_ESM.pdf",
+      "pdf_path": "references/case-studies/communications_medicine/s43856-025-01206-w_peer_review.pdf"
+    },
+    {
+      "doi": "10.1038/s43856-025-01230-w",
+      "journal": "Communications Medicine",
+      "status": "downloaded",
+      "msg": "downloaded_477kb",
+      "pr_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-01230-w/MediaObjects/43856_2025_1230_MOESM1_ESM.pdf",
+      "pdf_path": "references/case-studies/communications_medicine/s43856-025-01230-w_peer_review.pdf"
+    },
+    {
+      "doi": "10.1038/s43856-025-01304-9",
+      "journal": "Communications Medicine",
+      "status": "no_peer_review_file"
+    },
+    {
+      "doi": "10.1038/s43856-025-01325-4",
+      "journal": "Communications Medicine",
+      "status": "downloaded",
+      "msg": "downloaded_214kb",
+      "pr_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-01325-4/MediaObjects/43856_2025_1325_MOESM1_ESM.pdf",
+      "pdf_path": "references/case-studies/communications_medicine/s43856-025-01325-4_peer_review.pdf"
+    }
+  ]
+}
