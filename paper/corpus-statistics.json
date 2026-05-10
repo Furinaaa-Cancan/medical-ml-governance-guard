@@ -1,0 +1,542 @@
+{
+  "computed_at_utc": "2026-05-10T00:00:00Z",
+  "source_file": "references/case-studies/peer-review-kb.json",
+  "contract_version": "peer_review_kb.v1",
+  "top_line": {
+    "total_entries_active": 335,
+    "header_total_papers": 335,
+    "header_total_concerns": 449,
+    "quarantined_count": 1,
+    "quarantined_ids": [
+      "PR-040"
+    ]
+  },
+  "by_source_layer": {
+    "PR_orig_count": 111,
+    "PR_RO_count": 7,
+    "PR_EXP_count": 217,
+    "manually_curated_total": 118
+  },
+  "by_journal": {
+    "Nature Communications": {
+      "count": 248,
+      "year_min": 2020,
+      "year_max": 2026,
+      "n_with_sample_size": 116,
+      "median_sample_size": 5183
+    },
+    "Communications Medicine": {
+      "count": 87,
+      "year_min": 2021,
+      "year_max": 2026,
+      "n_with_sample_size": 35,
+      "median_sample_size": 1033
+    }
+  },
+  "year_histogram": {
+    "2024": 71,
+    "2021": 39,
+    "2023": 50,
+    "2025": 101,
+    "2022": 26,
+    "2020": 24,
+    "2026": 24
+  },
+  "year_split_by_source": {
+    "2024": {
+      "PR-orig": 28,
+      "PR-RO": 0,
+      "PR-EXP": 43
+    },
+    "2021": {
+      "PR-orig": 1,
+      "PR-RO": 0,
+      "PR-EXP": 38
+    },
+    "2023": {
+      "PR-orig": 19,
+      "PR-RO": 0,
+      "PR-EXP": 31
+    },
+    "2025": {
+      "PR-orig": 53,
+      "PR-RO": 6,
+      "PR-EXP": 42
+    },
+    "2022": {
+      "PR-orig": 5,
+      "PR-RO": 0,
+      "PR-EXP": 21
+    },
+    "2020": {
+      "PR-orig": 2,
+      "PR-RO": 0,
+      "PR-EXP": 22
+    },
+    "2026": {
+      "PR-orig": 3,
+      "PR-RO": 1,
+      "PR-EXP": 20
+    }
+  },
+  "data_type": {
+    "top_15": [
+      {
+        "data_type": "clinical_tabular",
+        "count": 59
+      },
+      {
+        "data_type": "pending_metadata_extraction",
+        "count": 21
+      },
+      {
+        "data_type": "histopathology_wsi",
+        "count": 17
+      },
+      {
+        "data_type": "ct_imaging_plus_clinical",
+        "count": 11
+      },
+      {
+        "data_type": "clinical_notes_nlp",
+        "count": 10
+      },
+      {
+        "data_type": "mri_multiparametric",
+        "count": 9
+      },
+      {
+        "data_type": "ehr_tabular_clinical",
+        "count": 8
+      },
+      {
+        "data_type": "transcriptomic_plus_clinical",
+        "count": 7
+      },
+      {
+        "data_type": "gwas_summary_statistics",
+        "count": 6
+      },
+      {
+        "data_type": "ehr_tabular",
+        "count": 6
+      },
+      {
+        "data_type": "genomic_amr",
+        "count": 6
+      },
+      {
+        "data_type": "histopathology_wsi_plus_clinical",
+        "count": 5
+      },
+      {
+        "data_type": "genetic_plus_clinical_biomarkers",
+        "count": 5
+      },
+      {
+        "data_type": "ehr",
+        "count": 5
+      },
+      {
+        "data_type": "tabular_clinical_multiomics",
+        "count": 4
+      }
+    ],
+    "unique_label_count": {
+      "PR-orig": {
+        "unique_labels": 97,
+        "entries": 111
+      },
+      "PR-RO": {
+        "unique_labels": 6,
+        "entries": 7
+      },
+      "PR-EXP": {
+        "unique_labels": 61,
+        "entries": 217
+      },
+      "combined": {
+        "unique_labels": 110,
+        "entries": 335
+      }
+    },
+    "pending_metadata_extraction_count": 21,
+    "abstract_only_count": 2,
+    "abstract_only_ids": [
+      "PR-RO-01",
+      "PR-RO-02"
+    ],
+    "pdf_status_corrupt_count": 3,
+    "pdf_status_corrupt_ids": [
+      "PR-EXP-0007",
+      "PR-EXP-0044",
+      "PR-EXP-0080"
+    ],
+    "out_of_scope_not_medical_ml_count": 15,
+    "out_of_scope_not_medical_ml_ids": [
+      "PR-EXP-0091",
+      "PR-EXP-0133",
+      "PR-EXP-0134",
+      "PR-EXP-0136",
+      "PR-EXP-0138",
+      "PR-EXP-0140",
+      "PR-EXP-0156",
+      "PR-EXP-0162",
+      "PR-EXP-0177",
+      "PR-EXP-0180",
+      "PR-EXP-0183",
+      "PR-EXP-0199",
+      "PR-EXP-0215",
+      "PR-EXP-0216",
+      "PR-EXP-0217"
+    ]
+  },
+  "sample_size_summary": {
+    "n_filled": 151,
+    "n_total": 335,
+    "min": 19,
+    "p25": 511,
+    "median": 4645,
+    "p75": 40643,
+    "max": 37000000
+  },
+  "mlgg_scope_filter": {
+    "field_coverage": {
+      "PR-orig_with_field": 0,
+      "PR-RO_with_field": 0,
+      "PR-EXP_with_field": 217
+    },
+    "is_cohort_retrospective_binary_true": 125,
+    "is_cohort_retrospective_binary_true_with_pdf": 125,
+    "primary_repo_populated": "pending_agent_b_output",
+    "true_count": 125,
+    "false_count": 92
+  },
+  "audit_findings": {
+    "confidence_distribution": {
+      "high": 144,
+      "low": 16,
+      "medium": 57
+    },
+    "anomaly_flag_counts": {
+      "pdf_corrupt_or_empty": 6,
+      "topic_not_medical_ml": 15,
+      "title_does_not_match_pdf": 26,
+      "pdf_not_peer_review": 1,
+      "paper_already_in_kb_under_other_id": 0
+    },
+    "flags_per_entry": {
+      "0": 175,
+      "1": 36,
+      "2": 6
+    },
+    "doubly_flagged_ids": [
+      {
+        "id": "PR-EXP-0134",
+        "flags": [
+          "topic_not_medical_ml",
+          "title_does_not_match_pdf"
+        ]
+      },
+      {
+        "id": "PR-EXP-0136",
+        "flags": [
+          "topic_not_medical_ml",
+          "title_does_not_match_pdf"
+        ]
+      },
+      {
+        "id": "PR-EXP-0140",
+        "flags": [
+          "topic_not_medical_ml",
+          "title_does_not_match_pdf"
+        ]
+      },
+      {
+        "id": "PR-EXP-0156",
+        "flags": [
+          "topic_not_medical_ml",
+          "title_does_not_match_pdf"
+        ]
+      },
+      {
+        "id": "PR-EXP-0162",
+        "flags": [
+          "topic_not_medical_ml",
+          "title_does_not_match_pdf"
+        ]
+      },
+      {
+        "id": "PR-EXP-0217",
+        "flags": [
+          "pdf_not_peer_review",
+          "topic_not_medical_ml"
+        ]
+      }
+    ]
+  },
+  "anomaly_flag_id_lists": {
+    "pdf_corrupt_or_empty": [
+      "PR-EXP-0007",
+      "PR-EXP-0044",
+      "PR-EXP-0080",
+      "PR-EXP-0150",
+      "PR-EXP-0188",
+      "PR-EXP-0190"
+    ],
+    "topic_not_medical_ml": [
+      "PR-EXP-0091",
+      "PR-EXP-0133",
+      "PR-EXP-0134",
+      "PR-EXP-0136",
+      "PR-EXP-0138",
+      "PR-EXP-0140",
+      "PR-EXP-0156",
+      "PR-EXP-0162",
+      "PR-EXP-0177",
+      "PR-EXP-0180",
+      "PR-EXP-0183",
+      "PR-EXP-0199",
+      "PR-EXP-0215",
+      "PR-EXP-0216",
+      "PR-EXP-0217"
+    ],
+    "title_does_not_match_pdf": [
+      "PR-EXP-0124",
+      "PR-EXP-0134",
+      "PR-EXP-0136",
+      "PR-EXP-0137",
+      "PR-EXP-0139",
+      "PR-EXP-0140",
+      "PR-EXP-0151",
+      "PR-EXP-0153",
+      "PR-EXP-0154",
+      "PR-EXP-0155",
+      "PR-EXP-0156",
+      "PR-EXP-0157",
+      "PR-EXP-0158",
+      "PR-EXP-0159",
+      "PR-EXP-0162",
+      "PR-EXP-0163",
+      "PR-EXP-0164",
+      "PR-EXP-0165",
+      "PR-EXP-0166",
+      "PR-EXP-0167",
+      "PR-EXP-0168",
+      "PR-EXP-0169",
+      "PR-EXP-0170",
+      "PR-EXP-0173",
+      "PR-EXP-0174",
+      "PR-EXP-0175"
+    ],
+    "pdf_not_peer_review": [
+      "PR-EXP-0217"
+    ]
+  },
+  "cross_chunk_consistency": {
+    "chunks": [
+      {
+        "id_range": "PR-EXP-0001..0044",
+        "n": 44,
+        "true": 4,
+        "false": 40,
+        "pct_true": 9.1,
+        "years": {
+          "2024": 5,
+          "2025": 23,
+          "2026": 16
+        },
+        "journals": {
+          "Communications Medicine": 44
+        },
+        "confidence": {
+          "high": 42,
+          "low": 2
+        }
+      },
+      {
+        "id_range": "PR-EXP-0045..0088",
+        "n": 44,
+        "true": 33,
+        "false": 11,
+        "pct_true": 75.0,
+        "years": {
+          "2021": 1,
+          "2022": 9,
+          "2023": 13,
+          "2024": 16,
+          "2025": 1,
+          "2026": 4
+        },
+        "journals": {
+          "Communications Medicine": 39,
+          "Nature Communications": 5
+        },
+        "confidence": {
+          "high": 39,
+          "medium": 4,
+          "low": 1
+        }
+      },
+      {
+        "id_range": "PR-EXP-0089..0132",
+        "n": 44,
+        "true": 39,
+        "false": 5,
+        "pct_true": 88.6,
+        "years": {
+          "2023": 4,
+          "2024": 22,
+          "2025": 18
+        },
+        "journals": {
+          "Nature Communications": 44
+        },
+        "confidence": {
+          "high": 33,
+          "medium": 11
+        }
+      },
+      {
+        "id_range": "PR-EXP-0133..0176",
+        "n": 44,
+        "true": 26,
+        "false": 18,
+        "pct_true": 59.1,
+        "years": {
+          "2021": 18,
+          "2022": 12,
+          "2023": 14
+        },
+        "journals": {
+          "Nature Communications": 44
+        },
+        "confidence": {
+          "high": 19,
+          "medium": 15,
+          "low": 10
+        }
+      },
+      {
+        "id_range": "PR-EXP-0177..0217",
+        "n": 41,
+        "true": 23,
+        "false": 18,
+        "pct_true": 56.1,
+        "years": {
+          "2020": 22,
+          "2021": 19
+        },
+        "journals": {
+          "Nature Communications": 41
+        },
+        "confidence": {
+          "high": 11,
+          "medium": 27,
+          "low": 3
+        }
+      }
+    ],
+    "year_2025_only": [
+      {
+        "id_range": "PR-EXP-0001..0044",
+        "2025_n": 23,
+        "2025_true": 1,
+        "2025_pct_true": 4.3
+      },
+      {
+        "id_range": "PR-EXP-0045..0088",
+        "2025_n": 1,
+        "2025_true": 0,
+        "2025_pct_true": 0.0
+      },
+      {
+        "id_range": "PR-EXP-0089..0132",
+        "2025_n": 18,
+        "2025_true": 13,
+        "2025_pct_true": 72.2
+      }
+    ],
+    "rate_gap_pp": 79.5,
+    "rate_gap_threshold_pp": 30,
+    "exceeds_threshold": true
+  },
+  "pr_exp_cohort_true_rate_by_year": {
+    "2020": {
+      "n": 22,
+      "true": 15,
+      "pct_true": 68.2
+    },
+    "2021": {
+      "n": 38,
+      "true": 20,
+      "pct_true": 52.6
+    },
+    "2022": {
+      "n": 21,
+      "true": 17,
+      "pct_true": 81.0
+    },
+    "2023": {
+      "n": 31,
+      "true": 22,
+      "pct_true": 71.0
+    },
+    "2024": {
+      "n": 43,
+      "true": 32,
+      "pct_true": 74.4
+    },
+    "2025": {
+      "n": 42,
+      "true": 14,
+      "pct_true": 33.3
+    },
+    "2026": {
+      "n": 20,
+      "true": 5,
+      "pct_true": 25.0
+    }
+  },
+  "fig4_confusion_matrix_subset": {
+    "PR_EXP_cohort_retrospective_true": 125,
+    "PR_orig_with_reviewer_concerns": 105,
+    "intersection_count": 0,
+    "note": "Disjoint coverage: scope tag only on PR-EXP, reviewer concerns only on PR-orig."
+  },
+  "reviewer_concerns_by_source": {
+    "PR-orig": {
+      "entries_with_concerns": 105,
+      "total_concerns": 449,
+      "total_strengths": 97
+    },
+    "PR-RO": {
+      "entries_with_concerns": 0,
+      "total_concerns": 0,
+      "total_strengths": 0
+    },
+    "PR-EXP": {
+      "entries_with_concerns": 0,
+      "total_concerns": 0,
+      "total_strengths": 0
+    }
+  },
+  "quarantine_record": [
+    {
+      "removed_id": "PR-040",
+      "reason": "fabrication: title contained explicit \"(inferred from PDF content)\" marker; DOI 10.1038/s41467-024-48643-0 actually corresponds to a Capsicum genome paper unrelated to medical ML. Title was apparently fabricated to fit the KB pattern.",
+      "pdf_quarantined_to": "references/case-studies/_quarantine/PR-040_sepsis_management_prediction_model_infer_peer_review.pdf",
+      "removed_at_utc": "2026-05-10T01:50:31.572787+00:00"
+    }
+  ],
+  "discussion_findings": [
+    "chunk1_chunk3_cohort_rate_divergence_is_rubric_not_sample",
+    "two_corrupt_pdf_markers_disagree_4_vs_6",
+    "openalex_discovery_only_reached_2_of_7_planned_journals",
+    "title_mismatch_flags_localized_to_chunk4",
+    "fig4_confusion_matrix_empty_due_to_disjoint_field_coverage",
+    "year_2025_2026_cohort_rate_drop_confounded_by_chunk1",
+    "pr_orig_data_type_vocabulary_highly_heterogeneous",
+    "21_pending_metadata_extraction_residuals"
+  ]
+}
