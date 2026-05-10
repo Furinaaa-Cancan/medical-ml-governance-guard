@@ -1,7 +1,7 @@
 {
   "contract_version": "peer_review_kb.v1",
-  "total_papers": 119,
-  "total_concerns": 452,
+  "total_papers": 118,
+  "total_concerns": 449,
   "entries": [
     {
       "id": "PR-001",
@@ -6268,110 +6268,6 @@
         "method": "title_substring",
         "confidence": "high",
         "note": "First 7 words of KB title found in PDF text",
-        "verified_at": "2026-05-09T17:21:26.644014+00:00"
-      }
-    },
-    {
-      "id": "PR-040",
-      "paper_doi": "10.1038/s41467-024-48643-0",
-      "paper_title": "Sepsis management prediction model (inferred from PDF content)",
-      "journal": "Nature Communications",
-      "year": 2024,
-      "domain": "critical_care",
-      "prediction_task": "Sepsis outcome prediction and management guidance",
-      "model_types": [
-        "xgboost",
-        "deep_learning"
-      ],
-      "data_type": "ehr_time_series",
-      "sample_size": 50000,
-      "review_rounds": 2,
-      "reviewer_concerns": [
-        {
-          "concern_id": "PR-040-C01",
-          "reviewer": "Reviewer #1",
-          "round": 1,
-          "category": "external_validation",
-          "severity": "HIGH",
-          "mlgg_dimension": 6,
-          "mlgg_gates": [
-            "external_validation_gate"
-          ],
-          "mlgg_rules": [],
-          "concern_text": "Model should be validated on external cohorts beyond the development institution to demonstrate generalizability.",
-          "author_response": "Added MIMIC-IV external validation.",
-          "resolved": true,
-          "tags": [
-            "no_external_validation",
-            "single_center"
-          ]
-        },
-        {
-          "concern_id": "PR-040-C02",
-          "reviewer": "Reviewer #1",
-          "round": 1,
-          "category": "evaluation_metrics",
-          "severity": "MEDIUM",
-          "mlgg_dimension": 5,
-          "mlgg_gates": [
-            "calibration_dca_gate"
-          ],
-          "mlgg_rules": [
-            "MLGG-E02"
-          ],
-          "concern_text": "Calibration and decision curve analysis should be included to demonstrate clinical utility beyond discrimination.",
-          "author_response": "Added calibration plots and DCA.",
-          "resolved": true,
-          "tags": [
-            "missing_calibration",
-            "missing_dca"
-          ]
-        },
-        {
-          "concern_id": "PR-040-C03",
-          "reviewer": "Reviewer #2",
-          "round": 1,
-          "category": "study_design",
-          "severity": "MEDIUM",
-          "mlgg_dimension": 1,
-          "mlgg_gates": [],
-          "mlgg_rules": [],
-          "concern_text": "Sepsis definition and labeling methodology need more detail. How were sepsis cases identified — Sepsis-3 criteria? What was the timing of sepsis onset relative to features used?",
-          "author_response": "Clarified Sepsis-3 criteria usage and temporal relationship between features and onset.",
-          "resolved": true,
-          "tags": [
-            "sepsis_definition",
-            "temporal_relationship",
-            "labeling_methodology"
-          ]
-        }
-      ],
-      "reviewer_strengths": [
-        {
-          "strength_id": "PR-040-S01",
-          "reviewer": "Reviewer #2",
-          "text": "Clinically relevant application with potential to improve sepsis management timing.",
-          "tags": [
-            "clinical_relevance",
-            "timing_improvement"
-          ]
-        }
-      ],
-      "outcome": "accepted_after_major_revision",
-      "key_methodology_issues": [
-        "no_external_validation",
-        "missing_calibration",
-        "sepsis_definition"
-      ],
-      "key_methodology_strengths": [
-        "large_cohort",
-        "real_time_potential"
-      ],
-      "peer_review_pdf_path": "references/case-studies/nature_communications/PR-040_sepsis_management_prediction_model_infer_peer_review.pdf",
-      "pdf_verification": {
-        "method": "filename_paper_id",
-        "confidence": "high",
-        "note": "PDF filename starts with paper_id PR-040_",
         "verified_at": "2026-05-09T17:21:26.644014+00:00"
       }
     },
@@ -13321,9 +13217,9 @@
       "domain": "neurology",
       "_note": "Reporting Summary only",
       "journal": "Nature Communications",
-      "prediction_task": "",
+      "prediction_task": "pending_manual_validation",
       "model_types": [],
-      "data_type": "",
+      "data_type": "pending_manual_validation",
       "sample_size": 0,
       "review_rounds": 0,
       "reviewer_concerns": [],
@@ -13337,7 +13233,8 @@
         "confidence": "high",
         "note": "Visually verified mapping (abbreviation/filename mismatch)",
         "verified_at": "2026-05-09T17:21:26.644014+00:00"
-      }
+      },
+      "_validation_status": "partial: PDF downloaded, metadata not yet extracted from PDF; do not use for paper-grade claims"
     },
     {
       "id": "PR-RO-02",
@@ -13347,9 +13244,9 @@
       "domain": "pediatric_cardiology",
       "_note": "Reporting Summary only",
       "journal": "Nature Communications",
-      "prediction_task": "",
+      "prediction_task": "pending_manual_validation",
       "model_types": [],
-      "data_type": "",
+      "data_type": "pending_manual_validation",
       "sample_size": 0,
       "review_rounds": 0,
       "reviewer_concerns": [],
@@ -13363,7 +13260,8 @@
         "confidence": "high",
         "note": "Visually verified mapping (abbreviation/filename mismatch)",
         "verified_at": "2026-05-09T17:21:26.644014+00:00"
-      }
+      },
+      "_validation_status": "partial: PDF downloaded, metadata not yet extracted from PDF; do not use for paper-grade claims"
     },
     {
       "id": "PR-RO-03",
@@ -13373,9 +13271,9 @@
       "domain": "gastroenterology",
       "_note": "Reporting Summary only",
       "journal": "Nature Communications",
-      "prediction_task": "",
+      "prediction_task": "pending_manual_validation",
       "model_types": [],
-      "data_type": "",
+      "data_type": "pending_manual_validation",
       "sample_size": 0,
       "review_rounds": 0,
       "reviewer_concerns": [],
@@ -13389,7 +13287,8 @@
         "confidence": "high",
         "note": "PDF filename starts with paper_id PR-RO-03_",
         "verified_at": "2026-05-09T17:21:26.644014+00:00"
-      }
+      },
+      "_validation_status": "partial: PDF downloaded, metadata not yet extracted from PDF; do not use for paper-grade claims"
     },
     {
       "id": "PR-RO-04",
@@ -13399,9 +13298,9 @@
       "domain": "neurology",
       "_note": "Reporting Summary only",
       "journal": "Nature Communications",
-      "prediction_task": "",
+      "prediction_task": "pending_manual_validation",
       "model_types": [],
-      "data_type": "",
+      "data_type": "pending_manual_validation",
       "sample_size": 0,
       "review_rounds": 0,
       "reviewer_concerns": [],
@@ -13415,7 +13314,8 @@
         "confidence": "high",
         "note": "PDF filename starts with paper_id PR-RO-04_",
         "verified_at": "2026-05-09T17:21:26.644014+00:00"
-      }
+      },
+      "_validation_status": "partial: PDF downloaded, metadata not yet extracted from PDF; do not use for paper-grade claims"
     },
     {
       "id": "PR-RO-05",
@@ -13425,9 +13325,9 @@
       "domain": "geriatrics",
       "_note": "Reporting Summary only",
       "journal": "Nature Communications",
-      "prediction_task": "",
+      "prediction_task": "pending_manual_validation",
       "model_types": [],
-      "data_type": "",
+      "data_type": "pending_manual_validation",
       "sample_size": 0,
       "review_rounds": 0,
       "reviewer_concerns": [],
@@ -13441,7 +13341,8 @@
         "confidence": "high",
         "note": "PDF filename starts with paper_id PR-RO-05_",
         "verified_at": "2026-05-09T17:21:26.644014+00:00"
-      }
+      },
+      "_validation_status": "partial: PDF downloaded, metadata not yet extracted from PDF; do not use for paper-grade claims"
     },
     {
       "id": "PR-RO-06",
@@ -13451,9 +13352,9 @@
       "domain": "rheumatology",
       "_note": "Reporting Summary only",
       "journal": "Nature Communications",
-      "prediction_task": "",
+      "prediction_task": "pending_manual_validation",
       "model_types": [],
-      "data_type": "",
+      "data_type": "pending_manual_validation",
       "sample_size": 0,
       "review_rounds": 0,
       "reviewer_concerns": [],
@@ -13467,7 +13368,8 @@
         "confidence": "high",
         "note": "PDF filename starts with paper_id PR-RO-06_",
         "verified_at": "2026-05-09T17:21:26.644014+00:00"
-      }
+      },
+      "_validation_status": "partial: PDF downloaded, metadata not yet extracted from PDF; do not use for paper-grade claims"
     },
     {
       "id": "PR-RO-07",
@@ -13477,9 +13379,9 @@
       "domain": "oncology",
       "_note": "Reporting Summary only",
       "journal": "Nature Communications",
-      "prediction_task": "",
+      "prediction_task": "pending_manual_validation",
       "model_types": [],
-      "data_type": "",
+      "data_type": "pending_manual_validation",
       "sample_size": 0,
       "review_rounds": 0,
       "reviewer_concerns": [],
@@ -13493,7 +13395,8 @@
         "confidence": "high",
         "note": "PDF filename starts with paper_id PR-RO-07_",
         "verified_at": "2026-05-09T17:21:26.644014+00:00"
-      }
+      },
+      "_validation_status": "partial: PDF downloaded, metadata not yet extracted from PDF; do not use for paper-grade claims"
     }
   ],
   "provenance": {
@@ -13522,6 +13425,35 @@
     ],
     "known_unmatched_kb_ids": [
       "PR-RO-03"
+    ],
+    "integrity_audits": [
+      {
+        "audited_at_utc": "2026-05-10T01:50:31.572787+00:00",
+        "method": "PDF keyword overlap with KB title; explicit \"(inferred from PDF content)\" pattern scan",
+        "result": {
+          "fabricated_entries_removed": [
+            "PR-040"
+          ],
+          "incomplete_entries_marked_pending": [
+            "PR-RO-01",
+            "PR-RO-02",
+            "PR-RO-03",
+            "PR-RO-04",
+            "PR-RO-05",
+            "PR-RO-06",
+            "PR-RO-07"
+          ],
+          "verified_entries": 111
+        }
+      }
     ]
-  }
+  },
+  "quarantine": [
+    {
+      "removed_id": "PR-040",
+      "reason": "fabrication: title contained explicit \"(inferred from PDF content)\" marker; DOI 10.1038/s41467-024-48643-0 actually corresponds to a Capsicum genome paper unrelated to medical ML. Title was apparently fabricated to fit the KB pattern.",
+      "pdf_quarantined_to": "references/case-studies/_quarantine/PR-040_sepsis_management_prediction_model_infer_peer_review.pdf",
+      "removed_at_utc": "2026-05-10T01:50:31.572787+00:00"
+    }
+  ]
 }
