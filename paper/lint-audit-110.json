@@ -1,0 +1,1644 @@
+{
+  "generated_at_utc": "2026-05-10T06:45:14.478057+00:00",
+  "corpus_path": "paper/code-repos-cohort-binary.json",
+  "corpus_size": 125,
+  "stats": {
+    "total_targets": 92,
+    "successfully_cloned": 88,
+    "have_python_files": 71,
+    "lint_findings_at_least_one": 48,
+    "total_findings_aggregate": 448,
+    "by_severity": {
+      "warning": 215,
+      "info": 123,
+      "error": 110
+    }
+  },
+  "rules_fired_across_corpus": {
+    "R009": 26,
+    "R022": 21,
+    "E000": 15,
+    "R013": 12,
+    "R016": 11,
+    "R021": 7,
+    "R008": 7,
+    "R007": 6,
+    "R019": 5,
+    "R002": 4,
+    "R004": 3,
+    "R001": 3,
+    "R018": 3,
+    "R027": 2,
+    "R020": 2,
+    "R014": 2,
+    "R005": 1,
+    "R029": 1,
+    "R010": 1
+  },
+  "rules_total_findings": {
+    "R022": 125,
+    "R009": 83,
+    "E000": 56,
+    "R016": 31,
+    "R013": 30,
+    "R021": 23,
+    "R007": 14,
+    "R008": 13,
+    "R014": 13,
+    "R001": 11,
+    "R005": 10,
+    "R027": 7,
+    "R020": 7,
+    "R019": 6,
+    "R010": 6,
+    "R004": 5,
+    "R002": 4,
+    "R018": 3,
+    "R029": 1
+  },
+  "results": [
+    {
+      "id": "PR-EXP-0005",
+      "primary_repo": "https://github.com/Kepler1647b/G-NECNet",
+      "clone_status": "cloned",
+      "python_files": 38,
+      "notebook_files": 0,
+      "finding_count": 1,
+      "rule_counts": {
+        "R022": 1
+      },
+      "severity_counts": {
+        "warning": 1
+      },
+      "top_5_rules": [
+        "R022"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0042",
+      "primary_repo": "https://github.com/ecg-net/scd-oregon",
+      "clone_status": "cloned",
+      "python_files": 16,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0046",
+      "primary_repo": "https://github.com/AIM-Harvard/DeepHeart",
+      "clone_status": "cloned",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0047",
+      "primary_repo": "https://github.com/LARS-research/KnowDDI",
+      "clone_status": "cloned",
+      "python_files": 24,
+      "notebook_files": 0,
+      "finding_count": 2,
+      "rule_counts": {
+        "R009": 2
+      },
+      "severity_counts": {
+        "info": 2
+      },
+      "top_5_rules": [
+        "R009"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0051",
+      "primary_repo": "https://github.com/calvin-zcx/pasc_phenotype/tree/master/prediction",
+      "clone_status": "cloned",
+      "python_files": 626,
+      "notebook_files": 0,
+      "finding_count": 100,
+      "rule_counts": {
+        "R022": 78,
+        "R009": 20,
+        "R021": 2
+      },
+      "severity_counts": {
+        "warning": 80,
+        "info": 20
+      },
+      "top_5_rules": [
+        "R022",
+        "R009",
+        "R021"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0057",
+      "primary_repo": "https://github.com/ayin0510/JH-EPICS",
+      "clone_status": "cloned",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0058",
+      "primary_repo": "https://github.com/Koinoue/bcf_hsct",
+      "clone_status": "cloned",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0059",
+      "primary_repo": "https://github.com/ngiesa/TRAPOD",
+      "clone_status": "cloned",
+      "python_files": 36,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0060",
+      "primary_repo": "https://github.com/shachar5020/TransformerMIL4ReceptorPrediction",
+      "clone_status": "cloned",
+      "python_files": 32,
+      "notebook_files": 0,
+      "finding_count": 2,
+      "rule_counts": {
+        "R022": 1,
+        "R013": 1
+      },
+      "severity_counts": {
+        "warning": 2
+      },
+      "top_5_rules": [
+        "R022",
+        "R013"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0061",
+      "primary_repo": "https://github.com/akhilvaid/LeftHeartValvularDisease",
+      "clone_status": "cloned",
+      "python_files": 6,
+      "notebook_files": 0,
+      "finding_count": 9,
+      "rule_counts": {
+        "R027": 3,
+        "R020": 2,
+        "R009": 1,
+        "R022": 1,
+        "R004": 1,
+        "R008": 1
+      },
+      "severity_counts": {
+        "error": 5,
+        "warning": 3,
+        "info": 1
+      },
+      "top_5_rules": [
+        "R027",
+        "R020",
+        "R009",
+        "R022",
+        "R004"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0063",
+      "primary_repo": "https://github.com/xzhouai/NNP",
+      "clone_status": "cloned",
+      "python_files": 0,
+      "notebook_files": 2,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0064",
+      "primary_repo": "http://github.com/igormintz/cipro",
+      "clone_status": "cloned",
+      "python_files": 10,
+      "notebook_files": 0,
+      "finding_count": 8,
+      "rule_counts": {
+        "R021": 2,
+        "R022": 2,
+        "R016": 2,
+        "R019": 1,
+        "R009": 1
+      },
+      "severity_counts": {
+        "warning": 4,
+        "info": 4
+      },
+      "top_5_rules": [
+        "R021",
+        "R022",
+        "R016",
+        "R019",
+        "R009"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0065",
+      "primary_repo": "https://github.com/gevaertlab/MultiModalBrainSurvival",
+      "clone_status": "cloned",
+      "python_files": 44,
+      "notebook_files": 0,
+      "finding_count": 4,
+      "rule_counts": {
+        "R009": 2,
+        "R022": 2
+      },
+      "severity_counts": {
+        "info": 2,
+        "warning": 2
+      },
+      "top_5_rules": [
+        "R009",
+        "R022"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0066",
+      "primary_repo": "https://github.com/ecg-net/CKDscreening",
+      "clone_status": "cloned",
+      "python_files": 48,
+      "notebook_files": 0,
+      "finding_count": 8,
+      "rule_counts": {
+        "R009": 4,
+        "R022": 4
+      },
+      "severity_counts": {
+        "info": 4,
+        "warning": 4
+      },
+      "top_5_rules": [
+        "R009",
+        "R022"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0068",
+      "primary_repo": "https://github.com/Google-Health/google-health/tree/master/colorectal_lymph_node_metastasis_prediction",
+      "clone_status": "cloned",
+      "python_files": 72,
+      "notebook_files": 10,
+      "finding_count": 13,
+      "rule_counts": {
+        "R022": 7,
+        "R009": 4,
+        "R002": 1,
+        "E000": 1
+      },
+      "severity_counts": {
+        "warning": 7,
+        "info": 4,
+        "error": 2
+      },
+      "top_5_rules": [
+        "R022",
+        "R009",
+        "R002",
+        "E000"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0069",
+      "primary_repo": "https://github.com/mensenyat/TNBC-ICI",
+      "clone_status": "cloned",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0071",
+      "primary_repo": "https://github.com/Hongyang449/covid19_perception/tree/main/data",
+      "clone_status": "cloned",
+      "python_files": 20,
+      "notebook_files": 0,
+      "finding_count": 2,
+      "rule_counts": {
+        "E000": 2
+      },
+      "severity_counts": {
+        "error": 2
+      },
+      "top_5_rules": [
+        "E000"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0072",
+      "primary_repo": "https://github.com/lanagarmire/BC_imaging",
+      "clone_status": "cloned",
+      "python_files": 16,
+      "notebook_files": 44,
+      "finding_count": 8,
+      "rule_counts": {
+        "E000": 6,
+        "R001": 2
+      },
+      "severity_counts": {
+        "error": 8
+      },
+      "top_5_rules": [
+        "E000",
+        "R001"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0073",
+      "primary_repo": "https://github.com/kjakobse/risk-factors-associated-with-long-term-sick-leave-following-COVID-19-in-Danish-population",
+      "clone_status": "cloned",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0079",
+      "primary_repo": "https://github.com/hawaii-ai/tbdxa_mortality",
+      "clone_status": "cloned",
+      "python_files": 20,
+      "notebook_files": 8,
+      "finding_count": 1,
+      "rule_counts": {
+        "R022": 1
+      },
+      "severity_counts": {
+        "warning": 1
+      },
+      "top_5_rules": [
+        "R022"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0080",
+      "primary_repo": "https://github.com/suinleelab/IMPACT",
+      "clone_status": "cloned",
+      "python_files": 2,
+      "notebook_files": 6,
+      "finding_count": 3,
+      "rule_counts": {
+        "R021": 2,
+        "R009": 1
+      },
+      "severity_counts": {
+        "warning": 2,
+        "info": 1
+      },
+      "top_5_rules": [
+        "R021",
+        "R009"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0081",
+      "primary_repo": "https://github.com/pirocv/xray_age",
+      "clone_status": "cloned",
+      "python_files": 2,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0084",
+      "primary_repo": "https://github.com/Tongyue1999/Chinese-DDrtree",
+      "clone_status": "cloned",
+      "python_files": 4,
+      "notebook_files": 2,
+      "finding_count": 1,
+      "rule_counts": {
+        "E000": 1
+      },
+      "severity_counts": {
+        "error": 1
+      },
+      "top_5_rules": [
+        "E000"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0085",
+      "primary_repo": "https://github.com/andyvng/amr-gnn",
+      "clone_status": "cloned",
+      "python_files": 24,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0095",
+      "primary_repo": "https://github.com/Rujinyu/HEROVision/tree/main",
+      "clone_status": "cloned",
+      "python_files": 10,
+      "notebook_files": 0,
+      "finding_count": 4,
+      "rule_counts": {
+        "R009": 2,
+        "R022": 2
+      },
+      "severity_counts": {
+        "info": 2,
+        "warning": 2
+      },
+      "top_5_rules": [
+        "R009",
+        "R022"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0096",
+      "primary_repo": "https://github.com/saraskim/abcd_otr",
+      "clone_status": "cloned",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0098",
+      "primary_repo": "https://github.com/handeaydogan/slope-models-adpkd",
+      "clone_status": "cloned",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0099",
+      "primary_repo": "https://github.com/aalto-ics-kepaco/survivalfm-analysis",
+      "clone_status": "cloned",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0100",
+      "primary_repo": "https://github.com/chaoyi-wu/RadFM",
+      "clone_status": "cloned",
+      "python_files": 76,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0101",
+      "primary_repo": "https://github.com/MonsterTea/MDKG",
+      "clone_status": "cloned",
+      "python_files": 56,
+      "notebook_files": 0,
+      "finding_count": 2,
+      "rule_counts": {
+        "E000": 1,
+        "R008": 1
+      },
+      "severity_counts": {
+        "error": 1,
+        "warning": 1
+      },
+      "top_5_rules": [
+        "E000",
+        "R008"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0102",
+      "primary_repo": "https://github.com/YixinChen-AI/MPUM",
+      "clone_status": "cloned",
+      "python_files": 580,
+      "notebook_files": 0,
+      "finding_count": 5,
+      "rule_counts": {
+        "R013": 4,
+        "R016": 1
+      },
+      "severity_counts": {
+        "warning": 4,
+        "info": 1
+      },
+      "top_5_rules": [
+        "R013",
+        "R016"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0104",
+      "primary_repo": "https://github.com/gingerbread000/LCTfound",
+      "clone_status": "cloned",
+      "python_files": 82,
+      "notebook_files": 0,
+      "finding_count": 1,
+      "rule_counts": {
+        "E000": 1
+      },
+      "severity_counts": {
+        "error": 1
+      },
+      "top_5_rules": [
+        "E000"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0105",
+      "primary_repo": "https://github.com/zocskl/RNFLTmetabolic-states-predict-CMD-outcomes",
+      "clone_status": "clone_failed: Cloning into '/Volumes/Seagate/Skill/ml-leakage-guard/.cache/audit-repos-110/PR-EXP-0105'...",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0107",
+      "primary_repo": "https://github.com/fangdai-dear/QuasiParetoImprovement",
+      "clone_status": "cloned",
+      "python_files": 26,
+      "notebook_files": 0,
+      "finding_count": 3,
+      "rule_counts": {
+        "R022": 2,
+        "E000": 1
+      },
+      "severity_counts": {
+        "warning": 2,
+        "error": 1
+      },
+      "top_5_rules": [
+        "R022",
+        "E000"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0108",
+      "primary_repo": "https://github.com/CamDavidsonPilon/lifelines",
+      "clone_status": "cloned",
+      "python_files": 138,
+      "notebook_files": 32,
+      "finding_count": 10,
+      "rule_counts": {
+        "R007": 8,
+        "R002": 1,
+        "R021": 1
+      },
+      "severity_counts": {
+        "error": 9,
+        "warning": 1
+      },
+      "top_5_rules": [
+        "R007",
+        "R002",
+        "R021"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0109",
+      "primary_repo": "https://github.com/shuaih720/CHDdECG",
+      "clone_status": "cloned",
+      "python_files": 22,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0110",
+      "primary_repo": "https://github.com/obi-ml-public/ECG-LV-Dysfunction",
+      "clone_status": "cloned",
+      "python_files": 2,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0111",
+      "primary_repo": "https://github.com/tayebiarasteh/LLMmed",
+      "clone_status": "cloned",
+      "python_files": 8,
+      "notebook_files": 0,
+      "finding_count": 18,
+      "rule_counts": {
+        "R020": 5,
+        "R014": 4,
+        "R016": 2,
+        "R013": 2,
+        "R018": 1,
+        "R019": 1,
+        "R009": 1,
+        "R022": 1,
+        "R007": 1
+      },
+      "severity_counts": {
+        "warning": 7,
+        "error": 6,
+        "info": 5
+      },
+      "top_5_rules": [
+        "R020",
+        "R014",
+        "R016",
+        "R013",
+        "R018"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0112",
+      "primary_repo": "https://github.com/flatironhealth/SUDO",
+      "clone_status": "cloned",
+      "python_files": 24,
+      "notebook_files": 0,
+      "finding_count": 26,
+      "rule_counts": {
+        "R014": 9,
+        "R022": 6,
+        "R009": 4,
+        "R013": 2,
+        "R007": 1,
+        "R018": 1,
+        "R019": 1,
+        "R016": 1,
+        "R002": 1
+      },
+      "severity_counts": {
+        "warning": 17,
+        "info": 7,
+        "error": 2
+      },
+      "top_5_rules": [
+        "R014",
+        "R022",
+        "R009",
+        "R013",
+        "R007"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0113",
+      "primary_repo": "https://github.com/chenhcs/FRoGS",
+      "clone_status": "cloned",
+      "python_files": 22,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0114",
+      "primary_repo": "https://github.com/mattrosenblatt7/leakage_neuroimaging",
+      "clone_status": "cloned",
+      "python_files": 8,
+      "notebook_files": 2,
+      "finding_count": 7,
+      "rule_counts": {
+        "R021": 5,
+        "R016": 1,
+        "E000": 1
+      },
+      "severity_counts": {
+        "warning": 5,
+        "info": 1,
+        "error": 1
+      },
+      "top_5_rules": [
+        "R021",
+        "R016",
+        "E000"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0116",
+      "primary_repo": "https://github.com/dmmoon/PathoRICH",
+      "clone_status": "cloned",
+      "python_files": 28,
+      "notebook_files": 0,
+      "finding_count": 1,
+      "rule_counts": {
+        "R013": 1
+      },
+      "severity_counts": {
+        "warning": 1
+      },
+      "top_5_rules": [
+        "R013"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0117",
+      "primary_repo": "https://github.com/dimiboeckaerts/PhageRBPdetection",
+      "clone_status": "cloned",
+      "python_files": 18,
+      "notebook_files": 10,
+      "finding_count": 20,
+      "rule_counts": {
+        "R013": 6,
+        "R009": 3,
+        "R016": 3,
+        "R001": 2,
+        "R019": 2,
+        "R021": 2,
+        "R008": 2
+      },
+      "severity_counts": {
+        "warning": 10,
+        "info": 8,
+        "error": 2
+      },
+      "top_5_rules": [
+        "R013",
+        "R009",
+        "R016",
+        "R001",
+        "R019"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0118",
+      "primary_repo": "https://github.com/jkznst/RetinaNet-mxnet",
+      "clone_status": "cloned",
+      "python_files": 94,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0119",
+      "primary_repo": "https://github.com/JoshuaChou2018/SkinGPT-4",
+      "clone_status": "cloned",
+      "python_files": 80,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0121",
+      "primary_repo": "https://github.com/yjdeng9/DeepMSProfiler",
+      "clone_status": "cloned",
+      "python_files": 34,
+      "notebook_files": 2,
+      "finding_count": 6,
+      "rule_counts": {
+        "R008": 4,
+        "R009": 1,
+        "R022": 1
+      },
+      "severity_counts": {
+        "warning": 5,
+        "info": 1
+      },
+      "top_5_rules": [
+        "R008",
+        "R009",
+        "R022"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0122",
+      "primary_repo": "https://github.com/Dyke-F/GPT-4V-In-Context-Learning",
+      "clone_status": "cloned",
+      "python_files": 48,
+      "notebook_files": 16,
+      "finding_count": 2,
+      "rule_counts": {
+        "R009": 2
+      },
+      "severity_counts": {
+        "info": 2
+      },
+      "top_5_rules": [
+        "R009"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0123",
+      "primary_repo": "https://github.com/google/bayesnf",
+      "clone_status": "cloned",
+      "python_files": 24,
+      "notebook_files": 4,
+      "finding_count": 2,
+      "rule_counts": {
+        "R016": 2
+      },
+      "severity_counts": {
+        "info": 2
+      },
+      "top_5_rules": [
+        "R016"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0124",
+      "primary_repo": "https://github.com/cykwilliams/GPT-3.5-Clinical-Recommendations-in-Emergency-Department",
+      "clone_status": "cloned",
+      "python_files": 10,
+      "notebook_files": 0,
+      "finding_count": 3,
+      "rule_counts": {
+        "R009": 3
+      },
+      "severity_counts": {
+        "info": 3
+      },
+      "top_5_rules": [
+        "R009"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0125",
+      "primary_repo": "https://github.com/ncbi-nlp/TrialGPT/10.5281/zenodo.13270780",
+      "clone_status": "clone_failed: Cloning into '/Volumes/Seagate/Skill/ml-leakage-guard/.cache/audit-repos-110/PR-EXP-0125'...",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0127",
+      "primary_repo": "https://github.com/yawwG/MRP",
+      "clone_status": "cloned",
+      "python_files": 34,
+      "notebook_files": 0,
+      "finding_count": 7,
+      "rule_counts": {
+        "R013": 4,
+        "R022": 2,
+        "R009": 1
+      },
+      "severity_counts": {
+        "warning": 6,
+        "info": 1
+      },
+      "top_5_rules": [
+        "R013",
+        "R022",
+        "R009"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0128",
+      "primary_repo": "https://github.com/arantir123/MCGLPPI",
+      "clone_status": "cloned",
+      "python_files": 362,
+      "notebook_files": 0,
+      "finding_count": 16,
+      "rule_counts": {
+        "R009": 7,
+        "R016": 5,
+        "E000": 2,
+        "R007": 1,
+        "R013": 1
+      },
+      "severity_counts": {
+        "info": 12,
+        "error": 3,
+        "warning": 1
+      },
+      "top_5_rules": [
+        "R009",
+        "R016",
+        "E000",
+        "R007",
+        "R013"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0129",
+      "primary_repo": "https://github.com/thidoiSanren/CNN_liver-cancer_Raman",
+      "clone_status": "cloned",
+      "python_files": 8,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0130",
+      "primary_repo": "https://github.com/cjh-lab/NCOMMS_NSCLC_scFibs.git",
+      "clone_status": "cloned",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0131",
+      "primary_repo": "https://github.com/shaankhurshid/lvmass_gwas",
+      "clone_status": "cloned",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0135",
+      "primary_repo": "https://github.com/Artinto/Sample-to-answer_COVID-19",
+      "clone_status": "clone_failed: Cloning into '/Volumes/Seagate/Skill/ml-leakage-guard/.cache/audit-repos-110/PR-EXP-0135'...",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0139",
+      "primary_repo": "https://github.com/gherrgo/eLB-Random-Forests.git",
+      "clone_status": "cloned",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0142",
+      "primary_repo": "https://github.com/biomedia-mira/upa",
+      "clone_status": "cloned",
+      "python_files": 8,
+      "notebook_files": 4,
+      "finding_count": 10,
+      "rule_counts": {
+        "R016": 4,
+        "R022": 3,
+        "R009": 2,
+        "R008": 1
+      },
+      "severity_counts": {
+        "info": 6,
+        "warning": 4
+      },
+      "top_5_rules": [
+        "R016",
+        "R022",
+        "R009",
+        "R008"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0144",
+      "primary_repo": "https://github.com/zhongthoracic/DLNMS",
+      "clone_status": "cloned",
+      "python_files": 10,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0145",
+      "primary_repo": "https://github.com/sdw95927/Ceograph",
+      "clone_status": "cloned",
+      "python_files": 2,
+      "notebook_files": 6,
+      "finding_count": 1,
+      "rule_counts": {
+        "E000": 1
+      },
+      "severity_counts": {
+        "error": 1
+      },
+      "top_5_rules": [
+        "E000"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0146",
+      "primary_repo": "https://github.com/sorgerlab/cycif",
+      "clone_status": "cloned",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0147",
+      "primary_repo": "https://github.com/zhengjiewhu/MNALCI",
+      "clone_status": "cloned",
+      "python_files": 16,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0148",
+      "primary_repo": "https://github.com/aetherAI/hms2",
+      "clone_status": "cloned",
+      "python_files": 80,
+      "notebook_files": 0,
+      "finding_count": 5,
+      "rule_counts": {
+        "R009": 3,
+        "R022": 2
+      },
+      "severity_counts": {
+        "info": 3,
+        "warning": 2
+      },
+      "top_5_rules": [
+        "R009",
+        "R022"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0150",
+      "primary_repo": "https://github.com/SBIlab/NetBio",
+      "clone_status": "cloned",
+      "python_files": 30,
+      "notebook_files": 0,
+      "finding_count": 25,
+      "rule_counts": {
+        "R021": 9,
+        "R001": 7,
+        "R016": 3,
+        "R009": 2,
+        "R004": 1,
+        "R008": 1,
+        "R018": 1,
+        "R019": 1
+      },
+      "severity_counts": {
+        "warning": 11,
+        "error": 7,
+        "info": 7
+      },
+      "top_5_rules": [
+        "R021",
+        "R001",
+        "R016",
+        "R009",
+        "R004"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0151",
+      "primary_repo": "https://github.com/UMCUGenetics/mutSigExtractor",
+      "clone_status": "cloned",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0152",
+      "primary_repo": "https://github.com/papaemmelab/Tazi_NatureC_AML",
+      "clone_status": "cloned",
+      "python_files": 0,
+      "notebook_files": 10,
+      "finding_count": 4,
+      "rule_counts": {
+        "E000": 4
+      },
+      "severity_counts": {
+        "error": 4
+      },
+      "top_5_rules": [
+        "E000"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0153",
+      "primary_repo": "https://github.com/jamesdolezal/slideflow",
+      "clone_status": "cloned",
+      "python_files": 384,
+      "notebook_files": 0,
+      "finding_count": 3,
+      "rule_counts": {
+        "R013": 2,
+        "R009": 1
+      },
+      "severity_counts": {
+        "warning": 2,
+        "info": 1
+      },
+      "top_5_rules": [
+        "R013",
+        "R009"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0155",
+      "primary_repo": "https://github.com/amirlivne/PD-L1_predictor",
+      "clone_status": "cloned",
+      "python_files": 6,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0157",
+      "primary_repo": "https://github.com/tensorflow/models/tree/master/research/object_detection",
+      "clone_status": "cloned",
+      "python_files": 5000,
+      "notebook_files": 138,
+      "finding_count": 40,
+      "rule_counts": {
+        "E000": 31,
+        "R009": 6,
+        "R013": 2,
+        "R007": 1
+      },
+      "severity_counts": {
+        "error": 32,
+        "info": 6,
+        "warning": 2
+      },
+      "top_5_rules": [
+        "E000",
+        "R009",
+        "R013",
+        "R007"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0159",
+      "primary_repo": "https://github.com/owkin/scancovia",
+      "clone_status": "cloned",
+      "python_files": 34,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0160",
+      "primary_repo": "https://github.com/d909b/CovEWS",
+      "clone_status": "cloned",
+      "python_files": 66,
+      "notebook_files": 0,
+      "finding_count": 4,
+      "rule_counts": {
+        "R002": 1,
+        "R009": 1,
+        "R022": 1,
+        "R013": 1
+      },
+      "severity_counts": {
+        "warning": 2,
+        "error": 1,
+        "info": 1
+      },
+      "top_5_rules": [
+        "R002",
+        "R009",
+        "R022",
+        "R013"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0164",
+      "primary_repo": "https://github.com/aetherAI/tensorflow-huge-model-support",
+      "clone_status": "cloned",
+      "python_files": 12,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0166",
+      "primary_repo": "https://github.com/Heng14/3D_RP-Net",
+      "clone_status": "cloned",
+      "python_files": 74,
+      "notebook_files": 4,
+      "finding_count": 13,
+      "rule_counts": {
+        "R005": 10,
+        "R009": 2,
+        "E000": 1
+      },
+      "severity_counts": {
+        "error": 11,
+        "info": 2
+      },
+      "top_5_rules": [
+        "R005",
+        "R009",
+        "E000"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0168",
+      "primary_repo": "https://github.com/sialindskrog/classifyNMIBC",
+      "clone_status": "cloned",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0171",
+      "primary_repo": "https://gitlab.com/cgps/pathogenwatch/publications/-/tree/master/styphi",
+      "clone_status": "clone_failed: Cloning into '/Volumes/Seagate/Skill/ml-leakage-guard/.cache/audit-repos-110/PR-EXP-0171'...",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0172",
+      "primary_repo": "https://github.com/DIAL-RPI/CVD-Risk-Estimator",
+      "clone_status": "cloned",
+      "python_files": 26,
+      "notebook_files": 4,
+      "finding_count": 1,
+      "rule_counts": {
+        "E000": 1
+      },
+      "severity_counts": {
+        "error": 1
+      },
+      "top_5_rules": [
+        "E000"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0185",
+      "primary_repo": "https://github.com/linchundan88/fundus_multiple_diseases_web",
+      "clone_status": "cloned",
+      "python_files": 42,
+      "notebook_files": 0,
+      "finding_count": 1,
+      "rule_counts": {
+        "R029": 1
+      },
+      "severity_counts": {
+        "error": 1
+      },
+      "top_5_rules": [
+        "R029"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0187",
+      "primary_repo": "https://github.com/ShenghuaCheng/Aided-Diagnosis-System-for-Cervical-Cancer-Screening",
+      "clone_status": "cloned",
+      "python_files": 96,
+      "notebook_files": 0,
+      "finding_count": 2,
+      "rule_counts": {
+        "R009": 1,
+        "R022": 1
+      },
+      "severity_counts": {
+        "info": 1,
+        "warning": 1
+      },
+      "top_5_rules": [
+        "R009",
+        "R022"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0189",
+      "primary_repo": "https://github.com/antonior92/ecg-age-prediction",
+      "clone_status": "cloned",
+      "python_files": 12,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0192",
+      "primary_repo": "https://github.com/zhijian-yang/SmileGAN",
+      "clone_status": "cloned",
+      "python_files": 22,
+      "notebook_files": 0,
+      "finding_count": 2,
+      "rule_counts": {
+        "R007": 2
+      },
+      "severity_counts": {
+        "error": 2
+      },
+      "top_5_rules": [
+        "R007"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0193",
+      "primary_repo": "https://github.com/LinLu1912/CNN-RNN-paper.git",
+      "clone_status": "cloned",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0194",
+      "primary_repo": "https://github.com/cancer-oncogenomics/ctDNA-dynamic-prediction-lung-cancer",
+      "clone_status": "cloned",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0197",
+      "primary_repo": "https://github.com/RA19/clltim",
+      "clone_status": "cloned",
+      "python_files": 2,
+      "notebook_files": 0,
+      "finding_count": 4,
+      "rule_counts": {
+        "R013": 4
+      },
+      "severity_counts": {
+        "warning": 4
+      },
+      "top_5_rules": [
+        "R013"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0200",
+      "primary_repo": "https://github.com/antonior92/automatic-ecg-diagnosis",
+      "clone_status": "cloned",
+      "python_files": 10,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0201",
+      "primary_repo": "https://github.com/cojocchen/covid19_critically_ill",
+      "clone_status": "cloned",
+      "python_files": 6,
+      "notebook_files": 0,
+      "finding_count": 1,
+      "rule_counts": {
+        "R022": 1
+      },
+      "severity_counts": {
+        "warning": 1
+      },
+      "top_5_rules": [
+        "R022"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0203",
+      "primary_repo": "https://github.com/albermax/innvestigate",
+      "clone_status": "cloned",
+      "python_files": 114,
+      "notebook_files": 16,
+      "finding_count": 2,
+      "rule_counts": {
+        "E000": 2
+      },
+      "severity_counts": {
+        "error": 2
+      },
+      "top_5_rules": [
+        "E000"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0204",
+      "primary_repo": "https://github.com/ThoroughImages/PathologyGo",
+      "clone_status": "cloned",
+      "python_files": 14,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0205",
+      "primary_repo": "https://github.com/clalitresearch/COVID-19-Model",
+      "clone_status": "cloned",
+      "python_files": 0,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": null
+    },
+    {
+      "id": "PR-EXP-0207",
+      "primary_repo": "https://github.com/ChenWWWeixiang/diagnosis_covid19",
+      "clone_status": "cloned",
+      "python_files": 132,
+      "notebook_files": 0,
+      "finding_count": 35,
+      "rule_counts": {
+        "R016": 7,
+        "R009": 6,
+        "R022": 6,
+        "R010": 6,
+        "R027": 4,
+        "R004": 3,
+        "R008": 3
+      },
+      "severity_counts": {
+        "warning": 18,
+        "info": 13,
+        "error": 4
+      },
+      "top_5_rules": [
+        "R016",
+        "R009",
+        "R022",
+        "R010",
+        "R027"
+      ],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0210",
+      "primary_repo": "https://github.com/AMLab-Amsterdam/AttentionDeepMIL",
+      "clone_status": "cloned",
+      "python_files": 10,
+      "notebook_files": 0,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0211",
+      "primary_repo": "https://github.com/deepwise-code/DLIA",
+      "clone_status": "cloned",
+      "python_files": 80,
+      "notebook_files": 2,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    },
+    {
+      "id": "PR-EXP-0212",
+      "primary_repo": "https://github.com/kumc-bmi/AKI_CDM",
+      "clone_status": "cloned",
+      "python_files": 0,
+      "notebook_files": 2,
+      "finding_count": 0,
+      "rule_counts": {},
+      "severity_counts": {},
+      "top_5_rules": [],
+      "lint_exit_code": 0
+    }
+  ]
+}

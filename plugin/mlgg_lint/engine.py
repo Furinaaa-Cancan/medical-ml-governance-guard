@@ -317,7 +317,33 @@ def analyze_paths(
     files = _collect_python_files(paths)
     for fpath in files:
         all_diags.extend(analyze_file(fpath, config=config))
+
+    # R029 also scans auxiliary availability-text files (README.md /
+    # code_availability.txt / ...). The engine routes these through a
+    # dedicated path because they have no AST.
+    if config is None or "R029" not in (config.disabled_rules or set()):
+        all_diags.extend(_analyze_text_files(paths))
+
     return all_diags
+
+
+def _analyze_text_files(paths: Sequence[str | Path]) -> List[Diagnostic]:
+    """Run R029-only scanning over availability-text files under ``paths``."""
+    from mlgg_lint.rules.r029_credentials_in_code_availability import (
+        iter_text_file_candidates,
+        scan_text_file,
+    )
+
+    out: List[Diagnostic] = []
+    seen: set[Path] = set()
+    for p in paths:
+        root = Path(p)
+        for f in iter_text_file_candidates(root):
+            if f in seen:
+                continue
+            seen.add(f)
+            out.extend(scan_text_file(f, _display_path(f)))
+    return out
 
 
 _SUPPORTED_SUFFIXES = {".py", ".ipynb"}

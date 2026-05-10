@@ -1,0 +1,271 @@
+{
+  "schema": "prisma_2020_flow.v1",
+  "generated_at_utc": "2026-05-10",
+  "ip_compliance": "Aggregate counts and factual paper IDs only. No titles, abstracts, or reviewer text reproduced.",
+  "source_files": {
+    "discovery_candidates": "paper/discovery-candidates.json",
+    "merge_report": "paper/kb-merge-report.md",
+    "status_log_partial": "paper/expanded-corpus-status.json",
+    "kb": "references/case-studies/peer-review-kb.json",
+    "kb_provenance_audits": "references/case-studies/peer-review-kb.json#/provenance/integrity_audits",
+    "corpus_statistics": "paper/corpus-statistics.md",
+    "code_repos_in_scope": "paper/code-repos-cohort-binary.json"
+  },
+
+  "stage_1_identification": {
+    "method": "OpenAlex Works API; filter=primary_location.source.id:<journal>,publication_year:2020-2026; search=<query>",
+    "year_filter": {"from": 2020, "to": 2026},
+    "journals": [
+      {"name": "Nature Communications", "openalex_source_id": "S64187185", "approx_works_in_corpus": 87990},
+      {"name": "npj Digital Medicine", "openalex_source_id": "S4210195431", "approx_works_in_corpus": 2676},
+      {"name": "Communications Medicine", "openalex_source_id": "S4210167893", "approx_works_in_corpus": 1612}
+    ],
+    "queries": [
+      "machine learning clinical prediction",
+      "deep learning medical diagnosis",
+      "machine learning EHR cohort",
+      "risk prediction model patient",
+      "AI clinical decision support",
+      "neural network disease prediction",
+      "machine learning prognosis",
+      "cohort study prediction model"
+    ],
+    "n_journal_query_cells": 24,
+    "raw_openalex_hits_total": null,
+    "raw_openalex_hits_per_cell": null,
+    "note_on_raw_hits": "Per-cell raw OpenAlex hit counts are printed to stderr by scripts/diagnostics/discover_corpus.py but NOT persisted. Only the post-filter, post-dedup union is saved to discovery-candidates.json. Recoverable only by re-running OpenAlex queries (subject to result drift).",
+
+    "candidates_after_filter_and_dedup": 614,
+    "per_cell_post_filter_counts": [
+      {"journal": "Nature Communications", "query": "machine learning clinical prediction", "n": 60},
+      {"journal": "Nature Communications", "query": "deep learning medical diagnosis", "n": 31},
+      {"journal": "Nature Communications", "query": "machine learning EHR cohort", "n": 13},
+      {"journal": "Nature Communications", "query": "risk prediction model patient", "n": 16},
+      {"journal": "Nature Communications", "query": "AI clinical decision support", "n": 8},
+      {"journal": "Nature Communications", "query": "neural network disease prediction", "n": 15},
+      {"journal": "Nature Communications", "query": "machine learning prognosis", "n": 11},
+      {"journal": "Nature Communications", "query": "cohort study prediction model", "n": 9},
+      {"journal": "npj Digital Medicine", "query": "machine learning clinical prediction", "n": 109},
+      {"journal": "npj Digital Medicine", "query": "deep learning medical diagnosis", "n": 34},
+      {"journal": "npj Digital Medicine", "query": "machine learning EHR cohort", "n": 64},
+      {"journal": "npj Digital Medicine", "query": "risk prediction model patient", "n": 25},
+      {"journal": "npj Digital Medicine", "query": "AI clinical decision support", "n": 19},
+      {"journal": "npj Digital Medicine", "query": "neural network disease prediction", "n": 11},
+      {"journal": "npj Digital Medicine", "query": "machine learning prognosis", "n": 35},
+      {"journal": "npj Digital Medicine", "query": "cohort study prediction model", "n": 8},
+      {"journal": "Communications Medicine", "query": "machine learning clinical prediction", "n": 81},
+      {"journal": "Communications Medicine", "query": "deep learning medical diagnosis", "n": 26},
+      {"journal": "Communications Medicine", "query": "machine learning EHR cohort", "n": 2},
+      {"journal": "Communications Medicine", "query": "risk prediction model patient", "n": 12},
+      {"journal": "Communications Medicine", "query": "AI clinical decision support", "n": 9},
+      {"journal": "Communications Medicine", "query": "neural network disease prediction", "n": 8},
+      {"journal": "Communications Medicine", "query": "machine learning prognosis", "n": 3},
+      {"journal": "Communications Medicine", "query": "cohort study prediction model", "n": 5}
+    ],
+    "per_journal_post_filter_totals": {
+      "Nature Communications": 163,
+      "npj Digital Medicine": 305,
+      "Communications Medicine": 146
+    },
+    "per_query_post_filter_totals": {
+      "machine learning clinical prediction": 250,
+      "deep learning medical diagnosis": 91,
+      "machine learning EHR cohort": 79,
+      "risk prediction model patient": 53,
+      "AI clinical decision support": 36,
+      "neural network disease prediction": 34,
+      "machine learning prognosis": 49,
+      "cohort study prediction model": 22
+    },
+    "note_on_cell_totals": "Cell totals double-count cross-query overlaps within a journal. The 614 figure is the unique-DOI union after in-journal cross-query dedup; cell totals sum to 614 only because each candidate is recorded with the FIRST query that matched it (no double-counting in this serialization). Sum check: 163 + 305 + 146 = 614; 250 + 91 + 79 + 53 + 36 + 34 + 49 + 22 = 614."
+  },
+
+  "stage_2_screening": {
+    "applied_inline_during_identification": true,
+    "filters": [
+      {
+        "name": "title_keyword_filter",
+        "rule": "title (lowercased) must contain at least one ML word AND at least one medical word",
+        "ml_word_list": ["machine learning","deep learning","neural network","artificial intelligence","random forest","gradient boost","xgboost","transformer","model","prediction","prognostic","algorithm","classifier","classification"],
+        "medical_word_list": ["patient","clinical","disease","cohort","hospital","diagnosis","prognosis","health","medical","EHR","electronic health","outcome","mortality","survival","risk","therapy","treatment","ICU","sepsis","cancer","diabetes","heart","kidney","cardiovascular","prediction"],
+        "n_excluded": null,
+        "logged": false,
+        "verification_note": "NOT DIRECTLY LOGGED. Per-query raw OpenAlex hit count is printed to stderr but not persisted. Manual verification requires replaying OpenAlex queries."
+      },
+      {
+        "name": "doi_dedup_against_existing_kb",
+        "rule": "exclude DOIs already present in peer-review-kb.json at run time",
+        "n_excluded_lower_bound": 112,
+        "logged": true,
+        "logged_field": "discovery-candidates.json#/existing_kb_dois_excluded",
+        "verification_note": "Lower bound only. In-loop dedup of duplicate DOIs across queries within the same journal is not separately counted."
+      }
+    ],
+    "n_records_screened_in": 614
+  },
+
+  "stage_3_eligibility": {
+    "method": "Per candidate: fetch nature.com/articles/<doi_short>, locate <a data-track-label='peer review file'>, download linked PDF, verify %PDF- magic bytes",
+    "script": "scripts/diagnostics/download_discovered_pdfs.py",
+    "n_assessed_for_full_text": 614,
+    "n_excluded_at_eligibility": 397,
+    "n_passed_to_inclusion": 217,
+    "exclusion_breakdown_per_journal": [
+      {"journal": "Nature Communications", "n_assessed": 163, "n_pdfs_verified": 134, "n_skipped": 29},
+      {"journal": "Communications Medicine", "n_assessed": 146, "n_pdfs_verified": 83, "n_skipped": 63},
+      {"journal": "npj Digital Medicine", "n_assessed": 305, "n_pdfs_verified": 0, "n_skipped": 305}
+    ],
+    "exclusion_reasons_aggregate": {
+      "tpr_opted_out_no_peer_review_anchor": null,
+      "fetch_failed_or_timeout": null,
+      "invalid_pdf_magic_bytes": null,
+      "note": "Per-DOI status not retained at full granularity. paper/expanded-corpus-status.json contains a 5-DOI sample only. Aggregate narrative in peer-review-kb.json#/provenance/integrity_audits[1].known_issues_for_paper_writeup attributes the 305/305 npj Digital Medicine skip to systematic author opt-out from transparent peer review at that journal."
+    },
+    "verification_note": "Per-DOI eligibility-skip reasons are NOT LOGGED at full granularity. Only the journal-level totals (29 / 63 / 305) and the narrative attribution (npj DM systematic TPR opt-out) are recoverable."
+  },
+
+  "stage_4_audit": {
+    "method": "5 parallel agents performed strict per-entry audit on 217 PR-EXP entries (PDF-title alignment, structured field extraction, anomaly flagging, is_cohort_retrospective_binary classification)",
+    "audit_record_pointer": "references/case-studies/peer-review-kb.json#/provenance/integrity_audits[0]",
+    "n_audited": 217,
+    "anomaly_flags": {
+      "title_does_not_match_pdf": 26,
+      "topic_not_medical_ml": 15,
+      "pdf_corrupt_or_empty": 6,
+      "pdf_not_peer_review": 1,
+      "paper_already_in_kb_under_other_id": 0
+    },
+    "corrupt_pdf_ids": [
+      "PR-EXP-0007", "PR-EXP-0044", "PR-EXP-0080",
+      "PR-EXP-0150", "PR-EXP-0188", "PR-EXP-0190"
+    ],
+    "out_of_scope_topic_ids": [
+      "PR-EXP-0091", "PR-EXP-0133", "PR-EXP-0134", "PR-EXP-0136",
+      "PR-EXP-0138", "PR-EXP-0140", "PR-EXP-0156", "PR-EXP-0162",
+      "PR-EXP-0177", "PR-EXP-0180", "PR-EXP-0183", "PR-EXP-0199",
+      "PR-EXP-0215", "PR-EXP-0216", "PR-EXP-0217"
+    ],
+    "post_audit_pdf_redownload": {
+      "succeeded": ["PR-EXP-0150", "PR-EXP-0188", "PR-EXP-0190"],
+      "failed_large_file_cdn_truncation": ["PR-EXP-0044", "PR-EXP-0080"],
+      "failed_no_tpr_link_in_article_page": ["PR-EXP-0007"]
+    },
+    "is_cohort_retrospective_binary": {
+      "true": 125,
+      "false": 92,
+      "note": "The 92 'false' set is the disjoint complement of the 125 'true' (per-entry boolean). The 92 includes the 15 topic_not_medical_ml entries and the un-redownloadable corrupt PDFs (which were tagged false-or-uncertain by the audit). Do not sum (6 corrupt + 15 topic + 92 non-cohort) as disjoint exclusions: total disjoint exclusion = 217 - 125 = 92."
+    },
+    "cross_chunk_consistency": {
+      "chunks": [
+        {"chunk": 1, "id_range": "PR-EXP-0001..0044", "n": 44, "true": 4, "false": 40, "pct_true": 9.1, "journal_mix": "CommMed only", "year_range": "2024-2026"},
+        {"chunk": 2, "id_range": "PR-EXP-0045..0088", "n": 44, "true": 33, "false": 11, "pct_true": 75.0, "journal_mix": "CommMed 39 / NC 5", "year_range": "2021-2026"},
+        {"chunk": 3, "id_range": "PR-EXP-0089..0132", "n": 44, "true": 39, "false": 5, "pct_true": 88.6, "journal_mix": "NC only", "year_range": "2023-2025"},
+        {"chunk": 4, "id_range": "PR-EXP-0133..0176", "n": 44, "true": 26, "false": 18, "pct_true": 59.1, "journal_mix": "NC only", "year_range": "2021-2023"},
+        {"chunk": 5, "id_range": "PR-EXP-0177..0217", "n": 41, "true": 23, "false": 18, "pct_true": 56.1, "journal_mix": "NC only", "year_range": "2020-2021"}
+      ],
+      "range_pct_true": [9.1, 88.6],
+      "audit_quality_threshold_pp": 30,
+      "exceeds_threshold": true,
+      "note": "Year-controlled comparison (2025 only): chunk 1 = 4.3% true vs chunk 3 = 72.2% true. Skew not explained by year drift alone; likely labeling-rubric divergence between agents. Manual re-spot of ~10 chunk-1 entries recommended in corpus-statistics.md s10."
+    }
+  },
+
+  "stage_5_inclusion": {
+    "primary_corpus_mlgg_scope_openalex_pass": {
+      "n": 125,
+      "filter": "PR-EXP entries where is_cohort_retrospective_binary == true",
+      "all_have_peer_review_pdf": true,
+      "with_public_code_repo": 110,
+      "no_public_code_repo": 15,
+      "code_repo_breakdown": {
+        "github": 91,
+        "zenodo_or_doi": 60,
+        "figshare_or_osf": 1,
+        "any_public_code": 110,
+        "no_public_repo": 15,
+        "note": "github/zenodo/figshare counts overlap (papers can have multiple repos)."
+      }
+    },
+    "extended_corpus_full_kb": {
+      "n_active_total": 335,
+      "layers": {
+        "manually_curated_PR_NNN": {"n": 111, "id_pattern": "PR-NNN excl. PR-040"},
+        "manually_curated_reporting_only_PR_RO": {"n": 7, "id_pattern": "PR-RO-NN"},
+        "openalex_discovered_PR_EXP": {"n": 217, "id_pattern": "PR-EXP-NNNN"},
+        "manually_curated_subtotal": 118
+      },
+      "quarantined": {
+        "n": 1,
+        "id": "PR-040",
+        "reason_summary": "DOI resolved to an unrelated genome paper; title contained explicit '(inferred from PDF content)' marker - apparent fabrication.",
+        "removed_at_utc": "2026-05-10T01:50:31Z",
+        "pdf_path": "references/case-studies/_quarantine/PR-040_sepsis_management_prediction_model_infer_peer_review.pdf"
+      },
+      "is_cohort_retrospective_binary_coverage": {
+        "PR_orig": {"backported": true, "n": 111, "method": "data_type filter, Audit 1"},
+        "PR_RO": {"backported": true, "n": 7, "method": "data_type filter, Audit 1"},
+        "PR_EXP": {"populated_by_5_agent_audit": true, "n": 217},
+        "total_with_field_after_backport": 335
+      }
+    }
+  },
+
+  "verification_flags": [
+    {
+      "id": "VF-01",
+      "field": "stage_1.raw_openalex_hits_total",
+      "status": "NOT_LOGGED",
+      "explanation": "Per-cell raw OpenAlex hit counts are printed to stderr by discover_corpus.py but never persisted. Only the post-filter union (614) is saved.",
+      "remediation": "Replay OpenAlex queries (subject to result drift since 2026-05-10)."
+    },
+    {
+      "id": "VF-02",
+      "field": "stage_2.title_keyword_filter.n_excluded",
+      "status": "NOT_LOGGED",
+      "explanation": "Same as VF-01 - title-filter rejections happen inline in the discovery loop and are not counted in the output JSON.",
+      "remediation": "Re-run discover_corpus.py with a counter patch, or replay queries."
+    },
+    {
+      "id": "VF-03",
+      "field": "stage_2.doi_dedup_against_existing_kb.n_excluded",
+      "status": "LOWER_BOUND_ONLY",
+      "explanation": "Logged value 112 is the count of pre-existing KB DOIs excluded; in-loop dedup of duplicates ACROSS queries within the same journal is not separately counted.",
+      "remediation": "Patch discover_corpus.py to emit per-query overlap stats."
+    },
+    {
+      "id": "VF-04",
+      "field": "stage_3.exclusion_reasons_aggregate",
+      "status": "PARTIALLY_LOGGED",
+      "explanation": "paper/expanded-corpus-status.json contains a 5-DOI sample (3 downloaded, 2 no_peer_review_file). The full 614-row status table was not retained. Journal-level totals (29 NC / 63 CommMed / 305 npjDM skipped) and narrative attribution (npjDM = systematic author opt-out from TPR) are documented.",
+      "remediation": "Re-run download_discovered_pdfs.py with full-status logging; or use HTML cache in .cache/nature_html/ to re-derive per-DOI TPR-anchor presence."
+    },
+    {
+      "id": "VF-05",
+      "field": "stage_4.is_cohort_retrospective_binary.disjoint_exclusion_attribution",
+      "status": "OVERLAP",
+      "explanation": "topic_not_medical_ml (n=15), pdf_corrupt_or_empty (n=6), and is_cohort_retrospective_binary==false (n=92) are NOT mutually exclusive. The 92 'false' is the disjoint complement of the 125 'true' (217 - 125 = 92) and INCLUDES the topic-mismatch entries. Do not sum 6+15+92 in PRISMA exclusion box.",
+      "remediation": "Use disjoint exclusion total of 92 in PRISMA Stage 4 box; report 6 corrupt and 15 topic-mismatch as sub-categories of the 92."
+    },
+    {
+      "id": "VF-06",
+      "field": "stage_4.cross_chunk_consistency",
+      "status": "AUDIT_QUALITY_FLAG",
+      "explanation": "Chunk 1 vs Chunk 3 cohort-rate gap is 79.5 pp (9.1% vs 88.6%); year-controlled (2025-only) gap is 67.9 pp. Indicates labeling-rubric divergence between agents.",
+      "remediation": "Manual re-spot of ~10 chunk-1 entries before publishing the 125 in-scope figure (per corpus-statistics.md s10)."
+    },
+    {
+      "id": "VF-07",
+      "field": "stage_4.anomaly_flags.pdf_corrupt_or_empty",
+      "status": "DUAL_MARKER_INCONSISTENCY",
+      "explanation": "Two markers of corrupt PDFs disagree: _pdf_status == 'corrupt_needs_redownload' is set on 4 entries (0007, 0044, 0080, 0150); audit_findings.anomaly_flags includes pdf_corrupt_or_empty for 6 entries (adds 0188, 0190).",
+      "remediation": "Reconcile to one canonical field (per corpus-statistics.md s10 finding 2)."
+    },
+    {
+      "id": "VF-08",
+      "field": "stage_1.journals.npj_digital_medicine_yield",
+      "status": "COVERAGE_LIMITATION",
+      "explanation": "OpenAlex discovery returned 305 candidates from npj Digital Medicine but 0 verified peer-review PDFs (100% skip at eligibility). Cause: most npjDM authors did not opt in to transparent peer review at that journal.",
+      "remediation": "Disclose in paper Methods. The 217-entry PR-EXP layer is 100% Nature Communications + Communications Medicine."
+    }
+  ]
+}

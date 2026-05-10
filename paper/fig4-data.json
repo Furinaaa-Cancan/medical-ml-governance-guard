@@ -1,0 +1,1979 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-05-10T06:37:21Z",
+  "category_scheme": [
+    "leakage",
+    "imbalance",
+    "threshold_calibration",
+    "split_protocol",
+    "evaluation",
+    "model_selection",
+    "feature_engineering",
+    "reporting"
+  ],
+  "gate_to_category": {
+    "leakage_gate": [
+      "leakage"
+    ],
+    "imbalance_policy_gate": [
+      "imbalance"
+    ],
+    "calibration_dca_gate": [
+      "threshold_calibration"
+    ],
+    "split_protocol_gate": [
+      "split_protocol"
+    ],
+    "evaluation_quality_gate": [
+      "evaluation"
+    ],
+    "clinical_metrics_gate": [
+      "evaluation"
+    ],
+    "ci_matrix_gate": [
+      "evaluation"
+    ],
+    "model_selection_audit_gate": [
+      "model_selection"
+    ],
+    "tuning_leakage_gate": [
+      "model_selection"
+    ],
+    "feature_engineering_audit_gate": [
+      "feature_engineering"
+    ],
+    "feature_lineage_gate": [
+      "feature_engineering"
+    ],
+    "missingness_policy_gate": [
+      "feature_engineering"
+    ],
+    "reporting_bias_gate": [
+      "reporting"
+    ],
+    "publication_gate": [
+      "reporting"
+    ]
+  },
+  "rule_to_category": {
+    "R001": [
+      "leakage"
+    ],
+    "R002": [
+      "leakage"
+    ],
+    "R003": [
+      "leakage",
+      "imbalance"
+    ],
+    "R004": [
+      "split_protocol"
+    ],
+    "R005": [
+      "threshold_calibration"
+    ],
+    "R006": [
+      "leakage",
+      "feature_engineering"
+    ],
+    "R007": [
+      "leakage"
+    ],
+    "R008": [
+      "split_protocol"
+    ],
+    "R009": [
+      "evaluation",
+      "reporting"
+    ],
+    "R010": [
+      "evaluation"
+    ],
+    "R011": [
+      "leakage"
+    ],
+    "R012": [
+      "evaluation"
+    ],
+    "R013": [
+      "reporting"
+    ],
+    "R017": [
+      "leakage"
+    ],
+    "R020": [
+      "feature_engineering"
+    ],
+    "R021": [
+      "model_selection"
+    ],
+    "R022": [
+      "evaluation"
+    ],
+    "R023": [
+      "leakage",
+      "feature_engineering"
+    ],
+    "R024": [
+      "leakage",
+      "feature_engineering"
+    ],
+    "R025": [
+      "leakage"
+    ],
+    "R026": [
+      "leakage",
+      "feature_engineering"
+    ],
+    "R027": [
+      "leakage"
+    ]
+  },
+  "per_paper": [
+    {
+      "id": "PR-001",
+      "audited": false,
+      "reviewer_gates": [
+        "clinical_metrics_gate",
+        "cohort_definition_gate",
+        "covariate_shift_gate",
+        "external_validation_gate",
+        "model_selection_audit_gate",
+        "shap_interpretability_gate"
+      ],
+      "reviewer_categories": [
+        "evaluation",
+        "model_selection"
+      ],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-002",
+      "audited": false,
+      "reviewer_gates": [
+        "calibration_dca_gate",
+        "cohort_definition_gate",
+        "evaluation_quality_gate",
+        "leakage_gate",
+        "model_selection_audit_gate",
+        "reporting_bias_gate",
+        "split_protocol_gate"
+      ],
+      "reviewer_categories": [
+        "evaluation",
+        "leakage",
+        "model_selection",
+        "reporting",
+        "split_protocol",
+        "threshold_calibration"
+      ],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": true,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-004",
+      "audited": true,
+      "reviewer_gates": [
+        "clinical_metrics_gate",
+        "cohort_definition_gate",
+        "distribution_generalization_gate",
+        "evaluation_quality_gate"
+      ],
+      "reviewer_categories": [
+        "evaluation"
+      ],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": 0,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-007",
+      "audited": true,
+      "reviewer_gates": [
+        "clinical_metrics_gate",
+        "cohort_definition_gate",
+        "distribution_generalization_gate"
+      ],
+      "reviewer_categories": [
+        "evaluation"
+      ],
+      "lint_rules_unique": [
+        "R009",
+        "R021",
+        "R022"
+      ],
+      "lint_rule_total_hits": 4,
+      "lint_categories": [
+        "evaluation",
+        "model_selection",
+        "reporting"
+      ],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": true,
+          "mlgg": true
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": true
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": true
+        }
+      }
+    },
+    {
+      "id": "PR-009",
+      "audited": false,
+      "reviewer_gates": [
+        "ci_matrix_gate",
+        "evaluation_quality_gate",
+        "model_selection_audit_gate"
+      ],
+      "reviewer_categories": [
+        "evaluation",
+        "model_selection"
+      ],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-010",
+      "audited": false,
+      "reviewer_gates": [
+        "evaluation_quality_gate",
+        "leakage_gate",
+        "split_protocol_gate",
+        "tuning_leakage_gate"
+      ],
+      "reviewer_categories": [
+        "evaluation",
+        "leakage",
+        "model_selection",
+        "split_protocol"
+      ],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-015",
+      "audited": true,
+      "reviewer_gates": [
+        "evaluation_quality_gate"
+      ],
+      "reviewer_categories": [
+        "evaluation"
+      ],
+      "lint_rules_unique": [
+        "R004",
+        "R009",
+        "R022"
+      ],
+      "lint_rule_total_hits": 8,
+      "lint_categories": [
+        "evaluation",
+        "reporting",
+        "split_protocol"
+      ],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": true
+        },
+        "evaluation": {
+          "reviewer": true,
+          "mlgg": true
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": true
+        }
+      }
+    },
+    {
+      "id": "PR-019",
+      "audited": false,
+      "reviewer_gates": [
+        "evaluation_quality_gate"
+      ],
+      "reviewer_categories": [
+        "evaluation"
+      ],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-024",
+      "audited": false,
+      "reviewer_gates": [
+        "calibration_dca_gate",
+        "cohort_definition_gate",
+        "missingness_policy_gate"
+      ],
+      "reviewer_categories": [
+        "feature_engineering",
+        "threshold_calibration"
+      ],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-026",
+      "audited": true,
+      "reviewer_gates": [
+        "calibration_dca_gate",
+        "external_validation_gate",
+        "reporting_bias_gate"
+      ],
+      "reviewer_categories": [
+        "reporting",
+        "threshold_calibration"
+      ],
+      "lint_rules_unique": [
+        "R009",
+        "R013",
+        "R019"
+      ],
+      "lint_rule_total_hits": 3,
+      "lint_categories": [
+        "evaluation",
+        "reporting"
+      ],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": false,
+          "mlgg": true
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": true,
+          "mlgg": true
+        }
+      }
+    },
+    {
+      "id": "PR-027",
+      "audited": false,
+      "reviewer_gates": [
+        "model_selection_audit_gate"
+      ],
+      "reviewer_categories": [
+        "model_selection"
+      ],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-028",
+      "audited": false,
+      "reviewer_gates": [
+        "external_validation_gate"
+      ],
+      "reviewer_categories": [],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-029",
+      "audited": true,
+      "reviewer_gates": [
+        "ci_matrix_gate",
+        "split_protocol_gate"
+      ],
+      "reviewer_categories": [
+        "evaluation",
+        "split_protocol"
+      ],
+      "lint_rules_unique": [
+        "R002",
+        "R004",
+        "R005",
+        "R008",
+        "R009",
+        "R010",
+        "R013",
+        "R018",
+        "R019",
+        "R021",
+        "R022"
+      ],
+      "lint_rule_total_hits": 161,
+      "lint_categories": [
+        "evaluation",
+        "leakage",
+        "model_selection",
+        "reporting",
+        "split_protocol",
+        "threshold_calibration"
+      ],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": true
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": true
+        },
+        "split_protocol": {
+          "reviewer": true,
+          "mlgg": true
+        },
+        "evaluation": {
+          "reviewer": true,
+          "mlgg": true
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": true
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": true
+        }
+      }
+    },
+    {
+      "id": "PR-030",
+      "audited": false,
+      "reviewer_gates": [
+        "missingness_policy_gate"
+      ],
+      "reviewer_categories": [
+        "feature_engineering"
+      ],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-035",
+      "audited": false,
+      "reviewer_gates": [
+        "ci_matrix_gate",
+        "cohort_definition_gate",
+        "missingness_policy_gate"
+      ],
+      "reviewer_categories": [
+        "evaluation",
+        "feature_engineering"
+      ],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-037",
+      "audited": false,
+      "reviewer_gates": [
+        "evaluation_quality_gate"
+      ],
+      "reviewer_categories": [
+        "evaluation"
+      ],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-038",
+      "audited": false,
+      "reviewer_gates": [],
+      "reviewer_categories": [],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-043",
+      "audited": false,
+      "reviewer_gates": [
+        "calibration_dca_gate"
+      ],
+      "reviewer_categories": [
+        "threshold_calibration"
+      ],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-044",
+      "audited": false,
+      "reviewer_gates": [],
+      "reviewer_categories": [],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-045",
+      "audited": false,
+      "reviewer_gates": [],
+      "reviewer_categories": [],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-050",
+      "audited": false,
+      "reviewer_gates": [],
+      "reviewer_categories": [],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-058",
+      "audited": true,
+      "reviewer_gates": [],
+      "reviewer_categories": [],
+      "lint_rules_unique": [
+        "R001",
+        "R009",
+        "R018",
+        "R022"
+      ],
+      "lint_rule_total_hits": 8,
+      "lint_categories": [
+        "evaluation",
+        "leakage",
+        "reporting"
+      ],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": true
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": false,
+          "mlgg": true
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": true
+        }
+      }
+    },
+    {
+      "id": "PR-070",
+      "audited": true,
+      "reviewer_gates": [],
+      "reviewer_categories": [],
+      "lint_rules_unique": [
+        "R009"
+      ],
+      "lint_rule_total_hits": 1,
+      "lint_categories": [
+        "evaluation",
+        "reporting"
+      ],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": false,
+          "mlgg": true
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": true
+        }
+      }
+    },
+    {
+      "id": "PR-084",
+      "audited": false,
+      "reviewer_gates": [],
+      "reviewer_categories": [],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-086",
+      "audited": true,
+      "reviewer_gates": [],
+      "reviewer_categories": [],
+      "lint_rules_unique": [
+        "R005",
+        "R009",
+        "R013",
+        "R016",
+        "R017",
+        "R020",
+        "R021",
+        "R022"
+      ],
+      "lint_rule_total_hits": 73,
+      "lint_categories": [
+        "evaluation",
+        "feature_engineering",
+        "leakage",
+        "model_selection",
+        "reporting",
+        "threshold_calibration"
+      ],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": true
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": true
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": false,
+          "mlgg": true
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": true
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": true
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": true
+        }
+      }
+    },
+    {
+      "id": "PR-096",
+      "audited": false,
+      "reviewer_gates": [],
+      "reviewer_categories": [],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": false,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-102",
+      "audited": false,
+      "reviewer_gates": [
+        "calibration_dca_gate",
+        "ci_matrix_gate",
+        "covariate_shift_gate",
+        "model_selection_audit_gate",
+        "publication_gate",
+        "reporting_bias_gate"
+      ],
+      "reviewer_categories": [
+        "evaluation",
+        "model_selection",
+        "reporting",
+        "threshold_calibration"
+      ],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": true,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-105",
+      "audited": false,
+      "reviewer_gates": [
+        "calibration_dca_gate",
+        "clinical_metrics_gate",
+        "cohort_definition_gate",
+        "definition_variable_guard",
+        "feature_engineering_audit_gate",
+        "missingness_policy_gate",
+        "publication_gate",
+        "reporting_bias_gate"
+      ],
+      "reviewer_categories": [
+        "evaluation",
+        "feature_engineering",
+        "reporting",
+        "threshold_calibration"
+      ],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": true,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-106",
+      "audited": false,
+      "reviewer_gates": [
+        "ci_matrix_gate",
+        "clinical_metrics_gate",
+        "model_selection_audit_gate",
+        "reporting_bias_gate"
+      ],
+      "reviewer_categories": [
+        "evaluation",
+        "model_selection",
+        "reporting"
+      ],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": true,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-107",
+      "audited": false,
+      "reviewer_gates": [
+        "cohort_definition_gate",
+        "definition_variable_guard",
+        "external_validation_gate",
+        "feature_engineering_audit_gate",
+        "feature_lineage_gate",
+        "model_selection_audit_gate",
+        "reporting_bias_gate"
+      ],
+      "reviewer_categories": [
+        "feature_engineering",
+        "model_selection",
+        "reporting"
+      ],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": true,
+          "mlgg": false
+        }
+      }
+    },
+    {
+      "id": "PR-113",
+      "audited": false,
+      "reviewer_gates": [
+        "ci_matrix_gate",
+        "definition_variable_guard",
+        "distribution_generalization_gate",
+        "evaluation_quality_gate",
+        "execution_attestation_gate",
+        "external_validation_gate",
+        "feature_engineering_audit_gate",
+        "feature_lineage_gate",
+        "imbalance_policy_gate",
+        "leakage_gate",
+        "model_selection_audit_gate",
+        "permutation_significance_gate",
+        "prediction_replay_gate",
+        "reporting_bias_gate",
+        "split_protocol_gate",
+        "tuning_leakage_gate"
+      ],
+      "reviewer_categories": [
+        "evaluation",
+        "feature_engineering",
+        "imbalance",
+        "leakage",
+        "model_selection",
+        "reporting",
+        "split_protocol"
+      ],
+      "lint_rules_unique": [],
+      "lint_rule_total_hits": null,
+      "lint_categories": [],
+      "category_vector": {
+        "leakage": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "imbalance": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "threshold_calibration": {
+          "reviewer": false,
+          "mlgg": false
+        },
+        "split_protocol": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "evaluation": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "model_selection": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "feature_engineering": {
+          "reviewer": true,
+          "mlgg": false
+        },
+        "reporting": {
+          "reviewer": true,
+          "mlgg": false
+        }
+      }
+    }
+  ],
+  "aggregate": {
+    "n_trustable_papers": 31,
+    "n_audited_papers": 8,
+    "n_unaudited_papers": 23,
+    "n_audited_with_gates": 5,
+    "audited_paper_ids": [
+      "PR-004",
+      "PR-007",
+      "PR-015",
+      "PR-026",
+      "PR-029",
+      "PR-058",
+      "PR-070",
+      "PR-086"
+    ],
+    "unaudited_paper_ids": [
+      "PR-001",
+      "PR-002",
+      "PR-009",
+      "PR-010",
+      "PR-019",
+      "PR-024",
+      "PR-027",
+      "PR-028",
+      "PR-030",
+      "PR-035",
+      "PR-037",
+      "PR-038",
+      "PR-043",
+      "PR-044",
+      "PR-045",
+      "PR-050",
+      "PR-084",
+      "PR-096",
+      "PR-102",
+      "PR-105",
+      "PR-106",
+      "PR-107",
+      "PR-113"
+    ],
+    "audited_with_gates_paper_ids": [
+      "PR-004",
+      "PR-007",
+      "PR-015",
+      "PR-026",
+      "PR-029"
+    ],
+    "papers_without_reviewer_gates": [
+      "PR-038",
+      "PR-044",
+      "PR-045",
+      "PR-050",
+      "PR-058",
+      "PR-070",
+      "PR-084",
+      "PR-086",
+      "PR-096"
+    ],
+    "categories": [
+      "leakage",
+      "imbalance",
+      "threshold_calibration",
+      "split_protocol",
+      "evaluation",
+      "model_selection",
+      "feature_engineering",
+      "reporting"
+    ],
+    "per_category_confusion": {
+      "leakage": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 0,
+        "tn": 4,
+        "n_papers_reviewer_flagged": 0,
+        "n_papers_mlgg_fired": 1,
+        "sensitivity": null,
+        "specificity": 0.8,
+        "ppv": 0.0
+      },
+      "imbalance": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 5,
+        "n_papers_reviewer_flagged": 0,
+        "n_papers_mlgg_fired": 0,
+        "sensitivity": null,
+        "specificity": 1.0,
+        "ppv": null
+      },
+      "threshold_calibration": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "tn": 3,
+        "n_papers_reviewer_flagged": 1,
+        "n_papers_mlgg_fired": 1,
+        "sensitivity": 0.0,
+        "specificity": 0.75,
+        "ppv": 0.0
+      },
+      "split_protocol": {
+        "tp": 1,
+        "fp": 1,
+        "fn": 0,
+        "tn": 3,
+        "n_papers_reviewer_flagged": 1,
+        "n_papers_mlgg_fired": 2,
+        "sensitivity": 1.0,
+        "specificity": 0.75,
+        "ppv": 0.5
+      },
+      "evaluation": {
+        "tp": 3,
+        "fp": 1,
+        "fn": 1,
+        "tn": 0,
+        "n_papers_reviewer_flagged": 4,
+        "n_papers_mlgg_fired": 4,
+        "sensitivity": 0.75,
+        "specificity": 0.0,
+        "ppv": 0.75
+      },
+      "model_selection": {
+        "tp": 0,
+        "fp": 2,
+        "fn": 0,
+        "tn": 3,
+        "n_papers_reviewer_flagged": 0,
+        "n_papers_mlgg_fired": 2,
+        "sensitivity": null,
+        "specificity": 0.6,
+        "ppv": 0.0
+      },
+      "feature_engineering": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 5,
+        "n_papers_reviewer_flagged": 0,
+        "n_papers_mlgg_fired": 0,
+        "sensitivity": null,
+        "specificity": 1.0,
+        "ppv": null
+      },
+      "reporting": {
+        "tp": 1,
+        "fp": 3,
+        "fn": 0,
+        "tn": 1,
+        "n_papers_reviewer_flagged": 1,
+        "n_papers_mlgg_fired": 4,
+        "sensitivity": 1.0,
+        "specificity": 0.25,
+        "ppv": 0.25
+      }
+    },
+    "per_rule_alignment": {
+      "R002": {
+        "categories": [
+          "leakage"
+        ],
+        "n_papers_rule_fired": 1,
+        "n_papers_reviewer_aligned": 0,
+        "n_papers_reviewer_not_aligned": 1
+      },
+      "R004": {
+        "categories": [
+          "split_protocol"
+        ],
+        "n_papers_rule_fired": 2,
+        "n_papers_reviewer_aligned": 1,
+        "n_papers_reviewer_not_aligned": 1
+      },
+      "R005": {
+        "categories": [
+          "threshold_calibration"
+        ],
+        "n_papers_rule_fired": 1,
+        "n_papers_reviewer_aligned": 0,
+        "n_papers_reviewer_not_aligned": 1
+      },
+      "R008": {
+        "categories": [
+          "split_protocol"
+        ],
+        "n_papers_rule_fired": 1,
+        "n_papers_reviewer_aligned": 1,
+        "n_papers_reviewer_not_aligned": 0
+      },
+      "R009": {
+        "categories": [
+          "evaluation",
+          "reporting"
+        ],
+        "n_papers_rule_fired": 4,
+        "n_papers_reviewer_aligned": 4,
+        "n_papers_reviewer_not_aligned": 0
+      },
+      "R010": {
+        "categories": [
+          "evaluation"
+        ],
+        "n_papers_rule_fired": 1,
+        "n_papers_reviewer_aligned": 1,
+        "n_papers_reviewer_not_aligned": 0
+      },
+      "R013": {
+        "categories": [
+          "reporting"
+        ],
+        "n_papers_rule_fired": 2,
+        "n_papers_reviewer_aligned": 1,
+        "n_papers_reviewer_not_aligned": 1
+      },
+      "R018": {
+        "categories": [],
+        "n_papers_rule_fired": 1,
+        "n_papers_reviewer_aligned": 0,
+        "n_papers_reviewer_not_aligned": 1
+      },
+      "R019": {
+        "categories": [],
+        "n_papers_rule_fired": 2,
+        "n_papers_reviewer_aligned": 0,
+        "n_papers_reviewer_not_aligned": 2
+      },
+      "R021": {
+        "categories": [
+          "model_selection"
+        ],
+        "n_papers_rule_fired": 2,
+        "n_papers_reviewer_aligned": 0,
+        "n_papers_reviewer_not_aligned": 2
+      },
+      "R022": {
+        "categories": [
+          "evaluation"
+        ],
+        "n_papers_rule_fired": 3,
+        "n_papers_reviewer_aligned": 3,
+        "n_papers_reviewer_not_aligned": 0
+      }
+    },
+    "overall": {
+      "total_reviewer_category_hits": 7,
+      "total_mlgg_overlap_hits": 5,
+      "overall_mlgg_recall": 0.7142857142857143,
+      "total_mlgg_only_hits": 9,
+      "mlgg_extra_categories_per_paper": 1.8,
+      "lowest_overlap_category": "threshold_calibration"
+    }
+  },
+  "notes": [
+    "trustable subset = cohort-binary scope AND reviewer_concerns non-empty AND peer_review_pdf_path non-empty",
+    "audited = lint payload non-null (8 of the 13 cloned repos in lint-audit-results.json had non-null Python lint payloads); remaining 23 papers in trustable subset are awaiting Agent 2's lint-audit-110.json output",
+    "confusion matrix is computed on the audited_with_gates subset: papers that have a lint payload AND at least one reviewer concern with mlgg_gates populated. Papers in the trustable subset with concerns but empty mlgg_gates (KB-curation gap) are listed under aggregate.papers_without_reviewer_gates.",
+    "IP: per-paper records contain ID, gate names, rule IDs, category labels only; no concern text or paper title"
+  ]
+}
