@@ -13614,7 +13614,7 @@
           "discovered_at_utc": "2026-05-10T04:39:35.143559+00:00"
         }
       },
-      "is_cohort_retrospective_binary": false,
+      "is_cohort_retrospective_binary": true,
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": true,
@@ -13728,7 +13728,7 @@
           "discovered_at_utc": "2026-05-10T04:39:35.143559+00:00"
         }
       },
-      "is_cohort_retrospective_binary": false,
+      "is_cohort_retrospective_binary": true,
       "sample_size": 80,
       "audit_findings": {
         "is_peer_review_file": true,
@@ -13830,8 +13830,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "clinical_tabular",
-      "prediction_task": "neurocognitive score inference",
+      "data_type": "mri_plus_clinical_plus_neuropsych",
+      "prediction_task": "Neurocognitive testing score inference for adolescents and young adults with con",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -13851,7 +13851,7 @@
         "anomaly_flags": [
           "pdf_corrupt_or_empty"
         ],
-        "confidence": "low",
+        "confidence": "high",
         "evidence_basis": "PDF parse error: Stream has ended unexpectedly; file size 5242880 bytes",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
       },
@@ -13963,7 +13963,7 @@
           "discovered_at_utc": "2026-05-10T04:39:35.143559+00:00"
         }
       },
-      "is_cohort_retrospective_binary": false,
+      "is_cohort_retrospective_binary": true,
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": true,
@@ -14039,7 +14039,7 @@
           "discovered_at_utc": "2026-05-10T04:39:35.143559+00:00"
         }
       },
-      "is_cohort_retrospective_binary": false,
+      "is_cohort_retrospective_binary": true,
       "sample_size": 372,
       "audit_findings": {
         "is_peer_review_file": true,
@@ -14348,7 +14348,7 @@
           "discovered_at_utc": "2026-05-10T04:39:35.143559+00:00"
         }
       },
-      "is_cohort_retrospective_binary": false,
+      "is_cohort_retrospective_binary": true,
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": true,
@@ -14578,7 +14578,7 @@
           "discovered_at_utc": "2026-05-10T04:39:35.143559+00:00"
         }
       },
-      "is_cohort_retrospective_binary": false,
+      "is_cohort_retrospective_binary": true,
       "sample_size": 239,
       "audit_findings": {
         "is_peer_review_file": true,
@@ -14617,7 +14617,7 @@
           "discovered_at_utc": "2026-05-10T04:39:35.143559+00:00"
         }
       },
-      "is_cohort_retrospective_binary": false,
+      "is_cohort_retrospective_binary": true,
       "sample_size": 973,
       "audit_findings": {
         "is_peer_review_file": true,
@@ -14656,7 +14656,7 @@
           "discovered_at_utc": "2026-05-10T04:39:35.143559+00:00"
         }
       },
-      "is_cohort_retrospective_binary": false,
+      "is_cohort_retrospective_binary": true,
       "sample_size": 958,
       "audit_findings": {
         "is_peer_review_file": true,
@@ -14695,7 +14695,7 @@
           "discovered_at_utc": "2026-05-10T04:39:35.143559+00:00"
         }
       },
-      "is_cohort_retrospective_binary": false,
+      "is_cohort_retrospective_binary": true,
       "sample_size": 35948,
       "audit_findings": {
         "is_peer_review_file": true,
@@ -14772,7 +14772,7 @@
           "discovered_at_utc": "2026-05-10T04:39:35.143559+00:00"
         }
       },
-      "is_cohort_retrospective_binary": false,
+      "is_cohort_retrospective_binary": true,
       "sample_size": 4049,
       "audit_findings": {
         "is_peer_review_file": true,
@@ -14849,7 +14849,7 @@
           "discovered_at_utc": "2026-05-10T04:39:35.143559+00:00"
         }
       },
-      "is_cohort_retrospective_binary": false,
+      "is_cohort_retrospective_binary": true,
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": true,
@@ -14925,7 +14925,7 @@
           "discovered_at_utc": "2026-05-10T04:39:35.143559+00:00"
         }
       },
-      "is_cohort_retrospective_binary": false,
+      "is_cohort_retrospective_binary": true,
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": true,
@@ -15256,8 +15256,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "clinical_tabular",
-      "prediction_task": "arrhythmia classification",
+      "data_type": "ecg_time_series_plus_clinical",
+      "prediction_task": "Multi-label arrhythmia classification from 12-lead ECG recordings",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -15277,11 +15277,10 @@
         "anomaly_flags": [
           "pdf_corrupt_or_empty"
         ],
-        "confidence": "low",
+        "confidence": "high",
         "evidence_basis": "PDF parse error: Stream has ended unexpectedly; file size 5242880 bytes",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
-      },
-      "_pdf_status": "large_file_partial_download_8MB (Nature CDN truncates large files; peer review file is 8.9MB)"
+      }
     },
     {
       "id": "PR-EXP-0045",
@@ -16640,7 +16639,7 @@
       },
       "metadata_source": "openalex_discovery_2026-05",
       "data_type": "clinical_tabular",
-      "prediction_task": "Interpretable all-cause mortality prediction from clinical features",
+      "prediction_task": "All-cause mortality prediction over 1-, 3-, 5-, and 10-year horizons from popula",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -16660,11 +16659,10 @@
         "anomaly_flags": [
           "pdf_corrupt_or_empty"
         ],
-        "confidence": "low",
+        "confidence": "high",
         "evidence_basis": "PDF unreadable (__ERROR__:Stream has ended unexpectedly); path-encoded DOI alignment=True",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
-      },
-      "_pdf_status": "large_file_partial_download_10MB (Nature CDN truncates large files; peer review file is 10MB)"
+      }
     },
     {
       "id": "PR-EXP-0081",
@@ -17062,8 +17060,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "Crystal structure prediction for small molecule drug development",
+      "data_type": "molecular_crystal_structure",
+      "prediction_task": "Polymorph crystal-structure prediction for small-molecule pharmaceutical compoun",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -17087,7 +17085,8 @@
         "evidence_basis": "pdf_pages_read=5/30; peer_review_marker=present; title_match=head:yes/full:yes",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
       },
-      "out_of_scope_reason": "not_medical_ml"
+      "out_of_scope_reason": "non_cohort_binary_modality",
+      "_data_type_vocab_status": "new_unreviewed"
     },
     {
       "id": "PR-EXP-0092",
@@ -18663,8 +18662,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "Protein-protein binding interface prediction from 3D protein structure",
+      "data_type": "protein_3d_structure",
+      "prediction_task": "Per-residue protein binding-interface prediction from 3D atomic coordinates",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -18688,7 +18687,8 @@
         "evidence_basis": "Structural protein-binding deep learning paper; not a clinical cohort study. PDF parses, peer-review markers present (2 hits across 2 pages).",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
       },
-      "out_of_scope_reason": "not_medical_ml"
+      "out_of_scope_reason": "non_cohort_binary_modality",
+      "_data_type_vocab_status": "new_unreviewed"
     },
     {
       "id": "PR-EXP-0134",
@@ -18704,8 +18704,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "Antibody 3D structure prediction from sequence using deep learning",
+      "data_type": "protein_sequence",
+      "prediction_task": "Antibody backbone 3D structure prediction from amino-acid sequence",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -18723,14 +18723,14 @@
         "is_peer_review_file": true,
         "title_substring_match": false,
         "anomaly_flags": [
-          "topic_not_medical_ml",
-          "title_does_not_match_pdf"
+          "topic_not_medical_ml"
         ],
         "confidence": "high",
         "evidence_basis": "Computational structural biology task (not clinical cohort). PDF readable; multiple peer-review markers; title not literally in first 5 pages but topic matches title.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
       },
-      "out_of_scope_reason": "not_medical_ml"
+      "out_of_scope_reason": "non_cohort_binary_modality",
+      "_data_type_vocab_status": "new_unreviewed"
     },
     {
       "id": "PR-EXP-0135",
@@ -18784,8 +18784,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "Lithium-ion battery state-of-health estimation from operational data",
+      "data_type": "industrial_time_series",
+      "prediction_task": "Lithium-ion battery state-of-health estimation from operational cycling time-ser",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -18803,14 +18803,14 @@
         "is_peer_review_file": true,
         "title_substring_match": false,
         "anomaly_flags": [
-          "topic_not_medical_ml",
-          "title_does_not_match_pdf"
+          "topic_not_medical_ml"
         ],
         "confidence": "high",
         "evidence_basis": "Energy/materials science topic, not medical ML. PDF readable with peer-review markers.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
       },
-      "out_of_scope_reason": "not_medical_ml"
+      "out_of_scope_reason": "non_cohort_binary_modality",
+      "_data_type_vocab_status": "new_unreviewed"
     },
     {
       "id": "PR-EXP-0137",
@@ -18826,8 +18826,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "spatial_transcriptomics_plus_he",
-      "prediction_task": "Cancer-associated fibroblast cell-type classification from single-cell and spatial proteomics data",
+      "data_type": "single_cell_rnaseq_plus_imaging_mass_cytometry",
+      "prediction_task": "Cancer-associated fibroblast phenotype classification from single-cell RNA-seq w",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -18844,13 +18844,11 @@
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": false,
-        "anomaly_flags": [
-          "title_does_not_match_pdf"
-        ],
-        "confidence": "low",
+        "confidence": "high",
         "evidence_basis": "Cell-type classification in single-cell/spatial proteomics; medical-adjacent but not patient-level clinical prediction. KB lacks exact 'spatial_proteomics' label.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
-      }
+      },
+      "_data_type_vocab_status": "new_unreviewed"
     },
     {
       "id": "PR-EXP-0138",
@@ -18866,8 +18864,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "Pathogenicity prediction of mitochondrial missense variants",
+      "data_type": "variant_pathogenicity_features",
+      "prediction_task": "Pathogenicity classification of mitochondrial missense variants from sequence/st",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -18887,11 +18885,12 @@
         "anomaly_flags": [
           "topic_not_medical_ml"
         ],
-        "confidence": "medium",
+        "confidence": "high",
         "evidence_basis": "Variant-effect prediction tool (computational genetics), not clinical cohort outcome prediction. PDF readable; multiple peer-review markers; title 5-word match.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
       },
-      "out_of_scope_reason": "not_medical_ml"
+      "out_of_scope_reason": "non_cohort_binary_modality",
+      "_data_type_vocab_status": "new_unreviewed"
     },
     {
       "id": "PR-EXP-0139",
@@ -18925,9 +18924,6 @@
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": false,
-        "anomaly_flags": [
-          "title_does_not_match_pdf"
-        ],
         "confidence": "medium",
         "evidence_basis": "Liquid biopsy methylation signatures for tumor diagnosis/prognosis. PDF readable, 5 peer-review markers; cfDNA, cohort, cancer keywords present.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
@@ -18947,8 +18943,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "Benchmarking of molecular property prediction models on small-molecule datasets",
+      "data_type": "small_molecule_chemical_descriptors",
+      "prediction_task": "Benchmarking molecular property prediction across MoleculeNet, opioid, and liter",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -18966,14 +18962,14 @@
         "is_peer_review_file": true,
         "title_substring_match": false,
         "anomaly_flags": [
-          "topic_not_medical_ml",
-          "title_does_not_match_pdf"
+          "topic_not_medical_ml"
         ],
         "confidence": "high",
         "evidence_basis": "Cheminformatics/drug-discovery in-silico benchmark, not clinical cohort. PDF readable, peer-review markers present.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
       },
-      "out_of_scope_reason": "not_medical_ml"
+      "out_of_scope_reason": "non_cohort_binary_modality",
+      "_data_type_vocab_status": "new_unreviewed"
     },
     {
       "id": "PR-EXP-0141",
@@ -18990,7 +18986,7 @@
       },
       "metadata_source": "openalex_discovery_2026-05",
       "data_type": "imaging_plus_clinical",
-      "prediction_task": "Fairness improvement methodology for image-based computer-aided diagnosis models",
+      "prediction_task": "Group-fairness improvement methodology for image-based computer-aided diagnosis ",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -19008,7 +19004,7 @@
         "is_peer_review_file": true,
         "title_substring_match": true,
         "anomaly_flags": [],
-        "confidence": "low",
+        "confidence": "medium",
         "evidence_basis": "Methods paper about model fairness in medical imaging CAD. PDF readable; 4 peer-review markers; title 5-word match.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
       }
@@ -19027,8 +19023,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "imaging_plus_clinical",
-      "prediction_task": "Methodology for correcting acquisition-shift performance drift in medical image classifiers",
+      "data_type": "chest_xray_imaging",
+      "prediction_task": "Unsupervised prediction-alignment correction for acquisition-shift drift in imag",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -19046,7 +19042,7 @@
         "is_peer_review_file": true,
         "title_substring_match": true,
         "anomaly_flags": [],
-        "confidence": "low",
+        "confidence": "medium",
         "evidence_basis": "Medical image classification methods. PDF readable; 7 peer-review markers; title match. Binary classifier hint present.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
       }
@@ -19065,8 +19061,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "histopathology_wsi",
-      "prediction_task": "Biomedical image segmentation algorithm design via evolutionary computation",
+      "data_type": "biomedical_microscopy_segmentation",
+      "prediction_task": "Few-shot biomedical image segmentation pipeline design via Cartesian genetic pro",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -19084,10 +19080,12 @@
         "is_peer_review_file": true,
         "title_substring_match": true,
         "anomaly_flags": [],
-        "confidence": "low",
+        "confidence": "high",
         "evidence_basis": "Algorithm design for biomedical image segmentation. PDF readable; 5 peer-review markers; title match. Histopathology and genomic keywords noted.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
-      }
+      },
+      "_data_type_vocab_status": "new_unreviewed",
+      "out_of_scope_reason": "non_cohort_binary_modality"
     },
     {
       "id": "PR-EXP-0144",
@@ -19331,8 +19329,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "Immunotherapy response prediction in cancer patients via network-based machine learning",
+      "data_type": "transcriptomic_plus_clinical",
+      "prediction_task": "Immune-checkpoint-inhibitor response prediction across cancer types from tumor t",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -19352,7 +19350,7 @@
         "anomaly_flags": [
           "pdf_corrupt_or_empty"
         ],
-        "confidence": "low",
+        "confidence": "high",
         "evidence_basis": "PDF stream ends unexpectedly; pypdf cannot parse pages. Cannot verify peer-review structure. Title-based topical guess only.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
       }
@@ -19371,8 +19369,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "genomic_amr",
-      "prediction_task": "Tissue-of-origin classification for cancer of unknown primary from genome-wide somatic mutation features",
+      "data_type": "wgs_somatic_mutations",
+      "prediction_task": "Tissue-of-origin classification for cancer of unknown primary from whole-genome ",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -19389,13 +19387,11 @@
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": false,
-        "anomaly_flags": [
-          "title_does_not_match_pdf"
-        ],
-        "confidence": "low",
+        "confidence": "high",
         "evidence_basis": "Tumor genomic features for tissue-of-origin classification. PDF readable; 10 peer-review markers; cohort, binary, cancer keywords. KB lacks an exact tumor-mutation-features label.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
-      }
+      },
+      "_data_type_vocab_status": "new_unreviewed"
     },
     {
       "id": "PR-EXP-0152",
@@ -19467,9 +19463,6 @@
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": false,
-        "anomaly_flags": [
-          "title_does_not_match_pdf"
-        ],
         "confidence": "medium",
         "evidence_basis": "Digital histopathology uncertainty methods. PDF readable; 7 peer-review markers; histopathology/cohort/cancer keywords.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
@@ -19507,9 +19500,6 @@
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": false,
-        "anomaly_flags": [
-          "title_does_not_match_pdf"
-        ],
         "confidence": "medium",
         "evidence_basis": "Multi-organ CT segmentation for radiotherapy. PDF readable; 7 peer-review markers; CT and cancer keywords.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
@@ -19547,9 +19537,6 @@
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": false,
-        "anomaly_flags": [
-          "title_does_not_match_pdf"
-        ],
         "confidence": "high",
         "evidence_basis": "Histopathology PD-L1 prediction. PDF readable; 10 peer-review markers; histopathology, biomarker, cohort, cancer keywords.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
@@ -19569,8 +19556,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "Cancer etiology and risk evaluation via a tumor-evolution mathematical model",
+      "data_type": "epidemiological_modeling",
+      "prediction_task": "Mathematical-model-based estimation of cancer incidence variation across tissues",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -19588,14 +19575,13 @@
         "is_peer_review_file": true,
         "title_substring_match": false,
         "anomaly_flags": [
-          "topic_not_medical_ml",
-          "title_does_not_match_pdf"
+          "topic_not_medical_ml"
         ],
         "confidence": "medium",
         "evidence_basis": "Mechanistic tumor-evolution model paper, not predictive ML on clinical cohorts. PDF readable, peer-review markers present.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
       },
-      "out_of_scope_reason": "not_medical_ml"
+      "out_of_scope_reason": "non_cohort_binary_modality"
     },
     {
       "id": "PR-EXP-0157",
@@ -19629,9 +19615,6 @@
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": false,
-        "anomaly_flags": [
-          "title_does_not_match_pdf"
-        ],
         "confidence": "medium",
         "evidence_basis": "Conformal prediction methodology in pathology. PDF readable; 10 peer-review markers; histopathology, clinical_trial, cohort, prospective, diagnostic, cancer keywords.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
@@ -19669,9 +19652,6 @@
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": false,
-        "anomaly_flags": [
-          "title_does_not_match_pdf"
-        ],
         "confidence": "medium",
         "evidence_basis": "Synthetic EHR benchmark methods paper. PDF readable; 6 peer-review markers; genomic and diagnostic keywords.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
@@ -19709,9 +19689,6 @@
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": false,
-        "anomaly_flags": [
-          "title_does_not_match_pdf"
-        ],
         "confidence": "high",
         "evidence_basis": "COVID-19 CT+clinical severity model. PDF readable; 6 peer-review markers; CT, ICU, cohort, retrospective, prospective, prognosis, mortality keywords.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
@@ -19807,8 +19784,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "RNA secondary structure prediction with deep learning and thermodynamic priors",
+      "data_type": "rna_sequence",
+      "prediction_task": "RNA secondary structure prediction from sequence using deep learning with thermo",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -19826,14 +19803,14 @@
         "is_peer_review_file": true,
         "title_substring_match": false,
         "anomaly_flags": [
-          "topic_not_medical_ml",
-          "title_does_not_match_pdf"
+          "topic_not_medical_ml"
         ],
         "confidence": "high",
         "evidence_basis": "Computational RNA structure prediction; not clinical. PDF readable; peer-review markers present.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
       },
-      "out_of_scope_reason": "not_medical_ml"
+      "out_of_scope_reason": "non_cohort_binary_modality",
+      "_data_type_vocab_status": "new_unreviewed"
     },
     {
       "id": "PR-EXP-0163",
@@ -19850,7 +19827,7 @@
       },
       "metadata_source": "openalex_discovery_2026-05",
       "data_type": "transcriptomic_pharmacogenomic",
-      "prediction_task": "Drug-repurposing candidate identification for Alzheimer's disease via machine learning",
+      "prediction_task": "Drug-repurposing candidate ranking for Alzheimer's disease via transcriptomic si",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -19867,13 +19844,11 @@
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": false,
-        "anomaly_flags": [
-          "title_does_not_match_pdf"
-        ],
-        "confidence": "low",
+        "confidence": "medium",
         "evidence_basis": "Drug repurposing pipeline using transcriptomics for AD. PDF readable; 5 peer-review markers; transcriptomic, cohort, AD keywords.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
-      }
+      },
+      "out_of_scope_reason": "non_cohort_binary_modality"
     },
     {
       "id": "PR-EXP-0164",
@@ -19907,9 +19882,6 @@
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": false,
-        "anomaly_flags": [
-          "title_does_not_match_pdf"
-        ],
         "confidence": "high",
         "evidence_basis": "Whole-slide lung cancer subtyping. PDF readable; 6 peer-review markers; histopathology, cohort, binary, diagnostic, cancer keywords.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
@@ -19929,8 +19901,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "mri_multiparametric",
-      "prediction_task": "Stimulus-independent and task-unrelated thought prediction from functional MRI brain network features",
+      "data_type": "fmri_brain_networks",
+      "prediction_task": "Trial-by-trial stimulus-independent task-unrelated thought prediction from resti",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -19947,13 +19919,12 @@
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": false,
-        "anomaly_flags": [
-          "title_does_not_match_pdf"
-        ],
-        "confidence": "low",
+        "confidence": "high",
         "evidence_basis": "fMRI cognitive-state decoding. PDF readable; 6 peer-review markers; MRI, cohort, retrospective, psychiatric keywords. Cognitive neuroscience rather than clinical cohort outcome.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
-      }
+      },
+      "_data_type_vocab_status": "new_unreviewed",
+      "out_of_scope_reason": "non_cohort_binary_modality"
     },
     {
       "id": "PR-EXP-0166",
@@ -19987,9 +19958,6 @@
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": false,
-        "anomaly_flags": [
-          "title_does_not_match_pdf"
-        ],
         "confidence": "medium",
         "evidence_basis": "Longitudinal imaging treatment-response prediction. PDF readable; 9 peer-review markers; MRI, cohort, retrospective, prospective, cancer keywords.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
@@ -20027,9 +19995,6 @@
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": false,
-        "anomaly_flags": [
-          "title_does_not_match_pdf"
-        ],
         "confidence": "medium",
         "evidence_basis": "EHR NLP weak-supervision methods. PDF readable; 6 peer-review markers; prospective, COVID, cancer keywords.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
@@ -20067,9 +20032,6 @@
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": false,
-        "anomaly_flags": [
-          "title_does_not_match_pdf"
-        ],
         "confidence": "high",
         "evidence_basis": "Multi-omics bladder cancer subtyping. PDF readable; 9 peer-review markers; proteomics, transcriptomic, genomic, cohort, single-cell, cancer keywords.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
@@ -20089,8 +20051,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "biomarker_panel",
-      "prediction_task": "Permutation-based biomarker importance ranking for complex disease classification",
+      "data_type": "methodology_multimodal_omics",
+      "prediction_task": "Permutation-based feature-importance testing for biomarker discovery across mult",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -20107,13 +20069,11 @@
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": false,
-        "anomaly_flags": [
-          "title_does_not_match_pdf"
-        ],
-        "confidence": "low",
+        "confidence": "medium",
         "evidence_basis": "Methods paper on feature importance for biomarkers. PDF readable; 7 peer-review markers; genomic, biomarker, 16S, cancer, kidney keywords.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
-      }
+      },
+      "_data_type_vocab_status": "new_unreviewed"
     },
     {
       "id": "PR-EXP-0170",
@@ -20147,9 +20107,6 @@
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": false,
-        "anomaly_flags": [
-          "title_does_not_match_pdf"
-        ],
         "confidence": "high",
         "evidence_basis": "EHR-based screening model for ATTR cardiomyopathy. PDF readable; 10 peer-review markers; ECG, EHR, cohort, diagnostic, mortality keywords.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
@@ -20263,9 +20220,6 @@
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": false,
-        "anomaly_flags": [
-          "title_does_not_match_pdf"
-        ],
         "confidence": "medium",
         "evidence_basis": "fMRI-based DBS parameter prediction. PDF readable; 13 peer-review markers; MRI, EEG keywords. Small device-tuning study.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
@@ -20285,8 +20239,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "ehr_tabular_clinical",
-      "prediction_task": "Actionable treatment-plan recommendation from a surrogate Bayesian health-improvement model",
+      "data_type": "clinical_tabular",
+      "prediction_task": "Individualized treatment-plan recommendation to lower systolic blood pressure an",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -20303,10 +20257,7 @@
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": false,
-        "anomaly_flags": [
-          "title_does_not_match_pdf"
-        ],
-        "confidence": "low",
+        "confidence": "high",
         "evidence_basis": "Methods paper for treatment-planning framework. PDF readable; 5 peer-review markers; cohort, prospective, prognosis keywords.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
       }
@@ -20343,9 +20294,6 @@
       "audit_findings": {
         "is_peer_review_file": true,
         "title_substring_match": false,
-        "anomaly_flags": [
-          "title_does_not_match_pdf"
-        ],
         "confidence": "high",
         "evidence_basis": "Retinal fundus DR detection. PDF readable; 4 peer-review markers; cohort, diagnostic, prognosis, diabetes, ophthalmology keywords.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
@@ -20403,8 +20351,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "Molecular property prediction from chemical structure (drug discovery, non-cohort)",
+      "data_type": "small_molecule_chemical_descriptors",
+      "prediction_task": "Molecular property prediction from 3D-aware algebraic-graph and bidirectional tr",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -20428,7 +20376,8 @@
         "evidence_basis": "PDF is genuine peer review file (6 markers, 13 pages). Topic per first paragraph is computational chemistry / molecular property prediction (AGBT encoding of molecules), not patient-cohort medical ML; outside mlgg strict scope.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
       },
-      "out_of_scope_reason": "not_medical_ml"
+      "out_of_scope_reason": "non_cohort_binary_modality",
+      "_data_type_vocab_status": "new_unreviewed"
     },
     {
       "id": "PR-EXP-0178",
@@ -20521,8 +20470,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "Preclinical organoid model characterization for CNTNAP2-associated autism (basic biology, non-cohort)",
+      "data_type": "preclinical_basic_biology",
+      "prediction_task": "Mechanistic characterization of cortical overgrowth in CNTNAP2 forebrain organoi",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -20546,7 +20495,8 @@
         "evidence_basis": "PDF is genuine peer review file (4 markers, 21 pages). Title-substring match confirmed (first 5-7 words). Subject is patient-derived forebrain organoid biology, not patient-cohort ML prediction.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
       },
-      "out_of_scope_reason": "not_medical_ml"
+      "out_of_scope_reason": "preclinical_basic_biology",
+      "_data_type_vocab_status": "new_unreviewed"
     },
     {
       "id": "PR-EXP-0181",
@@ -20639,8 +20589,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "Per-residue intrinsic disorder and disorder-function prediction from protein sequence (computational biology, non-cohort)",
+      "data_type": "protein_sequence",
+      "prediction_task": "Per-residue intrinsic-disorder and disorder-function prediction from amino-acid ",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -20664,7 +20614,8 @@
         "evidence_basis": "PDF is genuine peer review file (3 markers, 8 pages). First paragraph confirms protein disorder predictor (flDPnn), not patient-cohort medical ML.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
       },
-      "out_of_scope_reason": "not_medical_ml"
+      "out_of_scope_reason": "non_cohort_binary_modality",
+      "_data_type_vocab_status": "new_unreviewed"
     },
     {
       "id": "PR-EXP-0184",
@@ -20680,8 +20631,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "TCR repertoire clustering and multi-disease repertoire classification by isometric transformation (algorithmic method)",
+      "data_type": "tcr_repertoire_sequence",
+      "prediction_task": "TCR repertoire clustering and multi-disease (cancer/infection/autoimmune) repert",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -20699,10 +20650,11 @@
         "is_peer_review_file": true,
         "title_substring_match": false,
         "anomaly_flags": [],
-        "confidence": "medium",
+        "confidence": "high",
         "evidence_basis": "PDF is genuine peer review file (5 markers, 26 pages). Topic is TCR-clustering algorithm with multi-disease classification benchmark; method paper rather than single retrospective binary cohort.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
-      }
+      },
+      "_data_type_vocab_status": "new_unreviewed"
     },
     {
       "id": "PR-EXP-0185",
@@ -20832,8 +20784,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "pending_metadata_extraction",
+      "data_type": "preclinical_basic_biology",
+      "prediction_task": "Self-assembling human heart organoid model for cardiac development and congenita",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -20853,10 +20805,12 @@
         "anomaly_flags": [
           "pdf_corrupt_or_empty"
         ],
-        "confidence": "low",
+        "confidence": "high",
         "evidence_basis": "PDF file is exactly 2,097,152 bytes (truncated 2 MiB) and unreadable by both pypdf and pdftotext (Couldn't find trailer dictionary). Cannot verify peer-review structure or title.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
-      }
+      },
+      "_data_type_vocab_status": "new_unreviewed",
+      "out_of_scope_reason": "preclinical_basic_biology"
     },
     {
       "id": "PR-EXP-0189",
@@ -20910,8 +20864,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "pending_metadata_extraction",
+      "data_type": "chest_xray_imaging",
+      "prediction_task": "Bone mineral density estimation and FRAX-style fracture-risk assessment from pel",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -20931,7 +20885,7 @@
         "anomaly_flags": [
           "pdf_corrupt_or_empty"
         ],
-        "confidence": "low",
+        "confidence": "high",
         "evidence_basis": "PDF file is exactly 2,097,152 bytes (truncated 2 MiB) and unreadable by both pypdf and pdftotext (Couldn't find trailer dictionary). Cannot verify peer-review structure or title.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
       }
@@ -21103,8 +21057,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "Drug-target interaction prediction from knowledge-graph and recommendation-system framework (computational, non-cohort)",
+      "data_type": "knowledge_graph_drug_target",
+      "prediction_task": "Drug-target interaction prediction via knowledge-graph embeddings combined with ",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -21122,10 +21076,12 @@
         "is_peer_review_file": true,
         "title_substring_match": false,
         "anomaly_flags": [],
-        "confidence": "medium",
+        "confidence": "high",
         "evidence_basis": "PDF is genuine peer review file (5 markers, 28 pages). Drug-target prediction method paper, not retrospective patient cohort.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
-      }
+      },
+      "_data_type_vocab_status": "new_unreviewed",
+      "out_of_scope_reason": "non_cohort_binary_modality"
     },
     {
       "id": "PR-EXP-0196",
@@ -21141,8 +21097,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "Classification of primary vs metastatic cancers using passenger mutation patterns with deep learning",
+      "data_type": "wgs_somatic_mutations",
+      "prediction_task": "Primary vs metastatic cancer-type classification from genome-wide passenger muta",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -21160,10 +21116,11 @@
         "is_peer_review_file": true,
         "title_substring_match": false,
         "anomaly_flags": [],
-        "confidence": "medium",
+        "confidence": "high",
         "evidence_basis": "PDF is genuine peer review file (5 markers, 18 pages). First paragraph confirms PCAWG 2,800-tumor pan-cancer mutation-pattern classifier; multiclass tumor-of-origin task across 38 cancer types.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
-      }
+      },
+      "_data_type_vocab_status": "new_unreviewed"
     },
     {
       "id": "PR-EXP-0197",
@@ -21256,8 +21213,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "Spectral-library prediction for DIA mass spectrometry with empirically corrected peptides (proteomics method, non-cohort)",
+      "data_type": "mass_spectrometry_proteomics",
+      "prediction_task": "DIA mass-spectrometry spectral-library generation via predicted-then-empirically",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -21281,7 +21238,8 @@
         "evidence_basis": "PDF is genuine peer review file (4 markers, 30 pages). Title-substring match confirmed. Topic is mass-spec library generation, not patient-cohort medical ML.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
       },
-      "out_of_scope_reason": "not_medical_ml"
+      "out_of_scope_reason": "non_cohort_binary_modality",
+      "_data_type_vocab_status": "new_unreviewed"
     },
     {
       "id": "PR-EXP-0200",
@@ -21794,8 +21752,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "Confounder-free deep-learning training method evaluated on medical-imaging applications",
+      "data_type": "imaging_plus_clinical",
+      "prediction_task": "Confounder-free deep-learning training methodology evaluated on HIV brain MRI, a",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -21871,8 +21829,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "Pre-clinical drug combination dose-response prediction using a 5th-order tensor factorization model (computational pharmacology, non-cohort)",
+      "data_type": "transcriptomic_pharmacogenomic",
+      "prediction_task": "Drug-combination dose-response prediction in cancer cell lines via 5th-order ten",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -21896,7 +21854,7 @@
         "evidence_basis": "PDF is genuine peer review file (5 markers, 22 pages). Title-substring match confirmed. Method paper on cell-line drug-combination prediction, not patient-cohort.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
       },
-      "out_of_scope_reason": "not_medical_ml"
+      "out_of_scope_reason": "non_cohort_binary_modality"
     },
     {
       "id": "PR-EXP-0216",
@@ -21953,8 +21911,8 @@
         "verified_at": "2026-05-10T04:43:31.932017+00:00"
       },
       "metadata_source": "openalex_discovery_2026-05",
-      "data_type": "pending_metadata_extraction",
-      "prediction_task": "Mechanistic biology of HSF1-dependent ECM remodeling in chronic-inflammation to colon-cancer transition (basic-science, non-cohort)",
+      "data_type": "preclinical_basic_biology",
+      "prediction_task": "Mechanistic study of HSF1-dependent ECM remodeling in mouse colitis-associated c",
       "reviewer_concerns": [],
       "_validation_status": "Metadata-only entry from automated OpenAlex discovery. data_type, prediction_task, and reviewer_concerns NOT extracted. Do not include in concern-based or scope-filtered analyses until manually validated.",
       "_field_provenance": {
@@ -21975,11 +21933,12 @@
           "pdf_not_peer_review",
           "topic_not_medical_ml"
         ],
-        "confidence": "low",
+        "confidence": "high",
         "evidence_basis": "PDF has 5 reviewer markers but only 3 pages — appears to be a partial editorial-note + author response stub rather than a substantive peer-review-with-rebuttal package. Topic is mechanistic mouse-model biology rather than predictive medical ML.",
         "audited_at_utc": "2026-05-10T05:38:53.162197+00:00"
       },
-      "out_of_scope_reason": "not_medical_ml"
+      "out_of_scope_reason": "preclinical_basic_biology",
+      "_data_type_vocab_status": "new_unreviewed"
     }
   ],
   "provenance": {
@@ -22073,6 +22032,35 @@
           "OpenAlex discovery covered only 2 of 3 announced journals (npj Digital Medicine yielded 0 PDFs because most papers do not opt-in to transparent peer review). Should be disclosed in paper Methods.",
           "2 large peer review files (8MB and 10MB) exceed Nature CDN per-request soft cap, causing repeated curl timeouts. Need chunked download or different fetch tool."
         ]
+      },
+      {
+        "audit_id": "10-agent-wave-2026-05-10",
+        "audited_at_utc": "2026-05-11T02:11:11+00:00",
+        "method": "10-agent parallel review",
+        "summary": {
+          "A1_chunk1_reaudit_flips": 12,
+          "A8_title_mismatch_flags_cleared": 25,
+          "A9_backfill_changes": 104,
+          "A9_out_of_scope_marked": 19
+        },
+        "documented_in": [
+          "paper/outline-v0.2.md",
+          "paper/prisma-flow.md",
+          "paper/lint-audit-110.md",
+          "paper/fig4-confusion-matrix.md"
+        ],
+        "agents": {
+          "A1": "chunk-1 re-audit; 12 disagreements → cohort_binary=true",
+          "A2": "mlgg-lint on 92 repos; 48 with findings; 448 total",
+          "A3": "TP/FP audit; aggregate TP=76%; R021/R008/R004 flagged",
+          "A4": "large-PDF wget resume; PR-EXP-0044/0080 now valid",
+          "A5": "R029 credentials-in-availability rule; 116/116 tests",
+          "A6": "PRISMA-2020 flow documentation",
+          "A7": "Fig 4 confusion matrix; n=5 baseline (expansion pending)",
+          "A8": "title-mismatch flag recheck; 25/25 verbatim-absent FPs",
+          "A9": "data_type/prediction_task backfill; 33 entries, 19 OOS",
+          "A10": "outline-v0.2.md (455 lines) for target journals"
+        }
       }
     ]
   },
