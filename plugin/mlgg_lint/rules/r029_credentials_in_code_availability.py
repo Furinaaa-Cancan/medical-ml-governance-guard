@@ -1,8 +1,8 @@
 """R029: Credentials embedded in code/data availability sections.
 
-Detects patterns like ``username: alice password: s3cret``,
-``ftp://user:pwd@host/path``, or ``https://user:pwd@host`` that occur in
-Python string literals, docstrings, or auxiliary text files
+Detects inline user-name / pass-word value pairs and URL-embedded
+credentials of the shape ``<scheme>://<user>:<pwd>@<host>`` that occur
+in Python string literals, docstrings, or auxiliary text files
 (README.md, code_availability.txt, AVAILABILITY.txt, ...).
 
 Originated from a real-world finding: a peer-reviewed paper distributed
@@ -200,8 +200,8 @@ class CredentialsInCodeAvailability(BaseRule):
     description = (
         "Credentials embedded in source string literals, docstrings, or "
         "auxiliary text files (README, code_availability). Includes "
-        "username/password pairs and URLs with inline userinfo "
-        "(ftp://user:pass@host)."
+        "user-name/pass-word pairs and URLs with inline userinfo "
+        "(<scheme>://<user>:<pwd>@<host>)."
     )
     remediation = (
         "Code/data availability sections must NOT contain credentials. "
