@@ -365,7 +365,7 @@ def main() -> int:
     md.append("")
     OUT_MD.write_text("\n".join(md))
 
-    print(f"\nReports written:", file=sys.stderr)
+    print("\nReports written:", file=sys.stderr)
     print(f"  {OUT_JSON.relative_to(ROOT)}", file=sys.stderr)
     print(f"  {OUT_MD.relative_to(ROOT)}", file=sys.stderr)
     return 0

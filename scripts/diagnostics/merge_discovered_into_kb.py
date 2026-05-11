@@ -28,7 +28,7 @@ Writes:
   - paper/kb-merge-report.md (summary of additions)
 """
 from __future__ import annotations
-import json, re
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -155,40 +155,40 @@ def main() -> int:
 
     md = [
         f"# KB merge report — {ts}",
-        f"",
-        f"## Summary",
-        f"",
+        "",
+        "## Summary",
+        "",
         f"- Candidates considered: {len(candidates)}",
         f"- Skipped (DOI already in KB): {skipped_dup}",
         f"- Skipped (no PDF on disk or invalid): {skipped_no_pdf}",
         f"- **Added: {added}** entries with verified PDF",
-        f"",
-        f"## By journal",
-        f"",
+        "",
+        "## By journal",
+        "",
     ]
     for j, n in by_journal.most_common():
         md.append(f"- {j}: {n}")
     md.append("")
-    md.append(f"## After merge")
+    md.append("## After merge")
     md.append(f"- KB total entries: {kb['total_papers']}")
     md.append(f"- KB total concerns: {kb['total_concerns']}")
-    md.append(f"")
-    md.append(f"## Caveats")
+    md.append("")
+    md.append("## Caveats")
     md.append(f"- All {added} new entries have `data_type='pending_metadata_extraction'`,")
-    md.append(f"  `prediction_task='pending_metadata_extraction'`, and `reviewer_concerns=[]`.")
-    md.append(f"- They MUST NOT be used for scope-filtering or concern-based claims until validated.")
-    md.append(f"- Use them only for: PDF text mining, mlgg-lint audit on linked code, ")
-    md.append(f"  prevalence statistics over a clearly-marked discovery subset.")
+    md.append("  `prediction_task='pending_metadata_extraction'`, and `reviewer_concerns=[]`.")
+    md.append("- They MUST NOT be used for scope-filtering or concern-based claims until validated.")
+    md.append("- Use them only for: PDF text mining, mlgg-lint audit on linked code, ")
+    md.append("  prevalence statistics over a clearly-marked discovery subset.")
     REPORT.write_text("\n".join(md))
 
     print(f"Added: {added} new entries")
     print(f"Skipped (duplicate): {skipped_dup}")
     print(f"Skipped (no/invalid PDF): {skipped_no_pdf}")
-    print(f"")
-    print(f"By journal:")
+    print("")
+    print("By journal:")
     for j, n in by_journal.most_common():
         print(f"  {j}: {n}")
-    print(f"")
+    print("")
     print(f"KB total: {kb['total_papers']} entries (was 118 before merge)")
     return 0
 

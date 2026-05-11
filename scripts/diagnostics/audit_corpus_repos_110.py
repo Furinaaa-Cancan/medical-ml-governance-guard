@@ -184,7 +184,7 @@ def main() -> int:
                       f"findings={summary['finding_count']}, "
                       f"top={summary['top_5_rules']}", file=sys.stderr)
             else:
-                print(f"  no Python or notebook files, skipping lint",
+                print("  no Python or notebook files, skipping lint",
                       file=sys.stderr)
         else:
             print(f"  clone failed: {msg}", file=sys.stderr)
@@ -293,14 +293,14 @@ def main() -> int:
     OUT_MD.write_text("\n".join(md) + "\n")
 
     # Console summary ----------------------------------------------------------
-    print(f"\n=== DONE ===")
+    print("\n=== DONE ===")
     print(f"Targets: {n_total}, cloned: {n_cloned}, with code: {n_with_py}, "
           f"with findings: {n_with_findings}")
     print(f"Total findings aggregate: {total_findings_sum}")
-    print(f"\nTop rules (papers fired):")
+    print("\nTop rules (papers fired):")
     for rule, cnt in paper_count.most_common(12):
         print(f"  {cnt:3} papers / {total_findings.get(rule, 0):4} total: {rule}")
-    print(f"\nReports:")
+    print("\nReports:")
     print(f"  {OUT_JSON.relative_to(ROOT)}")
     print(f"  {OUT_MD.relative_to(ROOT)}")
     return 0

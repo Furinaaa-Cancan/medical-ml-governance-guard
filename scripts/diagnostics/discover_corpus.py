@@ -23,7 +23,7 @@ Usage:
   python3 scripts/diagnostics/discover_corpus.py
 """
 from __future__ import annotations
-import json, re, subprocess, sys, time
+import json, subprocess, sys, time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -146,13 +146,13 @@ def main() -> int:
     from collections import Counter
     by_journal = Counter(c['journal'] for c in candidates)
     by_year = Counter(c['year'] for c in candidates)
-    print(f"\n=== Discovery summary ===")
+    print("\n=== Discovery summary ===")
     print(f"  Existing KB DOIs: {len(existing_dois)}")
     print(f"  New candidates discovered: {len(candidates)}")
-    print(f"\n  By journal:")
+    print("\n  By journal:")
     for j, n in by_journal.most_common():
         print(f"    {j}: {n}")
-    print(f"\n  By year:")
+    print("\n  By year:")
     for y, n in sorted(by_year.items(), key=lambda x: -(x[0] or 0)):
         print(f"    {y}: {n}")
     print(f"\n  Output: {OUT_JSON.relative_to(ROOT)}")

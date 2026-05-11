@@ -19,7 +19,7 @@ Usage:
   python3 scripts/diagnostics/download_missing_pdfs.py --apply    # actually download
 """
 from __future__ import annotations
-import argparse, json, os, re, subprocess, sys, time, hashlib
+import argparse, json, re, subprocess, sys, time, hashlib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
@@ -135,7 +135,7 @@ def main() -> int:
 
         pr_url = find_peer_review_url(html)
         if not pr_url:
-            print(f"  ✗ no Peer Review File link found in article page")
+            print("  ✗ no Peer Review File link found in article page")
             results.append({"id": eid, "status": "no_peer_review_link", "url": url})
             continue
 
@@ -160,7 +160,7 @@ def main() -> int:
     fetch_fail = sum(1 for r in results if r['status'] == 'fetch_failed')
     fail = sum(1 for r in results if r['status'] == 'failed')
 
-    print(f"\n=== Summary ===")
+    print("\n=== Summary ===")
     print(f"  Total entries to download: {len(missing)}")
     if not args.apply:
         print(f"  Peer review URL found: {drylinks}")

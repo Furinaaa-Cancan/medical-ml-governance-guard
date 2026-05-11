@@ -122,7 +122,7 @@ Path("/tmp/merge-audit-summary.json").write_text(json.dumps({
     "applied_to_entries": applied,
 }, indent=2))
 
-print(f"\n=== Merge summary ===")
+print("\n=== Merge summary ===")
 print(f"Entries audited: {applied}")
 for k, v in sorted(stats.items()):
     print(f"  {k}: {v}")

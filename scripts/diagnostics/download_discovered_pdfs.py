@@ -188,11 +188,11 @@ def main() -> int:
         key = (r["journal"], r["status"])
         by_journal_status[key] = by_journal_status.get(key, 0) + 1
 
-    print(f"\n=== Status counts ===")
+    print("\n=== Status counts ===")
     for s, n in statuses.most_common():
         print(f"  {s}: {n}")
 
-    print(f"\n=== By journal ===")
+    print("\n=== By journal ===")
     journals = sorted(set(r["journal"] for r in results))
     for j in journals:
         statuses_j = {s: by_journal_status.get((j,s),0)

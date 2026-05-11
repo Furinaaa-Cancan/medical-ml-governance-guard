@@ -248,7 +248,7 @@ def main() -> int:
             best = substring_matches[0]
             confidence = "high"
             method = "title_substring"
-            note = f"First 7 words of KB title found in PDF text"
+            note = "First 7 words of KB title found in PDF text"
         elif len(substring_matches) > 1:
             # Disambiguate by largest title overlap
             scored = sorted(((title_overlap(kb_title, pi.get("title_snippet","")), pi) for pi in substring_matches), reverse=True, key=lambda x: x[0])
@@ -337,16 +337,16 @@ def main() -> int:
     }, indent=2, ensure_ascii=False))
 
     md = []
-    md.append(f"# Peer-review KB ↔ PDF reconciliation report")
+    md.append("# Peer-review KB ↔ PDF reconciliation report")
     md.append("")
     md.append(f"**Generated**: {datetime.now(timezone.utc).isoformat()}")
     md.append(f"**KB**: `{KB_PATH.relative_to(ROOT)}`")
     md.append(f"**PDF dir**: `{PDF_DIR.relative_to(ROOT)}`")
     md.append("")
-    md.append(f"## Headline numbers")
+    md.append("## Headline numbers")
     md.append("")
-    md.append(f"| Metric | Count |")
-    md.append(f"|---|---|")
+    md.append("| Metric | Count |")
+    md.append("|---|---|")
     md.append(f"| KB entries | {len(entries)} |")
     md.append(f"| PDFs in directory | {len(pdf_index)} |")
     md.append(f"| PDFs that failed to parse | {parse_errors} |")
@@ -357,31 +357,31 @@ def main() -> int:
     md.append(f"| KB entries with **no match** | **{n_none}** |")
     md.append(f"| PDFs not matched to any KB entry | {len(unmatched_pdfs)} |")
     md.append("")
-    md.append(f"## What this means for the paper")
+    md.append("## What this means for the paper")
     md.append("")
     md.append(f"- Trustable corpus (KB entry + verified PDF link): **{n_high} papers**")
     md.append(f"- With looser title-jaccard 0.7+: **{n_high + n_high_multi + n_medium} papers**")
     md.append(f"- Speculative (no PDF link found): **{n_none} papers**")
     md.append("")
-    md.append(f"## KB entries with no PDF match")
+    md.append("## KB entries with no PDF match")
     md.append("")
-    md.append(f"| ID | DOI | Title (first 80) |")
-    md.append(f"|---|---|---|")
+    md.append("| ID | DOI | Title (first 80) |")
+    md.append("|---|---|---|")
     for r in results:
         if r["confidence"] == "none":
             md.append(f"| {r['id']} | `{r['kb_doi']}` | {r['kb_title'][:80]} |")
     md.append("")
-    md.append(f"## PDFs not matched to any KB entry (potentially orphaned)")
+    md.append("## PDFs not matched to any KB entry (potentially orphaned)")
     md.append("")
-    md.append(f"| File | Size | DOI in text | Title snippet |")
-    md.append(f"|---|---:|---|---|")
+    md.append("| File | Size | DOI in text | Title snippet |")
+    md.append("|---|---:|---|---|")
     for pi in unmatched_pdfs[:50]:
         size_kb = pi["size_bytes"] // 1024
         dois = ", ".join(pi["dois_found"]) or "—"
         title = pi["title_snippet"][:80] if pi["title_snippet"] else "—"
         md.append(f"| `{pi['name']}` | {size_kb} KB | {dois} | {title} |")
     if len(unmatched_pdfs) > 50:
-        md.append(f"")
+        md.append("")
         md.append(f"... and {len(unmatched_pdfs) - 50} more.")
     md.append("")
     REPORT_MD.write_text("\n".join(md))
@@ -422,10 +422,10 @@ def main() -> int:
             "known_unmatched_kb_ids": ["PR-RO-03"],  # Crohn's plasma proteomic; PDF not downloaded
         }
         KB_PATH.write_text(json.dumps(kb, indent=2, ensure_ascii=False))
-        print(f"\nKB mutated: peer_review_pdf_path + pdf_verification added per entry.", file=sys.stderr)
+        print("\nKB mutated: peer_review_pdf_path + pdf_verification added per entry.", file=sys.stderr)
 
     # --- 7. Console summary ---
-    print(f"\nReports written:")
+    print("\nReports written:")
     print(f"  {REPORT_MD.relative_to(ROOT)}")
     print(f"  {REPORT_JSON.relative_to(ROOT)}")
     print(f"\nTrustable corpus (high-confidence DOI match): {n_high} papers")

@@ -162,7 +162,7 @@ def main() -> int:
     has_any_code = sum(1 for r in ok if any(re.search(r'github|gitlab|zenodo|figshare|osf|codeocean|bitbucket', u) for u in r["all_urls"]))
     has_code_section = sum(1 for r in ok if r["code_section"])
 
-    print(f"\nDone. Stats:")
+    print("\nDone. Stats:")
     print(f"  Total processed: {len(results)}")
     print(f"  Successful fetch: {len(ok)}")
     print(f"  Has GitHub link: {has_github}")
@@ -187,11 +187,11 @@ def main() -> int:
 
     md = [
         f"# Code repositories for verified-cohort corpus (N={len(corpus)})",
-        f"",
+        "",
         f"Generated: {datetime.now(timezone.utc).isoformat()}",
-        f"",
-        f"| ID | Title | GitHub | Zenodo | Other | Code section |",
-        f"|---|---|---|---|---|---|",
+        "",
+        "| ID | Title | GitHub | Zenodo | Other | Code section |",
+        "|---|---|---|---|---|---|",
     ]
     for r in results:
         gh = ", ".join([u for u in r["all_urls"] if 'github.com' in u][:2])[:80] or "—"
@@ -202,7 +202,7 @@ def main() -> int:
         md.append(f"| {r['id']} | {title} | {gh} | {zn} | {other} | {has_sec} |")
     md.append("")
     OUT_MD.write_text("\n".join(md))
-    print(f"\nReports:")
+    print("\nReports:")
     print(f"  {OUT_JSON.relative_to(ROOT)}")
     print(f"  {OUT_MD.relative_to(ROOT)}")
     return 0

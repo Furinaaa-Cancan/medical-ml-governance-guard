@@ -145,7 +145,7 @@ def main() -> int:
             else:
                 result["rules_fired"] = []
                 result["finding_count"] = 0
-                print(f"  no Python files, skipping lint", file=sys.stderr)
+                print("  no Python files, skipping lint", file=sys.stderr)
         else:
             print(f"  clone failed: {msg}", file=sys.stderr)
         audit_results.append(result)
@@ -180,42 +180,42 @@ def main() -> int:
 
     md = [
         f"# mlgg-lint audit on {n_total}-paper verified-cohort corpus",
-        f"",
+        "",
         f"Generated: {datetime.now(timezone.utc).isoformat()}",
-        f"",
-        f"## Headline numbers",
-        f"",
-        f"| Metric | Count |",
-        f"|---|---|",
+        "",
+        "## Headline numbers",
+        "",
+        "| Metric | Count |",
+        "|---|---|",
         f"| GitHub repos targeted | {n_total} |",
         f"| Successfully cloned | {n_cloned} |",
         f"| Repos with Python files | {n_with_py} |",
         f"| Repos with ≥1 mlgg-lint finding | {n_with_findings} |",
-        f"",
-        f"## Rules fired across corpus (rule × papers count)",
-        f"",
-        f"| Rule | Papers fired |",
-        f"|---|---:|",
+        "",
+        "## Rules fired across corpus (rule × papers count)",
+        "",
+        "| Rule | Papers fired |",
+        "|---|---:|",
     ]
     for rule, cnt in rule_counts.most_common(30):
         md.append(f"| `{rule}` | {cnt} |")
     md.append("")
-    md.append(f"## Per-paper detail")
+    md.append("## Per-paper detail")
     md.append("")
-    md.append(f"| ID | Repo | Clone | Py files | Findings | Top rules |")
-    md.append(f"|---|---|---|---:|---:|---|")
+    md.append("| ID | Repo | Clone | Py files | Findings | Top rules |")
+    md.append("|---|---|---|---:|---:|---|")
     for r in audit_results:
         url = r["primary_repo"].split("github.com/")[-1] if "github.com" in r["primary_repo"] else r["primary_repo"]
         rules_short = ", ".join(r.get("rules_fired", [])[:4])
         md.append(f"| {r['id']} | `{url[:50]}` | {r['clone_status'][:20]} | {r['python_files']} | {r.get('finding_count', '—')} | {rules_short} |")
     OUT_MD.write_text("\n".join(md))
 
-    print(f"\n=== DONE ===")
+    print("\n=== DONE ===")
     print(f"Targets: {n_total}, cloned: {n_cloned}, with Python: {n_with_py}, with findings: {n_with_findings}")
-    print(f"Top rules fired:")
+    print("Top rules fired:")
     for rule, cnt in rule_counts.most_common(10):
         print(f"  {cnt:3} papers: {rule}")
-    print(f"\nReports:")
+    print("\nReports:")
     print(f"  {OUT_JSON.relative_to(ROOT)}")
     print(f"  {OUT_MD.relative_to(ROOT)}")
     return 0
