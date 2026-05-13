@@ -24,6 +24,21 @@ jobs:
           python3 -m pip install -r requirements.txt
 
       - name: Extended benchmark suite (observational)
+        # continue-on-error: same rationale as ci-full.yml's "Release
+        # benchmark suite (informational)" step — the extended profile
+        # also runs the curated UCI / Diabetes-130 / Heart-Disease matrix
+        # against experiments/authority-e2e/raw/, whose .data files are
+        # NOT committed (third-party datasets with restrictive licenses).
+        # On a clean CI clone the matrix exits 2 with
+        # `benchmark_registry_mismatch` the moment it can't find the
+        # first raw file. Treating this as informational keeps the
+        # structural smoke-test signal (regressions in mlgg.py
+        # benchmark-suite plumbing still surface in run logs and uploaded
+        # artifacts) without staging gigabytes of upstream raw data on
+        # every run. Without this flag the workflow has only ONE
+        # meaningful step, so a missing-data failure would mask any
+        # genuine regression beneath it; with it, the failure is at
+        # least visible in logs even though the job stays green.
         continue-on-error: true
         run: |
           python3 scripts/orchestration/mlgg.py benchmark-suite \
