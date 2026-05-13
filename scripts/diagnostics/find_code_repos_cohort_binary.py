@@ -17,6 +17,7 @@ Usage::
 """
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import re
@@ -223,6 +224,7 @@ def pick_primary(urls: list[str]) -> tuple[str | None, str]:
 
 
 def main() -> int:
+    argparse.ArgumentParser(description=__doc__).parse_args()
     kb = json.loads(KB_PATH.read_text())
     corpus = [
         e

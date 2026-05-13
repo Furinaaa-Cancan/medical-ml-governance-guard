@@ -23,7 +23,7 @@ Usage:
   python3 scripts/diagnostics/discover_corpus.py
 """
 from __future__ import annotations
-import json, subprocess, sys, time
+import argparse, json, subprocess, sys, time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -76,6 +76,7 @@ def openalex_search(source_id: str, query: str, year_from: int = YEAR_FROM,
 
 
 def main() -> int:
+    argparse.ArgumentParser(description=__doc__).parse_args()
     # Load existing KB DOIs to exclude
     kb = json.loads(KB_PATH.read_text())
     existing_dois = {e['paper_doi'].lower() for e in kb['entries']

@@ -31,7 +31,7 @@ Usage:
   python3 scripts/diagnostics/audit_corpus_repos_110.py
 """
 from __future__ import annotations
-import json, subprocess, sys, os
+import argparse, json, subprocess, sys, os
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -132,6 +132,7 @@ def summarize_findings(findings: list) -> dict:
 
 
 def main() -> int:
+    argparse.ArgumentParser(description=__doc__).parse_args()
     if not CORPUS_PATH.exists():
         print(f"ERROR: {CORPUS_PATH} not found.", file=sys.stderr)
         return 1

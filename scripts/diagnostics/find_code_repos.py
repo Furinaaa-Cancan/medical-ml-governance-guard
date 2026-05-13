@@ -17,7 +17,7 @@ Writes:
 Reproducibility: same UA, same regex, same paper subset → identical output.
 """
 from __future__ import annotations
-import json, re, subprocess, sys
+import argparse, json, re, subprocess, sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -103,6 +103,7 @@ def classify_urls(urls: list[str]) -> dict[str, list[str]]:
 
 
 def main() -> int:
+    argparse.ArgumentParser(description=__doc__).parse_args()
     kb = json.loads(KB_PATH.read_text())
     e = kb["entries"]
     corpus = [p for p in e if strict_inscope(p) and p.get('pdf_verification', {}).get('confidence') == 'high']

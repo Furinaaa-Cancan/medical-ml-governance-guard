@@ -22,7 +22,7 @@ Usage:
   python3 scripts/diagnostics/audit_corpus_repos.py
 """
 from __future__ import annotations
-import json, subprocess, sys, os
+import argparse, json, subprocess, sys, os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -100,6 +100,7 @@ def run_mlgg_lint(repo: Path, evidence: Path, timeout: int = 180) -> dict:
 
 
 def main() -> int:
+    argparse.ArgumentParser(description=__doc__).parse_args()
     if not CORPUS_PATH.exists():
         print(f"ERROR: {CORPUS_PATH} not found. Run find_code_repos.py first.", file=sys.stderr)
         return 1
