@@ -69,7 +69,11 @@ _DEDUP_TEXT_RE = re.compile(
     r"|reduce.{0,40}(patient|subject|pid)"
     r"|to[_\- ]outcome"
     r"|link[_\- ]patient[_\- ]id"
-    r"|patient[_\- ]level"
+    # "patient-level X" only suppresses when X is dedup-related vocab.
+    # Bare "patient-level" matches negative contexts like "Patient-level
+    # split missing" or "Re-split with patient-level separation", which
+    # are bug descriptions / fixes, not evidence of upstream dedup.
+    r"|patient[_\- ]level\s+(?:outcome|aggregation|aggregated|deduplicat|cohort|target|response)"
     r")"
 )
 

@@ -52,16 +52,13 @@ DETECTED_BY_LINT: dict[str, str] = {
     "test_13_eval_data_alias.py": "R021",           # eval_data aliased to test
     "test_14_derived_feature_leak.py": "R023",      # target encoding leak
     "test_15_cv_smote_no_pipeline.py": "R011",      # CV-internal SMOTE
-    "test_16_shuffle_temporal.py": "R008",          # temporal shuffle
     "test_17_global_dropna.py": "R020",             # dropna before split
     "test_18_early_stop_test.py": "R017",           # eval_set with test
     "test_19_label_encoder_nominal.py": "R014",     # LabelEncoder on features
-    "test_20_overstatement.py": "R021",             # aliased test used for tuning
     "test_21_indirect_target_via_merge.py": "R023", # indirect target encoding
     "test_22_imputer_fit_full.py": "R001",          # imputer.fit before split
     "test_23_pipeline_but_wrong_order.py": "R025",  # SMOTE after model in pipeline
     "test_25_quantile_clip_before_split.py": "R020",# clip(quantile()) before split
-    "test_26_nested_cv_leaky_outer.py": "R021",     # outer fold uses test loop
     "test_30_information_leak_via_frequency.py": "R024",  # frequency encoding leak
     "test_34_train_metrics_as_final.py": "R010",    # train metric as final
     "test_36_stacking_test_leak.py": "R002",        # stacking sees test
@@ -84,8 +81,30 @@ NOT_YET_CAUGHT_BY_LINT: dict[str, str] = {
         "eGFR defines CKD; requires cohort_definition_gate",
     "test_12_temporal_icu_mortality.py":
         "Post-index ICU feature; caught by leakage_gate regex, not lint",
+    "test_16_shuffle_temporal.py":
+        "R008 (B9 revision) requires STRONG forecasting evidence "
+        "(pd.to_datetime / DatetimeIndex / LSTM-GRU-Conv1D / 3D shape / "
+        "seq_len-horizon-lookback kwarg). This fixture only references a "
+        "date-named column 'admission_date' as a CSV header string — "
+        "intentionally insufficient under B9. Captured at gate level by "
+        "leakage_gate temporal-leakage scan, not lint.",
+    "test_20_overstatement.py":
+        "Fixture's actual bug is overstatement of conclusions + missing "
+        "CI/calibration/DCA reporting — the loop body iterates fixed-"
+        "hyperparameter model instances, never mutating HPs. R021 (B8 "
+        "revision) requires loop-body HP mutation (set_params / HP attr "
+        "assign / parametrized re-instantiation / HP grid sub-loop). "
+        "Caught instead by reporting_bias_gate + evaluation_quality_gate.",
     "test_24_data_snooping_via_visualization.py":
         "EDA-based snooping; requires semantic analysis",
+    "test_26_nested_cv_leaky_outer.py":
+        "Feature selection (SelectKBest.fit_transform) inside outer CV "
+        "fold without inner CV — this is an R006-shaped 'selection-on-"
+        "outer-train' issue, not R021. R021 (B8 revision) requires HP "
+        "mutation inside the loop body; this fixture mutates only the "
+        "feature selector. Distinct enough that conflating it with R021 "
+        "produces neither rule firing correctly. Future scope: a "
+        "dedicated 'selection_inside_outer_fold' check.",
     "test_27_future_feature_subtle.py":
         "Subtle future info; requires feature_lineage_gate",
     "test_28_multi_file_leak.py":
