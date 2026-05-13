@@ -502,6 +502,15 @@ def safe_load_json(
             payload = json.load(fh)
         except json.JSONDecodeError as exc:
             raise ValueError(f"json_decode_error: {p}: {exc}") from exc
+        except RecursionError as exc:
+            # Python's stdlib json parser is recursive-descent. Adversarial
+            # input like "[" * 1000 exhausts the stack before _check_depth
+            # ever runs. Translate to ValueError so callers can treat it
+            # like any other malformed input — same surface as the stated
+            # "deeply nested JSON (stack overflow)" defense.
+            raise ValueError(
+                f"json_too_deeply_nested: {p}: parser hit Python recursion limit"
+            ) from exc
 
     if not isinstance(payload, dict):
         raise ValueError(f"json_root_not_object: expected dict, got {type(payload).__name__}")

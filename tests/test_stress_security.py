@@ -41,6 +41,14 @@ from _security import (
 # Encryption roundtrip stress
 # ────────────────────────────────────────────────────────
 
+# All encrypt/decrypt calls below pass a constant aad — the Codex
+# 2026-04-23 review made aad keyword-only and required to bind
+# ciphertext to a context (prevents cross-context replay). These
+# roundtrip tests don't exercise cross-context behavior; they just
+# need the API contract satisfied.
+_TEST_AAD = b"mlgg-stress-encryption-roundtrip-v1"
+
+
 class TestEncryptionStress:
     @pytest.mark.slow
     def test_roundtrip_various_sizes(self):
@@ -48,8 +56,8 @@ class TestEncryptionStress:
         key = secrets.token_bytes(32)
         for size in [0, 1, 16, 255, 256, 1024, 4096, 65536, 1024 * 1024]:
             data = secrets.token_bytes(size)
-            blob = encrypt_evidence(data, key)
-            recovered = decrypt_evidence(blob, key)
+            blob = encrypt_evidence(data, aad=_TEST_AAD, key=key)
+            recovered = decrypt_evidence(blob, aad=_TEST_AAD, key=key)
             assert recovered == data, f"Roundtrip failed for size={size}"
 
     @pytest.mark.slow
@@ -58,8 +66,8 @@ class TestEncryptionStress:
         for _ in range(1000):
             key = secrets.token_bytes(32)
             data = secrets.token_bytes(secrets.randbelow(10000))
-            blob = encrypt_evidence(data, key)
-            recovered = decrypt_evidence(blob, key)
+            blob = encrypt_evidence(data, aad=_TEST_AAD, key=key)
+            recovered = decrypt_evidence(blob, aad=_TEST_AAD, key=key)
             assert recovered == data
 
     @pytest.mark.slow
@@ -69,16 +77,16 @@ class TestEncryptionStress:
             key1 = secrets.token_bytes(32)
             key2 = secrets.token_bytes(32)
             data = secrets.token_bytes(1000)
-            blob = encrypt_evidence(data, key1)
+            blob = encrypt_evidence(data, aad=_TEST_AAD, key=key1)
             with pytest.raises(Exception):
-                decrypt_evidence(blob, key2)
+                decrypt_evidence(blob, aad=_TEST_AAD, key=key2)
 
     @pytest.mark.slow
     def test_tampered_ciphertext_fails(self):
         """Flipping bits in ciphertext should be detected."""
         key = secrets.token_bytes(32)
         data = b"sensitive evidence data"
-        blob = encrypt_evidence(data, key)
+        blob = encrypt_evidence(data, aad=_TEST_AAD, key=key)
         for bit_pos in range(min(len(blob), 100)):
             if bit_pos < 10:
                 continue  # Skip header
@@ -86,7 +94,7 @@ class TestEncryptionStress:
             tampered[bit_pos] ^= 0xFF
             tampered = bytes(tampered)
             try:
-                recovered = decrypt_evidence(tampered, key)
+                recovered = decrypt_evidence(tampered, aad=_TEST_AAD, key=key)
                 # If decryption succeeds, data must be different
                 # (probabilistically impossible with AES-GCM)
                 assert recovered != data or bit_pos < 28  # nonce area

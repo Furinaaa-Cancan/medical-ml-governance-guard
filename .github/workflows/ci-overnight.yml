@@ -43,6 +43,11 @@ jobs:
 
       - name: Stress tests (slow, ~6 hours total)
         run: |
+          # `set -o pipefail` so the pipeline reports pytest's exit code,
+          # not tee's (which is always 0). Without this, real stress
+          # failures get silently masked — overnight "green" stopped
+          # reflecting actual stress-test state.
+          set -o pipefail
           python3 -m pytest tests/ -m "slow" --tb=short -v \
             2>&1 | tee /tmp/overnight_results.txt
 
