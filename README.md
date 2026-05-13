@@ -1371,7 +1371,7 @@ medical-ml-governance-guard/
 │   │   ├── add_robustness_permutation_gates.py # --   为现有审稿意见补 robustness / permutation 条目
 │   │   └── correct_subgroup_overmatch.py #   --   修复审稿意见的亚组 over-match 问题
 │   │
-│   ├── diagnostics/       (28 files, 5.3K LOC)  # 环境诊断 + 文档一致性 + KB 卫生
+│   ├── diagnostics/       (27 files, 5.3K LOC)  # 环境诊断 + 文档一致性 + KB 卫生
 │   │   ├── env_doctor.py                 #   169  依赖健康检查 (core + optional backends)
 │   │   ├── init_guide.py                 #  1035  交互式项目方法学指南生成器
 │   │   ├── mlgg_web.py                   #   701  Flask Web UI (legacy 本地向导)
