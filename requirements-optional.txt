@@ -16,3 +16,11 @@ shap>=0.42             # SHAP interpretability gate
 # CI installs this because tests/test_train_select_evaluate.py covers
 # these model families; users with class-imbalance problems should too.
 imbalanced-learn>=0.12
+
+# AES-256-GCM for scripts/core/_security.py::encrypt_evidence /
+# decrypt_evidence. The functions fail-closed (raise RuntimeError) when
+# this is absent — no insecure fallback. Optional only in the sense
+# that users who never call the encrypted-evidence path don't need it;
+# any deployment that writes encrypted evidence does. CI installs it
+# so tests/test_stress_security.py::TestEncryptionStress can run.
+cryptography>=42.0
