@@ -24,7 +24,7 @@
 <p align="center">
 <strong>33 Fail-Closed Gates</strong> &middot; <strong>9-Phase Workflow</strong> &middot; <strong>12-Dimension Scoring</strong> &middot; <strong>3-Level Compliance</strong>
 <br>
-<strong>23 Model Families</strong> &middot; <strong>16 Real Medical Datasets (630K+ rows)</strong> &middot; <strong>119 NC Peer Review Evidence</strong> &middot; <strong>21 Analysis Tools</strong>
+<strong>23 Model Families</strong> &middot; <strong>16 Real Medical Datasets (630K+ rows)</strong> &middot; <strong>335 NC Peer Review Evidence</strong> &middot; <strong>21 Analysis Tools</strong>
 <br><br>
 <em>Every audit recommendation cites real top-journal peer review opinions as evidence.<br>Not a rule engine &mdash; an AI co-review system that thinks like a Nature Medicine reviewer.</em>
 </p>
@@ -139,7 +139,7 @@ The prevalence of data leakage and methodological flaws in medical ML papers far
 | Cohort filter cascade undocumented — reviewers cannot audit selection bias | Top-3 cause of NC peer-review rejections | Gate C01 `--cohort-spec`: declare inclusion/exclusion cascade → monotonicity + final row-count consistency check; publication-grade tier fails without it |
 | Feature names `gene_BRCA1` / `rs12345` / `ENSG00000...` | Out-of-scope: using MLGG for omics data is a modality mismatch | `mlgg-lint` R028: ≥3 omics-pattern name matches → rejected with pointers to Scanpy / TCGAbiolinks / PLINK |
 
-> **MLGG is not yet another ML toolkit.** It is an AI co-review system meeting top-journal review standards &mdash; 33 fail-closed gates + 119 real Nature Communications peer review opinions as a knowledge base. Every recommendation can cite reviewer quotes as evidence.
+> **MLGG is not yet another ML toolkit.** It is an AI co-review system meeting top-journal review standards &mdash; 33 fail-closed gates + 335 real Nature Communications peer review opinions as a knowledge base. Every recommendation can cite reviewer quotes as evidence.
 
 ---
 
@@ -193,7 +193,7 @@ Raw Data ──→ 9-Phase Workflow ──→ 33-Gate Audit ──→ Compliance
 | **16 Real Datasets** | UCI / CDC / NCI / Vanderbilt official data | 630K+ total rows |
 | **Multi-Model SHAP Engine** | Multi-family L1-normalized ensemble + Kendall tau consistency (FDR-BH correction) + cross-model Spearman rank correlation + 5 publication-grade CSVs | RF/XGB/CatBoost/LGBM/LR |
 | **Academic Compliance Engine** | TRIPOD+AI 2024 (27 items) / PROBAST+AI 2025 (4 domains) / STARD-AI | Item-by-item verification |
-| **Peer Review Evidence Base** | 119 NC papers &times; 452 structured review opinions, retrieved by gate/tag/severity | Each recommendation cites original text |
+| **Peer Review Evidence Base** | 119 NC papers &times; 449 structured review opinions, retrieved by gate/tag/severity | Each recommendation cites original text |
 | **28 Lint Rules** | Static analysis detecting code-level leakage anti-patterns (R001-R028) | .py + .ipynb |
 | **Security Hardening Layer** | HMAC-SHA256 / AES-256-GCM / chained audit log / path traversal defense / restricted deserialization | fail-closed |
 | **21 Analysis Tools** | Riley sample size / calibration triple / NRI-IDI / learning curve / VIF / MNAR sensitivity / PDP marginal effects / FDR-BH correction / temporal drift / ... | 100% Nature ML Checklist coverage |
@@ -1277,7 +1277,7 @@ medical-ml-governance-guard/
 │   │   ├── correct_subgroup_overmatch.py #   Fix subgroup over-match in review index
 │   │   └── ...                           #   batch_journal_review, extract/score metadata
 │   │
-│   └── diagnostics/       (16)           # Environment, docs-consistency & KB hygiene
+│   └── diagnostics/       (29)           # Environment, docs-consistency & KB hygiene
 │       ├── env_doctor.py                 #   Dependency health check
 │       ├── mlgg_web.py                   #   Flask Web UI
 │       ├── check_docs_consistency.py     #   SKILL.md ↔ README ↔ reviewer.yaml drift detector (pre-commit)
@@ -1313,7 +1313,7 @@ medical-ml-governance-guard/
 │   │   └── dataset-codebook-registry.json  # Generic registry (BRFSS/NHIS/MIMIC)
 │   │
 │   ├── case-studies/                     # Peer review KB ("others review others" → structured KB)
-│   │   ├── peer-review-kb.json           #   452 structured review opinions (indexed by gate/dim/tag)
+│   │   ├── peer-review-kb.json           #   449 structured review opinions (indexed by gate/dim/tag)
 │   │   ├── nature_communications/        #   119 NC paper review PDFs + parsed JSON
 │   │   └── <journal>/<disease>/          #   5 journals × 10 disease domains
 │   │
@@ -1551,7 +1551,7 @@ MLGG provides a Claude Code slash command `/mlgg`. When activated, Claude switch
 
 The AI will automatically:
 - Proactively guide through all 9 phases
-- Cite 119 peer review papers (452 structured review opinions) as evidence
+- Cite 119 peer review papers (449 structured review opinions) as evidence
 - Automatically detect common leakage patterns in code
 - Generate structured audit reports and fix recommendations
 

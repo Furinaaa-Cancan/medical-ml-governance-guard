@@ -1,13 +1,13 @@
 {
-  "total_papers": 119,
-  "total_concerns": 452,
-  "total_strengths": 98,
+  "total_papers": 335,
+  "total_concerns": 449,
+  "total_strengths": 97,
   "concerns_by_category": {
-    "evaluation_metrics": 129,
+    "evaluation_metrics": 128,
     "study_design": 92,
     "reporting": 58,
-    "external_validation": 30,
     "preprocessing": 29,
+    "external_validation": 29,
     "model_selection": 26,
     "clinical_utility": 22,
     "reproducibility": 21,
@@ -15,203 +15,57 @@
     "sample_size": 11,
     "split_protocol": 6,
     "data_leakage": 5,
-    "feature_selection": 5,
-    "cohort_definition": 1
+    "feature_selection": 5
   },
   "concerns_by_severity": {
-    "HIGH": 216,
-    "MEDIUM": 186,
+    "HIGH": 215,
+    "MEDIUM": 184,
     "CRITICAL": 30,
     "LOW": 20
   },
   "concerns_by_dimension": {
-    "1": 94,
+    "1": 93,
+    "11": 1,
+    "12": 11,
     "2": 7,
     "3": 25,
     "4": 32,
-    "5": 130,
-    "6": 33,
+    "5": 129,
+    "6": 32,
     "7": 41,
     "8": 55,
-    "9": 23,
-    "11": 1,
-    "12": 11
+    "9": 23
   },
-  "top_30_tags": [
-    {
-      "tag": "model_justification",
-      "count": 10
-    },
-    {
-      "tag": "reproducibility",
-      "count": 9
-    },
-    {
-      "tag": "no_external_validation",
-      "count": 8
-    },
-    {
-      "tag": "outcome_definition",
-      "count": 8
-    },
-    {
-      "tag": "overstatement",
-      "count": 8
-    },
-    {
-      "tag": "underpowered",
-      "count": 8
-    },
-    {
-      "tag": "missing_calibration",
-      "count": 7
-    },
-    {
-      "tag": "no_code_availability",
-      "count": 7
-    },
-    {
-      "tag": "sensitivity_analysis",
-      "count": 7
-    },
-    {
-      "tag": "cohort_definition",
-      "count": 6
-    },
-    {
-      "tag": "class_imbalance",
-      "count": 6
-    },
-    {
-      "tag": "irreproducible_methods",
-      "count": 6
-    },
-    {
-      "tag": "small_sample",
-      "count": 6
-    },
-    {
-      "tag": "missing_baseline_comparison",
-      "count": 5
-    },
-    {
-      "tag": "incomplete_metrics",
-      "count": 5
-    },
-    {
-      "tag": "missing_demographics",
-      "count": 5
-    },
-    {
-      "tag": "missing_data_unreported",
-      "count": 5
-    },
-    {
-      "tag": "multiple_model_comparison",
-      "count": 5
-    },
-    {
-      "tag": "marginal_improvement",
-      "count": 5
-    },
-    {
-      "tag": "generalizability",
-      "count": 5
-    },
-    {
-      "tag": "selection_bias",
-      "count": 5
-    },
-    {
-      "tag": "multiple_testing",
-      "count": 5
-    },
-    {
-      "tag": "single_split",
-      "count": 4
-    },
-    {
-      "tag": "missing_dca",
-      "count": 4
-    },
-    {
-      "tag": "comparison_with_existing",
-      "count": 4
-    },
-    {
-      "tag": "confounding",
-      "count": 4
-    },
-    {
-      "tag": "feature_selection_justification",
-      "count": 4
-    },
-    {
-      "tag": "reporting_completeness",
-      "count": 4
-    },
-    {
-      "tag": "feature_selection_process",
-      "count": 4
-    },
-    {
-      "tag": "ablation_missing",
-      "count": 4
-    }
-  ],
-  "resolution_rate": 0.998,
-  "papers_by_domain": {
-    "oncology": 28,
-    "neurology": 10,
-    "infectious_disease": 8,
-    "cardiovascular": 8,
-    "critical_care": 6,
-    "nephrology": 5,
-    "genomics": 5,
-    "ehr_methodology": 2,
-    "emergency_medicine": 2,
-    "reproductive_medicine": 2,
-    "dermatology": 2,
-    "pulmonology": 2,
-    "endocrinology": 2,
-    "cardiology": 2,
-    "hematology": 2,
-    "pediatric_oncology": 2,
-    "obstetric_maternal": 2,
-    "critical_care_sepsis": 2,
-    "musculoskeletal": 1,
-    "ehr_clinical": 1,
-    "mental_health": 1,
-    "digital_health": 1,
-    "oncology_epidemiology": 1,
-    "microbiome": 1,
-    "global_health": 1,
-    "proteomics": 1,
-    "ophthalmology": 1,
-    "clinical_trials": 1,
-    "llm_clinical": 1,
-    "autoimmune": 1,
-    "metabolomics": 1,
-    "pathology": 1,
-    "health_systems": 1,
-    "sleep_medicine": 1,
-    "rheumatology_autoimmune": 1,
-    "maternal_perinatal": 1,
-    "oncology_primary_care": 1,
-    "pediatric_postoperative": 1,
-    "rheumatology_preventive": 1,
-    "in_hospital_deterioration": 1,
-    "pediatric_infectious_disease": 1,
-    "pediatric_cardiology": 1,
-    "gastroenterology": 1,
-    "geriatrics": 1,
-    "rheumatology": 1
+  "concerns_by_gate": {
+    "cohort_definition_gate": 26,
+    "evaluation_quality_gate": 23,
+    "reporting_bias_gate": 23,
+    "external_validation_gate": 21,
+    "model_selection_audit_gate": 17,
+    "calibration_dca_gate": 17,
+    "missingness_policy_gate": 11,
+    "clinical_metrics_gate": 9,
+    "split_protocol_gate": 9,
+    "distribution_generalization_gate": 9,
+    "sample_size_gate": 9,
+    "feature_engineering_audit_gate": 8,
+    "leakage_gate": 7,
+    "ci_matrix_gate": 7,
+    "covariate_shift_gate": 6,
+    "shap_interpretability_gate": 6,
+    "definition_variable_guard": 6,
+    "tuning_leakage_gate": 4,
+    "publication_gate": 4,
+    "imbalance_policy_gate": 3,
+    "feature_lineage_gate": 3,
+    "generalization_gap_gate": 2,
+    "metric_consistency_gate": 2,
+    "fairness_equity_gate": 2,
+    "execution_attestation_gate": 2,
+    "seed_stability_gate": 1,
+    "permutation_significance_gate": 1,
+    "prediction_replay_gate": 1,
+    "robustness_gate": 1
   },
-  "papers_by_outcome": {
-    "accepted_after_major_revision": 92,
-    "accepted_after_revision": 9,
-    "accepted_after_minor_revision": 7,
-    "reporting_summary_only": 7,
-    "accepted_minimal_review": 4
-  }
+  "concerns_with_empty_gates": 276
 }

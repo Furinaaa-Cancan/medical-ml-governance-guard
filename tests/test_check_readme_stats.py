@@ -56,7 +56,7 @@ class TestDriftDetection:
 
     def test_detects_stat_mismatch_via_regex(self, tmp_path, monkeypatch):
         # Copy READMEs + KB into a tmp dir, then tamper CN to say
-        # "106 papers" while KB says 119. The lint must catch this.
+        # "106 papers" while KB says 335. The lint must catch this.
         cn_copy = tmp_path / "README.md"
         en_copy = tmp_path / "README_EN.md"
         refs = tmp_path / "references" / "case-studies"
@@ -74,7 +74,7 @@ class TestDriftDetection:
         # Tamper: flip CN to say 106 papers.
         original = cn_copy.read_text(encoding="utf-8")
         tampered = original.replace(
-            "119 篇 NC 审稿证据", "106 篇 NC 审稿证据", 1,
+            "335 篇 NC 审稿证据", "106 篇 NC 审稿证据", 1,
         )
         assert tampered != original, \
             "fixture setup broke — couldn't find the CN tagline to tamper"
@@ -102,4 +102,4 @@ class TestDriftDetection:
         exit_code, errors = mod.check()
         assert exit_code == 2
         # At least one error should reference the CN tagline mismatch.
-        assert any("106" in e and "119" in e for e in errors), errors
+        assert any("106" in e and "335" in e for e in errors), errors
