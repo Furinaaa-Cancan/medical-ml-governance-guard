@@ -503,7 +503,7 @@ def main() -> int:
             print(f"  - {err}")
         print("\nRun with --verbose after fixing to confirm.")
     elif args.verbose:
-        papers, concerns = _live_kb_stats()
+        papers, concerns, curated = _live_kb_stats()
         gates = _live_gate_count()
         subdirs = _live_scripts_subdir_counts()
         tests = _live_tests_counts()
@@ -511,7 +511,7 @@ def main() -> int:
         refs_mb = _live_curated_references_mb()
         pytest_count = _live_pytest_collect_count()
         print("OK: CN/EN agree; live truth:")
-        print(f"  KB:           {papers} papers, {concerns} concerns, {gates} gates")
+        print(f"  KB:           {papers} papers ({curated} curated), {concerns} concerns, {gates} gates")
         print(f"  SKILL.md:     {skill_lines} lines")
         print(f"  refs curated: ~{refs_mb} MB (JSON/YAML/MD/TXT, excl SQLite & PDF)")
         if pytest_count >= 0:
