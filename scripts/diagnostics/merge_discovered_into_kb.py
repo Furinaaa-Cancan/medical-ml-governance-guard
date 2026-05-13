@@ -28,6 +28,7 @@ Writes:
   - paper/kb-merge-report.md (summary of additions)
 """
 from __future__ import annotations
+import argparse
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -44,6 +45,7 @@ JOURNAL_DIRS = {
 }
 
 def main() -> int:
+    argparse.ArgumentParser(description=__doc__).parse_args()
     kb = json.loads(KB.read_text())
     candidates = json.loads(CAND.read_text())["candidates"]
     ts = datetime.now(timezone.utc).isoformat()
