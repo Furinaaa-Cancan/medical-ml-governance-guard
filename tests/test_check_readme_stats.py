@@ -74,7 +74,7 @@ class TestDriftDetection:
         # Tamper: flip CN to say 106 papers.
         original = cn_copy.read_text(encoding="utf-8")
         tampered = original.replace(
-            "335 篇 NC 审稿证据", "106 篇 NC 审稿证据", 1,
+            "335 篇 NC+CM 同行评审 PDF", "106 篇 NC+CM 同行评审 PDF", 1,
         )
         assert tampered != original, \
             "fixture setup broke — couldn't find the CN tagline to tamper"

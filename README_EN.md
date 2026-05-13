@@ -24,7 +24,7 @@
 <p align="center">
 <strong>33 Fail-Closed Gates</strong> &middot; <strong>9-Phase Workflow</strong> &middot; <strong>12-Dimension Scoring</strong> &middot; <strong>3-Level Compliance</strong>
 <br>
-<strong>23 Model Families</strong> &middot; <strong>16 Real Medical Datasets (630K+ rows)</strong> &middot; <strong>335 NC Peer Review Evidence</strong> &middot; <strong>21 Analysis Tools</strong>
+<strong>23 Model Families</strong> &middot; <strong>16 Real Medical Datasets (630K+ rows)</strong> &middot; <strong>335 NC+CM Peer Review PDFs · 105 Curated with Concerns</strong> &middot; <strong>21 Analysis Tools</strong>
 <br><br>
 <em>Every audit recommendation cites real top-journal peer review opinions as evidence.<br>Not a rule engine &mdash; an AI co-review system that thinks like a Nature Medicine reviewer.</em>
 </p>
@@ -51,7 +51,7 @@
                   ↓ KB lookups
 ┌──────────────────────────────────────────┐
 │  references/  ~2 MB human-curated KB     │  ✅ zero hallucination
-│  peer-review-kb.json (119 NC reviews)    │  Consumer: SQL / JSON
+│  peer-review-kb.json (105 curated +230 pend)│  Consumer: SQL / JSON
 │  codebooks/ukb (8-layer verify, 1.87M)   │
 │  methodology/disease-kb.json             │
 └──────────────────────────────────────────┘
@@ -139,7 +139,7 @@ The prevalence of data leakage and methodological flaws in medical ML papers far
 | Cohort filter cascade undocumented — reviewers cannot audit selection bias | Top-3 cause of NC peer-review rejections | Gate C01 `--cohort-spec`: declare inclusion/exclusion cascade → monotonicity + final row-count consistency check; publication-grade tier fails without it |
 | Feature names `gene_BRCA1` / `rs12345` / `ENSG00000...` | Out-of-scope: using MLGG for omics data is a modality mismatch | `mlgg-lint` R028: ≥3 omics-pattern name matches → rejected with pointers to Scanpy / TCGAbiolinks / PLINK |
 
-> **MLGG is not yet another ML toolkit.** It is an AI co-review system meeting top-journal review standards &mdash; 33 fail-closed gates + 335 real Nature Communications peer review opinions as a knowledge base. Every recommendation can cite reviewer quotes as evidence.
+> **MLGG is not yet another ML toolkit.** It is an AI co-review system meeting top-journal review standards &mdash; 33 fail-closed gates + 105 NC+CM curated reviews (Nature Communications + Communications Medicine; 449 structured concerns; 230 additional PDFs cataloged and pending extraction) as a knowledge base. Every recommendation can cite reviewer quotes as evidence.
 
 ---
 
@@ -157,11 +157,11 @@ Your code ──→ /mlgg review ──→ Find issues ──→ Cite reviewer q
 |:------|:----------|:----------------|
 | **Layer 1: 28 AST Static Analysis Rules** | Code pattern matching (R001-R028) | `scaler.fit(X)` before split, SMOTE on test, threshold selected on test |
 | **Layer 2: 33 Fail-Closed Gates** | Runtime validation, JSON report output | Patient cross-split, calibration ECE > 0.1, EPV < 10, CI width > 0.20; **post-index feature-name detection** (time_in_hospital / num_medications / discharge / ventilation / vasopressor); **disease-scoped definition-variable matching** (glucose only for diabetes targets) |
-| **Layer 3: Clinical Semantic Review + Peer Review Evidence** | AI agent understands code semantics + 119 peer review KB + **issue-code-aware retrieval** | Post-discharge variables predicting post-discharge outcomes, HbA1c definition leakage, missing subgroup calibration. RAG re-ranks by keyword overlap with the actual failure codes — not just severity |
+| **Layer 3: Clinical Semantic Review + Peer Review Evidence** | AI agent understands code semantics + 105-paper curated peer-review KB (449 concerns) + **issue-code-aware retrieval** | Post-discharge variables predicting post-discharge outcomes, HbA1c definition leakage, missing subgroup calibration. RAG re-ranks by keyword overlap with the actual failure codes — not just severity |
 
 **Peer Review Knowledge Base:**
 
-Structurally extracted 452 review opinions from 119 Nature Communications medical ML papers. **Retrieval precision refactored 2026-04**: the previous `retrieve_by_gate(gate_name)` filtered by `mlgg_gates` then sorted by severity alone (~20% precision on clinical_metrics_gate's ppv-specific failures). The replacement `retrieve_for_failure(gate_name, issue_codes)` tokenizes the failure code list, filters stopwords, and re-ranks by `3 × tag_overlap + text_overlap`; falls back to severity-only when no keywords match so coverage never regresses to empty.
+Structurally extracted 449 review opinions from 105 NC + CM medical ML papers (230 additional PDFs cataloged but pending extraction). **Retrieval precision refactored 2026-04**: the previous `retrieve_by_gate(gate_name)` filtered by `mlgg_gates` then sorted by severity alone (~20% precision on clinical_metrics_gate's ppv-specific failures). The replacement `retrieve_for_failure(gate_name, issue_codes)` tokenizes the failure code list, filters stopwords, and re-ranks by `3 × tag_overlap + text_overlap`; falls back to severity-only when no keywords match so coverage never regresses to empty.
 
 | Category | Proportion | Example Reviewer Quote |
 |:---------|:-----------|:-----------------------|
@@ -170,11 +170,11 @@ Structurally extracted 452 review opinions from 119 Nature Communications medica
 | Reporting Standards | 13.9% | *"Should report calibration and net benefit analysis."* |
 | External Validation | 5.6% | *"External validation on independent cohort is essential."* |
 
-**KB index completeness**: all 452 concerns now have at least one `mlgg_gates` mapping (before the 2026-04 backfill, 73.6% were empty arrays and `peer_review_lookup.py --gate` silently missed ~75% of the KB). Warning-only gates (failed via `--strict` warning-upgrade) now also retrieve context — previously they left `peer_review_context: []` because the retrieval was guarded on `failures` only.
+**KB index completeness**: all 449 concerns now have at least one `mlgg_gates` mapping (before the 2026-04 backfill, 73.6% were empty arrays and `peer_review_lookup.py --gate` silently missed ~75% of the KB). Warning-only gates (failed via `--strict` warning-upgrade) now also retrieve context — previously they left `peer_review_context: []` because the retrieval was guarded on `failures` only.
 
 **Honest coverage caveat**: the KB is peer-review opinions on already-published NC papers. The pre-publication filter removes egregious leakage, so leakage-category concerns are rare by design (≈4%). The KB is strong on evaluation / reporting / external validation; for leakage failures rely on `leakage_gate` + `mlgg-lint` R001-R028 rather than the KB.
 
-> When MLGG finds an issue in your code, it doesn't just say "violated rule E02" &mdash; it tells you: *"NC reviewers requested improved evaluation metrics 129 times (28.5%) across 119 papers. This is the most frequently raised concern category."*
+> When MLGG finds an issue in your code, it doesn't just say "violated rule E02" &mdash; it tells you: *"NC+CM reviewers requested improved evaluation metrics 128 times (28.5%) across 105 papers. This is the most frequently raised concern category."*
 
 ---
 
@@ -193,7 +193,7 @@ Raw Data ──→ 9-Phase Workflow ──→ 33-Gate Audit ──→ Compliance
 | **16 Real Datasets** | UCI / CDC / NCI / Vanderbilt official data | 630K+ total rows |
 | **Multi-Model SHAP Engine** | Multi-family L1-normalized ensemble + Kendall tau consistency (FDR-BH correction) + cross-model Spearman rank correlation + 5 publication-grade CSVs | RF/XGB/CatBoost/LGBM/LR |
 | **Academic Compliance Engine** | TRIPOD+AI 2024 (27 items) / PROBAST+AI 2025 (4 domains) / STARD-AI | Item-by-item verification |
-| **Peer Review Evidence Base** | 119 NC papers &times; 449 structured review opinions, retrieved by gate/tag/severity | Each recommendation cites original text |
+| **Peer Review Evidence Base** | 105 NC+CM papers &times; 449 structured review opinions, retrieved by gate/tag/severity (230 additional PDFs cataloged but pending) | Each recommendation cites original text |
 | **28 Lint Rules** | Static analysis detecting code-level leakage anti-patterns (R001-R028) | .py + .ipynb |
 | **Security Hardening Layer** | HMAC-SHA256 / AES-256-GCM / chained audit log / path traversal defense / restricted deserialization | fail-closed |
 | **21 Analysis Tools** | Riley sample size / calibration triple / NRI-IDI / learning curve / VIF / MNAR sensitivity / PDP marginal effects / FDR-BH correction / temporal drift / ... | 100% Nature ML Checklist coverage |
@@ -1218,7 +1218,7 @@ medical-ml-governance-guard/
 │   │   ├── _gate_registry.py             #   33-gate DAG (8-layer topological sort, parallel markers)
 │   │   ├── _gate_utils.py                #   60+ stat/IO/security functions (calibration, VIF, NRI...)
 │   │   ├── _audit_shared.py              #   12-dimension scoring + 12 code anti-pattern regex scan
-│   │   ├── _peer_review_retrieval.py     #   452 review opinions BM25 retrieval + tag synonym expansion
+│   │   ├── _peer_review_retrieval.py     #   449 review opinions BM25 retrieval + tag synonym expansion
 │   │   └── _security.py                  #   HMAC signing, AES-256-GCM, RBAC, RestrictedUnpickler
 │   │
 │   ├── gates/             (34)           # 33 fail-closed gates (standalone CLI, exit 0/2)
@@ -1271,7 +1271,7 @@ medical-ml-governance-guard/
 │   │   └── ...                           #   fetch/build/verify for NHANES + codebook_factory
 │   │
 │   ├── review/            (9)            # Paper analysis & peer review
-│   │   ├── peer_review_lookup.py         #   119 NC papers × 452 review opinions
+│   │   ├── peer_review_lookup.py         #   105 NC+CM papers × 449 review opinions
 │   │   ├── backfill_peer_review_gates.py #   Backfill reviews into gate × tag index
 │   │   ├── add_robustness_permutation_gates.py  # Extend review index with robustness/permutation
 │   │   ├── correct_subgroup_overmatch.py #   Fix subgroup over-match in review index
@@ -1314,7 +1314,7 @@ medical-ml-governance-guard/
 │   │
 │   ├── case-studies/                     # Peer review KB ("others review others" → structured KB)
 │   │   ├── peer-review-kb.json           #   449 structured review opinions (indexed by gate/dim/tag)
-│   │   ├── nature_communications/        #   119 NC paper review PDFs + parsed JSON
+│   │   ├── nature_communications/        #   286 NC peer-review PDFs (101 with extracted concerns)
 │   │   └── <journal>/<disease>/          #   5 journals × 10 disease domains
 │   │
 │   ├── templates/          (27)          # JSON templates (request, split, evaluation, attestation...)
@@ -1551,7 +1551,7 @@ MLGG provides a Claude Code slash command `/mlgg`. When activated, Claude switch
 
 The AI will automatically:
 - Proactively guide through all 9 phases
-- Cite 119 peer review papers (449 structured review opinions) as evidence
+- Cite 105 NC+CM peer-review papers (449 structured review opinions) as evidence
 - Automatically detect common leakage patterns in code
 - Generate structured audit reports and fix recommendations
 

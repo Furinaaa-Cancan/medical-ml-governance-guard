@@ -33,8 +33,19 @@ EN = ROOT / "README_EN.md"
 KB = ROOT / "references" / "case-studies" / "peer-review-kb.json"
 
 
-def _live_kb_stats() -> Tuple[int, int]:
-    """Return (paper_count, concern_count) from the live KB."""
+def _live_kb_stats() -> Tuple[int, int, int]:
+    """Return (paper_count, concern_count, curated_count) from the live KB.
+
+    curated_count is the subset of entries with a non-empty
+    reviewer_concerns array — i.e., papers where a reviewer has actually
+    extracted structured concerns. The remainder are catalog entries
+    whose PDFs are linked but whose review text has not yet been
+    audited (e.g., OpenAlex-discovered PR-EXP-NNNN entries flagged
+    `data_type=pending_metadata_extraction`).
+
+    Documenting both numbers keeps publication-grade claims honest:
+    paper count = catalog size; curated count = actual evidence base.
+    """
     kb = json.loads(KB.read_text(encoding="utf-8"))
     entries = kb.get("entries", [])
     papers = len(entries)
@@ -43,7 +54,11 @@ def _live_kb_stats() -> Tuple[int, int]:
         for e in entries
         if isinstance(e, dict)
     )
-    return papers, concerns
+    curated = sum(
+        1 for e in entries
+        if isinstance(e, dict) and (e.get("reviewer_concerns") or [])
+    )
+    return papers, concerns, curated
 
 
 def _live_gate_count() -> int:
@@ -313,34 +328,58 @@ def _build_structure_claims() -> List[Dict[str, object]]:
 # exactly one integer. fmt is "cn" / "en" / "both" — where to check.
 # Each entry carries a short description for the error message.
 _CLAIMS: List[Dict[str, object]] = [
-    # NC papers count
+    # Total NC+CM peer-review PDFs in catalog (kb_papers, currently 335).
+    # The phrase "NC+CM 同行评审 PDF" intentionally avoids the older
+    # "审稿证据" / "Peer Review Evidence" labels, which conflated
+    # cataloged PDFs with audited reviews — most catalog entries are
+    # OpenAlex-discovered metadata only.
     {
         "name": "nc_papers_cn",
         "doc": CN,
-        "regex": r"(\d{2,4})\s*篇\s*NC\s*审稿证据",
+        "regex": r"(\d{2,4})\s*篇\s*NC\+CM\s*同行评审\s*PDF",
         "source": "kb_papers",
-        "description": "CN tagline 'NN 篇 NC 审稿证据'",
+        "description": "CN tagline 'NN 篇 NC+CM 同行评审 PDF'",
     },
     {
         "name": "nc_papers_en",
         "doc": EN,
-        "regex": r"(\d{2,4})\s*NC\s*Peer\s*Review\s*Evidence",
+        "regex": r"(\d{2,4})\s*NC\+CM\s*Peer\s*Review\s*PDFs",
         "source": "kb_papers",
-        "description": "EN tagline 'NN NC Peer Review Evidence'",
+        "description": "EN tagline 'NN NC+CM Peer Review PDFs'",
     },
+    # Curated subset with extracted reviewer_concerns (kb_curated,
+    # currently 105). This is the honest "evidence base" number.
+    {
+        "name": "curated_cn",
+        "doc": CN,
+        "regex": r"(\d{2,4})\s*篇\s*已抽审稿意见",
+        "source": "kb_curated",
+        "description": "CN tagline 'NN 篇已抽审稿意见'",
+    },
+    {
+        "name": "curated_en",
+        "doc": EN,
+        "regex": r"(\d{2,4})\s*Curated\s*with\s*Concerns",
+        "source": "kb_curated",
+        "description": "EN tagline 'NN Curated with Concerns'",
+    },
+    # Mission statements — use kb_curated (the audited count) not
+    # kb_papers (the catalog count). The previous mapping to kb_papers
+    # over-stated the evidence base by ~3.2× (335 cataloged vs. 105
+    # actually curated).
     {
         "name": "nc_papers_cn_mission",
         "doc": CN,
-        "regex": r"(\d{2,4})\s*篇\s*Nature Communications\s*真实审稿意见",
-        "source": "kb_papers",
-        "description": "CN mission statement",
+        "regex": r"(\d{2,4})\s*篇\s*Nature Communications[^\n。]*?真实审稿意见",
+        "source": "kb_curated",
+        "description": "CN mission statement (curated count)",
     },
     {
         "name": "nc_papers_en_mission",
         "doc": EN,
-        "regex": r"(\d{2,4})\s*real\s*Nature\s*Communications\s*peer\s*review\s*opinions",
-        "source": "kb_papers",
-        "description": "EN mission statement",
+        "regex": r"(\d{2,4})\s*NC\+CM\s*curated\s*reviews?",
+        "source": "kb_curated",
+        "description": "EN mission statement (curated count)",
     },
     # Concerns count
     {
@@ -348,14 +387,14 @@ _CLAIMS: List[Dict[str, object]] = [
         "doc": CN,
         "regex": r"(\d{2,4})\s*条\s*结构化审稿意见",
         "source": "kb_concerns",
-        "description": "CN detailed '452 条结构化审稿意见'",
+        "description": "CN detailed 'NN 条结构化审稿意见'",
     },
     {
         "name": "concerns_en",
         "doc": EN,
         "regex": r"(\d{2,4})\s*structured\s*review\s*opinions",
         "source": "kb_concerns",
-        "description": "EN detailed '452 structured review opinions'",
+        "description": "EN detailed 'NN structured review opinions'",
     },
     # Gate count (should both say 33)
     {
@@ -379,7 +418,7 @@ def check() -> Tuple[int, List[str]]:
     """Return (exit_code, error_messages)."""
     errors: List[str] = []
 
-    papers, concerns = _live_kb_stats()
+    papers, concerns, curated = _live_kb_stats()
     gates = _live_gate_count()
     subdirs = _live_scripts_subdir_counts()
     tests = _live_tests_counts()
@@ -387,6 +426,7 @@ def check() -> Tuple[int, List[str]]:
     truth: Dict[str, int] = {
         "kb_papers": papers,
         "kb_concerns": concerns,
+        "kb_curated": curated,
         "gate_count": gates,
         "skill_md_lines": _live_skill_md_lines(),
         "refs_curated_mb": _live_curated_references_mb(),
