@@ -89,16 +89,53 @@ class TestGateHelpFlags:
 class TestAllScriptsHelp:
     @pytest.mark.parametrize("script_name", ALL_SCRIPTS_WITH_MAIN)
     def test_help_exits_zero(self, script_name: str):
-        """Every script with main() should accept --help and exit 0."""
+        """Every script with main() must accept --help and emit argparse help.
+
+        Originally this only checked that the return code was 0/1/2 (the
+        latter to accommodate argparse usage errors and missing optional
+        deps). That spec was too forgiving: a script with NO argparse at
+        all also exits 0 — it just silently ignores --help and runs its
+        body. Two distinct sessions (commits a1fd3a1 and f0a22a1) traced
+        real damage to that loophole:
+
+          - 5 diagnostic scripts hit the 30s subprocess timeout because
+            their bodies cloned repos / hit network on --help.
+          - merge_discovered_into_kb.py exited 0 fast but quietly wrote
+            references/case-studies/peer-review-kb.json and rewrote
+            paper/kb-merge-report.md on every pytest run, polluting state
+            invisibly.
+
+        Tightened spec: rc must be exactly 0 AND argparse must have
+        printed its usage line ("usage:" appears in stdout or stderr).
+        argparse always emits this on --help; running a body without
+        argparse does not. This change closes the silently-passing
+        loophole permanently — any new script added without an argparse
+        guard fails CI immediately, with a clear error pointing at the
+        fix (add `argparse.ArgumentParser(description=__doc__).parse_args()`
+        at main()'s top).
+
+        Missing-optional-deps cases (e.g., flask not installed for
+        scripts/diagnostics/web UI) still exit 1 with no usage line, so
+        we surface them too — they belong in requirements-optional.txt
+        or behind a sentinel skip, not as silent CI green.
+        """
         script = _find_script(script_name)
         result = subprocess.run(
             [sys.executable, str(script), "--help"],
             capture_output=True, text=True, timeout=30,
             env={**dict(__import__("os").environ), "PYTHONPATH": str(SCRIPTS_DIR)},
         )
-        # Accept 0, 2 (argparse), or 1 (missing optional dependency like flask)
-        assert result.returncode in (0, 1, 2), (
-            f"{script_name} --help failed (rc={result.returncode}): {result.stderr[:500]}"
+        combined = (result.stdout or "") + (result.stderr or "")
+        assert result.returncode == 0, (
+            f"{script_name} --help did not exit 0 (rc={result.returncode}). "
+            f"Stderr tail: {result.stderr[-500:]}"
+        )
+        assert "usage:" in combined.lower(), (
+            f"{script_name} --help exited 0 but printed no argparse "
+            f"`usage:` line — likely missing argparse and silently running "
+            f"main() body. Add at top of main():\n"
+            f"    argparse.ArgumentParser(description=__doc__).parse_args()\n"
+            f"Output head: {combined[:300]!r}"
         )
 
 
