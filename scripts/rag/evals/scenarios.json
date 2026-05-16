@@ -1,0 +1,119 @@
+{
+  "schema_version": "1.0",
+  "description": "Representative query set for RAG retrieval evaluation. Derived from E1 strict-eval (5-agent wave, 2026-05-16). Covers all 12 MLGG dimensions. Tags drawn from references/case-studies/peer-review-kb-tags.json (verified 2026-05-17).",
+  "scenarios": [
+    {
+      "id": "Q1_leakage",
+      "dimension": "leakage",
+      "query": "patient identifier leaked across train test split",
+      "mlgg_gate_hint": "leakage_gate",
+      "failure_codes_hint": ["MLGG-S01"],
+      "expected_relevant_tags": ["target_leakage", "temporal_leakage", "future_information_leakage", "split_protocol"],
+      "baseline_p5_e1": 1.0
+    },
+    {
+      "id": "Q2_calibration",
+      "dimension": "calibration",
+      "query": "no calibration plot or Brier score reported",
+      "mlgg_gate_hint": "calibration_dca_gate",
+      "failure_codes_hint": ["missing_calibration", "no_brier"],
+      "expected_relevant_tags": ["missing_calibration", "calibration_plot_missing", "calibration_metrics", "no_formal_calibration_test"],
+      "baseline_p5_e1": 1.0
+    },
+    {
+      "id": "Q3_subgroup_fairness",
+      "dimension": "fairness",
+      "query": "no subgroup analysis by race or sex",
+      "mlgg_gate_hint": "fairness_equity_gate",
+      "failure_codes_hint": ["missing_subgroup"],
+      "expected_relevant_tags": ["subgroup_analysis", "subgroup_analysis_missing", "fairness", "subgroup_performance"],
+      "baseline_p5_e1": 0.8
+    },
+    {
+      "id": "Q4_auroc_ci",
+      "dimension": "discrimination",
+      "query": "AUROC reported without confidence interval",
+      "mlgg_gate_hint": "ci_matrix_gate",
+      "failure_codes_hint": ["MLGG-E01", "missing_ci"],
+      "expected_relevant_tags": ["missing_ci", "no_bootstrap_ci", "ci_reporting", "auc_only"],
+      "baseline_p5_e1": 0.2,
+      "known_weakness": "negation/absence semantics; pre-H1 BM25 starved on MLGG-E01"
+    },
+    {
+      "id": "Q5_tuning_on_test",
+      "dimension": "model_selection",
+      "query": "model selection used the held-out test set",
+      "mlgg_gate_hint": "tuning_leakage_gate",
+      "failure_codes_hint": ["MLGG-M01", "test_set_tuning"],
+      "expected_relevant_tags": ["tuning_leakage", "data_leakage_via_tuning", "overfit_risk"],
+      "baseline_p5_e1": 0.4,
+      "known_weakness": "canonical-pattern boost over-promoted CP-005 family pre-F1 gating"
+    },
+    {
+      "id": "Q6_class_imbalance",
+      "dimension": "class_balance",
+      "query": "extreme class imbalance not addressed in evaluation",
+      "mlgg_gate_hint": "imbalance_policy_gate",
+      "failure_codes_hint": ["imbalance_unaddressed"],
+      "expected_relevant_tags": ["class_imbalance", "extreme_class_imbalance", "auprc_needed", "missing_precision_recall"],
+      "baseline_p5_e1": 1.0
+    },
+    {
+      "id": "Q7_complete_case_missing",
+      "dimension": "missing_data",
+      "query": "complete-case analysis dropped 40% of patients",
+      "mlgg_gate_hint": "missingness_policy_gate",
+      "failure_codes_hint": ["complete_case_analysis"],
+      "expected_relevant_tags": ["complete_case_only", "missingness_reporting", "data_leakage_via_imputation"],
+      "baseline_p5_e1": 0.2,
+      "known_weakness": "KB lexically thin; pre-F1 severity boost masked the gap"
+    },
+    {
+      "id": "Q8_temporal_holdout",
+      "dimension": "temporal_validation",
+      "query": "no temporal hold-out for time-series prediction",
+      "mlgg_gate_hint": "split_protocol_gate",
+      "failure_codes_hint": ["missing_temporal_split"],
+      "expected_relevant_tags": ["temporal_leakage", "temporal_validation_in_supplement", "time_series_alternative", "temporal_drift"],
+      "baseline_p5_e1": 0.3,
+      "known_weakness": "KB sparse on time-series concerns"
+    },
+    {
+      "id": "Q9_external_validation",
+      "dimension": "external_validation",
+      "query": "single-center development without external test",
+      "mlgg_gate_hint": "external_validation_gate",
+      "failure_codes_hint": ["no_external_validation"],
+      "expected_relevant_tags": ["no_external_validation", "single_center", "external_validation_incomplete"],
+      "baseline_p5_e1": 1.0
+    },
+    {
+      "id": "Q10_model_spec",
+      "dimension": "model_specification",
+      "query": "deep neural network without architecture justification",
+      "mlgg_gate_hint": "model_selection_audit_gate",
+      "failure_codes_hint": ["missing_architecture_rationale"],
+      "expected_relevant_tags": ["architecture_unclear", "model_choice", "deep_learning_alternatives"],
+      "baseline_p5_e1": 0.8
+    },
+    {
+      "id": "Q11_reproducibility",
+      "dimension": "reproducibility",
+      "query": "code and data not available for replication",
+      "mlgg_gate_hint": "publication_gate",
+      "failure_codes_hint": ["code_unavailable"],
+      "expected_relevant_tags": ["code_availability", "data_availability", "no_code_availability", "reproducibility", "irreproducible_methods"],
+      "baseline_p5_e1": 1.0,
+      "notes": "MMR diversity test target — pre-G4 had 2 PR-003 hits"
+    },
+    {
+      "id": "Q12_tripod_compliance",
+      "dimension": "reporting",
+      "query": "missing reporting items per TRIPOD AI checklist",
+      "mlgg_gate_hint": "reporting_bias_gate",
+      "failure_codes_hint": ["tripod_incomplete"],
+      "expected_relevant_tags": ["tripod_compliance", "no_tripod", "reporting_completeness", "reporting_guidelines"],
+      "baseline_p5_e1": 0.9
+    }
+  ]
+}
