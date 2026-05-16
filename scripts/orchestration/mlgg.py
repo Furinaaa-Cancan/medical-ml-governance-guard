@@ -642,14 +642,14 @@ def main() -> int:
                 with _cf.open("r", encoding="utf-8") as _fh:
                     _data = json.load(_fh)
                 if not isinstance(_data, dict):
-                    print(f"  [WARN] {_cf.name}: root is {type(_data).__name__}, expected dict")
+                    print(f"  [WARN] {_cf.name}: root is {type(_data).__name__}, expected dict", file=sys.stderr)
                     _errors += 1
                 else:
-                    print(f"  [OK]   {_cf.name} ({len(_data)} keys)")
+                    print(f"  [OK]   {_cf.name} ({len(_data)} keys)", file=sys.stderr)
             except json.JSONDecodeError as _e:
-                print(f"  [FAIL] {_cf.name}: {_e}")
+                print(f"  [FAIL] {_cf.name}: {_e}", file=sys.stderr)
                 _errors += 1
-        print(f"\n  Checked: {_checked}, Errors: {_errors}")
+        print(f"\n  Checked: {_checked}, Errors: {_errors}", file=sys.stderr)
         return 1 if _errors > 0 else 0
 
     if subcommand == "flow":
