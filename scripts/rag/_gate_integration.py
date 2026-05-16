@@ -188,7 +188,11 @@ def format_for_gate_report(concerns: list[dict]) -> str:
             f"   > {quote}" if quote else "   > _(no reviewer quote captured)_",
         ]
         if response:
-            block_lines.extend(["", f"   **Author response:** {response}"])
+            # "(as reported)" disclaimer prevents the gate reader from
+            # treating the authors' rebuttal as ground truth. Many KB
+            # entries have resolved=true but author response is
+            # vague/deflected (Q5+A10 found ~10-13% mislabeled). Per A7.
+            block_lines.extend(["", f"   **Author response (as reported):** {response}"])
         block_lines.extend(
             [
                 "",
