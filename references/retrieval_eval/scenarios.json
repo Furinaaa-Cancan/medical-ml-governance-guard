@@ -10,7 +10,9 @@
         "discharge_finalized_icd_as_feature",
         "suspicious_feature_names"
       ],
-      "expected_categories": ["data_leakage"],
+      "expected_categories": [
+        "data_leakage"
+      ],
       "expected_tags": [
         "outcome_definition",
         "temporal_leakage",
@@ -29,7 +31,10 @@
         "missing_primary_metric_ci",
         "missing_calibration_metric"
       ],
-      "expected_categories": ["evaluation_metrics", "clinical_utility"],
+      "expected_categories": [
+        "evaluation_metrics",
+        "clinical_utility"
+      ],
       "expected_tags": [
         "missing_calibration",
         "incomplete_metrics",
@@ -47,7 +52,9 @@
         "no_external_validation",
         "single_center_only"
       ],
-      "expected_categories": ["external_validation"],
+      "expected_categories": [
+        "external_validation"
+      ],
       "expected_tags": [
         "no_external_validation",
         "single_center",
@@ -67,7 +74,9 @@
         "selection_bias_risk",
         "missing_cohort_flow_diagram"
       ],
-      "expected_categories": ["study_design"],
+      "expected_categories": [
+        "study_design"
+      ],
       "expected_tags": [
         "cohort_definition",
         "selection_bias",
@@ -86,7 +95,10 @@
         "missing_decision_curve_analysis",
         "missing_net_benefit_plot"
       ],
-      "expected_categories": ["evaluation_metrics", "clinical_utility"],
+      "expected_categories": [
+        "evaluation_metrics",
+        "clinical_utility"
+      ],
       "expected_tags": [
         "missing_calibration",
         "calibration_plot_missing",
@@ -105,7 +117,9 @@
         "best_seed_selection_on_test",
         "missing_hyperparameter_search_protocol"
       ],
-      "expected_categories": ["model_selection"],
+      "expected_categories": [
+        "model_selection"
+      ],
       "expected_tags": [
         "multiple_model_comparison",
         "multiple_testing",
@@ -124,7 +138,10 @@
         "resampling_on_full_dataset",
         "patient_level_overlap"
       ],
-      "expected_categories": ["split_protocol", "data_leakage"],
+      "expected_categories": [
+        "split_protocol",
+        "data_leakage"
+      ],
       "expected_tags": [
         "smote_before_split",
         "class_imbalance",
@@ -143,7 +160,9 @@
         "normal_range_imputation_detected",
         "imputation_method_undocumented"
       ],
-      "expected_categories": ["preprocessing"],
+      "expected_categories": [
+        "preprocessing"
+      ],
       "expected_tags": [
         "informative_missingness",
         "missing_not_at_random",
@@ -162,7 +181,9 @@
         "probast_ai_assessment_missing",
         "consort_flow_diagram_missing"
       ],
-      "expected_categories": ["reporting"],
+      "expected_categories": [
+        "reporting"
+      ],
       "expected_tags": [
         "no_tripod",
         "tripod_compliance",
@@ -182,7 +203,10 @@
         "clinical_floor_sensitivity_not_met",
         "missing_sensitivity_specificity_at_threshold"
       ],
-      "expected_categories": ["evaluation_metrics", "clinical_utility"],
+      "expected_categories": [
+        "evaluation_metrics",
+        "clinical_utility"
+      ],
       "expected_tags": [
         "low_ppv",
         "rare_event_ppv",
@@ -205,7 +229,11 @@
         "definition_variable_leak_detected",
         "outcome_defined_by_predictor"
       ],
-      "expected_categories": ["data_leakage", "feature_selection", "study_design"],
+      "expected_categories": [
+        "data_leakage",
+        "feature_selection",
+        "study_design"
+      ],
       "expected_tags": [
         "definition_variable",
         "definition_variable_guard",
@@ -227,7 +255,10 @@
         "resampled_test_evaluation",
         "class_weight_unjustified"
       ],
-      "expected_categories": ["preprocessing", "evaluation_metrics"],
+      "expected_categories": [
+        "preprocessing",
+        "evaluation_metrics"
+      ],
       "expected_tags": [
         "class_imbalance",
         "extreme_class_imbalance",
@@ -246,7 +277,10 @@
         "feature_engineering_scope_violation",
         "feature_engineering_reproducibility_missing"
       ],
-      "expected_categories": ["preprocessing", "feature_selection"],
+      "expected_categories": [
+        "preprocessing",
+        "feature_selection"
+      ],
       "expected_tags": [
         "feature_selection_justification",
         "feature_selection_process",
@@ -265,15 +299,26 @@
         "hyperparameter_search_uses_test",
         "no_nested_cv_protocol"
       ],
-      "expected_categories": ["model_selection", "data_leakage"],
+      "expected_categories": [
+        "model_selection",
+        "data_leakage"
+      ],
       "expected_tags": [
-        "hyperparameter_tuning",
-        "hyperparameters_missing",
-        "hyperparameter_reporting",
-        "model_selection_on_test",
-        "tuning_set_size",
+        "cross_validation_for_tuning",
         "cv_strategy_unspecified",
-        "multiple_testing"
+        "grid_search",
+        "hyperparameter_reporting",
+        "hyperparameter_search_undefined",
+        "hyperparameter_selection_undocumented",
+        "hyperparameter_tuning",
+        "hyperparameter_tuning_disclosure",
+        "hyperparameters_missing",
+        "model_selection_on_test",
+        "multiple_testing",
+        "nested_cv_unclear",
+        "no_tuning_protocol",
+        "tuning_protocol",
+        "tuning_set_size"
       ]
     },
     {
@@ -285,7 +330,10 @@
         "ci_width_suspiciously_narrow",
         "bootstrap_iterations_insufficient"
       ],
-      "expected_categories": ["evaluation_metrics", "reporting"],
+      "expected_categories": [
+        "evaluation_metrics",
+        "reporting"
+      ],
       "expected_tags": [
         "missing_ci",
         "no_bootstrap_ci",
@@ -303,7 +351,11 @@
         "demographic_parity_violated",
         "fairness_analysis_missing"
       ],
-      "expected_categories": ["study_design", "reporting", "clinical_utility"],
+      "expected_categories": [
+        "study_design",
+        "reporting",
+        "clinical_utility"
+      ],
       "expected_tags": [
         "subgroup_analysis",
         "subgroup_analysis_missing",
@@ -327,7 +379,10 @@
         "no_sample_size_calculation",
         "riley_criteria_violated"
       ],
-      "expected_categories": ["sample_size", "study_design"],
+      "expected_categories": [
+        "sample_size",
+        "study_design"
+      ],
       "expected_tags": [
         "epv_violation",
         "underpowered",
@@ -346,7 +401,9 @@
         "no_domain_knowledge_sanity_check",
         "shap_presentation_incomplete"
       ],
-      "expected_categories": ["interpretability"],
+      "expected_categories": [
+        "interpretability"
+      ],
       "expected_tags": [
         "shap_interpretation_shallow",
         "shap_presentation",
@@ -367,22 +424,34 @@
         "feature_psi_exceeded",
         "prevalence_drift_between_splits"
       ],
-      "expected_categories": ["external_validation", "study_design"],
+      "expected_categories": [
+        "external_validation",
+        "study_design"
+      ],
       "expected_tags": [
-        "domain_shift",
-        "distribution_shift",
-        "temporal_drift",
-        "population_shift_external",
         "calibration_drift_impact",
+        "cohort_definition",
+        "confounding",
+        "correlated_features",
+        "covariate_shift",
+        "development_validation_clinical_setting_mismatch",
+        "distribution_shift",
+        "distribution_shift_initial_vs_recurrent",
+        "domain_shift",
+        "domain_transfer_ihcc_to_rhcc",
         "generalizability",
         "generalizability_limited",
-        "portability",
-        "time_varying_covariate",
-        "confounding",
-        "selection_bias",
-        "cohort_definition",
         "multicollinearity",
-        "correlated_features"
+        "population_shift_external",
+        "portability",
+        "selection_bias",
+        "subgroup_mismatch_train_test",
+        "subtype_generalization",
+        "task_mismatch",
+        "temporal_distribution_shift",
+        "temporal_drift",
+        "time_varying_covariate",
+        "treatment_protocol_drift"
       ]
     },
     {
@@ -394,7 +463,9 @@
         "temporal_split_same_population",
         "no_geographic_validation"
       ],
-      "expected_categories": ["external_validation"],
+      "expected_categories": [
+        "external_validation"
+      ],
       "expected_tags": [
         "generalizability",
         "generalizability_limited",
@@ -421,7 +492,10 @@
         "derivation_dag_incomplete",
         "pipeline_step_unmapped"
       ],
-      "expected_categories": ["reproducibility", "preprocessing"],
+      "expected_categories": [
+        "reproducibility",
+        "preprocessing"
+      ],
       "expected_tags": [
         "reproducibility",
         "irreproducible_methods",
@@ -442,7 +516,11 @@
         "overfitting_detected",
         "optimistic_generalization_claim"
       ],
-      "expected_categories": ["evaluation_metrics", "model_selection", "external_validation"],
+      "expected_categories": [
+        "evaluation_metrics",
+        "model_selection",
+        "external_validation"
+      ],
       "expected_tags": [
         "overfitting",
         "overfitting_risk",
@@ -469,7 +547,10 @@
         "rounding_inconsistent",
         "eval_report_vs_paper_mismatch"
       ],
-      "expected_categories": ["reporting", "evaluation_metrics"],
+      "expected_categories": [
+        "reporting",
+        "evaluation_metrics"
+      ],
       "expected_tags": [
         "data_inconsistency",
         "cutoff_inconsistency",
@@ -493,7 +574,10 @@
         "null_distribution_unreported",
         "multiple_testing_unadjusted"
       ],
-      "expected_categories": ["evaluation_metrics", "reporting"],
+      "expected_categories": [
+        "evaluation_metrics",
+        "reporting"
+      ],
       "expected_tags": [
         "multiple_testing",
         "p_value_selection",
@@ -515,7 +599,10 @@
         "bitwise_divergence_from_reference",
         "seed_dependent_predictions"
       ],
-      "expected_categories": ["reproducibility", "external_validation"],
+      "expected_categories": [
+        "reproducibility",
+        "external_validation"
+      ],
       "expected_tags": [
         "reproducibility",
         "irreproducible_methods",
@@ -539,7 +626,11 @@
         "noise_sensitivity_untested",
         "robustness_claim_unsupported"
       ],
-      "expected_categories": ["reporting", "model_selection", "external_validation"],
+      "expected_categories": [
+        "reporting",
+        "model_selection",
+        "external_validation"
+      ],
       "expected_tags": [
         "sensitivity_analysis",
         "no_sensitivity_analysis",

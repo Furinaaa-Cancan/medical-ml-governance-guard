@@ -13745,7 +13745,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate"
+            "publication_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The authors stated that they will only make the code available upon publication (p. 25) so I was unable to review the code.",
@@ -17083,7 +17083,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 2,
           "mlgg_gates": [
-            "preprocessing_audit_gate",
+            "feature_engineering_audit_gate",
             "missingness_policy_gate"
           ],
           "mlgg_rules": [],
@@ -17152,7 +17152,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate"
+            "publication_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Code availability: Given the lack of detail in the description of the methods and no code availability it is impossible to reproduce the presented results of the manuscript, even if one would have access to the data.",
@@ -17258,7 +17258,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 12,
           "mlgg_gates": [
-            "compliance_attestation_gate",
+            "execution_attestation_gate",
             "clinical_metrics_gate"
           ],
           "mlgg_rules": [],
@@ -17420,8 +17420,8 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 2,
           "mlgg_gates": [
-            "preprocessing_audit_gate",
-            "label_definition_gate"
+            "feature_engineering_audit_gate",
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Lines 117-118: broth microdilution and agar dilution are very different approaches? The same isolate could have different AMR phenotypes using these two different models. How do you think this will impact the model?",
@@ -17504,7 +17504,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate"
+            "publication_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Many of the tools do not have version numbers, which are necessary for reproducibility. The GitHub for AMR-GNN lacks information about what the model uses to predict and what outputs are expected. The output files do not have enough information for someone not familiar with neural networks. The GitHub should explain in detail what kind of input is expected and how the user can prepare their data to be in the correct format.",
@@ -17590,7 +17590,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate",
+            "publication_gate",
             "execution_attestation_gate"
           ],
           "mlgg_rules": [],
@@ -17717,8 +17717,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 7,
           "mlgg_gates": [
-            "fairness_equity_gate",
-            "subgroup_analysis_gate"
+            "fairness_equity_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "There is limited representation in the patient sample from certain patient races, and some cancer types are missing altogether (multiple myeloma, acute leukemia), which also can limit generalizability.",
@@ -17864,7 +17863,7 @@
           "mlgg_dimension": 11,
           "mlgg_gates": [
             "model_selection_audit_gate",
-            "code_data_availability_gate"
+            "publication_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The supplementary materials lack detailed information regarding model training processes, specifically describing hyperparameter tuning procedures, parameter selection justifications, and including comprehensive training and evaluation loss curves. In the methods section, the manuscript does not describe the computational resources of deploying this model, including detailed metrics about training time, hardware requirements, resource utilization, and scalability.",
@@ -17884,8 +17883,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 9,
           "mlgg_gates": [
-            "fairness_equity_gate",
-            "subgroup_analysis_gate"
+            "fairness_equity_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The discussion did not address subgroup performance disparities, particularly regarding ethnicity, offering detailed hypotheses for observed disparities and proposing concrete, actionable strategies to improve model fairness, such as diversifying training data, targeted fine-tuning, or fairness-aware algorithmic adjustments.",
@@ -17906,8 +17904,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate",
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "In the Results section, it is stated that the target cohort comprised 1753 patients who received acute care within 30 days of initiation of chemotherapy. However, in practical application for the proactive prediction of ACU events (as implied in the Introduction), the 30-day acute care status of patients would be necessarily unknown. If so, the applicability of the cohort to the intended task scenario might thus be further justified.",
@@ -18351,7 +18348,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate"
+            "publication_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "I did not see a link to the code. Apologies if I missed this.",
@@ -18511,7 +18508,7 @@
           "mlgg_dimension": 2,
           "mlgg_gates": [
             "calibration_dca_gate",
-            "preprocessing_audit_gate"
+            "feature_engineering_audit_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "It is unclear how observer and internal technical variability regarding ultrasound (US) and contrast-enhanced ultrasound (CEUS) were addressed in the study. Please provide detailed information on how variability among different observers and technical settings was managed. This could include standardization procedures, training protocols for observers, inter-observer reliability assessments, and calibration methods used to ensure consistency across examinations.",
@@ -18618,8 +18615,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
           "mlgg_gates": [
-            "fairness_equity_gate",
-            "subgroup_analysis_gate"
+            "fairness_equity_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The study also does not provide detailed information on sex and gender considerations, failing to comply with the SAGER guidelines (as recommended in the review instructions).",
@@ -19112,7 +19108,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
           "mlgg_gates": [
-            "compliance_attestation_gate",
+            "execution_attestation_gate",
             "reporting_bias_gate"
           ],
           "mlgg_rules": [],
@@ -19176,7 +19172,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate",
+            "publication_gate",
             "execution_attestation_gate"
           ],
           "mlgg_rules": [],
@@ -19198,8 +19194,7 @@
           "severity": "CRITICAL",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate",
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The use of real-world data seems to be incorrect and misleading as only simulated data has been used. They only seem to have used the simulated data. What is the Hp-EuReg dataset? If they had the clinical dataset, they should have tested it on it as well as the simulated dataset. This is research work and not a tool for clinical routine use, and testing a system on the clinical dataset is critical to gauge the future potential clinical effectiveness.",
@@ -19240,7 +19235,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
           "mlgg_gates": [
-            "robustness_permutation_gate"
+            "robustness_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Explain how you added the noise. Since the inputs are binary, is it done by flipping bits? Most confusing is that you say that you achieve an accuracy of 72% at a noise level of 99% - how so? Moreover, how does that reflect a 'real-world' scenario?",
@@ -19715,8 +19710,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate",
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Please provide more details on how prevalent cases were excluded. How did you exclude the prevalent diseases listed in ST2? Some of the diseases don't have primary care data available.",
@@ -19862,7 +19856,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate"
+            "publication_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "How do the authors plan to visualize the KG and deliver to the users? Currently, the github is not available. The code is not available at the github site.",
@@ -19923,7 +19917,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate",
+            "publication_gate",
             "reporting_bias_gate"
           ],
           "mlgg_rules": [],
@@ -19964,8 +19958,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate",
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Why have the authors focused on the use of PheCode over ICD-10? The authors include a line in the manuscript, however it needs more explanation. For an application of this research, would not prediction on ICD-10 codes be more meaningful?",
@@ -19985,8 +19978,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate",
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [
             "MLGG-F05"
@@ -20263,7 +20255,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate",
+            "publication_gate",
             "missingness_policy_gate"
           ],
           "mlgg_rules": [],
@@ -20395,7 +20387,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate"
+            "publication_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The study's biggest limitation is lack of reproducibility. Without data and source code, the value of this study is significantly diminished and evaluation of the methodology is impossible. It's understandable that UKBB data can only be accessed through the established protocols. The validation data appears to be not accessible at all. At the very least, a working source code and simulated data should be made available.",
@@ -20526,8 +20518,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 7,
           "mlgg_gates": [
-            "fairness_equity_gate",
-            "subgroup_analysis_gate"
+            "fairness_equity_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The authors are commended for using several population groups in their analysis. The datasets include mainly Chinese and White individuals. The lack of representation of Black individuals should be mentioned in the discussion as a limitation to this study.",
@@ -20597,8 +20588,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate",
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [
             "MLGG-F05"
@@ -20956,7 +20946,6 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "label_definition_gate",
             "cohort_definition_gate"
           ],
           "mlgg_rules": [],
@@ -21046,7 +21035,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 2,
           "mlgg_gates": [
-            "preprocessing_audit_gate"
+            "feature_engineering_audit_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The proportion of tracings excluded for 'corruption' is very high (40% in Ref A and 50% in Ref B). This is concerning, and may be a source of bias. More detail is needed regarding assessment of tracing quality and criteria for excluding tracings based on noise. Ideally an objective definition would be applied.",
@@ -21088,7 +21077,6 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 2,
           "mlgg_gates": [
-            "preprocessing_audit_gate",
             "feature_engineering_audit_gate"
           ],
           "mlgg_rules": [],
@@ -21212,7 +21200,6 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
           "mlgg_gates": [
-            "subgroup_analysis_gate",
             "fairness_equity_gate"
           ],
           "mlgg_rules": [],
@@ -21285,8 +21272,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate",
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "It appears the goal was to predict underlying left ventricular pathology (subclinical or concealed) prior to initiation or chemotherapy. Given CTRCD is believed to be caused by the chemotherapeutic regimen, it seems unlikely that we will be able to predict this future event before the inciting factor is actually introduced. It brings up the question of - what is the model actually predicting? I suspect the AI-EF model likely just predicts an overall poor LV substrate and susceptibility to any adverse exposures and as such is not necessarily specific for CTRCD.",
@@ -21389,7 +21375,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 5,
           "mlgg_gates": [
-            "compliance_attestation_gate",
+            "execution_attestation_gate",
             "evaluation_quality_gate"
           ],
           "mlgg_rules": [],
@@ -21434,7 +21420,6 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
           "mlgg_gates": [
-            "subgroup_analysis_gate",
             "fairness_equity_gate"
           ],
           "mlgg_rules": [],
@@ -21567,7 +21552,7 @@
           "mlgg_dimension": 11,
           "mlgg_gates": [
             "execution_attestation_gate",
-            "code_data_availability_gate"
+            "publication_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "It was not entirely clear if the revision addressed the prior reviewer comments about whether multiple repeat prompts were attempted to asses for consistency in ChatGPT ADA's behavior and choices of analysis.",
@@ -21607,7 +21592,7 @@
           "severity": "LOW",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate"
+            "publication_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "As a more general presentation comment, many of the chat interaction screenshots (e.g. Figure 2) appear illegible at lower resolution when formatted into PDF. These need to be high resolution in publication, or better yet, consider simply including the text of the chat logs (as in the Supplementary material chat logs). These are essential to the value of this manuscript, as they provide the blueprint for readers to replicate the process in their own studies.",
@@ -21796,7 +21781,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate"
+            "publication_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Will any code for SUDO be made publicly available?",
@@ -22139,8 +22124,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 7,
           "mlgg_gates": [
-            "fairness_equity_gate",
-            "subgroup_analysis_gate"
+            "fairness_equity_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The evaluation did not provide information on the demographics of the patients involved during validation. Furthermore, the real-life cases provided in the supplementary material largely belong to a specific skin color, suggesting a bias. Consequently, this evaluation fails to capture any biases in the method, which is a weakness of this paper.",
@@ -22246,7 +22230,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 2,
           "mlgg_gates": [
-            "preprocessing_audit_gate"
+            "feature_engineering_audit_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "There is significant variation with patient-submitted images, especially with quality of smartphone cameras, image pre- and post-processing done on the phone software, angles, and lighting. How was the process standardized, if at all, for the submission of such photos?",
@@ -22266,8 +22250,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 7,
           "mlgg_gates": [
-            "fairness_equity_gate",
-            "subgroup_analysis_gate"
+            "fairness_equity_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "To what degree does the training dataset represent adequately skin of color/darker skin (e.g. Fitzpatrick Type 4-6 skin)? Skin of color in dermatology remains poorly represented in machine learning models (and in many dermatology clinics around the world). This has been a deficiency in previous publications on ML in dermatology.",
@@ -22309,7 +22292,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate"
+            "publication_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Note on reproducibility: We attempted to run the code provided in the GitHub repository but encountered some issues during the installation and in the demo.py file.",
@@ -22530,8 +22513,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate",
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "A limitation worth discussing is the lack of gold standard practice in the patients in the data set. While it seems reasonable as a first step to focus on the actual outcome of the emergency patients at UCSF (ie was the patient admitted/radiographed/received antibiotics at UCSF) was this practice actually the one that the patients should have received or reflect care elsewhere? Who provided this care- a trainee clinician or senior staff? Also, care varies highly across countries for example and the AI generated sensitivity/specificity data may look different in another country.",
@@ -22594,7 +22576,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 7,
           "mlgg_gates": [
-            "subgroup_analysis_gate"
+            "fairness_equity_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "A further limitation to discuss is the seniority of the human reviewer- would senior medical staff as compared to resident physicians produce a different/higher accuracy differential?",
@@ -22806,8 +22788,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate",
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "It may cause confusion that the author removed acute phecodes but kept cardiovascular ones. And it's hard to define whether an acute condition can reflect chronic disease processes or not. Could the author make this clear?",
@@ -22997,7 +22978,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Clarification about the ground truth reference standard should be provided — in particular, the 'unified pCR standard' should be defined and whether the presence of DCIS (but not invasive disease) is considered pCR.",
@@ -23874,8 +23855,8 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "preprocessing_audit_gate",
-            "code_data_availability_gate"
+            "feature_engineering_audit_gate",
+            "publication_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "However, a detailed description of MS raw data treatment is missing, e.g., what was used to normalize the data? What was the reproducibility of the signals' measurement? The raw data preprocessing steps (code? algorithm?) are not provided for evaluation. What type of normalization process was applied?",
@@ -24031,7 +24012,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate"
+            "publication_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "A strong limitation is that the source codes are not being made available. Of course, this is understandable if what is being tested here is a commercial product. In that case, however, a lightweight version of the core algorithm should be made available for academic evaluation. See, for example Campanella et al., Nature Medicine 2019, who published a basic version of their source codes and used the full version for their product.",
@@ -24052,7 +24033,7 @@
           "mlgg_dimension": 8,
           "mlgg_gates": [
             "reporting_bias_gate",
-            "compliance_attestation_gate"
+            "execution_attestation_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Another limitation is that the relevant reporting guidelines do not seem to be included in this article, such as the MI-CLAIM guideline or TRIPOD-ML / any other relevant guidelines from the Equator network.",
@@ -24167,7 +24148,7 @@
           "mlgg_dimension": 7,
           "mlgg_gates": [
             "external_validation_gate",
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Radiological assessment is not a definitive measure in terms of diagnosing TB, it seems the reference standard for TB in the external validation dataset is radiologist reading rather than bacteriological lab results. This is a limitation.",
@@ -24229,7 +24210,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate"
+            "publication_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Code availability: the Github link does not work.",
@@ -24317,8 +24298,7 @@
           "severity": "CRITICAL",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate",
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Not all immune checkpoint inhibitors are the same, biomarkers likely different. This is reflected in analysis in the Liu et al paper (patients previously tx with aCTLA4 vs aPD1 naive patients) and different histologies. Overall, the authors bring together 700 quite heterogeneous datasets including different tumor types (unclear why these types chosen) with different immune checkpoint inhibitor treatments. The analysis moves back and forth from different datasets and it is unclear how data sets were integrated or chosen for analysis. These inconsistencies are quite troubling.",
@@ -24339,7 +24319,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Is (1) RECIST or not? For RECIST data, methods state aggregation: CR/PR and SD/PD - SD patients are often actually considered responders since they are non-progressing. Other datasets just used their R vs NR status (did that agree with CR/PR and SD/PD categories)? Should be the same across all data sets (and often these variables do differ across studies). Also OS is not a great marker for response to IO (patients will see many other lines of treatment), usually use PFS or even cancer-specific survival.",
@@ -24384,7 +24364,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "label_definition_gate",
+            "cohort_definition_gate",
             "definition_variable_guard"
           ],
           "mlgg_rules": [],
@@ -24405,8 +24385,8 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate",
-            "compliance_attestation_gate"
+            "publication_gate",
+            "execution_attestation_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "There is no section that summarizes the statistical methods used in this manuscript. There is no statement on whether the underlying code can be accessed (i.e., within a GitHub repo, etc.). Furthermore, there is no statement on any ethics approval or that no ethics approval was necessary.",
@@ -24634,7 +24614,7 @@
           "mlgg_dimension": 1,
           "mlgg_gates": [
             "feature_lineage_gate",
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [
             "MLGG-F05"
@@ -24745,7 +24725,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 2,
           "mlgg_gates": [
-            "preprocessing_audit_gate"
+            "feature_engineering_audit_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The imaging processing procedure may have large impact on the classification accuracy and uncertainty quantifications. In particular, the steps for removing background image tiles including grayspace fitering, Otsu's thresholding and gaussian blur detection. The authors should provide more details on those procedures and show the sensitivity of the UQ to the mild changes of tuning parameters in those procedures.",
@@ -24943,7 +24923,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 2,
           "mlgg_gates": [
-            "preprocessing_audit_gate"
+            "feature_engineering_audit_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "What's the percentage of non-tumor or empty patches in training/validation/testing set? Were they removed for an unbiased evaluation in the validation/testing set?",
@@ -24984,7 +24964,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate"
+            "publication_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The code does not seem to be made public, and the details of the architecture are not enough to allow anyone to re-code and re-produce it potentially. The methodology seems to be in line with recent publications done in the field of histopathology AI. However, the code has not been made available so no comment on reproducibility can be made. Any reason the authors do not make it available to the community?",
@@ -25116,7 +25096,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate"
+            "publication_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "A major point is that the source codes do not seem to be available. This is a must and the authors should provide a github link or even better, a DOI, to their codes.",
@@ -25136,7 +25116,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
           "mlgg_gates": [
-            "compliance_attestation_gate"
+            "execution_attestation_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Also, adherence to relevant reporting guidelines (TRIPOD, STARD, etc.) must be added.",
@@ -25485,8 +25465,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate",
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The patient cohorts/databases used should be better described in detail. E.g. how was the diagnosis Covid-19 made in these databases (SARS-CoV-2 PCR proven? diagnostic criteria?). Also include details on composition, quality of data used in manuscript, access etc.",
@@ -25507,8 +25486,7 @@
           "mlgg_dimension": 7,
           "mlgg_gates": [
             "distribution_generalization_gate",
-            "covariate_shift_gate",
-            "temporal_validation_gate"
+            "covariate_shift_gate"
           ],
           "mlgg_rules": [
             "MLGG-T01"
@@ -25592,7 +25570,7 @@
           "mlgg_gates": [
             "fairness_equity_gate",
             "missingness_policy_gate",
-            "preprocessing_audit_gate"
+            "feature_engineering_audit_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "It was unclear how to make fair comparisons when there exist a huge number of missing variables. For instance, there are more than 99% values of hs-CRP (one of key variables in [17]) missing in the external validation dataset. ... CovEWS demanded high dimensional inputs for mortality prediction... It is expected that the prediction accuracy will drop significantly if a large number of factors are missing.",
@@ -25723,7 +25701,6 @@
           "severity": "HIGH",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "label_definition_gate",
             "cohort_definition_gate"
           ],
           "mlgg_rules": [],
@@ -25765,7 +25742,7 @@
           "mlgg_dimension": 2,
           "mlgg_gates": [
             "missingness_policy_gate",
-            "preprocessing_audit_gate"
+            "feature_engineering_audit_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "I was not convinced by the performance and comparison results using datasets that has more than 99.28% missing measurements for one of the key variables used in different models. In other words, there is only 1 in every 140 patients that has a measurement. How can one infer/estimate the measurements of other patients based on this single measurement? ... MICE is good for imputing missing values... But there is a more fundamental problem before applying MICE: what is the largest percentage that MICE can impute with a trustable performance? When the ratio of missing values exceeds this threshold, the imputed values become random guess. Then the conclusion drawn could be wrong!",
@@ -26201,7 +26178,6 @@
           "severity": "CRITICAL",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "label_definition_gate",
             "cohort_definition_gate"
           ],
           "mlgg_rules": [],
@@ -26244,7 +26220,6 @@
           "severity": "CRITICAL",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "label_definition_gate",
             "cohort_definition_gate"
           ],
           "mlgg_rules": [],
@@ -26286,7 +26261,6 @@
           "severity": "CRITICAL",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "label_definition_gate",
             "cohort_definition_gate"
           ],
           "mlgg_rules": [],
@@ -26749,7 +26723,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 2,
           "mlgg_gates": [
-            "preprocessing_audit_gate"
+            "feature_engineering_audit_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The median number of unique TCR sequences in each group is 10 which is dramatically lower than expected based on the literature. The low number of unique TCR clonotypes for each patient probably reflects a sampling bias or alternatively, a sequencing artifact due to their methodology. The authors should be more precise in their definition of a TCR clonotype and the primary sequencing data for all 16 subjects should be provided.",
@@ -27102,7 +27076,7 @@
           "mlgg_dimension": 3,
           "mlgg_gates": [
             "split_protocol_gate",
-            "temporal_validation_gate"
+            "distribution_generalization_gate"
           ],
           "mlgg_rules": [
             "MLGG-S01",
@@ -27146,7 +27120,6 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "label_definition_gate",
             "cohort_definition_gate"
           ],
           "mlgg_rules": [],
@@ -27167,7 +27140,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
           "mlgg_gates": [
-            "code_data_availability_gate",
+            "publication_gate",
             "reporting_bias_gate"
           ],
           "mlgg_rules": [],
@@ -27296,7 +27269,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 8,
           "mlgg_gates": [
-            "label_definition_gate",
+            "cohort_definition_gate",
             "reporting_bias_gate"
           ],
           "mlgg_rules": [],
@@ -27339,7 +27312,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate"
+            "publication_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The only contribution is the dataset, but it will not be publicly available.",
@@ -27471,7 +27444,7 @@
           "mlgg_dimension": 1,
           "mlgg_gates": [
             "definition_variable_guard",
-            "temporal_validation_gate"
+            "distribution_generalization_gate"
           ],
           "mlgg_rules": [
             "MLGG-F04"
@@ -27496,7 +27469,7 @@
           "mlgg_gates": [
             "evaluation_quality_gate",
             "metric_consistency_gate",
-            "temporal_validation_gate"
+            "distribution_generalization_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The paper says 'This model indicates that participants with an estimated ECG-age of 8 or more years greater than the chronological age had higher mortality risk (HR 1.79, 95%CI 1.69-1.90; p<0.001).' However when I look at Table 2, I see ECG-age > age+8y has the hazard ratio 0.78. The text looks swapped from the main paper. I can't tell which one is correct.",
@@ -27694,7 +27667,7 @@
           "mlgg_dimension": 8,
           "mlgg_gates": [
             "reporting_bias_gate",
-            "compliance_attestation_gate"
+            "execution_attestation_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The paper does not adhere to the STARD-AI guidelines (https://www.nature.com/articles/s41591-020-0941-1).",
@@ -27714,7 +27687,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate"
+            "publication_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Very important: there is no code available to assess the reproducibility of the work. The code should be made available to the reviewer with a well detailed README file.",
@@ -27848,7 +27821,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 5,
           "mlgg_gates": [
-            "robustness_permutation_gate",
+            "robustness_gate",
             "evaluation_quality_gate"
           ],
           "mlgg_rules": [],
@@ -28002,7 +27975,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 2,
           "mlgg_gates": [
-            "preprocessing_audit_gate"
+            "feature_engineering_audit_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "When applying this method, different operators can generate different ROI. The size and location of the ROI can change if it is annotated by different user, how will this inter-operator variance affect the results?",
@@ -28158,7 +28131,7 @@
           "mlgg_dimension": 1,
           "mlgg_gates": [
             "cohort_definition_gate",
-            "subgroup_analysis_gate"
+            "fairness_equity_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The authors use a mixed cohort of early stage lung cancer patients comprising different tumor types. Patients with distinct tumor types (eg Lung Adeno vs. Squamous) could have substantially different expected/baseline treatment outcomes. Furthermore, the authors note that Lung Adenocarcinoma tumors have noticeably lower ctDNA detection frequency. Overall, these factors could confound the different types of survival analysis conducted throughout the paper.",
@@ -28179,7 +28152,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 11,
           "mlgg_gates": [
-            "code_data_availability_gate"
+            "publication_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "It is not clear if the authors are sharing code and data ensuring reproducible research. The authors should share all code and data that reproduces figures and key survival analysis in this manuscript. The raw targeted sequencing data for both tumor and liquid biopsies should also be shared.",
@@ -28200,7 +28173,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 2,
           "mlgg_gates": [
-            "preprocessing_audit_gate",
+            "feature_engineering_audit_gate",
             "feature_lineage_gate"
           ],
           "mlgg_rules": [],
@@ -28394,8 +28367,7 @@
           "severity": "CRITICAL",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate",
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Major issue: The use of any blood culture as a proxy for infection is questionable, at least in the way it is presented here. The citation from which it seems to get evidence is not published nor replicated while other longitudinal studies found frequent contamination in blood cultures in CLL (Kjellander et al. Ann Hematol 2016). This needs to be discussed more profoundly or maybe even completely revised.",
@@ -28527,7 +28499,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The authors claim they predict 'infection or CLL treatment', but this expression is confusing. What does it mean? Is an infection the same thing of a CLL treatment? Are they predicting both? Why are these two concepts treated in the same way?",
@@ -28726,7 +28698,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 2,
           "mlgg_gates": [
-            "preprocessing_audit_gate"
+            "feature_engineering_audit_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "What was the inter-rater agreement? Did you pre-process your images (besides cropping)? Normalize? Please provide full details of the preprocessing step.",
@@ -28838,8 +28810,8 @@
           "mlgg_dimension": 2,
           "mlgg_gates": [
             "definition_variable_guard",
-            "label_definition_gate",
-            "preprocessing_audit_gate"
+            "cohort_definition_gate",
+            "feature_engineering_audit_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "An extensive methodological approach is provided for both the training and testing datasets. The training dataset uses a method for automatic classification developed by one of the co-authors (PWM), i.e. the Uni-G. Why was an external EKG classification tool not compared? Can you provide some justification for the significant reliance on this software for label generation?",
@@ -28973,7 +28945,7 @@
           "mlgg_dimension": 3,
           "mlgg_gates": [
             "split_protocol_gate",
-            "temporal_validation_gate"
+            "distribution_generalization_gate"
           ],
           "mlgg_rules": [
             "MLGG-S01",
@@ -29207,8 +29179,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate",
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Given (1) the authors' focus on critical illness, (2) the hospital mortality statistic presented in Extended Table 2, and (3) the basis target for the SOFA score being in-hospital mortality, it is a little perplexing why in-hospital mortality was not included as an outcome of interest. I think the rationale behind choosing outcomes should be expanded upon.",
@@ -29251,7 +29222,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "label_definition_gate",
+            "cohort_definition_gate",
             "definition_variable_guard"
           ],
           "mlgg_rules": [
@@ -29362,7 +29333,7 @@
           "mlgg_dimension": 8,
           "mlgg_gates": [
             "reporting_bias_gate",
-            "compliance_attestation_gate"
+            "execution_attestation_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Title is actually not conform TRIPOD, it should mention that the study develops and validates a prediction model.",
@@ -29403,8 +29374,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate",
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The outcome: now the authors write '6 weeks prior to the extraction date to allow sufficient time for the outcome to occur' and in the next paragraph 'death during a hospitalization following a new covid-19 infection'. The latter is a clear definition, but I am wondering whether there were no cases who were still alive and hospitalized at May 30th? I would think there are, and this has to be mentioned.",
@@ -29655,8 +29625,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate",
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Please look at the following outcomes and not only progression: ICU admission, Mechanical ventilation, LOS, Crude and attributable mortality.",
@@ -29676,8 +29645,7 @@
           "severity": "HIGH",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate",
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The authors combine their severe category with the critical category for analysis (line 141). This combination detracts severely from the value of the analysis. By their definitions, severe patients would likely be treated on a general medicine unit while critical would be ICU patients, with very different intervention needs. Any prognostic benefit of a score is therefore lost by this combination.",
@@ -29719,7 +29687,7 @@
           "mlgg_dimension": 8,
           "mlgg_gates": [
             "reporting_bias_gate",
-            "compliance_attestation_gate"
+            "execution_attestation_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Abstract should specify the number of cases included. Should specify that the cohort was retrospective. Line 72- should indicate this was retrospective evaluation.",
@@ -30108,8 +30076,7 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate",
-            "label_definition_gate"
+            "cohort_definition_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Can you clarify whether patients were censored at 7 days if still in the hospital? If so, did you still test the model in patients with LOS of >7 days or was the model not validated in those patients? This should be added to the limitations, as LOS>7 days is not uncommon, especially in critically ill patients.",
