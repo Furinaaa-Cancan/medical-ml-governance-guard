@@ -7,10 +7,10 @@ for hybrid fusion) by issue-code keyword overlap via
 ``retrieve_for_failure``.
 
 Sibling module ``scripts.rag.retrieval.dense`` provides the dense /
-embedding-cosine half; ``scripts.rag._hybrid_ranker`` fuses the two.
+embedding-cosine half; ``scripts.rag.retrieval.hybrid`` fuses the two.
 
 Previously located at ``scripts/core/_peer_review_retrieval.py`` and
-loaded by ``_hybrid_ranker`` through a ``sys.path.insert`` hack;
+loaded by the hybrid ranker through a ``sys.path.insert`` hack;
 moved here so the RAG package is self-contained.
 
 This module is READ-ONLY — it never modifies the knowledge base.
@@ -456,7 +456,7 @@ def retrieve_for_failure(
         sorted fallback — which matters for how strongly to rely on it.
 
         Also injects ``_score`` (raw keyword-overlap score, 0 for fallback
-        results) so downstream rankers like scripts/rag/_hybrid_ranker.py
+        results) so downstream rankers like scripts/rag/retrieval/hybrid.py
         can do a real weighted combination instead of a rank-based proxy.
         """
         if scores is None:

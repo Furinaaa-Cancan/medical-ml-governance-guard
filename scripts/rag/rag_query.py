@@ -3,8 +3,8 @@
 This module is the **public** entry point of the ``scripts/rag/`` package
 (Agent A6 of the shared RAG design). All other modules in the package
 (``config``, ``embeddings``, ``index.builder``, ``retrieval.dense``,
-``_hybrid_ranker``) are private (leading underscore) and should not be imported
-directly by callers outside the package.
+``retrieval.bm25``, ``retrieval.hybrid``) are internal and should not be
+imported directly by callers outside the package.
 
 Two ways to use it:
 
@@ -29,7 +29,7 @@ Design contract:
     Shared signatures (see ``/tmp/mlgg_rag_design.md``) MUST be honored
     because other agents (A7, A8, A9) depend on them. The thin-wrapper
     discipline -- ``rag_query`` just adds graceful error handling around
-    ``_hybrid_ranker.hybrid_rank`` -- keeps the ranking logic in a single
+    ``retrieval.hybrid.hybrid_rank`` -- keeps the ranking logic in a single
     place.
 """
 
@@ -61,7 +61,7 @@ def rag_query(
 ) -> list[dict]:
     """Return ranked peer-review concerns relevant to ``query``.
 
-    Thin wrapper around ``_hybrid_ranker.hybrid_rank`` that handles two
+    Thin wrapper around ``retrieval.hybrid.hybrid_rank`` that handles two
     graceful-degradation cases the CLI and gate-integration layer rely on:
 
     1. **Empty / whitespace-only query** -- returns ``[]`` instead of letting
@@ -106,7 +106,7 @@ def rag_query(
     # sentence_transformers when the caller never actually runs a query.
     # Also lets us trap the "RAG stack not available" case without crashing.
     try:
-        from scripts.rag._hybrid_ranker import hybrid_rank
+        from scripts.rag.retrieval.hybrid import hybrid_rank
     except ImportError:
         return []
 

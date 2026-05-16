@@ -4,7 +4,7 @@ This module is the bridge between the 33 fail-closed governance gates and
 the hybrid RAG ranker.  When a gate fails it calls
 :func:`rag_context_for_failure` with the gate name and the symbolic
 ``failure_codes`` it emitted; this module synthesizes a free-text query,
-delegates to :func:`scripts.rag._hybrid_ranker.hybrid_rank`, and returns
+delegates to :func:`scripts.rag.retrieval.hybrid.hybrid_rank`, and returns
 ranked reviewer concerns ready to render in the gate's ``report.json``
 under the ``peer_review_context`` key.
 
@@ -19,7 +19,7 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-from scripts.rag._hybrid_ranker import hybrid_rank
+from scripts.rag.retrieval.hybrid import hybrid_rank
 
 
 # Maximum number of reviewer-quote / author-response characters to embed
@@ -67,7 +67,7 @@ def rag_context_for_failure(
 
     Synthesises a query from ``failure_codes`` (plus an optional
     ``query_hint``), then delegates to
-    :func:`scripts.rag._hybrid_ranker.hybrid_rank` with a gate filter so
+    :func:`scripts.rag.retrieval.hybrid.hybrid_rank` with a gate filter so
     only concerns whose ``mlgg_gates`` include ``gate_name`` participate.
 
     Args:

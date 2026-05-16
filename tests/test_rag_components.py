@@ -6,7 +6,7 @@ These tests cover the seven modules under ``scripts/rag/``:
 * ``_embeddings``  — sentence-transformer wrapper
 * ``index.builder`` — KB → npz cache, idempotent
 * ``retrieval.dense`` — cosine search over cache
-* ``_hybrid_ranker`` — vector + BM25 + gate + tag fusion
+* ``retrieval.hybrid`` — vector + BM25 + gate + tag fusion
 * ``_gate_integration`` — gate-failure → contextual concerns
 
 Modules that depend on heavy sentence-transformer downloads or full index
@@ -436,7 +436,7 @@ class TestVectorSearch:
 
 
 # ===========================================================================
-# _hybrid_ranker
+# retrieval.hybrid
 # ===========================================================================
 
 class TestHybridRanker:
@@ -444,7 +444,7 @@ class TestHybridRanker:
 
     def test_gate_filter_restricts_results(self) -> None:
         """With a gate filter, every returned concern lists that gate."""
-        mod = pytest.importorskip("scripts.rag._hybrid_ranker")
+        mod = pytest.importorskip("scripts.rag.retrieval.hybrid")
         gate = "leakage_gate"
         results = mod.hybrid_rank(
             "patient appears in both train and test",
@@ -462,7 +462,7 @@ class TestHybridRanker:
 
     def test_failure_codes_populate_bm25_scores(self) -> None:
         """Passing ``failure_codes`` triggers the BM25 fusion path."""
-        mod = pytest.importorskip("scripts.rag._hybrid_ranker")
+        mod = pytest.importorskip("scripts.rag.retrieval.hybrid")
         results = mod.hybrid_rank(
             "no calibration reported",
             gate="evaluation_quality_gate",
@@ -481,7 +481,7 @@ class TestHybridRanker:
 
     def test_dense_only_path_without_gate(self) -> None:
         """Without ``gate`` and without ``failure_codes`` the dense path runs."""
-        mod = pytest.importorskip("scripts.rag._hybrid_ranker")
+        mod = pytest.importorskip("scripts.rag.retrieval.hybrid")
         results = mod.hybrid_rank(
             "external validation cohort missing",
             top_k=3,

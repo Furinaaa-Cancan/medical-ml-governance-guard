@@ -2,9 +2,9 @@
 
 This module is the single source of truth for constants used across the RAG
 package (``scripts/rag/``). Every other RAG module (``embeddings``,
-``index.builder``, ``retrieval.dense``, ``_hybrid_ranker``, ``rag_query``,
-``_gate_integration``) imports its constants from here, so changes propagate
-consistently.
+``index.builder``, ``retrieval.dense``, ``retrieval.bm25``,
+``retrieval.hybrid``, ``rag_query``, ``_gate_integration``) imports its
+constants from here, so changes propagate consistently.
 
 Design notes:
     * No network side effects at import time. The embedding model name is
@@ -56,7 +56,7 @@ KB_PATH: Final[Path] = REPO_ROOT / "references" / "case-studies" / "peer-review-
 # ---------------------------------------------------------------------------
 # Hybrid ranking weights
 # ---------------------------------------------------------------------------
-# Combined score (computed in ``_hybrid_ranker``) is:
+# Combined score (computed in ``retrieval.hybrid``) is:
 #   final = WEIGHT_DENSE * dense_cosine
 #         + WEIGHT_BM25 * bm25_normalized
 #         + WEIGHT_TAG_OVERLAP * tag_overlap_score
@@ -81,7 +81,7 @@ DEFAULT_TOP_K: Final[int] = 5
 DEFAULT_MAX_CANDIDATES_BEFORE_RERANK: Final[int] = 50
 
 # ---------------------------------------------------------------------------
-# Severity ordering (used by ``_hybrid_ranker`` for the severity boost)
+# Severity ordering (used by ``retrieval.hybrid`` for the severity boost)
 # ---------------------------------------------------------------------------
 # Higher value = stronger boost. Values are intentionally on [0, 1] so the
 # weighted contribution stays bounded by WEIGHT_SEVERITY.

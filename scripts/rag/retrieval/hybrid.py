@@ -1,5 +1,9 @@
 """Hybrid ranker for the MLGG RAG layer.
 
+Located at ``scripts/rag/retrieval/hybrid.py``. Completes the
+``retrieval/`` trio (``dense``, ``bm25``, ``hybrid``) by fusing the two
+retrieval signals with the canonical-pattern and severity boosts.
+
 Combines four ranking signals over the peer-review knowledge base
 (`references/case-studies/peer-review-kb.json`) into a single score per
 concern:
@@ -63,7 +67,7 @@ def _import_sibling_modules() -> Tuple[Callable[..., Any], Callable[..., Any]]:
     except Exception as exc:  # pragma: no cover - depends on rollout order
         raise RuntimeError(
             "scripts.rag.index.builder.build_or_load_index is required "
-            "by _hybrid_ranker but could not be imported"
+            "by retrieval.hybrid but could not be imported"
         ) from exc
 
     try:
@@ -71,7 +75,7 @@ def _import_sibling_modules() -> Tuple[Callable[..., Any], Callable[..., Any]]:
     except Exception as exc:  # pragma: no cover - depends on rollout order
         raise RuntimeError(
             "scripts.rag.retrieval.dense.vector_search is required by "
-            "_hybrid_ranker but could not be imported"
+            "retrieval.hybrid but could not be imported"
         ) from exc
 
     return build_or_load_index, vector_search

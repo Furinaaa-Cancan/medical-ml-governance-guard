@@ -1405,14 +1405,13 @@ medical-ml-governance-guard/
 │   │   ├── add_robustness_permutation_gates.py # --   为现有审稿意见补 robustness / permutation 条目
 │   │   └── correct_subgroup_overmatch.py #   --   修复审稿意见的亚组 over-match 问题
 │   │
-│   ├── rag/               (5 files, 1.4K LOC)    # 审稿 KB 之上的密集向量 RAG 层 (5 顶层模块 + index/ + retrieval/ 子包)
+│   ├── rag/               (4 files, 1.4K LOC)    # 审稿 KB 之上的密集向量 RAG 层 (4 顶层模块 + index/ + retrieval/ 子包)
 │   │   ├── config.py                     #   常量/路径/权重 (BGE-small + .cache/rag/ + dense/BM25/tag 比重)
 │   │   ├── embeddings.py                 #   sentence-transformers 包装 (单例 model loader + 归一化)
-│   │   ├── _hybrid_ranker.py             #   dense + BM25 + gate filter + canonical pattern + severity 融合
 │   │   ├── rag_query.py                  #   [入口] 高层 API + CLI (--gate / --codes / --top-k / --format)
 │   │   ├── _gate_integration.py          #   rag_context_for_failure() — 给 gate report.json 注入 reviewer 引用
 │   │   ├── index/                        #   索引子包: builder.py (KB → npz) + cache.py (原子写 / sha256)
-│   │   └── retrieval/                    #   检索信号子包: dense.py (cosine) + bm25.py (关键词重排)
+│   │   └── retrieval/                    #   检索信号子包: dense.py (cosine) + bm25.py (关键词重排) + hybrid.py (融合)
 │   │
 │   ├── diagnostics/       (27 files, 5.3K LOC)  # 环境诊断 + 文档一致性 + KB 卫生
 │   │   ├── env_doctor.py                 #   169  依赖健康检查 (core + optional backends)

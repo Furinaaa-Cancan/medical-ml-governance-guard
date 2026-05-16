@@ -32,7 +32,7 @@ can be deselected from fast CI lanes with ``-m "not slow"``.
 Two code paths
 --------------
 We prefer the public API ``scripts.rag.rag_query.rag_query`` (which goes
-through ``_hybrid_ranker.hybrid_rank``). If Agent A5's hybrid ranker is
+through ``retrieval.hybrid.hybrid_rank``). If Agent A5's hybrid ranker is
 not yet in place (or returns empty because of an upstream missing dep),
 the helper transparently falls back to a pure dense ``retrieval.dense``
 path so we still get real signal against the live KB. Both paths return
@@ -151,12 +151,12 @@ def _run_query(
         return results
 
     # Fallback path: pure dense vector_search. Triggered when
-    # _hybrid_ranker isn't on disk yet (rag_query returns [] in that case
+    # retrieval.hybrid isn't on disk yet (rag_query returns [] in that case
     # by design). We surface the dense top-k so the semantic-token checks
     # can still validate the retrieval stack end-to-end. This will be a
     # no-op once Agent A5 lands and rag_query returns full hybrid results.
     try:
-        from scripts.rag._hybrid_ranker import hybrid_rank  # noqa: F401
+        from scripts.rag.retrieval.hybrid import hybrid_rank  # noqa: F401
     except ImportError:
         from scripts.rag.retrieval.dense import vector_search
 

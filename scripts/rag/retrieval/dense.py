@@ -2,7 +2,7 @@
 
 This module lives at ``scripts/rag/retrieval/dense.py`` and implements the
 ``vector_search`` primitive used by the hybrid ranker
-(``scripts/rag/_hybrid_ranker.py``). It embeds a free-text query with the
+(``scripts/rag/retrieval/hybrid.py``). It embeds a free-text query with the
 same sentence-transformer model used to build the index, computes cosine
 similarity against the pre-normalized concern matrix, and returns the top-K
 concern records with a ``_dense_score`` field injected.
