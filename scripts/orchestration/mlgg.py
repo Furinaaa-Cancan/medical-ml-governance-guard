@@ -400,7 +400,7 @@ def maybe_forward_subcommand_help(raw_argv: list[str]) -> int | None:
         if target_command in INTERACTIVE_CORE_COMMANDS:
             cmd.extend(["--command", target_command])
         cmd.append("--help")
-        print(f"$ {shlex.join(cmd)}")
+        print(f"$ {shlex.join(cmd)}", file=sys.stderr)
         return _run_subprocess(cmd, cwd, timeout=60)
 
     script_path = COMMANDS[subcommand][0]
@@ -408,7 +408,7 @@ def maybe_forward_subcommand_help(raw_argv: list[str]) -> int | None:
         print(f"[FAIL] Script not found for command '{subcommand}': {script_path}", file=sys.stderr)
         return 2
     cmd = [python_bin, str(script_path), "--help"]
-    print(f"$ {shlex.join(cmd)}")
+    print(f"$ {shlex.join(cmd)}", file=sys.stderr)
     return _run_subprocess(cmd, cwd, timeout=60)
 
 
@@ -570,7 +570,7 @@ def main() -> int:
                     error_json=bool(args.error_json),
                 )
             cmd = [python_bin, str(wizard_script), "--help"]
-            print(f"$ {shlex.join(cmd)}")
+            print(f"$ {shlex.join(cmd)}", file=sys.stderr)
             if args.dry_run:
                 return 0
             return _run_subprocess(cmd, cwd, timeout=60)
@@ -621,7 +621,7 @@ def main() -> int:
         if args.accept_defaults:
             cmd.append("--accept-defaults")
         cmd.extend(passthrough)
-        print(f"$ {shlex.join(cmd)}")
+        print(f"$ {shlex.join(cmd)}", file=sys.stderr)
         if args.dry_run:
             return 0
         return _run_subprocess(cmd, cwd)
@@ -708,7 +708,7 @@ def main() -> int:
     if subcommand == "lint":
         plugin_dir = str(REPO_ROOT / "plugin")
         cmd = [python_bin, "-m", "mlgg_lint", *preset_args, *passthrough]
-        print(f"$ PYTHONPATH={plugin_dir} {shlex.join(cmd)}")
+        print(f"$ PYTHONPATH={plugin_dir} {shlex.join(cmd)}", file=sys.stderr)
         if args.dry_run:
             return 0
         import os as _os
@@ -724,7 +724,7 @@ def main() -> int:
             return 2
 
     cmd = [python_bin, str(script_path), *preset_args, *passthrough]
-    print(f"$ {shlex.join(cmd)}")
+    print(f"$ {shlex.join(cmd)}", file=sys.stderr)
     if args.dry_run:
         return 0
     return _run_subprocess(cmd, cwd)
