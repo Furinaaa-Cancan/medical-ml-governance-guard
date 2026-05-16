@@ -37,6 +37,7 @@ _MAX_RESPONSE_CHARS = 400
 def _synthesize_query(
     failure_codes: list[str],
     query_hint: Optional[str],
+    gate_name: Optional[str] = None,
 ) -> str:
     """Build a free-text query string from failure codes and an optional hint.
 
@@ -49,16 +50,29 @@ def _synthesize_query(
             ``["missing_calibration", "no_ci"]``.  May be empty.
         query_hint: Optional free-text hint from the caller, typically a
             short human description of the failing scenario.
+        gate_name: Fallback source for the synthesised query when both
+            ``failure_codes`` and ``query_hint`` are empty.  Required by
+            ``hybrid_rank`` which rejects empty queries (cosine of a
+            zero vector is meaningless).
 
     Returns:
         A whitespace-trimmed query string with underscores normalised to
-        spaces.  Returns an empty string when both inputs are empty.
+        spaces.  Guaranteed non-empty when ``gate_name`` is supplied.
     """
 
     code_text = " ".join(failure_codes or [])
     raw = f"{code_text} {query_hint or ''}".strip()
     # Normalise snake_case → space-separated for better embedding quality.
-    return raw.replace("_", " ").strip()
+    synthesised = raw.replace("_", " ").strip()
+    if synthesised:
+        return synthesised
+    # Empty-input fallback: use the gate name itself.  Without this the
+    # caller would hit ``ValueError`` inside ``vector_search`` (cosine
+    # cannot rank against an empty query), violating the contract in
+    # ``rag_context_for_failure`` that the gate filter alone is usable.
+    if gate_name:
+        return gate_name.replace("_", " ").strip()
+    return ""
 
 
 def rag_context_for_failure(
@@ -101,7 +115,7 @@ def rag_context_for_failure(
           the ``gate=`` filter alone can surface gate-relevant concerns.
     """
 
-    query = _synthesize_query(failure_codes, query_hint)
+    query = _synthesize_query(failure_codes, query_hint, gate_name=gate_name)
     return hybrid_rank(
         query,
         gate=gate_name,
