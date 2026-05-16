@@ -36,7 +36,13 @@ CATEGORY_TO_GATES: dict[str, list[str]] = {
     "external_validation": ["external_validation_gate"],
     "reporting": ["reporting_bias_gate"],
     "interpretability": ["shap_interpretability_gate"],
-    "reproducibility": ["seed_stability_gate", "execution_attestation_gate"],
+    # NOTE (H2 / G2 finding, 2026-05-17): the bare `"reproducibility"` category
+    # used to also seed `seed_stability_gate`, but in the KB ~80% of concerns
+    # under this category are about code/data/training-detail *availability*
+    # (i.e. "I cannot rerun this paper") rather than seed-variance per se.
+    # Seed-variance concerns are still captured via the narrow `seed` /
+    # `random_state` / `random_seed` / `seed_variance` tag overlays below.
+    "reproducibility": ["execution_attestation_gate"],
     "sample_size": ["sample_size_gate"],
     "clinical_utility": ["calibration_dca_gate", "clinical_metrics_gate"],
     "study_design": ["cohort_definition_gate"],
@@ -138,9 +144,20 @@ TAG_OVERLAYS: list[tuple[str, list[str]]] = [
     ("p_value_error", ["permutation_significance_gate"]),
     ("statistical_significance_missing", ["permutation_significance_gate"]),
     # Reproducibility
+    # H2 / G2 fix (2026-05-17): we split the old broad `"reproducibility"`
+    # keyword. The bare token used to map directly to seed_stability_gate
+    # *and* execution_attestation_gate, which mis-tagged ~38 code-availability
+    # concerns with seed_stability. Seed-variance signals must now be
+    # expressed with narrower tokens (`seed`, `random_seed`, `seed_variance`,
+    # `random_state`), while code/data availability tokens route to
+    # execution_attestation_gate + publication_gate.
     ("seed", ["seed_stability_gate"]),
+    ("random_seed", ["seed_stability_gate"]),
+    ("seed_variance", ["seed_stability_gate"]),
+    ("seed_stability", ["seed_stability_gate"]),
     ("random_state", ["seed_stability_gate"]),
-    ("code_availability", ["execution_attestation_gate"]),
+    ("code_availability", ["execution_attestation_gate", "publication_gate"]),
+    ("data_availability", ["execution_attestation_gate", "publication_gate"]),
     ("version_tracking", ["execution_attestation_gate"]),
     # Interpretability
     ("shap", ["shap_interpretability_gate"]),
@@ -261,8 +278,17 @@ TAG_OVERLAYS: list[tuple[str, list[str]]] = [
     ("collider_bias", ["cohort_definition_gate", "feature_lineage_gate"]),
 
     # Reproducibility surface (code links, coefficients, training details) →
-    # execution attestation + reporting bias
-    ("reproducibility", ["seed_stability_gate", "execution_attestation_gate"]),
+    # execution attestation + reporting bias / publication gate.
+    #
+    # H2 / G2 fix (2026-05-17): the bare `"reproducibility"` needle used to
+    # also map to `seed_stability_gate`, which then matched every tag with
+    # `reproducibility` as a substring (e.g. `architecture_reproducibility`,
+    # `code_reproducibility`, `irreproducibility`) — causing 38 code- and
+    # data-availability concerns to be wrongly tagged with seed_stability.
+    # The new rule maps the bare token to attestation + publication only;
+    # seed-variance concerns must use the narrower `seed`, `random_seed`,
+    # `seed_variance`, or `random_state` tokens defined above.
+    ("reproducibility", ["execution_attestation_gate", "publication_gate"]),
     ("irreproducible", ["execution_attestation_gate", "reporting_bias_gate"]),
     ("code_unavailable", ["execution_attestation_gate", "reporting_bias_gate"]),
     ("broken_code_link", ["execution_attestation_gate"]),
