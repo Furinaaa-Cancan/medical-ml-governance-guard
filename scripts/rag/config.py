@@ -116,3 +116,11 @@ SEVERITY_FULL_SPREAD: Final[float] = 0.20
 # ---------------------------------------------------------------------------
 MMR_LAMBDA: Final[float] = 0.7  # 70% relevance, 30% diversity
 MMR_SAME_PAPER_PENALTY: Final[float] = 0.5  # extra similarity for same-paper pairs
+
+# MMR cosine penalty floor (W2 fix for Q9 free-text regression)
+# Cosine similarities below this are treated as "distinct enough" — no
+# diversity penalty applied. Above this, MMR penalizes near-duplicates.
+# Default 0.88: BGE-small embeddings of "semantically related but
+# distinct" concerns typically cluster at 0.75-0.85; near-duplicates
+# (same paper rephrased, copy-paste-similar) sit above 0.90.
+MMR_COSINE_FLOOR: Final[float] = 0.88

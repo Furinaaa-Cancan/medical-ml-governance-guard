@@ -86,6 +86,67 @@ def test_mmr_v2_falls_back_to_paper_id_when_no_embedding():
     )
 
 
+def test_mmr_v2_cosine_floor_preserves_distinct_neighbors():
+    """W2 fix: cos 0.78-0.82 = semantically related but distinct.
+    Should NOT trigger diversity penalty. Only cos >= MMR_COSINE_FLOOR
+    (default 0.88) counts as near-duplicate."""
+    import numpy as np
+    from scripts.rag.retrieval.hybrid import _mmr_rerank
+
+    # Build embeddings: A and B are 0.80 cosine; B and C are 0.95 (near-dup)
+    A = np.array([1.0, 0.0] + [0.0] * 382, dtype=np.float32)
+    B = np.array([0.80, 0.60] + [0.0] * 382, dtype=np.float32)
+    B = B / np.linalg.norm(B)
+    C = np.array([0.78, 0.626] + [0.0] * 382, dtype=np.float32)
+    C = C / np.linalg.norm(C)
+
+    cos_AB = float(np.dot(A, B))
+    cos_BC = float(np.dot(B, C))
+    assert 0.75 < cos_AB < 0.85, f"setup: AB cos = {cos_AB}"
+    assert cos_BC > 0.95, f"setup: BC cos = {cos_BC}"
+
+    cands = [
+        {"concern_id": "A", "paper_id": "P1", "_final_score": 0.90, "_dense_embedding": A},
+        {"concern_id": "B", "paper_id": "P2", "_final_score": 0.85, "_dense_embedding": B},
+        {"concern_id": "C", "paper_id": "P3", "_final_score": 0.83, "_dense_embedding": C},
+    ]
+
+    # With floor: B (cos 0.80 to A, BELOW 0.88 floor) should NOT be penalized,
+    # so B wins rank 2 (higher relevance than C)
+    out = _mmr_rerank(cands, top_k=2, lam=0.5)
+    assert out[0]["concern_id"] == "A"
+    assert out[1]["concern_id"] == "B", (
+        f"with floor, B (distinct, cos 0.80) should win rank 2 over C (near-dup); "
+        f"got {out[1]['concern_id']}"
+    )
+
+
+def test_mmr_v2_floor_still_penalizes_near_duplicates():
+    """Above the floor (cos >= 0.88), MMR diversity still applies."""
+    import numpy as np
+    from scripts.rag.retrieval.hybrid import _mmr_rerank
+
+    A = np.array([1.0, 0.0] + [0.0] * 382, dtype=np.float32)
+    NEAR_DUP = np.array([0.96, 0.28] + [0.0] * 382, dtype=np.float32)
+    NEAR_DUP = NEAR_DUP / np.linalg.norm(NEAR_DUP)
+    DISTINCT = np.array([0.0, 1.0] + [0.0] * 382, dtype=np.float32)
+
+    assert float(np.dot(A, NEAR_DUP)) > 0.90  # above floor
+    assert float(np.dot(A, DISTINCT)) < 0.10  # orthogonal
+
+    cands = [
+        {"concern_id": "A", "paper_id": "P1", "_final_score": 0.90, "_dense_embedding": A},
+        {"concern_id": "B", "paper_id": "P2", "_final_score": 0.88, "_dense_embedding": NEAR_DUP},  # near-dup
+        {"concern_id": "C", "paper_id": "P3", "_final_score": 0.80, "_dense_embedding": DISTINCT},  # orthogonal
+    ]
+    out = _mmr_rerank(cands, top_k=2, lam=0.5)
+    assert out[0]["concern_id"] == "A"
+    assert out[1]["concern_id"] == "C", (
+        f"near-duplicate B should be penalized, C (distinct) should win rank 2; "
+        f"got {out[1]['concern_id']}"
+    )
+
+
 def test_mmr_v2_strips_embeddings_from_output():
     """Output to caller should not contain _dense_embedding (internal-only)."""
     import numpy as np

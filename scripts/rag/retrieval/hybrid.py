@@ -338,7 +338,11 @@ def _mmr_rerank(
                 sel_emb = sel.get("_dense_embedding")
                 if cand_emb is not None and sel_emb is not None:
                     cos = float(np.dot(cand_emb, sel_emb))
-                    if cos > max_sim:
+                    # Only treat near-duplicates as "similar enough to
+                    # penalize" (W2 fix for Q9 free-text regression).
+                    # Below the floor, two concerns are considered
+                    # distinct and no diversity penalty applies.
+                    if cos >= config.MMR_COSINE_FLOOR and cos > max_sim:
                         max_sim = cos
             mmr_score = lam * relevance - (1.0 - lam) * max_sim
             if mmr_score > best_score:
