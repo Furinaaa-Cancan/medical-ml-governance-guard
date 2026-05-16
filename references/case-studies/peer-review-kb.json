@@ -1212,7 +1212,8 @@
           "mlgg_dimension": 11,
           "mlgg_gates": [
             "seed_stability_gate",
-            "execution_attestation_gate"
+            "execution_attestation_gate",
+            "prediction_replay_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "There is a general lack of details (data more than code) for the work to be reproduced.",
@@ -2204,7 +2205,8 @@
           "mlgg_dimension": 3,
           "mlgg_gates": [
             "split_protocol_gate",
-            "covariate_shift_gate"
+            "covariate_shift_gate",
+            "robustness_gate"
           ],
           "mlgg_rules": [
             "MLGG-S02"
@@ -8387,7 +8389,8 @@
             "seed_stability_gate",
             "execution_attestation_gate",
             "model_selection_audit_gate",
-            "reporting_bias_gate"
+            "reporting_bias_gate",
+            "prediction_replay_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Section on Model Development is unclear and poorly explained. Many details missing regarding architecture and optimization. No hyperparameter tuning described. No schematic figure of model architecture. In current form, difficult to reproduce.",
@@ -12755,7 +12758,8 @@
           "mlgg_gates": [
             "publication_gate",
             "seed_stability_gate",
-            "execution_attestation_gate"
+            "execution_attestation_gate",
+            "prediction_replay_gate"
           ],
           "mlgg_rules": [],
           "author_response": "Uploaded code plus dummy dataset to Code Ocean; explicitly disclosed COI; explained clinical data sharing is not standard in IVF field.",
@@ -18566,7 +18570,8 @@
             "model_selection_audit_gate",
             "tuning_leakage_gate",
             "seed_stability_gate",
-            "execution_attestation_gate"
+            "execution_attestation_gate",
+            "prediction_replay_gate"
           ],
           "mlgg_rules": [
             "MLGG-M03"
@@ -19017,7 +19022,8 @@
           "mlgg_gates": [
             "publication_gate",
             "seed_stability_gate",
-            "execution_attestation_gate"
+            "execution_attestation_gate",
+            "prediction_replay_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Many of the tools do not have version numbers, which are necessary for reproducibility. The GitHub for AMR-GNN lacks information about what the model uses to predict and what outputs are expected. The output files do not have enough information for someone not familiar with neural networks. The GitHub should explain in detail what kind of input is expected and how the user can prepare their data to be in the correct format.",
@@ -19368,7 +19374,8 @@
           "mlgg_dimension": 5,
           "mlgg_gates": [
             "evaluation_quality_gate",
-            "clinical_metrics_gate"
+            "clinical_metrics_gate",
+            "robustness_gate"
           ],
           "mlgg_rules": [
             "MLGG-E02"
@@ -19438,7 +19445,8 @@
           "mlgg_dimension": 9,
           "mlgg_gates": [
             "fairness_equity_gate",
-            "shap_interpretability_gate"
+            "shap_interpretability_gate",
+            "robustness_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The discussion did not address subgroup performance disparities, particularly regarding ethnicity, offering detailed hypotheses for observed disparities and proposing concrete, actionable strategies to improve model fairness, such as diversifying training data, targeted fine-tuning, or fairness-aware algorithmic adjustments.",
@@ -20957,7 +20965,8 @@
           "mlgg_dimension": 3,
           "mlgg_gates": [
             "split_protocol_gate",
-            "clinical_metrics_gate"
+            "clinical_metrics_gate",
+            "robustness_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Related to the splitting ratio for the training/testing sets, it would be great if the paper considered other scenarios. What happens if the splitting ratio is 70%/30% and 80%/20%?",
@@ -21589,7 +21598,8 @@
           "severity": "MEDIUM",
           "mlgg_dimension": 1,
           "mlgg_gates": [
-            "cohort_definition_gate"
+            "cohort_definition_gate",
+            "robustness_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "For the MDD study, how is the 2000 individual control chosen? Also, why choose MDD? This procedure seems to be standardized across other mental health disorders as well — to show robustness, maybe the authors could experiment on other diseases as well.",
@@ -22144,7 +22154,8 @@
             "publication_gate",
             "seed_stability_gate",
             "execution_attestation_gate",
-            "reporting_bias_gate"
+            "reporting_bias_gate",
+            "prediction_replay_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The study's biggest limitation is lack of reproducibility. Without data and source code, the value of this study is significantly diminished and evaluation of the methodology is impossible. It's understandable that UKBB data can only be accessed through the established protocols. The validation data appears to be not accessible at all. At the very least, a working source code and simulated data should be made available.",
@@ -24224,7 +24235,8 @@
           "mlgg_gates": [
             "publication_gate",
             "seed_stability_gate",
-            "execution_attestation_gate"
+            "execution_attestation_gate",
+            "prediction_replay_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "Note on reproducibility: We attempted to run the code provided in the GitHub repository but encountered some issues during the installation and in the demo.py file.",
@@ -26471,7 +26483,8 @@
           "mlgg_dimension": 7,
           "mlgg_gates": [
             "external_validation_gate",
-            "covariate_shift_gate"
+            "covariate_shift_gate",
+            "robustness_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "For the across-study performance evaluation (Fig 3), the three datasets were used separately to check the AUC, what would be the AUC (and AUPRC) on the datasets combining these 3 datasets? Can the authors devise a way to merge these datasets accounting for batch effects?",
@@ -26789,7 +26802,8 @@
           "mlgg_gates": [
             "feature_engineering_audit_gate",
             "clinical_metrics_gate",
-            "model_selection_audit_gate"
+            "model_selection_audit_gate",
+            "robustness_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The imaging processing procedure may have large impact on the classification accuracy and uncertainty quantifications. In particular, the steps for removing background image tiles including grayspace fitering, Otsu's thresholding and gaussian blur detection. The authors should provide more details on those procedures and show the sensitivity of the UQ to the mild changes of tuning parameters in those procedures.",
@@ -27281,7 +27295,8 @@
             "cohort_definition_gate",
             "distribution_generalization_gate",
             "generalization_gap_gate",
-            "covariate_shift_gate"
+            "covariate_shift_gate",
+            "robustness_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "The external data experiments should make it more clear if the model used was only trained on the single scanner (such as in the Figure 2 caption). It is consequently not clear if Figure 2 is showing evaluation of both models or just the single scanner model on all three test sets. Also, it would be helpful to see a similar analysis for a model trained on a dataset with both scanners, and also the reverse (training on Hamamatsu, evaluation on Aperio).",
@@ -27617,7 +27632,8 @@
           "mlgg_gates": [
             "distribution_generalization_gate",
             "covariate_shift_gate",
-            "external_validation_gate"
+            "external_validation_gate",
+            "robustness_gate"
           ],
           "mlgg_rules": [
             "MLGG-T01"
@@ -30276,7 +30292,8 @@
           "mlgg_gates": [
             "feature_engineering_audit_gate",
             "feature_lineage_gate",
-            "evaluation_quality_gate"
+            "evaluation_quality_gate",
+            "robustness_gate"
           ],
           "mlgg_rules": [],
           "concern_text": "When applying this method, different operators can generate different ROI. The size and location of the ROI can change if it is annotated by different user, how will this inter-operator variance affect the results?",
@@ -31254,7 +31271,8 @@
           "mlgg_gates": [
             "evaluation_quality_gate",
             "ci_matrix_gate",
-            "seed_stability_gate"
+            "seed_stability_gate",
+            "prediction_replay_gate"
           ],
           "mlgg_rules": [
             "MLGG-E01"
