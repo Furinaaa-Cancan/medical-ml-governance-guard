@@ -124,6 +124,65 @@ def rag_query(
         return []
 
 
+def prewarm(*, force_rebuild: bool = False) -> dict:
+    """Pre-load model + index so the first real query has steady-state latency.
+
+    The E4 cache+perf eval flagged a ~228 ms first-query latency vs ~12 ms
+    steady-state. Latency-sensitive callers (gate runners, web UI) should call
+    this once at service start to eat the cold cost upfront rather than
+    paying it on the first user-facing query.
+
+    Returns:
+        A dict with timing + state keys:
+
+        * ``model_load_ms`` -- wall-clock to materialize the SentenceTransformer
+          singleton (near-zero on second call).
+        * ``index_load_ms`` -- wall-clock to load or rebuild the embedding
+          index. Below ~1 s typically means the npz cache was hit.
+        * ``warm_query_ms`` -- wall-clock of a tiny throw-away query that
+          exercises the full hybrid-rank path, so the BM25 + dense retrievers
+          are also warm.
+        * ``n_concerns`` -- number of concern records in the loaded index.
+        * ``cache_was_warm`` -- ``True`` if the index npz cache hit (heuristic:
+          ``index_load_ms < 1000``).
+
+    Idempotent: the second call hits the model singleton and the on-disk
+    index cache, so it should complete in tens of milliseconds.
+
+    Args:
+        force_rebuild: Forwarded to ``build_or_load_index`` when supported,
+            to ignore the on-disk cache and re-embed. Default ``False``.
+    """
+    import time
+
+    t0 = time.perf_counter()
+    from scripts.rag.embeddings import get_model
+    get_model()
+    model_load_ms = (time.perf_counter() - t0) * 1000
+
+    t0 = time.perf_counter()
+    from scripts.rag.index.builder import build_or_load_index
+    # Defensive: tolerate older signatures that may not yet accept
+    # ``force_rebuild``. Keeps prewarm() robust across in-flight refactors.
+    import inspect
+    sig = inspect.signature(build_or_load_index)
+    kwargs = {"force_rebuild": force_rebuild} if "force_rebuild" in sig.parameters else {}
+    _emb, recs = build_or_load_index(**kwargs)
+    index_load_ms = (time.perf_counter() - t0) * 1000
+
+    t0 = time.perf_counter()
+    _ = rag_query("calibration", top_k=1)
+    warm_query_ms = (time.perf_counter() - t0) * 1000
+
+    return {
+        "model_load_ms": round(model_load_ms, 1),
+        "index_load_ms": round(index_load_ms, 1),
+        "warm_query_ms": round(warm_query_ms, 1),
+        "n_concerns": len(recs),
+        "cache_was_warm": index_load_ms < 1000.0,
+    }
+
+
 # ---------------------------------------------------------------------------
 # CLI helpers
 # ---------------------------------------------------------------------------
@@ -214,6 +273,8 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "query",
+        nargs="?",
+        default=None,
         help="Free-text question, e.g. 'no calibration in evaluation'.",
     )
     parser.add_argument(
@@ -237,6 +298,15 @@ def _build_parser() -> argparse.ArgumentParser:
         choices=("table", "json"),
         default="table",
         help="Output format. 'table' (default) for humans, 'json' for tools.",
+    )
+    parser.add_argument(
+        "--prewarm",
+        action="store_true",
+        help=(
+            "Pre-load the embedding model + KB index and print a JSON status "
+            "dict, then exit 0. Use at service start to eat cold-cache "
+            "latency upfront. When set, the positional 'query' is optional."
+        ),
     )
     return parser
 
@@ -264,6 +334,14 @@ def main(argv: Optional[list[str]] = None) -> int:
     """
     parser = _build_parser()
     args = parser.parse_args(argv)
+
+    if args.prewarm:
+        status = prewarm()
+        print(json.dumps(status, ensure_ascii=False))
+        return 0
+
+    if args.query is None:
+        parser.error("query is required unless --prewarm is supplied")
 
     if args.top_k < 1:
         parser.error("--top-k must be a positive integer")
