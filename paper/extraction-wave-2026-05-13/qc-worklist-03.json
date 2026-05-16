@@ -1,0 +1,156 @@
+[
+  {
+    "paper_id": "PR-EXP-0151",
+    "paper_title": "10.1038/s41467-022-31666-w",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-022-31666-w_peer_review.pdf",
+    "concern_count": 3,
+    "concerns_sample_ids": [
+      "PR-EXP-0151-C01",
+      "PR-EXP-0151-C02",
+      "PR-EXP-0151-C03"
+    ],
+    "extraction_notes": "WGS somatic mutations paper is OUT_OF_SCOPE per CLAUDE.md (omics modality); manuscript was previously reviewed at another journal so this PDF only contains the Nature Communications iteration (limited rounds visible). Reviewer #4 caught a fundamental metric-definition error (accuracy vs recall) — useful KB example. Resolution status confident based on visible author responses."
+  },
+  {
+    "paper_id": "PR-EXP-0152",
+    "paper_title": "10.1038/s41467-022-32103-8",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-022-32103-8_peer_review.pdf",
+    "concern_count": 1,
+    "concerns_sample_ids": [
+      "PR-EXP-0152-C01"
+    ],
+    "extraction_notes": "Editorial note states the manuscript was previously reviewed at another journal not operating a transparent peer-review scheme, so this PDF contains only the truncated Nature Communications iteration with very limited reviewer text. Reviewer #1 stated 'satisfactorily addressed the prior critiques'. Only one substantive concern about treatment-naive sampling visible. AML clinical+molecular data is borderline-scope (clinical with molecular features); kept in scope. Reviewer count of 2 reflects only those who left comments at this iteration."
+  },
+  {
+    "paper_id": "PR-EXP-0153",
+    "paper_title": "10.1038/s41467-022-34025-x",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-022-34025-x_peer_review.pdf",
+    "concern_count": 4,
+    "concerns_sample_ids": [
+      "PR-EXP-0153-C01",
+      "PR-EXP-0153-C02",
+      "PR-EXP-0153-C03"
+    ],
+    "extraction_notes": "Histopathology WSI paper is OUT_OF_SCOPE per CLAUDE.md (imaging modality); however the reviewer concerns about Bayesian-method documentation, hyperparameter justification, preprocessing-sensitivity ablation, and abstention rate are universally relevant. Two-round review; round-2 reviewers fully satisfied."
+  },
+  {
+    "paper_id": "PR-EXP-0155",
+    "paper_title": "10.1038/s41467-022-34275-9",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-022-34275-9_peer_review.pdf",
+    "concern_count": 6,
+    "concerns_sample_ids": [
+      "PR-EXP-0155-C01",
+      "PR-EXP-0155-C02",
+      "PR-EXP-0155-C03"
+    ],
+    "extraction_notes": "Histopathology WSI paper is OUT_OF_SCOPE per CLAUDE.md (imaging modality); however reviewers raised subtype-mismatch validity, calibration leakage, AUPRC-vs-ROC, interpretability and code-availability concerns directly informing MLGG. C03 (calibration on test set) is a particularly clean leakage-risk example. Resolution null where rebuttal didn't directly address the methodological objection."
+  },
+  {
+    "paper_id": "PR-EXP-0157",
+    "paper_title": "10.1038/s41467-022-34945-8",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-022-34945-8_peer_review.pdf",
+    "concern_count": 6,
+    "concerns_sample_ids": [
+      "PR-EXP-0157-C01",
+      "PR-EXP-0157-C02",
+      "PR-EXP-0157-C03"
+    ],
+    "extraction_notes": "Histopathology WSI paper is OUT_OF_SCOPE per CLAUDE.md (imaging modality); however reviewers raised excellent generalization, PPV/NPV reporting, TRIPOD compliance and code-availability concerns directly informing MLGG. Two-round review; round-2 reviewers mostly satisfied except for Reviewer #1 who still felt full training code should be public. Resolution of C02 marked null because the rebuttal partially addressed it (only conformal-predictor code, not training code)."
+  },
+  {
+    "paper_id": "PR-EXP-0159",
+    "paper_title": "10.1038/s41467-020-20657-4",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-020-20657-4_peer_review.pdf",
+    "concern_count": 6,
+    "concerns_sample_ids": [
+      "PR-EXP-0159-C01",
+      "PR-EXP-0159-C02",
+      "PR-EXP-0159-C03"
+    ],
+    "extraction_notes": "CT imaging + clinical paper is OUT_OF_SCOPE per CLAUDE.md (imaging modality), but reviewers raised substantive methodology concerns including small-test-set significance, validation-set omission, time-of-scan lead-time bias, and prospective-vs-retrospective ambiguity that map directly to MLGG dimensions. Two reviewers, two rounds. Round-2 indicates outstanding concerns about marginal performance superiority and model-selection ambiguity were not fully resolved (resolution status null for those)."
+  },
+  {
+    "paper_id": "PR-EXP-0160",
+    "paper_title": "10.1038/s41467-020-20816-7",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-020-20816-7_peer_review.pdf",
+    "concern_count": 15,
+    "concerns_sample_ids": [
+      "PR-EXP-0160-C01",
+      "PR-EXP-0160-C02",
+      "PR-EXP-0160-C03"
+    ],
+    "extraction_notes": "Three reviewers, three rounds (round 1, round 2 R2 mostly unsatisfied + R3 satisfied + R1 satisfied; round 3 R2 satisfied). Strong methodological focus throughout, especially on missingness, MICE validity, and external validation under distribution shift. C06/C07/C14/C15 are the same thread (Reviewer #2's persistent missingness concern across rounds) — kept separate to track resolution dynamics. Missingness thread never formally resolved by reviewer in round 3 text — reviewer simply moves on. Author response style is rebuttal-heavy with frequent disagreement."
+  },
+  {
+    "paper_id": "PR-EXP-0170",
+    "paper_title": "10.1038/s41467-021-22876-9",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-021-22876-9_peer_review.pdf",
+    "concern_count": 8,
+    "concerns_sample_ids": [
+      "PR-EXP-0170-C01",
+      "PR-EXP-0170-C02",
+      "PR-EXP-0170-C03"
+    ],
+    "extraction_notes": "Editorial note: manuscript was previously reviewed at another journal (so reviewers #2,#5,#6,#7 are inherited from prior submission); subsequent round at Nature Comms added reviewers #7,#8,#9. Five distinct reviewers (#2,#5,#6,#7,#9) provided substantive comments in this PDF. Two rounds at Nature Communications. Dominant theme: case/control label fidelity given ICD-only ascertainment (C01, C03, C05) - flagged CRITICAL because the model is trained against a non-validated outcome. Reviewer #7's AUROC critique for low-prevalence events maps cleanly to MLGG-E02."
+  },
+  {
+    "paper_id": "PR-EXP-0179",
+    "paper_title": "10.1038/s41467-021-24343-x",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-021-24343-x_peer_review.pdf",
+    "concern_count": 5,
+    "concerns_sample_ids": [
+      "PR-EXP-0179-C01",
+      "PR-EXP-0179-C02",
+      "PR-EXP-0179-C03"
+    ],
+    "extraction_notes": "Paper is borderline omics scope (TCR sequencing + clinical survival). Concerns predominantly about sample size and sequencing methodology. Reviewer #4 added in round 2 with only positive comments. Reviewer #3 round 2 maintained methodology concerns about RNA-Seq for TCR inference, which authors declined to fully address."
+  },
+  {
+    "paper_id": "PR-EXP-0185",
+    "paper_title": "10.1038/s41467-021-25138-w",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-021-25138-w_peer_review.pdf",
+    "concern_count": 6,
+    "concerns_sample_ids": [
+      "PR-EXP-0185-C01",
+      "PR-EXP-0185-C02",
+      "PR-EXP-0185-C03"
+    ],
+    "extraction_notes": "Imaging modality (fundus photos) — formally out of MLGG core scope per CLAUDE.md, but concerns themselves are general ML methodology (class imbalance, label noise, split hygiene, external validation). Three reviewers, three rounds, all reviewers satisfied by final round."
+  },
+  {
+    "paper_id": "PR-EXP-0187",
+    "paper_title": "10.1038/s41467-021-25296-x",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-021-25296-x_peer_review.pdf",
+    "concern_count": 4,
+    "concerns_sample_ids": [
+      "PR-EXP-0187-C01",
+      "PR-EXP-0187-C02",
+      "PR-EXP-0187-C03"
+    ],
+    "extraction_notes": "Imaging modality (WSI cervical cytology) — out of MLGG core scope. Methodology concerns are general. Reviewer #2 round 2 maintained reservations about HPV-positive subgroup performance."
+  },
+  {
+    "paper_id": "PR-EXP-0189",
+    "paper_title": "10.1038/s41467-021-25351-7",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-021-25351-7_peer_review.pdf",
+    "concern_count": 4,
+    "concerns_sample_ids": [
+      "PR-EXP-0189-C01",
+      "PR-EXP-0189-C02",
+      "PR-EXP-0189-C03"
+    ],
+    "extraction_notes": "ECG signal-based — borderline imaging scope but uses tabular patient time-series. Solid extraction. Three reviewers across two rounds, all satisfied by round 2."
+  },
+  {
+    "paper_id": "PR-EXP-0191",
+    "paper_title": "10.1038/s41467-021-26643-8",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-021-26643-8_peer_review.pdf",
+    "concern_count": 6,
+    "concerns_sample_ids": [
+      "PR-EXP-0191-C01",
+      "PR-EXP-0191-C02",
+      "PR-EXP-0191-C03"
+    ],
+    "extraction_notes": "Histopathology imaging — out of MLGG core scope. Two-round review with three reviewers. Most concerns resolved; STARD-AI compliance and patient-level accuracy concerns partially addressed."
+  }
+]

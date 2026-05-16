@@ -1,0 +1,411 @@
+{
+  "wave": "discovery-wave-2026-05-13-r2",
+  "audit_summary": {
+    "green": 14,
+    "amber": 22,
+    "red": 37,
+    "green_tier_high": 5,
+    "green_tier_medium": 5,
+    "green_tier_low": 4
+  },
+  "green_sorted_by_tier": [
+    {
+      "doi": "10.1038/s43856-026-01542-5",
+      "title": "Socioeconomic status and migration background as predictors of complicated lower respirato",
+      "year": 2026,
+      "journal": "Communications Medicine",
+      "a": "ACCEPT",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "HIGH",
+      "code": "https://github.com/elan-dcc/VanDokkum25",
+      "data": "MIMIC"
+    },
+    {
+      "doi": "10.1038/s41467-025-58724-3",
+      "title": "UKB-MDRMF: a multi-disease risk and multimorbidity framework based on UK biobank data",
+      "year": 2025,
+      "journal": "Nature Communications",
+      "a": "ACCEPT",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "HIGH",
+      "code": "https://github.com/kannyjyk/UKB-MDRMF",
+      "data": "UK Biobank, All of Us"
+    },
+    {
+      "doi": "10.1038/s41467-025-64408-9",
+      "title": "Predicting hypotension, syncope, and fracture risk in patients indicated for antihypertens",
+      "year": 2025,
+      "journal": "Nature Communications",
+      "a": "ACCEPT",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "HIGH",
+      "code": "https://github.com/jamessheppard48/STRATIFY-BP",
+      "data": "NHS Digital"
+    },
+    {
+      "doi": "10.1038/s43856-025-01200-2",
+      "title": "Monitoring for early prediction of gram-negative bacteremia using machine learning and hem",
+      "year": 2025,
+      "journal": "Communications Medicine",
+      "a": "ACCEPT",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "HIGH",
+      "code": "https://github.com/YuHsin-Chang/Gram-Stain-Bacteremia-Prediction",
+      "data": "https://zenodo.org/records/17013194"
+    },
+    {
+      "doi": "10.1038/s43856-023-00295-9",
+      "title": "Integrated algorithm combining plasma biomarkers and cognitive assessments accurately pred",
+      "year": 2023,
+      "journal": "Communications Medicine",
+      "a": "ACCEPT",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "HIGH",
+      "code": "https://github.com/WXDX-DA/AbetaPrediction",
+      "data": "https://zenodo.org/record/7844160"
+    },
+    {
+      "doi": "10.1038/s41467-025-55879-x",
+      "title": "Medical history predicts phenome-wide disease onset and enables the rapid response to emer",
+      "year": 2025,
+      "journal": "Nature Communications",
+      "a": "ACCEPT",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "MEDIUM",
+      "code": "",
+      "data": "UK Biobank, All of Us"
+    },
+    {
+      "doi": "10.1038/s41467-023-38388-7",
+      "title": "Long COVID risk and pre-COVID vaccination in an EHR-based cohort study from the RECOVER pr",
+      "year": 2023,
+      "journal": "Nature Communications",
+      "a": "ACCEPT",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "MEDIUM",
+      "code": "",
+      "data": "Vanderbilt"
+    },
+    {
+      "doi": "10.1038/s41467-022-30836-0",
+      "title": "Long COVID burden and risk factors in 10 UK longitudinal studies and electronic health rec",
+      "year": 2022,
+      "journal": "Nature Communications",
+      "a": "ACCEPT",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "MEDIUM",
+      "code": "https://github.com/dylwil/longCOVIDrisk",
+      "data": ""
+    },
+    {
+      "doi": "10.1038/s43856-022-00071-1",
+      "title": "Development and preliminary validation of a machine learning system for thyroid dysfunctio",
+      "year": 2022,
+      "journal": "Communications Medicine",
+      "a": "ACCEPT",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "MEDIUM",
+      "code": "https://github.com/CosmicAITS/AITS1",
+      "data": ""
+    },
+    {
+      "doi": "10.1038/s41467-020-20246-5",
+      "title": "Disease risk scores for skin cancers",
+      "year": 2021,
+      "journal": "Nature Communications",
+      "a": "ACCEPT",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "MEDIUM",
+      "code": "",
+      "data": "UK Biobank, ADNI"
+    },
+    {
+      "doi": "10.1038/s41467-026-72960-1",
+      "title": "Artificial intelligence for predicting hospital admissions from the emergency department: ",
+      "year": 2026,
+      "journal": "Nature Communications",
+      "a": "ACCEPT",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "LOW",
+      "code": "",
+      "data": ""
+    },
+    {
+      "doi": "10.1038/s43856-026-01639-x",
+      "title": "Deep learning prediction of nocturnal hypertension for patients intolerant to ambulatory b",
+      "year": 2026,
+      "journal": "Communications Medicine",
+      "a": "ACCEPT",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "LOW",
+      "code": "",
+      "data": ""
+    },
+    {
+      "doi": "10.1038/s43856-025-01358-9",
+      "title": "Pretreatment emotional distress and peripheral biomarkers predict immune checkpoint inhibi",
+      "year": 2026,
+      "journal": "Communications Medicine",
+      "a": "ACCEPT",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "LOW",
+      "code": "",
+      "data": ""
+    },
+    {
+      "doi": "10.1038/s43856-025-00878-8",
+      "title": "Self-reported hearing measures can predict risk of falling and balance problems",
+      "year": 2025,
+      "journal": "Communications Medicine",
+      "a": "ACCEPT",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "LOW",
+      "code": "",
+      "data": ""
+    }
+  ],
+  "amber_clinical_review": [
+    {
+      "doi": "10.1038/s41467-025-62891-8",
+      "title": "A retrospective analysis of combination therapy with GLP-1 receptor agonists and SGLT2 inh",
+      "year": 2025,
+      "journal": "Nature Communications",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "LOW",
+      "code": "",
+      "data": ""
+    },
+    {
+      "doi": "10.1038/s41467-025-59610-8",
+      "title": "GraftIQ: Hybrid multi-class neural network integrating clinical insight for multi-outcome ",
+      "year": 2025,
+      "journal": "Nature Communications",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "HIGH",
+      "code": "https://github.com/divya031090/multiclassNN",
+      "data": "MIMIC, eICU, UK Biobank"
+    },
+    {
+      "doi": "10.1038/s43856-025-01229-3",
+      "title": "Multiple sclerosis risk stratification and healthcare cost prediction using machine learni",
+      "year": 2025,
+      "journal": "Communications Medicine",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "MEDIUM",
+      "code": "",
+      "data": "Vanderbilt"
+    },
+    {
+      "doi": "10.1038/s43856-025-01052-w",
+      "title": "A foundational triage system for improving accuracy in moderate acuity level emergency cla",
+      "year": 2025,
+      "journal": "Communications Medicine",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "HIGH",
+      "code": "https://github.com/TobyLieu/KUTS",
+      "data": "PhysioNet, MIMIC"
+    },
+    {
+      "doi": "10.1038/s43856-025-01237-3",
+      "title": "Comparison of the additive value of blood-based and retinal biomarkers to clinical feature",
+      "year": 2025,
+      "journal": "Communications Medicine",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "LOW",
+      "code": "",
+      "data": ""
+    },
+    {
+      "doi": "10.1038/s43856-024-00539-2",
+      "title": "Insights from an N3C RECOVER EHR-based cohort study characterizing SARS-CoV-2 reinfections",
+      "year": 2024,
+      "journal": "Communications Medicine",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "LOW",
+      "code": "",
+      "data": ""
+    },
+    {
+      "doi": "10.1038/s43856-024-00725-2",
+      "title": "Automated differentiation of wide QRS complex tachycardia using QRS complex polarity",
+      "year": 2024,
+      "journal": "Communications Medicine",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "LOW",
+      "code": "",
+      "data": ""
+    },
+    {
+      "doi": "10.1038/s43856-024-00499-7",
+      "title": "Serum autotaxin is a prognostic indicator of liver-related events in patients with non-alc",
+      "year": 2024,
+      "journal": "Communications Medicine",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "LOW",
+      "code": "",
+      "data": ""
+    },
+    {
+      "doi": "10.1038/s43856-025-00946-z",
+      "title": "Deep learning-based ranking method for subgroup and predictive biomarker identification in",
+      "year": 2025,
+      "journal": "Communications Medicine",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "MEDIUM",
+      "code": "",
+      "data": "UK Biobank"
+    },
+    {
+      "doi": "10.1038/s41467-024-51193-0",
+      "title": "Risk of stroke in male and female patients with atrial fibrillation in a nationwide cohort",
+      "year": 2024,
+      "journal": "Nature Communications",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "LOW",
+      "code": "",
+      "data": ""
+    },
+    {
+      "doi": "10.1038/s41467-024-46973-7",
+      "title": "S100A8/A9 as a prognostic biomarker with causal effects for post-acute myocardial infarcti",
+      "year": 2024,
+      "journal": "Nature Communications",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "MEDIUM",
+      "code": "",
+      "data": "UK Biobank"
+    },
+    {
+      "doi": "10.1038/s43856-025-01198-7",
+      "title": "Integrating large scale genetic and clinical information to predict cases of heart failure",
+      "year": 2025,
+      "journal": "Communications Medicine",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "HIGH",
+      "code": "https://github.com/The-Shi-Lab/CodeEmbedding",
+      "data": "UK Biobank"
+    },
+    {
+      "doi": "10.1038/s43856-023-00241-9",
+      "title": "Cardiothoracic ratio values and trajectories are associated with risk of requiring dialysi",
+      "year": 2023,
+      "journal": "Communications Medicine",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "HIGH",
+      "code": "https://zenodo.org/record/7403096",
+      "data": "https://zenodo.org/record/7403096"
+    },
+    {
+      "doi": "10.1038/s43856-025-01364-x",
+      "title": "A matched case-control study on Escherichia coli factors contributing to sepsis and septic",
+      "year": 2026,
+      "journal": "Communications Medicine",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "LOW",
+      "code": "",
+      "data": ""
+    },
+    {
+      "doi": "10.1038/s41467-020-19623-x",
+      "title": "Associations between blood type and COVID-19 infection, intubation, and death",
+      "year": 2020,
+      "journal": "Nature Communications",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "HIGH",
+      "code": "https://github.com/zietzm/abo_covid_analysis",
+      "data": "UK Biobank"
+    },
+    {
+      "doi": "10.1038/s41467-022-29521-z",
+      "title": "Persistent COVID-19 symptoms in a community study of 606,434 people in England",
+      "year": 2022,
+      "journal": "Nature Communications",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "MEDIUM",
+      "code": "",
+      "data": "NHS Digital"
+    },
+    {
+      "doi": "10.1038/s41467-021-21553-1",
+      "title": "Association between antecedent statin use and decreased mortality in hospitalized patients",
+      "year": 2021,
+      "journal": "Nature Communications",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "LOW",
+      "code": "",
+      "data": ""
+    },
+    {
+      "doi": "10.1038/s41467-020-16378-3",
+      "title": "Inferring multimodal latent topics from electronic health records",
+      "year": 2020,
+      "journal": "Nature Communications",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "HIGH",
+      "code": "https://github.com/mp2893/gram",
+      "data": "PhysioNet, MIMIC"
+    },
+    {
+      "doi": "10.1038/s41467-022-28248-1",
+      "title": "A population-based cohort study of obesity, ethnicity and COVID-19 mortality in 12.6 milli",
+      "year": 2022,
+      "journal": "Nature Communications",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "MEDIUM",
+      "code": "",
+      "data": "UK Biobank"
+    },
+    {
+      "doi": "10.1038/s41467-021-25402-z",
+      "title": "A comprehensive risk score for effective risk stratification and screening of nasopharynge",
+      "year": 2021,
+      "journal": "Nature Communications",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "LOW",
+      "code": "",
+      "data": ""
+    },
+    {
+      "doi": "10.1038/s41467-022-29880-7",
+      "title": "Trends and associated factors for Covid-19 hospitalisation and fatality risk in 2.3 millio",
+      "year": 2022,
+      "journal": "Nature Communications",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "HIGH",
+      "code": "https://github.com/tbeaney/Imperial-COh-evaluation",
+      "data": "NHS Digital"
+    },
+    {
+      "doi": "10.1038/s41467-021-27215-6",
+      "title": "Risk-stratification of febrile African children at risk of sepsis using sTREM-1 as basis f",
+      "year": 2021,
+      "journal": "Nature Communications",
+      "a": "NEEDS_CLINICAL_REVIEW",
+      "c": "HAS_PEER_REVIEW",
+      "e_tier": "LOW",
+      "code": "",
+      "data": ""
+    }
+  ]
+}

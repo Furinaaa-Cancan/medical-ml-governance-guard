@@ -1,0 +1,41 @@
+[
+  {
+    "id": "PR-EXP-0211",
+    "paper_doi": "10.1038/s41467-020-19527-w",
+    "paper_title": "A clinically applicable deep-learning model for detecting intracranial aneurysm in computed tomography angiography images",
+    "year": 2020,
+    "data_type": "ct_imaging_plus_clinical",
+    "prediction_task": "Intracranial aneurysm detection from CT angiography images with deep learning",
+    "model_types": null,
+    "domain": null,
+    "sample_size": null,
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-020-19527-w_peer_review.pdf",
+    "_note": ""
+  },
+  {
+    "id": "PR-EXP-0212",
+    "paper_doi": "10.1038/s41467-020-19551-w",
+    "paper_title": "Cross-site transportability of an explainable artificial intelligence model for acute kidney injury prediction",
+    "year": 2020,
+    "data_type": "ehr_icu_timeseries",
+    "prediction_task": "Cross-site transportability of an explainable AI model for acute kidney injury prediction",
+    "model_types": null,
+    "domain": null,
+    "sample_size": null,
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-020-19551-w_peer_review.pdf",
+    "_note": ""
+  },
+  {
+    "id": "PR-EXP-0214",
+    "paper_doi": "10.1038/s41467-020-19817-3",
+    "paper_title": "A deep learning diagnostic platform for diffuse large B-cell lymphoma with high accuracy across multiple hospitals",
+    "year": 2020,
+    "data_type": "histopathology_wsi",
+    "prediction_task": "Diagnostic platform for diffuse large B-cell lymphoma via deep learning across multiple hospitals",
+    "model_types": null,
+    "domain": null,
+    "sample_size": 531,
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-020-19817-3_peer_review.pdf",
+    "_note": ""
+  }
+]

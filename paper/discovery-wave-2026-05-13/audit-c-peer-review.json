@@ -1,0 +1,452 @@
+{
+  "agent": "audit-c-peer-review",
+  "ran_at_utc": "2026-05-16T12:00:00Z",
+  "method": "Constructed https://www.nature.com/articles/<doi-suffix> for each DOI; WebFetch redirected via idp.nature.com (cookies_not_supported flow) returned page content. Searched for 'Peer Review File', 'Transparent Peer Review', 'Reviewer reports' labels and static-content.springer.com MOESM*_ESM.pdf links.",
+  "verdicts_by_doi": {
+    "10.1038/s41467-026-68368-6": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-026-68368-6",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; supplementary materials present but no peer review file link found"
+    },
+    "10.1038/s41467-026-68579-x": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-026-68579-x",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s41467-026-69873-4": {
+      "verdict": "HAS_PEER_REVIEW_PDF",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-026-69873-4",
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-026-69873-4/MediaObjects/41467_2026_69873_MOESM3_ESM.pdf",
+      "note": "Labeled 'Transparent Peer Review file (download PDF)'"
+    },
+    "10.1038/s41467-026-71152-1": {
+      "verdict": "HAS_PEER_REVIEW_PDF",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-026-71152-1",
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-026-71152-1/MediaObjects/41467_2026_71152_MOESM2_ESM.pdf",
+      "note": "Labeled 'Peer Review File (download PDF)'"
+    },
+    "10.1038/s41467-025-56251-9": {
+      "verdict": "HAS_PEER_REVIEW_PDF",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-025-56251-9",
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-025-56251-9/MediaObjects/41467_2025_56251_MOESM3_ESM.pdf",
+      "note": "Labeled 'Transparent Peer Review file (download PDF)'"
+    },
+    "10.1038/s41467-025-56353-4": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-025-56353-4",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s41467-025-56790-1": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-025-56790-1",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s41467-025-57379-4": {
+      "verdict": "HAS_PEER_REVIEW_PDF",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-025-57379-4",
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-025-57379-4/MediaObjects/41467_2025_57379_MOESM3_ESM.pdf",
+      "note": "Labeled 'Transparent Peer Review file'"
+    },
+    "10.1038/s41467-025-57849-9": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-025-57849-9",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s41467-025-58161-2": {
+      "verdict": "HAS_PEER_REVIEW_PDF",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-025-58161-2",
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-025-58161-2/MediaObjects/41467_2025_58161_MOESM3_ESM.pdf",
+      "note": "Labeled 'Transparent Peer Review file'"
+    },
+    "10.1038/s41467-025-58437-7": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-025-58437-7",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s41467-025-59643-z": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-025-59643-z",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s41467-025-59951-4": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-025-59951-4",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s41467-025-60487-w": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-025-60487-w",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; supplementary materials MOESM1-19 present but no peer review file"
+    },
+    "10.1038/s41467-025-61418-5": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-025-61418-5",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s41467-025-61625-0": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-025-61625-0",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s41467-025-64640-3": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-025-64640-3",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s41467-025-64851-8": {
+      "verdict": "HAS_PEER_REVIEW_PDF",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-025-64851-8",
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-025-64851-8/MediaObjects/41467_2025_64851_MOESM3_ESM.pdf",
+      "note": "Labeled 'Transparent Peer Review file'"
+    },
+    "10.1038/s41467-025-66118-8": {
+      "verdict": "HAS_PEER_REVIEW_PDF",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-025-66118-8",
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-025-66118-8/MediaObjects/41467_2025_66118_MOESM3_ESM.pdf",
+      "note": "Labeled 'Transparent Peer Review file (download PDF)'"
+    },
+    "10.1038/s41467-025-66203-y": {
+      "verdict": "HAS_PEER_REVIEW_PDF",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-025-66203-y",
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-025-66203-y/MediaObjects/41467_2025_66203_MOESM3_ESM.pdf",
+      "note": "Labeled 'Transparent Peer Review file'"
+    },
+    "10.1038/s41467-025-67510-0": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-025-67510-0",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; supplementary datasets present but no peer review file"
+    },
+    "10.1038/s41467-023-37996-7": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-023-37996-7",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s41467-023-38756-3": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-023-38756-3",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; only Reporting Summary present"
+    },
+    "10.1038/s41467-023-41541-x": {
+      "verdict": "HAS_PEER_REVIEW_PDF",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-023-41541-x",
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-023-41541-x/MediaObjects/41467_2023_41541_MOESM2_ESM.pdf",
+      "note": "Labeled 'Peer Review File (download PDF)'"
+    },
+    "10.1038/s41467-023-42205-6": {
+      "verdict": "HAS_PEER_REVIEW_PDF",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-023-42205-6",
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-023-42205-6/MediaObjects/41467_2023_42205_MOESM2_ESM.pdf",
+      "note": "Labeled 'Peer Review File (download PDF)'"
+    },
+    "10.1038/s41467-023-43929-1": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-023-43929-1",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s41467-023-44266-z": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-023-44266-z",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; supplementary MOESM1-8 present but no peer review file"
+    },
+    "10.1038/s41467-023-44231-w": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-023-44231-w",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; Reporting Summary only"
+    },
+    "10.1038/s41467-024-44740-2": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-024-44740-2",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s41467-024-45777-z": {
+      "verdict": "HAS_PEER_REVIEW_PDF",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-024-45777-z",
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-024-45777-z/MediaObjects/41467_2024_45777_MOESM2_ESM.pdf",
+      "note": "Labeled 'Peer Review File (download PDF)'"
+    },
+    "10.1038/s41467-024-48713-3": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-024-48713-3",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s41467-024-48825-w": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-024-48825-w",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s41467-024-50199-y": {
+      "verdict": "HAS_PEER_REVIEW_PDF",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-024-50199-y",
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-024-50199-y/MediaObjects/41467_2024_50199_MOESM2_ESM.pdf",
+      "note": "Labeled 'Peer Review File (download PDF)'"
+    },
+    "10.1038/s43856-025-00775-0": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-025-00775-0",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s43856-025-01058-4": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-025-01058-4",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s43856-024-00445-7": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-024-00445-7",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; multiple supplementary files but no peer review file"
+    },
+    "10.1038/s43856-024-00603-x": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-024-00603-x",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; only Reporting Summary present"
+    },
+    "10.1038/s43856-025-01142-9": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-025-01142-9",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s43856-026-01589-4": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-026-01589-4",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; Supplementary Data 1-3 present but no peer review file"
+    },
+    "10.1038/s43856-024-00673-x": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-024-00673-x",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; springer-static and Zenodo materials present but no peer review file"
+    },
+    "10.1038/s43856-025-00986-5": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-025-00986-5",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; Supplementary Data 1-9 + Figures 1-7 but no peer review file"
+    },
+    "10.1038/s43856-026-01511-y": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-026-01511-y",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; Supplementary Data 1-19 XLSX files only"
+    },
+    "10.1038/s43856-025-01053-9": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-025-01053-9",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; reviewer names credited in Peer review metadata section but no PDF link"
+    },
+    "10.1038/s43856-024-00663-z": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-024-00663-z",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; MOESM1-7 supplementary but no peer review file"
+    },
+    "10.1038/s43856-024-00472-4": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-024-00472-4",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; only Supplementary Information PDF and Reporting Summary present"
+    },
+    "10.1038/s43856-026-01428-6": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-026-01428-6",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s43856-025-01292-w": {
+      "verdict": "HAS_PEER_REVIEW_PDF",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-025-01292-w",
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-01292-w/MediaObjects/43856_2025_1292_MOESM1_ESM.pdf",
+      "note": "Labeled 'Transparent Peer Review file'"
+    },
+    "10.1038/s43856-025-01057-5": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-025-01057-5",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; only Supplementary Data 1, Supplemental Table 1, Reporting Summary"
+    },
+    "10.1038/s43856-025-00827-5": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-025-00827-5",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s43856-026-01437-5": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-026-01437-5",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s43856-026-01527-4": {
+      "verdict": "HAS_PEER_REVIEW_PDF",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-026-01527-4",
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-026-01527-4/MediaObjects/43856_2026_1527_MOESM1_ESM.pdf",
+      "note": "Labeled 'Transparent Peer Review file (download PDF)'"
+    },
+    "10.1038/s43856-024-00590-z": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-024-00590-z",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; supplementary materials present but no peer review file"
+    },
+    "10.1038/s43856-025-00768-z": {
+      "verdict": "HAS_PEER_REVIEW_PDF",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-025-00768-z",
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-00768-z/MediaObjects/43856_2025_768_MOESM1_ESM.pdf",
+      "note": "Labeled 'Transparent Peer Review file (download PDF)'"
+    },
+    "10.1038/s43856-026-01443-7": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-026-01443-7",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; supplementary tables/figures only"
+    },
+    "10.1038/s41467-020-18684-2": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-020-18684-2",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; SI PDF + Reporting Summary + Source Data only"
+    },
+    "10.1038/s41467-020-17804-2": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-020-17804-2",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; only Reporting Summary PDF (predates Nature Comms transparent peer review opt-in)"
+    },
+    "10.1038/s43856-021-00042-y": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-021-00042-y",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; supplementary data only"
+    },
+    "10.1038/s43856-022-00094-8": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-022-00094-8",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    },
+    "10.1038/s43856-022-00126-3": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-022-00126-3",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; Supplementary Data 1-4 + SI + Reporting Summary only"
+    },
+    "10.1038/s43856-021-00065-5": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-021-00065-5",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; supplementary MOESM only"
+    },
+    "10.1038/s43856-022-00117-4": {
+      "verdict": "HAS_PEER_REVIEW_PDF",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-022-00117-4",
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-022-00117-4/MediaObjects/43856_2022_117_MOESM2_ESM.pdf",
+      "note": "Labeled 'Peer Review File (download PDF)'"
+    },
+    "10.1038/s41467-022-35157-w": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-022-35157-w",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; Extended Data + MOESM SI only, no peer review file"
+    },
+    "10.1038/s43856-022-00201-9": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-022-00201-9",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; reviewer attribution mentioned but no PDF link"
+    },
+    "10.1038/s43856-022-00165-w": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-022-00165-w",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; supplementary MOESM only"
+    },
+    "10.1038/s41467-023-39902-7": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-023-39902-7",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; supplementary fig/methods only"
+    },
+    "10.1038/s43856-024-00726-1": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-024-00726-1",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; supplementary tables/figures only"
+    },
+    "10.1038/s41467-024-52003-3": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-024-52003-3",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; MOESM1-3 supplementary but no peer review file"
+    },
+    "10.1038/s41467-020-19478-2": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-020-19478-2",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; only Nature Research Reporting Summary present"
+    },
+    "10.1038/s43856-025-00994-5": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-025-00994-5",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; SI + Supplemental Data 1 + Reporting Summary only"
+    },
+    "10.1038/s41467-021-22877-8": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-021-22877-8",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; Reporting Summary + Source Data only"
+    },
+    "10.1038/s43856-022-00225-1": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s43856-022-00225-1",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; MOESM data/code references only"
+    },
+    "10.1038/s41467-025-67470-5": {
+      "verdict": "NO_TRANSPARENT_PEER_REVIEW",
+      "nature_url_checked": "https://www.nature.com/articles/s41467-025-67470-5",
+      "peer_review_pdf_url": null,
+      "note": "Page loaded; no peer review file link found"
+    }
+  },
+  "summary": {
+    "has_peer_review_pdf": 14,
+    "no_transparent_peer_review": 58,
+    "page_error": 0,
+    "unknown": 0
+  },
+  "notes": [
+    "All 72 candidate Nature pages loaded successfully via the idp.nature.com cookies_not_supported redirect. No rate-limiting encountered.",
+    "WebFetch extraction reliability caveat: 'NO_TRANSPARENT_PEER_REVIEW' verdicts depend on a model-summarised page; faint or unusually-labeled peer review links could in principle be missed. Manual spot-check of a few NO verdicts is recommended before treating them as definitive exclusions.",
+    "Notable pattern: Communications Medicine (s43856-) papers have substantially lower peer-review-file availability than Nature Communications (s41467-). Within s43856-, only 4 of 26 carry a peer review PDF (15%); within s41467-, 10 of 46 do (22%).",
+    "Older papers (2020-2022) almost universally lack transparent peer review files, consistent with the program being a later opt-in.",
+    "All HAS_PEER_REVIEW_PDF URLs follow the static-content.springer.com/esm/art%3A10.1038%2F<doi-suffix>/MediaObjects/<journal-num>_<year>_<art-num>_MOESM<N>_ESM.pdf pattern; N is typically 2 or 3."
+  ]
+}

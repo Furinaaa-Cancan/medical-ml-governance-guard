@@ -1,0 +1,207 @@
+{
+  "agent": "agent-3-cm-2024-2026",
+  "scope": "Communications Medicine 2024-2026 retrospective binary cohort prediction",
+  "ran_at_utc": "2026-05-16T01:24:22Z",
+  "openalex_source_id_used": "S4210167893",
+  "queries_tried": [
+    "clinical prediction model",
+    "risk score validation",
+    "cohort study machine learning",
+    "external validation clinical",
+    "EHR predictive model",
+    "binary outcome cohort",
+    "diagnostic prediction model",
+    "readmission cohort"
+  ],
+  "candidates": [
+    {
+      "doi": "10.1038/s43856-025-00775-0",
+      "title": "Low responsiveness of machine learning models to critical or deteriorating health conditions",
+      "journal": "Communications Medicine",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4408341851",
+      "scope_hint": "ICU mortality ML; tabular vitals+labs from EHR; binary deterioration warning task; retrospective",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s43856-025-01058-4",
+      "title": "Predicting arrhythmia recurrence post-ablation in atrial fibrillation using explainable machine learning",
+      "journal": "Communications Medicine",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4415155892",
+      "scope_hint": "Atrial fibrillation post-ablation arrhythmia recurrence; explainable ML on tabular clinical features; binary outcome",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s43856-024-00445-7",
+      "title": "Estimating the risk of brain metastasis for patients newly diagnosed with cancer",
+      "journal": "Communications Medicine",
+      "year": 2024,
+      "openalex_id": "https://openalex.org/W4392042094",
+      "scope_hint": "Brain metastasis at cancer diagnosis; develop+validate models; binary risk; retrospective EHR",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s43856-024-00603-x",
+      "title": "Comparison of machine learning models for the prediction of hypertension in transgender patients undergoing gynecologic surgery",
+      "journal": "Communications Medicine",
+      "year": 2024,
+      "openalex_id": "https://openalex.org/W4403004373",
+      "scope_hint": "Hypertension prediction in transgender pts undergoing gynecologic surgery; ML model comparison; EHR cohort; binary",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s43856-025-01142-9",
+      "title": "In-hospital mortality prognostication for cancer patients with febrile neutropenia",
+      "journal": "Communications Medicine",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4416003829",
+      "scope_hint": "In-hospital mortality in cancer pts with febrile neutropenia; retrospective cohort; binary",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s43856-026-01589-4",
+      "title": "Comprehensive validation of machine learning models predicting chemotherapy related electrolyte disorders in a multicenter study",
+      "journal": "Communications Medicine",
+      "year": 2026,
+      "openalex_id": "https://openalex.org/W7155365944",
+      "scope_hint": "Multicenter ML validation for chemotherapy electrolyte disorders; multiple binary outcomes; retrospective EHR",
+      "out_of_scope_risk": "multi-label outcomes"
+    },
+    {
+      "doi": "10.1038/s43856-024-00673-x",
+      "title": "Predicting individual patient and hospital-level discharge using machine learning",
+      "journal": "Communications Medicine",
+      "year": 2024,
+      "openalex_id": "https://openalex.org/W4404463516",
+      "scope_hint": "Hospital discharge prediction with ML on diverse EHR data; binary discharge event",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s43856-025-00986-5",
+      "title": "Comorbidities associated with a clinically-recognized delirium diagnosis in the hospital using real world data",
+      "journal": "Communications Medicine",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4412573688",
+      "scope_hint": "Delirium diagnosis with comorbidity prediction; real-world EHR retrospective",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s43856-026-01511-y",
+      "title": "Stratification of Alzheimer’s Disease Patients Using Knowledge-Guided Unsupervised Latent Factor Clustering with Electronic Health Record Data",
+      "journal": "Communications Medicine",
+      "year": 2024,
+      "openalex_id": "https://openalex.org/W4405857228",
+      "scope_hint": "AD stratification with EHR latent factor clustering; retrospective cohort prognosis",
+      "out_of_scope_risk": "uses clustering, but downstream prognostication evaluated"
+    },
+    {
+      "doi": "10.1038/s43856-025-01053-9",
+      "title": "Gated recurrent unit with decay has real-time capability for postoperative ileus surveillance and offers cross-hospital transferability",
+      "journal": "Communications Medicine",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4412936420",
+      "scope_hint": "Postoperative ileus surveillance GRU; cross-hospital retrospective; binary; EHR features",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s43856-024-00663-z",
+      "title": "Underestimated risk of secondary complications in pathogenic and glucose-elevating GCK variant carriers with type 2 diabetes",
+      "journal": "Communications Medicine",
+      "year": 2024,
+      "openalex_id": "https://openalex.org/W4404536585",
+      "scope_hint": "GCK variant carriers w/ T2D, secondary complication risk; registry/cohort tabular; binary endpoints",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s43856-024-00472-4",
+      "title": "Artificial intelligence-enabled electrocardiography contributes to hyperthyroidism detection and outcome prediction",
+      "journal": "Communications Medicine",
+      "year": 2024,
+      "openalex_id": "https://openalex.org/W4392682835",
+      "scope_hint": "AI-ECG hyperthyroidism detection + outcome prediction; large EHR cohort; binary",
+      "out_of_scope_risk": "ECG signal but task is binary risk classification"
+    },
+    {
+      "doi": "10.1038/s43856-026-01428-6",
+      "title": "Acute biological age as a determinant of adverse outcomes requiring hospitalization in Danish emergency department patients",
+      "journal": "Communications Medicine",
+      "year": 2026,
+      "openalex_id": "https://openalex.org/W7128474372",
+      "scope_hint": "Acute biological age in ED; predicting hospitalization-requiring adverse outcomes; retrospective binary",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s43856-025-01292-w",
+      "title": "Transparent and dynamic network-based risk assessment for development of hepatic encephalopathy",
+      "journal": "Communications Medicine",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4417178443",
+      "scope_hint": "Hepatic encephalopathy risk; transparent dynamic network model; retrospective at-risk identification",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s43856-025-01057-5",
+      "title": "Pre-existing comorbidities and hospitalization for COVID-19 are associated with post-COVID conditions in the U.S. veteran population",
+      "journal": "Communications Medicine",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4415517563",
+      "scope_hint": "Pre-existing comorbidities and COVID hospitalization predicting PCC in US veterans; retrospective cohort; binary PCC",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s43856-025-00827-5",
+      "title": "Identifying commonalities and differences between EHR representations of PASC and ME/CFS in the RECOVER EHR cohort",
+      "journal": "Communications Medicine",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4409320294",
+      "scope_hint": "PASC vs ME/CFS in RECOVER EHR cohort; ML-driven computable phenotypes; binary classifiers on EHR conditions",
+      "out_of_scope_risk": "phenotype-discovery framing, not pure prognostic model"
+    },
+    {
+      "doi": "10.1038/s43856-026-01437-5",
+      "title": "Machine learning–based cfDNA fragmentation profiling using automated capillary electrophoresis for early detection of hepatocellular carcinoma",
+      "journal": "Communications Medicine",
+      "year": 2026,
+      "openalex_id": "https://openalex.org/W7129442502",
+      "scope_hint": "ML cfDNA fragmentation profiling for early HCC detection; tabular features from CE; binary diagnostic",
+      "out_of_scope_risk": "borderline omics-adjacent (cfDNA-derived features)"
+    },
+    {
+      "doi": "10.1038/s43856-026-01527-4",
+      "title": "Patient-reported symptoms in predicting the subsequent progression of chronic health conditions among childhood cancer survivors",
+      "journal": "Communications Medicine",
+      "year": 2026,
+      "openalex_id": "https://openalex.org/W7140221314",
+      "scope_hint": "Patient-reported symptoms predicting progression of chronic conditions in childhood cancer survivors; retrospective cohort",
+      "out_of_scope_risk": "outcome could be ordinal; verify binary framing"
+    },
+    {
+      "doi": "10.1038/s43856-024-00590-z",
+      "title": "Predicting 1, 2 and 3 year emergent referable diabetic retinopathy and maculopathy using deep learning",
+      "journal": "Communications Medicine",
+      "year": 2024,
+      "openalex_id": "https://openalex.org/W4401793494",
+      "scope_hint": "Predicting 1/2/3 yr emergent referable DR/maculopathy; tabular DLS variant + multimodal; longitudinal screening cohort; binary",
+      "out_of_scope_risk": "image variant exists but tabular and multimodal models in scope"
+    },
+    {
+      "doi": "10.1038/s43856-025-00768-z",
+      "title": "Alzheimer’s disease biological PET staging using plasma p217+tau",
+      "journal": "Communications Medicine",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4408060030",
+      "scope_hint": "Plasma p217+tau for AD biological PET staging; logistic regression+ROC for binary stage discrimination",
+      "out_of_scope_risk": "multi-class staging done as one-vs-rest binary; biomarker-focused"
+    },
+    {
+      "doi": "10.1038/s43856-026-01443-7",
+      "title": "Leveraging electronic health records to examine differential clinical outcomes in people with Alzheimer’s disease",
+      "journal": "Communications Medicine",
+      "year": 2026,
+      "openalex_id": "https://openalex.org/W7135102405",
+      "scope_hint": "EHR-based AD differential clinical outcomes; unsupervised phenotyping algorithm to predict AD diagnosis; validated against gold-standard labels",
+      "out_of_scope_risk": "downstream uses competing-risk survival; phenotyping step is binary classification"
+    }
+  ]
+}

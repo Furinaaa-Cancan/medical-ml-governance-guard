@@ -1,0 +1,268 @@
+{
+  "agent": "agent-2-cm-2024-2026-r2",
+  "scope": "Communications Medicine 2024-2026, NEW angles vs round 1",
+  "ran_at_utc": "2026-05-16T02:17:06Z",
+  "openalex_source_id_used": "S4210167893",
+  "queries_tried": [
+    "infectious disease prediction model",
+    "cancer recurrence prediction",
+    "treatment response prediction",
+    "early warning score",
+    "risk stratification clinical",
+    "decision support machine learning",
+    "triage model emergency",
+    "prognostic model validation",
+    "acute care prediction",
+    "30-day outcome prediction",
+    "falls risk prediction",
+    "frailty prediction",
+    "inpatient adverse event"
+  ],
+  "candidates": [
+    {
+      "doi": "10.1038/s43856-025-00785-y",
+      "title": "Identifying and ranking non-traditional risk factors for cardiovascular disease prediction in people with type 2 diabetes",
+      "journal": "Communications Medicine",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4408394796",
+      "scope_hint": "T2DM CVD prediction with 600+ tabular features, machine learning ranking",
+      "out_of_scope_risk": "non-traditional CVD predictors for T2DM",
+      "cited_by_count": 7
+    },
+    {
+      "doi": "10.1038/s43856-025-01229-3",
+      "title": "Multiple sclerosis risk stratification and healthcare cost prediction using machine learning",
+      "journal": "Communications Medicine",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4417327822",
+      "scope_hint": "MS risk stratification ML using healthcare claims (tabular, retrospective cohort)",
+      "out_of_scope_risk": "MS risk + cost prediction",
+      "cited_by_count": 0
+    },
+    {
+      "doi": "10.1038/s43856-025-00878-8",
+      "title": "Self-reported hearing measures can predict risk of falling and balance problems",
+      "journal": "Communications Medicine",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4410408245",
+      "scope_hint": "Self-reported hearing predicts falls risk - tabular features",
+      "out_of_scope_risk": "falls risk + balance, possible cross-sectional - check",
+      "cited_by_count": 4
+    },
+    {
+      "doi": "10.1038/s43856-026-01542-5",
+      "title": "Socioeconomic status and migration background as predictors of complicated lower respiratory tract infections in primary care",
+      "journal": "Communications Medicine",
+      "year": 2026,
+      "openalex_id": "https://openalex.org/W7141378264",
+      "scope_hint": "SES/migration as predictors of LRTI complications - primary care cohort, tabular",
+      "out_of_scope_risk": "complicated LRTI predictors in primary care",
+      "cited_by_count": 0
+    },
+    {
+      "doi": "10.1038/s43856-025-01253-3",
+      "title": "Responses to active stand test predict 12-year incident cardiovascular disease and mortality",
+      "journal": "Communications Medicine",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4417321531",
+      "scope_hint": "Active stand test predicts 12-yr CVD/mortality - cohort tabular hemodynamic",
+      "out_of_scope_risk": "active stand response predicts CVD/mortality - survival aspect",
+      "cited_by_count": 0
+    },
+    {
+      "doi": "10.1038/s43856-025-01052-w",
+      "title": "A foundational triage system for improving accuracy in moderate acuity level emergency classifications",
+      "journal": "Communications Medicine",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4412794180",
+      "scope_hint": "Foundational triage AI for moderate acuity emergency classification",
+      "out_of_scope_risk": "triage model",
+      "cited_by_count": 6
+    },
+    {
+      "doi": "10.1038/s43856-024-00568-x",
+      "title": "Explainable AI decision support improves accuracy during telehealth strep throat screening",
+      "journal": "Communications Medicine",
+      "year": 2024,
+      "openalex_id": "https://openalex.org/W4400935096",
+      "scope_hint": "AI decision support for telehealth strep throat screening (images though)",
+      "out_of_scope_risk": "uses smartphone images - probably out",
+      "cited_by_count": 19
+    },
+    {
+      "doi": "10.1038/s43856-026-01498-6",
+      "title": "Association of pharmacotherapy with all-cause mortality among patients with irritable bowel syndrome",
+      "journal": "Communications Medicine",
+      "year": 2026,
+      "openalex_id": "https://openalex.org/W7152097324",
+      "scope_hint": "IBS pharmacotherapy and mortality - retrospective EHR cohort",
+      "out_of_scope_risk": "association study, may not be ML",
+      "cited_by_count": 1
+    },
+    {
+      "doi": "10.1038/s43856-024-00599-4",
+      "title": "Adverse cardiovascular and kidney outcomes in people with SARS-CoV-2 treated with SGLT2 inhibitors",
+      "journal": "Communications Medicine",
+      "year": 2024,
+      "openalex_id": "https://openalex.org/W4402432733",
+      "scope_hint": "SGLT2 inhibitors + SARS-CoV-2 outcomes in VA cohort",
+      "out_of_scope_risk": "treatment effect estimation",
+      "cited_by_count": 2
+    },
+    {
+      "doi": "10.1038/s43856-026-01460-6",
+      "title": "The risk of kidney disease increases following SARS-CoV-2 infection compared to influenza",
+      "journal": "Communications Medicine",
+      "year": 2026,
+      "openalex_id": "https://openalex.org/W7131457792",
+      "scope_hint": "COVID vs flu kidney disease risk - retrospective cohort",
+      "out_of_scope_risk": "comparative cohort risk",
+      "cited_by_count": 1
+    },
+    {
+      "doi": "10.1038/s43856-025-00781-2",
+      "title": "Physician clinical decision modification and bias assessment in a randomized controlled trial of AI assistance",
+      "journal": "Communications Medicine",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4408155297",
+      "scope_hint": "AI assistance physician decisions chest pain triage RCT",
+      "out_of_scope_risk": "RCT, AI-assist evaluation",
+      "cited_by_count": 27
+    },
+    {
+      "doi": "10.1038/s43856-026-01432-w",
+      "title": "Predicting rates of cognitive and functional decline in Alzheimer\u2019s disease and mild cognitive impairment",
+      "journal": "Communications Medicine",
+      "year": 2026,
+      "openalex_id": "https://openalex.org/W7131618589",
+      "scope_hint": "Predicting cognitive/functional decline in AD/MCI",
+      "out_of_scope_risk": "AD progression prediction",
+      "cited_by_count": 0
+    },
+    {
+      "doi": "10.1038/s43856-025-01237-3",
+      "title": "Comparison of the additive value of blood-based and retinal biomarkers to clinical features in predicting cognitive decline",
+      "journal": "Communications Medicine",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4416299855",
+      "scope_hint": "Blood + retinal biomarkers predict cognitive decline cohort",
+      "out_of_scope_risk": "uses retinal imaging - check",
+      "cited_by_count": 1
+    },
+    {
+      "doi": "10.1038/s43856-024-00539-2",
+      "title": "Insights from an N3C RECOVER EHR-based cohort study characterizing SARS-CoV-2 reinfections and Long COVID",
+      "journal": "Communications Medicine",
+      "year": 2024,
+      "openalex_id": "https://openalex.org/W4400552817",
+      "scope_hint": "N3C EHR cohort - SARS-CoV-2 reinfections and Long COVID",
+      "out_of_scope_risk": "EHR cohort risk characterization",
+      "cited_by_count": 39
+    },
+    {
+      "doi": "10.1038/s43856-026-01639-x",
+      "title": "Deep learning prediction of nocturnal hypertension for patients intolerant to ambulatory blood pressure monitoring",
+      "journal": "Communications Medicine",
+      "year": 2026,
+      "openalex_id": "https://openalex.org/W7160713653",
+      "scope_hint": "Deep learning prediction of nocturnal hypertension from tabular",
+      "out_of_scope_risk": "predict nocturnal HTN",
+      "cited_by_count": 0
+    },
+    {
+      "doi": "10.1038/s43856-024-00725-2",
+      "title": "Automated differentiation of wide QRS complex tachycardia using QRS complex polarity",
+      "journal": "Communications Medicine",
+      "year": 2024,
+      "openalex_id": "https://openalex.org/W4405946329",
+      "scope_hint": "Automated wide QRS differentiation - uses ECG-derived tabular features",
+      "out_of_scope_risk": "ECG-derived features classification",
+      "cited_by_count": 3
+    },
+    {
+      "doi": "10.1038/s43856-026-01556-z",
+      "title": "System-level clustering of testosterone-related biomarkers identifies high-risk aging profiles linked to inflammation and renal function",
+      "journal": "Communications Medicine",
+      "year": 2026,
+      "openalex_id": "https://openalex.org/W7154471125",
+      "scope_hint": "Testosterone biomarker clustering for high-risk aging",
+      "out_of_scope_risk": "clustering - may be reject",
+      "cited_by_count": 0
+    },
+    {
+      "doi": "10.1038/s43856-024-00499-7",
+      "title": "Serum autotaxin is a prognostic indicator of liver-related events in patients with non-alcoholic fatty liver disease",
+      "journal": "Communications Medicine",
+      "year": 2024,
+      "openalex_id": "https://openalex.org/W4394855990",
+      "scope_hint": "Serum autotaxin prognostic for liver-related events NAFLD - retrospective cohort",
+      "out_of_scope_risk": "biomarker prognosis cohort",
+      "cited_by_count": 13
+    },
+    {
+      "doi": "10.1038/s43856-024-00527-6",
+      "title": "Combined use of Donepezil and Memantine increases the probability of five-year survival of Alzheimer\u2019s disease patients",
+      "journal": "Communications Medicine",
+      "year": 2024,
+      "openalex_id": "https://openalex.org/W4398237142",
+      "scope_hint": "Donepezil + Memantine survival probability AD - causal/EHR",
+      "out_of_scope_risk": "treatment effect, EHR causal",
+      "cited_by_count": 34
+    },
+    {
+      "doi": "10.1038/s43856-025-00946-z",
+      "title": "Deep learning-based ranking method for subgroup and predictive biomarker identification in patients",
+      "journal": "Communications Medicine",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4411184776",
+      "scope_hint": "DL ranking method for subgroup/predictive biomarker identification",
+      "out_of_scope_risk": "method-ish but applied to patients",
+      "cited_by_count": 2
+    },
+    {
+      "doi": "10.1038/s43856-025-01062-8",
+      "title": "Associations of mental disorders with maternal health outcomes",
+      "journal": "Communications Medicine",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4413115906",
+      "scope_hint": "Mental disorders + maternal outcomes - delivery hospitalizations",
+      "out_of_scope_risk": "associations, cross-sectional/cohort",
+      "cited_by_count": 3
+    },
+    {
+      "doi": "10.1038/s43856-026-01603-9",
+      "title": "Polygenic risk score and 20-year prostate cancer-specific mortality and survival",
+      "journal": "Communications Medicine",
+      "year": 2026,
+      "openalex_id": "https://openalex.org/W7155550456",
+      "scope_hint": "PRS + 20-yr prostate cancer mortality - cohort",
+      "out_of_scope_risk": "PRS analysis - may be survival-primary",
+      "cited_by_count": 0
+    },
+    {
+      "doi": "10.1038/s43856-024-00455-5",
+      "title": "Socioeconomic deprivation and illness trajectory in the Scottish population after COVID-19 hospitalization",
+      "journal": "Communications Medicine",
+      "year": 2024,
+      "openalex_id": "https://openalex.org/W4392242766",
+      "scope_hint": "Deprivation + illness trajectory post-COVID hospitalization - cohort",
+      "out_of_scope_risk": "trajectory analysis",
+      "cited_by_count": 2
+    },
+    {
+      "doi": "10.1038/s43856-025-00867-x",
+      "title": "Circulating tumor DNA strongly predicts efficacy of chemotherapy plus immune checkpoint inhibitors in patients with advanced gastro-esophageal adenocarcinoma",
+      "journal": "Communications Medicine",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4409738033",
+      "scope_hint": "ctDNA predicts efficacy of chemo+ICI in gastric/GEJ adenocarcinoma",
+      "out_of_scope_risk": "ctDNA biomarker prediction",
+      "cited_by_count": 6
+    }
+  ],
+  "stats": {
+    "raw_unique_hits": 161,
+    "after_hard_filter": 95,
+    "selected": 24
+  }
+}

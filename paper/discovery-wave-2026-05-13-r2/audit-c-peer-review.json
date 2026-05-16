@@ -1,0 +1,697 @@
+{
+  "agent": "audit-c-peer-review-r2",
+  "method": "curl + grep on Nature article page (NOT WebFetch \u2014 R1 lesson)",
+  "ran_at_utc": "2026-05-16T02:34:48Z",
+  "verdicts_by_doi": {
+    "10.1038/s41467-026-73021-3": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 247083,
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-026-73021-3/MediaObjects/41467_2026_73021_MOESM2_ESM.pdf",
+      "year": 2026,
+      "note": null
+    },
+    "10.1038/s41467-026-72960-1": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 224271,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-026-72960-1/MediaObjects/41467_2026_72960_MOESM3_ESM.pdf",
+      "year": 2026,
+      "note": null
+    },
+    "10.1038/s41467-025-58724-3": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 465340,
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-025-58724-3/MediaObjects/41467_2025_58724_MOESM8_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s41467-025-62891-8": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 375461,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-025-62891-8/MediaObjects/41467_2025_62891_MOESM3_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s41467-025-59610-8": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 415601,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-025-59610-8/MediaObjects/41467_2025_59610_MOESM3_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s41467-025-55879-x": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 528587,
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-025-55879-x/MediaObjects/41467_2025_55879_MOESM13_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s41467-025-65153-9": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 453729,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-025-65153-9/MediaObjects/41467_2025_65153_MOESM3_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s41467-025-64408-9": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 442263,
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-025-64408-9/MediaObjects/41467_2025_64408_MOESM3_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s43856-025-00785-y": {
+      "verdict": "NO_PEER_REVIEW",
+      "http_bytes": 336822,
+      "has_pr_text": false,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": null,
+      "year": 2025,
+      "note": "MOESM1/2/13 = Supplementary Info, Description of Additional Files, Reporting Summary; no Peer Review File. Manual recheck (2025, Comms Med). | original_verdict=UNKNOWN | partial: has_pr_text=False moesm=3"
+    },
+    "10.1038/s43856-025-01229-3": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 375804,
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-01229-3/MediaObjects/43856_2025_1229_MOESM3_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s43856-025-00878-8": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 434419,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-00878-8/MediaObjects/43856_2025_878_MOESM1_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s43856-026-01542-5": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 286170,
+      "has_pr_text": true,
+      "moesm_pdf_count": 1,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-026-01542-5/MediaObjects/43856_2026_1542_MOESM1_ESM.pdf",
+      "year": 2026,
+      "note": null
+    },
+    "10.1038/s43856-025-01253-3": {
+      "verdict": "NO_PEER_REVIEW",
+      "http_bytes": 432306,
+      "has_pr_text": true,
+      "moesm_pdf_count": 0,
+      "peer_review_pdf_url": null,
+      "year": 2025,
+      "note": "Article has 'Peer review information' acknowledgment section (Aniruddha Adhikari + anonymous reviewer named) but NO MOESM PDF and no transparent peer review file published \u2014 authors likely opted out of transparent peer review. (2025, Comms Med). | original_verdict=UNKNOWN | partial: has_pr_text=True moesm=0"
+    },
+    "10.1038/s43856-025-01052-w": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 464031,
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-01052-w/MediaObjects/43856_2025_1052_MOESM1_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s43856-024-00568-x": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 433278,
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-024-00568-x/MediaObjects/43856_2024_568_MOESM1_ESM.pdf",
+      "year": 2024,
+      "note": null
+    },
+    "10.1038/s43856-026-01498-6": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 381713,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-026-01498-6/MediaObjects/43856_2026_1498_MOESM1_ESM.pdf",
+      "year": 2026,
+      "note": null
+    },
+    "10.1038/s43856-024-00599-4": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 393364,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-024-00599-4/MediaObjects/43856_2024_599_MOESM2_ESM.pdf",
+      "year": 2024,
+      "note": null
+    },
+    "10.1038/s43856-026-01460-6": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 411222,
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-026-01460-6/MediaObjects/43856_2026_1460_MOESM2_ESM.pdf",
+      "year": 2026,
+      "note": null
+    },
+    "10.1038/s43856-025-00781-2": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 292036,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-00781-2/MediaObjects/43856_2025_781_MOESM2_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s43856-026-01432-w": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 464073,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-026-01432-w/MediaObjects/43856_2026_1432_MOESM1_ESM.pdf",
+      "year": 2026,
+      "note": null
+    },
+    "10.1038/s43856-025-01237-3": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 517897,
+      "has_pr_text": true,
+      "moesm_pdf_count": 1,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-01237-3/MediaObjects/43856_2025_1237_MOESM1_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s43856-024-00539-2": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 473890,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-024-00539-2/MediaObjects/43856_2024_539_MOESM8_ESM.pdf",
+      "year": 2024,
+      "note": null
+    },
+    "10.1038/s43856-026-01639-x": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 223119,
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-026-01639-x/MediaObjects/43856_2026_1639_MOESM1_ESM.pdf",
+      "year": 2026,
+      "note": null
+    },
+    "10.1038/s43856-024-00725-2": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 394041,
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-024-00725-2/MediaObjects/43856_2024_725_MOESM1_ESM.pdf",
+      "year": 2024,
+      "note": null
+    },
+    "10.1038/s43856-026-01556-z": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 487382,
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-026-01556-z/MediaObjects/43856_2026_1556_MOESM1_ESM.pdf",
+      "year": 2026,
+      "note": null
+    },
+    "10.1038/s43856-024-00499-7": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 427764,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-024-00499-7/MediaObjects/43856_2024_499_MOESM4_ESM.pdf",
+      "year": 2024,
+      "note": null
+    },
+    "10.1038/s43856-024-00527-6": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 340075,
+      "has_pr_text": true,
+      "moesm_pdf_count": 1,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-024-00527-6/MediaObjects/43856_2024_527_MOESM1_ESM.pdf",
+      "year": 2024,
+      "note": null
+    },
+    "10.1038/s43856-025-00946-z": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 418400,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-00946-z/MediaObjects/43856_2025_946_MOESM1_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s43856-025-01062-8": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 409994,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-01062-8/MediaObjects/43856_2025_1062_MOESM1_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s43856-026-01603-9": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 412097,
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-026-01603-9/MediaObjects/43856_2026_1603_MOESM1_ESM.pdf",
+      "year": 2026,
+      "note": null
+    },
+    "10.1038/s43856-024-00455-5": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 448033,
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-024-00455-5/MediaObjects/43856_2024_455_MOESM1_ESM.pdf",
+      "year": 2024,
+      "note": null
+    },
+    "10.1038/s43856-025-00867-x": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 459874,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-00867-x/MediaObjects/43856_2025_867_MOESM3_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s41467-024-51193-0": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 355378,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-024-51193-0/MediaObjects/41467_2024_51193_MOESM2_ESM.pdf",
+      "year": 2024,
+      "note": null
+    },
+    "10.1038/s41467-024-46973-7": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 462230,
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-024-46973-7/MediaObjects/41467_2024_46973_MOESM2_ESM.pdf",
+      "year": 2024,
+      "note": null
+    },
+    "10.1038/s43856-025-01198-7": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 429193,
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-01198-7/MediaObjects/43856_2025_1198_MOESM1_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s43856-023-00322-9": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 390726,
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-023-00322-9/MediaObjects/43856_2023_322_MOESM6_ESM.pdf",
+      "year": 2023,
+      "note": null
+    },
+    "10.1038/s43856-023-00241-9": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 426305,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-023-00241-9/MediaObjects/43856_2023_241_MOESM9_ESM.pdf",
+      "year": 2023,
+      "note": null
+    },
+    "10.1038/s43856-024-00687-5": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 377623,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-024-00687-5/MediaObjects/43856_2024_687_MOESM1_ESM.pdf",
+      "year": 2024,
+      "note": null
+    },
+    "10.1038/s43856-025-01358-9": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 481183,
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-01358-9/MediaObjects/43856_2025_1358_MOESM1_ESM.pdf",
+      "year": 2026,
+      "note": null
+    },
+    "10.1038/s43856-023-00295-9": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 452881,
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-023-00295-9/MediaObjects/43856_2023_295_MOESM4_ESM.pdf",
+      "year": 2023,
+      "note": null
+    },
+    "10.1038/s41467-026-71555-0": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 454262,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-026-71555-0/MediaObjects/41467_2026_71555_MOESM3_ESM.pdf",
+      "year": 2026,
+      "note": null
+    },
+    "10.1038/s41467-023-44676-z": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 419524,
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-023-44676-z/MediaObjects/41467_2023_44676_MOESM2_ESM.pdf",
+      "year": 2024,
+      "note": null
+    },
+    "10.1038/s43856-025-00872-0": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 451491,
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-00872-0/MediaObjects/43856_2025_872_MOESM2_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s43856-024-00730-5": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 384636,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-024-00730-5/MediaObjects/43856_2024_730_MOESM1_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s41467-025-64634-1": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 803631,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-025-64634-1/MediaObjects/41467_2025_64634_MOESM3_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s43856-025-01092-2": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 385446,
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-01092-2/MediaObjects/43856_2025_1092_MOESM1_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s43856-025-01316-5": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 380783,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-01316-5/MediaObjects/43856_2025_1316_MOESM1_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s43856-025-01200-2": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 431426,
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-01200-2/MediaObjects/43856_2025_1200_MOESM2_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s41467-025-56309-8": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 803940,
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-025-56309-8/MediaObjects/41467_2025_56309_MOESM2_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s41467-024-55635-7": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 635496,
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-024-55635-7/MediaObjects/41467_2024_55635_MOESM5_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s43856-023-00416-4": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 448728,
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-023-00416-4/MediaObjects/43856_2023_416_MOESM6_ESM.pdf",
+      "year": 2023,
+      "note": null
+    },
+    "10.1038/s41467-024-53550-5": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 536631,
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-024-53550-5/MediaObjects/41467_2024_53550_MOESM2_ESM.pdf",
+      "year": 2024,
+      "note": null
+    },
+    "10.1038/s43856-024-00696-4": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 539764,
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-024-00696-4/MediaObjects/43856_2024_696_MOESM2_ESM.pdf",
+      "year": 2024,
+      "note": null
+    },
+    "10.1038/s41467-025-64704-4": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 680231,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-025-64704-4/MediaObjects/41467_2025_64704_MOESM3_ESM.pdf",
+      "year": 2025,
+      "note": null
+    },
+    "10.1038/s43856-025-01364-x": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 521802,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-01364-x/MediaObjects/43856_2025_1364_MOESM1_ESM.pdf",
+      "year": 2026,
+      "note": null
+    },
+    "10.1038/s43856-025-01181-2": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 427338,
+      "has_pr_text": true,
+      "moesm_pdf_count": 1,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-025-01181-2/MediaObjects/43856_2025_1181_MOESM6_ESM.pdf",
+      "year": 2026,
+      "note": null
+    },
+    "10.1038/s41467-022-30836-0": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 460365,
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-022-30836-0/MediaObjects/41467_2022_30836_MOESM2_ESM.pdf",
+      "year": 2022,
+      "note": null
+    },
+    "10.1038/s41467-020-19623-x": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 426629,
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-020-19623-x/MediaObjects/41467_2020_19623_MOESM1_ESM.pdf",
+      "year": 2020,
+      "note": null
+    },
+    "10.1038/s41467-022-29521-z": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 390162,
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-022-29521-z/MediaObjects/41467_2022_29521_MOESM2_ESM.pdf",
+      "year": 2022,
+      "note": null
+    },
+    "10.1038/s41467-021-26513-3": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 356197,
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-021-26513-3/MediaObjects/41467_2021_26513_MOESM2_ESM.pdf",
+      "year": 2021,
+      "note": null
+    },
+    "10.1038/s41467-021-21553-1": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 479799,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-021-21553-1/MediaObjects/41467_2021_21553_MOESM2_ESM.pdf",
+      "year": 2021,
+      "note": null
+    },
+    "10.1038/s41467-023-38388-7": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 453046,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-023-38388-7/MediaObjects/41467_2023_38388_MOESM2_ESM.pdf",
+      "year": 2023,
+      "note": null
+    },
+    "10.1038/s41467-024-48780-6": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 413944,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-024-48780-6/MediaObjects/41467_2024_48780_MOESM2_ESM.pdf",
+      "year": 2024,
+      "note": null
+    },
+    "10.1038/s41467-022-31401-5": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 361057,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-022-31401-5/MediaObjects/41467_2022_31401_MOESM2_ESM.pdf",
+      "year": 2022,
+      "note": null
+    },
+    "10.1038/s41467-021-22214-z": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 299662,
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-021-22214-z/MediaObjects/41467_2021_22214_MOESM2_ESM.pdf",
+      "year": 2021,
+      "note": null
+    },
+    "10.1038/s41467-020-20246-5": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 399524,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-020-20246-5/MediaObjects/41467_2020_20246_MOESM2_ESM.pdf",
+      "year": 2021,
+      "note": null
+    },
+    "10.1038/s41467-020-16378-3": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 475547,
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-020-16378-3/MediaObjects/41467_2020_16378_MOESM3_ESM.pdf",
+      "year": 2020,
+      "note": null
+    },
+    "10.1038/s41467-022-28248-1": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 383098,
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-022-28248-1/MediaObjects/41467_2022_28248_MOESM2_ESM.pdf",
+      "year": 2022,
+      "note": null
+    },
+    "10.1038/s41467-021-25402-z": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 395138,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-021-25402-z/MediaObjects/41467_2021_25402_MOESM2_ESM.pdf",
+      "year": 2021,
+      "note": null
+    },
+    "10.1038/s43856-021-00006-2": {
+      "verdict": "NO_PEER_REVIEW",
+      "http_bytes": 355051,
+      "has_pr_text": false,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": null,
+      "year": 2021,
+      "note": "MOESM1/2/5 = Supplementary Info, Description of Additional Files, Reporting Summary; no Peer Review File. (2021, Comms Med \u2014 predates Nature 2022 mandatory transparent peer review). | original_verdict=UNKNOWN | partial: has_pr_text=False moesm=3"
+    },
+    "10.1038/s41467-022-29880-7": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 333287,
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-022-29880-7/MediaObjects/41467_2022_29880_MOESM2_ESM.pdf",
+      "year": 2022,
+      "note": null
+    },
+    "10.1038/s41467-021-27215-6": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 435416,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-021-27215-6/MediaObjects/41467_2021_27215_MOESM2_ESM.pdf",
+      "year": 2021,
+      "note": null
+    },
+    "10.1038/s41467-022-32458-y": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 352940,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-022-32458-y/MediaObjects/41467_2022_32458_MOESM2_ESM.pdf",
+      "year": 2022,
+      "note": null
+    },
+    "10.1038/s43856-022-00071-1": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 353974,
+      "has_pr_text": true,
+      "moesm_pdf_count": 1,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs43856-022-00071-1/MediaObjects/43856_2022_71_MOESM1_ESM.pdf",
+      "year": 2022,
+      "note": null
+    },
+    "10.1038/s41467-022-33740-9": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 328140,
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-022-33740-9/MediaObjects/41467_2022_33740_MOESM2_ESM.pdf",
+      "year": 2022,
+      "note": null
+    },
+    "10.1038/s41467-024-47745-z": {
+      "verdict": "HAS_PEER_REVIEW",
+      "http_bytes": 471549,
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "peer_review_pdf_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-024-47745-z/MediaObjects/41467_2024_47745_MOESM2_ESM.pdf",
+      "year": 2024,
+      "note": null
+    }
+  },
+  "summary": {
+    "has_peer_review": 73,
+    "no_peer_review": 3,
+    "page_error": 0,
+    "unknown": 0
+  }
+}

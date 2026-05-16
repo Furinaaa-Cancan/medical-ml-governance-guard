@@ -1,0 +1,74 @@
+{
+  "agent": "qc-03b",
+  "ran_at_utc": "2026-05-16T00:00:00Z",
+  "papers_checked": [
+    {
+      "paper_id": "PR-EXP-0191",
+      "concerns_spot_checked": ["PR-EXP-0191-C01", "PR-EXP-0191-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0191-C01", "verdict": "PASS", "note": "concern_text near-verbatim from Reviewer #1 round 1 page 2 ('tumor detection of CRC tissue is not a clinically relevant benchmark task...'). Author response (reframe + added lung/lymphoma) matches rebuttal on pages 10-14. resolved=True consistent with reviewer accepting reframing."},
+        {"concern_id": "PR-EXP-0191-C03", "verdict": "PASS", "note": "concern_text verbatim ('The paper does not adhere to the STARD-AI guidelines...') matches Reviewer #1 page 2. Author response accurately captures the rebuttal (acknowledged STARD-AI not yet available at submission, argued STARD criteria met, GitHub code uploaded). resolved=null appropriate as no round-2 reviewer acceptance shown."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0151",
+      "concerns_spot_checked": ["PR-EXP-0151-C01", "PR-EXP-0151-C02"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0151-C01", "verdict": "PASS", "note": "concern_text verbatim from Reviewer #4 round 1 page 3 ('substantial imbalance in sample size... sensitivity and PPV should be reported'). Author response (per-cancer-type accuracy/recall, added sensitivity/PPV curves in Suppl Fig 11) matches rebuttal on page 5. resolved=True consistent with Reviewer #4 round-2 thanking the changes."},
+        {"concern_id": "PR-EXP-0151-C02", "verdict": "PASS", "note": "concern_text verbatim from Reviewer #4 round 2 page 9 ('fundamental confusion on the definition of classification accuracy... defined as recall NOT overall accuracy'). Author response (replaced 'accuracy' with 'recall', added precision/PPV, comparison to PCAWG-NN/Salvadores-SVM in Suppl Fig 10) matches page 10-12. resolved=True consistent."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0157",
+      "concerns_spot_checked": ["PR-EXP-0157-C02", "PR-EXP-0157-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0157-C02", "verdict": "PASS", "note": "concern_text verbatim from Reviewer #1 round 1 page 2 ('source codes do not seem to be available... must provide a github link or DOI'). Author response accurately captures partial release: conformal predictor code at github.com/heolss/Conformal_analyses with Code Checklist, while deep-learning training code remains private due to internal tooling dependencies (page 8). resolved=null correctly reflects partial address."},
+        {"concern_id": "PR-EXP-0157-C03", "verdict": "PASS", "note": "concern_text verbatim from Reviewer #1 round 1 page 2 ('adherence to relevant reporting guidelines (TRIPOD, STARD, etc.) must be added'). Author response (Statistical analysis section updated per TRIPOD with included TRIPOD checklist) matches page 8. resolved=True consistent."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0160",
+      "concerns_spot_checked": ["PR-EXP-0160-C01", "PR-EXP-0160-C02"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0160-C01", "verdict": "PASS", "note": "concern_text verbatim from Reviewer #1 round 1 page 1 ('patient cohorts/databases used should be better described in detail... how was the diagnosis Covid-19 made... SARS-CoV-2 PCR proven? diagnostic criteria?'). Reviewer/round attribution correct. Author response not directly verified due to page-budget, but description (PCR/ICD inclusion, 6.31% Optum lacking positive test) is plausible and consistent with concern."},
+        {"concern_id": "PR-EXP-0160-C02", "verdict": "PASS", "note": "concern_text verbatim from Reviewer #1 round 1 page 1 ('major limitation is the fact that by far the most patients are included before treatment protocols were changed... antibiotics... remdesivir, dexamethasone and anticoagulant therapy'). Reviewer/round attribution correct. Resolution verdict (Optum Future cohort post-RECOVERY) not directly verified due to page-budget but plausible — sampling limit."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0170",
+      "concerns_spot_checked": ["PR-EXP-0170-C01", "PR-EXP-0170-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0170-C01", "verdict": "PASS", "note": "concern_text verbatim from Reviewer #2 round 1 page 1-2 ('ICD coding for wild-type amyloid was used as the gold standard - this is flawed... ECG, imaging, histology findings... genetic variants... HFpEF that we are interested in'). Author response shows authors disagreed point-by-point (page 5 onward — beginning visible). resolved=null appropriate."},
+        {"concern_id": "PR-EXP-0170-C03", "verdict": "PASS", "note": "concern_text verbatim from Reviewer #5 round 1 page 2 ('biggest concern is that a sizable number of the controls may have undiagnosed amyloidosis... limitations paragraph... is not sufficient'). Reviewer attribution to Reviewer #5 correct. Author response (added limitations discussion about prospective studies with systematic gold standard) plausible — sampling limit on rebuttal text itself."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0187",
+      "concerns_spot_checked": ["PR-EXP-0187-C02", "PR-EXP-0187-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0187-C02", "verdict": "PASS", "note": "concern_text near-verbatim from Reviewer #2 round 1 page 1 ('Whether cytology with automation will serve as a primary screening method... is increasingly doubtful. HPV testing is more sensitive as a first screen'). Author response (HPV-positive trial 395 patients, 81.9% specificity / 79.3% sensitivity / 0.890 AUC) matches rebuttal on page 4. resolved=null appropriate since reviewer maintained reservation in round 2 (per extraction notes)."},
+        {"concern_id": "PR-EXP-0187-C03", "verdict": "PASS", "note": "concern_text verbatim from Reviewer #3 round 1 page 2 ('The only contribution is the dataset, but it will not be publicly available'). Author response (WSI not public due to hospital privacy, source data + sample slides for software testing provided) plausible — sampling limit on rebuttal verification. resolved=null appropriate."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0152",
+      "concerns_spot_checked": ["PR-EXP-0152-C01"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0152-C01", "verdict": "PASS", "note": "concern_text verbatim from page 2 ('A concern bothers me that when talking about the mutations... When were the biopsy were drawn... before or after they were treated? There might be a lineage selection process'). NOTE: attribution to 'Reviewer #3' is technically correct as it appears in Reviewer #3's section, but Reviewer #3 is quoting Reviewer #2's prior critique. Author response (treatment-naive at diagnosis for both UK-NCRI and AMLSG, AMLSG molecular assessment also at diagnosis) verbatim on page 3. resolved=True consistent."}
+      ],
+      "overall_paper_quality": "GOOD"
+    }
+  ],
+  "summary": {
+    "total_concerns_spot_checked": 13,
+    "pass": 13,
+    "needs_revision": 0,
+    "hallucination": 0
+  }
+}

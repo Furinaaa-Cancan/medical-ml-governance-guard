@@ -1,0 +1,17 @@
+{
+  "agent": "audit-d-dedup-r2",
+  "ran_at_utc": "2026-05-16T02:25:12.503831+00:00",
+  "summary": {
+    "r2_count": 76,
+    "r2_unique_doi_count": 76,
+    "kb_count": 335,
+    "kb_unique_doi_count": 329,
+    "r1_count": 72,
+    "r1_unique_doi_count": 72,
+    "r2_dois_in_kb": [],
+    "r2_dois_in_r1": [],
+    "r2_internal_duplicates": [],
+    "doi_fingerprint_anomalies": [],
+    "near_duplicate_titles": []
+  }
+}

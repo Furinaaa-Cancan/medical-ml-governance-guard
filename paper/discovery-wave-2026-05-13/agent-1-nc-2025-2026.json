@@ -1,0 +1,214 @@
+{
+  "agent": "agent-1-nc-2025-2026",
+  "scope": "Nature Communications 2025-2026 retrospective binary clinical prediction",
+  "ran_at_utc": "2026-05-16T01:21:16Z",
+  "queries_tried": [
+    "clinical prediction model cohort",
+    "mortality prediction EHR",
+    "readmission risk machine learning",
+    "sepsis early warning",
+    "ICU prognosis model",
+    "external validation machine learning",
+    "retrospective cohort deep learning",
+    "electronic health record prediction",
+    "AKI prediction ICU",
+    "in-hospital mortality model",
+    "cardiovascular risk prediction",
+    "diabetes risk model UK Biobank",
+    "clinical decision support algorithm",
+    "stroke prediction registry",
+    "hospital adverse event prediction",
+    "biomarker prediction model validation"
+  ],
+  "candidates": [
+    {
+      "doi": "10.1038/s41467-026-68368-6",
+      "title": "Unbiased clustering of acute-on-chronic liver failure patients using machine learning in a real-world ICU cohort",
+      "journal": "Nature Communications",
+      "year": 2026,
+      "openalex_id": "https://openalex.org/W7125245420",
+      "scope_hint": "Real-world ICU cohort (n=1,256) of acute-on-chronic liver failure patients; ML clustering with binary mortality stratification from clinical/lab features.",
+      "out_of_scope_risk": "primary task is unsupervised clustering \u2014 confirm binary outcome prediction is reported"
+    },
+    {
+      "doi": "10.1038/s41467-026-68579-x",
+      "title": "Large-scale serum N-glycomics tracks N-glycosylation dynamics in hepatocellular carcinoma progression and enables early diagnosis",
+      "journal": "Nature Communications",
+      "year": 2026,
+      "openalex_id": "https://openalex.org/W7124990995",
+      "scope_hint": "Multi-center cohort (n=1,074) developing serum-glycomics + clinical models for binary HCC early-diagnosis classification with AUC reporting.",
+      "out_of_scope_risk": "biomarker discovery via glycomics may dominate over EHR features"
+    },
+    {
+      "doi": "10.1038/s41467-026-69873-4",
+      "title": "Using electronic health records to assess the relationship between colonization pressure and nosocomial pathogen acquisition",
+      "journal": "Nature Communications",
+      "year": 2026,
+      "openalex_id": "https://openalex.org/W7131317604",
+      "scope_hint": "Retrospective EHR cohort linking colonization pressure to nosocomial pathogen acquisition (binary HAI outcome).",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s41467-026-71152-1",
+      "title": "Representation learning to advance multi-institutional studies with electronic health record data from US and France",
+      "journal": "Nature Communications",
+      "year": 2026,
+      "openalex_id": "https://openalex.org/W7148899975",
+      "scope_hint": "Representation learning on multi-institution US + France EHR data for cohort prediction tasks across privacy-siloed institutions.",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s41467-025-56251-9",
+      "title": "Platelet-white cell ratio is more strongly associated with mortality than other common risk ratios derived from complete blood counts",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4406891436",
+      "scope_hint": "Retrospective cohort using complete blood count features; binary mortality association from tabular lab biomarkers.",
+      "out_of_scope_risk": "primarily epidemiologic association \u2014 verify a model with discrimination metrics"
+    },
+    {
+      "doi": "10.1038/s41467-025-56353-4",
+      "title": "Rescue RM/CS-AKI by blocking strategy with one-dose anti-myoglobin RabMAb",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4406829214",
+      "scope_hint": "Retrospective rhabdomyolysis/CS-AKI cohort; binary AKI/mortality outcomes with mechanistic + clinical features.",
+      "out_of_scope_risk": "preclinical content prominent \u2014 confirm clinical cohort prediction is substantive"
+    },
+    {
+      "doi": "10.1038/s41467-025-56790-1",
+      "title": "Triglyceride levels and its association with all-cause mortality and cardiovascular outcomes among patients with heart failure",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4407217955",
+      "scope_hint": "Territory-wide HF registry (n=127,124) retrospective cohort; binary all-cause mortality / cardiovascular outcomes from EHR features.",
+      "out_of_scope_risk": "hazard ratio framing \u2014 confirm binary (vs survival) endpoint is primary"
+    },
+    {
+      "doi": "10.1038/s41467-025-57379-4",
+      "title": "Genomically defined hypervirulent Klebsiella pneumoniae contributed to early-onset increased mortality",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4408071230",
+      "scope_hint": "Longitudinal cohort study of K. pneumoniae infections; binary in-hospital mortality outcome with propensity score matching on clinical+genomic features.",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s41467-025-57849-9",
+      "title": "Long COVID after SARS-CoV-2 during pregnancy in the United States",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4409068944",
+      "scope_hint": "Retrospective analysis of two large US EHR databases (PCORnet) comparing Long COVID risk after pregnancy vs not; binary outcome.",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s41467-025-58161-2",
+      "title": "Impact of perioperative organ injury on morbidity and mortality in 28 million surgical patients",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4409309992",
+      "scope_hint": "Retrospective cohort of 28M German surgical patients; binary in-hospital mortality and perioperative organ injury from administrative/registry data.",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s41467-025-58437-7",
+      "title": "Predicting interval from diagnosis to delivery in preeclampsia using electronic health records",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4409390769",
+      "scope_hint": "EHR-based deep-learning model (PEDeliveryTime) externally validated to predict preeclampsia diagnosis-to-delivery interval (binary thresholded).",
+      "out_of_scope_risk": "outcome is a time interval \u2014 likely converted to binary; verify framing"
+    },
+    {
+      "doi": "10.1038/s41467-025-59643-z",
+      "title": "Multicenter target trial emulation to evaluate corticosteroids for sepsis stratified by predicted organ dysfunction trajectory",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4410339562",
+      "scope_hint": "Multicenter retrospective ICU cohort; sepsis target trial emulation with predicted organ dysfunction trajectory used for stratification of binary mortality outcome.",
+      "out_of_scope_risk": "trajectory clustering may be used as treatment-effect modifier rather than pure prediction"
+    },
+    {
+      "doi": "10.1038/s41467-025-59951-4",
+      "title": "Ethnic disparities in COVID-19 mortality and cardiovascular disease in England and Wales between 2020-2022",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4411852228",
+      "scope_hint": "England/Wales linked health-administrative cohort 2020-2022; binary 28-day mortality and 30-day CVD endpoints stratified by ethnicity from EHR.",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s41467-025-60487-w",
+      "title": "Shared genetic architecture of posttraumatic stress disorder with cardiovascular imaging, risk, and diagnoses",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4411887113",
+      "scope_hint": "EHR-linked cohort study examining shared genetic regions between PTSD and 246 cardiovascular conditions / diagnoses (binary).",
+      "out_of_scope_risk": "genetics-heavy; cardiac imaging mentioned \u2014 confirm tabular EHR diagnoses are primary outcome"
+    },
+    {
+      "doi": "10.1038/s41467-025-61418-5",
+      "title": "Open-source computational pipeline flags instances of acute respiratory distress syndrome in mechanically ventilated adult patients",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4412594369",
+      "scope_hint": "Retrospective EHR-driven computational pipeline to flag ARDS in ventilated adults; binary classification with cohort mortality validation.",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s41467-025-61625-0",
+      "title": "Genome sequencing is critical for forecasting outcomes following congenital cardiac surgery",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4412172404",
+      "scope_hint": "AI model on whole-exome sequencing + clinical features in retrospective congenital cardiac surgery cohort; binary clinical outcome classification.",
+      "out_of_scope_risk": "genomic features are primary \u2014 confirm tabular clinical/registry signal is meaningful"
+    },
+    {
+      "doi": "10.1038/s41467-025-64640-3",
+      "title": "Finerenone versus spironolactone in patients with chronic kidney disease and type 2 diabetes: a target trial emulation",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4415737793",
+      "scope_hint": "Target trial emulation on global TriNetX EHR data; binary clinical outcome comparison of finerenone vs spironolactone in CKD+T2D cohort.",
+      "out_of_scope_risk": "hazard ratio-heavy framing \u2014 confirm binary outcome modelling"
+    },
+    {
+      "doi": "10.1038/s41467-025-64851-8",
+      "title": "Greater benefits of immediate nirmatrelvir-ritonavir initiation for post-COVID outcomes: a population-based retrospective cohort study",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4416069779",
+      "scope_hint": "Population-based retrospective cohort (Hong Kong territory-wide EHR); binary post-COVID outcome event prediction from EHR features.",
+      "out_of_scope_risk": "hazard ratio framing \u2014 verify binary endpoint vs time-to-event"
+    },
+    {
+      "doi": "10.1038/s41467-025-66118-8",
+      "title": "Vancomycin heteroresistance (hVISA) in MRSA links to treatment failure and supports a revised PAP-AUC threshold",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4417277554",
+      "scope_hint": "Prospective cohort of 842 MRSA bacteremia patients; binary treatment-failure / mortality endpoints predicted from microbiology + clinical features.",
+      "out_of_scope_risk": "hazard ratio language; confirm binary outcome is primary"
+    },
+    {
+      "doi": "10.1038/s41467-025-66203-y",
+      "title": "Administrative-driven hierarchical management of atrial fibrillation on cardiovascular events: a prospective matched cohort study",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4417457805",
+      "scope_hint": "Prospective matched cohort (n=1455 vs 7275) of atrial fibrillation patients; binary cardiovascular event endpoint with EHR/clinical features.",
+      "out_of_scope_risk": "hazard ratio + survival framing \u2014 confirm binary endpoint primary"
+    },
+    {
+      "doi": "10.1038/s41467-025-67510-0",
+      "title": "Multiomics insight into disease trajectories of cardiometabolic diseases and cancer",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4417498607",
+      "scope_hint": "UK Biobank multistate analysis (n=429,555) building prediction models from multiomics + EHR for cardiometabolic disease and cancer transitions.",
+      "out_of_scope_risk": "multistate / transition framing risks survival emphasis; multiomics may dominate"
+    }
+  ]
+}

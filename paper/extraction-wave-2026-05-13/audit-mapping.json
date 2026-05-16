@@ -1,0 +1,1248 @@
+{
+  "agent": "audit-mapping",
+  "ran_at_utc": "2026-05-16T08:17:58.921925Z",
+  "total_concerns_audited": 394,
+  "total_issues_flagged": 54,
+  "affected_concerns": 46,
+  "issues": [
+    {
+      "concern_id": "PR-RO-07-C10",
+      "extracting_agent": "extract-01",
+      "paper_id": "PR-RO-07",
+      "issue_type": "text_gate_mismatch",
+      "current": {
+        "category": "reporting",
+        "mlgg_dimension": 8,
+        "mlgg_gates": [
+          "reporting_bias_gate"
+        ]
+      },
+      "suggested": {
+        "category": "reporting",
+        "mlgg_dimension": 8,
+        "mlgg_gates": [
+          "fairness_equity_gate",
+          "reporting_bias_gate"
+        ]
+      },
+      "reason": "text discusses fairness/subgroup analysis"
+    },
+    {
+      "concern_id": "PR-EXP-0084-C09",
+      "extracting_agent": "extract-01",
+      "paper_id": "PR-EXP-0084",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "evaluation_metrics",
+        "mlgg_dimension": 6,
+        "mlgg_gates": [
+          "model_selection_audit_gate"
+        ]
+      },
+      "suggested": {
+        "category": "evaluation_metrics",
+        "mlgg_dimension": 5,
+        "mlgg_gates": [
+          "model_selection_audit_gate"
+        ]
+      },
+      "reason": "category 'evaluation_metrics' should map to dim 5 per schema (or 5 per KB), got 6"
+    },
+    {
+      "concern_id": "PR-EXP-0084-C09",
+      "extracting_agent": "extract-01",
+      "paper_id": "PR-EXP-0084",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "evaluation_metrics",
+        "mlgg_dimension": 6,
+        "mlgg_gates": [
+          "model_selection_audit_gate"
+        ]
+      },
+      "suggested": {
+        "category": "evaluation_metrics",
+        "mlgg_dimension": 6,
+        "mlgg_gates": [
+          "calibration_dca_gate",
+          "model_selection_audit_gate"
+        ]
+      },
+      "reason": "category 'evaluation_metrics' typically uses ['calibration_dca_gate', 'ci_matrix_gate', 'clinical_metrics_gate', 'evaluation_quality_gate', 'metric_consistency_gate'] but gates ['model_selection_audit_gate'] belong to ['model_selection']"
+    },
+    {
+      "concern_id": "PR-EXP-0084-C11",
+      "extracting_agent": "extract-01",
+      "paper_id": "PR-EXP-0084",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reporting",
+        "mlgg_dimension": 12,
+        "mlgg_gates": [
+          "clinical_metrics_gate"
+        ]
+      },
+      "suggested": {
+        "category": "reporting",
+        "mlgg_dimension": 8,
+        "mlgg_gates": [
+          "clinical_metrics_gate"
+        ]
+      },
+      "reason": "category 'reporting' should map to dim 8 per schema (or 8 per KB), got 12"
+    },
+    {
+      "concern_id": "PR-EXP-0084-C11",
+      "extracting_agent": "extract-01",
+      "paper_id": "PR-EXP-0084",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "reporting",
+        "mlgg_dimension": 12,
+        "mlgg_gates": [
+          "clinical_metrics_gate"
+        ]
+      },
+      "suggested": {
+        "category": "reporting",
+        "mlgg_dimension": 12,
+        "mlgg_gates": [
+          "compliance_attestation_gate",
+          "clinical_metrics_gate"
+        ]
+      },
+      "reason": "category 'reporting' typically uses ['compliance_attestation_gate', 'publication_gate', 'reporting_bias_gate'] but gates ['clinical_metrics_gate'] belong to ['clinical_utility', 'evaluation_metrics']"
+    },
+    {
+      "concern_id": "PR-EXP-0084-C13",
+      "extracting_agent": "extract-01",
+      "paper_id": "PR-EXP-0084",
+      "issue_type": "text_gate_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 7,
+        "mlgg_gates": [
+          "external_validation_gate",
+          "distribution_generalization_gate"
+        ]
+      },
+      "suggested": {
+        "category": "external_validation",
+        "mlgg_dimension": 7,
+        "mlgg_gates": [
+          "distribution_generalization_gate",
+          "external_validation_gate",
+          "fairness_equity_gate"
+        ]
+      },
+      "reason": "text discusses fairness/subgroup analysis"
+    },
+    {
+      "concern_id": "PR-EXP-0086-C02",
+      "extracting_agent": "extract-01",
+      "paper_id": "PR-EXP-0086",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 10,
+        "mlgg_gates": [
+          "fairness_equity_gate",
+          "subgroup_analysis_gate"
+        ]
+      },
+      "suggested": {
+        "category": "external_validation",
+        "mlgg_dimension": 7,
+        "mlgg_gates": [
+          "fairness_equity_gate",
+          "subgroup_analysis_gate"
+        ]
+      },
+      "reason": "category 'external_validation' should map to dim 7 per schema (or 6 per KB), got 10"
+    },
+    {
+      "concern_id": "PR-EXP-0086-C10",
+      "extracting_agent": "extract-01",
+      "paper_id": "PR-EXP-0086",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "interpretability",
+        "mlgg_dimension": 10,
+        "mlgg_gates": [
+          "fairness_equity_gate",
+          "subgroup_analysis_gate"
+        ]
+      },
+      "suggested": {
+        "category": "interpretability",
+        "mlgg_dimension": 9,
+        "mlgg_gates": [
+          "fairness_equity_gate",
+          "subgroup_analysis_gate"
+        ]
+      },
+      "reason": "category 'interpretability' should map to dim 9 per schema (or 7 per KB), got 10"
+    },
+    {
+      "concern_id": "PR-EXP-0092-C03",
+      "extracting_agent": "extract-01",
+      "paper_id": "PR-EXP-0092",
+      "issue_type": "text_gate_mismatch",
+      "current": {
+        "category": "evaluation_metrics",
+        "mlgg_dimension": 5,
+        "mlgg_gates": [
+          "calibration_dca_gate",
+          "evaluation_quality_gate"
+        ]
+      },
+      "suggested": {
+        "category": "evaluation_metrics",
+        "mlgg_dimension": 5,
+        "mlgg_gates": [
+          "calibration_dca_gate",
+          "evaluation_quality_gate",
+          "reporting_bias_gate"
+        ]
+      },
+      "reason": "text discusses TRIPOD/PROBAST reporting"
+    },
+    {
+      "concern_id": "PR-EXP-0095-C01",
+      "extracting_agent": "extract-01",
+      "paper_id": "PR-EXP-0095",
+      "issue_type": "text_gate_mismatch",
+      "current": {
+        "category": "preprocessing",
+        "mlgg_dimension": 2,
+        "mlgg_gates": [
+          "preprocessing_audit_gate"
+        ]
+      },
+      "suggested": {
+        "category": "preprocessing",
+        "mlgg_dimension": 2,
+        "mlgg_gates": [
+          "calibration_dca_gate",
+          "preprocessing_audit_gate"
+        ]
+      },
+      "reason": "text discusses calibration/DCA"
+    },
+    {
+      "concern_id": "PR-EXP-0095-C04",
+      "extracting_agent": "extract-01",
+      "paper_id": "PR-EXP-0095",
+      "issue_type": "text_gate_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 7,
+        "mlgg_gates": [
+          "external_validation_gate",
+          "generalization_gap_gate"
+        ]
+      },
+      "suggested": {
+        "category": "external_validation",
+        "mlgg_dimension": 7,
+        "mlgg_gates": [
+          "external_validation_gate",
+          "fairness_equity_gate",
+          "generalization_gap_gate"
+        ]
+      },
+      "reason": "text discusses fairness/subgroup analysis"
+    },
+    {
+      "concern_id": "PR-EXP-0095-C06",
+      "extracting_agent": "extract-01",
+      "paper_id": "PR-EXP-0095",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reporting",
+        "mlgg_dimension": 10,
+        "mlgg_gates": [
+          "fairness_equity_gate",
+          "subgroup_analysis_gate"
+        ]
+      },
+      "suggested": {
+        "category": "reporting",
+        "mlgg_dimension": 8,
+        "mlgg_gates": [
+          "fairness_equity_gate",
+          "subgroup_analysis_gate"
+        ]
+      },
+      "reason": "category 'reporting' should map to dim 8 per schema (or 8 per KB), got 10"
+    },
+    {
+      "concern_id": "PR-EXP-0095-C10",
+      "extracting_agent": "extract-01",
+      "paper_id": "PR-EXP-0095",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 1,
+        "mlgg_gates": [
+          "covariate_shift_gate",
+          "distribution_generalization_gate"
+        ]
+      },
+      "suggested": {
+        "category": "study_design",
+        "mlgg_dimension": 1,
+        "mlgg_gates": [
+          "cohort_definition_gate",
+          "covariate_shift_gate",
+          "distribution_generalization_gate"
+        ]
+      },
+      "reason": "category 'study_design' typically uses ['cohort_definition_gate', 'definition_variable_guard', 'label_definition_gate'] but gates ['covariate_shift_gate', 'distribution_generalization_gate'] belong to ['external_validation']"
+    },
+    {
+      "concern_id": "PR-EXP-0097-C02",
+      "extracting_agent": "extract-01",
+      "paper_id": "PR-EXP-0097",
+      "issue_type": "text_gate_mismatch",
+      "current": {
+        "category": "reporting",
+        "mlgg_dimension": 8,
+        "mlgg_gates": [
+          "reporting_bias_gate"
+        ]
+      },
+      "suggested": {
+        "category": "reporting",
+        "mlgg_dimension": 8,
+        "mlgg_gates": [
+          "missingness_policy_gate",
+          "reporting_bias_gate"
+        ]
+      },
+      "reason": "text discusses missingness / imputation"
+    },
+    {
+      "concern_id": "PR-EXP-0103-C07",
+      "extracting_agent": "extract-02",
+      "paper_id": "PR-EXP-0103",
+      "issue_type": "text_gate_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 11,
+        "mlgg_gates": [
+          "code_data_availability_gate"
+        ]
+      },
+      "suggested": {
+        "category": "reproducibility",
+        "mlgg_dimension": 11,
+        "mlgg_gates": [
+          "code_data_availability_gate",
+          "missingness_policy_gate"
+        ]
+      },
+      "reason": "text discusses missingness / imputation"
+    },
+    {
+      "concern_id": "PR-EXP-0105-C08",
+      "extracting_agent": "extract-02",
+      "paper_id": "PR-EXP-0105",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 10,
+        "mlgg_gates": [
+          "fairness_equity_gate",
+          "subgroup_analysis_gate"
+        ]
+      },
+      "suggested": {
+        "category": "external_validation",
+        "mlgg_dimension": 7,
+        "mlgg_gates": [
+          "fairness_equity_gate",
+          "subgroup_analysis_gate"
+        ]
+      },
+      "reason": "category 'external_validation' should map to dim 7 per schema (or 6 per KB), got 10"
+    },
+    {
+      "concern_id": "PR-EXP-0106-C03",
+      "extracting_agent": "extract-02",
+      "paper_id": "PR-EXP-0106",
+      "issue_type": "under_utilized_gate",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 12,
+        "mlgg_gates": [
+          "clinical_metrics_gate",
+          "feature_engineering_audit_gate"
+        ]
+      },
+      "suggested": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 12,
+        "mlgg_gates": [
+          "clinical_metrics_gate",
+          "feature_engineering_audit_gate",
+          "feature_lineage_gate"
+        ]
+      },
+      "reason": "text describes feature using post-prediction information"
+    },
+    {
+      "concern_id": "PR-EXP-0109-C14",
+      "extracting_agent": "extract-03",
+      "paper_id": "PR-EXP-0109",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reporting",
+        "mlgg_dimension": 10,
+        "mlgg_gates": [
+          "subgroup_analysis_gate",
+          "fairness_equity_gate"
+        ]
+      },
+      "suggested": {
+        "category": "reporting",
+        "mlgg_dimension": 8,
+        "mlgg_gates": [
+          "subgroup_analysis_gate",
+          "fairness_equity_gate"
+        ]
+      },
+      "reason": "category 'reporting' should map to dim 8 per schema (or 8 per KB), got 10"
+    },
+    {
+      "concern_id": "PR-EXP-0110-C06",
+      "extracting_agent": "extract-03",
+      "paper_id": "PR-EXP-0110",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reporting",
+        "mlgg_dimension": 5,
+        "mlgg_gates": [
+          "evaluation_quality_gate"
+        ]
+      },
+      "suggested": {
+        "category": "reporting",
+        "mlgg_dimension": 8,
+        "mlgg_gates": [
+          "evaluation_quality_gate"
+        ]
+      },
+      "reason": "category 'reporting' should map to dim 8 per schema (or 8 per KB), got 5"
+    },
+    {
+      "concern_id": "PR-EXP-0110-C06",
+      "extracting_agent": "extract-03",
+      "paper_id": "PR-EXP-0110",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "reporting",
+        "mlgg_dimension": 5,
+        "mlgg_gates": [
+          "evaluation_quality_gate"
+        ]
+      },
+      "suggested": {
+        "category": "reporting",
+        "mlgg_dimension": 5,
+        "mlgg_gates": [
+          "compliance_attestation_gate",
+          "evaluation_quality_gate"
+        ]
+      },
+      "reason": "category 'reporting' typically uses ['compliance_attestation_gate', 'publication_gate', 'reporting_bias_gate'] but gates ['evaluation_quality_gate'] belong to ['evaluation_metrics']"
+    },
+    {
+      "concern_id": "PR-EXP-0110-C08",
+      "extracting_agent": "extract-03",
+      "paper_id": "PR-EXP-0110",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reporting",
+        "mlgg_dimension": 10,
+        "mlgg_gates": [
+          "subgroup_analysis_gate",
+          "fairness_equity_gate"
+        ]
+      },
+      "suggested": {
+        "category": "reporting",
+        "mlgg_dimension": 8,
+        "mlgg_gates": [
+          "subgroup_analysis_gate",
+          "fairness_equity_gate"
+        ]
+      },
+      "reason": "category 'reporting' should map to dim 8 per schema (or 8 per KB), got 10"
+    },
+    {
+      "concern_id": "PR-EXP-0112-C08",
+      "extracting_agent": "extract-03",
+      "paper_id": "PR-EXP-0112",
+      "issue_type": "text_gate_mismatch",
+      "current": {
+        "category": "evaluation_metrics",
+        "mlgg_dimension": 5,
+        "mlgg_gates": [
+          "ci_matrix_gate"
+        ]
+      },
+      "suggested": {
+        "category": "evaluation_metrics",
+        "mlgg_dimension": 5,
+        "mlgg_gates": [
+          "ci_matrix_gate",
+          "fairness_equity_gate"
+        ]
+      },
+      "reason": "text discusses fairness/subgroup analysis"
+    },
+    {
+      "concern_id": "PR-EXP-0119-C01",
+      "extracting_agent": "extract-04",
+      "paper_id": "PR-EXP-0119",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 10,
+        "mlgg_gates": [
+          "fairness_equity_gate",
+          "subgroup_analysis_gate"
+        ]
+      },
+      "suggested": {
+        "category": "external_validation",
+        "mlgg_dimension": 7,
+        "mlgg_gates": [
+          "fairness_equity_gate",
+          "subgroup_analysis_gate"
+        ]
+      },
+      "reason": "category 'external_validation' should map to dim 7 per schema (or 6 per KB), got 10"
+    },
+    {
+      "concern_id": "PR-EXP-0119-C07",
+      "extracting_agent": "extract-04",
+      "paper_id": "PR-EXP-0119",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 10,
+        "mlgg_gates": [
+          "fairness_equity_gate",
+          "subgroup_analysis_gate"
+        ]
+      },
+      "suggested": {
+        "category": "external_validation",
+        "mlgg_dimension": 7,
+        "mlgg_gates": [
+          "fairness_equity_gate",
+          "subgroup_analysis_gate"
+        ]
+      },
+      "reason": "category 'external_validation' should map to dim 7 per schema (or 6 per KB), got 10"
+    },
+    {
+      "concern_id": "PR-EXP-0121-C04",
+      "extracting_agent": "extract-04",
+      "paper_id": "PR-EXP-0121",
+      "issue_type": "text_gate_mismatch",
+      "current": {
+        "category": "evaluation_metrics",
+        "mlgg_dimension": 5,
+        "mlgg_gates": [
+          "evaluation_quality_gate",
+          "ci_matrix_gate"
+        ]
+      },
+      "suggested": {
+        "category": "evaluation_metrics",
+        "mlgg_dimension": 5,
+        "mlgg_gates": [
+          "ci_matrix_gate",
+          "evaluation_quality_gate",
+          "sample_size_gate"
+        ]
+      },
+      "reason": "text discusses sample size / power"
+    },
+    {
+      "concern_id": "PR-EXP-0122-C02",
+      "extracting_agent": "extract-04",
+      "paper_id": "PR-EXP-0122",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 2,
+        "mlgg_gates": [
+          "label_definition_gate"
+        ]
+      },
+      "suggested": {
+        "category": "study_design",
+        "mlgg_dimension": 1,
+        "mlgg_gates": [
+          "label_definition_gate"
+        ]
+      },
+      "reason": "category 'study_design' should map to dim 1 per schema (or 1 per KB), got 2"
+    },
+    {
+      "concern_id": "PR-EXP-0123-C03",
+      "extracting_agent": "extract-04",
+      "paper_id": "PR-EXP-0123",
+      "issue_type": "under_utilized_gate",
+      "current": {
+        "category": "split_protocol",
+        "mlgg_dimension": 3,
+        "mlgg_gates": [
+          "split_protocol_gate"
+        ]
+      },
+      "suggested": {
+        "category": "split_protocol",
+        "mlgg_dimension": 3,
+        "mlgg_gates": [
+          "split_protocol_gate",
+          "tuning_leakage_gate"
+        ]
+      },
+      "reason": "text indicates test set used for tuning/selection"
+    },
+    {
+      "concern_id": "PR-EXP-0147-C01",
+      "extracting_agent": "extract-06",
+      "paper_id": "PR-EXP-0147",
+      "issue_type": "text_gate_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 1,
+        "mlgg_gates": [
+          "cohort_definition_gate"
+        ]
+      },
+      "suggested": {
+        "category": "study_design",
+        "mlgg_dimension": 1,
+        "mlgg_gates": [
+          "cohort_definition_gate",
+          "fairness_equity_gate"
+        ]
+      },
+      "reason": "text discusses fairness/subgroup analysis"
+    },
+    {
+      "concern_id": "PR-EXP-0147-C02",
+      "extracting_agent": "extract-06",
+      "paper_id": "PR-EXP-0147",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 2,
+        "mlgg_gates": [
+          "preprocessing_audit_gate",
+          "code_data_availability_gate"
+        ]
+      },
+      "suggested": {
+        "category": "reproducibility",
+        "mlgg_dimension": 11,
+        "mlgg_gates": [
+          "preprocessing_audit_gate",
+          "code_data_availability_gate"
+        ]
+      },
+      "reason": "category 'reproducibility' should map to dim 11 per schema (or 9 per KB), got 2"
+    },
+    {
+      "concern_id": "PR-EXP-0149-C03",
+      "extracting_agent": "extract-06",
+      "paper_id": "PR-EXP-0149",
+      "issue_type": "text_gate_mismatch",
+      "current": {
+        "category": "reporting",
+        "mlgg_dimension": 8,
+        "mlgg_gates": [
+          "reporting_bias_gate"
+        ]
+      },
+      "suggested": {
+        "category": "reporting",
+        "mlgg_dimension": 8,
+        "mlgg_gates": [
+          "external_validation_gate",
+          "reporting_bias_gate"
+        ]
+      },
+      "reason": "text describes missing external cohort/validation"
+    },
+    {
+      "concern_id": "PR-EXP-0151-C03",
+      "extracting_agent": "extract-06",
+      "paper_id": "PR-EXP-0151",
+      "issue_type": "text_gate_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 12,
+        "mlgg_gates": [
+          "clinical_metrics_gate"
+        ]
+      },
+      "suggested": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 12,
+        "mlgg_gates": [
+          "clinical_metrics_gate",
+          "sample_size_gate"
+        ]
+      },
+      "reason": "text discusses sample size / power"
+    },
+    {
+      "concern_id": "PR-EXP-0152-C01",
+      "extracting_agent": "extract-06",
+      "paper_id": "PR-EXP-0152",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 4,
+        "mlgg_gates": [
+          "feature_lineage_gate",
+          "label_definition_gate"
+        ]
+      },
+      "suggested": {
+        "category": "study_design",
+        "mlgg_dimension": 1,
+        "mlgg_gates": [
+          "feature_lineage_gate",
+          "label_definition_gate"
+        ]
+      },
+      "reason": "category 'study_design' should map to dim 1 per schema (or 1 per KB), got 4"
+    },
+    {
+      "concern_id": "PR-EXP-0155-C01",
+      "extracting_agent": "extract-06",
+      "paper_id": "PR-EXP-0155",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 7,
+        "mlgg_gates": [
+          "distribution_generalization_gate",
+          "covariate_shift_gate"
+        ]
+      },
+      "suggested": {
+        "category": "study_design",
+        "mlgg_dimension": 1,
+        "mlgg_gates": [
+          "distribution_generalization_gate",
+          "covariate_shift_gate"
+        ]
+      },
+      "reason": "category 'study_design' should map to dim 1 per schema (or 1 per KB), got 7"
+    },
+    {
+      "concern_id": "PR-EXP-0155-C01",
+      "extracting_agent": "extract-06",
+      "paper_id": "PR-EXP-0155",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 7,
+        "mlgg_gates": [
+          "distribution_generalization_gate",
+          "covariate_shift_gate"
+        ]
+      },
+      "suggested": {
+        "category": "study_design",
+        "mlgg_dimension": 7,
+        "mlgg_gates": [
+          "cohort_definition_gate",
+          "distribution_generalization_gate",
+          "covariate_shift_gate"
+        ]
+      },
+      "reason": "category 'study_design' typically uses ['cohort_definition_gate', 'definition_variable_guard', 'label_definition_gate'] but gates ['distribution_generalization_gate', 'covariate_shift_gate'] belong to ['external_validation']"
+    },
+    {
+      "concern_id": "PR-EXP-0155-C03",
+      "extracting_agent": "extract-06",
+      "paper_id": "PR-EXP-0155",
+      "issue_type": "text_gate_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 6,
+        "mlgg_gates": [
+          "tuning_leakage_gate",
+          "split_protocol_gate"
+        ]
+      },
+      "suggested": {
+        "category": "model_selection",
+        "mlgg_dimension": 6,
+        "mlgg_gates": [
+          "calibration_dca_gate",
+          "split_protocol_gate",
+          "tuning_leakage_gate"
+        ]
+      },
+      "reason": "text discusses calibration/DCA"
+    },
+    {
+      "concern_id": "PR-EXP-0157-C06",
+      "extracting_agent": "extract-06",
+      "paper_id": "PR-EXP-0157",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 7,
+        "mlgg_gates": [
+          "distribution_generalization_gate"
+        ]
+      },
+      "suggested": {
+        "category": "study_design",
+        "mlgg_dimension": 1,
+        "mlgg_gates": [
+          "distribution_generalization_gate"
+        ]
+      },
+      "reason": "category 'study_design' should map to dim 1 per schema (or 1 per KB), got 7"
+    },
+    {
+      "concern_id": "PR-EXP-0157-C06",
+      "extracting_agent": "extract-06",
+      "paper_id": "PR-EXP-0157",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 7,
+        "mlgg_gates": [
+          "distribution_generalization_gate"
+        ]
+      },
+      "suggested": {
+        "category": "study_design",
+        "mlgg_dimension": 7,
+        "mlgg_gates": [
+          "cohort_definition_gate",
+          "distribution_generalization_gate"
+        ]
+      },
+      "reason": "category 'study_design' typically uses ['cohort_definition_gate', 'definition_variable_guard', 'label_definition_gate'] but gates ['distribution_generalization_gate'] belong to ['external_validation']"
+    },
+    {
+      "concern_id": "PR-EXP-0159-C02",
+      "extracting_agent": "extract-06",
+      "paper_id": "PR-EXP-0159",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 12,
+        "mlgg_gates": [
+          "clinical_metrics_gate"
+        ]
+      },
+      "suggested": {
+        "category": "study_design",
+        "mlgg_dimension": 1,
+        "mlgg_gates": [
+          "clinical_metrics_gate"
+        ]
+      },
+      "reason": "category 'study_design' should map to dim 1 per schema (or 1 per KB), got 12"
+    },
+    {
+      "concern_id": "PR-EXP-0159-C02",
+      "extracting_agent": "extract-06",
+      "paper_id": "PR-EXP-0159",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 12,
+        "mlgg_gates": [
+          "clinical_metrics_gate"
+        ]
+      },
+      "suggested": {
+        "category": "study_design",
+        "mlgg_dimension": 12,
+        "mlgg_gates": [
+          "cohort_definition_gate",
+          "clinical_metrics_gate"
+        ]
+      },
+      "reason": "category 'study_design' typically uses ['cohort_definition_gate', 'definition_variable_guard', 'label_definition_gate'] but gates ['clinical_metrics_gate'] belong to ['clinical_utility', 'evaluation_metrics']"
+    },
+    {
+      "concern_id": "PR-EXP-0160-C06",
+      "extracting_agent": "extract-07",
+      "paper_id": "PR-EXP-0160",
+      "issue_type": "text_gate_mismatch",
+      "current": {
+        "category": "preprocessing",
+        "mlgg_dimension": 2,
+        "mlgg_gates": [
+          "missingness_policy_gate",
+          "preprocessing_audit_gate"
+        ]
+      },
+      "suggested": {
+        "category": "preprocessing",
+        "mlgg_dimension": 2,
+        "mlgg_gates": [
+          "fairness_equity_gate",
+          "missingness_policy_gate",
+          "preprocessing_audit_gate"
+        ]
+      },
+      "reason": "text discusses fairness/subgroup analysis"
+    },
+    {
+      "concern_id": "PR-EXP-0160-C09",
+      "extracting_agent": "extract-07",
+      "paper_id": "PR-EXP-0160",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 3,
+        "mlgg_gates": [
+          "split_protocol_gate"
+        ]
+      },
+      "suggested": {
+        "category": "study_design",
+        "mlgg_dimension": 1,
+        "mlgg_gates": [
+          "split_protocol_gate"
+        ]
+      },
+      "reason": "category 'study_design' should map to dim 1 per schema (or 1 per KB), got 3"
+    },
+    {
+      "concern_id": "PR-EXP-0160-C09",
+      "extracting_agent": "extract-07",
+      "paper_id": "PR-EXP-0160",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 3,
+        "mlgg_gates": [
+          "split_protocol_gate"
+        ]
+      },
+      "suggested": {
+        "category": "study_design",
+        "mlgg_dimension": 3,
+        "mlgg_gates": [
+          "cohort_definition_gate",
+          "split_protocol_gate"
+        ]
+      },
+      "reason": "category 'study_design' typically uses ['cohort_definition_gate', 'definition_variable_guard', 'label_definition_gate'] but gates ['split_protocol_gate'] belong to ['data_leakage', 'split_protocol']"
+    },
+    {
+      "concern_id": "PR-EXP-0160-C15",
+      "extracting_agent": "extract-07",
+      "paper_id": "PR-EXP-0160",
+      "issue_type": "text_gate_mismatch",
+      "current": {
+        "category": "evaluation_metrics",
+        "mlgg_dimension": 5,
+        "mlgg_gates": [
+          "evaluation_quality_gate",
+          "metric_consistency_gate"
+        ]
+      },
+      "suggested": {
+        "category": "evaluation_metrics",
+        "mlgg_dimension": 5,
+        "mlgg_gates": [
+          "evaluation_quality_gate",
+          "fairness_equity_gate",
+          "metric_consistency_gate"
+        ]
+      },
+      "reason": "text discusses fairness/subgroup analysis"
+    },
+    {
+      "concern_id": "PR-EXP-0185-C05",
+      "extracting_agent": "extract-08",
+      "paper_id": "PR-EXP-0185",
+      "issue_type": "text_gate_mismatch",
+      "current": {
+        "category": "reporting",
+        "mlgg_dimension": 8,
+        "mlgg_gates": [
+          "reporting_bias_gate"
+        ]
+      },
+      "suggested": {
+        "category": "reporting",
+        "mlgg_dimension": 8,
+        "mlgg_gates": [
+          "code_data_availability_gate",
+          "reporting_bias_gate"
+        ]
+      },
+      "reason": "text discusses code/data availability"
+    },
+    {
+      "concern_id": "PR-EXP-0189-C01",
+      "extracting_agent": "extract-08",
+      "paper_id": "PR-EXP-0189",
+      "issue_type": "text_gate_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 1,
+        "mlgg_gates": [
+          "definition_variable_guard"
+        ]
+      },
+      "suggested": {
+        "category": "study_design",
+        "mlgg_dimension": 1,
+        "mlgg_gates": [
+          "definition_variable_guard",
+          "temporal_validation_gate"
+        ]
+      },
+      "reason": "text discusses temporal validation/split"
+    },
+    {
+      "concern_id": "PR-EXP-0189-C02",
+      "extracting_agent": "extract-08",
+      "paper_id": "PR-EXP-0189",
+      "issue_type": "text_gate_mismatch",
+      "current": {
+        "category": "evaluation_metrics",
+        "mlgg_dimension": 5,
+        "mlgg_gates": [
+          "evaluation_quality_gate",
+          "metric_consistency_gate"
+        ]
+      },
+      "suggested": {
+        "category": "evaluation_metrics",
+        "mlgg_dimension": 5,
+        "mlgg_gates": [
+          "evaluation_quality_gate",
+          "metric_consistency_gate",
+          "temporal_validation_gate"
+        ]
+      },
+      "reason": "text discusses temporal validation/split"
+    },
+    {
+      "concern_id": "PR-EXP-0197-C02",
+      "extracting_agent": "extract-08",
+      "paper_id": "PR-EXP-0197",
+      "issue_type": "text_gate_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 1,
+        "mlgg_gates": [
+          "cohort_definition_gate"
+        ]
+      },
+      "suggested": {
+        "category": "study_design",
+        "mlgg_dimension": 1,
+        "mlgg_gates": [
+          "cohort_definition_gate",
+          "missingness_policy_gate"
+        ]
+      },
+      "reason": "text discusses missingness / imputation"
+    },
+    {
+      "concern_id": "PR-EXP-0200-C01",
+      "extracting_agent": "extract-09",
+      "paper_id": "PR-EXP-0200",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "data_leakage",
+        "mlgg_dimension": 2,
+        "mlgg_gates": [
+          "label_definition_gate",
+          "preprocessing_audit_gate"
+        ]
+      },
+      "suggested": {
+        "category": "data_leakage",
+        "mlgg_dimension": 2,
+        "mlgg_gates": [
+          "definition_variable_guard",
+          "label_definition_gate",
+          "preprocessing_audit_gate"
+        ]
+      },
+      "reason": "category 'data_leakage' typically uses ['definition_variable_guard', 'feature_lineage_gate', 'leakage_gate', 'split_protocol_gate', 'tuning_leakage_gate'] but gates ['label_definition_gate', 'preprocessing_audit_gate'] belong to ['preprocessing', 'study_design']"
+    },
+    {
+      "concern_id": "PR-EXP-0200-C06",
+      "extracting_agent": "extract-09",
+      "paper_id": "PR-EXP-0200",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "sample_size",
+        "mlgg_dimension": 5,
+        "mlgg_gates": [
+          "sample_size_gate",
+          "evaluation_quality_gate"
+        ]
+      },
+      "suggested": {
+        "category": "sample_size",
+        "mlgg_dimension": 1,
+        "mlgg_gates": [
+          "sample_size_gate",
+          "evaluation_quality_gate"
+        ]
+      },
+      "reason": "category 'sample_size' should map to dim 1 per schema (or 12 per KB), got 5"
+    },
+    {
+      "concern_id": "PR-EXP-0203-C04",
+      "extracting_agent": "extract-09",
+      "paper_id": "PR-EXP-0203",
+      "issue_type": "text_gate_mismatch",
+      "current": {
+        "category": "evaluation_metrics",
+        "mlgg_dimension": 5,
+        "mlgg_gates": [
+          "evaluation_quality_gate",
+          "clinical_metrics_gate"
+        ]
+      },
+      "suggested": {
+        "category": "evaluation_metrics",
+        "mlgg_dimension": 5,
+        "mlgg_gates": [
+          "clinical_metrics_gate",
+          "evaluation_quality_gate",
+          "shap_interpretability_gate"
+        ]
+      },
+      "reason": "text discusses SHAP/feature attribution"
+    },
+    {
+      "concern_id": "PR-EXP-0212-C03",
+      "extracting_agent": "extract-10",
+      "paper_id": "PR-EXP-0212",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "preprocessing",
+        "mlgg_dimension": 1,
+        "mlgg_gates": [
+          "cohort_definition_gate"
+        ]
+      },
+      "suggested": {
+        "category": "preprocessing",
+        "mlgg_dimension": 2,
+        "mlgg_gates": [
+          "cohort_definition_gate"
+        ]
+      },
+      "reason": "category 'preprocessing' should map to dim 2 per schema (or 3 per KB), got 1"
+    },
+    {
+      "concern_id": "PR-EXP-0212-C03",
+      "extracting_agent": "extract-10",
+      "paper_id": "PR-EXP-0212",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "preprocessing",
+        "mlgg_dimension": 1,
+        "mlgg_gates": [
+          "cohort_definition_gate"
+        ]
+      },
+      "suggested": {
+        "category": "preprocessing",
+        "mlgg_dimension": 1,
+        "mlgg_gates": [
+          "imbalance_policy_gate",
+          "cohort_definition_gate"
+        ]
+      },
+      "reason": "category 'preprocessing' typically uses ['imbalance_policy_gate', 'missingness_policy_gate', 'preprocessing_audit_gate'] but gates ['cohort_definition_gate'] belong to ['study_design']"
+    },
+    {
+      "concern_id": "PR-EXP-0212-C05",
+      "extracting_agent": "extract-10",
+      "paper_id": "PR-EXP-0212",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7,
+        "mlgg_gates": [
+          "distribution_generalization_gate"
+        ]
+      },
+      "suggested": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7,
+        "mlgg_gates": [
+          "calibration_dca_gate",
+          "distribution_generalization_gate"
+        ]
+      },
+      "reason": "category 'clinical_utility' typically uses ['calibration_dca_gate', 'clinical_metrics_gate'] but gates ['distribution_generalization_gate'] belong to ['external_validation']"
+    },
+    {
+      "concern_id": "PR-EXP-0212-C11",
+      "extracting_agent": "extract-10",
+      "paper_id": "PR-EXP-0212",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 12,
+        "mlgg_gates": [
+          "distribution_generalization_gate"
+        ]
+      },
+      "suggested": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 12,
+        "mlgg_gates": [
+          "calibration_dca_gate",
+          "distribution_generalization_gate"
+        ]
+      },
+      "reason": "category 'clinical_utility' typically uses ['calibration_dca_gate', 'clinical_metrics_gate'] but gates ['distribution_generalization_gate'] belong to ['external_validation']"
+    }
+  ],
+  "summary": {
+    "total_issues_flagged": 54,
+    "affected_concerns": 46,
+    "by_type": {
+      "text_gate_mismatch": 20,
+      "category_dim_mismatch": 20,
+      "category_gate_mismatch": 12,
+      "under_utilized_gate": 2
+    },
+    "by_extracting_agent": {
+      "extract-01": 14,
+      "extract-02": 3,
+      "extract-03": 5,
+      "extract-04": 5,
+      "extract-06": 12,
+      "extract-07": 4,
+      "extract-08": 4,
+      "extract-09": 3,
+      "extract-10": 4
+    }
+  }
+}

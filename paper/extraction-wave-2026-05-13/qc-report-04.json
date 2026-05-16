@@ -1,0 +1,119 @@
+{
+  "agent": "qc-04",
+  "ran_at_utc": "2026-05-16T00:00:00Z",
+  "papers_checked": [
+    {
+      "paper_id": "PR-EXP-0192",
+      "concerns_spot_checked": ["PR-EXP-0192-C01", "PR-EXP-0192-C02", "PR-EXP-0192-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0192-C01", "verdict": "PASS", "note": "R1 comment #1 verbatim; author response (train ADNI2/test ADNI1, retrain ADNI1, iSTAGING) matches PDF response section"},
+        {"concern_id": "PR-EXP-0192-C02", "verdict": "PASS", "note": "R3 comment C1 verbatim permutation experiment; response confirms permutation implemented"},
+        {"concern_id": "PR-EXP-0192-C03", "verdict": "PASS", "note": "Composite of R1 intro paragraph (clusters miss previously identified AD subtypes) and R1 #4 (limbic-predominant); response (mapping P2=hippocampal sparing, P3=limbic predominant) matches PDF"}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0193",
+      "concerns_spot_checked": ["PR-EXP-0193-C01", "PR-EXP-0193-C02", "PR-EXP-0193-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0193-C01", "verdict": "PASS", "note": "R1 #1 single dataset/random split verbatim; response (9 CT manufacturers, 81 models, 65 algorithms, CCC 0.901) matches PDF Table 3 + reproducibility study"},
+        {"concern_id": "PR-EXP-0193-C02", "verdict": "PASS", "note": "R1 #3 inter-operator ROI verbatim; CCC 0.901 response matches"},
+        {"concern_id": "PR-EXP-0193-C03", "verdict": "PASS", "note": "R3 prognostic-scores additional-benefit comment verbatim; response (6 models, DL-Nomogram C-Index 0.649 vs ETS 0.627) matches new subsection"}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0194",
+      "concerns_spot_checked": ["PR-EXP-0194-C01", "PR-EXP-0194-C02", "PR-EXP-0194-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0194-C01", "verdict": "PASS", "note": "R1 verbatim from joint/longitudinal model bullet; response (n=20 5-fold CV, Fig 4b, Supp Fig 10, future external cohort) matches; resolved=None reasonable since author conceded no external dataset"},
+        {"concern_id": "PR-EXP-0194-C02", "verdict": "PASS", "note": "R1 'Survival analysis does not account for tumor type' section verbatim; multivariate Cox + AD/SqCC stratification response matches"},
+        {"concern_id": "PR-EXP-0194-C03", "verdict": "PASS", "note": "R1 'Data sharing and reproducibility' section verbatim; GitHub repo + HGRAC restriction response matches; resolved=None reasonable given raw seq data restricted"}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0197",
+      "concerns_spot_checked": ["PR-EXP-0197-C01", "PR-EXP-0197-C02", "PR-EXP-0197-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0197-C01", "verdict": "PASS", "note": "R1 'Major issue' blood culture proxy verbatim; Danish guidelines justification + Methods/Discussion clarification matches PDF response"},
+        {"concern_id": "PR-EXP-0197-C02", "verdict": "PASS", "note": "R1 time-point 0 shift verbatim; IGHV/FISH/TP53 rationale + n=373 exclusion response matches"},
+        {"concern_id": "PR-EXP-0197-C03", "verdict": "PASS", "note": "R1 'Discussion of selection bias is lacking' verbatim; 98% registry coverage + indolent population response matches"}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0198",
+      "concerns_spot_checked": ["PR-EXP-0198-C01", "PR-EXP-0198-C02", "PR-EXP-0198-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0198-C01", "verdict": "PASS", "note": "R1 Q5 verbatim about adding clinical features to NN; response (M1 AUC 0.915 vs Resnet50_concatenate/Resnet101/Inception/vgg19) matches PDF Table 1"},
+        {"concern_id": "PR-EXP-0198-C02", "verdict": "PASS", "note": "R2 consecutive lesions / multifocal disease verbatim; consecutive enrollment + exclusion response consistent with PDF"},
+        {"concern_id": "PR-EXP-0198-C03", "verdict": "PASS", "note": "R2 pre-op diagnosis of axillary metastases / nodal burden verbatim; cut-off response (N0/N+1-2/N+>=3) consistent with R1 note pg 9 line 198"}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0200",
+      "concerns_spot_checked": ["PR-EXP-0200-C01", "PR-EXP-0200-C02", "PR-EXP-0200-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0200-C01", "verdict": "PASS", "note": "R2 Uni-G / external EKG classification tool verbatim; response (Uni-G not used for test set, certified cardiologists for final classification) matches PDF #2 response"},
+        {"concern_id": "PR-EXP-0200-C02", "verdict": "PASS", "note": "R2 98% split / 827 test samples verbatim; response with Wikitext-103 analogy + Supp Table 3 matches PDF #4; resolved=False correctly captures R2 round-2 statement 'concern with the low numbers in the test-set is still a factor'"},
+        {"concern_id": "PR-EXP-0200-C03", "verdict": "PASS", "note": "R2 lines 271-282 optimistic states verbatim; rewritten final paragraph response matches PDF #6"}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0203",
+      "concerns_spot_checked": ["PR-EXP-0203-C01", "PR-EXP-0203-C02", "PR-EXP-0203-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0203-C01", "verdict": "PASS", "note": "R1 1.3 alternative saliency techniques verbatim; 'Explaining predictions in other ways' section response matches PDF response table"},
+        {"concern_id": "PR-EXP-0203-C02", "verdict": "PASS", "note": "R1 1.4 quality-assessed-by-clinicians verbatim; iterative ED clinician development + deferral response matches PDF; resolved=False appropriate since no quantitative inter-rater agreement provided"},
+        {"concern_id": "PR-EXP-0203-C03", "verdict": "PASS", "note": "R1 1.11 outcome prevalence rates verbatim; oversampling response (stretched probabilities, not used in final) matches PDF"}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0205",
+      "concerns_spot_checked": ["PR-EXP-0205-C01", "PR-EXP-0205-C02", "PR-EXP-0205-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0205-C01", "verdict": "PASS", "note": "R1 TRIPOD title verbatim; new title verbatim match in response"},
+        {"concern_id": "PR-EXP-0205-C02", "verdict": "PASS", "note": "R1 default hyperparameters verbatim; LightGBM reference response matches"},
+        {"concern_id": "PR-EXP-0205-C03", "verdict": "PASS", "note": "R1 outcome timing concern verbatim; rerun July 16/April 16 + 11/4179 (0.3%) still hospitalized response matches"}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0209",
+      "concerns_spot_checked": ["PR-EXP-0209-C01", "PR-EXP-0209-C02", "PR-EXP-0209-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0209-C01", "verdict": "PASS", "note": "R1 outcomes list (ICU/MV/LOS/mortality) verbatim; Table 1/2 + Supp Table 1 additions match"},
+        {"concern_id": "PR-EXP-0209-C02", "verdict": "PASS", "note": "R2 severe+critical combination verbatim; restructuring to development-of-severe-from-moderate endpoint matches PDF response (line 111-122 citation plausible)"},
+        {"concern_id": "PR-EXP-0209-C03", "verdict": "PASS", "note": "R3 'Lack of validation in an independent population' verbatim from major limitations; Yueyang/Shaoyang external validation + nomogram response matches"}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0212",
+      "concerns_spot_checked": ["PR-EXP-0212-C01", "PR-EXP-0212-C02", "PR-EXP-0212-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0212-C01", "verdict": "PASS", "note": "R1 #4 Cr/BUN definition-pathway verbatim; PDF response is brief 'Thank you. We completely agree.' Extractor added 'noted the paper had already shown' context drawn from the reviewer's own praise — acceptable since the leave-Cr-out experiment is in the original manuscript per R1's own statement"},
+        {"concern_id": "PR-EXP-0212-C02", "verdict": "PASS", "note": "R1 #2 clinician-actionability verbatim; KDIGO + electronic alert care bundles + Discussion paragraph p.17 response matches"},
+        {"concern_id": "PR-EXP-0212-C03", "verdict": "NEEDS_REVISION", "note": "Concern text matches R1 #9 (Minor) verbatim. Author response in PDF is bare 'We agree.' Extracted response 'Authors agreed but noted burn patients are a small fraction; no further cohort changes made' attributes the 'small fraction' note to authors, but that clause comes from the reviewer's own concession ('But this is not a major point as burn patients are not large in number'). Minor misattribution"}
+      ],
+      "overall_paper_quality": "ACCEPTABLE_WITH_FIXES"
+    }
+  ],
+  "summary": {
+    "total_concerns_spot_checked": 30,
+    "pass": 29,
+    "needs_revision": 1,
+    "hallucination": 0
+  },
+  "notes": [
+    "All 10 papers extracted reviewer concern_text with high fidelity (verbatim or close paraphrase from PDF).",
+    "Across the 30 sampled concerns, only one minor attribution issue found (PR-EXP-0212-C03).",
+    "Observed that the `dimension` field is consistently None across all sampled concerns in agent-08/09/10 outputs. Not flagged as NEEDS_REVISION (out of QC scope per instructions which cover text/response/resolved/reviewer/round), but worth noting for downstream extraction-wave QA.",
+    "resolved flags reviewed in sample: PR-EXP-0200-C02 (False) correctly reflects R2 round-2 'still a factor' statement; PR-EXP-0203-C02 (False) correctly reflects no quantitative inter-rater agreement; PR-EXP-0194-C01/C03 and PR-EXP-0212-C03 (None) reasonable given partial/no resolution.",
+    "Reviewer/round attribution correct in all 30 sampled concerns."
+  ]
+}

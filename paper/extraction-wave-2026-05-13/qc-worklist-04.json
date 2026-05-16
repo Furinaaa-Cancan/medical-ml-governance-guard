@@ -1,0 +1,122 @@
+[
+  {
+    "paper_id": "PR-EXP-0192",
+    "paper_title": "10.1038/s41467-021-26703-z",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-021-26703-z_peer_review.pdf",
+    "concern_count": 5,
+    "concerns_sample_ids": [
+      "PR-EXP-0192-C01",
+      "PR-EXP-0192-C02",
+      "PR-EXP-0192-C03"
+    ],
+    "extraction_notes": "MRI imaging modality — out of MLGG core scope per CLAUDE.md. However, concerns about external validation, permutation testing, and cohort reporting are methodologically general."
+  },
+  {
+    "paper_id": "PR-EXP-0193",
+    "paper_title": "10.1038/s41467-021-26990-6",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-021-26990-6_peer_review.pdf",
+    "concern_count": 5,
+    "concerns_sample_ids": [
+      "PR-EXP-0193-C01",
+      "PR-EXP-0193-C02",
+      "PR-EXP-0193-C03"
+    ],
+    "extraction_notes": "CT imaging — out of MLGG core scope. Strong concerns about incremental value and statistical methodology. All concerns resolved by round 2."
+  },
+  {
+    "paper_id": "PR-EXP-0194",
+    "paper_title": "10.1038/s41467-021-27022-z",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-021-27022-z_peer_review.pdf",
+    "concern_count": 6,
+    "concerns_sample_ids": [
+      "PR-EXP-0194-C01",
+      "PR-EXP-0194-C02",
+      "PR-EXP-0194-C03"
+    ],
+    "extraction_notes": "ctDNA + clinical — borderline genomic/clinical. Two reviewers, two rounds. External validation gap acknowledged as future work."
+  },
+  {
+    "paper_id": "PR-EXP-0197",
+    "paper_title": "10.1038/s41467-019-14225-8",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-019-14225-8_peer_review.pdf",
+    "concern_count": 8,
+    "concerns_sample_ids": [
+      "PR-EXP-0197-C01",
+      "PR-EXP-0197-C02",
+      "PR-EXP-0197-C03"
+    ],
+    "extraction_notes": "Core MLGG-scope paper (EHR tabular, binary classification, retrospective CLL cohort). Rich set of substantive concerns covering label definition, selection bias, missingness, feature engineering, calibration, interpretability. Both reviewers fully satisfied by round 2."
+  },
+  {
+    "paper_id": "PR-EXP-0198",
+    "paper_title": "10.1038/s41467-020-15027-z",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-020-15027-z_peer_review.pdf",
+    "concern_count": 6,
+    "concerns_sample_ids": [
+      "PR-EXP-0198-C01",
+      "PR-EXP-0198-C02",
+      "PR-EXP-0198-C03"
+    ],
+    "extraction_notes": "Ultrasound imaging + clinical — borderline imaging scope. Three rounds with two reviewers. Strong concern about training set vs test set reporting (R1 round 2) which was resolved."
+  },
+  {
+    "paper_id": "PR-EXP-0200",
+    "paper_title": "10.1038/s41467-020-15432-4",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-020-15432-4_peer_review.pdf",
+    "concern_count": 7,
+    "concerns_sample_ids": [
+      "PR-EXP-0200-C01",
+      "PR-EXP-0200-C02",
+      "PR-EXP-0200-C03"
+    ],
+    "extraction_notes": "ECG signal classification (multi-class abnormalities); modality is borderline (signal time-series, not pure imaging). Included because reviewer concerns map cleanly to MLGG dimensions (split protocol, sample size, CI/variance, hyperparameter selection). Has 2 review rounds plus editor-mediated additional split-protocol experiments."
+  },
+  {
+    "paper_id": "PR-EXP-0203",
+    "paper_title": "10.1038/s41467-020-17431-x",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-020-17431-x_peer_review.pdf",
+    "concern_count": 7,
+    "concerns_sample_ids": [
+      "PR-EXP-0203-C01",
+      "PR-EXP-0203-C02",
+      "PR-EXP-0203-C03"
+    ],
+    "extraction_notes": "EHR ICU time-series for sepsis/AKI/ALI prediction — squarely in MLGG scope. Reviewer 2 was minimal/positive; substantive concerns from Reviewer 1 (interpretability + evaluation panel) and Reviewer 3 (outcome definition). Authors used 5-fold CV with patient-level split. Reviewer 1 had a few unresolved items (clinician assessment quantification, sens/spec)."
+  },
+  {
+    "paper_id": "PR-EXP-0205",
+    "paper_title": "10.1038/s41467-020-18297-9",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-020-18297-9_peer_review.pdf",
+    "concern_count": 6,
+    "concerns_sample_ids": [
+      "PR-EXP-0205-C01",
+      "PR-EXP-0205-C02",
+      "PR-EXP-0205-C03"
+    ],
+    "extraction_notes": "COVID-19 mortality risk prediction from EHR tabular features (LightGBM with SHAP) — squarely in MLGG scope. Reviewer Ben Van Calster (KU Leuven) is a known TRIPOD/PROBAST expert; concerns focus on outcome definition, future-information leakage, calibration, and decision curves. Only one substantive review round visible; Reviewer #2 satisfied without comments."
+  },
+  {
+    "paper_id": "PR-EXP-0209",
+    "paper_title": "10.1038/s41467-020-18786-x",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-020-18786-x_peer_review.pdf",
+    "concern_count": 8,
+    "concerns_sample_ids": [
+      "PR-EXP-0209-C01",
+      "PR-EXP-0209-C02",
+      "PR-EXP-0209-C03"
+    ],
+    "extraction_notes": "COVID-19 progression prediction in moderate pneumonia using clinical + CT-severity-score features fed into multivariate logistic regression nomogram. Although the paper uses CT, the modeling is on tabular features (severity score, NLR, age, comorbidities) — closer to MLGG's clinical risk model scope than to pure image classification. Reviewer 3 raises a sharp lead-time-bias concern in round 2 that maps directly to MLGG-F02/F05. Some round-2 concerns may have been less fully resolved than authors claim."
+  },
+  {
+    "paper_id": "PR-EXP-0212",
+    "paper_title": "10.1038/s41467-020-19551-w",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-020-19551-w_peer_review.pdf",
+    "concern_count": 11,
+    "concerns_sample_ids": [
+      "PR-EXP-0212-C01",
+      "PR-EXP-0212-C02",
+      "PR-EXP-0212-C03"
+    ],
+    "extraction_notes": "Two-round review with 3 reviewers. Round 1 had substantive comments from all three; Round 2 saw R2 fully satisfied and R3 satisfied with one minor citation suggestion (Koyner et al). R1 did not appear in Round 2. PDF structure: reviewer comments first (pages 1-4), then point-by-point author responses (pages 5-11), then Round 2 review and final response (pages 12-14). Notable: R1's comment #4 is essentially praise for the leave-Cr-out robustness test, which is a strength rather than a concern — handled by including it as the C01 'definition variable' concern since it raises a leakage-flavored issue authors had to defend. R1 #1 was praise (white-box approach) and is captured as a strength only."
+  }
+]

@@ -1,0 +1,624 @@
+{
+  "agent": "audit-e-code-data-r2",
+  "ran_at_utc": "2026-05-16T02:35:50Z",
+  "candidates_total": 76,
+  "page_errors_unresolved": [],
+  "verdicts_by_doi": {
+    "10.1038/s41467-026-73021-3": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "",
+      "tier": "LOW"
+    },
+    "10.1038/s41467-026-72960-1": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "",
+      "tier": "LOW"
+    },
+    "10.1038/s41467-025-58724-3": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/kannyjyk/UKB-MDRMF",
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "UK Biobank, All of Us",
+      "note": "",
+      "tier": "HIGH"
+    },
+    "10.1038/s41467-025-62891-8": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "data-restricted",
+      "tier": "LOW"
+    },
+    "10.1038/s41467-025-59610-8": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/divya031090/multiclassNN",
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "MIMIC, eICU, UK Biobank",
+      "note": "",
+      "tier": "HIGH"
+    },
+    "10.1038/s41467-025-55879-x": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "UK Biobank, All of Us",
+      "note": "",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s41467-025-65153-9": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "data-restricted",
+      "tier": "LOW"
+    },
+    "10.1038/s41467-025-64408-9": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/jamessheppard48/STRATIFY-BP",
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "NHS Digital",
+      "note": "",
+      "tier": "HIGH"
+    },
+    "10.1038/s43856-025-00785-y": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "UK Biobank",
+      "note": "",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s43856-025-01229-3": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "Vanderbilt",
+      "note": "",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s43856-025-00878-8": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-026-01542-5": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/elan-dcc/VanDokkum25",
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "MIMIC",
+      "note": "",
+      "tier": "HIGH"
+    },
+    "10.1038/s43856-025-01253-3": {
+      "code_status": "STATED_NO_REPO",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "code-section-says-no-repo; data-restricted",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-025-01052-w": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/TobyLieu/KUTS",
+      "data_status": "PUBLIC_DATASET",
+      "data_url_or_name": "PhysioNet, MIMIC",
+      "note": "",
+      "tier": "HIGH"
+    },
+    "10.1038/s43856-024-00568-x": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "DATA_RAR",
+      "data_url_or_name": null,
+      "note": "RAR-loose-match",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-026-01498-6": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "data-restricted",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-024-00599-4": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-026-01460-6": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-025-00781-2": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-026-01432-w": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/tmi-lab/theia",
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "ADNI",
+      "note": "",
+      "tier": "HIGH"
+    },
+    "10.1038/s43856-025-01237-3": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "data-restricted",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-024-00539-2": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-026-01639-x": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-024-00725-2": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "data-restricted",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-026-01556-z": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/Curiosity-Mars/testosterone",
+      "data_status": "PUBLIC_DATASET",
+      "data_url_or_name": "NHANES",
+      "note": "",
+      "tier": "HIGH"
+    },
+    "10.1038/s43856-024-00499-7": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "DATA_RAR",
+      "data_url_or_name": null,
+      "note": "RAR-only",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-024-00527-6": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/rakovski22/Causal_AD",
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s43856-025-00946-z": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "UK Biobank",
+      "note": "",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s43856-025-01062-8": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-026-01603-9": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "data-restricted",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-024-00455-5": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "UK Biobank",
+      "note": "",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s43856-025-00867-x": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "DATA_RAR",
+      "data_url_or_name": null,
+      "note": "RAR-only",
+      "tier": "LOW"
+    },
+    "10.1038/s41467-024-51193-0": {
+      "code_status": "STATED_NO_REPO",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "code-section-says-no-repo",
+      "tier": "LOW"
+    },
+    "10.1038/s41467-024-46973-7": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "UK Biobank",
+      "note": "",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s43856-025-01198-7": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/The-Shi-Lab/CodeEmbedding",
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "UK Biobank",
+      "note": "",
+      "tier": "HIGH"
+    },
+    "10.1038/s43856-023-00322-9": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "DATA_RAR",
+      "data_url_or_name": null,
+      "note": "RAR-only",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-023-00241-9": {
+      "code_status": "ZENODO_ARCHIVE",
+      "code_url": "https://zenodo.org/record/7403096",
+      "data_status": "PUBLIC_DATASET",
+      "data_url_or_name": "https://zenodo.org/record/7403096",
+      "note": "",
+      "tier": "HIGH"
+    },
+    "10.1038/s43856-024-00687-5": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-025-01358-9": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "data-restricted",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-023-00295-9": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/WXDX-DA/AbetaPrediction",
+      "data_status": "PUBLIC_DATASET",
+      "data_url_or_name": "https://zenodo.org/record/7844160",
+      "note": "",
+      "tier": "HIGH"
+    },
+    "10.1038/s41467-026-71555-0": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/gmilab/VQVNS",
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "UK Biobank",
+      "note": "",
+      "tier": "HIGH"
+    },
+    "10.1038/s41467-023-44676-z": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "data-restricted",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-025-00872-0": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/novonordisk-research/ML-Proteomics-CVD-Prediction",
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "UK Biobank",
+      "note": "",
+      "tier": "HIGH"
+    },
+    "10.1038/s43856-024-00730-5": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/mit-ccrg/CHAIS",
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s41467-025-64634-1": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/zocskl/DRPro",
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "UK Biobank",
+      "note": "",
+      "tier": "HIGH"
+    },
+    "10.1038/s43856-025-01092-2": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-025-01316-5": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/rwightman/pytorch-image-models",
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "data-restricted",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s43856-025-01200-2": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/YuHsin-Chang/Gram-Stain-Bacteremia-Prediction",
+      "data_status": "PUBLIC_DATASET",
+      "data_url_or_name": "https://zenodo.org/records/17013194",
+      "note": "",
+      "tier": "HIGH"
+    },
+    "10.1038/s41467-025-56309-8": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "",
+      "tier": "LOW"
+    },
+    "10.1038/s41467-024-55635-7": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "UK Biobank",
+      "note": "",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s43856-023-00416-4": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/charlesli37/covid-oph-dx-utils",
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s41467-024-53550-5": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/YingChen7/CereVessSeg_with_CereVessPro",
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "data-restricted",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s43856-024-00696-4": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/Clinical-Genomics/microSALT",
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "data-restricted",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s41467-025-64704-4": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/gsanroma/bullseye_pipeline",
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "UK Biobank",
+      "note": "",
+      "tier": "HIGH"
+    },
+    "10.1038/s43856-025-01364-x": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-025-01181-2": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "DATA_RAR",
+      "data_url_or_name": null,
+      "note": "RAR-loose-match",
+      "tier": "LOW"
+    },
+    "10.1038/s41467-022-30836-0": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/dylwil/longCOVIDrisk",
+      "data_status": "DATA_RAR",
+      "data_url_or_name": null,
+      "note": "RAR-only",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s41467-020-19623-x": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/zietzm/abo_covid_analysis",
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "UK Biobank",
+      "note": "",
+      "tier": "HIGH"
+    },
+    "10.1038/s41467-022-29521-z": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "NHS Digital",
+      "note": "",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s41467-021-26513-3": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/yxie618/longPASC",
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s41467-021-21553-1": {
+      "code_status": "STATED_NO_REPO",
+      "code_url": null,
+      "data_status": "DATA_RAR",
+      "data_url_or_name": null,
+      "note": "code-section-says-no-repo; RAR-loose-match",
+      "tier": "LOW"
+    },
+    "10.1038/s41467-023-38388-7": {
+      "code_status": "STATED_NO_REPO",
+      "code_url": null,
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "Vanderbilt",
+      "note": "code-section-says-no-repo",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s41467-024-48780-6": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/bill-pipi/semaglutide_AUD",
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s41467-022-31401-5": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "data-restricted",
+      "tier": "LOW"
+    },
+    "10.1038/s41467-021-22214-z": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/JonathanSomer/covid-19-multi-state-model",
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "data-restricted",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s41467-020-20246-5": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "UK Biobank, ADNI",
+      "note": "",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s41467-020-16378-3": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/mp2893/gram",
+      "data_status": "PUBLIC_DATASET",
+      "data_url_or_name": "PhysioNet, MIMIC",
+      "note": "",
+      "tier": "HIGH"
+    },
+    "10.1038/s41467-022-28248-1": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "UK Biobank",
+      "note": "",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s41467-021-25402-z": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "",
+      "tier": "LOW"
+    },
+    "10.1038/s43856-021-00006-2": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/Huang-lab/SParCS",
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s41467-022-29880-7": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/tbeaney/Imperial-COh-evaluation",
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "NHS Digital",
+      "note": "",
+      "tier": "HIGH"
+    },
+    "10.1038/s41467-021-27215-6": {
+      "code_status": "NONE",
+      "code_url": null,
+      "data_status": "DATA_RAR",
+      "data_url_or_name": null,
+      "note": "RAR-loose-match",
+      "tier": "LOW"
+    },
+    "10.1038/s41467-022-32458-y": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/therneau/survival",
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "NHS Digital",
+      "note": "",
+      "tier": "HIGH"
+    },
+    "10.1038/s43856-022-00071-1": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/CosmicAITS/AITS1",
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "data-restricted",
+      "tier": "MEDIUM"
+    },
+    "10.1038/s41467-022-33740-9": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/simonthelwall/ba2_severity",
+      "data_status": "GATED_BUT_NAMED",
+      "data_url_or_name": "NHS Digital",
+      "note": "",
+      "tier": "HIGH"
+    },
+    "10.1038/s41467-024-47745-z": {
+      "code_status": "PUBLIC_REPO",
+      "code_url": "https://github.com/qresearchcode/COVID-19-vaccine-safety",
+      "data_status": "NONE",
+      "data_url_or_name": null,
+      "note": "data-restricted",
+      "tier": "MEDIUM"
+    }
+  },
+  "summary": {
+    "tier_high": 20,
+    "tier_medium": 24,
+    "tier_low": 32,
+    "code_public_repo": 32,
+    "data_public": 6,
+    "data_rar_only": 8
+  }
+}

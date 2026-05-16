@@ -1,0 +1,158 @@
+[
+  {
+    "paper_id": "PR-EXP-0106",
+    "paper_title": "10.1038/s41467-025-67238-x",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-025-67238-x_peer_review.pdf",
+    "concern_count": 10,
+    "concerns_sample_ids": [
+      "PR-EXP-0106-C01",
+      "PR-EXP-0106-C02",
+      "PR-EXP-0106-C03"
+    ],
+    "extraction_notes": "Proteomics (pQTL + PRS + ProRS) with Cox-based risk prediction across 42 diseases in UKB. Borderline omics scope but the prediction-task concerns (incident vs prevalent, cohort definition, C-index added value, sample-size variation) map cleanly to MLGG dimensions. Reviewer #2 round 2 raised additional region-definition/pathway issues; Reviewer #3 round 2 satisfied."
+  },
+  {
+    "paper_id": "PR-EXP-0109",
+    "paper_title": "10.1038/s41467-024-44930-y",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-024-44930-y_peer_review.pdf",
+    "concern_count": 14,
+    "concerns_sample_ids": [
+      "PR-EXP-0109-C01",
+      "PR-EXP-0109-C02",
+      "PR-EXP-0109-C03"
+    ],
+    "extraction_notes": "Three reviewers across 2 review rounds (Rev #1 + #2 in R1, Rev #1 + #3 in R2; Rev #2 not in R2). Round 3 R1 and R3 both confirmed acceptance. Strong methodological revision trajectory."
+  },
+  {
+    "paper_id": "PR-EXP-0110",
+    "paper_title": "10.1038/s41467-024-45733-x",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-024-45733-x_peer_review.pdf",
+    "concern_count": 11,
+    "concerns_sample_ids": [
+      "PR-EXP-0110-C01",
+      "PR-EXP-0110-C02",
+      "PR-EXP-0110-C03"
+    ],
+    "extraction_notes": "Round 2 added Reviewer #3 with only minor reference-update concerns. Major leakage/overlap concern (C07) from R1 was addressed with model rebuild. C04 deployment simulation is a notable strength."
+  },
+  {
+    "paper_id": "PR-EXP-0111",
+    "paper_title": "10.1038/s41467-024-45879-8",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-024-45879-8_peer_review.pdf",
+    "concern_count": 3,
+    "concerns_sample_ids": [
+      "PR-EXP-0111-C01",
+      "PR-EXP-0111-C02",
+      "PR-EXP-0111-C03"
+    ],
+    "extraction_notes": "PDF includes editorial note that manuscript was previously reviewed at another journal; only revision-round comments included. Only 1 round of Nature Comm review. Rev #1 had a minor SHAP contextualization comment (resolved); Rev #3 had no remarks. The 3 substantive concerns are from Rev #2's second-pass evaluation."
+  },
+  {
+    "paper_id": "PR-EXP-0112",
+    "paper_title": "10.1038/s41467-024-46000-9",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-024-46000-9_peer_review.pdf",
+    "concern_count": 9,
+    "concerns_sample_ids": [
+      "PR-EXP-0112-C01",
+      "PR-EXP-0112-C02",
+      "PR-EXP-0112-C03"
+    ],
+    "extraction_notes": "Three review rounds. Rev #1 replaced by Rev #3 in R2 (different person responding to R1's concerns). Paper is methods-oriented (evaluation framework) but uses image+NLP examples; concerns mapped to MLGG dimensions where applicable. Note C04 was first marked resolved=false in initial response but rephrased as 'positioning' rather than addressing; reviewer pushed back in R2 and authors accepted limitation."
+  },
+  {
+    "paper_id": "PR-EXP-0119",
+    "paper_title": "10.1038/s41467-024-50043-3",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-024-50043-3_peer_review.pdf",
+    "concern_count": 9,
+    "concerns_sample_ids": [
+      "PR-EXP-0119-C01",
+      "PR-EXP-0119-C02",
+      "PR-EXP-0119-C03"
+    ],
+    "extraction_notes": "Image-based dermatology LLM (SkinGPT-4). Out of strict MLGG scope (imaging+LLM) but reviewer concerns on demographic bias, ground-truth confirmation, evaluator blinding, and reproducibility are universal. Read pages 1-10 only; remaining pages contain author responses confirming acknowledgement of issues. Resolution status set to null where final-round reviewer satisfaction not visible in extracted pages."
+  },
+  {
+    "paper_id": "PR-EXP-0124",
+    "paper_title": "10.1038/s41467-024-52415-1",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-024-52415-1_peer_review.pdf",
+    "concern_count": 6,
+    "concerns_sample_ids": [
+      "PR-EXP-0124-C01",
+      "PR-EXP-0124-C02",
+      "PR-EXP-0124-C03"
+    ],
+    "extraction_notes": "In-scope clinical ML evaluation: LLM for ED clinical recommendations (admission, radiography, antibiotics) against real patient outcomes. Both rounds tracked. All major concerns appear resolved per round-2 acceptance."
+  },
+  {
+    "paper_id": "PR-EXP-0126",
+    "paper_title": "10.1038/s41467-024-53333-y",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-024-53333-y_peer_review.pdf",
+    "concern_count": 7,
+    "concerns_sample_ids": [
+      "PR-EXP-0126-C01",
+      "PR-EXP-0126-C02",
+      "PR-EXP-0126-C03"
+    ],
+    "extraction_notes": "ML-GPS uses LightGBM on UK Biobank for chronic-disease phecode prediction (clinical+lab+lifestyle+genetic features). In-scope: retrospective EHR-based binary classification. Strong methodology concerns addressed comprehensively; both reviewers satisfied in round 2."
+  },
+  {
+    "paper_id": "PR-EXP-0127",
+    "paper_title": "10.1038/s41467-024-53450-8",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-024-53450-8_peer_review.pdf",
+    "concern_count": 6,
+    "concerns_sample_ids": [
+      "PR-EXP-0127-C01",
+      "PR-EXP-0127-C02",
+      "PR-EXP-0127-C03"
+    ],
+    "extraction_notes": "Multi-modal breast cancer NAT response prediction. Includes mammogram + longitudinal MRI + clinical-pathological features. Imaging-heavy but task is clinical binary pCR prediction with retrospective cohort. Borderline: MRI/mammography is excluded by MLGG modality boundary, but methodology concerns about external validation, clinical utility, and label definition are directly applicable. Marked EXTRACTED because clinical decision support framing aligns more with MLGG than the imaging exclusion."
+  },
+  {
+    "paper_id": "PR-EXP-0147",
+    "paper_title": "10.1038/s41467-021-26642-9",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-021-26642-9_peer_review.pdf",
+    "concern_count": 5,
+    "concerns_sample_ids": [
+      "PR-EXP-0147-C01",
+      "PR-EXP-0147-C02",
+      "PR-EXP-0147-C03"
+    ],
+    "extraction_notes": "Paper is metabolomics (omics modality), formally OUT_OF_SCOPE per CLAUDE.md modality boundary; however the worklist included it and reviewers raised substantive cohort-matching, preprocessing, overfitting, and metric-consistency concerns that map cleanly to MLGG dimensions. Reviewer #3 recommended rejection unless biomarkers identified. Only one round of reviews appears in the PDF; resolution status for several concerns marked null because the rebuttal addressed adjacent points but not the core complaint (e.g., classifier was not retrained on 8 identified metabolites)."
+  },
+  {
+    "paper_id": "PR-EXP-0148",
+    "paper_title": "10.1038/s41467-022-30746-1",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-022-30746-1_peer_review.pdf",
+    "concern_count": 5,
+    "concerns_sample_ids": [
+      "PR-EXP-0148-C01",
+      "PR-EXP-0148-C02",
+      "PR-EXP-0148-C03"
+    ],
+    "extraction_notes": "Histopathology WSI paper is OUT_OF_SCOPE per CLAUDE.md modality boundary; however reviewers raised methodology issues (threshold selection leakage, code availability, TRIPOD compliance, imbalanced-class metrics, baseline fairness) that are directly relevant to MLGG. Only round-1 reviewer comments shown in the part of the PDF read; outcome appears favorable based on response tone."
+  },
+  {
+    "paper_id": "PR-EXP-0149",
+    "paper_title": "10.1038/s41467-022-31514-x",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-022-31514-x_peer_review.pdf",
+    "concern_count": 5,
+    "concerns_sample_ids": [
+      "PR-EXP-0149-C01",
+      "PR-EXP-0149-C02",
+      "PR-EXP-0149-C03"
+    ],
+    "extraction_notes": "Chest X-ray paper is OUT_OF_SCOPE per CLAUDE.md modality boundary (imaging); however reviewer concerns about reference-standard adequacy, missing CIs, code availability, and reporting gaps directly inform MLGG patterns. Reviewer #1 had largely structural/clarity comments. Two-round review; round-2 reviewers indicated full satisfaction."
+  },
+  {
+    "paper_id": "PR-EXP-0150",
+    "paper_title": "10.1038/s41467-022-31535-6",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-022-31535-6_peer_review.pdf",
+    "concern_count": 7,
+    "concerns_sample_ids": [
+      "PR-EXP-0150-C01",
+      "PR-EXP-0150-C02",
+      "PR-EXP-0150-C03"
+    ],
+    "extraction_notes": "Transcriptomic+clinical paper is OUT_OF_SCOPE per CLAUDE.md (omics modality); however reviewers raised major methodology concerns about cohort heterogeneity, ground-truth definition, AUC in imbalanced data, code availability, and statistical methods documentation. Reviewer #2 was particularly skeptical; multiple resolution statuses left null because the rebuttal text shown only partially addressed concerns. Four reviewers, only round-1 visible in pages read."
+  }
+]

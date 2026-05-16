@@ -1,0 +1,142 @@
+{
+  "agent": "qc-01",
+  "ran_at_utc": "2026-05-16T00:00:00Z",
+  "papers_checked": [
+    {
+      "paper_id": "PR-RO-07",
+      "concerns_spot_checked": ["PR-RO-07-C01", "PR-RO-07-C02", "PR-RO-07-C03"],
+      "verdicts": [
+        {"concern_id": "PR-RO-07-C01", "verdict": "PASS", "note": "Reviewer #2 R1 point 1 — verbatim match for both quoted abstract phrases ('the study introduces an innovative approach' and 'this methodological framework aims to revolutionize treatment selection'). Author response (A-STEP ensemble addition + abstract revision) consistent with response document."},
+        {"concern_id": "PR-RO-07-C02", "verdict": "PASS", "note": "Reviewer #2 R1 point 3 — verbatim match for no-residual-confounding/SUTVA concern. Author response (Supplementary Methods S2) plausible per Round 1 acceptance."},
+        {"concern_id": "PR-RO-07-C03", "verdict": "PASS", "note": "Reviewer #2 R1 point 4 — verbatim match for 'validation' misuse concern. Dana-Farber n=1077 and SU2C n=393 cohorts confirmed in author response intro. Resolved=true is defensible (R2 reviewer #2 still flagged residual confounding but extraction notes correctly flagged partial-resolution context elsewhere)."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0084",
+      "concerns_spot_checked": ["PR-EXP-0084-C01", "PR-EXP-0084-C02", "PR-EXP-0084-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0084-C01", "verdict": "PASS", "note": "Reviewer #1 R1 point 4 — verbatim match (T2D within 12 months prior to baseline contradiction)."},
+        {"concern_id": "PR-EXP-0084-C02", "verdict": "PASS", "note": "Reviewer #1 R1 point 5 — verbatim match (exclusion criteria (d) justification). resolved=null is appropriately cautious because R2 reviewer #1 acknowledged real-world applicability tradeoff but the original ask was technically addressed."},
+        {"concern_id": "PR-EXP-0084-C03", "verdict": "PASS", "note": "Reviewer #1 R1 point 8 — verbatim match (outlier removal + rank normalization). Author response (>5SD removal, n=575 outliers, DDRTree justification) plausible per R2 reviewer #1 comment 8."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0085",
+      "concerns_spot_checked": ["PR-EXP-0085-C01", "PR-EXP-0085-C02", "PR-EXP-0085-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0085-C01", "verdict": "PASS", "note": "Reviewer #1 R1 Lines 117-118 — verbatim match. Author response (CLSI dual-method permission, AUROC 0.869-0.977) matches Response 1.3 exactly."},
+        {"concern_id": "PR-EXP-0085-C02", "verdict": "PASS", "note": "Reviewer #1 R1 Lines 123-126 — verbatim match. Author response (smallest datasets as hold-out, internal pool) matches Response 1.14."},
+        {"concern_id": "PR-EXP-0085-C03", "verdict": "PASS", "note": "Reviewer #1 R1 imbalance/overfitting — verbatim match. Author response (class-specific BCELoss weights) matches Response 1.5."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0086",
+      "concerns_spot_checked": ["PR-EXP-0086-C01", "PR-EXP-0086-C02", "PR-EXP-0086-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0086-C01", "verdict": "PASS", "note": "Reviewer #2 R1 Methods bullet — verbatim match. Author response (leukemia excluded per OP-35; lymphoma/myeloma retained) matches response document."},
+        {"concern_id": "PR-EXP-0086-C02", "verdict": "PASS", "note": "Reviewer #2 R1 Discussion bullet — verbatim match. Authors acknowledged limitation per R2 confirmation."},
+        {"concern_id": "PR-EXP-0086-C03", "verdict": "PASS", "note": "Reviewer #3 R1 point 5 — verbatim match ('retrospective cohort study' terminology). Reviewer attribution correct."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0092",
+      "concerns_spot_checked": ["PR-EXP-0092-C01", "PR-EXP-0092-C02", "PR-EXP-0092-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0092-C01", "verdict": "PASS", "note": "Reviewer #2 R1 Major 1 — verbatim match (California generalisability). Author response (California-scope abstract clarification) matches R2 request."},
+        {"concern_id": "PR-EXP-0092-C02", "verdict": "PASS", "note": "Reviewer #2 R1 Major 2 — verbatim match (Canadian model benchmark). Author declined-benchmark response matches verbatim."},
+        {"concern_id": "PR-EXP-0092-C03", "verdict": "PASS", "note": "Reviewer #2 R1 Major 3 — verbatim match (calibration concern). Author added mean calibration + slope. Note: R2 reviewer #2 still asked for clarification on mean-calibration definition, but core ask was technically addressed."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0095",
+      "concerns_spot_checked": ["PR-EXP-0095-C01", "PR-EXP-0095-C02", "PR-EXP-0095-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0095-C01", "verdict": "PASS", "note": "Reviewer #1 R1 point 1 — verbatim match (US/CEUS observer variability)."},
+        {"concern_id": "PR-EXP-0095-C02", "verdict": "PASS", "note": "Reviewer #1 R1 point 3 — verbatim match (iHCC vs rHCC discrepancy)."},
+        {"concern_id": "PR-EXP-0095-C03", "verdict": "PASS", "note": "Reviewer #1 R1 point 5 — verbatim match (same-center external validation challenge). R2 confirms 'Thank you for addressing my main methodological concerns'."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0096",
+      "concerns_spot_checked": ["PR-EXP-0096-C01", "PR-EXP-0096-C02", "PR-EXP-0096-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0096-C01", "verdict": "PASS", "note": "Reviewer #1 R1 Practical Applicability — verbatim match. GEMS application section confirmed in response (CCC 0.69)."},
+        {"concern_id": "PR-EXP-0096-C02", "verdict": "PASS", "note": "Reviewer #1 R1 Performance Estimation — verbatim match. Hubbard/Benkeser/van der Laan-Luedtke citations confirmed."},
+        {"concern_id": "PR-EXP-0096-C03", "verdict": "PASS", "note": "Reviewer #1 R1 Generalizability — verbatim match. GEMS external dataset (Gambia, Mozambique) confirmed in response."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0097",
+      "concerns_spot_checked": ["PR-EXP-0097-C01", "PR-EXP-0097-C02", "PR-EXP-0097-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0097-C01", "verdict": "PASS", "note": "Reviewer #1 R1 opening — verbatim match. External validation 7,186 patients, 94.1%/88.1% internal, 92.8%/87.4% external, LR baseline 89.1% — all numbers confirmed in author response."},
+        {"concern_id": "PR-EXP-0097-C02", "verdict": "PASS", "note": "Reviewer #1 R1 points 2/3/4 consolidated — verbatim match. Reasonable consolidation (aim definition + feature list + missing data handling all in one related ask)."},
+        {"concern_id": "PR-EXP-0097-C03", "verdict": "PASS", "note": "Reviewer #1 R1 point 7 — verbatim match (external independent validation recommendation). Author response confirms."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0098",
+      "concerns_spot_checked": ["PR-EXP-0098-C01", "PR-EXP-0098-C02", "PR-EXP-0098-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0098-C01", "verdict": "PASS", "note": "Reviewer #1 R1 main concern — verbatim match (eGFR collinearity / definition-variable issue). Author added IgA nephropathy CKD control cohort (Fig S4, Table S10) + eGFR-dependency Table S9, matches response."},
+        {"concern_id": "PR-EXP-0098-C02", "verdict": "PASS", "note": "Reviewer #1 R1 Methods #2 — verbatim match (eGFR slope follow-up period). Table S1 (median FU 6.8/6.4/6.0 years) plausible."},
+        {"concern_id": "PR-EXP-0098-C03", "verdict": "PASS", "note": "Reviewer #1 R1 Results #1 — verbatim match (causal/pathophysiology language overclaim). R2 reviewer #1 confirmed satisfaction."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0099",
+      "concerns_spot_checked": ["PR-EXP-0099-C01", "PR-EXP-0099-C02", "PR-EXP-0099-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0099-C01", "verdict": "PASS", "note": "Reviewer #1 R1 #1 — verbatim match (UKB kinship leakage). Author response (England+Wales train / Scotland test + kinship coefficient ≥0.0442 exclusion) matches response document exactly."},
+        {"concern_id": "PR-EXP-0099-C02", "verdict": "PASS", "note": "Reviewer #1 R1 #2 — verbatim match (incremental metric for interaction terms). Royston R² incremental measure confirmed in response."},
+        {"concern_id": "PR-EXP-0099-C03", "verdict": "PASS", "note": "Reviewer #1 R1 'Line 363/488/494' — verbatim match (hyperparameter grid search criteria). Author response plausible (max C-index across validation folds)."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0101",
+      "concerns_spot_checked": ["PR-EXP-0101-C01", "PR-EXP-0101-C02", "PR-EXP-0101-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0101-C01", "verdict": "PASS", "note": "Reviewer #1 R1 #14 — verbatim match (github unavailable). Reviewer #3 R2 confirms availability (https://github.com/MonsterTea/MDKG)."},
+        {"concern_id": "PR-EXP-0101-C02", "verdict": "PASS", "note": "Reviewer #1 R1 #10 — verbatim match (MDD control selection / cross-disease generalizability)."},
+        {"concern_id": "PR-EXP-0101-C03", "verdict": "PASS", "note": "Reviewer #1 R1 #12+#13 consolidated — verbatim match (air pollution / non-medical EHR / confounders). Reasonable consolidation of two related questions on confounder concerns. R2 reviewer #1: 'The authors have addressed my concerns adequately.'"}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0103",
+      "concerns_spot_checked": ["PR-EXP-0103-C01", "PR-EXP-0103-C02", "PR-EXP-0103-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0103-C01", "verdict": "PASS", "note": "Reviewer #1 R1 #1 — verbatim match (24h SC-PHH exposure / 2D culture limitations). Suppl. Fig S2 (hepatocyte identity) + discussion addition confirmed."},
+        {"concern_id": "PR-EXP-0103-C02", "verdict": "PASS", "note": "Reviewer #1 R1 #3 — verbatim match (MOS threshold 80 rationale). Suppl. Fig S5 panel B + literature range 10-100 confirmed."},
+        {"concern_id": "PR-EXP-0103-C03", "verdict": "PASS", "note": "Reviewer #3 R1 #1 — verbatim match (inconsistent drug counts 300/316/299). Reviewer attribution (Reviewer #3) correct."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0105",
+      "concerns_spot_checked": ["PR-EXP-0105-C01", "PR-EXP-0105-C02", "PR-EXP-0105-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0105-C01", "verdict": "PASS", "note": "Reviewer #1 R1 — captures both the General Comments point on ocular disease confounders AND Methods bullet #1 (RNFLT/eye disease). Slight blend but accurate. Author response (predefined exclusions of glaucoma/retinal/neurodegen.) matches response document."},
+        {"concern_id": "PR-EXP-0105-C02", "verdict": "PASS", "note": "Reviewer #2 R1 Suggestion 1 — verbatim match (reproducibility / code availability / simulated data request)."},
+        {"concern_id": "PR-EXP-0105-C03", "verdict": "PASS", "note": "Reviewer #2 R1 Suggestion 2 — verbatim match (AUPRC for class imbalance). R2 reviewer #2: 'Refocusing the manuscript on AUPRC as the primary metric has made this a stronger article' — quote in extraction matches."}
+      ],
+      "overall_paper_quality": "GOOD"
+    }
+  ],
+  "summary": {
+    "total_concerns_spot_checked": 39,
+    "pass": 39,
+    "needs_revision": 0,
+    "hallucination": 0
+  }
+}

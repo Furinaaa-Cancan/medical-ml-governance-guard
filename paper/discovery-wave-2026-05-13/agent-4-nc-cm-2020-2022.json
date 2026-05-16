@@ -1,0 +1,111 @@
+{
+  "agent": "agent-4-nc-cm-2020-2022",
+  "scope": "NC+CM 2020-2022 backfill: retrospective binary cohort prediction",
+  "ran_at_utc": "2026-05-16T01:22:59.671369+00:00",
+  "queries_tried": [
+    "NC: clinical prediction model retrospective",
+    "NC: EHR machine learning cohort",
+    "NC: mortality risk cohort machine learning",
+    "NC: external validation cohort prediction",
+    "NC: risk score patients hospitali",
+    "NC: COVID-19 prediction model clinical",
+    "CM: clinical prediction cohort",
+    "CM: risk prediction validation",
+    "CM: diagnostic model machine learning",
+    "CM: binary prediction healthcare EHR",
+    "CM: mortality prediction intensive care",
+    "CM: registry predictor outcome"
+  ],
+  "candidates": [
+    {
+      "doi": "10.1038/s41467-020-18684-2",
+      "title": "Machine learning based early warning system enables accurate mortality risk prediction for COVID-19",
+      "journal": "Nature Communications",
+      "year": 2020,
+      "openalex_id": "https://openalex.org/W3092284106",
+      "scope_hint": "cohort study predicting mortality",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s41467-020-17804-2",
+      "title": "Machine learning-based prediction of acute coronary syndrome using only the pre-hospital 12-lead electrocardiogram",
+      "journal": "Nature Communications",
+      "year": 2020,
+      "openalex_id": "https://openalex.org/W3048030988",
+      "scope_hint": "cohort study predicting binary clinical outcome",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s43856-021-00042-y",
+      "title": "Host methylation predicts SARS-CoV-2 infection and clinical outcome",
+      "journal": "Communications Medicine",
+      "year": 2021,
+      "openalex_id": "https://openalex.org/W4251254644",
+      "scope_hint": "cohort study predicting sars-cov",
+      "out_of_scope_risk": "methylation features (omics) used as predictors; verify if also tabular clinical features included"
+    },
+    {
+      "doi": "10.1038/s43856-022-00094-8",
+      "title": "Personalized antibiograms for machine learning driven antibiotic selection",
+      "journal": "Communications Medicine",
+      "year": 2022,
+      "openalex_id": "https://openalex.org/W4226110159",
+      "scope_hint": "retrospective study predicting binary clinical outcome",
+      "out_of_scope_risk": "antibiotic susceptibility prediction from EHR; binary per-organism outcome"
+    },
+    {
+      "doi": "10.1038/s43856-022-00126-3",
+      "title": "Predicting biochemical recurrence of prostate cancer with artificial intelligence",
+      "journal": "Communications Medicine",
+      "year": 2022,
+      "openalex_id": "https://openalex.org/W4281762011",
+      "scope_hint": "case-control study predicting cancer",
+      "out_of_scope_risk": "prostate biochemical recurrence; verify whether features are tabular clinico-pathologic vs imaging-driven; recurrence may be modeled as time-to-event"
+    },
+    {
+      "doi": "10.1038/s43856-021-00065-5",
+      "title": "Functional brain activity constrained by structural connectivity reveals cohort-specific features for serum neurofilament light chain",
+      "journal": "Communications Medicine",
+      "year": 2022,
+      "openalex_id": "https://openalex.org/W4205119879",
+      "scope_hint": "cohort study predicting binary clinical outcome",
+      "out_of_scope_risk": "functional brain activity features (imaging) plus serum biomarkers; may be imaging-primary"
+    },
+    {
+      "doi": "10.1038/s43856-022-00117-4",
+      "title": "Pre-diagnostic trajectories of lymphocytosis predict time to treatment and death in patients with chronic lymphocytic leukemia",
+      "journal": "Communications Medicine",
+      "year": 2022,
+      "openalex_id": "https://openalex.org/W4280521977",
+      "scope_hint": "cohort study predicting death",
+      "out_of_scope_risk": "CLL trajectory predicting time to treatment/death; likely survival-flavored, verify a binary endpoint exists"
+    },
+    {
+      "doi": "10.1038/s41467-022-35157-w",
+      "title": "Causal inference in medical records and complementary systems pharmacology for metformin drug repurposing towards dementia",
+      "journal": "Nature Communications",
+      "year": 2022,
+      "openalex_id": "https://openalex.org/W4311665767",
+      "scope_hint": "cohort study predicting death",
+      "out_of_scope_risk": "metformin repurposing in dementia; uses EHR causal inference; verify endpoint binary vs time-to-event"
+    },
+    {
+      "doi": "10.1038/s43856-022-00201-9",
+      "title": "Comparison of artificial intelligence and human-based prediction and stratification of the risk of long-term kidney allograft failure",
+      "journal": "Communications Medicine",
+      "year": 2022,
+      "openalex_id": "https://openalex.org/W4309891368",
+      "scope_hint": "ehr study predicting binary clinical outcome",
+      "out_of_scope_risk": "long-term kidney outcome prediction; verify binary vs time-to-event"
+    },
+    {
+      "doi": "10.1038/s43856-022-00165-w",
+      "title": "Subpopulation-specific machine learning prognosis for underrepresented patients with double prioritized bias correction",
+      "journal": "Communications Medicine",
+      "year": 2022,
+      "openalex_id": "https://openalex.org/W4294085681",
+      "scope_hint": "cohort study predicting mortality",
+      "out_of_scope_risk": "mortality prognosis with bias correction emphasis; verify outcome is binary not survival"
+    }
+  ]
+}

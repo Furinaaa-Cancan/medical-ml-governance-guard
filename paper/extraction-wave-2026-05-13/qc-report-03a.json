@@ -1,0 +1,66 @@
+{
+  "agent": "qc-03a",
+  "ran_at_utc": "2026-05-16T00:00:00Z",
+  "papers_checked": [
+    {
+      "paper_id": "PR-EXP-0185",
+      "concerns_spot_checked": ["PR-EXP-0185-C01", "PR-EXP-0185-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0185-C01", "verdict": "PASS", "note": "Verbatim Reviewer #1 round 1 first paragraph; AUC=0.999, F1-recommendation response on p2/p5 matches Messidor-2/IDRID/PALM/REFUGE validation."},
+        {"concern_id": "PR-EXP-0185-C03", "verdict": "PASS", "note": "Verbatim Reviewer #2 round 1 Major bullet 3 'external test sets were all DR'; response cites REFUGE/PALM F1=0.651 — matches PDF p5."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0189",
+      "concerns_spot_checked": ["PR-EXP-0189-C01", "PR-EXP-0189-C02"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0189-C01", "verdict": "PASS", "note": "Verbatim Reviewer #2 round 1 'Several concepts' detailed comment on PDF p1 and p5; response on chronological-age training matches."},
+        {"concern_id": "PR-EXP-0189-C02", "verdict": "PASS", "note": "Verbatim Reviewer #3 round 1 about table-2 swap, HR 1.79/0.78 discrepancy on PDF p2; resolved=true confirmed by authors acknowledging swap."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0179",
+      "concerns_spot_checked": ["PR-EXP-0179-C01", "PR-EXP-0179-C02"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0179-C01", "verdict": "PASS", "note": "Verbatim Reviewer #3 round 1 major comment 1 on 16-patient sample size (PDF p2); response with 3 additional cohorts (Tumeh/Roh/Amaria) consistent with rebuttal pattern."},
+        {"concern_id": "PR-EXP-0179-C02", "verdict": "PASS", "note": "Verbatim Reviewer #3 round 1 major comment 2 about median 10 unique TCR sequences vs literature (PDF p2)."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0159",
+      "concerns_spot_checked": ["PR-EXP-0159-C01", "PR-EXP-0159-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0159-C01", "verdict": "PASS", "note": "Verbatim Reviewer #1 round 1 (PDF p1): 'AUC increase of 0.02 and 0.03 in a test set of 150 and 137 patients'; response on six COVID risk scores + ScanCov 6-variable matches PDF p4-5."},
+        {"concern_id": "PR-EXP-0159-C03", "verdict": "PASS", "note": "Verbatim Reviewer #2 round 1 Major comment 1 (PDF p2) on hyperparameter/validation-set omission; resolved=true consistent with 5-fold CV clarification."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0153",
+      "concerns_spot_checked": ["PR-EXP-0153-C01", "PR-EXP-0153-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0153-C01", "verdict": "PASS", "note": "Verbatim Reviewer #1 round 1 comment 1 on Bayesian-approach notation/lines 92-93 (PDF p2); response (Gal et al, rewrote Estimation of Uncertainty) verified on p4."},
+        {"concern_id": "PR-EXP-0153-C03", "verdict": "PASS", "note": "Verbatim Reviewer #1 round 1 comment 4 on imaging preprocessing sensitivity (PDF p2); response with Supp Fig.6/7 ablations consistent with reviewer ask."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0155",
+      "concerns_spot_checked": ["PR-EXP-0155-C01", "PR-EXP-0155-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0155-C01", "verdict": "PASS", "note": "Verbatim Reviewer #3 round 1 Specific Comment 1 on ERBB2+ cohort generalization (PDF p5); response per-subtype MA31 AUC 0.81-0.92 consistent."},
+        {"concern_id": "PR-EXP-0155-C03", "verdict": "PASS", "note": "Verbatim Reviewer #3 round 1 Specific Comment 5 on calibration leakage from MA31 held-out samples (PDF p5). Reviewer's concern (reducing test set + increased fit) accurately captured; resolved=null appropriate — visible pages show authors did not directly rebut leakage concern within sampled pages."}
+      ],
+      "overall_paper_quality": "GOOD"
+    }
+  ],
+  "summary": {
+    "total_concerns_spot_checked": 12,
+    "pass": 12,
+    "needs_revision": 0,
+    "hallucination": 0
+  }
+}

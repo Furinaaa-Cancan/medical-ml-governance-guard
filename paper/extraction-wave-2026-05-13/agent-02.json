@@ -1,0 +1,979 @@
+{
+  "agent": "extract-02",
+  "ran_at_utc": "2026-05-16T00:00:00Z",
+  "worklist_size": 10,
+  "papers_processed": [
+    {
+      "paper_id": "PR-EXP-0099",
+      "paper_doi": "10.1038/s41467-025-61891-y",
+      "extraction_status": "EXTRACTED",
+      "review_rounds_observed": 2,
+      "reviewer_count_observed": 4,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-EXP-0099-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "external_validation",
+          "severity": "HIGH",
+          "mlgg_dimension": 7,
+          "mlgg_gates": [
+            "external_validation_gate",
+            "split_protocol_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-S01"
+          ],
+          "concern_text": "UK Biobank has individuals who have kinship that is known to cause inflation for prediction models (Ellis 2024 AJHG). Since the model is fitting many predictors, there is a chance that the model is capturing subtle population structures that cross-validation could not remove. One solution is finding an external validation cohort; the other solution is making sure individuals in the training and testing don't have kinship (i.e. the same family are always in the training OR testing).",
+          "author_response": "Authors restructured training/testing to use England+Wales for training and Scotland for testing as a proxy for external validation, and additionally excluded from the test set individuals sharing kinship (≥0.0442 coefficient, third-degree or closer) with any training-set member. Predictive performance remained stable under both stricter setups.",
+          "resolved": true,
+          "tags": [
+            "family_relatedness_leakage",
+            "ukb_kinship",
+            "cross_validation_inflation",
+            "geographic_external_validation_proxy"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0099-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "metric_consistency_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "The c-index improvement is small and not easily interpretable (i.e. improvement from 0.6 to 0.7 has a very different interpretation than 0.7 to 0.8; even the same C-index with different incidence rate is not comparable). Is it possible to quantify the contribution of prediction power by the interaction terms (analogous to R2)? Previous study has shown that for traits with many small effects, non-additive variance is small.",
+          "author_response": "Added an incremental R² measure (ΔR²) based on Royston's R² for survival models and reported both incremental C-index and incremental R² in revised Figure 1, Table 1, and Supplementary Table 4.",
+          "resolved": true,
+          "tags": [
+            "c_index_not_comparable",
+            "incremental_r_squared",
+            "interaction_term_contribution"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0099-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "model_selection",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 6,
+          "mlgg_gates": [
+            "model_selection_audit_gate",
+            "tuning_leakage_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-M03"
+          ],
+          "concern_text": "Line 363 / Line 488 — what are the procedures for selecting hyperparameters? Line 494 mentioned grid search but did not specify what are the criteria used (is it based on cross validation of likelihood? Prediction C-index?).",
+          "author_response": "Clarified that regularization parameters are selected based on the maximum C-index across the validation folds; updated both Methods (lines 607-617) and main text (lines 140-142).",
+          "resolved": true,
+          "tags": [
+            "hyperparameter_selection_criteria",
+            "grid_search_undocumented",
+            "validation_metric_unclear"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0099-C04",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate",
+            "label_definition_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Please provide more details on how prevalent cases were excluded. How did you exclude the prevalent diseases listed in ST2? Some of the diseases don't have primary care data available.",
+          "author_response": "Added details on endpoint construction and prevalent-case exclusion (lines 117-121, 575-584): endpoints built from primary care, hospital episode statistics, death registries, self-reported diseases (first occurrences field 1712), plus cancer registry for lung cancer. Prevalent cases excluded based on first recorded occurrence before baseline assessment.",
+          "resolved": true,
+          "tags": [
+            "prevalent_case_exclusion",
+            "endpoint_construction",
+            "data_source_provenance"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0099-C05",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "model_selection",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 6,
+          "mlgg_gates": [
+            "model_selection_audit_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Line 495: How is the number of latent factors chosen, and how does the number of latent factors affect the predictive performance?",
+          "author_response": "Adopted k=10 with L2 regularization; added Supplementary Figures 20-23 sweeping k showing performance plateaus at k=5-10. Discussion added at lines 457-470.",
+          "resolved": true,
+          "tags": [
+            "latent_factor_choice",
+            "k_sensitivity_analysis",
+            "regularization_strategy"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0099-C06",
+          "reviewer": "Reviewer #1",
+          "round": 2,
+          "category": "evaluation_metrics",
+          "severity": "LOW",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Line 160 and Table S4: absolute R2 values range from 24.9% to 95.0%, which seems very high. Is this due to the specific properties of Royston's R2?",
+          "author_response": "Authors clarified properties of Royston's R² (response captured in round-2 reply).",
+          "resolved": null,
+          "tags": [
+            "royston_r_squared_inflation",
+            "metric_interpretation"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        "large_ukb_cohort",
+        "kinship_sensitivity_analysis_post_revision",
+        "geographic_validation_proxy"
+      ],
+      "extraction_notes": "Survival/Cox extension with factorization-machine interactions. Borderline MLGG scope (survival outcomes vs binary), but reviewer concerns map cleanly to MLGG dimensions: kinship-induced leakage (S01-adjacent), hyperparameter selection (M03), endpoint construction (cohort definition). Reviewer #2 only co-reviewed; Reviewer #4 round-1 raised mostly framing/style critiques (no substantive MLGG items extracted). Reviewer #3 round-2 reported satisfaction."
+    },
+    {
+      "paper_id": "PR-EXP-0100",
+      "paper_doi": "10.1038/s41467-025-62385-7",
+      "extraction_status": "OUT_OF_SCOPE_ON_RECHECK",
+      "review_rounds_observed": 3,
+      "reviewer_count_observed": 3,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "extraction_notes": "RadFM — generalist radiology foundation model trained on 13M 2D images + 615k 3D scans (CT/MRI/X-ray/mammography). Tasks are diagnosis/VQA/report generation/rationale diagnosis. Per CLAUDE.md, MLGG explicitly excludes imaging and foundation models (omics/imaging/text/survival are out of scope; binary classification on EHR/registry/case-control/cross-sectional is in scope). Worklist metadata mislabeled data_type as clinical_tabular; actual modality is pure imaging."
+    },
+    {
+      "paper_id": "PR-EXP-0101",
+      "paper_doi": "10.1038/s41467-025-62781-z",
+      "extraction_status": "EXTRACTED",
+      "review_rounds_observed": 2,
+      "reviewer_count_observed": 3,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-EXP-0101-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "reproducibility",
+          "severity": "HIGH",
+          "mlgg_dimension": 11,
+          "mlgg_gates": [
+            "code_data_availability_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "How do the authors plan to visualize the KG and deliver to the users? Currently, the github is not available. The code is not available at the github site.",
+          "author_response": "Authors made the GitHub repository public (https://github.com/MonsterTea/MDKG) with README and Python code execution instructions; Reviewer #3 confirmed availability in round 2.",
+          "resolved": true,
+          "tags": [
+            "code_unavailable_at_submission",
+            "github_404",
+            "post_revision_release"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0101-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "For the MDD study, how is the 2000 individual control chosen? Also, why choose MDD? This procedure seems to be standardized across other mental health disorders as well — to show robustness, maybe the authors could experiment on other diseases as well.",
+          "author_response": "Authors addressed control selection and discussed generalizability of pipeline to other diseases.",
+          "resolved": true,
+          "tags": [
+            "control_selection_unclear",
+            "single_disease_demonstration",
+            "robustness_across_outcomes"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0101-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "feature_selection",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 4,
+          "mlgg_gates": [
+            "feature_engineering_audit_gate",
+            "leakage_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Why is air pollution an important factor for MDD? Why do non-medical EHR embedding have such a good performance? Is there potential confounders? How do you select these variables to avoid confounders?",
+          "author_response": "Authors addressed confounder selection rationale and feature provenance in revision.",
+          "resolved": true,
+          "tags": [
+            "confounder_selection",
+            "non_medical_feature_predictive_power",
+            "feature_provenance_audit"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0101-C04",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "reproducibility",
+          "severity": "HIGH",
+          "mlgg_dimension": 11,
+          "mlgg_gates": [
+            "code_data_availability_gate",
+            "reporting_bias_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Use of ChatGPT: While ChatGPT demonstrates impressive performance across many benchmarks, the choice of a closed, proprietary platform for constructing a shared knowledge graph is problematic. A key expectation for a knowledge graph project is that it should be built on an openly available large language model (LLM), rather than a closed system like OpenAI's platform. The use of closed systems hinders transparency in understanding the deeper structures of the knowledge graph, raising concerns about the potential for data misuse by third-party providers.",
+          "author_response": "Authors retained ChatGPT/GPT-4o but added confidence scoring, contradiction handling, and human evaluation correlation (mean r=0.78). Reviewer #2 still found justification insufficient in round 2 but accepted the revision overall.",
+          "resolved": false,
+          "tags": [
+            "closed_source_llm",
+            "kg_reproducibility",
+            "third_party_dependency"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0101-C05",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Reliability of Insights: There is a lack of clarity regarding how users can verify the reliability of insights derived from the knowledge graph, particularly those not covered by established medical databases. It is crucial when employing LLMs that users are encouraged to critically assess machine-generated content rather than blindly trust it. Hallucinations — a known issue in many domains involving LLMs — pose a specific risk. How has this been addressed or mitigated in the current implementation?",
+          "author_response": "Added a Confidence Score (combining prediction score, impact factor, frequency, distinct years, recency, contradiction penalty) detailed in Appendix C; manual evaluation showed mean correlation 0.78 with human-assigned scores.",
+          "resolved": true,
+          "tags": [
+            "llm_hallucination_risk",
+            "confidence_score_design",
+            "kg_triplet_reliability"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0101-C06",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate",
+            "label_definition_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Why have the authors focused on the use of PheCode over ICD-10? The authors include a line in the manuscript, however it needs more explanation. For an application of this research, would not prediction on ICD-10 codes be more meaningful?",
+          "author_response": "Authors argued PheCodes avoid billing-practice confusion. Reviewer #2 in round 2 remained unconvinced and suggested simpler alternative (first two digits of ICD-10).",
+          "resolved": false,
+          "tags": [
+            "phecode_vs_icd10",
+            "outcome_coding_choice",
+            "label_definition"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0101-C07",
+          "reviewer": "Reviewer #2",
+          "round": 2,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate",
+            "label_definition_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-F05"
+          ],
+          "concern_text": "Clarification of 'Disease Prediction': The use of the term 'disease prediction' remains ambiguous. It is unclear if the authors are predicting future diagnoses or simply identifying patients already labeled with Major Depressive Disorder (MDD) in their dataset. The authors must explicitly clarify if their approach involves genuine predictive modeling — predicting future onset of disease — or merely labeling existing diagnoses accurately.",
+          "author_response": "Response not captured in available PDF pages; flagged for human follow-up.",
+          "resolved": null,
+          "tags": [
+            "prediction_vs_classification",
+            "prevalent_vs_incident_outcome",
+            "ambiguous_prediction_task"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0101-C08",
+          "reviewer": "Reviewer #2",
+          "round": 2,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "metric_consistency_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Clarification Regarding AUC Values: The authors mention an improvement in AUC values (abstract) 'from 0.02 to 0.21.' This statement remains unclear and potentially misleading. Typically, an AUC value below 0.5 indicates a model performing worse than random chance, with meaningful AUC values typically ranging from 0.5 (random chance) to 1.0 (perfect classification). Thus, an AUC improvement to 0.21 is confusing and suggests either a typographical error or a conceptual misunderstanding.",
+          "author_response": "Response not captured in available PDF pages.",
+          "resolved": null,
+          "tags": [
+            "auc_misreporting",
+            "improvement_vs_absolute_metric",
+            "metric_misuse"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0101-C09",
+          "reviewer": "Reviewer #3",
+          "round": 2,
+          "category": "interpretability",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 9,
+          "mlgg_gates": [
+            "shap_interpretability_gate",
+            "model_selection_audit_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "I am confused on the claim around interpretability — primarily around the response for model selection and the SHAP analysis. The following statement in the rebuttal: 'We selected SVM and LR models as our primary approaches due to their interpretability and simplicity' is contradictory to another statement: 'Given the inherent instability of embeddings — meaning that feature correspondence across different training runs is not fixed — interpreting individual dimensions remains a challenge.'",
+          "author_response": "Response not captured in available PDF pages.",
+          "resolved": null,
+          "tags": [
+            "interpretability_contradiction",
+            "embedding_instability",
+            "model_choice_justification"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        "large_literature_corpus",
+        "confidence_scoring_added",
+        "active_learning_curation"
+      ],
+      "extraction_notes": "LLM-powered knowledge graph for mental health, with downstream UKB MDD prediction using SVM/LR/XGBoost/RF. Mixed scope — KG construction is out-of-scope but the UKB prediction task is in MLGG scope. Extracted concerns focus on prediction-relevant items (cohort, outcome coding, AUC reporting, interpretability, reproducibility). Some Reviewer #2 round-2 author responses were beyond the 10 pages I read; marked resolved=null."
+    },
+    {
+      "paper_id": "PR-EXP-0102",
+      "paper_doi": "10.1038/s41467-025-64469-w",
+      "extraction_status": "OUT_OF_SCOPE_ON_RECHECK",
+      "review_rounds_observed": 2,
+      "reviewer_count_observed": 2,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "extraction_notes": "MPUM — Modality-projection universal model for full-body CT/MRI/PET medical imaging segmentation. Pure imaging task (segmentation Dice on multi-modal volumes). Worklist metadata mislabeled data_type as clinical_tabular. Per CLAUDE.md, imaging is explicitly out of MLGG scope (modality boundary)."
+    },
+    {
+      "paper_id": "PR-EXP-0103",
+      "paper_doi": "10.1038/s41467-025-65690-3",
+      "extraction_status": "EXTRACTED",
+      "review_rounds_observed": 2,
+      "reviewer_count_observed": 3,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-EXP-0103-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate",
+            "distribution_generalization_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "The model was trained by RNA-seq data of sandwich-cultured primary human hepatocytes with a short-term exposure (24 hours). The severe distortions of two-dimensionally cultured hepatocyte gene expression due to de-differentiation has been clearly reported. Moreover, a short time exposure might not be sufficient to mimic many idiosyncratic toxicities that typically occur only after multiple weeks to months. Will such a selection bias of training data cause biased mechanistic prediction of the DILI candidates? This should at least be discussed.",
+          "author_response": "Acknowledged 2D-culture limitations; added Suppl. Fig. S2 showing hepatocyte marker expression confirming identity at 24h; added discussion section noting that 'the exposure timepoint of 24 hours limit the detection of delayed or immune-mediated toxicities.'",
+          "resolved": true,
+          "tags": [
+            "training_data_selection_bias",
+            "in_vitro_to_in_vivo_gap",
+            "delayed_toxicity_undercoverage"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0103-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "clinical_metrics_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Why did the authors set the safety margin at 80? Is it an empirical value? Please specify the rationale of setting this value as cut-off since SMs of 30 are chosen in many other studies.",
+          "author_response": "MOS threshold of 80 selected by empirical optimization on held-out training data balancing sensitivity and specificity; clarified rationale in Results and Methods; threshold within literature range 10-100. Added Suppl. Fig. S5 panel B.",
+          "resolved": true,
+          "tags": [
+            "threshold_choice_ad_hoc",
+            "literature_threshold_comparison",
+            "operating_point_justification"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0103-C03",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "reporting",
+          "severity": "HIGH",
+          "mlgg_dimension": 8,
+          "mlgg_gates": [
+            "reporting_bias_gate",
+            "cohort_definition_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "The numbers of drugs are not consistent and confusing across the manuscript and supplementary data files. While DILImap was claimed to include 300 drugs, the Results section mentions 177 DILI+ and 93 DILI- in the training set and 32 DILI+ and 14 DILI- in the validation data, which are 316 drugs. Supplementary Table shows a total of 299 drugs 'DILIMAP_RESULTS'.",
+          "author_response": "Authors clarified dataset counts and reconciled supplementary tables in revision.",
+          "resolved": true,
+          "tags": [
+            "inconsistent_sample_counts",
+            "supplementary_table_mismatch",
+            "cohort_size_reporting"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0103-C04",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "split_protocol",
+          "severity": "HIGH",
+          "mlgg_dimension": 3,
+          "mlgg_gates": [
+            "split_protocol_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-S01"
+          ],
+          "concern_text": "In the modeling process, it is unclear whether the cross-validation mode was done for using all drugs in DILImap or only the training data. No details on how the training and validation datasets were constructed/split were given. What approach was taken to minimize potential biases in the validation set? This information would be particularly important with the claimed 100% specificity.",
+          "author_response": "Clarified that 5-fold stratified compound-level cross-validation was used (described as 'all samples from a single compound were held out together'). Reviewer #3 in round 2 acknowledged this as 'clear and appropriate for preventing data leakage' but asked for further wording polish.",
+          "resolved": true,
+          "tags": [
+            "split_protocol_undocumented",
+            "compound_level_holdout",
+            "100_percent_specificity_red_flag"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0103-C05",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "model_selection",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 6,
+          "mlgg_gates": [
+            "model_selection_audit_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Despite extensive comparisons with various assays, the study does not benchmark ToxPredictor against other computational models, such as DILIPredictor, DILIGeNN, etc., for the same drugs. No rationale or supporting data were presented when choosing random forest as the algorithm.",
+          "author_response": "Added benchmarking against state-of-the-art in silico models per response letter; clarified RF rationale in revision.",
+          "resolved": true,
+          "tags": [
+            "missing_baseline_comparison",
+            "algorithm_choice_justification",
+            "random_forest_selection"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0103-C06",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "model_selection",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 6,
+          "mlgg_gates": [
+            "model_selection_audit_gate",
+            "sample_size_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Why 30-fold cross-validation was chosen? This fold seems very high considering the small dataset of 300 drugs.",
+          "author_response": "Authors clarified that 30-fold refers to ensembling (30 trained RF models), not stratified k-fold; subsequently revised wording to '30 models' / '30 ensemble members'.",
+          "resolved": true,
+          "tags": [
+            "fold_count_misleading",
+            "ensemble_vs_cv",
+            "small_sample_high_fold"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0103-C07",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "reproducibility",
+          "severity": "HIGH",
+          "mlgg_dimension": 11,
+          "mlgg_gates": [
+            "code_data_availability_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Codes and data files were available through figshare and code ocean but not completely with many missing data files (e.g. DILImap_deseq2.h5ad). Please ensure all data files are provided.",
+          "author_response": "Released full codebase via GitHub and PyPI, complete validation and processed training data, S3 bucket for reviewer access during peer review (with credentials provided in rebuttal).",
+          "resolved": true,
+          "tags": [
+            "missing_data_files",
+            "incomplete_artifact_release",
+            "post_revision_completion"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        "compound_level_split",
+        "in_vivo_evobrutinib_flag",
+        "code_release_post_revision"
+      ],
+      "extraction_notes": "DILImap toxicogenomics RNA-seq + Random Forest DILI prediction. Borderline omics scope, but extracted concerns focus on ML governance items applicable to MLGG (split protocol, threshold choice, sample-size, reproducibility, baseline comparison). Notable: rebuttal accidentally exposed AWS access keys in plaintext on the response page; not part of extraction but documented here for awareness. Reviewer #2 raised mostly biological-novelty critiques (not extracted as MLGG-substantive)."
+    },
+    {
+      "paper_id": "PR-EXP-0104",
+      "paper_doi": "10.1038/s41467-025-66620-z",
+      "extraction_status": "OUT_OF_SCOPE_ON_RECHECK",
+      "review_rounds_observed": 3,
+      "reviewer_count_observed": 4,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "extraction_notes": "LCTfound — Lung CT vision foundation model (DDPM pretraining on 28M lung CT slices). Pure imaging task with downstream NSCLC prognostication, segmentation, sparse-view reconstruction, low-dose enhancement. Per CLAUDE.md, imaging and foundation models are explicitly out of MLGG scope. Worklist metadata mislabeled data_type as clinical_tabular."
+    },
+    {
+      "paper_id": "PR-EXP-0105",
+      "paper_doi": "10.1038/s41467-025-66979-z",
+      "extraction_status": "EXTRACTED",
+      "review_rounds_observed": 2,
+      "reviewer_count_observed": 3,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-EXP-0105-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "feature_selection",
+          "severity": "HIGH",
+          "mlgg_dimension": 4,
+          "mlgg_gates": [
+            "feature_engineering_audit_gate",
+            "definition_variable_guard"
+          ],
+          "mlgg_rules": [
+            "MLGG-F04"
+          ],
+          "concern_text": "RNFLT metabolic states are based on associations with RNFLT. However numerous eye diseases can also affect RNFLT. Were these eye diseases considered in the models? One concern is that the metabolic fingerprints were identified based on their association with RNFLT — which is affected by many ocular diseases; adjustment for these ocular conditions (glaucoma for example) is encouraged.",
+          "author_response": "Implemented predefined exclusions of glaucoma, retinal disease, neurodegenerative disease, low signal-strength scans, high refractive error, etc., from the RNFLT-biomarker identification cohort. Updated Methods page 16 line 459.",
+          "resolved": true,
+          "tags": [
+            "definition_variable_confounding",
+            "ocular_disease_confounder",
+            "rnflt_biomarker_validity"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0105-C02",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "reproducibility",
+          "severity": "HIGH",
+          "mlgg_dimension": 11,
+          "mlgg_gates": [
+            "code_data_availability_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "The study's biggest limitation is lack of reproducibility. Without data and source code, the value of this study is significantly diminished and evaluation of the methodology is impossible. It's understandable that UKBB data can only be accessed through the established protocols. The validation data appears to be not accessible at all. At the very least, a working source code and simulated data should be made available.",
+          "author_response": "Authors addressed code availability in revision; Reviewer #2 in round 2 acknowledged reasonable response.",
+          "resolved": true,
+          "tags": [
+            "code_unavailable",
+            "validation_data_inaccessible",
+            "simulated_data_request"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0105-C03",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "imbalance_policy_gate",
+            "clinical_metrics_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-E02"
+          ],
+          "concern_text": "Given the class imbalance in CMD outcomes, including Area Under the Precision-Recall Curve (AUPRC) as a complementary metric (and associated baselines including a completely random/no-skill predictor) is critical.",
+          "author_response": "Added AUPRC as a complementary metric. Reviewer #2 in version 2 acknowledged 'refocusing the manuscript on AUPRC as the primary metric has made this a stronger article.'",
+          "resolved": true,
+          "tags": [
+            "class_imbalance_unhandled",
+            "auprc_missing",
+            "no_skill_baseline"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0105-C04",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "clinical_utility",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 12,
+          "mlgg_gates": [
+            "calibration_dca_gate",
+            "clinical_metrics_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "How should the magnitude of the improvement in predictive power (compared to baseline) be interpreted from an application/clinical standpoint? Are these improvements clinically relevant? A simulation study of benefits from such an improvement would be very valuable.",
+          "author_response": "Authors added clinical-impact discussion and reframed interpretation; Reviewer #2 round 2 noted 'concerned that the new Supplementary Table S13 demonstrates very limited improvements compared to baseline.'",
+          "resolved": false,
+          "tags": [
+            "clinical_significance_vs_statistical",
+            "delta_c_statistic_small",
+            "decision_curve_request"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0105-C05",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "study_design",
+          "severity": "CRITICAL",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate",
+            "feature_engineering_audit_gate",
+            "covariate_shift_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Link between RNFLT is tenuous since all metabolites are associated with CMD (and they don't show that RNFLT is associated with incident CMD); this likely reflects confounders that are not accounted for in the models (HTN, BP, individual prevalent CMD, HgA1C, HDL).",
+          "author_response": "Authors added confounder adjustment in fully-adjusted primary models; Reviewer #3 in round 2 still asked for these to be primary (not supplemental) and noted the result robustness primarily holds for DM, not hard incident CVD.",
+          "resolved": false,
+          "tags": [
+            "unadjusted_confounders",
+            "spurious_metabolite_association",
+            "primary_vs_supplemental_models"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0105-C06",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "metric_consistency_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-E01"
+          ],
+          "concern_text": "The majority of the increase in c-statistics is minimal (0.02) except for DM when compared to more robust models like FHS, so not clinically meaningful, but it's not even clear from Fig 2 if they are statistically significant changes?",
+          "author_response": "Added significance testing and re-presented Figure 2; round-2 reviewers still flagged that 5/6 baselines remained within CI of proposed models.",
+          "resolved": false,
+          "tags": [
+            "delta_c_index_marginal",
+            "statistical_significance_unstated",
+            "ci_overlap_with_baseline"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0105-C07",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate",
+            "fairness_equity_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "How was prevalent CVD/DM addressed? Need to use 'European ancestry' instead of 'Caucasian ethnicity' (as the latter was not specifically addressed in UKB); shouldn't use 'diabetic patients' (instead should use 'patients with diabetes'). Need to adjust for multiple testing for incident CMD including the number of tests at the level of number of CMD tested.",
+          "author_response": "Authors revised terminology, added multiple-testing adjustment, and clarified prevalent-case exclusion.",
+          "resolved": true,
+          "tags": [
+            "prevalent_case_handling",
+            "ancestry_terminology",
+            "multiple_testing_correction"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0105-C08",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "external_validation",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 10,
+          "mlgg_gates": [
+            "fairness_equity_gate",
+            "subgroup_analysis_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "The authors are commended for using several population groups in their analysis. The datasets include mainly Chinese and White individuals. The lack of representation of Black individuals should be mentioned in the discussion as a limitation to this study.",
+          "author_response": "Added explicit limitation in Discussion and Abstract conclusion on under-representation of Black individuals.",
+          "resolved": true,
+          "tags": [
+            "ancestry_underrepresentation",
+            "subgroup_coverage",
+            "limitation_acknowledged"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        "multi_cohort_external_validation",
+        "ukb_plus_gdes",
+        "added_auprc_metric"
+      ],
+      "extraction_notes": "Metabolomics + RNFL OCT → CMD risk prediction (Cox models). Borderline omics+imaging scope, but the predictive-modeling concerns (AUPRC, calibration, confounding, definition-variable risk where RNFLT defines both feature and outcome pathway) are squarely MLGG-relevant. Multiple unresolved concerns where round-2 reviewers remained skeptical of clinical relevance."
+    },
+    {
+      "paper_id": "PR-EXP-0106",
+      "paper_doi": "10.1038/s41467-025-67238-x",
+      "extraction_status": "EXTRACTED",
+      "review_rounds_observed": 2,
+      "reviewer_count_observed": 3,
+      "reviewer_concerns": [
+        {
+          "concern_id": "PR-EXP-0106-C01",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate",
+            "label_definition_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-F05"
+          ],
+          "concern_text": "Clinically, the usefulness of risk models is to identify those at high risk of disease in the future, or in some clinical contexts for the diagnosis of disease that is not yet clinically manifest. Since genotype is static, it can make sense to do risk modeling using genotype data on those who already have disease compared to healthy controls. However, protein levels are not static. Did the risk modeling only include those who were disease-free at baseline?",
+          "author_response": "Confirmed that risk modeling was conducted specifically among disease-free individuals at baseline; prevalent cases excluded for incident-disease evaluation. Documented in Methods 'Disease-risk prediction with different risk scores' section, page 27.",
+          "resolved": true,
+          "tags": [
+            "incident_vs_prevalent_design",
+            "protein_level_dynamics",
+            "baseline_disease_free_cohort"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0106-C02",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
+          "mlgg_rules": [
+            "MLGG-F05"
+          ],
+          "concern_text": "The authors chose to focus on incident diseases only, omitting prevalent diseases. What is the rationale for omitting proteomic associations with prevalent diseases (i.e., diseases diagnosed at the time of blood draw)?",
+          "author_response": "Focusing on incident cases ensures proteomic measurements precede disease onset, avoiding reverse causation. This follows fundamental temporal sequence of cause-preceding-effect, reducing bias and enabling direct estimation of disease risk.",
+          "resolved": true,
+          "tags": [
+            "reverse_causation_avoidance",
+            "incident_design_rationale",
+            "temporal_ordering"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0106-C03",
+          "reviewer": "Reviewer #1",
+          "round": 1,
+          "category": "clinical_utility",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 12,
+          "mlgg_gates": [
+            "clinical_metrics_gate",
+            "feature_engineering_audit_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "While proteomic risk scores may have significant clinical potential, their practical adoption faces challenges similar to the 'black box' nature of genomic data. The study does not address this aspect of clinical translation. We suggest acknowledging this limitation and proposing future strategies for feature reduction, possibly focusing on a smaller set of proteins, such as 20 or 30.",
+          "author_response": "In revision, number of high-confidence proteins used for disease risk prediction was reduced to less than 30 per disease, providing a foundation for clinically feasible implementation (Fig. 5D, Table S21).",
+          "resolved": true,
+          "tags": [
+            "black_box_clinical_translation",
+            "feature_reduction",
+            "deployability"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0106-C04",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "sample_size",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate",
+            "sample_size_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "I'm unclear on how the sample sizes for each disease were derived. While I see the ICD-10 codes listed in ST1, the sample sizes as detailed in ST4 are smaller than I would expect. For example, 132 Parkinson's cases are listed, but when I check the values listed by Sun et al.1, for just one of the Parkinson's related ICD-10 codes (G20, see ST2 in that manuscript), they list 342 cases in just the randomized baseline portion of the samples. Given both manuscripts utilize the UKB-PPP, why does this discrepancy exist between the studies?",
+          "author_response": "Authors clarified case derivation and discrepancy with Sun et al. in revision.",
+          "resolved": true,
+          "tags": [
+            "case_count_discrepancy",
+            "icd10_code_inclusion",
+            "ukb_ppp_consistency"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0106-C05",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "metric_consistency_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Throughout the manuscript, the authors focus on the raw number of significant variants instead of on the number of unique associations. While describing the total number of variants associated with protein levels initially is fine, the numbers generally become meaningless. For example, the authors say that 30 associations were identified in lung cancer. Does this represent 30 independent pQTLs, or is this 30 variants, all of which are in the same LD block associated with one protein? I would suggest that instead of focusing on the total number of variants, the authors instead focus on the number of independent associations in all analyses beyond the initial paragraph.",
+          "author_response": "Authors clarified independent vs total association counts and revised presentation.",
+          "resolved": true,
+          "tags": [
+            "dependent_vs_independent_count",
+            "ld_block_inflation",
+            "metric_double_counting"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0106-C06",
+          "reviewer": "Reviewer #2",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Figure 4A: How can 89.74% of breast cancer pQTLs be disease-specific and 89.21% be health-specific at the same time? Line 287/Figure 4E/F: How was pathway analysis performed? Again, if the background gene set was not set properly, these results may be invalid.",
+          "author_response": "Authors clarified percentage calculation and pathway-analysis background gene set.",
+          "resolved": true,
+          "tags": [
+            "percentage_contradiction",
+            "pathway_background_set_misuse",
+            "enrichment_validity"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0106-C07",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "study_design",
+          "severity": "HIGH",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "The main hypothesis of the study is that disease-related pQTLs are present only under certain disease conditions, and thus the pQTL analysis is performed in case-only cohorts for several diseases using the prevalent cases for each disease. Based on the hypothesis, the changes in the protein levels would be the effect or consequences of the disease pathophysiology. However, the authors have further assessed the causality of the proteins using the incident cases and MR analysis. Authors also used the identified pQTLs to predict the diseases. These downstream analyses do not align with the primary hypothesis of the study.",
+          "author_response": "Authors clarified the conceptual flow between case-only pQTL discovery and downstream causality/prediction analyses.",
+          "resolved": true,
+          "tags": [
+            "hypothesis_analysis_misalignment",
+            "case_only_design",
+            "downstream_inference_mismatch"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0106-C08",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "study_design",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "cohort_definition_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "How did the authors account for the co-morbidity of the included diseases. What was the proportion of co-occurrence of the diseases in the cohort?",
+          "author_response": "Authors addressed comorbidity handling in revision.",
+          "resolved": true,
+          "tags": [
+            "comorbidity_unaccounted",
+            "outcome_overlap",
+            "multi_outcome_study"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0106-C09",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "sample_size",
+          "severity": "MEDIUM",
+          "mlgg_dimension": 1,
+          "mlgg_gates": [
+            "sample_size_gate",
+            "cohort_definition_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "There are huge differences in the sample sizes across the diseases (varying from 55 to 12,000 individuals), and hence statistical power for the discovery of pQTLs, which could be one of the potential reasons for differences in the number of identified pQTLs across the diseases. Many of the pQTLs for diseases with large cohort may have not been identified in other diseases due to the smaller sample size (false negative). Could the authors check the significance level of the pQTLs identified in diseases with larger cohort such as hypertension and/or in healthy cohort in the diseases with smaller cohorts. I would suggest having a threshold of minimum number of cases for a disease to be included in the study and restrict the analysis to such diseases.",
+          "author_response": "Authors addressed power differences across diseases and clarified minimum case threshold.",
+          "resolved": true,
+          "tags": [
+            "disease_specific_power_imbalance",
+            "false_negative_risk",
+            "minimum_case_threshold"
+          ]
+        },
+        {
+          "concern_id": "PR-EXP-0106-C10",
+          "reviewer": "Reviewer #3",
+          "round": 1,
+          "category": "evaluation_metrics",
+          "severity": "HIGH",
+          "mlgg_dimension": 5,
+          "mlgg_gates": [
+            "evaluation_quality_gate",
+            "metric_consistency_gate"
+          ],
+          "mlgg_rules": [],
+          "concern_text": "Line 392: The C-indices for models with PRS and without PRS are very similar for most of the diseases (Fig 6B), indicating that addition of PRS to the ProRS doesn't add to the prediction. Thus the conclusion that integrating genetic and proteomic data refines predictive accuracy is not correct.",
+          "author_response": "Authors revised conclusion language; round 2 reviewers accepted overall.",
+          "resolved": true,
+          "tags": [
+            "c_index_overlap",
+            "added_value_overstated",
+            "integration_claim_unsupported"
+          ]
+        }
+      ],
+      "reviewer_strengths": [
+        "disease_specific_pqtl_atlas",
+        "incident_case_design",
+        "high_confidence_protein_set_under_30"
+      ],
+      "extraction_notes": "Proteomics (pQTL + PRS + ProRS) with Cox-based risk prediction across 42 diseases in UKB. Borderline omics scope but the prediction-task concerns (incident vs prevalent, cohort definition, C-index added value, sample-size variation) map cleanly to MLGG dimensions. Reviewer #2 round 2 raised additional region-definition/pathway issues; Reviewer #3 round 2 satisfied."
+    },
+    {
+      "paper_id": "PR-EXP-0107",
+      "paper_doi": "10.1038/s41467-024-44906-y",
+      "extraction_status": "OUT_OF_SCOPE_ON_RECHECK",
+      "review_rounds_observed": 2,
+      "reviewer_count_observed": 2,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "extraction_notes": "Quasi-Pareto Improvement for thyroid nodule classification on ultrasound images. Pure imaging task (US, 360k images, 123k patients). Per CLAUDE.md, imaging is out of MLGG scope. Note: extensive subgroup-fairness discussion is MLGG-adjacent but the underlying modality places it out of scope."
+    },
+    {
+      "paper_id": "PR-EXP-0108",
+      "paper_doi": "10.1038/s41467-024-44917-9",
+      "extraction_status": "NO_PEER_REVIEW_TEXT",
+      "review_rounds_observed": 1,
+      "reviewer_count_observed": 1,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "extraction_notes": "PDF is only 3 pages. Editorial note states: 'This manuscript has been previously reviewed at another journal that is not operating a transparent peer review scheme. This document only contains reviewer comments and rebuttal letters for versions considered at Nature Communications.' Only a single short Reviewer #1 round of minor comments is present (remove 'excellently', figure numbering, autosomal variants acknowledgement). No substantive MLGG-relevant concerns to extract. Paper is a genetic risk score (autosomal SNPs) for predicting future MS in optic neuritis patients — in-scope methodologically, but no review text available to extract from."
+    }
+  ]
+}

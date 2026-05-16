@@ -1,0 +1,158 @@
+[
+  {
+    "paper_id": "PR-RO-07",
+    "paper_title": "10.1038/s41467-025-61823-w",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/PR-RO-07_ml_driven_strategies_for_adapting_immuno_peer_review.pdf",
+    "concern_count": 10,
+    "concerns_sample_ids": [
+      "PR-RO-07-C01",
+      "PR-RO-07-C02",
+      "PR-RO-07-C03"
+    ],
+    "extraction_notes": "Three review rounds. Reviewer #2 escalated concerns about post-hoc method addition (A-STEP developed after original 5 methods failed on validation cohorts) — this is a strong test-set-reuse / model-selection-leakage signal that remained partially unresolved. Reviewer #4 recommended rejection in Round 1 citing data opacity and lack of code."
+  },
+  {
+    "paper_id": "PR-EXP-0084",
+    "paper_title": "10.1038/s41467-025-68211-4",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-025-68211-4_peer_review.pdf",
+    "concern_count": 15,
+    "concerns_sample_ids": [
+      "PR-EXP-0084-C01",
+      "PR-EXP-0084-C02",
+      "PR-EXP-0084-C03"
+    ],
+    "extraction_notes": "Three rounds. Reviewer #1 was unusually thorough — 15 initial comments expanded to 45 in Round 2 with significant remaining methodological gaps (data leakage safeguards, nested CV, VAE justification). Many Round-2 concerns ended without clear final resolution (Reviewer #1 was satisfied with typos only by Round 3). Reviewers #2 and #3 accepted earlier."
+  },
+  {
+    "paper_id": "PR-EXP-0085",
+    "paper_title": "10.1038/s41467-026-69934-8",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-026-69934-8_peer_review.pdf",
+    "concern_count": 10,
+    "concerns_sample_ids": [
+      "PR-EXP-0085-C01",
+      "PR-EXP-0085-C02",
+      "PR-EXP-0085-C03"
+    ],
+    "extraction_notes": "Genomic AMR is at the edge of MLGG scope (genomic features), but the prediction task is binary phenotype classification with clear cohort/split/external-validation concerns that map cleanly to MLGG gates. Two review rounds; Reviewer #3 remained partially dissatisfied with Docker dependency in code release."
+  },
+  {
+    "paper_id": "PR-EXP-0086",
+    "paper_title": "10.1038/s41467-026-72347-2",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-026-72347-2_peer_review.pdf",
+    "concern_count": 14,
+    "concerns_sample_ids": [
+      "PR-EXP-0086-C01",
+      "PR-EXP-0086-C02",
+      "PR-EXP-0086-C03"
+    ],
+    "extraction_notes": "Five reviewers. PR-EXP-0086 is NLP on clinical notes which is somewhat outside the traditional EHR-tabular MLGG scope, but the cohort/label/leakage concerns are directly mappable. Reviewer #6 raised the most methodologically important concern: temporal alignment between training labels (derived before t_1) and the claimed prospective ACU-prediction objective (events after t_1) — a classic future-information / target-leakage risk that was reframed rather than fully resolved."
+  },
+  {
+    "paper_id": "PR-EXP-0092",
+    "paper_title": "10.1038/s41467-025-58775-6",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-025-58775-6_peer_review.pdf",
+    "concern_count": 6,
+    "concerns_sample_ids": [
+      "PR-EXP-0092-C01",
+      "PR-EXP-0092-C02",
+      "PR-EXP-0092-C03"
+    ],
+    "extraction_notes": "Two rounds. Reviewer #1 mostly suggested wording/clarity edits (skipped as non-substantive). Reviewer #2 raised three substantive methodological points (generalisability, calibration, abstract reporting). Reviewer #3 was a co-reviewer (training role, no independent comments). Calibration concern is a clean example of MLGG-C01/E02 + TRIPOD-AI gap that was partially-but-incompletely resolved (Round-2 still flagged unclear calibration method)."
+  },
+  {
+    "paper_id": "PR-EXP-0095",
+    "paper_title": "10.1038/s41467-025-59197-0",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-025-59197-0_peer_review.pdf",
+    "concern_count": 12,
+    "concerns_sample_ids": [
+      "PR-EXP-0095-C01",
+      "PR-EXP-0095-C02",
+      "PR-EXP-0095-C03"
+    ],
+    "extraction_notes": "Paper uses vision transformer on multimodal imaging (US/CEUS/MRI) plus clinical variables. While imaging is at the boundary of MLGG scope (per project memo MLGG does not cover pure imaging), this study has substantive prediction-modeling concerns directly mappable to MLGG gates: dev-vs-validation cohort discrepancy (iHCC training, rHCC validation), same-center 'external' validation challenge, and Reviewer #4's title/causal-claim concern about prognostication being mis-framed as treatment optimization. Five reviewers, three rounds. Many Round-1 concerns from Reviewers #4 and #5 do not have clear Round-2 resolutions in extracted pages."
+  },
+  {
+    "paper_id": "PR-EXP-0096",
+    "paper_title": "10.1038/s41467-025-60682-9",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-025-60682-9_peer_review.pdf",
+    "concern_count": 8,
+    "concerns_sample_ids": [
+      "PR-EXP-0096-C01",
+      "PR-EXP-0096-C02",
+      "PR-EXP-0096-C03"
+    ],
+    "extraction_notes": "Two rounds, two main reviewers (Reviewer #1 fully accepted in Round 2 with 'no further comments'). The cross-validation-based-inference concern is a sophisticated methodological discussion that the authors handled by citing the influence-function CV literature; this is worth preserving as a pattern. External-dataset application to GEMS is a textbook example of substantive external validation added in response to peer review."
+  },
+  {
+    "paper_id": "PR-EXP-0097",
+    "paper_title": "10.1038/s41467-025-61329-5",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-025-61329-5_peer_review.pdf",
+    "concern_count": 14,
+    "concerns_sample_ids": [
+      "PR-EXP-0097-C01",
+      "PR-EXP-0097-C02",
+      "PR-EXP-0097-C03"
+    ],
+    "extraction_notes": "Two rounds. Reviewer #2 caught a critical reporting issue (paper read as if only simulated data were used; real-world Hp-EuReg use was unclear) — authors moved the synthetic-validation figure to supplement. Reviewer #1's Round-2 counterfactual concern (only one treatment per patient, can't observationally verify what other treatments would have done) is a deep RL-for-treatment-selection issue that doesn't have a clear resolution. Eradication-rate improvement is modest (5.4% absolute) — reviewer flagged language overclaim in Round 2."
+  },
+  {
+    "paper_id": "PR-EXP-0098",
+    "paper_title": "10.1038/s41467-025-61887-8",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-025-61887-8_peer_review.pdf",
+    "concern_count": 9,
+    "concerns_sample_ids": [
+      "PR-EXP-0098-C01",
+      "PR-EXP-0098-C02",
+      "PR-EXP-0098-C03"
+    ],
+    "extraction_notes": "Proteomics study — borderline MLGG scope per project memo (omics-adjacent), but the prediction-modeling concerns are directly mappable. The headline methodological concern is the definition-variable-style collinearity (eGFR is both the target slope and a correlate of the candidate features — MLGG-F04 / definition_variable_guard); reviewer #1 raised this as the first concern and authors addressed via separate CKD control cohort plus eGFR adjustment in multivariate models. Two rounds; both reviewers accepted in Round 2."
+  },
+  {
+    "paper_id": "PR-EXP-0099",
+    "paper_title": "10.1038/s41467-025-61891-y",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-025-61891-y_peer_review.pdf",
+    "concern_count": 6,
+    "concerns_sample_ids": [
+      "PR-EXP-0099-C01",
+      "PR-EXP-0099-C02",
+      "PR-EXP-0099-C03"
+    ],
+    "extraction_notes": "Survival/Cox extension with factorization-machine interactions. Borderline MLGG scope (survival outcomes vs binary), but reviewer concerns map cleanly to MLGG dimensions: kinship-induced leakage (S01-adjacent), hyperparameter selection (M03), endpoint construction (cohort definition). Reviewer #2 only co-reviewed; Reviewer #4 round-1 raised mostly framing/style critiques (no substantive MLGG items extracted). Reviewer #3 round-2 reported satisfaction."
+  },
+  {
+    "paper_id": "PR-EXP-0101",
+    "paper_title": "10.1038/s41467-025-62781-z",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-025-62781-z_peer_review.pdf",
+    "concern_count": 9,
+    "concerns_sample_ids": [
+      "PR-EXP-0101-C01",
+      "PR-EXP-0101-C02",
+      "PR-EXP-0101-C03"
+    ],
+    "extraction_notes": "LLM-powered knowledge graph for mental health, with downstream UKB MDD prediction using SVM/LR/XGBoost/RF. Mixed scope — KG construction is out-of-scope but the UKB prediction task is in MLGG scope. Extracted concerns focus on prediction-relevant items (cohort, outcome coding, AUC reporting, interpretability, reproducibility). Some Reviewer #2 round-2 author responses were beyond the 10 pages I read; marked resolved=null."
+  },
+  {
+    "paper_id": "PR-EXP-0103",
+    "paper_title": "10.1038/s41467-025-65690-3",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-025-65690-3_peer_review.pdf",
+    "concern_count": 7,
+    "concerns_sample_ids": [
+      "PR-EXP-0103-C01",
+      "PR-EXP-0103-C02",
+      "PR-EXP-0103-C03"
+    ],
+    "extraction_notes": "DILImap toxicogenomics RNA-seq + Random Forest DILI prediction. Borderline omics scope, but extracted concerns focus on ML governance items applicable to MLGG (split protocol, threshold choice, sample-size, reproducibility, baseline comparison). Notable: rebuttal accidentally exposed AWS access keys in plaintext on the response page; not part of extraction but documented here for awareness. Reviewer #2 raised mostly biological-novelty critiques (not extracted as MLGG-substantive)."
+  },
+  {
+    "paper_id": "PR-EXP-0105",
+    "paper_title": "10.1038/s41467-025-66979-z",
+    "peer_review_pdf_path": "references/case-studies/nature_communications/s41467-025-66979-z_peer_review.pdf",
+    "concern_count": 8,
+    "concerns_sample_ids": [
+      "PR-EXP-0105-C01",
+      "PR-EXP-0105-C02",
+      "PR-EXP-0105-C03"
+    ],
+    "extraction_notes": "Metabolomics + RNFL OCT → CMD risk prediction (Cox models). Borderline omics+imaging scope, but the predictive-modeling concerns (AUPRC, calibration, confounding, definition-variable risk where RNFLT defines both feature and outcome pathway) are squarely MLGG-relevant. Multiple unresolved concerns where round-2 reviewers remained skeptical of clinical relevance."
+  }
+]

@@ -1,0 +1,441 @@
+{
+  "method": "curl + grep on Nature page",
+  "verdicts_by_doi": {
+    "10.1038/s41467-026-68368-6": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 431233
+    },
+    "10.1038/s41467-026-68579-x": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "http_bytes": 526683
+    },
+    "10.1038/s41467-026-69873-4": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 389759
+    },
+    "10.1038/s41467-026-71152-1": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 340763
+    },
+    "10.1038/s41467-025-56251-9": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "http_bytes": 379846
+    },
+    "10.1038/s41467-025-56353-4": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 513044
+    },
+    "10.1038/s41467-025-56790-1": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 453253
+    },
+    "10.1038/s41467-025-57379-4": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 359393
+    },
+    "10.1038/s41467-025-57849-9": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 439624
+    },
+    "10.1038/s41467-025-58161-2": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "http_bytes": 416799
+    },
+    "10.1038/s41467-025-58437-7": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 401296
+    },
+    "10.1038/s41467-025-59643-z": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 439773
+    },
+    "10.1038/s41467-025-59951-4": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "http_bytes": 471287
+    },
+    "10.1038/s41467-025-60487-w": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "http_bytes": 734093
+    },
+    "10.1038/s41467-025-61418-5": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 439761
+    },
+    "10.1038/s41467-025-61625-0": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "http_bytes": 514187
+    },
+    "10.1038/s41467-025-64640-3": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 419412
+    },
+    "10.1038/s41467-025-64851-8": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 391268
+    },
+    "10.1038/s41467-025-66118-8": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 405568
+    },
+    "10.1038/s41467-025-66203-y": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 351376
+    },
+    "10.1038/s41467-025-67510-0": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "http_bytes": 457115
+    },
+    "10.1038/s41467-023-37996-7": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "http_bytes": 499801
+    },
+    "10.1038/s41467-023-38756-3": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 427526
+    },
+    "10.1038/s41467-023-41541-x": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 350182
+    },
+    "10.1038/s41467-023-42205-6": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 395446
+    },
+    "10.1038/s41467-023-43929-1": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 527139
+    },
+    "10.1038/s41467-023-44266-z": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "http_bytes": 530361
+    },
+    "10.1038/s41467-023-44231-w": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 464900
+    },
+    "10.1038/s41467-024-44740-2": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 424512
+    },
+    "10.1038/s41467-024-45777-z": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 380018
+    },
+    "10.1038/s41467-024-48713-3": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 434225
+    },
+    "10.1038/s41467-024-48825-w": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 441082
+    },
+    "10.1038/s41467-024-50199-y": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 431294
+    },
+    "10.1038/s43856-025-00775-0": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 447066
+    },
+    "10.1038/s43856-025-01058-4": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "http_bytes": 536743
+    },
+    "10.1038/s43856-024-00445-7": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 1,
+      "http_bytes": 348990
+    },
+    "10.1038/s43856-024-00603-x": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 1,
+      "http_bytes": 335421
+    },
+    "10.1038/s43856-025-01142-9": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "http_bytes": 404821
+    },
+    "10.1038/s43856-026-01589-4": {
+      "verdict": "NO_PEER_REVIEW",
+      "has_pr_text": false,
+      "moesm_pdf_count": 1,
+      "http_bytes": 234276
+    },
+    "10.1038/s43856-024-00673-x": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "http_bytes": 401904
+    },
+    "10.1038/s43856-025-00986-5": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 454249
+    },
+    "10.1038/s43856-026-01511-y": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 1,
+      "http_bytes": 337592
+    },
+    "10.1038/s43856-025-01053-9": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "http_bytes": 386507
+    },
+    "10.1038/s43856-024-00663-z": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "http_bytes": 441351
+    },
+    "10.1038/s43856-024-00472-4": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "http_bytes": 398422
+    },
+    "10.1038/s43856-026-01428-6": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "http_bytes": 516267
+    },
+    "10.1038/s43856-025-01292-w": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 430264
+    },
+    "10.1038/s43856-025-01057-5": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 1,
+      "http_bytes": 415331
+    },
+    "10.1038/s43856-025-00827-5": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "http_bytes": 447966
+    },
+    "10.1038/s43856-026-01437-5": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "http_bytes": 466303
+    },
+    "10.1038/s43856-026-01527-4": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "http_bytes": 299953
+    },
+    "10.1038/s43856-024-00590-z": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "http_bytes": 414323
+    },
+    "10.1038/s43856-025-00768-z": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "http_bytes": 385331
+    },
+    "10.1038/s43856-026-01443-7": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 1,
+      "http_bytes": 504368
+    },
+    "10.1038/s41467-020-18684-2": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "http_bytes": 431235
+    },
+    "10.1038/s41467-020-17804-2": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 1,
+      "http_bytes": 382587
+    },
+    "10.1038/s43856-021-00042-y": {
+      "verdict": "NO_PEER_REVIEW",
+      "has_pr_text": false,
+      "moesm_pdf_count": 0,
+      "http_bytes": 42399
+    },
+    "10.1038/s43856-022-00094-8": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "http_bytes": 434741
+    },
+    "10.1038/s43856-022-00126-3": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "http_bytes": 366984
+    },
+    "10.1038/s43856-021-00065-5": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "http_bytes": 557553
+    },
+    "10.1038/s43856-022-00117-4": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 345017
+    },
+    "10.1038/s41467-022-35157-w": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "http_bytes": 559736
+    },
+    "10.1038/s43856-022-00201-9": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "http_bytes": 420551
+    },
+    "10.1038/s43856-022-00165-w": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 407980
+    },
+    "10.1038/s41467-023-39902-7": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 403395
+    },
+    "10.1038/s43856-024-00726-1": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "http_bytes": 569308
+    },
+    "10.1038/s41467-024-52003-3": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 438629
+    },
+    "10.1038/s41467-020-19478-2": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 546855
+    },
+    "10.1038/s43856-025-00994-5": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 366640
+    },
+    "10.1038/s41467-021-22877-8": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 2,
+      "http_bytes": 359983
+    },
+    "10.1038/s43856-022-00225-1": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 4,
+      "http_bytes": 377109
+    },
+    "10.1038/s41467-025-67470-5": {
+      "verdict": "HAS_PEER_REVIEW",
+      "has_pr_text": true,
+      "moesm_pdf_count": 3,
+      "http_bytes": 553815
+    }
+  },
+  "summary": {
+    "HAS_PEER_REVIEW": 70,
+    "NO_PEER_REVIEW": 2
+  }
+}

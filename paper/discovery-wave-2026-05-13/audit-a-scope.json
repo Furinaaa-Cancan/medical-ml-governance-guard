@@ -1,0 +1,372 @@
+{
+  "agent": "audit-a-scope",
+  "ran_at_utc": "2026-05-16T01:26:33Z",
+  "verdicts_by_doi": {
+    "10.1038/s41467-026-68368-6": {
+      "verdict": "REJECT",
+      "reason": "Title explicitly says 'Unbiased clustering' — primary task is unsupervised clustering/phenotyping, not binary prediction.",
+      "discovery_flag_was": "primary task is unsupervised clustering — confirm binary outcome prediction is reported"
+    },
+    "10.1038/s41467-026-68579-x": {
+      "verdict": "REJECT",
+      "reason": "Serum N-glycomics is omics-driven biomarker discovery; falls under omics rejection list.",
+      "discovery_flag_was": "biomarker discovery via glycomics may dominate over EHR features"
+    },
+    "10.1038/s41467-026-69873-4": {
+      "verdict": "ACCEPT",
+      "reason": "Retrospective EHR cohort with binary nosocomial pathogen acquisition outcome — classic in-scope.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s41467-026-71152-1": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Representation learning paper on multi-institution EHR; downstream prediction tasks unspecified — could be binary cohort prediction or methods-only.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s41467-025-56251-9": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Title is association-framed (PWR vs mortality); unclear if a predictive model with discrimination metrics is built vs pure epidemiologic association.",
+      "discovery_flag_was": "primarily epidemiologic association — verify a model with discrimination metrics"
+    },
+    "10.1038/s41467-025-56353-4": {
+      "verdict": "REJECT",
+      "reason": "Title describes a preclinical therapeutic ('Rescue ... by blocking strategy with one-dose anti-myoglobin RabMAb') — drug/antibody mechanism paper, not a cohort prediction study.",
+      "discovery_flag_was": "preclinical content prominent — confirm clinical cohort prediction is substantive"
+    },
+    "10.1038/s41467-025-56790-1": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Large HF registry with mortality/CV outcomes, but title implies association/HR analysis; need to verify binary endpoint framing vs survival-primary.",
+      "discovery_flag_was": "hazard ratio framing — confirm binary (vs survival) endpoint is primary"
+    },
+    "10.1038/s41467-025-57379-4": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Genomically-defined K. pneumoniae cohort with in-hospital mortality — title leans genomic-epidemiology with propensity scoring; need to confirm predictive ML on tabular features is primary, not pathogen genomics descriptive analysis.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s41467-025-57849-9": {
+      "verdict": "ACCEPT",
+      "reason": "Large US EHR (PCORnet) retrospective cohort with binary Long COVID outcome — in-scope.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s41467-025-58161-2": {
+      "verdict": "ACCEPT",
+      "reason": "28M German surgical registry, binary in-hospital mortality and perioperative organ injury — retrospective cohort, tabular registry features, binary.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s41467-025-58437-7": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Title says 'predicting interval' (continuous/time-to-event), scope_hint claims binary thresholded — framing ambiguous between regression and binary.",
+      "discovery_flag_was": "outcome is a time interval — likely converted to binary; verify framing"
+    },
+    "10.1038/s41467-025-59643-z": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Target trial emulation with trajectory-based stratification; primary task is treatment effect estimation rather than direct binary prediction model.",
+      "discovery_flag_was": "trajectory clustering may be used as treatment-effect modifier rather than pure prediction"
+    },
+    "10.1038/s41467-025-59951-4": {
+      "verdict": "ACCEPT",
+      "reason": "England/Wales linked admin EHR with binary 28-day mortality and 30-day CVD endpoints — retrospective cohort with tabular features.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s41467-025-60487-w": {
+      "verdict": "REJECT",
+      "reason": "'Shared genetic architecture' is genetics-primary (GWAS-style) — falls under omics rejection.",
+      "discovery_flag_was": "genetics-heavy; cardiac imaging mentioned — confirm tabular EHR diagnoses are primary outcome"
+    },
+    "10.1038/s41467-025-61418-5": {
+      "verdict": "ACCEPT",
+      "reason": "Retrospective EHR pipeline flagging ARDS (binary) in ventilated adults — classic in-scope binary classification on tabular EHR.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s41467-025-61625-0": {
+      "verdict": "REJECT",
+      "reason": "Title emphasizes whole-exome sequencing as critical — genomics-primary, omics rejection category.",
+      "discovery_flag_was": "genomic features are primary — confirm tabular clinical/registry signal is meaningful"
+    },
+    "10.1038/s41467-025-64640-3": {
+      "verdict": "REJECT",
+      "reason": "Target trial emulation comparing drugs (finerenone vs spironolactone) is causal inference / treatment effect study, not predictive ML.",
+      "discovery_flag_was": "hazard ratio-heavy framing — confirm binary outcome modelling"
+    },
+    "10.1038/s41467-025-64851-8": {
+      "verdict": "REJECT",
+      "reason": "Causal treatment effect study (immediate vs delayed nirmatrelvir-ritonavir) using hazard ratios — not predictive modeling.",
+      "discovery_flag_was": "hazard ratio framing — verify binary endpoint vs time-to-event"
+    },
+    "10.1038/s41467-025-66118-8": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "MRSA bacteremia cohort with binary treatment failure/mortality, but title leans antimicrobial methodology (PAP-AUC threshold) — could be epidemiologic vs ML predictive.",
+      "discovery_flag_was": "hazard ratio language; confirm binary outcome is primary"
+    },
+    "10.1038/s41467-025-66203-y": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Prospective matched cohort on AF management; title suggests intervention effectiveness with HRs, framing between survival and binary unclear.",
+      "discovery_flag_was": "hazard ratio + survival framing — confirm binary endpoint primary"
+    },
+    "10.1038/s41467-025-67510-0": {
+      "verdict": "REJECT",
+      "reason": "Multiomics + multistate disease trajectory analysis — both omics-primary and survival/transition modeling, dual rejection criteria.",
+      "discovery_flag_was": "multistate / transition framing risks survival emphasis; multiomics may dominate"
+    },
+    "10.1038/s41467-023-37996-7": {
+      "verdict": "ACCEPT",
+      "reason": "ML on longitudinal EHR (161k pts) for binary autoimmune-disease-testing-need classification with external validation — retrospective, tabular, binary.",
+      "discovery_flag_was": "Binary outcome is need-for-test rather than acute deterioration; arguably borderline acute-care"
+    },
+    "10.1038/s41467-023-38756-3": {
+      "verdict": "REJECT",
+      "reason": "County-level hospitalization count regression — not patient-level binary classification.",
+      "discovery_flag_was": "Outcome is count regression at county level not patient-level binary; likely OUT OF SCOPE"
+    },
+    "10.1038/s41467-023-41541-x": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Norwegian register cohort predicting post-COVID condition; whether ML predictive model with discrimination metrics vs descriptive risk-factor regression is unclear.",
+      "discovery_flag_was": "Outcome is post-COVID at >=3mo, not acute deterioration; descriptive risk factor analysis not full ML"
+    },
+    "10.1038/s41467-023-42205-6": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Methodology paper evaluating oxygenation measurement as severity proxy; predictive modelling component limited per discovery hint.",
+      "discovery_flag_was": "Methodology paper on outcome measure; predictive modelling component is limited"
+    },
+    "10.1038/s41467-023-43929-1": {
+      "verdict": "REJECT",
+      "reason": "Drug repurposing via target trial emulation — causal inference on treatment effects, not predictive ML; also drug-discovery-adjacent.",
+      "discovery_flag_was": "Causal inference on treatment effects, not predictive modeling; likely OUT OF SCOPE"
+    },
+    "10.1038/s41467-023-44266-z": {
+      "verdict": "REJECT",
+      "reason": "Serum metabolome biomarker discovery (n=83) — omics-primary (metabolomics) on small sample.",
+      "discovery_flag_was": "Small N omics-driven biomarker discovery; not retrospective EHR cohort ML"
+    },
+    "10.1038/s41467-023-44231-w": {
+      "verdict": "REJECT",
+      "reason": "Phenomenological models predicting continuous TEG viscoelastic clot strength — regression on continuous outputs, not binary classification; also methods-driven.",
+      "discovery_flag_was": "Outputs are continuous TEG curves not binary; likely OUT OF SCOPE for binary prediction"
+    },
+    "10.1038/s41467-024-44740-2": {
+      "verdict": "ACCEPT",
+      "reason": "Interpretable ML on MIMIC ICU stays predicting binary IV-to-oral antibiotic switch from routine clinical parameters — retrospective, tabular, binary.",
+      "discovery_flag_was": "Binary endpoint is decision-support not deterioration; verify framed as binary classification"
+    },
+    "10.1038/s41467-024-45777-z": {
+      "verdict": "REJECT",
+      "reason": "Methods paper on data encoding for privacy/leakage prevention — no specific clinical cohort prediction is the primary contribution.",
+      "discovery_flag_was": "Methods paper on privacy/leakage; relevant to MLGG leakage theme but not a clinical prediction cohort study"
+    },
+    "10.1038/s41467-024-48713-3": {
+      "verdict": "REJECT",
+      "reason": "Latent class analysis for subphenotype discovery is primary — unsupervised phenotyping, MLGG rejects this category.",
+      "discovery_flag_was": "Survival/hazard ratio framing for some outcomes; LCA not standard prediction; verify binary endpoint"
+    },
+    "10.1038/s41467-024-48825-w": {
+      "verdict": "REJECT",
+      "reason": "Population-based propensity-matched epidemiology comparing acute/post-acute respiratory complications — risk-of-outcome epi, not predictive ML model with discrimination metrics.",
+      "discovery_flag_was": "Risk-of-outcome epidemiology with propensity matching; not classic ML prediction model; borderline"
+    },
+    "10.1038/s41467-024-50199-y": {
+      "verdict": "REJECT",
+      "reason": "Propensity-matched treatment effect study of GLP-1 RAs — causal inference, not predictive ML.",
+      "discovery_flag_was": "Causal inference / treatment effect study, not predictive ML; likely OUT OF SCOPE"
+    },
+    "10.1038/s43856-025-00775-0": {
+      "verdict": "ACCEPT",
+      "reason": "ICU mortality ML on tabular vitals+labs from EHR; binary deterioration warning task; retrospective — directly in-scope.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s43856-025-01058-4": {
+      "verdict": "ACCEPT",
+      "reason": "AF post-ablation arrhythmia recurrence binary outcome; explainable ML on tabular clinical features — in-scope.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s43856-024-00445-7": {
+      "verdict": "ACCEPT",
+      "reason": "Brain metastasis at cancer diagnosis as binary risk; retrospective EHR develop+validate — in-scope.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s43856-024-00603-x": {
+      "verdict": "ACCEPT",
+      "reason": "Hypertension prediction in transgender pts pre-gynecologic surgery; ML model comparison on EHR; binary — in-scope.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s43856-025-01142-9": {
+      "verdict": "ACCEPT",
+      "reason": "In-hospital mortality (binary) in cancer pts with febrile neutropenia; retrospective cohort — in-scope.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s43856-026-01589-4": {
+      "verdict": "ACCEPT",
+      "reason": "Multicenter ML validation for chemotherapy electrolyte disorders; multiple binary outcomes on EHR — in-scope (multi-label of binary outcomes is acceptable).",
+      "discovery_flag_was": "multi-label outcomes"
+    },
+    "10.1038/s43856-024-00673-x": {
+      "verdict": "ACCEPT",
+      "reason": "Hospital discharge prediction with ML on diverse EHR; binary event — in-scope.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s43856-025-00986-5": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Title is 'Comorbidities associated with' delirium diagnosis — sounds more like association/epidemiology than predictive ML model; need to verify a model with metrics is the primary output.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s43856-026-01511-y": {
+      "verdict": "REJECT",
+      "reason": "Title explicitly says 'Knowledge-Guided Unsupervised Latent Factor Clustering' — unsupervised stratification is primary, rejected per MLGG scope.",
+      "discovery_flag_was": "uses clustering, but downstream prognostication evaluated"
+    },
+    "10.1038/s43856-025-01053-9": {
+      "verdict": "ACCEPT",
+      "reason": "GRU-D for postoperative ileus surveillance, cross-hospital retrospective; binary EHR features — in-scope.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s43856-024-00663-z": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "GCK variant carrier risk study — title focus is on genetic variant carriers with secondary complications; could be epidemiology of variant subgroup rather than ML prediction.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s43856-024-00472-4": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "AI-ECG hyperthyroidism detection/outcome — ECG signal is primary input modality, blurring into signal/imaging-primary; binary task framed but modality-primary status ambiguous.",
+      "discovery_flag_was": "ECG signal but task is binary risk classification"
+    },
+    "10.1038/s43856-026-01428-6": {
+      "verdict": "ACCEPT",
+      "reason": "Danish ED retrospective cohort predicting hospitalization-requiring adverse outcomes (binary) from acute biological age — tabular features, in-scope.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s43856-025-01292-w": {
+      "verdict": "ACCEPT",
+      "reason": "Hepatic encephalopathy risk via transparent dynamic network on retrospective at-risk cohort — binary risk endpoint on tabular EHR.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s43856-025-01057-5": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Title is 'comorbidities and hospitalization associated with PCC' — sounds associational rather than predictive ML; need to verify ML model with discrimination metrics.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s43856-025-00827-5": {
+      "verdict": "REJECT",
+      "reason": "Phenotype-discovery framing (identifying commonalities/differences between EHR representations) — descriptive computable phenotyping rather than supervised binary prediction with held-out outcome.",
+      "discovery_flag_was": "phenotype-discovery framing, not pure prognostic model"
+    },
+    "10.1038/s43856-026-01437-5": {
+      "verdict": "REJECT",
+      "reason": "cfDNA fragmentation profiling is explicitly listed under omics rejection criteria — even though tabular and binary, MLGG scope excludes cfDNA.",
+      "discovery_flag_was": "borderline omics-adjacent (cfDNA-derived features)"
+    },
+    "10.1038/s43856-026-01527-4": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Patient-reported symptoms predicting progression of chronic conditions — outcome could be ordinal/multi-class/time-to-event; binary framing unverified.",
+      "discovery_flag_was": "outcome could be ordinal; verify binary framing"
+    },
+    "10.1038/s43856-024-00590-z": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "DR/maculopathy prediction with both image-primary and tabular variants; need to verify which variant is primary and that tabular/multimodal version meets MLGG modality criteria.",
+      "discovery_flag_was": "image variant exists but tabular and multimodal models in scope"
+    },
+    "10.1038/s43856-025-00768-z": {
+      "verdict": "REJECT",
+      "reason": "Plasma p217+tau biomarker for AD PET staging — biomarker discovery / multi-class staging done as one-vs-rest; primary task is biomarker validation, not retrospective cohort binary prediction.",
+      "discovery_flag_was": "multi-class staging done as one-vs-rest binary; biomarker-focused"
+    },
+    "10.1038/s43856-026-01443-7": {
+      "verdict": "REJECT",
+      "reason": "Discovery hint says 'downstream uses competing-risk survival' and primary contribution is differential clinical outcomes via unsupervised phenotyping — survival-primary plus phenotyping.",
+      "discovery_flag_was": "downstream uses competing-risk survival; phenotyping step is binary classification"
+    },
+    "10.1038/s41467-020-18684-2": {
+      "verdict": "ACCEPT",
+      "reason": "Classic ML early warning system for COVID-19 mortality (binary) — retrospective cohort, tabular features, in-scope.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s41467-020-17804-2": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Acute coronary syndrome prediction from 12-lead ECG only — ECG signal is sole input modality, blurring into signal-primary; need clinician judgment on whether this falls within MLGG tabular scope.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s43856-021-00042-y": {
+      "verdict": "REJECT",
+      "reason": "Host methylation as primary feature — methylation is explicitly listed under omics rejection.",
+      "discovery_flag_was": "methylation features (omics) used as predictors; verify if also tabular clinical features included"
+    },
+    "10.1038/s43856-022-00094-8": {
+      "verdict": "ACCEPT",
+      "reason": "Personalized antibiograms with ML on EHR for antibiotic susceptibility; binary per-organism outcome — retrospective, tabular EHR, binary.",
+      "discovery_flag_was": "antibiotic susceptibility prediction from EHR; binary per-organism outcome"
+    },
+    "10.1038/s43856-022-00126-3": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Prostate biochemical recurrence prediction — discovery hint flags both potentially imaging-driven features and time-to-event framing; modality + endpoint ambiguous.",
+      "discovery_flag_was": "prostate biochemical recurrence; verify whether features are tabular clinico-pathologic vs imaging-driven; recurrence may be modeled as time-to-event"
+    },
+    "10.1038/s43856-021-00065-5": {
+      "verdict": "REJECT",
+      "reason": "Functional brain activity (fMRI) constrained by structural connectivity — imaging-primary modality.",
+      "discovery_flag_was": "functional brain activity features (imaging) plus serum biomarkers; may be imaging-primary"
+    },
+    "10.1038/s43856-022-00117-4": {
+      "verdict": "REJECT",
+      "reason": "Title explicitly 'predict time to treatment and death' — time-to-event survival as primary, MLGG rejects.",
+      "discovery_flag_was": "CLL trajectory predicting time to treatment/death; likely survival-flavored, verify a binary endpoint exists"
+    },
+    "10.1038/s41467-022-35157-w": {
+      "verdict": "REJECT",
+      "reason": "Causal inference for drug repurposing (metformin → dementia) — both causal inference (not predictive) and drug-discovery-adjacent rejections.",
+      "discovery_flag_was": "metformin repurposing in dementia; uses EHR causal inference; verify endpoint binary vs time-to-event"
+    },
+    "10.1038/s43856-022-00201-9": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "AI vs human prediction of long-term kidney allograft failure — 'long-term failure' commonly framed as survival/time-to-event; binary endpoint not confirmed.",
+      "discovery_flag_was": "long-term kidney outcome prediction; verify binary vs time-to-event"
+    },
+    "10.1038/s43856-022-00165-w": {
+      "verdict": "ACCEPT",
+      "reason": "Subpopulation-specific ML prognosis with bias correction emphasis — retrospective cohort mortality prediction with fairness focus; methodology-relevant in-scope.",
+      "discovery_flag_was": "mortality prognosis with bias correction emphasis; verify outcome is binary not survival"
+    },
+    "10.1038/s41467-023-39902-7": {
+      "verdict": "REJECT",
+      "reason": "Methods paper on shortcut learning detection demonstrated on radiology/dermatology imaging tasks — imaging-primary demonstration, no retrospective tabular cohort study.",
+      "discovery_flag_was": "Demonstration tasks include imaging (radiology/dermatology) but the paper's contribution is methodology not imaging-primary"
+    },
+    "10.1038/s43856-024-00726-1": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Pediatric post-spinal-surgery outcome prediction; outcome (SRS-22R) may be continuous/multi-class rather than binary, and radiographic features used as inputs blur modality.",
+      "discovery_flag_was": "Outcome may be multi-class/continuous SRS-22R rather than strictly binary; verify before extraction"
+    },
+    "10.1038/s41467-024-52003-3": {
+      "verdict": "REJECT",
+      "reason": "Chest x-ray AI race recognition / underdiagnosis bias mitigation — imaging-primary (CXR), no tabular cohort.",
+      "discovery_flag_was": "Imaging-primary (CXR) - borderline; included because focus is bias mitigation methodology not imaging model design"
+    },
+    "10.1038/s41467-020-19478-2": {
+      "verdict": "REJECT",
+      "reason": "Conceptual methodology paper on collider bias — no clinical cohort prediction model, falls under 'pure methods/theory without a clinical cohort'.",
+      "discovery_flag_was": "Conceptual paper rather than a single cohort prediction model; still extractable lessons for selection-bias gates"
+    },
+    "10.1038/s43856-025-00994-5": {
+      "verdict": "REJECT",
+      "reason": "Underlying TRIUMPH model is regularized Cox (survival/time-to-event) — primary task is survival prediction, MLGG rejects survival-primary.",
+      "discovery_flag_was": "Underlying model is regularized Cox (survival); but external-validation study itself is exactly the methodology pattern MLGG cares about"
+    },
+    "10.1038/s41467-021-22877-8": {
+      "verdict": "REJECT",
+      "reason": "Inputs are ECG/echo signals — signal/imaging-primary modality, falls under imaging rejection (echo without strong tabular fusion).",
+      "discovery_flag_was": "Inputs are ECG/echo signals (signal-primary not imaging-primary); rare-disease prevalence makes PPV/recall analysis especially gate-relevant"
+    },
+    "10.1038/s43856-022-00225-1": {
+      "verdict": "REJECT",
+      "reason": "Mixed-methods qualitative+quantitative ICU implementation barrier study with simulated drift experiments — methodology meta-paper, not a single cohort prediction study.",
+      "discovery_flag_was": "Hybrid qualitative+quantitative design; not a single binary cohort but uses multiple ICU prediction models as case studies"
+    },
+    "10.1038/s41467-025-67470-5": {
+      "verdict": "REJECT",
+      "reason": "Sociotechnical simulation study — MLGG scope explicitly rejects 'pure methods / simulation / theory without a clinical cohort'.",
+      "discovery_flag_was": "Simulation-based - borderline per scope (rejects pure simulation), but grounded in real binary screening task and answers the deployment-fairness question MLGG fairness gate cares about"
+    }
+  },
+  "summary": {
+    "accept": 20,
+    "reject": 32,
+    "needs_review": 20
+  },
+  "override_count": 5
+}

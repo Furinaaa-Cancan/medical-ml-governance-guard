@@ -1,0 +1,149 @@
+{
+  "agent": "agent-2-nc-2023-2024-icu",
+  "scope": "Nature Communications 2023-2024 ICU/sepsis/mortality binary prediction",
+  "ran_at_utc": "2026-05-16T01:23:20Z",
+  "queries_tried": [
+    "ICU mortality prediction",
+    "sepsis early prediction",
+    "acute kidney injury prediction",
+    "emergency department triage machine learning",
+    "inpatient deterioration prediction",
+    "hospital mortality cohort",
+    "cardiac arrest prediction machine learning",
+    "transfusion prediction",
+    "readmission prediction EHR",
+    "MIMIC intensive care",
+    "clinical deterioration early warning",
+    "electronic health records prediction model",
+    "ICU time series deep learning",
+    "ARDS respiratory failure prediction",
+    "critical care risk stratification"
+  ],
+  "raw_openalex_counts": {
+    "q1_icu_mortality": 39,
+    "q2_sepsis": 89,
+    "q3_aki": 128,
+    "q4_ed_triage": 6,
+    "q5_deterioration": 7,
+    "q6_hosp_mort": 492,
+    "q7_cardiac": 12,
+    "q8_transfusion": 36,
+    "q9_readmit": 1,
+    "q10_mimic": 84,
+    "q11_ews": 5,
+    "q12_ehr": 220,
+    "q13_icu_ts": 12,
+    "q14_ards": 12,
+    "q15_crit_strat": 149
+  },
+  "candidates": [
+    {
+      "doi": "10.1038/s41467-023-37996-7",
+      "title": "A machine learning model identifies patients in need of autoimmune disease testing using electronic health records",
+      "journal": "Nature Communications",
+      "year": 2023,
+      "openalex_id": "https://openalex.org/W4366983170",
+      "scope_hint": "ML on longitudinal EHR (161,584 individuals) identifying patients needing autoimmune disease testing; binary classification with external validation",
+      "out_of_scope_risk": "Binary outcome is need-for-test rather than acute deterioration; arguably borderline acute-care"
+    },
+    {
+      "doi": "10.1038/s41467-023-38756-3",
+      "title": "Evidence-driven spatiotemporal COVID-19 hospitalization prediction with Ising dynamics",
+      "journal": "Nature Communications",
+      "year": 2023,
+      "openalex_id": "https://openalex.org/W4378714371",
+      "scope_hint": "HOIST Ising-dynamics deep learning predicting county-level COVID-19 hospitalization counts using insurance claims, census, hospital data",
+      "out_of_scope_risk": "Outcome is count regression at county level not patient-level binary; likely OUT OF SCOPE"
+    },
+    {
+      "doi": "10.1038/s41467-023-41541-x",
+      "title": "Predictors of the post-COVID condition following mild SARS-CoV-2 infection",
+      "journal": "Nature Communications",
+      "year": 2023,
+      "openalex_id": "https://openalex.org/W4386889256",
+      "scope_hint": "Norwegian register data of 214,667 SARS-CoV-2 infected individuals predicting post-COVID condition >=3 months post-test",
+      "out_of_scope_risk": "Outcome is post-COVID at >=3mo, not acute deterioration; descriptive risk factor analysis not full ML"
+    },
+    {
+      "doi": "10.1038/s41467-023-42205-6",
+      "title": "Evaluation of pragmatic oxygenation measurement as a proxy for Covid-19 severity",
+      "journal": "Nature Communications",
+      "year": 2023,
+      "openalex_id": "https://openalex.org/W4388704575",
+      "scope_hint": "Observational cohort of 39,765 hospitalised COVID-19 patients evaluating modified oxygenation index as predictor of mortality (binary)",
+      "out_of_scope_risk": "Methodology paper on outcome measure; predictive modelling component is limited"
+    },
+    {
+      "doi": "10.1038/s41467-023-43929-1",
+      "title": "High-throughput target trial emulation for Alzheimer’s disease drug repurposing with real-world data",
+      "journal": "Nature Communications",
+      "year": 2023,
+      "openalex_id": "https://openalex.org/W4389549989",
+      "scope_hint": "Target trial emulation framework on real-world EHR (170M patients) for Alzheimer drug repurposing with confounding control",
+      "out_of_scope_risk": "Causal inference on treatment effects, not predictive modeling; likely OUT OF SCOPE"
+    },
+    {
+      "doi": "10.1038/s41467-023-44266-z",
+      "title": "Amino acid catabolite markers for early prognostication of pneumonia in patients with COVID-19",
+      "journal": "Nature Communications",
+      "year": 2023,
+      "openalex_id": "https://openalex.org/W4390002487",
+      "scope_hint": "Serum metabolome of 83 COVID-19 patients identifying amino acid catabolite markers for early prognosis of severity",
+      "out_of_scope_risk": "Small N omics-driven biomarker discovery; not retrospective EHR cohort ML"
+    },
+    {
+      "doi": "10.1038/s41467-023-44231-w",
+      "title": "Quick model-based viscoelastic clot strength predictions from blood protein concentrations for cybermedical coagulation control",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "openalex_id": "https://openalex.org/W4390617103",
+      "scope_hint": "Personalized phenomenological models predicting TEG viscoelastic clot strength from blood protein concentrations for ICU/sepsis/surgery cohorts",
+      "out_of_scope_risk": "Outputs are continuous TEG curves not binary; likely OUT OF SCOPE for binary prediction"
+    },
+    {
+      "doi": "10.1038/s41467-024-44740-2",
+      "title": "Personalising intravenous to oral antibiotic switch decision making through fair interpretable machine learning",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "openalex_id": "https://openalex.org/W4390839094",
+      "scope_hint": "Interpretable ML on 10,362 ICU stays from MIMIC predicting IV-to-oral antibiotic switch (binary clinical decision) using routine clinical parameters",
+      "out_of_scope_risk": "Binary endpoint is decision-support not deterioration; verify framed as binary classification"
+    },
+    {
+      "doi": "10.1038/s41467-024-45777-z",
+      "title": "Data encoding for healthcare data democratization and information leakage prevention",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "openalex_id": "https://openalex.org/W4392014131",
+      "scope_hint": "Data encoding via random projection / quantum encoding for healthcare deep learning to prevent leakage; demonstrated on clinical models",
+      "out_of_scope_risk": "Methods paper on privacy/leakage; relevant to MLGG leakage theme but not a clinical prediction cohort study"
+    },
+    {
+      "doi": "10.1038/s41467-024-48713-3",
+      "title": "Unveiling unique clinical phenotypes of hip fracture patients and the temporal association with cardiovascular events",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "openalex_id": "https://openalex.org/W4398208395",
+      "scope_hint": "Latent class analysis on 78,417 hip fracture patients to identify subphenotypes and predict major adverse cardiovascular events; HK + UK cohorts",
+      "out_of_scope_risk": "Survival/hazard ratio framing for some outcomes; LCA not standard prediction; verify binary endpoint"
+    },
+    {
+      "doi": "10.1038/s41467-024-48825-w",
+      "title": "Acute and post-acute respiratory complications of SARS-CoV-2 infection: population-based cohort study in South Korea and Japan",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "openalex_id": "https://openalex.org/W4399055214",
+      "scope_hint": "Population-based propensity-matched cohort (Korean K-COV-N 2.3M + Japanese JMDC 3.1M) for SARS-CoV-2 acute respiratory complications",
+      "out_of_scope_risk": "Risk-of-outcome epidemiology with propensity matching; not classic ML prediction model; borderline"
+    },
+    {
+      "doi": "10.1038/s41467-024-50199-y",
+      "title": "GLP-1 receptor agonists’ impact on cardio-renal outcomes and mortality in T2D with acute kidney disease",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "openalex_id": "https://openalex.org/W4400602260",
+      "scope_hint": "Propensity-matched retrospective cohort (TriNetX, 165k AKD patients) on GLP-1 RAs vs none; outcomes mortality/MACE/MAKE",
+      "out_of_scope_risk": "Causal inference / treatment effect study, not predictive ML; likely OUT OF SCOPE"
+    }
+  ]
+}

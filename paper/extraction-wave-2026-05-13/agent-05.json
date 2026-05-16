@@ -1,0 +1,116 @@
+{
+  "agent": "extract-05-redo",
+  "ran_at_utc": "2026-05-16T04:55:08Z",
+  "worklist_size": 10,
+  "scope_policy": "strict (per CLAUDE.md: retrospective + binary + tabular EHR/registry; reject omics-primary, imaging-primary, drug discovery, single-cell, methylation/cfDNA, multi-omics)",
+  "workflow_note": "Title-based scope check applied first to avoid the 32MB PDF-read crash from prior batch-05. All 10 titles clearly indicated out-of-scope modalities; no PDFs were read.",
+  "papers_processed": [
+    {
+      "paper_id": "PR-EXP-0129",
+      "paper_doi": "10.1038/s41467-022-35696-2",
+      "extraction_status": "OUT_OF_SCOPE_ON_RECHECK",
+      "review_rounds_observed": 0,
+      "reviewer_count_observed": 0,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "extraction_notes": "Title: 'Rapid, label-free histopathological diagnosis of liver cancer based on Raman spectroscopy and deep learning'. Primary data is Raman spectroscopy + histopathology imaging, deep-learning classification on spectral/image data, not tabular EHR/registry. Outside MLGG scope (imaging/spectroscopy-primary). PDF not read."
+    },
+    {
+      "paper_id": "PR-EXP-0130",
+      "paper_doi": "10.1038/s41467-023-35832-6",
+      "extraction_status": "OUT_OF_SCOPE_ON_RECHECK",
+      "review_rounds_observed": 0,
+      "reviewer_count_observed": 0,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "extraction_notes": "Title: 'Single-cell analysis reveals prognostic fibroblast subpopulations linked to molecular and immunological subtypes of lung cancer'. Primary modality is scRNA-seq single-cell omics. Outside MLGG scope (single-cell omics-primary; CLAUDE.md routes omics to Scanpy/limma/PLINK). PDF not read."
+    },
+    {
+      "paper_id": "PR-EXP-0131",
+      "paper_doi": "10.1038/s41467-023-37173-w",
+      "extraction_status": "OUT_OF_SCOPE_ON_RECHECK",
+      "review_rounds_observed": 0,
+      "reviewer_count_observed": 0,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "extraction_notes": "Title: 'Clinical and genetic associations of deep learning-derived cardiac magnetic resonance-based left ventricular mass'. Primary input is cardiac MR imaging with deep-learning-derived phenotype; downstream genetic associations are GWAS-style. Outside MLGG scope (imaging-primary + genetic associations, not binary tabular prediction). PDF not read."
+    },
+    {
+      "paper_id": "PR-EXP-0132",
+      "paper_doi": "10.1038/s41467-023-37572-z",
+      "extraction_status": "OUT_OF_SCOPE_ON_RECHECK",
+      "review_rounds_observed": 0,
+      "reviewer_count_observed": 0,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "extraction_notes": "Title: 'Improving the generalizability of protein-ligand binding predictions with AI-Bind'. This is drug-discovery / molecular-interaction ML, not retrospective clinical-outcome prediction. Outside MLGG scope (drug discovery / protein interaction). PDF not read."
+    },
+    {
+      "paper_id": "PR-EXP-0135",
+      "paper_doi": "10.1038/s41467-023-38104-5",
+      "extraction_status": "OUT_OF_SCOPE_ON_RECHECK",
+      "review_rounds_observed": 0,
+      "reviewer_count_observed": 0,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "extraction_notes": "Title: 'Sample-to-answer platform for the clinical evaluation of COVID-19 using a deep learning-assisted smartphone-based assay'. Primary input is smartphone-captured colorimetric assay images classified by a deep-learning vision model. Outside MLGG scope (imaging-primary point-of-care assay; not tabular EHR/registry). PDF not read."
+    },
+    {
+      "paper_id": "PR-EXP-0139",
+      "paper_doi": "10.1038/s41467-023-41434-z",
+      "extraction_status": "OUT_OF_SCOPE_ON_RECHECK",
+      "review_rounds_observed": 0,
+      "reviewer_count_observed": 0,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "extraction_notes": "Title: 'Detection of diagnostic and prognostic methylation-based signatures in liquid biopsy specimens from patients with meningiomas'. Primary modality is cfDNA methylation signatures. Outside MLGG scope (cfDNA methylation / liquid-biopsy omics; CLAUDE.md explicitly excludes methylation and cfDNA). PDF not read."
+    },
+    {
+      "paper_id": "PR-EXP-0142",
+      "paper_doi": "10.1038/s41467-023-42396-y",
+      "extraction_status": "OUT_OF_SCOPE_ON_RECHECK",
+      "review_rounds_observed": 0,
+      "reviewer_count_observed": 0,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "extraction_notes": "Title: 'Automatic correction of performance drift under acquisition shift in medical image classification'. Methods paper on imaging classifier drift correction; primary domain is medical imaging (chest X-ray per metadata). Outside MLGG scope (imaging-primary). PDF not read."
+    },
+    {
+      "paper_id": "PR-EXP-0144",
+      "paper_doi": "10.1038/s41467-023-42811-4",
+      "extraction_status": "OUT_OF_SCOPE_ON_RECHECK",
+      "review_rounds_observed": 0,
+      "reviewer_count_observed": 0,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "extraction_notes": "Title: 'PET/CT based cross-modal deep learning signature to predict occult nodal metastasis in lung cancer'. Primary modality is PET/CT imaging via cross-modal deep learning; clinical features are auxiliary. Outside MLGG scope (PET/CT imaging-primary). PDF not read."
+    },
+    {
+      "paper_id": "PR-EXP-0145",
+      "paper_doi": "10.1038/s41467-023-43172-8",
+      "extraction_status": "OUT_OF_SCOPE_ON_RECHECK",
+      "review_rounds_observed": 0,
+      "reviewer_count_observed": 0,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "extraction_notes": "Title: 'Deep learning of cell spatial organizations identifies clinically relevant insights in tissue images'. Primary modality is histopathology whole-slide images of cell spatial organization. Outside MLGG scope (histopathology imaging-primary). PDF not read."
+    },
+    {
+      "paper_id": "PR-EXP-0146",
+      "paper_doi": "10.1038/s41467-023-43249-4",
+      "extraction_status": "OUT_OF_SCOPE_ON_RECHECK",
+      "review_rounds_observed": 0,
+      "reviewer_count_observed": 0,
+      "reviewer_concerns": [],
+      "reviewer_strengths": [],
+      "extraction_notes": "Title: 'Comprehensive analysis reveals potential therapeutic targets and an integrated risk stratification model for solitary fibrous tumors'. Metadata states data_type=tabular_clinical_multiomics; integrated risk-stratification model is multi-omics + clinical, not pure tabular EHR. Outside MLGG scope (multi-omics integration; CLAUDE.md routes omics elsewhere). PDF not read."
+    }
+  ],
+  "summary": {
+    "EXTRACTED": 0,
+    "OUT_OF_SCOPE_ON_RECHECK": 10,
+    "NO_PEER_REVIEW_TEXT": 0,
+    "PDF_ERROR": 0,
+    "total_concerns": 0
+  }
+}

@@ -1,0 +1,229 @@
+{
+  "agent": "agent-5-high-citation",
+  "scope": "NC+CM 2020-2024 cited_by_count >= 30 \u2014 well-validated papers",
+  "ran_at_utc": "2026-05-16T02:21:43Z",
+  "queries_tried": [
+    "clinical prediction model",
+    "risk score machine learning",
+    "electronic health record prediction",
+    "external validation clinical",
+    "cohort study prediction",
+    "binary outcome machine learning",
+    "mortality prediction model",
+    "risk stratification",
+    "deep learning clinical risk",
+    "hospital readmission prediction",
+    "sepsis prediction",
+    "acute kidney injury prediction",
+    "diabetes prediction model",
+    "cardiovascular risk prediction",
+    "heart failure prediction",
+    "ICU prediction model",
+    "in-hospital mortality",
+    "30-day readmission",
+    "machine learning clinical outcome",
+    "boosting clinical prediction"
+  ],
+  "candidates": [
+    {
+      "doi": "10.1038/s41467-022-30836-0",
+      "title": "Long COVID burden and risk factors in 10 UK longitudinal studies and electronic health records",
+      "journal": "Nature Communications",
+      "year": 2022,
+      "cited_by_count": 558,
+      "openalex_id": "https://openalex.org/W4283646787",
+      "scope_hint": "10 UK longitudinal studies + EHR \u2014 long COVID risk factors (binary endpoint), tabular features",
+      "out_of_scope_risk": "long-COVID definition variability"
+    },
+    {
+      "doi": "10.1038/s41467-020-19623-x",
+      "title": "Associations between blood type and COVID-19 infection, intubation, and death",
+      "journal": "Nature Communications",
+      "year": 2020,
+      "cited_by_count": 467,
+      "openalex_id": "https://openalex.org/W3105088458",
+      "scope_hint": "population cohort (NYC) - blood type vs COVID-19 infection/intubation/death binary endpoints; tabular EHR features",
+      "out_of_scope_risk": "large effects but multiple binary endpoints"
+    },
+    {
+      "doi": "10.1038/s41467-022-29521-z",
+      "title": "Persistent COVID-19 symptoms in a community study of 606,434 people in England",
+      "journal": "Nature Communications",
+      "year": 2022,
+      "cited_by_count": 433,
+      "openalex_id": "https://openalex.org/W4223577665",
+      "scope_hint": "REACT-2 community survey 606k people - persistent COVID symptoms (binary); tabular",
+      "out_of_scope_risk": "community-survey-based long-COVID"
+    },
+    {
+      "doi": "10.1038/s41467-021-26513-3",
+      "title": "Burdens of post-acute sequelae of COVID-19 by severity of acute infection, demographics and health status",
+      "journal": "Nature Communications",
+      "year": 2021,
+      "cited_by_count": 326,
+      "openalex_id": "https://openalex.org/W3212377033",
+      "scope_hint": "VA EHR cohort 181k COVID + 4.4M controls - post-acute sequelae burden (binary outcomes per condition)",
+      "out_of_scope_risk": "multi-outcome PASC"
+    },
+    {
+      "doi": "10.1038/s41467-021-21553-1",
+      "title": "Association between antecedent statin use and decreased mortality in hospitalized patients with COVID-19",
+      "journal": "Nature Communications",
+      "year": 2021,
+      "cited_by_count": 193,
+      "openalex_id": "https://openalex.org/W3132610875",
+      "scope_hint": "EHR cohort with antecedent statin use vs in-hospital COVID mortality (binary); logistic regression with propensity scoring",
+      "out_of_scope_risk": "propensity-scoring/causal flavor"
+    },
+    {
+      "doi": "10.1038/s41467-023-38388-7",
+      "title": "Long COVID risk and pre-COVID vaccination in an EHR-based cohort study from the RECOVER program",
+      "journal": "Nature Communications",
+      "year": 2023,
+      "cited_by_count": 131,
+      "openalex_id": "https://openalex.org/W4377238990",
+      "scope_hint": "EHR cohort study RECOVER \u2014 long COVID risk and pre-COVID vaccination (binary long-COVID outcome)",
+      "out_of_scope_risk": "long-COVID outcome may be heterogenous"
+    },
+    {
+      "doi": "10.1038/s41467-024-48780-6",
+      "title": "Associations of semaglutide with incidence and recurrence of alcohol use disorder in real-world population",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "cited_by_count": 116,
+      "openalex_id": "https://openalex.org/W4399113868",
+      "scope_hint": "real-world EHR cohort \u2014 semaglutide and alcohol use disorder incidence/recurrence (binary)",
+      "out_of_scope_risk": "pharmacoepidemiology / target trial emulation flavor"
+    },
+    {
+      "doi": "10.1038/s41467-022-31401-5",
+      "title": "Age and sex-specific risks of myocarditis and pericarditis following Covid-19 messenger RNA vaccines",
+      "journal": "Nature Communications",
+      "year": 2022,
+      "cited_by_count": 113,
+      "openalex_id": "https://openalex.org/W4283514019",
+      "scope_hint": "nationwide French cohort \u2014 myocarditis/pericarditis after mRNA COVID vaccines (binary outcomes); age/sex risk stratification",
+      "out_of_scope_risk": "vaccine safety; case-control flavor"
+    },
+    {
+      "doi": "10.1038/s41467-021-22214-z",
+      "title": "Hospital load and increased COVID-19 related mortality in Israel",
+      "journal": "Nature Communications",
+      "year": 2021,
+      "cited_by_count": 108,
+      "openalex_id": "https://openalex.org/W3139304239",
+      "scope_hint": "retrospective EHR study Israel hospital load vs in-hospital COVID mortality (binary)",
+      "out_of_scope_risk": "COVID-specific; mortality endpoint"
+    },
+    {
+      "doi": "10.1038/s41467-020-20246-5",
+      "title": "Disease risk scores for skin cancers",
+      "journal": "Nature Communications",
+      "year": 2021,
+      "cited_by_count": 103,
+      "openalex_id": "https://openalex.org/W3120489956",
+      "scope_hint": "risk-prediction models for skin cancer (BCC, SCC, melanoma) \u2014 tabular survey features, binary outcome per cancer type, 210k participants",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s41467-020-16378-3",
+      "title": "Inferring multimodal latent topics from electronic health records",
+      "journal": "Nature Communications",
+      "year": 2020,
+      "cited_by_count": 76,
+      "openalex_id": "https://openalex.org/W3027889410",
+      "scope_hint": "multimodal topic model for disease-risk prediction from EHR (tabular structured data)",
+      "out_of_scope_risk": "methods-oriented but applied to EHR risk prediction"
+    },
+    {
+      "doi": "10.1038/s41467-022-28248-1",
+      "title": "A population-based cohort study of obesity, ethnicity and COVID-19 mortality in 12.6 million adults in England",
+      "journal": "Nature Communications",
+      "year": 2022,
+      "cited_by_count": 62,
+      "openalex_id": "https://openalex.org/W4210603625",
+      "scope_hint": "population-based cohort 12.6M adults England - obesity/ethnicity vs COVID-19 mortality (binary); tabular features",
+      "out_of_scope_risk": "COVID-19 outcome - epidemiology heavy"
+    },
+    {
+      "doi": "10.1038/s41467-021-25402-z",
+      "title": "A comprehensive risk score for effective risk stratification and screening of nasopharyngeal carcinoma",
+      "journal": "Nature Communications",
+      "year": 2021,
+      "cited_by_count": 52,
+      "openalex_id": "https://openalex.org/W3198446910",
+      "scope_hint": "comprehensive risk score for NPC screening combining EBV + genetic features \u2014 binary screening risk stratification",
+      "out_of_scope_risk": "mixes serologic+genetic features"
+    },
+    {
+      "doi": "10.1038/s43856-021-00006-2",
+      "title": "Analysis of sex-specific risk factors and clinical outcomes in COVID-19",
+      "journal": "Communications Medicine",
+      "year": 2021,
+      "cited_by_count": 47,
+      "openalex_id": "https://openalex.org/W3175047617",
+      "scope_hint": "COVID-19 hospital cohort 4930 patients \u2014 sex-specific clinical risk factors and outcomes (binary mortality/ICU)",
+      "out_of_scope_risk": "COVID hospital cohort"
+    },
+    {
+      "doi": "10.1038/s41467-022-29880-7",
+      "title": "Trends and associated factors for Covid-19 hospitalisation and fatality risk in 2.3 million adults in England",
+      "journal": "Nature Communications",
+      "year": 2022,
+      "cited_by_count": 46,
+      "openalex_id": "https://openalex.org/W4225256923",
+      "scope_hint": "EHR cohort 2.3M adults England \u2014 COVID hospitalisation/fatality binary risk; tabular",
+      "out_of_scope_risk": "COVID epi-flavored"
+    },
+    {
+      "doi": "10.1038/s41467-021-27215-6",
+      "title": "Risk-stratification of febrile African children at risk of sepsis using sTREM-1 as basis for a rapid triage test",
+      "journal": "Nature Communications",
+      "year": 2021,
+      "cited_by_count": 38,
+      "openalex_id": "https://openalex.org/W3169875547",
+      "scope_hint": "sepsis risk stratification of febrile children using sTREM-1 biomarker \u2014 binary outcome (sepsis/mortality)",
+      "out_of_scope_risk": "single biomarker focus"
+    },
+    {
+      "doi": "10.1038/s41467-022-32458-y",
+      "title": "Trends in COVID-19 hospital outcomes in England before and after vaccine introduction, a cohort study",
+      "journal": "Nature Communications",
+      "year": 2022,
+      "cited_by_count": 38,
+      "openalex_id": "https://openalex.org/W4292099413",
+      "scope_hint": "COVID hospital outcomes cohort England \u2014 mortality trends pre/post vaccination (binary mortality)",
+      "out_of_scope_risk": "COVID hospital cohort"
+    },
+    {
+      "doi": "10.1038/s43856-022-00071-1",
+      "title": "Development and preliminary validation of a machine learning system for thyroid dysfunction diagnosis based on routine laboratory tests",
+      "journal": "Communications Medicine",
+      "year": 2022,
+      "cited_by_count": 37,
+      "openalex_id": "https://openalex.org/W4205765115",
+      "scope_hint": "ML system for thyroid dysfunction diagnosis from routine labs \u2014 tabular, binary diagnosis",
+      "out_of_scope_risk": ""
+    },
+    {
+      "doi": "10.1038/s41467-022-33740-9",
+      "title": "Hospitalisation and mortality risk of SARS-COV-2 variant omicron sub-lineage BA.2 compared to BA.1 in England",
+      "journal": "Nature Communications",
+      "year": 2022,
+      "cited_by_count": 37,
+      "openalex_id": "https://openalex.org/W4304957710",
+      "scope_hint": "retrospective EHR cohort England \u2014 hospitalisation/mortality risk for Omicron BA.2 vs BA.1 (binary)",
+      "out_of_scope_risk": "COVID variant comparison"
+    },
+    {
+      "doi": "10.1038/s41467-024-47745-z",
+      "title": "Safety outcomes following COVID-19 vaccination and infection in 5.1 million children in England",
+      "journal": "Nature Communications",
+      "year": 2024,
+      "cited_by_count": 33,
+      "openalex_id": "https://openalex.org/W4399047468",
+      "scope_hint": "self-controlled case-series 5.1M children England \u2014 COVID vaccine vs infection safety outcomes (binary)",
+      "out_of_scope_risk": "self-controlled case-series methodology"
+    }
+  ]
+}

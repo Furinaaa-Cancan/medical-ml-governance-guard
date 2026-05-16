@@ -1,0 +1,142 @@
+{
+  "agent": "qc-02",
+  "ran_at_utc": "2026-05-16T00:00:00Z",
+  "papers_checked": [
+    {
+      "paper_id": "PR-EXP-0106",
+      "concerns_spot_checked": ["PR-EXP-0106-C01", "PR-EXP-0106-C02", "PR-EXP-0106-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0106-C01", "verdict": "PASS", "note": "Concern text matches R1 major issue #6 verbatim; author response (disease-free baseline confirmed) plausible per Methods reference."},
+        {"concern_id": "PR-EXP-0106-C02", "verdict": "PASS", "note": "Verbatim match to R1 major issue #5."},
+        {"concern_id": "PR-EXP-0106-C03", "verdict": "PASS", "note": "Verbatim match to R1 major issue #7."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0109",
+      "concerns_spot_checked": ["PR-EXP-0109-C01", "PR-EXP-0109-C02", "PR-EXP-0109-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0109-C01", "verdict": "NEEDS_REVISION", "note": "Concern text verbatim. But author_response says 'removed CHD screening claims' — PDF rebuttal actually defends screening framing ('inclusion of such data partially demonstrates the potential of the model for CHD screening'). Response paraphrase overstates concession."},
+        {"concern_id": "PR-EXP-0109-C02", "verdict": "PASS", "note": "Verbatim match to R1 comment #2; response (ESC guideline citation) confirmed in PDF."},
+        {"concern_id": "PR-EXP-0109-C03", "verdict": "PASS", "note": "Verbatim match to R1 comment #5 (calibration)."}
+      ],
+      "overall_paper_quality": "ACCEPTABLE_WITH_FIXES"
+    },
+    {
+      "paper_id": "PR-EXP-0110",
+      "concerns_spot_checked": ["PR-EXP-0110-C01", "PR-EXP-0110-C02", "PR-EXP-0110-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0110-C01", "verdict": "PASS", "note": "Verbatim match to R1 first specific comment about LV pathology vs CTRCD prediction; response (transfer learning to AI-CTRCD) confirmed."},
+        {"concern_id": "PR-EXP-0110-C02", "verdict": "PASS", "note": "Concern paraphrases R1 second comment about post-chemo ECG detection; reasonably accurate (minor compression of resource-constraint phrasing)."},
+        {"concern_id": "PR-EXP-0110-C03", "verdict": "PASS", "note": "Verbatim match to R1 third comment; Keio collaboration response plausible."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0111",
+      "concerns_spot_checked": ["PR-EXP-0111-C01", "PR-EXP-0111-C02", "PR-EXP-0111-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0111-C01", "verdict": "PASS", "note": "Verbatim match to R2 comment on repeat-prompt consistency."},
+        {"concern_id": "PR-EXP-0111-C02", "verdict": "PASS", "note": "Verbatim match to R2 comment on trial-vs-real-world data."},
+        {"concern_id": "PR-EXP-0111-C03", "verdict": "PASS", "note": "Verbatim match to R2 comment on Figure 2 legibility/text format."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0112",
+      "concerns_spot_checked": ["PR-EXP-0112-C01", "PR-EXP-0112-C02", "PR-EXP-0112-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0112-C01", "verdict": "PASS", "note": "Verbatim match to R1 major comment #1 about Multi-Domain Sentiment dataset."},
+        {"concern_id": "PR-EXP-0112-C02", "verdict": "PASS", "note": "Verbatim match to R1 major comment #2 about SUDO corner cases."},
+        {"concern_id": "PR-EXP-0112-C03", "verdict": "PASS", "note": "Verbatim match to R2 major comment (1) about lit review gaps."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0119",
+      "concerns_spot_checked": ["PR-EXP-0119-C01", "PR-EXP-0119-C02", "PR-EXP-0119-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0119-C01", "verdict": "PASS", "note": "Verbatim match to R1 Weakness bullet #2 on demographics/bias."},
+        {"concern_id": "PR-EXP-0119-C02", "verdict": "PASS", "note": "Verbatim match to R1 Detailed Comment #3 on diagnosis reliability/delayed visit."},
+        {"concern_id": "PR-EXP-0119-C03", "verdict": "PASS", "note": "Verbatim match to R1 Detailed Comment #5 on evaluator count/blinding."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0124",
+      "concerns_spot_checked": ["PR-EXP-0124-C01", "PR-EXP-0124-C02", "PR-EXP-0124-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0124-C01", "verdict": "PASS", "note": "Verbatim match to R1 gold-standard paragraph; response on Limitations section confirmed."},
+        {"concern_id": "PR-EXP-0124-C02", "verdict": "PASS", "note": "Verbatim match to R1 reviewer-detail question; response (resident, 2y postgrad training) verbatim confirmed."},
+        {"concern_id": "PR-EXP-0124-C03", "verdict": "PASS", "note": "Verbatim match to R1 sensitivity/precision paragraph; response (bootstrapped 95% CIs) verbatim confirmed."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0126",
+      "concerns_spot_checked": ["PR-EXP-0126-C01", "PR-EXP-0126-C02", "PR-EXP-0126-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0126-C01", "verdict": "PASS", "note": "Verbatim match to R1 Q1; response (sensitivity analysis with 1/3 and 2/3 features; LightGBM internal selection) verbatim confirmed."},
+        {"concern_id": "PR-EXP-0126-C02", "verdict": "PASS", "note": "Verbatim match to R1 Q2; response (LightGBM vs XGBoost vs random forest sensitivity analysis) verbatim confirmed."},
+        {"concern_id": "PR-EXP-0126-C03", "verdict": "PASS", "note": "Verbatim match to R1 Q3; response (GridSearchCV for boosting_type and num_leaves) confirmed."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0127",
+      "concerns_spot_checked": ["PR-EXP-0127-C01", "PR-EXP-0127-C02", "PR-EXP-0127-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0127-C01", "verdict": "PASS", "note": "Verbatim match to R2 paragraph on Duke cohort performance; response plausible (external cohort expansion)."},
+        {"concern_id": "PR-EXP-0127-C02", "verdict": "PASS", "note": "Verbatim match to R2 paragraph on MRP toxicity/surgery claims."},
+        {"concern_id": "PR-EXP-0127-C03", "verdict": "PASS", "note": "Verbatim match to R3 Weakness #1 on Duke external dataset scope."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0147",
+      "concerns_spot_checked": ["PR-EXP-0147-C01", "PR-EXP-0147-C02", "PR-EXP-0147-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0147-C01", "verdict": "PASS", "note": "Verbatim match to R1 paragraph on healthy-control age/BMI/sex matching; response (subgroup analyses within HC, but actual case-control not matched) accurately reflects rebuttal."},
+        {"concern_id": "PR-EXP-0147-C02", "verdict": "PASS", "note": "Verbatim match to R1 paragraph on MS raw data normalization; response (smoothing/baseline/alignment/TIC + flowchart Fig R1-2) verbatim confirmed."},
+        {"concern_id": "PR-EXP-0147-C03", "verdict": "PASS", "note": "Verbatim match to R3 paragraph on SVM higher-order terms; resolved=null accurately reflects that classifier was not retrained on 8 metabolites."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0148",
+      "concerns_spot_checked": ["PR-EXP-0148-C01", "PR-EXP-0148-C02", "PR-EXP-0148-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0148-C01", "verdict": "PASS", "note": "Concatenates two adjacent R1 paragraphs (threshold cherry-picking + Table 1 operating point); both verbatim in PDF; merge is editorially reasonable."},
+        {"concern_id": "PR-EXP-0148-C02", "verdict": "PASS", "note": "Verbatim match to R1 paragraph on source code/Campanella reference."},
+        {"concern_id": "PR-EXP-0148-C03", "verdict": "PASS", "note": "Verbatim match to R1 paragraph on MI-CLAIM/TRIPOD-ML reporting guidelines."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0149",
+      "concerns_spot_checked": ["PR-EXP-0149-C01", "PR-EXP-0149-C02", "PR-EXP-0149-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0149-C01", "verdict": "PASS", "note": "Verbatim match to R2 'Radiological assessment' line; response (SNUH bacteriologically-confirmed cohort) verbatim confirmed in general comments."},
+        {"concern_id": "PR-EXP-0149-C02", "verdict": "PASS", "note": "Verbatim match to R2 'Figure-4, 5, and 8' line; 95% CI error bars confirmed."},
+        {"concern_id": "PR-EXP-0149-C03", "verdict": "PASS", "note": "Verbatim match to R2 reference-standards paragraph."}
+      ],
+      "overall_paper_quality": "GOOD"
+    },
+    {
+      "paper_id": "PR-EXP-0150",
+      "concerns_spot_checked": ["PR-EXP-0150-C01", "PR-EXP-0150-C02", "PR-EXP-0150-C03"],
+      "verdicts": [
+        {"concern_id": "PR-EXP-0150-C01", "verdict": "PASS", "note": "Verbatim match to R2 paragraph on 700 heterogeneous datasets; response (ComBat batch correction, Supp Fig 27/28) plausible."},
+        {"concern_id": "PR-EXP-0150-C02", "verdict": "PASS", "note": "Verbatim match to R2 paragraph on RECIST/SD/PD/OS; resolved=null honest (response not visible in pages read)."},
+        {"concern_id": "PR-EXP-0150-C03", "verdict": "PASS", "note": "Verbatim match to R4 Performance paragraph; Reviewer #4 attribution confirmed against PDF."}
+      ],
+      "overall_paper_quality": "GOOD"
+    }
+  ],
+  "summary": {
+    "total_concerns_spot_checked": 39,
+    "pass": 38,
+    "needs_revision": 1,
+    "hallucination": 0
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "agent": "agent-1-nc-2025-2026-r2",
+  "scope": "Nature Communications 2025-2026, NEW angles vs round 1 (delirium, postop, SSI, med ADE, diabetes complications, kidney tx, LOS, neonatal sepsis, psych readmission, pressure ulcer, opioid, perioperative)",
+  "ran_at_utc": "2026-05-16T02:16:55.322710+00:00",
+  "queries_tried": [
+    "delirium prediction inpatient",
+    "postoperative complication prediction",
+    "surgical site infection prediction",
+    "medication adverse event prediction",
+    "diabetes complication prediction",
+    "kidney transplant outcome prediction",
+    "length of stay prediction hospital",
+    "neonatal sepsis prediction",
+    "psychiatric readmission risk",
+    "pressure ulcer prediction",
+    "opioid overdose risk prediction",
+    "perioperative risk prediction model"
+  ],
+  "candidates": [
+    {
+      "doi": "10.1038/s41467-026-73021-3",
+      "title": "Clinically-applicable prediction of hospital stay and patient similarity retrieval in paediatric cardiology using machine learning",
+      "journal": "Nature Communications",
+      "year": 2026,
+      "openalex_id": "https://openalex.org/W7161042149",
+      "scope_hint": "Pediatric cardiology EHR, RF model \u2014 LOS prediction (regression, but cohort/tabular ML)",
+      "out_of_scope_risk": "LOS is continuous outcome, mark risk",
+      "cited_by_count": 0
+    },
+    {
+      "doi": "10.1038/s41467-026-72960-1",
+      "title": "Artificial intelligence for predicting hospital admissions from the emergency department: a prospective, quasi-experimental study",
+      "journal": "Nature Communications",
+      "year": 2026,
+      "openalex_id": "https://openalex.org/W7160938519",
+      "scope_hint": "AI predicting hospital admission from ED, prospective quasi-experimental \u2014 binary admission outcome",
+      "out_of_scope_risk": "",
+      "cited_by_count": 0
+    },
+    {
+      "doi": "10.1038/s41467-025-58724-3",
+      "title": "UKB-MDRMF: a multi-disease risk and multimorbidity framework based on UK biobank data",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4409734799",
+      "scope_hint": "UKB-MDRMF multi-disease risk and multimorbidity framework on UK Biobank EHR",
+      "out_of_scope_risk": "multimorbidity framework, fits cohort+tabular ML",
+      "cited_by_count": 9
+    },
+    {
+      "doi": "10.1038/s41467-025-62891-8",
+      "title": "A retrospective analysis of combination therapy with GLP-1 receptor agonists and SGLT2 inhibitors versus SGLT2 inhibitor monotherapy in patients with MASLD",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4413112386",
+      "scope_hint": "Retrospective analysis GLP-1 vs SGLT2 in MASLD \u2014 composite binary outcomes",
+      "out_of_scope_risk": "pharmacoepi-style, not pure ML but retrospective cohort prediction-like",
+      "cited_by_count": 14
+    },
+    {
+      "doi": "10.1038/s41467-025-59610-8",
+      "title": "GraftIQ: Hybrid multi-class neural network integrating clinical insight for multi-outcome prediction in liver transplant recipients",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4410830057",
+      "scope_hint": "GraftIQ hybrid NN for multi-outcome prediction in liver transplant recipients, retrospective biopsy cohort with clinical features",
+      "out_of_scope_risk": "multi-class not binary, slight risk",
+      "cited_by_count": 5
+    },
+    {
+      "doi": "10.1038/s41467-025-55879-x",
+      "title": "Medical history predicts phenome-wide disease onset and enables the rapid response to emerging health threats",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4406237402",
+      "scope_hint": "Medical history neural network predicting 1741 diseases from EHR (500K cohort)",
+      "out_of_scope_risk": "multi-disease, very large surface \u2014 relevant",
+      "cited_by_count": 6
+    },
+    {
+      "doi": "10.1038/s41467-025-65153-9",
+      "title": "Continuous indices to assess the phenotypic spectrum of kidney transplant rejection",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4416688140",
+      "scope_hint": "Kidney transplant rejection continuous indices from 19500 biopsies cohort",
+      "out_of_scope_risk": "risk of being more pathology than tabular ML; mark",
+      "cited_by_count": 8
+    },
+    {
+      "doi": "10.1038/s41467-025-64408-9",
+      "title": "Predicting hypotension, syncope, and fracture risk in patients indicated for antihypertensive treatment: the STRATIFY models",
+      "journal": "Nature Communications",
+      "year": 2025,
+      "openalex_id": "https://openalex.org/W4415464355",
+      "scope_hint": "STRATIFY models predicting hypotension/syncope/fracture risk from CPRD cohort, antihypertensive patients",
+      "out_of_scope_risk": "cohort risk prediction",
+      "cited_by_count": 1
+    }
+  ]
+}

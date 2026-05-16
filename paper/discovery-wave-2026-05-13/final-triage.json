@@ -1,0 +1,81 @@
+{
+  "wave": "discovery-wave-2026-05-13",
+  "audit_summary": {
+    "green": 3,
+    "amber": 37,
+    "red": 32
+  },
+  "green_ingest_now": [
+    {
+      "doi": "10.1038/s41467-026-69873-4",
+      "title": "Using electronic health records to assess the relationship between col",
+      "year": 2026,
+      "journal": "Nature Communications",
+      "scope_hint": "Retrospective EHR cohort linking colonization pressure to nosocomial pathogen ac"
+    },
+    {
+      "doi": "10.1038/s41467-025-58161-2",
+      "title": "Impact of perioperative organ injury on morbidity and mortality in 28 ",
+      "year": 2025,
+      "journal": "Nature Communications",
+      "scope_hint": "Retrospective cohort of 28M German surgical patients; binary in-hospital mortali"
+    },
+    {
+      "doi": "10.1038/s43856-025-01292-w",
+      "title": "Transparent and dynamic network-based risk assessment for development ",
+      "year": 2025,
+      "journal": "Communications Medicine",
+      "scope_hint": "Hepatic encephalopathy risk; transparent dynamic network model; retrospective at"
+    }
+  ],
+  "amber_clinical_review": [
+    {
+      "doi": "10.1038/s41467-026-71152-1",
+      "title": "Representation learning to advance multi-institutional studies with el",
+      "audit_a": "NEEDS_CLINICAL_REVIEW",
+      "audit_c": "HAS_PEER_REVIEW_PDF"
+    },
+    {
+      "doi": "10.1038/s41467-025-56251-9",
+      "title": "Platelet-white cell ratio is more strongly associated with mortality t",
+      "audit_a": "NEEDS_CLINICAL_REVIEW",
+      "audit_c": "HAS_PEER_REVIEW_PDF"
+    },
+    {
+      "doi": "10.1038/s41467-025-57379-4",
+      "title": "Genomically defined hypervirulent Klebsiella pneumoniae contributed to",
+      "audit_a": "NEEDS_CLINICAL_REVIEW",
+      "audit_c": "HAS_PEER_REVIEW_PDF"
+    },
+    {
+      "doi": "10.1038/s41467-025-66118-8",
+      "title": "Vancomycin heteroresistance (hVISA) in MRSA links to treatment failure",
+      "audit_a": "NEEDS_CLINICAL_REVIEW",
+      "audit_c": "HAS_PEER_REVIEW_PDF"
+    },
+    {
+      "doi": "10.1038/s41467-025-66203-y",
+      "title": "Administrative-driven hierarchical management of atrial fibrillation o",
+      "audit_a": "NEEDS_CLINICAL_REVIEW",
+      "audit_c": "HAS_PEER_REVIEW_PDF"
+    },
+    {
+      "doi": "10.1038/s41467-023-41541-x",
+      "title": "Predictors of the post-COVID condition following mild SARS-CoV-2 infec",
+      "audit_a": "NEEDS_CLINICAL_REVIEW",
+      "audit_c": "HAS_PEER_REVIEW_PDF"
+    },
+    {
+      "doi": "10.1038/s41467-023-42205-6",
+      "title": "Evaluation of pragmatic oxygenation measurement as a proxy for Covid-1",
+      "audit_a": "NEEDS_CLINICAL_REVIEW",
+      "audit_c": "HAS_PEER_REVIEW_PDF"
+    },
+    {
+      "doi": "10.1038/s43856-026-01527-4",
+      "title": "Patient-reported symptoms in predicting the subsequent progression of ",
+      "audit_a": "NEEDS_CLINICAL_REVIEW",
+      "audit_c": "HAS_PEER_REVIEW_PDF"
+    }
+  ]
+}

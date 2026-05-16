@@ -1,0 +1,388 @@
+{
+  "agent": "audit-a-scope-r2",
+  "ran_at_utc": "2026-05-16T02:24:00Z",
+  "verdicts_by_doi": {
+    "10.1038/s41467-026-73021-3": {
+      "verdict": "REJECT",
+      "reason": "Primary task is hospital length-of-stay regression (continuous), not binary classification.",
+      "discovery_flag_was": "LOS is continuous outcome, mark risk"
+    },
+    "10.1038/s41467-026-72960-1": {
+      "verdict": "ACCEPT",
+      "reason": "Binary hospital admission prediction from ED on retrospective/quasi-experimental tabular cohort.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s41467-025-58724-3": {
+      "verdict": "ACCEPT",
+      "reason": "UK Biobank tabular EHR multi-disease binary risk framework fits cohort+binary scope.",
+      "discovery_flag_was": "multimorbidity framework, fits cohort+tabular ML"
+    },
+    "10.1038/s41467-025-62891-8": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Pharmacoepi treatment-effect comparison; unclear whether a predictive ML model is built or causal estimation only.",
+      "discovery_flag_was": "pharmacoepi-style, not pure ML but retrospective cohort prediction-like"
+    },
+    "10.1038/s41467-025-59610-8": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Multi-class outcome NN on liver-transplant biopsy cohort; needs check whether binary endpoints exist and biopsy features are tabular vs histopath imaging.",
+      "discovery_flag_was": "multi-class not binary, slight risk"
+    },
+    "10.1038/s41467-025-55879-x": {
+      "verdict": "ACCEPT",
+      "reason": "Phenome-wide disease-onset prediction from EHR on 500K cohort; each disease is a binary classification.",
+      "discovery_flag_was": "multi-disease, very large surface — relevant"
+    },
+    "10.1038/s41467-025-65153-9": {
+      "verdict": "REJECT",
+      "reason": "Continuous phenotypic indices derived from 19,500 kidney transplant biopsies; histopathology-primary modality.",
+      "discovery_flag_was": "risk of being more pathology than tabular ML; mark"
+    },
+    "10.1038/s41467-025-64408-9": {
+      "verdict": "ACCEPT",
+      "reason": "STRATIFY binary risk models for hypotension/syncope/fracture in CPRD primary-care tabular cohort.",
+      "discovery_flag_was": "cohort risk prediction"
+    },
+    "10.1038/s43856-025-00785-y": {
+      "verdict": "ACCEPT",
+      "reason": "T2DM CVD prediction with 600+ tabular features and ML ranking; cross-corroborated candidate.",
+      "discovery_flag_was": "non-traditional CVD predictors for T2DM"
+    },
+    "10.1038/s43856-025-01229-3": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "MS risk stratification (binary fits) bundled with healthcare cost prediction (regression); split-task scope uncertain.",
+      "discovery_flag_was": "MS risk + cost prediction"
+    },
+    "10.1038/s43856-025-00878-8": {
+      "verdict": "ACCEPT",
+      "reason": "Self-reported hearing predicting fall risk; tabular survey features, binary endpoint.",
+      "discovery_flag_was": "falls risk + balance, possible cross-sectional - check"
+    },
+    "10.1038/s43856-026-01542-5": {
+      "verdict": "ACCEPT",
+      "reason": "SES/migration predictors of complicated LRTI in primary-care cohort; binary outcome, tabular features.",
+      "discovery_flag_was": "complicated LRTI predictors in primary care"
+    },
+    "10.1038/s43856-025-01253-3": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "12-year incident CVD/mortality framing suggests survival-primary; needs check whether binary endpoint at fixed horizon is the primary target.",
+      "discovery_flag_was": "active stand response predicts CVD/mortality - survival aspect"
+    },
+    "10.1038/s43856-025-01052-w": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Triage AI for moderate acuity classification; modality and target cardinality (binary vs multi-class triage) unclear from title.",
+      "discovery_flag_was": "triage model"
+    },
+    "10.1038/s43856-024-00568-x": {
+      "verdict": "REJECT",
+      "reason": "Telehealth strep throat screening uses smartphone throat images; imaging-primary modality.",
+      "discovery_flag_was": "uses smartphone images - probably out"
+    },
+    "10.1038/s43856-026-01498-6": {
+      "verdict": "REJECT",
+      "reason": "Association of pharmacotherapy with all-cause mortality; causal-epi study, not a predictive ML model.",
+      "discovery_flag_was": "association study, may not be ML"
+    },
+    "10.1038/s43856-024-00599-4": {
+      "verdict": "REJECT",
+      "reason": "VA cohort treatment-effect estimation for SGLT2+SARS-CoV-2 outcomes; causal pharmacoepi rather than predictive ML.",
+      "discovery_flag_was": "treatment effect estimation"
+    },
+    "10.1038/s43856-026-01460-6": {
+      "verdict": "REJECT",
+      "reason": "Comparative cohort risk (COVID vs flu kidney disease); etiologic-epi study, not predictive ML model. Cross-corroborated but still out-of-scope.",
+      "discovery_flag_was": "comparative cohort risk"
+    },
+    "10.1038/s43856-025-00781-2": {
+      "verdict": "REJECT",
+      "reason": "RCT of AI-assisted physician decisions; evaluates clinician decision modification rather than developing a retrospective prediction model.",
+      "discovery_flag_was": "RCT, AI-assist evaluation"
+    },
+    "10.1038/s43856-026-01432-w": {
+      "verdict": "REJECT",
+      "reason": "Predicts rates of cognitive/functional decline; continuous trajectory outcome, not binary classification.",
+      "discovery_flag_was": "AD progression prediction"
+    },
+    "10.1038/s43856-025-01237-3": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Blood + retinal biomarkers predicting cognitive decline; whether retinal imaging is auxiliary vs modality-primary and whether endpoint is binary needs check.",
+      "discovery_flag_was": "uses retinal imaging - check"
+    },
+    "10.1038/s43856-024-00539-2": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "N3C EHR cohort characterizing reinfections/Long COVID; may be descriptive characterization rather than predictive ML model.",
+      "discovery_flag_was": "EHR cohort risk characterization"
+    },
+    "10.1038/s43856-026-01639-x": {
+      "verdict": "ACCEPT",
+      "reason": "Deep learning binary prediction of nocturnal hypertension from tabular features in patients intolerant of ABPM.",
+      "discovery_flag_was": "predict nocturnal HTN"
+    },
+    "10.1038/s43856-024-00725-2": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Wide-QRS-complex tachycardia differentiation using ECG-derived polarity features; could be tabular fusion or ECG-signal-primary.",
+      "discovery_flag_was": "ECG-derived features classification"
+    },
+    "10.1038/s43856-026-01556-z": {
+      "verdict": "REJECT",
+      "reason": "Unsupervised clustering of testosterone biomarkers for aging profiles; no prediction target.",
+      "discovery_flag_was": "clustering - may be reject"
+    },
+    "10.1038/s43856-024-00499-7": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Serum autotaxin as prognostic indicator for liver events in NAFLD; single-biomarker prognosis often framed survival, scope edge.",
+      "discovery_flag_was": "biomarker prognosis cohort"
+    },
+    "10.1038/s43856-024-00527-6": {
+      "verdict": "REJECT",
+      "reason": "Five-year survival probability of AD on combined drug therapy; survival/treatment-effect primary, not binary ML prediction.",
+      "discovery_flag_was": "treatment effect, EHR causal"
+    },
+    "10.1038/s43856-025-00946-z": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "DL ranking method for subgroup/predictive biomarker identification; method-oriented but applied to patient cohorts, scope ambiguous.",
+      "discovery_flag_was": "method-ish but applied to patients"
+    },
+    "10.1038/s43856-025-01062-8": {
+      "verdict": "REJECT",
+      "reason": "Associations of mental disorders with maternal outcomes; epidemiologic association study, not predictive ML.",
+      "discovery_flag_was": "associations, cross-sectional/cohort"
+    },
+    "10.1038/s43856-026-01603-9": {
+      "verdict": "REJECT",
+      "reason": "Polygenic risk score and 20-year prostate cancer-specific mortality/survival; survival-primary endpoint and PRS-driven.",
+      "discovery_flag_was": "PRS analysis - may be survival-primary"
+    },
+    "10.1038/s43856-024-00455-5": {
+      "verdict": "REJECT",
+      "reason": "Post-COVID illness trajectory by deprivation; trajectory/descriptive analysis, not binary predictive ML.",
+      "discovery_flag_was": "trajectory analysis"
+    },
+    "10.1038/s43856-025-00867-x": {
+      "verdict": "REJECT",
+      "reason": "ctDNA biomarker as primary predictor of ICI efficacy; omics-primary (circulating tumor DNA).",
+      "discovery_flag_was": "ctDNA biomarker prediction"
+    },
+    "10.1038/s41467-024-51193-0": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Nationwide AF cohort sex-specific stroke risk; binary outcome and tabular fit but may be pure epidemiologic regression without ML.",
+      "discovery_flag_was": "may be epidemiology/regression not ML"
+    },
+    "10.1038/s41467-024-46973-7": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "S100A8/A9 biomarker with causal-effect framing for post-MI HF; binary endpoint but biomarker-association/causal heavy.",
+      "discovery_flag_was": "biomarker-primary, not ML-centric"
+    },
+    "10.1038/s43856-025-01198-7": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Integrates GWAS genetic risk scores with EHR clinical features to predict HF; GWAS component is omics-leaning, scope edge.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s43856-023-00322-9": {
+      "verdict": "REJECT",
+      "reason": "Endothelin-1 biomarker association with mortality and statin interaction in CAD; association/interaction analysis, not predictive ML model.",
+      "discovery_flag_was": "biomarker association, may not be ML"
+    },
+    "10.1038/s43856-023-00241-9": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Cardiothoracic ratio trajectories and risk of dialysis/mortality in CKD cohort; trajectory and survival-leaning endpoints, cross-corroborated candidate.",
+      "discovery_flag_was": "endpoint partly survival-framed"
+    },
+    "10.1038/s43856-024-00687-5": {
+      "verdict": "REJECT",
+      "reason": "Blood-based tumor mutational burden as predictive biomarker; omics-primary (sequencing-derived bTMB).",
+      "discovery_flag_was": "biomarker-driven (omics-leaning), not classic ML pipeline"
+    },
+    "10.1038/s43856-025-01358-9": {
+      "verdict": "ACCEPT",
+      "reason": "Pretreatment emotional distress + peripheral lab biomarkers predict binary ICI response; tabular clinical+lab features.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s43856-023-00295-9": {
+      "verdict": "ACCEPT",
+      "reason": "Tabular fusion of plasma biomarkers, cognitive assessments, APOE and demographics for binary amyloidosis status.",
+      "discovery_flag_was": "biomarker heavy but tabular fusion"
+    },
+    "10.1038/s41467-026-71555-0": {
+      "verdict": "REJECT",
+      "reason": "Deep representation learning for VNS response in pediatric epilepsy is typically EEG/imaging-signal-primary modality.",
+      "discovery_flag_was": "input modality may be imaging/EEG — verify"
+    },
+    "10.1038/s41467-023-44676-z": {
+      "verdict": "REJECT",
+      "reason": "Autonomous AI for diabetic retinopathy screening; imaging-primary (fundus) and an RCT of screening uptake rather than retrospective binary ML.",
+      "discovery_flag_was": "trial"
+    },
+    "10.1038/s43856-025-00872-0": {
+      "verdict": "REJECT",
+      "reason": "Interpretable ML leveraging proteomics for CVD risk and biomarker identification; proteomics-primary (omics).",
+      "discovery_flag_was": "drug-discovery"
+    },
+    "10.1038/s43856-024-00730-5": {
+      "verdict": "REJECT",
+      "reason": "AI hemodynamic monitoring on wearable ECG; ECG-signal-primary modality, not tabular EHR ML.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s41467-025-64634-1": {
+      "verdict": "REJECT",
+      "reason": "Plasma proteome atlas for DR mechanism + risk prediction; proteomics-primary (omics).",
+      "discovery_flag_was": "omics"
+    },
+    "10.1038/s43856-025-01092-2": {
+      "verdict": "REJECT",
+      "reason": "Forecasting DR progression with GAN-generated retinal images; imaging-primary.",
+      "discovery_flag_was": "imaging-primary,synthetic-image"
+    },
+    "10.1038/s43856-025-01316-5": {
+      "verdict": "REJECT",
+      "reason": "Prognostic DL for referable DR/maculopathy augmented with synthetic retinal images; imaging-primary.",
+      "discovery_flag_was": "imaging-primary,synthetic-image"
+    },
+    "10.1038/s43856-025-01200-2": {
+      "verdict": "ACCEPT",
+      "reason": "ML early prediction of gram-negative bacteremia from ED hematological lab data; tabular features, binary outcome.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s41467-025-56309-8": {
+      "verdict": "REJECT",
+      "reason": "Microbiological mechanism paper on Klebsiella T6SS colonization resistance; preclinical mechanism, not clinical ML.",
+      "discovery_flag_was": "preclinical,mechanism,omics"
+    },
+    "10.1038/s41467-024-55635-7": {
+      "verdict": "REJECT",
+      "reason": "Multi-omic spatial effects on AI-derived OCT retinal thickness; omics + imaging primary.",
+      "discovery_flag_was": "omics"
+    },
+    "10.1038/s43856-023-00416-4": {
+      "verdict": "REJECT",
+      "reason": "Ophthalmic care utilization shifts during COVID; healthcare-utilization epidemiology, not predictive ML model.",
+      "discovery_flag_was": "abstract-only-pred-signal"
+    },
+    "10.1038/s41467-024-53550-5": {
+      "verdict": "REJECT",
+      "reason": "Self-supervised learning of cerebrovasculature hierarchy from vascular imaging; imaging-primary modality.",
+      "discovery_flag_was": "imaging-primary"
+    },
+    "10.1038/s43856-024-00696-4": {
+      "verdict": "REJECT",
+      "reason": "Genomic virulence markers associated with severe outcomes in Pseudomonas BSI; genomic (omics) association study.",
+      "discovery_flag_was": "bench-chem"
+    },
+    "10.1038/s41467-025-64704-4": {
+      "verdict": "REJECT",
+      "reason": "Spatiotemporal patterns of white matter hyperintensity progression; brain MRI imaging-primary.",
+      "discovery_flag_was": "abstract-only-pred-signal"
+    },
+    "10.1038/s43856-025-01364-x": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Matched case-control of E. coli factors for sepsis/septic shock; case-control fits scope but bacterial-factor focus may be microbiology/omics-leaning.",
+      "discovery_flag_was": "abstract-only-pred-signal"
+    },
+    "10.1038/s43856-025-01181-2": {
+      "verdict": "REJECT",
+      "reason": "Non-contact lung disease classification via 6G ISAC sensing; sensor-signal modality-primary, not clinical tabular ML.",
+      "discovery_flag_was": "abstract-only-pred-signal"
+    },
+    "10.1038/s41467-022-30836-0": {
+      "verdict": "ACCEPT",
+      "reason": "Long COVID burden and risk factors across 10 UK longitudinal studies + EHR; large tabular cohort with binary endpoints.",
+      "discovery_flag_was": "long-COVID definition variability"
+    },
+    "10.1038/s41467-020-19623-x": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Blood-type and COVID outcomes in NYC cohort; binary endpoints and tabular features fit but may be pure epi association rather than ML model.",
+      "discovery_flag_was": "large effects but multiple binary endpoints"
+    },
+    "10.1038/s41467-022-29521-z": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "REACT-2 community survey 606k persistent COVID symptoms; survey-based prevalence/association, predictive ML status unclear.",
+      "discovery_flag_was": "community-survey-based long-COVID"
+    },
+    "10.1038/s41467-021-26513-3": {
+      "verdict": "REJECT",
+      "reason": "VA EHR PASC burden characterization by severity; descriptive burden estimation, not a predictive binary ML model.",
+      "discovery_flag_was": "multi-outcome PASC"
+    },
+    "10.1038/s41467-021-21553-1": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Statin use vs in-hospital COVID mortality with propensity-score logistic regression; causal-flavored but tabular EHR binary endpoint borderline.",
+      "discovery_flag_was": "propensity-scoring/causal flavor"
+    },
+    "10.1038/s41467-023-38388-7": {
+      "verdict": "ACCEPT",
+      "reason": "RECOVER EHR cohort with binary long-COVID outcome and pre-COVID vaccination as predictor; retrospective tabular cohort.",
+      "discovery_flag_was": "long-COVID outcome may be heterogenous"
+    },
+    "10.1038/s41467-024-48780-6": {
+      "verdict": "REJECT",
+      "reason": "Real-world target-trial-emulation of semaglutide and AUD incidence/recurrence; causal pharmacoepi, not predictive ML.",
+      "discovery_flag_was": "pharmacoepidemiology / target trial emulation flavor"
+    },
+    "10.1038/s41467-022-31401-5": {
+      "verdict": "REJECT",
+      "reason": "Vaccine-safety nationwide case-control of myocarditis/pericarditis after mRNA COVID vaccines; pharmacovigilance, not predictive ML.",
+      "discovery_flag_was": "vaccine safety; case-control flavor"
+    },
+    "10.1038/s41467-021-22214-z": {
+      "verdict": "REJECT",
+      "reason": "Hospital load exposure vs in-hospital COVID mortality; exposure-effect epidemiology, not binary predictive ML model.",
+      "discovery_flag_was": "COVID-specific; mortality endpoint"
+    },
+    "10.1038/s41467-020-20246-5": {
+      "verdict": "ACCEPT",
+      "reason": "Disease-risk scores for BCC/SCC/melanoma built from 210k tabular survey features with binary per-cancer outcomes.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s41467-020-16378-3": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Multimodal latent-topic model applied to EHR disease-risk prediction; method-oriented but with applied binary risk outputs.",
+      "discovery_flag_was": "methods-oriented but applied to EHR risk prediction"
+    },
+    "10.1038/s41467-022-28248-1": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "12.6M England cohort obesity/ethnicity and COVID mortality; binary endpoint and tabular but epi-heavy, ML-model status unclear.",
+      "discovery_flag_was": "COVID-19 outcome - epidemiology heavy"
+    },
+    "10.1038/s41467-021-25402-z": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "NPC risk score combining EBV serology and host genetic features; mixes germline genetics (omics-leaning), borderline scope.",
+      "discovery_flag_was": "mixes serologic+genetic features"
+    },
+    "10.1038/s43856-021-00006-2": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "Sex-specific risk factors and clinical outcomes in 4,930-patient COVID hospital cohort; binary endpoints but may be descriptive/inferential rather than ML.",
+      "discovery_flag_was": "COVID hospital cohort"
+    },
+    "10.1038/s41467-022-29880-7": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "2.3M England EHR cohort COVID hospitalisation/fatality risk; tabular and binary but trends-and-associated-factors framing is epi-heavy.",
+      "discovery_flag_was": "COVID epi-flavored"
+    },
+    "10.1038/s41467-021-27215-6": {
+      "verdict": "NEEDS_CLINICAL_REVIEW",
+      "reason": "sTREM-1 sepsis risk-stratification in febrile African children; single-biomarker triage rule, borderline ML vs cutoff analysis.",
+      "discovery_flag_was": "single biomarker focus"
+    },
+    "10.1038/s41467-022-32458-y": {
+      "verdict": "REJECT",
+      "reason": "Trend comparison of COVID hospital mortality before/after vaccine introduction; descriptive epidemiology, not predictive ML model.",
+      "discovery_flag_was": "COVID hospital cohort"
+    },
+    "10.1038/s43856-022-00071-1": {
+      "verdict": "ACCEPT",
+      "reason": "ML system for thyroid dysfunction binary diagnosis from routine laboratory tests; clean tabular cohort ML.",
+      "discovery_flag_was": ""
+    },
+    "10.1038/s41467-022-33740-9": {
+      "verdict": "REJECT",
+      "reason": "Hospitalization/mortality risk comparison of Omicron BA.2 vs BA.1; variant-comparative epidemiology, not predictive ML.",
+      "discovery_flag_was": "COVID variant comparison"
+    },
+    "10.1038/s41467-024-47745-z": {
+      "verdict": "REJECT",
+      "reason": "Self-controlled case-series of 5.1M children for COVID vaccine/infection safety outcomes; pharmacovigilance design, not predictive ML.",
+      "discovery_flag_was": "self-controlled case-series methodology"
+    }
+  },
+  "summary": {"accept": 15, "reject": 37, "needs_review": 24},
+  "override_count": 11
+}

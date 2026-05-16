@@ -1,0 +1,544 @@
+{
+  "agent": "audit-b-doi-r2",
+  "ran_at_utc": "2026-05-16T02:24:44.051991Z",
+  "verdicts_by_doi": {
+    "10.1038/s41467-026-73021-3": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2026,
+      "openalex_title_head": "Clinically-applicable prediction of hospital stay and patient similarity retriev",
+      "deltas": []
+    },
+    "10.1038/s41467-026-72960-1": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2026,
+      "openalex_title_head": "Artificial intelligence for predicting hospital admissions from the emergency de",
+      "deltas": []
+    },
+    "10.1038/s41467-025-58724-3": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2025,
+      "openalex_title_head": "UKB-MDRMF: a multi-disease risk and multimorbidity framework based on UK biobank",
+      "deltas": []
+    },
+    "10.1038/s41467-025-62891-8": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2025,
+      "openalex_title_head": "A retrospective analysis of combination therapy with GLP-1 receptor agonists and",
+      "deltas": []
+    },
+    "10.1038/s41467-025-59610-8": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2025,
+      "openalex_title_head": "GraftIQ: Hybrid multi-class neural network integrating clinical insight for mult",
+      "deltas": []
+    },
+    "10.1038/s41467-025-55879-x": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2025,
+      "openalex_title_head": "Medical history predicts phenome-wide disease onset and enables the rapid respon",
+      "deltas": []
+    },
+    "10.1038/s41467-025-65153-9": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2025,
+      "openalex_title_head": "Continuous indices to assess the phenotypic spectrum of kidney transplant reject",
+      "deltas": []
+    },
+    "10.1038/s41467-025-64408-9": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2025,
+      "openalex_title_head": "Predicting hypotension, syncope, and fracture risk in patients indicated for ant",
+      "deltas": []
+    },
+    "10.1038/s43856-025-00785-y": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2025,
+      "openalex_title_head": "Identifying and ranking non-traditional risk factors for cardiovascular disease ",
+      "deltas": []
+    },
+    "10.1038/s43856-025-01229-3": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2025,
+      "openalex_title_head": "Multiple sclerosis risk stratification and healthcare cost prediction using mach",
+      "deltas": []
+    },
+    "10.1038/s43856-025-00878-8": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2025,
+      "openalex_title_head": "Self-reported hearing measures can predict risk of falling and balance problems",
+      "deltas": []
+    },
+    "10.1038/s43856-026-01542-5": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2026,
+      "openalex_title_head": "Socioeconomic status and migration background as predictors of complicated lower",
+      "deltas": []
+    },
+    "10.1038/s43856-025-01253-3": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2025,
+      "openalex_title_head": "Responses to active stand test predict 12-year incident cardiovascular disease a",
+      "deltas": []
+    },
+    "10.1038/s43856-025-01052-w": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2025,
+      "openalex_title_head": "A foundational triage system for improving accuracy in moderate acuity level eme",
+      "deltas": []
+    },
+    "10.1038/s43856-024-00568-x": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2024,
+      "openalex_title_head": "Explainable AI decision support improves accuracy during telehealth strep throat",
+      "deltas": []
+    },
+    "10.1038/s43856-026-01498-6": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2026,
+      "openalex_title_head": "Association of pharmacotherapy with all-cause mortality among patients with irri",
+      "deltas": []
+    },
+    "10.1038/s43856-024-00599-4": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2024,
+      "openalex_title_head": "Adverse cardiovascular and kidney outcomes in people with SARS-CoV-2 treated wit",
+      "deltas": []
+    },
+    "10.1038/s43856-026-01460-6": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2026,
+      "openalex_title_head": "The risk of kidney disease increases following SARS-CoV-2 infection compared to ",
+      "deltas": []
+    },
+    "10.1038/s43856-025-00781-2": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2025,
+      "openalex_title_head": "Physician clinical decision modification and bias assessment in a randomized con",
+      "deltas": []
+    },
+    "10.1038/s43856-026-01432-w": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2026,
+      "openalex_title_head": "Predicting rates of cognitive and functional decline in Alzheimer’s disease and ",
+      "deltas": []
+    },
+    "10.1038/s43856-025-01237-3": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2025,
+      "openalex_title_head": "Comparison of the additive value of blood-based and retinal biomarkers to clinic",
+      "deltas": []
+    },
+    "10.1038/s43856-024-00539-2": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2024,
+      "openalex_title_head": "Insights from an N3C RECOVER EHR-based cohort study characterizing SARS-CoV-2 re",
+      "deltas": []
+    },
+    "10.1038/s43856-026-01639-x": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2026,
+      "openalex_title_head": "Deep learning prediction of nocturnal hypertension for patients intolerant to am",
+      "deltas": []
+    },
+    "10.1038/s43856-024-00725-2": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2024,
+      "openalex_title_head": "Automated differentiation of wide QRS complex tachycardia using QRS complex pola",
+      "deltas": []
+    },
+    "10.1038/s43856-026-01556-z": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2026,
+      "openalex_title_head": "System-level clustering of testosterone-related biomarkers identifies high-risk ",
+      "deltas": []
+    },
+    "10.1038/s43856-024-00499-7": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2024,
+      "openalex_title_head": "Serum autotaxin is a prognostic indicator of liver-related events in patients wi",
+      "deltas": []
+    },
+    "10.1038/s43856-024-00527-6": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2024,
+      "openalex_title_head": "Combined use of Donepezil and Memantine increases the probability of five-year s",
+      "deltas": []
+    },
+    "10.1038/s43856-025-00946-z": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2025,
+      "openalex_title_head": "Deep learning-based ranking method for subgroup and predictive biomarker identif",
+      "deltas": []
+    },
+    "10.1038/s43856-025-01062-8": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2025,
+      "openalex_title_head": "Associations of mental disorders with maternal health outcomes",
+      "deltas": []
+    },
+    "10.1038/s43856-026-01603-9": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2026,
+      "openalex_title_head": "Polygenic risk score and 20-year prostate cancer-specific mortality and survival",
+      "deltas": []
+    },
+    "10.1038/s43856-024-00455-5": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2024,
+      "openalex_title_head": "Socioeconomic deprivation and illness trajectory in the Scottish population afte",
+      "deltas": []
+    },
+    "10.1038/s43856-025-00867-x": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2025,
+      "openalex_title_head": "Circulating tumor DNA strongly predicts efficacy of chemotherapy plus immune che",
+      "deltas": []
+    },
+    "10.1038/s41467-024-51193-0": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2024,
+      "openalex_title_head": "Risk of stroke in male and female patients with atrial fibrillation in a nationw",
+      "deltas": []
+    },
+    "10.1038/s41467-024-46973-7": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2024,
+      "openalex_title_head": "S100A8/A9 as a prognostic biomarker with causal effects for post-acute myocardia",
+      "deltas": []
+    },
+    "10.1038/s43856-025-01198-7": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2025,
+      "openalex_title_head": "Integrating large scale genetic and clinical information to predict cases of hea",
+      "deltas": []
+    },
+    "10.1038/s43856-023-00322-9": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2023,
+      "openalex_title_head": "Endothelin-1 is associated with mortality that can be attenuated with high inten",
+      "deltas": []
+    },
+    "10.1038/s43856-023-00241-9": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2023,
+      "openalex_title_head": "Cardiothoracic ratio values and trajectories are associated with risk of requiri",
+      "deltas": []
+    },
+    "10.1038/s43856-024-00687-5": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2024,
+      "openalex_title_head": "Blood-based tumor mutational burden impacts clinical outcomes of immune checkpoi",
+      "deltas": []
+    },
+    "10.1038/s43856-025-01358-9": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2026,
+      "openalex_title_head": "Pretreatment emotional distress and peripheral biomarkers predict immune checkpo",
+      "deltas": []
+    },
+    "10.1038/s43856-023-00295-9": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2023,
+      "openalex_title_head": "Integrated algorithm combining plasma biomarkers and cognitive assessments accur",
+      "deltas": []
+    },
+    "10.1038/s41467-026-71555-0": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2026,
+      "openalex_title_head": "A deep representation learning model to predict response to vagus nerve stimulat",
+      "deltas": []
+    },
+    "10.1038/s41467-023-44676-z": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2024,
+      "openalex_title_head": "Autonomous artificial intelligence increases screening and follow-up for diabeti",
+      "deltas": []
+    },
+    "10.1038/s43856-025-00872-0": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2025,
+      "openalex_title_head": "Interpretable machine learning leverages proteomics to improve cardiovascular di",
+      "deltas": []
+    },
+    "10.1038/s43856-024-00730-5": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2025,
+      "openalex_title_head": "Artificial intelligence for hemodynamic monitoring with a wearable electrocardio",
+      "deltas": []
+    },
+    "10.1038/s41467-025-64634-1": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2025,
+      "openalex_title_head": "Proteome atlas for mechanistic discovery and risk prediction of diabetic retinop",
+      "deltas": []
+    },
+    "10.1038/s43856-025-01092-2": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2025,
+      "openalex_title_head": "Forecasting the diabetic retinopathy progression using generative adversarial ne",
+      "deltas": []
+    },
+    "10.1038/s43856-025-01316-5": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2025,
+      "openalex_title_head": "Augmenting a prognostic deep learning system for referable diabetic retinopathy ",
+      "deltas": []
+    },
+    "10.1038/s43856-025-01200-2": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2025,
+      "openalex_title_head": "Monitoring for early prediction of gram-negative bacteremia using machine learni",
+      "deltas": []
+    },
+    "10.1038/s41467-025-56309-8": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2025,
+      "openalex_title_head": "Klebsiella pneumoniae employs a type VI secretion system to overcome microbiota-",
+      "deltas": []
+    },
+    "10.1038/s41467-024-55635-7": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2025,
+      "openalex_title_head": "Multi-omic spatial effects on high-resolution AI-derived retinal thickness",
+      "deltas": []
+    },
+    "10.1038/s43856-023-00416-4": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2023,
+      "openalex_title_head": "Shifts in ophthalmic care utilization during the COVID-19 pandemic in the US",
+      "deltas": []
+    },
+    "10.1038/s41467-024-53550-5": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2024,
+      "openalex_title_head": "Self-supervised learning for accurately modelling hierarchical evolutionary patt",
+      "deltas": []
+    },
+    "10.1038/s43856-024-00696-4": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2024,
+      "openalex_title_head": "Genomic virulence markers are associated with severe outcomes in patients with P",
+      "deltas": []
+    },
+    "10.1038/s41467-025-64704-4": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2025,
+      "openalex_title_head": "Distinct spatiotemporal patterns of white matter hyperintensity progression",
+      "deltas": []
+    },
+    "10.1038/s43856-025-01364-x": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2026,
+      "openalex_title_head": "A matched case-control study on Escherichia coli factors contributing to sepsis ",
+      "deltas": []
+    },
+    "10.1038/s43856-025-01181-2": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2026,
+      "openalex_title_head": "Non-contact lung disease classification via orthogonal frequency division multip",
+      "deltas": []
+    },
+    "10.1038/s41467-022-30836-0": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2022,
+      "openalex_title_head": "Long COVID burden and risk factors in 10 UK longitudinal studies and electronic ",
+      "deltas": []
+    },
+    "10.1038/s41467-020-19623-x": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2020,
+      "openalex_title_head": "Associations between blood type and COVID-19 infection, intubation, and death",
+      "deltas": []
+    },
+    "10.1038/s41467-022-29521-z": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2022,
+      "openalex_title_head": "Persistent COVID-19 symptoms in a community study of 606,434 people in England",
+      "deltas": []
+    },
+    "10.1038/s41467-021-26513-3": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2021,
+      "openalex_title_head": "Burdens of post-acute sequelae of COVID-19 by severity of acute infection, demog",
+      "deltas": []
+    },
+    "10.1038/s41467-021-21553-1": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2021,
+      "openalex_title_head": "Association between antecedent statin use and decreased mortality in hospitalize",
+      "deltas": []
+    },
+    "10.1038/s41467-023-38388-7": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2023,
+      "openalex_title_head": "Long COVID risk and pre-COVID vaccination in an EHR-based cohort study from the ",
+      "deltas": []
+    },
+    "10.1038/s41467-024-48780-6": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2024,
+      "openalex_title_head": "Associations of semaglutide with incidence and recurrence of alcohol use disorde",
+      "deltas": []
+    },
+    "10.1038/s41467-022-31401-5": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2022,
+      "openalex_title_head": "Age and sex-specific risks of myocarditis and pericarditis following Covid-19 me",
+      "deltas": []
+    },
+    "10.1038/s41467-021-22214-z": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2021,
+      "openalex_title_head": "Hospital load and increased COVID-19 related mortality in Israel",
+      "deltas": []
+    },
+    "10.1038/s41467-020-20246-5": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2021,
+      "openalex_title_head": "Disease risk scores for skin cancers",
+      "deltas": []
+    },
+    "10.1038/s41467-020-16378-3": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2020,
+      "openalex_title_head": "Inferring multimodal latent topics from electronic health records",
+      "deltas": []
+    },
+    "10.1038/s41467-022-28248-1": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2022,
+      "openalex_title_head": "A population-based cohort study of obesity, ethnicity and COVID-19 mortality in ",
+      "deltas": []
+    },
+    "10.1038/s41467-021-25402-z": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2021,
+      "openalex_title_head": "A comprehensive risk score for effective risk stratification and screening of na",
+      "deltas": []
+    },
+    "10.1038/s43856-021-00006-2": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2021,
+      "openalex_title_head": "Analysis of sex-specific risk factors and clinical outcomes in COVID-19",
+      "deltas": []
+    },
+    "10.1038/s41467-022-29880-7": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2022,
+      "openalex_title_head": "Trends and associated factors for Covid-19 hospitalisation and fatality risk in ",
+      "deltas": []
+    },
+    "10.1038/s41467-021-27215-6": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2021,
+      "openalex_title_head": "Risk-stratification of febrile African children at risk of sepsis using sTREM-1 ",
+      "deltas": []
+    },
+    "10.1038/s41467-022-32458-y": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2022,
+      "openalex_title_head": "Trends in COVID-19 hospital outcomes in England before and after vaccine introdu",
+      "deltas": []
+    },
+    "10.1038/s43856-022-00071-1": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Communications Medicine",
+      "openalex_year": 2022,
+      "openalex_title_head": "Development and preliminary validation of a machine learning system for thyroid ",
+      "deltas": []
+    },
+    "10.1038/s41467-022-33740-9": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2022,
+      "openalex_title_head": "Hospitalisation and mortality risk of SARS-COV-2 variant omicron sub-lineage BA.",
+      "deltas": []
+    },
+    "10.1038/s41467-024-47745-z": {
+      "verdict": "VERIFIED",
+      "openalex_journal": "Nature Communications",
+      "openalex_year": 2024,
+      "openalex_title_head": "Safety outcomes following COVID-19 vaccination and infection in 5.1 million chil",
+      "deltas": []
+    }
+  },
+  "summary": {
+    "VERIFIED": 76,
+    "METADATA_DRIFT": 0,
+    "DOI_NOT_FOUND": 0,
+    "WRONG_JOURNAL": 0
+  }
+}
