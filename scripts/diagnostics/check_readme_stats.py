@@ -83,7 +83,7 @@ def _live_gate_count() -> int:
 
 _SUBDIRS: List[str] = [
     "core", "gates", "training", "reporting",
-    "codebooks", "review", "diagnostics", "orchestration",
+    "codebooks", "review", "diagnostics", "orchestration", "rag",
 ]
 
 

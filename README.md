@@ -1404,7 +1404,7 @@ medical-ml-governance-guard/
 │   │   ├── add_robustness_permutation_gates.py # --   为现有审稿意见补 robustness / permutation 条目
 │   │   └── correct_subgroup_overmatch.py #   --   修复审稿意见的亚组 over-match 问题
 │   │
-│   ├── rag/               (8 files)              # 审稿 KB 之上的密集向量 RAG 层 (__init__ + 7 模块)
+│   ├── rag/               (7 files, 1.4K LOC)    # 审稿 KB 之上的密集向量 RAG 层 (7 模块，不含 __init__)
 │   │   ├── _rag_config.py                #   常量/路径/权重 (BGE-small + .cache/rag/ + dense/BM25/tag 比重)
 │   │   ├── _embeddings.py                #   sentence-transformers 包装 (单例 model loader + 归一化)
 │   │   ├── _index_builder.py             #   KB → npz 缓存 (sha256 失效, idempotent)
