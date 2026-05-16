@@ -88,6 +88,21 @@ _STOPWORDS = frozenset({
     "about", "using", "used", "based", "does",
 })
 
+# 2-char tokens that carry real signal in clinical / stats vocabulary and
+# must survive the `len(tok) >= 3` filter in `_issue_code_keywords`. Without
+# this allow-list, gate-emitted codes like `missing_ci`, `bootstrap_r2`,
+# `hr_threshold_violated` lose their semantic anchor token entirely, and
+# the BM25 path silently degenerates to severity-only ranking (G8 finding,
+# E1 Q4 regression).
+#   ci → confidence interval (E01 family, ci_matrix_* gates)
+#   r2 → coefficient of determination
+#   ml → machine learning
+#   ai → artificial intelligence
+#   df → degrees of freedom / dataframe
+#   or → odds ratio
+#   hr → hazard ratio
+SHORT_TOKEN_ALLOWLIST = frozenset(["ci", "r2", "ml", "ai", "df", "or", "hr"])
+
 # Synonym map: common problem descriptions → actual KB tags
 TAG_SYNONYMS: Dict[str, List[str]] = {
     "fit_before_split": ["future_information_leakage", "target_leakage", "temporal_leakage", "data_leakage_via_imputation"],
@@ -143,6 +158,80 @@ TAG_SYNONYMS: Dict[str, List[str]] = {
     "no_reproducibility": ["no_code_availability", "reproducibility", "irreproducible_methods", "code_as_pdf", "weights_not_shared", "broken_github_link"],
     "confounding": ["confounders", "missing_confounder", "confounders_undisclosed", "confounding_by_gender", "confounding_unadjusted", "covariate_adjustment_one_size_fits_all"],
     "overstatement": ["overstatement", "overclaimed", "overclaimed_novelty", "overclaimed_improvement", "overclaimed_public_health", "title_overstatement"],
+    # ─── CLAUDE.md canonical "不可协商规则" rule codes ──────────────
+    # The documented public interface for MLGG (CLAUDE.md §"不可协商规则")
+    # uses the MLGG-X01 family. Prior to this commit none of these codes
+    # appeared in TAG_SYNONYMS, so passing them to retrieve_for_failure
+    # tokenized to noise (`mlgg`, `e01`, ...) and the BM25 path could not
+    # surface the semantically relevant concerns — the documented entry
+    # point was structurally disconnected from retrieval. G8 finding, E1
+    # Q4 regression. Each rule maps to the same tag family for both the
+    # MLGG-prefixed form (the canonical citation) and the bare X01 form
+    # (informal references in concerns and gate output).
+    #
+    # Each rule is keyed in three forms because consumers cite the codes
+    # in different shapes:
+    #   - "MLGG-S01"  → canonical citation form used by CLAUDE.md and
+    #                   docs/reports; the public-interface key.
+    #   - "mlgg_s01"  → what the `_issue_code_keywords` probe sees after
+    #                   `code.lower().replace("-", "_")` normalisation,
+    #                   i.e. what actually drives BM25 expansion.
+    #   - "s01"       → bare form used informally in concern text /
+    #                   inline gate references.
+    # S01: 同一患者不跨 split
+    "MLGG-S01": ["patient_id_leakage", "split_protocol"],
+    "mlgg_s01": ["patient_id_leakage", "split_protocol"],
+    "s01": ["patient_id_leakage", "split_protocol"],
+    # P01: 所有 fit() 只在训练集
+    "MLGG-P01": ["preprocessing_leakage", "pipeline_fit_on_test"],
+    "mlgg_p01": ["preprocessing_leakage", "pipeline_fit_on_test"],
+    "p01": ["preprocessing_leakage", "pipeline_fit_on_test"],
+    # F01: 标签不能作特征
+    "MLGG-F01": ["target_leakage", "label_in_features"],
+    "mlgg_f01": ["target_leakage", "label_in_features"],
+    "f01": ["target_leakage", "label_in_features"],
+    # F02: 不用预测时间点后的信息
+    "MLGG-F02": ["temporal_leakage", "lookback_window_leakage"],
+    "mlgg_f02": ["temporal_leakage", "lookback_window_leakage"],
+    "f02": ["temporal_leakage", "lookback_window_leakage"],
+    # M01: 测试集不参与调参
+    "MLGG-M01": ["model_selection_on_test", "tuning_leakage"],
+    "mlgg_m01": ["model_selection_on_test", "tuning_leakage"],
+    "m01": ["model_selection_on_test", "tuning_leakage"],
+    # E01: 主要指标报告 95% CI
+    "MLGG-E01": ["confidence_interval", "no_ci_reported"],
+    "mlgg_e01": ["confidence_interval", "no_ci_reported"],
+    "e01": ["confidence_interval", "no_ci_reported"],
+    # E02: 完整指标面板（AUROC + 校准 + MCC + DCA）
+    "MLGG-E02": ["incomplete_metrics", "missing_calibration"],
+    "mlgg_e02": ["incomplete_metrics", "missing_calibration"],
+    "e02": ["incomplete_metrics", "missing_calibration"],
+    # ─── Gate-emitted ci-prefixed failure codes ───────────────────
+    # Codes actually emitted by scripts/gates/* (grep evidence: ci_matrix_*
+    # in ci_matrix_gate, missing_ci_method in metrics gates,
+    # insufficient_ci_resamples in bootstrap config). These keys exist so
+    # the whole-code synonym probe in _issue_code_keywords pulls the
+    # right semantic family — relying on the `ci` short-token alone would
+    # leave us mapping `ci_matrix_not_passed` to every CI-mentioning
+    # concern with no method specificity.
+    "missing_ci": ["confidence_interval", "no_ci_reported"],
+    "missing_ci_method": ["confidence_interval", "ci_method_mismatch"],
+    "missing_ci_matrix_report": ["confidence_interval", "ci_method_mismatch", "no_ci_reported"],
+    "missing_ci_matrix_ref": ["confidence_interval", "ci_method_mismatch"],
+    "ci_matrix_not_passed": ["confidence_interval", "ci_method_mismatch"],
+    "ci_matrix_reference_mismatch": ["confidence_interval", "ci_method_mismatch"],
+    "ci_matrix_threshold_unstable": ["confidence_interval", "ci_method_mismatch"],
+    "ci_matrix_single_class": ["confidence_interval", "no_ci_reported"],
+    "ci_matrix_split_missing": ["confidence_interval", "ci_method_mismatch"],
+    "insufficient_ci_resamples": ["bootstrap_resamples", "confidence_interval"],
+    "ci_resamples_insufficient": ["bootstrap_resamples", "confidence_interval"],
+    "ci_metric_mismatch": ["confidence_interval", "ci_method_mismatch"],
+    "ci_width_exceeds_threshold": ["confidence_interval", "suspiciously_narrow_ci"],
+    "ci_width_exceeds_max": ["confidence_interval", "suspiciously_narrow_ci"],
+    "ci_width_excessive": ["confidence_interval", "suspiciously_narrow_ci"],
+    "ci_coverage_below_threshold": ["confidence_interval", "no_ci_reported"],
+    "primary_metric_outside_ci": ["confidence_interval", "ci_method_mismatch"],
+    "missing_primary_metric_ci": ["confidence_interval", "no_ci_reported"],
 }
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -390,7 +479,13 @@ def _issue_code_keywords(codes: List[str]) -> Set[str]:
             if norm.endswith(suffix):
                 synonym_probes.add(norm[: -len(suffix)])
         for tok in norm.split("_"):
-            if len(tok) >= 3 and tok not in _CODE_TOKEN_STOPWORDS:
+            # G8 fix: preserve 2-char clinical/stats abbreviations
+            # (ci, r2, hr, or, df, ml, ai). Without the allow-list,
+            # `missing_ci` would lose its `ci` token, leaving the BM25
+            # path to rank purely on `missing` — useless for retrieval.
+            if tok in _CODE_TOKEN_STOPWORDS:
+                continue
+            if len(tok) >= 3 or tok in SHORT_TOKEN_ALLOWLIST:
                 kws.add(tok)
 
     # Synonym expansion: for each probe that matches a TAG_SYNONYMS key,
@@ -403,7 +498,9 @@ def _issue_code_keywords(codes: List[str]) -> Set[str]:
             continue
         for tag in synonyms:
             for tok in _tokenize(str(tag)):
-                if len(tok) >= 3 and tok not in _CODE_TOKEN_STOPWORDS:
+                if tok in _CODE_TOKEN_STOPWORDS:
+                    continue
+                if len(tok) >= 3 or tok in SHORT_TOKEN_ALLOWLIST:
                     kws.add(tok)
     return kws
 
