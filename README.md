@@ -1655,6 +1655,8 @@ pre-commit install
 - `mlgg-lint-selfcheck` — 用 28 条 AST 规则审查 `mlgg-lint` 自身源码（dog-fooding）
 - `docs-consistency` — SKILL.md / README(_EN).md / agents/reviewer.yaml 变更时校验 12 维评分权重一致
 
+另有 git 原生 **pre-push** 钩子（README stats 漂移检测 + ruff + RAG 烟雾测试），一行启用：`make install-hooks`。详见 [CONTRIBUTING.md](./CONTRIBUTING.md#pre-push-hook-recommended)。
+
 ---
 
 ## 命令参考

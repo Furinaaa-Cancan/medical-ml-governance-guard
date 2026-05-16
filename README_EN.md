@@ -1522,6 +1522,8 @@ Configured in `.pre-commit-config.yaml`:
 - `mlgg-lint-selfcheck` — lints `mlgg-lint`'s own source with the 28 AST rules (dog-fooding)
 - `docs-consistency` — when SKILL.md / README(_EN).md / agents/reviewer.yaml change, verifies the 12-dimension scoring weights stay in sync
 
+A separate git-native **pre-push** hook (README stats drift + ruff + RAG smoke) is one command to enable: `make install-hooks`. See [CONTRIBUTING.md](./CONTRIBUTING.md#pre-push-hook-recommended) for details.
+
 ---
 
 ## Command Reference

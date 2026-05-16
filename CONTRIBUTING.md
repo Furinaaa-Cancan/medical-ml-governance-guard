@@ -49,6 +49,30 @@ Run manually on the whole tree when adding the hook or after a rebase:
 pre-commit run --all-files
 ```
 
+### Pre-push hook (recommended)
+
+A separate, git-native pre-push hook catches the failure modes that
+slip past pre-commit and reach CI — primarily **README stats drift**
+(file counts in README.md / README_EN.md going stale after adding
+scripts or tests). Recent history shows multiple ~14-minute CI cycles
+burned on this; the hook catches it in ~30 seconds locally.
+
+Activate once per clone:
+
+```bash
+make install-hooks
+```
+
+This sets `core.hooksPath = .githooks` so git uses our hook. From then
+on, every `git push` runs `.githooks/pre-push`, which checks:
+
+- `scripts/diagnostics/check_readme_stats.py` — README parity
+- `ruff check scripts/ tests/` — lint (if `ruff` installed)
+- RAG public-API smoke import — catches structural breakage
+
+Bypass once when needed: `git push --no-verify`.
+Run the same checks ad hoc without pushing: `make pre-push`.
+
 ---
 
 ## Code Style

@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# MLGG pre-push: catches the common CI failures locally before push.
+#
+# Targets the 3 reactive failure modes from recent CI history (A4, A10, F5)
+# — all README drift, each cost ~14 min CI cycle + a fix-forward commit.
+# This hook runs in ~30s and prevents the round trip.
+#
+# Skips heavyweight tests (those still belong in CI).
+#
+# Activate (one-time):  make install-hooks
+#                       (or: git config core.hooksPath .githooks)
+#
+# Bypass once:          git push --no-verify
+
+set -e
+cd "$(git rev-parse --show-toplevel)"
+
+echo "==> pre-push: README drift check"
+if python3 scripts/diagnostics/check_readme_stats.py; then
+  :
+else
+  echo
+  echo "[FAIL] README drift detected. Fix the counts above, then push again."
+  echo "       (To bypass: git push --no-verify — only if you understand the drift)"
+  exit 1
+fi
+
+echo "==> pre-push: ruff lint on scripts/ + tests/"
+if command -v ruff &>/dev/null; then
+  ruff check scripts/ tests/ --quiet
+else
+  echo "    (ruff not installed, skipping)"
+fi
+
+echo "==> pre-push: rag-layer smoke (importorskip-aware)"
+python3 -c "
+try:
+    from scripts.rag import rag_query
+    from scripts.core.gate_rag_bridge import rag_context_for_failure
+    print('    rag public API ok')
+except ImportError as e:
+    # sentence_transformers / optional ML deps may be absent in dev env;
+    # only fail if the failure is structural (circular import etc),
+    # not optional-dep.
+    msg = str(e)
+    if 'sentence_transformers' in msg or 'faiss' in msg or 'torch' in msg:
+        print('    (optional ML dep missing — skipping smoke: ' + msg + ')')
+    else:
+        raise
+"
+
+echo "[OK] pre-push checks passed."
