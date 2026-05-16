@@ -54,7 +54,15 @@ def vector_search(
     Returns:
         A new ``list[dict]`` of length ``min(top_k, N)``, sorted by
         ``_dense_score`` descending. Each element is a shallow copy of the
-        corresponding input record with a ``_dense_score`` float key added.
+        corresponding input record with two added keys:
+
+            * ``_dense_score`` (``float``): cosine similarity to the query.
+            * ``_dense_embedding`` (``np.ndarray`` of shape ``(EMBEDDING_DIM,)``,
+              ``np.float32``): the L2-normalized concern embedding from the
+              cached index. Suitable for downstream cosine similarity via
+              plain dot product (e.g. MMR diversity in
+              ``retrieval.hybrid._mmr_rerank``). Internal-only; downstream
+              code may strip it before returning to user-facing callers.
 
     Raises:
         ValueError: If ``query`` is empty, ``top_k`` is non-positive, or the
@@ -113,6 +121,10 @@ def vector_search(
         idx_int: int = int(idx)
         record_copy: dict = dict(records[idx_int])  # shallow copy
         record_copy["_dense_score"] = float(scores[idx_int])
+        # Attach the L2-normalized embedding row so downstream MMR can use
+        # cosine similarity (= dot product) for diversity. Caller may strip
+        # this internal-only field before returning to user-facing output.
+        record_copy["_dense_embedding"] = embeddings[idx_int]
         results.append(record_copy)
 
     return results

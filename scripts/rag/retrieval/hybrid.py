@@ -271,17 +271,22 @@ def _mmr_rerank(
     lam: Optional[float] = None,
     same_paper_penalty: Optional[float] = None,
 ) -> List[Dict[str, Any]]:
-    """Re-rank candidates using Maximal Marginal Relevance.
+    """Re-rank candidates using Maximal Marginal Relevance (v2).
 
     Preserves the top-1 candidate (highest relevance always wins first slot).
     Subsequent picks balance relevance with diversity from already-picked.
 
-    Per-pair similarity is approximated using:
-      - Same paper_id: same_paper_penalty (high; suppresses near-duplicates)
-      - Different papers: 0 (no embedding similarity available at this stage)
+    Per-pair similarity is the **maximum** of:
+      - Embedding cosine similarity: dot product of the L2-normalized
+        ``_dense_embedding`` vectors when both candidates carry one.
+        Suppresses cross-paper near-duplicates that v1 (paper_id only)
+        could not catch.
+      - Same-paper penalty (``same_paper_penalty``): applied whenever
+        ``paper_id`` matches between two candidates. Still catches the
+        BM25-only fallback path where embeddings are absent.
 
-    The embedding-based similarity is left as a v2 improvement (would
-    require threading per-record embeddings through hybrid_rank).
+    Output strips the internal ``_dense_embedding`` field so callers do
+    not receive 384-dim numpy arrays in their result dicts.
 
     Args:
         candidates: List sorted by _final_score desc.
@@ -292,8 +297,11 @@ def _mmr_rerank(
 
     Returns:
         Re-ranked list of length min(top_k, len(candidates)). Each picked
-        dict gains a "_mmr_score" field for provenance.
+        dict gains a "_mmr_score" field for provenance, and any
+        ``_dense_embedding`` field is removed before return.
     """
+    import numpy as np
+
     if lam is None:
         lam = config.MMR_LAMBDA
     if same_paper_penalty is None:
@@ -302,8 +310,11 @@ def _mmr_rerank(
     if not candidates or top_k <= 0:
         return []
     if len(candidates) == 1 or lam >= 1.0:
-        # passthrough: pure relevance
-        return candidates[:top_k]
+        # passthrough: pure relevance — still strip embedding before return.
+        passthrough = [dict(c) for c in candidates[:top_k]]
+        for r in passthrough:
+            r.pop("_dense_embedding", None)
+        return passthrough
 
     selected = [dict(candidates[0])]  # always take top-1
     selected[0]["_mmr_score"] = selected[0].get("_final_score", 0.0)
@@ -315,9 +326,20 @@ def _mmr_rerank(
         for i, cand in enumerate(remaining):
             relevance = cand.get("_final_score", 0.0)
             max_sim = 0.0
+            cand_emb = cand.get("_dense_embedding")
             for sel in selected:
+                # Same-paper penalty (always applied; catches BM25-only
+                # candidates that lack an embedding).
                 if cand.get("paper_id") and cand["paper_id"] == sel.get("paper_id"):
-                    max_sim = max(max_sim, same_paper_penalty)
+                    if same_paper_penalty > max_sim:
+                        max_sim = same_paper_penalty
+                # Embedding cosine similarity (preferred when both sides
+                # have an L2-normalized vector; dot product == cosine).
+                sel_emb = sel.get("_dense_embedding")
+                if cand_emb is not None and sel_emb is not None:
+                    cos = float(np.dot(cand_emb, sel_emb))
+                    if cos > max_sim:
+                        max_sim = cos
             mmr_score = lam * relevance - (1.0 - lam) * max_sim
             if mmr_score > best_score:
                 best_score = mmr_score
@@ -325,6 +347,11 @@ def _mmr_rerank(
         chosen = dict(remaining.pop(best_idx))
         chosen["_mmr_score"] = float(best_score)
         selected.append(chosen)
+
+    # Strip the internal embedding field so user-facing callers don't get
+    # 384-dim numpy arrays in their result dicts.
+    for r in selected:
+        r.pop("_dense_embedding", None)
 
     return selected
 
