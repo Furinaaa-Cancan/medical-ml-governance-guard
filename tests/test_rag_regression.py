@@ -170,3 +170,39 @@ def test_all_33_gates_have_rag_coverage_or_are_rag_optional() -> None:
         f"scripts/core/_gate_registry.py:\n  "
         + "\n  ".join(f"{n}: {r}" for n, r in empty_but_not_optional)
     )
+
+
+def test_format_for_gate_report_hedges_weak_match_concerns() -> None:
+    """H19 finding: weak-match concerns (low score + fallback-only reasons)
+    should be marked in the markdown so synthesis-LLMs don't cite them
+    as precedent."""
+    from scripts.core.gate_rag_bridge import format_for_gate_report
+
+    weak = {
+        "concern_id": "PR-WEAK-C01",
+        "concern_text": "Some loosely related concern",
+        "severity": "MEDIUM",
+        "_final_score": 0.02,
+        "_match_reasons": ["severity_fallback"],
+    }
+    md = format_for_gate_report([weak], gate_name="leakage_gate")
+    assert "weak match" in md.lower() or "do not cite" in md.lower(), (
+        f"weak-match hedge missing from rendered markdown:\n{md}"
+    )
+
+
+def test_format_for_gate_report_does_not_hedge_strong_match() -> None:
+    """A genuine strong-match concern should NOT carry the weak-match hedge."""
+    from scripts.core.gate_rag_bridge import format_for_gate_report
+
+    strong = {
+        "concern_id": "PR-STRONG-C01",
+        "concern_text": "A clearly relevant concern",
+        "severity": "HIGH",
+        "_final_score": 0.55,
+        "_match_reasons": ["dense_top_1"],
+    }
+    md = format_for_gate_report([strong], gate_name="leakage_gate")
+    assert "weak match" not in md.lower() and "do not cite" not in md.lower(), (
+        f"strong concern incorrectly hedged:\n{md}"
+    )

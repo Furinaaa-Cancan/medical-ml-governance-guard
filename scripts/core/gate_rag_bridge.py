@@ -33,6 +33,74 @@ from scripts.rag.retrieval.hybrid import hybrid_rank
 _MAX_QUOTE_CHARS = 600
 _MAX_RESPONSE_CHARS = 400
 
+# H19 LLM-loop eval found: when a concern surfaces only through fallback
+# signals (severity-only / gate-only / bm25-inactive padding) AND its
+# final fused score sits below this floor, the markdown previously gave
+# the synthesis-LLM (production Claude) no visual cue that the hit was
+# weak. Citing such entries as "peer-review precedent" is a known
+# failure mode. Tunable later; 0.05 chosen because hybrid_rank's
+# severity-only fallback rows score in the 0.01–0.04 band.
+_WEAK_MATCH_SCORE_FLOOR = 0.05
+_WEAK_MATCH_HEDGE = (
+    "   _(weak match — severity/gate-fallback only, not a semantic hit; "
+    "do not cite as precedent.)_"
+)
+# Substrings (lowercased) marking a match-reason as fallback-only.
+# Kept narrow on purpose: anything that genuinely reflects a semantic
+# or lexical hit (dense_*, bm25_top_*, tag_overlap, canonical_pattern)
+# must NOT match here, or strong concerns would be hedged.
+_FALLBACK_REASON_MARKERS = (
+    "fallback",
+    "severity_only",
+    "gate_only",
+    "bm25_inactive",
+)
+
+
+def _is_weak_match(concern: dict) -> bool:
+    """Return True if a concern was retrieved by fallback signals only.
+
+    A concern is "weak" when (a) its fused ``_final_score`` is below
+    :data:`_WEAK_MATCH_SCORE_FLOOR`, AND (b) every entry in
+    ``_match_reasons`` is a fallback marker (severity-only, gate-only,
+    bm25-inactive, or any reason containing "fallback"). Both conditions
+    must hold; a low-scoring but semantically-matched concern (e.g.
+    score 0.03 from ``dense_top_5``) is not hedged because the synthesis
+    LLM can legitimately weigh the dense signal.
+
+    The hedge exists because H19 evaluation showed Claude citing these
+    padding rows as peer-review precedent — they are filler that keeps
+    ``top_k`` populated, not real precedent.
+
+    Args:
+        concern: A single concern record as rendered by
+            :func:`format_for_gate_report`.
+
+    Returns:
+        ``True`` iff the concern should carry the weak-match hedge line.
+        Empty ``_match_reasons`` returns ``False`` (absence of provenance
+        is not evidence of fallback).
+    """
+
+    score = concern.get("_final_score", 0.0)
+    try:
+        if float(score) >= _WEAK_MATCH_SCORE_FLOOR:
+            return False
+    except (TypeError, ValueError):
+        # Non-numeric scores: treat as missing → cannot confirm weak.
+        return False
+
+    reasons = concern.get("_match_reasons") or []
+    if isinstance(reasons, str):
+        reasons = [reasons]
+    if not reasons:
+        # No provenance recorded → don't speculate; leave un-hedged.
+        return False
+    return all(
+        any(marker in str(r).lower() for marker in _FALLBACK_REASON_MARKERS)
+        for r in reasons
+    )
+
 
 def _synthesize_query(
     failure_codes: list[str],
@@ -246,6 +314,12 @@ def format_for_gate_report(
                 f"   _score: {score_str} · match: {reasons}_",
             ]
         )
+        # H19: append a visible hedge so synthesis-LLMs do not cite
+        # fallback-padded rows as peer-review precedent. The line is
+        # italicised + parenthesised to match the existing provenance
+        # line's typographic weight.
+        if _is_weak_match(c):
+            block_lines.append(_WEAK_MATCH_HEDGE)
         blocks.append("\n".join(block_lines))
 
     return "\n\n".join(blocks)
