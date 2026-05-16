@@ -131,29 +131,32 @@ def _normalize_bm25(scores: List[float]) -> List[float]:
 def _bm25_raw_score(concern: Dict[str, Any], rank: int, total: int) -> float:
     """Derive a comparable BM25-equivalent score from a ranked concern.
 
-    ``retrieve_for_failure`` does not expose its internal score; it only
-    returns concerns in score-descending order with a ``_retrieval_mode``
-    flag. We approximate the raw score with a rank-based geometric decay,
-    boosted when the BM25 path reports a real ``keyword_match`` (vs a
-    pure severity fallback, which we discount).
+    Since the upstream ``_peer_review_retrieval._tag_result`` enhancement
+    (commit after qa-wave-2026-05-13), ``retrieve_for_failure`` returns each
+    concern with a real ``_score`` field (raw keyword-overlap = 3×tag +
+    text). We prefer that signal; fall back to rank-based geometric decay
+    only when ``_score`` is absent (older callers / older KB cache).
 
     Args:
         concern: The BM25-returned concern dict.
         rank: 0-based rank from ``retrieve_for_failure`` (0 = top hit).
-        total: Total number of BM25 results (used to scale the decay).
+        total: Total number of BM25 results (used for the legacy fallback).
 
     Returns:
-        A non-negative float; larger = stronger BM25 signal.
+        A non-negative float; larger = stronger BM25 signal. Caller
+        normalizes across all candidates via ``_normalize_bm25``.
     """
-
     if total <= 0:
         return 0.0
-    # Geometric decay from 1.0 (top hit) to ~0.1 (last hit).
+    raw_score = concern.get("_score")
+    if isinstance(raw_score, (int, float)) and raw_score >= 0:
+        # Real keyword-overlap score from the BM25 retriever — preferred.
+        # Severity_fallback returns are tagged 0 here, which naturally
+        # gives them a weak BM25 contribution after _normalize_bm25.
+        return float(raw_score)
+    # Legacy fallback: rank-based geometric decay (pre-_score retriever).
     decay = max(0.1, (total - rank) / total)
     if concern.get("_retrieval_mode") == "severity_fallback":
-        # Pure severity fallback means BM25 vocabulary didn't actually
-        # match; treat as a weak signal so dense + canonical patterns
-        # can still dominate.
         return 0.25 * decay
     return decay
 

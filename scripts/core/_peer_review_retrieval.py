@@ -438,12 +438,23 @@ def retrieve_for_failure(
     if not candidates:
         return []
 
-    def _tag_result(results: List[Dict], mode: str) -> List[Dict]:
+    def _tag_result(results: List[Dict], mode: str,
+                    scores: Optional[List[int]] = None) -> List[Dict]:
         """Annotate each result with the retrieval mode that surfaced it.
         Consumers (gate envelope, CLI formatter, audit logs) can tell
         whether a cited concern is a keyword match or just a severity-
-        sorted fallback — which matters for how strongly to rely on it."""
-        return [{**c, "_retrieval_mode": mode} for c in results]
+        sorted fallback — which matters for how strongly to rely on it.
+
+        Also injects ``_score`` (raw keyword-overlap score, 0 for fallback
+        results) so downstream rankers like scripts/rag/_hybrid_ranker.py
+        can do a real weighted combination instead of a rank-based proxy.
+        """
+        if scores is None:
+            scores = [0] * len(results)
+        return [
+            {**c, "_retrieval_mode": mode, "_score": s}
+            for c, s in zip(results, scores)
+        ]
 
     keywords = _issue_code_keywords(issue_codes or [])
     if not keywords:
@@ -465,13 +476,14 @@ def retrieve_for_failure(
     # Stable sort by (-score, sev_rank). Scored ties broken by severity.
     scored.sort(key=lambda pair: (-pair[1], _sev_rank(pair[0])))
     ranked = [c for c, s in scored]
+    ranked_scores = [s for c, s in scored]
 
     # If nothing scored above 0 on keywords, fall back to severity-only
     # (the old behavior) so reports are never empty just because of
     # vocabulary mismatch.
     if scored[0][1] == 0:
         return _tag_result(candidates[:limit], "severity_fallback")
-    return _tag_result(ranked[:limit], "keyword_match")
+    return _tag_result(ranked[:limit], "keyword_match", ranked_scores[:limit])
 
 
 def retrieve_by_tags(
