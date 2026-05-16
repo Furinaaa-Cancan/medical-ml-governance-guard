@@ -301,6 +301,10 @@ COMMANDS: Dict[str, Tuple[Path, str]] = {
         SCRIPTS_ROOT / "reporting" / "record_session.py",
         "Append a session log entry from evidence directory.",
     ),
+    "rag": (
+        SCRIPTS_ROOT / "rag" / "query.py",
+        "Query the MLGG peer-review knowledge base via hybrid RAG (dense + BM25 + MMR).",
+    ),
 }
 INTERACTIVE_CORE_COMMANDS = ("init", "workflow", "train", "authority")
 COMMAND_PRESETS: Dict[str, Tuple[str, ...]] = {
