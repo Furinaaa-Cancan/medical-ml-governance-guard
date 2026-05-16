@@ -54,9 +54,12 @@ def test_rag_context_for_failure_gate_only() -> None:
     # The bug was an EXCEPTION; absence of exception is the regression check.
 
 
-@pytest.mark.xfail(strict=False, reason="awaiting F1: hybrid_rank top_k uncap")
 def test_top_k_above_50_returns_more() -> None:
-    """E3 finding: top_k > 50 silently capped at DEFAULT_MAX_CANDIDATES_BEFORE_RERANK."""
+    """E3 finding: top_k > 50 silently capped at DEFAULT_MAX_CANDIDATES_BEFORE_RERANK.
+
+    Fixed by F1 (commit 830ce4a): dense_top_k = max(50, top_k).
+    Hard regression — must never re-cap silently.
+    """
     from scripts.rag import rag_query
 
     results = rag_query("calibration", top_k=200)
@@ -65,10 +68,12 @@ def test_top_k_above_50_returns_more() -> None:
     )
 
 
-@pytest.mark.xfail(strict=False, reason="awaiting F1: BM25 inactive marker")
 def test_free_text_marks_bm25_inactive() -> None:
     """E2 finding: free-text path doesn't fire BM25, but doesn't tell the user.
-    Post-F1: results should be marked with a _match_reasons sentinel."""
+
+    Fixed by F1 (commit 830ce4a): results carry a _match_reasons sentinel
+    when BM25 is skipped due to missing gate/codes. Hard regression.
+    """
     from scripts.rag import rag_query
 
     results = rag_query("calibration", top_k=5)
@@ -81,10 +86,13 @@ def test_free_text_marks_bm25_inactive() -> None:
     ), f"expected bm25_inactive marker, got reasons={reasons!r}"
 
 
-@pytest.mark.xfail(strict=False, reason="awaiting F2: rag_optional flag")
 def test_format_for_rag_optional_gate() -> None:
     """E5 finding: format_for_gate_report renders 'no concerns' placeholder
-    even for infra gates with no peer-review domain. Post-F2: returns empty."""
+    even for infra gates with no peer-review domain.
+
+    Fixed by F2 (commit 830ce4a, merged with F1): GateSpec.rag_optional=True
+    on the 4 infra gates suppresses the placeholder. Hard regression.
+    """
     from scripts.core.gate_rag_bridge import format_for_gate_report
 
     out = format_for_gate_report([], gate_name="manifest_lock")
