@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
+# DEPRECATED in favor of .pre-commit-config.yaml's readme-stats-drift hook
+# (H3, 2026-05-17). The pre-commit hook (now always_run: true) catches the
+# same README-drift class at COMMIT time, one cycle earlier. This pre-push
+# hook is kept as a backup safety net for users who ran `make install-hooks`
+# but never ran `pre-commit install`. Prefer the pre-commit path going
+# forward; remove this file once `pre-commit install` is documented as the
+# canonical onboarding step.
+#
 # MLGG pre-push: catches the common CI failures locally before push.
 #
 # Targets the 3 reactive failure modes from recent CI history (A4, A10, F5)

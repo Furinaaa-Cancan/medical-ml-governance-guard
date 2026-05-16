@@ -66,11 +66,18 @@ repos:
         files: ^references/codebooks/ukb/(.*\.txt|.*\.sqlite.*|source_manifest\.json|ukb_golden_fields\.yaml)$
 
       # README numeric-claim drift: "106 papers" vs live "119",
-      # "4722 tests" vs actual. Runs on any edit to either README
-      # or to the KB (which is the ground truth for most claims).
+      # "4722 tests" vs actual.
+      #
+      # H3 (2026-05-17): widened from file-scoped to always_run.
+      # Previously this only fired on README/KB edits, which missed
+      # the common case: a gate/test commit silently changes the
+      # live count without touching README, then CI catches the drift
+      # one merge later. 4+ historical reds (A4, A10, F5, G-wave) all
+      # fit this pattern. Cost: ~1s per commit. Bypass: --no-verify.
       - id: readme-stats-drift
         name: README stats parity + freshness (CN ↔ EN, vs live KB)
         entry: python3 scripts/diagnostics/check_readme_stats.py
         language: system
         pass_filenames: false
-        files: ^(README\.md|README_EN\.md|references/case-studies/peer-review-kb\.json|scripts/core/_gate_registry\.py)$
+        always_run: true
+        stages: [pre-commit]
