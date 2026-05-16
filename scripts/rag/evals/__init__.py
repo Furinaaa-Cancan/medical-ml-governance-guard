@@ -1,5 +1,12 @@
-"""Retrieval evaluation harness + scenarios.
+"""RAG retrieval evaluation.
 
-Populated by Agents A4/A5/A7 of the RAG-layout refactor. Public API
-surface is re-exported from `scripts/rag/__init__.py`.
+Currently one module:
+
+  * :mod:`scripts.rag.evals.harness` — runs a labeled scenario set
+    against the live retriever and reports per-scenario coverage + score
+    deltas. See ``scripts/rag/evals/harness.py --help``.
+
+Future: scenarios.json fixture set, metrics.py (P@K, MRR, NDCG helpers).
+
+Import explicit paths; not re-exported at the package root.
 """
