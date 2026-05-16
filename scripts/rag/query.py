@@ -141,10 +141,16 @@ def prewarm(*, force_rebuild: bool = False) -> dict:
           index. Below ~1 s typically means the npz cache was hit.
         * ``warm_query_ms`` -- wall-clock of a tiny throw-away query that
           exercises the full hybrid-rank path, so the BM25 + dense retrievers
-          are also warm.
+          are also warm. The probe text is derived from the first loaded
+          record's ``concern_text`` (truncated to 40 chars), with a literal
+          ``"calibration"`` fallback if the record has no usable text. This
+          keeps the probe valid even if the KB topic mix changes (H6).
         * ``n_concerns`` -- number of concern records in the loaded index.
-        * ``cache_was_warm`` -- ``True`` if the index npz cache hit (heuristic:
-          ``index_load_ms < 1000``).
+        * ``cache_was_warm`` -- ``True`` if the embeddings npz cache file
+          existed on disk **before** ``build_or_load_index`` was called. This
+          is more authoritative than a pure timing heuristic: it directly
+          reflects whether the on-disk artifact was reused, regardless of
+          how long the load happened to take on a slow filesystem (H6).
 
     Idempotent: the second call hits the model singleton and the on-disk
     index cache, so it should complete in tens of milliseconds.
@@ -160,6 +166,12 @@ def prewarm(*, force_rebuild: bool = False) -> dict:
     get_model()
     model_load_ms = (time.perf_counter() - t0) * 1000
 
+    # Authoritative cache signal: snapshot file-existence BEFORE the loader
+    # has a chance to (re)write it. We deliberately use the canonical config
+    # path so we observe the same artifact the builder reads/writes.
+    from scripts.rag import config as _rag_config
+    cache_existed_pre = _rag_config.EMBEDDINGS_CACHE.exists()
+
     t0 = time.perf_counter()
     from scripts.rag.index.builder import build_or_load_index
     # Defensive: tolerate older signatures that may not yet accept
@@ -170,16 +182,31 @@ def prewarm(*, force_rebuild: bool = False) -> dict:
     _emb, recs = build_or_load_index(**kwargs)
     index_load_ms = (time.perf_counter() - t0) * 1000
 
+    # Derive the probe text from the actual loaded records rather than
+    # hardcoding "calibration". This keeps prewarm() robust if the KB ever
+    # drops calibration-themed concerns (H6 finding).
+    probe_text = ""
+    if recs:
+        probe_text = (recs[0].get("concern_text", "") or "").strip()[:40]
+    if not probe_text:
+        probe_text = "calibration"  # ultimate fallback for empty/None text
+
     t0 = time.perf_counter()
-    _ = rag_query("calibration", top_k=1)
+    _ = rag_query(probe_text, top_k=1)
     warm_query_ms = (time.perf_counter() - t0) * 1000
+
+    # cache_was_warm is True when the npz existed before we asked the builder
+    # to do anything AND the loader returned quickly (timing corroboration
+    # catches the "file existed but was stale and got rebuilt" edge case,
+    # since rebuilds dominate wall time at ~30-60s).
+    cache_was_warm = cache_existed_pre and index_load_ms < 5000.0
 
     return {
         "model_load_ms": round(model_load_ms, 1),
         "index_load_ms": round(index_load_ms, 1),
         "warm_query_ms": round(warm_query_ms, 1),
         "n_concerns": len(recs),
-        "cache_was_warm": index_load_ms < 1000.0,
+        "cache_was_warm": cache_was_warm,
     }
 
 
