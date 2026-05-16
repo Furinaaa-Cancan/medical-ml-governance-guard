@@ -34,7 +34,7 @@ Two code paths
 We prefer the public API ``scripts.rag.rag_query.rag_query`` (which goes
 through ``_hybrid_ranker.hybrid_rank``). If Agent A5's hybrid ranker is
 not yet in place (or returns empty because of an upstream missing dep),
-the helper transparently falls back to a pure dense ``_vector_search``
+the helper transparently falls back to a pure dense ``retrieval.dense``
 path so we still get real signal against the live KB. Both paths return
 records with the same canonical schema (concern_id, mlgg_gates,
 mlgg_rules, tags, severity, concern_text, ...), which is what the
@@ -158,7 +158,7 @@ def _run_query(
     try:
         from scripts.rag._hybrid_ranker import hybrid_rank  # noqa: F401
     except ImportError:
-        from scripts.rag._vector_search import vector_search
+        from scripts.rag.retrieval.dense import vector_search
 
         embeddings, records = index
         return vector_search(query, embeddings, records, top_k=top_k)

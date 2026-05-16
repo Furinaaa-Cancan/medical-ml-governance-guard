@@ -5,7 +5,7 @@ These tests cover the seven modules under ``scripts/rag/``:
 * ``config``  — constants, paths, weights
 * ``_embeddings``  — sentence-transformer wrapper
 * ``_index_builder`` — KB → npz cache, idempotent
-* ``_vector_search`` — cosine search over cache
+* ``retrieval.dense`` — cosine search over cache
 * ``_hybrid_ranker`` — vector + BM25 + gate + tag fusion
 * ``_gate_integration`` — gate-failure → contextual concerns
 
@@ -46,7 +46,7 @@ import pytest
 # ---------------------------------------------------------------------------
 from scripts.rag import config
 from scripts.rag.embeddings import embed_texts
-from scripts.rag._vector_search import vector_search
+from scripts.rag.retrieval.dense import vector_search
 
 
 # ---------------------------------------------------------------------------
@@ -369,7 +369,7 @@ class TestIndexBuilder:
 
 
 # ===========================================================================
-# _vector_search
+# retrieval.dense
 # ===========================================================================
 
 class TestVectorSearch:

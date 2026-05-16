@@ -1,10 +1,13 @@
 """Dense vector search over the cached MLGG concern embeddings.
 
-This module implements the ``vector_search`` primitive used by the hybrid
-ranker (``scripts/rag/_hybrid_ranker.py``). It embeds a free-text query with
-the same sentence-transformer model used to build the index, computes cosine
+This module lives at ``scripts/rag/retrieval/dense.py`` and implements the
+``vector_search`` primitive used by the hybrid ranker
+(``scripts/rag/_hybrid_ranker.py``). It embeds a free-text query with the
+same sentence-transformer model used to build the index, computes cosine
 similarity against the pre-normalized concern matrix, and returns the top-K
 concern records with a ``_dense_score`` field injected.
+
+Import path: ``from scripts.rag.retrieval.dense import vector_search``.
 
 Design notes:
     * Inputs are assumed to be L2-normalized (the ``_index_builder`` and

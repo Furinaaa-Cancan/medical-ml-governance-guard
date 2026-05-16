@@ -10,7 +10,7 @@ concern:
           + WEIGHT_SEVERITY     * severity_boost
 
 Signals:
-    * **Dense**: cosine similarity from ``_vector_search.vector_search``
+    * **Dense**: cosine similarity from ``retrieval.dense.vector_search``
       over the cached sentence-transformer embeddings produced by
       ``_index_builder.build_or_load_index``.
     * **BM25**: keyword-overlap ranking from the existing
@@ -40,7 +40,7 @@ from scripts.rag import config
 # ---------------------------------------------------------------------------
 # Sibling-module imports with graceful fallback
 # ---------------------------------------------------------------------------
-# Agents A3 (``_index_builder``) and A4 (``_vector_search``) land in
+# Agents A3 (``_index_builder``) and A4 (``retrieval.dense``) land in
 # parallel. We resolve them lazily inside ``hybrid_rank`` so that this
 # module can still be imported (e.g. for static checks or partial unit
 # tests) before they exist on disk.
@@ -67,10 +67,10 @@ def _import_sibling_modules() -> Tuple[Callable[..., Any], Callable[..., Any]]:
         ) from exc
 
     try:
-        from scripts.rag._vector_search import vector_search  # type: ignore[import-not-found]  # noqa: E501
+        from scripts.rag.retrieval.dense import vector_search  # type: ignore[import-not-found]  # noqa: E501
     except Exception as exc:  # pragma: no cover - depends on rollout order
         raise RuntimeError(
-            "scripts.rag._vector_search.vector_search is required by "
+            "scripts.rag.retrieval.dense.vector_search is required by "
             "_hybrid_ranker but could not be imported"
         ) from exc
 
