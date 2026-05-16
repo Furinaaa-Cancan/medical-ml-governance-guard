@@ -251,6 +251,8 @@ The first call after process start incurs ~228 ms vs steady-state ~12 ms (model 
 
 Steady-state RSS ~460 MB per process (BGE-small + tokenizer + 817 &times; 384 float32 matrix). Plan accordingly for multi-worker gate runners.
 
+Detailed triage guide: [`docs/RAG_TROUBLESHOOTING.md`](docs/RAG_TROUBLESHOOTING.md) (9 sections covering symptoms → diagnosis → fixes).
+
 ---
 
 ## System Overview

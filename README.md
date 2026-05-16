@@ -258,6 +258,8 @@ F2 修复后，gate report 不会再为这些 gate 显示占位条目；F2 之�
 
 每进程稳态 RSS ~460 MB（BGE-small + tokenizer + 817 × 384 float32 矩阵）。多 worker gate runner 请相应规划。
 
+详细排查指南：[`docs/RAG_TROUBLESHOOTING.md`](docs/RAG_TROUBLESHOOTING.md)（9 节，覆盖常见症状 → 诊断 → 修复）。
+
 ---
 
 ## 系统能力总览
