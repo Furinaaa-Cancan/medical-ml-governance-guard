@@ -13,8 +13,8 @@ Signals:
     * **Dense**: cosine similarity from ``retrieval.dense.vector_search``
       over the cached sentence-transformer embeddings produced by
       ``_index_builder.build_or_load_index``.
-    * **BM25**: keyword-overlap ranking from the existing
-      ``scripts/core/_peer_review_retrieval.retrieve_for_failure``. Only
+    * **BM25**: keyword-overlap ranking from
+      ``scripts.rag.retrieval.bm25.retrieve_for_failure``. Only
       consulted when both ``gate`` and ``failure_codes`` are supplied.
     * **Tag overlap (canonical-pattern boost)**: candidates sharing
       ``canonical_pattern_id`` *and* >=2 tags with another candidate get
@@ -31,11 +31,11 @@ See ``/tmp/mlgg_rag_design.md`` for the full design contract.
 
 from __future__ import annotations
 
-import sys
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 
 from scripts.rag import config
+from scripts.rag.retrieval.bm25 import retrieve_for_failure
 
 # ---------------------------------------------------------------------------
 # Sibling-module imports with graceful fallback
@@ -77,23 +77,6 @@ def _import_sibling_modules() -> Tuple[Callable[..., Any], Callable[..., Any]]:
     return build_or_load_index, vector_search
 
 
-def _import_bm25_retriever() -> Callable[..., List[Dict[str, Any]]]:
-    """Import ``retrieve_for_failure`` from ``scripts/core``.
-
-    The function lives at ``scripts/core/_peer_review_retrieval.py``;
-    per the spec we add that directory to ``sys.path`` before importing
-    so the symbol resolves whether or not the caller has the project
-    root on the path.
-    """
-
-    core_dir = str(config.REPO_ROOT / "scripts" / "core")
-    if core_dir not in sys.path:
-        sys.path.insert(0, core_dir)
-    from _peer_review_retrieval import retrieve_for_failure  # type: ignore[import-not-found]  # noqa: E501
-
-    return retrieve_for_failure
-
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -131,7 +114,7 @@ def _normalize_bm25(scores: List[float]) -> List[float]:
 def _bm25_raw_score(concern: Dict[str, Any], rank: int, total: int) -> float:
     """Derive a comparable BM25-equivalent score from a ranked concern.
 
-    Since the upstream ``_peer_review_retrieval._tag_result`` enhancement
+    Since the upstream ``retrieval.bm25._tag_result`` enhancement
     (commit after qa-wave-2026-05-13), ``retrieve_for_failure`` returns each
     concern with a real ``_score`` field (raw keyword-overlap = 3×tag +
     text). We prefer that signal; fall back to rank-based geometric decay
@@ -269,7 +252,7 @@ def hybrid_rank(
            ``DEFAULT_MAX_CANDIDATES_BEFORE_RERANK`` (default 50).
         3. If both ``gate`` and ``failure_codes`` are supplied, also
            fetch the BM25-style results from
-           ``_peer_review_retrieval.retrieve_for_failure`` and union
+           ``retrieval.bm25.retrieve_for_failure`` and union
            them (dedup by ``concern_id``).
         4. Apply the optional gate filter (drop concerns whose
            ``mlgg_gates`` list does not contain ``gate``).
@@ -343,7 +326,6 @@ def hybrid_rank(
     bm25_score_by_id: Dict[str, float] = {}
     bm25_records_by_id: Dict[str, Dict[str, Any]] = {}
     if gate and failure_codes:
-        retrieve_for_failure = _import_bm25_retriever()
         bm25_hits = retrieve_for_failure(
             gate,
             failure_codes,

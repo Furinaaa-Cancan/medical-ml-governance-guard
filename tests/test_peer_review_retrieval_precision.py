@@ -17,13 +17,11 @@ relevance doesn't silently return.
 """
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "scripts" / "core"))
 
-from _peer_review_retrieval import (  # noqa: E402
+from scripts.rag.retrieval.bm25 import (  # noqa: E402
     _issue_code_keywords,
     retrieve_by_gate,
     retrieve_for_failure,
@@ -202,10 +200,6 @@ def test_gate_framework_prefers_failure_codes_over_warning_codes() -> None:
     must contain only the failure codes. Otherwise warnings' keywords
     dilute precision when a gate emits many warnings + one failure.
     """
-    import sys as _sys
-    from pathlib import Path as _Path
-    _sys.path.insert(0, str(_Path(__file__).resolve().parent.parent / "scripts" / "core"))
-
     from _gate_framework import (  # noqa: E402
         GateIssue,
         Severity,
@@ -257,11 +251,7 @@ def test_envelope_and_format_gate_peer_context_agree_on_ranking() -> None:
     pair. Before 2026-04-18, the terminal path used severity-only
     `retrieve_by_gate` while the envelope used `retrieve_for_failure`,
     so the two paths could disagree for the same gate failure."""
-    import sys as _sys
-    from pathlib import Path as _Path
-    _sys.path.insert(0, str(_Path(__file__).resolve().parent.parent / "scripts" / "core"))
-
-    from _peer_review_retrieval import (  # noqa: E402
+    from scripts.rag.retrieval.bm25 import (  # noqa: E402
         format_gate_peer_context,
         retrieve_for_failure,
     )
@@ -316,10 +306,6 @@ def test_envelope_emits_peer_review_status() -> None:
     alongside peer_review_context so a consumer can differentiate five
     cases: keyword_match / severity_fallback / no_mapped_concerns /
     kb_unavailable / skipped_no_issues."""
-    import sys as _sys
-    from pathlib import Path as _Path
-    _sys.path.insert(0, str(_Path(__file__).resolve().parent.parent / "scripts" / "core"))
-
     from _gate_framework import (  # noqa: E402
         GateIssue,
         Severity,
@@ -365,10 +351,6 @@ def test_envelope_retries_failure_plus_warning_when_stage1_falls_back() -> None:
     and retry. A vocabulary-poor failure should borrow signal from its
     warning codes — without letting warnings dominate when failures
     already match."""
-    import sys as _sys
-    from pathlib import Path as _Path
-    _sys.path.insert(0, str(_Path(__file__).resolve().parent.parent / "scripts" / "core"))
-
     from _gate_framework import (  # noqa: E402
         GateIssue,
         Severity,
@@ -405,11 +387,7 @@ def test_retrieve_by_text_min_match_ratio_uses_ceil() -> None:
     """math.ceil floor: a 3-term query with ratio=0.4 must require ≥2 hits
     (67% ≥ 40%), not 1 hit (33% < 40%). The previous int() truncation
     silently admitted matches below the declared ratio floor."""
-    import sys as _sys
-    from pathlib import Path as _Path
-    _sys.path.insert(0, str(_Path(__file__).resolve().parent.parent / "scripts" / "core"))
-
-    from _peer_review_retrieval import retrieve_by_text  # noqa: E402
+    from scripts.rag.retrieval.bm25 import retrieve_by_text  # noqa: E402
 
     # A query with 3 unique terms; ratio 0.4 should demand ≥ ceil(1.2) = 2.
     results = retrieve_by_text(

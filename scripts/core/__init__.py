@@ -6,6 +6,8 @@ Modules:
     _gate_utils.py          <- add_issue, load_json, write_json, try_parse_time, etc.
     _gate_registry.py       <- GATE_REGISTRY (name -> metadata for all 33 gates)
     _security.py            <- Path traversal, injection, and privilege checks
-    _peer_review_retrieval.py <- NC peer review knowledge base retrieval
     _audit_shared.py        <- Shared audit utilities
+
+(Peer-review-KB retrieval lives at scripts/rag/retrieval/bm25.py since
+the 2026-05-16 RAG-layout refactor.)
 """

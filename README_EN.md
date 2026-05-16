@@ -1246,13 +1246,14 @@ medical-ml-governance-guard/
 │
 ├── scripts/                              # ─── Core Code (106 files, ~83K lines) ───
 │   │                                     # File / LOC snapshot 2026-04-24; counts drift per commit.
-│   ├── core/              (7)            # Framework foundation
+│   ├── core/              (6)            # Framework foundation
 │   │   ├── _gate_framework.py            #   GateIssue/Severity, report envelope v2.0, CLI contract
 │   │   ├── _gate_registry.py             #   33-gate DAG (8-layer topological sort, parallel markers)
 │   │   ├── _gate_utils.py                #   60+ stat/IO/security functions (calibration, VIF, NRI...)
 │   │   ├── _audit_shared.py              #   12-dimension scoring + 12 code anti-pattern regex scan
-│   │   ├── _peer_review_retrieval.py     #   817 review opinions BM25 retrieval + tag synonym expansion
 │   │   └── _security.py                  #   HMAC signing, AES-256-GCM, RBAC, RestrictedUnpickler
+│   │   # Note: peer-review KB retrieval (_peer_review_retrieval.py, 793 LOC) moved to
+│   │   # scripts/rag/retrieval/bm25.py — the BM25 half of the RAG hybrid ranker.
 │   │
 │   ├── gates/             (34)           # 33 fail-closed gates (standalone CLI, exit 0/2)
 │   │   ├── cohort_definition_gate.py     #   Layer 0: Cohort definition + codebook RAG validation
@@ -1310,14 +1311,14 @@ medical-ml-governance-guard/
 │   │   ├── correct_subgroup_overmatch.py #   Fix subgroup over-match in review index
 │   │   └── ...                           #   batch_journal_review, extract/score metadata
 │   │
-│   ├── rag/               (8)            # Dense-vector RAG over the peer-review KB (__init__ + 7 modules)
-│   │   ├── _rag_config.py                #   Constants / paths / weights (BGE-small, .cache/rag/, dense/BM25/tag)
-│   │   ├── _embeddings.py                #   sentence-transformers wrapper (singleton model loader + normalize)
+│   ├── rag/               (7)            # Dense-vector RAG over the peer-review KB (__init__ + 6 modules + retrieval/ subpkg)
+│   │   ├── config.py                     #   Constants / paths / weights (BGE-small, .cache/rag/, dense/BM25/tag)
+│   │   ├── embeddings.py                 #   sentence-transformers wrapper (singleton model loader + normalize)
 │   │   ├── _index_builder.py             #   KB → npz cache (sha256-invalidated, idempotent)
-│   │   ├── _vector_search.py             #   Cosine top-50 candidate retrieval
 │   │   ├── _hybrid_ranker.py             #   dense + BM25 + gate filter + canonical pattern + severity fusion
 │   │   ├── rag_query.py                  #   [entry point] High-level API + CLI (--gate / --codes / --top-k / --format)
-│   │   └── _gate_integration.py          #   rag_context_for_failure() — injects reviewer quotes into gate report.json
+│   │   ├── _gate_integration.py          #   rag_context_for_failure() — injects reviewer quotes into gate report.json
+│   │   └── retrieval/                    #   Retrieval signal subpackage: dense.py (cosine) + bm25.py (keyword re-rank)
 │   │
 │   └── diagnostics/       (28)           # Environment, docs-consistency & KB hygiene
 │       ├── env_doctor.py                 #   Dependency health check

@@ -271,7 +271,7 @@ def build_report_envelope(
     _peer_status = "skipped_no_issues"
     if failures or warnings:
         try:
-            from _peer_review_retrieval import retrieve_for_failure
+            from scripts.rag.retrieval.bm25 import retrieve_for_failure
 
             _failure_codes = [i.code for i in failures]
             _warning_codes = [i.code for i in warnings]
@@ -515,7 +515,7 @@ def print_gate_summary(
     # terminal summary consistent with the `peer_review_context` field.
     if failures or warnings:
         try:
-            from _peer_review_retrieval import format_gate_peer_context
+            from scripts.rag.retrieval.bm25 import format_gate_peer_context
             _codes = (
                 [i.code for i in failures]
                 if failures

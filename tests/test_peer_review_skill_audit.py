@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 
 
-from _peer_review_retrieval import (
+from scripts.rag.retrieval.bm25 import (
     format_gate_peer_context,
     format_peer_context,
     get_stats_summary,

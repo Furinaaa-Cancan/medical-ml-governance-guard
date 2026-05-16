@@ -1,5 +1,3 @@
-import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core"); _sys.path.insert(0, _CORE_DIR) if _CORE_DIR not in _sys.path else None  # noqa: E702
-
 """CLI for querying the Peer Review Knowledge Base.
 
 Usage:
@@ -13,8 +11,15 @@ Usage:
 
 import argparse
 import sys
+from pathlib import Path as _Path
 
-from _peer_review_retrieval import (
+# Ensure the repo root is on sys.path so ``scripts.rag.*`` imports work when
+# this file is invoked directly via ``python3 scripts/review/peer_review_lookup.py``.
+_REPO_ROOT = _Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from scripts.rag.retrieval.bm25 import (  # noqa: E402
     format_peer_context,
     get_stats_summary,
     retrieve_by_category,

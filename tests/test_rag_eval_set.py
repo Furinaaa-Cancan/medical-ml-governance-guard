@@ -19,16 +19,14 @@ thresholds as retrieval improves (the whole point).
 """
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 from typing import List
 
 import pytest
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "scripts" / "core"))
 
-from _peer_review_retrieval import retrieve_for_failure  # noqa: E402
+from scripts.rag.retrieval.bm25 import retrieve_for_failure  # noqa: E402
 
 EVAL_SET_PATH = PROJECT_ROOT / "references" / "case-studies" / "rag-eval-set.yaml"
 

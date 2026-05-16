@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 
-from _peer_review_retrieval import (
+from scripts.rag.retrieval.bm25 import (
     TAG_SYNONYMS,
     _expand_tags,
     _sort_by_severity,
@@ -364,35 +364,35 @@ class TestKBMalformedDegrades:
     """
 
     def test_malformed_json_raises_kb_error(self, tmp_path: Path):
-        from _peer_review_retrieval import KBMalformedError
+        from scripts.rag.retrieval.bm25 import KBMalformedError
         bad = tmp_path / "kb.json"
         bad.write_text("{not valid json", encoding="utf-8")
         with pytest.raises(KBMalformedError):
             retrieve_by_gate("leakage_gate", kb_path=bad)
 
     def test_root_not_dict_raises_kb_error(self, tmp_path: Path):
-        from _peer_review_retrieval import KBMalformedError
+        from scripts.rag.retrieval.bm25 import KBMalformedError
         bad = tmp_path / "kb.json"
         bad.write_text('["this is an array not an object"]', encoding="utf-8")
         with pytest.raises(KBMalformedError):
             retrieve_by_gate("leakage_gate", kb_path=bad)
 
     def test_missing_entries_key_raises_kb_error(self, tmp_path: Path):
-        from _peer_review_retrieval import KBMalformedError
+        from scripts.rag.retrieval.bm25 import KBMalformedError
         bad = tmp_path / "kb.json"
         bad.write_text('{"version": "bad", "concerns": []}', encoding="utf-8")
         with pytest.raises(KBMalformedError):
             retrieve_by_gate("leakage_gate", kb_path=bad)
 
     def test_entries_not_list_raises_kb_error(self, tmp_path: Path):
-        from _peer_review_retrieval import KBMalformedError
+        from scripts.rag.retrieval.bm25 import KBMalformedError
         bad = tmp_path / "kb.json"
         bad.write_text('{"entries": {"a": "b"}}', encoding="utf-8")
         with pytest.raises(KBMalformedError):
             retrieve_by_gate("leakage_gate", kb_path=bad)
 
     def test_entries_contains_non_dict_raises_kb_error(self, tmp_path: Path):
-        from _peer_review_retrieval import KBMalformedError
+        from scripts.rag.retrieval.bm25 import KBMalformedError
         bad = tmp_path / "kb.json"
         bad.write_text('{"entries": ["oops not a dict"]}', encoding="utf-8")
         with pytest.raises(KBMalformedError):

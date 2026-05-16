@@ -1289,13 +1289,14 @@ medical-ml-governance-guard/
 │   │                                      # LOC snapshot 2026-04-24; drifts per commit —
 │   │                                      # treat as order-of-magnitude, run `wc -l` for exact.
 │   │
-│   ├── core/              (6 files, 7.0K LOC)   # 框架底座 — 所有 gate 共享的基础设施
+│   ├── core/              (5 files, 6.2K LOC)   # 框架底座 — 所有 gate 共享的基础设施
 │   │   ├── _gate_framework.py            #   531  报告信封 v2.0, GateIssue/Severity, CLI 契约 (exit 0/2)
 │   │   ├── _gate_registry.py             #   820  33 gate DAG 拓扑排序 + 依赖解析 + 层级并行
 │   │   ├── _gate_utils.py                #  2927  60+ 统计函数: calibration, VIF, NRI/IDI, DCA, bootstrap CI
 │   │   ├── _audit_shared.py              #   238  12 维评分 + 代码反模式正则扫描
-│   │   ├── _peer_review_retrieval.py     #   781  817 条审稿意见 BM25 检索 + tag 同义词扩展 + issue-code 加权重排
 │   │   └── _security.py                  #  1725  HMAC 签名, AES-256-GCM 加密, 受限反序列化
+│   │   # 注: 审稿 KB 检索 (_peer_review_retrieval.py, 793 LOC) 已迁至 scripts/rag/retrieval/bm25.py
+│   │   #     成为 RAG 包的 BM25 半侧；scripts/core/ 不再持有 RAG 实现。
 │   │
 │   ├── gates/             (33 files, 28K LOC)   # 33 道 fail-closed 门控 (每个独立 CLI)
 │   │   │
@@ -1404,14 +1405,14 @@ medical-ml-governance-guard/
 │   │   ├── add_robustness_permutation_gates.py # --   为现有审稿意见补 robustness / permutation 条目
 │   │   └── correct_subgroup_overmatch.py #   --   修复审稿意见的亚组 over-match 问题
 │   │
-│   ├── rag/               (7 files, 1.4K LOC)    # 审稿 KB 之上的密集向量 RAG 层 (7 模块，不含 __init__)
-│   │   ├── _rag_config.py                #   常量/路径/权重 (BGE-small + .cache/rag/ + dense/BM25/tag 比重)
-│   │   ├── _embeddings.py                #   sentence-transformers 包装 (单例 model loader + 归一化)
+│   ├── rag/               (6 files, 1.4K LOC)    # 审稿 KB 之上的密集向量 RAG 层 (6 顶层模块 + retrieval/ 子包)
+│   │   ├── config.py                     #   常量/路径/权重 (BGE-small + .cache/rag/ + dense/BM25/tag 比重)
+│   │   ├── embeddings.py                 #   sentence-transformers 包装 (单例 model loader + 归一化)
 │   │   ├── _index_builder.py             #   KB → npz 缓存 (sha256 失效, idempotent)
-│   │   ├── _vector_search.py             #   cosine top-50 候选检索
 │   │   ├── _hybrid_ranker.py             #   dense + BM25 + gate filter + canonical pattern + severity 融合
 │   │   ├── rag_query.py                  #   [入口] 高层 API + CLI (--gate / --codes / --top-k / --format)
-│   │   └── _gate_integration.py          #   rag_context_for_failure() — 给 gate report.json 注入 reviewer 引用
+│   │   ├── _gate_integration.py          #   rag_context_for_failure() — 给 gate report.json 注入 reviewer 引用
+│   │   └── retrieval/                    #   检索信号子包: dense.py (cosine) + bm25.py (关键词重排)
 │   │
 │   ├── diagnostics/       (27 files, 5.3K LOC)  # 环境诊断 + 文档一致性 + KB 卫生
 │   │   ├── env_doctor.py                 #   169  依赖健康检查 (core + optional backends)

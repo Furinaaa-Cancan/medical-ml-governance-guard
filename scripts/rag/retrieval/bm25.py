@@ -1,8 +1,17 @@
-"""Peer Review Knowledge Base retrieval for MLGG RAG.
+"""BM25 / keyword-overlap retrieval over the Peer Review Knowledge Base.
 
-Provides functions to query the peer-review-kb.json knowledge base
-by dimension, gate, tag, category, domain, severity, paper, and text.
-Used by the /mlgg skill and gate scripts to cite real NC reviewer concerns.
+The BM25 half of the MLGG RAG hybrid ranker. Provides functions to
+query the peer-review-kb.json knowledge base by dimension, gate, tag,
+category, domain, severity, paper, and text, and (most importantly
+for hybrid fusion) by issue-code keyword overlap via
+``retrieve_for_failure``.
+
+Sibling module ``scripts.rag.retrieval.dense`` provides the dense /
+embedding-cosine half; ``scripts.rag._hybrid_ranker`` fuses the two.
+
+Previously located at ``scripts/core/_peer_review_retrieval.py`` and
+loaded by ``_hybrid_ranker`` through a ``sys.path.insert`` hack;
+moved here so the RAG package is self-contained.
 
 This module is READ-ONLY — it never modifies the knowledge base.
 """
@@ -136,8 +145,9 @@ TAG_SYNONYMS: Dict[str, List[str]] = {
     "overstatement": ["overstatement", "overclaimed", "overclaimed_novelty", "overclaimed_improvement", "overclaimed_public_health", "title_overstatement"],
 }
 
-_KB_PATH = Path(__file__).resolve().parent.parent.parent / "references" / "case-studies" / "peer-review-kb.json"
-_STATS_PATH = Path(__file__).resolve().parent.parent.parent / "references" / "case-studies" / "peer-review-kb-stats.json"
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+_KB_PATH = _REPO_ROOT / "references" / "case-studies" / "peer-review-kb.json"
+_STATS_PATH = _REPO_ROOT / "references" / "case-studies" / "peer-review-kb-stats.json"
 
 _kb_cache: Optional[Dict[str, Any]] = None
 

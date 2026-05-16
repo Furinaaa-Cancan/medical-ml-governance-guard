@@ -248,7 +248,7 @@ class TestPeerReviewRetrievalDegradation:
 
     def test_malformed_kb_does_not_crash_envelope(self, tmp_path, monkeypatch):
         # Point the retrieval module's default KB at a broken file.
-        import _peer_review_retrieval as prr
+        from scripts.rag.retrieval import bm25 as prr
         bad_kb = tmp_path / "peer-review-kb.json"
         bad_kb.write_text("{not json", encoding="utf-8")
         monkeypatch.setattr(prr, "_KB_PATH", bad_kb)
@@ -265,7 +265,7 @@ class TestPeerReviewRetrievalDegradation:
             env["peer_review_status"] == "kb_unavailable"
 
     def test_kb_missing_does_not_crash_envelope(self, tmp_path, monkeypatch):
-        import _peer_review_retrieval as prr
+        from scripts.rag.retrieval import bm25 as prr
         monkeypatch.setattr(prr, "_KB_PATH", tmp_path / "does_not_exist.json")
         prr.clear_cache()
         fi = self._make_issues(1)

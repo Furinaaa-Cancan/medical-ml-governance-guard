@@ -36,19 +36,20 @@ prints current numbers, which is useful for a first run.
 """
 from __future__ import annotations
 
-import sys as _sys
-from pathlib import Path as _Path
-
-_CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core")
-if _CORE_DIR not in _sys.path:
-    _sys.path.insert(0, _CORE_DIR)
-
 import argparse
 import json
+import sys as _sys
 from pathlib import Path
 from typing import Any, Dict, List
 
-from _peer_review_retrieval import retrieve_for_failure
+# Ensure the repo root is on sys.path so ``scripts.rag.*`` imports work when
+# this file is invoked directly via
+# ``python3 scripts/diagnostics/retrieval_eval_harness.py``.
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in _sys.path:
+    _sys.path.insert(0, str(_REPO_ROOT))
+
+from scripts.rag.retrieval.bm25 import retrieve_for_failure  # noqa: E402
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent

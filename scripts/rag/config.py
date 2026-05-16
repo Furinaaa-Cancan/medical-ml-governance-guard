@@ -63,7 +63,7 @@ KB_PATH: Final[Path] = REPO_ROOT / "references" / "case-studies" / "peer-review-
 #         + WEIGHT_SEVERITY * severity_boost
 # The four weights MUST sum to 1.0.
 WEIGHT_DENSE: Final[float] = 0.5         # cosine similarity from dense embeddings
-WEIGHT_BM25: Final[float] = 0.3          # from existing _peer_review_retrieval
+WEIGHT_BM25: Final[float] = 0.3          # from scripts.rag.retrieval.bm25
 WEIGHT_TAG_OVERLAP: Final[float] = 0.15  # Q4-canonical-pattern weighted bonus
 WEIGHT_SEVERITY: Final[float] = 0.05     # CRITICAL > HIGH > MEDIUM > LOW small boost
 
