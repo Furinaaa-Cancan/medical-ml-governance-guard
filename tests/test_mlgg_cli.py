@@ -78,13 +78,15 @@ class TestCLIDryRun:
         cmd = [sys.executable, str(GATE_SCRIPT), "doctor", "--dry-run"]
         proc = subprocess.run(cmd, capture_output=True, text=True, timeout=15, cwd=str(SCRIPTS_DIR))
         assert proc.returncode == 0
-        assert "env_doctor" in proc.stdout
+        # H7 routed the `$ <cmd>` echo to stderr (was stdout). Accept either.
+        assert "env_doctor" in (proc.stdout + proc.stderr)
 
     def test_preflight_dry_run(self):
         cmd = [sys.executable, str(GATE_SCRIPT), "preflight", "--dry-run"]
         proc = subprocess.run(cmd, capture_output=True, text=True, timeout=15, cwd=str(SCRIPTS_DIR))
         assert proc.returncode == 0
-        assert "schema_preflight" in proc.stdout
+        # H7 routed echo to stderr; accept either stream.
+        assert "schema_preflight" in (proc.stdout + proc.stderr)
 
     def test_split_dry_run(self):
         cmd = [sys.executable, str(GATE_SCRIPT), "split", "--dry-run", "--", "--help"]
@@ -163,4 +165,5 @@ class TestCLIPassthrough:
         cmd = [sys.executable, str(GATE_SCRIPT), "doctor", "--dry-run", "--", "--report", "/tmp/r.json"]
         proc = subprocess.run(cmd, capture_output=True, text=True, timeout=15, cwd=str(SCRIPTS_DIR))
         assert proc.returncode == 0
-        assert "--report" in proc.stdout
+        # H7 routed the `$ <cmd>` echo to stderr; accept either stream.
+        assert "--report" in (proc.stdout + proc.stderr)
