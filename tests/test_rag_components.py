@@ -28,6 +28,16 @@ import time
 from pathlib import Path
 from typing import Any
 
+import pytest
+
+# Module-level skip: RAG requires sentence-transformers (listed in
+# requirements-optional.txt). If the optional dep isn't installed
+# (e.g., a barebones ci-security run), skip the entire file rather
+# than collect-erroring on the transitive imports below. ci-unit and
+# ci-overnight both install requirements-optional.txt, so this only
+# guards against minimal-env runs.
+pytest.importorskip("sentence_transformers")
+
 import numpy as np
 import pytest
 

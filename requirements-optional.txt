@@ -24,3 +24,11 @@ imbalanced-learn>=0.12
 # any deployment that writes encrypted evidence does. CI installs it
 # so tests/test_stress_security.py::TestEncryptionStress can run.
 cryptography>=42.0
+
+# Dense vector RAG over peer-review-kb (scripts/rag/*). Optional in the
+# sense that users who only call retrieve_for_failure (BM25 path) don't
+# need it; any RAG query (free-text or gate-anchored hybrid) does. CI
+# installs it so tests/test_rag_components.py + tests/test_rag_e2e.py
+# can run. Pulls in torch (~500MB); first query downloads the BGE-small
+# model (~120MB) into ~/.cache/huggingface.
+sentence-transformers>=2.2

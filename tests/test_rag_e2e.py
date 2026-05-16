@@ -49,6 +49,12 @@ from typing import Any, Optional
 
 import pytest
 
+# Module-level skip: RAG requires sentence-transformers (listed in
+# requirements-optional.txt). If the optional dep isn't installed,
+# skip the entire file rather than collect-erroring on transitive
+# imports. ci-unit and ci-overnight both install requirements-optional.txt.
+pytest.importorskip("sentence_transformers")
+
 # Repo root for direct imports of the rag package.
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(_REPO_ROOT) not in sys.path:
