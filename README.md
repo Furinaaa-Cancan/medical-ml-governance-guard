@@ -30,7 +30,7 @@
 <p align="center">
 <strong>33 道 fail-closed 门控</strong> &middot; <strong>9 阶段工作流</strong> &middot; <strong>12 维量化评分</strong> &middot; <strong>3 级合规认证</strong>
 <br>
-<strong>23 个模型族</strong> &middot; <strong>16 个真实医学数据集 (630K+ 行)</strong> &middot; <strong>335 篇 NC+CM 同行评审 PDF · 105 篇已抽审稿意见</strong> &middot; <strong>28 条静态分析规则</strong>
+<strong>23 个模型族</strong> &middot; <strong>16 个真实医学数据集 (630K+ 行)</strong> &middot; <strong>335 篇 NC+CM 同行评审 PDF · 154 篇已抽审稿意见</strong> &middot; <strong>28 条静态分析规则</strong>
 <br><br>
 <em>每一条审查建议都引用真实顶刊审稿意见作为论据。<br>不是规则引擎，是能像 Nature Medicine 审稿人一样思考的 AI 协审系统。</em>
 </p>
@@ -57,7 +57,7 @@
                   ↓ KB 查询
 ┌──────────────────────────────────────────┐
 │  references/  ~2 MB human-curated KB     │  ✅ 0 幻觉
-│  peer-review-kb.json （105 已抽 + 230 待抽）│  读者：SQL / JSON
+│  peer-review-kb.json （154 已抽 + 181 待抽）│  读者：SQL / JSON
 │  codebooks/ukb （8 层验证，1.87M cells） │
 │  methodology/disease-kb.json             │
 └──────────────────────────────────────────┘
@@ -146,7 +146,7 @@
 | 未声明队列筛选级联，审稿人无从审 selection bias | NC 审稿拒点 top-3 | Gate C01 `--cohort-spec`: 声明 inclusion/exclusion cascade → 单调性 + 最终行数一致性校验；publication-grade tier 不声明直接 FAIL |
 | 特征列命名 `gene_BRCA1` / `rs12345` / `ENSG00000...` | 把组学数据拿来跑 MLGG 是 scope 错配 | `mlgg-lint` R028: ≥3 个组学命名前缀匹配即拒绝，引导到 Scanpy / TCGAbiolinks / PLINK |
 
-> **MLGG 不是又一个 ML 工具包。** 它是一套达到顶刊审稿标准的 AI 协审系统——33 道 fail-closed 门控 + 105 篇 Nature Communications + Communications Medicine 真实审稿意见作为知识库（另 230 篇 PDF 已收录待抽取）。每一条建议都能引用审稿人原文作为论据。
+> **MLGG 不是又一个 ML 工具包。** 它是一套达到顶刊审稿标准的 AI 协审系统——33 道 fail-closed 门控 + 154 篇 Nature Communications + Communications Medicine 真实审稿意见作为知识库（另 181 篇 PDF 已收录待抽取）。每一条建议都能引用审稿人原文作为论据。
 
 ---
 
@@ -164,11 +164,11 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 |:---|:-----|:----------|
 | **第一层：28 条 AST 静态分析** | 代码模式匹配 (R001-R028) | `scaler.fit(X)` 在 split 前、SMOTE 用在 test 上、阈值在 test 选 |
 | **第二层：33 道 fail-closed 门控** | 运行时验证，报告 JSON 产出 | 患者跨 split、校准 ECE > 0.1、EPV < 10、CI 宽度 > 0.20、**post-index 特征名模式抓取**（time_in_hospital / num_medications / discharge / ventilation / vasopressor）、**疾病作用域匹配**（glucose 只对糖尿病 target 报） |
-| **第三层：临床语义审查 + 审稿证据** | AI agent 理解代码含义 + 105 篇真实审稿 KB（449 条 concerns） + **issue-code 重排检索** | 出院后变量预测出院后结局、HbA1c 定义泄漏、亚组校准缺失。RAG 不只按 severity 排，而是基于失败代码的关键词（ppv / baseline / imputation）对 tag 和原文重排 |
+| **第三层：临床语义审查 + 审稿证据** | AI agent 理解代码含义 + 154 篇真实审稿 KB（817 条 concerns） + **issue-code 重排检索** | 出院后变量预测出院后结局、HbA1c 定义泄漏、亚组校准缺失。RAG 不只按 severity 排，而是基于失败代码的关键词（ppv / baseline / imputation）对 tag 和原文重排 |
 
 **审稿证据库 (Peer Review Knowledge Base)：**
 
-从 105 篇 NC + CM 医学 ML 论文中结构化提取了 449 条审稿意见（另有 230 篇 PDF 已收录待抽取）。**检索精度经过 2026-04 重构**：原版只按 mlgg_gates 过滤 + severity 排序（在 clinical_metrics_gate 的 ppv 失败上精度仅 20%）；现在用 `retrieve_for_failure(gate_name, issue_codes)`——分词失败代码 → 过滤 stopwords → 按 `tag_overlap × 3 + text_overlap` 重排 → 无匹配时回退 severity 兜底。
+从 154 篇 NC + CM 医学 ML 论文中结构化提取了 817 条审稿意见（另有 230 篇 PDF 已收录待抽取）。**检索精度经过 2026-04 重构**：原版只按 mlgg_gates 过滤 + severity 排序（在 clinical_metrics_gate 的 ppv 失败上精度仅 20%）；现在用 `retrieve_for_failure(gate_name, issue_codes)`——分词失败代码 → 过滤 stopwords → 按 `tag_overlap × 3 + text_overlap` 重排 → 无匹配时回退 severity 兜底。
 
 | 类别 | 占比 | 示例审稿人原话 |
 |:-----|:-----|:-------------|
@@ -177,11 +177,11 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 | 报告规范 | 13.9% | *"Should report calibration and net benefit analysis."* |
 | 外部验证 | 5.6% | *"External validation on independent cohort is essential."* |
 
-**KB 索引完整性**：所有 449 条 concerns 现在都有至少 1 个 `mlgg_gates` 映射（旧版 73.6% 是空数组，retrieval 对四分之三 KB 失效）。Warning-only gate（strict 模式升 fail 的）现在也会拉取 peer review context——不再因为"只有 warning 没有 failure"而背书为空。
+**KB 索引完整性**：所有 817 条 concerns 现在都有至少 1 个 `mlgg_gates` 映射（旧版 73.6% 是空数组，retrieval 对四分之三 KB 失效）。Warning-only gate（strict 模式升 fail 的）现在也会拉取 peer review context——不再因为"只有 warning 没有 failure"而背书为空。
 
 **KB 覆盖诚实说明**：KB 是 NC 已发表论文的审稿意见——pre-publication filter 已经筛掉了严重 leakage。结果：leakage 类审稿意见稀少（≈4%）；KB 强在 evaluation / reporting / external validation，弱在 leakage。遇到 leakage 失败时优先依赖 `leakage_gate` + `mlgg-lint` R001-R028，不依赖 KB。
 
-> 当 MLGG 发现你的代码有问题时，它不只是说"违反了规则 E02"——它会告诉你：*"NC+CM 审稿人在 105 篇论文中 128 次（28.5%）要求完善评估指标。这是审稿人最常提出的问题类别。"*
+> 当 MLGG 发现你的代码有问题时，它不只是说"违反了规则 E02"——它会告诉你：*"NC+CM 审稿人在 154 篇论文中 196 次（24%）要求完善评估指标。这是审稿人最常提出的问题类别。"*
 
 ---
 
@@ -200,7 +200,7 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 | **16 个真实数据集** | UCI / CDC / NCI / Vanderbilt / MIT-LCP / Framingham / Vanderbilt SUPPORT2 官方数据 | 总计 630K+ 行 |
 | **多模型 SHAP 集成引擎** | 多族 L1 归一化集成 + Kendall tau 一致性 (FDR-BH 校正) + 跨模型 Spearman 排名相关 + 5 张发表级 CSV | RF/XGB/CatBoost/LGBM/LR |
 | **学术合规引擎** | TRIPOD+AI 2024 (27 项) / PROBAST+AI 2025 (4 域) / STARD-AI | 全项逐条验证 |
-| **审稿证据库** | 105 篇 NC+CM 论文 × 449 条结构化审稿意见，按 gate/tag/severity 检索（另 230 篇 PDF 已收录待抽取） | 每条建议引用原文 |
+| **审稿证据库** | 154 篇 NC+CM 论文 × 817 条结构化审稿意见，按 gate/tag/severity 检索（另 181 篇 PDF 已收录待抽取） | 每条建议引用原文 |
 | **28 条 Lint 规则** | 静态分析检测代码级泄漏反模式 (R001-R028) | .py + .ipynb |
 | **安全加固层** | HMAC-SHA256 / AES-256-GCM / 链式审计日志 / 路径穿越防护 / 受限反序列化 | fail-closed |
 | **21 个分析工具** | Riley 样本量 / 校准三件套 / NRI-IDI / 学习曲线 / VIF / MNAR 敏感性 / PDP 边际效应 / FDR-BH 校正 / 时序漂移 / ... | 100% 覆盖 Nature ML Checklist |
@@ -1261,7 +1261,7 @@ medical-ml-governance-guard/
 │   │   ├── _gate_registry.py             #   820  33 gate DAG 拓扑排序 + 依赖解析 + 层级并行
 │   │   ├── _gate_utils.py                #  2927  60+ 统计函数: calibration, VIF, NRI/IDI, DCA, bootstrap CI
 │   │   ├── _audit_shared.py              #   238  12 维评分 + 代码反模式正则扫描
-│   │   ├── _peer_review_retrieval.py     #   781  449 条审稿意见 BM25 检索 + tag 同义词扩展 + issue-code 加权重排
+│   │   ├── _peer_review_retrieval.py     #   781  817 条审稿意见 BM25 检索 + tag 同义词扩展 + issue-code 加权重排
 │   │   └── _security.py                  #  1725  HMAC 签名, AES-256-GCM 加密, 受限反序列化
 │   │
 │   ├── gates/             (33 files, 28K LOC)   # 33 道 fail-closed 门控 (每个独立 CLI)
@@ -1362,7 +1362,7 @@ medical-ml-governance-guard/
 │   │   └── _kb_provenance.py / __init__.py
 │   │
 │   ├── review/            (8 files, 4.4K LOC)   # 论文分析与审稿案例
-│   │   ├── peer_review_lookup.py         #   133  105 篇 NC+CM × 449 条审稿意见, 按 gate/tag 检索
+│   │   ├── peer_review_lookup.py         #   133  154 篇 NC+CM × 817 条审稿意见, 按 gate/tag 检索
 │   │   ├── batch_journal_review.py       #   776  批量期刊审查 (多论文 × 多期刊标准)
 │   │   ├── extract_paper_metadata.py     #  1236  PDF → 结构化 metadata.json (LLM 驱动)
 │   │   ├── score_paper_metadata.py       #   620  metadata → 12 维评分 + Major/Minor/Questions + evidence-backing audit
@@ -1435,7 +1435,7 @@ medical-ml-governance-guard/
 │   │   └── dataset-codebook-registry.json  # 通用 registry (BRFSS/NHIS/MIMIC)
 │   │
 │   ├── case-studies/                     # 审稿案例知识库 ("别人审别人" → 结构化 KB)
-│   │   ├── peer-review-kb.json           #   449 条结构化审稿意见 (按 gate/dimension/tag 索引)
+│   │   ├── peer-review-kb.json           #   817 条结构化审稿意见 (按 gate/dimension/tag 索引)
 │   │   ├── nature_communications/        #   286 NC 同行评审 PDF（101 已抽审稿）
 │   │   └── <journal>/<disease>/          #   5 期刊 × 10 疾病领域的论文分析
 │   │
@@ -1685,7 +1685,7 @@ MLGG 提供 Claude Code slash command `/mlgg`。激活后 Claude 切换为 Natur
 
 AI 会自动：
 - 主动提问引导 9 个阶段
-- 引用 105 篇 NC+CM 同行评审论文（449 个结构化审稿意见）作为论据
+- 引用 154 篇 NC+CM 同行评审论文（817 个结构化审稿意见）作为论据（另 181 篇 PDF 待抽取）
 - 自动检测代码中的常见泄漏模式
 - 生成结构化审计报告和修复方案
 
