@@ -32,10 +32,8 @@ See ``/tmp/mlgg_rag_design.md`` for the full design contract.
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
-import numpy as np
 
 from scripts.rag import _rag_config
 
