@@ -10,16 +10,42 @@
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.5,
+      "tag_precision": 0.667,
       "matched_expected_categories": [
         "data_leakage"
       ],
       "matched_expected_tags": [
+        "definition_variable",
+        "feature_is_outcome_proxy",
         "future_information_leakage",
-        "target_leakage",
-        "temporal_leakage"
+        "target_leakage"
       ],
       "top_k_summary": [
+        {
+          "concern_id": "PR-001-C02",
+          "paper_id": "PR-001",
+          "severity": "CRITICAL",
+          "category": "study_design",
+          "tags": [
+            "target_leakage",
+            "definition_variable",
+            "feature_is_outcome_proxy"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-EXP-0160-C11",
+          "paper_id": "PR-EXP-0160",
+          "severity": "HIGH",
+          "category": "feature_selection",
+          "tags": [
+            "icd_coding_temporal_availability",
+            "diagnosis_code_as_feature",
+            "post_hoc_coding_leakage_risk",
+            "future_information_leakage"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
         {
           "concern_id": "PR-EXP-0205-C05",
           "paper_id": "PR-EXP-0205",
@@ -46,40 +72,14 @@
           "retrieval_mode": "keyword_match"
         },
         {
-          "concern_id": "PR-010-C01",
-          "paper_id": "PR-010",
+          "concern_id": "PR-001-C01",
+          "paper_id": "PR-001",
           "severity": "CRITICAL",
-          "category": "data_leakage",
+          "category": "study_design",
           "tags": [
-            "temporal_leakage",
-            "bidirectional_rnn_leakage",
-            "future_data_used",
-            "critical_flaw"
-          ],
-          "retrieval_mode": "keyword_match"
-        },
-        {
-          "concern_id": "PR-EXP-0086-C12",
-          "paper_id": "PR-EXP-0086",
-          "severity": "HIGH",
-          "category": "data_leakage",
-          "tags": [
-            "temporal_alignment_unclear",
-            "future_event_in_label",
-            "annotation_window_mismatch",
-            "claim_vs_actual_task"
-          ],
-          "retrieval_mode": "keyword_match"
-        },
-        {
-          "concern_id": "PR-109-C01",
-          "paper_id": "PR-109",
-          "severity": "HIGH",
-          "category": "data_leakage",
-          "tags": [
-            "sample_overlap",
-            "target_leakage",
-            "training_test_overlap"
+            "future_information_leakage",
+            "prediction_timepoint_unclear",
+            "retrospective_vs_prospective"
           ],
           "retrieval_mode": "keyword_match"
         }
@@ -117,13 +117,26 @@
           "retrieval_mode": "keyword_match"
         },
         {
+          "concern_id": "PR-102-C01",
+          "paper_id": "PR-102",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "missing_calibration",
+            "calibration_plot_missing",
+            "tripod_compliance",
+            "delong_test"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
           "concern_id": "PR-EXP-0092-C03",
           "paper_id": "PR-EXP-0092",
           "severity": "CRITICAL",
           "category": "evaluation_metrics",
           "tags": [
             "missing_calibration",
-            "tripod_noncompliance",
+            "no_tripod",
             "rare_outcome_calibration"
           ],
           "retrieval_mode": "keyword_match"
@@ -142,27 +155,14 @@
           "retrieval_mode": "keyword_match"
         },
         {
-          "concern_id": "PR-110-C03",
-          "paper_id": "PR-110",
+          "concern_id": "PR-022-C01",
+          "paper_id": "PR-022",
           "severity": "HIGH",
           "category": "evaluation_metrics",
           "tags": [
-            "missing_calibration",
-            "calibration_plot_missing",
-            "rebalancing_distortion"
-          ],
-          "retrieval_mode": "keyword_match"
-        },
-        {
-          "concern_id": "PR-EXP-0085-C08",
-          "paper_id": "PR-EXP-0085",
-          "severity": "HIGH",
-          "category": "evaluation_metrics",
-          "tags": [
-            "clinically_critical_metric_missing",
-            "very_major_error_rate",
-            "metric_panel_incomplete",
-            "benchmark_comparison_unfair"
+            "correlation_not_prediction",
+            "individual_level_accuracy",
+            "calibration_plot_missing"
           ],
           "retrieval_mode": "keyword_match"
         }
@@ -235,13 +235,15 @@
           "retrieval_mode": "keyword_match"
         },
         {
-          "concern_id": "PR-041-C04",
-          "paper_id": "PR-041",
-          "severity": "HIGH",
-          "category": "external_validation",
+          "concern_id": "PR-EXP-0097-C01",
+          "paper_id": "PR-EXP-0097",
+          "severity": "CRITICAL",
+          "category": "study_design",
           "tags": [
-            "no_external_validation",
-            "single_cohort"
+            "no_external_validation_initially",
+            "missing_comparison_group",
+            "feasibility_only",
+            "antibiotic_exposure_baseline"
           ],
           "retrieval_mode": "keyword_match"
         }
@@ -291,7 +293,7 @@
         {
           "concern_id": "PR-104-C03",
           "paper_id": "PR-104",
-          "severity": "MEDIUM",
+          "severity": "HIGH",
           "category": "study_design",
           "tags": [
             "selection_bias",
@@ -466,7 +468,7 @@
         {
           "concern_id": "PR-108-C03",
           "paper_id": "PR-108",
-          "severity": "MEDIUM",
+          "severity": "LOW",
           "category": "model_selection",
           "tags": [
             "multiple_model_comparison",
@@ -577,7 +579,7 @@
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.833,
+      "tag_precision": 1.0,
       "matched_expected_categories": [
         "preprocessing"
       ],
@@ -586,9 +588,22 @@
         "imputation_transparency",
         "informative_missingness",
         "missing_data_unreported",
-        "missing_not_at_random"
+        "missing_not_at_random",
+        "normal_imputation_bias"
       ],
       "top_k_summary": [
+        {
+          "concern_id": "PR-035-C04",
+          "paper_id": "PR-035",
+          "severity": "HIGH",
+          "category": "preprocessing",
+          "tags": [
+            "informative_missingness",
+            "normal_imputation_bias",
+            "missing_not_at_random"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
         {
           "concern_id": "PR-111-C03",
           "paper_id": "PR-111",
@@ -637,19 +652,6 @@
             "feature_missingness"
           ],
           "retrieval_mode": "keyword_match"
-        },
-        {
-          "concern_id": "PR-105-C02",
-          "paper_id": "PR-105",
-          "severity": "HIGH",
-          "category": "preprocessing",
-          "tags": [
-            "missing_not_at_random",
-            "mnar_not_addressed",
-            "missing_data_unreported",
-            "imputation_transparency"
-          ],
-          "retrieval_mode": "keyword_match"
         }
       ]
     },
@@ -666,10 +668,10 @@
       ],
       "matched_expected_tags": [
         "consort",
+        "consort_flow_missing",
         "missing_flow_diagram",
         "no_tripod",
-        "reporting_completeness",
-        "tripod_compliance"
+        "reporting_completeness"
       ],
       "top_k_summary": [
         {
@@ -696,37 +698,37 @@
           "retrieval_mode": "keyword_match"
         },
         {
+          "concern_id": "PR-058-C03",
+          "paper_id": "PR-058",
+          "severity": "MEDIUM",
+          "category": "reporting",
+          "tags": [
+            "study_design_diagram_missing",
+            "consort_flow_missing",
+            "justification_for_lmic"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-019-C05",
+          "paper_id": "PR-019",
+          "severity": "LOW",
+          "category": "reporting",
+          "tags": [
+            "figure_annotation",
+            "flow_diagram_clarity"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
           "concern_id": "PR-039-C02",
           "paper_id": "PR-039",
-          "severity": "HIGH",
+          "severity": "MEDIUM",
           "category": "reporting",
           "tags": [
             "no_tripod",
             "outcome_definition_unclear",
             "all_cause_vs_specific"
-          ],
-          "retrieval_mode": "keyword_match"
-        },
-        {
-          "concern_id": "PR-026-C04",
-          "paper_id": "PR-026",
-          "severity": "LOW",
-          "category": "reporting",
-          "tags": [
-            "tripod_compliance",
-            "reporting_quality"
-          ],
-          "retrieval_mode": "keyword_match"
-        },
-        {
-          "concern_id": "PR-EXP-0092-C03",
-          "paper_id": "PR-EXP-0092",
-          "severity": "CRITICAL",
-          "category": "evaluation_metrics",
-          "tags": [
-            "missing_calibration",
-            "tripod_noncompliance",
-            "rare_outcome_calibration"
           ],
           "retrieval_mode": "keyword_match"
         }
@@ -739,15 +741,12 @@
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.4,
+      "tag_precision": 0.2,
       "matched_expected_categories": [
-        "clinical_utility",
         "evaluation_metrics"
       ],
       "matched_expected_tags": [
-        "clinical_utility_questionable",
-        "false_positive_burden",
-        "low_ppv",
+        "incomplete_metrics",
         "missing_sensitivity_specificity"
       ],
       "top_k_summary": [
@@ -777,6 +776,17 @@
           "retrieval_mode": "keyword_match"
         },
         {
+          "concern_id": "PR-080-C01",
+          "paper_id": "PR-080",
+          "severity": "MEDIUM",
+          "category": "evaluation_metrics",
+          "tags": [
+            "threshold_selection",
+            "sensitivity_vs_specificity"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
           "concern_id": "PR-EXP-0203-C04",
           "paper_id": "PR-EXP-0203",
           "severity": "MEDIUM",
@@ -789,27 +799,15 @@
           "retrieval_mode": "keyword_match"
         },
         {
-          "concern_id": "PR-004-C02",
-          "paper_id": "PR-004",
-          "severity": "CRITICAL",
-          "category": "clinical_utility",
-          "tags": [
-            "low_ppv",
-            "clinical_utility_questionable",
-            "false_positive_burden",
-            "cost_effectiveness"
-          ],
-          "retrieval_mode": "keyword_match"
-        },
-        {
-          "concern_id": "PR-EXP-0109-C04",
-          "paper_id": "PR-EXP-0109",
-          "severity": "MEDIUM",
+          "concern_id": "PR-006-C02",
+          "paper_id": "PR-006",
+          "severity": "HIGH",
           "category": "evaluation_metrics",
           "tags": [
-            "one_sided_metric",
-            "nri_analysis",
-            "sensitivity_vs_specificity_tradeoff"
+            "incomplete_metrics",
+            "missing_dca",
+            "missing_variance_explained",
+            "missing_sensitivity_specificity"
           ],
           "retrieval_mode": "keyword_match"
         }
@@ -822,14 +820,16 @@
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.444,
+      "tag_precision": 0.667,
       "matched_expected_categories": [
         "feature_selection",
         "study_design"
       ],
       "matched_expected_tags": [
         "definition_drift",
+        "definition_variable",
         "definition_variable_guard",
+        "feature_is_outcome_proxy",
         "outcome_definition",
         "variable_definition_ambiguous"
       ],
@@ -848,12 +848,24 @@
           "retrieval_mode": "keyword_match"
         },
         {
+          "concern_id": "PR-001-C02",
+          "paper_id": "PR-001",
+          "severity": "CRITICAL",
+          "category": "study_design",
+          "tags": [
+            "target_leakage",
+            "definition_variable",
+            "feature_is_outcome_proxy"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
           "concern_id": "PR-113-C05",
           "paper_id": "PR-113",
           "severity": "MEDIUM",
           "category": "feature_selection",
           "tags": [
-            "feature_selection_rationale",
+            "feature_selection_justification",
             "definition_variable_guard",
             "variable_definition_ambiguous"
           ],
@@ -862,7 +874,7 @@
         {
           "concern_id": "PR-114-C01",
           "paper_id": "PR-114",
-          "severity": "CRITICAL",
+          "severity": "HIGH",
           "category": "study_design",
           "tags": [
             "outcome_definition",
@@ -884,18 +896,6 @@
             "circular_marker_egfr_decline"
           ],
           "retrieval_mode": "keyword_match"
-        },
-        {
-          "concern_id": "PR-EXP-0105-C01",
-          "paper_id": "PR-EXP-0105",
-          "severity": "HIGH",
-          "category": "feature_selection",
-          "tags": [
-            "definition_variable_confounding",
-            "ocular_disease_confounder",
-            "rnflt_biomarker_validity"
-          ],
-          "retrieval_mode": "keyword_match"
         }
       ]
     },
@@ -906,7 +906,7 @@
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.5,
+      "tag_precision": 0.667,
       "matched_expected_categories": [
         "evaluation_metrics",
         "preprocessing"
@@ -914,13 +914,39 @@
       "matched_expected_tags": [
         "class_imbalance",
         "imbalance_policy_gate",
-        "resampling_distortion"
+        "resampling_distortion",
+        "smote_needed"
       ],
       "top_k_summary": [
         {
+          "concern_id": "PR-002-C01",
+          "paper_id": "PR-002",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "incomplete_metrics",
+            "missing_calibration",
+            "class_imbalance",
+            "missing_ppv_npv"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-027-C02",
+          "paper_id": "PR-027",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "class_imbalance",
+            "temporal_imbalance",
+            "smote_needed"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
           "concern_id": "PR-110-C04",
           "paper_id": "PR-110",
-          "severity": "MEDIUM",
+          "severity": "HIGH",
           "category": "preprocessing",
           "tags": [
             "class_imbalance",
@@ -943,40 +969,14 @@
           "retrieval_mode": "keyword_match"
         },
         {
-          "concern_id": "PR-EXP-0084-C05",
-          "paper_id": "PR-EXP-0084",
+          "concern_id": "PR-010-C04",
+          "paper_id": "PR-010",
           "severity": "HIGH",
           "category": "evaluation_metrics",
-          "tags": [
-            "accuracy_under_imbalance",
-            "metric_choice",
-            "threshold_unjustified",
-            "rare_outcome_metric"
-          ],
-          "retrieval_mode": "keyword_match"
-        },
-        {
-          "concern_id": "PR-EXP-0105-C03",
-          "paper_id": "PR-EXP-0105",
-          "severity": "HIGH",
-          "category": "evaluation_metrics",
-          "tags": [
-            "class_imbalance_unhandled",
-            "auprc_missing",
-            "no_skill_baseline"
-          ],
-          "retrieval_mode": "keyword_match"
-        },
-        {
-          "concern_id": "PR-EXP-0151-C01",
-          "paper_id": "PR-EXP-0151",
-          "severity": "HIGH",
-          "category": "sample_size",
           "tags": [
             "class_imbalance",
-            "rare_class_sample_size",
-            "accuracy_misleading",
-            "ppv_sensitivity_needed"
+            "missing_precision_recall",
+            "auprc_missing"
           ],
           "retrieval_mode": "keyword_match"
         }
@@ -989,16 +989,30 @@
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.333,
+      "tag_precision": 0.667,
       "matched_expected_categories": [
         "feature_selection",
         "preprocessing"
       ],
       "matched_expected_tags": [
+        "data_leakage_via_imputation",
         "feature_selection_justification",
-        "feature_selection_process"
+        "feature_selection_process",
+        "validation_imputation"
       ],
       "top_k_summary": [
+        {
+          "concern_id": "PR-064-C01",
+          "paper_id": "PR-064",
+          "severity": "HIGH",
+          "category": "reporting",
+          "tags": [
+            "feature_extraction_unclear",
+            "cv_procedure_unclear",
+            "potential_data_leakage_in_cv"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
         {
           "concern_id": "PR-101-C04",
           "paper_id": "PR-101",
@@ -1023,39 +1037,24 @@
           "retrieval_mode": "keyword_match"
         },
         {
-          "concern_id": "PR-111-C03",
-          "paper_id": "PR-111",
-          "severity": "HIGH",
-          "category": "preprocessing",
-          "tags": [
-            "imputation_policy",
-            "missingness_reporting",
-            "missing_data_unreported",
-            "feature_quality"
-          ],
-          "retrieval_mode": "keyword_match"
-        },
-        {
-          "concern_id": "PR-105-C05",
-          "paper_id": "PR-105",
-          "severity": "MEDIUM",
+          "concern_id": "PR-024-C04",
+          "paper_id": "PR-024",
+          "severity": "LOW",
           "category": "feature_selection",
           "tags": [
             "p_value_selection",
-            "feature_selection_justification",
-            "feature_selection_process"
+            "data_driven_selection"
           ],
           "retrieval_mode": "keyword_match"
         },
         {
-          "concern_id": "PR-EXP-0095-C09",
-          "paper_id": "PR-EXP-0095",
+          "concern_id": "PR-003-C03",
+          "paper_id": "PR-003",
           "severity": "HIGH",
-          "category": "feature_selection",
+          "category": "preprocessing",
           "tags": [
-            "modality_selection_unjustified",
-            "feature_choice_clinical_reasoning",
-            "alternative_inputs_unexplored"
+            "validation_imputation",
+            "data_leakage_via_imputation"
           ],
           "retrieval_mode": "keyword_match"
         }
@@ -1165,7 +1164,7 @@
         {
           "concern_id": "PR-035-C05",
           "paper_id": "PR-035",
-          "severity": "MEDIUM",
+          "severity": "HIGH",
           "category": "evaluation_metrics",
           "tags": [
             "suspiciously_narrow_ci",
@@ -1337,19 +1336,6 @@
           "retrieval_mode": "keyword_match"
         },
         {
-          "concern_id": "PR-EXP-0179-C01",
-          "paper_id": "PR-EXP-0179",
-          "severity": "HIGH",
-          "category": "sample_size",
-          "tags": [
-            "small_sample_size",
-            "external_cohort_added",
-            "metastatic_melanoma",
-            "biomarker_validation"
-          ],
-          "retrieval_mode": "keyword_match"
-        },
-        {
           "concern_id": "PR-012-C07",
           "paper_id": "PR-012",
           "severity": "MEDIUM",
@@ -1369,6 +1355,19 @@
             "tiny_sample_size",
             "underpowered",
             "proof_of_concept"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-016-C01",
+          "paper_id": "PR-016",
+          "severity": "HIGH",
+          "category": "preprocessing",
+          "tags": [
+            "overparameterized",
+            "too_many_features",
+            "feature_to_sample_ratio",
+            "epv_violation"
           ],
           "retrieval_mode": "keyword_match"
         },
@@ -1474,33 +1473,41 @@
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.391,
+      "tag_precision": 0.217,
       "matched_expected_categories": [
         "external_validation",
         "study_design"
       ],
       "matched_expected_tags": [
-        "covariate_shift",
         "development_validation_clinical_setting_mismatch",
+        "distribution_shift",
         "distribution_shift_initial_vs_recurrent",
-        "domain_transfer_ihcc_to_rhcc",
-        "subgroup_mismatch_train_test",
-        "subtype_generalization",
-        "task_mismatch",
         "temporal_distribution_shift",
         "treatment_protocol_drift"
       ],
       "top_k_summary": [
         {
-          "concern_id": "PR-EXP-0155-C01",
-          "paper_id": "PR-EXP-0155",
-          "severity": "HIGH",
-          "category": "study_design",
+          "concern_id": "PR-EXP-0084-C13",
+          "paper_id": "PR-EXP-0084",
+          "severity": "MEDIUM",
+          "category": "external_validation",
           "tags": [
-            "subgroup_mismatch_train_test",
-            "covariate_shift",
-            "subtype_generalization",
-            "validation_cohort_bias"
+            "ethnic_distribution_shift",
+            "bmi_ethnicity_interaction",
+            "feature_importance_bias"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-EXP-0147-C03",
+          "paper_id": "PR-EXP-0147",
+          "severity": "HIGH",
+          "category": "model_selection",
+          "tags": [
+            "high_dimensional_overfitting",
+            "p_greater_than_n",
+            "feature_brittleness",
+            "distribution_shift"
           ],
           "retrieval_mode": "keyword_match"
         },
@@ -1529,26 +1536,15 @@
           "retrieval_mode": "keyword_match"
         },
         {
-          "concern_id": "PR-EXP-0105-C05",
-          "paper_id": "PR-EXP-0105",
-          "severity": "CRITICAL",
-          "category": "study_design",
-          "tags": [
-            "unadjusted_confounders",
-            "spurious_metabolite_association",
-            "primary_vs_supplemental_models"
-          ],
-          "retrieval_mode": "keyword_match"
-        },
-        {
-          "concern_id": "PR-EXP-0095-C10",
-          "paper_id": "PR-EXP-0095",
+          "concern_id": "PR-EXP-0112-C01",
+          "paper_id": "PR-EXP-0112",
           "severity": "HIGH",
-          "category": "study_design",
+          "category": "external_validation",
           "tags": [
-            "domain_transfer_ihcc_to_rhcc",
-            "demographic_bias_unanalyzed",
-            "task_mismatch"
+            "dataset_breadth_insufficient",
+            "distribution_shift_validation",
+            "multi_modality_added",
+            "domain_shift_benchmark"
           ],
           "retrieval_mode": "keyword_match"
         }
@@ -1561,13 +1557,15 @@
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.214,
+      "tag_precision": 0.357,
       "matched_expected_categories": [
         "external_validation"
       ],
       "matched_expected_tags": [
         "generalizability",
         "no_external_validation",
+        "same_cohort_validation",
+        "single_center",
         "validation_cohort_missing"
       ],
       "top_k_summary": [
@@ -1609,27 +1607,27 @@
           "retrieval_mode": "keyword_match"
         },
         {
-          "concern_id": "PR-EXP-0155-C01",
-          "paper_id": "PR-EXP-0155",
+          "concern_id": "PR-EXP-0160-C13",
+          "paper_id": "PR-EXP-0160",
           "severity": "HIGH",
-          "category": "study_design",
+          "category": "external_validation",
           "tags": [
-            "subgroup_mismatch_train_test",
-            "covariate_shift",
-            "subtype_generalization",
-            "validation_cohort_bias"
+            "no_prospective_validation",
+            "claims_data_transportability",
+            "geographic_generalization"
           ],
           "retrieval_mode": "keyword_match"
         },
         {
-          "concern_id": "PR-EXP-0092-C01",
-          "paper_id": "PR-EXP-0092",
+          "concern_id": "PR-110-C05",
+          "paper_id": "PR-110",
           "severity": "HIGH",
           "category": "external_validation",
           "tags": [
-            "geographic_generalizability_limited",
-            "single_state_validation",
-            "scope_disclosure"
+            "same_cohort_validation",
+            "single_center",
+            "device_heterogeneity",
+            "prospective_misnomer"
           ],
           "retrieval_mode": "keyword_match"
         }
@@ -1642,13 +1640,12 @@
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.25,
+      "tag_precision": 0.125,
       "matched_expected_categories": [
         "preprocessing"
       ],
       "matched_expected_tags": [
-        "feature_engineering_opaque",
-        "feature_quality"
+        "feature_engineering_opaque"
       ],
       "top_k_summary": [
         {
@@ -1676,6 +1673,17 @@
           "retrieval_mode": "keyword_match"
         },
         {
+          "concern_id": "PR-101-C04",
+          "paper_id": "PR-101",
+          "severity": "MEDIUM",
+          "category": "feature_selection",
+          "tags": [
+            "feature_selection_justification",
+            "feature_selection_process"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
           "concern_id": "PR-EXP-0106-C03",
           "paper_id": "PR-EXP-0106",
           "severity": "MEDIUM",
@@ -1688,27 +1696,14 @@
           "retrieval_mode": "keyword_match"
         },
         {
-          "concern_id": "PR-EXP-0205-C05",
-          "paper_id": "PR-EXP-0205",
-          "severity": "CRITICAL",
-          "category": "data_leakage",
+          "concern_id": "PR-EXP-0109-C09",
+          "paper_id": "PR-EXP-0109",
+          "severity": "MEDIUM",
+          "category": "feature_selection",
           "tags": [
-            "future_information_leakage",
-            "post_outcome_feature_risk",
-            "predictor_timestamp_audit"
-          ],
-          "retrieval_mode": "keyword_match"
-        },
-        {
-          "concern_id": "PR-111-C03",
-          "paper_id": "PR-111",
-          "severity": "HIGH",
-          "category": "preprocessing",
-          "tags": [
-            "imputation_policy",
-            "missingness_reporting",
-            "missing_data_unreported",
-            "feature_quality"
+            "ablation_missing",
+            "feature_branch_contribution",
+            "ablation_added"
           ],
           "retrieval_mode": "keyword_match"
         }
@@ -1721,7 +1716,7 @@
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.571,
+      "tag_precision": 0.357,
       "matched_expected_categories": [
         "external_validation"
       ],
@@ -1729,23 +1724,45 @@
         "distribution_shift",
         "external_auc_drop",
         "generalization_gap",
-        "internal_external_gap",
-        "optimism_bias",
         "overfitting_risk",
-        "overstatement",
-        "performance_degradation_external"
+        "overstatement"
       ],
       "top_k_summary": [
         {
+          "concern_id": "PR-EXP-0155-C01",
+          "paper_id": "PR-EXP-0155",
+          "severity": "HIGH",
+          "category": "study_design",
+          "tags": [
+            "subgroup_mismatch_train_test",
+            "distribution_shift",
+            "subtype_generalization",
+            "validation_cohort_bias"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
           "concern_id": "PR-112-C01",
           "paper_id": "PR-112",
-          "severity": "CRITICAL",
+          "severity": "HIGH",
           "category": "external_validation",
           "tags": [
             "external_auc_drop",
             "generalization_gap",
             "overstatement",
             "distribution_shift"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-EXP-0109-C07",
+          "paper_id": "PR-EXP-0109",
+          "severity": "MEDIUM",
+          "category": "external_validation",
+          "tags": [
+            "geographic_generalization",
+            "tertiary_only_validation",
+            "distribution_shift_risk"
           ],
           "retrieval_mode": "keyword_match"
         },
@@ -1767,35 +1784,10 @@
           "severity": "HIGH",
           "category": "external_validation",
           "tags": [
-            "sota_benchmark_missing",
+            "sota_comparison",
             "no_public_dataset_test",
             "vit_diversity_concern",
             "bias_in_training_data"
-          ],
-          "retrieval_mode": "keyword_match"
-        },
-        {
-          "concern_id": "PR-104-C01",
-          "paper_id": "PR-104",
-          "severity": "HIGH",
-          "category": "external_validation",
-          "tags": [
-            "performance_degradation_external",
-            "internal_external_gap",
-            "optimism_bias"
-          ],
-          "retrieval_mode": "keyword_match"
-        },
-        {
-          "concern_id": "PR-EXP-0212-C06",
-          "paper_id": "PR-EXP-0212",
-          "severity": "HIGH",
-          "category": "external_validation",
-          "tags": [
-            "leave_one_site_out",
-            "metric_robustness_validation",
-            "model_agnostic_metric",
-            "feature_agnostic_metric"
           ],
           "retrieval_mode": "keyword_match"
         }
@@ -1820,6 +1812,18 @@
       ],
       "top_k_summary": [
         {
+          "concern_id": "PR-112-C05",
+          "paper_id": "PR-112",
+          "severity": "HIGH",
+          "category": "reporting",
+          "tags": [
+            "reporting_completeness",
+            "selective_reporting",
+            "abstract_mismatch"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
           "concern_id": "PR-EXP-0086-C04",
           "paper_id": "PR-EXP-0086",
           "severity": "HIGH",
@@ -1842,18 +1846,6 @@
             "metric_definition_error",
             "precision_missing",
             "sota_comparison"
-          ],
-          "retrieval_mode": "keyword_match"
-        },
-        {
-          "concern_id": "PR-112-C05",
-          "paper_id": "PR-112",
-          "severity": "MEDIUM",
-          "category": "reporting",
-          "tags": [
-            "reporting_completeness",
-            "selective_reporting",
-            "abstract_mismatch"
           ],
           "retrieval_mode": "keyword_match"
         },
@@ -1887,28 +1879,76 @@
       "scenario_id": "permutation_significance_missing",
       "description": "Paper claims the model 'significantly outperforms baselines' with no permutation test, no Bonferroni correction, no null-distribution histogram. Documents a KB coverage gap: only 1 concern maps to permutation_significance_gate today. Scenario value is the coverage signal \u2014 retrieval will surface via broader stat-rigor tags (missing_ci, no_delong_test, statistical_comparison_missing).",
       "gate_name": "permutation_significance_gate",
-      "retrieved_count": 1,
+      "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.333,
+      "tag_precision": 0.111,
       "matched_expected_categories": [
         "evaluation_metrics"
       ],
       "matched_expected_tags": [
-        "missing_ci",
-        "no_delong_test",
-        "statistical_comparison_missing"
+        "multiple_testing"
       ],
       "top_k_summary": [
         {
-          "concern_id": "PR-113-C02",
-          "paper_id": "PR-113",
+          "concern_id": "PR-EXP-0192-C02",
+          "paper_id": "PR-EXP-0192",
           "severity": "HIGH",
           "category": "evaluation_metrics",
           "tags": [
-            "missing_ci",
-            "no_delong_test",
-            "statistical_comparison_missing"
+            "permutation_test",
+            "statistical_significance",
+            "null_distribution"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-111-C01",
+          "paper_id": "PR-111",
+          "severity": "CRITICAL",
+          "category": "split_protocol",
+          "tags": [
+            "test_set_reuse",
+            "multiple_testing",
+            "model_selection_on_test",
+            "single_split"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-008-C06",
+          "paper_id": "PR-008",
+          "severity": "MEDIUM",
+          "category": "evaluation_metrics",
+          "tags": [
+            "wrong_statistical_test",
+            "multiple_testing_correction",
+            "fdr"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-042-C02",
+          "paper_id": "PR-042",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "multiple_testing",
+            "bonferroni",
+            "fdr_correction"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-RO-07-C04",
+          "paper_id": "PR-RO-07",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "multiple_testing_correction",
+            "loss_function_search",
+            "fdr_vs_bonferroni",
+            "significance_inflation"
           ],
           "retrieval_mode": "keyword_match"
         }
@@ -1949,16 +1989,17 @@
       "scenario_id": "robustness_no_perturbation_test",
       "description": "No sensitivity analysis to input perturbations. KB coverage gap: only 1 concern mapped to robustness_gate today. Documents the gap; retrieval surfaces external-validation and cross-cohort-stability concerns instead.",
       "gate_name": "robustness_gate",
-      "retrieved_count": 3,
+      "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
       "tag_precision": 0.222,
       "matched_expected_categories": [
-        "external_validation"
+        "external_validation",
+        "model_selection"
       ],
       "matched_expected_tags": [
-        "cross_cohort_stability",
-        "external_validation_depth"
+        "robustness_to_outliers",
+        "robustness_to_protocol"
       ],
       "top_k_summary": [
         {
@@ -1974,26 +2015,50 @@
           "retrieval_mode": "keyword_match"
         },
         {
-          "concern_id": "PR-EXP-0192-C02",
-          "paper_id": "PR-EXP-0192",
-          "severity": "HIGH",
-          "category": "evaluation_metrics",
+          "concern_id": "PR-EXP-0112-C05",
+          "paper_id": "PR-EXP-0112",
+          "severity": "MEDIUM",
+          "category": "model_selection",
           "tags": [
-            "permutation_test",
-            "statistical_significance",
-            "null_distribution"
+            "hyperparameter_sensitivity",
+            "practical_guidelines_added",
+            "robustness_to_choices"
           ],
           "retrieval_mode": "keyword_match"
         },
         {
-          "concern_id": "PR-114-C05",
-          "paper_id": "PR-114",
-          "severity": "MEDIUM",
+          "concern_id": "PR-EXP-0193-C01",
+          "paper_id": "PR-EXP-0193",
+          "severity": "HIGH",
           "category": "external_validation",
           "tags": [
-            "external_validation_depth",
-            "cross_cohort_stability",
-            "rna_extraction_variance"
+            "single_dataset_concern",
+            "scanner_heterogeneity",
+            "ct_acquisition_variation",
+            "robustness_to_protocol"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-053-C04",
+          "paper_id": "PR-053",
+          "severity": "HIGH",
+          "category": "study_design",
+          "tags": [
+            "staining_variability",
+            "technical_artifact",
+            "robustness_to_protocol"
+          ],
+          "retrieval_mode": "keyword_match"
+        },
+        {
+          "concern_id": "PR-012-C04",
+          "paper_id": "PR-012",
+          "severity": "MEDIUM",
+          "category": "evaluation_metrics",
+          "tags": [
+            "outlier_driven_results",
+            "robustness_to_outliers"
           ],
           "retrieval_mode": "keyword_match"
         }
@@ -2004,6 +2069,6 @@
     "total_scenarios": 26,
     "coverage_rate": 1.0,
     "hit_at_k_rate": 1.0,
-    "mean_tag_precision": 0.488
+    "mean_tag_precision": 0.498
   }
 }

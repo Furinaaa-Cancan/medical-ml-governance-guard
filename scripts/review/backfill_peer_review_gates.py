@@ -165,6 +165,237 @@ TAG_OVERLAYS: list[tuple[str, list[str]]] = [
     ("feature_extraction", ["feature_engineering_audit_gate"]),
     ("target_encoding", ["feature_engineering_audit_gate", "leakage_gate"]),
     ("frequency_encoding", ["feature_engineering_audit_gate"]),
+    # ---- QA Wave 2026-05-13 (A8) additions ----
+    # Q1 audit found 234/282 empty-gate concerns received only the single
+    # category-default gate because the TAG_OVERLAYS vocabulary lagged behind
+    # how reviewers actually phrase issues in 2024-2026 papers. Patterns below
+    # are substring needles chosen to catch tag families (e.g. all
+    # `confounding_by_*`, `*_overclaim*`, `*_heterogeneity`) without
+    # over-matching unrelated clinical-context tags. See
+    # paper/qa-wave-2026-05-13/q-a8-tag-overlays.json for rule-by-rule rationale.
+
+    # Causal-language overreach → cohort design + reporting bias (claims
+    # outrun the observational data-generating process)
+    ("causal_language", ["cohort_definition_gate", "reporting_bias_gate"]),
+    ("association_not_causation", ["cohort_definition_gate", "reporting_bias_gate"]),
+    ("association_vs_causation", ["cohort_definition_gate", "reporting_bias_gate"]),
+    ("causal_overclaim", ["cohort_definition_gate", "reporting_bias_gate"]),
+    ("causal_claim_unsupported", ["cohort_definition_gate", "reporting_bias_gate"]),
+    ("causal_inference", ["cohort_definition_gate"]),
+
+    # Acquisition / device / protocol heterogeneity → distribution shift +
+    # covariate shift (different scanners, assays, sites generate distribution
+    # gaps that break generalization)
+    ("heterogeneity", ["distribution_generalization_gate", "covariate_shift_gate"]),
+
+    # Confounding & demographics imbalance → fairness/equity + cohort
+    # definition (most `confounding_by_*` tags concern sex/age/comorbidity
+    # imbalance that drives subgroup harm)
+    ("confounding", ["fairness_equity_gate", "cohort_definition_gate"]),
+    ("missing_demographics", ["fairness_equity_gate", "reporting_bias_gate"]),
+    ("missing_confounder", ["cohort_definition_gate", "feature_engineering_audit_gate"]),
+    ("population_stratification", ["fairness_equity_gate", "cohort_definition_gate"]),
+    ("ancestry", ["fairness_equity_gate", "external_validation_gate"]),
+    ("fitzpatrick", ["fairness_equity_gate"]),
+    ("skin_tone", ["fairness_equity_gate"]),
+
+    # CI / DeLong / cindex_missing → CI matrix (reviewers asking for
+    # uncertainty quantification across performance metrics)
+    ("missing_ci", ["ci_matrix_gate", "evaluation_quality_gate"]),
+    ("delong", ["ci_matrix_gate", "evaluation_quality_gate"]),
+    ("cindex_missing", ["ci_matrix_gate", "evaluation_quality_gate"]),
+    ("ci_methodology", ["ci_matrix_gate"]),
+    ("ci_reporting", ["ci_matrix_gate"]),
+    ("ci_needed", ["ci_matrix_gate"]),
+
+    # Clinical reclassification & utility economics → clinical metrics
+    # (NRI/IDI/cost-effectiveness all measure incremental clinical value)
+    ("nri", ["clinical_metrics_gate", "calibration_dca_gate"]),
+    ("idi", ["clinical_metrics_gate", "calibration_dca_gate"]),
+    ("cost_effectiveness", ["clinical_metrics_gate"]),
+    ("incremental_value", ["clinical_metrics_gate", "calibration_dca_gate"]),
+    ("net_reclassification", ["clinical_metrics_gate"]),
+    ("alert_fatigue", ["clinical_metrics_gate"]),
+    ("alarm_fatigue", ["clinical_metrics_gate"]),
+
+    # Multiple testing / p-hacking / selective reporting → evaluation
+    # quality + permutation significance (need correction or falsification)
+    ("p_hacking", ["evaluation_quality_gate", "permutation_significance_gate"]),
+    ("multiple_testing", ["evaluation_quality_gate", "permutation_significance_gate"]),
+    ("bonferroni", ["evaluation_quality_gate"]),
+    ("fdr", ["evaluation_quality_gate"]),
+    ("selective_reporting", ["reporting_bias_gate", "evaluation_quality_gate"]),
+    ("cherry_pick", ["reporting_bias_gate", "evaluation_quality_gate"]),
+    ("cherrypick", ["reporting_bias_gate", "evaluation_quality_gate"]),
+
+    # PHI dates as features / temporal encoding → feature lineage + leakage
+    # (date-derived features can encode outcome timing or PHI)
+    ("phi_dates", ["feature_lineage_gate", "leakage_gate"]),
+    ("temporal_encoding", ["feature_lineage_gate", "leakage_gate"]),
+    ("feature_timing", ["feature_lineage_gate", "leakage_gate"]),
+    ("date_features", ["feature_lineage_gate"]),
+    ("timestamp_feature", ["feature_lineage_gate"]),
+
+    # Label quality (noise, validity, definition drift) → feature lineage +
+    # cohort definition (label_noise tags often imply outcome ascertainment
+    # ambiguity that biases performance estimates)
+    ("label_noise", ["feature_lineage_gate", "evaluation_quality_gate"]),
+    ("label_validity", ["feature_lineage_gate", "cohort_definition_gate"]),
+    ("label_definition", ["cohort_definition_gate", "feature_lineage_gate"]),
+    ("noisy_labels", ["feature_lineage_gate", "evaluation_quality_gate"]),
+    ("outcome_definition", ["cohort_definition_gate", "feature_lineage_gate"]),
+    ("outcome_misclassification", ["evaluation_quality_gate", "cohort_definition_gate"]),
+    ("outcome_ascertainment", ["cohort_definition_gate"]),
+    ("case_ascertainment", ["cohort_definition_gate"]),
+    ("case_definition", ["cohort_definition_gate"]),
+
+    # Selection / verification / spectrum / prevalence / lead-time bias →
+    # cohort definition + reporting bias (recruitment-level biases that
+    # warrant inclusion/exclusion + flow-diagram scrutiny)
+    ("selection_bias", ["cohort_definition_gate", "reporting_bias_gate"]),
+    ("verification_bias", ["cohort_definition_gate", "evaluation_quality_gate"]),
+    ("spectrum_bias", ["cohort_definition_gate", "distribution_generalization_gate"]),
+    ("prevalence_bias", ["cohort_definition_gate", "evaluation_quality_gate"]),
+    ("lead_time_bias", ["cohort_definition_gate", "evaluation_quality_gate"]),
+    ("optimism_bias", ["evaluation_quality_gate", "model_selection_audit_gate"]),
+    ("collider_bias", ["cohort_definition_gate", "feature_lineage_gate"]),
+
+    # Reproducibility surface (code links, coefficients, training details) →
+    # execution attestation + reporting bias
+    ("reproducibility", ["seed_stability_gate", "execution_attestation_gate"]),
+    ("irreproducible", ["execution_attestation_gate", "reporting_bias_gate"]),
+    ("code_unavailable", ["execution_attestation_gate", "reporting_bias_gate"]),
+    ("broken_code_link", ["execution_attestation_gate"]),
+    ("broken_github", ["execution_attestation_gate"]),
+    ("coefficients_not_provided", ["execution_attestation_gate", "reporting_bias_gate"]),
+    ("training_details_missing", ["execution_attestation_gate", "reporting_bias_gate"]),
+    ("model_transparency", ["execution_attestation_gate", "reporting_bias_gate"]),
+    ("architecture_reproducibility", ["execution_attestation_gate"]),
+
+    # Overclaim / overstatement / novelty inflation → reporting bias
+    # (title/abstract/results overstated relative to evidence)
+    ("overclaim", ["reporting_bias_gate"]),
+    ("overstatement", ["reporting_bias_gate"]),
+    ("overstated", ["reporting_bias_gate"]),
+    ("misleading_claim", ["reporting_bias_gate"]),
+    ("novelty_questioned", ["reporting_bias_gate"]),
+    ("marginal_improvement", ["reporting_bias_gate", "evaluation_quality_gate"]),
+    ("modest_performance", ["reporting_bias_gate", "evaluation_quality_gate"]),
+    ("title_misleading", ["reporting_bias_gate"]),
+    ("title_overstatement", ["reporting_bias_gate"]),
+    ("abstract_mismatch", ["reporting_bias_gate"]),
+    ("abstract_only_insufficient", ["reporting_bias_gate"]),
+    ("no_limitations", ["reporting_bias_gate"]),
+
+    # Reporting guideline adherence (TRIPOD/PROBAST/STARD families) +
+    # completeness of methods reporting → reporting bias
+    ("reporting_guideline", ["reporting_bias_gate"]),
+    ("reporting_completeness", ["reporting_bias_gate"]),
+    ("reporting_quality", ["reporting_bias_gate"]),
+    ("metrics_in_supplement", ["reporting_bias_gate", "evaluation_quality_gate"]),
+    ("calibration_in_supplement", ["reporting_bias_gate", "calibration_dca_gate"]),
+    ("calibration_plot", ["calibration_dca_gate", "reporting_bias_gate"]),
+    ("calibration_drift", ["calibration_dca_gate", "covariate_shift_gate"]),
+    ("calibration_leakage", ["calibration_dca_gate", "leakage_gate"]),
+
+    # Single-site / same-cohort validation / no-prospective → external
+    # validation + generalization gap
+    ("single_center", ["external_validation_gate", "generalization_gap_gate"]),
+    ("single_site", ["external_validation_gate", "generalization_gap_gate"]),
+    ("same_cohort_validation", ["external_validation_gate", "generalization_gap_gate"]),
+    ("single_split", ["split_protocol_gate", "external_validation_gate"]),
+    ("no_prospective", ["external_validation_gate", "generalization_gap_gate"]),
+    ("prospective_vs_retrospective", ["external_validation_gate", "reporting_bias_gate"]),
+    ("retrospective_vs_prospective", ["external_validation_gate", "reporting_bias_gate"]),
+    ("performance_degradation_external", ["external_validation_gate", "generalization_gap_gate"]),
+    ("internal_external_gap", ["external_validation_gate", "generalization_gap_gate"]),
+
+    # Sample-size / power red flags (underpowered, small test sets, rare
+    # classes) → sample-size gate + evaluation quality
+    ("underpowered", ["sample_size_gate", "evaluation_quality_gate"]),
+    ("small_test_set", ["sample_size_gate", "evaluation_quality_gate"]),
+    ("rare_class_sample_size", ["sample_size_gate", "imbalance_policy_gate"]),
+    ("extreme_class_imbalance", ["imbalance_policy_gate", "sample_size_gate"]),
+    ("class_imbalance", ["imbalance_policy_gate", "evaluation_quality_gate"]),
+
+    # Model-justification / architecture / search-space → model selection
+    # audit
+    ("model_justification", ["model_selection_audit_gate"]),
+    ("architecture_justification", ["model_selection_audit_gate"]),
+    ("model_description_unclear", ["model_selection_audit_gate", "reporting_bias_gate"]),
+    ("narrow_model_search", ["model_selection_audit_gate"]),
+    ("single_model_type", ["model_selection_audit_gate"]),
+    ("cv_strategy_unspecified", ["model_selection_audit_gate", "split_protocol_gate"]),
+    ("feature_selection_justification", ["feature_engineering_audit_gate", "model_selection_audit_gate"]),
+    ("feature_selection_process", ["feature_engineering_audit_gate", "model_selection_audit_gate"]),
+
+    # Metric panel completeness / AUC-only critique → evaluation quality +
+    # clinical metrics
+    ("auc_only", ["evaluation_quality_gate", "clinical_metrics_gate"]),
+    ("auc_overoptimistic", ["evaluation_quality_gate", "calibration_dca_gate"]),
+    ("auc_misleading", ["evaluation_quality_gate", "clinical_metrics_gate"]),
+    ("auroc_misleading", ["evaluation_quality_gate", "clinical_metrics_gate"]),
+    ("accuracy_misleading", ["evaluation_quality_gate", "clinical_metrics_gate"]),
+    ("incomplete_metrics", ["evaluation_quality_gate", "clinical_metrics_gate"]),
+    ("missing_precision_recall", ["evaluation_quality_gate"]),
+    ("metric_panel_incomplete", ["evaluation_quality_gate", "clinical_metrics_gate"]),
+    ("full_metric_panel", ["evaluation_quality_gate", "clinical_metrics_gate"]),
+    ("clinical_metric_panel", ["clinical_metrics_gate"]),
+
+    # Clinical-utility / workflow / deployment readiness → clinical metrics
+    # + DCA (does the model produce decision-relevant value?)
+    ("clinical_utility", ["clinical_metrics_gate", "calibration_dca_gate"]),
+    ("clinical_actionability", ["clinical_metrics_gate"]),
+    ("clinical_applicability", ["clinical_metrics_gate"]),
+    ("clinical_deployment", ["clinical_metrics_gate", "calibration_dca_gate"]),
+    ("clinical_workflow", ["clinical_metrics_gate"]),
+    ("workflow_integration", ["clinical_metrics_gate"]),
+    ("deployment_feasibility", ["clinical_metrics_gate"]),
+
+    # EHR/claims/billing label sources → feature lineage + cohort definition
+    # (billing codes drift from clinical truth and bias labels)
+    ("billing_code", ["feature_lineage_gate", "cohort_definition_gate"]),
+    ("billing_vs_clinical", ["feature_lineage_gate", "cohort_definition_gate"]),
+    ("icd_code", ["feature_lineage_gate", "cohort_definition_gate"]),
+    ("claims_data", ["feature_lineage_gate", "cohort_definition_gate"]),
+    ("claims_label_noise", ["feature_lineage_gate", "evaluation_quality_gate"]),
+    ("claims_vs_data", ["feature_lineage_gate", "cohort_definition_gate"]),
+
+    # Annotation / inter-rater quality → feature lineage + sample size
+    # (label-source quality bounds the achievable evaluation)
+    ("inter_rater", ["feature_lineage_gate", "evaluation_quality_gate"]),
+    ("annotator_count_low", ["feature_lineage_gate", "sample_size_gate"]),
+    ("annotator_variance", ["feature_lineage_gate", "evaluation_quality_gate"]),
+    ("annotation_quality", ["feature_lineage_gate"]),
+    ("ground_truth_undefined", ["feature_lineage_gate", "cohort_definition_gate"]),
+
+    # Tuning-leakage variants the existing rules missed
+    ("tuning_leakage", ["tuning_leakage_gate", "leakage_gate"]),
+    ("baseline_tuning_undocumented", ["tuning_leakage_gate", "model_selection_audit_gate"]),
+    ("test_set_reuse", ["tuning_leakage_gate", "leakage_gate"]),
+
+    # Patient/site partition reinforcement
+    ("patient_level_split", ["split_protocol_gate"]),
+    ("patient_level_isolation", ["split_protocol_gate"]),
+    ("per_clinic_results", ["external_validation_gate", "fairness_equity_gate"]),
+    ("per_center_missing", ["external_validation_gate"]),
+    ("center_distribution_undocumented", ["external_validation_gate", "reporting_bias_gate"]),
+
+    # Interpretability gaps not covered by `shap`/`grad_cam` family
+    ("explainability", ["shap_interpretability_gate"]),
+    ("interpretability", ["shap_interpretability_gate"]),
+    ("attention_interpretation", ["shap_interpretability_gate"]),
+    ("background_attention", ["shap_interpretability_gate", "leakage_gate"]),
+    ("cam_on_background", ["shap_interpretability_gate", "leakage_gate"]),
+    ("feature_attribution", ["shap_interpretability_gate"]),
+
+    # Benchmarking / baseline absence (reviewers consistently ask for
+    # head-to-head against an established comparator)
+    ("missing_baseline_comparison", ["model_selection_audit_gate", "reporting_bias_gate"]),
+    ("baseline_comparison", ["model_selection_audit_gate"]),
+    ("sota_comparison", ["model_selection_audit_gate", "reporting_bias_gate"]),
+    ("benchmark", ["model_selection_audit_gate"]),
+    ("ablation", ["model_selection_audit_gate", "feature_engineering_audit_gate"]),
 ]
 
 
