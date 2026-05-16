@@ -93,3 +93,20 @@ SEVERITY_BOOST: Final[dict[str, float]] = {
     "MEDIUM": 0.33,
     "LOW": 0.0,
 }
+
+# ---------------------------------------------------------------------------
+# Adaptive boost guards (Fix 2 + Fix 3 from 5-agent ranker eval)
+# ---------------------------------------------------------------------------
+# CP_TAG_BOOST_DENSE_FLOOR — minimum top-1 dense cosine required before the
+# canonical-pattern / tag-overlap bonus is applied. When the strongest dense
+# candidate scores below this floor the query is "thin" on the KB: pattern
+# corroboration becomes noise (it can flip same-pattern siblings past a
+# better off-pattern match). Skip the bonus in that regime.
+CP_TAG_BOOST_DENSE_FLOOR: Final[float] = 0.70
+
+# SEVERITY_FULL_SPREAD — dense-score spread (max - min within the candidate
+# pool) at which the severity boost is applied at full WEIGHT_SEVERITY. When
+# the pool is tighter than this threshold (dense scores cluster), the boost
+# is linearly scaled down so an off-topic CRITICAL cannot leapfrog an
+# on-topic HIGH on a thin topic. Above this spread, the boost is full.
+SEVERITY_FULL_SPREAD: Final[float] = 0.20

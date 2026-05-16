@@ -11,7 +11,7 @@ concern:
     final = WEIGHT_DENSE        * dense_cosine
           + WEIGHT_BM25         * bm25_normalized
           + WEIGHT_TAG_OVERLAP  * tag_overlap_score
-          + WEIGHT_SEVERITY     * severity_boost
+          + WEIGHT_SEVERITY_EFF * severity_boost
 
 Signals:
     * **Dense**: cosine similarity from ``retrieval.dense.vector_search``
@@ -26,6 +26,33 @@ Signals:
       strengthen confidence in the pattern.
     * **Severity**: small additive bump so a CRITICAL concern wins a tie
       against a topically equivalent LOW concern.
+
+Adaptive behaviour (5-agent ranker eval, 2026-05-16):
+
+    * **Free-text re-normalization** — when BM25 does not fire (no
+      ``gate`` + ``failure_codes``), the remaining active weights
+      (``WEIGHT_DENSE + WEIGHT_TAG_OVERLAP + WEIGHT_SEVERITY = 0.7``)
+      are scaled to sum to ``1.0``. Effective weights in free-text mode
+      become ``dense=0.5/0.7≈0.714``, ``tag=0.15/0.7≈0.214``,
+      ``sev=0.05/0.7≈0.071``. Without this rescale, free-text
+      ``_final_score`` was capped at ~0.46 even on perfect matches.
+      Every result is marked with
+      ``_match_reasons += ["bm25_inactive_free_text"]``.
+    * **CP/tag bonus gating** — the canonical-pattern tag-overlap bonus
+      is skipped entirely when the top-1 dense candidate scores below
+      ``config.CP_TAG_BOOST_DENSE_FLOOR`` (0.70). On thin topics, weak
+      dense signal cannot trust pattern corroboration: a +0.09 tag
+      bonus would otherwise flip same-pattern siblings past a better
+      off-pattern hit.
+    * **Severity scaling by dense spread** — the severity additive
+      bonus is multiplied by ``min(1, dense_spread / SEVERITY_FULL_SPREAD)``
+      where ``dense_spread = max(dense) - min(dense)``. Tight pools
+      (spread < 0.20) get a fractional severity weight; wide pools get
+      the full ``WEIGHT_SEVERITY``. Prevents off-topic CRITICALs from
+      leapfrogging on-topic HIGHs on uniformly weak dense pools.
+    * **top_k uncap** — ``dense_top_k = max(DEFAULT_MAX_CANDIDATES_BEFORE_RERANK,
+      top_k)``. Callers requesting ``top_k=200`` no longer silently
+      receive 50 results.
 
 The module is read-only with respect to the KB. Filesystem side effects
 (embedding cache writes) are owned by ``index.builder``.
@@ -303,7 +330,12 @@ def hybrid_rank(
     embeddings, records = build_or_load_index()
 
     # ---- 2. Dense candidates --------------------------------------------
-    dense_top_k = config.DEFAULT_MAX_CANDIDATES_BEFORE_RERANK
+    # Fix 4: grow the candidate pool with the caller's request so a
+    # ``top_k=200`` query is not silently capped at 50.
+    requested_top_k = max(0, int(top_k))
+    dense_top_k = max(
+        config.DEFAULT_MAX_CANDIDATES_BEFORE_RERANK, requested_top_k
+    )
     dense_hits: List[Dict[str, Any]] = vector_search(
         query, embeddings, records, top_k=dense_top_k
     )
@@ -377,7 +409,66 @@ def hybrid_rank(
     # ---- 6. Tag-overlap (canonical pattern) bonus -----------------------
     tag_overlap_by_id = _tag_overlap_scores(candidate_list)
 
-    # ---- 7. Combine -----------------------------------------------------
+    # ---- 7. Adaptive weight setup ---------------------------------------
+    # Fix 1 — BM25 inactive in free-text path. When BM25 did not fire
+    # (no gate / no failure_codes), the nominal ``WEIGHT_BM25=0.3`` is
+    # dead weight: every BM25 contribution is 0 and the maximum
+    # attainable ``_final_score`` collapses from 1.0 to 0.7. Re-normalize
+    # the *active* weights to sum to 1.0 so a perfect dense match still
+    # tops out near 1.0 in free-text mode. Gate-anchored mode is
+    # unchanged (BM25 contributes; full weight applies).
+    bm25_active = bool(gate and failure_codes)
+    if bm25_active:
+        weight_dense_eff = config.WEIGHT_DENSE
+        weight_bm25_eff = config.WEIGHT_BM25
+        weight_tag_eff = config.WEIGHT_TAG_OVERLAP
+        weight_sev_nominal = config.WEIGHT_SEVERITY
+    else:
+        active_sum = (
+            config.WEIGHT_DENSE
+            + config.WEIGHT_TAG_OVERLAP
+            + config.WEIGHT_SEVERITY
+        )
+        # active_sum is 0.7 with default config; guard against future
+        # reconfig that zeros it.
+        if active_sum <= 0.0:
+            weight_dense_eff = config.WEIGHT_DENSE
+            weight_bm25_eff = 0.0
+            weight_tag_eff = config.WEIGHT_TAG_OVERLAP
+            weight_sev_nominal = config.WEIGHT_SEVERITY
+        else:
+            weight_dense_eff = config.WEIGHT_DENSE / active_sum
+            weight_bm25_eff = 0.0
+            weight_tag_eff = config.WEIGHT_TAG_OVERLAP / active_sum
+            weight_sev_nominal = config.WEIGHT_SEVERITY / active_sum
+
+    # Fix 2 — Gate the CP / tag-overlap bonus on a top-1 dense floor. On
+    # thin topics the strongest dense candidate is itself weak; a
+    # +0.09 tag bonus then flips same-pattern siblings past a better
+    # off-pattern match. ``CP_TAG_BOOST_DENSE_FLOOR`` (0.70) keeps the
+    # bonus active only when the dense signal is strong enough to trust
+    # corroboration.
+    top1_dense = max(dense_score_by_id.values(), default=0.0)
+    apply_tag_boost = top1_dense >= config.CP_TAG_BOOST_DENSE_FLOOR
+
+    # Fix 3 — Scale the severity bonus by the dense spread within the
+    # candidate pool. Tight pools (spread < SEVERITY_FULL_SPREAD) shrink
+    # the severity weight linearly so off-topic CRITICALs cannot
+    # leapfrog on-topic HIGHs when every dense score is clustered.
+    if dense_score_by_id:
+        dense_pool = list(dense_score_by_id.values())
+        dense_spread = max(dense_pool) - min(dense_pool)
+    else:
+        dense_spread = 0.0
+    if config.SEVERITY_FULL_SPREAD > 0.0:
+        severity_scale = min(
+            1.0, dense_spread / config.SEVERITY_FULL_SPREAD
+        )
+    else:
+        severity_scale = 1.0
+    weight_sev_eff = weight_sev_nominal * severity_scale
+
+    # ---- 8. Combine -----------------------------------------------------
     ranked: List[Dict[str, Any]] = []
     for c in candidate_list:
         cid = _concern_id(c)
@@ -386,14 +477,15 @@ def hybrid_rank(
 
         d = dense_score_by_id.get(cid, 0.0)
         b = bm25_score_by_id.get(cid, 0.0)
-        t = tag_overlap_by_id.get(cid, 0.0)
+        t_raw = tag_overlap_by_id.get(cid, 0.0)
+        t = t_raw if apply_tag_boost else 0.0
         s = _severity_boost(c)
 
         final = (
-            config.WEIGHT_DENSE * d
-            + config.WEIGHT_BM25 * b
-            + config.WEIGHT_TAG_OVERLAP * t
-            + config.WEIGHT_SEVERITY * s
+            weight_dense_eff * d
+            + weight_bm25_eff * b
+            + weight_tag_eff * t
+            + weight_sev_eff * s
         )
 
         reasons: List[str] = []
@@ -406,20 +498,37 @@ def hybrid_rank(
             reasons.append(
                 f"BM25 match ({mode}) score={b:.2f}"
             )
+        if not bm25_active:
+            reasons.append("bm25_inactive_free_text")
         if gate:
             reasons.append(f"gate match: {gate}")
         cp = c.get("canonical_pattern_id")
         if isinstance(cp, str) and cp and t > 0:
             reasons.append(f"canonical pattern {cp} ({t:.2f})")
+        if (
+            isinstance(cp, str)
+            and cp
+            and t_raw > 0
+            and not apply_tag_boost
+        ):
+            reasons.append(
+                f"cp_bonus_suppressed top1_dense={top1_dense:.2f}"
+                f"<{config.CP_TAG_BOOST_DENSE_FLOOR:.2f}"
+            )
         sev = c.get("severity")
         if isinstance(sev, str) and s > 0:
-            reasons.append(f"severity {sev} (+{s * config.WEIGHT_SEVERITY:.3f})")
+            reasons.append(
+                f"severity {sev} (+{s * weight_sev_eff:.3f}"
+                f"; scale={severity_scale:.2f})"
+            )
 
         out = dict(c)
         out["_dense_score"] = d
         out["_bm25_score"] = b
         out["_tag_overlap_score"] = t
+        out["_tag_overlap_raw"] = t_raw
         out["_severity_boost"] = s
+        out["_severity_scale"] = severity_scale
         out["_final_score"] = final
         out["_match_reasons"] = reasons
         ranked.append(out)
@@ -432,7 +541,7 @@ def hybrid_rank(
         return (-rec["_final_score"], sev_rank, cid)
 
     ranked.sort(key=_sort_key)
-    return ranked[: max(0, int(top_k))]
+    return ranked[:requested_top_k]
 
 
 __all__ = ["hybrid_rank"]

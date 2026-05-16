@@ -162,7 +162,10 @@ def _format_reasons(reasons: Any) -> str:
     return str(reasons)
 
 
-def format_for_gate_report(concerns: list[dict]) -> str:
+def format_for_gate_report(
+    concerns: list[dict],
+    gate_name: Optional[str] = None,
+) -> str:
     """Render concern records as a markdown snippet for a gate report.
 
     The output is designed to drop directly under a
@@ -176,14 +179,40 @@ def format_for_gate_report(concerns: list[dict]) -> str:
         concerns: Concern records as returned by
             :func:`rag_context_for_failure` (or any caller that honours
             the shared schema in ``/tmp/mlgg_rag_design.md``).  An empty
-            list yields a single-line "no related concerns" placeholder.
+            list yields a single-line "no related concerns" placeholder
+            UNLESS ``gate_name`` resolves to a registry entry with
+            ``rag_optional=True`` — in which case the empty string is
+            returned instead of the placeholder.
+        gate_name: Optional MLGG gate identifier. When supplied AND the
+            named gate is flagged ``rag_optional`` (infra/aggregation/meta
+            gates that have no peer-review precedent by design), an empty
+            ``concerns`` list renders as ``""`` rather than the misleading
+            "no concerns retrieved" placeholder. Honest silence > false
+            placeholder. Registry lookup failures fall through to the
+            default placeholder behaviour, so this argument never raises.
 
     Returns:
         A markdown string (no trailing newline) suitable for embedding
-        verbatim in a gate report.
+        verbatim in a gate report. Returns ``""`` for empty-concerns +
+        ``rag_optional`` gate; the default "no concerns" placeholder
+        otherwise.
     """
 
     if not concerns:
+        if gate_name:
+            # Lazy import: avoids a circular dep at module-load time
+            # (_gate_registry has historically been pulled into RAG-side
+            # code paths). Registry lookup failures fall through to the
+            # default placeholder — silence on lookup error would hide
+            # legitimately-empty peer-review domains.
+            try:
+                from scripts.core._gate_registry import get_gate_spec
+
+                spec = get_gate_spec(gate_name)
+                if spec is not None and getattr(spec, "rag_optional", False):
+                    return ""
+            except Exception:  # noqa: BLE001 — registry lookup must not crash report rendering
+                pass
         return "_No related peer-review concerns retrieved._"
 
     blocks: list[str] = []

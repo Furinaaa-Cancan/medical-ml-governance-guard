@@ -86,6 +86,15 @@ class GateSpec:
     # gate is not passed to aggregation gates.
     aggregation_flag: str = ""
 
+    # True for infra/aggregation/meta gates that have no peer-review
+    # precedent in the KB by design (e.g. manifest integrity, contract
+    # validation, security audit, self-critique reflection). When set, the
+    # RAG bridge suppresses the "no related peer-review concerns retrieved"
+    # placeholder for empty results — silence is more honest than a
+    # placeholder that implies "we looked and found nothing" when the
+    # reality is "this gate has no peer-review domain to look in."
+    rag_optional: bool = False
+
 
 # ---------------------------------------------------------------------------
 # The full gate registry
@@ -126,6 +135,7 @@ _register(GateSpec(
     report_output="request_contract_report.json",
     category="contract",
     aggregation_flag="--request-report",
+    rag_optional=True,  # Infra/contract validation — no peer-review precedent by design.
 ))
 
 # -- Layer 1: Manifest lock --
@@ -139,6 +149,7 @@ _register(GateSpec(
     report_output="manifest.json",
     category="integrity",
     aggregation_flag="--manifest",
+    rag_optional=True,  # Infra integrity check — no peer-review precedent by design.
 ))
 
 # -- Layer 2: Execution attestation --
@@ -608,6 +619,7 @@ _register(GateSpec(
     parallelizable=False,
     category="aggregation",
     aggregation_flag="",
+    rag_optional=True,  # Meta/reflection layer — no peer-review precedent by design.
 ))
 
 _register(GateSpec(
@@ -620,6 +632,7 @@ _register(GateSpec(
     parallelizable=False,
     category="security",
     aggregation_flag="--security-audit-report",
+    rag_optional=True,  # Security audit layer — no peer-review precedent by design.
 ))
 
 
