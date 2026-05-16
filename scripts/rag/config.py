@@ -3,7 +3,7 @@
 This module is the single source of truth for constants used across the RAG
 package (``scripts/rag/``). Every other RAG module (``embeddings``,
 ``index.builder``, ``retrieval.dense``, ``retrieval.bm25``,
-``retrieval.hybrid``, ``rag_query``, ``_gate_integration``) imports its
+``retrieval.hybrid``, ``query``, ``_gate_integration``) imports its
 constants from here, so changes propagate consistently.
 
 Design notes:

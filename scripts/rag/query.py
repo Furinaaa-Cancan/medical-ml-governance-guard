@@ -1,14 +1,14 @@
 """High-level RAG query API and CLI for the MLGG peer-review KB.
 
-This module is the **public** entry point of the ``scripts/rag/`` package
-(Agent A6 of the shared RAG design). All other modules in the package
-(``config``, ``embeddings``, ``index.builder``, ``retrieval.dense``,
-``retrieval.bm25``, ``retrieval.hybrid``) are internal and should not be
-imported directly by callers outside the package.
+This module is the **public** entry point of the ``scripts/rag/`` package.
+All other modules in the package (``config``, ``embeddings``,
+``index.builder``, ``retrieval.dense``, ``retrieval.bm25``,
+``retrieval.hybrid``) are internal and should not be imported directly by
+callers outside the package.
 
 Two ways to use it:
 
-* **Programmatic** -- ``from scripts.rag.rag_query import rag_query``::
+* **Programmatic** -- ``from scripts.rag.query import rag_query``::
 
       results = rag_query("no calibration in evaluation",
                           gate="evaluation_quality_gate",
@@ -16,7 +16,7 @@ Two ways to use it:
 
 * **Command line**::
 
-      python3 scripts/rag/rag_query.py "your question" \\
+      python3 scripts/rag/query.py "your question" \\
           [--gate <gate_name>] [--codes a,b,c] \\
           [--top-k N] [--format json|table]
 
@@ -26,11 +26,10 @@ Exit codes (CLI):
     * ``2`` -- argparse usage error (missing query, bad ``--top-k``, etc.).
 
 Design contract:
-    Shared signatures (see ``/tmp/mlgg_rag_design.md``) MUST be honored
-    because other agents (A7, A8, A9) depend on them. The thin-wrapper
-    discipline -- ``rag_query`` just adds graceful error handling around
-    ``retrieval.hybrid.hybrid_rank`` -- keeps the ranking logic in a single
-    place.
+    The thin-wrapper discipline -- ``rag_query`` just adds graceful error
+    handling around ``retrieval.hybrid.hybrid_rank`` -- keeps the ranking
+    logic in a single place. Callers depend on the ``rag_query`` function
+    signature staying stable.
 """
 
 from __future__ import annotations
@@ -42,8 +41,8 @@ from pathlib import Path
 from typing import Optional
 
 # Ensure the repo root is on sys.path so ``scripts.rag.*`` imports work when
-# this file is invoked directly via ``python3 scripts/rag/rag_query.py ...``
-# (rather than as ``python3 -m scripts.rag.rag_query``).
+# this file is invoked directly via ``python3 scripts/rag/query.py ...``
+# (rather than as ``python3 -m scripts.rag.query``).
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
@@ -205,7 +204,7 @@ def _build_parser() -> argparse.ArgumentParser:
     subprocess.
     """
     parser = argparse.ArgumentParser(
-        prog="rag_query.py",
+        prog="scripts/rag/query.py",
         description=(
             "Query the MLGG peer-review RAG layer. Returns ranked reviewer "
             "concerns relevant to a free-text question, optionally filtered "

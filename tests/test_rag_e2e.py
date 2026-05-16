@@ -31,7 +31,7 @@ can be deselected from fast CI lanes with ``-m "not slow"``.
 
 Two code paths
 --------------
-We prefer the public API ``scripts.rag.rag_query.rag_query`` (which goes
+We prefer the public API ``scripts.rag.query.rag_query`` (which goes
 through ``retrieval.hybrid.hybrid_rank``). If Agent A5's hybrid ranker is
 not yet in place (or returns empty because of an upstream missing dep),
 the helper transparently falls back to a pure dense ``retrieval.dense``
@@ -138,7 +138,7 @@ def _run_query(
         schema defined in ``/tmp/mlgg_rag_design.md``.
     """
 
-    from scripts.rag.rag_query import rag_query
+    from scripts.rag.query import rag_query
 
     results = rag_query(
         query=query,

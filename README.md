@@ -187,7 +187,7 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 
 ```bash
 # 30 秒上手
-python3 scripts/rag/rag_query.py "no calibration in evaluation"
+python3 scripts/rag/query.py "no calibration in evaluation"
 # concern_id          paper_id    severity  score    concern_text
 # ------------------  ----------  --------  -------  ------------------------------------------------
 # PR-018-EVL          PR-018      HIGH      0.812    AUC should not be the only metric. Provide PPV…
@@ -206,9 +206,9 @@ query → embed (BGE-small) → cosine top-50 → + BM25 (issue-code) + gate fil
 
 | 场景 | 命令 | 预期行为 |
 |:-----|:-----|:--------|
-| **自由文本** | `python3 scripts/rag/rag_query.py "no calibration in evaluation"` | 返回 evaluation_metrics 类目 + MLGG-E02 相关 concerns |
-| **门控锚定** | `python3 scripts/rag/rag_query.py "training data leak" --gate leakage_gate --codes future_information_leakage` | 仅返回该 gate 下 CRITICAL leakage concerns |
-| **领域专项** | `python3 scripts/rag/rag_query.py "sepsis prediction in ICU"` | 返回脓毒症 / ICU 相关论文的审稿意见 |
+| **自由文本** | `python3 scripts/rag/query.py "no calibration in evaluation"` | 返回 evaluation_metrics 类目 + MLGG-E02 相关 concerns |
+| **门控锚定** | `python3 scripts/rag/query.py "training data leak" --gate leakage_gate --codes future_information_leakage` | 仅返回该 gate 下 CRITICAL leakage concerns |
+| **领域专项** | `python3 scripts/rag/query.py "sepsis prediction in ICU"` | 返回脓毒症 / ICU 相关论文的审稿意见 |
 
 **缓存：** 首次调用约 30 秒（下载 BGE-small + 构建 .cache/rag/concerns_embeddings.npz 索引），后续调用 <1 秒（KB sha256 不变时直接读 npz）。
 
@@ -1408,7 +1408,7 @@ medical-ml-governance-guard/
 │   ├── rag/               (4 files, 1.4K LOC)    # 审稿 KB 之上的密集向量 RAG 层 (4 顶层模块 + index/ + retrieval/ 子包)
 │   │   ├── config.py                     #   常量/路径/权重 (BGE-small + .cache/rag/ + dense/BM25/tag 比重)
 │   │   ├── embeddings.py                 #   sentence-transformers 包装 (单例 model loader + 归一化)
-│   │   ├── rag_query.py                  #   [入口] 高层 API + CLI (--gate / --codes / --top-k / --format)
+│   │   ├── query.py                      #   [入口] 高层 API + CLI (--gate / --codes / --top-k / --format)
 │   │   ├── _gate_integration.py          #   rag_context_for_failure() — 给 gate report.json 注入 reviewer 引用
 │   │   ├── index/                        #   索引子包: builder.py (KB → npz) + cache.py (原子写 / sha256)
 │   │   └── retrieval/                    #   检索信号子包: dense.py (cosine) + bm25.py (关键词重排) + hybrid.py (融合)

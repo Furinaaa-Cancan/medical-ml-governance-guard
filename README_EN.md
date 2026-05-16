@@ -180,7 +180,7 @@ Structurally extracted 817 review opinions from 154 NC + CM medical ML papers (1
 
 ```bash
 # 30-second quickstart
-python3 scripts/rag/rag_query.py "no calibration in evaluation"
+python3 scripts/rag/query.py "no calibration in evaluation"
 # concern_id          paper_id    severity  score    concern_text
 # ------------------  ----------  --------  -------  ------------------------------------------------
 # PR-018-EVL          PR-018      HIGH      0.812    AUC should not be the only metric. Provide PPV…
@@ -199,9 +199,9 @@ query → embed (BGE-small) → cosine top-50 → + BM25 (issue-code) + gate fil
 
 | Scenario | Command | Expected behavior |
 |:---------|:--------|:------------------|
-| **Free-text** | `python3 scripts/rag/rag_query.py "no calibration in evaluation"` | Returns evaluation_metrics category + MLGG-E02 related concerns |
-| **Gate-anchored** | `python3 scripts/rag/rag_query.py "training data leak" --gate leakage_gate --codes future_information_leakage` | Returns CRITICAL leakage concerns under that gate only |
-| **Domain-specific** | `python3 scripts/rag/rag_query.py "sepsis prediction in ICU"` | Returns reviewer concerns from sepsis / ICU papers |
+| **Free-text** | `python3 scripts/rag/query.py "no calibration in evaluation"` | Returns evaluation_metrics category + MLGG-E02 related concerns |
+| **Gate-anchored** | `python3 scripts/rag/query.py "training data leak" --gate leakage_gate --codes future_information_leakage` | Returns CRITICAL leakage concerns under that gate only |
+| **Domain-specific** | `python3 scripts/rag/query.py "sepsis prediction in ICU"` | Returns reviewer concerns from sepsis / ICU papers |
 
 **Caching:** first call ~30 s (downloads BGE-small + builds `.cache/rag/concerns_embeddings.npz`); subsequent calls < 1 s (npz reused while KB sha256 is unchanged).
 
@@ -1314,7 +1314,7 @@ medical-ml-governance-guard/
 │   ├── rag/               (5)            # Dense-vector RAG over the peer-review KB (__init__ + 4 modules + index/ + retrieval/ subpkgs)
 │   │   ├── config.py                     #   Constants / paths / weights (BGE-small, .cache/rag/, dense/BM25/tag)
 │   │   ├── embeddings.py                 #   sentence-transformers wrapper (singleton model loader + normalize)
-│   │   ├── rag_query.py                  #   [entry point] High-level API + CLI (--gate / --codes / --top-k / --format)
+│   │   ├── query.py                      #   [entry point] High-level API + CLI (--gate / --codes / --top-k / --format)
 │   │   ├── _gate_integration.py          #   rag_context_for_failure() — injects reviewer quotes into gate report.json
 │   │   ├── index/                        #   Index subpackage: builder.py (KB → npz) + cache.py (atomic writes / sha256)
 │   │   └── retrieval/                    #   Retrieval signal subpackage: dense.py (cosine) + bm25.py (keyword re-rank) + hybrid.py (fusion)
