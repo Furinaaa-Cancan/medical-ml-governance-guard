@@ -78,7 +78,14 @@ def vector_search(
 
     # Embed the query (shape: (1, EMBEDDING_DIM)) and reduce to a 1-D vector
     # so the dot product yields a 1-D similarity array.
-    query_vec: np.ndarray = embed_texts([query])[0]
+    # BGE-small-en-v1.5 documentation recommends asymmetric encoding:
+    # queries get prepended with the instruction below; documents
+    # (already encoded by _index_builder.py) are encoded raw. This is worth
+    # ~1-2 nDCG points on retrieval tasks per the BAAI paper. The prefix
+    # is harmless if the underlying model isn't BGE (it's just a few extra
+    # tokens that get encoded into the query vector).
+    _QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
+    query_vec: np.ndarray = embed_texts([_QUERY_PREFIX + query])[0]
 
     # Cosine similarity reduces to a dot product because both sides are
     # L2-normalized by the embedding layer.
