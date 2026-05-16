@@ -1,0 +1,883 @@
+[
+  {
+    "concern_id": "PR-105-C01",
+    "paper_id": "PR-105",
+    "paper_title": "Development and external validation of prediction algorithms",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 7,
+    "mlgg_gates": [
+      "cohort_definition_gate",
+      "definition_variable_guard"
+    ],
+    "concern_text": "Time-horizon conflation: 2-year 'risk' of already-present cancer is a diagnostic probability, not a forward risk; imprecise use of 'risk' vs 'probability' obscures clinical purpose.",
+    "author_response": "Revised terminology to 'probability' throughout; clarified outcome is diagnosis within 2 years used as proxy for as-yet-undiagnosed cancer.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-105-C02",
+    "paper_id": "PR-105",
+    "paper_title": "Development and external validation of prediction algorithms",
+    "category": "preprocessing",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [
+      "missingness_policy_gate"
+    ],
+    "concern_text": "Missing data in EHR shown to be MNAR; imputation method does not address this; missingness counts and potential bias not fully reported.",
+    "author_response": "Added Extended Table 1 with predictor completeness and Supplementary Table 13 comparing complete vs incomplete cases; noted demographic differences.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-105-C03",
+    "paper_id": "PR-105",
+    "paper_title": "Development and external validation of prediction algorithms",
+    "category": "reproducibility",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 9,
+    "mlgg_gates": [
+      "publication_gate"
+    ],
+    "concern_text": "Model coefficients not published; code only available under academic license from Oxford University Innovations, hindering independent validation.",
+    "author_response": "Software via academic license; authors declined to publish full coefficients table.",
+    "resolved": false
+  },
+  {
+    "concern_id": "PR-105-C04",
+    "paper_id": "PR-105",
+    "paper_title": "Development and external validation of prediction algorithms",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "calibration_dca_gate",
+      "reporting_bias_gate"
+    ],
+    "concern_text": "Calibration intercept/slope summary, key cancer-site-specific DCA, and cancer-site-specific sensitivity/specificity at 3% threshold should be in main text, not scattered across supplementary tables.",
+    "author_response": "Added calibration summary with intercept/slope values to main text; moved Supp Table 10 (site-specific sens/spec at 3% threshold) to Table 1; added DCA interpretation.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-105-C05",
+    "paper_id": "PR-105",
+    "paper_title": "Development and external validation of prediction algorithms",
+    "category": "feature_selection",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [
+      "feature_engineering_audit_gate"
+    ],
+    "concern_text": "Variable selection based on P-value retention of predefined variables; automated selection with longer candidate variable list not considered.",
+    "author_response": "Explained rationale: used P values with effect sizes (risk ratios) for parsimony; automated methods not well-extended to multinomial logistic models.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-105-C06",
+    "paper_id": "PR-105",
+    "paper_title": "Development and external validation of prediction algorithms",
+    "category": "clinical_utility",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 7,
+    "mlgg_gates": [
+      "clinical_metrics_gate"
+    ],
+    "concern_text": "Model B (with blood tests) shows minimal improvement over Model A (clinical-only); added diagnostic value of blood tests unclear and clinical implications underdiscussed.",
+    "author_response": "Clarified that Model B has higher sensitivity for 7 cancers (colorectal, blood, liver, lung, ovary, pancreas, prostate) but small overall discrimination gain and small net-benefit improvement.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-106-C01",
+    "paper_id": "PR-106",
+    "paper_title": "Real-time prediction of intensive care unit patient acuity a",
+    "category": "model_selection",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [
+      "model_selection_audit_gate"
+    ],
+    "concern_text": "Motivation for Mamba unclear: 4-h input windows and exclusion of long-stay patients mean APRICOT-M does not significantly outperform APRICOT-T (Transformer); advantage of SSM architecture not illustrated.",
+    "author_response": "Added sequence-length sensitivity analysis (Supplementary Figure S12) and inference-speed comparison (Table S16) showing Mamba advantages on longer sequences.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-106-C02",
+    "paper_id": "PR-106",
+    "paper_title": "Real-time prediction of intensive care unit patient acuity a",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "ci_matrix_gate"
+    ],
+    "concern_text": "Bootstrap CIs reflect data-sample uncertainty but not model-parameter uncertainty; binary classification over fixed time windows creates arbitrary dichotomies that time-to-event analysis could avoid.",
+    "author_response": "Explicitly acknowledged bootstrap CI and window-choice limitations in Discussion limitations section (p32, line 699).",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-106-C03",
+    "paper_id": "PR-106",
+    "paper_title": "Real-time prediction of intensive care unit patient acuity a",
+    "category": "model_selection",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [
+      "model_selection_audit_gate"
+    ],
+    "concern_text": "CatBoost and GRU baselines appear competitive on many tasks with far lower compute cost; baseline comparison and compute discussion inadequate.",
+    "author_response": "Added win-rate comparisons: 61.1% vs CatBoost, 66.7% vs GRU, 69.4% vs Transformer across 36 task-dataset combinations.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-106-C04",
+    "paper_id": "PR-106",
+    "paper_title": "Real-time prediction of intensive care unit patient acuity a",
+    "category": "clinical_utility",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 7,
+    "mlgg_gates": [
+      "clinical_metrics_gate"
+    ],
+    "concern_text": "Prospective validation was conducted but lacks clinical adjudication of alert timeliness, accuracy, and actionability; rare-event AUROC is overoptimistic without clinical utility assessment.",
+    "author_response": "Conducted 3-clinician adjudication of prospective cases with formal SOP; added methodology, results, and discussion sections on clinical utility.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-106-C05",
+    "paper_id": "PR-106",
+    "paper_title": "Real-time prediction of intensive care unit patient acuity a",
+    "category": "reporting",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [
+      "reporting_bias_gate"
+    ],
+    "concern_text": "'Prospectively validated' terminology misleading since Mamba architecture (2023) postdates the prospective data collection period (2021-2023); clarify retrospective-on-prospective-data design.",
+    "author_response": "Clarified real-time deployment architecture (Epic EHR interface, 4-h query cadence); reviewer flagged remaining terminology concern for minor revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-106-C06",
+    "paper_id": "PR-106",
+    "paper_title": "Real-time prediction of intensive care unit patient acuity a",
+    "category": "reproducibility",
+    "current_severity": "LOW",
+    "mlgg_dimension": 9,
+    "mlgg_gates": [
+      "reporting_bias_gate"
+    ],
+    "concern_text": "GitHub repository README lacks software/hardware requirements and dependencies; hyperparameter selection approach (systematic or ad-hoc) not documented.",
+    "author_response": "Clarified Optuna-based hyperparameter tuning; reported optimal hyperparameters and search space (Supplementary Table S6).",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-107-C01",
+    "paper_id": "PR-107",
+    "paper_title": "InfEHR: clinical phenotype resolution via deep geometric lea",
+    "category": "external_validation",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [
+      "external_validation_gate"
+    ],
+    "concern_text": "CN-S cohort lacks external validation; performance reported only on training data initially, no separate held-out validation described for CN-S.",
+    "author_response": "Performed stratified 80/20 train/test split on CN-S by birth weight; acknowledged lack of external CN-S validation as limitation in discussion.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-107-C02",
+    "paper_id": "PR-107",
+    "paper_title": "InfEHR: clinical phenotype resolution via deep geometric lea",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [
+      "cohort_definition_gate"
+    ],
+    "concern_text": "Cohort definition unclear: missing baseline characteristics table, no accounting of patients excluded during preprocessing, positive rates for CN-S and PO-AKI not reported.",
+    "author_response": "Added baseline demographic tables for both cohorts with train/validation splits; documented exclusion counts (CN-S retained n=5213 excluded n=2854; PO-AKI retained n=4276 excluded n=3764).",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-107-C03",
+    "paper_id": "PR-107",
+    "paper_title": "InfEHR: clinical phenotype resolution via deep geometric lea",
+    "category": "model_selection",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [
+      "model_selection_audit_gate"
+    ],
+    "concern_text": "No benchmarking against comparable deep learning time-series models (GRU-D, SeFT, Life2Vec) - limits ability to judge whether geometric GNN choice is justified.",
+    "author_response": "Implemented GRU-D and SeFT benchmarks on UCIMC dataset; reported results in Table 2. Life2Vec excluded due to feature incompatibility (socioeconomic data unavailable).",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-107-C04",
+    "paper_id": "PR-107",
+    "paper_title": "InfEHR: clinical phenotype resolution via deep geometric lea",
+    "category": "data_leakage",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 2,
+    "mlgg_gates": [
+      "definition_variable_guard"
+    ],
+    "concern_text": "Reliance on ICD/diagnosis codes for label generation avoided, but weakly-labeled propagation (MAP@1 0.71-0.79) raises questions about noisy labels cascading into downstream training.",
+    "author_response": "Justified medium-density regime per Ratner et al. data programming theory; authors argue imperfect labels are acceptable in weak supervision and GNN denoises. Avoided diagnosis codes due to post-hoc application timing.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-107-C05",
+    "paper_id": "PR-107",
+    "paper_title": "InfEHR: clinical phenotype resolution via deep geometric lea",
+    "category": "reproducibility",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 9,
+    "mlgg_gates": [
+      "reporting_bias_gate"
+    ],
+    "concern_text": "Chosen hyperparameters (embedding dimensions, pooling ratio) not stated in manuscript, limiting reproducibility of the GNN tuning.",
+    "author_response": "Added explicit hyperparameter section: input dim d=160, pool ratio 0.8, hidden dims H1=256/H2=128, output d=128 representation + d=2 classifier.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-107-C06",
+    "paper_id": "PR-107",
+    "paper_title": "InfEHR: clinical phenotype resolution via deep geometric lea",
+    "category": "preprocessing",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [
+      "feature_engineering_audit_gate",
+      "feature_lineage_gate"
+    ],
+    "concern_text": "Handling of unstructured clinical narratives unclear: NLP pipeline for free-text extraction not described; ontology standardization (SNOMED/UMLS) not specified.",
+    "author_response": "Documented QuickUMLS extraction + TF-IDF + NMF topic filtering pipeline for note-derived nodes; acknowledged temporality/semantics limitations and noted SNOMED-CT integration as future work.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-108-C01",
+    "paper_id": "PR-108",
+    "paper_title": "Raised Leptin and Pappalysin2 cell-free RNAs as hallmarks of",
+    "category": "split_protocol",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [
+      "split_protocol_gate",
+      "distribution_generalization_gate"
+    ],
+    "concern_text": "Discovery/validation split by preterm (<37wk) vs term (>=37wk) delivery may bias model to early-onset disease markers; early-onset placental insufficiency is biologically distinct from late-onset.",
+    "author_response": "Re-analyzed by pooling both cohorts into combined 28wk set; LEP+PAPPA2 still selected; combined-model external AUC (0.944) slightly lower than original preterm-only model (0.951). Added Supplementary Data 9.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-108-C02",
+    "paper_id": "PR-108",
+    "paper_title": "Raised Leptin and Pappalysin2 cell-free RNAs as hallmarks of",
+    "category": "sample_size",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 12,
+    "mlgg_gates": [
+      "sample_size_gate"
+    ],
+    "concern_text": "Only n=13-15 effective cases in discovery cohort at 28wk severely constrains multivariable model stability; 2-predictor ceiling is a symptom of underpowering.",
+    "author_response": "Acknowledged case count limitation; justified 2-predictor model as mitigation. External validation on Munchel cohort (AUC 0.95) supports stability.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-108-C03",
+    "paper_id": "PR-108",
+    "paper_title": "Raised Leptin and Pappalysin2 cell-free RNAs as hallmarks of",
+    "category": "model_selection",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [
+      "model_selection_audit_gate"
+    ],
+    "concern_text": "AdaBoost (used by Munchel et al) omitted from 11-model super-learner comparison; rationale for excluding ensembles undocumented.",
+    "author_response": "Added AdaBoost to evaluation; results included in updated Table 2 and Figure 3A.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-108-C04",
+    "paper_id": "PR-108",
+    "paper_title": "Raised Leptin and Pappalysin2 cell-free RNAs as hallmarks of",
+    "category": "feature_selection",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [
+      "feature_engineering_audit_gate"
+    ],
+    "concern_text": "Labelling 17 genes as 'core genes' from overlap of DESeq2/edgeR/AUC/AIC without rationale reconciling divergent statistical assumptions of each ranking method appears arbitrary.",
+    "author_response": "Reworded 'core genes' to 'shared genes' throughout manuscript; expanded justification of multi-method overlap approach.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-108-C05",
+    "paper_id": "PR-108",
+    "paper_title": "Raised Leptin and Pappalysin2 cell-free RNAs as hallmarks of",
+    "category": "study_design",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 7,
+    "mlgg_gates": [],
+    "concern_text": "Longitudinal sampling structure (same patient sampled at 4 gestational timepoints in same batch) not leveraged; model trained only on 28wk cross-sectional snapshot despite data being ideal for repeated-measures analysis.",
+    "author_response": "Added longitudinal mixed-effects analysis in new Figure 5B and Supplementary Figures 4-6; identified 129 gestation-associated cfRNAs via random-intercept models with quadratic GA terms.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-108-C06",
+    "paper_id": "PR-108",
+    "paper_title": "Raised Leptin and Pappalysin2 cell-free RNAs as hallmarks of",
+    "category": "evaluation_metrics",
+    "current_severity": "LOW",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "evaluation_quality_gate"
+    ],
+    "concern_text": "Full AUC may overweight irrelevant ROC regions; partial AUC (pAUC) at high specificity recommended for clinically meaningful screening performance ranking.",
+    "author_response": "Declined to switch to pAUC; retained AUC given nascent cfRNA antenatal diagnostics field lacks prior on specificity thresholds, full ROC plots provided for readers.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-109-C01",
+    "paper_id": "PR-109",
+    "paper_title": "Integrating electronic health records and GWAS summary stati",
+    "category": "data_leakage",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 2,
+    "mlgg_gates": [
+      "leakage_gate",
+      "split_protocol_gate"
+    ],
+    "concern_text": "UK Biobank was part of the case-control GWAS used to build CC-PRS, then reused for PheWAS validation - circular use of the same biobank in training weights and evaluation inflates CC-PRS signal.",
+    "author_response": "Added All of Us as independent PheWAS replication cohort (not in CC-PRS training); 4/5 RA GPS-PRS unique PheCodes replicated; effect-size correlations r2=0.44-0.70 across biobanks support validity.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-109-C02",
+    "paper_id": "PR-109",
+    "paper_title": "Integrating electronic health records and GWAS summary stati",
+    "category": "external_validation",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [
+      "external_validation_gate",
+      "fairness_equity_gate",
+      "distribution_generalization_gate"
+    ],
+    "concern_text": "Portability across ancestries and biobanks unexamined; performance reported only in European-ancestry subset of BioVU+All of Us; non-European sample sizes too small to evaluate fairness/transferability.",
+    "author_response": "Evaluated African and American-ancestry cohorts (n>100) in All of Us; reported R2 for GPS-PRS-CS and GPS-Lassosum in non-European subgroups; acknowledged East Asian sample too small for reliable evaluation.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-109-C03",
+    "paper_id": "PR-109",
+    "paper_title": "Integrating electronic health records and GWAS summary stati",
+    "category": "model_selection",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [
+      "model_selection_audit_gate"
+    ],
+    "concern_text": "Only MTAG (2018) used as multi-trait PRS comparator; newer methods (mtPGS, multivariate Lassosum Bahda 2023, PROSPER) omitted, weakening novelty claim.",
+    "author_response": "Added multivariate Lassosum (Bahda 2023) comparator and super-stacking models (GPS_stacking/MTAG_stacking/TL-PRS_stacking/ALL-BASE_stacking); GPS retained top accuracy.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-109-C04",
+    "paper_id": "PR-109",
+    "paper_title": "Integrating electronic health records and GWAS summary stati",
+    "category": "reproducibility",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 9,
+    "mlgg_gates": [
+      "reporting_bias_gate"
+    ],
+    "concern_text": "Tuning-parameter settings, software versions for LDpred2/lassosum/PRS-CS not documented; no code provided for baseline PRS estimation step.",
+    "author_response": "Released baseline PRS training scripts at github.com/wangc29/GPS_paper_script; documented tuning grid and software versions in Methods Code Availability.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-109-C05",
+    "paper_id": "PR-109",
+    "paper_title": "Integrating electronic health records and GWAS summary stati",
+    "category": "study_design",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [
+      "cohort_definition_gate"
+    ],
+    "concern_text": "Preclinical stage defined only by RF+ and ANA+ serology; other informative markers (dsDNA, anti-Smith, CCP antibodies) excluded due to small counts, narrowing applicability.",
+    "author_response": "Justified RF/ANA as primary clinical screening markers; reported dsDNA/anti-Smith/CCP case counts (17-130) too small for reliable modeling in BioVU/All of Us.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-109-C06",
+    "paper_id": "PR-109",
+    "paper_title": "Integrating electronic health records and GWAS summary stati",
+    "category": "evaluation_metrics",
+    "current_severity": "LOW",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "ci_matrix_gate"
+    ],
+    "concern_text": "Confidence interval estimation method for R2 and AUPRC not described in original submission.",
+    "author_response": "Clarified Nagelkerke R2 CI via CI.Rsq in psychometric R package; AUPRC/AUC via 1000-iteration bootstrap on test set. Added to Methods.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-110-C01",
+    "paper_id": "PR-110",
+    "paper_title": "Development and validation of a wearable deep learning conti",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [
+      "cohort_definition_gate",
+      "reporting_bias_gate"
+    ],
+    "concern_text": "Patients selected for wearable patching by nurse clinical judgment with no documented eligibility criteria; strong selection bias risk - nurses chose patients deemed at higher decompensation risk.",
+    "author_response": "Added explicit statement that patching was a quality-improvement initiative with nurse-based selection (lines 131-137); acknowledged as limitation for generalization.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-110-C02",
+    "paper_id": "PR-110",
+    "paper_title": "Development and validation of a wearable deep learning conti",
+    "category": "sample_size",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 12,
+    "mlgg_gates": [
+      "sample_size_gate"
+    ],
+    "concern_text": "Only 11-17 hard deterioration events across cohort insufficient to validate a deep learning predictive model; effectively a feasibility study rather than a validated model.",
+    "author_response": "Added Cohen's d-based sample-size justification for wearable-EHR agreement (n=57-74 required); RNN convergence cohort size (888) justified via VC-dimension literature. Acknowledged low event count limitation.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-110-C03",
+    "paper_id": "PR-110",
+    "paper_title": "Development and validation of a wearable deep learning conti",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "calibration_dca_gate",
+      "evaluation_quality_gate"
+    ],
+    "concern_text": "Calibration not assessed; reviewer 3 insisted across 3 rounds that 95%/5% class-rebalancing by over/undersampling distorts probability outputs and demands calibration curves.",
+    "author_response": "Added full calibration analyses across 3 validations + recalibration step; transparently reported suboptimal pre-recalibration calibration curves.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-110-C04",
+    "paper_id": "PR-110",
+    "paper_title": "Development and validation of a wearable deep learning conti",
+    "category": "preprocessing",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 2,
+    "mlgg_gates": [
+      "imbalance_policy_gate",
+      "leakage_gate"
+    ],
+    "concern_text": "Heavy class rebalancing (0.3% -> 5% positive via undersampling+oversampling) on training set risks leakage and skews posterior probabilities in deployment.",
+    "author_response": "Documented resampling approach explicitly; per reviewer demand, added calibration curves demonstrating impact and recalibration correction.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-110-C05",
+    "paper_id": "PR-110",
+    "paper_title": "Development and validation of a wearable deep learning conti",
+    "category": "external_validation",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [
+      "external_validation_gate",
+      "covariate_shift_gate"
+    ],
+    "concern_text": "'Prospective' validation used same-institution patients on alternate device rather than separate cohort; generalizability across hospitals/populations unassessed.",
+    "author_response": "Clarified retrospective-split nature in abstract; acknowledged device-based rather than cohort-based validation limits generalization claims.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-110-C06",
+    "paper_id": "PR-110",
+    "paper_title": "Development and validation of a wearable deep learning conti",
+    "category": "reporting",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [
+      "reporting_bias_gate",
+      "publication_gate"
+    ],
+    "concern_text": "No TRIPOD/MI-CLAIM compliance; patient-flow diagram absent; discrepancy between 17 deteriorations (Table 1) vs 11 in performance evaluation (Table 3) unexplained.",
+    "author_response": "Added MI-CLAIM checklist in resubmission; added Model Training and Testing methods section; agreed to clarify 17 vs 11 patient flow in final revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-111-C01",
+    "paper_id": "PR-111",
+    "paper_title": "Plasma proteomics for biomarker discovery in childhood tuber",
+    "category": "split_protocol",
+    "current_severity": "CRITICAL",
+    "mlgg_dimension": 2,
+    "mlgg_gates": [
+      "split_protocol_gate",
+      "leakage_gate",
+      "tuning_leakage_gate",
+      "model_selection_audit_gate"
+    ],
+    "concern_text": "Every candidate model from the all-combinations search was evaluated on the 25% test set, effectively turning the test set into a second training step and inflating performance via multiple testing.",
+    "author_response": "Conceded the caveat; added limitations-section statement that biosignatures were evaluated on a test set (not fully independent hold-out) and performance should be read as exploratory rather than confirmatory.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-111-C02",
+    "paper_id": "PR-111",
+    "paper_title": "Plasma proteomics for biomarker discovery in childhood tuber",
+    "category": "reporting",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 9,
+    "mlgg_gates": [
+      "reporting_bias_gate",
+      "feature_engineering_audit_gate",
+      "seed_stability_gate",
+      "execution_attestation_gate"
+    ],
+    "concern_text": "LASSO cross-validation type, hyperparameters, and software details not specified; combinatorial 'linear' models were actually logistic regression, and scikit-learn call / CV scheme for feature selection unreported.",
+    "author_response": "Added 'Computational packages utilized' section, clarified LogisticRegression(penalty='l2') with default scikit-learn 1.5.1, corrected 'linear'->'logistic', published code on GitHub.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-111-C03",
+    "paper_id": "PR-111",
+    "paper_title": "Plasma proteomics for biomarker discovery in childhood tuber",
+    "category": "preprocessing",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [
+      "missingness_policy_gate",
+      "feature_lineage_gate",
+      "feature_engineering_audit_gate"
+    ],
+    "concern_text": "Two different imputation strategies applied at 50% and 10% missingness thresholds without rationale, and per-marker missingness (up to >70% for IGLL5, IGLV3-9) not originally reported, risking spurious biomarker selection.",
+    "author_response": "Provided mechanistic rationale for dual imputation (detection-limit vs absent); re-ran biosignature with 50% missingness cap pre-LASSO, dropped IGLs, new 5/6-protein signatures at AUC 0.87/0.88.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-111-C04",
+    "paper_id": "PR-111",
+    "paper_title": "Plasma proteomics for biomarker discovery in childhood tuber",
+    "category": "external_validation",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [
+      "external_validation_gate",
+      "distribution_generalization_gate"
+    ],
+    "concern_text": "No independent validation cohort; 25% held-out split presented as 'validation' serves only bioinformatic role; generalization across countries/age/HIV subgroups untested.",
+    "author_response": "Acknowledged lack of independent cohort; noted planned prospective validation several years away; added it as a future-direction limitation.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-111-C05",
+    "paper_id": "PR-111",
+    "paper_title": "Plasma proteomics for biomarker discovery in childhood tuber",
+    "category": "study_design",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 11,
+    "mlgg_gates": [
+      "fairness_equity_gate",
+      "cohort_definition_gate",
+      "covariate_shift_gate"
+    ],
+    "concern_text": "No subgroup analyses by age <2, sex, HIV, nutritional status despite significant HIV/malnutrition imbalance between TB and Unlikely TB groups (potential confounding of proteomic signature).",
+    "author_response": "Ran chi-square tests — HIV (p=0.033) and malnutrition (p=0.012) significantly associated with TB; added Table 1 statistics and limitation text; declined subgroup model refits due to sample size.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-111-C06",
+    "paper_id": "PR-111",
+    "paper_title": "Plasma proteomics for biomarker discovery in childhood tuber",
+    "category": "model_selection",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [
+      "model_selection_audit_gate",
+      "reporting_bias_gate"
+    ],
+    "concern_text": "Only logistic regression evaluated; tree-based and non-linear methods not reported; rationale for restricting to logistic was post-hoc and results of other methods (XGBoost, RF, SVM) were 'data not shown'.",
+    "author_response": "Stated NaiveBayes, SVM, RF, AdaBoost, XGBoost and ensembling were evaluated internally with similar performance; logistic chosen for interpretability and stability on small feature subsets.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-112-C01",
+    "paper_id": "PR-112",
+    "paper_title": "Maternal plasma cell-free RNA as a predictor of early and la",
+    "category": "external_validation",
+    "current_severity": "CRITICAL",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [
+      "external_validation_gate",
+      "distribution_generalization_gate",
+      "generalization_gap_gate",
+      "reporting_bias_gate"
+    ],
+    "concern_text": "External Validation 2 (GSE192902) AUCs dropped sharply (e.g., 0.88 -> 0.68 range; T1 LOPE AUC 0.63), contradicting 'robustness and translational potential' claim; performance gap not transparently reported.",
+    "author_response": "Removed overstatements; reframed Validation 2 as supporting signature relevance with acknowledged modest performance drop due to technical/sampling variability; added full sens/spec/AUC metrics to Results and abstract.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-112-C02",
+    "paper_id": "PR-112",
+    "paper_title": "Maternal plasma cell-free RNA as a predictor of early and la",
+    "category": "sample_size",
+    "current_severity": "CRITICAL",
+    "mlgg_dimension": 12,
+    "mlgg_gates": [
+      "sample_size_gate",
+      "split_protocol_gate",
+      "external_validation_gate"
+    ],
+    "concern_text": "Validation 2 cohort very small (especially T2 subset); balanced case-control down-sampling plus leave-one-out CV on tiny n yields high-variance estimates easily confounded with technical differences.",
+    "author_response": "Explained variability as function of external cohort design/metadata; detailed balanced down-sampling across signature genes + gestational window; evaluated via leave-one-out CV with standard metrics; added methods text.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-112-C03",
+    "paper_id": "PR-112",
+    "paper_title": "Maternal plasma cell-free RNA as a predictor of early and la",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [
+      "cohort_definition_gate",
+      "definition_variable_guard",
+      "covariate_shift_gate"
+    ],
+    "concern_text": "Severe aspirin-prophylaxis imbalance (71% EOPE / 53% LOPE cases vs 7.6% controls received aspirin) not stratified; cfRNA signature could reflect treatment rather than disease biology and fail in aspirin-naive controls.",
+    "author_response": "Ran PCA, limma-Voom DEG, and classifier-score stratification by aspirin status — no separation or score shift detected; noted T1 sampling preceded aspirin initiation; added clarifying text.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-112-C04",
+    "paper_id": "PR-112",
+    "paper_title": "Maternal plasma cell-free RNA as a predictor of early and la",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [
+      "cohort_definition_gate",
+      "distribution_generalization_gate"
+    ],
+    "concern_text": "Case-control discovery design instead of case-cohort/nested cohort risks overly optimistic models likely to fail in population-based deployment; limitation not originally acknowledged.",
+    "author_response": "Added discussion paragraph conceding case-control optimization limitation; cited ongoing large prospective iPregnostic trial (NCT06716242) for population-level validation.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-112-C05",
+    "paper_id": "PR-112",
+    "paper_title": "Maternal plasma cell-free RNA as a predictor of early and la",
+    "category": "reporting",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [
+      "reporting_bias_gate",
+      "publication_gate",
+      "metric_consistency_gate"
+    ],
+    "concern_text": "External validation results originally buried in figures/tables and omitted from abstract; reduced T1 LOPE AUC (0.68) and Validation 2 AUC (0.63) hidden while discussion touted 'robustness'.",
+    "author_response": "Rewrote Results with sens/spec/AUC inline for external validation; added T1 LOPE (0.68) and Val2 (0.63) AUCs to abstract within 150-word limit per Reviewer #3 round-2 request.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-113-C01",
+    "paper_id": "PR-113",
+    "paper_title": "Explainable AI unravels sepsis heterogeneity via coagulation",
+    "category": "split_protocol",
+    "current_severity": "CRITICAL",
+    "mlgg_dimension": 3,
+    "mlgg_gates": [
+      "split_protocol_gate",
+      "leakage_gate",
+      "tuning_leakage_gate",
+      "imbalance_policy_gate"
+    ],
+    "concern_text": "Cross-validation / train-validation-test strategy unclear; MIMIC-III and MIMIC-IV merged with SMOTE applied on pooled data before the 7:3 split risked leaking synthetic samples into internal test and inflating AUC 0.9301.",
+    "author_response": "Clarified MIMIC-III+eICU-CRD used as pretraining Cohort 1 (7:3 internal split, SMOTE for augmentation); MIMIC-IV (Cohort 2) and local ICU (Cohort 3) as external targets evaluated via 10-fold CV; added fine-tuning + MMID-SMOTE parameters (k=4, 1:1 ratio, fixed seed).",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-113-C02",
+    "paper_id": "PR-113",
+    "paper_title": "Explainable AI unravels sepsis heterogeneity via coagulation",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "ci_matrix_gate",
+      "evaluation_quality_gate",
+      "permutation_significance_gate"
+    ],
+    "concern_text": "No DeLong test or confidence intervals reported when comparing SepsisFormer (AUC 0.9301) against qSOFA/SOFA/APACHE II/GRU/XGBoost; superiority claims statistically unsupported.",
+    "author_response": "Added DeLong's test via MLstatkit.stats comparing SepsisFormer to all baselines across cohorts; reported p-values (e.g., vs GRU p=0.41 indicating parity with GRU) in figure legends.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-113-C03",
+    "paper_id": "PR-113",
+    "paper_title": "Explainable AI unravels sepsis heterogeneity via coagulation",
+    "category": "external_validation",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [
+      "external_validation_gate",
+      "distribution_generalization_gate",
+      "prediction_replay_gate"
+    ],
+    "concern_text": "No prospective validation of SepsisFormer in real-time ICU settings; transcriptomic biomarkers (STAT5B, MTHFR, HPSE, AAK1, MX1) lack validation in independent cohort.",
+    "author_response": "Added small prospective real-time cohort (n=40, Chongqing, IRB 2025-55) monitoring SMART + subphenotype vs 28-day mortality; argued full SepsisFormer prospective trial beyond scope; deferred transcriptomic external validation.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-113-C04",
+    "paper_id": "PR-113",
+    "paper_title": "Explainable AI unravels sepsis heterogeneity via coagulation",
+    "category": "model_selection",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [
+      "model_selection_audit_gate",
+      "reporting_bias_gate",
+      "feature_engineering_audit_gate"
+    ],
+    "concern_text": "No ablation of SepsisFormer components (e.g., contribution of domain-adaptation vs base Transformer); hyperparameter choices and MMID-SMOTE 'novelty' vs existing SMOTE unclear.",
+    "author_response": "Ran systematic hyperparameter sensitivity analysis; added ablation comparing MMID-SMOTE vs no-adaptation and other DA methods; renamed method MMID-SMOTE and provided 5-step algorithm in Supplementary Method 1.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-113-C05",
+    "paper_id": "PR-113",
+    "paper_title": "Explainable AI unravels sepsis heterogeneity via coagulation",
+    "category": "feature_selection",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [
+      "definition_variable_guard",
+      "feature_lineage_gate",
+      "feature_engineering_audit_gate"
+    ],
+    "concern_text": "Rationale for restricting SMART to 7 coagulation-inflammation markers + age unclear — Figure 2 suggests >8 candidate variables and two clustering analyses (alpha/beta on 36 vars, CIS1/CIS2 on 7) with overlapping role cause confusion.",
+    "author_response": "Added explicit selection-process figure + text rationalizing 7-variable SMART; distinguished GMM-on-36 (alpha/beta) vs GMM-on-7 (CIS1/CIS2); clarified post-hoc XAI interpretation is not built into model.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-113-C06",
+    "paper_id": "PR-113",
+    "paper_title": "Explainable AI unravels sepsis heterogeneity via coagulation",
+    "category": "reporting",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 9,
+    "mlgg_gates": [
+      "reporting_bias_gate",
+      "execution_attestation_gate"
+    ],
+    "concern_text": "Code not available at initial submission; only pseudocode provided; documentation insufficient to reproduce analyses or link scripts to specific figures/transcriptomic results.",
+    "author_response": "Uploaded code repository with STROBE-style diagram, execution videos; by round 2 improved README, dependency list, script-to-result mapping; transcriptomic reproducibility partially resolved.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-114-C01",
+    "paper_id": "PR-114",
+    "paper_title": "A machine learning and centrifugal microfluidics platform fo",
+    "category": "study_design",
+    "current_severity": "CRITICAL",
+    "mlgg_dimension": 7,
+    "mlgg_gates": [
+      "definition_variable_guard",
+      "cohort_definition_gate",
+      "clinical_metrics_gate"
+    ],
+    "concern_text": "Outcome definition confounds prognosis vs diagnosis: SOFA >=2 is prognostic of organ dysfunction, not of infection; pre-Sepsis-3 cohorts split 'sepsis' vs 'severe sepsis' where severe is now the Sepsis-3 sepsis, creating label inconsistency across cohorts.",
+    "author_response": "Clarified SOFA>=2 is Sepsis-3 operational definition (old 'severe sepsis' = current 'sepsis'); edited manuscript to state score used 'to discriminate sepsis from non-sepsis'; distinguished diagnosis vs prognostication concepts.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-114-C02",
+    "paper_id": "PR-114",
+    "paper_title": "A machine learning and centrifugal microfluidics platform fo",
+    "category": "clinical_utility",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 7,
+    "mlgg_gates": [
+      "clinical_metrics_gate",
+      "calibration_dca_gate",
+      "evaluation_quality_gate"
+    ],
+    "concern_text": "AUROC 0.69 and NPV 67% in ED setting deemed effectively a negative result: cannot reliably rule out adverse outcomes at true T0, undermining point-of-care value proposition.",
+    "author_response": "Contextualized vs prior tests at ~50% accuracy; argued accuracy rises to ~90% by ICU admission; suggested 6-12 h retest strategy; attributed ED under-performance to early antibiotics preventing progression.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-114-C03",
+    "paper_id": "PR-114",
+    "paper_title": "A machine learning and centrifugal microfluidics platform fo",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [
+      "cohort_definition_gate",
+      "definition_variable_guard",
+      "covariate_shift_gate"
+    ],
+    "concern_text": "Bacterial/viral infection patients used as non-sepsis controls while sepsis mimickers (cancer, cardiogenic shock, ACS, IBD — 15-18% of suspected-sepsis cohorts) underrepresented, biasing specificity estimates.",
+    "author_response": "Cited Table 1 rows 11-14 testing 3171 mimicker patients with AUCs 0.50-0.53 (chance-level), framing as desired specificity against non-sepsis; reinforced SOFA>=2 correlation anchors predictions.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-114-C04",
+    "paper_id": "PR-114",
+    "paper_title": "A machine learning and centrifugal microfluidics platform fo",
+    "category": "sample_size",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 12,
+    "mlgg_gates": [
+      "sample_size_gate",
+      "tuning_leakage_gate",
+      "split_protocol_gate"
+    ],
+    "concern_text": "Derivation/validation cohorts smaller than claimed; no prospective power analysis presented per setting; refitting six-gene signature across ED vs ICU vs multi-country cohorts risks tuning leakage.",
+    "author_response": "Supplied DeLong-based power calc (n=376 for 90% power vs PCT); n=586 used in derivation; asserted ddPCR results consistent with RNA-seq across follow-on cohorts in Table 1 bottom rows.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-114-C05",
+    "paper_id": "PR-114",
+    "paper_title": "A machine learning and centrifugal microfluidics platform fo",
+    "category": "external_validation",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [
+      "external_validation_gate",
+      "distribution_generalization_gate",
+      "robustness_gate"
+    ],
+    "concern_text": "Independence of 15 'external' test datasets questioned — reviewer asked explicitly whether signatures were ever tuned/refit on these cohorts, with limited detail on RNA extraction and HKG stability across populations.",
+    "author_response": "Listed 2 training sets + 9 sepsis test cohorts + 6 non-sepsis test cohorts; showed automated vs manual RNA extraction gave similar Ct (delta Ct <1); HKGs PTP4A2 and CHTOP selected for low variance across 2,833-candidate screen.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-114-C06",
+    "paper_id": "PR-114",
+    "paper_title": "A machine learning and centrifugal microfluidics platform fo",
+    "category": "interpretability",
+    "current_severity": "LOW",
+    "mlgg_dimension": 7,
+    "mlgg_gates": [
+      "shap_interpretability_gate",
+      "reporting_bias_gate"
+    ],
+    "concern_text": "Pathophysiological link between the 6-gene immunosuppression/reprogramming signature and SOFA-defined deterioration requires deeper mechanistic discussion; over-reach in claiming test replaces other clinical variables.",
+    "author_response": "Added mechanistic paragraph linking positive SepsetER to dysfunctional host response; softened claim that 'no other information should be needed' by adding 'although other clinical predictors could complement this test.'",
+    "resolved": true
+  }
+]

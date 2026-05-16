@@ -1,0 +1,1808 @@
+{
+  "agent": "a9-canonical-patterns",
+  "ran_at_utc": "2026-05-16T10:23:15Z",
+  "source": {
+    "concern_corpus": "/Volumes/Seagate/Skill/ml-leakage-guard/references/case-studies/peer-review-kb.json",
+    "q4_report": "/Volumes/Seagate/Skill/ml-leakage-guard/paper/qa-wave-2026-05-13/q4-report.json",
+    "pattern_rule": "signature = (category, sorted(mlgg_gates)); canonical when distinct_papers >= 3"
+  },
+  "patterns": [
+    {
+      "canonical_pattern_id": "CP-001",
+      "label": "evaluation_unspecified_confounding_and_metric_questions",
+      "signature": {
+        "category": "evaluation_metrics",
+        "gates": [],
+        "primary_gate": null
+      },
+      "instance_count": 88,
+      "distinct_paper_count": 63,
+      "example_concern_ids": [
+        "PR-003-C11",
+        "PR-005-C05",
+        "PR-008-C06",
+        "PR-011-C06",
+        "PR-012-C04"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-002",
+      "label": "cohort_temporal_or_inclusion_ambiguity",
+      "signature": {
+        "category": "study_design",
+        "gates": [
+          "cohort_definition_gate"
+        ],
+        "primary_gate": "cohort_definition_gate"
+      },
+      "instance_count": 74,
+      "distinct_paper_count": 45,
+      "example_concern_ids": [
+        "PR-001-C01",
+        "PR-001-C05",
+        "PR-001-C10",
+        "PR-002-C03",
+        "PR-004-C03"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-003",
+      "label": "study_design_causality_and_framing_critique",
+      "signature": {
+        "category": "study_design",
+        "gates": [],
+        "primary_gate": null
+      },
+      "instance_count": 68,
+      "distinct_paper_count": 51,
+      "example_concern_ids": [
+        "PR-001-C09",
+        "PR-005-C04",
+        "PR-005-C08",
+        "PR-006-C06",
+        "PR-008-C05"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-004",
+      "label": "reporting_missing_methods_or_pipeline_detail",
+      "signature": {
+        "category": "reporting",
+        "gates": [],
+        "primary_gate": null
+      },
+      "instance_count": 48,
+      "distinct_paper_count": 37,
+      "example_concern_ids": [
+        "PR-007-C07",
+        "PR-008-C08",
+        "PR-009-C05",
+        "PR-009-C06",
+        "PR-010-C06"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-005",
+      "label": "cv_vs_random_split_and_hp_selection_audit",
+      "signature": {
+        "category": "model_selection",
+        "gates": [
+          "model_selection_audit_gate"
+        ],
+        "primary_gate": "model_selection_audit_gate"
+      },
+      "instance_count": 31,
+      "distinct_paper_count": 26,
+      "example_concern_ids": [
+        "PR-002-C04",
+        "PR-003-C08",
+        "PR-009-C01",
+        "PR-020-C01",
+        "PR-027-C01"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-006",
+      "label": "evaluation_quality_metric_choice_and_comparison",
+      "signature": {
+        "category": "evaluation_metrics",
+        "gates": [
+          "evaluation_quality_gate"
+        ],
+        "primary_gate": "evaluation_quality_gate"
+      },
+      "instance_count": 29,
+      "distinct_paper_count": 27,
+      "example_concern_ids": [
+        "PR-002-C02",
+        "PR-003-C06",
+        "PR-004-C01",
+        "PR-004-C07",
+        "PR-006-C03"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-007",
+      "label": "missing_demographics_or_baseline_table",
+      "signature": {
+        "category": "reporting",
+        "gates": [
+          "reporting_bias_gate"
+        ],
+        "primary_gate": "reporting_bias_gate"
+      },
+      "instance_count": 24,
+      "distinct_paper_count": 22,
+      "example_concern_ids": [
+        "PR-002-C06",
+        "PR-002-C08",
+        "PR-003-C04",
+        "PR-006-C07",
+        "PR-026-C04"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-008",
+      "label": "missing_or_inadequate_external_validation",
+      "signature": {
+        "category": "external_validation",
+        "gates": [
+          "external_validation_gate"
+        ],
+        "primary_gate": "external_validation_gate"
+      },
+      "instance_count": 22,
+      "distinct_paper_count": 21,
+      "example_concern_ids": [
+        "PR-001-C06",
+        "PR-006-C04",
+        "PR-008-C07",
+        "PR-026-C01",
+        "PR-028-C01"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-009",
+      "label": "code_or_pipeline_not_available_for_review",
+      "signature": {
+        "category": "reproducibility",
+        "gates": [
+          "publication_gate"
+        ],
+        "primary_gate": "publication_gate"
+      },
+      "instance_count": 18,
+      "distinct_paper_count": 18,
+      "example_concern_ids": [
+        "PR-102-C04",
+        "PR-105-C03",
+        "PR-RO-07-C09",
+        "PR-EXP-0084-C06",
+        "PR-EXP-0085-C05"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-010",
+      "label": "low_ppv_or_clinical_utility_threshold_concern",
+      "signature": {
+        "category": "clinical_utility",
+        "gates": [
+          "clinical_metrics_gate"
+        ],
+        "primary_gate": "clinical_metrics_gate"
+      },
+      "instance_count": 16,
+      "distinct_paper_count": 15,
+      "example_concern_ids": [
+        "PR-004-C02",
+        "PR-007-C01",
+        "PR-020-C02",
+        "PR-105-C06",
+        "PR-106-C04"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-011",
+      "label": "reproducibility_artifact_or_doc_gaps",
+      "signature": {
+        "category": "reproducibility",
+        "gates": [],
+        "primary_gate": null
+      },
+      "instance_count": 16,
+      "distinct_paper_count": 15,
+      "example_concern_ids": [
+        "PR-003-C09",
+        "PR-003-C10",
+        "PR-005-C07",
+        "PR-007-C05",
+        "PR-010-C05"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-012",
+      "label": "clinical_relevance_of_prediction_target",
+      "signature": {
+        "category": "clinical_utility",
+        "gates": [],
+        "primary_gate": null
+      },
+      "instance_count": 15,
+      "distinct_paper_count": 14,
+      "example_concern_ids": [
+        "PR-004-C05",
+        "PR-012-C06",
+        "PR-016-C05",
+        "PR-026-C03",
+        "PR-028-C07"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-013",
+      "label": "shap_or_feature_attribution_presentation_request",
+      "signature": {
+        "category": "interpretability",
+        "gates": [
+          "shap_interpretability_gate"
+        ],
+        "primary_gate": "shap_interpretability_gate"
+      },
+      "instance_count": 15,
+      "distinct_paper_count": 14,
+      "example_concern_ids": [
+        "PR-001-C07",
+        "PR-001-C08",
+        "PR-003-C07",
+        "PR-011-C03",
+        "PR-101-C05"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-014",
+      "label": "preprocessing_choices_unjustified_or_undocumented",
+      "signature": {
+        "category": "preprocessing",
+        "gates": [],
+        "primary_gate": null
+      },
+      "instance_count": 14,
+      "distinct_paper_count": 12,
+      "example_concern_ids": [
+        "PR-004-C06",
+        "PR-008-C02",
+        "PR-008-C03",
+        "PR-016-C01",
+        "PR-016-C02"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-015",
+      "label": "undocumented_missingness_or_imputation_policy",
+      "signature": {
+        "category": "preprocessing",
+        "gates": [
+          "missingness_policy_gate"
+        ],
+        "primary_gate": "missingness_policy_gate"
+      },
+      "instance_count": 13,
+      "distinct_paper_count": 12,
+      "example_concern_ids": [
+        "PR-003-C02",
+        "PR-003-C03",
+        "PR-006-C05",
+        "PR-024-C03",
+        "PR-025-C02"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-016",
+      "label": "no_external_cohort_and_distribution_shift_untested",
+      "signature": {
+        "category": "external_validation",
+        "gates": [
+          "distribution_generalization_gate",
+          "external_validation_gate"
+        ],
+        "primary_gate": "distribution_generalization_gate"
+      },
+      "instance_count": 12,
+      "distinct_paper_count": 11,
+      "example_concern_ids": [
+        "PR-111-C04",
+        "PR-EXP-0085-C04",
+        "PR-EXP-0086-C06",
+        "PR-EXP-0092-C01",
+        "PR-EXP-0096-C03"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-017",
+      "label": "weak_or_missing_baseline_model_comparison",
+      "signature": {
+        "category": "model_selection",
+        "gates": [],
+        "primary_gate": null
+      },
+      "instance_count": 12,
+      "distinct_paper_count": 10,
+      "example_concern_ids": [
+        "PR-014-C02",
+        "PR-017-C01",
+        "PR-028-C02",
+        "PR-028-C04",
+        "PR-029-C04"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-018",
+      "label": "inconsistent_or_cherry_picked_metric_comparison",
+      "signature": {
+        "category": "evaluation_metrics",
+        "gates": [
+          "evaluation_quality_gate",
+          "metric_consistency_gate"
+        ],
+        "primary_gate": "evaluation_quality_gate"
+      },
+      "instance_count": 11,
+      "distinct_paper_count": 10,
+      "example_concern_ids": [
+        "PR-104-C02",
+        "PR-EXP-0085-C06",
+        "PR-EXP-0086-C04",
+        "PR-EXP-0099-C02",
+        "PR-EXP-0101-C08"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-019",
+      "label": "feature_selection_stability_and_method_choice",
+      "signature": {
+        "category": "feature_selection",
+        "gates": [
+          "feature_engineering_audit_gate"
+        ],
+        "primary_gate": "feature_engineering_audit_gate"
+      },
+      "instance_count": 11,
+      "distinct_paper_count": 10,
+      "example_concern_ids": [
+        "PR-101-C04",
+        "PR-105-C05",
+        "PR-108-C04",
+        "PR-EXP-0084-C15",
+        "PR-EXP-0095-C09"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-020",
+      "label": "clinically_critical_metric_omitted_from_evaluation",
+      "signature": {
+        "category": "evaluation_metrics",
+        "gates": [
+          "clinical_metrics_gate",
+          "evaluation_quality_gate"
+        ],
+        "primary_gate": "clinical_metrics_gate"
+      },
+      "instance_count": 11,
+      "distinct_paper_count": 9,
+      "example_concern_ids": [
+        "PR-EXP-0085-C08",
+        "PR-EXP-0097-C06",
+        "PR-EXP-0103-C02",
+        "PR-EXP-0109-C04",
+        "PR-EXP-0110-C04"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-021",
+      "label": "missing_calibration_or_decision_curve_analysis",
+      "signature": {
+        "category": "evaluation_metrics",
+        "gates": [
+          "calibration_dca_gate"
+        ],
+        "primary_gate": "calibration_dca_gate"
+      },
+      "instance_count": 10,
+      "distinct_paper_count": 10,
+      "example_concern_ids": [
+        "PR-002-C07",
+        "PR-020-C03",
+        "PR-022-C01",
+        "PR-024-C05",
+        "PR-025-C03"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-022",
+      "label": "interpretability_confounding_and_feature_explanation",
+      "signature": {
+        "category": "interpretability",
+        "gates": [],
+        "primary_gate": null
+      },
+      "instance_count": 10,
+      "distinct_paper_count": 8,
+      "example_concern_ids": [
+        "PR-005-C02",
+        "PR-005-C06",
+        "PR-007-C06",
+        "PR-021-C04",
+        "PR-041-C03"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-023",
+      "label": "missing_confidence_intervals_on_performance_metrics",
+      "signature": {
+        "category": "evaluation_metrics",
+        "gates": [
+          "ci_matrix_gate",
+          "evaluation_quality_gate"
+        ],
+        "primary_gate": "ci_matrix_gate"
+      },
+      "instance_count": 8,
+      "distinct_paper_count": 8,
+      "example_concern_ids": [
+        "PR-EXP-0096-C02",
+        "PR-EXP-0098-C05",
+        "PR-EXP-0112-C04",
+        "PR-EXP-0124-C03",
+        "PR-EXP-0159-C01"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-024",
+      "label": "insufficient_sample_size_or_power",
+      "signature": {
+        "category": "sample_size",
+        "gates": [
+          "sample_size_gate"
+        ],
+        "primary_gate": "sample_size_gate"
+      },
+      "instance_count": 8,
+      "distinct_paper_count": 8,
+      "example_concern_ids": [
+        "PR-006-C08",
+        "PR-012-C07",
+        "PR-025-C01",
+        "PR-056-C02",
+        "PR-101-C01"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-025",
+      "label": "high_exclusion_rate_or_filtering_bias",
+      "signature": {
+        "category": "preprocessing",
+        "gates": [
+          "feature_engineering_audit_gate"
+        ],
+        "primary_gate": "feature_engineering_audit_gate"
+      },
+      "instance_count": 8,
+      "distinct_paper_count": 7,
+      "example_concern_ids": [
+        "PR-EXP-0109-C06",
+        "PR-EXP-0109-C08",
+        "PR-EXP-0119-C06",
+        "PR-EXP-0153-C03",
+        "PR-EXP-0155-C04"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-026",
+      "label": "auc_only_no_calibration_or_ppv_npv",
+      "signature": {
+        "category": "evaluation_metrics",
+        "gates": [
+          "calibration_dca_gate",
+          "evaluation_quality_gate"
+        ],
+        "primary_gate": "calibration_dca_gate"
+      },
+      "instance_count": 7,
+      "distinct_paper_count": 7,
+      "example_concern_ids": [
+        "PR-002-C01",
+        "PR-003-C05",
+        "PR-006-C02",
+        "PR-104-C04",
+        "PR-110-C03"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-027",
+      "label": "bootstrap_or_uncertainty_estimation_method",
+      "signature": {
+        "category": "evaluation_metrics",
+        "gates": [
+          "ci_matrix_gate"
+        ],
+        "primary_gate": "ci_matrix_gate"
+      },
+      "instance_count": 7,
+      "distinct_paper_count": 7,
+      "example_concern_ids": [
+        "PR-009-C02",
+        "PR-029-C02",
+        "PR-035-C05",
+        "PR-106-C02",
+        "PR-109-C06"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-028",
+      "label": "post_hoc_model_swap_or_tuning_after_failure",
+      "signature": {
+        "category": "model_selection",
+        "gates": [
+          "model_selection_audit_gate",
+          "tuning_leakage_gate"
+        ],
+        "primary_gate": "model_selection_audit_gate"
+      },
+      "instance_count": 7,
+      "distinct_paper_count": 7,
+      "example_concern_ids": [
+        "PR-RO-07-C05",
+        "PR-EXP-0084-C04",
+        "PR-EXP-0099-C03",
+        "PR-EXP-0112-C05",
+        "PR-EXP-0126-C03"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-029",
+      "label": "external_benchmark_or_alternative_method_comparison",
+      "signature": {
+        "category": "external_validation",
+        "gates": [],
+        "primary_gate": null
+      },
+      "instance_count": 7,
+      "distinct_paper_count": 6,
+      "example_concern_ids": [
+        "PR-018-C04",
+        "PR-018-C05",
+        "PR-023-C03",
+        "PR-084-C01",
+        "PR-090-C01"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-030",
+      "label": "best_metric_picked_under_class_imbalance",
+      "signature": {
+        "category": "evaluation_metrics",
+        "gates": [
+          "evaluation_quality_gate",
+          "imbalance_policy_gate"
+        ],
+        "primary_gate": "evaluation_quality_gate"
+      },
+      "instance_count": 6,
+      "distinct_paper_count": 6,
+      "example_concern_ids": [
+        "PR-EXP-0084-C05",
+        "PR-EXP-0109-C05",
+        "PR-EXP-0148-C04",
+        "PR-EXP-0150-C03",
+        "PR-EXP-0155-C02"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-031",
+      "label": "code_only_pseudocode_or_doc_insufficient",
+      "signature": {
+        "category": "reporting",
+        "gates": [
+          "execution_attestation_gate",
+          "reporting_bias_gate"
+        ],
+        "primary_gate": "execution_attestation_gate"
+      },
+      "instance_count": 6,
+      "distinct_paper_count": 6,
+      "example_concern_ids": [
+        "PR-113-C06",
+        "PR-EXP-0097-C04",
+        "PR-EXP-0148-C03",
+        "PR-EXP-0191-C03",
+        "PR-EXP-0205-C01"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-032",
+      "label": "temporal_split_or_train_test_population_drift",
+      "signature": {
+        "category": "split_protocol",
+        "gates": [
+          "split_protocol_gate"
+        ],
+        "primary_gate": "split_protocol_gate"
+      },
+      "instance_count": 5,
+      "distinct_paper_count": 5,
+      "example_concern_ids": [
+        "PR-010-C02",
+        "PR-029-C03",
+        "PR-EXP-0097-C13",
+        "PR-EXP-0103-C04",
+        "PR-EXP-0189-C04"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-033",
+      "label": "underrepresented_subgroup_or_demographic_validation_gap",
+      "signature": {
+        "category": "external_validation",
+        "gates": [
+          "fairness_equity_gate"
+        ],
+        "primary_gate": "fairness_equity_gate"
+      },
+      "instance_count": 5,
+      "distinct_paper_count": 4,
+      "example_concern_ids": [
+        "PR-EXP-0086-C02",
+        "PR-EXP-0105-C08",
+        "PR-EXP-0119-C01",
+        "PR-EXP-0119-C07",
+        "PR-EXP-0124-C04"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-034",
+      "label": "feature_extraction_role_and_lineage_unclear",
+      "signature": {
+        "category": "feature_selection",
+        "gates": [
+          "feature_engineering_audit_gate",
+          "feature_lineage_gate"
+        ],
+        "primary_gate": "feature_engineering_audit_gate"
+      },
+      "instance_count": 4,
+      "distinct_paper_count": 4,
+      "example_concern_ids": [
+        "PR-EXP-0084-C07",
+        "PR-EXP-0160-C11",
+        "PR-EXP-0170-C04",
+        "PR-EXP-0212-C07"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-035",
+      "label": "methods_demo_artifact_mismatch_with_text",
+      "signature": {
+        "category": "reproducibility",
+        "gates": [
+          "execution_attestation_gate",
+          "publication_gate"
+        ],
+        "primary_gate": "execution_attestation_gate"
+      },
+      "instance_count": 4,
+      "distinct_paper_count": 4,
+      "example_concern_ids": [
+        "PR-EXP-0085-C09",
+        "PR-EXP-0097-C07",
+        "PR-EXP-0111-C01",
+        "PR-EXP-0150-C05"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-036",
+      "label": "outcome_definition_or_time_horizon_conflation",
+      "signature": {
+        "category": "study_design",
+        "gates": [
+          "cohort_definition_gate",
+          "definition_variable_guard"
+        ],
+        "primary_gate": "cohort_definition_gate"
+      },
+      "instance_count": 4,
+      "distinct_paper_count": 4,
+      "example_concern_ids": [
+        "PR-105-C01",
+        "PR-EXP-0098-C01",
+        "PR-EXP-0150-C04",
+        "PR-EXP-0203-C07"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-037",
+      "label": "label_or_feature_temporal_leakage",
+      "signature": {
+        "category": "data_leakage",
+        "gates": [
+          "feature_lineage_gate",
+          "leakage_gate"
+        ],
+        "primary_gate": "feature_lineage_gate"
+      },
+      "instance_count": 3,
+      "distinct_paper_count": 3,
+      "example_concern_ids": [
+        "PR-EXP-0086-C12",
+        "PR-EXP-0159-C04",
+        "PR-EXP-0205-C05"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-038",
+      "label": "case_control_ppv_npv_inflated_by_design",
+      "signature": {
+        "category": "evaluation_metrics",
+        "gates": [
+          "clinical_metrics_gate"
+        ],
+        "primary_gate": "clinical_metrics_gate"
+      },
+      "instance_count": 3,
+      "distinct_paper_count": 3,
+      "example_concern_ids": [
+        "PR-104-C05",
+        "PR-EXP-0160-C04",
+        "PR-EXP-0187-C04"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-039",
+      "label": "class_imbalance_handling_not_documented",
+      "signature": {
+        "category": "preprocessing",
+        "gates": [
+          "imbalance_policy_gate"
+        ],
+        "primary_gate": "imbalance_policy_gate"
+      },
+      "instance_count": 3,
+      "distinct_paper_count": 3,
+      "example_concern_ids": [
+        "PR-101-C03",
+        "PR-EXP-0085-C03",
+        "PR-EXP-0203-C03"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-040",
+      "label": "inconsistent_cohort_or_sample_numbers_across_text",
+      "signature": {
+        "category": "reporting",
+        "gates": [
+          "cohort_definition_gate",
+          "reporting_bias_gate"
+        ],
+        "primary_gate": "cohort_definition_gate"
+      },
+      "instance_count": 3,
+      "distinct_paper_count": 3,
+      "example_concern_ids": [
+        "PR-EXP-0103-C03",
+        "PR-EXP-0187-C01",
+        "PR-EXP-0192-C04"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-041",
+      "label": "sex_gender_or_sager_reporting_omission",
+      "signature": {
+        "category": "reporting",
+        "gates": [
+          "fairness_equity_gate"
+        ],
+        "primary_gate": "fairness_equity_gate"
+      },
+      "instance_count": 3,
+      "distinct_paper_count": 3,
+      "example_concern_ids": [
+        "PR-EXP-0095-C06",
+        "PR-EXP-0109-C14",
+        "PR-EXP-0110-C08"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-042",
+      "label": "repo_readme_dependencies_and_hp_undocumented",
+      "signature": {
+        "category": "reproducibility",
+        "gates": [
+          "reporting_bias_gate"
+        ],
+        "primary_gate": "reporting_bias_gate"
+      },
+      "instance_count": 3,
+      "distinct_paper_count": 3,
+      "example_concern_ids": [
+        "PR-106-C06",
+        "PR-107-C05",
+        "PR-109-C04"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-043",
+      "label": "split_design_introduces_distribution_shift",
+      "signature": {
+        "category": "split_protocol",
+        "gates": [
+          "distribution_generalization_gate",
+          "split_protocol_gate"
+        ],
+        "primary_gate": "distribution_generalization_gate"
+      },
+      "instance_count": 3,
+      "distinct_paper_count": 3,
+      "example_concern_ids": [
+        "PR-108-C01",
+        "PR-EXP-0185-C02",
+        "PR-EXP-0200-C07"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-044",
+      "label": "patient_level_split_unit_and_overlap_risk",
+      "signature": {
+        "category": "split_protocol",
+        "gates": [
+          "leakage_gate",
+          "split_protocol_gate"
+        ],
+        "primary_gate": "leakage_gate"
+      },
+      "instance_count": 3,
+      "distinct_paper_count": 3,
+      "example_concern_ids": [
+        "PR-002-C05",
+        "PR-EXP-0109-C12",
+        "PR-EXP-0110-C07"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-045",
+      "label": "nested_cv_and_hp_search_leakage_safeguards_missing",
+      "signature": {
+        "category": "split_protocol",
+        "gates": [
+          "split_protocol_gate",
+          "tuning_leakage_gate"
+        ],
+        "primary_gate": "split_protocol_gate"
+      },
+      "instance_count": 3,
+      "distinct_paper_count": 3,
+      "example_concern_ids": [
+        "PR-EXP-0084-C08",
+        "PR-EXP-0159-C03",
+        "PR-EXP-0203-C06"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-046",
+      "label": "prediction_target_vs_clinical_decision_mismatch",
+      "signature": {
+        "category": "study_design",
+        "gates": [
+          "clinical_metrics_gate",
+          "cohort_definition_gate"
+        ],
+        "primary_gate": "clinical_metrics_gate"
+      },
+      "instance_count": 3,
+      "distinct_paper_count": 3,
+      "example_concern_ids": [
+        "PR-EXP-0095-C08",
+        "PR-EXP-0097-C01",
+        "PR-EXP-0159-C02"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-047",
+      "label": "case_control_design_overoptimistic_vs_population",
+      "signature": {
+        "category": "study_design",
+        "gates": [
+          "cohort_definition_gate",
+          "distribution_generalization_gate"
+        ],
+        "primary_gate": "cohort_definition_gate"
+      },
+      "instance_count": 3,
+      "distinct_paper_count": 3,
+      "example_concern_ids": [
+        "PR-112-C04",
+        "PR-EXP-0103-C01",
+        "PR-EXP-0157-C06"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-048",
+      "label": "ancestry_terminology_and_subgroup_inclusion_in_cohort",
+      "signature": {
+        "category": "study_design",
+        "gates": [
+          "cohort_definition_gate",
+          "fairness_equity_gate"
+        ],
+        "primary_gate": "cohort_definition_gate"
+      },
+      "instance_count": 3,
+      "distinct_paper_count": 3,
+      "example_concern_ids": [
+        "PR-EXP-0105-C07",
+        "PR-EXP-0147-C01",
+        "PR-EXP-0194-C02"
+      ]
+    },
+    {
+      "canonical_pattern_id": "CP-049",
+      "label": "treatment_selection_confounding_in_cohort",
+      "signature": {
+        "category": "study_design",
+        "gates": [
+          "cohort_definition_gate",
+          "feature_lineage_gate"
+        ],
+        "primary_gate": "cohort_definition_gate"
+      },
+      "instance_count": 3,
+      "distinct_paper_count": 3,
+      "example_concern_ids": [
+        "PR-RO-07-C07",
+        "PR-EXP-0152-C01",
+        "PR-EXP-0209-C06"
+      ]
+    }
+  ],
+  "concern_to_pattern": {
+    "PR-001-C01": "CP-002",
+    "PR-001-C02": null,
+    "PR-001-C03": null,
+    "PR-001-C04": null,
+    "PR-001-C05": "CP-002",
+    "PR-001-C06": "CP-008",
+    "PR-001-C07": "CP-013",
+    "PR-001-C08": "CP-013",
+    "PR-001-C09": "CP-003",
+    "PR-001-C10": "CP-002",
+    "PR-002-C01": "CP-026",
+    "PR-002-C02": "CP-006",
+    "PR-002-C03": "CP-002",
+    "PR-002-C04": "CP-005",
+    "PR-002-C05": "CP-044",
+    "PR-002-C06": "CP-007",
+    "PR-002-C07": "CP-021",
+    "PR-002-C08": "CP-007",
+    "PR-003-C01": null,
+    "PR-003-C02": "CP-015",
+    "PR-003-C03": "CP-015",
+    "PR-003-C04": "CP-007",
+    "PR-003-C05": "CP-026",
+    "PR-003-C06": "CP-006",
+    "PR-003-C07": "CP-013",
+    "PR-003-C08": "CP-005",
+    "PR-003-C09": "CP-011",
+    "PR-003-C10": "CP-011",
+    "PR-003-C11": "CP-001",
+    "PR-004-C01": "CP-006",
+    "PR-004-C02": "CP-010",
+    "PR-004-C03": "CP-002",
+    "PR-004-C04": null,
+    "PR-004-C05": "CP-012",
+    "PR-004-C06": "CP-014",
+    "PR-004-C07": "CP-006",
+    "PR-005-C01": "CP-002",
+    "PR-005-C02": "CP-022",
+    "PR-005-C03": null,
+    "PR-005-C04": "CP-003",
+    "PR-005-C05": "CP-001",
+    "PR-005-C06": "CP-022",
+    "PR-005-C07": "CP-011",
+    "PR-005-C08": "CP-003",
+    "PR-006-C01": null,
+    "PR-006-C02": "CP-026",
+    "PR-006-C03": "CP-006",
+    "PR-006-C04": "CP-008",
+    "PR-006-C05": "CP-015",
+    "PR-006-C06": "CP-003",
+    "PR-006-C07": "CP-007",
+    "PR-006-C08": "CP-024",
+    "PR-007-C01": "CP-010",
+    "PR-007-C02": "CP-002",
+    "PR-007-C03": "CP-002",
+    "PR-007-C04": null,
+    "PR-007-C05": "CP-011",
+    "PR-007-C06": "CP-022",
+    "PR-007-C07": "CP-004",
+    "PR-008-C01": "CP-002",
+    "PR-008-C02": "CP-014",
+    "PR-008-C03": "CP-014",
+    "PR-008-C04": "CP-006",
+    "PR-008-C05": "CP-003",
+    "PR-008-C06": "CP-001",
+    "PR-008-C07": "CP-008",
+    "PR-008-C08": "CP-004",
+    "PR-009-C01": "CP-005",
+    "PR-009-C02": "CP-027",
+    "PR-009-C03": "CP-003",
+    "PR-009-C04": "CP-006",
+    "PR-009-C05": "CP-004",
+    "PR-009-C06": "CP-004",
+    "PR-010-C01": null,
+    "PR-010-C02": "CP-032",
+    "PR-010-C03": "CP-006",
+    "PR-010-C04": "CP-006",
+    "PR-010-C05": "CP-011",
+    "PR-010-C06": "CP-004",
+    "PR-010-C07": "CP-004",
+    "PR-011-C01": "CP-006",
+    "PR-011-C02": "CP-002",
+    "PR-011-C03": "CP-013",
+    "PR-011-C04": "CP-004",
+    "PR-011-C05": "CP-004",
+    "PR-011-C06": "CP-001",
+    "PR-012-C01": "CP-002",
+    "PR-012-C02": "CP-003",
+    "PR-012-C03": "CP-003",
+    "PR-012-C04": "CP-001",
+    "PR-012-C05": "CP-003",
+    "PR-012-C06": "CP-012",
+    "PR-012-C07": "CP-024",
+    "PR-013-C01": "CP-001",
+    "PR-013-C02": "CP-004",
+    "PR-013-C03": "CP-011",
+    "PR-013-C04": "CP-001",
+    "PR-013-C05": "CP-001",
+    "PR-013-C06": "CP-004",
+    "PR-014-C01": "CP-003",
+    "PR-014-C02": "CP-017",
+    "PR-014-C03": "CP-001",
+    "PR-014-C04": "CP-004",
+    "PR-015-C01": "CP-006",
+    "PR-015-C02": "CP-011",
+    "PR-015-C03": "CP-004",
+    "PR-016-C01": "CP-014",
+    "PR-016-C02": "CP-014",
+    "PR-016-C03": "CP-006",
+    "PR-016-C04": "CP-001",
+    "PR-016-C05": "CP-012",
+    "PR-016-C06": "CP-004",
+    "PR-016-C07": "CP-004",
+    "PR-017-C01": "CP-017",
+    "PR-017-C02": "CP-003",
+    "PR-017-C03": "CP-014",
+    "PR-017-C04": "CP-011",
+    "PR-017-C05": "CP-001",
+    "PR-018-C01": "CP-001",
+    "PR-018-C02": "CP-001",
+    "PR-018-C03": "CP-003",
+    "PR-018-C04": "CP-029",
+    "PR-018-C05": "CP-029",
+    "PR-019-C01": "CP-006",
+    "PR-019-C02": "CP-001",
+    "PR-019-C03": "CP-003",
+    "PR-019-C04": "CP-001",
+    "PR-019-C05": "CP-004",
+    "PR-020-C01": "CP-005",
+    "PR-020-C02": "CP-010",
+    "PR-020-C03": "CP-021",
+    "PR-020-C04": "CP-001",
+    "PR-020-C05": "CP-003",
+    "PR-021-C01": "CP-003",
+    "PR-021-C02": "CP-003",
+    "PR-021-C03": "CP-001",
+    "PR-021-C04": "CP-022",
+    "PR-022-C01": "CP-021",
+    "PR-022-C02": "CP-001",
+    "PR-022-C03": "CP-001",
+    "PR-023-C01": "CP-001",
+    "PR-023-C02": "CP-001",
+    "PR-023-C03": "CP-029",
+    "PR-023-C04": "CP-001",
+    "PR-024-C01": "CP-002",
+    "PR-024-C02": "CP-003",
+    "PR-024-C03": "CP-015",
+    "PR-024-C04": null,
+    "PR-024-C05": "CP-021",
+    "PR-024-C06": "CP-004",
+    "PR-024-C07": "CP-011",
+    "PR-025-C01": "CP-024",
+    "PR-025-C02": "CP-015",
+    "PR-025-C03": "CP-021",
+    "PR-025-C04": "CP-001",
+    "PR-025-C05": "CP-003",
+    "PR-025-C06": "CP-001",
+    "PR-026-C01": "CP-008",
+    "PR-026-C02": "CP-021",
+    "PR-026-C03": "CP-012",
+    "PR-026-C04": "CP-007",
+    "PR-027-C01": "CP-005",
+    "PR-027-C02": "CP-001",
+    "PR-027-C03": "CP-004",
+    "PR-027-C04": "CP-001",
+    "PR-027-C05": "CP-003",
+    "PR-028-C01": "CP-008",
+    "PR-028-C02": "CP-017",
+    "PR-028-C03": "CP-001",
+    "PR-028-C04": "CP-017",
+    "PR-028-C05": "CP-003",
+    "PR-028-C06": "CP-001",
+    "PR-028-C07": "CP-012",
+    "PR-029-C01": "CP-003",
+    "PR-029-C02": "CP-027",
+    "PR-029-C03": "CP-032",
+    "PR-029-C04": "CP-017",
+    "PR-029-C05": "CP-003",
+    "PR-029-C06": "CP-003",
+    "PR-030-C01": "CP-001",
+    "PR-030-C02": "CP-004",
+    "PR-030-C03": "CP-015",
+    "PR-030-C04": "CP-011",
+    "PR-031-C01": "CP-001",
+    "PR-031-C02": "CP-004",
+    "PR-031-C03": "CP-004",
+    "PR-031-C04": "CP-004",
+    "PR-032-C01": "CP-012",
+    "PR-032-C02": "CP-003",
+    "PR-032-C03": "CP-001",
+    "PR-032-C04": "CP-014",
+    "PR-032-C05": "CP-001",
+    "PR-033-C01": "CP-021",
+    "PR-033-C02": "CP-008",
+    "PR-033-C03": "CP-003",
+    "PR-034-C01": "CP-008",
+    "PR-034-C02": "CP-001",
+    "PR-034-C03": "CP-001",
+    "PR-034-C04": "CP-011",
+    "PR-034-C05": "CP-001",
+    "PR-035-C01": "CP-015",
+    "PR-035-C02": "CP-001",
+    "PR-035-C03": "CP-002",
+    "PR-035-C04": "CP-014",
+    "PR-035-C05": "CP-027",
+    "PR-035-C06": "CP-003",
+    "PR-036-C01": "CP-015",
+    "PR-036-C02": "CP-001",
+    "PR-036-C03": "CP-004",
+    "PR-036-C04": "CP-012",
+    "PR-037-C01": "CP-017",
+    "PR-037-C02": "CP-017",
+    "PR-037-C03": "CP-001",
+    "PR-037-C04": "CP-006",
+    "PR-037-C05": "CP-004",
+    "PR-038-C01": "CP-012",
+    "PR-038-C02": "CP-004",
+    "PR-038-C03": "CP-012",
+    "PR-039-C01": "CP-002",
+    "PR-039-C02": "CP-007",
+    "PR-039-C03": "CP-015",
+    "PR-039-C04": "CP-008",
+    "PR-039-C05": "CP-001",
+    "PR-039-C06": "CP-014",
+    "PR-041-C01": "CP-001",
+    "PR-041-C02": "CP-014",
+    "PR-041-C03": "CP-022",
+    "PR-041-C04": "CP-008",
+    "PR-041-C05": "CP-004",
+    "PR-042-C01": "CP-001",
+    "PR-042-C02": "CP-001",
+    "PR-042-C03": "CP-003",
+    "PR-042-C04": "CP-001",
+    "PR-042-C05": "CP-003",
+    "PR-042-C06": "CP-001",
+    "PR-043-C01": "CP-021",
+    "PR-043-C02": "CP-001",
+    "PR-043-C03": "CP-004",
+    "PR-043-C04": "CP-004",
+    "PR-043-C05": "CP-001",
+    "PR-044-C01": "CP-003",
+    "PR-044-C02": "CP-001",
+    "PR-044-C03": "CP-004",
+    "PR-045-C01": "CP-003",
+    "PR-045-C02": "CP-001",
+    "PR-045-C03": "CP-003",
+    "PR-045-C04": "CP-014",
+    "PR-048-C01": "CP-003",
+    "PR-048-C02": "CP-001",
+    "PR-048-C03": "CP-003",
+    "PR-048-C04": "CP-014",
+    "PR-049-C01": "CP-003",
+    "PR-049-C02": "CP-003",
+    "PR-049-C03": "CP-001",
+    "PR-050-C01": "CP-012",
+    "PR-050-C02": "CP-003",
+    "PR-050-C03": "CP-004",
+    "PR-050-C04": "CP-017",
+    "PR-051-C01": "CP-001",
+    "PR-051-C02": "CP-001",
+    "PR-051-C03": "CP-012",
+    "PR-052-C01": "CP-011",
+    "PR-052-C02": "CP-001",
+    "PR-052-C03": "CP-003",
+    "PR-052-C04": "CP-004",
+    "PR-053-C01": "CP-003",
+    "PR-053-C02": "CP-001",
+    "PR-053-C03": "CP-001",
+    "PR-053-C04": "CP-003",
+    "PR-054-C01": "CP-003",
+    "PR-054-C02": "CP-004",
+    "PR-054-C03": "CP-001",
+    "PR-054-C04": "CP-012",
+    "PR-055-C01": "CP-002",
+    "PR-055-C02": "CP-001",
+    "PR-055-C03": "CP-004",
+    "PR-055-C04": "CP-011",
+    "PR-055-C05": "CP-004",
+    "PR-056-C01": "CP-003",
+    "PR-056-C02": "CP-024",
+    "PR-056-C03": "CP-003",
+    "PR-056-C04": "CP-003",
+    "PR-057-C01": "CP-017",
+    "PR-057-C02": "CP-001",
+    "PR-057-C03": "CP-003",
+    "PR-058-C01": "CP-017",
+    "PR-058-C02": "CP-003",
+    "PR-058-C03": "CP-004",
+    "PR-058-C04": "CP-004",
+    "PR-059-C01": "CP-008",
+    "PR-059-C02": "CP-012",
+    "PR-059-C03": "CP-004",
+    "PR-062-C01": "CP-011",
+    "PR-062-C02": "CP-001",
+    "PR-062-C03": "CP-004",
+    "PR-063-C01": "CP-003",
+    "PR-063-C02": "CP-001",
+    "PR-063-C03": "CP-001",
+    "PR-063-C04": "CP-003",
+    "PR-063-C05": "CP-004",
+    "PR-064-C01": "CP-004",
+    "PR-064-C02": "CP-004",
+    "PR-064-C03": "CP-001",
+    "PR-065-C01": "CP-008",
+    "PR-065-C02": "CP-003",
+    "PR-065-C03": "CP-014",
+    "PR-065-C04": "CP-022",
+    "PR-066-C01": "CP-022",
+    "PR-066-C02": "CP-003",
+    "PR-066-C03": "CP-022",
+    "PR-066-C04": "CP-003",
+    "PR-066-C05": "CP-011",
+    "PR-067-C01": "CP-001",
+    "PR-067-C02": "CP-004",
+    "PR-067-C03": "CP-001",
+    "PR-067-C04": "CP-022",
+    "PR-069-C01": "CP-003",
+    "PR-069-C02": "CP-001",
+    "PR-070-C01": "CP-001",
+    "PR-070-C02": "CP-011",
+    "PR-070-C03": "CP-003",
+    "PR-071-C01": "CP-003",
+    "PR-071-C02": "CP-004",
+    "PR-072-C01": null,
+    "PR-072-C02": "CP-017",
+    "PR-072-C03": "CP-003",
+    "PR-073-C01": "CP-001",
+    "PR-073-C02": "CP-003",
+    "PR-073-C03": "CP-022",
+    "PR-074-C01": "CP-003",
+    "PR-074-C02": "CP-001",
+    "PR-074-C03": "CP-004",
+    "PR-075-C01": "CP-001",
+    "PR-075-C02": "CP-004",
+    "PR-076-C01": "CP-001",
+    "PR-076-C02": "CP-001",
+    "PR-076-C03": "CP-001",
+    "PR-077-C01": "CP-001",
+    "PR-077-C02": "CP-003",
+    "PR-077-C03": "CP-001",
+    "PR-078-C01": "CP-003",
+    "PR-078-C02": "CP-001",
+    "PR-078-C03": "CP-003",
+    "PR-079-C01": "CP-012",
+    "PR-079-C02": "CP-001",
+    "PR-080-C01": "CP-001",
+    "PR-080-C02": "CP-001",
+    "PR-081-C01": "CP-014",
+    "PR-081-C02": "CP-001",
+    "PR-081-C03": "CP-017",
+    "PR-082-C01": "CP-001",
+    "PR-082-C02": null,
+    "PR-083-C01": "CP-003",
+    "PR-084-C01": "CP-029",
+    "PR-084-C02": "CP-012",
+    "PR-085-C01": "CP-001",
+    "PR-086-C01": "CP-003",
+    "PR-086-C02": "CP-001",
+    "PR-087-C01": "CP-001",
+    "PR-088-C01": "CP-004",
+    "PR-088-C02": "CP-001",
+    "PR-089-C01": "CP-001",
+    "PR-090-C01": "CP-029",
+    "PR-091-C01": "CP-003",
+    "PR-092-C01": "CP-001",
+    "PR-093-C01": null,
+    "PR-094-C01": "CP-029",
+    "PR-095-C01": "CP-003",
+    "PR-096-C01": "CP-001",
+    "PR-099-C01": "CP-029",
+    "PR-100-C01": "CP-001",
+    "PR-100-C02": "CP-003",
+    "PR-101-C01": "CP-024",
+    "PR-101-C02": "CP-005",
+    "PR-101-C03": "CP-039",
+    "PR-101-C04": "CP-019",
+    "PR-101-C05": "CP-013",
+    "PR-101-C06": "CP-008",
+    "PR-102-C01": null,
+    "PR-102-C02": "CP-007",
+    "PR-102-C03": "CP-005",
+    "PR-102-C04": "CP-009",
+    "PR-102-C05": null,
+    "PR-102-C06": null,
+    "PR-104-C01": null,
+    "PR-104-C02": "CP-018",
+    "PR-104-C03": "CP-002",
+    "PR-104-C04": "CP-026",
+    "PR-104-C05": "CP-038",
+    "PR-104-C06": null,
+    "PR-105-C01": "CP-036",
+    "PR-105-C02": "CP-015",
+    "PR-105-C03": "CP-009",
+    "PR-105-C04": null,
+    "PR-105-C05": "CP-019",
+    "PR-105-C06": "CP-010",
+    "PR-106-C01": "CP-005",
+    "PR-106-C02": "CP-027",
+    "PR-106-C03": "CP-005",
+    "PR-106-C04": "CP-010",
+    "PR-106-C05": "CP-007",
+    "PR-106-C06": "CP-042",
+    "PR-107-C01": "CP-008",
+    "PR-107-C02": "CP-002",
+    "PR-107-C03": "CP-005",
+    "PR-107-C04": null,
+    "PR-107-C05": "CP-042",
+    "PR-107-C06": null,
+    "PR-108-C01": "CP-043",
+    "PR-108-C02": "CP-024",
+    "PR-108-C03": "CP-005",
+    "PR-108-C04": "CP-019",
+    "PR-108-C05": "CP-003",
+    "PR-108-C06": "CP-006",
+    "PR-109-C01": null,
+    "PR-109-C02": null,
+    "PR-109-C03": "CP-005",
+    "PR-109-C04": "CP-042",
+    "PR-109-C05": "CP-002",
+    "PR-109-C06": "CP-027",
+    "PR-110-C01": null,
+    "PR-110-C02": "CP-024",
+    "PR-110-C03": "CP-026",
+    "PR-110-C04": null,
+    "PR-110-C05": null,
+    "PR-110-C06": null,
+    "PR-111-C01": null,
+    "PR-111-C02": null,
+    "PR-111-C03": null,
+    "PR-111-C04": "CP-016",
+    "PR-111-C05": null,
+    "PR-111-C06": null,
+    "PR-112-C01": null,
+    "PR-112-C02": null,
+    "PR-112-C03": null,
+    "PR-112-C04": "CP-047",
+    "PR-112-C05": null,
+    "PR-113-C01": null,
+    "PR-113-C02": null,
+    "PR-113-C03": null,
+    "PR-113-C04": null,
+    "PR-113-C05": null,
+    "PR-113-C06": "CP-031",
+    "PR-114-C01": null,
+    "PR-114-C02": null,
+    "PR-114-C03": null,
+    "PR-114-C04": null,
+    "PR-114-C05": null,
+    "PR-114-C06": null,
+    "PR-RO-07-C01": "CP-007",
+    "PR-RO-07-C02": "CP-002",
+    "PR-RO-07-C03": null,
+    "PR-RO-07-C04": null,
+    "PR-RO-07-C05": "CP-028",
+    "PR-RO-07-C06": "CP-002",
+    "PR-RO-07-C07": "CP-049",
+    "PR-RO-07-C08": "CP-006",
+    "PR-RO-07-C09": "CP-009",
+    "PR-RO-07-C10": null,
+    "PR-EXP-0084-C01": "CP-002",
+    "PR-EXP-0084-C02": "CP-002",
+    "PR-EXP-0084-C03": null,
+    "PR-EXP-0084-C04": "CP-028",
+    "PR-EXP-0084-C05": "CP-030",
+    "PR-EXP-0084-C06": "CP-009",
+    "PR-EXP-0084-C07": "CP-034",
+    "PR-EXP-0084-C08": "CP-045",
+    "PR-EXP-0084-C09": null,
+    "PR-EXP-0084-C10": "CP-002",
+    "PR-EXP-0084-C11": null,
+    "PR-EXP-0084-C12": "CP-007",
+    "PR-EXP-0084-C13": null,
+    "PR-EXP-0084-C14": "CP-002",
+    "PR-EXP-0084-C15": "CP-019",
+    "PR-EXP-0085-C01": null,
+    "PR-EXP-0085-C02": null,
+    "PR-EXP-0085-C03": "CP-039",
+    "PR-EXP-0085-C04": "CP-016",
+    "PR-EXP-0085-C05": "CP-009",
+    "PR-EXP-0085-C06": "CP-018",
+    "PR-EXP-0085-C07": "CP-002",
+    "PR-EXP-0085-C08": "CP-020",
+    "PR-EXP-0085-C09": "CP-035",
+    "PR-EXP-0085-C10": "CP-007",
+    "PR-EXP-0086-C01": "CP-002",
+    "PR-EXP-0086-C02": "CP-033",
+    "PR-EXP-0086-C03": "CP-002",
+    "PR-EXP-0086-C04": "CP-018",
+    "PR-EXP-0086-C05": "CP-005",
+    "PR-EXP-0086-C06": "CP-016",
+    "PR-EXP-0086-C07": "CP-006",
+    "PR-EXP-0086-C08": "CP-005",
+    "PR-EXP-0086-C09": null,
+    "PR-EXP-0086-C10": null,
+    "PR-EXP-0086-C11": "CP-002",
+    "PR-EXP-0086-C12": "CP-037",
+    "PR-EXP-0086-C13": "CP-007",
+    "PR-EXP-0086-C14": "CP-005",
+    "PR-EXP-0092-C01": "CP-016",
+    "PR-EXP-0092-C02": "CP-008",
+    "PR-EXP-0092-C03": null,
+    "PR-EXP-0092-C04": "CP-021",
+    "PR-EXP-0092-C05": "CP-007",
+    "PR-EXP-0092-C06": "CP-009",
+    "PR-EXP-0095-C01": null,
+    "PR-EXP-0095-C02": null,
+    "PR-EXP-0095-C03": "CP-008",
+    "PR-EXP-0095-C04": null,
+    "PR-EXP-0095-C05": null,
+    "PR-EXP-0095-C06": "CP-041",
+    "PR-EXP-0095-C07": "CP-006",
+    "PR-EXP-0095-C08": "CP-046",
+    "PR-EXP-0095-C09": "CP-019",
+    "PR-EXP-0095-C10": null,
+    "PR-EXP-0095-C11": "CP-013",
+    "PR-EXP-0095-C12": "CP-008",
+    "PR-EXP-0096-C01": "CP-010",
+    "PR-EXP-0096-C02": "CP-023",
+    "PR-EXP-0096-C03": "CP-016",
+    "PR-EXP-0096-C04": "CP-007",
+    "PR-EXP-0096-C05": "CP-013",
+    "PR-EXP-0096-C06": "CP-002",
+    "PR-EXP-0096-C07": "CP-007",
+    "PR-EXP-0096-C08": "CP-010",
+    "PR-EXP-0097-C01": "CP-046",
+    "PR-EXP-0097-C02": null,
+    "PR-EXP-0097-C03": "CP-008",
+    "PR-EXP-0097-C04": "CP-031",
+    "PR-EXP-0097-C05": "CP-002",
+    "PR-EXP-0097-C06": "CP-020",
+    "PR-EXP-0097-C07": "CP-035",
+    "PR-EXP-0097-C08": "CP-002",
+    "PR-EXP-0097-C09": "CP-005",
+    "PR-EXP-0097-C10": null,
+    "PR-EXP-0097-C11": "CP-007",
+    "PR-EXP-0097-C12": "CP-006",
+    "PR-EXP-0097-C13": "CP-032",
+    "PR-EXP-0097-C14": "CP-005",
+    "PR-EXP-0098-C01": "CP-036",
+    "PR-EXP-0098-C02": "CP-007",
+    "PR-EXP-0098-C03": "CP-013",
+    "PR-EXP-0098-C04": "CP-006",
+    "PR-EXP-0098-C05": "CP-023",
+    "PR-EXP-0098-C06": "CP-002",
+    "PR-EXP-0098-C07": "CP-010",
+    "PR-EXP-0098-C08": "CP-019",
+    "PR-EXP-0098-C09": "CP-002",
+    "PR-EXP-0099-C01": null,
+    "PR-EXP-0099-C02": "CP-018",
+    "PR-EXP-0099-C03": "CP-028",
+    "PR-EXP-0099-C04": "CP-002",
+    "PR-EXP-0099-C05": "CP-005",
+    "PR-EXP-0099-C06": "CP-006",
+    "PR-EXP-0101-C01": "CP-009",
+    "PR-EXP-0101-C02": "CP-002",
+    "PR-EXP-0101-C03": null,
+    "PR-EXP-0101-C04": null,
+    "PR-EXP-0101-C05": "CP-006",
+    "PR-EXP-0101-C06": "CP-002",
+    "PR-EXP-0101-C07": "CP-002",
+    "PR-EXP-0101-C08": "CP-018",
+    "PR-EXP-0101-C09": null,
+    "PR-EXP-0103-C01": "CP-047",
+    "PR-EXP-0103-C02": "CP-020",
+    "PR-EXP-0103-C03": "CP-040",
+    "PR-EXP-0103-C04": "CP-032",
+    "PR-EXP-0103-C05": "CP-005",
+    "PR-EXP-0103-C06": null,
+    "PR-EXP-0103-C07": null,
+    "PR-EXP-0105-C01": null,
+    "PR-EXP-0105-C02": "CP-009",
+    "PR-EXP-0105-C03": null,
+    "PR-EXP-0105-C04": null,
+    "PR-EXP-0105-C05": null,
+    "PR-EXP-0105-C06": "CP-018",
+    "PR-EXP-0105-C07": "CP-048",
+    "PR-EXP-0105-C08": "CP-033",
+    "PR-EXP-0106-C01": "CP-002",
+    "PR-EXP-0106-C02": "CP-002",
+    "PR-EXP-0106-C03": null,
+    "PR-EXP-0106-C04": null,
+    "PR-EXP-0106-C05": "CP-018",
+    "PR-EXP-0106-C06": "CP-006",
+    "PR-EXP-0106-C07": "CP-002",
+    "PR-EXP-0106-C08": "CP-002",
+    "PR-EXP-0106-C09": null,
+    "PR-EXP-0106-C10": "CP-018",
+    "PR-EXP-0109-C01": "CP-002",
+    "PR-EXP-0109-C02": "CP-002",
+    "PR-EXP-0109-C03": "CP-026",
+    "PR-EXP-0109-C04": "CP-020",
+    "PR-EXP-0109-C05": "CP-030",
+    "PR-EXP-0109-C06": "CP-025",
+    "PR-EXP-0109-C07": "CP-016",
+    "PR-EXP-0109-C08": "CP-025",
+    "PR-EXP-0109-C09": "CP-019",
+    "PR-EXP-0109-C10": "CP-004",
+    "PR-EXP-0109-C11": "CP-016",
+    "PR-EXP-0109-C12": "CP-044",
+    "PR-EXP-0109-C13": "CP-005",
+    "PR-EXP-0109-C14": "CP-041",
+    "PR-EXP-0110-C01": "CP-002",
+    "PR-EXP-0110-C02": "CP-002",
+    "PR-EXP-0110-C03": null,
+    "PR-EXP-0110-C04": "CP-020",
+    "PR-EXP-0110-C05": "CP-004",
+    "PR-EXP-0110-C06": null,
+    "PR-EXP-0110-C07": "CP-044",
+    "PR-EXP-0110-C08": "CP-041",
+    "PR-EXP-0110-C09": "CP-020",
+    "PR-EXP-0110-C10": "CP-002",
+    "PR-EXP-0110-C11": "CP-019",
+    "PR-EXP-0111-C01": "CP-035",
+    "PR-EXP-0111-C02": "CP-002",
+    "PR-EXP-0111-C03": "CP-009",
+    "PR-EXP-0112-C01": "CP-016",
+    "PR-EXP-0112-C02": "CP-003",
+    "PR-EXP-0112-C03": "CP-007",
+    "PR-EXP-0112-C04": "CP-023",
+    "PR-EXP-0112-C05": "CP-028",
+    "PR-EXP-0112-C06": "CP-003",
+    "PR-EXP-0112-C07": "CP-009",
+    "PR-EXP-0112-C08": null,
+    "PR-EXP-0112-C09": "CP-008",
+    "PR-EXP-0119-C01": "CP-033",
+    "PR-EXP-0119-C02": "CP-010",
+    "PR-EXP-0119-C03": "CP-006",
+    "PR-EXP-0119-C04": "CP-020",
+    "PR-EXP-0119-C05": "CP-002",
+    "PR-EXP-0119-C06": "CP-025",
+    "PR-EXP-0119-C07": "CP-033",
+    "PR-EXP-0119-C08": "CP-002",
+    "PR-EXP-0119-C09": "CP-009",
+    "PR-EXP-0124-C01": "CP-002",
+    "PR-EXP-0124-C02": "CP-007",
+    "PR-EXP-0124-C03": "CP-023",
+    "PR-EXP-0124-C04": "CP-033",
+    "PR-EXP-0124-C05": "CP-005",
+    "PR-EXP-0124-C06": "CP-005",
+    "PR-EXP-0126-C01": "CP-019",
+    "PR-EXP-0126-C02": "CP-005",
+    "PR-EXP-0126-C03": "CP-028",
+    "PR-EXP-0126-C04": "CP-002",
+    "PR-EXP-0126-C05": "CP-015",
+    "PR-EXP-0126-C06": "CP-002",
+    "PR-EXP-0126-C07": "CP-019",
+    "PR-EXP-0127-C01": null,
+    "PR-EXP-0127-C02": "CP-010",
+    "PR-EXP-0127-C03": "CP-008",
+    "PR-EXP-0127-C04": "CP-002",
+    "PR-EXP-0127-C05": "CP-002",
+    "PR-EXP-0127-C06": "CP-005",
+    "PR-EXP-0147-C01": "CP-048",
+    "PR-EXP-0147-C02": null,
+    "PR-EXP-0147-C03": null,
+    "PR-EXP-0147-C04": "CP-018",
+    "PR-EXP-0147-C05": null,
+    "PR-EXP-0148-C01": "CP-028",
+    "PR-EXP-0148-C02": "CP-009",
+    "PR-EXP-0148-C03": "CP-031",
+    "PR-EXP-0148-C04": "CP-030",
+    "PR-EXP-0148-C05": "CP-005",
+    "PR-EXP-0149-C01": null,
+    "PR-EXP-0149-C02": "CP-027",
+    "PR-EXP-0149-C03": null,
+    "PR-EXP-0149-C04": "CP-009",
+    "PR-EXP-0149-C05": "CP-007",
+    "PR-EXP-0150-C01": "CP-002",
+    "PR-EXP-0150-C02": "CP-002",
+    "PR-EXP-0150-C03": "CP-030",
+    "PR-EXP-0150-C04": "CP-036",
+    "PR-EXP-0150-C05": "CP-035",
+    "PR-EXP-0150-C06": "CP-006",
+    "PR-EXP-0150-C07": null,
+    "PR-EXP-0151-C01": null,
+    "PR-EXP-0151-C02": "CP-018",
+    "PR-EXP-0151-C03": null,
+    "PR-EXP-0152-C01": "CP-049",
+    "PR-EXP-0153-C01": "CP-007",
+    "PR-EXP-0153-C02": "CP-005",
+    "PR-EXP-0153-C03": "CP-025",
+    "PR-EXP-0153-C04": "CP-010",
+    "PR-EXP-0155-C01": null,
+    "PR-EXP-0155-C02": "CP-030",
+    "PR-EXP-0155-C03": null,
+    "PR-EXP-0155-C04": "CP-025",
+    "PR-EXP-0155-C05": "CP-013",
+    "PR-EXP-0155-C06": "CP-009",
+    "PR-EXP-0157-C01": "CP-020",
+    "PR-EXP-0157-C02": "CP-009",
+    "PR-EXP-0157-C03": null,
+    "PR-EXP-0157-C04": "CP-016",
+    "PR-EXP-0157-C05": "CP-024",
+    "PR-EXP-0157-C06": "CP-047",
+    "PR-EXP-0159-C01": "CP-023",
+    "PR-EXP-0159-C02": "CP-046",
+    "PR-EXP-0159-C03": "CP-045",
+    "PR-EXP-0159-C04": "CP-037",
+    "PR-EXP-0159-C05": "CP-002",
+    "PR-EXP-0159-C06": "CP-027",
+    "PR-EXP-0160-C01": "CP-002",
+    "PR-EXP-0160-C02": null,
+    "PR-EXP-0160-C03": "CP-010",
+    "PR-EXP-0160-C04": "CP-038",
+    "PR-EXP-0160-C05": "CP-006",
+    "PR-EXP-0160-C06": null,
+    "PR-EXP-0160-C07": null,
+    "PR-EXP-0160-C08": "CP-005",
+    "PR-EXP-0160-C09": null,
+    "PR-EXP-0160-C10": "CP-013",
+    "PR-EXP-0160-C11": "CP-034",
+    "PR-EXP-0160-C12": "CP-002",
+    "PR-EXP-0160-C13": "CP-008",
+    "PR-EXP-0160-C14": null,
+    "PR-EXP-0160-C15": null,
+    "PR-EXP-0170-C01": "CP-002",
+    "PR-EXP-0170-C02": "CP-020",
+    "PR-EXP-0170-C03": "CP-002",
+    "PR-EXP-0170-C04": "CP-034",
+    "PR-EXP-0170-C05": "CP-002",
+    "PR-EXP-0170-C06": "CP-020",
+    "PR-EXP-0170-C07": null,
+    "PR-EXP-0170-C08": "CP-007",
+    "PR-EXP-0179-C01": null,
+    "PR-EXP-0179-C02": "CP-025",
+    "PR-EXP-0179-C03": "CP-004",
+    "PR-EXP-0179-C04": "CP-003",
+    "PR-EXP-0179-C05": "CP-008",
+    "PR-EXP-0185-C01": "CP-030",
+    "PR-EXP-0185-C02": "CP-043",
+    "PR-EXP-0185-C03": "CP-016",
+    "PR-EXP-0185-C04": "CP-002",
+    "PR-EXP-0185-C05": null,
+    "PR-EXP-0185-C06": "CP-013",
+    "PR-EXP-0187-C01": "CP-040",
+    "PR-EXP-0187-C02": "CP-010",
+    "PR-EXP-0187-C03": "CP-009",
+    "PR-EXP-0187-C04": "CP-038",
+    "PR-EXP-0189-C01": null,
+    "PR-EXP-0189-C02": null,
+    "PR-EXP-0189-C03": "CP-006",
+    "PR-EXP-0189-C04": "CP-032",
+    "PR-EXP-0191-C01": "CP-002",
+    "PR-EXP-0191-C02": "CP-018",
+    "PR-EXP-0191-C03": "CP-031",
+    "PR-EXP-0191-C04": "CP-009",
+    "PR-EXP-0191-C05": "CP-016",
+    "PR-EXP-0191-C06": "CP-005",
+    "PR-EXP-0192-C01": "CP-016",
+    "PR-EXP-0192-C02": null,
+    "PR-EXP-0192-C03": "CP-002",
+    "PR-EXP-0192-C04": "CP-040",
+    "PR-EXP-0192-C05": "CP-005",
+    "PR-EXP-0193-C01": null,
+    "PR-EXP-0193-C02": "CP-025",
+    "PR-EXP-0193-C03": "CP-010",
+    "PR-EXP-0193-C04": null,
+    "PR-EXP-0193-C05": "CP-006",
+    "PR-EXP-0194-C01": "CP-008",
+    "PR-EXP-0194-C02": "CP-048",
+    "PR-EXP-0194-C03": "CP-009",
+    "PR-EXP-0194-C04": null,
+    "PR-EXP-0194-C05": "CP-026",
+    "PR-EXP-0194-C06": "CP-007",
+    "PR-EXP-0197-C01": "CP-002",
+    "PR-EXP-0197-C02": null,
+    "PR-EXP-0197-C03": "CP-002",
+    "PR-EXP-0197-C04": "CP-019",
+    "PR-EXP-0197-C05": "CP-023",
+    "PR-EXP-0197-C06": "CP-013",
+    "PR-EXP-0197-C07": "CP-002",
+    "PR-EXP-0197-C08": "CP-015",
+    "PR-EXP-0198-C01": "CP-005",
+    "PR-EXP-0198-C02": "CP-002",
+    "PR-EXP-0198-C03": "CP-020",
+    "PR-EXP-0198-C04": "CP-023",
+    "PR-EXP-0198-C05": "CP-013",
+    "PR-EXP-0198-C06": "CP-025",
+    "PR-EXP-0200-C01": null,
+    "PR-EXP-0200-C02": null,
+    "PR-EXP-0200-C03": null,
+    "PR-EXP-0200-C04": "CP-023",
+    "PR-EXP-0200-C05": "CP-028",
+    "PR-EXP-0200-C06": null,
+    "PR-EXP-0200-C07": "CP-043",
+    "PR-EXP-0203-C01": "CP-013",
+    "PR-EXP-0203-C02": null,
+    "PR-EXP-0203-C03": "CP-039",
+    "PR-EXP-0203-C04": null,
+    "PR-EXP-0203-C05": "CP-002",
+    "PR-EXP-0203-C06": "CP-045",
+    "PR-EXP-0203-C07": "CP-036",
+    "PR-EXP-0205-C01": "CP-031",
+    "PR-EXP-0205-C02": null,
+    "PR-EXP-0205-C03": "CP-002",
+    "PR-EXP-0205-C04": "CP-006",
+    "PR-EXP-0205-C05": "CP-037",
+    "PR-EXP-0205-C06": "CP-021",
+    "PR-EXP-0209-C01": "CP-002",
+    "PR-EXP-0209-C02": "CP-002",
+    "PR-EXP-0209-C03": null,
+    "PR-EXP-0209-C04": "CP-031",
+    "PR-EXP-0209-C05": "CP-015",
+    "PR-EXP-0209-C06": "CP-049",
+    "PR-EXP-0209-C07": null,
+    "PR-EXP-0209-C08": "CP-010",
+    "PR-EXP-0212-C01": null,
+    "PR-EXP-0212-C02": "CP-010",
+    "PR-EXP-0212-C03": null,
+    "PR-EXP-0212-C04": "CP-005",
+    "PR-EXP-0212-C05": null,
+    "PR-EXP-0212-C06": null,
+    "PR-EXP-0212-C07": "CP-034",
+    "PR-EXP-0212-C08": "CP-002",
+    "PR-EXP-0212-C09": "CP-007",
+    "PR-EXP-0212-C10": "CP-013",
+    "PR-EXP-0212-C11": null
+  },
+  "summary": {
+    "patterns_defined": 49,
+    "concerns_total": 817,
+    "concerns_mapped": 693,
+    "concerns_unmapped": 124,
+    "coverage_rate": 0.8482,
+    "concerns_in_top_3_patterns": 230,
+    "top_3_patterns": [
+      {
+        "canonical_pattern_id": "CP-001",
+        "label": "evaluation_unspecified_confounding_and_metric_questions",
+        "instance_count": 88
+      },
+      {
+        "canonical_pattern_id": "CP-002",
+        "label": "cohort_temporal_or_inclusion_ambiguity",
+        "instance_count": 74
+      },
+      {
+        "canonical_pattern_id": "CP-003",
+        "label": "study_design_causality_and_framing_critique",
+        "instance_count": 68
+      }
+    ]
+  }
+}

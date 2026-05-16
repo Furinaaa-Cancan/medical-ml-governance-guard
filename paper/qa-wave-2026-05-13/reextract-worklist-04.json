@@ -1,0 +1,74 @@
+[
+  {
+    "paper_id": "PR-083",
+    "paper_title": "A machine learning contest enhances automated freezing of gait detection and reveals time-of-day effects",
+    "pdf_path": "references/case-studies/nature_communications/PR-083_a_machine_learning_contest_enhances_auto_peer_review.pdf",
+    "pdf_size_mb": 3.9,
+    "affected_concern_ids": [
+      "PR-083-C01"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-083-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Why were akinetic episodes excluded? Please provide rationale.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-094",
+    "paper_title": "Individualized protein-based prognostic model to stratify pediatric patients with papillary thyroid carcinoma",
+    "pdf_path": "references/case-studies/nature_communications/NC_pediatric_thyroid_prognosis_peer_review.pdf",
+    "pdf_size_mb": 2.0,
+    "affected_concern_ids": [
+      "PR-094-C01"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-094-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Pediatric thyroid cancer is rare — external validation cohort may be too small for reliable performance assessment.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-089",
+    "paper_title": "ML-supported framework for classification of mpox infection and MVA immunization from multiplexed serology data",
+    "pdf_path": "references/case-studies/nature_communications/PR-089_ml_supported_framework_for_classificatio_peer_review.pdf",
+    "pdf_size_mb": 1.0,
+    "affected_concern_ids": [
+      "PR-089-C01"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-089-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Cross-reactivity of Orthopoxvirus antibodies is complex. Model performance on sera from different clades and vaccination schedules should be tested.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-099",
+    "paper_title": "Deep learning for obstructive sleep apnea diagnosis based on single channel oximetry",
+    "pdf_path": "references/case-studies/nature_communications/NC_sleep_apnea_DL_peer_review.pdf",
+    "pdf_size_mb": 0.6,
+    "affected_concern_ids": [
+      "PR-099-C01"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-099-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Single-channel oximetry is simpler than polysomnography but external validation across different oximeters and populations needed.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  }
+]

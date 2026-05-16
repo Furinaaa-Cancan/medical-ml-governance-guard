@@ -1,0 +1,393 @@
+{
+  "agent": "q2-tag-synonyms",
+  "ran_at_utc": "2026-05-16T09:44:19.017158+00:00",
+  "scope": "tag synonym normalization across reviewer_concerns[].tags[]",
+  "method": "Python Counter + difflib.SequenceMatcher (ratio>=0.82 for hi-freq pairs, >=0.85 for singleton-to-hi-freq); plus substring concept-family scan over 50 keywords; plus manual concern_text verification of every cross-concept merge.",
+  "summary": {
+    "unique_tags": 2009,
+    "total_tag_instances": 2419,
+    "tags_with_freq_1": 1801,
+    "tags_with_freq_ge_2": 208,
+    "synonym_clusters_found": 25,
+    "tags_merged_away": 32,
+    "concerns_affected_by_proposed_merges": 119,
+    "format_violations": {
+      "hyphens": 0,
+      "spaces": 0,
+      "non_lowercase": 3,
+      "non_lowercase_tags": [
+        "cfDNA_treatment_effect",
+        "cfDNA_vs_ctDNA",
+        "label_validation_2M"
+      ],
+      "note": "snake_case discipline is otherwise consistent across all 2009 tags."
+    }
+  },
+  "proposed_merges": [
+    {
+      "canonical": "underpowered_subgroups",
+      "merge_in": [
+        "underpowered_subgroup"
+      ],
+      "frequency": {
+        "underpowered_subgroups": 1,
+        "underpowered_subgroup": 1
+      },
+      "rationale": "plural/singular only; identical meaning."
+    },
+    {
+      "canonical": "overfitting_risk",
+      "merge_in": [
+        "overfit_risk"
+      ],
+      "frequency": {
+        "overfitting_risk": 4,
+        "overfit_risk": 1
+      },
+      "rationale": "spelling variant of same concept."
+    },
+    {
+      "canonical": "irreproducible_methods",
+      "merge_in": [
+        "methods_irreproducible",
+        "irreproducible_results"
+      ],
+      "frequency": {
+        "irreproducible_methods": 6,
+        "methods_irreproducible": 1,
+        "irreproducible_results": 1
+      },
+      "rationale": "word-order variant; \"irreproducible_results\" concern texts (e.g. PR-EXP-0084-C06) describe inability to reproduce due to missing methods, not a distinct result-validation concept."
+    },
+    {
+      "canonical": "calibration_plot_missing",
+      "merge_in": [
+        "calibration_plot_absent"
+      ],
+      "frequency": {
+        "calibration_plot_missing": 4,
+        "calibration_plot_absent": 1
+      },
+      "rationale": "absent==missing; identical concept."
+    },
+    {
+      "canonical": "prior_work_missing",
+      "merge_in": [
+        "prior_work_missed"
+      ],
+      "frequency": {
+        "prior_work_missing": 3,
+        "prior_work_missed": 1
+      },
+      "rationale": "missed==missing in this usage; singleton variant."
+    },
+    {
+      "canonical": "association_not_causation",
+      "merge_in": [
+        "association_vs_causation"
+      ],
+      "frequency": {
+        "association_not_causation": 2,
+        "association_vs_causation": 1
+      },
+      "rationale": "singleton variant; identical assertion."
+    },
+    {
+      "canonical": "feature_selection_justification",
+      "merge_in": [
+        "feature_selection_rationale"
+      ],
+      "frequency": {
+        "feature_selection_justification": 4,
+        "feature_selection_rationale": 1
+      },
+      "rationale": "rationale==justification synonym; singleton variant."
+    },
+    {
+      "canonical": "inter_rater_reliability",
+      "merge_in": [
+        "inter_observer_reliability"
+      ],
+      "frequency": {
+        "inter_rater_reliability": 2,
+        "inter_observer_reliability": 1
+      },
+      "rationale": "standard medical-stats synonyms (raters==observers)."
+    },
+    {
+      "canonical": "no_limitations_section",
+      "merge_in": [
+        "no_limitations"
+      ],
+      "frequency": {
+        "no_limitations_section": 2,
+        "no_limitations": 1
+      },
+      "rationale": "singleton variant; both flag missing limitations section."
+    },
+    {
+      "canonical": "manuscript_structure",
+      "merge_in": [
+        "poor_manuscript_structure"
+      ],
+      "frequency": {
+        "manuscript_structure": 3,
+        "poor_manuscript_structure": 1
+      },
+      "rationale": "qualifier (\"poor\") is already implicit in concern semantics + severity field."
+    },
+    {
+      "canonical": "small_sample",
+      "merge_in": [
+        "small_sample_size"
+      ],
+      "frequency": {
+        "small_sample": 6,
+        "small_sample_size": 2
+      },
+      "rationale": "\"size\" suffix redundant. Other sample_size_* variants (justification, clarity, insufficient) describe distinct facets and are intentionally NOT merged."
+    },
+    {
+      "canonical": "unfair_comparison",
+      "merge_in": [
+        "unfair_model_comparison"
+      ],
+      "frequency": {
+        "unfair_comparison": 2,
+        "unfair_model_comparison": 1
+      },
+      "rationale": "\"model\" qualifier adds no signal in this KB (all comparisons are model comparisons)."
+    },
+    {
+      "canonical": "subgroup_analysis",
+      "merge_in": [
+        "patient_subgroup_analysis"
+      ],
+      "frequency": {
+        "subgroup_analysis": 2,
+        "patient_subgroup_analysis": 1
+      },
+      "rationale": "singleton with redundant \"patient\" qualifier."
+    },
+    {
+      "canonical": "baseline_comparison",
+      "merge_in": [
+        "baseline_comparison_incomplete"
+      ],
+      "frequency": {
+        "baseline_comparison": 3,
+        "baseline_comparison_incomplete": 1
+      },
+      "rationale": "incomplete is a severity descriptor already captured by severity/concern_text."
+    },
+    {
+      "canonical": "hyperparameter_reporting",
+      "merge_in": [
+        "hyperparameter_unreported",
+        "hyperparameter_documentation_missing"
+      ],
+      "frequency": {
+        "hyperparameter_reporting": 2,
+        "hyperparameter_unreported": 1,
+        "hyperparameter_documentation_missing": 1
+      },
+      "rationale": "inverse phrasings of same reporting-gap concept; polarity carried by severity + concern_text."
+    },
+    {
+      "canonical": "auprc_missing",
+      "merge_in": [
+        "auprc_needed",
+        "auprc_recommended"
+      ],
+      "frequency": {
+        "auprc_missing": 4,
+        "auprc_needed": 1,
+        "auprc_recommended": 1
+      },
+      "rationale": "\"needed\"/\"recommended\" are positive-phrased equivalents of \"missing\"; all three concerns request AUPRC be added."
+    },
+    {
+      "canonical": "ablation_missing",
+      "merge_in": [
+        "ablation_study_missing"
+      ],
+      "frequency": {
+        "ablation_missing": 7,
+        "ablation_study_missing": 1
+      },
+      "rationale": "verbose duplicate (PR-002-C02 is a clear ablation-missing case). Excluded \"ablation_needed\" (singleton concerns are not strict ablation requests)."
+    },
+    {
+      "canonical": "sota_comparison",
+      "merge_in": [
+        "sota_benchmark_missing"
+      ],
+      "frequency": {
+        "sota_comparison": 2,
+        "sota_benchmark_missing": 1
+      },
+      "rationale": "sota_benchmark_missing is the negative form of sota_comparison; both flag a missing SOTA comparator."
+    },
+    {
+      "canonical": "statistical_significance_missing",
+      "merge_in": [
+        "statistical_inference_missing"
+      ],
+      "frequency": {
+        "statistical_significance_missing": 2,
+        "statistical_inference_missing": 1
+      },
+      "rationale": "singleton variant; usage refers to missing significance tests, not absence of an inference framework."
+    },
+    {
+      "canonical": "overclaimed_novelty",
+      "merge_in": [
+        "novelty_overstated"
+      ],
+      "frequency": {
+        "overclaimed_novelty": 3,
+        "novelty_overstated": 1
+      },
+      "rationale": "direct synonym pair."
+    },
+    {
+      "canonical": "modest_performance",
+      "merge_in": [
+        "modest_improvement"
+      ],
+      "frequency": {
+        "modest_performance": 5,
+        "modest_improvement": 1
+      },
+      "rationale": "singleton variant; both describe small-magnitude gains. NOTE: marginal_improvement(6) intentionally NOT merged \u2014 reviewers may distinguish \"marginal\" (barely-significant) from \"modest\" (small-but-real)."
+    },
+    {
+      "canonical": "distribution_shift",
+      "merge_in": [
+        "covariate_shift",
+        "domain_shift"
+      ],
+      "frequency": {
+        "distribution_shift": 2,
+        "covariate_shift": 1,
+        "domain_shift": 1
+      },
+      "rationale": "covariate-shift (formal stats term), domain-shift (ML term), distribution-shift (umbrella) all describe feature-distribution mismatch between train and target cohorts. Specific sub-types (geographic_/temporal_/scanner_/ethnic_*_shift) are NOT merged \u2014 they carry useful sub-categorization."
+    },
+    {
+      "canonical": "no_tripod",
+      "merge_in": [
+        "tripod_noncompliance",
+        "tripod_missing"
+      ],
+      "frequency": {
+        "no_tripod": 3,
+        "tripod_noncompliance": 1,
+        "tripod_missing": 2
+      },
+      "rationale": "all three flag the same TRIPOD reporting-guideline compliance gap; canonical chosen by frequency + brevity."
+    },
+    {
+      "canonical": "class_imbalance",
+      "merge_in": [
+        "imbalanced_classes",
+        "imbalanced_data",
+        "class_imbalance_unhandled"
+      ],
+      "frequency": {
+        "class_imbalance": 11,
+        "imbalanced_classes": 1,
+        "imbalanced_data": 1,
+        "class_imbalance_unhandled": 1
+      },
+      "rationale": "imbalanced_classes/imbalanced_data are direct singleton synonyms; class_imbalance_unhandled adds a remediation-status modifier already captured by resolved/severity fields. Sub-type tags (case_control_imbalance, demographic_imbalance, temporal_imbalance, etc.) are kept distinct."
+    },
+    {
+      "canonical": "reproducibility",
+      "merge_in": [
+        "code_reproducibility"
+      ],
+      "frequency": {
+        "reproducibility": 12,
+        "code_reproducibility": 1
+      },
+      "rationale": "singleton \"code_reproducibility\" overlaps with the canonical \"reproducibility\" plus existing \"no_code_availability\"(7). llm_reproducibility, kg_reproducibility, clustering_reproducibility, architecture_reproducibility are domain-specific qualifiers and are NOT merged."
+    }
+  ],
+  "low_value_tags_to_consider_dropping": [
+    {
+      "tag": "overclaimed",
+      "frequency": 1,
+      "rationale": "bare \"overclaimed\" carries no object; every concern using it also tags a specific overclaim (overclaimed_novelty, overclaimed_clinical_utility, etc.). Consider dropping or always pairing with a specific object tag."
+    }
+  ],
+  "tags_deliberately_NOT_merged": [
+    {
+      "pair": [
+        "temporal_leakage",
+        "future_information_leakage"
+      ],
+      "rationale": "related but distinct: temporal_leakage = train/test temporal ordering violation; future_information_leakage = a future-derived feature used as input. Different MLGG gates."
+    },
+    {
+      "pair": [
+        "covariate_shift",
+        "distribution_drift"
+      ],
+      "rationale": "no tag named \"distribution_drift\" exists in this KB; the variant present is \"distribution_shift\" (which IS merged with covariate_shift+domain_shift). \"drift\" tags in KB (calibration_drift_impact, definition_drift, temporal_drift, treatment_protocol_drift) refer to time-evolving processes, not cross-cohort shift."
+    },
+    {
+      "pair": [
+        "marginal_improvement",
+        "modest_performance"
+      ],
+      "rationale": "reviewers may distinguish \"marginal\" (barely-significant gain) from \"modest\" (small-but-real magnitude). Leave separate pending domain review."
+    },
+    {
+      "pair": [
+        "code_availability",
+        "no_code_availability"
+      ],
+      "rationale": "opposite polarity (code WAS released vs WAS NOT released). Not synonyms; KEEP separate."
+    },
+    {
+      "pair": [
+        "fair_comparison",
+        "unfair_comparison"
+      ],
+      "rationale": "opposite polarity. KEEP separate."
+    },
+    {
+      "pair": [
+        "prospective_vs_retrospective",
+        "retrospective_vs_prospective"
+      ],
+      "rationale": "string-similar but only differ in word order of a comparison frame. Inspecting concerns suggests they describe the same methodological discussion \u2014 borderline. Recommend manual review before merging."
+    },
+    {
+      "pair": [
+        "missing_ci",
+        "missing_dca"
+      ],
+      "rationale": "string-similar but totally different concepts (confidence intervals vs decision-curve-analysis). KEEP separate."
+    },
+    {
+      "pair": [
+        "device_heterogeneity",
+        "disease_heterogeneity"
+      ],
+      "rationale": "string-similar but distinct concepts. KEEP separate."
+    },
+    {
+      "pair": [
+        "low_ppv",
+        "low_npv"
+      ],
+      "rationale": "opposite metrics. KEEP separate."
+    }
+  ],
+  "notes": {
+    "tag_cardinality_observation": "KB has 2009 unique tags over 2419 instances \u2014 a 1.21 instance/tag ratio, meaning the vast majority (1801, 89.6%) appear exactly once. This is structurally worse than a synonym problem: the tag vocabulary itself is unbounded. Even after the 27 proposed merges, ~1990 unique tags remain, of which ~1797 are still singletons. Recommendation to KB maintainers: separately consider (a) introducing a controlled tag vocabulary, or (b) deprioritizing tag-overlap re-ranking in favor of category+gate+severity overlap for RAG until tag normalization is more thorough.",
+    "rejected_synonyms_count": 9
+  }
+}

@@ -1,0 +1,818 @@
+[
+  {
+    "concern_id": "PR-020-C03",
+    "paper_id": "PR-020",
+    "paper_title": "Explainable multimodal deep learning for predicting thyroid ",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "calibration_dca_gate"
+    ],
+    "concern_text": "DCA assumes all true AI predictions are beneficial — not true for microscopic metastases. Proposed workflow would not be best clinical management.",
+    "author_response": "Revised DCA accounting for clinically insignificant metastases.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-020-C04",
+    "paper_id": "PR-020",
+    "paper_title": "Explainable multimodal deep learning for predicting thyroid ",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Comparison with human experts unfair due to differing dataset sizes (model on full data vs radiologists on N=200).",
+    "author_response": "Added model performance on same N=200 subset.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-020-C05",
+    "paper_id": "PR-020",
+    "paper_title": "Explainable multimodal deep learning for predicting thyroid ",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "LLNM-Net trained on cancerous nodules only — most thyroid nodules are benign. Cannot be used for population screening.",
+    "author_response": "Clarified intended use is pre-surgical planning, not screening.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-021-C01",
+    "paper_id": "PR-021",
+    "paper_title": "Medical multimodal multitask foundation model for lung cance",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "CVD mortality as binary label is over-simplification — it is right-censored time-to-event data. Should stratify by cut-off years like cancer risk task.",
+    "author_response": "Added time-stratified CVD analysis.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-021-C02",
+    "paper_id": "PR-021",
+    "paper_title": "Medical multimodal multitask foundation model for lung cance",
+    "category": "study_design",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "Clinical metadata encoded as predefined-rule text — fundamentally differs from natural language. Is this necessary vs simply encoding as array?",
+    "author_response": "Added ablation comparing text vs tabular encoding.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-021-C03",
+    "paper_id": "PR-021",
+    "paper_title": "Medical multimodal multitask foundation model for lung cance",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "AUC improvements for MT-MM are small in some cases. Need critical perspective balancing gains vs extra effort.",
+    "author_response": "Added cost analysis and honest discussion of marginal gains.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-021-C04",
+    "paper_id": "PR-021",
+    "paper_title": "Medical multimodal multitask foundation model for lung cance",
+    "category": "interpretability",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 7,
+    "mlgg_gates": [],
+    "concern_text": "Heatmaps show apparently useless tokens ('brother', '142') as important. Can multi-source information be shown to be composed in complementary way?",
+    "author_response": "Added token-level attribution analysis.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-022-C01",
+    "paper_id": "PR-022",
+    "paper_title": "Multimodal histopathologic models stratify hormone receptor-",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "calibration_dca_gate"
+    ],
+    "concern_text": "Correlation of 0.6 does not indicate reliable individual prediction. No individual-level performance data vs gold-standard. Need calibration plot with censoring.",
+    "author_response": "Added individual-level analysis and calibration plots.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-022-C02",
+    "paper_id": "PR-022",
+    "paper_title": "Multimodal histopathologic models stratify hormone receptor-",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Cut-off in Orpheus for high-risk classification not specified. Does it vary across populations?",
+    "author_response": "Reported cut-off with cross-cohort sensitivity analysis.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-022-C03",
+    "paper_id": "PR-022",
+    "paper_title": "Multimodal histopathologic models stratify hormone receptor-",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Claim that Orpheus enhances beyond Oncotype DX needs tempering — linear models developed within Oncotype risk groups, comparison may not be equitable.",
+    "author_response": "Tempered claims and added independent evaluation.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-023-C01",
+    "paper_id": "PR-023",
+    "paper_title": "Quantifying portable genetic effects and improving cross-anc",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Type I error simulations only 100 times — not enough at 0.05 level. Need ≥1,000. Also need FDR threshold sensitivity analysis.",
+    "author_response": "Increased to 1,000 simulations with FDR sensitivity.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-023-C02",
+    "paper_id": "PR-023",
+    "paper_title": "Quantifying portable genetic effects and improving cross-anc",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Only simulated on chromosome 22 — heritability disproportionally large, samples highly related. Need whole-genome simulation.",
+    "author_response": "Added whole-genome simulations.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-023-C03",
+    "paper_id": "PR-023",
+    "paper_title": "Quantifying portable genetic effects and improving cross-anc",
+    "category": "external_validation",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [],
+    "concern_text": "Only East Asian and European. Transferability to African samples is harder. Should apply to AFR samples.",
+    "author_response": "Added African ancestry analysis using PAGE.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-023-C04",
+    "paper_id": "PR-023",
+    "paper_title": "Quantifying portable genetic effects and improving cross-anc",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "X-Wing only marginally better than PRS-CSx. Need scenario simulations showing when each method wins.",
+    "author_response": "Added scenario-based simulations.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-024-C01",
+    "paper_id": "PR-024",
+    "paper_title": "Development and external validation of prediction algorithms",
+    "category": "study_design",
+    "current_severity": "CRITICAL",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [
+      "cohort_definition_gate"
+    ],
+    "concern_text": "Time horizon for prediction not found — paramount importance. Are models predicting imminent diagnoses or long-term risk? Models with very high AUC may just be diagnosing established cancers.",
+    "author_response": "Clarified 2-year window and added time-stratified analyses.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-024-C02",
+    "paper_id": "PR-024",
+    "paper_title": "Development and external validation of prediction algorithms",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "Fundamental difference between predicting probability cancer is already present vs probability of developing cancer in the future. These concepts are conflated.",
+    "author_response": "Revised terminology: 'risk of cancer diagnosis' instead of 'cancer risk'.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-024-C03",
+    "paper_id": "PR-024",
+    "paper_title": "Development and external validation of prediction algorithms",
+    "category": "preprocessing",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 3,
+    "mlgg_gates": [
+      "missingness_policy_gate"
+    ],
+    "concern_text": "Missing data shown not to be MCAR. Imputation method doesn't handle MNAR. Need reporting of N missing and bias analysis.",
+    "author_response": "Added MNAR sensitivity analysis.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-024-C04",
+    "paper_id": "PR-024",
+    "paper_title": "Development and external validation of prediction algorithms",
+    "category": "feature_selection",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [],
+    "concern_text": "Variables kept based on P values. Did you consider data-driven variable selection?",
+    "author_response": "Added LASSO comparison showing similar results.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-024-C05",
+    "paper_id": "PR-024",
+    "paper_title": "Development and external validation of prediction algorithms",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "calibration_dca_gate"
+    ],
+    "concern_text": "Calibration intercept/slope should be in main text. Blood tests add almost nothing — discuss clinical implications.",
+    "author_response": "Added calibration to main text, discussed limited value of blood tests.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-024-C06",
+    "paper_id": "PR-024",
+    "paper_title": "Development and external validation of prediction algorithms",
+    "category": "reporting",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "DCA not commonly used — need explanation. Cancer-specific DCA needed, aggregate 'any cancer' DCA makes little sense.",
+    "author_response": "Added cancer-specific DCA with interpretation.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-024-C07",
+    "paper_id": "PR-024",
+    "paper_title": "Development and external validation of prediction algorithms",
+    "category": "reproducibility",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 9,
+    "mlgg_gates": [],
+    "concern_text": "Model coefficients and variables need to be clearly provided to allow further validation.",
+    "author_response": "Provided full coefficients in supplementary tables.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-025-C01",
+    "paper_id": "PR-025",
+    "paper_title": "A noninvasive model for chronic kidney disease screening and",
+    "category": "sample_size",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 12,
+    "mlgg_gates": [
+      "sample_size_gate"
+    ],
+    "concern_text": "Sample size lacks formal power calculations and has concerning issues in key subgroups like Somalia cohort (n=47) and less common pathological types like MCD/FSGS. This raises questions about statistical power.",
+    "author_response": "We added power calculations and explicitly stated limited power for rare subtypes. Somalia cohort results reported with appropriate caveats.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-025-C02",
+    "paper_id": "PR-025",
+    "paper_title": "A noninvasive model for chronic kidney disease screening and",
+    "category": "preprocessing",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 3,
+    "mlgg_gates": [
+      "missingness_policy_gate"
+    ],
+    "concern_text": "Missing data handling lacks adequate documentation — no clear explanation of how missing values were managed, no reporting of missing data percentages, no sensitivity analyses to assess impact.",
+    "author_response": "We added missing data reporting, imputation methodology, and sensitivity analysis.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-025-C03",
+    "paper_id": "PR-025",
+    "paper_title": "A noninvasive model for chronic kidney disease screening and",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "calibration_dca_gate"
+    ],
+    "concern_text": "Model calibration is insufficiently reported — calibration plots relegated to supplementary materials, no formal calibration testing (such as Hosmer-Lemeshow) presented.",
+    "author_response": "We moved calibration plots to main figures and added Hosmer-Lemeshow test results.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-025-C04",
+    "paper_id": "PR-025",
+    "paper_title": "A noninvasive model for chronic kidney disease screening and",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Multiple testing concerns remain unaddressed — no clear adjustment for multiple comparisons across numerous statistical tests performed.",
+    "author_response": "We added Bonferroni correction for multiple comparisons and flagged results that do not survive correction.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-025-C05",
+    "paper_id": "PR-025",
+    "paper_title": "A noninvasive model for chronic kidney disease screening and",
+    "category": "study_design",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "The authors categorize MCD or FSGS as combined feature. It is reasonable to combine primary MCD/FSGS as podocytopathies, but secondary FSGS is much more frequent and has different clinical management.",
+    "author_response": "We discussed the MCD/FSGS distinction and added sensitivity analysis separating primary vs secondary FSGS.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-025-C06",
+    "paper_id": "PR-025",
+    "paper_title": "A noninvasive model for chronic kidney disease screening and",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "The Net Reclassification Index (NRI) has well-documented issues with the category-free version and should be interpreted with caution. The term 'metadata' is confusing — it relates to actual clinical data, not metadata.",
+    "author_response": "We clarified NRI limitations and changed 'metadata' to 'clinical data' throughout.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-026-C01",
+    "paper_id": "PR-026",
+    "paper_title": "Prehospital real-time AI for trauma mortality prediction: a ",
+    "category": "external_validation",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [
+      "external_validation_gate"
+    ],
+    "concern_text": "The model was developed and internally validated in South Korean trauma centers. External validation in Australia (n=3,578) is valuable but limited to one center. Performance in other healthcare systems (e.g., US, European EMS) would strengthen generalizability claims.",
+    "author_response": "We acknowledged geographic limitation and discussed plans for broader international validation. Added sensitivity analysis by injury mechanism.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-026-C02",
+    "paper_id": "PR-026",
+    "paper_title": "Prehospital real-time AI for trauma mortality prediction: a ",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "calibration_dca_gate"
+    ],
+    "concern_text": "Calibration analysis should be presented more prominently. The model's predicted probabilities vs observed mortality rates should be clearly shown across risk groups.",
+    "author_response": "We moved calibration plots to main figures and added calibration metrics (slope, intercept, Brier score).",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-026-C03",
+    "paper_id": "PR-026",
+    "paper_title": "Prehospital real-time AI for trauma mortality prediction: a ",
+    "category": "clinical_utility",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 7,
+    "mlgg_gates": [],
+    "concern_text": "How would this model be deployed in real-time prehospital settings? What are the latency requirements? What happens when data is missing (common in trauma settings)?",
+    "author_response": "We described the real-time deployment architecture, measured inference latency (<1s), and added analysis of model robustness to missing prehospital variables.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-026-C04",
+    "paper_id": "PR-026",
+    "paper_title": "Prehospital real-time AI for trauma mortality prediction: a ",
+    "category": "reporting",
+    "current_severity": "LOW",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [
+      "reporting_bias_gate"
+    ],
+    "concern_text": "The study follows TRIPOD+AI and TRIPOD-cluster guidelines — this is commendable. Minor formatting improvements needed in checklist compliance table.",
+    "author_response": "We reformatted the TRIPOD+AI checklist table.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-027-C01",
+    "paper_id": "PR-027",
+    "paper_title": "Machine learning models identify predictive features of pati",
+    "category": "model_selection",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [
+      "model_selection_audit_gate"
+    ],
+    "concern_text": "Authors should provide rationale why selecting XGBoost, not other ML models. Unclear whether further feature selection can improve performance.",
+    "author_response": "Added comparison with RF, LR, SVM. XGBoost selected for best AUC and interpretability via TreeSHAP.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-027-C02",
+    "paper_id": "PR-027",
+    "paper_title": "Machine learning models identify predictive features of pati",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Class imbalance is a major issue — subjects at later stages naturally have higher mortality. Difference between 1-year and 10-year models may simply reflect class imbalance rather than genuine finding. Need class-balanced resampling or class-weighted loss.",
+    "author_response": "Added class-weighted analysis and SMOTE sensitivity analysis. Results robust to rebalancing.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-027-C03",
+    "paper_id": "PR-027",
+    "paper_title": "Machine learning models identify predictive features of pati",
+    "category": "reporting",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "Missing result figures. Discussion mentions survival analysis differed across dementia types but corresponding figures cannot be found in manuscript or supplementary material.",
+    "author_response": "Added missing survival curves by dementia subtype.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-027-C04",
+    "paper_id": "PR-027",
+    "paper_title": "Machine learning models identify predictive features of pati",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Model performance evaluated only with AUC. Additional metrics like sensitivity, specificity, F1, and calibration should be reported for clinical applicability.",
+    "author_response": "Added full metric panel including sensitivity, specificity, PPV, NPV, F1.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-027-C05",
+    "paper_id": "PR-027",
+    "paper_title": "Machine learning models identify predictive features of pati",
+    "category": "study_design",
+    "current_severity": "LOW",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "Whether adding genetic or multi-omics data may improve prediction further in future studies should be discussed.",
+    "author_response": "Added discussion of potential for genomic/proteomic data integration.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-028-C01",
+    "paper_id": "PR-028",
+    "paper_title": "An interpretable machine learning algorithm enables dynamic ",
+    "category": "external_validation",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [
+      "external_validation_gate"
+    ],
+    "concern_text": "The study lacks external validation. Model should be tested in very different conditions to avoid out-of-distribution bias.",
+    "author_response": "Acknowledged as limitation and discussed plans for multi-center validation.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-028-C02",
+    "paper_id": "PR-028",
+    "paper_title": "An interpretable machine learning algorithm enables dynamic ",
+    "category": "model_selection",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [],
+    "concern_text": "Why LightGBM as first choice? There are many time-series models like LSTM that may better capture temporal patterns. Also, SOFA score uses much less variables — for parsimony, SOFA seems better for practical use.",
+    "author_response": "Compared with LSTM and showed LightGBM competitive. SOFA comparison added showing ML model significantly outperforms.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-028-C03",
+    "paper_id": "PR-028",
+    "paper_title": "An interpretable machine learning algorithm enables dynamic ",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "The outcome variable is imbalanced data. What is the proportion of deceased during the time frame?",
+    "author_response": "Added mortality proportion and class imbalance handling discussion.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-028-C04",
+    "paper_id": "PR-028",
+    "paper_title": "An interpretable machine learning algorithm enables dynamic ",
+    "category": "model_selection",
+    "current_severity": "LOW",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [],
+    "concern_text": "Will stacked ensemble model further improve performance? There is evidence that ensemble models achieve better accuracy than any individual model alone.",
+    "author_response": "Discussed ensemble potential in future directions.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-028-C05",
+    "paper_id": "PR-028",
+    "paper_title": "An interpretable machine learning algorithm enables dynamic ",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "Why update every 24 hours to predict 48-hour mortality, rather than every hour or every 6/12 hours for shorter horizons? Need clear rationale for this design choice.",
+    "author_response": "Added clinical rationale: 24h update aligns with ICU rounding schedules and clinical decision cycles.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-028-C06",
+    "paper_id": "PR-028",
+    "paper_title": "An interpretable machine learning algorithm enables dynamic ",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "PPV remains low indicating many false alarms. How to interpret or handle these false alarms?",
+    "author_response": "Added false alarm analysis with risk stratification tiers to reduce alarm fatigue.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-028-C07",
+    "paper_id": "PR-028",
+    "paper_title": "An interpretable machine learning algorithm enables dynamic ",
+    "category": "clinical_utility",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 7,
+    "mlgg_gates": [],
+    "concern_text": "While model accuracy is important, it may not translate to clinical benefits such as reducing mortality in ICU. More work needed to test effectiveness.",
+    "author_response": "Added discussion of implementation pathway and need for prospective impact study.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-029-C01",
+    "paper_id": "PR-029",
+    "paper_title": "Machine learning for early dynamic prediction of functional ",
+    "category": "study_design",
+    "current_severity": "CRITICAL",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "Most literature uses discharge data for 3-month outcomes, or uses time-varying data for in-hospital outcomes. Using 72h data to predict 3-month outcome — by the time prediction is made, patient status will change many times. Median LOS is 7-10 days for ischemic stroke. The 72h prediction becomes irrelevant. Authors should either predict at discharge, or predict in-hospital outcomes.",
+    "author_response": "Added analysis at discharge timepoint and discussed clinical decision points where 72h prediction is relevant (early transfer decisions).",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-029-C02",
+    "paper_id": "PR-029",
+    "paper_title": "Machine learning for early dynamic prediction of functional ",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "ci_matrix_gate"
+    ],
+    "concern_text": "Significant risk of cherry-picking models when there is no bootstrapping with multiple random splits. While authors bootstrap the CV procedure, they need equivalent process for training/testing split with confidence intervals around AUC, accuracy, specificity.",
+    "author_response": "Added 100-repetition bootstrapped train/test splits with CI for all metrics.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-029-C03",
+    "paper_id": "PR-029",
+    "paper_title": "Machine learning for early dynamic prediction of functional ",
+    "category": "split_protocol",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [
+      "split_protocol_gate"
+    ],
+    "concern_text": "The fact that some patients were associated with multiple admissions might positively bias the performance of the model. Recommend including only the first admission per patient.",
+    "author_response": "Added sensitivity analysis with first-admission-only and showed consistent results.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-029-C04",
+    "paper_id": "PR-029",
+    "paper_title": "Machine learning for early dynamic prediction of functional ",
+    "category": "model_selection",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [],
+    "concern_text": "XGBoost has equivalent or better performance compared to transformer. XGBoost doesn't incorporate varying time-series. Why should clinicians prefer a more complex model that is harder to implement?",
+    "author_response": "Added complexity-performance trade-off analysis. Recommended XGBoost for practical deployment.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-029-C05",
+    "paper_id": "PR-029",
+    "paper_title": "Machine learning for early dynamic prediction of functional ",
+    "category": "study_design",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "ICD codes are notoriously inaccurate — over 30% of patients in claims with acute ischemic stroke did not actually have the condition. Recommend independent audit of random sample.",
+    "author_response": "Added chart review validation of 200 random patients confirming >95% accuracy of ICD coding.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-029-C06",
+    "paper_id": "PR-029",
+    "paper_title": "Machine learning for early dynamic prediction of functional ",
+    "category": "study_design",
+    "current_severity": "LOW",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "The study period involves initial phases of COVID-19. Do models account for whether a patient's stroke was provoked by COVID-19?",
+    "author_response": "Added COVID-19 status as covariate in sensitivity analysis.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-030-C01",
+    "paper_id": "PR-030",
+    "paper_title": "Methodological choices and clinical usefulness for machine l",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "67% accuracy defined as benchmark for clinical usefulness. Unclear why a 33% error rate should be good enough for clinical practice. Base rate of the binary variable (50% symptom reduction yes/no) should be reported to evaluate prediction quality.",
+    "author_response": "Added base rate reporting and clinical justification for the 67% threshold based on existing literature.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-030-C02",
+    "paper_id": "PR-030",
+    "paper_title": "Methodological choices and clinical usefulness for machine l",
+    "category": "reporting",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "Introduction seems superficial and does not consider relevant literature on predictive models in psychotherapy research, especially for binary outcomes. Comparable recent papers in dropout prediction not cited.",
+    "author_response": "Expanded introduction with relevant psychotherapy prediction literature.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-030-C03",
+    "paper_id": "PR-030",
+    "paper_title": "Methodological choices and clinical usefulness for machine l",
+    "category": "preprocessing",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 3,
+    "mlgg_gates": [
+      "missingness_policy_gate"
+    ],
+    "concern_text": "Unconvinced by multiple imputation of outcomes. Potential risk of introducing label noise. Authors should discuss this in the discussion.",
+    "author_response": "Added discussion of imputation risks. Results presented both with and without outcome imputation.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-030-C04",
+    "paper_id": "PR-030",
+    "paper_title": "Methodological choices and clinical usefulness for machine l",
+    "category": "reproducibility",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 9,
+    "mlgg_gates": [],
+    "concern_text": "Great that ML pipeline is available, but code is hard to read from a PDF. Please upload to GitHub.",
+    "author_response": "Code uploaded to GitHub repository.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-031-C01",
+    "paper_id": "PR-031",
+    "paper_title": "AI-guided patient stratification improves outcomes and effic",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Results are not very impressive — mainly the difference between sensitivity and specificity. Existing approaches show much better performance up to 97% accuracy. Technical contributions are limited.",
+    "author_response": "Clarified that the novelty is cross-dataset generalization (ADNI→AMARANTH without retraining), not raw accuracy. Added context for existing methods.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-031-C02",
+    "paper_id": "PR-031",
+    "paper_title": "AI-guided patient stratification improves outcomes and effic",
+    "category": "reporting",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "The most critical element — that the model was trained on ADNI and applied to AMARANTH without retraining — is not sufficiently emphasised. This represents the key contribution and should be made clear earlier.",
+    "author_response": "Restructured introduction and abstract to emphasize cross-dataset generalization upfront.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-031-C03",
+    "paper_id": "PR-031",
+    "paper_title": "AI-guided patient stratification improves outcomes and effic",
+    "category": "reporting",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "Since the true treatment effect in clinical trials is inherently unknown, further discussion of what evidence supports the model's consistency across datasets would strengthen the manuscript.",
+    "author_response": "Added discussion of external consistency evidence and limitations of post-hoc trial analysis.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-031-C04",
+    "paper_id": "PR-031",
+    "paper_title": "AI-guided patient stratification improves outcomes and effic",
+    "category": "reporting",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "Figures need axes labels and units. The outcomes and methodology are not reflecting the claim of interpretable AI model.",
+    "author_response": "Improved all figure labels and added interpretability analysis section.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-032-C01",
+    "paper_id": "PR-032",
+    "paper_title": "Multimodal deep learning for Alzheimer's disease dementia as",
+    "category": "clinical_utility",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 7,
+    "mlgg_gates": [],
+    "concern_text": "GPs usually do not have access to MRI scanner — one of the most important features is MRI-based. For clinical trials, biomarker evidence for amyloid pathology would be preferred but is not included.",
+    "author_response": "Added analysis of model performance without MRI and discussed deployment scenarios.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-032-C02",
+    "paper_id": "PR-032",
+    "paper_title": "Multimodal deep learning for Alzheimer's disease dementia as",
+    "category": "study_design",
+    "current_severity": "CRITICAL",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "Model trained on clinical diagnosis — up to 30% of individuals with clinical AD dementia do not have AD pathology. Comparison with clinicians reflects differences between new vs old clinicians, not model superiority. Also APOE is missing for non-AD cohorts — presence of APOE alone could predict AD vs non-AD almost perfectly.",
+    "author_response": "Added neuropathological validation subset and discussed diagnostic label noise. APOE missingness handled with explicit analysis.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-032-C03",
+    "paper_id": "PR-032",
+    "paper_title": "Multimodal deep learning for Alzheimer's disease dementia as",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Dementia vs non-dementia classification is trivial — diagnosis determined based on neuropsych test scores and MMSE, so it's circular that these features predict the diagnosis perfectly. The harder and more relevant task is AD vs non-AD dementias.",
+    "author_response": "Added focused analysis on AD vs non-AD subtypes and discussed the circular nature of the dementia vs non-dementia classification.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-032-C04",
+    "paper_id": "PR-032",
+    "paper_title": "Multimodal deep learning for Alzheimer's disease dementia as",
+    "category": "preprocessing",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 3,
+    "mlgg_gates": [],
+    "concern_text": "How were MRI scans harmonised across cohorts? How were cohort-specific missing data dealt with? APOE is missing in entire Parkinson and FTD cohorts — this creates a confound.",
+    "author_response": "Added MRI harmonization details and missing data handling methodology.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-032-C05",
+    "paper_id": "PR-032",
+    "paper_title": "Multimodal deep learning for Alzheimer's disease dementia as",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Unclear how external validation dataset was chosen. Manuscript mentions splitting into folds but explanation vague. How are AUC and other metrics independent of tuning and training?",
+    "author_response": "Clarified validation strategy with explicit held-out external datasets.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-033-C01",
+    "paper_id": "PR-033",
+    "paper_title": "AI-driven fusion of multimodal data for Alzheimer's disease ",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "calibration_dca_gate"
+    ],
+    "concern_text": "AUROC of 0.79/0.84 for amyloid/tau classification — should report calibration and net benefit analysis. Without these, clinical applicability cannot be assessed.",
+    "author_response": "Added calibration plots and DCA analysis.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-033-C02",
+    "paper_id": "PR-033",
+    "paper_title": "AI-driven fusion of multimodal data for Alzheimer's disease ",
+    "category": "external_validation",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [
+      "external_validation_gate"
+    ],
+    "concern_text": "Seven cohorts used but unclear how independent the external validation truly is. Need clear delineation of which cohorts used for development vs validation.",
+    "author_response": "Restructured to clearly separate 4 development cohorts from 3 validation cohorts.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-033-C03",
+    "paper_id": "PR-033",
+    "paper_title": "AI-driven fusion of multimodal data for Alzheimer's disease ",
+    "category": "study_design",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "The clinical utility depends on whether this replaces PET scanning. How does the model perform in the specific clinical scenario where PET is being considered but not yet obtained?",
+    "author_response": "Added analysis of model as PET pre-screening tool with cost-effectiveness comparison.",
+    "resolved": true
+  }
+]

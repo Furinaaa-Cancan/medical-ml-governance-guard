@@ -1,0 +1,98 @@
+[
+  {
+    "paper_id": "PR-093",
+    "paper_title": "Multiparametric MRI along with machine learning predicts prognosis and treatment response in pediatric low-grade glioma",
+    "pdf_path": "references/case-studies/nature_communications/PR-093_multiparametric_mri_along_with_machine_l_peer_review.pdf",
+    "pdf_size_mb": 3.5,
+    "affected_concern_ids": [
+      "PR-093-C01"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-093-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Pediatric brain tumors are rare. Sample size may limit model generalizability. Need multi-institutional validation.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-085",
+    "paper_title": "Multi-ancestry and multi-trait GWAS meta-analyses inform clinical risk prediction for systemic lupus erythematosus",
+    "pdf_path": "references/case-studies/nature_communications/PR-085_multi_ancestry_and_multi_trait_gwas_meta_peer_review.pdf",
+    "pdf_size_mb": 2.0,
+    "affected_concern_ids": [
+      "PR-085-C01"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-085-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "PRS predictive performance metrics beyond AUC needed for clinical utility assessment.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-076",
+    "paper_title": "Enhanced diagnosis of multi-drug-resistant microbes using group association modeling and machine learning",
+    "pdf_path": "references/case-studies/nature_communications/NC_MDR_microbe_ML_peer_review.pdf",
+    "pdf_size_mb": 1.7,
+    "affected_concern_ids": [
+      "PR-076-C01",
+      "PR-076-C02",
+      "PR-076-C03"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-076-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "What is the power loss attributable to GAM grouping strategy? Standard LMM detects false-positive cross-associations but may be more powered for new drugs. Must compare power of GAM vs LMM.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-076-C02",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Validation on S. aureus dataset is trivial — most regression/ML approaches would identify AMR genes given strong effect sizes. Must compare methods in terms of power, FPR, and total known AMR determinants identified.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-076-C03",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Should show PPV and Specificity of GAM+ML model alongside sensitivity. Results presented as sensitivity/specificity rather than AUC would be more informative.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-082",
+    "paper_title": "Performance of plasma biomarkers for diagnosis and prediction of dementia in a Brazilian cohort",
+    "pdf_path": "references/case-studies/nature_communications/NC_dementia_plasma_Brazil_peer_review.pdf",
+    "pdf_size_mb": 0.3,
+    "affected_concern_ids": [
+      "PR-082-C01",
+      "PR-082-C02"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-082-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Only 34% (49/145) have gold standard CSF biomarker data. How can plasma biomarker performance be evaluated without gold standard for most participants?",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-082-C02",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Very small sample (N=145). Subgroup sizes unclear. Limited power for biomarker comparison.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  }
+]

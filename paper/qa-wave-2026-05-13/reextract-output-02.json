@@ -1,0 +1,84 @@
+{
+  "agent": "reextract-02",
+  "ran_at_utc": "2026-05-16T00:00:00Z",
+  "papers_processed": [
+    {
+      "paper_id": "PR-074",
+      "pdf_pages_read": ["1-8"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-074-C01",
+          "new_author_response": "Authors clarified UIP is NOT considered synonymous with IPF, nor NSIP synonymous with CTD-ILD. They state the MSMC-ILD registry used consensus diagnosis from radiology, pathology, and pulmonology; pathologic/radiologic patterns were used as the classification basis rather than the disease classification system. No methodological change to the model; only conceptual clarification.",
+          "new_resolved": null,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-074-C02",
+          "new_author_response": "Authors state prognosis was assessed in terms of both overall survival AND treatment response. They added experiments using treatment features (medication label + therapeutic label): Transformer with treatment AUC=0.933 vs without treatment AUC=0.891 (p=0.603) (Figure R1). Treatment features improve performance non-significantly. Radiomic features, clinical history, and demographics drive prognosis.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-074-C03",
+          "new_author_response": "Authors clarified there are 165 quantitative CT features used in the 3-year survival model. They performed logistic regression and identified statistically significant features (p<0.05, Hosmer-Lemeshow p=0.435) including FormerSmoker, age, average timespan, therapeutic label, original_firstorder_InterquartileRange, original_firstorder_Variance, several GLCM/GLDM/GLRLM/GLSZM texture features, and CNN_feature_2/19. Detailed descriptions reported in Extended Data Table 4.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-104",
+      "pdf_pages_read": ["1-10", "19-26"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-104-C06",
+          "new_author_response": "Authors AGREED with the reviewer that the model predicts less well in mid-range probabilities. They added an acknowledgment to the manuscript (page 9, line 22): both AI HFpEF and H2FPEF models showed overestimation of risk in calibration; for the AI HFpEF model this overestimation was predominant in moderate-to-high probabilities, while H2FPEF showed overestimation across full spectrum (Supplemental Figure 2, Hosmer-Lemeshow both p<0.001). No model recalibration was performed; only a limitation/discussion addition.",
+          "new_resolved": null,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-080",
+      "pdf_pages_read": ["1-10"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-080-C01",
+          "new_author_response": "Authors added a dedicated table (Supplementary Table 2) summarizing multiple sensitivity-specificity operating points for TuFEst across training and validation cohorts, derived from different ML models. They expanded Discussion (lines 484-494) arguing higher sensitivity is essential for population-level screening, especially in Asian populations with dense breast tissue; TuFEst achieves clinically practical balance (specificity 0.783 training, 0.869 external validation).",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-080-C02",
+          "new_author_response": "Authors added Supplementary Table 6 comparing major breast-cancer early-detection approaches: mammography, ultrasound, mutation-based cfDNA, bisulfite/enzymatic/ONT methylation, and leading fragmentomic platforms (DELFI, CRAG, SPOT-MAS, cfFrag, GALYFRE, TAPS) - detailing blood-volume, workflow complexity, cost, and performance. References updated to include de Abreu et al., Liu et al., Jamshidi et al. NOTE: Galleri and CancerSEEK named by reviewer are not explicitly compared; covered indirectly via mutation/methylation MCED category.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-086",
+      "pdf_pages_read": ["1-10"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-086-C01",
+          "new_author_response": "Authors clarified that histopathological biopsy criteria as outlined in 2016 WHO classification are currently the gold standard for confirming PVRL; they corrected the manuscript's earlier inaccurate claim that no standardized protocol exists. Healthy controls were recruited from the same hospitals as PVRL patients and were matched by age and gender using a one-to-one matching strategy; no statistically significant differences in age/gender (P > 0.05, Tables S2-S3). New Figure S1 flowchart added.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-086-C02",
+          "new_author_response": "RESPONSE NOT FOUND in pages 1-10 of the rebuttal. The published Reviewer #1 list in the peer-review file ends at Point 10 (false-negative concern about gold standard not being available for all patients in validation cohorts), with no specific point matching the PPV/low-prevalence/clinical-utility concern as phrased. The original extraction may have mis-mapped this concern from a different source.",
+          "new_resolved": null,
+          "extraction_status": "RESPONSE_NOT_FOUND_IN_PDF"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_papers": 4,
+    "total_concerns_updated": 8,
+    "extracted_substantive": 7,
+    "not_found_in_pdf": 1
+  }
+}

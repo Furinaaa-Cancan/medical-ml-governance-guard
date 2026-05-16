@@ -1,0 +1,106 @@
+[
+  {
+    "paper_id": "PR-074",
+    "paper_title": "Interstitial lung disease diagnosis and prognosis using an AI system integrating longitudinal data",
+    "pdf_path": "references/case-studies/nature_communications/PR-074_interstitial_lung_disease_diagnosis_and__peer_review.pdf",
+    "pdf_size_mb": 4.2,
+    "affected_concern_ids": [
+      "PR-074-C01",
+      "PR-074-C02",
+      "PR-074-C03"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-074-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "ILD classified by radiological pattern (UIP, NSIP) not disease (IPF, CTD-ILD). In practice, patients classified by disease. Do authors consider UIP synonymous with IPF? This limits clinical applicability.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-074-C02",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Prognosis assessed as 3-year survival but also mentions treatment response evaluation — unclear if FVC decline in antifibrotic treatment was assessed. Which clinical features had highest prognostic value?",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-074-C03",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Discussion mentions quantitative CT information but no mention of quantitative CT analysis in the paper.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-104",
+    "paper_title": "External validation of artificial intelligence for detection of heart failure with preserved ejection fraction",
+    "pdf_path": "references/case-studies/nature_communications/104_HFpEF_external_validation_peer_review.pdf",
+    "pdf_size_mb": 1.9,
+    "affected_concern_ids": [
+      "PR-104-C06"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-104-C06",
+        "reviewer": "Reviewer #2",
+        "round": 1,
+        "concern_text": "Unexpected non-monotonic behavior: quartile 3 of AI HFpEF shows lower observed risk than quartile 2, indicating miscalibration and potential model behavior issue requiring explanation.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-080",
+    "paper_title": "Fragmentomic liquid biopsy enables early breast cancer detection, molecular subtyping and lymph node assessment",
+    "pdf_path": "references/case-studies/nature_communications/NC_breast_fragmentomics_peer_review.pdf",
+    "pdf_size_mb": 0.7,
+    "affected_concern_ids": [
+      "PR-080-C01",
+      "PR-080-C02"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-080-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Present sensitivity/specificity pairs at multiple thresholds. Discuss which metric is more critical for breast cancer detection clinical decisions.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-080-C02",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Comparisons with existing competitive methods (e.g., Galleri, CancerSEEK) not adequately addressed.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-086",
+    "paper_title": "A noninvasive machine learning model using a complete blood count for screening of primary vitreoretinal lymphoma",
+    "pdf_path": "references/case-studies/nature_communications/NC_lymphoma_CBC_ML_peer_review.pdf",
+    "pdf_size_mb": 0.7,
+    "affected_concern_ids": [
+      "PR-086-C01",
+      "PR-086-C02"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-086-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Gold standard diagnostic protocol (2016 WHO classification biopsy) choice should be clarified. How were healthy controls matched to cases?",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-086-C02",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Very rare disease — PPV will be extremely low in community screening even with high AUC. Clinical utility of screening unclear.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  }
+]

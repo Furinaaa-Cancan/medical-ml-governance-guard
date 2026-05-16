@@ -1,0 +1,144 @@
+{
+  "agent": "sev-02",
+  "batch_size": 65,
+  "proposed_changes": [
+    {
+      "concern_id": "PR-009-C03",
+      "current_severity": "HIGH",
+      "proposed_severity": "CRITICAL",
+      "rationale": "Claiming prospective validation when validation was actually retrospective on previously collected data is a misrepresentation of study design that directly affects scientific validity (MLGG dimension 1 cohort/design integrity). Misleading claim about validation type can constitute undisclosed test-tuning concern if model development overlapped with the data collection period (Mamba introduced 2023, data 2021-2023)."
+    },
+    {
+      "concern_id": "PR-009-C05",
+      "current_severity": "MEDIUM",
+      "proposed_severity": "LOW",
+      "rationale": "Incorrect novelty claim is a polish/terminology issue, not methodological. Easily corrected by rewording; does not affect the validity of reported results."
+    },
+    {
+      "concern_id": "PR-010-C02",
+      "current_severity": "HIGH",
+      "proposed_severity": "CRITICAL",
+      "rationale": "Using a random split over 20 years of EHR data when temporal drift in medical practice is well-documented constitutes a form of temporal leakage / unrealistic deployment estimate — directly violates MLGG split protocol assumptions. The concern is not merely 'should do temporal split too' but that the original estimate is fundamentally not deployment-relevant."
+    },
+    {
+      "concern_id": "PR-010-C04",
+      "current_severity": "MEDIUM",
+      "proposed_severity": "HIGH",
+      "rationale": "Death rate 1.3% with no PR curve / AUPRC for the rare-outcome endpoint falls squarely into the rubric's HIGH category (class-imbalance not handled on rare outcomes). AUROC alone is well-known to be optimistic at this prevalence."
+    },
+    {
+      "concern_id": "PR-011-C04",
+      "current_severity": "HIGH",
+      "proposed_severity": "MEDIUM",
+      "rationale": "Patient flow, consecutiveness, and missing-data handling are reporting completeness issues (MLGG dim 8). They affect interpretation but the underlying methodology is not broken; cleanly addressed by adding flow diagrams. Fits MEDIUM (should-fix-but-not-invalidate)."
+    },
+    {
+      "concern_id": "PR-013-C02",
+      "current_severity": "HIGH",
+      "proposed_severity": "MEDIUM",
+      "rationale": "Adherence/retention reporting is a completeness issue, not a methodological flaw in the model. Missing wear-time stats are MEDIUM polish/clarification rather than HIGH methodological risk."
+    },
+    {
+      "concern_id": "PR-014-C01",
+      "current_severity": "CRITICAL",
+      "proposed_severity": "MEDIUM",
+      "rationale": "The reviewer is challenging the motivation/premise (whether leakage exists in classification models), not pointing to an actual data-leakage flaw in the work. This is a framing/justification critique, not a scientific-validity threat. No CRITICAL trigger from rubric (no MLGG-F02/S01/fabrication/test tuning)."
+    },
+    {
+      "concern_id": "PR-015-C02",
+      "current_severity": "CRITICAL",
+      "proposed_severity": "HIGH",
+      "rationale": "Reproducibility (code/data availability) is critically important but does not by itself invalidate the scientific claims. Rubric reserves CRITICAL for scientific-validity threats (leakage, F02, S01, fabrication, undisclosed tuning). Missing code/data fits HIGH — methodologically important and fixable by release."
+    },
+    {
+      "concern_id": "PR-016-C01",
+      "current_severity": "CRITICAL",
+      "proposed_severity": "HIGH",
+      "rationale": "Overparameterization with 117 candidate features and 87 cases is a serious overfitting / selection-on-test risk but the rubric reserves CRITICAL for data leakage, MLGG-F02 future info, MLGG-S01 cross-split, fabricated cohort, or undisclosed test-tuning. This is best classified as HIGH (methodologically important but fixable by regularization/nested CV)."
+    },
+    {
+      "concern_id": "PR-016-C04",
+      "current_severity": "HIGH",
+      "proposed_severity": "CRITICAL",
+      "rationale": "If Figure 4d/7d are genuinely training-set performance presented as prognostic evidence, that constitutes evaluation on data used in fitting — equivalent to test-set contamination in a prognostic claim. The reviewer flagged a fundamental validity concern; until clarified as CV, it is CRITICAL. Author response says they relabeled as CV — but the original-paper concern severity should reflect the pre-fix risk."
+    },
+    {
+      "concern_id": "PR-018-C04",
+      "current_severity": "HIGH",
+      "proposed_severity": "MEDIUM",
+      "rationale": "Adding LDpred2 baseline + runtime comparison is a model-comparison completeness ask. Author already shows reasonable comparators; this is enhancement rather than a methodological deficiency. Fits MEDIUM (missing ablation)."
+    },
+    {
+      "concern_id": "PR-019-C01",
+      "current_severity": "HIGH",
+      "proposed_severity": "MEDIUM",
+      "rationale": "Lacking factor-correlation analysis to explain prediction-quality variance across 457 traits is missing supporting analysis rather than a flaw in the primary results. Better fits MEDIUM (missing ablation/subgroup analysis)."
+    },
+    {
+      "concern_id": "PR-020-C02",
+      "current_severity": "CRITICAL",
+      "proposed_severity": "HIGH",
+      "rationale": "Clinical-utility / harm concern about over-treatment is critically important clinically but does not match rubric CRITICAL triggers (leakage, F02, S01, fabrication, undisclosed tuning). It is a clinical_metrics_gate concern about clinical actionability — fits HIGH (methodologically important, fixable by stratifying by clinical significance and revising workflow as authors did)."
+    }
+  ],
+  "no_change": [
+    "PR-008-C07",
+    "PR-008-C08",
+    "PR-009-C01",
+    "PR-009-C02",
+    "PR-009-C04",
+    "PR-009-C06",
+    "PR-010-C01",
+    "PR-010-C03",
+    "PR-010-C05",
+    "PR-010-C06",
+    "PR-010-C07",
+    "PR-011-C01",
+    "PR-011-C02",
+    "PR-011-C03",
+    "PR-011-C05",
+    "PR-011-C06",
+    "PR-012-C01",
+    "PR-012-C02",
+    "PR-012-C03",
+    "PR-012-C04",
+    "PR-012-C05",
+    "PR-012-C06",
+    "PR-012-C07",
+    "PR-013-C01",
+    "PR-013-C03",
+    "PR-013-C04",
+    "PR-013-C05",
+    "PR-013-C06",
+    "PR-014-C02",
+    "PR-014-C03",
+    "PR-014-C04",
+    "PR-015-C01",
+    "PR-015-C03",
+    "PR-016-C02",
+    "PR-016-C03",
+    "PR-016-C05",
+    "PR-016-C06",
+    "PR-016-C07",
+    "PR-017-C01",
+    "PR-017-C02",
+    "PR-017-C03",
+    "PR-017-C04",
+    "PR-017-C05",
+    "PR-018-C01",
+    "PR-018-C02",
+    "PR-018-C03",
+    "PR-018-C05",
+    "PR-019-C02",
+    "PR-019-C03",
+    "PR-019-C04",
+    "PR-019-C05",
+    "PR-020-C01"
+  ],
+  "summary": {
+    "total": 65,
+    "kept_same": 52,
+    "downgraded": 9,
+    "upgraded": 4
+  }
+}

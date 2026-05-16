@@ -1,0 +1,457 @@
+[
+  {
+    "concern_id": "PR-034-C01",
+    "paper_id": "PR-034",
+    "current_severity": "CRITICAL",
+    "proposed_severity": "HIGH",
+    "rationale": "External validation transferability is methodologically important and fixable, but missing transferable cutoffs does not invalidate scientific validity in the same way leakage/future-info would. Fits HIGH (no external validation transferability)."
+  },
+  {
+    "concern_id": "PR-034-C02",
+    "paper_id": "PR-034",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Multiple-comparison correction and confounder adjustment are methodologically important and fixable. HIGH is appropriate."
+  },
+  {
+    "concern_id": "PR-034-C03",
+    "paper_id": "PR-034",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Reclassification stability with potential clinical harm is methodologically important — fixable via reclassification analysis. HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-034-C04",
+    "paper_id": "PR-034",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Open-access repository deposition is a reproducibility/polish issue, should-fix but does not invalidate. MEDIUM appropriate."
+  },
+  {
+    "concern_id": "PR-034-C05",
+    "paper_id": "PR-034",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Figure placement and de-emphasizing unadjusted results is a reporting/polish issue. MEDIUM appropriate."
+  },
+  {
+    "concern_id": "PR-035-C01",
+    "paper_id": "PR-035",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Missingness policy and complete-case vs imputed handling are methodologically important and fixable. HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-035-C02",
+    "paper_id": "PR-035",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Center-variable stability/generalizability is methodologically important; leave-one-center-out is the fix. HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-035-C03",
+    "paper_id": "PR-035",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Cohort exclusion criteria affecting target population is methodologically important. Sensitivity analyses address it. HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-035-C04",
+    "paper_id": "PR-035",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Informative missingness with imputed normals could introduce systematic bias affecting validity but is fixable with indicators. HIGH appropriate (borderline CRITICAL but not invalidating)."
+  },
+  {
+    "concern_id": "PR-035-C05",
+    "paper_id": "PR-035",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "HIGH",
+    "rationale": "CI methodology + risk of false-positive findings from iterative testing is a methodological concern (E01 — CI matrix gate). Elevating to HIGH."
+  },
+  {
+    "concern_id": "PR-035-C06",
+    "paper_id": "PR-035",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "AKI incidence plausibility + duplicate patient handling — duplicate handling could touch S01 but framed as reporting clarification. MEDIUM appropriate."
+  },
+  {
+    "concern_id": "PR-036-C01",
+    "paper_id": "PR-036",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Prospective imputation strategy is methodologically important — LOCF/mean imputation real-time policy is the fix. HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-036-C02",
+    "paper_id": "PR-036",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Feature importance labeling and duplicate log-transformed feature is interpretation/reporting clarity. MEDIUM appropriate."
+  },
+  {
+    "concern_id": "PR-036-C03",
+    "paper_id": "PR-036",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "Defining technical terms and explaining oversampling is terminology/clarification polish, not methodological. Downgrade to LOW."
+  },
+  {
+    "concern_id": "PR-036-C04",
+    "paper_id": "PR-036",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Discussion of implementation cost and clinical impact of drift is a should-fix discussion-level concern. MEDIUM appropriate."
+  },
+  {
+    "concern_id": "PR-037-C01",
+    "paper_id": "PR-037",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Adding non-LR model demonstrations is should-fix but not invalidating — the FL system still works with LR. MEDIUM more proportionate."
+  },
+  {
+    "concern_id": "PR-037-C02",
+    "paper_id": "PR-037",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Novelty/contribution framing is editorial/reporting concern, not methodological invalidity. Downgrade to MEDIUM."
+  },
+  {
+    "concern_id": "PR-037-C03",
+    "paper_id": "PR-037",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Benchmark comparison breadth is should-fix but does not invalidate the FL method itself. MEDIUM more proportionate."
+  },
+  {
+    "concern_id": "PR-037-C04",
+    "paper_id": "PR-037",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Incomplete metric panel — E02 evaluation quality gate. MEDIUM appropriate."
+  },
+  {
+    "concern_id": "PR-037-C05",
+    "paper_id": "PR-037",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "Demographics table is reporting/polish. Downgrade to LOW."
+  },
+  {
+    "concern_id": "PR-038-C01",
+    "paper_id": "PR-038",
+    "current_severity": "CRITICAL",
+    "proposed_severity": "HIGH",
+    "rationale": "Lack of clinical impact is a serious clinical utility concern but not a scientific validity issue (the trial honestly reports null effect). Reframing addresses it. HIGH more proportionate."
+  },
+  {
+    "concern_id": "PR-038-C02",
+    "paper_id": "PR-038",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Implementation transparency is methodologically important for a clinical trial — TRIPOD-style reporting. HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-038-C03",
+    "paper_id": "PR-038",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Outcome timeframe and risk-zone suggestions are should-fix future direction. MEDIUM appropriate."
+  },
+  {
+    "concern_id": "PR-039-C01",
+    "paper_id": "PR-039",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Cohort composition (HFpEF dominant) is should-fix via subtype analysis but doesn't invalidate the broader claim. MEDIUM more proportionate."
+  },
+  {
+    "concern_id": "PR-039-C02",
+    "paper_id": "PR-039",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "TRIPOD checklist + outcome definition clarification is reporting compliance, should-fix. MEDIUM more proportionate."
+  },
+  {
+    "concern_id": "PR-039-C03",
+    "paper_id": "PR-039",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "MAR justification and MNAR sensitivity for biomarker missingness affects validity of estimates. HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-039-C04",
+    "paper_id": "PR-039",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "HIGH",
+    "rationale": "External cohort differs substantially in age and mortality — generalizability and calibration are methodologically important (external validation gate). Elevating to HIGH."
+  },
+  {
+    "concern_id": "PR-039-C05",
+    "paper_id": "PR-039",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Missing ablation/comparison across ensemble components. MEDIUM appropriate."
+  },
+  {
+    "concern_id": "PR-039-C06",
+    "paper_id": "PR-039",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "Data source clarification + missing data summary is reporting polish. Downgrade to LOW."
+  },
+  {
+    "concern_id": "PR-041-C01",
+    "paper_id": "PR-041",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Lacking outcome-association evidence is methodologically important to claim it's an 'aging clock'. HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-041-C02",
+    "paper_id": "PR-041",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Device heterogeneity, PPG validation, wear-time handling are methodologically important to scientific validity. HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-041-C03",
+    "paper_id": "PR-041",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Interpretability of individual age gap is should-fix but doesn't invalidate. MEDIUM more proportionate."
+  },
+  {
+    "concern_id": "PR-041-C04",
+    "paper_id": "PR-041",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "External validation gate — methodologically important. HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-041-C05",
+    "paper_id": "PR-041",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "Title wording is polish/clarification. Downgrade to LOW."
+  },
+  {
+    "concern_id": "PR-042-C01",
+    "paper_id": "PR-042",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Wrong time scale in survival analysis is methodologically important and fixable. HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-042-C02",
+    "paper_id": "PR-042",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Multiple-testing correction across cancer entities is methodologically important. HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-042-C03",
+    "paper_id": "PR-042",
+    "current_severity": "HIGH",
+    "proposed_severity": "CRITICAL",
+    "rationale": "Using future diabetes status to stratify at baseline is **future-information leakage** (F02 violation). This is a scientific-validity issue. Elevate to CRITICAL."
+  },
+  {
+    "concern_id": "PR-042-C04",
+    "paper_id": "PR-042",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "HIGH",
+    "rationale": "Comparing BMI-adjusted vs unadjusted in different populations confounds the adjustment effect — methodologically important. Elevate to HIGH."
+  },
+  {
+    "concern_id": "PR-042-C05",
+    "paper_id": "PR-042",
+    "current_severity": "CRITICAL",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Missing metabolic syndrome comparison is a framing/literature gap, not scientific validity. Should-fix discussion-level concern. Downgrade to MEDIUM."
+  },
+  {
+    "concern_id": "PR-042-C06",
+    "paper_id": "PR-042",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "HIGH",
+    "rationale": "Failure to adjust/stratify by smoking for lung cancer is a major confounder issue — methodologically important. Elevate to HIGH."
+  },
+  {
+    "concern_id": "PR-043-C01",
+    "paper_id": "PR-043",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Calibration plots are required for TRIPOD-AI adherence (calibration gate, E02). HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-043-C02",
+    "paper_id": "PR-043",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Per-clinic AUC with CI and paired DeLong test — methodologically important for the central claim. HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-043-C03",
+    "paper_id": "PR-043",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "Terminology, descriptive table, limitations section are reporting polish. Downgrade to LOW."
+  },
+  {
+    "concern_id": "PR-043-C04",
+    "paper_id": "PR-043",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "Tone/commercial language is editorial polish. Downgrade to LOW."
+  },
+  {
+    "concern_id": "PR-043-C05",
+    "paper_id": "PR-043",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Per-center transparency is should-fix incomplete reporting. MEDIUM appropriate."
+  },
+  {
+    "concern_id": "PR-044-C01",
+    "paper_id": "PR-044",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Outcome scope (MRSA vs broader infection) is a clinical utility/framing concern, not validity. Downgrade to MEDIUM."
+  },
+  {
+    "concern_id": "PR-044-C02",
+    "paper_id": "PR-044",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Proxy definition for clinical judgment + direct AUROC comparison is methodologically important to the central claim. HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-044-C03",
+    "paper_id": "PR-044",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Limitations of antibiotic proxy + sensitivity analysis — should-fix. MEDIUM appropriate."
+  },
+  {
+    "concern_id": "PR-045-C01",
+    "paper_id": "PR-045",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Contradictory results (age importance) and ancestry vs ethnicity confusion affect interpretation of the target and feature attribution. HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-045-C02",
+    "paper_id": "PR-045",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Baseline comparison and fairness analysis across ancestries are methodologically important. HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-045-C03",
+    "paper_id": "PR-045",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Ancestry classification methodology is should-fix clarification with substantive impact. MEDIUM appropriate."
+  },
+  {
+    "concern_id": "PR-045-C04",
+    "paper_id": "PR-045",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Complete-case reporting and sensitivity analysis. MEDIUM appropriate."
+  },
+  {
+    "concern_id": "PR-048-C01",
+    "paper_id": "PR-048",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Disease specificity of metabolite biomarkers is methodologically important to the diagnostic claim. HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-048-C02",
+    "paper_id": "PR-048",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "28 variables with only 34 events is a severe overfitting risk (events-per-variable ~1.2). Methodologically important. HIGH appropriate (borderline CRITICAL but addressable via class-weighting/validation)."
+  },
+  {
+    "concern_id": "PR-048-C03",
+    "paper_id": "PR-048",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Confounders (diet, comorbidity) and FDR — should-fix. MEDIUM appropriate."
+  },
+  {
+    "concern_id": "PR-048-C04",
+    "paper_id": "PR-048",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Analytical methodology transparency for metabolomics — should-fix reproducibility. MEDIUM appropriate."
+  },
+  {
+    "concern_id": "PR-049-C01",
+    "paper_id": "PR-049",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Narrative framing/novelty positioning is editorial. Downgrade to MEDIUM."
+  },
+  {
+    "concern_id": "PR-049-C02",
+    "paper_id": "PR-049",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Treatment-induced variance not modeled could bias predictions — methodologically important. HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-049-C03",
+    "paper_id": "PR-049",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Standalone cfDNA prognostic comparison is should-fix completeness. MEDIUM appropriate."
+  },
+  {
+    "concern_id": "PR-050-C01",
+    "paper_id": "PR-050",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Panel-sequencing applicability is clinical utility/future work — should-fix but doesn't invalidate WGS-based results. Downgrade to MEDIUM."
+  },
+  {
+    "concern_id": "PR-050-C02",
+    "paper_id": "PR-050",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Prognostic vs predictive biomarker distinction is methodologically important to the central treatment-response claim. HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-050-C03",
+    "paper_id": "PR-050",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Figure readability/cohort comparison reporting is should-fix transparency. Downgrade to MEDIUM."
+  },
+  {
+    "concern_id": "PR-050-C04",
+    "paper_id": "PR-050",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Feature reduction + classifier choice justification is should-fix completeness. MEDIUM appropriate."
+  },
+  {
+    "concern_id": "PR-051-C01",
+    "paper_id": "PR-051",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Benchmarking against methods with different timepoints/outcomes is methodologically important — apples-to-pears comparison undermines the central comparative claim. HIGH appropriate."
+  },
+  {
+    "concern_id": "PR-051-C02",
+    "paper_id": "PR-051",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Adding additional benchmark comparisons — should-fix completeness. MEDIUM appropriate."
+  }
+]

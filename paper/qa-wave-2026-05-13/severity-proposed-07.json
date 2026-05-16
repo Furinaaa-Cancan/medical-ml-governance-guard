@@ -1,0 +1,356 @@
+[
+  {
+    "concern_id": "PR-105-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "LOW",
+    "rationale": "Terminology issue (risk vs probability for 2-yr diagnosis proxy); does not affect scientific validity, only clarity of clinical purpose."
+  },
+  {
+    "concern_id": "PR-105-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "MNAR EHR missingness with imputation that does not address mechanism is methodologically important; reporting added but bias remains."
+  },
+  {
+    "concern_id": "PR-105-C03",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Closed-source coefficients hinder independent validation but do not invalidate findings; reproducibility deficit fits MEDIUM."
+  },
+  {
+    "concern_id": "PR-105-C04",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "Reorganization of calibration/DCA into main text is presentation polish; the metrics existed in supplements."
+  },
+  {
+    "concern_id": "PR-105-C05",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Variable-selection method choice (P-value retention vs automated) is a should-fix methodological concern but does not invalidate the model."
+  },
+  {
+    "concern_id": "PR-105-C06",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Incremental value of blood-test model under-discussed; weak clinical interpretation, not a validity issue."
+  },
+  {
+    "concern_id": "PR-106-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Architecture-motivation gap is a model-selection audit issue (no ablation showing SSM advantage); fixable and addressed with sensitivity analysis, not validity-threatening."
+  },
+  {
+    "concern_id": "PR-106-C02",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Bootstrap CI captures only sample uncertainty and binary-window dichotomy is a known limitation; incomplete metric panel fits MEDIUM."
+  },
+  {
+    "concern_id": "PR-106-C03",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Inadequate baseline + compute discussion is a model-selection audit gap (should-fix, not invalidating)."
+  },
+  {
+    "concern_id": "PR-106-C04",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Lacking clinical adjudication for rare-event prospective alerts is methodologically important for utility claims; fixable and addressed."
+  },
+  {
+    "concern_id": "PR-106-C05",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "Terminology dispute around 'prospectively validated' for an architecture postdating data collection; clarification/polish, not scientific validity."
+  },
+  {
+    "concern_id": "PR-106-C06",
+    "current_severity": "LOW",
+    "proposed_severity": "LOW",
+    "rationale": "Reporting/documentation polish on README and HP-tuning approach; appropriately LOW."
+  },
+  {
+    "concern_id": "PR-107-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "No external validation for CN-S cohort is methodologically important and fits the HIGH definition (no external validation)."
+  },
+  {
+    "concern_id": "PR-107-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Missing baseline tables, exclusion accounting, and positive-rate reporting; serious reporting gap but did not introduce leakage/validity error."
+  },
+  {
+    "concern_id": "PR-107-C03",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Lack of comparable DL benchmarks is a model-selection audit gap; fixable (added GRU-D/SeFT) and does not invalidate results."
+  },
+  {
+    "concern_id": "PR-107-C04",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "HIGH",
+    "rationale": "Weakly-labeled propagation (MAP@1 0.71-0.79) cascading into downstream training is a real noisy-label risk; methodologically important for a labeling-driven pipeline."
+  },
+  {
+    "concern_id": "PR-107-C05",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "Reporting hyperparameters is reproducibility polish; resolved by adding section."
+  },
+  {
+    "concern_id": "PR-107-C06",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "NLP pipeline / ontology standardization documentation is a feature-engineering audit gap; should-fix, not invalidating."
+  },
+  {
+    "concern_id": "PR-108-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Discovery/validation split by preterm vs term risks biological confounding of model; pooling re-analysis dropped external AUC slightly, confirming concern; wrong-split issue fits HIGH."
+  },
+  {
+    "concern_id": "PR-108-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "n=13-15 effective cases for multivariable modeling is severe underpowering with stability implications; methodologically important."
+  },
+  {
+    "concern_id": "PR-108-C03",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "Omission of one baseline (AdaBoost) is minor model-selection audit polish; easily added."
+  },
+  {
+    "concern_id": "PR-108-C04",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "'Core genes' terminology issue resolved by renaming to 'shared genes'; clarification/polish."
+  },
+  {
+    "concern_id": "PR-108-C05",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Failure to leverage longitudinal sampling is a missing-analysis gap; should-fix-not-invalidate."
+  },
+  {
+    "concern_id": "PR-108-C06",
+    "current_severity": "LOW",
+    "proposed_severity": "LOW",
+    "rationale": "pAUC vs full AUC preference is metric-choice polish; appropriately LOW."
+  },
+  {
+    "concern_id": "PR-109-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "CRITICAL",
+    "rationale": "Same biobank used for GWAS training weights and PheWAS evaluation is a clear data-leakage / overlap issue threatening validity of CC-PRS signal; fits CRITICAL data-leakage definition."
+  },
+  {
+    "concern_id": "PR-109-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Ancestry portability/fairness gap with non-European samples too small is methodologically important; external validation/fairness concern."
+  },
+  {
+    "concern_id": "PR-109-C03",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "Adding newer comparators is incremental novelty polish, not invalidating."
+  },
+  {
+    "concern_id": "PR-109-C04",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Missing tuning grid/software versions/baseline code limits reproducibility; should-fix."
+  },
+  {
+    "concern_id": "PR-109-C05",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Restrictive preclinical-stage definition (RF+/ANA+ only) narrows applicability; cohort-definition concern, not validity-breaking."
+  },
+  {
+    "concern_id": "PR-109-C06",
+    "current_severity": "LOW",
+    "proposed_severity": "LOW",
+    "rationale": "CI estimation method documentation; appropriately LOW."
+  },
+  {
+    "concern_id": "PR-110-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Nurse-judgment patient selection without documented criteria is strong selection bias; methodologically important for cohort definition."
+  },
+  {
+    "concern_id": "PR-110-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "11-17 deterioration events is grossly insufficient to validate a deep-learning predictor; effective feasibility-study status is methodologically important."
+  },
+  {
+    "concern_id": "PR-110-C03",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Missing calibration after heavy class rebalancing is a clear calibration gap with deployment implications; fits HIGH (missing calibration)."
+  },
+  {
+    "concern_id": "PR-110-C04",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "HIGH",
+    "rationale": "0.3%->5% positive rebalancing distorts posteriors and risks leakage if sampling crosses splits; calibration+leakage risk warrants HIGH."
+  },
+  {
+    "concern_id": "PR-110-C05",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "HIGH",
+    "rationale": "Same-institution alternate-device 'prospective' validation is effectively no true external validation; fits HIGH (no external validation)."
+  },
+  {
+    "concern_id": "PR-110-C06",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Missing TRIPOD/MI-CLAIM compliance, flow diagram, and 17 vs 11 discrepancy are reporting issues, should-fix."
+  },
+  {
+    "concern_id": "PR-111-C01",
+    "current_severity": "CRITICAL",
+    "proposed_severity": "CRITICAL",
+    "rationale": "All-combinations search evaluated on 25% test set turns test into second training step; classic multiple-testing/tuning leakage threatening validity. Fits CRITICAL."
+  },
+  {
+    "concern_id": "PR-111-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Unspecified LASSO CV, mislabeled 'linear' vs logistic, missing software details; serious reporting+reproducibility gap but not validity-threatening once disclosed."
+  },
+  {
+    "concern_id": "PR-111-C03",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Dual imputation thresholds without rationale plus >70% missingness in selected markers is preprocessing-driven spurious-biomarker risk; methodologically important."
+  },
+  {
+    "concern_id": "PR-111-C04",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "No independent validation cohort beyond 25% split is a clear external-validation gap; fits HIGH."
+  },
+  {
+    "concern_id": "PR-111-C05",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Missing HIV/malnutrition subgroup analyses given significant imbalance is a fairness/confounding gap; should-fix."
+  },
+  {
+    "concern_id": "PR-111-C06",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Reporting only logistic with other methods 'data not shown' is a model-selection audit + reporting-bias concern; should-fix."
+  },
+  {
+    "concern_id": "PR-112-C01",
+    "current_severity": "CRITICAL",
+    "proposed_severity": "HIGH",
+    "rationale": "Sharp external AUC drop (0.88->0.63-0.68) contradicting robustness claim is a severe generalization+reporting issue; methodologically important and fixable via reframing; not a fabricated-cohort/leakage-level CRITICAL."
+  },
+  {
+    "concern_id": "PR-112-C02",
+    "current_severity": "CRITICAL",
+    "proposed_severity": "HIGH",
+    "rationale": "Very small Validation 2 cohort with balanced down-sampling + LOOCV yields high-variance estimates confounded by technical differences; methodologically important sample-size + split concern, not invalidating per se."
+  },
+  {
+    "concern_id": "PR-112-C03",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Severe aspirin-prophylaxis imbalance (71%/53% cases vs 7.6% controls) risks signature reflecting treatment rather than disease; methodologically important confounding concern."
+  },
+  {
+    "concern_id": "PR-112-C04",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Case-control vs case-cohort design risks optimism in population deployment; should-fix limitation; addressed via discussion paragraph and future trial."
+  },
+  {
+    "concern_id": "PR-112-C05",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "HIGH",
+    "rationale": "Hiding weakened external AUCs (0.63, 0.68) from abstract while touting robustness is selective reporting that materially misleads readers; reporting-bias issue elevated to HIGH."
+  },
+  {
+    "concern_id": "PR-113-C01",
+    "current_severity": "CRITICAL",
+    "proposed_severity": "CRITICAL",
+    "rationale": "SMOTE applied on pooled data before 7:3 split leaks synthetic samples into test, inflating AUC 0.93; classic split+leakage violation. Fits CRITICAL."
+  },
+  {
+    "concern_id": "PR-113-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Missing DeLong/CI comparisons make superiority claims unsupported but underlying validity intact; incomplete metric panel fits MEDIUM."
+  },
+  {
+    "concern_id": "PR-113-C03",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "No prospective real-time validation of SepsisFormer and unvalidated transcriptomic biomarkers; external-validation gap, methodologically important."
+  },
+  {
+    "concern_id": "PR-113-C04",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Missing component ablations and MMID-SMOTE novelty rationale; model-selection audit gap, should-fix."
+  },
+  {
+    "concern_id": "PR-113-C05",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Unclear rationale for 7-variable SMART and overlapping clustering analyses is a feature-engineering audit issue; should-fix."
+  },
+  {
+    "concern_id": "PR-113-C06",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Code unavailability at submission with pseudocode-only is a reproducibility gap; should-fix, resolved over rounds."
+  },
+  {
+    "concern_id": "PR-114-C01",
+    "current_severity": "CRITICAL",
+    "proposed_severity": "HIGH",
+    "rationale": "Outcome definition confounds prognosis vs diagnosis and SOFA>=2 labeling inconsistency across pre/post-Sepsis-3 cohorts is a serious definition-variable issue, but the label is documented and reconcilable; methodologically important rather than fabricated/leaking."
+  },
+  {
+    "concern_id": "PR-114-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "AUROC 0.69 / NPV 67% at true T0 undermines ED point-of-care claim; clinical-utility gap is methodologically important for deployment claims."
+  },
+  {
+    "concern_id": "PR-114-C03",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Under-representation of sepsis mimickers (15-18% of suspected-sepsis cohorts) biases specificity estimates; cohort-composition issue is methodologically important."
+  },
+  {
+    "concern_id": "PR-114-C04",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "HIGH",
+    "rationale": "Refitting six-gene signature across ED/ICU/multi-country cohorts without clear separation risks tuning leakage across cohorts; elevated given direct tuning-leakage implication."
+  },
+  {
+    "concern_id": "PR-114-C05",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Independence of 15 'external' datasets and HKG stability documentation is an external-validation completeness issue; should-fix, addressed."
+  },
+  {
+    "concern_id": "PR-114-C06",
+    "current_severity": "LOW",
+    "proposed_severity": "LOW",
+    "rationale": "Deeper mechanistic discussion and softening of overreach claims is interpretation/polish; appropriately LOW."
+  }
+]

@@ -1,0 +1,114 @@
+[
+  {
+    "paper_id": "PR-075",
+    "paper_title": "Deep learning of left atrial structure and function provides link to atrial fibrillation risk",
+    "pdf_path": "references/case-studies/nature_communications/NC_LA_AF_risk_DL_peer_review.pdf",
+    "pdf_size_mb": 3.6,
+    "affected_concern_ids": [
+      "PR-075-C01",
+      "PR-075-C02"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-075-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Is it necessary to adjust cox models for height AND weight when adjusting for BMI? Should use BSA-indexed LA measurements for clinical relevance.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-075-C02",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "More details needed on training/test set for abnormal contraction pattern model. Performance metrics (sensitivity/specificity) not provided.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-090",
+    "paper_title": "Cell-free DNA testing for detection and prognosis prediction of pancreatic cancer",
+    "pdf_path": "references/case-studies/nature_communications/PR-090_cell_free_dna_testing_for_detection_and__peer_review.pdf",
+    "pdf_size_mb": 2.0,
+    "affected_concern_ids": [
+      "PR-090-C01"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-090-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "External validation cohort characteristics and size should be clearly reported. Performance in early-stage pancreatic cancer is critical but may be limited.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-078",
+    "paper_title": "AI-enhanced integration of genetic and medical imaging data for risk assessment of Type 2 diabetes",
+    "pdf_path": "references/case-studies/nature_communications/NC_T2D_genetic_imaging_AI_peer_review.pdf",
+    "pdf_size_mb": 1.6,
+    "affected_concern_ids": [
+      "PR-078-C01",
+      "PR-078-C02",
+      "PR-078-C03"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-078-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "T2D case/control definition problematic: someone self-reported no T2D + GLU-AC<100 but HbA1c>6.5% would be classified as control. T2D definition differs between line 211 and Figure 2.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-078-C02",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Genetic-centric and genetic-imaging analyses used different statistical approaches. Is AUC comparison fair with different model types? Over 100 imaging variables makes clinical applicability questionable.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-078-C03",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Early detection analysis only selects women and age threshold of 59 — these selections come from nowhere. No reasoning provided. Comment on generalizability to males.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-077",
+    "paper_title": "Integration of clinical, pathological, radiological, and transcriptomic data improves prediction for first-line immunotherapy outcome in metastatic NSCLC",
+    "pdf_path": "references/case-studies/nature_communications/NC_NSCLC_immunotherapy_multi_peer_review.pdf",
+    "pdf_size_mb": 0.3,
+    "affected_concern_ids": [
+      "PR-077-C01",
+      "PR-077-C02",
+      "PR-077-C03"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-077-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Figure 3: multimodal predictions not statistically significantly better than unimodal RNA data alone. Must show the multimodal approach surpasses previously established transcriptomic-only models.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-077-C02",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Framework for multimodal survival/prognosis prediction is not novel — many prior studies (Rami 2022, Lipkova 2022, Wang 2023). Authors only applied existing algorithms, raising concerns about novelty.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-077-C03",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Results are nothing more than a case study. Urgent need to show how multimodal data can be used as a predictive biomarker. Feature importance analysis in Results is not comprehensive enough.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  }
+]

@@ -1,0 +1,90 @@
+{
+  "agent": "reextract-07",
+  "ran_at_utc": "2026-05-16T00:00:00Z",
+  "papers_processed": [
+    {
+      "paper_id": "PR-092",
+      "pdf_pages_read": ["1-8"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-092-C01",
+          "new_author_response": "Authors performed head-to-head experiments comparing all three approaches: CAMIL regression, CAMIL classification, and Graziani et al. regression across all proposed experimental tasks. Results consistently show CAMIL regression outperforms Graziani regression. New findings added to Results (p5, r144-156; p6, r203-211, r227-229; p7, r282-286), Discussion (p8, r304, r325, r334-337), and Fig.2, Suppl. Fig.3/5/6, Suppl. Tables 3/7/8/9/13 updated. P-values adjusted across the three approaches. Authors also expanded Discussion (p9, r345-353) on continuous variable noisiness vs cut-off information loss.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-081",
+      "pdf_pages_read": ["1-10", "11-18"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-081-C01",
+          "new_author_response": "Authors conducted patch-size ablation experiments on LC25000 and BreakHis datasets using multiple sizes: original resolution, 512x512, 384x384, 224x224. Results (Suppl. Fig.4) show accuracy and AUC remain stable above 90% across all patch sizes; LC25000 ~99%, BreakHis image-level ~93%, patient-level ~94%. Also analyzed across 40X/100X/200X/400X magnifications (Fig.S1.c-f). Performance at 224x224 slightly higher (pretraining bias). At larger sizes deviation only 1-2%. Added SSIM and PSNR detail-loss quantification in Table S12.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-081-C02",
+          "new_author_response": "Authors added independent two-sample t-tests at both patient and image levels (regenerating training/testing splits separately for each method to ensure independence). Results updated in Fig.2 (revised Fig.S2 in reply). For survival prediction, added paired t-tests plus Cohen's d effect size across six cancer types (Suppl. Table 5). BEPH significantly higher than GLPB, Deep, MILCNN, SW, RPDB at patient level. Significance levels added to manuscript Results (p9, Line 257) and Statistical Analysis (p23, Line 680).",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-081-C03",
+          "new_author_response": "Authors implemented voting-based ensemble aggregating patient scores across magnification levels on BreakHis. Ensemble lifted average patient ACC from 94.05+/-1.93 (single magnification) to 98.93+/-0.33 (Table S1: 0.8510 -> 0.9873). Authors acknowledged improvement but explicitly chose NOT to adopt ensemble in primary analysis citing variable image counts per patient (risk of ACC inflation) and the goal of keeping the foundation-model evaluation simple with only a downstream classification layer.",
+          "new_resolved": null,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-088",
+      "pdf_pages_read": ["1-10"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-088-C01",
+          "new_author_response": "Authors thanked reviewer for 'clear and honest appraisal'. They removed all commentary and speculation about incorporating NMR testing into NHS Health Check / national preventive programs. Rewrote Discussion completely removing references to public health implementation. Replaced opening paragraph (previously discussing NHS Health Check) with text reframing the work as feasibility/proof-of-principle. Removed final-abstract sentence promoting public health screening. New Discussion explicitly states future work needed before clinical translation.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-088-C02",
+          "new_author_response": "Authors added head-to-head comparison against validated clinical scores (QRISK3, LLP, QDiabetes, QCancer) using both AUC and hazard ratios, replacing prior simplified non-omics score. New analysis on statin-untreated UK Biobank subset shows QRISK + multi-omics improves AUC by 0.029 for MI and 0.008 for stroke (matching whole-population values, no statin-interaction). Net-reclassification index reported (continuous: 0.53 MI; 0.19 stroke). Discussion now explicitly acknowledges that for diseases like T2D (QDiabetes contains HbA1c) and lung cancer (smoking) clinical scores perform comparably; multi-omics only outperforms for MI and liver diseases. Statements scaled back to 'remains to be determined' per Reviewer 1 suggestion.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-091",
+      "pdf_pages_read": ["1-10", "19-28"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-091-C01",
+          "new_author_response": "No verbatim reviewer comment matches the worklist text on pre-diagnostic sample timing/size; the closest matches are Reviewer #3's comments on PRoBE design (blood drawn before EUS screening in high-risk patients before diagnosis confirmation), small sample size (n=20 cases, n=21 validation), and limitations of EUS-referred-only population. Authors' R1 response acknowledged limitations explicitly. R2: authors combined CEDAR and BCC cohorts to increase power for survival analysis (added PDAC disease stage to Cox model; CA19-9 omitted due to missing in 13/PDAC samples). Added Supplementary Data Table 1 with full clinical annotation. Conservative resolved=null because pre-diagnostic timing window was not quantified in response.",
+          "new_resolved": null,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-096",
+      "pdf_pages_read": ["1-10"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-096-C01",
+          "new_author_response": "The worklist concern on 'PSA response as surrogate endpoint vs overall survival' was not raised verbatim by any reviewer. Reviewer #1 comments focused on spline DoF, Gleason score, temporal trial differences, AIC variable selection, tertiles, 4-yr OS choice, and ENZAMET external validation. Reviewer #2 focused on randomization split, ENZAMET selection, and PSA-stratum specifics. The closest substantive change addressing OS validation: authors discussed observed 4-yr OS estimates (p10, Line 224-232) and explicitly stated 'we did not observe an OS benefit with addition of docetaxel in those with relatively higher predicted probability of early PSA response... merely hypothesis generating... liable to both type I and type II errors' (p14, Line 311-317). Also performed Leave-One-Trial-Out cross-validation (AUC 0.78-0.82, Brier 0.16-0.19) addressing generalizability. Conservative resolved=null because direct OS-as-endpoint validation of PSA surrogate was not formally tested.",
+          "new_resolved": null,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_papers": 5,
+    "total_concerns_updated": 8,
+    "extracted_substantive": 8,
+    "not_found_in_pdf": 0
+  }
+}

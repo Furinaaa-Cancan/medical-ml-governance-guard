@@ -1,0 +1,124 @@
+[
+  {
+    "paper_id": "PR-087",
+    "paper_title": "Dermatologist-like explainable AI enhances trust and confidence in diagnosing melanoma",
+    "pdf_path": "references/case-studies/nature_communications/PR-087_dermatologist_like_explainable_ai_enhanc_peer_review.pdf",
+    "pdf_size_mb": 3.2,
+    "affected_concern_ids": [
+      "PR-087-C01"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-087-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Reader study design details needed — how many clinicians, experience levels, randomization of XAI vs non-XAI conditions.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-079",
+    "paper_title": "Computational analysis of peripheral blood smears detects disease-associated cytomorphologies",
+    "pdf_path": "references/case-studies/nature_communications/NC_blood_smear_cytomorphology_peer_review.pdf",
+    "pdf_size_mb": 3.1,
+    "affected_concern_ids": [
+      "PR-079-C01",
+      "PR-079-C02"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-079-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "How would the ML protocol work from a user/clinician perspective? Clinical applicability beyond research setting unclear.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-079-C02",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Correlation between morphological features and molecular features needs more rigorous statistical validation.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-084",
+    "paper_title": "A machine learning-driven virtual biopsy system for kidney transplant patients",
+    "pdf_path": "references/case-studies/nature_communications/NC_kidney_transplant_biopsy_ML_peer_review.pdf",
+    "pdf_size_mb": 0.7,
+    "affected_concern_ids": [
+      "PR-084-C01",
+      "PR-084-C02"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-084-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Model trained on single-center data. Needs external validation across different transplant centers with different protocols.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-084-C02",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Virtual biopsy cannot replace histological assessment — clinical deployment pathway unclear.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-072",
+    "paper_title": "Performance of deep-learning based approaches to improve polygenic scores",
+    "pdf_path": "references/case-studies/nature_communications/NC_DL_polygenic_scores_peer_review.pdf",
+    "pdf_size_mb": 0.3,
+    "affected_concern_ids": [
+      "PR-072-C01",
+      "PR-072-C02",
+      "PR-072-C03"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-072-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Possible data leakage in UK Biobank phenotype evaluation — many phenotypes are correlated. Since authors trained on both simulated and real data, held-out test phenotypes may overlap with training set.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-072-C02",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Limited benchmarking — should compare with PRSice and LDPred. Small observed contribution of nonlinearity could be due to suboptimal NN, not absence of nonlinearity. Should test boosted trees and SVMs too.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-072-C03",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Simulations consider only two extremes (entirely additive OR entirely epistatic). Overly simplistic — real-world phenotypes have mixed architectures.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-095",
+    "paper_title": "A machine learning model using clinical notes to identify physician fatigue",
+    "pdf_path": "references/case-studies/nature_communications/NC_physician_fatigue_ML_peer_review.pdf",
+    "pdf_size_mb": 0.3,
+    "affected_concern_ids": [
+      "PR-095-C01"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-095-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Physician fatigue ground truth is indirect (note quality proxies). Direct validation with fatigue surveys needed.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  }
+]

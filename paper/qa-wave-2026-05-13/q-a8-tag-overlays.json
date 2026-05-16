@@ -1,0 +1,1200 @@
+{
+  "agent": "a8-tag-overlays",
+  "ran_at_utc": "2026-05-16T10:24:08Z",
+  "qa_wave": "2026-05-13",
+  "script_edited": "scripts/review/backfill_peer_review_gates.py",
+  "additions": [
+    {
+      "tag_pattern": "causal_language",
+      "gates": [
+        "cohort_definition_gate",
+        "reporting_bias_gate"
+      ],
+      "rationale": "Causal-language overreach in observational study — needs cohort design audit + reporting-bias scrutiny."
+    },
+    {
+      "tag_pattern": "association_not_causation",
+      "gates": [
+        "cohort_definition_gate",
+        "reporting_bias_gate"
+      ],
+      "rationale": "Explicit reviewer flag that association was framed as causation."
+    },
+    {
+      "tag_pattern": "association_vs_causation",
+      "gates": [
+        "cohort_definition_gate",
+        "reporting_bias_gate"
+      ],
+      "rationale": "Same family as above."
+    },
+    {
+      "tag_pattern": "causal_overclaim",
+      "gates": [
+        "cohort_definition_gate",
+        "reporting_bias_gate"
+      ],
+      "rationale": "Overclaim that observational result implies causal effect."
+    },
+    {
+      "tag_pattern": "causal_claim_unsupported",
+      "gates": [
+        "cohort_definition_gate",
+        "reporting_bias_gate"
+      ],
+      "rationale": "Causal language without supporting design (RCT, IV, mediation)."
+    },
+    {
+      "tag_pattern": "causal_inference",
+      "gates": [
+        "cohort_definition_gate"
+      ],
+      "rationale": "Causal-inference assumptions (exchangeability, positivity) need cohort-level review."
+    },
+    {
+      "tag_pattern": "heterogeneity",
+      "gates": [
+        "distribution_generalization_gate",
+        "covariate_shift_gate"
+      ],
+      "rationale": "Device/protocol/site/disease heterogeneity drives distribution shift — generalization + covariate-shift gates."
+    },
+    {
+      "tag_pattern": "confounding",
+      "gates": [
+        "fairness_equity_gate",
+        "cohort_definition_gate"
+      ],
+      "rationale": "Confounder imbalance often hits sex/age subgroups (fairness) and biases cohort comparisons."
+    },
+    {
+      "tag_pattern": "missing_demographics",
+      "gates": [
+        "fairness_equity_gate",
+        "reporting_bias_gate"
+      ],
+      "rationale": "Missing demographic reporting blocks subgroup audit and breaks TRIPOD."
+    },
+    {
+      "tag_pattern": "missing_confounder",
+      "gates": [
+        "cohort_definition_gate",
+        "feature_engineering_audit_gate"
+      ],
+      "rationale": "Unadjusted clinical confounder — cohort+feature review."
+    },
+    {
+      "tag_pattern": "population_stratification",
+      "gates": [
+        "fairness_equity_gate",
+        "cohort_definition_gate"
+      ],
+      "rationale": "GWAS/PRS stratification → fairness + cohort definition."
+    },
+    {
+      "tag_pattern": "ancestry",
+      "gates": [
+        "fairness_equity_gate",
+        "external_validation_gate"
+      ],
+      "rationale": "Ancestry mismatch / underrepresentation → fairness + external validation."
+    },
+    {
+      "tag_pattern": "fitzpatrick",
+      "gates": [
+        "fairness_equity_gate"
+      ],
+      "rationale": "Skin-tone underrepresentation in dermatology — fairness."
+    },
+    {
+      "tag_pattern": "skin_tone",
+      "gates": [
+        "fairness_equity_gate"
+      ],
+      "rationale": "Same dermatology fairness signal."
+    },
+    {
+      "tag_pattern": "missing_ci",
+      "gates": [
+        "ci_matrix_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "Missing 95% CI on primary metric — CI matrix gate."
+    },
+    {
+      "tag_pattern": "delong",
+      "gates": [
+        "ci_matrix_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "DeLong test missing/needed for AUROC comparison — CI matrix."
+    },
+    {
+      "tag_pattern": "cindex_missing",
+      "gates": [
+        "ci_matrix_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "C-index uncertainty missing."
+    },
+    {
+      "tag_pattern": "ci_methodology",
+      "gates": [
+        "ci_matrix_gate"
+      ],
+      "rationale": "Bootstrap vs analytical CI choice unclear."
+    },
+    {
+      "tag_pattern": "ci_reporting",
+      "gates": [
+        "ci_matrix_gate"
+      ],
+      "rationale": "CI presentation incomplete."
+    },
+    {
+      "tag_pattern": "ci_needed",
+      "gates": [
+        "ci_matrix_gate"
+      ],
+      "rationale": "Reviewer explicitly requested CI."
+    },
+    {
+      "tag_pattern": "nri",
+      "gates": [
+        "clinical_metrics_gate",
+        "calibration_dca_gate"
+      ],
+      "rationale": "Net Reclassification Index is a clinical-utility metric."
+    },
+    {
+      "tag_pattern": "idi",
+      "gates": [
+        "clinical_metrics_gate",
+        "calibration_dca_gate"
+      ],
+      "rationale": "Integrated Discrimination Improvement — clinical-utility metric."
+    },
+    {
+      "tag_pattern": "cost_effectiveness",
+      "gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "Cost-effectiveness analysis → clinical metrics gate."
+    },
+    {
+      "tag_pattern": "incremental_value",
+      "gates": [
+        "clinical_metrics_gate",
+        "calibration_dca_gate"
+      ],
+      "rationale": "Incremental-value claim sits in clinical-metrics + DCA."
+    },
+    {
+      "tag_pattern": "net_reclassification",
+      "gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "Explicit NRI mention."
+    },
+    {
+      "tag_pattern": "alert_fatigue",
+      "gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "Alert-fatigue rate is a clinical-deployment metric."
+    },
+    {
+      "tag_pattern": "alarm_fatigue",
+      "gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "Same — false-alarm cost."
+    },
+    {
+      "tag_pattern": "p_hacking",
+      "gates": [
+        "evaluation_quality_gate",
+        "permutation_significance_gate"
+      ],
+      "rationale": "Multiple comparisons without correction → evaluation quality + permutation falsification."
+    },
+    {
+      "tag_pattern": "multiple_testing",
+      "gates": [
+        "evaluation_quality_gate",
+        "permutation_significance_gate"
+      ],
+      "rationale": "Family-wise error or FDR correction needed."
+    },
+    {
+      "tag_pattern": "bonferroni",
+      "gates": [
+        "evaluation_quality_gate"
+      ],
+      "rationale": "Bonferroni/FWER discussion → evaluation quality."
+    },
+    {
+      "tag_pattern": "fdr",
+      "gates": [
+        "evaluation_quality_gate"
+      ],
+      "rationale": "False-discovery-rate control → evaluation quality."
+    },
+    {
+      "tag_pattern": "selective_reporting",
+      "gates": [
+        "reporting_bias_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "Selective reporting → reporting bias + evaluation quality."
+    },
+    {
+      "tag_pattern": "cherry_pick",
+      "gates": [
+        "reporting_bias_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "Cherry-picked results → reporting bias."
+    },
+    {
+      "tag_pattern": "cherrypick",
+      "gates": [
+        "reporting_bias_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "Same."
+    },
+    {
+      "tag_pattern": "phi_dates",
+      "gates": [
+        "feature_lineage_gate",
+        "leakage_gate"
+      ],
+      "rationale": "PHI dates used as features → feature lineage + leakage."
+    },
+    {
+      "tag_pattern": "temporal_encoding",
+      "gates": [
+        "feature_lineage_gate",
+        "leakage_gate"
+      ],
+      "rationale": "Temporal encoding can leak outcome timing — lineage + leakage."
+    },
+    {
+      "tag_pattern": "feature_timing",
+      "gates": [
+        "feature_lineage_gate",
+        "leakage_gate"
+      ],
+      "rationale": "Feature recorded after prediction time → lineage + leakage."
+    },
+    {
+      "tag_pattern": "date_features",
+      "gates": [
+        "feature_lineage_gate"
+      ],
+      "rationale": "Date-derived features → lineage."
+    },
+    {
+      "tag_pattern": "timestamp_feature",
+      "gates": [
+        "feature_lineage_gate"
+      ],
+      "rationale": "Timestamp features → lineage."
+    },
+    {
+      "tag_pattern": "label_noise",
+      "gates": [
+        "feature_lineage_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "Label noise bounds achievable performance."
+    },
+    {
+      "tag_pattern": "label_validity",
+      "gates": [
+        "feature_lineage_gate",
+        "cohort_definition_gate"
+      ],
+      "rationale": "Label validity / outcome ascertainment."
+    },
+    {
+      "tag_pattern": "label_definition",
+      "gates": [
+        "cohort_definition_gate",
+        "feature_lineage_gate"
+      ],
+      "rationale": "Inconsistent label definition."
+    },
+    {
+      "tag_pattern": "noisy_labels",
+      "gates": [
+        "feature_lineage_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "Same family."
+    },
+    {
+      "tag_pattern": "outcome_definition",
+      "gates": [
+        "cohort_definition_gate",
+        "feature_lineage_gate"
+      ],
+      "rationale": "Outcome definition ambiguity is a cohort-design issue."
+    },
+    {
+      "tag_pattern": "outcome_misclassification",
+      "gates": [
+        "evaluation_quality_gate",
+        "cohort_definition_gate"
+      ],
+      "rationale": "Outcome misclassification biases evaluation."
+    },
+    {
+      "tag_pattern": "outcome_ascertainment",
+      "gates": [
+        "cohort_definition_gate"
+      ],
+      "rationale": "How outcome was ascertained."
+    },
+    {
+      "tag_pattern": "case_ascertainment",
+      "gates": [
+        "cohort_definition_gate"
+      ],
+      "rationale": "How cases were identified."
+    },
+    {
+      "tag_pattern": "case_definition",
+      "gates": [
+        "cohort_definition_gate"
+      ],
+      "rationale": "Case-definition error/ambiguity."
+    },
+    {
+      "tag_pattern": "selection_bias",
+      "gates": [
+        "cohort_definition_gate",
+        "reporting_bias_gate"
+      ],
+      "rationale": "Selection bias at cohort entry."
+    },
+    {
+      "tag_pattern": "verification_bias",
+      "gates": [
+        "cohort_definition_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "Verification bias — outcome only verified in screen-positives."
+    },
+    {
+      "tag_pattern": "spectrum_bias",
+      "gates": [
+        "cohort_definition_gate",
+        "distribution_generalization_gate"
+      ],
+      "rationale": "Spectrum bias from narrow cohort breadth."
+    },
+    {
+      "tag_pattern": "prevalence_bias",
+      "gates": [
+        "cohort_definition_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "Cohort prevalence inflates PPV/NPV."
+    },
+    {
+      "tag_pattern": "lead_time_bias",
+      "gates": [
+        "cohort_definition_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "Early detection without survival benefit."
+    },
+    {
+      "tag_pattern": "optimism_bias",
+      "gates": [
+        "evaluation_quality_gate",
+        "model_selection_audit_gate"
+      ],
+      "rationale": "Apparent-vs-corrected performance."
+    },
+    {
+      "tag_pattern": "collider_bias",
+      "gates": [
+        "cohort_definition_gate",
+        "feature_lineage_gate"
+      ],
+      "rationale": "Conditioning on a collider — design + feature lineage."
+    },
+    {
+      "tag_pattern": "reproducibility",
+      "gates": [
+        "seed_stability_gate",
+        "execution_attestation_gate"
+      ],
+      "rationale": "Reproducibility is a seed + execution attestation concern."
+    },
+    {
+      "tag_pattern": "irreproducible",
+      "gates": [
+        "execution_attestation_gate",
+        "reporting_bias_gate"
+      ],
+      "rationale": "Methods irreproducible — execution attestation + reporting."
+    },
+    {
+      "tag_pattern": "code_unavailable",
+      "gates": [
+        "execution_attestation_gate",
+        "reporting_bias_gate"
+      ],
+      "rationale": "Code unavailable at review/submission."
+    },
+    {
+      "tag_pattern": "broken_code_link",
+      "gates": [
+        "execution_attestation_gate"
+      ],
+      "rationale": "Broken code link."
+    },
+    {
+      "tag_pattern": "broken_github",
+      "gates": [
+        "execution_attestation_gate"
+      ],
+      "rationale": "Broken GitHub URL."
+    },
+    {
+      "tag_pattern": "coefficients_not_provided",
+      "gates": [
+        "execution_attestation_gate",
+        "reporting_bias_gate"
+      ],
+      "rationale": "Coefficients not published."
+    },
+    {
+      "tag_pattern": "training_details_missing",
+      "gates": [
+        "execution_attestation_gate",
+        "reporting_bias_gate"
+      ],
+      "rationale": "Training details missing for replication."
+    },
+    {
+      "tag_pattern": "model_transparency",
+      "gates": [
+        "execution_attestation_gate",
+        "reporting_bias_gate"
+      ],
+      "rationale": "Model transparency / weights unavailable."
+    },
+    {
+      "tag_pattern": "architecture_reproducibility",
+      "gates": [
+        "execution_attestation_gate"
+      ],
+      "rationale": "Architecture reproducibility."
+    },
+    {
+      "tag_pattern": "overclaim",
+      "gates": [
+        "reporting_bias_gate"
+      ],
+      "rationale": "Catches the overclaim* family — reporting bias."
+    },
+    {
+      "tag_pattern": "overstatement",
+      "gates": [
+        "reporting_bias_gate"
+      ],
+      "rationale": "Overstatement family."
+    },
+    {
+      "tag_pattern": "overstated",
+      "gates": [
+        "reporting_bias_gate"
+      ],
+      "rationale": "Overstated performance/novelty."
+    },
+    {
+      "tag_pattern": "misleading_claim",
+      "gates": [
+        "reporting_bias_gate"
+      ],
+      "rationale": "Misleading claim."
+    },
+    {
+      "tag_pattern": "novelty_questioned",
+      "gates": [
+        "reporting_bias_gate"
+      ],
+      "rationale": "Novelty questioned by reviewer."
+    },
+    {
+      "tag_pattern": "marginal_improvement",
+      "gates": [
+        "reporting_bias_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "Marginal improvement framed as breakthrough."
+    },
+    {
+      "tag_pattern": "modest_performance",
+      "gates": [
+        "reporting_bias_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "Modest performance overstated."
+    },
+    {
+      "tag_pattern": "title_misleading",
+      "gates": [
+        "reporting_bias_gate"
+      ],
+      "rationale": "Misleading title."
+    },
+    {
+      "tag_pattern": "title_overstatement",
+      "gates": [
+        "reporting_bias_gate"
+      ],
+      "rationale": "Title overstatement family."
+    },
+    {
+      "tag_pattern": "abstract_mismatch",
+      "gates": [
+        "reporting_bias_gate"
+      ],
+      "rationale": "Abstract does not match Results."
+    },
+    {
+      "tag_pattern": "abstract_only_insufficient",
+      "gates": [
+        "reporting_bias_gate"
+      ],
+      "rationale": "Abstract-only reporting insufficient."
+    },
+    {
+      "tag_pattern": "no_limitations",
+      "gates": [
+        "reporting_bias_gate"
+      ],
+      "rationale": "No limitations section — reporting bias."
+    },
+    {
+      "tag_pattern": "reporting_guideline",
+      "gates": [
+        "reporting_bias_gate"
+      ],
+      "rationale": "TRIPOD/STARD/PROBAST adherence."
+    },
+    {
+      "tag_pattern": "reporting_completeness",
+      "gates": [
+        "reporting_bias_gate"
+      ],
+      "rationale": "Completeness of reporting."
+    },
+    {
+      "tag_pattern": "reporting_quality",
+      "gates": [
+        "reporting_bias_gate"
+      ],
+      "rationale": "Reporting quality."
+    },
+    {
+      "tag_pattern": "metrics_in_supplement",
+      "gates": [
+        "reporting_bias_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "Primary metrics hidden in supplement."
+    },
+    {
+      "tag_pattern": "calibration_in_supplement",
+      "gates": [
+        "reporting_bias_gate",
+        "calibration_dca_gate"
+      ],
+      "rationale": "Calibration shown only in supplement."
+    },
+    {
+      "tag_pattern": "calibration_plot",
+      "gates": [
+        "calibration_dca_gate",
+        "reporting_bias_gate"
+      ],
+      "rationale": "Calibration plot missing/absent."
+    },
+    {
+      "tag_pattern": "calibration_drift",
+      "gates": [
+        "calibration_dca_gate",
+        "covariate_shift_gate"
+      ],
+      "rationale": "Calibration drift across cohorts."
+    },
+    {
+      "tag_pattern": "calibration_leakage",
+      "gates": [
+        "calibration_dca_gate",
+        "leakage_gate"
+      ],
+      "rationale": "Calibration on test set."
+    },
+    {
+      "tag_pattern": "single_center",
+      "gates": [
+        "external_validation_gate",
+        "generalization_gap_gate"
+      ],
+      "rationale": "Single-center validation → external validation needed."
+    },
+    {
+      "tag_pattern": "single_site",
+      "gates": [
+        "external_validation_gate",
+        "generalization_gap_gate"
+      ],
+      "rationale": "Same."
+    },
+    {
+      "tag_pattern": "same_cohort_validation",
+      "gates": [
+        "external_validation_gate",
+        "generalization_gap_gate"
+      ],
+      "rationale": "Validation on same cohort as training."
+    },
+    {
+      "tag_pattern": "single_split",
+      "gates": [
+        "split_protocol_gate",
+        "external_validation_gate"
+      ],
+      "rationale": "Single train/test split (no CV / no external)."
+    },
+    {
+      "tag_pattern": "no_prospective",
+      "gates": [
+        "external_validation_gate",
+        "generalization_gap_gate"
+      ],
+      "rationale": "No prospective validation."
+    },
+    {
+      "tag_pattern": "prospective_vs_retrospective",
+      "gates": [
+        "external_validation_gate",
+        "reporting_bias_gate"
+      ],
+      "rationale": "Mislabeled prospective vs retrospective."
+    },
+    {
+      "tag_pattern": "retrospective_vs_prospective",
+      "gates": [
+        "external_validation_gate",
+        "reporting_bias_gate"
+      ],
+      "rationale": "Same."
+    },
+    {
+      "tag_pattern": "performance_degradation_external",
+      "gates": [
+        "external_validation_gate",
+        "generalization_gap_gate"
+      ],
+      "rationale": "Drop in performance on external cohort."
+    },
+    {
+      "tag_pattern": "internal_external_gap",
+      "gates": [
+        "external_validation_gate",
+        "generalization_gap_gate"
+      ],
+      "rationale": "Internal/external metric gap."
+    },
+    {
+      "tag_pattern": "underpowered",
+      "gates": [
+        "sample_size_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "Underpowered cohort or subgroup."
+    },
+    {
+      "tag_pattern": "small_test_set",
+      "gates": [
+        "sample_size_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "Small test set — CI inflated."
+    },
+    {
+      "tag_pattern": "rare_class_sample_size",
+      "gates": [
+        "sample_size_gate",
+        "imbalance_policy_gate"
+      ],
+      "rationale": "Rare positive class — sample-size + imbalance."
+    },
+    {
+      "tag_pattern": "extreme_class_imbalance",
+      "gates": [
+        "imbalance_policy_gate",
+        "sample_size_gate"
+      ],
+      "rationale": "Extreme imbalance — policy + sample size."
+    },
+    {
+      "tag_pattern": "class_imbalance",
+      "gates": [
+        "imbalance_policy_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "Class imbalance unhandled — policy + evaluation."
+    },
+    {
+      "tag_pattern": "model_justification",
+      "gates": [
+        "model_selection_audit_gate"
+      ],
+      "rationale": "Why this model? — model selection audit."
+    },
+    {
+      "tag_pattern": "architecture_justification",
+      "gates": [
+        "model_selection_audit_gate"
+      ],
+      "rationale": "Why this architecture?"
+    },
+    {
+      "tag_pattern": "model_description_unclear",
+      "gates": [
+        "model_selection_audit_gate",
+        "reporting_bias_gate"
+      ],
+      "rationale": "Model description unclear."
+    },
+    {
+      "tag_pattern": "narrow_model_search",
+      "gates": [
+        "model_selection_audit_gate"
+      ],
+      "rationale": "Narrow model search."
+    },
+    {
+      "tag_pattern": "single_model_type",
+      "gates": [
+        "model_selection_audit_gate"
+      ],
+      "rationale": "Only one model family tried."
+    },
+    {
+      "tag_pattern": "cv_strategy_unspecified",
+      "gates": [
+        "model_selection_audit_gate",
+        "split_protocol_gate"
+      ],
+      "rationale": "CV strategy unspecified."
+    },
+    {
+      "tag_pattern": "feature_selection_justification",
+      "gates": [
+        "feature_engineering_audit_gate",
+        "model_selection_audit_gate"
+      ],
+      "rationale": "Feature selection justification missing."
+    },
+    {
+      "tag_pattern": "feature_selection_process",
+      "gates": [
+        "feature_engineering_audit_gate",
+        "model_selection_audit_gate"
+      ],
+      "rationale": "Feature selection process unclear."
+    },
+    {
+      "tag_pattern": "auc_only",
+      "gates": [
+        "evaluation_quality_gate",
+        "clinical_metrics_gate"
+      ],
+      "rationale": "AUC-only reporting is insufficient — need full panel."
+    },
+    {
+      "tag_pattern": "auc_overoptimistic",
+      "gates": [
+        "evaluation_quality_gate",
+        "calibration_dca_gate"
+      ],
+      "rationale": "Optimistic AUC needs calibration check."
+    },
+    {
+      "tag_pattern": "auc_misleading",
+      "gates": [
+        "evaluation_quality_gate",
+        "clinical_metrics_gate"
+      ],
+      "rationale": "Misleading AUC."
+    },
+    {
+      "tag_pattern": "auroc_misleading",
+      "gates": [
+        "evaluation_quality_gate",
+        "clinical_metrics_gate"
+      ],
+      "rationale": "Misleading AUROC under rare events."
+    },
+    {
+      "tag_pattern": "accuracy_misleading",
+      "gates": [
+        "evaluation_quality_gate",
+        "clinical_metrics_gate"
+      ],
+      "rationale": "Accuracy on imbalanced data is misleading."
+    },
+    {
+      "tag_pattern": "incomplete_metrics",
+      "gates": [
+        "evaluation_quality_gate",
+        "clinical_metrics_gate"
+      ],
+      "rationale": "Incomplete metric set."
+    },
+    {
+      "tag_pattern": "missing_precision_recall",
+      "gates": [
+        "evaluation_quality_gate"
+      ],
+      "rationale": "Missing PR / AUPRC."
+    },
+    {
+      "tag_pattern": "metric_panel_incomplete",
+      "gates": [
+        "evaluation_quality_gate",
+        "clinical_metrics_gate"
+      ],
+      "rationale": "Metric panel incomplete."
+    },
+    {
+      "tag_pattern": "full_metric_panel",
+      "gates": [
+        "evaluation_quality_gate",
+        "clinical_metrics_gate"
+      ],
+      "rationale": "Reviewer asked for full metric panel."
+    },
+    {
+      "tag_pattern": "clinical_metric_panel",
+      "gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "Clinical metric panel."
+    },
+    {
+      "tag_pattern": "clinical_utility",
+      "gates": [
+        "clinical_metrics_gate",
+        "calibration_dca_gate"
+      ],
+      "rationale": "Clinical utility questionable — DCA + clinical metrics."
+    },
+    {
+      "tag_pattern": "clinical_actionability",
+      "gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "Actionability for clinician."
+    },
+    {
+      "tag_pattern": "clinical_applicability",
+      "gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "Applicability in real-world setting."
+    },
+    {
+      "tag_pattern": "clinical_deployment",
+      "gates": [
+        "clinical_metrics_gate",
+        "calibration_dca_gate"
+      ],
+      "rationale": "Deployment readiness."
+    },
+    {
+      "tag_pattern": "clinical_workflow",
+      "gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "Workflow fit."
+    },
+    {
+      "tag_pattern": "workflow_integration",
+      "gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "Workflow integration."
+    },
+    {
+      "tag_pattern": "deployment_feasibility",
+      "gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "Deployment feasibility."
+    },
+    {
+      "tag_pattern": "billing_code",
+      "gates": [
+        "feature_lineage_gate",
+        "cohort_definition_gate"
+      ],
+      "rationale": "Billing-code lag biases labels."
+    },
+    {
+      "tag_pattern": "billing_vs_clinical",
+      "gates": [
+        "feature_lineage_gate",
+        "cohort_definition_gate"
+      ],
+      "rationale": "Billing vs clinical disagreement."
+    },
+    {
+      "tag_pattern": "icd_code",
+      "gates": [
+        "feature_lineage_gate",
+        "cohort_definition_gate"
+      ],
+      "rationale": "ICD-code accuracy/meaning concerns."
+    },
+    {
+      "tag_pattern": "claims_data",
+      "gates": [
+        "feature_lineage_gate",
+        "cohort_definition_gate"
+      ],
+      "rationale": "Claims-data transportability."
+    },
+    {
+      "tag_pattern": "claims_label_noise",
+      "gates": [
+        "feature_lineage_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "Claims-derived label noise."
+    },
+    {
+      "tag_pattern": "claims_vs_data",
+      "gates": [
+        "feature_lineage_gate",
+        "cohort_definition_gate"
+      ],
+      "rationale": "Claims vs data disagreement."
+    },
+    {
+      "tag_pattern": "inter_rater",
+      "gates": [
+        "feature_lineage_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "Inter-rater reliability bounds label quality."
+    },
+    {
+      "tag_pattern": "annotator_count_low",
+      "gates": [
+        "feature_lineage_gate",
+        "sample_size_gate"
+      ],
+      "rationale": "Too few annotators."
+    },
+    {
+      "tag_pattern": "annotator_variance",
+      "gates": [
+        "feature_lineage_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "Annotator variance high."
+    },
+    {
+      "tag_pattern": "annotation_quality",
+      "gates": [
+        "feature_lineage_gate"
+      ],
+      "rationale": "Annotation quality."
+    },
+    {
+      "tag_pattern": "ground_truth_undefined",
+      "gates": [
+        "feature_lineage_gate",
+        "cohort_definition_gate"
+      ],
+      "rationale": "Ground truth not defined."
+    },
+    {
+      "tag_pattern": "tuning_leakage",
+      "gates": [
+        "tuning_leakage_gate",
+        "leakage_gate"
+      ],
+      "rationale": "Tuning leakage — tuning gate + leakage."
+    },
+    {
+      "tag_pattern": "baseline_tuning_undocumented",
+      "gates": [
+        "tuning_leakage_gate",
+        "model_selection_audit_gate"
+      ],
+      "rationale": "Baseline tuning undocumented."
+    },
+    {
+      "tag_pattern": "test_set_reuse",
+      "gates": [
+        "tuning_leakage_gate",
+        "leakage_gate"
+      ],
+      "rationale": "Test set reused for tuning."
+    },
+    {
+      "tag_pattern": "patient_level_split",
+      "gates": [
+        "split_protocol_gate"
+      ],
+      "rationale": "Patient-level split request."
+    },
+    {
+      "tag_pattern": "patient_level_isolation",
+      "gates": [
+        "split_protocol_gate"
+      ],
+      "rationale": "Patient-level isolation request."
+    },
+    {
+      "tag_pattern": "per_clinic_results",
+      "gates": [
+        "external_validation_gate",
+        "fairness_equity_gate"
+      ],
+      "rationale": "Per-clinic results — external + fairness."
+    },
+    {
+      "tag_pattern": "per_center_missing",
+      "gates": [
+        "external_validation_gate"
+      ],
+      "rationale": "Per-center results missing."
+    },
+    {
+      "tag_pattern": "center_distribution_undocumented",
+      "gates": [
+        "external_validation_gate",
+        "reporting_bias_gate"
+      ],
+      "rationale": "Center distribution undocumented."
+    },
+    {
+      "tag_pattern": "explainability",
+      "gates": [
+        "shap_interpretability_gate"
+      ],
+      "rationale": "Explainability gaps."
+    },
+    {
+      "tag_pattern": "interpretability",
+      "gates": [
+        "shap_interpretability_gate"
+      ],
+      "rationale": "Interpretability gaps."
+    },
+    {
+      "tag_pattern": "attention_interpretation",
+      "gates": [
+        "shap_interpretability_gate"
+      ],
+      "rationale": "Attention map interpretation."
+    },
+    {
+      "tag_pattern": "background_attention",
+      "gates": [
+        "shap_interpretability_gate",
+        "leakage_gate"
+      ],
+      "rationale": "Model attending to background — interpretability + leakage."
+    },
+    {
+      "tag_pattern": "cam_on_background",
+      "gates": [
+        "shap_interpretability_gate",
+        "leakage_gate"
+      ],
+      "rationale": "CAM on background."
+    },
+    {
+      "tag_pattern": "feature_attribution",
+      "gates": [
+        "shap_interpretability_gate"
+      ],
+      "rationale": "Feature attribution missing."
+    },
+    {
+      "tag_pattern": "missing_baseline_comparison",
+      "gates": [
+        "model_selection_audit_gate",
+        "reporting_bias_gate"
+      ],
+      "rationale": "Missing baseline comparison."
+    },
+    {
+      "tag_pattern": "baseline_comparison",
+      "gates": [
+        "model_selection_audit_gate"
+      ],
+      "rationale": "Baseline comparison concerns."
+    },
+    {
+      "tag_pattern": "sota_comparison",
+      "gates": [
+        "model_selection_audit_gate",
+        "reporting_bias_gate"
+      ],
+      "rationale": "SOTA comparison missing."
+    },
+    {
+      "tag_pattern": "benchmark",
+      "gates": [
+        "model_selection_audit_gate"
+      ],
+      "rationale": "Benchmarking concerns."
+    },
+    {
+      "tag_pattern": "ablation",
+      "gates": [
+        "model_selection_audit_gate",
+        "feature_engineering_audit_gate"
+      ],
+      "rationale": "Ablation study missing/needed."
+    }
+  ],
+  "summary": {
+    "new_overlay_rules": 153,
+    "old_overlay_rules": 98,
+    "total_overlay_rules": 251,
+    "tags_now_covered": 605,
+    "tags_total": 2009,
+    "tags_covered_delta": 299,
+    "empty_gate_concerns_analyzed": 282,
+    "concerns_with_strictly_more_gates_after": 101,
+    "avg_gates_per_concern_before": 1.3,
+    "avg_gates_per_concern_after": 1.82,
+    "multi_gate_concerns_before": 76,
+    "multi_gate_concerns_after": 159,
+    "max_gates_per_concern_before": 3,
+    "max_gates_per_concern_after": 5
+  },
+  "notes": [
+    "Dry-run before edits: patched=282, top gate cohort_definition_gate=180.",
+    "Dry-run after edits: patched=282, top gate cohort_definition_gate=190, clinical_metrics_gate 80->101, reporting_bias_gate 103->125.",
+    "Rule validator (all_rule_gates - valid) returned empty: no typos or unknown gate names.",
+    "Existing overlay entries left untouched; new rules appended after frequency_encoding."
+  ]
+}

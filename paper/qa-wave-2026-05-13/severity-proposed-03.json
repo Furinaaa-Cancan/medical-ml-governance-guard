@@ -1,0 +1,392 @@
+[
+  {
+    "concern_id": "PR-020-C03",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "DCA misapplication for microscopic metastases is interpretability/utility concern, not validity-threatening; affects clinical recommendation calibration but not scientific validity."
+  },
+  {
+    "concern_id": "PR-020-C04",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Unequal comparison samples is a fairness-of-comparison issue, fixable by matching N; does not invalidate model performance."
+  },
+  {
+    "concern_id": "PR-020-C05",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Training only on cancerous nodules constitutes a spectrum/cohort definition issue (dim 1) that materially limits intended use claims; methodologically important."
+  },
+  {
+    "concern_id": "PR-021-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Binarizing right-censored time-to-event data is a methodological error in outcome definition that biases performance; fixable by time-stratification."
+  },
+  {
+    "concern_id": "PR-021-C02",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "Encoding-choice question is design clarification/ablation, not a validity threat; author added ablation showing equivalence."
+  },
+  {
+    "concern_id": "PR-021-C03",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Marginal AUC gains is an interpretation/utility critique, not a validity issue; needs honest discussion but does not invalidate results."
+  },
+  {
+    "concern_id": "PR-021-C04",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Spurious heatmap tokens reveal weak interpretability; should-fix but does not invalidate predictive performance."
+  },
+  {
+    "concern_id": "PR-022-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Missing individual-level performance and calibration with censoring is a core evaluation completeness gap (calibration_dca_gate)."
+  },
+  {
+    "concern_id": "PR-022-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Unspecified high-risk cut-off undermines reproducibility and cross-population applicability of risk stratification claims."
+  },
+  {
+    "concern_id": "PR-022-C03",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Claim-tempering about Oncotype DX comparison is reporting/interpretation issue; fixable without invalidating findings."
+  },
+  {
+    "concern_id": "PR-023-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Only 100 type-I-error simulations at 0.05 is insufficient and yields unstable estimates; affects scientific reliability of error-rate claims."
+  },
+  {
+    "concern_id": "PR-023-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Chromosome 22 only is an unrepresentative simulation scope with biased heritability and relatedness; threatens generalization of method claims."
+  },
+  {
+    "concern_id": "PR-023-C03",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Missing African ancestry validation is a substantive external validation gap for a cross-ancestry method paper."
+  },
+  {
+    "concern_id": "PR-023-C04",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Marginal improvement vs PRS-CSx warrants scenario ablation; should-fix but does not invalidate method."
+  },
+  {
+    "concern_id": "PR-024-C01",
+    "current_severity": "CRITICAL",
+    "proposed_severity": "CRITICAL",
+    "rationale": "Unspecified prediction time horizon risks conflating diagnosis of prevalent cancer with future-risk prediction — a future-information/cohort-definition issue with direct validity implications."
+  },
+  {
+    "concern_id": "PR-024-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Conflating prevalent vs incident cancer prediction is a fundamental outcome-definition issue closely tied to C01; methodologically important."
+  },
+  {
+    "concern_id": "PR-024-C03",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "MNAR with inappropriate imputation triggers missingness_policy_gate; can systematically bias model and requires sensitivity analysis."
+  },
+  {
+    "concern_id": "PR-024-C04",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "P-value variable selection vs data-driven alternative is a methods-discussion clarification; LASSO comparison confirms results."
+  },
+  {
+    "concern_id": "PR-024-C05",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Calibration placement and clinical interpretation of blood tests is a reporting/completeness issue rather than missing calibration itself."
+  },
+  {
+    "concern_id": "PR-024-C06",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Cancer-specific DCA improves interpretability; should-fix reporting issue without invalidating model."
+  },
+  {
+    "concern_id": "PR-024-C07",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Missing model coefficients prevents external validation/reproducibility — methodologically important fixable issue."
+  },
+  {
+    "concern_id": "PR-025-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Power concerns in key subgroups (n=47) and rare subtypes triggers sample_size_gate; methodologically important for subgroup claims."
+  },
+  {
+    "concern_id": "PR-025-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Undocumented missingness handling without sensitivity analysis triggers missingness_policy_gate; can bias model substantially."
+  },
+  {
+    "concern_id": "PR-025-C03",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Insufficient calibration reporting without formal testing is core evaluation completeness gap (calibration_dca_gate)."
+  },
+  {
+    "concern_id": "PR-025-C04",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Multiple-testing correction omission is a should-fix statistical hygiene issue; affects some claims' robustness."
+  },
+  {
+    "concern_id": "PR-025-C05",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Combining MCD/FSGS conflates clinically distinct entities; cohort-definition subtlety that should be addressed via sensitivity analysis."
+  },
+  {
+    "concern_id": "PR-025-C06",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "NRI caveats and terminology fix ('metadata' → 'clinical data') are clarification/polish issues."
+  },
+  {
+    "concern_id": "PR-026-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "External validation limited to single non-Korean site triggers external_validation_gate; key for global generalizability claims."
+  },
+  {
+    "concern_id": "PR-026-C02",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Calibration prominence is a reporting completeness issue; key metrics present but underemphasized."
+  },
+  {
+    "concern_id": "PR-026-C03",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Deployment latency and missing-data robustness questions affect clinical utility, not validity."
+  },
+  {
+    "concern_id": "PR-026-C04",
+    "current_severity": "LOW",
+    "proposed_severity": "LOW",
+    "rationale": "TRIPOD+AI checklist formatting is pure polish."
+  },
+  {
+    "concern_id": "PR-027-C01",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Model selection rationale via comparator panel addresses model_selection_audit_gate; should-fix completeness issue."
+  },
+  {
+    "concern_id": "PR-027-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Unaddressed class imbalance could fully explain reported differences between time-horizon models — a methodological validity concern."
+  },
+  {
+    "concern_id": "PR-027-C03",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Missing referenced figures is a reporting completeness gap, not a validity threat; fixable by inclusion."
+  },
+  {
+    "concern_id": "PR-027-C04",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "AUC-only evaluation lacks full metric panel; should-fix per E02 but does not invalidate findings."
+  },
+  {
+    "concern_id": "PR-027-C05",
+    "current_severity": "LOW",
+    "proposed_severity": "LOW",
+    "rationale": "Future-work suggestion for multi-omics is pure discussion polish."
+  },
+  {
+    "concern_id": "PR-028-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Lack of external validation triggers external_validation_gate; central for ICU mortality model generalizability."
+  },
+  {
+    "concern_id": "PR-028-C02",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Model-choice rationale and SOFA comparison improves methodological transparency; should-fix completeness."
+  },
+  {
+    "concern_id": "PR-028-C03",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "Reporting class proportion is a basic descriptive clarification."
+  },
+  {
+    "concern_id": "PR-028-C04",
+    "current_severity": "LOW",
+    "proposed_severity": "LOW",
+    "rationale": "Ensemble suggestion is future-work polish."
+  },
+  {
+    "concern_id": "PR-028-C05",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Update-frequency rationale is a design justification issue; clinically meaningful but not validity-threatening."
+  },
+  {
+    "concern_id": "PR-028-C06",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "PPV/false-alarm handling is clinical-utility refinement; should-fix without invalidating model."
+  },
+  {
+    "concern_id": "PR-028-C07",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Clinical-benefit translation requires prospective study; valid discussion-level concern."
+  },
+  {
+    "concern_id": "PR-029-C01",
+    "current_severity": "CRITICAL",
+    "proposed_severity": "HIGH",
+    "rationale": "Mismatch between prediction window and clinical decision point is a methodological design issue that limits utility, not a leakage/validity threat. Downgraded as predictions remain technically valid for narrow decision points."
+  },
+  {
+    "concern_id": "PR-029-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Lack of bootstrapped train/test split CIs risks cherry-picking; triggers ci_matrix_gate and E01 violation."
+  },
+  {
+    "concern_id": "PR-029-C03",
+    "current_severity": "HIGH",
+    "proposed_severity": "CRITICAL",
+    "rationale": "Multiple admissions per patient across splits is a direct violation of S01 (same patient cross-split) — classic data leakage that inflates performance."
+  },
+  {
+    "concern_id": "PR-029-C04",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "Model-complexity vs performance trade-off discussion is interpretation/polish, not methodology validity."
+  },
+  {
+    "concern_id": "PR-029-C05",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "ICD-code label accuracy is a meaningful cohort-definition risk; chart-review validation appropriately resolves it."
+  },
+  {
+    "concern_id": "PR-029-C06",
+    "current_severity": "LOW",
+    "proposed_severity": "LOW",
+    "rationale": "COVID-19 covariate adjustment is a sensitivity-analysis polish."
+  },
+  {
+    "concern_id": "PR-030-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Missing base rate and arbitrary 67% threshold is interpretation/reporting completeness, not validity-threatening."
+  },
+  {
+    "concern_id": "PR-030-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "LOW",
+    "rationale": "Superficial introduction and missing citations are reporting polish issues, not methodological."
+  },
+  {
+    "concern_id": "PR-030-C03",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Outcome imputation risks label noise; sensitivity analysis without imputation appropriately addresses it (missingness_policy_gate)."
+  },
+  {
+    "concern_id": "PR-030-C04",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "Uploading code to GitHub vs PDF is a reproducibility polish."
+  },
+  {
+    "concern_id": "PR-031-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Comparison to existing higher-accuracy methods is positioning/interpretation; novelty is cross-dataset generalization rather than raw accuracy."
+  },
+  {
+    "concern_id": "PR-031-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Underemphasizing cross-dataset generalization is reporting/framing — should-fix but not validity-threatening."
+  },
+  {
+    "concern_id": "PR-031-C03",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Unknown true treatment effect in post-hoc trial analysis is a methodological discussion gap; should-fix completeness."
+  },
+  {
+    "concern_id": "PR-031-C04",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "Figure axes/labels and interpretability framing are polish/clarification issues."
+  },
+  {
+    "concern_id": "PR-032-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "MRI dependence affects deployment scenarios and clinical utility, not internal validity; addressed by performance-without-MRI analysis."
+  },
+  {
+    "concern_id": "PR-032-C02",
+    "current_severity": "CRITICAL",
+    "proposed_severity": "CRITICAL",
+    "rationale": "Cohort-specific APOE missingness creates a near-perfect leakage proxy for AD vs non-AD label — direct validity threat akin to label leakage."
+  },
+  {
+    "concern_id": "PR-032-C03",
+    "current_severity": "HIGH",
+    "proposed_severity": "CRITICAL",
+    "rationale": "Circularity: features (MMSE/neuropsych) used to define the diagnostic label are then used to predict it — direct label leakage (F01)."
+  },
+  {
+    "concern_id": "PR-032-C04",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "MRI harmonization across cohorts and cohort-confounded APOE missingness is methodologically important; closely tied to C02 leakage risk."
+  },
+  {
+    "concern_id": "PR-032-C05",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "HIGH",
+    "rationale": "Unclear external validation dataset selection and tuning independence raises M01 risk (tuning on test); methodologically important."
+  },
+  {
+    "concern_id": "PR-033-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Missing calibration and DCA for amyloid/tau classification triggers calibration_dca_gate; key for clinical applicability."
+  },
+  {
+    "concern_id": "PR-033-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Unclear development/validation cohort separation risks contamination across seven cohorts; triggers external_validation_gate."
+  },
+  {
+    "concern_id": "PR-033-C03",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Clinical scenario specificity (pre-PET screening utility) is a should-fix utility-framing issue, not validity-threatening."
+  }
+]

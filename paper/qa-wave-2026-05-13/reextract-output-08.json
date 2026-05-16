@@ -1,0 +1,102 @@
+{
+  "agent": "reextract-08",
+  "ran_at_utc": "2026-05-16T00:00:00Z",
+  "papers_processed": [
+    {
+      "paper_id": "PR-087",
+      "pdf_pages_read": ["1-11"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-087-C01",
+          "new_author_response": null,
+          "new_resolved": null,
+          "extraction_status": "RESPONSE_NOT_FOUND_IN_PDF",
+          "extraction_note": "Reader study design concern (number of clinicians, experience, XAI vs non-XAI randomization) is not raised explicitly by Reviewer #1 or Reviewer #2 in this peer-review PDF. Reviewer #1 made only positive general remarks. Reviewer #2 raised 10 numbered points focused on XAI innovation, transparency quantification, ResNet design, attention mechanisms, generalization, AI attention toward human preference, temperature threshold 0.7, polygons vs heatmaps, multi-modal fusion, and SOTA comparison — none addressed reader-study sample/randomization design. The concern_text may be a misattribution."
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-079",
+      "pdf_pages_read": ["1-10", "11-20"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-079-C01",
+          "new_author_response": "Authors acknowledged clinical deployment is beyond manuscript aim — would require clinician collaboration, scanning microscope installation, GPU server coordination, and ethics approval. They added a suggestion to the Discussion (lines 357-359, 363-365, 369-380) on how future works can use similar frameworks to construct clinically useful tools, highlighting caveats in their proof-of-concept approach.",
+          "new_resolved": null,
+          "extraction_status": "EXTRACTED",
+          "extraction_note": "Concern about clinical applicability maps to Reviewer #2 point 6 (not Reviewer #1). Author response is honest deferral to future work, not a concrete clinical-deployment fix."
+        },
+        {
+          "concern_id": "PR-079-C02",
+          "new_author_response": "Authors added a new table (Table 2) detailing statistical tests, coefficients and p-values for cohort comparisons (Fig 1) and added p/correlation values to Fig 2f. They also added explicit statistics (means, p-values) to Fig 2e and an online interactive UMAP platform (haemorasis-umap) so readers can inspect the 25 morphotype-disease associations directly.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED",
+          "extraction_note": "Concern about morphology-molecular correlation statistical rigor maps to Reviewer #3's general 'add p values to all boxplots/scatter plots' and Fig 2f comments. Authors added concrete statistical tables and p-values."
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-084",
+      "pdf_pages_read": ["1-12", "13-24"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-084-C01",
+          "new_author_response": null,
+          "new_resolved": null,
+          "extraction_status": "RESPONSE_NOT_FOUND_IN_PDF",
+          "extraction_note": "Concern as written ('single-center data needs external multi-center validation') does not match the manuscript or reviewer comments: the paper already uses 17 transplant centers in the derivation cohort and two external validation cohorts (Columbia University, Sun Yat-sen University). Neither Reviewer #1 nor Reviewer #2 raised single-center concerns. Reviewer #1's actual minor comments were about KDPI substitution, 'virtual biopsy' terminology, missing-parameter robustness, and missing citations. Likely concern_text misattribution."
+        },
+        {
+          "concern_id": "PR-084-C02",
+          "new_author_response": "Authors defended the 'Virtual Biopsy System' term as appropriate (computer-generated biopsy results existing in virtual space, not physical world). They added clarifying text to the Introduction: 'The virtual biopsy system, an artificial intelligence (AI) model, provides virtual results that would have been obtained if a biopsy would have been performed.' Authors emphasized the system aims to identify which kidneys need biopsy, accelerate allocation, decrease cold ischemia time, and baseline graft histology — complementing, not replacing, histological assessment.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED",
+          "extraction_note": "Maps to Reviewer #1's terminology question. Authors clarified the deployment pathway (complement, not replace) and kept the term with added explanatory framing."
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-072",
+      "pdf_pages_read": ["1-10"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-072-C01",
+          "new_author_response": "Authors reassured leakage was eliminated by three mechanisms: (A) simulation phenotypes generated independently sharing no genetic aetiology; (B) PGS Catalog summary statistics used for NN training were specifically filtered to exclude UKB samples ('to avoid data leakage'); (C) training/validation/test splits performed by individual not by genome, and each NN model trained independently without weight sharing. Methods text re-edited at three locations to explicitly state UKB exclusion and independent training.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-072-C02",
+          "new_author_response": "Authors clarified that NN models (linear and nonlinear) already start from LD-aware baseline PGS methods (DBSLMM, metaGRS, lassosum, LDpred, LDpred2, PRS-CS) as the SNP-dosage weighting input. All NN results are now explicitly expressed as a fraction of these established LD-aware baselines — values below 1.0 indicate NN underperformed the baseline. Updated Results, Fig 3 legend, and Table 1 legend to make this comparison explicit. Declined to add boosted trees/SVMs as out-of-scope for deep-learning focus.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-072-C03",
+          "new_author_response": "Authors added new mixed additive-epistatic simulation scenarios at 2:1 and 1:2 ratios (in addition to 100%/0% extremes), now spanning 0%, 33%, 66%, 100% gradient. New results: 'additive-epistatic mixed scenarios were, as expected, intermediate between the purely additive and purely epistatic scenarios at 2.8% and 9.4% for the 2:1 and 1:2 additive:epistatic scenarios, respectively.' Added to Results and Methods sections.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-095",
+      "pdf_pages_read": ["1-12"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-095-C01",
+          "new_author_response": "Authors did not run fatigue surveys but defended the proxy framing: training label (prior physician workload) is intentionally a random-assignment proxy, not a direct fatigue measurement. They added MIMIC-III external generalization (replicating the overnight-shift finding) and added Appendix Table 14 documenting note-level features (readability, insight/certain word fractions) correlated with predicted fatigue. They acknowledged that direct fatigue measures 'may never have' been available and rest on a causal assumption (laid out in Appendix A) that workload affects notes only through fatigue.",
+          "new_resolved": null,
+          "extraction_status": "EXTRACTED",
+          "extraction_note": "No direct survey validation performed — authors substituted alternative-cohort replication (MIMIC-III) and indirect linguistic-feature validation. Resolved=null because the specific ask (direct fatigue surveys) was not met."
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_papers": 5,
+    "total_concerns_updated": 9,
+    "extracted_substantive": 7,
+    "not_found_in_pdf": 2
+  }
+}

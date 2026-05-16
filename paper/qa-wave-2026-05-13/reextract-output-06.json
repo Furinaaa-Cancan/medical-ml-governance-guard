@@ -1,0 +1,78 @@
+{
+  "agent": "reextract-06",
+  "ran_at_utc": "2026-05-16T00:00:00Z",
+  "papers_processed": [
+    {
+      "paper_id": "PR-093",
+      "pdf_pages_read": ["1-10", "11-15"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-093-C01",
+          "new_author_response": "Revised Table 1 and Figure 1 to clarify imaging cohort breakdown (n=201 clinicoradiomic, n=150 radioimmunomic). Split into 'discovery' set (160 patients, nested cross-validation) and fully-independent 'replication' set (41 patients, unseen during training). Acknowledged limitation: cohort relatively small and from single institution, highlighting 'the need for further external validation to test its generalizability'. CBTN actively working to expand multi-institutional sample size.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-085",
+      "pdf_pages_read": ["1-10"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-085-C01",
+          "new_author_response": "Clarified MGI and BioVU testing cohorts were not part of GWAS discovery; summary-based PRS methods used so no hyperparameter tuning/validation set needed. Reported full metric panel in Supplementary Figure 6 and Supplementary Table 9: AUC, R^2 on liability scale, true/false positives and negatives, sensitivity, specificity, OR per standard deviation, OR top 20% vs bottom 20%, and Nagelkerke's R^2 (Lines 272-276).",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-076",
+      "pdf_pages_read": ["1-10"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-076-C01",
+          "new_author_response": "Compared true positives (TP), false positives (FP), and false negatives (FN) between GAM and GWAS LMM across all drugs (new Fig. 3e-g). Findings: for new/repurposed drugs (BDQ, CFZ, DLM, LZD) GAM detected fewer TPs than LMM as expected given small resistant-isolate counts; for drugs with more resistant isolates GAM and LMM detected comparable TPs; FN counts comparable; GAM consistently detected substantially fewer FPs (1-2 vs 1000-5000) giving >200-fold higher PPV than LMM (Lines 170-180).",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-076-C02",
+          "new_author_response": "Clarified that the S. aureus analysis was not intended to claim GAM outperforms LMM but rather to demonstrate GAM robustly detects resistance SNPs/AMR genes in other bacterial pathogens. Applied the same TP/FP/FN framework to S. aureus and reported results in new Supplementary Table 4: GAM identified comparable TPs while producing dramatically fewer FPs than LMM (e.g., MET: GAM 257 FP vs LMM 140196 FP). For HGT-driven resistance (penicillin, erythromycin, clindamycin) LMM detected more TPs but at cost of significantly higher FPs (Lines 181-182, 197-202).",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-076-C03",
+          "new_author_response": "Updated Fig. 4b-c to include PPV and specificity results for the GAM+ML model and added Supplementary Table 3 with quantitative metrics. Reported PPV comparisons between GAM, WHO, and GAM+ML approaches showing GAM minimized false-positive resistance strains by reducing cross-resistance; integrating GAM into ML enhanced rifampicin PPV. Specificity analyses showed GAM+ML increased rifampicin specificity by 10.9%. AUC values ranged 85.0+/-1.0% to 97.0+/-1.0% (Supplementary Fig. 12), Lines 212-258.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-082",
+      "pdf_pages_read": ["1-10"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-082-C01",
+          "new_author_response": "Authors gathered all available CSF samples for individuals with plasma in the study and measured pTau181 and pTau217 on SIMOA HD-X, modestly increasing paired CSF+plasma data to 36% of cohort. Used new SIMOA data to improve CSF biomarker positivity cutoffs. Added supplementary materials showing how CSF cutoffs were established (graphs, demographics table for 61 CSF samples) in Supplementary Methods, Supplementary Table 1, and Supplementary Figure 2. Acknowledged low paired CSF/plasma N as a shared limitation across Brazilian dementia cohorts.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-082-C02",
+          "new_author_response": "Revised demographics table (Table 1) to list per-group counts of participants with CSF data (controls, AD biomarker+, etc.) which were previously only visible in figures. Per Reviewer #3 suggestion also added Supplementary Figure 3 with graphs of all CSF data available for the study sample. No statistical power augmentation or sample-size expansion was attempted beyond increasing paired CSF coverage to 36% via SIMOA HD-X; small N=145 retained as acknowledged limitation.",
+          "new_resolved": null,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_papers": 4,
+    "total_concerns_updated": 7,
+    "extracted_substantive": 7,
+    "not_found_in_pdf": 0
+  }
+}

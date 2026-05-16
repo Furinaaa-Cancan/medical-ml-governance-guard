@@ -1,0 +1,1212 @@
+{
+  "agent": "q1-empty-gates",
+  "ran_at_utc": "2026-05-16T09:42:39.591189+00:00",
+  "summary": {
+    "total_empty_gate_concerns": 282,
+    "would_get_specific_gate": 282,
+    "would_fall_back_to_publication_gate": 0,
+    "manually_upgraded_proposals": 52,
+    "note": "Script's existing CATEGORY_TO_GATES table guarantees at least one category-default gate per concern, so zero concerns fall back to publication_gate. However, 234/282 (83%) are mapped by category-default ONLY — the tag overlays didn't fire. Many of these tags + concern_text carry stronger signals for additional specific gates. The proposals below add those gates on top of the script's output (additive, not replacing).",
+    "upgrades_by_category": {
+      "evaluation_metrics": 20,
+      "study_design": 8,
+      "preprocessing": 8,
+      "reporting": 8,
+      "clinical_utility": 2,
+      "model_selection": 2,
+      "interpretability": 1,
+      "external_validation": 1,
+      "reproducibility": 1,
+      "sample_size": 1
+    }
+  },
+  "proposed_upgrades": [
+    {
+      "concern_id": "PR-001-C09",
+      "category": "study_design",
+      "tags": [
+        "causal_language",
+        "association_not_causation"
+      ],
+      "concern_text_excerpt": "The authors should exercise caution in their claims of causality, as biomarkers may reflect processes already in motion and may not necessarily indicate a causal relationship.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "cohort_definition_gate"
+      ],
+      "proposed_specific": [
+        "cohort_definition_gate",
+        "reporting_bias_gate"
+      ],
+      "added_gates": [
+        "reporting_bias_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'causal_language'->['cohort_definition_gate', 'reporting_bias_gate']"
+    },
+    {
+      "concern_id": "PR-003-C11",
+      "category": "evaluation_metrics",
+      "tags": [
+        "confounding",
+        "feature_correlation",
+        "independence_check"
+      ],
+      "concern_text_excerpt": "I would like to better understand the extent to which LEF1-AS1 expression is independent of age and gender, which are both known risk factors. How correlated is LEF1-AS1 expression with these demographic variables?",
+      "current_gates": [],
+      "would_become_via_script": [
+        "evaluation_quality_gate"
+      ],
+      "proposed_specific": [
+        "evaluation_quality_gate",
+        "cohort_definition_gate"
+      ],
+      "added_gates": [
+        "cohort_definition_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'confounding'->['cohort_definition_gate']"
+    },
+    {
+      "concern_id": "PR-004-C06",
+      "category": "preprocessing",
+      "tags": [
+        "phi_in_features",
+        "privacy",
+        "date_encoding"
+      ],
+      "concern_text_excerpt": "The use of PHI data like actual visit dates will highly impact both usability and generalizability. Recommend using day differences between events instead.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "feature_engineering_audit_gate"
+      ],
+      "proposed_specific": [
+        "feature_engineering_audit_gate",
+        "distribution_generalization_gate",
+        "external_validation_gate"
+      ],
+      "added_gates": [
+        "distribution_generalization_gate",
+        "external_validation_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'generalizability'->['distribution_generalization_gate', 'external_validation_gate']"
+    },
+    {
+      "concern_id": "PR-005-C02",
+      "category": "interpretability",
+      "tags": [
+        "confounding_by_stage",
+        "incremental_value",
+        "beyond_known_predictors"
+      ],
+      "concern_text_excerpt": "Given that stage is a very good determinant of prognosis, how do we know that the ML model isn't merely measuring tumor size and using this to determine prognosis? What other features other than size is the model using? How do we know it isn't merely using clinicopathological characteristics already",
+      "current_gates": [],
+      "would_become_via_script": [
+        "shap_interpretability_gate"
+      ],
+      "proposed_specific": [
+        "shap_interpretability_gate",
+        "cohort_definition_gate",
+        "clinical_metrics_gate",
+        "evaluation_quality_gate"
+      ],
+      "added_gates": [
+        "cohort_definition_gate",
+        "clinical_metrics_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'confounding'->['cohort_definition_gate']; 'incremental_value'->['clinical_metrics_gate', 'evaluation_quality_gate']"
+    },
+    {
+      "concern_id": "PR-008-C02",
+      "category": "preprocessing",
+      "tags": [
+        "missing_confounder",
+        "treatment_as_confounder",
+        "art_adjustment"
+      ],
+      "concern_text_excerpt": "Adjustments for the duration or type of ART use are conspicuously missing from the models. Several ART either act directly on viral or host proteins or indirectly through transcription. This could enhance models' accuracy.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "feature_engineering_audit_gate"
+      ],
+      "proposed_specific": [
+        "feature_engineering_audit_gate",
+        "cohort_definition_gate"
+      ],
+      "added_gates": [
+        "cohort_definition_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'confounder'->['cohort_definition_gate']"
+    },
+    {
+      "concern_id": "PR-008-C03",
+      "category": "preprocessing",
+      "tags": [
+        "missing_confounder",
+        "renal_function_adjustment",
+        "biological_confounder"
+      ],
+      "concern_text_excerpt": "Adjusting protein expression for renal function is important as several studies report the impact of renal function on protein expression due to the kidney's role in filtering and inflammatory response.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "feature_engineering_audit_gate"
+      ],
+      "proposed_specific": [
+        "feature_engineering_audit_gate",
+        "cohort_definition_gate"
+      ],
+      "added_gates": [
+        "cohort_definition_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'confounder'->['cohort_definition_gate']"
+    },
+    {
+      "concern_id": "PR-008-C08",
+      "category": "reporting",
+      "tags": [
+        "causal_language",
+        "internal_contradiction",
+        "association_not_causation"
+      ],
+      "concern_text_excerpt": "Several unsubstantiated statements imply causality throughout the results section. Introduction states 'traditional biomarkers are challenging for predicting mortality' but Discussion says they have 'potential for predicting mortality' — these are contradictory.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "reporting_bias_gate"
+      ],
+      "proposed_specific": [
+        "reporting_bias_gate",
+        "cohort_definition_gate"
+      ],
+      "added_gates": [
+        "cohort_definition_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'causal_language'->['cohort_definition_gate', 'reporting_bias_gate']"
+    },
+    {
+      "concern_id": "PR-011-C06",
+      "category": "evaluation_metrics",
+      "tags": [
+        "incomplete_metrics",
+        "full_metric_panel"
+      ],
+      "concern_text_excerpt": "In Fig. 2, Sensitivity and Precision were shown. It is good idea to present Specificity, Recall, Accuracy and F1 score as well.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "evaluation_quality_gate"
+      ],
+      "proposed_specific": [
+        "evaluation_quality_gate",
+        "clinical_metrics_gate"
+      ],
+      "added_gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'incomplete_metrics'->['evaluation_quality_gate', 'clinical_metrics_gate']; 'full_metric_panel'->['evaluation_quality_gate', 'clinical_metrics_gate']"
+    },
+    {
+      "concern_id": "PR-012-C03",
+      "category": "study_design",
+      "tags": [
+        "confounding_by_gender",
+        "multivariate_adjustment",
+        "demographic_imbalance"
+      ],
+      "concern_text_excerpt": "Significant difference in gender between the 3 immunophenotypes — more males in EXI and LAI. Whole data could be explained by higher propensity of males for proinflammatory cytokines. Statistical analysis should be reanalyzed normalizing for age, gender, and DFSO using multivariate analysis.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "cohort_definition_gate"
+      ],
+      "proposed_specific": [
+        "cohort_definition_gate",
+        "fairness_equity_gate"
+      ],
+      "added_gates": [
+        "fairness_equity_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'confounding_by_gender'->['fairness_equity_gate', 'cohort_definition_gate']; 'demographic_imbalance'->['fairness_equity_gate', 'cohort_definition_gate']"
+    },
+    {
+      "concern_id": "PR-012-C05",
+      "category": "study_design",
+      "tags": [
+        "incremental_value_questioned",
+        "known_biomarkers_sufficient",
+        "rationale_challenged"
+      ],
+      "concern_text_excerpt": "IL-6, IL-8 and IL-10 are main markers of disease severity and their levels can easily explain disease outcome among immunotypes. So that brings into question the rationale of the whole study.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "cohort_definition_gate"
+      ],
+      "proposed_specific": [
+        "cohort_definition_gate",
+        "clinical_metrics_gate",
+        "evaluation_quality_gate"
+      ],
+      "added_gates": [
+        "clinical_metrics_gate",
+        "evaluation_quality_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'incremental_value'->['clinical_metrics_gate', 'evaluation_quality_gate']"
+    },
+    {
+      "concern_id": "PR-013-C02",
+      "category": "reporting",
+      "tags": [
+        "adherence_unreported",
+        "feasibility",
+        "patient_burden",
+        "dropout"
+      ],
+      "concern_text_excerpt": "The monitoring protocol is quite extensive with 4 accelerometers per patient. Could the authors provide insight into adherence? How many patients managed to complete the 7-day wear-time period? Metrics of patient burden and retention would be insightful.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "reporting_bias_gate"
+      ],
+      "proposed_specific": [
+        "reporting_bias_gate",
+        "cohort_definition_gate"
+      ],
+      "added_gates": [
+        "cohort_definition_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'adherence_unreported'->['reporting_bias_gate', 'cohort_definition_gate']; 'dropout'->['cohort_definition_gate']"
+    },
+    {
+      "concern_id": "PR-014-C04",
+      "category": "reporting",
+      "tags": [
+        "scope_of_claims",
+        "figure_clarity",
+        "generalizability_limited"
+      ],
+      "concern_text_excerpt": "It should be stressed that the privacy-preserving approach has only been demonstrated to work on the relatively narrowly defined task of outcome extraction. A richer illustration in Figure 1 showing data boundaries would help.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "reporting_bias_gate"
+      ],
+      "proposed_specific": [
+        "reporting_bias_gate",
+        "distribution_generalization_gate",
+        "external_validation_gate"
+      ],
+      "added_gates": [
+        "distribution_generalization_gate",
+        "external_validation_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'generalizability'->['distribution_generalization_gate', 'external_validation_gate']"
+    },
+    {
+      "concern_id": "PR-016-C02",
+      "category": "preprocessing",
+      "tags": [
+        "image_normalization_missing",
+        "resolution_variation",
+        "feature_standardization"
+      ],
+      "concern_text_excerpt": "Calculated subtraction images without dividing by precontrast image — makes comparison of histogram features (mean, range, min, max) across patients highly dubious. Both in-plane resolution and slice thickness vary — should interpolate to same resolution prior to feature calculations.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "feature_engineering_audit_gate"
+      ],
+      "proposed_specific": [
+        "feature_engineering_audit_gate",
+        "clinical_metrics_gate"
+      ],
+      "added_gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'idi'->['clinical_metrics_gate']"
+    },
+    {
+      "concern_id": "PR-016-C05",
+      "category": "clinical_utility",
+      "tags": [
+        "comparison_with_existing_biomarkers",
+        "incremental_value",
+        "clinical_standard"
+      ],
+      "concern_text_excerpt": "Several gene expression signatures for breast cancer (Mammaprint, OncotypeDX) are clinically used. Authors have to study how their proposed biomarkers add additional prognostic value on top of these existing prognostic biomarkers.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "calibration_dca_gate",
+        "clinical_metrics_gate"
+      ],
+      "proposed_specific": [
+        "calibration_dca_gate",
+        "clinical_metrics_gate",
+        "evaluation_quality_gate"
+      ],
+      "added_gates": [
+        "evaluation_quality_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'incremental_value'->['clinical_metrics_gate', 'evaluation_quality_gate']"
+    },
+    {
+      "concern_id": "PR-016-C07",
+      "category": "reporting",
+      "tags": [
+        "outdated_data",
+        "technology_advancement",
+        "generalizability_to_modern_data"
+      ],
+      "concern_text_excerpt": "MRI data quality is no longer state-of-the-art/outdated. Since the TCGA/I-SPY studies there have been significant improvements in MRI software and hardware. Results may not be representative of current MRI radiomics potential.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "reporting_bias_gate"
+      ],
+      "proposed_specific": [
+        "reporting_bias_gate",
+        "distribution_generalization_gate",
+        "external_validation_gate"
+      ],
+      "added_gates": [
+        "distribution_generalization_gate",
+        "external_validation_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'generalizability'->['distribution_generalization_gate', 'external_validation_gate']"
+    },
+    {
+      "concern_id": "PR-018-C02",
+      "category": "evaluation_metrics",
+      "tags": [
+        "covariate_adjustment",
+        "confounders_in_auc"
+      ],
+      "concern_text_excerpt": "Would it be possible to include confounders such as age, sex as part of the AUC calculation?",
+      "current_gates": [],
+      "would_become_via_script": [
+        "evaluation_quality_gate"
+      ],
+      "proposed_specific": [
+        "evaluation_quality_gate",
+        "cohort_definition_gate"
+      ],
+      "added_gates": [
+        "cohort_definition_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'confounder'->['cohort_definition_gate']"
+    },
+    {
+      "concern_id": "PR-018-C05",
+      "category": "external_validation",
+      "tags": [
+        "european_only",
+        "ancestry_limitation",
+        "generalizability"
+      ],
+      "concern_text_excerpt": "Author mentioned they applied the framework in European ancestral group only. Would it be possible to include non-European population in the training datasets?",
+      "current_gates": [],
+      "would_become_via_script": [
+        "external_validation_gate"
+      ],
+      "proposed_specific": [
+        "external_validation_gate",
+        "fairness_equity_gate",
+        "distribution_generalization_gate"
+      ],
+      "added_gates": [
+        "fairness_equity_gate",
+        "distribution_generalization_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'european_only'->['external_validation_gate', 'fairness_equity_gate']; 'ancestry_limitation'->['external_validation_gate', 'fairness_equity_gate']; 'generalizability'->['distribution_generalization_gate', 'external_validation_gate']"
+    },
+    {
+      "concern_id": "PR-019-C02",
+      "category": "evaluation_metrics",
+      "tags": [
+        "incremental_value_not_tested",
+        "delta_auc",
+        "nri_missing"
+      ],
+      "concern_text_excerpt": "In the abstract, authors stated significant incremental predictive performance, but the methods and results do not include any analyses investigating the incremental performance of PGS — only full model analyses with covariates were included.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "evaluation_quality_gate"
+      ],
+      "proposed_specific": [
+        "evaluation_quality_gate",
+        "clinical_metrics_gate"
+      ],
+      "added_gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'nri'->['clinical_metrics_gate']; 'incremental_value'->['clinical_metrics_gate', 'evaluation_quality_gate']"
+    },
+    {
+      "concern_id": "PR-025-C06",
+      "category": "evaluation_metrics",
+      "tags": [
+        "nri_limitations",
+        "terminology_confusing"
+      ],
+      "concern_text_excerpt": "The Net Reclassification Index (NRI) has well-documented issues with the category-free version and should be interpreted with caution. The term 'metadata' is confusing — it relates to actual clinical data, not metadata.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "evaluation_quality_gate"
+      ],
+      "proposed_specific": [
+        "evaluation_quality_gate",
+        "clinical_metrics_gate"
+      ],
+      "added_gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'nri'->['clinical_metrics_gate']"
+    },
+    {
+      "concern_id": "PR-027-C04",
+      "category": "evaluation_metrics",
+      "tags": [
+        "auc_only",
+        "incomplete_metrics"
+      ],
+      "concern_text_excerpt": "Model performance evaluated only with AUC. Additional metrics like sensitivity, specificity, F1, and calibration should be reported for clinical applicability.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "evaluation_quality_gate"
+      ],
+      "proposed_specific": [
+        "evaluation_quality_gate",
+        "clinical_metrics_gate"
+      ],
+      "added_gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'incomplete_metrics'->['evaluation_quality_gate', 'clinical_metrics_gate']"
+    },
+    {
+      "concern_id": "PR-029-C04",
+      "category": "model_selection",
+      "tags": [
+        "simpler_model_competitive",
+        "complexity_vs_performance",
+        "deployment_practicality"
+      ],
+      "concern_text_excerpt": "XGBoost has equivalent or better performance compared to transformer. XGBoost doesn't incorporate varying time-series. Why should clinicians prefer a more complex model that is harder to implement?",
+      "current_gates": [],
+      "would_become_via_script": [
+        "model_selection_audit_gate"
+      ],
+      "proposed_specific": [
+        "model_selection_audit_gate",
+        "clinical_metrics_gate"
+      ],
+      "added_gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'deployment'->['clinical_metrics_gate']"
+    },
+    {
+      "concern_id": "PR-030-C02",
+      "category": "reporting",
+      "tags": [
+        "incomplete_literature_review",
+        "missing_citations"
+      ],
+      "concern_text_excerpt": "Introduction seems superficial and does not consider relevant literature on predictive models in psychotherapy research, especially for binary outcomes. Comparable recent papers in dropout prediction not cited.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "reporting_bias_gate"
+      ],
+      "proposed_specific": [
+        "reporting_bias_gate",
+        "ci_matrix_gate",
+        "evaluation_quality_gate",
+        "cohort_definition_gate"
+      ],
+      "added_gates": [
+        "ci_matrix_gate",
+        "evaluation_quality_gate",
+        "cohort_definition_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'missing_ci'->['ci_matrix_gate', 'evaluation_quality_gate']; 'dropout'->['cohort_definition_gate']"
+    },
+    {
+      "concern_id": "PR-032-C02",
+      "category": "study_design",
+      "tags": [
+        "noisy_labels",
+        "clinical_vs_pathological_diagnosis",
+        "confounded_by_missing_data",
+        "apoe_missingness"
+      ],
+      "concern_text_excerpt": "Model trained on clinical diagnosis — up to 30% of individuals with clinical AD dementia do not have AD pathology. Comparison with clinicians reflects differences between new vs old clinicians, not model superiority. Also APOE is missing for non-AD cohorts — presence of APOE alone could predict AD v",
+      "current_gates": [],
+      "would_become_via_script": [
+        "cohort_definition_gate",
+        "missingness_policy_gate"
+      ],
+      "proposed_specific": [
+        "cohort_definition_gate",
+        "missingness_policy_gate",
+        "evaluation_quality_gate"
+      ],
+      "added_gates": [
+        "evaluation_quality_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'comparison with'->['evaluation_quality_gate']"
+    },
+    {
+      "concern_id": "PR-032-C04",
+      "category": "preprocessing",
+      "tags": [
+        "cross_cohort_harmonization",
+        "missing_data_systematic",
+        "confounding_by_cohort"
+      ],
+      "concern_text_excerpt": "How were MRI scans harmonised across cohorts? How were cohort-specific missing data dealt with? APOE is missing in entire Parkinson and FTD cohorts — this creates a confound.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "feature_engineering_audit_gate",
+        "missingness_policy_gate"
+      ],
+      "proposed_specific": [
+        "feature_engineering_audit_gate",
+        "missingness_policy_gate",
+        "cohort_definition_gate"
+      ],
+      "added_gates": [
+        "cohort_definition_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'confounding'->['cohort_definition_gate']"
+    },
+    {
+      "concern_id": "PR-033-C03",
+      "category": "study_design",
+      "tags": [
+        "clinical_scenario",
+        "pet_replacement",
+        "cost_effectiveness"
+      ],
+      "concern_text_excerpt": "The clinical utility depends on whether this replaces PET scanning. How does the model perform in the specific clinical scenario where PET is being considered but not yet obtained?",
+      "current_gates": [],
+      "would_become_via_script": [
+        "cohort_definition_gate"
+      ],
+      "proposed_specific": [
+        "cohort_definition_gate",
+        "clinical_metrics_gate"
+      ],
+      "added_gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'cost_effectiveness'->['clinical_metrics_gate']"
+    },
+    {
+      "concern_id": "PR-034-C02",
+      "category": "evaluation_metrics",
+      "tags": [
+        "multiple_testing",
+        "confounder_adjustment",
+        "subgroup_stratification"
+      ],
+      "concern_text_excerpt": "Statistical analysis needs improvement: p-values not adjusted for multiple comparisons. Stepwise elimination lacks adjustment for known confounders (sex, hypertension, dyslipidemia). Must show model works in stratified analyses for young participants and non-smokers.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "evaluation_quality_gate"
+      ],
+      "proposed_specific": [
+        "evaluation_quality_gate",
+        "cohort_definition_gate"
+      ],
+      "added_gates": [
+        "cohort_definition_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'confounder'->['cohort_definition_gate']"
+    },
+    {
+      "concern_id": "PR-034-C03",
+      "category": "evaluation_metrics",
+      "tags": [
+        "measurement_variability",
+        "risk_reclassification",
+        "clinical_harm_potential"
+      ],
+      "concern_text_excerpt": "Bland-Altman plots show >100% variation in smaller volumes (<100mL). How many patients change risk groups between T0 and T1? This has huge clinical impact and could lead to major misclassifications and potentially harm.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "evaluation_quality_gate"
+      ],
+      "proposed_specific": [
+        "evaluation_quality_gate",
+        "cohort_definition_gate"
+      ],
+      "added_gates": [
+        "cohort_definition_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'misclassification'->['cohort_definition_gate']"
+    },
+    {
+      "concern_id": "PR-034-C05",
+      "category": "evaluation_metrics",
+      "tags": [
+        "confounding_unadjusted",
+        "clinical_model_comparison_in_supplement"
+      ],
+      "concern_text_excerpt": "CAC and structural results are so confounded by age, sex, smoking, diabetes that there seems little value in non-risk-adjusted results. ROC for clinical models should be in main figure, not supplementary.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "evaluation_quality_gate"
+      ],
+      "proposed_specific": [
+        "evaluation_quality_gate",
+        "cohort_definition_gate"
+      ],
+      "added_gates": [
+        "cohort_definition_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'confounding'->['cohort_definition_gate']"
+    },
+    {
+      "concern_id": "PR-035-C02",
+      "category": "evaluation_metrics",
+      "tags": [
+        "center_specific_features",
+        "generalizability",
+        "treatment_as_feature"
+      ],
+      "concern_text_excerpt": "Among 20 features, 'Use of diuretics', 'Admission to ICU', and 'Use of human albumin' vary between centers and have most significant SHAP contribution. This could limit stability and generalizability.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "evaluation_quality_gate"
+      ],
+      "proposed_specific": [
+        "evaluation_quality_gate",
+        "distribution_generalization_gate",
+        "external_validation_gate"
+      ],
+      "added_gates": [
+        "distribution_generalization_gate",
+        "external_validation_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'generalizability'->['distribution_generalization_gate', 'external_validation_gate']; 'center_specific'->['distribution_generalization_gate']"
+    },
+    {
+      "concern_id": "PR-037-C01",
+      "category": "model_selection",
+      "tags": [
+        "simple_model_only",
+        "scalability_unproven",
+        "complexity_mismatch"
+      ],
+      "concern_text_excerpt": "Empirical validation uses logistic regression which is simple and linearly scales. Rationale for distributed file system is undermotivated for 100-variable LR. Need to demonstrate with significantly larger and more complex models.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "model_selection_audit_gate"
+      ],
+      "proposed_specific": [
+        "model_selection_audit_gate",
+        "clinical_metrics_gate"
+      ],
+      "added_gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'scalability'->['clinical_metrics_gate']"
+    },
+    {
+      "concern_id": "PR-039-C05",
+      "category": "evaluation_metrics",
+      "tags": [
+        "ensemble_components_unreported",
+        "individual_vs_ensemble"
+      ],
+      "concern_text_excerpt": "The paper lacks detailed comparisons across the 12 ML methods used. How do individual models compare? What is the rationale for the specific ensemble strategy?",
+      "current_gates": [],
+      "would_become_via_script": [
+        "evaluation_quality_gate"
+      ],
+      "proposed_specific": [
+        "evaluation_quality_gate",
+        "model_selection_audit_gate",
+        "reporting_bias_gate"
+      ],
+      "added_gates": [
+        "model_selection_audit_gate",
+        "reporting_bias_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'ensemble_components_unreported'->['model_selection_audit_gate', 'reporting_bias_gate']; 'ensemble'->['model_selection_audit_gate']"
+    },
+    {
+      "concern_id": "PR-041-C01",
+      "category": "evaluation_metrics",
+      "tags": [
+        "chronological_vs_biological",
+        "clinical_outcome_missing",
+        "predictive_validity"
+      ],
+      "concern_text_excerpt": "PpgAge predicts chronological age well but lacks evaluation in predicting age-related outcomes like mortality, incident diseases, or functional outcomes. Must demonstrate additional predictive ability with these outcomes.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "evaluation_quality_gate"
+      ],
+      "proposed_specific": [
+        "evaluation_quality_gate",
+        "clinical_metrics_gate"
+      ],
+      "added_gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'idi'->['clinical_metrics_gate']"
+    },
+    {
+      "concern_id": "PR-041-C02",
+      "category": "preprocessing",
+      "tags": [
+        "device_heterogeneity",
+        "sensor_validation",
+        "preprocessing_details_missing",
+        "wear_time"
+      ],
+      "concern_text_excerpt": "Detailed breakdowns of consumer wearable types and software versions needed. Are all participants using the same smartwatch model? No comparison of Apple Watch PPG to ground truth. Data processing lacks details on wear time, data quality, missing data handling.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "feature_engineering_audit_gate"
+      ],
+      "proposed_specific": [
+        "feature_engineering_audit_gate",
+        "cohort_definition_gate",
+        "distribution_generalization_gate",
+        "covariate_shift_gate",
+        "reporting_bias_gate",
+        "missingness_policy_gate"
+      ],
+      "added_gates": [
+        "cohort_definition_gate",
+        "distribution_generalization_gate",
+        "covariate_shift_gate",
+        "reporting_bias_gate",
+        "missingness_policy_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'ground truth'->['cohort_definition_gate']; 'device_heterogeneity'->['distribution_generalization_gate', 'covariate_shift_gate']; 'preprocessing_details_missing'->['feature_engineering_audit_gate', 'reporting_bias_gate']"
+    },
+    {
+      "concern_id": "PR-042-C01",
+      "category": "evaluation_metrics",
+      "tags": [
+        "time_scale_inappropriate",
+        "age_as_timescale",
+        "survival_analysis_error"
+      ],
+      "concern_text_excerpt": "All survival analyses: using enrollment as start of follow-up is inappropriate. Time scale should be age, not calendar time. This is particularly important for Kaplan-Meier curves — age is not accommodated. Including age as covariate is typically not sufficient.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "evaluation_quality_gate"
+      ],
+      "proposed_specific": [
+        "evaluation_quality_gate",
+        "cohort_definition_gate"
+      ],
+      "added_gates": [
+        "cohort_definition_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'survival_analysis_error'->['evaluation_quality_gate', 'cohort_definition_gate']"
+    },
+    {
+      "concern_id": "PR-042-C06",
+      "category": "evaluation_metrics",
+      "tags": [
+        "smoking_confounder",
+        "stratification_needed",
+        "lung_cancer_smoking"
+      ],
+      "concern_text_excerpt": "All lung cancer findings need to be adjusted or stratified by smoking status initially. Otherwise extremely difficult to interpret.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "evaluation_quality_gate"
+      ],
+      "proposed_specific": [
+        "evaluation_quality_gate",
+        "cohort_definition_gate"
+      ],
+      "added_gates": [
+        "cohort_definition_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'confounder'->['cohort_definition_gate']"
+    },
+    {
+      "concern_id": "PR-043-C02",
+      "category": "evaluation_metrics",
+      "tags": [
+        "suspicious_improvement",
+        "per_clinic_results",
+        "delong_test",
+        "ci_needed"
+      ],
+      "concern_text_excerpt": "Reported AUC improvements over age-only control seem very high (41%). Does age-only control have AUC <0.5? Results should be reported per clinic with 95% CI and paired DeLong test.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "evaluation_quality_gate"
+      ],
+      "proposed_specific": [
+        "evaluation_quality_gate",
+        "ci_matrix_gate"
+      ],
+      "added_gates": [
+        "ci_matrix_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: '95% ci'->['ci_matrix_gate']"
+    },
+    {
+      "concern_id": "PR-045-C04",
+      "category": "preprocessing",
+      "tags": [
+        "complete_case_only",
+        "sample_reduction_unreported"
+      ],
+      "concern_text_excerpt": "Only participants with complete data used (no NA values). How many participants remained after this exclusion?",
+      "current_gates": [],
+      "would_become_via_script": [
+        "feature_engineering_audit_gate"
+      ],
+      "proposed_specific": [
+        "feature_engineering_audit_gate",
+        "cohort_definition_gate"
+      ],
+      "added_gates": [
+        "cohort_definition_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'exclusion'->['cohort_definition_gate']"
+    },
+    {
+      "concern_id": "PR-048-C03",
+      "category": "study_design",
+      "tags": [
+        "diet_confounder",
+        "comorbidity_missing",
+        "false_discovery_rate"
+      ],
+      "concern_text_excerpt": "Metabolites could be affected by diet habit, aging, or other diseases. Missing from cohort information: possible other underlying diseases and nutritional habits. ML model's false positive discovery rate should be addressed.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "cohort_definition_gate"
+      ],
+      "proposed_specific": [
+        "cohort_definition_gate",
+        "clinical_metrics_gate"
+      ],
+      "added_gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'idi'->['clinical_metrics_gate']"
+    },
+    {
+      "concern_id": "PR-051-C03",
+      "category": "clinical_utility",
+      "tags": [
+        "small_subgroup_overclaimed",
+        "drug_response_underpowered"
+      ],
+      "concern_text_excerpt": "Associations between OS and bevacizumab use are questionable. Only 30 patients with mixed treatment histories — too small to make conclusions about response prediction to bevacizumab.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "calibration_dca_gate",
+        "clinical_metrics_gate"
+      ],
+      "proposed_specific": [
+        "calibration_dca_gate",
+        "clinical_metrics_gate",
+        "sample_size_gate"
+      ],
+      "added_gates": [
+        "sample_size_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'underpowered'->['sample_size_gate']"
+    },
+    {
+      "concern_id": "PR-052-C02",
+      "category": "evaluation_metrics",
+      "tags": [
+        "incremental_value_vs_standard",
+        "multivariate_missing",
+        "clinical_standard_comparison"
+      ],
+      "concern_text_excerpt": "Model seems to overlook other factors that typically influence survival and are considered for adjuvant treatment. Should revisit analyses to better illustrate additional benefits compared to current prognostic classification.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "evaluation_quality_gate"
+      ],
+      "proposed_specific": [
+        "evaluation_quality_gate",
+        "clinical_metrics_gate"
+      ],
+      "added_gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'incremental_value'->['clinical_metrics_gate', 'evaluation_quality_gate']"
+    },
+    {
+      "concern_id": "PR-058-C03",
+      "category": "reporting",
+      "tags": [
+        "study_design_diagram_missing",
+        "consort_flow_missing",
+        "justification_for_lmic"
+      ],
+      "concern_text_excerpt": "Need overall diagram explaining entire study design. Detailed inclusion/exclusion cascade needed. Need justification why deploying such a model in low-income countries is desired given many such models already exist.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "reporting_bias_gate"
+      ],
+      "proposed_specific": [
+        "reporting_bias_gate",
+        "cohort_definition_gate"
+      ],
+      "added_gates": [
+        "cohort_definition_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'inclusion'->['cohort_definition_gate']; 'exclusion'->['cohort_definition_gate']"
+    },
+    {
+      "concern_id": "PR-062-C01",
+      "category": "reproducibility",
+      "tags": [
+        "training_details_missing",
+        "loss_function_missing",
+        "preprocessing_missing",
+        "extreme_ensemble",
+        "ml_contest_approach"
+      ],
+      "concern_text_excerpt": "DL model description is vague: loss function completely missing, training details (optimizer, dev split, epochs) absent, image preprocessing completely missing (DICOM→PNG, dimensions, cropping, augmentation). Why 20 models with random hyperparameters? How are they combined? Extreme ensemble learning",
+      "current_gates": [],
+      "would_become_via_script": [
+        "seed_stability_gate",
+        "execution_attestation_gate"
+      ],
+      "proposed_specific": [
+        "seed_stability_gate",
+        "execution_attestation_gate",
+        "model_selection_audit_gate"
+      ],
+      "added_gates": [
+        "model_selection_audit_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'ensemble'->['model_selection_audit_gate']"
+    },
+    {
+      "concern_id": "PR-062-C02",
+      "category": "evaluation_metrics",
+      "tags": [
+        "individual_model_performance_missing",
+        "ensemble_justification",
+        "clinical_practicality"
+      ],
+      "concern_text_excerpt": "How does each individual model perform? Using 20-model ensemble is unacceptable without showing individual performance. This is extreme ensemble that would not be practical clinically.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "evaluation_quality_gate"
+      ],
+      "proposed_specific": [
+        "evaluation_quality_gate",
+        "model_selection_audit_gate"
+      ],
+      "added_gates": [
+        "model_selection_audit_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'ensemble'->['model_selection_audit_gate']; 'individual_model_performance_missing'->['model_selection_audit_gate', 'evaluation_quality_gate']"
+    },
+    {
+      "concern_id": "PR-064-C02",
+      "category": "reporting",
+      "tags": [
+        "broken_github_link",
+        "incorrect_terminology",
+        "unclear_writing"
+      ],
+      "concern_text_excerpt": "GitHub link does not work. Why is network called a 'residual network' when no residual connections are used? Several sentences are unclear.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "reporting_bias_gate"
+      ],
+      "proposed_specific": [
+        "reporting_bias_gate",
+        "execution_attestation_gate"
+      ],
+      "added_gates": [
+        "execution_attestation_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'github_link'->['execution_attestation_gate']; 'github link'->['execution_attestation_gate']"
+    },
+    {
+      "concern_id": "PR-065-C03",
+      "category": "preprocessing",
+      "tags": [
+        "device_heterogeneity",
+        "slit_lamp_variation",
+        "imaging_protocol"
+      ],
+      "concern_text_excerpt": "A variety of slit-lamps were used (BQ-900, BX-900, OVS-II, PSL-Classic). Did every participant have photographs from all slit-lamps? What was the distribution of slit-lamp models in the dataset?",
+      "current_gates": [],
+      "would_become_via_script": [
+        "feature_engineering_audit_gate"
+      ],
+      "proposed_specific": [
+        "feature_engineering_audit_gate",
+        "distribution_generalization_gate",
+        "covariate_shift_gate"
+      ],
+      "added_gates": [
+        "distribution_generalization_gate",
+        "covariate_shift_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'device_heterogeneity'->['distribution_generalization_gate', 'covariate_shift_gate']"
+    },
+    {
+      "concern_id": "PR-067-C01",
+      "category": "evaluation_metrics",
+      "tags": [
+        "comparison_with_clinical_standard",
+        "uspstf_guideline",
+        "clinical_decision_comparison"
+      ],
+      "concern_text_excerpt": "More meaningful clinical comparison would be to USPSTF recommendation (screen persons aged 35-70 with BMI≥25). How does CXR DL model perform compared to USPSTF? Within USPSTF-eligible subset, how would this affect number of people tested/diagnosed/missed?",
+      "current_gates": [],
+      "would_become_via_script": [
+        "evaluation_quality_gate"
+      ],
+      "proposed_specific": [
+        "evaluation_quality_gate",
+        "clinical_metrics_gate"
+      ],
+      "added_gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'uspstf'->['clinical_metrics_gate']"
+    },
+    {
+      "concern_id": "PR-078-C03",
+      "category": "study_design",
+      "tags": [
+        "arbitrary_subgroup_selection",
+        "gender_bias",
+        "age_threshold_unjustified"
+      ],
+      "concern_text_excerpt": "Early detection analysis only selects women and age threshold of 59 — these selections come from nowhere. No reasoning provided. Comment on generalizability to males.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "cohort_definition_gate",
+        "fairness_equity_gate",
+        "clinical_metrics_gate"
+      ],
+      "proposed_specific": [
+        "cohort_definition_gate",
+        "fairness_equity_gate",
+        "clinical_metrics_gate",
+        "distribution_generalization_gate",
+        "external_validation_gate"
+      ],
+      "added_gates": [
+        "distribution_generalization_gate",
+        "external_validation_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'generalizability'->['distribution_generalization_gate', 'external_validation_gate']"
+    },
+    {
+      "concern_id": "PR-085-C01",
+      "category": "evaluation_metrics",
+      "tags": [
+        "prs_clinical_utility",
+        "metrics_beyond_auc"
+      ],
+      "concern_text_excerpt": "PRS predictive performance metrics beyond AUC needed for clinical utility assessment.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "evaluation_quality_gate"
+      ],
+      "proposed_specific": [
+        "evaluation_quality_gate",
+        "clinical_metrics_gate"
+      ],
+      "added_gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'metrics_beyond_auc'->['evaluation_quality_gate', 'clinical_metrics_gate']"
+    },
+    {
+      "concern_id": "PR-093-C01",
+      "category": "sample_size",
+      "tags": [
+        "rare_pediatric",
+        "small_sample",
+        "multi_institutional_needed"
+      ],
+      "concern_text_excerpt": "Pediatric brain tumors are rare. Sample size may limit model generalizability. Need multi-institutional validation.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "sample_size_gate"
+      ],
+      "proposed_specific": [
+        "sample_size_gate",
+        "distribution_generalization_gate",
+        "external_validation_gate"
+      ],
+      "added_gates": [
+        "distribution_generalization_gate",
+        "external_validation_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'generalizability'->['distribution_generalization_gate', 'external_validation_gate']"
+    },
+    {
+      "concern_id": "PR-100-C01",
+      "category": "evaluation_metrics",
+      "tags": [
+        "incremental_value_vs_standard",
+        "nri_idi_needed"
+      ],
+      "concern_text_excerpt": "Incremental value of multi-omics over standard clinical risk factors (e.g., Framingham, SCORE2) must be clearly demonstrated with NRI/IDI.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "evaluation_quality_gate"
+      ],
+      "proposed_specific": [
+        "evaluation_quality_gate",
+        "clinical_metrics_gate"
+      ],
+      "added_gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'nri'->['clinical_metrics_gate']; 'idi'->['clinical_metrics_gate']; 'incremental_value'->['clinical_metrics_gate', 'evaluation_quality_gate']"
+    },
+    {
+      "concern_id": "PR-100-C02",
+      "category": "study_design",
+      "tags": [
+        "cost_effectiveness",
+        "practical_deployment"
+      ],
+      "concern_text_excerpt": "Cost-effectiveness of proteomics+metabolomics panel for CVD screening not discussed. Practical deployment uncertain.",
+      "current_gates": [],
+      "would_become_via_script": [
+        "cohort_definition_gate"
+      ],
+      "proposed_specific": [
+        "cohort_definition_gate",
+        "clinical_metrics_gate"
+      ],
+      "added_gates": [
+        "clinical_metrics_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'cost_effectiveness'->['clinical_metrics_gate']; 'deployment'->['clinical_metrics_gate']"
+    },
+    {
+      "concern_id": "PR-EXP-0109-C10",
+      "category": "reporting",
+      "tags": [
+        "label_misclassification",
+        "non_cardiac_indication_cohort",
+        "limitation_acknowledged"
+      ],
+      "concern_text_excerpt": "Although I agree the disease labels used in this study are likely of good quality, I would nevertheless acknowledge the possibility of label misclassification as a limitation. As the authors argue, CHD can be present with ECG abnormalities below the level of human detection, and since many patients ",
+      "current_gates": [],
+      "would_become_via_script": [
+        "reporting_bias_gate"
+      ],
+      "proposed_specific": [
+        "reporting_bias_gate",
+        "cohort_definition_gate"
+      ],
+      "added_gates": [
+        "cohort_definition_gate"
+      ],
+      "rationale": "semantic enrichment beyond category-default; matched: 'misclassification'->['cohort_definition_gate']"
+    }
+  ]
+}

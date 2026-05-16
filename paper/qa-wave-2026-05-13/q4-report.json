@@ -1,0 +1,1179 @@
+{
+  "agent": "q4-duplicates",
+  "ran_at_utc": "2026-05-16T09:45:05Z",
+  "scope": "Cross-paper duplicate / near-duplicate concern detection across all 817 reviewer_concerns.",
+  "method": {
+    "primary": "difflib.SequenceMatcher.ratio() over concern_text, exhaustive within each of 13 categories (cross-paper only).",
+    "secondary": "token-Jaccard with stopword stripping, also clustered by category.",
+    "tertiary": "exact-string match across all concern_texts.",
+    "pair_count_evaluated": "approximately 46k cross-paper pairs after category clustering (down from 333k all-pairs).",
+    "short_circuit": "length-ratio < 0.5 skipped to keep runtime sane.",
+    "source_agent_attribution": "concern_id -> extracting agent map built from paper/extraction-wave-2026-05-13/agent-*.json (covers the 394 wave concerns; 423 original-curated concerns have no source agent)."
+  },
+  "summary": {
+    "total_concerns": 817,
+    "pairs_above_0.85": 0,
+    "classified_canonical": 0,
+    "classified_agent_copy_paste": 0,
+    "classified_near_paraphrase": 0,
+    "pairs_above_0.70_supplemental": 0,
+    "pairs_above_0.50_supplemental": 2,
+    "exact_cross_paper_duplicates": 0,
+    "canonical_pattern_groups_by_category_plus_gates": 49
+  },
+  "headline_finding": "Zero cross-paper concern pairs reach SequenceMatcher >= 0.85, zero reach token-Jaccard >= 0.7, and zero verbatim duplicates exist across papers. The 2026-05-13 extraction wave shows no evidence of agent copy-paste contamination: even when restricted to within-same-extracting-agent pairs, zero pairs cross 0.7 similarity. Concern texts are highly heterogeneous because each reviewer quotes paper-specific specifics (cohort names, model names, exact metrics). Canonical patterns exist at the SEMANTIC level (same category + same gates across many papers) but not at the TEXTUAL level, which is the expected and desired shape for RAG.",
+  "agent_copy_paste_suspects": [],
+  "highest_similarity_cross_paper_pairs_for_inspection": [
+    {
+      "pair": [
+        "PR-024-C03",
+        "PR-105-C02"
+      ],
+      "similarity": 0.641,
+      "concern_text_a": "Missing data shown not to be MCAR. Imputation method doesn't handle MNAR. Need reporting of N missing and bias analysis.",
+      "concern_text_b": "Missing data in EHR shown to be MNAR; imputation method does not address this; missingness counts and potential bias not fully reported.",
+      "paper_a_doi": "10.1038/s41467-025-57990-5",
+      "paper_b_doi": "10.1038/s41467-025-57990-5",
+      "note": "Below the 0.85 threshold; included for transparency."
+    },
+    {
+      "pair": [
+        "PR-084-C01",
+        "PR-099-C01"
+      ],
+      "similarity": 0.52,
+      "concern_text_a": "Model trained on single-center data. Needs external validation across different transplant centers with different protocols.",
+      "concern_text_b": "Single-channel oximetry is simpler than polysomnography but external validation across different oximeters and populations needed.",
+      "paper_a_doi": "10.1038/s41467-023-44595-z",
+      "paper_b_doi": "10.1038/s41467-023-40604-3",
+      "note": "Below the 0.85 threshold; included for transparency."
+    }
+  ],
+  "canonical_patterns": [
+    {
+      "pattern_summary": "evaluation_metrics concerns mapped to gates=['unassigned']",
+      "category": "evaluation_metrics",
+      "gates": [],
+      "n_instances": 88,
+      "n_distinct_papers": 63,
+      "examples": [
+        "PR-003-C11",
+        "PR-005-C05",
+        "PR-008-C06",
+        "PR-011-C06",
+        "PR-012-C04"
+      ],
+      "example_papers": [
+        "PR-003",
+        "PR-005",
+        "PR-008",
+        "PR-011",
+        "PR-012"
+      ],
+      "sample_text": "I would like to better understand the extent to which LEF1-AS1 expression is independent of age and gender, which are both known risk factors. How correlated is LEF1-AS1 expression with these demograp"
+    },
+    {
+      "pattern_summary": "study_design concerns mapped to gates=['unassigned']",
+      "category": "study_design",
+      "gates": [],
+      "n_instances": 68,
+      "n_distinct_papers": 51,
+      "examples": [
+        "PR-001-C09",
+        "PR-005-C04",
+        "PR-005-C08",
+        "PR-006-C06",
+        "PR-008-C05"
+      ],
+      "example_papers": [
+        "PR-001",
+        "PR-005",
+        "PR-006",
+        "PR-008",
+        "PR-009"
+      ],
+      "sample_text": "The authors should exercise caution in their claims of causality, as biomarkers may reflect processes already in motion and may not necessarily indicate a causal relationship."
+    },
+    {
+      "pattern_summary": "study_design concerns mapped to gates=['cohort_definition_gate']",
+      "category": "study_design",
+      "gates": [
+        "cohort_definition_gate"
+      ],
+      "n_instances": 74,
+      "n_distinct_papers": 45,
+      "examples": [
+        "PR-001-C01",
+        "PR-001-C05",
+        "PR-001-C10",
+        "PR-002-C03",
+        "PR-004-C03"
+      ],
+      "example_papers": [
+        "PR-001",
+        "PR-002",
+        "PR-004",
+        "PR-005",
+        "PR-007"
+      ],
+      "sample_text": "Models incorporate data gathered over the subsequent five years (or until OA diagnosis), effectively conditioning on future observations. One cannot anticipate factors like NSAID use four years into t"
+    },
+    {
+      "pattern_summary": "reporting concerns mapped to gates=['unassigned']",
+      "category": "reporting",
+      "gates": [],
+      "n_instances": 48,
+      "n_distinct_papers": 37,
+      "examples": [
+        "PR-007-C07",
+        "PR-008-C08",
+        "PR-009-C05",
+        "PR-009-C06",
+        "PR-010-C06"
+      ],
+      "example_papers": [
+        "PR-007",
+        "PR-008",
+        "PR-009",
+        "PR-010",
+        "PR-011"
+      ],
+      "sample_text": "Development of RF model serving as OvcaFinder lacks details. How were the sets of different predictors identified? Please expand the description."
+    },
+    {
+      "pattern_summary": "evaluation_metrics concerns mapped to gates=['evaluation_quality_gate']",
+      "category": "evaluation_metrics",
+      "gates": [
+        "evaluation_quality_gate"
+      ],
+      "n_instances": 29,
+      "n_distinct_papers": 27,
+      "examples": [
+        "PR-002-C02",
+        "PR-003-C06",
+        "PR-004-C01",
+        "PR-004-C07",
+        "PR-006-C03"
+      ],
+      "example_papers": [
+        "PR-002",
+        "PR-003",
+        "PR-004",
+        "PR-006",
+        "PR-008"
+      ],
+      "sample_text": "Based on the title 'role of unstructured data', I would have expected the authors to describe the actual role of clinical notes in prediction performance, in comparison to using structured data only. "
+    },
+    {
+      "pattern_summary": "model_selection concerns mapped to gates=['model_selection_audit_gate']",
+      "category": "model_selection",
+      "gates": [
+        "model_selection_audit_gate"
+      ],
+      "n_instances": 31,
+      "n_distinct_papers": 26,
+      "examples": [
+        "PR-002-C04",
+        "PR-003-C08",
+        "PR-009-C01",
+        "PR-020-C01",
+        "PR-027-C01"
+      ],
+      "example_papers": [
+        "PR-002",
+        "PR-003",
+        "PR-009",
+        "PR-020",
+        "PR-027"
+      ],
+      "sample_text": "When developing the model, cross-validation is much more robust method to avoid overfitting than the random split used by the authors."
+    },
+    {
+      "pattern_summary": "reporting concerns mapped to gates=['reporting_bias_gate']",
+      "category": "reporting",
+      "gates": [
+        "reporting_bias_gate"
+      ],
+      "n_instances": 24,
+      "n_distinct_papers": 22,
+      "examples": [
+        "PR-002-C06",
+        "PR-002-C08",
+        "PR-003-C04",
+        "PR-006-C07",
+        "PR-026-C04"
+      ],
+      "example_papers": [
+        "PR-002",
+        "PR-003",
+        "PR-006",
+        "PR-026",
+        "PR-039"
+      ],
+      "sample_text": "The paper is missing a demographics table to describe the patient population. What is the incidence of sepsis, severe sepsis, septic shock? How many are admitted to the ICU? Age distribution?"
+    },
+    {
+      "pattern_summary": "external_validation concerns mapped to gates=['external_validation_gate']",
+      "category": "external_validation",
+      "gates": [
+        "external_validation_gate"
+      ],
+      "n_instances": 22,
+      "n_distinct_papers": 21,
+      "examples": [
+        "PR-001-C06",
+        "PR-006-C04",
+        "PR-008-C07",
+        "PR-026-C01",
+        "PR-028-C01"
+      ],
+      "example_papers": [
+        "PR-001",
+        "PR-006",
+        "PR-008",
+        "PR-026",
+        "PR-028"
+      ],
+      "sample_text": "Although they validate their model in a separate sample in UKB, really this needs to be done in a separate cohort. This should be acknowledged."
+    },
+    {
+      "pattern_summary": "reproducibility concerns mapped to gates=['publication_gate']",
+      "category": "reproducibility",
+      "gates": [
+        "publication_gate"
+      ],
+      "n_instances": 18,
+      "n_distinct_papers": 18,
+      "examples": [
+        "PR-102-C04",
+        "PR-105-C03",
+        "PR-RO-07-C09",
+        "PR-EXP-0084-C06",
+        "PR-EXP-0085-C05"
+      ],
+      "example_papers": [
+        "PR-102",
+        "PR-105",
+        "PR-EXP-0084",
+        "PR-EXP-0085",
+        "PR-EXP-0092"
+      ],
+      "sample_text": "Code not available for review; preprocessing pipelines of proprietary MLCS framework not disclosed; conflict of interest from Univfy raises reproducibility concerns."
+    },
+    {
+      "pattern_summary": "reproducibility concerns mapped to gates=['unassigned']",
+      "category": "reproducibility",
+      "gates": [],
+      "n_instances": 16,
+      "n_distinct_papers": 15,
+      "examples": [
+        "PR-003-C09",
+        "PR-003-C10",
+        "PR-005-C07",
+        "PR-007-C05",
+        "PR-010-C05"
+      ],
+      "example_papers": [
+        "PR-003",
+        "PR-005",
+        "PR-007",
+        "PR-010",
+        "PR-013"
+      ],
+      "sample_text": "I did not find the file with code."
+    },
+    {
+      "pattern_summary": "clinical_utility concerns mapped to gates=['clinical_metrics_gate']",
+      "category": "clinical_utility",
+      "gates": [
+        "clinical_metrics_gate"
+      ],
+      "n_instances": 16,
+      "n_distinct_papers": 15,
+      "examples": [
+        "PR-004-C02",
+        "PR-007-C01",
+        "PR-020-C02",
+        "PR-105-C06",
+        "PR-106-C04"
+      ],
+      "example_papers": [
+        "PR-004",
+        "PR-007",
+        "PR-020",
+        "PR-105",
+        "PR-106"
+      ],
+      "sample_text": "PPV 1.7% - is this really practically useful? If implemented in clinical practice, over 98% of interventions would be for patients who will not actually harm themselves. The statement that PPV 8.45% '"
+    },
+    {
+      "pattern_summary": "interpretability concerns mapped to gates=['shap_interpretability_gate']",
+      "category": "interpretability",
+      "gates": [
+        "shap_interpretability_gate"
+      ],
+      "n_instances": 15,
+      "n_distinct_papers": 14,
+      "examples": [
+        "PR-001-C07",
+        "PR-001-C08",
+        "PR-003-C07",
+        "PR-011-C03",
+        "PR-101-C05"
+      ],
+      "example_papers": [
+        "PR-001",
+        "PR-003",
+        "PR-011",
+        "PR-101",
+        "PR-EXP-0095"
+      ],
+      "sample_text": "Present the ClinGRS, ClinMet and ClinPro OA risk models using SHAP values similar to how the Clin model was presented in Figure 2D. The sparse volcano plots are not particularly informative."
+    },
+    {
+      "pattern_summary": "clinical_utility concerns mapped to gates=['unassigned']",
+      "category": "clinical_utility",
+      "gates": [],
+      "n_instances": 15,
+      "n_distinct_papers": 14,
+      "examples": [
+        "PR-004-C05",
+        "PR-012-C06",
+        "PR-016-C05",
+        "PR-026-C03",
+        "PR-028-C07"
+      ],
+      "example_papers": [
+        "PR-004",
+        "PR-012",
+        "PR-016",
+        "PR-026",
+        "PR-028"
+      ],
+      "sample_text": "Prediction of pancreatic cancer ICD-10 codes one visit prior may not be clinically useful. The documentation of a code is not equivalent to the first diagnosis. The duration between visits may differ "
+    },
+    {
+      "pattern_summary": "preprocessing concerns mapped to gates=['missingness_policy_gate']",
+      "category": "preprocessing",
+      "gates": [
+        "missingness_policy_gate"
+      ],
+      "n_instances": 13,
+      "n_distinct_papers": 12,
+      "examples": [
+        "PR-003-C02",
+        "PR-003-C03",
+        "PR-006-C05",
+        "PR-024-C03",
+        "PR-025-C02"
+      ],
+      "example_papers": [
+        "PR-003",
+        "PR-006",
+        "PR-024",
+        "PR-025",
+        "PR-030"
+      ],
+      "sample_text": "Missing data was imputed without specifying its percentage. For example, was 40% of the age variable missing in cohort A? These characteristics need to be mentioned for assessment of the lncRNA as a p"
+    },
+    {
+      "pattern_summary": "preprocessing concerns mapped to gates=['unassigned']",
+      "category": "preprocessing",
+      "gates": [],
+      "n_instances": 14,
+      "n_distinct_papers": 12,
+      "examples": [
+        "PR-004-C06",
+        "PR-008-C02",
+        "PR-008-C03",
+        "PR-016-C01",
+        "PR-016-C02"
+      ],
+      "example_papers": [
+        "PR-004",
+        "PR-008",
+        "PR-016",
+        "PR-017",
+        "PR-032"
+      ],
+      "sample_text": "The use of PHI data like actual visit dates will highly impact both usability and generalizability. Recommend using day differences between events instead."
+    },
+    {
+      "pattern_summary": "external_validation concerns mapped to gates=['distribution_generalization_gate', 'external_validation_gate']",
+      "category": "external_validation",
+      "gates": [
+        "distribution_generalization_gate",
+        "external_validation_gate"
+      ],
+      "n_instances": 12,
+      "n_distinct_papers": 11,
+      "examples": [
+        "PR-111-C04",
+        "PR-EXP-0085-C04",
+        "PR-EXP-0086-C06",
+        "PR-EXP-0092-C01",
+        "PR-EXP-0096-C03"
+      ],
+      "example_papers": [
+        "PR-111",
+        "PR-EXP-0085",
+        "PR-EXP-0086",
+        "PR-EXP-0092",
+        "PR-EXP-0096"
+      ],
+      "sample_text": "No independent validation cohort; 25% held-out split presented as 'validation' serves only bioinformatic role; generalization across countries/age/HIV subgroups untested."
+    },
+    {
+      "pattern_summary": "evaluation_metrics concerns mapped to gates=['calibration_dca_gate']",
+      "category": "evaluation_metrics",
+      "gates": [
+        "calibration_dca_gate"
+      ],
+      "n_instances": 10,
+      "n_distinct_papers": 10,
+      "examples": [
+        "PR-002-C07",
+        "PR-020-C03",
+        "PR-022-C01",
+        "PR-024-C05",
+        "PR-025-C03"
+      ],
+      "example_papers": [
+        "PR-002",
+        "PR-020",
+        "PR-022",
+        "PR-024",
+        "PR-025"
+      ],
+      "sample_text": "It would be helpful to include a reliability diagram (calibration diagram) as well as a precision-recall diagram for a representative model to better understand calibration and trade-offs between prec"
+    },
+    {
+      "pattern_summary": "model_selection concerns mapped to gates=['unassigned']",
+      "category": "model_selection",
+      "gates": [],
+      "n_instances": 12,
+      "n_distinct_papers": 10,
+      "examples": [
+        "PR-014-C02",
+        "PR-017-C01",
+        "PR-028-C02",
+        "PR-028-C04",
+        "PR-029-C04"
+      ],
+      "example_papers": [
+        "PR-014",
+        "PR-017",
+        "PR-028",
+        "PR-029",
+        "PR-037"
+      ],
+      "sample_text": "The proposed models are not compared with any other methods, only an uninformative model. LLMs like ChatGPT have been proven effective for extracting structured data from clinical notes. Open-source L"
+    },
+    {
+      "pattern_summary": "feature_selection concerns mapped to gates=['feature_engineering_audit_gate']",
+      "category": "feature_selection",
+      "gates": [
+        "feature_engineering_audit_gate"
+      ],
+      "n_instances": 11,
+      "n_distinct_papers": 10,
+      "examples": [
+        "PR-101-C04",
+        "PR-105-C05",
+        "PR-108-C04",
+        "PR-EXP-0084-C15",
+        "PR-EXP-0095-C09"
+      ],
+      "example_papers": [
+        "PR-101",
+        "PR-105",
+        "PR-108",
+        "PR-EXP-0084",
+        "PR-EXP-0095"
+      ],
+      "sample_text": "Stability of LASSO-selected biomarkers across alternative feature selection methods not demonstrated; need to show same biomarkers selected by multiple approaches."
+    },
+    {
+      "pattern_summary": "evaluation_metrics concerns mapped to gates=['evaluation_quality_gate', 'metric_consistency_gate']",
+      "category": "evaluation_metrics",
+      "gates": [
+        "evaluation_quality_gate",
+        "metric_consistency_gate"
+      ],
+      "n_instances": 11,
+      "n_distinct_papers": 10,
+      "examples": [
+        "PR-104-C02",
+        "PR-EXP-0085-C06",
+        "PR-EXP-0086-C04",
+        "PR-EXP-0099-C02",
+        "PR-EXP-0101-C08"
+      ],
+      "example_papers": [
+        "PR-104",
+        "PR-EXP-0085",
+        "PR-EXP-0086",
+        "PR-EXP-0099",
+        "PR-EXP-0101"
+      ],
+      "sample_text": "Categorical sensitivity/specificity comparisons at arbitrary cutpoints bias comparison vs continuous H2FPEF score (near-identical AUROC); claims of higher classification performance not sufficiently j"
+    },
+    {
+      "pattern_summary": "evaluation_metrics concerns mapped to gates=['clinical_metrics_gate', 'evaluation_quality_gate']",
+      "category": "evaluation_metrics",
+      "gates": [
+        "clinical_metrics_gate",
+        "evaluation_quality_gate"
+      ],
+      "n_instances": 11,
+      "n_distinct_papers": 9,
+      "examples": [
+        "PR-EXP-0085-C08",
+        "PR-EXP-0097-C06",
+        "PR-EXP-0103-C02",
+        "PR-EXP-0109-C04",
+        "PR-EXP-0110-C04"
+      ],
+      "example_papers": [
+        "PR-EXP-0085",
+        "PR-EXP-0097",
+        "PR-EXP-0103",
+        "PR-EXP-0109",
+        "PR-EXP-0110"
+      ],
+      "sample_text": "The study employs performance metrics such as F1, AUROC, sensitivity, and specificity, [but] it overlooks what is arguably the most clinically critical metric in AMR prediction: the very major error ("
+    },
+    {
+      "pattern_summary": "interpretability concerns mapped to gates=['unassigned']",
+      "category": "interpretability",
+      "gates": [],
+      "n_instances": 10,
+      "n_distinct_papers": 8,
+      "examples": [
+        "PR-005-C02",
+        "PR-005-C06",
+        "PR-007-C06",
+        "PR-021-C04",
+        "PR-041-C03"
+      ],
+      "example_papers": [
+        "PR-005",
+        "PR-007",
+        "PR-021",
+        "PR-041",
+        "PR-065"
+      ],
+      "sample_text": "Given that stage is a very good determinant of prognosis, how do we know that the ML model isn't merely measuring tumor size and using this to determine prognosis? What other features other than size "
+    },
+    {
+      "pattern_summary": "sample_size concerns mapped to gates=['sample_size_gate']",
+      "category": "sample_size",
+      "gates": [
+        "sample_size_gate"
+      ],
+      "n_instances": 8,
+      "n_distinct_papers": 8,
+      "examples": [
+        "PR-006-C08",
+        "PR-012-C07",
+        "PR-025-C01",
+        "PR-056-C02",
+        "PR-101-C01"
+      ],
+      "example_papers": [
+        "PR-006",
+        "PR-012",
+        "PR-025",
+        "PR-056",
+        "PR-101"
+      ],
+      "sample_text": "I would suggest that the number of cases does not constitute 'Large scale' GWAS meta-analysis. There is insufficient power to detect GWAS-significant SNP associations. This should be made clearer in t"
+    },
+    {
+      "pattern_summary": "evaluation_metrics concerns mapped to gates=['ci_matrix_gate', 'evaluation_quality_gate']",
+      "category": "evaluation_metrics",
+      "gates": [
+        "ci_matrix_gate",
+        "evaluation_quality_gate"
+      ],
+      "n_instances": 8,
+      "n_distinct_papers": 8,
+      "examples": [
+        "PR-EXP-0096-C02",
+        "PR-EXP-0098-C05",
+        "PR-EXP-0112-C04",
+        "PR-EXP-0124-C03",
+        "PR-EXP-0159-C01"
+      ],
+      "example_papers": [
+        "PR-EXP-0096",
+        "PR-EXP-0098",
+        "PR-EXP-0112",
+        "PR-EXP-0124",
+        "PR-EXP-0159"
+      ],
+      "sample_text": "Performance Estimation: The use of 10-fold cross-validation yields performance metrics as averages across folds, which is not ideal for robust performance estimation. The authors should elaborate on t"
+    },
+    {
+      "pattern_summary": "evaluation_metrics concerns mapped to gates=['calibration_dca_gate', 'evaluation_quality_gate']",
+      "category": "evaluation_metrics",
+      "gates": [
+        "calibration_dca_gate",
+        "evaluation_quality_gate"
+      ],
+      "n_instances": 7,
+      "n_distinct_papers": 7,
+      "examples": [
+        "PR-002-C01",
+        "PR-003-C05",
+        "PR-006-C02",
+        "PR-104-C04",
+        "PR-110-C03"
+      ],
+      "example_papers": [
+        "PR-002",
+        "PR-003",
+        "PR-006",
+        "PR-104",
+        "PR-110"
+      ],
+      "sample_text": "The dataset is highly imbalanced; thus, AUC should not be the only performance metric reported. Authors should at least provide PPV and NPV. Furthermore, it is unclear how well calibrated the model is"
+    },
+    {
+      "pattern_summary": "evaluation_metrics concerns mapped to gates=['ci_matrix_gate']",
+      "category": "evaluation_metrics",
+      "gates": [
+        "ci_matrix_gate"
+      ],
+      "n_instances": 7,
+      "n_distinct_papers": 7,
+      "examples": [
+        "PR-009-C02",
+        "PR-029-C02",
+        "PR-035-C05",
+        "PR-106-C02",
+        "PR-109-C06"
+      ],
+      "example_papers": [
+        "PR-009",
+        "PR-029",
+        "PR-035",
+        "PR-106",
+        "PR-109"
+      ],
+      "sample_text": "Confidence intervals computed using bootstrapping provide uncertainty related to the data sample but not related to model parameters. Also, using time-to-event analysis rather than binary classificati"
+    },
+    {
+      "pattern_summary": "model_selection concerns mapped to gates=['model_selection_audit_gate', 'tuning_leakage_gate']",
+      "category": "model_selection",
+      "gates": [
+        "model_selection_audit_gate",
+        "tuning_leakage_gate"
+      ],
+      "n_instances": 7,
+      "n_distinct_papers": 7,
+      "examples": [
+        "PR-RO-07-C05",
+        "PR-EXP-0084-C04",
+        "PR-EXP-0099-C03",
+        "PR-EXP-0112-C05",
+        "PR-EXP-0126-C03"
+      ],
+      "example_papers": [
+        "PR-EXP-0084",
+        "PR-EXP-0099",
+        "PR-EXP-0112",
+        "PR-EXP-0126",
+        "PR-EXP-0148"
+      ],
+      "sample_text": "All five methods that were proposed in the original version of this manuscript failed to work in the two validation cohorts. I am afraid this was the reason why three new methods (H-STEP, S-STEP, and "
+    },
+    {
+      "pattern_summary": "preprocessing concerns mapped to gates=['feature_engineering_audit_gate']",
+      "category": "preprocessing",
+      "gates": [
+        "feature_engineering_audit_gate"
+      ],
+      "n_instances": 8,
+      "n_distinct_papers": 7,
+      "examples": [
+        "PR-EXP-0109-C06",
+        "PR-EXP-0109-C08",
+        "PR-EXP-0119-C06",
+        "PR-EXP-0153-C03",
+        "PR-EXP-0155-C04"
+      ],
+      "example_papers": [
+        "PR-EXP-0109",
+        "PR-EXP-0119",
+        "PR-EXP-0153",
+        "PR-EXP-0155",
+        "PR-EXP-0179"
+      ],
+      "sample_text": "The proportion of tracings excluded for 'corruption' is very high (40% in Ref A and 50% in Ref B). This is concerning, and may be a source of bias. More detail is needed regarding assessment of tracin"
+    },
+    {
+      "pattern_summary": "external_validation concerns mapped to gates=['unassigned']",
+      "category": "external_validation",
+      "gates": [],
+      "n_instances": 7,
+      "n_distinct_papers": 6,
+      "examples": [
+        "PR-018-C04",
+        "PR-018-C05",
+        "PR-023-C03",
+        "PR-084-C01",
+        "PR-090-C01"
+      ],
+      "example_papers": [
+        "PR-018",
+        "PR-023",
+        "PR-084",
+        "PR-090",
+        "PR-094"
+      ],
+      "sample_text": "As summary statistics of T2D, CAD, and IBD are available, could authors generate PRS using traditional LDpred2 with UKBB data and compare AUC with LDpred based PRStuning? Include computational time co"
+    },
+    {
+      "pattern_summary": "reporting concerns mapped to gates=['execution_attestation_gate', 'reporting_bias_gate']",
+      "category": "reporting",
+      "gates": [
+        "execution_attestation_gate",
+        "reporting_bias_gate"
+      ],
+      "n_instances": 6,
+      "n_distinct_papers": 6,
+      "examples": [
+        "PR-113-C06",
+        "PR-EXP-0097-C04",
+        "PR-EXP-0148-C03",
+        "PR-EXP-0191-C03",
+        "PR-EXP-0205-C01"
+      ],
+      "example_papers": [
+        "PR-113",
+        "PR-EXP-0097",
+        "PR-EXP-0148",
+        "PR-EXP-0191",
+        "PR-EXP-0205"
+      ],
+      "sample_text": "Code not available at initial submission; only pseudocode provided; documentation insufficient to reproduce analyses or link scripts to specific figures/transcriptomic results."
+    },
+    {
+      "pattern_summary": "evaluation_metrics concerns mapped to gates=['evaluation_quality_gate', 'imbalance_policy_gate']",
+      "category": "evaluation_metrics",
+      "gates": [
+        "evaluation_quality_gate",
+        "imbalance_policy_gate"
+      ],
+      "n_instances": 6,
+      "n_distinct_papers": 6,
+      "examples": [
+        "PR-EXP-0084-C05",
+        "PR-EXP-0109-C05",
+        "PR-EXP-0148-C04",
+        "PR-EXP-0150-C03",
+        "PR-EXP-0155-C02"
+      ],
+      "example_papers": [
+        "PR-EXP-0084",
+        "PR-EXP-0109",
+        "PR-EXP-0148",
+        "PR-EXP-0150",
+        "PR-EXP-0155"
+      ],
+      "sample_text": "It is claimed that the GBC method achieves 'highest accuracy' and therefore is chosen as a 'final model'. However, the authors are considering a multitude of outcomes so is that really the case for AL"
+    },
+    {
+      "pattern_summary": "split_protocol concerns mapped to gates=['split_protocol_gate']",
+      "category": "split_protocol",
+      "gates": [
+        "split_protocol_gate"
+      ],
+      "n_instances": 5,
+      "n_distinct_papers": 5,
+      "examples": [
+        "PR-010-C02",
+        "PR-029-C03",
+        "PR-EXP-0097-C13",
+        "PR-EXP-0103-C04",
+        "PR-EXP-0189-C04"
+      ],
+      "example_papers": [
+        "PR-010",
+        "PR-029",
+        "PR-EXP-0097",
+        "PR-EXP-0103",
+        "PR-EXP-0189"
+      ],
+      "sample_text": "The use of data from 20 past years is problematic \u2014 medicine has taken a great leap forward. Using a temporally remote population to predict future patients may not work. Instead of randomly splitting"
+    },
+    {
+      "pattern_summary": "study_design concerns mapped to gates=['cohort_definition_gate', 'definition_variable_guard']",
+      "category": "study_design",
+      "gates": [
+        "cohort_definition_gate",
+        "definition_variable_guard"
+      ],
+      "n_instances": 4,
+      "n_distinct_papers": 4,
+      "examples": [
+        "PR-105-C01",
+        "PR-EXP-0098-C01",
+        "PR-EXP-0150-C04",
+        "PR-EXP-0203-C07"
+      ],
+      "example_papers": [
+        "PR-105",
+        "PR-EXP-0098",
+        "PR-EXP-0150",
+        "PR-EXP-0203"
+      ],
+      "sample_text": "Time-horizon conflation: 2-year 'risk' of already-present cancer is a diagnostic probability, not a forward risk; imprecise use of 'risk' vs 'probability' obscures clinical purpose."
+    },
+    {
+      "pattern_summary": "feature_selection concerns mapped to gates=['feature_engineering_audit_gate', 'feature_lineage_gate']",
+      "category": "feature_selection",
+      "gates": [
+        "feature_engineering_audit_gate",
+        "feature_lineage_gate"
+      ],
+      "n_instances": 4,
+      "n_distinct_papers": 4,
+      "examples": [
+        "PR-EXP-0084-C07",
+        "PR-EXP-0160-C11",
+        "PR-EXP-0170-C04",
+        "PR-EXP-0212-C07"
+      ],
+      "example_papers": [
+        "PR-EXP-0084",
+        "PR-EXP-0160",
+        "PR-EXP-0170",
+        "PR-EXP-0212"
+      ],
+      "sample_text": "It remains unclear whether the VAE is used for representation learning, feature selection, denoising, or all three, and why this choice is preferable to simpler alternatives (e.g. a vanilla autoencode"
+    },
+    {
+      "pattern_summary": "reproducibility concerns mapped to gates=['execution_attestation_gate', 'publication_gate']",
+      "category": "reproducibility",
+      "gates": [
+        "execution_attestation_gate",
+        "publication_gate"
+      ],
+      "n_instances": 4,
+      "n_distinct_papers": 4,
+      "examples": [
+        "PR-EXP-0085-C09",
+        "PR-EXP-0097-C07",
+        "PR-EXP-0111-C01",
+        "PR-EXP-0150-C05"
+      ],
+      "example_papers": [
+        "PR-EXP-0085",
+        "PR-EXP-0097",
+        "PR-EXP-0111",
+        "PR-EXP-0150"
+      ],
+      "sample_text": "Although the figures illustrate that the features are mainly derived from unitigs, SNPs, and FCGR, the description in the Methods section and the demo dataset provided suggest that AMR prediction does"
+    },
+    {
+      "pattern_summary": "external_validation concerns mapped to gates=['fairness_equity_gate']",
+      "category": "external_validation",
+      "gates": [
+        "fairness_equity_gate"
+      ],
+      "n_instances": 5,
+      "n_distinct_papers": 4,
+      "examples": [
+        "PR-EXP-0086-C02",
+        "PR-EXP-0105-C08",
+        "PR-EXP-0119-C01",
+        "PR-EXP-0119-C07",
+        "PR-EXP-0124-C04"
+      ],
+      "example_papers": [
+        "PR-EXP-0086",
+        "PR-EXP-0105",
+        "PR-EXP-0119",
+        "PR-EXP-0124"
+      ],
+      "sample_text": "There is limited representation in the patient sample from certain patient races, and some cancer types are missing altogether (multiple myeloma, acute leukemia), which also can limit generalizability"
+    },
+    {
+      "pattern_summary": "split_protocol concerns mapped to gates=['leakage_gate', 'split_protocol_gate']",
+      "category": "split_protocol",
+      "gates": [
+        "leakage_gate",
+        "split_protocol_gate"
+      ],
+      "n_instances": 3,
+      "n_distinct_papers": 3,
+      "examples": [
+        "PR-002-C05",
+        "PR-EXP-0109-C12",
+        "PR-EXP-0110-C07"
+      ],
+      "example_papers": [
+        "PR-002",
+        "PR-EXP-0109",
+        "PR-EXP-0110"
+      ],
+      "sample_text": "How was random sampling performed? Was the unit of randomization performed at the level of the note, the patient visit, or the patient? Was there any overlap in patients between the test set and the t"
+    },
+    {
+      "pattern_summary": "preprocessing concerns mapped to gates=['imbalance_policy_gate']",
+      "category": "preprocessing",
+      "gates": [
+        "imbalance_policy_gate"
+      ],
+      "n_instances": 3,
+      "n_distinct_papers": 3,
+      "examples": [
+        "PR-101-C03",
+        "PR-EXP-0085-C03",
+        "PR-EXP-0203-C03"
+      ],
+      "example_papers": [
+        "PR-101",
+        "PR-EXP-0085",
+        "PR-EXP-0203"
+      ],
+      "sample_text": "Class imbalance between responders and non-responders not explicitly addressed; needs documentation of imbalance handling strategy."
+    },
+    {
+      "pattern_summary": "evaluation_metrics concerns mapped to gates=['clinical_metrics_gate']",
+      "category": "evaluation_metrics",
+      "gates": [
+        "clinical_metrics_gate"
+      ],
+      "n_instances": 3,
+      "n_distinct_papers": 3,
+      "examples": [
+        "PR-104-C05",
+        "PR-EXP-0160-C04",
+        "PR-EXP-0187-C04"
+      ],
+      "example_papers": [
+        "PR-104",
+        "PR-EXP-0160",
+        "PR-EXP-0187"
+      ],
+      "sample_text": "PPV/NPV reported from case-control design with artificially inflated prevalence; not adjusted for expected real-world prevalence, hindering clinical translation."
+    },
+    {
+      "pattern_summary": "reproducibility concerns mapped to gates=['reporting_bias_gate']",
+      "category": "reproducibility",
+      "gates": [
+        "reporting_bias_gate"
+      ],
+      "n_instances": 3,
+      "n_distinct_papers": 3,
+      "examples": [
+        "PR-106-C06",
+        "PR-107-C05",
+        "PR-109-C04"
+      ],
+      "example_papers": [
+        "PR-106",
+        "PR-107",
+        "PR-109"
+      ],
+      "sample_text": "GitHub repository README lacks software/hardware requirements and dependencies; hyperparameter selection approach (systematic or ad-hoc) not documented."
+    },
+    {
+      "pattern_summary": "split_protocol concerns mapped to gates=['distribution_generalization_gate', 'split_protocol_gate']",
+      "category": "split_protocol",
+      "gates": [
+        "distribution_generalization_gate",
+        "split_protocol_gate"
+      ],
+      "n_instances": 3,
+      "n_distinct_papers": 3,
+      "examples": [
+        "PR-108-C01",
+        "PR-EXP-0185-C02",
+        "PR-EXP-0200-C07"
+      ],
+      "example_papers": [
+        "PR-108",
+        "PR-EXP-0185",
+        "PR-EXP-0200"
+      ],
+      "sample_text": "Discovery/validation split by preterm (<37wk) vs term (>=37wk) delivery may bias model to early-onset disease markers; early-onset placental insufficiency is biologically distinct from late-onset."
+    },
+    {
+      "pattern_summary": "study_design concerns mapped to gates=['cohort_definition_gate', 'distribution_generalization_gate']",
+      "category": "study_design",
+      "gates": [
+        "cohort_definition_gate",
+        "distribution_generalization_gate"
+      ],
+      "n_instances": 3,
+      "n_distinct_papers": 3,
+      "examples": [
+        "PR-112-C04",
+        "PR-EXP-0103-C01",
+        "PR-EXP-0157-C06"
+      ],
+      "example_papers": [
+        "PR-112",
+        "PR-EXP-0103",
+        "PR-EXP-0157"
+      ],
+      "sample_text": "Case-control discovery design instead of case-cohort/nested cohort risks overly optimistic models likely to fail in population-based deployment; limitation not originally acknowledged."
+    },
+    {
+      "pattern_summary": "study_design concerns mapped to gates=['cohort_definition_gate', 'feature_lineage_gate']",
+      "category": "study_design",
+      "gates": [
+        "cohort_definition_gate",
+        "feature_lineage_gate"
+      ],
+      "n_instances": 3,
+      "n_distinct_papers": 3,
+      "examples": [
+        "PR-RO-07-C07",
+        "PR-EXP-0152-C01",
+        "PR-EXP-0209-C06"
+      ],
+      "example_papers": [
+        "PR-EXP-0152",
+        "PR-EXP-0209",
+        "PR-RO-07"
+      ],
+      "sample_text": "Their study hinges on their ability to identify and control for bias arising from intrinsic differences between patients selected for ICI-mono and ICI-chemo\u2014the reviewer is not convinced that with the"
+    },
+    {
+      "pattern_summary": "split_protocol concerns mapped to gates=['split_protocol_gate', 'tuning_leakage_gate']",
+      "category": "split_protocol",
+      "gates": [
+        "split_protocol_gate",
+        "tuning_leakage_gate"
+      ],
+      "n_instances": 3,
+      "n_distinct_papers": 3,
+      "examples": [
+        "PR-EXP-0084-C08",
+        "PR-EXP-0159-C03",
+        "PR-EXP-0203-C06"
+      ],
+      "example_papers": [
+        "PR-EXP-0084",
+        "PR-EXP-0159",
+        "PR-EXP-0203"
+      ],
+      "sample_text": "The manuscript lacks essential details on hyperparameter search spaces, selection criteria, and safeguards against data leakage. Model performance is reported without clear nested CV, fold definitions"
+    },
+    {
+      "pattern_summary": "data_leakage concerns mapped to gates=['feature_lineage_gate', 'leakage_gate']",
+      "category": "data_leakage",
+      "gates": [
+        "feature_lineage_gate",
+        "leakage_gate"
+      ],
+      "n_instances": 3,
+      "n_distinct_papers": 3,
+      "examples": [
+        "PR-EXP-0086-C12",
+        "PR-EXP-0159-C04",
+        "PR-EXP-0205-C05"
+      ],
+      "example_papers": [
+        "PR-EXP-0086",
+        "PR-EXP-0159",
+        "PR-EXP-0205"
+      ],
+      "sample_text": "In the Model Evaluation subsection, it is stated that the ground truth for model performance evaluation was generated by manual annotation on patients' clinical notes (obtained before t_1, from Figure"
+    },
+    {
+      "pattern_summary": "reporting concerns mapped to gates=['fairness_equity_gate']",
+      "category": "reporting",
+      "gates": [
+        "fairness_equity_gate"
+      ],
+      "n_instances": 3,
+      "n_distinct_papers": 3,
+      "examples": [
+        "PR-EXP-0095-C06",
+        "PR-EXP-0109-C14",
+        "PR-EXP-0110-C08"
+      ],
+      "example_papers": [
+        "PR-EXP-0095",
+        "PR-EXP-0109",
+        "PR-EXP-0110"
+      ],
+      "sample_text": "The study also does not provide detailed information on sex and gender considerations, failing to comply with the SAGER guidelines (as recommended in the review instructions)."
+    },
+    {
+      "pattern_summary": "study_design concerns mapped to gates=['clinical_metrics_gate', 'cohort_definition_gate']",
+      "category": "study_design",
+      "gates": [
+        "clinical_metrics_gate",
+        "cohort_definition_gate"
+      ],
+      "n_instances": 3,
+      "n_distinct_papers": 3,
+      "examples": [
+        "PR-EXP-0095-C08",
+        "PR-EXP-0097-C01",
+        "PR-EXP-0159-C02"
+      ],
+      "example_papers": [
+        "PR-EXP-0095",
+        "PR-EXP-0097",
+        "PR-EXP-0159"
+      ],
+      "sample_text": "The actual goal of your study and the algorithm is not making a decision regarding which local therapy to use or if it should be used at all but to give an outlook on the prognosis of the patient, nam"
+    },
+    {
+      "pattern_summary": "reporting concerns mapped to gates=['cohort_definition_gate', 'reporting_bias_gate']",
+      "category": "reporting",
+      "gates": [
+        "cohort_definition_gate",
+        "reporting_bias_gate"
+      ],
+      "n_instances": 3,
+      "n_distinct_papers": 3,
+      "examples": [
+        "PR-EXP-0103-C03",
+        "PR-EXP-0187-C01",
+        "PR-EXP-0192-C04"
+      ],
+      "example_papers": [
+        "PR-EXP-0103",
+        "PR-EXP-0187",
+        "PR-EXP-0192"
+      ],
+      "sample_text": "The numbers of drugs are not consistent and confusing across the manuscript and supplementary data files. While DILImap was claimed to include 300 drugs, the Results section mentions 177 DILI+ and 93 "
+    },
+    {
+      "pattern_summary": "study_design concerns mapped to gates=['cohort_definition_gate', 'fairness_equity_gate']",
+      "category": "study_design",
+      "gates": [
+        "cohort_definition_gate",
+        "fairness_equity_gate"
+      ],
+      "n_instances": 3,
+      "n_distinct_papers": 3,
+      "examples": [
+        "PR-EXP-0105-C07",
+        "PR-EXP-0147-C01",
+        "PR-EXP-0194-C02"
+      ],
+      "example_papers": [
+        "PR-EXP-0105",
+        "PR-EXP-0147",
+        "PR-EXP-0194"
+      ],
+      "sample_text": "How was prevalent CVD/DM addressed? Need to use 'European ancestry' instead of 'Caucasian ethnicity' (as the latter was not specifically addressed in UKB); shouldn't use 'diabetic patients' (instead s"
+    }
+  ],
+  "recommendations": [
+    "No KB edits required for cross-paper duplication. The corpus is clean of agent copy-paste.",
+    "The 49 canonical-pattern groups (>=3 distinct papers sharing category+gates signature) ARE the high-value RAG retrieval targets. Consider adding a derived field `canonical_pattern_id` per concern that points back to one of these groups, so RAG can answer \"what is the typical reviewer concern about external_validation?\" by retrieving the group rather than individual paraphrases.",
+    "Top 3 canonical RAG-relevant patterns (by paper count): (1) study_design + cohort_definition_gate (45 papers) \u2014 temporal/inclusion ambiguity; (2) evaluation_metrics + evaluation_quality_gate (27 papers) \u2014 CI/calibration/AUROC interpretation; (3) model_selection + model_selection_audit_gate (26 papers) \u2014 cross-validation vs random-split, hyperparameter selection.",
+    "Negative result confirms agent-level extraction quality: the 9 wave agents each produced lexically distinct outputs even on the same review categories, indicating they paraphrased from source PDFs rather than templating."
+  ]
+}

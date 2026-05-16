@@ -1,0 +1,823 @@
+[
+  {
+    "concern_id": "PR-072-C03",
+    "paper_id": "PR-072",
+    "paper_title": "Performance of deep-learning based approaches to improve pol",
+    "category": "study_design",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "Simulations consider only two extremes (entirely additive OR entirely epistatic). Overly simplistic — real-world phenotypes have mixed architectures.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-073-C01",
+    "paper_id": "PR-073",
+    "paper_title": "Automated multilabel diagnosis on electrocardiographic image",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Only 6 ECG abnormality classifications — practical value is limited. PhysioNet 2020 challenge involved 121 types. Should add more abnormalities.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-073-C02",
+    "paper_id": "PR-073",
+    "paper_title": "Automated multilabel diagnosis on electrocardiographic image",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "How to validate accuracy of ECG labels for all 2.2M ECGs? Only two image formats and their shuffled versions — should include commonly used ECG-image standard formats from different countries.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-073-C03",
+    "paper_id": "PR-073",
+    "paper_title": "Automated multilabel diagnosis on electrocardiographic image",
+    "category": "interpretability",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 7,
+    "mlgg_gates": [],
+    "concern_text": "Can image-based model extract ECG information like channel (I, II, V1 etc) or waveform features (QRS amplitude, heart rate)? Explainable feature outputs could enhance performance.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-074-C01",
+    "paper_id": "PR-074",
+    "paper_title": "Interstitial lung disease diagnosis and prognosis using an A",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "ILD classified by radiological pattern (UIP, NSIP) not disease (IPF, CTD-ILD). In practice, patients classified by disease. Do authors consider UIP synonymous with IPF? This limits clinical applicability.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-074-C02",
+    "paper_id": "PR-074",
+    "paper_title": "Interstitial lung disease diagnosis and prognosis using an A",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Prognosis assessed as 3-year survival but also mentions treatment response evaluation — unclear if FVC decline in antifibrotic treatment was assessed. Which clinical features had highest prognostic value?",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-074-C03",
+    "paper_id": "PR-074",
+    "paper_title": "Interstitial lung disease diagnosis and prognosis using an A",
+    "category": "reporting",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "Discussion mentions quantitative CT information but no mention of quantitative CT analysis in the paper.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-075-C01",
+    "paper_id": "PR-075",
+    "paper_title": "Deep learning of left atrial structure and function provides",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Is it necessary to adjust cox models for height AND weight when adjusting for BMI? Should use BSA-indexed LA measurements for clinical relevance.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-075-C02",
+    "paper_id": "PR-075",
+    "paper_title": "Deep learning of left atrial structure and function provides",
+    "category": "reporting",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "More details needed on training/test set for abnormal contraction pattern model. Performance metrics (sensitivity/specificity) not provided.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-076-C01",
+    "paper_id": "PR-076",
+    "paper_title": "Enhanced diagnosis of multi-drug-resistant microbes using gr",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "What is the power loss attributable to GAM grouping strategy? Standard LMM detects false-positive cross-associations but may be more powered for new drugs. Must compare power of GAM vs LMM.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-076-C02",
+    "paper_id": "PR-076",
+    "paper_title": "Enhanced diagnosis of multi-drug-resistant microbes using gr",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Validation on S. aureus dataset is trivial — most regression/ML approaches would identify AMR genes given strong effect sizes. Must compare methods in terms of power, FPR, and total known AMR determinants identified.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-076-C03",
+    "paper_id": "PR-076",
+    "paper_title": "Enhanced diagnosis of multi-drug-resistant microbes using gr",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Should show PPV and Specificity of GAM+ML model alongside sensitivity. Results presented as sensitivity/specificity rather than AUC would be more informative.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-077-C01",
+    "paper_id": "PR-077",
+    "paper_title": "Integration of clinical, pathological, radiological, and tra",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Figure 3: multimodal predictions not statistically significantly better than unimodal RNA data alone. Must show the multimodal approach surpasses previously established transcriptomic-only models.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-077-C02",
+    "paper_id": "PR-077",
+    "paper_title": "Integration of clinical, pathological, radiological, and tra",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "Framework for multimodal survival/prognosis prediction is not novel — many prior studies (Rami 2022, Lipkova 2022, Wang 2023). Authors only applied existing algorithms, raising concerns about novelty.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-077-C03",
+    "paper_id": "PR-077",
+    "paper_title": "Integration of clinical, pathological, radiological, and tra",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Results are nothing more than a case study. Urgent need to show how multimodal data can be used as a predictive biomarker. Feature importance analysis in Results is not comprehensive enough.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-078-C01",
+    "paper_id": "PR-078",
+    "paper_title": "AI-enhanced integration of genetic and medical imaging data ",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "T2D case/control definition problematic: someone self-reported no T2D + GLU-AC<100 but HbA1c>6.5% would be classified as control. T2D definition differs between line 211 and Figure 2.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-078-C02",
+    "paper_id": "PR-078",
+    "paper_title": "AI-enhanced integration of genetic and medical imaging data ",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Genetic-centric and genetic-imaging analyses used different statistical approaches. Is AUC comparison fair with different model types? Over 100 imaging variables makes clinical applicability questionable.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-078-C03",
+    "paper_id": "PR-078",
+    "paper_title": "AI-enhanced integration of genetic and medical imaging data ",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "Early detection analysis only selects women and age threshold of 59 — these selections come from nowhere. No reasoning provided. Comment on generalizability to males.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-079-C01",
+    "paper_id": "PR-079",
+    "paper_title": "Computational analysis of peripheral blood smears detects di",
+    "category": "clinical_utility",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 7,
+    "mlgg_gates": [],
+    "concern_text": "How would the ML protocol work from a user/clinician perspective? Clinical applicability beyond research setting unclear.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-079-C02",
+    "paper_id": "PR-079",
+    "paper_title": "Computational analysis of peripheral blood smears detects di",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Correlation between morphological features and molecular features needs more rigorous statistical validation.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-080-C01",
+    "paper_id": "PR-080",
+    "paper_title": "Fragmentomic liquid biopsy enables early breast cancer detec",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Present sensitivity/specificity pairs at multiple thresholds. Discuss which metric is more critical for breast cancer detection clinical decisions.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-080-C02",
+    "paper_id": "PR-080",
+    "paper_title": "Fragmentomic liquid biopsy enables early breast cancer detec",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Comparisons with existing competitive methods (e.g., Galleri, CancerSEEK) not adequately addressed.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-081-C01",
+    "paper_id": "PR-081",
+    "paper_title": "A foundation model for generalizable cancer diagnosis and su",
+    "category": "preprocessing",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 3,
+    "mlgg_gates": [],
+    "concern_text": "Downsampled all images to 224x224 — substantial information loss. How does patch size affect performance?",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-081-C02",
+    "paper_id": "PR-081",
+    "paper_title": "A foundation model for generalizable cancer diagnosis and su",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Variance of accuracy is substantial across models. Statistical significance of performance differences should be formally tested.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-081-C03",
+    "paper_id": "PR-081",
+    "paper_title": "A foundation model for generalizable cancer diagnosis and su",
+    "category": "model_selection",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [],
+    "concern_text": "Different magnification levels give different results. Should aggregate predictions from multiple magnifications via ensemble methods.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-082-C01",
+    "paper_id": "PR-082",
+    "paper_title": "Performance of plasma biomarkers for diagnosis and predictio",
+    "category": "evaluation_metrics",
+    "current_severity": "CRITICAL",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Only 34% (49/145) have gold standard CSF biomarker data. How can plasma biomarker performance be evaluated without gold standard for most participants?",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-082-C02",
+    "paper_id": "PR-082",
+    "paper_title": "Performance of plasma biomarkers for diagnosis and predictio",
+    "category": "sample_size",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 12,
+    "mlgg_gates": [],
+    "concern_text": "Very small sample (N=145). Subgroup sizes unclear. Limited power for biomarker comparison.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-083-C01",
+    "paper_id": "PR-083",
+    "paper_title": "A machine learning contest enhances automated freezing of ga",
+    "category": "study_design",
+    "current_severity": "LOW",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "Why were akinetic episodes excluded? Please provide rationale.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-084-C01",
+    "paper_id": "PR-084",
+    "paper_title": "A machine learning-driven virtual biopsy system for kidney t",
+    "category": "external_validation",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [],
+    "concern_text": "Model trained on single-center data. Needs external validation across different transplant centers with different protocols.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-084-C02",
+    "paper_id": "PR-084",
+    "paper_title": "A machine learning-driven virtual biopsy system for kidney t",
+    "category": "clinical_utility",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 7,
+    "mlgg_gates": [],
+    "concern_text": "Virtual biopsy cannot replace histological assessment — clinical deployment pathway unclear.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-085-C01",
+    "paper_id": "PR-085",
+    "paper_title": "Multi-ancestry and multi-trait GWAS meta-analyses inform cli",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "PRS predictive performance metrics beyond AUC needed for clinical utility assessment.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-086-C01",
+    "paper_id": "PR-086",
+    "paper_title": "A noninvasive machine learning model using a complete blood ",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "Gold standard diagnostic protocol (2016 WHO classification biopsy) choice should be clarified. How were healthy controls matched to cases?",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-086-C02",
+    "paper_id": "PR-086",
+    "paper_title": "A noninvasive machine learning model using a complete blood ",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Very rare disease — PPV will be extremely low in community screening even with high AUC. Clinical utility of screening unclear.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-087-C01",
+    "paper_id": "PR-087",
+    "paper_title": "Dermatologist-like explainable AI enhances trust and confide",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Reader study design details needed — how many clinicians, experience levels, randomization of XAI vs non-XAI conditions.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-088-C01",
+    "paper_id": "PR-088",
+    "paper_title": "Metabolomic and genomic prediction of common diseases in 700",
+    "category": "reporting",
+    "current_severity": "CRITICAL",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "Investigative group dominated by employees of the company selling the NMR test. Despite scaling back claims, manuscript continues to promote NMR testing for public health screening. Must completely refrain from commentary on incorporating into national preventive programs.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-088-C02",
+    "paper_id": "PR-088",
+    "paper_title": "Metabolomic and genomic prediction of common diseases in 700",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Original intent was to show improvement over conventional approaches but revised to 'proof of principle'. Statements must be unequivocally supported by data.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-089-C01",
+    "paper_id": "PR-089",
+    "paper_title": "ML-supported framework for classification of mpox infection ",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Cross-reactivity of Orthopoxvirus antibodies is complex. Model performance on sera from different clades and vaccination schedules should be tested.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-090-C01",
+    "paper_id": "PR-090",
+    "paper_title": "Cell-free DNA testing for detection and prognosis prediction",
+    "category": "external_validation",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [],
+    "concern_text": "External validation cohort characteristics and size should be clearly reported. Performance in early-stage pancreatic cancer is critical but may be limited.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-091-C01",
+    "paper_id": "PR-091",
+    "paper_title": "Cell free RNA detection of pancreatic cancer in pre-diagnost",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "Pre-diagnostic samples are critical for early detection claim. How far before diagnosis were samples collected? Sample size in pre-diagnostic group may be too small.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-092-C01",
+    "paper_id": "PR-092",
+    "paper_title": "Regression-based deep learning predicts molecular biomarkers",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Regression vs classification approach should be compared head-to-head. Clinical utility of continuous prediction vs binary classification needs discussion.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-093-C01",
+    "paper_id": "PR-093",
+    "paper_title": "Multiparametric MRI along with machine learning predicts pro",
+    "category": "sample_size",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 12,
+    "mlgg_gates": [],
+    "concern_text": "Pediatric brain tumors are rare. Sample size may limit model generalizability. Need multi-institutional validation.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-094-C01",
+    "paper_id": "PR-094",
+    "paper_title": "Individualized protein-based prognostic model to stratify pe",
+    "category": "external_validation",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [],
+    "concern_text": "Pediatric thyroid cancer is rare — external validation cohort may be too small for reliable performance assessment.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-095-C01",
+    "paper_id": "PR-095",
+    "paper_title": "A machine learning model using clinical notes to identify ph",
+    "category": "study_design",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "Physician fatigue ground truth is indirect (note quality proxies). Direct validation with fatigue surveys needed.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-096-C01",
+    "paper_id": "PR-096",
+    "paper_title": "Early favorable prostate-specific antigen response predictio",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "PSA response as surrogate endpoint needs validation against overall survival.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-099-C01",
+    "paper_id": "PR-099",
+    "paper_title": "Deep learning for obstructive sleep apnea diagnosis based on",
+    "category": "external_validation",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [],
+    "concern_text": "Single-channel oximetry is simpler than polysomnography but external validation across different oximeters and populations needed.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-100-C01",
+    "paper_id": "PR-100",
+    "paper_title": "AI-based multiomics profiling reveals complementary omics co",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Incremental value of multi-omics over standard clinical risk factors (e.g., Framingham, SCORE2) must be clearly demonstrated with NRI/IDI.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-100-C02",
+    "paper_id": "PR-100",
+    "paper_title": "AI-based multiomics profiling reveals complementary omics co",
+    "category": "study_design",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "Cost-effectiveness of proteomics+metabolomics panel for CVD screening not discussed. Practical deployment uncertain.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-101-C01",
+    "paper_id": "PR-101",
+    "paper_title": "A longitudinal cohort study uncovers plasma protein biomarke",
+    "category": "sample_size",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 12,
+    "mlgg_gates": [
+      "sample_size_gate"
+    ],
+    "concern_text": "Small sample sizes (MTX+HCQ n=59) limit robustness of ML models; larger cohorts needed to ensure reliability of treatment-response predictions.",
+    "author_response": "Acknowledged as limitation; used 100-round resampling, added independent ELISA validation cohort (n=65) with consistent biomarker findings.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-101-C02",
+    "paper_id": "PR-101",
+    "paper_title": "A longitudinal cohort study uncovers plasma protein biomarke",
+    "category": "model_selection",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [
+      "model_selection_audit_gate"
+    ],
+    "concern_text": "Study should compare LASSO against alternative ML methods (XGBoost, Random Forest) to ensure chosen approach is not arbitrarily selected.",
+    "author_response": "Added RF and XGBoost comparisons; LASSO yielded higher median ROC (0.88 vs 0.79/0.73), likely due to small sample size favoring simpler models.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-101-C03",
+    "paper_id": "PR-101",
+    "paper_title": "A longitudinal cohort study uncovers plasma protein biomarke",
+    "category": "preprocessing",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "imbalance_policy_gate"
+    ],
+    "concern_text": "Class imbalance between responders and non-responders not explicitly addressed; needs documentation of imbalance handling strategy.",
+    "author_response": "Ensured equal numbers of responders/non-responders per random sampling; improved median training ROC from 0.87 to 0.92 for MTX+HCQ.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-101-C04",
+    "paper_id": "PR-101",
+    "paper_title": "A longitudinal cohort study uncovers plasma protein biomarke",
+    "category": "feature_selection",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [
+      "feature_engineering_audit_gate"
+    ],
+    "concern_text": "Stability of LASSO-selected biomarkers across alternative feature selection methods not demonstrated; need to show same biomarkers selected by multiple approaches.",
+    "author_response": "Evaluated biomarker rankings across 5 feature selection methods (ElasticNet, XGBoost, RF, RFE-SVM, stability selection); ECI2 and key biomarkers consistently top-10.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-101-C05",
+    "paper_id": "PR-101",
+    "paper_title": "A longitudinal cohort study uncovers plasma protein biomarke",
+    "category": "interpretability",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [
+      "shap_interpretability_gate"
+    ],
+    "concern_text": "Model interpretability via post-hoc explainability tools (e.g., SHAP) not provided; feature importance plots needed to identify most predictive proteins.",
+    "author_response": "Added SHAP analysis for both MTX+LEF and MTX+HCQ models; SHAP feature-effect directions consistent with LASSO-identified biomarkers.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-101-C06",
+    "paper_id": "PR-101",
+    "paper_title": "A longitudinal cohort study uncovers plasma protein biomarke",
+    "category": "external_validation",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [
+      "external_validation_gate"
+    ],
+    "concern_text": "No independent validation cohort for treatment-response biomarker panel; need ELISA/MRM-based validation in additional patients to confirm reliability.",
+    "author_response": "Recruited independent cohort (46 MTX+HCQ, 19 MTX+LEF); ELISA validation confirmed biomarker panel with ROC 0.90 (LEF) and 0.86 (HCQ).",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-102-C01",
+    "paper_id": "PR-102",
+    "paper_title": "Machine learning center-specific models show improved IVF li",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "calibration_dca_gate",
+      "ci_matrix_gate",
+      "reporting_bias_gate"
+    ],
+    "concern_text": "Missing calibration plots, Brier scores, and 95% CIs with paired DeLong AUC tests; TRIPOD-AI compliance requires full metric panel including calibration curves.",
+    "author_response": "Added calibration plots (Figure 1A; Supplemental Figure 2 per-clinic), Brier scores (Table 4), and paired DeLong test results at clinic level (Supplementary Tables 1-2).",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-102-C02",
+    "paper_id": "PR-102",
+    "paper_title": "Machine learning center-specific models show improved IVF li",
+    "category": "reporting",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [
+      "reporting_bias_gate"
+    ],
+    "concern_text": "Results are aggregated across 6 clinics without per-clinic descriptive statistics (AMH, age) or per-clinic reclassification tables, limiting interpretability of center-specific claims.",
+    "author_response": "Added per-clinic summary table (Table 3), per-clinic reclassification tables (Supplementary Tables 5A-F), and per-clinic calibration plots.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-102-C03",
+    "paper_id": "PR-102",
+    "paper_title": "Machine learning center-specific models show improved IVF li",
+    "category": "model_selection",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [
+      "model_selection_audit_gate"
+    ],
+    "concern_text": "Sole use of GBM without comparisons to Random Forest, CatBoost, or LightGBM leaves unclear whether gains come from MLCS framework, algorithm choice, or additional predictors.",
+    "author_response": "Clarified that comparing ML algorithms was not the main goal; emphasized center-specificity/ML combination as a framework, declined additional algorithm sweep.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-102-C04",
+    "paper_id": "PR-102",
+    "paper_title": "Machine learning center-specific models show improved IVF li",
+    "category": "reproducibility",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 9,
+    "mlgg_gates": [
+      "publication_gate"
+    ],
+    "concern_text": "Code not available for review; preprocessing pipelines of proprietary MLCS framework not disclosed; conflict of interest from Univfy raises reproducibility concerns.",
+    "author_response": "Uploaded code plus dummy dataset to Code Ocean; explicitly disclosed COI; explained clinical data sharing is not standard in IVF field.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-102-C05",
+    "paper_id": "PR-102",
+    "paper_title": "Machine learning center-specific models show improved IVF li",
+    "category": "study_design",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [
+      "covariate_shift_gate"
+    ],
+    "concern_text": "PGT-A usage not excluded/adjusted despite likely large impact on SART model performance; confounders across centers uncontrolled.",
+    "author_response": "Added discussion that neither MLCS nor SART address PGT-A/ICSI add-ons; noted as area for future work.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-102-C06",
+    "paper_id": "PR-102",
+    "paper_title": "Machine learning center-specific models show improved IVF li",
+    "category": "clinical_utility",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 7,
+    "mlgg_gates": [
+      "reporting_bias_gate"
+    ],
+    "concern_text": "Commercial-toned discussion overclaims value-based IVF pricing without supporting financial data; reviewer requested toning down of promotional language and adding limitations section.",
+    "author_response": "Removed commercial paragraph; added full limitations section covering key limitations of per-center design and generalizability.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-104-C01",
+    "paper_id": "PR-104",
+    "paper_title": "External validation of artificial intelligence for detection",
+    "category": "external_validation",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [
+      "external_validation_gate",
+      "generalization_gap_gate"
+    ],
+    "concern_text": "Substantial performance drop from internal (AUROC 0.95) to external (0.798) validation; potential causes and implications of generalization cost warrant detailed discussion.",
+    "author_response": "Added discussion of V1 to V2 model updates, site-specificity of Mayo training cohort, and typical optimism observed on external validation.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-104-C02",
+    "paper_id": "PR-104",
+    "paper_title": "External validation of artificial intelligence for detection",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "evaluation_quality_gate",
+      "metric_consistency_gate"
+    ],
+    "concern_text": "Categorical sensitivity/specificity comparisons at arbitrary cutpoints bias comparison vs continuous H2FPEF score (near-identical AUROC); claims of higher classification performance not sufficiently justified.",
+    "author_response": "Added decile-based comparisons showing near-identical performance; contextualized cutpoint-based comparisons and documented cutpoint derivation.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-104-C03",
+    "paper_id": "PR-104",
+    "paper_title": "External validation of artificial intelligence for detection",
+    "category": "study_design",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [
+      "cohort_definition_gate"
+    ],
+    "concern_text": "Selection bias concerns: ~20% excluded for image quality, ~50% for missing biplane LVEF, case/control matching before image-quality filter; adjudicator blinding unclear.",
+    "author_response": "Added limitation paragraph on image quality exclusions; clarified biplane LVEF was a selection criterion; explained adjudication workflow.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-104-C04",
+    "paper_id": "PR-104",
+    "paper_title": "External validation of artificial intelligence for detection",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "calibration_dca_gate",
+      "evaluation_quality_gate"
+    ],
+    "concern_text": "NRI/IDI analyses inconsistent across figures; NRI+ and NRI- components not reported separately; percentile-based NRI not performed despite miscalibration of both scores.",
+    "author_response": "Clarified NRI computation, reported NRI+/NRI- separately, added percentile-based NRI to address miscalibration concerns.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-104-C05",
+    "paper_id": "PR-104",
+    "paper_title": "External validation of artificial intelligence for detection",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "clinical_metrics_gate"
+    ],
+    "concern_text": "PPV/NPV reported from case-control design with artificially inflated prevalence; not adjusted for expected real-world prevalence, hindering clinical translation.",
+    "author_response": "Clarified case-control up-sampling effect on PPV/NPV interpretation in revised text.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-104-C06",
+    "paper_id": "PR-104",
+    "paper_title": "External validation of artificial intelligence for detection",
+    "category": "interpretability",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "calibration_dca_gate"
+    ],
+    "concern_text": "Unexpected non-monotonic behavior: quartile 3 of AI HFpEF shows lower observed risk than quartile 2, indicating miscalibration and potential model behavior issue requiring explanation.",
+    "author_response": "Addressed in revision.",
+    "resolved": true
+  }
+]

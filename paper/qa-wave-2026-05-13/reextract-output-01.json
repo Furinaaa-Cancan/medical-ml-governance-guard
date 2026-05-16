@@ -1,0 +1,32 @@
+{
+  "agent": "reextract-01",
+  "ran_at_utc": "2026-05-16T00:00:00Z",
+  "papers_processed": [
+    {
+      "paper_id": "PR-100",
+      "pdf_pages_read": ["1-2", "3-10", "25-35", "45-55"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-100-C01",
+          "new_author_response": null,
+          "new_resolved": null,
+          "extraction_status": "RESPONSE_NOT_FOUND_IN_PDF",
+          "extraction_notes": "Worklist concern_text refers to 'Incremental value of multi-omics over standard clinical risk factors (Framingham, SCORE2) demonstrated with NRI/IDI'. No such reviewer comment exists in this peer review file. Reviewer #1's actual comments (1-1..1-7) cover: imbalanced data/overfitting, need for non-NN baselines (XGBoost/RF), data composition/leakage from multi-CVD individuals, model architecture details, Figure 3 x-axis ranges, redundant text, figure adjustments. Reviewer #2's comments (2-1..2-11) cover: external validation, NTproBNP confounding, lipid metabolites, CVDeath GWAS, cohort demographics testing, broken demo weblink, internal-vs-external validation, statin counts, and grammar fixes. Neither reviewer raised NRI/IDI vs Framingham/SCORE2. The paper does compare incremental performance via delta C-index in Figure 3, but this was not a reviewer-requested addition. Likely upstream hallucinated/synthetic concern."
+        },
+        {
+          "concern_id": "PR-100-C02",
+          "new_author_response": null,
+          "new_resolved": null,
+          "extraction_status": "RESPONSE_NOT_FOUND_IN_PDF",
+          "extraction_notes": "Worklist concern_text refers to 'Cost-effectiveness of proteomics+metabolomics panel for CVD screening / practical deployment uncertainty'. No reviewer in this peer review file raised cost-effectiveness or deployment cost concerns. Searches of all reviewer comments (1-1..1-7, 2-1..2-11) and author rebuttal sections found no mention of 'cost', 'cost-effectiveness', or 'deployment cost'. Reviewer #2 did raise external validation and generalizability (2-1, 2-7) and a discussion of clinical applicability, but not cost. Likely upstream hallucinated/synthetic concern."
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_papers": 1,
+    "total_concerns_updated": 2,
+    "extracted_substantive": 0,
+    "not_found_in_pdf": 2
+  }
+}

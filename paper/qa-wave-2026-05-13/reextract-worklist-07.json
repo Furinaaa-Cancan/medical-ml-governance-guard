@@ -1,0 +1,116 @@
+[
+  {
+    "paper_id": "PR-092",
+    "paper_title": "Regression-based deep learning predicts molecular biomarkers from pathology slides",
+    "pdf_path": "references/case-studies/nature_communications/NC_pathology_biomarker_DL_peer_review.pdf",
+    "pdf_size_mb": 3.4,
+    "affected_concern_ids": [
+      "PR-092-C01"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-092-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Regression vs classification approach should be compared head-to-head. Clinical utility of continuous prediction vs binary classification needs discussion.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-081",
+    "paper_title": "A foundation model for generalizable cancer diagnosis and survival prediction from histopathological images",
+    "pdf_path": "references/case-studies/nature_communications/NC_cancer_FM_survival_peer_review.pdf",
+    "pdf_size_mb": 2.6,
+    "affected_concern_ids": [
+      "PR-081-C01",
+      "PR-081-C02",
+      "PR-081-C03"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-081-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Downsampled all images to 224x224 — substantial information loss. How does patch size affect performance?",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-081-C02",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Variance of accuracy is substantial across models. Statistical significance of performance differences should be formally tested.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-081-C03",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Different magnification levels give different results. Should aggregate predictions from multiple magnifications via ensemble methods.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-088",
+    "paper_title": "Metabolomic and genomic prediction of common diseases in 700,217 participants in three national biobanks",
+    "pdf_path": "references/case-studies/nature_communications/NC_metabolomic_genomic_biobank_peer_review.pdf",
+    "pdf_size_mb": 0.8,
+    "affected_concern_ids": [
+      "PR-088-C01",
+      "PR-088-C02"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-088-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Investigative group dominated by employees of the company selling the NMR test. Despite scaling back claims, manuscript continues to promote NMR testing for public health screening. Must completely refrain from commentary on incorporating into national preventive programs.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-088-C02",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Original intent was to show improvement over conventional approaches but revised to 'proof of principle'. Statements must be unequivocally supported by data.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-091",
+    "paper_title": "Cell free RNA detection of pancreatic cancer in pre-diagnostic high risk and symptomatic patients",
+    "pdf_path": "references/case-studies/nature_communications/NC_pancreatic_cfRNA_peer_review.pdf",
+    "pdf_size_mb": 0.6,
+    "affected_concern_ids": [
+      "PR-091-C01"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-091-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Pre-diagnostic samples are critical for early detection claim. How far before diagnosis were samples collected? Sample size in pre-diagnostic group may be too small.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-096",
+    "paper_title": "Early favorable prostate-specific antigen response prediction in metastatic hormone sensitive prostate cancer",
+    "pdf_path": "references/case-studies/nature_communications/PR-096_early_favorable_prostate_specific_antige_peer_review.pdf",
+    "pdf_size_mb": 0.2,
+    "affected_concern_ids": [
+      "PR-096-C01"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-096-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "PSA response as surrogate endpoint needs validation against overall survival.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  }
+]

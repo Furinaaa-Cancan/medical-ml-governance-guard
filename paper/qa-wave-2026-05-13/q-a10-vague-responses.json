@@ -1,0 +1,606 @@
+{
+  "agent": "a10-vague-responses",
+  "ran_at_utc": "2026-05-16T10:22:27.051813+00:00",
+  "scanned": 721,
+  "summary": {
+    "clear_fix": 647,
+    "vague_ack": 64,
+    "deflected": 10,
+    "refused": 0,
+    "proposed_downgrade_to_null": 74
+  },
+  "proposed_downgrades": [
+    {
+      "concern_id": "PR-020-C05",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Clarified intended use is pre-surgical planning, not screening.",
+      "rationale": "Response length 63 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-028-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Acknowledged as limitation and discussed plans for multi-center validation.",
+      "rationale": "Response length 75 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-032-C05",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Clarified validation strategy with explicit held-out external datasets.",
+      "rationale": "Response length 71 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-056-C02",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Acknowledged power limitation and framed as proof-of-concept.",
+      "rationale": "Response length 61 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-064-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Clarified ProRS calculation and full CV pipeline details.",
+      "rationale": "Response length 57 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-064-C03",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Clarified temporal modeling and toned down claims.",
+      "rationale": "Response length 50 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-069-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-069-C02",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-070-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-070-C02",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-070-C03",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-071-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-071-C02",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-072-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-072-C02",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-072-C03",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-073-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-073-C02",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-073-C03",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-074-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-074-C02",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-074-C03",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-075-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-075-C02",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-076-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-076-C02",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-076-C03",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-077-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-077-C02",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-077-C03",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-078-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-078-C02",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-078-C03",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-079-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-079-C02",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-080-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-080-C02",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-081-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-081-C02",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-081-C03",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-082-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-082-C02",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-083-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-084-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-084-C02",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-085-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-086-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-086-C02",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-087-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-088-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-088-C02",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-089-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-090-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-091-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-092-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-093-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-094-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-095-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-096-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-099-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-100-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-100-C02",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-104-C06",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Addressed in revision.",
+      "rationale": "Response length 22 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-EXP-0148-C04",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "VAGUE_ACK",
+      "response_excerpt": "Authors agreed to expand metric panel.",
+      "rationale": "Response length 38 chars, template acknowledgment without concrete change description"
+    },
+    {
+      "concern_id": "PR-018-C05",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "DEFLECTED",
+      "response_excerpt": "We acknowledged European-only limitation and discussed extension to multi-ancestry as future work.",
+      "rationale": "Response deflects to future work, scope, or word-count limits without making the requested change"
+    },
+    {
+      "concern_id": "PR-044-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "DEFLECTED",
+      "response_excerpt": "Discussed MRSA as proof-of-concept with clearer outcome definition than sepsis. Future work will expand to broader infection prediction.",
+      "rationale": "Response deflects to future work, scope, or word-count limits without making the requested change"
+    },
+    {
+      "concern_id": "PR-050-C01",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "DEFLECTED",
+      "response_excerpt": "Discussed panel sequencing as future work and showed which features are capturable by commercial panels.",
+      "rationale": "Response deflects to future work, scope, or word-count limits without making the requested change"
+    },
+    {
+      "concern_id": "PR-056-C04",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "DEFLECTED",
+      "response_excerpt": "Added discussion of benign condition controls as future work.",
+      "rationale": "Response deflects to future work, scope, or word-count limits without making the requested change"
+    },
+    {
+      "concern_id": "PR-102-C05",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "DEFLECTED",
+      "response_excerpt": "Added discussion that neither MLCS nor SART address PGT-A/ICSI add-ons; noted as area for future work.",
+      "rationale": "Response deflects to future work, scope, or word-count limits without making the requested change"
+    },
+    {
+      "concern_id": "PR-107-C06",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "DEFLECTED",
+      "response_excerpt": "Documented QuickUMLS extraction + TF-IDF + NMF topic filtering pipeline for note-derived nodes; acknowledged temporality/semantics limitations and not",
+      "rationale": "Response deflects to future work, scope, or word-count limits without making the requested change"
+    },
+    {
+      "concern_id": "PR-112-C05",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "DEFLECTED",
+      "response_excerpt": "Rewrote Results with sens/spec/AUC inline for external validation; added T1 LOPE (0.68) and Val2 (0.63) AUCs to abstract within 150-word limit per Rev",
+      "rationale": "Response deflects to future work, scope, or word-count limits without making the requested change"
+    },
+    {
+      "concern_id": "PR-EXP-0086-C06",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "DEFLECTED",
+      "response_excerpt": "Authors acknowledged limitation in discussion, citing single-cancer-center single-holdout design, and committed to multi-institutional validation as f",
+      "rationale": "Response deflects to future work, scope, or word-count limits without making the requested change"
+    },
+    {
+      "concern_id": "PR-EXP-0170-C07",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "DEFLECTED",
+      "response_excerpt": "Authors added discussion of downstream confirmatory testing pathway (light-chain blood/urine tests, PYP scintigraphy, endomyocardial biopsy, TTR genet",
+      "rationale": "Response deflects to future work, scope, or word-count limits without making the requested change"
+    },
+    {
+      "concern_id": "PR-EXP-0212-C08",
+      "current_resolved": true,
+      "proposed_resolved": null,
+      "verdict": "DEFLECTED",
+      "response_excerpt": "Authors confirmed censoring at 7 days and that patients with LOS > 7 days were not tested; added to Limitation and Future Work section.",
+      "rationale": "Response deflects to future work, scope, or word-count limits without making the requested change"
+    }
+  ]
+}

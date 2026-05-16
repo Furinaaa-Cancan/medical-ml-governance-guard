@@ -1,0 +1,3378 @@
+{
+  "agent": "q3-schema-consistency",
+  "ran_at_utc": "2026-05-16T09:45:39.592010Z",
+  "kb_snapshot": {
+    "total_concerns": 817,
+    "by_policy": {
+      "original_curated": 449,
+      "strict_in_scope": 179,
+      "permissive_out_of_scope": 189
+    }
+  },
+  "summary": {
+    "total_concerns_audited": 817,
+    "issues_by_type": {
+      "category_dim_mismatch": 162,
+      "category_gate_mismatch": 21,
+      "empty_gates_for_critical_category": 2,
+      "invalid_gate_name": 6,
+      "resolved_response_mismatch": 11,
+      "severity_text_mismatch": 0
+    },
+    "severity_distribution_by_policy_pct": {
+      "original_curated": {
+        "n": 449,
+        "CRITICAL_pct": 6.7,
+        "HIGH_pct": 47.9,
+        "MEDIUM_pct": 41.0,
+        "LOW_pct": 4.5
+      },
+      "strict_in_scope": {
+        "n": 179,
+        "CRITICAL_pct": 6.7,
+        "HIGH_pct": 30.7,
+        "MEDIUM_pct": 58.7,
+        "LOW_pct": 3.9
+      },
+      "permissive_out_of_scope": {
+        "n": 189,
+        "CRITICAL_pct": 3.2,
+        "HIGH_pct": 41.3,
+        "MEDIUM_pct": 55.6,
+        "LOW_pct": 0.0
+      }
+    },
+    "severity_distribution_by_category_x_policy_pct": {
+      "external_validation": {
+        "original_curated": {
+          "n": 29,
+          "CRITICAL_pct": 10.3,
+          "HIGH_pct": 75.9,
+          "MEDIUM_pct": 13.8,
+          "LOW_pct": 0.0
+        },
+        "strict_in_scope": {
+          "n": 16,
+          "CRITICAL_pct": 12.5,
+          "HIGH_pct": 56.2,
+          "MEDIUM_pct": 31.2,
+          "LOW_pct": 0.0
+        },
+        "permissive_out_of_scope": {
+          "n": 23,
+          "CRITICAL_pct": 4.3,
+          "HIGH_pct": 69.6,
+          "MEDIUM_pct": 26.1,
+          "LOW_pct": 0.0
+        }
+      },
+      "evaluation_metrics": {
+        "original_curated": {
+          "n": 128,
+          "CRITICAL_pct": 1.6,
+          "HIGH_pct": 53.9,
+          "MEDIUM_pct": 41.4,
+          "LOW_pct": 3.1
+        },
+        "strict_in_scope": {
+          "n": 31,
+          "CRITICAL_pct": 3.2,
+          "HIGH_pct": 25.8,
+          "MEDIUM_pct": 67.7,
+          "LOW_pct": 3.2
+        },
+        "permissive_out_of_scope": {
+          "n": 37,
+          "CRITICAL_pct": 2.7,
+          "HIGH_pct": 35.1,
+          "MEDIUM_pct": 62.2,
+          "LOW_pct": 0.0
+        }
+      },
+      "model_selection": {
+        "original_curated": {
+          "n": 26,
+          "CRITICAL_pct": 3.8,
+          "HIGH_pct": 38.5,
+          "MEDIUM_pct": 53.8,
+          "LOW_pct": 3.8
+        },
+        "strict_in_scope": {
+          "n": 18,
+          "CRITICAL_pct": 0.0,
+          "HIGH_pct": 33.3,
+          "MEDIUM_pct": 61.1,
+          "LOW_pct": 5.6
+        },
+        "permissive_out_of_scope": {
+          "n": 14,
+          "CRITICAL_pct": 0.0,
+          "HIGH_pct": 21.4,
+          "MEDIUM_pct": 78.6,
+          "LOW_pct": 0.0
+        }
+      },
+      "reporting": {
+        "original_curated": {
+          "n": 58,
+          "CRITICAL_pct": 1.7,
+          "HIGH_pct": 29.3,
+          "MEDIUM_pct": 53.4,
+          "LOW_pct": 15.5
+        },
+        "strict_in_scope": {
+          "n": 20,
+          "CRITICAL_pct": 0.0,
+          "HIGH_pct": 0.0,
+          "MEDIUM_pct": 95.0,
+          "LOW_pct": 5.0
+        },
+        "permissive_out_of_scope": {
+          "n": 17,
+          "CRITICAL_pct": 0.0,
+          "HIGH_pct": 5.9,
+          "MEDIUM_pct": 94.1,
+          "LOW_pct": 0.0
+        }
+      },
+      "study_design": {
+        "original_curated": {
+          "n": 92,
+          "CRITICAL_pct": 12.0,
+          "HIGH_pct": 52.2,
+          "MEDIUM_pct": 32.6,
+          "LOW_pct": 3.3
+        },
+        "strict_in_scope": {
+          "n": 42,
+          "CRITICAL_pct": 14.3,
+          "HIGH_pct": 45.2,
+          "MEDIUM_pct": 38.1,
+          "LOW_pct": 2.4
+        },
+        "permissive_out_of_scope": {
+          "n": 38,
+          "CRITICAL_pct": 10.5,
+          "HIGH_pct": 44.7,
+          "MEDIUM_pct": 44.7,
+          "LOW_pct": 0.0
+        }
+      }
+    },
+    "empty_gates_total": 282,
+    "empty_rules_total": 696
+  },
+  "systematic_patterns": [
+    {
+      "pattern": "external_validation @ mlgg_dimension=6 (model selection) in original_curated",
+      "count": 29,
+      "expected_dim": 7,
+      "note": "All 29 concerns clearly describe external/multi-cohort validation, generalization, or distribution shift. dim=6 conflates external validation with model selection."
+    },
+    {
+      "pattern": "model_selection @ mlgg_dimension=4 (feature leakage) in original_curated",
+      "count": 26,
+      "expected_dim": 6,
+      "note": "These are CV strategy, model comparison, hyperparameter and Mamba/transformer architecture choices. dim=4 is incorrect; should be dim=6."
+    },
+    {
+      "pattern": "clinical_utility @ mlgg_dimension=7 in original_curated",
+      "count": 22,
+      "expected_dim": 12,
+      "note": "Confuses external validation with deployment/PPV/clinical actionability. Strict separation per schema."
+    },
+    {
+      "pattern": "reproducibility @ mlgg_dimension=9 (interpretability) in original_curated",
+      "count": 21,
+      "expected_dim": 11,
+      "note": "Concerns are about missing code/data links and reproducibility detail; dim=9 (interpretability/SHAP) is wrong."
+    },
+    {
+      "pattern": "interpretability @ mlgg_dimension=7 (external validation) in original_curated",
+      "count": 15,
+      "expected_dim": 9,
+      "note": "SHAP/explainability/feature-attribution concerns mis-mapped to dim=7."
+    },
+    {
+      "pattern": "sample_size @ mlgg_dimension=12 (clinical utility) in original_curated",
+      "count": 11,
+      "expected_dim": 1,
+      "note": "Cohort-size / power calculation concerns mis-mapped to clinical utility."
+    },
+    {
+      "pattern": "invalid mlgg_gate names",
+      "count": 6,
+      "gates": [
+        "robustness_gate (x3)",
+        "seed_stability_gate",
+        "permutation_significance_gate",
+        "prediction_replay_gate"
+      ],
+      "remap": {
+        "robustness_gate": "robustness_permutation_gate",
+        "seed_stability_gate": "robustness_permutation_gate",
+        "permutation_significance_gate": "robustness_permutation_gate",
+        "prediction_replay_gate": "execution_attestation_gate"
+      }
+    },
+    {
+      "pattern": "empty mlgg_gates field",
+      "count": 282,
+      "by_policy": {
+        "original_curated": 276,
+        "strict_in_scope": 2,
+        "permissive_out_of_scope": 4
+      },
+      "note": "Most empty-gate concerns are from the original curated KB; new-wave extractors are populating gates better. Suggest running scripts/review/backfill_peer_review_gates.py on these."
+    }
+  ],
+  "findings": [
+    {
+      "concern_id": "PR-001-C02",
+      "paper_id": "PR-001",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'study_design' typically maps to dim 1 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "NSAIDs are commonly prescribed for OA management and should preferably not be incorporated into a model designed to predict the onset of OA. NSAID prescriptions up to one year before OA diagnosis as a",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-001-C03",
+      "paper_id": "PR-001",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "evaluation_metrics",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 5
+      },
+      "rationale": "Category 'evaluation_metrics' typically maps to dim 5 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "Prior studies based on UK Biobank have demonstrated that models solely incorporating age, sex, and BMI can predict OA with AUC of 0.685-0.701. It is essential to compare the authors' models with simpl",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-001-C06",
+      "paper_id": "PR-001",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "Although they validate their model in a separate sample in UKB, really this needs to be done in a separate cohort. This should be acknowledged.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-001-C07",
+      "paper_id": "PR-001",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "interpretability",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 9
+      },
+      "rationale": "Category 'interpretability' typically maps to dim 9 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Present the ClinGRS, ClinMet and ClinPro OA risk models using SHAP values similar to how the Clin model was presented in Figure 2D. The sparse volcano plots are not particularly informative.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-001-C08",
+      "paper_id": "PR-001",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "interpretability",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 9
+      },
+      "rationale": "Category 'interpretability' typically maps to dim 9 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "A major missed opportunity: the multi-omics data was not used to disentangle the role of BMI in OA. High BMI is an established predictor but the underlying reasons BMI influences OA etiology are likel",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-002-C04",
+      "paper_id": "PR-002",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "When developing the model, cross-validation is much more robust method to avoid overfitting than the random split used by the authors.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-002-C05",
+      "paper_id": "PR-002",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "split_protocol",
+        "mlgg_dimension": 1
+      },
+      "suggested": {
+        "mlgg_dimension": 3
+      },
+      "rationale": "Category 'split_protocol' typically maps to dim 3 per schema; current dim 1 reads as '1'.",
+      "concern_excerpt": "How was random sampling performed? Was the unit of randomization performed at the level of the note, the patient visit, or the patient? Was there any overlap in patients between the test set and the t",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-003-C01",
+      "paper_id": "PR-003",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reporting",
+        "mlgg_dimension": 1
+      },
+      "suggested": {
+        "mlgg_dimension": 8
+      },
+      "rationale": "Category 'reporting' typically maps to dim 8 per schema; current dim 1 reads as '1'.",
+      "concern_excerpt": "The demographics are missing ethnic data which research has shown drastically affect risk assessing algorithms. Key data such as prior medical history, or ongoing treatment for other conditions is imp",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-003-C07",
+      "paper_id": "PR-003",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "interpretability",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 9
+      },
+      "rationale": "Category 'interpretability' typically maps to dim 9 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Another way to further tease apart the relative importance of lncRNA expression would be to show a Shapley beeswarm plot of the feature weights for the models. Ideally we could see this for one of the",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-003-C08",
+      "paper_id": "PR-003",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "It might be possible to improve the model performance using a gradient-boosted tree model. Since this is a very simple code change, it would be worthwhile to see if XGBoost might allow the model to gl",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-003-C09",
+      "paper_id": "PR-003",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "I did not find the file with code.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-003-C10",
+      "paper_id": "PR-003",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "I may have missed something, but I didn't see a link to the code.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-004-C02",
+      "paper_id": "PR-004",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "PPV 1.7% - is this really practically useful? If implemented in clinical practice, over 98% of interventions would be for patients who will not actually harm themselves. The statement that PPV 8.45% '",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-004-C04",
+      "paper_id": "PR-004",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "The VA and MIMIC populations are clinically very different (general vs ICU). It is surprising that a system pretrained on a general population performed well on a very different population. More infor",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-004-C05",
+      "paper_id": "PR-004",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Prediction of pancreatic cancer ICD-10 codes one visit prior may not be clinically useful. The documentation of a code is not equivalent to the first diagnosis. The duration between visits may differ ",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-005-C02",
+      "paper_id": "PR-005",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "interpretability",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 9
+      },
+      "rationale": "Category 'interpretability' typically maps to dim 9 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Given that stage is a very good determinant of prognosis, how do we know that the ML model isn't merely measuring tumor size and using this to determine prognosis? What other features other than size ",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-005-C06",
+      "paper_id": "PR-005",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "interpretability",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 9
+      },
+      "rationale": "Category 'interpretability' typically maps to dim 9 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "The choice of being more concerned with interpretability than explainability appears trenchant. If the authors have a strategy for dealing with explainability and determining criteria to select signif",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-005-C07",
+      "paper_id": "PR-005",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "There is a general lack of details (data more than code) for the work to be reproduced.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-006-C01",
+      "paper_id": "PR-006",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "data_leakage",
+        "mlgg_dimension": 2
+      },
+      "suggested": {
+        "mlgg_dimension": 4
+      },
+      "rationale": "Category 'data_leakage' typically maps to dim 4 per schema; current dim 2 reads as '2'.",
+      "concern_excerpt": "A significant methodological issue: the use of the same dataset for both GWAS and PPS parameterisation. This overlap will result in overfitting of PPS and optimism in performance estimates. This is cl",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-006-C04",
+      "paper_id": "PR-006",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "The combined model has been made publicly available for use 'in clinical practice'. This model has not been externally validated, having been constructed and tested only in the PLCO cohort, and I have",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-006-C08",
+      "paper_id": "PR-006",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "sample_size",
+        "mlgg_dimension": 12
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'sample_size' typically maps to dim 1 per schema; current dim 12 reads as '12'.",
+      "concern_excerpt": "I would suggest that the number of cases does not constitute 'Large scale' GWAS meta-analysis. There is insufficient power to detect GWAS-significant SNP associations. This should be made clearer in t",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-007-C01",
+      "paper_id": "PR-007",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Identifying ovarian cancer in a woman with CA125 of 10,000 or massive ascites is not difficult. What would be of actual clinical value is an algorithm that is highly predictive in women with NORMAL CA",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-007-C04",
+      "paper_id": "PR-007",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "In assessing ORADS, sensitivity dropped from 96.2% (internal) to 85.7% (external). A difference between 96% and 86% is significant. An explanation as to why performance varied so much between external",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-007-C05",
+      "paper_id": "PR-007",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "The unusual nature of the training set (nearly 50% malignant) and the lack of detail about how human input was provided makes it impossible to reproduce the work.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-007-C06",
+      "paper_id": "PR-007",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "interpretability",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 9
+      },
+      "rationale": "Category 'interpretability' typically maps to dim 9 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "The authors did not explain what DL specifically finds in ultrasound images. The explanation that it 'highlighted the most important areas' is laconic. Should explain what extent and localization of h",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-008-C07",
+      "paper_id": "PR-008",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "It is not clear why the validation cohort of 127 samples had significantly lower sensitivity than the training datasets. Supplemental Table 1 is missing.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-009-C01",
+      "paper_id": "PR-009",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "The motivation for using Mamba is not clear. There doesn't seem to be a significant difference between APRICOT-T (Transformer) and APRICOT-M (Mamba). CatBoost and GRU appear competitive on many tasks ",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-010-C01",
+      "paper_id": "PR-010",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "data_leakage",
+        "mlgg_dimension": 2
+      },
+      "suggested": {
+        "mlgg_dimension": 4
+      },
+      "rationale": "Category 'data_leakage' typically maps to dim 4 per schema; current dim 2 reads as '2'.",
+      "concern_excerpt": "The use of a bidirectional RNN at any given point in time is using future data which would not be available for clinical decision. That is the point of a bidirectional RNN and the point of this critic",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-010-C02",
+      "paper_id": "PR-010",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "split_protocol",
+        "mlgg_dimension": 1
+      },
+      "suggested": {
+        "mlgg_dimension": 3
+      },
+      "rationale": "Category 'split_protocol' typically maps to dim 3 per schema; current dim 1 reads as '1'.",
+      "concern_excerpt": "The use of data from 20 past years is problematic \u2014 medicine has taken a great leap forward. Using a temporally remote population to predict future patients may not work. Instead of randomly splitting",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-010-C05",
+      "paper_id": "PR-010",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "It is not clear how features were actually merged from 24-hour epochs. How were values combined \u2014 average, range, median, mean? It would not be possible to reproduce these models and test the results ",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-011-C03",
+      "paper_id": "PR-011",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "interpretability",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 9
+      },
+      "rationale": "Category 'interpretability' typically maps to dim 9 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "ECG features in SHAP analysis are not adequately addressed. Are there aspects that identify ECG components of interest? Are there at least positive and negative examples that are meaningful? Summary s",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-012-C06",
+      "paper_id": "PR-012",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Authors conclude this immunophenotyping can be applied rapidly in clinic. It's unclear how this extensive analysis can be practically applied where the patient deteriorates in days \u2014 during pandemic w",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-012-C07",
+      "paper_id": "PR-012",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "sample_size",
+        "mlgg_dimension": 12
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'sample_size' typically maps to dim 1 per schema; current dim 12 reads as '12'.",
+      "concern_excerpt": "The sample sizes are relatively small (primary cohort ~100 patients). Authors have used sensitivity analysis for accuracy vs test size which is good, but inherent limitations remain.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-013-C03",
+      "paper_id": "PR-013",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "From the methods it is unclear how the rate of decline was calculated. There are no longitudinal models reported. It looks like per-patient regression was fitted and slope extracted, but this informat",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-014-C02",
+      "paper_id": "PR-014",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "The proposed models are not compared with any other methods, only an uninformative model. LLMs like ChatGPT have been proven effective for extracting structured data from clinical notes. Open-source L",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-015-C02",
+      "paper_id": "PR-015",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "My fundamental objection to nearly all synthetic data papers: Is the real input data available? Is the synthetic data available? Where is the public code repository? They cannot answer 'yes' to all th",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-016-C05",
+      "paper_id": "PR-016",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Several gene expression signatures for breast cancer (Mammaprint, OncotypeDX) are clinically used. Authors have to study how their proposed biomarkers add additional prognostic value on top of these e",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-017-C01",
+      "paper_id": "PR-017",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "Given the very good performance of 'weighted lassosum2', I wonder whether the extra gain from PROSPER comes from the L2-penalty sharing effects across populations, or from the super learning step? You",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-017-C04",
+      "paper_id": "PR-017",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "Analysis code is publicly shared but I cannot find the code corresponding to LDpred2 analyses. I am surprised LDpred2 performs consistently worse than lassosum2 \u2014 maybe consider extending the grid to ",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-018-C04",
+      "paper_id": "PR-018",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "As summary statistics of T2D, CAD, and IBD are available, could authors generate PRS using traditional LDpred2 with UKBB data and compare AUC with LDpred based PRStuning? Include computational time co",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-018-C05",
+      "paper_id": "PR-018",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "Author mentioned they applied the framework in European ancestral group only. Would it be possible to include non-European population in the training datasets?",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-020-C01",
+      "paper_id": "PR-020",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "Lacks thorough comparison with existing baselines. Comprehensive ablation studies needed for each component and each modality's independent contribution.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-020-C02",
+      "paper_id": "PR-020",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Predicting microscopic LLNMs with AI may be HARMFUL \u2014 removal of small metastases may not change outcome. Will result in overutilization of lateral neck dissection.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-021-C04",
+      "paper_id": "PR-021",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "interpretability",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 9
+      },
+      "rationale": "Category 'interpretability' typically maps to dim 9 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Heatmaps show apparently useless tokens ('brother', '142') as important. Can multi-source information be shown to be composed in complementary way?",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-023-C03",
+      "paper_id": "PR-023",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "Only East Asian and European. Transferability to African samples is harder. Should apply to AFR samples.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-024-C07",
+      "paper_id": "PR-024",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "Model coefficients and variables need to be clearly provided to allow further validation.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-025-C01",
+      "paper_id": "PR-025",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "sample_size",
+        "mlgg_dimension": 12
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'sample_size' typically maps to dim 1 per schema; current dim 12 reads as '12'.",
+      "concern_excerpt": "Sample size lacks formal power calculations and has concerning issues in key subgroups like Somalia cohort (n=47) and less common pathological types like MCD/FSGS. This raises questions about statisti",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-026-C01",
+      "paper_id": "PR-026",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "The model was developed and internally validated in South Korean trauma centers. External validation in Australia (n=3,578) is valuable but limited to one center. Performance in other healthcare syste",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-026-C03",
+      "paper_id": "PR-026",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "How would this model be deployed in real-time prehospital settings? What are the latency requirements? What happens when data is missing (common in trauma settings)?",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-027-C01",
+      "paper_id": "PR-027",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "Authors should provide rationale why selecting XGBoost, not other ML models. Unclear whether further feature selection can improve performance.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-028-C01",
+      "paper_id": "PR-028",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "The study lacks external validation. Model should be tested in very different conditions to avoid out-of-distribution bias.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-028-C02",
+      "paper_id": "PR-028",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "Why LightGBM as first choice? There are many time-series models like LSTM that may better capture temporal patterns. Also, SOFA score uses much less variables \u2014 for parsimony, SOFA seems better for pr",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-028-C04",
+      "paper_id": "PR-028",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "Will stacked ensemble model further improve performance? There is evidence that ensemble models achieve better accuracy than any individual model alone.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-028-C07",
+      "paper_id": "PR-028",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "While model accuracy is important, it may not translate to clinical benefits such as reducing mortality in ICU. More work needed to test effectiveness.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-029-C03",
+      "paper_id": "PR-029",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "split_protocol",
+        "mlgg_dimension": 1
+      },
+      "suggested": {
+        "mlgg_dimension": 3
+      },
+      "rationale": "Category 'split_protocol' typically maps to dim 3 per schema; current dim 1 reads as '1'.",
+      "concern_excerpt": "The fact that some patients were associated with multiple admissions might positively bias the performance of the model. Recommend including only the first admission per patient.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-029-C04",
+      "paper_id": "PR-029",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "XGBoost has equivalent or better performance compared to transformer. XGBoost doesn't incorporate varying time-series. Why should clinicians prefer a more complex model that is harder to implement?",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-030-C04",
+      "paper_id": "PR-030",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "Great that ML pipeline is available, but code is hard to read from a PDF. Please upload to GitHub.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-032-C01",
+      "paper_id": "PR-032",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "GPs usually do not have access to MRI scanner \u2014 one of the most important features is MRI-based. For clinical trials, biomarker evidence for amyloid pathology would be preferred but is not included.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-033-C02",
+      "paper_id": "PR-033",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "Seven cohorts used but unclear how independent the external validation truly is. Need clear delineation of which cohorts used for development vs validation.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-034-C01",
+      "paper_id": "PR-034",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "Authors need to use cutoff values from NLST and apply to two independent cohorts, performing same analyses individually. The sole usage of quantiles in each cohort is insufficient \u2014 must show actual t",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-034-C04",
+      "paper_id": "PR-034",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "The model should be uploaded to an open-access repository, not only available on reasonable request, as this limits reproducibility.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-036-C04",
+      "paper_id": "PR-036",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Slightly uncertain how much small model performance drifts impact on clinical care when models are used as adjunct only. Practicalities and cost of applying and maintaining the dynamic updating system",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-037-C01",
+      "paper_id": "PR-037",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "Empirical validation uses logistic regression which is simple and linearly scales. Rationale for distributed file system is undermotivated for 100-variable LR. Need to demonstrate with significantly l",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-037-C02",
+      "paper_id": "PR-037",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "XGBoost and MLP are still conventional models. Would be more relevant with transformers, CNNs, LSTM. The concept of federated learning is not new, blockchain technology not new \u2014 fail to see significa",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-038-C01",
+      "paper_id": "PR-038",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Model showed adequate predictive accuracy but no effect on clinical decision-making or clinical outcomes. Clinical course changed for only 1 single patient of over 600 in the intervention arm. This is",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-038-C03",
+      "paper_id": "PR-038",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Consider 7-day mortality risk instead of 31-day as avenue for better adoption. Future work should involve more user-friendly integration and risk 'zones' (e.g., infection, respiratory concern) rather ",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-039-C04",
+      "paper_id": "PR-039",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "Average age in external cohort much higher than training cohort. All-cause mortality also much higher. Why should this not impact generalizability?",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-041-C03",
+      "paper_id": "PR-041",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "interpretability",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 9
+      },
+      "rationale": "Category 'interpretability' typically maps to dim 9 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Unclear how PpgAge could be interpreted in practical settings. If an individual has PpgAge gap of +2 years, what drives this? What is the practical implication for this specific individual?",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-041-C04",
+      "paper_id": "PR-041",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "External validation in another dataset is strongly encouraged.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-050-C01",
+      "paper_id": "PR-050",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Most patients (even in academic centers) do not undergo WGS/WTS. It would be of great practical relevance to study model performance with targeted panel sequencing data as input, ideally in a separate",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-050-C04",
+      "paper_id": "PR-050",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "Choice of sparse PCA as feature reduction is well-established but not without difficulties. Covariance of features, captured variance for number of components should be shown. Why logistic regression ",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-051-C03",
+      "paper_id": "PR-051",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Associations between OS and bevacizumab use are questionable. Only 30 patients with mixed treatment histories \u2014 too small to make conclusions about response prediction to bevacizumab.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-052-C01",
+      "paper_id": "PR-052",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "Section on Model Development is unclear and poorly explained. Many details missing regarding architecture and optimization. No hyperparameter tuning described. No schematic figure of model architectur",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-054-C04",
+      "paper_id": "PR-054",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Authors claim system can inform strategies for adjuvant therapy but provide no evidence of therapeutic significance.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-055-C04",
+      "paper_id": "PR-055",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "More details needed to evaluate privacy properties. Should include pseudo-code showing exactly what information is transmitted between sites.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-056-C02",
+      "paper_id": "PR-056",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "sample_size",
+        "mlgg_dimension": 12
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'sample_size' typically maps to dim 1 per schema; current dim 12 reads as '12'.",
+      "concern_excerpt": "Cohort size is too small to make any definitive conclusions regarding utility of the test for MCED or for predicting response to treatment (N=92 for cancer detection, N=30 for drug response).",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-057-C01",
+      "paper_id": "PR-057",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "Analytical approach is outdated and simplistic \u2014 many publications already describe similar strategies with much more advanced deep learning methods. Authors must show (i) PPI-guided selection beats u",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-058-C01",
+      "paper_id": "PR-058",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "Feature set is neither complicated nor high-dimensional. Not clear the need or benefit of feedforward neural network \u2014 it can only overfit without improvements over linear models. Also, GBDT CAN be ea",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-059-C01",
+      "paper_id": "PR-059",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "Algorithm has to be assessed in a prospective huge dataset of multi-institutions. The Erlangen dataset carries too many breast cancer patients and does not reflect a normal population.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-059-C02",
+      "paper_id": "PR-059",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Number of diagnosed aneurysms was very low. Did any diagnosed aneurysm have further assessment with CT/angiography or treatment? What would be the consequence of such a diagnosis for a woman? Incidenc",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-062-C01",
+      "paper_id": "PR-062",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "DL model description is vague: loss function completely missing, training details (optimizer, dev split, epochs) absent, image preprocessing completely missing (DICOM\u2192PNG, dimensions, cropping, augmen",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-065-C01",
+      "paper_id": "PR-065",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "All datasets consisted of participants from China only. Single-ethnicity training from a single national screening program. LensAge DL model may be limited in generalizability to other populations.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-065-C04",
+      "paper_id": "PR-065",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "interpretability",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 9
+      },
+      "rationale": "Category 'interpretability' typically maps to dim 9 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Explainability analysis needed \u2014 what specific lens features drive the LensAge prediction? Is it nuclear sclerosis, cortical changes, posterior subcapsular changes? Grad-CAM only shows where, not what",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-066-C01",
+      "paper_id": "PR-066",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "interpretability",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 9
+      },
+      "rationale": "Category 'interpretability' typically maps to dim 9 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Three-phase model achieves best performance but authors haven't shown what each phase contributes. Which radiological phenotypes in each phase correlate with predictions?",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-066-C03",
+      "paper_id": "PR-066",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "interpretability",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 9
+      },
+      "rationale": "Category 'interpretability' typically maps to dim 9 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "After segmentation, why not focus on kidney areas by masking background? Benign CAM in Figure C shows attention paid to background areas. Why not include segmentation results as additional input?",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-066-C05",
+      "paper_id": "PR-066",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "Code available but trained weights not shared. Checked code in repository \u2014 seems reasonable but can't run without pre-trained model.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-067-C04",
+      "paper_id": "PR-067",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "interpretability",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 9
+      },
+      "rationale": "Category 'interpretability' typically maps to dim 9 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Speculation that rib attenuation relates to osteoporosis should be cautious \u2014 T2D and osteoporosis correlation is subtle. More likely that rib attenuation results from increased subcutaneous fat.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-070-C02",
+      "paper_id": "PR-070",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "How can agent reliably create calculation functions from paper abstracts only? Calculation details are in the main body. Toolset creation pipeline not open-sourced.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-072-C01",
+      "paper_id": "PR-072",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "data_leakage",
+        "mlgg_dimension": 2
+      },
+      "suggested": {
+        "mlgg_dimension": 4
+      },
+      "rationale": "Category 'data_leakage' typically maps to dim 4 per schema; current dim 2 reads as '2'.",
+      "concern_excerpt": "Possible data leakage in UK Biobank phenotype evaluation \u2014 many phenotypes are correlated. Since authors trained on both simulated and real data, held-out test phenotypes may overlap with training set",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-072-C02",
+      "paper_id": "PR-072",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "Limited benchmarking \u2014 should compare with PRSice and LDPred. Small observed contribution of nonlinearity could be due to suboptimal NN, not absence of nonlinearity. Should test boosted trees and SVMs",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-073-C03",
+      "paper_id": "PR-073",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "interpretability",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 9
+      },
+      "rationale": "Category 'interpretability' typically maps to dim 9 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Can image-based model extract ECG information like channel (I, II, V1 etc) or waveform features (QRS amplitude, heart rate)? Explainable feature outputs could enhance performance.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-079-C01",
+      "paper_id": "PR-079",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "How would the ML protocol work from a user/clinician perspective? Clinical applicability beyond research setting unclear.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-081-C03",
+      "paper_id": "PR-081",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "Different magnification levels give different results. Should aggregate predictions from multiple magnifications via ensemble methods.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-082-C02",
+      "paper_id": "PR-082",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "sample_size",
+        "mlgg_dimension": 12
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'sample_size' typically maps to dim 1 per schema; current dim 12 reads as '12'.",
+      "concern_excerpt": "Very small sample (N=145). Subgroup sizes unclear. Limited power for biomarker comparison.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-084-C01",
+      "paper_id": "PR-084",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "Model trained on single-center data. Needs external validation across different transplant centers with different protocols.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-084-C02",
+      "paper_id": "PR-084",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Virtual biopsy cannot replace histological assessment \u2014 clinical deployment pathway unclear.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-090-C01",
+      "paper_id": "PR-090",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "External validation cohort characteristics and size should be clearly reported. Performance in early-stage pancreatic cancer is critical but may be limited.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-093-C01",
+      "paper_id": "PR-093",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "sample_size",
+        "mlgg_dimension": 12
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'sample_size' typically maps to dim 1 per schema; current dim 12 reads as '12'.",
+      "concern_excerpt": "Pediatric brain tumors are rare. Sample size may limit model generalizability. Need multi-institutional validation.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-094-C01",
+      "paper_id": "PR-094",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "Pediatric thyroid cancer is rare \u2014 external validation cohort may be too small for reliable performance assessment.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-099-C01",
+      "paper_id": "PR-099",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "Single-channel oximetry is simpler than polysomnography but external validation across different oximeters and populations needed.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-101-C01",
+      "paper_id": "PR-101",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "sample_size",
+        "mlgg_dimension": 12
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'sample_size' typically maps to dim 1 per schema; current dim 12 reads as '12'.",
+      "concern_excerpt": "Small sample sizes (MTX+HCQ n=59) limit robustness of ML models; larger cohorts needed to ensure reliability of treatment-response predictions.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-101-C02",
+      "paper_id": "PR-101",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "Study should compare LASSO against alternative ML methods (XGBoost, Random Forest) to ensure chosen approach is not arbitrarily selected.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-101-C03",
+      "paper_id": "PR-101",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "preprocessing",
+        "mlgg_dimension": 5
+      },
+      "suggested": {
+        "mlgg_dimension": 2
+      },
+      "rationale": "Category 'preprocessing' typically maps to dim 2 per schema; current dim 5 reads as '5'.",
+      "concern_excerpt": "Class imbalance between responders and non-responders not explicitly addressed; needs documentation of imbalance handling strategy.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-101-C05",
+      "paper_id": "PR-101",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "interpretability",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 9
+      },
+      "rationale": "Category 'interpretability' typically maps to dim 9 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "Model interpretability via post-hoc explainability tools (e.g., SHAP) not provided; feature importance plots needed to identify most predictive proteins.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-101-C06",
+      "paper_id": "PR-101",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "No independent validation cohort for treatment-response biomarker panel; need ELISA/MRM-based validation in additional patients to confirm reliability.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-102-C03",
+      "paper_id": "PR-102",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "Sole use of GBM without comparisons to Random Forest, CatBoost, or LightGBM leaves unclear whether gains come from MLCS framework, algorithm choice, or additional predictors.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-102-C04",
+      "paper_id": "PR-102",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "Code not available for review; preprocessing pipelines of proprietary MLCS framework not disclosed; conflict of interest from Univfy raises reproducibility concerns.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-102-C05",
+      "paper_id": "PR-102",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'study_design' typically maps to dim 1 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "PGT-A usage not excluded/adjusted despite likely large impact on SART model performance; confounders across centers uncontrolled.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-102-C06",
+      "paper_id": "PR-102",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Commercial-toned discussion overclaims value-based IVF pricing without supporting financial data; reviewer requested toning down of promotional language and adding limitations section.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-104-C01",
+      "paper_id": "PR-104",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "Substantial performance drop from internal (AUROC 0.95) to external (0.798) validation; potential causes and implications of generalization cost warrant detailed discussion.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-104-C06",
+      "paper_id": "PR-104",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "interpretability",
+        "mlgg_dimension": 5
+      },
+      "suggested": {
+        "mlgg_dimension": 9
+      },
+      "rationale": "Category 'interpretability' typically maps to dim 9 per schema; current dim 5 reads as '5'.",
+      "concern_excerpt": "Unexpected non-monotonic behavior: quartile 3 of AI HFpEF shows lower observed risk than quartile 2, indicating miscalibration and potential model behavior issue requiring explanation.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-105-C01",
+      "paper_id": "PR-105",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'study_design' typically maps to dim 1 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Time-horizon conflation: 2-year 'risk' of already-present cancer is a diagnostic probability, not a forward risk; imprecise use of 'risk' vs 'probability' obscures clinical purpose.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-105-C02",
+      "paper_id": "PR-105",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "preprocessing",
+        "mlgg_dimension": 1
+      },
+      "suggested": {
+        "mlgg_dimension": 2
+      },
+      "rationale": "Category 'preprocessing' typically maps to dim 2 per schema; current dim 1 reads as '1'.",
+      "concern_excerpt": "Missing data in EHR shown to be MNAR; imputation method does not address this; missingness counts and potential bias not fully reported.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-105-C03",
+      "paper_id": "PR-105",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "Model coefficients not published; code only available under academic license from Oxford University Innovations, hindering independent validation.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-105-C06",
+      "paper_id": "PR-105",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Model B (with blood tests) shows minimal improvement over Model A (clinical-only); added diagnostic value of blood tests unclear and clinical implications underdiscussed.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-106-C01",
+      "paper_id": "PR-106",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "Motivation for Mamba unclear: 4-h input windows and exclusion of long-stay patients mean APRICOT-M does not significantly outperform APRICOT-T (Transformer); advantage of SSM architecture not illustra",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-106-C03",
+      "paper_id": "PR-106",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "CatBoost and GRU baselines appear competitive on many tasks with far lower compute cost; baseline comparison and compute discussion inadequate.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-106-C04",
+      "paper_id": "PR-106",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Prospective validation was conducted but lacks clinical adjudication of alert timeliness, accuracy, and actionability; rare-event AUROC is overoptimistic without clinical utility assessment.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-106-C06",
+      "paper_id": "PR-106",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "GitHub repository README lacks software/hardware requirements and dependencies; hyperparameter selection approach (systematic or ad-hoc) not documented.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-107-C01",
+      "paper_id": "PR-107",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "CN-S cohort lacks external validation; performance reported only on training data initially, no separate held-out validation described for CN-S.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-107-C03",
+      "paper_id": "PR-107",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "No benchmarking against comparable deep learning time-series models (GRU-D, SeFT, Life2Vec) - limits ability to judge whether geometric GNN choice is justified.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-107-C04",
+      "paper_id": "PR-107",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "data_leakage",
+        "mlgg_dimension": 2
+      },
+      "suggested": {
+        "mlgg_dimension": 4
+      },
+      "rationale": "Category 'data_leakage' typically maps to dim 4 per schema; current dim 2 reads as '2'.",
+      "concern_excerpt": "Reliance on ICD/diagnosis codes for label generation avoided, but weakly-labeled propagation (MAP@1 0.71-0.79) raises questions about noisy labels cascading into downstream training.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-107-C05",
+      "paper_id": "PR-107",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "Chosen hyperparameters (embedding dimensions, pooling ratio) not stated in manuscript, limiting reproducibility of the GNN tuning.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-107-C06",
+      "paper_id": "PR-107",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "preprocessing",
+        "mlgg_dimension": 1
+      },
+      "suggested": {
+        "mlgg_dimension": 2
+      },
+      "rationale": "Category 'preprocessing' typically maps to dim 2 per schema; current dim 1 reads as '1'.",
+      "concern_excerpt": "Handling of unstructured clinical narratives unclear: NLP pipeline for free-text extraction not described; ontology standardization (SNOMED/UMLS) not specified.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-108-C01",
+      "paper_id": "PR-108",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "split_protocol",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 3
+      },
+      "rationale": "Category 'split_protocol' typically maps to dim 3 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "Discovery/validation split by preterm (<37wk) vs term (>=37wk) delivery may bias model to early-onset disease markers; early-onset placental insufficiency is biologically distinct from late-onset.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-108-C02",
+      "paper_id": "PR-108",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "sample_size",
+        "mlgg_dimension": 12
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'sample_size' typically maps to dim 1 per schema; current dim 12 reads as '12'.",
+      "concern_excerpt": "Only n=13-15 effective cases in discovery cohort at 28wk severely constrains multivariable model stability; 2-predictor ceiling is a symptom of underpowering.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-108-C03",
+      "paper_id": "PR-108",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "AdaBoost (used by Munchel et al) omitted from 11-model super-learner comparison; rationale for excluding ensembles undocumented.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-108-C05",
+      "paper_id": "PR-108",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'study_design' typically maps to dim 1 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Longitudinal sampling structure (same patient sampled at 4 gestational timepoints in same batch) not leveraged; model trained only on 28wk cross-sectional snapshot despite data being ideal for repeate",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-109-C01",
+      "paper_id": "PR-109",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "data_leakage",
+        "mlgg_dimension": 2
+      },
+      "suggested": {
+        "mlgg_dimension": 4
+      },
+      "rationale": "Category 'data_leakage' typically maps to dim 4 per schema; current dim 2 reads as '2'.",
+      "concern_excerpt": "UK Biobank was part of the case-control GWAS used to build CC-PRS, then reused for PheWAS validation - circular use of the same biobank in training weights and evaluation inflates CC-PRS signal.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-109-C02",
+      "paper_id": "PR-109",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "Portability across ancestries and biobanks unexamined; performance reported only in European-ancestry subset of BioVU+All of Us; non-European sample sizes too small to evaluate fairness/transferabilit",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-109-C03",
+      "paper_id": "PR-109",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "Only MTAG (2018) used as multi-trait PRS comparator; newer methods (mtPGS, multivariate Lassosum Bahda 2023, PROSPER) omitted, weakening novelty claim.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-109-C04",
+      "paper_id": "PR-109",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 11
+      },
+      "rationale": "Category 'reproducibility' typically maps to dim 11 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "Tuning-parameter settings, software versions for LDpred2/lassosum/PRS-CS not documented; no code provided for baseline PRS estimation step.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-110-C02",
+      "paper_id": "PR-110",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "sample_size",
+        "mlgg_dimension": 12
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'sample_size' typically maps to dim 1 per schema; current dim 12 reads as '12'.",
+      "concern_excerpt": "Only 11-17 hard deterioration events across cohort insufficient to validate a deep learning predictive model; effectively a feasibility study rather than a validated model.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-110-C05",
+      "paper_id": "PR-110",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "'Prospective' validation used same-institution patients on alternate device rather than separate cohort; generalizability across hospitals/populations unassessed.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-111-C01",
+      "paper_id": "PR-111",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "split_protocol",
+        "mlgg_dimension": 2
+      },
+      "suggested": {
+        "mlgg_dimension": 3
+      },
+      "rationale": "Category 'split_protocol' typically maps to dim 3 per schema; current dim 2 reads as '2'.",
+      "concern_excerpt": "Every candidate model from the all-combinations search was evaluated on the 25% test set, effectively turning the test set into a second training step and inflating performance via multiple testing.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-111-C02",
+      "paper_id": "PR-111",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reporting",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 8
+      },
+      "rationale": "Category 'reporting' typically maps to dim 8 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "LASSO cross-validation type, hyperparameters, and software details not specified; combinatorial 'linear' models were actually logistic regression, and scikit-learn call / CV scheme for feature selecti",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-111-C03",
+      "paper_id": "PR-111",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "preprocessing",
+        "mlgg_dimension": 1
+      },
+      "suggested": {
+        "mlgg_dimension": 2
+      },
+      "rationale": "Category 'preprocessing' typically maps to dim 2 per schema; current dim 1 reads as '1'.",
+      "concern_excerpt": "Two different imputation strategies applied at 50% and 10% missingness thresholds without rationale, and per-marker missingness (up to >70% for IGLL5, IGLV3-9) not originally reported, risking spuriou",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-111-C04",
+      "paper_id": "PR-111",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "No independent validation cohort; 25% held-out split presented as 'validation' serves only bioinformatic role; generalization across countries/age/HIV subgroups untested.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-111-C05",
+      "paper_id": "PR-111",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 11
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'study_design' typically maps to dim 1 per schema; current dim 11 reads as '11'.",
+      "concern_excerpt": "No subgroup analyses by age <2, sex, HIV, nutritional status despite significant HIV/malnutrition imbalance between TB and Unlikely TB groups (potential confounding of proteomic signature).",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-111-C06",
+      "paper_id": "PR-111",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "Only logistic regression evaluated; tree-based and non-linear methods not reported; rationale for restricting to logistic was post-hoc and results of other methods (XGBoost, RF, SVM) were 'data not sh",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-112-C01",
+      "paper_id": "PR-112",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "External Validation 2 (GSE192902) AUCs dropped sharply (e.g., 0.88 -> 0.68 range; T1 LOPE AUC 0.63), contradicting 'robustness and translational potential' claim; performance gap not transparently rep",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-112-C02",
+      "paper_id": "PR-112",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "sample_size",
+        "mlgg_dimension": 12
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'sample_size' typically maps to dim 1 per schema; current dim 12 reads as '12'.",
+      "concern_excerpt": "Validation 2 cohort very small (especially T2 subset); balanced case-control down-sampling plus leave-one-out CV on tiny n yields high-variance estimates easily confounded with technical differences.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-112-C04",
+      "paper_id": "PR-112",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'study_design' typically maps to dim 1 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "Case-control discovery design instead of case-cohort/nested cohort risks overly optimistic models likely to fail in population-based deployment; limitation not originally acknowledged.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-113-C03",
+      "paper_id": "PR-113",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "No prospective validation of SepsisFormer in real-time ICU settings; transcriptomic biomarkers (STAT5B, MTHFR, HPSE, AAK1, MX1) lack validation in independent cohort.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-113-C04",
+      "paper_id": "PR-113",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "model_selection",
+        "mlgg_dimension": 4
+      },
+      "suggested": {
+        "mlgg_dimension": 6
+      },
+      "rationale": "Category 'model_selection' typically maps to dim 6 per schema; current dim 4 reads as '4'.",
+      "concern_excerpt": "No ablation of SepsisFormer components (e.g., contribution of domain-adaptation vs base Transformer); hyperparameter choices and MMID-SMOTE 'novelty' vs existing SMOTE unclear.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-113-C05",
+      "paper_id": "PR-113",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "feature_selection",
+        "mlgg_dimension": 1
+      },
+      "suggested": {
+        "mlgg_dimension": 4
+      },
+      "rationale": "Category 'feature_selection' typically maps to dim 4 per schema; current dim 1 reads as '1'.",
+      "concern_excerpt": "Rationale for restricting SMART to 7 coagulation-inflammation markers + age unclear \u2014 Figure 2 suggests >8 candidate variables and two clustering analyses (alpha/beta on 36 vars, CIS1/CIS2 on 7) with ",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-113-C06",
+      "paper_id": "PR-113",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reporting",
+        "mlgg_dimension": 9
+      },
+      "suggested": {
+        "mlgg_dimension": 8
+      },
+      "rationale": "Category 'reporting' typically maps to dim 8 per schema; current dim 9 reads as '9'.",
+      "concern_excerpt": "Code not available at initial submission; only pseudocode provided; documentation insufficient to reproduce analyses or link scripts to specific figures/transcriptomic results.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-114-C01",
+      "paper_id": "PR-114",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'study_design' typically maps to dim 1 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Outcome definition confounds prognosis vs diagnosis: SOFA >=2 is prognostic of organ dysfunction, not of infection; pre-Sepsis-3 cohorts split 'sepsis' vs 'severe sepsis' where severe is now the Sepsi",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-114-C02",
+      "paper_id": "PR-114",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "AUROC 0.69 and NPV 67% in ED setting deemed effectively a negative result: cannot reliably rule out adverse outcomes at true T0, undermining point-of-care value proposition.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-114-C04",
+      "paper_id": "PR-114",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "sample_size",
+        "mlgg_dimension": 12
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'sample_size' typically maps to dim 1 per schema; current dim 12 reads as '12'.",
+      "concern_excerpt": "Derivation/validation cohorts smaller than claimed; no prospective power analysis presented per setting; refitting six-gene signature across ED vs ICU vs multi-country cohorts risks tuning leakage.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-114-C05",
+      "paper_id": "PR-114",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 7
+      },
+      "rationale": "Category 'external_validation' typically maps to dim 7 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "Independence of 15 'external' test datasets questioned \u2014 reviewer asked explicitly whether signatures were ever tuned/refit on these cohorts, with limited detail on RNA extraction and HKG stability ac",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-114-C06",
+      "paper_id": "PR-114",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "interpretability",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 9
+      },
+      "rationale": "Category 'interpretability' typically maps to dim 9 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "Pathophysiological link between the 6-gene immunosuppression/reprogramming signature and SOFA-defined deterioration requires deeper mechanistic discussion; over-reach in claiming test replaces other c",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-EXP-0084-C09",
+      "paper_id": "PR-EXP-0084",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "evaluation_metrics",
+        "mlgg_dimension": 6
+      },
+      "suggested": {
+        "mlgg_dimension": 5
+      },
+      "rationale": "Category 'evaluation_metrics' typically maps to dim 5 per schema; current dim 6 reads as '6'.",
+      "concern_excerpt": "The proposed 'stability' metric based on cosine similarity across independently trained VAEs is not valid given rotational/permutation of latent spaces.",
+      "_extraction_policy": "strict_in_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0084-C11",
+      "paper_id": "PR-EXP-0084",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reporting",
+        "mlgg_dimension": 12
+      },
+      "suggested": {
+        "mlgg_dimension": 8
+      },
+      "rationale": "Category 'reporting' typically maps to dim 8 per schema; current dim 12 reads as '12'.",
+      "concern_excerpt": "Statements about longitudinal 'phenotypic shift,' superiority of DDRTree over traditional clustering, mitigation of confounding via VAE-based selection, clinical relevance of the continuous model, and",
+      "_extraction_policy": "strict_in_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0110-C06",
+      "paper_id": "PR-EXP-0110",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "reporting",
+        "mlgg_dimension": 5
+      },
+      "suggested": {
+        "mlgg_dimension": 8
+      },
+      "rationale": "Category 'reporting' typically maps to dim 8 per schema; current dim 5 reads as '5'.",
+      "concern_excerpt": "The authors state that the 'AI-EF model demonstrated excellent stratification of the risk of CRTCD' and I was wondering how this was determined? Based on the hazard ratio? an AUC of 0.77, a positive p",
+      "_extraction_policy": "strict_in_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0155-C01",
+      "paper_id": "PR-EXP-0155",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'study_design' typically maps to dim 1 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "'This cohort consists of 652 recruited patients with ERBB2-positive metastatic breast cancer'. The authors assume that model validation on this cohort of patients remains valid despite the population ",
+      "_extraction_policy": "permissive_out_of_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0157-C06",
+      "paper_id": "PR-EXP-0157",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'study_design' typically maps to dim 1 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "The external data experiments should make it more clear if the model used was only trained on the single scanner (such as in the Figure 2 caption). It is consequently not clear if Figure 2 is showing ",
+      "_extraction_policy": "permissive_out_of_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0159-C02",
+      "paper_id": "PR-EXP-0159",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 12
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'study_design' typically maps to dim 1 per schema; current dim 12 reads as '12'.",
+      "concern_excerpt": "Although the revised manuscript shows in detail the comparison between previous models and the proposed ones, it still remains unclear which model, out of the Tri AI-segment, Tri AI-severity, and Tri ",
+      "_extraction_policy": "permissive_out_of_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0160-C09",
+      "paper_id": "PR-EXP-0160",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_dimension": 3
+      },
+      "suggested": {
+        "mlgg_dimension": 1
+      },
+      "rationale": "Category 'study_design' typically maps to dim 1 per schema; current dim 3 reads as '3'.",
+      "concern_excerpt": "When splitting the dataset, the authors wrote: 'To demonstrate the generalizability of predictions made by CovEWS, we limited the training of CovEWS to a training cohort of 14 215 (30%) patients from ",
+      "_extraction_policy": "strict_in_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0200-C01",
+      "paper_id": "PR-EXP-0200",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "data_leakage",
+        "mlgg_dimension": 2
+      },
+      "suggested": {
+        "mlgg_dimension": 4
+      },
+      "rationale": "Category 'data_leakage' typically maps to dim 4 per schema; current dim 2 reads as '2'.",
+      "concern_excerpt": "An extensive methodological approach is provided for both the training and testing datasets. The training dataset uses a method for automatic classification developed by one of the co-authors (PWM), i",
+      "_extraction_policy": "permissive_out_of_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0212-C03",
+      "paper_id": "PR-EXP-0212",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "preprocessing",
+        "mlgg_dimension": 1
+      },
+      "suggested": {
+        "mlgg_dimension": 2
+      },
+      "rationale": "Category 'preprocessing' typically maps to dim 2 per schema; current dim 1 reads as '1'.",
+      "concern_excerpt": "One can quibble with some of the clinical decisions that were made e.g. 'Burn patients were also excluded since serum creatinine becomes a less reliable tool in assessing renal function during hyperme",
+      "_extraction_policy": "strict_in_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0212-C05",
+      "paper_id": "PR-EXP-0212",
+      "issue_type": "category_dim_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_dimension": 7
+      },
+      "suggested": {
+        "mlgg_dimension": 12
+      },
+      "rationale": "Category 'clinical_utility' typically maps to dim 12 per schema; current dim 7 reads as '7'.",
+      "concern_excerpt": "The utility of adjMMD is not clear in my opinion. Experiments show that refitting the model in the external sites work better than just using the pre-trained models. So, what is the point of knowing t",
+      "_extraction_policy": "strict_in_scope"
+    },
+    {
+      "concern_id": "PR-001-C02",
+      "paper_id": "PR-001",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_gates": [
+          "clinical_metrics_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "cohort_definition_gate"
+        ]
+      },
+      "rationale": "Category 'study_design' has no gate from its canonical set; should include at least one of: ['cohort_definition_gate', 'definition_variable_guard', 'label_definition_gate'].",
+      "concern_excerpt": "NSAIDs are commonly prescribed for OA management and should preferably not be incorporated into a model designed to predict the onset of OA. NSAID prescriptions up to one year before OA diagnosis as a",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-001-C03",
+      "paper_id": "PR-001",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "evaluation_metrics",
+        "mlgg_gates": [
+          "model_selection_audit_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "evaluation_quality_gate"
+        ]
+      },
+      "rationale": "Category 'evaluation_metrics' has no gate from its canonical set; should include at least one of: ['calibration_dca_gate', 'ci_matrix_gate', 'clinical_metrics_gate'].",
+      "concern_excerpt": "Prior studies based on UK Biobank have demonstrated that models solely incorporating age, sex, and BMI can predict OA with AUC of 0.685-0.701. It is essential to compare the authors' models with simpl",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-001-C04",
+      "paper_id": "PR-001",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "preprocessing",
+        "mlgg_gates": [
+          "covariate_shift_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "preprocessing_audit_gate"
+        ]
+      },
+      "rationale": "Category 'preprocessing' has no gate from its canonical set; should include at least one of: ['feature_engineering_audit_gate', 'feature_lineage_gate', 'imbalance_policy_gate'].",
+      "concern_excerpt": "Inclusion of highly correlated variables (e.g., fat mass ratios in right leg vs left leg, grip strength right vs left hand) should be reconsidered to avoid multicollinearity issues.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-003-C01",
+      "paper_id": "PR-003",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "reporting",
+        "mlgg_gates": [
+          "cohort_definition_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "reporting_bias_gate"
+        ]
+      },
+      "rationale": "Category 'reporting' has no gate from its canonical set; should include at least one of: ['code_data_availability_gate', 'compliance_attestation_gate', 'execution_attestation_gate'].",
+      "concern_excerpt": "The demographics are missing ethnic data which research has shown drastically affect risk assessing algorithms. Key data such as prior medical history, or ongoing treatment for other conditions is imp",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-005-C03",
+      "paper_id": "PR-005",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "evaluation_metrics",
+        "mlgg_gates": [
+          "model_selection_audit_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "evaluation_quality_gate"
+        ]
+      },
+      "rationale": "Category 'evaluation_metrics' has no gate from its canonical set; should include at least one of: ['calibration_dca_gate', 'ci_matrix_gate', 'clinical_metrics_gate'].",
+      "concern_excerpt": "For prediction of benefit for adjuvant chemotherapy, a multivariate analysis should be performed to determine if TME or DLS are independent predictors of benefit from chemotherapy.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-102-C05",
+      "paper_id": "PR-102",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "study_design",
+        "mlgg_gates": [
+          "covariate_shift_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "cohort_definition_gate"
+        ]
+      },
+      "rationale": "Category 'study_design' has no gate from its canonical set; should include at least one of: ['cohort_definition_gate', 'definition_variable_guard', 'label_definition_gate'].",
+      "concern_excerpt": "PGT-A usage not excluded/adjusted despite likely large impact on SART model performance; confounders across centers uncontrolled.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-102-C06",
+      "paper_id": "PR-102",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "clinical_utility",
+        "mlgg_gates": [
+          "reporting_bias_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "clinical_metrics_gate"
+        ]
+      },
+      "rationale": "Category 'clinical_utility' has no gate from its canonical set; should include at least one of: ['calibration_dca_gate', 'clinical_metrics_gate', 'fairness_equity_gate'].",
+      "concern_excerpt": "Commercial-toned discussion overclaims value-based IVF pricing without supporting financial data; reviewer requested toning down of promotional language and adding limitations section.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-104-C06",
+      "paper_id": "PR-104",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "interpretability",
+        "mlgg_gates": [
+          "calibration_dca_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "shap_interpretability_gate"
+        ]
+      },
+      "rationale": "Category 'interpretability' has no gate from its canonical set; should include at least one of: ['shap_interpretability_gate'].",
+      "concern_excerpt": "Unexpected non-monotonic behavior: quartile 3 of AI HFpEF shows lower observed risk than quartile 2, indicating miscalibration and potential model behavior issue requiring explanation.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-106-C06",
+      "paper_id": "PR-106",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_gates": [
+          "reporting_bias_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "code_data_availability_gate"
+        ]
+      },
+      "rationale": "Category 'reproducibility' has no gate from its canonical set; should include at least one of: ['code_data_availability_gate', 'compliance_attestation_gate', 'execution_attestation_gate'].",
+      "concern_excerpt": "GitHub repository README lacks software/hardware requirements and dependencies; hyperparameter selection approach (systematic or ad-hoc) not documented.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-107-C05",
+      "paper_id": "PR-107",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_gates": [
+          "reporting_bias_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "code_data_availability_gate"
+        ]
+      },
+      "rationale": "Category 'reproducibility' has no gate from its canonical set; should include at least one of: ['code_data_availability_gate', 'compliance_attestation_gate', 'execution_attestation_gate'].",
+      "concern_excerpt": "Chosen hyperparameters (embedding dimensions, pooling ratio) not stated in manuscript, limiting reproducibility of the GNN tuning.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-109-C04",
+      "paper_id": "PR-109",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "reproducibility",
+        "mlgg_gates": [
+          "reporting_bias_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "code_data_availability_gate"
+        ]
+      },
+      "rationale": "Category 'reproducibility' has no gate from its canonical set; should include at least one of: ['code_data_availability_gate', 'compliance_attestation_gate', 'execution_attestation_gate'].",
+      "concern_excerpt": "Tuning-parameter settings, software versions for LDpred2/lassosum/PRS-CS not documented; no code provided for baseline PRS estimation step.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-EXP-0086-C02",
+      "paper_id": "PR-EXP-0086",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_gates": [
+          "fairness_equity_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "external_validation_gate"
+        ]
+      },
+      "rationale": "Category 'external_validation' has no gate from its canonical set; should include at least one of: ['covariate_shift_gate', 'distribution_generalization_gate', 'external_validation_gate'].",
+      "concern_excerpt": "There is limited representation in the patient sample from certain patient races, and some cancer types are missing altogether (multiple myeloma, acute leukemia), which also can limit generalizability",
+      "_extraction_policy": "strict_in_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0086-C10",
+      "paper_id": "PR-EXP-0086",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "interpretability",
+        "mlgg_gates": [
+          "fairness_equity_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "shap_interpretability_gate"
+        ]
+      },
+      "rationale": "Category 'interpretability' has no gate from its canonical set; should include at least one of: ['shap_interpretability_gate'].",
+      "concern_excerpt": "The discussion did not address subgroup performance disparities, particularly regarding ethnicity, offering detailed hypotheses for observed disparities and proposing concrete, actionable strategies t",
+      "_extraction_policy": "strict_in_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0095-C06",
+      "paper_id": "PR-EXP-0095",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "reporting",
+        "mlgg_gates": [
+          "fairness_equity_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "reporting_bias_gate"
+        ]
+      },
+      "rationale": "Category 'reporting' has no gate from its canonical set; should include at least one of: ['code_data_availability_gate', 'compliance_attestation_gate', 'execution_attestation_gate'].",
+      "concern_excerpt": "The study also does not provide detailed information on sex and gender considerations, failing to comply with the SAGER guidelines (as recommended in the review instructions).",
+      "_extraction_policy": "permissive_out_of_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0097-C10",
+      "paper_id": "PR-EXP-0097",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "evaluation_metrics",
+        "mlgg_gates": [
+          "robustness_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "evaluation_quality_gate"
+        ]
+      },
+      "rationale": "Category 'evaluation_metrics' has no gate from its canonical set; should include at least one of: ['calibration_dca_gate', 'ci_matrix_gate', 'clinical_metrics_gate'].",
+      "concern_excerpt": "Explain how you added the noise. Since the inputs are binary, is it done by flipping bits? Most confusing is that you say that you achieve an accuracy of 72% at a noise level of 99% - how so? Moreover",
+      "_extraction_policy": "strict_in_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0105-C08",
+      "paper_id": "PR-EXP-0105",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_gates": [
+          "fairness_equity_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "external_validation_gate"
+        ]
+      },
+      "rationale": "Category 'external_validation' has no gate from its canonical set; should include at least one of: ['covariate_shift_gate', 'distribution_generalization_gate', 'external_validation_gate'].",
+      "concern_excerpt": "The authors are commended for using several population groups in their analysis. The datasets include mainly Chinese and White individuals. The lack of representation of Black individuals should be me",
+      "_extraction_policy": "permissive_out_of_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0109-C14",
+      "paper_id": "PR-EXP-0109",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "reporting",
+        "mlgg_gates": [
+          "fairness_equity_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "reporting_bias_gate"
+        ]
+      },
+      "rationale": "Category 'reporting' has no gate from its canonical set; should include at least one of: ['code_data_availability_gate', 'compliance_attestation_gate', 'execution_attestation_gate'].",
+      "concern_excerpt": "The developed model's accuracy should be checked further in terms of stratification by patient age, sex, and heart rate. Additionally, the authors should provide a baseline characteristics table for t",
+      "_extraction_policy": "strict_in_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0110-C08",
+      "paper_id": "PR-EXP-0110",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "reporting",
+        "mlgg_gates": [
+          "fairness_equity_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "reporting_bias_gate"
+        ]
+      },
+      "rationale": "Category 'reporting' has no gate from its canonical set; should include at least one of: ['code_data_availability_gate', 'compliance_attestation_gate', 'execution_attestation_gate'].",
+      "concern_excerpt": "Did the authors consider sex-based stratification when evaluating the performance of the 2 models described given, we know that there are sex-based differences in cardiovascular outcomes?",
+      "_extraction_policy": "strict_in_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0119-C01",
+      "paper_id": "PR-EXP-0119",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_gates": [
+          "fairness_equity_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "external_validation_gate"
+        ]
+      },
+      "rationale": "Category 'external_validation' has no gate from its canonical set; should include at least one of: ['covariate_shift_gate', 'distribution_generalization_gate', 'external_validation_gate'].",
+      "concern_excerpt": "The evaluation did not provide information on the demographics of the patients involved during validation. Furthermore, the real-life cases provided in the supplementary material largely belong to a s",
+      "_extraction_policy": "permissive_out_of_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0119-C07",
+      "paper_id": "PR-EXP-0119",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_gates": [
+          "fairness_equity_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "external_validation_gate"
+        ]
+      },
+      "rationale": "Category 'external_validation' has no gate from its canonical set; should include at least one of: ['covariate_shift_gate', 'distribution_generalization_gate', 'external_validation_gate'].",
+      "concern_excerpt": "To what degree does the training dataset represent adequately skin of color/darker skin (e.g. Fitzpatrick Type 4-6 skin)? Skin of color in dermatology remains poorly represented in machine learning mo",
+      "_extraction_policy": "permissive_out_of_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0124-C04",
+      "paper_id": "PR-EXP-0124",
+      "issue_type": "category_gate_mismatch",
+      "current": {
+        "category": "external_validation",
+        "mlgg_gates": [
+          "fairness_equity_gate"
+        ]
+      },
+      "suggested": {
+        "mlgg_gates_add": [
+          "external_validation_gate"
+        ]
+      },
+      "rationale": "Category 'external_validation' has no gate from its canonical set; should include at least one of: ['covariate_shift_gate', 'distribution_generalization_gate', 'external_validation_gate'].",
+      "concern_excerpt": "A further limitation to discuss is the seniority of the human reviewer- would senior medical staff as compared to resident physicians produce a different/higher accuracy differential?",
+      "_extraction_policy": "strict_in_scope"
+    },
+    {
+      "concern_id": "PR-024-C04",
+      "paper_id": "PR-024",
+      "issue_type": "empty_gates_for_critical_category",
+      "current": {
+        "category": "feature_selection",
+        "mlgg_gates": []
+      },
+      "suggested": {
+        "mlgg_gates": [
+          "feature_engineering_audit_gate"
+        ]
+      },
+      "rationale": "Empty gates for safety-critical category 'feature_selection'.",
+      "concern_excerpt": "Variables kept based on P values. Did you consider data-driven variable selection?",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-072-C01",
+      "paper_id": "PR-072",
+      "issue_type": "empty_gates_for_critical_category",
+      "current": {
+        "category": "data_leakage",
+        "mlgg_gates": []
+      },
+      "suggested": {
+        "mlgg_gates": [
+          "leakage_gate"
+        ]
+      },
+      "rationale": "Empty gates for safety-critical category 'data_leakage'.",
+      "concern_excerpt": "Possible data leakage in UK Biobank phenotype evaluation \u2014 many phenotypes are correlated. Since authors trained on both simulated and real data, held-out test phenotypes may overlap with training set",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-111-C02",
+      "paper_id": "PR-111",
+      "issue_type": "invalid_gate_name",
+      "current": {
+        "mlgg_gates": [
+          "reporting_bias_gate",
+          "feature_engineering_audit_gate",
+          "seed_stability_gate",
+          "execution_attestation_gate"
+        ]
+      },
+      "suggested": {
+        "rename_gate": {
+          "seed_stability_gate": "robustness_permutation_gate"
+        }
+      },
+      "rationale": "Gate 'seed_stability_gate' is not in the 33-enum valid gate set.",
+      "concern_excerpt": "LASSO cross-validation type, hyperparameters, and software details not specified; combinatorial 'linear' models were actually logistic regression, and scikit-learn call / CV scheme for feature selecti",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-113-C02",
+      "paper_id": "PR-113",
+      "issue_type": "invalid_gate_name",
+      "current": {
+        "mlgg_gates": [
+          "ci_matrix_gate",
+          "evaluation_quality_gate",
+          "permutation_significance_gate"
+        ]
+      },
+      "suggested": {
+        "rename_gate": {
+          "permutation_significance_gate": "robustness_permutation_gate"
+        }
+      },
+      "rationale": "Gate 'permutation_significance_gate' is not in the 33-enum valid gate set.",
+      "concern_excerpt": "No DeLong test or confidence intervals reported when comparing SepsisFormer (AUC 0.9301) against qSOFA/SOFA/APACHE II/GRU/XGBoost; superiority claims statistically unsupported.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-113-C03",
+      "paper_id": "PR-113",
+      "issue_type": "invalid_gate_name",
+      "current": {
+        "mlgg_gates": [
+          "external_validation_gate",
+          "distribution_generalization_gate",
+          "prediction_replay_gate"
+        ]
+      },
+      "suggested": {
+        "rename_gate": {
+          "prediction_replay_gate": "execution_attestation_gate"
+        }
+      },
+      "rationale": "Gate 'prediction_replay_gate' is not in the 33-enum valid gate set.",
+      "concern_excerpt": "No prospective validation of SepsisFormer in real-time ICU settings; transcriptomic biomarkers (STAT5B, MTHFR, HPSE, AAK1, MX1) lack validation in independent cohort.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-114-C05",
+      "paper_id": "PR-114",
+      "issue_type": "invalid_gate_name",
+      "current": {
+        "mlgg_gates": [
+          "external_validation_gate",
+          "distribution_generalization_gate",
+          "robustness_gate"
+        ]
+      },
+      "suggested": {
+        "rename_gate": {
+          "robustness_gate": "robustness_permutation_gate"
+        }
+      },
+      "rationale": "Gate 'robustness_gate' is not in the 33-enum valid gate set.",
+      "concern_excerpt": "Independence of 15 'external' test datasets questioned \u2014 reviewer asked explicitly whether signatures were ever tuned/refit on these cohorts, with limited detail on RNA extraction and HKG stability ac",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-EXP-0097-C10",
+      "paper_id": "PR-EXP-0097",
+      "issue_type": "invalid_gate_name",
+      "current": {
+        "mlgg_gates": [
+          "robustness_gate"
+        ]
+      },
+      "suggested": {
+        "rename_gate": {
+          "robustness_gate": "robustness_permutation_gate"
+        }
+      },
+      "rationale": "Gate 'robustness_gate' is not in the 33-enum valid gate set.",
+      "concern_excerpt": "Explain how you added the noise. Since the inputs are binary, is it done by flipping bits? Most confusing is that you say that you achieve an accuracy of 72% at a noise level of 99% - how so? Moreover",
+      "_extraction_policy": "strict_in_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0192-C02",
+      "paper_id": "PR-EXP-0192",
+      "issue_type": "invalid_gate_name",
+      "current": {
+        "mlgg_gates": [
+          "robustness_gate",
+          "evaluation_quality_gate"
+        ]
+      },
+      "suggested": {
+        "rename_gate": {
+          "robustness_gate": "robustness_permutation_gate"
+        }
+      },
+      "rationale": "Gate 'robustness_gate' is not in the 33-enum valid gate set.",
+      "concern_excerpt": "My main concern is that the method is arguably complicated and still lacks statistical verification. I would suggest a permutation experiment where the CN and CI status of the subjects are shuffled an",
+      "_extraction_policy": "permissive_out_of_scope"
+    },
+    {
+      "concern_id": "PR-001-C06",
+      "paper_id": "PR-001",
+      "issue_type": "resolved_response_mismatch",
+      "subtype": "resolved_true_but_acknowledge_only",
+      "current": {
+        "resolved": true,
+        "author_response_excerpt": "We have acknowledged this limitation in the discussion. The lack of external validation in a non-UKB cohort is noted as a key limitation."
+      },
+      "suggested": {
+        "resolved": false
+      },
+      "rationale": "Acknowledging a limitation without addressing it should be resolved=false (partial/limitation), not true.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-009-C02",
+      "paper_id": "PR-009",
+      "issue_type": "resolved_response_mismatch",
+      "subtype": "resolved_true_but_acknowledge_only",
+      "current": {
+        "resolved": true,
+        "author_response_excerpt": "We acknowledged this limitation and discussed model uncertainty vs data uncertainty. Time-to-event analysis added as supplementary comparison."
+      },
+      "suggested": {
+        "resolved": false
+      },
+      "rationale": "Acknowledging a limitation without addressing it should be resolved=false (partial/limitation), not true.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-012-C02",
+      "paper_id": "PR-012",
+      "issue_type": "resolved_response_mismatch",
+      "subtype": "resolved_true_but_acknowledge_only",
+      "current": {
+        "resolved": true,
+        "author_response_excerpt": "We acknowledged this limitation and discussed the difficulty of obtaining appropriate disease-matched controls during the pandemic."
+      },
+      "suggested": {
+        "resolved": false
+      },
+      "rationale": "Acknowledging a limitation without addressing it should be resolved=false (partial/limitation), not true.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-018-C05",
+      "paper_id": "PR-018",
+      "issue_type": "resolved_response_mismatch",
+      "subtype": "resolved_true_but_acknowledge_only",
+      "current": {
+        "resolved": true,
+        "author_response_excerpt": "We acknowledged European-only limitation and discussed extension to multi-ancestry as future work."
+      },
+      "suggested": {
+        "resolved": false
+      },
+      "rationale": "Acknowledging a limitation without addressing it should be resolved=false (partial/limitation), not true.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-028-C01",
+      "paper_id": "PR-028",
+      "issue_type": "resolved_response_mismatch",
+      "subtype": "resolved_true_but_acknowledge_only",
+      "current": {
+        "resolved": true,
+        "author_response_excerpt": "Acknowledged as limitation and discussed plans for multi-center validation."
+      },
+      "suggested": {
+        "resolved": false
+      },
+      "rationale": "Acknowledging a limitation without addressing it should be resolved=false (partial/limitation), not true.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-043-C04",
+      "paper_id": "PR-043",
+      "issue_type": "resolved_response_mismatch",
+      "subtype": "resolved_true_but_response_unclear",
+      "current": {
+        "resolved": true,
+        "author_response_excerpt": "Removed commercial language."
+      },
+      "suggested": {
+        "resolved": false
+      },
+      "rationale": "Acknowledging a limitation without addressing it should be resolved=false (partial/limitation), not true.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-101-C01",
+      "paper_id": "PR-101",
+      "issue_type": "resolved_response_mismatch",
+      "subtype": "resolved_true_but_acknowledge_only",
+      "current": {
+        "resolved": true,
+        "author_response_excerpt": "Acknowledged as limitation; used 100-round resampling, added independent ELISA validation cohort (n=65) with consistent biomarker findings."
+      },
+      "suggested": {
+        "resolved": false
+      },
+      "rationale": "Acknowledging a limitation without addressing it should be resolved=false (partial/limitation), not true.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-110-C01",
+      "paper_id": "PR-110",
+      "issue_type": "resolved_response_mismatch",
+      "subtype": "resolved_true_but_acknowledge_only",
+      "current": {
+        "resolved": true,
+        "author_response_excerpt": "Added explicit statement that patching was a quality-improvement initiative with nurse-based selection (lines 131-137); acknowledged as limitation for generalization."
+      },
+      "suggested": {
+        "resolved": false
+      },
+      "rationale": "Acknowledging a limitation without addressing it should be resolved=false (partial/limitation), not true.",
+      "_extraction_policy": "original_curated"
+    },
+    {
+      "concern_id": "PR-EXP-0086-C06",
+      "paper_id": "PR-EXP-0086",
+      "issue_type": "resolved_response_mismatch",
+      "subtype": "resolved_true_but_acknowledge_only",
+      "current": {
+        "resolved": true,
+        "author_response_excerpt": "Authors acknowledged limitation in discussion, citing single-cancer-center single-holdout design, and committed to multi-institutional validation as future work."
+      },
+      "suggested": {
+        "resolved": false
+      },
+      "rationale": "Acknowledging a limitation without addressing it should be resolved=false (partial/limitation), not true.",
+      "_extraction_policy": "strict_in_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0151-C03",
+      "paper_id": "PR-EXP-0151",
+      "issue_type": "resolved_response_mismatch",
+      "subtype": "resolved_true_but_acknowledge_only",
+      "current": {
+        "resolved": true,
+        "author_response_excerpt": "Authors acknowledged the limitation, explained that CUPLR is intended to complement (not replace) other clinical evidence, and noted WGS is becoming a reimbursed diagnostic for CUP patients in the Netherlands since 2021."
+      },
+      "suggested": {
+        "resolved": false
+      },
+      "rationale": "Acknowledging a limitation without addressing it should be resolved=false (partial/limitation), not true.",
+      "_extraction_policy": "permissive_out_of_scope"
+    },
+    {
+      "concern_id": "PR-EXP-0212-C08",
+      "paper_id": "PR-EXP-0212",
+      "issue_type": "resolved_response_mismatch",
+      "subtype": "resolved_true_but_acknowledge_only",
+      "current": {
+        "resolved": true,
+        "author_response_excerpt": "Authors confirmed censoring at 7 days and that patients with LOS > 7 days were not tested; added to Limitation and Future Work section."
+      },
+      "suggested": {
+        "resolved": false
+      },
+      "rationale": "Acknowledging a limitation without addressing it should be resolved=false (partial/limitation), not true.",
+      "_extraction_policy": "strict_in_scope"
+    }
+  ],
+  "drift_observation": "Yes, systematic downward drift exists between original_curated and the 2026-05-13 new-wave concerns. Overall: original HIGH=47.9% vs strict_in_scope HIGH=30.7% (drop of 17.2pp); MEDIUM rises from 41.0% to 58.7%. Most pronounced in 'reporting' (HIGH 29.3% original -> 0% strict; MEDIUM 53.4% -> 95.0%) and 'evaluation_metrics' (HIGH 53.9% -> 25.8%). External_validation also drops (HIGH 75.9% -> 56.3%). Conclusion: new-wave extraction agents systematically grade severity one notch lower than the curated baseline for the same kind of issue. Recommend either re-scoring new-wave concerns or re-anchoring the original baseline; current state will skew any RAG severity-aware retrieval. Note: permissive_out_of_scope is in between (HIGH 41.3%, MEDIUM 55.6%), consistent with a milder rubric overall, not a category-specific artifact."
+}

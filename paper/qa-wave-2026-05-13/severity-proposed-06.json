@@ -1,0 +1,392 @@
+[
+  {
+    "concern_id": "PR-072-C03",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Simulation simplification (additive vs epistatic extremes) is an ablation/scope gap, not a validity threat — MEDIUM stands."
+  },
+  {
+    "concern_id": "PR-073-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Limited label panel (6 vs 121 classes) is incomplete metric/coverage panel, not invalidating the trained model — MEDIUM."
+  },
+  {
+    "concern_id": "PR-073-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Label-quality validation on 2.2M ECGs and limited format generalization are methodologically important fixable issues — keep HIGH."
+  },
+  {
+    "concern_id": "PR-073-C03",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Interpretability suggestion (waveform feature extraction) is should-fix enhancement — MEDIUM."
+  },
+  {
+    "concern_id": "PR-074-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Conflating radiological pattern (UIP) with disease (IPF) is a cohort-definition issue affecting clinical validity — HIGH."
+  },
+  {
+    "concern_id": "PR-074-C02",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Treatment-response/FVC ambiguity and feature-importance request — incomplete metric panel, MEDIUM."
+  },
+  {
+    "concern_id": "PR-074-C03",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "Discussion/methods mismatch on quantitative CT is reporting-polish — LOW."
+  },
+  {
+    "concern_id": "PR-075-C01",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Cox covariate adjustment and BSA-indexing concerns are methodologically defensible but should-fix — MEDIUM."
+  },
+  {
+    "concern_id": "PR-075-C02",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "HIGH",
+    "rationale": "Missing train/test set details and absent sens/spec for a sub-model is core reporting + missing metric, methodologically important — upgrade to HIGH."
+  },
+  {
+    "concern_id": "PR-076-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Power comparison GAM vs LMM is core validation; failure to compare leaves method un-benchmarked — HIGH."
+  },
+  {
+    "concern_id": "PR-076-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Trivial validation cohort with no power/FPR comparison undermines benchmark claim — HIGH."
+  },
+  {
+    "concern_id": "PR-076-C03",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Missing PPV/specificity is an incomplete metric panel, not invalidating — MEDIUM per E02 panel rubric."
+  },
+  {
+    "concern_id": "PR-077-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Multimodal not significantly better than unimodal is a core claim-validity issue — HIGH."
+  },
+  {
+    "concern_id": "PR-077-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Novelty critique does not threaten scientific validity; methodologically not invalidating — MEDIUM."
+  },
+  {
+    "concern_id": "PR-077-C03",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Case-study scope and incomplete feature-importance — should-fix, MEDIUM stands."
+  },
+  {
+    "concern_id": "PR-078-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "CRITICAL",
+    "rationale": "T2D case/control mis-definition (HbA1c>6.5% labeled control) is a label/cohort-definition error that mis-trains the model — CRITICAL leakage-adjacent."
+  },
+  {
+    "concern_id": "PR-078-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Unfair AUC comparison across different model classes and >100 imaging vars — methodologically fixable, HIGH."
+  },
+  {
+    "concern_id": "PR-078-C03",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Unjustified subgroup selection (women, age 59) risks selection bias and overstated generalization — HIGH."
+  },
+  {
+    "concern_id": "PR-079-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Clinician-workflow question is clinical utility/deployment, not methodological validity — MEDIUM."
+  },
+  {
+    "concern_id": "PR-079-C02",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Correlation statistical rigor — incomplete metric panel, MEDIUM."
+  },
+  {
+    "concern_id": "PR-080-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Sens/spec at multiple thresholds is metric-panel completeness — MEDIUM per rubric."
+  },
+  {
+    "concern_id": "PR-080-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Lack of benchmarking vs Galleri/CancerSEEK undermines clinical-utility positioning of competing assay — HIGH."
+  },
+  {
+    "concern_id": "PR-081-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Patch-size/downsampling ablation is should-fix preprocessing exploration, not invalidating — MEDIUM."
+  },
+  {
+    "concern_id": "PR-081-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Missing formal significance testing across high-variance models is core metric-CI requirement (E01) — HIGH."
+  },
+  {
+    "concern_id": "PR-081-C03",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Magnification ensemble is should-fix model-selection optimization — MEDIUM."
+  },
+  {
+    "concern_id": "PR-082-C01",
+    "current_severity": "CRITICAL",
+    "proposed_severity": "CRITICAL",
+    "rationale": "Only 34% have gold-standard CSF — evaluating plasma biomarker without reference standard for 66% threatens scientific validity — CRITICAL."
+  },
+  {
+    "concern_id": "PR-082-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "N=145 with undisclosed subgroup sizes — sample-size gate, HIGH."
+  },
+  {
+    "concern_id": "PR-083-C01",
+    "current_severity": "LOW",
+    "proposed_severity": "LOW",
+    "rationale": "Rationale clarification — LOW."
+  },
+  {
+    "concern_id": "PR-084-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Single-center training without external validation across transplant centers — external_validation_gate, HIGH."
+  },
+  {
+    "concern_id": "PR-084-C02",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Clinical deployment pathway clarification — MEDIUM."
+  },
+  {
+    "concern_id": "PR-085-C01",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Missing PRS metrics beyond AUC — incomplete metric panel, MEDIUM."
+  },
+  {
+    "concern_id": "PR-086-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Gold-standard protocol and case/control matching clarification — cohort_definition_gate, HIGH."
+  },
+  {
+    "concern_id": "PR-086-C02",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Low PPV in rare-disease screening is clinical-utility concern — MEDIUM."
+  },
+  {
+    "concern_id": "PR-087-C01",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Reader-study reporting details — MEDIUM."
+  },
+  {
+    "concern_id": "PR-088-C01",
+    "current_severity": "CRITICAL",
+    "proposed_severity": "HIGH",
+    "rationale": "Promotional commentary + COI from sponsor employees is a reporting-bias/integrity issue; serious but does not by itself fabricate cohort or leak data — HIGH, not CRITICAL."
+  },
+  {
+    "concern_id": "PR-088-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Claims must be supported by data — core reporting/claim-evidence alignment, HIGH."
+  },
+  {
+    "concern_id": "PR-089-C01",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Cross-reactivity subgroup performance — should-fix subgroup/ablation, MEDIUM."
+  },
+  {
+    "concern_id": "PR-090-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "External validation cohort characteristics and early-stage performance reporting — external_validation_gate, HIGH."
+  },
+  {
+    "concern_id": "PR-091-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Pre-diagnostic interval is core to early-detection claim; small subgroup undermines key finding — HIGH."
+  },
+  {
+    "concern_id": "PR-092-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Regression vs classification head-to-head is an ablation/discussion gap, not invalidating — MEDIUM."
+  },
+  {
+    "concern_id": "PR-093-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Small rare-tumor cohort without multi-institutional validation — sample_size + external_validation, HIGH."
+  },
+  {
+    "concern_id": "PR-094-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Underpowered external validation in rare pediatric cancer — HIGH."
+  },
+  {
+    "concern_id": "PR-095-C01",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "HIGH",
+    "rationale": "Indirect/proxy ground truth for the target construct (physician fatigue) is a label-validity threat that affects what the model actually learns — HIGH."
+  },
+  {
+    "concern_id": "PR-096-C01",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Surrogate-endpoint validation against OS — should-fix, MEDIUM."
+  },
+  {
+    "concern_id": "PR-099-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "External validation across oximeter devices/populations is critical for hardware-dependent model — HIGH."
+  },
+  {
+    "concern_id": "PR-100-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Incremental value over established clinical scores (NRI/IDI) is core to the central claim — HIGH."
+  },
+  {
+    "concern_id": "PR-100-C02",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "LOW",
+    "rationale": "Cost-effectiveness discussion is polish/clarification, not methodological — LOW."
+  },
+  {
+    "concern_id": "PR-101-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Small n=59 in treatment arm with sample_size_gate — HIGH; resampling + external ELISA cohort partially mitigate but underlying limit remains."
+  },
+  {
+    "concern_id": "PR-101-C02",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Model-selection audit comparing LASSO vs RF/XGB — should-fix, MEDIUM."
+  },
+  {
+    "concern_id": "PR-101-C03",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Imbalance handling documentation — MEDIUM."
+  },
+  {
+    "concern_id": "PR-101-C04",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Feature-selection stability across methods — should-fix audit, MEDIUM."
+  },
+  {
+    "concern_id": "PR-101-C05",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "SHAP interpretability — MEDIUM."
+  },
+  {
+    "concern_id": "PR-101-C06",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Independent validation cohort with ELISA — external_validation_gate, HIGH; resolved with new cohort."
+  },
+  {
+    "concern_id": "PR-102-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Missing calibration, Brier, CIs and paired DeLong — core E01/E02 metric panel, HIGH."
+  },
+  {
+    "concern_id": "PR-102-C02",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Per-clinic descriptive/reclassification tables — reporting completeness, MEDIUM."
+  },
+  {
+    "concern_id": "PR-102-C03",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Single-algorithm GBM without comparators — should-fix model-selection audit, MEDIUM."
+  },
+  {
+    "concern_id": "PR-102-C04",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Code unavailability + proprietary pipeline + COI is a reproducibility/publication_gate issue — HIGH."
+  },
+  {
+    "concern_id": "PR-102-C05",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "HIGH",
+    "rationale": "Uncontrolled PGT-A confounder across centers is a covariate_shift/confounding issue that can distort center-specific performance comparisons — HIGH."
+  },
+  {
+    "concern_id": "PR-102-C06",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Promotional tone + limitations section — reporting-bias, MEDIUM."
+  },
+  {
+    "concern_id": "PR-104-C01",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Large generalization gap (0.95 to 0.798) requires explicit discussion — generalization_gap_gate, HIGH."
+  },
+  {
+    "concern_id": "PR-104-C02",
+    "current_severity": "HIGH",
+    "proposed_severity": "HIGH",
+    "rationale": "Cutpoint-biased comparison overstates performance vs continuous comparator — evaluation_quality/metric_consistency, HIGH."
+  },
+  {
+    "concern_id": "PR-104-C03",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "HIGH",
+    "rationale": "~20% image-quality exclusions + ~50% missing biplane LVEF + matching before quality filter + unclear blinding constitute serious selection bias affecting validity — upgrade to HIGH."
+  },
+  {
+    "concern_id": "PR-104-C04",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "NRI+/NRI- decomposition and percentile NRI — metric-panel completeness, MEDIUM."
+  },
+  {
+    "concern_id": "PR-104-C05",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "PPV/NPV not adjusted for real-world prevalence — clinical-metric clarification, MEDIUM."
+  },
+  {
+    "concern_id": "PR-104-C06",
+    "current_severity": "MEDIUM",
+    "proposed_severity": "MEDIUM",
+    "rationale": "Non-monotonic quartile risk — calibration concern, MEDIUM."
+  }
+]

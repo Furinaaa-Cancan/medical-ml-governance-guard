@@ -1,0 +1,60 @@
+{
+  "agent": "reextract-04",
+  "ran_at_utc": "2026-05-16T00:00:00Z",
+  "papers_processed": [
+    {
+      "paper_id": "PR-083",
+      "pdf_pages_read": ["1-10"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-083-C01",
+          "new_author_response": "Authors clarified akinetic episodes were NOT excluded — they were included in the competition dataset and labeled as kinetic/akinetic in events.csv, but the contest scoring was not tied to those labels. Added Supplementary methods describing the kinetic/akinetic annotations and now report the percentage of FOG episodes labeled akinetic. Events where annotators could not decide between akinetic FOG vs voluntary stop were marked non-valid in the Valid column.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-094",
+      "pdf_pages_read": ["1-10", "11-20"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-094-C01",
+          "new_author_response": "Authors acknowledged the single-center cohort limitation and the lack of an independent validation cohort. They explained TCGA is not usable for validation — only 14 pediatric thyroid cases (all >14 yr) with no recurrence information. They argued protein-mRNA correlation <60% means adult/mRNA datasets are not directly transposable, and committed to future prospective multicenter clinical trials. No new external validation was added in revision.",
+          "new_resolved": null,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-089",
+      "pdf_pages_read": ["1-10", "11-20"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-089-C01",
+          "new_author_response": "Worklist labels this as Reviewer #1 but the matching concern in the PDF is Reviewer #4 comment 4 (factors affecting infection/vaccination differentiation). Authors added limitations paragraph (Line 345) acknowledging humoral variability, childhood smallpox immunization as confounder, and ATI-N-CPXV time-decay. Demonstrated robustness via: (i) testing on acute + epidemiological panels, (ii) independent validation cohort (n=143), (iii) analyzing childhood vaccination dependence, (iv) breakthrough infection assessment, (v) ATI-N as MVA vs MPXV differentiator. No additional clade-specific testing performed.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-099",
+      "pdf_pages_read": ["1-10"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-099-C01",
+          "new_author_response": "Authors restructured the manuscript around generalization across multiple external datasets (SHHS1, SHHS2, UHV, CFS, MROS, MESA — diverse populations, ethnicities, ages, sex, comorbidities). Removed the transfer learning experiment and renamed the model OxiNet. Harmonized AHI scoring to AASM12 rule (confirmed with NSSR administrators). Removed SHHS1-training patients from SHHS2 test set to avoid leakage. Reported ICC 0.92-0.96 and F1 0.75-0.84 with bootstrap 95% CIs and Wilcoxon rank-sum tests vs ODI/OBM baselines (p<0.05 all databases).",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_papers": 4,
+    "total_concerns_updated": 4,
+    "extracted_substantive": 4,
+    "not_found_in_pdf": 0
+  }
+}

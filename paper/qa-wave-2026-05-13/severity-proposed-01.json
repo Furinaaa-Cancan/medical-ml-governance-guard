@@ -1,0 +1,189 @@
+{
+  "agent": "sev-01",
+  "batch_size": 65,
+  "proposed_changes": [
+    {
+      "concern_id": "PR-001-C02",
+      "current_severity": "HIGH",
+      "proposed_severity": "CRITICAL",
+      "rationale": "NSAID-up-to-1-yr-before-OA-diagnosis is a proxy for existing disease = label leakage via feature (MLGG-F01/F02), invalidating the prediction claim."
+    },
+    {
+      "concern_id": "PR-001-C03",
+      "current_severity": "HIGH",
+      "proposed_severity": "MEDIUM",
+      "rationale": "Missing baseline comparison is a methodological gap but doesn't invalidate findings; fits MEDIUM (missing ablation/comparison)."
+    },
+    {
+      "concern_id": "PR-001-C05",
+      "current_severity": "HIGH",
+      "proposed_severity": "MEDIUM",
+      "rationale": "Lack of age/sex matching and control contamination discussion is a study-design refinement, not a leakage or split violation."
+    },
+    {
+      "concern_id": "PR-001-C08",
+      "current_severity": "HIGH",
+      "proposed_severity": "MEDIUM",
+      "rationale": "Reviewer flags a missed sub-analysis opportunity (BMI multi-omics disentanglement), not a methodological flaw — fits MEDIUM (missing subgroup analysis)."
+    },
+    {
+      "concern_id": "PR-002-C02",
+      "current_severity": "HIGH",
+      "proposed_severity": "MEDIUM",
+      "rationale": "Missing ablation of structured vs unstructured contribution is publication-rigor gap (incomplete ablation), not validity-threatening."
+    },
+    {
+      "concern_id": "PR-003-C01",
+      "current_severity": "HIGH",
+      "proposed_severity": "MEDIUM",
+      "rationale": "Missing ethnicity/comorbidity demographics is a reporting completeness gap, not a validity-killer (no leakage / no test-set tuning)."
+    },
+    {
+      "concern_id": "PR-003-C04",
+      "current_severity": "HIGH",
+      "proposed_severity": "LOW",
+      "rationale": "Missing TRIPOD checklist reference is a citation/reporting-guideline polish, classic LOW."
+    },
+    {
+      "concern_id": "PR-003-C09",
+      "current_severity": "HIGH",
+      "proposed_severity": "MEDIUM",
+      "rationale": "Missing code link is a reproducibility gap; doesn't invalidate findings — fits MEDIUM polish category."
+    },
+    {
+      "concern_id": "PR-004-C02",
+      "current_severity": "CRITICAL",
+      "proposed_severity": "HIGH",
+      "rationale": "PPV 1.7% misinterpretation is a clinical-utility / metric-interpretation problem, fixable in revision; not leakage or split violation."
+    },
+    {
+      "concern_id": "PR-004-C03",
+      "current_severity": "HIGH",
+      "proposed_severity": "MEDIUM",
+      "rationale": "Clarifying ICD-10 prediction semantics is unclear feature provenance — fits MEDIUM."
+    },
+    {
+      "concern_id": "PR-004-C04",
+      "current_severity": "HIGH",
+      "proposed_severity": "MEDIUM",
+      "rationale": "Reviewer asks for more analysis of domain shift; external validation was performed — fits MEDIUM (missing subgroup/explanatory analysis)."
+    },
+    {
+      "concern_id": "PR-005-C01",
+      "current_severity": "CRITICAL",
+      "proposed_severity": "HIGH",
+      "rationale": "CT-slice/histology correlation detail is a methodological-clarity gap, not an invalidating leakage or split issue."
+    },
+    {
+      "concern_id": "PR-005-C02",
+      "current_severity": "HIGH",
+      "proposed_severity": "MEDIUM",
+      "rationale": "Reviewer asks whether DLS is only measuring tumor size — fits MEDIUM (missing ablation / interpretability)."
+    },
+    {
+      "concern_id": "PR-005-C03",
+      "current_severity": "HIGH",
+      "proposed_severity": "MEDIUM",
+      "rationale": "Missing multivariate analysis for independent prediction is a publication-rigor gap (missing ablation/multivariate), not invalidating."
+    },
+    {
+      "concern_id": "PR-005-C04",
+      "current_severity": "HIGH",
+      "proposed_severity": "MEDIUM",
+      "rationale": "Missing treatment-subgroup split (single vs combo immunotherapy) is missing subgroup analysis — MEDIUM."
+    },
+    {
+      "concern_id": "PR-005-C07",
+      "current_severity": "HIGH",
+      "proposed_severity": "MEDIUM",
+      "rationale": "General lack of reproducibility detail is publication-grade polish, not invalidating."
+    },
+    {
+      "concern_id": "PR-007-C01",
+      "current_severity": "HIGH",
+      "proposed_severity": "MEDIUM",
+      "rationale": "Clinical-utility framing concern about easy cases is a subgroup-analysis ask — MEDIUM."
+    },
+    {
+      "concern_id": "PR-007-C02",
+      "current_severity": "HIGH",
+      "proposed_severity": "CRITICAL",
+      "rationale": "~50% malignancy vs <5% community prevalence is a cohort-definition violation that fundamentally biases the model and limits external validity (MLGG cohort_definition_gate)."
+    },
+    {
+      "concern_id": "PR-007-C05",
+      "current_severity": "HIGH",
+      "proposed_severity": "MEDIUM",
+      "rationale": "Reproducibility-detail gap; concerning but not validity-invalidating."
+    },
+    {
+      "concern_id": "PR-008-C02",
+      "current_severity": "HIGH",
+      "proposed_severity": "MEDIUM",
+      "rationale": "Missing ART covariate adjustment is missing-covariate concern, fits MEDIUM (unclear feature provenance / missing ablation)."
+    },
+    {
+      "concern_id": "PR-008-C04",
+      "current_severity": "CRITICAL",
+      "proposed_severity": "HIGH",
+      "rationale": "Inadequate multi-group comparison strategy is a methodological-completeness flaw, fixable in revision; not leakage / split / future-info."
+    },
+    {
+      "concern_id": "PR-008-C05",
+      "current_severity": "HIGH",
+      "proposed_severity": "MEDIUM",
+      "rationale": "Missing confounder/timing description is reporting/clarity gap, not a leakage or split-protocol violation."
+    }
+  ],
+  "no_change": [
+    "PR-001-C01",
+    "PR-001-C04",
+    "PR-001-C06",
+    "PR-001-C07",
+    "PR-001-C09",
+    "PR-001-C10",
+    "PR-002-C01",
+    "PR-002-C03",
+    "PR-002-C04",
+    "PR-002-C05",
+    "PR-002-C06",
+    "PR-002-C07",
+    "PR-002-C08",
+    "PR-003-C02",
+    "PR-003-C03",
+    "PR-003-C05",
+    "PR-003-C06",
+    "PR-003-C07",
+    "PR-003-C08",
+    "PR-003-C10",
+    "PR-003-C11",
+    "PR-004-C01",
+    "PR-004-C05",
+    "PR-004-C06",
+    "PR-004-C07",
+    "PR-005-C05",
+    "PR-005-C06",
+    "PR-005-C08",
+    "PR-006-C01",
+    "PR-006-C02",
+    "PR-006-C03",
+    "PR-006-C04",
+    "PR-006-C05",
+    "PR-006-C06",
+    "PR-006-C07",
+    "PR-006-C08",
+    "PR-007-C03",
+    "PR-007-C04",
+    "PR-007-C06",
+    "PR-007-C07",
+    "PR-008-C01",
+    "PR-008-C03",
+    "PR-008-C06"
+  ],
+  "summary": {
+    "total": 65,
+    "kept_same": 43,
+    "downgraded": 19,
+    "upgraded": 3
+  }
+}

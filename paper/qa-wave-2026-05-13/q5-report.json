@@ -1,0 +1,317 @@
+{
+  "agent": "q5-resolved-accuracy",
+  "ran_at_utc": "2026-05-16T09:43:01.253860Z",
+  "scope": "Audit accuracy of resolved=true flag on 721/817 concerns",
+  "method": "Random stratified sample (seed=42) of 10 per _extraction_policy bucket; judged author_response addresses concern_text from text alone.",
+  "summary": {
+    "sample_size": 30,
+    "by_policy": {
+      "original_curated": {
+        "verified": 8,
+        "partial": 1,
+        "acknowledged_not_fixed": 0,
+        "deflected": 0,
+        "unclear": 1
+      },
+      "strict_in_scope": {
+        "verified": 7,
+        "partial": 2,
+        "acknowledged_not_fixed": 0,
+        "deflected": 1,
+        "unclear": 0
+      },
+      "permissive_out_of_scope": {
+        "verified": 7,
+        "partial": 1,
+        "acknowledged_not_fixed": 1,
+        "deflected": 0,
+        "unclear": 1
+      }
+    },
+    "estimated_resolved_true_accuracy_rate": "26 / 30",
+    "verified_only_rate": "22 / 30",
+    "mislabeled_rate": "4 / 30"
+  },
+  "verdict_definitions": {
+    "VERIFIED_RESOLVED": "Author response describes a concrete change/addition that addresses the concern.",
+    "PARTIAL": "Response addresses some but not all aspects of the concern.",
+    "ACKNOWLEDGED_NOT_FIXED": "Response acknowledges without describing a concrete change.",
+    "DEFLECTED": "Response punts to scope/future work without a fix.",
+    "UNCLEAR": "Response too vague (e.g. 'addressed in revision') to judge."
+  },
+  "spot_check": [
+    {
+      "concern_id": "PR-073-C02",
+      "_extraction_policy": "original_curated",
+      "verdict": "UNCLEAR",
+      "concern_text_head": "How to validate accuracy of ECG labels for all 2.2M ECGs? Only two image formats and their shuffled versions \u2014 should include commonly used ECG-image ",
+      "author_response_head": "Addressed in revision.",
+      "rationale": "Response 'Addressed in revision' is too vague to verify whether label-validation and standard-format additions actually happened."
+    },
+    {
+      "concern_id": "PR-007-C06",
+      "_extraction_policy": "original_curated",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "The authors did not explain what DL specifically finds in ultrasound images. The explanation that it 'highlighted the most important areas' is laconic",
+      "author_response_head": "We added quantitative analysis of Grad-CAM hotspot patterns comparing benign vs malignant, including hotspot area percentage and spatial distribution.",
+      "rationale": "Concrete Grad-CAM analysis with hotspot area and spatial distribution comparison added."
+    },
+    {
+      "concern_id": "PR-002-C03",
+      "_extraction_policy": "original_curated",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "The method of labelling sepsis prediction is unusual and a potential source of significant confusion: 'when a physician orders for both culture test a",
+      "author_response_head": "We have added clinical validation of this labeling approach with references to Rhee et al. 2017 and Singer et al. 2016 Sepsis-3 criteria, and sensitiv",
+      "rationale": "Added clinical validation citations and sensitivity analysis with alternative labelling."
+    },
+    {
+      "concern_id": "PR-102-C02",
+      "_extraction_policy": "original_curated",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "Results are aggregated across 6 clinics without per-clinic descriptive statistics (AMH, age) or per-clinic reclassification tables, limiting interpret",
+      "author_response_head": "Added per-clinic summary table (Table 3), per-clinic reclassification tables (Supplementary Tables 5A-F), and per-clinic calibration plots.",
+      "rationale": "Added Table 3 plus per-clinic supplementary tables and calibration plots."
+    },
+    {
+      "concern_id": "PR-023-C01",
+      "_extraction_policy": "original_curated",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "Type I error simulations only 100 times \u2014 not enough at 0.05 level. Need \u22651,000. Also need FDR threshold sensitivity analysis.",
+      "author_response_head": "Increased to 1,000 simulations with FDR sensitivity.",
+      "rationale": "Increased simulations to 1000 and added FDR sensitivity, directly meeting both asks."
+    },
+    {
+      "concern_id": "PR-019-C03",
+      "_extraction_policy": "original_curated",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "Were PGS from all ancestry used, or only PGS trained from East Asian samples? Was there any attempt at handling population stratification? Were there ",
+      "author_response_head": "We included all-ancestry PGS and added population stratification adjustment via principal components. Assessed and excluded overlapping samples.",
+      "rationale": "Added all-ancestry PGS, PC adjustment, and overlap exclusion \u2014 addresses each sub-question."
+    },
+    {
+      "concern_id": "PR-017-C02",
+      "_extraction_policy": "original_curated",
+      "verdict": "PARTIAL",
+      "concern_text_head": "Is it reasonable to assume genetic effects are similarly similar across populations (constant c)? I might expect this similarity to decrease with gene",
+      "author_response_head": "We cited literature supporting similar effect sizes across closely related populations and acknowledged this may break down for more distant populatio",
+      "rationale": "Cited literature and acknowledged limitation but only partly answers the question about the constant-c assumption across distant populations."
+    },
+    {
+      "concern_id": "PR-009-C05",
+      "_extraction_policy": "original_curated",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "Authors claim 'first SSM model application to clinical data' but there are multiple prior studies applying state-space models to clinical data (Yin 20",
+      "author_response_head": "We corrected the novelty claim to 'first Mamba-based SSM application' and added comparison with prior SSM clinical works.",
+      "rationale": "Corrected novelty claim and added comparison with prior SSM works."
+    },
+    {
+      "concern_id": "PR-101-C06",
+      "_extraction_policy": "original_curated",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "No independent validation cohort for treatment-response biomarker panel; need ELISA/MRM-based validation in additional patients to confirm reliability",
+      "author_response_head": "Recruited independent cohort (46 MTX+HCQ, 19 MTX+LEF); ELISA validation confirmed biomarker panel with ROC 0.90 (LEF) and 0.86 (HCQ).",
+      "rationale": "Recruited new independent cohort and reports ELISA ROC values \u2014 concrete validation."
+    },
+    {
+      "concern_id": "PR-007-C01",
+      "_extraction_policy": "original_curated",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "Identifying ovarian cancer in a woman with CA125 of 10,000 or massive ascites is not difficult. What would be of actual clinical value is an algorithm",
+      "author_response_head": "We showed that 44.6% had normal CA125 and 82.6% had lesions <10cm. OvcaFinder still achieved highest performance in these subgroups.",
+      "rationale": "Computed and reported subgroup performance on normal-CA125 and small-mass subsets."
+    },
+    {
+      "concern_id": "PR-EXP-0092-C05",
+      "_extraction_policy": "strict_in_scope",
+      "verdict": "DEFLECTED",
+      "concern_text_head": "The abstract refers to the 'simulated' TB outcome, but not the observed TB outcome which I believe was also assessed?",
+      "author_response_head": "Authors agreed in principle but cited 150-word abstract limit, kept simulated outcome only as most conservative summary; Results/Discussion/Conclusion",
+      "rationale": "Authors agreed but kept abstract unchanged citing word limit; concern not actually fixed."
+    },
+    {
+      "concern_id": "PR-EXP-0170-C07",
+      "_extraction_policy": "strict_in_scope",
+      "verdict": "PARTIAL",
+      "concern_text_head": "However that increased case finding ability needs to be balanced with the harm that will be inflicted on the false positives. Will they be tested with",
+      "author_response_head": "Authors added discussion of downstream confirmatory testing pathway (light-chain blood/urine tests, PYP scintigraphy, endomyocardial biopsy, TTR genet",
+      "rationale": "Added confirmatory-test discussion but explicitly punted cost-effectiveness 'outside scope', which was a core part of the ask."
+    },
+    {
+      "concern_id": "PR-EXP-0084-C04",
+      "_extraction_policy": "strict_in_scope",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "There is a lack of detail in the description of the methods to a point where reproducing the experiments are impossible. The number of cross validatio",
+      "author_response_head": "Authors expanded Methods section with details on 10-fold CV, hyperparameter search spaces, and library versions in revision.",
+      "rationale": "Added 10-fold CV count, hyperparameter spaces, and library versions."
+    },
+    {
+      "concern_id": "PR-EXP-0084-C03",
+      "_extraction_policy": "strict_in_scope",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "Outlier removal and rank normalization is performed without an explicit why (important!) and how (i.e. how was rank normalization in practice performe",
+      "author_response_head": "Authors provided detailed justification (values >5 SD removed, n=575 outliers tabled by variable), explained that rank normalization ensures non-zero ",
+      "rationale": "Provided why/how/how-many and added sensitivity analysis \u2014 fully addressed."
+    },
+    {
+      "concern_id": "PR-EXP-0092-C06",
+      "_extraction_policy": "strict_in_scope",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "I did not see a link to the code. Apologies if I missed this.",
+      "author_response_head": "Authors included code in resubmission along with simulated dataset to facilitate review.",
+      "rationale": "Code released with resubmission plus simulated dataset."
+    },
+    {
+      "concern_id": "PR-EXP-0109-C05",
+      "_extraction_policy": "strict_in_scope",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "The authors should consider displaying precision-recall curves in addition to ROC.",
+      "author_response_head": "Authors added precision-recall curves to Fig.1 and PR-AUC values to supplementary tables, noting label imbalance considerations.",
+      "rationale": "PR curves added to Fig 1 and PR-AUC in supp."
+    },
+    {
+      "concern_id": "PR-EXP-0109-C09",
+      "_extraction_policy": "strict_in_scope",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "Please add ablation study for utilizing Xe, Xw and Xc as feature input separately. And the authors should discuss the effectiveness and rationality of",
+      "author_response_head": "Authors added an ablation study (Fig. S1) comparing single and combined feature modalities (ECG signal, clinical, wavelet); showed all-three combinati",
+      "rationale": "Ablation Fig S1 added with discussion of modality contributions."
+    },
+    {
+      "concern_id": "PR-EXP-0212-C02",
+      "_extraction_policy": "strict_in_scope",
+      "verdict": "PARTIAL",
+      "concern_text_head": "My concern with this entire literature has to do with the fact that I am not sure what clinicians are supposed to do with this type of information. Th",
+      "author_response_head": "Authors responded with KDIGO-grounded actionable steps (medication review, fluid/hemodynamic optimization, care bundles) and cited evidence that elect",
+      "rationale": "Added KDIGO actionable steps and electronic-alert evidence \u2014 concrete, but reviewer's deeper RCT-evidence concern is sidestepped."
+    },
+    {
+      "concern_id": "PR-EXP-0084-C01",
+      "_extraction_policy": "strict_in_scope",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "The description of the study population is not sufficient. It is described that included individuals are those with T2D within 12 months prior to base",
+      "author_response_head": "Authors clarified that 'newly diagnosed T2D' (\u226412 months) was the inclusion criterion using first-ever ICD-10 E11 record cross-checked against medical",
+      "rationale": "Clarified definition and the cross-checking process; addresses the logical inconsistency raised."
+    },
+    {
+      "concern_id": "PR-EXP-0101-C05",
+      "_extraction_policy": "strict_in_scope",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "Reliability of Insights: There is a lack of clarity regarding how users can verify the reliability of insights derived from the knowledge graph, parti",
+      "author_response_head": "Added a Confidence Score (combining prediction score, impact factor, frequency, distinct years, recency, contradiction penalty) detailed in Appendix C",
+      "rationale": "Added Confidence Score (Appendix C) with manual-eval correlation; addresses hallucination/trust mitigation."
+    },
+    {
+      "concern_id": "PR-EXP-0192-C02",
+      "_extraction_policy": "permissive_out_of_scope",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "My main concern is that the method is arguably complicated and still lacks statistical verification. I would suggest a permutation experiment where th",
+      "author_response_head": "Authors implemented the permutation experiment, showing failure to generate patterns using permuted data, establishing statistical significance of the",
+      "rationale": "Permutation experiment executed exactly as requested."
+    },
+    {
+      "concern_id": "PR-EXP-0147-C05",
+      "_extraction_policy": "permissive_out_of_scope",
+      "verdict": "PARTIAL",
+      "concern_text_head": "The authors use the term 'metabolic fingerprints for pan-cancer diagnosis and classification', however no single metabolite is reported. This is in my",
+      "author_response_head": "Authors identified 8 metabolite biomarkers with MS/MS confirmation, representing ~1/3 of the top signals.",
+      "rationale": "Identified 8 metabolites with MS/MS \u2014 concrete but only ~1/3 of top signals; reviewer asked for top 10-30."
+    },
+    {
+      "concern_id": "PR-EXP-0193-C04",
+      "_extraction_policy": "permissive_out_of_scope",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "The statistical analysis part is really limited, while there is a lot to explain here. How were cut off chosen? how was performed internal validation?",
+      "author_response_head": "Authors clarified Youden Index used in tuning set (not test set) for cutoff selection; log-rank test for KM comparison; noted no need for p-value mult",
+      "rationale": "Specifies Youden, log-rank, and rationale against p-value adjustment \u2014 answers each sub-question."
+    },
+    {
+      "concern_id": "PR-EXP-0153-C01",
+      "_extraction_policy": "permissive_out_of_scope",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "On Page 3, lines 92 - 93, the authors stated 'we describe a clinically-oriented method for determining slide-level confidence using the Bayesian appro",
+      "author_response_head": "Authors rewrote the 'Estimation of Uncertainty' section with improved notation clarity, referenced Gal et al. for the dropout-Bayesian equivalence, an",
+      "rationale": "Rewrote uncertainty section with notation, cited Gal et al., added BNN paragraph."
+    },
+    {
+      "concern_id": "PR-EXP-0085-C02",
+      "_extraction_policy": "permissive_out_of_scope",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "Line 123-126: I don't really understand why you selected the external validation data from two small datasets rather than pooling the data and randoml",
+      "author_response_head": "Authors clarified that pooling/random selection was already performed for the internal test set; the two smallest datasets were reserved as a true hol",
+      "rationale": "Provides design rationale: pooled random split was done internally; external held-out for generalisability."
+    },
+    {
+      "concern_id": "PR-EXP-0106-C08",
+      "_extraction_policy": "permissive_out_of_scope",
+      "verdict": "UNCLEAR",
+      "concern_text_head": "How did the authors account for the co-morbidity of the included diseases. What was the proportion of co-occurrence of the diseases in the cohort?",
+      "author_response_head": "Authors addressed comorbidity handling in revision.",
+      "rationale": "'Addressed comorbidity handling in revision' is too vague to verify a concrete change."
+    },
+    {
+      "concern_id": "PR-EXP-0192-C03",
+      "_extraction_policy": "permissive_out_of_scope",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "The AD clusters identified by Smile-GAN seem to miss clusters of AD that have been identified previously. Of particular note is the lack of a limbic-p",
+      "author_response_head": "Authors added discussion mapping Smile-GAN patterns to previously identified subtypes (Limbic Predominant\u2192P3, Hippocampal Sparing\u2192P2, typical AD\u2192mixed",
+      "rationale": "Mapped patterns to prior subtypes and discussed missing subcortical subtype."
+    },
+    {
+      "concern_id": "PR-EXP-0179-C01",
+      "_extraction_policy": "permissive_out_of_scope",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "The authors studied 16 patients with metastatic melanoma. At first glance, the sample size appears exceedingly small and if this association (OS and h",
+      "author_response_head": "Authors added more detailed clinical characteristics in Table 1 and analysed 3 additional independent cohorts (Tumeh 2014, Roh 2017, Amaria 2019) in n",
+      "rationale": "Added 3 independent cohorts in new Fig 1e-j \u2014 directly answers small-sample concern."
+    },
+    {
+      "concern_id": "PR-EXP-0106-C07",
+      "_extraction_policy": "permissive_out_of_scope",
+      "verdict": "ACKNOWLEDGED_NOT_FIXED",
+      "concern_text_head": "The main hypothesis of the study is that disease-related pQTLs are present only under certain disease conditions, and thus the pQTL analysis is perfor",
+      "author_response_head": "Authors clarified the conceptual flow between case-only pQTL discovery and downstream causality/prediction analyses.",
+      "rationale": "Says they 'clarified the conceptual flow' but no concrete change described \u2014 looks like rhetorical acknowledgement."
+    },
+    {
+      "concern_id": "PR-EXP-0147-C02",
+      "_extraction_policy": "permissive_out_of_scope",
+      "verdict": "VERIFIED_RESOLVED",
+      "concern_text_head": "However, a detailed description of MS raw data treatment is missing, e.g., what was used to normalize the data? What was the reproducibility of the si",
+      "author_response_head": "Authors described the preprocessing pipeline (smoothing, baseline correction, alignment, TIC normalization) and added a flowchart figure.",
+      "rationale": "Described pipeline (smoothing, baseline, alignment, TIC norm) and added flowchart figure."
+    }
+  ],
+  "egregious_misclassifications": [
+    {
+      "concern_id": "PR-EXP-0092-C05",
+      "_extraction_policy": "strict_in_scope",
+      "verdict": "DEFLECTED",
+      "issue": "Authors explicitly DECLINED to change the abstract citing word limits, yet resolved=true. The concern asked the abstract be updated to mention observed TB outcome; this did not happen."
+    },
+    {
+      "concern_id": "PR-EXP-0106-C07",
+      "_extraction_policy": "permissive_out_of_scope",
+      "verdict": "ACKNOWLEDGED_NOT_FIXED",
+      "issue": "Reviewer raised a substantive design-vs-analysis inconsistency. Response merely says authors 'clarified the conceptual flow' \u2014 no concrete change described; resolution status should be null/false."
+    },
+    {
+      "concern_id": "PR-073-C02",
+      "_extraction_policy": "original_curated",
+      "verdict": "UNCLEAR",
+      "issue": "Response 'Addressed in revision.' has no extractable content. The concern is HIGH severity (label validity for 2.2M ECGs + image-format coverage). Marking resolved=true on a 4-word non-response is the riskiest pattern for RAG hallucination."
+    },
+    {
+      "concern_id": "PR-EXP-0106-C08",
+      "_extraction_policy": "permissive_out_of_scope",
+      "verdict": "UNCLEAR",
+      "issue": "Same pattern as PR-073-C02: 'Addressed comorbidity handling in revision' is non-information; cannot support a resolved=true claim."
+    },
+    {
+      "concern_id": "PR-EXP-0170-C07",
+      "_extraction_policy": "strict_in_scope",
+      "verdict": "PARTIAL",
+      "issue": "Authors added confirmatory-pathway discussion but explicitly deferred cost-effectiveness analysis (a core part of the ask). Acceptable as PARTIAL but worth flagging as a candidate for resolved=null."
+    }
+  ],
+  "recommendation": "On this 30-concern sample, 26/30 (87%) of resolved=true entries describe a real fix (VERIFIED_RESOLVED=22 or PARTIAL=4). Extrapolating to the full 721 resolved=true population (95% Wilson CI roughly 70-95%), we estimate ~505-685 are reasonably accurate and ~36-216 (5-30%) are mislabeled \u2014 primarily ACKNOWLEDGED_NOT_FIXED, DEFLECTED, or UNCLEAR. The dominant failure mode is the vague non-response ('Addressed in revision.', 'authors clarified ...') which should be retagged resolved=null. Recommend a targeted lint: any author_response shorter than ~80 characters OR matching the regex r'^(addressed|clarified|noted|added discussion)' without further substance should be downgraded to resolved=null pending manual review. Estimate this rule would flag ~50-100 of the 721 entries. Accuracy is acceptable for RAG with retrieval-time grounding (the model sees the actual author_response text) but the resolved flag itself should not be trusted as a hard filter."
+}

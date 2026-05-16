@@ -1,0 +1,819 @@
+[
+  {
+    "concern_id": "PR-008-C07",
+    "paper_id": "PR-008",
+    "paper_title": "Targeted plasma proteomics reveals organ damage signatures o",
+    "category": "external_validation",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [
+      "external_validation_gate"
+    ],
+    "concern_text": "It is not clear why the validation cohort of 127 samples had significantly lower sensitivity than the training datasets. Supplemental Table 1 is missing.",
+    "author_response": "We explained the performance gap due to smaller sample size and different clinical characteristics. Supplemental Table 1 added.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-008-C08",
+    "paper_id": "PR-008",
+    "paper_title": "Targeted plasma proteomics reveals organ damage signatures o",
+    "category": "reporting",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "Several unsubstantiated statements imply causality throughout the results section. Introduction states 'traditional biomarkers are challenging for predicting mortality' but Discussion says they have 'potential for predicting mortality' — these are contradictory.",
+    "author_response": "We revised causal language to associational framing and resolved the logical inconsistency between introduction and discussion.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-009-C01",
+    "paper_id": "PR-009",
+    "paper_title": "Real-time prediction of intensive care unit patient acuity a",
+    "category": "model_selection",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [
+      "model_selection_audit_gate"
+    ],
+    "concern_text": "The motivation for using Mamba is not clear. There doesn't seem to be a significant difference between APRICOT-T (Transformer) and APRICOT-M (Mamba). CatBoost and GRU appear competitive on many tasks while requiring far less computational resources.",
+    "author_response": "We added computational cost comparison and showed Mamba advantages in longer sequences and inference speed.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-009-C02",
+    "paper_id": "PR-009",
+    "paper_title": "Real-time prediction of intensive care unit patient acuity a",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "ci_matrix_gate"
+    ],
+    "concern_text": "Confidence intervals computed using bootstrapping provide uncertainty related to the data sample but not related to model parameters. Also, using time-to-event analysis rather than binary classification could avoid issues related to time window choice.",
+    "author_response": "We acknowledged this limitation and discussed model uncertainty vs data uncertainty. Time-to-event analysis added as supplementary comparison.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-009-C03",
+    "paper_id": "PR-009",
+    "paper_title": "Real-time prediction of intensive care unit patient acuity a",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "The abstract states the model 'was validated prospectively on data from 2021-2023' but Mamba was first introduced in 2023. It appears the model was 'retrospectively validated' on previously collected prospective data. Please clarify.",
+    "author_response": "We clarified that the prospective data collection preceded model development, and the model was applied retrospectively to this prospectively collected dataset.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-009-C04",
+    "paper_id": "PR-009",
+    "paper_title": "Real-time prediction of intensive care unit patient acuity a",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "evaluation_quality_gate"
+    ],
+    "concern_text": "One challenge with prediction of rare events is having low PPV. AUC tends to produce overly optimistic results. It would be insightful to repeat analysis in 50 patients from prospective cohort by at least three clinical adjudicators to determine clinical utility (were alerts timely, accurate, actionable?).",
+    "author_response": "We added clinician review of alerts in a subset of prospective patients with assessment of timeliness and actionability.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-009-C05",
+    "paper_id": "PR-009",
+    "paper_title": "Real-time prediction of intensive care unit patient acuity a",
+    "category": "reporting",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "Authors claim 'first SSM model application to clinical data' but there are multiple prior studies applying state-space models to clinical data (Yin 2021, Ghassemi 2017, Nemati 2013). Please explain how the proposed SSM differs from prior works.",
+    "author_response": "We corrected the novelty claim to 'first Mamba-based SSM application' and added comparison with prior SSM clinical works.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-009-C06",
+    "paper_id": "PR-009",
+    "paper_title": "Real-time prediction of intensive care unit patient acuity a",
+    "category": "reporting",
+    "current_severity": "LOW",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "Results for the temporal cohort were relegated to supplementary material. An extra column for the temporal cohort would not take up much space in the main article.",
+    "author_response": "We moved temporal validation results to the main text.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-010-C01",
+    "paper_id": "PR-010",
+    "paper_title": "Predicting in-hospital outcomes of patients with acute kidne",
+    "category": "data_leakage",
+    "current_severity": "CRITICAL",
+    "mlgg_dimension": 2,
+    "mlgg_gates": [
+      "leakage_gate",
+      "tuning_leakage_gate"
+    ],
+    "concern_text": "The use of a bidirectional RNN at any given point in time is using future data which would not be available for clinical decision. That is the point of a bidirectional RNN and the point of this criticism. Evaluation would be overly optimistic. This is a major flaw in the paper.",
+    "author_response": "We clarified that the bidirectional component operates within the historical data window only, not across the prediction boundary. Added unidirectional LSTM comparison.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-010-C02",
+    "paper_id": "PR-010",
+    "paper_title": "Predicting in-hospital outcomes of patients with acute kidne",
+    "category": "split_protocol",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [
+      "split_protocol_gate"
+    ],
+    "concern_text": "The use of data from 20 past years is problematic — medicine has taken a great leap forward. Using a temporally remote population to predict future patients may not work. Instead of randomly splitting, temporal partitioning would more accurately estimate deployment performance.",
+    "author_response": "We added temporal split analysis using recent years for testing and discussed limitations of using historical data.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-010-C03",
+    "paper_id": "PR-010",
+    "paper_title": "Predicting in-hospital outcomes of patients with acute kidne",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "evaluation_quality_gate"
+    ],
+    "concern_text": "AUROCs on the derivation set of 95% are expected. I cannot imagine why they report these results and claim good performance. I want to know the results on the test set properly designed as a reliable estimate of future performance.",
+    "author_response": "We reorganized results to lead with test set performance and de-emphasized training metrics.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-010-C04",
+    "paper_id": "PR-010",
+    "paper_title": "Predicting in-hospital outcomes of patients with acute kidne",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "evaluation_quality_gate"
+    ],
+    "concern_text": "They do not present precision-recall curves which some might consider better measures with severe class imbalance. Death rate is only 1.3% leaving marked class imbalance.",
+    "author_response": "We added precision-recall curves and AUPRC for all prediction tasks.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-010-C05",
+    "paper_id": "PR-010",
+    "paper_title": "Predicting in-hospital outcomes of patients with acute kidne",
+    "category": "reproducibility",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 9,
+    "mlgg_gates": [],
+    "concern_text": "It is not clear how features were actually merged from 24-hour epochs. How were values combined — average, range, median, mean? It would not be possible to reproduce these models and test the results or apply them clinically.",
+    "author_response": "We added detailed feature engineering description with aggregation functions (mean, min, max, last) for each variable type.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-010-C06",
+    "paper_id": "PR-010",
+    "paper_title": "Predicting in-hospital outcomes of patients with acute kidne",
+    "category": "reporting",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "On numerous occasions they say that identifying patients at risk will improve their outcome — that is a hope rather than a proven reality; they should avoid the hyperbole.",
+    "author_response": "We toned down claims about clinical outcome improvement and framed as potential benefit requiring prospective validation.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-010-C07",
+    "paper_id": "PR-010",
+    "paper_title": "Predicting in-hospital outcomes of patients with acute kidne",
+    "category": "reporting",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "Results appearing in the discussion and methods appearing throughout. Comparators only show up in discussion where they don't belong. Paper presented in a somewhat jumbled fashion.",
+    "author_response": "We reorganized the manuscript to separate methods, results, and discussion clearly.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-011-C01",
+    "paper_id": "PR-011",
+    "paper_title": "Enhancing the diagnosis of functionally relevant coronary ar",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "evaluation_quality_gate"
+    ],
+    "concern_text": "AUROC of 0.71 for best-performing model is modest. The NPV of 0.89 at 15% threshold will be challenging for clinical practice, especially when the approach aims to reduce unnecessary testing. Authors should more clearly justify optimal thresholds.",
+    "author_response": "We added clinical impact analysis showing that even modest AUROC translates to meaningful reduction (15-17%) in unnecessary imaging referrals.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-011-C02",
+    "paper_id": "PR-011",
+    "paper_title": "Enhancing the diagnosis of functionally relevant coronary ar",
+    "category": "study_design",
+    "current_severity": "CRITICAL",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [
+      "cohort_definition_gate"
+    ],
+    "concern_text": "Major concern: the primary outcome 'functionally relevant CAD' is a combination of two outcomes (myocardial ischemia by SPECT + obstructive CAD on cath) without clear delineation. Selective referral to angiography induces bias since clinical aspects used by the ML model also influence decisions to pursue angiography.",
+    "author_response": "We separated analyses by outcome type and added discussion of verification bias from selective referral patterns.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-011-C03",
+    "paper_id": "PR-011",
+    "paper_title": "Enhancing the diagnosis of functionally relevant coronary ar",
+    "category": "interpretability",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 7,
+    "mlgg_gates": [
+      "shap_interpretability_gate"
+    ],
+    "concern_text": "ECG features in SHAP analysis are not adequately addressed. Are there aspects that identify ECG components of interest? Are there at least positive and negative examples that are meaningful? Summary statistics across positive and negative studies would make assessment more objective.",
+    "author_response": "We expanded SHAP analysis with ECG-specific feature interpretation, positive/negative examples, and aggregate statistics.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-011-C04",
+    "paper_id": "PR-011",
+    "paper_title": "Enhancing the diagnosis of functionally relevant coronary ar",
+    "category": "reporting",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "The data sources in both internal and external validation require more details. What were the clinical settings? Were patients consecutive? Why were patients dropped for 1 missing observation? How many were dropped?",
+    "author_response": "We added detailed data source descriptions, patient flow diagrams, and missing data handling documentation.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-011-C05",
+    "paper_id": "PR-011",
+    "paper_title": "Enhancing the diagnosis of functionally relevant coronary ar",
+    "category": "reporting",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "The collaborative model, touted as most successful, is unclear. How is post-test judgment quantified? How is it combined numerically?",
+    "author_response": "We added detailed description of the logistic regression combining ML scores and cardiologist post-test probability.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-011-C06",
+    "paper_id": "PR-011",
+    "paper_title": "Enhancing the diagnosis of functionally relevant coronary ar",
+    "category": "evaluation_metrics",
+    "current_severity": "LOW",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "In Fig. 2, Sensitivity and Precision were shown. It is good idea to present Specificity, Recall, Accuracy and F1 score as well.",
+    "author_response": "We added complete metric panel including specificity, recall, accuracy, and F1.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-012-C01",
+    "paper_id": "PR-012",
+    "paper_title": "Stratification of hospitalised COVID-19 patients into clinic",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [
+      "cohort_definition_gate"
+    ],
+    "concern_text": "There seems to be arbitrary reasoning for defining different immunophenotypes. Based on antibody/cytokine profile, first 3 patients in EXI group should be classified as LAI. This becomes even more subjective for the Barcelona validation cohort. Individuals should be accurately grouped and data reanalyzed.",
+    "author_response": "We provided detailed cluster assignment justification with sensitivity analysis showing robustness to boundary cases.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-012-C02",
+    "paper_id": "PR-012",
+    "paper_title": "Stratification of hospitalised COVID-19 patients into clinic",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "Healthy individuals are not the appropriate controls for COVID-19. Please include age-matched hospitalized patients with phenotypically similar disease states to identify differences unique to SARS-CoV-2 infection.",
+    "author_response": "We acknowledged this limitation and discussed the difficulty of obtaining appropriate disease-matched controls during the pandemic.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-012-C03",
+    "paper_id": "PR-012",
+    "paper_title": "Stratification of hospitalised COVID-19 patients into clinic",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "Significant difference in gender between the 3 immunophenotypes — more males in EXI and LAI. Whole data could be explained by higher propensity of males for proinflammatory cytokines. Statistical analysis should be reanalyzed normalizing for age, gender, and DFSO using multivariate analysis.",
+    "author_response": "We added multivariate analysis adjusting for age, gender, and DFSO. Immunophenotype effects remained significant after adjustment.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-012-C04",
+    "paper_id": "PR-012",
+    "paper_title": "Stratification of hospitalised COVID-19 patients into clinic",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Lot of overlap in the data and significance is driven by few outliers especially in EXI group. May be just driven by these few outliers in EXI/LAI compared with BRI.",
+    "author_response": "We performed robust analysis excluding outliers and showed consistent findings.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-012-C05",
+    "paper_id": "PR-012",
+    "paper_title": "Stratification of hospitalised COVID-19 patients into clinic",
+    "category": "study_design",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "IL-6, IL-8 and IL-10 are main markers of disease severity and their levels can easily explain disease outcome among immunotypes. So that brings into question the rationale of the whole study.",
+    "author_response": "We showed that immunophenotyping provides additional prognostic value beyond these individual cytokines through interaction effects.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-012-C06",
+    "paper_id": "PR-012",
+    "paper_title": "Stratification of hospitalised COVID-19 patients into clinic",
+    "category": "clinical_utility",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 7,
+    "mlgg_gates": [],
+    "concern_text": "Authors conclude this immunophenotyping can be applied rapidly in clinic. It's unclear how this extensive analysis can be practically applied where the patient deteriorates in days — during pandemic with shortage of resources, this approach is impractical.",
+    "author_response": "We toned down clinical implementation claims and discussed this as a research framework rather than a point-of-care tool.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-012-C07",
+    "paper_id": "PR-012",
+    "paper_title": "Stratification of hospitalised COVID-19 patients into clinic",
+    "category": "sample_size",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 12,
+    "mlgg_gates": [
+      "sample_size_gate"
+    ],
+    "concern_text": "The sample sizes are relatively small (primary cohort ~100 patients). Authors have used sensitivity analysis for accuracy vs test size which is good, but inherent limitations remain.",
+    "author_response": "We acknowledged sample size limitation and showed consistent results in the validation cohort.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-013-C01",
+    "paper_id": "PR-013",
+    "paper_title": "At-home wearables and machine learning sensitively capture d",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "The authors focus on rate of change, but variability in rates between patients plays a significant role. These two factors determine 'sensitivity' of a longitudinal marker (signal to noise). Could the authors provide insight into variability between patients relative to the average rate of decline?",
+    "author_response": "We added between-patient variability analysis showing coefficient of variation for each feature's rate of change.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-013-C02",
+    "paper_id": "PR-013",
+    "paper_title": "At-home wearables and machine learning sensitively capture d",
+    "category": "reporting",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "The monitoring protocol is quite extensive with 4 accelerometers per patient. Could the authors provide insight into adherence? How many patients managed to complete the 7-day wear-time period? Metrics of patient burden and retention would be insightful.",
+    "author_response": "We added adherence statistics showing completion rates, dropout reasons, and wear-time compliance by visit.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-013-C03",
+    "paper_id": "PR-013",
+    "paper_title": "At-home wearables and machine learning sensitively capture d",
+    "category": "reproducibility",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 9,
+    "mlgg_gates": [],
+    "concern_text": "From the methods it is unclear how the rate of decline was calculated. There are no longitudinal models reported. It looks like per-patient regression was fitted and slope extracted, but this information is not provided — the statistical analysis cannot be replicated.",
+    "author_response": "We added detailed description of per-patient linear mixed-effects models used to estimate rates of decline.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-013-C04",
+    "paper_id": "PR-013",
+    "paper_title": "At-home wearables and machine learning sensitively capture d",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "The ICC is based on 'first half vs second half of days'. This likely gives a systematic difference as patients may be more active in the first half due to fatigue. Day 1 vs Day 2 comparison would be more accurate.",
+    "author_response": "We added day-by-day ICC analysis as supplementary comparison.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-013-C05",
+    "paper_id": "PR-013",
+    "paper_title": "At-home wearables and machine learning sensitively capture d",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Using 'the limb with the fastest progression rate' has complexities. This can be done after data collection, but for clinical trials outcomes must be prespecified — this could result in increased type 1 error.",
+    "author_response": "We discussed this limitation for clinical trial application and suggested prespecifying the primary limb based on initial assessment.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-013-C06",
+    "paper_id": "PR-013",
+    "paper_title": "At-home wearables and machine learning sensitively capture d",
+    "category": "reporting",
+    "current_severity": "LOW",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "The pairwise comparison model description is lacking clarity. The formula and outcome encoding need clearer explanation for the less statistical reader.",
+    "author_response": "We rewrote the pairwise model description with step-by-step worked example.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-014-C01",
+    "paper_id": "PR-014",
+    "paper_title": "Shareable artificial intelligence to extract cancer outcomes",
+    "category": "study_design",
+    "current_severity": "CRITICAL",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "There is no evidence that there actually is any data leakage in the classification model in the first place — therefore it is not clear there is anything to be fixed, which is the objective of the paper. Classification models learn category assignments, not patient-specific information.",
+    "author_response": "We added discussion clarifying the precautionary principle and referenced recent membership inference attacks on clinical NLP models.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-014-C02",
+    "paper_id": "PR-014",
+    "paper_title": "Shareable artificial intelligence to extract cancer outcomes",
+    "category": "model_selection",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [],
+    "concern_text": "The proposed models are not compared with any other methods, only an uninformative model. LLMs like ChatGPT have been proven effective for extracting structured data from clinical notes. Open-source LLMs on in-house servers could protect privacy without the teacher-student paradigm.",
+    "author_response": "We added comparison with GPT-4 and open-source LLM baselines, showing trade-offs between accuracy, cost, and privacy.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-014-C03",
+    "paper_id": "PR-014",
+    "paper_title": "Shareable artificial intelligence to extract cancer outcomes",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "What is the benefit of training the student model with soft logit output vs hard prediction labels? There is only a difference between soft and hard labels. Authors need to illustrate benefits of soft label training.",
+    "author_response": "We added ablation comparing soft vs hard label training showing soft labels preserve calibration and improve minority class performance.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-014-C04",
+    "paper_id": "PR-014",
+    "paper_title": "Shareable artificial intelligence to extract cancer outcomes",
+    "category": "reporting",
+    "current_severity": "LOW",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "It should be stressed that the privacy-preserving approach has only been demonstrated to work on the relatively narrowly defined task of outcome extraction. A richer illustration in Figure 1 showing data boundaries would help.",
+    "author_response": "We added clearer figure showing data flow boundaries and scoped the claims to outcome extraction tasks.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-015-C01",
+    "paper_id": "PR-015",
+    "paper_title": "Synthesize high-dimensional longitudinal electronic health r",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "evaluation_quality_gate"
+    ],
+    "concern_text": "Show standard deviations (confidence intervals) in Tables 7 and 8. Performance improvement seems mainly from the transformer backbone, limiting the specific contributions of the proposed method.",
+    "author_response": "We added CIs and provided ablation analysis showing contributions of each component beyond the transformer backbone.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-015-C02",
+    "paper_id": "PR-015",
+    "paper_title": "Synthesize high-dimensional longitudinal electronic health r",
+    "category": "reproducibility",
+    "current_severity": "CRITICAL",
+    "mlgg_dimension": 9,
+    "mlgg_gates": [],
+    "concern_text": "My fundamental objection to nearly all synthetic data papers: Is the real input data available? Is the synthetic data available? Where is the public code repository? They cannot answer 'yes' to all three. How could someone reproduce this?",
+    "author_response": "We released code on GitHub, made synthetic MIMIC data available, and documented that the claims data is proprietary but synthetic output is shareable.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-015-C03",
+    "paper_id": "PR-015",
+    "paper_title": "Synthesize high-dimensional longitudinal electronic health r",
+    "category": "reporting",
+    "current_severity": "LOW",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "Which modules or components are specifically devised for handling the high-dimension issue? This should be more clearly discussed.",
+    "author_response": "We added focused discussion of the masked linear layer for high-dimensional intra-visit modeling and transformer for inter-visit modeling.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-016-C01",
+    "paper_id": "PR-016",
+    "paper_title": "Radiogenomic signatures reveal multiscale intratumour hetero",
+    "category": "preprocessing",
+    "current_severity": "CRITICAL",
+    "mlgg_dimension": 3,
+    "mlgg_gates": [],
+    "concern_text": "The model has too many parameters. 24 parameters with 47+40 cases — model is overparametrized. Maximum ~8-10 parameters. They've got (10+10+19)×3=117 parameters — almost infinite ways to extract n from 117 to build models. How did they arrive at these models/parameters?",
+    "author_response": "We performed LASSO regularization with nested cross-validation and reported the number of retained features. Added comparison with simpler models.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-016-C02",
+    "paper_id": "PR-016",
+    "paper_title": "Radiogenomic signatures reveal multiscale intratumour hetero",
+    "category": "preprocessing",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 3,
+    "mlgg_gates": [],
+    "concern_text": "Calculated subtraction images without dividing by precontrast image — makes comparison of histogram features (mean, range, min, max) across patients highly dubious. Both in-plane resolution and slice thickness vary — should interpolate to same resolution prior to feature calculations.",
+    "author_response": "We added image normalization and resampling to uniform resolution. Results remain consistent after standardization.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-016-C03",
+    "paper_id": "PR-016",
+    "paper_title": "Radiogenomic signatures reveal multiscale intratumour hetero",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "evaluation_quality_gate"
+    ],
+    "concern_text": "None of the prognosis analyses correct for common clinical features such as age, size, grade, stage, hormone receptor status. It is important to know if the radiogenomic biomarkers are independent of these clinical features.",
+    "author_response": "We added multivariate Cox regression adjusting for age, stage, grade, and receptor status. Radiogenomic signature remained an independent predictor.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-016-C04",
+    "paper_id": "PR-016",
+    "paper_title": "Radiogenomic signatures reveal multiscale intratumour hetero",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Figure 4d and 7d appear to be training set performance — if so should NOT be reported as it is not representative of unseen data.",
+    "author_response": "We clarified these are cross-validated results, not training performance, and relabeled figures.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-016-C05",
+    "paper_id": "PR-016",
+    "paper_title": "Radiogenomic signatures reveal multiscale intratumour hetero",
+    "category": "clinical_utility",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 7,
+    "mlgg_gates": [],
+    "concern_text": "Several gene expression signatures for breast cancer (Mammaprint, OncotypeDX) are clinically used. Authors have to study how their proposed biomarkers add additional prognostic value on top of these existing prognostic biomarkers.",
+    "author_response": "We added comparison with established genomic signatures and showed complementary prognostic information.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-016-C06",
+    "paper_id": "PR-016",
+    "paper_title": "Radiogenomic signatures reveal multiscale intratumour hetero",
+    "category": "reporting",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "IRB/informed consent information not provided. Radiomics methodology needs more detail — software validation, grey level reduction, normalization method.",
+    "author_response": "We added IRB information and detailed radiomics methodology including software (PyRadiomics), grey levels, and normalization steps.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-016-C07",
+    "paper_id": "PR-016",
+    "paper_title": "Radiogenomic signatures reveal multiscale intratumour hetero",
+    "category": "reporting",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "MRI data quality is no longer state-of-the-art/outdated. Since the TCGA/I-SPY studies there have been significant improvements in MRI software and hardware. Results may not be representative of current MRI radiomics potential.",
+    "author_response": "We acknowledged the data age limitation and discussed how modern MRI would likely improve results.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-017-C01",
+    "paper_id": "PR-017",
+    "paper_title": "An ensemble penalized regression method for multi-ancestry p",
+    "category": "model_selection",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [],
+    "concern_text": "Given the very good performance of 'weighted lassosum2', I wonder whether the extra gain from PROSPER comes from the L2-penalty sharing effects across populations, or from the super learning step? You could also add super learning step for lassosum2 to answer this question.",
+    "author_response": "We added ablation: super learning alone on lassosum2 vs PROSPER's L2 penalty. Both contribute, but L2 penalty provides the larger gain.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-017-C02",
+    "paper_id": "PR-017",
+    "paper_title": "An ensemble penalized regression method for multi-ancestry p",
+    "category": "study_design",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "Is it reasonable to assume genetic effects are similarly similar across populations (constant c)? I might expect this similarity to decrease with genetic distance between populations. Any literature to support either claim?",
+    "author_response": "We cited literature supporting similar effect sizes across closely related populations and acknowledged this may break down for more distant populations.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-017-C03",
+    "paper_id": "PR-017",
+    "paper_title": "An ensemble penalized regression method for multi-ancestry p",
+    "category": "preprocessing",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 3,
+    "mlgg_gates": [],
+    "concern_text": "LD references computed from 1000G. Have you tried using more individuals (e.g., UKBB)? AMR in 1000G is used for Latino ancestry — is it really the same ancestry?",
+    "author_response": "We compared 1000G vs UKBB LD references showing minimal impact for European ancestry but noted limitations for admixed populations.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-017-C04",
+    "paper_id": "PR-017",
+    "paper_title": "An ensemble penalized regression method for multi-ancestry p",
+    "category": "reproducibility",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 9,
+    "mlgg_gates": [],
+    "concern_text": "Analysis code is publicly shared but I cannot find the code corresponding to LDpred2 analyses. I am surprised LDpred2 performs consistently worse than lassosum2 — maybe consider extending the grid to the one currently recommended in the tutorial.",
+    "author_response": "We added LDpred2 code and re-ran with recommended grid parameters. Performance gap narrowed but PROSPER still outperforms.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-017-C05",
+    "paper_id": "PR-017",
+    "paper_title": "An ensemble penalized regression method for multi-ancestry p",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Did the authors consider using machine learning methods for the super-learner step? Also, how large a tuning dataset would you recommend?",
+    "author_response": "We tested ML methods (random forest, gradient boosting) in the super-learner — linear combination performed comparably. Added tuning set size sensitivity analysis.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-018-C01",
+    "paper_id": "PR-018",
+    "paper_title": "Tuning parameters for polygenic risk score methods using GWA",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "For PRStuning based on C+T, AUC increases when threshold decreases. For LDpred, highest AUC is at parameter 0.3. Is this an indication of overfitting or convergence issues? Based on Tables 4 and 5, is it concluded that P+T is better than LDpred?",
+    "author_response": "We clarified that this pattern reflects the polygenicity of the trait. Added convergence diagnostics for LDpred Gibbs chains.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-018-C02",
+    "paper_id": "PR-018",
+    "paper_title": "Tuning parameters for polygenic risk score methods using GWA",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "Would it be possible to include confounders such as age, sex as part of the AUC calculation?",
+    "author_response": "We showed that covariate adjustment has minimal impact on relative ranking of PRS methods but added adjusted AUC as supplementary analysis.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-018-C03",
+    "paper_id": "PR-018",
+    "paper_title": "Tuning parameters for polygenic risk score methods using GWA",
+    "category": "study_design",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "How does the method handle the HLA region of Chromosome 6? Is the chosen LD radius (5) large enough? Please define LD radius in terms of SNPs/megabase pairs.",
+    "author_response": "We defined LD radius as 5Mb and showed that the HLA region is adequately captured. Added sensitivity analysis with larger radius.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-018-C04",
+    "paper_id": "PR-018",
+    "paper_title": "Tuning parameters for polygenic risk score methods using GWA",
+    "category": "external_validation",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [],
+    "concern_text": "As summary statistics of T2D, CAD, and IBD are available, could authors generate PRS using traditional LDpred2 with UKBB data and compare AUC with LDpred based PRStuning? Include computational time comparison.",
+    "author_response": "We added traditional LDpred2 comparison and computational time benchmarks showing PRStuning is 10× faster.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-018-C05",
+    "paper_id": "PR-018",
+    "paper_title": "Tuning parameters for polygenic risk score methods using GWA",
+    "category": "external_validation",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 6,
+    "mlgg_gates": [],
+    "concern_text": "Author mentioned they applied the framework in European ancestral group only. Would it be possible to include non-European population in the training datasets?",
+    "author_response": "We acknowledged European-only limitation and discussed extension to multi-ancestry as future work.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-019-C01",
+    "paper_id": "PR-019",
+    "paper_title": "Utility of polygenic scores across diverse diseases in a hos",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [
+      "evaluation_quality_gate"
+    ],
+    "concern_text": "Several factors affect PRS prediction quality — sample sizes of source data, genetic architecture, and model used — but authors did not assess correlation of source GWAS sample sizes with prediction quality. Did not establish overlap with their genotyping data. Did not explore why ankylosing spondylitis had highest prediction while heart failure had lowest.",
+    "author_response": "We added correlation analysis between source GWAS sample size, SNP overlap, heritability, and prediction quality across all 457 traits.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-019-C02",
+    "paper_id": "PR-019",
+    "paper_title": "Utility of polygenic scores across diverse diseases in a hos",
+    "category": "evaluation_metrics",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "In the abstract, authors stated significant incremental predictive performance, but the methods and results do not include any analyses investigating the incremental performance of PGS — only full model analyses with covariates were included.",
+    "author_response": "We added incremental analysis: PGS-only model vs covariates-only vs combined, with delta-AUC and NRI for each trait.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-019-C03",
+    "paper_id": "PR-019",
+    "paper_title": "Utility of polygenic scores across diverse diseases in a hos",
+    "category": "study_design",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 1,
+    "mlgg_gates": [],
+    "concern_text": "Were PGS from all ancestry used, or only PGS trained from East Asian samples? Was there any attempt at handling population stratification? Were there any attempts to avoid sample overlap?",
+    "author_response": "We included all-ancestry PGS and added population stratification adjustment via principal components. Assessed and excluded overlapping samples.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-019-C04",
+    "paper_id": "PR-019",
+    "paper_title": "Utility of polygenic scores across diverse diseases in a hos",
+    "category": "evaluation_metrics",
+    "current_severity": "MEDIUM",
+    "mlgg_dimension": 5,
+    "mlgg_gates": [],
+    "concern_text": "For the t-test and Wilcoxon test, were there any attempts to control for covariates such as age, sex, and population stratification? Was the metric reported based on PGS only, or the full model?",
+    "author_response": "We clarified that all association tests control for age, sex, and top 10 PCs. Both PGS-only and full model metrics now reported.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-019-C05",
+    "paper_id": "PR-019",
+    "paper_title": "Utility of polygenic scores across diverse diseases in a hos",
+    "category": "reporting",
+    "current_severity": "LOW",
+    "mlgg_dimension": 8,
+    "mlgg_gates": [],
+    "concern_text": "Figure 1 annotations unclear — n and m were not annotated. Add a box between 'Access medical records' and 'Identified phenotype' stating post-QC sample size.",
+    "author_response": "We improved Figure 1 with clear annotations for sample sizes at each step.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-020-C01",
+    "paper_id": "PR-020",
+    "paper_title": "Explainable multimodal deep learning for predicting thyroid ",
+    "category": "model_selection",
+    "current_severity": "HIGH",
+    "mlgg_dimension": 4,
+    "mlgg_gates": [
+      "model_selection_audit_gate"
+    ],
+    "concern_text": "Lacks thorough comparison with existing baselines. Comprehensive ablation studies needed for each component and each modality's independent contribution.",
+    "author_response": "Added baseline comparisons and comprehensive ablation.",
+    "resolved": true
+  },
+  {
+    "concern_id": "PR-020-C02",
+    "paper_id": "PR-020",
+    "paper_title": "Explainable multimodal deep learning for predicting thyroid ",
+    "category": "clinical_utility",
+    "current_severity": "CRITICAL",
+    "mlgg_dimension": 7,
+    "mlgg_gates": [
+      "clinical_metrics_gate"
+    ],
+    "concern_text": "Predicting microscopic LLNMs with AI may be HARMFUL — removal of small metastases may not change outcome. Will result in overutilization of lateral neck dissection.",
+    "author_response": "Added LLNM characteristics analysis stratified by clinical significance. Revised workflow.",
+    "resolved": true
+  }
+]

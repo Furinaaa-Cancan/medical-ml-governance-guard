@@ -1,0 +1,90 @@
+{
+  "agent": "reextract-05",
+  "ran_at_utc": "2026-05-16T00:00:00Z",
+  "papers_processed": [
+    {
+      "paper_id": "PR-075",
+      "pdf_pages_read": ["1-10", "11-16", "25-34"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-075-C01",
+          "new_author_response": "Authors empirically tested in UK Biobank: BMI is largely a linear function of height+weight (r^2=0.99 via formula BMI=55.32-0.3292*height_cm+0.3532*weight_kg), but BMI alone is a poor proxy for height (<1% variance explained). Removing BMI from Cox model had negligible effect: HR for 1-SD LAmin was 1.73 (P=4.0E-39) with BMI vs 1.73 (P=5.2E-39) without. Main analyses unchanged. For BSA: LA volumes treated in both raw and BSA-indexed form; GWAS wording clarified to state seven LA traits including BSA-indexed LA volumes.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-075-C02",
+          "new_author_response": "Authors had not originally computed performance metrics for the motion-detection (abnormal contraction) model. They added a new quality-control analysis: one cardiologist (JPP) manually reviewed 200 participants (100 flagged abnormal, 100 flagged normal). Sensitivity = 100% (95% CI 90.3-100.0%), specificity = 61% (95% CI 53.1-68.5%) — high sensitivity favored to avoid contaminating GWAS with cryptic AF cases. Description added to Supplementary Note.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-090",
+      "pdf_pages_read": ["1-10", "11-14", "15-24"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-090-C01",
+          "new_author_response": "Authors addressed external-cohort concern by collecting 65 additional healthy samples from a different institution; none classified as positive by PCM. They replaced healthy samples in External Validation cohorts 1 and 2 and re-evaluated — model performance remained robust (Comb AUC = 0.992 cohort 1; 0.985 cohort 2; raw data uploaded to CNSA CNP0006304). For early-stage detection, they referenced existing Table 2 which reports per-cohort AUC/sensitivity/specificity/accuracy; PCM also separately validated as outperforming CA19-9 in early-stage disease (Table 2, lines 179-186).",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-078",
+      "pdf_pages_read": ["1-10", "11-18"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-078-C01",
+          "new_author_response": "Authors acknowledged a typographical error in Fig. 2 of the original manuscript. Corrected definition: Controls = self-reported no T2D AND HbA1c <=5.6% AND GLU-AC <100 mg/dL. Cases = self-reported T2D OR HbA1c >=6.5% OR GLU-AC >=126 mg/dL. The phenotype definition in Fig. 2 was rectified in the revised manuscript so an individual with HbA1c>6.5% would now correctly be classified as a case.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-078-C02",
+          "new_author_response": "Authors clarified that both genetic-centric and genetic-imaging analyses used the same modeling approach (XGBoost), so the model-type concern is moot. Acknowledged AUC limitation and added accuracy, sensitivity, specificity, and F1-score metrics for more comprehensive evaluation. Separately, for the >100 imaging features concern, authors added a streamlined sub-model using only 8 essential features (family history, age, fatty liver, spine thickness, PRS, R_CCA_EDV, RR interval, L_CCA_EDV) which preserved AUC = 0.939 (vs 0.949 for full model), added as Fig. S11 / lines 427-442 to address clinical practicality.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-078-C03",
+          "new_author_response": "Authors conducted a full stratified analysis across 16 combinations (4 age quartiles x 2 sex x 2 family-history subgroups; age cut points 43, 52, 59 from sample quartiles). Only the female group aged >59 with family history showed robust, reliable high risk (added to lines 333-343, Fig. S7). For males aged >59 with family history, top-decile PRS showed 10-12 fold risk but reference group also had 7.3 fold risk, so evidence was deemed ambiguous and not reported in main text. Other age subgroups did not yield stable evidence.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-077",
+      "pdf_pages_read": ["1-10"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-077-C01",
+          "new_author_response": "Authors agreed differences between unimodal and multimodal were not always statistically significant, attributing this to modest sample size, noise, and low power. They argued Figure 5 (not Figure 3/OS) represents the core finding: consistent improvement across many models/tasks when using multiple modalities. Added a patient-level comparison (Figure 4, lines 197-214) showing that for several patients RNA misled predictions while radiomic+clinical modalities corrected them, indicating multimodal benefit beyond aggregate metrics. No significance claim revised.",
+          "new_resolved": null,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-077-C02",
+          "new_author_response": "Authors agreed multimodality has been explored in oncology but argued no prior study focused on immunotherapy response prediction for NSCLC using multimodal ML. They acknowledged Vanguri et al. (cited as Rami et al.) was the closest prior work and discussed it extensively. They re-framed the novelty as the specific NSCLC/IO task and exploration of existing approaches on rare multimodal cohort, rather than algorithmic novelty. No new methodology claim added.",
+          "new_resolved": null,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-077-C03",
+          "new_author_response": "Authors conducted additional substantive analyses: (1) benchmarked their multimodal model against 36 published transcriptomic immunotherapy signatures, outperforming all signatures except in 6-month progression where it outperformed 33/36 (added Figure 7, lines 246-256, Methods 663-679); (2) added comprehensive consensus feature-importance analysis incorporating all learned models weighted by performance (Fig 2, s7-s10); (3) linked top features (albumin, neutrophils, dendritic cell abundance) to prior literature including TLS detection (lines 322-333). Discussion expanded on predictive vs prognostic distinction (lines 370-377).",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_papers": 4,
+    "total_concerns_updated": 9,
+    "extracted_substantive": 9,
+    "not_found_in_pdf": 0
+  }
+}

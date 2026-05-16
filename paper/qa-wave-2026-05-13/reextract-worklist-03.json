@@ -1,0 +1,122 @@
+[
+  {
+    "paper_id": "PR-073",
+    "paper_title": "Automated multilabel diagnosis on electrocardiographic images and signals",
+    "pdf_path": "references/case-studies/nature_communications/NC_ECG_multilabel_DL_peer_review.pdf",
+    "pdf_size_mb": 4.0,
+    "affected_concern_ids": [
+      "PR-073-C01",
+      "PR-073-C02",
+      "PR-073-C03"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-073-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Only 6 ECG abnormality classifications — practical value is limited. PhysioNet 2020 challenge involved 121 types. Should add more abnormalities.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-073-C02",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "How to validate accuracy of ECG labels for all 2.2M ECGs? Only two image formats and their shuffled versions — should include commonly used ECG-image standard formats from different countries.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-073-C03",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Can image-based model extract ECG information like channel (I, II, V1 etc) or waveform features (QRS amplitude, heart rate)? Explainable feature outputs could enhance performance.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-069",
+    "paper_title": "Biomarker panels for improved risk prediction in atrial fibrillation",
+    "pdf_path": "references/case-studies/nature_communications/PR-069_biomarker_panels_for_improved_risk_predi_peer_review.pdf",
+    "pdf_size_mb": 1.9,
+    "affected_concern_ids": [
+      "PR-069-C01",
+      "PR-069-C02"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-069-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Rationale for selecting these 12 biomarkers out of many candidates should be provided.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-069-C02",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Independent risk factors for each outcome are different. Models adjusted for same covariates across all outcomes — should adjust specifically per outcome.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-070",
+    "paper_title": "AgentMD: Empowering language agents for risk prediction with large-scale clinical tool learning",
+    "pdf_path": "references/case-studies/nature_communications/NC_AgentMD_LLM_risk_peer_review.pdf",
+    "pdf_size_mb": 1.1,
+    "affected_concern_ids": [
+      "PR-070-C01",
+      "PR-070-C02",
+      "PR-070-C03"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-070-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Tool correctness tested with GPT-4-generated unit tests. Should include manually crafted high-quality test cases by human experts, including extreme/boundary cases.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-070-C02",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "How can agent reliably create calculation functions from paper abstracts only? Calculation details are in the main body. Toolset creation pipeline not open-sourced.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-070-C03",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Sending patient information to proprietary model API may leak private information — privacy concerns not discussed.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  },
+  {
+    "paper_id": "PR-071",
+    "paper_title": "Data-driven prediction of continuous renal replacement therapy survival",
+    "pdf_path": "references/case-studies/nature_communications/NC_CRRT_survival_peer_review.pdf",
+    "pdf_size_mb": 0.5,
+    "affected_concern_ids": [
+      "PR-071-C01",
+      "PR-071-C02"
+    ],
+    "concerns_full": [
+      {
+        "concern_id": "PR-071-C01",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Why 7 days chosen? Some patients have much shorter CRRT. Not stated that model is proof-of-principle — abstract and introduction suggest clinical use.",
+        "current_author_response": "Addressed in revision."
+      },
+      {
+        "concern_id": "PR-071-C02",
+        "reviewer": "Reviewer #1",
+        "round": 1,
+        "concern_text": "Figures use CCS codes instead of feature names. Run-on sentences throughout. Switches between past and present tense.",
+        "current_author_response": "Addressed in revision."
+      }
+    ]
+  }
+]

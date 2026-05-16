@@ -1,0 +1,96 @@
+{
+  "agent": "reextract-03",
+  "ran_at_utc": "2026-05-16T00:00:00Z",
+  "papers_processed": [
+    {
+      "paper_id": "PR-073",
+      "pdf_pages_read": ["10-19"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-073-C01",
+          "new_author_response": "Acknowledge a model detecting all abnormalities would be ideal but training was limited by two factors: UFMG training data only had labels for 6 abnormalities, and the goal was to demonstrate image-based parity with signal-based models. Added text to Discussion (p18) stating focus on 6 labels and future plans to access broader-label repositories. No new abnormalities added.",
+          "new_resolved": null,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-073-C02",
+          "new_author_response": "On label validation: the 2,228,236 reads were clinical-evaluation by cardiologists representing standard care; high-probability false positives in held-out and external sets were actually inaccurate clinical labels. Expanded the label-extraction protocol (Ribeiro et al., semi-supervised Lazy Associative Classifier, manual review for ST/SB/1dAVb) in Data Source (p19). On format diversity: added a web-based ECG dataset (42 ECGs from LIFTL + Google image search) plus a Lake Regional Hospital rural-US dataset (64 ECGs) with varied colors/lead positions; model achieved AUROC 0.93-0.98 across these real-world formats (Table 3).",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-073-C03",
+          "new_author_response": "Declined to implement. Authors argue waveform-feature extraction (channel ID, QRS amplitude, heart rate) via wavelet algorithms would not have much practical value, and adding such labels would require reweighing learning strategy and loss functions, better represented as a distinct study. Updated limitations (p18) acknowledging the 6-label scope and noting future work would extract waveform-specific measures from richer repositories. No feature-extraction added in this revision.",
+          "new_resolved": null,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-069",
+      "pdf_pages_read": ["1-10"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-069-C01",
+          "new_author_response": "Added detailed rationale in Methods (p23): the 12 biomarkers were selected via extensive literature review and prior evidence linking them to AF pathophysiology, organized by distinct biological pathway: myocardial injury (hsTropT), inflammation (hs-CRP, IL-6, IGFBP-7, GDF-15), oxidative stress (GDF-15), renal disease (creatinine, cystatin C, OPN), coagulation (d-dimer), myocardial wall stress (NT-proBNP), ECM remodelling (IGFBP-7), liver disease (ALAT), angiogenesis (ANG-2, IGFBP-7). Added Supplementary Figure 8 showing the pathway grouping, and added a limitations statement (p11) acknowledging selection is somewhat arbitrary and may miss markers like BMP10 (now cited in Discussion).",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-069-C02",
+          "new_author_response": "Did not perform outcome-specific adjustment. Authors justified the uniform covariate set by (1) ensuring consistency across models while including broadly available variables, (2) per Reviewer #3, they added benchmark analyses against established clinical risk models (CHA2DS2-VASc, ABC-stroke, HAS-BLED) which add more discriminative information than adjusting for a few extra confounders, and (3) data on LVEF, anemia, and valvular disease was missing in many patients, precluding inclusion. Explicitly asks the reviewer to accept this decision.",
+          "new_resolved": null,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-070",
+      "pdf_pages_read": ["1-10", "11-14", "15-16", "17-20", "21-24"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-070-C01",
+          "new_author_response": "Engaged two medical-student annotators to manually curate 10 clinical vignettes for each of 10 randomly selected calculators, producing 100 additional unit tests representing challenging/edge cases where patient parameters fall close to clinical decision boundaries. Added to Results/RiskCalcs section: AgentMD achieves 84.0% passing rate on manually curated set, slightly lower but consistent with automatically-generated tests.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-070-C02",
+          "new_author_response": "Acknowledged limitation: many full-text articles are behind paywalls limiting automated processing. Added explicit text to manuscript: 'the creation of calculator tools was restricted to PubMed abstracts, overlooking detailed descriptions in full-text articles due to accessibility issues. Future work should aim to broaden the data sources for tool development.' Justified that many PubMed abstracts (e.g., CURB-65 PMID:12728155) contain sufficient calculation and interpretation detail. Added full prompt templates for abstract screening, calculator drafting, and tool verification to the Methods section. Updated code repository to include the tool curation pipeline scripts.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-070-C03",
+          "new_author_response": "Implemented privacy safeguards: (1) accessed GPT models via Microsoft Azure OpenAI Service which is HIPAA-compliant (encryption in transit, HIPAA-aligned data handling); (2) all Yale Medicine real-world clinical notes were thoroughly de-identified prior to being sent to the API, removing patient-identifiable information. Added clarification in Methods/Backbone LLMs: 'We access these models through the Application Programming Interface (API) of Azure OpenAI services, which is compliant with the Health Insurance Portability and Accountability Act (HIPAA).'",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    },
+    {
+      "paper_id": "PR-071",
+      "pdf_pages_read": ["1-10", "11-15"],
+      "concerns_updated": [
+        {
+          "concern_id": "PR-071-C01",
+          "new_author_response": "Two-part response. On 7-day cutoff: added text after lines 720-723 explaining patients on CRRT >=8 days had clinical outcomes temporally far from training data making it hard for model to learn meaningful pre-CRRT relationships; 7 days was the optimal trade-off between model stability and training-data volume. Predictive performance was demonstrated regardless of number of days a patient was on CRRT within the 7-day window, so group homogeneity was not required. On clinical-use disclaimer: added to Introduction: 'Though the model as presented is not currently intended for clinical use, our work demonstrates its utility as incentive for clinical trials in the future.'",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        },
+        {
+          "concern_id": "PR-071-C02",
+          "new_author_response": "All three sub-issues addressed: (1) text revised to be consistent in tense throughout; (2) run-on sentences corrected as requested; (3) figures updated to switch CCS codes to actual feature names (e.g., Figure A7: CCS code 113 replaced with the actual name). Responses are terse ('We have revised the text to be consistent throughout', 'This has been corrected as requested', 'This has been done as requested') so concrete verification is not shown but the fixes are confirmed.",
+          "new_resolved": true,
+          "extraction_status": "EXTRACTED"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_papers": 4,
+    "total_concerns_updated": 10,
+    "extracted_substantive": 10,
+    "not_found_in_pdf": 0
+  }
+}
