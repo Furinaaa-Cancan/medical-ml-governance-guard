@@ -788,6 +788,66 @@
         "external_validation_depth",
         "cross_cohort_stability"
       ]
+    },
+    {
+      "scenario_id": "weak_offdomain_music_query",
+      "description": "User accidentally points MLGG at a completely off-domain query (music theory). MLGG scope is retrospective-cohort biomedical binary classification; orchestral conducting terminology is out of scope by design. KB should have ~0 useful hits and only return padding/fallback rows. Real WEAK case for H19 LLM-loop hedge/honesty audits — replaces H19's synthetic nonsense-code probe.",
+      "gate_name": "free_text_probe",
+      "failure_codes": [],
+      "expected_categories": [],
+      "expected_tags": [],
+      "query_text": "orchestral conductor baton tempo rubato",
+      "expected_difficulty": "WEAK",
+      "expected_n_hits_lt": 6,
+      "expected_top1_score_lt": 0.45,
+      "_rationale": "Off-MLGG-domain free text. Measured top1=0.374 on 2026-05-17 — well below the 0.4 WEAK threshold. All match-reasons should be dense-only + bm25_inactive_free_text + severity-fallback (no semantic hit).",
+      "_added_by": "W4",
+      "_added_at": "2026-05-17"
+    },
+    {
+      "scenario_id": "weak_offdomain_sailing_query",
+      "description": "User accidentally points MLGG at sailing/maritime terminology — entirely outside the retrospective-cohort biomedical scope. Real WEAK case (not a synthesized nonsense code) for H19 LLM-loop hedge/honesty audits.",
+      "gate_name": "free_text_probe",
+      "failure_codes": [],
+      "expected_categories": [],
+      "expected_tags": [],
+      "query_text": "sailing tack jibe spinnaker pole",
+      "expected_difficulty": "WEAK",
+      "expected_n_hits_lt": 6,
+      "expected_top1_score_lt": 0.45,
+      "_rationale": "Off-MLGG-domain free text. Measured top1=0.385 on 2026-05-17.",
+      "_added_by": "W4",
+      "_added_at": "2026-05-17"
+    },
+    {
+      "scenario_id": "weak_offdomain_woodworking_query",
+      "description": "User accidentally points MLGG at carpentry/joinery terminology — entirely outside MLGG scope. Real WEAK case for H19 LLM-loop hedge/honesty audits.",
+      "gate_name": "free_text_probe",
+      "failure_codes": [],
+      "expected_categories": [],
+      "expected_tags": [],
+      "query_text": "wood joinery dovetail mortise tenon",
+      "expected_difficulty": "WEAK",
+      "expected_n_hits_lt": 6,
+      "expected_top1_score_lt": 0.45,
+      "_rationale": "Off-MLGG-domain free text. Measured top1=0.394 on 2026-05-17.",
+      "_added_by": "W4",
+      "_added_at": "2026-05-17"
+    },
+    {
+      "scenario_id": "zero_empty_query",
+      "description": "User submits an empty / whitespace-only query (paste accident, UI bug, stripped tokens after normalization). rag_query() contract returns []. Real ZERO scenario for H19 LLM-loop audits — synthesis layer must not invent peer-review precedent when nothing was retrieved.",
+      "gate_name": "free_text_probe",
+      "failure_codes": [],
+      "expected_categories": [],
+      "expected_tags": [],
+      "query_text": "   ",
+      "expected_difficulty": "ZERO",
+      "expected_n_hits_lt": 1,
+      "expected_top1_score_lt": 0.001,
+      "_rationale": "Whitespace-only query is the documented empty-result sentinel in scripts/rag/query.py rag_query(). Real (not synthesized) n=0 case.",
+      "_added_by": "W4",
+      "_added_at": "2026-05-17"
     }
   ],
   "h10_unmatched_dimensions": [

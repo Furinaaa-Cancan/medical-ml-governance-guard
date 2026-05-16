@@ -90,3 +90,114 @@ def test_h10_additive_fields_preserved_on_matched_scenarios() -> None:
                 f"Scenario {s['scenario_id']} marked as H10-merged but "
                 f"missing additive field {field!r}"
             )
+
+
+def test_weak_zero_scenarios_declare_required_fields() -> None:
+    """W4-added WEAK/ZERO scenarios must declare the audit-facing contract.
+
+    H19 LLM-loop audits filter scenarios by ``expected_difficulty`` to test
+    hedge/honesty behavior on low-information retrievals. If a WEAK or ZERO
+    scenario lands here without the threshold fields, the audit cannot
+    assert correctness — so this test fences the schema explicitly.
+    """
+    data = json.loads(CANONICAL.read_text(encoding="utf-8"))
+    flagged = [
+        s for s in data["scenarios"]
+        if s.get("expected_difficulty") in {"WEAK", "ZERO"}
+    ]
+    assert flagged, (
+        "Expected at least one WEAK or ZERO scenario for H19-style audits "
+        "(see W4 task: real off-domain queries replacing synthesized "
+        "nonsense-code probes)."
+    )
+    for s in flagged:
+        assert "query_text" in s and s["query_text"], (
+            f"Scenario {s['scenario_id']} flagged as "
+            f"{s['expected_difficulty']} but has no query_text — audits "
+            "cannot reproduce the retrieval."
+        )
+        for field in ("expected_n_hits_lt", "expected_top1_score_lt"):
+            assert field in s, (
+                f"Scenario {s['scenario_id']} flagged as "
+                f"{s['expected_difficulty']} missing {field!r} threshold."
+            )
+
+
+def test_weak_scenarios_actually_weak() -> None:
+    """W4-added WEAK scenarios should genuinely retrieve weakly today.
+
+    If a future KB curation makes one strong (top-1 >= 0.5), the scenario
+    should be re-classified or the WEAK example replaced. This test is the
+    canary for that drift. Skipped if the RAG stack can't load (e.g. CI
+    environment without sentence-transformers).
+    """
+    data = json.loads(CANONICAL.read_text(encoding="utf-8"))
+    weak = [
+        s for s in data["scenarios"]
+        if s.get("expected_difficulty") == "WEAK"
+    ]
+    if not weak:
+        import pytest
+        pytest.skip("no WEAK scenarios in fixture")
+
+    try:
+        from scripts.rag import rag_query
+    except ImportError:
+        import pytest
+        pytest.skip("RAG stack unavailable")
+
+    failures = []
+    for s in weak:
+        results = rag_query(s["query_text"], top_k=5)
+        top1 = results[0].get("_final_score", 0.0) if results else 0.0
+        # Generous ceiling: WEAK shouldn't be above 0.5. If we cross it,
+        # the KB has grown to cover the topic and the scenario is stale.
+        if top1 >= 0.5:
+            failures.append(
+                f"{s['scenario_id']}: top1={top1:.3f} (no longer WEAK; "
+                f"reclassify or replace)"
+            )
+    assert not failures, (
+        "WEAK scenarios have strengthened — re-classify or replace: "
+        + "; ".join(failures)
+    )
+
+
+def test_zero_scenarios_actually_zero() -> None:
+    """W4-added ZERO scenarios should retrieve nothing (or near-nothing).
+
+    rag_query() returns [] for empty/whitespace queries by contract; this
+    test guards against an accidental relaxation of that sentinel.
+    """
+    data = json.loads(CANONICAL.read_text(encoding="utf-8"))
+    zero = [
+        s for s in data["scenarios"]
+        if s.get("expected_difficulty") == "ZERO"
+    ]
+    if not zero:
+        import pytest
+        pytest.skip("no ZERO scenarios in fixture")
+
+    try:
+        from scripts.rag import rag_query
+    except ImportError:
+        import pytest
+        pytest.skip("RAG stack unavailable")
+
+    failures = []
+    for s in zero:
+        results = rag_query(s["query_text"], top_k=5)
+        if results:
+            top1 = results[0].get("_final_score", 0.0)
+            # Generous: ZERO can tolerate stray near-zero hits. Real failure
+            # is "we got back semantically-scored content where none was
+            # expected".
+            if top1 >= 0.1:
+                failures.append(
+                    f"{s['scenario_id']}: n={len(results)} top1={top1:.3f} "
+                    "(no longer ZERO)"
+                )
+    assert not failures, (
+        "ZERO scenarios are returning content — re-examine: "
+        + "; ".join(failures)
+    )
