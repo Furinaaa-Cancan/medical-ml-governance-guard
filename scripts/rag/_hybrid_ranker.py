@@ -35,7 +35,7 @@ import sys
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 
-from scripts.rag import _rag_config
+from scripts.rag import config
 
 # ---------------------------------------------------------------------------
 # Sibling-module imports with graceful fallback
@@ -86,7 +86,7 @@ def _import_bm25_retriever() -> Callable[..., List[Dict[str, Any]]]:
     root on the path.
     """
 
-    core_dir = str(_rag_config.REPO_ROOT / "scripts" / "core")
+    core_dir = str(config.REPO_ROOT / "scripts" / "core")
     if core_dir not in sys.path:
         sys.path.insert(0, core_dir)
     from _peer_review_retrieval import retrieve_for_failure  # type: ignore[import-not-found]  # noqa: E501
@@ -168,14 +168,14 @@ def _severity_boost(concern: Dict[str, Any]) -> float:
         concern: KB concern record with a ``severity`` field.
 
     Returns:
-        Boost value in ``[0, 1]`` from ``_rag_config.SEVERITY_BOOST``.
+        Boost value in ``[0, 1]`` from ``config.SEVERITY_BOOST``.
         Unknown / missing severity → 0.0.
     """
 
     sev = concern.get("severity")
     if not isinstance(sev, str):
         return 0.0
-    return _rag_config.SEVERITY_BOOST.get(sev.upper(), 0.0)
+    return config.SEVERITY_BOOST.get(sev.upper(), 0.0)
 
 
 def _concern_id(concern: Dict[str, Any]) -> Optional[str]:
@@ -259,7 +259,7 @@ def hybrid_rank(
     query: str,
     gate: Optional[str] = None,
     failure_codes: Optional[List[str]] = None,
-    top_k: int = _rag_config.DEFAULT_TOP_K,
+    top_k: int = config.DEFAULT_TOP_K,
 ) -> List[Dict[str, Any]]:
     """Run the full hybrid retrieval pipeline.
 
@@ -276,7 +276,7 @@ def hybrid_rank(
         5. Compute the canonical-pattern tag-overlap bonus across
            the surviving candidates.
         6. Apply the severity boost.
-        7. Combine signals with the weights in ``_rag_config`` and
+        7. Combine signals with the weights in ``config`` and
            return the top ``top_k`` records, each annotated with
            ``_dense_score``, ``_bm25_score``, ``_tag_overlap_score``,
            ``_severity_boost``, ``_final_score``, and a human-readable
@@ -291,7 +291,7 @@ def hybrid_rank(
             Required to engage the BM25 path; ignored unless ``gate`` is
             also set.
         top_k: Number of final results to return. Defaults to
-            ``_rag_config.DEFAULT_TOP_K``.
+            ``config.DEFAULT_TOP_K``.
 
     Returns:
         Up to ``top_k`` concern dicts in descending ``_final_score``
@@ -316,7 +316,7 @@ def hybrid_rank(
     embeddings, records = build_or_load_index()
 
     # ---- 2. Dense candidates --------------------------------------------
-    dense_top_k = _rag_config.DEFAULT_MAX_CANDIDATES_BEFORE_RERANK
+    dense_top_k = config.DEFAULT_MAX_CANDIDATES_BEFORE_RERANK
     dense_hits: List[Dict[str, Any]] = vector_search(
         query, embeddings, records, top_k=dense_top_k
     )
@@ -404,10 +404,10 @@ def hybrid_rank(
         s = _severity_boost(c)
 
         final = (
-            _rag_config.WEIGHT_DENSE * d
-            + _rag_config.WEIGHT_BM25 * b
-            + _rag_config.WEIGHT_TAG_OVERLAP * t
-            + _rag_config.WEIGHT_SEVERITY * s
+            config.WEIGHT_DENSE * d
+            + config.WEIGHT_BM25 * b
+            + config.WEIGHT_TAG_OVERLAP * t
+            + config.WEIGHT_SEVERITY * s
         )
 
         reasons: List[str] = []
@@ -427,7 +427,7 @@ def hybrid_rank(
             reasons.append(f"canonical pattern {cp} ({t:.2f})")
         sev = c.get("severity")
         if isinstance(sev, str) and s > 0:
-            reasons.append(f"severity {sev} (+{s * _rag_config.WEIGHT_SEVERITY:.3f})")
+            reasons.append(f"severity {sev} (+{s * config.WEIGHT_SEVERITY:.3f})")
 
         out = dict(c)
         out["_dense_score"] = d

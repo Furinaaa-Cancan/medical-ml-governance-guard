@@ -81,7 +81,7 @@ def rag_context_for_failure(
             this when the failure codes alone are too sparse to embed
             well (e.g. ``"on the held-out cohort"``).
         top_k: Maximum number of concerns to return.  Defaults to 5,
-            matching :data:`scripts.rag._rag_config.DEFAULT_TOP_K`.
+            matching :data:`scripts.rag.config.DEFAULT_TOP_K`.
 
     Returns:
         A list of up to ``top_k`` concern records (see the schema in

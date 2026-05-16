@@ -4,7 +4,7 @@ Provides a lazy singleton loader for the configured embedding model and a
 batched encoding helper that returns L2-normalized float32 vectors so that
 cosine similarity collapses to a dot product downstream.
 
-The model name is read from :mod:`scripts.rag._rag_config` (Agent A1's
+The model name is read from :mod:`scripts.rag.config` (Agent A1's
 file).  If that module is not yet present the loader falls back to the
 spec default (``BAAI/bge-small-en-v1.5``) so this module can be imported
 and unit-tested in isolation.
@@ -20,7 +20,7 @@ if TYPE_CHECKING:  # pragma: no cover - typing only
     from sentence_transformers import SentenceTransformer
 
 
-# Spec defaults, kept in sync with `_rag_config.py`.
+# Spec defaults, kept in sync with `config.py`.
 _DEFAULT_MODEL_NAME = "BAAI/bge-small-en-v1.5"
 _DEFAULT_EMBEDDING_DIM = 384
 _DEFAULT_BATCH_SIZE = 32
@@ -34,16 +34,16 @@ def _resolve_model_name() -> str:
 
     Returns:
         The HuggingFace model id to load.  Falls back to the spec default
-        (``BAAI/bge-small-en-v1.5``) if ``scripts.rag._rag_config`` is not
+        (``BAAI/bge-small-en-v1.5``) if ``scripts.rag.config`` is not
         yet importable (e.g. during Agent A2 standalone testing before
         Agent A1 has landed).
     """
 
     try:
-        from scripts.rag import _rag_config  # type: ignore[import-not-found]
+        from scripts.rag import config  # type: ignore[import-not-found]
     except Exception:
         return _DEFAULT_MODEL_NAME
-    return getattr(_rag_config, "EMBEDDING_MODEL", _DEFAULT_MODEL_NAME)
+    return getattr(config, "EMBEDDING_MODEL", _DEFAULT_MODEL_NAME)
 
 
 def get_model() -> "SentenceTransformer":

@@ -6,7 +6,7 @@ each concern for retrieval-time convenience), embeds a rich text view of
 each concern via :func:`scripts.rag._embeddings.embed_texts`, and caches the
 result under ``.cache/rag/`` keyed by the sha256 of the KB file.
 
-Cache layout (all under :data:`scripts.rag._rag_config.CACHE_DIR`):
+Cache layout (all under :data:`scripts.rag.config.CACHE_DIR`):
 
 * ``concerns_embeddings.npz`` — float32 matrix ``(N, EMBEDDING_DIM)``.
 * ``concerns_records.json`` — list of dicts, same order as the matrix rows.
@@ -29,14 +29,14 @@ from typing import Any
 import numpy as np
 
 from scripts.rag._embeddings import embed_texts
-from scripts.rag._rag_config import (
+from scripts.rag.config import (
     CACHE_DIR,
     EMBEDDINGS_CACHE,
     KB_HASH_CACHE,
     KB_PATH,
 )
 
-# Repo root anchors any relative paths coming from _rag_config so the module
+# Repo root anchors any relative paths coming from config so the module
 # works regardless of the caller's cwd.
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 

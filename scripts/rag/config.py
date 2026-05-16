@@ -25,7 +25,7 @@ from typing import Final
 # ---------------------------------------------------------------------------
 # Path anchoring
 # ---------------------------------------------------------------------------
-# This file lives at: <repo_root>/scripts/rag/_rag_config.py
+# This file lives at: <repo_root>/scripts/rag/config.py
 # So parents[2] resolves to <repo_root> regardless of cwd.
 REPO_ROOT: Final[Path] = Path(__file__).resolve().parents[2]
 

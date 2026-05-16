@@ -2,7 +2,7 @@
 
 These tests cover the seven modules under ``scripts/rag/``:
 
-* ``_rag_config``  — constants, paths, weights
+* ``config``  — constants, paths, weights
 * ``_embeddings``  — sentence-transformer wrapper
 * ``_index_builder`` — KB → npz cache, idempotent
 * ``_vector_search`` — cosine search over cache
@@ -44,7 +44,7 @@ import pytest
 # ---------------------------------------------------------------------------
 # Module-level imports of always-present modules (A1, A2, A4 already landed).
 # ---------------------------------------------------------------------------
-from scripts.rag import _rag_config
+from scripts.rag import config
 from scripts.rag._embeddings import embed_texts
 from scripts.rag._vector_search import vector_search
 
@@ -62,7 +62,7 @@ def kb_records() -> list[dict]:
         ``paper_id`` / ``paper_title`` so they look like what the index
         builder would emit. Read-only — never mutate in tests.
     """
-    kb_path = _rag_config.KB_PATH
+    kb_path = config.KB_PATH
     data = json.loads(kb_path.read_text(encoding="utf-8"))
     records: list[dict] = []
     for entry in data.get("entries", []):
@@ -126,7 +126,7 @@ def synthetic_embeddings_and_records() -> tuple[np.ndarray, list[dict]]:
 
 
 # ===========================================================================
-# _rag_config
+# config
 # ===========================================================================
 
 class TestRagConfig:
@@ -134,36 +134,36 @@ class TestRagConfig:
 
     def test_embedding_constants_present(self) -> None:
         """All embedding constants exposed and well-typed."""
-        assert isinstance(_rag_config.EMBEDDING_MODEL, str)
-        assert _rag_config.EMBEDDING_MODEL  # non-empty
-        assert isinstance(_rag_config.EMBEDDING_DIM, int)
-        assert _rag_config.EMBEDDING_DIM == 384
+        assert isinstance(config.EMBEDDING_MODEL, str)
+        assert config.EMBEDDING_MODEL  # non-empty
+        assert isinstance(config.EMBEDDING_DIM, int)
+        assert config.EMBEDDING_DIM == 384
 
     def test_paths_resolve_under_repo_root(self) -> None:
         """Cache and KB paths must live under the resolved repo root."""
-        repo_root = _rag_config.REPO_ROOT
+        repo_root = config.REPO_ROOT
         assert repo_root.is_absolute()
         # All declared paths must be inside the repo root.
         for p in (
-            _rag_config.CACHE_DIR,
-            _rag_config.EMBEDDINGS_CACHE,
-            _rag_config.KB_HASH_CACHE,
-            _rag_config.KB_PATH,
+            config.CACHE_DIR,
+            config.EMBEDDINGS_CACHE,
+            config.KB_HASH_CACHE,
+            config.KB_PATH,
         ):
             assert isinstance(p, Path)
             assert str(p).startswith(str(repo_root)), (
                 f"path {p} escapes repo root {repo_root}"
             )
         # KB file must actually exist (read-only contract).
-        assert _rag_config.KB_PATH.exists(), "peer-review-kb.json missing"
+        assert config.KB_PATH.exists(), "peer-review-kb.json missing"
 
     def test_weights_sum_to_one(self) -> None:
         """Hybrid ranking weights must sum to ~1.0 (contract guarantee)."""
         total = (
-            _rag_config.WEIGHT_DENSE
-            + _rag_config.WEIGHT_BM25
-            + _rag_config.WEIGHT_TAG_OVERLAP
-            + _rag_config.WEIGHT_SEVERITY
+            config.WEIGHT_DENSE
+            + config.WEIGHT_BM25
+            + config.WEIGHT_TAG_OVERLAP
+            + config.WEIGHT_SEVERITY
         )
         assert abs(total - 1.0) < 1e-9, f"weights sum to {total}, expected 1.0"
 
@@ -175,17 +175,17 @@ class TestRagConfig:
             "WEIGHT_TAG_OVERLAP",
             "WEIGHT_SEVERITY",
         ):
-            w = getattr(_rag_config, name)
+            w = getattr(config, name)
             assert 0.0 <= w <= 1.0, f"{name}={w} out of [0,1]"
 
     def test_defaults_are_positive_ints(self) -> None:
         """``DEFAULT_TOP_K`` and the rerank cap are positive integers."""
-        assert isinstance(_rag_config.DEFAULT_TOP_K, int)
-        assert _rag_config.DEFAULT_TOP_K > 0
-        assert isinstance(_rag_config.DEFAULT_MAX_CANDIDATES_BEFORE_RERANK, int)
+        assert isinstance(config.DEFAULT_TOP_K, int)
+        assert config.DEFAULT_TOP_K > 0
+        assert isinstance(config.DEFAULT_MAX_CANDIDATES_BEFORE_RERANK, int)
         assert (
-            _rag_config.DEFAULT_MAX_CANDIDATES_BEFORE_RERANK
-            >= _rag_config.DEFAULT_TOP_K
+            config.DEFAULT_MAX_CANDIDATES_BEFORE_RERANK
+            >= config.DEFAULT_TOP_K
         )
 
 
@@ -200,7 +200,7 @@ class TestEmbeddings:
         """``embed_texts([])`` must short-circuit and avoid loading the model."""
         out = embed_texts([])
         assert isinstance(out, np.ndarray)
-        assert out.shape == (0, _rag_config.EMBEDDING_DIM)
+        assert out.shape == (0, config.EMBEDDING_DIM)
         assert out.dtype == np.float32
 
     def test_type_validation(self) -> None:
@@ -213,7 +213,7 @@ class TestEmbeddings:
     def test_embeddings_shape_dtype_and_normalization(self) -> None:
         """``embed_texts(["a","b"])`` returns ``(2, DIM)`` unit-norm float32."""
         out = embed_texts(["a", "b"])
-        assert out.shape == (2, _rag_config.EMBEDDING_DIM)
+        assert out.shape == (2, config.EMBEDDING_DIM)
         assert out.dtype == np.float32
         norms = np.linalg.norm(out, axis=1)
         # Allow small float32 slop around 1.0.
@@ -245,7 +245,7 @@ class TestIndexBuilder:
         assert isinstance(records, list)
         assert embeddings.ndim == 2
         assert embeddings.shape[0] == len(records)
-        assert embeddings.shape[1] == _rag_config.EMBEDDING_DIM
+        assert embeddings.shape[1] == config.EMBEDDING_DIM
         assert embeddings.dtype == np.float32
         # Every record must expose at least the contract minimum fields.
         for r in records[:5]:
@@ -311,16 +311,16 @@ class TestIndexBuilder:
         kb_path.write_text(json.dumps(tiny_kb_v1), encoding="utf-8")
 
         # Redirect cache locations to tmp_path so we do not touch the real cache.
-        monkeypatch.setattr(_rag_config, "KB_PATH", kb_path, raising=True)
-        monkeypatch.setattr(_rag_config, "CACHE_DIR", cache_dir, raising=True)
+        monkeypatch.setattr(config, "KB_PATH", kb_path, raising=True)
+        monkeypatch.setattr(config, "CACHE_DIR", cache_dir, raising=True)
         monkeypatch.setattr(
-            _rag_config,
+            config,
             "EMBEDDINGS_CACHE",
             cache_dir / "concerns_embeddings.npz",
             raising=True,
         )
         monkeypatch.setattr(
-            _rag_config,
+            config,
             "KB_HASH_CACHE",
             cache_dir / "kb_hash.txt",
             raising=True,
@@ -334,7 +334,7 @@ class TestIndexBuilder:
             "KB_HASH_CACHE",
         ):
             if hasattr(mod, attr):
-                monkeypatch.setattr(mod, attr, getattr(_rag_config, attr), raising=True)
+                monkeypatch.setattr(mod, attr, getattr(config, attr), raising=True)
 
         emb_v1, rec_v1 = mod.build_or_load_index(kb_path=kb_path)
         assert len(rec_v1) == 1
