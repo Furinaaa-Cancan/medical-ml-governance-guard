@@ -111,6 +111,19 @@ CP_TAG_BOOST_DENSE_FLOOR: Final[float] = 0.70
 # on-topic HIGH on a thin topic. Above this spread, the boost is full.
 SEVERITY_FULL_SPREAD: Final[float] = 0.20
 
+# TAG_OVERLAP_MIN_SHARED — minimum number of shared tags between two
+# concerns in the same canonical pattern before the corroboration bonus
+# fires (W7-P0 fix per W6-W2 finding). Default 1.
+#
+# Background: The original threshold of 2 made the signal architecturally
+# dead. Of 12,747 within-CP pairs in the KB, only 23 (0.2%) share >=2
+# tags, while 229 (1.8%) share >=1. Most CP clusters contain many
+# paper-specific tags ("no_external_validation_for_combined") that
+# appear as singletons; the canonical reuse pattern lives at the >=1
+# level. Lowering to 1 measured +0.017 on mean_top1_score across the
+# hybrid eval with zero coverage / hit@K regression.
+TAG_OVERLAP_MIN_SHARED: Final[int] = 1
+
 # ---------------------------------------------------------------------------
 # MMR diversity reranking (G4)
 # ---------------------------------------------------------------------------

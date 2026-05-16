@@ -21,9 +21,10 @@ Signals:
       ``scripts.rag.retrieval.bm25.retrieve_for_failure``. Only
       consulted when both ``gate`` and ``failure_codes`` are supplied.
     * **Tag overlap (canonical-pattern boost)**: candidates sharing
-      ``canonical_pattern_id`` *and* >=2 tags with another candidate get
-      a small bonus, since corroborating reviewer concerns across papers
-      strengthen confidence in the pattern.
+      ``canonical_pattern_id`` *and* >=``config.TAG_OVERLAP_MIN_SHARED``
+      tags (default 1, per W7-P0 fix from W6-W2 finding) with another
+      candidate get a small bonus, since corroborating reviewer concerns
+      across papers strengthen confidence in the pattern.
     * **Severity**: small additive bump so a CRITICAL concern wins a tie
       against a topically equivalent LOW concern.
 
@@ -215,10 +216,10 @@ def _tag_overlap_scores(
     """Compute a per-candidate tag-overlap bonus on ``[0, 1]``.
 
     A candidate gets a boost when another candidate from the **same**
-    ``canonical_pattern_id`` shares at least two tags with it. This
-    rewards corroborating evidence across reviewer concerns within a
-    canonical pattern without amplifying near-duplicate concerns from
-    the same paper.
+    ``canonical_pattern_id`` shares at least ``config.TAG_OVERLAP_MIN_SHARED``
+    tags with it. This rewards corroborating evidence across reviewer
+    concerns within a canonical pattern without amplifying near-duplicate
+    concerns from the same paper.
 
     The score is scaled by the count of qualifying partners, capped
     so the boost stays bounded: ``score = min(1.0, 0.3 * partners)``.
@@ -231,6 +232,7 @@ def _tag_overlap_scores(
     """
 
     out: Dict[str, float] = {}
+    min_shared = max(1, int(config.TAG_OVERLAP_MIN_SHARED))
     # Group by canonical_pattern_id (skip null / missing).
     groups: Dict[str, List[Dict[str, Any]]] = {}
     for c in candidates:
@@ -256,7 +258,7 @@ def _tag_overlap_scores(
             for j, (cid_j, tags_j) in enumerate(tag_sets):
                 if i == j or cid_j is None:
                     continue
-                if len(tags_i & tags_j) >= 2:
+                if len(tags_i & tags_j) >= min_shared:
                     partners += 1
             if partners > 0:
                 out[cid_i] = min(1.0, 0.3 * partners)
