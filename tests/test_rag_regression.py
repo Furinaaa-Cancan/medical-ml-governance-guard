@@ -206,3 +206,42 @@ def test_format_for_gate_report_does_not_hedge_strong_match() -> None:
     assert "weak match" not in md.lower() and "do not cite" not in md.lower(), (
         f"strong concern incorrectly hedged:\n{md}"
     )
+
+
+def test_format_for_gate_report_marks_same_paper_concerns() -> None:
+    """H19 W5: when 2+ concerns share paper_id, each should carry a
+    visual marker noting siblings — prevents LLM-side conflation."""
+    from scripts.core.gate_rag_bridge import format_for_gate_report
+
+    concerns = [
+        {
+            "concern_id": "PR-X-C01",
+            "paper_id": "PR-X",
+            "concern_text": "concern 1",
+            "severity": "HIGH",
+        },
+        {
+            "concern_id": "PR-X-C02",
+            "paper_id": "PR-X",
+            "concern_text": "concern 2",
+            "severity": "HIGH",
+        },
+        {
+            "concern_id": "PR-Y-C03",
+            "paper_id": "PR-Y",
+            "concern_text": "concern 3",
+            "severity": "MEDIUM",
+        },
+    ]
+    md = format_for_gate_report(concerns, gate_name="leakage_gate")
+    # Both PR-X concerns should reference their sibling
+    assert (
+        "same paper" in md.lower()
+        or "sibling" in md.lower()
+        or "independent" in md.lower()
+    ), f"same-paper marker missing:\n{md}"
+    # PR-Y unique — should NOT have the marker
+    pr_y_section = md.split("PR-Y-C03")[1] if "PR-Y-C03" in md else ""
+    assert "same paper" not in pr_y_section.lower(), (
+        f"PR-Y-C03 incorrectly marked as same-paper:\n{pr_y_section}"
+    )

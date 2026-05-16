@@ -21,6 +21,7 @@ Design contract: see ``/tmp/mlgg_rag_design.md`` (Agent A7 of 10).
 
 from __future__ import annotations
 
+from collections import Counter
 from typing import Any, Optional
 
 from scripts.rag.retrieval.hybrid import hybrid_rank
@@ -54,6 +55,19 @@ _FALLBACK_REASON_MARKERS = (
     "severity_only",
     "gate_only",
     "bm25_inactive",
+)
+
+# H19 W5 LLM-loop eval found: when 2+ concerns from the same paper
+# surface in the same render (e.g. PR-EXP-0084-C04 + PR-EXP-0084-C08),
+# the synthesis-LLM tends to weave them into a single narrative arc
+# even though they are *independent* reviewer concerns. Worst case: a
+# resolved + unresolved concern pair gets blended and the unresolved
+# half is silently elided. The marker line below is injected at the
+# top of each affected block so the LLM has an explicit visual cue
+# that the concerns must stay separate.
+_SAME_PAPER_MARKER_TEMPLATE = (
+    "_(Independent concern from same paper as: {siblings}. "
+    "Do NOT merge their narratives.)_"
 )
 
 
@@ -283,6 +297,15 @@ def format_for_gate_report(
                 pass
         return "_No related peer-review concerns retrieved._"
 
+    # H19 W5: pre-scan for paper_ids that appear more than once across
+    # the rendered set so we can mark each affected block as
+    # related-but-independent. Concerns without a paper_id are ignored
+    # (they cannot share lineage we can name).
+    paper_counts = Counter(
+        c.get("paper_id") for c in concerns if c.get("paper_id")
+    )
+    same_paper_ids = {p for p, n in paper_counts.items() if n > 1}
+
     blocks: list[str] = []
     for idx, c in enumerate(concerns, start=1):
         concern_id = c.get("concern_id", "UNKNOWN")
@@ -302,6 +325,28 @@ def format_for_gate_report(
             "",
             f"   > {quote}" if quote else "   > _(no reviewer quote captured)_",
         ]
+
+        # H19 W5: prepend the same-paper marker so the synthesis-LLM
+        # sees it *before* the concern body, eliminating the risk of
+        # an unmarked block being narrated first and then retro-
+        # interpreted. Siblings list is deterministic (input order)
+        # for stable diffs.
+        paper_id = c.get("paper_id")
+        if paper_id in same_paper_ids:
+            siblings = [
+                other.get("concern_id", "UNKNOWN")
+                for other in concerns
+                if other.get("paper_id") == paper_id
+                and other.get("concern_id") != concern_id
+            ]
+            if siblings:
+                marker = _SAME_PAPER_MARKER_TEMPLATE.format(
+                    siblings=", ".join(siblings)
+                )
+                # Insert *above* the header so visually it reads as a
+                # framing note for the whole block.
+                block_lines.insert(0, marker)
+                block_lines.insert(1, "")
         if response:
             # "(as reported)" disclaimer prevents the gate reader from
             # treating the authors' rebuttal as ground truth. Many KB
