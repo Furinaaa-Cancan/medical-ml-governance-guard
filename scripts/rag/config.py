@@ -110,3 +110,9 @@ CP_TAG_BOOST_DENSE_FLOOR: Final[float] = 0.70
 # is linearly scaled down so an off-topic CRITICAL cannot leapfrog an
 # on-topic HIGH on a thin topic. Above this spread, the boost is full.
 SEVERITY_FULL_SPREAD: Final[float] = 0.20
+
+# ---------------------------------------------------------------------------
+# MMR diversity reranking (G4)
+# ---------------------------------------------------------------------------
+MMR_LAMBDA: Final[float] = 0.7  # 70% relevance, 30% diversity
+MMR_SAME_PAPER_PENALTY: Final[float] = 0.5  # extra similarity for same-paper pairs

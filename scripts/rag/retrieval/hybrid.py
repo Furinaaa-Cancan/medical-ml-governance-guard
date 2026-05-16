@@ -264,6 +264,71 @@ def _tag_overlap_scores(
     return out
 
 
+def _mmr_rerank(
+    candidates: List[Dict[str, Any]],
+    *,
+    top_k: int,
+    lam: Optional[float] = None,
+    same_paper_penalty: Optional[float] = None,
+) -> List[Dict[str, Any]]:
+    """Re-rank candidates using Maximal Marginal Relevance.
+
+    Preserves the top-1 candidate (highest relevance always wins first slot).
+    Subsequent picks balance relevance with diversity from already-picked.
+
+    Per-pair similarity is approximated using:
+      - Same paper_id: same_paper_penalty (high; suppresses near-duplicates)
+      - Different papers: 0 (no embedding similarity available at this stage)
+
+    The embedding-based similarity is left as a v2 improvement (would
+    require threading per-record embeddings through hybrid_rank).
+
+    Args:
+        candidates: List sorted by _final_score desc.
+        top_k: How many to return.
+        lam: Relevance vs diversity weight in [0, 1]. None → config.MMR_LAMBDA.
+        same_paper_penalty: Similarity boost for same-paper pairs in [0, 1].
+            None → config.MMR_SAME_PAPER_PENALTY.
+
+    Returns:
+        Re-ranked list of length min(top_k, len(candidates)). Each picked
+        dict gains a "_mmr_score" field for provenance.
+    """
+    if lam is None:
+        lam = config.MMR_LAMBDA
+    if same_paper_penalty is None:
+        same_paper_penalty = config.MMR_SAME_PAPER_PENALTY
+
+    if not candidates or top_k <= 0:
+        return []
+    if len(candidates) == 1 or lam >= 1.0:
+        # passthrough: pure relevance
+        return candidates[:top_k]
+
+    selected = [dict(candidates[0])]  # always take top-1
+    selected[0]["_mmr_score"] = selected[0].get("_final_score", 0.0)
+    remaining = list(candidates[1:])
+
+    while remaining and len(selected) < top_k:
+        best_score = -float("inf")
+        best_idx = 0
+        for i, cand in enumerate(remaining):
+            relevance = cand.get("_final_score", 0.0)
+            max_sim = 0.0
+            for sel in selected:
+                if cand.get("paper_id") and cand["paper_id"] == sel.get("paper_id"):
+                    max_sim = max(max_sim, same_paper_penalty)
+            mmr_score = lam * relevance - (1.0 - lam) * max_sim
+            if mmr_score > best_score:
+                best_score = mmr_score
+                best_idx = i
+        chosen = dict(remaining.pop(best_idx))
+        chosen["_mmr_score"] = float(best_score)
+        selected.append(chosen)
+
+    return selected
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -541,7 +606,8 @@ def hybrid_rank(
         return (-rec["_final_score"], sev_rank, cid)
 
     ranked.sort(key=_sort_key)
-    return ranked[:requested_top_k]
+    ranked = _mmr_rerank(ranked, top_k=requested_top_k)
+    return ranked  # already truncated to top_k by MMR
 
 
 __all__ = ["hybrid_rank"]
