@@ -1407,12 +1407,13 @@ medical-ml-governance-guard/
 │   │   ├── add_robustness_permutation_gates.py # --   为现有审稿意见补 robustness / permutation 条目
 │   │   └── correct_subgroup_overmatch.py #   --   修复审稿意见的亚组 over-match 问题
 │   │
-│   ├── rag/               (3 files, 1.2K LOC)    # 审稿 KB 之上的密集向量 RAG 层 (3 顶层模块 + index/ + retrieval/ 子包)
+│   ├── rag/               (3 files, 1.2K LOC)    # 审稿 KB 之上的密集向量 RAG 层 (3 顶层模块 + index/ + retrieval/ + evals/ 子包)
 │   │   ├── config.py                     #   常量/路径/权重 (BGE-small + .cache/rag/ + dense/BM25/tag 比重)
 │   │   ├── embeddings.py                 #   sentence-transformers 包装 (单例 model loader + 归一化)
 │   │   ├── query.py                      #   [入口] 高层 API + CLI (--gate / --codes / --top-k / --format)
 │   │   ├── index/                        #   索引子包: builder.py (KB → npz) + cache.py (原子写 / sha256)
-│   │   └── retrieval/                    #   检索信号子包: dense.py (cosine) + bm25.py (关键词重排) + hybrid.py (融合)
+│   │   ├── retrieval/                    #   检索信号子包: dense.py (cosine) + bm25.py (关键词重排) + hybrid.py (融合)
+│   │   └── evals/                        #   评估子包: harness.py (peer-review 检索精度基准, scenarios + baseline)
 │   │   # 注: gate → RAG 桥 (gate_rag_bridge.py, 204 LOC) 住在 scripts/core/，是 RAG 的消费方，
 │   │   #     不再放在 scripts/rag/ 内部，避免 "RAG 知道 gate" 这种反向依赖。
 │   │
@@ -1430,8 +1431,7 @@ medical-ml-governance-guard/
 │   │   ├── check_readme_stats.py         #   --   README 中文/英文版数字 parity + 活体 KB freshness 对账
 │   │   ├── disease_kb_review_check.py    #   --   disease-KB 字段临床审核 checklist 生成
 │   │   ├── generate_disease_kb_review_sheets.py  #   --   按疾病批量生成审核表
-│   │   ├── kb_hygiene_check.py           #   --   KB 字段 provenance / 引用 / 更新时间卫生检查
-│   │   └── retrieval_eval_harness.py     #   --   peer-review 检索精度基准 (scenarios.json + baseline.json)
+│   │   └── kb_hygiene_check.py           #   --   KB 字段 provenance / 引用 / 更新时间卫生检查
 │   │
 │   └── orchestration/     (10 files, 12.5K LOC) # 工作流编排 + CLI 入口
 │       │

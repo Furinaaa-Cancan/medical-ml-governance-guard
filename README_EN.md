@@ -1314,12 +1314,13 @@ medical-ml-governance-guard/
 │   │   ├── correct_subgroup_overmatch.py #   Fix subgroup over-match in review index
 │   │   └── ...                           #   batch_journal_review, extract/score metadata
 │   │
-│   ├── rag/               (4)            # Dense-vector RAG over the peer-review KB (__init__ + 3 modules + index/ + retrieval/ subpkgs)
+│   ├── rag/               (4)            # Dense-vector RAG over the peer-review KB (__init__ + 3 modules + index/ + retrieval/ + evals/ subpkgs)
 │   │   ├── config.py                     #   Constants / paths / weights (BGE-small, .cache/rag/, dense/BM25/tag)
 │   │   ├── embeddings.py                 #   sentence-transformers wrapper (singleton model loader + normalize)
 │   │   ├── query.py                      #   [entry point] High-level API + CLI (--gate / --codes / --top-k / --format)
 │   │   ├── index/                        #   Index subpackage: builder.py (KB → npz) + cache.py (atomic writes / sha256)
-│   │   └── retrieval/                    #   Retrieval signal subpackage: dense.py (cosine) + bm25.py (keyword re-rank) + hybrid.py (fusion)
+│   │   ├── retrieval/                    #   Retrieval signal subpackage: dense.py (cosine) + bm25.py (keyword re-rank) + hybrid.py (fusion)
+│   │   └── evals/                        #   Evals subpackage: harness.py (peer-review retrieval precision benchmark)
 │   │   # Note: gate → RAG bridge (gate_rag_bridge.py, 204 LOC) lives in scripts/core/ as RAG's consumer,
 │   │   # not inside scripts/rag/ — keeps the dep direction one-way (gates → RAG).
 │   │
@@ -1330,7 +1331,6 @@ medical-ml-governance-guard/
 │       ├── check_readme_stats.py         #   README CN/EN stat parity + live-KB freshness
 │       ├── disease_kb_review_check.py    #   Disease-KB clinical review checklist generator
 │       ├── kb_hygiene_check.py           #   KB provenance / citation / freshness check
-│       ├── retrieval_eval_harness.py     #   Peer-review retrieval precision benchmark
 │       └── ...                           #   gate visualization, threshold analysis, policy generator
 │
 ├── tests/                  (133)         # ─── Tests (~35K lines) ───

@@ -1,4 +1,4 @@
-"""Tests for scripts/diagnostics/retrieval_eval_harness.py.
+"""Tests for scripts/rag/evals/harness.py.
 
 Also runs the harness against the live KB + baseline as a CI regression
 guard — if KB changes tank retrieval quality, these fail loudly.
@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SCRIPT = REPO_ROOT / "scripts" / "diagnostics" / "retrieval_eval_harness.py"
+SCRIPT = REPO_ROOT / "scripts" / "rag" / "evals" / "harness.py"
 SCENARIOS = REPO_ROOT / "references" / "retrieval_eval" / "scenarios.json"
 BASELINE = REPO_ROOT / "references" / "retrieval_eval" / "baseline.json"
 
@@ -63,7 +63,7 @@ class TestLiveRetrievalQuality:
         )
         assert r.returncode == 0, (
             "Retrieval regressed vs baseline — run "
-            "scripts/diagnostics/retrieval_eval_harness.py --verbose "
+            "scripts/rag/evals/harness.py --verbose "
             "for details.\n"
             + r.stdout + r.stderr
         )
@@ -91,5 +91,5 @@ class TestLiveRetrievalQuality:
         assert agg["hit_at_k_rate"] >= 1.0, agg
         assert agg["mean_tag_precision"] >= 0.4, (
             f"mean_tag_precision dropped to {agg['mean_tag_precision']} — "
-            "inspect with retrieval_eval_harness.py --verbose"
+            "inspect with scripts/rag/evals/harness.py --verbose"
         )

@@ -24,7 +24,7 @@ question: "does the retrieval actually surface what a reviewer
 would expect when a gate fails?"
 
 Run:
-    python3 scripts/diagnostics/retrieval_eval_harness.py \
+    python3 scripts/rag/evals/harness.py \
         --scenarios references/retrieval_eval/scenarios.json \
         --report /tmp/retrieval_eval_report.json \
         --baseline references/retrieval_eval/baseline.json \
@@ -44,15 +44,15 @@ from typing import Any, Dict, List
 
 # Ensure the repo root is on sys.path so ``scripts.rag.*`` imports work when
 # this file is invoked directly via
-# ``python3 scripts/diagnostics/retrieval_eval_harness.py``.
-_REPO_ROOT = Path(__file__).resolve().parents[2]
+# ``python3 scripts/rag/evals/harness.py``.
+_REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(_REPO_ROOT) not in _sys.path:
     _sys.path.insert(0, str(_REPO_ROOT))
 
 from scripts.rag.retrieval.bm25 import retrieve_for_failure  # noqa: E402
 
 
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_SCENARIOS = REPO_ROOT / "references" / "retrieval_eval" / "scenarios.json"
 DEFAULT_KB = REPO_ROOT / "references" / "case-studies" / "peer-review-kb.json"
 
