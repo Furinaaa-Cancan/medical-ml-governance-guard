@@ -7,7 +7,7 @@ These tests cover the seven modules under ``scripts/rag/``:
 * ``index.builder`` — KB → npz cache, idempotent
 * ``retrieval.dense`` — cosine search over cache
 * ``retrieval.hybrid`` — vector + BM25 + gate + tag fusion
-* ``_gate_integration`` — gate-failure → contextual concerns
+* ``scripts.core.gate_rag_bridge`` — gate-failure → contextual concerns
 
 Modules that depend on heavy sentence-transformer downloads or full index
 construction are marked ``@pytest.mark.slow`` so ``ci-unit`` (which runs
@@ -494,7 +494,7 @@ class TestHybridRanker:
 
 
 # ===========================================================================
-# _gate_integration
+# scripts.core.gate_rag_bridge
 # ===========================================================================
 
 class TestGateIntegration:
@@ -502,7 +502,7 @@ class TestGateIntegration:
 
     def test_empty_input_returns_valid_markdown(self) -> None:
         """``format_for_gate_report([])`` must return a markdown string."""
-        mod = pytest.importorskip("scripts.rag._gate_integration")
+        mod = pytest.importorskip("scripts.core.gate_rag_bridge")
         if not hasattr(mod, "format_for_gate_report"):
             pytest.skip("format_for_gate_report not yet implemented")
         md = mod.format_for_gate_report([])
@@ -512,7 +512,7 @@ class TestGateIntegration:
 
     def test_nonempty_input_produces_markdown_with_concern_ids(self) -> None:
         """Rendering a few concerns yields markdown that cites concern_ids."""
-        mod = pytest.importorskip("scripts.rag._gate_integration")
+        mod = pytest.importorskip("scripts.core.gate_rag_bridge")
         if not hasattr(mod, "format_for_gate_report"):
             pytest.skip("format_for_gate_report not yet implemented")
         sample: list[dict[str, Any]] = [

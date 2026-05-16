@@ -3,8 +3,10 @@
 This module is the single source of truth for constants used across the RAG
 package (``scripts/rag/``). Every other RAG module (``embeddings``,
 ``index.builder``, ``retrieval.dense``, ``retrieval.bm25``,
-``retrieval.hybrid``, ``query``, ``_gate_integration``) imports its
-constants from here, so changes propagate consistently.
+``retrieval.hybrid``, ``query``) imports its constants from here, so
+changes propagate consistently. The gate bridge that consumes the RAG
+layer lives in :mod:`scripts.core.gate_rag_bridge` and reuses the same
+constants.
 
 Design notes:
     * No network side effects at import time. The embedding model name is

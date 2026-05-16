@@ -77,8 +77,9 @@ def rag_query(
 
     Args:
         query: Free-text user query, or a synthesized failure description
-            from ``_gate_integration``. Must be non-empty after stripping
-            whitespace; otherwise an empty list is returned.
+            from :mod:`scripts.core.gate_rag_bridge`. Must be non-empty
+            after stripping whitespace; otherwise an empty list is
+            returned.
         gate: Optional MLGG gate name (e.g. ``"leakage_gate"``) used by the
             hybrid ranker to filter / boost concerns tagged with that gate.
         failure_codes: Optional list of MLGG rule codes (e.g.

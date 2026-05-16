@@ -205,7 +205,7 @@ query → embed (BGE-small) → cosine top-50 → + BM25 (issue-code) + gate fil
 
 **Caching:** first call ~30 s (downloads BGE-small + builds `.cache/rag/concerns_embeddings.npz`); subsequent calls < 1 s (npz reused while KB sha256 is unchanged).
 
-**Gate integration:** any gate can call `_gate_integration.rag_context_for_failure(gate_name, failure_codes)` to embed the reviewer-quote context into its `report.json` under `peer_review_context`, so the "why did this fail" explanation cites a real reviewer's words.
+**Gate integration:** any gate can call `scripts.core.gate_rag_bridge.rag_context_for_failure(gate_name, failure_codes)` to embed the reviewer-quote context into its `report.json` under `peer_review_context`, so the "why did this fail" explanation cites a real reviewer's words.
 
 **Limitation:** the current vector model is `BAAI/bge-small-en-v1.5` (384-dim, English-tuned). Chinese-language free-text queries will have reduced precision &mdash; the KB itself is English reviewer text, so English queries hit hardest; for Chinese descriptions of a failure, pass `--codes MLGG-XXX` so the BM25 + tag-overlap path can compensate.
 
@@ -1246,14 +1246,17 @@ medical-ml-governance-guard/
 │
 ├── scripts/                              # ─── Core Code (106 files, ~83K lines) ───
 │   │                                     # File / LOC snapshot 2026-04-24; counts drift per commit.
-│   ├── core/              (6)            # Framework foundation
+│   ├── core/              (7)            # Framework foundation
 │   │   ├── _gate_framework.py            #   GateIssue/Severity, report envelope v2.0, CLI contract
 │   │   ├── _gate_registry.py             #   33-gate DAG (8-layer topological sort, parallel markers)
 │   │   ├── _gate_utils.py                #   60+ stat/IO/security functions (calibration, VIF, NRI...)
 │   │   ├── _audit_shared.py              #   12-dimension scoring + 12 code anti-pattern regex scan
-│   │   └── _security.py                  #   HMAC signing, AES-256-GCM, RBAC, RestrictedUnpickler
+│   │   ├── _security.py                  #   HMAC signing, AES-256-GCM, RBAC, RestrictedUnpickler
+│   │   └── gate_rag_bridge.py            #   gate → RAG bridge: rag_context_for_failure() + format_for_gate_report()
 │   │   # Note: peer-review KB retrieval (_peer_review_retrieval.py, 793 LOC) moved to
 │   │   # scripts/rag/retrieval/bm25.py — the BM25 half of the RAG hybrid ranker.
+│   │   # gate_rag_bridge.py is the consumer (gate → RAG); dep direction stays one-way:
+│   │   # gates know about RAG, RAG doesn't know about gates.
 │   │
 │   ├── gates/             (34)           # 33 fail-closed gates (standalone CLI, exit 0/2)
 │   │   ├── cohort_definition_gate.py     #   Layer 0: Cohort definition + codebook RAG validation
@@ -1311,13 +1314,14 @@ medical-ml-governance-guard/
 │   │   ├── correct_subgroup_overmatch.py #   Fix subgroup over-match in review index
 │   │   └── ...                           #   batch_journal_review, extract/score metadata
 │   │
-│   ├── rag/               (5)            # Dense-vector RAG over the peer-review KB (__init__ + 4 modules + index/ + retrieval/ subpkgs)
+│   ├── rag/               (4)            # Dense-vector RAG over the peer-review KB (__init__ + 3 modules + index/ + retrieval/ subpkgs)
 │   │   ├── config.py                     #   Constants / paths / weights (BGE-small, .cache/rag/, dense/BM25/tag)
 │   │   ├── embeddings.py                 #   sentence-transformers wrapper (singleton model loader + normalize)
 │   │   ├── query.py                      #   [entry point] High-level API + CLI (--gate / --codes / --top-k / --format)
-│   │   ├── _gate_integration.py          #   rag_context_for_failure() — injects reviewer quotes into gate report.json
 │   │   ├── index/                        #   Index subpackage: builder.py (KB → npz) + cache.py (atomic writes / sha256)
 │   │   └── retrieval/                    #   Retrieval signal subpackage: dense.py (cosine) + bm25.py (keyword re-rank) + hybrid.py (fusion)
+│   │   # Note: gate → RAG bridge (gate_rag_bridge.py, 204 LOC) lives in scripts/core/ as RAG's consumer,
+│   │   # not inside scripts/rag/ — keeps the dep direction one-way (gates → RAG).
 │   │
 │   └── diagnostics/       (28)           # Environment, docs-consistency & KB hygiene
 │       ├── env_doctor.py                 #   Dependency health check

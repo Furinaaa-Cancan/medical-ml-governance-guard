@@ -1,11 +1,15 @@
-"""Gate integration hook for the MLGG RAG layer.
+"""Bridge from MLGG gates to the RAG layer.
 
-This module is the bridge between the 33 fail-closed governance gates and
-the hybrid RAG ranker.  When a gate fails it calls
-:func:`rag_context_for_failure` with the gate name and the symbolic
-``failure_codes`` it emitted; this module synthesizes a free-text query,
-delegates to :func:`scripts.rag.retrieval.hybrid.hybrid_rank`, and returns
-ranked reviewer concerns ready to render in the gate's ``report.json``
+Synthesizes a query from a gate failure, delegates to
+:func:`scripts.rag.retrieval.hybrid.hybrid_rank`, and renders the result
+as markdown for the gate's ``report.json``.
+
+This module lives in :mod:`scripts.core` (next to the gate framework)
+rather than inside :mod:`scripts.rag`, so the dependency direction stays
+one-way: gates know about RAG, RAG does not know about gates.  When a
+gate fails it calls :func:`rag_context_for_failure` with the gate name
+and the symbolic ``failure_codes`` it emitted; the returned ranked
+reviewer concerns are ready to embed in the gate's ``report.json``
 under the ``peer_review_context`` key.
 
 The companion :func:`format_for_gate_report` renders those concerns as a
