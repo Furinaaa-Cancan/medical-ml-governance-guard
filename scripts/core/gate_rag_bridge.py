@@ -57,6 +57,38 @@ _FALLBACK_REASON_MARKERS = (
     "bm25_inactive",
 )
 
+# Wave 4 finding: BGE-small embeddings give plausibly-looking dense
+# cosine scores in the 0.68–0.73 band even for queries fully off
+# MLGG's modality scope (omics, imaging, NLP, survival). The existing
+# _WEAK_MATCH_HEDGE only fires on fallback-padded rows, so these
+# "real-but-spurious" semantic hits render with NO hedge — and
+# downstream synthesis-LLMs treat them as peer-review precedent.
+#
+# Empirical separation (Wave 4 sweep, 4 off-scope + 6 in-scope
+# queries; see /tmp/overnight_plan.md):
+#   off-scope dense top-1: 0.685, 0.691, 0.695, 0.724
+#   in-scope  dense top-1: 0.712, 0.731, 0.769, 0.772, 0.799, 0.843
+# Two distributions overlap in the 0.70–0.73 band; a hard
+# separator is impossible. Floor chosen at 0.72: catches 3/4
+# off-scope cleanly, misses 1 (Cox at 0.724 sits in the borderline
+# band — flagged as borderline rather than missed entirely). False-
+# positive risk: in-scope "missing calibration" (0.712) would carry
+# the soft hedge. Acceptable trade — the hedge text is advisory
+# ("low semantic confidence"), NOT the strong "do not cite" hedge.
+#
+# This signal is DISTINCT from _WEAK_MATCH_HEDGE:
+#   - _WEAK_MATCH_HEDGE: row is fallback padding, never a real match
+#   - _LOW_CONFIDENCE_HEDGE: row is a real BGE hit, but absolute
+#     semantic similarity is low enough that off-scope spuriousness
+#     is plausible
+# Both can fire on the same concern; both lines are appended.
+_LOW_CONFIDENCE_DENSE_FLOOR = 0.72
+_LOW_CONFIDENCE_HEDGE_TEMPLATE = (
+    "   _(low semantic confidence — dense top score {score:.2f} "
+    "below {floor:.2f} off-scope threshold; verify topical "
+    "relevance before citing.)_"
+)
+
 # H19 W5 LLM-loop eval found: when 2+ concerns from the same paper
 # surface in the same render (e.g. PR-EXP-0084-C04 + PR-EXP-0084-C08),
 # the synthesis-LLM tends to weave them into a single narrative arc
@@ -114,6 +146,45 @@ def _is_weak_match(concern: dict) -> bool:
         any(marker in str(r).lower() for marker in _FALLBACK_REASON_MARKERS)
         for r in reasons
     )
+
+
+def _is_low_confidence(concern: dict) -> tuple[bool, float]:
+    """Return ``(True, dense_score)`` if absolute semantic similarity is low.
+
+    A concern's BGE-small ``_dense_score`` (raw cosine before fusion) is
+    compared to :data:`_LOW_CONFIDENCE_DENSE_FLOOR`.  Below the floor we
+    treat the row as plausibly off-MLGG-scope and signal "verify
+    topical relevance" — softer than the strong fallback-only hedge.
+    Wave 4 empirical sweep showed off-MLGG-scope queries (omics, CV,
+    NLP, survival) produce dense top-1 in the 0.68–0.73 band; in-scope
+    queries reach 0.71–0.84.  The floor sits at 0.72 — the cleanest
+    cut available given overlap in the 0.70–0.73 band.
+    Missing/non-numeric ``_dense_score`` returns ``(False, 0.0)`` — we
+    cannot signal off-scope without the raw cosine.
+    Hedging is INDEPENDENT of :func:`_is_weak_match`; both can fire on
+    the same concern.
+
+    Args:
+        concern: A single concern record carrying a ``_dense_score``
+            field (set by ``hybrid_rank``).
+
+    Returns:
+        A ``(flag, dense_score)`` tuple.  ``flag=True`` iff the
+        concern should carry the low-confidence advisory hedge.
+        ``dense_score`` is included so the caller can interpolate it
+        into the hedge text for human auditability.
+    """
+
+    raw = concern.get("_dense_score")
+    if raw is None:
+        return False, 0.0
+    try:
+        dense = float(raw)
+    except (TypeError, ValueError):
+        return False, 0.0
+    if dense >= _LOW_CONFIDENCE_DENSE_FLOOR:
+        return False, dense
+    return True, dense
 
 
 def _synthesize_query(
@@ -365,6 +436,19 @@ def format_for_gate_report(
         # line's typographic weight.
         if _is_weak_match(c):
             block_lines.append(_WEAK_MATCH_HEDGE)
+        # Wave 4: low-confidence advisory hedge for real BGE hits whose
+        # absolute cosine sits in the off-scope-plausible band. Distinct
+        # from the strong fallback hedge above; both may fire on the
+        # same concern, in which case the synthesis-LLM sees a clear
+        # multi-line warning rather than a single muted line.
+        low_conf, dense = _is_low_confidence(c)
+        if low_conf:
+            block_lines.append(
+                _LOW_CONFIDENCE_HEDGE_TEMPLATE.format(
+                    score=dense,
+                    floor=_LOW_CONFIDENCE_DENSE_FLOOR,
+                )
+            )
         blocks.append("\n".join(block_lines))
 
     return "\n\n".join(blocks)

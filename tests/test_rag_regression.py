@@ -208,6 +208,94 @@ def test_format_for_gate_report_does_not_hedge_strong_match() -> None:
     )
 
 
+def test_low_confidence_hedge_fires_on_off_mlgg_scope_queries() -> None:
+    """Wave 4 finding: BGE-small gives plausible-looking dense cosine
+    (0.68–0.73) for queries fully off MLGG's modality scope (omics,
+    imaging, NLP, survival). The fused ``_final_score`` (0.49–0.53)
+    sits well above the strong-hedge floor of 0.05, so the legacy
+    weak-match hedge does NOT fire. The new low-confidence hedge —
+    keyed on raw ``_dense_score`` < 0.72 — must trigger so synthesis-
+    LLMs see an off-scope warning before treating the row as
+    peer-review precedent.
+
+    Picks a query from W4's hunt that is known to score in the off-
+    scope band but has BGE matches in the KB (so retrieval is non-
+    empty).  Test skips if the index hasn't been built locally.
+    """
+    from scripts.core.gate_rag_bridge import format_for_gate_report
+    from scripts.rag import rag_query
+
+    results = rag_query(
+        "single-cell RNAseq batch effect correction", top_k=3
+    )
+    if not results:
+        pytest.skip("query returned no results — index not built locally")
+
+    top_dense = results[0].get("_dense_score")
+    if top_dense is None or top_dense >= 0.72:
+        # Index/embedding model changed since W4 measurement; the off-
+        # scope hedge contract is unchanged but this particular query
+        # no longer exercises it. Skip rather than silently pass.
+        pytest.skip(
+            f"top dense_score {top_dense!r} no longer in off-scope band; "
+            f"refresh the off-scope query from a current W4 sweep"
+        )
+
+    md = format_for_gate_report(results, gate_name="leakage_gate")
+    assert "low semantic confidence" in md.lower(), (
+        f"off-scope query (dense top-1={top_dense:.3f}) but no low-"
+        f"confidence hedge in markdown:\n{md}"
+    )
+
+
+def test_low_confidence_hedge_skips_strong_in_scope_matches() -> None:
+    """Inverse of the off-scope test: a concern with dense_score above
+    the floor must NOT carry the low-confidence hedge.  Guards against
+    a future bump to the floor accidentally hedging legitimate hits.
+    """
+    from scripts.core.gate_rag_bridge import format_for_gate_report
+
+    strong = {
+        "concern_id": "PR-IN-SCOPE-C01",
+        "concern_text": "A clearly relevant in-scope concern",
+        "severity": "HIGH",
+        "_final_score": 0.62,
+        "_dense_score": 0.84,  # well above 0.72 floor
+        "_match_reasons": ["dense top-1 score=0.84"],
+    }
+    md = format_for_gate_report([strong], gate_name="leakage_gate")
+    assert "low semantic confidence" not in md.lower(), (
+        f"in-scope strong match incorrectly carries low-confidence "
+        f"hedge:\n{md}"
+    )
+
+
+def test_low_confidence_hedge_independent_of_weak_match_hedge() -> None:
+    """Both hedges can fire on the same concern: a fallback-padded row
+    with a low dense score gets BOTH lines. Test the orthogonality so
+    a future refactor doesn't collapse them into one mutually-exclusive
+    code path.
+    """
+    from scripts.core.gate_rag_bridge import format_for_gate_report
+
+    both = {
+        "concern_id": "PR-BOTH-C01",
+        "concern_text": "Padding row with low semantic similarity",
+        "severity": "MEDIUM",
+        "_final_score": 0.02,  # below 0.05 weak-match floor
+        "_dense_score": 0.30,  # below 0.72 low-confidence floor
+        "_match_reasons": ["severity_fallback"],
+    }
+    md = format_for_gate_report([both], gate_name="leakage_gate")
+    md_lower = md.lower()
+    assert "weak match" in md_lower or "do not cite" in md_lower, (
+        f"strong weak-match hedge missing:\n{md}"
+    )
+    assert "low semantic confidence" in md_lower, (
+        f"low-confidence hedge missing:\n{md}"
+    )
+
+
 def test_format_for_gate_report_marks_same_paper_concerns() -> None:
     """H19 W5: when 2+ concerns share paper_id, each should carry a
     visual marker noting siblings — prevents LLM-side conflation."""
