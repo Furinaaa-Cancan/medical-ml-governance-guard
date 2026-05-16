@@ -1,0 +1,381 @@
+{
+  "aggregate": {
+    "n_scenarios": 30,
+    "n_evaluable": 11,
+    "n_with_expected_tags": 11,
+    "coverage_rate": 0.367,
+    "mean_hit_at_k": 1.0,
+    "mean_tag_precision_at_k": 0.6000000000000001,
+    "mean_top1_score": 0.6159172891871294,
+    "n_zero_hits": 19,
+    "wall_ms_total": 11796.9
+  },
+  "per_scenario": [
+    {
+      "id": "leakage_discharge_icd",
+      "mode": "hybrid",
+      "n_hits": 5,
+      "top1_score": 0.4851991845213849,
+      "tag_precision_at_k": 0.4,
+      "ids_returned": [
+        "PR-010-C01",
+        "PR-EXP-0086-C12",
+        "PR-EXP-0185-C02",
+        "PR-109-C01",
+        "PR-EXP-0109-C12"
+      ],
+      "expected_tag_hits": 2,
+      "wall_ms": 11535.6
+    },
+    {
+      "id": "evaluation_improper_f1_primary",
+      "mode": "hybrid",
+      "n_hits": 0,
+      "top1_score": null,
+      "tag_precision_at_k": null,
+      "ids_returned": [],
+      "expected_tag_hits": null,
+      "wall_ms": 0.0
+    },
+    {
+      "id": "no_external_validation_single_center",
+      "mode": "hybrid",
+      "n_hits": 5,
+      "top1_score": 0.6916528844833375,
+      "tag_precision_at_k": 0.6,
+      "ids_returned": [
+        "PR-107-C01",
+        "PR-EXP-0086-C06",
+        "PR-026-C01",
+        "PR-EXP-0095-C03",
+        "PR-041-C04"
+      ],
+      "expected_tag_hits": 3,
+      "wall_ms": 45.3
+    },
+    {
+      "id": "cohort_definition_selection_bias",
+      "mode": "hybrid",
+      "n_hits": 0,
+      "top1_score": null,
+      "tag_precision_at_k": null,
+      "ids_returned": [],
+      "expected_tag_hits": null,
+      "wall_ms": 0.0
+    },
+    {
+      "id": "calibration_plot_missing_no_dca",
+      "mode": "hybrid",
+      "n_hits": 5,
+      "top1_score": 0.6280799713730812,
+      "tag_precision_at_k": 0.8,
+      "ids_returned": [
+        "PR-EXP-0205-C06",
+        "PR-102-C01",
+        "PR-022-C01",
+        "PR-110-C03",
+        "PR-EXP-0092-C04"
+      ],
+      "expected_tag_hits": 4,
+      "wall_ms": 34.6
+    },
+    {
+      "id": "model_selection_cherry_picked_seed",
+      "mode": "hybrid",
+      "n_hits": 5,
+      "top1_score": 0.6431362169981002,
+      "tag_precision_at_k": 0.6,
+      "ids_returned": [
+        "PR-EXP-0200-C05",
+        "PR-108-C03",
+        "PR-107-C03",
+        "PR-003-C08",
+        "PR-EXP-0084-C04"
+      ],
+      "expected_tag_hits": 3,
+      "wall_ms": 37.9
+    },
+    {
+      "id": "split_smote_before_split",
+      "mode": "hybrid",
+      "n_hits": 5,
+      "top1_score": 0.4298016107082367,
+      "tag_precision_at_k": 0.4,
+      "ids_returned": [
+        "PR-010-C02",
+        "PR-111-C04",
+        "PR-EXP-0084-C08",
+        "PR-002-C05",
+        "PR-113-C01"
+      ],
+      "expected_tag_hits": 2,
+      "wall_ms": 11.2
+    },
+    {
+      "id": "missingness_normal_range_imputation",
+      "mode": "hybrid",
+      "n_hits": 5,
+      "top1_score": 0.5433666375279427,
+      "tag_precision_at_k": 0.4,
+      "ids_returned": [
+        "PR-006-C05",
+        "PR-EXP-0126-C05",
+        "PR-EXP-0160-C06",
+        "PR-035-C01",
+        "PR-EXP-0096-C07"
+      ],
+      "expected_tag_hits": 2,
+      "wall_ms": 13.2
+    },
+    {
+      "id": "reporting_missing_tripod_checklist",
+      "mode": "hybrid",
+      "n_hits": 5,
+      "top1_score": 0.6979252390563488,
+      "tag_precision_at_k": 1.0,
+      "ids_returned": [
+        "PR-110-C06",
+        "PR-026-C04",
+        "PR-EXP-0191-C03",
+        "PR-EXP-0157-C03",
+        "PR-102-C01"
+      ],
+      "expected_tag_hits": 5,
+      "wall_ms": 13.0
+    },
+    {
+      "id": "clinical_threshold_no_sensitivity_specificity",
+      "mode": "hybrid",
+      "n_hits": 0,
+      "top1_score": null,
+      "tag_precision_at_k": null,
+      "ids_returned": [],
+      "expected_tag_hits": null,
+      "wall_ms": 0.0
+    },
+    {
+      "id": "definition_variable_outcome_in_feature",
+      "mode": "hybrid",
+      "n_hits": 0,
+      "top1_score": null,
+      "tag_precision_at_k": null,
+      "ids_returned": [],
+      "expected_tag_hits": null,
+      "wall_ms": 0.0
+    },
+    {
+      "id": "imbalance_smote_without_justification",
+      "mode": "hybrid",
+      "n_hits": 5,
+      "top1_score": 0.6918785983324052,
+      "tag_precision_at_k": 0.8,
+      "ids_returned": [
+        "PR-027-C02",
+        "PR-110-C04",
+        "PR-002-C01",
+        "PR-EXP-0105-C03",
+        "PR-055-C02"
+      ],
+      "expected_tag_hits": 4,
+      "wall_ms": 24.9
+    },
+    {
+      "id": "feature_selection_data_leakage",
+      "mode": "hybrid",
+      "n_hits": 0,
+      "top1_score": null,
+      "tag_precision_at_k": null,
+      "ids_returned": [],
+      "expected_tag_hits": null,
+      "wall_ms": 0.0
+    },
+    {
+      "id": "tuning_hyperparameter_on_test_set",
+      "mode": "hybrid",
+      "n_hits": 5,
+      "top1_score": 0.6018607731376375,
+      "tag_precision_at_k": 0.8,
+      "ids_returned": [
+        "PR-111-C01",
+        "PR-EXP-0084-C08",
+        "PR-EXP-0159-C03",
+        "PR-EXP-0200-C05",
+        "PR-EXP-0155-C03"
+      ],
+      "expected_tag_hits": 4,
+      "wall_ms": 13.3
+    },
+    {
+      "id": "ci_missing_or_suspiciously_narrow",
+      "mode": "hybrid",
+      "n_hits": 5,
+      "top1_score": 0.6790285441279412,
+      "tag_precision_at_k": 0.4,
+      "ids_returned": [
+        "PR-035-C05",
+        "PR-109-C06",
+        "PR-EXP-0159-C06",
+        "PR-043-C02",
+        "PR-113-C02"
+      ],
+      "expected_tag_hits": 2,
+      "wall_ms": 14.7
+    },
+    {
+      "id": "fairness_subgroup_performance_gap",
+      "mode": "hybrid",
+      "n_hits": 5,
+      "top1_score": 0.6831605207920075,
+      "tag_precision_at_k": 0.4,
+      "ids_returned": [
+        "PR-EXP-0086-C10",
+        "PR-EXP-0119-C01",
+        "PR-111-C05",
+        "PR-EXP-0110-C08",
+        "PR-EXP-0105-C08"
+      ],
+      "expected_tag_hits": 2,
+      "wall_ms": 14.3
+    },
+    {
+      "id": "sample_size_epv_violated",
+      "mode": "hybrid",
+      "n_hits": 0,
+      "top1_score": null,
+      "tag_precision_at_k": null,
+      "ids_returned": [],
+      "expected_tag_hits": null,
+      "wall_ms": 0.0
+    },
+    {
+      "id": "interpretability_shap_shallow",
+      "mode": "hybrid",
+      "n_hits": 0,
+      "top1_score": null,
+      "tag_precision_at_k": null,
+      "ids_returned": [],
+      "expected_tag_hits": null,
+      "wall_ms": 0.0
+    },
+    {
+      "id": "covariate_shift_train_test",
+      "mode": "hybrid",
+      "n_hits": 0,
+      "top1_score": null,
+      "tag_precision_at_k": null,
+      "ids_returned": [],
+      "expected_tag_hits": null,
+      "wall_ms": 0.0
+    },
+    {
+      "id": "distribution_generalization_temporal",
+      "mode": "hybrid",
+      "n_hits": 0,
+      "top1_score": null,
+      "tag_precision_at_k": null,
+      "ids_returned": [],
+      "expected_tag_hits": null,
+      "wall_ms": 0.0
+    },
+    {
+      "id": "feature_lineage_undocumented",
+      "mode": "hybrid",
+      "n_hits": 0,
+      "top1_score": null,
+      "tag_precision_at_k": null,
+      "ids_returned": [],
+      "expected_tag_hits": null,
+      "wall_ms": 0.0
+    },
+    {
+      "id": "generalization_gap_optimistic",
+      "mode": "hybrid",
+      "n_hits": 0,
+      "top1_score": null,
+      "tag_precision_at_k": null,
+      "ids_returned": [],
+      "expected_tag_hits": null,
+      "wall_ms": 0.0
+    },
+    {
+      "id": "metric_consistency_cross_split",
+      "mode": "hybrid",
+      "n_hits": 0,
+      "top1_score": null,
+      "tag_precision_at_k": null,
+      "ids_returned": [],
+      "expected_tag_hits": null,
+      "wall_ms": 0.0
+    },
+    {
+      "id": "permutation_significance_missing",
+      "mode": "hybrid",
+      "n_hits": 0,
+      "top1_score": null,
+      "tag_precision_at_k": null,
+      "ids_returned": [],
+      "expected_tag_hits": null,
+      "wall_ms": 0.0
+    },
+    {
+      "id": "prediction_replay_irreproducible",
+      "mode": "hybrid",
+      "n_hits": 0,
+      "top1_score": null,
+      "tag_precision_at_k": null,
+      "ids_returned": [],
+      "expected_tag_hits": null,
+      "wall_ms": 0.0
+    },
+    {
+      "id": "robustness_no_perturbation_test",
+      "mode": "hybrid",
+      "n_hits": 0,
+      "top1_score": null,
+      "tag_precision_at_k": null,
+      "ids_returned": [],
+      "expected_tag_hits": null,
+      "wall_ms": 0.0
+    },
+    {
+      "id": "weak_offdomain_music_query",
+      "mode": "hybrid",
+      "n_hits": 0,
+      "top1_score": null,
+      "tag_precision_at_k": null,
+      "ids_returned": [],
+      "expected_tag_hits": null,
+      "wall_ms": 12.1
+    },
+    {
+      "id": "weak_offdomain_sailing_query",
+      "mode": "hybrid",
+      "n_hits": 0,
+      "top1_score": null,
+      "tag_precision_at_k": null,
+      "ids_returned": [],
+      "expected_tag_hits": null,
+      "wall_ms": 12.5
+    },
+    {
+      "id": "weak_offdomain_woodworking_query",
+      "mode": "hybrid",
+      "n_hits": 0,
+      "top1_score": null,
+      "tag_precision_at_k": null,
+      "ids_returned": [],
+      "expected_tag_hits": null,
+      "wall_ms": 14.3
+    },
+    {
+      "id": "zero_empty_query",
+      "mode": "hybrid",
+      "n_hits": 0,
+      "top1_score": null,
+      "tag_precision_at_k": null,
+      "ids_returned": [],
+      "expected_tag_hits": null,
+      "wall_ms": 0.0
+    }
+  ]
+}
