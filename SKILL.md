@@ -129,6 +129,8 @@ Agent 审查代码时，查阅 `references/case-studies/peer-review-kb.json`（1
 
 检索: `python3 scripts/review/peer_review_lookup.py --stats|--gate <name>|--tags "<tags>"`
 
+**Caveat (RAG layer)**: BM25 inactive in free-text mode; see README for full limitations.
+
 ---
 
 ## Clinical Semantic Review Checklist

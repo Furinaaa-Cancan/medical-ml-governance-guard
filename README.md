@@ -85,7 +85,7 @@
 
 ### 工程保证（而不只是愿景）
 
-- **SKILL.md ≤ 500 行**：当前 288 行，符合 Claude Code 官方建议；超长内容拆到 `docs/` 或 gate docstring。
+- **SKILL.md ≤ 500 行**：当前 290 行，符合 Claude Code 官方建议；超长内容拆到 `docs/` 或 gate docstring。
 - **文档数字 pre-commit 校验**：`check_docs_consistency.py` + `check_readme_stats.py` 抓 `SKILL.md ↔ README ↔ reviewer.yaml` 的 parity 和 KB freshness drift，**PR 会被 fail 而不是 merge 后才发现**。
 - **阈值是代码不是 prompt**：所有 pass/fail 阈值、validator 规则、检测算法都是 Python 常量 + 函数，gate 不从 markdown 读判定逻辑。
 
@@ -215,6 +215,48 @@ query → embed (BGE-small) → cosine top-50 → + BM25 (issue-code) + gate fil
 **Gate 集成：** 任意 gate 都可以调用 `scripts.core.gate_rag_bridge.rag_context_for_failure(gate_name, failure_codes)`，把审稿原话作为 `peer_review_context` 字段嵌入 report.json，让"为什么这条 fail"的解释里附带真实审稿人引用。
 
 **局限说明：** 当前向量模型是 `BAAI/bge-small-en-v1.5`（384 维，英文调优），中文自由文本查询精度会下降——KB 本身是英文审稿意见，所以英文 query 命中率最高；如果你要用中文描述失败，建议同时传 `--codes MLGG-XXX` 让 BM25 + tag-overlap 路径兜底。
+
+### 已知限制 (Known Limitations)
+
+5-agent 严格审查梳理出以下 5 条诚实限制，均不阻断发布，但用户应当事先知情。
+
+**1. BM25 仅在 gate 锚定模式下工作**
+
+调用 `rag_query(q)` 时若未传 `gate=` 参数（CLI 默认情况），hybrid ranker 会静默跳过 BM25，自由文本评分退化为 dense + tag + severity 三信号。F1 修复后，活跃权重会重新归一化以保证最终得分仍达 1.0，但请注意 BM25 是 gate 锚定信号。
+
+> 生产 gate 钩子建议始终传 `(gate, failure_codes)` 获取完整 4 信号排序；CLI 探索性查询应预期 dense 主导的结果。
+
+**2. 四个 MLGG 维度检索偏弱**
+
+12 条代表性查询的平均 P@5 = 0.80，但有 4 个维度低于 0.4：
+
+| 维度 | P@5 | 原因 |
+|:-----|:----|:-----|
+| Complete-case missing data | 0.2 | KB 字面表述稀疏；severity 加权掩盖了缺口 |
+| AUROC without CI | 0.2 | 嵌入锚定在 "AUROC" token 上，无法建模 "without" 否定 |
+| Temporal hold-out | 0.3 | KB 对时序相关问题覆盖稀薄 |
+| Tuning-on-test | 0.4 | canonical-pattern 加权将相邻话题排到前面 |
+
+> 检索上述维度时，请人工核查 top-5 的相关性。
+
+**3. 四个基础设施 gate 的空 RAG 是设计如此**
+
+以下 gate 在 KB 中没有对应的同行评审先例（基础设施 / 元层）：
+
+- `manifest_lock` — 文件完整性
+- `request_contract_gate` — 请求校验
+- `security_audit_gate` — 安全检查
+- `self_critique_gate` — 反思层
+
+F2 修复后，gate report 不会再为这些 gate 显示占位条目；F2 之前的 "no concerns retrieved" 占位会让人误以为是检索失败。
+
+**4. 首次查询冷启动延迟**
+
+进程启动后第一次调用约 228 ms vs 稳态 ~12 ms（模型加载 + 第一次 BGE 前向）。长驻服务建议加 `prewarm()` 调用；无缓存的冷索引构建在 CPU 上约 15 秒。
+
+**5. 内存占用**
+
+每进程稳态 RSS ~460 MB（BGE-small + tokenizer + 817 × 384 float32 矩阵）。多 worker gate runner 请相应规划。
 
 ---
 

@@ -79,7 +79,7 @@ Both end up running the **same Python gate**. The Skill saves keystrokes, not co
 
 ### Engineering guarantees (not just aspirations)
 
-- **SKILL.md ≤ 500 lines**: currently 288 lines, within Claude Code's official guidance; longer content lives under `docs/` or inside gate docstrings.
+- **SKILL.md ≤ 500 lines**: currently 290 lines, within Claude Code's official guidance; longer content lives under `docs/` or inside gate docstrings.
 - **Pre-commit doc-number check**: `check_docs_consistency.py` + `check_readme_stats.py` catch drift across `SKILL.md ↔ README ↔ reviewer.yaml`; **PRs fail before merge**, not after.
 - **Thresholds are code, not prompts**: every pass/fail threshold, validator rule, and detection algorithm is a Python constant + function. Gates do not consult markdown for verdict logic.
 
@@ -208,6 +208,48 @@ query → embed (BGE-small) → cosine top-50 → + BM25 (issue-code) + gate fil
 **Gate integration:** any gate can call `scripts.core.gate_rag_bridge.rag_context_for_failure(gate_name, failure_codes)` to embed the reviewer-quote context into its `report.json` under `peer_review_context`, so the "why did this fail" explanation cites a real reviewer's words.
 
 **Limitation:** the current vector model is `BAAI/bge-small-en-v1.5` (384-dim, English-tuned). Chinese-language free-text queries will have reduced precision &mdash; the KB itself is English reviewer text, so English queries hit hardest; for Chinese descriptions of a failure, pass `--codes MLGG-XXX` so the BM25 + tag-overlap path can compensate.
+
+### Known Limitations
+
+The 5-agent strict review surfaced 5 honest limitations users should know about. None are ship-blocking, but all are material to expectation-setting.
+
+**1. BM25 is gate-anchored**
+
+When you call `rag_query(q)` without a `gate=` argument (the CLI default), the hybrid ranker silently skips BM25 and free-text scoring becomes dense + tag + severity only. After the F1 fix, active weights are re-normalized so final scores still reach 1.0, but users should know BM25 is a gate-anchored signal.
+
+> For production gate hooks, always pass `(gate, failure_codes)` to get the full 4-signal ranking. CLI users querying for exploration should expect dense-dominated results.
+
+**2. Four MLGG dimensions have weak retrieval**
+
+Mean P@5 over 12 representative queries is 0.80. Four dimensions scored below 0.4:
+
+| Dimension | P@5 | Why |
+|:----------|:----|:----|
+| Complete-case missing data | 0.2 | KB lexically thin; severity boost masks the gap |
+| AUROC without CI | 0.2 | Embedding anchors on the "AUROC" token; can't model "without" |
+| Temporal hold-out | 0.3 | KB sparse on time-series concerns |
+| Tuning-on-test | 0.4 | Canonical-pattern boost promotes adjacent topics |
+
+> When retrieving for these dimensions, manually inspect the top-5 for relevance.
+
+**3. Four infra gates have honest empty RAG by design**
+
+The following gates have no peer-review precedent in the KB by design (infrastructure / meta layers):
+
+- `manifest_lock` &mdash; file integrity
+- `request_contract_gate` &mdash; request validation
+- `security_audit_gate` &mdash; security check
+- `self_critique_gate` &mdash; reflection layer
+
+After the F2 fix, the gate report no longer shows a placeholder for these. Before F2, the placeholder said "no concerns retrieved" which was misleading.
+
+**4. Cold first-query latency**
+
+The first call after process start incurs ~228 ms vs steady-state ~12 ms (model load + first BGE forward pass). Consider adding a `prewarm()` call in long-running services. Cold index build (no cache) is ~15 s on CPU.
+
+**5. Memory footprint**
+
+Steady-state RSS ~460 MB per process (BGE-small + tokenizer + 817 &times; 384 float32 matrix). Plan accordingly for multi-worker gate runners.
 
 ---
 
