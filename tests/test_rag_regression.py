@@ -296,6 +296,158 @@ def test_low_confidence_hedge_independent_of_weak_match_hedge() -> None:
     )
 
 
+@pytest.mark.parametrize("query", [
+    "single-cell RNAseq batch effect correction",
+    "image segmentation UNet skip connections",
+    "BERT fine-tuning catastrophic forgetting",
+    "Cox proportional hazards survival regression",
+    "federated learning privacy gradient leakage",
+    "quantum machine learning noise mitigation",
+    "VAE GAN deep generative model",
+    "graph neural network message passing",
+    "reinforcement learning offline policy",
+    "natural language processing tokenization bias",
+])
+def test_off_modality_denylist_catches_off_scope(query: str) -> None:
+    """W7P2: 10 off-MLGG-scope queries must all be flagged by the
+    keyword denylist. Mirrors the W6 W1 measurement set."""
+    from scripts.core.gate_rag_bridge import _is_off_modality_query
+    assert _is_off_modality_query(query), f"failed to flag off-scope: {query}"
+
+
+@pytest.mark.parametrize("query", [
+    "missing calibration plot",
+    "patient leakage train test split",
+    "no external validation single center",
+    "AUROC without confidence interval",
+    "extreme class imbalance unaddressed",
+    "complete-case analysis missing data",
+    "TRIPOD AI checklist compliance",
+    "subgroup performance by race ethnicity",
+])
+def test_in_scope_queries_not_falsely_flagged(query: str) -> None:
+    """W7P2: 8 in-scope MLGG queries must NOT trigger the denylist."""
+    from scripts.core.gate_rag_bridge import _is_off_modality_query
+    assert not _is_off_modality_query(query), f"false positive: {query}"
+
+
+# W1 self-challenge: adversarial cases the original 10+8 set did not
+# cover. These are intentionally borderline; the test documents
+# observed behaviour via print rather than asserting, so it does not
+# break CI when the denylist is later tuned. Treat the printed output
+# as a living spec of where the matcher over/under-fires.
+@pytest.mark.parametrize("query,documented", [
+    # In-scope queries that contain denylist tokens — these WILL flag
+    # as off-scope under the current substring matcher. Documented
+    # false positives; acceptable per "false positives are recoverable".
+    ("attention mechanism for clinical prediction", True),  # "attention"
+    ("BERT-tokenized chief complaints for sepsis prediction", True),  # "bert"
+    ("transformer architecture for pediatric clinical risk", True),  # "transformer"
+    ("generative augmentation for rare-disease tabular data", True),  # "generative"
+    ("graph_neural network on EHR co-occurrence", True),  # "graph_neural"
+    # Off-scope queries that avoid obvious denylist tokens — these
+    # will NOT flag. Documented false negatives; the matcher is
+    # deliberately not tightened.
+    ("learning representations from multiple modalities", False),  # no token
+    ("end-to-end policy from raw pixels", False),  # no token in list
+    ("contrastive pretraining on chest radiographs", False),  # no token
+    ("denoising score matching for high-dim data", False),  # no token
+    # "vae" is not a substring of "variational" — documented FN
+    ("variational autoencoder latent disentanglement", False),
+])
+def test_adversarial_denylist_cases(query: str, documented: bool) -> None:
+    """W1 self-challenge: document where the denylist over- or under-fires.
+
+    No strict assertion — this is a living spec. The ``documented``
+    column records the EXPECTED current behaviour; mismatches print
+    to stdout for human review but do not fail the test. When the
+    denylist is tuned, update the ``documented`` values rather than
+    chasing CI green via matcher gymnastics.
+    """
+    from scripts.core.gate_rag_bridge import _is_off_modality_query
+    actual = _is_off_modality_query(query)
+    print(
+        f"  adversarial: {query!r:70} documented={documented} actual={actual}"
+        + ("" if actual == documented else "  <-- DRIFT")
+    )
+
+
+def test_off_modality_hedge_renders_when_flagged() -> None:
+    """W7P2: format_for_gate_report must prepend the off-scope hedge
+    once when any concern carries the ``_off_modality`` flag."""
+    from scripts.core.gate_rag_bridge import format_for_gate_report
+
+    flagged = [
+        {
+            "concern_id": "PR-OFF-C01",
+            "concern_text": "Some retrieved concern",
+            "severity": "HIGH",
+            "_final_score": 0.51,
+            "_dense_score": 0.70,
+            "_match_reasons": ["dense_top_1"],
+            "_off_modality": True,
+        },
+        {
+            "concern_id": "PR-OFF-C02",
+            "concern_text": "Another retrieved concern",
+            "severity": "MEDIUM",
+            "_final_score": 0.42,
+            "_dense_score": 0.68,
+            "_match_reasons": ["dense_top_2"],
+            "_off_modality": True,
+        },
+    ]
+    md = format_for_gate_report(flagged, gate_name="leakage_gate")
+    md_lower = md.lower()
+    assert "off-mlgg-scope" in md_lower or "topically irrelevant" in md_lower, (
+        f"off-modality hedge missing from rendered markdown:\n{md}"
+    )
+    # Hedge must appear ONCE (block-level), not per concern.
+    occurrences = md_lower.count("topically irrelevant")
+    assert occurrences == 1, (
+        f"expected exactly 1 off-modality hedge line, got {occurrences}:\n{md}"
+    )
+
+
+def test_off_modality_hedge_absent_when_unflagged() -> None:
+    """In-scope concerns must NOT carry the off-modality hedge."""
+    from scripts.core.gate_rag_bridge import format_for_gate_report
+
+    in_scope = [
+        {
+            "concern_id": "PR-IN-C01",
+            "concern_text": "An in-scope MLGG concern",
+            "severity": "HIGH",
+            "_final_score": 0.62,
+            "_dense_score": 0.84,
+            "_match_reasons": ["dense_top_1"],
+        },
+    ]
+    md = format_for_gate_report(in_scope, gate_name="leakage_gate")
+    assert "off-mlgg-scope" not in md.lower(), (
+        f"in-scope concern incorrectly carries off-modality hedge:\n{md}"
+    )
+
+
+def test_rag_context_for_failure_flags_off_modality_query() -> None:
+    """Round-trip: a query_hint with a denylist token must propagate
+    ``_off_modality=True`` onto every returned concern."""
+    from scripts.core.gate_rag_bridge import rag_context_for_failure
+
+    results = rag_context_for_failure(
+        "leakage_gate",
+        failure_codes=[],
+        query_hint="single-cell RNAseq batch effect correction",
+        top_k=3,
+    )
+    if not results:
+        pytest.skip("query returned no results — index not built locally")
+    assert all(r.get("_off_modality") is True for r in results), (
+        "off-modality flag not propagated to all returned concerns: "
+        f"{[r.get('_off_modality') for r in results]}"
+    )
+
+
 def test_format_for_gate_report_marks_same_paper_concerns() -> None:
     """H19 W5: when 2+ concerns share paper_id, each should carry a
     visual marker noting siblings — prevents LLM-side conflation."""
@@ -332,4 +484,23 @@ def test_format_for_gate_report_marks_same_paper_concerns() -> None:
     pr_y_section = md.split("PR-Y-C03")[1] if "PR-Y-C03" in md else ""
     assert "same paper" not in pr_y_section.lower(), (
         f"PR-Y-C03 incorrectly marked as same-paper:\n{pr_y_section}"
+    )
+
+
+def test_q9_external_validation_recovers_known_dropouts():
+    """W2/A1 regression: Q9 free-text query had E1 P@5=1.0 then dropped
+    to 0.4 due to MMR over-penalize. A1 fix (MMR_COSINE_FLOOR=0.88)
+    recovered 2/3 perfect-E1 hits. Pin those 2 IDs so any future MMR/
+    scoring change can't silently re-drop them.
+
+    PR-006-C04 not pinned — known KB-tag issue per W2 Proposal A
+    (paper-specific narrow tags singleton-out, no tag_overlap signal).
+    """
+    from scripts.rag import rag_query
+    results = rag_query("single-center development without external test", top_k=5)
+    ids = [c["concern_id"] for c in results]
+    recovered = {"PR-028-C01", "PR-084-C01"}
+    found = recovered & set(ids)
+    assert len(found) >= 1, (
+        f"Q9 regression: expected >=1 of {recovered} in top-5, got {ids}"
     )

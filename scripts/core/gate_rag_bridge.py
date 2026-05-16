@@ -89,6 +89,73 @@ _LOW_CONFIDENCE_HEDGE_TEMPLATE = (
     "relevance before citing.)_"
 )
 
+# ---------------------------------------------------------------------------
+# Off-MLGG-modality detection (W7P2 — per W1 ROI measurement)
+# ---------------------------------------------------------------------------
+# MLGG scope is retrospective cohort binary classification (tabular EHR /
+# registry / case-control / cross-sectional). Queries about generative
+# models, NLP, CV, federated learning, survival analysis, etc. fall
+# outside scope; their BGE embeddings retrieve "plausible but wrong"
+# MLGG concerns (W4 finding). The denylist catches them via query tokens
+# — W6 W1 measured 10/10 TP / 0/8 FP on the original test set.
+#
+# Maintained list: each token MUST appear in >=1 documented off-scope
+# query but != any in-scope MLGG vocabulary. If a future contributor
+# finds an in-scope query falsely hedged, REMOVE the offending token
+# rather than tighten the matcher — false positives are recoverable,
+# false negatives let synthesis-LLMs cite spurious precedent.
+MODALITY_DENYLIST: frozenset[str] = frozenset([
+    # Generative models
+    "vae", "gan", "diffusion", "generative",
+    # NLP architectures
+    "bert", "gpt", "transformer", "tokenization", "attention",
+    "natural_language", "nlp",
+    # CV architectures
+    "unet", "resnet", "vgg", "yolo", "segmentation", "image_patch",
+    # Domain
+    "federated", "quantum", "reinforcement", "graph_neural", "message_passing",
+    # Time-to-event / survival (different statistical paradigm)
+    "cox", "hazard", "survival", "kaplan_meier",
+    # Omics (different modality)
+    "rnaseq", "scrnaseq", "scrna", "omics", "genomics", "transcriptom",
+    "gene_expression", "single_cell",
+])
+
+_OFF_MODALITY_HEDGE = (
+    "_(off-MLGG-scope query — retrieved concerns may be plausible-looking "
+    "but topically irrelevant; do NOT cite as precedent without "
+    "verification.)_"
+)
+
+
+def _is_off_modality_query(query: str) -> bool:
+    """Return True if query contains an off-MLGG-scope modality token.
+
+    W6 W1 measured 100% TP / 0% FP on 10 off / 8 in test queries.
+    Sample-size caveat: list is empirically derived; expand or trim
+    as production adversarial cases surface.
+
+    Args:
+        query: Free-text query string (typically the synthesised query
+            from :func:`_synthesize_query` or the caller-supplied hint).
+            Hyphens are normalised to underscores before matching so
+            ``"kaplan-meier"`` and ``"kaplan_meier"`` are equivalent.
+
+    Returns:
+        ``True`` iff any token in :data:`MODALITY_DENYLIST` appears as a
+        substring of the lower-cased, hyphen-normalised query. Empty or
+        ``None`` queries return ``False`` (absence is not evidence of
+        off-scope).
+    """
+    if not query:
+        return False
+    # Normalise hyphens AND whitespace to underscores so multi-word
+    # tokens like "graph_neural" and "kaplan_meier" match queries
+    # written as "graph neural" or "kaplan-meier".
+    q = query.lower().replace("-", "_")
+    q = "_".join(q.split())
+    return any(token in q for token in MODALITY_DENYLIST)
+
 # H19 W5 LLM-loop eval found: when 2+ concerns from the same paper
 # surface in the same render (e.g. PR-EXP-0084-C04 + PR-EXP-0084-C08),
 # the synthesis-LLM tends to weave them into a single narrative arc
@@ -269,12 +336,21 @@ def rag_context_for_failure(
     """
 
     query = _synthesize_query(failure_codes, query_hint, gate_name=gate_name)
-    return hybrid_rank(
+    results = hybrid_rank(
         query,
         gate=gate_name,
         failure_codes=failure_codes,
         top_k=top_k,
     )
+    # W7P2: flag results when the synthesised query (or the caller's
+    # raw hint) carries an off-MLGG-scope token. The flag is consumed
+    # by format_for_gate_report to render a single block-level hedge
+    # — distinct from the per-row weak/low-confidence hedges, since
+    # this is a *query-level* judgement, not a per-concern one.
+    if _is_off_modality_query(query) or _is_off_modality_query(query_hint or ""):
+        for r in results:
+            r["_off_modality"] = True
+    return results
 
 
 def _truncate(text: str, limit: int) -> str:
@@ -451,4 +527,11 @@ def format_for_gate_report(
             )
         blocks.append("\n".join(block_lines))
 
-    return "\n\n".join(blocks)
+    rendered = "\n\n".join(blocks)
+    # W7P2: prepend a single off-MLGG-scope hedge at the top of the
+    # rendered block when any concern carries the query-level flag.
+    # One line for the whole render (not per-row) — the judgement is
+    # about the query, not the individual concerns.
+    if any(c.get("_off_modality") for c in concerns):
+        rendered = f"{_OFF_MODALITY_HEDGE}\n\n{rendered}"
+    return rendered
