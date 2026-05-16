@@ -2,103 +2,102 @@
   "scenarios_file": "/Volumes/Seagate/Skill/ml-leakage-guard/references/retrieval_eval/scenarios.json",
   "kb_path": "/Volumes/Seagate/Skill/ml-leakage-guard/references/case-studies/peer-review-kb.json",
   "top_k": 5,
-  "mode": "bm25_only",
+  "mode": "hybrid",
   "scenarios": [
     {
       "scenario_id": "leakage_discharge_icd",
       "description": "Retrospective ICU cohort using icd10_I469 and icd10_Z51_5 as features \u2014 discharge-finalized codes that leak outcome (Ramadan JAMA 2025). Dataset: UKB / MIMIC style ICU mortality prediction.",
       "gate_name": "leakage_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.667,
+      "tag_precision": 0.333,
       "matched_expected_categories": [
         "data_leakage"
       ],
       "matched_expected_tags": [
-        "definition_variable",
-        "feature_is_outcome_proxy",
-        "future_information_leakage",
-        "target_leakage"
+        "target_leakage",
+        "temporal_leakage"
       ],
       "top_k_summary": [
         {
-          "concern_id": "PR-001-C02",
-          "paper_id": "PR-001",
-          "severity": "CRITICAL",
-          "category": "study_design",
-          "tags": [
-            "target_leakage",
-            "definition_variable",
-            "feature_is_outcome_proxy"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-EXP-0160-C11",
-          "paper_id": "PR-EXP-0160",
-          "severity": "HIGH",
-          "category": "feature_selection",
-          "tags": [
-            "icd_coding_temporal_availability",
-            "diagnosis_code_as_feature",
-            "post_hoc_coding_leakage_risk",
-            "future_information_leakage"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-EXP-0205-C05",
-          "paper_id": "PR-EXP-0205",
+          "concern_id": "PR-010-C01",
+          "paper_id": "PR-010",
           "severity": "CRITICAL",
           "category": "data_leakage",
           "tags": [
-            "future_information_leakage",
-            "post_outcome_feature_risk",
-            "predictor_timestamp_audit"
+            "temporal_leakage",
+            "bidirectional_rnn_leakage",
+            "future_data_used",
+            "critical_flaw"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.4851991845213849,
+          "dense_score": 0.6589407324790955,
+          "bm25_score": 0.43478260869565216
         },
         {
-          "concern_id": "PR-EXP-0212-C01",
-          "paper_id": "PR-EXP-0212",
+          "concern_id": "PR-EXP-0086-C12",
+          "paper_id": "PR-EXP-0086",
           "severity": "HIGH",
-          "category": "feature_selection",
+          "category": "data_leakage",
           "tags": [
-            "definition_variable_leakage",
-            "creatinine_in_outcome_definition",
-            "causal_pathway_feature",
-            "aki_definition"
+            "temporal_alignment_unclear",
+            "future_event_in_label",
+            "annotation_window_mismatch",
+            "claim_vs_actual_task"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.46682327552982,
+          "dense_score": 0.6915627717971802,
+          "bm25_score": 0.34782608695652173
         },
         {
-          "concern_id": "PR-001-C01",
-          "paper_id": "PR-001",
-          "severity": "CRITICAL",
-          "category": "study_design",
+          "concern_id": "PR-EXP-0185-C02",
+          "paper_id": "PR-EXP-0185",
+          "severity": "HIGH",
+          "category": "split_protocol",
           "tags": [
-            "future_information_leakage",
-            "prediction_timepoint_unclear",
-            "retrospective_vs_prospective"
+            "temporal_split_leakage",
+            "patient_overlap",
+            "split_hygiene"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.4666916980173277,
+          "dense_score": 0.7434735298156738,
+          "bm25_score": 0.2608695652173913
+        },
+        {
+          "concern_id": "PR-109-C01",
+          "paper_id": "PR-109",
+          "severity": "CRITICAL",
+          "category": "data_leakage",
+          "tags": [
+            "sample_overlap",
+            "target_leakage",
+            "training_test_overlap"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.44108165891274165,
+          "dense_score": 0.6489665508270264,
+          "bm25_score": 0.30434782608695654
+        },
+        {
+          "concern_id": "PR-EXP-0109-C12",
+          "paper_id": "PR-EXP-0109",
+          "severity": "CRITICAL",
+          "category": "split_protocol",
+          "tags": [
+            "patient_overlap_check",
+            "empi_deduplication",
+            "cross_cohort_leakage",
+            "patient_level_isolation"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.42629320958386296,
+          "dense_score": 0.7237374782562256,
+          "bm25_score": 0.13043478260869565
         }
       ]
     },
@@ -106,7 +105,7 @@
       "scenario_id": "evaluation_improper_f1_primary",
       "description": "Imbalanced binary-classification outcome with macro_f1_score reported as primary \u2014 STRATOS TG6 2025 rejects thresholded measures as improper primary metric for clinical risk prediction. Dataset: NHANES CKD or similar rare-outcome cohort.",
       "gate_name": "evaluation_quality_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
@@ -129,26 +128,10 @@
             "missing_confidence_intervals",
             "ci_reporting"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-EXP-0197-C05",
-          "paper_id": "PR-EXP-0197",
-          "severity": "MEDIUM",
-          "category": "evaluation_metrics",
-          "tags": [
-            "overlapping_confidence_intervals",
-            "modest_performance",
-            "external_cohort_attenuation",
-            "ci_methodology"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6361482630670071,
+          "dense_score": 0.6604094505310059,
+          "bm25_score": 1.0
         },
         {
           "concern_id": "PR-002-C01",
@@ -161,10 +144,10 @@
             "class_imbalance",
             "missing_ppv_npv"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.4967249605059624,
+          "dense_score": 0.7296757698059082,
+          "bm25_score": 0.4
         },
         {
           "concern_id": "PR-102-C01",
@@ -177,24 +160,40 @@
             "tripod_compliance",
             "delong_test"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.48681723803281785,
+          "dense_score": 0.7098603248596191,
+          "bm25_score": 0.4
         },
         {
-          "concern_id": "PR-109-C06",
-          "paper_id": "PR-109",
-          "severity": "LOW",
+          "concern_id": "PR-110-C03",
+          "paper_id": "PR-110",
+          "severity": "HIGH",
           "category": "evaluation_metrics",
           "tags": [
-            "ci_reporting",
-            "bootstrap_needed"
+            "missing_calibration",
+            "calibration_plot_missing",
+            "rebalancing_distortion"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.43593567579984666,
+          "dense_score": 0.7280972003936768,
+          "bm25_score": 0.2
+        },
+        {
+          "concern_id": "PR-EXP-0092-C03",
+          "paper_id": "PR-EXP-0092",
+          "severity": "CRITICAL",
+          "category": "evaluation_metrics",
+          "tags": [
+            "missing_calibration",
+            "no_tripod",
+            "rare_outcome_calibration"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.4346654838323593,
+          "dense_score": 0.7133095264434814,
+          "bm25_score": 0.2
         }
       ]
     },
@@ -202,7 +201,7 @@
       "scenario_id": "no_external_validation_single_center",
       "description": "Single-center retrospective cohort, 80/20 random split, no independent external validation site. Dataset: typical institutional EHR prediction paper.",
       "gate_name": "external_validation_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
@@ -218,21 +217,6 @@
       ],
       "top_k_summary": [
         {
-          "concern_id": "PR-026-C01",
-          "paper_id": "PR-026",
-          "severity": "HIGH",
-          "category": "external_validation",
-          "tags": [
-            "limited_geographic_validation",
-            "single_external_center",
-            "generalizability"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
           "concern_id": "PR-107-C01",
           "paper_id": "PR-107",
           "severity": "HIGH",
@@ -242,10 +226,10 @@
             "same_cohort_validation",
             "single_center"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6916528844833375,
+          "dense_score": 0.6616770029067993,
+          "bm25_score": 1.0
         },
         {
           "concern_id": "PR-EXP-0086-C06",
@@ -257,10 +241,25 @@
             "no_external_cohort",
             "single_holdout_test_set"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6456748058579185,
+          "dense_score": 0.714266300201416,
+          "bm25_score": 0.9090909090909091
+        },
+        {
+          "concern_id": "PR-026-C01",
+          "paper_id": "PR-026",
+          "severity": "HIGH",
+          "category": "external_validation",
+          "tags": [
+            "limited_geographic_validation",
+            "single_external_center",
+            "generalizability"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.6454973888397217,
+          "dense_score": 0.6593660116195679,
+          "bm25_score": 1.0
         },
         {
           "concern_id": "PR-EXP-0095-C03",
@@ -272,26 +271,24 @@
             "same_center_validation",
             "site_independence_questioned"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.615398809151216,
+          "dense_score": 0.7082597613334656,
+          "bm25_score": 0.8181818181818182
         },
         {
-          "concern_id": "PR-EXP-0097-C01",
-          "paper_id": "PR-EXP-0097",
-          "severity": "CRITICAL",
-          "category": "study_design",
+          "concern_id": "PR-041-C04",
+          "paper_id": "PR-041",
+          "severity": "HIGH",
+          "category": "external_validation",
           "tags": [
-            "no_external_validation_initially",
-            "missing_comparison_group",
-            "feasibility_only",
-            "antibiotic_exposure_baseline"
+            "no_external_validation",
+            "single_cohort"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5254267677393827,
+          "dense_score": 0.637406587600708,
+          "bm25_score": 0.6363636363636364
         }
       ]
     },
@@ -299,17 +296,16 @@
       "scenario_id": "cohort_definition_selection_bias",
       "description": "Cohort assembled by convenience from EHR pulls without explicit inclusion/exclusion criteria or CONSORT-style flow diagram; selection bias and cohort-definition ambiguity are reviewer-level-1 concerns.",
       "gate_name": "cohort_definition_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.6,
+      "tag_precision": 0.4,
       "matched_expected_categories": [
         "study_design"
       ],
       "matched_expected_tags": [
         "cohort_definition",
-        "exclusion_criteria_questionable",
         "selection_bias"
       ],
       "top_k_summary": [
@@ -323,10 +319,10 @@
             "cohort_definition",
             "eligibility_criteria_missing"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.658247104883194,
+          "dense_score": 0.6757239103317261,
+          "bm25_score": 1.0
         },
         {
           "concern_id": "PR-EXP-0192-C04",
@@ -338,57 +334,55 @@
             "inclusion_exclusion_criteria",
             "cohort_reporting"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.635288204550743,
+          "dense_score": 0.7001912593841553,
+          "bm25_score": 0.9166666666666666
         },
         {
-          "concern_id": "PR-104-C03",
-          "paper_id": "PR-104",
+          "concern_id": "PR-008-C01",
+          "paper_id": "PR-008",
           "severity": "HIGH",
           "category": "study_design",
           "tags": [
             "selection_bias",
-            "case_ascertainment_unclear",
-            "exclusion_criteria_questionable"
+            "representativeness",
+            "matching_strategy"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.4691643750667572,
+          "dense_score": 0.6475584506988525,
+          "bm25_score": 0.4166666666666667
         },
         {
-          "concern_id": "PR-EXP-0198-C02",
-          "paper_id": "PR-EXP-0198",
+          "concern_id": "PR-107-C02",
+          "paper_id": "PR-107",
+          "severity": "MEDIUM",
+          "category": "study_design",
+          "tags": [
+            "cohort_definition",
+            "missing_demographics",
+            "outcome_definition"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.43883757293224335,
+          "dense_score": 0.7672899961471558,
+          "bm25_score": 0.0
+        },
+        {
+          "concern_id": "PR-EXP-0086-C11",
+          "paper_id": "PR-EXP-0086",
           "severity": "HIGH",
           "category": "study_design",
           "tags": [
-            "consecutive_enrollment",
-            "multifocal_exclusion",
-            "selection_criteria",
-            "cohort_definition"
+            "target_definition_circular",
+            "cohort_selection_assumes_outcome",
+            "prospective_applicability_mismatch"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-EXP-0197-C03",
-          "paper_id": "PR-EXP-0197",
-          "severity": "HIGH",
-          "category": "study_design",
-          "tags": [
-            "selection_bias_discussion",
-            "registry_coverage",
-            "cohort_representativeness",
-            "indolent_bias"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.43496699690818785,
+          "dense_score": 0.6791636943817139,
+          "bm25_score": 0.25
         }
       ]
     },
@@ -396,18 +390,17 @@
       "scenario_id": "calibration_plot_missing_no_dca",
       "description": "Clinical-prediction paper reports AUROC only; no calibration plot, no Hosmer-Lemeshow, no DCA. Top review concern for publication-grade binary-classification risk scores.",
       "gate_name": "calibration_dca_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.5,
+      "tag_precision": 0.333,
       "matched_expected_categories": [
         "evaluation_metrics"
       ],
       "matched_expected_tags": [
         "calibration_plot_missing",
-        "missing_calibration",
-        "missing_dca"
+        "missing_calibration"
       ],
       "top_k_summary": [
         {
@@ -420,55 +413,10 @@
             "decision_curve_analysis",
             "version_control_figure"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-022-C01",
-          "paper_id": "PR-022",
-          "severity": "HIGH",
-          "category": "evaluation_metrics",
-          "tags": [
-            "correlation_not_prediction",
-            "individual_level_accuracy",
-            "calibration_plot_missing"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-033-C01",
-          "paper_id": "PR-033",
-          "severity": "HIGH",
-          "category": "evaluation_metrics",
-          "tags": [
-            "missing_calibration",
-            "missing_dca",
-            "clinical_applicability"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-043-C01",
-          "paper_id": "PR-043",
-          "severity": "HIGH",
-          "category": "evaluation_metrics",
-          "tags": [
-            "calibration_plot_missing",
-            "tripod_compliance",
-            "per_clinic_calibration"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6280799713730812,
+          "dense_score": 0.6317466497421265,
+          "bm25_score": 1.0
         },
         {
           "concern_id": "PR-102-C01",
@@ -481,10 +429,56 @@
             "tripod_compliance",
             "delong_test"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5435511070489883,
+          "dense_score": 0.7582756280899048,
+          "bm25_score": 0.4666666666666667
+        },
+        {
+          "concern_id": "PR-022-C01",
+          "paper_id": "PR-022",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "correlation_not_prediction",
+            "individual_level_accuracy",
+            "calibration_plot_missing"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.5372664421796799,
+          "dense_score": 0.7057062983512878,
+          "bm25_score": 0.5333333333333333
+        },
+        {
+          "concern_id": "PR-110-C03",
+          "paper_id": "PR-110",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "missing_calibration",
+            "calibration_plot_missing",
+            "rebalancing_distortion"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.5261263447999954,
+          "dense_score": 0.723426103591919,
+          "bm25_score": 0.4666666666666667
+        },
+        {
+          "concern_id": "PR-EXP-0092-C04",
+          "paper_id": "PR-EXP-0092",
+          "severity": "MEDIUM",
+          "category": "evaluation_metrics",
+          "tags": [
+            "calibration_method_definition",
+            "calibration_in_the_large",
+            "calibration_plot_missing",
+            "rare_disease_visualization"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.4921228161454201,
+          "dense_score": 0.6798323392868042,
+          "bm25_score": 0.4666666666666667
         }
       ]
     },
@@ -492,37 +486,19 @@
       "scenario_id": "model_selection_cherry_picked_seed",
       "description": "Paper compares 12 model families on test set, reports only the best, no Bonferroni/Holm for multiple testing, no reported seed variance. Classic model-selection audit failure.",
       "gate_name": "model_selection_audit_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.667,
+      "tag_precision": 0.333,
       "matched_expected_categories": [
         "model_selection"
       ],
       "matched_expected_tags": [
         "benchmarking_missing",
-        "model_selection_on_test",
-        "multiple_model_comparison",
-        "multiple_testing"
+        "multiple_model_comparison"
       ],
       "top_k_summary": [
-        {
-          "concern_id": "PR-111-C01",
-          "paper_id": "PR-111",
-          "severity": "CRITICAL",
-          "category": "split_protocol",
-          "tags": [
-            "test_set_reuse",
-            "multiple_testing",
-            "model_selection_on_test",
-            "single_split"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
         {
           "concern_id": "PR-EXP-0200-C05",
           "paper_id": "PR-EXP-0200",
@@ -533,25 +509,10 @@
             "no_tuning_protocol",
             "model_selection_opaque"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-EXP-0148-C05",
-          "paper_id": "PR-EXP-0148",
-          "severity": "MEDIUM",
-          "category": "model_selection",
-          "tags": [
-            "baseline_selection_justification",
-            "hyperparameter_fairness",
-            "model_comparison_bias"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6431362169981002,
+          "dense_score": 0.7185481786727905,
+          "bm25_score": 0.9166666666666666
         },
         {
           "concern_id": "PR-108-C03",
@@ -563,10 +524,40 @@
             "benchmarking_missing",
             "model_justification"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6325834965705872,
+          "dense_score": 0.6451669931411743,
+          "bm25_score": 0.5833333333333334
+        },
+        {
+          "concern_id": "PR-107-C03",
+          "paper_id": "PR-107",
+          "severity": "MEDIUM",
+          "category": "model_selection",
+          "tags": [
+            "multiple_model_comparison",
+            "model_justification",
+            "benchmarking_missing"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.6306169027090073,
+          "dense_score": 0.7235095500946045,
+          "bm25_score": 0.4166666666666667
+        },
+        {
+          "concern_id": "PR-003-C08",
+          "paper_id": "PR-003",
+          "severity": "MEDIUM",
+          "category": "model_selection",
+          "tags": [
+            "model_diversity",
+            "xgboost_suggestion",
+            "multiple_model_comparison"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.519464072585106,
+          "dense_score": 0.6312038898468018,
+          "bm25_score": 0.5
         },
         {
           "concern_id": "PR-EXP-0084-C04",
@@ -578,10 +569,10 @@
             "hyperparameter_search_undefined",
             "cv_protocol_missing"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.48837030291557315,
+          "dense_score": 0.6412920951843262,
+          "bm25_score": 0.5
         }
       ]
     },
@@ -589,7 +580,7 @@
       "scenario_id": "split_smote_before_split",
       "description": "Class-imbalanced cohort; author applied SMOTE on the full dataset before train/test split \u2014 the split-protocol leakage pattern called out explicitly in Kapoor & Narayanan 2023 and flagged in several NC papers.",
       "gate_name": "split_protocol_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
@@ -604,6 +595,53 @@
       ],
       "top_k_summary": [
         {
+          "concern_id": "PR-010-C02",
+          "paper_id": "PR-010",
+          "severity": "CRITICAL",
+          "category": "split_protocol",
+          "tags": [
+            "temporal_split_missing",
+            "random_split_inappropriate",
+            "temporal_drift",
+            "20_year_span"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.4298016107082367,
+          "dense_score": 0.702698290348053,
+          "bm25_score": 0.2
+        },
+        {
+          "concern_id": "PR-111-C04",
+          "paper_id": "PR-111",
+          "severity": "HIGH",
+          "category": "external_validation",
+          "tags": [
+            "no_external_validation",
+            "single_split",
+            "generalizability",
+            "validation_cohort_missing"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.42308555483818056,
+          "dense_score": 0.6618138551712036,
+          "bm25_score": 0.26666666666666666
+        },
+        {
+          "concern_id": "PR-EXP-0084-C08",
+          "paper_id": "PR-EXP-0084",
+          "severity": "HIGH",
+          "category": "split_protocol",
+          "tags": [
+            "nested_cv_unclear",
+            "data_leakage_safeguards_missing",
+            "feature_set_ambiguity"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.36511282801628114,
+          "dense_score": 0.6658684015274048,
+          "bm25_score": 0.06666666666666667
+        },
+        {
           "concern_id": "PR-002-C05",
           "paper_id": "PR-002",
           "severity": "HIGH",
@@ -614,9 +652,9 @@
             "potential_patient_overlap"
           ],
           "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "final_score": 0.3121786272525787,
+          "dense_score": 0.0,
+          "bm25_score": 1.0
         },
         {
           "concern_id": "PR-113-C01",
@@ -630,55 +668,9 @@
             "leakage_risk"
           ],
           "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-EXP-0185-C02",
-          "paper_id": "PR-EXP-0185",
-          "severity": "HIGH",
-          "category": "split_protocol",
-          "tags": [
-            "temporal_split_leakage",
-            "patient_overlap",
-            "split_hygiene"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-EXP-0200-C07",
-          "paper_id": "PR-EXP-0200",
-          "severity": "HIGH",
-          "category": "split_protocol",
-          "tags": [
-            "patient_level_split_request",
-            "temporal_split_validation",
-            "inter_rater_reliability"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-EXP-0189-C04",
-          "paper_id": "PR-EXP-0189",
-          "severity": "MEDIUM",
-          "category": "split_protocol",
-          "tags": [
-            "stratified_sampling",
-            "patient_level_split",
-            "age_stratification",
-            "split_documentation"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "final_score": 0.2584524655342102,
+          "dense_score": 0.0,
+          "bm25_score": 0.8
         }
       ]
     },
@@ -686,70 +678,19 @@
       "scenario_id": "missingness_normal_range_imputation",
       "description": "EHR cohort with 30% missing labs; author imputed missing values to 'normal range' instead of median/MICE \u2014 treats missingness as MCAR when it is almost certainly MNAR (informative missingness). Calibration + reported performance both inflated.",
       "gate_name": "missingness_policy_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 1.0,
+      "tag_precision": 0.333,
       "matched_expected_categories": [
         "preprocessing"
       ],
       "matched_expected_tags": [
         "imputation_method",
-        "imputation_transparency",
-        "informative_missingness",
-        "missing_data_unreported",
-        "missing_not_at_random",
-        "normal_imputation_bias"
+        "imputation_transparency"
       ],
       "top_k_summary": [
-        {
-          "concern_id": "PR-035-C04",
-          "paper_id": "PR-035",
-          "severity": "HIGH",
-          "category": "preprocessing",
-          "tags": [
-            "informative_missingness",
-            "normal_imputation_bias",
-            "missing_not_at_random"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-111-C03",
-          "paper_id": "PR-111",
-          "severity": "HIGH",
-          "category": "preprocessing",
-          "tags": [
-            "imputation_policy",
-            "missingness_reporting",
-            "missing_data_unreported",
-            "feature_quality"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-039-C03",
-          "paper_id": "PR-039",
-          "severity": "HIGH",
-          "category": "preprocessing",
-          "tags": [
-            "imputation_justification",
-            "mnar_concern",
-            "informative_missingness",
-            "missing_data_unreported"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
         {
           "concern_id": "PR-006-C05",
           "paper_id": "PR-006",
@@ -759,10 +700,10 @@
             "missing_data_handling_unclear",
             "imputation_method"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5433666375279427,
+          "dense_score": 0.6586127281188965,
+          "bm25_score": 0.7
         },
         {
           "concern_id": "PR-EXP-0126-C05",
@@ -774,10 +715,56 @@
             "imputation_transparency",
             "feature_missingness"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5306424167752266,
+          "dense_score": 0.6331642866134644,
+          "bm25_score": 0.7
+        },
+        {
+          "concern_id": "PR-EXP-0160-C06",
+          "paper_id": "PR-EXP-0160",
+          "severity": "HIGH",
+          "category": "preprocessing",
+          "tags": [
+            "extreme_missingness",
+            "mice_imputation_validity",
+            "external_dataset_missing",
+            "fair_comparison_under_missingness"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.5070050388574601,
+          "dense_score": 0.6377689838409424,
+          "bm25_score": 0.6
+        },
+        {
+          "concern_id": "PR-035-C01",
+          "paper_id": "PR-035",
+          "severity": "HIGH",
+          "category": "preprocessing",
+          "tags": [
+            "missing_data_threshold",
+            "imputation_in_validation",
+            "non_routine_features"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.45692390739917754,
+          "dense_score": 0.6576067209243774,
+          "bm25_score": 0.4
+        },
+        {
+          "concern_id": "PR-EXP-0096-C07",
+          "paper_id": "PR-EXP-0096",
+          "severity": "MEDIUM",
+          "category": "reporting",
+          "tags": [
+            "sample_size_clarity",
+            "missing_outcome_handling",
+            "nuisance_regression_imputation"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.4095485523343086,
+          "dense_score": 0.6309765577316284,
+          "bm25_score": 0.3
         }
       ]
     },
@@ -785,21 +772,19 @@
       "scenario_id": "reporting_missing_tripod_checklist",
       "description": "Clinical-prediction paper ships with no TRIPOD+AI 2024 completion table, no PROBAST+AI 2025 risk-of-bias assessment, no CONSORT-style flow diagram. Reporting completeness failure \u2014 very common reviewer concern.",
       "gate_name": "reporting_bias_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.857,
+      "tag_precision": 0.571,
       "matched_expected_categories": [
         "reporting"
       ],
       "matched_expected_tags": [
-        "consort",
-        "consort_flow_missing",
-        "missing_flow_diagram",
         "no_tripod",
         "reporting_completeness",
-        "reporting_guidelines"
+        "reporting_guidelines",
+        "tripod_compliance"
       ],
       "top_k_summary": [
         {
@@ -812,39 +797,24 @@
             "reporting_completeness",
             "flow_diagram_missing"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6979252390563488,
+          "dense_score": 0.7656550407409668,
+          "bm25_score": 1.0
         },
         {
-          "concern_id": "PR-002-C08",
-          "paper_id": "PR-002",
+          "concern_id": "PR-026-C04",
+          "paper_id": "PR-026",
           "severity": "LOW",
           "category": "reporting",
           "tags": [
-            "missing_flow_diagram",
-            "consort"
+            "tripod_compliance",
+            "reporting_quality"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-058-C03",
-          "paper_id": "PR-058",
-          "severity": "MEDIUM",
-          "category": "reporting",
-          "tags": [
-            "study_design_diagram_missing",
-            "consort_flow_missing",
-            "justification_for_lmic"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5650429666042328,
+          "dense_score": 0.8300859332084656,
+          "bm25_score": 0.5
         },
         {
           "concern_id": "PR-EXP-0191-C03",
@@ -856,24 +826,41 @@
             "reporting_guidelines",
             "tripod_ai_alignment"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5468147091567517,
+          "dense_score": 0.7134339809417725,
+          "bm25_score": 0.5833333333333334
         },
         {
-          "concern_id": "PR-019-C05",
-          "paper_id": "PR-019",
-          "severity": "LOW",
+          "concern_id": "PR-EXP-0157-C03",
+          "paper_id": "PR-EXP-0157",
+          "severity": "MEDIUM",
           "category": "reporting",
           "tags": [
-            "figure_annotation",
-            "flow_diagram_clarity"
+            "no_tripod",
+            "stard_missing",
+            "reporting_guideline_compliance"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5252300374209881,
+          "dense_score": 0.8202646374702454,
+          "bm25_score": 0.3333333333333333
+        },
+        {
+          "concern_id": "PR-102-C01",
+          "paper_id": "PR-102",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "missing_calibration",
+            "calibration_plot_missing",
+            "tripod_compliance",
+            "delong_test"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.515900008380413,
+          "dense_score": 0.7214091420173645,
+          "bm25_score": 0.4166666666666667
         }
       ]
     },
@@ -881,7 +868,7 @@
       "scenario_id": "clinical_threshold_no_sensitivity_specificity",
       "description": "Rare-outcome binary classifier reports AUROC=0.85 but never discloses sensitivity/specificity or PPV/NPV at the deployed threshold. For rare-event clinical prediction the PPV can be <10% even at AUROC 0.85 \u2014 this is the failure mode that makes AUROC-only evaluation misleading.",
       "gate_name": "clinical_metrics_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
@@ -904,10 +891,24 @@
             "triage_threshold",
             "clinical_actionability"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6694333268702031,
+          "dense_score": 0.7252078056335449,
+          "bm25_score": 1.0
+        },
+        {
+          "concern_id": "PR-080-C01",
+          "paper_id": "PR-080",
+          "severity": "MEDIUM",
+          "category": "evaluation_metrics",
+          "tags": [
+            "threshold_selection",
+            "sensitivity_vs_specificity"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.6625512533883253,
+          "dense_score": 0.7781103253364563,
+          "bm25_score": 0.8888888888888888
         },
         {
           "concern_id": "PR-EXP-0157-C01",
@@ -920,24 +921,10 @@
             "f1_missing",
             "sota_comparison"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-080-C01",
-          "paper_id": "PR-080",
-          "severity": "MEDIUM",
-          "category": "evaluation_metrics",
-          "tags": [
-            "threshold_selection",
-            "sensitivity_vs_specificity"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6564958221713701,
+          "dense_score": 0.7523406147956848,
+          "bm25_score": 0.8888888888888888
         },
         {
           "concern_id": "PR-EXP-0203-C04",
@@ -949,10 +936,10 @@
             "operating_point_choice",
             "clinical_metric_panel"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6320790622135004,
+          "dense_score": 0.7838326096534729,
+          "bm25_score": 0.7777777777777778
         },
         {
           "concern_id": "PR-006-C02",
@@ -965,10 +952,10 @@
             "missing_variance_explained",
             "missing_sensitivity_specificity"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5612088210384051,
+          "dense_score": 0.7617666125297546,
+          "bm25_score": 0.5555555555555556
         }
       ]
     },
@@ -976,7 +963,7 @@
       "scenario_id": "definition_variable_outcome_in_feature",
       "description": "Outcome is 'AKI' defined as creatinine rise \u22650.3 mg/dL over 48h \u2014 then 'peak_creatinine_48h' is used as a predictor. Classic definition-variable leak: feature is (part of) the outcome itself. Complements the discharge-ICD leakage scenario by targeting the non-ICD form of outcome-in-feature.",
       "gate_name": "definition_variable_guard",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
@@ -1005,10 +992,10 @@
             "causal_pathway_feature",
             "aki_definition"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6439555445313454,
+          "dense_score": 0.6580070853233337,
+          "bm25_score": 1.0
         },
         {
           "concern_id": "PR-001-C02",
@@ -1020,10 +1007,10 @@
             "definition_variable",
             "feature_is_outcome_proxy"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6050684022051948,
+          "dense_score": 0.607684850692749,
+          "bm25_score": 0.9285714285714286
         },
         {
           "concern_id": "PR-113-C05",
@@ -1035,10 +1022,10 @@
             "definition_variable_guard",
             "variable_definition_ambiguous"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5384919002865042,
+          "dense_score": 0.6763175129890442,
+          "bm25_score": 0.6428571428571429
         },
         {
           "concern_id": "PR-114-C01",
@@ -1051,26 +1038,25 @@
             "sepsis3_label_inconsistency",
             "prognostic_vs_diagnostic"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.4929825744884354,
+          "dense_score": 0.6132040023803711,
+          "bm25_score": 0.5714285714285714
         },
         {
-          "concern_id": "PR-EXP-0098-C01",
-          "paper_id": "PR-EXP-0098",
+          "concern_id": "PR-EXP-0150-C04",
+          "paper_id": "PR-EXP-0150",
           "severity": "HIGH",
           "category": "study_design",
           "tags": [
-            "definition_variable_collinearity",
-            "egfr_as_target_and_correlate",
-            "missing_disease_specific_control",
-            "circular_marker_egfr_decline"
+            "ground_truth_undefined",
+            "outcome_definition_inconsistent",
+            "label_provenance"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.4391925688726561,
+          "dense_score": 0.5913382768630981,
+          "bm25_score": 0.42857142857142855
         }
       ]
     },
@@ -1078,7 +1064,7 @@
       "scenario_id": "imbalance_smote_without_justification",
       "description": "Extreme class imbalance (1% positive class) handled by SMOTE to 50/50 without discussion of distortion to calibration or reporting of performance on the ORIGINAL imbalanced test distribution. Common mishandling in rare-outcome NC papers.",
       "gate_name": "imbalance_policy_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
@@ -1095,22 +1081,6 @@
       ],
       "top_k_summary": [
         {
-          "concern_id": "PR-002-C01",
-          "paper_id": "PR-002",
-          "severity": "HIGH",
-          "category": "evaluation_metrics",
-          "tags": [
-            "incomplete_metrics",
-            "missing_calibration",
-            "class_imbalance",
-            "missing_ppv_npv"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
           "concern_id": "PR-027-C02",
           "paper_id": "PR-027",
           "severity": "HIGH",
@@ -1120,10 +1090,10 @@
             "temporal_imbalance",
             "smote_needed"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6918785983324052,
+          "dense_score": 0.7394856810569763,
+          "bm25_score": 1.0
         },
         {
           "concern_id": "PR-110-C04",
@@ -1135,41 +1105,56 @@
             "resampling_distortion",
             "imbalance_policy_gate"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6800834351778031,
+          "dense_score": 0.7158953547477722,
+          "bm25_score": 1.0
         },
         {
-          "concern_id": "PR-113-C01",
-          "paper_id": "PR-113",
-          "severity": "CRITICAL",
-          "category": "split_protocol",
+          "concern_id": "PR-002-C01",
+          "paper_id": "PR-002",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
           "tags": [
-            "cv_strategy_unspecified",
-            "smote_before_split",
-            "data_split_ambiguous",
-            "leakage_risk"
+            "incomplete_metrics",
+            "missing_calibration",
+            "class_imbalance",
+            "missing_ppv_npv"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6683286839723588,
+          "dense_score": 0.6923858523368835,
+          "bm25_score": 1.0
         },
         {
-          "concern_id": "PR-010-C04",
-          "paper_id": "PR-010",
+          "concern_id": "PR-EXP-0105-C03",
+          "paper_id": "PR-EXP-0105",
           "severity": "HIGH",
           "category": "evaluation_metrics",
           "tags": [
             "class_imbalance",
-            "missing_precision_recall",
-            "auprc_missing"
+            "auprc_missing",
+            "no_skill_baseline"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5536888874428613,
+          "dense_score": 0.7202491164207458,
+          "bm25_score": 0.5714285714285714
+        },
+        {
+          "concern_id": "PR-055-C02",
+          "paper_id": "PR-055",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "class_imbalance_across_centers",
+            "fl_convergence",
+            "heterogeneous_data"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.55073896416596,
+          "dense_score": 0.7143492698669434,
+          "bm25_score": 0.5714285714285714
         }
       ]
     },
@@ -1177,20 +1162,16 @@
       "scenario_id": "feature_selection_data_leakage",
       "description": "Feature-engineering report declares selection_scope='full_data' or data_scopes_used includes 'test'/'external' \u2014 the exact failures feature_engineering_audit_gate emits. Real code strings: feature_selection_data_leakage + feature_engineering_scope_violation. Represents the 'preprocessing fit on concatenated train+test' class (Kapoor & Narayanan 2023 R002).",
       "gate_name": "feature_engineering_audit_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.667,
+      "tag_precision": 0.167,
       "matched_expected_categories": [
-        "feature_selection",
-        "preprocessing"
+        "feature_selection"
       ],
       "matched_expected_tags": [
-        "data_leakage_via_imputation",
-        "feature_selection_justification",
-        "feature_selection_process",
-        "validation_imputation"
+        "feature_selection_process"
       ],
       "top_k_summary": [
         {
@@ -1203,24 +1184,10 @@
             "cv_procedure_unclear",
             "potential_data_leakage_in_cv"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-101-C04",
-          "paper_id": "PR-101",
-          "severity": "MEDIUM",
-          "category": "feature_selection",
-          "tags": [
-            "feature_selection_justification",
-            "feature_selection_process"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6421864348649979,
+          "dense_score": 0.6640608906745911,
+          "bm25_score": 1.0
         },
         {
           "concern_id": "PR-EXP-0126-C01",
@@ -1232,38 +1199,54 @@
             "feature_redundancy",
             "tree_internal_selection"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5652111157774925,
+          "dense_score": 0.7002662420272827,
+          "bm25_score": 0.7
         },
         {
-          "concern_id": "PR-024-C04",
-          "paper_id": "PR-024",
-          "severity": "LOW",
+          "concern_id": "PR-EXP-0101-C03",
+          "paper_id": "PR-EXP-0101",
+          "severity": "MEDIUM",
           "category": "feature_selection",
           "tags": [
-            "p_value_selection",
-            "data_driven_selection"
+            "confounder_selection",
+            "non_medical_feature_predictive_power",
+            "feature_provenance_audit"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.49469876378774646,
+          "dense_score": 0.6792415380477905,
+          "bm25_score": 0.5
         },
         {
-          "concern_id": "PR-003-C03",
-          "paper_id": "PR-003",
+          "concern_id": "PR-EXP-0095-C09",
+          "paper_id": "PR-EXP-0095",
           "severity": "HIGH",
-          "category": "preprocessing",
+          "category": "feature_selection",
           "tags": [
-            "validation_imputation",
-            "data_leakage_via_imputation"
+            "modality_selection_unjustified",
+            "feature_choice_clinical_reasoning",
+            "alternative_inputs_unexplored"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.4919937032461167,
+          "dense_score": 0.6636754274368286,
+          "bm25_score": 0.5
+        },
+        {
+          "concern_id": "PR-007-C07",
+          "paper_id": "PR-007",
+          "severity": "LOW",
+          "category": "reporting",
+          "tags": [
+            "model_development_details",
+            "feature_selection_process"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.4811222791671753,
+          "dense_score": 0.6622445583343506,
+          "bm25_score": 0.5
         }
       ]
     },
@@ -1271,54 +1254,38 @@
       "scenario_id": "tuning_hyperparameter_on_test_set",
       "description": "Paper reports a grid search over 200+ hyperparameter combinations with the best configuration selected by test-set AUROC. Classic tuning-leakage pattern \u2014 the test set becomes a validation set by proxy, inflating reported performance. Real reviewer critique across multiple NC papers.",
       "gate_name": "tuning_leakage_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.533,
+      "tag_precision": 0.4,
       "matched_expected_categories": [
         "model_selection"
       ],
       "matched_expected_tags": [
         "cross_validation_for_tuning",
-        "grid_search",
-        "hyperparameter_search_undefined",
         "hyperparameter_selection_undocumented",
-        "hyperparameter_tuning_disclosure",
+        "model_selection_on_test",
+        "multiple_testing",
         "nested_cv_unclear",
-        "no_tuning_protocol",
-        "tuning_protocol"
+        "no_tuning_protocol"
       ],
       "top_k_summary": [
         {
-          "concern_id": "PR-EXP-0126-C03",
-          "paper_id": "PR-EXP-0126",
-          "severity": "MEDIUM",
-          "category": "model_selection",
+          "concern_id": "PR-111-C01",
+          "paper_id": "PR-111",
+          "severity": "CRITICAL",
+          "category": "split_protocol",
           "tags": [
-            "hyperparameter_tuning_disclosure",
-            "grid_search",
-            "tuning_protocol"
+            "test_set_reuse",
+            "multiple_testing",
+            "model_selection_on_test",
+            "single_split"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-EXP-0084-C04",
-          "paper_id": "PR-EXP-0084",
-          "severity": "HIGH",
-          "category": "model_selection",
-          "tags": [
-            "reproducibility_methods_underspecified",
-            "hyperparameter_search_undefined",
-            "cv_protocol_missing"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6018607731376375,
+          "dense_score": 0.7619356513023376,
+          "bm25_score": 0.6428571428571429
         },
         {
           "concern_id": "PR-EXP-0084-C08",
@@ -1330,10 +1297,10 @@
             "data_leakage_safeguards_missing",
             "feature_set_ambiguity"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5771535712054798,
+          "dense_score": 0.6887284517288208,
+          "bm25_score": 0.7142857142857143
         },
         {
           "concern_id": "PR-EXP-0159-C03",
@@ -1345,10 +1312,10 @@
             "cross_validation_for_tuning",
             "split_protocol"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5691813307574818,
+          "dense_score": 0.6727839708328247,
+          "bm25_score": 0.7142857142857143
         },
         {
           "concern_id": "PR-EXP-0200-C05",
@@ -1360,10 +1327,25 @@
             "no_tuning_protocol",
             "model_selection_opaque"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5613426221481391,
+          "dense_score": 0.6756101846694946,
+          "bm25_score": 0.7142857142857143
+        },
+        {
+          "concern_id": "PR-EXP-0155-C03",
+          "paper_id": "PR-EXP-0155",
+          "severity": "HIGH",
+          "category": "model_selection",
+          "tags": [
+            "calibration_leakage",
+            "test_set_reduction",
+            "fit_inflation"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.5543255857484681,
+          "dense_score": 0.7287867665290833,
+          "bm25_score": 0.5714285714285714
         }
       ]
     },
@@ -1371,17 +1353,16 @@
       "scenario_id": "ci_missing_or_suspiciously_narrow",
       "description": "Primary metric (AUROC=0.912) reported as point estimate only, or with a suspiciously narrow CI [0.910, 0.914] on a 500-patient cohort \u2014 violates the discriminative-measure CI reporting requirement and suggests either no bootstrap or insufficient resamples. Frequent reviewer-level-1 concern.",
       "gate_name": "ci_matrix_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.6,
+      "tag_precision": 0.4,
       "matched_expected_categories": [
         "evaluation_metrics"
       ],
       "matched_expected_tags": [
-        "bootstrap_vs_model_uncertainty",
-        "no_bootstrap_ci",
+        "missing_ci",
         "suspiciously_narrow_ci"
       ],
       "top_k_summary": [
@@ -1395,25 +1376,10 @@
             "iterative_testing",
             "multiple_testing"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-029-C02",
-          "paper_id": "PR-029",
-          "severity": "HIGH",
-          "category": "evaluation_metrics",
-          "tags": [
-            "single_split",
-            "no_bootstrap_ci",
-            "cherry_picking_risk"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6790285441279412,
+          "dense_score": 0.7236226797103882,
+          "bm25_score": 1.0
         },
         {
           "concern_id": "PR-109-C06",
@@ -1424,10 +1390,24 @@
             "ci_reporting",
             "bootstrap_needed"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5486682283878326,
+          "dense_score": 0.7373364567756653,
+          "bm25_score": 0.6
+        },
+        {
+          "concern_id": "PR-EXP-0159-C06",
+          "paper_id": "PR-EXP-0159",
+          "severity": "MEDIUM",
+          "category": "evaluation_metrics",
+          "tags": [
+            "missing_confidence_intervals",
+            "ci_reporting"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.48168237909674644,
+          "dense_score": 0.7661475539207458,
+          "bm25_score": 0.3
         },
         {
           "concern_id": "PR-043-C02",
@@ -1440,25 +1420,25 @@
             "delong_test",
             "ci_needed"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.4736554130911827,
+          "dense_score": 0.6728764176368713,
+          "bm25_score": 0.4
         },
         {
-          "concern_id": "PR-106-C02",
-          "paper_id": "PR-106",
+          "concern_id": "PR-113-C02",
+          "paper_id": "PR-113",
           "severity": "MEDIUM",
           "category": "evaluation_metrics",
           "tags": [
-            "bootstrap_vs_model_uncertainty",
-            "time_to_event_vs_binary",
-            "prediction_window_justification"
+            "missing_ci",
+            "no_delong_test",
+            "statistical_comparison_missing"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.4408240507543087,
+          "dense_score": 0.6844308972358704,
+          "bm25_score": 0.3
         }
       ]
     },
@@ -1466,11 +1446,11 @@
       "scenario_id": "fairness_subgroup_performance_gap",
       "description": "Model reports overall AUROC=0.85 but disaggregated analysis shows female+non-white subgroup AUROC=0.71, never addressed in the paper. Subgroup-performance disparity is called out explicitly by reviewers for any clinical-deployment claim.",
       "gate_name": "fairness_equity_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.455,
+      "tag_precision": 0.364,
       "matched_expected_categories": [
         "reporting",
         "study_design"
@@ -1478,7 +1458,6 @@
       "matched_expected_tags": [
         "fairness",
         "missing_demographics",
-        "subgroup_analysis",
         "subgroup_analysis_missing",
         "subgroup_performance"
       ],
@@ -1493,26 +1472,10 @@
             "fairness_mitigation_strategies",
             "ethnicity_performance_gaps"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-111-C05",
-          "paper_id": "PR-111",
-          "severity": "MEDIUM",
-          "category": "study_design",
-          "tags": [
-            "subgroup_analysis_missing",
-            "confounding",
-            "fairness",
-            "missing_demographics"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6831605207920075,
+          "dense_score": 0.7455006837844849,
+          "bm25_score": 1.0
         },
         {
           "concern_id": "PR-EXP-0119-C01",
@@ -1525,26 +1488,26 @@
             "demographic_reporting_missing",
             "subgroup_performance"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6378101682662964,
+          "dense_score": 0.6939796209335327,
+          "bm25_score": 0.75
         },
         {
-          "concern_id": "PR-EXP-0194-C02",
-          "paper_id": "PR-EXP-0194",
-          "severity": "HIGH",
+          "concern_id": "PR-111-C05",
+          "paper_id": "PR-111",
+          "severity": "MEDIUM",
           "category": "study_design",
           "tags": [
-            "mixed_cohort_confounding",
-            "tumor_subtype_stratification",
-            "subgroup_analysis",
-            "ctdna_detection_frequency"
+            "subgroup_analysis_missing",
+            "confounding",
+            "fairness",
+            "missing_demographics"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6007138085365296,
+          "dense_score": 0.680607259273529,
+          "bm25_score": 0.8333333333333334
         },
         {
           "concern_id": "PR-EXP-0110-C08",
@@ -1555,10 +1518,25 @@
             "sex_subgroup_analysis",
             "subgroup_added"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5205462348461152,
+          "dense_score": 0.6702721118927002,
+          "bm25_score": 0.5833333333333334
+        },
+        {
+          "concern_id": "PR-EXP-0105-C08",
+          "paper_id": "PR-EXP-0105",
+          "severity": "MEDIUM",
+          "category": "external_validation",
+          "tags": [
+            "ancestry_underrepresentation",
+            "subgroup_coverage",
+            "limitation_acknowledged"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.4780690026283264,
+          "dense_score": 0.7353176474571228,
+          "bm25_score": 0.3333333333333333
         }
       ]
     },
@@ -1566,7 +1544,7 @@
       "scenario_id": "sample_size_epv_violated",
       "description": "Multivariable logistic regression with 15 predictors trained on 380 patients and 42 positive outcomes \u2014 EPV = 2.8, far below Riley et al. 2019 minimum. No a priori sample-size justification. Peeking at test-AUROC for 'feasibility' is not a substitute.",
       "gate_name": "sample_size_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
@@ -1581,6 +1559,21 @@
       ],
       "top_k_summary": [
         {
+          "concern_id": "PR-108-C02",
+          "paper_id": "PR-108",
+          "severity": "HIGH",
+          "category": "sample_size",
+          "tags": [
+            "small_sample",
+            "underpowered",
+            "epv_violation"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.6675343772768974,
+          "dense_score": 0.687063992023468,
+          "bm25_score": 0.75
+        },
+        {
           "concern_id": "PR-EXP-0151-C01",
           "paper_id": "PR-EXP-0151",
           "severity": "HIGH",
@@ -1591,24 +1584,10 @@
             "accuracy_misleading",
             "ppv_sensitivity_needed"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-012-C07",
-          "paper_id": "PR-012",
-          "severity": "MEDIUM",
-          "category": "sample_size",
-          "tags": [
-            "small_sample",
-            "sensitivity_analysis_for_size"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6458644685149193,
+          "dense_score": 0.6737241744995117,
+          "bm25_score": 1.0
         },
         {
           "concern_id": "PR-056-C02",
@@ -1620,41 +1599,41 @@
             "underpowered",
             "proof_of_concept"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6010201629996299,
+          "dense_score": 0.6590355634689331,
+          "bm25_score": 0.875
         },
         {
-          "concern_id": "PR-016-C01",
-          "paper_id": "PR-016",
+          "concern_id": "PR-114-C04",
+          "paper_id": "PR-114",
           "severity": "HIGH",
-          "category": "preprocessing",
+          "category": "sample_size",
           "tags": [
-            "overparameterized",
-            "too_many_features",
-            "feature_to_sample_ratio",
-            "epv_violation"
+            "underpowered",
+            "sample_size_justification",
+            "tuning_leakage",
+            "multi_cohort_refit"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5822307166457176,
+          "dense_score": 0.6964566707611084,
+          "bm25_score": 0.75
         },
         {
-          "concern_id": "PR-108-C02",
-          "paper_id": "PR-108",
+          "concern_id": "PR-110-C02",
+          "paper_id": "PR-110",
           "severity": "HIGH",
           "category": "sample_size",
           "tags": [
             "small_sample",
             "underpowered",
-            "epv_violation"
+            "low_event_count"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5571504911780357,
+          "dense_score": 0.6912962198257446,
+          "bm25_score": 0.375
         }
       ]
     },
@@ -1662,7 +1641,7 @@
       "scenario_id": "interpretability_shap_shallow",
       "description": "SHAP plot shown for top-10 features with no per-subgroup analysis, no axis labels on the beeswarm, no sanity check against domain knowledge. 'We used SHAP' \u2260 interpretable model \u2014 classic reviewer pushback in NC AI papers.",
       "gate_name": "shap_interpretability_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
@@ -1689,10 +1668,10 @@
             "ecg_feature_meaning",
             "positive_negative_examples"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6367107757925987,
+          "dense_score": 0.6618627309799194,
+          "bm25_score": 1.0
         },
         {
           "concern_id": "PR-001-C07",
@@ -1703,10 +1682,10 @@
             "shap_presentation",
             "multi_model_shap"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5473203524947166,
+          "dense_score": 0.6630818843841553,
+          "bm25_score": 0.7
         },
         {
           "concern_id": "PR-101-C05",
@@ -1718,10 +1697,10 @@
             "feature_importance",
             "explainability_missing"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5244548055529594,
+          "dense_score": 0.7073507905006409,
+          "bm25_score": 0.4
         },
         {
           "concern_id": "PR-EXP-0197-C06",
@@ -1733,25 +1712,24 @@
             "multi_method_feature_ranking",
             "univariate_validation"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.4751122197508812,
+          "dense_score": 0.6986656188964844,
+          "bm25_score": 0.4
         },
         {
-          "concern_id": "PR-EXP-0203-C01",
-          "paper_id": "PR-EXP-0203",
+          "concern_id": "PR-003-C07",
+          "paper_id": "PR-003",
           "severity": "MEDIUM",
           "category": "interpretability",
           "tags": [
-            "saliency_method_justification",
-            "shap_alternatives",
-            "interpretability_comparison"
+            "shap_requested",
+            "feature_importance"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.47301128953695293,
+          "dense_score": 0.6644637584686279,
+          "bm25_score": 0.3
         }
       ]
     },
@@ -1759,7 +1737,7 @@
       "scenario_id": "covariate_shift_train_test",
       "description": "Train from 2015-2019 data, test on 2023 data \u2014 no PSI / Jensen-Shannon / feature-drift analysis. Drug prescribing patterns, diagnostic codes, and demographics all shifted over the gap. KB uses broad tags like 'confounding' / 'selection_bias' / 'cohort_definition' for this class, not the ML-textbook term 'covariate shift'.",
       "gate_name": "covariate_shift_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
@@ -1769,44 +1747,13 @@
         "study_design"
       ],
       "matched_expected_tags": [
-        "development_validation_clinical_setting_mismatch",
-        "distribution_shift",
-        "distribution_shift_initial_vs_recurrent",
+        "cohort_definition",
+        "confounding",
+        "selection_bias",
         "temporal_distribution_shift",
         "treatment_protocol_drift"
       ],
       "top_k_summary": [
-        {
-          "concern_id": "PR-EXP-0084-C13",
-          "paper_id": "PR-EXP-0084",
-          "severity": "MEDIUM",
-          "category": "external_validation",
-          "tags": [
-            "ethnic_distribution_shift",
-            "bmi_ethnicity_interaction",
-            "feature_importance_bias"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-EXP-0147-C03",
-          "paper_id": "PR-EXP-0147",
-          "severity": "HIGH",
-          "category": "model_selection",
-          "tags": [
-            "high_dimensional_overfitting",
-            "p_greater_than_n",
-            "feature_brittleness",
-            "distribution_shift"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
         {
           "concern_id": "PR-EXP-0160-C02",
           "paper_id": "PR-EXP-0160",
@@ -1817,25 +1764,10 @@
             "treatment_protocol_drift",
             "covid_treatment_era"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-EXP-0095-C02",
-          "paper_id": "PR-EXP-0095",
-          "severity": "CRITICAL",
-          "category": "study_design",
-          "tags": [
-            "development_validation_clinical_setting_mismatch",
-            "initial_vs_recurrent_disease",
-            "distribution_shift_initial_vs_recurrent"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5961290327991757,
+          "dense_score": 0.6584281921386719,
+          "bm25_score": 0.8571428571428571
         },
         {
           "concern_id": "PR-EXP-0112-C01",
@@ -1848,10 +1780,57 @@
             "multi_modality_added",
             "domain_shift_benchmark"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5302045620339256,
+          "dense_score": 0.6980078220367432,
+          "bm25_score": 0.5714285714285714
+        },
+        {
+          "concern_id": "PR-EXP-0085-C04",
+          "paper_id": "PR-EXP-0085",
+          "severity": "HIGH",
+          "category": "external_validation",
+          "tags": [
+            "external_performance_drop",
+            "geographic_distribution_shift",
+            "regional_variants",
+            "underfitting_vs_overfitting"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.46799838057586124,
+          "dense_score": 0.6593097448348999,
+          "bm25_score": 0.42857142857142855
+        },
+        {
+          "concern_id": "PR-EXP-0105-C05",
+          "paper_id": "PR-EXP-0105",
+          "severity": "CRITICAL",
+          "category": "study_design",
+          "tags": [
+            "unadjusted_confounders",
+            "spurious_metabolite_association",
+            "primary_vs_supplemental_models"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.39372357981545586,
+          "dense_score": 0.6721205115318298,
+          "bm25_score": 0.14285714285714285
+        },
+        {
+          "concern_id": "PR-112-C03",
+          "paper_id": "PR-112",
+          "severity": "HIGH",
+          "category": "study_design",
+          "tags": [
+            "confounding",
+            "treatment_imbalance",
+            "selection_bias",
+            "cohort_definition"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.3591662222146988,
+          "dense_score": 0.6987882852554321,
+          "bm25_score": 0.0
         }
       ]
     },
@@ -1859,7 +1838,7 @@
       "scenario_id": "distribution_generalization_temporal",
       "description": "Internal temporal validation: model trained on 2015-2018, internal-split 2019-2020, reported as 'temporal validation'. But there is no external site. Generalization claim uses the wrong reference population.",
       "gate_name": "distribution_generalization_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
@@ -1876,21 +1855,6 @@
       ],
       "top_k_summary": [
         {
-          "concern_id": "PR-EXP-0200-C07",
-          "paper_id": "PR-EXP-0200",
-          "severity": "HIGH",
-          "category": "split_protocol",
-          "tags": [
-            "patient_level_split_request",
-            "temporal_split_validation",
-            "inter_rater_reliability"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
           "concern_id": "PR-EXP-0109-C07",
           "paper_id": "PR-EXP-0109",
           "severity": "MEDIUM",
@@ -1900,10 +1864,10 @@
             "tertiary_only_validation",
             "distribution_shift_risk"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6314708777449347,
+          "dense_score": 0.7071797847747803,
+          "bm25_score": 0.9090909090909091
         },
         {
           "concern_id": "PR-111-C04",
@@ -1916,10 +1880,10 @@
             "generalizability",
             "validation_cohort_missing"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6207443968816238,
+          "dense_score": 0.7299648523330688,
+          "bm25_score": 0.8181818181818182
         },
         {
           "concern_id": "PR-EXP-0160-C13",
@@ -1931,10 +1895,10 @@
             "claims_data_transportability",
             "geographic_generalization"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6191538469357925,
+          "dense_score": 0.7267837524414062,
+          "bm25_score": 0.8181818181818182
         },
         {
           "concern_id": "PR-110-C05",
@@ -1947,10 +1911,25 @@
             "device_heterogeneity",
             "prospective_misnomer"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5852251881902868,
+          "dense_score": 0.7134718894958496,
+          "bm25_score": 0.7272727272727273
+        },
+        {
+          "concern_id": "PR-EXP-0092-C01",
+          "paper_id": "PR-EXP-0092",
+          "severity": "HIGH",
+          "category": "external_validation",
+          "tags": [
+            "geographic_generalizability_limited",
+            "single_state_validation",
+            "scope_disclosure"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.559895929965106,
+          "dense_score": 0.7173588275909424,
+          "bm25_score": 0.6363636363636364
         }
       ]
     },
@@ -1958,16 +1937,17 @@
       "scenario_id": "feature_lineage_undocumented",
       "description": "Feature 'lab_panel_composite_score' computed via a pandas pipeline that isn't in the shared code repo. Lineage spec has no DAG node for it. Reader can't reproduce the feature, and it's later the #1 SHAP-ranked predictor.",
       "gate_name": "feature_lineage_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.125,
+      "tag_precision": 0.25,
       "matched_expected_categories": [
         "preprocessing"
       ],
       "matched_expected_tags": [
-        "feature_engineering_opaque"
+        "feature_engineering_opaque",
+        "feature_quality"
       ],
       "top_k_summary": [
         {
@@ -1981,10 +1961,10 @@
             "feature_timing",
             "biopsy_provenance"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6382303339242935,
+          "dense_score": 0.6595885753631592,
+          "bm25_score": 1.0
         },
         {
           "concern_id": "PR-107-C06",
@@ -1995,54 +1975,57 @@
             "nlp_pipeline_unclear",
             "feature_engineering_opaque"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6316304495930672,
+          "dense_score": 0.6548248529434204,
+          "bm25_score": 1.0
         },
         {
-          "concern_id": "PR-101-C04",
-          "paper_id": "PR-101",
-          "severity": "MEDIUM",
+          "concern_id": "PR-RO-07-C07",
+          "paper_id": "PR-RO-07",
+          "severity": "HIGH",
+          "category": "study_design",
+          "tags": [
+            "performance_status_missing",
+            "treatment_selection_bias",
+            "genomic_feature_definition_opaque",
+            "confounder_completeness"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.4594646095378058,
+          "dense_score": 0.6449142694473267,
+          "bm25_score": 0.42857142857142855
+        },
+        {
+          "concern_id": "PR-111-C03",
+          "paper_id": "PR-111",
+          "severity": "HIGH",
+          "category": "preprocessing",
+          "tags": [
+            "imputation_policy",
+            "missingness_reporting",
+            "missing_data_unreported",
+            "feature_quality"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.4553259014231818,
+          "dense_score": 0.6366368532180786,
+          "bm25_score": 0.42857142857142855
+        },
+        {
+          "concern_id": "PR-EXP-0095-C09",
+          "paper_id": "PR-EXP-0095",
+          "severity": "HIGH",
           "category": "feature_selection",
           "tags": [
-            "feature_selection_justification",
-            "feature_selection_process"
+            "modality_selection_unjustified",
+            "feature_choice_clinical_reasoning",
+            "alternative_inputs_unexplored"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-EXP-0106-C03",
-          "paper_id": "PR-EXP-0106",
-          "severity": "MEDIUM",
-          "category": "clinical_utility",
-          "tags": [
-            "black_box_clinical_translation",
-            "feature_reduction",
-            "deployability"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-EXP-0109-C09",
-          "paper_id": "PR-EXP-0109",
-          "severity": "MEDIUM",
-          "category": "feature_selection",
-          "tags": [
-            "ablation_missing",
-            "feature_branch_contribution",
-            "ablation_added"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.4543690084559577,
+          "dense_score": 0.6347230672836304,
+          "bm25_score": 0.42857142857142855
         }
       ]
     },
@@ -2050,7 +2033,7 @@
       "scenario_id": "generalization_gap_optimistic",
       "description": "Train AUROC 0.95, test AUROC 0.62 \u2014 33-point gap, classic overfitting. KB has only 2 concerns mapped to generalization_gap_gate specifically, but reviewers often write about this under external-validation terminology (external_auc_drop, performance_degradation_external).",
       "gate_name": "generalization_gap_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
@@ -2067,22 +2050,6 @@
       ],
       "top_k_summary": [
         {
-          "concern_id": "PR-EXP-0155-C01",
-          "paper_id": "PR-EXP-0155",
-          "severity": "HIGH",
-          "category": "study_design",
-          "tags": [
-            "subgroup_mismatch_train_test",
-            "distribution_shift",
-            "subtype_generalization",
-            "validation_cohort_bias"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
           "concern_id": "PR-112-C01",
           "paper_id": "PR-112",
           "severity": "HIGH",
@@ -2093,10 +2060,10 @@
             "overstatement",
             "distribution_shift"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6138133204976717,
+          "dense_score": 0.6720359921455383,
+          "bm25_score": 0.8888888888888888
         },
         {
           "concern_id": "PR-EXP-0109-C07",
@@ -2108,10 +2075,10 @@
             "tertiary_only_validation",
             "distribution_shift_risk"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6122586258749166,
+          "dense_score": 0.6800552606582642,
+          "bm25_score": 0.8888888888888888
         },
         {
           "concern_id": "PR-EXP-0095-C05",
@@ -2123,26 +2090,40 @@
             "overfitting_risk",
             "staging_system_bias_unaddressed"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.5766943769653639,
+          "dense_score": 0.6644647717475891,
+          "bm25_score": 0.7777777777777778
         },
         {
-          "concern_id": "PR-EXP-0095-C04",
-          "paper_id": "PR-EXP-0095",
+          "concern_id": "PR-EXP-0200-C03",
+          "paper_id": "PR-EXP-0200",
           "severity": "HIGH",
           "category": "external_validation",
           "tags": [
-            "sota_comparison",
-            "no_public_dataset_test",
-            "vit_diversity_concern",
-            "bias_in_training_data"
+            "overclaimed_generalization",
+            "no_external_validation",
+            "premature_clinical_claims"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.49072575738032653,
+          "dense_score": 0.6925275325775146,
+          "bm25_score": 0.4444444444444444
+        },
+        {
+          "concern_id": "PR-EXP-0185-C03",
+          "paper_id": "PR-EXP-0185",
+          "severity": "HIGH",
+          "category": "external_validation",
+          "tags": [
+            "external_validation_selection_bias",
+            "generalization_overoptimism",
+            "single_condition_validation"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.4904225485523541,
+          "dense_score": 0.6919211149215698,
+          "bm25_score": 0.4444444444444444
         }
       ]
     },
@@ -2150,7 +2131,7 @@
       "scenario_id": "metric_consistency_cross_split",
       "description": "Primary metric AUROC reported differently across the evaluation report, the discussion section, and Supplementary Table S4. 0.83 vs 0.85 vs 0.81 \u2014 reader cannot reconcile. Breaks the internal-consistency contract that everything cite the same source of truth.",
       "gate_name": "metric_consistency_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
@@ -2175,26 +2156,10 @@
             "selective_reporting",
             "abstract_mismatch"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-EXP-0086-C04",
-          "paper_id": "PR-EXP-0086",
-          "severity": "HIGH",
-          "category": "evaluation_metrics",
-          "tags": [
-            "evaluation_methodology_unclear",
-            "match_criteria_undefined",
-            "metric_inconsistency",
-            "denominator_unreported"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6615236470103264,
+          "dense_score": 0.6900455355644226,
+          "bm25_score": 1.0
         },
         {
           "concern_id": "PR-EXP-0151-C02",
@@ -2207,10 +2172,26 @@
             "precision_missing",
             "sota_comparison"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6590848931670189,
+          "dense_score": 0.6851680278778076,
+          "bm25_score": 1.0
+        },
+        {
+          "concern_id": "PR-EXP-0086-C04",
+          "paper_id": "PR-EXP-0086",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "evaluation_methodology_unclear",
+            "match_criteria_undefined",
+            "metric_inconsistency",
+            "denominator_unreported"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.6589956054091454,
+          "dense_score": 0.6849894523620605,
+          "bm25_score": 1.0
         },
         {
           "concern_id": "PR-EXP-0101-C08",
@@ -2222,25 +2203,25 @@
             "improvement_vs_absolute_metric",
             "metric_misuse"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6535429780185223,
+          "dense_score": 0.6905850768089294,
+          "bm25_score": 1.0
         },
         {
-          "concern_id": "PR-EXP-0106-C05",
-          "paper_id": "PR-EXP-0106",
+          "concern_id": "PR-EXP-0147-C04",
+          "paper_id": "PR-EXP-0147",
           "severity": "MEDIUM",
           "category": "evaluation_metrics",
           "tags": [
-            "dependent_vs_independent_count",
-            "ld_block_inflation",
-            "metric_double_counting"
+            "auc_sensitivity_inconsistency",
+            "metric_misreporting",
+            "multi_class_vs_binary"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6388807420432568,
+          "dense_score": 0.6612606048583984,
+          "bm25_score": 1.0
         }
       ]
     },
@@ -2248,7 +2229,7 @@
       "scenario_id": "permutation_significance_missing",
       "description": "Paper claims the model 'significantly outperforms baselines' with no permutation test, no Bonferroni correction, no null-distribution histogram. Documents a KB coverage gap: only 1 concern maps to permutation_significance_gate today. Scenario value is the coverage signal \u2014 retrieval will surface via broader stat-rigor tags (missing_ci, no_delong_test, statistical_comparison_missing).",
       "gate_name": "permutation_significance_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
@@ -2270,10 +2251,41 @@
             "statistical_significance",
             "null_distribution"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.7122301656007767,
+          "dense_score": 0.782436728477478,
+          "bm25_score": 1.0
+        },
+        {
+          "concern_id": "PR-025-C04",
+          "paper_id": "PR-025",
+          "severity": "MEDIUM",
+          "category": "evaluation_metrics",
+          "tags": [
+            "multiple_testing",
+            "no_correction",
+            "bonferroni"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.5946625572213761,
+          "dense_score": 0.7090825438499451,
+          "bm25_score": 0.6153846153846154
+        },
+        {
+          "concern_id": "PR-RO-07-C04",
+          "paper_id": "PR-RO-07",
+          "severity": "HIGH",
+          "category": "evaluation_metrics",
+          "tags": [
+            "multiple_testing_correction",
+            "loss_function_search",
+            "fdr_vs_bonferroni",
+            "significance_inflation"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.545934749520742,
+          "dense_score": 0.6806151270866394,
+          "bm25_score": 0.6153846153846154
         },
         {
           "concern_id": "PR-111-C01",
@@ -2287,24 +2299,9 @@
             "single_split"
           ],
           "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-008-C06",
-          "paper_id": "PR-008",
-          "severity": "MEDIUM",
-          "category": "evaluation_metrics",
-          "tags": [
-            "wrong_statistical_test",
-            "multiple_testing_correction",
-            "fdr"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "final_score": 0.30875913959283097,
+          "dense_score": 0.0,
+          "bm25_score": 0.9230769230769231
         },
         {
           "concern_id": "PR-042-C02",
@@ -2317,25 +2314,9 @@
             "fdr_correction"
           ],
           "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-RO-07-C04",
-          "paper_id": "PR-RO-07",
-          "severity": "HIGH",
-          "category": "evaluation_metrics",
-          "tags": [
-            "multiple_testing_correction",
-            "loss_function_search",
-            "fdr_vs_bonferroni",
-            "significance_inflation"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "final_score": 0.2506271859774223,
+          "dense_score": 0.0,
+          "bm25_score": 0.6153846153846154
         }
       ]
     },
@@ -2343,22 +2324,18 @@
       "scenario_id": "prediction_replay_irreproducible",
       "description": "Rerunning shipped inference code produces predictions that differ from paper's reported ones. KB coverage gap: only 1 concern mapped to prediction_replay_gate today. Scenario documents the gap; retrieval surfaces generic reproducibility/external-validation concerns.",
       "gate_name": "prediction_replay_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
       "hit_at_k": 1.0,
-      "tag_precision": 0.636,
+      "tag_precision": 0.364,
       "matched_expected_categories": [
-        "external_validation",
         "reproducibility"
       ],
       "matched_expected_tags": [
-        "biomarker_validation_missing",
         "hyperparameters_missing",
         "irreproducible_methods",
         "no_code_availability",
-        "no_external_validation",
-        "no_prospective_validation",
         "reproducibility"
       ],
       "top_k_summary": [
@@ -2372,10 +2349,56 @@
             "seed_variance_unreported",
             "single_run_results"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6643741756677628,
+          "dense_score": 0.7089794874191284,
+          "bm25_score": 1.0
+        },
+        {
+          "concern_id": "PR-EXP-0085-C05",
+          "paper_id": "PR-EXP-0085",
+          "severity": "MEDIUM",
+          "category": "reproducibility",
+          "tags": [
+            "reproducibility_documentation",
+            "tool_versioning",
+            "containerization",
+            "input_output_specification"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.3454722836613655,
+          "dense_score": 0.6810601353645325,
+          "bm25_score": 0.0
+        },
+        {
+          "concern_id": "PR-052-C01",
+          "paper_id": "PR-052",
+          "severity": "HIGH",
+          "category": "reproducibility",
+          "tags": [
+            "architecture_unclear",
+            "hyperparameters_missing",
+            "irreproducible_methods"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.3448525220155716,
+          "dense_score": 0.6699361801147461,
+          "bm25_score": 0.0
+        },
+        {
+          "concern_id": "PR-EXP-0084-C04",
+          "paper_id": "PR-EXP-0084",
+          "severity": "HIGH",
+          "category": "model_selection",
+          "tags": [
+            "reproducibility_methods_underspecified",
+            "hyperparameter_search_undefined",
+            "cv_protocol_missing"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.34463323652744293,
+          "dense_score": 0.6694976091384888,
+          "bm25_score": 0.0
         },
         {
           "concern_id": "PR-102-C04",
@@ -2388,54 +2411,9 @@
             "reproducibility"
           ],
           "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-052-C01",
-          "paper_id": "PR-052",
-          "severity": "HIGH",
-          "category": "reproducibility",
-          "tags": [
-            "architecture_unclear",
-            "hyperparameters_missing",
-            "irreproducible_methods"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-113-C03",
-          "paper_id": "PR-113",
-          "severity": "HIGH",
-          "category": "external_validation",
-          "tags": [
-            "no_prospective_validation",
-            "no_external_validation",
-            "biomarker_validation_missing"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-EXP-0084-C04",
-          "paper_id": "PR-EXP-0084",
-          "severity": "HIGH",
-          "category": "model_selection",
-          "tags": [
-            "reproducibility_methods_underspecified",
-            "hyperparameter_search_undefined",
-            "cv_protocol_missing"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "final_score": 0.08488443195819854,
+          "dense_score": 0.0,
+          "bm25_score": 0.25
         }
       ]
     },
@@ -2443,15 +2421,17 @@
       "scenario_id": "robustness_no_perturbation_test",
       "description": "No sensitivity analysis to input perturbations. KB coverage gap: only 1 concern mapped to robustness_gate today. Documents the gap; retrieval surfaces external-validation and cross-cohort-stability concerns instead.",
       "gate_name": "robustness_gate",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 5,
       "coverage": 1.0,
-      "hit_at_k": 0.0,
-      "tag_precision": 0.0,
+      "hit_at_k": 1.0,
+      "tag_precision": 0.111,
       "matched_expected_categories": [
         "model_selection"
       ],
-      "matched_expected_tags": [],
+      "matched_expected_tags": [
+        "robustness_to_outliers"
+      ],
       "top_k_summary": [
         {
           "concern_id": "PR-EXP-0097-C10",
@@ -2463,25 +2443,10 @@
             "bit_flip_noise",
             "stress_test_interpretation"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-EXP-0112-C05",
-          "paper_id": "PR-EXP-0112",
-          "severity": "MEDIUM",
-          "category": "model_selection",
-          "tags": [
-            "hyperparameter_sensitivity",
-            "practical_guidelines_added",
-            "robustness_to_choices"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6618853005766869,
+          "dense_score": 0.712081253528595,
+          "bm25_score": 1.0
         },
         {
           "concern_id": "PR-EXP-0153-C03",
@@ -2494,10 +2459,39 @@
             "ablation_study",
             "robustness"
           ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "retrieval_mode": null,
+          "final_score": 0.6514516565203667,
+          "dense_score": 0.6912139654159546,
+          "bm25_score": 1.0
+        },
+        {
+          "concern_id": "PR-EXP-0112-C05",
+          "paper_id": "PR-EXP-0112",
+          "severity": "MEDIUM",
+          "category": "model_selection",
+          "tags": [
+            "hyperparameter_sensitivity",
+            "practical_guidelines_added",
+            "robustness_to_choices"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.6440107914805413,
+          "dense_score": 0.6763322353363037,
+          "bm25_score": 1.0
+        },
+        {
+          "concern_id": "PR-012-C04",
+          "paper_id": "PR-012",
+          "severity": "MEDIUM",
+          "category": "evaluation_metrics",
+          "tags": [
+            "outlier_driven_results",
+            "robustness_to_outliers"
+          ],
+          "retrieval_mode": null,
+          "final_score": 0.477609484408583,
+          "dense_score": 0.68638676404953,
+          "bm25_score": 0.42857142857142855
         },
         {
           "concern_id": "PR-EXP-0097-C13",
@@ -2509,24 +2503,9 @@
             "train_test_split_robustness"
           ],
           "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
-        },
-        {
-          "concern_id": "PR-EXP-0086-C07",
-          "paper_id": "PR-EXP-0086",
-          "severity": "MEDIUM",
-          "category": "evaluation_metrics",
-          "tags": [
-            "limited_metric_panel",
-            "missing_threshold_analysis",
-            "pr_roc_curves_added"
-          ],
-          "retrieval_mode": "keyword_match",
-          "final_score": null,
-          "dense_score": null,
-          "bm25_score": null
+          "final_score": 0.2629875309552465,
+          "dense_score": 0.0,
+          "bm25_score": 0.8571428571428571
         }
       ]
     },
@@ -2534,7 +2513,7 @@
       "scenario_id": "weak_offdomain_music_query",
       "description": "User accidentally points MLGG at a completely off-domain query (music theory). MLGG scope is retrospective-cohort biomedical binary classification; orchestral conducting terminology is out of scope by design. KB should have ~0 useful hits and only return padding/fallback rows. Real WEAK case for H19 LLM-loop hedge/honesty audits \u2014 replaces H19's synthetic nonsense-code probe.",
       "gate_name": "free_text_probe",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 0,
       "coverage": 0.0,
       "hit_at_k": 0.0,
@@ -2547,7 +2526,7 @@
       "scenario_id": "weak_offdomain_sailing_query",
       "description": "User accidentally points MLGG at sailing/maritime terminology \u2014 entirely outside the retrospective-cohort biomedical scope. Real WEAK case (not a synthesized nonsense code) for H19 LLM-loop hedge/honesty audits.",
       "gate_name": "free_text_probe",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 0,
       "coverage": 0.0,
       "hit_at_k": 0.0,
@@ -2560,7 +2539,7 @@
       "scenario_id": "weak_offdomain_woodworking_query",
       "description": "User accidentally points MLGG at carpentry/joinery terminology \u2014 entirely outside MLGG scope. Real WEAK case for H19 LLM-loop hedge/honesty audits.",
       "gate_name": "free_text_probe",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 0,
       "coverage": 0.0,
       "hit_at_k": 0.0,
@@ -2573,7 +2552,7 @@
       "scenario_id": "zero_empty_query",
       "description": "User submits an empty / whitespace-only query (paste accident, UI bug, stripped tokens after normalization). rag_query() contract returns []. Real ZERO scenario for H19 LLM-loop audits \u2014 synthesis layer must not invent peer-review precedent when nothing was retrieved.",
       "gate_name": "free_text_probe",
-      "mode": "bm25_only",
+      "mode": "hybrid",
       "retrieved_count": 0,
       "coverage": 0.0,
       "hit_at_k": 0.0,
@@ -2586,7 +2565,7 @@
   "aggregate": {
     "total_scenarios": 30,
     "coverage_rate": 0.867,
-    "hit_at_k_rate": 0.833,
-    "mean_tag_precision": 0.436
+    "hit_at_k_rate": 0.867,
+    "mean_tag_precision": 0.338
   }
 }
