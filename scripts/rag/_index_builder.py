@@ -3,7 +3,7 @@
 Reads ``references/case-studies/peer-review-kb.json``, flattens the 817
 reviewer concerns into denormalized records (paper-level fields copied onto
 each concern for retrieval-time convenience), embeds a rich text view of
-each concern via :func:`scripts.rag._embeddings.embed_texts`, and caches the
+each concern via :func:`scripts.rag.embeddings.embed_texts`, and caches the
 result under ``.cache/rag/`` keyed by the sha256 of the KB file.
 
 Cache layout (all under :data:`scripts.rag.config.CACHE_DIR`):
@@ -28,7 +28,7 @@ from typing import Any
 
 import numpy as np
 
-from scripts.rag._embeddings import embed_texts
+from scripts.rag.embeddings import embed_texts
 from scripts.rag.config import (
     CACHE_DIR,
     EMBEDDINGS_CACHE,

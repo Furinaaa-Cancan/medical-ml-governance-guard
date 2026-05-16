@@ -45,7 +45,7 @@ import pytest
 # Module-level imports of always-present modules (A1, A2, A4 already landed).
 # ---------------------------------------------------------------------------
 from scripts.rag import config
-from scripts.rag._embeddings import embed_texts
+from scripts.rag.embeddings import embed_texts
 from scripts.rag._vector_search import vector_search
 
 

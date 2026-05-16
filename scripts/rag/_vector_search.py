@@ -8,7 +8,7 @@ concern records with a ``_dense_score`` field injected.
 
 Design notes:
     * Inputs are assumed to be L2-normalized (the ``_index_builder`` and
-      ``_embeddings`` modules guarantee this), so cosine similarity reduces to
+      ``embeddings`` modules guarantee this), so cosine similarity reduces to
       a single matrix-vector dot product.
     * For ``top_k < N`` (typical: 50 of 817), ``np.argpartition`` gives an
       O(N) partial selection that is markedly faster than a full ``argsort``.
@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from scripts.rag._embeddings import embed_texts
+from scripts.rag.embeddings import embed_texts
 
 
 def vector_search(
@@ -35,7 +35,7 @@ def vector_search(
     """Return the top-K concern records by cosine similarity to ``query``.
 
     The ``embeddings`` matrix and the query vector are both produced by
-    ``_embeddings.embed_texts``, which L2-normalizes its output. Cosine
+    ``embeddings.embed_texts``, which L2-normalizes its output. Cosine
     similarity therefore equals the plain dot product
     ``embeddings @ query_vec``.
 
