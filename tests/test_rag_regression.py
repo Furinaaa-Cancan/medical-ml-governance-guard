@@ -1,12 +1,13 @@
 """Regression tests for RAG-layer ship-stopper bugs.
 
 Each test corresponds to a documented bug from the 5-agent strict-eval:
-  - test_no_circular_import_from_bridge       (fixed: 251003b)
-  - test_rag_context_for_failure_gate_only    (fixed: 251003b)
-  - test_top_k_above_50_returns_more          (awaiting F1)
-  - test_free_text_marks_bm25_inactive        (awaiting F1)
-  - test_format_for_rag_optional_gate         (awaiting F2)
-  - test_public_api_surface                   (always)
+  - test_no_circular_import_from_bridge                          (fixed: 251003b)
+  - test_rag_context_for_failure_gate_only                       (fixed: 251003b)
+  - test_top_k_above_50_returns_more                             (fixed: 830ce4a)
+  - test_free_text_marks_bm25_inactive                           (fixed: 830ce4a)
+  - test_format_for_rag_optional_gate                            (fixed: 830ce4a)
+  - test_public_api_surface                                      (always)
+  - test_all_33_gates_have_rag_coverage_or_are_rag_optional      (slow; E5+G1)
 
 If an xfail test starts passing, that's the fix landing — remove the
 marker.
@@ -115,3 +116,57 @@ def test_public_api_surface() -> None:
     )
     assert result.returncode == 0, f"surface broken: stderr={result.stderr}"
     assert "all imports ok" in result.stdout
+
+
+@pytest.mark.slow
+def test_all_33_gates_have_rag_coverage_or_are_rag_optional() -> None:
+    """E5 strict-eval contract: every gate either returns >=1 concern
+    from ``rag_context_for_failure`` or is flagged ``rag_optional=True``
+    in the registry. No silent empty gates.
+
+    Slow marker: this calls the RAG bridge once per gate (33 hybrid
+    rank calls), each warming the dense-retrieval model on first use.
+    Excluded from the default ``-m "not slow"`` ci-unit run; included
+    in nightly / on-demand sweeps.
+    """
+    # _gate_registry has no public ``all_gates()`` / ``iter_gates()``
+    # helper — the canonical enumeration surface is the module-level
+    # ``GATE_REGISTRY: Dict[str, GateSpec]`` (every other internal
+    # accessor in the file, e.g. ``topological_sort``, iterates the
+    # same dict). Pulling specs directly from ``GATE_REGISTRY.values()``
+    # is the documented inference; if a public list-style API ever
+    # lands, swap the import below.
+    from scripts.core._gate_registry import GATE_REGISTRY
+    from scripts.core.gate_rag_bridge import rag_context_for_failure
+
+    specs = list(GATE_REGISTRY.values())
+    assert len(specs) == 33, (
+        f"expected 33 gates, registry has {len(specs)} — coverage "
+        f"contract is anchored to the 33-gate count documented across "
+        f"14 markdown files + 4 test assertions; bump-or-justify."
+    )
+
+    empty_but_not_optional: list[tuple[str, str]] = []
+    for spec in specs:
+        if getattr(spec, "rag_optional", False):
+            continue  # honest empty by design (infra/meta gates)
+        try:
+            results = rag_context_for_failure(
+                spec.name, failure_codes=[], top_k=5
+            )
+        except Exception as exc:  # noqa: BLE001 — surface any bridge crash
+            empty_but_not_optional.append(
+                (spec.name, f"raised {type(exc).__name__}: {exc}")
+            )
+            continue
+        if len(results) == 0:
+            empty_but_not_optional.append((spec.name, "returned 0 concerns"))
+
+    assert not empty_but_not_optional, (
+        f"{len(empty_but_not_optional)} gate(s) have empty RAG coverage "
+        f"but are not flagged rag_optional. Either add concerns to "
+        f"references/case-studies/peer-review-kb.json (and tag them with "
+        f"the gate name) or mark the gate rag_optional=True in "
+        f"scripts/core/_gate_registry.py:\n  "
+        + "\n  ".join(f"{n}: {r}" for n, r in empty_but_not_optional)
+    )
