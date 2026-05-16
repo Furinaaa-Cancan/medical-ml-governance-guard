@@ -183,6 +183,39 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 
 > 当 MLGG 发现你的代码有问题时，它不只是说"违反了规则 E02"——它会告诉你：*"NC+CM 审稿人在 154 篇论文中 196 次（24%）要求完善评估指标。这是审稿人最常提出的问题类别。"*
 
+**RAG 语义检索层（`scripts/rag/`）：** 在 817 条 reviewer_concerns KB 之上的本地密集向量 RAG（817 concerns indexed for RAG），覆盖 BM25 检索覆盖不到的口语化、长尾、跨 tag 查询。
+
+```bash
+# 30 秒上手
+python3 scripts/rag/rag_query.py "no calibration in evaluation"
+# concern_id          paper_id    severity  score    concern_text
+# ------------------  ----------  --------  -------  ------------------------------------------------
+# PR-018-EVL          PR-018      HIGH      0.812    AUC should not be the only metric. Provide PPV…
+# PR-042-RPT          PR-042      MEDIUM    0.751    Should report calibration and net benefit ana…
+# ... (top-5)
+```
+
+**架构：**
+
+```
+query → embed (BGE-small) → cosine top-50 → + BM25 (issue-code) + gate filter
+     → tag/canonical-pattern boost + severity tiebreak → top-K
+```
+
+**三种使用模式：**
+
+| 场景 | 命令 | 预期行为 |
+|:-----|:-----|:--------|
+| **自由文本** | `python3 scripts/rag/rag_query.py "no calibration in evaluation"` | 返回 evaluation_metrics 类目 + MLGG-E02 相关 concerns |
+| **门控锚定** | `python3 scripts/rag/rag_query.py "training data leak" --gate leakage_gate --codes future_information_leakage` | 仅返回该 gate 下 CRITICAL leakage concerns |
+| **领域专项** | `python3 scripts/rag/rag_query.py "sepsis prediction in ICU"` | 返回脓毒症 / ICU 相关论文的审稿意见 |
+
+**缓存：** 首次调用约 30 秒（下载 BGE-small + 构建 .cache/rag/concerns_embeddings.npz 索引），后续调用 <1 秒（KB sha256 不变时直接读 npz）。
+
+**Gate 集成：** 任意 gate 都可以调用 `_gate_integration.rag_context_for_failure(gate_name, failure_codes)`，把审稿原话作为 `peer_review_context` 字段嵌入 report.json，让"为什么这条 fail"的解释里附带真实审稿人引用。
+
+**局限说明：** 当前向量模型是 `BAAI/bge-small-en-v1.5`（384 维，英文调优），中文自由文本查询精度会下降——KB 本身是英文审稿意见，所以英文 query 命中率最高；如果你要用中文描述失败，建议同时传 `--codes MLGG-XXX` 让 BM25 + tag-overlap 路径兜底。
+
 ---
 
 ## 系统能力总览
@@ -1371,6 +1404,15 @@ medical-ml-governance-guard/
 │   │   ├── add_robustness_permutation_gates.py # --   为现有审稿意见补 robustness / permutation 条目
 │   │   └── correct_subgroup_overmatch.py #   --   修复审稿意见的亚组 over-match 问题
 │   │
+│   ├── rag/               (8 files)              # 审稿 KB 之上的密集向量 RAG 层 (__init__ + 7 模块)
+│   │   ├── _rag_config.py                #   常量/路径/权重 (BGE-small + .cache/rag/ + dense/BM25/tag 比重)
+│   │   ├── _embeddings.py                #   sentence-transformers 包装 (单例 model loader + 归一化)
+│   │   ├── _index_builder.py             #   KB → npz 缓存 (sha256 失效, idempotent)
+│   │   ├── _vector_search.py             #   cosine top-50 候选检索
+│   │   ├── _hybrid_ranker.py             #   dense + BM25 + gate filter + canonical pattern + severity 融合
+│   │   ├── rag_query.py                  #   [入口] 高层 API + CLI (--gate / --codes / --top-k / --format)
+│   │   └── _gate_integration.py          #   rag_context_for_failure() — 给 gate report.json 注入 reviewer 引用
+│   │
 │   ├── diagnostics/       (27 files, 5.3K LOC)  # 环境诊断 + 文档一致性 + KB 卫生
 │   │   ├── env_doctor.py                 #   169  依赖健康检查 (core + optional backends)
 │   │   ├── init_guide.py                 #  1035  交互式项目方法学指南生成器
@@ -1409,10 +1451,10 @@ medical-ml-governance-guard/
 │       └── run_endurance_test.py         #   767  6 小时耐久性测试
 │          └──────────────────────────────────────────────────────────────────┘
 │
-├── tests/                  (131)         # ─── 测试 (~35K lines) ───
+├── tests/                  (133)         # ─── 测试 (~35K lines) ───
 │   ├── conftest.py                       #   统一 fixture (tmp_path, 路径注入, 共享数据)
 │   ├── test_*_gate.py      (32)          #   每个 gate 对应一个测试文件
-│   ├── test_*_e2e.py       (7)           #   端到端流程测试 (onboarding, workflow, train, split)
+│   ├── test_*_e2e.py       (8)           #   端到端流程测试 (onboarding, workflow, train, split, rag)
 │   ├── test_stress_*.py    (5)           #   压力测试 (audit chain, pipeline, numeric, security)
 │   ├── test_security*.py   (4)           #   安全 + 红队测试
 │   └── SKILL_RED_TEAM.md                 #   红队攻击场景文档

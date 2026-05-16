@@ -176,6 +176,39 @@ Structurally extracted 817 review opinions from 154 NC + CM medical ML papers (1
 
 > When MLGG finds an issue in your code, it doesn't just say "violated rule E02" &mdash; it tells you: *"NC+CM reviewers requested improved evaluation metrics 196 times (24%) across 154 papers. This is the most frequently raised concern category."*
 
+**RAG Semantic Retrieval Layer (`scripts/rag/`):** local dense-vector RAG over the 817 reviewer_concerns KB (817 concerns indexed for RAG), covering the colloquial / long-tail / cross-tag queries that pure BM25 misses.
+
+```bash
+# 30-second quickstart
+python3 scripts/rag/rag_query.py "no calibration in evaluation"
+# concern_id          paper_id    severity  score    concern_text
+# ------------------  ----------  --------  -------  ------------------------------------------------
+# PR-018-EVL          PR-018      HIGH      0.812    AUC should not be the only metric. Provide PPV…
+# PR-042-RPT          PR-042      MEDIUM    0.751    Should report calibration and net benefit ana…
+# ... (top-5)
+```
+
+**Architecture:**
+
+```
+query → embed (BGE-small) → cosine top-50 → + BM25 (issue-code) + gate filter
+     → tag/canonical-pattern boost + severity tiebreak → top-K
+```
+
+**Three usage modes:**
+
+| Scenario | Command | Expected behavior |
+|:---------|:--------|:------------------|
+| **Free-text** | `python3 scripts/rag/rag_query.py "no calibration in evaluation"` | Returns evaluation_metrics category + MLGG-E02 related concerns |
+| **Gate-anchored** | `python3 scripts/rag/rag_query.py "training data leak" --gate leakage_gate --codes future_information_leakage` | Returns CRITICAL leakage concerns under that gate only |
+| **Domain-specific** | `python3 scripts/rag/rag_query.py "sepsis prediction in ICU"` | Returns reviewer concerns from sepsis / ICU papers |
+
+**Caching:** first call ~30 s (downloads BGE-small + builds `.cache/rag/concerns_embeddings.npz`); subsequent calls < 1 s (npz reused while KB sha256 is unchanged).
+
+**Gate integration:** any gate can call `_gate_integration.rag_context_for_failure(gate_name, failure_codes)` to embed the reviewer-quote context into its `report.json` under `peer_review_context`, so the "why did this fail" explanation cites a real reviewer's words.
+
+**Limitation:** the current vector model is `BAAI/bge-small-en-v1.5` (384-dim, English-tuned). Chinese-language free-text queries will have reduced precision &mdash; the KB itself is English reviewer text, so English queries hit hardest; for Chinese descriptions of a failure, pass `--codes MLGG-XXX` so the BM25 + tag-overlap path can compensate.
+
 ---
 
 ## System Overview
@@ -1277,6 +1310,15 @@ medical-ml-governance-guard/
 │   │   ├── correct_subgroup_overmatch.py #   Fix subgroup over-match in review index
 │   │   └── ...                           #   batch_journal_review, extract/score metadata
 │   │
+│   ├── rag/               (8)            # Dense-vector RAG over the peer-review KB (__init__ + 7 modules)
+│   │   ├── _rag_config.py                #   Constants / paths / weights (BGE-small, .cache/rag/, dense/BM25/tag)
+│   │   ├── _embeddings.py                #   sentence-transformers wrapper (singleton model loader + normalize)
+│   │   ├── _index_builder.py             #   KB → npz cache (sha256-invalidated, idempotent)
+│   │   ├── _vector_search.py             #   Cosine top-50 candidate retrieval
+│   │   ├── _hybrid_ranker.py             #   dense + BM25 + gate filter + canonical pattern + severity fusion
+│   │   ├── rag_query.py                  #   [entry point] High-level API + CLI (--gate / --codes / --top-k / --format)
+│   │   └── _gate_integration.py          #   rag_context_for_failure() — injects reviewer quotes into gate report.json
+│   │
 │   └── diagnostics/       (28)           # Environment, docs-consistency & KB hygiene
 │       ├── env_doctor.py                 #   Dependency health check
 │       ├── mlgg_web.py                   #   Flask Web UI
@@ -1287,10 +1329,10 @@ medical-ml-governance-guard/
 │       ├── retrieval_eval_harness.py     #   Peer-review retrieval precision benchmark
 │       └── ...                           #   gate visualization, threshold analysis, policy generator
 │
-├── tests/                  (131)         # ─── Tests (~35K lines) ───
+├── tests/                  (133)         # ─── Tests (~35K lines) ───
 │   ├── conftest.py                       #   Shared fixtures (tmp_path, path injection, test data)
 │   ├── test_*_gate.py      (32)          #   One test file per gate
-│   ├── test_*_e2e.py       (7)           #   End-to-end flow tests (onboarding, workflow, train, split)
+│   ├── test_*_e2e.py       (8)           #   End-to-end flow tests (onboarding, workflow, train, split, rag)
 │   ├── test_stress_*.py    (5)           #   Stress tests (audit chain, pipeline, numeric, security)
 │   ├── test_security*.py   (4)           #   Security + red team tests
 │   └── SKILL_RED_TEAM.md                 #   Red team attack scenario documentation
