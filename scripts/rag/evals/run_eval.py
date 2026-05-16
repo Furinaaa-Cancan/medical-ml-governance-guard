@@ -118,9 +118,26 @@ def score_one(scenario: dict, *, mode: str, top_k: int = 5) -> dict:
 
 
 def aggregate(per_scenario: list[dict]) -> dict:
-    """Aggregate per-scenario metrics."""
+    """Aggregate per-scenario metrics.
+
+    Wave 5 P2:
+      * mean_hit_at_k is the PRIMARY metric (A2 finding): tag_precision@K
+        penalises MMR-driven diversity because it rewards "stay in tag
+        cluster". hit@K is binary per scenario -- did any expected tag
+        appear in top-K at all? -- which is what gate consumers care
+        about.
+      * coverage_rate = n_evaluable / n_total (A4 finding): guards
+        against ghost-improvement where a future change shrinks the
+        evaluable set while raising mean P@K.
+    """
     tag_precs = [
         r["tag_precision_at_k"]
+        for r in per_scenario
+        if r["tag_precision_at_k"] is not None
+    ]
+    # hit@K: 1.0 if any expected tag matched (binary per scenario), then mean.
+    hits_at_k = [
+        1.0 if (r.get("expected_tag_hits") or 0) > 0 else 0.0
         for r in per_scenario
         if r["tag_precision_at_k"] is not None
     ]
@@ -129,9 +146,17 @@ def aggregate(per_scenario: list[dict]) -> dict:
         for r in per_scenario
         if isinstance(r["top1_score"], (int, float))
     ]
+    n_evaluable = len(tag_precs)
+    n_total = len(per_scenario)
+    coverage_rate = (n_evaluable / n_total) if n_total else 0.0
     return {
-        "n_scenarios": len(per_scenario),
-        "n_with_expected_tags": len(tag_precs),
+        "n_scenarios": n_total,
+        "n_evaluable": n_evaluable,
+        "n_with_expected_tags": n_evaluable,  # backward-compat alias
+        "coverage_rate": round(coverage_rate, 3),
+        "mean_hit_at_k": (
+            round(sum(hits_at_k) / len(hits_at_k), 3) if hits_at_k else None
+        ),
         "mean_tag_precision_at_k": (
             sum(tag_precs) / len(tag_precs) if tag_precs else None
         ),
@@ -145,12 +170,25 @@ def aggregate(per_scenario: list[dict]) -> dict:
 
 def render_markdown(per_scenario, agg, *, mode, scenarios_path) -> str:
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    mean_hit = agg.get("mean_hit_at_k")
     mean_tp = agg["mean_tag_precision_at_k"]
     mean_top1 = agg["mean_top1_score"]
+    coverage = agg.get("coverage_rate", 0.0)
+    n_eval = agg.get("n_evaluable", agg.get("n_with_expected_tags", 0))
+    n_total = agg["n_scenarios"]
+
+    mean_hit_line = (
+        f"- **PRIMARY** mean hit@K: **{mean_hit:.3f}** "
+        f"(coverage = {coverage:.2f}, n_evaluable={n_eval}/{n_total})"
+        if mean_hit is not None
+        else "- **PRIMARY** mean hit@K: N/A"
+    )
     mean_tp_line = (
-        f"- mean tag_precision@K: **{mean_tp:.3f}**"
+        f"- SECONDARY mean tag_precision@K: **{mean_tp:.3f}** "
+        f"(diversity-aware caveat: MMR lowers this by design; "
+        f"prefer hit@K for headline)"
         if mean_tp is not None
-        else "- mean tag_precision@K: N/A"
+        else "- SECONDARY mean tag_precision@K: N/A"
     )
     mean_top1_line = (
         f"- mean top1 score: **{mean_top1:.3f}**"
@@ -162,8 +200,9 @@ def render_markdown(per_scenario, agg, *, mode, scenarios_path) -> str:
         "",
         f"- mode: `{mode}`",
         f"- scenarios source: `{scenarios_path}`",
-        f"- n_scenarios: {agg['n_scenarios']} "
-        f"({agg['n_with_expected_tags']} with expected_tags)",
+        f"- n_scenarios: {n_total} "
+        f"(n_evaluable={n_eval}, coverage_rate={coverage:.3f})",
+        mean_hit_line,
         mean_tp_line,
         mean_top1_line,
         f"- zero-hit scenarios: {agg['n_zero_hits']}",
@@ -171,8 +210,8 @@ def render_markdown(per_scenario, agg, *, mode, scenarios_path) -> str:
         "",
         "## Per-scenario",
         "",
-        "| id | n_hits | top1 | tag_p@K | wall_ms |",
-        "|----|-------:|-----:|--------:|--------:|",
+        "| id | n_hits | top1 | hit@K | tag_p@K | wall_ms |",
+        "|----|-------:|-----:|------:|--------:|--------:|",
     ]
     for r in per_scenario:
         top1 = (
@@ -185,9 +224,25 @@ def render_markdown(per_scenario, agg, *, mode, scenarios_path) -> str:
             if r["tag_precision_at_k"] is not None
             else "-"
         )
+        if r["tag_precision_at_k"] is None:
+            hit_cell = "-"
+        else:
+            hit_cell = "1" if (r.get("expected_tag_hits") or 0) > 0 else "0"
         lines.append(
-            f"| `{r['id']}` | {r['n_hits']} | {top1} | {tp} | {r['wall_ms']:.0f} |"
+            f"| `{r['id']}` | {r['n_hits']} | {top1} | {hit_cell} | "
+            f"{tp} | {r['wall_ms']:.0f} |"
         )
+    lines.extend(
+        [
+            "",
+            "## Coverage-drop guard",
+            "",
+            f"Coverage = N_evaluable / N_total = {coverage:.2f} "
+            f"({n_eval}/{n_total})",
+            "(If this drops between runs, mean P@K may rise artificially; "
+            "investigate before celebrating.)",
+        ]
+    )
     return "\n".join(lines) + "\n"
 
 
@@ -232,7 +287,10 @@ def main(argv=None):
 
     print(f"markdown: {args.output}")
     print(f"json:     {json_path}")
-    print(f"mean tag_precision@K: {agg['mean_tag_precision_at_k']}")
+    print(f"mean hit@K (PRIMARY):       {agg['mean_hit_at_k']}")
+    print(f"mean tag_precision@K (sec): {agg['mean_tag_precision_at_k']}")
+    print(f"coverage_rate:              {agg['coverage_rate']} "
+          f"(n_evaluable={agg['n_evaluable']}/{agg['n_scenarios']})")
     return 0
 
 
