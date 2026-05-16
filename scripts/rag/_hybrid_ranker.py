@@ -12,7 +12,7 @@ concern:
 Signals:
     * **Dense**: cosine similarity from ``retrieval.dense.vector_search``
       over the cached sentence-transformer embeddings produced by
-      ``_index_builder.build_or_load_index``.
+      ``index.builder.build_or_load_index``.
     * **BM25**: keyword-overlap ranking from
       ``scripts.rag.retrieval.bm25.retrieve_for_failure``. Only
       consulted when both ``gate`` and ``failure_codes`` are supplied.
@@ -24,7 +24,7 @@ Signals:
       against a topically equivalent LOW concern.
 
 The module is read-only with respect to the KB. Filesystem side effects
-(embedding cache writes) are owned by ``_index_builder``.
+(embedding cache writes) are owned by ``index.builder``.
 
 See ``/tmp/mlgg_rag_design.md`` for the full design contract.
 """
@@ -40,7 +40,7 @@ from scripts.rag.retrieval.bm25 import retrieve_for_failure
 # ---------------------------------------------------------------------------
 # Sibling-module imports with graceful fallback
 # ---------------------------------------------------------------------------
-# Agents A3 (``_index_builder``) and A4 (``retrieval.dense``) land in
+# Agents A3 (``index.builder``) and A4 (``retrieval.dense``) land in
 # parallel. We resolve them lazily inside ``hybrid_rank`` so that this
 # module can still be imported (e.g. for static checks or partial unit
 # tests) before they exist on disk.
@@ -59,10 +59,10 @@ def _import_sibling_modules() -> Tuple[Callable[..., Any], Callable[..., Any]]:
     """
 
     try:
-        from scripts.rag._index_builder import build_or_load_index  # type: ignore[import-not-found]  # noqa: E501
+        from scripts.rag.index.builder import build_or_load_index  # type: ignore[import-not-found]  # noqa: E501
     except Exception as exc:  # pragma: no cover - depends on rollout order
         raise RuntimeError(
-            "scripts.rag._index_builder.build_or_load_index is required "
+            "scripts.rag.index.builder.build_or_load_index is required "
             "by _hybrid_ranker but could not be imported"
         ) from exc
 

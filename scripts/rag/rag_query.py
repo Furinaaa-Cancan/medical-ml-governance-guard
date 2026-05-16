@@ -2,7 +2,7 @@
 
 This module is the **public** entry point of the ``scripts/rag/`` package
 (Agent A6 of the shared RAG design). All other modules in the package
-(``config``, ``_embeddings``, ``_index_builder``, ``_vector_search``,
+(``config``, ``embeddings``, ``index.builder``, ``retrieval.dense``,
 ``_hybrid_ranker``) are private (leading underscore) and should not be imported
 directly by callers outside the package.
 

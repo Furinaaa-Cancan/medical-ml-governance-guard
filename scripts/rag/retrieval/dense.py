@@ -10,7 +10,7 @@ concern records with a ``_dense_score`` field injected.
 Import path: ``from scripts.rag.retrieval.dense import vector_search``.
 
 Design notes:
-    * Inputs are assumed to be L2-normalized (the ``_index_builder`` and
+    * Inputs are assumed to be L2-normalized (the ``index.builder`` and
       ``embeddings`` modules guarantee this), so cosine similarity reduces to
       a single matrix-vector dot product.
     * For ``top_k < N`` (typical: 50 of 817), ``np.argpartition`` gives an
@@ -83,7 +83,7 @@ def vector_search(
     # so the dot product yields a 1-D similarity array.
     # BGE-small-en-v1.5 documentation recommends asymmetric encoding:
     # queries get prepended with the instruction below; documents
-    # (already encoded by _index_builder.py) are encoded raw. This is worth
+    # (already encoded by index/builder.py) are encoded raw. This is worth
     # ~1-2 nDCG points on retrieval tasks per the BAAI paper. The prefix
     # is harmless if the underlying model isn't BGE (it's just a few extra
     # tokens that get encoded into the query vector).

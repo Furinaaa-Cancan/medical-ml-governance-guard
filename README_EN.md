@@ -1311,13 +1311,13 @@ medical-ml-governance-guard/
 │   │   ├── correct_subgroup_overmatch.py #   Fix subgroup over-match in review index
 │   │   └── ...                           #   batch_journal_review, extract/score metadata
 │   │
-│   ├── rag/               (7)            # Dense-vector RAG over the peer-review KB (__init__ + 6 modules + retrieval/ subpkg)
+│   ├── rag/               (6)            # Dense-vector RAG over the peer-review KB (__init__ + 5 modules + index/ + retrieval/ subpkgs)
 │   │   ├── config.py                     #   Constants / paths / weights (BGE-small, .cache/rag/, dense/BM25/tag)
 │   │   ├── embeddings.py                 #   sentence-transformers wrapper (singleton model loader + normalize)
-│   │   ├── _index_builder.py             #   KB → npz cache (sha256-invalidated, idempotent)
 │   │   ├── _hybrid_ranker.py             #   dense + BM25 + gate filter + canonical pattern + severity fusion
 │   │   ├── rag_query.py                  #   [entry point] High-level API + CLI (--gate / --codes / --top-k / --format)
 │   │   ├── _gate_integration.py          #   rag_context_for_failure() — injects reviewer quotes into gate report.json
+│   │   ├── index/                        #   Index subpackage: builder.py (KB → npz) + cache.py (atomic writes / sha256)
 │   │   └── retrieval/                    #   Retrieval signal subpackage: dense.py (cosine) + bm25.py (keyword re-rank)
 │   │
 │   └── diagnostics/       (28)           # Environment, docs-consistency & KB hygiene

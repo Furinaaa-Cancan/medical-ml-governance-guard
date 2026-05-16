@@ -4,7 +4,7 @@ These tests cover the seven modules under ``scripts/rag/``:
 
 * ``config``  — constants, paths, weights
 * ``_embeddings``  — sentence-transformer wrapper
-* ``_index_builder`` — KB → npz cache, idempotent
+* ``index.builder`` — KB → npz cache, idempotent
 * ``retrieval.dense`` — cosine search over cache
 * ``_hybrid_ranker`` — vector + BM25 + gate + tag fusion
 * ``_gate_integration`` — gate-failure → contextual concerns
@@ -227,7 +227,7 @@ class TestEmbeddings:
 
 
 # ===========================================================================
-# _index_builder
+# index.builder
 # ===========================================================================
 
 class TestIndexBuilder:
@@ -239,7 +239,7 @@ class TestIndexBuilder:
 
         Marked ``slow`` because a cold build encodes 817 concerns.
         """
-        mod = pytest.importorskip("scripts.rag._index_builder")
+        mod = pytest.importorskip("scripts.rag.index.builder")
         embeddings, records = mod.build_or_load_index()
         assert isinstance(embeddings, np.ndarray)
         assert isinstance(records, list)
@@ -259,7 +259,7 @@ class TestIndexBuilder:
         that the second is dramatically faster than the first (cache hit).
         If the index builder module is not yet present this test skips.
         """
-        mod = pytest.importorskip("scripts.rag._index_builder")
+        mod = pytest.importorskip("scripts.rag.index.builder")
         # First call may be cold (built once for the whole test process,
         # likely already warm from the real cache on disk).
         t0 = time.perf_counter()
@@ -284,7 +284,7 @@ class TestIndexBuilder:
         Uses a tiny synthetic KB so this test is cheap and does not depend
         on the slow path. Skips if the builder is not yet authored.
         """
-        mod = pytest.importorskip("scripts.rag._index_builder")
+        mod = pytest.importorskip("scripts.rag.index.builder")
 
         # Synthetic KB v1
         tiny_kb_v1 = {

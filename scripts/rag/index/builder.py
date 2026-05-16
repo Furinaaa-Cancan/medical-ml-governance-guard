@@ -16,12 +16,15 @@ On a clean call the embedding pass dominates wall time (~30-60 s for 817
 concerns on CPU). Cache hits skip the model entirely and load in well
 under a second.
 
+Cache I/O primitives (atomic writes, sha256 hashing, npz load) live in
+:mod:`scripts.rag.index.cache` so other RAG features (BM25 inverted index,
+query-result cache) can share them.
+
 Design contract: see ``/tmp/mlgg_rag_design.md`` (shared across 10 agents).
 """
 
 from __future__ import annotations
 
-import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -35,10 +38,18 @@ from scripts.rag.config import (
     KB_HASH_CACHE,
     KB_PATH,
 )
+from scripts.rag.index.cache import (
+    kb_sha256,
+    load_cached_embeddings_and_records,
+    read_kb_hash,
+    save_embeddings_and_records_atomically,
+    write_kb_hash_atomically,
+)
 
 # Repo root anchors any relative paths coming from config so the module
-# works regardless of the caller's cwd.
-_REPO_ROOT = Path(__file__).resolve().parents[2]
+# works regardless of the caller's cwd. This file lives at
+# ``scripts/rag/index/builder.py`` — three parents up = repo root.
+_REPO_ROOT = Path(__file__).resolve().parents[3]
 
 # Per-field truncation when assembling the embedding text. Keeps the input
 # under typical sentence-transformer context windows (BGE-small ~512 tokens)
@@ -54,28 +65,6 @@ def _anchor(path: Path) -> Path:
     """Return ``path`` as-is if absolute, else resolved against the repo root."""
 
     return path if path.is_absolute() else (_REPO_ROOT / path)
-
-
-def _kb_sha256(kb_path: Path) -> str:
-    """Compute the sha256 of the KB file in fixed-size chunks."""
-
-    digest = hashlib.sha256()
-    with kb_path.open("rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
-
-
-def _load_cached_hash(hash_cache: Path) -> str | None:
-    """Return the cached KB hash, or ``None`` if the file is missing/empty."""
-
-    if not hash_cache.exists():
-        return None
-    try:
-        value = hash_cache.read_text(encoding="utf-8").strip()
-    except OSError:
-        return None
-    return value or None
 
 
 def _build_concern_record(entry: dict[str, Any], concern: dict[str, Any]) -> dict[str, Any]:
@@ -183,56 +172,6 @@ def _build_records(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return records
 
 
-def _load_cached_index(
-    embeddings_cache: Path, records_cache: Path
-) -> tuple[np.ndarray, list[dict[str, Any]]] | None:
-    """Try to load the cached matrix + records; return ``None`` on any failure."""
-
-    if not embeddings_cache.exists() or not records_cache.exists():
-        return None
-    try:
-        with np.load(embeddings_cache) as bundle:
-            embeddings = bundle["embeddings"].astype(np.float32, copy=False)
-        with records_cache.open("r", encoding="utf-8") as fh:
-            records = json.load(fh)
-    except (OSError, KeyError, ValueError, json.JSONDecodeError):
-        return None
-    if not isinstance(records, list) or embeddings.shape[0] != len(records):
-        # Defensive: stale or mismatched cache → force rebuild.
-        return None
-    return embeddings, records
-
-
-def _write_cache(
-    embeddings: np.ndarray,
-    records: list[dict[str, Any]],
-    kb_hash: str,
-    embeddings_cache: Path,
-    records_cache: Path,
-    hash_cache: Path,
-) -> None:
-    """Persist embeddings, records, and the KB hash atomically per-file."""
-
-    embeddings_cache.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write to ``*.tmp`` siblings then rename — avoids leaving a half-written
-    # cache if the process is killed mid-write. ``np.savez`` auto-appends
-    # ``.npz`` to its target if the path doesn't already end in it, so we
-    # pass a ``.npz`` filename explicitly and predict the actual written name.
-    npz_tmp_arg = embeddings_cache.with_name(embeddings_cache.name + ".tmp.npz")
-    np.savez(npz_tmp_arg, embeddings=embeddings.astype(np.float32, copy=False))
-    npz_tmp_arg.replace(embeddings_cache)
-
-    json_tmp = records_cache.with_suffix(records_cache.suffix + ".tmp")
-    with json_tmp.open("w", encoding="utf-8") as fh:
-        json.dump(records, fh, ensure_ascii=False, indent=2)
-    json_tmp.replace(records_cache)
-
-    hash_tmp = hash_cache.with_suffix(hash_cache.suffix + ".tmp")
-    hash_tmp.write_text(kb_hash + "\n", encoding="utf-8")
-    hash_tmp.replace(hash_cache)
-
-
 def build_or_load_index(
     kb_path: Path = KB_PATH,
     force_rebuild: bool = False,
@@ -272,12 +211,12 @@ def build_or_load_index(
     hash_cache = _anchor(KB_HASH_CACHE)
     records_cache = cache_dir / _RECORDS_CACHE_NAME
 
-    kb_hash = _kb_sha256(kb_path)
+    kb_hash = kb_sha256(kb_path)
 
     if not force_rebuild:
-        cached_hash = _load_cached_hash(hash_cache)
+        cached_hash = read_kb_hash(hash_cache)
         if cached_hash == kb_hash:
-            cached = _load_cached_index(embeddings_cache, records_cache)
+            cached = load_cached_embeddings_and_records(embeddings_cache, records_cache)
             if cached is not None:
                 return cached
 
@@ -297,14 +236,13 @@ def build_or_load_index(
             f"embed_texts returned {embeddings.shape[0]} rows for {len(records)} concerns"
         )
 
-    _write_cache(
+    save_embeddings_and_records_atomically(
+        embeddings_path=embeddings_cache,
+        records_path=records_cache,
         embeddings=embeddings,
         records=records,
-        kb_hash=kb_hash,
-        embeddings_cache=embeddings_cache,
-        records_cache=records_cache,
-        hash_cache=hash_cache,
     )
+    write_kb_hash_atomically(hash_cache, kb_hash)
 
     return embeddings.astype(np.float32, copy=False), records
 

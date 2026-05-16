@@ -1,14 +1,14 @@
 """Shared configuration for the MLGG RAG layer.
 
 This module is the single source of truth for constants used across the RAG
-package (``scripts/rag/``). Every other RAG module (``_embeddings``,
-``_index_builder``, ``_vector_search``, ``_hybrid_ranker``, ``rag_query``,
+package (``scripts/rag/``). Every other RAG module (``embeddings``,
+``index.builder``, ``retrieval.dense``, ``_hybrid_ranker``, ``rag_query``,
 ``_gate_integration``) imports its constants from here, so changes propagate
 consistently.
 
 Design notes:
     * No network side effects at import time. The embedding model name is
-      defined here, but loading the model is deferred to ``_embeddings.py``.
+      defined here, but loading the model is deferred to ``embeddings.py``.
     * All filesystem paths are anchored to the repository root computed from
       ``__file__``, so they resolve regardless of the caller's CWD.
     * Hybrid ranking weights sum to ``1.0`` by construction
@@ -35,7 +35,7 @@ REPO_ROOT: Final[Path] = Path(__file__).resolve().parents[2]
 # Local sentence-transformer model. Chosen for: 384-dim output (small, fast
 # cosine search over 817 vectors), strong English retrieval quality on MTEB,
 # and no API key requirement. Downloaded once from HuggingFace on first use
-# by ``_embeddings.get_model()``; cached by sentence_transformers thereafter.
+# by ``embeddings.get_model()``; cached by sentence_transformers thereafter.
 EMBEDDING_MODEL: Final[str] = "BAAI/bge-small-en-v1.5"
 EMBEDDING_DIM: Final[int] = 384
 
@@ -44,7 +44,7 @@ EMBEDDING_DIM: Final[int] = 384
 # ---------------------------------------------------------------------------
 CACHE_DIR: Final[Path] = REPO_ROOT / ".cache" / "rag"
 EMBEDDINGS_CACHE: Final[Path] = CACHE_DIR / "concerns_embeddings.npz"
-# SHA256 of the KB file; used by ``_index_builder`` to invalidate the
+# SHA256 of the KB file; used by ``index.builder`` to invalidate the
 # embeddings cache automatically when the underlying KB changes.
 KB_HASH_CACHE: Final[Path] = CACHE_DIR / "kb_hash.txt"
 

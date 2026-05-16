@@ -86,14 +86,14 @@ def _rag_index() -> tuple[Any, list[dict]]:
 
     Returns:
         ``(embeddings, records)`` from
-        :func:`scripts.rag._index_builder.build_or_load_index`. Session-
+        :func:`scripts.rag.index.builder.build_or_load_index`. Session-
         scoped so the heavy embedding work happens exactly once.
     """
 
     try:
-        from scripts.rag._index_builder import build_or_load_index
+        from scripts.rag.index.builder import build_or_load_index
     except ImportError as exc:  # pragma: no cover - depends on A3 landing
-        pytest.skip(f"_index_builder unavailable: {exc}")
+        pytest.skip(f"index.builder unavailable: {exc}")
 
     try:
         embeddings, records = build_or_load_index()
