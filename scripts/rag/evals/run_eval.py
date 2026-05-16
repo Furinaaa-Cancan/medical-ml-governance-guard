@@ -70,7 +70,14 @@ def score_one(scenario: dict, *, mode: str, top_k: int = 5) -> dict:
     )
     gate = scenario.get("gate_name") or scenario.get("mlgg_gate_hint")
     codes = scenario.get("failure_codes") or scenario.get("failure_codes_hint") or []
-    query = scenario.get("query_text") or scenario.get("query", "")
+    query = scenario.get("query_text") or scenario.get("query") or ""
+    if not query.strip() and gate:
+        # W7-P1: mirror scripts/rag/evals/harness.py (and gate_rag_bridge):
+        # a gate + failure codes alone must be enough to retrieve. Without
+        # this fallback, rag_query's empty-query guard short-circuits to []
+        # and the scenario is silently dropped (n_hits=0, wall_ms=0), which
+        # diverges from the production gate→RAG bridge path.
+        query = f"{gate} {' '.join(codes)}".strip()
 
     t0 = time.perf_counter()
     if mode == "bm25_only":
