@@ -9,9 +9,9 @@ where each scenario declares:
     failure_codes[]    — issue codes surfaced by that gate
     expected_categories[] — categories the reviewer would expect to see
     expected_tags[]    — tags the reviewer would expect to see
+    query_text         — (optional) free-text query, used by hybrid mode
 
-For each scenario it runs the same ``retrieve_for_failure`` call the
-gate framework's peer-review-context hook uses and scores the top-K
+For each scenario it runs a retrieval call and scores the top-K
 (default 5) results against the expectations:
 
     coverage = 1 if ANY of top-K concerns' category ∈ expected_categories
@@ -22,6 +22,37 @@ This is NOT a unit test of retrieval internals — those live in
 tests/test_peer_review_retrieval*.py. This answers the harder
 question: "does the retrieval actually surface what a reviewer
 would expect when a gate fails?"
+
+## Retrieval-path modes (W3 measurement-path fix, 2026-05-17)
+
+The harness supports two retrieval-path modes:
+
+* ``bm25_only`` — direct ``retrieve_for_failure`` call. Measures
+  BM25 keyword-overlap recall. Useful for BM25-specific debugging.
+  THIS IS THE LEGACY DEFAULT — what every historical E1/H14/W3 P@5
+  number measured.
+
+* ``hybrid`` (DEFAULT) — production-path retrieval via the public
+  ``rag_query`` API (dense + BM25 + tag overlap + severity + MMR).
+  Measures what real users experience when a gate fails.
+
+W3 (Wave 4) finding: the harness defaulted to ``bm25_only`` while
+production users got ``hybrid_rank``. All published P@5 numbers
+were therefore evaluating the wrong path. Default flipped to
+``hybrid``; ``bm25_only`` retained for debugging.
+
+## Mode comparison baseline (W3 Wave 4, 2026-05-17)
+
+Mean tag_precision@5 across the canonical scenarios is captured in
+the harness's --report JSON. Run both modes and compare:
+
+    python3 scripts/rag/evals/harness.py --mode bm25_only \
+        --report /tmp/eval_bm25_only.json
+    python3 scripts/rag/evals/harness.py --mode hybrid \
+        --report /tmp/eval_hybrid.json
+
+The deltas live in the W3 diagnosis doc; numbers are not pinned in
+this docstring because the KB and synonym tables move independently.
 
 Run:
     python3 scripts/rag/evals/harness.py \
@@ -49,19 +80,30 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(_REPO_ROOT) not in _sys.path:
     _sys.path.insert(0, str(_REPO_ROOT))
 
-from scripts.rag.retrieval.bm25 import retrieve_for_failure  # noqa: E402
-
-
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_SCENARIOS = REPO_ROOT / "references" / "retrieval_eval" / "scenarios.json"
 DEFAULT_KB = REPO_ROOT / "references" / "case-studies" / "peer-review-kb.json"
+
+# Default retrieval mode. W3 found that the legacy ``bm25_only`` default
+# measured the wrong path; production users get ``hybrid``. New default
+# matches the production path so future evals are not misleading.
+DEFAULT_MODE = "hybrid"
+SUPPORTED_MODES = ("bm25_only", "hybrid")
 
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--scenarios", type=Path, default=DEFAULT_SCENARIOS)
     p.add_argument("--kb", type=Path, default=DEFAULT_KB,
-                   help="Override KB path (mainly for tests).")
+                   help="Override KB path (bm25_only mode only; the hybrid "
+                        "path resolves the KB via scripts.rag.config).")
+    p.add_argument("--mode", choices=SUPPORTED_MODES, default=DEFAULT_MODE,
+                   help="Retrieval path to evaluate. Default 'hybrid' "
+                        "matches the production user experience (rag_query "
+                        "→ hybrid_rank: dense + BM25 + tag + severity + "
+                        "MMR). 'bm25_only' is the legacy path retained "
+                        "for BM25-specific debugging — W3 (2026-05-17) "
+                        "found it had been the misleading default.")
     p.add_argument("--report", type=Path,
                    help="Optional JSON report output path")
     p.add_argument("--baseline", type=Path,
@@ -75,18 +117,101 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
-def evaluate_scenario(
+def _retrieve_bm25_only(
     scenario: Dict[str, Any],
     *,
     kb_path: Path,
     top_k: int,
+) -> List[Dict[str, Any]]:
+    """Legacy BM25-only retrieval path.
+
+    Calls ``retrieve_for_failure`` directly. Measures BM25 keyword-
+    overlap recall — useful for BM25-specific debugging but does NOT
+    reflect what production users experience (W3 finding).
+    """
+    # Deferred import: avoids loading sentence_transformers on import
+    # of this module when only bm25 mode is used, and keeps the
+    # hybrid-import deferred symmetrically.
+    from scripts.rag.retrieval.bm25 import retrieve_for_failure
+    return retrieve_for_failure(
+        scenario["gate_name"],
+        scenario.get("failure_codes", []),
+        limit=top_k,
+        kb_path=kb_path,
+    )
+
+
+def _retrieve_hybrid(
+    scenario: Dict[str, Any],
+    *,
+    top_k: int,
+) -> List[Dict[str, Any]]:
+    """Production-path retrieval via the public ``rag_query`` API.
+
+    Uses ``query_text`` if present (H10 scenarios provide it). Falls
+    back to a gate + code descriptor so legacy scenarios without a
+    free-text query still get a meaningful dense signal.
+
+    Note: ``rag_query`` resolves the KB via ``scripts.rag.config``
+    rather than an explicit path. The ``--kb`` flag therefore only
+    affects ``bm25_only`` mode. This is intentional — the production
+    user's retrieval never takes an ad-hoc KB path either.
+    """
+    from scripts.rag.query import rag_query
+
+    query_text = scenario.get("query_text") or scenario.get("query") or ""
+    if not query_text.strip():
+        # Synthesize a minimal descriptor so the dense signal is non-empty.
+        # Mirrors what gate_rag_bridge does when a gate fails without a
+        # human-authored query.
+        gate = scenario.get("gate_name", "")
+        codes = scenario.get("failure_codes", [])
+        query_text = f"{gate} {' '.join(codes)}".strip()
+
+    return rag_query(
+        query=query_text,
+        gate=scenario["gate_name"],
+        failure_codes=scenario.get("failure_codes", []),
+        top_k=top_k,
+    )
+
+
+def evaluate_scenario(
+    scenario: Dict[str, Any],
+    *,
+    kb_path: Path = DEFAULT_KB,
+    top_k: int = 5,
+    mode: str = DEFAULT_MODE,
 ) -> Dict[str, Any]:
+    """Evaluate a single scenario against the chosen retrieval path.
+
+    Args:
+        scenario: Scenario dict (see module docstring for the schema).
+        kb_path: KB path. Only honored in ``bm25_only`` mode; the
+            ``hybrid`` mode resolves the KB via ``scripts.rag.config``.
+        top_k: Number of top results to retrieve and score.
+        mode: ``"hybrid"`` (default, production path) or ``"bm25_only"``
+            (legacy debug path).
+
+    Returns:
+        A per-scenario result dict with coverage / hit@K / tag_precision
+        plus a top-K summary.
+    """
+    if mode not in SUPPORTED_MODES:
+        raise ValueError(
+            f"mode must be one of {SUPPORTED_MODES}, got {mode!r}"
+        )
+
     gate = scenario["gate_name"]
-    codes = scenario.get("failure_codes", [])
     expected_cats = set(scenario.get("expected_categories", []))
     expected_tags = set(scenario.get("expected_tags", []))
 
-    results = retrieve_for_failure(gate, codes, limit=top_k, kb_path=kb_path)
+    if mode == "bm25_only":
+        results = _retrieve_bm25_only(
+            scenario, kb_path=kb_path, top_k=top_k,
+        )
+    else:  # hybrid
+        results = _retrieve_hybrid(scenario, top_k=top_k)
 
     hit_categories: List[str] = []
     hit_tags: List[str] = []
@@ -106,7 +231,12 @@ def evaluate_scenario(
             "severity": r.get("severity"),
             "category": cat,
             "tags": tags,
+            # bm25 path tags this; hybrid path leaves it None. Both are fine.
             "retrieval_mode": r.get("_retrieval_mode"),
+            # Hybrid-only scoring metadata (handy for debugging).
+            "final_score": r.get("_final_score"),
+            "dense_score": r.get("_dense_score"),
+            "bm25_score": r.get("_bm25_score"),
         })
 
     coverage = 1.0 if hit_categories else 0.0
@@ -123,6 +253,7 @@ def evaluate_scenario(
         "scenario_id": scenario["scenario_id"],
         "description": scenario.get("description", ""),
         "gate_name": gate,
+        "mode": mode,
         "retrieved_count": len(results),
         "coverage": coverage,
         "hit_at_k": hit_at_k,
@@ -137,7 +268,8 @@ def print_human_summary(
     report: Dict[str, Any], *, verbose: bool = False,
 ) -> None:
     print("=" * 70)
-    print("Retrieval eval harness — peer-review-kb")
+    mode = report.get("mode", "?")
+    print(f"Retrieval eval harness — peer-review-kb   [mode={mode}]")
     print("=" * 70)
     for r in report["scenarios"]:
         mark_cov = "OK" if r["coverage"] >= 1.0 else "MISS"
@@ -222,7 +354,9 @@ def main() -> int:
     kb_path = Path(args.kb).expanduser().resolve()
 
     per_scenario = [
-        evaluate_scenario(s, kb_path=kb_path, top_k=args.top_k)
+        evaluate_scenario(
+            s, kb_path=kb_path, top_k=args.top_k, mode=args.mode,
+        )
         for s in scenarios
     ]
     total = len(per_scenario)
@@ -235,6 +369,7 @@ def main() -> int:
         "scenarios_file": str(scenarios_path),
         "kb_path": str(kb_path),
         "top_k": args.top_k,
+        "mode": args.mode,
         "scenarios": per_scenario,
         "aggregate": {
             "total_scenarios": total,
