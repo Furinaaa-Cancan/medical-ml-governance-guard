@@ -26,10 +26,13 @@ This test file pins the fixed semantics:
 """
 from __future__ import annotations
 
+import pytest
+
 from scripts.review.backfill_peer_review_gates import (
     CATEGORY_TO_GATES,
     TAG_OVERLAYS,
     _derive_gates,
+    _tag_matches_needle,
 )
 
 
@@ -167,3 +170,173 @@ def test_derive_bare_reproducibility_tag_skips_seed_stability():
     assert "seed_stability_gate" not in gates, (
         f"'architecture_reproducibility' tag still pulls seed_stability_gate: {gates}"
     )
+
+
+# ====================================================================
+# H15 — TAG_OVERLAYS substring → whole-token matching refactor
+# ====================================================================
+# Background
+# ----------
+# The fix in commit 342e70b ("split 'reproducibility' keyword") patched one
+# instance of a wider class bug H2 had warned about: TAG_OVERLAYS used
+# substring matching against the concatenated tag text, so any needle that
+# happened to be a substring of an unrelated tag silently over-triggered.
+# Examples discovered by auditing the KB on 2026-05-17:
+#
+#   * ``"idi"``  matched ``bidirectional_rnn_leakage``, ``label_validity``,
+#                ``confounding_by_comorbidity``, ``enrichment_validity``, ...
+#   * ``"ood"``  matched ``likelihood_ratios_missing``,
+#                ``blood_culture_proxy``, ``blood_tests_unhelpful``, ...
+#   * ``"nri"``  matched ``enrichment_validity``, ``enriched_population``
+#   * ``"dca"``  matched ``gradcam``, ``gradcam_interpretation``
+#   * ``"missing_ci"`` matched ``missing_citations``
+#
+# Fix: derive a tag-aware whole-token matcher (`_tag_matches_needle`) and
+# route `_derive_gates` through it. The legitimate stem/plural matches the
+# old substring matcher caught (e.g. ``benchmark`` → ``benchmarking_*``,
+# ``overclaim`` → ``overclaimed_*``) are restored by adding explicit
+# inflected needles to TAG_OVERLAYS.
+
+
+@pytest.mark.parametrize(
+    "tag,needle,should_match",
+    [
+        # H2 canonical example: shap must not match shapefile
+        ("shap_value_missing", "shap", True),
+        ("shapefile", "shap", False),
+        # ci must not match civic / citation tokens
+        ("missing_ci", "ci_matrix", False),       # multi-token: only "ci" present, not "matrix"
+        ("ci_methodology", "ci_methodology", True),
+        ("ci_matrix_required", "ci_matrix", True),
+        ("civic_engagement", "ci", False),         # token "ci" is NOT a token of "civic_engagement"
+        ("missing_citations", "ci", False),        # "citations" is its own token, not "ci"
+        # seed must not match seeding (different token)
+        ("random_seed", "seed", True),
+        ("seed", "seed", True),
+        ("seeding_strategy", "seed", False),
+        # reproducibility: exact / token match works
+        ("reproducibility", "reproducibility", True),
+        ("reproducibility_unclear", "reproducibility", True),
+        ("architecture_reproducibility", "reproducibility", True),
+        # idi class-of-failure: must NOT match longer words containing 'idi'
+        ("bidirectional_rnn_leakage", "idi", False),
+        ("label_validity", "idi", False),
+        ("confounding_by_comorbidity", "idi", False),
+        ("idi", "idi", True),
+        # ood / nri analogues
+        ("likelihood_ratios_missing", "ood", False),
+        ("ood", "ood", True),
+        ("enrichment_validity", "nri", False),
+        ("nri", "nri", True),
+        # dca must not match gradcam
+        ("gradcam", "dca", False),
+        ("dca", "dca", True),
+        ("decision_curve_analysis_dca", "dca", True),
+        # Multi-token needle: ALL needle tokens must appear in tag
+        ("data_leakage_via_imputation", "data_leakage_via_imputation", True),
+        ("data_leakage", "data_leakage_via_imputation", False),  # missing "via", "imputation"
+        # Inflectional compensators (added in same refactor) — these are the
+        # legitimate substring matches the old matcher caught that we
+        # preserve by spelling out the inflected forms.
+        ("unfair_benchmarking", "benchmarking", True),
+        ("benchmarking_missing", "benchmarking", True),
+        ("overclaimed_improvement", "overclaimed", True),
+        ("missing_confidence_intervals", "confidence_intervals", True),
+        ("default_hyperparameters", "hyperparameters", True),
+        ("biomarker_thresholding", "thresholding", True),
+        ("feature_thresholds_unavailable", "thresholds", True),
+        ("recalibration_needed", "recalibration", True),
+        ("reporting_guidelines", "reporting_guidelines", True),
+        ("cherry_picking_risk", "cherry_picking", True),
+    ],
+)
+def test_whole_token_matching_no_false_positives(tag, needle, should_match):
+    """H15: TAG_OVERLAYS lookups should match on whole tokens, not substrings.
+
+    Each parametrised case pins one behaviour: needles must match tags only
+    when every needle token appears as a complete tag token. Negative cases
+    cover the historical substring false positives (shap/shapefile,
+    idi/bidirectional, ci/citations, ood/likelihood, dca/gradcam, ...);
+    positive cases cover the legitimate stem matches we preserved by adding
+    explicit inflected needles (benchmarking, overclaimed, hyperparameters,
+    ...).
+    """
+    actual = _tag_matches_needle(tag, needle)
+    assert actual == should_match, (
+        f"needle={needle!r} tag={tag!r}: expected match={should_match}, got {actual}"
+    )
+
+
+def test_whole_token_no_shap_shapefile_collision():
+    """H2 specific example: 'shap' must not pull in shap_interpretability_gate
+    for a concern whose only shap-ish tag is the geographic 'shapefile'."""
+    # interpretability category default doesn't apply here — use a neutral
+    # category so we test the overlay in isolation.
+    derived = _derive_gates(
+        "reporting",
+        ["shapefile", "geographic_file_format"],
+    )
+    assert "shap_interpretability_gate" not in derived, (
+        f"'shapefile' wrongly triggered shap_interpretability_gate: {derived}"
+    )
+
+
+def test_whole_token_idi_no_validity_collision():
+    """H15 audit finding: the old matcher routed every '*_validity' /
+    'b**idi**rectional' tag through the NRI/IDI rule. Whole-token kills it."""
+    derived = _derive_gates(
+        "evaluation_metrics",
+        ["bidirectional_rnn_leakage", "label_validity", "comorbidity_data"],
+    )
+    # idi rule maps to clinical_metrics_gate + calibration_dca_gate.
+    # None of the three tags are about reclassification metrics, so neither
+    # of those gates should be added by the idi overlay.
+    # (clinical_metrics_gate / calibration_dca_gate could still come in via
+    # other overlays — assert specifically that they're absent when the only
+    # routes would have been the false-positive idi/nri substring matches.)
+    assert "clinical_metrics_gate" not in derived, (
+        f"idi/nri substring trap re-introduced: {derived}"
+    )
+
+
+def test_whole_token_missing_ci_keeps_real_match():
+    """The legitimate 'missing_ci' tag must still route to ci_matrix_gate
+    via the existing ('missing_ci', ...) overlay."""
+    derived = _derive_gates(
+        "evaluation_metrics",
+        ["missing_ci", "auroc_only"],
+    )
+    assert "ci_matrix_gate" in derived, (
+        f"Legitimate 'missing_ci' tag lost its ci_matrix_gate routing: {derived}"
+    )
+
+
+def test_whole_token_benchmark_inflections_preserved():
+    """Inflectional compensator: 'benchmarking_*' tags must still route to
+    model_selection_audit_gate (previously caught by substring match on
+    needle 'benchmark', now caught explicitly by needle 'benchmarking')."""
+    for tag in (
+        "unfair_benchmarking",
+        "limited_benchmarking",
+        "benchmarking_missing",
+        "model_benchmarking_context",
+    ):
+        derived = _derive_gates("reporting", [tag])
+        assert "model_selection_audit_gate" in derived, (
+            f"'{tag}' lost model_selection_audit_gate after refactor: {derived}"
+        )
+
+
+def test_whole_token_overclaim_inflections_preserved():
+    """Inflectional compensator: 'overclaimed_*' tags (verb form) must still
+    route to reporting_bias_gate."""
+    for tag in (
+        "overclaimed",
+        "overclaimed_improvement",
+        "overclaimed_clinical_utility",
+        "small_subgroup_overclaimed",
+    ):
+        derived = _derive_gates("reporting", [tag])
+        assert "reporting_bias_gate" in derived, (
+            f"'{tag}' lost reporting_bias_gate after refactor: {derived}"
+        )

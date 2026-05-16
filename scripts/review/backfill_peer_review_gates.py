@@ -422,6 +422,28 @@ TAG_OVERLAYS: list[tuple[str, list[str]]] = [
     ("sota_comparison", ["model_selection_audit_gate", "reporting_bias_gate"]),
     ("benchmark", ["model_selection_audit_gate"]),
     ("ablation", ["model_selection_audit_gate", "feature_engineering_audit_gate"]),
+
+    # ---- Inflectional / plural compensators (H15 whole-token refactor,
+    # 2026-05-17) ----
+    # Before the whole-token switch, several needles caught their inflected
+    # forms via substring (e.g. `benchmark` matched `benchmarking_missing`
+    # because "benchmark" is a literal substring of "benchmarking_missing").
+    # Whole-token matching kills the false positives on `idi`/`ood`/`nri`/`ci`
+    # etc., but it also kills these legitimate stem matches. We restore the
+    # legitimate ones by spelling out the inflected token as its own needle.
+    # Audited against the 1977-tag KB vocabulary on 2026-05-17 — every needle
+    # below maps to an actually-present tag family. See dev notes in
+    # tests/test_backfill_keyword_map.py for the regression rationale.
+    ("benchmarking", ["model_selection_audit_gate"]),
+    ("recalibration", ["calibration_dca_gate"]),
+    ("cherry_picking", ["reporting_bias_gate", "evaluation_quality_gate"]),
+    ("cherrypicking", ["reporting_bias_gate", "evaluation_quality_gate"]),
+    ("confidence_intervals", ["ci_matrix_gate"]),
+    ("hyperparameters", ["model_selection_audit_gate"]),
+    ("overclaimed", ["reporting_bias_gate"]),
+    ("reporting_guidelines", ["reporting_bias_gate"]),
+    ("thresholds", ["clinical_metrics_gate"]),
+    ("thresholding", ["clinical_metrics_gate"]),
 ]
 
 
@@ -435,8 +457,66 @@ def _valid_gate_names() -> set[str]:
     return names
 
 
+def _tag_tokens(tag: str) -> set[str]:
+    """Split a tag into its underscore-separated atomic tokens (lowercased).
+
+    Tags in peer-review-kb.json follow snake_case (e.g. ``code_unavailable``,
+    ``bidirectional_rnn_leakage``). Tokenising lets us distinguish "the tag
+    *is* the needle" from "the needle is a happens-to-be substring of the
+    tag" — which is what the original substring matcher could not do.
+    """
+    return set(tag.lower().split("_"))
+
+
+def _tag_matches_needle(tag: str, needle: str) -> bool:
+    """Whole-token match: every needle token must appear as a complete token
+    in the tag's token set.
+
+    Replaces the legacy ``needle in tag_text`` substring check, which had two
+    correctness bugs (H2 / H15 finding, 2026-05-17):
+
+      1. Short needles silently over-triggered when they happened to be a
+         substring of an unrelated token, e.g. ``"shap"`` would have matched
+         ``shapefile``; ``"ci"``-style overlays would have matched
+         ``citations``; ``"idi"``/``"ood"``/``"nri"`` overlays matched
+         word-internal slices of ``bidirectional_rnn_leakage``,
+         ``likelihood_ratios_missing``, ``enrichment_validity``, etc.
+      2. Multi-word needles like ``"data_leakage_via_imputation"`` only
+         matched when the joined ``tag_text`` happened to contain that exact
+         substring; whole-token matching is strictly more robust because it
+         lets tag order vary.
+
+    Examples
+    --------
+    >>> _tag_matches_needle("shap_value_missing", "shap")
+    True
+    >>> _tag_matches_needle("shapefile", "shap")
+    False
+    >>> _tag_matches_needle("missing_ci", "ci_methodology")  # multi-token needle
+    False
+    >>> _tag_matches_needle("ci_methodology_unclear", "ci_methodology")
+    True
+    """
+    tag_token_set = _tag_tokens(tag)
+    needle_tokens = needle.lower().split("_")
+    return all(nt in tag_token_set for nt in needle_tokens)
+
+
 def _derive_gates(category: str, tags: list[str]) -> list[str]:
-    """Apply rule table to produce a gate list. Preserves rule-table order, dedups."""
+    """Apply rule table to produce a gate list. Preserves rule-table order, dedups.
+
+    Matching policy (H2 / H15 fix, 2026-05-17): each TAG_OVERLAYS needle is
+    interpreted as a *token pattern*. A tag matches the needle iff every
+    underscore-separated token of the needle appears as a complete
+    underscore-separated token of the tag — see :func:`_tag_matches_needle`.
+
+    This replaces the previous ``if needle in " ".join(tags).lower()``
+    substring check, which silently over-triggered whenever a short needle
+    happened to be a substring of an unrelated tag. Where the legacy matcher
+    relied on stem/plural substring matches that we still want (e.g.
+    ``benchmark`` catching ``benchmarking_missing``), the rule table now
+    spells the inflected forms out as explicit needles.
+    """
     result: list[str] = []
 
     def _add(gs: list[str]) -> None:
@@ -445,10 +525,11 @@ def _derive_gates(category: str, tags: list[str]) -> list[str]:
                 result.append(g)
 
     _add(CATEGORY_TO_GATES.get(category, []))
-    tag_text = " ".join(tags).lower()
     for needle, overlay_gates in TAG_OVERLAYS:
-        if needle in tag_text:
-            _add(overlay_gates)
+        for tag in tags:
+            if _tag_matches_needle(tag, needle):
+                _add(overlay_gates)
+                break
     return result
 
 
