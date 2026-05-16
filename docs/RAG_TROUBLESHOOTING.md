@@ -27,7 +27,8 @@ CLI: `python3 scripts/rag/query.py "calibration"` — no `--gate`, no `--codes`.
 In this mode the BM25 weight (0.3) is unallocated, so the remaining 3 signals
 are re-normalized (dense 0.71, tag 0.21, severity 0.07). `_match_reasons`
 includes `bm25_inactive_free_text` for transparency (see
-`scripts/rag/retrieval/hybrid.py:594`).
+`scripts/rag/retrieval/hybrid.py::hybrid_rank` — search for the
+`bm25_inactive_free_text` reason string).
 
 **Fix** — pass `(gate, codes)` for full 4-signal ranking:
 
@@ -57,7 +58,8 @@ prewarm()  # call at service start / worker pool init
 ```
 
 Or CLI: `python3 scripts/rag/query.py --prewarm` returns JSON timing
-(see `scripts/rag/query.py:127`, `:330`).
+(see `scripts/rag/query.py::prewarm` for the function and
+`scripts/rag/query.py::_build_parser` for the `--prewarm` flag wiring).
 
 ---
 
@@ -73,11 +75,12 @@ Or CLI: `python3 scripts/rag/query.py --prewarm` returns JSON timing
 
 ## §4 Same-paper duplicates in top-5
 
-Post-G4, MMR diversity reranking is wired but configurable
-(`scripts/rag/config.py:117-118`):
+Post-G4, MMR diversity reranking is wired but configurable:
 
-- `config.MMR_LAMBDA = 0.7` (relevance vs diversity tradeoff)
-- `config.MMR_SAME_PAPER_PENALTY = 0.5`
+- `scripts/rag/config.py::MMR_LAMBDA` (default `0.7` — relevance vs diversity tradeoff)
+- `scripts/rag/config.py::MMR_SAME_PAPER_PENALTY` (default `0.5`)
+
+Reranker implementation: `scripts/rag/retrieval/hybrid.py::_mmr_rerank`.
 
 If duplicates still appear at top-K > 5, tune `MMR_LAMBDA` down (e.g. 0.6).
 Cross-paper near-duplicates are handled by MMR's dense-cosine similarity.
@@ -89,9 +92,11 @@ Cross-paper near-duplicates are handled by MMR's dense-cosine similarity.
 Two interpretations:
 
 - **Honest empty** (`rag_optional=True`): infra/aggregation gates by design.
-  Currently 4 such gates in `scripts/core/_gate_registry.py` (lines 138,
-  152, 622, 635) — `manifest_lock`, `request_contract_gate`,
-  `self_critique_gate`, `security_audit_gate`. No placeholder rendered.
+  Currently 4 such gates registered via `scripts/core/_gate_registry.py::_register`
+  with `rag_optional=True` — `request_contract_gate`, `manifest_lock`,
+  `self_critique_gate`, `security_audit_gate`. Grep
+  `grep -nE 'name="|rag_optional=True' scripts/core/_gate_registry.py`
+  to enumerate. No placeholder rendered.
 - **KB coverage gap**: gate isn't `rag_optional` but KB has no tagged
   concerns. Run
   `pytest tests/test_rag_regression.py::test_all_33_gates_have_rag_coverage_or_are_rag_optional`
@@ -113,7 +118,7 @@ pip install pre-commit
 pre-commit install
 ```
 
-The `readme-stats-drift` hook (`.pre-commit-config.yaml:77`) runs
+The `readme-stats-drift` hook (id in `.pre-commit-config.yaml`) runs
 `scripts/diagnostics/check_readme_stats.py` on every commit
 (`always_run`, so it triggers even if no README file is staged).
 A pre-push backstop also lives at `.githooks/pre-push`.
@@ -134,9 +139,10 @@ unless allowlisted), so BM25 never surfaced CI-related concerns.
 Post-H1 (`scripts/rag/retrieval/bm25.py`):
 
 - Canonical codes (`MLGG-S01..E02`) now map to semantic tags via
-  `TAG_SYNONYMS` (line 107).
-- 2-char tokens like `ci` are preserved through `SHORT_TOKEN_ALLOWLIST`
-  (line 104): `{"ci", "r2", "ml", "ai", "df", "or", "hr"}`.
+  `scripts/rag/retrieval/bm25.py::TAG_SYNONYMS`.
+- 2-char tokens like `ci` are preserved through
+  `scripts/rag/retrieval/bm25.py::SHORT_TOKEN_ALLOWLIST`:
+  `{"ci", "r2", "ml", "ai", "df", "or", "hr"}`.
 
 If a new canonical code is added to `CLAUDE.md`, extend `TAG_SYNONYMS`
 in `scripts/rag/retrieval/bm25.py` to keep it discoverable.
@@ -145,8 +151,9 @@ in `scripts/rag/retrieval/bm25.py` to keep it discoverable.
 
 ## §8 Cache won't rebuild
 
-`scripts/rag/index/cache.py` uses sha256 of the KB file (`kb_sha256`,
-line 25). If the cache incorrectly stays warm after a KB edit:
+`scripts/rag/index/cache.py` uses sha256 of the KB file (see
+`scripts/rag/index/cache.py::kb_sha256`). If the cache incorrectly stays
+warm after a KB edit:
 
 - Verify the hash changed:
   `sha256sum references/case-studies/peer-review-kb.json`
