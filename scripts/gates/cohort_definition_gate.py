@@ -1754,9 +1754,30 @@ def main() -> int:
                                 ),
                             },
                         )
-                except Exception:
-                    # banner is best-effort metadata; never let it fail a gate
-                    pass
+                except Exception as _banner_err:
+                    # R4 fix (W14 self-review): silent fallthrough in a
+                    # fail-closed framework is the same defect class we
+                    # criticised in M1. If the banner read fails, that
+                    # IS a story — KB shape changed unexpectedly. Surface
+                    # it as a structural warning so reviewers cannot
+                    # assume "no banner = KB is signed" by accident.
+                    add_issue(
+                        warnings_list,
+                        "DISEASE_KB_PROVISIONAL_BANNER_FAILED",
+                        (
+                            "F-01 PROVISIONAL banner could not be emitted "
+                            f"({type(_banner_err).__name__}: {str(_banner_err)[:120]}). "
+                            "Disease-KB provenance is therefore UNKNOWN for this "
+                            "run — do NOT assume it has been clinician-reviewed. "
+                            "Investigate KB shape before publishing any output "
+                            "of this gate."
+                        ),
+                        {
+                            "kb_path": str(_disease_kb_path),
+                            "exception_type": type(_banner_err).__name__,
+                            "audit_ref": "W14 R4 self-review",
+                        },
+                    )
                 # Infer target disease from outcome definition or filename
                 if isinstance(study_design.get("outcome_definition"), dict):
                     _target_disease = study_design["outcome_definition"].get("subtype", "")
