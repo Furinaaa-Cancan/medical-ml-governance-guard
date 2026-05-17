@@ -17,6 +17,7 @@ Covers diagnostics + fixes for the most common RAG issues surfaced during the
 | CI red on README drift | New file added without README count bump | §6 |
 | `MLGG-E01` codes don't surface relevant results | BM25 `TAG_SYNONYMS` gap (fixed H1) | §7 |
 | Cache won't rebuild after KB change | sha256 check passing unexpectedly | §8 |
+| Hybrid retrieval looks worse than BM25 alone | Open architectural question — W11-I1 ablation pending | §9 |
 
 ---
 
@@ -166,7 +167,45 @@ warm after a KB edit:
 
 ---
 
-## §9 Adding a new gate to RAG
+## §9 Hybrid scores worse than BM25 alone
+
+W10-T2 measured `--mode hybrid` against `--mode bm25_only` on
+`scenarios.json` and found hybrid *below* the BM25 floor on the
+primary tag-quality metric: mean_tag_precision@5 = 0.353 (hybrid)
+vs 0.436 (bm25_only), a delta of −0.083. See `docs/ARCHITECTURE.md`
+Open Question #5 for the architectural framing.
+
+**Per-signal ablation** (W11-I1, `scripts/rag/evals/ablation_signal_drop.py`)
+localized the dilutor to dense: dropping dense
+(`hybrid_no_dense`) lifts mean_tag_p@5 from 0.353 → 0.447, above
+bm25_only's 0.436. Dropping `tag_overlap`, severity, or MMR each
+moves the metric by <0.01 — so the obvious suspects (singleton tags,
+severity prior) are not responsible on this metric. See
+`docs/ARCHITECTURE.md` Open Question #5 for the caveat about
+`tag_precision` rewarding stay-in-cluster behavior.
+
+Until the re-weight lands, `--mode bm25_only` is a legitimate
+fallback for tag-quality-sensitive workloads:
+
+```bash
+python3 scripts/rag/evals/run_eval.py --mode bm25_only
+# or in code:
+from scripts.rag.evals.harness import run_harness
+run_harness(mode="bm25_only")
+```
+
+Caveats:
+
+- bm25_only loses the dense semantic recall for paraphrased queries,
+  so the trade-off is metric-dependent. Re-check `hit@K` /
+  `coverage_rate` against the committed `post_wave7_baseline_hybrid.json`
+  before switching a production code path.
+- A re-weight that lowers `w_dense` (rather than dropping it) is the
+  likely next step once the dense-dilutor finding is re-validated on
+  `hit@K`. Do not lower `w_tag` here — singleton tags hurt within-CP
+  signal (Open #1) but are not the cause of this regression.
+
+## §10 Adding a new gate to RAG
 
 When you add a gate to `scripts/core/_gate_registry.py`:
 

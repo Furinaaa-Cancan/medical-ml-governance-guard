@@ -82,6 +82,12 @@ final_score = w_dense * dense_cosine          (BGE-large, query-prefixed)
 | Baseline | `references/retrieval_eval/post_wave7_baseline_hybrid.{md,json}` | Authoritative reference for regression diffs |
 | Labeled set | `references/retrieval_eval/labeled_*` | 20-query labeled precision target (W8-W2 external benchmark) |
 
+> **W10-T1 note** — local nondeterminism measured at std=0 across N=10
+> reruns of `run_eval.py` on macOS-CPU, so single-machine reruns are
+> safe for diffing. Cross-machine variance (different OS, BLAS, or
+> torch builds) is untested; if a baseline diff comes from a different
+> machine, treat small deltas with suspicion.
+
 **Primary metrics**: `hit@K` (W5/A2) + `coverage_rate` companion (W5/A4).
 `tag_precision@K` is retained as a diagnostic-only metric — it actively
 rewards "stay in cluster" behavior that fights MMR diversification, so
@@ -170,6 +176,44 @@ named clinical guideline.
 distinguishes `source: llm_generated` from `source: guideline_cited`,
 plus a CI gate that prevents `llm_generated` entries from being
 cited in published gate reports without an explicit override.
+
+### 5. Does the 4-signal hybrid ranker actually beat bm25_only?
+
+W10-T2 ran `run_eval.py --mode hybrid` vs `--mode bm25_only` on
+`scenarios.json` and found hybrid *worse* than bm25_only on the
+primary tag-quality metric: mean_tag_precision@5 = 0.353 (hybrid) vs
+0.436 (bm25_only), a delta of −0.083. The per-wave improvements
+recorded in `RAG_WAVE_1_TO_8_RETRO.md` were measured against earlier
+hybrid baselines, not against a bm25_only floor, so we never noticed
+that the floor was higher.
+
+W11-I1 ran the per-signal ablation
+(`scripts/rag/evals/ablation_signal_drop.py`, n=30 scenarios). Initial
+result is surprising: **dense is the dilutor**, not `tag_overlap` or
+severity. Removing dense (`hybrid_no_dense`) lifts mean_tag_p@5 to
+0.447 — above both hybrid_all (0.353) and bm25_only (0.436). Dropping
+`tag_overlap`, severity, or MMR each moves the metric by <0.01. The
+earlier suspicion that singleton tags (Open #1) were the problem here
+turns out to be wrong on *this* metric — they hurt within-CP signal
+but they are not why hybrid loses to BM25.
+
+Interpretation worth verifying before re-weighting: BGE dense matches
+on topical neighbors that share the query's domain but not its tag
+cluster, so on `tag_precision@K` they look like misses. This means
+Open #3's caveat about `tag_precision` rewarding stay-in-cluster is
+load-bearing here — `hit@K` may tell a different story and should be
+re-checked before any production weight change.
+
+**Backlog options** in priority order:
+(a) re-run the ablation against `hit@K` / `coverage_rate` to confirm
+    the dense-dilutor finding is not an artifact of `tag_precision`;
+(b) if confirmed, re-weight to lower `w_dense` (or split: dense for
+    recall, BM25 for precision) and re-baseline;
+(c) gate hybrid behind a per-query confidence check and fall back to
+    bm25_only when hybrid disagrees materially with BM25's top-K.
+
+Operational fallback: `--mode bm25_only` remains a legitimate choice
+today for tag-quality-sensitive workloads.
 
 ## Maintainer playbook
 

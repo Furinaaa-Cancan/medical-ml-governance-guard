@@ -306,3 +306,27 @@ Wave 8 — W1-W10 (closeout + provenance)
   this layer, dispatch with explicit file ownership — `git commit -o`
   did not save us from F1/F2 colliding on the same file. See
   anti-pattern #5 above.
+
+## Postscript: Wave 10 corrections (2026-05-17)
+
+The retro above is frozen as-written, but three Wave-10 measurements
+revise how we should read the Wave-1-to-8 numbers it contains. (1)
+W10-T1 measured local nondeterminism at std=0 across N=10 reruns of
+`run_eval.py` on macOS-CPU, closing the "baseline instability"
+backlog item as not-reproducible on a single machine (cross-machine
+variance is still untested). (2) W10-T2 found that `--mode hybrid` is
+currently *net-negative* vs `--mode bm25_only` on `scenarios.json`:
+mean_tag_precision@5 = 0.353 (hybrid) vs 0.436 (bm25_only), a delta
+of −0.083. The seven-wave optimization narrative above improved
+hybrid against earlier hybrid baselines but never benchmarked against
+a bm25_only floor; the per-wave wins should be re-validated against
+that floor in a future wave, and the eval may have been against a
+suboptimal metric (`tag_precision`) on a `scenarios.json` that does
+not align with hybrid's strengths. W11-I1's per-signal ablation
+(see `docs/ARCHITECTURE.md` Open Question #5) localized the dilutor
+to the dense signal — `hybrid_no_dense` recovers to 0.447 — but this
+likely interacts with the `tag_precision` measurement caveat (Open
+Question #3) and needs re-validation against `hit@K` before any
+re-weighting. (3) W11-F1 fixed a pre-push ruff scope misconfig — the
+"166 ruff red" alarm referenced in some Wave-8/9 hand-off notes was
+a phantom.
