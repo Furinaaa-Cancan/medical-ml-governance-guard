@@ -1,0 +1,288 @@
+{
+  "patch_version": "1.0.2",
+  "base_version": "1.0.1",
+  "patch_date": "2026-05-17T12:18:25.180688+00:00",
+  "change_summary": "metadata-only backfill — 0 label changes, 0 scoring impact",
+  "verified": {
+    "label_fields_unchanged": [
+      "expected_canonical_pattern_ids",
+      "expected_tags",
+      "expected_categories",
+      "failure_codes",
+      "gate_name",
+      "query_text",
+      "description"
+    ],
+    "cp_hit_at_5_expected": "0.821 (== v1.0.1, no drift)",
+    "splits_sum_to_305_zero_overlap": true
+  },
+  "fixes_applied": {
+    "fix_2_dimension_backfill": {
+      "description": "19 scenarios in baseline_30 _slice had no dimension; backfilled from gate_name",
+      "count": 19,
+      "entries": [
+        {
+          "scenario_id": "evaluation_improper_f1_primary",
+          "gate_name": "evaluation_quality_gate",
+          "new_dimension": "evaluation"
+        },
+        {
+          "scenario_id": "cohort_definition_selection_bias",
+          "gate_name": "cohort_definition_gate",
+          "new_dimension": "study_design"
+        },
+        {
+          "scenario_id": "clinical_threshold_no_sensitivity_specificity",
+          "gate_name": "clinical_metrics_gate",
+          "new_dimension": "evaluation"
+        },
+        {
+          "scenario_id": "definition_variable_outcome_in_feature",
+          "gate_name": "definition_variable_guard",
+          "new_dimension": "leakage"
+        },
+        {
+          "scenario_id": "feature_selection_data_leakage",
+          "gate_name": "feature_engineering_audit_gate",
+          "new_dimension": "feature_engineering"
+        },
+        {
+          "scenario_id": "sample_size_epv_violated",
+          "gate_name": "sample_size_gate",
+          "new_dimension": "sample_size"
+        },
+        {
+          "scenario_id": "interpretability_shap_shallow",
+          "gate_name": "shap_interpretability_gate",
+          "new_dimension": "interpretability"
+        },
+        {
+          "scenario_id": "covariate_shift_train_test",
+          "gate_name": "covariate_shift_gate",
+          "new_dimension": "external_validation"
+        },
+        {
+          "scenario_id": "distribution_generalization_temporal",
+          "gate_name": "distribution_generalization_gate",
+          "new_dimension": "external_validation"
+        },
+        {
+          "scenario_id": "feature_lineage_undocumented",
+          "gate_name": "feature_lineage_gate",
+          "new_dimension": "leakage"
+        },
+        {
+          "scenario_id": "generalization_gap_optimistic",
+          "gate_name": "generalization_gap_gate",
+          "new_dimension": "evaluation"
+        },
+        {
+          "scenario_id": "metric_consistency_cross_split",
+          "gate_name": "metric_consistency_gate",
+          "new_dimension": "evaluation"
+        },
+        {
+          "scenario_id": "permutation_significance_missing",
+          "gate_name": "permutation_significance_gate",
+          "new_dimension": "reproducibility"
+        },
+        {
+          "scenario_id": "prediction_replay_irreproducible",
+          "gate_name": "prediction_replay_gate",
+          "new_dimension": "reproducibility"
+        },
+        {
+          "scenario_id": "robustness_no_perturbation_test",
+          "gate_name": "robustness_gate",
+          "new_dimension": "evaluation"
+        },
+        {
+          "scenario_id": "weak_offdomain_music_query",
+          "gate_name": "free_text_probe",
+          "new_dimension": "out_of_scope_negative"
+        },
+        {
+          "scenario_id": "weak_offdomain_sailing_query",
+          "gate_name": "free_text_probe",
+          "new_dimension": "out_of_scope_negative"
+        },
+        {
+          "scenario_id": "weak_offdomain_woodworking_query",
+          "gate_name": "free_text_probe",
+          "new_dimension": "out_of_scope_negative"
+        },
+        {
+          "scenario_id": "zero_empty_query",
+          "gate_name": "free_text_probe",
+          "new_dimension": "out_of_scope_negative"
+        }
+      ]
+    },
+    "fix_3_source_paper_id_backfill": {
+      "description": "source_paper_id derived from source_concern_id (PR-XXX-CNN → PR-XXX)",
+      "count": 185,
+      "sample": [
+        {
+          "scenario_id": "agent01_icu-acuity-bootstrap-only",
+          "source_concern_id": "PR-009-C02",
+          "source_paper_id": "PR-009"
+        },
+        {
+          "scenario_id": "agent01-stroke-single-split-no-bootstrap",
+          "source_concern_id": "PR-029-C02",
+          "source_paper_id": "PR-029"
+        },
+        {
+          "scenario_id": "agent01-aki-suspicious-narrow-ci",
+          "source_concern_id": "PR-035-C05",
+          "source_paper_id": "PR-035"
+        },
+        {
+          "scenario_id": "agent01-cxr-vit-no-ci-error-bars",
+          "source_concern_id": "PR-EXP-0149-C02",
+          "source_paper_id": "PR-EXP-0149"
+        },
+        {
+          "scenario_id": "agent01-icu-rare-event-auc-overoptimism",
+          "source_concern_id": "PR-009-C04",
+          "source_paper_id": "PR-009"
+        },
+        {
+          "scenario_id": "agent01-aki-mortality-no-prcurve",
+          "source_concern_id": "PR-010-C04",
+          "source_paper_id": "PR-010"
+        },
+        {
+          "scenario_id": "agent01-immunotherapy-default-cutoff",
+          "source_concern_id": "PR-EXP-0150-C06",
+          "source_paper_id": "PR-EXP-0150"
+        },
+        {
+          "scenario_id": "agent01-dementia-mortality-auc-only",
+          "source_concern_id": "PR-027-C04",
+          "source_paper_id": "PR-027"
+        },
+        {
+          "scenario_id": "agent01-cad-ecg-sensitivity-precision-only",
+          "source_concern_id": "PR-011-C06",
+          "source_paper_id": "PR-011"
+        },
+        {
+          "scenario_id": "agent01-amr-gnn-missing-vme",
+          "source_concern_id": "PR-EXP-0085-C08",
+          "source_paper_id": "PR-EXP-0085"
+        }
+      ]
+    },
+    "fix_4_expected_max_hits": {
+      "description": "enforce upper bound on negative + distractor slices",
+      "count": 20,
+      "method": "bench_04_negatives → 0, bench_05_distractors → 2",
+      "entries": [
+        {
+          "scenario_id": "bench04_negative_scrnaseq-deconvolution-deg",
+          "_slice": "bench_04_negatives",
+          "expected_max_hits": 0
+        },
+        {
+          "scenario_id": "bench04_negative_gwas-population-stratification",
+          "_slice": "bench_04_negatives",
+          "expected_max_hits": 0
+        },
+        {
+          "scenario_id": "bench04_negative_tcga-batch-combat",
+          "_slice": "bench_04_negatives",
+          "expected_max_hits": 0
+        },
+        {
+          "scenario_id": "bench04_negative_unet-slice-thickness",
+          "_slice": "bench_04_negatives",
+          "expected_max_hits": 0
+        },
+        {
+          "scenario_id": "bench04_negative_cxr-deep-learning-shortcut",
+          "_slice": "bench_04_negatives",
+          "expected_max_hits": 0
+        },
+        {
+          "scenario_id": "bench04_negative_mri-registration-bias",
+          "_slice": "bench_04_negatives",
+          "expected_max_hits": 0
+        },
+        {
+          "scenario_id": "bench04_negative_bert-radiology-template",
+          "_slice": "bench_04_negatives",
+          "expected_max_hits": 0
+        },
+        {
+          "scenario_id": "bench04_negative_llm-clinical-note-prompt-leak",
+          "_slice": "bench_04_negatives",
+          "expected_max_hits": 0
+        },
+        {
+          "scenario_id": "bench04_negative_cox-proportional-hazards",
+          "_slice": "bench_04_negatives",
+          "expected_max_hits": 0
+        },
+        {
+          "scenario_id": "bench04_negative_competing-risks-fine-gray",
+          "_slice": "bench_04_negatives",
+          "expected_max_hits": 0
+        },
+        {
+          "scenario_id": "bench05_distractor_aspirin-platelet-clinical",
+          "_slice": "bench_05_distractors",
+          "expected_max_hits": 2
+        },
+        {
+          "scenario_id": "bench05_distractor-creatinine-egfr-clinical",
+          "_slice": "bench_05_distractors",
+          "expected_max_hits": 2
+        },
+        {
+          "scenario_id": "bench05_distractor-table2-readability-writing",
+          "_slice": "bench_05_distractors",
+          "expected_max_hits": 2
+        },
+        {
+          "scenario_id": "bench05_distractor-figure-legend-writing",
+          "_slice": "bench_05_distractors",
+          "expected_max_hits": 2
+        },
+        {
+          "scenario_id": "bench05_distractor-htn-threshold-130-domain",
+          "_slice": "bench_05_distractors",
+          "expected_max_hits": 2
+        },
+        {
+          "scenario_id": "bench05_distractor-sepsis-3-definition-domain",
+          "_slice": "bench_05_distractors",
+          "expected_max_hits": 2
+        },
+        {
+          "scenario_id": "bench05_distractor-seed-gpu-nondeterminism-runtime",
+          "_slice": "bench_05_distractors",
+          "expected_max_hits": 2
+        },
+        {
+          "scenario_id": "bench05_distractor-package-version-drift-runtime",
+          "_slice": "bench_05_distractors",
+          "expected_max_hits": 2
+        },
+        {
+          "scenario_id": "bench05_distractor-ses-confounder-speculation",
+          "_slice": "bench_05_distractors",
+          "expected_max_hits": 2
+        },
+        {
+          "scenario_id": "bench05_distractor-scanner-vendor-fishing-speculation",
+          "_slice": "bench_05_distractors",
+          "expected_max_hits": 2
+        }
+      ]
+    }
+  },
+  "still_pending": {
+    "fix_1_clinical_signoff": "v3 CP-relabel 59 changes still need clinical methodologist review (sibling owns)"
+  }
+}
