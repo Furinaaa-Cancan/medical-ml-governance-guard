@@ -1,0 +1,87 @@
+{
+  "calibration_dca_gate": {
+    "calibration_ece_exceeds_threshold": 1,
+    "calibration_in_the_large_too_large": 1,
+    "calibration_intercept_too_large": 1,
+    "calibration_oe_ratio_out_of_range": 1
+  },
+  "clinical_metrics_gate": {
+    "clinical_floor_npv_not_met": 1,
+    "clinical_floor_ppv_not_met": 2,
+    "clinical_floor_sensitivity_not_met": 2,
+    "clinical_floor_specificity_not_met": 1,
+    "performance_policy_missing_required_metric": 5
+  },
+  "cohort_definition_gate": {
+    "COHORT_EPV_CRITICAL": 1
+  },
+  "definition_variable_guard": {
+    "target_not_found": 2
+  },
+  "evaluation_quality_gate": {
+    "baseline_improvement_insufficient": 1,
+    "primary_metric_mismatch": 1
+  },
+  "execution_attestation_gate": {
+    "attestation_stale": 2,
+    "path_escapes_sandbox": 6
+  },
+  "fairness_equity_gate": {
+    "disparate_impact_below_threshold": 1,
+    "equalized_odds_gap_exceeds_threshold": 8,
+    "ppv_parity_exceeds_threshold": 6,
+    "subgroup_metric_below_minimum": 1
+  },
+  "feature_engineering_audit_gate": {
+    "feature_selection_data_leakage": 1
+  },
+  "feature_lineage_gate": {
+    "target_not_found": 2
+  },
+  "leakage_gate": {
+    "temporal_overlap": 6
+  },
+  "metric_consistency_gate": {
+    "metric_mismatch": 1
+  },
+  "missingness_policy_gate": {
+    "feature_missingness_too_high": 4,
+    "imputation_execution_mismatch": 3,
+    "mechanism_assessment_invalid": 4,
+    "mnar_sensitivity_required": 3,
+    "unsupported_missingness_strategy": 3
+  },
+  "permutation_significance_gate": {
+    "missing_null_metrics_file": 1
+  },
+  "publication_gate": {
+    "component_has_failures": 19,
+    "component_not_passed": 19,
+    "execution_attestation_policy_missing": 2,
+    "manifest_has_errors": 1,
+    "manifest_not_passed": 1,
+    "metric_report_missing_actual": 2
+  },
+  "request_contract_gate": {
+    "feature_group_spec_missing_or_invalid": 4
+  },
+  "robustness_gate": {
+    "robustness_pr_auc_drop_exceeds_threshold": 1,
+    "robustness_pr_auc_range_exceeds_threshold": 1
+  },
+  "sample_size_gate": {
+    "epv_below_minimum": 1
+  },
+  "security_audit_gate": {
+    "sensitive_data_in_evidence": 60
+  },
+  "self_critique_gate": {
+    "component_has_failures": 22,
+    "component_not_passed": 22,
+    "manifest_not_passed": 1,
+    "missing_or_invalid_artifact": 4
+  },
+  "shap_interpretability_gate": {
+    "SHAP_FEATURE_MISMATCH": 2
+  }
+}
