@@ -133,8 +133,21 @@ class TestLiveRetrievalQuality:
                 f"scenario {s['scenario_id']} lost category coverage"
             )
 
+    # W14-R0 NOTE: test_strict_against_baseline_hybrid is xfail until
+    # references/retrieval_eval/post_w13_baseline_hybrid.json is regenerated
+    # (USER ACTION 2). See docs/adr/0001_mmr_breakdown_consumer.md and
+    # docs/RAG_WAVE_9_TO_12_RETRO.md for context.
     @pytest.mark.skipif(not BASELINE_HYBRID.exists(),
                         reason="Hybrid retrieval baseline not yet captured")
+    @pytest.mark.xfail(
+        reason=(
+            "W13-P0 demoted WEIGHT_DENSE 0.5->0.1 (commit cc3c717); "
+            "post_wave7_baseline_hybrid.json reflects pre-W13 ranker. "
+            "Baseline regen pending USER ACTION 2 - restore as strict comparison "
+            "against post_w13_baseline_hybrid.json once user approves."
+        ),
+        strict=False,
+    )
     def test_strict_against_baseline_hybrid(self, tmp_path: Path):
         """Strict regression check in the production ``hybrid`` mode.
 
