@@ -87,9 +87,17 @@ def _concern_to_flag(concern: dict) -> MlggFlag:
     what ``MlggFlag`` needs. Missing fields fall back to neutral defaults
     so downstream matching does not crash on partially-populated KB rows.
     """
+    # Prefer first mlgg_gates entry over concern_id. W23 finding #1: the
+    # ncpr_matcher's exact_code / code_prefix tiers compare flag.code to
+    # concern.mlgg_gates entries, so emitting "PR-019-C02" here makes
+    # those two tiers structurally dead (all signal collapses to semantic).
+    # Using a gate name keeps the matcher's lexical fast-path alive.
+    _gates = concern.get("mlgg_gates")
+    _first_gate = str(_gates[0]) if isinstance(_gates, list) and _gates and _gates[0] else None
     code = (
         concern.get("code")
         or concern.get("failure_code")
+        or _first_gate
         or concern.get("concern_id")
         or "unknown"
     )

@@ -72,6 +72,48 @@ def test_synthesize_flags_from_rag_empty_query_returns_empty_list():
     mocked.assert_not_called()
 
 
+def test_synthesize_flags_prefers_mlgg_gates_over_concern_id():
+    """W23 finding #1 regression: when rag_query returns records WITHOUT
+    a ``code`` field but WITH ``mlgg_gates``, flag.code MUST be the first
+    gate name (so ncpr_matcher's exact_code/code_prefix tiers can fire).
+    Before the fix, flag.code fell through to concern_id (e.g. "PR-019-C02")
+    which made those two matcher tiers structurally dead.
+    """
+    real_rag_record = {
+        # Note: no "code" key — this mirrors actual scripts.rag.query.rag_query
+        # output, where each KB row carries concern_id + mlgg_gates list.
+        "concern_id": "PR-019-C02",
+        "mlgg_gates": ["clinical_metrics_gate", "calibration_dca_gate"],
+        "concern_text": "AUC alone is insufficient; provide PPV / NPV.",
+        "severity": "HIGH",
+        "dimension": "evaluation",
+    }
+    with mock.patch(
+        "scripts.rag.query.rag_query", return_value=[real_rag_record]
+    ):
+        flags = synthesize_flags_from_rag("evaluation methods", top_k=1)
+    assert len(flags) == 1
+    assert flags[0]["code"] == "clinical_metrics_gate", (
+        f"Expected first gate name, got {flags[0]['code']!r} "
+        "(W23 finding #1 regression — see ncpr_paper_runner.py:_concern_to_flag)"
+    )
+
+
+def test_synthesize_flags_falls_back_to_concern_id_when_no_gates():
+    """If a KB record has NO mlgg_gates and NO code, last-resort fallback
+    is concern_id (preserves traceability even though matcher will miss)."""
+    bare_record = {
+        "concern_id": "PR-001-C99",
+        "concern_text": "an orphan concern with no gate mapping",
+        # no "code", no "failure_code", no "mlgg_gates"
+    }
+    with mock.patch(
+        "scripts.rag.query.rag_query", return_value=[bare_record]
+    ):
+        flags = synthesize_flags_from_rag("anything", top_k=1)
+    assert flags[0]["code"] == "PR-001-C99"
+
+
 # ────────────────────────────────────────────────────────────────────────
 # run_mlgg_pipeline — RAG-only fallback (no code repo)
 # ────────────────────────────────────────────────────────────────────────
