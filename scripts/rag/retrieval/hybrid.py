@@ -459,10 +459,19 @@ def _mmr_rerank(
             blocker_id: Optional[str] = None
             blocker_reason = "none"
             cand_emb = cand.get("_dense_embedding")
+            # W20-F1 / W18-D3: BM25 enrichment writes ``_paper_id`` (see
+            # scripts/rag/retrieval/bm25.py:_enrich_concern), while
+            # ``index.builder`` and synthetic test fixtures supply
+            # ``paper_id``. Read both so the same-paper penalty actually
+            # fires in gate-anchored retrieval instead of silently
+            # no-op'ing on every gate hit (W18-D3: 10/10 sample queries
+            # had blocker_reason same_paper=0).
+            cand_pid = cand.get("paper_id") or cand.get("_paper_id")
             for sel_idx, sel in enumerate(selected):
                 # Same-paper penalty (always applied; catches BM25-only
                 # candidates that lack an embedding).
-                if cand.get("paper_id") and cand["paper_id"] == sel.get("paper_id"):
+                sel_pid = sel.get("paper_id") or sel.get("_paper_id")
+                if cand_pid and cand_pid == sel_pid:
                     if same_paper_penalty > max_sim:
                         max_sim = same_paper_penalty
                         # W11-F3: maintain the invariant that whenever
