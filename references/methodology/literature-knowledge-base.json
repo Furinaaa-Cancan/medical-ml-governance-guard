@@ -1744,6 +1744,105 @@
         8
       ],
       "url": "https://pubmed.ncbi.nlm.nih.gov/40465297/"
+    },
+    {
+      "id": "LIT-067",
+      "doi": "10.48550/arXiv.1705.07874",
+      "title": "A Unified Approach to Interpreting Model Predictions",
+      "authors": "Lundberg SM, Lee SI",
+      "journal": "Advances in Neural Information Processing Systems (NeurIPS)",
+      "year": 2017,
+      "category": "interpretability",
+      "impact_factor": null,
+      "key_requirements": [
+        "Foundational SHAP paper — introduces SHapley Additive exPlanations as a unified framework for additive feature attributions",
+        "Proves a unique solution exists with desirable consistency / local-accuracy / missingness properties; unifies 6 prior attribution methods including LIME, DeepLIFT, layer-wise relevance propagation",
+        "Game-theoretic grounding via classical Shapley values from cooperative game theory",
+        "User study showed SHAP explanations more consistent with human intuition than prior methods",
+        "Reference implementation: github.com/slundberg/shap (now shap/shap)",
+        "Use as authority when justifying SHAP as the explainability method for clinical ML model interpretation"
+      ],
+      "gates_implementing": [
+        "shap_interpretability_gate"
+      ],
+      "dimensions_affected": [
+        7
+      ],
+      "url": "https://arxiv.org/abs/1705.07874"
+    },
+    {
+      "id": "LIT-068",
+      "doi": "10.1038/s42256-019-0138-9",
+      "title": "From local explanations to global understanding with explainable AI for trees",
+      "authors": "Lundberg SM, Erion G, Chen H, et al.",
+      "journal": "Nature Machine Intelligence",
+      "year": 2020,
+      "category": "interpretability",
+      "impact_factor": 25.9,
+      "key_requirements": [
+        "TreeSHAP — polynomial-time exact SHAP for tree ensembles (XGBoost / random forest / gradient boosted trees)",
+        "Introduces SHAP interaction values measuring local feature-pair interaction effects",
+        "Provides global model-understanding tools (SHAP summary plots, dependence plots, supervised clustering) built from aggregated local explanations",
+        "Applied to three medical ML problems (mortality risk, chronic kidney disease, hospital readmission) showing local-faithful + globally-consistent explanations",
+        "Use as authority when applying SHAP to tree-based clinical prediction models or when reporting global feature-importance",
+        "Cite when defending SHAP-based feature selection / pruning against accusations of being a post-hoc rationalisation"
+      ],
+      "gates_implementing": [
+        "shap_interpretability_gate"
+      ],
+      "dimensions_affected": [
+        7
+      ],
+      "url": "https://www.nature.com/articles/s42256-019-0138-9"
+    },
+    {
+      "id": "LIT-069",
+      "doi": "10.1111/cts.70056",
+      "title": "Practical guide to SHAP analysis: Explaining supervised machine learning model predictions in drug development",
+      "authors": "Ponce-Bobadilla AV, Schmitt V, Maier CS, Mensing S, Stodtmann S",
+      "journal": "Clinical and Translational Science",
+      "year": 2024,
+      "category": "interpretability",
+      "impact_factor": 3.5,
+      "key_requirements": [
+        "Practical tutorial covering SHAP visualisation plots (summary, dependence, waterfall, force) and how to interpret each",
+        "Best-practice guidance for binary-classification endpoints (logistic regression, random forest, XGBoost, neural networks) and time-series models",
+        "Documents the SHAP Python package + compatible ML libraries (keras / tensorflow / scikit-learn / pytorch); R equivalents SHAPforxgboost, shapper",
+        "Warns about common misinterpretations: SHAP value is contribution to a specific prediction, NOT a global causal claim",
+        "Use as authority for the operational layer of clinical SHAP reports — visualisation choice, plot caption requirements, package version pinning"
+      ],
+      "gates_implementing": [
+        "shap_interpretability_gate",
+        "reporting_bias_gate"
+      ],
+      "dimensions_affected": [
+        7,
+        8
+      ],
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11513550/"
+    },
+    {
+      "id": "LIT-070",
+      "doi": "10.48550/arXiv.2505.24612",
+      "title": "Multi-criteria Rank-based Aggregation for Explainable AI",
+      "authors": "Chatterjee S, Colombo ER, Raimundo MM",
+      "journal": "International Joint Conference on Neural Networks (IJCNN)",
+      "year": 2025,
+      "category": "interpretability",
+      "impact_factor": null,
+      "key_requirements": [
+        "Addresses XAI explainer disagreement: different methods (SHAP / LIME / Integrated Gradients) can return contrasting rankings for the same prediction",
+        "Proposes a multi-criteria rank-based weighted aggregation: rank-versions of XAI quality metrics combined via TOPSIS or WSUM as optimal aggregators",
+        "Provides a defensible procedure when a single explainer is insufficient — relevant when a clinical reviewer asks 'why should we trust the SHAP ranking specifically?'",
+        "Use as authority when justifying ensemble-of-explainers in a publication-grade clinical ML report, or when SHAP and another method disagree on top features"
+      ],
+      "gates_implementing": [
+        "shap_interpretability_gate"
+      ],
+      "dimensions_affected": [
+        7
+      ],
+      "url": "https://arxiv.org/abs/2505.24612"
     }
   ],
   "agent_instructions": {
@@ -1784,6 +1883,10 @@
         "deployment_monitoring"
       ],
       "note": "Targeted 2024-2026 top-journal methodology scan after NC / Nat Med / Lancet DH / NEJM AI / JAMA Open / npj Digital Medicine review. Adds: 1x Nature Communications (DataSAIL combinatorial split optimization), 3x NEJM AI (postmarket surveillance, monitoring-system review, STANDING Together consensus), 1x Nature Medicine (CANAIRI translational trials standard), 1x npj Digital Medicine (four-phase deployment framework), 1x Nature Health (silent-trial scoping review), 1x JAMA Netw Open (7-hospital drift-detection empirical). Each DOI WebFetch-verified. Surfaces two future-gate candidates that are NOT yet implemented in MLGG: silent_trial_gate, postmarket_surveillance_gate — tracked here as deployment_monitoring category entries for when MLGG scope extends to full deployment lifecycle."
+    },
+    {
+      "date": "2026-05-17",
+      "change": "Added LIT-067..LIT-070 to close shap_interpretability_gate KB-gap (audit W14-I residual). All 4 entries cite the SHAP papers cited in scripts/gates/shap_interpretability_gate.py lines 18-24. Metadata WebFetch-verified 2026-05-17."
     }
   ]
 }
