@@ -1,0 +1,102 @@
+{
+  "n_audited": 15,
+  "verdict_summary": {
+    "v2-better": 3,
+    "tie": 3,
+    "v3-better": 9
+  },
+  "methodology": "For each change, compute tag-overlap between scenario expected_tags and each CP candidate KB exemplar concerns. Higher overlap = better fit.",
+  "caveat": "Tag overlap is a proxy \u2014 not all CPs are well-tagged. A v3 pick may be semantically correct even if v2 had more tag-coincidence. Human review still needed for \"v2-better\" cases.",
+  "per_case": [
+    {
+      "sid": "agent01-cad-ecg-sensitivity-precision-only",
+      "verdict": "v2-better",
+      "v3_match": 0,
+      "v2_match": 1
+    },
+    {
+      "sid": "agent01-hfpef-tte-arbitrary-cutpoint",
+      "verdict": "tie",
+      "v3_match": 0,
+      "v2_match": 0
+    },
+    {
+      "sid": "agent01-pdl1-histopath-no-prc",
+      "verdict": "v2-better",
+      "v3_match": 0,
+      "v2_match": 1
+    },
+    {
+      "sid": "agent03_cancer-risk-vs-diagnosis-conflation",
+      "verdict": "v3-better",
+      "v3_match": 4,
+      "v2_match": 0
+    },
+    {
+      "sid": "agent03_crrt-seven-day-arbitrary",
+      "verdict": "v3-better",
+      "v3_match": 2,
+      "v2_match": 0
+    },
+    {
+      "sid": "agent03_icu-mamba-prospective-misclaim",
+      "verdict": "v3-better",
+      "v3_match": 3,
+      "v2_match": 0
+    },
+    {
+      "sid": "agent03_icu-update-window-rationale",
+      "verdict": "v3-better",
+      "v3_match": 1,
+      "v2_match": 0
+    },
+    {
+      "sid": "agent03_metabolomics-unmatched-controls",
+      "verdict": "v3-better",
+      "v3_match": 4,
+      "v2_match": 1
+    },
+    {
+      "sid": "agent03_nsaid-as-oa-proxy",
+      "verdict": "v2-better",
+      "v3_match": 0,
+      "v2_match": 1
+    },
+    {
+      "sid": "agent04-infehr-neonatal-sepsis-unreported-baseline",
+      "verdict": "v3-better",
+      "v3_match": 1,
+      "v2_match": 0
+    },
+    {
+      "sid": "agent01-aki-mortality-no-prcurve",
+      "verdict": "tie",
+      "v3_match": 0,
+      "v2_match": 0
+    },
+    {
+      "sid": "agent01-aki-suspicious-narrow-ci",
+      "verdict": "v3-better",
+      "v3_match": 2,
+      "v2_match": 1
+    },
+    {
+      "sid": "agent01-azithromycin-cv-fold-averages",
+      "verdict": "v3-better",
+      "v3_match": 2,
+      "v2_match": 1
+    },
+    {
+      "sid": "agent01-dementia-mortality-auc-only",
+      "verdict": "tie",
+      "v3_match": 1,
+      "v2_match": 1
+    },
+    {
+      "sid": "agent01-ecg-dnn-no-seed-variance",
+      "verdict": "v3-better",
+      "v3_match": 2,
+      "v2_match": 1
+    }
+  ]
+}
