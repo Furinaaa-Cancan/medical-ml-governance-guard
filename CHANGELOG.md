@@ -124,6 +124,33 @@ tag-precision, or the MMR-floor tuning exists. This is now corrected.
 Future RAG work that lands without a CHANGELOG entry should be
 considered "in flight" and flagged in PR review.
 
+#### W14 self-review erratum — `d53a9e5` re-baseline attribution
+
+The commit message of `d53a9e5` (W14 re-baseline) credited audit-W14-C
+(KB tag adds) and audit-W14-B (curated MLGG-P01 fallback) for the
+tag_precision lift 0.538 → 0.669. **Both attributions are wrong.**
+
+Post-hoc A/B isolation (R3 self-review pass, 2026-05-17):
+- Disabling audit-B's curated fallback via `MLGG_RAG_DISABLE_CURATED=1`
+  → tag_precision unchanged at 0.6692.
+- Rolling `literature-knowledge-base.json` back to pre-audit-C state
+  (`de27889^`) → tag_precision unchanged at 0.6692.
+
+The actual driver is parallel-session commit `cc3c717` (W13-P0)
+demoting `WEIGHT_DENSE` from 0.5 → 0.1 and rebalancing BM25/TAG/SEV.
+That landed 2 hours before the W14 re-baseline at 10:35 local; the
+0.538 number was generated at 08:26 under the old DENSE=0.5 weights.
+
+See `docs/diagnostics/W14_audit/R3_baseline_attribution_correction.md`
+for the full A/B method, timeline, and the methodological reflection
+on why this kind of attribution inflation is exactly what reviewer-
+mode should catch.
+
+The re-baseline operation itself is still legitimate (the on-disk
+W11-era 0.338 was stale and blocked `--strict` regression detection).
+Only the causal claim in `d53a9e5`'s commit message needs to be read
+with this erratum attached.
+
 
 
 Six commits narrowing MLGG's self-declared scope to retrospective-cohort
