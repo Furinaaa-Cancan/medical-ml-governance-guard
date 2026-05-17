@@ -5,6 +5,8 @@ Run:
     python3 scripts/rag/evals/run_eval.py --mode bm25_only
     python3 scripts/rag/evals/run_eval.py --scenarios path/to/custom.json
     python3 scripts/rag/evals/run_eval.py --output /tmp/myeval.md
+    python3 scripts/rag/evals/run_eval.py \
+        --diff references/retrieval_eval/post_wave7_baseline_hybrid.json
 
 Output:
     /tmp/rag_eval_<mode>_<timestamp>.md  (default, or whatever --output)
@@ -175,7 +177,88 @@ def aggregate(per_scenario: list[dict]) -> dict:
     }
 
 
-def render_markdown(per_scenario, agg, *, mode, scenarios_path) -> str:
+def _render_diff_section(current, baseline_data):
+    """Show per-scenario delta vs baseline.
+
+    Highlights:
+      * scenarios that gained hit@K (P@K improvement)
+      * scenarios that lost hit@K (P@K regression)
+      * scenarios that became / stopped being evaluable
+
+    W9-C2: aggregate-only deltas can hide compositional shifts -- e.g.
+    mean P@K dropping 0.600 -> 0.538 between baselines simply because
+    15 newly-evaluable scenarios are harder. Per-scenario delta makes
+    that visible so a future change that shrinks evaluable while raising
+    mean P@K cannot masquerade as an improvement.
+    """
+    baseline_by_id = {r["id"]: r for r in baseline_data.get("per_scenario", [])}
+    lines = ["", "## Per-scenario delta vs baseline", ""]
+    lines.append("| id | baseline P@K | current P@K | delta | status |")
+    lines.append("|----|-------------:|------------:|------:|--------|")
+    changes = {
+        "improved": 0,
+        "regressed": 0,
+        "newly_evaluable": 0,
+        "newly_zero": 0,
+        "unchanged": 0,
+    }
+    missing_in_baseline = 0
+    for cur in current:
+        baseline = baseline_by_id.get(cur["id"])
+        if baseline is None:
+            missing_in_baseline += 1
+            continue
+        b_p = baseline.get("tag_precision_at_k")
+        c_p = cur.get("tag_precision_at_k")
+        if b_p is None and c_p is not None:
+            changes["newly_evaluable"] += 1
+            status = "[+] newly evaluable"
+        elif b_p is not None and c_p is None:
+            changes["newly_zero"] += 1
+            status = "[-] newly zero-hit"
+        elif b_p is None and c_p is None:
+            changes["unchanged"] += 1
+            status = "."
+        elif b_p == c_p:
+            changes["unchanged"] += 1
+            status = "."
+        else:
+            delta = (c_p or 0) - (b_p or 0)
+            if delta > 0:
+                changes["improved"] += 1
+                status = f"[+] +{delta:.2f}"
+            else:
+                changes["regressed"] += 1
+                status = f"[-] {delta:.2f}"
+        b_str = f"{b_p:.2f}" if b_p is not None else "-"
+        c_str = f"{c_p:.2f}" if c_p is not None else "-"
+        d_str = (
+            f"{(c_p or 0) - (b_p or 0):+.2f}"
+            if (b_p is not None and c_p is not None)
+            else "-"
+        )
+        lines.append(
+            f"| `{cur['id']}` | {b_str} | {c_str} | {d_str} | {status} |"
+        )
+    lines.append("")
+    lines.append(
+        f"**Summary**: {changes['improved']} improved, "
+        f"{changes['regressed']} regressed, "
+        f"{changes['newly_evaluable']} newly evaluable, "
+        f"{changes['newly_zero']} newly zero-hit, "
+        f"{changes['unchanged']} unchanged."
+    )
+    if missing_in_baseline:
+        lines.append(
+            f"_Note: {missing_in_baseline} current scenario(s) not present "
+            f"in baseline -- excluded from delta table._"
+        )
+    return lines
+
+
+def render_markdown(
+    per_scenario, agg, *, mode, scenarios_path, diff_baseline=None
+) -> str:
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     mean_hit = agg.get("mean_hit_at_k")
     mean_tp = agg["mean_tag_precision_at_k"]
@@ -250,6 +333,8 @@ def render_markdown(per_scenario, agg, *, mode, scenarios_path) -> str:
             "investigate before celebrating.)",
         ]
     )
+    if diff_baseline is not None:
+        lines.extend(_render_diff_section(per_scenario, diff_baseline))
     return "\n".join(lines) + "\n"
 
 
@@ -271,6 +356,15 @@ def main(argv=None):
         default=None,
         help="markdown output path; JSON sidecar written alongside",
     )
+    parser.add_argument(
+        "--diff",
+        type=Path,
+        default=None,
+        help=(
+            "Compare per-scenario results vs the supplied baseline.json. "
+            "Markdown report includes a delta table (W9-C2)."
+        ),
+    )
     args = parser.parse_args(argv)
 
     if args.output is None:
@@ -282,8 +376,24 @@ def main(argv=None):
         score_one(s, mode=args.mode, top_k=args.top_k) for s in scenarios
     ]
     agg = aggregate(per_scenario)
+
+    diff_baseline = None
+    if args.diff is not None:
+        try:
+            diff_baseline = json.loads(args.diff.read_text())
+        except (OSError, json.JSONDecodeError) as exc:
+            print(
+                f"warning: could not load --diff baseline {args.diff}: {exc}",
+                file=sys.stderr,
+            )
+            diff_baseline = None
+
     md = render_markdown(
-        per_scenario, agg, mode=args.mode, scenarios_path=args.scenarios
+        per_scenario,
+        agg,
+        mode=args.mode,
+        scenarios_path=args.scenarios,
+        diff_baseline=diff_baseline,
     )
 
     args.output.write_text(md)

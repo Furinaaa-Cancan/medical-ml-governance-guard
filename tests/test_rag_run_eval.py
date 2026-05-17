@@ -129,3 +129,42 @@ def test_run_eval_markdown_shows_hit_at_k_before_tag_precision(tmp_path):
     tp_idx = md.find("tag_precision")
     assert hit_idx > 0 and tp_idx > 0, "both metrics should appear"
     assert hit_idx < tp_idx, "hit@K should appear before tag_precision"
+
+
+def test_diff_flag_produces_delta_section(tmp_path):
+    """W9-C2: --diff PATH includes per-scenario delta table.
+
+    Aggregate-only deltas can hide compositional shifts (e.g. mean P@K
+    drops only because the set of evaluable scenarios grew/changed).
+    The per-scenario delta table makes that explicit.
+    """
+    baseline = "references/retrieval_eval/post_wave7_baseline_hybrid.json"
+    out = tmp_path / "out.md"
+    r = subprocess.run(
+        [
+            sys.executable,
+            "scripts/rag/evals/run_eval.py",
+            "--mode",
+            "hybrid",
+            "--diff",
+            baseline,
+            "--output",
+            str(out),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=300,
+    )
+    assert r.returncode == 0, f"stderr: {r.stderr}"
+    md = out.read_text()
+    assert "Per-scenario delta" in md, "delta section header missing"
+    # The summary line uses these literal words; at least one bucket must show.
+    lower = md.lower()
+    assert (
+        "improved" in lower
+        or "regressed" in lower
+        or "unchanged" in lower
+        or "newly evaluable" in lower
+    ), "delta summary words missing"
+    # Sanity: the table header must be present.
+    assert "baseline P@K" in md and "current P@K" in md
