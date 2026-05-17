@@ -27,8 +27,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 import numpy as np
 
@@ -45,6 +46,8 @@ from scripts.rag.index.cache import (
     save_embeddings_and_records_atomically,
     write_kb_hash_atomically,
 )
+
+_logger = logging.getLogger(__name__)
 
 # Repo root anchors any relative paths coming from config so the module
 # works regardless of the caller's cwd. This file lives at
@@ -183,9 +186,42 @@ def _build_records(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return records
 
 
+def _normalize_excluded(
+    excluded_paper_ids: Iterable[str] | None,
+) -> frozenset[str]:
+    """Coerce caller-supplied excludes into a stable, hashable frozenset.
+
+    Empty / ``None`` collapses to an empty :class:`frozenset` so the
+    ``default == None`` cache key is preserved (see signature notes in
+    :func:`build_or_load_index`). Non-string members are coerced via
+    ``str()`` so callers can pass numeric paper ids without ceremony.
+    """
+
+    if not excluded_paper_ids:
+        return frozenset()
+    return frozenset(str(p) for p in excluded_paper_ids if p)
+
+
+def _exclusion_signature(excluded: frozenset[str]) -> str:
+    """Stable sha256 over a sorted exclusion set, ``""`` if empty.
+
+    The empty-set sentinel is the empty string so callers passing
+    ``excluded_paper_ids=None`` (or ``set()``) hash identically to the
+    pre-W22-Y1 cache key — i.e. the cache for the default code path stays
+    valid across this change. Non-empty sets get a deterministic 64-char
+    hex digest mixed into the KB-hash compound key.
+    """
+
+    if not excluded:
+        return ""
+    payload = "\n".join(sorted(excluded)).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
 def build_or_load_index(
     kb_path: Path = KB_PATH,
     force_rebuild: bool = False,
+    excluded_paper_ids: Iterable[str] | None = None,
 ) -> tuple[np.ndarray, list[dict[str, Any]]]:
     """Build the embedding index or return the cached one.
 
@@ -203,6 +239,14 @@ def build_or_load_index(
         kb_path: Path to ``peer-review-kb.json``. Relative paths are anchored
             to the repository root.
         force_rebuild: If ``True``, ignore any existing cache and rebuild.
+        excluded_paper_ids: Optional iterable of ``paper_id`` strings to drop
+            from the built index. Concerns whose ``paper_id`` is in this set
+            are skipped before embedding. Used to construct honest holdout
+            indexes for the NCPR benchmark (W22-Y1): the rebuilder can excise
+            a paper from the KB at index time so retrieval can't "cheat" by
+            returning a concern from the very paper being evaluated.
+            ``None`` (the default) is exactly equivalent to ``set()`` and
+            preserves the pre-W22 cache key (and the on-disk cache).
 
     Returns:
         A 2-tuple ``(embeddings_matrix, concern_records)`` where
@@ -222,6 +266,9 @@ def build_or_load_index(
     hash_cache = _anchor(KB_HASH_CACHE)
     records_cache = cache_dir / _RECORDS_CACHE_NAME
 
+    excluded = _normalize_excluded(excluded_paper_ids)
+    excl_sig = _exclusion_signature(excluded)
+
     # Read KB bytes ONCE so the sha256 we cache against and the JSON we
     # actually parse describe the same byte sequence — closes the
     # hash-then-load race window (W18-D5 CASE-5): a concurrent KB rewrite
@@ -231,10 +278,16 @@ def build_or_load_index(
         raise FileNotFoundError(f"peer-review-kb.json not found at {kb_path}")
     kb_bytes = kb_path.read_bytes()
     kb_hash = hashlib.sha256(kb_bytes).hexdigest()
+    # Compound cache key: when no exclusions are requested ``excl_sig`` is
+    # the empty string so the compound key collapses to ``kb_hash`` — the
+    # pre-W22-Y1 cache stays valid. With exclusions, salt the key so each
+    # distinct excluded set gets its own cache slot and we never serve a
+    # stale "full" index in answer to a holdout request.
+    cache_key = f"{kb_hash}:{excl_sig}" if excl_sig else kb_hash
 
     if not force_rebuild:
         cached_hash = read_kb_hash(hash_cache)
-        if cached_hash == kb_hash:
+        if cached_hash == cache_key:
             cached = load_cached_embeddings_and_records(embeddings_cache, records_cache)
             if cached is not None:
                 return cached
@@ -242,6 +295,26 @@ def build_or_load_index(
     # Cold path: parse the SAME bytes we hashed, build records, embed.
     entries = _parse_kb_bytes(kb_bytes, kb_path)
     records = _build_records(entries)
+    if excluded:
+        total = len(records)
+        present_ids = {rec.get("paper_id") for rec in records}
+        missing = sorted(p for p in excluded if p not in present_ids)
+        if missing:
+            # No-op for unknown ids: warn (audit trail) but do not crash. The
+            # holdout caller may iterate over a paper-id list that's a superset
+            # of what's in the current KB; that should not break index build.
+            _logger.warning(
+                "build_or_load_index: %d excluded paper_id(s) not present in KB: %s",
+                len(missing),
+                missing,
+            )
+        records = [rec for rec in records if rec.get("paper_id") not in excluded]
+        _logger.info(
+            "build_or_load_index: excluded %d concern(s) for %d paper_id(s); %d remain",
+            total - len(records),
+            len(excluded),
+            len(records),
+        )
     if not records:
         raise ValueError(
             f"No reviewer concerns found in {kb_path}; refusing to build empty index."
@@ -261,7 +334,7 @@ def build_or_load_index(
         embeddings=embeddings,
         records=records,
     )
-    write_kb_hash_atomically(hash_cache, kb_hash)
+    write_kb_hash_atomically(hash_cache, cache_key)
 
     return embeddings.astype(np.float32, copy=False), records
 
