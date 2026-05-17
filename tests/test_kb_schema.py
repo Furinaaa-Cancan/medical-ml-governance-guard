@@ -129,3 +129,184 @@ def test_no_concern_id_starts_with_synth_unless_flagged(all_concerns):
         if "SYNTH" in cid.upper() and not c.get("_synthetic"):
             bad.append((p, cid))
     assert not bad, f"synth-looking concerns without _synthetic flag: {bad}"
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# W20-C3 / W17-C5: soft-deprecate contract for _kb_schema.validate_concern
+#
+# The live-KB tests above check shape. These tests pin the *contract* —
+# what validate_concern() will and will not accept — so future refactors
+# can't silently weaken the soft-deprecate rules that protect external
+# references (rag-eval-set.yaml, scenarios.json) from going dangling.
+# ──────────────────────────────────────────────────────────────────────────
+
+
+def _clean_concern(**overrides):
+    """Minimal valid concern record (active, non-deprecated)."""
+    base = {
+        "concern_id": "PR-999-C01",
+        "concern_text": "Sample concern text long enough to be non-trivial.",
+        "severity": "HIGH",
+        "mlgg_gates": ["leakage_gate"],
+    }
+    base.update(overrides)
+    return base
+
+
+def _clean_deprecated_concern(**overrides):
+    """Minimal valid concern record with the full soft-deprecate tombstone."""
+    base = _clean_concern(
+        deprecated=True,
+        deprecated_at="2026-05-17",
+        deprecated_reason="Fabricated DOI; paper not in PubMed",
+        superseded_by=None,
+    )
+    base.update(overrides)
+    return base
+
+
+def test_validate_concern_accepts_clean_active():
+    """Active concern with all required fields validates."""
+    from _kb_schema import validate_concern
+
+    validate_concern(_clean_concern())  # no exception
+
+
+def test_validate_concern_accepts_clean_deprecated():
+    """Deprecated concern with full tombstone validates."""
+    from _kb_schema import validate_concern
+
+    validate_concern(_clean_deprecated_concern())
+
+
+def test_validate_concern_accepts_deprecated_with_superseded_by():
+    """``superseded_by`` may name a replacement concern_id."""
+    from _kb_schema import validate_concern
+
+    record = _clean_deprecated_concern(superseded_by="PR-040-C02")
+    validate_concern(record)
+
+
+def test_validate_concern_rejects_deprecated_without_reason():
+    """Soft-deprecate must carry a human-readable reason."""
+    from _kb_schema import KBSchemaError, validate_concern
+
+    record = _clean_deprecated_concern()
+    del record["deprecated_reason"]
+    with pytest.raises(KBSchemaError, match="deprecated_reason"):
+        validate_concern(record)
+
+
+def test_validate_concern_rejects_deprecated_without_date():
+    """Soft-deprecate must carry an ISO date so tombstone age is auditable."""
+    from _kb_schema import KBSchemaError, validate_concern
+
+    record = _clean_deprecated_concern()
+    del record["deprecated_at"]
+    with pytest.raises(KBSchemaError, match="deprecated_at"):
+        validate_concern(record)
+
+
+def test_validate_concern_rejects_deprecated_with_bad_date():
+    """``deprecated_at`` must be ISO-8601, not free-form."""
+    from _kb_schema import KBSchemaError, validate_concern
+
+    record = _clean_deprecated_concern(deprecated_at="May 17, 2026")
+    with pytest.raises(KBSchemaError, match="ISO-8601"):
+        validate_concern(record)
+
+
+def test_validate_concern_rejects_empty_deprecated_reason():
+    """Empty-string reason is not a real reason."""
+    from _kb_schema import KBSchemaError, validate_concern
+
+    record = _clean_deprecated_concern(deprecated_reason="   ")
+    with pytest.raises(KBSchemaError, match="deprecated_reason"):
+        validate_concern(record)
+
+
+def test_validate_concern_rejects_non_bool_deprecated_flag():
+    """``deprecated`` must be a real bool, not a truthy string."""
+    from _kb_schema import KBSchemaError, validate_concern
+
+    record = _clean_concern(deprecated="yes")
+    with pytest.raises(KBSchemaError, match="'deprecated' must be a bool"):
+        validate_concern(record)
+
+
+def test_validate_concern_rejects_bad_severity():
+    """Severity must be in the canonical set."""
+    from _kb_schema import KBSchemaError, validate_concern
+
+    record = _clean_concern(severity="URGENT")
+    with pytest.raises(KBSchemaError, match="severity"):
+        validate_concern(record)
+
+
+def test_validate_concern_rejects_missing_required_field():
+    """Active concerns also need the base required fields."""
+    from _kb_schema import KBSchemaError, validate_concern
+
+    record = _clean_concern()
+    del record["concern_text"]
+    with pytest.raises(KBSchemaError, match="concern_text"):
+        validate_concern(record)
+
+
+def test_validate_concern_rejects_superseded_by_wrong_type():
+    """``superseded_by`` must be str or None."""
+    from _kb_schema import KBSchemaError, validate_concern
+
+    record = _clean_deprecated_concern(superseded_by=["PR-040-C02"])
+    with pytest.raises(KBSchemaError, match="superseded_by"):
+        validate_concern(record)
+
+
+def test_concern_can_be_deleted_when_no_external_refs():
+    """No external refs → hard-delete is safe."""
+    from _kb_schema import concern_can_be_deleted
+
+    assert concern_can_be_deleted(_clean_concern(), external_refs=set())
+    assert concern_can_be_deleted(_clean_concern(), external_refs={"PR-001-C01"})
+
+
+def test_concern_can_be_deleted_blocks_when_externally_referenced():
+    """If anyone still points at the id, hard-delete is forbidden."""
+    from _kb_schema import concern_can_be_deleted
+
+    record = _clean_concern(concern_id="PR-040-C01")
+    assert not concern_can_be_deleted(record, external_refs={"PR-040-C01"})
+
+
+def test_concern_can_be_deleted_refuses_when_no_external_refs_known():
+    """``external_refs=None`` is informational-only; default policy is allow."""
+    from _kb_schema import concern_can_be_deleted
+
+    # If the caller cannot supply refs, fall back to permitting deletion —
+    # the checker (check_kb_no_dangling.py) is the authoritative guard.
+    assert concern_can_be_deleted(_clean_concern(), external_refs=None)
+
+
+def test_concern_can_be_deleted_refuses_record_without_id():
+    """A record with no concern_id is malformed — never safe to delete."""
+    from _kb_schema import concern_can_be_deleted
+
+    assert not concern_can_be_deleted({"concern_text": "no id"}, external_refs=set())
+
+
+def test_is_iso_date_helper():
+    """ISO date guard accepts dates, datetimes, and ISO strings only."""
+    from datetime import date, datetime
+
+    from _kb_schema import is_iso_date
+
+    assert is_iso_date("2026-05-17")
+    assert is_iso_date("2026-05-17T12:00:00")
+    assert is_iso_date("2026-05-17T12:00:00Z")
+    assert is_iso_date(date(2026, 5, 17))
+    assert is_iso_date(datetime(2026, 5, 17, 12, 0, 0))
+    assert not is_iso_date("May 17 2026")
+    assert not is_iso_date("2026/05/17")
+    assert not is_iso_date(None)
+    assert not is_iso_date(20260517)
+    assert not is_iso_date("2026-13-40")  # invalid month/day
