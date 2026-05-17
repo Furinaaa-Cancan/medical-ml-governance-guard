@@ -122,14 +122,68 @@ Track these to validate the decision (review at W18 retrospective):
 
 If after W18 the stash count remains ≥3 average or unbreaker rate ≥3/wave, revisit Decision B (worktrees-everywhere, including `Agent isolation: "worktree"` as repo default).
 
-## 6. Out of scope / follow-ups
+## 6. Shared `.venv/` strategy (W20-P2 follow-through)
 
-- **CONTRIBUTING.md expansion**: a dedicated "Starting a new parallel session" subsection in `docs/CONTRIBUTING.md` with the full worktree walkthrough. Deferred to a follow-up wave to keep this ADR's commit small.
-- **CLAUDE.md `Agent isolation: "worktree"` default**: would address concurrent-agent races within one session. Deferred — needs measurement of current single-session multi-agent race incidence (currently believed low).
-- **Shared `.venv/` strategy**: needs a separate decision (symlink vs `VIRTUAL_ENV` env var vs per-worktree env).
-- **Conda env collision**: if multiple worktrees activate the same conda env simultaneously, conda's per-process state is fine, but `pip install -e .` from one worktree mutates the env for all. Document caveat.
+**Problem.** Decision §2 isolates working trees but says nothing about the Python environment. Three plausible layouts:
 
-## 7. References
+| Option | Description | Disk | Race surface | Lifecycle |
+|--------|-------------|------|--------------|-----------|
+| **A. Per-worktree env** | Each worktree provisions its own `.venv/` (or conda env) | ≈800 MB × N | None (clean) | Bound to worktree (clean) |
+| **B. Shared `~/.cache/mlgg-venv/`** | One env in `$HOME`, all worktrees activate it | ≈800 MB total | `pip install -e .` from any worktree mutates env for all | Outlives any repo; orphaned on repo delete |
+| **C. Primary `.venv/` is source of truth, worktrees symlink it** | `.venv/` lives in the primary checkout; each worktree has `.venv -> /abs/path/to/primary/.venv` | ≈800 MB total | Same as B (any worktree's `pip install -e .` mutates shared env) | Bound to primary checkout (clean if primary is the canonical repo) |
+
+**Decision: C.** The primary checkout's `.venv/` is the single source of truth. Worktrees get a symlink, not their own env.
+
+**Justification (1 paragraph).** Option A's disk cost (a fresh PyTorch + sentence-transformers stack runs ≈1.5 GB once `pip install -e .[dev]` lands) defeats the "worktrees are cheap, just do it" pitch that §2 needs to land. Option B places shared state outside any repo, creating two confusion modes (env survives `rm -rf ml-leakage-guard/`; env name `mlgg-venv` doesn't tell you which checkout owns it). Option C keeps the env's lifecycle bound to the primary checkout — the same checkout users already think of as canonical — so `git worktree remove` plus `rm -rf` of the primary cleans up everything. The shared-state mutation risk (any worktree's `pip install -e .` affects all) is the same in B and C, and is acceptable because `pip install -e .` is rare (dependency add) and announced; it is *not* a per-commit operation the way `git stash` was. The symlink is preferred over `python -m venv --symlinks` (which still creates a per-worktree directory with linked binaries) because a single symlink is one `ls -la` away from being verifiable, whereas the venv-with-symlinks form requires inspecting `pyvenv.cfg` and a matching-version Python on the spawning machine.
+
+**Failure mode (self-challenge).** If a contributor runs `python -m venv .venv` (or `uv venv`) from inside a worktree without first checking, they will create a real directory that shadows the would-be-symlink and silently de-shares the env — re-introducing Option A's disk cost without the cleanliness benefit (now you have two `.venv/` directories whose `pip install -e .` paths diverge). `scripts/setup-dev.sh` mitigates this by detecting the worktree case and warning if `.venv/` is a real directory instead of a symlink (Step §7.3 below).
+
+**Caveat — Conda envs.** This ADR's §6 covers the venv case. Contributors using a conda env (the historical default for some of the team) should `conda activate` the same env name from every worktree; conda's per-process activation is fine for parallel use, but `pip install -e .` from one worktree still mutates the shared site-packages and `egg-info` (the same risk class as venv). No symlink needed for conda.
+
+## 7. Worktree setup commands (the actual contributor flow)
+
+The 5-line recipe a contributor runs to create a worktree that shares the primary `.venv/`:
+
+```bash
+# From the primary checkout (one-time, if .venv doesn't exist yet):
+cd /Volumes/Seagate/Skill/ml-leakage-guard
+python -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
+
+# Per new parallel session (this is the helper added in setup-dev.sh):
+./scripts/setup-dev.sh setup-worktree session-2
+# → creates ../ml-leakage-guard-session-2 on branch session-2
+# → symlinks ../ml-leakage-guard-session-2/.venv -> /abs/.../ml-leakage-guard/.venv
+# → re-installs the per-worktree pre-commit hook
+```
+
+After the helper runs, the contributor:
+
+```bash
+cd ../ml-leakage-guard-session-2
+source .venv/bin/activate           # follows the symlink; same env as primary
+pytest -q                            # confirms shared env works
+```
+
+**Verifying the symlink is intact:**
+
+```bash
+ls -la .venv
+# expected: .venv -> /Volumes/Seagate/Skill/ml-leakage-guard/.venv
+# if you see "drwxr-xr-x  ...  .venv" (directory, not symlink), the share is broken
+# — `rm -rf .venv && ln -s /abs/.../ml-leakage-guard/.venv .venv` to restore
+```
+
+**Retiring a worktree:**
+
+```bash
+git worktree remove ../ml-leakage-guard-session-2   # removes the worktree dir (including the symlink, not its target)
+git branch -d session-2
+```
+
+The symlink is removed by `git worktree remove`; the primary `.venv/` is untouched. Confirmed by `git worktree remove`'s docs: it deletes the worktree directory, which removes the symlink entry but does not follow it.
+
+## 8. References
 
 - ADR 0002 (`docs/adr/0002_race_proof_commit_protocol.md`) — the protocol this ADR layers on top of, not replaces.
 - `git worktree` manual: `git help worktree`.
