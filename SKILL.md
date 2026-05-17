@@ -29,6 +29,20 @@ MLGG 对外暴露 3 条稳定入口，其他所有功能都是它们的子命令
 - **项目是别人写的、没有 MLGG 格式的 evidence**（只有 train.csv / notebook / 模型 pickle / metrics.json）→ `mlgg audit <dir>`，基于代码模式扫描 + 文件结构检查打分，不会因缺 `evidence/*.json` 而爆 noisy failure。
 - **CI 里只想检查单文件代码泄漏** → `mlgg-lint check <file.py>`（零依赖，几秒出结果）。
 
+### Audit Routing — Mode A / B / C（W26 Amendment 2 落地）
+
+不同输入触发不同层组合。**33 gate L2 是 instrumented-run 契约，不在外部审计路径上**（见 `references/benchmark/hybrid_v1_spec.md` §Amendment 2，W25 实测 8 篇外部论文 L2 = 0/264）。
+
+| Mode | 输入 | 路由 | 层组合 | 适用入口 |
+|---|---|---|---|---|
+| **A. Instrumented training run** | 你自己的训练流水（`evidence/*.json` + `configs/request.json`） | 全部 3 层 | L1 lint + **L2 33 gate** + L3 RAG | `mlgg workflow --strict` / `/mlgg` |
+| **B. External code + paper 联审** | 别人 repo + 论文 PDF（如 Kaji 2019 + rnn_mimic.py） | **L1 + L3 only** | L1 lint (`mlgg-lint`) + L3 RAG (`mlgg rag` / `synthesize_flags_from_rag`)；L2 自动跳过 | `mlgg audit <dir>` + `mlgg rag` |
+| **C. Pure paper 审查** | 仅论文 PDF（无 code） | **L3 only** | L3 RAG hybrid 检索 + reviewer-style synthesis | `mlgg rag` / `peer_review_lookup.py` |
+
+**为什么 L2 跳过 Mode B/C**：L2 33 gate 需要 MLGG-instrumented training pipeline 产出的 evidence JSON（`--evaluation-report` / `--prediction-trace` / `--protocol-spec` / `--tuning-spec`）。外部 repo 不会主动 emit 这些 artifact，强跑会得到 33/33 全部 fail-noisy。这不是 bug 是结构性约束。
+
+**误判防御**：用户拿外部论文找你时，agent 不要承诺 "我会跑 33 gate"——明确说 "对外部材料我们跑 L1 lint + L3 RAG（hybrid 模式），33 gate 仅在你自己跑训练流水时才能验证"。
+
 ## Quick Dispatch
 
 Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部 28 个子命令的分组索引（`mlgg flow` 显示推荐顺序，`mlgg --help` 显示全表）。

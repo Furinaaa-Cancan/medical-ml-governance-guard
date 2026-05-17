@@ -64,6 +64,16 @@
 
 > **Disease-KB review status**: 11 disease entries currently pending clinician review; the publication gate fails closed (W11-F2 commit `04ad7d7` closed a source-only spoof vector).
 
+### Scope (W26 Amendment 2 — not every input runs all 3 layers)
+
+| Input | Routing | Layers that run | Layers that skip |
+|---|---|---|---|
+| **A. Your own training pipeline** (ships `evidence/*.json`) | `mlgg workflow --strict` / `/mlgg` | L1 + **L2 33 gate** + L3 | — |
+| **B. External code + paper joint audit** | `mlgg audit <dir>` + `mlgg rag` | L1 lint + L3 RAG | **L2 skipped** |
+| **C. Paper-only review** (no code) | `mlgg rag` / `peer_review_lookup.py` | L3 RAG only | L1 + L2 |
+
+> **L2 33 gate is a pipeline contract for instrumented runs, not an external-audit weapon.** External repos don't emit `--evaluation-report` / `--prediction-trace` / `--protocol-spec` / `--tuning-spec`; forcing the gates produces 33/33 fail-noisy. The W25 hybrid benchmark on 8 external NMI / MIMIC papers measured **L2 = 0/264 gate-paper pair** hits — that's structural, not a bug. See [`references/benchmark/hybrid_v1_spec.md`](references/benchmark/hybrid_v1_spec.md) §Amendment 2 and [`docs/diagnostics/W25_hybrid_aggregate.md`](docs/diagnostics/W25_hybrid_aggregate.md).
+
 ### Per-action risk: what can hallucination touch?
 
 | Action | Layer | Hallucination risk | Can it change the verdict? |
@@ -84,7 +94,7 @@ Both end up running the **same Python gate**. The Skill saves keystrokes, not co
 
 ### Engineering guarantees (not just aspirations)
 
-- **SKILL.md ≤ 500 lines**: currently 310 lines, within Claude Code's official guidance; longer content lives under `docs/` or inside gate docstrings.
+- **SKILL.md ≤ 500 lines**: currently 324 lines, within Claude Code's official guidance; longer content lives under `docs/` or inside gate docstrings.
 - **Pre-commit doc-number check**: `check_docs_consistency.py` + `check_readme_stats.py` catch drift across `SKILL.md ↔ README ↔ reviewer.yaml`; **PRs fail before merge**, not after.
 - **Thresholds are code, not prompts**: every pass/fail threshold, validator rule, and detection algorithm is a Python constant + function. Gates do not consult markdown for verdict logic.
 

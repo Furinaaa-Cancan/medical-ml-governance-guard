@@ -65,6 +65,16 @@
 
 **幻觉锁在最顶层**——下面两层永远拿确定性算法 + 静态数据算 pass/fail。
 
+### 适用范围（W26 Amendment 2 — 不是所有输入都跑 3 层）
+
+| 输入 | 路由 | 跑的层 | 不跑的层 |
+|---|---|---|---|
+| **A. 你的训练流水**（自带 `evidence/*.json`） | `mlgg workflow --strict` / `/mlgg` | L1 + **L2 33 gate** + L3 | — |
+| **B. 外部 code + paper 联审** | `mlgg audit <dir>` + `mlgg rag` | L1 lint + L3 RAG | **L2 跳过** |
+| **C. 纯 paper 审查**（无 code） | `mlgg rag` / `peer_review_lookup.py` | L3 RAG only | L1 + L2 |
+
+> **L2 33 gate 是 instrumented-run 契约，不是外部审计武器**。外部 repo 不会主动 emit `--evaluation-report`/`--prediction-trace`/`--protocol-spec`/`--tuning-spec`，强跑得到 33/33 全 fail-noisy。W25 实测 8 篇外部 NMI/MIMIC 论文 **L2 = 0/264 gate-paper pair** 命中，是结构性约束不是 bug。详见 [`references/benchmark/hybrid_v1_spec.md`](references/benchmark/hybrid_v1_spec.md) §Amendment 2 + [`docs/diagnostics/W25_hybrid_aggregate.md`](docs/diagnostics/W25_hybrid_aggregate.md)。
+
 ### 逐行风险：哪些动作可能被幻觉影响？
 
 | 动作 | 层 | 幻觉风险 | 能否改变 pass/fail |
@@ -85,7 +95,7 @@
 
 ### 工程保证（而不只是愿景）
 
-- **SKILL.md ≤ 500 行**：当前 310 行，符合 Claude Code 官方建议；超长内容拆到 `docs/` 或 gate docstring。
+- **SKILL.md ≤ 500 行**：当前 324 行，符合 Claude Code 官方建议；超长内容拆到 `docs/` 或 gate docstring。
 - **文档数字 pre-commit 校验**：`check_docs_consistency.py` + `check_readme_stats.py` 抓 `SKILL.md ↔ README ↔ reviewer.yaml` 的 parity 和 KB freshness drift，**PR 会被 fail 而不是 merge 后才发现**。
 - **阈值是代码不是 prompt**：所有 pass/fail 阈值、validator 规则、检测算法都是 Python 常量 + 函数，gate 不从 markdown 读判定逻辑。
 
