@@ -225,6 +225,7 @@ def synthesize_flags_from_rag(
     query: str,
     top_k: int = 20,
     adaptive: bool = False,
+    dedup_by_code: bool = False,
 ) -> list[MlggFlag]:
     """RAG-only flagging: query the KB, convert each hit to an ``MlggFlag``.
 
@@ -243,6 +244,13 @@ def synthesize_flags_from_rag(
             by :func:`adaptive_top_k` to scale with query complexity.
             Default ``False`` keeps the W22-X4 behaviour for every caller
             that has not been updated.
+        dedup_by_code: If ``True`` (W27-R1, opt-in), collapse flags that
+            share the same ``code`` to the **first** (highest-ranked) hit.
+            Default ``False`` preserves W22-X4/W25 benchmark reproducibility.
+            Motivation: post-W23-fix, ``_concern_to_flag`` maps every concern
+            to ``mlgg_gates[0]``, so 5 calibration concerns all emit
+            ``code="calibration_dca_gate"`` — counted as 5 separate flags
+            by the precision metric, inflating FP without adding signal.
     """
     if not isinstance(query, str) or not query.strip():
         return []
@@ -259,7 +267,18 @@ def synthesize_flags_from_rag(
         return []
 
     records = rag_query(query=query, top_k=top_k)
-    return [_concern_to_flag(rec) for rec in (records or [])]
+    flags = [_concern_to_flag(rec) for rec in (records or [])]
+    if dedup_by_code:
+        seen: set[str] = set()
+        deduped: list[MlggFlag] = []
+        for f in flags:
+            code = f.get("code", "")
+            if code in seen:
+                continue
+            seen.add(code)
+            deduped.append(f)
+        return deduped
+    return flags
 
 
 # ────────────────────────────────────────────────────────────────────────

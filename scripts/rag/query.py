@@ -57,6 +57,7 @@ def rag_query(
     gate: Optional[str] = None,
     failure_codes: Optional[list[str]] = None,
     top_k: int = 5,
+    min_score: float = 0.0,
 ) -> list[dict]:
     """Return ranked peer-review concerns relevant to ``query``.
 
@@ -88,6 +89,13 @@ def rag_query(
         top_k: Maximum number of concerns to return. Must be positive;
             silently clamped to ``1`` if a non-positive value is passed in,
             to mirror the CLI's argparse-level validation behavior.
+        min_score: W27-R2 opt-in confidence floor. Records whose
+            ``_final_score`` is below this threshold are dropped from the
+            returned list. Default ``0.0`` disables filtering (back-compat
+            with W22-X4 callers and the W25 benchmark snapshots). Records
+            without a numeric ``_final_score`` are kept unconditionally
+            (defensive: the ranker is the score authority; absence means
+            the caller's contract pre-dates scoring, not low confidence).
 
     Returns:
         A list of concern records (see the schema in
@@ -111,7 +119,7 @@ def rag_query(
         return []
 
     try:
-        return hybrid_rank(
+        results = hybrid_rank(
             query=query,
             gate=gate,
             failure_codes=failure_codes,
@@ -122,6 +130,14 @@ def rag_query(
         # than a hard error, so CLI / gate-integration callers can degrade
         # gracefully.
         return []
+
+    if min_score > 0.0 and results:
+        results = [
+            r for r in results
+            if not isinstance(r.get("_final_score"), (int, float))
+            or float(r["_final_score"]) >= min_score
+        ]
+    return results
 
 
 def prewarm(*, force_rebuild: bool = False) -> dict:

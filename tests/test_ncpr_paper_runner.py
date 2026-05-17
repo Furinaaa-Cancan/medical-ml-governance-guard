@@ -389,6 +389,50 @@ def test_synthesize_flags_default_top_k_unchanged():
     assert len(flags) == 20
 
 
+def test_synthesize_flags_dedup_by_code_collapses_same_gate_hits():
+    """W27-R1: when 3 KB records all map to the same mlgg_gate (post-W23-fix
+    `_concern_to_flag` collapses concern -> mlgg_gates[0]), dedup_by_code=True
+    must return exactly 1 flag (the first / highest-ranked occurrence).
+    """
+    duplicate_gate_records = [
+        _kb_record("c1", "no calibration plot", gate="calibration_dca_gate"),
+        _kb_record("c2", "missing Brier score", gate="calibration_dca_gate"),
+        _kb_record("c3", "no decision curve",   gate="calibration_dca_gate"),
+        _kb_record("c4", "label leakage hint",  gate="leakage_gate"),
+    ]
+    with mock.patch(
+        "scripts.rag.query.rag_query", return_value=duplicate_gate_records
+    ):
+        flags = synthesize_flags_from_rag(
+            "evaluation methods", top_k=4, dedup_by_code=True
+        )
+    codes = [f["code"] for f in flags]
+    assert codes == ["calibration_dca_gate", "leakage_gate"], (
+        f"dedup_by_code must collapse same-gate hits to first occurrence; "
+        f"got {codes!r}"
+    )
+    # First occurrence retained — order-preserving.
+    assert flags[0]["evidence_text"] == "no calibration plot"
+
+
+def test_synthesize_flags_dedup_default_off_preserves_back_compat():
+    """W27-R1 back-compat: dedup_by_code defaults to False, so the W25
+    benchmark numbers remain reproducible (3 same-gate hits → 3 flags).
+    """
+    duplicate_gate_records = [
+        _kb_record("c1", "first",  gate="calibration_dca_gate"),
+        _kb_record("c2", "second", gate="calibration_dca_gate"),
+        _kb_record("c3", "third",  gate="calibration_dca_gate"),
+    ]
+    with mock.patch(
+        "scripts.rag.query.rag_query", return_value=duplicate_gate_records
+    ):
+        flags = synthesize_flags_from_rag("methods", top_k=3)  # no kwarg
+    assert len(flags) == 3, (
+        f"Default behaviour must keep one flag per record; got {len(flags)}"
+    )
+
+
 def test_adaptive_top_k_johnson_2017_would_benefit():
     """W26-R1 verification: a Johnson-2017-style CLEAN methodology snippet
     (~5 GT concerns, short and focused) should resolve to substantially
