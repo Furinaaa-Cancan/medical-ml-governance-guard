@@ -18,7 +18,7 @@ Frozen for NCPR v1; any weight change requires a new ADR + v2 bump.
 from __future__ import annotations
 
 import warnings
-from typing import Any, Callable, Iterable, Literal, TypedDict
+from typing import Callable, Iterable, Literal, TypedDict
 
 # ---------------------------------------------------------------------------
 # Frozen weighting scheme (NCPR v1 — see severity rationale doc, table 2).
