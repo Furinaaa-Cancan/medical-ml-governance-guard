@@ -31,9 +31,52 @@ else
   exit 1
 fi
 
-echo "==> pre-push: ruff lint on scripts/"
+# W20-P1 (W19-E4): scope ruff to files changed in THIS push, not tree-wide.
+# Before: tree-wide `ruff check scripts/` blocked unrelated pushes when a
+# sibling session left ruff red elsewhere → forced `git push --no-verify`
+# → CI fix-forward cascade. W19-E4 measured 8x rise in PD-02 unbreaker
+# commits post-W13. CI still runs full-tree ruff (ci-unit.yml) as the
+# authoritative gate; this hook only protects the *pusher* from their own
+# new lint regressions. Use MLGG_PRE_PUSH_STRICT=1 to opt into full-tree.
+echo "==> pre-push: ruff lint (changed files only)"
 if command -v ruff &>/dev/null; then
-  ruff check scripts/ --quiet
+  if [ "${MLGG_PRE_PUSH_STRICT:-0}" = "1" ]; then
+    echo "    (MLGG_PRE_PUSH_STRICT=1 — running full-tree ruff)"
+    ruff check scripts/ --quiet
+  else
+    # Enumerate .py files added/modified vs origin/main (or HEAD~5 as
+    # fallback for new repos / detached upstreams). Restrict to dirs
+    # ruff already covers (scripts/, tests/, plugin/). Use NUL-delimited
+    # output to survive spaces in paths.
+    UPSTREAM="$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null || echo 'origin/main')"
+    BASE="$(git merge-base "$UPSTREAM" HEAD 2>/dev/null || git rev-parse HEAD~5 2>/dev/null || git rev-parse HEAD)"
+    CHANGED_FILES=()
+    while IFS= read -r -d '' f; do
+      case "$f" in
+        scripts/*.py|tests/*.py|plugin/*.py|\
+        scripts/**/*.py|tests/**/*.py|plugin/**/*.py)
+          [ -f "$f" ] && CHANGED_FILES+=("$f")
+          ;;
+        *)
+          # bash 3.2 (macOS default) lacks **; do a manual prefix+suffix
+          # match instead.
+          case "$f" in
+            scripts/*|tests/*|plugin/*)
+              case "$f" in
+                *.py) [ -f "$f" ] && CHANGED_FILES+=("$f") ;;
+              esac
+              ;;
+          esac
+          ;;
+      esac
+    done < <(git diff --name-only --diff-filter=AM -z "$BASE"..HEAD 2>/dev/null || true)
+    if [ "${#CHANGED_FILES[@]}" -eq 0 ]; then
+      echo "    (no changed Python files in scripts/tests/plugin — skipping ruff)"
+    else
+      echo "    ruff on ${#CHANGED_FILES[@]} changed file(s); full-tree ruff still runs in CI"
+      ruff check --quiet "${CHANGED_FILES[@]}"
+    fi
+  fi
 else
   echo "    (ruff not installed, skipping)"
 fi
