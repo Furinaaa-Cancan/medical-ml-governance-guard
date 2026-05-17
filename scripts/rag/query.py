@@ -284,6 +284,63 @@ def _render_table(results: list[dict]) -> str:
     return "\n".join(lines)
 
 
+def _render_explain(results: list[dict]) -> str:
+    """Render the per-rank ``_mmr_breakdown`` audit dict for ``--explain``.
+
+    Emits one line per result with the four fields the MMR reranker
+    attaches: ``relevance``, ``max_sim``, ``blocker_id``, ``blocker_reason``.
+    Output is plain text destined for stderr so it never pollutes the
+    stdout JSON / table contract that programmatic callers consume.
+
+    ADR: see ``docs/adr/0001_mmr_breakdown_consumer.md`` (W11-I2) for
+    the SHIP rationale -- this is the one canonical consumer of
+    ``_mmr_breakdown`` and therefore freezes its schema.
+
+    Args:
+        results: List of concern dicts as returned by ``rag_query``.
+            Each is expected to carry the post-MMR keys ``_mmr_score``
+            and ``_mmr_breakdown``; entries missing the breakdown are
+            rendered with a ``no_breakdown`` placeholder so callers can
+            still see the rank order during partial-rollout windows.
+
+    Returns:
+        Multiline string. Empty results yield a single ``(no results)``
+        notice so ``--explain`` always emits at least one informative
+        line.
+    """
+    if not results:
+        return "(no results -- nothing to explain)"
+
+    lines: list[str] = ["mmr_breakdown (rank=relevance, max_sim, blocker):"]
+    for rank, rec in enumerate(results, start=1):
+        cid = rec.get("concern_id", "<unknown>")
+        bd = rec.get("_mmr_breakdown")
+        if not isinstance(bd, dict):
+            lines.append(
+                f"  rank={rank} concern_id={cid} -- no_breakdown "
+                f"(pre-W9-B2 record or non-MMR path)"
+            )
+            continue
+        relevance = bd.get("relevance", 0.0)
+        max_sim = bd.get("max_sim", 0.0)
+        blocker_id = bd.get("blocker_id")
+        blocker_reason = bd.get("blocker_reason", "none")
+        try:
+            rel_s = f"{float(relevance):.3f}"
+        except (TypeError, ValueError):
+            rel_s = str(relevance)
+        try:
+            sim_s = f"{float(max_sim):.3f}"
+        except (TypeError, ValueError):
+            sim_s = str(max_sim)
+        lines.append(
+            f"  rank={rank} concern_id={cid} relevance={rel_s} "
+            f"max_sim={sim_s} blocker_id={blocker_id} "
+            f"blocker_reason={blocker_reason}"
+        )
+    return "\n".join(lines)
+
+
 def _build_parser() -> argparse.ArgumentParser:
     """Construct the argparse parser for the CLI.
 
@@ -333,6 +390,18 @@ def _build_parser() -> argparse.ArgumentParser:
             "Pre-load the embedding model + KB index and print a JSON status "
             "dict, then exit 0. Use at service start to eat cold-cache "
             "latency upfront. When set, the positional 'query' is optional."
+        ),
+    )
+    parser.add_argument(
+        "--explain",
+        action="store_true",
+        help=(
+            "After the normal results, also emit the MMR per-rank breakdown "
+            "to stderr: relevance, max_sim, blocker_id, blocker_reason. "
+            "Use when a result's rank surprises you and you need to see "
+            "whether MMR diversity (cosine near-dup or same-paper penalty) "
+            "demoted it. The stdout JSON/table contract is unchanged. "
+            "ADR: docs/adr/0001_mmr_breakdown_consumer.md."
         ),
     )
     return parser
@@ -389,6 +458,12 @@ def main(argv: Optional[list[str]] = None) -> int:
         print(json.dumps(results, indent=2, ensure_ascii=False, default=str))
     else:
         print(_render_table(results))
+
+    # ``--explain`` writes to stderr (ADR-0001) so the stdout JSON / table
+    # contract that programmatic callers depend on stays unchanged. Off by
+    # default, free when off.
+    if args.explain:
+        print(_render_explain(results), file=sys.stderr)
 
     return 0
 

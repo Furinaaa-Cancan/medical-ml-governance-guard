@@ -60,3 +60,41 @@ def test_mlgg_rag_gate_anchored() -> None:
         "--top-k", "3",
     )
     assert rc == 0, f"stderr: {err}"
+
+
+def test_mlgg_rag_explain_emits_breakdown_to_stderr() -> None:
+    """W11-I2 (ADR-0001): ``--explain`` prints the MMR per-rank
+    breakdown to stderr without changing stdout.
+
+    Contract under test:
+      * exit code 0,
+      * stdout still contains the normal results (table format),
+      * stderr contains the ``mmr_breakdown`` header line and at least
+        one ``blocker_reason=`` annotation (the load-bearing field that
+        names *why* a candidate landed where it did).
+
+    Why stderr: stdout carries the JSON/table contract that programmatic
+    callers depend on; ``--explain`` is a human-facing diagnostic and
+    must not pollute that contract. See
+    ``docs/adr/0001_mmr_breakdown_consumer.md``.
+    """
+    rc, out, err = _run_mlgg(
+        "rag", "calibration", "--explain", "--top-k", "3",
+    )
+    assert rc == 0, f"stderr: {err}"
+    # stdout: the normal table is still present (off-by-default flag must
+    # not change baseline behavior).
+    assert out.strip(), f"empty stdout; stderr: {err}"
+    # stderr: the explain block must announce itself + carry at least one
+    # blocker_reason. We do not over-constrain which reason fires (depends
+    # on which 3 candidates the KB returns for "calibration" on the day);
+    # any of the three documented reasons satisfies the contract.
+    assert "mmr_breakdown" in err, (
+        f"--explain did not emit breakdown header on stderr; got: {err!r}"
+    )
+    assert "blocker_reason" in err, (
+        f"--explain did not emit blocker_reason field; got: {err!r}"
+    )
+    assert any(
+        reason in err for reason in ("cosine", "same_paper", "none")
+    ), f"--explain emitted no documented blocker_reason value; got: {err!r}"
