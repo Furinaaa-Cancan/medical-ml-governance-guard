@@ -1,17 +1,12 @@
 #!/usr/bin/env bash
-# DEPRECATED in favor of .pre-commit-config.yaml's readme-stats-drift hook
-# (H3, 2026-05-17). The pre-commit hook (now always_run: true) catches the
-# same README-drift class at COMMIT time, one cycle earlier. This pre-push
-# hook is kept as a backup safety net for users who ran `make install-hooks`
-# but never ran `pre-commit install`. Prefer the pre-commit path going
-# forward; remove this file once `pre-commit install` is documented as the
-# canonical onboarding step.
-#
 # MLGG pre-push: catches the common CI failures locally before push.
 #
-# Targets the 3 reactive failure modes from recent CI history (A4, A10, F5)
-# — all README drift, each cost ~14 min CI cycle + a fix-forward commit.
-# This hook runs in ~30s and prevents the round trip.
+# README-drift slice was the historical motivation (A4/A10/F5). The pytest
+# smoke slice was added 2026-05-17 after a 30-minute fire where 8 parallel
+# sessions kept pushing argparse / fixture / harvest regressions that the
+# old hook (ruff + drift + rag smoke only) couldn't see — each one cost a
+# ~12-min CI cycle. The targeted test files below cover the recurring
+# fail classes; full suite is 10+ minutes and belongs in CI, not here.
 #
 # Skips heavyweight tests (those still belong in CI).
 #
@@ -19,6 +14,9 @@
 #                       (or: git config core.hooksPath .githooks)
 #
 # Bypass once:          git push --no-verify
+# Skip pytest only:     MLGG_SKIP_PYTEST_HOOK=1 git push
+#                       (use when you know the push doesn't touch script
+#                       contracts — e.g. README-only or docs-only pushes)
 
 set -e
 cd "$(git rev-parse --show-toplevel)"
@@ -56,5 +54,32 @@ except ImportError as e:
     else:
         raise
 "
+
+if [ "${MLGG_SKIP_PYTEST_HOOK:-0}" = "1" ]; then
+  echo "==> pre-push: pytest smoke slice SKIPPED (MLGG_SKIP_PYTEST_HOOK=1)"
+else
+  echo "==> pre-push: pytest smoke slice (~30s, covers recurring CI-red classes)"
+  # Curated subset — each file pins a class of failure that has historically
+  # slipped past the ruff+drift checks and landed in CI red. Keep this list
+  # tight (<60s wall-clock); full suite belongs in ci-unit.
+  #   - test_stress_gate_cli      : argparse --help contract, fail-loud CLI
+  #   - test_check_readme_stats   : README stat parity (belt-and-braces with the drift step above)
+  #   - test_disease_kb_review_check + test_disease_kb_stale_source : provenance gate fixtures
+  #   - test_real_gate_codes      : harvester / experiments coupling
+  if python3 -m pytest -q --tb=line -x \
+       tests/test_stress_gate_cli.py \
+       tests/test_check_readme_stats.py \
+       tests/test_disease_kb_review_check.py \
+       tests/test_disease_kb_stale_source.py \
+       tests/test_real_gate_codes.py; then
+    :
+  else
+    echo
+    echo "[FAIL] pre-push smoke pytest failed. Fix the test above, then push again."
+    echo "       (Bypass smoke only: MLGG_SKIP_PYTEST_HOOK=1 git push)"
+    echo "       (Bypass all hooks : git push --no-verify — last resort)"
+    exit 1
+  fi
+fi
 
 echo "[OK] pre-push checks passed."
