@@ -28,3 +28,8 @@ fi
 echo ""
 echo "Local hook activation complete."
 echo "Try: git commit --allow-empty -m 'hooks test'"
+
+# === Optional: parallel-session worktree ===
+echo ""
+echo "Tip: for parallel sessions, use: git worktree add ../$(basename "$PWD")-session-N main"
+echo "See docs/adr/0004_worktrees_default.md for rationale."
