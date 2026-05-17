@@ -24,6 +24,19 @@ updates:
     labels:
       - "dependencies"
       - "python"
+    # ignore: hold MAJOR bumps on packages where a major version jump needs
+    # hands-on integration testing (post-merge: re-run RAG eval, gate suite,
+    # etc.). Minor + patch versions still flow through normally. Documented
+    # rationale per package below; revisit when project bandwidth permits a
+    # targeted integration test.
+    ignore:
+      # sentence-transformers v2 → v5 changed encode() defaults, added new
+      # model architectures, modified API. Direct usage in scripts/rag/
+      # embeddings.py / query.py / config.py / harness.py (18 files). A
+      # major bump requires re-running references/retrieval_eval/
+      # MLGG-Bench-v1.0.2 to confirm hit@5 / cp_hit@5 do not regress.
+      - dependency-name: "sentence-transformers"
+        update-types: ["version-update:semver-major"]
     groups:
       # Patch & minor for runtime — usually safe, batch together
       python-runtime-patch-minor:
@@ -76,6 +89,25 @@ updates:
     labels:
       - "dependencies"
       - "github-actions"
+    # ignore: hold MAJOR Actions bumps that historically have breaking
+    # changes between adjacent majors. Minor + patch still flow.
+    ignore:
+      # actions/upload-artifact v5 dropped implicit same-name merging across
+      # parallel jobs (well-documented breaking change). v6/v7 changed
+      # compression + retention defaults. The repo uses upload-artifact in
+      # 3 workflows (ci-extended/ci-full/ci-overnight); pre-merge validation
+      # needs to confirm each upload-artifact call still produces a unique
+      # name per job-matrix entry, otherwise CI will fail post-bump.
+      - dependency-name: "actions/upload-artifact"
+        update-types: ["version-update:semver-major"]
+      # actions/checkout v5 dropped Node 16. v6 changed sparse checkout
+      # default. Used in 6 workflows; can be re-tested with one minor PR.
+      - dependency-name: "actions/checkout"
+        update-types: ["version-update:semver-major"]
+      # github/codeql-action v4 was released 2026-05; not enough community
+      # exposure yet to trust auto-merge. Re-evaluate after 2026-06.
+      - dependency-name: "github/codeql-action"
+        update-types: ["version-update:semver-major"]
     groups:
       actions-patch-minor:
         applies-to: version-updates
