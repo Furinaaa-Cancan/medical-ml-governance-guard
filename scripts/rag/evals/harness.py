@@ -94,9 +94,15 @@ SUPPORTED_MODES = ("bm25_only", "hybrid")
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--scenarios", type=Path, default=DEFAULT_SCENARIOS)
-    p.add_argument("--kb", type=Path, default=DEFAULT_KB,
+    # NOTE: default=None (not DEFAULT_KB) so we can distinguish
+    # "user explicitly passed --kb" from "fell through to default".
+    # The default is materialized in main() after the mode-mismatch
+    # warning check. (W14-F3.)
+    p.add_argument("--kb", type=Path, default=None,
                    help="Override KB path (bm25_only mode only; the hybrid "
-                        "path resolves the KB via scripts.rag.config).")
+                        "path resolves the KB via scripts.rag.config). "
+                        "Passing --kb with --mode hybrid warns to stderr "
+                        "since the flag is a no-op on that path.")
     p.add_argument("--mode", choices=SUPPORTED_MODES, default=DEFAULT_MODE,
                    help="Retrieval path to evaluate. Default 'hybrid' "
                         "matches the production user experience (rag_query "
@@ -107,14 +113,53 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--report", type=Path,
                    help="Optional JSON report output path")
     p.add_argument("--baseline", type=Path,
-                   help="Optional baseline JSON; --strict regresses against it")
+                   help="Optional baseline JSON; --strict regresses against "
+                        "it. If the path is given but does not exist the "
+                        "harness exits 2 (W14-F3, mirrors W11-F5 --diff).")
     p.add_argument("--top-k", type=int, default=5,
                    help="Top-K to retrieve per scenario (default 5)")
     p.add_argument("--strict", action="store_true",
                    help="Exit 2 if any scenario regresses or misses hit@K")
     p.add_argument("--verbose", action="store_true",
                    help="Print per-scenario top-K details")
-    return p.parse_args()
+    args = p.parse_args()
+
+    # ── Fail-loud validation (W14-F3) ──────────────────────────────
+    # 1. --baseline: if explicitly given, the path MUST exist. The
+    #    pre-W14 behavior printed "BASELINE: ... missing" to stdout
+    #    then exited 0, hiding CI config drift the same way that
+    #    bit run_eval --diff (fixed in W11-F5).
+    if args.baseline is not None:
+        baseline_resolved = Path(args.baseline).expanduser().resolve()
+        if not baseline_resolved.exists():
+            p.error(
+                f"--baseline path does not exist: {baseline_resolved}"
+            )
+
+    # 2. --kb: if explicitly given AND mode is hybrid, warn to stderr.
+    #    The hybrid path resolves the KB via scripts.rag.config and
+    #    ignores --kb entirely; pre-W14 we silently accepted the flag
+    #    so users thought they were targeting a custom KB but were
+    #    actually hitting the prebuilt index.
+    #    Also: if --kb path is missing, fail loud regardless of mode
+    #    (this catches the W13-A0 universal fail-loud probe).
+    if args.kb is not None:
+        kb_resolved = Path(args.kb).expanduser().resolve()
+        if not kb_resolved.exists():
+            p.error(f"--kb path does not exist: {kb_resolved}")
+        if args.mode == "hybrid":
+            print(
+                "WARN: --kb is ignored in --mode hybrid (uses prebuilt "
+                "dense index resolved via scripts.rag.config). Use "
+                "--mode bm25_only to load a custom KB.",
+                file=_sys.stderr,
+            )
+    # Materialize the default after validation so downstream code
+    # always sees a real path.
+    if args.kb is None:
+        args.kb = DEFAULT_KB
+
+    return args
 
 
 def _retrieve_bm25_only(
@@ -388,24 +433,23 @@ def main() -> int:
         out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
 
     # Optional: regression check against baseline.
+    # Path existence is enforced in parse_args() (W14-F3) so by the
+    # time we get here, args.baseline is either None or a real file.
     regressions: List[Dict[str, Any]] = []
     if args.baseline:
         baseline_path = Path(args.baseline).expanduser().resolve()
-        if baseline_path.exists():
-            try:
-                baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
-                regressions = check_regression(report, baseline)
-                if regressions:
-                    print("\nREGRESSIONS vs baseline:")
-                    for r in regressions:
-                        print(f"  [{r['scenario_id']}] {r['metric']}: "
-                              f"{r['baseline']} → {r['current']}")
-            except Exception as exc:
-                print(f"ERROR: baseline unreadable: {exc}",
-                      file=_sys.stderr)
-                return 2
-        else:
-            print(f"\nBASELINE: {baseline_path} missing — nothing to compare.")
+        try:
+            baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
+            regressions = check_regression(report, baseline)
+            if regressions:
+                print("\nREGRESSIONS vs baseline:")
+                for r in regressions:
+                    print(f"  [{r['scenario_id']}] {r['metric']}: "
+                          f"{r['baseline']} → {r['current']}")
+        except Exception as exc:
+            print(f"ERROR: baseline unreadable: {exc}",
+                  file=_sys.stderr)
+            return 2
 
     if args.strict:
         # Fail-closed conditions: any regression, or any scenario missing

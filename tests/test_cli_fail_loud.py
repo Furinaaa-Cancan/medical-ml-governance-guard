@@ -145,17 +145,11 @@ SILENT_FAILURE_WHITELIST: dict[str, str] = {
 # sketches. W14 must remove these entries in the same commit that fixes
 # the underlying scripts.
 KNOWN_BUG_PENDING_FIX: dict[str, str] = {
-    "harness.py::--baseline": (
-        "W13-A0 found: harness silently skips regression check when "
-        "--baseline points at missing file (same shape as W11-F5 run_eval "
-        "bug). W14 to add --baseline-required mirror of --diff-required."
-    ),
-    "harness.py::--kb": (
-        "W13-A0 found: --kb silently ignored in hybrid mode (default). "
-        "Help text mentions 'bm25_only mode only' but flag is consumed "
-        "without warning in hybrid. W14 to decide: argparse-reject "
-        "outside bm25_only, or validate path regardless of mode."
-    ),
+    # harness.py::--baseline and harness.py::--kb fixed in W14-F3:
+    # --baseline now argparse-errors on missing path (mirrors W11-F5);
+    # --kb now (a) argparse-errors on missing path regardless of mode
+    # and (b) warns to stderr when given with --mode hybrid where the
+    # flag is a no-op. Entries removed so the universal probe enforces.
 }
 
 
