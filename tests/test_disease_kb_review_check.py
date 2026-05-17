@@ -115,16 +115,27 @@ class TestReviewStatus:
         assert out["summary"]["missing_provenance_count"] == 1
 
     def test_alternate_approved_statuses_recognised(self, tmp_path: Path):
+        # W11-F2: approval requires status ∈ APPROVED_STATUSES AND
+        # non-empty reviewer AND non-empty last_reviewed (source alone no
+        # longer counts). Each fixture below carries that reviewer-binding
+        # triple alongside one of the recognised approved statuses.
         kb = tmp_path / "kb.json"
         _write_kb(kb, {
             "d1": {"name": "D1",
                    "provenance": {"source": "llm_compiled",
-                                  "clinician_review_status": "approved"}},
+                                  "clinician_review_status": "approved",
+                                  "reviewer": "Dr. A",
+                                  "last_reviewed": "2026-01-15"}},
             "d2": {"name": "D2",
-                   "provenance": {"source": "signed_off"}},
+                   "provenance": {"source": "signed_off",
+                                  "clinician_review_status": "signed_off",
+                                  "reviewer": "Dr. B",
+                                  "last_reviewed": "2026-02-20"}},
             "d3": {"name": "D3",
                    "provenance": {"source": "llm_compiled",
-                                  "clinician_review_status": "specialist_reviewed"}},
+                                  "clinician_review_status": "specialist_reviewed",
+                                  "reviewer": "Dr. C",
+                                  "last_reviewed": "2026-03-10"}},
         })
         r = _run_check(kb, tmp_path / "r.json", strict=True)
         assert r.returncode == 0
@@ -155,10 +166,15 @@ class TestReviewStatus:
         assert r.returncode == 2
 
     def test_mixed_state_reports_counts(self, tmp_path: Path):
+        # See note on alternate_approved_statuses: a clean "good" entry now
+        # needs the reviewer-binding triple, not source alone.
         kb = tmp_path / "kb.json"
         _write_kb(kb, {
             "good": {"name": "G",
-                     "provenance": {"source": "clinician_reviewed"}},
+                     "provenance": {"source": "clinician_reviewed",
+                                    "clinician_review_status": "approved",
+                                    "reviewer": "Dr. G",
+                                    "last_reviewed": "2026-04-01"}},
             "bad": {"name": "B",
                     "provenance": {"source": "llm_compiled",
                                    "clinician_review_status": "pending"}},
