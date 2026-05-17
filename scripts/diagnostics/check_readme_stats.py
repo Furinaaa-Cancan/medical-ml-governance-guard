@@ -414,6 +414,175 @@ _CLAIMS: List[Dict[str, object]] = [
 ]
 
 
+# ── Doc-map drift detection ────────────────────────────────────────
+# W12-A1/A2 added hand-maintained "📂 文档地图" / "Documentation Map"
+# tables to both READMEs. They're already stale (CN omits the 5
+# docs/reference/*.md files A2 added in EN). Without a check, every
+# new docs/FOO.md silently fails to appear in the table.
+#
+# We extract doc paths listed in the table, compare with `find docs/
+# -name '*.md'`, and flag both stale entries (in table, not on disk)
+# and orphan files (on disk, not in table). The diagnostics/ dir is
+# excluded — W9-D1 froze 30 hand-copied diagnoses as archive, not
+# "current docs to advertise".
+
+# Doc-map section headers — first match wins. Use a list so we can
+# scan for either CN or EN heading without coupling to language.
+_DOC_MAP_HEADERS: List[str] = ["## 📂 文档地图", "## Documentation Map"]
+
+# Paths under docs/ we never expect in the table. diagnostics/ is the
+# frozen W9-D1 archive (30 entries). AppleDouble dotfiles ("._foo.md")
+# are macOS metadata, never real docs.
+_DOC_MAP_EXCLUDE_PREFIXES: Tuple[str, ...] = ("docs/diagnostics/",)
+
+
+def _extract_doc_map_paths(readme_text: str) -> Optional[set]:
+    """Extract docs/*.md paths from a README's documentation-map table.
+
+    Returns None when the section is missing entirely (so the caller
+    can distinguish "no table" from "empty table"). Otherwise returns
+    the set of unique docs/ paths cited in any of these forms:
+      - `docs/foo.md` (backtick-quoted)
+      - [docs/foo.md](docs/foo.md) (md link with path-as-text)
+      - [some text](docs/foo.md) (md link with different text)
+      - bare docs/foo.md or directory references like docs/adr/
+    Directory references (trailing /) are kept as-is — the caller
+    decides whether to expand them.
+    """
+    # Locate the section. Stop at the next H2 (lines starting "## ")
+    # so we don't slurp the rest of the README.
+    header_idx = -1
+    for header in _DOC_MAP_HEADERS:
+        idx = readme_text.find(header)
+        if idx != -1:
+            header_idx = idx
+            break
+    if header_idx == -1:
+        return None
+
+    # Find next top-level section to bound extraction.
+    tail = readme_text[header_idx + 1:]
+    next_h2 = re.search(r"\n## ", tail)
+    section = tail[: next_h2.start()] if next_h2 else tail
+
+    paths: set = set()
+    # Match any docs/...md or docs/.../ reference. Covers backtick-
+    # quoted, [..](..) md links, and bare paths. Strip trailing
+    # punctuation that markdown link closers leave behind.
+    for m in re.finditer(r"docs/[A-Za-z0-9_./-]+", section):
+        path = m.group(0).rstrip(").,;:")
+        # Reject obviously-truncated matches (no extension and no
+        # trailing slash) — defends against future link-text changes
+        # that include the prefix without a real path.
+        last = path.rsplit("/", 1)[-1]
+        if not (path.endswith("/") or "." in last):
+            continue
+        paths.add(path)
+    return paths
+
+
+def _find_docs_on_disk(root: Path) -> set:
+    """Return docs/*.md paths (relative to root, POSIX form) on disk.
+
+    Excludes AppleDouble dotfiles (._foo.md), and any prefix in
+    _DOC_MAP_EXCLUDE_PREFIXES (frozen archive subdirs). Forward-slash
+    form matches README link convention so set ops compare cleanly.
+    """
+    docs_dir = root / "docs"
+    if not docs_dir.is_dir():
+        return set()
+    found: set = set()
+    for p in docs_dir.rglob("*.md"):
+        # Skip macOS AppleDouble dotfiles (._foo.md) AND underscore-
+        # prefixed source files (_gates_md_preamble.md is the static
+        # header that generate_gates_md.py prepends — it's input to a
+        # codegen, not a doc to advertise).
+        if p.name.startswith(".") or p.name.startswith("_"):
+            continue
+        rel = p.relative_to(root).as_posix()
+        if any(rel.startswith(pref) for pref in _DOC_MAP_EXCLUDE_PREFIXES):
+            continue
+        found.add(rel)
+    return found
+
+
+def _check_docs_map_drift(readme_path: Path, root: Path) -> List[str]:
+    """Compare the readme's doc-map table against actual docs/ files.
+
+    Returns a list of human-readable error strings (empty == clean).
+    Two failure modes:
+      - stale_in_table: README cites docs/foo.md but file is missing
+      - missing_from_table: docs/foo.md exists but isn't in the table
+
+    Directory references (e.g. `docs/adr/`) cover every file under
+    that prefix — orphans there don't fire. An explicitly-cited
+    directory that's empty or absent still gets flagged as stale,
+    since the table claim ("ADRs live here") becomes meaningless.
+    """
+    where = "CN" if readme_path.name == "README.md" else "EN"
+    if not readme_path.exists():
+        return [f"[{where}] doc-map: {readme_path} does not exist"]
+
+    text = readme_path.read_text(encoding="utf-8")
+    cited = _extract_doc_map_paths(text)
+    if cited is None:
+        return [
+            f"[{where}] doc-map: section header '## 📂 文档地图' / "
+            f"'## Documentation Map' not found in {readme_path.name}. "
+            f"The table may have been removed or renamed — restore it "
+            f"or update _DOC_MAP_HEADERS in check_readme_stats.py."
+        ]
+
+    on_disk = _find_docs_on_disk(root)
+    cited_files = {p for p in cited if not p.endswith("/")}
+    cited_dirs = {p for p in cited if p.endswith("/")}
+
+    # stale_in_table: cited file path doesn't exist on disk.
+    stale_in_table: List[str] = []
+    for path in sorted(cited_files):
+        if not (root / path).is_file():
+            stale_in_table.append(path)
+    # Cited dirs: flag if directory itself is missing or contains no
+    # non-dotfile *.md (claim "ADRs live here" no longer meaningful).
+    for path in sorted(cited_dirs):
+        full = root / path
+        if not full.is_dir():
+            stale_in_table.append(path)
+            continue
+        any_md = any(
+            not p.name.startswith(".") for p in full.rglob("*.md")
+        )
+        if not any_md:
+            stale_in_table.append(path)
+
+    # missing_from_table: file on disk not covered by explicit cite
+    # or by a cited directory prefix.
+    def _covered_by_dir(rel: str) -> bool:
+        return any(rel.startswith(d) for d in cited_dirs)
+
+    missing_from_table = sorted(
+        p for p in on_disk
+        if p not in cited_files and not _covered_by_dir(p)
+    )
+
+    errors: List[str] = []
+    if stale_in_table:
+        errors.append(
+            f"[{where}] doc-map stale_in_table: README lists "
+            f"{stale_in_table} but file/dir is missing. Remove the row "
+            f"from the '📂 文档地图' / 'Documentation Map' table."
+        )
+    if missing_from_table:
+        errors.append(
+            f"[{where}] doc-map missing_from_table: docs/ has "
+            f"{missing_from_table} on disk but they're not in the "
+            f"'📂 文档地图' / 'Documentation Map' table. Add a row per "
+            f"file (or exclude via _DOC_MAP_EXCLUDE_PREFIXES if "
+            f"intentionally archived)."
+        )
+    return errors
+
+
 def check() -> Tuple[int, List[str]]:
     """Return (exit_code, error_messages)."""
     errors: List[str] = []
@@ -487,6 +656,12 @@ def check() -> Tuple[int, List[str]]:
                     f"PARITY: CN {key}={cn_values[key]} but "
                     f"EN {key}={en_values[key]} — the two READMEs disagree"
                 )
+
+    # Doc-map drift (W13-G2): both READMEs ship hand-maintained tables
+    # of docs/*.md files. Flag stale entries + orphan files so the
+    # table actually reflects reality.
+    errors.extend(_check_docs_map_drift(CN, ROOT))
+    errors.extend(_check_docs_map_drift(EN, ROOT))
 
     return (2 if errors else 0), errors
 
