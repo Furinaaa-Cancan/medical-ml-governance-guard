@@ -1,6 +1,10 @@
 # MLGG-Bench v1.0
 
-> 📌 **A newer PATCH is available.** [MLGG-Bench v1.0.1](../MLGG-Bench-v1.0.1/) ships 59 CP-label refinements that lift `cp_hit@5` from 0.794 → 0.821 with no other deltas. Use v1.0.1 for any new evaluation. v1.0 is preserved for reproducibility of the original release numbers.
+> 📌 **Newer PATCHes available.** Use [v1.0.2](../MLGG-Bench-v1.0.2/) for any new evaluation.
+> - [v1.0.1](../MLGG-Bench-v1.0.1/): 59 indist CP-label refinements → `cp_hit@5` 0.794 → 0.821 (+0.027)
+> - [v1.0.2](../MLGG-Bench-v1.0.2/): + 32 OOD CP-label refinements → `cp_hit@5` 0.821 → **0.856** (+0.035), total +0.062
+>
+> v1.0 is preserved for reproducibility of the original release numbers.
 >
 > 📌 **v1.1 work-in-progress** lives at [`v1.1_proposed/`](./v1.1_proposed/) — 30 TRIPOD+AI / PROBAST+AI / STRATOS KB meta-entries (verified to lift `ood_03` hit@5 by +0.20), plus a compound-query decompose prototype that returned a documented NEGATIVE result. Both pending clinical-methodologist review per project disease-KB provenance policy.
 >
