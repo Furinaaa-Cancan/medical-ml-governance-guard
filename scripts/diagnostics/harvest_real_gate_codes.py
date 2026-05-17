@@ -13,6 +13,7 @@ Both shapes contribute to the same per-gate Counter.
 """
 from __future__ import annotations
 
+import argparse
 import json
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -66,6 +67,12 @@ def _walk(
 
 
 def main() -> None:
+    # argparse first so --help exits cleanly (satisfies
+    # tests/test_stress_gate_cli.py::TestAllScriptsHelp contract).
+    argparse.ArgumentParser(
+        prog="harvest_real_gate_codes.py",
+        description=__doc__.split("\n\n")[0] if __doc__ else None,
+    ).parse_args()
     repo = Path(__file__).resolve().parents[2]
     out = harvest(repo / "experiments")
     out_path = repo / "references" / "retrieval_eval" / "real_gate_codes_harvest.json"
