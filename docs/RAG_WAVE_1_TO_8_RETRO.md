@@ -330,3 +330,5 @@ Question #3) and needs re-validation against `hit@K` before any
 re-weighting. (3) W11-F1 fixed a pre-push ruff scope misconfig — the
 "166 ruff red" alarm referenced in some Wave-8/9 hand-off notes was
 a phantom.
+
+> **Continuation**: see [`RAG_WAVE_9_TO_12_RETRO.md`](RAG_WAVE_9_TO_12_RETRO.md) for waves 9-12.
