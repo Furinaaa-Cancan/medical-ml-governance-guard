@@ -96,6 +96,14 @@ Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部
 | `scan-diabetes` | 糖尿病 feasibility 扫描（跨 target mode 和行上限） |
 | `adversarial` | Adversarial fail-closed gate 场景 |
 
+**RAG & 知识库 / 元工具**
+
+| 子命令 | 用途 |
+|---|---|
+| `rag` | 在 817 条 reviewer KB 上做 hybrid 检索（dense + BM25 + MMR）。W18-D1 实测 `hybrid_all` > BM25-only；`DENSE_WEIGHT=0.10` 默认（W13-P0 起） |
+| `validate` | Config schema 校验（`configs/*.yaml` / `request.json`），CI 前快检 |
+| `flow` | 显示 28 子命令的推荐执行顺序（内部 helper，等价 `--help` 加工版） |
+
 ---
 
 **Script-level 工具（非 `mlgg` 子命令，直接 python3 调用）**
@@ -288,3 +296,15 @@ MLGG 是**训练管线治理工具**，不是全栈 publication readiness。下�
 
 `references/protocols/` 下:`review-protocol.md`、`phase-1.md` ~ `phase-9.md`、`audit-mode.md`。
 疾病/错误/文献知识库:`references/methodology/disease-definition-knowledge-base.json`、`references/operations/error-knowledge-base.json`、`references/methodology/literature-knowledge-base.json`。
+
+---
+
+## Recent state（W11-W18 备忘，agent 必读）
+
+SKILL.md 是 pre-Wave-11 快照；下列状态变更未反映在上面分组表里，引用前请确认:
+
+- **RAG 默认权重**: `DENSE_WEIGHT=0.10` 自 W13-P0 起生效，hybrid_all 路径在 BM25 上提分稳定。原始 ablation 数据见 `docs/diagnostics/W18_D1_post_p0_ablation.md` 与 `docs/RAG_WAVE_9_TO_12_RETRO.md`。
+- **Disease KB provenance**: `references/methodology/disease-definition-knowledge-base.json` 的 11 条 bundled entries 为 LLM 生成、**pending clinical review**——publication-grade 使用前必须查 guideline。审计原文 `docs/diagnostics/W8W10_disease_kb_provenance_audit.md` + `W17_C2_disease_kb_audit.md`。
+- **W18-D3 MMR silver-bullet bug**: rerank 阶段 MMR diversity 失效，正由 W20-F1 修复中；现有 RAG 结果对临近重复段落容忍度偏高。详见 `docs/diagnostics/W18_D3_mmr_effect_audit.md`。
+- **Process & retro 上下文**: 跨波次债务清单 `docs/PROCESS_DEBT.md`，wave 9-12 总结 `docs/RAG_WAVE_9_TO_12_RETRO.md`，wave 1-8 总结 `docs/RAG_WAVE_1_TO_8_RETRO.md`。
+
