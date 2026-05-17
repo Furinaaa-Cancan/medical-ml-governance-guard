@@ -307,6 +307,46 @@ COMMANDS: Dict[str, Tuple[Path, str]] = {
     ),
 }
 INTERACTIVE_CORE_COMMANDS = ("init", "workflow", "train", "authority")
+
+# W28-S0: Two-product-line grouping (Mode A vs Mode B/C per SKILL.md Audit
+# Routing). Purely organizational — every command still resolves through
+# COMMANDS, so nothing about dispatch / imports / contracts changes. Used
+# only to render a grouped --help and to drive SKILL.md / README sections.
+#
+# Rule of thumb for what belongs where:
+#   - "governance": needs YOUR training pipeline (evidence/*.json, configs/)
+#   - "review":     audits SOMEONE ELSE'S code/paper, no evidence required
+#   - "benchmark":  internal release-gate suites (not user-facing)
+#   - "ops":        meta / wizard / dispatch helpers
+#
+# When adding a new subcommand to COMMANDS, also add its name to ONE list
+# below. The smoke test test_command_groups_cover_all_commands enforces
+# parity (see tests/test_mlgg_command_groups.py).
+COMMAND_GROUPS: Dict[str, Tuple[str, ...]] = {
+    "governance": (
+        "onboarding", "init", "split", "doctor", "preflight",
+        "workflow", "strict", "semantic-audit", "summary", "train",
+        "fairness", "sample-size", "init-guide", "record-session",
+    ),
+    "review": (
+        "audit", "audit-report", "audit-metrics", "batch-review",
+        "export-review-prompt", "lint", "rag",
+    ),
+    "benchmark": (
+        "authority", "benchmark-suite", "authority-release",
+        "authority-research-heart", "scan-diabetes", "adversarial",
+    ),
+    "ops": (
+        "interactive", "play",
+    ),
+}
+
+COMMAND_GROUP_DESCRIPTIONS: Dict[str, str] = {
+    "governance": "Mode A — runs against YOUR training pipeline (needs evidence/*.json, configs/)",
+    "review":     "Mode B/C — audits SOMEONE ELSE'S code/paper, no instrumented evidence required",
+    "benchmark":  "Internal release-gate suites (run before tagging a release)",
+    "ops":        "Wizards / launchers / dispatch helpers",
+}
 COMMAND_PRESETS: Dict[str, Tuple[str, ...]] = {
     "strict": ("--strict",),
     "authority-release": (
@@ -441,12 +481,39 @@ def emit_fail(
     return 2
 
 
+def _render_grouped_command_help() -> str:
+    """W28-S0: format the available-commands block by COMMAND_GROUPS.
+
+    Falls back gracefully: any command in COMMANDS not yet placed in a
+    group is appended under an explicit "Other" header rather than
+    silently dropped. This keeps --help correct even mid-refactor.
+    """
+    lines: list[str] = []
+    placed: set[str] = set()
+    for group_name, members in COMMAND_GROUPS.items():
+        group_desc = COMMAND_GROUP_DESCRIPTIONS.get(group_name, "")
+        lines.append(f"  [{group_name}] — {group_desc}")
+        for name in members:
+            spec = COMMANDS.get(name)
+            if spec is None:
+                continue
+            lines.append(f"    - {name}: {spec[1]}")
+            placed.add(name)
+        lines.append("")
+    ungrouped = sorted(set(COMMANDS) - placed)
+    if ungrouped:
+        lines.append("  [other] — not yet assigned to a group (please update COMMAND_GROUPS):")
+        for name in ungrouped:
+            lines.append(f"    - {name}: {COMMANDS[name][1]}")
+    return "\n".join(lines).rstrip()
+
+
 def build_parser() -> argparse.ArgumentParser:
-    command_help = "\n".join([f"  - {name}: {desc}" for name, (_, desc) in sorted(COMMANDS.items())])
+    command_help = _render_grouped_command_help()
     parser = argparse.ArgumentParser(
         description=(
             "ml-governance-guard unified CLI.\n\n"
-            "Available commands:\n"
+            "Available commands (grouped by Mode A vs B/C per SKILL.md Audit Routing):\n"
             f"{command_help}\n\n"
             "Examples:\n"
             "  python3 scripts/mlgg.py onboarding --project-root /tmp/mlgg_demo --mode guided --yes\n"

@@ -45,7 +45,11 @@ MLGG 对外暴露 3 条稳定入口，其他所有功能都是它们的子命令
 
 ## Quick Dispatch
 
-Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部 28 个子命令的分组索引（`mlgg flow` 显示推荐顺序，`mlgg --help` 显示全表）。
+Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部 28 子命令的分组索引（按 W28-S0 `COMMAND_GROUPS` 与 Audit Routing Mode A/B/C 对齐；`mlgg --help` 显示同一分组的全表）。
+
+### `[governance]` — Mode A（你自己的训练流水）
+
+需要 `evidence/*.json` + `configs/request.json`。
 
 **主流程（90% 场景）**
 
@@ -66,13 +70,6 @@ Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部
 | `split` | 把单个 CSV 拆成 train/valid/test（患者级隔离） |
 | `semantic-audit` | LLM 对特征列做语义泄漏检测 |
 
-**交互入口**
-
-| 子命令 | 用途 |
-|---|---|
-| `interactive` | 向导式 init/workflow/train/authority |
-| `play` | Pixel-art 菜单式启动器 |
-
 **环境 / 元数据**
 
 | 子命令 | 用途 |
@@ -88,18 +85,27 @@ Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部
 | `fairness` | Subgroup equalized odds / disparate impact |
 | `sample-size` | EPV / shrinkage / Riley criteria |
 
-**审计外部项目**
+---
 
-| 子命令 | 用途 |
-|---|---|
-| `audit` | 10 维定量打分（100 分制）审计外部 ML 项目 |
-| `audit-report` | 综合审计报告（TRIPOD+AI / PROBAST+AI + error KB + 文献引用） |
-| `audit-metrics` | 只从 metrics JSON 做 publication-readiness 快检（无需数据文件） |
-| `batch-review` | 批量对 N 个项目做期刊标准审查 + 对比矩阵 |
-| `export-review-prompt` | 导出 MLGG 评审规则为便携 LLM prompt（可粘到任意 LLM） |
-| `lint` | 等价 `mlgg-lint`（AST 代码泄漏检测，零依赖） |
+### `[review]` — Mode B/C（外部 code/paper 审查，**不需要 evidence**）
 
-**Benchmark（内部用，release 前跑）**
+无 instrumented evidence 即可跑。L2 33 gate 在这条线上**结构性跳过**（见 §Audit Routing）。
+
+| 子命令 | 用途 | Mode |
+|---|---|---|
+| `audit` | 10 维定量打分（100 分制）审计外部 ML 项目 | B |
+| `audit-report` | 综合审计报告（TRIPOD+AI / PROBAST+AI + error KB + 文献引用） | B |
+| `audit-metrics` | 只从 metrics JSON 做 publication-readiness 快检（无需数据文件） | B |
+| `batch-review` | 批量对 N 个项目做期刊标准审查 + 对比矩阵 | B |
+| `export-review-prompt` | 导出 MLGG 评审规则为便携 LLM prompt（可粘到任意 LLM） | C |
+| `lint` | 等价 `mlgg-lint`（AST 代码泄漏检测，零依赖） | B |
+| `rag` | 在 817 条 reviewer KB 上做 hybrid 检索（dense + BM25 + MMR）。W18-D1 实测 `hybrid_all` > BM25-only；`DENSE_WEIGHT=0.10` 默认（W13-P0 起）。W26-R1 `adaptive=True` + W27-R1 `dedup_by_code=True` 是 Mode B/C 推荐组合 | B / C |
+
+> W28-S0 grouping rationale: 这 7 个子命令构成"对别人的 code/paper 评审"产品线，与 `[governance]` 的"对你自己的流水做合规"目标 / GT 来源 / 度量体系都不同（详见 `docs/PRODUCTS.md`）。
+
+---
+
+### `[benchmark]`（内部用，release 前跑）
 
 | 子命令 | 用途 |
 |---|---|
@@ -110,13 +116,16 @@ Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部
 | `scan-diabetes` | 糖尿病 feasibility 扫描（跨 target mode 和行上限） |
 | `adversarial` | Adversarial fail-closed gate 场景 |
 
-**RAG & 知识库 / 元工具**
+---
+
+### `[ops]` — 元工具 / 向导
 
 | 子命令 | 用途 |
 |---|---|
-| `rag` | 在 817 条 reviewer KB 上做 hybrid 检索（dense + BM25 + MMR）。W18-D1 实测 `hybrid_all` > BM25-only；`DENSE_WEIGHT=0.10` 默认（W13-P0 起） |
-| `validate` | Config schema 校验（`configs/*.yaml` / `request.json`），CI 前快检 |
-| `flow` | 显示 28 子命令的推荐执行顺序（内部 helper，等价 `--help` 加工版） |
+| `interactive` | 向导式 init/workflow/train/authority |
+| `play` | Pixel-art 菜单式启动器 |
+| `validate` | Config schema 校验（`configs/*.yaml` / `request.json`），CI 前快检（dispatcher-only，不在 COMMANDS 表） |
+| `flow` | 显示 28 子命令的推荐执行顺序（dispatcher-only） |
 
 ---
 

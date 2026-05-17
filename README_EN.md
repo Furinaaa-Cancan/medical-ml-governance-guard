@@ -94,7 +94,7 @@ Both end up running the **same Python gate**. The Skill saves keystrokes, not co
 
 ### Engineering guarantees (not just aspirations)
 
-- **SKILL.md ≤ 500 lines**: currently 324 lines, within Claude Code's official guidance; longer content lives under `docs/` or inside gate docstrings.
+- **SKILL.md ≤ 500 lines**: currently 333 lines, within Claude Code's official guidance; longer content lives under `docs/` or inside gate docstrings.
 - **Pre-commit doc-number check**: `check_docs_consistency.py` + `check_readme_stats.py` catch drift across `SKILL.md ↔ README ↔ reviewer.yaml`; **PRs fail before merge**, not after.
 - **Thresholds are code, not prompts**: every pass/fail threshold, validator rule, and detection algorithm is a Python constant + function. Gates do not consult markdown for verdict logic.
 
@@ -1252,7 +1252,7 @@ medical-ml-governance-guard/
 │       ├── kb_hygiene_check.py           #   KB provenance / citation / freshness check
 │       └── ...                           #   gate visualization, threshold analysis, policy generator
 │
-├── tests/                  (195)         # ─── Tests (~35K lines) ───
+├── tests/                  (196)         # ─── Tests (~35K lines) ───
 │   ├── conftest.py                       #   Shared fixtures (tmp_path, path injection, test data)
 │   ├── test_*_gate.py      (33)          #   One test file per gate
 │   ├── test_*_e2e.py       (8)           #   End-to-end flow tests (onboarding, workflow, train, split, rag)
@@ -1549,6 +1549,7 @@ The AI will automatically:
 | [`docs/RAG_WAVE_9_TO_12_RETRO.md`](docs/RAG_WAVE_9_TO_12_RETRO.md) | RAG Wave 9-12 retrospective (dilutor discovery + fix path) | Historians |
 | [`docs/PROCESS_DEBT.md`](docs/PROCESS_DEBT.md) | Project-level process debt (PD-01..PD-04: stash debt / sibling fix-forward / virtual-wave / ghost regression) | Orchestrator / Maintainers |
 | [`docs/BENCHMARK_OVERVIEW.md`](docs/BENCHMARK_OVERVIEW.md) | Two-benchmark map: MLGG-Bench (RAG component, 305 scenarios) vs NCPR-Bench (end-to-end system, 30 papers) | Tuners / Evaluators |
+| [`docs/PRODUCTS.md`](docs/PRODUCTS.md) | Two product lines (governance Mode A vs review Mode B/C): boundary, CLI groups, benchmark / GT / drift contrasts (W28-S0) | Decision-makers / New contributors |
 | [`docs/adr/`](docs/adr/) | Architecture Decision Records (ADR 0001: `_mmr_breakdown` SHIP decision) | Designers |
 | [`docs/reference/GATES.md`](docs/reference/GATES.md) | 33-gate complete reference | International reference |
 | [`docs/reference/LINT_RULES.md`](docs/reference/LINT_RULES.md) | R001-R028 lint reference | International reference |

@@ -95,7 +95,7 @@
 
 ### 工程保证（而不只是愿景）
 
-- **SKILL.md ≤ 500 行**：当前 324 行，符合 Claude Code 官方建议；超长内容拆到 `docs/` 或 gate docstring。
+- **SKILL.md ≤ 500 行**：当前 333 行，符合 Claude Code 官方建议；超长内容拆到 `docs/` 或 gate docstring。
 - **文档数字 pre-commit 校验**：`check_docs_consistency.py` + `check_readme_stats.py` 抓 `SKILL.md ↔ README ↔ reviewer.yaml` 的 parity 和 KB freshness drift，**PR 会被 fail 而不是 merge 后才发现**。
 - **阈值是代码不是 prompt**：所有 pass/fail 阈值、validator 规则、检测算法都是 Python 常量 + 函数，gate 不从 markdown 读判定逻辑。
 
@@ -1563,7 +1563,7 @@ medical-ml-governance-guard/
 │       └── run_endurance_test.py         #   767  6 小时耐久性测试
 │          └──────────────────────────────────────────────────────────────────┘
 │
-├── tests/                  (195)         # ─── 测试 (~35K lines) ───
+├── tests/                  (196)         # ─── 测试 (~35K lines) ───
 │   ├── conftest.py                       #   统一 fixture (tmp_path, 路径注入, 共享数据)
 │   ├── test_*_gate.py      (33)          #   每个 gate 对应一个测试文件
 │   ├── test_*_e2e.py       (8)           #   端到端流程测试 (onboarding, workflow, train, split, rag)
@@ -1912,6 +1912,7 @@ AI 会自动：
 | [`docs/RAG_WAVE_9_TO_12_RETRO.md`](docs/RAG_WAVE_9_TO_12_RETRO.md) | RAG Wave 9-12 复盘（dilutor 发现 + 修复路线） | history reader |
 | [`docs/PROCESS_DEBT.md`](docs/PROCESS_DEBT.md) | 项目级流程债务（PD-01..PD-04，stash debt / sibling fix-forward / virtual-wave / ghost regression） | orchestrator / maintainer |
 | [`docs/BENCHMARK_OVERVIEW.md`](docs/BENCHMARK_OVERVIEW.md) | 两个 benchmark 关系：MLGG-Bench (RAG 组件，305 scenarios) vs NCPR-Bench (端到端系统，30 paper) | 调参 / 评测 |
+| [`docs/PRODUCTS.md`](docs/PRODUCTS.md) | 两条产品线（governance Mode A vs review Mode B/C）的边界、CLI 分组、benchmark / GT / drift 差异 (W28-S0) | 决策者 / 新贡献者 |
 | `docs/adr/` | Architecture Decision Records（ADR 0001: `_mmr_breakdown` consumer） | designer |
 | [`docs/reference/GATES.md`](docs/reference/GATES.md) | 33 道门控完整参考（CLI 契约 + failure codes + DAG 依赖） | 国际 reference |
 | [`docs/reference/LINT_RULES.md`](docs/reference/LINT_RULES.md) | R001-R028 lint 规则参考 | 国际 reference |
