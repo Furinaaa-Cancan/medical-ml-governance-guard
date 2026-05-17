@@ -215,32 +215,9 @@ escape this trap; the dense-weight demotion in W13-P0 needs
 re-validation against `hit@K` on the expanded set before being called
 final.
 
-### Anti-pattern 10: stash debt
+### #10 (relocated)
 
-W7-W12 sessions accumulated 8 dead stashes (counted at W13-D0 start):
-
-```
-stash@{0}: On main: W13-C1 stash before rebase
-stash@{1}: On main: W13-T0 pre-rebase stash
-stash@{2}: On main: W13-G1 stash unrelated rag config
-stash@{3}: On main: W13-P0 stash unrelated kb_provenance work
-stash@{4}: On main: W11-I2 stash 2: sibling docs + my I2 work
-stash@{5}: On main: w11-m1-temp-docs
-stash@{6}: On main: W11-I2 stash: sibling F2/F3/F4 in-progress work
-stash@{7}: On main: W11-F4 stash unrelated pre-push hook change
-stash@{8}: On main: W7P9-temp: other session's RAG work in progress
-```
-
-Each session stashed sibling work to commit cleanly (the
-race-recovery move from W9-D1's anti-pattern #5), restored what it
-needed, then "restored" the rest — but did not drop the stash. After
-five waves the stash list became a graveyard of "I think this was
-applied? maybe?" entries that no one wanted to delete because no one
-remembered what was in them. **Lesson**: race-proof commit protocol
-must include a stash-drop step. ADR-0002 (W13+) will codify this:
-every stash created during a parallel-agent session gets a `git
-stash drop` after `git stash pop`, or an explicit rename
-documenting why it is being kept.
+See PROCESS_DEBT.md PD-01. Cross-cutting project debt, not a RAG-layer pattern.
 
 ## Meta-conclusion: the "optimizing wrong target" pattern
 
