@@ -176,6 +176,10 @@ def _build_cmd(tmp_path, paths, extra_args=None):
     cmd = [
         sys.executable, str(SCRIPTS_DIR / "gates/publication_gate.py"),
         "--report", str(tmp_path / "report.json"),
+        # Disease-KB fail-closed enforcement (W9-B1) is exercised in
+        # tests/test_disease_kb_fail_closed.py. Tests in this file pre-date
+        # that feature and don't seed an approved KB, so they opt out.
+        "--skip-disease-kb-check",
     ]
     for arg_name, comp_name in zip(COMPONENT_ARGS, COMPONENT_NAMES):
         cmd.extend([arg_name, str(paths[comp_name])])
@@ -402,6 +406,10 @@ def _build_argv(tmp_path, paths, strict=False):
     for arg_name, comp_name in zip(COMPONENT_ARGS, COMPONENT_NAMES):
         argv.extend([arg_name, str(paths[comp_name])])
     argv.extend(["--report", str(tmp_path / "rpt.json")])
+    # W9-B1: disease-KB enforcement is covered by test_disease_kb_fail_closed.py.
+    # These pre-existing tests opt out so they continue to exercise their
+    # original component-status assertions.
+    argv.append("--skip-disease-kb-check")
     if strict:
         argv.append("--strict")
     return argv
@@ -467,6 +475,8 @@ class TestPublicationGateMain:
         argv = ["pub"]
         for arg_name, comp_name in zip(COMPONENT_ARGS, COMPONENT_NAMES):
             argv.extend([arg_name, str(paths[comp_name])])
+        # W9-B1: opt out of disease-KB enforcement (see test_disease_kb_fail_closed.py).
+        argv.append("--skip-disease-kb-check")
         monkeypatch.setattr("sys.argv", argv)
         rc = pub_main()
         assert rc == 0

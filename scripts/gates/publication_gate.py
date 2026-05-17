@@ -6,11 +6,18 @@ Aggregate fail-closed publication gate for medical prediction evidence artifacts
 from __future__ import annotations
 
 import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__file__).resolve().parent.parent / "core"); _sys.path.insert(0, _CORE_DIR) if _CORE_DIR not in _sys.path else None  # noqa: E702
+_DIAG_DIR = str(_Path(__file__).resolve().parent.parent / "diagnostics"); _sys.path.insert(0, _DIAG_DIR) if _DIAG_DIR not in _sys.path else None  # noqa: E702
 
 import argparse
+import json
 import math
+import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+# Default disease KB path — repo-relative. Tests override via --disease-kb.
+_REPO_ROOT = _Path(__file__).resolve().parent.parent.parent
+DEFAULT_DISEASE_KB = _REPO_ROOT / "references" / "methodology" / "disease-definition-knowledge-base.json"
 
 from _gate_framework import (
     GateIssue,
@@ -24,6 +31,32 @@ from _gate_utils import add_issue, load_json_from_str as load_json, to_int as _s
 
 
 register_remediations({
+    "disease_kb_unreviewed": (
+        "One or more disease KB entries are LLM-compiled and not clinician-reviewed. "
+        "Publication-grade outputs MUST NOT consume unreviewed phenotype definitions "
+        "(W10 audit, 2026-05-17). Remediation: "
+        "(1) Run `python3 scripts/diagnostics/generate_disease_kb_review_sheets.py` "
+        "to render per-disease review sheets under evidence/disease_kb_review/. "
+        "(2) Have a clinician complete each sheet against the cited guideline. "
+        "(3) Update each entry's provenance.clinician_review_status to "
+        "'clinician_reviewed' (or 'specialist_reviewed' / 'approved' / 'signed_off'). "
+        "(4) Re-run the publication gate. "
+        "OVERRIDE (NOT RECOMMENDED for publication-grade): pass "
+        "--allow-unreviewed-disease-kb (or set MLGG_ALLOW_UNREVIEWED_DISEASE_KB=1) "
+        "to downgrade this failure to a warning. Mirrors `git push --no-verify`."
+    ),
+    "disease_kb_not_found": (
+        "Disease KB file not found at the path provided to --disease-kb "
+        "(default: references/methodology/disease-definition-knowledge-base.json). "
+        "Publication-grade enforcement requires a readable KB to verify clinician sign-off."
+    ),
+    "disease_kb_invalid_json": (
+        "Disease KB JSON could not be parsed. "
+        "Run a JSON linter on references/methodology/disease-definition-knowledge-base.json."
+    ),
+    "disease_kb_missing_diseases_block": (
+        "Disease KB has no 'diseases' object. Cannot verify clinician sign-off."
+    ),
     "missing_component_report": "A required gate report is missing. Run the full pipeline to generate all reports.",
     "component_status_fail": "A component gate reported failure. Fix the underlying issue before publication.",
     "component_strict_mode_off": "A component gate was not run in strict mode. Re-run with --strict.",
@@ -91,6 +124,35 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--shap-interpretability-report", default="", help="Path to SHAP interpretability gate report JSON (optional).")
     parser.add_argument("--report", help="Optional output publication gate report path.")
     parser.add_argument("--strict", action="store_true", help="Require strict-mode component reports.")
+    # ── Disease KB fail-closed enforcement (W9-B1, W10 finding) ───────────
+    # Publication-grade outputs MUST NOT consume unreviewed LLM-compiled
+    # phenotype definitions. Default: fail-closed. Override is explicit,
+    # mirrors `git push --no-verify` semantics.
+    parser.add_argument(
+        "--disease-kb",
+        default=str(DEFAULT_DISEASE_KB),
+        help="Path to disease-definition KB JSON (default: repo-bundled KB).",
+    )
+    parser.add_argument(
+        "--allow-unreviewed-disease-kb",
+        action="store_true",
+        default=False,
+        help=(
+            "OVERRIDE: downgrade unreviewed-disease-KB FAIL to a warning. "
+            "Required for any publication-grade run that relies on an LLM-compiled "
+            "KB without clinician sign-off. Also accepts env var "
+            "MLGG_ALLOW_UNREVIEWED_DISEASE_KB=1. NOT recommended."
+        ),
+    )
+    parser.add_argument(
+        "--skip-disease-kb-check",
+        action="store_true",
+        default=False,
+        help=(
+            "Skip the disease-KB clinician-review check entirely. Used by pipelines "
+            "where the KB is not referenced (e.g., synthetic-data demos)."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -309,8 +371,155 @@ def enforce_execution_attestation_publication_contract(
         )
 
 
+def enforce_disease_kb_clinically_reviewed(
+    kb_path: Optional[str],
+    failures: List[Dict[str, Any]],
+    warnings: List[Dict[str, Any]],
+    *,
+    allow_unreviewed: bool = False,
+    skip: bool = False,
+) -> Dict[str, Any]:
+    """Fail-closed check that every disease KB entry is clinician-reviewed.
+
+    Publication-grade outputs MUST NOT consume LLM-compiled phenotype
+    definitions without explicit clinician sign-off (W10 audit, 2026-05-17).
+
+    Behavior:
+        - skip=True: no-op, returns an empty summary dict.
+        - allow_unreviewed=True: unreviewed entries surface as warnings, not
+          failures. This is the explicit user opt-out (mirrors `git push
+          --no-verify`).
+        - default: any unreviewed/missing-provenance entry adds a failure with
+          code 'disease_kb_unreviewed'.
+
+    Returns a summary dict suitable for embedding in the publication gate
+    report's `summary.disease_kb_review`.
+    """
+    summary: Dict[str, Any] = {
+        "skipped": False,
+        "kb_path": str(kb_path) if kb_path else None,
+        "allow_unreviewed_override": bool(allow_unreviewed),
+        "total_diseases": 0,
+        "approved_diseases": [],
+        "pending_diseases": [],
+        "missing_provenance_diseases": [],
+    }
+    if skip:
+        summary["skipped"] = True
+        return summary
+
+    if not kb_path:
+        add_issue(
+            failures,
+            "disease_kb_not_found",
+            "Disease KB path not provided. Publication-grade enforcement requires --disease-kb.",
+            {"path": None},
+        )
+        return summary
+
+    path_obj = Path(kb_path).expanduser().resolve()
+    summary["kb_path"] = str(path_obj)
+
+    if not path_obj.exists():
+        add_issue(
+            failures,
+            "disease_kb_not_found",
+            "Disease KB file not found.",
+            {"path": str(path_obj)},
+        )
+        return summary
+
+    try:
+        with path_obj.open("r", encoding="utf-8") as fh:
+            kb = json.load(fh)
+        if not isinstance(kb, dict):
+            raise ValueError("KB root must be a JSON object.")
+    except Exception as exc:
+        add_issue(
+            failures,
+            "disease_kb_invalid_json",
+            "Disease KB is not valid JSON.",
+            {"path": str(path_obj), "error": str(exc)},
+        )
+        return summary
+
+    diseases = kb.get("diseases")
+    if not isinstance(diseases, dict) or not diseases:
+        add_issue(
+            failures,
+            "disease_kb_missing_diseases_block",
+            "Disease KB missing non-empty 'diseases' object.",
+            {"path": str(path_obj)},
+        )
+        return summary
+
+    # Reuse the canonical classifier from the diagnostics module so the gate
+    # accepts the same set of approved statuses as the standalone tool.
+    try:
+        from disease_kb_review_check import classify_disease  # type: ignore
+    except Exception as exc:  # pragma: no cover — only fires if path mangling broke
+        add_issue(
+            failures,
+            "disease_kb_invalid_json",
+            "Internal error loading disease_kb_review_check classifier.",
+            {"error": str(exc)},
+        )
+        return summary
+
+    approved: List[str] = []
+    pending: List[Dict[str, Any]] = []
+    missing: List[Dict[str, Any]] = []
+    for key, entry in diseases.items():
+        bucket, details = classify_disease(key, entry if isinstance(entry, dict) else {})
+        if bucket == "approved":
+            approved.append(key)
+        elif bucket == "pending":
+            pending.append(details)
+        else:  # "missing"
+            missing.append(details)
+
+    summary["total_diseases"] = len(diseases)
+    summary["approved_diseases"] = approved
+    summary["pending_diseases"] = [d["disease"] for d in pending]
+    summary["missing_provenance_diseases"] = [d["disease"] for d in missing]
+
+    if not pending and not missing:
+        return summary  # all approved → silent pass
+
+    sink = warnings if allow_unreviewed else failures
+    detail_payload = {
+        "kb_path": str(path_obj),
+        "kb_version": kb.get("version"),
+        "approved_count": len(approved),
+        "pending_count": len(pending),
+        "missing_provenance_count": len(missing),
+        "pending_diseases": [d["disease"] for d in pending],
+        "missing_provenance_diseases": [d["disease"] for d in missing],
+        "override_used": bool(allow_unreviewed),
+    }
+    msg = (
+        f"{len(pending) + len(missing)} of {len(diseases)} disease KB entries "
+        f"are not clinician-reviewed. Publication-grade outputs refuse to "
+        f"consume LLM-compiled phenotype definitions without sign-off "
+        f"(W10 audit, 2026-05-17)."
+    )
+    if allow_unreviewed:
+        msg += (
+            " [OVERRIDE ACTIVE: --allow-unreviewed-disease-kb is set; this is "
+            "a warning instead of a failure. This MUST be declared in the "
+            "Limitations section of any downstream publication.]"
+        )
+    add_issue(sink, "disease_kb_unreviewed", msg, detail_payload)
+    return summary
+
+
 def main() -> int:
     args = parse_args()
+
+    # Environment-variable form of --allow-unreviewed-disease-kb so CI
+    # pipelines can opt-in without surgery on every invocation site.
+    env_allow = os.environ.get("MLGG_ALLOW_UNREVIEWED_DISEASE_KB", "").strip().lower()
+    allow_unreviewed_kb = bool(args.allow_unreviewed_disease_kb) or env_allow in {"1", "true", "yes", "on"}
 
     failures: List[Dict[str, Any]] = []
     warnings: List[Dict[str, Any]] = []
@@ -471,6 +680,18 @@ def main() -> int:
         failures=failures,
     )
 
+    # W9-B1: fail-closed disease-KB clinician review gate (W10 finding).
+    # Refuses to certify publication-grade unless every phenotype definition
+    # in the KB has been clinician-reviewed. Honest empty + governance message
+    # over a soft warning.
+    disease_kb_summary = enforce_disease_kb_clinically_reviewed(
+        kb_path=args.disease_kb,
+        failures=failures,
+        warnings=warnings,
+        allow_unreviewed=allow_unreviewed_kb,
+        skip=bool(args.skip_disease_kb_check),
+    )
+
     metric_report = loaded.get("metric_report")
     if isinstance(metric_report, dict):
         actual_metric = metric_report.get("actual_metric")
@@ -524,6 +745,13 @@ def main() -> int:
     l1_passed = _tier_passed(L1_GATES)
     l2_passed = _tier_passed(L2_GATES) and l1_passed
     l3_passed = _tier_passed(L3_GATES) and l2_passed
+
+    # W9-B1: unreviewed disease KB blocks L3 publication-grade tier even if
+    # the user opted into the warning override. Override lets the pipeline
+    # finish (status='pass'), but L3 still requires terminal clinician sign-off.
+    _kb_unreviewed = any(f.get("code") == "disease_kb_unreviewed" for f in failures + warnings)
+    if _kb_unreviewed:
+        l3_passed = False
     compliance_level = "L3" if l3_passed else ("L2" if l2_passed else ("L1" if l1_passed else "none"))
 
     # ── External validation absent → mandatory Limitations declaration ────
@@ -583,6 +811,7 @@ def main() -> int:
                 "L2_statistically_valid": l2_passed,
                 "L3_publication_grade": l3_passed,
             },
+            "disease_kb_review": disease_kb_summary,
             "artifacts": {
                 name: {
                     "path": str(Path(path).expanduser().resolve()),
