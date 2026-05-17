@@ -67,15 +67,21 @@ def _walk(
 
 
 def main() -> None:
-    # argparse first so --help exits cleanly (satisfies
-    # tests/test_stress_gate_cli.py::TestAllScriptsHelp contract).
-    argparse.ArgumentParser(
+    repo = Path(__file__).resolve().parents[2]
+    default_out = repo / "references" / "retrieval_eval" / "real_gate_codes_harvest.json"
+    parser = argparse.ArgumentParser(
         prog="harvest_real_gate_codes.py",
         description=__doc__.split("\n\n")[0] if __doc__ else None,
-    ).parse_args()
-    repo = Path(__file__).resolve().parents[2]
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=default_out,
+        help=f"output JSON path (default: {default_out.relative_to(repo)})",
+    )
+    args = parser.parse_args()
     out = harvest(repo / "experiments")
-    out_path = repo / "references" / "retrieval_eval" / "real_gate_codes_harvest.json"
+    out_path = args.output
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(out, indent=2, sort_keys=True) + "\n")
     print(f"harvested codes for {len(out)} gates -> {out_path}")

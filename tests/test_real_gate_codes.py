@@ -13,10 +13,17 @@ SCRIPT = REPO / "scripts" / "diagnostics" / "harvest_real_gate_codes.py"
 HARVEST_JSON = REPO / "references" / "retrieval_eval" / "real_gate_codes_harvest.json"
 
 
-def test_harvester_script_runs() -> None:
-    """End-to-end: script exits cleanly and prints the headline summary."""
+def test_harvester_script_runs(tmp_path: Path) -> None:
+    """End-to-end: script exits cleanly and prints the headline summary.
+
+    Writes to tmp_path so the committed harvest JSON (curated from a
+    full-corpus run) stays intact — CI's reduced experiments/ slice
+    cannot regenerate it, and clobbering it breaks
+    ``test_harvested_json_is_valid_and_nonempty``.
+    """
+    out = tmp_path / "harvest.json"
     result = subprocess.run(
-        [sys.executable, str(SCRIPT)],
+        [sys.executable, str(SCRIPT), "--output", str(out)],
         cwd=str(REPO),
         capture_output=True,
         text=True,
