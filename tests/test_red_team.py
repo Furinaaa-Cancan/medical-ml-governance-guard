@@ -12,7 +12,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 
 import numpy as np
 import pandas as pd
@@ -112,30 +112,47 @@ class TestIDOverlapUnicode:
 
 
 class TestFeatureLineageCaseBypass:
-    """Attack: bypass feature_lineage_gate by case variation in variable names."""
+    """Attack: bypass feature_lineage_gate by case variation in variable names.
 
-    def test_case_variation(self, tmp_path: Path):
-        """Defining variable 'HbA1c' but feature column 'hba1c' (lowercase)."""
+    Fixed by W14-F2 (W13-V1 audit finding): feature_lineage_gate.norm() already
+    casefolds both forbidden-variable names and feature column names via
+    `re.sub(r"[^a-z0-9]+", "", name.lower())`, so 'HbA1c'/'hba1c'/'HBA1C' all
+    collapse to the same lookup key. The original FINDING was a false alarm —
+    the prior test used a malformed definition spec (extra 'diseases' wrapper)
+    that triggered `target_not_found` and never exercised the bypass path.
+    These assertions now exercise the real flow in both case directions and
+    fail loud if normalization ever regresses.
+    """
+
+    def _run_case_test(
+        self,
+        tmp_path: Path,
+        defining_variable: str,
+        feature_column: str,
+    ) -> Tuple["subprocess.CompletedProcess[str]", Dict[str, Any]]:
         definition_spec = _write_json(tmp_path / "def.json", {
-            "diseases": {
+            "targets": {
                 "diabetes": {
-                    "targets": {
-                        "diabetes": {
-                            "defining_variables": ["HbA1c"],
-                            "layers": {},
-                        }
-                    }
+                    "defining_variables": [defining_variable],
+                    "layers": {},
                 }
             }
         })
         lineage_spec = _write_json(tmp_path / "lineage.json", {
             "features": {
-                "hba1c": {"source": "lab", "temporal_category": "pre_index"},
+                feature_column: {"source": "lab", "temporal_category": "pre_index"},
                 "age": {"source": "demographics", "temporal_category": "pre_index"},
             }
         })
-        train = _write_csv(tmp_path / "train.csv",
-                           pd.DataFrame({"patient_id": ["P1"], "y": [1], "hba1c": [7.0], "age": [55]}))
+        train = _write_csv(
+            tmp_path / "train.csv",
+            pd.DataFrame({
+                "patient_id": ["P1"],
+                "y": [1],
+                feature_column: [7.0],
+                "age": [55],
+            }),
+        )
         report = tmp_path / "report.json"
         result = _run_gate("feature_lineage_gate.py", [
             "--target", "diabetes",
@@ -145,11 +162,44 @@ class TestFeatureLineageCaseBypass:
             "--target-col", "y",
             "--report", str(report),
         ])
-        if result.returncode == 0:
-            r = _load_report(report)
-            codes = [f["code"] for f in r.get("failures", [])]
-            if "forbidden_feature_exact" not in codes and "lineage_definition_leakage" not in codes:
-                pytest.skip("FINDING: Case variation bypasses feature lineage leakage detection")
+        r = _load_report(report) if report.exists() else {"failures": []}
+        return result, r
+
+    def test_case_variation_mixed_to_lower(self, tmp_path: Path):
+        """Defining variable 'HbA1c' (mixed case) vs feature column 'hba1c' must NOT bypass."""
+        result, report = self._run_case_test(tmp_path, "HbA1c", "hba1c")
+        codes = [f["code"] for f in report.get("failures", [])]
+        assert result.returncode == 2, (
+            f"Gate must fail-closed on case-variation leakage; got exit {result.returncode}, "
+            f"failures={codes}, stdout={result.stdout!r}"
+        )
+        assert "lineage_definition_leakage" in codes or "forbidden_feature_exact" in codes, (
+            f"Expected leakage detection code; got failures={codes}"
+        )
+
+    def test_case_variation_lower_to_upper(self, tmp_path: Path):
+        """Defining variable 'hba1c' (lower) vs feature column 'HBA1C' (upper) must NOT bypass."""
+        result, report = self._run_case_test(tmp_path, "hba1c", "HBA1C")
+        codes = [f["code"] for f in report.get("failures", [])]
+        assert result.returncode == 2, (
+            f"Gate must fail-closed on case-variation leakage; got exit {result.returncode}, "
+            f"failures={codes}, stdout={result.stdout!r}"
+        )
+        assert "lineage_definition_leakage" in codes or "forbidden_feature_exact" in codes, (
+            f"Expected leakage detection code; got failures={codes}"
+        )
+
+    def test_case_variation_with_separator(self, tmp_path: Path):
+        """'HbA1c' vs 'hb_a1c' (separator + case) must NOT bypass — norm() strips non-alnum."""
+        result, report = self._run_case_test(tmp_path, "HbA1c", "hb_a1c")
+        codes = [f["code"] for f in report.get("failures", [])]
+        assert result.returncode == 2, (
+            f"Gate must fail-closed on separator+case bypass attempt; got exit {result.returncode}, "
+            f"failures={codes}, stdout={result.stdout!r}"
+        )
+        assert "lineage_definition_leakage" in codes or "forbidden_feature_exact" in codes, (
+            f"Expected leakage detection code; got failures={codes}"
+        )
 
 
 # ============================================================================
