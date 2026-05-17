@@ -3,11 +3,15 @@
 Generated from full 305-scenario benchmark run on 2026-05-17.
 Companion to BENCHMARK_SPEC.md §8 Known Limitations.
 
+> 📌 **v1.1 prototype results landed in [`v1.1_proposed/`](./v1.1_proposed/)** the same day. Each failure mode below now has a measured experiment outcome. See per-failure annotations.
+
 ---
 
 ## Failure 1 — Compound 2-CP queries (bench_03_compound)
 
 **Measured:** hit@5 = 0.20, cp_hit@5 = 0.50 (n=10).
+
+> **v1.1 update (2026-05-17):** A decompose-and-merge prototype was implemented and benchmarked → **NEGATIVE RESULT** (0 hit improvement, -0.10 cp_hit). See [`v1.1_proposed/compound_query_NEGATIVE.md`](./v1.1_proposed/compound_query_NEGATIVE.md). The failure is partly RAG single-CP bias and partly bench_03 gold-label noise (~60% of expected_tags are KB-rare). A real fix needs gold cleanup + aspect-based retrieval — not naive split.
 
 **Root cause (verified by trace):** RAG hybrid retrieval concentrates on a single dominant CP per query. For 7/10 compound scenarios the top-5 returned concerns cluster around ONE of the two expected CPs and never bridge to the second.
 
@@ -33,6 +37,8 @@ Companion to BENCHMARK_SPEC.md §8 Known Limitations.
 ## Failure 2 — Meta-methodology queries (ood_03 TRIPOD+AI / PROBAST+AI)
 
 **Measured:** hit@5 = 0.30, cp_hit@5 = 0.20 (n=10).
+
+> **v1.1 update (2026-05-17):** A 30-entry draft of TRIPOD+AI / PROBAST+AI / STRATOS / systematic-review KB meta-entries was generated and benchmarked via a temp-augmented KB → **VERIFIED LIFT: ood_03 hit@5 0.30 → 0.50 (+0.20)**. See [`v1.1_proposed/draft_meta_entries.{json,md}`](./v1.1_proposed/draft_meta_entries.md). `cp_hit@5` did NOT lift because the draft entries map to existing CPs; the proposal includes 3 new CPs (CP-050/051/052) which need minting before the cp_hit lift can be tested. KB additions held pending clinical-methodologist review per project disease-KB provenance policy.
 
 **Root cause:** KB concerns are paper-specific (e.g., "PR-001's NSAID variable is an outcome proxy"). TRIPOD+AI / PROBAST+AI critiques are *meta-level* (e.g., "checklist item 17 — uncertainty quantification — is widely under-reported"). The two live at different abstraction tiers.
 

@@ -1,5 +1,11 @@
 # MLGG-Bench v1.0
 
+> 📌 **A newer PATCH is available.** [MLGG-Bench v1.0.1](../MLGG-Bench-v1.0.1/) ships 59 CP-label refinements that lift `cp_hit@5` from 0.794 → 0.821 with no other deltas. Use v1.0.1 for any new evaluation. v1.0 is preserved for reproducibility of the original release numbers.
+>
+> 📌 **v1.1 work-in-progress** lives at [`v1.1_proposed/`](./v1.1_proposed/) — 30 TRIPOD+AI / PROBAST+AI / STRATOS KB meta-entries (verified to lift `ood_03` hit@5 by +0.20), plus a compound-query decompose prototype that returned a documented NEGATIVE result. Both pending clinical-methodologist review per project disease-KB provenance policy.
+>
+> 📌 **Architectural context.** This is one of two complementary benchmarks; see [`docs/adr/0007_two_benchmark_architecture.md`](../../../docs/adr/0007_two_benchmark_architecture.md) and [`docs/BENCHMARK_OVERVIEW.md`](../../../docs/BENCHMARK_OVERVIEW.md) for how MLGG-Bench (component) and NCPR-Bench (system) divide signal.
+
 A standard benchmark for evaluating the MLGG peer-review concern retrieval RAG.
 
 | Field | Value |

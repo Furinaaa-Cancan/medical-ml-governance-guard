@@ -72,6 +72,6 @@ v1.0.1 is the verified PATCH. The parallel `../MLGG-Bench-v1.0/v1.1_proposed/` d
 
 ## Pending for v1.0.2 or v1.1.0
 
-- Hand spot-audit of v3 REPLACED/EXPANDED set (see `cp_relabel_v3_changelog.json`)
-- Apply CP relabel methodology to the OOD slices (currently only indist_155 was re-audited)
-- Resolve the 4 unresolved scenarios where v3 still has empty `expected_canonical_pattern_ids`
+- Hand spot-audit of v3 REPLACED/EXPANDED set — **partially done**: see `v3_spot_audit.md` (9/15 v3-better verified, 3/15 flagged for human review, 3/15 ties); full 59-change audit still pending
+- Apply CP relabel methodology to the OOD slices (currently only indist_155 was re-audited; ood_01–04 still carry agent-original CPs)
+- ~~Resolve the 4 unresolved scenarios where v3 still has empty `expected_canonical_pattern_ids`~~ — **resolved**: indist_155 now has 0 empty CP labels post-relabel. (53 scenarios across other slices have intentionally empty CPs: 30 in `baseline_30` (legacy schema), 10 in `bench_04_negatives` (out-of-scope, by design), 10 in `bench_05_distractors` (by design), 3 in `bench_01_fairness` (no clear CP fit per fairness agent's own audit) — those are correct, not bugs.)
