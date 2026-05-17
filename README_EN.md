@@ -1368,7 +1368,7 @@ medical-ml-governance-guard/
 │   │   # Note: gate → RAG bridge (gate_rag_bridge.py, 204 LOC) lives in scripts/core/ as RAG's consumer,
 │   │   # not inside scripts/rag/ — keeps the dep direction one-way (gates → RAG).
 │   │
-│   └── diagnostics/       (27)           # Environment, docs-consistency & KB hygiene
+│   └── diagnostics/       (30)           # Environment, docs-consistency & KB hygiene
 │       ├── env_doctor.py                 #   Dependency health check
 │       ├── mlgg_web.py                   #   Flask Web UI
 │       ├── check_docs_consistency.py     #   SKILL.md ↔ README ↔ reviewer.yaml drift detector (pre-commit)
@@ -1377,7 +1377,7 @@ medical-ml-governance-guard/
 │       ├── kb_hygiene_check.py           #   KB provenance / citation / freshness check
 │       └── ...                           #   gate visualization, threshold analysis, policy generator
 │
-├── tests/                  (150)         # ─── Tests (~35K lines) ───
+├── tests/                  (154)         # ─── Tests (~35K lines) ───
 │   ├── conftest.py                       #   Shared fixtures (tmp_path, path injection, test data)
 │   ├── test_*_gate.py      (32)          #   One test file per gate
 │   ├── test_*_e2e.py       (8)           #   End-to-end flow tests (onboarding, workflow, train, split, rag)

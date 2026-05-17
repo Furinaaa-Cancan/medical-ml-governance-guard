@@ -1,0 +1,322 @@
+{
+  "schema_version": "1.0",
+  "description": "Human-labeled ground-truth Precision@5 set for the MLGG peer-review RAG (Wave 8 / W2). Built post-Wave-7 (2026-05-17) to address P7 caveat in the eval roadmap: all prior eval metrics use proxy tag-overlap signals, not ground-truth labels. For each of 20 representative queries spanning the 12 MLGG governance dimensions + 2 off-scope probes, the top-5 hits at label time were manually inspected and each marked relevant=true/false by whether the concern text DIRECTLY addresses the query intent (not just topical match). Aggregate metric: P@5 = sum(relevant=true)/5; mean_labeled_P5 = mean over queries. Stable IDs (L01..L20) so this set can be diffed forward through future retrieval changes. Off-scope probes (L19, L20) are pinned at P@5=0 — any non-zero return there is a false-positive regression. Do NOT regenerate after retrieval changes — instead append a new file labeled_precision_at_5_v2.json so longitudinal drift is auditable.",
+  "labeling_protocol": {
+    "relevance_definition": "Concern text addresses the SAME failure mode the query asks about, not merely a sibling topic. A concern about 'no external validation' is NOT relevant to a query about 'tuning on the test set' even though both are split-protocol issues.",
+    "tie_handling": "Borderline calls (e.g., concern mentions the issue as one of several findings) are marked relevant=true if the query intent appears verbatim or near-verbatim in the concern text.",
+    "off_scope_handling": "Queries L19, L20 are deliberate off-scope probes. Any returned hit is by definition irrelevant (relevant=false). Rag_query currently returns 0 hits for both due to the gate=free_text_probe filter, so P@5 = 0/5 = 0.0.",
+    "labeled_by": "W8-W2 (Claude Opus 4.7, 1M context, MLGG agent)",
+    "labeled_at": "2026-05-17",
+    "retrieval_mode_at_label_time": "hybrid (BM25 + dense, post-Wave-7 W7P0 tag_overlap >=1 threshold)"
+  },
+  "labeled_queries": [
+    {
+      "id": "L01_leakage_patient_split",
+      "dimension": "leakage_split_hygiene",
+      "query": "patient identifier leaked across train test split",
+      "gate": "leakage_gate",
+      "failure_codes": ["MLGG-S01"],
+      "description": "Same patient appears in train and test (split-hygiene violation, MLGG-S01)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-EXP-0185-C02", "relevant": true, "why": "Directly asks about patients appearing in both pre-2018 and post-2018 (train/test) sets — patient-level split-hygiene question."},
+        {"concern_id": "PR-113-C01", "relevant": false, "why": "About SMOTE-before-split and CV strategy ambiguity, not about patient-level split unit. Adjacent leakage type, different mechanism."},
+        {"concern_id": "PR-002-C05", "relevant": true, "why": "Explicitly asks 'unit of randomization — note, patient visit, or patient? overlap in patients between test and train' — verbatim patient-overlap question."},
+        {"concern_id": "PR-EXP-0109-C12", "relevant": true, "why": "Asks reviewer to verify no patient overlap between external validation and training — same failure mode."},
+        {"concern_id": "PR-EXP-0110-C07", "relevant": true, "why": "Asks whether patients in current cohort were in prior training data — patient-level isolation check."}
+      ],
+      "p_at_5": 0.8
+    },
+    {
+      "id": "L02_leakage_outcome_as_feature",
+      "dimension": "leakage_definition_variable",
+      "query": "outcome variable used as input feature definition variable",
+      "gate": "definition_variable_guard",
+      "failure_codes": ["MLGG-F01"],
+      "description": "Feature is the outcome or its definition variable (MLGG-F01)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-EXP-0212-C01", "relevant": true, "why": "Classic definition-variable case: AKI defined by Cr rise, then prior Cr used as feature. Direct hit."},
+        {"concern_id": "PR-113-C05", "relevant": false, "why": "About feature-selection rationale (7 vs 36 vars), not about outcome being used as feature. Tag includes 'definition_variable_guard' but text discusses variable rationale, not definition leakage."},
+        {"concern_id": "PR-001-C02", "relevant": true, "why": "NSAID prescriptions (treatment for OA) used to predict OA — feature is outcome proxy. Direct definition-variable leak."},
+        {"concern_id": "PR-107-C04", "relevant": false, "why": "About noisy weak-supervision labels (MAP@1 quality), not about outcome leaking into features."},
+        {"concern_id": "PR-114-C01", "relevant": true, "why": "Outcome definition (sepsis vs severe sepsis with SOFA>=2) confounded with the predictive variable — definition-variable concern."}
+      ],
+      "p_at_5": 0.6
+    },
+    {
+      "id": "L03_leakage_future_info",
+      "dimension": "leakage_temporal_future",
+      "query": "future information from after prediction time used as feature",
+      "gate": "leakage_gate",
+      "failure_codes": ["MLGG-F02"],
+      "description": "Temporal/future-information leak (MLGG-F02)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-010-C01", "relevant": true, "why": "Bidirectional RNN uses future data at any timepoint — textbook future-information leak."},
+        {"concern_id": "PR-EXP-0086-C12", "relevant": true, "why": "Annotation window mismatched with prediction timepoint — ground truth labels include future events."},
+        {"concern_id": "PR-001-C01", "relevant": true, "why": "Models condition on five-year-forward observations — explicit future-information leakage."},
+        {"concern_id": "PR-EXP-0159-C04", "relevant": true, "why": "Lead-time bias from undocumented scan timing — possible look-ahead from feature timing."},
+        {"concern_id": "PR-EXP-0197-C02", "relevant": true, "why": "Index date shifted 3 months post-diagnosis — direct future-information avoidance concern."}
+      ],
+      "p_at_5": 1.0
+    },
+    {
+      "id": "L04_split_smote_before_split",
+      "dimension": "preprocessing_split_leakage",
+      "query": "SMOTE applied before train test split preprocessing leakage",
+      "gate": "split_protocol_gate",
+      "failure_codes": ["MLGG-P01"],
+      "description": "Resampling/preprocessing fitted on full data before splitting (MLGG-P01)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-EXP-0155-C03", "relevant": false, "why": "About calibration leakage (held-out samples excluded after use), not about SMOTE/resampling before split. Different mechanism."},
+        {"concern_id": "PR-072-C01", "relevant": false, "why": "About correlated phenotypes causing train/test overlap in genomics — not preprocessing leakage."},
+        {"concern_id": "PR-113-C01", "relevant": true, "why": "Verbatim hit: SMOTE applied on pooled data before 7:3 split. Exact failure mode."},
+        {"concern_id": "PR-109-C01", "relevant": false, "why": "About UKB sample reuse across PRS training and PheWAS evaluation — sample overlap, not preprocessing leakage."},
+        {"concern_id": "PR-111-C01", "relevant": false, "why": "About test-set reuse for multiple model selection (tuning-on-test), not preprocessing-before-split."}
+      ],
+      "p_at_5": 0.2
+    },
+    {
+      "id": "L05_split_temporal_holdout_missing",
+      "dimension": "split_temporal_validation",
+      "query": "no temporal hold-out for time-series prediction",
+      "gate": "split_protocol_gate",
+      "failure_codes": [],
+      "description": "Time-series problem evaluated with random split instead of temporal hold-out",
+      "top5_at_label_time": [
+        {"concern_id": "PR-010-C02", "relevant": true, "why": "20-year span data with random split critiqued — exact temporal-holdout argument."},
+        {"concern_id": "PR-EXP-0084-C08", "relevant": false, "why": "About nested-CV protocol clarity and feature-set ambiguity — not specifically temporal holdout."},
+        {"concern_id": "PR-111-C04", "relevant": false, "why": "About lack of external validation cohort generally — orthogonal to temporal-vs-random split."}
+      ],
+      "p_at_5": 0.2
+    },
+    {
+      "id": "L06_tuning_on_test_set",
+      "dimension": "model_selection_tuning_leakage",
+      "query": "hyperparameter tuning performed on held-out test set",
+      "gate": "tuning_leakage_gate",
+      "failure_codes": ["MLGG-M01"],
+      "description": "Test set contaminated by model selection / hyperparameter tuning (MLGG-M01)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-111-C01", "relevant": true, "why": "Every candidate model evaluated on test set — textbook model-selection-on-test."},
+        {"concern_id": "PR-EXP-0200-C05", "relevant": false, "why": "About undocumented model selection process generally, not specifically tuning leaking into test."},
+        {"concern_id": "PR-114-C04", "relevant": true, "why": "Refitting six-gene signature across cohorts risks tuning leakage — explicitly tagged."},
+        {"concern_id": "PR-032-C05", "relevant": true, "why": "Asks how AUC is independent of tuning and training — direct concern about tuning leakage into evaluation."},
+        {"concern_id": "PR-EXP-0155-C03", "relevant": true, "why": "Calibration leakage: held-out samples used for calibration then excluded — calibration tuning contaminating final test."}
+      ],
+      "p_at_5": 0.8
+    },
+    {
+      "id": "L07_eval_no_ci_reported",
+      "dimension": "evaluation_uncertainty_quantification",
+      "query": "AUROC reported without confidence interval bootstrap",
+      "gate": "ci_matrix_gate",
+      "failure_codes": ["MLGG-E01"],
+      "description": "Primary metric missing 95% CI (MLGG-E01)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-EXP-0159-C06", "relevant": true, "why": "Verbatim: 'AUC used; 95% confidence interval should be reported.' Direct hit."},
+        {"concern_id": "PR-EXP-0197-C05", "relevant": false, "why": "About overlapping CIs (CIs present but uninformative), not missing CIs. Different concern."},
+        {"concern_id": "PR-109-C06", "relevant": true, "why": "'CI estimation method for R2 and AUPRC not described' — direct CI-reporting concern."},
+        {"concern_id": "PR-029-C02", "relevant": true, "why": "'no bootstrapping with multiple random splits' — direct bootstrap-CI absence concern."},
+        {"concern_id": "PR-EXP-0198-C04", "relevant": false, "why": "About training-set results being reported instead of test-set (overoptimism), not about CI absence."}
+      ],
+      "p_at_5": 0.6
+    },
+    {
+      "id": "L08_eval_no_calibration",
+      "dimension": "evaluation_calibration",
+      "query": "no calibration plot or Brier score or reliability diagram",
+      "gate": "calibration_dca_gate",
+      "failure_codes": ["MLGG-E02"],
+      "description": "Missing calibration assessment in metric panel (MLGG-E02 subset)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-002-C01", "relevant": true, "why": "'unclear how well calibrated the model is' alongside imbalance / PPV concerns — direct calibration ask."},
+        {"concern_id": "PR-EXP-0109-C03", "relevant": true, "why": "Verbatim: 'Is there any assessment of model calibration?' Textbook hit."},
+        {"concern_id": "PR-110-C03", "relevant": true, "why": "'Calibration not assessed; reviewer demands calibration curves' — direct."},
+        {"concern_id": "PR-003-C05", "relevant": true, "why": "Calibration explicitly named as missing alongside DCA — direct."},
+        {"concern_id": "PR-022-C01", "relevant": true, "why": "'No individual-level performance data; need calibration plot' — direct."}
+      ],
+      "p_at_5": 1.0
+    },
+    {
+      "id": "L09_eval_improper_f1_primary",
+      "dimension": "evaluation_metric_choice",
+      "query": "macro F1 score chosen as primary metric for imbalanced clinical risk",
+      "gate": "evaluation_quality_gate",
+      "failure_codes": ["MLGG-E02"],
+      "description": "Improper thresholded primary metric for imbalanced clinical outcome",
+      "top5_at_label_time": [
+        {"concern_id": "PR-002-C01", "relevant": true, "why": "'AUC should not be the only performance metric reported... imbalanced... PPV NPV' — addresses metric-panel-for-imbalance problem."},
+        {"concern_id": "PR-EXP-0155-C02", "relevant": true, "why": "'Given imbalance, PR should be reported in parallel with ROC' — directly addresses metric choice under imbalance."},
+        {"concern_id": "PR-037-C04", "relevant": false, "why": "Suggests ADDING F1 alongside AUC — opposite intent: it endorses F1 inclusion rather than critiquing F1-as-primary."},
+        {"concern_id": "PR-EXP-0097-C06", "relevant": true, "why": "Demands sensitivity, specificity, PPV, NPV, likelihood ratios — direct metric-panel completeness concern aligned with query."},
+        {"concern_id": "PR-EXP-0085-C08", "relevant": true, "why": "Critiques F1/AUROC panel for missing clinically critical metric (very major error rate) — direct critique of thresholded-metric reliance."}
+      ],
+      "p_at_5": 0.8
+    },
+    {
+      "id": "L10_eval_no_dca",
+      "dimension": "evaluation_clinical_utility",
+      "query": "no decision curve analysis clinical utility net benefit",
+      "gate": "calibration_dca_gate",
+      "failure_codes": ["MLGG-E02"],
+      "description": "Missing decision-curve / net-benefit analysis (MLGG-E02 subset)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-003-C05", "relevant": true, "why": "'missing_dca' tag + text discusses missing calibration and real-world utility — direct DCA-absence concern."},
+        {"concern_id": "PR-033-C01", "relevant": true, "why": "Verbatim 'should report calibration and net benefit analysis' — direct DCA call-out."},
+        {"concern_id": "PR-002-C01", "relevant": false, "why": "Discusses PPV/NPV/calibration but does not mention DCA / net-benefit specifically."},
+        {"concern_id": "PR-085-C01", "relevant": false, "why": "'metrics beyond AUC needed' is too vague to count as a DCA-specific concern."},
+        {"concern_id": "PR-036-C04", "relevant": false, "why": "About calibration-drift impact on clinical care, not about reporting DCA in the paper. Different concern (post-deployment)."}
+      ],
+      "p_at_5": 0.4
+    },
+    {
+      "id": "L11_no_external_validation",
+      "dimension": "external_validation",
+      "query": "single-center development without external test cohort",
+      "gate": "external_validation_gate",
+      "failure_codes": [],
+      "description": "Internal split only, no independent external validation site",
+      "top5_at_label_time": [
+        {"concern_id": "PR-107-C01", "relevant": true, "why": "Verbatim: 'CN-S cohort lacks external validation; same-cohort validation; single center.'"},
+        {"concern_id": "PR-028-C01", "relevant": true, "why": "'Study lacks external validation' — direct."},
+        {"concern_id": "PR-041-C04", "relevant": true, "why": "'External validation in another dataset is strongly encouraged' — direct."},
+        {"concern_id": "PR-101-C06", "relevant": true, "why": "'No independent validation cohort' — direct hit for biomarker panel."},
+        {"concern_id": "PR-EXP-0095-C03", "relevant": true, "why": "Same-center 'external' validation challenges the definition — direct external-validation concern."}
+      ],
+      "p_at_5": 1.0
+    },
+    {
+      "id": "L12_cohort_selection_bias",
+      "dimension": "cohort_definition",
+      "query": "inclusion exclusion criteria undocumented selection bias EHR",
+      "gate": "cohort_definition_gate",
+      "failure_codes": [],
+      "description": "Cohort assembled by convenience without CONSORT-style flow / criteria",
+      "top5_at_label_time": [
+        {"concern_id": "PR-EXP-0084-C14", "relevant": true, "why": "'Data accessibility unclear; center distribution undocumented; selection bias' — directly addresses query."},
+        {"concern_id": "PR-104-C03", "relevant": true, "why": "Selection bias from 20% exclusion for image quality + 50% for missing LVEF — direct."},
+        {"concern_id": "PR-008-C01", "relevant": true, "why": "'Less than 6% included — selection bias / representativeness' — direct hit."},
+        {"concern_id": "PR-EXP-0109-C01", "relevant": true, "why": "Indication bias for ECG screening — selection mechanism critique. Direct."},
+        {"concern_id": "PR-001-C05", "relevant": true, "why": "'What exclusion criteria were applied to controls? Discuss role of EHR codes for OA' — direct cohort-criteria concern."}
+      ],
+      "p_at_5": 1.0
+    },
+    {
+      "id": "L13_missingness_complete_case",
+      "dimension": "missing_data",
+      "query": "complete case analysis dropped patients with missing data",
+      "gate": "missingness_policy_gate",
+      "failure_codes": [],
+      "description": "Missingness handled by listwise deletion or unexamined imputation",
+      "top5_at_label_time": [
+        {"concern_id": "PR-003-C02", "relevant": true, "why": "'Was 40% of age variable missing? Missing data reporting needed' — direct missingness-policy concern."},
+        {"concern_id": "PR-105-C02", "relevant": true, "why": "MNAR in EHR + imputation does not address it — direct missingness-handling concern."},
+        {"concern_id": "PR-039-C03", "relevant": true, "why": "'How much data was missing? MAR justified? informative missingness?' — direct."},
+        {"concern_id": "PR-EXP-0126-C05", "relevant": true, "why": "'Provide missing rates so reader can assess imputation proportion' — direct."},
+        {"concern_id": "PR-035-C01", "relevant": true, "why": "'Were validation models run on complete-case or imputed data?' — verbatim complete-case concern."}
+      ],
+      "p_at_5": 1.0
+    },
+    {
+      "id": "L14_imbalance_smote_unjustified",
+      "dimension": "class_balance",
+      "query": "extreme class imbalance addressed by SMOTE without justification",
+      "gate": "imbalance_policy_gate",
+      "failure_codes": [],
+      "description": "Resampling without rationale or sensitivity analysis",
+      "top5_at_label_time": [
+        {"concern_id": "PR-EXP-0155-C02", "relevant": true, "why": "Imbalance + PR-vs-ROC reporting — direct imbalance-policy concern."},
+        {"concern_id": "PR-027-C02", "relevant": true, "why": "Class imbalance from temporal mortality differences — direct imbalance critique."},
+        {"concern_id": "PR-EXP-0085-C03", "relevant": true, "why": "'Datasets imbalanced — could cause overfitting' — direct imbalance handling concern."},
+        {"concern_id": "PR-101-C03", "relevant": true, "why": "'Class imbalance not explicitly addressed; needs documentation of imbalance handling strategy' — verbatim."},
+        {"concern_id": "PR-EXP-0203-C03", "relevant": true, "why": "Very low prevalence + asks about loss weighting / resampling — direct."}
+      ],
+      "p_at_5": 1.0
+    },
+    {
+      "id": "L15_fairness_no_subgroup",
+      "dimension": "fairness_equity",
+      "query": "no subgroup analysis by race sex age fairness audit",
+      "gate": "fairness_equity_gate",
+      "failure_codes": [],
+      "description": "Missing equity / subgroup performance breakdown",
+      "top5_at_label_time": [
+        {"concern_id": "PR-EXP-0086-C10", "relevant": true, "why": "'Subgroup disparities undiscussed, particularly ethnicity' — direct fairness audit ask."},
+        {"concern_id": "PR-078-C03", "relevant": false, "why": "Critiques arbitrary subgroup SELECTION (women age 59+) rather than asking for fairness breakdown across subgroups. Inverse intent."},
+        {"concern_id": "PR-EXP-0119-C01", "relevant": true, "why": "'No demographics provided; skin tone bias; Fitzpatrick underrepresentation' — direct subgroup-fairness concern."},
+        {"concern_id": "PR-EXP-0095-C06", "relevant": true, "why": "'No sex/gender details; fails SAGER compliance' — direct fairness-by-sex audit concern."},
+        {"concern_id": "PR-109-C02", "relevant": true, "why": "Ancestry portability untested — direct fairness/subgroup concern."}
+      ],
+      "p_at_5": 0.8
+    },
+    {
+      "id": "L16_reporting_missing_tripod",
+      "dimension": "reporting_transparency",
+      "query": "missing TRIPOD AI checklist items reporting transparency",
+      "gate": "reporting_bias_gate",
+      "failure_codes": [],
+      "description": "Reporting checklist incomplete per TRIPOD+AI 2024",
+      "top5_at_label_time": [
+        {"concern_id": "PR-003-C04", "relevant": true, "why": "'Authors do not include reference to TRIPOD guidelines' — verbatim hit."},
+        {"concern_id": "PR-026-C04", "relevant": false, "why": "Says study DOES follow TRIPOD+AI (commendable) — opposite of missing-TRIPOD intent."},
+        {"concern_id": "PR-EXP-0097-C04", "relevant": true, "why": "Asks to ensure compliance with TRIPOD + MI-CLAIM — direct."},
+        {"concern_id": "PR-EXP-0205-C01", "relevant": true, "why": "'Title not conform TRIPOD' — direct TRIPOD-compliance concern."},
+        {"concern_id": "PR-EXP-0148-C03", "relevant": true, "why": "'Relevant reporting guidelines (MI-CLAIM, TRIPOD-ML) not included' — direct."}
+      ],
+      "p_at_5": 0.8
+    },
+    {
+      "id": "L17_model_arch_unjustified",
+      "dimension": "model_specification",
+      "query": "deep neural network architecture chosen without justification baseline comparison",
+      "gate": "model_selection_audit_gate",
+      "failure_codes": [],
+      "description": "Complex architecture without baseline ablation / model comparison",
+      "top5_at_label_time": [
+        {"concern_id": "PR-107-C03", "relevant": true, "why": "'No benchmarking against comparable deep-learning time-series models — limits judgement of GNN choice.' Direct hit."},
+        {"concern_id": "PR-EXP-0126-C02", "relevant": true, "why": "'Choice of LightGBM not well justified; how about alternatives?' — direct."},
+        {"concern_id": "PR-102-C03", "relevant": true, "why": "'Sole use of GBM without comparisons to RF/CatBoost/LightGBM' — direct baseline-comparison ask."},
+        {"concern_id": "PR-101-C02", "relevant": true, "why": "'Compare LASSO against XGBoost/RF to ensure approach is not arbitrarily selected' — direct."},
+        {"concern_id": "PR-108-C03", "relevant": true, "why": "'AdaBoost omitted from comparison; rationale undocumented' — direct."}
+      ],
+      "p_at_5": 1.0
+    },
+    {
+      "id": "L18_covariate_shift_train_test",
+      "dimension": "covariate_shift_generalization",
+      "query": "covariate shift distribution mismatch between train and test",
+      "gate": "covariate_shift_gate",
+      "failure_codes": [],
+      "description": "Population / device / cohort drift between development and validation",
+      "top5_at_label_time": [
+        {"concern_id": "PR-EXP-0085-C04", "relevant": true, "why": "'Drop in external performance — overfit or missing data needed' — direct distribution-shift discussion."},
+        {"concern_id": "PR-EXP-0157-C06", "relevant": true, "why": "Cross-scanner validation — device distribution shift. Direct."},
+        {"concern_id": "PR-EXP-0112-C01", "relevant": true, "why": "'Multi-domain sentiment vs clinical — distribution shift validation' — direct."},
+        {"concern_id": "PR-EXP-0109-C07", "relevant": true, "why": "Model not evaluated in resource-poor settings (geographic distribution shift) — direct."},
+        {"concern_id": "PR-EXP-0193-C01", "relevant": true, "why": "Single-dataset, random split — scanner/CT acquisition variation untested. Direct."}
+      ],
+      "p_at_5": 1.0
+    },
+    {
+      "id": "L19_offscope_woodworking",
+      "dimension": "off_scope_probe",
+      "query": "wood joinery dovetail mortise tenon",
+      "gate": "free_text_probe",
+      "failure_codes": [],
+      "description": "OFF-SCOPE probe: woodworking has no overlap with clinical-ML KB; expect P@5 = 0",
+      "top5_at_label_time": [],
+      "p_at_5": 0.0,
+      "_note": "rag_query returned 0 hits at label time (free_text_probe gate filters out unrelated content). Empty list means P@5 = 0/5 = 0.0 by definition."
+    },
+    {
+      "id": "L20_offscope_music",
+      "dimension": "off_scope_probe",
+      "query": "orchestral conductor baton tempo rubato",
+      "gate": "free_text_probe",
+      "failure_codes": [],
+      "description": "OFF-SCOPE probe: music conducting has no overlap with clinical-ML KB; expect P@5 = 0",
+      "top5_at_label_time": [],
+      "p_at_5": 0.0,
+      "_note": "rag_query returned 0 hits at label time (free_text_probe gate filters out unrelated content). Empty list means P@5 = 0/5 = 0.0 by definition."
+    }
+  ]
+}

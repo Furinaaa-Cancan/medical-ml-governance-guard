@@ -81,3 +81,21 @@ repos:
         pass_filenames: false
         always_run: true
         stages: [pre-commit]
+
+      # AST lint: status-prefixed print() calls in CLI tooling must
+      # use file=sys.stderr so stdout stays JSON-pipe-clean. Catches
+      # the H7 (ee292c3) + W7-P9 (9127345) class of bugs system-wide.
+      #
+      # Scoped to scripts/orchestration/mlgg.py — the CLI entrypoint
+      # whose stdout is contractually machine-parseable. Interactive
+      # TUIs (mlgg_interactive.py) and training scripts intentionally
+      # print to stdout for TTY UX; widening the hook there is a
+      # separate decision (W8-W3 surfaced 12 pre-existing prints in
+      # those files; not in scope to fix here).
+      - id: stderr-routing-lint
+        name: Status prints in mlgg CLI must use file=sys.stderr
+        entry: python3 scripts/diagnostics/lint_stderr_routing.py scripts/orchestration/mlgg.py
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
