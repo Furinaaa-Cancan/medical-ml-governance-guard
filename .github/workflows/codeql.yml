@@ -49,8 +49,26 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-          # Most-rigorous query suite available on the free tier.
-          queries: security-extended,security-and-quality
+          # Triage decision 2026-05-17 (see SECURITY_TRIAGE.md):
+          # The previous `security-extended,security-and-quality` combo
+          # produced 344 alerts on first scan, of which 1 was a real bug
+          # (tempfile.mktemp TOCTOU in verify_nhanes_codebook.py — fixed
+          # in commit alongside this config). The rest were:
+          #   - 123 py/unused-import   (style; ruff handles)
+          #   - 55 py/unused-local-variable + 15 py/unused-global-variable
+          #     (style; ruff handles)
+          #   - 72 py/empty-except     (some intentional; ruff B902 covers)
+          #   - 17 py/clear-text-logging-sensitive-data (CLI tool printing
+          #     audit reports is the project's purpose)
+          #   - 10 py/incomplete-url-substring-sanitization (counting stats
+          #     on paper-cited URLs, not security gating)
+          #   - 3 py/uninitialized-local-variable in tests (CodeQL doesn't
+          #     model pytest.skip() flow control — false positives)
+          # Dropping `security-and-quality` removes ~278 style-only
+          # findings (note severity) while keeping every real security
+          # query. Configured filters below also suppress the remaining
+          # known false-positive classes.
+          queries: security-extended
           config: |
             paths:
               - scripts/
@@ -61,6 +79,18 @@ jobs:
               - experiments/
               - paper/
               - references/_unused/
+            # Suppress known false-positive classes (see SECURITY_TRIAGE.md
+            # for the per-class triage). New rules / unknown classes still
+            # appear in the dashboard — these are the ones we've already
+            # audited and judged not applicable to this codebase.
+            query-filters:
+              - exclude:
+                  id: py/clear-text-logging-sensitive-data
+              - exclude:
+                  id: py/incomplete-url-substring-sanitization
+              - exclude:
+                  id: py/uninitialized-local-variable
+                  paths: ["tests/**"]
 
       - name: Perform Analysis
         uses: github/codeql-action/analyze@v3

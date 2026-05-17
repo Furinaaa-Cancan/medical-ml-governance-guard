@@ -1553,7 +1553,7 @@ medical-ml-governance-guard/
 │       └── run_endurance_test.py         #   767  6 小时耐久性测试
 │          └──────────────────────────────────────────────────────────────────┘
 │
-├── tests/                  (192)         # ─── 测试 (~35K lines) ───
+├── tests/                  (194)         # ─── 测试 (~35K lines) ───
 │   ├── conftest.py                       #   统一 fixture (tmp_path, 路径注入, 共享数据)
 │   ├── test_*_gate.py      (33)          #   每个 gate 对应一个测试文件
 │   ├── test_*_e2e.py       (8)           #   端到端流程测试 (onboarding, workflow, train, split, rag)
@@ -1908,6 +1908,7 @@ AI 会自动：
 | [`docs/reference/DATASETS.md`](docs/reference/DATASETS.md) | 16 个医学数据集 + 泄漏陷阱 | 国际 reference |
 | [`docs/reference/MODEL_FAMILIES.md`](docs/reference/MODEL_FAMILIES.md) | 23 个模型族 + 校准 + 泄漏模式 | 国际 reference |
 | [`docs/reference/ANALYSIS_TOOLS.md`](docs/reference/ANALYSIS_TOOLS.md) | 21 个分析工具 + gate 集成 | 国际 reference |
+| [`docs/SECURITY_TRIAGE.md`](docs/SECURITY_TRIAGE.md) | CodeQL 警报分类（首扫 2026-05-17：344 → 1 真修 + 4 加固 + 噪声过滤） | 安全审稿人 |
 | `references/methodology/DISEASE_KB_REVIEW.md` | disease KB clinician review checklist（11/11 pending） | 临床审稿人 |
 | `agents/README.md` | extractor / reviewer agent 分工 | API agent 使用者 |
 | `references/attestation/README.md` | trusted_signers + 执行证明 onboarding | 安全/合规 |

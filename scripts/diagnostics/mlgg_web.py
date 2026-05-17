@@ -457,7 +457,12 @@ def handle_step(step_num: int):
         try:
             p = _validate_path_no_traversal(raw, "project_root")
         except ValueError as exc:
-            return str(exc), 400
+            # CodeQL py/stack-trace-exposure: exc message is a controlled
+            # ValueError raised by our own validator (no stack), but to
+            # close the alert and be defensive against future refactors,
+            # send a generic message to the client and log the detail.
+            app.logger.warning("validation rejected: %s", exc)
+            return "Invalid input.", 400
         session["project_root"] = str(p)
         session["step"] = 2
 

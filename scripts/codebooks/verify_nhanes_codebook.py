@@ -104,7 +104,12 @@ def download_xpt(table_name: str, cycle: str) -> Optional[pd.DataFrame]:
         return None
 
     url = f"{CDC_BASE}/{cdc_year}/DataFiles/{table_name}.xpt"
-    tmp = tempfile.mktemp(suffix=".xpt")
+    # CodeQL py/insecure-temporary-file: replace deprecated mktemp() (race
+    # condition / TOCTOU) with mkstemp() which atomically opens the file.
+    # We immediately close the file descriptor because urlretrieve() opens
+    # it again by path — the directory entry already exists so no race.
+    tmp_fd, tmp = tempfile.mkstemp(suffix=".xpt")
+    os.close(tmp_fd)
 
     try:
         urllib.request.urlretrieve(url, tmp)

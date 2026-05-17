@@ -1242,7 +1242,7 @@ medical-ml-governance-guard/
 │       ├── kb_hygiene_check.py           #   KB provenance / citation / freshness check
 │       └── ...                           #   gate visualization, threshold analysis, policy generator
 │
-├── tests/                  (192)         # ─── Tests (~35K lines) ───
+├── tests/                  (194)         # ─── Tests (~35K lines) ───
 │   ├── conftest.py                       #   Shared fixtures (tmp_path, path injection, test data)
 │   ├── test_*_gate.py      (33)          #   One test file per gate
 │   ├── test_*_e2e.py       (8)           #   End-to-end flow tests (onboarding, workflow, train, split, rag)
@@ -1545,6 +1545,7 @@ The AI will automatically:
 | [`docs/reference/DATASETS.md`](docs/reference/DATASETS.md) | 16 medical datasets | International reference |
 | [`docs/reference/MODEL_FAMILIES.md`](docs/reference/MODEL_FAMILIES.md) | 23 model families | International reference |
 | [`docs/reference/ANALYSIS_TOOLS.md`](docs/reference/ANALYSIS_TOOLS.md) | 21 analysis tools | International reference |
+| [`docs/SECURITY_TRIAGE.md`](docs/SECURITY_TRIAGE.md) | CodeQL alert triage rationale (first scan 2026-05-17: 344 → 1 real fix + 4 hardened + filters) | Security reviewers |
 
 ---
 
