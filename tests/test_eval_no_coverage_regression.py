@@ -5,7 +5,7 @@ raising mean_hit_at_k, it looks like an improvement but is actually
 silent coverage loss.
 
 This test runs run_eval.py against current main and compares coverage_rate
-to the committed post-Wave-5 baseline. CI fails if coverage drops >5pp.
+to the committed post-Wave-7 baseline. CI fails if coverage drops >5pp.
 """
 import json
 import subprocess
@@ -17,7 +17,7 @@ import pytest
 pytest.importorskip("sentence_transformers")
 
 REPO = Path(__file__).resolve().parents[1]
-BASELINE = REPO / "references/retrieval_eval/post_wave5_baseline_hybrid.json"
+BASELINE = REPO / "references/retrieval_eval/post_wave7_baseline_hybrid.json"
 COVERAGE_TOLERANCE = 0.05  # allow 5pp drop before fail
 
 
