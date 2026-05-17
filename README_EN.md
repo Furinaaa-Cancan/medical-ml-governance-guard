@@ -215,6 +215,26 @@ query → embed (BGE-small) → cosine top-50 → + BM25 (issue-code) + gate fil
 
 The 5-agent strict review surfaced 5 honest limitations users should know about. None are ship-blocking, but all are material to expectation-setting.
 
+#### ✅ RAG hybrid ranker dense-weight imbalance (Wave 11 finding, fixed in Wave 13)
+
+W11-I1 ablation (commit [`b1e9c8d`](../../commit/b1e9c8d)) measured the old production hybrid_rank on 30 scenarios:
+
+- `hybrid_all` (old `WEIGHT_DENSE=0.5`): mean_tag_p@5 = **0.353**
+- `bm25_only`: **0.436** (+0.083 over old hybrid)
+- `hybrid_no_dense`: **0.447** (best)
+
+**Verdict**: `WEIGHT_DENSE=0.5` was a dilutor &mdash; **old RAG retrieval quality was below BM25-only**.
+
+**Fixed**: commit [`cc3c717`](../../commit/cc3c717) (W13-P0) demoted `WEIGHT_DENSE` from 0.5 to 0.10 and rebalanced BM25/tag/severity. W13-P0 harness re-measurement reports mean_tag_precision 0.353 -> 0.438 (matches the W11-I1 prediction of ~0.44). Two regression invariants land in `tests/test_rag_config.py`: `test_weights_sum_to_one` and `test_dense_weight_demoted_per_w11_i1` (gate `WEIGHT_DENSE < 0.2`).
+
+**User impact**:
+
+- Today: default hybrid mode is now strong; the `--mode bm25_only` workaround is no longer needed.
+- The `--mode bm25_only` flag is retained for ablation reproducibility.
+- Details: [docs/RAG_TROUBLESHOOTING.md &sect;9](docs/RAG_TROUBLESHOOTING.md) + [ADR 0001](docs/adr/0001_mmr_breakdown_consumer.md)
+
+---
+
 **1. BM25 is gate-anchored**
 
 When you call `rag_query(q)` without a `gate=` argument (the CLI default), the hybrid ranker silently skips BM25 and free-text scoring becomes dense + tag + severity only. After the F1 fix, active weights are re-normalized so final scores still reach 1.0, but users should know BM25 is a gate-anchored signal.
@@ -1210,7 +1230,7 @@ medical-ml-governance-guard/
 │   │   # Note: gate → RAG bridge (gate_rag_bridge.py, 204 LOC) lives in scripts/core/ as RAG's consumer,
 │   │   # not inside scripts/rag/ — keeps the dep direction one-way (gates → RAG).
 │   │
-│   └── diagnostics/       (32)           # Environment, docs-consistency & KB hygiene
+│   └── diagnostics/       (33)           # Environment, docs-consistency & KB hygiene
 │       ├── env_doctor.py                 #   Dependency health check
 │       ├── mlgg_web.py                   #   Flask Web UI
 │       ├── check_docs_consistency.py     #   SKILL.md ↔ README ↔ reviewer.yaml drift detector (pre-commit)
@@ -1219,7 +1239,7 @@ medical-ml-governance-guard/
 │       ├── kb_hygiene_check.py           #   KB provenance / citation / freshness check
 │       └── ...                           #   gate visualization, threshold analysis, policy generator
 │
-├── tests/                  (160)         # ─── Tests (~35K lines) ───
+├── tests/                  (165)         # ─── Tests (~35K lines) ───
 │   ├── conftest.py                       #   Shared fixtures (tmp_path, path injection, test data)
 │   ├── test_*_gate.py      (32)          #   One test file per gate
 │   ├── test_*_e2e.py       (8)           #   End-to-end flow tests (onboarding, workflow, train, split, rag)
@@ -1513,6 +1533,7 @@ The AI will automatically:
 | [`docs/RAG_TROUBLESHOOTING.md`](docs/RAG_TROUBLESHOOTING.md) | Common errors + cold-start + 4 weak dimensions | RAG users |
 | [`docs/KB_TAG_STYLE_GUIDE.md`](docs/KB_TAG_STYLE_GUIDE.md) | KB tag vocabulary conventions | KB editors |
 | [`docs/RAG_WAVE_1_TO_8_RETRO.md`](docs/RAG_WAVE_1_TO_8_RETRO.md) | 8-wave RAG optimization retrospective + 5 anti-patterns | Historians |
+| [`docs/RAG_WAVE_9_TO_12_RETRO.md`](docs/RAG_WAVE_9_TO_12_RETRO.md) | RAG Wave 9-12 retrospective (dilutor discovery + fix path) | Historians |
 | [`docs/adr/`](docs/adr/) | Architecture Decision Records (ADR 0001: `_mmr_breakdown` SHIP decision) | Designers |
 | [`docs/reference/GATES.md`](docs/reference/GATES.md) | 33-gate complete reference | International reference |
 | [`docs/reference/LINT_RULES.md`](docs/reference/LINT_RULES.md) | R001-R028 lint reference | International reference |

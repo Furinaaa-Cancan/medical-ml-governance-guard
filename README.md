@@ -241,6 +241,26 @@ query → embed (BGE-small) → cosine top-50¹ → + BM25 (issue-code) + gate f
 
 5-agent 严格审查梳理出以下 5 条诚实限制，均不阻断发布，但用户应当事先知情。
 
+#### ✅ RAG hybrid ranker dense 权重失衡（Wave 11 发现，Wave 13 已修复）
+
+W11-I1 ablation（commit [`b1e9c8d`](../../commit/b1e9c8d)）在 30 scenarios 上测得旧的生产 hybrid_rank：
+
+- `hybrid_all`（旧 `WEIGHT_DENSE=0.5`）: mean_tag_p@5 = **0.353**
+- `bm25_only`: **0.436**（比旧 hybrid 高 0.083）
+- `hybrid_no_dense`: **0.447**（最佳）
+
+**结论**：`WEIGHT_DENSE=0.5` 是 dilutor，**旧 RAG 检索质量低于纯 BM25**。
+
+**已修复**：commit [`cc3c717`](../../commit/cc3c717) (W13-P0) 将 `WEIGHT_DENSE` 从 0.5 demote 到 0.10，重平衡 BM25/tag/severity 权重；W13-P0 harness 实测 mean_tag_precision 从 0.353 提升至 0.438（与 W11-I1 预测的 0.44 一致）。`tests/test_rag_config.py` 加入两条回归 invariant：`test_weights_sum_to_one`、`test_dense_weight_demoted_per_w11_i1`（gate `WEIGHT_DENSE < 0.2`）。
+
+**用户应对**：
+
+- 现状：直接使用默认 hybrid 即可；无须再切换 `--mode bm25_only`。
+- 旧的临时绕过方案 `--mode bm25_only` 仍保留，便于 ablation。
+- 详情：[docs/RAG_TROUBLESHOOTING.md §9](docs/RAG_TROUBLESHOOTING.md) + [ADR 0001](docs/adr/0001_mmr_breakdown_consumer.md)
+
+---
+
 **1. BM25 仅在 gate 锚定模式下工作**
 
 调用 `rag_query(q)` 时若未传 `gate=` 参数（CLI 默认情况），hybrid ranker 会静默跳过 BM25，自由文本评分退化为 dense + tag + severity 三信号。F1 修复后，活跃权重会重新归一化以保证最终得分仍达 1.0，但请注意 BM25 是 gate 锚定信号。
@@ -1094,14 +1114,14 @@ SHAP 对相关特征可能产生误导（联盟博弈论假设）。PDP 提供�
 | 15 | 5 | `feature_engineering_audit_gate` | 特征组来源、训练集独占范围、稳定性证据 | `feature_engineering_audit_report.json` |
 | 16 | 5 | `clinical_metrics_gate` | 14 指标面板完整性、混淆矩阵一致性、临床下限验证 | `clinical_metrics_report.json` |
 | 17 | 5 | `shap_interpretability_gate` | 多模型 SHAP 集成、Kendall tau 一致性、4 张发表级 CSV | `shap_interpretability_report.json` |
-| 18 | 6 | `calibration_dca_gate` | ECE、斜率/截距、O:E 比、CITL、DCA 净效用、逐队列验证 | `calibration_dca_report.json` |
-| 19 | 6 | `ci_matrix_gate` | 所有划分和外部队列的 Bootstrap CI 矩阵 | `ci_matrix_gate_report.json` |
-| 20 | 6 | `distribution_generalization_gate` | 跨划分分布漂移、特征级 JSD、迁移准备度 | `distribution_generalization_report.json` |
-| 21 | 6 | `evaluation_quality_gate` | CI 宽度 <= 0.20、重采样 >= 200、基线改善 >= 0.01 | `evaluation_quality_report.json` |
-| 22 | 6 | `external_validation_gate` | 外部队列指标、迁移差距、每队列 >= 100 事件；**缺失时总分 cap 85、L3 阻断** | `external_validation_gate_report.json` |
-| 23 | 6 | `fairness_equity_gate` | 均等化几率、差异影响比、亚组性能下限、HEAL FPR/FNR、**PPV 公平性、校准公平性、多重比较警告** | `fairness_equity_report.json` |
-| 24 | 6 | `generalization_gap_gate` | 训练-验证-测试性能差距（PR-AUC、F2-beta、Brier） | `generalization_gap_report.json` |
-| 25 | 6 | `metric_consistency_gate` | 请求与评估报告之间的指标值一致性 | `metric_consistency_report.json` |
+| 18 | 5 | `ci_matrix_gate` | 所有划分和外部队列的 Bootstrap CI 矩阵 | `ci_matrix_gate_report.json` |
+| 19 | 5 | `metric_consistency_gate` | 请求与评估报告之间的指标值一致性 | `metric_consistency_report.json` |
+| 20 | 6 | `calibration_dca_gate` | ECE、斜率/截距、O:E 比、CITL、DCA 净效用、逐队列验证 | `calibration_dca_report.json` |
+| 21 | 6 | `distribution_generalization_gate` | 跨划分分布漂移、特征级 JSD、迁移准备度 | `distribution_generalization_report.json` |
+| 22 | 6 | `evaluation_quality_gate` | CI 宽度 <= 0.20、重采样 >= 200、基线改善 >= 0.01 | `evaluation_quality_report.json` |
+| 23 | 6 | `external_validation_gate` | 外部队列指标、迁移差距、每队列 >= 100 事件；**缺失时总分 cap 85、L3 阻断** | `external_validation_gate_report.json` |
+| 24 | 6 | `fairness_equity_gate` | 均等化几率、差异影响比、亚组性能下限、HEAL FPR/FNR、**PPV 公平性、校准公平性、多重比较警告** | `fairness_equity_report.json` |
+| 25 | 6 | `generalization_gap_gate` | 训练-验证-测试性能差距（PR-AUC、F2-beta、Brier） | `generalization_gap_report.json` |
 | 26 | 6 | `permutation_significance_gate` | 置换零分布显著性检验 | `permutation_report.json` |
 | 27 | 6 | `prediction_replay_gate` | 行级预测轨迹指标回放（容差 1e-6） | `prediction_replay_report.json` |
 | 28 | 6 | `robustness_gate` | 时间片和患者亚组性能稳定性 | `robustness_gate_report.json` |
@@ -1496,7 +1516,7 @@ medical-ml-governance-guard/
 │   │   # 注: gate → RAG 桥 (gate_rag_bridge.py, 204 LOC) 住在 scripts/core/，是 RAG 的消费方，
 │   │   #     不再放在 scripts/rag/ 内部，避免 "RAG 知道 gate" 这种反向依赖。
 │   │
-│   ├── diagnostics/       (31 files, 5.3K LOC)  # 环境诊断 + 文档一致性 + KB 卫生
+│   ├── diagnostics/       (32 files, 5.3K LOC)  # 环境诊断 + 文档一致性 + KB 卫生
 │   │   ├── env_doctor.py                 #   169  依赖健康检查 (core + optional backends)
 │   │   ├── init_guide.py                 #  1035  交互式项目方法学指南生成器
 │   │   ├── mlgg_web.py                   #   701  Flask Web UI (legacy 本地向导)
@@ -1533,7 +1553,7 @@ medical-ml-governance-guard/
 │       └── run_endurance_test.py         #   767  6 小时耐久性测试
 │          └──────────────────────────────────────────────────────────────────┘
 │
-├── tests/                  (160)         # ─── 测试 (~35K lines) ───
+├── tests/                  (165)         # ─── 测试 (~35K lines) ───
 │   ├── conftest.py                       #   统一 fixture (tmp_path, 路径注入, 共享数据)
 │   ├── test_*_gate.py      (32)          #   每个 gate 对应一个测试文件
 │   ├── test_*_e2e.py       (8)           #   端到端流程测试 (onboarding, workflow, train, split, rag)
@@ -1879,7 +1899,13 @@ AI 会自动：
 | `docs/RAG_TROUBLESHOOTING.md` | 常见错误 + cold start + 4 弱维度 + §9 hybrid 跑输 BM25 | RAG 用户 |
 | `docs/KB_TAG_STYLE_GUIDE.md` | KB 标签命名规范 | KB 编辑者 |
 | `docs/RAG_WAVE_1_TO_8_RETRO.md` | 8 轮 RAG 优化复盘 + 5 anti-pattern | history reader |
+| [`docs/RAG_WAVE_9_TO_12_RETRO.md`](docs/RAG_WAVE_9_TO_12_RETRO.md) | RAG Wave 9-12 复盘（dilutor 发现 + 修复路线） | history reader |
 | `docs/adr/` | Architecture Decision Records（ADR 0001: `_mmr_breakdown` consumer） | designer |
+| [`docs/reference/GATES.md`](docs/reference/GATES.md) | 33 道门控完整参考（CLI 契约 + failure codes + DAG 依赖） | 国际 reference |
+| [`docs/reference/LINT_RULES.md`](docs/reference/LINT_RULES.md) | R001-R028 lint 规则参考 | 国际 reference |
+| [`docs/reference/DATASETS.md`](docs/reference/DATASETS.md) | 16 个医学数据集 + 泄漏陷阱 | 国际 reference |
+| [`docs/reference/MODEL_FAMILIES.md`](docs/reference/MODEL_FAMILIES.md) | 23 个模型族 + 校准 + 泄漏模式 | 国际 reference |
+| [`docs/reference/ANALYSIS_TOOLS.md`](docs/reference/ANALYSIS_TOOLS.md) | 21 个分析工具 + gate 集成 | 国际 reference |
 | `references/methodology/DISEASE_KB_REVIEW.md` | disease KB clinician review checklist（11/11 pending） | 临床审稿人 |
 | `agents/README.md` | extractor / reviewer agent 分工 | API agent 使用者 |
 | `references/attestation/README.md` | trusted_signers + 执行证明 onboarding | 安全/合规 |
