@@ -16,7 +16,7 @@
   <a href="https://github.com/Furinaaa-Cancan/medical-ml-governance-guard"><img src="https://img.shields.io/badge/GitHub-Furinaaa--Cancan%2Fmedical--ml--governance--guard-181717?logo=github" alt="GitHub Repo"></a>
   <br>
   <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/"><img src="https://img.shields.io/badge/License-PolyForm%20NC%201.0.0-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/tests-5501%20passed-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-4712%20passed-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/gates-33%20fail--closed-critical" alt="Gates">
   <img src="https://img.shields.io/badge/datasets-16%20medical-purple" alt="Datasets">
   <img src="https://img.shields.io/badge/code-147K%20lines-informational" alt="Code">
@@ -93,10 +93,17 @@
 
 ## 目录
 
+### 🎯 概览（先读这块决定要不要继续）
+
 - [MLGG vs Claude Skill — 架构边界](#mlgg-vs-claude-skill--架构边界)
 - [为什么需要 MLGG](#为什么需要-mlgg)
+- [审稿级审查机制](#审稿级审查机制)
 - [系统能力总览](#系统能力总览)
+
+### 🚀 上手（30 秒 → 9 阶段）
+
 - [快速开始](#快速开始)
+- [安装指南](#安装指南)
 - [9 阶段工作流](#9-阶段工作流)
   - [阶段一：队列定义与样本量](#阶段一队列定义与样本量)
   - [阶段二：数据划分](#阶段二数据划分)
@@ -107,20 +114,28 @@
   - [阶段七：多模型 SHAP 可解释性](#阶段七多模型-shap-可解释性)
   - [阶段八：公平性与亚组分析](#阶段八公平性与亚组分析)
   - [阶段九：报告与合规](#阶段九报告与合规)
+
+### 📚 Reference（33 gate / 28 lint / 23 模型 / 16 数据集 / 21 工具）
+
 - [33 道安全门控 (Gate DAG)](#33-道安全门控-gate-dag)
-- [12 维量化评分](#12-维量化评分)
 - [33 条方法论规则](#33-条方法论规则)
+- [28 条静态分析规则 (R001-R028)](#28-条静态分析规则-r001-r028)
+- [12 维量化评分](#12-维量化评分)
 - [23 个模型族](#23-个模型族)
 - [16 个医学数据集](#16-个医学数据集)
-- [28 条静态分析规则 (R001-R028)](#27-条静态分析规则-r001-r027)
 - [21 项分析工具](#21-项分析工具)
-- [安全加固层](#安全加固层)
-- [项目结构](#项目结构)
-- [安装指南](#安装指南)
+- [NHANES Codebook RAG 系统](#nhanes-codebook-rag-系统)
+- [基准测试结果](#基准测试结果)
 - [命令参考](#命令参考)
-- [文献基础](#文献基础)
+- [项目结构](#项目结构)
+
+### 🔬 设计 + 工程
+
+- [安全加固层](#安全加固层)
 - [Claude Code 集成](#claude-code-集成)
 - [CI/CD](#cicd)
+- [文献基础](#文献基础)
+- [文档地图](#-文档地图)
 - [许可证与引用](#许可证与引用)
 - [English Version](#english-version)
 
@@ -170,12 +185,14 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 
 从 154 篇 NC + CM 医学 ML 论文中结构化提取了 817 条审稿意见（另有 230 篇 PDF 已收录待抽取）。**检索精度经过 2026-04 重构**：原版只按 mlgg_gates 过滤 + severity 排序（在 clinical_metrics_gate 的 ppv 失败上精度仅 20%）；现在用 `retrieve_for_failure(gate_name, issue_codes)`——分词失败代码 → 过滤 stopwords → 按 `tag_overlap × 3 + text_overlap` 重排 → 无匹配时回退 severity 兜底。
 
-| 类别 | 占比 | 示例审稿人原话 |
+| 类别 | 占比² | 示例审稿人原话 |
 |:-----|:-----|:-------------|
 | 评估指标 | 31.7% | *"AUC should not be the only metric. Provide PPV, NPV, calibration."* |
 | 研究设计 | 21.6% | *"Using future data which would not be available for clinical decision."* |
 | 报告规范 | 13.9% | *"Should report calibration and net benefit analysis."* |
 | 外部验证 | 5.6% | *"External validation on independent cohort is essential."* |
+
+> ² 占比来自 154 篇 NC+CM 抽样的 817 条结构化审稿意见；KB 模式与抽取流程见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
 
 **KB 索引完整性**：所有 817 条 concerns 现在都有至少 1 个 `mlgg_gates` 映射（旧版 73.6% 是空数组，retrieval 对四分之三 KB 失效）。Warning-only gate（strict 模式升 fail 的）现在也会拉取 peer review context——不再因为"只有 warning 没有 failure"而背书为空。
 
@@ -198,9 +215,13 @@ python3 scripts/rag/query.py "no calibration in evaluation"
 **架构：**
 
 ```
-query → embed (BGE-small) → cosine top-50 → + BM25 (issue-code) + gate filter
+query → embed (BGE-small) → cosine top-50¹ → + BM25 (issue-code) + gate filter
      → tag/canonical-pattern boost + severity tiebreak → top-K
 ```
+
+> ¹ 当前 dense 权重的真实贡献请见 [docs/RAG_TROUBLESHOOTING.md §9 "Hybrid scores worse than BM25"](docs/RAG_TROUBLESHOOTING.md)（W11-M1 加入），并参考下面的「Wave 11 修正」。
+
+> **Wave 11 修正（W11-I1 ablation, [ADR 0001](docs/adr/0001_mmr_breakdown_consumer.md)）**：当前 `dense_weight=0.5` 在 30-scenario 基准上被证实是 dilutor——`hybrid_no_dense` mean_tag_p@5 = **0.447** > `bm25_only` **0.436** > `hybrid_all` **0.353**。换句话说当前 4-signal 融合（dense + BM25 + tag + severity）整体跑输只跑 BM25。Wave 12 计划把 `DENSE_WEIGHT` demote 到 0.05–0.1。背景与决策记录详见 [docs/ARCHITECTURE.md Q5](docs/ARCHITECTURE.md)。
 
 **三种使用模式：**
 
@@ -342,6 +363,20 @@ python3 -m mlgg_lint check /path/to/your_script.py
 ## 9 阶段工作流
 
 MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通过不进入下一阶段。
+
+### TL;DR：9 阶段一表速查
+
+| Phase | 名称 | 关键 gate | 主要输出 artifact |
+|:--|:--|:--|:--|
+| 1 | 队列定义与样本量 | `cohort_definition_gate` (C01/F05/Z01) | `cohort_definition_report.json`, `feature_profile.csv` |
+| 2 | 数据划分 | `split_protocol_gate` + `leakage_gate` (S01/S02) | `train/valid/test.csv`, `split_protocol.json` |
+| 3 | 预处理 | `imbalance_policy_gate`, `missingness_policy_gate` (P01-P06) | Pipeline 内部固化 |
+| 4 | 特征筛选 | `feature_lineage_gate`, `feature_engineering_audit_gate` (F01-F06) | `feature_engineering_report.json` |
+| 5 | 模型训练与选择 | `model_selection_audit_gate`, `tuning_leakage_gate` (M01-M04) | `model.pkl`, `model_selection_report.json` |
+| 6 | 评估与校准 | `clinical_metrics_gate`, `calibration_dca_gate`, `ci_matrix_gate`, `evaluation_quality_gate` (E01-E06) | `evaluation_report.json`, `ci_matrix_report.json` |
+| 7 | 多模型 SHAP | `shap_interpretability_gate` | 5 张 `shap_table_*.csv` |
+| 8 | 公平性与亚组 | `fairness_equity_gate` (Q01-Q02) | `fairness_equity_report.json` |
+| 9 | 报告与合规 | `publication_gate` + `self_critique_gate` + `security_audit_gate` (T01) | TRIPOD+AI / PROBAST+AI 合规报告, 12 维评分 |
 
 ```
   阶段一           阶段二           阶段三           阶段四
@@ -1514,7 +1549,7 @@ medical-ml-governance-guard/
 │   │   └── journal-rigor-standards.json          # 5 大期刊审稿标准
 │   │
 │   ├── methodology/        (5)           # 方法学知识
-│   │   ├── disease-definition-knowledge-base.json  # 11 种疾病定义 (ICD, 实验室, 药物, UKB 字段)
+│   │   ├── disease-definition-knowledge-base.json  # 11 种疾病定义 (ICD, 实验室, 药物, UKB 字段) — ⚠ 11/11 pending clinician review (LLM-compiled per W11-F2 + W11-M2 inventory; publication-grade gate fail-closes when consumed)
 │   │   ├── leakage-taxonomy.md                     # Kapoor 八型泄漏分类
 │   │   └── literature-knowledge-base.json          # 59 篇 IF>10 文献索引
 │   │
@@ -1828,6 +1863,28 @@ AI 会自动：
 **除个人学习与研究外，任何形式的使用均需事先获得作者书面授权。** 未经授权的使用（包括但不限于学术发表、教学引用、二次开发、机构部署）均违反本许可证。未引用的方法论复制视为学术不端，将向相关期刊编辑部举报。
 
 联系方式：通过 [GitHub Issues](https://github.com/Furinaaa-Cancan/medical-ml-governance-guard/issues) 或作者主页联系。
+
+---
+
+## 📂 文档地图
+
+仓库里散落的 markdown 太多——下表按受众分组，找文档不再靠 `find -name '*.md'`。
+
+| 文件 | 内容 | 受众 |
+|:-----|:-----|:-----|
+| `README.md` （本文档） | 完整中文 reference + portal | 中文用户 |
+| `README_EN.md` | 英文 portal + quickstart + 跳转 | 国际用户 |
+| `docs/ARCHITECTURE.md` | 组件图、hybrid ranker、cache、eval infra（含 Q5 RAG 调参背景） | maintainer |
+| `docs/CONTRIBUTING.md` | hook 配置、pre-commit、pre-push | contributor |
+| `docs/RAG_TROUBLESHOOTING.md` | 常见错误 + cold start + 4 弱维度 + §9 hybrid 跑输 BM25 | RAG 用户 |
+| `docs/KB_TAG_STYLE_GUIDE.md` | KB 标签命名规范 | KB 编辑者 |
+| `docs/RAG_WAVE_1_TO_8_RETRO.md` | 8 轮 RAG 优化复盘 + 5 anti-pattern | history reader |
+| `docs/adr/` | Architecture Decision Records（ADR 0001: `_mmr_breakdown` consumer） | designer |
+| `references/methodology/DISEASE_KB_REVIEW.md` | disease KB clinician review checklist（11/11 pending） | 临床审稿人 |
+| `agents/README.md` | extractor / reviewer agent 分工 | API agent 使用者 |
+| `references/attestation/README.md` | trusted_signers + 执行证明 onboarding | 安全/合规 |
+
+> 数字漂移由 `scripts/diagnostics/check_readme_stats.py` 和 `check_docs_consistency.py` 守门——pre-commit 会 fail 而不是 merge 后才发现。
 
 ---
 
