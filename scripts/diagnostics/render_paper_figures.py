@@ -15,6 +15,7 @@ Output: paper/figures/{fig1,fig2,fig3}.{png,pdf}
 """
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 
@@ -191,6 +192,7 @@ def render_fig3_revision_impact() -> None:
 
 
 def main() -> None:
+    argparse.ArgumentParser(description=__doc__).parse_args()
     print("Rendering paper figures →", FIG_DIR)
     print()
     print("Fig 1: lint corpus prevalence")
