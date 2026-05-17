@@ -266,6 +266,86 @@ def _tag_overlap_scores(
     return out
 
 
+def _dense_corroboration_scores(
+    candidates: List[Dict[str, Any]],
+    *,
+    top_k: Optional[int] = None,
+) -> Dict[str, float]:
+    """Within-CP dense-cosine corroboration score on ``[0, 1]``.
+
+    For each candidate, compute the **average cosine similarity to the
+    top-K most-similar OTHER candidates from the same ``canonical_pattern_id``**.
+    This rewards "the KB has multiple concerns in this same CP that are
+    densely similar to the query result", which is the actual signal
+    ``_tag_overlap_scores`` tried (and largely failed) to capture: 89.5% of
+    KB tags are singletons (W7-P6), so tag-set intersection is sparse, but
+    embeddings of same-CP siblings reliably cluster.
+
+    The score is the **mean** cosine to the top-``top_k`` same-CP siblings
+    (or fewer if the CP has <``top_k`` siblings), already in ``[0, 1]``
+    since the source embeddings are L2-normalized. Candidates without an
+    embedding, without a CP, or in a singleton CP cluster get 0.0.
+
+    Args:
+        candidates: Concern records (post-union, pre-rerank). Each may
+            carry an ``_dense_embedding`` (L2-normalized numpy array) from
+            ``retrieval.dense.vector_search``. Records without an embedding
+            (e.g. BM25-only hits) are skipped in the cosine math but their
+            presence in the CP group is still counted toward other members.
+        top_k: How many same-CP siblings to average over. ``None`` ->
+            ``config.DENSE_CORROBORATION_TOP_K``.
+
+    Returns:
+        Mapping ``concern_id -> corroboration_score`` in ``[0, 1]``.
+    """
+    import numpy as np
+
+    if top_k is None:
+        top_k = config.DENSE_CORROBORATION_TOP_K
+    top_k = max(1, int(top_k))
+
+    out: Dict[str, float] = {}
+    groups: Dict[str, List[Dict[str, Any]]] = {}
+    for c in candidates:
+        cp = c.get("canonical_pattern_id")
+        if not isinstance(cp, str) or not cp:
+            continue
+        groups.setdefault(cp, []).append(c)
+
+    for cp, members in groups.items():
+        if len(members) < 2:
+            continue
+        # Pre-extract embeddings + ids to avoid repeated dict lookups.
+        ids: List[Optional[str]] = []
+        embs: List[Optional[Any]] = []
+        for m in members:
+            ids.append(_concern_id(m))
+            emb = m.get("_dense_embedding")
+            embs.append(emb if emb is not None else None)
+
+        for i, cid_i in enumerate(ids):
+            if cid_i is None or embs[i] is None:
+                continue
+            # Cosine to every OTHER same-CP member that has an embedding.
+            sims: List[float] = []
+            for j, emb_j in enumerate(embs):
+                if i == j or emb_j is None:
+                    continue
+                sims.append(float(np.dot(embs[i], emb_j)))
+            if not sims:
+                continue
+            # Average over the top-K most-similar siblings only. Clamp
+            # negatives to 0 so an antipodal sibling can't drag the score
+            # below 0 (in practice BGE-small cosines are >= 0).
+            sims.sort(reverse=True)
+            top = sims[:top_k]
+            mean = sum(max(0.0, s) for s in top) / len(top)
+            # Already in [0, 1] for normalized embeddings; clamp defensively.
+            out[cid_i] = float(min(1.0, max(0.0, mean)))
+
+    return out
+
+
 def _mmr_rerank(
     candidates: List[Dict[str, Any]],
     *,
@@ -299,8 +379,16 @@ def _mmr_rerank(
 
     Returns:
         Re-ranked list of length min(top_k, len(candidates)). Each picked
-        dict gains a "_mmr_score" field for provenance, and any
-        ``_dense_embedding`` field is removed before return.
+        dict gains:
+          * ``_mmr_score`` (float): the MMR objective value used at pick time.
+          * ``_mmr_breakdown`` (dict, W9-B2 / W5 deep audit signal): records
+            ``{"relevance", "max_sim", "blocker_id", "blocker_reason"}``
+            where ``blocker_id`` names the *already-selected* candidate that
+            contributed ``max_sim`` (i.e. the diversity penalty source), and
+            ``blocker_reason`` is one of ``"cosine"`` (embedding near-dup),
+            ``"same_paper"`` (paper_id penalty), or ``"none"`` (no
+            diversity penalty applied — typically the top-1 pick).
+        ``_dense_embedding`` is removed before return.
     """
     import numpy as np
 
@@ -325,15 +413,38 @@ def _mmr_rerank(
     #   _mmr_score = lam * relevance - (1 - lam) * max_sim
     # collapses to lam * relevance. Subsequent picks (below) store the
     # same expression evaluated against the running ``selected`` set.
-    selected[0]["_mmr_score"] = float(lam * selected[0].get("_final_score", 0.0))
+    top1_relevance = float(selected[0].get("_final_score", 0.0))
+    selected[0]["_mmr_score"] = float(lam * top1_relevance)
+    # W9-B2: surface the per-pick MMR decision in a structured form so
+    # downstream audit can answer "why did B place where it did?". For the
+    # top-1 there is no blocker (nothing selected yet); the dict still
+    # records relevance + zero max_sim for uniform schema.
+    selected[0]["_mmr_breakdown"] = {
+        "relevance": top1_relevance,
+        "max_sim": 0.0,
+        "blocker_id": None,
+        "blocker_reason": "none",
+    }
     remaining = list(candidates[1:])
 
     while remaining and len(selected) < top_k:
         best_score = -float("inf")
         best_idx = 0
+        # Track the winning candidate's MMR breakdown so we can attach it
+        # to ``chosen`` below. Recomputing in a second pass would diverge
+        # from the actual decision if the iteration ever became
+        # non-deterministic.
+        best_breakdown: Dict[str, Any] = {
+            "relevance": 0.0,
+            "max_sim": 0.0,
+            "blocker_id": None,
+            "blocker_reason": "none",
+        }
         for i, cand in enumerate(remaining):
             relevance = cand.get("_final_score", 0.0)
             max_sim = 0.0
+            blocker_id: Optional[str] = None
+            blocker_reason = "none"
             cand_emb = cand.get("_dense_embedding")
             for sel in selected:
                 # Same-paper penalty (always applied; catches BM25-only
@@ -341,6 +452,8 @@ def _mmr_rerank(
                 if cand.get("paper_id") and cand["paper_id"] == sel.get("paper_id"):
                     if same_paper_penalty > max_sim:
                         max_sim = same_paper_penalty
+                        blocker_id = _concern_id(sel)
+                        blocker_reason = "same_paper"
                 # Embedding cosine similarity (preferred when both sides
                 # have an L2-normalized vector; dot product == cosine).
                 sel_emb = sel.get("_dense_embedding")
@@ -352,12 +465,21 @@ def _mmr_rerank(
                     # distinct and no diversity penalty applies.
                     if cos >= config.MMR_COSINE_FLOOR and cos > max_sim:
                         max_sim = cos
+                        blocker_id = _concern_id(sel)
+                        blocker_reason = "cosine"
             mmr_score = lam * relevance - (1.0 - lam) * max_sim
             if mmr_score > best_score:
                 best_score = mmr_score
                 best_idx = i
+                best_breakdown = {
+                    "relevance": float(relevance),
+                    "max_sim": float(max_sim),
+                    "blocker_id": blocker_id,
+                    "blocker_reason": blocker_reason,
+                }
         chosen = dict(remaining.pop(best_idx))
         chosen["_mmr_score"] = float(best_score)
+        chosen["_mmr_breakdown"] = best_breakdown
         selected.append(chosen)
 
     # Strip the internal embedding field so user-facing callers don't get
@@ -510,8 +632,24 @@ def hybrid_rank(
 
     candidate_list = list(candidates_by_id.values())
 
-    # ---- 6. Tag-overlap (canonical pattern) bonus -----------------------
-    tag_overlap_by_id = _tag_overlap_scores(candidate_list)
+    # ---- 6. CP corroboration bonus --------------------------------------
+    # W9-B2: replace the tag-overlap signal with a within-CP dense-cosine
+    # corroboration signal when ``USE_DENSE_CORROBORATION`` is enabled.
+    # Rationale: 89.5% of KB tags are singletons (W7-P6), so tag-set
+    # intersection misses the canonical reuse pattern even with
+    # ``TAG_OVERLAP_MIN_SHARED=1``; embeddings of same-CP siblings, by
+    # contrast, reliably cluster. The new signal also degrades gracefully
+    # for BM25-only candidates (it skips them) and for singleton CP groups
+    # (it returns 0.0). The kept-name ``_tag_overlap_score`` keeps
+    # downstream readers / audit consumers stable. Flip the config flag
+    # to ``False`` to A/B against the legacy tag-overlap path.
+    corroboration_signal: str
+    if config.USE_DENSE_CORROBORATION:
+        tag_overlap_by_id = _dense_corroboration_scores(candidate_list)
+        corroboration_signal = "dense_corroboration"
+    else:
+        tag_overlap_by_id = _tag_overlap_scores(candidate_list)
+        corroboration_signal = "tag_overlap"
 
     # ---- 7. Adaptive weight setup ---------------------------------------
     # Fix 1 — BM25 inactive in free-text path. When BM25 did not fire
@@ -608,7 +746,9 @@ def hybrid_rank(
             reasons.append(f"gate match: {gate}")
         cp = c.get("canonical_pattern_id")
         if isinstance(cp, str) and cp and t > 0:
-            reasons.append(f"canonical pattern {cp} ({t:.2f})")
+            reasons.append(
+                f"canonical pattern {cp} ({corroboration_signal}={t:.2f})"
+            )
         if (
             isinstance(cp, str)
             and cp
