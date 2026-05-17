@@ -1,10 +1,13 @@
-"""Smoke tests for the human-labeled Precision@5 ground-truth set.
+"""Smoke tests for the LLM-assisted preliminary Precision@5 baseline set.
 
 The labeled set (`references/retrieval_eval/labeled_precision_at_5.json`,
 Wave 8 / W2) addresses the P7 caveat in the eval roadmap: prior RAG eval
-metrics use proxy tag-overlap signals, not ground-truth relevance. Without
-human labels, an observed "MMR rerank improvement" could be noise
-relocation rather than a real quality gain.
+metrics use proxy tag-overlap signals, while this set uses per-hit
+relevance judgments — albeit LLM-produced (Claude Opus 4.7 self-eval),
+not independent human adjudication. See the JSON's
+``labeling_protocol.circularity_warning`` for usage constraints (notably:
+absolute P@5 numbers from this file are NOT suitable for external claims
+without independent human re-labeling).
 
 These tests check:
 
