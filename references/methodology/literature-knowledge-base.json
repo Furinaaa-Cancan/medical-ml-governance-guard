@@ -48,7 +48,8 @@
         "Abstract checklist (TRIPOD+AI for Abstracts)"
       ],
       "gates_implementing": [
-        "reporting_bias_gate"
+        "reporting_bias_gate",
+        "cohort_definition_gate"
       ],
       "dimensions_affected": [
         8
@@ -236,7 +237,9 @@
       "gates_implementing": [
         "leakage_gate",
         "split_protocol_gate",
-        "feature_engineering_audit_gate"
+        "feature_engineering_audit_gate",
+        "tuning_leakage_gate",
+        "generalization_gap_gate"
       ],
       "dimensions_affected": [
         1,
@@ -261,7 +264,8 @@
       ],
       "gates_implementing": [
         "definition_variable_guard",
-        "feature_lineage_gate"
+        "feature_lineage_gate",
+        "feature_engineering_audit_gate"
       ],
       "dimensions_affected": [
         2
@@ -285,7 +289,9 @@
       ],
       "gates_implementing": [
         "leakage_gate",
-        "tuning_leakage_gate"
+        "tuning_leakage_gate",
+        "publication_gate",
+        "self_critique_gate"
       ],
       "dimensions_affected": [
         2,
@@ -310,7 +316,8 @@
       ],
       "gates_implementing": [
         "leakage_gate",
-        "publication_gate"
+        "publication_gate",
+        "self_critique_gate"
       ],
       "dimensions_affected": [
         2
@@ -447,8 +454,11 @@
         "Extension of CONSORT for AI interventions",
         "Complements TRIPOD-ML and STARD-AI for non-trial studies"
       ],
-      "gates_implementing": [],
-      "applicability_note": "Not applicable to binary classification pipeline gates; RCT intervention-specific reporting standard",
+      "gates_implementing": [
+        "reporting_bias_gate",
+        "publication_gate"
+      ],
+      "applicability_note": "Publication-relevant for RCT-of-AI; not consumed by binary retrospective-cohort pipeline gates",
       "dimensions_affected": [
         8
       ],
@@ -468,8 +478,11 @@
         "Pre-specification of AI intervention details",
         "Complements CONSORT-AI"
       ],
-      "gates_implementing": [],
-      "applicability_note": "Not applicable to binary classification pipeline gates; RCT protocol-specific reporting standard",
+      "gates_implementing": [
+        "reporting_bias_gate",
+        "publication_gate"
+      ],
+      "applicability_note": "Publication-relevant for RCT-of-AI; not consumed by binary retrospective-cohort pipeline gates",
       "dimensions_affected": [
         8
       ],
@@ -611,7 +624,8 @@
       ],
       "gates_implementing": [
         "covariate_shift_gate",
-        "leakage_gate"
+        "leakage_gate",
+        "feature_engineering_audit_gate"
       ],
       "dimensions_affected": [
         1,
@@ -637,7 +651,8 @@
       ],
       "gates_implementing": [
         "reporting_bias_gate",
-        "fairness_equity_gate"
+        "fairness_equity_gate",
+        "publication_gate"
       ],
       "dimensions_affected": [
         6,
@@ -707,7 +722,9 @@
       ],
       "gates_implementing": [
         "calibration_dca_gate",
-        "clinical_metrics_gate"
+        "clinical_metrics_gate",
+        "imbalance_policy_gate",
+        "metric_consistency_gate"
       ],
       "dimensions_affected": [
         5,
@@ -758,7 +775,9 @@
       ],
       "gates_implementing": [
         "external_validation_gate",
-        "distribution_generalization_gate"
+        "distribution_generalization_gate",
+        "generalization_gap_gate",
+        "cohort_definition_gate"
       ],
       "dimensions_affected": [
         6
@@ -784,7 +803,8 @@
       "gates_implementing": [
         "generalization_gap_gate",
         "covariate_shift_gate",
-        "distribution_generalization_gate"
+        "distribution_generalization_gate",
+        "prediction_replay_gate"
       ],
       "dimensions_affected": [
         6
@@ -810,7 +830,9 @@
       "gates_implementing": [
         "seed_stability_gate",
         "robustness_gate",
-        "ci_matrix_gate"
+        "ci_matrix_gate",
+        "permutation_significance_gate",
+        "metric_consistency_gate"
       ],
       "dimensions_affected": [
         5,
@@ -887,7 +909,9 @@
       "gates_implementing": [
         "imbalance_policy_gate",
         "metric_consistency_gate",
-        "calibration_dca_gate"
+        "calibration_dca_gate",
+        "evaluation_quality_gate",
+        "clinical_metrics_gate"
       ],
       "dimensions_affected": [
         5,
@@ -912,7 +936,9 @@
         "Minimum 1000 permutation iterations recommended for stable p-value estimation"
       ],
       "gates_implementing": [
-        "permutation_significance_gate"
+        "permutation_significance_gate",
+        "seed_stability_gate",
+        "ci_matrix_gate"
       ],
       "dimensions_affected": [
         5
@@ -938,7 +964,8 @@
       "gates_implementing": [
         "self_critique_gate",
         "request_contract_gate",
-        "reporting_bias_gate"
+        "reporting_bias_gate",
+        "publication_gate"
       ],
       "dimensions_affected": [
         8,
@@ -1035,7 +1062,8 @@
       "gates_implementing": [
         "reporting_bias_gate",
         "fairness_equity_gate",
-        "external_validation_gate"
+        "external_validation_gate",
+        "publication_gate"
       ],
       "dimensions_affected": [
         6,
@@ -1069,7 +1097,8 @@
         "regression"
       ],
       "gates_implementing": [
-        "reporting_bias_gate"
+        "reporting_bias_gate",
+        "cohort_definition_gate"
       ],
       "dimensions_affected": [
         8
@@ -1155,7 +1184,9 @@
       ],
       "gates_implementing": [
         "request_contract_gate",
-        "clinical_metrics_gate"
+        "clinical_metrics_gate",
+        "self_critique_gate",
+        "publication_gate"
       ],
       "dimensions_affected": [
         5
@@ -1181,7 +1212,8 @@
       ],
       "gates_implementing": [
         "calibration_dca_gate",
-        "evaluation_quality_gate"
+        "evaluation_quality_gate",
+        "metric_consistency_gate"
       ],
       "dimensions_affected": [
         5,
@@ -1268,7 +1300,8 @@
       "gates_implementing": [
         "model_selection_audit_gate",
         "evaluation_quality_gate",
-        "missingness_policy_gate"
+        "missingness_policy_gate",
+        "tuning_leakage_gate"
       ],
       "dimensions_affected": [
         4,
@@ -1389,7 +1422,9 @@
       ],
       "gates_implementing": [
         "leakage_gate",
-        "definition_variable_guard"
+        "definition_variable_guard",
+        "feature_engineering_audit_gate",
+        "feature_lineage_gate"
       ],
       "dimensions_affected": [
         2
@@ -1413,7 +1448,9 @@
       ],
       "gates_implementing": [
         "leakage_gate",
-        "definition_variable_guard"
+        "definition_variable_guard",
+        "feature_lineage_gate",
+        "publication_gate"
       ],
       "dimensions_affected": [
         2
@@ -1499,7 +1536,8 @@
         "Validates pmsampsize approach"
       ],
       "gates_implementing": [
-        "sample_size_gate"
+        "sample_size_gate",
+        "cohort_definition_gate"
       ],
       "dimensions_affected": [
         12
@@ -1523,7 +1561,8 @@
       ],
       "gates_implementing": [
         "leakage_gate",
-        "split_protocol_gate"
+        "split_protocol_gate",
+        "feature_lineage_gate"
       ],
       "dimensions_affected": [
         1,
@@ -1596,7 +1635,8 @@
       ],
       "gates_implementing": [
         "fairness_equity_gate",
-        "reporting_bias_gate"
+        "reporting_bias_gate",
+        "publication_gate"
       ],
       "dimensions_affected": [
         8,
@@ -1621,7 +1661,8 @@
       ],
       "gates_implementing": [
         "external_validation_gate",
-        "reporting_bias_gate"
+        "reporting_bias_gate",
+        "publication_gate"
       ],
       "dimensions_affected": [
         3,
