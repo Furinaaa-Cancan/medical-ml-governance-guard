@@ -177,6 +177,11 @@ def aggregate(per_scenario: list[dict]) -> dict:
     }
 
 
+def _row_id(row: dict) -> str | None:
+    """Resolve row id, tolerating future schema rename to scenario_id (W11-F5)."""
+    return row.get("id") or row.get("scenario_id")
+
+
 def _render_diff_section(current, baseline_data):
     """Show per-scenario delta vs baseline.
 
@@ -190,9 +195,45 @@ def _render_diff_section(current, baseline_data):
     15 newly-evaluable scenarios are harder. Per-scenario delta makes
     that visible so a future change that shrinks evaluable while raising
     mean P@K cannot masquerade as an improvement.
+
+    W11-F5: also echo baseline aggregate metrics at the top so the reader
+    can spot compositional shifts (newly_evaluable + newly_zero mass
+    changing while per-scenario rows look unchanged).
     """
-    baseline_by_id = {r["id"]: r for r in baseline_data.get("per_scenario", [])}
+    baseline_by_id: dict[str, dict] = {}
+    for r in baseline_data.get("per_scenario", []):
+        rid = _row_id(r)
+        if rid is None:
+            print(
+                "diff: skipping row without id/scenario_id",
+                file=sys.stderr,
+            )
+            continue
+        baseline_by_id[rid] = r
+
     lines = ["", "## Per-scenario delta vs baseline", ""]
+
+    # W11-F5: echo baseline aggregate so compositional shifts are visible
+    b_agg = baseline_data.get("aggregate") or {}
+    agg_echoes: list[str] = []
+    for key in (
+        "mean_precision_at_5",
+        "mean_top1_score",
+        "mean_tag_precision",
+        "mean_tag_precision_at_k",
+        "mean_hit_at_k",
+        "coverage_rate",
+    ):
+        if key in b_agg and b_agg[key] is not None:
+            val = b_agg[key]
+            try:
+                agg_echoes.append(f"{key}={float(val):.3f}")
+            except (TypeError, ValueError):
+                agg_echoes.append(f"{key}={val}")
+    if agg_echoes:
+        lines.append(f"_Baseline aggregate_: {', '.join(agg_echoes)}")
+        lines.append("")
+
     lines.append("| id | baseline P@K | current P@K | delta | status |")
     lines.append("|----|-------------:|------------:|------:|--------|")
     changes = {
@@ -204,7 +245,14 @@ def _render_diff_section(current, baseline_data):
     }
     missing_in_baseline = 0
     for cur in current:
-        baseline = baseline_by_id.get(cur["id"])
+        cur_id = _row_id(cur)
+        if cur_id is None:
+            print(
+                "diff: skipping row without id/scenario_id",
+                file=sys.stderr,
+            )
+            continue
+        baseline = baseline_by_id.get(cur_id)
         if baseline is None:
             missing_in_baseline += 1
             continue
@@ -238,7 +286,7 @@ def _render_diff_section(current, baseline_data):
             else "-"
         )
         lines.append(
-            f"| `{cur['id']}` | {b_str} | {c_str} | {d_str} | {status} |"
+            f"| `{cur_id}` | {b_str} | {c_str} | {d_str} | {status} |"
         )
     lines.append("")
     lines.append(
@@ -365,28 +413,45 @@ def main(argv=None):
             "Markdown report includes a delta table (W9-C2)."
         ),
     )
+    parser.add_argument(
+        "--diff-required",
+        action="store_true",
+        help=(
+            "When set, treat unreadable/missing --diff baseline as a hard "
+            "error (exit 2). Default: warn to stderr and continue. (W11-F5)"
+        ),
+    )
     args = parser.parse_args(argv)
 
     if args.output is None:
         ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")
         args.output = Path(f"/tmp/rag_eval_{args.mode}_{ts}.md")
 
-    scenarios = load_scenarios(args.scenarios)
-    per_scenario = [
-        score_one(s, mode=args.mode, top_k=args.top_k) for s in scenarios
-    ]
-    agg = aggregate(per_scenario)
-
+    # W11-F5: load --diff baseline up-front so --diff-required can fail-fast
+    # without waiting for the (slow) scoring pass to finish.
     diff_baseline = None
     if args.diff is not None:
         try:
             diff_baseline = json.loads(args.diff.read_text())
         except (OSError, json.JSONDecodeError) as exc:
+            if args.diff_required:
+                print(
+                    f"error: --diff-required set but baseline "
+                    f"{args.diff} could not be loaded: {exc}",
+                    file=sys.stderr,
+                )
+                return 2
             print(
                 f"warning: could not load --diff baseline {args.diff}: {exc}",
                 file=sys.stderr,
             )
             diff_baseline = None
+
+    scenarios = load_scenarios(args.scenarios)
+    per_scenario = [
+        score_one(s, mode=args.mode, top_k=args.top_k) for s in scenarios
+    ]
+    agg = aggregate(per_scenario)
 
     md = render_markdown(
         per_scenario,
