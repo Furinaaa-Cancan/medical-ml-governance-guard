@@ -18,7 +18,12 @@ load-bearing.
 
 | | **MLGG-Bench** | **NCPR-Bench** |
 |---|---|---|
-| Layer tested | Component: RAG retrieval | System: end-to-end (RAG + 33 gates + LLM synthesis) |
+| Layer tested | Component: RAG retrieval | System: end-to-end (RAG + 33 gates + LLM synthesis) [^a2] |
+
+[^a2]: Per `references/benchmark/hybrid_v1_spec.md` Amendment 2 (2026-05-17,
+    W25 evidence L2 = 0/264 gate-paper pairs), the 33-gate layer is a
+    pipeline contract for internal instrumented runs, not an external-audit
+    layer. External hybrid is L1 lint + L3 RAG only.
 | Input | Synthetic reviewer-style query | Real held-out paper (methods text / peer-review bundle) |
 | Ground truth | Hand-labelled CP + tag + concern_id | Real reviewer concerns from held-out Nature Communications papers |
 | Headline metrics | `hit@k`, `cp_hit@k`, `tag_precision@k`, `coverage_rate` | `severity_weighted_f1`, `category_coverage`, `tail_severity_recall` |

@@ -184,6 +184,79 @@ After Phase 3 ships, an ADR should clarify routing:
 3. How to handle "matched at wrong severity" — does it count as TP, partial-TP, or FN?
 4. Should Phase 3 release a public leaderboard format, or stay internal?
 
+## 10b. Amendment 2 — L2 reclassified as pipeline contract (2026-05-17)
+
+**Status**: Accepted (2026-05-17, W25 Phase 1+2 evidence)
+
+### Trigger
+
+W25 ran the hybrid pipeline against 8 out-of-distribution external papers
+(Yan, Purushotham, Che, BEHRT, Johnson, Harutyunyan, Kaji, Moor). In every
+single case study L2 reported **0 of 33** gates fired. Aggregate over the
+8 papers: **L2 = 0/264 gate-paper pairs**. This is not noise — it is a
+universal structural finding. Root cause: gates in `scripts/gates/*.py`
+require MLGG-instrumented training evidence JSONs (split manifests, fit
+provenance, calibration artifacts, ...) that external repositories do not
+emit by definition; external code at most ships a `train.py` script, not
+the runtime evidence trail the gates consume.
+
+### Decision
+
+1. L2 is **renamed** from "Hard / gates" to
+   **"L2 — pipeline contract gates (require MLGG-instrumented training run)"**.
+2. The **external-audit hybrid is L1 + L3 only** (lint + RAG). L2 is not
+   part of the external-audit pipeline.
+3. Spec §4 "Per-source attribution" table — the rows
+   `gate_only`, `lint + gate`, `gate + rag`, and `all_three` are **dropped
+   for external-audit use** and retained **only for internal
+   instrumented-run use** (where MLGG itself ran the training and the
+   evidence JSONs exist).
+4. Spec §5 metrics — `gate_coverage_rate` is **N/A for external audits**
+   and is defined only for instrumented runs.
+
+### What this changes operationally
+
+- The product claim "33 gates audit any paper" is **incorrect** for external
+  use.
+- Correct claim: **"33 gates audit MLGG-instrumented training pipelines;
+  for external paper audits, MLGG uses L1 lint + L3 RAG hybrid."**
+- All public docs need this footnote: `docs/BENCHMARK_OVERVIEW.md` (1-line
+  cross-reference added in this commit), and ADR 0007 Amendment 1 should
+  cross-reference Amendment 2 in its next revision.
+
+### Alternatives considered + rejected
+
+- **Alt A — Build a metadata → evidence-JSON adapter** so gates can run on
+  external repos. **Rejected for v1 scope**: requires ingesting training
+  data and re-running training pipelines from external repos, which is
+  weeks of work per paper and not feasible at benchmark cadence.
+- **Alt B — Make some gates "evidence-optional"** (run on code only).
+  **Rejected**: each gate's verdict logic depends on its required evidence
+  file; an "optional" mode is a degraded gate that emits noise, not
+  signal.
+
+### Consequences
+
+- **Positive**: spec honesty restored; marketing materials can be honest
+  about what MLGG measures on external papers.
+- **Negative**: must rewrite "MLGG is a 33-gate AI reviewer" claims wherever
+  they appear in public docs / READMEs / pitch material.
+- **Path forward**: L2 contribution to external audits comes via a
+  metadata → evidence-JSON adapter (separate workstream, not v1).
+
+### Reversal criteria
+
+If a metadata → evidence-JSON adapter is built and demonstrates **≥10%
+gate coverage on external repos** (i.e. ≥3 of 33 gates firing on a
+representative external paper), Amendment 2 can be revised and L2 can
+re-enter the external-audit hybrid.
+
+### Provenance for Amendment 2
+
+- W25 aggregate: `docs/diagnostics/W25_hybrid_aggregate.md`
+  (commit `91cba4c`)
+- 8 case study reports: `docs/diagnostics/W25_hybrid_phase*_case*.md`
+
 ## 11. Provenance
 
 User-framed as the missing test on 2026-05-17 in conversation:
