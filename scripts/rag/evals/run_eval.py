@@ -141,6 +141,37 @@ def score_one(scenario: dict, *, mode: str, top_k: int = 5) -> dict:
     }
 
 
+def _bootstrap_ci(
+    values: list[float], n_bootstrap: int = 1000, alpha: float = 0.05,
+    seed: int = 20260517,
+) -> tuple[float | None, float | None]:
+    """Percentile-bootstrap 95% CI on a list of binary/proportion values.
+
+    Added 2026-05-17 in response to the MLGG-Bench v1.0.2 REVIEW.md M2
+    finding (per-slice n=10 gives ±25-31pp CI on point estimates; reporting
+    point estimates without intervals is misleading for NC-grade claims).
+
+    Deterministic via fixed seed so repeated calls are reproducible. Returns
+    (lower_2.5, upper_97.5) percentiles of the resampled means, rounded to
+    3 decimals. Returns (None, None) if values is empty.
+    """
+    if not values:
+        return (None, None)
+    import random
+    rng = random.Random(seed)
+    n = len(values)
+    means: list[float] = []
+    for _ in range(n_bootstrap):
+        sample_sum = 0.0
+        for _ in range(n):
+            sample_sum += values[rng.randint(0, n - 1)]
+        means.append(sample_sum / n)
+    means.sort()
+    lo_idx = int(alpha / 2 * n_bootstrap)
+    hi_idx = int((1 - alpha / 2) * n_bootstrap)
+    return (round(means[lo_idx], 3), round(means[hi_idx], 3))
+
+
 def aggregate(per_scenario: list[dict]) -> dict:
     """Aggregate per-scenario metrics.
 
@@ -153,6 +184,10 @@ def aggregate(per_scenario: list[dict]) -> dict:
       * coverage_rate = n_evaluable / n_total (A4 finding): guards
         against ghost-improvement where a future change shrinks the
         evaluable set while raising mean P@K.
+
+    2026-05-17 addition: percentile-bootstrap 95% CIs on each mean metric
+    (per REVIEW.md M2). NON-breaking: existing fields preserved; new
+    fields are <metric>_ci95 = (lower, upper).
     """
     tag_precs = [
         r["tag_precision_at_k"]
@@ -185,12 +220,15 @@ def aggregate(per_scenario: list[dict]) -> dict:
         "mean_hit_at_k": (
             round(sum(hits_at_k) / len(hits_at_k), 3) if hits_at_k else None
         ),
+        "mean_hit_at_k_ci95": _bootstrap_ci(hits_at_k),
         "mean_tag_precision_at_k": (
             sum(tag_precs) / len(tag_precs) if tag_precs else None
         ),
+        "mean_tag_precision_at_k_ci95": _bootstrap_ci(tag_precs),
         "mean_cp_hit_at_k": (
             round(sum(cp_hits) / n_cp_evaluable, 3) if cp_hits else None
         ),
+        "mean_cp_hit_at_k_ci95": _bootstrap_ci(cp_hits),
         "n_cp_evaluable": n_cp_evaluable,
         "mean_top1_score": (
             sum(top1_scores) / len(top1_scores) if top1_scores else None
