@@ -21,6 +21,7 @@ Design contract: see ``/tmp/mlgg_rag_design.md`` (Agent A7 of 10).
 
 from __future__ import annotations
 
+import re
 from collections import Counter
 from typing import Any, Optional
 
@@ -128,33 +129,83 @@ _OFF_MODALITY_HEDGE = (
 )
 
 
+def _normalize_for_denylist(s: str) -> str:
+    """Lower-case and collapse non-alphanumeric runs to single spaces.
+
+    Both the query and each denylist token are passed through this
+    transform so whole-word matching reduces to a space-padded substring
+    check (``" {token} " in " {normalised_query} "``). Underscores,
+    hyphens, punctuation and arbitrary whitespace all collapse to a
+    single space, so ``"graph_neural"``, ``"graph-neural"`` and
+    ``"graph neural"`` are equivalent. Empty / ``None`` inputs return
+    ``""`` so the caller can pad-and-check safely without a branch.
+    """
+
+    if not s:
+        return ""
+    # ``[\W_]+`` includes underscore because ``\w`` keeps it as a
+    # word-char; without explicit ``_`` the token "graph_neural" would
+    # survive intact and never match "graph neural".
+    return re.sub(r"[\W_]+", " ", s.lower()).strip()
+
+
+# Pre-normalise the denylist ONCE at import time. Each entry is wrapped
+# in single spaces so the membership test below becomes a whole-word
+# substring check: ``" vae "`` is NOT a substring of ``" variational
+# autoencoder "``, but IS a substring of ``" vae loss curve "``. This
+# kills the W7-P2 substring false positives ("vae" inside "variational",
+# "gpt" inside "gpt2-clinical-rebadged", etc.) without needing per-call
+# regex compilation.
+_NORMALISED_DENYLIST: frozenset[str] = frozenset(
+    f" {_normalize_for_denylist(tok)} " for tok in MODALITY_DENYLIST
+)
+
+
 def _is_off_modality_query(query: str) -> bool:
     """Return True if query contains an off-MLGG-scope modality token.
 
-    W6 W1 measured 100% TP / 0% FP on 10 off / 8 in test queries.
-    Sample-size caveat: list is empirically derived; expand or trim
-    as production adversarial cases surface.
+    W8-W4: Replaced W7-P2's plain-substring matcher with whole-word
+    matching (token boundaries on either side) to fix the FP class
+    identified in P2 deep-int — substrings like ``"vae"`` inside
+    ``"variational"`` or ``"gpt"`` inside ``"gpt2-clinical"`` falsely
+    flagged in-scope queries. Removing the offending token would have
+    un-flagged every legitimate off-scope query carrying it, so we
+    tighten the matcher instead.
+
+    Implementation: both the query and every denylist token are passed
+    through :func:`_normalize_for_denylist` (which collapses all
+    non-alphanumerics — including underscores — to single spaces). The
+    membership test then becomes ``" {token} " in " {query} "``, which
+    is a whole-word match without per-call regex compilation. Multi-
+    word tokens (``"graph_neural"``, ``"kaplan_meier"``) survive the
+    normalisation as space-separated phrases and still match
+    space- / hyphen- / underscore-separated query forms.
+
+    W6 W1 measured 100% TP / 0% FP on the original 10 off / 8 in test
+    queries; the W8 whole-word variant preserves those numbers (every
+    parametric case still returns the expected verdict) AND fixes the
+    documented W1 self-challenge FP "variational autoencoder ..." which
+    no longer matches ``vae`` (substring) but does NOT match ``vae``
+    (whole word).
 
     Args:
         query: Free-text query string (typically the synthesised query
             from :func:`_synthesize_query` or the caller-supplied hint).
-            Hyphens are normalised to underscores before matching so
-            ``"kaplan-meier"`` and ``"kaplan_meier"`` are equivalent.
+            Hyphens, underscores and other non-alphanumerics are treated
+            as word boundaries so ``"kaplan-meier"`` and
+            ``"kaplan_meier"`` and ``"kaplan meier"`` are equivalent.
 
     Returns:
         ``True`` iff any token in :data:`MODALITY_DENYLIST` appears as a
-        substring of the lower-cased, hyphen-normalised query. Empty or
-        ``None`` queries return ``False`` (absence is not evidence of
-        off-scope).
+        whole word in the normalised query. Empty or ``None`` queries
+        return ``False`` (absence is not evidence of off-scope).
     """
     if not query:
         return False
-    # Normalise hyphens AND whitespace to underscores so multi-word
-    # tokens like "graph_neural" and "kaplan_meier" match queries
-    # written as "graph neural" or "kaplan-meier".
-    q = query.lower().replace("-", "_")
-    q = "_".join(q.split())
-    return any(token in q for token in MODALITY_DENYLIST)
+    padded = f" {_normalize_for_denylist(query)} "
+    if padded == "  ":
+        return False
+    return any(tok in padded for tok in _NORMALISED_DENYLIST)
 
 # H19 W5 LLM-loop eval found: when 2+ concerns from the same paper
 # surface in the same render (e.g. PR-EXP-0084-C04 + PR-EXP-0084-C08),

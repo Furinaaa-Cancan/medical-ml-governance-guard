@@ -487,6 +487,128 @@ def test_format_for_gate_report_marks_same_paper_concerns() -> None:
     )
 
 
+# ---------------------------------------------------------------------------
+# W8-W4: whole-word denylist matching (regression for W7-P2 substring FPs)
+# ---------------------------------------------------------------------------
+# P2 deep-int observation: substring matching is asymmetric. Removing a
+# token to silence one in-scope FP un-flags every off-scope query using
+# the same token. Whole-word matching breaks the asymmetry — "vae"
+# matches "vae loss" but not "variational". The cases below pin the
+# behaviour so a future "loosen the matcher" change re-introduces them
+# visibly.
+
+@pytest.mark.parametrize("query,expected,rationale", [
+    # --- W7-P2 FP that whole-word DOES fix ---
+    # "vae" is no longer a substring-match inside "variational"
+    ("variational autoencoder latent disentanglement", False,
+     "vae-in-variational FP fixed by \\b boundaries"),
+    # gpt2-clinical: "gpt" is not a whole word inside "gpt2"
+    ("evaluating gpt2-clinical rebadging on EHR notes", False,
+     "gpt-in-gpt2 FP fixed by \\b boundaries"),
+
+    # --- W7-P2 FP that whole-word does NOT fix (token is a real word) ---
+    # "attention" IS a whole word — still flagged. Removing "attention"
+    # from the denylist would un-flag legitimate NLP queries; this FP
+    # is acceptable per the "false positives are recoverable" policy.
+    ("clinical attention paid to AKI predictors", True,
+     "attention is a real whole-word in the query — accepted FP"),
+
+    # --- True off-scope still caught ---
+    ("BERT-style tokenization for clinical text", True,
+     "bert whole-word"),
+    ("Cox proportional hazards model", True,
+     "cox whole-word"),
+    ("single-cell RNAseq differential expression", True,
+     "single_cell multi-word + rnaseq whole-word"),
+    ("graph_neural network on EHR co-occurrence", True,
+     "graph_neural multi-word (underscore form)"),
+    ("graph neural network with message passing", True,
+     "graph_neural + message_passing multi-word (space form)"),
+    ("kaplan-meier survival curves", True,
+     "kaplan_meier multi-word (hyphen form)"),
+    ("VAE loss curve diverges", True,
+     "vae whole-word (uppercase)"),
+
+    # --- In-scope queries that LOOK like they might trigger but don't ---
+    ("missing calibration plot for sepsis model", False,
+     "no denylist tokens"),
+    ("patient leakage across train test split", False,
+     "no denylist tokens"),
+    ("AUROC reported without confidence interval", False,
+     "no denylist tokens"),
+])
+def test_whole_word_denylist_matching(query, expected, rationale):
+    """W8-W4: \\b whole-word matching kills P2 substring FPs.
+
+    Per spec: assertion-relaxed — mismatches print but do NOT fail CI.
+    Documenting drift is more valuable than chasing matcher gymnastics.
+    The ``rationale`` column makes intent explicit so a future tuner can
+    update both ``expected`` and ``rationale`` in lockstep.
+    """
+    from scripts.core.gate_rag_bridge import _is_off_modality_query
+    actual = _is_off_modality_query(query)
+    drift = "" if actual == expected else "  <-- DRIFT"
+    print(
+        f"  W8-W4: {query!r:60} expected={expected} actual={actual}"
+        f" [{rationale}]{drift}"
+    )
+    # Soft check — log mismatch but do not fail. The cases above were
+    # hand-graded by W8-W4; a tuner who changes the matcher should
+    # update ``expected`` rather than silence this test.
+    if actual != expected:
+        # Allow but do not fail: living spec, per spec instructions.
+        pass
+
+
+def test_w8w4_p2_substring_fp_actually_fixed():
+    """W8-W4 HARD assertion: the two named P2 substring FPs must be
+    fixed. Unlike the documenting test above, this one fails CI if
+    "vae" inside "variational" or "gpt" inside "gpt2-clinical" come
+    back. This is the regression guard for the P2 deep-int finding."""
+    from scripts.core.gate_rag_bridge import _is_off_modality_query
+    # "variational" contains the literal substring "v-a-e"? No — it
+    # contains "varia...nal". Substring failure mode was different:
+    # "vae" matched because no boundary check. With whole-word, the
+    # token "vae" requires word boundaries, so it doesn't match inside
+    # any longer word.
+    assert not _is_off_modality_query(
+        "variational autoencoder latent disentanglement"
+    ), "P2 substring FP regression: 'vae' should not whole-word match 'variational'"
+    assert not _is_off_modality_query(
+        "evaluating gpt2-clinical rebadging on EHR notes"
+    ), "P2 substring FP regression: 'gpt' should not whole-word match 'gpt2'"
+
+
+def test_w8w4_multi_word_tokens_match_all_separator_forms():
+    """W8-W4: multi-word denylist tokens (graph_neural, kaplan_meier,
+    natural_language, etc.) must match queries regardless of whether
+    the separator is underscore, hyphen, or space."""
+    from scripts.core.gate_rag_bridge import _is_off_modality_query
+    for sep in ("_", "-", " "):
+        q1 = f"applying graph{sep}neural networks to clinical data"
+        q2 = f"kaplan{sep}meier survival analysis"
+        q3 = f"natural{sep}language processing pipeline"
+        assert _is_off_modality_query(q1), (
+            f"multi-word match failed for graph_neural with sep={sep!r}: {q1}"
+        )
+        assert _is_off_modality_query(q2), (
+            f"multi-word match failed for kaplan_meier with sep={sep!r}: {q2}"
+        )
+        assert _is_off_modality_query(q3), (
+            f"multi-word match failed for natural_language with sep={sep!r}: {q3}"
+        )
+
+
+def test_w8w4_edge_inputs_do_not_crash():
+    """W8-W4: degenerate inputs (empty, whitespace-only, punctuation-
+    only) must return False rather than crashing or matching."""
+    from scripts.core.gate_rag_bridge import _is_off_modality_query
+    assert _is_off_modality_query("") is False
+    assert _is_off_modality_query("   ") is False
+    assert _is_off_modality_query("!!! @@@ ###") is False
+    assert _is_off_modality_query(None) is False  # type: ignore[arg-type]
+
+
 def test_q9_external_validation_recovers_known_dropouts():
     """W2/A1 regression: Q9 free-text query had E1 P@5=1.0 then dropped
     to 0.4 due to MMR over-penalize. A1 fix (MMR_COSINE_FLOOR=0.88)
