@@ -1,0 +1,1136 @@
+{
+  "split": "test",
+  "split_seed": 20260517,
+  "n_scenarios": 40,
+  "slice_distribution": {
+    "baseline_30": 4,
+    "indist_155": 23,
+    "ood_01": 1,
+    "ood_02": 1,
+    "ood_03": 1,
+    "ood_04": 1,
+    "bench_01_fairness": 1,
+    "bench_02_longtail": 3,
+    "bench_03_compound": 1,
+    "bench_04_negatives": 1,
+    "bench_05_distractors": 1,
+    "bench_07_adv_extended": 2
+  },
+  "scenarios": [
+    {
+      "scenario_id": "weak_offdomain_woodworking_query",
+      "description": "User accidentally points MLGG at carpentry/joinery terminology \u2014 entirely outside MLGG scope. Real WEAK case for H19 LLM-loop hedge/honesty audits.",
+      "gate_name": "free_text_probe",
+      "failure_codes": [],
+      "expected_categories": [],
+      "expected_tags": [],
+      "query_text": "wood joinery dovetail mortise tenon",
+      "expected_difficulty": "WEAK",
+      "expected_n_hits_lt": 6,
+      "expected_top1_score_lt": 0.45,
+      "_rationale": "Off-MLGG-domain free text. Measured top1=0.394 on 2026-05-17.",
+      "_added_by": "W4",
+      "_added_at": "2026-05-17",
+      "_slice": "baseline_30"
+    },
+    {
+      "scenario_id": "leakage_discharge_icd",
+      "description": "Retrospective ICU cohort using icd10_I469 and icd10_Z51_5 as features \u2014 discharge-finalized codes that leak outcome (Ramadan JAMA 2025). Dataset: UKB / MIMIC style ICU mortality prediction.",
+      "gate_name": "leakage_gate",
+      "failure_codes": [
+        "discharge_finalized_icd_as_feature",
+        "suspicious_feature_names"
+      ],
+      "expected_categories": [
+        "data_leakage"
+      ],
+      "expected_tags": [
+        "outcome_definition",
+        "temporal_leakage",
+        "future_information_leakage",
+        "target_leakage",
+        "feature_is_outcome_proxy",
+        "definition_variable"
+      ],
+      "query_text": "patient identifier leaked across train test split",
+      "dimension": "leakage",
+      "baseline_p5_e1": 1.0,
+      "failure_codes_hint": [
+        "MLGG-S01"
+      ],
+      "expected_relevant_tags": [
+        "target_leakage",
+        "temporal_leakage",
+        "future_information_leakage",
+        "split_protocol"
+      ],
+      "h10_legacy_id": "Q1_leakage",
+      "_slice": "baseline_30"
+    },
+    {
+      "scenario_id": "definition_variable_outcome_in_feature",
+      "description": "Outcome is 'AKI' defined as creatinine rise \u22650.3 mg/dL over 48h \u2014 then 'peak_creatinine_48h' is used as a predictor. Classic definition-variable leak: feature is (part of) the outcome itself. Complements the discharge-ICD leakage scenario by targeting the non-ICD form of outcome-in-feature.",
+      "gate_name": "definition_variable_guard",
+      "failure_codes": [
+        "feature_is_in_outcome_definition",
+        "definition_variable_leak_detected",
+        "outcome_defined_by_predictor"
+      ],
+      "expected_categories": [
+        "data_leakage",
+        "feature_selection",
+        "study_design"
+      ],
+      "expected_tags": [
+        "definition_variable",
+        "definition_variable_guard",
+        "variable_definition_ambiguous",
+        "definition_drift",
+        "outcome_defined_by_features",
+        "feature_is_outcome_proxy",
+        "circular_prediction",
+        "circular_evaluation",
+        "outcome_definition"
+      ],
+      "_slice": "baseline_30"
+    },
+    {
+      "scenario_id": "distribution_generalization_temporal",
+      "description": "Internal temporal validation: model trained on 2015-2018, internal-split 2019-2020, reported as 'temporal validation'. But there is no external site. Generalization claim uses the wrong reference population.",
+      "gate_name": "distribution_generalization_gate",
+      "failure_codes": [
+        "generalization_claim_unjustified",
+        "temporal_split_same_population",
+        "no_geographic_validation"
+      ],
+      "expected_categories": [
+        "external_validation"
+      ],
+      "expected_tags": [
+        "generalizability",
+        "generalizability_limited",
+        "generalizability_to_modern_data",
+        "temporal_split_missing",
+        "same_cohort_validation",
+        "single_center",
+        "portability",
+        "distribution_shift",
+        "domain_shift",
+        "population_difference",
+        "generalization_gap",
+        "external_auc_drop",
+        "validation_cohort_missing",
+        "no_external_validation"
+      ],
+      "_slice": "baseline_30"
+    },
+    {
+      "scenario_id": "agent08-lasso-vs-tree-baseline",
+      "description": "Plasma biomarker study fits LASSO alone without head-to-head against tree-based learners that may better capture non-linear protein interactions.",
+      "gate_name": "model_selection_audit_gate",
+      "failure_codes": [
+        "arbitrary_estimator_choice",
+        "missing_baseline_comparison"
+      ],
+      "expected_categories": [
+        "model_selection"
+      ],
+      "expected_tags": [
+        "model_justification",
+        "multiple_model_comparison",
+        "missing_baseline_comparison",
+        "no_benchmark_model"
+      ],
+      "query_text": "Biomarker discovery from longitudinal proteomics relies entirely on LASSO. The authors should benchmark against XGBoost and random forest to demonstrate the linear sparse model is not chosen arbitrarily.",
+      "dimension": "model_selection",
+      "expected_canonical_pattern_ids": [
+        "CP-005"
+      ],
+      "source_concern_id": "PR-101-C02",
+      "_src_file": "agent_08.json",
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent04-hiv-proteomics-6pct-included",
+      "description": "Mortality model in HIV patients using plasma proteomics where under 6% of the source CHART cohort was retained, with unclear ART matching, raising representativeness concerns.",
+      "gate_name": "cohort_definition_gate",
+      "failure_codes": [
+        "low_inclusion_rate_unexplained",
+        "baseline_comparison_to_source_missing",
+        "matching_strategy_underspecified"
+      ],
+      "expected_categories": [
+        "study_design"
+      ],
+      "expected_tags": [
+        "matching_strategy",
+        "representativeness",
+        "selection_bias",
+        "cohort_definition",
+        "eligibility_criteria"
+      ],
+      "query_text": "Fewer than six percent of the original source cohort was retained in this HIV mortality proteomics study. There is no comparison of baseline characteristics between included and excluded patients, and matching did not consider ART regimen on top of age and sex.",
+      "dimension": "study_design",
+      "expected_canonical_pattern_ids": [
+        "CP-002"
+      ],
+      "source_concern_id": "PR-008-C01",
+      "_src_file": "agent_04.json",
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent10_paraphrase_cp002-outcome-defn-sepsis-as-oa",
+      "description": "CP-002 outcome-definition paraphrase: the OA case-contamination / control-matching issue (musculoskeletal) reframed in sepsis-style infectious-disease vocabulary so lexical overlap with the source concern is minimal.",
+      "gate_name": "cohort_definition_gate",
+      "failure_codes": [
+        "outcome_definition_unclear",
+        "label_definition_ambiguous",
+        "case_contamination"
+      ],
+      "expected_categories": [
+        "study_design"
+      ],
+      "expected_tags": [
+        "outcome_definition",
+        "cohort_definition",
+        "label_validity"
+      ],
+      "query_text": "How exactly was a sepsis episode defined for the positive class \u2014 by physician order pairs, by ICD billing codes, or by chart-adjudicated Sepsis-3 criteria? Without an unambiguous gold standard the label leaks the clinician's pre-test suspicion into the model.",
+      "dimension": "cohort_definition",
+      "expected_canonical_pattern_ids": [
+        "CP-002"
+      ],
+      "source_concern_ids": [
+        "PR-002-C03",
+        "PR-001-C05"
+      ],
+      "_src_file": "agent_10.json",
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent01-pdl1-histopath-no-prc",
+      "description": "Deep learning model predicting PD-L1 status from H&E breast histopathology where ROC is reported throughout but precision-recall curves are absent despite a sharply imbalanced positive class.",
+      "gate_name": "evaluation_quality_gate",
+      "failure_codes": [
+        "missing_auprc_under_imbalance",
+        "improper_primary_metric",
+        "incomplete_metric_panel"
+      ],
+      "expected_categories": [
+        "evaluation_metrics"
+      ],
+      "expected_tags": [
+        "improper_primary_metric",
+        "incomplete_metrics",
+        "auprc_missing",
+        "auc_only",
+        "missing_primary_metric_ci"
+      ],
+      "query_text": "Given the imbalance between PD-L1 positive and negative cases in this cohort, ROC curves are not enough on their own. Precision-recall analysis should be reported in parallel throughout the paper, because PR-based metrics shift substantially with prevalence in a way that ROC-based summaries hide.",
+      "dimension": "evaluation",
+      "expected_canonical_pattern_ids": [
+        "CP-026"
+      ],
+      "source_concern_id": "PR-EXP-0155-C02",
+      "_src_file": "agent_01.json",
+      "_provenance": {
+        "cp_relabel_v2": "IRR: missing PR curve under imbalance \u2192 CP-026 (incomplete metrics) is closer fit than CP-030 (imbalance handling)"
+      },
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent07-tool-versions-and-io-undocumented",
+      "description": "Released GNN repository omits tool version pins, input-format specification, and output-file documentation \u2014 reproducibility deficit despite code release.",
+      "gate_name": "execution_attestation_gate",
+      "failure_codes": [
+        "missing_tool_versions",
+        "missing_io_specification",
+        "missing_container_recipe"
+      ],
+      "expected_categories": [
+        "reproducibility"
+      ],
+      "expected_tags": [
+        "reproducibility_documentation",
+        "tool_versioning",
+        "containerization",
+        "input_output_specification",
+        "irreproducible_methods"
+      ],
+      "query_text": "The AMR-GNN repository pins no version numbers, never describes the expected input format or how a user should prepare their data, and the output files are unannotated \u2014 anyone outside the original team cannot reproduce the pipeline.",
+      "dimension": "reporting",
+      "expected_canonical_pattern_ids": [
+        "CP-009"
+      ],
+      "source_concern_id": "PR-EXP-0085-C05",
+      "_src_file": "agent_07.json",
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent03_wearable-nurse-eligibility-missing",
+      "description": "In-hospital deterioration model recruits patients by ward-nurse clinical judgement with no documented eligibility criteria, encoding a post-baseline risk signal into who even enters the cohort.",
+      "gate_name": "cohort_definition_gate",
+      "failure_codes": [
+        "eligibility_criteria_missing",
+        "selection_bias",
+        "time_zero_ambiguity"
+      ],
+      "expected_categories": [
+        "study_design"
+      ],
+      "expected_tags": [
+        "selection_bias",
+        "cohort_definition",
+        "prediction_timepoint_unclear",
+        "time_zero_ambiguity",
+        "exclusion_criteria_questionable"
+      ],
+      "query_text": "Who actually entered this cohort? Nurses chose which patients to patch, with no documented inclusion rule. That choice is itself a clinical risk signal, so the cohort is selected on a post-baseline judgement.",
+      "dimension": "leakage",
+      "expected_canonical_pattern_ids": [
+        "CP-002"
+      ],
+      "source_concern_id": "PR-110-C01",
+      "_src_file": "agent_03.json",
+      "_provenance": {
+        "cp_relabel_v2": "undocumented eligibility / post-baseline nurse selection \u2192 cohort selection bias (CP-002)"
+      },
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent01-cxr-vit-no-ci-error-bars",
+      "description": "Self-evolving vision transformer for chest X-ray multi-label diagnosis (retrospective imaging cohort) reports point-estimate AUROC/accuracy bars in main figures without any 95% confidence intervals or error bars.",
+      "gate_name": "ci_matrix_gate",
+      "failure_codes": [
+        "missing_ci_on_figures",
+        "no_uncertainty_quantification",
+        "missing_primary_metric_ci"
+      ],
+      "expected_categories": [
+        "evaluation_metrics"
+      ],
+      "expected_tags": [
+        "missing_confidence_intervals",
+        "missing_primary_metric_ci",
+        "no_bootstrap_ci",
+        "ci_reporting",
+        "incomplete_metrics"
+      ],
+      "query_text": "The bar charts in the main figures show a single point estimate per model and per benchmark, with no error bars, no shaded intervals, and no statement of how uncertainty was quantified. For a publication comparing several deep models head to head, 95% CIs on the primary metric are essential to judge whether the gaps are real.",
+      "dimension": "evaluation",
+      "expected_canonical_pattern_ids": [
+        "CP-027"
+      ],
+      "source_concern_id": "PR-EXP-0149-C02",
+      "_src_file": "agent_01.json",
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent03_sepsis-prognostic-vs-diagnostic-label",
+      "description": "Centrifugal-microfluidics sepsis model labels outcomes by SOFA worsening >=2, which is prognostic of organ dysfunction rather than diagnostic of infection, and stitches together cohorts with inconsistent Sepsis-2 vs Sepsis-3 definitions.",
+      "gate_name": "definition_variable_guard",
+      "failure_codes": [
+        "outcome_definition_drift",
+        "diagnosis_vs_prediction_conflation",
+        "label_definition_inconsistent"
+      ],
+      "expected_categories": [
+        "study_design"
+      ],
+      "expected_tags": [
+        "outcome_definition",
+        "diagnosis_vs_prediction",
+        "label_definition",
+        "terminology_conflated",
+        "prediction_timepoint_unclear"
+      ],
+      "query_text": "Is this model predicting infection or organ dysfunction? SOFA progression is downstream of either. Plus the Sepsis-2 vs Sepsis-3 cohorts use different label semantics, so the training label drifts across sites and time.",
+      "dimension": "leakage",
+      "expected_canonical_pattern_ids": [
+        "CP-036",
+        "CP-002"
+      ],
+      "source_concern_id": "PR-114-C01",
+      "_src_file": "agent_03.json",
+      "_provenance": {
+        "cp_relabel_v2": "IRR yours_better: filled empty with audit picks"
+      },
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent09_cfrna-13events-epv",
+      "description": "Pregnancy cfRNA biomarker study has only 13-15 effective cases in the discovery cohort at 28wk, capping the multivariable model at two predictors and violating events-per-variable guidance.",
+      "gate_name": "sample_size_gate",
+      "failure_codes": [
+        "insufficient_events_per_variable",
+        "underpowered",
+        "model_complexity_capped"
+      ],
+      "expected_categories": [
+        "sample_size"
+      ],
+      "expected_tags": [
+        "small_sample",
+        "underpowered",
+        "epv_violation",
+        "insufficient_events_per_variable"
+      ],
+      "query_text": "With roughly 13 cases at the 28-week timepoint, only two predictors can stably enter the model under standard EPV rules. The two-feature ceiling is a symptom of underpowering, not biology. Please discuss explicitly.",
+      "dimension": "sample_size",
+      "expected_canonical_pattern_ids": [
+        "CP-024"
+      ],
+      "source_concern_id": "PR-108-C02",
+      "_src_file": "agent_09.json",
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent04-lupus-preclinical-marker-narrow",
+      "description": "Progression-to-lupus model that defines the preclinical stage using only RF+ and ANA+ serology while dropping other informative antibodies due to low counts.",
+      "gate_name": "cohort_definition_gate",
+      "failure_codes": [
+        "narrow_case_definition",
+        "informative_subgroups_dropped",
+        "applicability_narrowed_by_definition"
+      ],
+      "expected_categories": [
+        "study_design"
+      ],
+      "expected_tags": [
+        "cohort_definition",
+        "case_definition",
+        "eligibility_criteria",
+        "inclusion_exclusion"
+      ],
+      "query_text": "The preclinical autoimmune stage is operationalised only by RF+ and ANA+ status, while dsDNA, anti-Smith and CCP antibody groups were excluded because of small numbers. This restricts who the prediction is meaningful for.",
+      "dimension": "study_design",
+      "expected_canonical_pattern_ids": [
+        "CP-002"
+      ],
+      "source_concern_id": "PR-109-C05",
+      "_src_file": "agent_04.json",
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent07-dl-training-details-vague",
+      "description": "Deep-learning paper omits loss function, optimizer, epochs, dev split, and image preprocessing while ensembling 20 randomly hyperparameterized models \u2014 opaque training pipeline.",
+      "gate_name": "seed_stability_gate",
+      "failure_codes": [
+        "missing_loss_function",
+        "missing_training_hyperparams",
+        "missing_preprocessing_pipeline"
+      ],
+      "expected_categories": [
+        "reproducibility"
+      ],
+      "expected_tags": [
+        "training_details_missing",
+        "loss_function_missing",
+        "preprocessing_missing",
+        "missing_hyperparams",
+        "irreproducible_methods"
+      ],
+      "query_text": "The deep-learning description does not state the loss function, optimizer, number of epochs, or development split, and the DICOM-to-PNG preprocessing (dimensions, cropping, augmentation) is entirely absent. On top of that, twenty models with random hyperparameters are ensembled without explaining how they are combined.",
+      "dimension": "reporting",
+      "expected_canonical_pattern_ids": [
+        "CP-011"
+      ],
+      "source_concern_id": "PR-062-C01",
+      "_src_file": "agent_07.json",
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent10_paraphrase_cp008-no-external-validation-cross-domain",
+      "description": "CP-008 no-external-validation paraphrase: the UK Biobank OA concern reframed in rheumatology biomarker-panel vocabulary (ELISA/MRM, response prediction) to test canonical retrieval over surface tokens.",
+      "gate_name": "external_validation_gate",
+      "failure_codes": [
+        "no_external_validation",
+        "same_cohort_validation_only"
+      ],
+      "expected_categories": [
+        "external_validation"
+      ],
+      "expected_tags": [
+        "no_external_validation",
+        "same_cohort_validation"
+      ],
+      "query_text": "The treatment-response biomarker panel is developed and tested only within a single discovery cohort. An independent validation cohort \u2014 ideally orthogonal assay platform such as ELISA or MRM \u2014 is required before any claim of clinical readiness can be sustained.",
+      "dimension": "external_validation",
+      "expected_canonical_pattern_ids": [
+        "CP-008"
+      ],
+      "source_concern_ids": [
+        "PR-001-C06",
+        "PR-101-C06"
+      ],
+      "_src_file": "agent_10.json",
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent07-broken-bitbucket-repo-link",
+      "description": "Linked Bitbucket repository returns a 404 / private-page error, making code, software claims, and usability impossible to verify.",
+      "gate_name": "execution_attestation_gate",
+      "failure_codes": [
+        "broken_code_repo_link",
+        "repo_not_public",
+        "code_unverified"
+      ],
+      "expected_categories": [
+        "reproducibility"
+      ],
+      "expected_tags": [
+        "code_repo_404",
+        "deferred_release",
+        "code_unverified",
+        "repo_visibility",
+        "no_code_availability"
+      ],
+      "query_text": "The Bitbucket URL the manuscript points to returns a 404 \u2014 the repository is either non-existent or never made public. Without it none of the software claims can be reproduced or even inspected.",
+      "dimension": "reporting",
+      "expected_canonical_pattern_ids": [
+        "CP-011",
+        "CP-009"
+      ],
+      "source_concern_id": "PR-EXP-0097-C07",
+      "_src_file": "agent_07.json",
+      "_provenance": {
+        "cp_relabel_v2": "IRR: broken repo link / code not retrievable \u2192 CP-011 + CP-009 (reproducibility) over CP-035 niche pipeline-doc subtype"
+      },
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent08-validation-imputation-leak",
+      "description": "COVID-19 lncRNA mortality model imputes missing values in the external validation cohort, risking optimistic estimates from preprocessing leakage.",
+      "gate_name": "missingness_policy_gate",
+      "failure_codes": [
+        "preprocessing_leak",
+        "fit_on_full_data",
+        "imputation_leakage"
+      ],
+      "expected_categories": [
+        "preprocessing"
+      ],
+      "expected_tags": [
+        "preprocessing_leak",
+        "fit_on_full_data",
+        "preprocessing_undisclosed",
+        "validation_imputation"
+      ],
+      "query_text": "Was the validation cohort imputed using statistics learned from the development set, or was the imputer refit on combined data? Without a clear answer the validation AUC may be inflated by preprocessing leakage.",
+      "dimension": "model_selection",
+      "expected_canonical_pattern_ids": [
+        "CP-015"
+      ],
+      "source_concern_id": "PR-003-C03",
+      "_src_file": "agent_08.json",
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent09_attention-spurious-tokens",
+      "description": "Multimodal lung cancer screening model produces attention heatmaps that highlight meaningless tokens such as family-history words and numerals, undermining the cross-modal interpretability claim.",
+      "gate_name": "shap_interpretability_gate",
+      "failure_codes": [
+        "attention_artifact",
+        "explainability_not_clinically_grounded"
+      ],
+      "expected_categories": [
+        "interpretability"
+      ],
+      "expected_tags": [
+        "attention_interpretation",
+        "multimodal_complementarity",
+        "shap_post_hoc",
+        "explainability_missing"
+      ],
+      "query_text": "The attention overlay shows the model focusing on words like 'brother' or the digits '142'. That looks like spurious token attention. Please demonstrate that the imaging and text streams actually contribute complementary signal rather than the text branch latching onto artefacts.",
+      "dimension": "interpretability",
+      "expected_canonical_pattern_ids": [
+        "CP-022"
+      ],
+      "source_concern_id": "PR-021-C04",
+      "_src_file": "agent_09.json",
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent06-trauma-prehospital-one-site",
+      "description": "Prehospital trauma mortality model (Nat Commun 2025) trained in South Korea, externally tested only at one Australian center; no US or European EMS data.",
+      "gate_name": "external_validation_gate",
+      "failure_codes": [
+        "limited_geographic_validation",
+        "single_external_center",
+        "ems_system_heterogeneity"
+      ],
+      "expected_categories": [
+        "external_validation"
+      ],
+      "expected_tags": [
+        "limited_geographic_validation",
+        "single_external_center",
+        "generalizability",
+        "geographic_generalization",
+        "distribution_shift"
+      ],
+      "query_text": "One external Australian site is a start, but EMS protocols, triage thresholds, and trauma case mix vary widely between healthcare systems. Generalizability claims need testing in US or European EMS cohorts before broad deployment.",
+      "dimension": "external_validation",
+      "expected_canonical_pattern_ids": [
+        "CP-008"
+      ],
+      "source_concern_id": "PR-026-C01",
+      "_src_file": "agent_06.json",
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent02-pancreatic-prediction-window-clinical-utility",
+      "description": "Transformer-based EHR model predicts pancreatic cancer ICD-10 codes 'one visit prior', a window that conflates billing documentation with actual diagnosis and has no clinically useful lead time (Nature Comms 2023, n=6.5M).",
+      "gate_name": "clinical_metrics_gate",
+      "failure_codes": [
+        "prediction_window_clinically_meaningless",
+        "icd_code_proxy_for_diagnosis",
+        "no_clinical_utility"
+      ],
+      "expected_categories": [
+        "clinical_utility"
+      ],
+      "expected_tags": [
+        "prediction_window",
+        "clinical_relevance",
+        "time_horizon",
+        "no_clinical_utility"
+      ],
+      "query_text": "Predicting pancreatic cancer one visit before it appears in the chart is not a clinically useful task \u2014 that gap may be a week, and an ICD-10 code is not the same as a first diagnosis. The authors need a fixed clinically meaningful horizon, e.g. 12 to 36 months, and to evaluate at that horizon.",
+      "dimension": "evaluation",
+      "expected_canonical_pattern_ids": [
+        "CP-012"
+      ],
+      "source_concern_id": "PR-004-C05",
+      "_src_file": "agent_02.json",
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent10_distractor_pvalue-feature-selection",
+      "description": "Distractor: 'p-value-based variable selection' sounds like a model-selection issue (CP-005) but is specifically about feature-selection process \u2014 CP-019.",
+      "gate_name": "feature_engineering_audit_gate",
+      "failure_codes": [
+        "p_value_selection",
+        "feature_selection_justification"
+      ],
+      "expected_categories": [
+        "feature_selection"
+      ],
+      "expected_tags": [
+        "p_value_selection",
+        "feature_selection_justification",
+        "feature_selection_process"
+      ],
+      "query_text": "Variables enter the model purely on univariable p-value retention from a predefined shortlist, with no comparison to LASSO / boruta / stability-selection alternatives over a wider candidate list. The concern is the feature-selection rule, not the choice of downstream classifier.",
+      "dimension": "feature_selection",
+      "expected_canonical_pattern_ids": [
+        "CP-019"
+      ],
+      "source_concern_ids": [
+        "PR-105-C05",
+        "PR-101-C04"
+      ],
+      "_src_file": "agent_10.json",
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent02-cfdna-breast-multiple-threshold-pairs",
+      "description": "cfDNA fragmentomics model for breast cancer detection reports performance at a single operating point, with no table of sensitivity/specificity pairs across thresholds for the screening setting (Nature Comms 2026, n~1,500).",
+      "gate_name": "evaluation_quality_gate",
+      "failure_codes": [
+        "single_threshold_only",
+        "sensitivity_specificity_pairs_missing",
+        "threshold_unjustified"
+      ],
+      "expected_categories": [
+        "evaluation_metrics"
+      ],
+      "expected_tags": [
+        "threshold_selection",
+        "sensitivity_vs_specificity",
+        "threshold_arbitrary"
+      ],
+      "query_text": "For a screening application the reader needs the full sensitivity/specificity tradeoff, not a single operating point. Please add a table of sens/spec pairs at multiple thresholds and explicitly defend which side of the tradeoff matters most for breast cancer detection in this population.",
+      "dimension": "evaluation",
+      "expected_canonical_pattern_ids": [
+        "CP-001"
+      ],
+      "source_concern_id": "PR-080-C01",
+      "_src_file": "agent_02.json",
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent10_paraphrase_cp006-auc-only-cross-domain",
+      "description": "CP-006 AUC-only / AUPRC-missing paraphrase: the nephrology rare-mortality concern restated in obstetric screening vocabulary (partial AUC at high specificity) \u2014 different surface domain, same canonical pattern.",
+      "gate_name": "evaluation_quality_gate",
+      "failure_codes": [
+        "auc_only_reported",
+        "auprc_missing",
+        "clinical_metric_panel_incomplete"
+      ],
+      "expected_categories": [
+        "evaluation_metrics"
+      ],
+      "expected_tags": [
+        "auc_only",
+        "auprc_missing",
+        "clinical_relevance"
+      ],
+      "query_text": "Outcome prevalence in the screening cohort is below two percent. Reporting a single global AUROC overweights ROC regions of no clinical interest; please add precision-recall curves and a partial AUC restricted to the high-specificity operating region a screening programme would actually use.",
+      "dimension": "evaluation_metrics",
+      "expected_canonical_pattern_ids": [
+        "CP-006"
+      ],
+      "source_concern_ids": [
+        "PR-010-C04",
+        "PR-108-C06"
+      ],
+      "_src_file": "agent_10.json",
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent06-pedtb-no-indep-cohort",
+      "description": "Pediatric TB plasma proteomic classifier (Nat Commun 2025) presents a 25% held-out split as 'validation'; no independent cohort across countries, ages, or HIV strata.",
+      "gate_name": "external_validation_gate",
+      "failure_codes": [
+        "no_external_validation",
+        "internal_split_as_validation",
+        "no_subgroup_generalization"
+      ],
+      "expected_categories": [
+        "external_validation"
+      ],
+      "expected_tags": [
+        "no_external_validation",
+        "single_split",
+        "generalizability",
+        "validation_cohort_missing",
+        "internal_split_only",
+        "subgroup_performance"
+      ],
+      "query_text": "A 25% bioinformatic holdout is not an external cohort. For a pediatric TB classifier the meaningful test is performance on independent samples from a different country and within HIV-positive and age subgroups, none of which is reported.",
+      "dimension": "external_validation",
+      "expected_canonical_pattern_ids": [
+        "CP-016"
+      ],
+      "source_concern_id": "PR-111-C04",
+      "_src_file": "agent_06.json",
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent10_distractor_no-code-link-published",
+      "description": "Distractor: 'no code link' could be tagged broadly as 'reporting' (CP-004/CP-007). Correct CP is CP-009 \u2014 code availability is its own publication-gate axis.",
+      "gate_name": "publication_gate",
+      "failure_codes": [
+        "no_code_availability",
+        "code_unavailable_at_review",
+        "deferred_release"
+      ],
+      "expected_categories": [
+        "reproducibility"
+      ],
+      "expected_tags": [
+        "no_code_availability",
+        "code_unavailable",
+        "reproducibility"
+      ],
+      "query_text": "The Methods state that code will be released only after acceptance. As a reviewer I cannot replicate the analytic pipeline today, and there is no archived snapshot of either the training script or the model weights deposited with a permanent DOI.",
+      "dimension": "reproducibility",
+      "expected_canonical_pattern_ids": [
+        "CP-009"
+      ],
+      "source_concern_ids": [
+        "PR-RO-07-C09",
+        "PR-102-C04"
+      ],
+      "_src_file": "agent_10.json",
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "agent02-icu-rare-event-ppv-clinician-adjudication",
+      "description": "Real-time ICU acuity model predicts rare deterioration events where AUROC is optimistic and PPV is low, but the paper reports no clinician adjudication of alert timeliness, accuracy or actionability (Nature Comms 2025, n=100,000).",
+      "gate_name": "clinical_metrics_gate",
+      "failure_codes": [
+        "rare_event_ppv_unreported",
+        "auc_overoptimistic_for_rare_event",
+        "no_clinical_utility_assessment"
+      ],
+      "expected_categories": [
+        "evaluation_metrics"
+      ],
+      "expected_tags": [
+        "rare_event_ppv",
+        "auc_overoptimistic",
+        "clinician_adjudication",
+        "clinical_utility",
+        "no_clinical_utility"
+      ],
+      "query_text": "For these rare ICU events the AUROC is almost certainly flattering and PPV will be the operative metric at the bedside. The authors should have at least three clinicians adjudicate alerts in a prospective subset and report whether the alerts were timely, accurate and actionable.",
+      "dimension": "evaluation",
+      "expected_canonical_pattern_ids": [
+        "CP-006"
+      ],
+      "source_concern_id": "PR-009-C04",
+      "_src_file": "agent_02.json",
+      "_slice": "indist_155"
+    },
+    {
+      "scenario_id": "ood10_springer-autism-face-bonkers-dataset",
+      "description": "Springer Nature retracted ~40 papers (Dec 2025, via Retraction Watch / The Transmitter) that trained CNNs to classify autism from children's face photos scraped from autism-related websites, with no diagnostic confirmation, no consent, and obvious confounds.",
+      "gate_name": "cohort_definition_gate",
+      "failure_codes": [
+        "unverified_diagnosis_label",
+        "uncontrolled_dataset_provenance",
+        "no_consent_or_ethics_review"
+      ],
+      "expected_categories": [
+        "study_design",
+        "reporting"
+      ],
+      "expected_tags": [
+        "ground_truth_undefined",
+        "ground_truth_confirmation",
+        "ground_truth_not_gold_standard",
+        "label_noise",
+        "data_source_provenance",
+        "ethics_statement_missing"
+      ],
+      "query_text": "The training corpus is roughly 3,000 children's photographs scraped from autism-advocacy websites and re-uploaded to a Kaggle dataset, with no clinical diagnostic confirmation, no parental consent, and no standardized acquisition. Without verified ASD status, controlled lighting and pose, or any external validation cohort, the model cannot be claimed to detect autism rather than dataset provenance, photographer style, or pose differences.",
+      "dimension": "study_design",
+      "expected_canonical_pattern_ids": [
+        "CP-040",
+        "CP-036",
+        "CP-002"
+      ],
+      "source_url": "https://www.thetransmitter.org/retraction/exclusive-springer-nature-retracts-removes-nearly-40-publications-that-trained-neural-networks-on-bonkers-dataset/",
+      "source_paper_doi": null,
+      "ood_provenance": "Springer Nature retracted/removed ~40 publications (covered by Retraction Watch Weekend Reads, 2025-12-13) that trained neural networks on Gerald Piosenka's Kaggle 'autism face' dataset; Dorothy Bishop (Oxford) flagged the absence of diagnostic confirmation, consent, and any plausible mechanism, calling the dataset 'bonkers'.",
+      "_slice": "ood_01"
+    },
+    {
+      "scenario_id": "ood02-medjourney-clinical-vs-bleu",
+      "description": "Patient-clinical-journey LLM benchmark that scores model responses almost entirely with automated text-overlap metrics (BLEU, etc.) and lacks clinician-rated qualitative review of clinical correctness, so a higher BLEU score does not translate into a defensible claim about clinical safety or utility.",
+      "gate_name": "clinical_metrics_gate",
+      "failure_codes": [
+        "automated_metric_only",
+        "no_clinician_evaluation",
+        "metric_clinical_validity_unproven"
+      ],
+      "expected_categories": [
+        "evaluation_metrics",
+        "clinical_utility"
+      ],
+      "expected_tags": [
+        "clinician_evaluation",
+        "inappropriate_metric",
+        "clinically_critical_metric_missing",
+        "clinical_relevance_questionable",
+        "clinical_utility_questionable"
+      ],
+      "query_text": "Evaluation across the patient-journey tasks relies heavily on automated metrics like BLEU, which capture surface text overlap but not whether the generated answer is clinically appropriate or safe. Without qualitative scoring by clinical experts on a sample of outputs, the benchmark cannot support claims about real-world utility, and a higher BLEU score does not establish that an LLM should be trusted in any of the four care stages.",
+      "dimension": "evaluation",
+      "expected_canonical_pattern_ids": [
+        "CP-020",
+        "CP-012"
+      ],
+      "source_url": "https://openreview.net/forum?id=XXaIoJyYs7",
+      "source_paper_doi": null,
+      "ood_provenance": "NeurIPS 2024 D&B \u2014 MedJourney \u2014 Reviewer G1cc raised BLEU-only evaluation without clinical expert assessment",
+      "_slice": "ood_02"
+    },
+    {
+      "scenario_id": "ood03_probast_ai_proxy_outcome_no_gold_standard",
+      "description": "PROBAST+AI Outcome-domain signalling question on proxy outcomes: COVID-19 prediction models in Wynants 2020 were repeatedly flagged for using surrogate outcomes (hospital admission, ICU transfer, severe respiratory disease) rather than PCR-confirmed COVID-19 because confirmatory testing was unavailable at the time.",
+      "gate_name": "cohort_definition_gate",
+      "failure_codes": [
+        "MLGG-F01",
+        "MLGG-F02"
+      ],
+      "expected_categories": [
+        "study_design",
+        "evaluation_metrics"
+      ],
+      "expected_tags": [
+        "proxy_outcome_limitation",
+        "outcome_definition_unclear",
+        "ground_truth_proxy",
+        "surrogate_endpoint",
+        "outcome_construct_validity"
+      ],
+      "query_text": "The label used for training and evaluation is a downstream administrative surrogate (hospital admission for severe respiratory illness) rather than a directly adjudicated case of the target condition. PROBAST+AI and the Wynants systematic review flag this kind of proxy-outcome substitution as a high-risk-of-bias outcome-domain problem because the model is really being trained to predict resource-use patterns, not the disease itself.",
+      "dimension": "study_design",
+      "expected_canonical_pattern_ids": [
+        "CP-006",
+        "CP-001"
+      ],
+      "source_url": "https://www.bmj.com/content/369/bmj.m1328",
+      "source_paper_doi": "10.1136/bmj.m1328",
+      "ood_provenance": "Wynants 2020 BMJ COVID-19 systematic review; outcome-domain bias under PROBAST/PROBAST+AI. None of the flagged COVID prognostic papers in that review (e.g., early Wuhan severity models) appear in peer-review-kb.json.",
+      "_slice": "ood_03"
+    },
+    {
+      "scenario_id": "ood04_elife-hematoma-small-sample-no-kfold",
+      "description": "eLife reviewed preprint on a non-contrast CT machine-learning predictor of hematoma expansion in intracerebral hemorrhage. Public Reviewer 1 flags small training (n=170) and external test sets, single train/test split rather than k-fold CV on the external dataset, AUC alone insufficient, and overfitting risk despite dimensionality reduction.",
+      "gate_name": "sample_size_gate",
+      "failure_codes": [
+        "small_training_and_test_set",
+        "single_external_split",
+        "auc_alone_insufficient",
+        "overfitting_risk"
+      ],
+      "expected_categories": [
+        "sample_size",
+        "evaluation_metrics",
+        "external_validation"
+      ],
+      "expected_tags": [
+        "small_sample",
+        "small_external_cohort",
+        "sample_size_insufficient",
+        "single_holdout_test_set",
+        "missing_sensitivity_specificity",
+        "overfitting_risk"
+      ],
+      "query_text": "Only 170 patients were used to derive the model, and although 1066 patients in the external ERICH dataset met inclusion criteria, just 170 were randomly drawn for the test set. This effectively reduces the validation to a single small split, raising overfitting concerns. AUC alone does not capture the clinical operating point \u2014 sensitivity and specificity at clinically meaningful thresholds should drive the evaluation.",
+      "dimension": "sample_size",
+      "expected_canonical_pattern_ids": [
+        "CP-040"
+      ],
+      "source_url": "https://sciety.org/articles/activity/10.7554/elife.105782",
+      "source_paper_doi": "10.7554/eLife.105782",
+      "ood_provenance": "eLife reviewed preprint (open public reviews). Paper: 'Predictive modeling of hematoma expansion from non-contrast CT in spontaneous intracerebral hemorrhage' (2025). Public Reviewer 1 raised small-sample, single-split and AUC-alone concerns.",
+      "_slice": "ood_04"
+    },
+    {
+      "scenario_id": "bench01_fairness_hcc-vit-sager-sex-gender-noncompliance",
+      "description": "Vision-transformer model for recurrent HCC treatment decisions reports no sex/gender breakdown of cohort or performance, in direct violation of the SAGER guidelines flagged in the journal's review instructions.",
+      "gate_name": "fairness_equity_gate",
+      "failure_codes": [
+        "sager_guideline_noncompliance",
+        "sex_gender_stratification_missing",
+        "subgroup_performance_unreported"
+      ],
+      "expected_categories": [
+        "reporting",
+        "fairness"
+      ],
+      "expected_tags": [
+        "sex_gender_reporting",
+        "sager_noncompliance",
+        "fairness_subgroups",
+        "sex_gender_imbalance",
+        "subgroup_performance_unreported"
+      ],
+      "query_text": "The manuscript provides no sex/gender breakdown of the cohort and no sex-stratified performance, which means it does not satisfy the SAGER guidelines that the journal explicitly asks reviewers to enforce. For a treatment-decision model, the absence of sex-specific characterization is not just a reporting gap, it actively hides any sex-related disparity in the model's recommendations.",
+      "dimension": "fairness",
+      "expected_canonical_pattern_ids": [
+        "CP-041"
+      ],
+      "source_concern_id": "PR-EXP-0095-C06",
+      "_slice": "bench_01_fairness"
+    },
+    {
+      "scenario_id": "bench02_tail_CP-040_alzheimers-figure-cohorts-undocumented",
+      "description": "Alzheimer's brain-scan deep-learning framework where different figures draw on different unspecified subsets of the cohort, with no per-figure sample sizes and no clearly described inclusion or diagnostic criteria.",
+      "gate_name": "cohort_definition_gate",
+      "failure_codes": [
+        "per_analysis_n_undocumented",
+        "inclusion_criteria_missing",
+        "cohort_subset_opaque"
+      ],
+      "expected_categories": [
+        "reporting",
+        "study_design"
+      ],
+      "expected_tags": [
+        "sample_size_per_analysis",
+        "inclusion_exclusion_criteria",
+        "cohort_reporting",
+        "diagnostic_criteria",
+        "figure_provenance"
+      ],
+      "query_text": "Different figures in the paper appear to use different subsets of the cohort, but neither the legends nor the methods say which subset is used in which analysis or how many subjects are involved each time. A brief per-figure description of the included subset, sample size, and underlying inclusion / diagnostic criteria would substantially improve transparency.",
+      "dimension": "reporting",
+      "expected_canonical_pattern_ids": [
+        "CP-040"
+      ],
+      "source_concern_id": "PR-EXP-0192-C04",
+      "_slice": "bench_02_longtail"
+    },
+    {
+      "scenario_id": "bench02_tail_CP-045_t2d-vae-no-nested-cv-feature-set-ambiguous",
+      "description": "Type-2 diabetes VAE classifier reported without hyperparameter search spaces, selection criteria, nested CV structure, or fold definitions, and it is unclear which results use the full feature set versus the ten 'VAE-selected' features.",
+      "gate_name": "leakage_gate",
+      "failure_codes": [
+        "nested_cv_unclear",
+        "data_leakage_safeguards_missing",
+        "feature_set_inconsistent"
+      ],
+      "expected_categories": [
+        "data_leakage",
+        "model_selection"
+      ],
+      "expected_tags": [
+        "nested_cv_unclear",
+        "data_leakage_safeguards_missing",
+        "feature_set_ambiguity",
+        "hyperparameter_search_undocumented",
+        "fold_definitions_missing"
+      ],
+      "query_text": "Essential methodological details are missing: the hyperparameter search spaces and selection criteria are not described, the nested CV structure and fold definitions are absent, and no explicit safeguards against leakage between feature selection and evaluation are documented. It is also unclear in which experiments the model uses the full feature set versus only the ten VAE-selected features.",
+      "dimension": "data_leakage",
+      "expected_canonical_pattern_ids": [
+        "CP-045"
+      ],
+      "source_concern_id": "PR-EXP-0084-C08",
+      "_slice": "bench_02_longtail"
+    },
+    {
+      "scenario_id": "bench02_tail_CP-041_pediatric-ecg-no-subgroup-stratification",
+      "description": "Pediatric ECG deep-learning model for congenital heart disease lacks a baseline characteristics table and never reports performance stratified by patient age, sex, or heart rate.",
+      "gate_name": "reporting_bias_gate",
+      "failure_codes": [
+        "no_subgroup_stratification",
+        "no_baseline_characteristics_table",
+        "demographic_breakdown_missing"
+      ],
+      "expected_categories": [
+        "external_validation",
+        "reporting"
+      ],
+      "expected_tags": [
+        "subgroup_stratification",
+        "age_sex_heart_rate",
+        "baseline_table",
+        "subgroup_performance",
+        "demographic_reporting"
+      ],
+      "query_text": "Model accuracy should be reported stratified by patient age, sex, and resting heart rate, since each of these is known to affect pediatric ECG morphology. The paper also lacks a baseline characteristics table for the cohort, which makes it hard to assess representativeness or check for confounding.",
+      "dimension": "external_validation",
+      "expected_canonical_pattern_ids": [
+        "CP-041"
+      ],
+      "source_concern_id": "PR-EXP-0109-C14",
+      "_slice": "bench_02_longtail"
+    },
+    {
+      "scenario_id": "bench03_compound_pr-007_cp-002_cp-022",
+      "description": "CP-002 spectrum/prevalence bias + CP-022 weak explainability of imaging model (paper PR-007: oncology / Ovarian cancer diagnosis from ultrasound + clinical variables)",
+      "gate_name": "cohort_definition_gate",
+      "failure_codes": [
+        "MLGG-F01"
+      ],
+      "expected_categories": [
+        "interpretability",
+        "study_design"
+      ],
+      "expected_tags": [
+        "explainability_insufficient",
+        "feature_meaning",
+        "generalizability",
+        "gradcam_interpretation",
+        "prevalence_bias",
+        "spectrum_bias",
+        "tertiary_center_bias"
+      ],
+      "query_text": "Roughly half of the training masses are malignant, which is wildly out of line with community prevalence (under 5%); the resulting spectrum bias likely inflates every operating-point metric reported here. And the explanation of what the network is actually attending to in the ultrasound is hand-wavy \u2014 Grad-CAM heatmaps with a sentence about 'highlighting important regions' is not interpretability, and gives clinicians no way to sanity-check predictions on the hard cases.",
+      "dimension": "compound",
+      "expected_canonical_pattern_ids": [
+        "CP-002",
+        "CP-022"
+      ],
+      "source_concern_ids": [
+        "PR-007-C02",
+        "PR-007-C06"
+      ],
+      "primary_canonical_pattern_id": "CP-002",
+      "secondary_canonical_pattern_ids": [
+        "CP-022"
+      ],
+      "_slice": "bench_03_compound"
+    },
+    {
+      "scenario_id": "bench04_negative_cox-proportional-hazards",
+      "description": "Cox proportional-hazards assumption violated for 5-year survival \u2014 survival-analysis scope.",
+      "gate_name": "",
+      "failure_codes": [],
+      "expected_categories": [],
+      "expected_tags": [],
+      "query_text": "Our Cox PH model for 5-year overall survival in resected NSCLC shows Schoenfeld-residual p < 0.01 for the stage covariate, suggesting non-proportional hazards. Should we switch to time-varying coefficients, stratify on stage, or use a flexible-parametric Royston-Parmar model?",
+      "dimension": "out_of_scope_negative",
+      "expected_canonical_pattern_ids": [],
+      "oos_modality": "survival",
+      "difficulty": "easy",
+      "expected_max_top1_similarity": 0.5,
+      "_slice": "bench_04_negatives"
+    },
+    {
+      "scenario_id": "bench05_distractor-scanner-vendor-fishing-speculation",
+      "description": "Uses 'external validation' and 'domain shift' vocab but is unsupported fishing speculation about MRI scanner vendor signatures.",
+      "gate_name": "",
+      "failure_codes": [],
+      "expected_categories": [],
+      "expected_tags": [],
+      "query_text": "Even though external validation AUROC is reported as 0.84, could the model perhaps be latching onto scanner-vendor signatures (Siemens vs GE header artifacts) rather than true pathology? The authors do not need to prove this, but it would be interesting to speculate in the discussion.",
+      "dimension": "distractor",
+      "expected_canonical_pattern_ids": [],
+      "distractor_type": "speculation",
+      "expected_max_top1_similarity": 0.6,
+      "_slice": "bench_05_distractors"
+    },
+    {
+      "scenario_id": "bench07_adv_length_short-no-external",
+      "description": "ATTACK C (length stress, very short): 5-word terse reviewer note hitting CP-008 no-external-validation. Minimal token surface stresses dense (BGE-small) and sparse (BM25) retrieval simultaneously.",
+      "gate_name": "external_validation_gate",
+      "failure_codes": [
+        "no_external_validation",
+        "same_cohort_validation_only"
+      ],
+      "expected_categories": [
+        "external_validation"
+      ],
+      "expected_tags": [
+        "no_external_validation",
+        "same_cohort_validation",
+        "external_validation_needed"
+      ],
+      "query_text": "No external cohort. Single-centre only.",
+      "dimension": "adversarial",
+      "expected_canonical_pattern_ids": [
+        "CP-008"
+      ],
+      "attack_vector": "length",
+      "source_concern_id": "PR-002-C08",
+      "_slice": "bench_07_adv_extended"
+    },
+    {
+      "scenario_id": "bench07_adv_codeswitch_auc-only-zh-en",
+      "description": "ATTACK E (code-switching): Chinese phrasing for low-prevalence AUROC inflation ('\u4f4e\u9633\u6027\u7387\u4e0b AUROC \u5931\u771f') combined with English requests for AUPRC and PR curves. Tests CP-006 retrieval under bilingual input.",
+      "gate_name": "evaluation_quality_gate",
+      "failure_codes": [
+        "auc_only_reported",
+        "auprc_missing",
+        "auroc_misleading_low_prevalence",
+        "missing_precision_recall"
+      ],
+      "expected_categories": [
+        "evaluation_metrics"
+      ],
+      "expected_tags": [
+        "auc_only",
+        "auprc_missing",
+        "auc_overoptimistic",
+        "clinical_relevance"
+      ],
+      "query_text": "\u4e8b\u4ef6\u53d1\u751f\u7387\u4e0d\u5230 2%\uff0c\u5728\u5982\u6b64 imbalanced \u7684 setting \u4e0b\u53ea\u62a5 AUROC \u4f1a\u663e\u8457\u9ad8\u4f30 discrimination \u2014 \u4f4e\u9633\u6027\u7387\u4e0b AUROC \u5931\u771f. Please add precision-recall curves, AUPRC, \u4ee5\u53ca deployment threshold \u4e0a\u7684 PPV / sensitivity, \u8fd9\u6837 reviewer \u624d\u80fd\u5224\u65ad clinical utility.",
+      "dimension": "adversarial",
+      "expected_canonical_pattern_ids": [
+        "CP-006"
+      ],
+      "attack_vector": "codeswitch",
+      "source_concern_id": "PR-108-C06",
+      "_slice": "bench_07_adv_extended"
+    }
+  ]
+}
