@@ -1901,6 +1901,7 @@ AI 会自动：
 | `docs/RAG_WAVE_1_TO_8_RETRO.md` | 8 轮 RAG 优化复盘 + 5 anti-pattern | history reader |
 | [`docs/RAG_WAVE_9_TO_12_RETRO.md`](docs/RAG_WAVE_9_TO_12_RETRO.md) | RAG Wave 9-12 复盘（dilutor 发现 + 修复路线） | history reader |
 | [`docs/PROCESS_DEBT.md`](docs/PROCESS_DEBT.md) | 项目级流程债务（PD-01..PD-04，stash debt / sibling fix-forward / virtual-wave / ghost regression） | orchestrator / maintainer |
+| [`docs/BENCHMARK_OVERVIEW.md`](docs/BENCHMARK_OVERVIEW.md) | 两个 benchmark 关系：MLGG-Bench (RAG 组件，305 scenarios) vs NCPR-Bench (端到端系统，30 paper) | 调参 / 评测 |
 | `docs/adr/` | Architecture Decision Records（ADR 0001: `_mmr_breakdown` consumer） | designer |
 | [`docs/reference/GATES.md`](docs/reference/GATES.md) | 33 道门控完整参考（CLI 契约 + failure codes + DAG 依赖） | 国际 reference |
 | [`docs/reference/LINT_RULES.md`](docs/reference/LINT_RULES.md) | R001-R028 lint 规则参考 | 国际 reference |

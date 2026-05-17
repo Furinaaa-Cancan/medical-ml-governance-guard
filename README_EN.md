@@ -1538,6 +1538,7 @@ The AI will automatically:
 | [`docs/RAG_WAVE_1_TO_8_RETRO.md`](docs/RAG_WAVE_1_TO_8_RETRO.md) | 8-wave RAG optimization retrospective + 5 anti-patterns | Historians |
 | [`docs/RAG_WAVE_9_TO_12_RETRO.md`](docs/RAG_WAVE_9_TO_12_RETRO.md) | RAG Wave 9-12 retrospective (dilutor discovery + fix path) | Historians |
 | [`docs/PROCESS_DEBT.md`](docs/PROCESS_DEBT.md) | Project-level process debt (PD-01..PD-04: stash debt / sibling fix-forward / virtual-wave / ghost regression) | Orchestrator / Maintainers |
+| [`docs/BENCHMARK_OVERVIEW.md`](docs/BENCHMARK_OVERVIEW.md) | Two-benchmark map: MLGG-Bench (RAG component, 305 scenarios) vs NCPR-Bench (end-to-end system, 30 papers) | Tuners / Evaluators |
 | [`docs/adr/`](docs/adr/) | Architecture Decision Records (ADR 0001: `_mmr_breakdown` SHIP decision) | Designers |
 | [`docs/reference/GATES.md`](docs/reference/GATES.md) | 33-gate complete reference | International reference |
 | [`docs/reference/LINT_RULES.md`](docs/reference/LINT_RULES.md) | R001-R028 lint reference | International reference |
