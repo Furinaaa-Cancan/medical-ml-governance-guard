@@ -31,4 +31,4 @@ cryptography>=42.0
 # installs it so tests/test_rag_components.py + tests/test_rag_e2e.py
 # can run. Pulls in torch (~500MB); first query downloads the BGE-small
 # model (~120MB) into ~/.cache/huggingface.
-sentence-transformers>=2.2
+sentence-transformers>=5.5.0
