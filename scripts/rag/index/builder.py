@@ -40,7 +40,6 @@ from scripts.rag.config import (
     KB_PATH,
 )
 from scripts.rag.index.cache import (
-    kb_sha256,
     load_cached_embeddings_and_records,
     read_kb_hash,
     save_embeddings_and_records_atomically,
