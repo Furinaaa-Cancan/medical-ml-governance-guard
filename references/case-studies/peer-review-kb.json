@@ -1311,9 +1311,7 @@
             "evaluation_quality_gate",
             "model_selection_audit_gate"
           ],
-          "mlgg_rules": [
-            "MLGG-P01"
-          ],
+          "mlgg_rules": [],
           "concern_text": "A significant methodological issue: the use of the same dataset for both GWAS and PPS parameterisation. This overlap will result in overfitting of PPS and optimism in performance estimates. This is clearly demonstrated by the drop in performance in the TCGA cohort where calibration and AUC are quite poor compared to the discovery cohorts.",
           "author_response": "We acknowledge this limitation and have added detailed discussion. We performed sensitivity analysis with stricter separation and noted the performance gap.",
           "resolved": true,
@@ -14415,8 +14413,9 @@
             "model_selection_audit_gate"
           ],
           "mlgg_rules": [
-            "S01",
-            "M01"
+            "M01",
+            "MLGG-P02",
+            "S01"
           ],
           "author_response": "Clarified MIMIC-III+eICU-CRD used as pretraining Cohort 1 (7:3 internal split, SMOTE for augmentation); MIMIC-IV (Cohort 2) and local ICU (Cohort 3) as external targets evaluated via 10-fold CV; added fine-tuning + MMID-SMOTE parameters (k=4, 1:1 ratio, fixed seed).",
           "resolved": true
