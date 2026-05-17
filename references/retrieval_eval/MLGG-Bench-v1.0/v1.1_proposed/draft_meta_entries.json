@@ -1,0 +1,973 @@
+[
+  {
+    "id": "META-TRIPOD-001",
+    "paper_doi": "10.1136/bmj-2023-078378",
+    "paper_title": "TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods",
+    "journal": "BMJ",
+    "year": 2024,
+    "domain": "methodology",
+    "prediction_task": "reporting_standard_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-TRIPOD-001-C01",
+        "reviewer": "TRIPOD+AI item 19a/19b",
+        "round": 1,
+        "category": "evaluation_metrics",
+        "severity": "HIGH",
+        "mlgg_dimension": 5,
+        "mlgg_gates": ["calibration_dca_gate", "evaluation_quality_gate", "reporting_bias_gate"],
+        "mlgg_rules": ["MLGG-E02"],
+        "concern_text": "TRIPOD+AI 2024 items 19a and 19b require that calibration be evaluated and reported for any clinical prediction model: the calibration plot, calibration-in-the-large, and calibration slope should appear in the main text alongside discrimination. A model with high AUROC but poor calibration can over- or under-estimate risk at the clinically-used operating point, so reporting discrimination only (or relegating calibration to a supplement) is a TRIPOD+AI non-conformance and a known systematic deficiency in published medical ML papers (Collins et al., BMJ 2024;385:e078378).",
+        "tags": ["calibration_plot_missing", "calibration_in_supplement", "calibration_metrics", "no_formal_calibration_test", "tripod_ai_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-018"
+      }
+    ]
+  },
+  {
+    "id": "META-TRIPOD-002",
+    "paper_doi": "10.1136/bmj-2023-078378",
+    "paper_title": "TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods",
+    "journal": "BMJ",
+    "year": 2024,
+    "domain": "methodology",
+    "prediction_task": "reporting_standard_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-TRIPOD-002-C01",
+        "reviewer": "TRIPOD+AI item 8",
+        "round": 1,
+        "category": "sample_size",
+        "severity": "HIGH",
+        "mlgg_dimension": 2,
+        "mlgg_gates": ["sample_size_gate", "reporting_bias_gate"],
+        "mlgg_rules": ["MLGG-S01", "MLGG-S02"],
+        "concern_text": "TRIPOD+AI 2024 item 8 requires authors to justify the sample size used for model development and (separately) for validation. The justification must be quantitative, e.g., using the Riley et al. minimum sample size formula (pmsampsize) and reporting events per candidate predictor; reliance on the obsolete '10 EPV' heuristic or absence of any calculation is a documented under-reporting failure mode and should be raised whenever development cohorts contain a few hundred events with tens of candidate features (Collins et al., BMJ 2024;385:e078378; Riley et al., BMJ 2020;368:m441).",
+        "tags": ["sample_size_insufficient", "sample_size_justification", "no_power_calculation", "epv_violation", "low_event_count", "tripod_ai_alignment", "meta_checklist_item", "pmsampsize_missing", "riley_minimum_violated"],
+        "canonical_pattern_id": "CP-024"
+      }
+    ]
+  },
+  {
+    "id": "META-TRIPOD-003",
+    "paper_doi": "10.1136/bmj-2023-078378",
+    "paper_title": "TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods",
+    "journal": "BMJ",
+    "year": 2024,
+    "domain": "methodology",
+    "prediction_task": "reporting_standard_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-TRIPOD-003-C01",
+        "reviewer": "TRIPOD+AI items 13a-13c (intended use / users / setting)",
+        "round": 1,
+        "category": "clinical_utility",
+        "severity": "MEDIUM",
+        "mlgg_dimension": 9,
+        "mlgg_gates": ["reporting_bias_gate", "evaluation_quality_gate"],
+        "mlgg_rules": [],
+        "concern_text": "TRIPOD+AI 2024 items 13a-13c require an explicit description of the intended use case for the model: who the intended users are (e.g., triage nurse, primary-care physician), where the model will be used (e.g., ED triage, outpatient screening), and at which decision point in the clinical workflow it produces output. Many published ML papers omit this entirely or only describe a generic 'risk score', preventing downstream readers from assessing applicability and risk of inappropriate deployment (Collins et al., BMJ 2024;385:e078378).",
+        "tags": ["intended_use_case_unclear", "clinical_workflow_unclear", "clinical_utility_questionable", "tripod_ai_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-046"
+      }
+    ]
+  },
+  {
+    "id": "META-TRIPOD-004",
+    "paper_doi": "10.1136/bmj-2023-078378",
+    "paper_title": "TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods",
+    "journal": "BMJ",
+    "year": 2024,
+    "domain": "methodology",
+    "prediction_task": "reporting_standard_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-TRIPOD-004-C01",
+        "reviewer": "TRIPOD+AI item 21 (fairness)",
+        "round": 1,
+        "category": "reporting",
+        "severity": "HIGH",
+        "mlgg_dimension": 8,
+        "mlgg_gates": ["fairness_equity_gate", "reporting_bias_gate"],
+        "mlgg_rules": [],
+        "concern_text": "TRIPOD+AI 2024 item 21 introduces a fairness reporting requirement absent from the original TRIPOD: authors must report model performance disaggregated by relevant demographic subgroups (e.g., sex, race/ethnicity, age strata) and discuss representativeness of the development data relative to the deployment population. Omission of subgroup performance, demographic breakdowns of the training set, and any equity discussion is a frequent under-reporting deficiency that TRIPOD+AI specifically targets (Collins et al., BMJ 2024;385:e078378).",
+        "tags": ["fairness_reporting_missing", "demographic_imbalance", "no_subgroup_analysis", "tripod_ai_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-041"
+      }
+    ]
+  },
+  {
+    "id": "META-TRIPOD-005",
+    "paper_doi": "10.1136/bmj-2023-078378",
+    "paper_title": "TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods",
+    "journal": "BMJ",
+    "year": 2024,
+    "domain": "methodology",
+    "prediction_task": "reporting_standard_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-TRIPOD-005-C01",
+        "reviewer": "TRIPOD+AI item 24 (code / data / model availability)",
+        "round": 1,
+        "category": "reproducibility",
+        "severity": "HIGH",
+        "mlgg_dimension": 9,
+        "mlgg_gates": ["publication_gate", "execution_attestation_gate", "reporting_bias_gate"],
+        "mlgg_rules": [],
+        "concern_text": "TRIPOD+AI 2024 item 24 strengthens reporting on availability of the model itself, the underlying code, and the development data (or detailed metadata if data are restricted). 'Model available on request' is no longer acceptable: the statement requires a model availability statement with explicit licence, deposit location (e.g., GitHub, Hugging Face, Zenodo), and a path to reproduce predictions on a hold-out example. Code-and-model unavailability remains one of the most prevalent under-reporting items in medical ML (Collins et al., BMJ 2024;385:e078378).",
+        "tags": ["model_availability_unclear", "code_unavailable", "reproducibility_concerns", "tripod_ai_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-009"
+      }
+    ]
+  },
+  {
+    "id": "META-TRIPOD-006",
+    "paper_doi": "10.1136/bmj-2023-078378",
+    "paper_title": "TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods",
+    "journal": "BMJ",
+    "year": 2024,
+    "domain": "methodology",
+    "prediction_task": "reporting_standard_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-TRIPOD-006-C01",
+        "reviewer": "TRIPOD+AI item 17 / item 18 (uncertainty)",
+        "round": 1,
+        "category": "evaluation_metrics",
+        "severity": "HIGH",
+        "mlgg_dimension": 5,
+        "mlgg_gates": ["ci_matrix_gate", "evaluation_quality_gate", "reporting_bias_gate"],
+        "mlgg_rules": ["MLGG-E01"],
+        "concern_text": "TRIPOD+AI 2024 requires uncertainty quantification for every reported performance metric (item 17): confidence intervals (e.g., from bootstrap or DeLong for AUROC) must accompany each point estimate, and authors should distinguish sampling uncertainty from model-parameter uncertainty. Reporting bare AUROC/sensitivity/specificity without any interval is a documented under-reporting failure in the medical ML literature and is one of the items most frequently flagged on TRIPOD-checklist audits (Collins et al., BMJ 2024;385:e078378).",
+        "tags": ["uncertainty_quantification_missing", "no_confidence_intervals", "metric_panel_incomplete", "tripod_ai_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-027"
+      }
+    ]
+  },
+  {
+    "id": "META-TRIPOD-007",
+    "paper_doi": "10.1136/bmj-2023-078378",
+    "paper_title": "TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods",
+    "journal": "BMJ",
+    "year": 2024,
+    "domain": "methodology",
+    "prediction_task": "reporting_standard_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-TRIPOD-007-C01",
+        "reviewer": "TRIPOD+AI items 5a-5d (participants / data sources)",
+        "round": 1,
+        "category": "reporting",
+        "severity": "MEDIUM",
+        "mlgg_dimension": 1,
+        "mlgg_gates": ["cohort_definition_gate", "reporting_bias_gate"],
+        "mlgg_rules": [],
+        "concern_text": "TRIPOD+AI 2024 items 5a-5d require the participants/data-source section to disclose: study design, data setting (single vs multi-centre, country, calendar period), eligibility criteria, and the role of each centre in development vs validation. The most commonly under-reported sub-items are calendar period of data collection, centre-level breakdown, and explicit eligibility criteria, all of which are needed downstream to assess applicability and distribution shift (Collins et al., BMJ 2024;385:e078378).",
+        "tags": ["cohort_definition", "single_center_validation", "data_source_provenance", "tripod_ai_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-007"
+      }
+    ]
+  },
+  {
+    "id": "META-TRIPOD-008",
+    "paper_doi": "10.1136/bmj-2023-078378",
+    "paper_title": "TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods",
+    "journal": "BMJ",
+    "year": 2024,
+    "domain": "methodology",
+    "prediction_task": "reporting_standard_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-TRIPOD-008-C01",
+        "reviewer": "TRIPOD+AI items 12a-12c (model development)",
+        "round": 1,
+        "category": "model_selection",
+        "severity": "MEDIUM",
+        "mlgg_dimension": 4,
+        "mlgg_gates": ["model_selection_audit_gate", "reporting_bias_gate"],
+        "mlgg_rules": [],
+        "concern_text": "TRIPOD+AI 2024 items 12a-12c require authors to report the model-development pipeline in enough detail to be reproducible: candidate algorithms considered, predictor pre-selection method, hyperparameter search space and selection criterion, and any internal validation procedure. Papers that report only the final model and a single AUROC value, with no description of search space or selection rule, breach this item and conceal the magnitude of selection bias (Collins et al., BMJ 2024;385:e078378).",
+        "tags": ["model_choice_justification", "model_selection_unclear", "hyperparameter_search_unclear", "tripod_ai_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-045"
+      }
+    ]
+  },
+  {
+    "id": "META-TRIPOD-009",
+    "paper_doi": "10.1136/bmj-2023-078378",
+    "paper_title": "TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods",
+    "journal": "BMJ",
+    "year": 2024,
+    "domain": "methodology",
+    "prediction_task": "reporting_standard_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-TRIPOD-009-C01",
+        "reviewer": "TRIPOD+AI item 20 (clinical utility / DCA)",
+        "round": 1,
+        "category": "clinical_utility",
+        "severity": "HIGH",
+        "mlgg_dimension": 9,
+        "mlgg_gates": ["calibration_dca_gate", "clinical_metrics_gate"],
+        "mlgg_rules": ["MLGG-E02"],
+        "concern_text": "TRIPOD+AI 2024 item 20 expects an evaluation of clinical utility, typically via decision-curve analysis (DCA) over a clinically plausible threshold range, rather than a single accuracy or F1 number at a default 0.5 cutoff. Failure to report DCA (or an equivalent net-benefit analysis) is one of the most consistent omissions in TRIPOD audits and undermines any claim that the model is fit for clinical deployment (Collins et al., BMJ 2024;385:e078378; Van Calster et al., Lancet Digital Health 2025).",
+        "tags": ["missing_dca", "decision_curve_analysis", "clinical_utility_questionable", "tripod_ai_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-010"
+      }
+    ]
+  },
+  {
+    "id": "META-TRIPOD-010",
+    "paper_doi": "10.1136/bmj-2023-078378",
+    "paper_title": "TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods",
+    "journal": "BMJ",
+    "year": 2024,
+    "domain": "methodology",
+    "prediction_task": "reporting_standard_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-TRIPOD-010-C01",
+        "reviewer": "TRIPOD+AI items 10a-10b / 15 (external validation strategy)",
+        "round": 1,
+        "category": "external_validation",
+        "severity": "HIGH",
+        "mlgg_dimension": 7,
+        "mlgg_gates": ["external_validation_gate", "generalization_gap_gate"],
+        "mlgg_rules": [],
+        "concern_text": "TRIPOD+AI 2024 strengthens the requirement that a clinical prediction model be externally validated in a population independent of the development data (different site, different time period, or different geography), and that any claim of generalisability rest on geographic or temporal external validation rather than a same-source random split. Authors who present only an in-distribution held-out evaluation as 'validation' and frame their results as deployment-ready breach this item; this remains the single most common TRIPOD non-conformance (Collins et al., BMJ 2024;385:e078378).",
+        "tags": ["no_external_validation", "internal_split_only", "no_external_validation_initially", "no_independent_external_set", "tripod_ai_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-008"
+      }
+    ]
+  },
+  {
+    "id": "META-PROBAST-001",
+    "paper_doi": "10.1136/bmj-2024-082505",
+    "paper_title": "PROBAST+AI: a tool to assess the risk of bias of prediction model studies that used artificial intelligence",
+    "journal": "BMJ",
+    "year": 2025,
+    "domain": "methodology",
+    "prediction_task": "risk_of_bias_assessment_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-PROBAST-001-C01",
+        "reviewer": "PROBAST+AI Participants domain",
+        "round": 1,
+        "category": "study_design",
+        "severity": "HIGH",
+        "mlgg_dimension": 1,
+        "mlgg_gates": ["cohort_definition_gate", "external_validation_gate"],
+        "mlgg_rules": [],
+        "concern_text": "PROBAST+AI 2025 Participants-domain signalling questions ask whether (i) participants are appropriate for the question, (ii) data sources are appropriate, and (iii) inclusion/exclusion criteria match the intended-use population. A case-control discovery design with cases from a referral clinic and controls from a population biobank is a canonical high-risk-of-bias configuration because the spectrum and prevalence in the development data do not match deployment; this kind of mismatch is the most commonly flagged Participants-domain bias (Moons, Collins et al., BMJ 2025;388:e082505).",
+        "tags": ["case_control_bias", "inappropriate_controls", "cohort_definition", "probast_ai_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-047"
+      }
+    ]
+  },
+  {
+    "id": "META-PROBAST-002",
+    "paper_doi": "10.1136/bmj-2024-082505",
+    "paper_title": "PROBAST+AI: a tool to assess the risk of bias of prediction model studies that used artificial intelligence",
+    "journal": "BMJ",
+    "year": 2025,
+    "domain": "methodology",
+    "prediction_task": "risk_of_bias_assessment_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-PROBAST-002-C01",
+        "reviewer": "PROBAST+AI Predictors domain",
+        "round": 1,
+        "category": "data_leakage",
+        "severity": "HIGH",
+        "mlgg_dimension": 3,
+        "mlgg_gates": ["leakage_gate", "feature_lineage_gate", "definition_variable_guard"],
+        "mlgg_rules": ["MLGG-F01", "MLGG-F02"],
+        "concern_text": "PROBAST+AI 2025 Predictors-domain signalling questions test whether predictors were defined and measured in a way that is reproducible, available at the intended prediction time, and not conditioned on the outcome. Using a treatment for the target condition (e.g., NSAIDs to predict osteoarthritis, insulin to predict diabetes) or a post-prediction-time variable as a feature is a high-risk-of-bias Predictors-domain pattern, and the PROBAST+AI guidance highlights it as a frequent source of target leakage in published medical-AI papers (Moons, Collins et al., BMJ 2025;388:e082505).",
+        "tags": ["target_leakage", "definition_variable", "feature_is_outcome_proxy", "future_information_leakage", "probast_ai_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-002"
+      }
+    ]
+  },
+  {
+    "id": "META-PROBAST-003",
+    "paper_doi": "10.1136/bmj-2024-082505",
+    "paper_title": "PROBAST+AI: a tool to assess the risk of bias of prediction model studies that used artificial intelligence",
+    "journal": "BMJ",
+    "year": 2025,
+    "domain": "methodology",
+    "prediction_task": "risk_of_bias_assessment_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-PROBAST-003-C01",
+        "reviewer": "PROBAST+AI Outcome domain",
+        "round": 1,
+        "category": "study_design",
+        "severity": "HIGH",
+        "mlgg_dimension": 1,
+        "mlgg_gates": ["cohort_definition_gate", "clinical_metrics_gate"],
+        "mlgg_rules": [],
+        "concern_text": "PROBAST+AI 2025 Outcome-domain signalling questions ask whether the outcome was determined in a standard, reproducible way, with appropriate blinding to predictors, and whether a single ICD code, administrative surrogate, or downstream resource-use variable is being substituted for an adjudicated diagnosis. Using a surrogate endpoint (hospital admission, ICU transfer, prescription) in place of the disease itself is the canonical Outcome-domain high-risk-of-bias signal, flagged in Wynants 2020's review of COVID-19 prediction models and explicitly named in the PROBAST+AI guidance (Moons, Collins et al., BMJ 2025;388:e082505).",
+        "tags": ["proxy_outcome_limitation", "outcome_definition_unclear", "ground_truth_proxy", "surrogate_endpoint", "outcome_construct_validity", "probast_ai_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-006"
+      }
+    ]
+  },
+  {
+    "id": "META-PROBAST-004",
+    "paper_doi": "10.1136/bmj-2024-082505",
+    "paper_title": "PROBAST+AI: a tool to assess the risk of bias of prediction model studies that used artificial intelligence",
+    "journal": "BMJ",
+    "year": 2025,
+    "domain": "methodology",
+    "prediction_task": "risk_of_bias_assessment_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-PROBAST-004-C01",
+        "reviewer": "PROBAST+AI Analysis domain (sample size)",
+        "round": 1,
+        "category": "sample_size",
+        "severity": "HIGH",
+        "mlgg_dimension": 2,
+        "mlgg_gates": ["sample_size_gate"],
+        "mlgg_rules": ["MLGG-S01", "MLGG-S02"],
+        "concern_text": "PROBAST+AI 2025 Analysis-domain signalling questions include 'were there a reasonable number of participants with the outcome?' Authors should evaluate this against the Riley minimum-sample-size criteria (target shrinkage, expected R-squared, outcome prevalence) rather than the 10-EPV heuristic; ML methods do not relax the requirement and may exacerbate it. Failure to perform an a-priori sample-size calculation, or developing flexible models on a few hundred events with hundreds of candidate features, is a canonical Analysis-domain high-risk-of-bias finding (Moons, Collins et al., BMJ 2025;388:e082505; Riley et al., BMJ 2020;368:m441).",
+        "tags": ["sample_size_insufficient", "epv_violation", "sample_size_justification", "no_power_calculation", "overfitting_risk", "probast_ai_alignment", "meta_checklist_item", "riley_minimum_violated", "pmsampsize_missing"],
+        "canonical_pattern_id": "CP-024"
+      }
+    ]
+  },
+  {
+    "id": "META-PROBAST-005",
+    "paper_doi": "10.1136/bmj-2024-082505",
+    "paper_title": "PROBAST+AI: a tool to assess the risk of bias of prediction model studies that used artificial intelligence",
+    "journal": "BMJ",
+    "year": 2025,
+    "domain": "methodology",
+    "prediction_task": "risk_of_bias_assessment_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-PROBAST-005-C01",
+        "reviewer": "PROBAST+AI Analysis domain (tuning leakage / data handling)",
+        "round": 1,
+        "category": "split_protocol",
+        "severity": "HIGH",
+        "mlgg_dimension": 4,
+        "mlgg_gates": ["tuning_leakage_gate", "split_protocol_gate", "model_selection_audit_gate"],
+        "mlgg_rules": ["MLGG-M01"],
+        "concern_text": "PROBAST+AI 2025 Analysis-domain signalling questions ask whether hyperparameter tuning, feature selection, and preprocessing were performed within the development data only, with the test/external set kept genuinely held-out. AI-specific signalling questions added in PROBAST+AI explicitly target tuning leakage, repeated use of the test set, and information leak through preprocessing fitted on the pooled data. Any pipeline that fits the scaler, imputer, or feature selector on the combined train+test data is a high-risk-of-bias Analysis-domain finding (Moons, Collins et al., BMJ 2025;388:e082505).",
+        "tags": ["tuning_leakage", "preprocessing_leakage", "test_set_tuning", "probast_ai_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-045"
+      }
+    ]
+  },
+  {
+    "id": "META-PROBAST-006",
+    "paper_doi": "10.1136/bmj-2024-082505",
+    "paper_title": "PROBAST+AI: a tool to assess the risk of bias of prediction model studies that used artificial intelligence",
+    "journal": "BMJ",
+    "year": 2025,
+    "domain": "methodology",
+    "prediction_task": "risk_of_bias_assessment_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-PROBAST-006-C01",
+        "reviewer": "PROBAST+AI Analysis domain (calibration & evaluation)",
+        "round": 1,
+        "category": "evaluation_metrics",
+        "severity": "HIGH",
+        "mlgg_dimension": 5,
+        "mlgg_gates": ["calibration_dca_gate", "evaluation_quality_gate", "metric_consistency_gate"],
+        "mlgg_rules": ["MLGG-E02"],
+        "concern_text": "PROBAST+AI 2025 Analysis-domain signalling questions include explicit assessment of calibration and an appropriate metric panel. Reporting discrimination only (AUROC) or threshold-based metrics at an arbitrary cutoff (accuracy, F1) without a calibration plot and decision-curve analysis is a high-risk-of-bias signal; the AI-specific extensions emphasise that improper scoring rules and ad-hoc thresholds inflate apparent performance for miscalibrated ML models (Moons, Collins et al., BMJ 2025;388:e082505; Van Calster et al., BMC Med 2019;17:230).",
+        "tags": ["calibration_plot_missing", "auc_alone_insufficient", "metric_panel_incomplete", "missing_dca", "probast_ai_alignment", "meta_checklist_item", "improper_scoring_rule"],
+        "canonical_pattern_id": "CP-026"
+      }
+    ]
+  },
+  {
+    "id": "META-PROBAST-007",
+    "paper_doi": "10.1136/bmj-2024-082505",
+    "paper_title": "PROBAST+AI: a tool to assess the risk of bias of prediction model studies that used artificial intelligence",
+    "journal": "BMJ",
+    "year": 2025,
+    "domain": "methodology",
+    "prediction_task": "risk_of_bias_assessment_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-PROBAST-007-C01",
+        "reviewer": "PROBAST+AI Applicability assessment",
+        "round": 1,
+        "category": "external_validation",
+        "severity": "HIGH",
+        "mlgg_dimension": 7,
+        "mlgg_gates": ["external_validation_gate", "generalization_gap_gate", "covariate_shift_gate"],
+        "mlgg_rules": [],
+        "concern_text": "PROBAST+AI 2025 follows PROBAST in pairing each domain's risk-of-bias judgement with a separate applicability judgement: does the study population, predictor set, and outcome definition match the intended-use population? Models developed on a single tertiary-care centre, on a calendar period more than five years prior to deployment, or on a population systematically different (age, ethnicity, comorbidity profile) from the deployment cohort should receive a 'high-concern' applicability rating regardless of internal risk-of-bias judgements (Moons, Collins et al., BMJ 2025;388:e082505).",
+        "tags": ["single_center_validation", "performance_drop_external", "applicability_concern", "demographic_imbalance", "probast_ai_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-029"
+      }
+    ]
+  },
+  {
+    "id": "META-PROBAST-008",
+    "paper_doi": "10.1136/bmj-2024-082505",
+    "paper_title": "PROBAST+AI: a tool to assess the risk of bias of prediction model studies that used artificial intelligence",
+    "journal": "BMJ",
+    "year": 2025,
+    "domain": "methodology",
+    "prediction_task": "risk_of_bias_assessment_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-PROBAST-008-C01",
+        "reviewer": "PROBAST+AI AI-specific signalling questions (shortcut learning / data confounding)",
+        "round": 1,
+        "category": "data_leakage",
+        "severity": "HIGH",
+        "mlgg_dimension": 4,
+        "mlgg_gates": ["leakage_gate", "shap_interpretability_gate"],
+        "mlgg_rules": ["MLGG-F04", "MLGG-M03"],
+        "concern_text": "PROBAST+AI 2025 adds AI-specific signalling questions targeting shortcut learning and data-source confounding: did the authors check whether the model is keying on site-of-acquisition, scanner type, demographic markers, or text overlays rather than the disease signal? Models trained on heterogeneous case/control source repositories without explicit confounder audits (saliency or counterfactual probing) are a known high-risk-of-bias pattern, as documented in DeGrave 2021 and Roberts 2021 (Moons, Collins et al., BMJ 2025;388:e082505; DeGrave et al., Nat Mach Intell 2021).",
+        "tags": ["feature_brittleness", "background_attention", "cam_on_background", "site_effects", "confounding_by_cohort", "probast_ai_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-022"
+      }
+    ]
+  },
+  {
+    "id": "META-STRATOS-001",
+    "paper_doi": "10.1016/S2589-7500(25)00098-6",
+    "paper_title": "Performance measures for prediction models: an overview (STRATOS TG6)",
+    "journal": "Lancet Digital Health",
+    "year": 2025,
+    "domain": "methodology",
+    "prediction_task": "metric_selection_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-STRATOS-001-C01",
+        "reviewer": "STRATOS TG6 / Van Calster 2025",
+        "round": 1,
+        "category": "evaluation_metrics",
+        "severity": "HIGH",
+        "mlgg_dimension": 5,
+        "mlgg_gates": ["metric_consistency_gate", "calibration_dca_gate", "evaluation_quality_gate"],
+        "mlgg_rules": ["MLGG-E02"],
+        "concern_text": "STRATOS TG6 (Van Calster et al., Lancet Digital Health 2025) classifies accuracy, F1, and sensitivity/specificity at a default 0.5 threshold as improper scoring rules: they can rank a miscalibrated model above a calibrated one and do not measure clinical utility. The TG6 overview requires that any clinical prediction paper report (i) a proper scoring rule such as the Brier score or log-loss, (ii) a calibration plot with calibration-in-the-large and slope, and (iii) decision-curve analysis over a clinically plausible threshold range, before classification metrics are presented.",
+        "tags": ["improper_scoring_rule", "auc_alone_insufficient", "missing_dca", "metric_panel_incomplete", "stratos_tg6_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-026"
+      }
+    ]
+  },
+  {
+    "id": "META-STRATOS-002",
+    "paper_doi": "10.1186/s12916-019-1466-7",
+    "paper_title": "Calibration: the Achilles heel of predictive analytics",
+    "journal": "BMC Medicine",
+    "year": 2019,
+    "domain": "methodology",
+    "prediction_task": "calibration_assessment_of_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-STRATOS-002-C01",
+        "reviewer": "Van Calster et al. 2019 (STRATOS TG6 lineage)",
+        "round": 1,
+        "category": "evaluation_metrics",
+        "severity": "HIGH",
+        "mlgg_dimension": 5,
+        "mlgg_gates": ["calibration_dca_gate", "evaluation_quality_gate"],
+        "mlgg_rules": ["MLGG-E02"],
+        "concern_text": "Van Calster et al. (BMC Med 2019;17:230) define a four-level calibration hierarchy (mean, weak, moderate, strong) and recommend that every clinical prediction model report at minimum 'moderate calibration': a flexible calibration curve estimated on independent data, with calibration-in-the-large and calibration slope reported as numerical summaries. Reporting only a Hosmer-Lemeshow p-value is insufficient and is known to mask important miscalibration; ML models are particularly prone to over-fitting calibration and require explicit re-calibration in any external validation.",
+        "tags": ["calibration_plot_missing", "calibration_metrics", "no_formal_calibration_test", "calibration_in_supplement", "stratos_tg6_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-021"
+      }
+    ]
+  },
+  {
+    "id": "META-STRATOS-003",
+    "paper_doi": "10.1016/S2589-7500(25)00098-6",
+    "paper_title": "Performance measures for prediction models: an overview (STRATOS TG6)",
+    "journal": "Lancet Digital Health",
+    "year": 2025,
+    "domain": "methodology",
+    "prediction_task": "metric_selection_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-STRATOS-003-C01",
+        "reviewer": "Van Calster 2025 (STRATOS TG6)",
+        "round": 1,
+        "category": "clinical_utility",
+        "severity": "HIGH",
+        "mlgg_dimension": 9,
+        "mlgg_gates": ["calibration_dca_gate", "clinical_metrics_gate"],
+        "mlgg_rules": [],
+        "concern_text": "STRATOS TG6 (Van Calster et al., Lancet Digital Health 2025) places decision-curve analysis at the centre of clinical-utility reporting: net benefit should be reported for the proposed model, for the 'treat-all' and 'treat-none' default strategies, and ideally for an established baseline model, across a clinically plausible threshold range. A paper that reports only a single confusion matrix at one cutpoint with no DCA, no threshold sweep, and no comparison to default strategies cannot substantiate a claim of clinical utility.",
+        "tags": ["missing_dca", "decision_curve_analysis", "clinical_utility_questionable", "missing_baseline_model", "stratos_tg6_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-010"
+      }
+    ]
+  },
+  {
+    "id": "META-STRATOS-004",
+    "paper_doi": "10.1016/j.jclinepi.2019.02.004",
+    "paper_title": "A systematic review shows no performance benefit of machine learning over logistic regression for clinical prediction models",
+    "journal": "Journal of Clinical Epidemiology",
+    "year": 2019,
+    "domain": "methodology",
+    "prediction_task": "systematic_review_ml_vs_logistic_regression",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "systematic_review",
+    "sample_size": 71,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-STRATOS-004-C01",
+        "reviewer": "Christodoulou, Steyerberg, Van Calster et al. 2019",
+        "round": 1,
+        "category": "model_selection",
+        "severity": "HIGH",
+        "mlgg_dimension": 4,
+        "mlgg_gates": ["model_selection_audit_gate", "evaluation_quality_gate"],
+        "mlgg_rules": ["MLGG-M01"],
+        "concern_text": "Christodoulou et al. (J Clin Epidemiol 2019;110:12-22) systematically reviewed 71 prediction-model studies comparing ML to logistic regression and found no average performance benefit of ML in low-risk-of-bias comparisons; apparent ML advantages in higher-bias studies were attributable to small samples, no shrinkage, or test-set tuning. Any paper claiming ML superiority must report a properly penalised logistic-regression baseline on the same predictors, same preprocessing, and same train/test split before the comparison can be evaluated. TRIPOD+AI item 12 explicitly endorses this requirement.",
+        "tags": ["logistic_regression_baseline", "missing_baseline_model", "added_value_overstated", "simpler_model_competitive", "ml_contest_approach", "systematic_review_finding", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-030"
+      }
+    ]
+  },
+  {
+    "id": "META-SR-001",
+    "paper_doi": "10.1136/bmj.m1328",
+    "paper_title": "Prediction models for diagnosis and prognosis of covid-19: systematic review and critical appraisal",
+    "journal": "BMJ",
+    "year": 2020,
+    "domain": "methodology",
+    "prediction_task": "systematic_review_of_covid19_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "systematic_review",
+    "sample_size": 232,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-SR-001-C01",
+        "reviewer": "Wynants et al. 2020 (systematic review)",
+        "round": 1,
+        "category": "study_design",
+        "severity": "HIGH",
+        "mlgg_dimension": 1,
+        "mlgg_gates": ["cohort_definition_gate", "external_validation_gate", "reporting_bias_gate"],
+        "mlgg_rules": [],
+        "concern_text": "Wynants et al. (BMJ 2020;369:m1328, living systematic review of 232 COVID-19 prediction-model studies) found that the great majority were at high or unclear risk of bias under PROBAST, with the most frequent failures being non-representative case-control samples, proxy outcomes (admission/ICU/severe respiratory illness instead of PCR-confirmed disease), small event counts, and no external validation. Any COVID-19 prediction-model paper sharing these features should be treated as high-risk-of-bias by default until shown otherwise.",
+        "tags": ["case_control_bias", "proxy_outcome_limitation", "surrogate_endpoint", "no_external_validation", "low_event_count", "high_risk_of_bias_prevalence", "systematic_review_finding", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-047"
+      },
+      {
+        "concern_id": "META-SR-001-C02",
+        "reviewer": "Wynants et al. 2020 (systematic review)",
+        "round": 1,
+        "category": "reporting",
+        "severity": "MEDIUM",
+        "mlgg_dimension": 9,
+        "mlgg_gates": ["reporting_bias_gate"],
+        "mlgg_rules": [],
+        "concern_text": "Wynants et al. (BMJ 2020;369:m1328) further reported that almost all reviewed COVID-19 models had poor reporting: missing description of the modelling pipeline, missing handling of missing data, missing calibration assessment, and inconsistent reporting of performance metrics. This empirically establishes a base-rate expectation that any COVID-era prediction model is likely TRIPOD-non-compliant unless the manuscript explicitly addresses each TRIPOD+AI item.",
+        "tags": ["calibration_plot_missing", "metric_panel_incomplete", "uncertainty_quantification_missing", "high_risk_of_bias_prevalence", "systematic_review_finding", "tripod_ai_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-004"
+      }
+    ]
+  },
+  {
+    "id": "META-SR-002",
+    "paper_doi": "10.1038/s42256-021-00307-0",
+    "paper_title": "Common pitfalls and recommendations for using machine learning to detect and prognosticate for COVID-19 using chest radiographs and CT scans",
+    "journal": "Nature Machine Intelligence",
+    "year": 2021,
+    "domain": "methodology",
+    "prediction_task": "systematic_review_of_covid19_imaging_models",
+    "model_types": ["deep_learning"],
+    "data_type": "systematic_review",
+    "sample_size": 415,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-SR-002-C01",
+        "reviewer": "Roberts et al. 2021 (systematic review)",
+        "round": 1,
+        "category": "data_leakage",
+        "severity": "HIGH",
+        "mlgg_dimension": 4,
+        "mlgg_gates": ["leakage_gate", "cohort_definition_gate"],
+        "mlgg_rules": ["MLGG-F04"],
+        "concern_text": "Roberts et al. (Nat Mach Intell 2021;3:199-217) systematically reviewed 415 COVID-19 chest-imaging studies and found zero of clinical utility, with the dominant failure mode being 'Frankenstein' datasets: adult COVID-positive images from one public repository combined with pediatric pneumonia negatives from another (e.g., Kermany/Mooney), so the model learned age and acquisition protocol rather than disease. Any imaging study combining case and control images from different public sources without site/age/scanner controls should be assumed to suffer this confound until proven otherwise.",
+        "tags": ["case_control_bias", "inappropriate_controls", "confounding_by_cohort", "site_effects", "data_source_provenance", "demographic_imbalance", "systematic_review_finding", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-007"
+      }
+    ]
+  },
+  {
+    "id": "META-SR-003",
+    "paper_doi": "10.1136/bmjopen-2020-048008",
+    "paper_title": "Living systematic review of machine learning prediction models for COVID-19: methodological quality assessment using PROBAST (Andaur Navarro et al.)",
+    "journal": "BMJ Open",
+    "year": 2021,
+    "domain": "methodology",
+    "prediction_task": "systematic_review_of_ml_covid_models_probast",
+    "model_types": ["machine_learning"],
+    "data_type": "systematic_review",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-SR-003-C01",
+        "reviewer": "Andaur Navarro et al. 2021 (PROBAST systematic review)",
+        "round": 1,
+        "category": "reporting",
+        "severity": "HIGH",
+        "mlgg_dimension": 9,
+        "mlgg_gates": ["reporting_bias_gate", "evaluation_quality_gate"],
+        "mlgg_rules": [],
+        "concern_text": "Andaur Navarro and colleagues' PROBAST-based audits of machine-learning prediction models (BMJ-family and J Clin Epidemiol, 2021-2023) found that the majority of audited ML papers were at high risk of bias on the Analysis domain: inadequate handling of missing data, no calibration assessment, no external validation, and unclear handling of optimism. This is a base-rate finding: TRIPOD+AI / PROBAST+AI under-reporting is the rule, not the exception, in published medical ML.",
+        "tags": ["high_risk_of_bias_prevalence", "calibration_plot_missing", "no_external_validation", "missing_data_handling_unclear", "systematic_review_finding", "probast_ai_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-004"
+      }
+    ]
+  },
+  {
+    "id": "META-SR-004",
+    "paper_doi": "10.1136/bmj.m441",
+    "paper_title": "Calculating the sample size required for developing a clinical prediction model",
+    "journal": "BMJ",
+    "year": 2020,
+    "domain": "methodology",
+    "prediction_task": "sample_size_methodology",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "methodology_paper",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-SR-004-C01",
+        "reviewer": "Riley et al. 2020 (sample-size methodology)",
+        "round": 1,
+        "category": "sample_size",
+        "severity": "HIGH",
+        "mlgg_dimension": 2,
+        "mlgg_gates": ["sample_size_gate"],
+        "mlgg_rules": ["MLGG-S01", "MLGG-S02"],
+        "concern_text": "Riley et al. (BMJ 2020;368:m441; updated 2023 Biometrical Journal stability paper) argue that the EPV>=10 heuristic is inadequate: correct minimum sample size for a binary outcome should be computed from expected R-squared, target shrinkage, and outcome prevalence using pmsampsize (or equivalent). The Riley criteria apply to ML methods, not only regression, and the implied minima are typically larger than what current published medical-ML papers achieve. Absence of any formal sample-size justification should be flagged as a high-priority concern; TRIPOD+AI item 8 and PROBAST+AI Analysis domain endorse this view.",
+        "tags": ["sample_size_insufficient", "epv_violation", "sample_size_justification", "no_power_calculation", "overfitting_risk", "low_event_count", "pmsampsize_missing", "riley_minimum_violated", "shrinkage_missing", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-024"
+      }
+    ]
+  },
+  {
+    "id": "META-ANCHOR-001",
+    "paper_doi": "10.1038/s42256-021-00338-7",
+    "paper_title": "AI for radiographic COVID-19 detection selects shortcuts over signal",
+    "journal": "Nature Machine Intelligence",
+    "year": 2021,
+    "domain": "methodology",
+    "prediction_task": "shortcut_learning_diagnosis_in_published_models",
+    "model_types": ["deep_learning"],
+    "data_type": "methods_critique",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-ANCHOR-001-C01",
+        "reviewer": "DeGrave, Janizek, Lee 2021 (shortcut-learning critique)",
+        "round": 1,
+        "category": "interpretability",
+        "severity": "HIGH",
+        "mlgg_dimension": 6,
+        "mlgg_gates": ["shap_interpretability_gate", "leakage_gate"],
+        "mlgg_rules": ["MLGG-M03"],
+        "concern_text": "DeGrave et al. (Nat Mach Intell 2021;3:610-619) showed that three high-performing published COVID-19 chest-X-ray models were keying on laterality tokens, hospital text overlays, and image-border artifacts: saliency maps placed importance outside the lung fields. This is a canonical example of shortcut learning, and any imaging paper that does not include a saliency / counterfactual-perturbation audit demonstrating attention on anatomically relevant regions should be assumed to be at high risk of the same failure mode (TRIPOD+AI item 18 / PROBAST+AI AI-specific signalling questions).",
+        "tags": ["feature_brittleness", "background_attention", "cam_on_background", "saliency_maps", "attention_interpretation", "gradcam_interpretation", "meta_checklist_item", "systematic_review_finding"],
+        "canonical_pattern_id": "CP-022"
+      }
+    ]
+  },
+  {
+    "id": "META-ANCHOR-002",
+    "paper_doi": "10.1371/journal.pmed.1002683",
+    "paper_title": "Variable generalization performance of a deep learning model to detect pneumonia in chest radiographs: a cross-sectional study",
+    "journal": "PLOS Medicine",
+    "year": 2018,
+    "domain": "methodology",
+    "prediction_task": "site_confounding_in_published_imaging_model",
+    "model_types": ["deep_learning"],
+    "data_type": "methods_critique",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-ANCHOR-002-C01",
+        "reviewer": "Zech et al. 2018 (hospital-system confounding)",
+        "round": 1,
+        "category": "external_validation",
+        "severity": "HIGH",
+        "mlgg_dimension": 7,
+        "mlgg_gates": ["external_validation_gate", "covariate_shift_gate", "leakage_gate"],
+        "mlgg_rules": ["MLGG-F04"],
+        "concern_text": "Zech et al. (PLOS Med 2018;15:e1002683) demonstrated that a pneumonia CNN trained on NIH + Mount Sinai radiographs performed worse externally because it had effectively learned to identify the hospital system and within-hospital department, both of which correlate with disease prevalence. Any imaging prediction-model paper that reports performance only on an in-distribution held-out set from the development sites is at high risk of this site-as-confounder failure, and TRIPOD+AI / PROBAST+AI applicability assessments specifically cite Zech as the canonical example.",
+        "tags": ["site_effects", "performance_drop_external", "external_auc_drop", "single_center_validation", "confounding_by_cohort", "scanner_distribution_shift", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-008"
+      }
+    ]
+  },
+  {
+    "id": "META-ANCHOR-003",
+    "paper_doi": "10.1001/jamainternmed.2021.2626",
+    "paper_title": "External validation of a widely implemented proprietary sepsis prediction model in hospitalized patients",
+    "journal": "JAMA Internal Medicine",
+    "year": 2021,
+    "domain": "methodology",
+    "prediction_task": "external_validation_of_deployed_sepsis_model",
+    "model_types": ["proprietary_ml"],
+    "data_type": "external_validation_study",
+    "sample_size": 38455,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-ANCHOR-003-C01",
+        "reviewer": "Wong et al. 2021 (Epic Sepsis Model external validation)",
+        "round": 1,
+        "category": "external_validation",
+        "severity": "HIGH",
+        "mlgg_dimension": 7,
+        "mlgg_gates": ["external_validation_gate", "calibration_dca_gate", "clinical_metrics_gate"],
+        "mlgg_rules": ["MLGG-E01", "MLGG-E02", "MLGG-T01"],
+        "concern_text": "Wong et al. (JAMA Intern Med 2021;181:1065-1070) showed that Epic's proprietary sepsis model, validated internally by the vendor with AUROC 0.76-0.83, achieved AUROC 0.63 at Michigan with sensitivity 33% and PPV 12%, and produced alerts on 18% of all admissions causing significant alert fatigue. The lesson generalises: vendor- or developer-only internal validation is not a substitute for independent external validation, and any deployment claim resting only on developer-reported metrics should be treated as unsupported.",
+        "tags": ["no_external_validation_initially", "performance_drop_external", "alert_fatigue", "low_ppv", "no_independent_external_set", "clinical_utility_questionable", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-008"
+      }
+    ]
+  },
+  {
+    "id": "META-TRIPOD-011",
+    "paper_doi": "10.1136/bmj-2023-078378",
+    "paper_title": "TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods",
+    "journal": "BMJ",
+    "year": 2024,
+    "domain": "methodology",
+    "prediction_task": "reporting_standard_for_clinical_prediction_models",
+    "model_types": ["regression", "machine_learning"],
+    "data_type": "guideline_meta_methodology",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "reviewer_concerns": [
+      {
+        "concern_id": "META-TRIPOD-011-C01",
+        "reviewer": "TRIPOD+AI items 7a-7c (predictors / handling of missing data)",
+        "round": 1,
+        "category": "preprocessing",
+        "severity": "MEDIUM",
+        "mlgg_dimension": 3,
+        "mlgg_gates": ["missingness_policy_gate", "feature_engineering_audit_gate", "feature_lineage_gate"],
+        "mlgg_rules": [],
+        "concern_text": "TRIPOD+AI 2024 items 7a-7c require a description of how each candidate predictor was defined, measured, and (critically) how missing data were handled. Acceptable approaches include multiple imputation with clear specification of the imputation model; complete-case analysis must be justified. Reporting only 'missing values were imputed' or omitting missingness percentages altogether is a documented under-reporting failure and biases downstream performance estimates (Collins et al., BMJ 2024;385:e078378).",
+        "tags": ["missing_data_handling_unclear", "missingness_policy", "multiple_imputation", "tripod_ai_alignment", "meta_checklist_item"],
+        "canonical_pattern_id": "CP-015"
+      }
+    ]
+  },
+  {
+    "id": "META-PROPOSED-CP",
+    "paper_doi": null,
+    "paper_title": "Proposed new canonical patterns for v1.1 (placeholder entry, not a paper)",
+    "journal": null,
+    "year": null,
+    "domain": "methodology",
+    "prediction_task": "cp_taxonomy_extension",
+    "model_types": [],
+    "data_type": "taxonomy_proposal",
+    "sample_size": null,
+    "review_rounds": null,
+    "is_cohort_retrospective_binary": null,
+    "_provenance": "LLM-DRAFT-v1.1-pending-clinical-review",
+    "_proposed_canonical_patterns": [
+      {
+        "proposed_id": "CP-050",
+        "name": "meta_checklist_underreporting",
+        "rationale": "Existing CPs are paper-specific failure modes; there is no canonical pattern that names the meta-level concept 'this paper fails a named TRIPOD+AI / PROBAST+AI checklist item' as the unit of concern. Adding CP-050 lets meta-entries cluster together at retrieval time and makes the ood_03 slice retrievable.",
+        "best_fit_gates": ["reporting_bias_gate", "evaluation_quality_gate"]
+      },
+      {
+        "proposed_id": "CP-051",
+        "name": "systematic_review_base_rate",
+        "rationale": "Captures the kind of concern raised by Wynants 2020, Roberts 2021, Andaur 2021, Christodoulou 2019: 'systematic-review-derived base-rate evidence shows this pattern is the rule, not the exception'. Useful as an anchor CP for meta-evidence rather than per-paper findings.",
+        "best_fit_gates": ["reporting_bias_gate", "external_validation_gate"]
+      },
+      {
+        "proposed_id": "CP-052",
+        "name": "shortcut_learning_audit_missing",
+        "rationale": "DeGrave 2021 / Roberts 2021 patterns: deep-learning imaging papers that do not include a saliency or counterfactual perturbation audit. Currently overlaps CP-022 (interpretability) and CP-037 (leakage) but neither names the absent-audit failure mode explicitly. Adding CP-052 would let meta-entries about shortcut learning cluster cleanly.",
+        "best_fit_gates": ["shap_interpretability_gate", "leakage_gate"]
+      }
+    ],
+    "_proposed_new_tags": [
+      "probast_ai_alignment",
+      "stratos_tg6_alignment",
+      "uncertainty_quantification_missing",
+      "intended_use_case_unclear",
+      "model_availability_unclear",
+      "fairness_reporting_missing",
+      "meta_checklist_item",
+      "systematic_review_finding",
+      "high_risk_of_bias_prevalence",
+      "improper_scoring_rule",
+      "pmsampsize_missing",
+      "riley_minimum_violated",
+      "shrinkage_missing",
+      "test_set_tuning"
+    ],
+    "_proposed_new_categories": [
+      "meta_methodology"
+    ],
+    "_proposed_new_domains": [
+      "methodology"
+    ],
+    "reviewer_concerns": []
+  }
+]

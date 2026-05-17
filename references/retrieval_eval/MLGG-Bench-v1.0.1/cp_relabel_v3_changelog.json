@@ -1,0 +1,1778 @@
+{
+  "n_total": 155,
+  "n_unchanged": 96,
+  "n_refined": 12,
+  "n_expanded": 27,
+  "n_replaced": 20,
+  "per_scenario": [
+    {
+      "scenario_id": "agent01_icu-acuity-bootstrap-only",
+      "v2_cps": [
+        "CP-027"
+      ],
+      "v3_cps": [
+        "CP-027"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-027(25.5: cat=evaluation_metrics; sig_gate=ci_matrix_gate) | CP-023(14.5: cat=evaluation_metrics; sig_gate=ci_matrix_gate) | CP-026(3.0: cat=evaluation_metrics; kw_hits=1)"
+    },
+    {
+      "scenario_id": "agent01-stroke-single-split-no-bootstrap",
+      "v2_cps": [
+        "CP-027"
+      ],
+      "v3_cps": [
+        "CP-023",
+        "CP-027"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-023']. v3 top: CP-027(18.1: cat=evaluation_metrics; sig_gate=ci_matrix_gate; gate_affinity+3.0) | CP-023(14.5: cat=evaluation_metrics; sig_gate=ci_matrix_gate; gate_affinity+3.0) | CP-005(5.5: tags=(single_split)+3.5; kw_hits=1)"
+    },
+    {
+      "scenario_id": "agent01-aki-suspicious-narrow-ci",
+      "v2_cps": [
+        "CP-027"
+      ],
+      "v3_cps": [
+        "CP-023",
+        "CP-027"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-023']. v3 top: CP-027(14.9: cat=evaluation_metrics; sig_gate=ci_matrix_gate; gate_affinity+3.0) | CP-023(12.7: cat=evaluation_metrics; sig_gate=ci_matrix_gate; gate_affinity+3.0) | CP-001(4.7: cat=evaluation_metrics; tags=(incomplete_metrics)+3.3)"
+    },
+    {
+      "scenario_id": "agent01-cxr-vit-no-ci-error-bars",
+      "v2_cps": [
+        "CP-027"
+      ],
+      "v3_cps": [
+        "CP-027"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-027(18.8: cat=evaluation_metrics; sig_gate=ci_matrix_gate) | CP-023(12.3: cat=evaluation_metrics; sig_gate=ci_matrix_gate) | CP-001(4.7: cat=evaluation_metrics; tags=(incomplete_metrics)+3.3)"
+    },
+    {
+      "scenario_id": "agent01-icu-rare-event-auc-overoptimism",
+      "v2_cps": [
+        "CP-006"
+      ],
+      "v3_cps": [
+        "CP-006"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-006(20.0: cat=evaluation_metrics; sig_gate=evaluation_quality_gate) | CP-030(9.0: cat=evaluation_metrics; sig_gate=evaluation_quality_gate) | CP-020(8.8: cat=evaluation_metrics; sig_gate=evaluation_quality_gate)"
+    },
+    {
+      "scenario_id": "agent01-aki-mortality-no-prcurve",
+      "v2_cps": [
+        "CP-006"
+      ],
+      "v3_cps": [
+        "CP-006",
+        "CP-020"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-020']. v3 top: CP-006(16.1: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0) | CP-020(12.3: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0) | CP-030(11.0: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent01-immunotherapy-default-cutoff",
+      "v2_cps": [
+        "CP-006"
+      ],
+      "v3_cps": [
+        "CP-006",
+        "CP-020"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-020']. v3 top: CP-006(16.1: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0) | CP-020(12.3: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0) | CP-030(11.0: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent01-dementia-mortality-auc-only",
+      "v2_cps": [
+        "CP-026"
+      ],
+      "v3_cps": [
+        "CP-006",
+        "CP-026"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-006']. v3 top: CP-006(12.6: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0) | CP-026(9.3: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; tags=(incomplete_metrics)+3.3) | CP-020(8.8: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent01-cad-ecg-sensitivity-precision-only",
+      "v2_cps": [
+        "CP-026"
+      ],
+      "v3_cps": [
+        "CP-020"
+      ],
+      "change_type": "replaced",
+      "reason": "REPLACED v2=['CP-026'] -> v3=['CP-020']. v3 top: CP-020(12.6: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0) | CP-006(8.8: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0) | CP-001(8.5: cat=evaluation_metrics; tags=(full_metric_panel,incomplete_metrics)+7.1)"
+    },
+    {
+      "scenario_id": "agent01-amr-gnn-missing-vme",
+      "v2_cps": [
+        "CP-020"
+      ],
+      "v3_cps": [
+        "CP-020"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-020(10.8: cat=evaluation_metrics; sig_gate=clinical_metrics_gate) | CP-026(6.2: cat=evaluation_metrics; gate_affinity+1.5) | CP-038(5.5: cat=evaluation_metrics; sig_gate=clinical_metrics_gate)"
+    },
+    {
+      "scenario_id": "agent01-wt-attr-cm-auroc-rare",
+      "v2_cps": [
+        "CP-020"
+      ],
+      "v3_cps": [
+        "CP-006",
+        "CP-020"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-006']. v3 top: CP-006(16.1: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0) | CP-020(12.3: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0) | CP-030(11.0: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent01-azithromycin-cv-fold-averages",
+      "v2_cps": [
+        "CP-023"
+      ],
+      "v3_cps": [
+        "CP-023",
+        "CP-027"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-027']. v3 top: CP-023(14.5: cat=evaluation_metrics; sig_gate=ci_matrix_gate; gate_affinity+3.0) | CP-027(14.5: cat=evaluation_metrics; sig_gate=ci_matrix_gate; gate_affinity+3.0) | CP-001(4.7: cat=evaluation_metrics; tags=(incomplete_metrics)+3.3)"
+    },
+    {
+      "scenario_id": "agent01-ecg-dnn-no-seed-variance",
+      "v2_cps": [
+        "CP-023"
+      ],
+      "v3_cps": [
+        "CP-023",
+        "CP-027"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-027']. v3 top: CP-027(18.8: cat=evaluation_metrics; sig_gate=ci_matrix_gate; gate_affinity+3.0) | CP-023(14.5: cat=evaluation_metrics; sig_gate=ci_matrix_gate; gate_affinity+3.0) | CP-001(1.4: cat=evaluation_metrics)"
+    },
+    {
+      "scenario_id": "agent01-pdl1-histopath-no-prc",
+      "v2_cps": [
+        "CP-026"
+      ],
+      "v3_cps": [
+        "CP-006",
+        "CP-020"
+      ],
+      "change_type": "replaced",
+      "reason": "REPLACED v2=['CP-026'] -> v3=['CP-006', 'CP-020']. v3 top: CP-006(16.1: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0) | CP-020(12.3: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0) | CP-030(9.0: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent01-hfpef-tte-arbitrary-cutpoint",
+      "v2_cps": [
+        "CP-018"
+      ],
+      "v3_cps": [
+        "CP-006",
+        "CP-020"
+      ],
+      "change_type": "replaced",
+      "reason": "REPLACED v2=['CP-018'] -> v3=['CP-006', 'CP-020']. v3 top: CP-006(8.8: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0) | CP-020(8.8: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0) | CP-026(6.8: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; tags=(incomplete_metrics)+3.3)"
+    },
+    {
+      "scenario_id": "agent02_sepsis-reliability-pr-curve",
+      "v2_cps": [
+        "CP-021",
+        "CP-026"
+      ],
+      "v3_cps": [
+        "CP-021"
+      ],
+      "change_type": "refined",
+      "reason": "REFINED drop ['CP-026']. v3 top: CP-021(23.7: cat=evaluation_metrics; sig_gate=calibration_dca_gate; gate_affinity+3.0) | CP-026(15.6: cat=evaluation_metrics; sig_gate=calibration_dca_gate; gate_affinity+2.5) | CP-006(9.0: cat=evaluation_metrics; tags=(missing_precision_recall,auc_only)+7.6)"
+    },
+    {
+      "scenario_id": "agent02-ckd-retinal-calibration-in-supplement",
+      "v2_cps": [
+        "CP-021"
+      ],
+      "v3_cps": [
+        "CP-021"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-021(26.4: cat=evaluation_metrics; sig_gate=calibration_dca_gate) | CP-026(17.4: cat=evaluation_metrics; sig_gate=calibration_dca_gate) | CP-001(1.4: cat=evaluation_metrics)"
+    },
+    {
+      "scenario_id": "agent02-ivf-per-clinic-calibration-plots",
+      "v2_cps": [
+        "CP-021"
+      ],
+      "v3_cps": [
+        "CP-021"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-021(21.9: cat=evaluation_metrics; sig_gate=calibration_dca_gate) | CP-026(13.6: cat=evaluation_metrics; sig_gate=calibration_dca_gate) | CP-031(5.5: tags=(tripod_compliance)+3.5; kw_hits=1)"
+    },
+    {
+      "scenario_id": "agent02-tb-mean-calibration-definition",
+      "v2_cps": [
+        "CP-021"
+      ],
+      "v3_cps": [
+        "CP-021"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-021(25.0: cat=evaluation_metrics; sig_gate=calibration_dca_gate) | CP-026(9.8: cat=evaluation_metrics; sig_gate=calibration_dca_gate) | CP-001(1.4: cat=evaluation_metrics)"
+    },
+    {
+      "scenario_id": "agent02-covid-mortality-auc-only-no-dca",
+      "v2_cps": [
+        "CP-021",
+        "CP-026"
+      ],
+      "v3_cps": [
+        "CP-026"
+      ],
+      "change_type": "refined",
+      "reason": "REFINED drop ['CP-021']. v3 top: CP-026(21.1: cat=evaluation_metrics; sig_gate=calibration_dca_gate; gate_affinity+2.5) | CP-021(14.1: cat=evaluation_metrics; sig_gate=calibration_dca_gate; gate_affinity+3.0) | CP-001(4.7: cat=evaluation_metrics; tags=(comparison_with_existing)+3.3)"
+    },
+    {
+      "scenario_id": "agent02-crc-survival-missing-dca-r2",
+      "v2_cps": [
+        "CP-026"
+      ],
+      "v3_cps": [
+        "CP-026"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-026(23.6: cat=evaluation_metrics; sig_gate=calibration_dca_gate) | CP-021(12.3: cat=evaluation_metrics; sig_gate=calibration_dca_gate) | CP-001(4.7: cat=evaluation_metrics; tags=(incomplete_metrics)+3.3)"
+    },
+    {
+      "scenario_id": "agent02-wearable-rebalancing-distorts-calibration",
+      "v2_cps": [
+        "CP-021",
+        "CP-026"
+      ],
+      "v3_cps": [
+        "CP-021",
+        "CP-026"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-026(17.8: cat=evaluation_metrics; sig_gate=calibration_dca_gate) | CP-021(14.1: cat=evaluation_metrics; sig_gate=calibration_dca_gate) | CP-001(1.4: cat=evaluation_metrics)"
+    },
+    {
+      "scenario_id": "agent02-nsclc-joint-vs-landmark-calibration",
+      "v2_cps": [
+        "CP-026"
+      ],
+      "v3_cps": [
+        "CP-026"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-026(26.3: cat=evaluation_metrics; sig_gate=calibration_dca_gate) | CP-021(14.1: cat=evaluation_metrics; sig_gate=calibration_dca_gate) | CP-001(1.4: cat=evaluation_metrics)"
+    },
+    {
+      "scenario_id": "agent02-crc-prs-incremental-nri-dca",
+      "v2_cps": [
+        "CP-006",
+        "CP-026"
+      ],
+      "v3_cps": [
+        "CP-006"
+      ],
+      "change_type": "refined",
+      "reason": "REFINED drop ['CP-026']. v3 top: CP-006(19.6: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0) | CP-020(12.0: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0) | CP-026(9.0: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; tags=(nri_analysis)+3.5)"
+    },
+    {
+      "scenario_id": "agent02-icu-rare-event-ppv-clinician-adjudication",
+      "v2_cps": [
+        "CP-006"
+      ],
+      "v3_cps": [
+        "CP-006",
+        "CP-010"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-010']. v3 top: CP-010(18.2: sig_gate=clinical_metrics_gate; gate_affinity+2.5; tags=(clinician_adjudication,clinical_utility,auc_overoptimistic)+11.2) | CP-006(16.4: cat=evaluation_metrics; tags=(clinician_adjudication,clinical_utility,rare_event_ppv)+15.0) | CP-038(9.3: cat=evaluation_metrics; sig_gate=clinical_metrics_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent02-cad-ecg-threshold-justification",
+      "v2_cps": [
+        "CP-006"
+      ],
+      "v3_cps": [
+        "CP-006"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-006(12.7: cat=evaluation_metrics; tags=(clinical_impact_analysis,threshold_justification,modest_performance)+11.3) | CP-020(5.5: cat=evaluation_metrics; sig_gate=clinical_metrics_gate) | CP-038(5.5: cat=evaluation_metrics; sig_gate=clinical_metrics_gate)"
+    },
+    {
+      "scenario_id": "agent02-cfrna-pe-fgr-partial-auc",
+      "v2_cps": [
+        "CP-006"
+      ],
+      "v3_cps": [
+        "CP-006"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-006(13.2: cat=evaluation_metrics; tags=(partial_auc_missing,clinical_relevance,auc_only)+11.8) | CP-020(5.5: cat=evaluation_metrics; sig_gate=clinical_metrics_gate) | CP-038(5.5: cat=evaluation_metrics; sig_gate=clinical_metrics_gate)"
+    },
+    {
+      "scenario_id": "agent02-pancreatic-prediction-window-clinical-utility",
+      "v2_cps": [
+        "CP-012"
+      ],
+      "v3_cps": [
+        "CP-012"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-012(15.7: cat=clinical_utility; tags=(prediction_window,time_horizon,clinical_relevance)+12.3) | CP-010(6.0: cat=clinical_utility; sig_gate=clinical_metrics_gate) | CP-020(4.5: sig_gate=clinical_metrics_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent02-cfdna-breast-multiple-threshold-pairs",
+      "v2_cps": [
+        "CP-001"
+      ],
+      "v3_cps": [
+        "CP-001",
+        "CP-018"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-018']. v3 top: CP-001(8.9: cat=evaluation_metrics; tags=(sensitivity_vs_specificity,threshold_selection)+7.5) | CP-018(8.8: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0) | CP-006(5.5: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent02-hfpef-arbitrary-cutpoint-unfair-comparison",
+      "v2_cps": [
+        "CP-018"
+      ],
+      "v3_cps": [
+        "CP-018"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-018(16.4: cat=evaluation_metrics; sig_gate=evaluation_quality_gate) | CP-006(9.3: cat=evaluation_metrics; sig_gate=evaluation_quality_gate) | CP-001(8.5: cat=evaluation_metrics; tags=(unfair_comparison,threshold_selection)+7.1)"
+    },
+    {
+      "scenario_id": "agent03_oa-five-year-future-features",
+      "v2_cps": [
+        "CP-002"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-002(13.0: cat=study_design; tags=(prediction_timepoint_unclear,retrospective_vs_prospective,future_information_leakage)+11.6) | CP-037(9.0: sig_gate=leakage_gate; gate_affinity+3.0) | CP-044(5.0: sig_gate=leakage_gate; gate_affinity+2.5)"
+    },
+    {
+      "scenario_id": "agent03_nsaid-as-oa-proxy",
+      "v2_cps": [
+        "CP-002",
+        "CP-014"
+      ],
+      "v3_cps": [
+        "CP-036"
+      ],
+      "change_type": "replaced",
+      "reason": "REPLACED v2=['CP-002', 'CP-014'] -> v3=['CP-036']. v3 top: CP-036(6.5: cat=study_design; sig_gate=definition_variable_guard; gate_affinity+3.0) | CP-002(4.5: cat=study_design; tags=(future_information_leakage)+3.5) | CP-034(3.5: tags=(future_information_leakage)+3.5)"
+    },
+    {
+      "scenario_id": "agent03_icu-mamba-prospective-misclaim",
+      "v2_cps": [
+        "CP-003"
+      ],
+      "v3_cps": [
+        "CP-002",
+        "CP-007"
+      ],
+      "change_type": "replaced",
+      "reason": "REPLACED v2=['CP-003'] -> v3=['CP-002', 'CP-007']. v3 top: CP-002(16.5: cat=study_design; tags=(prediction_timepoint_unclear,retrospective_vs_prospective,future_information_leakage)+15.1) | CP-007(11.8: sig_gate=reporting_bias_gate; gate_affinity+2.0; tags=(retrospective_vs_prospective,prospective_vs_retrospective)+7.3) | CP-003(4.9: cat=study_design; tags=(prospective_vs_retrospective)+3.5)"
+    },
+    {
+      "scenario_id": "agent03_cancer-risk-vs-diagnosis-conflation",
+      "v2_cps": [
+        "CP-003"
+      ],
+      "v3_cps": [
+        "CP-002",
+        "CP-036"
+      ],
+      "change_type": "replaced",
+      "reason": "REPLACED v2=['CP-003'] -> v3=['CP-002', 'CP-036']. v3 top: CP-036(16.7: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+1.8) | CP-002(14.5: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+3.0) | CP-003(9.0: cat=study_design; tags=(risk_vs_diagnosis,terminology_conflated)+7.6)"
+    },
+    {
+      "scenario_id": "agent03_icu-update-window-rationale",
+      "v2_cps": [
+        "CP-003"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "replaced",
+      "reason": "REPLACED v2=['CP-003'] -> v3=['CP-002']. v3 top: CP-002(10.7: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+3.0) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+1.8) | CP-003(5.2: cat=study_design; tags=(prediction_window_justification)+3.8)"
+    },
+    {
+      "scenario_id": "agent03_aki-baseline-exclusion-leaks-prognosis",
+      "v2_cps": [
+        "CP-002"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-002(18.8: cat=study_design; sig_gate=cohort_definition_gate) | CP-048(8.6: cat=study_design; sig_gate=cohort_definition_gate) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate)"
+    },
+    {
+      "scenario_id": "agent03_crrt-seven-day-arbitrary",
+      "v2_cps": [
+        "CP-003"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "replaced",
+      "reason": "REPLACED v2=['CP-003'] -> v3=['CP-002']. v3 top: CP-002(14.5: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+3.0) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+1.8) | CP-003(5.2: cat=study_design; tags=(prediction_window_justification)+3.8)"
+    },
+    {
+      "scenario_id": "agent03_cancer-two-year-risk-is-diagnosis",
+      "v2_cps": [
+        "CP-036"
+      ],
+      "v3_cps": [
+        "CP-002",
+        "CP-036"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-002']. v3 top: CP-036(16.7: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+1.8) | CP-002(14.5: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+3.0) | CP-003(9.0: cat=study_design; tags=(risk_vs_diagnosis,terminology_conflated)+7.6)"
+    },
+    {
+      "scenario_id": "agent03_cll-shifted-index-date",
+      "v2_cps": [
+        "CP-002",
+        "CP-037"
+      ],
+      "v3_cps": [
+        "CP-002",
+        "CP-037"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-037(11.0: sig_gate=leakage_gate; gate_affinity+3.0) | CP-002(9.1: cat=study_design; tags=(prediction_timepoint_unclear,future_information_leakage)+7.7) | CP-044(5.0: sig_gate=leakage_gate; gate_affinity+2.5)"
+    },
+    {
+      "scenario_id": "agent03_wearable-nurse-eligibility-missing",
+      "v2_cps": [
+        "CP-002"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-002(25.0: cat=study_design; sig_gate=cohort_definition_gate) | CP-048(8.6: cat=study_design; sig_gate=cohort_definition_gate) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate)"
+    },
+    {
+      "scenario_id": "agent03_sepsis-prognostic-vs-diagnostic-label",
+      "v2_cps": [
+        "CP-002",
+        "CP-036"
+      ],
+      "v3_cps": [
+        "CP-002",
+        "CP-036"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-002(17.5: cat=study_design; tags=(outcome_definition,prediction_timepoint_unclear,label_definition)+16.5) | CP-036(14.1: cat=study_design; sig_gate=definition_variable_guard) | CP-003(4.8: cat=study_design; tags=(terminology_conflated)+3.8)"
+    },
+    {
+      "scenario_id": "agent03_metabolomics-unmatched-controls",
+      "v2_cps": [
+        "CP-048"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "replaced",
+      "reason": "REPLACED v2=['CP-048'] -> v3=['CP-002']. v3 top: CP-002(26.4: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+3.0) | CP-048(8.6: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+1.3) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+1.8)"
+    },
+    {
+      "scenario_id": "agent03_sepsis-physician-order-as-label",
+      "v2_cps": [
+        "CP-002"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-002(17.6: cat=study_design; tags=(outcome_definition,prediction_timepoint_unclear,label_validity)+16.2) | CP-034(8.5: sig_gate=feature_lineage_gate; gate_affinity+2.5) | CP-037(8.5: sig_gate=feature_lineage_gate; gate_affinity+2.5)"
+    },
+    {
+      "scenario_id": "agent03_cad-composite-and-referral-leak",
+      "v2_cps": [
+        "CP-002"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-002(17.2: cat=study_design; tags=(outcome_definition,prediction_timepoint_unclear,retrospective_vs_prospective)+15.8) | CP-034(8.5: sig_gate=feature_lineage_gate; gate_affinity+2.5) | CP-037(8.5: sig_gate=feature_lineage_gate; gate_affinity+2.5)"
+    },
+    {
+      "scenario_id": "agent03_cfrna-treatment-as-signal",
+      "v2_cps": [
+        "CP-002",
+        "CP-014"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "refined",
+      "reason": "REFINED drop ['CP-014']. v3 top: CP-002(16.4: cat=study_design; tags=(prediction_timepoint_unclear,retrospective_vs_prospective,selection_bias)+15.4) | CP-036(6.5: cat=study_design; sig_gate=definition_variable_guard; gate_affinity+3.0) | CP-048(4.8: cat=study_design; tags=(selection_bias)+3.8)"
+    },
+    {
+      "scenario_id": "agent04_oa-controls-unmatched-contamination",
+      "v2_cps": [
+        "CP-002"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-002(22.6: cat=study_design; sig_gate=cohort_definition_gate) | CP-048(8.6: cat=study_design; sig_gate=cohort_definition_gate) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate)"
+    },
+    {
+      "scenario_id": "agent04-hiv-proteomics-6pct-included",
+      "v2_cps": [
+        "CP-002"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-002(23.0: cat=study_design; sig_gate=cohort_definition_gate) | CP-048(8.6: cat=study_design; sig_gate=cohort_definition_gate) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate)"
+    },
+    {
+      "scenario_id": "agent04-insulin-resistance-future-diabetes-stratify",
+      "v2_cps": [
+        "CP-003"
+      ],
+      "v3_cps": [
+        "CP-002",
+        "CP-003"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-002']. v3 top: CP-002(10.7: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+3.0) | CP-003(9.8: cat=study_design; tags=(time_varying_covariate,immortal_time_bias)+8.4) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+1.8)"
+    },
+    {
+      "scenario_id": "agent04-hfpef-tte-quality-attrition",
+      "v2_cps": [
+        "CP-002"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-002(22.6: cat=study_design; sig_gate=cohort_definition_gate) | CP-048(8.6: cat=study_design; sig_gate=cohort_definition_gate) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate)"
+    },
+    {
+      "scenario_id": "agent04-infehr-neonatal-sepsis-unreported-baseline",
+      "v2_cps": [
+        "CP-007",
+        "CP-025"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "replaced",
+      "reason": "REPLACED v2=['CP-007', 'CP-025'] -> v3=['CP-002']. v3 top: CP-002(14.5: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+3.0) | CP-048(8.6: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+1.3) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+1.8)"
+    },
+    {
+      "scenario_id": "agent04-lupus-preclinical-marker-narrow",
+      "v2_cps": [
+        "CP-002"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-002(10.7: cat=study_design; sig_gate=cohort_definition_gate) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate) | CP-046(4.8: cat=study_design; sig_gate=cohort_definition_gate)"
+    },
+    {
+      "scenario_id": "agent04-wearable-deterioration-nurse-judgment",
+      "v2_cps": [
+        "CP-002"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-002(16.5: cat=study_design; sig_gate=cohort_definition_gate) | CP-048(8.6: cat=study_design; sig_gate=cohort_definition_gate) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate)"
+    },
+    {
+      "scenario_id": "agent04-preeclampsia-cfrna-aspirin-imbalance",
+      "v2_cps": [
+        "CP-002",
+        "CP-048"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "refined",
+      "reason": "REFINED drop ['CP-048']. v3 top: CP-002(14.5: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+3.0) | CP-048(8.6: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+1.3) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+1.8)"
+    },
+    {
+      "scenario_id": "agent04-sepsis-controls-mimickers-underrep",
+      "v2_cps": [
+        "CP-001",
+        "CP-047"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "replaced",
+      "reason": "REPLACED v2=['CP-001', 'CP-047'] -> v3=['CP-002']. v3 top: CP-002(14.5: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+3.0) | CP-048(8.6: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+1.3) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+1.8)"
+    },
+    {
+      "scenario_id": "agent04-t2d-precision-24center-accessibility",
+      "v2_cps": [
+        "CP-002"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-002(14.5: cat=study_design; sig_gate=cohort_definition_gate) | CP-048(8.6: cat=study_design; sig_gate=cohort_definition_gate) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate)"
+    },
+    {
+      "scenario_id": "agent04-pediatric-ecg-chd-indication-bias",
+      "v2_cps": [
+        "CP-002"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-002(14.5: cat=study_design; sig_gate=cohort_definition_gate) | CP-048(8.6: cat=study_design; sig_gate=cohort_definition_gate) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate)"
+    },
+    {
+      "scenario_id": "agent04-neoadjuvant-test-cohort-not-random",
+      "v2_cps": [
+        "CP-002"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-002(14.5: cat=study_design; sig_gate=cohort_definition_gate) | CP-048(8.6: cat=study_design; sig_gate=cohort_definition_gate) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate)"
+    },
+    {
+      "scenario_id": "agent04-pancancer-maldi-controls-younger-unmatched",
+      "v2_cps": [
+        "CP-048"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "replaced",
+      "reason": "REPLACED v2=['CP-048'] -> v3=['CP-002']. v3 top: CP-002(14.5: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+3.0) | CP-048(8.6: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+1.3) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+1.8)"
+    },
+    {
+      "scenario_id": "agent04-cll-infection-index-3mo-postdx",
+      "v2_cps": [
+        "CP-002",
+        "CP-015"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "refined",
+      "reason": "REFINED drop ['CP-015']. v3 top: CP-002(14.5: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+3.0) | CP-048(8.6: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+1.3) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+1.8)"
+    },
+    {
+      "scenario_id": "agent04-breast-axilla-consecutive-multifocal",
+      "v2_cps": [
+        "CP-002"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-002(14.5: cat=study_design; sig_gate=cohort_definition_gate) | CP-048(8.6: cat=study_design; sig_gate=cohort_definition_gate) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate)"
+    },
+    {
+      "scenario_id": "agent05_oa-nsaid-proxy-feature",
+      "v2_cps": [
+        "CP-002",
+        "CP-014"
+      ],
+      "v3_cps": [
+        "CP-036",
+        "CP-037"
+      ],
+      "change_type": "replaced",
+      "reason": "REPLACED v2=['CP-002', 'CP-014'] -> v3=['CP-036', 'CP-037']. v3 top: CP-036(5.5: sig_gate=definition_variable_guard; gate_affinity+3.0) | CP-037(4.5: cat=data_leakage; tags=(future_information_leakage)+3.5) | CP-002(3.5: tags=(future_information_leakage)+3.5)"
+    },
+    {
+      "scenario_id": "agent05-sepsis-note-vs-patient-split",
+      "v2_cps": [
+        "CP-044"
+      ],
+      "v3_cps": [
+        "CP-044"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-044(19.8: cat=split_protocol; sig_gate=split_protocol_gate) | CP-032(9.1: cat=split_protocol; sig_gate=split_protocol_gate) | CP-045(6.0: cat=split_protocol; sig_gate=split_protocol_gate)"
+    },
+    {
+      "scenario_id": "agent05-prs-discovery-validation-overlap",
+      "v2_cps": [
+        "CP-037",
+        "CP-044"
+      ],
+      "v3_cps": [
+        "CP-037"
+      ],
+      "change_type": "refined",
+      "reason": "REFINED drop ['CP-044']. v3 top: CP-037(6.5: cat=data_leakage; sig_gate=leakage_gate; gate_affinity+3.0) | CP-044(5.0: sig_gate=leakage_gate; gate_affinity+2.5) | CP-032(1.9: gate_affinity+1.5)"
+    },
+    {
+      "scenario_id": "agent05-aki-bidirectional-rnn-future",
+      "v2_cps": [
+        "CP-002",
+        "CP-037"
+      ],
+      "v3_cps": [
+        "CP-037"
+      ],
+      "change_type": "refined",
+      "reason": "REFINED drop ['CP-002']. v3 top: CP-037(6.5: cat=data_leakage; sig_gate=leakage_gate; gate_affinity+3.0) | CP-044(5.0: sig_gate=leakage_gate; gate_affinity+2.5) | CP-032(1.9: gate_affinity+1.5)"
+    },
+    {
+      "scenario_id": "agent05-aki-random-split-20yr-span",
+      "v2_cps": [
+        "CP-032"
+      ],
+      "v3_cps": [
+        "CP-032"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-032(20.0: cat=split_protocol; sig_gate=split_protocol_gate) | CP-045(6.0: cat=split_protocol; sig_gate=split_protocol_gate) | CP-043(5.5: cat=split_protocol; sig_gate=split_protocol_gate)"
+    },
+    {
+      "scenario_id": "agent05-stroke-multi-admissions-patient-overlap",
+      "v2_cps": [
+        "CP-032"
+      ],
+      "v3_cps": [
+        "CP-032"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-032(13.3: cat=split_protocol; sig_gate=split_protocol_gate) | CP-043(9.3: cat=split_protocol; sig_gate=split_protocol_gate) | CP-045(6.0: cat=split_protocol; sig_gate=split_protocol_gate)"
+    },
+    {
+      "scenario_id": "agent05-pgs-correlated-phenotype-overlap",
+      "v2_cps": [
+        "CP-037",
+        "CP-044"
+      ],
+      "v3_cps": [
+        "CP-037"
+      ],
+      "change_type": "refined",
+      "reason": "REFINED drop ['CP-044']. v3 top: CP-037(6.5: cat=data_leakage; sig_gate=leakage_gate; gate_affinity+3.0) | CP-044(5.0: sig_gate=leakage_gate; gate_affinity+2.5) | CP-032(1.9: gate_affinity+1.5)"
+    },
+    {
+      "scenario_id": "agent05-tb-proteomics-test-set-reuse",
+      "v2_cps": [
+        "CP-028",
+        "CP-045"
+      ],
+      "v3_cps": [
+        "CP-027",
+        "CP-045"
+      ],
+      "change_type": "replaced",
+      "reason": "REPLACED v2=['CP-028', 'CP-045'] -> v3=['CP-027', 'CP-045']. v3 top: CP-045(8.0: cat=split_protocol; sig_gate=split_protocol_gate; gate_affinity+2.5) | CP-027(7.7: tags=(multiple_testing,single_split)+7.3) | CP-043(5.5: cat=split_protocol; sig_gate=split_protocol_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent05-sepsisformer-smote-before-split",
+      "v2_cps": [
+        "CP-039",
+        "CP-045"
+      ],
+      "v3_cps": [
+        "CP-045"
+      ],
+      "change_type": "refined",
+      "reason": "REFINED drop ['CP-039']. v3 top: CP-045(8.0: cat=split_protocol; sig_gate=split_protocol_gate; gate_affinity+2.5) | CP-043(5.5: cat=split_protocol; sig_gate=split_protocol_gate; gate_affinity+2.0) | CP-044(5.5: cat=split_protocol; sig_gate=split_protocol_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent05-vae-t2d-nested-cv-unclear",
+      "v2_cps": [
+        "CP-045"
+      ],
+      "v3_cps": [
+        "CP-045"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-045(21.2: cat=split_protocol; sig_gate=split_protocol_gate) | CP-043(5.5: cat=split_protocol; sig_gate=split_protocol_gate) | CP-044(5.5: cat=split_protocol; sig_gate=split_protocol_gate)"
+    },
+    {
+      "scenario_id": "agent05-chemo-toxicity-annotation-future-acu",
+      "v2_cps": [
+        "CP-037"
+      ],
+      "v3_cps": [
+        "CP-037"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-037(19.2: cat=data_leakage; sig_gate=leakage_gate) | CP-044(5.0: sig_gate=leakage_gate; gate_affinity+2.5) | CP-032(1.9: gate_affinity+1.5)"
+    },
+    {
+      "scenario_id": "agent05-cardiotox-pretraining-overlap",
+      "v2_cps": [
+        "CP-044"
+      ],
+      "v3_cps": [
+        "CP-044"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-044(18.2: cat=split_protocol; sig_gate=split_protocol_gate) | CP-045(6.0: cat=split_protocol; sig_gate=split_protocol_gate) | CP-043(5.5: cat=split_protocol; sig_gate=split_protocol_gate)"
+    },
+    {
+      "scenario_id": "agent05-pediatric-chd-empi-dedup",
+      "v2_cps": [
+        "CP-044"
+      ],
+      "v3_cps": [
+        "CP-044"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-044(18.2: cat=split_protocol; sig_gate=split_protocol_gate) | CP-045(6.0: cat=split_protocol; sig_gate=split_protocol_gate) | CP-043(5.5: cat=split_protocol; sig_gate=split_protocol_gate)"
+    },
+    {
+      "scenario_id": "agent05-covid-ct-lead-time-bias",
+      "v2_cps": [
+        "CP-037"
+      ],
+      "v3_cps": [
+        "CP-037"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-037(22.6: cat=data_leakage; sig_gate=leakage_gate) | CP-049(8.0: tags=(feature_timing,lead_time_bias)+7.6) | CP-044(5.0: sig_gate=leakage_gate; gate_affinity+2.5)"
+    },
+    {
+      "scenario_id": "agent05-fundus-temporal-patient-overlap",
+      "v2_cps": [
+        "CP-043"
+      ],
+      "v3_cps": [
+        "CP-043"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-043(17.8: cat=split_protocol; sig_gate=split_protocol_gate) | CP-032(11.1: cat=split_protocol; sig_gate=split_protocol_gate) | CP-045(6.0: cat=split_protocol; sig_gate=split_protocol_gate)"
+    },
+    {
+      "scenario_id": "agent06_crc-polygenic-no-external",
+      "v2_cps": [
+        "CP-008"
+      ],
+      "v3_cps": [
+        "CP-008"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-008(31.0: cat=external_validation; sig_gate=external_validation_gate) | CP-016(16.5: cat=external_validation; sig_gate=external_validation_gate) | CP-029(9.5: cat=external_validation; gate_affinity+1.5)"
+    },
+    {
+      "scenario_id": "agent06-covid-ct-nomogram-no-indep",
+      "v2_cps": [
+        "CP-008",
+        "CP-016"
+      ],
+      "v3_cps": [
+        "CP-008",
+        "CP-016"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-008(20.8: cat=external_validation; sig_gate=external_validation_gate) | CP-016(16.5: cat=external_validation; sig_gate=external_validation_gate) | CP-029(13.4: cat=external_validation; gate_affinity+1.5)"
+    },
+    {
+      "scenario_id": "agent06-oa-ukb-internal-split-only",
+      "v2_cps": [
+        "CP-008"
+      ],
+      "v3_cps": [
+        "CP-008"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-008(28.1: cat=external_validation; sig_gate=external_validation_gate) | CP-016(12.9: cat=external_validation; sig_gate=external_validation_gate) | CP-029(6.0: cat=external_validation; gate_affinity+1.5)"
+    },
+    {
+      "scenario_id": "agent06-hiv-proteomics-val-drop",
+      "v2_cps": [
+        "CP-008"
+      ],
+      "v3_cps": [
+        "CP-008"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-008(14.9: cat=external_validation; sig_gate=external_validation_gate) | CP-016(8.0: cat=external_validation; sig_gate=external_validation_gate) | CP-029(2.9: cat=external_validation; gate_affinity+1.5)"
+    },
+    {
+      "scenario_id": "agent06-trauma-prehospital-one-site",
+      "v2_cps": [
+        "CP-008"
+      ],
+      "v3_cps": [
+        "CP-008"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-008(21.9: cat=external_validation; sig_gate=external_validation_gate) | CP-016(12.9: cat=external_validation; sig_gate=external_validation_gate) | CP-029(6.0: cat=external_validation; gate_affinity+1.5)"
+    },
+    {
+      "scenario_id": "agent06-transformerehr-low-ppv-utility",
+      "v2_cps": [
+        "CP-010"
+      ],
+      "v3_cps": [
+        "CP-010"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-010(24.3: cat=clinical_utility; sig_gate=clinical_metrics_gate) | CP-038(8.0: sig_gate=clinical_metrics_gate; gate_affinity+2.0) | CP-020(4.5: sig_gate=clinical_metrics_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent06-ovarian-easy-case-utility",
+      "v2_cps": [
+        "CP-010"
+      ],
+      "v3_cps": [
+        "CP-010"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-010(18.3: cat=clinical_utility; sig_gate=clinical_metrics_gate) | CP-020(4.5: sig_gate=clinical_metrics_gate; gate_affinity+2.0) | CP-038(4.5: sig_gate=clinical_metrics_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent06-cervical-wsi-hpv-context",
+      "v2_cps": [
+        "CP-010"
+      ],
+      "v3_cps": [
+        "CP-010"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-010(22.5: cat=clinical_utility; sig_gate=clinical_metrics_gate) | CP-020(4.5: sig_gate=clinical_metrics_gate; gate_affinity+2.0) | CP-038(4.5: sig_gate=clinical_metrics_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent06-mcrc-dl-incremental-value",
+      "v2_cps": [
+        "CP-010"
+      ],
+      "v3_cps": [
+        "CP-010"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-010(21.6: cat=clinical_utility; sig_gate=clinical_metrics_gate) | CP-012(8.6: cat=clinical_utility; tags=(comparison_with_existing_biomarkers,incremental_value)+7.2) | CP-020(7.5: sig_gate=clinical_metrics_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent06-covid-immunophenotyping-feasibility",
+      "v2_cps": [
+        "CP-012"
+      ],
+      "v3_cps": [
+        "CP-012"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-012(12.6: cat=clinical_utility; tags=(clinical_implementation_impractical,feasibility,overstatement)+11.2) | CP-004(7.3: tags=(feasibility,overstatement)+6.9) | CP-010(5.6: cat=clinical_utility; tags=(deployment_context)+4.2)"
+    },
+    {
+      "scenario_id": "agent06-breast-radiogenomic-vs-mammaprint",
+      "v2_cps": [
+        "CP-017",
+        "CP-029"
+      ],
+      "v3_cps": [
+        "CP-010",
+        "CP-012"
+      ],
+      "change_type": "replaced",
+      "reason": "REPLACED v2=['CP-017', 'CP-029'] -> v3=['CP-010', 'CP-012']. v3 top: CP-012(12.8: cat=clinical_utility; tags=(comparison_with_existing_biomarkers,clinical_standard,incremental_value)+11.4) | CP-010(9.0: cat=clinical_utility; sig_gate=clinical_metrics_gate; gate_affinity+2.5) | CP-020(7.5: sig_gate=clinical_metrics_gate; gate_affinity+2.0; tags=(incremental_value)+3.0)"
+    },
+    {
+      "scenario_id": "agent06-prcc-adjuvant-therapy-overclaim",
+      "v2_cps": [
+        "CP-012"
+      ],
+      "v3_cps": [
+        "CP-012"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-012(11.7: cat=clinical_utility; tags=(therapeutic_claim_unsupported,overstatement,incremental_value)+10.3) | CP-008(7.7: tags=(premature_clinical_deployment,overstatement)+7.3) | CP-021(5.5: sig_gate=calibration_dca_gate; gate_affinity+3.0)"
+    },
+    {
+      "scenario_id": "agent06-pedtb-no-indep-cohort",
+      "v2_cps": [
+        "CP-016"
+      ],
+      "v3_cps": [
+        "CP-008",
+        "CP-016"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-008']. v3 top: CP-016(20.7: cat=external_validation; sig_gate=external_validation_gate; gate_affinity+2.5) | CP-008(20.2: cat=external_validation; sig_gate=external_validation_gate; gate_affinity+3.0) | CP-033(6.7: cat=external_validation; gate_affinity+1.5; tags=(subgroup_performance)+3.8)"
+    },
+    {
+      "scenario_id": "agent06-pedecg-chd-tertiary-only",
+      "v2_cps": [
+        "CP-016"
+      ],
+      "v3_cps": [
+        "CP-016"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-016(21.4: cat=external_validation; sig_gate=external_validation_gate) | CP-008(13.4: cat=external_validation; sig_gate=external_validation_gate) | CP-029(6.0: cat=external_validation; gate_affinity+1.5)"
+    },
+    {
+      "scenario_id": "agent06-conformal-pca-single-cohort",
+      "v2_cps": [
+        "CP-016"
+      ],
+      "v3_cps": [
+        "CP-008",
+        "CP-016"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-008']. v3 top: CP-016(21.8: cat=external_validation; sig_gate=external_validation_gate; gate_affinity+2.5) | CP-008(17.7: cat=external_validation; sig_gate=external_validation_gate; gate_affinity+3.0) | CP-029(10.2: cat=external_validation; gate_affinity+1.5; tags=(single_center,external_validation_needed)+7.3)"
+    },
+    {
+      "scenario_id": "agent07_data-source-details-missing",
+      "v2_cps": [
+        "CP-004"
+      ],
+      "v3_cps": [
+        "CP-004"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-004(19.4: cat=reporting; gate_affinity+1.5) | CP-031(7.0: cat=reporting; sig_gate=reporting_bias_gate) | CP-007(5.5: cat=reporting; sig_gate=reporting_bias_gate)"
+    },
+    {
+      "scenario_id": "agent07-wearable-adherence-unreported",
+      "v2_cps": [
+        "CP-004"
+      ],
+      "v3_cps": [
+        "CP-004"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-004(19.4: cat=reporting; gate_affinity+1.5) | CP-007(5.5: cat=reporting; sig_gate=reporting_bias_gate) | CP-031(5.0: cat=reporting; sig_gate=reporting_bias_gate)"
+    },
+    {
+      "scenario_id": "agent07-deployment-implementation-undocumented",
+      "v2_cps": [
+        "CP-004"
+      ],
+      "v3_cps": [
+        "CP-004"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-004(19.8: cat=reporting; gate_affinity+1.5) | CP-031(7.0: cat=reporting; sig_gate=reporting_bias_gate) | CP-007(5.5: cat=reporting; sig_gate=reporting_bias_gate)"
+    },
+    {
+      "scenario_id": "agent07-figure-table-numeric-inconsistencies",
+      "v2_cps": [
+        "CP-004"
+      ],
+      "v3_cps": [
+        "CP-004"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-004(19.8: cat=reporting; gate_affinity+1.5) | CP-007(5.5: cat=reporting; sig_gate=reporting_bias_gate) | CP-031(5.0: cat=reporting; sig_gate=reporting_bias_gate)"
+    },
+    {
+      "scenario_id": "agent07-ukb-case-ascertainment-undefined",
+      "v2_cps": [
+        "CP-007"
+      ],
+      "v3_cps": [
+        "CP-007"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-007(21.2: cat=reporting; sig_gate=reporting_bias_gate) | CP-002(10.0: tags=(outcome_definition_unclear,case_ascertainment_unclear)+7.6; kw_hits=1) | CP-004(6.7: cat=reporting; gate_affinity+1.5)"
+    },
+    {
+      "scenario_id": "agent07-no-tripod-statement",
+      "v2_cps": [
+        "CP-007"
+      ],
+      "v3_cps": [
+        "CP-007"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-007(17.3: cat=reporting; sig_gate=reporting_bias_gate) | CP-031(10.8: cat=reporting; sig_gate=reporting_bias_gate) | CP-040(5.0: cat=reporting; sig_gate=reporting_bias_gate)"
+    },
+    {
+      "scenario_id": "agent07-no-per-center-breakdown",
+      "v2_cps": [
+        "CP-007"
+      ],
+      "v3_cps": [
+        "CP-007"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-007(16.9: cat=reporting; sig_gate=reporting_bias_gate) | CP-001(11.8: tags=(aggregated_only,per_center_missing,per_clinic_results)+11.4) | CP-031(5.0: cat=reporting; sig_gate=reporting_bias_gate)"
+    },
+    {
+      "scenario_id": "agent07-tool-versions-and-io-undocumented",
+      "v2_cps": [
+        "CP-009"
+      ],
+      "v3_cps": [
+        "CP-009"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-009(25.4: cat=reproducibility; gate_affinity+1.8) | CP-011(8.2: cat=reproducibility; gate_affinity+1.5) | CP-031(7.8: sig_gate=execution_attestation_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent07-partial-data-sharing-restricted-raw",
+      "v2_cps": [
+        "CP-009"
+      ],
+      "v3_cps": [
+        "CP-009"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-009(23.4: cat=reproducibility; gate_affinity+1.8) | CP-031(7.8: sig_gate=execution_attestation_gate; gate_affinity+2.0) | CP-011(6.2: cat=reproducibility; gate_affinity+1.5)"
+    },
+    {
+      "scenario_id": "agent07-dl-training-details-vague",
+      "v2_cps": [
+        "CP-011"
+      ],
+      "v3_cps": [
+        "CP-011"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-011(17.0: cat=reproducibility; tags=(loss_function_missing,preprocessing_missing,training_details_missing)+15.6) | CP-042(10.0: cat=reproducibility; gate_affinity+1.5) | CP-009(4.7: cat=reproducibility; tags=(irreproducible_methods)+3.3)"
+    },
+    {
+      "scenario_id": "agent07-synthetic-data-no-code-or-data",
+      "v2_cps": [
+        "CP-011"
+      ],
+      "v3_cps": [
+        "CP-009",
+        "CP-011"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-009']. v3 top: CP-011(21.8: cat=reproducibility; gate_affinity+1.5; tags=(synthetic_data_sharing,data_availability,code_availability)+18.9) | CP-009(15.6: cat=reproducibility; gate_affinity+1.8; tags=(code_availability,no_code_availability,reproducibility)+10.4) | CP-042(9.5: cat=reproducibility; gate_affinity+1.5; tags=(no_code_availability,reproducibility)+6.6)"
+    },
+    {
+      "scenario_id": "agent07-code-not-available-pseudocode-only",
+      "v2_cps": [
+        "CP-031"
+      ],
+      "v3_cps": [
+        "CP-031"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-031(18.3: cat=reporting; sig_gate=execution_attestation_gate) | CP-011(10.5: gate_affinity+1.5; tags=(no_code_availability,irreproducible_methods)+6.6) | CP-009(8.8: gate_affinity+1.8; tags=(no_code_availability,irreproducible_methods)+6.6)"
+    },
+    {
+      "scenario_id": "agent07-broken-bitbucket-repo-link",
+      "v2_cps": [
+        "CP-009",
+        "CP-011"
+      ],
+      "v3_cps": [
+        "CP-035"
+      ],
+      "change_type": "replaced",
+      "reason": "REPLACED v2=['CP-009', 'CP-011'] -> v3=['CP-035']. v3 top: CP-035(22.0: cat=reproducibility; sig_gate=execution_attestation_gate; gate_affinity+2.0) | CP-009(12.3: cat=reproducibility; gate_affinity+1.8; tags=(deferred_release,no_code_availability)+7.1) | CP-031(7.8: sig_gate=execution_attestation_gate; gate_affinity+2.0; tags=(no_code_availability)+3.3)"
+    },
+    {
+      "scenario_id": "agent07-readme-missing-deps-and-hyperparams",
+      "v2_cps": [
+        "CP-042"
+      ],
+      "v3_cps": [
+        "CP-011",
+        "CP-042"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-011']. v3 top: CP-042(15.8: cat=reproducibility; gate_affinity+1.5; tags=(training_details_missing,irreproducible_methods,reproducibility)+10.4) | CP-011(15.3: cat=reproducibility; gate_affinity+1.5; tags=(training_details_missing,irreproducible_methods,reproducibility)+10.4) | CP-009(12.3: cat=reproducibility; gate_affinity+1.8; tags=(irreproducible_methods,reproducibility)+6.6)"
+    },
+    {
+      "scenario_id": "agent07-subjective-ground-truth-three-annotators",
+      "v2_cps": [
+        "CP-040"
+      ],
+      "v3_cps": [
+        "CP-040"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-040(21.5: cat=reporting; sig_gate=reporting_bias_gate) | CP-007(5.5: cat=reporting; sig_gate=reporting_bias_gate) | CP-031(5.0: cat=reporting; sig_gate=reporting_bias_gate)"
+    },
+    {
+      "scenario_id": "agent08_mamba-vs-transformer-unjustified",
+      "v2_cps": [
+        "CP-005"
+      ],
+      "v3_cps": [
+        "CP-005"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-005(23.9: cat=model_selection; sig_gate=model_selection_audit_gate) | CP-017(14.3: cat=model_selection; gate_affinity+2.0) | CP-001(6.8: tags=(missing_baseline_comparison,marginal_improvement)+6.4)"
+    },
+    {
+      "scenario_id": "agent08-xgboost-only-no-rationale",
+      "v2_cps": [
+        "CP-005"
+      ],
+      "v3_cps": [
+        "CP-005",
+        "CP-017"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-017']. v3 top: CP-005(17.3: cat=model_selection; sig_gate=model_selection_audit_gate; gate_affinity+2.5) | CP-017(13.0: cat=model_selection; gate_affinity+2.0; tags=(model_justification,missing_baseline_comparison)+7.1) | CP-028(6.0: cat=model_selection; sig_gate=model_selection_audit_gate; gate_affinity+2.5)"
+    },
+    {
+      "scenario_id": "agent08-lasso-vs-tree-baseline",
+      "v2_cps": [
+        "CP-005"
+      ],
+      "v3_cps": [
+        "CP-005",
+        "CP-017"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-017']. v3 top: CP-005(17.3: cat=model_selection; sig_gate=model_selection_audit_gate; gate_affinity+2.5) | CP-017(12.5: cat=model_selection; gate_affinity+2.0; tags=(model_justification,missing_baseline_comparison)+7.1) | CP-028(6.0: cat=model_selection; sig_gate=model_selection_audit_gate; gate_affinity+2.5)"
+    },
+    {
+      "scenario_id": "agent08-lightgbm-default-no-bench",
+      "v2_cps": [
+        "CP-005"
+      ],
+      "v3_cps": [
+        "CP-005",
+        "CP-017"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-017']. v3 top: CP-005(17.3: cat=model_selection; sig_gate=model_selection_audit_gate; gate_affinity+2.5) | CP-017(12.5: cat=model_selection; gate_affinity+2.0; tags=(model_justification,missing_baseline_comparison)+7.1) | CP-028(6.0: cat=model_selection; sig_gate=model_selection_audit_gate; gate_affinity+2.5)"
+    },
+    {
+      "scenario_id": "agent08-llm-baseline-missing",
+      "v2_cps": [
+        "CP-017"
+      ],
+      "v3_cps": [
+        "CP-017"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-017(15.1: cat=model_selection; gate_affinity+2.0) | CP-005(9.3: cat=model_selection; sig_gate=model_selection_audit_gate) | CP-028(6.0: cat=model_selection; sig_gate=model_selection_audit_gate)"
+    },
+    {
+      "scenario_id": "agent08-ts-model-vs-sofa-bench",
+      "v2_cps": [
+        "CP-017"
+      ],
+      "v3_cps": [
+        "CP-005",
+        "CP-017"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-005']. v3 top: CP-017(14.7: cat=model_selection; gate_affinity+2.0; tags=(time_series_alternative,model_justification,missing_baseline_comparison)+11.3) | CP-005(13.1: cat=model_selection; sig_gate=model_selection_audit_gate; gate_affinity+2.5) | CP-028(6.0: cat=model_selection; sig_gate=model_selection_audit_gate; gate_affinity+2.5)"
+    },
+    {
+      "scenario_id": "agent08-logistic-only-data-not-shown",
+      "v2_cps": [
+        "CP-005",
+        "CP-017"
+      ],
+      "v3_cps": [
+        "CP-005"
+      ],
+      "change_type": "refined",
+      "reason": "REFINED drop ['CP-017']. v3 top: CP-005(16.4: cat=model_selection; sig_gate=model_selection_audit_gate; gate_affinity+2.5) | CP-017(10.5: cat=model_selection; gate_affinity+2.0; tags=(model_justification,missing_baseline_comparison)+7.1) | CP-028(8.0: cat=model_selection; sig_gate=model_selection_audit_gate; gate_affinity+2.5)"
+    },
+    {
+      "scenario_id": "agent08-sepsisformer-component-ablation",
+      "v2_cps": [
+        "CP-017",
+        "CP-028"
+      ],
+      "v3_cps": [
+        "CP-005"
+      ],
+      "change_type": "replaced",
+      "reason": "REPLACED v2=['CP-017', 'CP-028'] -> v3=['CP-005']. v3 top: CP-005(15.1: cat=model_selection; sig_gate=model_selection_audit_gate; gate_affinity+2.5) | CP-017(7.2: cat=model_selection; gate_affinity+2.0; tags=(model_justification)+3.8) | CP-028(6.0: cat=model_selection; sig_gate=model_selection_audit_gate; gate_affinity+2.5)"
+    },
+    {
+      "scenario_id": "agent08-ecg-feature-branch-ablation",
+      "v2_cps": [
+        "CP-019"
+      ],
+      "v3_cps": [
+        "CP-019"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-019(13.5: cat=feature_selection; sig_gate=feature_engineering_audit_gate) | CP-005(7.5: tags=(model_justification,ablation_missing)+7.1) | CP-034(5.0: cat=feature_selection; sig_gate=feature_engineering_audit_gate)"
+    },
+    {
+      "scenario_id": "agent08-validation-imputation-leak",
+      "v2_cps": [
+        "CP-015"
+      ],
+      "v3_cps": [
+        "CP-015"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-015(13.2: cat=preprocessing; sig_gate=missingness_policy_gate) | CP-014(3.4: cat=preprocessing; kw_hits=1) | CP-008(2.0: kw_hits=1)"
+    },
+    {
+      "scenario_id": "agent08-aggressive-resampling-skews-posterior",
+      "v2_cps": [
+        "CP-038",
+        "CP-039"
+      ],
+      "v3_cps": [
+        "CP-039"
+      ],
+      "change_type": "refined",
+      "reason": "REFINED drop ['CP-038']. v3 top: CP-039(9.0: cat=preprocessing; sig_gate=imbalance_policy_gate; gate_affinity+2.5) | CP-030(4.5: sig_gate=imbalance_policy_gate; gate_affinity+2.0) | CP-027(2.0: kw_hits=1)"
+    },
+    {
+      "scenario_id": "agent08-rare-outcome-imbalance-undisclosed",
+      "v2_cps": [
+        "CP-039"
+      ],
+      "v3_cps": [
+        "CP-039"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-039(8.5: cat=preprocessing; sig_gate=imbalance_policy_gate) | CP-030(4.5: sig_gate=imbalance_policy_gate; gate_affinity+2.0) | CP-004(2.0: kw_hits=1)"
+    },
+    {
+      "scenario_id": "agent08-mnar-imputation-policy-opaque",
+      "v2_cps": [
+        "CP-015"
+      ],
+      "v3_cps": [
+        "CP-015"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-015(9.0: cat=preprocessing; sig_gate=missingness_policy_gate) | CP-014(1.4: cat=preprocessing) | CP-025(1.0: cat=preprocessing)"
+    },
+    {
+      "scenario_id": "agent08-overparameterized-radiogenomic",
+      "v2_cps": [
+        "CP-014"
+      ],
+      "v3_cps": [
+        "CP-019",
+        "CP-025"
+      ],
+      "change_type": "replaced",
+      "reason": "REPLACED v2=['CP-014'] -> v3=['CP-019', 'CP-025']. v3 top: CP-025(5.5: cat=preprocessing; sig_gate=feature_engineering_audit_gate; gate_affinity+2.0) | CP-019(5.0: sig_gate=feature_engineering_audit_gate; gate_affinity+2.5) | CP-034(4.0: sig_gate=feature_engineering_audit_gate; gate_affinity+1.5)"
+    },
+    {
+      "scenario_id": "agent08-pvalue-feature-selection-cancer",
+      "v2_cps": [
+        "CP-019"
+      ],
+      "v3_cps": [
+        "CP-019"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-019(8.5: cat=feature_selection; sig_gate=feature_engineering_audit_gate) | CP-034(5.0: cat=feature_selection; sig_gate=feature_engineering_audit_gate) | CP-025(4.5: sig_gate=feature_engineering_audit_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent09_shap-volcano-uninformative",
+      "v2_cps": [
+        "CP-013"
+      ],
+      "v3_cps": [
+        "CP-013"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-013(25.5: cat=interpretability; sig_gate=shap_interpretability_gate) | CP-022(7.2: cat=interpretability; gate_affinity+2.0) | CP-001(0.4: )"
+    },
+    {
+      "scenario_id": "agent09_shap-beeswarm-lncrna",
+      "v2_cps": [
+        "CP-013"
+      ],
+      "v3_cps": [
+        "CP-013"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-013(20.8: cat=interpretability; sig_gate=shap_interpretability_gate) | CP-022(7.2: cat=interpretability; gate_affinity+2.0) | CP-001(0.4: )"
+    },
+    {
+      "scenario_id": "agent09_ecg-shap-shallow",
+      "v2_cps": [
+        "CP-013"
+      ],
+      "v3_cps": [
+        "CP-013"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-013(25.5: cat=interpretability; sig_gate=shap_interpretability_gate) | CP-003(3.8: tags=(clinical_interpretation)+3.8) | CP-022(3.4: cat=interpretability; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent09_proteomic-shap-omitted",
+      "v2_cps": [
+        "CP-013"
+      ],
+      "v3_cps": [
+        "CP-013"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-013(21.3: cat=interpretability; sig_gate=shap_interpretability_gate) | CP-022(7.2: cat=interpretability; gate_affinity+2.0) | CP-028(2.0: kw_hits=1)"
+    },
+    {
+      "scenario_id": "agent09_lasso-stability-missing",
+      "v2_cps": [
+        "CP-019"
+      ],
+      "v3_cps": [
+        "CP-019"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-019(20.3: cat=feature_selection; sig_gate=feature_engineering_audit_gate) | CP-034(5.0: cat=feature_selection; sig_gate=feature_engineering_audit_gate) | CP-025(4.5: sig_gate=feature_engineering_audit_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent09_p-value-variable-keeping",
+      "v2_cps": [
+        "CP-019"
+      ],
+      "v3_cps": [
+        "CP-019"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-019(17.8: cat=feature_selection; sig_gate=feature_engineering_audit_gate) | CP-034(5.0: cat=feature_selection; sig_gate=feature_engineering_audit_gate) | CP-025(4.5: sig_gate=feature_engineering_audit_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent09_ten-feature-arbitrary",
+      "v2_cps": [
+        "CP-019"
+      ],
+      "v3_cps": [
+        "CP-019"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-019(18.7: cat=feature_selection; sig_gate=feature_engineering_audit_gate) | CP-034(5.0: cat=feature_selection; sig_gate=feature_engineering_audit_gate) | CP-025(4.5: sig_gate=feature_engineering_audit_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent09_prognosis-stage-confound",
+      "v2_cps": [
+        "CP-022"
+      ],
+      "v3_cps": [
+        "CP-022"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-022(16.4: cat=interpretability; gate_affinity+2.0) | CP-013(9.0: cat=interpretability; sig_gate=shap_interpretability_gate) | CP-006(6.8: tags=(beyond_known_predictors,incremental_value)+6.8)"
+    },
+    {
+      "scenario_id": "agent09_attention-spurious-tokens",
+      "v2_cps": [
+        "CP-022"
+      ],
+      "v3_cps": [
+        "CP-013",
+        "CP-022"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-013']. v3 top: CP-022(15.7: cat=interpretability; gate_affinity+2.0; tags=(multimodal_complementarity,attention_interpretation,explainability_missing)+12.3) | CP-013(12.3: cat=interpretability; sig_gate=shap_interpretability_gate; gate_affinity+3.0) | CP-001(0.4: )"
+    },
+    {
+      "scenario_id": "agent09_gradcam-what-not-where",
+      "v2_cps": [
+        "CP-022"
+      ],
+      "v3_cps": [
+        "CP-022"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-022(16.1: cat=interpretability; gate_affinity+2.0) | CP-013(6.5: cat=interpretability; sig_gate=shap_interpretability_gate) | CP-001(0.4: )"
+    },
+    {
+      "scenario_id": "agent09_gwas-large-scale-overclaim",
+      "v2_cps": [
+        "CP-024"
+      ],
+      "v3_cps": [
+        "CP-024"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-024(24.3: cat=sample_size; sig_gate=sample_size_gate) | CP-012(3.5: tags=(overstatement)+3.1) | CP-004(3.1: tags=(overstatement)+3.1)"
+    },
+    {
+      "scenario_id": "agent09_ckd-subgroup-n47",
+      "v2_cps": [
+        "CP-024"
+      ],
+      "v3_cps": [
+        "CP-024"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-024(25.5: cat=sample_size; sig_gate=sample_size_gate) | CP-030(4.2: tags=(small_sample)+3.8) | CP-016(2.0: kw_hits=1)"
+    },
+    {
+      "scenario_id": "agent09_cfrna-13events-epv",
+      "v2_cps": [
+        "CP-024"
+      ],
+      "v3_cps": [
+        "CP-024"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-024(20.6: cat=sample_size; sig_gate=sample_size_gate) | CP-030(4.2: tags=(small_sample)+3.8) | CP-001(3.9: tags=(epv_violation)+3.5)"
+    },
+    {
+      "scenario_id": "agent09_vae-purpose-unjustified",
+      "v2_cps": [
+        "CP-034"
+      ],
+      "v3_cps": [
+        "CP-034"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-034(20.2: cat=feature_selection; sig_gate=feature_engineering_audit_gate) | CP-019(8.0: cat=feature_selection; sig_gate=feature_engineering_audit_gate) | CP-025(4.5: sig_gate=feature_engineering_audit_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent09_ct-timestamp-leadtime",
+      "v2_cps": [
+        "CP-037"
+      ],
+      "v3_cps": [
+        "CP-037"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-037(24.6: cat=data_leakage; sig_gate=leakage_gate) | CP-049(8.0: tags=(feature_timing,lead_time_bias)+7.6) | CP-044(5.0: sig_gate=leakage_gate; gate_affinity+2.5)"
+    },
+    {
+      "scenario_id": "agent10_paraphrase_cp001-eval-metric-cross-domain",
+      "v2_cps": [
+        "CP-001"
+      ],
+      "v3_cps": [
+        "CP-020"
+      ],
+      "change_type": "replaced",
+      "reason": "REPLACED v2=['CP-001'] -> v3=['CP-020']. v3 top: CP-020(12.6: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0) | CP-006(8.8: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0) | CP-001(8.5: cat=evaluation_metrics; tags=(full_metric_panel,incomplete_metrics)+7.1)"
+    },
+    {
+      "scenario_id": "agent10_paraphrase_cp002-outcome-defn-sepsis-as-oa",
+      "v2_cps": [
+        "CP-002"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-002(19.2: cat=study_design; sig_gate=cohort_definition_gate) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate) | CP-046(4.8: cat=study_design; sig_gate=cohort_definition_gate)"
+    },
+    {
+      "scenario_id": "agent10_paraphrase_cp003-sensitivity-genomics-vs-stroke",
+      "v2_cps": [
+        "CP-003"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "replaced",
+      "reason": "REPLACED v2=['CP-003'] -> v3=['CP-002']. v3 top: CP-002(11.8: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+3.0) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+1.8) | CP-046(4.8: cat=study_design; sig_gate=cohort_definition_gate; gate_affinity+1.3)"
+    },
+    {
+      "scenario_id": "agent10_paraphrase_cp004-reporting-method-clarity",
+      "v2_cps": [
+        "CP-004"
+      ],
+      "v3_cps": [
+        "CP-004",
+        "CP-031"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-031']. v3 top: CP-004(7.1: cat=reporting; gate_affinity+1.5; tags=(model_description_unclear)+4.2) | CP-031(7.0: cat=reporting; sig_gate=reporting_bias_gate; gate_affinity+1.5) | CP-007(5.5: cat=reporting; sig_gate=reporting_bias_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent10_paraphrase_cp005-model-justification-mamba-as-gbm",
+      "v2_cps": [
+        "CP-005"
+      ],
+      "v3_cps": [
+        "CP-005",
+        "CP-017"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-017']. v3 top: CP-005(13.6: cat=model_selection; sig_gate=model_selection_audit_gate; gate_affinity+2.5) | CP-017(13.0: cat=model_selection; gate_affinity+2.0; tags=(simpler_model_competitive,model_justification)+7.6) | CP-028(6.0: cat=model_selection; sig_gate=model_selection_audit_gate; gate_affinity+2.5)"
+    },
+    {
+      "scenario_id": "agent10_paraphrase_cp006-auc-only-cross-domain",
+      "v2_cps": [
+        "CP-006"
+      ],
+      "v3_cps": [
+        "CP-006"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-006(16.7: cat=evaluation_metrics; sig_gate=evaluation_quality_gate) | CP-030(11.0: cat=evaluation_metrics; sig_gate=evaluation_quality_gate) | CP-020(9.0: cat=evaluation_metrics; sig_gate=evaluation_quality_gate)"
+    },
+    {
+      "scenario_id": "agent10_paraphrase_cp007-reporting-guidelines-cross-domain",
+      "v2_cps": [
+        "CP-007"
+      ],
+      "v3_cps": [
+        "CP-007",
+        "CP-031"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-031']. v3 top: CP-007(17.3: cat=reporting; sig_gate=reporting_bias_gate; gate_affinity+2.0) | CP-031(14.6: cat=reporting; sig_gate=reporting_bias_gate; gate_affinity+1.5) | CP-040(5.0: cat=reporting; sig_gate=reporting_bias_gate; gate_affinity+1.5)"
+    },
+    {
+      "scenario_id": "agent10_paraphrase_cp008-no-external-validation-cross-domain",
+      "v2_cps": [
+        "CP-008"
+      ],
+      "v3_cps": [
+        "CP-008"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-008(16.5: cat=external_validation; sig_gate=external_validation_gate) | CP-016(9.8: cat=external_validation; sig_gate=external_validation_gate) | CP-029(2.9: cat=external_validation; gate_affinity+1.5)"
+    },
+    {
+      "scenario_id": "agent10_near_miss_cp002-vs-cp015-outcome-vs-imputation",
+      "v2_cps": [
+        "CP-002"
+      ],
+      "v3_cps": [
+        "CP-002"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-002(16.5: cat=study_design; sig_gate=cohort_definition_gate) | CP-036(5.3: cat=study_design; sig_gate=cohort_definition_gate) | CP-046(4.8: cat=study_design; sig_gate=cohort_definition_gate)"
+    },
+    {
+      "scenario_id": "agent10_near_miss_cp008-vs-cp016-no-validation-vs-shift",
+      "v2_cps": [
+        "CP-008"
+      ],
+      "v3_cps": [
+        "CP-008",
+        "CP-016"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-016']. v3 top: CP-008(16.5: cat=external_validation; sig_gate=external_validation_gate; gate_affinity+3.0) | CP-016(11.8: cat=external_validation; sig_gate=external_validation_gate; gate_affinity+2.5) | CP-029(2.9: cat=external_validation; gate_affinity+1.5)"
+    },
+    {
+      "scenario_id": "agent10_near_miss_cp006-vs-cp010-auprc-vs-dca",
+      "v2_cps": [
+        "CP-006"
+      ],
+      "v3_cps": [
+        "CP-006",
+        "CP-030"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-030']. v3 top: CP-006(12.8: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0) | CP-030(11.0: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0) | CP-020(9.0: cat=evaluation_metrics; sig_gate=evaluation_quality_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent10_near_miss_cp005-vs-cp017-architecture-vs-ablation",
+      "v2_cps": [
+        "CP-005"
+      ],
+      "v3_cps": [
+        "CP-005"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-005(14.0: cat=model_selection; sig_gate=model_selection_audit_gate) | CP-017(7.2: cat=model_selection; gate_affinity+2.0) | CP-028(6.0: cat=model_selection; sig_gate=model_selection_audit_gate)"
+    },
+    {
+      "scenario_id": "agent10_near_miss_cp013-vs-cp019-shap-vs-feature-selection",
+      "v2_cps": [
+        "CP-013"
+      ],
+      "v3_cps": [
+        "CP-013"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-013(21.7: cat=interpretability; sig_gate=shap_interpretability_gate) | CP-022(3.4: cat=interpretability; gate_affinity+2.0) | CP-019(2.0: kw_hits=1)"
+    },
+    {
+      "scenario_id": "agent10_near_miss_cp004-vs-cp007-manuscript-vs-tripod",
+      "v2_cps": [
+        "CP-004"
+      ],
+      "v3_cps": [
+        "CP-004"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-004(15.6: cat=reporting; gate_affinity+1.5) | CP-031(7.0: cat=reporting; sig_gate=reporting_bias_gate) | CP-007(5.5: cat=reporting; sig_gate=reporting_bias_gate)"
+    },
+    {
+      "scenario_id": "agent10_distractor_gpt4-for-feature-engineering",
+      "v2_cps": [
+        "CP-011"
+      ],
+      "v3_cps": [
+        "CP-009",
+        "CP-011",
+        "CP-042"
+      ],
+      "change_type": "expanded",
+      "reason": "EXPANDED add ['CP-009', 'CP-042']. v3 top: CP-009(13.1: cat=reproducibility; gate_affinity+1.8; tags=(no_code_availability,irreproducible_methods,reproducibility)+9.9) | CP-011(12.8: cat=reproducibility; gate_affinity+1.5; tags=(no_code_availability,irreproducible_methods,reproducibility)+9.9) | CP-042(12.8: cat=reproducibility; gate_affinity+1.5; tags=(no_code_availability,irreproducible_methods,reproducibility)+9.9)"
+    },
+    {
+      "scenario_id": "agent10_distractor_phi-visit-dates-as-feature",
+      "v2_cps": [
+        "CP-014"
+      ],
+      "v3_cps": [
+        "CP-014"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-014(18.1: cat=preprocessing; gate_affinity+2.0) | CP-025(5.5: cat=preprocessing; sig_gate=feature_engineering_audit_gate) | CP-019(5.0: sig_gate=feature_engineering_audit_gate; gate_affinity+2.5)"
+    },
+    {
+      "scenario_id": "agent10_distractor_low-ppv-clinical-utility",
+      "v2_cps": [
+        "CP-010"
+      ],
+      "v3_cps": [
+        "CP-010"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-010(20.5: cat=clinical_utility; sig_gate=clinical_metrics_gate) | CP-038(8.0: sig_gate=clinical_metrics_gate; gate_affinity+2.0) | CP-020(4.5: sig_gate=clinical_metrics_gate; gate_affinity+2.0)"
+    },
+    {
+      "scenario_id": "agent10_distractor_no-code-link-published",
+      "v2_cps": [
+        "CP-009"
+      ],
+      "v3_cps": [
+        "CP-009"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-009(18.8: cat=reproducibility; sig_gate=publication_gate) | CP-011(7.6: cat=reproducibility; tags=(no_code_availability,reproducibility)+6.6) | CP-042(7.6: cat=reproducibility; tags=(no_code_availability,reproducibility)+6.6)"
+    },
+    {
+      "scenario_id": "agent10_distractor_unadjusted-confounder-art",
+      "v2_cps": [
+        "CP-014"
+      ],
+      "v3_cps": [
+        "CP-014"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-014(13.8: cat=preprocessing; gate_affinity+2.0) | CP-025(5.5: cat=preprocessing; sig_gate=feature_engineering_audit_gate) | CP-019(5.0: sig_gate=feature_engineering_audit_gate; gate_affinity+2.5)"
+    },
+    {
+      "scenario_id": "agent10_distractor_pvalue-feature-selection",
+      "v2_cps": [
+        "CP-019"
+      ],
+      "v3_cps": [
+        "CP-019"
+      ],
+      "change_type": "unchanged",
+      "reason": "v3 independent re-score confirms v2. Top: CP-019(20.3: cat=feature_selection; sig_gate=feature_engineering_audit_gate) | CP-034(5.0: cat=feature_selection; sig_gate=feature_engineering_audit_gate) | CP-025(4.5: sig_gate=feature_engineering_audit_gate; gate_affinity+2.0)"
+    }
+  ]
+}
