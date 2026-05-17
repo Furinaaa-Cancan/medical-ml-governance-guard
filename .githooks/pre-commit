@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# MLGG pre-commit hook — auto-fix the README test-count parity race.
+#
+# Motivation: parallel sessions adding / removing test files race against
+# README bumps. Repeated CI red on test_check_readme_stats.py::TestDriftLint
+# because session A added tests/test_foo.py + bumped README to N+1, but
+# session B (running concurrently) added tests/test_bar.py and tried to
+# commit with README still at N. The pre-push hook caught it post-facto;
+# this pre-commit catches it ON the commit, auto-fixes, and re-stages.
+#
+# Scope: only auto-fixes `tests_total_cn` / `tests_total_en` drift, i.e.
+# the deterministic "tests/ tree count vs README declared count" mismatch.
+# Other drift (gates count, lint_rules count, scripts/ subdir counts) is
+# intentional — those are decisions that need human attention, so the hook
+# leaves them alone and exits non-zero.
+#
+# Activate (one-time, alongside pre-push):
+#   make install-hooks
+#   (sets core.hooksPath = .githooks)
+#
+# Bypass once: git commit --no-verify
+#
+# This addresses INDEPENDENT_REVIEW.md M3 (CI red on parallel-session
+# README race) and the carry-over technical debt that had every commit
+# of mine showing red unit (3.10/3.11/3.12) jobs.
+
+set -e
+cd "$(git rev-parse --show-toplevel)"
+
+# Quick gate: does this commit add or remove any test files? If not, the
+# README test-count cannot be the cause of drift on THIS commit; let the
+# usual drift check (in pre-push / CI) handle anything else.
+TESTS_ADDED_REMOVED=$(git diff --cached --name-only --diff-filter=ADR 2>/dev/null | grep -cE "^tests/[^/]*\.py$" || true)
+
+# Even if no test added/removed in this commit, the working tree may have
+# accumulated drift from a prior session — still attempt auto-fix if drift
+# is detected and limited to tests_total. The check is cheap (~0.1s).
+# Use exit code as the source of truth: 0 = clean, non-zero = drift.
+# (--verbose is only needed for human-readable success summary; the script
+# is silent on stdout when clean in non-verbose mode.)
+if python3 scripts/diagnostics/check_readme_stats.py >/dev/null 2>&1; then
+  # No drift, nothing to do.
+  exit 0
+fi
+LINT_RAW=$(python3 scripts/diagnostics/check_readme_stats.py 2>&1 || true)
+
+# Drift detected — is it ONLY tests_total_(cn|en)? If other drift items
+# present, refuse and let user resolve manually.
+DRIFT_LINES=$(echo "$LINT_RAW" | grep -E "^\s*-\s*\[(CN|EN)\]" || true)
+NON_TEST_DRIFT=$(echo "$DRIFT_LINES" | grep -vE "tests_total_(cn|en)" || true)
+
+if [ -n "$NON_TEST_DRIFT" ]; then
+  echo "==> pre-commit: README drift includes non-test items (manual fix required):"
+  echo "$DRIFT_LINES"
+  echo
+  echo "  Auto-fix is intentionally limited to tests_total_(cn|en) — other"
+  echo "  drift reflects intentional decisions (gates count, lint rules,"
+  echo "  scripts/ subdir counts) that need a human."
+  echo "  Bypass: git commit --no-verify   (use only if you understand)"
+  exit 1
+fi
+
+# All drift is on tests_total → auto-fix.
+# Parse "README says N, truth is M" from the CN line (CN/EN should match).
+PARITY_LINE=$(echo "$DRIFT_LINES" | grep "tests_total_cn" | head -1)
+OLD_COUNT=$(echo "$PARITY_LINE" | grep -oE "README says [0-9]+" | grep -oE "[0-9]+")
+NEW_COUNT=$(echo "$PARITY_LINE" | grep -oE "truth is [0-9]+" | grep -oE "[0-9]+")
+
+if [ -z "$OLD_COUNT" ] || [ -z "$NEW_COUNT" ]; then
+  echo "==> pre-commit: could not parse drift line, refusing to guess. Raw output:"
+  echo "$LINT_RAW"
+  exit 1
+fi
+
+if [ "$OLD_COUNT" = "$NEW_COUNT" ]; then
+  echo "==> pre-commit: drift parser reported no delta but lint failed; bailing."
+  exit 1
+fi
+
+echo "==> pre-commit: auto-bump README tests count $OLD_COUNT → $NEW_COUNT (parity race fix)"
+
+# In-place replace in both READMEs. Tilde for sed -i compat on macOS + Linux.
+sed -i.bak "s|├── tests/                  ($OLD_COUNT)|├── tests/                  ($NEW_COUNT)|" README.md README_EN.md
+rm -f README.md.bak README_EN.md.bak
+
+# Re-stage the modified files so they're part of THIS commit (no orphan
+# follow-up commit needed; the README and the test files travel together
+# atomically).
+git add README.md README_EN.md
+
+# Final check: did the auto-fix actually clear all drift?
+if python3 scripts/diagnostics/check_readme_stats.py >/dev/null 2>&1; then
+  echo "==> pre-commit: README parity restored; tests files staged."
+  exit 0
+else
+  echo "==> pre-commit: auto-fix did not clear all drift. Remaining:"
+  python3 scripts/diagnostics/check_readme_stats.py 2>&1 | head -10
+  exit 1
+fi
