@@ -6,7 +6,125 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-### 2026-04-19 session — cohort selection-bias P1 + scope focus + CI rescue
+### 2026-05-17 session — W14 RAG audit + retroactive W7–W13 log (audit honesty)
+
+Retroactive supplement: the W7-through-W13 RAG architecture work (the
+basis for every current eval number) was never logged in CHANGELOG;
+it lived only in `docs/diagnostics/W7*` and JSON `description` fields.
+Audit W14-J flagged this as a documentation-honesty gap. This entry
+closes it.
+
+#### Retroactive: W7–W13 RAG work that landed without CHANGELOG entry
+
+- **W7 (post-Wave-7)** — initial production hybrid baseline established.
+  Aggregate from `references/retrieval_eval/post_wave7_baseline_hybrid.json`
+  (mode=hybrid, top_k=5, 30 scenarios): coverage_rate 0.867,
+  mean_hit_at_k 1.0, **mean_tag_precision_at_k 0.5385**, n_zero_hits 4.
+  This file is the authoritative current-state baseline; earlier
+  `baseline_hybrid.json` is W11-era and stale.
+- **W8/W2** — first hand-labeled (LLM-self-eval) Precision@5 ground-truth
+  set: 20 queries (1 per sub-dimension). Provides a longitudinal anchor
+  independent of the proxy `expected_tags` metric.
+- **W9/A2** — extended W8/W2 to **36 queries (L01–L36)**, adding 16
+  in-scope queries that bring the 8 highest-stakes governance
+  sub-dimensions (touching non-negotiable rules S01/F01/F02/P01/M01/E01/E02)
+  to 3 queries each. Stable IDs across drift checks. Off-scope probes
+  L19, L20 are pinned at P@5=0 (false-positive regression guard).
+- **W11/I1** — dense-retrieval-weight demotion confirmed: dense_only
+  scores mean_tag_precision 0.241 (worst of all configs); dense at
+  high weight degrades hybrid. Test guardrail
+  `tests/test_rag_config.py::test_dense_weight_demoted_per_w11_i1`.
+- **W13** — fusion-weight rebalance to `WEIGHT_BM25=0.45` with residual
+  `2:6:3` split across `DENSE:TAG:SEV` (i.e. DENSE=0.10, BM25=0.45,
+  TAG=0.30, SEV=0.15). Lifts hybrid mean_tag_precision from 0.338
+  (W11-era) to 0.438+ and hit@5 to 1.0. Configured in
+  `scripts/rag/config.py`.
+- **MMR rerank** — `MMR_COSINE_FLOOR = 0.88` and
+  `CP_TAG_BOOST_DENSE_FLOOR = 0.70` set during W7/W8 retrieval-quality
+  tuning; live in `scripts/rag/config.py`.
+- **H1 BM25 synonym expansion** — handled in the BM25 query path; see
+  `scripts/rag/retrieval/bm25.py`.
+
+Source-of-truth files: `docs/diagnostics/W7P0_*.md`, `W7P1_*.md` …
+`W7P9_*.md`, `W8W10_*.md`, plus
+`references/retrieval_eval/post_wave7_baseline_hybrid.md`. CHANGELOG
+should NOT duplicate those — refer to them.
+
+#### 2026-05-17: W14 RAG audit findings + remediation
+
+- **M1 — `labeled_precision_at_5.json` description mis-claimed
+  "human-labeled ground truth"** when labels are LLM self-eval (Claude
+  Opus 4.7, same model family as the retrieval pipeline → circular).
+  Description rewritten + `labeling_protocol.circularity_warning`
+  added; mirrored in `tests/test_labeled_precision.py` docstring
+  (commit `93e6e3d`, audit W14-E). Absolute `mean_labeled_P5=0.639`
+  remains internal-use-only until independent human re-labeling.
+- **M2 — KB content gap, not retrieval failure.** L27 ("scaler fit
+  before split") scored P@5 = 0/5 because `peer-review-kb.json` has
+  zero concerns describing the canonical MLGG-P01 pattern. `MLGG-P01`
+  tag occurs exactly once in the KB and is mis-applied. Curated
+  fallback landed in `scripts/core/gate_rag_bridge.py` (commit
+  `c8e651c`, audit W14-B) as a band-aid; long-term fix is 7-rule
+  KB-coverage audit (S01/P01/F01/F02/M01/E01/E02).
+- **M3 RETRACTED** — "hybrid -22% tag_precision" was based on the
+  stale W11-era `baseline_hybrid.json` (0.338). Production is at
+  0.438–0.538 per `post_wave7_baseline_hybrid.json`. The remaining
+  substantive issue is metric disagreement between proxy
+  `mean_tag_precision` and `mean_labeled_P@5`, now resolved by writing
+  `references/retrieval_eval/METRIC_CONTRACT.md` (commit `49e1222`,
+  audit W14-G).
+- **M5 (upgraded to Major) — `cohort_definition_gate` had zero lit
+  support while absorbing 46% of reviewer-concern volume** (207/449
+  concerns). 38 gate-tag additions across 26 entries close it +
+  12/14 fragile-gate gaps in `references/methodology/literature-
+  knowledge-base.json` (commit `de27889`, audit W14-C). Residual:
+  `shap_interpretability_gate` remains 0-support — real KB content
+  gap (Lundberg 2017/2020 missing); content-add task tracked
+  separately.
+- **m4 — 14 fragile single-source gates** mostly closed via the same
+  commit `de27889`: 7 lifted to ≥3 supporters, 5 to 2, 2 by design
+  (`execution_attestation_gate`, `manifest_lock` are SLSA-spec
+  anchored).
+- **m6 — 4 "untagged" entries clarified**: LIT-004 (TRIPOD-LLM) and
+  LIT-042 (multiclass) keep empty `gates_implementing` by design
+  (self-declared out-of-MLGG-scope); LIT-018 (CONSORT-AI) and LIT-019
+  (SPIRIT-AI) got `reporting_bias_gate` + `publication_gate` in
+  `de27889`.
+- **m7 — `entries[:20]` no-sort truncation in
+  `scripts/reporting/export_review_prompt.py`** — fixed earlier this
+  session in commit `dd7678b` with composite sort key
+  `(gate/dim overlap, year DESC, IF DESC)`. 7 new tests, 361 total
+  tests pass.
+- **m8 RETRACTED** — `scripts/rag/retrieval/bm25.py:271` `entries[:5]`
+  is intentional shape-sampling in `_validate_kb_shape()`, not a
+  retrieval cap. False positive; audit-self-correction logged.
+- **KB metadata honesty (audit W14-H minor)** — KB top-level
+  `total_concerns: 449` was stale (actual 817); fixed to 817 in
+  commit `ca1f2e3`. `peer-review-kb-stats.json` and
+  `peer-review-kb-tags.json` regenerated via `parse_peer_reviews.py
+  --stats`.
+- **New Major (deferred)** — `baseline_hybrid.json` is W11-era stale;
+  every `--strict` CI regression check has been comparing against
+  2-commit-old numbers, falsely flagging the actually-improved
+  hybrid as "regressing 22%". Re-baseline blocked locally on a
+  `.venv` `transformers` corruption from concurrent pip races;
+  rerun in a clean worktree.
+- **New Major (deferred to F-01 follow-up)** — `disease-definition-
+  knowledge-base.json` is LLM-compiled across all 11 entries with
+  zero clinician sign-off. `cohort_definition_gate` /
+  `definition_variable_guard` / `feature_lineage_gate` consume the
+  un-arbitrated `definition_variables_to_exclude` as truth. PROVISIONAL
+  banner work tracked separately.
+
+#### W7–W9 documentation gap noted
+
+Anyone reading the canonical CHANGELOG today before this entry would
+not have learned that the W8-W2 labeled set, the post-W7 0.538
+tag-precision, or the MMR-floor tuning exists. This is now corrected.
+Future RAG work that lands without a CHANGELOG entry should be
+considered "in flight" and flagged in PR review.
+
+
 
 Six commits narrowing MLGG's self-declared scope to retrospective-cohort
 binary-classification and closing the self-flagged cohort-selection-bias
