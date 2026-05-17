@@ -1,0 +1,394 @@
+{
+  "_meta": {
+    "methodology_version": "v4",
+    "extends": "v3 (in-distribution only)",
+    "scope": "OOD slices ood_01..ood_04 (40 scenarios)",
+    "methodology": "Independent CP fit assessment by query_text + expected_tags + gate_name, without anchoring on the agent-time original CP. Picks 1-3 best-fit CPs from the existing 49-CP KB; flags 'no_good_fit' with a reason, AND tags would_fit_proposed_cp (CP-050/051/052) when an OOD query would map to a v1.1-proposed but not-yet-minted CP.",
+    "proposed_cps_not_in_kb": {
+      "CP-050": "meta_checklist_underreporting (TRIPOD+AI / PROBAST+AI explicit checklist non-compliance / standards-anchored reporting gap)",
+      "CP-051": "systematic_review_base_rate (across-N-papers-in-field base-rate / methodology-review style claim)",
+      "CP-052": "shortcut_learning_audit_missing (model relies on non-anatomical / dataset-source / artefact shortcuts; explicit shortcut-audit absent)"
+    },
+    "data_caveat_for_v1.1": "Many OOD queries describe imaging / shortcut-learning / standards-anchored failures that the 49-CP KB (mostly tabular EHR Nature Comms / Comms Medicine cases) does not cover natively. 'replaced' counts here are higher than v3 indist; 'no_good_fit' counts identify CP-mint candidates."
+  },
+  "n_total": 40,
+  "by_slice": {
+    "ood_01": {"n": 10, "unchanged": 1, "refined": 4, "expanded": 1, "replaced": 3, "no_good_fit": 1},
+    "ood_02": {"n": 10, "unchanged": 7, "refined": 1, "expanded": 1, "replaced": 1, "no_good_fit": 0},
+    "ood_03": {"n": 10, "unchanged": 0, "refined": 0, "expanded": 0, "replaced": 9, "no_good_fit": 1},
+    "ood_04": {"n": 10, "unchanged": 0, "refined": 2, "expanded": 3, "replaced": 5, "no_good_fit": 0}
+  },
+  "n_unchanged": 8,
+  "n_refined": 7,
+  "n_expanded": 5,
+  "n_replaced": 18,
+  "n_no_good_fit": 2,
+  "n_would_fit_proposed_cp": {
+    "CP-050": 5,
+    "CP-051": 3,
+    "CP-052": 5,
+    "any": 13
+  },
+  "per_scenario": [
+    {
+      "scenario_id": "ood01_just-2017-suicide-stepwise-leakage",
+      "slice": "ood_01",
+      "original_cps": ["CP-045", "CP-019", "CP-024"],
+      "new_cps": ["CP-045", "CP-019", "CP-024"],
+      "change_type": "unchanged",
+      "reason": "Query is classic feature-selection-outside-CV leak with tiny n. CP-045 (nested CV / HP search safeguards) matches stepwise-on-full-data; CP-019 (feature selection stability/method) covers stepwise voxel selection; CP-024 (insufficient sample size) covers 'a few dozen participants'. All three independent-re-score top picks; no refinement needed.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood02_yagis-2021-slice-level-mri-leakage",
+      "slice": "ood_01",
+      "original_cps": ["CP-044", "CP-043"],
+      "new_cps": ["CP-044"],
+      "change_type": "refined",
+      "reason": "REFINED drop CP-043. CP-044 (patient-level split unit / overlap risk; primary_gate=leakage_gate) is the canonical match for slice-level-vs-subject-level split. CP-043 (split design introduces distribution shift) is about preterm/term-style stratification bias, not within-subject overlap; removing reduces noise.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood03_degrave-covid-shortcut-radiograph",
+      "slice": "ood_01",
+      "original_cps": ["CP-022", "CP-016", "CP-047"],
+      "new_cps": ["CP-016", "CP-022"],
+      "change_type": "replaced",
+      "reason": "REPLACED v?=[CP-022,CP-016,CP-047] -> [CP-016,CP-022]. CP-016 (no external cohort / distribution_generalization_gate) matches 'AUROC drops on external hospital'; CP-022 (interpretability confounding) matches 'lateral markers/text overlays act as proxies'. Drop CP-047 (case-control overoptimistic) - not the right framing. Core failure (shortcut learning audit) has no good KB CP fit -> would fit proposed CP-052.",
+      "would_fit_proposed_cp": "CP-052"
+    },
+    {
+      "scenario_id": "ood04_maguolo-nanni-blackout-shortcut",
+      "slice": "ood_01",
+      "original_cps": ["CP-022", "CP-013", "CP-025"],
+      "new_cps": ["CP-022"],
+      "change_type": "replaced",
+      "reason": "REPLACED -> [CP-022] only. Lungs-blacked-out demonstration is interpretability-side confounding (CP-022). CP-013 is about SHAP plot presentation requests, not a shortcut demonstration. CP-025 is high-exclusion-rate/filtering bias - mismatched. The blackout-still-works finding is the canonical shortcut-learning-audit failure -> would fit proposed CP-052.",
+      "would_fit_proposed_cp": "CP-052"
+    },
+    {
+      "scenario_id": "ood05_covid-pediatric-controls-age-confound",
+      "slice": "ood_01",
+      "original_cps": ["CP-047", "CP-002", "CP-048"],
+      "new_cps": ["CP-047", "CP-002"],
+      "change_type": "refined",
+      "reason": "REFINED drop CP-048. CP-047 (case-control design overoptimistic; cohort_definition_gate) matches adult-vs-pediatric control construction; CP-002 (cohort inclusion ambiguity) covers control-source-population. CP-048 is about ancestry terminology/subgroup inclusion - wrong axis. Age-mismatch case-control is the right read.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood06_epic-sepsis-external-validation-failure",
+      "slice": "ood_01",
+      "original_cps": ["CP-008", "CP-016", "CP-010"],
+      "new_cps": ["CP-008", "CP-010", "CP-021"],
+      "change_type": "expanded",
+      "reason": "EXPANDED swap CP-016 -> CP-021. CP-008 (missing/inadequate external validation) is the headline match for developer-vs-external AUC gap. CP-010 (low PPV / clinical utility threshold) covers the 18% alert / alert-fatigue / 67% miss. ADD CP-021 (missing calibration/DCA; calibration_dca_gate) for 'calibration is uniformly poor'. Drop CP-016 because the failure is reported external AUC, not untested-distribution-shift; CP-008 already carries that.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood07_jama-icd-codes-label-leakage-mortality",
+      "slice": "ood_01",
+      "original_cps": ["CP-037", "CP-002", "CP-034"],
+      "new_cps": ["CP-037", "CP-034"],
+      "change_type": "refined",
+      "reason": "REFINED drop CP-002. CP-037 (label/feature temporal leakage; feature_lineage_gate) is the canonical match for post-discharge ICD codes used as features. CP-034 (feature extraction role/lineage unclear; includes diagnosis_code_as_feature, icd_coding_temporal_availability, future_information_leakage tags) is exactly this pattern. CP-002 (cohort ambiguity) is too generic; the failure is feature-time, not cohort-time. The systematic-review base-rate framing ('37 of 92 MIMIC studies') would additionally fit proposed CP-051.",
+      "would_fit_proposed_cp": "CP-051"
+    },
+    {
+      "scenario_id": "ood08_radiomics-single-split-unstable",
+      "slice": "ood_01",
+      "original_cps": ["CP-005", "CP-045", "CP-027"],
+      "new_cps": ["CP-005", "CP-045"],
+      "change_type": "refined",
+      "reason": "REFINED drop CP-027. CP-005 (CV vs random split + HP audit; model_selection_audit_gate) matches 'single random 80/20 unstable'. CP-045 (nested-CV / HP-search leakage safeguards; split_protocol_gate) matches 'feature selection before CV inflates'. CP-027 is bootstrap-CI methodology - the query is not about uncertainty quantification but about split instability + leak; remove to reduce drift.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood09_roberts-covid-ml-patient-overlap-no-external",
+      "slice": "ood_01",
+      "original_cps": ["CP-044", "CP-016", "CP-008"],
+      "new_cps": ["CP-044", "CP-008"],
+      "change_type": "replaced",
+      "reason": "REPLACED swap out CP-016. CP-044 (patient-level overlap check; leakage_gate) matches 'no audit confirming patient-level isolation'. CP-008 (missing external validation) matches 'only internal random split, no external/prospective'. Drop CP-016 - the failure is no external cohort being run, not untested distribution shift; CP-008 already covers external-cohort absence. Systematic-review base-rate framing ('across 2,212 COVID ML papers') would fit proposed CP-051.",
+      "would_fit_proposed_cp": "CP-051"
+    },
+    {
+      "scenario_id": "ood10_springer-autism-face-bonkers-dataset",
+      "slice": "ood_01",
+      "original_cps": ["CP-040", "CP-036", "CP-002"],
+      "new_cps": [],
+      "change_type": "no_good_fit",
+      "reason": "no good CP fit; recommend CP-NN extension. Core failures (unverified diagnostic label from web-scraped photos, no consent/ethics review, no acquisition control) are NOT covered by any of the 49 KB CPs. CP-040 (inconsistent cohort numbers) misses the point. CP-036 (outcome-definition/time-horizon conflation) is about diagnostic-vs-forward-risk framing, not ground-truth provenance. CP-002 (cohort inclusion ambiguity) is too generic. KB has no CP for 'uncontrolled web-scraped dataset / ethics-statement missing / unverified ASD label'. Recommend CP-mint for 'dataset-provenance & ethics-compliance failure'. Also overlaps with proposed CP-052 (shortcut: pose/website style).",
+      "would_fit_proposed_cp": "CP-052"
+    },
+    {
+      "scenario_id": "ood02-yaib-feature-coverage-narrow",
+      "slice": "ood_02",
+      "original_cps": ["CP-019", "CP-034"],
+      "new_cps": ["CP-019", "CP-034"],
+      "change_type": "unchanged",
+      "reason": "Confirmed. CP-019 (feature selection stability/method; feature_engineering_audit_gate) and CP-034 (feature extraction role/lineage; same gate) both target the 'narrow 52-feature panel ignoring notes/diagnoses/imaging' framing. Independent re-score yields the same pair as top candidates.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood02-yaib-dataset-balance-prevalence",
+      "slice": "ood_02",
+      "original_cps": ["CP-007", "CP-040"],
+      "new_cps": ["CP-007", "CP-040"],
+      "change_type": "unchanged",
+      "reason": "Confirmed. CP-007 (missing demographics/baseline table; reporting_bias_gate) matches 'per-cohort prevalence/n missing from main text'. CP-040 (inconsistent cohort/sample numbers; cohort_definition_gate) matches 'pooled-vs-single-source dominance unverifiable'. Both gate-coherent.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood02-mediconfusion-tiny-pairs-set",
+      "slice": "ood_02",
+      "original_cps": ["CP-008", "CP-029"],
+      "new_cps": ["CP-008", "CP-029"],
+      "change_type": "unchanged",
+      "reason": "Confirmed. CP-008 (missing external validation) covers 'cannot transfer to ultrasound/nuc-med modalities/regions never tested'. CP-029 (external benchmark / alternative method comparison) covers the breadth-of-benchmark angle. Both fit well.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood02-mediconfusion-below-random-causal-gap",
+      "slice": "ood_02",
+      "original_cps": ["CP-006", "CP-018"],
+      "new_cps": ["CP-006"],
+      "change_type": "refined",
+      "reason": "REFINED drop CP-018. CP-006 (evaluation quality metric choice/comparison; evaluation_quality_gate) covers 'below-random unexplained, no threshold-sensitivity analysis'. CP-018 (inconsistent/cherry-picked metric comparison) is about metric-cherry-picking across cutpoints - not the failure here. The actual mechanism (failure-mode characterization missing on a novel evaluation benchmark) is loosely covered by CP-006 alone.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood02-kare-mortality-imbalance-accuracy",
+      "slice": "ood_02",
+      "original_cps": ["CP-030", "CP-026"],
+      "new_cps": ["CP-030", "CP-026"],
+      "change_type": "unchanged",
+      "reason": "Confirmed. CP-030 (best metric picked under class imbalance; evaluation_quality_gate, accuracy_under_imbalance tag) is the canonical match for '5.4% positive rate, accuracy ~94.6% trivially'. CP-026 (AUC-only / missing AUPRC/calibration) covers 'AUROC/AUPRC not reported'. Both fit tightly.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood02-kare-no-ci-no-significance",
+      "slice": "ood_02",
+      "original_cps": ["CP-023", "CP-027"],
+      "new_cps": ["CP-023", "CP-027"],
+      "change_type": "unchanged",
+      "reason": "Confirmed (consistent with v3 indist gold for the same gate). CP-023 (missing CIs on metrics; ci_matrix_gate) + CP-027 (bootstrap/uncertainty method; ci_matrix_gate) both align with 'no SDs / no CIs / no significance test'.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood02-medjourney-clinical-vs-bleu",
+      "slice": "ood_02",
+      "original_cps": ["CP-020", "CP-012"],
+      "new_cps": ["CP-020", "CP-012"],
+      "change_type": "unchanged",
+      "reason": "Confirmed. CP-020 (clinically critical metric omitted; clinical_metrics_gate) matches 'BLEU does not capture clinical safety; no clinician evaluation'. CP-012 (clinical relevance of prediction target) covers 'higher BLEU does not establish clinical utility'. Gate-coherent.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood02-medjourney-opaque-case-selection",
+      "slice": "ood_02",
+      "original_cps": ["CP-002", "CP-025"],
+      "new_cps": ["CP-002", "CP-040"],
+      "change_type": "replaced",
+      "reason": "REPLACED swap CP-025 -> CP-040. CP-002 (cohort inclusion ambiguity) covers 'criteria for picking diseases/scenarios undisclosed'. CP-040 (inconsistent cohort numbers; cohort_definition_gate; cohort_reporting tag) matches benchmark composition opacity. Drop CP-025 (high exclusion rate / filtering bias) - the issue here is not exclusion rate but selection-criteria transparency. CP-040 is the better second pick.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood02-agentclinic-subjective-metrics-no-validation",
+      "slice": "ood_02",
+      "original_cps": ["CP-006", "CP-001"],
+      "new_cps": ["CP-006", "CP-001"],
+      "change_type": "unchanged",
+      "reason": "Confirmed. CP-006 (evaluation quality metric choice/comparison) covers 'novel subjective metrics without validation/calibration'. CP-001 (evaluation unspecified confounding / metric questions) catches the 'no IRR, no human comparator' loose-evaluation framing. Both gate-coherent.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood02-m4oe-no-ci-imaging-only",
+      "slice": "ood_02",
+      "original_cps": ["CP-023", "CP-018"],
+      "new_cps": ["CP-023", "CP-027"],
+      "change_type": "expanded",
+      "reason": "EXPANDED swap CP-018 -> CP-027. CP-023 (missing CIs; ci_matrix_gate) is the headline match. CP-027 (bootstrap/uncertainty estimation; ci_matrix_gate) covers 'CV not specified, cannot tell if differences statistically meaningful'. CP-018 (inconsistent metric comparison) less aligned - the failure is uncertainty-absent, not cherry-picked metrics. Both new CPs share the ci_matrix_gate primary.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood03_tripod_ai_calibration_omitted_main_text",
+      "slice": "ood_03",
+      "original_cps": ["CP-018", "CP-027"],
+      "new_cps": ["CP-021", "CP-026"],
+      "change_type": "replaced",
+      "reason": "REPLACED v?=[CP-018,CP-027] -> [CP-021,CP-026]. CP-021 (missing calibration/DCA; calibration_dca_gate; tags calibration_plot_missing, calibration_in_supplement, calibration_in_the_large) is the EXACT canonical match. CP-026 (AUC-only no calibration; calibration_dca_gate) matches 'report only AUROC, no calibration plot'. Original CP-018/CP-027 were poor fits (CP-018=cherry-picked metrics, CP-027=bootstrap method). TRIPOD+AI checklist-anchoring would additionally fit proposed CP-050.",
+      "would_fit_proposed_cp": "CP-050"
+    },
+    {
+      "scenario_id": "ood03_probast_ai_proxy_outcome_no_gold_standard",
+      "slice": "ood_03",
+      "original_cps": ["CP-006", "CP-001"],
+      "new_cps": ["CP-036", "CP-002"],
+      "change_type": "replaced",
+      "reason": "REPLACED -> [CP-036,CP-002]. CP-036 (outcome definition / time horizon conflation; cohort_definition_gate; tags label_definition_proxy, ground_truth_undefined) is the canonical match for 'admin surrogate hospital-admission as proxy outcome'. CP-002 (cohort inclusion ambiguity) covers 'really predicting resource-use'. Original CP-006/CP-001 are evaluation_metrics CPs - wrong axis. Failure is study_design/cohort. PROBAST+AI checklist anchoring -> proposed CP-050.",
+      "would_fit_proposed_cp": "CP-050"
+    },
+    {
+      "scenario_id": "ood03_roberts_frankenstein_dataset_pediatric_controls",
+      "slice": "ood_03",
+      "original_cps": ["CP-007", "CP-001"],
+      "new_cps": ["CP-047", "CP-002"],
+      "change_type": "replaced",
+      "reason": "REPLACED -> [CP-047,CP-002]. CP-047 (case-control design overoptimistic; cohort_definition_gate) matches 'adult COVID positives vs pediatric pneumonia negatives'. CP-002 (cohort temporal/inclusion ambiguity) covers source-of-data confound. Original CP-007 (demographics table) misses; CP-001 (eval metric) wrong axis. Systematic-review framing ('Roberts and colleagues showed across the literature') -> proposed CP-051.",
+      "would_fit_proposed_cp": "CP-051"
+    },
+    {
+      "scenario_id": "ood03_degrave_shortcut_learning_laterality_markers",
+      "slice": "ood_03",
+      "original_cps": ["CP-024", "CP-025"],
+      "new_cps": ["CP-022"],
+      "change_type": "replaced",
+      "reason": "REPLACED v?=[CP-024,CP-025] -> [CP-022]. CP-022 (interpretability confounding; tags background_attention, cam_on_background, attention_interpretation) is the only KB CP that matches 'saliency on burn-in text / laterality markers'. CP-024 (sample size) and CP-025 (high exclusion rate) are not the failure mode at all. The shortcut-learning-audit-missing pattern itself has no good CP -> proposed CP-052.",
+      "would_fit_proposed_cp": "CP-052"
+    },
+    {
+      "scenario_id": "ood03_zech_hospital_system_as_confounder",
+      "slice": "ood_03",
+      "original_cps": ["CP-009", "CP-010"],
+      "new_cps": ["CP-016", "CP-022"],
+      "change_type": "replaced",
+      "reason": "REPLACED -> [CP-016,CP-022]. CP-016 (no external cohort / distribution_generalization_gate; site_effects, scanner_distribution_shift tags) is the exact canonical match for 'CNN learns hospital-of-origin as proxy'. CP-022 (interpretability confounding by hospital/site) covers the mechanism. Original CP-009 (code availability) and CP-010 (low PPV) miss the failure entirely. Hospital-as-confounder is shortcut-style -> proposed CP-052.",
+      "would_fit_proposed_cp": "CP-052"
+    },
+    {
+      "scenario_id": "ood03_wong_epic_sepsis_internal_only_validation",
+      "slice": "ood_03",
+      "original_cps": ["CP-009", "CP-019"],
+      "new_cps": ["CP-008", "CP-010"],
+      "change_type": "replaced",
+      "reason": "REPLACED -> [CP-008,CP-010]. CP-008 (missing/inadequate external validation) matches 'until independent external validation, vendor performance not trusted'. CP-010 (low PPV / alert fatigue; clinical_metrics_gate) matches 'sens 33%, alert 18% of admissions'. Original CP-009 (code availability) and CP-019 (feature-selection stability) are wrong axis. Wong et al critique anchors to TRIPOD+AI external-validation requirement -> proposed CP-050.",
+      "would_fit_proposed_cp": "CP-050"
+    },
+    {
+      "scenario_id": "ood03_riley_sample_size_epv_violation_ml",
+      "slice": "ood_03",
+      "original_cps": ["CP-029", "CP-022"],
+      "new_cps": ["CP-024"],
+      "change_type": "replaced",
+      "reason": "REPLACED v?=[CP-029,CP-022] -> [CP-024]. CP-024 (insufficient sample size; sample_size_gate; tags epv_violation, no_power_calculation, overfitting_risk) is the canonical and only good match for 'below Riley 2020 minimum sample size, no pmsampsize calc'. Original CP-029 (external benchmark) and CP-022 (interpretability) are wrong axis. Riley anchoring is TRIPOD+AI item 8 -> proposed CP-050.",
+      "would_fit_proposed_cp": "CP-050"
+    },
+    {
+      "scenario_id": "ood03_chexnet_radiologist_comparison_no_priors",
+      "slice": "ood_03",
+      "original_cps": ["CP-019", "CP-027"],
+      "new_cps": [],
+      "change_type": "no_good_fit",
+      "reason": "no good CP fit; recommend CP-NN extension. Asymmetric reader-study design (radiologists denied priors/lateral/history while algorithm has NIH labels) is a STARD-AI / DECIDE-AI specific reader-study failure mode. None of the 49 CPs map to 'unfair human-vs-AI comparator design'. Closest are CP-017 (missing baseline comparison) and CP-046 (prediction target vs clinical decision mismatch), but both miss the central issue. Recommend CP-mint for 'reader-study design asymmetry'. Original CP-019/CP-027 are clearly wrong axis (feature-selection / bootstrap-CI).",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood03_christodoulou_ml_vs_lr_no_real_gain",
+      "slice": "ood_03",
+      "original_cps": ["CP-030", "CP-027"],
+      "new_cps": ["CP-017"],
+      "change_type": "replaced",
+      "reason": "REPLACED v?=[CP-030,CP-027] -> [CP-017]. CP-017 (weak/missing baseline model comparison; tags benchmark_baselines_missing, missing_baseline) is the canonical match for 'no penalized LR baseline reported'. Original CP-030 (best metric under imbalance) and CP-027 (bootstrap CI) are wrong axis. Christodoulou anchoring to TRIPOD+AI item 12 -> proposed CP-050.",
+      "would_fit_proposed_cp": "CP-050"
+    },
+    {
+      "scenario_id": "ood03_van_calster_2025_auroc_only_classification_improper",
+      "slice": "ood_03",
+      "original_cps": ["CP-027", "CP-018"],
+      "new_cps": ["CP-021", "CP-026"],
+      "change_type": "replaced",
+      "reason": "REPLACED v?=[CP-027,CP-018] -> [CP-021,CP-026]. CP-021 (missing calibration/DCA; calibration_dca_gate; tags decision_curve_analysis, missing_dca) is the EXACT match for 'no calibration plot, no DCA'. CP-026 (AUC-only no calibration/PPV/NPV; calibration_dca_gate) matches 'AUROC + accuracy + F1, no calibration'. Original CP-027 (bootstrap CI) is wrong - the failure is metric-panel-incomplete, not uncertainty-quantification.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood04_f1000-bc-imbalance-accuracy-fnr",
+      "slice": "ood_04",
+      "original_cps": ["CP-027"],
+      "new_cps": ["CP-030", "CP-020"],
+      "change_type": "replaced",
+      "reason": "REPLACED v?=[CP-027] -> [CP-030,CP-020]. CP-030 (best metric picked under class imbalance; evaluation_quality_gate; tag accuracy_under_imbalance) is the exact canonical for 'accuracy not the right yardstick under imbalance'. CP-020 (clinically critical metric omitted; clinical_metrics_gate; tag clinically_critical_metric_missing) matches 'should be driven by FNR/FOR — missed positive in breast cancer'. Original CP-027 (bootstrap CI methodology) is wrong axis entirely.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood04_f1000-bc-no-cv-no-roc",
+      "slice": "ood_04",
+      "original_cps": ["CP-013"],
+      "new_cps": ["CP-005", "CP-008"],
+      "change_type": "replaced",
+      "reason": "REPLACED v?=[CP-013] -> [CP-005,CP-008]. CP-005 (CV vs random split + HP audit; model_selection_audit_gate) matches 'single train-test split, no 5-fold CV'. CP-008 (missing external validation) matches 'single dataset Wisconsin, no external'. Original CP-013 (SHAP/feature attribution) is wrong - the query is about CV/ROC/confusion-matrix absence, not feature attribution.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood04_f1000-covid-biomarker-class-balance",
+      "slice": "ood_04",
+      "original_cps": ["CP-040"],
+      "new_cps": ["CP-024", "CP-039"],
+      "change_type": "replaced",
+      "reason": "REPLACED v?=[CP-040] -> [CP-024,CP-039]. CP-024 (insufficient sample size; sample_size_gate) matches 'n=138, limited generalizability'. CP-039 (class imbalance handling not documented; imbalance_policy_gate; tags class_imbalance, resampling_strategy, smote-aligned) matches 'class balance not addressed; SMOTE should be explored'. Original CP-040 (inconsistent cohort numbers) miss-fires.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood04_f1000-covid-biomarker-cohort-provenance",
+      "slice": "ood_04",
+      "original_cps": ["CP-002"],
+      "new_cps": ["CP-002", "CP-042"],
+      "change_type": "expanded",
+      "reason": "EXPANDED add CP-042. CP-002 (cohort temporal/inclusion ambiguity; cohort_definition_gate) covers 'cohort provenance/inclusion/exclusion/outcome-definition unclear'. CP-042 (repo README dependencies / HP undocumented; tags hyperparameters_missing, training_details_missing) explicitly covers 'train/test ratio, neurons/layers, SVM kernels, RF estimators not reported'. Both fit cleanly.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood04_f1000-cnn-low-resource-kaggle-provenance",
+      "slice": "ood_04",
+      "original_cps": ["CP-018"],
+      "new_cps": ["CP-002", "CP-017"],
+      "change_type": "replaced",
+      "reason": "REPLACED v?=[CP-018] -> [CP-002,CP-017]. CP-002 (cohort temporal/inclusion ambiguity; tags ambiguous_provenance, data_source_unclear) matches 'Kaggle as-is, no original-source attribution, demographics missing'. CP-017 (weak/missing baseline comparison; tag missing_baseline_model) matches 'no contrast to fully fine-tuned ResNet-50 baseline'. Original CP-018 (cherry-picked metric comparison) is the wrong axis.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood04_f1000-hraesn-data-leakage-singlesplit",
+      "slice": "ood_04",
+      "original_cps": ["CP-005"],
+      "new_cps": ["CP-005", "CP-021", "CP-008"],
+      "change_type": "expanded",
+      "reason": "EXPANDED add CP-021, CP-008. CP-005 (single random split, no k-fold CV; model_selection_audit_gate) is the headline match. CP-021 (missing calibration/DCA; calibration_dca_gate) covers 'no calibration plots'. CP-008 (missing external validation) covers 'no independent external'. The suspected-leakage angle (97-98% accuracy on UCI 303) is also captured by CP-005's broader leak-safeguards remit. Strong triple match.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood04_f1000-hraesn-stats-significance-missing",
+      "slice": "ood_04",
+      "original_cps": ["CP-027"],
+      "new_cps": ["CP-023", "CP-027", "CP-009"],
+      "change_type": "expanded",
+      "reason": "EXPANDED add CP-023, CP-009. CP-023 (missing CIs on metrics; ci_matrix_gate) matches 'no CIs around accuracy'. CP-027 (bootstrap/uncertainty; ci_matrix_gate) matches 'no McNemar/paired-t/Wilcoxon significance test'. CP-009 (code/pipeline not available; tags code_availability_missing) matches 'no code, no model weights, no preprocessing scripts'. Triple match within the metric_consistency / ci_matrix space.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood04_f1000-heart-disease-cohort-definition-unclear",
+      "slice": "ood_04",
+      "original_cps": ["CP-002"],
+      "new_cps": ["CP-002", "CP-015", "CP-036"],
+      "change_type": "refined",
+      "reason": "REFINED expansion. CP-002 (cohort temporal/inclusion ambiguity) covers 'how heart disease defined'. CP-015 (undocumented missingness/imputation policy; missingness_policy_gate; tag missingness_reporting) explicitly matches 'degree of missingness in inputs not reported'. CP-036 (outcome definition / time horizon conflation; tags outcome_definition_unclear, label_definition_proxy) matches 'which diagnostic tests qualify as IHD'. Three coherent picks.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood04_elife-hematoma-small-sample-no-kfold",
+      "slice": "ood_04",
+      "original_cps": ["CP-040"],
+      "new_cps": ["CP-024", "CP-020"],
+      "change_type": "replaced",
+      "reason": "REPLACED v?=[CP-040] -> [CP-024,CP-020]. CP-024 (insufficient sample size; sample_size_gate) is the canonical match for 'n=170 training + 170 external test, overfitting risk'. CP-020 (clinically critical metric omitted; clinical_metrics_gate; tag missing_sensitivity_specificity) matches 'AUC alone insufficient; sens/spec at clinically meaningful thresholds'. Original CP-040 (inconsistent cohort numbers) misses.",
+      "would_fit_proposed_cp": null
+    },
+    {
+      "scenario_id": "ood04_elife-prediabetes-feature-count-arbitrary",
+      "slice": "ood_04",
+      "original_cps": ["CP-018"],
+      "new_cps": ["CP-019", "CP-033", "CP-008"],
+      "change_type": "refined",
+      "reason": "REFINED replacement. CP-019 (feature selection stability/method; feature_engineering_audit_gate; tag feature_count_arbitrary loosely; alternative_feature_selection_methods) matches 'why top-20 metabolites? hyperparameter search undefined'. CP-033 (underrepresented subgroup; fairness_equity_gate; tags ancestry_diversity, race_underrepresentation) matches 'predominantly White cohort'. CP-008 (missing external validation) matches 'no external validation'. Original CP-018 is too narrow.",
+      "would_fit_proposed_cp": null
+    }
+  ]
+}
