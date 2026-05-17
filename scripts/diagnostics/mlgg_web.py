@@ -425,10 +425,23 @@ CV Splits:  {{ session.cv_splits }}
 
 
 # ── routes ─────────────────────────────────────────────────────────────────────
+_SID_RE = re.compile(r"^[0-9a-fA-F-]{36}$")  # uuid4 canonical form
+
+
+def _sanitize_sid(raw: str | None) -> str:
+    """CodeQL py/cookie-injection defence: accept the inbound sid cookie ONLY
+    if it matches the uuid4 shape we ourselves emit. Anything else gets
+    a fresh server-generated uuid — prevents an attacker from preseeding
+    arbitrary cookie values and having us echo them back unchanged."""
+    if raw and _SID_RE.match(raw):
+        return raw
+    return str(uuid.uuid4())
+
+
 @app.route("/")
 def index():
     """Render the main wizard page for the current session."""
-    sid = request.cookies.get("sid") or str(uuid.uuid4())
+    sid = _sanitize_sid(request.cookies.get("sid"))
     session = get_session(sid)
     csrf_token = _generate_csrf_token(sid)
     resp = Response(
@@ -444,7 +457,7 @@ def index():
 @app.route("/step/<int:step_num>", methods=["POST"])
 def handle_step(step_num: int):
     """Process form submission for a wizard step."""
-    sid = request.form.get("sid") or request.cookies.get("sid", "")
+    sid = _sanitize_sid(request.form.get("sid") or request.cookies.get("sid"))
     csrf_token = request.form.get("csrf_token", "")
     if not _validate_csrf_token(sid, csrf_token):
         return "CSRF token validation failed.", 403
@@ -473,15 +486,27 @@ def handle_step(step_num: int):
             try:
                 safe_name = _sanitize_upload_filename(csv_file.filename)
             except ValueError as exc:
-                return str(exc), 400
-            dest = UPLOAD_DIR / f"{sid}_{safe_name}"
+                app.logger.warning("upload filename rejected: %s", exc)
+                return "Invalid input.", 400
+            # CodeQL py/path-injection: anchor dest under UPLOAD_DIR and verify
+            # the resolved path stays inside UPLOAD_DIR. _sanitize_upload_filename
+            # already enforces a strict regex, but the relative_to() check is
+            # the canonical sanitizer CodeQL recognises, and it's defence-
+            # in-depth against future refactors.
+            dest = (UPLOAD_DIR / f"{sid}_{safe_name}").resolve()
+            try:
+                dest.relative_to(UPLOAD_DIR.resolve())
+            except ValueError:
+                app.logger.warning("upload path escaped UPLOAD_DIR: %s", dest)
+                return "Invalid input.", 400
             csv_file.save(str(dest))
             session["csv_path"] = str(dest)
         elif csv_path:
             try:
                 validated = _validate_path_no_traversal(csv_path, "csv_path")
             except ValueError as exc:
-                return str(exc), 400
+                app.logger.warning("csv_path rejected: %s", exc)
+                return "Invalid input.", 400
             session["csv_path"] = str(validated)
         else:
             return "CSV file or path required.", 400
@@ -519,7 +544,7 @@ def handle_step(step_num: int):
 @app.route("/advance", methods=["POST"])
 def advance():
     """Advance to the next pipeline phase after a background task completes."""
-    sid = request.form.get("sid") or request.cookies.get("sid", "")
+    sid = _sanitize_sid(request.form.get("sid") or request.cookies.get("sid"))
     session = get_session(sid)
     if session["step"] == 6:
         session["step"] = 7
@@ -535,7 +560,7 @@ def advance():
 @app.route("/reset", methods=["POST"])
 def reset():
     """Reset the session and start a new wizard run."""
-    sid = request.form.get("sid") or request.cookies.get("sid", "")
+    sid = _sanitize_sid(request.form.get("sid") or request.cookies.get("sid"))
     if sid in _sessions:
         del _sessions[sid]
     _log_queues.pop(sid, None)

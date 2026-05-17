@@ -108,6 +108,28 @@ If the next scan shows substantially more, something in the codebase changed or 
 
 ---
 
+## Round 2 (2026-05-17 — after first triage)
+
+First triage shipped 1 real fix + 4 hardened + 5 rule filters. Re-scan turned up **5 still-open alerts**, all in `scripts/diagnostics/mlgg_web.py`:
+
+| Alert | Where | Was | Fix this round |
+|---|---|---|---|
+| `py/stack-trace-exposure` | lines 476, 484 | I missed these in round 1 — `replace_all=true` only matched the 8-space-indent pattern; lines 476/484 are 12-space (nested in conditional branches of `step_num==2`) | Switched both to `app.logger.warning(...) + "Invalid input."` |
+| `py/path-injection` | line 478 — `csv_file.save(dest)` | `dest = UPLOAD_DIR / f"{sid}_{safe_name}"`; `_sanitize_upload_filename` validates regex but CodeQL doesn't model that | Anchored: `.resolve()` then `dest.relative_to(UPLOAD_DIR.resolve())` — the canonical sanitizer CodeQL recognises |
+| `py/path-injection` | line 160 — `_validate_path_no_traversal` itself | Function legitimately accepts any path the user provides (project-root wizard); only rejects /etc, /proc, etc. | **NOT FIXED** — accepting user paths is the function's PURPOSE; the forbidden-prefix block + per-route `relative_to` anchoring is the right layer. Documented FP. |
+| `py/cookie-injection` (NEW rule) | line 440 — `resp.set_cookie("sid", sid)` where `sid` came from `request.cookies.get("sid")` unchanged | An attacker could pre-seed an arbitrary cookie value and have the server echo it back forever (session-fixation precondition) | Added `_sanitize_sid(raw)`: accept only uuid4-shaped sids; anything else → fresh `uuid4()`. Applied to all 4 sid intake points (lines 444, 460, 547, 563). |
+
+**Expected after round 2:** only **1 open alert** — the line 160 path-injection FP. Everyone else got a real CodeQL-recognised sanitizer.
+
+## Why this happened in round 1
+
+Two process bugs to learn from:
+
+1. `replace_all=true` doesn't mean "all occurrences" — it means "all occurrences of the exact `old_string` pattern". Indentation differences between class-level (8-space) and nested-branch (12-space) versions of `except ValueError as exc: return str(exc), 400` produced 2 distinct patterns; only one matched. **Always re-run CodeQL after a "blanket fix" and confirm zero open before declaring done.**
+2. The `py/cookie-injection` query was added to the CodeQL Python pack between my first config commit and the next scan. CodeQL packs update independently of our code. **First-scan triage is not "and-done" — new rules will surface on every weekly schedule run.** Round-2 doc above is now the template; future rounds get their own dated section.
+
+---
+
 ## Review cadence
 
 - **Every CodeQL `error`-severity alert** should be triaged within 7 days of appearance.
