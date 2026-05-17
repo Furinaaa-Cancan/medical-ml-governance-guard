@@ -1,6 +1,6 @@
 # ADR 0007 — Two-Benchmark Architecture (MLGG-Bench + NCPR-Bench)
 
-**Status**: Accepted (2026-05-17, W21 autoloop fire #3 + W22+W23 evidence)
+**Status**: Accepted with Amendment 1 (2026-05-17 fire #5, see §"Amendment 1" below)
 
 **Supersedes**: nothing
 **Superseded-by**: nothing yet
@@ -120,6 +120,46 @@ The mitigation is a CI gate that runs NCPR-Bench on a fixed cadence
 (weekly? per-release?) regardless of any commit's content. That CI gate
 does not yet exist; until it does, this ADR is a recommendation, not a
 guarantee. Track it as W24+ work.
+
+## Amendment 1 (autoloop fire #5, 2026-05-17)
+
+User pushback on the original "two co-equal benchmarks" framing led to
+honest re-evaluation:
+
+- NCPR-Bench has **never produced a real 30-paper number**. Only the
+  W23-D2 5-paper smoke at `weighted_f1 = 0.318` exists, and even that
+  smoke was contaminated by the W23 finding-#1 lexical-path-dead
+  matcher bug (all signal semantic-only).
+- MLGG-Bench v1.0.1 is **already in CI**, sibling-audited (`252a243`),
+  and producing reproducible headline numbers.
+- The original ADR's "non-overlapping signals catch different failure
+  modes" argument is correct in principle but currently asymmetric:
+  one signal is live, the other is aspirational.
+
+**Amended decision**: keep both benchmarks (do not collapse, do not
+delete NCPR files), but **explicitly demote NCPR to "research preview"
+status**. NCPR docs + harness remain as a roadmap for system-level
+testing. MLGG-Bench is the sole production benchmark for external
+claims, CI, and tuning until NCPR clears its 4 W23 blockers AND
+someone owns running the 30-paper cadence.
+
+This is option **Y** from the orchestrator's 2026-05-17 16:?? message
+("我们 benchmark 是否要合并呢" decision tree). Y was chosen over X
+(merge as slice) and Z (invest to make NCPR co-equal) because:
+- Y is reversible (just change the framing back) if NCPR ever gets fixed
+- X requires touching sibling-owned MLGG-Bench v1.0.1 production paths
+  (cost + race + breakage risk on a working system)
+- Z requires 10+ agent waves of fix work for a benchmark we can't run
+  even once today — not justified pre-evidence
+
+**Rejection criteria for Y → X / Y → Z promotion**:
+- Y → X: NCPR's 4 W23 findings get fixed AND someone proposes the
+  scenario-schema unification work to embed NCPR as a slice
+- Y → Z: NCPR's 4 findings get fixed AND an owner commits to weekly
+  run cadence
+
+Until either triggers, MLGG-Bench is "the" benchmark; NCPR-Bench is
+"a research roadmap".
 
 ## Provenance
 

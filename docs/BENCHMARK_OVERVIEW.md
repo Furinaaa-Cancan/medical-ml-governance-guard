@@ -1,7 +1,18 @@
 # MLGG Benchmark Overview
 
-Two complementary benchmarks coexist in this repo. They answer different
-questions and target different system layers. Do not collapse them into one.
+**TL;DR**: **MLGG-Bench is the production benchmark.** NCPR-Bench is a
+**research preview** — design + harness complete, but not running on a real
+held-out set (blocked on data / matcher fixes). Cite MLGG-Bench numbers;
+treat NCPR docs as a system-level testing roadmap, not a measurement.
+
+This file used to frame the two as co-equal. That overstated NCPR's
+maturity. Revised 2026-05-17 (autoloop fire #5) after sibling
+audit-verified MLGG-Bench rigor (`252a243`) and we accepted that NCPR
+isn't actually producing publishable numbers.
+
+The two benchmarks still answer different questions and should not be
+collapsed at the implementation layer — but only one is currently
+load-bearing.
 
 ## At a glance
 
@@ -11,7 +22,7 @@ questions and target different system layers. Do not collapse them into one.
 | Input | Synthetic reviewer-style query | Real held-out paper (methods text / peer-review bundle) |
 | Ground truth | Hand-labelled CP + tag + concern_id | Real reviewer concerns from held-out Nature Communications papers |
 | Headline metrics | `hit@k`, `cp_hit@k`, `tag_precision@k`, `coverage_rate` | `severity_weighted_f1`, `category_coverage`, `tail_severity_recall` |
-| Current status | ✅ v1.0.1 shipped — 305 scenarios live | 🟡 spec + harness shipped — 30-paper holdout BLOCKED on data |
+| Current status | ✅ v1.0.1 PRODUCTION — 305 scenarios live + sibling-audited (`252a243`) | 🟡 RESEARCH PREVIEW — spec + harness done, no real 30-paper run, blocked on 4 W23 findings |
 | Best use | External citation, retrieval tuning, regression detection | System-level validity check; "does MLGG match a real NC reviewer?" |
 | Reference run cost | ~15s on the full 305 | ~6 min for 30 papers (W22-V2 profile) |
 | Owner files | `references/retrieval_eval/MLGG-Bench-v1.0/` + `v1.0.1/` | `references/benchmark/ncpr_v*_*.md` + `scripts/rag/evals/run_ncpr_benchmark.py` |
@@ -62,7 +73,9 @@ NCPR-Bench does not necessarily blame retrieval.
   holdout builder, ground truth extractor)
 - 60+ unit tests passing across W22+W23 commits
 - 5-paper smoke baseline (W23-D2): macro `weighted_f1 = 0.318` ± 0.099,
-  recall 0.769, precision 0.201
+  recall 0.769, precision 0.201 — **smoke set, NOT publishable**;
+  matcher had the lexical-path-dead bug (W23 finding #1) so all signal
+  was semantic-only. Number is informational only.
 
 **Blockers (W23 fundamental findings)**:
 1. `synthesize_flags_from_rag` emits `concern_id` as `flag.code` — the
@@ -90,9 +103,11 @@ benchmark works; the underlying system has gaps to close.
 |---|---|
 | Per-commit CI sanity | MLGG-Bench (~15s) |
 | Tuning ranker weights | MLGG-Bench ablation |
-| Adding new gates | NCPR-Bench (does the new gate's flag map to any reviewer concern?) |
-| Pre-release / quarterly | NCPR-Bench full N=30 once D1 blockers cleared |
-| Manuscript figure | MLGG-Bench citable numbers + NCPR-Bench caveats list |
+| Manuscript figure | MLGG-Bench citable numbers only |
+| External benchmark claim | MLGG-Bench v1.0.1 (cp_hit@5 = 0.821) |
+| Adding new gates | MLGG-Bench scenarios + tag/CP labels (NCPR's "does flag map to reviewer concern" is the right question but harness is research-preview) |
+| Pre-release / quarterly | MLGG-Bench full 305. NCPR full N=30 deferred until: (a) lexical-path bug fixed, (b) holdout floors relaxed, (c) someone owns running it |
+| System-level effectiveness research | NCPR-Bench design docs + harness (research-only use) |
 
 ## Cross-links
 
