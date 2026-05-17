@@ -172,3 +172,26 @@ def test_mmr_v2_strips_embeddings_from_output():
         assert "_dense_embedding" not in r, (
             f"embedding leaked to caller: {r['concern_id']}"
         )
+
+
+def test_mmr_score_consistent_formula_across_ranks():
+    """W8-W5: top-1 and subsequent picks should both store
+    lam * relevance - (1-lam) * max_sim (with max_sim=0 for top-1)."""
+    import numpy as np
+    from scripts.rag.retrieval.hybrid import _mmr_rerank
+
+    cands = [
+        {"concern_id": "A", "paper_id": "P1", "_final_score": 0.9,
+         "_dense_embedding": np.array([1.0, 0.0] + [0.0] * 382, dtype=np.float32)},
+        {"concern_id": "B", "paper_id": "P2", "_final_score": 0.5,
+         "_dense_embedding": np.array([0.0, 1.0] + [0.0] * 382, dtype=np.float32)},
+    ]
+    out = _mmr_rerank(cands, top_k=2, lam=0.7)
+    # Top-1: lam * 0.9 = 0.63 (max_sim is 0 since nothing else selected yet)
+    assert abs(out[0]["_mmr_score"] - 0.63) < 0.01, (
+        f"top-1 _mmr_score should be lam*rel=0.63, got {out[0]['_mmr_score']}"
+    )
+    # Top-2: lam * 0.5 - (1-lam) * 0 = 0.35 (cosine to A is 0, orthogonal)
+    assert abs(out[1]["_mmr_score"] - 0.35) < 0.01, (
+        f"top-2 _mmr_score should be 0.35, got {out[1]['_mmr_score']}"
+    )

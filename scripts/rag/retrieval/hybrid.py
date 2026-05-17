@@ -319,7 +319,13 @@ def _mmr_rerank(
         return passthrough
 
     selected = [dict(candidates[0])]  # always take top-1
-    selected[0]["_mmr_score"] = selected[0].get("_final_score", 0.0)
+    # W8-W5: store the MMR objective consistently across all ranks so
+    # provenance is auditable. For top-1 the max similarity to already-
+    # selected is 0 (nothing selected yet), so the formula
+    #   _mmr_score = lam * relevance - (1 - lam) * max_sim
+    # collapses to lam * relevance. Subsequent picks (below) store the
+    # same expression evaluated against the running ``selected`` set.
+    selected[0]["_mmr_score"] = float(lam * selected[0].get("_final_score", 0.0))
     remaining = list(candidates[1:])
 
     while remaining and len(selected) < top_k:
