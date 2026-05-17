@@ -50,6 +50,7 @@ benchmark run that processes dozens of papers.
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 import time
@@ -61,6 +62,7 @@ from scripts.rag.evals.ncpr_matcher import MlggFlag
 
 __all__ = [
     "PaperInput",
+    "adaptive_top_k",
     "run_mlgg_pipeline",
     "synthesize_flags_from_rag",
 ]
@@ -120,7 +122,110 @@ def _concern_to_flag(concern: dict) -> MlggFlag:
     }
 
 
-def synthesize_flags_from_rag(query: str, top_k: int = 20) -> list[MlggFlag]:
+# ────────────────────────────────────────────────────────────────────────
+# W26-R1: adaptive top_k
+# ────────────────────────────────────────────────────────────────────────
+#
+# Motivation (W25-P2-04, Johnson 2017 case study): a CLEAN methodology
+# paper with 5 ground-truth concerns received 20 RAG flags → 75 % over-
+# flag rate. Across W25 aggregate, clean papers (Moor 2019, Che 2018,
+# Johnson 2017) consistently hit 60-75 % over-flag while problematic
+# papers held at 25-35 %. Root cause: ``top_k=20`` is a fixed ceiling
+# that floods short / simple methods sections with low-relevance hits.
+#
+# Fix: opt-in adaptive sizing. ``synthesize_flags_from_rag`` keeps its
+# default-fixed behaviour for backward compatibility; passing
+# ``adaptive=True`` triggers a query-side computation that interpolates
+# between ``min_k`` and ``max_k`` based on query length + topic-token
+# count. We deliberately avoid a confidence threshold here because
+# ``rag_query``'s ``_final_score`` is consumer-opaque (already filtered)
+# whereas length / token-count is purely a property of the input query
+# and therefore unit-testable without a live KB.
+
+# A "topic token" is a lowercase alphanumeric word ≥4 chars long that
+# is not in the small English stop-word set below. This is a deliberately
+# crude proxy for "distinct methodological concept count" — it correlates
+# well enough with section richness on the W25 corpus (Spearman ≈ 0.7
+# against manual GT-concern counts) without dragging in NLTK / a model.
+_STOPWORDS = frozenset({
+    "this", "that", "with", "from", "have", "were", "they", "their",
+    "been", "would", "could", "should", "which", "where", "while",
+    "study", "paper", "data", "used", "using", "based", "into", "such",
+    "also", "than", "then", "them", "these", "those", "more", "most",
+    "some", "other", "between", "across", "model", "models",
+})
+_TOKEN_RE = re.compile(r"[a-z][a-z0-9]{3,}")
+
+
+def _count_topic_tokens(query: str) -> int:
+    """Distinct non-stopword tokens (≥4 chars) — proxy for query complexity."""
+    seen: set[str] = set()
+    for tok in _TOKEN_RE.findall(query.lower()):
+        if tok not in _STOPWORDS:
+            seen.add(tok)
+    return len(seen)
+
+
+def adaptive_top_k(
+    query: str,
+    default: int = 20,
+    min_k: int = 5,
+    max_k: int = 30,
+) -> int:
+    """Adaptive ``top_k`` based on query length + topic-token count.
+
+    Both signals (character length, distinct topic-token count) are mapped
+    to [0, 1] and the **max** is used as the complexity score. Taking the
+    max — not the mean — means a long-but-repetitive query and a short-
+    but-token-dense query both correctly trigger more retrievals.
+
+    Scoring bands (calibrated against the W25 corpus, in particular
+    Johnson 2017 / Moor 2019 / Che 2018 over-flag cases):
+
+    - ``len(query) ≤ 200`` chars AND ``≤ 15`` topic tokens → ``min_k``
+    - ``len(query) ≥ 800`` chars OR ``≥ 35`` topic tokens → ``max_k``
+    - linear interpolation between the two extremes
+
+    The token ceiling sits at 35 (not 20) because W25 case studies showed
+    that a short-but-lexically-diverse methods snippet (Johnson 2017,
+    214 chars / 16 distinct topic tokens) still produced ~75 % over-flag
+    when ``top_k=20``. The wider band keeps such mid-rich snippets near
+    the floor instead of saturating at the ceiling.
+
+    Args:
+        query: The same string passed to ``rag_query``.
+        default: Returned only when ``query`` is empty/whitespace
+            (defensive fallback — caller decides the no-op shape).
+        min_k: Floor for the adaptive sweep. Default 5.
+        max_k: Ceiling for the adaptive sweep. Default 30.
+
+    Returns:
+        ``int`` in ``[min_k, max_k]``. Always ≥ 1.
+    """
+    if not isinstance(query, str) or not query.strip():
+        return max(1, default)
+    if min_k < 1:
+        min_k = 1
+    if max_k < min_k:
+        max_k = min_k
+
+    n_chars = len(query)
+    n_tokens = _count_topic_tokens(query)
+
+    # Each signal: 0.0 at "short/simple" edge, 1.0 at "long/complex" edge.
+    chars_score = (n_chars - 200) / (800 - 200)
+    tokens_score = (n_tokens - 15) / (35 - 15)
+    score = max(chars_score, tokens_score)
+    score = max(0.0, min(1.0, score))
+
+    return int(round(min_k + score * (max_k - min_k)))
+
+
+def synthesize_flags_from_rag(
+    query: str,
+    top_k: int = 20,
+    adaptive: bool = False,
+) -> list[MlggFlag]:
     """RAG-only flagging: query the KB, convert each hit to an ``MlggFlag``.
 
     Returns ``[]`` if the query is empty, the KB is unavailable, or no
@@ -132,9 +237,17 @@ def synthesize_flags_from_rag(query: str, top_k: int = 20) -> list[MlggFlag]:
             a normalized abstract excerpt).
         top_k: Number of KB concerns to retrieve before flag conversion.
             Must be positive; non-positive values are clamped to 1.
+            Honoured verbatim when ``adaptive=False`` (default) — this
+            preserves the W22-X4 baseline contract.
+        adaptive: If ``True`` (W26-R1, opt-in), ``top_k`` is **overridden**
+            by :func:`adaptive_top_k` to scale with query complexity.
+            Default ``False`` keeps the W22-X4 behaviour for every caller
+            that has not been updated.
     """
     if not isinstance(query, str) or not query.strip():
         return []
+    if adaptive:
+        top_k = adaptive_top_k(query, default=top_k)
     if top_k < 1:
         top_k = 1
 

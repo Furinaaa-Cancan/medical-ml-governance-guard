@@ -64,6 +64,13 @@ class ScalerOnTest(BaseRule):
             # Skip Pipeline and model objects — their .fit() is intentional
             if obj.lower() in _SAFE_FIT_NAMES or obj in self._pipeline_vars:
                 continue
+            # Keras-style ``model.fit(X_train, y_train, validation_data=(X_val, y_val))``
+            # is NOT fit-on-test — validation_data is held-out monitoring data
+            # passed to the trainer for per-epoch eval, not training input.
+            # Presence of ``validation_data=`` kwarg means the first positional
+            # arg is by convention training data; skip to avoid false-firing.
+            if any(kw.arg == "validation_data" for kw in node.keywords):
+                continue
             arg_name = get_call_first_arg_name(node)
             if arg_name and self.taint.is_test_or_valid(arg_name):
                 # Use tracked taint first (handles aliases like data = X_test),

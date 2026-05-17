@@ -12,6 +12,20 @@ from mlgg_lint.rules.base import BaseRule
 _FIT_METHODS = {"fit", "fit_transform", "fit_predict"}
 _TARGET_NAMES = {"target", "label", "y", "outcome", "diagnosis"}
 
+# Function-name prefixes that indicate a pure data-loader / IO helper.
+# Column-subset assignments inside these functions (e.g.,
+# ``admits = admits[['SUBJECT_ID', ..., 'DIAGNOSIS']]``) are projecting
+# a single freshly-loaded DataFrame, not assembling a feature matrix —
+# real leakage requires a downstream ``fit()`` call which is caught
+# separately by Cases 1/2/3 in ``visit_Call``.
+_LOADER_FUNC_PREFIXES = (
+    "read_",
+    "load_",
+    "get_",
+    "fetch_",
+    "parse_",
+)
+
 
 @register
 class TargetAsFeature(BaseRule):
@@ -35,6 +49,59 @@ class TargetAsFeature(BaseRule):
         self._var_source: dict[str, str] = {}
         # variables that were produced by df.drop()
         self._drop_derived: set[str] = set()
+        # Stack of enclosing function names (innermost last).  Used to
+        # suppress assignment-time target-column checks inside data-loader
+        # helpers like ``read_admissions_table`` — those are CSV projections,
+        # not feature-matrix assembly, and any real leakage will surface at
+        # the downstream ``fit()`` call.
+        self._func_stack: list[str] = []
+
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:  # noqa: N802
+        self._func_stack.append(node.name)
+        try:
+            self.generic_visit(node)
+        finally:
+            self._func_stack.pop()
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:  # noqa: N802
+        self._func_stack.append(node.name)
+        try:
+            self.generic_visit(node)
+        finally:
+            self._func_stack.pop()
+
+    def _inside_loader_helper(self) -> bool:
+        """True if the innermost enclosing function looks like a data loader.
+
+        A "loader" here means a function whose name starts with one of
+        :data:`_LOADER_FUNC_PREFIXES` AND whose body contains no ``.fit*(``
+        call (i.e., it really is just reading data, not training a model).
+        The fit-call check is a defensive guard: if someone names a training
+        routine ``load_model_pipeline`` we still want R007 to fire.
+        """
+        if not self._func_stack:
+            return False
+        name = self._func_stack[-1]
+        if not name.startswith(_LOADER_FUNC_PREFIXES):
+            return False
+        # Walk the current function body for any .fit*(  call.  If found,
+        # this isn't a pure loader — fall through to normal checking.
+        # We need access to the FunctionDef node; the cheapest path is to
+        # re-walk the module tree once and cache, but for correctness here
+        # we accept a small recompute: walk self._tree once per call site.
+        for fn in ast.walk(getattr(self, "_tree", ast.Module(body=[]))):
+            if not isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            if fn.name != name:
+                continue
+            for sub in ast.walk(fn):
+                if (
+                    isinstance(sub, ast.Call)
+                    and isinstance(sub.func, ast.Attribute)
+                    and sub.func.attr in _FIT_METHODS
+                ):
+                    return False
+        return True
 
     def visit_Assign(self, node: ast.Assign) -> None:  # noqa: N802
         """Track variable origins: X = df.drop(...), y = df['target'], X = df[cols]."""
@@ -91,7 +158,17 @@ class TargetAsFeature(BaseRule):
     def _check_assign_subscript_for_target(
         self, node: ast.Assign, var_name: str
     ) -> None:
-        """Check X = df[['col1', 'target', ...]] at assignment time."""
+        """Check X = df[['col1', 'target', ...]] at assignment time.
+
+        Skipped inside data-loader helpers (``read_*`` / ``load_*`` /
+        ``get_*`` / ``fetch_*`` / ``parse_*`` functions with no ``.fit*(``
+        call in scope).  Those are column projections on freshly-loaded
+        CSV data, not feature-matrix assembly — any real leakage will
+        surface at the downstream ``fit()`` call instead, which Cases
+        1/2/3 in :meth:`visit_Call` cover (W26-L2, W25-P2-05).
+        """
+        if self._inside_loader_helper():
+            return
         if not isinstance(node.value, ast.Subscript):
             return
         sl = node.value.slice

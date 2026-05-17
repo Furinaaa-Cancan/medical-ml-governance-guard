@@ -300,3 +300,112 @@ def test_parse_subprocess_flags_handles_ndjson_fallback():
 def test_parse_subprocess_flags_empty_returns_empty():
     assert ncpr_paper_runner._parse_subprocess_flags("") == []
     assert ncpr_paper_runner._parse_subprocess_flags("   \n") == []
+
+
+# ────────────────────────────────────────────────────────────────────────
+# W26-R1: adaptive top_k
+# ────────────────────────────────────────────────────────────────────────
+
+
+def _capture_top_k(captured: list[int]):
+    """Build a ``rag_query`` mock that records the top_k it was called with."""
+
+    def _fake(query: str, top_k: int):
+        captured.append(top_k)
+        # Return ``top_k`` synthetic records so the resulting flag count
+        # reflects the effective top_k. Lets us assert on len(flags).
+        return [_kb_record(f"c{i}", f"hit {i}") for i in range(top_k)]
+
+    return _fake
+
+
+def test_synthesize_flags_adaptive_short_query_returns_fewer():
+    """W26-R1: short query (<200 chars, <10 topic tokens) + adaptive=True
+    must scale down to ``min_k`` (5) → ≤10 flags."""
+    short_query = "We split patients into train and test sets."  # ~43 chars
+    captured: list[int] = []
+    with mock.patch(
+        "scripts.rag.query.rag_query", side_effect=_capture_top_k(captured)
+    ):
+        flags = synthesize_flags_from_rag(short_query, adaptive=True)
+
+    assert captured, "rag_query must have been called"
+    assert captured[0] <= 10, (
+        f"Short adaptive query should scale to ≤10, got top_k={captured[0]} "
+        "(W26-R1: floods on CLEAN papers like Johnson 2017)"
+    )
+    assert len(flags) <= 10
+
+
+def test_synthesize_flags_adaptive_long_query_returns_more():
+    """W26-R1: long, topic-rich query (>800 chars, >20 topic tokens) +
+    adaptive=True must scale up toward ``max_k`` → >15 flags."""
+    # Build a long, lexically diverse methods passage with many distinct
+    # methodological topic tokens (calibration, bootstrap, SHAP, …).
+    long_query = (
+        "We retrospectively assembled a multicentre cohort spanning emergency "
+        "department admissions across seven academic teaching hospitals, "
+        "constructing patient-level features from structured electronic health "
+        "records including laboratory measurements, vital signs, comorbidities, "
+        "medication exposures, prior encounter history, demographic descriptors, "
+        "and procedural billing codes. Inclusion required complete index-encounter "
+        "vital signs within six hours of triage; pediatric patients younger than "
+        "eighteen were excluded. We performed hyperparameter tuning via nested "
+        "stratified cross-validation, calibration assessment with isotonic "
+        "regression, decision-curve analysis across plausible thresholds, "
+        "bootstrap confidence intervals for AUROC, Brier score decomposition, "
+        "subgroup fairness audits stratified by self-reported race and insurance "
+        "status, SHAP-based feature attribution, ablation experiments removing "
+        "laboratory inputs, sensitivity analyses around missing-data imputation, "
+        "and external temporal validation on prospective encounters."
+    )
+    assert len(long_query) > 800, "regression: long_query stopped being long"
+
+    captured: list[int] = []
+    with mock.patch(
+        "scripts.rag.query.rag_query", side_effect=_capture_top_k(captured)
+    ):
+        flags = synthesize_flags_from_rag(long_query, adaptive=True)
+
+    assert captured[0] > 15, (
+        f"Long adaptive query should scale up, got top_k={captured[0]}"
+    )
+    assert len(flags) > 15
+
+
+def test_synthesize_flags_default_top_k_unchanged():
+    """Regression: adaptive=False (default) → top_k=20 honoured verbatim,
+    no query-side rewriting. Backward-compat with every W22-X4 caller."""
+    methods_text = "Short methods text."  # would otherwise trigger min_k
+    captured: list[int] = []
+    with mock.patch(
+        "scripts.rag.query.rag_query", side_effect=_capture_top_k(captured)
+    ):
+        flags = synthesize_flags_from_rag(methods_text)  # no adaptive kwarg
+
+    assert captured == [20], (
+        f"Default behaviour must keep top_k=20; got {captured!r}"
+    )
+    assert len(flags) == 20
+
+
+def test_adaptive_top_k_johnson_2017_would_benefit():
+    """W26-R1 verification: a Johnson-2017-style CLEAN methodology snippet
+    (~5 GT concerns, short and focused) should resolve to substantially
+    fewer than the 20-flag baseline that caused the 75 % over-flag rate.
+    """
+    # Stylised excerpt mimicking the brevity + topical narrowness of
+    # the Johnson 2017 methods passage we ran in W25-P2-04.
+    johnson_like = (
+        "Patient records from MIMIC-III were partitioned into training "
+        "and held-out test sets at the patient level. Logistic regression "
+        "was fit on the training split only; the test split was held out "
+        "until final evaluation."
+    )
+    k = ncpr_paper_runner.adaptive_top_k(johnson_like)
+    # Baseline = 20 flags, GT = 5 → 75 % over-flag. We need k ≤ 10 to
+    # cut the over-flag rate roughly in half on this paper.
+    assert k <= 10, (
+        f"Johnson 2017 case study: adaptive_top_k must reduce flood "
+        f"(got k={k}; need ≤10 to halve the 75 % over-flag rate)"
+    )
