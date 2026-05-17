@@ -401,9 +401,22 @@ def _mmr_rerank(
         return []
     if len(candidates) == 1 or lam >= 1.0:
         # passthrough: pure relevance — still strip embedding before return.
+        # W11-F3: also attach the _mmr_score / _mmr_breakdown schema fields
+        # so downstream consumers (audit, eval, ranking diff) can rely on a
+        # uniform contract regardless of which branch produced the list.
+        # No MMR re-weighting happens here, so _mmr_score == _final_score
+        # and the breakdown records zero diversity penalty.
         passthrough = [dict(c) for c in candidates[:top_k]]
         for r in passthrough:
             r.pop("_dense_embedding", None)
+            relevance = float(r.get("_final_score", 0.0))
+            r["_mmr_score"] = relevance
+            r["_mmr_breakdown"] = {
+                "relevance": relevance,
+                "max_sim": 0.0,
+                "blocker_id": None,
+                "blocker_reason": "none",
+            }
         return passthrough
 
     selected = [dict(candidates[0])]  # always take top-1
@@ -446,13 +459,22 @@ def _mmr_rerank(
             blocker_id: Optional[str] = None
             blocker_reason = "none"
             cand_emb = cand.get("_dense_embedding")
-            for sel in selected:
+            for sel_idx, sel in enumerate(selected):
                 # Same-paper penalty (always applied; catches BM25-only
                 # candidates that lack an embedding).
                 if cand.get("paper_id") and cand["paper_id"] == sel.get("paper_id"):
                     if same_paper_penalty > max_sim:
                         max_sim = same_paper_penalty
-                        blocker_id = _concern_id(sel)
+                        # W11-F3: maintain the invariant that whenever
+                        # blocker_reason != "none", blocker_id is a
+                        # non-empty string. Fall back to a positional
+                        # surrogate when _concern_id returns None so
+                        # downstream audits never see a null/empty id
+                        # paired with a real reason.
+                        blocker_id = (
+                            _concern_id(sel)
+                            or f"<unidentified_record_{sel_idx}>"
+                        )
                         blocker_reason = "same_paper"
                 # Embedding cosine similarity (preferred when both sides
                 # have an L2-normalized vector; dot product == cosine).
@@ -465,7 +487,10 @@ def _mmr_rerank(
                     # distinct and no diversity penalty applies.
                     if cos >= config.MMR_COSINE_FLOOR and cos > max_sim:
                         max_sim = cos
-                        blocker_id = _concern_id(sel)
+                        blocker_id = (
+                            _concern_id(sel)
+                            or f"<unidentified_record_{sel_idx}>"
+                        )
                         blocker_reason = "cosine"
             mmr_score = lam * relevance - (1.0 - lam) * max_sim
             if mmr_score > best_score:

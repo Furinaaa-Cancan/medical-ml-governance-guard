@@ -314,6 +314,100 @@ class TestMMRBreakdown:
         assert c["_mmr_breakdown"]["blocker_reason"] == "none"
         assert c["_mmr_breakdown"]["max_sim"] == 0.0
 
+    def test_passthrough_branch_still_has_mmr_fields(self) -> None:
+        """W11-F3: the passthrough short-circuit (single candidate or
+        lam>=1.0) must still emit the _mmr_score / _mmr_breakdown contract
+        promised in the docstring, so downstream consumers never KeyError
+        on the branch they didn't see in their fixtures.
+        """
+        # Branch 1: single candidate.
+        single = [
+            {"concern_id": "solo", "paper_id": "P0", "_final_score": 0.42}
+        ]
+        out_single = _mmr_rerank(single, top_k=5, lam=0.5)
+        assert len(out_single) == 1
+        rec = out_single[0]
+        assert "_mmr_score" in rec, "passthrough must attach _mmr_score"
+        assert "_mmr_breakdown" in rec, (
+            "passthrough must attach _mmr_breakdown"
+        )
+        assert rec["_mmr_score"] == 0.42
+        bd = rec["_mmr_breakdown"]
+        assert bd["blocker_id"] is None
+        assert bd["blocker_reason"] == "none"
+        assert bd["max_sim"] == 0.0
+        assert abs(bd["relevance"] - 0.42) < 1e-9
+
+        # Branch 2: lam >= 1.0 (pure relevance, multi-candidate).
+        multi = [
+            {"concern_id": "A", "paper_id": "P1", "_final_score": 0.9},
+            {"concern_id": "B", "paper_id": "P2", "_final_score": 0.7},
+        ]
+        out_multi = _mmr_rerank(multi, top_k=2, lam=1.0)
+        assert len(out_multi) == 2
+        for r in out_multi:
+            assert "_mmr_score" in r and "_mmr_breakdown" in r
+            assert r["_mmr_breakdown"]["blocker_id"] is None
+            assert r["_mmr_breakdown"]["blocker_reason"] == "none"
+            assert r["_mmr_score"] == r["_final_score"]
+
+    def test_blocker_id_never_none_when_reason_is_set(self) -> None:
+        """W11-F3 invariant: if blocker_reason != 'none', blocker_id must
+        be a non-empty string. Feed records that lack ``concern_id`` /
+        ``id`` so ``_concern_id`` returns None, and exercise both penalty
+        paths (same_paper and cosine).
+        """
+        # Same-paper path: no embeddings, two same-paper records w/o ids.
+        same_paper_cands = [
+            {"paper_id": "P1", "_final_score": 0.9},
+            {"paper_id": "P1", "_final_score": 0.8},
+            {"paper_id": "P2", "_final_score": 0.7},
+        ]
+        out_sp = _mmr_rerank(
+            same_paper_cands, top_k=3, lam=0.5, same_paper_penalty=0.6
+        )
+        # Find any record whose breakdown points to same_paper.
+        blocked_sp = [
+            r
+            for r in out_sp
+            if r["_mmr_breakdown"]["blocker_reason"] == "same_paper"
+        ]
+        assert blocked_sp, (
+            "test setup expected at least one same_paper-blocked pick; "
+            f"got {[r['_mmr_breakdown'] for r in out_sp]}"
+        )
+        for r in blocked_sp:
+            bid = r["_mmr_breakdown"]["blocker_id"]
+            assert isinstance(bid, str) and bid, (
+                f"same_paper blocker_id must be a non-empty string, "
+                f"got {bid!r}"
+            )
+
+        # Cosine path: near-duplicate embeddings, neither record has an id.
+        A_emb = _emb(1.0, 0.0)
+        B_emb = _emb(0.95, 0.31)  # cos(A,B) ~ 0.95, above MMR_COSINE_FLOOR
+        cosine_cands = [
+            {"paper_id": "P1", "_final_score": 0.9,
+             "_dense_embedding": A_emb},
+            {"paper_id": "P2", "_final_score": 0.85,
+             "_dense_embedding": B_emb},
+        ]
+        out_cos = _mmr_rerank(cosine_cands, top_k=2, lam=0.5)
+        blocked_cos = [
+            r
+            for r in out_cos
+            if r["_mmr_breakdown"]["blocker_reason"] == "cosine"
+        ]
+        assert blocked_cos, (
+            "test setup expected at least one cosine-blocked pick; "
+            f"got {[r['_mmr_breakdown'] for r in out_cos]}"
+        )
+        for r in blocked_cos:
+            bid = r["_mmr_breakdown"]["blocker_id"]
+            assert isinstance(bid, str) and bid, (
+                f"cosine blocker_id must be a non-empty string, got {bid!r}"
+            )
+
 
 # ---------------------------------------------------------------------------
 # 3. Config sanity for the new flags
