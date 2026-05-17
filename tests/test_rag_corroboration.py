@@ -25,7 +25,6 @@ the heavy ``BAAI/bge-small-en-v1.5`` dependency. The integration angle
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from scripts.rag import config
 from scripts.rag.retrieval.hybrid import (
