@@ -70,6 +70,7 @@ def score_one(scenario: dict, *, mode: str, top_k: int = 5) -> dict:
         or scenario.get("expected_categories")
         or []
     )
+    expected_cps = set(scenario.get("expected_canonical_pattern_ids") or [])
     gate = scenario.get("gate_name") or scenario.get("mlgg_gate_hint")
     codes = scenario.get("failure_codes") or scenario.get("failure_codes_hint") or []
     query = scenario.get("query_text") or scenario.get("query") or ""
@@ -100,6 +101,7 @@ def score_one(scenario: dict, *, mode: str, top_k: int = 5) -> dict:
     wall_ms = (time.perf_counter() - t0) * 1000
 
     ids = [h.get("concern_id") for h in hits]
+    cps_returned = [h.get("canonical_pattern_id") for h in hits]
     matches: int | None
     if expected_tags and hits:
         matches = sum(
@@ -109,6 +111,17 @@ def score_one(scenario: dict, *, mode: str, top_k: int = 5) -> dict:
     else:
         matches = None
         tag_prec = None
+
+    # cp_hit_at_k: 1.0 if any expected CP appears in top-K, 0.0 if not,
+    # None if scenario carries no expected CP gold (skipped from aggregate).
+    # Stricter than tag-overlap — the RAG must retrieve a concern that
+    # actually belongs to the canonical pattern the scenario targets,
+    # which is the unit the gate consumers reason in.
+    cp_hit: float | None
+    if expected_cps and hits:
+        cp_hit = 1.0 if any(cp in expected_cps for cp in cps_returned if cp) else 0.0
+    else:
+        cp_hit = None
 
     top1 = None
     if hits:
@@ -121,7 +134,9 @@ def score_one(scenario: dict, *, mode: str, top_k: int = 5) -> dict:
         "top1_score": top1,
         "tag_precision_at_k": tag_prec,
         "ids_returned": ids,
+        "cps_returned": cps_returned,
         "expected_tag_hits": matches,
+        "cp_hit_at_k": cp_hit,
         "wall_ms": round(wall_ms, 1),
     }
 
@@ -158,6 +173,10 @@ def aggregate(per_scenario: list[dict]) -> dict:
     n_evaluable = len(tag_precs)
     n_total = len(per_scenario)
     coverage_rate = (n_evaluable / n_total) if n_total else 0.0
+    cp_hits = [
+        r["cp_hit_at_k"] for r in per_scenario if r.get("cp_hit_at_k") is not None
+    ]
+    n_cp_evaluable = len(cp_hits)
     return {
         "n_scenarios": n_total,
         "n_evaluable": n_evaluable,
@@ -169,6 +188,10 @@ def aggregate(per_scenario: list[dict]) -> dict:
         "mean_tag_precision_at_k": (
             sum(tag_precs) / len(tag_precs) if tag_precs else None
         ),
+        "mean_cp_hit_at_k": (
+            round(sum(cp_hits) / n_cp_evaluable, 3) if cp_hits else None
+        ),
+        "n_cp_evaluable": n_cp_evaluable,
         "mean_top1_score": (
             sum(top1_scores) / len(top1_scores) if top1_scores else None
         ),
