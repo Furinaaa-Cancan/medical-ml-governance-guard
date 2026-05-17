@@ -93,6 +93,45 @@ def get_criteria_for_level(
     return result
 
 
+def _lit_relevance_key(
+    entry: Dict[str, Any],
+    context_gates: Optional[set] = None,
+    context_dims: Optional[set] = None,
+) -> tuple:
+    """Composite sort key for a literature-KB entry.
+
+    Sort order (descending — larger tuple wins):
+      1. Whether ``gates_implementing`` overlaps the current context gate set
+         (or ``dimensions_affected`` overlaps the dimension set as a fallback).
+         Entries with no context return 0 here.
+      2. ``year`` descending (newer first); missing/non-numeric → 0.
+      3. ``impact_factor`` descending; missing/None → 0.
+
+    Returns a tuple suitable for ``sorted(..., key=..., reverse=True)``.
+    """
+    gates = set(entry.get("gates_implementing") or [])
+    dims = set(entry.get("dimensions_affected") or [])
+
+    relevance = 0
+    if context_gates and gates & context_gates:
+        relevance = 2
+    elif context_dims and dims & context_dims:
+        relevance = 1
+
+    try:
+        year = int(entry.get("year") or 0)
+    except (TypeError, ValueError):
+        year = 0
+
+    impact = entry.get("impact_factor")
+    try:
+        impact_val = float(impact) if impact is not None else 0.0
+    except (TypeError, ValueError):
+        impact_val = 0.0
+
+    return (relevance, year, impact_val)
+
+
 def render_markdown_prompt(
     standard: Dict[str, Any],
     level: str,
@@ -156,9 +195,31 @@ def render_markdown_prompt(
     lit_section = ""
     if include_literature and lit_kb:
         entries = lit_kb.get("entries", [])
-        # Only include entries relevant to the level
+        # Derive context from criteria actually rendered at this level so we
+        # surface the most-relevant literature instead of the first 20 entries
+        # in JSON file order (audit finding m7).
+        context_gates: set = set()
+        context_dims: set = set()
+        for entry in criteria_flat:
+            c = entry["criterion"]
+            gate = c.get("gate")
+            if gate:
+                context_gates.add(gate)
+            for g in c.get("gates", []) or []:
+                context_gates.add(g)
+            context_dims.add(entry["dim"]["id"])
+        # Journal-mandated gates also count as in-scope context.
+        if journal_data:
+            for g in journal_data.get("required_gates", []) or []:
+                context_gates.add(g)
+
+        sorted_entries = sorted(
+            entries,
+            key=lambda e: _lit_relevance_key(e, context_gates, context_dims),
+            reverse=True,
+        )
         lit_section = "\n## Key Literature References\n\n"
-        for e in entries[:20]:
+        for e in sorted_entries[:20]:
             lit_section += (
                 f"- **{e['id']}** [{e.get('year','')}] {e['title'][:80]}... "
                 f"(*{e.get('journal','')}*, IF≈{e.get('impact_factor','')})\n"
