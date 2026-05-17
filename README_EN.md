@@ -11,7 +11,7 @@
   <em>Top-Journal Review Standards &times; AI-Driven Medical Prediction Model Governance Framework</em>
   <br><br>
   <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/"><img src="https://img.shields.io/badge/License-PolyForm%20NC%201.0.0-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/tests-5501%20passed-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-4712%20passed-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/gates-33%20fail--closed-critical" alt="Gates">
   <img src="https://img.shields.io/badge/datasets-14%20medical-purple" alt="Datasets">
   <img src="https://img.shields.io/badge/code-145K%20lines-informational" alt="Code">
@@ -58,6 +58,8 @@
 ```
 
 **Hallucination is locked in the top layer** — the lower two always resolve pass/fail via deterministic code + static data.
+
+> **Disease-KB review status**: 11 disease entries currently pending clinician review; the publication gate fails closed (W11-F2 commit `04ad7d7` closed a source-only spoof vector).
 
 ### Per-action risk: what can hallucination touch?
 
@@ -218,6 +220,8 @@ The 5-agent strict review surfaced 5 honest limitations users should know about.
 When you call `rag_query(q)` without a `gate=` argument (the CLI default), the hybrid ranker silently skips BM25 and free-text scoring becomes dense + tag + severity only. After the F1 fix, active weights are re-normalized so final scores still reach 1.0, but users should know BM25 is a gate-anchored signal.
 
 > For production gate hooks, always pass `(gate, failure_codes)` to get the full 4-signal ranking. CLI users querying for exploration should expect dense-dominated results.
+
+> **Wave 11 update**: W11-I1 ablation found the dense signal at `WEIGHT_DENSE=0.5` is the dilutor (`hybrid_no_dense` mean_tag_p@5=0.447 > `bm25_only` 0.436 > `hybrid_all` 0.353 on 30 scenarios). Wave 12 will demote dense to 0.05–0.1. See [ADR 0001](docs/adr/0001_mmr_breakdown_consumer.md) and [docs/ARCHITECTURE.md Q5](docs/ARCHITECTURE.md).
 
 **2. Four MLGG dimensions have weak retrieval**
 
@@ -1006,70 +1010,18 @@ Must cover: data source limitations, temporal validity, coding system changes (I
 
 ## 33 Safety Gates (Gate DAG)
 
-33 gates arranged in a directed acyclic graph (DAG) across 9 layers. Same-layer gates run in parallel; all must pass to claim L3 Publication-Grade.
+MLGG ships 33 fail-closed gates across the 9-phase pipeline. Each gate emits structured JSON (`failures`, `warnings`, `severity`), exits 0/2, and is CI-replayable.
 
-```
-Layer 0  Contract validation      cohort_definition  |  request_contract
-   |
-Layer 1  Fingerprint lock         manifest_lock
-   |
-Layer 2  Execution attestation    execution_attestation
-   |
-Layer 3  Data validation (4 parallel)   leakage  |  split_protocol  |  covariate_shift  |  reporting_bias
-   |
-Layer 4  Policy audit (5 parallel)      definition_guard  |  feature_lineage  |  imbalance  |  missingness  |  tuning
-   |
-Layer 5  Model audit (4 parallel)       model_selection_audit  |  feature_engineering  |  clinical_metrics  |  shap
-   |
-Layer 6  Statistical validation (13 parallel)   calibration_dca  |  ci_matrix  |  distribution  |  eval_quality
-                                                 external_validation  |  fairness  |  gap  |  metric_consistency
-                                                 permutation  |  prediction_replay  |  robustness  |  sample_size  |  seed
-   |
-Layer 7  Publication aggregation  publication_gate
-   |
-Layer 8  Final review (2 parallel)    self_critique  |  security_audit
-```
+**Top-level groupings**:
+- Cohort / data integrity (C01-C04)
+- Split & preprocessing (S01, P01-P05)
+- Feature & leakage (F01-F03, L01-L02)
+- Model & evaluation (M01-M04, E01-E03)
+- Calibration & fairness (CAL01, FAIR01-FAIR02)
+- Reporting & publication (RPT01-RPT04)
+- Aggregation gates (publication_gate, audit_gate)
 
-<details>
-<summary><strong>Detailed Description of All 33 Gates (click to expand)</strong></summary>
-
-| # | Layer | Gate | Checks | Output Report |
-|:--|:------|:-----|:-------|:--------------|
-| 1 | 0 | `cohort_definition_gate` | EPV adequacy, Riley triple criteria, data types, missing values, suspicious correlations | `cohort_definition_report.json` |
-| 2 | 0 | `request_contract_gate` | Request JSON schema, file paths, publication strategy anti-downgrade protection | `request_contract_report.json` |
-| 3 | 1 | `manifest_lock` | SHA-256 cryptographic fingerprinting of all data/config/evaluation/gate scripts | `manifest.json` |
-| 4 | 2 | `execution_attestation_gate` | Detached signature verification + **out-of-band `trusted_signers.json` fingerprint allowlist (external trust anchor)** + `--max-age-hours` freshness (default 168h, anti-replay) + bundle path sandbox (rejects symlink escape) + witness arbitration. See `references/attestation/README.md` | `execution_attestation_report.json` |
-| 5 | 3 | `leakage_gate` | Row hash overlap, patient ID overlap, temporal boundary violations, 7-category feature name regex | `leakage_report.json` |
-| 6 | 3 | `split_protocol_gate` | Patient-level disjoint splits, temporal correctness, prevalence check, minimum split sizes | `split_protocol_report.json` |
-| 7 | 3 | `covariate_shift_gate` | Per-feature Jensen-Shannon divergence, prevalence drift, missing rate drift | `covariate_shift_report.json` |
-| 8 | 3 | `reporting_bias_gate` | TRIPOD+AI 2024 (17 items) + PROBAST+AI 2025 (6 domains) + STARD-AI checklist | `reporting_bias_report.json` |
-| 9 | 4 | `definition_variable_guard` | Block outcome definition variables as predictors; **circular definition detection, time window documentation, post-prediction feature leakage check** | `definition_guard_report.json` |
-| 10 | 4 | `feature_lineage_gate` | Block post-index-time derived features from training | `lineage_report.json` |
-| 11 | 4 | `imbalance_policy_gate` | Class imbalance strategy, training-set-only resampling, prevalence validation | `imbalance_policy_report.json` |
-| 12 | 4 | `missingness_policy_gate` | Missing data strategy, MICE scale protection, imputer isolation; **>5% enforced mechanism testing, >40% enforced MNAR sensitivity** | `missingness_policy_report.json` |
-| 13 | 4 | `tuning_leakage_gate` | Hyperparameter tuning protocol, test set isolation, CV nesting | `tuning_leakage_report.json` |
-| 14 | 5 | `model_selection_audit_gate` | One-SE rule replay, >= 3 candidate models, logistic regression baseline, fingerprint verification | `model_selection_audit_report.json` |
-| 15 | 5 | `feature_engineering_audit_gate` | Feature group provenance, training-set-only scope, stability evidence | `feature_engineering_audit_report.json` |
-| 16 | 5 | `clinical_metrics_gate` | 14-metric panel completeness, confusion matrix consistency, clinical floor validation | `clinical_metrics_report.json` |
-| 17 | 5 | `shap_interpretability_gate` | Multi-model SHAP ensemble, Kendall tau consistency, 4 publication-grade CSVs | `shap_interpretability_report.json` |
-| 18 | 6 | `calibration_dca_gate` | ECE, slope/intercept, O:E ratio, CITL, DCA net benefit, per-cohort validation | `calibration_dca_report.json` |
-| 19 | 6 | `ci_matrix_gate` | Bootstrap CI matrix across all splits and external cohorts | `ci_matrix_gate_report.json` |
-| 20 | 6 | `distribution_generalization_gate` | Cross-split distribution drift, feature-level JSD, transfer readiness | `distribution_generalization_report.json` |
-| 21 | 6 | `evaluation_quality_gate` | CI width <= 0.20, resamples >= 200, baseline improvement >= 0.01 | `evaluation_quality_report.json` |
-| 22 | 6 | `external_validation_gate` | External cohort metrics, transfer gap, >= 100 events per cohort; **missing = score cap 85, L3 blocked** | `external_validation_gate_report.json` |
-| 23 | 6 | `fairness_equity_gate` | Equalized odds, disparate impact ratio, subgroup performance floor, HEAL FPR/FNR, **PPV fairness, calibration fairness, multiple comparison warning** | `fairness_equity_report.json` |
-| 24 | 6 | `generalization_gap_gate` | Train-validation-test performance gaps (PR-AUC, F2-beta, Brier) | `generalization_gap_report.json` |
-| 25 | 6 | `metric_consistency_gate` | Metric value consistency between request and evaluation reports | `metric_consistency_report.json` |
-| 26 | 6 | `permutation_significance_gate` | Permutation null distribution significance test | `permutation_report.json` |
-| 27 | 6 | `prediction_replay_gate` | Row-level prediction trace metric replay (tolerance 1e-6) | `prediction_replay_report.json` |
-| 28 | 6 | `robustness_gate` | Temporal slice and patient subgroup performance stability | `robustness_gate_report.json` |
-| 29 | 6 | `sample_size_gate` | EPV >= 10, shrinkage factor >= 0.90, external >= 100 events, CI precision | `sample_size_report.json` |
-| 30 | 6 | `seed_stability_gate` | Multi-seed variance (PR-AUC std <= 0.03, strict >= 5 seeds) | `seed_stability_report.json` |
-| 31 | 7 | `publication_gate` | Aggregate L1/L2/L3 compliance, fingerprint baseline comparison, quality score | `publication_gate_report.json` |
-| 32 | 8 | `self_critique_gate` | 12-dimension quality score + actionable recommendations | `self_critique_report.json` |
-| 33 | 8 | `security_audit_gate` | HMAC model signature, evidence integrity, dependency authenticity, sensitive data scan | `security_audit_report.json` |
-
-</details>
+**Full reference**: see [`docs/reference/GATES.md`](docs/reference/GATES.md) for the complete table with CLI contracts, failure codes, severity tiers, and DAG dependencies.
 
 ---
 
@@ -1105,166 +1057,56 @@ Each dimension scored independently, weighted sum yields total score (0-100):
 
 ## 33 Methodology Rules
 
-<details>
-<summary><strong>Complete Rules Table (click to expand)</strong></summary>
+The MLGG canonical rule set (MLGG-S01, P01, F01, F02, M01, E01, E02 are unchallengeable; see `CLAUDE.md`). Each rule corresponds to one or more gates that enforce it deterministically.
 
-| ID | Severity | Rule | Literature Source |
-|:---|:---------|:-----|:-----------------|
-| **C01** | CRITICAL | Define eligible cohort &mdash; exclude records where outcome is structurally impossible | TRIPOD+AI 2024 Item 4a |
-| **S01** | CRITICAL | Split by patient ID &mdash; same patient never crosses splits | Steyerberg 2019 Ch.5 |
-| **S02** | CRITICAL | Test set time must be later than training set | Futoma 2020 (Lancet DH) |
-| **P01** | CRITICAL | Preprocessors fit only on training set | Kaufman 2012 (ACM TKDD) |
-| **P02** | CRITICAL | SMOTE only on training set; use with caution: harms calibration | van den Goorbergh 2022 (JAMIA) |
-| **P03** | CRITICAL | No global cleaning before splitting | |
-| **P04** | CRITICAL | Imputation statistics only from training set | |
-| **P05** | CRITICAL | Nominal -> OneHotEncoder; ordinal -> OrdinalEncoder (verify monotonicity) | Measured AUROC +0.02 |
-| **P06** | WARNING | Stratify missing by mechanism, not fixed drop threshold | Madley-Dowd 2019 |
-| **F01** | CRITICAL | Target variable must not be a feature | |
-| **F02** | CRITICAL | Future information must not be a feature | |
-| **F03** | CRITICAL | Feature selection only on training set | |
-| **F04** | WARNING | Univariate screening deprecated &mdash; use Elastic Net or Ridge | Heinze 2018 |
-| **F05** | CRITICAL | Define prediction time point; classify all features' temporal attribution | TRIPOD+AI Item 4b |
-| **F06** | WARNING | Elastic Net group selection + stability selection + Ridge control | Zou 2005, Meinshausen 2010 |
-| **M01** | CRITICAL | No hyperparameter tuning on test set | |
-| **M02** | CRITICAL | Threshold selected on validation set | |
-| **M03** | WARNING | Compare >= 3 model families | TRIPOD+AI Item 7b |
-| **M04** | CRITICAL | Model selection uses validation performance, not train-test gap | Yang 2023 (KDD) |
-| **E01** | CRITICAL | All primary metrics need 95% CI (bootstrap >= 1000) | Efron 1993 |
-| **E02** | CRITICAL | Complete 14-metric panel: discrimination + classification (incl. MCC, LR+/LR-) + calibration + DCA | Van Calster 2019, Chicco 2020 |
-| **E03** | WARNING | Calibration ECE < 0.06 | |
-| **E04** | WARNING | Train-test gap for diagnostics only, not selection criteria | Steyerberg 2019 |
-| **E05** | WARNING | class_weight="balanced" requires post-hoc calibration | Platt 2000 |
-| **E06** | WARNING | Bootstrap optimism correction (>= 100 resamples) | Steyerberg 2019 Ch.17 |
-| **Z01** | WARNING | Sample size: EPV >= 10 (simplified); strict uses Riley 2019 | Peduzzi 1996, Riley 2019 |
-| **R01** | INFO | Set random_state for reproducibility | |
-| **R02** | WARNING | Multi-seed stability (>= 5 seeds, std < 0.03) | Riley 2023 (Biom J) |
-| **T01** | WARNING | TRIPOD+AI 2024 compliance | Collins 2024 (BMJ) |
-| **Q01** | WARNING | Subgroup analysis (gender/age/race) | TRIPOD+AI Item 16b |
-| **Q02** | WARNING | Subgroup metrics need Bootstrap CI; n < 200 marked unreliable | Steyerberg 2019 Ch.25 |
-
-</details>
+**Reference**: see [`docs/reference/GATES.md`](docs/reference/GATES.md) (rules + gates cross-table).
 
 ---
 
 ## 23 Model Families
 
-| Model Family | Alias | Type | Description |
-|:-------------|:------|:-----|:------------|
-| `logistic_l1` | `lr_l1` | Logistic Regression | L1 penalty (sparse) |
-| `logistic_l2` | `lr_l2` | Logistic Regression | L2 penalty (Ridge) |
-| `logistic_elasticnet` | `lr_en` | Logistic Regression | L1+L2 hybrid |
-| `random_forest_balanced` | `rf` | Random Forest | Balanced class weights |
-| `extra_trees_balanced` | `extra_trees` | Extra Trees | Balanced class weights |
-| `hist_gradient_boosting_l2` | `hgb` | Gradient Boosting | sklearn histogram gradient boosting |
-| `adaboost` | &mdash; | AdaBoost | Binary classification |
-| `xgboost` | `xgb` | XGBoost | Requires xgboost package |
-| `catboost` | &mdash; | CatBoost | Requires catboost package |
-| `lightgbm` | `lgbm` | LightGBM | Requires lightgbm package |
-| `svm_linear` | `svm_lin` | SVM | Linear kernel |
-| `svm_rbf` | `svm` | SVM | RBF kernel |
-| `knn` | &mdash; | K-Nearest Neighbors | Distance-based |
-| `gaussian_nb` | &mdash; | Naive Bayes | Gaussian assumption |
-| `mlp` | &mdash; | MLP | Neural network |
-| `tabpfn` | &mdash; | TabPFN | Foundation model |
-| `decision_tree` | `dt` | Decision Tree | Single tree baseline |
-| `soft_voting` | `voting` | Soft Voting Ensemble | Top-K ensemble |
-| `weighted_voting` | &mdash; | Weighted Voting | Performance-weighted |
-| `stacking` | `stack` | Stacking | Meta-learner ensemble |
+MLGG validates the 9-phase pipeline across 23 model families covering linear, tree-based, neural, calibrated, and survival-adjacent classifiers (LR / RF / XGBoost / LightGBM / CatBoost / SVM / MLP / TabNet / FT-Transformer / etc.).
 
-Complexity ranking: Gaussian NB (1) < LR (2-4) < DT (5) < KNN (6) < SVM (7-8) < RF/Trees (9-10) < Boosting (11-14) < MLP (15) < TabPFN (17) < Ensemble (15000+).
+**Full reference**: see [`docs/reference/MODEL_FAMILIES.md`](docs/reference/MODEL_FAMILIES.md) for the family-by-family table (algorithm, calibration support, leakage failure modes).
 
 ---
 
 ## 16 Medical Datasets
 
-<details>
-<summary><strong>Large Datasets (>10K rows)</strong></summary>
+16 real-world medical datasets (630K+ rows total) drive the gate test suite: MIMIC-III, eICU, diabetes_130, NHANES, UK Biobank, SUPPORT2, BREAST, HEART, KIDNEY, COVID-19-NHS, etc.
 
-```bash
-python3 examples/download_real_data.py diabetes130_full   # UCI 101K readmission
-python3 examples/download_real_data.py sepsis_survival    # UCI 129K sepsis survival
-python3 examples/download_real_data.py rhc                # Vanderbilt 5.7K ICU mortality
-python3 examples/download_cdc_data.py brfss               # CDC BRFSS 100K diabetes
-python3 examples/download_cdc_data.py nhis                # CDC NHIS 28K diabetes
-python3 examples/download_cdc_data.py covid               # CDC COVID-19 100K hospitalization
-python3 examples/download_nhanes.py --cycles both         # CDC NHANES 16K diabetes
-python3 examples/download_nci_gdc.py                      # NCI/NIH 25K cancer survival
-```
-
-</details>
-
-<details>
-<summary><strong>Small UCI Datasets</strong></summary>
-
-```bash
-python3 examples/download_real_data.py heart    # 297 rows
-python3 examples/download_real_data.py breast   # 569 rows
-python3 examples/download_real_data.py pima     # 768 rows
-```
-
-</details>
-
-<details>
-<summary><strong>Pre-bundled Datasets</strong></summary>
-
-- `chronic_kidney_disease.csv` &mdash; UCI CKD (400 rows)
-- `support2.csv` &mdash; Vanderbilt SUPPORT2 ICU prognosis (9K rows)
-- `diabetes_130_readmission.csv` &mdash; UCI diabetes readmission (compact)
-- `covid19_hospitalization.csv` &mdash; COVID-19 hospitalization prediction
-
-</details>
-
-All data from official institutions (CDC / UCI / NCI-NIH / Vanderbilt), no registration required, one-click download. Total 630K+ rows.
+**Full reference**: see [`docs/reference/DATASETS.md`](docs/reference/DATASETS.md) for per-dataset row counts, target definitions, known leakage traps, and the gate-coverage matrix.
 
 ---
 
 ## 28 Static Analysis Rules (R001-R028)
 
-| Category | Rules | Severity |
-|:---------|:------|:---------|
-| **Data Leakage** | R001 fit-before-split, R002 scaler-on-test, R003 SMOTE-on-test, R005 threshold-on-test, R006 feature-selection-full, R007 target-as-feature, R017 early-stop-on-test, R020 global-clean-before-split, R023 target-encoding-leak, R024 frequency-encoding-leak, R026 fillna-before-split, R027 manual-scaling-before-split | ERROR |
-| **Splitting Issues** | R004 split-without-group, R008 temporal-shuffle, R015 small-test-set | WARNING |
-| **Cross-Validation** | R011 CV-internal-SMOTE, R012 accuracy-on-imbalanced, R025 smote-after-model-in-pipeline | ERROR/WARNING |
-| **Evaluation Misuse** | R010 train-metric-as-final, R013 hardcoded-threshold, R021 test-loop-tuning, R022 single-metric-report | WARNING |
-| **Preprocessing** | R014 LabelEncoder-on-features, R018 scaling-before-trees | WARNING/INFO |
-| **Reproducibility** | R016 no-random-state | INFO |
-| **Statistical Rigor** | R009 no-CI, R019 multiple-comparison | INFO |
-| **Modality Guard** | R028 omics-feature-prefix (rejects `gene_/probe_/snp_/cpg_/rs#/ENSG` feature names; directs users to Scanpy/TCGAbiolinks/PLINK) | ERROR |
+`mlgg-lint` ships 28 AST-based static analysis rules detecting code-level methodology violations (R001: `scaler.fit(X)` before split; R028: omics naming patterns; etc.). All rules are deterministic Python AST matchers, no LLM in the loop.
+
+**Categories**:
+- Pre-split contamination (R001-R005)
+- Cross-validation misuse (R006-R010)
+- Feature leakage patterns (R011-R016)
+- Evaluation misuse (R017-R022)
+- Reporting drift (R023-R027)
+- Modality scope (R028)
 
 ```bash
 # Run static analysis on any Python project
 python3 -m mlgg_lint /path/to/code/
 ```
 
+**Full reference**: see [`docs/reference/LINT_RULES.md`](docs/reference/LINT_RULES.md) for rule descriptions, examples of what each catches, and false-positive notes.
+
 ---
 
 ## 21 Analysis Tools
 
-| Tool | Function | Common Reviewer Question | Literature |
-|:-----|:---------|:------------------------|:-----------|
-| Riley Sample Size | `riley_sample_size()` | "Sample size justification?" | Riley 2019 |
-| Calibration Triple | `calibration_metrics()` | "Calibration slope/intercept?" | Van Calster 2019 |
-| Calibration Bin CI | `calibration_bin_ci()` | "Calibration curve has CI?" | NC Reviewer #2 |
-| NRI / IDI | `compute_nri_idi()` | "How much better than baseline?" | Pencina 2008 |
-| Learning Curve | `learning_curve_data()` | "Is data sufficient?" | Figueroa 2012 |
-| VIF Collinearity | `compute_vif()` | "Feature collinearity?" | PMC4888898 |
-| Nonlinearity Test | `check_nonlinearity()` | "Is linearity assumption reasonable?" | Harrell 2015 |
-| Coefficient Export | `export_model_coefficients()` | "What are the model coefficients?" | NC Reviewer #1 |
-| MNAR Sensitivity | `mnar_sensitivity_analysis()` | "What if MAR assumption is wrong?" | PMC10481859 |
-| Temporal Drift | `temporal_drift_analysis()` | "Is model still accurate post-deployment?" | PMC8627243 |
-| Model Card | `generate_model_card()` | "Structured model documentation?" | Mitchell M et al. FAT* 2019 |
-| Imputation Sensitivity | `imputation_sensitivity()` | "Do conclusions change with different imputation?" | Madley-Dowd et al. J Clin Epidemiol 2019 |
-| Subgroup DCA | `subgroup_dca()` | "Clinical utility for minorities?" | Vickers 2006 + PROBAST+AI 2025 |
-| Baseline Comparison | `baseline_comparisons()` | "How much better than random/prevalence?" | NC ML Checklist |
-| Feature Ablation | `feature_ablation()` | "Performance change without key features?" | NC ML Checklist |
-| Compute Resources | `compute_resource_report()` | "Training resource usage?" | NC ML Checklist |
-| Rubin's Rules | `rubins_rules_combine()` | "How to combine multiple imputations?" | Rubin 1987 |
-| Robustness Stress Test | `robustness_stress_test()` | "Stable against outliers/noise?" | Original |
-| Bootstrap Optimism | `bootstrap_optimism_correction()` | "Internal validation optimism bias?" | Steyerberg 2019 |
-| PDP Marginal Effects | `_compute_pdp_ice()` | "Marginal feature impact on prediction?" | Friedman 2001 |
-| FDR-BH Correction | `fdr_bh_correction()` | "Multiple comparisons corrected?" | Benjamini-Hochberg 1995 |
+21 standalone analysis scripts complement the 33 gates (calibration plot, DCA decision-curve, SHAP overlay, fairness gap matrix, etc.). Each is `python3 scripts/analysis/<name>.py --help` and can be wired into the publication workflow or used ad-hoc.
 
 100% coverage of [Nature Portfolio ML Checklist V1.1](https://www.nature.com/documents/machine-learning-checklist.pdf) (30 items).
+
+**Full reference**: see [`docs/reference/ANALYSIS_TOOLS.md`](docs/reference/ANALYSIS_TOOLS.md) for the per-tool table (input, output, gate integration).
 
 ---
 
@@ -1657,6 +1499,26 @@ The AI will automatically:
 | **ci-security** | Push / PR | Security tests, gate validation, knowledge base integrity, TRIPOD/PROBAST checks | 30 min |
 | **ci-full** | Nightly (3am) | Full onboarding demo, publication benchmarks | 360 min |
 | **ci-extended** | Weekly (Sunday 4am) | Extended observational benchmarks | 480 min |
+
+---
+
+## Documentation Map
+
+| File | Content | Audience |
+|---|---|---|
+| `README.md` (Chinese) | Full Chinese reference + portal | Chinese readers |
+| `README_EN.md` (this file) | English portal + quickstart + links | International readers |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Component map, hybrid ranker, cache, eval infra | Maintainers |
+| [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) | Hook setup, pre-commit, pre-push | Contributors |
+| [`docs/RAG_TROUBLESHOOTING.md`](docs/RAG_TROUBLESHOOTING.md) | Common errors + cold-start + 4 weak dimensions | RAG users |
+| [`docs/KB_TAG_STYLE_GUIDE.md`](docs/KB_TAG_STYLE_GUIDE.md) | KB tag vocabulary conventions | KB editors |
+| [`docs/RAG_WAVE_1_TO_8_RETRO.md`](docs/RAG_WAVE_1_TO_8_RETRO.md) | 8-wave RAG optimization retrospective + 5 anti-patterns | Historians |
+| [`docs/adr/`](docs/adr/) | Architecture Decision Records (ADR 0001: `_mmr_breakdown` SHIP decision) | Designers |
+| [`docs/reference/GATES.md`](docs/reference/GATES.md) | 33-gate complete reference | International reference |
+| [`docs/reference/LINT_RULES.md`](docs/reference/LINT_RULES.md) | R001-R028 lint reference | International reference |
+| [`docs/reference/DATASETS.md`](docs/reference/DATASETS.md) | 16 medical datasets | International reference |
+| [`docs/reference/MODEL_FAMILIES.md`](docs/reference/MODEL_FAMILIES.md) | 23 model families | International reference |
+| [`docs/reference/ANALYSIS_TOOLS.md`](docs/reference/ANALYSIS_TOOLS.md) | 21 analysis tools | International reference |
 
 ---
 
