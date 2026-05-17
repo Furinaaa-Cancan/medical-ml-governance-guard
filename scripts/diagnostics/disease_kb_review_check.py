@@ -30,8 +30,32 @@ import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__f
 
 import argparse
 import json
+from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
+
+
+# W20-F2 (W17-C2 SPOOF-C): the gate previously accepted ANY non-empty
+# string for `last_reviewed`, so `"2099-01-01"` (future) or `"tomorrow"`
+# (gibberish) passed the publication gate. We now parse ISO-8601 and
+# enforce a sane range: ≥1990 (allow pre-MLGG-era backfill of historical
+# reviews) and ≤ today (no future-dated sign-offs).
+LAST_REVIEWED_MIN = date(1990, 1, 1)
+
+
+def _parse_last_reviewed(value: str) -> Tuple[bool, str]:
+    """Return (is_valid, reason). Empty/malformed/out-of-range → invalid."""
+    if not value:
+        return False, "empty"
+    try:
+        parsed = date.fromisoformat(value)
+    except ValueError:
+        return False, f"unparseable ISO-8601 date: {value!r}"
+    if parsed < LAST_REVIEWED_MIN:
+        return False, f"last_reviewed {value!r} predates 1990-01-01"
+    if parsed > date.today():
+        return False, f"last_reviewed {value!r} is in the future"
+    return True, ""
 
 from _gate_framework import (
     GateIssue,
@@ -157,8 +181,12 @@ def classify_disease(
     # field is metadata about how the entry was authored; only the
     # clinician_review_status + reviewer + last_reviewed fields together
     # constitute an actual sign-off audit trail.
+    # W20-F2: last_reviewed must additionally parse as ISO-8601 and fall in
+    # [1990-01-01, today]. Future dates ("2099-01-01") and gibberish
+    # ("tomorrow") no longer bypass the gate.
     status_approved = status in APPROVED_STATUSES
-    if status_approved and reviewer and last_reviewed:
+    date_valid, date_reason = _parse_last_reviewed(last_reviewed)
+    if status_approved and reviewer and date_valid:
         return "approved", {
             "disease": key,
             "name": entry.get("name", key),
@@ -179,8 +207,10 @@ def classify_disease(
             missing_fields.append("clinician_review_status")
         if not reviewer:
             missing_fields.append("reviewer")
-        if not last_reviewed:
-            missing_fields.append("last_reviewed")
+        if not date_valid:
+            # W20-F2: distinguish "empty" vs "invalid format/range" so audit
+            # consumers see exactly why an approved-looking entry was rejected.
+            missing_fields.append(f"last_reviewed ({date_reason})")
         return "missing", {
             "disease": key,
             "name": entry.get("name", key),
@@ -191,7 +221,8 @@ def classify_disease(
             "reason": (
                 "incomplete provenance — approval requires "
                 "clinician_review_status in APPROVED_STATUSES plus non-empty "
-                "reviewer and last_reviewed; missing: "
+                "reviewer and last_reviewed (ISO-8601, "
+                "1990-01-01..today); missing: "
                 + ", ".join(missing_fields)
             ),
         }
