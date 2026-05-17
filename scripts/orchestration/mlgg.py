@@ -802,5 +802,69 @@ def cli_main() -> None:
     raise SystemExit(main())
 
 
+# ─────────────────────────────────────────────────────────────────────────
+# W28-S1: ``mlgg-review`` thin shim
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Same dispatch as ``mlgg``, but only the commands in COMMAND_GROUPS["review"]
+# are allowed. This gives users who only audit external code/paper a
+# focused entry point that doesn't surface 21 governance commands they
+# can't run without an instrumented training pipeline. ``mlgg`` keeps all
+# 28 commands → full back-compat for existing scripts and CI.
+
+_REVIEW_ALLOWED: frozenset[str] = frozenset(COMMAND_GROUPS["review"])
+
+
+def review_cli_main() -> None:
+    """Entry point for the ``mlgg-review`` console script.
+
+    Behaviour:
+    - ``mlgg-review <cmd> ...`` with cmd in COMMAND_GROUPS["review"] →
+      identical to ``mlgg <cmd> ...``.
+    - ``mlgg-review --help`` / no args → list ONLY the 7 review commands
+      with their descriptions; point at ``mlgg`` for governance work.
+    - ``mlgg-review <unknown-or-governance-cmd>`` → emit a clear error
+      naming the allowed subset and exit 2 (argparse-style usage error).
+
+    The shim never re-implements dispatch; it gates argv and delegates
+    to :func:`main` so every flag, env-var, subcommand semantic, and
+    error-mode stays identical between the two entry points.
+    """
+    argv = sys.argv[1:]
+
+    if not argv or argv[0] in {"-h", "--help"}:
+        lines = [
+            "mlgg-review — focused entry point for the MLGG review product line",
+            "  (Mode B/C: audits SOMEONE ELSE's code/paper; no evidence/*.json required).",
+            "",
+            "Allowed subcommands (the same scripts as `mlgg <cmd>`):",
+        ]
+        for name in COMMAND_GROUPS["review"]:
+            desc = COMMANDS.get(name, (None, ""))[1]
+            lines.append(f"  - {name}: {desc}")
+        lines.extend([
+            "",
+            "For governance / training-pipeline commands (workflow / strict / train / etc.),",
+            "use the full `mlgg` entry point. See `mlgg --help` or docs/PRODUCTS.md.",
+        ])
+        print("\n".join(lines))
+        raise SystemExit(0)
+
+    cmd = argv[0]
+    if cmd not in _REVIEW_ALLOWED:
+        allowed = ", ".join(sorted(_REVIEW_ALLOWED))
+        msg = (
+            f"mlgg-review: subcommand {cmd!r} is not part of the review product line.\n"
+            f"  Allowed: {allowed}\n"
+            f"  For governance commands (e.g. workflow / strict / train), use `mlgg {cmd} ...` instead.\n"
+            f"  See docs/PRODUCTS.md for the two-product-line split."
+        )
+        print(msg, file=sys.stderr)
+        raise SystemExit(2)
+
+    # Delegate: leave sys.argv untouched (main() reads it via build_parser()).
+    raise SystemExit(main())
+
+
 if __name__ == "__main__":
     raise SystemExit(main())

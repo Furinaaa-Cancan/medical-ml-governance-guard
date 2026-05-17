@@ -40,11 +40,13 @@ Logical-only grouping; no CLI contract change, no file moves:
 
 Every existing `mlgg <subcommand>` invocation continues to work byte-identically. Imports, dispatch, scripts — all unchanged.
 
-## What W28-S1 might change (not in this commit, needs user sign-off)
+## W28-S1 (landed — user-approved 2026-05-17)
 
-- New console-script `mlgg-review` in `pyproject.toml` as a thin shim that whitelists the 7 review commands. `mlgg` keeps all 28 (back-compat).
-- Rationale: lets review-line users `pip install ml-governance-guard` and only see the 7 commands relevant to them; lets governance-line CI invoke just the gates without seeing review noise.
-- Blocked by: CLAUDE.md NEVER list says "不修改 .gitignore / pyproject.toml / LICENSE 除非用户明确要求". Needs explicit OK.
+- New console-script `mlgg-review` in `pyproject.toml` as a thin shim that whitelists the 7 review commands. `mlgg` still ships all 28 (full back-compat).
+- Implemented as `scripts.orchestration.mlgg.review_cli_main()` — argv-gating only, delegates to the same `main()` that `mlgg` calls. No dispatch duplication.
+- `mlgg-review <governance-cmd>` exits 2 with a clear pointer back to `mlgg`. `mlgg-review --help` lists only review commands.
+- Tests: `tests/test_mlgg_review_shim.py` covers every allow-listed review command (parametrized) and the rejection / help / no-arg paths (15 cases).
+- User-visible: after `pip install -e .`, `mlgg-review audit X` works byte-identical to `mlgg audit X`. Governance commands give a focused error rather than a wall of irrelevant options.
 
 ## What W28-S2 might change (later, larger scope)
 

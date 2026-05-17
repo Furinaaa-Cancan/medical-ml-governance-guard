@@ -49,6 +49,11 @@ dev = ["pytest>=7.0", "pytest-cov", "pytest-timeout>=2.1.0", "hypothesis>=6.100"
 [project.scripts]
 mlgg = "scripts.orchestration.mlgg:cli_main"
 mlgg-pixel = "scripts.orchestration.mlgg_pixel:main"
+# W28-S1: focused entry point for the review product line (Mode B/C).
+# Whitelists COMMAND_GROUPS["review"]; rejects governance commands with
+# a clear pointer back to `mlgg`. Full back-compat: `mlgg-review audit X`
+# is byte-identical to `mlgg audit X`.
+mlgg-review = "scripts.orchestration.mlgg:review_cli_main"
 
 [project.urls]
 Repository = "https://github.com/Furinaaa-Cancan/medical-ml-governance-guard"
