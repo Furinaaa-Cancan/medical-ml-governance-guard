@@ -114,9 +114,21 @@ def classify_disease(
     """Return (status_bucket, details) for one disease entry.
 
     Buckets:
-        "approved" — provenance.source OR .clinician_review_status in APPROVED_STATUSES
-        "pending"  — explicitly pending
-        "missing"  — no provenance block at all
+        "approved" — ALL three reviewer-binding fields present:
+                       (a) clinician_review_status in APPROVED_STATUSES,
+                       (b) non-empty 'reviewer',
+                       (c) non-empty 'last_reviewed'.
+                     The 'source' field alone is NEVER sufficient (W11-F2:
+                     closed a 1-line JSON spoofing hole where setting
+                     "source": "approved" bypassed the entire fail-closed
+                     publication_gate without binding to any reviewer).
+        "pending"  — clinician_review_status is explicitly a pending value.
+        "missing"  — no provenance block at all, OR provenance present but
+                     missing one or more reviewer-binding fields required
+                     for approval (e.g., source-only approval, status
+                     approved but reviewer/last_reviewed empty). Surfaced
+                     under the same warning code as no-provenance so audit
+                     consumers see a single "incomplete provenance" signal.
     """
     prov = entry.get("provenance")
     if not isinstance(prov, dict):
@@ -128,6 +140,8 @@ def classify_disease(
 
     source = str(prov.get("source", "")).strip().lower()
     status = str(prov.get("clinician_review_status", "")).strip().lower()
+    reviewer = str(prov.get("reviewer") or "").strip()
+    last_reviewed = str(prov.get("last_reviewed") or "").strip()
 
     # A pending status is a hard override: if a reviewer explicitly marked
     # the entry as not-yet-approved, no 'source' value can overrule it.
@@ -139,7 +153,12 @@ def classify_disease(
             "clinician_review_status": status,
         }
 
-    if source in APPROVED_STATUSES or status in APPROVED_STATUSES:
+    # W11-F2: approval requires the reviewer-binding triple. The 'source'
+    # field is metadata about how the entry was authored; only the
+    # clinician_review_status + reviewer + last_reviewed fields together
+    # constitute an actual sign-off audit trail.
+    status_approved = status in APPROVED_STATUSES
+    if status_approved and reviewer and last_reviewed:
         return "approved", {
             "disease": key,
             "name": entry.get("name", key),
@@ -148,6 +167,33 @@ def classify_disease(
             "reviewer": prov.get("reviewer"),
             "last_reviewed": prov.get("last_reviewed"),
             "reviewed_against": prov.get("reviewed_against"),
+        }
+
+    # Provenance present but incomplete — surface as "missing" so the
+    # existing warning path (clinician_review_provenance_missing) flags it.
+    # Specifically catches: source-only approval (W11-F2 spoofing hole),
+    # and approved status without reviewer or date binding.
+    if status_approved or source in APPROVED_STATUSES:
+        missing_fields = []
+        if not status_approved:
+            missing_fields.append("clinician_review_status")
+        if not reviewer:
+            missing_fields.append("reviewer")
+        if not last_reviewed:
+            missing_fields.append("last_reviewed")
+        return "missing", {
+            "disease": key,
+            "name": entry.get("name", key),
+            "source": source or None,
+            "clinician_review_status": status or None,
+            "reviewer": prov.get("reviewer"),
+            "last_reviewed": prov.get("last_reviewed"),
+            "reason": (
+                "incomplete provenance — approval requires "
+                "clinician_review_status in APPROVED_STATUSES plus non-empty "
+                "reviewer and last_reviewed; missing: "
+                + ", ".join(missing_fields)
+            ),
         }
 
     return "pending", {

@@ -447,3 +447,111 @@ class TestEnforceHelperDirect:
         assert failures == []
         assert warnings == []
         assert summary["approved_diseases"] == ["d1"]
+
+
+# ── W11-F2: close source-only spoofing hole ─────────────────────────────
+
+class TestW11F2NoSourceOnlyBypass:
+    """W11-F2 regression tests.
+
+    Before W11-F2 ``classify_disease`` returned ``approved`` if EITHER
+    ``source`` OR ``clinician_review_status`` was in ``APPROVED_STATUSES``.
+    That meant a one-line JSON edit (``"source": "approved"``) bypassed the
+    entire ``publication_gate`` fail-closed check from W9-B1 (041c663),
+    with no binding to a reviewer or review date.
+
+    The new contract: an entry counts as ``approved`` only when ALL of
+    (a) clinician_review_status in APPROVED_STATUSES, (b) reviewer
+    non-empty, (c) last_reviewed non-empty. Anything else lands outside
+    the approved bucket.
+    """
+
+    @pytest.fixture
+    def classify(self):
+        import sys as _sys
+        _sys.path.insert(0, str(REPO_ROOT / "scripts" / "core"))
+        _sys.path.insert(0, str(REPO_ROOT / "scripts" / "diagnostics"))
+        from disease_kb_review_check import classify_disease
+        return classify_disease
+
+    def test_source_only_approval_no_longer_bypasses(self, classify, tmp_path):
+        """The W11-F2 spoofing hole: ``"source": "approved"`` alone must
+        NOT mark an entry as approved.
+
+        Covers both ends of the contract: (1) the direct unit on
+        ``classify_disease`` must NOT return the approved bucket; (2) the
+        full publication_gate must still fail-closed because the entry is
+        not in the approved set.
+        """
+        entry = {
+            "name": "Spoofed Approval",
+            "provenance": {
+                # The 1-line spoofing payload from the W10-R2 finding.
+                "source": "approved",
+                # Status, reviewer, last_reviewed all absent / empty.
+            },
+        }
+        bucket, details = classify("spoofed", entry)
+        assert bucket != "approved", (
+            "W11-F2 regression: source-only approval bypassed fail-closed gate. "
+            f"Got bucket={bucket!r}, details={details!r}."
+        )
+
+        # End-to-end: a KB with only a source-spoofed entry must NOT pass
+        # the publication gate. The entry should sit in either the
+        # missing-provenance or pending bucket, both of which fail-closed.
+        paths = _seed_components(tmp_path)
+        kb = _write_kb(tmp_path / "kb.json", {"spoofed": entry})
+        proc, report_path = _run(tmp_path, paths, kb_path=kb)
+        assert proc.returncode == 2, (
+            "Publication gate must fail-closed on source-only spoofed entry. "
+            f"rc={proc.returncode}\nstdout: {proc.stdout}\nstderr: {proc.stderr}"
+        )
+        report = json.loads(report_path.read_text())
+        kb_summary = report["summary"]["disease_kb_review"]
+        assert "spoofed" not in kb_summary["approved_diseases"]
+
+    @pytest.mark.parametrize(
+        "drop_field",
+        ["clinician_review_status", "reviewer", "last_reviewed"],
+    )
+    def test_full_provenance_required(self, classify, drop_field):
+        """All three reviewer-binding fields are required for approval.
+
+        Baseline: a fully-provenanced entry IS approved. Dropping ANY one
+        of {clinician_review_status, reviewer, last_reviewed} must move
+        the entry out of the approved bucket.
+        """
+        full_prov = {
+            "source": "clinician_reviewed",
+            "clinician_review_status": "clinician_reviewed",
+            "reviewer": "Dr. Test",
+            "last_reviewed": "2026-05-17",
+            "reviewed_against": "ADA 2025",
+        }
+        # Baseline: fully-provenanced entry IS approved.
+        baseline_bucket, _ = classify(
+            "d_full", {"name": "Full", "provenance": dict(full_prov)},
+        )
+        assert baseline_bucket == "approved", (
+            "Sanity: full provenance must remain the approved baseline."
+        )
+
+        # Drop one field — must lose the approved bucket.
+        broken_prov = dict(full_prov)
+        if drop_field == "clinician_review_status":
+            # Set status to a non-pending, non-approved value so the
+            # PENDING_STATUSES short-circuit doesn't mask the test.
+            broken_prov["clinician_review_status"] = ""
+        elif drop_field == "reviewer":
+            broken_prov["reviewer"] = ""
+        elif drop_field == "last_reviewed":
+            broken_prov["last_reviewed"] = ""
+
+        bucket, details = classify(
+            "d_broken", {"name": "Broken", "provenance": broken_prov},
+        )
+        assert bucket != "approved", (
+            f"Dropping {drop_field!r} must remove entry from approved bucket. "
+            f"Got bucket={bucket!r}, details={details!r}."
+        )
