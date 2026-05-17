@@ -8,14 +8,22 @@ Warnings (WARN-only; doesn't fail CI on existing legacy):
 Exit codes:
   0 - clean OR only existing-legacy warnings (with --baseline-mode)
   1 - new violations (only in strict mode without baseline)
+  2 - argparse error (e.g. --baseline-mode path missing)
 
 Usage:
-  lint_kb_tags.py                    # report all violations (WARN-only)
-  lint_kb_tags.py --strict           # exit 1 on any violation
-  lint_kb_tags.py --baseline-mode    # compare against committed baseline,
-                                       only NEW violations fail
+  lint_kb_tags.py                          # report all violations (WARN-only)
+  lint_kb_tags.py --strict                 # exit 1 on any violation
+  lint_kb_tags.py --baseline-mode PATH     # compare against baseline JSON at PATH;
+                                             only NEW violations fail. Errors (exit 2)
+                                             if PATH does not exist.
+  lint_kb_tags.py --write-baseline PATH    # write current violation set to PATH
+                                             (JSON: {"singletons": [...], "narrowings": [...]})
 
 Companion to docs/KB_TAG_STYLE_GUIDE.md (W6 / commit ac33a19).
+
+W11-F4: --baseline-mode now takes an explicit PATH and errors when missing
+(previously silently fell through to WARN, masking CI misconfiguration).
+A new --write-baseline PATH flag generates the initial baseline file.
 """
 import argparse
 import json
@@ -26,7 +34,6 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 KB = REPO / "references/case-studies/peer-review-kb.json"
-BASELINE_FILE = REPO / "references/case-studies/_tag_lint_baseline.json"
 
 NARROWING_PATTERNS = [
     r"_for_", r"_in_", r"_when_", r"_during_", r"_across_", r"_with_",
@@ -58,12 +65,29 @@ def main():
     parser = argparse.ArgumentParser(prog="lint_kb_tags.py", description=__doc__.split("\n\n")[0])
     parser.add_argument("--strict", action="store_true",
                         help="Exit 1 on ANY violation (default: warn only)")
-    parser.add_argument("--baseline-mode", action="store_true",
-                        help="Exit 1 ONLY on violations NOT in committed baseline")
+    parser.add_argument("--baseline-mode", metavar="PATH", default=None,
+                        help="Exit 1 ONLY on violations NOT in baseline JSON at PATH. "
+                             "Errors (exit 2) if PATH does not exist.")
+    parser.add_argument("--write-baseline", metavar="PATH", default=None,
+                        help="Write current violation set as baseline JSON to PATH and exit 0.")
     args = parser.parse_args()
 
     data = load_kb()
     violations = find_violations(data)
+
+    # --write-baseline: short-circuit before reporting.
+    if args.write_baseline:
+        out_path = Path(args.write_baseline)
+        payload = {
+            "singletons": violations["singletons"],
+            "narrowings": violations["narrowings"],
+        }
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+        print(f"Wrote baseline to {out_path}")
+        print(f"  singletons: {len(payload['singletons'])}")
+        print(f"  narrowings: {len(payload['narrowings'])}")
+        return 0
 
     print("## KB tag lint (W9-D2)")
     print(f"Total unique tags: {violations['total_tags']}")
@@ -74,12 +98,26 @@ def main():
     for t in violations["narrowings"][:5]:
         print(f"  - {t}")
 
-    if args.baseline_mode and BASELINE_FILE.exists():
-        baseline = json.loads(BASELINE_FILE.read_text())
+    if args.baseline_mode is not None:
+        baseline_path = Path(args.baseline_mode)
+        if not baseline_path.exists():
+            parser.error(
+                f"baseline file {baseline_path} does not exist; "
+                f"create with --write-baseline {baseline_path}"
+            )
+        baseline = json.loads(baseline_path.read_text())
         new_singletons = set(violations["singletons"]) - set(baseline.get("singletons", []))
         new_narrowings = set(violations["narrowings"]) - set(baseline.get("narrowings", []))
         if new_singletons or new_narrowings:
             print(f"\nFAIL NEW violations: {len(new_singletons)} singletons, {len(new_narrowings)} narrowings")
+            if new_singletons:
+                print("  new singletons:")
+                for t in sorted(new_singletons):
+                    print(f"    - {t}")
+            if new_narrowings:
+                print("  new narrowings:")
+                for t in sorted(new_narrowings):
+                    print(f"    - {t}")
             return 1
         print("\nOK No new violations vs baseline")
         return 0
@@ -89,7 +127,7 @@ def main():
         return 1
 
     print(f"\nWARN-only mode (no --strict): {len(violations['singletons'])} + {len(violations['narrowings'])} violations")
-    print("    Use --strict on new tags OR --baseline-mode to enforce.")
+    print("    Use --strict on new tags OR --baseline-mode PATH to enforce.")
     return 0
 
 
