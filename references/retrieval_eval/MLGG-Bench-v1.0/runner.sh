@@ -22,6 +22,20 @@ SPLITS="${SPLITS:-dev}"  # default dev only; export SPLITS="dev test" to touch h
 MODES="${MODES:-bm25_only hybrid}"
 TOP_K="${TOP_K:-5}"
 
+# INDEPENDENT_REVIEW.md A4: guard held-out test split from accidental touches.
+# Set ALLOW_TEST=1 to explicitly acknowledge you are reading from the held-out
+# set (release/audit time only — NOT for routine eval or CI).
+for _s in ${SPLITS}; do
+  if [ "${_s}" = "test" ] && [ "${ALLOW_TEST:-0}" != "1" ]; then
+    echo "REFUSED: SPLITS includes 'test' but ALLOW_TEST is not set to 1." >&2
+    echo "  Reading the held-out test split should be a deliberate, audited" >&2
+    echo "  action (release / paper-time only). Re-run with:" >&2
+    echo "    ALLOW_TEST=1 SPLITS=\"${SPLITS}\" $0" >&2
+    exit 2
+  fi
+done
+unset _s
+
 TS="$(date -u +%Y%m%dT%H%M%SZ)"
 RUN_DIR="${OUT_DIR}/run_${TS}"
 AGG="${OUT_DIR}/run_results_${TS}.json"
@@ -47,6 +61,32 @@ fi
 KB_SHA="missing"
 if [ -f "${KB_PATH}" ]; then
   KB_SHA="$(shasum -a 256 "${KB_PATH}" | awk '{print $1}')"
+fi
+
+# INDEPENDENT_REVIEW.md A3: verify KB hash against the bench artifact's claim.
+# Each MLGG-Bench-v1.0.x/all_scenarios.json embeds the kb_sha256_first16 it
+# was built against. If the live KB has drifted, every metric below is suspect.
+# We check the first split file's bench (they all share the same KB at build).
+EXPECTED_KB_SHA16=""
+for _bench in \
+  "${REPO}/references/retrieval_eval/MLGG-Bench-v1.0.2/all_scenarios.json" \
+  "${REPO}/references/retrieval_eval/MLGG-Bench-v1.0.1/all_scenarios.json" \
+  "${REPO}/references/retrieval_eval/MLGG-Bench-v1.0/all_scenarios.json"; do
+  if [ -f "${_bench}" ]; then
+    EXPECTED_KB_SHA16="$(python3 -c "import json; print(json.load(open('${_bench}')).get('kb_sha256_first16',''))" 2>/dev/null)"
+    if [ -n "${EXPECTED_KB_SHA16}" ]; then break; fi
+  fi
+done
+unset _bench
+LIVE_KB_SHA16="${KB_SHA:0:16}"
+if [ -n "${EXPECTED_KB_SHA16}" ] && [ "${LIVE_KB_SHA16}" != "${EXPECTED_KB_SHA16}" ]; then
+  echo "WARN: live KB SHA256 (${LIVE_KB_SHA16}…) does not match the bench" >&2
+  echo "  artifact's expected KB SHA256 (${EXPECTED_KB_SHA16}…)." >&2
+  echo "  Metrics below are measured against a different KB than the bench" >&2
+  echo "  was constructed for. Set IGNORE_KB_DRIFT=1 to proceed anyway." >&2
+  if [ "${IGNORE_KB_DRIFT:-0}" != "1" ]; then
+    exit 3
+  fi
 fi
 
 EMBED_MODEL="$(

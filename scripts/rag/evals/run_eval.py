@@ -145,15 +145,20 @@ def _bootstrap_ci(
     values: list[float], n_bootstrap: int = 1000, alpha: float = 0.05,
     seed: int = 20260517,
 ) -> tuple[float | None, float | None]:
-    """Percentile-bootstrap 95% CI on a list of binary/proportion values.
+    """Percentile-bootstrap (1-alpha) CI on a list of binary/proportion values.
 
-    Added 2026-05-17 in response to the MLGG-Bench v1.0.2 REVIEW.md M2
-    finding (per-slice n=10 gives ±25-31pp CI on point estimates; reporting
-    point estimates without intervals is misleading for NC-grade claims).
+    Added 2026-05-17 in response to MLGG-Bench v1.0.2 REVIEW.md M2 (per-slice
+    n=10 needs CIs). Off-by-one fixed 2026-05-17 per INDEPENDENT_REVIEW.md
+    finding B3 (R1+R8): the previous `int(alpha/2 * B)` truncation reported
+    ~2.6/97.6 percentiles, not 2.5/97.5. Now uses `(B-1) * alpha/2` indexing
+    + bounds-clamp (matches numpy.percentile with method='lower' on sorted
+    samples) so e.g. B=1000, alpha=0.05 → lo_idx=12, hi_idx=987 → 2.5%/97.5%
+    Hyndman-Fan rank position 7. Also clamps alpha so alpha=0 won't IndexError.
 
-    Deterministic via fixed seed so repeated calls are reproducible. Returns
-    (lower_2.5, upper_97.5) percentiles of the resampled means, rounded to
-    3 decimals. Returns (None, None) if values is empty.
+    Deterministic via fixed seed. Returns (lower, upper) rounded to 3 decimals,
+    or (None, None) if values is empty. NOTE: this is scenario-bootstrap, NOT
+    label-bootstrap — CIs assume gold labels are fixed; per REVIEW.md M4 and
+    INDEPENDENT_REVIEW.md cardinal finding, label uncertainty likely dominates.
     """
     if not values:
         return (None, None)
@@ -167,8 +172,11 @@ def _bootstrap_ci(
             sample_sum += values[rng.randint(0, n - 1)]
         means.append(sample_sum / n)
     means.sort()
-    lo_idx = int(alpha / 2 * n_bootstrap)
-    hi_idx = int((1 - alpha / 2) * n_bootstrap)
+    # Use (B-1) * alpha/2 indexing with bounds clamp; matches numpy method='lower'.
+    # Clamp alpha to (0, 1) defensively so alpha=0 / alpha=1 do not IndexError.
+    alpha_clamped = max(min(alpha, 0.999), 0.001)
+    lo_idx = max(0, int((n_bootstrap - 1) * (alpha_clamped / 2)))
+    hi_idx = min(n_bootstrap - 1, int((n_bootstrap - 1) * (1 - alpha_clamped / 2)))
     return (round(means[lo_idx], 3), round(means[hi_idx], 3))
 
 
