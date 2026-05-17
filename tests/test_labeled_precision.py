@@ -56,12 +56,15 @@ def test_labeled_precision_set_loads(labeled_data: dict) -> None:
     assert "labeled_queries" in labeled_data
 
     queries = labeled_data["labeled_queries"]
-    # 20 entries by design (12 MLGG dimensions + extras + 2 off-scope);
-    # >=18 absorbs minor future deprecations without forcing test edits.
-    assert len(queries) >= 18, (
-        f"Expected >=18 labeled queries; found {len(queries)}. "
-        "If a query was retired, document it in the file's `description` "
-        "field and consider lowering this floor in a separate commit."
+    # Post-W9-A2: 36 entries (L01-L36). W8-W2 baseline was 20 entries; W9-A2
+    # added 16 in-scope queries (L21-L36) to triple coverage on the 8 highest-
+    # stakes sub-dimensions (those touching MLGG non-negotiable rules).
+    # >=34 floor absorbs minor future deprecations without forcing test edits.
+    assert len(queries) >= 34, (
+        f"Expected >=34 labeled queries (post-W9-A2 expansion); found "
+        f"{len(queries)}. If a query was retired, document it in the file's "
+        "`description` field and consider lowering this floor in a separate "
+        "commit."
     )
 
     for q in queries:
@@ -120,6 +123,49 @@ def test_aggregate_precision_at_5_metric_computes(labeled_data: dict) -> None:
         )
 
     assert 0.0 <= mean_p5 <= 1.0
+
+
+def test_high_stakes_dimensions_have_at_least_two_queries(
+    labeled_data: dict,
+) -> None:
+    """The 8 highest-stakes sub-dimensions must have >=2 queries each.
+
+    W9-A2 (2026-05-17) tripled coverage on the 8 sub-dimensions that touch
+    MLGG's non-negotiable rules (S01, F01, F02, P01, M01, E01, E02). For
+    publication-grade per-dimension P@5 claims, each of these requires
+    multiple labeled queries — a single-query dimension can only support
+    aggregate claims (W8-W2 caveat).
+
+    The other 10 sub-dimensions (evaluation_metric_choice, ...
+    covariate_shift_generalization) remain at 1 query each and continue to
+    support aggregate-only claims; that floor is not enforced here so it
+    can be lifted incrementally without test churn.
+    """
+    from collections import Counter
+
+    high_stakes_dims = {
+        "leakage_split_hygiene",
+        "leakage_definition_variable",
+        "leakage_temporal_future",
+        "preprocessing_split_leakage",
+        "split_temporal_validation",
+        "model_selection_tuning_leakage",
+        "evaluation_uncertainty_quantification",
+        "evaluation_calibration",
+    }
+    dim_counts: Counter[str] = Counter()
+    for q in labeled_data["labeled_queries"]:
+        dim_counts[q.get("dimension", "")] += 1
+
+    short_dims = [
+        d for d in high_stakes_dims if dim_counts.get(d, 0) < 2
+    ]
+    assert not short_dims, (
+        "High-stakes sub-dimensions with <2 labeled queries (post-W9-A2 "
+        f"floor): {short_dims}. Per-dim P@5 claims for these dims need "
+        "multiple queries to be statistically defensible — extend the "
+        "labeled set rather than weakening this assertion."
+    )
 
 
 def test_off_scope_probes_return_zero(labeled_data: dict) -> None:

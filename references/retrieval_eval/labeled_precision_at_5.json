@@ -1,13 +1,14 @@
 {
   "schema_version": "1.0",
-  "description": "Human-labeled ground-truth Precision@5 set for the MLGG peer-review RAG (Wave 8 / W2). Built post-Wave-7 (2026-05-17) to address P7 caveat in the eval roadmap: all prior eval metrics use proxy tag-overlap signals, not ground-truth labels. For each of 20 representative queries spanning the 12 MLGG governance dimensions + 2 off-scope probes, the top-5 hits at label time were manually inspected and each marked relevant=true/false by whether the concern text DIRECTLY addresses the query intent (not just topical match). Aggregate metric: P@5 = sum(relevant=true)/5; mean_labeled_P5 = mean over queries. Stable IDs (L01..L20) so this set can be diffed forward through future retrieval changes. Off-scope probes (L19, L20) are pinned at P@5=0 — any non-zero return there is a false-positive regression. Do NOT regenerate after retrieval changes — instead append a new file labeled_precision_at_5_v2.json so longitudinal drift is auditable.",
+  "description": "Human-labeled ground-truth Precision@5 set for the MLGG peer-review RAG (Wave 8 / W2; extended Wave 9 / W9-A2). Built post-Wave-7 (2026-05-17) to address P7 caveat in the eval roadmap: all prior eval metrics use proxy tag-overlap signals, not ground-truth labels. Original W8-W2 set was 20 queries (1 per sub-dimension) which supported aggregate claims only. W9-A2 (2026-05-17) extended to 36 queries (L01-L36) by adding 16 new in-scope queries that bring the 8 highest-stakes governance sub-dimensions (those touching MLGG non-negotiable rules S01, F01, F02, P01, M01, E01, E02 — leakage_split_hygiene, leakage_definition_variable, leakage_temporal_future, preprocessing_split_leakage, split_temporal_validation, model_selection_tuning_leakage, evaluation_uncertainty_quantification, evaluation_calibration) to 3 queries each. The remaining 10 sub-dimensions retain W8-W2's single-query coverage and continue to support aggregate-only claims for now. For each query, the top-5 hits at label time were manually inspected and each marked relevant=true/false by whether the concern text DIRECTLY addresses the query intent (not just topical match). Aggregate metric: P@5 = sum(relevant=true)/5; mean_labeled_P5 = mean over queries. Stable IDs (L01..L36) so this set can be diffed forward through future retrieval changes. Off-scope probes (L19, L20) are pinned at P@5=0 — any non-zero return there is a false-positive regression. Do NOT regenerate after retrieval changes — instead append a new file labeled_precision_at_5_v2.json so longitudinal drift is auditable.",
   "labeling_protocol": {
     "relevance_definition": "Concern text addresses the SAME failure mode the query asks about, not merely a sibling topic. A concern about 'no external validation' is NOT relevant to a query about 'tuning on the test set' even though both are split-protocol issues.",
     "tie_handling": "Borderline calls (e.g., concern mentions the issue as one of several findings) are marked relevant=true if the query intent appears verbatim or near-verbatim in the concern text.",
     "off_scope_handling": "Queries L19, L20 are deliberate off-scope probes. Any returned hit is by definition irrelevant (relevant=false). Rag_query currently returns 0 hits for both due to the gate=free_text_probe filter, so P@5 = 0/5 = 0.0.",
-    "labeled_by": "W8-W2 (Claude Opus 4.7, 1M context, MLGG agent)",
+    "labeled_by": "W8-W2 + W9-A2 (Claude Opus 4.7, 1M context, MLGG agent)",
     "labeled_at": "2026-05-17",
-    "retrieval_mode_at_label_time": "hybrid (BM25 + dense, post-Wave-7 W7P0 tag_overlap >=1 threshold)"
+    "retrieval_mode_at_label_time": "hybrid (BM25 + dense, post-Wave-7 W7P0 tag_overlap >=1 threshold)",
+    "wave_9_extension_note": "L21-L36 added by W9-A2 on 2026-05-17 using identical labeling protocol; existing L01-L20 entries preserved byte-for-byte."
   },
   "labeled_queries": [
     {
@@ -317,6 +318,262 @@
       "top5_at_label_time": [],
       "p_at_5": 0.0,
       "_note": "rag_query returned 0 hits at label time (free_text_probe gate filters out unrelated content). Empty list means P@5 = 0/5 = 0.0 by definition."
+    },
+    {
+      "id": "L21_leakage_visit_level_split",
+      "dimension": "leakage_split_hygiene",
+      "query": "encounter level data leaking across patient train test partition",
+      "gate": "leakage_gate",
+      "failure_codes": ["MLGG-S01"],
+      "description": "Encounter/visit-level split allowing same patient on both sides (MLGG-S01, W9-A2)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-EXP-0185-C02", "relevant": true, "why": "Same patient imaged before and after 2018 — direct patient-level partitioning concern."},
+        {"concern_id": "PR-113-C01", "relevant": false, "why": "About SMOTE-before-split + unclear CV strategy; preprocessing-leak mechanism, not unit-of-split."},
+        {"concern_id": "PR-002-C05", "relevant": true, "why": "Verbatim 'unit of randomization — note, patient visit, or patient' + train/test patient overlap question."},
+        {"concern_id": "PR-EXP-0110-C07", "relevant": true, "why": "Asks whether cohort patients overlap with prior derivation cohort — direct patient-isolation question."},
+        {"concern_id": "PR-EXP-0109-C12", "relevant": true, "why": "Verifies no patient overlap between external validation and training — same failure mode."}
+      ],
+      "p_at_5": 0.8
+    },
+    {
+      "id": "L22_leakage_cv_fold_patient_overlap",
+      "dimension": "leakage_split_hygiene",
+      "query": "cross validation folds patient overlap repeated measurements",
+      "gate": "leakage_gate",
+      "failure_codes": ["MLGG-S01"],
+      "description": "Repeated patient measurements span CV folds (MLGG-S01, W9-A2)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-EXP-0185-C02", "relevant": true, "why": "Patients imaged in multiple time-periods — direct repeated-measurement-across-folds analogue."},
+        {"concern_id": "PR-002-C05", "relevant": true, "why": "Asks whether unit of randomization respects patient grouping across train/test."},
+        {"concern_id": "PR-EXP-0109-C12", "relevant": true, "why": "Patient-level isolation between training and external validation — same mechanism as CV-fold-leak."},
+        {"concern_id": "PR-113-C01", "relevant": false, "why": "SMOTE-before-split is preprocessing leak, not patient-overlap-across-folds."},
+        {"concern_id": "PR-EXP-0110-C07", "relevant": true, "why": "Asks whether current cohort patients were in prior training/validation — patient-level cross-set overlap concern."}
+      ],
+      "p_at_5": 0.8
+    },
+    {
+      "id": "L23_leakage_treatment_as_feature",
+      "dimension": "leakage_definition_variable",
+      "query": "diagnosis code or treatment ICD used as predictor of same outcome",
+      "gate": "definition_variable_guard",
+      "failure_codes": ["MLGG-F01"],
+      "description": "Predictor includes treatment/diagnosis-code proxy for outcome (MLGG-F01, W9-A2)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-107-C04", "relevant": false, "why": "About weak-supervision label quality (MAP@1), not about a treatment code being used as a feature."},
+        {"concern_id": "PR-114-C01", "relevant": false, "why": "About label inconsistency across cohorts (SOFA-based sepsis def shift), not about feature being a Tx/Dx code."},
+        {"concern_id": "PR-001-C02", "relevant": true, "why": "NSAID prescriptions (OA treatment) used to predict OA onset — verbatim treatment-as-feature definition-variable leak."},
+        {"concern_id": "PR-105-C01", "relevant": false, "why": "About time-horizon conflation (risk vs probability), not about Tx/Dx code as feature."},
+        {"concern_id": "PR-EXP-0200-C01", "relevant": false, "why": "About comparison of EKG classifiers, not feature being Tx/Dx code."}
+      ],
+      "p_at_5": 0.2
+    },
+    {
+      "id": "L24_leakage_label_proxy_feature",
+      "dimension": "leakage_definition_variable",
+      "query": "discharge disposition outcome used as feature label proxy",
+      "gate": "definition_variable_guard",
+      "failure_codes": ["MLGG-F01"],
+      "description": "Proxy/surrogate of outcome label used as predictor (MLGG-F01, W9-A2)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-114-C01", "relevant": false, "why": "About cohort-level label inconsistency, not about predictor being a label proxy."},
+        {"concern_id": "PR-113-C05", "relevant": false, "why": "About feature-selection rationale (7 vs 36 vars), not about a feature being a label proxy."},
+        {"concern_id": "PR-001-C02", "relevant": true, "why": "NSAID prescription is a proxy for existing disease — predictor is essentially the outcome surrogate."},
+        {"concern_id": "PR-107-C04", "relevant": false, "why": "About noisy weak-supervision labels (MAP@1), not about feature being a label proxy."},
+        {"concern_id": "PR-EXP-0200-C01", "relevant": false, "why": "About EKG classifier comparison, not label-proxy-as-feature."}
+      ],
+      "p_at_5": 0.2
+    },
+    {
+      "id": "L25_temporal_lab_after_event",
+      "dimension": "leakage_temporal_future",
+      "query": "laboratory measurements after event horizon predicting future outcome",
+      "gate": "leakage_gate",
+      "failure_codes": ["MLGG-F02"],
+      "description": "Lab values from after prediction horizon used as feature (MLGG-F02, W9-A2)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-EXP-0086-C12", "relevant": true, "why": "Ground-truth annotation includes future events — labels span beyond prediction time, direct temporal-future leak."},
+        {"concern_id": "PR-010-C01", "relevant": true, "why": "Bidirectional RNN uses future data — textbook future-information leak."},
+        {"concern_id": "PR-001-C01", "relevant": true, "why": "Model conditions on five-year-forward observations — direct future-information leak."},
+        {"concern_id": "PR-EXP-0159-C04", "relevant": true, "why": "Scan timing during hospital course undocumented — possible post-event feature timing leak."},
+        {"concern_id": "PR-EXP-0197-C02", "relevant": true, "why": "Index time-point shifted 3 months post-diagnosis — direct concern about feature timing relative to event horizon."}
+      ],
+      "p_at_5": 1.0
+    },
+    {
+      "id": "L26_temporal_admission_features_leak",
+      "dimension": "leakage_temporal_future",
+      "query": "feature computed after index date prediction time leakage",
+      "gate": "leakage_gate",
+      "failure_codes": ["MLGG-F02"],
+      "description": "Post-index-date features used as predictors (MLGG-F02, W9-A2)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-010-C01", "relevant": true, "why": "Bidirectional RNN — uses post-index-date information by construction."},
+        {"concern_id": "PR-EXP-0086-C12", "relevant": true, "why": "Annotation window mismatched with prediction timepoint — labels include post-prediction events."},
+        {"concern_id": "PR-EXP-0160-C11", "relevant": true, "why": "ICD-9/10 codes assigned post-admission/discharge used as predictors — direct post-index-date feature leak."},
+        {"concern_id": "PR-072-C01", "relevant": false, "why": "Phenotype correlation overlap in UK Biobank — sample overlap, not post-index-date feature timing."},
+        {"concern_id": "PR-114-C04", "relevant": false, "why": "Refitting signature across cohorts = tuning leakage, not post-index-date feature."}
+      ],
+      "p_at_5": 0.6
+    },
+    {
+      "id": "L27_preproc_scaling_before_split",
+      "dimension": "preprocessing_split_leakage",
+      "query": "standard scaler normalization fit on full dataset before split",
+      "gate": "split_protocol_gate",
+      "failure_codes": ["MLGG-P01"],
+      "description": "Scaling/normalization fitted on all data before split (MLGG-P01, W9-A2)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-EXP-0155-C03", "relevant": false, "why": "About calibration-sample reuse (held-out samples excluded after use) — adjacent split-hygiene issue but different mechanism (calibration tuning, not fit-before-split)."},
+        {"concern_id": "PR-EXP-0200-C02", "relevant": false, "why": "About empirical reasoning for train/test split sizes — sample-size concern, not preprocessing-before-split."},
+        {"concern_id": "PR-EXP-0084-C08", "relevant": false, "why": "About hyperparameter search clarity and feature-set ambiguity — general data-leakage worry but not specifically about fit-before-split."},
+        {"concern_id": "PR-EXP-0097-C13", "relevant": false, "why": "About train/test splitting ratios sensitivity, not preprocessing-before-split."},
+        {"concern_id": "PR-EXP-0160-C09", "relevant": false, "why": "About which cohort is training vs validation, not about preprocessing fit-before-split."}
+      ],
+      "p_at_5": 0.0
+    },
+    {
+      "id": "L28_preproc_imputation_global",
+      "dimension": "preprocessing_split_leakage",
+      "query": "feature selection performed on pooled train test before splitting",
+      "gate": "split_protocol_gate",
+      "failure_codes": ["MLGG-P01"],
+      "description": "Feature selection performed on pooled data before split (MLGG-P01, W9-A2)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-EXP-0200-C02", "relevant": false, "why": "About split-ratio rationale, not feature-selection-before-split."},
+        {"concern_id": "PR-EXP-0084-C08", "relevant": true, "why": "Asks for explicit safeguards against data leakage in hyperparameter + feature-set protocol — direct preprocessing-leak concern."},
+        {"concern_id": "PR-111-C01", "relevant": false, "why": "Model-selection-on-test (tuning leak), not feature-selection-before-split."},
+        {"concern_id": "PR-113-C01", "relevant": true, "why": "SMOTE applied on pooled MIMIC-III/IV before 7:3 split — verbatim preprocessing-before-split leak."},
+        {"concern_id": "PR-EXP-0110-C07", "relevant": false, "why": "About patient overlap with prior derivation cohort — split unit concern, not preprocessing-on-pooled-data."}
+      ],
+      "p_at_5": 0.4
+    },
+    {
+      "id": "L29_split_random_for_longitudinal",
+      "dimension": "split_temporal_validation",
+      "query": "longitudinal cohort random split instead of chronological split",
+      "gate": "split_protocol_gate",
+      "failure_codes": [],
+      "description": "Longitudinal cohort split randomly instead of chronologically (W9-A2)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-010-C02", "relevant": true, "why": "Verbatim: 'Instead of randomly splitting, temporal partitioning would more accurately estimate deployment performance.' Direct hit."},
+        {"concern_id": "PR-108-C01", "relevant": false, "why": "About preterm-vs-term gestational split biasing biology, not about temporal-vs-random split."},
+        {"concern_id": "PR-111-C04", "relevant": false, "why": "About lack of external validation, not temporal split."},
+        {"concern_id": "PR-029-C03", "relevant": false, "why": "About first-vs-all-admissions per patient — patient-level concern, not random-vs-chronological."},
+        {"concern_id": "PR-EXP-0110-C07", "relevant": false, "why": "About patient overlap with prior cohort, not split temporal ordering."}
+      ],
+      "p_at_5": 0.2
+    },
+    {
+      "id": "L30_split_no_year_holdout",
+      "dimension": "split_temporal_validation",
+      "query": "multi year cohort no out of time validation forward chaining",
+      "gate": "split_protocol_gate",
+      "failure_codes": [],
+      "description": "No out-of-time/forward-chaining evaluation on multi-year cohort (W9-A2)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-111-C04", "relevant": false, "why": "About no independent external cohort generally — orthogonal to forward-chaining."},
+        {"concern_id": "PR-010-C02", "relevant": true, "why": "20-year cohort + random split + ask for temporal partitioning — out-of-time validation concern."},
+        {"concern_id": "PR-112-C02", "relevant": false, "why": "About small-cohort LOO-CV variance — sample-size issue, not out-of-time."},
+        {"concern_id": "PR-EXP-0203-C06", "relevant": false, "why": "About nested-CV vs standard-CV clarity — general protocol clarity, not forward-chaining specifically."},
+        {"concern_id": "PR-114-C04", "relevant": false, "why": "Refitting across cohorts = tuning leakage, not out-of-time validation."}
+      ],
+      "p_at_5": 0.2
+    },
+    {
+      "id": "L31_tuning_model_choice_on_test",
+      "dimension": "model_selection_tuning_leakage",
+      "query": "model selection final model picked using test set performance",
+      "gate": "tuning_leakage_gate",
+      "failure_codes": ["MLGG-M01"],
+      "description": "Final model selected based on test-set performance (MLGG-M01, W9-A2)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-111-C01", "relevant": true, "why": "Every candidate model evaluated on test — verbatim model-selection-on-test."},
+        {"concern_id": "PR-EXP-0200-C05", "relevant": false, "why": "Model-selection process undocumented, but unclear whether it leaks into test. Concern is generic transparency, not specifically test-set contamination."},
+        {"concern_id": "PR-EXP-0155-C03", "relevant": true, "why": "Calibration done on held-out samples then those samples excluded from final test — model selection touching the test set."},
+        {"concern_id": "PR-EXP-0084-C08", "relevant": true, "why": "Asks for explicit safeguards against data leakage in hyperparameter search — direct tuning-leak ask."},
+        {"concern_id": "PR-EXP-0086-C14", "relevant": false, "why": "Ablation suggestion (different embeddings) is methods-improvement, not tuning-leak critique."}
+      ],
+      "p_at_5": 0.6
+    },
+    {
+      "id": "L32_tuning_threshold_optimized_on_test",
+      "dimension": "model_selection_tuning_leakage",
+      "query": "operating threshold optimized on held out test set youden index",
+      "gate": "tuning_leakage_gate",
+      "failure_codes": ["MLGG-M01"],
+      "description": "Operating threshold optimized on test set (MLGG-M01, W9-A2)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-EXP-0148-C01", "relevant": true, "why": "Verbatim: 'whether thresholds were pre-defined before evaluation of the test set, or if they were cherry-picked post hoc.' Direct threshold-tuning-on-test concern."},
+        {"concern_id": "PR-111-C01", "relevant": true, "why": "All candidate models scored on test — same family of concern (tuning leakage onto test)."},
+        {"concern_id": "PR-114-C04", "relevant": true, "why": "Refitting signature across cohorts risks tuning leakage — same governance dim."},
+        {"concern_id": "PR-EXP-0155-C03", "relevant": true, "why": "Calibration/threshold selection on held-out samples then excluded — direct threshold-leak analogue."},
+        {"concern_id": "PR-EXP-0193-C04", "relevant": true, "why": "'How were cut-off chosen?' — direct threshold-selection-on-test concern."}
+      ],
+      "p_at_5": 1.0
+    },
+    {
+      "id": "L33_eval_point_estimate_only",
+      "dimension": "evaluation_uncertainty_quantification",
+      "query": "single point estimate accuracy reported no uncertainty interval",
+      "gate": "ci_matrix_gate",
+      "failure_codes": ["MLGG-E01"],
+      "description": "Point-estimate-only reporting (MLGG-E01, W9-A2)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-EXP-0159-C06", "relevant": true, "why": "Verbatim '95% CI should be reported' for AUC — direct CI-absence."},
+        {"concern_id": "PR-109-C06", "relevant": true, "why": "CI estimation method for R2/AUPRC not described — direct CI reporting concern."},
+        {"concern_id": "PR-EXP-0200-C04", "relevant": true, "why": "No error bars or CIs provided — verbatim point-estimate-only concern."},
+        {"concern_id": "PR-EXP-0096-C02", "relevant": true, "why": "Asks for statistical basis of CIs from 10-fold CV — direct CI-reporting concern."},
+        {"concern_id": "PR-EXP-0149-C02", "relevant": true, "why": "'Plot 95% CI as error bars' — direct CI-reporting ask."}
+      ],
+      "p_at_5": 1.0
+    },
+    {
+      "id": "L34_eval_no_variance_seeds",
+      "dimension": "evaluation_uncertainty_quantification",
+      "query": "no repeated runs random seed variance evaluation",
+      "gate": "ci_matrix_gate",
+      "failure_codes": ["MLGG-E01"],
+      "description": "No seed/repeat variance reporting (MLGG-E01, W9-A2)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-EXP-0200-C04", "relevant": true, "why": "Verbatim: 'train network several times to determine influence of random seed.' Direct seed-variance concern."},
+        {"concern_id": "PR-029-C02", "relevant": true, "why": "'No bootstrapping with multiple random splits' — direct split-variance concern."},
+        {"concern_id": "PR-EXP-0098-C05", "relevant": false, "why": "About comparing adjusted R² to other models — benchmarking, not seed/repeat variance."},
+        {"concern_id": "PR-EXP-0159-C06", "relevant": false, "why": "Generic 95% CI ask — does not specifically address seed/repeat variance."},
+        {"concern_id": "PR-EXP-0197-C05", "relevant": false, "why": "About overlapping CIs being uninformative — CIs are reported, not absent. Different concern."}
+      ],
+      "p_at_5": 0.4
+    },
+    {
+      "id": "L35_eval_overconfidence_not_assessed",
+      "dimension": "evaluation_calibration",
+      "query": "predicted probabilities overconfident no recalibration platt isotonic",
+      "gate": "calibration_dca_gate",
+      "failure_codes": ["MLGG-E02"],
+      "description": "No probability-calibration assessment / recalibration (MLGG-E02, W9-A2)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-110-C03", "relevant": true, "why": "Class rebalancing distorts probability outputs — direct overconfidence/recalibration concern."},
+        {"concern_id": "PR-002-C01", "relevant": true, "why": "'Calibration curves should be provided' — direct calibration-assessment concern."},
+        {"concern_id": "PR-104-C06", "relevant": true, "why": "Non-monotonic quartile risk = miscalibration evidence — direct overconfidence concern."},
+        {"concern_id": "PR-EXP-0185-C01", "relevant": false, "why": "About suspiciously high AUC and tight CIs (overoptimism), not specifically calibration/recalibration of probabilities."},
+        {"concern_id": "PR-010-C01", "relevant": false, "why": "Bidirectional-RNN future-data leak — unrelated to calibration."}
+      ],
+      "p_at_5": 0.6
+    },
+    {
+      "id": "L36_eval_no_hosmer_lemeshow",
+      "dimension": "evaluation_calibration",
+      "query": "calibration intercept slope hosmer lemeshow goodness of fit",
+      "gate": "calibration_dca_gate",
+      "failure_codes": ["MLGG-E02"],
+      "description": "Calibration intercept/slope or HL goodness-of-fit absent (MLGG-E02, W9-A2)",
+      "top5_at_label_time": [
+        {"concern_id": "PR-026-C02", "relevant": true, "why": "Predicted vs observed mortality across risk groups should be shown — direct calibration-presentation concern."},
+        {"concern_id": "PR-105-C04", "relevant": true, "why": "Verbatim 'calibration intercept/slope summary' in main text — direct hit."},
+        {"concern_id": "PR-025-C03", "relevant": true, "why": "Verbatim 'no formal calibration testing (such as Hosmer-Lemeshow)' — exact hit for HL absence."},
+        {"concern_id": "PR-EXP-0109-C03", "relevant": true, "why": "Asks for assessment of model calibration — direct."},
+        {"concern_id": "PR-EXP-0092-C03", "relevant": true, "why": "Lack of calibration assessment per TRIPOD — direct."}
+      ],
+      "p_at_5": 1.0
     }
   ]
 }
