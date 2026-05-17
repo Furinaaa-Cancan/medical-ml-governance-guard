@@ -57,7 +57,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Callable, Optional
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
