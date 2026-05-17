@@ -83,7 +83,7 @@ import re
 import threading
 import time
 from pathlib import Path
-from typing import Optional, TypedDict
+from typing import TypedDict
 
 __all__ = [
     "PdfRunResult",
