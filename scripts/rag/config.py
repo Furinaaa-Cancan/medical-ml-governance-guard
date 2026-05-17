@@ -64,10 +64,20 @@ KB_PATH: Final[Path] = REPO_ROOT / "references" / "case-studies" / "peer-review-
 #         + WEIGHT_TAG_OVERLAP * tag_overlap_score
 #         + WEIGHT_SEVERITY * severity_boost
 # The four weights MUST sum to 1.0.
-WEIGHT_DENSE: Final[float] = 0.5         # cosine similarity from dense embeddings
-WEIGHT_BM25: Final[float] = 0.3          # from scripts.rag.retrieval.bm25
-WEIGHT_TAG_OVERLAP: Final[float] = 0.15  # Q4-canonical-pattern weighted bonus
-WEIGHT_SEVERITY: Final[float] = 0.05     # CRITICAL > HIGH > MEDIUM > LOW small boost
+#
+# W13-P0 rebalance (2026-05-17): per W11-I1 ablation (commit b1e9c8d,
+# scripts/rag/evals/ablation_signal_drop.py, n=30 scenarios):
+#   bm25_only         mean_tag_p@5 = 0.436
+#   hybrid_all (old)  mean_tag_p@5 = 0.353  <-- NET NEGATIVE vs bm25_only
+#   hybrid_no_dense   mean_tag_p@5 = 0.447  <-- best
+# The dense modality at weight 0.5 was actively diluting the signal. W13-P0
+# demotes it 5x (0.5 -> 0.1) — kept small but non-zero so long-tail
+# paraphrase queries still receive some semantic contribution — and
+# rebalances bm25/tag/severity upward.
+WEIGHT_DENSE: Final[float] = 0.10        # pre-W13 was 0.5 (W11-I1 ablation showed this is the dilutor)
+WEIGHT_BM25: Final[float] = 0.45         # pre-W13 was 0.3 (strongest single signal — biggest beneficiary)
+WEIGHT_TAG_OVERLAP: Final[float] = 0.30  # pre-W13 was 0.15 (canonical-pattern overlap, moderate up)
+WEIGHT_SEVERITY: Final[float] = 0.15     # pre-W13 was 0.05 (small corroborative up)
 
 # Sanity check (cheap; runs once at import).
 assert abs(
