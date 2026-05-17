@@ -1,0 +1,37 @@
+# CODEOWNERS — review-required surface.
+# Reference: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# Strict scope:
+#   - references/* — KB, benchmarks, gold labels (publication-grade artifacts)
+#   - scripts/rag/ — retrieval algorithm + eval harness (gates and metrics)
+#   - scripts/gates/ — 33 fail-closed gates (safety surface)
+#   - .github/workflows/ — CI / scanning config (privilege boundary)
+#   - SECURITY.md + this file — security governance
+#
+# Everything else falls back to default repository permissions.
+
+# Global default (catches anything not covered below)
+*                                  @Furinaaa-Cancan
+
+# Publication-grade artifacts: KB, benchmarks, eval set
+/references/**/*                   @Furinaaa-Cancan
+/references/case-studies/peer-review-kb.json   @Furinaaa-Cancan
+/references/retrieval_eval/**      @Furinaaa-Cancan
+
+# Retrieval + eval surface
+/scripts/rag/**                    @Furinaaa-Cancan
+/scripts/rag/evals/**              @Furinaaa-Cancan
+
+# Safety surface — 33 fail-closed gates
+/scripts/gates/**                  @Furinaaa-Cancan
+
+# Workflows / scanning / security policy itself
+/.github/workflows/**              @Furinaaa-Cancan
+/.github/dependabot.yml            @Furinaaa-Cancan
+/.github/CODEOWNERS                @Furinaaa-Cancan
+/SECURITY.md                       @Furinaaa-Cancan
+
+# Agent / skill manifests
+/agents/**                         @Furinaaa-Cancan
+/SKILL.md                          @Furinaaa-Cancan
+/CLAUDE.md                         @Furinaaa-Cancan

@@ -1,0 +1,68 @@
+# CodeQL static analysis — covers Python source surface.
+# Reference: https://docs.github.com/en/code-security/code-scanning
+#
+# Triggers:
+#   - Push to main (so any merged change is scanned immediately).
+#   - PRs targeting main (so we catch issues before merge).
+#   - Weekly schedule (catches new query updates from GitHub Security Lab
+#     against existing code without a new push).
+#
+# Query suite:
+#   - security-extended: superset of default; includes more vulnerability
+#     queries (CWE-94 code injection, CWE-89 SQLi, CWE-78 command injection,
+#     CWE-22 path traversal, ...). Fits the project's NEVER list (no eval/
+#     exec/subprocess(shell=True)/os.system) — CodeQL enforces it
+#     mechanically rather than relying on lint discipline alone.
+
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Mondays 03:30 UTC = 11:30 Beijing
+    - cron: "30 3 * * 1"
+  workflow_dispatch: {}
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["python"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Init CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          # Most-rigorous query suite available on the free tier.
+          queries: security-extended,security-and-quality
+          config: |
+            paths:
+              - scripts/
+              - plugin/
+              - tests/
+            paths-ignore:
+              - .cache/
+              - experiments/
+              - paper/
+              - references/_unused/
+
+      - name: Perform Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
