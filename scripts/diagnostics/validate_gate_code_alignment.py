@@ -46,17 +46,17 @@ def main():
         overlap[gate] = h & e
 
     # Print summary + write JSON
-    print(f"## Cross-validation summary")
+    print("## Cross-validation summary")
     print(f"gates with overlap: {sum(1 for g in all_gates if overlap[g])}")
     print(f"gates with eval_only codes: {sum(1 for g in all_gates if eval_only[g])}")
     print(f"gates with prod_only codes: {sum(1 for g in all_gates if prod_only[g])}")
 
-    print(f"\n## Top 5 by production_only (test coverage gaps):")
+    print("\n## Top 5 by production_only (test coverage gaps):")
     for gate in sorted(all_gates, key=lambda g: -len(prod_only[g]))[:5]:
         if prod_only[gate]:
             print(f"  {gate}: {len(prod_only[gate])} untested codes: {list(prod_only[gate])[:5]}")
 
-    print(f"\n## Top 5 by eval_only (unreachable scenarios):")
+    print("\n## Top 5 by eval_only (unreachable scenarios):")
     for gate in sorted(all_gates, key=lambda g: -len(eval_only[g]))[:5]:
         if eval_only[gate]:
             print(f"  {gate}: {len(eval_only[gate])} unreachable codes: {list(eval_only[gate])[:5]}")
