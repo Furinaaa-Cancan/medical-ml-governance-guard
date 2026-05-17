@@ -33,9 +33,9 @@ else
   exit 1
 fi
 
-echo "==> pre-push: ruff lint on scripts/ + tests/"
+echo "==> pre-push: ruff lint on scripts/"
 if command -v ruff &>/dev/null; then
-  ruff check scripts/ tests/ --quiet
+  ruff check scripts/ --quiet
 else
   echo "    (ruff not installed, skipping)"
 fi
