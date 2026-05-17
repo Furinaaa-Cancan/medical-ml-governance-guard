@@ -21,6 +21,7 @@ Design contract: see ``/tmp/mlgg_rag_design.md`` (Agent A7 of 10).
 
 from __future__ import annotations
 
+import os
 import re
 from collections import Counter
 from typing import Any, Optional
@@ -207,6 +208,139 @@ def _is_off_modality_query(query: str) -> bool:
         return False
     return any(tok in padded for tok in _NORMALISED_DENYLIST)
 
+
+# ---------------------------------------------------------------------------
+# Audit-finding W9-A2 fix: curated fallback for known RAG blind spots
+# ---------------------------------------------------------------------------
+# The peer-review-kb (335 papers) has near-zero coverage of MLGG-P01's
+# canonical failure pattern — "fit a scaler / encoder / imputer / PCA on
+# full pool BEFORE train/test split". Labeled P@5 for L27
+# ("standard scaler normalization fit on full dataset before split") is
+# 0.0 / 5; lit-KB TF-IDF top-1 0.083 corroborates the gap on a different
+# corpus. Until KB curation closes the gap, this curated map injects a
+# CRITICAL concern that fires BEFORE hybrid_rank so the gate report
+# carries authoritative MLGG-P01 precedent rather than off-topic
+# split-protocol fallbacks.
+#
+# Disable via env-var ``MLGG_RAG_DISABLE_CURATED=1`` for A/B / regression
+# eval; the bypass restores pre-patch behaviour exactly.
+#
+# Each curated entry is shape-compatible with hybrid_rank output and
+# tagged ``_synthetic_curated=True`` + ``_match_reasons=["curated_fallback:<rule>"]``
+# so format_for_gate_report's weak / low-confidence hedges do NOT fire
+# (these rows are authoritative, not fallback padding) and downstream
+# audit can distinguish curated rows from KB rows.
+_CURATED_PRECEDENT_FIT_BEFORE_SPLIT: dict[str, Any] = {
+    "concern_id": "MLGG-CURATED-P01-fit_before_split",
+    "paper_id": "MLGG-CURATED",
+    "severity": "CRITICAL",
+    "category": "preprocessing_leakage",
+    "mlgg_dimension": 3,
+    "mlgg_gates": ["split_protocol_gate", "feature_engineering_audit_gate"],
+    "mlgg_rules": ["MLGG-P01"],
+    "canonical_pattern_id": "CP-MLGG-P01",
+    "tags": [
+        "fit_on_full_data_before_split",
+        "scaler_leakage",
+        "preprocessing_split_leakage",
+        "transform_fit_leakage",
+    ],
+    "concern_text": (
+        "MLGG-P01 non-negotiable: ALL fit() calls (scaler, encoder, "
+        "imputer, PCA, target encoder, feature selector, calibration) "
+        "MUST run on the training fold only. Fitting on the full pool "
+        "before train/test split — e.g. `StandardScaler().fit(X)` then "
+        "splitting — leaks test-set statistics (mean, std, quantiles, "
+        "principal components, target means) into the training pipeline "
+        "and inflates internal-validation performance with optimistic "
+        "bias that does not generalise. The KB has weak sibling "
+        "precedent: PR-003-C03 (validation-cohort imputation, MLGG-P04), "
+        "PR-113-C01 (SMOTE before split), PR-EXP-0155-C04 "
+        "(preprocessing_before_split tag on tile filtering). Treat any "
+        "manuscript whose preprocessing pipeline is unclear about "
+        "fit-vs-transform ordering as a CRITICAL fail until pipeline "
+        "audit confirms train-fold-only fit (sklearn Pipeline + CV is "
+        "the canonical mitigation)."
+    ),
+    "author_response": "",
+    "resolved": False,
+    "_dense_score": 1.0,
+    "_bm25_score": 1.0,
+    "_tag_overlap_score": 1.0,
+    "_tag_overlap_raw": 1.0,
+    "_severity_boost": 1.0,
+    "_severity_scale": 1.0,
+    "_final_score": 1.0,
+    "_match_reasons": ["curated_fallback:MLGG-P01"],
+    "_synthetic_curated": True,
+}
+
+# Curated map: (rule_code, gate_name) -> curated record. Extend here when
+# other MLGG non-negotiables surface as RAG blind spots (e.g. MLGG-F01
+# label-leakage, MLGG-S01 patient-overlap). For now scoped to P01.
+_CURATED_PRECEDENT_BY_KEY: dict[tuple[str, str], dict[str, Any]] = {
+    ("MLGG-P01", "split_protocol_gate"): _CURATED_PRECEDENT_FIT_BEFORE_SPLIT,
+    ("MLGG-P01", "feature_engineering_audit_gate"): _CURATED_PRECEDENT_FIT_BEFORE_SPLIT,
+    # P04 (imputation-before-split) shares the same precedent — both flow
+    # through the same "preprocessing fit must be train-fold-only" rule.
+    ("MLGG-P04", "split_protocol_gate"): _CURATED_PRECEDENT_FIT_BEFORE_SPLIT,
+    ("MLGG-P04", "feature_engineering_audit_gate"): _CURATED_PRECEDENT_FIT_BEFORE_SPLIT,
+}
+
+# Lexical triggers for free-text queries that name the failure mode
+# without carrying an explicit MLGG rule code. Two-set matcher: at least
+# one operation token AND at least one split-ordering token must hit.
+_FIT_BEFORE_SPLIT_OP_TOKENS: frozenset[str] = frozenset([
+    "scaler", "standardscaler", "minmax", "standardize", "standardise",
+    "normalize", "normalise", "normalization", "normalisation",
+    "z-score", "zscore", "impute", "imputer", "imputation",
+    "pca", "encoder", "target_encoder", "target encoder",
+    "fit_transform", "preprocess", "preprocessing",
+])
+_FIT_BEFORE_SPLIT_ORDER_TOKENS: frozenset[str] = frozenset([
+    "before split", "before splitting", "prior to split",
+    "before the split", "fit on full", "fit on all",
+    "fit on the entire", "on full data", "on all data",
+    "on entire dataset", "on the whole dataset",
+    "full dataset before", "all data before",
+])
+
+
+def _curated_precedent_for(
+    gate_name: str,
+    failure_codes: list[str],
+    query: str,
+) -> Optional[dict[str, Any]]:
+    """Return the curated concern record for known RAG blind spots, or None.
+
+    Resolution order:
+      1. (rule_code, gate_name) exact match in :data:`_CURATED_PRECEDENT_BY_KEY`.
+      2. Lexical match — query contains both an operation token AND a
+         split-ordering token (covers L27-style free-text without code).
+
+    Disabled when ``MLGG_RAG_DISABLE_CURATED=1`` for regression eval.
+    """
+    if os.environ.get("MLGG_RAG_DISABLE_CURATED") == "1":
+        return None
+    # (1) code-based
+    for code in failure_codes or []:
+        key = (code, gate_name)
+        if key in _CURATED_PRECEDENT_BY_KEY:
+            return dict(_CURATED_PRECEDENT_BY_KEY[key])
+    # (2) lexical free-text trigger
+    q = (query or "").lower()
+    if not q:
+        return None
+    has_op = any(tok in q for tok in _FIT_BEFORE_SPLIT_OP_TOKENS)
+    has_order = any(tok in q for tok in _FIT_BEFORE_SPLIT_ORDER_TOKENS)
+    if has_op and has_order:
+        # Lexical-only triggers default to the split-protocol-gate curated
+        # record; downstream readers can still see this is curated via
+        # ``_synthetic_curated`` + ``_match_reasons``.
+        return dict(_CURATED_PRECEDENT_FIT_BEFORE_SPLIT)
+    return None
+
+
 # H19 W5 LLM-loop eval found: when 2+ concerns from the same paper
 # surface in the same render (e.g. PR-EXP-0084-C04 + PR-EXP-0084-C08),
 # the synthesis-LLM tends to weave them into a single narrative arc
@@ -387,12 +521,29 @@ def rag_context_for_failure(
     """
 
     query = _synthesize_query(failure_codes, query_hint, gate_name=gate_name)
+
+    # W9-A2 audit fix: inject curated precedent for known RAG blind spots
+    # BEFORE invoking hybrid_rank. The curated entry is shape-compatible
+    # with hybrid_rank output and is prepended to the result list so it
+    # ranks at top-1; remaining slots fill from the real ranker.
+    curated = _curated_precedent_for(gate_name, failure_codes or [], query)
+
     results = hybrid_rank(
         query,
         gate=gate_name,
         failure_codes=failure_codes,
-        top_k=top_k,
+        # Leave room for the curated row; ranker still returns up to
+        # ``top_k`` so callers requesting top_k=5 see 1 curated + 4 KB.
+        top_k=max(1, top_k - 1) if curated else top_k,
     )
+    if curated is not None:
+        # Dedupe: if the ranker somehow surfaced the curated id (it won't
+        # — synthetic id is not in the KB), drop the duplicate.
+        curated_id = curated.get("concern_id")
+        results = [r for r in results if r.get("concern_id") != curated_id]
+        results = [curated] + results
+        results = results[:top_k]
+
     # W7P2: flag results when the synthesised query (or the caller's
     # raw hint) carries an off-MLGG-scope token. The flag is consumed
     # by format_for_gate_report to render a single block-level hedge
