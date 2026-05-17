@@ -1706,6 +1706,57 @@ def main() -> int:
             _disease_kb_path = Path(__file__).resolve().parent.parent.parent / "references" / "methodology" / "disease-definition-knowledge-base.json"
             _target_disease = ""
             if _disease_kb_path.exists():
+                # F-01 PROVISIONAL banner (W14 audit, W8W10-F01 follow-up).
+                # The disease KB is LLM-compiled with `clinician_review_status:
+                # pending` across all 11 entries. cohort_definition_gate (and
+                # downstream definition_variable_guard, feature_lineage_gate
+                # which consume cohort output's `definition_variables_to_exclude`)
+                # therefore route un-arbitrated KB content through their
+                # `--strict` checks. Per-issue hint exists via
+                # `_kb_provenance.extract_kb_provenance()`, but until now no
+                # gate-level structural warning surfaced the systemic gap.
+                # This banner emits ONE warning per run summarising sign-off
+                # state, so reviewers cannot miss it. See evidence/
+                # disease_kb_review/INDEX.md for the per-disease sign-off
+                # tracker.
+                try:
+                    import json as _f01_json
+                    _f01_data = _f01_json.loads(_disease_kb_path.read_text())
+                    _f01_diseases = _f01_data.get("diseases", {})
+                    _f01_pending = [
+                        _name for _name, _e in _f01_diseases.items()
+                        if isinstance(_e, dict)
+                        and (_e.get("provenance", {}) or {}).get(
+                            "clinician_review_status"
+                        ) == "pending"
+                    ]
+                    if _f01_pending:
+                        add_issue(
+                            warnings_list,
+                            "DISEASE_KB_PROVISIONAL",
+                            (
+                                "PROVISIONAL — disease-definition KB is "
+                                "LLM-compiled and pending clinician sign-off "
+                                f"on {len(_f01_pending)}/{len(_f01_diseases)} "
+                                "entries. Downstream definition-variable / "
+                                "feature-lineage findings inherit this caveat. "
+                                "Not fail-closed for publication-grade. See "
+                                "evidence/disease_kb_review/INDEX.md."
+                            ),
+                            {
+                                "kb_path": str(_disease_kb_path),
+                                "pending_entries": sorted(_f01_pending),
+                                "total_entries": len(_f01_diseases),
+                                "audit_ref": "W14 audit / W8W10-F01",
+                                "remediation": (
+                                    "Independent clinician adjudication "
+                                    "per evidence/disease_kb_review/INDEX.md."
+                                ),
+                            },
+                        )
+                except Exception:
+                    # banner is best-effort metadata; never let it fail a gate
+                    pass
                 # Infer target disease from outcome definition or filename
                 if isinstance(study_design.get("outcome_definition"), dict):
                     _target_disease = study_design["outcome_definition"].get("subtype", "")
