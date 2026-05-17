@@ -25,6 +25,7 @@ Design contract: see ``/tmp/mlgg_rag_design.md`` (shared across 10 agents).
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -149,8 +150,19 @@ def _load_kb(kb_path: Path) -> list[dict[str, Any]]:
 
     if not kb_path.exists():
         raise FileNotFoundError(f"peer-review-kb.json not found at {kb_path}")
-    with kb_path.open("r", encoding="utf-8") as fh:
-        data = json.load(fh)
+    return _parse_kb_bytes(kb_path.read_bytes(), kb_path)
+
+
+def _parse_kb_bytes(kb_bytes: bytes, kb_path: Path) -> list[dict[str, Any]]:
+    """Parse an already-read KB byte buffer and return ``entries``.
+
+    Separated from :func:`_load_kb` so the cold path in
+    :func:`build_or_load_index` can hash and parse from the *same* byte
+    buffer, closing the read-twice race window between sha256 and json.load
+    (W18-D5 CASE-5). ``kb_path`` is passed only for error messages.
+    """
+
+    data = json.loads(kb_bytes.decode("utf-8"))
     entries = data.get("entries")
     if not isinstance(entries, list):
         raise ValueError(
@@ -211,7 +223,15 @@ def build_or_load_index(
     hash_cache = _anchor(KB_HASH_CACHE)
     records_cache = cache_dir / _RECORDS_CACHE_NAME
 
-    kb_hash = kb_sha256(kb_path)
+    # Read KB bytes ONCE so the sha256 we cache against and the JSON we
+    # actually parse describe the same byte sequence — closes the
+    # hash-then-load race window (W18-D5 CASE-5): a concurrent KB rewrite
+    # between an earlier separate hash() call and a separate load() call
+    # would otherwise tag records built from KB v2 with KB v1's hash.
+    if not kb_path.exists():
+        raise FileNotFoundError(f"peer-review-kb.json not found at {kb_path}")
+    kb_bytes = kb_path.read_bytes()
+    kb_hash = hashlib.sha256(kb_bytes).hexdigest()
 
     if not force_rebuild:
         cached_hash = read_kb_hash(hash_cache)
@@ -220,8 +240,8 @@ def build_or_load_index(
             if cached is not None:
                 return cached
 
-    # Cold path: read KB, build records, embed.
-    entries = _load_kb(kb_path)
+    # Cold path: parse the SAME bytes we hashed, build records, embed.
+    entries = _parse_kb_bytes(kb_bytes, kb_path)
     records = _build_records(entries)
     if not records:
         raise ValueError(
