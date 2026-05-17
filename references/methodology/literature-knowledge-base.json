@@ -724,7 +724,6 @@
       "gates_implementing": [
         "calibration_dca_gate",
         "clinical_metrics_gate",
-        "imbalance_policy_gate",
         "metric_consistency_gate"
       ],
       "dimensions_affected": [
@@ -938,7 +937,6 @@
       ],
       "gates_implementing": [
         "permutation_significance_gate",
-        "seed_stability_gate",
         "ci_matrix_gate"
       ],
       "dimensions_affected": [
