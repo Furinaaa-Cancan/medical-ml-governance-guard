@@ -129,19 +129,37 @@ def _print_results(per_case: List[dict]) -> None:
         print(f"{r['id'].ljust(width)}   {r['recall@5']:.2f}     {r['mrr@5']:.2f}   {h}")
 
 
-@pytest.mark.skip(
+@pytest.mark.xfail(
+    strict=False,
     reason=(
-        "RAG retrieval quality regressed below the 0.55 recall@5 threshold "
-        "(currently ~0.317). 5/15 eval cases hit recall=0.00 — most likely "
-        "from a KB rewording or synonym-table change that wasn't reflected "
-        "in the eval YAML. This is NOT silenced via threshold relaxation "
-        "(that would let further regressions slip through unnoticed); the "
-        "test is parked while the regression is debugged. "
-        "TODO(retrieval): root-cause cases with recall=0 — "
-        "leakage_target_in_features, imbalance_smote, robustness_outliers, "
-        "permutation_significance_missing, synonym_fit_before_split — "
-        "and re-enable with the original 0.55/0.45 thresholds."
-    )
+        "Eval set ground truth is stale wrt the live KB (W14-F1 investigation, "
+        "2026-05-17). When this test+YAML were written (2026-04-18, commit "
+        "4e67f9b) the KB held 106 papers / 375 concerns. It now holds 817 "
+        "concerns (+118%). The per-case `relevant_concern_ids` lists were "
+        "frozen at the original 375-concern KB; many newer concerns "
+        "(e.g. PR-EXP-*, PR-101..114) are AT LEAST as semantically relevant "
+        "to the labeled gate+issue_codes as the originals but score higher "
+        "on BM25 keyword-overlap and push the labeled ones out of top-5. "
+        "Hypothesis-elimination by W14-F1: "
+        "  H1 (W13-P0 DENSE 0.5->0.1): REJECTED. `retrieve_for_failure` is "
+        "    pure BM25/keyword-overlap; the hybrid WEIGHT_DENSE constant "
+        "    has no effect on this code path. Re-running with WEIGHT_DENSE=0.5 "
+        "    produced byte-identical results. "
+        "  H2 (pre-W13 ranker regression): NOT the dominant signal; "
+        "    recall has *risen* from 0.317 (skip time) to 0.472 (now) on the "
+        "    same eval set, while the KB grew — i.e. retrieval is improving, "
+        "    the labels are getting more out-of-date. "
+        "  H3 (stale ground truth): CONFIRMED. mrr@5 = 0.627 currently — "
+        "    well above the 0.45 threshold — meaning the FIRST hit is on-target; "
+        "    the missing recall is in slots 2-5 where new KB additions "
+        "    outrank older labeled concerns. "
+        "Action: xfail (not skip) so the test still runs every CI build; "
+        "when re-labeled (USER ACTION 1 — `relevant_concern_ids` should be "
+        "broadened to include semantically equivalent post-2026-04-18 KB "
+        "additions) flip back to a hard assert with refreshed thresholds. "
+        "DO NOT lower thresholds in code without re-labeling first — that "
+        "silences real regressions."
+    ),
 )
 def test_rag_eval_set_mrr_and_recall():
     """Run the eval set, print per-case metrics, and assert thresholds."""
