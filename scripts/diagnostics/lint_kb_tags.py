@@ -65,7 +65,7 @@ def main():
     data = load_kb()
     violations = find_violations(data)
 
-    print(f"## KB tag lint (W9-D2)")
+    print("## KB tag lint (W9-D2)")
     print(f"Total unique tags: {violations['total_tags']}")
     print(f"Singletons (<2 uses): {len(violations['singletons'])}")
     print(f"Narrowing pattern (_for_/_in_/etc.): {len(violations['narrowings'])}")
@@ -81,7 +81,7 @@ def main():
         if new_singletons or new_narrowings:
             print(f"\nFAIL NEW violations: {len(new_singletons)} singletons, {len(new_narrowings)} narrowings")
             return 1
-        print(f"\nOK No new violations vs baseline")
+        print("\nOK No new violations vs baseline")
         return 0
 
     if args.strict and (violations["singletons"] or violations["narrowings"]):
