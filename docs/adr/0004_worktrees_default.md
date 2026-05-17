@@ -191,3 +191,29 @@ The symlink is removed by `git worktree remove`; the primary `.venv/` is untouch
 - W13-C0 dead-stash reap commit (see ADR 0002 §1 table).
 - W14-D2 PD-02 sibling-unbreaker pattern (see W14 wave notes).
 - W14-X1 mid-authoring revert incident (this commit's first attempt — recovered).
+
+---
+
+## Amendment 1 — W27 escalation (2026-05-17)
+
+**Status**: Accepted (escalation of §2 Decision A from "recommend" to "soft-enforce + measure").
+**Trigger**: 13 days after ADR 0004 was Accepted, the dead-stash list on the primary checkout reached **17 entries** (`git stash list | wc -l = 17`). The W26 wave compounded the problem: W26-L1 / L2 / R1 commits were absorbed by a sibling session's `git add .` (files reached `origin/main` intact but authorship was misattributed across three commits — see W26 todo retro).
+
+The discipline-decay hypothesis from §1 ("a tired or under-context agent forgets the protocol") is now empirically supported by 5 distinct waves of stash-list growth post-Acceptance.
+
+### What changes
+
+1. **No new behaviour required of single-session contributors.** The original ADR is preserved verbatim above.
+2. `scripts/setup-dev.sh` already exposes `setup-worktree <branch>` (verified in this commit). The tail tip remains the primary discoverability path.
+3. **New metric surface**: any retro doc (W*-retro.md) that touches the parallel-session topic SHOULD include `git stash list | wc -l` at retro time. A monotonically growing number is the signal that this ADR's recommendation is being ignored, not the signal that it's wrong.
+4. **Pre-push hook is NOT modified** in this amendment. A stash-count warning was considered and rejected — it would penalize legitimate single-session work-in-progress and the visible signal is the retro metric (point 3), not the push itself.
+5. **CLAUDE.md is NOT modified** in this amendment (project rule: ASK FIRST). Promoting "spawn parallel sessions in worktrees" from ADR text to an agent-protocol rule is a follow-up that requires explicit user sign-off.
+
+### Why soft-enforce, not hard-enforce
+
+Hard-enforce (e.g., pre-push refusing to push when stash count > N) would fire in the common "I have local WIP and want to push an urgent fix" path and become a `--no-verify`-magnet, training contributors to bypass hooks generally. The W26 evidence shows the failure mode is **multi-session contention writing to one tree**, not lone-developer stash accumulation; hard-enforce on the latter doesn't address the former.
+
+### Open follow-up (not closed by this amendment)
+
+- **CLAUDE.md "spawn parallel sessions in worktrees" rule** — requires user sign-off. The wording suggested: "When you anticipate spawning sub-agents that will commit (Wave-style audits, multi-agent reviews), prefer `Agent(isolation: \"worktree\")`. When the user starts a parallel terminal session, recommend `scripts/setup-dev.sh setup-worktree <name>` rather than sharing this checkout."
+- **Dead-stash reap** — 17 stashes need triage and either restore-or-drop. Tracked separately as a maintenance task; not a code change.
