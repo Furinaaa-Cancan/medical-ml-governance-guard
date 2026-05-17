@@ -110,6 +110,32 @@ register_remediations({
         "2) Investigating feature distribution shifts, "
         "3) Reporting per-subgroup calibration curves."
     ),
+    "fairness_subgroup_dca_negative": (
+        "A subgroup has negative net benefit at a clinically-relevant threshold "
+        "in subgroup-stratified Decision Curve Analysis (DCA). This means the "
+        "model would do net harm if used to make treatment decisions for that "
+        "subgroup. Consider: 1) Per-subgroup threshold calibration, "
+        "2) Restricting clinical deployment to subgroups with positive net "
+        "benefit, 3) Retraining with better representation of the harmed "
+        "subgroup. Ref: Vickers AJ, Elkin EB. Med Decis Making 2006;26:565-574."
+    ),
+    "subgroup_dca_input_missing": (
+        "--subgroup-dca (or --strict) was requested but a prediction trace with "
+        "a subgroup column was not provided. Pass --prediction-trace <path.csv> "
+        "and --subgroup-dca-column <colname> so the gate can compute "
+        "subgroup-stratified DCA. The trace must contain y_true, y_score, and "
+        "the named subgroup column."
+    ),
+    "subgroup_dca_input_unreadable": (
+        "Failed to read or parse the prediction trace passed via "
+        "--prediction-trace. Confirm the file exists, is CSV-formatted, and "
+        "contains y_true, y_score, and the --subgroup-dca-column column."
+    ),
+    "subgroup_dca_skipped_insufficient_data": (
+        "Subgroup DCA was requested but could not be computed (e.g. all "
+        "subgroups too small, or no group has >= 20 samples). Provide a "
+        "larger evaluation sample or a coarser subgroup partition."
+    ),
 })
 
 
@@ -146,6 +172,14 @@ DEFAULT_THRESHOLDS: Dict[str, float] = {
     "min_subgroup_size_warn": 30,
     # Minimum number of subgroup features analyzed
     "min_subgroups_analyzed": 1,
+    # Subgroup-DCA: clinically-relevant threshold range to assess net benefit
+    # Default 0.05–0.20 covers the band where most binary-outcome clinical
+    # decisions are made (Vickers AJ, BMJ 2016;352:i6). A subgroup whose best
+    # net benefit across this band is < 0 indicates net harm if the model is
+    # used to drive treatment decisions for that subgroup.
+    "subgroup_dca_threshold_min": 0.05,
+    "subgroup_dca_threshold_max": 0.20,
+    "subgroup_dca_net_benefit_fail": 0.0,
 }
 
 
@@ -192,6 +226,39 @@ def parse_args() -> argparse.Namespace:
         type=finite_float,
         default=None,
         help="Override disparate impact ratio fail threshold.",
+    )
+    # ── Subgroup DCA (opt-in; auto-enabled under --strict) ────────────────
+    parser.add_argument(
+        "--subgroup-dca",
+        action="store_true",
+        help="Opt-in: run subgroup-stratified Decision Curve Analysis. "
+             "Requires --prediction-trace and --subgroup-dca-column. "
+             "Auto-enabled when --strict is set (publication-grade).",
+    )
+    parser.add_argument(
+        "--prediction-trace",
+        default=None,
+        help="Path to a CSV trace with columns y_true, y_score, and the "
+             "--subgroup-dca-column. Required when --subgroup-dca is active.",
+    )
+    parser.add_argument(
+        "--subgroup-dca-column",
+        default=None,
+        help="Column name in the prediction trace that holds subgroup labels.",
+    )
+    parser.add_argument(
+        "--subgroup-dca-threshold-min",
+        type=finite_float,
+        default=None,
+        help="Lower bound of clinically-relevant probability threshold range "
+             "for subgroup-DCA net-benefit assessment (default 0.05).",
+    )
+    parser.add_argument(
+        "--subgroup-dca-threshold-max",
+        type=finite_float,
+        default=None,
+        help="Upper bound of clinically-relevant probability threshold range "
+             "for subgroup-DCA net-benefit assessment (default 0.20).",
     )
     return parser.parse_args()
 
@@ -698,6 +765,16 @@ def main() -> int:
             {"count": len(features_analyzed)},
         )
 
+    # ── Optional subgroup-DCA check (opt-in or strict) ─────────────────────
+    # Default OFF to avoid breaking existing CI baselines; auto-enabled under
+    # --strict because publication-grade artefacts are expected to include
+    # decision-curve evidence per subgroup (Vickers & Elkin 2006).
+    subgroup_dca_summary: Optional[Dict[str, Any]] = None
+    if args.subgroup_dca or args.strict:
+        subgroup_dca_summary = _run_subgroup_dca_check(
+            args, thresholds, failures, warnings, info,
+        )
+
     # Summary
     summary = {
         "features_analyzed": features_analyzed,
@@ -724,10 +801,218 @@ def main() -> int:
         ),
         "total_fairness_metrics_reported": total_fairness_metrics_reported,
         "subgroup_details": subgroup_details,
+        "subgroup_dca": subgroup_dca_summary,
         "thresholds": thresholds,
     }
 
     return _finish(args, failures, warnings, info, thresholds, eval_report, summary)
+
+
+def _run_subgroup_dca_check(
+    args: argparse.Namespace,
+    thresholds: Dict[str, float],
+    failures: List[Dict[str, Any]],
+    warnings: List[Dict[str, Any]],
+    info: List[Dict[str, Any]],
+) -> Optional[Dict[str, Any]]:
+    """Compute subgroup-stratified DCA and flag any subgroup with net harm.
+
+    Wraps `_gate_utils.subgroup_dca` (Vickers & Elkin 2006). A subgroup
+    "fails" if its best net benefit across the clinically-relevant
+    threshold band (default 0.05–0.20) is < 0 — i.e. the model would do
+    net harm if its predictions drove treatment decisions for that group.
+    """
+    # Apply CLI threshold overrides
+    pt_min = args.subgroup_dca_threshold_min
+    pt_max = args.subgroup_dca_threshold_max
+    if pt_min is not None:
+        thresholds["subgroup_dca_threshold_min"] = pt_min
+    if pt_max is not None:
+        thresholds["subgroup_dca_threshold_max"] = pt_max
+    nb_fail = thresholds["subgroup_dca_net_benefit_fail"]
+    band_lo = thresholds["subgroup_dca_threshold_min"]
+    band_hi = thresholds["subgroup_dca_threshold_max"]
+
+    trace_path = args.prediction_trace
+    group_col = args.subgroup_dca_column
+    if not trace_path or not group_col:
+        add_issue(
+            warnings,
+            "subgroup_dca_input_missing",
+            "Subgroup-DCA was requested but --prediction-trace and/or "
+            "--subgroup-dca-column was not supplied; subgroup DCA was "
+            "skipped.",
+            {
+                "prediction_trace": trace_path,
+                "subgroup_dca_column": group_col,
+            },
+        )
+        return {"status": "skipped", "reason": "missing_input"}
+
+    p = Path(trace_path).expanduser()
+    if not p.is_file():
+        add_issue(
+            warnings,
+            "subgroup_dca_input_unreadable",
+            f"Prediction trace not found for subgroup-DCA: {p}",
+            {"path": str(p)},
+        )
+        return {"status": "skipped", "reason": "trace_missing"}
+
+    # Load with pandas if available; fall back to csv stdlib
+    try:
+        import pandas as pd  # type: ignore
+        try:
+            df = pd.read_csv(p)
+        except Exception as exc:
+            add_issue(
+                warnings,
+                "subgroup_dca_input_unreadable",
+                f"Could not parse prediction trace CSV: {exc}",
+                {"path": str(p), "error": str(exc)},
+            )
+            return {"status": "skipped", "reason": "trace_unreadable"}
+        missing_cols = [c for c in ("y_true", "y_score", group_col) if c not in df.columns]
+        if missing_cols:
+            add_issue(
+                warnings,
+                "subgroup_dca_input_unreadable",
+                "Prediction trace is missing required columns for subgroup-DCA.",
+                {"missing_columns": missing_cols, "path": str(p)},
+            )
+            return {"status": "skipped", "reason": "missing_columns"}
+        y_true = df["y_true"].tolist()
+        y_score = df["y_score"].tolist()
+        groups = df[group_col].astype(str).tolist()
+    except ImportError:
+        # Fallback: csv stdlib
+        import csv as _csv
+        try:
+            with p.open("r", encoding="utf-8") as fh:
+                rdr = _csv.DictReader(fh)
+                rows = list(rdr)
+        except Exception as exc:
+            add_issue(
+                warnings,
+                "subgroup_dca_input_unreadable",
+                f"Could not read prediction trace: {exc}",
+                {"path": str(p), "error": str(exc)},
+            )
+            return {"status": "skipped", "reason": "trace_unreadable"}
+        if not rows:
+            add_issue(
+                warnings,
+                "subgroup_dca_skipped_insufficient_data",
+                "Prediction trace is empty.",
+                {"path": str(p)},
+            )
+            return {"status": "skipped", "reason": "empty_trace"}
+        sample = rows[0]
+        missing_cols = [c for c in ("y_true", "y_score", group_col) if c not in sample]
+        if missing_cols:
+            add_issue(
+                warnings,
+                "subgroup_dca_input_unreadable",
+                "Prediction trace is missing required columns for subgroup-DCA.",
+                {"missing_columns": missing_cols, "path": str(p)},
+            )
+            return {"status": "skipped", "reason": "missing_columns"}
+        y_true, y_score, groups = [], [], []
+        for r in rows:
+            try:
+                y_true.append(float(r["y_true"]))
+                y_score.append(float(r["y_score"]))
+                groups.append(str(r[group_col]))
+            except (TypeError, ValueError):
+                continue
+
+    # Build threshold grid restricted to the clinically-relevant band so the
+    # downstream "best NB on band" check is well-defined.
+    try:
+        n_steps = max(2, int(round((band_hi - band_lo) / 0.02)) + 1)
+        step = (band_hi - band_lo) / max(n_steps - 1, 1)
+        band_thresholds = [round(band_lo + step * i, 4) for i in range(n_steps)]
+    except (TypeError, ValueError, ZeroDivisionError):
+        band_thresholds = None
+
+    # Lazy import to avoid pulling numpy at module-load time
+    from _gate_utils import subgroup_dca as _subgroup_dca
+
+    try:
+        dca_result = _subgroup_dca(
+            y_true=y_true,
+            y_score=y_score,
+            group_labels=groups,
+            thresholds=band_thresholds,
+        )
+    except Exception as exc:
+        add_issue(
+            warnings,
+            "subgroup_dca_skipped_insufficient_data",
+            f"Subgroup-DCA computation failed: {exc}",
+            {"error": str(exc)},
+        )
+        return {"status": "error", "reason": str(exc)}
+
+    # Walk each group's curve and flag any with best NB on band < fail.
+    group_optimal = dca_result.get("group_optimal_net_benefit", {}) or {}
+    if not group_optimal:
+        add_issue(
+            warnings,
+            "subgroup_dca_skipped_insufficient_data",
+            "Subgroup-DCA returned no per-group curves (likely all subgroups "
+            "below the n>=20 minimum).",
+            {"groups_seen": dca_result.get("groups", [])},
+        )
+        return {
+            "status": "insufficient_data",
+            "groups": dca_result.get("groups", []),
+            "n_thresholds": dca_result.get("n_thresholds"),
+        }
+
+    failing_groups: List[Dict[str, Any]] = []
+    for grp_label, best_nb in group_optimal.items():
+        nb = _to_float(best_nb)
+        if nb is None:
+            continue
+        if nb < nb_fail:
+            failing_groups.append({
+                "group": grp_label,
+                "best_net_benefit": nb,
+                "threshold_band": [band_lo, band_hi],
+            })
+
+    if failing_groups:
+        add_issue(
+            failures,
+            "fairness_subgroup_dca_negative",
+            f"{len(failing_groups)} subgroup(s) have net benefit < "
+            f"{nb_fail:.2f} across the {band_lo:.2f}–{band_hi:.2f} threshold "
+            "band — the model would do net harm in that subgroup if used to "
+            "drive treatment decisions. "
+            f"Groups: {[g['group'] for g in failing_groups]}.",
+            {
+                "failing_subgroups": failing_groups,
+                "threshold_band": [band_lo, band_hi],
+                "net_benefit_fail_threshold": nb_fail,
+                "subgroup_column": group_col,
+                "equity_gap": dca_result.get("equity_gap"),
+                "worst_group": dca_result.get("worst_group"),
+            },
+        )
+
+    return {
+        "status": "computed",
+        "subgroup_column": group_col,
+        "threshold_band": [band_lo, band_hi],
+        "net_benefit_fail_threshold": nb_fail,
+        "group_optimal_net_benefit": group_optimal,
+        "equity_gap": dca_result.get("equity_gap"),
+        "best_group": dca_result.get("best_group"),
+        "worst_group": dca_result.get("worst_group"),
+        "n_thresholds": dca_result.get("n_thresholds"),
+        "failing_subgroups": failing_groups,
+    }
 
 
 def _finish(
