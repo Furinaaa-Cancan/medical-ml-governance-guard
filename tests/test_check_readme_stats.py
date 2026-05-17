@@ -85,7 +85,6 @@ class TestDriftDetection:
         refs.mkdir(parents=True)
         kb_copy = refs / "peer-review-kb.json"
 
-        import shutil
         shutil.copy(REPO_ROOT / "README.md", cn_copy)
         shutil.copy(REPO_ROOT / "README_EN.md", en_copy)
         shutil.copy(
