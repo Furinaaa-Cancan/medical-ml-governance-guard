@@ -1242,7 +1242,7 @@ medical-ml-governance-guard/
 │       ├── kb_hygiene_check.py           #   KB provenance / citation / freshness check
 │       └── ...                           #   gate visualization, threshold analysis, policy generator
 │
-├── tests/                  (184)         # ─── Tests (~35K lines) ───
+├── tests/                  (188)         # ─── Tests (~35K lines) ───
 │   ├── conftest.py                       #   Shared fixtures (tmp_path, path injection, test data)
 │   ├── test_*_gate.py      (33)          #   One test file per gate
 │   ├── test_*_e2e.py       (8)           #   End-to-end flow tests (onboarding, workflow, train, split, rag)
