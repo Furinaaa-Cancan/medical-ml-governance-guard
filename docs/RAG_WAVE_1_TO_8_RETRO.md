@@ -1,26 +1,31 @@
-# RAG Layer: Wave 1-7 Overview (2026-05-16 to 2026-05-17)
+# RAG Layer: Wave 1-8 Retrospective (2026-05-16 to 2026-05-17)
 
-**Status**: closeout narrative.
-**Authority**: Wave 8 W9 retrospective.
-**Scope**: the two-day RAG hardening effort that followed the 5-agent strict
-eval (E1-E5), through Wave 7's measurement-system corrections.
+**Status**: frozen retrospective snapshot. Do not edit chronology after Wave 8 closeout.
+**Authority**: Wave 8 W9 deep-int retrospective + Wave 9 D1 split.
+**Scope**: the two-day RAG hardening effort that followed the 5-agent
+strict eval (E1-E5), through Wave 8's measurement-system and
+provenance closeout.
+**Audience**: future-you trying to understand *why* this layer looks
+the way it does. For *how* it works today, see `docs/ARCHITECTURE.md`.
 
 ## TL;DR
 
 - 5-agent strict eval (E1-E5) found 30+ bugs across four dimensions
   (precision, decomposition, edge cases, gate coverage).
-- 7 fix waves shipped ~78 commits, with sub-tracks labeled F*, H*, G*, A*,
-  P*, W* (numbering reset per wave; orchestrator scope-tagged each agent).
-- Net delta: free-text mean P@5 settled at ~0.61 while gate-anchored P@5
-  reached ~0.79 (H14 vs E1 baseline of 0.717). BM25 is now load-bearing in
-  gate-anchored mode (G8 fix), MMR diversifies on dense cosine instead of
-  raw score, and roughly half a dozen LLM-side hedges shipped to keep the
-  synthesis layer honest under weak retrieval.
-- Three architectural findings remain in the backlog: `tag_overlap` is
-  mostly dead (W7-P4), the KB tag space is severely fragmented (W7-P6),
-  and the eval harness is gate-driven where production is partially
-  query-driven (W7-P1 closed the harness side but the divergence story is
-  not finished).
+- 8 fix waves shipped ~80 commits, with sub-tracks labeled F*, H*, G*,
+  A*, P*, W* (numbering reset per wave; orchestrator scope-tagged
+  each agent).
+- Net delta: free-text mean P@5 settled at ~0.61 while gate-anchored
+  P@5 reached ~0.79 (H14 vs E1 baseline of 0.717). BM25 is now
+  load-bearing in gate-anchored mode (G8 fix), MMR diversifies on
+  dense cosine instead of raw score, and roughly half a dozen LLM-side
+  hedges shipped to keep the synthesis layer honest under weak retrieval.
+- Three architectural findings remain in the backlog and have moved to
+  `docs/ARCHITECTURE.md` Open Questions: `tag_overlap` is mostly dead
+  (W7-P4), the KB tag space is severely fragmented (W7-P6), and the
+  eval harness is gate-driven where production is partially
+  query-driven (W7-P1 closed the harness side but the divergence
+  story is not finished).
 
 ## Wave timeline
 
@@ -36,19 +41,21 @@ Five agents ran in parallel against the freshly merged Wave-2026-05-13 KB
   surfaced: missing data (0.2), AUROC-CI (0.2), temporal validation
   (0.3), tuning-on-test (0.4). Four defect categories cataloged: topical
   drift, severity-driven displacement, lexical-anchor failure,
-  near-duplicate clusters. Full report at `/tmp/E1_retrieval_precision.md`.
+  near-duplicate clusters. Full report at `docs/diagnostics/E1_retrieval_precision.md`.
 - **E2 — hybrid decomposition**: BM25 effectively dead in free-text mode
   because `hybrid_rank` guards on `if gate and failure_codes`. Dense
-  carried 100% of free-text scoring.
+  carried 100% of free-text scoring. Full report at
+  `docs/diagnostics/E2_hybrid_decomposition.md`.
 - **E3 — edge cases + CLI parity**: empty-string queries crashed, the
   bridge had a circular import, and the gate-only contract was being
-  violated.
+  violated. Full report at `docs/diagnostics/E3_edge_cases.md`.
 - **E4 — cache + performance**: cold-start latency budget, cache signal
-  staleness when the KB hash changed.
+  staleness when the KB hash changed. Full report at
+  `docs/diagnostics/E4_cache_perf.md`.
 - **E5 — 33-gate coverage**: only 1 sparse gate (`prediction_replay_gate`,
   1 KB entry), 4 honest-empty gates (infra/audit). No KB tag hygiene
   drift. Method A (empty query + gate filter) crashed on every gate —
-  the same bug E3 surfaced. Full report at `/tmp/E5_gate_coverage.md`.
+  the same bug E3 surfaced. Full report at `docs/diagnostics/E5_gate_coverage.md`.
 
 ### Wave 1 (F1-F5): code-bug fix wave
 
@@ -57,9 +64,10 @@ landed in `830ce4a`, the bridge circular-import + gate-only contract
 landed in `251003b`, and the package layout was rationalized into
 `retrieval/`, `index/`, `evals/`, and `core/` subpackages (`ce16bbe` →
 `921ac33`). F4 produced a re-tag proposal for two RAG-weak gates
-(`86cd21f`). Wave 1 also planted the seed of the eval baseline by
-broadening test assertions (`da5fb14`, `cf7fc4b`) and adding regression
-tests that initially shipped under `xfail` markers (`4670991`) and were
+(`86cd21f`, see `docs/diagnostics/F4_kb_curation_proposal.md`). Wave 1
+also planted the seed of the eval baseline by broadening test
+assertions (`da5fb14`, `cf7fc4b`) and adding regression tests that
+initially shipped under `xfail` markers (`4670991`) and were
 unxfail'd once F1+F2 landed (`89d50be`).
 
 ### Wave 2 (H1-H19): broader fix wave + structural finds
@@ -70,21 +78,26 @@ for service-init latency budget (`3f93960`), and the `mlgg rag`
 orchestration subcommand wrapped `scripts/rag/query.py` (`875a88c`).
 H10 codified E1's 12 queries as `scenarios.json` (`e096b7c`), H2
 converted `TAG_OVERLAYS` from substring to whole-token matching
-(`b3a8c47`), and H19 ran a self-audit of the RAG → synthesis-LLM loop
-with RICH / WEAK / ZERO scenarios (full report at
-`/tmp/H19_rag_llm_loop_eval.md`). H19's findings shipped as the
-weak-match hedge (`be9e2d0`) and same-paper marker (`7788b7f`). H14
-re-ran E1 and found gate-anchored mode now hit P@5 = 0.792, +0.075
-over the E1 free-text baseline (full report at `/tmp/H14_eval_delta.md`).
+(`b3a8c47`, proposal at `docs/diagnostics/h2_proposed_remediation.md`),
+and H19 ran a self-audit of the RAG → synthesis-LLM loop with
+RICH / WEAK / ZERO scenarios (full report at
+`docs/diagnostics/H19_rag_llm_loop_eval.md`). H19's findings shipped as
+the weak-match hedge (`be9e2d0`) and same-paper marker (`7788b7f`).
+H14 re-ran E1 and found gate-anchored mode now hit P@5 = 0.792, +0.075
+over the E1 free-text baseline (full report at
+`docs/diagnostics/H14_eval_delta.md`). H17 proposed a CI drift gate
+for README stats (`docs/diagnostics/H17_ci_drift_gate_proposal.md`).
 
 ### Wave 3 (G1-G10): post-Wave-2 followup wave
 
 G2 split the `reproducibility` keyword in the backfill map
-(`342e70b`), G3 hardened cache signals (`2339e64`), G8 found the BM25
+(`342e70b`, decision at `docs/diagnostics/G2_gate_taxonomy_decision.md`),
+G3 hardened cache signals (`2339e64`), G8 found the BM25
 class-of-failures bug — a 2-character token filter was eating canonical
-codes like `MLGG-E01` (`c542240`, full diag at `/tmp/G8_bm25_diagnostic.md`),
-and G10 routed subprocess echo to stderr (`ee292c3`). Pre-push hook
-caught README drift locally (`2128a6a`).
+codes like `MLGG-E01` (`c542240`, full diag at
+`docs/diagnostics/G8_bm25_diagnostic.md`), and G10 routed subprocess
+echo to stderr (`ee292c3`). Pre-push hook caught README drift locally
+(`2128a6a`).
 
 ### Wave 4 (H1-H18): hedges + measurement-path repair
 
@@ -94,139 +107,63 @@ harness was switched to default `--mode hybrid` to match production
 script (`run_eval.py`) was committed as single source of truth
 (`bbab235`). MMR floor was raised to 0.88 so MMR only penalizes
 near-duplicates rather than topical neighbors (`a5ada09`, W2 q9
-regression diag at `/tmp/W2_q9_regression_diagnosis.md`). The W3 BM25
-IDF-overanchoring investigation (`/tmp/W3_bm25_idf_diagnosis.md`)
-concluded H14's alleged regressions were a measurement-system artifact,
-not a real regression — see "ghost regression" anti-pattern below.
+regression diag at `docs/diagnostics/W2_q9_regression_diagnosis.md`).
+The W3 BM25 IDF-overanchoring investigation concluded H14's alleged
+regressions were a measurement-system artifact, not a real regression
+— see "ghost regression" anti-pattern below.
 
 ### Wave 5 (W1-W5): metric primary + baseline freeze
 
 Switched primary metric from `tag_precision@K` to `hit@K` with a
 coverage_rate companion (`1dacc98`, A2+A4 findings). Re-baselined
 `TestLiveRetrievalQuality` (`424d37a`), committed the authoritative
-post-Wave-5 hybrid baseline snapshot (`8be5253`), and shipped the
-A4 ghost-improvement coverage regression CI gate (`aaba296`).
+post-Wave-5 hybrid baseline snapshot (`8be5253`, since renamed to
+`post_wave7_baseline_hybrid` in W8-W1 — see ARCHITECTURE.md), and
+shipped the A4 ghost-improvement coverage regression CI gate
+(`aaba296`).
 
 ### Wave 6 (W1-W3): off-modality denylist hedge
 
 Shipped the off-MLGG-modality denylist hedge (`bb5cbaa`, W7P2
 ships-W1) which short-circuits queries that BGE happily embeds but
 that have nothing to do with ML governance ("music", "sailing",
-"woodworking" probes).
+"woodworking" probes). Off-scope ROI rationale at
+`docs/diagnostics/W6W1_off_scope_roi.md`; external-validation KB
+enrichment notes at `docs/diagnostics/W6W2_external_validation_kb_enrichment.md`.
 
 ### Wave 7 (W1-W10 + P-track): audits + remaining cleanup
 
 W7-P1 found 19 of 30 scenarios returning zero hits — 15 were silently
 dropped by `run_eval.py` because they lacked a `query_text` field and
 the harness short-circuited empty queries before hitting retrieval
-(`976218a`, diag `/tmp/W7P1_zero_hit_diagnosis.md`). Fix: synthesize
-query from gate + failure codes when missing, matching the
+(`976218a`, diag `docs/diagnostics/W7P1_zero_hit_diagnosis.md`). Fix:
+synthesize query from gate + failure codes when missing, matching the
 `gate_rag_bridge._synthesize_query` production path. W7-P4 audited
 tag overlap across all 49 canonical patterns and found 45 of 49 DEAD
 (<5% of within-CP pairs share even one tag), full results at
-`/tmp/W7P4_all_cp_fragmentation.md`. W7-P0 lowered the `tag_overlap`
-threshold to >=1 shared as a partial mitigation (`9e6391c`). W7-P8
-covered defensive branches in `gate_rag_bridge` (`7e9596d`), W7-P9
-routed `validate` status messages to stderr (`9127345`), and W7-P5
-re-generated the post-Wave-5 baseline after the W7-P1
+`docs/diagnostics/W7P4_all_cp_fragmentation.md`. W7-P0 lowered the
+`tag_overlap` threshold to >=1 shared as a partial mitigation
+(`9e6391c`); full architectural deliberation chain at
+`docs/diagnostics/W7P0_tag_overlap_arch.md` plus the C1/C3/baseline/final
+variant series. W7-P6 root-caused the fragmentation as 89.5% singleton
+tags (`docs/diagnostics/W7P6_singleton_tags_audit.md`). W7-P7 re-ran
+E2 against the fixed metric layer (`docs/diagnostics/W7P7_e2_redo.md`).
+W7-P8 covered defensive branches in `gate_rag_bridge` (`7e9596d`,
+coverage audit at `docs/diagnostics/W7P8_rag_coverage_audit.md`),
+W7-P9 routed `validate` status messages to stderr (`9127345`,
+stream audit at `docs/diagnostics/W7P9_mlgg_stream_audit.md`), and
+W7-P5 re-generated the post-Wave-5 baseline after the W7-P1
 query-synthesis fix (`889b0ec`).
 
-### Wave 8 (W1-W9): closeout + provenance
+### Wave 8 (W1-W10): closeout + provenance
 
 W8-W5 normalized MMR top-1 score to `lam * relevance` so the
-provenance JSON matches the displayed ranking (`81115c5`). W8-W9
-(this document) is the retrospective.
-
-## Architecture before vs after
-
-### Hybrid ranker — 4 signals
-
-```
-final_score = w_dense * dense_cosine          (BGE-large, query-prefixed)
-            + w_bm25  * bm25_minmax           (gate-anchored only, 2+ char tokens)
-            + w_tag   * tag_overlap_jaccard   (mostly dead — see Open #1)
-            + w_sev   * severity_prior        (critical/high/medium/low boost)
-```
-
-Paths:
-- `scripts/rag/retrieval/dense.py` — BGE-large-en-v1.5 with
-  query/passage prefix asymmetry
-- `scripts/rag/retrieval/bm25.py` — manifest-driven `TAG_SYNONYMS`,
-  whole-token matching, 2+ char filter that no longer eats canonical
-  codes (G8 fix `c542240`)
-- `scripts/rag/retrieval/hybrid.py` — score fusion, severity boost,
-  MMR v2 dense-cosine diversification with floor 0.88
-
-### Cache layer
-
-- `references/retrieval_eval/concerns_embeddings.npz` — KB embeddings
-- `kb_hash.txt` — invalidation signal
-- Atomic write semantics via `index/cache.py` (extracted in
-  `407a8a8`); `prewarm()` helper (`3f93960`, hardened in `2339e64`)
-  keeps cold-start within the latency budget covered by
-  `tests/test_rag_latency.py`.
-
-### Eval infrastructure
-
-- `scripts/rag/evals/harness.py` — supports `--mode bm25_only|hybrid`,
-  defaults to `hybrid` (W3 fix `caaa7a0`).
-- `scripts/rag/evals/run_eval.py` — committed reproducible eval entry
-  point (W3+W1 `bbab235`). Synthesizes query from gate when
-  `query_text` is absent (W7-P1 fix `976218a`).
-- `references/retrieval_eval/scenarios.json` — 30 scenarios incl. 3
-  off-domain WEAK + 1 empty-query ZERO + 26 gate-anchored.
-- `references/retrieval_eval/post_wave5_baseline_hybrid.{md,json}` —
-  the committed reference (`8be5253`, regenerated `889b0ec`).
-- Primary metrics: `hit@K` (A2) + `coverage_rate` (A4).
-
-### Hedge layers (governance honesty)
-
-The LLM-side honesty layer in `scripts/core/gate_rag_bridge.py`:
-
-- `_is_weak_match` — fallback-only path + final score < 0.05
-  (`be9e2d0`)
-- `_is_low_confidence` — dense < 0.72 → hedge (`39f5a81`)
-- `_is_off_modality_query` — denylist for off-MLGG-modality queries
-  (`bb5cbaa`)
-- same-paper marker — annotates concerns from the same paper to
-  prevent over-counting (`7788b7f`)
-
-## Open architectural questions
-
-### 1. tag_overlap signal mostly dead
-
-W7-P4 audit: 45 of 49 canonical patterns DEAD (<5% of within-CP pairs
-share even one tag), 4 DEGRADED, 0 HEALTHY. W7-P0 lowered the
-threshold to >=1 shared as a workaround but the gain was modest. Root
-cause from W7-P6: 89.5% of tags are singletons (each appears on
-exactly one concern), so within-CP pairs almost never overlap.
-
-**Backlog options**: (a) replace `tag_overlap` with within-CP dense
-cosine, (b) canonicalize tags via a curated vocabulary, (c) drop the
-signal entirely and reweight.
-
-### 2. Query-driven vs gate-driven eval
-
-`harness.py` + `run_eval.py` default to hybrid (production path), but
-`scenarios.json` is 26 gate-driven + 4 free-text. The `query_text`
-field added by H10 (`e096b7c`) is underutilized for the gate-driven
-26. W7-P1 closed the harness short-circuit, but the deeper divergence
-— production has both gate-anchored and free-text users, eval is
-biased toward gate-anchored — remains.
-
-**Backlog**: build a query-driven harness that runs the free-text use
-case as a first-class citizen, with its own labeled precision target.
-
-### 3. Eval metrics
-
-W7-P7 found `tag_precision@K` actively rewards "stay in cluster",
-which fights MMR diversification. W5/A2 made `hit@K` primary; W5/A4
-added `coverage_rate` as a guard against ghost improvement. 19 of 30
-zero-hit scenarios fixed by W7-P1.
-
-**Backlog**: 20-query labeled precision (W8-W2 ships as the
-authoritative external benchmark; this doc captures the gap, the
-implementation lives in W8).
+provenance JSON matches the displayed ranking (`81115c5`). W8-W9 was
+the original 7-wave overview (commit `2c89259`); Wave 9 D1 (this
+edit) split that overview into `docs/ARCHITECTURE.md` (durable
+maintainer reference) and this retrospective. W8-W10 audited disease-KB
+provenance and flagged the LLM-generated entries that need clinical
+review (`docs/diagnostics/W8W10_disease_kb_provenance_audit.md`).
 
 ## Process learnings (5 anti-patterns + mitigations)
 
@@ -248,12 +185,12 @@ implementation lives in W8).
    halted because my plan's premise was wrong (e.g. "this regression
    exists" — it didn't). **Mitigation**: trust agent halts; require
    a repro before fix work proceeds.
-5. **git commit -o is not race-safe** — F1 and F2 collided on the
+5. **`git commit -o` is not race-safe** — F1 and F2 collided on the
    same file; P3 absorbed without surfacing the conflict.
    **Mitigation**: hunk-level isolation for parallel agents, or
    explicit file ownership in the orchestrator dispatch.
 
-## Commit timeline (~78 entries, chronological, grouped by wave)
+## Commit timeline (~80 entries, chronological, grouped by wave)
 
 ```
 Pre-wave / KB ingestion (Wave 2026-05-13 carryover)
@@ -342,25 +279,30 @@ Wave 7 — W1-W10 + P-track
   15841a0  fix(drift): bump tests 147→150
   889b0ec  evals: regenerate post-Wave-5 baseline
 
-Wave 8 — W1-W9 (closeout)
+Wave 8 — W1-W10 (closeout + provenance)
   81115c5  fix(rag): normalize MMR top-1 score (W8-W5)
-  (this doc)  docs(rag): 7-wave overview narrative (W8-W9)
+  458fe00  fix(rag): whole-word denylist matching (W8-W4)
+  34deaf3  feat(lint): AST checker for stderr-routing (W8-W3)
+  74af7a6  fix(diagnostics): harvest_real_gate_codes --help clean
+  2c89259  docs(rag): 7-wave overview narrative (W8-W9; this doc's predecessor)
+  (W9 D1)  docs(rag): preserve diagnoses + split overview
 ```
 
-## Maintainer notes
+## Maintainer notes (pointers)
 
-- Re-run `python3 scripts/rag/evals/run_eval.py --mode hybrid` to
-  produce a baseline diff against `post_wave5_baseline_hybrid.json`.
-  CI guards on coverage regression (A4 gate).
-- See `docs/RAG_TROUBLESHOOTING.md` for symptom → fix mapping
-  (symbolic anchors added by H8 deep-int).
-- See `docs/KB_TAG_STYLE_GUIDE.md` for tag conventions; the
-  fragmentation problem in Open #1 needs this guide's authority
-  before any large-scale recanonicalization.
-- Diagnosis docs in `/tmp/` (E1, E5, G8, H14, H19, W2, W3, W7P1,
-  W7P4, W7P8) are the load-bearing forensic record. Persist them
-  into `docs/diagnostics/` before the next wave or risk losing the
-  rationale.
-- When orchestrating parallel agents on this layer, dispatch with
-  explicit file ownership — `git commit -o` did not save us from
-  F1/F2 colliding on the same file.
+- **System architecture today**: `docs/ARCHITECTURE.md` is the
+  authoritative reference. This retro is a frozen narrative — do not
+  edit it to reflect post-Wave-8 changes.
+- **Symptom → fix mapping**: `docs/RAG_TROUBLESHOOTING.md` has
+  symbolic anchors added by H8 deep-int.
+- **Tag conventions**: `docs/KB_TAG_STYLE_GUIDE.md`. The
+  fragmentation problem in ARCHITECTURE Open #1 needs this guide's
+  authority before any large-scale recanonicalization.
+- **Forensic diagnoses**: `docs/diagnostics/` holds 30 markdown
+  diagnoses (E1-E5, F4, G2, G8, H2, H14, H17, H19, W2, W6/W7/W8
+  series) — the load-bearing forensic record cited throughout this
+  retro. Preserved by Wave 9 D1 from the volatile original location.
+- **Parallel-agent dispatch**: when orchestrating parallel agents on
+  this layer, dispatch with explicit file ownership — `git commit -o`
+  did not save us from F1/F2 colliding on the same file. See
+  anti-pattern #5 above.
