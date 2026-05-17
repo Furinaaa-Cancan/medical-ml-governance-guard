@@ -137,7 +137,7 @@ Moor et al. 2019 is the inverse of Yan 2020: a **well-engineered code repo** wra
 
 ## 9. Cross-paper observation (Phase-2 final-agent note)
 
-At the time of this report's writing, **no sibling Phase 2 case files** (purushotham, che, li_BEHRT, johnson, harutyunyan, kaji) have landed in `docs/diagnostics/` — this case 7 may be the first Phase 2 file written. I therefore cannot make a cross-paper claim about Phase 2 yet. What I *can* say is: **across Phase 1 case 1 (Yan 2020) and this Phase 2 case 7, L2 ran 0 / 33 gates on both — consistent with the spec interpretation that L2 is a pipeline contract, not an external-audit weapon.** When the other 6 Phase 2 case files land, the aggregate row to compute is `L2_ran_total / (33 × 8)`; if it remains 0, the `hybrid_v1_spec.md` should be amended.
+All 6 sibling Phase-2 case files (purushotham 2018, che 2018, li 2020 BEHRT, johnson 2017, harutyunyan 2019, kaji 2019) landed in `docs/diagnostics/` concurrently with this report and each independently records `L2 = 0 / 33 gates ran`. **Combined with Phase 1 case 1 (Yan 2020) and this case 7, the verdict is: L2 ran 0 / (33 × 8) = 0 / 264 gate-paper pairs across the full hybrid v1 benchmark.** The `hybrid_v1_spec.md` should be amended to rename L2 as "pipeline contract gates (require MLGG-instrumented training run)" — its inclusion as a parallel external-audit layer is empirically falsified at n=8.
 
 ---
 
