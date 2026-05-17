@@ -14,6 +14,7 @@ Usage:
   python3 scripts/diagnostics/lint_stderr_routing.py [path...]
   Exits 0 if clean, 1 if violations found.
 """
+import argparse
 import ast
 import sys
 from pathlib import Path
@@ -73,7 +74,14 @@ def lint_file(path: Path) -> list[tuple[int, str]]:
 
 
 def main() -> int:
-    paths = [Path(p) for p in (sys.argv[1:] or ["scripts/"])]
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "paths",
+        nargs="*",
+        help="files or directories to lint (default: scripts/)",
+    )
+    args = parser.parse_args()
+    paths = [Path(p) for p in (args.paths or ["scripts/"])]
     all_violations: list[tuple[str, int, str]] = []
     for p in paths:
         if p.is_file():
