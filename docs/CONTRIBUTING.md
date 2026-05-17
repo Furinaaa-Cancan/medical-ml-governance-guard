@@ -58,3 +58,7 @@ Historical context: 8 waves of RAG fixes accumulated **5 separate drift fix-forw
 git config core.hooksPath          # should print ".githooks"
 pre-commit run --all-files         # should run without "pre-commit not installed"
 ```
+
+## Concurrent sessions (multi-agent / multi-terminal)
+
+If you run more than one Claude Code session (or other agent / terminal) against this repo at the same time, follow the race-proof commit protocol in [`docs/adr/0002_race_proof_commit_protocol.md`](adr/0002_race_proof_commit_protocol.md). The short version: `git pull --rebase` before edit AND before commit, commit explicit paths via `git commit -o <file>`, never `git stash` to "make room" (that path produced the W13-C0 dead-stash cleanup wave), and never `git add .` / `-A` in a shared checkout. If three push retries fail, hand back to the orchestrator rather than fight the race.
