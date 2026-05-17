@@ -1461,7 +1461,7 @@ medical-ml-governance-guard/
 │   │   # 注: gate → RAG 桥 (gate_rag_bridge.py, 204 LOC) 住在 scripts/core/，是 RAG 的消费方，
 │   │   #     不再放在 scripts/rag/ 内部，避免 "RAG 知道 gate" 这种反向依赖。
 │   │
-│   ├── diagnostics/       (29 files, 5.3K LOC)  # 环境诊断 + 文档一致性 + KB 卫生
+│   ├── diagnostics/       (31 files, 5.3K LOC)  # 环境诊断 + 文档一致性 + KB 卫生
 │   │   ├── env_doctor.py                 #   169  依赖健康检查 (core + optional backends)
 │   │   ├── init_guide.py                 #  1035  交互式项目方法学指南生成器
 │   │   ├── mlgg_web.py                   #   701  Flask Web UI (legacy 本地向导)
@@ -1498,7 +1498,7 @@ medical-ml-governance-guard/
 │       └── run_endurance_test.py         #   767  6 小时耐久性测试
 │          └──────────────────────────────────────────────────────────────────┘
 │
-├── tests/                  (154)         # ─── 测试 (~35K lines) ───
+├── tests/                  (156)         # ─── 测试 (~35K lines) ───
 │   ├── conftest.py                       #   统一 fixture (tmp_path, 路径注入, 共享数据)
 │   ├── test_*_gate.py      (32)          #   每个 gate 对应一个测试文件
 │   ├── test_*_e2e.py       (8)           #   端到端流程测试 (onboarding, workflow, train, split, rag)
