@@ -85,7 +85,7 @@
 
 ### 工程保证（而不只是愿景）
 
-- **SKILL.md ≤ 500 行**：当前 290 行，符合 Claude Code 官方建议；超长内容拆到 `docs/` 或 gate docstring。
+- **SKILL.md ≤ 500 行**：当前 310 行，符合 Claude Code 官方建议；超长内容拆到 `docs/` 或 gate docstring。
 - **文档数字 pre-commit 校验**：`check_docs_consistency.py` + `check_readme_stats.py` 抓 `SKILL.md ↔ README ↔ reviewer.yaml` 的 parity 和 KB freshness drift，**PR 会被 fail 而不是 merge 后才发现**。
 - **阈值是代码不是 prompt**：所有 pass/fail 阈值、validator 规则、检测算法都是 Python 常量 + 函数，gate 不从 markdown 读判定逻辑。
 
@@ -1388,7 +1388,7 @@ medical-ml-governance-guard/
 │   │                                      # LOC snapshot 2026-04-24; drifts per commit —
 │   │                                      # treat as order-of-magnitude, run `wc -l` for exact.
 │   │
-│   ├── core/              (6 files, 6.4K LOC)   # 框架底座 — 所有 gate 共享的基础设施
+│   ├── core/              (7 files, 6.4K LOC)   # 框架底座 — 所有 gate 共享的基础设施
 │   │   ├── _gate_framework.py            #   531  报告信封 v2.0, GateIssue/Severity, CLI 契约 (exit 0/2)
 │   │   ├── _gate_registry.py             #   820  33 gate DAG 拓扑排序 + 依赖解析 + 层级并行
 │   │   ├── _gate_utils.py                #  2927  60+ 统计函数: calibration, VIF, NRI/IDI, DCA, bootstrap CI
@@ -1516,7 +1516,7 @@ medical-ml-governance-guard/
 │   │   # 注: gate → RAG 桥 (gate_rag_bridge.py, 204 LOC) 住在 scripts/core/，是 RAG 的消费方，
 │   │   #     不再放在 scripts/rag/ 内部，避免 "RAG 知道 gate" 这种反向依赖。
 │   │
-│   ├── diagnostics/       (32 files, 5.3K LOC)  # 环境诊断 + 文档一致性 + KB 卫生
+│   ├── diagnostics/       (33 files, 5.3K LOC)  # 环境诊断 + 文档一致性 + KB 卫生
 │   │   ├── env_doctor.py                 #   169  依赖健康检查 (core + optional backends)
 │   │   ├── init_guide.py                 #  1035  交互式项目方法学指南生成器
 │   │   ├── mlgg_web.py                   #   701  Flask Web UI (legacy 本地向导)
@@ -1553,9 +1553,9 @@ medical-ml-governance-guard/
 │       └── run_endurance_test.py         #   767  6 小时耐久性测试
 │          └──────────────────────────────────────────────────────────────────┘
 │
-├── tests/                  (167)         # ─── 测试 (~35K lines) ───
+├── tests/                  (174)         # ─── 测试 (~35K lines) ───
 │   ├── conftest.py                       #   统一 fixture (tmp_path, 路径注入, 共享数据)
-│   ├── test_*_gate.py      (32)          #   每个 gate 对应一个测试文件
+│   ├── test_*_gate.py      (33)          #   每个 gate 对应一个测试文件
 │   ├── test_*_e2e.py       (8)           #   端到端流程测试 (onboarding, workflow, train, split, rag)
 │   ├── test_stress_*.py    (5)           #   压力测试 (audit chain, pipeline, numeric, security)
 │   ├── test_security*.py   (4)           #   安全 + 红队测试

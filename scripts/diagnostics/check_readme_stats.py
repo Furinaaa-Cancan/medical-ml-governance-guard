@@ -189,6 +189,60 @@ def _live_curated_references_mb() -> int:
     return round(total / (1024 * 1024))
 
 
+def _live_dataset_count() -> int:
+    """Return the count of medical example CSV datasets shipped under
+    ``examples/``. This backs the README header badge
+    ``datasets-NN%20medical-purple``.
+
+    Counted at the top level of ``examples/`` only — synthetic
+    sub-fixtures used by individual tests live under
+    ``tests/fixtures/`` and are not user-facing example data.
+    """
+    ex = ROOT / "examples"
+    if not ex.is_dir():
+        return 0
+    return sum(
+        1 for p in ex.glob("*.csv") if not p.name.startswith(".")
+    )
+
+
+def _live_lint_rule_count() -> int:
+    """Return the count of registered ``mlgg_lint`` rule classes.
+
+    Authoritative source = the rules registry built by importing every
+    ``plugin/mlgg_lint/rules/r*.py`` module. This guarantees the badge
+    tracks the actually-loadable rule set, not just the file count
+    (which can drift via abandoned/stub files).
+
+    Falls back to a file-count over ``plugin/mlgg_lint/rules/r*.py``
+    when the plugin can't be imported (e.g. clean clone before
+    ``pip install -e plugin/``).
+    """
+    plugin_path = ROOT / "plugin"
+    inserted = False
+    if plugin_path.is_dir():
+        sys.path.insert(0, str(plugin_path))
+        inserted = True
+    try:
+        from mlgg_lint.rules import get_all_rules  # type: ignore
+        return len(get_all_rules())
+    except Exception:
+        # Fall back to file count: r*.py modules in the rules dir.
+        rules_dir = plugin_path / "mlgg_lint" / "rules"
+        if not rules_dir.is_dir():
+            return 0
+        return sum(
+            1 for p in rules_dir.glob("r*.py")
+            if not p.name.startswith(".")
+        )
+    finally:
+        if inserted:
+            try:
+                sys.path.remove(str(plugin_path))
+            except ValueError:
+                pass
+
+
 def _live_pytest_collect_count() -> int:
     """Authoritative pytest test count via `--collect-only`. Used for
     the README header badge `tests-NNNN passed`.
@@ -318,6 +372,92 @@ def _build_structure_claims() -> List[Dict[str, object]]:
         "source": "pytest_count",
         "description": "EN header badge 'tests-NNNN passed'",
         "tolerance": 100,
+        "skip_when": -1,
+    })
+
+    # ── Header badges (W20-F5) ─────────────────────────────────────
+    # CN and EN both ship a row of shields.io badges in the page
+    # header. Before W20-F5 only `tests-` was checked; EN drifted to
+    # `datasets-14` while CN said 16 (truth: 16 CSVs in examples/),
+    # and EN was silently missing the lint-rules badge entirely.
+    # The four claims below cover every numeric header badge in both
+    # READMEs; freshness fires on missing/stale values, parity fires
+    # automatically via the shared name-suffix logic in check().
+    #
+    # The badge URL format is `badge/<label>-<value>-<color>` where
+    # `--` in the URL decodes to a literal `-` in the label, so the
+    # regex anchors on the value position with a non-greedy lead.
+
+    # gates-NN%20fail--closed → registered gate count
+    claims.append({
+        "name": "badge_gates_cn",
+        "doc": CN,
+        "regex": r"badge/gates-(\d+)%20fail--closed",
+        "source": "gate_count",
+        "description": "CN header badge 'gates-NN fail-closed'",
+    })
+    claims.append({
+        "name": "badge_gates_en",
+        "doc": EN,
+        "regex": r"badge/gates-(\d+)%20fail--closed",
+        "source": "gate_count",
+        "description": "EN header badge 'gates-NN fail-closed'",
+    })
+
+    # datasets-NN%20medical → examples/*.csv count
+    claims.append({
+        "name": "badge_datasets_cn",
+        "doc": CN,
+        "regex": r"badge/datasets-(\d+)%20medical",
+        "source": "dataset_count",
+        "description": "CN header badge 'datasets-NN medical'",
+    })
+    claims.append({
+        "name": "badge_datasets_en",
+        "doc": EN,
+        "regex": r"badge/datasets-(\d+)%20medical",
+        "source": "dataset_count",
+        "description": "EN header badge 'datasets-NN medical'",
+    })
+
+    # lint%20rules-NN%20(R001--R0NN) → registered rule count
+    claims.append({
+        "name": "badge_lint_rules_cn",
+        "doc": CN,
+        "regex": r"badge/lint%20rules-(\d+)%20",
+        "source": "lint_rule_count",
+        "description": "CN header badge 'lint rules-NN'",
+    })
+    claims.append({
+        "name": "badge_lint_rules_en",
+        "doc": EN,
+        "regex": r"badge/lint%20rules-(\d+)%20",
+        "source": "lint_rule_count",
+        "description": "EN header badge 'lint rules-NN'",
+    })
+
+    # code-NNNK%20lines → rough total Python LOC across the project.
+    # Hand-maintained (rounded thousands). The badge value is a human
+    # choice, not derivable from a single authoritative computation
+    # (scripts/ vs scripts+plugin+tests vs git-ls-files all diverge
+    # by tens of thousands). The "truth" is a sentinel (-1) so the
+    # freshness branch short-circuits via skip_when; the PARITY loop
+    # downstream still catches CN/EN drift — the W19-E2 finding was
+    # CN 147K vs EN 145K, which the old checker missed entirely.
+    claims.append({
+        "name": "badge_code_loc_cn",
+        "doc": CN,
+        "regex": r"badge/code-(\d+)K%20lines",
+        "source": "code_loc_k",
+        "description": "CN header badge 'code-NNNK lines'",
+        "skip_when": -1,
+    })
+    claims.append({
+        "name": "badge_code_loc_en",
+        "doc": EN,
+        "regex": r"badge/code-(\d+)K%20lines",
+        "source": "code_loc_k",
+        "description": "EN header badge 'code-NNNK lines'",
         "skip_when": -1,
     })
 
@@ -600,6 +740,13 @@ def check() -> Tuple[int, List[str]]:
         "skill_md_lines": _live_skill_md_lines(),
         "refs_curated_mb": _live_curated_references_mb(),
         "pytest_count": _live_pytest_collect_count(),
+        "dataset_count": _live_dataset_count(),
+        "lint_rule_count": _live_lint_rule_count(),
+        # code_loc_k is a hand-rounded value with no single source of
+        # truth — see _build_structure_claims() comment on the
+        # badge_code_loc_* claims. The -1 sentinel lets skip_when
+        # bypass freshness while parity still runs.
+        "code_loc_k": -1,
     }
     for d, (excl, incl) in subdirs.items():
         truth[f"scripts_{d}_excl"] = excl
@@ -619,17 +766,33 @@ def check() -> Tuple[int, List[str]]:
         match = re.search(regex, text)
         actual: Optional[int] = int(match.group(1)) if match else None
         expected = truth[str(claim["source"])]
-
-        # Skip this claim entirely when the live truth is the sentinel
-        # value (e.g. MLGG_CHECK_PYTEST_COUNT=0 → pytest_count=-1).
-        skip_when = claim.get("skip_when")
-        if skip_when is not None and expected == skip_when:
-            continue
-
         tolerance = int(claim.get("tolerance") or 0)  # type: ignore[arg-type]
 
         where = "CN" if doc == CN else "EN"
         name = str(claim["name"])
+
+        # Always record CN/EN values (even when freshness is skipped)
+        # so the PARITY check downstream still catches CN/EN drift.
+        # Without this, sentinel-truth claims like code-LOC would
+        # silently lose their parity coverage. Use a normalized key
+        # (strip "_cn"/"_en"/"_mission") so the two docs share a slot.
+        parity_key = (
+            name
+            .replace("_cn", "")
+            .replace("_en", "")
+            .replace("_mission", "")
+        )
+        if actual is not None:
+            (cn_values if where == "CN" else en_values)[parity_key] = actual
+
+        # Skip freshness when the live truth is the sentinel value
+        # (e.g. MLGG_CHECK_PYTEST_COUNT=0 → pytest_count=-1, or the
+        # hand-rounded code-LOC badge whose truth is intentionally
+        # unenforceable). Parity has already been recorded above.
+        skip_when = claim.get("skip_when")
+        if skip_when is not None and expected == skip_when:
+            continue
+
         if actual is None:
             errors.append(
                 f"[{where}] {name}: pattern '{regex}' matched nothing — "
@@ -643,10 +806,6 @@ def check() -> Tuple[int, List[str]]:
                 f"[{where}] {name}: README says {actual}, truth is "
                 f"{expected}{detail} ({claim['description']})"
             )
-        if where == "CN":
-            cn_values[name.replace("_cn", "").replace("_mission", "")] = actual
-        else:
-            en_values[name.replace("_en", "").replace("_mission", "")] = actual
 
     # Parity: for each stat that has both CN and EN, numbers must agree.
     for key in set(cn_values) & set(en_values):

@@ -10,11 +10,14 @@
   <br>
   <em>Top-Journal Review Standards &times; AI-Driven Medical Prediction Model Governance Framework</em>
   <br><br>
+  <a href="https://github.com/Furinaaa-Cancan/medical-ml-governance-guard"><img src="https://img.shields.io/badge/GitHub-Furinaaa--Cancan%2Fmedical--ml--governance--guard-181717?logo=github" alt="GitHub Repo"></a>
+  <br>
   <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/"><img src="https://img.shields.io/badge/License-PolyForm%20NC%201.0.0-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/tests-4712%20passed-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/gates-33%20fail--closed-critical" alt="Gates">
-  <img src="https://img.shields.io/badge/datasets-14%20medical-purple" alt="Datasets">
-  <img src="https://img.shields.io/badge/code-145K%20lines-informational" alt="Code">
+  <img src="https://img.shields.io/badge/datasets-16%20medical-purple" alt="Datasets">
+  <img src="https://img.shields.io/badge/code-147K%20lines-informational" alt="Code">
+  <img src="https://img.shields.io/badge/lint%20rules-30%20(R001--R030)-orange" alt="Lint Rules">
   <a href="https://doi.org/10.1136/bmj-2023-078378"><img src="https://img.shields.io/badge/TRIPOD%2BAI-2024-blue" alt="TRIPOD+AI"></a>
   <a href="https://doi.org/10.1136/bmj-2024-082505"><img src="https://img.shields.io/badge/PROBAST%2BAI-2025-blue" alt="PROBAST+AI"></a>
 </p>
@@ -24,7 +27,7 @@
 <p align="center">
 <strong>33 Fail-Closed Gates</strong> &middot; <strong>9-Phase Workflow</strong> &middot; <strong>12-Dimension Scoring</strong> &middot; <strong>3-Level Compliance</strong>
 <br>
-<strong>23 Model Families</strong> &middot; <strong>16 Real Medical Datasets (630K+ rows)</strong> &middot; <strong>335 NC+CM Peer Review PDFs · 154 Curated with Concerns</strong> &middot; <strong>21 Analysis Tools</strong>
+<strong>23 Model Families</strong> &middot; <strong>16 Real Medical Datasets (630K+ rows)</strong> &middot; <strong>335 NC+CM Peer Review PDFs · 154 Curated with Concerns</strong> &middot; <strong>30 Static Analysis Rules</strong>
 <br><br>
 <em>Every audit recommendation cites real top-journal peer review opinions as evidence.<br>Not a rule engine &mdash; an AI co-review system that thinks like a Nature Medicine reviewer.</em>
 </p>
@@ -81,7 +84,7 @@ Both end up running the **same Python gate**. The Skill saves keystrokes, not co
 
 ### Engineering guarantees (not just aspirations)
 
-- **SKILL.md ≤ 500 lines**: currently 290 lines, within Claude Code's official guidance; longer content lives under `docs/` or inside gate docstrings.
+- **SKILL.md ≤ 500 lines**: currently 310 lines, within Claude Code's official guidance; longer content lives under `docs/` or inside gate docstrings.
 - **Pre-commit doc-number check**: `check_docs_consistency.py` + `check_readme_stats.py` catch drift across `SKILL.md ↔ README ↔ reviewer.yaml`; **PRs fail before merge**, not after.
 - **Thresholds are code, not prompts**: every pass/fail threshold, validator rule, and detection algorithm is a Python constant + function. Gates do not consult markdown for verdict logic.
 
@@ -1152,7 +1155,7 @@ medical-ml-governance-guard/
 │
 ├── scripts/                              # ─── Core Code (106 files, ~83K lines) ───
 │   │                                     # File / LOC snapshot 2026-04-24; counts drift per commit.
-│   ├── core/              (7)            # Framework foundation
+│   ├── core/              (8)            # Framework foundation
 │   │   ├── _gate_framework.py            #   GateIssue/Severity, report envelope v2.0, CLI contract
 │   │   ├── _gate_registry.py             #   33-gate DAG (8-layer topological sort, parallel markers)
 │   │   ├── _gate_utils.py                #   60+ stat/IO/security functions (calibration, VIF, NRI...)
@@ -1230,7 +1233,7 @@ medical-ml-governance-guard/
 │   │   # Note: gate → RAG bridge (gate_rag_bridge.py, 204 LOC) lives in scripts/core/ as RAG's consumer,
 │   │   # not inside scripts/rag/ — keeps the dep direction one-way (gates → RAG).
 │   │
-│   └── diagnostics/       (33)           # Environment, docs-consistency & KB hygiene
+│   └── diagnostics/       (34)           # Environment, docs-consistency & KB hygiene
 │       ├── env_doctor.py                 #   Dependency health check
 │       ├── mlgg_web.py                   #   Flask Web UI
 │       ├── check_docs_consistency.py     #   SKILL.md ↔ README ↔ reviewer.yaml drift detector (pre-commit)
@@ -1239,9 +1242,9 @@ medical-ml-governance-guard/
 │       ├── kb_hygiene_check.py           #   KB provenance / citation / freshness check
 │       └── ...                           #   gate visualization, threshold analysis, policy generator
 │
-├── tests/                  (167)         # ─── Tests (~35K lines) ───
+├── tests/                  (174)         # ─── Tests (~35K lines) ───
 │   ├── conftest.py                       #   Shared fixtures (tmp_path, path injection, test data)
-│   ├── test_*_gate.py      (32)          #   One test file per gate
+│   ├── test_*_gate.py      (33)          #   One test file per gate
 │   ├── test_*_e2e.py       (8)           #   End-to-end flow tests (onboarding, workflow, train, split, rag)
 │   ├── test_stress_*.py    (5)           #   Stress tests (audit chain, pipeline, numeric, security)
 │   ├── test_security*.py   (4)           #   Security + red team tests

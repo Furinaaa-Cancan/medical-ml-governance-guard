@@ -127,6 +127,281 @@ class TestDriftDetection:
         assert any("106" in e and "335" in e for e in errors), errors
 
 
+class TestHeaderBadgeDrift:
+    """W20-F5: exhaustive coverage of header-row shields.io badges.
+
+    Pre-W20-F5 the checker only validated the ``tests-NNNN passed``
+    badge (and even that was opt-in). EN silently drifted to
+    ``datasets-14`` while CN said 16 — the W19-E2 finding that
+    motivated this class. Tests below construct synthetic READMEs
+    with one badge wrong at a time and assert the checker flags it.
+
+    Direct ``check()`` integration tests (TestDriftDetection) require
+    tampering with the live repo's stat-graph and are sensitive to
+    concurrent-session churn (scripts_core, tests/, SKILL.md grow
+    every commit). These tests work at the per-claim level so they
+    stay green regardless of what siblings are doing.
+    """
+
+    def _load(self):
+        return _load_module()
+
+    def _badge_block(self, gates=33, datasets=16, code_loc=147,
+                     lint_rules=30):
+        """Render the seven-badge header row both READMEs share."""
+        return (
+            '<p align="center">\n'
+            '  <img src="https://img.shields.io/badge/MLGG-v1.0-FF6B35" alt="x">\n'
+            f'  <img src="https://img.shields.io/badge/tests-4712%20passed-brightgreen" alt="x">\n'
+            f'  <img src="https://img.shields.io/badge/gates-{gates}%20fail--closed-critical" alt="x">\n'
+            f'  <img src="https://img.shields.io/badge/datasets-{datasets}%20medical-purple" alt="x">\n'
+            f'  <img src="https://img.shields.io/badge/code-{code_loc}K%20lines-informational" alt="x">\n'
+            f'  <img src="https://img.shields.io/badge/lint%20rules-{lint_rules}%20(R001--R030)-orange" alt="x">\n'
+            '</p>\n'
+        )
+
+    def _build_claims(self, mod):
+        """Helper to access the structural-claims list (badge claims
+        live inside _build_structure_claims, not _CLAIMS, so test
+        coverage needs to dig into the builder)."""
+        return mod._build_structure_claims()
+
+    def test_new_badge_claims_registered(self):
+        """W20-F5 adds 8 new badge claims (gates, datasets, lint-rules,
+        code-loc × CN, EN). Guard against accidental removal."""
+        mod = self._load()
+        claim_names = {c["name"] for c in self._build_claims(mod)}
+        for required in (
+            "badge_gates_cn", "badge_gates_en",
+            "badge_datasets_cn", "badge_datasets_en",
+            "badge_lint_rules_cn", "badge_lint_rules_en",
+            "badge_code_loc_cn", "badge_code_loc_en",
+        ):
+            assert required in claim_names, (
+                f"W20-F5 badge claim {required!r} missing from "
+                f"_build_structure_claims(); restore it so the header "
+                f"row stays drift-checked."
+            )
+
+    def test_live_dataset_count_matches_examples_dir(self):
+        """Ground truth helper for the datasets badge must equal the
+        actual count of top-level CSVs under examples/."""
+        mod = self._load()
+        live = mod._live_dataset_count()
+        on_disk = sum(
+            1 for p in (mod.ROOT / "examples").glob("*.csv")
+            if not p.name.startswith(".")
+        )
+        assert live == on_disk, (
+            f"_live_dataset_count() returned {live} but examples/ has "
+            f"{on_disk} CSVs on disk."
+        )
+
+    def test_live_lint_rule_count_matches_registry(self):
+        """Ground truth helper for the lint-rules badge must equal the
+        registered rule count from mlgg_lint."""
+        mod = self._load()
+        live = mod._live_lint_rule_count()
+        # Recover the registry count without depending on the helper's
+        # internal import path.
+        import sys as _sys
+        _sys.path.insert(0, str(mod.ROOT / "plugin"))
+        try:
+            from mlgg_lint.rules import get_all_rules
+            registry = len(get_all_rules())
+        finally:
+            try:
+                _sys.path.remove(str(mod.ROOT / "plugin"))
+            except ValueError:
+                pass
+        assert live == registry, (
+            f"_live_lint_rule_count() returned {live} but the registry "
+            f"has {registry} rules."
+        )
+
+    def _run_badge_check(self, mod, monkeypatch, tmp_path,
+                         cn_block, en_block):
+        """Render two synthetic READMEs with the given badge blocks,
+        rebind the module's CN/EN paths + the badge claims to the
+        tmp files, and call check(). Returns (exit_code, errors).
+
+        Stubs out the other live-truth helpers so the synthetic
+        READMEs don't trip noise from unrelated claims (the synthetic
+        files only contain the badge row, not strapline / structure
+        tree, so those regexes match nothing and would dominate the
+        error list otherwise).
+        """
+        cn = tmp_path / "README.md"
+        en = tmp_path / "README_EN.md"
+        cn.write_text(cn_block, encoding="utf-8")
+        en.write_text(en_block, encoding="utf-8")
+
+        monkeypatch.setattr(mod, "CN", cn)
+        monkeypatch.setattr(mod, "EN", en)
+        # Rebind every claim's doc to the synthetic copies so existing
+        # _CLAIMS entries don't read the real READMEs by accident.
+        for claim in mod._CLAIMS:
+            claim["doc"] = cn if claim["doc"].name == "README.md" else en
+
+        # Filter to JUST the badge claims so other claims (which
+        # reference non-existent prose in the synthetic READMEs) don't
+        # generate noise. We do this by monkey-patching the builder
+        # to return only the badge subset.
+        orig_build = mod._build_structure_claims
+        def only_badges():
+            claims = orig_build()
+            return [c for c in claims if c["name"].startswith("badge_")]
+        monkeypatch.setattr(mod, "_build_structure_claims", only_badges)
+        # And drop the prose _CLAIMS entirely (those are tested
+        # elsewhere — the badge-focused tests should only assert on
+        # badge regex behavior).
+        monkeypatch.setattr(mod, "_CLAIMS", [])
+        # Skip the doc-map check entirely (synthetic READMEs have no
+        # documentation-map section).
+        monkeypatch.setattr(
+            mod, "_check_docs_map_drift", lambda *a, **kw: [],
+        )
+        return mod.check()
+
+    def test_clean_badges_pass(self, tmp_path, monkeypatch):
+        """Sanity: when both READMEs carry matching, correct badge
+        values, the checker should return success with no errors."""
+        mod = self._load()
+        live_gates = mod._live_gate_count()
+        live_datasets = mod._live_dataset_count()
+        live_lint = mod._live_lint_rule_count()
+        block = self._badge_block(
+            gates=live_gates, datasets=live_datasets,
+            code_loc=147, lint_rules=live_lint,
+        )
+        code, errs = self._run_badge_check(
+            mod, monkeypatch, tmp_path, block, block,
+        )
+        assert code == 0, (
+            f"Clean-state badge check unexpectedly failed: {errs}"
+        )
+
+    def test_detects_datasets_badge_drift(self, tmp_path, monkeypatch):
+        """The original W19-E2 finding: EN datasets-14, CN datasets-16.
+        Must trigger both a freshness fail AND a parity fail."""
+        mod = self._load()
+        live_gates = mod._live_gate_count()
+        live_datasets = mod._live_dataset_count()
+        live_lint = mod._live_lint_rule_count()
+        cn = self._badge_block(
+            gates=live_gates, datasets=live_datasets,
+            code_loc=147, lint_rules=live_lint,
+        )
+        en = self._badge_block(
+            gates=live_gates, datasets=live_datasets - 2,
+            code_loc=147, lint_rules=live_lint,
+        )
+        code, errs = self._run_badge_check(
+            mod, monkeypatch, tmp_path, cn, en,
+        )
+        assert code == 2, "expected failure for datasets badge drift"
+        assert any(
+            "badge_datasets_en" in e and "truth" in e for e in errs
+        ), f"missing freshness error for datasets badge: {errs}"
+        assert any(
+            "PARITY" in e and "badge_datasets" in e for e in errs
+        ), f"missing parity error for datasets badge: {errs}"
+
+    def test_detects_gates_badge_drift(self, tmp_path, monkeypatch):
+        """A stale gates badge (e.g. 33 → 32 after a deprecation) must
+        fail freshness for the doc that's wrong."""
+        mod = self._load()
+        live_gates = mod._live_gate_count()
+        live_datasets = mod._live_dataset_count()
+        live_lint = mod._live_lint_rule_count()
+        bad = self._badge_block(
+            gates=live_gates - 1, datasets=live_datasets,
+            code_loc=147, lint_rules=live_lint,
+        )
+        good = self._badge_block(
+            gates=live_gates, datasets=live_datasets,
+            code_loc=147, lint_rules=live_lint,
+        )
+        code, errs = self._run_badge_check(
+            mod, monkeypatch, tmp_path, bad, good,
+        )
+        assert code == 2
+        assert any("badge_gates_cn" in e for e in errs), errs
+
+    def test_detects_lint_rules_badge_drift(self, tmp_path, monkeypatch):
+        """When a new R0NN rule lands but neither README is updated,
+        both badges should fail freshness."""
+        mod = self._load()
+        live_gates = mod._live_gate_count()
+        live_datasets = mod._live_dataset_count()
+        live_lint = mod._live_lint_rule_count()
+        block = self._badge_block(
+            gates=live_gates, datasets=live_datasets,
+            code_loc=147, lint_rules=live_lint - 1,
+        )
+        code, errs = self._run_badge_check(
+            mod, monkeypatch, tmp_path, block, block,
+        )
+        assert code == 2
+        # Both CN and EN should be flagged (parity holds, but freshness
+        # fails on both sides).
+        assert any("badge_lint_rules_cn" in e for e in errs), errs
+        assert any("badge_lint_rules_en" in e for e in errs), errs
+
+    def test_detects_code_loc_parity_drift(self, tmp_path, monkeypatch):
+        """The code-LOC badge is hand-maintained (sentinel truth, no
+        freshness check), but the W19-E2 finding included CN 147K vs
+        EN 145K — a parity drift that the old checker missed entirely.
+        The PARITY loop must still catch it."""
+        mod = self._load()
+        live_gates = mod._live_gate_count()
+        live_datasets = mod._live_dataset_count()
+        live_lint = mod._live_lint_rule_count()
+        cn = self._badge_block(
+            gates=live_gates, datasets=live_datasets,
+            code_loc=147, lint_rules=live_lint,
+        )
+        en = self._badge_block(
+            gates=live_gates, datasets=live_datasets,
+            code_loc=145, lint_rules=live_lint,
+        )
+        code, errs = self._run_badge_check(
+            mod, monkeypatch, tmp_path, cn, en,
+        )
+        assert code == 2
+        assert any(
+            "PARITY" in e and "badge_code_loc" in e for e in errs
+        ), f"PARITY check did not catch CN 147 vs EN 145: {errs}"
+
+    def test_detects_missing_lint_rules_badge_in_en(
+        self, tmp_path, monkeypatch,
+    ):
+        """W19-E2 also flagged that EN was missing the lint-rules
+        badge entirely. The checker should report 'matched nothing'
+        for the EN claim while CN passes."""
+        mod = self._load()
+        live_gates = mod._live_gate_count()
+        live_datasets = mod._live_dataset_count()
+        live_lint = mod._live_lint_rule_count()
+        cn = self._badge_block(
+            gates=live_gates, datasets=live_datasets,
+            code_loc=147, lint_rules=live_lint,
+        )
+        # EN: strip the lint-rules badge line.
+        en_lines = cn.splitlines(keepends=True)
+        en_block = "".join(
+            ln for ln in en_lines if "lint%20rules" not in ln
+        )
+        code, errs = self._run_badge_check(
+            mod, monkeypatch, tmp_path, cn, en_block,
+        )
+        assert code == 2
+        assert any(
+            "badge_lint_rules_en" in e and "matched nothing" in e
+            for e in errs
+        ), f"missing-badge case not detected: {errs}"
+
+
 class TestDocsMapDrift:
     """Verify the W13-G2 doc-map drift detector.
 
