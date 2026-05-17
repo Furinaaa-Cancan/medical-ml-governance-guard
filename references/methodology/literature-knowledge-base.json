@@ -143,6 +143,7 @@
         "Four criteria: small optimism, small absolute difference, precise overall risk, precise CI"
       ],
       "gates_implementing": [
+        "cohort_definition_gate",
         "sample_size_gate"
       ],
       "dimensions_affected": [
