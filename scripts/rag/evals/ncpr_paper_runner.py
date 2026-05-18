@@ -221,11 +221,77 @@ def adaptive_top_k(
     return int(round(min_k + score * (max_k - min_k)))
 
 
+def _merge_by_concern_id(
+    primary: list[dict],
+    supplement: list[dict],
+    top_k: int,
+) -> list[dict]:
+    """Union ``primary`` + ``supplement`` by ``concern_id``, keep highest score.
+
+    Used by the W30-R1 ``leakage_probe`` path to combine a free-text
+    ``rag_query`` call with a gate-anchored second call without
+    double-counting the same KB record. The merged list is re-sorted by
+    ``_final_score`` descending (records missing a numeric score sort to
+    the end via a ``-inf`` key) and truncated to ``top_k``.
+
+    Records without a ``concern_id`` (or with a non-string one) are kept
+    individually — they can't collide on identity, so dedup is a no-op
+    for them — but still participate in the score-sort + truncation.
+
+    Args:
+        primary: Records from the free-text ``rag_query`` call. Listed
+            first so that when two records carry identical scores, the
+            free-text hit wins the tie (stable sort + earlier position).
+        supplement: Records from the ``gate="leakage_gate"`` probe.
+        top_k: Final cap on returned records (the caller's original
+            ``top_k``, NOT the larger pre-merge total).
+
+    Returns:
+        Merged, score-sorted, truncated list of records. Possibly empty.
+    """
+    merged: dict[str, dict] = {}
+    no_id: list[dict] = []
+    for rec in list(primary) + list(supplement):
+        if not isinstance(rec, dict):
+            continue
+        cid = rec.get("concern_id")
+        if not isinstance(cid, str) or not cid:
+            no_id.append(rec)
+            continue
+        existing = merged.get(cid)
+        if existing is None:
+            merged[cid] = rec
+            continue
+        # Keep the record with the higher _final_score. Ties keep the
+        # already-stored (earlier-seen) record so the free-text hit wins.
+        new_score = rec.get("_final_score")
+        old_score = existing.get("_final_score")
+        new_n = float(new_score) if isinstance(new_score, (int, float)) else float("-inf")
+        old_n = float(old_score) if isinstance(old_score, (int, float)) else float("-inf")
+        if new_n > old_n:
+            merged[cid] = rec
+
+    combined = list(merged.values()) + no_id
+
+    def _score_key(rec: dict) -> float:
+        s = rec.get("_final_score")
+        return float(s) if isinstance(s, (int, float)) else float("-inf")
+
+    # Stable sort by score desc; primary-then-supplement insertion order
+    # already gives free-text hits the tiebreaker edge.
+    combined.sort(key=_score_key, reverse=True)
+
+    if top_k < 1:
+        top_k = 1
+    return combined[:top_k]
+
+
 def synthesize_flags_from_rag(
     query: str,
     top_k: int = 20,
     adaptive: bool = False,
     dedup_by_code: bool = False,
+    leakage_probe: bool = False,
 ) -> list[MlggFlag]:
     """RAG-only flagging: query the KB, convert each hit to an ``MlggFlag``.
 
@@ -251,6 +317,18 @@ def synthesize_flags_from_rag(
             to ``mlgg_gates[0]``, so 5 calibration concerns all emit
             ``code="calibration_dca_gate"`` — counted as 5 separate flags
             by the precision metric, inflating FP without adding signal.
+        leakage_probe: If ``True`` (W30-R1, opt-in), follow the normal
+            free-text retrieval with a second focused ``rag_query`` call
+            pinned to ``gate="leakage_gate"``. The gate parameter
+            re-activates BM25 inside ``hybrid_rank`` (which is silent on
+            ``gate=None`` per the W30 RAG audit on Wang 2025 GLM7), giving
+            lexical anchoring for target/definition-leakage patterns that
+            dense embeddings miss. Results are unioned with the free-text
+            hits by ``concern_id``, the higher ``_final_score`` wins per
+            concern, the merged list is re-sorted by score descending, and
+            truncated back to the caller's original ``top_k`` before flag
+            conversion. Default ``False`` preserves W22-X4 / W25 / W27
+            benchmark reproducibility (defaults-off discipline).
     """
     if not isinstance(query, str) or not query.strip():
         return []
@@ -266,8 +344,20 @@ def synthesize_flags_from_rag(
     except ImportError:
         return []
 
-    records = rag_query(query=query, top_k=top_k)
-    flags = [_concern_to_flag(rec) for rec in (records or [])]
+    records = rag_query(query=query, top_k=top_k) or []
+
+    if leakage_probe:
+        # Second call: gate-anchored. Smaller top_k by design — this is a
+        # supplement, not a replacement, and BM25 anchoring tends to return
+        # highly-relevant hits within a tight neighbourhood. The merge step
+        # respects the caller's original top_k.
+        probe_k = max(3, top_k // 2)
+        probe_records = rag_query(
+            query=query, gate="leakage_gate", top_k=probe_k
+        ) or []
+        records = _merge_by_concern_id(records, probe_records, top_k)
+
+    flags = [_concern_to_flag(rec) for rec in records]
     if dedup_by_code:
         seen: set[str] = set()
         deduped: list[MlggFlag] = []

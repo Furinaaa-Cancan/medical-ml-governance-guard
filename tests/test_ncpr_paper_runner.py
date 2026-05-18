@@ -433,6 +433,248 @@ def test_synthesize_flags_dedup_default_off_preserves_back_compat():
     )
 
 
+# ────────────────────────────────────────────────────────────────────────
+# W30-R1: leakage auto-probe at the consumer boundary
+# ────────────────────────────────────────────────────────────────────────
+#
+# Motivation: 2026-05-18 GLM7 audit (Wang et al. *Advanced Science* 2025)
+# found 3 CRITICAL reviewer concerns; ``synthesize_flags_from_rag()``
+# with default kwargs caught 0 of 3. Root cause: ``rag_query()`` is
+# called without ``gate=``, so ``hybrid_rank()`` runs in 4-signal mode
+# (dense + tag + severity + corroboration) — BM25 is silent. Adding an
+# opt-in second call pinned to ``gate="leakage_gate"`` re-activates BM25
+# and supplies the lexical anchoring that target/definition-leakage
+# patterns (FBG inside a predictor of HbA1c-defined DM) need.
+
+
+def _scored_record(cid: str, text: str, score: float,
+                   gate: str = "leakage_gate") -> dict:
+    """KB-shaped record with a controllable ``_final_score``."""
+    return {
+        "concern_id": cid,
+        "concern_text": text,
+        "severity": "HIGH",
+        "dimension": "design",
+        "code": gate,
+        "_final_score": score,
+    }
+
+
+def test_leakage_probe_default_off_makes_exactly_one_rag_query_call():
+    """W30-R1 back-compat: leakage_probe defaults to False, so the W22-X4
+    contract (one ``rag_query`` call per ``synthesize_flags_from_rag``)
+    is preserved byte-identical for every existing caller.
+    """
+    with mock.patch(
+        "scripts.rag.query.rag_query",
+        return_value=[_kb_record("c1", "freetext hit")],
+    ) as mocked:
+        flags = synthesize_flags_from_rag("methods text", top_k=5)
+    assert mocked.call_count == 1, (
+        f"Default path must issue exactly 1 rag_query call; "
+        f"got {mocked.call_count}"
+    )
+    # Default call must NOT pass a ``gate`` kwarg — that would silently
+    # change retrieval behaviour for every existing caller.
+    _args, kwargs = mocked.call_args
+    assert "gate" not in kwargs, (
+        f"Default rag_query call must not pass gate=; got kwargs={kwargs!r}"
+    )
+    assert len(flags) == 1
+
+
+def test_leakage_probe_on_makes_two_calls_second_pinned_to_leakage_gate():
+    """W30-R1: with leakage_probe=True, two ``rag_query`` calls fire;
+    the second is pinned to ``gate="leakage_gate"`` (BM25 re-activation).
+    The probe top_k = max(3, top_k // 2).
+    """
+    call_log: list[dict] = []
+
+    def fake_rag_query(**kwargs):
+        call_log.append(kwargs)
+        # Return distinct concern_ids so the merge has nothing to collapse;
+        # we only care about call ordering + kwargs here.
+        if kwargs.get("gate") == "leakage_gate":
+            return [_scored_record("probe1", "BM25 leakage hit", 0.7)]
+        return [_scored_record("free1", "free-text hit", 0.9)]
+
+    with mock.patch(
+        "scripts.rag.query.rag_query", side_effect=fake_rag_query
+    ) as mocked:
+        flags = synthesize_flags_from_rag(
+            "FBG in HbA1c-defined diabetes predictor",
+            top_k=10,
+            leakage_probe=True,
+        )
+
+    assert mocked.call_count == 2, (
+        f"leakage_probe=True must issue exactly 2 rag_query calls; "
+        f"got {mocked.call_count}"
+    )
+    # First call: free-text, no ``gate``.
+    first_kwargs = call_log[0]
+    assert "gate" not in first_kwargs, (
+        f"First (free-text) call must not pin gate; got kwargs={first_kwargs!r}"
+    )
+    assert first_kwargs.get("top_k") == 10
+    # Second call: pinned to leakage_gate with probe-sized top_k.
+    second_kwargs = call_log[1]
+    assert second_kwargs.get("gate") == "leakage_gate", (
+        f"Second call must pin gate='leakage_gate'; got kwargs={second_kwargs!r}"
+    )
+    assert second_kwargs.get("top_k") == max(3, 10 // 2) == 5
+    # Both records carry distinct concern_ids → both survive the merge.
+    assert {f["evidence_text"] for f in flags} == {
+        "BM25 leakage hit", "free-text hit"
+    }
+
+
+def test_leakage_probe_merge_higher_score_wins_same_concern():
+    """W30-R1 merge: when free-text and probe return the SAME concern_id,
+    the higher ``_final_score`` wins and no duplicate is emitted.
+    """
+    free_records = [
+        _scored_record("PR-001-C01", "free-text version", 0.40),
+        _scored_record("PR-002-C02", "unrelated free hit", 0.50),
+    ]
+    probe_records = [
+        # Same concern_id as free's first hit, but scores higher under BM25.
+        _scored_record("PR-001-C01", "BM25-anchored version", 0.85),
+    ]
+
+    def fake_rag_query(**kwargs):
+        return probe_records if kwargs.get("gate") == "leakage_gate" else free_records
+
+    with mock.patch(
+        "scripts.rag.query.rag_query", side_effect=fake_rag_query
+    ):
+        flags = synthesize_flags_from_rag(
+            "methods", top_k=10, leakage_probe=True
+        )
+
+    # 2 unique concerns total, NOT 3.
+    assert len(flags) == 2, (
+        f"Same concern_id across paths must dedup to one flag; got {len(flags)}"
+    )
+    # The PR-001-C01 flag must carry the probe's evidence_text (higher score).
+    texts = [f["evidence_text"] for f in flags]
+    assert "BM25-anchored version" in texts, (
+        f"Higher-scored probe variant must win the merge; got {texts!r}"
+    )
+    assert "free-text version" not in texts, (
+        f"Lower-scored free-text variant must be dropped; got {texts!r}"
+    )
+    # And the order is score-desc: 0.85 (probe) before 0.50 (unrelated).
+    assert flags[0]["evidence_text"] == "BM25-anchored version"
+
+
+def test_leakage_probe_merge_lower_probe_score_is_dropped():
+    """W30-R1 merge symmetry: if the probe-side hit for the SAME concern
+    scores LOWER than the free-text hit, the free-text version is kept
+    and the probe duplicate is dropped — never both.
+    """
+    free_records = [
+        _scored_record("PR-001-C01", "free-text wins this one", 0.90),
+    ]
+    probe_records = [
+        _scored_record("PR-001-C01", "lower probe variant", 0.30),
+    ]
+
+    def fake_rag_query(**kwargs):
+        return probe_records if kwargs.get("gate") == "leakage_gate" else free_records
+
+    with mock.patch(
+        "scripts.rag.query.rag_query", side_effect=fake_rag_query
+    ):
+        flags = synthesize_flags_from_rag(
+            "methods", top_k=10, leakage_probe=True
+        )
+    assert len(flags) == 1
+    assert flags[0]["evidence_text"] == "free-text wins this one"
+
+
+def test_leakage_probe_truncates_to_original_top_k():
+    """W30-R1: even when free-text + probe together produce > top_k unique
+    concerns, the merged list is truncated back to the caller's top_k.
+    """
+    # 4 free-text hits + 3 probe hits, all distinct concern_ids → 7 unique;
+    # caller asks for top_k=4 → must come back to size 4.
+    free_records = [
+        _scored_record(f"F{i}", f"free hit {i}", 0.60 + i * 0.01)
+        for i in range(4)
+    ]
+    probe_records = [
+        _scored_record(f"P{i}", f"probe hit {i}", 0.80 + i * 0.01)
+        for i in range(3)
+    ]
+
+    def fake_rag_query(**kwargs):
+        return probe_records if kwargs.get("gate") == "leakage_gate" else free_records
+
+    with mock.patch(
+        "scripts.rag.query.rag_query", side_effect=fake_rag_query
+    ):
+        flags = synthesize_flags_from_rag(
+            "methods", top_k=4, leakage_probe=True
+        )
+
+    assert len(flags) == 4, (
+        f"Merged result must be truncated to original top_k=4; got {len(flags)}"
+    )
+    # Top of the merged list = three probe hits (0.82/0.81/0.80) + the
+    # highest free-text hit (0.63) — score-desc.
+    texts = [f["evidence_text"] for f in flags]
+    assert texts[0] == "probe hit 2"   # 0.82
+    assert texts[1] == "probe hit 1"   # 0.81
+    assert texts[2] == "probe hit 0"   # 0.80
+    assert texts[3] == "free hit 3"    # 0.63 — highest of remaining
+
+
+def test_leakage_probe_combo_with_dedup_by_code_runs_merge_then_codedup():
+    """W30-R1 + W27-R1 combo: with both leakage_probe=True AND
+    dedup_by_code=True, the leakage-probe merge happens FIRST (over
+    concern_id, score-aware), then code-dedup collapses any same-gate
+    survivors. Order matters: doing it the other way around would drop
+    high-scoring probe hits before they get a chance to win their merge.
+    """
+    # Two free-text concerns, both mapping to calibration_dca_gate.
+    # One probe concern, distinct concern_id, also calibration_dca_gate,
+    # but with the HIGHEST score — it must win the post-dedup slot.
+    free_records = [
+        _scored_record("F1", "free calib 1", 0.50, gate="calibration_dca_gate"),
+        _scored_record("F2", "free calib 2", 0.45, gate="calibration_dca_gate"),
+        _scored_record("F3", "free leakage", 0.60, gate="leakage_gate"),
+    ]
+    probe_records = [
+        _scored_record("P1", "probe calib (highest)", 0.95,
+                       gate="calibration_dca_gate"),
+    ]
+
+    def fake_rag_query(**kwargs):
+        return probe_records if kwargs.get("gate") == "leakage_gate" else free_records
+
+    with mock.patch(
+        "scripts.rag.query.rag_query", side_effect=fake_rag_query
+    ):
+        flags = synthesize_flags_from_rag(
+            "methods", top_k=10,
+            leakage_probe=True, dedup_by_code=True,
+        )
+
+    # After merge: 4 unique concern_ids (F1, F2, F3, P1) score-sorted as
+    # [P1=0.95, F3=0.60, F1=0.50, F2=0.45]. After code-dedup keeping the
+    # FIRST occurrence per code: [P1=calibration_dca_gate, F3=leakage_gate].
+    codes = [f["code"] for f in flags]
+    texts = [f["evidence_text"] for f in flags]
+    assert codes == ["calibration_dca_gate", "leakage_gate"], (
+        f"Combo path must merge first then code-dedup; got codes={codes!r}"
+    )
+    assert texts[0] == "probe calib (highest)", (
+        f"Highest-scored probe hit must survive both stages; got {texts!r}"
+    )
+    assert texts[1] == "free leakage"
+
+
 def test_adaptive_top_k_johnson_2017_would_benefit():
     """W26-R1 verification: a Johnson-2017-style CLEAN methodology snippet
     (~5 GT concerns, short and focused) should resolve to substantially
