@@ -101,7 +101,7 @@ except ImportError as e:
 if [ "${MLGG_SKIP_PYTEST_HOOK:-0}" = "1" ]; then
   echo "==> pre-push: pytest smoke slice SKIPPED (MLGG_SKIP_PYTEST_HOOK=1)"
 else
-  echo "==> pre-push: pytest smoke slice (~30s, covers recurring CI-red classes)"
+  echo "==> pre-push: pytest smoke slice (~50s, covers recurring CI-red classes)"
   # Curated subset — each file pins a class of failure that has historically
   # slipped past the ruff+drift checks and landed in CI red. Keep this list
   # tight (<60s wall-clock); full suite belongs in ci-unit.
@@ -109,12 +109,19 @@ else
   #   - test_check_readme_stats   : README stat parity (belt-and-braces with the drift step above)
   #   - test_disease_kb_review_check + test_disease_kb_stale_source : provenance gate fixtures
   #   - test_real_gate_codes      : harvester / experiments coupling
+  #   - test_packaging_contract   : pyproject [project.scripts] console-script contract
+  #                                 (W28-S1 shipped a broken contract that slipped past
+  #                                  the old slice for 5 commits, 2026-05-17/18)
+  #   - test_mlgg_command_groups  : `mlgg --help` group registration parity
+  #                                 (every CLI command in exactly one group)
   if python3 -m pytest -q --tb=line -x \
        tests/test_stress_gate_cli.py \
        tests/test_check_readme_stats.py \
        tests/test_disease_kb_review_check.py \
        tests/test_disease_kb_stale_source.py \
-       tests/test_real_gate_codes.py; then
+       tests/test_real_gate_codes.py \
+       tests/test_packaging_contract.py \
+       tests/test_mlgg_command_groups.py; then
     :
   else
     echo
