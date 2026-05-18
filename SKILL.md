@@ -20,7 +20,7 @@ MLGG 对外暴露 3 条稳定入口，其他所有功能都是它们的子命令
 | 入口 | 面向 | 场景 |
 |---|---|---|
 | **`/mlgg`** | 人类用户（Claude Code 内） | 建模 / 训练 / "我有数据" —— 自动观察数据、推断参数、走 Pipeline 模式 6 步（仅 CSV）或 Research 模式 9 阶段（含用户代码） |
-| **`mlgg <subcommand>`** | 终端 / 脚本自动化 | 28 个子命令（见 Quick Dispatch 分组表），包含 play / workflow / onboarding / audit / doctor / lint 等 |
+| **`mlgg <subcommand>`** | 终端 / 脚本自动化 | 29 个子命令（见 Quick Dispatch 分组表），包含 play / workflow / onboarding / audit / doctor / lint / llm-audit 等 |
 | **`mlgg-lint`** | CI / pre-commit | 独立 pip 包，28 条 AST 规则（R001-R028，含 R028 omics 模态守卫），零依赖，5 秒扫完单文件 |
 
 ### 怎么选？`workflow` vs `audit`
@@ -45,7 +45,7 @@ MLGG 对外暴露 3 条稳定入口，其他所有功能都是它们的子命令
 
 ## Quick Dispatch
 
-Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部 28 子命令的分组索引（按 W28-S0 `COMMAND_GROUPS` 与 Audit Routing Mode A/B/C 对齐；`mlgg --help` 显示同一分组的全表）。
+Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部 29 子命令的分组索引（按 W28-S0 `COMMAND_GROUPS` 与 Audit Routing Mode A/B/C 对齐；`mlgg --help` 显示同一分组的全表）。
 
 ### `[governance]` — Mode A（你自己的训练流水）
 
@@ -100,6 +100,7 @@ Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部
 | `export-review-prompt` | 导出 MLGG 评审规则为便携 LLM prompt（可粘到任意 LLM） | C |
 | `lint` | 等价 `mlgg-lint`（AST 代码泄漏检测，零依赖） | B |
 | `rag` | 在 817 条 reviewer KB 上做 hybrid 检索（dense + BM25 + MMR）。W18-D1 实测 `hybrid_all` > BM25-only；`DENSE_WEIGHT=0.10` 默认（W13-P0 起）。W26-R1 `adaptive=True` + W27-R1 `dedup_by_code=True` 是 Mode B/C 推荐组合 | B / C |
+| `llm-audit` | **W29-MVP**：LLM-first paper audit + 可选 RAG 背书。Anthropic Claude 跑 reviewer-role 提示词找 design flaw（leakage / 时序 / derivation circularity），然后 RAG 给每条 concern 找 KB 同行评审原文。GLM7 实验数据证明 LLM-first > pure RAG 在 CRITICAL 类问题（W28-V1 doc）。需 `pip install anthropic` + `ANTHROPIC_API_KEY`。CLI: `mlgg-review llm-audit <pdf>` | C |
 
 > W28-S0 grouping rationale: 这 7 个子命令构成"对别人的 code/paper 评审"产品线，与 `[governance]` 的"对你自己的流水做合规"目标 / GT 来源 / 度量体系都不同（详见 `docs/PRODUCTS.md`）。
 
@@ -125,7 +126,7 @@ Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部
 | `interactive` | 向导式 init/workflow/train/authority |
 | `play` | Pixel-art 菜单式启动器 |
 | `validate` | Config schema 校验（`configs/*.yaml` / `request.json`），CI 前快检（dispatcher-only，不在 COMMANDS 表） |
-| `flow` | 显示 28 子命令的推荐执行顺序（dispatcher-only） |
+| `flow` | 显示 29 子命令的推荐执行顺序（dispatcher-only） |
 
 ---
 

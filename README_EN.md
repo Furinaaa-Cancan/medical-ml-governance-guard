@@ -94,7 +94,7 @@ Both end up running the **same Python gate**. The Skill saves keystrokes, not co
 
 ### Engineering guarantees (not just aspirations)
 
-- **SKILL.md ≤ 500 lines**: currently 333 lines, within Claude Code's official guidance; longer content lives under `docs/` or inside gate docstrings.
+- **SKILL.md ≤ 500 lines**: currently 334 lines, within Claude Code's official guidance; longer content lives under `docs/` or inside gate docstrings.
 - **Pre-commit doc-number check**: `check_docs_consistency.py` + `check_readme_stats.py` catch drift across `SKILL.md ↔ README ↔ reviewer.yaml`; **PRs fail before merge**, not after.
 - **Thresholds are code, not prompts**: every pass/fail threshold, validator rule, and detection algorithm is a Python constant + function. Gates do not consult markdown for verdict logic.
 
@@ -1226,7 +1226,7 @@ medical-ml-governance-guard/
 │   │   ├── verify_ukb_against_live.py    #   L4 live cross-check vs biobank.ndph.ox.ac.uk
 │   │   └── ...                           #   fetch/build/verify for NHANES + codebook_factory
 │   │
-│   ├── review/            (9)            # Paper analysis & peer review
+│   ├── review/            (10)           # Paper analysis & peer review (W29: llm_paper_audit)
 │   │   ├── peer_review_lookup.py         #   154 NC+CM papers × 817 review opinions
 │   │   ├── backfill_peer_review_gates.py #   Backfill reviews into gate × tag index
 │   │   ├── add_robustness_permutation_gates.py  # Extend review index with robustness/permutation
@@ -1252,7 +1252,7 @@ medical-ml-governance-guard/
 │       ├── kb_hygiene_check.py           #   KB provenance / citation / freshness check
 │       └── ...                           #   gate visualization, threshold analysis, policy generator
 │
-├── tests/                  (197)         # ─── Tests (~35K lines) ───
+├── tests/                  (198)         # ─── Tests (~35K lines) ───
 │   ├── conftest.py                       #   Shared fixtures (tmp_path, path injection, test data)
 │   ├── test_*_gate.py      (33)          #   One test file per gate
 │   ├── test_*_e2e.py       (8)           #   End-to-end flow tests (onboarding, workflow, train, split, rag)

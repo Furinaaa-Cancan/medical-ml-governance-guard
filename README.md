@@ -95,7 +95,7 @@
 
 ### 工程保证（而不只是愿景）
 
-- **SKILL.md ≤ 500 行**：当前 333 行，符合 Claude Code 官方建议；超长内容拆到 `docs/` 或 gate docstring。
+- **SKILL.md ≤ 500 行**：当前 334 行，符合 Claude Code 官方建议；超长内容拆到 `docs/` 或 gate docstring。
 - **文档数字 pre-commit 校验**：`check_docs_consistency.py` + `check_readme_stats.py` 抓 `SKILL.md ↔ README ↔ reviewer.yaml` 的 parity 和 KB freshness drift，**PR 会被 fail 而不是 merge 后才发现**。
 - **阈值是代码不是 prompt**：所有 pass/fail 阈值、validator 规则、检测算法都是 Python 常量 + 函数，gate 不从 markdown 读判定逻辑。
 
@@ -1506,7 +1506,7 @@ medical-ml-governance-guard/
 │   │   ├── add_disease_kb_provenance.py  #   --   disease KB provenance 批量标注
 │   │   └── _kb_provenance.py / __init__.py
 │   │
-│   ├── review/            (8 files, 4.4K LOC)   # 论文分析与审稿案例
+│   ├── review/            (9 files, 4.8K LOC)   # 论文分析与审稿案例（含 W29 llm_paper_audit）
 │   │   ├── peer_review_lookup.py         #   133  154 篇 NC+CM × 817 条审稿意见, 按 gate/tag 检索
 │   │   ├── batch_journal_review.py       #   776  批量期刊审查 (多论文 × 多期刊标准)
 │   │   ├── extract_paper_metadata.py     #  1236  PDF → 结构化 metadata.json (LLM 驱动)
@@ -1563,7 +1563,7 @@ medical-ml-governance-guard/
 │       └── run_endurance_test.py         #   767  6 小时耐久性测试
 │          └──────────────────────────────────────────────────────────────────┘
 │
-├── tests/                  (197)         # ─── 测试 (~35K lines) ───
+├── tests/                  (198)         # ─── 测试 (~35K lines) ───
 │   ├── conftest.py                       #   统一 fixture (tmp_path, 路径注入, 共享数据)
 │   ├── test_*_gate.py      (33)          #   每个 gate 对应一个测试文件
 │   ├── test_*_e2e.py       (8)           #   端到端流程测试 (onboarding, workflow, train, split, rag)
@@ -1674,7 +1674,7 @@ medical-ml-governance-guard/
 | 入口 | 安装 | 用途 | 依赖 |
 |------|------|------|------|
 | **mlgg-lint** | `pip install mlgg-lint` | 扫描 Python 代码 data leakage（28 条 AST 规则，含 R028 组学守卫） | 零依赖 |
-| **mlgg** | `pip install ml-governance-guard` | 28 个子命令 CLI（onboarding / workflow / audit / audit-metrics / fairness / sample-size / lint / ...），完整 33-gate pipeline | numpy/pandas/sklearn |
+| **mlgg** | `pip install ml-governance-guard` | 29 个子命令 CLI（onboarding / workflow / audit / audit-metrics / fairness / sample-size / lint / llm-audit / ...），完整 33-gate pipeline + W29 LLM-first paper audit | numpy/pandas/sklearn |
 
 子命令全表见 `SKILL.md` §"Quick Dispatch"。`audit-metrics` 是 `mlgg` 子命令之一，不是独立包。
 

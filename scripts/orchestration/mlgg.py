@@ -305,6 +305,10 @@ COMMANDS: Dict[str, Tuple[Path, str]] = {
         SCRIPTS_ROOT / "rag" / "query.py",
         "Query the MLGG peer-review knowledge base via hybrid RAG (dense + BM25 + MMR).",
     ),
+    "llm-audit": (
+        SCRIPTS_ROOT / "review" / "llm_paper_audit.py",
+        "W29-MVP: LLM-first paper audit with optional RAG enrichment (Anthropic Claude).",
+    ),
 }
 INTERACTIVE_CORE_COMMANDS = ("init", "workflow", "train", "authority")
 
@@ -330,7 +334,7 @@ COMMAND_GROUPS: Dict[str, Tuple[str, ...]] = {
     ),
     "review": (
         "audit", "audit-report", "audit-metrics", "batch-review",
-        "export-review-prompt", "lint", "rag",
+        "export-review-prompt", "lint", "rag", "llm-audit",
     ),
     "benchmark": (
         "authority", "benchmark-suite", "authority-release",
