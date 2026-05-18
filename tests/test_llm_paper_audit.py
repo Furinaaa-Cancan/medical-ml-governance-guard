@@ -479,7 +479,7 @@ def test_audit_paper_raises_on_empty_methods_extraction(tmp_path):
 def test_format_report_markdown_includes_all_sections():
     report = AuditReport(
         paper="x.pdf",
-        model="claude-opus-4-5",
+        model="claude-opus-4-7",
         rag_strategy="post_hoc",
         major_concerns=[
             EnrichedConcern(
@@ -520,7 +520,7 @@ def test_format_report_markdown_primed_mode_renders_kb_pool():
     LLM so reviewers can audit what the model was primed with."""
     report = AuditReport(
         paper="x.pdf",
-        model="claude-opus-4-5",
+        model="claude-opus-4-7",
         rag_strategy="primed",
         major_concerns=[],
         kb_context_pool=[

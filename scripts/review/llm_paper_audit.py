@@ -290,7 +290,7 @@ def call_llm_review(
     methods_text: str,
     paper_label: str,
     *,
-    model: str = "claude-opus-4-5",
+    model: str = "claude-opus-4-7",
     max_tokens: int = 8192,
     temperature: float = 0.0,
     kb_context: Optional[list["KbCitation"]] = None,
@@ -506,7 +506,7 @@ RagStrategy = Literal["primed", "post_hoc", "off"]
 def audit_paper(
     pdf_path: str | Path,
     *,
-    model: str = "claude-opus-4-5",
+    model: str = "claude-opus-4-7",
     rag_strategy: RagStrategy = "primed",
     top_k: int = 3,
     min_score: float = 0.2,
@@ -680,8 +680,8 @@ def main(argv: list[str] | None = None) -> int:
         ),
     )
     parser.add_argument(
-        "--model", default="claude-opus-4-5",
-        help="Anthropic model id (default: claude-opus-4-5).",
+        "--model", default="claude-opus-4-7",
+        help="Anthropic model id (default: claude-opus-4-7).",
     )
     parser.add_argument(
         "--top-k", type=int, default=3,
