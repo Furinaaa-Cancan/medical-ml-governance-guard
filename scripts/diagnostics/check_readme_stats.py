@@ -194,10 +194,26 @@ def _live_dataset_count() -> int:
     ``examples/``. This backs the README header badge
     ``datasets-NN%20medical-purple``.
 
-    Counted at the top level of ``examples/`` only — synthetic
-    sub-fixtures used by individual tests live under
-    ``tests/fixtures/`` and are not user-facing example data.
+    Source of truth (in order):
+
+    1. ``examples/README.md`` header ``## 1. 医学数据集 (`*.csv`, N 个)``
+       — the authoritative catalog count maintained alongside the
+       per-dataset table. This survives sparse CI checkouts where
+       only one CSV (``brfss2022_aligned.csv``) is git-tracked and
+       the other 15 are produced on-demand by ``download_*.py``
+       scripts (W28-V1 fix: filesystem glob returned 1 on CI, 16
+       locally, causing README parity to flap).
+    2. Filesystem glob over ``examples/*.csv`` — historical fallback.
+       Counted at the top level only; synthetic sub-fixtures under
+       ``tests/fixtures/`` are not user-facing example data.
     """
+    catalog = ROOT / "examples" / "README.md"
+    if catalog.is_file():
+        text = catalog.read_text(encoding="utf-8", errors="ignore")
+        # Header format example: "## 1. 医学数据集 (`*.csv`, 16 个)"
+        m = re.search(r"医学数据集.*?(\d+)\s*个", text)
+        if m:
+            return int(m.group(1))
     ex = ROOT / "examples"
     if not ex.is_dir():
         return 0

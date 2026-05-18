@@ -28,6 +28,10 @@ def test_public_console_scripts_only_expose_supported_entrypoints() -> None:
     assert scripts == {
         "mlgg": "scripts.orchestration.mlgg:cli_main",
         "mlgg-pixel": "scripts.orchestration.mlgg_pixel:main",
+        # W28-S1: focused entry point for the review product line (Mode B/C);
+        # whitelists COMMAND_GROUPS["review"] and delegates to the same main()
+        # that `mlgg` uses. See docs/PRODUCTS.md.
+        "mlgg-review": "scripts.orchestration.mlgg:review_cli_main",
     }
 
 
