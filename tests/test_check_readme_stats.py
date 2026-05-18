@@ -183,17 +183,33 @@ class TestHeaderBadgeDrift:
             )
 
     def test_live_dataset_count_matches_examples_dir(self):
-        """Ground truth helper for the datasets badge must equal the
-        actual count of top-level CSVs under examples/."""
+        """Ground truth helper for the datasets badge must equal either
+        the catalog count in ``examples/README.md`` (W28-V1 fix —
+        authoritative when present; survives sparse CI checkouts where
+        15 of 16 datasets are produced on-demand by ``download_*.py``
+        and are .gitignore-excluded) OR the on-disk CSV count (legacy
+        fallback for environments without the catalog).
+        """
         mod = self._load()
         live = mod._live_dataset_count()
         on_disk = sum(
             1 for p in (mod.ROOT / "examples").glob("*.csv")
             if not p.name.startswith(".")
         )
-        assert live == on_disk, (
-            f"_live_dataset_count() returned {live} but examples/ has "
-            f"{on_disk} CSVs on disk."
+        catalog_path = mod.ROOT / "examples" / "README.md"
+        catalog = None
+        if catalog_path.is_file():
+            import re as _re
+            m = _re.search(
+                r"医学数据集.*?(\d+)\s*个",
+                catalog_path.read_text(encoding="utf-8", errors="ignore"),
+            )
+            if m:
+                catalog = int(m.group(1))
+        assert live == catalog or live == on_disk, (
+            f"_live_dataset_count() returned {live}; expected catalog="
+            f"{catalog} (from examples/README.md) or on_disk={on_disk} "
+            f"(filesystem fallback)."
         )
 
     def test_live_lint_rule_count_matches_registry(self):
