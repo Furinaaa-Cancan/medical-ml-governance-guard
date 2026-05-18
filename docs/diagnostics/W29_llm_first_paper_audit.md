@@ -1,7 +1,38 @@
-# W29 — LLM-first paper audit + RAG enrichment (MVP)
+# W29 — LLM-first paper audit + RAG enrichment (MVP + W31-S1 priming refactor)
 
-**Date**: 2026-05-18
-**Status**: MVP shipped (module + 14 unit tests + CLI wiring). **Validation deferred** to W29-V2 (requires `pip install anthropic` + `ANTHROPIC_API_KEY` + actual API call on GLM7 paper).
+**Date**: 2026-05-18 (MVP), 2026-05-18 (W31-S1 priming refactor)
+**Status**: Module + 26 unit tests + CLI wiring shipped. Three RAG strategies now supported (`primed` default, `post_hoc` ablation, `off` baseline). **Real-paper validation still deferred** to W29-V2 (requires `pip install anthropic` + `ANTHROPIC_API_KEY` + actual API call on GLM7 paper).
+
+## W31-S1 update (this section is newer than the rest of the doc)
+
+The W29-MVP architecture was "LLM → RAG enrich after". Today's discussion with the user concluded the better architecture is **"RAG → LLM with KB context"** (primed mode). The data flow changed:
+
+```
+W29-MVP:    PDF → LLM(prompt + methods) → concerns → for each: RAG → citations
+W31-S1:     PDF → RAG retrieves general+leakage pool → LLM(prompt + KB context + methods) → concerns
+```
+
+In primed mode the LLM **forms opinions with KB excerpts already in its context**, not as post-hoc anchoring. The SYSTEM_PROMPT gained 5 anti-rubber-stamp rules (R1-R5) explicitly disciplining the LLM not to apply KB concerns automatically.
+
+`audit_paper(rag_strategy=...)` now accepts:
+- `"primed"` (W31, default) — KB retrieved first via `_retrieve_rag_context_for_priming()` (general free-text + `gate="leakage_gate"` BM25 pass merged), injected into user prompt
+- `"post_hoc"` (W29-MVP behaviour, kept for ablation) — LLM first, then per-concern `enrich_with_rag()`
+- `"off"` — no RAG anywhere; baseline for measuring RAG contribution
+
+`AuditReport` gained `kb_context_pool: list[KbCitation]` carrying the full pool the LLM saw in primed mode. The W29-MVP `rag_enriched: bool` field is replaced by `rag_strategy: str`.
+
+The W29-V2 validation matrix below grew from 1 mode to 3; the new pre-registered comparison is:
+
+| Setup | rag_strategy | What we're measuring |
+|---|---|---|
+| Baseline | `"off"` | LLM-only ceiling (does prompt-engineering alone catch 3/3 CRITICAL?) |
+| Primed | `"primed"` | The user's pick — RAG informs LLM during audit |
+| Post-hoc | `"post_hoc"` | Original W29-MVP — RAG anchors LLM concerns after the fact |
+
+If `off ≈ primed`, RAG NC KB adds zero marginal value on GLM7 → retire. If `primed > off ≥ post_hoc`, RAG-as-priming is the right reposition. If `post_hoc > primed`, the user's intuition was wrong and we go back to enrichment.
+
+---
+
 
 **Cross-refs**:
 - Architecture rationale → today's GLM7 controlled experiment (this session, agent vs MLGG vs human read).

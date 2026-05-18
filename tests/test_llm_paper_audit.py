@@ -1,9 +1,14 @@
-"""Unit tests for W29-MVP ``scripts/review/llm_paper_audit``.
+"""Unit tests for W29-MVP + W31-S1 ``scripts/review/llm_paper_audit``.
 
 All tests run without the ``anthropic`` SDK or an API key: the LLM call
 is mocked via ``unittest.mock.patch`` at the function boundary
-(``call_llm_review``). The RAG enrichment is also mocked via the
+(``call_llm_review``). The RAG calls are also mocked via the
 ``scripts.rag.query.rag_query`` import boundary.
+
+W31-S1 added the ``rag_strategy`` parameter (replacing the binary
+``use_rag_enrichment``) with three modes: ``"primed"`` (KB context in
+prompt, default), ``"post_hoc"`` (W29-MVP behaviour, per-concern
+enrichment after LLM), and ``"off"`` (LLM only).
 """
 from __future__ import annotations
 
@@ -19,7 +24,9 @@ from scripts.review.llm_paper_audit import (
     LlmAuditOutput,
     SYSTEM_PROMPT,
     _build_user_prompt,
+    _format_kb_context_for_prompt,
     _format_report_markdown,
+    _retrieve_rag_context_for_priming,
     audit_paper,
     enrich_with_rag,
 )
@@ -85,6 +92,18 @@ def test_system_prompt_lists_gate_hints():
         assert gate in SYSTEM_PROMPT
 
 
+def test_system_prompt_disciplines_kb_use():
+    """W31-S1: the prompt must include the R1-R5 anti-rubber-stamp rules
+    so the LLM doesn't auto-apply KB concerns to every paper."""
+    for anchor in (
+        "REFERENCE PEER REVIEWS",
+        "calibration,\n    NOT ground truth",
+        "independently verify",
+        "NEVER raise a concern just because",
+    ):
+        assert anchor in SYSTEM_PROMPT, f"prompt missing R1-R5 anchor: {anchor!r}"
+
+
 def test_user_prompt_embeds_methods_text_and_label():
     msg = _build_user_prompt(
         methods_text="<<METHODS BODY>>",
@@ -95,8 +114,52 @@ def test_user_prompt_embeds_methods_text_and_label():
     assert "LlmAuditOutput" in msg
 
 
+def test_user_prompt_without_kb_context_has_no_reference_section():
+    """W31-S1: when kb_context is None or empty, no KB block is rendered."""
+    msg = _build_user_prompt("methods", "p", kb_context=None)
+    assert "Reference peer-review concerns" not in msg
+    msg2 = _build_user_prompt("methods", "p", kb_context=[])
+    assert "Reference peer-review concerns" not in msg2
+
+
+def test_user_prompt_with_kb_context_renders_excerpts_before_methods():
+    """W31-S1: priming mode injects KB excerpts BEFORE the methods text so
+    the LLM reads them as calibration during opinion formation."""
+    kb = [
+        KbCitation(concern_id="PR-001-C02", excerpt="def-var leakage example",
+                   score=0.82, mlgg_gates=["leakage_gate"]),
+        KbCitation(concern_id="PR-021-C04", excerpt="no calibration reported",
+                   score=0.65, mlgg_gates=["calibration_dca_gate"]),
+    ]
+    msg = _build_user_prompt(
+        methods_text="<<METHODS BODY>>",
+        paper_label="glm7",
+        kb_context=kb,
+    )
+    # Each KB excerpt appears
+    assert "PR-001-C02" in msg
+    assert "PR-021-C04" in msg
+    # KB block comes BEFORE methods body (priming, not citation)
+    assert msg.index("PR-001-C02") < msg.index("<<METHODS BODY>>"), (
+        "KB context must precede methods text in priming mode"
+    )
+
+
+def test_format_kb_context_empty_returns_empty_string():
+    assert _format_kb_context_for_prompt([]) == ""
+
+
+def test_format_kb_context_truncates_long_excerpts():
+    """Excerpts >240 chars are truncated with ellipsis to bound prompt size."""
+    long = "x" * 500
+    kb = [KbCitation(concern_id="PR-A", excerpt=long, score=0.5, mlgg_gates=[])]
+    out = _format_kb_context_for_prompt(kb)
+    assert "…" in out
+    assert "x" * 250 not in out  # full 500 not present
+
+
 # ─────────────────────────────────────────────────────────────────────────
-# enrich_with_rag — RAG enrichment per concern
+# RAG retrieval — primed mode (W31-S1) and post_hoc enrichment (W29-MVP)
 # ─────────────────────────────────────────────────────────────────────────
 
 
@@ -107,6 +170,83 @@ def _kb_rec(cid: str, text: str, score: float, gates: list[str]) -> dict:
         "_final_score": score,
         "mlgg_gates": gates,
     }
+
+
+# --- priming retrieval ---
+
+
+def test_retrieve_rag_context_for_priming_does_two_passes():
+    """W31-S1: priming calls rag_query TWICE — once free-text, once with
+    gate='leakage_gate' — so leakage-class concerns surface even when the
+    methods text doesn't say the word 'leakage' (W30-R1 logic)."""
+    calls: list[dict] = []
+
+    def fake_rq(**kwargs):
+        calls.append(kwargs)
+        if kwargs.get("gate") == "leakage_gate":
+            return [_kb_rec("PR-001-C02", "leakage example", 0.85, ["leakage_gate"])]
+        return [_kb_rec("PR-007-C01", "topic match", 0.55, ["cohort_definition_gate"])]
+
+    with mock.patch("scripts.rag.query.rag_query", side_effect=fake_rq):
+        pool = _retrieve_rag_context_for_priming(
+            "methods text", top_k_general=5, top_k_leakage=3
+        )
+
+    assert len(calls) == 2
+    assert calls[0].get("gate") is None         # free-text first
+    assert calls[1].get("gate") == "leakage_gate"  # leakage probe second
+    ids = {c.concern_id for c in pool}
+    assert ids == {"PR-001-C02", "PR-007-C01"}
+
+
+def test_retrieve_rag_context_merges_by_concern_id_taking_higher_score():
+    """When both passes return the same concern_id, the higher-score
+    record wins; duplicates are removed."""
+    def fake_rq(**kwargs):
+        if kwargs.get("gate") == "leakage_gate":
+            return [_kb_rec("PR-X", "high", 0.90, ["leakage_gate"])]
+        return [_kb_rec("PR-X", "low", 0.30, ["leakage_gate"])]
+
+    with mock.patch("scripts.rag.query.rag_query", side_effect=fake_rq):
+        pool = _retrieve_rag_context_for_priming("methods", top_k_general=3, top_k_leakage=3)
+
+    assert len(pool) == 1
+    assert pool[0].concern_id == "PR-X"
+    assert pool[0].score == pytest.approx(0.90)
+    assert pool[0].excerpt.startswith("high")
+
+
+def test_retrieve_rag_context_sorts_by_score_descending():
+    def fake_rq(**kwargs):
+        if kwargs.get("gate") == "leakage_gate":
+            return [
+                _kb_rec("PR-A", "a", 0.30, []),
+                _kb_rec("PR-B", "b", 0.90, []),
+            ]
+        return [
+            _kb_rec("PR-C", "c", 0.60, []),
+            _kb_rec("PR-D", "d", 0.50, []),
+        ]
+
+    with mock.patch("scripts.rag.query.rag_query", side_effect=fake_rq):
+        pool = _retrieve_rag_context_for_priming("methods", top_k_general=5, top_k_leakage=5)
+
+    scores = [p.score for p in pool]
+    assert scores == sorted(scores, reverse=True)
+    assert pool[0].concern_id == "PR-B"  # highest
+
+
+def test_retrieve_rag_context_tolerates_failing_rag_query():
+    """Priming retrieval must degrade to [] (not crash) when RAG is cold."""
+    def boom(**_kw):
+        raise RuntimeError("KB unavailable")
+
+    with mock.patch("scripts.rag.query.rag_query", side_effect=boom):
+        pool = _retrieve_rag_context_for_priming("methods")
+    assert pool == []
+
+
+# --- post_hoc enrichment ---
 
 
 def test_enrich_with_rag_attaches_citations_in_input_order():
@@ -178,68 +318,46 @@ def test_enrich_with_rag_tolerates_failing_rag_query():
 
 
 # ─────────────────────────────────────────────────────────────────────────
-# audit_paper — end-to-end, mocked
+# audit_paper — end-to-end across all three rag_strategy modes
 # ─────────────────────────────────────────────────────────────────────────
 
 
-def test_audit_paper_end_to_end_with_mocks(tmp_path):
-    """End-to-end: PDF extraction, LLM call, RAG enrichment all mocked.
-    Verifies the AuditReport shape and that RAG flag actually controls
-    whether citations are attached.
-    """
-    fake_pdf = tmp_path / "fake.pdf"
-    fake_pdf.write_bytes(b"%PDF-1.4 fake content (mocked extractor)")
-
-    fake_methods = (
-        "Cross-sectional NHANES analysis. GLM7 = log10(...FBG...). "
-        "DM defined by HbA1c >= 6.5%. 0.7/0.3 random split."
-    )
-    fake_llm_out = LlmAuditOutput(
-        major_concerns=[
-            Concern(
-                headline="leakage: FBG in predictor of HbA1c-defined DM",
-                severity="CRITICAL",
-                body="See p. 14. GLM7 includes FBG; DM defined via HbA1c.",
-                page_cites=["p. 14 §5"],
-                suggested_gate_hint="leakage_gate",
-            ),
-        ],
-        minor_concerns=[],
-        questions_for_authors=["Refit without FBG and report AUROC delta."],
-    )
-
-    with (
-        mock.patch(
-            "scripts.rag.evals.ncpr_extract_methods_from_pdf.extract_methods_section",
-            return_value=fake_methods,
+_FAKE_LLM_OUT = LlmAuditOutput(
+    major_concerns=[
+        Concern(
+            headline="leakage: FBG in predictor of HbA1c-defined DM",
+            severity="CRITICAL",
+            body="See p. 14. GLM7 includes FBG; DM defined via HbA1c.",
+            page_cites=["p. 14 §5"],
+            suggested_gate_hint="leakage_gate",
         ),
-        mock.patch(
-            "scripts.review.llm_paper_audit.call_llm_review",
-            return_value=fake_llm_out,
-        ),
-        mock.patch(
-            "scripts.rag.query.rag_query",
-            return_value=[_kb_rec("PR-007-C01", "FBG-as-feature for HbA1c label", 0.78, ["leakage_gate"])],
-        ),
-    ):
-        report = audit_paper(fake_pdf, use_rag_enrichment=True)
-
-    assert isinstance(report, AuditReport)
-    assert report.paper == "fake.pdf"
-    assert report.rag_enriched is True
-    assert len(report.major_concerns) == 1
-    ec = report.major_concerns[0]
-    assert ec.concern.severity == "CRITICAL"
-    assert ec.kb_citations[0].concern_id == "PR-007-C01"
-    assert report.methods_text_chars == len(fake_methods)
-    assert len(report.methods_text_sha256) == 64
-    assert report.questions_for_authors == ["Refit without FBG and report AUROC delta."]
+    ],
+    minor_concerns=[],
+    questions_for_authors=["Refit without FBG and report AUROC delta."],
+)
 
 
-def test_audit_paper_skips_rag_when_flag_off(tmp_path):
-    """use_rag_enrichment=False must not call rag_query at all."""
-    fake_pdf = tmp_path / "fake.pdf"
-    fake_pdf.write_bytes(b"%PDF-1.4")
+def _make_fake_pdf(tmp_path):
+    p = tmp_path / "fake.pdf"
+    p.write_bytes(b"%PDF-1.4 fake")
+    return p
+
+
+def test_audit_paper_primed_mode_default(tmp_path):
+    """W31-S1: rag_strategy='primed' is the default. It retrieves KB
+    context first, passes it to call_llm_review as kb_context, and stores
+    the full pool in AuditReport.kb_context_pool."""
+    fake_pdf = _make_fake_pdf(tmp_path)
+    captured_kb: list = []
+
+    def fake_call_llm(*, kb_context=None, **_kw):
+        captured_kb.append(kb_context)
+        return _FAKE_LLM_OUT
+
+    def fake_rq(**kwargs):
+        if kwargs.get("gate") == "leakage_gate":
+            return [_kb_rec("PR-A", "leakage example", 0.85, ["leakage_gate"])]
+        return [_kb_rec("PR-B", "topic match", 0.55, [])]
 
     with (
         mock.patch(
@@ -248,17 +366,92 @@ def test_audit_paper_skips_rag_when_flag_off(tmp_path):
         ),
         mock.patch(
             "scripts.review.llm_paper_audit.call_llm_review",
-            return_value=LlmAuditOutput(
-                major_concerns=[Concern(headline="x", severity="HIGH", body="y")],
-            ),
+            side_effect=fake_call_llm,
+        ),
+        mock.patch("scripts.rag.query.rag_query", side_effect=fake_rq),
+    ):
+        report = audit_paper(fake_pdf)  # default = primed
+
+    assert report.rag_strategy == "primed"
+    # LLM was called with the KB context
+    assert len(captured_kb) == 1
+    kb_seen = captured_kb[0]
+    assert kb_seen is not None
+    assert {kb.concern_id for kb in kb_seen} == {"PR-A", "PR-B"}
+    # AuditReport carries the full pool
+    assert {kb.concern_id for kb in report.kb_context_pool} == {"PR-A", "PR-B"}
+    # No per-concern enrichment in primed mode (it's primed, not enriched)
+    assert report.major_concerns[0].kb_citations == []
+
+
+def test_audit_paper_post_hoc_mode_preserves_w29_mvp_behaviour(tmp_path):
+    """rag_strategy='post_hoc' is the original W29-MVP path: LLM first,
+    then per-concern enrichment. kb_context_pool is empty."""
+    fake_pdf = _make_fake_pdf(tmp_path)
+
+    with (
+        mock.patch(
+            "scripts.rag.evals.ncpr_extract_methods_from_pdf.extract_methods_section",
+            return_value="some methods text",
+        ),
+        mock.patch(
+            "scripts.review.llm_paper_audit.call_llm_review",
+            return_value=_FAKE_LLM_OUT,
+        ),
+        mock.patch(
+            "scripts.rag.query.rag_query",
+            return_value=[_kb_rec("PR-007-C01", "FBG-as-feature", 0.78, ["leakage_gate"])],
+        ),
+    ):
+        report = audit_paper(fake_pdf, rag_strategy="post_hoc")
+
+    assert report.rag_strategy == "post_hoc"
+    assert report.kb_context_pool == []      # priming pool empty
+    # per-concern citation attached
+    assert len(report.major_concerns[0].kb_citations) == 1
+    assert report.major_concerns[0].kb_citations[0].concern_id == "PR-007-C01"
+
+
+def test_audit_paper_off_mode_does_zero_rag_calls(tmp_path):
+    """rag_strategy='off' must never call rag_query. Useful as baseline."""
+    fake_pdf = _make_fake_pdf(tmp_path)
+
+    with (
+        mock.patch(
+            "scripts.rag.evals.ncpr_extract_methods_from_pdf.extract_methods_section",
+            return_value="some methods text",
+        ),
+        mock.patch(
+            "scripts.review.llm_paper_audit.call_llm_review",
+            return_value=_FAKE_LLM_OUT,
         ),
         mock.patch("scripts.rag.query.rag_query") as mocked_rag,
     ):
-        report = audit_paper(fake_pdf, use_rag_enrichment=False)
+        report = audit_paper(fake_pdf, rag_strategy="off")
 
     mocked_rag.assert_not_called()
-    assert report.rag_enriched is False
+    assert report.rag_strategy == "off"
+    assert report.kb_context_pool == []
     assert report.major_concerns[0].kb_citations == []
+
+
+def test_audit_paper_primed_mode_passes_methods_chars_and_sha256(tmp_path):
+    fake_pdf = _make_fake_pdf(tmp_path)
+    text = "abc methods"
+    with (
+        mock.patch(
+            "scripts.rag.evals.ncpr_extract_methods_from_pdf.extract_methods_section",
+            return_value=text,
+        ),
+        mock.patch(
+            "scripts.review.llm_paper_audit.call_llm_review",
+            return_value=_FAKE_LLM_OUT,
+        ),
+        mock.patch("scripts.rag.query.rag_query", return_value=[]),
+    ):
+        report = audit_paper(fake_pdf)
+    assert report.methods_text_chars == len(text)
+    assert len(report.methods_text_sha256) == 64
 
 
 def test_audit_paper_raises_on_missing_pdf(tmp_path):
@@ -267,8 +460,7 @@ def test_audit_paper_raises_on_missing_pdf(tmp_path):
 
 
 def test_audit_paper_raises_on_empty_methods_extraction(tmp_path):
-    fake_pdf = tmp_path / "fake.pdf"
-    fake_pdf.write_bytes(b"%PDF-1.4")
+    fake_pdf = _make_fake_pdf(tmp_path)
     with (
         mock.patch(
             "scripts.rag.evals.ncpr_extract_methods_from_pdf.extract_methods_section",
@@ -288,7 +480,7 @@ def test_format_report_markdown_includes_all_sections():
     report = AuditReport(
         paper="x.pdf",
         model="claude-opus-4-5",
-        rag_enriched=True,
+        rag_strategy="post_hoc",
         major_concerns=[
             EnrichedConcern(
                 concern=Concern(
@@ -321,3 +513,25 @@ def test_format_report_markdown_includes_all_sections():
     assert "PR-001-C02" in md
     assert "leakage_gate" in md
     assert "[CRITICAL]" in md
+
+
+def test_format_report_markdown_primed_mode_renders_kb_pool():
+    """W31-S1: primed-mode reports should expose the KB pool shown to the
+    LLM so reviewers can audit what the model was primed with."""
+    report = AuditReport(
+        paper="x.pdf",
+        model="claude-opus-4-5",
+        rag_strategy="primed",
+        major_concerns=[],
+        kb_context_pool=[
+            KbCitation(concern_id="PR-A", excerpt="aa", score=0.7, mlgg_gates=["leakage_gate"]),
+            KbCitation(concern_id="PR-B", excerpt="bb", score=0.5, mlgg_gates=[]),
+        ],
+        methods_text_chars=42,
+        methods_text_sha256="a" * 64,
+    )
+    md = _format_report_markdown(report)
+    assert "KB context shown to LLM" in md
+    assert "PR-A" in md
+    assert "PR-B" in md
+    assert "rag_strategy=primed" in md

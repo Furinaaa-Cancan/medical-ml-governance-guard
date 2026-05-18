@@ -128,14 +128,23 @@ class EnrichedConcern:
 
 @dataclass
 class AuditReport:
-    """Final output shape returned by :func:`audit_paper`."""
+    """Final output shape returned by :func:`audit_paper`.
+
+    W31-S1 changes:
+    - ``rag_strategy`` replaces the binary ``rag_enriched`` flag — three
+      modes now: ``"primed"`` (KB context in prompt), ``"post_hoc"`` (KB
+      enrichment per concern, the W29-MVP behaviour), or ``"off"``.
+    - ``kb_context_pool`` carries the KB excerpts shown to the LLM in
+      priming mode. Empty in post_hoc and off modes.
+    """
 
     paper: str
     model: str
-    rag_enriched: bool
+    rag_strategy: str  # "primed" | "post_hoc" | "off"
     major_concerns: list[EnrichedConcern] = field(default_factory=list)
     minor_concerns: list[EnrichedConcern] = field(default_factory=list)
     questions_for_authors: list[str] = field(default_factory=list)
+    kb_context_pool: list[KbCitation] = field(default_factory=list)
     methods_text_chars: int = 0
     methods_text_sha256: str = ""
 
@@ -148,12 +157,13 @@ class AuditReport:
         return {
             "paper": self.paper,
             "model": self.model,
-            "rag_enriched": self.rag_enriched,
+            "rag_strategy": self.rag_strategy,
             "methods_text_chars": self.methods_text_chars,
             "methods_text_sha256": self.methods_text_sha256,
             "major_concerns": [_ec(ec) for ec in self.major_concerns],
             "minor_concerns": [_ec(ec) for ec in self.minor_concerns],
             "questions_for_authors": self.questions_for_authors,
+            "kb_context_pool": [asdict(c) for c in self.kb_context_pool],
         }
 
 
@@ -163,8 +173,10 @@ class AuditReport:
 
 SYSTEM_PROMPT = """\
 You are an independent strict reviewer for a medical-ML prediction-model paper at
-Nature Methods / JAMA / BMJ level. This is a BLIND audit — form your opinion only
-from the methods text below. Do not consult outside knowledge about the paper.
+Nature Methods / JAMA / BMJ level. Your opinion is grounded in (a) the methods
+text from THE paper under review and (b) optional REFERENCE PEER-REVIEW CONCERNS
+from a curated knowledge base of 817 published reviewer comments on 154 Nature
+Communications / Communications Medicine papers.
 
 Output a structured list of methodology concerns. Hard rules:
 
@@ -190,6 +202,25 @@ Output a structured list of methodology concerns. Hard rules:
    DM is defined by HbA1c" — not "AUROC of 0.966 is suspicious").
 8. Don't pad. 3-12 Major is normal. Quality > quantity.
 
+REFERENCE PEER REVIEWS — discipline for using the KB excerpts (when provided):
+
+R1. KB excerpts come from OTHER papers — they show shapes of concerns that real
+    NC/CM reviewers raised on similar-domain studies. They are calibration,
+    NOT ground truth for THIS paper.
+R2. A KB concern only applies to this paper if you can independently verify
+    it in the methods text below. Cite the page+section of THIS paper, then
+    optionally reference the KB concern_id as a precedent (e.g.
+    "p. 14 §5; precedent: PR-019-C02").
+R3. NEVER raise a concern just because the KB has a similar one. The KB is
+    biased — it only contains issues that real reviewers caught on
+    already-published papers; absence of a KB match for an issue you observe
+    in this paper is also not evidence the issue is unreal.
+R4. If a KB excerpt's concern does NOT apply to this paper, silently ignore
+    it. Do not list it.
+R5. The 33 MLGG gates are pipeline contracts for instrumented training runs;
+    do not assume this paper's authors used them. `suggested_gate_hint` is
+    only for downstream taxonomy, not a claim that the gate "ran".
+
 Severity guide:
   CRITICAL — the headline claim of the paper depends on this being wrong.
   HIGH     — substantial bias / interpretability impact.
@@ -198,16 +229,56 @@ Severity guide:
 """
 
 
-def _build_user_prompt(methods_text: str, paper_label: str) -> str:
-    """Render the per-paper user message."""
-    return (
-        f"# Paper: {paper_label}\n\n"
-        f"# Methods text (extracted from PDF)\n\n"
-        f"{methods_text}\n\n"
-        f"---\n\n"
-        f"Produce the structured audit. Return JSON matching the LlmAuditOutput "
-        f"schema: major_concerns[], minor_concerns[], questions_for_authors[]."
-    )
+def _format_kb_context_for_prompt(kb_pool: list["KbCitation"]) -> str:
+    """W31-S1: render retrieved KB excerpts as a prompt-ready block.
+
+    Format matches what the SYSTEM_PROMPT R1-R5 rules expect: each excerpt
+    on one line with its concern_id, mlgg_gates, and a truncated body so
+    the LLM can reference it by id (e.g. "precedent: PR-019-C02").
+    """
+    if not kb_pool:
+        return ""
+    lines = ["# Reference peer-review concerns (KB precedent — see SYSTEM rules R1-R5)"]
+    lines.append("")
+    for kb in kb_pool:
+        gates = ",".join(kb.mlgg_gates) if kb.mlgg_gates else "—"
+        excerpt = kb.excerpt.strip().replace("\n", " ")
+        if len(excerpt) > 240:
+            excerpt = excerpt[:237] + "…"
+        lines.append(
+            f"- [{kb.concern_id}] (score {kb.score:.2f}, gates: {gates}) {excerpt}"
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
+def _build_user_prompt(
+    methods_text: str,
+    paper_label: str,
+    *,
+    kb_context: Optional[list["KbCitation"]] = None,
+) -> str:
+    """Render the per-paper user message, with optional KB priming context.
+
+    When ``kb_context`` is provided (W31-S1 priming mode), KB excerpts are
+    placed BEFORE the methods text so the LLM reads them as calibration
+    while forming opinions on this paper. The SYSTEM_PROMPT R1-R5 block
+    disciplines how the LLM may use them (no rubber-stamping).
+    """
+    sections: list[str] = [f"# Paper: {paper_label}", ""]
+    if kb_context:
+        sections.append(_format_kb_context_for_prompt(kb_context))
+    sections.extend([
+        "# Methods text (extracted from PDF)",
+        "",
+        methods_text,
+        "",
+        "---",
+        "",
+        "Produce the structured audit. Return JSON matching the LlmAuditOutput "
+        "schema: major_concerns[], minor_concerns[], questions_for_authors[].",
+    ])
+    return "\n".join(sections)
 
 
 # ─────────────────────────────────────────────────────────────────────────
@@ -222,6 +293,7 @@ def call_llm_review(
     model: str = "claude-opus-4-5",
     max_tokens: int = 8192,
     temperature: float = 0.0,
+    kb_context: Optional[list["KbCitation"]] = None,
 ) -> LlmAuditOutput:
     """Send the methods text to Claude and return a parsed ``LlmAuditOutput``.
 
@@ -229,6 +301,12 @@ def call_llm_review(
     avoid free-form JSON parsing. Lazy-imports ``anthropic`` so the
     module loads even when the SDK isn't installed (unit tests mock this
     function).
+
+    Args:
+        kb_context: W31-S1. When provided (priming mode), the KB excerpts
+            are placed BEFORE the methods text in the user message. The
+            SYSTEM_PROMPT R1-R5 block disciplines how the LLM uses them.
+            When None (post_hoc or off modes), no KB section is rendered.
 
     Raises:
         RuntimeError if ANTHROPIC_API_KEY is missing or the SDK is absent.
@@ -261,7 +339,12 @@ def call_llm_review(
             }
         ],
         messages=[
-            {"role": "user", "content": _build_user_prompt(methods_text, paper_label)}
+            {
+                "role": "user",
+                "content": _build_user_prompt(
+                    methods_text, paper_label, kb_context=kb_context
+                ),
+            }
         ],
         output_format=LlmAuditOutput,
     )
@@ -275,7 +358,91 @@ def call_llm_review(
 
 
 # ─────────────────────────────────────────────────────────────────────────
-# RAG enrichment — call rag_query per concern, attach citations
+# W31-S1: RAG priming — retrieve KB context BEFORE the LLM call
+# ─────────────────────────────────────────────────────────────────────────
+
+
+def _retrieve_rag_context_for_priming(
+    methods_text: str,
+    *,
+    top_k_general: int = 10,
+    top_k_leakage: int = 5,
+    min_score: float = 0.1,
+    max_excerpt_chars: int = 200,
+) -> list[KbCitation]:
+    """Dual-path retrieval to assemble the KB context shown to the LLM
+    in priming mode.
+
+    Two retrieval passes are merged so the prompt sees BOTH topical
+    matches and leakage-class concerns regardless of whether the methods
+    text mentions leakage lexically (the W30-R1 finding: BM25 is silent
+    on free-text rag_query, so leakage-class concerns are otherwise
+    under-retrieved on papers that don't say the word "leakage"):
+
+    1. General free-text rag_query on the methods text — surfaces topic
+       neighbours (cohort design, evaluation metrics, etc.). 4-signal
+       fusion (dense + tag + severity + corroboration), no BM25.
+    2. Focused rag_query with ``gate="leakage_gate"`` — activates BM25
+       on the leakage-tagged subset (W30-R1 logic, but ALWAYS-on here
+       since priming asks "what concerns should I be aware of?", not
+       "what concerns has the user already named").
+
+    Merge: union by ``concern_id``, keep the higher ``_final_score`` per
+    record. Order by score desc. Truncate by sum of top_k_general +
+    top_k_leakage so the prompt size stays bounded.
+
+    Returns an empty list if RAG is unavailable (degrades gracefully so
+    priming mode falls back to LLM-only without crashing).
+    """
+    try:
+        from scripts.rag.query import rag_query
+    except ImportError:
+        log.warning("RAG stack unavailable; priming will skip KB context")
+        return []
+
+    def _safe_call(**kw) -> list[dict]:
+        try:
+            return rag_query(query=methods_text, min_score=min_score, **kw) or []
+        except Exception as exc:  # noqa: BLE001 — RAG failure must not kill audit
+            log.warning("rag_query failed during priming: %s", exc)
+            return []
+
+    general = _safe_call(top_k=max(1, top_k_general))
+    leakage = _safe_call(gate="leakage_gate", top_k=max(1, top_k_leakage))
+
+    # Merge by concern_id; higher score wins. Records without concern_id
+    # are kept individually (defensive: malformed KB rows can't drop legit hits).
+    by_id: dict[str, dict] = {}
+    no_id: list[dict] = []
+    for rec in [*general, *leakage]:
+        cid = rec.get("concern_id")
+        if cid:
+            existing = by_id.get(str(cid))
+            if existing is None or float(rec.get("_final_score", 0.0)) > float(
+                existing.get("_final_score", 0.0)
+            ):
+                by_id[str(cid)] = rec
+        else:
+            no_id.append(rec)
+
+    merged = list(by_id.values()) + no_id
+    merged.sort(key=lambda r: float(r.get("_final_score", 0.0)), reverse=True)
+    cap = top_k_general + top_k_leakage
+    merged = merged[:cap]
+
+    return [
+        KbCitation(
+            concern_id=str(r.get("concern_id", "")),
+            excerpt=str(r.get("concern_text", r.get("excerpt", "")))[:max_excerpt_chars],
+            score=float(r.get("_final_score", 0.0)),
+            mlgg_gates=list(r.get("mlgg_gates", []) or []),
+        )
+        for r in merged
+    ]
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# RAG enrichment (post-hoc) — call rag_query per concern, attach citations
 # ─────────────────────────────────────────────────────────────────────────
 
 
@@ -333,25 +500,44 @@ def enrich_with_rag(
 # ─────────────────────────────────────────────────────────────────────────
 
 
+RagStrategy = Literal["primed", "post_hoc", "off"]
+
+
 def audit_paper(
     pdf_path: str | Path,
     *,
     model: str = "claude-opus-4-5",
-    use_rag_enrichment: bool = True,
+    rag_strategy: RagStrategy = "primed",
     top_k: int = 3,
     min_score: float = 0.2,
+    priming_top_k_general: int = 10,
+    priming_top_k_leakage: int = 5,
 ) -> AuditReport:
     """End-to-end paper audit. PDF in, ``AuditReport`` out.
+
+    Three RAG strategies (W31-S1):
+
+    - ``"primed"`` (default, today's GLM7 experiment selected this): Retrieve
+      KB context FIRST via :func:`_retrieve_rag_context_for_priming`, inject
+      it into the user prompt under "Reference peer-review concerns", and let
+      the single LLM call form opinions WITH the KB as calibration. Per-concern
+      ``kb_citations`` are left empty — the LLM may cite KB inline in concern
+      bodies; full pool is available on ``AuditReport.kb_context_pool``.
+    - ``"post_hoc"`` (W29-MVP path, kept for ablation): LLM first, then per-
+      concern :func:`enrich_with_rag` attaches up to ``top_k`` citations.
+      ``kb_context_pool`` is empty in this mode.
+    - ``"off"``: No RAG at any stage. LLM only. ``kb_context_pool`` empty,
+      ``EnrichedConcern.kb_citations`` empty. Useful as baseline.
 
     Args:
         pdf_path: Path to the paper PDF.
         model: Anthropic model id. Default tracks the latest Opus.
-        use_rag_enrichment: When True (default), each LLM concern is
-            enriched with up to ``top_k`` KB peer-review citations via
-            :func:`scripts.rag.query.rag_query`.
-        top_k: Citations per concern.
-        min_score: Floor on ``_final_score`` for cited KB records.
-            Anything below is dropped (W27-R2).
+        rag_strategy: See above. Default ``"primed"``.
+        top_k: post_hoc only — citations per concern.
+        min_score: post_hoc only — floor on ``_final_score`` for cited
+            records (W27-R2).
+        priming_top_k_general: primed only — free-text retrieval pool size.
+        priming_top_k_leakage: primed only — leakage-gate BM25 pool size.
     """
     from hashlib import sha256
 
@@ -370,13 +556,25 @@ def audit_paper(
             "Check pdftotext is installed and the PDF is not image-only."
         )
 
+    # Branch 1: priming — retrieve KB first, then LLM with KB context
+    kb_context_pool: list[KbCitation] = []
+    if rag_strategy == "primed":
+        kb_context_pool = _retrieve_rag_context_for_priming(
+            methods_text,
+            top_k_general=priming_top_k_general,
+            top_k_leakage=priming_top_k_leakage,
+            min_score=min_score,
+        )
+
     llm_output = call_llm_review(
         methods_text=methods_text,
         paper_label=pdf.stem,
         model=model,
+        kb_context=kb_context_pool if rag_strategy == "primed" else None,
     )
 
-    if use_rag_enrichment:
+    # Branch 2: post_hoc — per-concern enrichment after the LLM has spoken
+    if rag_strategy == "post_hoc":
         major = enrich_with_rag(
             llm_output.major_concerns, top_k=top_k, min_score=min_score
         )
@@ -384,16 +582,18 @@ def audit_paper(
             llm_output.minor_concerns, top_k=top_k, min_score=min_score
         )
     else:
+        # primed and off both leave per-concern citations empty.
         major = [EnrichedConcern(concern=c) for c in llm_output.major_concerns]
         minor = [EnrichedConcern(concern=c) for c in llm_output.minor_concerns]
 
     return AuditReport(
         paper=pdf.name,
         model=model,
-        rag_enriched=use_rag_enrichment,
+        rag_strategy=rag_strategy,
         major_concerns=major,
         minor_concerns=minor,
         questions_for_authors=list(llm_output.questions_for_authors),
+        kb_context_pool=kb_context_pool,
         methods_text_chars=len(methods_text),
         methods_text_sha256=sha256(methods_text.encode("utf-8")).hexdigest(),
     )
@@ -410,11 +610,20 @@ def _format_report_markdown(report: AuditReport) -> str:
     lines.append(f"# Audit: {report.paper}")
     lines.append("")
     lines.append(
-        f"_model={report.model}, rag_enriched={report.rag_enriched}, "
+        f"_model={report.model}, rag_strategy={report.rag_strategy}, "
+        f"kb_pool_size={len(report.kb_context_pool)}, "
         f"methods_chars={report.methods_text_chars}, "
         f"sha256={report.methods_text_sha256[:12]}…_"
     )
     lines.append("")
+    if report.kb_context_pool:
+        lines.append("## KB context shown to LLM (priming pool)")
+        for kb in report.kb_context_pool:
+            gates = ",".join(kb.mlgg_gates) if kb.mlgg_gates else "—"
+            lines.append(
+                f"- `{kb.concern_id}` (score {kb.score:.2f}, gates: {gates}): {kb.excerpt}"
+            )
+        lines.append("")
     for tier, items in (
         ("Major Concerns", report.major_concerns),
         ("Minor Concerns", report.minor_concerns),
@@ -454,12 +663,21 @@ def _format_report_markdown(report: AuditReport) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="LLM-first paper audit with optional RAG enrichment (W29-MVP).",
+        description=(
+            "LLM-first paper audit with RAG strategy selection (W29-MVP + W31-S1). "
+            "Default: 'primed' (RAG retrieves KB context, LLM reads it during audit)."
+        ),
     )
     parser.add_argument("pdf", help="Path to paper PDF.")
     parser.add_argument(
-        "--no-rag", action="store_true",
-        help="Skip RAG enrichment (LLM-only — fastest, no KB lookups).",
+        "--rag-strategy",
+        choices=("primed", "post_hoc", "off"),
+        default="primed",
+        help=(
+            "RAG mode: 'primed' (W31 default, KB context in prompt), "
+            "'post_hoc' (W29-MVP, per-concern enrichment after LLM), "
+            "'off' (LLM only, baseline)."
+        ),
     )
     parser.add_argument(
         "--model", default="claude-opus-4-5",
@@ -467,11 +685,19 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--top-k", type=int, default=3,
-        help="KB citations per concern (default: 3).",
+        help="post_hoc mode only — citations per concern (default: 3).",
     )
     parser.add_argument(
         "--min-score", type=float, default=0.2,
         help="RAG score floor (default: 0.2, W27-R2).",
+    )
+    parser.add_argument(
+        "--priming-top-k-general", type=int, default=10,
+        help="primed mode — general retrieval pool size (default: 10).",
+    )
+    parser.add_argument(
+        "--priming-top-k-leakage", type=int, default=5,
+        help="primed mode — leakage_gate BM25 pool size (default: 5).",
     )
     parser.add_argument(
         "--format", choices=("markdown", "json"), default="markdown",
@@ -487,9 +713,11 @@ def main(argv: list[str] | None = None) -> int:
     report = audit_paper(
         pdf_path=args.pdf,
         model=args.model,
-        use_rag_enrichment=not args.no_rag,
+        rag_strategy=args.rag_strategy,
         top_k=args.top_k,
         min_score=args.min_score,
+        priming_top_k_general=args.priming_top_k_general,
+        priming_top_k_leakage=args.priming_top_k_leakage,
     )
 
     payload = (
