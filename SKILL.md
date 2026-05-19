@@ -100,7 +100,7 @@ Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部
 | `export-review-prompt` | 导出 MLGG 评审规则为便携 LLM prompt（可粘到任意 LLM） | C |
 | `lint` | 等价 `mlgg-lint`（AST 代码泄漏检测，零依赖） | B |
 | `rag` | 在 817 条 reviewer KB 上做 hybrid 检索（dense + BM25 + MMR）。W18-D1 实测 `hybrid_all` > BM25-only；`DENSE_WEIGHT=0.10` 默认（W13-P0 起）。W26-R1 `adaptive=True` + W27-R1 `dedup_by_code=True` 是 Mode B/C 推荐组合 | B / C |
-| `llm-audit` | **W29-MVP**：LLM-first paper audit + 可选 RAG 背书。Anthropic Claude 跑 reviewer-role 提示词找 design flaw（leakage / 时序 / derivation circularity），然后 RAG 给每条 concern 找 KB 同行评审原文。GLM7 实验数据证明 LLM-first > pure RAG 在 CRITICAL 类问题（W28-V1 doc）。需 `pip install anthropic` + `ANTHROPIC_API_KEY`。CLI: `mlgg-review llm-audit <pdf>` | C |
+| `llm-audit` | **W29-MVP + W31-V2**：LLM-first paper audit + 可选 RAG 背书。Anthropic Claude 跑 reviewer-role 提示词找 design flaw（leakage / 时序 / derivation circularity），然后 per-concern RAG 给每条 concern 找 KB 同行评审原文（默认 `--rag-strategy post_hoc`，W31-V2 GLM7 N=1 实测 47% 引证 on-topic vs primed mode 40%；primed 路径在长 methods text 上 leakage_probe 是 dead path，pool 偏 missingness — 见 `docs/diagnostics/W31_V2_glm7_3way_ablation.md`）。需 `pip install anthropic` + `ANTHROPIC_API_KEY`。CLI: `mlgg-review llm-audit <pdf>` | C |
 
 > W28-S0 grouping rationale: 这 7 个子命令构成"对别人的 code/paper 评审"产品线，与 `[governance]` 的"对你自己的流水做合规"目标 / GT 来源 / 度量体系都不同（详见 `docs/PRODUCTS.md`）。
 

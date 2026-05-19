@@ -507,7 +507,7 @@ def audit_paper(
     pdf_path: str | Path,
     *,
     model: str = "claude-opus-4-7",
-    rag_strategy: RagStrategy = "primed",
+    rag_strategy: RagStrategy = "post_hoc",
     top_k: int = 3,
     min_score: float = 0.2,
     priming_top_k_general: int = 10,
@@ -515,19 +515,26 @@ def audit_paper(
 ) -> AuditReport:
     """End-to-end paper audit. PDF in, ``AuditReport`` out.
 
-    Three RAG strategies (W31-S1):
+    Three RAG strategies (W31-S1 designed; W31-V2 demoted `primed`):
 
-    - ``"primed"`` (default, today's GLM7 experiment selected this): Retrieve
-      KB context FIRST via :func:`_retrieve_rag_context_for_priming`, inject
-      it into the user prompt under "Reference peer-review concerns", and let
-      the single LLM call form opinions WITH the KB as calibration. Per-concern
-      ``kb_citations`` are left empty — the LLM may cite KB inline in concern
-      bodies; full pool is available on ``AuditReport.kb_context_pool``.
-    - ``"post_hoc"`` (W29-MVP path, kept for ablation): LLM first, then per-
-      concern :func:`enrich_with_rag` attaches up to ``top_k`` citations.
-      ``kb_context_pool`` is empty in this mode.
+    - ``"post_hoc"`` (W31-V2 default after the GLM7 ablation): LLM first
+      via :func:`call_llm_review` with no KB context, then per-concern
+      :func:`enrich_with_rag` attaches up to ``top_k`` targeted KB
+      citations using ``concern.suggested_gate_hint`` as the gate filter.
+      ``kb_context_pool`` is empty in this mode. W31-V2 measured 47 %
+      on-topic citation rate on GLM7 vs ``primed``'s 40 %, and zero
+      priming-bias risk.
+    - ``"primed"`` (W31-S1 design, demoted from default after W31-V2):
+      Retrieve KB context FIRST via :func:`_retrieve_rag_context_for_priming`,
+      inject it into the user prompt under "Reference peer-review concerns",
+      let the single LLM call form opinions WITH the KB as calibration.
+      W31-V2 found the dual-path retrieval returns 0 leakage hits on long
+      methods text (W30-R1 leakage_probe is dead) and the resulting pool
+      is biased toward missingness topics. Use only for explicit ablation.
     - ``"off"``: No RAG at any stage. LLM only. ``kb_context_pool`` empty,
-      ``EnrichedConcern.kb_citations`` empty. Useful as baseline.
+      ``EnrichedConcern.kb_citations`` empty. W31-V2 measured CRITICAL
+      recall equivalent to ``post_hoc``; ``off`` is the architectural
+      baseline.
 
     Args:
         pdf_path: Path to the paper PDF.
@@ -672,11 +679,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--rag-strategy",
         choices=("primed", "post_hoc", "off"),
-        default="primed",
+        default="post_hoc",
         help=(
-            "RAG mode: 'primed' (W31 default, KB context in prompt), "
-            "'post_hoc' (W29-MVP, per-concern enrichment after LLM), "
-            "'off' (LLM only, baseline)."
+            "RAG mode: 'post_hoc' (W31-V2 default, LLM-first then per-"
+            "concern targeted RAG enrichment — best on-topic citation "
+            "rate), 'primed' (W31-S1 design, KB context in prompt — "
+            "demoted after W31-V2 found long-methods leakage_probe is "
+            "dead and pool is missingness-biased), 'off' (LLM only)."
         ),
     )
     parser.add_argument(

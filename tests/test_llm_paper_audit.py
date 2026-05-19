@@ -343,10 +343,49 @@ def _make_fake_pdf(tmp_path):
     return p
 
 
-def test_audit_paper_primed_mode_default(tmp_path):
-    """W31-S1: rag_strategy='primed' is the default. It retrieves KB
-    context first, passes it to call_llm_review as kb_context, and stores
-    the full pool in AuditReport.kb_context_pool."""
+def test_audit_paper_post_hoc_mode_is_default(tmp_path):
+    """W31-V2: rag_strategy='post_hoc' is now the default (demoted from
+    'primed' after the GLM7 3-way ablation found primed-mode KB pool is
+    missingness-biased and the leakage_probe path is dead on long methods
+    text). post_hoc runs the LLM with no KB context, then enriches per
+    concern with targeted rag_query."""
+    fake_pdf = _make_fake_pdf(tmp_path)
+    captured_kb: list = []
+
+    def fake_call_llm(*, kb_context=None, **_kw):
+        captured_kb.append(kb_context)
+        return _FAKE_LLM_OUT
+
+    with (
+        mock.patch(
+            "scripts.rag.evals.ncpr_extract_methods_from_pdf.extract_methods_section",
+            return_value="some methods text",
+        ),
+        mock.patch(
+            "scripts.review.llm_paper_audit.call_llm_review",
+            side_effect=fake_call_llm,
+        ),
+        mock.patch(
+            "scripts.rag.query.rag_query",
+            return_value=[_kb_rec("PR-007-C01", "FBG-as-feature", 0.78, ["leakage_gate"])],
+        ),
+    ):
+        report = audit_paper(fake_pdf)  # default = post_hoc per W31-V2
+
+    assert report.rag_strategy == "post_hoc"
+    # LLM was called WITHOUT KB context in post_hoc mode
+    assert captured_kb == [None]
+    # KB pool is empty (priming not used)
+    assert report.kb_context_pool == []
+    # per-concern citation attached
+    assert len(report.major_concerns[0].kb_citations) == 1
+    assert report.major_concerns[0].kb_citations[0].concern_id == "PR-007-C01"
+
+
+def test_audit_paper_primed_mode_explicit_opt_in(tmp_path):
+    """W31-S1 priming behaviour preserved as explicit opt-in (no longer
+    default per W31-V2). When rag_strategy='primed' is requested, KB
+    context is retrieved first and injected into the LLM prompt."""
     fake_pdf = _make_fake_pdf(tmp_path)
     captured_kb: list = []
 
@@ -370,17 +409,14 @@ def test_audit_paper_primed_mode_default(tmp_path):
         ),
         mock.patch("scripts.rag.query.rag_query", side_effect=fake_rq),
     ):
-        report = audit_paper(fake_pdf)  # default = primed
+        report = audit_paper(fake_pdf, rag_strategy="primed")
 
     assert report.rag_strategy == "primed"
-    # LLM was called with the KB context
     assert len(captured_kb) == 1
     kb_seen = captured_kb[0]
     assert kb_seen is not None
     assert {kb.concern_id for kb in kb_seen} == {"PR-A", "PR-B"}
-    # AuditReport carries the full pool
     assert {kb.concern_id for kb in report.kb_context_pool} == {"PR-A", "PR-B"}
-    # No per-concern enrichment in primed mode (it's primed, not enriched)
     assert report.major_concerns[0].kb_citations == []
 
 
