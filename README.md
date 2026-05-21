@@ -1868,7 +1868,7 @@ AI 会自动：
 @software{mlgg2026,
   title   = {ML Governance Guard (MLGG): Publication-Grade Integrity Standard
              for Medical Prediction Models},
-  author  = {Weng, Can},
+  author  = {Cancan},
   year    = {2026},
   version = {1.0},
   url     = {https://github.com/Furinaaa-Cancan/medical-ml-governance-guard},
