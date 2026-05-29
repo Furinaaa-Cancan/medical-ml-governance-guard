@@ -535,7 +535,7 @@ MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通
 | 目标别名 | `target`, `label`, `outcome` | `target_col`, `outcome_flag` |
 | 确诊后变量 | `pred_`, `confirmed_`, `staging` | `pred_risk`, `confirmed_diagnosis` |
 | 病理结果 | `pathology`, `biopsy_result`, `histology` | `biopsy_result_code` |
-| 时间泄漏 | `next_`, `future_`, `post_`, `after_` | `next_visit_date`, `post_surgery` |
+| 时间泄漏 | `future_`, `post_`, `after_` | `future_diagnosis`, `post_surgery` |
 | 结局日期 | `diagnosis_date`, `death_date`, `event_date` | `discharge_date` |
 | 衍生指标 | `readmit`, `mortality_flag`, `los_days` | `readmit_30d`, `survival_status` |
 

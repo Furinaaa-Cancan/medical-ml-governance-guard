@@ -233,7 +233,7 @@ def parse_args() -> argparse.Namespace:
             r"|(?:^|_)(ventilation_hours|ventilation_duration)(?:_|$)"
             r"|(?:^|_)(vasopressor)(?:_|$)"
         ),
-        help="Regex for suspicious feature names. Covers: explicit markers (future, leak), target aliases, post-outcome variables (pred_, confirmed_, staging), temporal leakage (next_, post_, time_in_hospital, num_medications, etc.), outcome dates, derived outcome indicators, and ICU in-stay features (ventilation, vasopressor). Note: 'outcome' allows _date/_time/_period suffixes to reduce false positives on legitimate date columns.",
+        help="Regex for suspicious feature names. Covers: explicit markers (future, leak), target aliases, post-outcome variables (pred_, confirmed_, staging), temporal leakage (post_, after_, time_in_hospital, num_medications, etc.), outcome dates, derived outcome indicators, and ICU in-stay features (ventilation, vasopressor). Note: 'next_' was dropped (false-positived on next_visit_count); 'outcome' allows _date/_time/_period suffixes to reduce false positives on legitimate date columns.",
     )
     parser.add_argument("--report", help="Optional path to write JSON report.")
     parser.add_argument(
