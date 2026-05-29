@@ -1,11 +1,8 @@
-"""Unit tests for scripts/evidence_digest.py."""
+"""Unit tests for scripts/reporting/evidence_digest.py."""
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
-
-SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
 
 from evidence_digest import (
     _fmt_float,
@@ -100,17 +97,36 @@ class TestExtractDigest:
         assert d["pipeline_status"] == "pass"
 
     def test_with_eval_metrics(self, tmp_path):
+        # REAL contract: train_select_evaluate.py nests the metric panel under
+        # evaluation_report["metrics"] (schema v2). Keys are "brier"/"f2_beta".
         _write(tmp_path, "evaluation_report.json", {
-            "roc_auc": 0.92, "pr_auc": 0.88, "sensitivity": 0.85,
+            "schema_version": 2,
+            "model_id": "logreg_l2",
+            "split": "test",
+            "primary_metric": "pr_auc",
+            "metrics": {
+                "roc_auc": 0.92, "pr_auc": 0.88, "sensitivity": 0.85,
+                "specificity": 0.79, "ppv": 0.71, "npv": 0.94,
+                "brier": 0.11, "f2_beta": 0.82, "mcc": 0.55,
+            },
         })
         d = extract_digest(tmp_path)
         assert d["metrics"]["roc_auc"] == 0.92
         assert d["metrics"]["pr_auc"] == 0.88
+        assert d["metrics"]["brier"] == 0.11
+        assert d["metrics"]["f2_beta"] == 0.82
+        # Old fabricated key names must NOT leak through.
+        assert "brier_score" not in d["metrics"]
+        assert "f_beta" not in d["metrics"]
 
     def test_with_model_selection(self, tmp_path):
-        _write(tmp_path, "model_selection_audit_report.json", {
+        # REAL contract: train_select_evaluate.py writes selected_model_id and
+        # candidate_count at the TOP LEVEL of model_selection_report.json.
+        _write(tmp_path, "model_selection_report.json", {
             "status": "pass",
-            "summary": {"selected_model_name": "GradientBoosting", "candidate_count": 5},
+            "primary_metric": "pr_auc",
+            "candidate_count": 5,
+            "selected_model_id": "GradientBoosting",
         })
         d = extract_digest(tmp_path)
         assert d["model"]["selected"] == "GradientBoosting"
@@ -167,7 +183,11 @@ class TestToMarkdown:
         assert "Gate Summary" in md
 
     def test_with_metrics(self, tmp_path):
-        _write(tmp_path, "evaluation_report.json", {"roc_auc": 0.92})
+        _write(tmp_path, "evaluation_report.json", {
+            "schema_version": 2,
+            "split": "test",
+            "metrics": {"roc_auc": 0.92},
+        })
         d = extract_digest(tmp_path)
         md = to_markdown(d)
         assert "Key Metrics" in md
@@ -185,9 +205,10 @@ class TestToMarkdown:
         assert "train" in md
 
     def test_with_model(self, tmp_path):
-        _write(tmp_path, "model_selection_audit_report.json", {
+        _write(tmp_path, "model_selection_report.json", {
             "status": "pass",
-            "summary": {"selected_model_name": "XGBoost", "candidate_count": 3},
+            "candidate_count": 3,
+            "selected_model_id": "XGBoost",
         })
         d = extract_digest(tmp_path)
         md = to_markdown(d)

@@ -7,9 +7,9 @@ reviewer sharing, or quick pipeline status checks. Extracts key metrics,
 gate statuses, model info, and data split statistics.
 
 Usage:
-    python3 scripts/evidence_digest.py --evidence-dir evidence/
-    python3 scripts/evidence_digest.py --evidence-dir evidence/ --json
-    python3 scripts/evidence_digest.py --evidence-dir evidence/ --output digest.md
+    python3 scripts/reporting/evidence_digest.py --evidence-dir evidence/
+    python3 scripts/reporting/evidence_digest.py --evidence-dir evidence/ --json
+    python3 scripts/reporting/evidence_digest.py --evidence-dir evidence/ --output digest.md
 """
 
 from __future__ import annotations
@@ -69,25 +69,34 @@ def extract_digest(evidence_dir: Path) -> Dict[str, Any]:
 
     pipeline_status = _get(pipeline, "status", default="unknown")
 
-    # Key metrics from evaluation report
+    # Key metrics from evaluation report.
+    # The producer (train_select_evaluate.py) nests the test-split metric panel
+    # under evaluation_report["metrics"] (top-level "metrics" block, schema v2).
+    # Keys are "brier" and "f2_beta" — NOT "brier_score"/"f_beta".
     eval_rpt = _load(evidence_dir / "evaluation_report.json")
     metrics = {}
     metric_keys = [
         "roc_auc", "pr_auc", "sensitivity", "specificity",
-        "ppv", "npv", "brier_score", "f_beta",
+        "ppv", "npv", "brier", "f2_beta",
     ]
-    if eval_rpt:
+    eval_metrics = _get(eval_rpt, "metrics", default={})
+    if not isinstance(eval_metrics, dict):
+        eval_metrics = {}
+    if eval_metrics:
         for k in metric_keys:
-            val = eval_rpt.get(k)
-            if val is None:
-                val = _get(eval_rpt, "summary", k)
+            val = eval_metrics.get(k)
             if isinstance(val, (int, float)):
                 metrics[k] = round(float(val), 6)
 
-    # Model selection info
-    model_sel = _load(evidence_dir / "model_selection_audit_report.json")
-    selected_model = _get(model_sel, "summary", "selected_model_name", default=None)
-    candidate_count = _get(model_sel, "summary", "candidate_count", default=None)
+    # Model selection info.
+    # The producer writes selected_model_id and candidate_count at the TOP LEVEL
+    # of model_selection_report.json (not under "summary", and the field is
+    # selected_model_id — not selected_model_name).
+    model_sel = _load(evidence_dir / "model_selection_report.json")
+    if model_sel is None:
+        model_sel = _load(evidence_dir / "model_selection_audit_report.json")
+    selected_model = _get(model_sel, "selected_model_id", default=None)
+    candidate_count = _get(model_sel, "candidate_count", default=None)
 
     # Split statistics
     split_rpt = _load(evidence_dir / "split_protocol_report.json")
