@@ -240,6 +240,32 @@ class TestValidateComponentStatus:
         validate_component_status("test", {"status": "pass", "strict_mode": False, "failure_count": 0}, f, w, True)
         assert any(i["code"] == "component_not_strict" for i in f)
 
+    # SecB fail-closed: a pass-status component with a missing / None / non-int
+    # failure_count must NOT be treated as a clean pass. Previously such a
+    # report was silently accepted (the failure_count check was skipped unless
+    # it was a present int). Now malformed evidence fails the component.
+    def test_missing_failure_count_fails(self):
+        # Previously: no failure was raised (silent pass). Now: fail-closed.
+        f, w = [], []
+        validate_component_status("test", {"status": "pass", "strict_mode": True}, f, w, True)
+        assert any(i["code"] == "component_failure_count_invalid" for i in f)
+
+    def test_none_failure_count_fails(self):
+        f, w = [], []
+        validate_component_status("test", {"status": "pass", "strict_mode": True, "failure_count": None}, f, w, True)
+        assert any(i["code"] == "component_failure_count_invalid" for i in f)
+
+    def test_non_int_failure_count_fails(self):
+        f, w = [], []
+        validate_component_status("test", {"status": "pass", "strict_mode": True, "failure_count": "0"}, f, w, True)
+        assert any(i["code"] == "component_failure_count_invalid" for i in f)
+
+    def test_bool_failure_count_fails(self):
+        # bool is an int subclass; a True/False failure_count is malformed.
+        f, w = [], []
+        validate_component_status("test", {"status": "pass", "strict_mode": True, "failure_count": False}, f, w, True)
+        assert any(i["code"] == "component_failure_count_invalid" for i in f)
+
 
 # ────────────────────────────────────────────────────────
 # CLI tests
@@ -602,3 +628,37 @@ class TestPublicationGateMain:
         monkeypatch.setattr("sys.argv", _build_argv(tmp_path, paths))
         rc = pub_main()
         assert rc == 2
+
+    # SecB fail-closed: an absent L1 leakage-detector report must FAIL the L1
+    # tier. Previously _tier_passed treated a not-provided tier member as
+    # satisfied (`if r is None and g not in files: continue`), so a partial run
+    # that never ran the leakage detectors still earned the L1 leakage-audit
+    # tier. Now an absent required tier member drops the tier to not-passed.
+    # The leakage detectors that use argparse default="" (so a partial run can
+    # omit them). --leakage-report itself is argparse-required, so it stays.
+    LEAKAGE_DETECTOR_ARGS = {
+        "--split-protocol-report", "--definition-report",
+        "--lineage-report", "--tuning-report", "--imbalance-report",
+        "--missingness-report", "--covariate-shift-report",
+    }
+
+    def test_l1_tier_fails_closed_when_leakage_detectors_absent(self, tmp_path, monkeypatch):
+        paths = _make_all_artifacts(tmp_path)
+        # Build argv but OMIT every L1 leakage-detector flag (default="" → not
+        # in files → absent). These detectors were never run.
+        argv = ["pub"]
+        for arg_name, comp_name in zip(COMPONENT_ARGS, COMPONENT_NAMES):
+            if arg_name in self.LEAKAGE_DETECTOR_ARGS:
+                continue
+            argv.extend([arg_name, str(paths[comp_name])])
+        argv.extend(["--report", str(tmp_path / "rpt.json"), "--skip-disease-kb-check"])
+        monkeypatch.setattr("sys.argv", argv)
+        pub_main()
+        data = json.loads((tmp_path / "rpt.json").read_text())
+        tiers = data["summary"]["compliance_tiers"]
+        # Previously L1_leakage_audit would be True here (fail-open). Now it is
+        # False because required leakage-detector evidence is absent.
+        assert tiers["L1_leakage_audit"] is False
+        assert tiers["L2_statistically_valid"] is False
+        assert tiers["L3_publication_grade"] is False
+        assert data["summary"]["compliance_level"] == "none"
