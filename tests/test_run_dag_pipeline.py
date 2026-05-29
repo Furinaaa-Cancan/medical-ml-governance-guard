@@ -170,6 +170,66 @@ class TestBuildStandardGateCmd:
 
 
 # ────────────────────────────────────────────────────────
+# No-test-split auto-skip (triage crash regression)
+# ────────────────────────────────────────────────────────
+
+class TestNoTestSplitAutoSkip:
+    """Regression for the --triage hard-crash.
+
+    split_protocol_gate is a MANDATORY triage gate (never skipped by triage),
+    and split_protocol_gate.py declares --test required=True. The gate-command
+    builder only adds --test when a test split is present, so running the gate
+    without a test split makes argparse exit 2 — turning a "safe intelligent
+    skip" into a hard crash. The no-test auto-skip in run_pipeline must cover
+    split_protocol_gate even when triage is active.
+    """
+
+    def _no_test_gates(self, triage_active: bool) -> set:
+        """Mirror the skip-set selection in run_pipeline (run_dag_pipeline.py)."""
+        if triage_active:
+            return {"split_protocol_gate"}
+        return {
+            "split_protocol_gate",
+            "covariate_shift_gate",
+            "imbalance_policy_gate",
+            "missingness_policy_gate",
+            "distribution_generalization_gate",
+            "shap_interpretability_gate",
+            "robustness_gate",
+        }
+
+    def test_split_protocol_requires_test_flag(self):
+        """Precondition: split_protocol_gate.py declares --test required=True."""
+        import inspect
+
+        import split_protocol_gate as _spg
+
+        src = inspect.getsource(_spg)
+        assert 'add_argument("--test", required=True' in src, (
+            "split_protocol_gate.py must declare --test required=True; "
+            "if this changes, the no-test crash precondition no longer holds"
+        )
+
+    def test_command_builder_omits_test_without_split(self):
+        """Precondition: builder produces a --test-less command (would crash)."""
+        spec = GATE_REGISTRY["split_protocol_gate"]
+        report_paths = _make_report_paths(Path("/tmp/ev"))
+        cmd = _build_standard_gate_cmd(
+            spec, {"split_protocol_spec": "/d/spec.json"},
+            {"train": "/d/train.csv"}, report_paths,
+        )
+        assert "--test" not in cmd
+
+    def test_split_protocol_skipped_under_triage_without_test(self):
+        """Fix: under triage, no test split → split_protocol_gate is skipped."""
+        assert "split_protocol_gate" in self._no_test_gates(triage_active=True)
+
+    def test_split_protocol_skipped_without_triage_without_test(self):
+        """Legacy path unchanged: split_protocol_gate skipped without test."""
+        assert "split_protocol_gate" in self._no_test_gates(triage_active=False)
+
+
+# ────────────────────────────────────────────────────────
 # _build_aggregation_cmd
 # ────────────────────────────────────────────────────────
 

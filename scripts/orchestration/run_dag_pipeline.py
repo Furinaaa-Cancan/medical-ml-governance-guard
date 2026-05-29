@@ -903,19 +903,33 @@ def main() -> int:
             _triage_active = False
 
     # Auto-skip gates that require a test split when none exists.
-    # Skipped when triage is active (triage handles this + more).
     # These gates declare --test required=True or need test-split artifacts;
     # without a test set, they crash on argparse or produce meaningless results.
-    if "test" not in split_paths and not _triage_active:
-        _no_test_gates = {
-            "split_protocol_gate",       # validates train/valid/test consistency
-            "covariate_shift_gate",      # detects train→test distribution shift
-            "imbalance_policy_gate",     # checks class balance across splits
-            "missingness_policy_gate",   # checks missingness across splits
-            "distribution_generalization_gate",  # JSD/classifier shift on test
-            "shap_interpretability_gate",  # SHAP explanations on test data
-            "robustness_gate",           # time-slice/group robustness on test
-        }
+    #
+    # Triage handles most of this (it skips the non-mandatory members of this
+    # set), so when triage is active we only need to cover the MANDATORY gates
+    # that triage forces to "run" but which still cannot execute without --test.
+    # split_protocol_gate is mandatory AND declares --test required=True, so
+    # under triage it would otherwise reach the command builder, which omits
+    # --test when absent, causing an argparse error (exit 2) — a hard crash
+    # for what is advertised as a safe intelligent skip. We must auto-skip it.
+    if "test" not in split_paths:
+        if _triage_active:
+            # Triage already skipped the optional no-test gates; only the
+            # mandatory-but-test-required gates need an explicit carve-out here.
+            _no_test_gates = {
+                "split_protocol_gate",   # mandatory; --test required=True → would crash
+            }
+        else:
+            _no_test_gates = {
+                "split_protocol_gate",       # validates train/valid/test consistency
+                "covariate_shift_gate",      # detects train→test distribution shift
+                "imbalance_policy_gate",     # checks class balance across splits
+                "missingness_policy_gate",   # checks missingness across splits
+                "distribution_generalization_gate",  # JSD/classifier shift on test
+                "shap_interpretability_gate",  # SHAP explanations on test data
+                "robustness_gate",           # time-slice/group robustness on test
+            }
         _auto_skipped = sorted(g for g in gates_to_run if g in _no_test_gates)
         if _auto_skipped:
             print(f"[INFO] No test split — auto-skipping {len(_auto_skipped)} gate(s): "
