@@ -28,18 +28,33 @@ would expect when a gate fails?"
 The harness supports two retrieval-path modes:
 
 * ``bm25_only`` — direct ``retrieve_for_failure`` call. Measures
-  BM25 keyword-overlap recall. Useful for BM25-specific debugging.
-  THIS IS THE LEGACY DEFAULT — what every historical E1/H14/W3 P@5
-  number measured.
+  BM25 keyword-overlap recall with ONLY gate_name + issue codes and
+  no free-text query. This is the SHIPPING gate-failure path: the
+  retriever invoked by ``scripts/core/_gate_framework.py``
+  (``build_report_envelope``) when a gate fails and writes
+  ``peer_review_context`` into a JSON report. Useful for
+  BM25-specific debugging, but the faithful, label-scored gate-path
+  eval lives in ``scripts/rag/evals/gate_path_eval.py`` (Track A) —
+  prefer that for measuring real gate-failure P@5.
 
-* ``hybrid`` (DEFAULT) — production-path retrieval via the public
+* ``hybrid`` (DEFAULT) — the OFFLINE retrieval path via the public
   ``rag_query`` API (dense + BM25 + tag overlap + severity + MMR).
-  Measures what real users experience when a gate fails.
+  This is the path exercised by ``rag_query`` / ``mlgg-rag`` /
+  ``scripts/review/llm_paper_audit.py`` (the human-driven review /
+  LLM-audit flow), NOT the gate-failure path. It requires a
+  free-text query (per-scenario ``query_text``, or a synthesized
+  one). It is NOT what a gate failure surfaces in production — that
+  is BM25-only (see ``bm25_only`` above and ``gate_path_eval.py``).
 
 W3 (Wave 4) finding: the harness defaulted to ``bm25_only`` while
-production users got ``hybrid_rank``. All published P@5 numbers
-were therefore evaluating the wrong path. Default flipped to
-``hybrid``; ``bm25_only`` retained for debugging.
+the OFFLINE ``rag_query`` / ``mlgg-rag`` / ``llm-audit`` path used
+the hybrid ranker. Published P@5 numbers from that offline path were
+therefore not comparable to the bm25_only default. Default flipped to
+``hybrid`` so this harness measures the offline path; ``bm25_only``
+retained both for debugging and because it mirrors the production
+gate-failure retriever. NOTE: ``hybrid`` here does NOT measure the
+production gate-failure path — that path is BM25-only and is measured
+faithfully by ``scripts/rag/evals/gate_path_eval.py``.
 
 ## Mode comparison baseline (W3 Wave 4, 2026-05-17)
 
@@ -84,9 +99,13 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_SCENARIOS = REPO_ROOT / "references" / "retrieval_eval" / "scenarios.json"
 DEFAULT_KB = REPO_ROOT / "references" / "case-studies" / "peer-review-kb.json"
 
-# Default retrieval mode. W3 found that the legacy ``bm25_only`` default
-# measured the wrong path; production users get ``hybrid``. New default
-# matches the production path so future evals are not misleading.
+# Default retrieval mode. W3 flipped the default to ``hybrid`` so this
+# harness measures the OFFLINE ``rag_query`` / ``mlgg-rag`` / ``llm-audit``
+# path (dense + BM25 + tag overlap + severity + MMR). This is NOT the
+# production gate-failure path: a gate failure retrieves via BM25-only
+# ``retrieve_for_failure`` (scripts/core/_gate_framework.py), measured
+# faithfully by scripts/rag/evals/gate_path_eval.py. ``bm25_only`` here
+# mirrors that gate-failure retriever for debugging.
 DEFAULT_MODE = "hybrid"
 SUPPORTED_MODES = ("bm25_only", "hybrid")
 
