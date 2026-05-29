@@ -151,7 +151,7 @@ Columns:
 
 | Gate | Module | Description | Depends on | Report | Failure codes | `--strict` | `rag_optional` |
 |---|---|---|---|---|---|---|---|
-| `cohort_definition_gate` | [cohort_definition_gate.py](../../scripts/gates/cohort_definition_gate.py) | Cohort Definition Gate (Phase 1) — Data understanding and sample adequacy. | — | `cohort_definition_report.json` | `CODEBOOK_DEFINITION_VARIABLE`, `CODEBOOK_DERIVED_OUTCOME_FIELD`, `CODEBOOK_EMBARGOED_FIELD`, `CODEBOOK_ENCODING_MISMATCH`, `CODEBOOK_GATED_MISSINGNESS`, `CODEBOOK_INSTANCE_PARTICIPATION_MNAR`, `CODEBOOK_MEASUREMENT_PROTOCOL`, `CODEBOOK_OUTCOME_AS_FEATURE` (+35 more) | Yes | False |
+| `cohort_definition_gate` | [cohort_definition_gate.py](../../scripts/gates/cohort_definition_gate.py) | Cohort Definition Gate (Phase 1) — Data understanding and sample adequacy. | — | `cohort_definition_report.json` | `CODEBOOK_DEFINITION_VARIABLE`, `CODEBOOK_DERIVED_OUTCOME_FIELD`, `CODEBOOK_EMBARGOED_FIELD`, `CODEBOOK_ENCODING_MISMATCH`, `CODEBOOK_GATED_MISSINGNESS`, `CODEBOOK_INSTANCE_PARTICIPATION_MNAR`, `CODEBOOK_MEASUREMENT_PROTOCOL`, `CODEBOOK_OUTCOME_AS_FEATURE` (+37 more) | Yes | False |
 | `request_contract_gate` | [request_contract_gate.py](../../scripts/gates/request_contract_gate.py) | Validate structured request contract for medical prediction leakage-safe workflow. | — | `request_contract_report.json` | `ci_matrix_input_parse_error`, `ci_matrix_missing_required_metric`, `ci_matrix_reference_mismatch`, `data_fingerprint_cross_artifact_mismatch`, `data_fingerprint_missing`, `distribution_report_schema_invalid`, `duplicate_split_path`, `evaluation_report_external_cohort_count_invalid` (+98 more) | Yes | True |
 
 ### Layer 1 — `MANIFEST`

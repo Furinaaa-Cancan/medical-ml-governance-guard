@@ -1233,7 +1233,7 @@ medical-ml-governance-guard/
 │   │   ├── correct_subgroup_overmatch.py #   Fix subgroup over-match in review index
 │   │   └── ...                           #   batch_journal_review, extract/score metadata
 │   │
-│   ├── rag/               (4)            # Dense-vector RAG over the peer-review KB (__init__ + 3 modules + index/ + retrieval/ + evals/ subpkgs)
+│   ├── rag/               (5)            # Dense-vector RAG over the peer-review KB (__init__ + 4 modules incl. _enrich + index/ + retrieval/ + evals/ subpkgs)
 │   │   ├── config.py                     #   Constants / paths / weights (BGE-small, .cache/rag/, dense/BM25/tag)
 │   │   ├── embeddings.py                 #   sentence-transformers wrapper (singleton model loader + normalize)
 │   │   ├── query.py                      #   [entry point] High-level API + CLI (--gate / --codes / --top-k / --format)

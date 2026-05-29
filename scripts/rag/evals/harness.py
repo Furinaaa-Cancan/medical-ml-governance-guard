@@ -207,11 +207,17 @@ def _retrieve_hybrid(
     query_text = scenario.get("query_text") or scenario.get("query") or ""
     if not query_text.strip():
         # Synthesize a minimal descriptor so the dense signal is non-empty.
-        # Mirrors what gate_rag_bridge does when a gate fails without a
-        # human-authored query.
-        gate = scenario.get("gate_name", "")
-        codes = scenario.get("failure_codes", [])
-        query_text = f"{gate} {' '.join(codes)}".strip()
+        # Use the SHARED synth helper so the eval path matches the offline
+        # rag_query path exactly. Two changes vs the old bare join
+        # f"{gate} {' '.join(codes)}": (1) snake_case -> space normalization,
+        # and (2) the gate NAME is no longer folded into the query text (codes
+        # are the semantic signal; the gate is passed as a filter param). The
+        # new synth text is therefore NOT a superset of the old.
+        from scripts.rag._enrich import synthesize_query
+        query_text = synthesize_query(
+            scenario.get("failure_codes", []),
+            gate_name=scenario.get("gate_name", ""),
+        )
 
     return rag_query(
         query=query_text,

@@ -85,7 +85,14 @@ echo "==> pre-push: rag-layer smoke (importorskip-aware)"
 python3 -c "
 try:
     from scripts.rag import rag_query
-    from scripts.core.gate_rag_bridge import rag_context_for_failure
+    # Promoted offline enrichment API (was scripts.core.gate_rag_bridge.
+    # rag_context_for_failure, deleted as dead; the bridge is now a thin
+    # re-export shim of these names).
+    from scripts.rag._enrich import (
+        synthesize_query,
+        is_off_modality_query,
+        curated_precedent_for,
+    )
     print('    rag public API ok')
 except ImportError as e:
     # sentence_transformers / optional ML deps may be absent in dev env;
