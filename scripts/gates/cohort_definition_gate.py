@@ -1817,7 +1817,7 @@ def main() -> int:
                     "readmission": "readmission_30day",
                 }
                 _target_disease = _DISEASE_ALIASES.get(
-                    _target_disease.strip().lower(), _target_disease
+                    str(_target_disease or "").strip().lower(), _target_disease
                 )
                 if _target_disease:
                     task_issues = cb_rag.task_aware_validate(
