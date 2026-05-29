@@ -924,9 +924,14 @@ def validate_robustness_report_shape(
     # temporal-robustness completeness requirement. The skip is only honored when
     # corroborated by a substantive justification (>= 20 non-whitespace chars).
     # Otherwise a study could self-declare time-slice robustness skipped and dodge
-    # the check entirely.
+    # the check entirely. The producer (train_select_evaluate.py) emits the
+    # corroboration in `time_slices.reason` (e.g. "cross_sectional_no_event_time")
+    # for legitimate cross-sectional studies that have no temporal dimension; we
+    # accept either `skip_justification` or `reason`.
     _skip_flag = isinstance(time_slices, dict) and bool(time_slices.get("skipped"))
-    _justification = time_slices.get("skip_justification") if isinstance(time_slices, dict) else None
+    _justification = None
+    if isinstance(time_slices, dict):
+        _justification = time_slices.get("skip_justification") or time_slices.get("reason")
     _justified = isinstance(_justification, str) and len(_justification.strip()) >= 20
     _time_skipped = _skip_flag and _justified
     if _skip_flag and not _justified:
@@ -934,9 +939,10 @@ def validate_robustness_report_shape(
             failures,
             "invalid_robustness_report",
             "robustness_report_file.time_slices.skipped requires a corroborating "
-            "time_slices.skip_justification (>= 20 chars); a self-attested skip flag "
-            "alone cannot suppress the temporal-robustness completeness requirement.",
-            {"path": str(path), "skip_justification": _justification},
+            "time_slices.skip_justification or time_slices.reason (>= 20 chars); a "
+            "self-attested skip flag alone cannot suppress the temporal-robustness "
+            "completeness requirement.",
+            {"path": str(path), "justification": _justification},
         )
     if not _time_skipped and (not isinstance(time_slices, dict) or not isinstance(time_slices.get("slices"), list) or not time_slices.get("slices")):
         add_issue(
