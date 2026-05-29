@@ -46,6 +46,13 @@ MLGG_STANDARD_VERSION = "1.0.0"
 MLGG_SCHEMA_VERSION = "1.0.0"
 CERTIFICATE_EXPIRY_YEARS = 2
 
+# Minimum signing-key length in bytes (HMAC-SHA256 block/key strength).
+SIGNING_KEY_MIN_BYTES = 32
+
+
+class SigningKeyError(RuntimeError):
+    """Raised when the configured signing key is set but invalid (fail-closed)."""
+
 # Ordered list of all 33 gate report filenames (canonical names from _gate_registry.py)
 GATE_REPORT_FILENAMES = [
     "request_contract_report.json",
@@ -172,20 +179,55 @@ def hmac_verify(body: str, key: bytes, expected_sig: str) -> bool:
 
 def _get_signing_key() -> bytes:
     """
-    Get or derive the HMAC signing key.
+    Get or derive the HMAC signing key (fail-closed).
 
     Priority:
-    1. MLGG_SIGNING_KEY environment variable (hex-encoded 32 bytes)
-    2. Derive from machine-specific entropy (for local verification)
+    1. MLGG_SIGNING_KEY environment variable (hex-encoded, >= 32 bytes).
+       If the variable is SET but invalid (not hex) or too short, this is a
+       configuration error and we raise SigningKeyError rather than silently
+       falling back to a guessable derived key.
+    2. Derive from machine-specific entropy ONLY when MLGG_SIGNING_KEY is
+       wholly unset. This fallback is NOT secure for cross-machine
+       verification, so a clear warning is emitted to stderr.
+
+    Raises:
+        SigningKeyError: MLGG_SIGNING_KEY is set but is not valid hex or
+            decodes to fewer than SIGNING_KEY_MIN_BYTES bytes.
     """
-    env_key = os.environ.get("MLGG_SIGNING_KEY", "")
-    if env_key:
+    # Only an absent (unset) env var triggers the fallback. A set-but-empty or
+    # set-but-invalid value is a configuration error and must fail closed.
+    if "MLGG_SIGNING_KEY" in os.environ:
+        env_key = os.environ["MLGG_SIGNING_KEY"].strip()
+        if not env_key:
+            raise SigningKeyError(
+                "MLGG_SIGNING_KEY is set but empty. Unset it to use the local "
+                "derived key, or set it to a hex-encoded key of at least "
+                f"{SIGNING_KEY_MIN_BYTES} bytes ({SIGNING_KEY_MIN_BYTES * 2} hex chars)."
+            )
         try:
-            return bytes.fromhex(env_key)
-        except ValueError:
-            pass
-    # Derive a deterministic key from hostname + user (not secure for cross-machine use)
+            key = bytes.fromhex(env_key)
+        except ValueError as exc:
+            raise SigningKeyError(
+                "MLGG_SIGNING_KEY is set but is not valid hex. Provide a "
+                f"hex-encoded key of at least {SIGNING_KEY_MIN_BYTES} bytes "
+                f"({SIGNING_KEY_MIN_BYTES * 2} hex chars)."
+            ) from exc
+        if len(key) < SIGNING_KEY_MIN_BYTES:
+            raise SigningKeyError(
+                f"MLGG_SIGNING_KEY decodes to {len(key)} byte(s); at least "
+                f"{SIGNING_KEY_MIN_BYTES} bytes are required for HMAC-SHA256."
+            )
+        return key
+
+    # Env var wholly unset: derive a deterministic local key, warn loudly.
     import socket
+    print(
+        "WARNING: MLGG_SIGNING_KEY is not set; deriving a machine-local signing "
+        "key from hostname+user. This key is NOT secure and NOT portable across "
+        "machines. Set MLGG_SIGNING_KEY (hex, >= "
+        f"{SIGNING_KEY_MIN_BYTES} bytes) for verifiable certificates.",
+        file=sys.stderr,
+    )
     seed = f"mlgg-v1-{socket.gethostname()}-{os.getenv('USER', 'unknown')}"
     return hashlib.sha256(seed.encode()).digest()
 
@@ -450,8 +492,12 @@ def generate_certificate(
         },
     }
 
-    # Sign the certificate body
-    signing_key = _get_signing_key()
+    # Sign the certificate body (fail-closed on a set-but-invalid signing key)
+    try:
+        signing_key = _get_signing_key()
+    except SigningKeyError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
     body_canonical = json.dumps(certificate_body, sort_keys=True, separators=(",", ":"))
     signature = hmac_sign(body_canonical, signing_key)
 
@@ -514,8 +560,12 @@ def verify_certificate(
         print(f"  Actual body SHA-256:   {actual_body_sha256}", file=sys.stderr)
         return 2
 
-    # Check HMAC signature
-    signing_key = _get_signing_key()
+    # Check HMAC signature (fail-closed on a set-but-invalid signing key)
+    try:
+        signing_key = _get_signing_key()
+    except SigningKeyError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
     if not hmac_verify(body_canonical, signing_key, stored_sig):
         print(
             "VERIFICATION FAILED: HMAC signature is invalid.\n"
