@@ -831,7 +831,7 @@ def review_cli_main() -> None:
     Behaviour:
     - ``mlgg-review <cmd> ...`` with cmd in COMMAND_GROUPS["review"] →
       identical to ``mlgg <cmd> ...``.
-    - ``mlgg-review --help`` / no args → list ONLY the 7 review commands
+    - ``mlgg-review --help`` / no args → list ONLY the 8 review commands
       with their descriptions; point at ``mlgg`` for governance work.
     - ``mlgg-review <unknown-or-governance-cmd>`` → emit a clear error
       naming the allowed subset and exit 2 (argparse-style usage error).

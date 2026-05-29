@@ -102,7 +102,7 @@ Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部
 | `rag` | 在 817 条 reviewer KB 上做 hybrid 检索（dense + BM25 + MMR）。W18-D1 实测 `hybrid_all` > BM25-only；`DENSE_WEIGHT=0.10` 默认（W13-P0 起）。W26-R1 `adaptive=True` + W27-R1 `dedup_by_code=True` 是 Mode B/C 推荐组合 | B / C |
 | `llm-audit` | **W29-MVP + W31-V2**：LLM-first paper audit + 可选 RAG 背书。Anthropic Claude 跑 reviewer-role 提示词找 design flaw（leakage / 时序 / derivation circularity），然后 per-concern RAG 给每条 concern 找 KB 同行评审原文（默认 `--rag-strategy post_hoc`，W31-V2 GLM7 N=1 实测 47% 引证 on-topic vs primed mode 40%；primed 路径在长 methods text 上 leakage_probe 是 dead path，pool 偏 missingness — 见 `docs/diagnostics/W31_V2_glm7_3way_ablation.md`）。需 `pip install anthropic` + `ANTHROPIC_API_KEY`。CLI: `mlgg-review llm-audit <pdf>` | C |
 
-> W28-S0 grouping rationale: 这 7 个子命令构成"对别人的 code/paper 评审"产品线，与 `[governance]` 的"对你自己的流水做合规"目标 / GT 来源 / 度量体系都不同（详见 `docs/PRODUCTS.md`）。
+> W28-S0 grouping rationale: 这 8 个子命令构成"对别人的 code/paper 评审"产品线，与 `[governance]` 的"对你自己的流水做合规"目标 / GT 来源 / 度量体系都不同（详见 `docs/PRODUCTS.md`）。
 
 ---
 
@@ -282,7 +282,7 @@ MLGG 是**训练管线治理工具**，不是全栈 publication readiness。下�
 | **Label ascertainment validity**（结局如何被记录、coding 误差） | ❌ 超范围 | 需临床核验 + EHR 元信息，不是代码问题 |
 | **Post-deployment monitoring**（上线后漂移、性能衰减） | ❌ 超范围 | MLGG 是离线治理，推荐 Evidently AI / WhyLabs 等 |
 
-**模态**: 回顾性队列研究的二分类预测（EHR / 临床 / 注册 / 病例对照 / 横断面）。23 个 sklearn 模型族 + 4 个可选后端（XGBoost / CatBoost / LightGBM / TabPFN）。
+**模态**: 回顾性队列研究的二分类预测（EHR / 临床 / 注册 / 病例对照 / 横断面）。23 个模型族（其中 4 个为可选后端：XGBoost / CatBoost / LightGBM / TabPFN）。
 **不支持**: 组学/基因组 (TCGA bulk、scRNA-seq、GWAS、甲基化) / 影像 / 文本 / 时序、多分类 / 回归、深度学习、部署流水线、survival/time-to-event (roadmap)。模态守卫: `mlgg-lint` R028 会在检测到 `gene_/probe_/snp_/cpg_/rs#/ENSG` 特征时直接拒绝。
 
 用"publication-grade"时请具体到哪个维度："本项目已过 MLGG 训练管线治理（33 gate），cohort cascade 已声明+对账、Table 1 已生成，但 label ascertainment 依赖临床核验"——不要泛泛声称论文级就绪。
