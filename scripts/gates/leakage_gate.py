@@ -201,13 +201,21 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--forbidden-feature-regex",
         default=(
-            r"\b(future|leak)\b"
+            # `_`-aware word boundary: Python's \b treats `_` as a word
+            # character, so \bleak\b FAILS to match `leak_flag` (no boundary
+            # between `leak` and `_`). Use alnum-only lookarounds so the token
+            # matches when delimited by start/end OR by `_`/`-`/`.`, while still
+            # rejecting substrings like `leakage_score` or `postal` (`post`).
+            r"(?<![A-Za-z0-9])(future|leak)(?![A-Za-z0-9])"
             r"|(?:^|_)(target|label)(?:_|$)"
             r"|(?:^|_)outcome(?!_date|_time|_period)(?:_|$)"
             r"|(?:^|_)(pred|predicted|actual|confirmed|diagnosed)(?:_|$)"
             r"|(?:^|_)(staging|stage_at)(?:_|$)"
             r"|(?:^|_)(pathology|biopsy_result|histology)(?:_|$)"
-            r"|(?:^|_)(next_|future_|post_|after_)"
+            # `next_` removed: false-positives on benign names like
+            # `next_visit_count` (a legitimate baseline schedule count).
+            # `future_`/`post_`/`after_` retained as true temporal-leak prefixes.
+            r"|(?:^|_)(future_|post_|after_)"
             r"|(?:^|_)(diagnosis_date|dx_date|diag_date|death_date|event_date|outcome_date|discharge_date)"
             r"|(?:^|_)(readmit|mortality_flag|survival_status|los_days)"
             # Post-index / in-stay features (added 2026-04-17 after diabetes_130
@@ -580,10 +588,13 @@ def main() -> int:
             right_min = time_bounds[right]["min"]
             if left_max is None or right_min is None:
                 return
-            # Strict inequality: allow equal timestamps at boundaries.
-            # Clinical cohorts often have multiple patients with the same
-            # index timestamp (e.g., enrollment date).  train_max == valid_min
-            # is NOT leakage — it means the boundary falls on that timestamp.
+            # Overlap requires train_max to be STRICTLY later than the next
+            # split's min. An equal boundary (train_max == valid_min) across
+            # DIFFERENT patients is NOT leakage: patient-disjointness is enforced
+            # separately (S01), and shared index timestamps across patients are
+            # common in clinical cohorts. (Reverted a W-audit over-correction
+            # that used >=; canonical contract is tests/test_leakage_gate.py::
+            # test_temporal_boundary_exact.)
             if left_max > right_min:
                 add_issue(
                     failures,

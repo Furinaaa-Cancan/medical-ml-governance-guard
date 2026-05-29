@@ -16,7 +16,7 @@
   <a href="https://github.com/Furinaaa-Cancan/medical-ml-governance-guard"><img src="https://img.shields.io/badge/GitHub-Furinaaa--Cancan%2Fmedical--ml--governance--guard-181717?logo=github" alt="GitHub Repo"></a>
   <br>
   <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/"><img src="https://img.shields.io/badge/License-PolyForm%20NC%201.0.0-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/tests-4712%20passed-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-6426%20passed-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/gates-33%20fail--closed-critical" alt="Gates">
   <img src="https://img.shields.io/badge/datasets-16%20medical-purple" alt="Datasets">
   <img src="https://img.shields.io/badge/code-147K%20lines-informational" alt="Code">
@@ -1381,7 +1381,7 @@ python3 -m mlgg_lint /path/to/code/
 |--------|------|------|-----------|---------|--------|-------------|---------|
 | CKD 慢性肾病 | 399 | 24 | 63% | 0.999 | 1.000 | 3.08 | 极小样本，诊断特征区分度极高 |
 | RHC ICU 死亡率 | 5,735 | 54 | 65% | 0.750 | 0.834 | **0.977** | 校准最优，高 prevalence 队列 |
-| SUPPORT2 重症 | 9,105 | 43 | 26% | 0.789 | 0.635 | 0.745 | 发现并排除 11 个泄漏/事后变量 |
+| SUPPORT2 重症 | 9,105 | 43 | 26% | 0.789 | 0.610 | 0.955 | 发现并排除 11 个泄漏/事后变量 |
 | NHANES 糖尿病 | 15,549 | 12 | 18% | 0.810 | 0.443 | — | 横截面数据，无时序 |
 | Sepsis 脓毒症 | 129,392 | 3 | 9% | 0.689 | 0.159 | 0.804 | 仅 3 特征，性能受限（正确反映） |
 

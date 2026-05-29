@@ -123,8 +123,10 @@ def assert_true(cond: bool, test_name: str, detail: str = "") -> None:
     if cond:
         print(f"  [{PASS}] {test_name}")
     else:
-        print(f"  [{FAIL}] {test_name}" + (f": {detail}" if detail else ""))
+        msg = f"{test_name}: {detail}" if detail else test_name
+        print(f"  [{FAIL}] {msg}")
         _failures.append(test_name)
+        raise AssertionError(msg)
 
 
 # ---------------------------------------------------------------------------
@@ -232,8 +234,12 @@ def test_leakage_gate_temporal_overlap() -> None:
         assert_true("temporal_overlap" in codes, "temporal_overlap failure code present")
 
 
-def test_leakage_gate_temporal_boundary_equal_is_overlap() -> None:
-    print("\n=== leakage_gate: same-day boundary (train max == valid min) SHOULD trigger temporal_overlap ===")
+def test_leakage_gate_temporal_boundary_equal_is_not_overlap() -> None:
+    # Canonical contract (tests/test_leakage_gate.py::test_temporal_boundary_exact):
+    # train_max == valid_min across DIFFERENT patients is NOT a temporal overlap
+    # — overlap requires strictly train_max > holdout_min, and patient overlap is
+    # handled separately by S01.
+    print("\n=== leakage_gate: same-day boundary across different patients should NOT trigger temporal_overlap (strict >) ===")
     with tempfile.TemporaryDirectory() as tmp:
         td = Path(tmp)
         headers = ["patient_id", "event_time", "y"]
@@ -251,7 +257,7 @@ def test_leakage_gate_temporal_boundary_equal_is_overlap() -> None:
         ])
         report = load_report(report_path)
         codes = {f["code"] for f in report["failures"]}
-        assert_true("temporal_overlap" in codes, "same-day boundary triggers temporal_overlap (strict ordering)")
+        assert_true("temporal_overlap" not in codes, "equal boundary across different patients does NOT trigger temporal_overlap (strict >; S01 handles patient overlap)")
 
 
 def test_leakage_gate_word_boundary_regex() -> None:
@@ -2337,7 +2343,7 @@ def main() -> int:
     test_leakage_gate_row_overlap()
     test_leakage_gate_id_overlap()
     test_leakage_gate_temporal_overlap()
-    test_leakage_gate_temporal_boundary_equal_is_overlap()
+    test_leakage_gate_temporal_boundary_equal_is_not_overlap()
     test_leakage_gate_word_boundary_regex()
     test_self_critique_weight_normalization()
     test_transport_drop_ci_not_computed_sentinel()

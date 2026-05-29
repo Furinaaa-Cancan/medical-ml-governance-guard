@@ -14,7 +14,6 @@ Covers:
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 from typing import Any, Dict
 
@@ -254,6 +253,43 @@ class TestAssessTripodCoverage:
         coverage = gar.assess_tripod_coverage(tmp_path, {})
         assert coverage["total_required"] == 17
         assert len(coverage["items"]) == 17
+
+    def test_full_checklist_scope_reported_honestly(self, tmp_path: Path) -> None:
+        """Coverage must disclose 17-of-27 scope so 17/17 is never read as 27/27."""
+        coverage = gar.assess_tripod_coverage(tmp_path, {})
+        # The full official checklist has 27 items; only 17 are auto-assessed.
+        assert coverage["total_checklist_items"] == 27
+        assert coverage["total_required"] == 17
+        # coverage_fraction denominator is the assessed subset, never the full 27.
+        assert coverage["coverage_fraction"] == round(
+            coverage["covered_count"] / coverage["total_required"], 3
+        )
+        assert "of 27" in coverage["assessed_scope_note"]
+
+    def test_markdown_banner_does_not_overclaim_27(self, tmp_path: Path) -> None:
+        """Report footer/coverage must not present a bare '27 items' full-coverage claim."""
+        coverage = gar.assess_tripod_coverage(tmp_path, {})
+        report = {
+            "report_version": "audit_report.v2",
+            "generated_at": "2026-03-15T00:00:00+00:00",
+            "project_dir": "/tmp/myproject",
+            "total_score": 55.0,
+            "max_score": 100,
+            "grade_en": "Major issues",
+            "grade_zh": "重大缺陷",
+            "py_files_scanned": 0,
+            "gate_reports_found": 0,
+            "dimension_scores": {},
+            "tripod_coverage": coverage,
+            "probast_coverage": {},
+            "issues": [],
+            "remediation_plan": [],
+            "structure_checks": {},
+        }
+        md = gar.render_markdown_report(report)
+        # Honest banner states "17 of 27", not a bare "| 27 |".
+        assert "17 of 27" in md
+        assert "| TRIPOD+AI items | 27 " not in md
 
 
 # ---------------------------------------------------------------------------

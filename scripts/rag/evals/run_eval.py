@@ -91,7 +91,12 @@ def score_one(scenario: dict, *, mode: str, top_k: int = 5) -> dict:
         hits = (
             retrieve_for_failure(gate, codes, limit=top_k) if (gate and codes) else []
         )
-    else:  # hybrid (default -- matches production path)
+    else:  # hybrid (default) -- the OFFLINE rag_query / mlgg-rag / llm-audit
+        # path (dense + BM25 + tag overlap + severity + MMR). This is NOT the
+        # production gate-failure path, which is BM25-only (the bm25_only
+        # branch above mirrors scripts/core/_gate_framework.py
+        # retrieve_for_failure; the faithful gate-path eval is
+        # scripts/rag/evals/gate_path_eval.py).
         from scripts.rag import rag_query
 
         hits = rag_query(

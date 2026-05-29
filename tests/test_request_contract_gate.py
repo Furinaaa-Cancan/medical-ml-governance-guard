@@ -545,6 +545,38 @@ class TestValidateRobustnessReportShape:
         codes = [f["code"] for f in failures]
         assert "invalid_robustness_report" in codes
 
+    def test_time_slices_skipped_without_justification_fails(self, tmp_path: Path):
+        # FAIL-CLOSED: a self-attested skip flag with no corroborating
+        # justification must NOT suppress the completeness requirement.
+        p = tmp_path / "robust.json"
+        p.write_text(json.dumps({
+            "overall_test_metrics": {"pr_auc": 0.85},
+            "time_slices": {"skipped": True},
+            "patient_hash_groups": {"groups": [{"metric": 0.82}]},
+            "summary": {"status": "pass"},
+        }))
+        failures: List[Dict[str, Any]] = []
+        rcg.validate_robustness_report_shape(str(p), failures)
+        codes = [f["code"] for f in failures]
+        assert "invalid_robustness_report" in codes
+
+    def test_time_slices_skipped_with_justification_passes(self, tmp_path: Path):
+        # Skip is honored only when corroborated by a substantive justification.
+        p = tmp_path / "robust.json"
+        p.write_text(json.dumps({
+            "overall_test_metrics": {"pr_auc": 0.85},
+            "time_slices": {
+                "skipped": True,
+                "skip_justification": "Cross-sectional cohort with a single "
+                "extraction date; no temporal axis exists to slice on.",
+            },
+            "patient_hash_groups": {"groups": [{"metric": 0.82}]},
+            "summary": {"status": "pass"},
+        }))
+        failures: List[Dict[str, Any]] = []
+        rcg.validate_robustness_report_shape(str(p), failures)
+        assert len(failures) == 0
+
 
 class TestValidateExecutionAttestationShape:
     def test_valid(self, tmp_path: Path):
@@ -1452,7 +1484,7 @@ class TestCrossRunAntiDowngrade:
         # Run 1: publication-grade
         self._write_request(req_path, study_id="S003", run_id="r1",
                             tier="publication-grade")
-        r1 = _run_gate(req_path, tmp_path / "r1.json")
+        _run_gate(req_path, tmp_path / "r1.json")
         # publication-grade bundle usually requires external_cohort_spec
         # etc. — so r1 may have other validation failures. What matters
         # for THIS test is that study_id S003 is now recorded at
@@ -1487,7 +1519,7 @@ class TestCrossRunAntiDowngrade:
         self._write_request(req_path, study_id="S004", run_id="r2",
                             tier="leakage-audited")
         # With escape hatch:
-        result = subprocess.run(
+        subprocess.run(
             [sys.executable, str(GATE_SCRIPT),
              "--request", str(req_path),
              "--report", str(tmp_path / "r2.json"),

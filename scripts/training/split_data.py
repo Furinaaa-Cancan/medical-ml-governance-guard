@@ -24,7 +24,12 @@ Safety checks (post-split):
     - Minimum negative samples per split (default 10).
     - Minimum unique patients per split (default 5).
     - Patient-level disjointness across all split pairs.
-    - Temporal ordering: train.max_time < valid.min_time < test.min_time.
+    - Temporal ordering: enforced at the PATIENT level — patients are
+      ordered and assigned by their EARLIEST event time. For single-visit
+      data this yields train.max_time < valid.min_time < test.min_time, but
+      multi-visit patients whose later events cross a split boundary mean the
+      raw row-level time ranges of adjacent splits may overlap. Such overlap
+      is reported (code 'temporal_overlap', level=fail for grouped_temporal).
     - Prevalence shift warning if train vs test delta > 0.10.
     - Row count preservation (input rows == sum of split rows).
 
@@ -994,12 +999,58 @@ def main() -> int:
     for issue in warnings:
         print(f"[WARN] {issue['message']}", file=sys.stderr)
 
+    # Compute real safety-check results once, so the written report reflects
+    # the actual outcome on BOTH the pass and the hard-fail path. Previously the
+    # hard-fail early-return happened before the report was built, so
+    # safety_checks.temporal_order could only ever be serialized as True
+    # (a tautology): any temporal_overlap at level=fail short-circuited here and
+    # no report was ever written with temporal_order=false.
+    patient_disjoint_ok = not any(i["code"] == "patient_overlap" for i in issues)
+    temporal_order_ok = not any(i["code"] == "temporal_overlap" for i in issues)
+    safety_checks = {
+        "patient_disjoint": patient_disjoint_ok,
+        "temporal_order": temporal_order_ok,
+        "min_positive_per_split": args.min_positive_per_split,
+        "min_negative_per_split": args.min_negative_per_split,
+        "min_rows_per_split": args.min_rows_per_split,
+    }
+
     if hard_failures:
         print(
             f"\n[FAIL] {len(hard_failures)} safety check(s) failed. "
             "The input data may be too small or have insufficient class diversity.",
             file=sys.stderr,
         )
+        # Write a fail-status report recording the real safety-check results
+        # (no output CSVs are written on the hard-fail path). This makes
+        # safety_checks.temporal_order a genuine observed value, not a constant.
+        input_path = Path(args.input).expanduser().resolve()
+        fail_report = {
+            "contract_version": "split_report.v1",
+            "status": "fail",
+            "strategy": args.strategy,
+            "seed": args.seed,
+            "input_file": str(input_path),
+            "input_sha256": file_sha256(input_path),
+            "input_rows_raw": raw_row_count,
+            "input_rows_clean": rows_after_clean,
+            "input_patients": n_patients,
+            "safety_checks": safety_checks,
+            "hard_failures": [
+                {"code": i["code"], "message": i["message"]} for i in hard_failures
+            ],
+            "warnings": warnings,
+        }
+        if args.report:
+            fail_report_path = Path(args.report).expanduser().resolve()
+        else:
+            fail_report_path = (
+                Path(args.output_dir).expanduser().resolve().parent
+                / "evidence"
+                / "split_report.json"
+            )
+        write_json(fail_report_path, fail_report)
+        print(f"  Report: {fail_report_path}", file=sys.stderr)
         return 2
 
     # Write split files
@@ -1100,13 +1151,7 @@ def main() -> int:
             "valid": valid_summary if len(valid_df) > 0 else None,
             "test": test_summary if len(test_df) > 0 else None,
         },
-        "safety_checks": {
-            "patient_disjoint": not any(i["code"] == "patient_overlap" for i in issues),
-            "temporal_order": not any(i["code"] == "temporal_overlap" for i in issues),
-            "min_positive_per_split": args.min_positive_per_split,
-            "min_negative_per_split": args.min_negative_per_split,
-            "min_rows_per_split": args.min_rows_per_split,
-        },
+        "safety_checks": safety_checks,
         "warnings": warnings,
     }
 

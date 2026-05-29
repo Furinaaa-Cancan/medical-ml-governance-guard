@@ -129,8 +129,17 @@ def _print_results(per_case: List[dict]) -> None:
         print(f"{r['id'].ljust(width)}   {r['recall@5']:.2f}     {r['mrr@5']:.2f}   {h}")
 
 
+# AUDIT (SF rag_eval_set xfail-rot): strict flipped False->True.
+# Rationale: with strict=False a future retrieval recovery (avg_recall >= 0.55)
+# XPASSes SILENTLY and a subsequent regression slides back into xfail unnoticed —
+# the failure becomes invisible. strict=True turns any unexpected pass into a hard
+# CI failure, forcing the maintainer to (a) re-label `relevant_concern_ids` per
+# USER ACTION 1, and (b) flip this decorator off in favor of the bare hard
+# asserts below. A hard assert *now* is wrong: the ground truth is still stale
+# (recall 0.472 < 0.55) and re-labeling references/case-studies/rag-eval-set.yaml
+# is a pending, separately-tracked user action — not part of this audit batch.
 @pytest.mark.xfail(
-    strict=False,
+    strict=True,
     reason=(
         "Eval set ground truth is stale wrt the live KB (W14-F1 investigation, "
         "2026-05-17). When this test+YAML were written (2026-04-18, commit "
@@ -153,10 +162,13 @@ def _print_results(per_case: List[dict]) -> None:
         "    well above the 0.45 threshold — meaning the FIRST hit is on-target; "
         "    the missing recall is in slots 2-5 where new KB additions "
         "    outrank older labeled concerns. "
-        "Action: xfail (not skip) so the test still runs every CI build; "
-        "when re-labeled (USER ACTION 1 — `relevant_concern_ids` should be "
-        "broadened to include semantically equivalent post-2026-04-18 KB "
-        "additions) flip back to a hard assert with refreshed thresholds. "
+        "Action: xfail(strict=True) (not skip) so the test still runs every CI "
+        "build AND an unexpected recovery (XPASS) hard-fails CI instead of "
+        "passing silently — that loud failure is the signal to re-label and "
+        "flip to a hard assert. When re-labeled (USER ACTION 1 — "
+        "`relevant_concern_ids` should be broadened to include semantically "
+        "equivalent post-2026-04-18 KB additions) flip back to a hard assert "
+        "with refreshed thresholds. "
         "DO NOT lower thresholds in code without re-labeling first — that "
         "silences real regressions."
     ),

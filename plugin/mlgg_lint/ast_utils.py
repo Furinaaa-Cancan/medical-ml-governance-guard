@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ast
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set
 
 
 # ── Import alias resolution ──────────────────────────────────────────────────
@@ -144,12 +144,38 @@ class TaintTracker:
     split_line: Optional[int] = None
 
     def record_split(self, targets: List[str], line: int) -> None:
-        """Record a train_test_split unpacking."""
+        """Record a ``train_test_split`` / ``kf.split`` unpacking.
+
+        Taint for each target is derived from two complementary signals:
+
+        1. **Name heuristic** (``classify_var_name``) — preferred when it
+           yields a definite class, since explicit names (``X_test``) are the
+           strongest evidence and also capture ``valid`` which has no
+           positional counterpart.
+        2. **Positional convention** — ``train_test_split`` returns its outputs
+           interleaved as ``train1, test1, train2, test2, ...`` (and a
+           ``kf.split`` loop yields ``train_idx, test_idx``). So for a genuine
+           tuple unpacking with an *even* number of targets, even positions are
+           ``train`` and odd positions are ``test``. This rescues generic
+           unpacks like ``a, b, c, d = train_test_split(...)`` that the name
+           heuristic alone would leave as ``"unknown"`` (causing downstream
+           leakage rules to miss them).
+
+        A single target (e.g. ``splits = train_test_split(...)``) carries no
+        positional information and stays ``"unknown"`` unless its name is
+        classifiable.
+        """
         if self.split_line is None:
             self.split_line = line
-        for name in targets:
-            taint = classify_var_name(name) or "unknown"
-            self.taints[name] = taint
+        # Positional convention only applies to a real tuple unpacking with an
+        # even count (train/test pairs). Odd or single-target unpacks (e.g.
+        # ``splits = train_test_split(...)``) have no reliable positional taint.
+        use_positional = len(targets) >= 2 and len(targets) % 2 == 0
+        for idx, name in enumerate(targets):
+            taint = classify_var_name(name)
+            if taint is None and use_positional:
+                taint = "train" if idx % 2 == 0 else "test"
+            self.taints[name] = taint or "unknown"
 
     def record_assignment(self, name: str, taint: Optional[str] = None) -> None:
         """Record taint for a variable assignment.

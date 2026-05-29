@@ -5,7 +5,7 @@ generate_audit_report.py — Unified ML project audit report generator.
 Given any medical ML project directory, this tool:
 1. Runs the 10-dimension audit (via audit_external_project.py)
 2. Scans code for anti-patterns and maps each to error-knowledge-base.json
-3. Checks TRIPOD+AI 2024 item coverage (27 items)
+3. Assesses 17 of the 27 TRIPOD+AI 2024 checklist items (the subset MLGG gates can verify)
 4. Assesses PROBAST+AI 2025 risk-of-bias domains
 5. Enriches every finding with root cause, fix, and literature citations
 6. Outputs a publication-ready audit report in Markdown + JSON
@@ -180,8 +180,16 @@ PATTERN_TO_PROBAST_DOMAIN: Dict[str, str] = {
 # CODE_PATTERNS, PATTERN_SEVERITY, PATTERN_DESCRIPTION imported from _audit_shared
 
 # ---------------------------------------------------------------------------
-# TRIPOD+AI required items for quick assessment
+# TRIPOD+AI item assessment scope
 # ---------------------------------------------------------------------------
+# The official TRIPOD+AI 2024 checklist (Collins et al. BMJ 2024;385:e078378)
+# has 27 items. MLGG's automated gates can only assess the subset below —
+# the remaining items require manuscript-level review and are NOT auto-assessed.
+# Coverage is therefore reported HONESTLY as "<covered> of 17 assessed
+# (17 of 27 total checklist items assessed)" — never as 100% of the full 27.
+
+# Total items in the official TRIPOD+AI 2024 checklist.
+TRIPOD_TOTAL_CHECKLIST_ITEMS = 27
 
 TRIPOD_REQUIRED_ITEMS = [
     "1", "4", "5", "6a", "6b", "7", "8", "10", "11", "12",
@@ -288,7 +296,15 @@ def assess_tripod_coverage(
     return {
         "reference": "Collins et al. BMJ 2024;385:e078378",
         "total_required": len(TRIPOD_REQUIRED_ITEMS),
+        "total_checklist_items": TRIPOD_TOTAL_CHECKLIST_ITEMS,
+        "assessed_scope_note": (
+            f"{len(TRIPOD_REQUIRED_ITEMS)} of {TRIPOD_TOTAL_CHECKLIST_ITEMS} "
+            "TRIPOD+AI checklist items are auto-assessed; the remainder require "
+            "manuscript-level review."
+        ),
         "covered_count": covered_count,
+        # coverage_fraction is over the ASSESSED subset (denominator = total_required),
+        # NOT over all 27 checklist items. See total_checklist_items / assessed_scope_note.
         "coverage_fraction": round(covered_count / len(TRIPOD_REQUIRED_ITEMS), 3),
         "item_status": item_status,
         "items": enriched,
@@ -782,12 +798,16 @@ def render_markdown_report(report: Dict[str, Any]) -> str:
     if tripod:
         covered = tripod.get("covered_count", 0)
         total = tripod.get("total_required", 17)
+        total_checklist = tripod.get("total_checklist_items", 27)
         frac = tripod.get("coverage_fraction", 0)
         lines += [
             "## TRIPOD+AI 2024 Coverage",
             "",
             f"**Reference**: {tripod.get('reference', 'Collins et al. BMJ 2024;385:e078378')}  ",
-            f"**Coverage**: {covered}/{total} required items ({int(frac*100)}%)  ",
+            f"**Assessment scope**: {total} of {total_checklist} checklist items auto-assessed "
+            "(the remaining items require manuscript-level review).  ",
+            f"**Coverage within assessed scope**: {covered}/{total} items "
+            f"covered ({int(frac*100)}%)  ",
             "",
             "| Item ID | Label | AI-Specific | Status |",
             "|---------|-------|-------------|--------|",
@@ -920,7 +940,7 @@ def render_markdown_report(report: Dict[str, Any]) -> str:
         f"| Report version | {report.get('report_version', 'audit_report.v2')} |",
         f"| Error KB entries | {len(KB.error_entries)} |",
         f"| Literature KB entries | {len(KB.lit_entries)} |",
-        "| TRIPOD+AI items | 27 (Collins et al. BMJ 2024;385:e078378) |",
+        f"| TRIPOD+AI items assessed | {len(TRIPOD_REQUIRED_ITEMS)} of {TRIPOD_TOTAL_CHECKLIST_ITEMS} (Collins et al. BMJ 2024;385:e078378) |",
         "| PROBAST+AI domains | 4 + AI supplementary (Wolff et al. 2025) |",
         "",
     ]
@@ -1176,7 +1196,11 @@ def _print_summary(report: Dict[str, Any]) -> None:
     if tripod:
         covered = tripod.get("covered_count", 0)
         total_req = tripod.get("total_required", 17)
-        print(f"  TRIPOD+AI 2024:  {covered}/{total_req} required items covered")
+        total_checklist = tripod.get("total_checklist_items", 27)
+        print(
+            f"  TRIPOD+AI 2024:  {covered}/{total_req} covered "
+            f"({total_req} of {total_checklist} checklist items assessed)"
+        )
     if probast:
         rob = probast.get("overall_risk_of_bias", "unclear").upper()
         print(f"  PROBAST+AI 2025: Overall ROB = {rob}")

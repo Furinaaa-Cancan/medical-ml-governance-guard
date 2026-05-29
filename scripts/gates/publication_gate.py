@@ -68,6 +68,11 @@ register_remediations({
         "Component report contains failures. Fix the failures in the individual gate, "
         "then re-run the pipeline. Check the gate report JSON for failure codes and remediations."
     ),
+    "component_failure_count_invalid": (
+        "Component report claims pass but is missing a valid integer failure_count. "
+        "Publication-grade enforcement refuses to treat malformed evidence as a pass. "
+        "Regenerate the component report so it emits a numeric failure_count."
+    ),
     "component_not_strict": (
         "Component report was not generated in strict mode. Re-run the gate with --strict flag."
     ),
@@ -193,8 +198,19 @@ def validate_component_status(
                 {"component": name},
             )
 
+    # Fail-closed on failure_count: a component that claims pass MUST carry a
+    # present, non-negative integer failure_count. A missing / None / non-int
+    # (or bool) failure_count is malformed evidence and must NOT be treated as
+    # "no failures" (security-failclosed-fixes, SecB).
     failure_count = report.get("failure_count")
-    if isinstance(failure_count, int) and failure_count > 0:
+    if isinstance(failure_count, bool) or not isinstance(failure_count, int):
+        add_issue(
+            failures,
+            "component_failure_count_invalid",
+            "Component report is missing a valid integer failure_count.",
+            {"component": name, "failure_count": failure_count},
+        )
+    elif failure_count > 0:
         add_issue(
             failures,
             "component_has_failures",
@@ -733,12 +749,26 @@ def main() -> int:
         "shap_interpretability_report",
     }
 
+    # Genuinely-optional tier members that may be absent without failing the
+    # tier (see L560-563: added only if the orchestrator supplies them, kept
+    # optional for backward compatibility). Every OTHER tier member is required
+    # evidence: an absent report fails the tier (fail-closed). Previously this
+    # function treated any not-provided gate as satisfied, so a partial-evidence
+    # run could earn an L1 leakage-audit tier with the leakage detectors
+    # (split_protocol/definition/lineage/tuning/imbalance/missingness/
+    # covariate_shift) never run (security-failclosed-fixes, SecB).
+    _TIER_OPTIONAL_GATES = {"cohort_definition_report", "shap_interpretability_report"}
+
     def _tier_passed(tier_gates: set) -> bool:
         for g in tier_gates:
             r = loaded.get(g)
-            if r is None and g not in files:
-                continue  # optional gate not provided
-            if r is None or str(r.get("status", "")).lower() != "pass":
+            if r is None:
+                # Absent required tier-member evidence fails the tier.
+                # Only the explicitly-optional gates may be missing.
+                if g in _TIER_OPTIONAL_GATES and g not in files:
+                    continue
+                return False
+            if str(r.get("status", "")).lower() != "pass":
                 return False
         return True
 

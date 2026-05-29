@@ -2,10 +2,8 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
-import pytest
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
 
@@ -119,6 +117,53 @@ class TestCheckHealth:
         result = check_health(tmp_path)
         leakage = [g for g in result["gates"] if g["gate"] == "leakage"][0]
         assert leakage["execution_time"] == 1.5
+
+
+# ── fail-closed: registry import failure ─────────────────────
+#
+# Behavior change (security-failclosed-fixes): previously a gate-registry
+# ImportError set EXPECTED_REPORTS=[] so total=0/completeness=0.0 and the
+# health check returned a GREEN, non-failing, empty report (exit 0) for a
+# completely broken run. It must now FAIL LOUD (status=fail, exit 2).
+
+
+class TestRegistryFailClosed:
+    def test_import_error_yields_failing_report(self, tmp_path, monkeypatch):
+        import report_health_check as mod
+
+        # Simulate a registry import failure at module scope.
+        monkeypatch.setattr(mod, "_REGISTRY_IMPORT_ERROR", "boom: no registry")
+        monkeypatch.setattr(mod, "EXPECTED_REPORTS", [])
+
+        result = mod.check_health(tmp_path)
+        # FLIPPED: was a green empty report; now must be an explicit failure.
+        assert result["status"] == "fail"
+        assert "boom: no registry" in result["error"]
+        assert result["total_gates"] == 0
+        assert result["completeness_pct"] == 0.0
+
+    def test_empty_expected_reports_yields_failing_report(self, tmp_path, monkeypatch):
+        import report_health_check as mod
+
+        # Even without a recorded import error, a zero-gate registry must fail
+        # closed — a health check that knows of no gates cannot certify health.
+        monkeypatch.setattr(mod, "_REGISTRY_IMPORT_ERROR", None)
+        monkeypatch.setattr(mod, "EXPECTED_REPORTS", [])
+
+        result = mod.check_health(tmp_path)
+        assert result["status"] == "fail"
+        assert result["error"]
+
+    def test_main_returns_2_on_registry_failure(self, tmp_path, monkeypatch):
+        import report_health_check as mod
+
+        monkeypatch.setattr(mod, "_REGISTRY_IMPORT_ERROR", "boom")
+        monkeypatch.setattr(mod, "EXPECTED_REPORTS", [])
+        monkeypatch.setattr("sys.argv", [
+            "health", "--evidence-dir", str(tmp_path),
+        ])
+        # FLIPPED: a broken-registry run previously returned 0 (green); now 2.
+        assert mod.main() == 2
 
 
 # ── format_text ──────────────────────────────────────────────

@@ -795,9 +795,15 @@ def main() -> int:
             return 2
 
     cmd = [python_bin, str(script_path), *preset_args, *passthrough]
-    print(f"$ {shlex.join(cmd)}", file=sys.stderr)
+    # In --dry-run the resolved command line (including injected preset flags
+    # such as --include-stress-cases) IS the deliverable, so echo it to stdout
+    # where callers/tests inspect it. During a real run the echo stays on
+    # stderr so it does not pollute the subprocess's stdout.
+    echo_line = f"$ {shlex.join(cmd)}"
     if args.dry_run:
+        print(echo_line)
         return 0
+    print(echo_line, file=sys.stderr)
     return _run_subprocess(cmd, cwd)
 
 
@@ -825,7 +831,7 @@ def review_cli_main() -> None:
     Behaviour:
     - ``mlgg-review <cmd> ...`` with cmd in COMMAND_GROUPS["review"] →
       identical to ``mlgg <cmd> ...``.
-    - ``mlgg-review --help`` / no args → list ONLY the 7 review commands
+    - ``mlgg-review --help`` / no args → list ONLY the 8 review commands
       with their descriptions; point at ``mlgg`` for governance work.
     - ``mlgg-review <unknown-or-governance-cmd>`` → emit a clear error
       naming the allowed subset and exit 2 (argparse-style usage error).

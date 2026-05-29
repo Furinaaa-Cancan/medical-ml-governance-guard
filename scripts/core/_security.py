@@ -395,6 +395,15 @@ def safe_path(
 ) -> Path:
     """Validate and resolve a user-provided file path.
 
+    NOTE — TEST-ONLY / NOT CURRENTLY WIRED. As of this audit, no production
+    code path (gates, core modules, CLI) calls safe_path(); gates resolve
+    paths with bare ``Path(...).resolve()`` and do not route through this
+    hardening. The function is exercised only by the security/red-team test
+    suites (tests/test_red_team.py, tests/test_security.py,
+    tests/test_stress_security.py), which assert its defenses. Treat as an
+    available-but-unwired control: wire production path handling through it
+    before relying on these protections in the live pipeline.
+
     Defends against:
         - Path traversal (../)
         - Symlink escapes
@@ -669,7 +678,21 @@ class SecureModelLoader:
         bundle = loader.load(Path("models/model.pkl"))
     """
 
-    # Allowlist of safe module prefixes for unpickling
+    # DEAD / UNUSED — DO NOT consult this allowlist for security decisions.
+    #
+    # This frozenset and the _is_module_allowed() helper below have ZERO callers.
+    # load() does NOT use them: it delegates deserialization to
+    # safe_pickle_load() -> RestrictedUnpickler, which enforces the SEPARATE
+    # (and authoritative) module allowlist _ALLOWED_PICKLE_MODULES defined later
+    # in this module.
+    #
+    # WARNING — these two allowlists DIVERGE. _ALLOWED_MODULES below omits
+    # entries that the real allowlist permits (e.g. "pandas", "codecs",
+    # "encodings", and several sklearn/numpy/scipy submodules). Re-wiring load()
+    # to consult _ALLOWED_MODULES would therefore break legitimate model loads
+    # while providing no additional protection. Kept only to avoid deleting code
+    # in this batch; treat as deprecated. If a single allowlist is ever desired,
+    # consolidate onto _ALLOWED_PICKLE_MODULES rather than reviving this one.
     _ALLOWED_MODULES = frozenset({
         "sklearn",
         "numpy",
@@ -693,7 +716,13 @@ class SecureModelLoader:
 
     @classmethod
     def _is_module_allowed(cls, module_name: str) -> bool:
-        """Check if a module is in the allowlist."""
+        """DEPRECATED / UNUSED — checks membership in _ALLOWED_MODULES.
+
+        Has zero callers. load() does not consult this method; deserialization
+        is gated by RestrictedUnpickler against _ALLOWED_PICKLE_MODULES instead.
+        See the _ALLOWED_MODULES note above re: divergence between the two
+        allowlists. Retained (not deleted) for this audit batch only.
+        """
         for allowed in cls._ALLOWED_MODULES:
             if module_name == allowed or module_name.startswith(allowed + "."):
                 return True

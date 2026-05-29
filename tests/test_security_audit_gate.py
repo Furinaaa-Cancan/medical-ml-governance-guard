@@ -3,12 +3,10 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 from typing import Any, Dict
 from unittest import mock
 
-import pytest
 
 
 from security_audit_gate import main as gate_main
@@ -72,14 +70,17 @@ class TestSecurityAuditGateBasic:
         unsigned = [f for f in report["failures"] if f["code"] == "unsigned_model"]
         assert len(unsigned) == 1
 
-    def test_warn_no_manifest(self, tmp_path: Path) -> None:
+    def test_fail_no_manifest(self, tmp_path: Path) -> None:
+        # Fail-closed: a missing integrity manifest leaves evidence unverified,
+        # so it is now a FAILURE (was a non-blocking warning).
         evidence = tmp_path / "evidence"
         evidence.mkdir()
         _write_json(evidence / "eval.json", {"ok": True})
 
         report, rc = _run_gate(str(evidence), str(tmp_path / "report.json"))
-        # No model dir → no model failures, but manifest warning
-        no_manifest = [w for w in report["warnings"] if w["code"] == "manifest_missing"]
+        assert rc == 2
+        assert report["status"] == "fail"
+        no_manifest = [f for f in report["failures"] if f["code"] == "manifest_missing"]
         assert len(no_manifest) == 1
 
     def test_strict_fails_on_warnings(self, tmp_path: Path) -> None:
@@ -144,14 +145,19 @@ class TestSecurityAuditGateChecks:
         assert "sensitive_data_scan" in summary
         assert "artifact_sizes" in summary
 
-    def test_no_model_dir_no_model_checks(self, tmp_path: Path) -> None:
+    def test_no_model_dir_fails(self, tmp_path: Path) -> None:
+        # Fail-closed: a security gate that finds no model to verify has verified
+        # nothing, so an absent/empty model dir is now a FAILURE (was a silent pass).
         evidence = tmp_path / "evidence"
         evidence.mkdir()
-        # model_dir doesn't exist → no model signature checks
         report, rc = _run_gate(str(evidence), str(tmp_path / "report.json"),
                                model_dir=str(tmp_path / "nonexistent_models"))
         sig = report["summary"]["model_signatures"]
         assert sig["models_checked"] == 0
+        assert rc == 2
+        assert report["status"] == "fail"
+        no_models = [f for f in report["failures"] if f["code"] == "no_models_to_verify"]
+        assert len(no_models) == 1
 
     def test_envelope_version_present(self, tmp_path: Path) -> None:
         evidence = tmp_path / "evidence"

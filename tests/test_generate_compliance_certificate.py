@@ -2,8 +2,9 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
+
+import pytest
 
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
@@ -49,6 +50,81 @@ class TestCryptoHelpers:
         key = b"test-key-32bytes-for-testing----"
         sig = gcc.hmac_sign("original", key)
         assert gcc.hmac_verify("tampered", key, sig) is False
+
+
+# ── _get_signing_key (fail-closed) ──────────────────────────────────────────────
+
+class TestSigningKey:
+    """Security: _get_signing_key must fail CLOSED on a set-but-invalid key.
+
+    Previously a set-but-invalid MLGG_SIGNING_KEY (bad hex, or too short)
+    silently fell through to a guessable hostname+user-derived key (fail-open).
+    """
+
+    _VALID = "ab" * 32  # 32 bytes hex
+
+    def test_valid_32byte_hex_key_used(self, monkeypatch):
+        monkeypatch.setenv("MLGG_SIGNING_KEY", self._VALID)
+        assert gcc._get_signing_key() == bytes.fromhex(self._VALID)
+
+    def test_invalid_hex_raises(self, monkeypatch):
+        # FLIPPED: bad hex previously silently fell back to a derived key
+        # (fail-open). Now it must raise SigningKeyError (fail-closed).
+        monkeypatch.setenv("MLGG_SIGNING_KEY", "not-hex-zz")
+        with pytest.raises(gcc.SigningKeyError):
+            gcc._get_signing_key()
+
+    def test_short_key_raises(self, monkeypatch):
+        # NEW: a 1-byte key was previously accepted (no length check). It must
+        # now be rejected — HMAC needs >= 32 bytes.
+        monkeypatch.setenv("MLGG_SIGNING_KEY", "ab")  # 1 byte
+        with pytest.raises(gcc.SigningKeyError):
+            gcc._get_signing_key()
+
+    def test_empty_set_key_raises(self, monkeypatch):
+        # NEW: set-but-empty is a config error, not an implicit fallback request.
+        monkeypatch.setenv("MLGG_SIGNING_KEY", "")
+        with pytest.raises(gcc.SigningKeyError):
+            gcc._get_signing_key()
+
+    def test_unset_key_derives_with_warning(self, monkeypatch, capsys):
+        # Wholly unset env var: fallback derivation is allowed but must warn.
+        monkeypatch.delenv("MLGG_SIGNING_KEY", raising=False)
+        key = gcc._get_signing_key()
+        assert len(key) == 32  # sha256 digest
+        captured = capsys.readouterr()
+        assert "WARNING" in captured.err
+        assert "MLGG_SIGNING_KEY" in captured.err
+
+    def test_generate_certificate_fails_closed_on_bad_key(self, tmp_path, monkeypatch):
+        # FLIPPED: generation previously succeeded (rc=0) under a derived key
+        # even with an invalid configured key. It must now return 2.
+        monkeypatch.setenv("MLGG_SIGNING_KEY", "zzzz")
+        evidence_dir = tmp_path / "evidence"
+        evidence_dir.mkdir()
+        for fname in gcc.GATE_REPORT_FILENAMES:
+            (evidence_dir / fname).write_text(
+                json.dumps({"status": "pass", "failure_count": 0, "strict_mode": True})
+            )
+        out = tmp_path / "cert.json"
+        rc = gcc.generate_certificate(evidence_dir, None, out)
+        assert rc == 2
+        assert not out.exists()
+
+    def test_verify_certificate_fails_closed_on_bad_key(self, tmp_path, monkeypatch):
+        # Build a valid cert with a valid key, then verify under an invalid key.
+        monkeypatch.setenv("MLGG_SIGNING_KEY", self._VALID)
+        evidence_dir = tmp_path / "evidence"
+        evidence_dir.mkdir()
+        for fname in gcc.GATE_REPORT_FILENAMES:
+            (evidence_dir / fname).write_text(
+                json.dumps({"status": "pass", "failure_count": 0, "strict_mode": True})
+            )
+        out = tmp_path / "cert.json"
+        assert gcc.generate_certificate(evidence_dir, None, out) == 0
+        monkeypatch.setenv("MLGG_SIGNING_KEY", "zzzz")  # set-but-invalid
+        rc = gcc.verify_certificate(out)
+        assert rc == 2
 
 
 # ── load_gate_report ──────────────────────────────────────────────────────────

@@ -6,20 +6,21 @@
 ml-leakage-guard/
 │
 ├── scripts/                         # ─── Core Code ───
-│   ├── core/            (6 files)   # Framework internals shared by all gates
+│   ├── core/            (7 files)   # Framework internals shared by all gates
 │   ├── gates/          (33 files)   # 33 fail-closed quality gates (each standalone CLI)
-│   ├── training/        (6 files)   # Model training, data splitting, project init
+│   ├── training/        (7 files)   # Model training, data splitting, project init
 │   ├── reporting/      (15 files)   # Reports, audits, exports, session recording
-│   ├── codebooks/      (10 files)   # NHANES + UK Biobank data dictionaries + provenance helper
-│   ├── review/          (7 files)   # Paper analysis, peer review lookup, KB migrations
-│   ├── diagnostics/    (10 files)   # Environment checks, visualization, web UI, docs consistency
+│   ├── codebooks/      (12 files)   # NHANES + UK Biobank data dictionaries + provenance helper
+│   ├── review/          (9 files)   # Paper analysis, peer review lookup, KB migrations
+│   ├── rag/             (4 files)   # Dense-vector RAG layer over the reviewer KB
+│   ├── diagnostics/    (33 files)   # Environment checks, visualization, web UI, docs consistency
 │   └── orchestration/  (10 files)   # CLI entry point, pipeline orchestration
 │
 ├── plugin/                          # ─── Product A: mlgg-lint ───
 │   ├── mlgg_lint/       (30 rules)  # pip install mlgg-lint (zero deps, standalone)
 │   └── pyproject.toml               # Independent package
 │
-├── tests/             (123 files)   # ─── 4760+ test functions ───
+├── tests/             (198 files)   # ─── 5100+ test functions ───
 │
 ├── references/                      # ─── Knowledge Base ───
 │   ├── standards/                   # TRIPOD+AI 2024, PROBAST+AI 2025, STARD+AI
@@ -146,7 +147,7 @@ Report: { status, failure_count, warning_count, failures[], warnings[],
 | Pima Diabetes | 768 | 8 | 35% | 0.845 | 0.789 | — | — |
 | Framingham Heart | 4,240 | 15 | 15% | 0.737 | — | — | — |
 | **RHC ICU** | **5,735** | **54** | 65% | **0.750** | **0.834** | slope=0.977 | `experiments/rhc-benchmark/` |
-| **SUPPORT2** | **9,105** | **43** | 26% | **0.789** | **0.635** | slope=0.745 | `experiments/support2-benchmark/` |
+| **SUPPORT2** | **9,105** | **43** | 26% | **0.789** | **0.610** | slope=0.955 | `experiments/support2-benchmark/` |
 | **NHANES** | **15,549** | **12** | 18% | **0.810** | **0.443** | — | `experiments/nhanes-benchmark/` |
 | **Sepsis** | **129,392** | **3** | 9% | **0.689** | **0.159** | slope=0.804 | `experiments/sepsis-benchmark/` |
 
