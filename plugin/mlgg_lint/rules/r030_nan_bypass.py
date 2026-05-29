@@ -11,12 +11,26 @@ expression. The fix is to wrap through ``to_float()`` (which guards with
 ``math.isfinite``) or to add an explicit ``math.isfinite`` check before
 the comparison.
 
-**Scope.** Only files under ``scripts/gates/`` are scanned. Verdict logic
-is concentrated there; serialization/reporting sites elsewhere (e.g.
-``scripts/diagnostics/``) legitimately use ``float()`` to coerce values
-into JSON-safe form and do NOT take pass/fail decisions on the result.
-Future-proofs ALL gates without forcing a churny refactor of the
-serialization surface.
+**Scope — INTERNAL / SELF-AUDIT ONLY.** R030 fires *only* on files whose
+path lies under ``scripts/gates/`` (see ``_is_in_gate_scope`` and the
+early ``return []`` in ``check``). Those files are MLGG's *own* gate
+implementations, so R030 is a self-audit rule that polices this project's
+verdict code — it can NEVER fire on external/user-supplied code, which by
+definition does not live under our ``scripts/gates/`` tree.
+
+Rule-count framing note: R030 is included in the user-facing "30 rules
+(R001–R030)" count even though, for an external user linting their own
+code, it is structurally inert (always returns ``[]``). The count is the
+size of the registered ruleset, not the set of rules reachable on
+arbitrary input; R030 is honestly described here as internal-only so the
+advertised number is not mistaken for "30 rules that can fire on your
+code." Verdict logic is concentrated under ``scripts/gates/``;
+serialization/reporting sites elsewhere (e.g. ``scripts/diagnostics/``)
+legitimately use ``float()`` to coerce values into JSON-safe form and do
+NOT take pass/fail decisions on the result. This scoping future-proofs
+ALL of *our* gates without forcing a churny refactor of the serialization
+surface — and is deliberately NOT broadened to user code, where bare
+``float()`` in a comparison carries no verdict-bypass guarantee.
 
 **Out of scope (W15-A3 acknowledged gaps).** ``int(x)``, ``np.float64(x)``,
 and multi-step coercion (``y = float(x); if y > t``) are not flagged.
@@ -27,7 +41,7 @@ comparisons) — extending coverage is a future-rule concern.
 from __future__ import annotations
 
 import ast
-from pathlib import PurePosixPath, PureWindowsPath
+from pathlib import PurePosixPath
 
 from mlgg_lint.models import Severity
 from mlgg_lint.rules import register
@@ -121,7 +135,13 @@ def _contains_bare_float_call(node: ast.AST, _depth: int = 0) -> bool:
 
 @register
 class NanBypassInVerdict(BaseRule):
-    """Flag ``float(x) <op> y`` in gate verdict comparisons (R030)."""
+    """Flag ``float(x) <op> y`` in gate verdict comparisons (R030).
+
+    Internal/self-audit-only rule: fires solely on ``scripts/gates/`` paths
+    (MLGG's own gate code) and returns ``[]`` for all other files, so it
+    cannot fire on external user code. See module docstring for how this
+    relates to the user-facing "30 rules" count.
+    """
 
     id = "R030"
     name = "nan-bypass-in-verdict"
