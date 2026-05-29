@@ -127,7 +127,12 @@ def score_one(scenario: dict, *, mode: str, top_k: int = 5) -> dict:
 
     top1 = None
     if hits:
-        top1 = hits[0].get("_final_score") or hits[0].get("_score")
+        # Explicit None check: a legitimate 0.0 score must be kept, so we
+        # cannot use truthy-or (which would silently fall through to _score
+        # or None and drop a real zero).
+        top1 = hits[0].get("_final_score")
+        if top1 is None:
+            top1 = hits[0].get("_score")
 
     return {
         "id": _scenario_id(scenario),

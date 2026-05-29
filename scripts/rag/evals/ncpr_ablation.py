@@ -36,13 +36,20 @@ Each config returns one dict:
 ``{weighted_f1, recall, precision, category_coverage}`` (macro means).
 The report writer prints a markdown table with deltas vs ``full``.
 
-Stub-fallback contract
-----------------------
+Stub-fallback contract (VESTIGIAL — stub branches are now unreachable)
+----------------------------------------------------------------------
 Every sibling import is wrapped in ``try / except ImportError`` with a
 documented, deterministic stub. The same pattern as W22-X6's
 orchestrator; mirrors that module's ``_STUBBED`` accumulator so a
 caller can see when any ablation row was produced against a stub
 rather than the real sibling (which would silently lie about deltas).
+
+As of W23+, every sibling (ncpr_matcher, ncpr_severity_score,
+ncpr_category_coverage, ncpr_paper_runner) is committed and imports
+cleanly, so the ``except ImportError`` branches below are dead code at
+import time and the stubs are unreachable. They are retained (not
+deleted) as a per-sibling minimal contract; ``_STUBBED`` should stay
+empty in practice.
 
 Hard rules honored
 ------------------
@@ -84,11 +91,14 @@ DEFAULT_CONFIGS: list[str] = [
 ]
 
 
-# ── Sibling imports with stubs ──────────────────────────────────────────────
+# ── Sibling imports with (vestigial) stubs ──────────────────────────────────
 #
-# Each ``try / except ImportError`` either binds the real sibling or a
-# documented stub. ``_STUBBED`` accumulates the stub names so the
-# report can flag any run that exercised a stub.
+# Each ``try / except ImportError`` binds the real sibling. All siblings
+# are committed and import cleanly as of W23+, so the ``except`` branches
+# below are dead code at import time and the stubs are unreachable. They
+# are retained, not deleted, as a documented per-sibling contract.
+# ``_STUBBED`` accumulates any stub names actually bound (expected to stay
+# empty) so the report can still flag a regressed import.
 
 _STUBBED: list[str] = []
 
