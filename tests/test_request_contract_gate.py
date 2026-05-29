@@ -1484,7 +1484,7 @@ class TestCrossRunAntiDowngrade:
         # Run 1: publication-grade
         self._write_request(req_path, study_id="S003", run_id="r1",
                             tier="publication-grade")
-        r1 = _run_gate(req_path, tmp_path / "r1.json")
+        _run_gate(req_path, tmp_path / "r1.json")
         # publication-grade bundle usually requires external_cohort_spec
         # etc. — so r1 may have other validation failures. What matters
         # for THIS test is that study_id S003 is now recorded at
@@ -1519,7 +1519,7 @@ class TestCrossRunAntiDowngrade:
         self._write_request(req_path, study_id="S004", run_id="r2",
                             tier="leakage-audited")
         # With escape hatch:
-        result = subprocess.run(
+        subprocess.run(
             [sys.executable, str(GATE_SCRIPT),
              "--request", str(req_path),
              "--report", str(tmp_path / "r2.json"),
