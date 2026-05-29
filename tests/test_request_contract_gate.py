@@ -577,6 +577,25 @@ class TestValidateRobustnessReportShape:
         rcg.validate_robustness_report_shape(str(p), failures)
         assert len(failures) == 0
 
+    def test_time_slices_skipped_with_producer_reason_passes(self, tmp_path: Path):
+        # Guards the batch4 fix: the producer (train_select_evaluate.py) emits the
+        # skip corroboration in `time_slices.reason`, NOT skip_justification. A
+        # legitimate cross-sectional study must pass via `reason`; without this,
+        # every cross-sectional robustness report false-fails.
+        p = tmp_path / "robust.json"
+        p.write_text(json.dumps({
+            "overall_test_metrics": {"pr_auc": 0.85},
+            "time_slices": {
+                "skipped": True,
+                "reason": "cross_sectional_no_event_time",  # 29 chars, the real producer token
+            },
+            "patient_hash_groups": {"groups": [{"metric": 0.82}]},
+            "summary": {"status": "pass"},
+        }))
+        failures: List[Dict[str, Any]] = []
+        rcg.validate_robustness_report_shape(str(p), failures)
+        assert len(failures) == 0, f"cross-sectional reason should be honored, got {failures}"
+
 
 class TestValidateExecutionAttestationShape:
     def test_valid(self, tmp_path: Path):
