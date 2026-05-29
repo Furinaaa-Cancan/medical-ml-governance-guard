@@ -128,10 +128,15 @@ SENSITIVE_DATA_PATTERNS: Tuple[Tuple[str, "re.Pattern[str]"], ...] = (
     # \b boundaries prevent matching phone-number or credit-card digits.
     ("ssn",                 re.compile(r"\bssn\b|\bsocial[_\s-]?security\b", re.IGNORECASE)),
     ("ssn_dashed",          re.compile(r"\b\d{3}-\d{2}-\d{4}\b")),
-    ("ssn_undashed",        re.compile(r"(?<!\d)\d{9}(?!\d)")),
-    # Credit card (generic Luhn-ish — 13-19 digits with optional groups)
+    # The (?<![\d.]) / (?![\d.]) guards exclude digit-runs that are part of a
+    # float mantissa (e.g. a metric value 0.876305564) — those are NOT PHI and
+    # were false-positiving on every legitimate evidence JSON. Real SSN/CC values
+    # in evidence are string-quoted (preceded/followed by ", :, whitespace, etc.)
+    # so they still match.
+    ("ssn_undashed",        re.compile(r"(?<![\d.])\d{9}(?![\d.])")),
+    # Credit card (generic — 13-19 digits with optional groups)
     ("credit_card",         re.compile(r"\bcredit[_\s-]?card\b", re.IGNORECASE)),
-    ("credit_card_number",  re.compile(r"\b(?:\d[ -]?){13,19}\b")),
+    ("credit_card_number",  re.compile(r"(?<![\d.])(?:\d[ -]?){13,19}(?![\d.])")),
     # HIPAA medical identifiers
     ("medical_record",      re.compile(r"\bmedical[_\s-]?record\b", re.IGNORECASE)),
     ("mrn",                 re.compile(r"\bmrn[_\s-]?(?:number|id)?\b", re.IGNORECASE)),

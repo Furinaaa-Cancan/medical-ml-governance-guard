@@ -515,6 +515,22 @@ class TestSecurityAudit:
         sensitive = [i for i in report["issues"] if i["code"] == "sensitive_data_exposure"]
         assert len(sensitive) >= 1
 
+    def test_scan_does_not_false_positive_on_float_metrics(self) -> None:
+        """Regression: full-precision float metric values must NOT be flagged as
+        SSN/credit-card. A 9-digit float mantissa (0.876305564) tripped
+        ssn_undashed and a 16-digit one (0.7272727272727273) tripped
+        credit_card_number, which false-failed security_audit_gate on every
+        legitimate evidence JSON. Real (string-quoted) PHI must still be caught.
+        """
+        from scripts.core._security import scan_sensitive_data
+        # Float metric values: no PHI hit.
+        assert scan_sensitive_data('{"auroc": 0.7272727272727273}') == []
+        assert scan_sensitive_data('"brier": 0.876305564') == []
+        # Real PHI still detected.
+        assert any(lbl == "ssn_undashed" for lbl, _ in scan_sensitive_data('{"ssn": "876305564"}'))
+        assert any(lbl == "credit_card_number" for lbl, _ in scan_sensitive_data('{"card": "4111111111111111"}'))
+        assert any(lbl == "ssn_dashed" for lbl, _ in scan_sensitive_data("123-45-6789"))
+
     def test_audit_report_structure(self, tmp_path: Path) -> None:
         evidence = tmp_path / "evidence"
         evidence.mkdir()
