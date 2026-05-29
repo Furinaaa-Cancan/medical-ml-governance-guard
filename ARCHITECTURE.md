@@ -16,7 +16,7 @@ ml-leakage-guard/
 │   └── orchestration/  (10 files)   # CLI entry point, pipeline orchestration
 │
 ├── plugin/                          # ─── Product A: mlgg-lint ───
-│   ├── mlgg_lint/       (28 rules)  # pip install mlgg-lint (zero deps, standalone)
+│   ├── mlgg_lint/       (30 rules)  # pip install mlgg-lint (zero deps, standalone)
 │   └── pyproject.toml               # Independent package
 │
 ├── tests/             (123 files)   # ─── 4760+ test functions ───
@@ -41,7 +41,7 @@ ml-leakage-guard/
 │
 ├── experiments/                     # ─── Benchmarks & Test Results ───
 │   ├── authority-e2e/               # 4-dataset adversarial benchmark suite
-│   ├── support2-benchmark/          # SUPPORT2 (9105 rows, ROC-AUC 0.892)
+│   ├── support2-benchmark/          # SUPPORT2 (9105 rows, ROC-AUC 0.789)
 │   ├── nhanes-benchmark/           # NHANES (15549 rows, ROC-AUC 0.810)
 │   ├── rhc-benchmark/              # RHC ICU (5735 rows, ROC-AUC 0.750)
 │   ├── ckd-benchmark/              # CKD (399 rows, ROC-AUC 0.999)
@@ -65,11 +65,11 @@ Two independently-packaged products + one unified CLI surface.
 ┌─ Products ────────────────────────────────────────────────────────────┐
 │                                                                       │
 │  mlgg-lint      pip install mlgg-lint && mlgg-lint check code.py      │
-│                 Zero deps. 28 AST rules (R001-R028). 5s per file.     │
+│                 Zero deps. 30 AST rules (R001-R030). 5s per file.     │
 │                 R028 refuses omics modalities (gene_/snp_/ENSG).      │
 │                                                                       │
 │  mlgg           pip install ml-governance-guard                       │
-│                 Unified CLI with 28 subcommands (see SKILL.md).       │
+│                 Unified CLI with 30 subcommands (see SKILL.md).       │
 │                 Scope: retrospective-cohort binary classification.    │
 │                                                                       │
 └───────────────────────────────────────────────────────────────────────┘
@@ -146,7 +146,7 @@ Report: { status, failure_count, warning_count, failures[], warnings[],
 | Pima Diabetes | 768 | 8 | 35% | 0.845 | 0.789 | — | — |
 | Framingham Heart | 4,240 | 15 | 15% | 0.737 | — | — | — |
 | **RHC ICU** | **5,735** | **54** | 65% | **0.750** | **0.834** | slope=0.977 | `experiments/rhc-benchmark/` |
-| **SUPPORT2** | **9,105** | **43** | 26% | **0.892** | **0.635** | slope=0.745 | `experiments/support2-benchmark/` |
+| **SUPPORT2** | **9,105** | **43** | 26% | **0.789** | **0.635** | slope=0.745 | `experiments/support2-benchmark/` |
 | **NHANES** | **15,549** | **12** | 18% | **0.810** | **0.443** | — | `experiments/nhanes-benchmark/` |
 | **Sepsis** | **129,392** | **3** | 9% | **0.689** | **0.159** | slope=0.804 | `experiments/sepsis-benchmark/` |
 

@@ -125,11 +125,11 @@
   - [阶段八：公平性与亚组分析](#阶段八公平性与亚组分析)
   - [阶段九：报告与合规](#阶段九报告与合规)
 
-### 📚 Reference（33 gate / 28 lint / 23 模型 / 16 数据集 / 21 工具）
+### 📚 Reference（33 gate / 30 lint / 23 模型 / 16 数据集 / 21 工具）
 
 - [33 道安全门控 (Gate DAG)](#33-道安全门控-gate-dag)
 - [33 条方法论规则](#33-条方法论规则)
-- [28 条静态分析规则 (R001-R028)](#28-条静态分析规则-r001-r028)
+- [30 条静态分析规则 (R001-R030)](#30-条静态分析规则-r001-r030)
 - [12 维量化评分](#12-维量化评分)
 - [23 个模型族](#23-个模型族)
 - [16 个医学数据集](#16-个医学数据集)
@@ -187,7 +187,7 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 
 | 层 | 机制 | 能抓到什么 |
 |:---|:-----|:----------|
-| **第一层：28 条 AST 静态分析** | 代码模式匹配 (R001-R028) | `scaler.fit(X)` 在 split 前、SMOTE 用在 test 上、阈值在 test 选 |
+| **第一层：30 条 AST 静态分析** | 代码模式匹配 (R001-R030) | `scaler.fit(X)` 在 split 前、SMOTE 用在 test 上、阈值在 test 选 |
 | **第二层：33 道 fail-closed 门控** | 运行时验证，报告 JSON 产出 | 患者跨 split、校准 ECE > 0.1、EPV < 10、CI 宽度 > 0.20、**post-index 特征名模式抓取**（time_in_hospital / num_medications / discharge / ventilation / vasopressor）、**疾病作用域匹配**（glucose 只对糖尿病 target 报） |
 | **第三层：临床语义审查 + 审稿证据** | AI agent 理解代码含义 + 154 篇真实审稿 KB（817 条 concerns） + **issue-code 重排检索** | 出院后变量预测出院后结局、HbA1c 定义泄漏、亚组校准缺失。RAG 不只按 severity 排，而是基于失败代码的关键词（ppv / baseline / imputation）对 tag 和原文重排 |
 
@@ -206,7 +206,7 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 
 **KB 索引完整性**：所有 817 条 concerns 现在都有至少 1 个 `mlgg_gates` 映射（旧版 73.6% 是空数组，retrieval 对四分之三 KB 失效）。Warning-only gate（strict 模式升 fail 的）现在也会拉取 peer review context——不再因为"只有 warning 没有 failure"而背书为空。
 
-**KB 覆盖诚实说明**：KB 是 NC 已发表论文的审稿意见——pre-publication filter 已经筛掉了严重 leakage。结果：leakage 类审稿意见稀少（≈4%）；KB 强在 evaluation / reporting / external validation，弱在 leakage。遇到 leakage 失败时优先依赖 `leakage_gate` + `mlgg-lint` R001-R028，不依赖 KB。
+**KB 覆盖诚实说明**：KB 是 NC 已发表论文的审稿意见——pre-publication filter 已经筛掉了严重 leakage。结果：leakage 类审稿意见稀少（≈4%）；KB 强在 evaluation / reporting / external validation，弱在 leakage。遇到 leakage 失败时优先依赖 `leakage_gate` + `mlgg-lint` R001-R030，不依赖 KB。
 
 > 当 MLGG 发现你的代码有问题时，它不只是说"违反了规则 E02"——它会告诉你：*"NC+CM 审稿人在 154 篇论文中 196 次（24%）要求完善评估指标。这是审稿人最常提出的问题类别。"*
 
@@ -231,7 +231,7 @@ query → embed (BGE-small) → cosine top-50¹ → + BM25 (issue-code) + gate f
 
 > ¹ 当前 dense 权重的真实贡献请见 [docs/RAG_TROUBLESHOOTING.md §9 "Hybrid scores worse than BM25"](docs/RAG_TROUBLESHOOTING.md)（W11-M1 加入），并参考下面的「Wave 11 修正」。
 
-> **Wave 11 修正（W11-I1 ablation, [ADR 0001](docs/adr/0001_mmr_breakdown_consumer.md)）**：当前 `dense_weight=0.5` 在 30-scenario 基准上被证实是 dilutor——`hybrid_no_dense` mean_tag_p@5 = **0.447** > `bm25_only` **0.436** > `hybrid_all` **0.353**。换句话说当前 4-signal 融合（dense + BM25 + tag + severity）整体跑输只跑 BM25。Wave 12 计划把 `DENSE_WEIGHT` demote 到 0.05–0.1。背景与决策记录详见 [docs/ARCHITECTURE.md Q5](docs/ARCHITECTURE.md)。
+> **Wave 11 背景（W11-I1 ablation, [ADR 0001](docs/adr/0001_mmr_breakdown_consumer.md)）**：当时的 `dense_weight=0.5` 在 30-scenario 基准上被证实是 dilutor——`hybrid_no_dense` mean_tag_p@5 = **0.447** > `bm25_only` **0.436** > `hybrid_all` **0.353**。换句话说旧的 4-signal 融合（dense + BM25 + tag + severity）整体跑输只跑 BM25。**W13-P0 已修复**：`WEIGHT_DENSE` demote 到 0.10（见下方「已修复」段与 [docs/ARCHITECTURE.md Q5](docs/ARCHITECTURE.md)）。
 
 **三种使用模式：**
 
@@ -329,7 +329,7 @@ F2 修复后，gate report 不会再为这些 gate 显示占位条目；F2 之�
 | **多模型 SHAP 集成引擎** | 多族 L1 归一化集成 + Kendall tau 一致性 (FDR-BH 校正) + 跨模型 Spearman 排名相关 + 5 张发表级 CSV | RF/XGB/CatBoost/LGBM/LR |
 | **学术合规引擎** | TRIPOD+AI 2024 (27 项) / PROBAST+AI 2025 (4 域) / STARD-AI | 全项逐条验证 |
 | **审稿证据库** | 154 篇 NC+CM 论文 × 817 条结构化审稿意见，按 gate/tag/severity 检索（另 181 篇 PDF 已收录待抽取） | 每条建议引用原文 |
-| **28 条 Lint 规则** | 静态分析检测代码级泄漏反模式 (R001-R028) | .py + .ipynb |
+| **30 条 Lint 规则** | 静态分析检测代码级泄漏反模式 (R001-R030) | .py + .ipynb |
 | **安全加固层** | HMAC-SHA256 / AES-256-GCM / 链式审计日志 / 路径穿越防护 / 受限反序列化 | fail-closed |
 | **21 个分析工具** | Riley 样本量 / 校准三件套 / NRI-IDI / 学习曲线 / VIF / MNAR 敏感性 / PDP 边际效应 / FDR-BH 校正 / 时序漂移 / ... | 100% 覆盖 Nature ML Checklist |
 
@@ -383,7 +383,7 @@ python3 scripts/orchestration/mlgg.py onboarding \
 # 审计任何 ML 项目（无需配置）
 python3 scripts/reporting/generate_audit_report.py --project-dir /path/to/project
 
-# 静态代码扫描（28 条 AST 泄漏规则）
+# 静态代码扫描（30 条 AST 泄漏规则）
 cd plugin && pip install -e . && cd ..
 python3 -m mlgg_lint check /path/to/your_script.py
 ```
@@ -1290,7 +1290,7 @@ python3 examples/download_real_data.py pima     # 768 rows
 
 ---
 
-## 28 条静态分析规则 (R001-R028)
+## 30 条静态分析规则 (R001-R030)
 
 | 类别 | 规则 | 严重度 |
 |:---------|:------|:---------|
@@ -1347,7 +1347,7 @@ python3 -m mlgg_lint /path/to/code/
 | 层 | 机制 | 覆盖 |
 |---|------|------|
 | Layer 1 | **手动 Codebook Registry** — 人工标注的变量元数据（类型、gated missingness、测量协议、反向因果） | 21 个 NHANES 变量 |
-| Layer 2 | **RAG 自动检索** — BM25 + trigram 混合检索 Harvard CCB-HMS 58K 变量库 + skip-chain 图 | 3,964 变量/cycle |
+| Layer 2 | **RAG 自动检索** — BM25 + trigram 混合检索 Harvard CCB-HMS codebook（上游目录约 58K 变量；本仓库实际随附 TSV 约 16K distinct 变量）+ skip-chain 图 | 3,964 变量/cycle |
 | Layer 3 | **Disease-KB x Codebook** — 从疾病定义知识库提取排除术语，映射到 NHANES codes | 自动标记 definition variable |
 
 **Onboarding 自动触发**：`mlgg onboarding --input-csv nhanes_diabetes.csv` 自动检测 dataset/disease/cross-sectional，训练前运行 codebook RAG + definition_variable_guard + leakage_gate。
@@ -1381,7 +1381,7 @@ python3 -m mlgg_lint /path/to/code/
 |--------|------|------|-----------|---------|--------|-------------|---------|
 | CKD 慢性肾病 | 399 | 24 | 63% | 0.999 | 1.000 | 3.08 | 极小样本，诊断特征区分度极高 |
 | RHC ICU 死亡率 | 5,735 | 54 | 65% | 0.750 | 0.834 | **0.977** | 校准最优，高 prevalence 队列 |
-| SUPPORT2 重症 | 9,105 | 43 | 26% | 0.892 | 0.635 | 0.745 | 发现并排除 11 个泄漏/事后变量 |
+| SUPPORT2 重症 | 9,105 | 43 | 26% | 0.789 | 0.635 | 0.745 | 发现并排除 11 个泄漏/事后变量 |
 | NHANES 糖尿病 | 15,549 | 12 | 18% | 0.810 | 0.443 | — | 横截面数据，无时序 |
 | Sepsis 脓毒症 | 129,392 | 3 | 9% | 0.689 | 0.159 | 0.804 | 仅 3 特征，性能受限（正确反映） |
 
@@ -1493,7 +1493,7 @@ medical-ml-governance-guard/
 │   │   └── report_health_check.py        #   235  evidence 完整性仪表盘
 │   │
 │   ├── codebooks/         (12 files, 7.0K LOC)  # 数据字典工具 (NHANES / UK Biobank)
-│   │   ├── nhanes_codebook_lookup.py     #  1055  NHANES 60K 变量 FTS5 全文检索 + RAG 验证
+│   │   ├── nhanes_codebook_lookup.py     #  1055  NHANES ~16K distinct 变量 FTS5 全文检索 + RAG 验证
 │   │   ├── ukb_codebook_lookup.py        #  1286  UKB 12K 字段验证 + 时序泄漏检测 + 别名 + disease-KB join + --exclude-risk
 │   │   ├── codebook_factory.py           #   105  统一工厂: NHANES/UKB/BRFSS → 同一接口
 │   │   ├── build_nhanes_codebook_db.py   #   580  Harvard CCB-HMS TSV → SQLite (60K vars + 204K codes)
@@ -1523,7 +1523,7 @@ medical-ml-governance-guard/
 │   │   ├── index/                        #   索引子包: builder.py (KB → npz) + cache.py (原子写 / sha256)
 │   │   ├── retrieval/                    #   检索信号子包: dense.py (cosine) + bm25.py (关键词重排) + hybrid.py (融合)
 │   │   └── evals/                        #   评估子包: harness.py (peer-review 检索精度基准, scenarios + baseline)
-│   │   # 注: gate → RAG 桥 (gate_rag_bridge.py, 204 LOC) 住在 scripts/core/，是 RAG 的消费方，
+│   │   # 注: gate → RAG 桥 (gate_rag_bridge.py, 51 LOC) 住在 scripts/core/，是 RAG 的消费方，
 │   │   #     不再放在 scripts/rag/ 内部，避免 "RAG 知道 gate" 这种反向依赖。
 │   │
 │   ├── diagnostics/       (33 files, 5.3K LOC)  # 环境诊断 + 文档一致性 + KB 卫生
@@ -1584,7 +1584,7 @@ medical-ml-governance-guard/
 │   │   └── literature-knowledge-base.json          # 59 篇 IF>10 文献索引
 │   │
 │   ├── codebooks/                        # 数据字典
-│   │   ├── nhanes/         (8+SQLite)    #   Harvard 58K 变量 + 202K codebook entries + BM25 索引
+│   │   ├── nhanes/         (8+SQLite)    #   ~16K distinct 变量 (Harvard 上游目录约 58K) + codebook entries + BM25 索引
 │   │   ├── ukb/            (12+SQLite)   #   UKB Data Showcase 11,821 字段 + 533,286 encoding values + 216 golden seeds + 106 aliases + 8 层验证 (source_manifest.json + ukb_golden_fields.yaml + KNOWN_GAPS.md)
 │   │   └── dataset-codebook-registry.json  # 通用 registry (BRFSS/NHIS/MIMIC)
 │   │
@@ -1601,7 +1601,7 @@ medical-ml-governance-guard/
 │   └── docs/               (8)           # Architecture, API-Reference, Quickstart, Troubleshooting
 │
 ├── plugin/                               # ─── 静态分析 Lint (独立子包) ───
-│   ├── mlgg_lint/          (9+30 files)  # AST 级 28 条泄漏检测规则 (R001-R028)
+│   ├── mlgg_lint/          (9+30 files)  # AST 级 30 条泄漏检测规则 (R001-R030)
 │   │   └── rules/                        #   fit_before_split, smote_on_test, target_encoding_leak...
 │   ├── tests/              (5+60 samples)# good/bad 样本 + CLI/engine 测试
 │   ├── vscode/             (4)           # VS Code 扩展
@@ -1625,7 +1625,7 @@ medical-ml-governance-guard/
 │
 ├── experiments/                          # ─── 基准测试套件 ───
 │   ├── authority-e2e/                    #   4 个 UCI 数据集对抗性验证 + 基准矩阵
-│   ├── support2-benchmark/              #   SUPPORT2 重症预后 (9105 行, ROC-AUC 0.892)
+│   ├── support2-benchmark/              #   SUPPORT2 重症预后 (9105 行, ROC-AUC 0.789)
 │   ├── nhanes-benchmark/                #   NHANES 糖尿病 (15549 行, ROC-AUC 0.810)
 │   ├── rhc-benchmark/                   #   RHC ICU 死亡率 (5735 行, ROC-AUC 0.750)
 │   ├── ckd-benchmark/                   #   CKD 慢性肾病 (399 行, ROC-AUC 0.999)
@@ -1669,12 +1669,12 @@ medical-ml-governance-guard/
                             └─ references/case-studies/ (引用审稿意见)
 ```
 
-### 两个产品 + 一套 28-子命令 CLI
+### 两个产品 + 一套 30-子命令 CLI
 
 | 入口 | 安装 | 用途 | 依赖 |
 |------|------|------|------|
-| **mlgg-lint** | `pip install mlgg-lint` | 扫描 Python 代码 data leakage（28 条 AST 规则，含 R028 组学守卫） | 零依赖 |
-| **mlgg** | `pip install ml-governance-guard` | 29 个子命令 CLI（onboarding / workflow / audit / audit-metrics / fairness / sample-size / lint / llm-audit / ...），完整 33-gate pipeline + W29 LLM-first paper audit | numpy/pandas/sklearn |
+| **mlgg-lint** | `pip install mlgg-lint` | 扫描 Python 代码 data leakage（30 条 AST 规则，含 R028 组学守卫） | 零依赖 |
+| **mlgg** | `pip install ml-governance-guard` | 30 个子命令 CLI（onboarding / workflow / audit / audit-metrics / fairness / sample-size / lint / llm-audit / ...），完整 33-gate pipeline + W29 LLM-first paper audit | numpy/pandas/sklearn |
 
 子命令全表见 `SKILL.md` §"Quick Dispatch"。`audit-metrics` 是 `mlgg` 子命令之一，不是独立包。
 
@@ -1682,7 +1682,7 @@ medical-ml-governance-guard/
 
 | 路径 | 执行者 | 输入 | 输出 |
 |------|--------|------|------|
-| **A. 代码扫描** | `mlgg-lint check code.py` | Python 源码 (.py/.ipynb) | R001-R028 泄漏检测报告 |
+| **A. 代码扫描** | `mlgg-lint check code.py` | Python 源码 (.py/.ipynb) | R001-R030 泄漏检测报告 |
 | **B. 指标审查** | `mlgg audit-metrics --metrics '{}'` | 论文 Table 2 数字 | TRIPOD+AI 合规缺口报告 |
 | **C. 全流程审查** | `mlgg onboarding --input-csv` | 用户数据 CSV（可选 `--cohort-spec` 声明 inclusion/exclusion cascade） | evidence/ 报告 + 33 gate 验证 + Table 1 (TRIPOD+AI 13a) |
 | **D. 论文元数据评审** | API agents (`agents/`) | 论文 PDF（含 prompt-injection 防御：paper 文本作为 untrusted data 隔离） | 12 维评分 |
@@ -1719,7 +1719,7 @@ pre-commit install
 
 配置在 `.pre-commit-config.yaml`，包含：
 - `ruff` — 与 `ci-unit.yml` 相同 ruleset（E/F/W，排除 ML 代码常见 E501/E741 等）
-- `mlgg-lint-selfcheck` — 用 28 条 AST 规则审查 `mlgg-lint` 自身源码（dog-fooding）
+- `mlgg-lint-selfcheck` — 用 30 条 AST 规则审查 `mlgg-lint` 自身源码（dog-fooding）
 - `docs-consistency` — SKILL.md / README(_EN).md / agents/reviewer.yaml 变更时校验 12 维评分权重一致
 
 另有 git 原生 **pre-push** 钩子（README stats 漂移检测 + ruff + RAG 烟雾测试），一行启用：`make install-hooks`。详见 [CONTRIBUTING.md](./CONTRIBUTING.md#pre-push-hook-recommended)。
@@ -1915,7 +1915,7 @@ AI 会自动：
 | [`docs/PRODUCTS.md`](docs/PRODUCTS.md) | 两条产品线（governance Mode A vs review Mode B/C）的边界、CLI 分组、benchmark / GT / drift 差异 (W28-S0) | 决策者 / 新贡献者 |
 | `docs/adr/` | Architecture Decision Records（ADR 0001: `_mmr_breakdown` consumer） | designer |
 | [`docs/reference/GATES.md`](docs/reference/GATES.md) | 33 道门控完整参考（CLI 契约 + failure codes + DAG 依赖） | 国际 reference |
-| [`docs/reference/LINT_RULES.md`](docs/reference/LINT_RULES.md) | R001-R028 lint 规则参考 | 国际 reference |
+| [`docs/reference/LINT_RULES.md`](docs/reference/LINT_RULES.md) | R001-R030 lint 规则参考 | 国际 reference |
 | [`docs/reference/DATASETS.md`](docs/reference/DATASETS.md) | 16 个医学数据集 + 泄漏陷阱 | 国际 reference |
 | [`docs/reference/MODEL_FAMILIES.md`](docs/reference/MODEL_FAMILIES.md) | 23 个模型族 + 校准 + 泄漏模式 | 国际 reference |
 | [`docs/reference/ANALYSIS_TOOLS.md`](docs/reference/ANALYSIS_TOOLS.md) | 21 个分析工具 + gate 集成 | 国际 reference |

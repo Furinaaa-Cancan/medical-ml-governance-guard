@@ -55,9 +55,11 @@ external CI all interoperate:
 | Determinism | Same inputs + same seed must yield byte-identical reports. |
 
 The shared helpers live in [`scripts/core/_gate_framework.py`](../../scripts/core/_gate_framework.py)
-(`finish()`, `to_float()`, report scaffolding) and
+(`build_report_envelope()`, `print_gate_summary()`, report scaffolding) and
 [`scripts/core/_gate_utils.py`](../../scripts/core/_gate_utils.py)
-(I/O guards, numerical safety). Do not bypass them when adding a new gate.
+(I/O guards, `to_float()` numerical safety). `finish()` is a per-gate
+convention (`bool(failures) or (args.strict and bool(warnings))`), not a shared
+helper. Do not bypass these when adding a new gate.
 
 ### JSON envelope shape
 
