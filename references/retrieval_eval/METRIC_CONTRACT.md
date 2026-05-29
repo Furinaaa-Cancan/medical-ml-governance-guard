@@ -103,11 +103,16 @@ Measured 2026-05-29 over L01–L36:
 | Path | Metric | Value |
 |---|---|---|
 | OFFLINE `rag_query` hybrid (with query_text) | recorded `mean_labeled_P@5` | **0.639** |
-| Production **gate** path (`retrieve_for_failure`, no query_text) | `mean_gate_path_p_at_5` | **0.272** |
-| | mean delta (gate − offline) | **−0.367** |
+| Production **gate** path (`retrieve_for_failure`, no query_text) | `mean_gate_path_p_at_5` | **0.244** |
+| | mean delta (gate − offline) | **−0.394** |
 
-11/36 cases land in `severity_fallback` on the gate path (the BM25 re-ranker
-found no keyword hit and returned severity-sorted concerns). Off-scope probes
+The gate path replicates the production skip guard (`_gate_framework.py:272`
+`if failures or warnings:`): 13/36 cases carry NO codes, so the shipping gate
+returns an empty `peer_review_context` for them (`skipped_no_issues`) and they
+score P@5 = 0 — exactly as in production. With the guard, **0/36** cases land in
+`severity_fallback` (an earlier draft of this eval omitted the guard and forced
+those 13 no-code cases through a severity-sorted top-5, inflating the headline
+to 0.272 / delta −0.367; corrected here to 0.244 / −0.394). Off-scope probes
 L19/L20 correctly stay at P@5 = 0 (any non-zero is a false-positive regression).
 The same circularity caveat (§4) applies: the **absolute** gate-path P@5 is an
 optimistic LLM-self-eval estimate; Track A's honest contribution is the

@@ -33,10 +33,14 @@ FAITHFULNESS CONTRACT (must mirror _gate_framework.build_report_envelope)
    ``_gate_framework.py`` lines ~278-297 so the eval cannot drift from the
    shipping retry semantics.
 
-The labeled set (L01–L36) carries only ``failure_codes`` and no ``warning_codes``,
-so the stage-2 retry condition cannot fire on today's set — but it is replicated
-exactly so a future holdout that carries warning codes is scored on the real
-path, not a simplified one.
+The labeled set (L01–L36) carries no ``warning_codes``, so the stage-2 retry
+condition cannot fire on today's set — but it is replicated exactly so a future
+holdout that carries warning codes is scored on the real path, not a simplified
+one. Note also that 13/36 cases (e.g. L05, L11–L18, L19, L20, L29, L30) carry
+NO codes at all; the production skip guard (``if failures or warnings:`` in
+``_gate_framework.py:272``) returns an empty ``peer_review_context`` for those
+(``peer_review_status="skipped_no_issues"``), so gate_path_retrieve returns
+``[]`` for them — they score P@5=0, exactly as the shipping gate would.
 
 GROUND TRUTH
 ------------
@@ -167,6 +171,15 @@ def gate_path_retrieve(
 
     failure_codes = list(failure_codes or [])
     warning_codes = list(warning_codes or [])
+
+    # Production skip guard — _gate_framework.py:272 wraps the whole retrieval
+    # block in `if failures or warnings:`. A gate that emits NEITHER failure nor
+    # warning codes never calls the retriever; its peer_review_context stays
+    # EMPTY (peer_review_status="skipped_no_issues"). Replicating this is
+    # load-bearing: without it, no-code cases get forced through a
+    # severity_fallback top-5 the shipping gate never produces, inflating P@5.
+    if not failure_codes and not warning_codes:
+        return []
 
     # Stage 1: failures-first (fallback to warnings if no failures). No query_text.
     primary_codes = failure_codes if failure_codes else warning_codes
