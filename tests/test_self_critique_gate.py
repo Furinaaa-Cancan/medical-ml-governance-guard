@@ -208,6 +208,31 @@ class TestMissingArtifact:
         codes = [f["code"] for f in report["failures"]]
         assert "missing_or_invalid_artifact" in codes
 
+    # SecB fail-closed: require_pass previously did `if report is None: return`,
+    # silently treating an absent required tier member (e.g. a leakage detector
+    # that was never run) as satisfied. Now an absent required component report
+    # also records component_report_missing — the component is not satisfied.
+    def test_absent_required_component_records_missing(self, tmp_path):
+        paths = _write_artifacts(tmp_path)
+        Path(paths["leakage-report"]).unlink()
+        report_path = tmp_path / "report.json"
+        cmd = [sys.executable, str(GATE_SCRIPT)]
+        for name in ARTIFACT_NAMES:
+            cmd.extend([f"--{name}", paths[name]])
+        cmd.extend(["--report", str(report_path)])
+        subprocess.run(cmd, capture_output=True, text=True, timeout=30, cwd=str(SCRIPTS_DIR))
+        report = json.loads(report_path.read_text())
+        codes = [f["code"] for f in report["failures"]]
+        # Previously require_pass returned silently for the absent report; now
+        # it fails closed with component_report_missing for the leakage detector.
+        assert "component_report_missing" in codes
+        missing_components = {
+            f["details"].get("component")
+            for f in report["failures"]
+            if f["code"] == "component_report_missing"
+        }
+        assert "leakage_report" in missing_components
+
 
 # ── direct main() tests (for coverage) ──────────────────────────────────────
 

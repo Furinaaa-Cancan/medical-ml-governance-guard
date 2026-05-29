@@ -219,6 +219,20 @@ def main() -> int:
     def require_pass(name: str, strict_mode_required: bool = True) -> None:
         report = loaded.get(name)
         if report is None:
+            # Fail-closed: a required tier-member report that is absent (path
+            # not provided, or failed to load) must NOT be silently treated as
+            # satisfied. Previously this returned and the component counted as
+            # passing, so a partial-evidence run could earn self-critique
+            # readiness with the leakage detectors never run
+            # (security-failclosed-fixes, SecB). The load loop above may already
+            # have recorded a load error for the same artifact; an extra missing
+            # marker here is harmless (both only push status toward fail).
+            add_issue(
+                failures,
+                "component_report_missing",
+                "Required component report is missing.",
+                {"component": name},
+            )
             return
 
         status = str(report.get("status", "")).lower()
