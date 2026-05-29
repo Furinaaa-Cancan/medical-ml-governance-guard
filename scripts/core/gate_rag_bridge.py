@@ -1,22 +1,24 @@
-"""Bridge from MLGG gates to the RAG layer.
+"""Hybrid-RAG helper for gate-failure context (currently UNWIRED).
 
 Synthesizes a query from a gate failure, delegates to
 :func:`scripts.rag.retrieval.hybrid.hybrid_rank`, and renders the result
-as markdown for the gate's ``report.json``.
+as markdown.
 
-This module lives in :mod:`scripts.core` (next to the gate framework)
-rather than inside :mod:`scripts.rag`, so the dependency direction stays
-one-way: gates know about RAG, RAG does not know about gates.  When a
-gate fails it calls :func:`rag_context_for_failure` with the gate name
-and the symbolic ``failure_codes`` it emitted; the returned ranked
-reviewer concerns are ready to embed in the gate's ``report.json``
-under the ``peer_review_context`` key.
+NOTE (2026-05): this module is NOT on the production gate path. The
+33-gate runtime populates ``report.json``'s ``peer_review_context`` via
+:func:`scripts.core._gate_framework.build_report_envelope`, which calls
+``scripts.rag.retrieval.bm25.retrieve_for_failure`` directly — a
+BM25-only retriever (pure stdlib, no torch, ~13ms, deterministic).
+Gates deliberately stay on BM25 to keep their runtime light and
+fail-closed (hybrid pulls torch ~500MB and ~12s cold init per process).
+``rag_context_for_failure`` and the hybrid / curated-precedent /
+off-modality / hedge logic here are exercised only by tests today; they
+are intended for the OFFLINE paper-audit / eval path
+(:func:`scripts.rag.query.rag_query`). Do NOT assume a failing gate
+populates ``peer_review_context`` through this module.
 
-The companion :func:`format_for_gate_report` renders those concerns as a
-compact markdown snippet suitable for direct embedding in human-facing
-gate reports.
-
-Design contract: see ``/tmp/mlgg_rag_design.md`` (Agent A7 of 10).
+The companion :func:`format_for_gate_report` renders concerns as a
+compact markdown snippet; it has no production renderer.
 """
 
 from __future__ import annotations

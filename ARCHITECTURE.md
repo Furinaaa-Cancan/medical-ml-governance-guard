@@ -24,7 +24,7 @@ ml-leakage-guard/
 ├── references/                      # ─── Knowledge Base ───
 │   ├── standards/                   # TRIPOD+AI 2024, PROBAST+AI 2025, STARD+AI
 │   ├── methodology/                 # Leakage taxonomy, disease definitions
-│   ├── case-studies/                # 106 NC papers × 375 reviewer concerns
+│   ├── case-studies/                # 335 papers (154 with concerns) × 817 reviewer concerns
 │   ├── codebooks/                   # NHANES/UKB variable metadata + SQLite
 │   ├── protocols/                   # 9-phase workflow specifications
 │   ├── operations/                  # Error KB, gate matrix, scoring
