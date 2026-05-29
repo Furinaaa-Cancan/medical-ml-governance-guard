@@ -920,7 +920,24 @@ def validate_robustness_report_shape(
         )
 
     time_slices = payload.get("time_slices")
-    _time_skipped = isinstance(time_slices, dict) and time_slices.get("skipped")
+    # Fail-closed: a self-attested `skipped: true` flag alone must NOT clear the
+    # temporal-robustness completeness requirement. The skip is only honored when
+    # corroborated by a substantive justification (>= 20 non-whitespace chars).
+    # Otherwise a study could self-declare time-slice robustness skipped and dodge
+    # the check entirely.
+    _skip_flag = isinstance(time_slices, dict) and bool(time_slices.get("skipped"))
+    _justification = time_slices.get("skip_justification") if isinstance(time_slices, dict) else None
+    _justified = isinstance(_justification, str) and len(_justification.strip()) >= 20
+    _time_skipped = _skip_flag and _justified
+    if _skip_flag and not _justified:
+        add_issue(
+            failures,
+            "invalid_robustness_report",
+            "robustness_report_file.time_slices.skipped requires a corroborating "
+            "time_slices.skip_justification (>= 20 chars); a self-attested skip flag "
+            "alone cannot suppress the temporal-robustness completeness requirement.",
+            {"path": str(path), "skip_justification": _justification},
+        )
     if not _time_skipped and (not isinstance(time_slices, dict) or not isinstance(time_slices.get("slices"), list) or not time_slices.get("slices")):
         add_issue(
             failures,

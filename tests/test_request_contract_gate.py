@@ -545,6 +545,38 @@ class TestValidateRobustnessReportShape:
         codes = [f["code"] for f in failures]
         assert "invalid_robustness_report" in codes
 
+    def test_time_slices_skipped_without_justification_fails(self, tmp_path: Path):
+        # FAIL-CLOSED: a self-attested skip flag with no corroborating
+        # justification must NOT suppress the completeness requirement.
+        p = tmp_path / "robust.json"
+        p.write_text(json.dumps({
+            "overall_test_metrics": {"pr_auc": 0.85},
+            "time_slices": {"skipped": True},
+            "patient_hash_groups": {"groups": [{"metric": 0.82}]},
+            "summary": {"status": "pass"},
+        }))
+        failures: List[Dict[str, Any]] = []
+        rcg.validate_robustness_report_shape(str(p), failures)
+        codes = [f["code"] for f in failures]
+        assert "invalid_robustness_report" in codes
+
+    def test_time_slices_skipped_with_justification_passes(self, tmp_path: Path):
+        # Skip is honored only when corroborated by a substantive justification.
+        p = tmp_path / "robust.json"
+        p.write_text(json.dumps({
+            "overall_test_metrics": {"pr_auc": 0.85},
+            "time_slices": {
+                "skipped": True,
+                "skip_justification": "Cross-sectional cohort with a single "
+                "extraction date; no temporal axis exists to slice on.",
+            },
+            "patient_hash_groups": {"groups": [{"metric": 0.82}]},
+            "summary": {"status": "pass"},
+        }))
+        failures: List[Dict[str, Any]] = []
+        rcg.validate_robustness_report_shape(str(p), failures)
+        assert len(failures) == 0
+
 
 class TestValidateExecutionAttestationShape:
     def test_valid(self, tmp_path: Path):
