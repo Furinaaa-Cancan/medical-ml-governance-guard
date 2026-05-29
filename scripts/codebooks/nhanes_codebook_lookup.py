@@ -959,10 +959,16 @@ def get_codebook(
     RegistryCodebook for BRFSS/MIMIC/others (registry-only validation).
 
     .. deprecated::
-        This factory is a dead duplicate with zero callers; the gate uses
-        ``codebook_factory.get_codebook`` instead. Retained only to avoid a
-        breaking removal in this batch — do not add new callers. Prefer
-        ``codebook_factory.get_codebook``.
+        DEAD DUPLICATE — zero callers. The live entry point is
+        ``scripts.codebooks.codebook_factory.get_codebook``; every caller
+        (the cohort-definition gate at ``scripts/gates/cohort_definition_gate.py``
+        and the codebook tests) imports it from ``codebook_factory``, never from
+        this module. This copy has additionally drifted out of sync: it lacks the
+        ``nhanes_cycle`` parameter that ``codebook_factory.get_codebook`` exposes,
+        so the NHANES branch here is hard-wired to ``cycle="2017-2018"`` and
+        cannot select other cycles. Retained only to avoid a breaking removal in
+        this batch — do NOT add new callers. Prefer
+        ``scripts.codebooks.codebook_factory.get_codebook``.
     """
     _DS_KEY_MAP = {
         "nhanes": "nhanes_2017_2020",
