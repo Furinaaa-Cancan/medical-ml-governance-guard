@@ -588,13 +588,14 @@ def main() -> int:
             right_min = time_bounds[right]["min"]
             if left_max is None or right_min is None:
                 return
-            # Strict ordering: train_max must be STRICTLY less than the next
-            # split's min. An equal boundary (train_max == valid_min) means
-            # at least one training record shares the exact index timestamp of
-            # the earliest holdout record, so the temporal cut is not clean and
-            # information from the boundary timestamp is shared across splits.
-            # Treat the equal-boundary case as a temporal overlap (leakage).
-            if left_max >= right_min:
+            # Overlap requires train_max to be STRICTLY later than the next
+            # split's min. An equal boundary (train_max == valid_min) across
+            # DIFFERENT patients is NOT leakage: patient-disjointness is enforced
+            # separately (S01), and shared index timestamps across patients are
+            # common in clinical cohorts. (Reverted a W-audit over-correction
+            # that used >=; canonical contract is tests/test_leakage_gate.py::
+            # test_temporal_boundary_exact.)
+            if left_max > right_min:
                 add_issue(
                     failures,
                     "temporal_overlap",
