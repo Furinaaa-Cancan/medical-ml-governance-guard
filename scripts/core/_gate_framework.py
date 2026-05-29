@@ -349,7 +349,12 @@ def build_report_envelope(
 # ---------------------------------------------------------------------------
 
 def add_common_arguments(parser: argparse.ArgumentParser) -> None:
-    """Add arguments shared by all gates: --report, --strict, --timeout, --dry-run."""
+    """Add arguments shared by all gates: --report, --strict, --dry-run.
+
+    DEPRECATED/UNUSED: advertised as shared by all gates but has zero
+    production callers (referenced only by tests). Retained pending
+    removal; do not rely on it for new gates.
+    """
     common = parser.add_argument_group("Common gate options")
     common.add_argument(
         "--report",
@@ -373,7 +378,12 @@ def add_input_file_argument(
     help_text: str,
     required: bool = True,
 ) -> None:
-    """Add an input file argument with consistent naming."""
+    """Add an input file argument with consistent naming.
+
+    DEPRECATED/UNUSED: advertised as shared by all gates but has zero
+    production callers (referenced only by tests). Retained pending
+    removal; do not rely on it for new gates.
+    """
     group.add_argument(flag, required=required, help=help_text)
 
 
@@ -381,7 +391,12 @@ _MAX_CLI_ARG_LENGTH = 4096  # max characters per CLI string argument
 
 
 def sanitize_cli_args(args: argparse.Namespace) -> List[str]:
-    """Validate CLI argument lengths and content. Returns list of issues."""
+    """Validate CLI argument lengths and content. Returns list of issues.
+
+    DEPRECATED/UNUSED: advertised as shared by all gates but has zero
+    production callers (referenced only by tests). Retained pending
+    removal; do not rely on it for new gates.
+    """
     issues: List[str] = []
     for attr, value in vars(args).items():
         if isinstance(value, str):
@@ -402,6 +417,10 @@ def validate_input_files(
     """Pre-validate that all specified input file arguments point to existing files.
 
     Returns a list of GateIssue for any missing files.
+
+    DEPRECATED/UNUSED: advertised as shared by all gates but has zero
+    production callers (referenced only by tests). Retained pending
+    removal; do not rely on it for new gates.
     """
     issues: List[GateIssue] = []
     for arg_name in file_args:
