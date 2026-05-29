@@ -110,26 +110,62 @@ def rag_query(
     if top_k < 1:
         top_k = 1
 
+    # Promoted offline-path enrichment (was orphaned in
+    # scripts.core.gate_rag_bridge, which is dead in production). _enrich is
+    # torch-free (only os + re), so this import never pulls the dense stack.
+    from scripts.rag import _enrich
+
+    # Curated fit-before-split precedent for the MLGG-P01/P04 RAG blind spot:
+    # injected at top-1 BEFORE the ranker so offline paper-audit carries
+    # authoritative precedent rather than off-topic split-protocol fallbacks.
+    # Honors MLGG_RAG_DISABLE_CURATED=1 (handled inside curated_precedent_for).
+    curated = _enrich.curated_precedent_for(gate, failure_codes, query)
+
     # Deferred import: keeps ``--help`` cheap and avoids loading
     # sentence_transformers when the caller never actually runs a query.
     # Also lets us trap the "RAG stack not available" case without crashing.
     try:
         from scripts.rag.retrieval.hybrid import hybrid_rank
     except ImportError:
-        return []
+        # RAG stack unavailable. We can still surface the curated precedent
+        # (pure-Python, no embeddings) so the P01/P04 blind spot is covered
+        # even in torch-less environments; otherwise degrade to [].
+        return [curated] if curated is not None else []
 
     try:
         results = hybrid_rank(
             query=query,
             gate=gate,
             failure_codes=failure_codes,
-            top_k=top_k,
+            # Leave room for the curated row: a top_k>=2 caller sees
+            # 1 curated + (top_k-1) KB rows. (At top_k==1 the curated row wins
+            # the single slot and the top KB hit is dropped — intended: the
+            # curated precedent is authoritative for the P01/P04 blind spot.)
+            top_k=(max(1, top_k - 1) if curated is not None else top_k),
         )
     except FileNotFoundError:
         # KB file missing on disk -- treat as "no answer available" rather
         # than a hard error, so CLI / gate-integration callers can degrade
-        # gracefully.
-        return []
+        # gracefully. The curated row needs no KB, so still surface it.
+        return [curated] if curated is not None else []
+
+    # Prepend curated precedent at top-1 (dedupe by concern_id; the synthetic
+    # id is never in the KB, so this only guards against future overlap).
+    if curated is not None:
+        curated_id = curated.get("concern_id")
+        results = [r for r in results if r.get("concern_id") != curated_id]
+        results = ([curated] + results)[:top_k]
+
+    # Attach a query-level off-MLGG-scope advisory flag to each record.
+    # RESERVED for future offline consumers to hedge spurious cross-modality
+    # hits — note: as of this commit NO production consumer reads _off_modality
+    # (llm_paper_audit's KbCitation copies only concern_id / excerpt / score /
+    # mlgg_gates), so the flag is currently produced-but-unread. Curated rows
+    # are authoritative MLGG precedent and are never flagged off-modality.
+    if _enrich.is_off_modality_query(query):
+        for r in results:
+            if not r.get("_synthetic_curated"):
+                r["_off_modality"] = True
 
     if min_score > 0.0 and results:
         results = [

@@ -220,7 +220,7 @@ query → embed (BGE-small) → cosine top-50 → + BM25 (issue-code) + gate fil
 
 **Caching:** first call ~30 s (downloads BGE-small + builds `.cache/rag/concerns_embeddings.npz`); subsequent calls < 1 s (npz reused while KB sha256 is unchanged).
 
-**Gate integration:** any gate can call `scripts.core.gate_rag_bridge.rag_context_for_failure(gate_name, failure_codes)` to embed the reviewer-quote context into its `report.json` under `peer_review_context`, so the "why did this fail" explanation cites a real reviewer's words.
+**Gate integration (the real path):** when a gate fails, `build_report_envelope` (`scripts/core/_gate_framework.py`) calls `scripts.rag.retrieval.bm25.retrieve_for_failure(gate_name, failure_codes)` directly — a **BM25 keyword retriever** (pure stdlib, no torch) — to embed the reviewer-quote context into `report.json` under `peer_review_context`. The dense / hybrid retrieval described above serves only the offline `scripts/rag/query.py` and paper-audit tools; it does **not** run on the gate-failure path. Gate runtime depends only on numpy + scikit-learn and is kept light, deterministic and fail-closed (wiring hybrid in would add a ~500MB torch dependency and ~12s cold start to every short-lived gate process).
 
 **Limitation:** the current vector model is `BAAI/bge-small-en-v1.5` (384-dim, English-tuned). Chinese-language free-text queries will have reduced precision &mdash; the KB itself is English reviewer text, so English queries hit hardest; for Chinese descriptions of a failure, pass `--codes MLGG-XXX` so the BM25 + tag-overlap path can compensate.
 
@@ -1171,7 +1171,7 @@ medical-ml-governance-guard/
 │   │   ├── _gate_utils.py                #   60+ stat/IO/security functions (calibration, VIF, NRI...)
 │   │   ├── _audit_shared.py              #   12-dimension scoring + 12 code anti-pattern regex scan
 │   │   ├── _security.py                  #   HMAC signing, AES-256-GCM, RBAC, RestrictedUnpickler
-│   │   └── gate_rag_bridge.py            #   gate → RAG bridge: rag_context_for_failure() + format_for_gate_report()
+│   │   └── gate_rag_bridge.py            #   offline-only hybrid helper (UNWIRED; gates use bm25.retrieve_for_failure)
 │   │   # Note: peer-review KB retrieval (_peer_review_retrieval.py, 793 LOC) moved to
 │   │   # scripts/rag/retrieval/bm25.py — the BM25 half of the RAG hybrid ranker.
 │   │   # gate_rag_bridge.py is the consumer (gate → RAG); dep direction stays one-way:
@@ -1233,7 +1233,7 @@ medical-ml-governance-guard/
 │   │   ├── correct_subgroup_overmatch.py #   Fix subgroup over-match in review index
 │   │   └── ...                           #   batch_journal_review, extract/score metadata
 │   │
-│   ├── rag/               (4)            # Dense-vector RAG over the peer-review KB (__init__ + 3 modules + index/ + retrieval/ + evals/ subpkgs)
+│   ├── rag/               (5)            # Dense-vector RAG over the peer-review KB (__init__ + 4 modules incl. _enrich + index/ + retrieval/ + evals/ subpkgs)
 │   │   ├── config.py                     #   Constants / paths / weights (BGE-small, .cache/rag/, dense/BM25/tag)
 │   │   ├── embeddings.py                 #   sentence-transformers wrapper (singleton model loader + normalize)
 │   │   ├── query.py                      #   [entry point] High-level API + CLI (--gate / --codes / --top-k / --format)

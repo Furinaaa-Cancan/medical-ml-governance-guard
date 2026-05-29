@@ -243,7 +243,7 @@ query → embed (BGE-small) → cosine top-50¹ → + BM25 (issue-code) + gate f
 
 **缓存：** 首次调用约 30 秒（下载 BGE-small + 构建 .cache/rag/concerns_embeddings.npz 索引），后续调用 <1 秒（KB sha256 不变时直接读 npz）。
 
-**Gate 集成：** 任意 gate 都可以调用 `scripts.core.gate_rag_bridge.rag_context_for_failure(gate_name, failure_codes)`，把审稿原话作为 `peer_review_context` 字段嵌入 report.json，让"为什么这条 fail"的解释里附带真实审稿人引用。
+**Gate 集成（实际路径）：** gate 失败时，`build_report_envelope`（`scripts/core/_gate_framework.py`）直接调用 `scripts.rag.retrieval.bm25.retrieve_for_failure(gate_name, failure_codes)`，用 **BM25 关键词检索**（纯 stdlib，无 torch）把审稿原话作为 `peer_review_context` 字段嵌入 report.json。上文描述的 dense / hybrid 检索仅服务于离线 `scripts/rag/query.py` 与 paper-audit 工具，**不**在 gate 失败路径上运行——gate 运行时只依赖 numpy + scikit-learn，刻意保持轻量、确定性与 fail-closed（接入 hybrid 会给每个短生命周期 gate 进程引入 ~500MB torch 依赖与 ~12s 冷启动）。
 
 **局限说明：** 当前向量模型是 `BAAI/bge-small-en-v1.5`（384 维，英文调优），中文自由文本查询精度会下降——KB 本身是英文审稿意见，所以英文 query 命中率最高；如果你要用中文描述失败，建议同时传 `--codes MLGG-XXX` 让 BM25 + tag-overlap 路径兜底。
 
@@ -1404,7 +1404,7 @@ medical-ml-governance-guard/
 │   │   ├── _gate_utils.py                #  2927  60+ 统计函数: calibration, VIF, NRI/IDI, DCA, bootstrap CI
 │   │   ├── _audit_shared.py              #   238  12 维评分 + 代码反模式正则扫描
 │   │   ├── _security.py                  #  1725  HMAC 签名, AES-256-GCM 加密, 受限反序列化
-│   │   └── gate_rag_bridge.py            #   204  gate → RAG 桥: rag_context_for_failure() + format_for_gate_report() (给 report.json 注入 reviewer 引用)
+│   │   └── gate_rag_bridge.py            #   离线 hybrid 助手 (未接入; gate 走 bm25.retrieve_for_failure, 非本模块)
 │   │   # 注: 审稿 KB 检索 (_peer_review_retrieval.py, 793 LOC) 已迁至 scripts/rag/retrieval/bm25.py
 │   │   #     成为 RAG 包的 BM25 半侧；scripts/core/ 不再持有 RAG 实现。
 │   │   #     gate_rag_bridge.py 是消费方 (gate → RAG)，依赖方向单向：gate 知道 RAG, RAG 不知道 gate。
@@ -1516,7 +1516,7 @@ medical-ml-governance-guard/
 │   │   ├── add_robustness_permutation_gates.py # --   为现有审稿意见补 robustness / permutation 条目
 │   │   └── correct_subgroup_overmatch.py #   --   修复审稿意见的亚组 over-match 问题
 │   │
-│   ├── rag/               (3 files, 1.2K LOC)    # 审稿 KB 之上的密集向量 RAG 层 (3 顶层模块 + index/ + retrieval/ + evals/ 子包)
+│   ├── rag/               (4 files, 1.1K LOC)    # 审稿 KB 之上的密集向量 RAG 层 (4 顶层模块含 _enrich + index/ + retrieval/ + evals/ 子包)
 │   │   ├── config.py                     #   常量/路径/权重 (BGE-small + .cache/rag/ + dense/BM25/tag 比重)
 │   │   ├── embeddings.py                 #   sentence-transformers 包装 (单例 model loader + 归一化)
 │   │   ├── query.py                      #   [入口] 高层 API + CLI (--gate / --codes / --top-k / --format)

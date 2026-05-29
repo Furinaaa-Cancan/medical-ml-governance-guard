@@ -69,9 +69,12 @@ def test_score_one_synthesizes_query_when_query_text_missing(monkeypatch):
     Pre-fix, run_eval.py passed the empty string to rag_query, which
     short-circuits to [] regardless of gate/codes; this silently dropped
     15/30 scenarios from the post-Wave-5 baseline (n_hits=0, wall_ms=0).
-    The harness path (scripts/rag/evals/harness.py) already synthesizes a
-    "gate code1 code2" query in that case; this test pins run_eval.py to
-    the same behaviour so the two harnesses cannot drift.
+    Both run_eval.py and the harness path (scripts/rag/evals/harness.py)
+    now synthesize via the shared scripts.rag._enrich.synthesize_query
+    helper (codes-first, snake_case→space normalized, gate name as
+    fallback only), so the two harnesses cannot drift. This test pins that
+    synthesis: a non-empty query is built from the codes and gate+codes are
+    still forwarded to rag_query for the gate filter / tag boost.
     """
     from scripts.rag.evals import run_eval
 
@@ -96,12 +99,16 @@ def test_score_one_synthesizes_query_when_query_text_missing(monkeypatch):
     }
     result = run_eval.score_one(scenario, mode="hybrid", top_k=5)
 
-    # The synthesized query must be non-empty and mention the gate.
+    # The synthesized query must be non-empty and carry the (normalized)
+    # failure codes. The gate name is NOT folded into the query text —
+    # codes are the semantic signal; the gate is forwarded as a filter
+    # param (asserted below), matching the promoted _enrich.synthesize_query
+    # contract (underscores → spaces).
     assert captured["query"].strip(), (
         "score_one passed empty query to rag_query; synthesis fallback failed"
     )
-    assert "evaluation_quality_gate" in captured["query"]
-    assert "improper_primary_metric" in captured["query"]
+    assert "improper primary metric" in captured["query"]
+    assert "missing calibration metric" in captured["query"]
     # Gate + codes must still be forwarded for the gate filter / tag boost.
     assert captured["gate"] == "evaluation_quality_gate"
     assert captured["failure_codes"] == [

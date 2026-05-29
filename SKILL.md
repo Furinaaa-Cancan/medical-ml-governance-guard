@@ -148,7 +148,7 @@ Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部
 
 ## Peer Review Evidence Protocol
 
-Agent 审查代码时，查阅 `references/case-studies/peer-review-kb.json`（106 篇 NC 论文，375 条审稿意见）作为**补充背书**——当适用时可以引用，但不要把缺引用当作 gate 判定的依据。
+Agent 审查代码时，查阅 `references/case-studies/peer-review-kb.json`（335 篇论文，其中 154 篇已抽取，共 817 条审稿意见）作为**补充背书**——当适用时可以引用，但不要把缺引用当作 gate 判定的依据。
 
 > 审稿人的原话是有力的旁证，但不是 ground truth。KB 是 Nature Communications 已发表论文的审稿意见集合，**经过了 pre-publication filter**——有严重泄漏的论文在发表前就被拒，因此 KB 中 leakage 类审稿意见稀少（≈4% with leakage_gate mapping）。
 

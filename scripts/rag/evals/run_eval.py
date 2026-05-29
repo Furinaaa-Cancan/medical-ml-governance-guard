@@ -75,12 +75,14 @@ def score_one(scenario: dict, *, mode: str, top_k: int = 5) -> dict:
     codes = scenario.get("failure_codes") or scenario.get("failure_codes_hint") or []
     query = scenario.get("query_text") or scenario.get("query") or ""
     if not query.strip() and gate:
-        # W7-P1: mirror scripts/rag/evals/harness.py (and gate_rag_bridge):
-        # a gate + failure codes alone must be enough to retrieve. Without
-        # this fallback, rag_query's empty-query guard short-circuits to []
-        # and the scenario is silently dropped (n_hits=0, wall_ms=0), which
-        # diverges from the production gate→RAG bridge path.
-        query = f"{gate} {' '.join(codes)}".strip()
+        # W7-P1: a gate + failure codes alone must be enough to retrieve.
+        # Use the SHARED synth helper so this matches the offline rag_query
+        # path and harness.py exactly. Two changes vs the old bare join
+        # f"{gate} {' '.join(codes)}": (1) snake_case -> space normalization,
+        # and (2) the gate NAME is no longer folded into the query text (the
+        # gate is passed as a filter param instead). Not a superset of the old.
+        from scripts.rag._enrich import synthesize_query
+        query = synthesize_query(codes, gate_name=gate)
 
     t0 = time.perf_counter()
     if mode == "bm25_only":

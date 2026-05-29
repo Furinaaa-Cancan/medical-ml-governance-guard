@@ -12,7 +12,7 @@
 ```
 scripts/rag/
   retrieval/
-    dense.py        # BGE-large-en-v1.5 with query/passage prefix asymmetry
+    dense.py        # bge-small-en-v1.5 with query/passage prefix asymmetry
     bm25.py         # manifest-driven TAG_SYNONYMS, whole-token, 2+ char filter
     hybrid.py       # score fusion, severity boost, MMR v2 diversification
   index/
@@ -21,7 +21,7 @@ scripts/rag/
     harness.py      # supports --mode bm25_only|hybrid, defaults to hybrid
     run_eval.py     # reproducible eval entry point, query synthesis fallback
   core/
-    gate_rag_bridge.py  # gate → query synthesis + LLM-side hedge layer
+    gate_rag_bridge.py  # offline-only hybrid helper (UNWIRED; gates use bm25.retrieve_for_failure, not this)
   query.py          # CLI wrapped by `mlgg rag` subcommand
 
 references/retrieval_eval/
@@ -34,7 +34,7 @@ references/retrieval_eval/
 ## Hybrid ranker — 4 signals
 
 ```
-final_score = w_dense * dense_cosine          (BGE-large, query-prefixed)
+final_score = w_dense * dense_cosine          (bge-small, query-prefixed)
             + w_bm25  * bm25_minmax           (gate-anchored only, 2+ char tokens)
             + w_tag   * tag_overlap_jaccard   (mostly dead — see Open #1)
             + w_sev   * severity_prior        (critical/high/medium/low boost)
@@ -46,7 +46,7 @@ final_score = w_dense * dense_cosine          (BGE-large, query-prefixed)
    `gate_rag_bridge._synthesize_query` builds a query from gate metadata
    when free-text is absent (same path used by `run_eval.py` when a
    scenario lacks `query_text`).
-2. **Dense retrieval**: BGE-large encodes the query with the query
+2. **Dense retrieval**: bge-small encodes the query with the query
    prefix; KB concerns are pre-encoded with the passage prefix and
    cached in `concerns_embeddings.npz`.
 3. **BM25 retrieval** (gate-anchored mode only): manifest-driven
@@ -76,7 +76,7 @@ final_score = w_dense * dense_cosine          (BGE-large, query-prefixed)
 
 | Component | Path | Role |
 |-----------|------|------|
-| Harness | `scripts/rag/evals/harness.py` | `--mode bm25_only\|hybrid`, defaults to `hybrid` (matches production) |
+| Harness | `scripts/rag/evals/harness.py` | `--mode bm25_only\|hybrid`, defaults to `hybrid` (= the OFFLINE `rag_query` path; NOT the gate path, which is BM25-only via `bm25.retrieve_for_failure`) |
 | Reproducible runner | `scripts/rag/evals/run_eval.py` | Single source of truth for baseline diffs; synthesizes query from gate when `query_text` absent |
 | Scenarios | `references/retrieval_eval/scenarios.json` | 30 scenarios: 26 gate-anchored + 3 off-domain WEAK + 1 empty-query ZERO |
 | Baseline | `references/retrieval_eval/post_wave7_baseline_hybrid.{md,json}` | Authoritative reference for regression diffs |
@@ -139,7 +139,9 @@ pairs almost never overlap.
 
 ### 2. Query-driven vs gate-driven eval divergence
 
-`harness.py` + `run_eval.py` default to hybrid (production path),
+`harness.py` + `run_eval.py` default to hybrid (the OFFLINE `rag_query`
+path used by `mlgg rag` / paper-audit — NOT the gate-failure path, which
+is BM25-only and benchmarked by no default eval),
 but `scenarios.json` is 26 gate-driven + 4 free-text. The `query_text`
 field added in Wave 2 is underutilized for the 26 gate-driven scenarios.
 W7-P1 closed the harness short-circuit (empty `query_text` no longer

@@ -4,9 +4,12 @@ This module is the single source of truth for constants used across the RAG
 package (``scripts/rag/``). Every other RAG module (``embeddings``,
 ``index.builder``, ``retrieval.dense``, ``retrieval.bm25``,
 ``retrieval.hybrid``, ``query``) imports its constants from here, so
-changes propagate consistently. The gate bridge that consumes the RAG
-layer lives in :mod:`scripts.core.gate_rag_bridge` and reuses the same
-constants.
+changes propagate consistently. The offline enrichment helpers (synth
+normalization, off-modality, curated precedent) live in
+:mod:`scripts.rag._enrich` and are wired into
+:func:`scripts.rag.query.rag_query`; :mod:`scripts.core.gate_rag_bridge` is now
+a thin re-export shim of ``_enrich`` and is NOT on the production gate path
+(gates use BM25 via ``scripts.rag.retrieval.bm25.retrieve_for_failure``).
 
 Design notes:
     * No network side effects at import time. The embedding model name is

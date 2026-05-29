@@ -26,7 +26,6 @@ import hashlib
 import json
 import time
 from pathlib import Path
-from typing import Any
 
 import pytest
 
@@ -494,60 +493,28 @@ class TestHybridRanker:
 
 
 # ===========================================================================
-# scripts.core.gate_rag_bridge
+# scripts.rag.query — empty-input contract (was: gate_rag_bridge markdown)
 # ===========================================================================
+# The former TestGateIntegration class tested format_for_gate_report markdown
+# rendering. That render surface had no production renderer and was deleted
+# (rag-path-truth-fixes Decision 3); the synth/off-modality/curated value was
+# promoted into scripts/rag/_enrich.py and wired into scripts/rag/query.py.
+# The ONLY surviving intent worth pinning is "empty / no-op input must not
+# invent fake PR- ids"; rag_query's empty-query contract is the offline-path
+# home for that guarantee.
+# (test_nonempty_input_produces_markdown_with_concern_ids is REMOVED with no
+#  replacement: it asserted markdown-render shape of deleted dead code; there
+#  is no offline renderer that produces a markdown string.)
 
-class TestGateIntegration:
-    """Markdown rendering hook for gate-failure reports."""
+class TestRagQueryEmptyInput:
+    """Empty-input contract on the promoted offline path."""
 
-    def test_empty_input_returns_valid_markdown(self) -> None:
-        """``format_for_gate_report([])`` must return a markdown string."""
-        mod = pytest.importorskip("scripts.core.gate_rag_bridge")
-        if not hasattr(mod, "format_for_gate_report"):
-            pytest.skip("format_for_gate_report not yet implemented")
-        md = mod.format_for_gate_report([])
-        assert isinstance(md, str)
-        # Empty input must not blow up and must not invent fake concerns.
-        assert "PR-" not in md
-
-    def test_nonempty_input_produces_markdown_with_concern_ids(self) -> None:
-        """Rendering a few concerns yields markdown that cites concern_ids."""
-        mod = pytest.importorskip("scripts.core.gate_rag_bridge")
-        if not hasattr(mod, "format_for_gate_report"):
-            pytest.skip("format_for_gate_report not yet implemented")
-        sample: list[dict[str, Any]] = [
-            {
-                "concern_id": "PR-001-C01",
-                "paper_id": "PR-001",
-                "paper_title": "Sample paper",
-                "severity": "HIGH",
-                "mlgg_gates": ["leakage_gate"],
-                "concern_text": "patient overlap across split",
-                "_final_score": 0.81,
-                "_dense_score": 0.78,
-                "_bm25_score": 0.62,
-                "_match_reasons": ["dense top-5", "gate match"],
-            },
-            {
-                "concern_id": "PR-002-C03",
-                "paper_id": "PR-002",
-                "paper_title": "Another paper",
-                "severity": "MEDIUM",
-                "mlgg_gates": ["evaluation_quality_gate"],
-                "concern_text": "no calibration reported",
-                "_final_score": 0.55,
-                "_dense_score": 0.52,
-                "_bm25_score": 0.40,
-                "_match_reasons": ["dense top-5"],
-            },
-        ]
-        md = mod.format_for_gate_report(sample)
-        assert isinstance(md, str)
-        assert md.strip(), "markdown output was empty for non-empty input"
-        for r in sample:
-            assert r["concern_id"] in md, (
-                f"concern_id {r['concern_id']} missing from rendered markdown"
-            )
+    def test_empty_query_returns_no_invented_ids(self) -> None:
+        """An empty / whitespace-only query returns [] — never a fabricated
+        concern. (Was: format_for_gate_report([]) must not contain 'PR-'.)"""
+        from scripts.rag.query import rag_query
+        assert rag_query("") == []
+        assert rag_query("   ") == []
 
 
 if __name__ == "__main__":

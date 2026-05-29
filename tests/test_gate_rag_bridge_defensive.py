@@ -1,77 +1,44 @@
-"""W7-P8 follow-up: focused unit tests for defensive branches in
-``scripts/core/gate_rag_bridge.py`` that were previously uncovered.
+"""W7-P8 follow-up: focused unit tests for defensive branches that were
+previously uncovered.
 
-These all target narrow malformed-input / fallback guards that the
-existing integration tests can't reach without contrived input:
+rag-path-truth-fixes update: the orphan value in
+``scripts/core/gate_rag_bridge.py`` was promoted into the torch-free
+``scripts/rag/_enrich.py`` (wired into the offline path
+``scripts/rag/query.py``), and the dead markdown-render surface was deleted.
+This file was repointed accordingly:
 
-* ``_is_weak_match``: non-numeric ``_final_score`` and string
-  ``_match_reasons`` coercion.
-* ``_is_low_confidence``: non-numeric ``_dense_score``.
-* ``_synthesize_query``: gate-name-only fallback when both failure
-  codes and query hint are empty.
-* ``_format_reasons``: scalar (non-list) input branch.
-* ``format_for_gate_report``: registry-lookup exception is swallowed
-  (renders default placeholder rather than crashing the report).
+Surviving (repointed to ``scripts.rag._enrich.synthesize_query``):
+* ``synthesize_query``: gate-name-only fallback when both failure codes
+  and query hint are empty; empty-everything returns ``""``.
+
+Removed (tested now-deleted dead render code, no offline equivalent):
+* ``_is_weak_match`` (non-numeric score / string-reason coercion),
+* ``_is_low_confidence`` (non-numeric dense score),
+* ``_format_reasons`` (scalar input branch),
+* ``format_for_gate_report`` registry-lookup exception swallow.
+These only produced per-row / per-block hedge lines for the deleted
+markdown renderer; with no offline consumer the malformed-input guards
+defend nothing, so there is no surviving intent to preserve.
 """
 from __future__ import annotations
 
-import pytest
 
-
-def test_is_weak_match_handles_non_numeric_score() -> None:
-    """A ``_final_score`` that won't coerce to float must NOT raise; the
-    guard treats it as 'cannot confirm weak' → returns False.
-    """
-    from scripts.core.gate_rag_bridge import _is_weak_match
-
-    concern = {
-        "concern_id": "PR-BAD-SCORE-C01",
-        "_final_score": "not-a-number",
-        "_match_reasons": ["severity_fallback"],
-    }
-    assert _is_weak_match(concern) is False
-
-
-def test_is_weak_match_coerces_string_reasons_to_list() -> None:
-    """When ``_match_reasons`` is a bare string (legacy gates), the
-    helper must coerce it to a one-element list and still classify by
-    fallback markers — not raise.
-    """
-    from scripts.core.gate_rag_bridge import _is_weak_match
-
-    concern = {
-        "concern_id": "PR-STR-REASONS-C01",
-        "_final_score": 0.01,  # below floor
-        "_match_reasons": "severity_fallback",  # string, not list
-    }
-    assert _is_weak_match(concern) is True
-
-
-def test_is_low_confidence_handles_non_numeric_dense_score() -> None:
-    """Non-numeric ``_dense_score`` must return ``(False, 0.0)`` rather
-    than raise — the bridge contract is 'can't signal off-scope
-    without a usable cosine'.
-    """
-    from scripts.core.gate_rag_bridge import _is_low_confidence
-
-    concern = {
-        "concern_id": "PR-BAD-DENSE-C01",
-        "_dense_score": "garbage",
-    }
-    flag, dense = _is_low_confidence(concern)
-    assert flag is False
-    assert dense == 0.0
+# REMOVED: test_is_weak_match_handles_non_numeric_score,
+# test_is_weak_match_coerces_string_reasons_to_list,
+# test_is_low_confidence_handles_non_numeric_dense_score.
+# _is_weak_match / _is_low_confidence only produced per-row hedge lines for
+# the deleted markdown renderer; no offline consumer, so the malformed-input
+# guards defend nothing. No surviving intent.
 
 
 def test_synthesize_query_falls_back_to_gate_name_when_empty() -> None:
-    """The contract in ``rag_context_for_failure`` allows a bare gate
-    filter with no codes and no hint. ``_synthesize_query`` must
-    return the (de-snake-cased) gate name so hybrid_rank doesn't get
-    an empty query.
+    """A bare gate filter with no codes and no hint must still yield a
+    non-empty query: ``synthesize_query`` returns the (de-snake-cased)
+    gate name so hybrid_rank doesn't get an empty query.
     """
-    from scripts.core.gate_rag_bridge import _synthesize_query
+    from scripts.rag._enrich import synthesize_query
 
-    out = _synthesize_query([], None, gate_name="leakage_gate")
+    out = synthesize_query([], None, gate_name="leakage_gate")
     assert out == "leakage gate"
 
 
@@ -80,49 +47,14 @@ def test_synthesize_query_returns_empty_when_no_gate_either() -> None:
     function returns ``""`` — callers must surface this as a no-op
     rather than embedding model gibberish.
     """
-    from scripts.core.gate_rag_bridge import _synthesize_query
+    from scripts.rag._enrich import synthesize_query
 
-    assert _synthesize_query([], None, gate_name=None) == ""
-    assert _synthesize_query([], "", gate_name="") == ""
-
-
-def test_format_reasons_handles_scalar_input() -> None:
-    """Non-list, non-tuple reasons (e.g. a stray string from a legacy
-    code path) must be stringified rather than joined — exercises the
-    fall-through branch.
-    """
-    from scripts.core.gate_rag_bridge import _format_reasons
-
-    assert _format_reasons("solo_reason") == "solo_reason"
-    assert _format_reasons(42) == "42"
-    assert _format_reasons(None) == "-"
-    assert _format_reasons([]) == "-"
+    assert synthesize_query([], None, gate_name=None) == ""
+    assert synthesize_query([], "", gate_name="") == ""
 
 
-def test_format_for_gate_report_survives_registry_lookup_exception(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """If ``_gate_registry.get_gate_spec`` raises (transient import
-    issue, registry corruption), the bridge must fall through to the
-    default 'no concerns' placeholder rather than propagate the
-    exception into report rendering.
-
-    Exercises the bare ``except Exception:`` swallow at lines 443-444.
-    """
-    import sys
-    import types
-
-    from scripts.core import gate_rag_bridge
-
-    # Inject a fake _gate_registry that raises on lookup.
-    fake_mod = types.ModuleType("scripts.core._gate_registry")
-
-    def _boom(_name: str):  # noqa: ANN202 — fixture
-        raise RuntimeError("simulated registry corruption")
-
-    fake_mod.get_gate_spec = _boom
-    monkeypatch.setitem(sys.modules, "scripts.core._gate_registry", fake_mod)
-
-    # Empty concerns + gate_name with a broken registry: must NOT raise.
-    md = gate_rag_bridge.format_for_gate_report([], gate_name="leakage_gate")
-    assert "No related peer-review concerns retrieved" in md
+# REMOVED: test_format_reasons_handles_scalar_input and
+# test_format_for_gate_report_survives_registry_lookup_exception.
+# _format_reasons and the rag_optional registry-guard lived entirely inside
+# the deleted format_for_gate_report renderer. The "honest silence for
+# rag_optional gates" intent is moot once nothing renders gate markdown.

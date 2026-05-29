@@ -12,17 +12,18 @@ For programmatic use::
     from scripts.rag import rag_query
     results = rag_query("missing calibration", gate="evaluation_quality_gate")
 
-For the gate-failure path use the bridge directly (it lives outside this
-package to keep the dependency direction one-way: gates know about RAG,
-RAG doesn't know about gates)::
+The offline paper-audit / eval path shapes ``rag_query``'s results with
+three torch-free enrichment helpers in ``scripts.rag._enrich``
+(``synthesize_query``, ``is_off_modality_query``, ``curated_precedent_for``).
+These were promoted (rag-path-truth-fixes) out of the now-dead
+``scripts.core.gate_rag_bridge`` orchestrator + markdown renderer; that
+module is a thin back-compat shim today. The 33-gate runtime does NOT use
+this package — it retrieves via the BM25-only
+``scripts.rag.retrieval.bm25.retrieve_for_failure`` from
+``scripts.core._gate_framework.build_report_envelope``.
 
-    from scripts.core.gate_rag_bridge import (
-        rag_context_for_failure,
-        format_for_gate_report,
-    )
-
-Re-exporting the bridge from here would create a circular import (the
-bridge imports `scripts.rag.retrieval.hybrid`, which would re-enter
+Re-exporting bridge symbols from here would create a circular import (the
+old bridge imported `scripts.rag.retrieval.hybrid`, which would re-enter
 this `__init__.py` mid-load).  Keep imports explicit.
 
 Internal modules:

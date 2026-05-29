@@ -290,6 +290,8 @@ SUPPORT2 9105 × 46). Grouped by theme.
   missingness_policy under `--strict`) with empty context arrays. Fix
   triggers retrieval for `failures or warnings`.
 - **KB `mlgg_gates` index rebuilt**. 276 of 375 concerns (73.6%) had
+  <!-- NOTE 2026-05-29: "375" was the KB size at this wave; the KB has since grown to 817 concerns / 335 papers (154 with concerns). Historical figures below are left intact. -->
+
   empty `mlgg_gates` arrays — `peer_review_lookup.py --gate` silently
   missed ~75% of the KB. Added `scripts/review/backfill_peer_review_gates.py`
   (idempotent, deterministic category+tags → gates rule table);
