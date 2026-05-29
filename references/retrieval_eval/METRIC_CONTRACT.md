@@ -11,7 +11,18 @@ The MLGG peer-review RAG is evaluated against two co-existing metrics that
 | Metric | Source | Best at | Production at α=0.45 |
 |---|---|---|---|
 | `mean_tag_precision` (proxy) | `baseline*.json` aggregate (uses `scenarios.json` `expected_tags`) | α ≈ 0.40–0.50 (BM25-leaning) | **0.438** |
-| `mean_labeled_P@5` (LLM-self-eval) | `labeled_precision_at_5.json` (36 W8-W2/W9-A2 queries, Opus 4.7 labels) | α ≈ 0.10–0.30 (dense-leaning) | **0.494** |
+| `mean_labeled_P@5` (LLM-self-eval, **OFFLINE rag_query path**) | `labeled_precision_at_5.json` (36 W8-W2/W9-A2 queries, Opus 4.7 labels) | α ≈ 0.10–0.30 (dense-leaning) | **0.494** |
+
+> **PATH WARNING (added 2026-05-29):** Both numbers above were measured on the
+> **OFFLINE `rag_query` hybrid path** (dense + BM25 + tag + severity + MMR,
+> *with* a hand-authored `query_text` per case) — the path
+> `scripts/review/llm_paper_audit.py` / `peer_review_lookup.py` use. They are
+> **NOT** the production **gate path**. A gate failure routes through
+> `scripts/core/_gate_framework.py` `build_report_envelope` →
+> `scripts.rag.retrieval.bm25.retrieve_for_failure` with **only** gate_name +
+> issue codes, `limit=5`, and **no `query_text`** (BM25-only, no dense, no MMR).
+> The gate-path P@5 is measured by **Track A**
+> (`scripts/rag/evals/gate_path_eval.py`) and is materially lower — see §5.
 
 (See `post_wave7_baseline_hybrid.json` for current production numbers, and
 `/tmp/audit_agent_G_hybrid_grid.md` for the W14 grid-search receipts.)
@@ -38,7 +49,8 @@ aggregated over `references/retrieval_eval/scenarios.json`.
 ### 2. Secondary metric: **`mean_labeled_P@5`**
 
 For periodic quality audits (≥ Wave-level, not per-commit), `mean_labeled_P@5`
-from `labeled_precision_at_5.json` is the secondary metric.
+from `labeled_precision_at_5.json` is the secondary metric. **It measures the
+OFFLINE `rag_query` hybrid path, NOT the gate path** (see Path Warning above).
 
 **Constraints on use**:
 - This file's labels are LLM self-eval (see `labeling_protocol.circularity_warning`
@@ -75,6 +87,33 @@ queries replaces the LLM-labeled set.
   this file's labels.
 - **No claim of "human-validated" / "gold-standard"** anywhere in code
   comments, docstrings, README, or external comms.
+
+### 5. Gate-path metric (Track A): **`mean_gate_path_p_at_5`**
+
+The §2 `mean_labeled_P@5` measures the OFFLINE `rag_query` path. The metric a
+gate-failure report (`peer_review_context`) actually delivers is measured by
+**Track A**: `scripts/rag/evals/gate_path_eval.py`. Track A drives the shipping
+retriever (`retrieve_for_failure`, gate_name + codes, no `query_text`, with the
+`_gate_framework` stage-2 severity_fallback retry) over the SAME 36 labeled
+cases (L01–L36) with the SAME relevance labels, and emits
+`references/retrieval_eval/gate_path_precision_at_5_v1.json`.
+
+Measured 2026-05-29 over L01–L36:
+
+| Path | Metric | Value |
+|---|---|---|
+| OFFLINE `rag_query` hybrid (with query_text) | recorded `mean_labeled_P@5` | **0.639** |
+| Production **gate** path (`retrieve_for_failure`, no query_text) | `mean_gate_path_p_at_5` | **0.272** |
+| | mean delta (gate − offline) | **−0.367** |
+
+11/36 cases land in `severity_fallback` on the gate path (the BM25 re-ranker
+found no keyword hit and returned severity-sorted concerns). Off-scope probes
+L19/L20 correctly stay at P@5 = 0 (any non-zero is a false-positive regression).
+The same circularity caveat (§4) applies: the **absolute** gate-path P@5 is an
+optimistic LLM-self-eval estimate; Track A's honest contribution is the
+gate-vs-offline **delta** on a fixed label set, not a publication-grade number.
+(NB: the prior 0.494 cell was the α=0.45 production-grid value; the 0.639 here
+is the as-labeled `labeled_precision_at_5.json` mean over L01–L36.)
 
 ## Open questions (decide before W15)
 
