@@ -16,7 +16,7 @@
   <a href="https://github.com/Furinaaa-Cancan/medical-ml-governance-guard"><img src="https://img.shields.io/badge/GitHub-Furinaaa--Cancan%2Fmedical--ml--governance--guard-181717?logo=github" alt="GitHub Repo"></a>
   <br>
   <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/"><img src="https://img.shields.io/badge/License-PolyForm%20NC%201.0.0-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/tests-4712%20passed-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-6426%20passed-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/gates-33%20fail--closed-critical" alt="Gates">
   <img src="https://img.shields.io/badge/datasets-16%20medical-purple" alt="Datasets">
   <img src="https://img.shields.io/badge/code-147K%20lines-informational" alt="Code">
