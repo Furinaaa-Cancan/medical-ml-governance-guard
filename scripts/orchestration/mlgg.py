@@ -520,27 +520,27 @@ def build_parser() -> argparse.ArgumentParser:
             "Available commands (grouped by Mode A vs B/C per SKILL.md Audit Routing):\n"
             f"{command_help}\n\n"
             "Examples:\n"
-            "  python3 scripts/mlgg.py onboarding --project-root /tmp/mlgg_demo --mode guided --yes\n"
-            "  python3 scripts/mlgg.py init --project-root /tmp/mlgg_demo\n"
-            "  python3 scripts/mlgg.py train --interactive\n"
-            "  python3 scripts/mlgg.py interactive --command workflow\n"
-            "  python3 scripts/mlgg.py interactive --command train --load-profile --profile-name demo --accept-defaults\n"
-            "  python3 scripts/mlgg.py interactive --command train -- --help\n"
-            "  python3 scripts/mlgg.py workflow --request /tmp/mlgg_demo/configs/request.json --strict --allow-missing-compare\n"
-            "  python3 scripts/mlgg.py workflow -- --help\n"
-            "  python3 scripts/mlgg.py authority --include-stress-cases\n"
-            "  python3 scripts/mlgg.py benchmark-suite --profile release\n"
-            "  python3 scripts/mlgg.py benchmark-suite --profile release --repeat 3 --emit-junit /tmp/mlgg_benchmark.junit.xml\n"
-            "  python3 scripts/mlgg.py authority-release\n"
-            "  python3 scripts/mlgg.py authority-research-heart --stress-seed-min 20250003 --stress-seed-max 20250060\n"
-            "  python3 scripts/mlgg.py play -- --strict-small-sample\n"
-            "  python3 scripts/mlgg.py play -- --strict-small-sample --fail-on-play-blockers\n"
+            "  python3 scripts/orchestration/mlgg.py onboarding --project-root /tmp/mlgg_demo --mode guided --yes\n"
+            "  python3 scripts/orchestration/mlgg.py init --project-root /tmp/mlgg_demo\n"
+            "  python3 scripts/orchestration/mlgg.py train --interactive\n"
+            "  python3 scripts/orchestration/mlgg.py interactive --command workflow\n"
+            "  python3 scripts/orchestration/mlgg.py interactive --command train --load-profile --profile-name demo --accept-defaults\n"
+            "  python3 scripts/orchestration/mlgg.py interactive --command train -- --help\n"
+            "  python3 scripts/orchestration/mlgg.py workflow --request /tmp/mlgg_demo/configs/request.json --strict --allow-missing-compare\n"
+            "  python3 scripts/orchestration/mlgg.py workflow -- --help\n"
+            "  python3 scripts/orchestration/mlgg.py authority --include-stress-cases\n"
+            "  python3 scripts/orchestration/mlgg.py benchmark-suite --profile release\n"
+            "  python3 scripts/orchestration/mlgg.py benchmark-suite --profile release --repeat 3 --emit-junit /tmp/mlgg_benchmark.junit.xml\n"
+            "  python3 scripts/orchestration/mlgg.py authority-release\n"
+            "  python3 scripts/orchestration/mlgg.py authority-research-heart --stress-seed-min 20250003 --stress-seed-max 20250060\n"
+            "  python3 scripts/orchestration/mlgg.py play -- --strict-small-sample\n"
+            "  python3 scripts/orchestration/mlgg.py play -- --strict-small-sample --fail-on-play-blockers\n"
             "\n"
             "Tip:\n"
             "  Use `<subcommand> --help` for direct script help (e.g., `mlgg.py onboarding --help`).\n"
             "  Use `-- --help` to view subcommand-native help.\n"
             "  For interactive mode, include `--command` before `-- --help`.\n"
-            "  Example: `python3 scripts/mlgg.py workflow -- --help`\n"
+            "  Example: `python3 scripts/orchestration/mlgg.py workflow -- --help`\n"
         ),
         formatter_class=argparse.RawTextHelpFormatter,
         allow_abbrev=False,
@@ -814,7 +814,7 @@ def cli_main() -> None:
 # are allowed. This gives users who only audit external code/paper a
 # focused entry point that doesn't surface 21 governance commands they
 # can't run without an instrumented training pipeline. ``mlgg`` keeps all
-# 28 commands → full back-compat for existing scripts and CI.
+# 30 commands → full back-compat for existing scripts and CI.
 
 _REVIEW_ALLOWED: frozenset[str] = frozenset(COMMAND_GROUPS["review"])
 

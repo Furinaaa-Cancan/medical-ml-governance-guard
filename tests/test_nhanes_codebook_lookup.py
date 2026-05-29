@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 import pytest
@@ -301,3 +300,43 @@ class TestSkipChain:
         """RIDAGEYR (demographics) should not be gated."""
         chain = codebook.resolve_gating_chain("RIDAGEYR")
         assert not chain["is_gated"]
+
+
+# ────────────────────────────────────────────────────────
+# Cycle → table-suffix matching (pure string logic, no TSV needed)
+# ────────────────────────────────────────────────────────
+
+class TestCycleMatching:
+    """_match_cycle suffix resolution and unknown-cycle warning."""
+
+    def _cb(self, cycle):
+        from nhanes_codebook_lookup import NHANESCodebook
+        return NHANESCodebook(str(CODEBOOK_DIR), cycle=cycle)
+
+    def test_2021_2022_maps_to_L(self):
+        cb = self._cb("2021-2022")
+        assert cb._match_cycle("DIQ_L")
+        assert not cb._match_cycle("DIQ_J")
+
+    def test_2021_2023_maps_to_L(self):
+        cb = self._cb("2021-2023")
+        assert cb._match_cycle("BPQ_L")
+        assert not cb._match_cycle("BPQ_J")
+
+    def test_known_2017_2018_still_J(self):
+        cb = self._cb("2017-2018")
+        assert cb._match_cycle("DIQ_J")
+        assert not cb._match_cycle("DIQ_L")
+
+    def test_2019_2020_prefix(self):
+        cb = self._cb("2019-2020")
+        assert cb._match_cycle("P_DIQ")
+        assert not cb._match_cycle("DIQ_J")
+
+    def test_unknown_cycle_warns(self):
+        """An unrecognized cycle must warn, not silently default to _J."""
+        cb = self._cb("2099-2100")
+        with pytest.warns(UserWarning, match="Unrecognized NHANES cycle"):
+            result = cb._match_cycle("DIQ_J")
+        # Documented fallback behavior is still _J, but the user is warned.
+        assert result is True

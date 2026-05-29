@@ -2,7 +2,8 @@
 """
 NHANES Codebook RAG — Retrieval-Augmented variable validation.
 
-Loads Harvard CCB-HMS NHANES metadata (58K+ variables, 200K+ codebook entries)
+Loads Harvard CCB-HMS NHANES metadata (shipped TSV holds 15,703 distinct
+variables; ~3,964 are loaded per cycle after filtering by table suffix)
 and provides lookup/validation for any NHANES variable by code or friendly name.
 
 Usage as library:
@@ -32,6 +33,8 @@ from typing import Any, Dict, List, Optional, Set
 
 # ── Cycle → table suffix mapping ─────────────────────────
 _CYCLE_SUFFIX = {
+    "2021-2022": "_L",
+    "2021-2023": "_L",
     "2017-2018": "_J",
     "2019-2020": "P_",  # P_ prefix, not suffix
     "2015-2016": "_I",
@@ -73,7 +76,21 @@ class NHANESCodebook:
 
     def _match_cycle(self, table: str) -> bool:
         """Check if a table name belongs to the configured cycle."""
-        suffix = _CYCLE_SUFFIX.get(self.cycle, "_J")
+        suffix = _CYCLE_SUFFIX.get(self.cycle)
+        if suffix is None:
+            # Unknown cycle: warn rather than silently defaulting to _J,
+            # which would mis-load 2017-2018 tables under any unrecognized cycle.
+            if not getattr(self, "_unknown_cycle_warned", False):
+                import warnings
+                warnings.warn(
+                    f"Unrecognized NHANES cycle {self.cycle!r}; known cycles: "
+                    f"{sorted(_CYCLE_SUFFIX)}. Falling back to '_J' (2017-2018) "
+                    f"suffix matching — results may be wrong.",
+                    UserWarning,
+                    stacklevel=2,
+                )
+                self._unknown_cycle_warned = True
+            suffix = "_J"
         if self.cycle == "2019-2020":
             return table.startswith("P_")
         return table.endswith(suffix)
@@ -940,6 +957,12 @@ def get_codebook(
     Returns NHANESCodebook for NHANES (with full BM25 + skip-chain),
     UKBCodebook for UK Biobank (with instance-MNAR + temporal leakage),
     RegistryCodebook for BRFSS/MIMIC/others (registry-only validation).
+
+    .. deprecated::
+        This factory is a dead duplicate with zero callers; the gate uses
+        ``codebook_factory.get_codebook`` instead. Retained only to avoid a
+        breaking removal in this batch — do not add new callers. Prefer
+        ``codebook_factory.get_codebook``.
     """
     _DS_KEY_MAP = {
         "nhanes": "nhanes_2017_2020",

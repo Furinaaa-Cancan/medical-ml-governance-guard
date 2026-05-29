@@ -1,7 +1,10 @@
 """P0-3b migration: backfill mlgg_gates for concerns with empty arrays.
 
-Problem: 272 of 375 concerns in peer-review-kb.json have empty mlgg_gates,
-so peer_review_lookup.py --gate <name> silently misses ~72% of the KB.
+Historical context (2026-04): at the time this migration was written, 272 of
+375 concerns in peer-review-kb.json had empty mlgg_gates (~72%), so
+peer_review_lookup.py --gate <name> silently missed most of the KB. The live KB
+has since been re-derived (817 concerns, 0 empty); this script remains as an
+idempotent re-mapping tool and is a no-op when all concerns are already mapped.
 See references/case-studies/peer-review-kb-audit-2026-04.md.
 
 Approach: deterministic rule table (category + tags → gates). No LLM in the loop.
@@ -17,7 +20,22 @@ from __future__ import annotations
 import argparse
 import json
 from collections import Counter
+from datetime import date
 from pathlib import Path
+
+
+def _version_tuple(v: str) -> tuple[int, ...]:
+    """Parse a 'peer_review_kb.vMAJOR.MINOR' or 'vMAJOR.MINOR' string into a
+    comparable integer tuple. Unparseable parts sort as 0 so a malformed live
+    version never silently outranks a valid one."""
+    tail = v.rsplit(".v", 1)[-1] if ".v" in v else v.lstrip("v")
+    parts: list[int] = []
+    for p in tail.split("."):
+        try:
+            parts.append(int(p))
+        except ValueError:
+            parts.append(0)
+    return tuple(parts)
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 KB_PATH = ROOT / "references" / "case-studies" / "peer-review-kb.json"
@@ -610,12 +628,19 @@ def main() -> None:
         return
 
     # Bump contract version + add change log entry — only once per distinct migration.
-    kb["contract_version"] = "peer_review_kb.v1.2"
+    # This is the v1.2 migration, but the live KB has since advanced (e.g. v1.4).
+    # Only bump forward: if the existing version is already >= our value, preserve
+    # it so a re-run never DOWNGRADES the contract version.
+    MIGRATION_VERSION = "peer_review_kb.v1.2"
+    existing_version = kb.get("contract_version", "")
+    if _version_tuple(existing_version) < _version_tuple(MIGRATION_VERSION):
+        kb["contract_version"] = MIGRATION_VERSION
+    # else: preserve the higher live version untouched.
     change_log = kb.setdefault("change_log", [])
     _mode = "force-re-derived" if args.force else "backfilled empty arrays"
     new_entry = {
         "version": "v1.2",
-        "date": "2026-04-17",
+        "date": date.today().isoformat(),
         "change": (
             f"P0-3b: {_mode} mlgg_gates using deterministic category+tags rule table "
             f"(scripts/review/backfill_peer_review_gates.py). "

@@ -3,15 +3,15 @@
 ML Governance Guard — legacy local Web UI wizard.
 
 This Flask app is kept as a repository-local browser prototype. The supported
-interactive surface is `python3 scripts/mlgg.py play`; this web wizard is not
-exposed as an installed console script until it is refreshed to match the
-current guided flow.
+interactive surface is `python3 scripts/orchestration/mlgg.py play`; this web
+wizard is not exposed as an installed console script until it is refreshed to
+match the current guided flow.
 
 Binds to 127.0.0.1:8501 (localhost only, never exposed externally).
 
 Usage:
     python3 -m pip install ".[web]"
-    python3 scripts/mlgg_web.py
+    python3 scripts/diagnostics/mlgg_web.py
 """
 
 from __future__ import annotations
