@@ -1,6 +1,6 @@
 # mlgg-lint
 
-Static analysis tool for ML Python code — detects data leakage, improper preprocessing, and evaluation malpractice. 28 AST-level rules (R001-R028, including R028 omics-modality guard).
+Static analysis tool for ML Python code — detects data leakage, improper preprocessing, and evaluation malpractice. 30 AST-level rules (R001-R030, including R028 omics-modality guard and R029 embedded-credentials check). R030 is **internal-only**: it self-audits MLGG's own gate code (fires only on `scripts/gates/` paths) and is structurally inert on external/user-supplied code.
 
 Part of [ML Governance Guard](https://github.com/Furinaaa-Cancan/medical-ml-governance-guard). This is an **independent sub-package** within the monorepo — it has its own `pyproject.toml` and can be installed separately. `pip install .` from the project root installs the main MLGG framework but does NOT include mlgg-lint; install it explicitly if needed.
 
@@ -79,6 +79,8 @@ cd plugin && PYTHONPATH=. python3 -m mlgg_lint check <file.py>
 | R026 | ERROR | fillna-before-split | `fillna()` with data-dependent statistics before split |
 | R027 | ERROR | manual-scaling-before-split | Manual scaling/normalization on full data before split |
 | R028 | ERROR | omics-feature-prefix | Feature list dominated by omics-pattern names (`gene_/probe_/snp_/cpg_/rs#/ENSG`) — out of MLGG scope |
+| R029 | ERROR | credentials-in-code-availability | Embedded credentials (`scheme://user:pass@host` or username/password pairs) in code, docstrings, or availability text |
+| R030 | ERROR | nan-bypass-in-verdict | **Internal-only.** Bare `float(...)` in a gate-verdict comparison (NaN bypass via `float(nan) > x == False`). Fires only on `scripts/gates/` paths; inert on external code |
 
 ### Coverage by category
 
@@ -92,6 +94,8 @@ cd plugin && PYTHONPATH=. python3 -m mlgg_lint check <file.py>
 | **Reproducibility** | R016 no-random-state | INFO |
 | **Statistical rigor** | R009 no-CI, R019 multiple-comparison | INFO |
 | **Modality guard** | R028 omics-feature-prefix | ERROR |
+| **Disclosure security** | R029 credentials-in-code-availability | ERROR |
+| **Internal self-audit** | R030 nan-bypass-in-verdict (`scripts/gates/` only) | ERROR |
 
 ### Detection capabilities
 
@@ -163,7 +167,7 @@ See `vscode/` directory. The extension:
 
 ## Known Limitations
 
-- **R001 scope**: R001 (fit-before-split) only scans module-level code. Leakage inside function or class bodies is not flagged — the tool cannot determine whether a function is called before or after splitting. All other rules (R002-R028) work inside functions.
+- **R001 scope**: R001 (fit-before-split) only scans module-level code. Leakage inside function or class bodies is not flagged — the tool cannot determine whether a function is called before or after splitting. All other rules (R002-R030) work inside functions.
 - **Single-file analysis**: Each file is analyzed independently. Cross-file leakage (e.g., `helper.py` fits a scaler, `main.py` splits) is not detected. This is consistent with flake8/ruff.
 - **Jupyter notebooks**: Cells are concatenated and analyzed as a single script. Cross-cell leakage is detected correctly.
 
@@ -187,5 +191,5 @@ mlgg_lint/
 ├── formatters.py   # text/JSON/SARIF output
 └── rules/
     ├── base.py     # BaseRule (ast.NodeVisitor subclass)
-    └── r001–r020   # One file per rule, auto-discovered
+    └── r001–r030   # One file per rule, auto-discovered
 ```
