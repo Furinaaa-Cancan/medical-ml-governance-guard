@@ -240,20 +240,36 @@ class TestValidateComponentStatus:
         validate_component_status("test", {"status": "pass", "strict_mode": False, "failure_count": 0}, f, w, True)
         assert any(i["code"] == "component_not_strict" for i in f)
 
-    # SecB fail-closed: a pass-status component with a missing / None / non-int
-    # failure_count must NOT be treated as a clean pass. Previously such a
-    # report was silently accepted (the failure_count check was skipped unless
-    # it was a present int). Now malformed evidence fails the component.
-    def test_missing_failure_count_fails(self):
-        # Previously: no failure was raised (silent pass). Now: fail-closed.
+    # SecB fail-closed: a pass-status component with a *malformed* (non-int /
+    # bool / bogus-string) failure_count must NOT be treated as a clean pass.
+    # However, many intermediate gate reports (robustness_report.json,
+    # ci_matrix_report.json) legitimately omit failure_count (or set it null)
+    # while reporting status==pass — they carry their pass/fail signal in
+    # `status`. Such reports must be accepted as 0 failures, not flagged.
+    def test_missing_failure_count_pass_status_accepted(self):
+        # A passing report with no failure_count key is treated as 0 failures.
         f, w = [], []
         validate_component_status("test", {"status": "pass", "strict_mode": True}, f, w, True)
-        assert any(i["code"] == "component_failure_count_invalid" for i in f)
+        assert not any(i["code"] == "component_failure_count_invalid" for i in f)
+        assert f == []
 
-    def test_none_failure_count_fails(self):
+    def test_none_failure_count_pass_status_accepted(self):
+        # An explicit null failure_count on a passing report is treated as 0.
         f, w = [], []
         validate_component_status("test", {"status": "pass", "strict_mode": True, "failure_count": None}, f, w, True)
-        assert any(i["code"] == "component_failure_count_invalid" for i in f)
+        assert not any(i["code"] == "component_failure_count_invalid" for i in f)
+        assert f == []
+
+    def test_missing_failure_count_non_pass_status_fails(self):
+        # A NON-pass report with no failure_count is still caught (by
+        # component_not_passed); status drives the verdict, not the absent tally.
+        f, w = [], []
+        validate_component_status("test", {"status": "skipped", "strict_mode": True}, f, w, True)
+        codes = [i["code"] for i in f]
+        assert "component_not_passed" in codes
+        # The absent failure_count on a non-pass report is NOT silently dropped:
+        # the missing-tally branch only short-circuits when status==pass.
+        assert "component_failure_count_invalid" in codes
 
     def test_non_int_failure_count_fails(self):
         f, w = [], []

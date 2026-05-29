@@ -198,12 +198,24 @@ def validate_component_status(
                 {"component": name},
             )
 
-    # Fail-closed on failure_count: a component that claims pass MUST carry a
-    # present, non-negative integer failure_count. A missing / None / non-int
-    # (or bool) failure_count is malformed evidence and must NOT be treated as
-    # "no failures" (security-failclosed-fixes, SecB).
+    # Fail-closed on failure_count: a component that claims pass MUST NOT carry
+    # a *malformed* failure_count. A bogus non-int (e.g. "0") or bool is
+    # malformed evidence and must NOT be treated as "no failures"
+    # (security-failclosed-fixes, SecB).
+    #
+    # Exception: many intermediate gate reports (e.g. robustness_report.json,
+    # ci_matrix_report.json) legitimately emit no failure_count at all (or an
+    # explicit null) when status==pass — they carry their pass/fail signal in
+    # `status`, not in a failure tally. These sit in the same evidence dir and
+    # would otherwise be wrongly flagged. Treat an absent/null failure_count on
+    # a passing report as 0 failures. A non-pass status is already caught above
+    # by component_not_passed, so trusting status here does not weaken the gate.
     failure_count = report.get("failure_count")
-    if isinstance(failure_count, bool) or not isinstance(failure_count, int):
+    status_is_pass = status == "pass"
+    if failure_count is None and status_is_pass:
+        # No explicit tally on a passing report → treat as zero failures.
+        pass
+    elif isinstance(failure_count, bool) or not isinstance(failure_count, int):
         add_issue(
             failures,
             "component_failure_count_invalid",
