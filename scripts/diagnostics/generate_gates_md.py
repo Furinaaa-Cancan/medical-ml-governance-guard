@@ -314,7 +314,7 @@ dynamically-constructed code.
 `publication_gate` and `security_audit_gate` consume the upstream JSON
 envelopes via the per-gate `aggregation_flag` declared in the registry
 (e.g. `--leakage-report`, `--clinical-metrics-report`). The full mapping is
-generated automatically by `scripts/orchestrator/run_dag.py` from
+generated automatically by `scripts/orchestration/run_dag_pipeline.py` from
 `GATE_REGISTRY`, so adding a new gate only requires:
 
 1. `_register(GateSpec(...))` in `_gate_registry.py`.
@@ -362,11 +362,12 @@ python -m scripts.gates.leakage_gate \\
     --report out/leakage_report.json --strict
 
 # Full pipeline via the DAG orchestrator (resolves dependencies, parallelizes):
-python -m scripts.orchestrator.run_dag --request request.json --out-dir out/
+python -m scripts.orchestration.run_dag_pipeline --request request.json \\
+    --report out/pipeline_report.json
 
-# Re-run a single gate plus its transitive dependencies:
-python -m scripts.orchestrator.run_dag --request request.json --out-dir out/ \\
-    --only calibration_dca_gate
+# Re-run a single gate: invoke its standalone CLI directly (each gate is a
+# standalone fail-closed CLI; see the one-off example above).
+python -m scripts.gates.calibration_dca_gate --report out/calibration_dca_report.json --strict
 ```
 
 Exit codes propagate; CI wraps the orchestrator and treats any `2` as a

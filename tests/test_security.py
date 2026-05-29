@@ -3,11 +3,8 @@
 from __future__ import annotations
 
 import hashlib
-import hmac
 import json
-import os
 import sys
-import tempfile
 from pathlib import Path
 from typing import Any, Dict
 from unittest import mock
@@ -195,6 +192,20 @@ class TestHMACSigning:
         result = verify_model_artifact(model, key=key)
         assert result["verified"] is False
         assert result["reason"] == "file_size_mismatch"
+
+    def test_verify_malformed_signature_field(self, tmp_path: Path) -> None:
+        # A non-hex / odd-length signature field must not crash the gate
+        # (fail-open-by-crash); it should report a clean verification failure.
+        model = _make_model_file(tmp_path)
+        key = b"test-key-32bytes" * 2
+        sign_model_artifact(model, key=key)
+        sig_path = model.with_suffix(".pkl.sig")
+        sig_data = json.loads(sig_path.read_text())
+        sig_data["signature"] = "zz-not-hex"
+        _write_json(sig_path, sig_data)
+        result = verify_model_artifact(model, key=key)
+        assert result["verified"] is False
+        assert result["reason"] == "signature_field_malformed"
 
     def test_compute_hmac_deterministic(self) -> None:
         key = b"deterministic-key"

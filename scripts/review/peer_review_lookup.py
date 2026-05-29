@@ -1,12 +1,12 @@
 """CLI for querying the Peer Review Knowledge Base.
 
 Usage:
-    python3 scripts/peer_review_lookup.py --dimension 5 --severity HIGH
-    python3 scripts/peer_review_lookup.py --gate leakage_gate
-    python3 scripts/peer_review_lookup.py --tags "missing_calibration,no_dca"
-    python3 scripts/peer_review_lookup.py --category evaluation_metrics --limit 3
-    python3 scripts/peer_review_lookup.py --domain oncology
-    python3 scripts/peer_review_lookup.py --stats
+    python3 scripts/review/peer_review_lookup.py --dimension 5 --severity HIGH
+    python3 scripts/review/peer_review_lookup.py --gate leakage_gate
+    python3 scripts/review/peer_review_lookup.py --tags "missing_calibration,no_dca"
+    python3 scripts/review/peer_review_lookup.py --category evaluation_metrics --limit 3
+    python3 scripts/review/peer_review_lookup.py --domain oncology
+    python3 scripts/review/peer_review_lookup.py --stats
 """
 
 import argparse

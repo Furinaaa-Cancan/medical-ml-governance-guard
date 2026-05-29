@@ -20,8 +20,8 @@ MLGG 对外暴露 3 条稳定入口，其他所有功能都是它们的子命令
 | 入口 | 面向 | 场景 |
 |---|---|---|
 | **`/mlgg`** | 人类用户（Claude Code 内） | 建模 / 训练 / "我有数据" —— 自动观察数据、推断参数、走 Pipeline 模式 6 步（仅 CSV）或 Research 模式 9 阶段（含用户代码） |
-| **`mlgg <subcommand>`** | 终端 / 脚本自动化 | 29 个子命令（见 Quick Dispatch 分组表），包含 play / workflow / onboarding / audit / doctor / lint / llm-audit 等 |
-| **`mlgg-lint`** | CI / pre-commit | 独立 pip 包，28 条 AST 规则（R001-R028，含 R028 omics 模态守卫），零依赖，5 秒扫完单文件 |
+| **`mlgg <subcommand>`** | 终端 / 脚本自动化 | 30 个子命令（见 Quick Dispatch 分组表），包含 play / workflow / onboarding / audit / doctor / lint / llm-audit 等 |
+| **`mlgg-lint`** | CI / pre-commit | 独立 pip 包，30 条 AST 规则（R001-R030，含 R028 omics 模态守卫），零依赖，5 秒扫完单文件 |
 
 ### 怎么选？`workflow` vs `audit`
 
@@ -45,7 +45,7 @@ MLGG 对外暴露 3 条稳定入口，其他所有功能都是它们的子命令
 
 ## Quick Dispatch
 
-Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部 29 子命令的分组索引（按 W28-S0 `COMMAND_GROUPS` 与 Audit Routing Mode A/B/C 对齐；`mlgg --help` 显示同一分组的全表）。
+Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部 30 子命令的分组索引（按 W28-S0 `COMMAND_GROUPS` 与 Audit Routing Mode A/B/C 对齐；`mlgg --help` 显示同一分组的全表）。
 
 ### `[governance]` — Mode A（你自己的训练流水）
 
@@ -126,7 +126,7 @@ Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部
 | `interactive` | 向导式 init/workflow/train/authority |
 | `play` | Pixel-art 菜单式启动器 |
 | `validate` | Config schema 校验（`configs/*.yaml` / `request.json`），CI 前快检（dispatcher-only，不在 COMMANDS 表） |
-| `flow` | 显示 29 子命令的推荐执行顺序（dispatcher-only） |
+| `flow` | 显示 30 子命令的推荐执行顺序（dispatcher-only） |
 
 ---
 
@@ -154,7 +154,7 @@ Agent 审查代码时，查阅 `references/case-studies/peer-review-kb.json`（3
 
 **强弱覆盖、KB 结构、检索策略详见** `references/case-studies/peer-review-kb-audit-2026-04.md`。要点:
 - Gate 失败 = evaluation / reporting / external validation → KB 是有力背书
-- Gate 失败 = leakage → 优先 `leakage_gate` + lint R001-R028,KB 仅辅助(prepub filter 后 KB 中 leakage 案例稀少)
+- Gate 失败 = leakage → 优先 `leakage_gate` + lint R001-R030,KB 仅辅助(prepub filter 后 KB 中 leakage 案例稀少)
 - **不要**用 "KB 里没提过" 反推 leakage 不存在
 
 **引用格式**: `[PEER-REVIEW] PR-XXX-CYY (Nature Communications, 20XX) 审稿人: "..." 修复: "..."`

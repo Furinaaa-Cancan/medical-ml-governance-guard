@@ -22,14 +22,21 @@ Per-run aggregation:
   6. Macro-average via X5.
   7. Emit JSON sidecar + Markdown report.
 
-Stub-fallback contract
-----------------------
-Sibling modules may not be committed yet (wave-22 parallelism). Every
-sibling import is guarded by ``try/except ImportError`` and falls back
-to a deterministic stub. ``_STUBBED`` records the stub names and is
-surfaced in JSON output so a CI run that accidentally exercises a stub
-is loudly visible (the stubs are NOT silent no-ops). When the real
-sibling lands, the ``except`` branch becomes dead code at import time.
+Stub-fallback contract (VESTIGIAL — stub branches are now unreachable)
+----------------------------------------------------------------------
+Historical note: this dates from wave-22 parallelism, when sibling
+modules may not have been committed yet. Every sibling import is
+guarded by ``try/except ImportError`` with a deterministic stub
+fallback. ``_STUBBED`` records the stub names and is surfaced in JSON
+output so a CI run that accidentally exercised a stub would be loudly
+visible (the stubs are NOT silent no-ops).
+
+As of W23+, ALL sibling modules (ncpr_matcher, ncpr_severity_score,
+ncpr_category_coverage, ncpr_paper_runner, ncpr_aggregator) are
+committed and import cleanly, so every ``except ImportError`` branch
+below is dead code at import time. The stub definitions are retained
+(not deleted) as a safety net / documentation of each sibling's
+minimal contract; ``_STUBBED`` should stay empty in practice.
 
 CLI
 ---
@@ -57,11 +64,15 @@ if str(REPO_ROOT) not in sys.path:
 DEFAULT_KB = REPO_ROOT / "references" / "case-studies" / "peer-review-kb.json"
 DEFAULT_HOLDOUT = REPO_ROOT / "references" / "benchmark" / "ncpr_v1_holdout.json"
 
-# ── Sibling-module imports with stub fallbacks ───────────────────────────────
+# ── Sibling-module imports with (vestigial) stub fallbacks ───────────────────
 #
-# Each ``try / except ImportError`` either binds the real sibling
-# implementation or a documented stub. ``_STUBBED`` accumulates the
-# stub names so the JSON report can flag any run that exercises one.
+# Each ``try / except ImportError`` binds the real sibling implementation.
+# All five siblings are committed and import cleanly as of W23+, so the
+# ``except`` branches below are dead code at import time and the stub
+# definitions are unreachable. They are retained, not deleted, as a
+# documented minimal contract per sibling. ``_STUBBED`` accumulates any
+# stub names actually bound (expected to stay empty); the JSON report
+# surfaces it so a regressed import would still be loudly flagged.
 
 _STUBBED: list[str] = []
 
@@ -512,6 +523,16 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
+
+    # Graceful guard (mirror gate_path_eval.py:379-381): the default holdout
+    # references/benchmark/ncpr_v1_holdout.json is not committed yet, so both
+    # the quickstart and the --max-papers 0 smoke would otherwise crash with an
+    # uncaught FileNotFoundError before max_papers is even read. Exit 2 with a
+    # clear message instead.
+    holdout_path = Path(args.holdout).expanduser().resolve()
+    if not holdout_path.exists():
+        print(f"ERROR: holdout set not found: {holdout_path}", file=sys.stderr)
+        return 2
 
     result = run_benchmark(
         holdout_path=args.holdout,

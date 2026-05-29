@@ -3,14 +3,15 @@
 [INTERNAL — TEST] MLGG 6-Hour Endurance Test — Full-spectrum validation across all datasets,
 model families, seeds, and gate configurations.
 
-Phases:
-  Phase 1 (~30 min)  — Unit test suite + plugin lint tests
-  Phase 2 (~60 min)  — All 4 datasets × default model pools × single seed
-  Phase 3 (~120 min) — Multi-seed stability: 3 datasets × 10 seeds each
-  Phase 4 (~90 min)  — Extended model pool: heart + diabetes × 12 families × 4 trials
-  Phase 5 (~30 min)  — Cross-calibration sweep: 3 calibration methods × 3 threshold strategies
+Phases (descriptions reflect what the code below ACTUALLY runs, not an
+aspirational matrix — see the per-phase functions for exact step lists):
+  Phase 1 (~30 min)  — Full gate unit-test suite (tests/) + plugin lint tests (plugin/tests/)
+  Phase 2 (~60 min)  — Baseline E2E across the 4 core datasets (default + CKD + diabetes + stress heart)
+  Phase 3 (~120 min) — Reproducibility: stress seed-search on heart + 5 repeated default E2E runs
+  Phase 4 (~90 min)  — Stress E2E (expanded model pool) on each of the 4 core datasets
+  Phase 5 (~30 min)  — Stress profile sweep (strict_v1) on heart + breast
   Phase 6 (~30 min)  — Adversarial edge cases + boundary condition gates
-  Phase 7 (~20 min)  — Full strict pipeline on best-seed configs (33 gates)
+  Phase 7 (~20 min)  — Full strict 33-gate pipeline (default + stress heart + CKD)
 
 Progress is saved after EVERY step to:
   experiments/authority-e2e/endurance_progress.json
@@ -47,29 +48,39 @@ DEFAULT_REPORT = EXPERIMENTS_DIR / "endurance_report.json"
 PYTHON = sys.executable
 
 # ── Phase configuration ──────────────────────────────────────────────────────
+#
+# DEAD CONSTANTS (intentionally retained, do not rely on them):
+# The five constants below — SEEDS_MULTI, DATASETS, EXTENDED_MODELS,
+# CALIBRATION_METHODS, THRESHOLD_STRATEGIES — are NOT consumed by any phase.
+# Each phase hardcodes its own dataset list, seed/run count, model pool and
+# profile set inline (see phase_3_multi_seed, phase_4_extended_models,
+# phase_5_calibration_sweep). DEFAULT_MODELS only feeds the otherwise-unused
+# EXTENDED_MODELS, so it is dead too. They are kept (not deleted) to document
+# the originally-intended sweep matrix and to avoid breaking any external
+# importer; update the phase functions, not these, to change behavior.
 
-SEEDS_MULTI = [42, 123, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768]
+SEEDS_MULTI = [42, 123, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768]  # UNUSED
 
-DATASETS = [
+DATASETS = [  # UNUSED — phases hardcode their own dataset lists
     "uci-heart-disease",
     "uci-breast-cancer-wdbc",
     "uci-chronic-kidney-disease",
     "uci-diabetes-130-readmission",
 ]
 
-DEFAULT_MODELS = [
+DEFAULT_MODELS = [  # UNUSED — only feeds the (also unused) EXTENDED_MODELS below
     "logistic_l1", "logistic_l2", "logistic_elasticnet",
     "random_forest_balanced", "extra_trees_balanced",
     "hist_gradient_boosting_l2",
 ]
 
-EXTENDED_MODELS = DEFAULT_MODELS + [
+EXTENDED_MODELS = DEFAULT_MODELS + [  # UNUSED — stress pool is set by run_authority_e2e.py
     "adaboost", "xgboost", "svm_linear", "knn",
     "gaussian_nb", "decision_tree",
 ]
 
-CALIBRATION_METHODS = ["platt", "isotonic", "power"]
-THRESHOLD_STRATEGIES = ["valid", "cv_inner"]
+CALIBRATION_METHODS = ["platt", "isotonic", "power"]  # UNUSED
+THRESHOLD_STRATEGIES = ["valid", "cv_inner"]  # UNUSED
 
 
 def _now_iso() -> str:
@@ -277,12 +288,12 @@ def phase_1_unit_tests(pm: ProgressManager) -> None:
     pm.start_phase(phase_id, "Unit tests + plugin lint tests", 3)
 
     run_step(pm, phase_id, "p1_pytest_gates",
-             "Run all gate unit tests (3384+ tests)",
+             "Run all gate unit tests (tests/)",
              [PYTHON, "-m", "pytest", "tests/", "-q", "--tb=short", "-x"],
              timeout=3600)
 
     run_step(pm, phase_id, "p1_pytest_plugin",
-             "Run plugin lint tests (101 tests)",
+             "Run plugin lint tests (plugin/tests/)",
              [PYTHON, "-m", "pytest", "plugin/tests/", "-q", "--tb=short"],
              timeout=120, cwd=REPO_ROOT)
 
@@ -642,12 +653,12 @@ def phase_7_strict_pipeline(pm: ProgressManager) -> None:
 
 ALL_PHASES = {
     "1": ("Unit tests + plugin", phase_1_unit_tests),
-    "2": ("Baseline E2E (4 datasets)", phase_2_baseline_e2e),
-    "3": ("Multi-seed stability (3×10)", phase_3_multi_seed),
-    "4": ("Extended models (2×12)", phase_4_extended_models),
-    "5": ("Calibration sweep (3×3)", phase_5_calibration_sweep),
+    "2": ("Baseline E2E (4 core datasets)", phase_2_baseline_e2e),
+    "3": ("Reproducibility (seed search + 5 repeat runs)", phase_3_multi_seed),
+    "4": ("Stress model pool (4 datasets)", phase_4_extended_models),
+    "5": ("Stress profile sweep (heart + breast)", phase_5_calibration_sweep),
     "6": ("Adversarial edge cases", phase_6_adversarial),
-    "7": ("Strict pipeline (2 datasets)", phase_7_strict_pipeline),
+    "7": ("Strict 33-gate pipeline (default + stress + CKD)", phase_7_strict_pipeline),
 }
 
 

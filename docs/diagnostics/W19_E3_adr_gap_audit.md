@@ -31,7 +31,7 @@ For each I checked whether the rationale is already captured *somewhere durable*
 | C7 | `--strict` tier semantics (when required, what it adds) | scattered across gates + `SKILL.md`; ADR 0003 mentions but doesn't define | YES — "publication-grade" claims hinge on it |
 | C8 | Percentile bootstrap (not BCa) for CI matrix | `ci_matrix_gate.py:244-274` inline comment; `W16_B5` notes "documented design choice" | MEDIUM — already commented in code, but ADR would let reviewers find it |
 | C9 | MLGG Python gates vs Claude Skill prompts split | `SKILL.md` long-form; `CLAUDE.md` modality boundary | YES — defines product surface; currently only Chinese long-form prose |
-| C10 | BGE-large-en-v1.5 model choice + query/passage prefix | `ARCHITECTURE.md` mentions; no rationale for *this* model vs alternatives | LOW — choice is conventional; low controversy |
+| C10 | `bge-small-en-v1.5` model choice + query/passage prefix | no rationale for *this* model vs alternatives | LOW — choice is conventional; low controversy |
 | C11 | `MMR_COSINE_FLOOR = 0.88` | `ARCHITECTURE.md` line 58; `RAG_WAVE_1_TO_8_RETRO` W8 | LOW — one-line tuning, already in ARCHITECTURE |
 | C12 | Cache invariant ("hash written after data" crash-safety) | `E4_cache_perf.md`; `W18_D5_cache_invalidation_audit` | LOW — diagnostic already authoritative |
 

@@ -32,11 +32,14 @@ Adaptive behaviour (5-agent ranker eval, 2026-05-16):
 
     * **Free-text re-normalization** — when BM25 does not fire (no
       ``gate`` + ``failure_codes``), the remaining active weights
-      (``WEIGHT_DENSE + WEIGHT_TAG_OVERLAP + WEIGHT_SEVERITY = 0.7``)
-      are scaled to sum to ``1.0``. Effective weights in free-text mode
-      become ``dense=0.5/0.7≈0.714``, ``tag=0.15/0.7≈0.214``,
-      ``sev=0.05/0.7≈0.071``. Without this rescale, free-text
-      ``_final_score`` was capped at ~0.46 even on perfect matches.
+      (``WEIGHT_DENSE + WEIGHT_TAG_OVERLAP + WEIGHT_SEVERITY = 0.55``;
+      see ``config.py``) are scaled to sum to ``1.0``. With the current
+      post-W13 weights (``WEIGHT_DENSE=0.10``, ``WEIGHT_TAG_OVERLAP=0.30``,
+      ``WEIGHT_SEVERITY=0.15``) the effective free-text weights become
+      ``dense=0.10/0.55≈0.182``, ``tag=0.30/0.55≈0.545``,
+      ``sev=0.15/0.55≈0.273``. Without this rescale, free-text
+      ``_final_score`` is capped at ``WEIGHT_BM25``-below-1.0 even on
+      perfect matches.
       Every result is marked with
       ``_match_reasons += ["bm25_inactive_free_text"]``.
     * **CP/tag bonus gating** — the canonical-pattern tag-overlap bonus
@@ -687,9 +690,10 @@ def hybrid_rank(
 
     # ---- 7. Adaptive weight setup ---------------------------------------
     # Fix 1 — BM25 inactive in free-text path. When BM25 did not fire
-    # (no gate / no failure_codes), the nominal ``WEIGHT_BM25=0.3`` is
-    # dead weight: every BM25 contribution is 0 and the maximum
-    # attainable ``_final_score`` collapses from 1.0 to 0.7. Re-normalize
+    # (no gate / no failure_codes), the nominal ``config.WEIGHT_BM25``
+    # (0.45 since W13-P0) is dead weight: every BM25 contribution is 0
+    # and the maximum attainable ``_final_score`` collapses from 1.0 to
+    # the sum of the active weights (0.55). Re-normalize
     # the *active* weights to sum to 1.0 so a perfect dense match still
     # tops out near 1.0 in free-text mode. Gate-anchored mode is
     # unchanged (BM25 contributes; full weight applies).

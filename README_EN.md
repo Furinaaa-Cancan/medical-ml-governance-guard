@@ -121,7 +121,7 @@ Both end up running the **same Python gate**. The Skill saves keystrokes, not co
 - [33 Methodology Rules](#33-methodology-rules)
 - [23 Model Families](#23-model-families)
 - [16 Medical Datasets](#16-medical-datasets)
-- [28 Static Analysis Rules (R001-R028)](#27-static-analysis-rules-r001-r027)
+- [30 Static Analysis Rules (R001-R030)](#30-static-analysis-rules-r001-r030)
 - [21 Analysis Tools](#21-analysis-tools)
 - [Security Hardening Layer](#security-hardening-layer)
 - [Project Structure](#project-structure)
@@ -170,7 +170,7 @@ Your code ──→ /mlgg review ──→ Find issues ──→ Cite reviewer q
 
 | Layer | Mechanism | What It Catches |
 |:------|:----------|:----------------|
-| **Layer 1: 28 AST Static Analysis Rules** | Code pattern matching (R001-R028) | `scaler.fit(X)` before split, SMOTE on test, threshold selected on test |
+| **Layer 1: 30 AST Static Analysis Rules** | Code pattern matching (R001-R030) | `scaler.fit(X)` before split, SMOTE on test, threshold selected on test |
 | **Layer 2: 33 Fail-Closed Gates** | Runtime validation, JSON report output | Patient cross-split, calibration ECE > 0.1, EPV < 10, CI width > 0.20; **post-index feature-name detection** (time_in_hospital / num_medications / discharge / ventilation / vasopressor); **disease-scoped definition-variable matching** (glucose only for diabetes targets) |
 | **Layer 3: Clinical Semantic Review + Peer Review Evidence** | AI agent understands code semantics + 154-paper curated peer-review KB (817 concerns) + **issue-code-aware retrieval** | Post-discharge variables predicting post-discharge outcomes, HbA1c definition leakage, missing subgroup calibration. RAG re-ranks by keyword overlap with the actual failure codes — not just severity |
 
@@ -187,7 +187,7 @@ Structurally extracted 817 review opinions from 154 NC + CM medical ML papers (1
 
 **KB index completeness**: all 817 concerns now have at least one `mlgg_gates` mapping (before the 2026-04 backfill, 73.6% were empty arrays and `peer_review_lookup.py --gate` silently missed ~75% of the KB). Warning-only gates (failed via `--strict` warning-upgrade) now also retrieve context — previously they left `peer_review_context: []` because the retrieval was guarded on `failures` only.
 
-**Honest coverage caveat**: the KB is peer-review opinions on already-published NC papers. The pre-publication filter removes egregious leakage, so leakage-category concerns are rare by design (≈4%). The KB is strong on evaluation / reporting / external validation; for leakage failures rely on `leakage_gate` + `mlgg-lint` R001-R028 rather than the KB.
+**Honest coverage caveat**: the KB is peer-review opinions on already-published NC papers. The pre-publication filter removes egregious leakage, so leakage-category concerns are rare by design (≈4%). The KB is strong on evaluation / reporting / external validation; for leakage failures rely on `leakage_gate` + `mlgg-lint` R001-R030 rather than the KB.
 
 > When MLGG finds an issue in your code, it doesn't just say "violated rule E02" &mdash; it tells you: *"NC+CM reviewers requested improved evaluation metrics 196 times (24%) across 154 papers. This is the most frequently raised concern category."*
 
@@ -308,7 +308,7 @@ Raw Data ──→ 9-Phase Workflow ──→ 33-Gate Audit ──→ Compliance
 | **Multi-Model SHAP Engine** | Multi-family L1-normalized ensemble + Kendall tau consistency (FDR-BH correction) + cross-model Spearman rank correlation + 5 publication-grade CSVs | RF/XGB/CatBoost/LGBM/LR |
 | **Academic Compliance Engine** | TRIPOD+AI 2024 (27 items) / PROBAST+AI 2025 (4 domains) / STARD-AI | Item-by-item verification |
 | **Peer Review Evidence Base** | 154 NC+CM papers &times; 817 structured review opinions, retrieved by gate/tag/severity (181 additional PDFs cataloged but pending) | Each recommendation cites original text |
-| **28 Lint Rules** | Static analysis detecting code-level leakage anti-patterns (R001-R028) | .py + .ipynb |
+| **30 Lint Rules** | Static analysis detecting code-level leakage anti-patterns (R001-R030) | .py + .ipynb |
 | **Security Hardening Layer** | HMAC-SHA256 / AES-256-GCM / chained audit log / path traversal defense / restricted deserialization | fail-closed |
 | **21 Analysis Tools** | Riley sample size / calibration triple / NRI-IDI / learning curve / VIF / MNAR sensitivity / PDP marginal effects / FDR-BH correction / temporal drift / ... | 100% Nature ML Checklist coverage |
 
@@ -362,7 +362,7 @@ python3 scripts/orchestration/mlgg.py onboarding \
 # Audit any ML project (zero configuration)
 python3 scripts/reporting/generate_audit_report.py --project-dir /path/to/project
 
-# Static code scan (28 AST leakage rules)
+# Static code scan (30 AST leakage rules)
 cd plugin && pip install -e . && cd ..
 python3 -m mlgg_lint check /path/to/your_script.py
 ```
@@ -1112,9 +1112,9 @@ MLGG validates the 9-phase pipeline across 23 model families covering linear, tr
 
 ---
 
-## 28 Static Analysis Rules (R001-R028)
+## 30 Static Analysis Rules (R001-R030)
 
-`mlgg-lint` ships 28 AST-based static analysis rules detecting code-level methodology violations (R001: `scaler.fit(X)` before split; R028: omics naming patterns; etc.). All rules are deterministic Python AST matchers, no LLM in the loop.
+`mlgg-lint` ships 30 AST-based static analysis rules detecting code-level methodology violations (R001: `scaler.fit(X)` before split; R028: omics naming patterns; etc.). All rules are deterministic Python AST matchers, no LLM in the loop.
 
 **Categories**:
 - Pre-split contamination (R001-R005)
@@ -1195,7 +1195,7 @@ medical-ml-governance-guard/
 │   │   └── ... (19 more gates)           #   Covers covariate shift, robustness, seed stability, etc.
 │   │
 │   ├── orchestration/     (11)           # Workflow orchestration
-│   │   ├── mlgg.py                       #   Unified CLI entry (28+ subcommands, state machine)
+│   │   ├── mlgg.py                       #   Unified CLI entry (30 subcommands, state machine)
 │   │   ├── mlgg_onboarding.py            #   Project init + auto-detect data source/disease/codebook
 │   │   ├── mlgg_interactive.py           #   Interactive wizard (play mode)
 │   │   ├── mlgg_pixel.py                 #   Pixel-art terminal UI + i18n
@@ -1219,7 +1219,7 @@ medical-ml-governance-guard/
 │   │   └── ...                           #   render_user_summary, compliance_certificate, etc.
 │   │
 │   ├── codebooks/         (13)           # Data dictionary tools (7.0K LOC)
-│   │   ├── nhanes_codebook_lookup.py     #   NHANES 60K variable FTS5 full-text search
+│   │   ├── nhanes_codebook_lookup.py     #   NHANES ~16K distinct variable FTS5 full-text search
 │   │   ├── ukb_codebook_lookup.py        #   UKB 12K field + disease-KB join + --exclude-risk
 │   │   ├── build_ukb_codebook_db.py      #   UKB Showcase → SQLite (11,821 fields + 533K encoding values)
 │   │   ├── verify_ukb_codebook.py        #   UKB 8-layer verify: L1 sha / L2 49 HARD invariants / L2c cell-by-cell / L3 golden seeds / L3b disease-KB / content-facet hash / (L4 live)
@@ -1240,7 +1240,7 @@ medical-ml-governance-guard/
 │   │   ├── index/                        #   Index subpackage: builder.py (KB → npz) + cache.py (atomic writes / sha256)
 │   │   ├── retrieval/                    #   Retrieval signal subpackage: dense.py (cosine) + bm25.py (keyword re-rank) + hybrid.py (fusion)
 │   │   └── evals/                        #   Evals subpackage: harness.py (peer-review retrieval precision benchmark)
-│   │   # Note: gate → RAG bridge (gate_rag_bridge.py, 204 LOC) lives in scripts/core/ as RAG's consumer,
+│   │   # Note: gate → RAG bridge (gate_rag_bridge.py, 51 LOC) lives in scripts/core/ as RAG's consumer,
 │   │   # not inside scripts/rag/ — keeps the dep direction one-way (gates → RAG).
 │   │
 │   └── diagnostics/       (34)           # Environment, docs-consistency & KB hygiene
@@ -1273,7 +1273,7 @@ medical-ml-governance-guard/
 │   │   └── literature-knowledge-base.json          # 58 IF>10 literature citations
 │   │
 │   ├── codebooks/                        # Data dictionaries
-│   │   ├── nhanes/         (8+SQLite)    #   Harvard 58K vars + 202K codebook entries + BM25 index
+│   │   ├── nhanes/         (8+SQLite)    #   ~16K distinct vars (Harvard upstream catalog ~58K) + codebook entries + BM25 index
 │   │   ├── ukb/            (12+SQLite)   #   UKB Showcase 11,821 fields + 533,286 encoding values + 216 golden seeds + 106 aliases + 8-layer verification (source_manifest.json + ukb_golden_fields.yaml + KNOWN_GAPS.md)
 │   │   └── dataset-codebook-registry.json  # Generic registry (BRFSS/NHIS/MIMIC)
 │   │
@@ -1290,7 +1290,7 @@ medical-ml-governance-guard/
 │   └── docs/               (8)           # Architecture, API-Reference, Quickstart, Troubleshooting
 │
 ├── plugin/                               # ─── Static Analysis Lint (independent sub-package) ───
-│   ├── mlgg_lint/          (9+30 files)  # AST-level 28 leakage detection rules (R001-R028)
+│   ├── mlgg_lint/          (9+30 files)  # AST-level 30 leakage detection rules (R001-R030)
 │   │   └── rules/                        #   fit_before_split, smote_on_test, target_encoding_leak...
 │   ├── tests/              (5+60 samples)# good/bad samples + CLI/engine tests
 │   ├── vscode/             (4)           # VS Code extension
@@ -1359,10 +1359,10 @@ User CSV ──→ /mlgg (orchestration)
 |------|----------|-------|--------|
 | **A. Paper metadata review** | API agents (`agents/extractor.yaml` → `reviewer.yaml`) | Paper PDF (paper text treated as untrusted data, prompt-injection defended) | 12-dim score + Major/Minor/Questions |
 | **B. 33-gate full pipeline** | Claude Code (`/mlgg`) | User data + code (optional `--cohort-spec` for inclusion/exclusion cascade) | evidence/ reports + Table 1 (TRIPOD+AI 13a) + compliance cert |
-| **C. Static Lint scan** | Claude Code (`mlgg lint`) | Python source (.py/.ipynb) | R001-R028 leakage detection report |
+| **C. Static Lint scan** | Claude Code (`mlgg lint`) | Python source (.py/.ipynb) | R001-R030 leakage detection report |
 | **D. Quick metrics audit** | `mlgg audit-metrics --metrics '{}'` | Paper Table 2 numbers (no data files needed) | TRIPOD+AI compliance gap report |
 
-Packaging: two pip packages (`mlgg-lint` standalone, `ml-governance-guard` bundles the 28-subcommand CLI). `audit-metrics` is a subcommand under `mlgg`, not a separate package. Full subcommand inventory: see `SKILL.md` §"Quick Dispatch".
+Packaging: two pip packages (`mlgg-lint` standalone, `ml-governance-guard` bundles the 30-subcommand CLI). `audit-metrics` is a subcommand under `mlgg`, not a separate package. Full subcommand inventory: see `SKILL.md` §"Quick Dispatch".
 
 ---
 
@@ -1396,7 +1396,7 @@ pre-commit install
 
 Configured in `.pre-commit-config.yaml`:
 - `ruff` — identical to `ci-unit.yml` (E/F/W, excluding ML-code-common E501/E741/etc)
-- `mlgg-lint-selfcheck` — lints `mlgg-lint`'s own source with the 28 AST rules (dog-fooding)
+- `mlgg-lint-selfcheck` — lints `mlgg-lint`'s own source with the 30 AST rules (dog-fooding)
 - `docs-consistency` — when SKILL.md / README(_EN).md / agents/reviewer.yaml change, verifies the 12-dimension scoring weights stay in sync
 
 A separate git-native **pre-push** hook (README stats drift + ruff + RAG smoke) is one command to enable: `make install-hooks`. See [CONTRIBUTING.md](./CONTRIBUTING.md#pre-push-hook-recommended) for details.
@@ -1552,7 +1552,7 @@ The AI will automatically:
 | [`docs/PRODUCTS.md`](docs/PRODUCTS.md) | Two product lines (governance Mode A vs review Mode B/C): boundary, CLI groups, benchmark / GT / drift contrasts (W28-S0) | Decision-makers / New contributors |
 | [`docs/adr/`](docs/adr/) | Architecture Decision Records (ADR 0001: `_mmr_breakdown` SHIP decision) | Designers |
 | [`docs/reference/GATES.md`](docs/reference/GATES.md) | 33-gate complete reference | International reference |
-| [`docs/reference/LINT_RULES.md`](docs/reference/LINT_RULES.md) | R001-R028 lint reference | International reference |
+| [`docs/reference/LINT_RULES.md`](docs/reference/LINT_RULES.md) | R001-R030 lint reference | International reference |
 | [`docs/reference/DATASETS.md`](docs/reference/DATASETS.md) | 16 medical datasets | International reference |
 | [`docs/reference/MODEL_FAMILIES.md`](docs/reference/MODEL_FAMILIES.md) | 23 model families | International reference |
 | [`docs/reference/ANALYSIS_TOOLS.md`](docs/reference/ANALYSIS_TOOLS.md) | 21 analysis tools | International reference |

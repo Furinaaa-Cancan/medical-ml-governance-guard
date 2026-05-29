@@ -539,7 +539,7 @@ def audit_paper(
     Args:
         pdf_path: Path to the paper PDF.
         model: Anthropic model id. Default tracks the latest Opus.
-        rag_strategy: See above. Default ``"primed"``.
+        rag_strategy: See above. Default ``"post_hoc"``.
         top_k: post_hoc only — citations per concern.
         min_score: post_hoc only — floor on ``_final_score`` for cited
             records (W27-R2).
@@ -672,7 +672,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
             "LLM-first paper audit with RAG strategy selection (W29-MVP + W31-S1). "
-            "Default: 'primed' (RAG retrieves KB context, LLM reads it during audit)."
+            "Default: 'post_hoc' (LLM-first audit, then per-concern targeted RAG enrichment)."
         ),
     )
     parser.add_argument("pdf", help="Path to paper PDF.")

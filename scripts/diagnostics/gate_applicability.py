@@ -5,9 +5,9 @@ Given a prediction type (binary/multiclass/regression/survival), determines
 which of the 33 gates are applicable and in what mode (FULL/ADAPTED/NA/etc.).
 
 Used by:
-- generate_audit_report.py: filter audit to relevant gates
-- run_dag_pipeline.py: skip inapplicable gates instead of failing
-- mlgg.py workflow: adjust gate ordering per prediction type
+- generate_audit_report.py: the sole caller; imported only when
+  prediction_type != "binary" to summarize applicable gates and list
+  skipped (NA) gates in the audit report.
 
 Usage:
     from gate_applicability import GateApplicability

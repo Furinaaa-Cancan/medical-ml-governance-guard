@@ -358,8 +358,12 @@ def verify_model_artifact(model_path: Path, key: Optional[bytes] = None) -> Dict
         return {"verified": False, "reason": "sha256_mismatch",
                 "expected": expected_sha, "actual": actual_sha}
 
-    # Verify HMAC
-    expected_hmac = bytes.fromhex(sig_payload.get("signature", ""))
+    # Verify HMAC. A malformed signature field (non-hex / odd length) must not
+    # crash the gate (fail-open-by-crash); treat it as a verification failure.
+    try:
+        expected_hmac = bytes.fromhex(sig_payload.get("signature", ""))
+    except (ValueError, TypeError):
+        return {"verified": False, "reason": "signature_field_malformed"}
     actual_hmac = compute_hmac(model_data, key)
     if not hmac.compare_digest(actual_hmac, expected_hmac):
         return {"verified": False, "reason": "hmac_mismatch"}
@@ -418,12 +422,24 @@ def safe_path(
     if "\x00" in user_path:
         raise ValueError("path_null_byte: null bytes in path")
 
+    # Reject literal traversal components in the raw input when there is no
+    # sandbox to constrain the result. A bare ".." with no sandbox is a strong
+    # signal of a traversal attempt with nothing to bound where it lands. When a
+    # sandbox is supplied, ".." that resolves back inside it is legitimate and is
+    # validated by the relative_to() check below instead.
+    if sandbox is None:
+        raw_parts = set(Path(user_path).parts)
+        if _FORBIDDEN_COMPONENTS & raw_parts:
+            raise ValueError("path_traversal: '..' component is not allowed")
+
     resolved = Path(user_path).expanduser().resolve()
 
-    # Block sensitive system paths
-    resolved_str = str(resolved)
+    # Block sensitive system paths. Compare on path components rather than a
+    # raw string prefix so "/etc" does not over-match "/etcetera/..." etc.
+    resolved_parts = resolved.parts
     for prefix in _FORBIDDEN_PREFIXES:
-        if resolved_str.startswith(prefix):
+        prefix_parts = Path(prefix).parts
+        if resolved_parts[: len(prefix_parts)] == prefix_parts:
             raise ValueError(f"path_forbidden: access to {prefix} is blocked")
 
     # Sandbox enforcement
