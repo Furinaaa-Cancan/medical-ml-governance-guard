@@ -6,20 +6,21 @@
 ml-leakage-guard/
 │
 ├── scripts/                         # ─── Core Code ───
-│   ├── core/            (6 files)   # Framework internals shared by all gates
+│   ├── core/            (7 files)   # Framework internals shared by all gates
 │   ├── gates/          (33 files)   # 33 fail-closed quality gates (each standalone CLI)
-│   ├── training/        (6 files)   # Model training, data splitting, project init
+│   ├── training/        (7 files)   # Model training, data splitting, project init
 │   ├── reporting/      (15 files)   # Reports, audits, exports, session recording
-│   ├── codebooks/      (10 files)   # NHANES + UK Biobank data dictionaries + provenance helper
-│   ├── review/          (7 files)   # Paper analysis, peer review lookup, KB migrations
-│   ├── diagnostics/    (10 files)   # Environment checks, visualization, web UI, docs consistency
+│   ├── codebooks/      (12 files)   # NHANES + UK Biobank data dictionaries + provenance helper
+│   ├── review/          (9 files)   # Paper analysis, peer review lookup, KB migrations
+│   ├── rag/             (4 files)   # Dense-vector RAG layer over the reviewer KB
+│   ├── diagnostics/    (33 files)   # Environment checks, visualization, web UI, docs consistency
 │   └── orchestration/  (10 files)   # CLI entry point, pipeline orchestration
 │
 ├── plugin/                          # ─── Product A: mlgg-lint ───
 │   ├── mlgg_lint/       (30 rules)  # pip install mlgg-lint (zero deps, standalone)
 │   └── pyproject.toml               # Independent package
 │
-├── tests/             (123 files)   # ─── 4760+ test functions ───
+├── tests/             (198 files)   # ─── 5100+ test functions ───
 │
 ├── references/                      # ─── Knowledge Base ───
 │   ├── standards/                   # TRIPOD+AI 2024, PROBAST+AI 2025, STARD+AI
