@@ -1787,6 +1787,38 @@ def main() -> int:
                         if _disease in _data_stem:
                             _target_disease = _disease
                             break
+                # Normalize short / colloquial disease tokens to the canonical
+                # disease-KB keys *before* the fuzzy lookup inside
+                # task_aware_validate(). The matcher there only resolves via
+                # substring overlap (target in key/name, or key in target), so
+                # tokens with no shared substring — e.g. "ckd" vs
+                # "chronic_kidney_disease", "depression" vs
+                # "major_depressive_disorder" — silently resolve to None and the
+                # disease-KB validation no-ops without any signal. The aliases
+                # below close that gap; canonical tokens map to themselves so
+                # this is a pure normalization step (W-audit SHOULD-FIX, :1786).
+                _DISEASE_ALIASES = {
+                    "ckd": "chronic_kidney_disease",
+                    "depression": "major_depressive_disorder",
+                    "depressive_disorder": "major_depressive_disorder",
+                    "mdd": "major_depressive_disorder",
+                    "diabetes": "type_2_diabetes",
+                    "t2d": "type_2_diabetes",
+                    "t2dm": "type_2_diabetes",
+                    "dm2": "type_2_diabetes",
+                    "htn": "hypertension",
+                    "chd": "coronary_heart_disease",
+                    "cad": "coronary_heart_disease",
+                    "hf": "heart_failure",
+                    "chf": "heart_failure",
+                    "afib": "atrial_fibrillation",
+                    "af": "atrial_fibrillation",
+                    "cancer": "cancer_any",
+                    "readmission": "readmission_30day",
+                }
+                _target_disease = _DISEASE_ALIASES.get(
+                    _target_disease.strip().lower(), _target_disease
+                )
                 if _target_disease:
                     task_issues = cb_rag.task_aware_validate(
                         column_names=list(df.columns),
