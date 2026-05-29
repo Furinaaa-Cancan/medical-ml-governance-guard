@@ -83,16 +83,28 @@ def _check_model_signatures(
     pkl_files = list(model_dir.rglob("*.pkl")) if model_dir.exists() else []
     summary["models_checked"] = len(pkl_files)
 
+    # Fail-closed: a security gate that finds no model to verify has verified
+    # nothing. Treat zero models (missing/empty model dir) as a failure.
     if not pkl_files:
+        failures.append(GateIssue(
+            code="no_models_to_verify",
+            severity=Severity.ERROR,
+            message=(
+                f"No model artifacts (*.pkl) found in {model_dir}; "
+                "signature verification could not be performed."
+            ),
+            details={"model_dir": str(model_dir), "exists": model_dir.exists()},
+        ))
         return summary
 
     try:
         from _security import verify_model_artifact
     except ImportError:
-        warnings.append(GateIssue(
+        # Fail-closed: cannot verify signatures without the security module.
+        failures.append(GateIssue(
             code="security_module_unavailable",
-            severity=Severity.WARNING,
-            message="_security module not available; model signature checks skipped.",
+            severity=Severity.CRITICAL,
+            message="_security module not available; model signature checks could not run.",
         ))
         return summary
 
@@ -130,10 +142,11 @@ def _check_evidence_manifest(
     summary: Dict[str, Any] = {"manifest_exists": False, "entries_checked": 0, "entries_valid": 0}
 
     if not manifest_path.exists():
-        warnings.append(GateIssue(
+        # Fail-closed: no manifest means evidence integrity is unverified.
+        failures.append(GateIssue(
             code="manifest_missing",
-            severity=Severity.WARNING,
-            message="No evidence integrity manifest (.manifest.json) found.",
+            severity=Severity.ERROR,
+            message="No evidence integrity manifest (.manifest.json) found; evidence integrity unverified.",
             remediation=get_remediation("manifest_missing"),
         ))
         return summary
@@ -144,10 +157,11 @@ def _check_evidence_manifest(
         from _security import ArtifactManifest
         ok, issues = ArtifactManifest.verify(manifest_path)
     except ImportError:
-        warnings.append(GateIssue(
+        # Fail-closed: cannot verify evidence integrity without the security module.
+        failures.append(GateIssue(
             code="security_module_unavailable",
-            severity=Severity.WARNING,
-            message="_security module not available; manifest verification skipped.",
+            severity=Severity.CRITICAL,
+            message="_security module not available; manifest verification could not run.",
         ))
         return summary
 
@@ -181,10 +195,11 @@ def _check_dependency_integrity(
         from _security import verify_critical_imports
         result = verify_critical_imports()
     except ImportError:
-        warnings.append(GateIssue(
+        # Fail-closed: cannot verify dependency integrity without the security module.
+        failures.append(GateIssue(
             code="security_module_unavailable",
-            severity=Severity.WARNING,
-            message="_security module not available; dependency checks skipped.",
+            severity=Severity.CRITICAL,
+            message="_security module not available; dependency checks could not run.",
         ))
         return {"verified": False, "reason": "module_unavailable"}
 
