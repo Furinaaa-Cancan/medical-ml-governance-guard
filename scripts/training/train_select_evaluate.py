@@ -3817,8 +3817,12 @@ def choose_model_one_se(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
 
     Picks the simplest model whose mean score is within one SE of
     the best model's mean score.  When ``n_folds < 2`` (e.g.
-    ``selection_data="valid"``), SE is undefined so **all** candidates
-    are eligible and the simplest one wins (complexity-rank tie-breaking).
+    ``selection_data="valid"``), SE is undefined: the threshold is set
+    to the best mean, so the one-SE parsimony rule does **not** apply.
+    Only the best-mean model (and any exact ties) is eligible, and
+    complexity rank then breaks those exact ties.  In other words, on
+    the single-validation-split path the best-mean model wins; parsimony
+    is only active when ``n_folds >= 2`` and a real SE band exists.
 
     Args:
         rows: List of dicts with keys 'model_id', 'mean', 'std',
