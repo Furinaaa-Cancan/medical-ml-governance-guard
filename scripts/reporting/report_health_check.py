@@ -21,12 +21,20 @@ from typing import Any, Dict, List, Optional
 
 
 # Derive expected report filenames from the gate registry (single source of truth).
+# FAIL-CLOSED: a registry import failure must NOT silently degrade into an empty
+# expected-report set (which would yield a green, non-failing, empty health report
+# for a completely broken run). We capture the error and surface it as a hard
+# failure at check time rather than swallowing it.
+_REGISTRY_IMPORT_ERROR: Optional[str] = None
 try:
     from _gate_registry import GATE_REGISTRY
     EXPECTED_REPORTS: List[str] = [spec.report_output for spec in GATE_REGISTRY.values()]
-except ImportError:
-    # Fallback for standalone execution outside scripts/ directory.
-    EXPECTED_REPORTS: List[str] = []  # type: ignore[no-redef]
+except ImportError as exc:
+    EXPECTED_REPORTS = []  # type: ignore[no-redef]
+    _REGISTRY_IMPORT_ERROR = (
+        f"Gate registry import failed ({exc}); cannot determine expected reports. "
+        "Health check cannot certify completeness."
+    )
 
 
 def _load_report(path: Path) -> Optional[Dict[str, Any]]:
@@ -47,7 +55,38 @@ def _gate_name(filename: str) -> str:
 
 
 def check_health(evidence_dir: Path) -> Dict[str, Any]:
-    """Scan evidence directory and produce health summary."""
+    """Scan evidence directory and produce health summary.
+
+    Fail-closed: if the gate registry could not be loaded (so the set of
+    expected reports is unknown / empty), this returns a FAILING health report
+    rather than a green empty one. A health check that knows of zero gates
+    cannot attest that a pipeline is complete.
+    """
+    if _REGISTRY_IMPORT_ERROR is not None or not EXPECTED_REPORTS:
+        reason = _REGISTRY_IMPORT_ERROR or (
+            "No expected gate reports are known (gate registry empty); "
+            "health check cannot certify completeness."
+        )
+        return {
+            "schema_version": "health_check.v1",
+            "evidence_dir": str(evidence_dir),
+            "status": "fail",
+            "error": reason,
+            "total_gates": 0,
+            "present": 0,
+            "passed": 0,
+            "failed": 0,
+            "missing": 0,
+            "completeness_pct": 0.0,
+            "pass_rate_pct": 0.0,
+            "gates": [],
+            "top_failure_codes": [],
+            "recommendations": [
+                "Fix the gate registry import before relying on this health "
+                "check; current result does NOT certify a healthy pipeline.",
+            ],
+        }
+
     gate_results: List[Dict[str, Any]] = []
     failure_codes: Counter[str] = Counter()
     statuses: Counter[str] = Counter()
@@ -142,6 +181,10 @@ def format_text(result: Dict[str, Any]) -> str:
     lines.append("=" * 60)
     lines.append("")
     lines.append(f"  Evidence:     {result['evidence_dir']}")
+    if result.get("error"):
+        lines.append("")
+        lines.append(f"  STATUS: FAIL — {result['error']}")
+        lines.append("")
     lines.append(f"  Completeness: {result['completeness_pct']}% ({result['present']}/{result['total_gates']} reports)")
     lines.append(f"  Pass Rate:    {result['pass_rate_pct']}% ({result['passed']}/{result['present']} present)")
     lines.append(f"  Failed:       {result['failed']}")
@@ -227,6 +270,15 @@ def main() -> int:
         print(f"Report written to: {out_path}")
     else:
         print(output)
+
+    # Fail-closed: a registry/expected-report failure surfaces as a hard
+    # (exit 2) error so callers cannot mistake a broken health check for green.
+    if result.get("status") == "fail":
+        print(
+            f"Health check FAILED: {result.get('error', 'unknown error')}",
+            file=sys.stderr,
+        )
+        return 2
 
     return 0
 
