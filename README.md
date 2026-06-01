@@ -134,7 +134,7 @@
 - [23 个模型族](#23-个模型族)
 - [16 个医学数据集](#16-个医学数据集)
 - [21 项分析工具](#21-项分析工具)
-- [NHANES Codebook RAG 系统](#nhanes-codebook-rag-系统)
+- [Codebook RAG 系统（NHANES + UKB）](#codebook-rag-系统nhanes--ukb)
 - [基准测试结果](#基准测试结果)
 - [命令参考](#命令参考)
 - [项目结构](#项目结构)
@@ -1318,21 +1318,35 @@ python3 -m mlgg_lint /path/to/code/
 
 ---
 
-## NHANES Codebook RAG 系统
+## Codebook RAG 系统（NHANES + UKB）
 
-公共数据集（NHANES、BRFSS 等）的变量定义、skip pattern、编码规则常被误解，导致静默的数据泄漏。MLGG 内置三层 RAG 检索自动拦截：
+公共数据集（NHANES、BRFSS）与大型队列（UK Biobank）的变量定义、skip pattern、instance/array 结构、编码规则常被误解，导致静默的数据泄漏。MLGG 为两类数据各内置一套 codebook 检索 + gate 集成自动拦截。
+
+### NHANES / 横截面（`nhanes_codebook_lookup.py`）
 
 | 层 | 机制 | 覆盖 |
 |---|------|------|
 | Layer 1 | **手动 Codebook Registry** — 人工标注的变量元数据（类型、gated missingness、测量协议、反向因果） | 21 个 NHANES 变量 |
 | Layer 2 | **RAG 自动检索** — BM25 + trigram 混合检索 Harvard CCB-HMS codebook（上游目录约 58K 变量；本仓库实际随附 TSV 约 16K distinct 变量）+ skip-chain 图 | 3,964 变量/cycle |
-| Layer 3 | **Disease-KB x Codebook** — 从疾病定义知识库提取排除术语，映射到 NHANES codes | 自动标记 definition variable |
+| Layer 3 | **Disease-KB × Codebook** — 从疾病定义知识库提取排除术语，映射到 NHANES codes | 自动标记 definition variable |
+
+### UK Biobank（`ukb_codebook_lookup.py`）
+
+UKB 的「字段-instance-array」结构（同一字段在 baseline / imaging / repeat 多次采集）是 NHANES 不存在的泄漏来源。MLGG 随附经 8 层验证的 UKB codebook，并内置专用检索：
+
+- **规模**：11,821 字段 + 533,286 编码值 + 216 golden seeds + 106 别名；8 层验证（源 sha256/字节/行数 → 结构不变量 → 1.87M cell 逐格对账 → golden-seed 真值）。
+- **检索**：FTS5 BM25 全文检索 + 别名层 / 标题精确层重排（修正 `hba1c` 等医学缩写被纯 BM25 排错的问题）；列名解析支持 RAP（`p21001_i0_a0`）、Showcase（`21001-0.0`）、裸字段 ID 三种命名约定。
+- **Gate 集成**：`cohort_definition_gate` 调用 `validate_columns_for_gate()`，按 `risk_category` 拦截泄漏——`outcome_derived` / `death_registry` 判 CRITICAL、`hospital_derived` 判 WARNING；并检测三类 UKB 特有问题：
+  - **时序泄漏**：特征 instance > target instance（如用 imaging 访视的 HbA1c `p30750_i2` 预测 baseline `i0` 结局）；
+  - **instance-participation MNAR**：post-baseline 访视参与率低（instance 1 ≈ 4%、instance 2 ≈ 20%），参与率 < 50% 自动标记 MNAR；
+  - **类别编码**：> 2 类的 categorical 字段被数值编码会强加伪序关系，自动告警。
+- **字段清单生成**：`--generate [disease]` 按疾病从 disease-KB join 出 outcome 字段生成 RAP 字段清单；`--exclude-risk outcome_derived,death_registry,hospital_derived` 一键剔除泄漏风险类。
 
 **Onboarding 自动触发**：`mlgg onboarding --input-csv nhanes_diabetes.csv` 自动检测 dataset/disease/cross-sectional，训练前运行 codebook RAG + definition_variable_guard + leakage_gate。
 
 **外部验证对齐检查**：`external_validation_gate` 自动检测 degenerate prediction（全阴性/全阳性）、prevalence shift、常数特征，防止无意义的外部验证。缺失特征使用训练集中位数填充。
 
-详见 `references/codebooks/dataset-codebook-registry.json` 和 `scripts/codebooks/nhanes_codebook_lookup.py`。
+详见 `references/codebooks/dataset-codebook-registry.json`、`scripts/codebooks/nhanes_codebook_lookup.py` 与 `scripts/codebooks/ukb_codebook_lookup.py`。
 
 ---
 

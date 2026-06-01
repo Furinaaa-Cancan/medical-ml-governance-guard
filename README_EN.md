@@ -123,6 +123,7 @@ Both end up running the **same Python gate**. The Skill saves keystrokes, not co
 - [16 Medical Datasets](#16-medical-datasets)
 - [30 Static Analysis Rules (R001-R030)](#30-static-analysis-rules-r001-r030)
 - [21 Analysis Tools](#21-analysis-tools)
+- [Codebook RAG (NHANES + UKB)](#codebook-rag-nhanes--ukb)
 - [Security Hardening Layer](#security-hardening-layer)
 - [Project Structure](#project-structure)
 - [Installation Guide](#installation-guide)
@@ -1120,6 +1121,38 @@ python3 -m mlgg_lint /path/to/code/
 100% coverage of [Nature Portfolio ML Checklist V1.1](https://www.nature.com/documents/machine-learning-checklist.pdf) (30 items).
 
 **Full reference**: see [`docs/reference/ANALYSIS_TOOLS.md`](docs/reference/ANALYSIS_TOOLS.md) for the per-tool table (input, output, gate integration).
+
+---
+
+## Codebook RAG (NHANES + UKB)
+
+Variable definitions, skip patterns, instance/array structure and encoding rules in public datasets (NHANES, BRFSS) and large cohorts (UK Biobank) are routinely misread, causing silent data leakage. MLGG ships a dedicated codebook retriever + gate integration for each data family.
+
+### NHANES / cross-sectional (`nhanes_codebook_lookup.py`)
+
+| Layer | Mechanism | Coverage |
+|---|------|------|
+| Layer 1 | **Manual Codebook Registry** — hand-annotated variable metadata (type, gated missingness, measurement protocol, reverse causality) | 21 NHANES variables |
+| Layer 2 | **RAG auto-retrieval** — BM25 + trigram hybrid over the Harvard CCB-HMS codebook (upstream catalog ~58K variables; this repo ships a TSV of ~16K distinct variables) + skip-chain graph | 3,964 variables/cycle |
+| Layer 3 | **Disease-KB × Codebook** — extracts exclusion terms from the disease-definition KB and maps them to NHANES codes | auto-flags definition variables |
+
+### UK Biobank (`ukb_codebook_lookup.py`)
+
+UKB's field-instance-array structure (the same field collected at baseline / imaging / repeat visits) is a leakage source NHANES doesn't have. MLGG ships an 8-layer-verified UKB codebook with a dedicated retriever:
+
+- **Scale**: 11,821 fields + 533,286 encoding values + 216 golden seeds + 106 aliases; 8-layer verification (source sha256/byte/line → structural invariants → 1.87M cell-by-cell faithfulness → golden-seed ground truth).
+- **Retrieval**: FTS5 BM25 full-text search + alias-tier / title-exact promotion (fixes medical acronyms like `hba1c` that plain BM25 ranks wrong); column-name parsing handles RAP (`p21001_i0_a0`), Showcase (`21001-0.0`), and bare field-ID conventions.
+- **Gate integration**: `cohort_definition_gate` calls `validate_columns_for_gate()` to block leakage by `risk_category` — `outcome_derived` / `death_registry` are CRITICAL, `hospital_derived` is WARNING — plus three UKB-specific checks:
+  - **Temporal leakage**: feature instance > target instance (e.g. using imaging-visit HbA1c `p30750_i2` to predict a baseline `i0` outcome);
+  - **Instance-participation MNAR**: post-baseline visits have low attendance (instance 1 ≈ 4%, instance 2 ≈ 20%); participation < 50% is auto-flagged MNAR;
+  - **Categorical encoding**: categorical fields with > 2 categories warn when numerically encoded (false ordinal relationship).
+- **Field-list generation**: `--generate [disease]` joins outcome fields from the disease-KB and emits a RAP field list; `--exclude-risk outcome_derived,death_registry,hospital_derived` drops leakage-risk categories in one flag.
+
+**Onboarding auto-trigger**: `mlgg onboarding --input-csv nhanes_diabetes.csv` auto-detects dataset/disease/cross-sectional and runs codebook RAG + definition_variable_guard + leakage_gate before training.
+
+**External-validation alignment**: `external_validation_gate` auto-detects degenerate prediction (all-negative / all-positive), prevalence shift, and constant features to prevent meaningless external validation. Missing features are imputed with the training-set median.
+
+See `references/codebooks/dataset-codebook-registry.json`, `scripts/codebooks/nhanes_codebook_lookup.py`, and `scripts/codebooks/ukb_codebook_lookup.py`.
 
 ---
 
