@@ -41,7 +41,7 @@
 
 > **MLGG 是 hybrid**：Claude Skill 做外壳，Python gate 做内核。**幻觉最多改变「跑了哪些 gate」，改变不了「每个 gate 的 pass/fail」。**
 
-### 三层结构（层内标注了各自的幻觉风险）
+### 三层结构（层内标注幻觉风险）
 
 ```
 ┌──────────────────────────────────────────┐
@@ -52,52 +52,31 @@
 ┌──────────────────────────────────────────┐
 │  33 道 gate  ~40K 行 Python              │  ✅ 0 幻觉
 │  硬决策：pass / fail / critical 三态     │  读者：CPython
-│  同输入同输出，CI 可回归                 │
 └──────────────────────────────────────────┘
                   ↓ KB 查询
 ┌──────────────────────────────────────────┐
 │  references/  ~5 MB human-curated KB     │  ✅ 0 幻觉
 │  peer-review-kb.json （154 已抽 + 181 待抽）│  读者：SQL / JSON
 │  codebooks/ukb （8 层验证，1.87M cells） │
-│  methodology/disease-kb.json             │
 └──────────────────────────────────────────┘
 ```
 
-**幻觉锁在最顶层**——下面两层永远拿确定性算法 + 静态数据算 pass/fail。
+幻觉锁在最顶层——下面两层永远拿确定性算法 + 静态数据算 pass/fail，同输入同输出、CI 可回归。所以无论交互式 `/mlgg`（Claude 编排 9 阶段）还是发布级 `python3 scripts/gates/leakage_gate.py`（跳过 Skill 直调底层），跑的都是**同一份 Python gate**——Skill 只省「敲命令的时间」，不承担正确性。
 
-### 适用范围（W26 Amendment 2 — 不是所有输入都跑 3 层）
+### 适用范围（不是所有输入都跑 3 层）
 
-| 输入 | 路由 | 跑的层 | 不跑的层 |
-|---|---|---|---|
-| **A. 你的训练流水**（自带 `evidence/*.json`） | `mlgg workflow --strict` / `/mlgg` | L1 + **L2 33 gate** + L3 | — |
-| **B. 外部 code + paper 联审** | `mlgg audit <dir>` + `mlgg rag` | L1 lint + L3 RAG | **L2 跳过** |
-| **C. 纯 paper 审查**（无 code） | `mlgg rag` / `peer_review_lookup.py` | L3 RAG only | L1 + L2 |
+| 输入 | 路由 | 跑的层 |
+|---|---|---|
+| **A. 你的训练流水**（自带 `evidence/*.json`） | `mlgg workflow --strict` / `/mlgg` | L1 + **L2 33 gate** + L3 |
+| **B. 外部 code + paper 联审** | `mlgg audit <dir>` + `mlgg rag` | L1 lint + L3 RAG（L2 跳过） |
+| **C. 纯 paper 审查**（无 code） | `mlgg rag` / `peer_review_lookup.py` | L3 RAG only |
 
-> **L2 33 gate 是 instrumented-run 契约，不是外部审计武器**。外部 repo 不会主动 emit `--evaluation-report`/`--prediction-trace`/`--protocol-spec`/`--tuning-spec`，强跑得到 33/33 全 fail-noisy。W25 实测 8 篇外部 NMI/MIMIC 论文 **L2 = 0/264 gate-paper pair** 命中，是结构性约束不是 bug。详见 [`references/benchmark/hybrid_v1_spec.md`](references/benchmark/hybrid_v1_spec.md) §Amendment 2 + [`docs/diagnostics/W25_hybrid_aggregate.md`](docs/diagnostics/W25_hybrid_aggregate.md)。
+> L2 的 33 gate 是 **instrumented-run 契约**，不是外部审计武器：外部 repo 不 emit `--evaluation-report` 等 trace，强跑会 33/33 fail-noisy（W25 实测 8 篇外部论文 L2 = 0/264 命中，是结构性约束不是 bug）。详见 [`hybrid_v1_spec.md`](references/benchmark/hybrid_v1_spec.md) §Amendment 2。
 
-### 逐行风险：哪些动作可能被幻觉影响？
+### 工程保证
 
-| 动作 | 层 | 幻觉风险 | 能否改变 pass/fail |
-|---|---|---|---|
-| `/mlgg` 决定跑哪个 workflow | Skill | ⚠️ | ❌ 可能多/漏跑，但**每个跑了的 gate 结论仍然确定** |
-| Claude 用自然语言总结 gate 输出 | Skill | ⚠️ | ❌ 只是表达层偏差 |
-| `leakage_gate.py` 判定标签泄漏 | Python | ✅ | ❌ 确定性算法 |
-| `calibration_dca_gate.py` 算 ICI/DCA | Python | ✅ | ❌ 纯数值计算 |
-| `verify_ukb_codebook.py` 8 层验证 | Python | ✅ | ❌ 1.87M cell 全量对账 |
-| 从 `peer-review-kb.json` 引审稿意见 | references | ✅ | ❌ SQL / JSON 精确查找 |
-
-### 两种用法，底层同一份 pass/fail
-
-- **交互**：`/mlgg` → Claude 读你的意图 → 自动编排 9 阶段 pipeline
-- **CI / 发布级**：`python3 scripts/gates/leakage_gate.py --data x.csv` —— 跳过 Skill，直接调底层
-
-两种用法最终跑的是**同一份 Python gate**。Skill 省的是「敲命令的时间」，不承担正确性。
-
-### 工程保证（而不只是愿景）
-
-- **SKILL.md ≤ 500 行**：当前 334 行，符合 Claude Code 官方建议；超长内容拆到 `docs/` 或 gate docstring。
-- **文档数字 pre-commit 校验**：`check_docs_consistency.py` + `check_readme_stats.py` 抓 `SKILL.md ↔ README ↔ reviewer.yaml` 的 parity 和 KB freshness drift，**PR 会被 fail 而不是 merge 后才发现**。
-- **阈值是代码不是 prompt**：所有 pass/fail 阈值、validator 规则、检测算法都是 Python 常量 + 函数，gate 不从 markdown 读判定逻辑。
+- **阈值是代码不是 prompt**：所有 pass/fail 阈值、validator、检测算法都是 Python 常量 + 函数，gate 不从 markdown 读判定逻辑。
+- **文档 pre-commit 校验**：`check_readme_stats.py` + `check_docs_consistency.py` 抓 `SKILL.md ↔ README ↔ reviewer.yaml` 的数字 parity、KB freshness 与 H2 结构漂移，PR 直接 fail。SKILL.md 当前 334 行，符合 Claude Code 官方建议。
 
 ---
 

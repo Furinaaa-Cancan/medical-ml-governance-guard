@@ -49,54 +49,31 @@
 ┌──────────────────────────────────────────┐
 │  33 gates  ~40K LOC Python               │  ✅ zero hallucination
 │  Hard verdict: pass / fail / critical    │  Consumer: CPython
-│  Same input → same output, CI-replayable │
 └──────────────────────────────────────────┘
                   ↓ KB lookups
 ┌──────────────────────────────────────────┐
 │  references/  ~5 MB human-curated KB     │  ✅ zero hallucination
 │  peer-review-kb.json (154 curated +181 pend)│  Consumer: SQL / JSON
 │  codebooks/ukb (8-layer verify, 1.87M)   │
-│  methodology/disease-kb.json             │
 └──────────────────────────────────────────┘
 ```
 
-**Hallucination is locked in the top layer** — the lower two always resolve pass/fail via deterministic code + static data.
+Hallucination is locked in the top layer — the lower two always resolve pass/fail via deterministic code + static data, same input → same output, CI-replayable. So whether you go interactive (`/mlgg`, Claude orchestrates the 9 phases) or publication-grade (`python3 scripts/gates/leakage_gate.py`, skipping the Skill entirely), you run the **same Python gate** — the Skill only saves keystrokes, it doesn't own correctness.
 
-> **Disease-KB review status**: 11 disease entries currently pending clinician review; the publication gate fails closed when this KB is consumed.
+### Scope (not every input runs all 3 layers)
 
-### Scope (W26 Amendment 2 — not every input runs all 3 layers)
+| Input | Routing | Layers that run |
+|---|---|---|
+| **A. Your own training pipeline** (ships `evidence/*.json`) | `mlgg workflow --strict` / `/mlgg` | L1 + **L2 33 gate** + L3 |
+| **B. External code + paper joint audit** | `mlgg audit <dir>` + `mlgg rag` | L1 lint + L3 RAG (L2 skipped) |
+| **C. Paper-only review** (no code) | `mlgg rag` / `peer_review_lookup.py` | L3 RAG only |
 
-| Input | Routing | Layers that run | Layers that skip |
-|---|---|---|---|
-| **A. Your own training pipeline** (ships `evidence/*.json`) | `mlgg workflow --strict` / `/mlgg` | L1 + **L2 33 gate** + L3 | — |
-| **B. External code + paper joint audit** | `mlgg audit <dir>` + `mlgg rag` | L1 lint + L3 RAG | **L2 skipped** |
-| **C. Paper-only review** (no code) | `mlgg rag` / `peer_review_lookup.py` | L3 RAG only | L1 + L2 |
+> L2's 33 gates are an **instrumented-run contract**, not an external-audit weapon: external repos don't emit `--evaluation-report` and friends, so forcing the gates yields 33/33 fail-noisy (the W25 benchmark on 8 external papers measured L2 = 0/264 hits — structural, not a bug). See [`hybrid_v1_spec.md`](references/benchmark/hybrid_v1_spec.md) §Amendment 2.
 
-> **L2 33 gate is a pipeline contract for instrumented runs, not an external-audit weapon.** External repos don't emit `--evaluation-report` / `--prediction-trace` / `--protocol-spec` / `--tuning-spec`; forcing the gates produces 33/33 fail-noisy. The W25 hybrid benchmark on 8 external NMI / MIMIC papers measured **L2 = 0/264 gate-paper pair** hits — that's structural, not a bug. See [`references/benchmark/hybrid_v1_spec.md`](references/benchmark/hybrid_v1_spec.md) §Amendment 2 and [`docs/diagnostics/W25_hybrid_aggregate.md`](docs/diagnostics/W25_hybrid_aggregate.md).
+### Engineering guarantees
 
-### Per-action risk: what can hallucination touch?
-
-| Action | Layer | Hallucination risk | Can it change the verdict? |
-|---|---|---|---|
-| `/mlgg` picks which workflow to run | Skill | ⚠️ | ❌ May skip or double-run, but **each gate that runs is still deterministic** |
-| Claude narrates gate output in natural language | Skill | ⚠️ | ❌ Presentation-layer bias only |
-| `leakage_gate.py` detects label leakage | Python | ✅ | ❌ Deterministic algorithm |
-| `calibration_dca_gate.py` computes ICI / DCA | Python | ✅ | ❌ Pure numeric computation |
-| `verify_ukb_codebook.py` runs 8-layer verify | Python | ✅ | ❌ 1.87M cell-level comparison |
-| Quoting reviewer opinions from `peer-review-kb.json` | references | ✅ | ❌ Exact SQL / JSON lookup |
-
-### Two usage paths, one verdict
-
-- **Interactive**: `/mlgg` → Claude interprets intent → auto-orchestrates the 9-phase pipeline
-- **CI / publication-grade**: `python3 scripts/gates/leakage_gate.py --data x.csv` — skips the Skill entirely, calls the gate directly
-
-Both end up running the **same Python gate**. The Skill saves keystrokes, not correctness.
-
-### Engineering guarantees (not just aspirations)
-
-- **SKILL.md ≤ 500 lines**: currently 334 lines, within Claude Code's official guidance; longer content lives under `docs/` or inside gate docstrings.
-- **Pre-commit doc-number check**: `check_docs_consistency.py` + `check_readme_stats.py` catch drift across `SKILL.md ↔ README ↔ reviewer.yaml`; **PRs fail before merge**, not after.
 - **Thresholds are code, not prompts**: every pass/fail threshold, validator rule, and detection algorithm is a Python constant + function. Gates do not consult markdown for verdict logic.
+- **Pre-commit doc check**: `check_readme_stats.py` + `check_docs_consistency.py` catch number parity, KB freshness, and H2 structure drift across `SKILL.md ↔ README ↔ reviewer.yaml`; PRs fail before merge. SKILL.md is currently 334 lines, within Claude Code's official guidance.
 
 ---
 
