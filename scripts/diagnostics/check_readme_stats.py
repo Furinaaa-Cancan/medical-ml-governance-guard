@@ -329,43 +329,13 @@ def _build_structure_claims() -> List[Dict[str, object]]:
                 "description": f"{where.upper()} tests tree: {desc}",
             })
 
-    # SKILL.md line count — cited in both READMEs' "engineering
-    # guarantees" bullet as "currently NNN lines". Claude Code
-    # recommends <500 lines; we're tracking to catch unexpected growth.
-    claims.append({
-        "name": "skill_md_lines_cn",
-        "doc": CN,
-        "regex": r"当前\s*(\d+)\s*行，符合 Claude Code 官方",
-        "source": "skill_md_lines",
-        "description": "CN SKILL.md current-line claim",
-    })
-    claims.append({
-        "name": "skill_md_lines_en",
-        "doc": EN,
-        "regex": r"currently\s*(\d+)\s*lines,\s*within\s+Claude\s+Code",
-        "source": "skill_md_lines",
-        "description": "EN SKILL.md current-line claim",
-    })
-
-    # references/ curated size — the "~NN MB human-curated" label in
-    # the architecture diagram. Tolerance: ±10 MB (any single PR can
-    # reasonably move curated KB by a few MB without it being drift).
-    claims.append({
-        "name": "refs_curated_mb_cn",
-        "doc": CN,
-        "regex": r"references/\s+~(\d+)\s*MB human-curated",
-        "source": "refs_curated_mb",
-        "description": "CN references/ '~NN MB human-curated' label",
-        "tolerance": 10,
-    })
-    claims.append({
-        "name": "refs_curated_mb_en",
-        "doc": EN,
-        "regex": r"references/\s+~(\d+)\s*MB human-curated",
-        "source": "refs_curated_mb",
-        "description": "EN references/ '~NN MB human-curated' label",
-        "tolerance": 10,
-    })
+    # NOTE: the SKILL.md "currently NNN lines" and references/ "~NN MB
+    # human-curated" claims used to be checked here. They lived only in
+    # the "MLGG vs Claude Skill — Architecture Boundary" section, which
+    # was removed from both READMEs; with no text to anchor on, these
+    # claims would always report "pattern matched nothing", so they were
+    # dropped. The live-truth helpers (_live_skill_md_lines /
+    # _live_curated_references_mb) are kept for the --verbose snapshot.
 
     # Pytest test count in the header badge. Only enforced when the
     # env var MLGG_CHECK_PYTEST_COUNT=1 is set (test collection is
@@ -759,7 +729,6 @@ def _check_docs_map_drift(readme_path: Path, root: Path) -> List[str]:
 # _EN_ONLY_H2 if the asymmetry is deliberate).
 
 _H2_PAIRS: List[Tuple[str, str]] = [
-    ("MLGG vs Claude Skill — 架构边界", "MLGG vs Claude Skill — Architecture Boundary"),
     ("目录", "Table of Contents"),
     ("为什么需要 MLGG", "Why MLGG"),
     ("审稿级审查机制", "Reviewer-Grade Review Mechanism"),

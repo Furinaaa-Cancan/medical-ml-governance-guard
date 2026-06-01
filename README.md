@@ -37,54 +37,10 @@
 
 ---
 
-## MLGG vs Claude Skill — 架构边界
-
-> **MLGG 是 hybrid**：Claude Skill 做外壳，Python gate 做内核。**幻觉最多改变「跑了哪些 gate」，改变不了「每个 gate 的 pass/fail」。**
-
-### 三层结构（层内标注幻觉风险）
-
-```
-┌──────────────────────────────────────────┐
-│  SKILL.md + CLAUDE.md  ~430 行           │  ⚠️ 可能幻觉
-│  软决策：跑哪个阶段、理解用户意图        │  读者：LLM
-└──────────────────────────────────────────┘
-                  ↓ 编排调用
-┌──────────────────────────────────────────┐
-│  33 道 gate  ~40K 行 Python              │  ✅ 0 幻觉
-│  硬决策：pass / fail / critical 三态     │  读者：CPython
-└──────────────────────────────────────────┘
-                  ↓ KB 查询
-┌──────────────────────────────────────────┐
-│  references/  ~5 MB human-curated KB     │  ✅ 0 幻觉
-│  peer-review-kb.json （154 已抽 + 181 待抽）│  读者：SQL / JSON
-│  codebooks/ukb （8 层验证，1.87M cells） │
-└──────────────────────────────────────────┘
-```
-
-幻觉锁在最顶层——下面两层永远拿确定性算法 + 静态数据算 pass/fail，同输入同输出、CI 可回归。所以无论交互式 `/mlgg`（Claude 编排 9 阶段）还是发布级 `python3 scripts/gates/leakage_gate.py`（跳过 Skill 直调底层），跑的都是**同一份 Python gate**——Skill 只省「敲命令的时间」，不承担正确性。
-
-### 适用范围（不是所有输入都跑 3 层）
-
-| 输入 | 路由 | 跑的层 |
-|---|---|---|
-| **A. 你的训练流水**（自带 `evidence/*.json`） | `mlgg workflow --strict` / `/mlgg` | L1 + **L2 33 gate** + L3 |
-| **B. 外部 code + paper 联审** | `mlgg audit <dir>` + `mlgg rag` | L1 lint + L3 RAG（L2 跳过） |
-| **C. 纯 paper 审查**（无 code） | `mlgg rag` / `peer_review_lookup.py` | L3 RAG only |
-
-> L2 的 33 gate 是 **instrumented-run 契约**，不是外部审计武器：外部 repo 不 emit `--evaluation-report` 等 trace，强跑会 33/33 fail-noisy（W25 实测 8 篇外部论文 L2 = 0/264 命中，是结构性约束不是 bug）。详见 [`hybrid_v1_spec.md`](references/benchmark/hybrid_v1_spec.md) §Amendment 2。
-
-### 工程保证
-
-- **阈值是代码不是 prompt**：所有 pass/fail 阈值、validator、检测算法都是 Python 常量 + 函数，gate 不从 markdown 读判定逻辑。
-- **文档 pre-commit 校验**：`check_readme_stats.py` + `check_docs_consistency.py` 抓 `SKILL.md ↔ README ↔ reviewer.yaml` 的数字 parity、KB freshness 与 H2 结构漂移，PR 直接 fail。SKILL.md 当前 334 行，符合 Claude Code 官方建议。
-
----
-
 ## 目录
 
 ### 概览（先读这块决定要不要继续）
 
-- [MLGG vs Claude Skill — 架构边界](#mlgg-vs-claude-skill--架构边界)
 - [为什么需要 MLGG](#为什么需要-mlgg)
 - [审稿级审查机制](#审稿级审查机制)
 - [系统能力总览](#系统能力总览)
