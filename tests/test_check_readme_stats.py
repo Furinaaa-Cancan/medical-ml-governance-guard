@@ -276,6 +276,12 @@ class TestHeaderBadgeDrift:
         monkeypatch.setattr(
             mod, "_check_docs_map_drift", lambda *a, **kw: [],
         )
+        # Skip the H2 section-parity check too — the synthetic READMEs
+        # contain only a badge block, none of the registered sections.
+        # It has its own dedicated tests below.
+        monkeypatch.setattr(
+            mod, "_check_h2_parity", lambda *a, **kw: [],
+        )
         return mod.check()
 
     def test_clean_badges_pass(self, tmp_path, monkeypatch):
@@ -596,3 +602,66 @@ class TestDocsMapDrift:
         errors = mod._check_docs_map_drift(readme, tmp_path)
         assert errors, "expected an error for missing section header"
         assert any("header" in e.lower() for e in errors), errors
+
+
+class TestH2SectionParity:
+    """Cross-language H2 section-parity check.
+
+    Catches a whole section existing in one README but not the other —
+    the drift that shipped EN without Codebook RAG / Benchmark Results
+    for months while CN had both.
+    """
+
+    def _readmes_from_pairs(self, mod, drop_en=None, extra_cn=None,
+                            include_cn_only=True):
+        """Render synthetic CN/EN READMEs from the registered map.
+
+        drop_en: omit this EN section title (simulate EN drift).
+        extra_cn: append this unregistered CN H2 (simulate an orphan).
+        """
+        cn_titles = [p[0] for p in mod._H2_PAIRS]
+        en_titles = [p[1] for p in mod._H2_PAIRS if p[1] != drop_en]
+        if include_cn_only:
+            cn_titles += sorted(mod._CN_ONLY_H2)
+        if extra_cn:
+            cn_titles.append(extra_cn)
+
+        def render(ts):
+            return "# T\n\n" + "\n\n".join(
+                f"## {t}\n\nbody" for t in ts) + "\n"
+
+        return render(cn_titles), render(en_titles)
+
+    def test_h2_parity_clean_against_real_readme(self):
+        """The checked-in READMEs must satisfy the registered map.
+        Fails loudly with the drift if a section is single-sided."""
+        mod = _load_module()
+        errs = mod._check_h2_parity(
+            mod.CN.read_text(encoding="utf-8"),
+            mod.EN.read_text(encoding="utf-8"),
+        )
+        assert errs == [], errs
+
+    def test_h2_parity_clean_synthetic(self):
+        """A synthetic pair containing exactly the registered sections
+        (plus CN-only) is clean — CN-only titles are not orphans."""
+        mod = _load_module()
+        cn, en = self._readmes_from_pairs(mod)
+        assert mod._check_h2_parity(cn, en) == []
+
+    def test_h2_parity_detects_missing_en_section(self):
+        """Dropping a registered EN section is flagged as missing."""
+        mod = _load_module()
+        drop = mod._H2_PAIRS[-1][1]
+        cn, en = self._readmes_from_pairs(mod, drop_en=drop)
+        errs = mod._check_h2_parity(cn, en)
+        assert any("EN README is missing" in e and drop in e
+                   for e in errs), errs
+
+    def test_h2_parity_detects_cn_orphan(self):
+        """An unregistered CN H2 is flagged as an orphan."""
+        mod = _load_module()
+        cn, en = self._readmes_from_pairs(mod, extra_cn="未登记的新章节")
+        errs = mod._check_h2_parity(cn, en)
+        assert any("unregistered" in e and "未登记的新章节" in e
+                   for e in errs), errs

@@ -739,6 +739,120 @@ def _check_docs_map_drift(readme_path: Path, root: Path) -> List[str]:
     return errors
 
 
+# ── H2 section-parity (cross-language structure drift) ──────────────
+# The stats checks above guard NUMBERS; they can't see when one README
+# gains or loses a whole SECTION the other doesn't have. That drift is
+# real: EN was shipped for months with no "Codebook RAG" and no
+# "Benchmark Results" section while CN had both. String set-diff can't
+# catch it because the headers are in different languages.
+#
+# So we keep an explicit ordered CN↔EN map of the H2 sections that
+# MUST exist in both. The check fires when:
+#   - a paired section is missing from its side (the drift above), or
+#   - either file has an H2 not registered here (someone added a
+#     section without adding its translation / registering it).
+# Relative order is intentionally NOT enforced — CN and EN legitimately
+# order the License / Documentation-Map tail differently.
+#
+# When you add a section to one README, add its counterpart to the
+# other and register the pair here (or add to _CN_ONLY_H2 /
+# _EN_ONLY_H2 if the asymmetry is deliberate).
+
+_H2_PAIRS: List[Tuple[str, str]] = [
+    ("MLGG vs Claude Skill — 架构边界", "MLGG vs Claude Skill — Architecture Boundary"),
+    ("目录", "Table of Contents"),
+    ("为什么需要 MLGG", "Why MLGG"),
+    ("审稿级审查机制", "Reviewer-Grade Review Mechanism"),
+    ("系统能力总览", "System Overview"),
+    ("快速开始", "Quick Start"),
+    ("9 阶段工作流", "9-Phase Workflow"),
+    ("33 道安全门控 (Gate DAG)", "33 Safety Gates (Gate DAG)"),
+    ("12 维量化评分", "12-Dimension Scoring"),
+    ("33 条方法论规则", "33 Methodology Rules"),
+    ("23 个模型族", "23 Model Families"),
+    ("16 个医学数据集", "16 Medical Datasets"),
+    ("30 条静态分析规则 (R001-R030)", "30 Static Analysis Rules (R001-R030)"),
+    ("21 项分析工具", "21 Analysis Tools"),
+    ("Codebook RAG 系统（NHANES + UKB）", "Codebook RAG (NHANES + UKB)"),
+    ("安全加固层", "Security Hardening Layer"),
+    ("基准测试结果", "Benchmark Results"),
+    ("项目结构", "Project Structure"),
+    ("安装指南", "Installation Guide"),
+    ("命令参考", "Command Reference"),
+    ("文献基础", "Literature Foundation"),
+    ("Claude Code 集成", "Claude Code Integration"),
+    ("CI/CD", "CI/CD"),
+    ("许可证与引用", "License & Citation"),
+    ("文档地图", "Documentation Map"),
+]
+
+# Sections that legitimately exist in only one README.
+# "English Version" is a CN-only footer linking to README_EN.md; the
+# EN file is itself the English version, so it has no counterpart.
+_CN_ONLY_H2: set = {"English Version"}
+_EN_ONLY_H2: set = set()
+
+
+def _extract_h2(text: str) -> List[str]:
+    """Return the ordered list of level-2 (## ) headings in a README.
+
+    Matches lines that start with exactly '## ' (not '###'); the title
+    is everything after the prefix, stripped. Trailing whitespace and
+    the heading marker are removed so titles compare cleanly against
+    the registered map.
+    """
+    out: List[str] = []
+    for line in text.splitlines():
+        if line.startswith("## ") and not line.startswith("###"):
+            out.append(line[3:].strip())
+    return out
+
+
+def _check_h2_parity(cn_text: str, en_text: str) -> List[str]:
+    """Compare CN/EN H2 sections against the registered _H2_PAIRS map.
+
+    Returns human-readable error strings (empty == clean). Two failure
+    modes per side: a registered section missing from its file, and an
+    H2 present on disk that isn't registered anywhere (orphan).
+    """
+    cn = set(_extract_h2(cn_text))
+    en = set(_extract_h2(en_text))
+
+    expected_cn = {p[0] for p in _H2_PAIRS} | _CN_ONLY_H2
+    expected_en = {p[1] for p in _H2_PAIRS} | _EN_ONLY_H2
+
+    errors: List[str] = []
+    for cn_title, en_title in _H2_PAIRS:
+        if cn_title not in cn:
+            errors.append(
+                f"H2-parity: CN README is missing section '## {cn_title}' "
+                f"(EN has its pair '## {en_title}'). Add it or update "
+                f"_H2_PAIRS in check_readme_stats.py."
+            )
+        if en_title not in en:
+            errors.append(
+                f"H2-parity: EN README is missing section '## {en_title}' "
+                f"(CN has its pair '## {cn_title}'). Add it or update "
+                f"_H2_PAIRS in check_readme_stats.py."
+            )
+
+    cn_orphans = sorted(cn - expected_cn)
+    en_orphans = sorted(en - expected_en)
+    if cn_orphans:
+        errors.append(
+            f"H2-parity: CN README has unregistered section(s) {cn_orphans}. "
+            f"Add the matching EN section and register the pair in "
+            f"_H2_PAIRS (or add to _CN_ONLY_H2 if intentionally CN-only)."
+        )
+    if en_orphans:
+        errors.append(
+            f"H2-parity: EN README has unregistered section(s) {en_orphans}. "
+            f"Add the matching CN section and register the pair in "
+            f"_H2_PAIRS (or add to _EN_ONLY_H2 if intentionally EN-only)."
+        )
+    return errors
+
+
 def check() -> Tuple[int, List[str]]:
     """Return (exit_code, error_messages)."""
     errors: List[str] = []
@@ -837,6 +951,12 @@ def check() -> Tuple[int, List[str]]:
     # table actually reflects reality.
     errors.extend(_check_docs_map_drift(CN, ROOT))
     errors.extend(_check_docs_map_drift(EN, ROOT))
+
+    # H2 section parity (cross-language structure drift) — catches a
+    # whole section existing in one README but not the other.
+    errors.extend(_check_h2_parity(
+        CN.read_text(encoding="utf-8"), EN.read_text(encoding="utf-8")
+    ))
 
     return (2 if errors else 0), errors
 
