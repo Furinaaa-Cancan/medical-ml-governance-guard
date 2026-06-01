@@ -732,6 +732,7 @@ _H2_PAIRS: List[Tuple[str, str]] = [
     ("目录", "Table of Contents"),
     ("为什么需要 MLGG", "Why MLGG"),
     ("审稿级审查机制", "Reviewer-Grade Review Mechanism"),
+    ("Peer-Review RAG（审稿意见语义检索）", "Peer-Review RAG (Reviewer-Concern Semantic Search)"),
     ("系统能力总览", "System Overview"),
     ("快速开始", "Quick Start"),
     ("9 阶段工作流", "9-Phase Workflow"),

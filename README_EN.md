@@ -37,6 +37,7 @@
 ## Table of Contents
 
 - [Why MLGG](#why-mlgg)
+- [Peer-Review RAG (Reviewer-Concern Semantic Search)](#peer-review-rag-reviewer-concern-semantic-search)
 - [System Overview](#system-overview)
 - [Quick Start](#quick-start)
 - [9-Phase Workflow](#9-phase-workflow)
@@ -125,6 +126,10 @@ Structurally extracted 817 review opinions from 154 NC + CM medical ML papers (1
 **Honest coverage caveat**: the KB is peer-review opinions on already-published NC papers. The pre-publication filter removes egregious leakage, so leakage-category concerns are rare by design (≈4%). The KB is strong on evaluation / reporting / external validation; for leakage failures rely on `leakage_gate` + `mlgg-lint` R001-R030 rather than the KB.
 
 > When MLGG finds an issue in your code, it doesn't just say "violated rule E02" &mdash; it tells you: *"NC+CM reviewers requested improved evaluation metrics 196 times (24%) across 154 papers. This is the most frequently raised concern category."*
+
+---
+
+## Peer-Review RAG (Reviewer-Concern Semantic Search)
 
 **RAG Semantic Retrieval Layer (`scripts/rag/`):** local dense-vector RAG over the 817 reviewer_concerns KB (817 concerns indexed for RAG), covering the colloquial / long-tail / cross-tag queries that pure BM25 misses.
 
