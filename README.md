@@ -43,6 +43,7 @@
 
 - [为什么需要 MLGG](#为什么需要-mlgg)
 - [审稿级审查机制](#审稿级审查机制)
+- [Peer-Review RAG（审稿意见语义检索）](#peer-review-rag审稿意见语义检索)
 - [系统能力总览](#系统能力总览)
 
 ### 上手（30 秒 → 9 阶段）
@@ -144,6 +145,10 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 **KB 覆盖诚实说明**：KB 是 NC 已发表论文的审稿意见——pre-publication filter 已经筛掉了严重 leakage。结果：leakage 类审稿意见稀少（≈4%）；KB 强在 evaluation / reporting / external validation，弱在 leakage。遇到 leakage 失败时优先依赖 `leakage_gate` + `mlgg-lint` R001-R030，不依赖 KB。
 
 > 当 MLGG 发现你的代码有问题时，它不只是说"违反了规则 E02"——它会告诉你：*"NC+CM 审稿人在 154 篇论文中 196 次（24%）要求完善评估指标。这是审稿人最常提出的问题类别。"*
+
+---
+
+## Peer-Review RAG（审稿意见语义检索）
 
 **RAG 语义检索层（`scripts/rag/`）：** 在 817 条 reviewer_concerns KB 之上的本地密集向量 RAG（817 concerns indexed for RAG），覆盖 BM25 检索覆盖不到的口语化、长尾、跨 tag 查询。
 
