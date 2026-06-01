@@ -125,6 +125,7 @@ Both end up running the **same Python gate**. The Skill saves keystrokes, not co
 - [21 Analysis Tools](#21-analysis-tools)
 - [Codebook RAG (NHANES + UKB)](#codebook-rag-nhanes--ukb)
 - [Security Hardening Layer](#security-hardening-layer)
+- [Benchmark Results](#benchmark-results)
 - [Project Structure](#project-structure)
 - [Installation Guide](#installation-guide)
 - [Command Reference](#command-reference)
@@ -1168,6 +1169,22 @@ See `references/codebooks/dataset-codebook-registry.json`, `scripts/codebooks/nh
 | Execution Attestation | OpenSSL detached signatures **+ `trusted_signers.json` fingerprint allowlist (external trust anchor) + freshness window (default 7 days) + bundle path sandbox** + witness arbitration (min 2) + key rotation (180 days) | Fail-closed against self-authentication, replay, and path escape |
 | Sensitive Data | 18-pattern scan (API keys, PEM blocks, PHI fields, SSN, credit cards) | Auto-detect |
 | Key Protection | .mlgg_model_key chmod 0o600, .gitignore protection, upward search + downgrade warning | Hardened |
+
+---
+
+## Benchmark Results
+
+End-to-end benchmarks on 5 medical datasets (all stored under `experiments/`):
+
+| Dataset | Rows | Features | Prevalence | ROC-AUC | PR-AUC | Calibration (slope) | Key finding |
+|--------|------|------|-----------|---------|--------|-------------|---------|
+| CKD (chronic kidney disease) | 399 | 24 | 63% | 0.999 | 1.000 | 3.08 | Tiny sample, diagnostic features extremely separable |
+| RHC ICU mortality | 5,735 | 54 | 65% | 0.750 | 0.834 | **0.977** | Best calibration, high-prevalence cohort |
+| SUPPORT2 critical care | 9,105 | 43 | 26% | 0.789 | 0.610 | 0.955 | Found and excluded 11 leakage / post-index variables |
+| NHANES diabetes | 15,549 | 12 | 18% | 0.810 | 0.443 | — | Cross-sectional data, no temporal order |
+| Sepsis | 129,392 | 3 | 9% | 0.689 | 0.159 | 0.804 | Only 3 features, limited performance (correctly reflected) |
+
+> Each benchmark ships a full evidence report (33 gate results + session_log). The SUPPORT2 run surfaced and fixed 6 pipeline bugs (feature-leakage detection, categorical-variable retention, scoma encoding, etc.).
 
 ---
 
