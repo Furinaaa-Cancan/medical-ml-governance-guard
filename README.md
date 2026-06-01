@@ -16,7 +16,7 @@
   <a href="https://github.com/Furinaaa-Cancan/medical-ml-governance-guard"><img src="https://img.shields.io/badge/GitHub-Furinaaa--Cancan%2Fmedical--ml--governance--guard-181717?logo=github" alt="GitHub Repo"></a>
   <br>
   <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/"><img src="https://img.shields.io/badge/License-PolyForm%20NC%201.0.0-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/tests-6426%20passed-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-6435%20passed-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/gates-33%20fail--closed-critical" alt="Gates">
   <img src="https://img.shields.io/badge/datasets-16%20medical-purple" alt="Datasets">
   <img src="https://img.shields.io/badge/code-147K%20lines-informational" alt="Code">
@@ -45,7 +45,7 @@
 
 ```
 ┌──────────────────────────────────────────┐
-│  SKILL.md + CLAUDE.md  ~380 行           │  ⚠️ 可能幻觉
+│  SKILL.md + CLAUDE.md  ~430 行           │  ⚠️ 可能幻觉
 │  软决策：跑哪个阶段、理解用户意图        │  读者：LLM
 └──────────────────────────────────────────┘
                   ↓ 编排调用
@@ -56,7 +56,7 @@
 └──────────────────────────────────────────┘
                   ↓ KB 查询
 ┌──────────────────────────────────────────┐
-│  references/  ~2 MB human-curated KB     │  ✅ 0 幻觉
+│  references/  ~5 MB human-curated KB     │  ✅ 0 幻觉
 │  peer-review-kb.json （154 已抽 + 181 待抽）│  读者：SQL / JSON
 │  codebooks/ukb （8 层验证，1.87M cells） │
 │  methodology/disease-kb.json             │
@@ -193,7 +193,7 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 
 **审稿证据库 (Peer Review Knowledge Base)：**
 
-从 154 篇 NC + CM 医学 ML 论文中结构化提取了 817 条审稿意见（另有 230 篇 PDF 已收录待抽取）。**检索精度经过 2026-04 重构**：原版只按 mlgg_gates 过滤 + severity 排序（在 clinical_metrics_gate 的 ppv 失败上精度仅 20%）；现在用 `retrieve_for_failure(gate_name, issue_codes)`——分词失败代码 → 过滤 stopwords → 按 `tag_overlap × 3 + text_overlap` 重排 → 无匹配时回退 severity 兜底。
+从 154 篇 NC + CM 医学 ML 论文中结构化提取了 817 条审稿意见（另 181 篇 PDF 已收录待抽取）。**检索精度经过 2026-04 重构**：原版只按 mlgg_gates 过滤 + severity 排序（在 clinical_metrics_gate 的 ppv 失败上精度仅 20%）；现在用 `retrieve_for_failure(gate_name, issue_codes)`——分词失败代码 → 过滤 stopwords → 按 `tag_overlap × 3 + text_overlap` 重排 → 无匹配时回退 severity 兜底。
 
 | 类别 | 占比² | 示例审稿人原话 |
 |:-----|:-----|:-------------|
