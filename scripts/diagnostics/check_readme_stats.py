@@ -584,7 +584,7 @@ _CLAIMS: List[Dict[str, object]] = [
 
 # Doc-map section headers — first match wins. Use a list so we can
 # scan for either CN or EN heading without coupling to language.
-_DOC_MAP_HEADERS: List[str] = ["## 📂 文档地图", "## Documentation Map"]
+_DOC_MAP_HEADERS: List[str] = ["## 文档地图", "## 📂 文档地图", "## Documentation Map"]
 
 # Paths under docs/ we never expect in the table. diagnostics/ is the
 # frozen W9-D1 archive (30 entries). AppleDouble dotfiles ("._foo.md")
