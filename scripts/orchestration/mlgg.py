@@ -641,9 +641,13 @@ def main() -> int:
                     error_json=bool(args.error_json),
                 )
             cmd = [python_bin, str(wizard_script), "--help"]
-            print(f"$ {shlex.join(cmd)}", file=sys.stderr)
+            # --dry-run: echo resolved command to stdout (the deliverable);
+            # real runs keep it on stderr.
+            echo_line = f"$ {shlex.join(cmd)}"
             if args.dry_run:
+                print(echo_line)
                 return 0
+            print(echo_line, file=sys.stderr)
             return _run_subprocess(cmd, cwd, timeout=60)
         target_command = str(args.interactive_command).strip() if args.interactive_command else subcommand
         if target_command == "interactive":
@@ -692,9 +696,13 @@ def main() -> int:
         if args.accept_defaults:
             cmd.append("--accept-defaults")
         cmd.extend(passthrough)
-        print(f"$ {shlex.join(cmd)}", file=sys.stderr)
+        # --dry-run: echo resolved command to stdout (the deliverable);
+        # real runs keep it on stderr.
+        echo_line = f"$ {shlex.join(cmd)}"
         if args.dry_run:
+            print(echo_line)
             return 0
+        print(echo_line, file=sys.stderr)
         return _run_subprocess(cmd, cwd)
 
     # Built-in commands that don't dispatch to a script
@@ -779,9 +787,13 @@ def main() -> int:
     if subcommand == "lint":
         plugin_dir = str(REPO_ROOT / "plugin")
         cmd = [python_bin, "-m", "mlgg_lint", *preset_args, *passthrough]
-        print(f"$ PYTHONPATH={plugin_dir} {shlex.join(cmd)}", file=sys.stderr)
+        # In --dry-run the resolved command line IS the deliverable, so echo it
+        # to stdout where callers/tests inspect it; real runs keep it on stderr.
+        lint_echo_line = f"$ PYTHONPATH={plugin_dir} {shlex.join(cmd)}"
         if args.dry_run:
+            print(lint_echo_line)
             return 0
+        print(lint_echo_line, file=sys.stderr)
         import os as _os
         env = _os.environ.copy()
         existing = env.get("PYTHONPATH", "")

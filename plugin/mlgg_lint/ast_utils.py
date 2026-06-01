@@ -143,7 +143,9 @@ class TaintTracker:
     # line number where the first split call occurs
     split_line: Optional[int] = None
 
-    def record_split(self, targets: List[str], line: int) -> None:
+    def record_split(
+        self, targets: List[str], line: int, *, positional: bool = True
+    ) -> None:
         """Record a ``train_test_split`` / ``kf.split`` unpacking.
 
         Taint for each target is derived from two complementary signals:
@@ -151,7 +153,9 @@ class TaintTracker:
         1. **Name heuristic** (``classify_var_name``) — preferred when it
            yields a definite class, since explicit names (``X_test``) are the
            strongest evidence and also capture ``valid`` which has no
-           positional counterpart.
+           positional counterpart. This signal is *always* applied because a
+           variable literally named ``X_test`` is holdout data regardless of
+           how the unpack was produced.
         2. **Positional convention** — ``train_test_split`` returns its outputs
            interleaved as ``train1, test1, train2, test2, ...`` (and a
            ``kf.split`` loop yields ``train_idx, test_idx``). So for a genuine
@@ -161,6 +165,15 @@ class TaintTracker:
            heuristic alone would leave as ``"unknown"`` (causing downstream
            leakage rules to miss them).
 
+        The positional convention is **only sound for genuine train/test split
+        results**. Callers that cannot prove the right-hand side is a real
+        ``train_test_split`` / CV ``split`` call (e.g. an arbitrary
+        ``for a, b in obj.split(...)`` loop where ``split`` may be
+        ``str.split`` / ``re.Pattern.split`` / a user method) MUST pass
+        ``positional=False`` so that interleaved train/test taint is not
+        fabricated for arbitrary tuple unpacks. When ``positional=False`` the
+        name heuristic still runs; only the positional fallback is suppressed.
+
         A single target (e.g. ``splits = train_test_split(...)``) carries no
         positional information and stays ``"unknown"`` unless its name is
         classifiable.
@@ -168,9 +181,12 @@ class TaintTracker:
         if self.split_line is None:
             self.split_line = line
         # Positional convention only applies to a real tuple unpacking with an
-        # even count (train/test pairs). Odd or single-target unpacks (e.g.
-        # ``splits = train_test_split(...)``) have no reliable positional taint.
-        use_positional = len(targets) >= 2 and len(targets) % 2 == 0
+        # even count (train/test pairs) AND only when the caller has confirmed
+        # the source is a genuine split call (``positional=True``). Odd or
+        # single-target unpacks (e.g. ``splits = train_test_split(...)``) have
+        # no reliable positional taint, and neither do arbitrary unpacks from a
+        # non-split ``.split()`` method (``positional=False``).
+        use_positional = positional and len(targets) >= 2 and len(targets) % 2 == 0
         for idx, name in enumerate(targets):
             taint = classify_var_name(name)
             if taint is None and use_positional:

@@ -16,7 +16,7 @@
   <a href="https://github.com/Furinaaa-Cancan/medical-ml-governance-guard"><img src="https://img.shields.io/badge/GitHub-Furinaaa--Cancan%2Fmedical--ml--governance--guard-181717?logo=github" alt="GitHub Repo"></a>
   <br>
   <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/"><img src="https://img.shields.io/badge/License-PolyForm%20NC%201.0.0-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/tests-6426%20passed-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-6435%20passed-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/gates-33%20fail--closed-critical" alt="Gates">
   <img src="https://img.shields.io/badge/datasets-16%20medical-purple" alt="Datasets">
   <img src="https://img.shields.io/badge/code-147K%20lines-informational" alt="Code">
@@ -37,80 +37,15 @@
 
 ---
 
-## MLGG vs Claude Skill — 架构边界
-
-> **MLGG 是 hybrid**：Claude Skill 做外壳，Python gate 做内核。**幻觉最多改变「跑了哪些 gate」，改变不了「每个 gate 的 pass/fail」。**
-
-### 三层结构（层内标注了各自的幻觉风险）
-
-```
-┌──────────────────────────────────────────┐
-│  SKILL.md + CLAUDE.md  ~380 行           │  ⚠️ 可能幻觉
-│  软决策：跑哪个阶段、理解用户意图        │  读者：LLM
-└──────────────────────────────────────────┘
-                  ↓ 编排调用
-┌──────────────────────────────────────────┐
-│  33 道 gate  ~40K 行 Python              │  ✅ 0 幻觉
-│  硬决策：pass / fail / critical 三态     │  读者：CPython
-│  同输入同输出，CI 可回归                 │
-└──────────────────────────────────────────┘
-                  ↓ KB 查询
-┌──────────────────────────────────────────┐
-│  references/  ~2 MB human-curated KB     │  ✅ 0 幻觉
-│  peer-review-kb.json （154 已抽 + 181 待抽）│  读者：SQL / JSON
-│  codebooks/ukb （8 层验证，1.87M cells） │
-│  methodology/disease-kb.json             │
-└──────────────────────────────────────────┘
-```
-
-**幻觉锁在最顶层**——下面两层永远拿确定性算法 + 静态数据算 pass/fail。
-
-### 适用范围（W26 Amendment 2 — 不是所有输入都跑 3 层）
-
-| 输入 | 路由 | 跑的层 | 不跑的层 |
-|---|---|---|---|
-| **A. 你的训练流水**（自带 `evidence/*.json`） | `mlgg workflow --strict` / `/mlgg` | L1 + **L2 33 gate** + L3 | — |
-| **B. 外部 code + paper 联审** | `mlgg audit <dir>` + `mlgg rag` | L1 lint + L3 RAG | **L2 跳过** |
-| **C. 纯 paper 审查**（无 code） | `mlgg rag` / `peer_review_lookup.py` | L3 RAG only | L1 + L2 |
-
-> **L2 33 gate 是 instrumented-run 契约，不是外部审计武器**。外部 repo 不会主动 emit `--evaluation-report`/`--prediction-trace`/`--protocol-spec`/`--tuning-spec`，强跑得到 33/33 全 fail-noisy。W25 实测 8 篇外部 NMI/MIMIC 论文 **L2 = 0/264 gate-paper pair** 命中，是结构性约束不是 bug。详见 [`references/benchmark/hybrid_v1_spec.md`](references/benchmark/hybrid_v1_spec.md) §Amendment 2 + [`docs/diagnostics/W25_hybrid_aggregate.md`](docs/diagnostics/W25_hybrid_aggregate.md)。
-
-### 逐行风险：哪些动作可能被幻觉影响？
-
-| 动作 | 层 | 幻觉风险 | 能否改变 pass/fail |
-|---|---|---|---|
-| `/mlgg` 决定跑哪个 workflow | Skill | ⚠️ | ❌ 可能多/漏跑，但**每个跑了的 gate 结论仍然确定** |
-| Claude 用自然语言总结 gate 输出 | Skill | ⚠️ | ❌ 只是表达层偏差 |
-| `leakage_gate.py` 判定标签泄漏 | Python | ✅ | ❌ 确定性算法 |
-| `calibration_dca_gate.py` 算 ICI/DCA | Python | ✅ | ❌ 纯数值计算 |
-| `verify_ukb_codebook.py` 8 层验证 | Python | ✅ | ❌ 1.87M cell 全量对账 |
-| 从 `peer-review-kb.json` 引审稿意见 | references | ✅ | ❌ SQL / JSON 精确查找 |
-
-### 两种用法，底层同一份 pass/fail
-
-- **交互**：`/mlgg` → Claude 读你的意图 → 自动编排 9 阶段 pipeline
-- **CI / 发布级**：`python3 scripts/gates/leakage_gate.py --data x.csv` —— 跳过 Skill，直接调底层
-
-两种用法最终跑的是**同一份 Python gate**。Skill 省的是「敲命令的时间」，不承担正确性。
-
-### 工程保证（而不只是愿景）
-
-- **SKILL.md ≤ 500 行**：当前 334 行，符合 Claude Code 官方建议；超长内容拆到 `docs/` 或 gate docstring。
-- **文档数字 pre-commit 校验**：`check_docs_consistency.py` + `check_readme_stats.py` 抓 `SKILL.md ↔ README ↔ reviewer.yaml` 的 parity 和 KB freshness drift，**PR 会被 fail 而不是 merge 后才发现**。
-- **阈值是代码不是 prompt**：所有 pass/fail 阈值、validator 规则、检测算法都是 Python 常量 + 函数，gate 不从 markdown 读判定逻辑。
-
----
-
 ## 目录
 
-### 🎯 概览（先读这块决定要不要继续）
+### 概览（先读这块决定要不要继续）
 
-- [MLGG vs Claude Skill — 架构边界](#mlgg-vs-claude-skill--架构边界)
 - [为什么需要 MLGG](#为什么需要-mlgg)
 - [审稿级审查机制](#审稿级审查机制)
 - [系统能力总览](#系统能力总览)
 
-### 🚀 上手（30 秒 → 9 阶段）
+### 上手（30 秒 → 9 阶段）
 
 - [快速开始](#快速开始)
 - [安装指南](#安装指南)
@@ -125,7 +60,7 @@
   - [阶段八：公平性与亚组分析](#阶段八公平性与亚组分析)
   - [阶段九：报告与合规](#阶段九报告与合规)
 
-### 📚 Reference（33 gate / 30 lint / 23 模型 / 16 数据集 / 21 工具）
+### Reference（33 gate / 30 lint / 23 模型 / 16 数据集 / 21 工具）
 
 - [33 道安全门控 (Gate DAG)](#33-道安全门控-gate-dag)
 - [33 条方法论规则](#33-条方法论规则)
@@ -134,18 +69,18 @@
 - [23 个模型族](#23-个模型族)
 - [16 个医学数据集](#16-个医学数据集)
 - [21 项分析工具](#21-项分析工具)
-- [NHANES Codebook RAG 系统](#nhanes-codebook-rag-系统)
+- [Codebook RAG 系统（NHANES + UKB）](#codebook-rag-系统nhanes--ukb)
 - [基准测试结果](#基准测试结果)
 - [命令参考](#命令参考)
 - [项目结构](#项目结构)
 
-### 🔬 设计 + 工程
+### 设计 + 工程
 
 - [安全加固层](#安全加固层)
 - [Claude Code 集成](#claude-code-集成)
 - [CI/CD](#cicd)
 - [文献基础](#文献基础)
-- [文档地图](#-文档地图)
+- [文档地图](#文档地图)
 - [许可证与引用](#许可证与引用)
 - [English Version](#english-version)
 
@@ -193,7 +128,7 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 
 **审稿证据库 (Peer Review Knowledge Base)：**
 
-从 154 篇 NC + CM 医学 ML 论文中结构化提取了 817 条审稿意见（另有 230 篇 PDF 已收录待抽取）。**检索精度经过 2026-04 重构**：原版只按 mlgg_gates 过滤 + severity 排序（在 clinical_metrics_gate 的 ppv 失败上精度仅 20%）；现在用 `retrieve_for_failure(gate_name, issue_codes)`——分词失败代码 → 过滤 stopwords → 按 `tag_overlap × 3 + text_overlap` 重排 → 无匹配时回退 severity 兜底。
+从 154 篇 NC + CM 医学 ML 论文中结构化提取了 817 条审稿意见（另 181 篇 PDF 已收录待抽取）。**检索精度经过 2026-04 重构**：原版只按 mlgg_gates 过滤 + severity 排序（在 clinical_metrics_gate 的 ppv 失败上精度仅 20%）；现在用 `retrieve_for_failure(gate_name, issue_codes)`——分词失败代码 → 过滤 stopwords → 按 `tag_overlap × 3 + text_overlap` 重排 → 无匹配时回退 severity 兜底。
 
 | 类别 | 占比² | 示例审稿人原话 |
 |:-----|:-----|:-------------|
@@ -222,16 +157,14 @@ python3 scripts/rag/query.py "no calibration in evaluation"
 # ... (top-5)
 ```
 
-**架构：**
+**架构（离线 hybrid 路径，`scripts/rag/query.py`）：**
 
 ```
-query → embed (BGE-small) → cosine top-50¹ → + BM25 (issue-code) + gate filter
-     → tag/canonical-pattern boost + severity tiebreak → top-K
+query → embed (BGE-small, 384d) → cosine top-50 → 4 信号融合 → top-K
+        融合权重: 0.45·BM25 + 0.30·tag-overlap + 0.15·severity + 0.10·dense
 ```
 
-> ¹ 当前 dense 权重的真实贡献请见 [docs/RAG_TROUBLESHOOTING.md §9 "Hybrid scores worse than BM25"](docs/RAG_TROUBLESHOOTING.md)（W11-M1 加入），并参考下面的「Wave 11 修正」。
-
-> **Wave 11 背景（W11-I1 ablation, [ADR 0001](docs/adr/0001_mmr_breakdown_consumer.md)）**：当时的 `dense_weight=0.5` 在 30-scenario 基准上被证实是 dilutor——`hybrid_no_dense` mean_tag_p@5 = **0.447** > `bm25_only` **0.436** > `hybrid_all` **0.353**。换句话说旧的 4-signal 融合（dense + BM25 + tag + severity）整体跑输只跑 BM25。**W13-P0 已修复**：`WEIGHT_DENSE` demote 到 0.10（见下方「已修复」段与 [docs/ARCHITECTURE.md Q5](docs/ARCHITECTURE.md)）。
+> 4 个融合权重在 `scripts/rag/config.py` 写死且和恒为 1.0（`test_weights_sum_to_one` 回归保护）。dense 权重刻意压低到 0.10——BM25 与 tag-overlap 是主信号，dense 只补口语化/长尾/跨 tag 查询。定权依据的 ablation 与历史见 [CHANGELOG.md](CHANGELOG.md) 与 [ADR 0001](docs/adr/0001_mmr_breakdown_consumer.md)。
 
 **三种使用模式：**
 
@@ -249,31 +182,11 @@ query → embed (BGE-small) → cosine top-50¹ → + BM25 (issue-code) + gate f
 
 ### 已知限制 (Known Limitations)
 
-5-agent 严格审查梳理出以下 5 条诚实限制，均不阻断发布，但用户应当事先知情。
-
-#### ✅ RAG hybrid ranker dense 权重失衡（Wave 11 发现，Wave 13 已修复）
-
-W11-I1 ablation（commit [`b1e9c8d`](../../commit/b1e9c8d)）在 30 scenarios 上测得旧的生产 hybrid_rank：
-
-- `hybrid_all`（旧 `WEIGHT_DENSE=0.5`）: mean_tag_p@5 = **0.353**
-- `bm25_only`: **0.436**（比旧 hybrid 高 0.083）
-- `hybrid_no_dense`: **0.447**（最佳）
-
-**结论**：`WEIGHT_DENSE=0.5` 是 dilutor，**旧 RAG 检索质量低于纯 BM25**。
-
-**已修复**：commit [`cc3c717`](../../commit/cc3c717) (W13-P0) 将 `WEIGHT_DENSE` 从 0.5 demote 到 0.10，重平衡 BM25/tag/severity 权重；W13-P0 harness 实测 mean_tag_precision 从 0.353 提升至 0.438（与 W11-I1 预测的 0.44 一致）。`tests/test_rag_config.py` 加入两条回归 invariant：`test_weights_sum_to_one`、`test_dense_weight_demoted_per_w11_i1`（gate `WEIGHT_DENSE < 0.2`）。
-
-**用户应对**：
-
-- 现状：直接使用默认 hybrid 即可；无须再切换 `--mode bm25_only`。
-- 旧的临时绕过方案 `--mode bm25_only` 仍保留，便于 ablation。
-- 详情：[docs/RAG_TROUBLESHOOTING.md §9](docs/RAG_TROUBLESHOOTING.md) + [ADR 0001](docs/adr/0001_mmr_breakdown_consumer.md)
-
----
+以下 5 条为诚实限制，均不阻断发布，但用户应当事先知情。
 
 **1. BM25 仅在 gate 锚定模式下工作**
 
-调用 `rag_query(q)` 时若未传 `gate=` 参数（CLI 默认情况），hybrid ranker 会静默跳过 BM25，自由文本评分退化为 dense + tag + severity 三信号。F1 修复后，活跃权重会重新归一化以保证最终得分仍达 1.0，但请注意 BM25 是 gate 锚定信号。
+调用 `rag_query(q)` 时若未传 `gate=` 参数（CLI 默认情况），hybrid ranker 会静默跳过 BM25，自由文本评分退化为 dense + tag + severity 三信号。此时活跃权重会自动重新归一化以保证最终得分仍达 1.0，但请注意 BM25 是 gate 锚定信号。
 
 > 生产 gate 钩子建议始终传 `(gate, failure_codes)` 获取完整 4 信号排序；CLI 探索性查询应预期 dense 主导的结果。
 
@@ -299,7 +212,7 @@ W11-I1 ablation（commit [`b1e9c8d`](../../commit/b1e9c8d)）在 30 scenarios �
 - `security_audit_gate` — 安全检查
 - `self_critique_gate` — 反思层
 
-F2 修复后，gate report 不会再为这些 gate 显示占位条目；F2 之前的 "no concerns retrieved" 占位会让人误以为是检索失败。
+gate report 不会为这些 gate 显示占位条目——避免 "no concerns retrieved" 占位被误读为检索失败。
 
 **4. 首次查询冷启动延迟**
 
@@ -535,7 +448,7 @@ MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通
 | 目标别名 | `target`, `label`, `outcome` | `target_col`, `outcome_flag` |
 | 确诊后变量 | `pred_`, `confirmed_`, `staging` | `pred_risk`, `confirmed_diagnosis` |
 | 病理结果 | `pathology`, `biopsy_result`, `histology` | `biopsy_result_code` |
-| 时间泄漏 | `next_`, `future_`, `post_`, `after_` | `next_visit_date`, `post_surgery` |
+| 时间泄漏 | `future_`, `post_`, `after_` | `future_diagnosis`, `post_surgery` |
 | 结局日期 | `diagnosis_date`, `death_date`, `event_date` | `discharge_date` |
 | 衍生指标 | `readmit`, `mortality_flag`, `los_days` | `readmit_30d`, `survival_status` |
 
@@ -1340,21 +1253,35 @@ python3 -m mlgg_lint /path/to/code/
 
 ---
 
-## NHANES Codebook RAG 系统
+## Codebook RAG 系统（NHANES + UKB）
 
-公共数据集（NHANES、BRFSS 等）的变量定义、skip pattern、编码规则常被误解，导致静默的数据泄漏。MLGG 内置三层 RAG 检索自动拦截：
+公共数据集（NHANES、BRFSS）与大型队列（UK Biobank）的变量定义、skip pattern、instance/array 结构、编码规则常被误解，导致静默的数据泄漏。MLGG 为两类数据各内置一套 codebook 检索 + gate 集成自动拦截。
+
+### NHANES / 横截面（`nhanes_codebook_lookup.py`）
 
 | 层 | 机制 | 覆盖 |
 |---|------|------|
 | Layer 1 | **手动 Codebook Registry** — 人工标注的变量元数据（类型、gated missingness、测量协议、反向因果） | 21 个 NHANES 变量 |
 | Layer 2 | **RAG 自动检索** — BM25 + trigram 混合检索 Harvard CCB-HMS codebook（上游目录约 58K 变量；本仓库实际随附 TSV 约 16K distinct 变量）+ skip-chain 图 | 3,964 变量/cycle |
-| Layer 3 | **Disease-KB x Codebook** — 从疾病定义知识库提取排除术语，映射到 NHANES codes | 自动标记 definition variable |
+| Layer 3 | **Disease-KB × Codebook** — 从疾病定义知识库提取排除术语，映射到 NHANES codes | 自动标记 definition variable |
+
+### UK Biobank（`ukb_codebook_lookup.py`）
+
+UKB 的「字段-instance-array」结构（同一字段在 baseline / imaging / repeat 多次采集）是 NHANES 不存在的泄漏来源。MLGG 随附经 8 层验证的 UKB codebook，并内置专用检索：
+
+- **规模**：11,821 字段 + 533,286 编码值 + 216 golden seeds + 106 别名；8 层验证（源 sha256/字节/行数 → 结构不变量 → 1.87M cell 逐格对账 → golden-seed 真值）。
+- **检索**：FTS5 BM25 全文检索 + 别名层 / 标题精确层重排（修正 `hba1c` 等医学缩写被纯 BM25 排错的问题）；列名解析支持 RAP（`p21001_i0_a0`）、Showcase（`21001-0.0`）、裸字段 ID 三种命名约定。
+- **Gate 集成**：`cohort_definition_gate` 调用 `validate_columns_for_gate()`，按 `risk_category` 拦截泄漏——`outcome_derived` / `death_registry` 判 CRITICAL、`hospital_derived` 判 WARNING；并检测三类 UKB 特有问题：
+  - **时序泄漏**：特征 instance > target instance（如用 imaging 访视的 HbA1c `p30750_i2` 预测 baseline `i0` 结局）；
+  - **instance-participation MNAR**：post-baseline 访视参与率低（instance 1 ≈ 4%、instance 2 ≈ 20%），参与率 < 50% 自动标记 MNAR；
+  - **类别编码**：> 2 类的 categorical 字段被数值编码会强加伪序关系，自动告警。
+- **字段清单生成**：`--generate [disease]` 按疾病从 disease-KB join 出 outcome 字段生成 RAP 字段清单；`--exclude-risk outcome_derived,death_registry,hospital_derived` 一键剔除泄漏风险类。
 
 **Onboarding 自动触发**：`mlgg onboarding --input-csv nhanes_diabetes.csv` 自动检测 dataset/disease/cross-sectional，训练前运行 codebook RAG + definition_variable_guard + leakage_gate。
 
 **外部验证对齐检查**：`external_validation_gate` 自动检测 degenerate prediction（全阴性/全阳性）、prevalence shift、常数特征，防止无意义的外部验证。缺失特征使用训练集中位数填充。
 
-详见 `references/codebooks/dataset-codebook-registry.json` 和 `scripts/codebooks/nhanes_codebook_lookup.py`。
+详见 `references/codebooks/dataset-codebook-registry.json`、`scripts/codebooks/nhanes_codebook_lookup.py` 与 `scripts/codebooks/ukb_codebook_lookup.py`。
 
 ---
 
@@ -1506,7 +1433,7 @@ medical-ml-governance-guard/
 │   │   ├── add_disease_kb_provenance.py  #   --   disease KB provenance 批量标注
 │   │   └── _kb_provenance.py / __init__.py
 │   │
-│   ├── review/            (9 files, 4.8K LOC)   # 论文分析与审稿案例（含 W29 llm_paper_audit）
+│   ├── review/            (9 files, 4.8K LOC)   # 论文分析与审稿案例（含 llm_paper_audit）
 │   │   ├── peer_review_lookup.py         #   133  154 篇 NC+CM × 817 条审稿意见, 按 gate/tag 检索
 │   │   ├── batch_journal_review.py       #   776  批量期刊审查 (多论文 × 多期刊标准)
 │   │   ├── extract_paper_metadata.py     #  1236  PDF → 结构化 metadata.json (LLM 驱动)
@@ -1579,7 +1506,7 @@ medical-ml-governance-guard/
 │   │   └── journal-rigor-standards.json          # 5 大期刊审稿标准
 │   │
 │   ├── methodology/        (5)           # 方法学知识
-│   │   ├── disease-definition-knowledge-base.json  # 11 种疾病定义 (ICD, 实验室, 药物, UKB 字段) — ⚠ 11/11 pending clinician review (LLM-compiled per W11-F2 + W11-M2 inventory; publication-grade gate fail-closes when consumed)
+│   │   ├── disease-definition-knowledge-base.json  # 11 种疾病定义 (ICD, 实验室, 药物, UKB 字段) — ⚠ 11/11 待临床审核 (LLM 编纂; publication-grade gate 消费时 fail-closed)
 │   │   ├── leakage-taxonomy.md                     # Kapoor 八型泄漏分类
 │   │   └── literature-knowledge-base.json          # 59 篇 IF>10 文献索引
 │   │
@@ -1590,7 +1517,7 @@ medical-ml-governance-guard/
 │   │
 │   ├── case-studies/                     # 审稿案例知识库 ("别人审别人" → 结构化 KB)
 │   │   ├── peer-review-kb.json           #   817 条结构化审稿意见 (按 gate/dimension/tag 索引)
-│   │   ├── nature_communications/        #   286 NC 同行评审 PDF（101 已抽审稿）
+│   │   ├── nature_communications/        #   NC 同行评审 PDF 语料（编目/已抽计数以 peer-review-kb.json 为准）
 │   │   └── <journal>/<disease>/          #   5 期刊 × 10 疾病领域的论文分析
 │   │
 │   ├── templates/          (27)          # JSON 模板 (request, split, evaluation, attestation...)
@@ -1674,7 +1601,7 @@ medical-ml-governance-guard/
 | 入口 | 安装 | 用途 | 依赖 |
 |------|------|------|------|
 | **mlgg-lint** | `pip install mlgg-lint` | 扫描 Python 代码 data leakage（30 条 AST 规则，含 R028 组学守卫） | 零依赖 |
-| **mlgg** | `pip install ml-governance-guard` | 30 个子命令 CLI（onboarding / workflow / audit / audit-metrics / fairness / sample-size / lint / llm-audit / ...），完整 33-gate pipeline + W29 LLM-first paper audit | numpy/pandas/sklearn |
+| **mlgg** | `pip install ml-governance-guard` | 30 个子命令 CLI（onboarding / workflow / audit / audit-metrics / fairness / sample-size / lint / llm-audit / ...），完整 33-gate pipeline + LLM-first paper audit | numpy/pandas/sklearn |
 
 子命令全表见 `SKILL.md` §"Quick Dispatch"。`audit-metrics` 是 `mlgg` 子命令之一，不是独立包。
 
@@ -1810,6 +1737,14 @@ pre-commit install
 | Proportional normalization | Ponce-Bobadilla AV et al. *CTS.* 2024;17(11):e70056 | L1 归一化 |
 | Rashomon effect | Breiman L. *Stat Sci.* 2001;16(3):199-231 | Multi-model ensemble |
 
+### 阶段八：公平性与亚组
+
+| 方法论决策 | 文献来源 | MLGG 实现 |
+|:---------|:----------|:-------------------|
+| 公平性评估推荐 | Collins GS et al. *BMJ.* 2024;385:e078378 (TRIPOD+AI) | `fairness_equity_gate` |
+| 算法种族偏倚 | Obermeyer Z et al. *Science.* 2019;366:447-453 | `fairness_equity_gate` |
+| 亚组适用性 | Moons KGM et al. *BMJ.* 2025;388:e082505 (PROBAST+AI) | 亚组校准 + DCA |
+
 ### 阶段九：报告与合规
 
 | 方法论决策 | 文献来源 | MLGG 实现 |
@@ -1896,7 +1831,7 @@ AI 会自动：
 
 ---
 
-## 📂 文档地图
+## 文档地图
 
 仓库里散落的 markdown 太多——下表按受众分组，找文档不再靠 `find -name '*.md'`。
 

@@ -102,6 +102,9 @@ class TestCLIDryRun:
         cmd = [sys.executable, str(GATE_SCRIPT), "interactive", "--command", "init", "--dry-run"]
         proc = subprocess.run(cmd, capture_output=True, text=True, timeout=15, cwd=str(SCRIPTS_DIR))
         assert proc.returncode == 0
+        # --dry-run echoes the resolved command to stdout consistently across
+        # all dispatch paths (NIT fix); real runs keep it on stderr.
+        assert proc.stdout.startswith("$ ")
 
     def test_play_dry_run(self):
         cmd = [sys.executable, str(GATE_SCRIPT), "play", "--dry-run"]

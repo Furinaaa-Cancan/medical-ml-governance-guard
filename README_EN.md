@@ -13,7 +13,7 @@
   <a href="https://github.com/Furinaaa-Cancan/medical-ml-governance-guard"><img src="https://img.shields.io/badge/GitHub-Furinaaa--Cancan%2Fmedical--ml--governance--guard-181717?logo=github" alt="GitHub Repo"></a>
   <br>
   <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/"><img src="https://img.shields.io/badge/License-PolyForm%20NC%201.0.0-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/tests-6426%20passed-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-6435%20passed-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/gates-33%20fail--closed-critical" alt="Gates">
   <img src="https://img.shields.io/badge/datasets-16%20medical-purple" alt="Datasets">
   <img src="https://img.shields.io/badge/code-147K%20lines-informational" alt="Code">
@@ -34,75 +34,8 @@
 
 ---
 
-## MLGG vs Claude Skill — Architecture Boundary
-
-> **MLGG is hybrid**: Claude Skill is the shell, Python gates are the core. **Hallucination can change *which gates ran*, but not *whether each gate passed*.**
-
-### Three layers (hallucination risk annotated in-place)
-
-```
-┌──────────────────────────────────────────┐
-│  SKILL.md + CLAUDE.md  ~380 lines        │  ⚠️ may hallucinate
-│  Soft decisions: which stage, intent     │  Consumer: LLM
-└──────────────────────────────────────────┘
-                  ↓ orchestrates
-┌──────────────────────────────────────────┐
-│  33 gates  ~40K LOC Python               │  ✅ zero hallucination
-│  Hard verdict: pass / fail / critical    │  Consumer: CPython
-│  Same input → same output, CI-replayable │
-└──────────────────────────────────────────┘
-                  ↓ KB lookups
-┌──────────────────────────────────────────┐
-│  references/  ~2 MB human-curated KB     │  ✅ zero hallucination
-│  peer-review-kb.json (154 curated +181 pend)│  Consumer: SQL / JSON
-│  codebooks/ukb (8-layer verify, 1.87M)   │
-│  methodology/disease-kb.json             │
-└──────────────────────────────────────────┘
-```
-
-**Hallucination is locked in the top layer** — the lower two always resolve pass/fail via deterministic code + static data.
-
-> **Disease-KB review status**: 11 disease entries currently pending clinician review; the publication gate fails closed (W11-F2 commit `04ad7d7` closed a source-only spoof vector).
-
-### Scope (W26 Amendment 2 — not every input runs all 3 layers)
-
-| Input | Routing | Layers that run | Layers that skip |
-|---|---|---|---|
-| **A. Your own training pipeline** (ships `evidence/*.json`) | `mlgg workflow --strict` / `/mlgg` | L1 + **L2 33 gate** + L3 | — |
-| **B. External code + paper joint audit** | `mlgg audit <dir>` + `mlgg rag` | L1 lint + L3 RAG | **L2 skipped** |
-| **C. Paper-only review** (no code) | `mlgg rag` / `peer_review_lookup.py` | L3 RAG only | L1 + L2 |
-
-> **L2 33 gate is a pipeline contract for instrumented runs, not an external-audit weapon.** External repos don't emit `--evaluation-report` / `--prediction-trace` / `--protocol-spec` / `--tuning-spec`; forcing the gates produces 33/33 fail-noisy. The W25 hybrid benchmark on 8 external NMI / MIMIC papers measured **L2 = 0/264 gate-paper pair** hits — that's structural, not a bug. See [`references/benchmark/hybrid_v1_spec.md`](references/benchmark/hybrid_v1_spec.md) §Amendment 2 and [`docs/diagnostics/W25_hybrid_aggregate.md`](docs/diagnostics/W25_hybrid_aggregate.md).
-
-### Per-action risk: what can hallucination touch?
-
-| Action | Layer | Hallucination risk | Can it change the verdict? |
-|---|---|---|---|
-| `/mlgg` picks which workflow to run | Skill | ⚠️ | ❌ May skip or double-run, but **each gate that runs is still deterministic** |
-| Claude narrates gate output in natural language | Skill | ⚠️ | ❌ Presentation-layer bias only |
-| `leakage_gate.py` detects label leakage | Python | ✅ | ❌ Deterministic algorithm |
-| `calibration_dca_gate.py` computes ICI / DCA | Python | ✅ | ❌ Pure numeric computation |
-| `verify_ukb_codebook.py` runs 8-layer verify | Python | ✅ | ❌ 1.87M cell-level comparison |
-| Quoting reviewer opinions from `peer-review-kb.json` | references | ✅ | ❌ Exact SQL / JSON lookup |
-
-### Two usage paths, one verdict
-
-- **Interactive**: `/mlgg` → Claude interprets intent → auto-orchestrates the 9-phase pipeline
-- **CI / publication-grade**: `python3 scripts/gates/leakage_gate.py --data x.csv` — skips the Skill entirely, calls the gate directly
-
-Both end up running the **same Python gate**. The Skill saves keystrokes, not correctness.
-
-### Engineering guarantees (not just aspirations)
-
-- **SKILL.md ≤ 500 lines**: currently 334 lines, within Claude Code's official guidance; longer content lives under `docs/` or inside gate docstrings.
-- **Pre-commit doc-number check**: `check_docs_consistency.py` + `check_readme_stats.py` catch drift across `SKILL.md ↔ README ↔ reviewer.yaml`; **PRs fail before merge**, not after.
-- **Thresholds are code, not prompts**: every pass/fail threshold, validator rule, and detection algorithm is a Python constant + function. Gates do not consult markdown for verdict logic.
-
----
-
 ## Table of Contents
 
-- [MLGG vs Claude Skill — Architecture Boundary](#mlgg-vs-claude-skill--architecture-boundary)
 - [Why MLGG](#why-mlgg)
 - [System Overview](#system-overview)
 - [Quick Start](#quick-start)
@@ -123,7 +56,9 @@ Both end up running the **same Python gate**. The Skill saves keystrokes, not co
 - [16 Medical Datasets](#16-medical-datasets)
 - [30 Static Analysis Rules (R001-R030)](#30-static-analysis-rules-r001-r030)
 - [21 Analysis Tools](#21-analysis-tools)
+- [Codebook RAG (NHANES + UKB)](#codebook-rag-nhanes--ukb)
 - [Security Hardening Layer](#security-hardening-layer)
+- [Benchmark Results](#benchmark-results)
 - [Project Structure](#project-structure)
 - [Installation Guide](#installation-guide)
 - [Command Reference](#command-reference)
@@ -203,12 +138,14 @@ python3 scripts/rag/query.py "no calibration in evaluation"
 # ... (top-5)
 ```
 
-**Architecture:**
+**Architecture (offline hybrid path, `scripts/rag/query.py`):**
 
 ```
-query → embed (BGE-small) → cosine top-50 → + BM25 (issue-code) + gate filter
-     → tag/canonical-pattern boost + severity tiebreak → top-K
+query → embed (BGE-small, 384d) → cosine top-50 → 4-signal fusion → top-K
+        fusion weights: 0.45·BM25 + 0.30·tag-overlap + 0.15·severity + 0.10·dense
 ```
+
+> The four fusion weights are hard-coded in `scripts/rag/config.py` and always sum to 1.0 (guarded by `test_weights_sum_to_one`). The dense weight is deliberately held at 0.10 — BM25 and tag-overlap are the primary signals; dense only supplements colloquial / long-tail / cross-tag queries. The ablation behind the weighting and its history live in [CHANGELOG.md](CHANGELOG.md) and [ADR 0001](docs/adr/0001_mmr_breakdown_consumer.md).
 
 **Three usage modes:**
 
@@ -226,35 +163,13 @@ query → embed (BGE-small) → cosine top-50 → + BM25 (issue-code) + gate fil
 
 ### Known Limitations
 
-The 5-agent strict review surfaced 5 honest limitations users should know about. None are ship-blocking, but all are material to expectation-setting.
-
-#### ✅ RAG hybrid ranker dense-weight imbalance (Wave 11 finding, fixed in Wave 13)
-
-W11-I1 ablation (commit [`b1e9c8d`](../../commit/b1e9c8d)) measured the old production hybrid_rank on 30 scenarios:
-
-- `hybrid_all` (old `WEIGHT_DENSE=0.5`): mean_tag_p@5 = **0.353**
-- `bm25_only`: **0.436** (+0.083 over old hybrid)
-- `hybrid_no_dense`: **0.447** (best)
-
-**Verdict**: `WEIGHT_DENSE=0.5` was a dilutor &mdash; **old RAG retrieval quality was below BM25-only**.
-
-**Fixed**: commit [`cc3c717`](../../commit/cc3c717) (W13-P0) demoted `WEIGHT_DENSE` from 0.5 to 0.10 and rebalanced BM25/tag/severity. W13-P0 harness re-measurement reports mean_tag_precision 0.353 -> 0.438 (matches the W11-I1 prediction of ~0.44). Two regression invariants land in `tests/test_rag_config.py`: `test_weights_sum_to_one` and `test_dense_weight_demoted_per_w11_i1` (gate `WEIGHT_DENSE < 0.2`).
-
-**User impact**:
-
-- Today: default hybrid mode is now strong; the `--mode bm25_only` workaround is no longer needed.
-- The `--mode bm25_only` flag is retained for ablation reproducibility.
-- Details: [docs/RAG_TROUBLESHOOTING.md &sect;9](docs/RAG_TROUBLESHOOTING.md) + [ADR 0001](docs/adr/0001_mmr_breakdown_consumer.md)
-
----
+The following 5 are honest limitations users should know about. None are ship-blocking, but all are material to expectation-setting.
 
 **1. BM25 is gate-anchored**
 
-When you call `rag_query(q)` without a `gate=` argument (the CLI default), the hybrid ranker silently skips BM25 and free-text scoring becomes dense + tag + severity only. After the F1 fix, active weights are re-normalized so final scores still reach 1.0, but users should know BM25 is a gate-anchored signal.
+When you call `rag_query(q)` without a `gate=` argument (the CLI default), the hybrid ranker silently skips BM25 and free-text scoring becomes dense + tag + severity only. Active weights are then auto-renormalized so final scores still reach 1.0, but users should know BM25 is a gate-anchored signal.
 
 > For production gate hooks, always pass `(gate, failure_codes)` to get the full 4-signal ranking. CLI users querying for exploration should expect dense-dominated results.
-
-> **Wave 11 update**: W11-I1 ablation found the dense signal at `WEIGHT_DENSE=0.5` is the dilutor (`hybrid_no_dense` mean_tag_p@5=0.447 > `bm25_only` 0.436 > `hybrid_all` 0.353 on 30 scenarios). Wave 12 will demote dense to 0.05–0.1. See [ADR 0001](docs/adr/0001_mmr_breakdown_consumer.md) and [docs/ARCHITECTURE.md Q5](docs/ARCHITECTURE.md).
 
 **2. Four MLGG dimensions have weak retrieval**
 
@@ -278,7 +193,7 @@ The following gates have no peer-review precedent in the KB by design (infrastru
 - `security_audit_gate` &mdash; security check
 - `self_critique_gate` &mdash; reflection layer
 
-After the F2 fix, the gate report no longer shows a placeholder for these. Before F2, the placeholder said "no concerns retrieved" which was misleading.
+The gate report does not show a placeholder for these — it avoids a "no concerns retrieved" placeholder being misread as a retrieval failure.
 
 **4. Cold first-query latency**
 
@@ -1135,11 +1050,43 @@ python3 -m mlgg_lint /path/to/code/
 
 ## 21 Analysis Tools
 
-21 standalone analysis scripts complement the 33 gates (calibration plot, DCA decision-curve, SHAP overlay, fairness gap matrix, etc.). Each is `python3 scripts/analysis/<name>.py --help` and can be wired into the publication workflow or used ad-hoc.
+21 analysis routines complement the 33 gates (Riley sample size, calibration triple, calibration-bin CI, NRI/IDI, learning curve, VIF, non-linearity test, coefficient export, etc.). They are library functions in `scripts/core/_gate_utils.py` surfaced through the gates and the publication workflow — not standalone scripts under `scripts/analysis/`.
 
 100% coverage of [Nature Portfolio ML Checklist V1.1](https://www.nature.com/documents/machine-learning-checklist.pdf) (30 items).
 
 **Full reference**: see [`docs/reference/ANALYSIS_TOOLS.md`](docs/reference/ANALYSIS_TOOLS.md) for the per-tool table (input, output, gate integration).
+
+---
+
+## Codebook RAG (NHANES + UKB)
+
+Variable definitions, skip patterns, instance/array structure and encoding rules in public datasets (NHANES, BRFSS) and large cohorts (UK Biobank) are routinely misread, causing silent data leakage. MLGG ships a dedicated codebook retriever + gate integration for each data family.
+
+### NHANES / cross-sectional (`nhanes_codebook_lookup.py`)
+
+| Layer | Mechanism | Coverage |
+|---|------|------|
+| Layer 1 | **Manual Codebook Registry** — hand-annotated variable metadata (type, gated missingness, measurement protocol, reverse causality) | 21 NHANES variables |
+| Layer 2 | **RAG auto-retrieval** — BM25 + trigram hybrid over the Harvard CCB-HMS codebook (upstream catalog ~58K variables; this repo ships a TSV of ~16K distinct variables) + skip-chain graph | 3,964 variables/cycle |
+| Layer 3 | **Disease-KB × Codebook** — extracts exclusion terms from the disease-definition KB and maps them to NHANES codes | auto-flags definition variables |
+
+### UK Biobank (`ukb_codebook_lookup.py`)
+
+UKB's field-instance-array structure (the same field collected at baseline / imaging / repeat visits) is a leakage source NHANES doesn't have. MLGG ships an 8-layer-verified UKB codebook with a dedicated retriever:
+
+- **Scale**: 11,821 fields + 533,286 encoding values + 216 golden seeds + 106 aliases; 8-layer verification (source sha256/byte/line → structural invariants → 1.87M cell-by-cell faithfulness → golden-seed ground truth).
+- **Retrieval**: FTS5 BM25 full-text search + alias-tier / title-exact promotion (fixes medical acronyms like `hba1c` that plain BM25 ranks wrong); column-name parsing handles RAP (`p21001_i0_a0`), Showcase (`21001-0.0`), and bare field-ID conventions.
+- **Gate integration**: `cohort_definition_gate` calls `validate_columns_for_gate()` to block leakage by `risk_category` — `outcome_derived` / `death_registry` are CRITICAL, `hospital_derived` is WARNING — plus three UKB-specific checks:
+  - **Temporal leakage**: feature instance > target instance (e.g. using imaging-visit HbA1c `p30750_i2` to predict a baseline `i0` outcome);
+  - **Instance-participation MNAR**: post-baseline visits have low attendance (instance 1 ≈ 4%, instance 2 ≈ 20%); participation < 50% is auto-flagged MNAR;
+  - **Categorical encoding**: categorical fields with > 2 categories warn when numerically encoded (false ordinal relationship).
+- **Field-list generation**: `--generate [disease]` joins outcome fields from the disease-KB and emits a RAP field list; `--exclude-risk outcome_derived,death_registry,hospital_derived` drops leakage-risk categories in one flag.
+
+**Onboarding auto-trigger**: `mlgg onboarding --input-csv nhanes_diabetes.csv` auto-detects dataset/disease/cross-sectional and runs codebook RAG + definition_variable_guard + leakage_gate before training.
+
+**External-validation alignment**: `external_validation_gate` auto-detects degenerate prediction (all-negative / all-positive), prevalence shift, and constant features to prevent meaningless external validation. Missing features are imputed with the training-set median.
+
+See `references/codebooks/dataset-codebook-registry.json`, `scripts/codebooks/nhanes_codebook_lookup.py`, and `scripts/codebooks/ukb_codebook_lookup.py`.
 
 ---
 
@@ -1155,6 +1102,22 @@ python3 -m mlgg_lint /path/to/code/
 | Execution Attestation | OpenSSL detached signatures **+ `trusted_signers.json` fingerprint allowlist (external trust anchor) + freshness window (default 7 days) + bundle path sandbox** + witness arbitration (min 2) + key rotation (180 days) | Fail-closed against self-authentication, replay, and path escape |
 | Sensitive Data | 18-pattern scan (API keys, PEM blocks, PHI fields, SSN, credit cards) | Auto-detect |
 | Key Protection | .mlgg_model_key chmod 0o600, .gitignore protection, upward search + downgrade warning | Hardened |
+
+---
+
+## Benchmark Results
+
+End-to-end benchmarks on 5 medical datasets (all stored under `experiments/`):
+
+| Dataset | Rows | Features | Prevalence | ROC-AUC | PR-AUC | Calibration (slope) | Key finding |
+|--------|------|------|-----------|---------|--------|-------------|---------|
+| CKD (chronic kidney disease) | 399 | 24 | 63% | 0.999 | 1.000 | 3.08 | Tiny sample, diagnostic features extremely separable |
+| RHC ICU mortality | 5,735 | 54 | 65% | 0.750 | 0.834 | **0.977** | Best calibration, high-prevalence cohort |
+| SUPPORT2 critical care | 9,105 | 43 | 26% | 0.789 | 0.610 | 0.955 | Found and excluded 11 leakage / post-index variables |
+| NHANES diabetes | 15,549 | 12 | 18% | 0.810 | 0.443 | — | Cross-sectional data, no temporal order |
+| Sepsis | 129,392 | 3 | 9% | 0.689 | 0.159 | 0.804 | Only 3 features, limited performance (correctly reflected) |
+
+> Each benchmark ships a full evidence report (33 gate results + session_log). The SUPPORT2 run surfaced and fixed 6 pipeline bugs (feature-leakage detection, categorical-variable retention, scoma encoding, etc.).
 
 ---
 
@@ -1226,7 +1189,7 @@ medical-ml-governance-guard/
 │   │   ├── verify_ukb_against_live.py    #   L4 live cross-check vs biobank.ndph.ox.ac.uk
 │   │   └── ...                           #   fetch/build/verify for NHANES + codebook_factory
 │   │
-│   ├── review/            (10)           # Paper analysis & peer review (W29: llm_paper_audit)
+│   ├── review/            (10)           # Paper analysis & peer review (incl. llm_paper_audit)
 │   │   ├── peer_review_lookup.py         #   154 NC+CM papers × 817 review opinions
 │   │   ├── backfill_peer_review_gates.py #   Backfill reviews into gate × tag index
 │   │   ├── add_robustness_permutation_gates.py  # Extend review index with robustness/permutation
@@ -1279,7 +1242,7 @@ medical-ml-governance-guard/
 │   │
 │   ├── case-studies/                     # Peer review KB ("others review others" → structured KB)
 │   │   ├── peer-review-kb.json           #   817 structured review opinions (indexed by gate/dim/tag)
-│   │   ├── nature_communications/        #   286 NC peer-review PDFs (101 with extracted concerns)
+│   │   ├── nature_communications/        #   NC peer-review PDF corpus (catalog/extraction counts: see peer-review-kb.json)
 │   │   └── <journal>/<disease>/          #   5 journals × 10 disease domains
 │   │
 │   ├── templates/          (27)          # JSON templates (request, split, evaluation, attestation...)
@@ -1486,6 +1449,14 @@ A separate git-native **pre-push** hook (README stats drift + ruff + RAG smoke) 
 | TreeSHAP | Lundberg SM et al. *Nature MI.* 2020;2:56-67 | TreeExplainer |
 | Proportional normalization | Ponce-Bobadilla AV et al. *CTS.* 2024;17(11):e70056 | L1 normalization |
 | Rashomon effect | Breiman L. *Stat Sci.* 2001;16(3):199-231 | Multi-model ensemble |
+
+### Phase 8: Fairness & Equity
+
+| Methodological Decision | Literature Source | MLGG Implementation |
+|:------------------------|:-----------------|:--------------------|
+| Fairness assessment recommendation | Collins GS et al. *BMJ.* 2024;385:e078378 (TRIPOD+AI) | `fairness_equity_gate` |
+| Racial bias in health algorithms | Obermeyer Z et al. *Science.* 2019;366:447-453 | `fairness_equity_gate` |
+| Subpopulation applicability | Moons KGM et al. *BMJ.* 2025;388:e082505 (PROBAST+AI) | subgroup calibration + DCA |
 
 ### Phase 9: Reporting & Compliance
 

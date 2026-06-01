@@ -365,8 +365,15 @@ python -m scripts.gates.leakage_gate \\
 python -m scripts.orchestration.run_dag_pipeline --request request.json \\
     --report out/pipeline_report.json
 
-# Re-run a single gate: invoke its standalone CLI directly (each gate is a
-# standalone fail-closed CLI; see the one-off example above).
+# Re-run a single gate through the orchestrator (resolves and runs its
+# dependencies first):
+python -m scripts.orchestration.run_dag_pipeline --request request.json \\
+    --only calibration_dca_gate --report out/pipeline_report.json
+
+# Re-run a single gate in isolation, assuming its dependencies already
+# passed (add --no-deps), or invoke its standalone fail-closed CLI directly:
+python -m scripts.orchestration.run_dag_pipeline --request request.json \\
+    --only calibration_dca_gate --no-deps --report out/pipeline_report.json
 python -m scripts.gates.calibration_dca_gate --report out/calibration_dca_report.json --strict
 ```
 
