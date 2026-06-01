@@ -1802,6 +1802,14 @@ pre-commit install
 | Proportional normalization | Ponce-Bobadilla AV et al. *CTS.* 2024;17(11):e70056 | L1 归一化 |
 | Rashomon effect | Breiman L. *Stat Sci.* 2001;16(3):199-231 | Multi-model ensemble |
 
+### 阶段八：公平性与亚组
+
+| 方法论决策 | 文献来源 | MLGG 实现 |
+|:---------|:----------|:-------------------|
+| 公平性评估推荐 | Collins GS et al. *BMJ.* 2024;385:e078378 (TRIPOD+AI) | `fairness_equity_gate` |
+| 算法种族偏倚 | Obermeyer Z et al. *Science.* 2019;366:447-453 | `fairness_equity_gate` |
+| 亚组适用性 | Moons KGM et al. *BMJ.* 2025;388:e082505 (PROBAST+AI) | 亚组校准 + DCA |
+
 ### 阶段九：报告与合规
 
 | 方法论决策 | 文献来源 | MLGG 实现 |

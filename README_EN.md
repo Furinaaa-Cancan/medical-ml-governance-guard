@@ -1517,6 +1517,14 @@ A separate git-native **pre-push** hook (README stats drift + ruff + RAG smoke) 
 | Proportional normalization | Ponce-Bobadilla AV et al. *CTS.* 2024;17(11):e70056 | L1 normalization |
 | Rashomon effect | Breiman L. *Stat Sci.* 2001;16(3):199-231 | Multi-model ensemble |
 
+### Phase 8: Fairness & Equity
+
+| Methodological Decision | Literature Source | MLGG Implementation |
+|:------------------------|:-----------------|:--------------------|
+| Fairness assessment recommendation | Collins GS et al. *BMJ.* 2024;385:e078378 (TRIPOD+AI) | `fairness_equity_gate` |
+| Racial bias in health algorithms | Obermeyer Z et al. *Science.* 2019;366:447-453 | `fairness_equity_gate` |
+| Subpopulation applicability | Moons KGM et al. *BMJ.* 2025;388:e082505 (PROBAST+AI) | subgroup calibration + DCA |
+
 ### Phase 9: Reporting & Compliance
 
 | Methodological Decision | Literature Source | MLGG Implementation |
