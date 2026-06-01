@@ -1571,7 +1571,7 @@ medical-ml-governance-guard/
 │   │   └── journal-rigor-standards.json          # 5 大期刊审稿标准
 │   │
 │   ├── methodology/        (5)           # 方法学知识
-│   │   ├── disease-definition-knowledge-base.json  # 11 种疾病定义 (ICD, 实验室, 药物, UKB 字段) — ⚠ 11/11 pending clinician review (LLM-compiled per W11-F2 + W11-M2 inventory; publication-grade gate fail-closes when consumed)
+│   │   ├── disease-definition-knowledge-base.json  # 11 种疾病定义 (ICD, 实验室, 药物, UKB 字段) — ⚠ 11/11 待临床审核 (LLM 编纂; publication-grade gate 消费时 fail-closed)
 │   │   ├── leakage-taxonomy.md                     # Kapoor 八型泄漏分类
 │   │   └── literature-knowledge-base.json          # 59 篇 IF>10 文献索引
 │   │
@@ -1582,7 +1582,7 @@ medical-ml-governance-guard/
 │   │
 │   ├── case-studies/                     # 审稿案例知识库 ("别人审别人" → 结构化 KB)
 │   │   ├── peer-review-kb.json           #   817 条结构化审稿意见 (按 gate/dimension/tag 索引)
-│   │   ├── nature_communications/        #   286 NC 同行评审 PDF（101 已抽审稿）
+│   │   ├── nature_communications/        #   NC 同行评审 PDF 语料（编目/已抽计数以 peer-review-kb.json 为准）
 │   │   └── <journal>/<disease>/          #   5 期刊 × 10 疾病领域的论文分析
 │   │
 │   ├── templates/          (27)          # JSON 模板 (request, split, evaluation, attestation...)

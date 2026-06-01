@@ -1309,7 +1309,7 @@ medical-ml-governance-guard/
 │   │
 │   ├── case-studies/                     # Peer review KB ("others review others" → structured KB)
 │   │   ├── peer-review-kb.json           #   817 structured review opinions (indexed by gate/dim/tag)
-│   │   ├── nature_communications/        #   286 NC peer-review PDFs (101 with extracted concerns)
+│   │   ├── nature_communications/        #   NC peer-review PDF corpus (catalog/extraction counts: see peer-review-kb.json)
 │   │   └── <journal>/<disease>/          #   5 journals × 10 disease domains
 │   │
 │   ├── templates/          (27)          # JSON templates (request, split, evaluation, attestation...)
