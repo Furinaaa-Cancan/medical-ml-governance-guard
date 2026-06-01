@@ -1498,7 +1498,7 @@ medical-ml-governance-guard/
 │   │   ├── add_disease_kb_provenance.py  #   --   disease KB provenance 批量标注
 │   │   └── _kb_provenance.py / __init__.py
 │   │
-│   ├── review/            (9 files, 4.8K LOC)   # 论文分析与审稿案例（含 W29 llm_paper_audit）
+│   ├── review/            (9 files, 4.8K LOC)   # 论文分析与审稿案例（含 llm_paper_audit）
 │   │   ├── peer_review_lookup.py         #   133  154 篇 NC+CM × 817 条审稿意见, 按 gate/tag 检索
 │   │   ├── batch_journal_review.py       #   776  批量期刊审查 (多论文 × 多期刊标准)
 │   │   ├── extract_paper_metadata.py     #  1236  PDF → 结构化 metadata.json (LLM 驱动)
@@ -1666,7 +1666,7 @@ medical-ml-governance-guard/
 | 入口 | 安装 | 用途 | 依赖 |
 |------|------|------|------|
 | **mlgg-lint** | `pip install mlgg-lint` | 扫描 Python 代码 data leakage（30 条 AST 规则，含 R028 组学守卫） | 零依赖 |
-| **mlgg** | `pip install ml-governance-guard` | 30 个子命令 CLI（onboarding / workflow / audit / audit-metrics / fairness / sample-size / lint / llm-audit / ...），完整 33-gate pipeline + W29 LLM-first paper audit | numpy/pandas/sklearn |
+| **mlgg** | `pip install ml-governance-guard` | 30 个子命令 CLI（onboarding / workflow / audit / audit-metrics / fairness / sample-size / lint / llm-audit / ...），完整 33-gate pipeline + LLM-first paper audit | numpy/pandas/sklearn |
 
 子命令全表见 `SKILL.md` §"Quick Dispatch"。`audit-metrics` 是 `mlgg` 子命令之一，不是独立包。
 

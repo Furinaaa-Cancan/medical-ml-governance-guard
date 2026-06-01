@@ -1117,7 +1117,7 @@ python3 -m mlgg_lint /path/to/code/
 
 ## 21 Analysis Tools
 
-21 standalone analysis scripts complement the 33 gates (calibration plot, DCA decision-curve, SHAP overlay, fairness gap matrix, etc.). Each is `python3 scripts/analysis/<name>.py --help` and can be wired into the publication workflow or used ad-hoc.
+21 analysis routines complement the 33 gates (Riley sample size, calibration triple, calibration-bin CI, NRI/IDI, learning curve, VIF, non-linearity test, coefficient export, etc.). They are library functions in `scripts/core/_gate_utils.py` surfaced through the gates and the publication workflow — not standalone scripts under `scripts/analysis/`.
 
 100% coverage of [Nature Portfolio ML Checklist V1.1](https://www.nature.com/documents/machine-learning-checklist.pdf) (30 items).
 
@@ -1256,7 +1256,7 @@ medical-ml-governance-guard/
 │   │   ├── verify_ukb_against_live.py    #   L4 live cross-check vs biobank.ndph.ox.ac.uk
 │   │   └── ...                           #   fetch/build/verify for NHANES + codebook_factory
 │   │
-│   ├── review/            (10)           # Paper analysis & peer review (W29: llm_paper_audit)
+│   ├── review/            (10)           # Paper analysis & peer review (incl. llm_paper_audit)
 │   │   ├── peer_review_lookup.py         #   154 NC+CM papers × 817 review opinions
 │   │   ├── backfill_peer_review_gates.py #   Backfill reviews into gate × tag index
 │   │   ├── add_robustness_permutation_gates.py  # Extend review index with robustness/permutation
