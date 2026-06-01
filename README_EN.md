@@ -62,7 +62,7 @@
 
 **Hallucination is locked in the top layer** — the lower two always resolve pass/fail via deterministic code + static data.
 
-> **Disease-KB review status**: 11 disease entries currently pending clinician review; the publication gate fails closed (W11-F2 commit `04ad7d7` closed a source-only spoof vector).
+> **Disease-KB review status**: 11 disease entries currently pending clinician review; the publication gate fails closed when this KB is consumed.
 
 ### Scope (W26 Amendment 2 — not every input runs all 3 layers)
 
@@ -203,12 +203,14 @@ python3 scripts/rag/query.py "no calibration in evaluation"
 # ... (top-5)
 ```
 
-**Architecture:**
+**Architecture (offline hybrid path, `scripts/rag/query.py`):**
 
 ```
-query → embed (BGE-small) → cosine top-50 → + BM25 (issue-code) + gate filter
-     → tag/canonical-pattern boost + severity tiebreak → top-K
+query → embed (BGE-small, 384d) → cosine top-50 → 4-signal fusion → top-K
+        fusion weights: 0.45·BM25 + 0.30·tag-overlap + 0.15·severity + 0.10·dense
 ```
+
+> The four fusion weights are hard-coded in `scripts/rag/config.py` and always sum to 1.0 (guarded by `test_weights_sum_to_one`). The dense weight is deliberately held at 0.10 — BM25 and tag-overlap are the primary signals; dense only supplements colloquial / long-tail / cross-tag queries. The ablation behind the weighting and its history live in [CHANGELOG.md](CHANGELOG.md) and [ADR 0001](docs/adr/0001_mmr_breakdown_consumer.md).
 
 **Three usage modes:**
 
@@ -226,35 +228,13 @@ query → embed (BGE-small) → cosine top-50 → + BM25 (issue-code) + gate fil
 
 ### Known Limitations
 
-The 5-agent strict review surfaced 5 honest limitations users should know about. None are ship-blocking, but all are material to expectation-setting.
-
-#### ✅ RAG hybrid ranker dense-weight imbalance (Wave 11 finding, fixed in Wave 13)
-
-W11-I1 ablation (commit [`b1e9c8d`](../../commit/b1e9c8d)) measured the old production hybrid_rank on 30 scenarios:
-
-- `hybrid_all` (old `WEIGHT_DENSE=0.5`): mean_tag_p@5 = **0.353**
-- `bm25_only`: **0.436** (+0.083 over old hybrid)
-- `hybrid_no_dense`: **0.447** (best)
-
-**Verdict**: `WEIGHT_DENSE=0.5` was a dilutor &mdash; **old RAG retrieval quality was below BM25-only**.
-
-**Fixed**: commit [`cc3c717`](../../commit/cc3c717) (W13-P0) demoted `WEIGHT_DENSE` from 0.5 to 0.10 and rebalanced BM25/tag/severity. W13-P0 harness re-measurement reports mean_tag_precision 0.353 -> 0.438 (matches the W11-I1 prediction of ~0.44). Two regression invariants land in `tests/test_rag_config.py`: `test_weights_sum_to_one` and `test_dense_weight_demoted_per_w11_i1` (gate `WEIGHT_DENSE < 0.2`).
-
-**User impact**:
-
-- Today: default hybrid mode is now strong; the `--mode bm25_only` workaround is no longer needed.
-- The `--mode bm25_only` flag is retained for ablation reproducibility.
-- Details: [docs/RAG_TROUBLESHOOTING.md &sect;9](docs/RAG_TROUBLESHOOTING.md) + [ADR 0001](docs/adr/0001_mmr_breakdown_consumer.md)
-
----
+The following 5 are honest limitations users should know about. None are ship-blocking, but all are material to expectation-setting.
 
 **1. BM25 is gate-anchored**
 
-When you call `rag_query(q)` without a `gate=` argument (the CLI default), the hybrid ranker silently skips BM25 and free-text scoring becomes dense + tag + severity only. After the F1 fix, active weights are re-normalized so final scores still reach 1.0, but users should know BM25 is a gate-anchored signal.
+When you call `rag_query(q)` without a `gate=` argument (the CLI default), the hybrid ranker silently skips BM25 and free-text scoring becomes dense + tag + severity only. Active weights are then auto-renormalized so final scores still reach 1.0, but users should know BM25 is a gate-anchored signal.
 
 > For production gate hooks, always pass `(gate, failure_codes)` to get the full 4-signal ranking. CLI users querying for exploration should expect dense-dominated results.
-
-> **Wave 11 update**: W11-I1 ablation found the dense signal at `WEIGHT_DENSE=0.5` is the dilutor (`hybrid_no_dense` mean_tag_p@5=0.447 > `bm25_only` 0.436 > `hybrid_all` 0.353 on 30 scenarios). Wave 12 will demote dense to 0.05–0.1. See [ADR 0001](docs/adr/0001_mmr_breakdown_consumer.md) and [docs/ARCHITECTURE.md Q5](docs/ARCHITECTURE.md).
 
 **2. Four MLGG dimensions have weak retrieval**
 
@@ -278,7 +258,7 @@ The following gates have no peer-review precedent in the KB by design (infrastru
 - `security_audit_gate` &mdash; security check
 - `self_critique_gate` &mdash; reflection layer
 
-After the F2 fix, the gate report no longer shows a placeholder for these. Before F2, the placeholder said "no concerns retrieved" which was misleading.
+The gate report does not show a placeholder for these — it avoids a "no concerns retrieved" placeholder being misread as a retrieval failure.
 
 **4. Cold first-query latency**
 

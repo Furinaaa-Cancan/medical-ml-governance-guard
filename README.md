@@ -222,16 +222,14 @@ python3 scripts/rag/query.py "no calibration in evaluation"
 # ... (top-5)
 ```
 
-**架构：**
+**架构（离线 hybrid 路径，`scripts/rag/query.py`）：**
 
 ```
-query → embed (BGE-small) → cosine top-50¹ → + BM25 (issue-code) + gate filter
-     → tag/canonical-pattern boost + severity tiebreak → top-K
+query → embed (BGE-small, 384d) → cosine top-50 → 4 信号融合 → top-K
+        融合权重: 0.45·BM25 + 0.30·tag-overlap + 0.15·severity + 0.10·dense
 ```
 
-> ¹ 当前 dense 权重的真实贡献请见 [docs/RAG_TROUBLESHOOTING.md §9 "Hybrid scores worse than BM25"](docs/RAG_TROUBLESHOOTING.md)（W11-M1 加入），并参考下面的「Wave 11 修正」。
-
-> **Wave 11 背景（W11-I1 ablation, [ADR 0001](docs/adr/0001_mmr_breakdown_consumer.md)）**：当时的 `dense_weight=0.5` 在 30-scenario 基准上被证实是 dilutor——`hybrid_no_dense` mean_tag_p@5 = **0.447** > `bm25_only` **0.436** > `hybrid_all` **0.353**。换句话说旧的 4-signal 融合（dense + BM25 + tag + severity）整体跑输只跑 BM25。**W13-P0 已修复**：`WEIGHT_DENSE` demote 到 0.10（见下方「已修复」段与 [docs/ARCHITECTURE.md Q5](docs/ARCHITECTURE.md)）。
+> 4 个融合权重在 `scripts/rag/config.py` 写死且和恒为 1.0（`test_weights_sum_to_one` 回归保护）。dense 权重刻意压低到 0.10——BM25 与 tag-overlap 是主信号，dense 只补口语化/长尾/跨 tag 查询。定权依据的 ablation 与历史见 [CHANGELOG.md](CHANGELOG.md) 与 [ADR 0001](docs/adr/0001_mmr_breakdown_consumer.md)。
 
 **三种使用模式：**
 
@@ -249,31 +247,11 @@ query → embed (BGE-small) → cosine top-50¹ → + BM25 (issue-code) + gate f
 
 ### 已知限制 (Known Limitations)
 
-5-agent 严格审查梳理出以下 5 条诚实限制，均不阻断发布，但用户应当事先知情。
-
-#### ✅ RAG hybrid ranker dense 权重失衡（Wave 11 发现，Wave 13 已修复）
-
-W11-I1 ablation（commit [`b1e9c8d`](../../commit/b1e9c8d)）在 30 scenarios 上测得旧的生产 hybrid_rank：
-
-- `hybrid_all`（旧 `WEIGHT_DENSE=0.5`）: mean_tag_p@5 = **0.353**
-- `bm25_only`: **0.436**（比旧 hybrid 高 0.083）
-- `hybrid_no_dense`: **0.447**（最佳）
-
-**结论**：`WEIGHT_DENSE=0.5` 是 dilutor，**旧 RAG 检索质量低于纯 BM25**。
-
-**已修复**：commit [`cc3c717`](../../commit/cc3c717) (W13-P0) 将 `WEIGHT_DENSE` 从 0.5 demote 到 0.10，重平衡 BM25/tag/severity 权重；W13-P0 harness 实测 mean_tag_precision 从 0.353 提升至 0.438（与 W11-I1 预测的 0.44 一致）。`tests/test_rag_config.py` 加入两条回归 invariant：`test_weights_sum_to_one`、`test_dense_weight_demoted_per_w11_i1`（gate `WEIGHT_DENSE < 0.2`）。
-
-**用户应对**：
-
-- 现状：直接使用默认 hybrid 即可；无须再切换 `--mode bm25_only`。
-- 旧的临时绕过方案 `--mode bm25_only` 仍保留，便于 ablation。
-- 详情：[docs/RAG_TROUBLESHOOTING.md §9](docs/RAG_TROUBLESHOOTING.md) + [ADR 0001](docs/adr/0001_mmr_breakdown_consumer.md)
-
----
+以下 5 条为诚实限制，均不阻断发布，但用户应当事先知情。
 
 **1. BM25 仅在 gate 锚定模式下工作**
 
-调用 `rag_query(q)` 时若未传 `gate=` 参数（CLI 默认情况），hybrid ranker 会静默跳过 BM25，自由文本评分退化为 dense + tag + severity 三信号。F1 修复后，活跃权重会重新归一化以保证最终得分仍达 1.0，但请注意 BM25 是 gate 锚定信号。
+调用 `rag_query(q)` 时若未传 `gate=` 参数（CLI 默认情况），hybrid ranker 会静默跳过 BM25，自由文本评分退化为 dense + tag + severity 三信号。此时活跃权重会自动重新归一化以保证最终得分仍达 1.0，但请注意 BM25 是 gate 锚定信号。
 
 > 生产 gate 钩子建议始终传 `(gate, failure_codes)` 获取完整 4 信号排序；CLI 探索性查询应预期 dense 主导的结果。
 
@@ -299,7 +277,7 @@ W11-I1 ablation（commit [`b1e9c8d`](../../commit/b1e9c8d)）在 30 scenarios �
 - `security_audit_gate` — 安全检查
 - `self_critique_gate` — 反思层
 
-F2 修复后，gate report 不会再为这些 gate 显示占位条目；F2 之前的 "no concerns retrieved" 占位会让人误以为是检索失败。
+gate report 不会为这些 gate 显示占位条目——避免 "no concerns retrieved" 占位被误读为检索失败。
 
 **4. 首次查询冷启动延迟**
 
