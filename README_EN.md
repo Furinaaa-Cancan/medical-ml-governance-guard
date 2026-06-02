@@ -29,7 +29,7 @@
 <br>
 <strong>23 Model Families</strong> &middot; <strong>16 Real Medical Datasets (630K+ rows)</strong> &middot; <strong>335 NC+CM Peer Review PDFs · 154 Curated with Concerns</strong> &middot; <strong>30 Static Analysis Rules</strong>
 <br><br>
-<em>Every audit recommendation cites real top-journal peer review opinions as evidence.<br>Not a rule engine &mdash; an AI co-review system that thinks like a Nature Medicine reviewer.</em>
+<em>Every audit recommendation cites real top-journal peer review opinions as evidence.<br>Not a prompt-stitched AI assistant &mdash; a fail-closed verification harness: the LLM only orchestrates, while pass/fail is decided by deterministic, CI-replayable Python gates — hallucination can't reach the verdict layer.</em>
 </p>
 
 ---

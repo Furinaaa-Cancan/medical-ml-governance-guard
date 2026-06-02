@@ -32,7 +32,7 @@
 <br>
 <strong>23 个模型族</strong> &middot; <strong>16 个真实医学数据集 (630K+ 行)</strong> &middot; <strong>335 篇 NC+CM 同行评审 PDF · 154 篇已抽审稿意见</strong> &middot; <strong>30 条静态分析规则</strong>
 <br><br>
-<em>每一条审查建议都引用真实顶刊审稿意见作为论据。<br>不是规则引擎，是能像 Nature Medicine 审稿人一样思考的 AI 协审系统。</em>
+<em>每一条审查建议都引用真实顶刊审稿意见作为论据。<br>不是 prompt 拼出来的 AI 助手，是一套 fail-closed 验证型 harness：LLM 只做软编排，pass/fail 由确定性、CI 可回归的 Python gate 裁定——幻觉穿不透到结论层。</em>
 </p>
 
 ---
