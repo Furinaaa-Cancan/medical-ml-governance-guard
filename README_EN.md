@@ -131,7 +131,7 @@ Structurally extracted 817 review opinions from 154 NC + CM medical ML papers (1
 
 ## Peer-Review RAG (Reviewer-Concern Semantic Search)
 
-**RAG Semantic Retrieval Layer (`scripts/rag/`):** local dense-vector RAG over the 817 reviewer_concerns KB (817 concerns indexed for RAG), covering the colloquial / long-tail / cross-tag queries that pure BM25 misses.
+MLGG builds a local dense-vector RAG (`scripts/rag/`) over the 817 reviewer_concerns KB (817 concerns indexed), covering the colloquial / long-tail / cross-tag queries that pure BM25 misses.
 
 ```bash
 # 30-second quickstart
