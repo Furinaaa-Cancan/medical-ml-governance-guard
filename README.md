@@ -107,7 +107,7 @@
 | 未声明队列筛选级联，审稿人无从审 selection bias | NC 审稿拒点 top-3 | Gate C01 `--cohort-spec`: 声明 inclusion/exclusion cascade → 单调性 + 最终行数一致性校验；publication-grade tier 不声明直接 FAIL |
 | 特征列命名 `gene_BRCA1` / `rs12345` / `ENSG00000...` | 把组学数据拿来跑 MLGG 是 scope 错配 | `mlgg-lint` R028: ≥3 个组学命名前缀匹配即拒绝，引导到 Scanpy / TCGAbiolinks / PLINK |
 
-> **MLGG 不是又一个 ML 工具包。** 它是一套达到顶刊审稿标准的 AI 协审系统——33 道 fail-closed 门控 + 154 篇 Nature Communications + Communications Medicine 真实审稿意见作为知识库（另 181 篇 PDF 已收录待抽取）。每一条建议都能引用审稿人原文作为论据。
+> **MLGG 不是又一个 ML 工具包。** 它是一套达到顶刊审稿标准的 fail-closed 验证 harness——33 道 fail-closed 门控 + 154 篇 Nature Communications + Communications Medicine 真实审稿意见作为知识库（另 181 篇 PDF 已收录待抽取）。每一条建议都能引用审稿人原文作为论据。
 
 ---
 
