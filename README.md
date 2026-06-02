@@ -150,7 +150,7 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 
 ## Peer-Review RAG（审稿意见语义检索）
 
-**RAG 语义检索层（`scripts/rag/`）：** 在 817 条 reviewer_concerns KB 之上的本地密集向量 RAG（817 concerns indexed for RAG），覆盖 BM25 检索覆盖不到的口语化、长尾、跨 tag 查询。
+MLGG 在 817 条 reviewer_concerns KB 之上构建本地密集向量 RAG（`scripts/rag/`，817 concerns indexed），覆盖 BM25 检索覆盖不到的口语化、长尾、跨 tag 查询。
 
 ```bash
 # 30 秒上手
