@@ -90,7 +90,7 @@ The prevalence of data leakage and methodological flaws in medical ML papers far
 | Cohort filter cascade undocumented — reviewers cannot audit selection bias | Top-3 cause of NC peer-review rejections | Gate C01 `--cohort-spec`: declare inclusion/exclusion cascade → monotonicity + final row-count consistency check; publication-grade tier fails without it |
 | Feature names `gene_BRCA1` / `rs12345` / `ENSG00000...` | Out-of-scope: using MLGG for omics data is a modality mismatch | `mlgg-lint` R028: ≥3 omics-pattern name matches → rejected with pointers to Scanpy / TCGAbiolinks / PLINK |
 
-> **MLGG is not yet another ML toolkit.** It is an AI co-review system meeting top-journal review standards &mdash; 33 fail-closed gates + 154 NC+CM curated reviews (Nature Communications + Communications Medicine; 817 structured concerns; 181 additional PDFs cataloged and pending extraction) as a knowledge base. Every recommendation can cite reviewer quotes as evidence.
+> **MLGG is not yet another ML toolkit.** It is a fail-closed verification harness meeting top-journal review standards &mdash; 33 fail-closed gates + 154 NC+CM curated reviews (Nature Communications + Communications Medicine; 817 structured concerns; 181 additional PDFs cataloged and pending extraction) as a knowledge base. Every recommendation can cite reviewer quotes as evidence.
 
 ---
 
