@@ -40,16 +40,7 @@
 - [Peer-Review RAG (Reviewer-Concern Semantic Search)](#peer-review-rag-reviewer-concern-semantic-search)
 - [System Overview](#system-overview)
 - [Quick Start](#quick-start)
-- [9-Phase Workflow](#9-phase-workflow)
-  - [Phase 1: Cohort Definition & Sample Size](#phase-1-cohort-definition--sample-size)
-  - [Phase 2: Data Splitting](#phase-2-data-splitting)
-  - [Phase 3: Preprocessing](#phase-3-preprocessing)
-  - [Phase 4: Feature Selection](#phase-4-feature-selection)
-  - [Phase 5: Model Training & Selection](#phase-5-model-training--selection)
-  - [Phase 6: Evaluation & Calibration](#phase-6-evaluation--calibration)
-  - [Phase 7: Multi-Model SHAP Interpretability](#phase-7-multi-model-shap-interpretability)
-  - [Phase 8: Fairness & Equity](#phase-8-fairness--equity)
-  - [Phase 9: Reporting & Compliance](#phase-9-reporting--compliance)
+- [9-Phase Workflow](#9-phase-workflow) (all 9 phases in the in-section TL;DR table; per-phase detail is collapsed by default)
 - [33 Safety Gates (Gate DAG)](#33-safety-gates-gate-dag)
 - [12-Dimension Scoring](#12-dimension-scoring)
 - [33 Methodology Rules](#33-methodology-rules)
@@ -223,7 +214,7 @@ Raw Data ──→ 9-Phase Workflow ──→ 33-Gate Audit ──→ Compliance
 | **33 Safety Gates** | Fail-closed DAG architecture covering leakage/interpretability/fairness/calibration/robustness/TRIPOD+AI/PROBAST+AI | 9-layer parallel execution |
 | **12-Dimension Scoring** | Data integrity/leakage protection/pipeline isolation/model selection/statistical validity/generalization evidence/clinical completeness/reporting standards/reproducibility/security/fairness/sample size | 0-100 score |
 | **3-Level Compliance** | L1 (12 gates, leakage audit) / L2 (25 gates, statistically valid) / L3 (all 33 gates, publication-grade) | Progressive certification |
-| **23 Model Families** | LR (L1/L2/ElasticNet) / SVM (linear/RBF) / RandomForest (balanced) / ExtraTrees / XGBoost / CatBoost / LightGBM / HistGradientBoosting / KNN / MLP / AdaBoost / RUSBoost / EasyEnsemble / BalancedRandomForest / GaussianNB / DecisionTree / TabPFN + Stacking / Soft-Voting / Weighted-Voting | Auto hyperparameter search |
+| **23 Model Families** | LR / SVM / RF / ExtraTrees / XGBoost / CatBoost / LightGBM / HistGB / KNN / MLP / AdaBoost / imbalanced ensembles / TabPFN + Stacking / Voting, etc. ([full 23-family table](#23-model-families)) | Auto hyperparameter search |
 | **16 Real Datasets** | UCI / CDC / NCI / Vanderbilt official data | 630K+ total rows |
 | **Multi-Model SHAP Engine** | Multi-family L1-normalized ensemble + Kendall tau consistency (FDR-BH correction) + cross-model Spearman rank correlation + 5 publication-grade CSVs | RF/XGB/CatBoost/LGBM/LR |
 | **Academic Compliance Engine** | TRIPOD+AI 2024 (27 items) / PROBAST+AI 2025 (4 domains) / STARD-AI | Item-by-item verification |
@@ -327,6 +318,9 @@ MLGG enforces sequential execution across 9 phases, each with explicit checkpoin
 ```
 
 ---
+
+<details>
+<summary><strong>Expand full per-phase detail (Cohort Definition → Reporting & Compliance)</strong></summary>
 
 ### Phase 1: Cohort Definition & Sample Size
 
@@ -959,6 +953,8 @@ Each domain judged low / high / unclear. Overall ROB must be `low` to claim publ
 
 Must cover: data source limitations, temporal validity, coding system changes (ICD-9 -> ICD-10), external validity, fairness limitations, DCA clinical utility conclusions. If DCA shows no net benefit, must honestly report &mdash; never hide negative results.
 
+</details>
+
 ---
 
 ## 33 Safety Gates (Gate DAG)
@@ -1127,6 +1123,9 @@ End-to-end benchmarks on 5 medical datasets (all stored under `experiments/`):
 ---
 
 ## Project Structure
+
+<details>
+<summary><strong>Expand the full directory tree (scripts / references / tests / …)</strong></summary>
 
 ```
 medical-ml-governance-guard/
@@ -1303,6 +1302,8 @@ medical-ml-governance-guard/
     ├── CHANGELOG.md                      #   Version history
     └── LICENSE                           #   PolyForm Noncommercial 1.0.0
 ```
+
+</details>
 
 ### Data Flow
 
