@@ -50,16 +50,7 @@
 
 - [快速开始](#快速开始)
 - [安装指南](#安装指南)
-- [9 阶段工作流](#9-阶段工作流)
-  - [阶段一：队列定义与样本量](#阶段一队列定义与样本量)
-  - [阶段二：数据划分](#阶段二数据划分)
-  - [阶段三：预处理](#阶段三预处理)
-  - [阶段四：特征筛选](#阶段四特征筛选)
-  - [阶段五：模型训练与选择](#阶段五模型训练与选择)
-  - [阶段六：评估与校准](#阶段六评估与校准)
-  - [阶段七：多模型 SHAP 可解释性](#阶段七多模型-shap-可解释性)
-  - [阶段八：公平性与亚组分析](#阶段八公平性与亚组分析)
-  - [阶段九：报告与合规](#阶段九报告与合规)
+- [9 阶段工作流](#9-阶段工作流)（9 个阶段见节内 TL;DR 速查表；逐阶段细节默认折叠）
 
 ### Reference（33 gate / 30 lint / 23 模型 / 16 数据集 / 21 工具）
 
@@ -242,7 +233,7 @@ gate report 不会为这些 gate 显示占位条目——避免 "no concerns ret
 | **33 道安全门控** | fail-closed DAG 架构，覆盖泄漏/可解释性/公平性/校准/鲁棒性/TRIPOD+AI/PROBAST+AI | 9 层并行执行 |
 | **12 维量化评分** | 数据完整性/防泄漏/流水线隔离/模型选择/统计有效性/泛化证据/临床完整性/报告标准/可重复性/安全与溯源/公平性/样本量 | 0-100 分 |
 | **3 级合规** | L1 (12 门, 泄漏审计) / L2 (25 门, 统计有效) / L3 (全部 33 门, 发布级) | 渐进认证 |
-| **23 个模型族** | LR (L1/L2/ElasticNet) / SVM (linear/RBF) / RandomForest (balanced) / ExtraTrees / XGBoost / CatBoost / LightGBM / HistGradientBoosting / KNN / MLP / AdaBoost / RUSBoost / EasyEnsemble / BalancedRandomForest / GaussianNB / DecisionTree / TabPFN + Stacking / Soft-Voting / Weighted-Voting | 自动超参搜索 |
+| **23 个模型族** | LR / SVM / RF / ExtraTrees / XGBoost / CatBoost / LightGBM / HistGB / KNN / MLP / AdaBoost / 不平衡集成 / TabPFN + Stacking / Voting 等（[完整 23 族表](#23-个模型族)） | 自动超参搜索 |
 | **16 个真实数据集** | UCI / CDC / NCI / Vanderbilt / MIT-LCP / Framingham / Vanderbilt SUPPORT2 官方数据 | 总计 630K+ 行 |
 | **多模型 SHAP 集成引擎** | 多族 L1 归一化集成 + Kendall tau 一致性 (FDR-BH 校正) + 跨模型 Spearman 排名相关 + 5 张发表级 CSV | RF/XGB/CatBoost/LGBM/LR |
 | **学术合规引擎** | TRIPOD+AI 2024 (27 项) / PROBAST+AI 2025 (4 域) / STARD-AI | 全项逐条验证 |
@@ -360,6 +351,9 @@ MLGG 强制按 9 个阶段顺序执行，每个阶段有明确检查点，不通
 ```
 
 ---
+
+<details>
+<summary><strong>展开 9 阶段逐阶段完整细节（队列定义 → 报告合规）</strong></summary>
 
 ### 阶段一：队列定义与样本量
 
@@ -992,6 +986,8 @@ SHAP 对相关特征可能产生误导（联盟博弈论假设）。PDP 提供�
 
 必须覆盖：数据来源局限、时间有效性、编码体系变化 (ICD-9 -> ICD-10)、外部效度、公平性局限、DCA 临床效用结论。如 DCA 显示无净效用，必须诚实报告 &mdash; 不隐瞒负面结果。
 
+</details>
+
 ---
 
 ## 33 道安全门控 (Gate DAG)
@@ -1323,6 +1319,9 @@ UKB 的「字段-instance-array」结构（同一字段在 baseline / imaging / 
 
 ## 项目结构
 
+<details>
+<summary><strong>展开完整目录树（scripts / references / tests / …）</strong></summary>
+
 ```
 medical-ml-governance-guard/
 │
@@ -1583,6 +1582,8 @@ medical-ml-governance-guard/
     ├── CHANGELOG.md                      #   版本历史
     └── LICENSE                           #   PolyForm Noncommercial 1.0.0
 ```
+
+</details>
 
 ### 数据流
 
