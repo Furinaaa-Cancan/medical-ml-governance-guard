@@ -73,6 +73,16 @@ note in the Progress Log below, and wait when it hits ANY of:
 Each safe iteration: implement one unchecked additive item → run its tests + the affected suite →
 `pytest -q` green → granular commit + push → tick the box → append to Progress Log → next.
 
+**At a CHECKPOINT, before stopping:** draft a concrete, reviewable proposal for the blocked item in
+the Progress Log — the design, the test plan, and a diff *sketch* (in prose / fenced blocks, NOT
+applied to the contract files). This makes the morning review actionable. Then stop. Never apply a
+contract/manifest/crypto change unattended, even if it looks obvious.
+
+Note: P0.1 splits into **P0.1a** (additive, safe — `publication_gate` reads an optional `run_id`
+from each component report and warns/fails on a mixed-run set; absent → no-op) and **P0.1b**
+(emit `run_id` from `build_report_envelope`, a framework/envelope contract change → CHECKPOINT).
+Do P0.1a; draft-and-park P0.1b.
+
 ## Acceptance criteria
 - `tests/test_publication_gate.py` stays green (no regression).
 - New asymmetry tests green and cover: no-upgrade, can-block, absent-noop, malformed-fail-closed.
