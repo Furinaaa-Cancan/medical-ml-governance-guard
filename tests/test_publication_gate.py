@@ -141,6 +141,14 @@ def _good_execution_attestation():
                 "enforced": True,
                 "status": "pass",
             },
+            # P0.4: proof that a signature was actually verified against a
+            # trusted signer (a real attestation run emits these).
+            "signature_verification": {"verified": True},
+            "trust_verification": {
+                "checked": True,
+                "trusted": True,
+                "allow_unsigned_mode": False,
+            },
         },
     }
 
