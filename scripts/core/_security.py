@@ -295,6 +295,44 @@ def compute_hmac(data: bytes, key: Optional[bytes] = None) -> bytes:
     return hmac.new(key, data, hashlib.sha256).digest()
 
 
+# ── Run-scoped report seal (asymmetric two-tier harness, P0.2/P0.3) ──────────
+# A gate seals its own report envelope with a per-run key issued by the
+# orchestrator and NEVER written to the evidence dir. publication_gate verifies
+# the seal before trusting a report's status, so an agent/user that hand-edits
+# evidence/<gate>_report.json cannot re-seal it without the key → forgery is
+# detected and the gate fails closed. The seal is keyed (HMAC), unlike a plain
+# content hash, which under the agent-as-threat model is theater.
+
+def canonical_report_bytes(report: Dict[str, Any]) -> bytes:
+    """Deterministic byte serialization of a report, excluding its own ``seal``.
+
+    Sorted keys + compact separators so the same logical report always yields
+    the same bytes regardless of dict ordering or whitespace.
+    """
+    payload = {k: v for k, v in report.items() if k != "seal"}
+    return json.dumps(
+        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str
+    ).encode("utf-8")
+
+
+def compute_envelope_seal(report: Dict[str, Any], key: Union[bytes, str]) -> str:
+    """HMAC-SHA256 hex seal over the report's canonical bytes (sans ``seal``)."""
+    if isinstance(key, str):
+        key = key.encode("utf-8")
+    return hmac.new(key, canonical_report_bytes(report), hashlib.sha256).hexdigest()
+
+
+def verify_envelope_seal(report: Dict[str, Any], key: Union[bytes, str]) -> bool:
+    """Constant-time check that ``report['seal']`` matches a recomputed seal.
+
+    Returns False on a missing/non-string seal (fail-closed at the call site).
+    """
+    expected = report.get("seal")
+    if not isinstance(expected, str) or not expected:
+        return False
+    return hmac.compare_digest(expected, compute_envelope_seal(report, key))
+
+
 def sign_model_artifact(model_path: Path, key: Optional[bytes] = None) -> Path:
     """Sign a serialized model artifact with HMAC-SHA256.
 
