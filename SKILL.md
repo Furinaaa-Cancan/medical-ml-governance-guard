@@ -268,6 +268,23 @@ R021 可检测 `holdout/held_out` 等关键词，但任意命名（如 `eval_dat
 
 ---
 
+## Claim Tiers（诚实分级 — 非对称双层）
+
+`publication_gate` 输出 `summary.claim.tier`，绑定到**确定性门控底线**,与 LLM 评审层分开:
+
+| tier | 含义 | 条件 |
+|---|---|---|
+| `publication-grade` | 全部门控 + **已验证的 attestation 签名**（可信签名者） | L3 通过 |
+| `leakage-audited` | 确定性泄漏门控通过,尚未达发布级 | L1/L2 通过 |
+| `none` | 未达底线（**含任一 blocking 评审意见**——它会把所有 tier 压到 none） | — |
+
+**非对称规则**: LLM 评审层（`evidence/llm_review_report.json`,见 `mlgg llm-review` / `scripts/review/llm_review.py`）
+只能**加疑点**——blocking 意见把 tier 压低并 fail；advisory 意见仅记录,不抬高 tier。LLM **永远不能**把
+门控的 fail 洗成 pass。`summary.claim` 同时报告 `reviewer_concerns_incorporated` 与 blocking/advisory 计数。
+对外引用 publication-grade 时仍须具体到维度（见下方"能力边界"）。
+
+---
+
 ## 能力边界
 
 MLGG 是**训练管线治理工具**，不是全栈 publication readiness。下面的分层请诚实读。
