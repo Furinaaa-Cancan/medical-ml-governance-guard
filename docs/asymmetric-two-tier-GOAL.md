@@ -26,9 +26,10 @@ from LLM input. "Can add doubt, never remove it" is enforced by data flow, not b
 - [x] **P0.0** Asymmetric LLM advisory channel in `publication_gate` (additive, no CLI change;
       auto-discovers `<evidence_dir>/llm_review_report.json`; absent → no-op; malformed → fail-closed).
       Tests prove: LLM cannot upgrade a gate FAIL; LLM CAN block a gate PASS; absent → unchanged.
-- [~] **P0.1** Run-binding. **P0.1a DONE** — `publication_gate` rejects a mixed-run evidence set
-      (differing `run_id` across reports → fail-closed; no-op until gates emit run_id). **P0.1b**
-      (emit `run_id` from `build_report_envelope`) → CHECKPOINT (envelope contract): draft + park.
+- [x] **P0.1** Run-binding. **P0.1a + P0.1b DONE** — gates stamp `run_id` (from `MLGG_RUN_ID`, issued
+      once per pipeline by `run_dag_pipeline`); `publication_gate` rejects a mixed-run set
+      (`mixed_run_evidence`, fail-closed). Envelope field is optional/backward-compatible;
+      `envelope_version` bump to 2.1.0 deferred (avoids breaking exact-match assertions).
 - [ ] **P0.2** Enrol gate-report outputs (not just inputs) into the manifest hash so a hand-edited
       `*_report.json` is detectable. **CHECKPOINT: touches manifest contract — show diff, wait.**
 - [ ] **P0.3** `publication_gate` stops trusting `report['status']`: verify a run-scoped seal on
@@ -63,15 +64,22 @@ from LLM input. "Can add doubt, never remove it" is enforced by data flow, not b
 - `blocking` → appended to `failures`, forces compliance to `none`, fails the gate.
 - `advisory` → appended to `warnings` (caps score; fails only under `--strict`).
 
-## Loop stop-conditions (CHECKPOINT — pause and wait for human review)
+## Loop policy (REVISED 2026-06-05 — user: "don't stop, run all night")
 
-The overnight loop keeps grinding **only** the additive, test-covered slices. It MUST stop, leave a
-note in the Progress Log below, and wait when it hits ANY of:
-1. A change that **breaks/extends a gate CLI contract** (new required flag, changed envelope).
-2. A change to **manifest contract, SKILL.md, CLAUDE.md, or `.github/workflows/`**.
-3. A **key-custody / crypto** decision (P0.2–P0.5).
-4. A test that **fails two iterations in a row** without a clear fix (per CLAUDE.md: no >1 auto-retry).
-5. A **design fork** where my judgement should not be final.
+The loop now PROCEEDS through checkpoints on this feature branch (reversible, PR-gated), using the
+recommended defaults (threat model **ii**), test-first, committing each slice with any assumed
+decision flagged in the commit body for PR-time veto. It works through P0.1b → P0.2 → P0.3 → P0.4 →
+P0.5 → P1.0 → P1.1-producer → P2.0 → P2.1.
+
+**HARD STOP — never do these unattended** (park + Progress-Log note instead):
+1. A **paid / external live-LLM API call** (P1.0). Build the producer with a pluggable adapter +
+   deterministic test double; leave live-model wiring as a thin, clearly-marked, user-enabled adapter.
+2. Push to **main**, force-push, `reset --hard`, delete files, or touch `.github/workflows/`.
+3. A test **failing two iterations in a row** with no clear fix → skip that item, log it, continue
+   with the next; if every remaining item is blocked, park.
+
+**PROCEED on the branch (flag the assumption in the commit body):** envelope / manifest / crypto /
+contract changes (P0.1b–P0.5); SKILL.md / CLAUDE.md edits for P2.0 (as their own clearly-marked commit).
 
 Each safe iteration: implement one unchecked additive item → run its tests + the affected suite →
 `pytest -q` green → granular commit + push → tick the box → append to Progress Log → next.
@@ -98,9 +106,12 @@ Do P0.1a; draft-and-park P0.1b.
   (`test_publication_gate_run_binding.py`), 62 green, ruff clean.
 - 2026-06-05 — P1.1 (consumer-side): advisory report content-hashed (sha256) + `meta` provenance
   surfaced in `publication_gate` summary. +3 tests, 65 green, ruff clean.
-- 2026-06-05 — **LOOP PARKED.** All clearly-safe additive slices done (P0.0, P0.1a, P1.1; 3 commits
-  pushed, 65 tests green). Everything remaining is a CHECKPOINT — see "Checkpoint Proposals" below
-  for ready-to-review designs. Awaiting your sign-off (esp. threat model + the P1.0 live-LLM call).
+- 2026-06-05 — LOOP PARKED after P0.0/P0.1a/P1.1, then **RESUMED** on user instruction ("don't stop").
+  Policy revised: proceed through checkpoints on the branch with defaults (threat model ii). See
+  "Loop policy" above. Proposals below retained as the design reference being implemented.
+- 2026-06-05 — P0.1b: `build_report_envelope` stamps `run_id` from `MLGG_RUN_ID`; `run_dag_pipeline`
+  issues one id per run (setdefault, respects external pin). +4 envelope tests; 278 green across
+  envelope/contract/e2e/DAG; ruff clean. ASSUMED: no envelope_version bump (deferred).
 
 ---
 
