@@ -12,6 +12,7 @@ that invariant at the certification boundary:
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -156,6 +157,40 @@ def test_concern_with_non_list_is_fail_closed(tmp_path: Path):
     assert result.returncode == 2
     codes = [f.get("code") for f in report.get("failures", [])]
     assert "llm_review_malformed" in codes
+
+
+# ── P1.1: advisory audit trail (content hash + provenance) ───────────────────
+
+def test_advisory_report_content_is_hashed(tmp_path: Path):
+    paths = _make_all_artifacts(tmp_path)
+    llm_path = _write_llm(tmp_path, {"concerns": [
+        {"severity": "advisory", "code": "minor", "message": "consider X"},
+    ]})
+
+    _, report = _run(tmp_path, paths)
+
+    rb = report["summary"]["llm_advisory_review"]
+    assert rb["content_sha256"] == hashlib.sha256(llm_path.read_bytes()).hexdigest()
+    assert len(rb["content_sha256"]) == 64
+
+
+def test_advisory_report_provenance_surfaced(tmp_path: Path):
+    paths = _make_all_artifacts(tmp_path)
+    meta = {"model": "claude-opus-4-8", "prompt_hash": "deadbeef", "evidence_seen": 28}
+    _write_llm(tmp_path, {"meta": meta, "concerns": []})
+
+    _, report = _run(tmp_path, paths)
+
+    assert report["summary"]["llm_advisory_review"]["provenance"] == meta
+
+
+def test_absent_report_has_no_hash_or_provenance(tmp_path: Path):
+    paths = _make_all_artifacts(tmp_path)
+    _, report = _run(tmp_path, paths)
+
+    rb = report["summary"]["llm_advisory_review"]
+    assert rb["content_sha256"] is None
+    assert rb["provenance"] == {}
 
 
 if __name__ == "__main__":

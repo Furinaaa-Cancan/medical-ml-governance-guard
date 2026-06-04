@@ -40,7 +40,9 @@ from LLM input. "Can add doubt, never remove it" is enforced by data flow, not b
 ### P1 — build the LLM synthesis layer (the user's part ③)
 - [ ] **P1.0** Synthesis step: all gate evidence + RAG concerns → LLM → structured reviewer report
       (Major/Minor/Questions) written to `evidence/llm_review_report.json` in the P0.0 schema.
-- [ ] **P1.1** Audit trail: record which evidence the LLM saw + prompt/model + output hash.
+- [~] **P1.1** Audit trail. **Consumer-side DONE** — `publication_gate` fingerprints the advisory
+      report (content sha256) and surfaces its `meta` provenance (model / prompt_hash / evidence_seen)
+      into the summary. Producer-side capture (what the LLM actually saw) lands with **P1.0**.
 
 ### P2 — honest branding + measured grounding
 - [ ] **P2.0** Bind claim tiers: `leakage-audited` (gates) / `+reviewer-concerns` (LLM advisory) /
@@ -94,3 +96,5 @@ Do P0.1a; draft-and-park P0.1b.
 - 2026-06-05 — P0.1a: run-binding consistency check in `publication_gate` (mixed `run_id` →
   `mixed_run_evidence` fail-closed; no-op until P0.1b stamps run_id). +4 tests
   (`test_publication_gate_run_binding.py`), 62 green, ruff clean.
+- 2026-06-05 — P1.1 (consumer-side): advisory report content-hashed (sha256) + `meta` provenance
+  surfaced in `publication_gate` summary. +3 tests, 65 green, ruff clean.

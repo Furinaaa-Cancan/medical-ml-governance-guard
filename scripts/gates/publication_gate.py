@@ -9,6 +9,7 @@ import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__f
 _DIAG_DIR = str(_Path(__file__).resolve().parent.parent / "diagnostics"); _sys.path.insert(0, _DIAG_DIR) if _DIAG_DIR not in _sys.path else None  # noqa: E702
 
 import argparse
+import hashlib
 import json
 import math
 import os
@@ -262,6 +263,8 @@ def load_llm_advisory_review(
     summary: Dict[str, Any] = {
         "present": False,
         "path": None,
+        "content_sha256": None,
+        "provenance": {},
         "blocking_count": 0,
         "advisory_count": 0,
     }
@@ -290,8 +293,22 @@ def load_llm_advisory_review(
     summary["present"] = True
     summary["path"] = str(llm_path)
 
+    # Fingerprint the raw artifact for auditability (P1.1) BEFORE parsing, so
+    # even a malformed report is recorded by content hash.
     try:
-        data = json.loads(llm_path.read_text(encoding="utf-8"))
+        raw_text = llm_path.read_text(encoding="utf-8")
+    except Exception as exc:  # unreadable advisory artifact → fail-closed
+        add_issue(
+            failures,
+            "llm_review_unparseable",
+            "LLM advisory review report is present but could not be read (fail-closed).",
+            {"path": str(llm_path), "error": str(exc)},
+        )
+        return summary
+    summary["content_sha256"] = hashlib.sha256(raw_text.encode("utf-8")).hexdigest()
+
+    try:
+        data = json.loads(raw_text)
     except Exception as exc:  # unparseable advisory artifact → fail-closed
         add_issue(
             failures,
@@ -309,6 +326,11 @@ def load_llm_advisory_review(
             {"path": str(llm_path)},
         )
         return summary
+
+    # Surface reviewer provenance (model, prompt hash, evidence seen, ...) for
+    # the audit trail. Advisory only — never affects the verdict.
+    if isinstance(data.get("meta"), dict):
+        summary["provenance"] = data["meta"]
 
     concerns = data.get("concerns", [])
     if not isinstance(concerns, list):
