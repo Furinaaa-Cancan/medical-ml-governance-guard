@@ -1437,7 +1437,7 @@ medical-ml-governance-guard/
 │   │   ├── add_disease_kb_provenance.py  #   --   disease KB provenance 批量标注
 │   │   └── _kb_provenance.py / __init__.py
 │   │
-│   ├── review/            (9 files, 4.8K LOC)   # 论文分析与审稿案例（含 llm_paper_audit）
+│   ├── review/            (10 files, 5.0K LOC)  # 论文分析与审稿案例（含 llm_paper_audit, llm_review）
 │   │   ├── peer_review_lookup.py         #   133  154 篇 NC+CM × 817 条审稿意见, 按 gate/tag 检索
 │   │   ├── batch_journal_review.py       #   776  批量期刊审查 (多论文 × 多期刊标准)
 │   │   ├── extract_paper_metadata.py     #  1236  PDF → 结构化 metadata.json (LLM 驱动)
@@ -1494,7 +1494,7 @@ medical-ml-governance-guard/
 │       └── run_endurance_test.py         #   767  6 小时耐久性测试
 │          └──────────────────────────────────────────────────────────────────┘
 │
-├── tests/                  (206)         # ─── 测试 (~35K lines) ───
+├── tests/                  (207)         # ─── 测试 (~35K lines) ───
 │   ├── conftest.py                       #   统一 fixture (tmp_path, 路径注入, 共享数据)
 │   ├── test_*_gate.py      (33)          #   每个 gate 对应一个测试文件
 │   ├── test_*_e2e.py       (8)           #   端到端流程测试 (onboarding, workflow, train, split, rag)

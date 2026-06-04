@@ -49,11 +49,15 @@ from LLM input. "Can add doubt, never remove it" is enforced by data flow, not b
       key cannot be fabricated by the loop. ⇒ **all of P0 complete.**
 
 ### P1 — build the LLM synthesis layer (the user's part ③)
-- [ ] **P1.0** Synthesis step: all gate evidence + RAG concerns → LLM → structured reviewer report
-      (Major/Minor/Questions) written to `evidence/llm_review_report.json` in the P0.0 schema.
-- [~] **P1.1** Audit trail. **Consumer-side DONE** — `publication_gate` fingerprints the advisory
-      report (content sha256) and surfaces its `meta` provenance (model / prompt_hash / evidence_seen)
-      into the summary. Producer-side capture (what the LLM actually saw) lands with **P1.0**.
+- [~] **P1.0** Synthesis producer. **P1.0a DONE** — `scripts/review/llm_review.py`: gathers all gate
+      evidence → pluggable adapter → writes `evidence/llm_review_report.json` (P0.0 schema). Default
+      adapter is a DETERMINISTIC TEST DOUBLE (no network); `LiveClaudeReviewAdapter` is guarded so no
+      unattended paid call is possible. Producer→consumer integration proven (blocking→fail, advisory→
+      warn). **P1.0b (user-enabled, flagged)** — wire the real Claude call (model/cost/prompt = your
+      decision); the adapter seam is ready.
+- [x] **P1.1 DONE.** Consumer-side — `publication_gate` fingerprints the advisory report (content
+      sha256) + surfaces its `meta` provenance into the summary. Producer-side — `llm_review.py` emits
+      `meta{model, prompt_hash, evidence_seen}` (satisfied by P1.0a).
 
 ### P2 — honest branding + measured grounding
 - [ ] **P2.0** Bind claim tiers: `leakage-audited` (gates) / `+reviewer-concerns` (LLM advisory) /
@@ -142,6 +146,11 @@ Do P0.1a; draft-and-park P0.1b.
   tests (missing/empty/bad-fp/invalid-json/non-object → None). Provisioning already documented; real
   signer-key creation flagged as an ops task (cannot fabricate a key unattended). **ALL P0 COMPLETE.**
   88 green; ruff clean.
+- 2026-06-05 — P1.0a + P1.1: `scripts/review/llm_review.py` synthesis producer (gather evidence →
+  pluggable adapter → P0.0-schema report). Default = deterministic no-network double; live Claude
+  adapter guarded (no unattended paid call). Producer→consumer integration proven (blocking→fail,
+  advisory→warn); `meta` provenance satisfies P1.1-producer. +7 tests; ruff clean. **The asymmetric
+  loop (③) is now closed end-to-end.** P1.0b (live call wiring) flagged as user-enabled.
 
 ---
 
