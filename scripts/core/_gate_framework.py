@@ -225,6 +225,14 @@ def build_report_envelope(
         "warnings": warning_dicts,
     }
 
+    # Run-binding (P0.1b): stamp the orchestrator-issued run id so aggregation
+    # (publication_gate's P0.1a check) can verify every report describes one
+    # run. Optional and backward-compatible: absent env → field omitted,
+    # envelope_version unchanged.
+    _run_id = os.environ.get("MLGG_RUN_ID")
+    if _run_id and _run_id.strip():
+        envelope["run_id"] = _run_id.strip()
+
     if summary is not None:
         envelope["summary"] = summary
 
@@ -235,7 +243,7 @@ def build_report_envelope(
         _RESERVED = {
             "envelope_version", "gate_name", "gate_version", "status",
             "strict_mode", "execution_timestamp_utc", "execution_time_seconds",
-            "failure_count", "warning_count", "failures", "warnings",
+            "failure_count", "warning_count", "failures", "warnings", "run_id",
         }
         for k, v in extra.items():
             if k not in _RESERVED:
