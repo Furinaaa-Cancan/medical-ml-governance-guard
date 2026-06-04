@@ -243,7 +243,7 @@ def build_report_envelope(
         _RESERVED = {
             "envelope_version", "gate_name", "gate_version", "status",
             "strict_mode", "execution_timestamp_utc", "execution_time_seconds",
-            "failure_count", "warning_count", "failures", "warnings", "run_id",
+            "failure_count", "warning_count", "failures", "warnings", "run_id", "seal",
         }
         for k, v in extra.items():
             if k not in _RESERVED:
@@ -348,6 +348,20 @@ def build_report_envelope(
             _peer_status = f"kb_error:{type(_peer_exc).__name__}"
     envelope["peer_review_context"] = _peer_ctx
     envelope["peer_review_status"] = _peer_status
+
+    # Run-scoped seal (P0.3b): seal the COMPLETE envelope when the orchestrator
+    # has issued a per-run key (MLGG_RUN_KEY). Lazy import keeps _security off
+    # the gate import path when sealing is inactive. Backward-compatible: no key
+    # → no seal field. Sealing is best-effort at write time — a failure here must
+    # never crash the gate (exit 1 would break the 0/2 CLI contract); an unsealed
+    # report is caught downstream by publication_gate's verification.
+    _run_key = os.environ.get("MLGG_RUN_KEY")
+    if _run_key and _run_key.strip():
+        try:
+            from _security import compute_envelope_seal
+            envelope["seal"] = compute_envelope_seal(envelope, _run_key.strip())
+        except Exception:
+            pass
 
     return envelope
 

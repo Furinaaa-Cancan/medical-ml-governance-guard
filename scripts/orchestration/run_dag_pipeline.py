@@ -43,6 +43,7 @@ import argparse
 import concurrent.futures
 import json
 import os
+import secrets
 import shlex
 import signal
 import subprocess
@@ -762,6 +763,12 @@ def main() -> int:
     # Respect an externally-pinned id (outer orchestrator / test) via setdefault.
     run_id = os.environ.setdefault("MLGG_RUN_ID", uuid.uuid4().hex)
     print(f"[RUN] run_id={run_id}")
+
+    # Run-scoped seal key (P0.3b): one secret per run, exported so gate
+    # subprocesses (and publication_gate) seal/verify their reports. NEVER
+    # printed or written to the evidence dir — custody stays in this process
+    # tree, so an agent editing report JSON cannot re-seal without it.
+    os.environ.setdefault("MLGG_RUN_KEY", secrets.token_hex(32))
 
     # RBAC role check (optional)
     if getattr(args, "require_role", None):
