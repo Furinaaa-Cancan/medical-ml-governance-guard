@@ -409,6 +409,58 @@ def check_run_binding(
     }
 
 
+def verify_component_seals(
+    loaded: Dict[str, Dict[str, Any]],
+    failures: List[Dict[str, Any]],
+    warnings: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    """Verify each component's run-scoped seal before its status is trusted (P0.3b consumer).
+
+    Closes C2: the certifier no longer trusts an unsigned ``status`` field. Using
+    the orchestrator-issued ``MLGG_RUN_KEY`` (which an agent editing report JSON
+    does not hold):
+      * INVALID seal (content edited after sealing) → fail-closed ALWAYS;
+      * MISSING seal while the key is active → warning (→ fails under --strict,
+        since every gate seals on the orchestrated path);
+      * no key present → verification inactive (standalone gate runs unaffected).
+    """
+    key = os.environ.get("MLGG_RUN_KEY")
+    summary: Dict[str, Any] = {
+        "active": bool(key),
+        "verified": 0,
+        "invalid": [],
+        "unsealed": [],
+    }
+    if not key:
+        return summary
+
+    from _security import verify_envelope_seal
+
+    for name, report in loaded.items():
+        if not isinstance(report, dict):
+            continue
+        if "seal" not in report:
+            summary["unsealed"].append(name)
+            add_issue(
+                warnings,
+                "component_unsealed",
+                "Component report carries no run-scoped seal while sealing is active.",
+                {"component": name},
+            )
+        elif verify_envelope_seal(report, key):
+            summary["verified"] += 1
+        else:
+            summary["invalid"].append(name)
+            add_issue(
+                failures,
+                "component_seal_invalid",
+                "Component report seal verification FAILED — content does not match "
+                "its run-scoped seal (possible tampering); status not trusted.",
+                {"component": name},
+            )
+    return summary
+
+
 def enforce_execution_attestation_publication_contract(
     execution_attestation_report: Optional[Dict[str, Any]],
     failures: List[Dict[str, Any]],
@@ -924,6 +976,10 @@ def main() -> int:
     # No-op until gates emit run_id (P0.1b); never feeds a tier upward.
     run_binding_summary = check_run_binding(loaded, failures)
 
+    # Seal verification (P0.3b consumer): verify run-scoped seals before trusting
+    # any component status. Closes C2 (certifier trusting unsigned JSON).
+    seal_verification_summary = verify_component_seals(loaded, failures, warnings)
+
     from _gate_utils import get_gate_elapsed, write_json as _write_report
 
     # ── L1/L2/L3 compliance tiers ──────────────────────────────────────────
@@ -1052,6 +1108,7 @@ def main() -> int:
             "disease_kb_review": disease_kb_summary,
             "llm_advisory_review": llm_review_summary,
             "run_binding": run_binding_summary,
+            "seal_verification": seal_verification_summary,
             "artifacts": {
                 name: {
                     "path": str(Path(path).expanduser().resolve()),
