@@ -235,6 +235,118 @@ def parse_int_like(value: Any) -> Optional[int]:
     return _shared_to_int(value)
 
 
+def load_llm_advisory_review(
+    report_arg: Optional[str],
+    component_paths: Dict[str, str],
+    failures: List[Dict[str, Any]],
+    warnings: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    """Asymmetric LLM advisory channel (two-tier harness invariant).
+
+    The LLM reviewer can ONLY raise concerns; it can NEVER clear a deterministic
+    gate failure. We fold its concerns into ``failures``/``warnings`` and the
+    caller folds a blocking concern into the tier booleans by forcing them DOWN.
+    There is no code path here (or in the caller) that sets a tier ``True`` or
+    reduces ``failure_count`` from LLM input, so the data flow makes
+    "upgrade a fail to pass" structurally impossible (final = min(gate, llm)).
+
+    Discovery is by convention (no CLI change): ``<evidence_dir>/llm_review_report.json``
+    where ``evidence_dir`` is the parent of ``--report`` (falling back to the
+    parent of any component report). The report is OPTIONAL:
+      * absent            → no-op (LLM review is not required for a gate run);
+      * present, blocking → appended to ``failures`` (fails the gate, caps tier);
+      * present, advisory → appended to ``warnings`` (caps score; fails under --strict);
+      * present, malformed/unparseable → ``failures`` (fail-closed — a corrupt
+        advisory artifact must never be silently ignored in the safe direction).
+    """
+    summary: Dict[str, Any] = {
+        "present": False,
+        "path": None,
+        "blocking_count": 0,
+        "advisory_count": 0,
+    }
+
+    # Locate the evidence dir by convention, preferring --report's directory.
+    candidates: List[Path] = []
+    if report_arg:
+        candidates.append(Path(report_arg).expanduser().resolve().parent)
+    for path in component_paths.values():
+        candidates.append(Path(path).expanduser().resolve().parent)
+
+    llm_path: Optional[Path] = None
+    seen: set = set()
+    for directory in candidates:
+        if directory in seen:
+            continue
+        seen.add(directory)
+        candidate = directory / "llm_review_report.json"
+        if candidate.exists():
+            llm_path = candidate
+            break
+
+    if llm_path is None:
+        return summary
+
+    summary["present"] = True
+    summary["path"] = str(llm_path)
+
+    try:
+        data = json.loads(llm_path.read_text(encoding="utf-8"))
+    except Exception as exc:  # unparseable advisory artifact → fail-closed
+        add_issue(
+            failures,
+            "llm_review_unparseable",
+            "LLM advisory review report is present but could not be parsed (fail-closed).",
+            {"path": str(llm_path), "error": str(exc)},
+        )
+        return summary
+
+    if not isinstance(data, dict):
+        add_issue(
+            failures,
+            "llm_review_malformed",
+            "LLM advisory review report must be a JSON object (fail-closed).",
+            {"path": str(llm_path)},
+        )
+        return summary
+
+    concerns = data.get("concerns", [])
+    if not isinstance(concerns, list):
+        add_issue(
+            failures,
+            "llm_review_malformed",
+            "LLM advisory review 'concerns' must be a list (fail-closed).",
+            {"path": str(llm_path)},
+        )
+        return summary
+
+    for index, concern in enumerate(concerns):
+        if not isinstance(concern, dict):
+            add_issue(
+                failures,
+                "llm_review_malformed",
+                "LLM advisory review concern entry must be an object (fail-closed).",
+                {"path": str(llm_path), "index": index},
+            )
+            continue
+        severity = str(concern.get("severity", "advisory")).strip().lower()
+        message = str(concern.get("message") or "LLM reviewer raised a concern.")
+        detail: Dict[str, Any] = {
+            "source": "llm_advisory_review",
+            "concern_code": str(concern.get("code") or "llm_reviewer_concern"),
+        }
+        if isinstance(concern.get("detail"), dict):
+            detail.update(concern["detail"])
+        if severity == "blocking":
+            summary["blocking_count"] += 1
+            add_issue(failures, "llm_blocking_concern", message, detail)
+        else:
+            summary["advisory_count"] += 1
+            add_issue(warnings, "llm_advisory_concern", message, detail)
+
+    return summary
+
+
 def enforce_execution_attestation_publication_contract(
     execution_attestation_report: Optional[Dict[str, Any]],
     failures: List[Dict[str, Any]],
@@ -735,6 +847,17 @@ def main() -> int:
                 {"actual_metric_type": type(actual_metric).__name__ if actual_metric is not None else None},
             )
 
+    # ── Asymmetric LLM advisory channel (two-tier harness) ─────────────────
+    # Folds LLM reviewer concerns into failures/warnings ONLY. A blocking
+    # concern caps the tier below (forces booleans DOWN); nothing here can
+    # raise a tier or clear a gate failure. final_verdict = min(gate, llm).
+    llm_review_summary = load_llm_advisory_review(
+        report_arg=args.report,
+        component_paths=files,
+        failures=failures,
+        warnings=warnings,
+    )
+
     from _gate_utils import get_gate_elapsed, write_json as _write_report
 
     # ── L1/L2/L3 compliance tiers ──────────────────────────────────────────
@@ -794,6 +917,13 @@ def main() -> int:
     _kb_unreviewed = any(f.get("code") == "disease_kb_unreviewed" for f in failures + warnings)
     if _kb_unreviewed:
         l3_passed = False
+
+    # Asymmetric floor: a blocking LLM reviewer concern means even the
+    # deterministic leakage-audit claim is no longer trustworthy, so it forces
+    # every tier DOWN (compliance → "none"). It can never push a tier up.
+    if llm_review_summary.get("blocking_count", 0) > 0:
+        l1_passed = l2_passed = l3_passed = False
+
     compliance_level = "L3" if l3_passed else ("L2" if l2_passed else ("L1" if l1_passed else "none"))
 
     # ── External validation absent → mandatory Limitations declaration ────
@@ -854,6 +984,7 @@ def main() -> int:
                 "L3_publication_grade": l3_passed,
             },
             "disease_kb_review": disease_kb_summary,
+            "llm_advisory_review": llm_review_summary,
             "artifacts": {
                 name: {
                     "path": str(Path(path).expanduser().resolve()),
