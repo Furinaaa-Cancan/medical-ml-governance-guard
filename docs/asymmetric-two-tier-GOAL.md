@@ -26,8 +26,9 @@ from LLM input. "Can add doubt, never remove it" is enforced by data flow, not b
 - [x] **P0.0** Asymmetric LLM advisory channel in `publication_gate` (additive, no CLI change;
       auto-discovers `<evidence_dir>/llm_review_report.json`; absent → no-op; malformed → fail-closed).
       Tests prove: LLM cannot upgrade a gate FAIL; LLM CAN block a gate PASS; absent → unchanged.
-- [ ] **P0.1** Run-binding: stamp a `run_id` on every gate report; `publication_gate` rejects a
-      mixed-run evidence set (reports must share one `run_id`). *(Additive: read-only check first.)*
+- [~] **P0.1** Run-binding. **P0.1a DONE** — `publication_gate` rejects a mixed-run evidence set
+      (differing `run_id` across reports → fail-closed; no-op until gates emit run_id). **P0.1b**
+      (emit `run_id` from `build_report_envelope`) → CHECKPOINT (envelope contract): draft + park.
 - [ ] **P0.2** Enrol gate-report outputs (not just inputs) into the manifest hash so a hand-edited
       `*_report.json` is detectable. **CHECKPOINT: touches manifest contract — show diff, wait.**
 - [ ] **P0.3** `publication_gate` stops trusting `report['status']`: verify a run-scoped seal on
@@ -90,3 +91,6 @@ Do P0.1a; draft-and-park P0.1b.
 
 ## Progress Log
 - 2026-06-05 — branch created; P0.0 asymmetric advisory channel + tests implemented.
+- 2026-06-05 — P0.1a: run-binding consistency check in `publication_gate` (mixed `run_id` →
+  `mixed_run_evidence` fail-closed; no-op until P0.1b stamps run_id). +4 tests
+  (`test_publication_gate_run_binding.py`), 62 green, ruff clean.

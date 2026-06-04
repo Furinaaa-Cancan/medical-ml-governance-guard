@@ -347,6 +347,46 @@ def load_llm_advisory_review(
     return summary
 
 
+def check_run_binding(
+    loaded: Dict[str, Dict[str, Any]],
+    failures: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    """Run-binding consistency check (asymmetric two-tier harness, P0.1a).
+
+    Aggregated evidence MUST describe a single run. Each component report may
+    carry a top-level ``run_id``; if two or more reports carry DIFFERENT
+    non-empty run_ids the evidence set is mixed (stale or substituted reports
+    aggregated as current) and the gate fails closed.
+
+    Additive and read-only: ``run_id`` never enters any tier computation, and
+    this is a no-op while gates do not yet emit it (absent on all reports →
+    empty set → pass). It activates once ``build_report_envelope`` stamps
+    run_id (P0.1b — a framework/envelope contract change handled separately).
+    """
+    run_ids: set = set()
+    reports_with_run_id = 0
+    for report in loaded.values():
+        if not isinstance(report, dict):
+            continue
+        rid = report.get("run_id")
+        if isinstance(rid, str) and rid.strip():
+            run_ids.add(rid.strip())
+            reports_with_run_id += 1
+    if len(run_ids) > 1:
+        add_issue(
+            failures,
+            "mixed_run_evidence",
+            "Component reports come from more than one run (run_id mismatch); "
+            "aggregated evidence must describe a single run.",
+            {"distinct_run_ids": sorted(run_ids)},
+        )
+    return {
+        "reports_with_run_id": reports_with_run_id,
+        "distinct_run_ids": sorted(run_ids),
+        "consistent": len(run_ids) <= 1,
+    }
+
+
 def enforce_execution_attestation_publication_contract(
     execution_attestation_report: Optional[Dict[str, Any]],
     failures: List[Dict[str, Any]],
@@ -858,6 +898,10 @@ def main() -> int:
         warnings=warnings,
     )
 
+    # ── Run-binding (P0.1a): reject a mixed-run evidence set ────────────────
+    # No-op until gates emit run_id (P0.1b); never feeds a tier upward.
+    run_binding_summary = check_run_binding(loaded, failures)
+
     from _gate_utils import get_gate_elapsed, write_json as _write_report
 
     # ── L1/L2/L3 compliance tiers ──────────────────────────────────────────
@@ -985,6 +1029,7 @@ def main() -> int:
             },
             "disease_kb_review": disease_kb_summary,
             "llm_advisory_review": llm_review_summary,
+            "run_binding": run_binding_summary,
             "artifacts": {
                 name: {
                     "path": str(Path(path).expanduser().resolve()),
