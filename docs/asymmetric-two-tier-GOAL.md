@@ -60,8 +60,10 @@ from LLM input. "Can add doubt, never remove it" is enforced by data flow, not b
       `meta{model, prompt_hash, evidence_seen}` (satisfied by P1.0a).
 
 ### P2 — honest branding + measured grounding
-- [ ] **P2.0** Bind claim tiers: `leakage-audited` (gates) / `+reviewer-concerns` (LLM advisory) /
-      `publication-grade` (= both + real attestation).
+- [x] **P2.0 DONE** — `publication_gate.summary.claim` reports an honest tier bound to the
+      deterministic floor: `publication-grade` (L3 + verified attestation) / `leakage-audited` (L1/L2)
+      / `none` (incl. any blocking reviewer concern), plus `reviewer_concerns_incorporated` + counts.
+      LLM layer reported separately, can only lower the tier. Documented in SKILL.md "Claim Tiers".
 - [ ] **P2.1** Benchmark the BM25 path gates actually ship (not hybrid). See `RAG_PATH_FINDINGS.md`.
 
 ## LLM review report schema (`evidence/llm_review_report.json`)
@@ -151,6 +153,9 @@ Do P0.1a; draft-and-park P0.1b.
   adapter guarded (no unattended paid call). Producer→consumer integration proven (blocking→fail,
   advisory→warn); `meta` provenance satisfies P1.1-producer. +7 tests; ruff clean. **The asymmetric
   loop (③) is now closed end-to-end.** P1.0b (live call wiring) flagged as user-enabled.
+- 2026-06-05 — P2.0: honest `summary.claim.tier` in publication_gate (publication-grade / leakage-
+  audited / none; bound to the deterministic floor; LLM layer can only lower it) + counts. SKILL.md
+  "Claim Tiers" section added (its own commit). +4 tests; 54 green; ruff clean.
 
 ---
 

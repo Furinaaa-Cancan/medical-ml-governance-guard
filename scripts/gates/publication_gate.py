@@ -1087,6 +1087,25 @@ def main() -> int:
 
     compliance_level = "L3" if l3_passed else ("L2" if l2_passed else ("L1" if l1_passed else "none"))
 
+    # P2.0: honest claim tier — the human-facing name for what the evidence
+    # actually supports, bound to the deterministic floor (not the LLM layer):
+    #   publication-grade = full gates + verified attestation (L3 passed)
+    #   leakage-audited   = deterministic leakage gates pass (L1/L2), not yet publication-grade
+    #   none              = floor not met (incl. a blocking reviewer concern, which caps tiers)
+    # The LLM advisory layer is reported separately and can only LOWER the tier.
+    if l3_passed:
+        claim_tier = "publication-grade"
+    elif l1_passed:
+        claim_tier = "leakage-audited"
+    else:
+        claim_tier = "none"
+    claim = {
+        "tier": claim_tier,
+        "reviewer_concerns_incorporated": bool(llm_review_summary.get("present")),
+        "blocking_reviewer_concerns": llm_review_summary.get("blocking_count", 0),
+        "advisory_reviewer_concerns": llm_review_summary.get("advisory_count", 0),
+    }
+
     # ── External validation absent → mandatory Limitations declaration ────
     ext_val = loaded.get("external_validation_report")
     ext_val_status = str(ext_val.get("status", "")).lower() if isinstance(ext_val, dict) else ""
@@ -1139,6 +1158,7 @@ def main() -> int:
         summary={
             "quality_score": round(quality_score, 2),
             "compliance_level": compliance_level,
+            "claim": claim,
             "compliance_tiers": {
                 "L1_leakage_audit": l1_passed,
                 "L2_statistically_valid": l2_passed,
