@@ -32,11 +32,12 @@ from LLM input. "Can add doubt, never remove it" is enforced by data flow, not b
       `envelope_version` bump to 2.1.0 deferred (avoids breaking exact-match assertions).
 - [x] **P0.2** Folded into P0.3 — a plain report-hash manifest is theater under threat (ii): an agent
       that can edit a report can edit the hash too. The keyed HMAC seal (P0.3) is the real binding.
-- [~] **P0.3** Run-scoped HMAC seal replaces `report['status']` trust. **P0.3a DONE** — seal primitive
-      (`canonical_report_bytes` / `compute_envelope_seal` / `verify_envelope_seal` in `_security.py`,
-      8 unit tests). **P0.3b** (next) — wire into `build_report_envelope` (seal on write) +
-      `run_dag_pipeline` (issue per-run key, export, never persist) + `publication_gate` (verify before
-      trusting status; missing/invalid seal under strict → fail-closed).
+- [~] **P0.3** Run-scoped HMAC seal replaces `report['status']` trust. **P0.3a DONE** — seal primitive.
+      **P0.3b-producer DONE** — `build_report_envelope` seals the complete envelope on write when
+      `MLGG_RUN_KEY` is set (lazy import, best-effort, no key → no seal); `run_dag_pipeline` issues one
+      per-run key (`secrets.token_hex`, exported, never printed/persisted). Orchestrated e2e confirms
+      all components seal. **P0.3b-consumer (next)** — `publication_gate` verifies each seal: invalid →
+      fail-closed always; missing-while-key-active → require under strict (all components do seal).
 - [ ] **P0.4** `enforce_execution_attestation_publication_contract` re-verifies signatures / re-runs
       the attestation gate instead of reading only `summary` fields. **CHECKPOINT — wait.**
 - [ ] **P0.5** Real `trusted_signers.json` allowlist wired (currently only `.example`). **CHECKPOINT.**
@@ -118,6 +119,10 @@ Do P0.1a; draft-and-park P0.1b.
 - 2026-06-05 — P0.2 folded into P0.3 (plain report-hash is theater under threat ii). P0.3a: run-scoped
   HMAC seal primitive in `_security.py` (canonical bytes / compute / verify). +8 unit tests, 76 green,
   ruff clean. Next: P0.3b wiring (envelope seal-on-write + orchestrator key + publication_gate verify).
+- 2026-06-05 — P0.3b-producer: `build_report_envelope` seals on write (lazy `_security` import,
+  best-effort, no-key→no-seal); `run_dag_pipeline` issues a per-run `MLGG_RUN_KEY` (never persisted).
+  +5 tests; 191 green incl. orchestrated e2e under a live key (all components seal) + contract
+  compliance; ruff clean. ASSUMED: env-var key custody (threat ii); threat iii needs an external store.
 
 ---
 
