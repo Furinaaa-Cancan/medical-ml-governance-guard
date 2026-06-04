@@ -32,12 +32,11 @@ from LLM input. "Can add doubt, never remove it" is enforced by data flow, not b
       `envelope_version` bump to 2.1.0 deferred (avoids breaking exact-match assertions).
 - [x] **P0.2** Folded into P0.3 — a plain report-hash manifest is theater under threat (ii): an agent
       that can edit a report can edit the hash too. The keyed HMAC seal (P0.3) is the real binding.
-- [~] **P0.3** Run-scoped HMAC seal replaces `report['status']` trust. **P0.3a DONE** — seal primitive.
-      **P0.3b-producer DONE** — `build_report_envelope` seals the complete envelope on write when
-      `MLGG_RUN_KEY` is set (lazy import, best-effort, no key → no seal); `run_dag_pipeline` issues one
-      per-run key (`secrets.token_hex`, exported, never printed/persisted). Orchestrated e2e confirms
-      all components seal. **P0.3b-consumer (next)** — `publication_gate` verifies each seal: invalid →
-      fail-closed always; missing-while-key-active → require under strict (all components do seal).
+- [x] **P0.3 — DONE (C2 FIXED end-to-end).** Run-scoped HMAC seal replaces `report['status']` trust.
+      P0.3a primitive + P0.3b-producer (seal-on-write + per-run key) + P0.3b-consumer
+      (`publication_gate.verify_component_seals`: invalid → fail always; unsealed-while-key-active →
+      fail under strict; no key → no-op). Orchestrated e2e proves a status-flipped report fails despite
+      `status='pass'`. Key custody = env (threat ii); threat iii needs an external secret store.
 - [ ] **P0.4** `enforce_execution_attestation_publication_contract` re-verifies signatures / re-runs
       the attestation gate instead of reading only `summary` fields. **CHECKPOINT — wait.**
 - [ ] **P0.5** Real `trusted_signers.json` allowlist wired (currently only `.example`). **CHECKPOINT.**
@@ -123,6 +122,11 @@ Do P0.1a; draft-and-park P0.1b.
   best-effort, no-key→no-seal); `run_dag_pipeline` issues a per-run `MLGG_RUN_KEY` (never persisted).
   +5 tests; 191 green incl. orchestrated e2e under a live key (all components seal) + contract
   compliance; ruff clean. ASSUMED: env-var key custody (threat ii); threat iii needs an external store.
+- 2026-06-05 — **P0.3b-consumer (C2 FIXED).** `publication_gate.verify_component_seals` verifies every
+  component seal before trusting status (invalid→fail always; unsealed→fail under strict; no key→no-op).
+  +4 tests incl. the C2 attack (flip leakage status→pass without re-seal → `component_seal_invalid`,
+  fail-closed); 120 green incl. orchestrated e2e + run_dag e2e (verification live, nothing breaks);
+  ruff clean. **The #1 critical finding from the harness review is now closed end-to-end.**
 
 ---
 
