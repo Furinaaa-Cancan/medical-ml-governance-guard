@@ -64,7 +64,12 @@ from LLM input. "Can add doubt, never remove it" is enforced by data flow, not b
       deterministic floor: `publication-grade` (L3 + verified attestation) / `leakage-audited` (L1/L2)
       / `none` (incl. any blocking reviewer concern), plus `reviewer_concerns_incorporated` + counts.
       LLM layer reported separately, can only lower the tier. Documented in SKILL.md "Claim Tiers".
-- [ ] **P2.1** Benchmark the BM25 path gates actually ship (not hybrid). See `RAG_PATH_FINDINGS.md`.
+- [~] **P2.1** Benchmark the BM25 path gates actually ship (not hybrid). **Codeable part DONE** —
+      faithful-replay contract locked (`test_bm25_faithful_replay.py`): the shipping path is
+      `retrieve_for_failure(gate_name, codes)` with NO synthesized query, deterministic, returns
+      concerns on the real KB. **Design fork (flagged, NOT done unattended):** a labeled precision@k
+      metric on this path needs a labeling methodology + must address the documented self-labeling
+      circularity (Opus-labeled) — your call. See `RAG_PATH_FINDINGS.md`.
 
 ## LLM review report schema (`evidence/llm_review_report.json`)
 
@@ -156,6 +161,36 @@ Do P0.1a; draft-and-park P0.1b.
 - 2026-06-05 — P2.0: honest `summary.claim.tier` in publication_gate (publication-grade / leakage-
   audited / none; bound to the deterministic floor; LLM layer can only lower it) + counts. SKILL.md
   "Claim Tiers" section added (its own commit). +4 tests; 54 green; ruff clean.
+- 2026-06-05 — P2.1 (codeable): faithful-replay contract for the shipping BM25 retrieval path locked
+  (`test_bm25_faithful_replay.py`): `retrieve_for_failure(gate_name, codes)`, no synthesized query,
+  deterministic, returns concerns on the real KB. +4 tests; ruff clean. Labeled precision@k flagged
+  as a design fork.
+
+---
+
+# ✅ FINAL SUMMARY (overnight loop, 2026-06-05) — LOOP PARKED
+
+The asymmetric two-tier harness is built and tested end-to-end on branch
+`feature/asymmetric-two-tier` (~21 commits, every slice test-first + hooks green):
+
+- **P0.0** asymmetric LLM advisory channel — concerns fold into failures/warnings only; can't upgrade a fail.
+- **P0.1** run-binding — gates stamp `run_id`; `publication_gate` rejects a mixed-run evidence set.
+- **P0.2** folded into P0.3 (plain report-hash is theater under threat ii).
+- **P0.3 — C2 FIXED** — run-scoped HMAC seal; `publication_gate` verifies it, so a tampered/status-
+  flipped report fails closed despite `status="pass"`.
+- **P0.4 — C1 hardened** — attestation contract requires verified-signature + trusted-signer proof.
+- **P0.5** — trusted-signers loader fail-closed behavior locked by tests.
+- **P1.0a + P1.1** — `scripts/review/llm_review.py` synthesis producer (deterministic double; live
+  Claude adapter guarded) + audit trail both sides. Producer→consumer proven.
+- **P2.0** — honest `claim.tier` branding + SKILL.md "Claim Tiers".
+- **P2.1** — faithful-replay contract for the shipping BM25 path locked.
+
+**Awaiting you (all blocked on ops / design forks — NOT doable unattended):**
+1. **Threat model** — built on (ii: defend against the agent). Narrow to (i) or harden to (iii)?
+2. **P0.5 ops** — create the real `references/attestation/trusted_signers.json` (signer key can't be fabricated).
+3. **P1.0b** — enable the live Claude adapter in `llm_review.py` (model / cost / prompt = your call).
+4. **P2.1 design fork** — labeling methodology for a precision@k metric on the BM25 path (+ circularity).
+5. **Review + merge the PR**, and decide on the deferred `envelope_version` 2.0.0→2.1.0 bump.
 
 ---
 
