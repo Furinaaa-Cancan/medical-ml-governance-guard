@@ -98,3 +98,65 @@ Do P0.1a; draft-and-park P0.1b.
   (`test_publication_gate_run_binding.py`), 62 green, ruff clean.
 - 2026-06-05 — P1.1 (consumer-side): advisory report content-hashed (sha256) + `meta` provenance
   surfaced in `publication_gate` summary. +3 tests, 65 green, ruff clean.
+- 2026-06-05 — **LOOP PARKED.** All clearly-safe additive slices done (P0.0, P0.1a, P1.1; 3 commits
+  pushed, 65 tests green). Everything remaining is a CHECKPOINT — see "Checkpoint Proposals" below
+  for ready-to-review designs. Awaiting your sign-off (esp. threat model + the P1.0 live-LLM call).
+
+---
+
+# Checkpoint Proposals (awaiting your sign-off)
+
+> Each is drafted but NOT applied — they touch the envelope/manifest/crypto contract or a design
+> fork. Pick the threat model first (it sizes P0.2–P0.4). Recommended order: P0.1b → P0.2 → P0.3 →
+> P0.4 → P1.0 → P2.0 → P2.1.
+
+## P0.1b — emit `run_id` from `build_report_envelope` (envelope contract)
+- **Goal:** make the dormant P0.1a check live by stamping every gate report with the run's id.
+- **Design:** `run_dag_pipeline` generates one `run_id` at run start (uuid4 hex; passed to each gate
+  subprocess via `MLGG_RUN_ID` env). `build_report_envelope` (`scripts/core/_gate_framework.py:188`)
+  reads `os.environ.get("MLGG_RUN_ID")` and adds top-level `run_id` to the envelope. Absent env →
+  field omitted (backward compatible).
+- **Why checkpoint:** changes the shared envelope all 33 gates emit (+ `envelope_version` bump to
+  `2.1.0`). Needs a contract-test sweep across gates.
+- **Test plan:** envelope-shape test asserts `run_id` present when env set, absent when not; one
+  end-to-end DAG test asserts all reports share the run_id and P0.1a passes.
+
+## P0.2 — enrol gate-report OUTPUTS into the manifest hash (manifest contract)
+- **Goal:** make a hand-edited `*_report.json` detectable (today manifest hashes only inputs).
+- **Design:** after the DAG completes, `manifest_lock` re-hashes every `evidence/*_report.json` into a
+  `report_hashes` map; `publication_gate` recomputes and compares. Mismatch → fail-closed.
+- **Why checkpoint:** changes `manifest_lock` contract + adds a publication_gate dependency edge.
+
+## P0.3 — `publication_gate` verifies a run-scoped seal instead of trusting `report['status']` (crypto)
+- **Goal:** close C2 — the certifier trusts unsigned JSON it didn't produce.
+- **Design (threat model ii):** each gate writes `report["seal"] = HMAC(run_key, canonical(report \ seal))`
+  where `run_key` is injected by the orchestrator via env (`MLGG_RUN_KEY`) and **never written to the
+  evidence dir**. `publication_gate` (also given the key) recomputes and verifies each component's seal
+  before trusting its status (replaces the `status_is_pass` trust at `publication_gate.py:214`). No
+  valid key in the agent's hands → cannot forge a passing report.
+- **DECISION NEEDED:** key custody. (i) careless-runner → run_id+manifest hash is enough, skip HMAC.
+  (ii) agent-as-threat → orchestrator-held env key (above). (iii) adversarial third party → external
+  secret store / real signer allowlist (heavier). Default assumed = (ii).
+- **Why checkpoint:** crypto + key custody + changes the certifier's core trust logic.
+
+## P0.4 — attestation contract re-verifies signatures (crypto)
+- **Goal:** `enforce_execution_attestation_publication_contract` (`publication_gate.py:238-399`) today
+  inspects only `summary` fields. Make it re-run `execution_attestation_gate` (or call
+  `verify_detached_signature`) against the real `trusted_signers.json` (P0.5 wires the allowlist).
+
+## P1.0 — live LLM synthesis step (DESIGN FORK — needs your call)
+- **Goal:** the producer for `evidence/llm_review_report.json` — gather all gate evidence + RAG
+  concerns → LLM → structured reviewer report (Major/Minor/Questions) in the P0.0 schema, with the
+  `meta` provenance P1.1 already consumes.
+- **Forks for you:** (a) who runs it — a new `mlgg llm-review` subcommand the agent calls, vs inside
+  `/mlgg`? (b) model + cost per run? (c) does it auto-write the advisory report, or propose-and-confirm?
+  (d) how is "evidence_seen" bounded (token budget)? I will NOT make these calls unattended.
+
+## P2.0 — bind claim tiers (may touch SKILL.md → checkpoint)
+- `leakage-audited` (gates) / `+reviewer-concerns` (LLM advisory) / `publication-grade` (both + real
+  attestation). Mostly wording in `publication_gate` summary + SKILL.md routing.
+
+## P2.1 — benchmark the BM25 path gates actually ship (scope/design fork)
+- Per `RAG_PATH_FINDINGS.md`: add a default eval over the BM25 retrieval gates use (not hybrid),
+  faithfully replaying the gate call shape (`gate_name+codes`, no synthesized query). Sizable; needs a
+  faithful-replay design decision before coding.
