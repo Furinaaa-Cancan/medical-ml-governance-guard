@@ -30,10 +30,13 @@ from LLM input. "Can add doubt, never remove it" is enforced by data flow, not b
       once per pipeline by `run_dag_pipeline`); `publication_gate` rejects a mixed-run set
       (`mixed_run_evidence`, fail-closed). Envelope field is optional/backward-compatible;
       `envelope_version` bump to 2.1.0 deferred (avoids breaking exact-match assertions).
-- [ ] **P0.2** Enrol gate-report outputs (not just inputs) into the manifest hash so a hand-edited
-      `*_report.json` is detectable. **CHECKPOINT: touches manifest contract — show diff, wait.**
-- [ ] **P0.3** `publication_gate` stops trusting `report['status']`: verify a run-scoped seal on
-      each report (key custodied by orchestrator). **CHECKPOINT: contract + key custody — wait.**
+- [x] **P0.2** Folded into P0.3 — a plain report-hash manifest is theater under threat (ii): an agent
+      that can edit a report can edit the hash too. The keyed HMAC seal (P0.3) is the real binding.
+- [~] **P0.3** Run-scoped HMAC seal replaces `report['status']` trust. **P0.3a DONE** — seal primitive
+      (`canonical_report_bytes` / `compute_envelope_seal` / `verify_envelope_seal` in `_security.py`,
+      8 unit tests). **P0.3b** (next) — wire into `build_report_envelope` (seal on write) +
+      `run_dag_pipeline` (issue per-run key, export, never persist) + `publication_gate` (verify before
+      trusting status; missing/invalid seal under strict → fail-closed).
 - [ ] **P0.4** `enforce_execution_attestation_publication_contract` re-verifies signatures / re-runs
       the attestation gate instead of reading only `summary` fields. **CHECKPOINT — wait.**
 - [ ] **P0.5** Real `trusted_signers.json` allowlist wired (currently only `.example`). **CHECKPOINT.**
@@ -112,6 +115,9 @@ Do P0.1a; draft-and-park P0.1b.
 - 2026-06-05 — P0.1b: `build_report_envelope` stamps `run_id` from `MLGG_RUN_ID`; `run_dag_pipeline`
   issues one id per run (setdefault, respects external pin). +4 envelope tests; 278 green across
   envelope/contract/e2e/DAG; ruff clean. ASSUMED: no envelope_version bump (deferred).
+- 2026-06-05 — P0.2 folded into P0.3 (plain report-hash is theater under threat ii). P0.3a: run-scoped
+  HMAC seal primitive in `_security.py` (canonical bytes / compute / verify). +8 unit tests, 76 green,
+  ruff clean. Next: P0.3b wiring (envelope seal-on-write + orchestrator key + publication_gate verify).
 
 ---
 
