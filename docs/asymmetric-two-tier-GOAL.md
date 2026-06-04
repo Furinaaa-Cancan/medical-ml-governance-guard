@@ -41,7 +41,12 @@ from LLM input. "Can add doubt, never remove it" is enforced by data flow, not b
       `signature_verification.verified` is true, `trust_verification.trusted` (and `checked`) is true,
       and `allow_unsigned_mode` is not set. A real attestation run emits these; the seal (P0.3) stops
       fabrication. Defense-in-depth for C1 (contract previously trusted only policy flags).
-- [ ] **P0.5** Real `trusted_signers.json` allowlist wired (currently only `.example`). **CHECKPOINT.**
+- [x] **P0.5 — codeable part DONE.** `load_trusted_signers` is already robustly fail-closed (missing /
+      bad-JSON / wrong-shape / empty → `None` → caller fails closed); now locked by explicit security
+      regression tests (`test_trusted_signers.py`). Provisioning is documented in
+      `references/attestation/README.md` + `ONBOARDING.md`. **OPS (flagged, NOT codeable unattended):**
+      create the real `references/attestation/trusted_signers.json` with your signer fingerprints — a
+      key cannot be fabricated by the loop. ⇒ **all of P0 complete.**
 
 ### P1 — build the LLM synthesis layer (the user's part ③)
 - [ ] **P1.0** Synthesis step: all gate evidence + RAG concerns → LLM → structured reviewer report
@@ -133,6 +138,10 @@ Do P0.1a; draft-and-park P0.1b.
   (`signature_verification.verified`, `trust_verification.trusted/checked`, no `allow_unsigned_mode`).
   Updated the `_good_execution_attestation` fixture to carry the proof. +5 tests; 88 green (full
   pub_gate regression + e2e); ruff clean. C1 defense-in-depth on top of the P0.3 seal.
+- 2026-06-05 — P0.5 (codeable): `load_trusted_signers` fail-closed behavior locked by +6 regression
+  tests (missing/empty/bad-fp/invalid-json/non-object → None). Provisioning already documented; real
+  signer-key creation flagged as an ops task (cannot fabricate a key unattended). **ALL P0 COMPLETE.**
+  88 green; ruff clean.
 
 ---
 
