@@ -558,8 +558,12 @@ _DOC_MAP_HEADERS: List[str] = ["## 文档地图", "## 📂 文档地图", "## Do
 
 # Paths under docs/ we never expect in the table. diagnostics/ is the
 # frozen W9-D1 archive (30 entries). AppleDouble dotfiles ("._foo.md")
-# are macOS metadata, never real docs.
-_DOC_MAP_EXCLUDE_PREFIXES: Tuple[str, ...] = ("docs/diagnostics/",)
+# are macOS metadata, never real docs. The asymmetric-two-tier GOAL is an
+# internal in-progress build tracker (not user-facing product documentation).
+_DOC_MAP_EXCLUDE_PREFIXES: Tuple[str, ...] = (
+    "docs/diagnostics/",
+    "docs/asymmetric-two-tier-GOAL.md",
+)
 
 
 def _extract_doc_map_paths(readme_text: str) -> Optional[set]:
