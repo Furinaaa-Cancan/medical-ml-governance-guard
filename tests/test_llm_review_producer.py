@@ -288,6 +288,24 @@ def test_run_llm_review_records_rag_evidence_count(tmp_path: Path):
     assert run_llm_review(tmp_path, retriever=fake_retriever)["rag_evidence_count"] == 2
 
 
+def test_gather_rag_concerns_call_matches_real_rag_query_signature():
+    """Guard the ②→④ wire against rag_query signature drift.
+
+    The fake-retriever tests above prove the wiring logic; this asserts the kwargs
+    gather_rag_concerns passes (query, gate, failure_codes, top_k) are actually
+    accepted by the REAL scripts.rag.query.rag_query — so a future signature
+    change can't silently break a live `mlgg llm-review --rag` run. Importing the
+    function is torch-free (rag_query defers the dense stack).
+    """
+    import inspect
+
+    from scripts.rag.query import rag_query
+
+    params = inspect.signature(rag_query).parameters
+    for kw in ("query", "gate", "failure_codes", "top_k"):
+        assert kw in params, f"rag_query no longer accepts {kw!r}; the ②→④ wire would break"
+
+
 # ── end-to-end through the real mlgg CLI: producer -> publication_gate consumer ─
 
 _MLGG = Path(__file__).resolve().parents[1] / "scripts" / "orchestration" / "mlgg.py"
