@@ -196,6 +196,23 @@ def _build_cmd(tmp_path, paths, extra_args=None):
     return cmd
 
 
+def test_component_envelope_version_mismatch_fails(tmp_path):
+    # A component carrying a STALE envelope_version must fail (contract drift).
+    # The many passing-artifact tests above already prove the *absent* case is
+    # tolerated — manifest/attestation legitimately carry no envelope_version,
+    # so the check must NOT require presence (that would false-fail every run).
+    paths = _make_all_artifacts(tmp_path)
+    stale = json.loads(paths["leakage_report"].read_text())
+    stale["envelope_version"] = "1.0.0"
+    _write_json(paths["leakage_report"], stale)
+    result = subprocess.run(_build_cmd(tmp_path, paths), capture_output=True, text=True, timeout=30)
+    report = json.loads((tmp_path / "report.json").read_text())
+    assert result.returncode == 2
+    assert "component_envelope_version_mismatch" in [
+        f.get("code") for f in report.get("failures", [])
+    ]
+
+
 # ────────────────────────────────────────────────────────
 # parse_int_like
 # ────────────────────────────────────────────────────────
