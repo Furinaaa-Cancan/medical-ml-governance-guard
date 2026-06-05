@@ -312,8 +312,18 @@ def _finish_gate(
         try:
             from _security import compute_envelope_seal
             manifest["seal"] = compute_envelope_seal(manifest, _run_key.strip())
-        except Exception:
-            pass
+        except Exception as exc:
+            # Fail CLOSED at the gate level: when MLGG_RUN_KEY is active the
+            # manifest MUST be sealed. Silently writing an unsealed manifest let
+            # it be cached/referenced before publication_gate caught it, and hid
+            # the cause. Surface it as a gate failure instead.
+            manifest["status"] = "fail"
+            manifest["errors"].append(f"Failed to compute run-scoped manifest seal: {exc}")
+            failures.append(GateIssue(
+                code="manifest_seal_failed",
+                severity=Severity.ERROR,
+                message=f"Failed to compute run-scoped seal while MLGG_RUN_KEY is active: {exc}",
+            ))
     _write_manifest(output_path, manifest)
 
     should_fail = bool(failures) or (args.strict and bool(warnings))
