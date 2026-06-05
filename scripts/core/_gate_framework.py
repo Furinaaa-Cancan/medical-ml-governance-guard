@@ -15,6 +15,7 @@ import enum
 import itertools
 import os
 import sys
+from functools import lru_cache
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
@@ -184,6 +185,28 @@ register_remediations(_COMMON_REMEDIATIONS)
 
 REPORT_ENVELOPE_VERSION = "2.0.0"
 
+_ENV_PACKAGES = ("numpy", "pandas", "scikit-learn", "scipy")
+
+
+@lru_cache(maxsize=1)
+def capture_environment() -> Dict[str, Any]:
+    """Capture the numerical environment for reproducibility (F2.4).
+
+    Bound into every sealed report so a reviewer can reconstruct what produced
+    the metrics (sklearn 1.8 vs another version can change results). Cached once
+    per process; a missing package → ``None`` (no new dependency).
+    """
+    import importlib.metadata as _ilmd
+    import platform
+
+    packages: Dict[str, Any] = {}
+    for pkg in _ENV_PACKAGES:
+        try:
+            packages[pkg] = _ilmd.version(pkg)
+        except Exception:
+            packages[pkg] = None
+    return {"python": platform.python_version(), "packages": packages}
+
 
 def build_report_envelope(
     gate_name: str,
@@ -225,6 +248,21 @@ def build_report_envelope(
         "warnings": warning_dicts,
     }
 
+    # Run-binding (P0.1b): stamp the orchestrator-issued run id so aggregation
+    # (publication_gate's P0.1a check) can verify every report describes one
+    # run. Optional and backward-compatible: absent env → field omitted,
+    # envelope_version unchanged.
+    _run_id = os.environ.get("MLGG_RUN_ID")
+    if _run_id and _run_id.strip():
+        envelope["run_id"] = _run_id.strip()
+
+    # Reproducibility (F2.4): bind the numerical environment into the (sealed)
+    # report so metrics can be reconstructed. Cached; never crashes the gate.
+    try:
+        envelope["environment"] = capture_environment()
+    except Exception:
+        pass
+
     if summary is not None:
         envelope["summary"] = summary
 
@@ -235,7 +273,7 @@ def build_report_envelope(
         _RESERVED = {
             "envelope_version", "gate_name", "gate_version", "status",
             "strict_mode", "execution_timestamp_utc", "execution_time_seconds",
-            "failure_count", "warning_count", "failures", "warnings",
+            "failure_count", "warning_count", "failures", "warnings", "run_id", "seal", "environment",
         }
         for k, v in extra.items():
             if k not in _RESERVED:
@@ -340,6 +378,20 @@ def build_report_envelope(
             _peer_status = f"kb_error:{type(_peer_exc).__name__}"
     envelope["peer_review_context"] = _peer_ctx
     envelope["peer_review_status"] = _peer_status
+
+    # Run-scoped seal (P0.3b): seal the COMPLETE envelope when the orchestrator
+    # has issued a per-run key (MLGG_RUN_KEY). Lazy import keeps _security off
+    # the gate import path when sealing is inactive. Backward-compatible: no key
+    # → no seal field. Sealing is best-effort at write time — a failure here must
+    # never crash the gate (exit 1 would break the 0/2 CLI contract); an unsealed
+    # report is caught downstream by publication_gate's verification.
+    _run_key = os.environ.get("MLGG_RUN_KEY")
+    if _run_key and _run_key.strip():
+        try:
+            from _security import compute_envelope_seal
+            envelope["seal"] = compute_envelope_seal(envelope, _run_key.strip())
+        except Exception:
+            pass
 
     return envelope
 

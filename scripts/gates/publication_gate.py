@@ -9,6 +9,7 @@ import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__f
 _DIAG_DIR = str(_Path(__file__).resolve().parent.parent / "diagnostics"); _sys.path.insert(0, _DIAG_DIR) if _DIAG_DIR not in _sys.path else None  # noqa: E702
 
 import argparse
+import hashlib
 import json
 import math
 import os
@@ -235,6 +236,233 @@ def parse_int_like(value: Any) -> Optional[int]:
     return _shared_to_int(value)
 
 
+def load_llm_advisory_review(
+    report_arg: Optional[str],
+    component_paths: Dict[str, str],
+    failures: List[Dict[str, Any]],
+    warnings: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    """Asymmetric LLM advisory channel (two-tier harness invariant).
+
+    The LLM reviewer can ONLY raise concerns; it can NEVER clear a deterministic
+    gate failure. We fold its concerns into ``failures``/``warnings`` and the
+    caller folds a blocking concern into the tier booleans by forcing them DOWN.
+    There is no code path here (or in the caller) that sets a tier ``True`` or
+    reduces ``failure_count`` from LLM input, so the data flow makes
+    "upgrade a fail to pass" structurally impossible (final = min(gate, llm)).
+
+    Discovery is by convention (no CLI change): ``<evidence_dir>/llm_review_report.json``
+    where ``evidence_dir`` is the parent of ``--report`` (falling back to the
+    parent of any component report). The report is OPTIONAL:
+      * absent            → no-op (LLM review is not required for a gate run);
+      * present, blocking → appended to ``failures`` (fails the gate, caps tier);
+      * present, advisory → appended to ``warnings`` (caps score; fails under --strict);
+      * present, malformed/unparseable → ``failures`` (fail-closed — a corrupt
+        advisory artifact must never be silently ignored in the safe direction).
+    """
+    summary: Dict[str, Any] = {
+        "present": False,
+        "path": None,
+        "content_sha256": None,
+        "provenance": {},
+        "blocking_count": 0,
+        "advisory_count": 0,
+    }
+
+    # Locate the evidence dir by convention, preferring --report's directory.
+    candidates: List[Path] = []
+    if report_arg:
+        candidates.append(Path(report_arg).expanduser().resolve().parent)
+    for path in component_paths.values():
+        candidates.append(Path(path).expanduser().resolve().parent)
+
+    llm_path: Optional[Path] = None
+    seen: set = set()
+    for directory in candidates:
+        if directory in seen:
+            continue
+        seen.add(directory)
+        candidate = directory / "llm_review_report.json"
+        if candidate.exists():
+            llm_path = candidate
+            break
+
+    if llm_path is None:
+        return summary
+
+    summary["present"] = True
+    summary["path"] = str(llm_path)
+
+    # Fingerprint the raw artifact for auditability (P1.1) BEFORE parsing, so
+    # even a malformed report is recorded by content hash.
+    try:
+        raw_text = llm_path.read_text(encoding="utf-8")
+    except Exception as exc:  # unreadable advisory artifact → fail-closed
+        add_issue(
+            failures,
+            "llm_review_unparseable",
+            "LLM advisory review report is present but could not be read (fail-closed).",
+            {"path": str(llm_path), "error": str(exc)},
+        )
+        return summary
+    summary["content_sha256"] = hashlib.sha256(raw_text.encode("utf-8")).hexdigest()
+
+    try:
+        data = json.loads(raw_text)
+    except Exception as exc:  # unparseable advisory artifact → fail-closed
+        add_issue(
+            failures,
+            "llm_review_unparseable",
+            "LLM advisory review report is present but could not be parsed (fail-closed).",
+            {"path": str(llm_path), "error": str(exc)},
+        )
+        return summary
+
+    if not isinstance(data, dict):
+        add_issue(
+            failures,
+            "llm_review_malformed",
+            "LLM advisory review report must be a JSON object (fail-closed).",
+            {"path": str(llm_path)},
+        )
+        return summary
+
+    # Surface reviewer provenance (model, prompt hash, evidence seen, ...) for
+    # the audit trail. Advisory only — never affects the verdict.
+    if isinstance(data.get("meta"), dict):
+        summary["provenance"] = data["meta"]
+
+    concerns = data.get("concerns", [])
+    if not isinstance(concerns, list):
+        add_issue(
+            failures,
+            "llm_review_malformed",
+            "LLM advisory review 'concerns' must be a list (fail-closed).",
+            {"path": str(llm_path)},
+        )
+        return summary
+
+    for index, concern in enumerate(concerns):
+        if not isinstance(concern, dict):
+            add_issue(
+                failures,
+                "llm_review_malformed",
+                "LLM advisory review concern entry must be an object (fail-closed).",
+                {"path": str(llm_path), "index": index},
+            )
+            continue
+        severity = str(concern.get("severity", "advisory")).strip().lower()
+        message = str(concern.get("message") or "LLM reviewer raised a concern.")
+        detail: Dict[str, Any] = {
+            "source": "llm_advisory_review",
+            "concern_code": str(concern.get("code") or "llm_reviewer_concern"),
+        }
+        if isinstance(concern.get("detail"), dict):
+            detail.update(concern["detail"])
+        if severity == "blocking":
+            summary["blocking_count"] += 1
+            add_issue(failures, "llm_blocking_concern", message, detail)
+        else:
+            summary["advisory_count"] += 1
+            add_issue(warnings, "llm_advisory_concern", message, detail)
+
+    return summary
+
+
+def check_run_binding(
+    loaded: Dict[str, Dict[str, Any]],
+    failures: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    """Run-binding consistency check (asymmetric two-tier harness, P0.1a).
+
+    Aggregated evidence MUST describe a single run. Each component report may
+    carry a top-level ``run_id``; if two or more reports carry DIFFERENT
+    non-empty run_ids the evidence set is mixed (stale or substituted reports
+    aggregated as current) and the gate fails closed.
+
+    Additive and read-only: ``run_id`` never enters any tier computation, and
+    this is a no-op while gates do not yet emit it (absent on all reports →
+    empty set → pass). It activates once ``build_report_envelope`` stamps
+    run_id (P0.1b — a framework/envelope contract change handled separately).
+    """
+    run_ids: set = set()
+    reports_with_run_id = 0
+    for report in loaded.values():
+        if not isinstance(report, dict):
+            continue
+        rid = report.get("run_id")
+        if isinstance(rid, str) and rid.strip():
+            run_ids.add(rid.strip())
+            reports_with_run_id += 1
+    if len(run_ids) > 1:
+        add_issue(
+            failures,
+            "mixed_run_evidence",
+            "Component reports come from more than one run (run_id mismatch); "
+            "aggregated evidence must describe a single run.",
+            {"distinct_run_ids": sorted(run_ids)},
+        )
+    return {
+        "reports_with_run_id": reports_with_run_id,
+        "distinct_run_ids": sorted(run_ids),
+        "consistent": len(run_ids) <= 1,
+    }
+
+
+def verify_component_seals(
+    loaded: Dict[str, Dict[str, Any]],
+    failures: List[Dict[str, Any]],
+    warnings: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    """Verify each component's run-scoped seal before its status is trusted (P0.3b consumer).
+
+    Closes C2: the certifier no longer trusts an unsigned ``status`` field. Using
+    the orchestrator-issued ``MLGG_RUN_KEY`` (which an agent editing report JSON
+    does not hold):
+      * INVALID seal (content edited after sealing) → fail-closed ALWAYS;
+      * MISSING seal while the key is active → warning (→ fails under --strict,
+        since every gate seals on the orchestrated path);
+      * no key present → verification inactive (standalone gate runs unaffected).
+    """
+    key = os.environ.get("MLGG_RUN_KEY")
+    summary: Dict[str, Any] = {
+        "active": bool(key),
+        "verified": 0,
+        "invalid": [],
+        "unsealed": [],
+    }
+    if not key:
+        return summary
+
+    from _security import verify_envelope_seal
+
+    for name, report in loaded.items():
+        if not isinstance(report, dict):
+            continue
+        if "seal" not in report:
+            summary["unsealed"].append(name)
+            add_issue(
+                failures,
+                "component_unsealed",
+                "Component report carries no run-scoped seal while sealing is active "
+                "(MLGG_RUN_KEY set). A missing seal is fail-closed ALWAYS (not just under "
+                "--strict): otherwise deleting the seal field would bypass tamper detection.",
+                {"component": name},
+            )
+        elif verify_envelope_seal(report, key):
+            summary["verified"] += 1
+        else:
+            summary["invalid"].append(name)
+            add_issue(
+                failures,
+                "component_seal_invalid",
+                "Component report seal verification FAILED — content does not match "
+                "its run-scoped seal (possible tampering); status not trusted.",
+                {"component": name},
+            )
+    return summary
+
+
 def enforce_execution_attestation_publication_contract(
     execution_attestation_report: Optional[Dict[str, Any]],
     failures: List[Dict[str, Any]],
@@ -319,6 +547,27 @@ def enforce_execution_attestation_publication_contract(
                 "Publication gate requires execution attestation block to be present.",
                 {"block": block_name, "present": block.get("present") if isinstance(block, dict) else None},
             )
+
+    # P0.4: require POSITIVE PROOF that a signature was actually verified — not
+    # just that policy flags are on. The real execution_attestation_gate emits
+    # `signature_verification.verified` on its SUCCESS-path summary (verified
+    # against the real benchmark attestations), and a hand-authored report cannot
+    # fabricate it AND pass the run-scoped seal (P0.3). Signer-trust (fingerprint
+    # in the allowlist) is enforced by the attestation gate ITSELF — an untrusted
+    # signer makes THAT gate fail, so its report status != "pass" and it is
+    # already rejected by validate_component_status above. We deliberately do NOT
+    # require a separate `trust_verification` field: the real gate does not emit
+    # one on the success path (it exists only on error/early-return paths), and
+    # requiring it rejected every legitimately-attested run.
+    sig_verif = summary.get("signature_verification")
+    if not isinstance(sig_verif, dict) or sig_verif.get("verified") is not True:
+        add_issue(
+            failures,
+            "execution_attestation_signature_unverified",
+            "Publication gate requires a verified attestation signature "
+            "(summary.signature_verification.verified must be true).",
+            {"signature_verification": sig_verif if isinstance(sig_verif, dict) else None},
+        )
 
     witness_quorum = summary.get("witness_quorum")
     if not isinstance(witness_quorum, dict):
@@ -735,6 +984,25 @@ def main() -> int:
                 {"actual_metric_type": type(actual_metric).__name__ if actual_metric is not None else None},
             )
 
+    # ── Asymmetric LLM advisory channel (two-tier harness) ─────────────────
+    # Folds LLM reviewer concerns into failures/warnings ONLY. A blocking
+    # concern caps the tier below (forces booleans DOWN); nothing here can
+    # raise a tier or clear a gate failure. final_verdict = min(gate, llm).
+    llm_review_summary = load_llm_advisory_review(
+        report_arg=args.report,
+        component_paths=files,
+        failures=failures,
+        warnings=warnings,
+    )
+
+    # ── Run-binding (P0.1a): reject a mixed-run evidence set ────────────────
+    # No-op until gates emit run_id (P0.1b); never feeds a tier upward.
+    run_binding_summary = check_run_binding(loaded, failures)
+
+    # Seal verification (P0.3b consumer): verify run-scoped seals before trusting
+    # any component status. Closes C2 (certifier trusting unsigned JSON).
+    seal_verification_summary = verify_component_seals(loaded, failures, warnings)
+
     from _gate_utils import get_gate_elapsed, write_json as _write_report
 
     # ── L1/L2/L3 compliance tiers ──────────────────────────────────────────
@@ -794,7 +1062,33 @@ def main() -> int:
     _kb_unreviewed = any(f.get("code") == "disease_kb_unreviewed" for f in failures + warnings)
     if _kb_unreviewed:
         l3_passed = False
+
+    # Asymmetric floor: a blocking LLM reviewer concern means even the
+    # deterministic leakage-audit claim is no longer trustworthy, so it forces
+    # every tier DOWN (compliance → "none"). It can never push a tier up.
+    if llm_review_summary.get("blocking_count", 0) > 0:
+        l1_passed = l2_passed = l3_passed = False
+
     compliance_level = "L3" if l3_passed else ("L2" if l2_passed else ("L1" if l1_passed else "none"))
+
+    # P2.0: honest claim tier — the human-facing name for what the evidence
+    # actually supports, bound to the deterministic floor (not the LLM layer):
+    #   publication-grade = full gates + verified attestation (L3 passed)
+    #   leakage-audited   = deterministic leakage gates pass (L1/L2), not yet publication-grade
+    #   none              = floor not met (incl. a blocking reviewer concern, which caps tiers)
+    # The LLM advisory layer is reported separately and can only LOWER the tier.
+    if l3_passed:
+        claim_tier = "publication-grade"
+    elif l1_passed:
+        claim_tier = "leakage-audited"
+    else:
+        claim_tier = "none"
+    claim = {
+        "tier": claim_tier,
+        "reviewer_concerns_incorporated": bool(llm_review_summary.get("present")),
+        "blocking_reviewer_concerns": llm_review_summary.get("blocking_count", 0),
+        "advisory_reviewer_concerns": llm_review_summary.get("advisory_count", 0),
+    }
 
     # ── External validation absent → mandatory Limitations declaration ────
     ext_val = loaded.get("external_validation_report")
@@ -826,6 +1120,15 @@ def main() -> int:
 
     should_fail = bool(failures) or (args.strict and bool(warnings))
     status = "fail" if should_fail else "pass"
+
+    # claim_tier must never out-claim the overall verdict. claim_tier above is
+    # derived only from the tier GATES' statuses, so a failure OUTSIDE the tier
+    # sets (manifest comparison mismatch, missing metric, a blocking reviewer
+    # concern, an invalid seal, unreviewed disease KB) can leave claim_tier at
+    # "publication-grade" while the run as a whole fails. Cap it: a failed run
+    # asserts NO passing claim tier (the human-facing label must not lie).
+    if status == "fail":
+        claim["tier"] = "none"
     quality_score = max(0.0, min(100.0, 100.0 - 20.0 * len(failures) - 2.5 * len(warnings)))
 
     fi = [GateIssue.from_legacy(f, Severity.ERROR) for f in failures]
@@ -848,12 +1151,16 @@ def main() -> int:
         summary={
             "quality_score": round(quality_score, 2),
             "compliance_level": compliance_level,
+            "claim": claim,
             "compliance_tiers": {
                 "L1_leakage_audit": l1_passed,
                 "L2_statistically_valid": l2_passed,
                 "L3_publication_grade": l3_passed,
             },
             "disease_kb_review": disease_kb_summary,
+            "llm_advisory_review": llm_review_summary,
+            "run_binding": run_binding_summary,
+            "seal_verification": seal_verification_summary,
             "artifacts": {
                 name: {
                     "path": str(Path(path).expanduser().resolve()),

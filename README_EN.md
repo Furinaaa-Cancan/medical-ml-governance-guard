@@ -1193,7 +1193,7 @@ medical-ml-governance-guard/
 │   │   ├── verify_ukb_against_live.py    #   L4 live cross-check vs biobank.ndph.ox.ac.uk
 │   │   └── ...                           #   fetch/build/verify for NHANES + codebook_factory
 │   │
-│   ├── review/            (10)           # Paper analysis & peer review (incl. llm_paper_audit)
+│   ├── review/            (11)           # Paper analysis & peer review (incl. llm_paper_audit, llm_review)
 │   │   ├── peer_review_lookup.py         #   154 NC+CM papers × 817 review opinions
 │   │   ├── backfill_peer_review_gates.py #   Backfill reviews into gate × tag index
 │   │   ├── add_robustness_permutation_gates.py  # Extend review index with robustness/permutation
@@ -1219,7 +1219,7 @@ medical-ml-governance-guard/
 │       ├── kb_hygiene_check.py           #   KB provenance / citation / freshness check
 │       └── ...                           #   gate visualization, threshold analysis, policy generator
 │
-├── tests/                  (198)         # ─── Tests (~35K lines) ───
+├── tests/                  (212)         # ─── Tests (~35K lines) ───
 │   ├── conftest.py                       #   Shared fixtures (tmp_path, path injection, test data)
 │   ├── test_*_gate.py      (33)          #   One test file per gate
 │   ├── test_*_e2e.py       (8)           #   End-to-end flow tests (onboarding, workflow, train, split, rag)

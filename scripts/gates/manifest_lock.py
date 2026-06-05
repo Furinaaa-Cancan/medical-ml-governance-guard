@@ -299,6 +299,21 @@ def _finish_gate(
     # the orchestrator's call sites to always pass --sandbox-root.
     output_path = Path(args.output).expanduser().resolve()
     from _gate_utils import write_json as _write_manifest
+
+    # Run-scoped seal (P0.3): publication_gate seal-verifies the manifest ARTIFACT
+    # like a gate report, but the artifact is written here via raw write_json, NOT
+    # via build_report_envelope — so it would otherwise carry no seal and fail an
+    # orchestrated run (MLGG_RUN_KEY set) at publication. Seal it the same way
+    # build_report_envelope does. canonical_report_bytes applies the same sanitizer
+    # write_json uses, so the write-time seal matches the verify-time seal.
+    import os as _os
+    _run_key = _os.environ.get("MLGG_RUN_KEY")
+    if _run_key and _run_key.strip():
+        try:
+            from _security import compute_envelope_seal
+            manifest["seal"] = compute_envelope_seal(manifest, _run_key.strip())
+        except Exception:
+            pass
     _write_manifest(output_path, manifest)
 
     should_fail = bool(failures) or (args.strict and bool(warnings))

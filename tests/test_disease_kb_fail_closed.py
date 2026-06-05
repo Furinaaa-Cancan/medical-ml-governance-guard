@@ -94,6 +94,13 @@ def _good_execution_attestation():
                 "enforced": True,
                 "status": "pass",
             },
+            # P0.4: attestation contract now requires verified-signature proof.
+            "signature_verification": {"verified": True},
+            "trust_verification": {
+                "checked": True,
+                "trusted": True,
+                "allow_unsigned_mode": False,
+            },
         },
     }
 

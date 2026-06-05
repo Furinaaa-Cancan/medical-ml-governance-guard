@@ -43,11 +43,13 @@ import argparse
 import concurrent.futures
 import json
 import os
+import secrets
 import shlex
 import signal
 import subprocess
 import sys
 import time as _time
+import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
@@ -754,6 +756,19 @@ def main() -> int:
     if not args.request:
         print("[FAIL] --request is required.", file=sys.stderr)
         return 2
+
+    # Run-binding (P0.1b): issue ONE run_id for the whole pipeline and export it
+    # so every gate subprocess stamps the same id into its report envelope.
+    # publication_gate's P0.1a check then fails closed on a mixed-run set.
+    # Respect an externally-pinned id (outer orchestrator / test) via setdefault.
+    run_id = os.environ.setdefault("MLGG_RUN_ID", uuid.uuid4().hex)
+    print(f"[RUN] run_id={run_id}")
+
+    # Run-scoped seal key (P0.3b): one secret per run, exported so gate
+    # subprocesses (and publication_gate) seal/verify their reports. NEVER
+    # printed or written to the evidence dir — custody stays in this process
+    # tree, so an agent editing report JSON cannot re-seal without it.
+    os.environ.setdefault("MLGG_RUN_KEY", secrets.token_hex(32))
 
     # RBAC role check (optional)
     if getattr(args, "require_role", None):

@@ -295,6 +295,53 @@ def compute_hmac(data: bytes, key: Optional[bytes] = None) -> bytes:
     return hmac.new(key, data, hashlib.sha256).digest()
 
 
+# ── Run-scoped report seal (asymmetric two-tier harness, P0.2/P0.3) ──────────
+# A gate seals its own report envelope with a per-run key issued by the
+# orchestrator and NEVER written to the evidence dir. publication_gate verifies
+# the seal before trusting a report's status, so an agent/user that hand-edits
+# evidence/<gate>_report.json cannot re-seal it without the key → forgery is
+# detected and the gate fails closed. The seal is keyed (HMAC), unlike a plain
+# content hash, which under the agent-as-threat model is theater.
+
+def canonical_report_bytes(report: Dict[str, Any]) -> bytes:
+    """Deterministic byte serialization of a report, excluding its own ``seal``.
+
+    CRITICAL: the seal is computed at WRITE time over the in-memory envelope, but
+    verified at READ time over the JSON loaded from disk — and ``write_json``
+    runs ``_sanitize_for_json`` before persisting (NaN/Inf → null, numpy scalars →
+    python, set/tuple → list, bytes → str). So we MUST apply that same sanitizer
+    here, or a legitimate report whose summary holds a NaN/Inf metric or a numpy
+    value (endemic in sklearn/pandas output) would seal over the raw value but
+    verify over the sanitized value and FALSE-REJECT itself. ``_sanitize_for_json``
+    is idempotent, so re-canonicalizing an already-sanitized on-disk report yields
+    identical bytes. Sorted keys + compact separators make it order-independent.
+    """
+    payload = {k: v for k, v in report.items() if k != "seal"}
+    from _gate_utils import _sanitize_for_json
+    payload = _sanitize_for_json(payload)
+    return json.dumps(
+        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    ).encode("utf-8")
+
+
+def compute_envelope_seal(report: Dict[str, Any], key: Union[bytes, str]) -> str:
+    """HMAC-SHA256 hex seal over the report's canonical bytes (sans ``seal``)."""
+    if isinstance(key, str):
+        key = key.encode("utf-8")
+    return hmac.new(key, canonical_report_bytes(report), hashlib.sha256).hexdigest()
+
+
+def verify_envelope_seal(report: Dict[str, Any], key: Union[bytes, str]) -> bool:
+    """Constant-time check that ``report['seal']`` matches a recomputed seal.
+
+    Returns False on a missing/non-string seal (fail-closed at the call site).
+    """
+    expected = report.get("seal")
+    if not isinstance(expected, str) or not expected:
+        return False
+    return hmac.compare_digest(expected, compute_envelope_seal(report, key))
+
+
 def sign_model_artifact(model_path: Path, key: Optional[bytes] = None) -> Path:
     """Sign a serialized model artifact with HMAC-SHA256.
 
