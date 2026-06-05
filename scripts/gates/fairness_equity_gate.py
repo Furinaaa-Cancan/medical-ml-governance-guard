@@ -841,19 +841,20 @@ def _run_subgroup_dca_check(
     band_lo = thresholds["subgroup_dca_threshold_min"]
     band_hi = thresholds["subgroup_dca_threshold_max"]
 
-    # Reject an inverted threshold band BEFORE building the grid: with
-    # band_hi < band_lo the step goes negative and a non-monotonic, malformed
-    # threshold list is silently fed to subgroup_dca(). Skip rather than
-    # produce a meaningless "best NB on band" verdict.
-    if band_hi < band_lo:
+    # Reject a non-positive-width threshold band BEFORE building the grid:
+    # band_hi < band_lo gives a negative step (non-monotonic grid), and
+    # band_hi == band_lo collapses the band to a single repeated point — both
+    # make "best NB on band" meaningless. Skip rather than emit a bogus verdict.
+    if band_hi <= band_lo:
+        _reason = "threshold_band_inverted" if band_hi < band_lo else "threshold_band_degenerate"
         add_issue(
             warnings,
             "subgroup_dca_threshold_order_invalid",
-            f"Subgroup-DCA threshold band is inverted (min {band_lo} > max {band_hi}); "
-            "skipping subgroup-DCA. Pass --subgroup-dca-threshold-min <= --max.",
+            f"Subgroup-DCA threshold band is invalid (min {band_lo}, max {band_hi}); "
+            "min must be strictly less than max. Skipping subgroup-DCA.",
             {"band_min": band_lo, "band_max": band_hi},
         )
-        return {"status": "skipped", "reason": "threshold_band_inverted"}
+        return {"status": "skipped", "reason": _reason}
 
     trace_path = args.prediction_trace
     group_col = args.subgroup_dca_column
