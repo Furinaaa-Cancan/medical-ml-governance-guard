@@ -23,7 +23,7 @@ from _gate_framework import (
     print_gate_summary,
     register_remediations,
 )
-from _gate_utils import _check_json_file_size, add_issue, try_parse_time as _shared_try_parse_time, epoch_to_iso as _shared_epoch_to_iso
+from _gate_utils import _check_json_file_size, add_issue, try_parse_time as _shared_try_parse_time, epoch_to_iso as _shared_epoch_to_iso, _normalize_unicode
 
 
 register_remediations({
@@ -169,7 +169,7 @@ def read_split(
         for row in reader:
             row_count += 1
 
-            id_val = (row.get(id_col) or "").strip()
+            id_val = _normalize_unicode(row.get(id_col) or "").strip()
             if id_val:
                 ids.add(id_val)
             else:

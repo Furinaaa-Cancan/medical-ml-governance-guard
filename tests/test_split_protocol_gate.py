@@ -191,6 +191,21 @@ class TestReadSplit:
         p.write_text("\n".join(lines) + "\n")
         return p
 
+    def test_unicode_nfc_nfd_collapse_to_one_id(self, tmp_path: Path):
+        # CRITICAL S01: the SAME patient written in NFC ("café") vs NFD
+        # ("café") must collapse to ONE id, else a cross-split overlap is
+        # missed. leakage_gate normalized; split_protocol_gate did not.
+        import unicodedata
+        nfc = unicodedata.normalize("NFC", "café-01")
+        nfd = unicodedata.normalize("NFD", "café-01")
+        assert nfc != nfd  # raw byte forms genuinely differ
+        p = self._make_csv(tmp_path, "split.csv", [
+            f"{nfc},2023-01-01,1",
+            f"{nfd},2023-06-15,0",
+        ])
+        result = spg.read_split(str(p), "train", "patient_id", "event_time", "y")
+        assert result["id_count"] == 1
+
     def test_valid(self, tmp_path: Path):
         p = self._make_csv(tmp_path, "split.csv", [
             "P001,2023-01-01,1",
@@ -848,7 +863,7 @@ class TestSplitProtocolMain:
             "--id-col", "patient_id", "--time-col", "event_time",
             "--report", str(rpt),
         ])
-        rc = spg_main()
+        spg_main()
         # group_disjoint_not_required is now a warning, not a failure;
         # gate may still pass (rc=0) or fail for other reasons (rc=2)
         data = json.loads(rpt.read_text())
