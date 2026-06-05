@@ -91,7 +91,7 @@
 | 只报 AUROC 不报 MCC 和 LR+/LR- | AUROC 0.65 看起来可以，但 MCC 0.12 说明近乎随机 | Gate E02: 完整 14 指标面板 |
 | 用 train-test gap 选模型 | 无文献支撑，可能选到次优模型 | Gate M04: 验证集 PR-AUC + one-SE |
 | 特征选择用全数据 | 信息从测试集泄漏到训练集 | Gate F03: 训练集独占约束 |
-| HbA1c 既定义糖尿病又作为预测特征 | 完美泄漏，模型学到的是定义本身 | Gate C02: 定义列强制排除（按预测疾病作用域匹配，避免非糖尿病 target 误报 glucose） |
+| HbA1c 既定义糖尿病又作为预测特征 | 完美泄漏，模型学到的是定义本身 | Gate C02: 定义列强制排除（作用域**由 spec 决定**——把 glucose 放进糖尿病 target 的 `defining_variables` 才只对糖尿病报；放进 `global_forbidden_variables` 则对所有 target 报。gate 不按疾病自动划作用域） |
 | Bootstrap CI 用正态近似 | 小样本/非对称分布不可靠 | Gate E01: 强制 percentile bootstrap |
 | `time_in_hospital` / `num_medications` / `discharge_*` 作特征 | 教科书 post-index 泄漏（diabetes_130 / MIMIC 经典模式） | Gate L01: 特征名正则抓 5 类 post-index 模式 + `forbidden_features` 拉黑 |
 | Doctor-provided `surv2m` / `prg6m` 作特征 | 医生预估目标，近完美 target leak | Gate C02 + Gate F03: 3 套正则（surv\d / prognos / prg\d）+ 特征谱系溯源 |
@@ -130,7 +130,7 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 | 层 | 机制 | 能抓到什么 |
 |:---|:-----|:----------|
 | **第一层：30 条 AST 静态分析** | 代码模式匹配 (R001-R030) | `scaler.fit(X)` 在 split 前、SMOTE 用在 test 上、阈值在 test 选 |
-| **第二层：33 道 fail-closed 门控** | 运行时验证，报告 JSON 产出 | 患者跨 split、校准 ECE > 0.1、EPV < 10、CI 宽度 > 0.20、**post-index 特征名模式抓取**（time_in_hospital / num_medications / discharge / ventilation / vasopressor）、**疾病作用域匹配**（glucose 只对糖尿病 target 报） |
+| **第二层：33 道 fail-closed 门控** | 运行时验证，报告 JSON 产出 | 患者跨 split、校准 ECE > 0.1、EPV < 10、CI 宽度 > 0.20、**post-index 特征名模式抓取**（time_in_hospital / num_medications / discharge / ventilation / vasopressor）、**spec 作用域定义变量匹配**（glucose 放进糖尿病 target 块才只对该 target 报，gate 不按疾病自动划作用域） |
 | **第三层：临床语义审查 + 审稿证据** | AI agent 理解代码含义 + 154 篇真实审稿 KB（817 条 concerns） + **issue-code 重排检索** | 出院后变量预测出院后结局、HbA1c 定义泄漏、亚组校准缺失。RAG 不只按 severity 排，而是基于失败代码的关键词（ppv / baseline / imputation）对 tag 和原文重排 |
 
 > **非对称 LLM 评审层（可选，opt-in）**：`mlgg llm-review [--rag] [--live]` 把上述门控证据（`--rag` 时附 KB 同行评审原文）交给 LLM 合成方法学疑点，写入 `evidence/llm_review_report.json`，由 publication_gate 按约定折叠进判定。**这一层只能加疑点、永远不能把门控的 fail 洗成 pass**（`final = min(gate, llm)`）——blocking 意见把认证 tier 压到 `none`，advisory 仅记录。默认走确定性 double（无网络、可复现）；只有 `--live` 才发起真实 Claude 调用（需 `ANTHROPIC_API_KEY`）。不在默认 `mlgg workflow` 路径内，需显式调用。
