@@ -58,6 +58,7 @@ def rag_query(
     failure_codes: Optional[list[str]] = None,
     top_k: int = 5,
     min_score: float = 0.0,
+    excluded_paper_ids: Optional[list[str]] = None,
 ) -> list[dict]:
     """Return ranked peer-review concerns relevant to ``query``.
 
@@ -96,6 +97,11 @@ def rag_query(
             without a numeric ``_final_score`` are kept unconditionally
             (defensive: the ranker is the score authority; absence means
             the caller's contract pre-dates scoring, not low confidence).
+        excluded_paper_ids: Optional paper ids to exclude from results
+            (leave-one-paper-out). Threaded to ``hybrid_rank``, which drops any
+            candidate from those papers post-union — covering both the dense and
+            BM25 paths — so the paper under review never retrieves its own
+            reviewer concerns. ``None`` (default) disables exclusion.
 
     Returns:
         A list of concern records (see the schema in
@@ -142,6 +148,9 @@ def rag_query(
             # the single slot and the top KB hit is dropped — intended: the
             # curated precedent is authoritative for the P01/P04 blind spot.)
             top_k=(max(1, top_k - 1) if curated is not None else top_k),
+            # Leave-one-paper-out: drop the paper-under-review's own concerns so
+            # it can't retrieve its own answer key (honest eval + in-KB audits).
+            excluded_paper_ids=excluded_paper_ids,
         )
     except FileNotFoundError:
         # KB file missing on disk -- treat as "no answer available" rather
