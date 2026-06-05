@@ -42,6 +42,15 @@ def test_normalize_excluded_variants():
     )
 
 
+def test_exclusion_normalization_agrees_on_both_sides():
+    # Caller-side and candidate-side must strip identically, else a
+    # whitespace-padded id slips past the filter (adversarial-review finding).
+    assert _normalize_excluded([" PR-001 "]) == frozenset({"PR-001"})
+    cands = {"a": {"paper_id": " PR-001"}, "b": {"_paper_id": "PR-001 "}}
+    out = _drop_excluded_papers(cands, _normalize_excluded(["PR-001"]))
+    assert out == {}, "whitespace-padded paper ids must still be excluded"
+
+
 def test_drop_excluded_papers_filters_by_paper_id():
     cands = {
         "a": {"paper_id": "P1"},        # dense-style field

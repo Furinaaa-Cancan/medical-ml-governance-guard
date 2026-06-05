@@ -536,9 +536,11 @@ def _normalize_excluded(excluded_paper_ids: Optional[Iterable[str]]) -> frozense
     """Normalize an exclusion set to a frozenset of non-empty ``str`` paper ids.
 
     Accepts a single id, any iterable of ids, or ``None``. ``None`` / empty →
-    empty frozenset (no exclusion). Mirrors ``index.builder._normalize_excluded``
-    so the runtime filter and the build-time filter agree on what an exclusion
-    set means.
+    empty frozenset (no exclusion). Ids are ``.strip()``-ed so they normalize
+    identically to the candidate side (:func:`_candidate_paper_id`) — both ends
+    of the filter must agree or a whitespace-padded id would slip through. This
+    is intentionally stricter than ``index.builder._normalize_excluded`` (which
+    is build-time only and not on the runtime path this filter guards).
     """
     if not excluded_paper_ids:
         return frozenset()
@@ -556,8 +558,10 @@ def _candidate_paper_id(candidate: Dict[str, Any]) -> str:
     enricher injects ``_paper_id`` (``retrieval.bm25``). A post-union candidate
     may come from either path, so BOTH must be checked — otherwise BM25-only
     hits slip past the exclusion filter (the dense field alone misses them).
+    ``.strip()`` matches the caller-side normalization in
+    :func:`_normalize_excluded` so a whitespace-padded id can't slip through.
     """
-    return str(candidate.get("paper_id") or candidate.get("_paper_id") or "")
+    return str(candidate.get("paper_id") or candidate.get("_paper_id") or "").strip()
 
 
 def _drop_excluded_papers(
