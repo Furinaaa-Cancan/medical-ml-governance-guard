@@ -1164,7 +1164,7 @@ medical-ml-governance-guard/
 │   │   └── ... (19 more gates)           #   Covers covariate shift, robustness, seed stability, etc.
 │   │
 │   ├── orchestration/     (11)           # Workflow orchestration
-│   │   ├── mlgg.py                       #   Unified CLI entry (30 subcommands, state machine)
+│   │   ├── mlgg.py                       #   Unified CLI entry (31 subcommands, state machine)
 │   │   ├── mlgg_onboarding.py            #   Project init + auto-detect data source/disease/codebook
 │   │   ├── mlgg_interactive.py           #   Interactive wizard (play mode)
 │   │   ├── mlgg_pixel.py                 #   Pixel-art terminal UI + i18n

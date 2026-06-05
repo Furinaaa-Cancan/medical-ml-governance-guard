@@ -127,7 +127,7 @@ Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部
 | `interactive` | 向导式 init/workflow/train/authority |
 | `play` | Pixel-art 菜单式启动器 |
 | `validate` | Config schema 校验（`configs/*.yaml` / `request.json`），CI 前快检（dispatcher-only，不在 COMMANDS 表） |
-| `flow` | 显示 30 子命令的推荐执行顺序（dispatcher-only） |
+| `flow` | 显示 31 子命令的推荐执行顺序（dispatcher-only） |
 
 ---
 

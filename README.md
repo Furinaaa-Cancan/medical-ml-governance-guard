@@ -1609,7 +1609,7 @@ medical-ml-governance-guard/
 | 入口 | 安装 | 用途 | 依赖 |
 |------|------|------|------|
 | **mlgg-lint** | `pip install mlgg-lint` | 扫描 Python 代码 data leakage（30 条 AST 规则，含 R028 组学守卫） | 零依赖 |
-| **mlgg** | `pip install ml-governance-guard` | 30 个子命令 CLI（onboarding / workflow / audit / audit-metrics / fairness / sample-size / lint / llm-audit / ...），完整 33-gate pipeline + LLM-first paper audit | numpy/pandas/sklearn |
+| **mlgg** | `pip install ml-governance-guard` | 31 个子命令 CLI（onboarding / workflow / audit / audit-metrics / fairness / sample-size / lint / llm-audit / llm-review / ...），完整 33-gate pipeline + LLM-first paper audit | numpy/pandas/sklearn |
 
 子命令全表见 `SKILL.md` §"Quick Dispatch"。`audit-metrics` 是 `mlgg` 子命令之一，不是独立包。
 
