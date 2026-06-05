@@ -440,6 +440,14 @@ class TestCLI:
         assert "warnings" in report
         assert "summary" in report
         assert "artifacts" in report["summary"]
+        # Mandatory envelope fields (build_report_envelope contract) — these
+        # were unverified, so a regression dropping them would go unnoticed.
+        from _gate_framework import REPORT_ENVELOPE_VERSION
+        assert report["envelope_version"] == REPORT_ENVELOPE_VERSION
+        assert report["gate_name"] == "publication_gate"
+        assert "execution_timestamp_utc" in report
+        assert "execution_time_seconds" in report
+        assert "environment" in report
 
     def test_quality_score_pass(self, tmp_path: Path):
         paths = _make_all_artifacts(tmp_path)
