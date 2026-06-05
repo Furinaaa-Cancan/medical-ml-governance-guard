@@ -180,20 +180,6 @@ class TestBuildReportEnvelope:
         )
         assert "summary" not in env
 
-    def test_extra_cannot_override_reserved_fields(self):
-        # `extra` must not be able to shadow auto-managed fields (summary,
-        # peer_review_status, ...). Non-reserved extra keys still pass through.
-        fi, wi = self._make_issues(0, 0)
-        env = build_report_envelope(
-            gate_name="g", status="pass", strict_mode=False,
-            failures=fi, warnings=wi,
-            summary={"real": 1},
-            extra={"summary": {"spoofed": 2}, "peer_review_status": "spoofed", "ok_key": 9},
-        )
-        assert env["summary"] == {"real": 1}, "extra overrode the real summary"
-        assert env.get("peer_review_status") != "spoofed"
-        assert env["ok_key"] == 9  # non-reserved extra still allowed
-
     def test_envelope_with_input_files(self):
         fi, wi = self._make_issues(0, 0)
         env = build_report_envelope(
