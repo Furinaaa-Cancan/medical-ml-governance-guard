@@ -366,7 +366,10 @@ def main() -> int:
             # per-feature accumulator so the gate can evaluate it even when
             # the nested feature blocks don't carry their own copy.
             top_di = _to_float(subgroup_perf.get("disparate_impact_ratio"))
-            if top_di is not None and top_di > 0:
+            # DI == 0.0 is MAXIMUM disparate impact (a group with zero positive
+            # predictions) — a fail-closed signal, not a value to skip. The old
+            # `> 0` guard silently dropped it; align with the feature-level check.
+            if top_di is not None:
                 all_disparate_impact_ratios.append(top_di)
                 if top_di < thresholds["disparate_impact_ratio_fail"]:
                     add_issue(
