@@ -549,11 +549,22 @@ def _normalize_excluded(excluded_paper_ids: Optional[Iterable[str]]) -> frozense
     )
 
 
+def _candidate_paper_id(candidate: Dict[str, Any]) -> str:
+    """Return a candidate's paper id, tolerating both producers' field names.
+
+    The dense index builder injects ``paper_id`` (``index.builder``); the BM25
+    enricher injects ``_paper_id`` (``retrieval.bm25``). A post-union candidate
+    may come from either path, so BOTH must be checked — otherwise BM25-only
+    hits slip past the exclusion filter (the dense field alone misses them).
+    """
+    return str(candidate.get("paper_id") or candidate.get("_paper_id") or "")
+
+
 def _drop_excluded_papers(
     candidates: Dict[str, Dict[str, Any]],
     excluded: frozenset,
 ) -> Dict[str, Dict[str, Any]]:
-    """Drop candidates whose ``paper_id`` is in ``excluded`` (leave-one-paper-out).
+    """Drop candidates whose paper id is in ``excluded`` (leave-one-paper-out).
 
     Applied post-union so it covers BOTH the dense and the BM25 retrieval paths
     at a single chokepoint: build-time dense exclusion (``index.builder``) cannot
@@ -566,7 +577,7 @@ def _drop_excluded_papers(
     return {
         cid: c
         for cid, c in candidates.items()
-        if str(c.get("paper_id") or "") not in excluded
+        if _candidate_paper_id(c) not in excluded
     }
 
 

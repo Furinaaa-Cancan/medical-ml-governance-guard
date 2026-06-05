@@ -23,6 +23,7 @@ pytest.importorskip("scripts.rag.retrieval.hybrid")
 import scripts.rag.retrieval.hybrid as hybrid_mod  # noqa: E402
 from scripts.rag.query import rag_query  # noqa: E402
 from scripts.rag.retrieval.hybrid import (  # noqa: E402
+    _candidate_paper_id,
     _drop_excluded_papers,
     _normalize_excluded,
 )
@@ -43,12 +44,13 @@ def test_normalize_excluded_variants():
 
 def test_drop_excluded_papers_filters_by_paper_id():
     cands = {
-        "a": {"paper_id": "P1"},
+        "a": {"paper_id": "P1"},        # dense-style field
         "b": {"paper_id": "P2"},
-        "c": {"paper_id": "P1"},
-        "d": {},  # no paper_id → never excluded
+        "c": {"_paper_id": "P1"},       # BM25-style field (underscore)
+        "d": {},                        # no id → never excluded
     }
     out = _drop_excluded_papers(cands, frozenset({"P1"}))
+    # Both the dense ('a') AND the BM25-style ('c') P1 candidates are dropped.
     assert set(out) == {"b", "d"}
     # empty exclusion is a pass-through
     assert _drop_excluded_papers(cands, frozenset()) == cands
@@ -56,10 +58,12 @@ def test_drop_excluded_papers_filters_by_paper_id():
 
 # ── hybrid_rank integration: closes the BM25-union leak (no torch) ───────────
 
-def _rec(cid: str, paper_id: str, gate: str) -> dict:
+def _rec(cid: str, paper_id: str, gate: str, id_field: str = "paper_id") -> dict:
+    # id_field mirrors the real producers: the dense builder injects 'paper_id'
+    # (index.builder), the BM25 enricher injects '_paper_id' (retrieval.bm25).
     return {
         "concern_id": cid,
-        "paper_id": paper_id,
+        id_field: paper_id,
         "mlgg_gates": [gate],
         "severity": "HIGH",
         "category": "preprocessing_leakage",
@@ -87,25 +91,30 @@ def _patch_retrieval(monkeypatch, dense_recs, bm25_recs):
 
 def test_hybrid_rank_excludes_paper_from_both_dense_and_bm25(monkeypatch):
     gate = "leakage_gate"
-    # P_self appears via dense (c1) AND via the BM25 union (c2) — the c2 path is
-    # exactly what build-time dense exclusion cannot reach.
+    # P_self appears via dense (c1, 'paper_id') AND via the BM25 union (c2,
+    # '_paper_id') — the c2 path with the underscore field is exactly what a
+    # paper_id-only filter would miss, so this pins the two-field fix.
     dense = [_rec("P_self-c1", "P_self", gate), _rec("P_other-c1", "P_other", gate)]
-    bm25 = [_rec("P_self-c2", "P_self", gate), _rec("P_other-c2", "P_other", gate)]
+    bm25 = [
+        _rec("P_self-c2", "P_self", gate, id_field="_paper_id"),
+        _rec("P_other-c2", "P_other", gate, id_field="_paper_id"),
+    ]
     _patch_retrieval(monkeypatch, dense, bm25)
 
     base = hybrid_mod.hybrid_rank(
         "scaler fit before split", gate=gate, failure_codes=["P01"], top_k=10
     )
-    assert {r["paper_id"] for r in base} == {"P_self", "P_other"}
+    assert {_candidate_paper_id(r) for r in base} == {"P_self", "P_other"}
 
     excluded = hybrid_mod.hybrid_rank(
         "scaler fit before split", gate=gate, failure_codes=["P01"], top_k=10,
         excluded_paper_ids={"P_self"},
     )
-    papers = {r["paper_id"] for r in excluded}
+    papers = {_candidate_paper_id(r) for r in excluded}
     assert "P_self" not in papers, "self-paper concern leaked (dense or BM25)"
     assert "P_other" in papers
-    # specifically the BM25-only concern of the excluded paper is gone
+    # specifically the BM25-only concern of the excluded paper (underscore
+    # field) is gone — the case a paper_id-only filter would have missed
     assert "P_self-c2" not in {r["concern_id"] for r in excluded}
 
 
