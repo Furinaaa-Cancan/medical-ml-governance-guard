@@ -66,6 +66,8 @@ See ``/tmp/mlgg_rag_design.md`` for the full design contract.
 
 from __future__ import annotations
 
+import math
+
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple
 
 
@@ -334,7 +336,9 @@ def _dense_corroboration_scores(
             for j, emb_j in enumerate(embs):
                 if i == j or emb_j is None:
                     continue
-                sims.append(float(np.dot(embs[i], emb_j)))
+                _c = float(np.dot(embs[i], emb_j))
+                if math.isfinite(_c):  # drop NaN/Inf from corrupted embeddings
+                    sims.append(_c)
             if not sims:
                 continue
             # Average over the top-K most-similar siblings only. Clamp
@@ -457,7 +461,15 @@ def _mmr_rerank(
             "blocker_reason": "none",
         }
         for i, cand in enumerate(remaining):
-            relevance = cand.get("_final_score", 0.0)
+            # Coerce + finite-guard the relevance: a non-numeric or NaN/Inf
+            # _final_score would make the MMR objective (lam*rel - (1-lam)*sim)
+            # NaN/Inf and scramble the ranking.
+            try:
+                relevance = float(cand.get("_final_score", 0.0))
+            except (TypeError, ValueError):
+                relevance = 0.0
+            if not math.isfinite(relevance):
+                relevance = 0.0
             max_sim = 0.0
             blocker_id: Optional[str] = None
             blocker_reason = "none"
@@ -493,6 +505,8 @@ def _mmr_rerank(
                 sel_emb = sel.get("_dense_embedding")
                 if cand_emb is not None and sel_emb is not None:
                     cos = float(np.dot(cand_emb, sel_emb))
+                    if not math.isfinite(cos):
+                        continue  # NaN/Inf from a corrupted embedding: skip
                     # Only treat near-duplicates as "similar enough to
                     # penalize" (W2 fix for Q9 free-text regression).
                     # Below the floor, two concerns are considered
@@ -675,7 +689,11 @@ def hybrid_rank(
         if score is None:
             score = hit.get("score", 0.0)
         try:
-            dense_score_by_id[cid] = float(score)
+            _s = float(score)
+            # A NaN/Inf dense score (corrupted embedding) would poison every
+            # downstream comparison (NaN propagates, Inf wins every max). Treat
+            # a non-finite score as no signal — match the gates' isfinite guard.
+            dense_score_by_id[cid] = _s if math.isfinite(_s) else 0.0
         except (TypeError, ValueError):
             dense_score_by_id[cid] = 0.0
         dense_rank_by_id[cid] = rank
