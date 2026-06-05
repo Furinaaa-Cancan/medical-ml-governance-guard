@@ -67,3 +67,21 @@ logged reason. Low-risk → merge on green.
 
 ## Progress log
 - 2026-06-05: goal created; loop started. P2 triage workflow kicked off first.
+- 2026-06-05: **P2 triage done (33 verifiers): 23 confirmed real, 10 refuted.**
+  Of the 23: **17 low-risk** (loop fixes + merges on green), **6 security/refactor**
+  (human-merge). NOTE: a few verifier "minimal_fix"es are behavior-changing if
+  applied literally — apply JUDGMENT (e.g. `[2]` ridge default mismatch → fix the
+  COMMENT to match code 20.0, do NOT change the default; `[13]` setdefault→assign
+  in hybrid union changes which record wins → treat as ranking-behavior, verify;
+  `[32]` test-count badge drifts as tests are added → check live count first).
+  - LOW-RISK queue: [2] ridge comment, [3] redundant float(), [4] O/E zero-expected
+    guard, [6] DCA degenerate band (extends merged [4]), [9] dup component-validation
+    entries, [11] ARCHITECTURE layer-exception note, [13]* hybrid union record,
+    [15]* R028 dynamic-prefix, [16] R017 nested tuple/list, [18] RAG concern schema
+    guard, [22] move test-only fns out of _gate_utils, [24] inline redundant wrappers,
+    [26] self_critique fixture align, [28] MMR micro-opt, [30] input_files encoding
+    uniformity, [32] test-count badge. ([13]/[15] starred = verify behavior first.)
+  - SECURITY/REFACTOR (human-merge): [7] L3-vs-extval claim consistency, [8] invalid
+    seal still contributes to L3, [10] gate_name validation, [17] audit-log swallows
+    errors, [19] adaptive top-k comparability, [21] authority-e2e stale cohorts.
+  - [23] gate_rag_bridge: verifier says KEEP as deprecation shim → no code change.
