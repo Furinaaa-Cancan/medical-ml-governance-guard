@@ -42,6 +42,7 @@
 ### 概览（先读这块决定要不要继续）
 
 - [为什么需要 MLGG](#为什么需要-mlgg)
+- [工程化 Harness 架构](#工程化-harness-架构)
 - [审稿级审查机制](#审稿级审查机制)
 - [Peer-Review RAG（审稿意见语义检索）](#peer-review-rag审稿意见语义检索)
 - [系统能力总览](#系统能力总览)
@@ -99,6 +100,20 @@
 | 特征列命名 `gene_BRCA1` / `rs12345` / `ENSG00000...` | 把组学数据拿来跑 MLGG 是 scope 错配 | `mlgg-lint` R028: ≥3 个组学命名前缀匹配即拒绝，引导到 Scanpy / TCGAbiolinks / PLINK |
 
 > **MLGG 不是又一个 ML 工具包。** 它是一套达到顶刊审稿标准的 fail-closed 验证 harness——33 道 fail-closed 门控 + 154 篇 Nature Communications + Communications Medicine 真实审稿意见作为知识库（另 181 篇 PDF 已收录待抽取）。每一条建议都能引用审稿人原文作为论据。
+
+---
+
+## 工程化 Harness 架构
+
+MLGG 的核心不是"又一组检查脚本"，而是一套**工程化的 fail-closed 验证 harness**——把"可信判定"当作一等工程目标来设计：
+
+- **非对称双层判定**：33 道**确定性门控**发出有约束力的 pass/fail；LLM 评审层是**只读咨询层**——只能**追加疑点**，永远不能把门控的 fail 洗成 pass。不变式 `final_verdict = min(gate, llm)`（顺序 FAIL < CONCERN < PASS）。信任住在确定性层，而非 agent 输出。
+- **全程 fail-closed 契约**：33 道门控在异常、缺失证据、畸形输入时一律**失败关闭**（exit 2），安全方向上不存在"出错即放行"的默认值。
+- **防伪造认证边界**：每次运行用 run-scoped HMAC **seal** 签名每份证据信封，publication_gate 在信任任何 status 之前先**验签**；execution-attestation 要求**已验证的签名**——certifier 不信任任何 agent 可写的未签名 JSON（堵住 C1/C2 critical）。
+- **可复现的证据信封**：每份 sealed report 绑定运行环境（python + numpy / pandas / scikit-learn / scipy 版本），判定连同复现坐标一起封存。
+- **对抗式工程纪律**：harness 自身每次安全相关改动都要过"真实生产者往返测试 + 独立对抗式评审"——绿 CI + 自审被证明不足以守住认证边界。
+
+> 一句话：**门控负责判，LLM 只能质疑，密钥锁住证据，环境封进信封。**
 
 ---
 

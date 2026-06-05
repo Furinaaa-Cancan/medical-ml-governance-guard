@@ -37,6 +37,7 @@
 ## Table of Contents
 
 - [Why MLGG](#why-mlgg)
+- [Harness Engineering](#harness-engineering)
 - [Peer-Review RAG (Reviewer-Concern Semantic Search)](#peer-review-rag-reviewer-concern-semantic-search)
 - [System Overview](#system-overview)
 - [Quick Start](#quick-start)
@@ -82,6 +83,20 @@ The prevalence of data leakage and methodological flaws in medical ML papers far
 | Feature names `gene_BRCA1` / `rs12345` / `ENSG00000...` | Out-of-scope: using MLGG for omics data is a modality mismatch | `mlgg-lint` R028: ≥3 omics-pattern name matches → rejected with pointers to Scanpy / TCGAbiolinks / PLINK |
 
 > **MLGG is not yet another ML toolkit.** It is a fail-closed verification harness meeting top-journal review standards &mdash; 33 fail-closed gates + 154 NC+CM curated reviews (Nature Communications + Communications Medicine; 817 structured concerns; 181 additional PDFs cataloged and pending extraction) as a knowledge base. Every recommendation can cite reviewer quotes as evidence.
+
+---
+
+## Harness Engineering
+
+MLGG's core is not "yet another set of check scripts" — it is an **engineered fail-closed verification harness** that treats *trustworthy verdicts* as a first-class engineering goal:
+
+- **Asymmetric two-tier verdict.** 33 **deterministic gates** issue the binding pass/fail; the LLM review layer is a **read-only advisory tier** that can only **raise concerns**, never turn a gate failure into a pass. Invariant: `final_verdict = min(gate, llm)` (order FAIL < CONCERN < PASS). Trust lives in the deterministic layer, not in model output.
+- **Fail-closed everywhere.** All 33 gates **fail closed** (exit 2) on exception, missing evidence, or malformed input — there is no "error means allow" default in the safe direction.
+- **Tamper-evident certification boundary.** Every run signs each evidence envelope with a run-scoped HMAC **seal**; publication_gate **verifies the seal** before trusting any status, and execution-attestation requires a **verified signature** — the certifier never trusts agent-writable unsigned JSON (closes the C1/C2 criticals).
+- **Reproducible evidence envelope.** Every sealed report binds the runtime environment (Python + numpy / pandas / scikit-learn / scipy versions), so a verdict is sealed together with the coordinates to reproduce it.
+- **Adversarial engineering discipline.** Every security-relevant change to the harness itself goes through real-producer round-trip tests + an independent adversarial review — green CI plus self-review proved insufficient to defend the certification boundary.
+
+> In one line: **gates decide, the LLM may only doubt, a key locks the evidence, and the environment is sealed into the envelope.**
 
 ---
 
