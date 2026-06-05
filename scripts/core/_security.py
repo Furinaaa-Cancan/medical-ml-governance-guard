@@ -306,12 +306,21 @@ def compute_hmac(data: bytes, key: Optional[bytes] = None) -> bytes:
 def canonical_report_bytes(report: Dict[str, Any]) -> bytes:
     """Deterministic byte serialization of a report, excluding its own ``seal``.
 
-    Sorted keys + compact separators so the same logical report always yields
-    the same bytes regardless of dict ordering or whitespace.
+    CRITICAL: the seal is computed at WRITE time over the in-memory envelope, but
+    verified at READ time over the JSON loaded from disk — and ``write_json``
+    runs ``_sanitize_for_json`` before persisting (NaN/Inf → null, numpy scalars →
+    python, set/tuple → list, bytes → str). So we MUST apply that same sanitizer
+    here, or a legitimate report whose summary holds a NaN/Inf metric or a numpy
+    value (endemic in sklearn/pandas output) would seal over the raw value but
+    verify over the sanitized value and FALSE-REJECT itself. ``_sanitize_for_json``
+    is idempotent, so re-canonicalizing an already-sanitized on-disk report yields
+    identical bytes. Sorted keys + compact separators make it order-independent.
     """
     payload = {k: v for k, v in report.items() if k != "seal"}
+    from _gate_utils import _sanitize_for_json
+    payload = _sanitize_for_json(payload)
     return json.dumps(
-        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str
+        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False
     ).encode("utf-8")
 
 

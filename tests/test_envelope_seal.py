@@ -57,3 +57,38 @@ def test_extra_cannot_preset_seal():
         env = _env(extra={"seal": "forged"})
     assert env["seal"] != "forged"
     assert verify_envelope_seal(env, KEY) is True
+
+
+def test_seal_survives_real_write_json_roundtrip_with_nan_and_numpy(tmp_path):
+    """THE PRODUCTION PATH: build_report_envelope -> write_json -> json.load -> verify.
+
+    write_json runs _sanitize_for_json before persisting (NaN/Inf->null, numpy->
+    python, set/tuple->list, bytes->str), so the seal MUST canonicalize the same
+    way or a legitimate report — one whose summary holds a NaN/Inf metric or an
+    unsanitized numpy/set value, endemic in sklearn/pandas output — false-rejects
+    its OWN seal at publication_gate. This round-trips the real producer + the real
+    persistence; it FAILS if the seal is computed over un-sanitized bytes.
+    """
+    import json as _json
+
+    import numpy as np
+
+    from _gate_utils import write_json
+
+    with patch.dict("os.environ", {"MLGG_RUN_KEY": KEY}):
+        env = build_report_envelope(
+            gate_name="calibration_dca_gate", status="pass", strict_mode=True,
+            failures=[], warnings=[],
+            summary={
+                "ece": float("nan"),
+                "slope": float("inf"),
+                "n_events": np.int64(42),
+                "auroc": np.float32(0.876),
+                "fold_ids": {3, 1, 2},
+                "raw": b"bytes-value",
+            },
+        )
+    path = tmp_path / "calibration_dca_report.json"
+    write_json(path, env)
+    loaded = _json.loads(path.read_text(encoding="utf-8"))
+    assert verify_envelope_seal(loaded, KEY) is True
