@@ -273,17 +273,22 @@ def test_in_scope_queries_not_falsely_flagged(query: str) -> None:
 def test_adversarial_denylist_cases(query: str, documented: bool) -> None:
     """W1 self-challenge: document where the denylist over- or under-fires.
 
-    No strict assertion — this is a living spec. The ``documented``
-    column records the EXPECTED current behaviour; mismatches print
-    to stdout for human review but do not fail the test. When the
-    denylist is tuned, update the ``documented`` values rather than
-    chasing CI green via matcher gymnastics.
+    The ``documented`` column records the EXPECTED current behaviour. Drift in a
+    grounding-safety control (it stops the agent citing wrong-modality precedent)
+    must NOT pass silently — this asserts ``actual == documented`` so any change
+    fails CI. When the denylist is deliberately tuned, update the ``documented``
+    value for that case (the maintainer's stated intent), rather than letting the
+    drift go unnoticed.
     """
     from scripts.rag._enrich import is_off_modality_query as _is_off_modality_query
     actual = _is_off_modality_query(query)
     print(
         f"  adversarial: {query!r:70} documented={documented} actual={actual}"
         + ("" if actual == documented else "  <-- DRIFT")
+    )
+    assert actual == documented, (
+        f"off-modality denylist DRIFT for {query!r}: documented={documented}, actual={actual}. "
+        f"If this change is intentional, update the `documented` value for this case."
     )
 
 

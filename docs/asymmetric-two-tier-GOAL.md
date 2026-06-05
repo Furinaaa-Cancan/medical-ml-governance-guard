@@ -203,18 +203,31 @@ review. Same loop discipline (branch, test-first, hooks green, flag assumptions 
       gates compute `should_fail = bool(failures) or (args.strict and bool(warnings))` and
       `return 2 if should_fail`. Closes the "copy-paste fail-OPEN regression" finding: a future edit
       dropping the strict clause or inverting the boolean now fails CI.
-- [ ] **F2.1** F02 value-level temporal check — implement the `NOT YET IMPLEMENTED` data-value check in
-      `cohort_definition_gate` (column values > index_date) so the highest-value leakage class gets a
-      deterministic floor, not just feature-name matching.
+- [!] **F2.1 FLAGGED — design fork, NOT implemented unattended.** Two reasons: (a) `cohort_definition_gate`'s
+      own docstring records a deliberate decision (Codex review 2026-04-20) that value-level temporal
+      detection belongs in `leakage_gate` (row-value, temporal, leakage-specific), NOT this gate — so
+      implementing it here contradicts a documented call; (b) real value-level leakage detection on
+      clinical CSVs carries false-positive risk on a medical-governance tool (the maintainers deferred
+      it on purpose). **Your call:** placement (leakage_gate) + opt-in declared `temporal_feature_cols`
+      vs name-based auto-detect + warning-vs-fail severity. Conservative proposal: opt-in declared
+      columns parsed to datetime, per-row compare to index_date, warning by default / fail under strict.
 - [ ] **F2.2** R028 omics-guard hardening — detect f-string / comprehension / `df.columns` forms, not
       only literal `gene_`-prefixed list constants (currently trivially bypassed).
-- [ ] **F2.3** Harden the 2 by-design fail-open tests — path-traversal fuzzer must assert rejection;
-      RAG denylist-drift test must fail on drift (today both pass silently).
+- [x] **F2.3 DONE** — hardened the 2 by-design fail-open tests. Path-traversal fuzzer now asserts no
+      ACCEPTED input resolves under a forbidden prefix (10k iters, green — `safe_path` holds); RAG
+      denylist-drift test now asserts `actual == documented` (fails on drift; no existing drift). Also
+      removed 6 pre-existing unused imports flagged by ruff on the touched file.
 - [ ] **F2.4** Bind package versions into the signed evidence bundle (reproducibility finding).
 
 ### Phase 2 Progress Log
 - 2026-06-05 — F2.0: fail-closed contract test (67 cases) locks the `should_fail` formula + `return 2`
   across all 33 gates; excludes macOS AppleDouble `._*` files. ruff clean.
+- 2026-06-05 — F2.1 FLAGGED (design fork, not done): value-level temporal detection belongs in
+  leakage_gate per a documented decision, and has false-positive risk on clinical data — needs the
+  user's placement/severity call. Conservative proposal recorded in the F2.1 backlog line.
+- 2026-06-05 — F2.3: hardened the 2 fail-open tests (path fuzzer asserts no escape on the accept path,
+  10k iters; RAG denylist asserts `actual==documented`, fails on drift). 23 targeted tests green;
+  6 pre-existing unused imports removed; ruff clean.
 
 ---
 

@@ -8,10 +8,8 @@ from __future__ import annotations
 
 import io
 import json
-import os
 import pickle
 import secrets
-import sys
 from pathlib import Path
 from typing import Any
 
@@ -22,13 +20,9 @@ import pytest
 from _security import (
     ArtifactManifest,
     SecurityError,
-    RestrictedUnpickler,
     check_csv_row_limit,
-    check_file_size,
-    compute_hmac,
     encrypt_evidence,
     decrypt_evidence,
-    run_security_audit,
     safe_load_json,
     safe_path,
     safe_pickle_load,
@@ -219,17 +213,28 @@ class TestPathTraversalFuzzing:
 
     @pytest.mark.slow
     def test_random_path_fuzzing(self):
-        """Generate random path strings and ensure no crashes."""
+        """Random path strings: no crashes, AND no accepted input escapes to a forbidden prefix.
+
+        Random strings are mostly benign relative paths, so we cannot assert every input is
+        rejected. But the security invariant must hold on the ACCEPT path: if safe_path returns
+        a value, the resolved path must not land under a system prefix. Previously this test only
+        checked "no crash" and asserted nothing on the returned value (fail-open).
+        """
         import string
         rng = __import__("random").Random(42)
         chars = string.printable + "\x00\xff"
+        forbidden = ("/etc", "/proc", "/dev", "/var/run", "/private/etc")
         for _ in range(10_000):
             length = rng.randint(0, 500)
             payload = "".join(rng.choice(chars) for _ in range(length))
             try:
-                safe_path(payload)
+                result = safe_path(payload)
             except (ValueError, SecurityError, OSError, RuntimeError):
-                pass  # All acceptable rejections
+                continue  # rejection is an acceptable outcome
+            assert not str(result).startswith(forbidden), (
+                f"fuzzed payload {payload!r} was ACCEPTED and resolved to {result} "
+                f"under a forbidden system prefix"
+            )
 
 
 # ────────────────────────────────────────────────────────
