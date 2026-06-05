@@ -194,6 +194,30 @@ The asymmetric two-tier harness is built and tested end-to-end on branch
 
 ---
 
+## Phase 2 — remaining harness-review findings (loop RESUMED on user "继续")
+
+The asymmetric-two-tier GOAL above is complete; Phase 2 works the OTHER findings from the 51-agent
+review. Same loop discipline (branch, test-first, hooks green, flag assumptions per commit).
+
+- [x] **F2.0 DONE** — Fail-closed contract lock. `test_gate_failclosed_contract.py` asserts all 33
+      gates compute `should_fail = bool(failures) or (args.strict and bool(warnings))` and
+      `return 2 if should_fail`. Closes the "copy-paste fail-OPEN regression" finding: a future edit
+      dropping the strict clause or inverting the boolean now fails CI.
+- [ ] **F2.1** F02 value-level temporal check — implement the `NOT YET IMPLEMENTED` data-value check in
+      `cohort_definition_gate` (column values > index_date) so the highest-value leakage class gets a
+      deterministic floor, not just feature-name matching.
+- [ ] **F2.2** R028 omics-guard hardening — detect f-string / comprehension / `df.columns` forms, not
+      only literal `gene_`-prefixed list constants (currently trivially bypassed).
+- [ ] **F2.3** Harden the 2 by-design fail-open tests — path-traversal fuzzer must assert rejection;
+      RAG denylist-drift test must fail on drift (today both pass silently).
+- [ ] **F2.4** Bind package versions into the signed evidence bundle (reproducibility finding).
+
+### Phase 2 Progress Log
+- 2026-06-05 — F2.0: fail-closed contract test (67 cases) locks the `should_fail` formula + `return 2`
+  across all 33 gates; excludes macOS AppleDouble `._*` files. ruff clean.
+
+---
+
 # Checkpoint Proposals (awaiting your sign-off)
 
 > Each is drafted but NOT applied — they touch the envelope/manifest/crypto contract or a design
