@@ -272,7 +272,12 @@ def run_gate_subprocess(
     elapsed = _time.time() - t0
     status = "pass" if exit_code == 0 else "fail"
 
-    # Tamper-evident audit log entry
+    # Tamper-evident audit log entry. Best-effort (must never BLOCK the
+    # pipeline), but a failure must NOT vanish silently: a tamper-evident log
+    # that quietly fails to write defeats its own purpose (a disk-full or
+    # permission error would leave gaps an auditor can't see). Surface it on
+    # stderr AND record it in the result so downstream/operators can see it.
+    audit_error = None
     try:
         from _gate_utils import append_audit_entry
         audit_dir = evidence_dir or (Path(report_path).expanduser().resolve().parent if report_path else None)
@@ -283,8 +288,10 @@ def run_gate_subprocess(
                 status=status,
                 execution_time=elapsed,
             )
-    except Exception:
-        pass  # Audit logging is best-effort; never block pipeline
+    except Exception as exc:
+        audit_error = f"{type(exc).__name__}: {exc}"
+        print(f"[WARN] tamper-evident audit log entry failed for {gate_name}: {audit_error}",
+              file=sys.stderr)
 
     return {
         "name": gate_name,
@@ -295,6 +302,7 @@ def run_gate_subprocess(
         "stdout_tail": stdout[-4000:],
         "stderr_tail": stderr[-4000:],
         "report_path": report_path,
+        "audit_error": audit_error,
     }
 
 
