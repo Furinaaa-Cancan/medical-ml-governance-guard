@@ -7,7 +7,6 @@ It also provides shared fixtures used by multiple gate tests.
 """
 from __future__ import annotations
 
-import csv
 import json
 import sys
 from pathlib import Path
@@ -44,6 +43,34 @@ _PATHS_TO_ADD = [
 for p in _PATHS_TO_ADD:
     if p not in sys.path:
         sys.path.insert(0, p)
+
+
+# ────────────────────────────────────────────────────────
+# pytest-xdist: keep RAG tests on a single worker
+# ────────────────────────────────────────────────────────
+# scripts/rag/config.py pins the dense-index cache at a fixed path
+# (REPO_ROOT/.cache/rag). Under `pytest -n auto`, parallel workers race on
+# building/invalidating it and ~30 RAG tests fail. Assigning them all one
+# xdist_group makes `--dist loadgroup` run them serially on one worker (same as
+# today's serial run, which passes) while the rest of the suite parallelizes.
+# No production code change. Inert without pytest-xdist / without --dist loadgroup.
+_RAG_CACHE_PREFIXES = ("test_rag", "test_mlgg_rag", "test_harness")
+
+
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers",
+        "xdist_group(name): co-locate tests on one xdist worker (keeps RAG tests "
+        "that share .cache/rag off parallel workers). Registered so it is a no-op "
+        "without pytest-xdist installed.",
+    )
+
+
+def pytest_collection_modifyitems(config, items):
+    for item in items:
+        name = Path(str(item.fspath)).name
+        if any(name.startswith(prefix) for prefix in _RAG_CACHE_PREFIXES):
+            item.add_marker(pytest.mark.xdist_group("rag_cache"))
 
 
 # ────────────────────────────────────────────────────────
