@@ -66,7 +66,7 @@ See ``/tmp/mlgg_rag_design.md`` for the full design contract.
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple
 
 
 from scripts.rag import config
@@ -532,11 +532,50 @@ def _mmr_rerank(
 # ---------------------------------------------------------------------------
 
 
+def _normalize_excluded(excluded_paper_ids: Optional[Iterable[str]]) -> frozenset:
+    """Normalize an exclusion set to a frozenset of non-empty ``str`` paper ids.
+
+    Accepts a single id, any iterable of ids, or ``None``. ``None`` / empty →
+    empty frozenset (no exclusion). Mirrors ``index.builder._normalize_excluded``
+    so the runtime filter and the build-time filter agree on what an exclusion
+    set means.
+    """
+    if not excluded_paper_ids:
+        return frozenset()
+    if isinstance(excluded_paper_ids, str):
+        excluded_paper_ids = [excluded_paper_ids]
+    return frozenset(
+        str(p).strip() for p in excluded_paper_ids if p is not None and str(p).strip()
+    )
+
+
+def _drop_excluded_papers(
+    candidates: Dict[str, Dict[str, Any]],
+    excluded: frozenset,
+) -> Dict[str, Dict[str, Any]]:
+    """Drop candidates whose ``paper_id`` is in ``excluded`` (leave-one-paper-out).
+
+    Applied post-union so it covers BOTH the dense and the BM25 retrieval paths
+    at a single chokepoint: build-time dense exclusion (``index.builder``) cannot
+    reach the BM25 hits that ``hybrid_rank`` unions in afterwards, so this runtime
+    filter is what actually guarantees a paper never retrieves its own reviewer
+    concerns (the self-leak that would inflate any leave-one-paper-out eval).
+    """
+    if not excluded:
+        return candidates
+    return {
+        cid: c
+        for cid, c in candidates.items()
+        if str(c.get("paper_id") or "") not in excluded
+    }
+
+
 def hybrid_rank(
     query: str,
     gate: Optional[str] = None,
     failure_codes: Optional[List[str]] = None,
     top_k: int = config.DEFAULT_TOP_K,
+    excluded_paper_ids: Optional[Iterable[str]] = None,
 ) -> List[Dict[str, Any]]:
     """Run the full hybrid retrieval pipeline.
 
@@ -569,6 +608,11 @@ def hybrid_rank(
             also set.
         top_k: Number of final results to return. Defaults to
             ``config.DEFAULT_TOP_K``.
+        excluded_paper_ids: Optional paper ids to exclude from the results
+            (leave-one-paper-out). Any candidate whose ``paper_id`` is in this
+            set is dropped post-union — covering both the dense and BM25 paths —
+            so a paper can never retrieve its own reviewer concerns. ``None``
+            (default) disables exclusion.
 
     Returns:
         Up to ``top_k`` concern dicts in descending ``_final_score``
@@ -654,6 +698,14 @@ def hybrid_rank(
     for cid, hit in bm25_records_by_id.items():
         if cid not in candidates_by_id:
             candidates_by_id[cid] = dict(hit)
+
+    # ---- 4b. Leave-one-paper-out exclusion (self-retrieval guard) -------
+    # Drop candidates from excluded papers BEFORE any scoring/rerank so they
+    # can never occupy a result slot. Done post-union so it covers the BM25
+    # hits too (build-time dense exclusion in index.builder cannot).
+    excluded = _normalize_excluded(excluded_paper_ids)
+    if excluded:
+        candidates_by_id = _drop_excluded_papers(candidates_by_id, excluded)
 
     # ---- 5. Gate filter -------------------------------------------------
     if gate:
