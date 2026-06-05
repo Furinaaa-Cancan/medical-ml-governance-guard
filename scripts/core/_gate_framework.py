@@ -270,6 +270,12 @@ def build_report_envelope(
         envelope["input_files"] = input_files
 
     if extra:
+        # NOTE: summary / input_files are intentionally NOT reserved. Several
+        # gates (sample_size, covariate_shift, request_contract) legitimately
+        # pass their `summary` THROUGH `extra` rather than the dedicated param,
+        # so reserving it drops their summary entirely (caught by CI on
+        # test_sample_size_gate). The review finding that proposed reserving
+        # them was based on a false premise ("no gate passes these via extra").
         _RESERVED = {
             "envelope_version", "gate_name", "gate_version", "status",
             "strict_mode", "execution_timestamp_utc", "execution_time_seconds",

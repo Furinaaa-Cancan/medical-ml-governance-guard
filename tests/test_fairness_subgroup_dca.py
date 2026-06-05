@@ -20,7 +20,6 @@ from pathlib import Path
 from typing import List, Tuple
 
 import numpy as np
-import pytest
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
 GATE_SCRIPT = SCRIPTS_DIR / "gates/fairness_equity_gate.py"
@@ -208,6 +207,29 @@ class TestSubgroupDCAOptInFlagOn:
         assert dca["status"] == "computed"
         assert dca["subgroup_column"] == "race"
         assert "B" in [g["group"] for g in dca["failing_subgroups"]]
+
+    def test_inverted_threshold_band_skips_with_warning(self, tmp_path: Path):
+        # min > max must be rejected (it would build a non-monotonic grid and
+        # produce a meaningless verdict) — skip + warn, not silently proceed.
+        eval_path = _write_eval_report(tmp_path, _baseline_eval_report())
+        trace_path = _good_trace(tmp_path, group_col="race")
+        report_path = tmp_path / "out.json"
+        _run_gate(
+            "--evaluation-report", str(eval_path),
+            "--prediction-trace", str(trace_path),
+            "--subgroup-dca-column", "race",
+            "--subgroup-dca",
+            "--subgroup-dca-threshold-min", "0.30",
+            "--subgroup-dca-threshold-max", "0.05",
+            "--report", str(report_path),
+            expect_returncode=0,  # warn + skip, not a failure
+        )
+        data = json.loads(report_path.read_text())
+        dca = data["summary"]["subgroup_dca"]
+        assert dca["status"] == "skipped"
+        assert dca.get("reason") == "threshold_band_inverted"
+        warn_codes = [w["code"] for w in data.get("warnings", [])]
+        assert "subgroup_dca_threshold_order_invalid" in warn_codes
 
     def test_flag_on_missing_trace_warns_not_fails(self, tmp_path: Path):
         """Opt-in without supplying inputs should warn (not fail) outside

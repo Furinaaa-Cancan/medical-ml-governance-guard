@@ -111,6 +111,25 @@ def test_aggregate_thirty_papers_within_bounds():
     assert s["per_severity_recall"]["LOW"] == pytest.approx(1.0)
 
 
+def test_pooled_recall_reads_real_per_severity_schema():
+    # Production schema (ncpr_severity_score.per_paper_score): per_severity is a
+    # dict {sev: {matched, missed, extra_flags}} — NOT the flat
+    # per_severity_matched/_total form. recall = matched / (matched + missed);
+    # extra_flags (false positives) are excluded. Pre-fix this field was never
+    # read, so per_severity_recall came back empty.
+    papers = [
+        {"paper_id": "P1", "weighted_f1": 0.5, "weighted_precision": 0.5,
+         "weighted_recall": 0.5, "category_coverage": 1.0,
+         "per_severity": {"CRITICAL": {"matched": 1, "missed": 1, "extra_flags": 3}}},
+        {"paper_id": "P2", "weighted_f1": 0.5, "weighted_precision": 0.5,
+         "weighted_recall": 0.5, "category_coverage": 1.0,
+         "per_severity": {"CRITICAL": {"matched": 2, "missed": 0, "extra_flags": 0}}},
+    ]
+    s = aggregate(papers)
+    # pooled = (1+2) matched / (2+2) total = 0.75; extra_flags ignored
+    assert s["per_severity_recall"]["CRITICAL"] == pytest.approx(0.75)
+
+
 # ────────────────────────────────────────────────────────────────────────
 # 3. JSON roundtrip (atomic write)
 # ────────────────────────────────────────────────────────────────────────

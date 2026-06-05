@@ -103,9 +103,28 @@ def _pooled_recall(
     """
     matched_total: dict[str, int] = {}
     total_total: dict[str, int] = {}
+    # The producers (ncpr_severity_score.per_paper_score etc.) emit a real
+    # ``per_<bucket>`` dict keyed by bucket name with {matched, missed,
+    # extra_flags} sub-counts — NOT the flat ``per_<bucket>_matched`` /
+    # ``per_<bucket>_total`` form this used to read, so severity/category recall
+    # was silently always empty. Read the real schema (recall denominator =
+    # matched + missed; extra_flags are false positives, excluded), keeping the
+    # legacy flat form as a fallback.
+    real_field = f"per_{bucket_key}"
     matched_field = f"per_{bucket_key}_matched"
     total_field = f"per_{bucket_key}_total"
     for paper in per_paper:
+        real = paper.get(real_field)
+        if isinstance(real, dict) and real:
+            for k, sub in real.items():
+                if not isinstance(sub, dict):
+                    continue
+                m = int(sub.get("matched", 0) or 0)
+                miss = int(sub.get("missed", 0) or 0)
+                matched_total[k] = matched_total.get(k, 0) + m
+                total_total[k] = total_total.get(k, 0) + m + miss
+            continue
+        # Legacy flat form (kept for back-compat with older snapshots/fixtures).
         matched = paper.get(matched_field) or {}
         total = paper.get(total_field) or {}
         for k, v in matched.items():
