@@ -199,7 +199,13 @@ def _normalize_excluded(
 
     if not excluded_paper_ids:
         return frozenset()
-    return frozenset(str(p) for p in excluded_paper_ids if p)
+    # .strip() so " PR-001 " and "PR-001" produce the SAME exclusion set (and
+    # thus the same cache key) and match the runtime filter in retrieval.hybrid
+    # (_normalize_excluded there strips too). Without this, a whitespace-padded
+    # id silently builds/serves a DIFFERENT-keyed index than the caller intends.
+    return frozenset(
+        str(p).strip() for p in excluded_paper_ids if p is not None and str(p).strip()
+    )
 
 
 def _exclusion_signature(excluded: frozenset[str]) -> str:

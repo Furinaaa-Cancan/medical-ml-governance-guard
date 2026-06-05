@@ -289,3 +289,21 @@ def test_helpers_normalize_and_sign_excluded_set() -> None:
 
     sig_other = builder_mod._exclusion_signature(frozenset({"A", "C"}))
     assert sig_ab != sig_other, "distinct sets must sign distinctly"
+
+
+def test_normalize_excluded_strips_whitespace():
+    # A whitespace-padded id must normalize identically to its bare form, so the
+    # cache key (and thus the served index) matches the caller's intent, and
+    # agrees with the runtime filter in retrieval.hybrid (which also strips).
+    assert builder_mod._normalize_excluded([" PR-001 ", "PR-002"]) == frozenset(
+        {"PR-001", "PR-002"}
+    )
+    assert builder_mod._normalize_excluded(["   "]) == frozenset()
+    # same effective set with/without padding -> identical signature
+    sig_padded = builder_mod._exclusion_signature(
+        builder_mod._normalize_excluded([" PR-001 "])
+    )
+    sig_bare = builder_mod._exclusion_signature(
+        builder_mod._normalize_excluded(["PR-001"])
+    )
+    assert sig_padded == sig_bare
