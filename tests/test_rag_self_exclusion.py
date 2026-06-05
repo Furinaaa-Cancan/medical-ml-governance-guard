@@ -14,6 +14,7 @@ covering both paths, with no index rebuild.
 from __future__ import annotations
 
 import inspect
+import math
 
 import numpy as np
 import pytest
@@ -148,3 +149,40 @@ def test_rag_query_threads_exclusion_to_hybrid_rank(monkeypatch):
     rag_query("post-index feature leakage", gate="leakage_gate",
               excluded_paper_ids=["PR-009"])
     assert seen["excluded"] == ["PR-009"]
+
+
+# ── NaN/Inf safety (strict-review batch 2) ───────────────────────────────────
+
+def test_hybrid_rank_tolerates_nonfinite_dense_score(monkeypatch):
+    gate = "leakage_gate"
+    recs = [_rec("c1", "P1", gate), _rec("c2", "P2", gate)]
+
+    def fake_import():
+        def build_or_load_index():
+            return (np.zeros((len(recs), 3), dtype="float32"), recs)
+
+        def vector_search(query, embeddings, records, top_k=5):
+            # Feed a NaN and an Inf dense score — must not poison the ranking.
+            bad = [float("nan"), float("inf")]
+            return [dict(r, _dense_score=bad[k]) for k, r in enumerate(records[:top_k])]
+
+        return build_or_load_index, vector_search
+
+    monkeypatch.setattr(hybrid_mod, "_import_sibling_modules", fake_import)
+    monkeypatch.setattr(hybrid_mod, "retrieve_for_failure", lambda g, codes, limit=50: [])
+    out = hybrid_mod.hybrid_rank("q", gate=gate, failure_codes=["P01"], top_k=5)
+    for r in out:  # no crash; non-finite dense -> 0.0, so every score is finite
+        assert math.isfinite(r.get("_final_score", 0.0))
+
+
+def test_mmr_rerank_tolerates_nonfinite_relevance_and_embedding():
+    nan_emb = np.array([float("nan"), 1.0], dtype="float32")
+    ok_emb = np.array([1.0, 0.0], dtype="float32")
+    cands = [
+        {"concern_id": "A", "paper_id": "P1", "_final_score": float("nan"), "_dense_embedding": nan_emb},
+        {"concern_id": "B", "paper_id": "P2", "_final_score": "not-a-number", "_dense_embedding": ok_emb},
+        {"concern_id": "C", "paper_id": "P3", "_final_score": 0.7, "_dense_embedding": ok_emb},
+    ]
+    # Must not raise (non-numeric/NaN relevance) or loop on a NaN cosine.
+    out = hybrid_mod._mmr_rerank(cands, top_k=3)
+    assert len(out) == 3
