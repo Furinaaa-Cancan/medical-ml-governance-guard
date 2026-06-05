@@ -85,3 +85,24 @@ logged reason. Low-risk → merge on green.
     seal still contributes to L3, [10] gate_name validation, [17] audit-log swallows
     errors, [19] adaptive top-k comparability, [21] authority-e2e stale cohorts.
   - [23] gate_rag_bridge: verifier says KEEP as deprecation shim → no code change.
+- 2026-06-06: **P2 cleanup MERGED — [6] DCA degenerate band (#43), [26] docs
+  honesty (#42), [16/idx] R017 recursive eval_set (#44).** Then KEY FINDING when
+  reading the code for the next P2 items: **several "low-risk" findings are NUANCED,
+  not cosmetic — the triage's `minimal_fix` would cause a REGRESSION if applied
+  literally:**
+  - `[3]` "redundant float()" on oe_ratio is actually defensive numpy→python
+    coercion for JSON serialization — removing it could re-leak numpy floats.
+  - `[2]` ridge "default mismatch": production uses the CLI default (1.0, line 569
+    always passes it); the 20.0 function-signature defaults are dead fallbacks —
+    changing them needs caller analysis (tests may rely on 20.0).
+  So the loop must NOT auto-grind the cosmetic tail. **Genuine remaining value, in
+  priority:** (1) the 6 SECURITY/REFACTOR items ([7][8][10][17][19][21], HUMAN-MERGE);
+  (2) P3 big refactors (finish() ×9, taint-tracker, tier/seal, seal-custody,
+  dep-check, HUMAN-MERGE); (3) P1 [21]/[2-disease-KB] (need attestation-crypto /
+  codebook test contexts). The nuanced/marginal P2 tail (oe_ratio float, ridge
+  default, dup-validation, ARCHITECTURE note, hybrid-union record, R028
+  dynamic-prefix, RAG-concern guard, move test fns, inline wrappers, MMR micro-opt,
+  input_files uniformity, test-count badge) → do with JUDGMENT, low priority, NOT
+  worth unattended grinding. **Loop paused: high-value safe harvest is done
+  (16 fixes merged across the session); the tail needs human judgment or human
+  merge.**
