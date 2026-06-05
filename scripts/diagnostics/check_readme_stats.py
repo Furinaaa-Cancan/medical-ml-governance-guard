@@ -735,6 +735,7 @@ def _check_docs_map_drift(readme_path: Path, root: Path) -> List[str]:
 _H2_PAIRS: List[Tuple[str, str]] = [
     ("目录", "Table of Contents"),
     ("为什么需要 MLGG", "Why MLGG"),
+    ("工程化 Harness 架构", "Harness Engineering"),
     ("审稿级审查机制", "Reviewer-Grade Review Mechanism"),
     ("Peer-Review RAG（审稿意见语义检索）", "Peer-Review RAG (Reviewer-Concern Semantic Search)"),
     ("系统能力总览", "System Overview"),
