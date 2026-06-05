@@ -11,6 +11,7 @@ import sys as _sys; from pathlib import Path as _Path; _CORE_DIR = str(_Path(__f
 
 import argparse
 import os
+import uuid
 import shlex
 import signal
 import subprocess
@@ -166,6 +167,14 @@ def main() -> int:
     evidence_dir = resolve_path(project_base, args.evidence_dir)
     evidence_dir.mkdir(parents=True, exist_ok=True)
     scripts_dir = Path(__file__).resolve().parent.parent
+
+    # Pin ONE run_id for the whole workflow. A bootstrap-recovery re-run invokes
+    # run_dag_pipeline a second time; each subprocess does
+    # os.environ.setdefault("MLGG_RUN_ID", uuid4) (run_dag_pipeline.py), so
+    # without pinning here the two runs stamp DIFFERENT run_ids and
+    # publication_gate's P0.1a mixed-run check fails a LEGITIMATE recovery as if
+    # the evidence were tampered. setdefault preserves an operator-provided id.
+    os.environ.setdefault("MLGG_RUN_ID", uuid.uuid4().hex)
 
     steps: List[Dict[str, Any]] = []
     bootstrap_recovery_applied = False

@@ -100,6 +100,28 @@ def _make_args(tmp_path: Path, eval_path=None, strict=False,
     )
 
 
+def test_disparate_impact_zero_fails(tmp_path: Path):
+    # DI == 0.0 is MAXIMUM disparate impact (a group with zero positives) and
+    # MUST fail the gate. The old `top_di > 0` guard silently skipped it.
+    report = _make_eval_report({
+        "sex": {
+            "equalized_odds_gap": 0.01,
+            "disparate_impact_ratio": 0.0,
+            "groups": [
+                {"group_label": "M", "n": 200, "pr_auc": 0.75},
+                {"group_label": "F", "n": 180, "pr_auc": 0.72},
+            ],
+        }
+    })
+    p = _write_report(tmp_path, report)
+    result = subprocess.run(
+        [sys.executable, str(GATE_SCRIPT), "--evaluation-report", str(p)],
+        capture_output=True, text=True,
+    )
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "disparate_impact" in (result.stdout + result.stderr).lower()
+
+
 
 class TestMainInvalidJson:
     def test_returns_2(self, tmp_path: Path):
