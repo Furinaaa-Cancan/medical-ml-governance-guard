@@ -118,6 +118,8 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 | **第二层：33 道 fail-closed 门控** | 运行时验证，报告 JSON 产出 | 患者跨 split、校准 ECE > 0.1、EPV < 10、CI 宽度 > 0.20、**post-index 特征名模式抓取**（time_in_hospital / num_medications / discharge / ventilation / vasopressor）、**疾病作用域匹配**（glucose 只对糖尿病 target 报） |
 | **第三层：临床语义审查 + 审稿证据** | AI agent 理解代码含义 + 154 篇真实审稿 KB（817 条 concerns） + **issue-code 重排检索** | 出院后变量预测出院后结局、HbA1c 定义泄漏、亚组校准缺失。RAG 不只按 severity 排，而是基于失败代码的关键词（ppv / baseline / imputation）对 tag 和原文重排 |
 
+> **非对称 LLM 评审层（可选，opt-in）**：`mlgg llm-review [--rag] [--live]` 把上述门控证据（`--rag` 时附 KB 同行评审原文）交给 LLM 合成方法学疑点，写入 `evidence/llm_review_report.json`，由 publication_gate 按约定折叠进判定。**这一层只能加疑点、永远不能把门控的 fail 洗成 pass**（`final = min(gate, llm)`）——blocking 意见把认证 tier 压到 `none`，advisory 仅记录。默认走确定性 double（无网络、可复现）；只有 `--live` 才发起真实 Claude 调用（需 `ANTHROPIC_API_KEY`）。不在默认 `mlgg workflow` 路径内，需显式调用。
+
 **审稿证据库 (Peer Review Knowledge Base)：**
 
 从 154 篇 NC + CM 医学 ML 论文中结构化提取了 817 条审稿意见（另 181 篇 PDF 已收录待抽取）。**检索精度经过 2026-04 重构**：原版只按 mlgg_gates 过滤 + severity 排序（在 clinical_metrics_gate 的 ppv 失败上精度仅 20%）；现在用 `retrieve_for_failure(gate_name, issue_codes)`——分词失败代码 → 过滤 stopwords → 按 `tag_overlap × 3 + text_overlap` 重排 → 无匹配时回退 severity 兜底。
