@@ -35,7 +35,7 @@ jobs:
           # corresponding model families (imblearn → test_train_select_evaluate
           # imbalanced estimators; shap → shap_interpretability_gate tests).
           python3 -m pip install -r requirements-optional.txt
-          python3 -m pip install pytest pytest-cov ruff hypothesis
+          python3 -m pip install pytest pytest-cov pytest-xdist ruff hypothesis
           # Install mlgg-lint as an editable package so its CLI is on PATH.
           python3 -m pip install -e plugin/
 
@@ -63,7 +63,12 @@ jobs:
           # 11a6f9a … f7e4dbf) added new scripts/diagnostics/* without
           # tests, pulling overall coverage to 43%. Raise this threshold
           # when targeted suites close the gap.
-          python3 -m pytest tests/ -m "not slow" --tb=short -q \
+          # -n auto: parallelize across cores (pytest-xdist). The suite was
+          # audited parallel-safe (no os.chdir, no fixed-path writes; tests use
+          # tmp_path). Cuts the ~14-20 min serial run to a few minutes and
+          # retires the slow-runner timeout flake. pytest-cov combines per-worker
+          # coverage automatically. The 30-min timeout is kept as a safety net.
+          python3 -m pytest tests/ -m "not slow" --tb=short -q -n auto \
             --ignore=tests/test_onboarding_smoke.py \
             --ignore=tests/test_play_smoke.py \
             --cov=scripts --cov-report=term-missing --cov-fail-under=40
