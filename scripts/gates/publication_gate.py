@@ -22,6 +22,7 @@ DEFAULT_DISEASE_KB = _REPO_ROOT / "references" / "methodology" / "disease-defini
 
 from _gate_framework import (
     GateIssue,
+    REPORT_ENVELOPE_VERSION,
     Severity,
     build_report_envelope,
     get_remediation,
@@ -181,6 +182,22 @@ def validate_component_status(
             "component_not_passed",
             "Required component report did not pass.",
             {"component": name, "status": report.get("status")},
+        )
+
+    # Envelope-version drift: a component that DOES carry an envelope_version
+    # must match the current contract. Absent is tolerated on purpose — the
+    # manifest and execution-attestation use their own formats and legitimately
+    # carry no envelope_version, so a hard "must be present == 2.0.0" check would
+    # false-fail every real orchestrated run (same trap as the failure_count
+    # exception below).
+    envelope_version = report.get("envelope_version")
+    if envelope_version is not None and str(envelope_version) != str(REPORT_ENVELOPE_VERSION):
+        add_issue(
+            failures,
+            "component_envelope_version_mismatch",
+            "Component report envelope_version does not match the current contract.",
+            {"component": name, "envelope_version": envelope_version,
+             "expected": REPORT_ENVELOPE_VERSION},
         )
 
     if strict_mode_required:
