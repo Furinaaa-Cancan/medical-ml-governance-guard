@@ -107,6 +107,83 @@ class DeterministicReviewAdapter(ReviewAdapter):
         }
 
 
+_REVIEWER_SYSTEM = (
+    "You are a Nature Methods / JAMA-grade methodology reviewer for retrospective-cohort "
+    "binary-classification medical ML. You are given the deterministic gate evidence (failures, "
+    "warnings, and summaries) plus any retrieved peer-review concerns. Surface methodology concerns "
+    "the gates cannot see — feature-timing / post-index (F02) leakage, definition-variable leakage, "
+    "variable aliasing, calibration / decision-curve gaps, fairness. You may ONLY raise concerns; you "
+    "never clear or override a gate's verdict. Mark a concern 'blocking' only for a genuine "
+    "methodology defect that should block publication-grade; otherwise 'advisory'. Be specific and "
+    "cite the gate/feature. Report exclusively via the report_concerns tool."
+)
+
+# Forced structured output: the model must return concerns in the P0.0 schema that
+# publication_gate's asymmetric channel consumes.
+_REPORT_CONCERNS_TOOL = {
+    "name": "report_concerns",
+    "description": (
+        "Report methodology review concerns about the ML evidence. Each concern can only RAISE a "
+        "doubt — it is consumed as a failure/warning by the gate and can never clear a gate failure."
+    ),
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "concerns": {
+                "type": "array",
+                "description": "Methodology concerns; empty if none.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "severity": {"type": "string", "enum": ["blocking", "advisory"]},
+                        "code": {"type": "string", "description": "short stable code, e.g. f02_post_index_feature"},
+                        "message": {"type": "string", "description": "human-readable concern"},
+                        "detail": {"type": "object", "description": "optional structured context (feature, gate, ...)"},
+                    },
+                    "required": ["severity", "code", "message"],
+                },
+            },
+        },
+        "required": ["concerns"],
+    },
+}
+
+
+def _build_review_prompt(context: Dict[str, Any]) -> str:
+    """Render gathered gate evidence (+ optional RAG concerns) into the user prompt."""
+    lines = ["# Deterministic gate evidence", ""]
+    for g in context.get("gates", []):
+        lines.append(
+            f"## {g.get('gate')} — status={g.get('status')} "
+            f"(failures={g.get('failure_count')}, warnings={g.get('warning_count')})"
+        )
+        for f in g.get("failures", []) or []:
+            lines.append(f"- FAIL [{f.get('code')}]: {f.get('message')}")
+        for w in g.get("warnings", []) or []:
+            lines.append(f"- WARN [{w.get('code')}]: {w.get('message')}")
+        lines.append("")
+    rag = context.get("rag_concerns")
+    if rag:
+        lines.append("# Retrieved peer-review concerns")
+        lines += [f"- {c}" for c in rag]
+        lines.append("")
+    lines.append(
+        "Review the evidence above. Report methodology concerns via the report_concerns tool — "
+        "raise concerns only; do not attempt to clear any gate failure."
+    )
+    return "\n".join(lines)
+
+
+def _extract_tool_concerns(response: Any) -> List[Dict[str, Any]]:
+    """Pull the report_concerns tool_use input out of a messages.create response (duck-typed)."""
+    for block in getattr(response, "content", None) or []:
+        if getattr(block, "type", None) == "tool_use" and getattr(block, "name", None) == "report_concerns":
+            data = getattr(block, "input", None)
+            concerns = data.get("concerns") if isinstance(data, dict) else None
+            return [c for c in concerns if isinstance(c, dict)] if isinstance(concerns, list) else []
+    return []
+
+
 class LiveClaudeReviewAdapter(ReviewAdapter):
     """Real Claude synthesis — NOT used unattended.
 
@@ -131,11 +208,28 @@ class LiveClaudeReviewAdapter(ReviewAdapter):
                 "explicit configured client AND enabled=True. This guard prevents accidental "
                 "paid/external calls in unattended runs."
             )
-        raise NotImplementedError(
-            "Live Claude synthesis wiring is intentionally deferred to a user-enabled step "
-            "(P1.0b): construct the prompt from `context`, call the API with self._model, and "
-            "return {'concerns': [...], 'meta': {...}}."
+        prompt = _build_review_prompt(context)
+        prompt_hash = hashlib.sha256(prompt.encode("utf-8")).hexdigest()
+        # Forced tool_choice guarantees structured concerns in the P0.0 schema. The static
+        # system prompt is cache-marked (stable across runs); the per-run evidence is the
+        # volatile user turn. Client is duck-typed (anything with .messages.create) — no hard
+        # anthropic dependency; tests inject a mock so no real/paid call happens.
+        response = self._client.messages.create(
+            model=self._model,
+            max_tokens=4096,
+            system=[{"type": "text", "text": _REVIEWER_SYSTEM, "cache_control": {"type": "ephemeral"}}],
+            tools=[_REPORT_CONCERNS_TOOL],
+            tool_choice={"type": "tool", "name": "report_concerns"},
+            messages=[{"role": "user", "content": prompt}],
         )
+        return {
+            "concerns": _extract_tool_concerns(response),
+            "meta": {
+                "model": self._model,
+                "prompt_hash": prompt_hash,
+                "evidence_seen": context.get("gate_count", 0),
+            },
+        }
 
 
 def run_llm_review(
@@ -163,8 +257,26 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="LLM review synthesis producer (asymmetric two-tier).")
     parser.add_argument("--evidence-dir", required=True, help="Directory of gate *_report.json files.")
     parser.add_argument("--out", default=None, help="Output path (default: <evidence-dir>/llm_review_report.json).")
+    parser.add_argument(
+        "--live", action="store_true",
+        help="Use the LIVE Claude adapter (real, paid API call; needs ANTHROPIC_API_KEY). "
+             "Default is the deterministic, no-network double.",
+    )
+    parser.add_argument("--model", default="claude-opus-4-8", help="Model for --live (default: claude-opus-4-8).")
     args = parser.parse_args(argv)
-    report = run_llm_review(Path(args.evidence_dir), out_path=Path(args.out) if args.out else None)
+
+    adapter = None
+    if args.live:
+        # Lazy import so the default path keeps zero hard dependency on the SDK.
+        import anthropic  # noqa: PLC0415
+
+        adapter = LiveClaudeReviewAdapter(client=anthropic.Anthropic(), model=args.model, enabled=True)
+
+    report = run_llm_review(
+        Path(args.evidence_dir),
+        adapter=adapter,
+        out_path=Path(args.out) if args.out else None,
+    )
     print(
         f"[llm-review] wrote {len(report.get('concerns', []))} concern(s) "
         f"via adapter='{report.get('meta', {}).get('model')}' "

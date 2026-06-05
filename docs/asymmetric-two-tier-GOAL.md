@@ -53,8 +53,14 @@ from LLM input. "Can add doubt, never remove it" is enforced by data flow, not b
       evidence → pluggable adapter → writes `evidence/llm_review_report.json` (P0.0 schema). Default
       adapter is a DETERMINISTIC TEST DOUBLE (no network); `LiveClaudeReviewAdapter` is guarded so no
       unattended paid call is possible. Producer→consumer integration proven (blocking→fail, advisory→
-      warn). **P1.0b (user-enabled, flagged)** — wire the real Claude call (model/cost/prompt = your
-      decision); the adapter seam is ready.
+      warn). **P1.0b DONE** — `LiveClaudeReviewAdapter` now builds a reviewer prompt from the evidence,
+      calls `messages.create` with a forced `report_concerns` tool-use (structured P0.0-schema output),
+      parses it, and returns concerns + `meta`. Model default `claude-opus-4-8`; static prompt
+      cache-marked; client is duck-typed (no hard `anthropic` dep). Still guarded (no call without an
+      explicit client + `enabled=True`). Opt-in CLI: `llm-review --live` (lazy-imports `anthropic`,
+      needs `ANTHROPIC_API_KEY`); default stays the deterministic double. Mock-client tests verify the
+      parse + the exact call shape; **no real/paid call in tests or CI.** Remaining for you: run `--live`
+      with your key (and tune the reviewer prompt/model to taste).
 - [x] **P1.1 DONE.** Consumer-side — `publication_gate` fingerprints the advisory report (content
       sha256) + surfaces its `meta` provenance into the summary. Producer-side — `llm_review.py` emits
       `meta{model, prompt_hash, evidence_seen}` (satisfied by P1.0a).
