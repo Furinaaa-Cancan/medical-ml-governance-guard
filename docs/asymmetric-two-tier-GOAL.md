@@ -211,8 +211,11 @@ review. Same loop discipline (branch, test-first, hooks green, flag assumptions 
       it on purpose). **Your call:** placement (leakage_gate) + opt-in declared `temporal_feature_cols`
       vs name-based auto-detect + warning-vs-fail severity. Conservative proposal: opt-in declared
       columns parsed to datetime, per-row compare to index_date, warning by default / fail under strict.
-- [ ] **F2.2** R028 omics-guard hardening — detect f-string / comprehension / `df.columns` forms, not
-      only literal `gene_`-prefixed list constants (currently trivially bypassed).
+- [x] **F2.2 DONE** — R028 now catches the common bypasses: f-string column names (`f"gene_{i}"`),
+      list/set/generator comprehensions, and tuples/sets — not only literal `gene_`-prefixed lists.
+      Conservative: `general_` ≠ `gene_`, the ≥3 threshold and non-omics comprehensions stay quiet.
+      `df.columns` loaded at runtime is intentionally out of scope (a static linter can't see runtime
+      column names — that belongs to a gate). +9 tests; existing R028/engine tests still green.
 - [x] **F2.3 DONE** — hardened the 2 by-design fail-open tests. Path-traversal fuzzer now asserts no
       ACCEPTED input resolves under a forbidden prefix (10k iters, green — `safe_path` holds); RAG
       denylist-drift test now asserts `actual == documented` (fails on drift; no existing drift). Also
@@ -228,6 +231,9 @@ review. Same loop discipline (branch, test-first, hooks green, flag assumptions 
 - 2026-06-05 — F2.3: hardened the 2 fail-open tests (path fuzzer asserts no escape on the accept path,
   10k iters; RAG denylist asserts `actual==documented`, fails on drift). 23 targeted tests green;
   6 pre-existing unused imports removed; ruff clean.
+- 2026-06-05 — F2.2: R028 omics guard hardened (f-strings / comprehensions / tuples / sets), staying
+  conservative (`general_`≠`gene_`, ≥3 threshold, non-omics comprehensions quiet); `df.columns` runtime
+  form noted as un-lintable. +9 tests; 106 plugin tests green; ruff clean.
 
 ---
 
