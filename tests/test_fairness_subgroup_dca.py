@@ -231,6 +231,29 @@ class TestSubgroupDCAOptInFlagOn:
         warn_codes = [w["code"] for w in data.get("warnings", [])]
         assert "subgroup_dca_threshold_order_invalid" in warn_codes
 
+    def test_degenerate_threshold_band_skips_with_warning(self, tmp_path: Path):
+        # min == max collapses the band to a single repeated point ("best NB on
+        # band" is meaningless) — must skip + warn, not silently proceed.
+        eval_path = _write_eval_report(tmp_path, _baseline_eval_report())
+        trace_path = _good_trace(tmp_path, group_col="race")
+        report_path = tmp_path / "out.json"
+        _run_gate(
+            "--evaluation-report", str(eval_path),
+            "--prediction-trace", str(trace_path),
+            "--subgroup-dca-column", "race",
+            "--subgroup-dca",
+            "--subgroup-dca-threshold-min", "0.10",
+            "--subgroup-dca-threshold-max", "0.10",
+            "--report", str(report_path),
+            expect_returncode=0,  # warn + skip, not a failure
+        )
+        data = json.loads(report_path.read_text())
+        dca = data["summary"]["subgroup_dca"]
+        assert dca["status"] == "skipped"
+        assert dca.get("reason") == "threshold_band_degenerate"
+        warn_codes = [w["code"] for w in data.get("warnings", [])]
+        assert "subgroup_dca_threshold_order_invalid" in warn_codes
+
     def test_flag_on_missing_trace_warns_not_fails(self, tmp_path: Path):
         """Opt-in without supplying inputs should warn (not fail) outside
         strict mode — keeps the gate friendly to incremental adoption."""
