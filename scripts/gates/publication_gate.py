@@ -442,9 +442,11 @@ def verify_component_seals(
         if "seal" not in report:
             summary["unsealed"].append(name)
             add_issue(
-                warnings,
+                failures,
                 "component_unsealed",
-                "Component report carries no run-scoped seal while sealing is active.",
+                "Component report carries no run-scoped seal while sealing is active "
+                "(MLGG_RUN_KEY set). A missing seal is fail-closed ALWAYS (not just under "
+                "--strict): otherwise deleting the seal field would bypass tamper detection.",
                 {"component": name},
             )
         elif verify_envelope_seal(report, key):
@@ -546,10 +548,17 @@ def enforce_execution_attestation_publication_contract(
                 {"block": block_name, "present": block.get("present") if isinstance(block, dict) else None},
             )
 
-    # P0.4: require POSITIVE PROOF that a signature was actually verified against
-    # a trusted signer — not just that policy flags are on. A real attestation
-    # run emits these; combined with the run-scoped seal (P0.3) they cannot be
-    # fabricated. Closes C1 (contract previously trusted only summary flags).
+    # P0.4: require POSITIVE PROOF that a signature was actually verified — not
+    # just that policy flags are on. The real execution_attestation_gate emits
+    # `signature_verification.verified` on its SUCCESS-path summary (verified
+    # against the real benchmark attestations), and a hand-authored report cannot
+    # fabricate it AND pass the run-scoped seal (P0.3). Signer-trust (fingerprint
+    # in the allowlist) is enforced by the attestation gate ITSELF — an untrusted
+    # signer makes THAT gate fail, so its report status != "pass" and it is
+    # already rejected by validate_component_status above. We deliberately do NOT
+    # require a separate `trust_verification` field: the real gate does not emit
+    # one on the success path (it exists only on error/early-return paths), and
+    # requiring it rejected every legitimately-attested run.
     sig_verif = summary.get("signature_verification")
     if not isinstance(sig_verif, dict) or sig_verif.get("verified") is not True:
         add_issue(
@@ -559,31 +568,6 @@ def enforce_execution_attestation_publication_contract(
             "(summary.signature_verification.verified must be true).",
             {"signature_verification": sig_verif if isinstance(sig_verif, dict) else None},
         )
-
-    trust_verif = summary.get("trust_verification")
-    if not isinstance(trust_verif, dict):
-        add_issue(
-            failures,
-            "execution_attestation_trust_missing",
-            "Publication gate requires a trust_verification block in the attestation summary.",
-            {},
-        )
-    else:
-        if trust_verif.get("allow_unsigned_mode") is True:
-            add_issue(
-                failures,
-                "execution_attestation_allow_unsigned",
-                "Publication-grade forbids --allow-unsigned attestation runs (no security guarantee).",
-                {},
-            )
-        if trust_verif.get("checked") is not True or trust_verif.get("trusted") is not True:
-            add_issue(
-                failures,
-                "execution_attestation_signer_untrusted",
-                "Publication gate requires the attestation signer to be in the trusted_signers "
-                "allowlist (trust_verification.trusted must be true).",
-                {"checked": trust_verif.get("checked"), "trusted": trust_verif.get("trusted")},
-            )
 
     witness_quorum = summary.get("witness_quorum")
     if not isinstance(witness_quorum, dict):
@@ -1136,6 +1120,15 @@ def main() -> int:
 
     should_fail = bool(failures) or (args.strict and bool(warnings))
     status = "fail" if should_fail else "pass"
+
+    # claim_tier must never out-claim the overall verdict. claim_tier above is
+    # derived only from the tier GATES' statuses, so a failure OUTSIDE the tier
+    # sets (manifest comparison mismatch, missing metric, a blocking reviewer
+    # concern, an invalid seal, unreviewed disease KB) can leave claim_tier at
+    # "publication-grade" while the run as a whole fails. Cap it: a failed run
+    # asserts NO passing claim tier (the human-facing label must not lie).
+    if status == "fail":
+        claim["tier"] = "none"
     quality_score = max(0.0, min(100.0, 100.0 - 20.0 * len(failures) - 2.5 * len(warnings)))
 
     fi = [GateIssue.from_legacy(f, Severity.ERROR) for f in failures]

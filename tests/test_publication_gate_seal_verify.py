@@ -78,14 +78,19 @@ def test_no_key_is_noop(tmp_path: Path):
     assert report["summary"]["seal_verification"]["active"] is False
 
 
-def test_unsealed_warns_without_strict_but_fails_under_strict(tmp_path: Path):
+def test_unsealed_fails_closed_always_even_non_strict(tmp_path: Path):
+    # A missing seal while the key is active is fail-closed ALWAYS (not just under
+    # --strict): otherwise an attacker could delete the seal field to bypass C2 in
+    # non-strict mode. (Real orchestrated runs seal every component, so this never
+    # false-fires on honest evidence.)
     paths = _make_all_artifacts(tmp_path)  # key active but reports unsealed
-    result, report = _run(tmp_path, paths)
+    result, report = _run(tmp_path, paths)  # no --strict
 
-    assert result.returncode == 0  # warnings don't fail a non-strict run
+    assert result.returncode == 2
     sv = report["summary"]["seal_verification"]
     assert sv["active"] is True
     assert len(sv["unsealed"]) >= 1
+    assert "component_unsealed" in [f.get("code") for f in report.get("failures", [])]
 
     result_strict, _ = _run(tmp_path, paths, extra_args=["--strict"])
     assert result_strict.returncode == 2

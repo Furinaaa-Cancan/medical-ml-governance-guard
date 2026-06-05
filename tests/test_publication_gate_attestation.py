@@ -44,34 +44,37 @@ def test_unverified_signature_fails(tmp_path: Path):
     assert "execution_attestation_signature_unverified" in _codes(report)
 
 
-def test_untrusted_signer_fails(tmp_path: Path):
-    paths = _make_all_artifacts(tmp_path)
-    ea = json.loads(paths["execution_attestation_report"].read_text())
-    ea["summary"]["trust_verification"] = {"checked": True, "trusted": False, "allow_unsigned_mode": False}
-    _write_json(paths["execution_attestation_report"], ea)
+def test_real_benchmark_attestation_passes_contract():
+    """PRODUCER-LEVEL: the REAL execution_attestation_gate output must satisfy the
+    P0.4 contract.
 
-    result, report = _run(tmp_path, paths)
-    assert result.returncode == 2
-    assert "execution_attestation_signer_untrusted" in _codes(report)
+    The first P0.4 version required summary.trust_verification, which the real gate
+    does NOT emit on its success path (it lives only on error/early-return paths) —
+    so it rejected every legitimately-attested run, making publication-grade
+    unreachable. This pins the contract against ACTUAL producer output (a checked-in
+    benchmark attestation, status=pass). Signer-trust itself is enforced by the
+    attestation gate's own pass/fail, not by this contract.
+    """
+    import pytest
 
+    from publication_gate import enforce_execution_attestation_publication_contract
 
-def test_allow_unsigned_mode_fails(tmp_path: Path):
-    paths = _make_all_artifacts(tmp_path)
-    ea = json.loads(paths["execution_attestation_report"].read_text())
-    ea["summary"]["trust_verification"]["allow_unsigned_mode"] = True
-    _write_json(paths["execution_attestation_report"], ea)
-
-    result, report = _run(tmp_path, paths)
-    assert result.returncode == 2
-    assert "execution_attestation_allow_unsigned" in _codes(report)
-
-
-def test_missing_trust_block_fails(tmp_path: Path):
-    paths = _make_all_artifacts(tmp_path)
-    ea = json.loads(paths["execution_attestation_report"].read_text())
-    del ea["summary"]["trust_verification"]
-    _write_json(paths["execution_attestation_report"], ea)
-
-    result, report = _run(tmp_path, paths)
-    assert result.returncode == 2
-    assert "execution_attestation_trust_missing" in _codes(report)
+    root = Path(__file__).resolve().parents[1]
+    real = next(
+        (root / f"experiments/{d}-benchmark/evidence/execution_attestation_report.json"
+         for d in ("ckd", "rhc", "sepsis", "support2", "nhanes")
+         if (root / f"experiments/{d}-benchmark/evidence/execution_attestation_report.json").exists()),
+        None,
+    )
+    if real is None:
+        pytest.skip("no checked-in benchmark attestation report available")
+    report = json.loads(real.read_text())
+    assert str(report.get("status")).lower() == "pass", f"benchmark attestation not pass: {real}"
+    assert "trust_verification" not in report.get("summary", {}), (
+        "real success-path summary should NOT carry trust_verification — the test premise"
+    )
+    failures: list = []
+    enforce_execution_attestation_publication_contract(report, failures)
+    assert failures == [], (
+        f"real attestation {real.name} rejected by contract: {[f.get('code') for f in failures]}"
+    )
