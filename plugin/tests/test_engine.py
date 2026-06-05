@@ -230,7 +230,6 @@ def test_syntax_error_col_is_zero_based(tmp_path):
 
 def test_oversized_file_rejected(tmp_path):
     """F9: Files > 16 MB are rejected."""
-    from mlgg_lint.engine import _MAX_FILE_BYTES
     big = tmp_path / "big.py"
     big.write_text("x = 1\n")
     # Fake a large file by checking the guard — we can't write 16MB easily,
@@ -357,7 +356,7 @@ def test_output_uses_relative_paths(tmp_path):
     """U1: Output paths should be relative, not absolute."""
     code = tmp_path / "rel.py"
     code.write_text("x = 1\n")
-    diags = analyze_file(code)
+    analyze_file(code)  # smoke: clean code runs without error
     # No diagnostics for clean code, but verify the engine function works
     # Test with a file that triggers a diagnostic
     code2 = tmp_path / "bad.py"
@@ -531,6 +530,14 @@ def test_r017_good_no_r017():
     diags = check_sample("r017_good.py")
     r017 = [d for d in diags if d.rule_id == "R017"]
     assert len(r017) == 0
+
+
+def test_r017_bad_nested_eval_set_fires():
+    # eval_set=[[(X_test, y_test)]] — test data hidden one level deeper than the
+    # old scan looked. The recursive walk must still catch it.
+    diags = check_sample("r017_bad_nested.py")
+    r017 = [d for d in diags if d.rule_id == "R017"]
+    assert len(r017) >= 1
 
 
 def test_r018_bad_has_diagnostics():
