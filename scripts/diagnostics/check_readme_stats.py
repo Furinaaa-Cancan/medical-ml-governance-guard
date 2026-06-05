@@ -563,6 +563,7 @@ _DOC_MAP_HEADERS: List[str] = ["## 文档地图", "## 📂 文档地图", "## Do
 _DOC_MAP_EXCLUDE_PREFIXES: Tuple[str, ...] = (
     "docs/diagnostics/",
     "docs/asymmetric-two-tier-GOAL.md",
+    "docs/strict-review-cleanup-GOAL.md",
 )
 
 
