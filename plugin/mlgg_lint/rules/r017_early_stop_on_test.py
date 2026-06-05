@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ast
 
-from mlgg_lint.ast_utils import call_name, classify_var_name, get_call_first_arg_name, is_method_call, matches_any
+from mlgg_lint.ast_utils import classify_var_name, is_method_call
 from mlgg_lint.models import Severity
 from mlgg_lint.rules import register
 from mlgg_lint.rules.base import BaseRule
@@ -50,34 +50,29 @@ class EarlyStopOnTest(BaseRule):
         Early stopping on validation data is the recommended practice;
         only flag test data (not validation).
 
-        Handles multiple formats:
+        Walks the eval_set expression recursively (ast.walk) so ANY nesting and
+        the bare-variable form are covered — the old one-level List/Tuple scan
+        missed e.g. ``eval_set=[[(X_test, y_test)]]`` and ``eval_set=my_test_set``:
         - XGBoost/LightGBM: eval_set=[(X_test, y_test)]  (List[Tuple])
         - CatBoost:         eval_set=(X_test, y_test)     (bare Tuple)
-        - Variable:         eval_set=my_eval_set           (Name)
+        - nested:           eval_set=[[(X_test, y_test)]]
+        - variable:         eval_set=my_eval_set           (Name)
+
+        Only TEST data is flagged (early stopping on validation is the
+        recommended practice), so each referenced name is checked for `test`
+        taint specifically — validation names never fire.
         """
-        tuples_to_check: list[ast.Tuple] = []
-
-        # eval_set=[(X_test, y_test)] — List of tuples (XGBoost/LightGBM)
-        if isinstance(value, ast.List):
-            for elt in value.elts:
-                if isinstance(elt, ast.Tuple):
-                    tuples_to_check.append(elt)
-
-        # eval_set=(X_test, y_test) — bare Tuple (CatBoost)
-        elif isinstance(value, ast.Tuple):
-            tuples_to_check.append(value)
-
-        for tup in tuples_to_check:
-            for item in tup.elts:
-                if isinstance(item, ast.Name):
-                    taint = self.taint.get_taint(item.id)
-                    if taint is None:
-                        taint = classify_var_name(item.id)
-                    if taint == "test":
-                        self.report(
-                            call_node,
-                            f"eval_set contains `{item.id}` (test data). "
-                            f"Early stopping on test data leaks information "
-                            f"into the training process. Use validation data instead.",
-                        )
-                        return
+        for node in ast.walk(value):
+            if not isinstance(node, ast.Name):
+                continue
+            taint = self.taint.get_taint(node.id)
+            if taint is None:
+                taint = classify_var_name(node.id)
+            if taint == "test":
+                self.report(
+                    call_node,
+                    f"eval_set contains `{node.id}` (test data). "
+                    f"Early stopping on test data leaks information "
+                    f"into the training process. Use validation data instead.",
+                )
+                return
