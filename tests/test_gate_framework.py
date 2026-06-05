@@ -2,10 +2,6 @@
 from __future__ import annotations
 
 import argparse
-import json
-import sys
-from pathlib import Path
-from typing import Any, Dict, List, Optional
 from unittest.mock import patch
 
 
@@ -184,6 +180,20 @@ class TestBuildReportEnvelope:
         )
         assert "summary" not in env
 
+    def test_extra_cannot_override_reserved_fields(self):
+        # `extra` must not be able to shadow auto-managed fields (summary,
+        # peer_review_status, ...). Non-reserved extra keys still pass through.
+        fi, wi = self._make_issues(0, 0)
+        env = build_report_envelope(
+            gate_name="g", status="pass", strict_mode=False,
+            failures=fi, warnings=wi,
+            summary={"real": 1},
+            extra={"summary": {"spoofed": 2}, "peer_review_status": "spoofed", "ok_key": 9},
+        )
+        assert env["summary"] == {"real": 1}, "extra overrode the real summary"
+        assert env.get("peer_review_status") != "spoofed"
+        assert env["ok_key"] == 9  # non-reserved extra still allowed
+
     def test_envelope_with_input_files(self):
         fi, wi = self._make_issues(0, 0)
         env = build_report_envelope(
@@ -285,13 +295,11 @@ class TestValidateInputFiles:
     def test_existing_file_no_issues(self, tmp_path):
         f = tmp_path / "data.csv"
         f.write_text("a,b\n1,2\n")
-        import argparse
         args = argparse.Namespace(data=str(f))
         issues = validate_input_files(args, ["--data"])
         assert len(issues) == 0
 
     def test_missing_file_produces_critical(self, tmp_path):
-        import argparse
         args = argparse.Namespace(data=str(tmp_path / "nonexistent.csv"))
         issues = validate_input_files(args, ["--data"])
         assert len(issues) == 1
@@ -299,14 +307,12 @@ class TestValidateInputFiles:
         assert issues[0].severity == Severity.CRITICAL
 
     def test_directory_produces_not_file(self, tmp_path):
-        import argparse
         args = argparse.Namespace(data=str(tmp_path))
         issues = validate_input_files(args, ["--data"])
         assert len(issues) == 1
         assert issues[0].code == "path_not_file"
 
     def test_none_arg_skipped(self):
-        import argparse
         args = argparse.Namespace(data=None)
         issues = validate_input_files(args, ["--data"])
         assert len(issues) == 0

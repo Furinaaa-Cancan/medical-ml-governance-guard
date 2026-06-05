@@ -274,6 +274,10 @@ def build_report_envelope(
             "envelope_version", "gate_name", "gate_version", "status",
             "strict_mode", "execution_timestamp_utc", "execution_time_seconds",
             "failure_count", "warning_count", "failures", "warnings", "run_id", "seal", "environment",
+            # Also auto-managed by this function (dedicated params / post-merge
+            # block); reserve them so `extra` can't silently shadow the real
+            # values a gate computed.
+            "summary", "input_files", "peer_review_context", "peer_review_status",
         }
         for k, v in extra.items():
             if k not in _RESERVED:
