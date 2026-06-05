@@ -69,6 +69,20 @@ class OmicsFeaturePrefix(BaseRule):
         self._check_comprehension(node)
         self.generic_visit(node)
 
+    # Dict comprehensions are the same bypass via the KEY expression, e.g.
+    # ``{f"gene_{i}": 0 for i in range(1000)}`` builds thousands of omics
+    # column names. DictComp has no ``.elt`` — check ``.key`` instead.
+    def visit_DictComp(self, node: ast.DictComp) -> None:  # noqa: N802
+        name = self._omics_str(node.key)
+        if name:
+            self.report(
+                node,
+                f"Dict comprehension generates omics-pattern feature names (e.g., '{name}') — "
+                f"a single comprehension can build thousands of omics columns. MLGG scope "
+                f"is retrospective-cohort EHR tabular data; use a native omics toolchain.",
+            )
+        self.generic_visit(node)
+
     def _check_sequence(self, node) -> None:
         omics_names = [n for n in (self._omics_str(e) for e in node.elts) if n]
         if len(omics_names) >= _MIN_COUNT:

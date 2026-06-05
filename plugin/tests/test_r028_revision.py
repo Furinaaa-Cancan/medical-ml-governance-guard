@@ -58,3 +58,15 @@ def test_r028_quiet_on_general_prefix(tmp_path):
 
 def test_r028_quiet_below_threshold_in_tuple(tmp_path):
     assert _check(tmp_path, "cols = ('age', 'gene_count', 'sex')\n") == []
+
+
+# ── dict-comprehension bypass (review finding) ───────────────────────────────
+
+def test_r028_fires_on_dict_comprehension_keys(tmp_path):
+    # {f"gene_{i}": 0 for i in range(1000)} builds thousands of omics columns
+    # via dict KEYS — DictComp has no .elt, so it slipped past the rule.
+    assert len(_check(tmp_path, 'cols = {f"gene_{i}": 0 for i in range(1000)}\n')) >= 1
+
+
+def test_r028_quiet_on_non_omics_dict_comprehension(tmp_path):
+    assert _check(tmp_path, 'cols = {f"lab_{i}": 0 for i in range(50)}\n') == []
