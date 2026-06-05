@@ -136,6 +136,11 @@ register_remediations({
         "subgroups too small, or no group has >= 20 samples). Provide a "
         "larger evaluation sample or a coarser subgroup partition."
     ),
+    "subgroup_dca_threshold_order_invalid": (
+        "Subgroup-DCA threshold band is inverted (min > max). Pass "
+        "--subgroup-dca-threshold-min less than or equal to "
+        "--subgroup-dca-threshold-max (defaults: 0.05 .. 0.20)."
+    ),
 })
 
 
@@ -835,6 +840,20 @@ def _run_subgroup_dca_check(
     nb_fail = thresholds["subgroup_dca_net_benefit_fail"]
     band_lo = thresholds["subgroup_dca_threshold_min"]
     band_hi = thresholds["subgroup_dca_threshold_max"]
+
+    # Reject an inverted threshold band BEFORE building the grid: with
+    # band_hi < band_lo the step goes negative and a non-monotonic, malformed
+    # threshold list is silently fed to subgroup_dca(). Skip rather than
+    # produce a meaningless "best NB on band" verdict.
+    if band_hi < band_lo:
+        add_issue(
+            warnings,
+            "subgroup_dca_threshold_order_invalid",
+            f"Subgroup-DCA threshold band is inverted (min {band_lo} > max {band_hi}); "
+            "skipping subgroup-DCA. Pass --subgroup-dca-threshold-min <= --max.",
+            {"band_min": band_lo, "band_max": band_hi},
+        )
+        return {"status": "skipped", "reason": "threshold_band_inverted"}
 
     trace_path = args.prediction_trace
     group_col = args.subgroup_dca_column
