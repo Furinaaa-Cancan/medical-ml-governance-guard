@@ -15,6 +15,7 @@ import enum
 import itertools
 import os
 import sys
+from functools import lru_cache
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
@@ -184,6 +185,28 @@ register_remediations(_COMMON_REMEDIATIONS)
 
 REPORT_ENVELOPE_VERSION = "2.0.0"
 
+_ENV_PACKAGES = ("numpy", "pandas", "scikit-learn", "scipy")
+
+
+@lru_cache(maxsize=1)
+def capture_environment() -> Dict[str, Any]:
+    """Capture the numerical environment for reproducibility (F2.4).
+
+    Bound into every sealed report so a reviewer can reconstruct what produced
+    the metrics (sklearn 1.8 vs another version can change results). Cached once
+    per process; a missing package → ``None`` (no new dependency).
+    """
+    import importlib.metadata as _ilmd
+    import platform
+
+    packages: Dict[str, Any] = {}
+    for pkg in _ENV_PACKAGES:
+        try:
+            packages[pkg] = _ilmd.version(pkg)
+        except Exception:
+            packages[pkg] = None
+    return {"python": platform.python_version(), "packages": packages}
+
 
 def build_report_envelope(
     gate_name: str,
@@ -233,6 +256,13 @@ def build_report_envelope(
     if _run_id and _run_id.strip():
         envelope["run_id"] = _run_id.strip()
 
+    # Reproducibility (F2.4): bind the numerical environment into the (sealed)
+    # report so metrics can be reconstructed. Cached; never crashes the gate.
+    try:
+        envelope["environment"] = capture_environment()
+    except Exception:
+        pass
+
     if summary is not None:
         envelope["summary"] = summary
 
@@ -243,7 +273,7 @@ def build_report_envelope(
         _RESERVED = {
             "envelope_version", "gate_name", "gate_version", "status",
             "strict_mode", "execution_timestamp_utc", "execution_time_seconds",
-            "failure_count", "warning_count", "failures", "warnings", "run_id", "seal",
+            "failure_count", "warning_count", "failures", "warnings", "run_id", "seal", "environment",
         }
         for k, v in extra.items():
             if k not in _RESERVED:

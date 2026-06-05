@@ -220,7 +220,9 @@ review. Same loop discipline (branch, test-first, hooks green, flag assumptions 
       ACCEPTED input resolves under a forbidden prefix (10k iters, green — `safe_path` holds); RAG
       denylist-drift test now asserts `actual == documented` (fails on drift; no existing drift). Also
       removed 6 pre-existing unused imports flagged by ruff on the touched file.
-- [ ] **F2.4** Bind package versions into the signed evidence bundle (reproducibility finding).
+- [x] **F2.4 DONE** — `capture_environment()` (python + numpy/pandas/scikit-learn/scipy via
+      importlib.metadata, cached, None if absent) is bound into every report as a sealed `environment`
+      field, so metrics can be reconstructed. +3 tests; envelope/contract/seal/e2e all still green.
 
 ### Phase 2 Progress Log
 - 2026-06-05 — F2.0: fail-closed contract test (67 cases) locks the `should_fail` formula + `return 2`
@@ -234,6 +236,27 @@ review. Same loop discipline (branch, test-first, hooks green, flag assumptions 
 - 2026-06-05 — F2.2: R028 omics guard hardened (f-strings / comprehensions / tuples / sets), staying
   conservative (`general_`≠`gene_`, ≥3 threshold, non-omics comprehensions quiet); `df.columns` runtime
   form noted as un-lintable. +9 tests; 106 plugin tests green; ruff clean.
+- 2026-06-05 — F2.4: `capture_environment()` binds python + numpy/pandas/scikit-learn/scipy versions
+  into every sealed report as an `environment` field (cached, no new deps). +3 tests; 190 green across
+  envelope/contract/seal/e2e; ruff clean.
+
+---
+
+# ✅ PHASE 2 FINAL SUMMARY (2026-06-05) — LOOP PARKED
+
+All codeable Phase 2 review findings are closed on `feature/asymmetric-two-tier` (test-first, hooks green):
+
+- **F2.0** Fail-closed contract lock — a future edit dropping the `args.strict` clause now fails CI (all 33 gates).
+- **F2.2** R028 omics guard hardened against f-string / comprehension / tuple / set bypasses (conservative).
+- **F2.3** The 2 by-design fail-open tests now actually assert (path fuzzer accept-path invariant; RAG denylist drift).
+- **F2.4** Package versions bound into every sealed report (`environment`) for reproducibility.
+
+**Not done — needs you (design fork / ops, NOT doable unattended):**
+- **F2.1** — F02 value-level temporal check. Belongs in `leakage_gate` per a documented decision (Codex
+  2026-04-20), and value-level leakage detection on clinical CSVs has false-positive risk on a medical
+  tool. Your call on placement + opt-in-declared vs auto-detect + severity. (Conservative proposal in the F2.1 line.)
+- Plus the Phase-1 items still awaiting you: threat-model confirmation, the real `trusted_signers.json` (ops),
+  the live Claude adapter (P1.0b), the P2.1 precision@k labeling methodology, and **PR review + merge**.
 
 ---
 
