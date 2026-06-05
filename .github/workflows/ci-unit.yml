@@ -11,7 +11,11 @@ on:
 jobs:
   unit:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # The serial unit suite runs ~14-20 min; 20 was a thin margin that
+    # slow/contended runners (esp. 3.10/3.11) tripped intermittently. 30 gives
+    # headroom. (A faster fix — pytest-xdist `-n auto` — is deferred: needs a
+    # parallel-safety audit of tests that touch cwd/shared paths.)
+    timeout-minutes: 30
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
