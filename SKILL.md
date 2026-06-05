@@ -20,7 +20,7 @@ MLGG 对外暴露 3 条稳定入口，其他所有功能都是它们的子命令
 | 入口 | 面向 | 场景 |
 |---|---|---|
 | **`/mlgg`** | 人类用户（Claude Code 内） | 建模 / 训练 / "我有数据" —— 自动观察数据、推断参数、走 Pipeline 模式 6 步（仅 CSV）或 Research 模式 9 阶段（含用户代码） |
-| **`mlgg <subcommand>`** | 终端 / 脚本自动化 | 30 个子命令（见 Quick Dispatch 分组表），包含 play / workflow / onboarding / audit / doctor / lint / llm-audit 等 |
+| **`mlgg <subcommand>`** | 终端 / 脚本自动化 | 31 个子命令（见 Quick Dispatch 分组表），包含 play / workflow / onboarding / audit / doctor / lint / llm-audit / llm-review 等 |
 | **`mlgg-lint`** | CI / pre-commit | 独立 pip 包，30 条 AST 规则（R001-R030，含 R028 omics 模态守卫），零依赖，5 秒扫完单文件 |
 
 ### 怎么选？`workflow` vs `audit`
@@ -45,7 +45,7 @@ MLGG 对外暴露 3 条稳定入口，其他所有功能都是它们的子命令
 
 ## Quick Dispatch
 
-Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部 30 子命令的分组索引（按 W28-S0 `COMMAND_GROUPS` 与 Audit Routing Mode A/B/C 对齐；`mlgg --help` 显示同一分组的全表）。
+Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部 31 子命令的分组索引（按 W28-S0 `COMMAND_GROUPS` 与 Audit Routing Mode A/B/C 对齐；`mlgg --help` 显示同一分组的全表）。
 
 ### `[governance]` — Mode A（你自己的训练流水）
 
@@ -69,6 +69,7 @@ Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部
 | `preflight` | 验证 train/valid/test schema 和语义映射 |
 | `split` | 把单个 CSV 拆成 train/valid/test（患者级隔离） |
 | `semantic-audit` | LLM 对特征列做语义泄漏检测 |
+| `llm-review` | 非对称 LLM 评审层：把 gate evidence（`--rag` 时附 KB 同行评审）合成方法学疑点，写到 `evidence/llm_review_report.json`（publication_gate 按约定读取并折叠）。**只加疑点、永不把 gate fail 洗成 pass**。默认确定性 double（无网络）；`--live` 用真 Claude |
 
 **环境 / 元数据**
 
@@ -126,7 +127,7 @@ Agent 面向人类用户默认走 `/mlgg`。以下是 `mlgg <subcommand>` 全部
 | `interactive` | 向导式 init/workflow/train/authority |
 | `play` | Pixel-art 菜单式启动器 |
 | `validate` | Config schema 校验（`configs/*.yaml` / `request.json`），CI 前快检（dispatcher-only，不在 COMMANDS 表） |
-| `flow` | 显示 30 子命令的推荐执行顺序（dispatcher-only） |
+| `flow` | 显示 31 子命令的推荐执行顺序（dispatcher-only） |
 
 ---
 

@@ -21,7 +21,9 @@ import pytest  # noqa: E402
 from llm_review import (  # noqa: E402
     DeterministicReviewAdapter,
     LiveClaudeReviewAdapter,
+    _build_review_prompt,
     gather_evidence,
+    gather_rag_concerns,
     run_llm_review,
 )
 from test_publication_gate import _build_cmd, _make_all_artifacts  # noqa: E402
@@ -190,3 +192,151 @@ def test_run_llm_review_with_live_adapter_writes_report(tmp_path: Path):
     assert written["concerns"][0]["code"] == "c"
     assert written["meta"]["model"] == "claude-opus-4-8"
     assert written["run_id"] == "R-LIVE"
+
+
+# ── ②→④ wire: RAG peer-review concerns into the reviewer context ──────────────
+
+def _fake_kb_record(concern_id, severity="HIGH", category="preprocessing_leakage",
+                    text="Reviewer flagged scaler fit before split."):
+    return {
+        "concern_id": concern_id, "severity": severity, "category": category,
+        "concern_text": text, "tags": ["scaler_leakage"], "_final_score": 0.9,
+    }
+
+
+def test_gather_rag_concerns_queries_only_failing_gates():
+    calls = []
+
+    def fake_retriever(query, gate=None, failure_codes=None, top_k=5):
+        calls.append({"query": query, "gate": gate, "codes": failure_codes})
+        return [_fake_kb_record("PR-001-C01")]
+
+    gates = [
+        {"gate": "leakage_gate", "status": "fail",
+         "failures": [{"code": "P01", "message": "scaler fit before split"}], "warnings": []},
+        {"gate": "tuning_gate", "status": "pass", "failures": [], "warnings": []},
+    ]
+    out = gather_rag_concerns(gates, fake_retriever)
+    # Only the failing gate is queried, with its name + codes + message.
+    assert len(calls) == 1
+    assert calls[0]["gate"] == "leakage_gate"
+    assert calls[0]["codes"] == ["P01"]
+    assert "scaler fit before split" in calls[0]["query"]
+    # The KB record is formatted into a human-readable line.
+    assert len(out) == 1
+    assert "[HIGH]" in out[0] and "(preprocessing_leakage)" in out[0]
+    assert "KB:PR-001-C01" in out[0]
+
+
+def test_gather_rag_concerns_none_retriever_is_noop():
+    gates = [{"gate": "leakage_gate", "status": "fail",
+              "failures": [{"code": "P01", "message": "m"}], "warnings": []}]
+    assert gather_rag_concerns(gates, None) == []
+
+
+def test_gather_rag_concerns_survives_error_and_dedups():
+    def boom(query, gate=None, failure_codes=None, top_k=5):
+        raise RuntimeError("KB exploded")
+
+    gates = [{"gate": "leakage_gate", "status": "fail",
+              "failures": [{"code": "P01", "message": "m"}], "warnings": []}]
+    # A retriever error degrades to no concerns — never crashes the review.
+    assert gather_rag_concerns(gates, boom) == []
+
+    def dup(query, gate=None, failure_codes=None, top_k=5):
+        return [_fake_kb_record("DUP"), _fake_kb_record("DUP")]
+
+    gates2 = [
+        {"gate": "a_gate", "status": "fail", "failures": [{"code": "X", "message": "m"}], "warnings": []},
+        {"gate": "b_gate", "status": "fail", "failures": [{"code": "Y", "message": "m"}], "warnings": []},
+    ]
+    assert len(gather_rag_concerns(gates2, dup)) == 1  # deduped by concern_id across gates
+
+
+def test_gather_evidence_populates_rag_concerns(tmp_path: Path):
+    _write_report(tmp_path / "leakage_report.json", gate_name="leakage_gate", status="fail",
+                  failure_count=1, failures=[{"code": "P01", "message": "scaler fit before split"}])
+
+    def fake_retriever(query, gate=None, failure_codes=None, top_k=5):
+        return [_fake_kb_record("PR-009-C02")]
+
+    ctx = gather_evidence(tmp_path, retriever=fake_retriever)
+    assert ctx["rag_concerns"] and "KB:PR-009-C02" in ctx["rag_concerns"][0]
+    # Default (no retriever) stays retrieval-free.
+    assert gather_evidence(tmp_path)["rag_concerns"] == []
+
+
+def test_live_prompt_renders_rag_concerns():
+    ctx = {
+        "gates": [{"gate": "leakage_gate", "status": "fail", "failure_count": 1, "warning_count": 0,
+                   "failures": [{"code": "P01", "message": "scaler fit before split"}], "warnings": []}],
+        "gate_count": 1,
+        "rag_concerns": ["[HIGH] (preprocessing_leakage) Reviewer flagged scaler fit. — KB:PR-001-C01"],
+    }
+    prompt = _build_review_prompt(ctx)
+    assert "# Retrieved peer-review concerns" in prompt
+    assert "KB:PR-001-C01" in prompt
+
+
+def test_run_llm_review_records_rag_evidence_count(tmp_path: Path):
+    _write_report(tmp_path / "leakage_report.json", gate_name="leakage_gate", status="fail",
+                  failure_count=1, failures=[{"code": "P01", "message": "m"}])
+
+    def fake_retriever(query, gate=None, failure_codes=None, top_k=5):
+        return [_fake_kb_record("PR-1"), _fake_kb_record("PR-2")]
+
+    assert run_llm_review(tmp_path, retriever=fake_retriever)["rag_evidence_count"] == 2
+
+
+def test_gather_rag_concerns_call_matches_real_rag_query_signature():
+    """Guard the ②→④ wire against rag_query signature drift.
+
+    The fake-retriever tests above prove the wiring logic; this asserts the kwargs
+    gather_rag_concerns passes (query, gate, failure_codes, top_k) are actually
+    accepted by the REAL scripts.rag.query.rag_query — so a future signature
+    change can't silently break a live `mlgg llm-review --rag` run. Importing the
+    function is torch-free (rag_query defers the dense stack).
+    """
+    import inspect
+
+    from scripts.rag.query import rag_query
+
+    params = inspect.signature(rag_query).parameters
+    for kw in ("query", "gate", "failure_codes", "top_k"):
+        assert kw in params, f"rag_query no longer accepts {kw!r}; the ②→④ wire would break"
+
+
+# ── end-to-end through the real mlgg CLI: producer -> publication_gate consumer ─
+
+_MLGG = Path(__file__).resolve().parents[1] / "scripts" / "orchestration" / "mlgg.py"
+
+
+def test_cli_llm_review_chain_to_publication_gate(tmp_path: Path):
+    """`mlgg llm-review` (CLI) writes the report; publication_gate discovers + folds it.
+
+    Proves the formerly-orphaned advisory layer now runs end-to-end through the
+    real entry point: the deterministic adapter echoes a gate warning as an
+    advisory concern, which publication_gate consumes (present=True; advisory
+    only, so it cannot fail a passing gate without --strict).
+    """
+    paths = _make_all_artifacts(tmp_path)
+    # A warning-bearing report for the deterministic adapter to echo (NOT a
+    # publication_gate component — just discovered by gather_evidence's glob).
+    _write_report(tmp_path / "extra_warning_report.json", gate_name="calibration_gate",
+                  status="pass", warning_count=1,
+                  warnings=[{"code": "no_dca", "message": "no decision-curve analysis"}])
+
+    cli = subprocess.run(
+        [sys.executable, str(_MLGG), "llm-review", "--evidence-dir", str(tmp_path)],
+        capture_output=True, text=True, timeout=60,
+    )
+    assert cli.returncode == 0, cli.stderr
+    review = json.loads((tmp_path / "llm_review_report.json").read_text())
+    assert review["meta"]["model"] == "deterministic-double"
+    assert any(c.get("severity") == "advisory" for c in review["concerns"])
+
+    result, report = _run_pub_gate(tmp_path, paths)
+    assert result.returncode == 0  # advisory only, no --strict
+    adv = report["summary"]["llm_advisory_review"]
+    assert adv["present"] is True and adv["advisory_count"] >= 1
+    assert report["summary"]["claim"]["reviewer_concerns_incorporated"] is True

@@ -21,12 +21,98 @@ import argparse
 import hashlib
 import json
 import os
+import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+# Put the repo root on sys.path so the lazy ``from scripts.rag.query import
+# rag_query`` in ``main`` resolves when this file is invoked directly
+# (``python3 scripts/review/llm_review.py``) or dispatched via ``mlgg``. Cheap:
+# importing the function never pulls the dense stack (rag_query defers torch).
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
 
-def gather_evidence(evidence_dir: Path) -> Dict[str, Any]:
-    """Collect gate reports from ``evidence_dir`` into a synthesis context."""
+
+def _format_rag_concern(record: Dict[str, Any]) -> str:
+    """Render one retrieved KB concern record into a single prompt line."""
+    severity = str(record.get("severity") or "").strip().upper()
+    category = str(record.get("category") or "").strip()
+    text = str(
+        record.get("evidence_text")
+        or record.get("concern_text")
+        or record.get("message")
+        or ""
+    ).strip()
+    cid = str(record.get("concern_id") or record.get("id") or "").strip()
+    head = " ".join(
+        p for p in (f"[{severity}]" if severity else "", f"({category})" if category else "") if p
+    )
+    line = (f"{head} {text}" if head else text).strip() or "(no concern text)"
+    return f"{line} — KB:{cid}" if cid else line
+
+
+def gather_rag_concerns(
+    gates: List[Dict[str, Any]],
+    retriever: Optional[Any],
+    max_per_gate: int = 3,
+    max_total: int = 12,
+) -> List[str]:
+    """The ②→④ wire: retrieve real peer-review precedent for each FAILING gate.
+
+    ``retriever`` is any callable with the :func:`scripts.rag.query.rag_query`
+    signature ``(query, gate, failure_codes, top_k) -> list[dict]``. For every
+    gate that failed, its codes + failure messages form the query; the returned
+    KB concern records are formatted into deduped, bounded human-readable strings
+    for the live reviewer's context. Returns ``[]`` when ``retriever`` is ``None``
+    or yields nothing. Never raises: a retriever error degrades that gate to no
+    concerns — the advisory layer must not crash a review run.
+    """
+    if retriever is None:
+        return []
+    out: List[str] = []
+    seen: set = set()
+    for gate in gates:
+        failures = gate.get("failures") or []
+        if str(gate.get("status")).lower() != "fail" and not failures:
+            continue
+        gate_name = gate.get("gate")
+        codes = [str(f.get("code")) for f in failures if isinstance(f, dict) and f.get("code")]
+        messages = [
+            str(f.get("message")) for f in failures if isinstance(f, dict) and f.get("message")
+        ]
+        query = ": ".join(
+            p for p in [str(gate_name or "").strip(), " ; ".join(messages)] if p
+        ) or str(gate_name or "gate failure")
+        try:
+            records = retriever(
+                query=query, gate=gate_name, failure_codes=codes or None, top_k=max_per_gate
+            )
+        except Exception:
+            continue  # advisory layer is best-effort; never crash the review
+        for record in list(records or [])[:max_per_gate]:
+            if not isinstance(record, dict):
+                continue
+            line = _format_rag_concern(record)
+            dedup_key = str(record.get("concern_id") or record.get("id") or "") or line
+            if dedup_key in seen:
+                continue
+            seen.add(dedup_key)
+            out.append(line)
+            if len(out) >= max_total:
+                return out
+    return out
+
+
+def gather_evidence(evidence_dir: Path, retriever: Optional[Any] = None) -> Dict[str, Any]:
+    """Collect gate reports from ``evidence_dir`` into a synthesis context.
+
+    When ``retriever`` is provided (the ②→④ wire: typically
+    :func:`scripts.rag.query.rag_query`), each failing gate's codes + messages
+    pull real peer-review precedent from the KB into ``rag_concerns``, which the
+    live reviewer renders into its prompt. Default ``None`` keeps this path
+    retrieval-free — deterministic and with no dense-stack import.
+    """
     gates: List[Dict[str, Any]] = []
     run_ids = set()
     for path in sorted(Path(evidence_dir).glob("*_report.json")):
@@ -55,6 +141,7 @@ def gather_evidence(evidence_dir: Path) -> Dict[str, Any]:
         "gates": gates,
         "gate_count": len(gates),
         "run_id": sorted(run_ids)[0] if len(run_ids) == 1 else None,
+        "rag_concerns": gather_rag_concerns(gates, retriever),
     }
 
 
@@ -236,14 +323,21 @@ def run_llm_review(
     evidence_dir: Path,
     adapter: Optional[ReviewAdapter] = None,
     out_path: Optional[Path] = None,
+    retriever: Optional[Any] = None,
 ) -> Dict[str, Any]:
-    """Gather evidence, synthesize concerns, write the P0.0-schema review report."""
+    """Gather evidence (+ optional RAG concerns), synthesize, write the P0.0 report.
+
+    ``retriever`` (the ②→④ wire) is forwarded to :func:`gather_evidence`; when
+    set, retrieved peer-review precedent is fed to the reviewer and its count is
+    recorded in the report for the audit trail.
+    """
     adapter = adapter or DeterministicReviewAdapter()
-    context = gather_evidence(Path(evidence_dir))
+    context = gather_evidence(Path(evidence_dir), retriever=retriever)
     result = adapter.synthesize(context)
     report: Dict[str, Any] = {
         "concerns": result.get("concerns", []),
         "meta": result.get("meta", {}),
+        "rag_evidence_count": len(context.get("rag_concerns") or []),
     }
     rid = context.get("run_id") or os.environ.get("MLGG_RUN_ID")
     if rid:
@@ -263,6 +357,12 @@ def main(argv: Optional[List[str]] = None) -> int:
              "Default is the deterministic, no-network double.",
     )
     parser.add_argument("--model", default="claude-opus-4-8", help="Model for --live (default: claude-opus-4-8).")
+    parser.add_argument(
+        "--rag", action="store_true",
+        help="Retrieve real peer-review concerns from the KB for each failing gate and "
+             "attach them to the reviewer's context (the evidence->LLM wire). Implied by "
+             "--live; usable alone to preview what precedent would be surfaced.",
+    )
     args = parser.parse_args(argv)
 
     adapter = None
@@ -272,15 +372,25 @@ def main(argv: Optional[List[str]] = None) -> int:
 
         adapter = LiveClaudeReviewAdapter(client=anthropic.Anthropic(), model=args.model, enabled=True)
 
+    retriever = None
+    if args.rag or args.live:
+        # Lazy import: rag_query itself defers the dense/torch stack, so this is
+        # cheap and degrades to [] when the RAG stack or KB is unavailable.
+        from scripts.rag.query import rag_query  # noqa: PLC0415
+
+        retriever = rag_query
+
     report = run_llm_review(
         Path(args.evidence_dir),
         adapter=adapter,
         out_path=Path(args.out) if args.out else None,
+        retriever=retriever,
     )
     print(
         f"[llm-review] wrote {len(report.get('concerns', []))} concern(s) "
         f"via adapter='{report.get('meta', {}).get('model')}' "
-        f"(evidence_seen={report.get('meta', {}).get('evidence_seen')})"
+        f"(evidence_seen={report.get('meta', {}).get('evidence_seen')}, "
+        f"rag_evidence={report.get('rag_evidence_count', 0)})"
     )
     return 0
 

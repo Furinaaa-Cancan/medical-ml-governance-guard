@@ -70,7 +70,7 @@ Two independently-packaged products + one unified CLI surface.
 │                 R028 refuses omics modalities (gene_/snp_/ENSG).      │
 │                                                                       │
 │  mlgg           pip install ml-governance-guard                       │
-│                 Unified CLI with 30 subcommands (see SKILL.md).       │
+│                 Unified CLI with 31 subcommands (see SKILL.md).       │
 │                 Scope: retrospective-cohort binary classification.    │
 │                                                                       │
 └───────────────────────────────────────────────────────────────────────┘

@@ -309,6 +309,13 @@ COMMANDS: Dict[str, Tuple[Path, str]] = {
         SCRIPTS_ROOT / "review" / "llm_paper_audit.py",
         "W29-MVP: LLM-first paper audit with optional RAG enrichment (Anthropic Claude).",
     ),
+    "llm-review": (
+        SCRIPTS_ROOT / "review" / "llm_review.py",
+        "Asymmetric LLM advisory review: synthesize methodology concerns from gate "
+        "evidence (+RAG via --rag), written where publication_gate folds them in — "
+        "raises concerns only, never clears a gate failure. Deterministic by default; "
+        "--live for real Claude.",
+    ),
 }
 INTERACTIVE_CORE_COMMANDS = ("init", "workflow", "train", "authority")
 
@@ -331,6 +338,7 @@ COMMAND_GROUPS: Dict[str, Tuple[str, ...]] = {
         "onboarding", "init", "split", "doctor", "preflight",
         "workflow", "strict", "semantic-audit", "summary", "train",
         "fairness", "sample-size", "init-guide", "record-session",
+        "llm-review",
     ),
     "review": (
         "audit", "audit-report", "audit-metrics", "batch-review",
