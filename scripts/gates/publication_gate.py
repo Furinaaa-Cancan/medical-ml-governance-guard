@@ -1086,6 +1086,15 @@ def main() -> int:
     if llm_review_summary.get("blocking_count", 0) > 0:
         l1_passed = l2_passed = l3_passed = False
 
+    # An invalid OR missing component seal (while sealing is active) means that
+    # component's report is untrustworthy. verify_component_seals already added
+    # the blocking failure, but a tampered/unsealed report still claims
+    # status="pass", so the status-based _tier_passed above would wrongly leave
+    # its tier True. Force every tier DOWN so compliance_level / compliance_tiers
+    # stay consistent with the failed verdict (no tier can survive a bad seal).
+    if seal_verification_summary.get("invalid") or seal_verification_summary.get("unsealed"):
+        l1_passed = l2_passed = l3_passed = False
+
     compliance_level = "L3" if l3_passed else ("L2" if l2_passed else ("L1" if l1_passed else "none"))
 
     # P2.0: honest claim tier — the human-facing name for what the evidence
