@@ -428,6 +428,32 @@ class TestRunGateSubprocess:
         assert result["exit_code"] == 2
         assert "EXCEPTION" in result["stderr_tail"]
 
+    def test_audit_log_failure_is_surfaced_not_swallowed(self, tmp_path, monkeypatch):
+        # A failing tamper-evident audit write must be SURFACED (result["audit_error"]),
+        # not silently swallowed — but must NOT block the gate result. (strict-review [17])
+        import _gate_utils
+
+        def _boom(**kwargs):
+            raise OSError("disk full")
+
+        monkeypatch.setattr(_gate_utils, "append_audit_entry", _boom)
+        result = run_gate_subprocess(
+            "audit_fail_test", [sys.executable, "-c", "print('ok')"],
+            evidence_dir=tmp_path,
+        )
+        assert result["status"] == "pass"          # gate result NOT blocked
+        assert result["audit_error"] is not None    # failure surfaced, not lost
+        assert "disk full" in result["audit_error"]
+
+    def test_audit_error_none_on_success(self, tmp_path):
+        # When the audit write succeeds, audit_error is None (the field always exists).
+        result = run_gate_subprocess(
+            "audit_ok_test", [sys.executable, "-c", "print('ok')"],
+            evidence_dir=tmp_path,
+        )
+        assert result["status"] == "pass"
+        assert result["audit_error"] is None
+
 
 # ────────────────────────────────────────────────────────
 # _run_parallel resilience

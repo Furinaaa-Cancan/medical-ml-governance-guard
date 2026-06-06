@@ -272,7 +272,12 @@ def run_gate_subprocess(
     elapsed = _time.time() - t0
     status = "pass" if exit_code == 0 else "fail"
 
-    # Tamper-evident audit log entry
+    # Tamper-evident audit log entry. Best-effort (must never BLOCK the
+    # pipeline), but a failure must NOT vanish silently: a tamper-evident log
+    # that quietly fails to write defeats its own purpose (a disk-full or
+    # permission error would leave gaps an auditor can't see). Surface it on
+    # stderr AND record it in the result so downstream/operators can see it.
+    audit_error = None
     try:
         from _gate_utils import append_audit_entry
         audit_dir = evidence_dir or (Path(report_path).expanduser().resolve().parent if report_path else None)
@@ -283,8 +288,13 @@ def run_gate_subprocess(
                 status=status,
                 execution_time=elapsed,
             )
-    except Exception:
-        pass  # Audit logging is best-effort; never block pipeline
+    except Exception as exc:
+        audit_error = f"{type(exc).__name__}: {exc}"
+        try:
+            print(f"[WARN] tamper-evident audit log entry failed for {gate_name}: {audit_error}",
+                  file=sys.stderr)
+        except Exception:
+            pass  # even the warning must never block the pipeline (e.g. closed stderr)
 
     return {
         "name": gate_name,
@@ -295,6 +305,7 @@ def run_gate_subprocess(
         "stdout_tail": stdout[-4000:],
         "stderr_tail": stderr[-4000:],
         "report_path": report_path,
+        "audit_error": audit_error,
     }
 
 
@@ -961,7 +972,7 @@ def main() -> int:
                     "name": g, "command": "(dry-run)", "exit_code": -1,
                     "status": "skip", "execution_time_seconds": 0,
                     "stdout_tail": "", "stderr_tail": "dry-run: not executed",
-                    "report_path": "",
+                    "report_path": "", "audit_error": None,
                 })
         return _finalize(args, evidence_dir, steps, True, pipeline_t0)
 
@@ -1023,7 +1034,7 @@ def main() -> int:
                     "name": bg, "command": "", "exit_code": -1,
                     "status": "skip", "execution_time_seconds": 0,
                     "stdout_tail": "", "stderr_tail": "Skipped: dependency not met",
-                    "report_path": "",
+                    "report_path": "", "audit_error": None,
                 })
 
         if not ready:
@@ -1133,7 +1144,7 @@ def _run_sequential(
                 "name": gate_name, "command": "", "exit_code": -1,
                 "status": "skip", "execution_time_seconds": 0,
                 "stdout_tail": "", "stderr_tail": "Skipped: earlier gate in layer failed",
-                "report_path": "",
+                "report_path": "", "audit_error": None,
             })
             continue
         spec = GATE_REGISTRY[gate_name]
@@ -1186,6 +1197,7 @@ def _run_parallel(
                     "exit_code": 2, "status": "fail", "execution_time_seconds": 0,
                     "stdout_tail": "", "stderr_tail": f"EXCEPTION in parallel runner: {exc}",
                     "report_path": tasks[idx][2],
+                    "audit_error": None,
                 }
 
     return results
