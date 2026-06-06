@@ -5,7 +5,7 @@
   "tier": "B+",
   "provenance": {
     "fulltext_sha256": "88d9225e3138568f45a1b60a6e7f6b8a64062748b2244148ca176a640fb5a595",
-    "disease_kb_version": "1.1",
+    "disease_kb_version": "1.2",
     "in_peer_review_kb": false,
     "lopo_excluded_paper_ids": [
       "glm7-n1-not-in-kb"
@@ -24,6 +24,10 @@
             {
               "feature": "BUN",
               "matched_rule": "bun"
+            },
+            {
+              "feature": "Cr",
+              "matched_rule": "cr"
             }
           ]
         },
@@ -32,6 +36,10 @@
           "status": "fail",
           "exit_code": 2,
           "hits": [
+            {
+              "feature": "FBG",
+              "matched_rule": "fbg"
+            },
             {
               "feature": "HbA1c",
               "matched_rule": "hba1c"
@@ -56,14 +64,13 @@
         ],
         "caught": [
           "BUN",
+          "Cr",
+          "FBG",
           "HbA1c",
           "Insulin"
         ],
-        "missed": [
-          "FBG",
-          "Cr"
-        ],
-        "recall": "3/5"
+        "missed": [],
+        "recall": "5/5"
       }
     },
     "rag": {
@@ -212,7 +219,7 @@
   "metrics": {
     "n_ground_truth": 6,
     "deterministic_concern_coverage": "2/6",
-    "deterministic_column_recall": "3/5",
+    "deterministic_column_recall": "5/5",
     "rag_retrieval_self_consistency": "5/6",
     "llm_self_attested_coverage": "6/6",
     "union_any_layer": "6/6",
@@ -227,14 +234,5 @@
       "note": "final = min(...) can never RAISE a verdict by construction. This N=1 cannot empirically TEST asymmetry: rag_verdict is a fixed advisory cap and every layer here lands at <= concern, so nothing was in a position to (incorrectly) raise the verdict. Report this as a design invariant, not a measurement."
     }
   },
-  "followups": [
-    {
-      "type": "disease_kb_synonym_gap",
-      "detail": "definition_variable_guard missed ['FBG', 'Cr'] because the disease-KB definition_variables_to_exclude lists canonical names but not these abbreviations ('fbg' for fasting_plasma_glucose, 'cr' for creatinine).",
-      "proposed_fix": "Add 'fbg' to type_2_diabetes and 'cr' to chronic_kidney_disease synonym lists in disease-definition-knowledge-base.json (REQUIRES human confirmation; references/*.json is not auto-edited).",
-      "caught_instead_by": [
-        "llm"
-      ]
-    }
-  ]
+  "followups": []
 }

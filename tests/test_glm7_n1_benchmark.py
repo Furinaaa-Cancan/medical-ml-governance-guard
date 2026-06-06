@@ -50,13 +50,17 @@ def test_deterministic_floor_binds(computed):
     assert {"HbA1c", "Insulin", "BUN"} <= caught  # the real, reproducible hits
 
 
-def test_known_kb_synonym_gap_is_surfaced(computed):
-    """FBG and Cr are missed (disease-KB abbreviation gap) and reported as a follow-up,
-    not silently dropped — and explicitly NOT auto-applied to references/*.json."""
+def test_kb_synonym_gap_closed(computed):
+    """Closed loop: the FBG/Cr abbreviation gap this N=1 first surfaced at disease-KB
+    v1.1 is fixed in v1.2 (added 'fbg'/'cr' synonyms). The guard now catches all five
+    definition columns, with no open synonym-gap follow-up — this is the regression
+    that proves the fix and that the disease-KB the record runs against is the fixed one."""
     det = computed["layers"]["deterministic"]["column_level"]
-    assert set(det["missed"]) == {"FBG", "Cr"}
-    gaps = [f for f in computed["followups"] if f["type"] == "disease_kb_synonym_gap"]
-    assert gaps and "human confirmation" in gaps[0]["proposed_fix"].lower()
+    assert det["missed"] == []
+    assert det["recall"] == "5/5"
+    assert set(det["caught"]) == {"HbA1c", "FBG", "Insulin", "BUN", "Cr"}
+    assert not [f for f in computed["followups"] if f["type"] == "disease_kb_synonym_gap"]
+    assert computed["provenance"]["disease_kb_version"] == "1.2"
 
 
 def test_metric_semantics_are_honest(computed):

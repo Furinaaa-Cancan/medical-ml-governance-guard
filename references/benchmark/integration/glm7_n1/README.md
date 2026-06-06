@@ -16,7 +16,7 @@ declared feature manifest**, which *is* runnable on a paper.
 
 | Layer | Verdict | Number | What the number means |
 |---|---|---|---|
-| **Deterministic** (`definition_variable_guard`) | **FAIL** (binds) | concern 2/6 · **column 3/5** | **Measured + reproducible.** Flags DM + CKD definition leakage; caught HbA1c, Insulin, BUN; **missed FBG, Cr** (disease-KB abbreviation gap). |
+| **Deterministic** (`definition_variable_guard`) | **FAIL** (binds) | concern 2/6 · **column 5/5** | **Measured + reproducible.** Flags DM + CKD definition leakage; catches all five definition columns (HbA1c, FBG, Insulin, BUN, Cr) after the disease-KB v1.2 synonym fix below (was 3/5 at v1.1). |
 | **RAG** (`retrieve_for_failure`, BM25) | concern | self-consistency 5/6 | **Retrieval self-consistency, NOT blind recall** — the GT's `rag_concern_ids` were observed from retrieval (see caveat below). 8 distinct KB concerns credited. |
 | **LLM** (frozen Claude reviewer) | not_publication_grade | **self-attested** 6/6 | Scored from the frozen file's own `addresses_gt`; **not independently adjudicated; non-reproducible.** |
 
@@ -31,19 +31,24 @@ declared feature manifest**, which *is* runnable on a paper.
 
 - **The deterministic floor earns its place** — it FAILS the paper non-fabricably on the circular
   diabetes result (GT-1) and the kidney leakage (GT-6), and it does so reproducibly. Its limit is
-  *breadth* (it cannot see design issues like cross-sectional-as-prediction) and *synonym coverage*
-  (the FBG/Cr miss).
+  *breadth* (it cannot see design issues like cross-sectional-as-prediction); its earlier *synonym
+  coverage* gap (the FBG/Cr miss) was a real defect this N=1 found and got fixed (see closed loop below).
 - **The LLM adds real breadth** — it is the only layer reaching GT-4, and it caught a defect in
   *neither* the KB nor the gates: an "ElasticNet … superior" sentence inside the XGBoost methods
   (full text line 139) — a genuine copy-paste/reproducibility artifact, independently verified.
 - **Overlap** — det ∩ rag ∩ llm = {GT-1, GT-6}; rag∩llm adds {GT-2, GT-3, GT-5}; llm-only = {GT-4}.
 
-## Actionable follow-up (NOT auto-applied)
+## Closed loop — the disease-KB gap this N=1 found, and fixed (RESOLVED)
 
-`record.json → followups`: the deterministic layer missed **FBG** and **Cr** because the disease-KB
-lists `fpg`/`fasting_plasma_glucose` and `creatinine` but not the abbreviations `fbg`/`cr`. Adding
-those synonyms would raise column recall to 5/5. **Per CLAUDE.md S1, `references/*.json` is never
-edited unattended — this is a proposal for human confirmation.**
+At disease-KB **v1.1**, the deterministic layer missed **FBG** and **Cr** (column recall 3/5): the KB
+listed `fpg`/`fasting_plasma_glucose` and `creatinine` but not the common abbreviations `fbg`/`cr`, so
+the guard under-caught column-level leakage on any paper using them. **This N=1 surfaced that real
+shipping-gate gap.** With user confirmation (CLAUDE.md S1 — `references/*.json` is not edited
+unattended), disease-KB **v1.2** added `fbg` (→ `type_2_diabetes`) and `cr` (→ `chronic_kidney_disease`)
+as synonyms — a pure abbreviation expansion, no new clinical claim. The guard now catches all five
+definition columns (**recall 5/5**). `test_kb_synonym_gap_closed` is the regression. This is the
+benchmark doing exactly what it exists to do: find a concrete defect the shipping product had, and
+close it.
 
 ## Honest limitations (what this N=1 does NOT show)
 
@@ -94,5 +99,5 @@ peer-review-KB. The **LLM** layer is frozen; its method is recorded in `llm_revi
 - **C1 LOPO** — `excluded_paper_ids` threaded through retrieval; a declared **no-op** here because
   GLM7 is **not** in the peer-review KB (confirmed) → no self-leakage.
 - **C5 GT isolation** — `ground_truth.json` is loaded but consumed only *after* each layer emits flags.
-- **Honesty** — column misses (FBG, Cr), the off-prediction RAG hit (GT-6), and the self-consistency /
+- **Honesty** — the earlier column misses (FBG, Cr; now fixed in KB v1.2), the off-prediction RAG hit (GT-6), and the self-consistency /
   self-attested metric caveats are recorded, not hidden.
