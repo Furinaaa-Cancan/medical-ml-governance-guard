@@ -1,5 +1,5 @@
 {
-  "version": "1.1",
+  "version": "1.2",
   "description": "Disease definition knowledge base for clinical prediction models. Based on UK Biobank phenotyping methodology (Torralbo 2025, Eastwood 2016). Provides multi-source definition templates that can be adapted to any dataset, not just UKB.",
   "methodology_reference": {
     "framework": "Torralbo et al. A computational framework for defining and validating reproducible phenotyping algorithms of 313 diseases. Scientific Reports. 2025;15. doi:10.1038/s41598-025-05838-9",
@@ -212,6 +212,7 @@
         "dm_flag",
         "fasting_glucose",
         "fasting_plasma_glucose",
+        "fbg",
         "fpg",
         "glycohemoglobin",
         "hba1c",
@@ -564,6 +565,7 @@
         "blood_urea_nitrogen",
         "bun",
         "ckd_stage",
+        "cr",
         "creatinine",
         "creatinine_serum",
         "cystatin_c",
@@ -1189,6 +1191,11 @@
       "version": "1.1",
       "date": "2026-04-17",
       "change": "P0-2: added per-disease provenance field. All 11 entries initialized as llm_compiled / clinician_review_status=pending. Downstream consumers (cohort_definition_gate, codebook task_aware_validate) surface provenance to the user for manual arbitration."
+    },
+    {
+      "version": "1.2",
+      "date": "2026-06-06",
+      "change": "Added common abbreviation synonyms to definition_variables_to_exclude: 'fbg' (fasting blood glucose) to type_2_diabetes alongside the existing fpg/fasting_plasma_glucose; 'cr' (creatinine) to chronic_kidney_disease alongside the existing creatinine/serum_creatinine. Synonym expansion only -- no new clinical claim, so per-disease clinician_review_status is unchanged. Surfaced by the GLM7 integration-benchmark N=1 (definition_variable_guard missed the 'FBG'/'Cr' columns because the canonical-name list lacked these abbreviations); the guard now catches them (column recall 3/5 -> 5/5)."
     }
   ]
 }
