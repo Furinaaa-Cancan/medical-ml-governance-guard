@@ -290,8 +290,11 @@ def run_gate_subprocess(
             )
     except Exception as exc:
         audit_error = f"{type(exc).__name__}: {exc}"
-        print(f"[WARN] tamper-evident audit log entry failed for {gate_name}: {audit_error}",
-              file=sys.stderr)
+        try:
+            print(f"[WARN] tamper-evident audit log entry failed for {gate_name}: {audit_error}",
+                  file=sys.stderr)
+        except Exception:
+            pass  # even the warning must never block the pipeline (e.g. closed stderr)
 
     return {
         "name": gate_name,
@@ -969,7 +972,7 @@ def main() -> int:
                     "name": g, "command": "(dry-run)", "exit_code": -1,
                     "status": "skip", "execution_time_seconds": 0,
                     "stdout_tail": "", "stderr_tail": "dry-run: not executed",
-                    "report_path": "",
+                    "report_path": "", "audit_error": None,
                 })
         return _finalize(args, evidence_dir, steps, True, pipeline_t0)
 
@@ -1031,7 +1034,7 @@ def main() -> int:
                     "name": bg, "command": "", "exit_code": -1,
                     "status": "skip", "execution_time_seconds": 0,
                     "stdout_tail": "", "stderr_tail": "Skipped: dependency not met",
-                    "report_path": "",
+                    "report_path": "", "audit_error": None,
                 })
 
         if not ready:
@@ -1141,7 +1144,7 @@ def _run_sequential(
                 "name": gate_name, "command": "", "exit_code": -1,
                 "status": "skip", "execution_time_seconds": 0,
                 "stdout_tail": "", "stderr_tail": "Skipped: earlier gate in layer failed",
-                "report_path": "",
+                "report_path": "", "audit_error": None,
             })
             continue
         spec = GATE_REGISTRY[gate_name]
@@ -1194,6 +1197,7 @@ def _run_parallel(
                     "exit_code": 2, "status": "fail", "execution_time_seconds": 0,
                     "stdout_tail": "", "stderr_tail": f"EXCEPTION in parallel runner: {exc}",
                     "report_path": tasks[idx][2],
+                    "audit_error": None,
                 }
 
     return results
