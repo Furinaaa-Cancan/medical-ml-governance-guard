@@ -68,6 +68,14 @@ def test_tampered_status_caught_by_seal(tmp_path: Path):
     codes = [f.get("code") for f in report.get("failures", [])]
     assert "component_seal_invalid" in codes
     assert "leakage_report" in report["summary"]["seal_verification"]["invalid"]
+    # [8]: an invalid seal must also force the COMPLIANCE TIERS down, not just the
+    # verdict — otherwise compliance_tiers/level stay inconsistent (showing a tier
+    # passed) for a tampered report whose status the gate no longer trusts.
+    tiers = report["summary"]["compliance_tiers"]
+    assert tiers["L1_leakage_audit"] is False
+    assert tiers["L2_statistically_valid"] is False
+    assert tiers["L3_publication_grade"] is False
+    assert report["summary"]["compliance_level"] == "none"
 
 
 def test_no_key_is_noop(tmp_path: Path):
