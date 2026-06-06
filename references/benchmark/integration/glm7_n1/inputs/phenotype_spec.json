@@ -1,0 +1,52 @@
+{
+  "_comment": "FROZEN deterministic-check spec for definition_variable_guard. defining_variables are copied VERBATIM from disease-definition-knowledge-base.json. Provenance below. Regenerate only when the disease-KB changes; never hand-edit a variable to change a hit.",
+  "_provenance": {
+    "source": "references/methodology/disease-definition-knowledge-base.json",
+    "disease_kb_version": "1.1",
+    "targets_mapped": {
+      "dm": "diseases.type_2_diabetes.definition_variables_to_exclude",
+      "comorbidity_ckd": "diseases.chronic_kidney_disease.definition_variables_to_exclude"
+    }
+  },
+  "targets": {
+    "dm": {
+      "defining_variables": [
+        "c_peptide",
+        "diabetes_diagnosis",
+        "diabetes_status",
+        "dm_flag",
+        "fasting_glucose",
+        "fasting_plasma_glucose",
+        "fpg",
+        "glycohemoglobin",
+        "hba1c",
+        "homa_ir",
+        "insulin",
+        "insulin_level",
+        "insulin_resistance",
+        "ogtt",
+        "ogtt_result",
+        "oral_glucose_tolerance",
+        "oral_glucose_tolerance_test",
+        "random_glucose",
+        "random_glucose_result",
+        "random_plasma_glucose"
+      ]
+    },
+    "comorbidity_ckd": {
+      "defining_variables": [
+        "albumin_creatinine_ratio",
+        "blood_urea_nitrogen",
+        "bun",
+        "ckd_stage",
+        "creatinine",
+        "creatinine_serum",
+        "cystatin_c",
+        "egfr",
+        "kidney_function",
+        "serum_creatinine",
+        "uacr"
+      ]
+    }
+  }
+}

@@ -1,0 +1,240 @@
+{
+  "case_id": "glm7-n1",
+  "schema": "integration_benchmark_n1.v2",
+  "generated_by": "scripts/rag/evals/run_glm7_n1.py",
+  "tier": "B+",
+  "provenance": {
+    "fulltext_sha256": "88d9225e3138568f45a1b60a6e7f6b8a64062748b2244148ca176a640fb5a595",
+    "disease_kb_version": "1.1",
+    "in_peer_review_kb": false,
+    "lopo_excluded_paper_ids": [
+      "glm7-n1-not-in-kb"
+    ]
+  },
+  "layers": {
+    "deterministic": {
+      "measured": true,
+      "reproducible": true,
+      "guard_runs": [
+        {
+          "target": "comorbidity_ckd",
+          "status": "fail",
+          "exit_code": 2,
+          "hits": [
+            {
+              "feature": "BUN",
+              "matched_rule": "bun"
+            }
+          ]
+        },
+        {
+          "target": "dm",
+          "status": "fail",
+          "exit_code": 2,
+          "hits": [
+            {
+              "feature": "HbA1c",
+              "matched_rule": "hba1c"
+            },
+            {
+              "feature": "Insulin",
+              "matched_rule": "insulin"
+            }
+          ]
+        }
+      ],
+      "verdict": "fail",
+      "binding": true,
+      "concern_coverage": "2/6",
+      "column_level": {
+        "expected_definition_columns": [
+          "HbA1c",
+          "FBG",
+          "Insulin",
+          "BUN",
+          "Cr"
+        ],
+        "caught": [
+          "BUN",
+          "HbA1c",
+          "Insulin"
+        ],
+        "missed": [
+          "FBG",
+          "Cr"
+        ],
+        "recall": "3/5"
+      }
+    },
+    "rag": {
+      "metric_kind": "retrieval_self_consistency",
+      "metric_caveat": "GT rag ids were observed from retrieval, so this is NOT blind recall.",
+      "reproducible": true,
+      "retrievals": {
+        "definition_leakage": [
+          "PR-EXP-0212-C01",
+          "PR-001-C02",
+          "PR-EXP-0098-C01",
+          "PR-EXP-0105-C01"
+        ],
+        "cross_sectional": [
+          "PR-001-C01",
+          "PR-024-C01",
+          "PR-029-C01",
+          "PR-EXP-0110-C02"
+        ],
+        "selection_leakage": [
+          "PR-111-C01",
+          "PR-EXP-0155-C03",
+          "PR-072-C01",
+          "PR-114-C04"
+        ],
+        "incomplete_eval": [
+          "PR-002-C01",
+          "PR-033-C01",
+          "PR-002-C07",
+          "PR-EXP-0153-C04"
+        ]
+      },
+      "verdict": "concern",
+      "on_topic_coverage": "5/6",
+      "distinct_concerns_credited": 8
+    },
+    "llm": {
+      "metric_kind": "self_attested",
+      "metric_caveat": "scored from the frozen file's own addresses_gt; not independently adjudicated; reviewer non-reproducible.",
+      "reproducible": false,
+      "verdict": "fail",
+      "self_attested_coverage": "6/6"
+    }
+  },
+  "attribution": [
+    {
+      "gt_id": "GT-1",
+      "severity": "critical",
+      "rule": "F01",
+      "headline": "Circular diabetes model: HbA1c / FBG / Insulin both DEFINE and PREDICT DM",
+      "expected_layers": [
+        "deterministic",
+        "rag",
+        "llm"
+      ],
+      "caught_by": [
+        "deterministic",
+        "rag",
+        "llm"
+      ],
+      "uncaught": false,
+      "off_prediction_layers": []
+    },
+    {
+      "gt_id": "GT-2",
+      "severity": "critical",
+      "rule": "F02",
+      "headline": "Cross-sectional data marketed as future-onset 'prediction'",
+      "expected_layers": [
+        "llm",
+        "rag"
+      ],
+      "caught_by": [
+        "rag",
+        "llm"
+      ],
+      "uncaught": false,
+      "off_prediction_layers": []
+    },
+    {
+      "gt_id": "GT-3",
+      "severity": "high",
+      "rule": "M01",
+      "headline": "Feature/index selection performed on the full dataset before the train/test split",
+      "expected_layers": [
+        "llm",
+        "rag"
+      ],
+      "caught_by": [
+        "rag",
+        "llm"
+      ],
+      "uncaught": false,
+      "off_prediction_layers": []
+    },
+    {
+      "gt_id": "GT-4",
+      "severity": "high",
+      "rule": "external_validity",
+      "headline": "CHARLS 'external validation' is re-fit inside the external cohort",
+      "expected_layers": [
+        "llm"
+      ],
+      "caught_by": [
+        "llm"
+      ],
+      "uncaught": false,
+      "off_prediction_layers": []
+    },
+    {
+      "gt_id": "GT-5",
+      "severity": "high",
+      "rule": "E02",
+      "headline": "Flagship XGBoost models report no calibration, no DCA, and no CI on the AUROCs",
+      "expected_layers": [
+        "llm",
+        "rag"
+      ],
+      "caught_by": [
+        "rag",
+        "llm"
+      ],
+      "uncaught": false,
+      "off_prediction_layers": []
+    },
+    {
+      "gt_id": "GT-6",
+      "severity": "medium",
+      "rule": "F01",
+      "headline": "Kidney definition leakage for the comorbidity outcome (BUN)",
+      "expected_layers": [
+        "deterministic",
+        "llm"
+      ],
+      "caught_by": [
+        "deterministic",
+        "rag",
+        "llm"
+      ],
+      "uncaught": false,
+      "off_prediction_layers": [
+        "rag"
+      ]
+    }
+  ],
+  "metrics": {
+    "n_ground_truth": 6,
+    "deterministic_concern_coverage": "2/6",
+    "deterministic_column_recall": "3/5",
+    "rag_retrieval_self_consistency": "5/6",
+    "llm_self_attested_coverage": "6/6",
+    "union_any_layer": "6/6",
+    "union_reproducible_layers_only": "5/6",
+    "reproducible_verdict": "fail",
+    "frozen_augmented_verdict": "fail",
+    "off_prediction_hits": [
+      "GT-6"
+    ],
+    "asymmetry": {
+      "property": "structural",
+      "note": "final = min(...) can never RAISE a verdict by construction. This N=1 cannot empirically TEST asymmetry: rag_verdict is a fixed advisory cap and every layer here lands at <= concern, so nothing was in a position to (incorrectly) raise the verdict. Report this as a design invariant, not a measurement."
+    }
+  },
+  "followups": [
+    {
+      "type": "disease_kb_synonym_gap",
+      "detail": "definition_variable_guard missed ['FBG', 'Cr'] because the disease-KB definition_variables_to_exclude lists canonical names but not these abbreviations ('fbg' for fasting_plasma_glucose, 'cr' for creatinine).",
+      "proposed_fix": "Add 'fbg' to type_2_diabetes and 'cr' to chronic_kidney_disease synonym lists in disease-definition-knowledge-base.json (REQUIRES human confirmation; references/*.json is not auto-edited).",
+      "caught_instead_by": [
+        "llm"
+      ]
+    }
+  ]
+}

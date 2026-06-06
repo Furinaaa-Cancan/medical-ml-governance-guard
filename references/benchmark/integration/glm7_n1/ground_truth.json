@@ -1,0 +1,92 @@
+{
+  "_comment": "READ-ONLY answer key for the GLM7 N=1 record (validity control C5: ground truth lives separately from the generated record.json and is loaded only AFTER each layer's flags are produced). Concerns are grounded in the paper's own text (quotes) and confirmed by an independent fresh-context Claude reviewer (see llm_review.frozen.json). Data fields (deterministic_target, definition_columns, rag_failure_classes) drive the runner so attribution is read from this file, not hardcoded in code.",
+  "_provenance_caveats": {
+    "rag_concern_ids": "IMPORTANT: these KB concern ids were OBSERVED from a retrieve_for_failure run, not pre-registered blind. So the RAG metric they drive is retrieval SELF-CONSISTENCY (does the shipping path surface an on-topic KB concern for each failure class), NOT recall against an independent answer key. Do not read it as blind recall.",
+    "expected_layers": "Analyst's pre-registration of which layer SHOULD catch each concern. The runner scores actual caught_by against it and flags off-prediction hits (it does not silently inflate)."
+  },
+  "case_id": "glm7-n1",
+  "rule_legend": {
+    "F01": "A label / outcome-defining variable must not be a feature.",
+    "F02": "No information from after the prediction time point.",
+    "M01": "The test set must not participate in tuning / selection.",
+    "E01": "Primary metric must report 95% CI.",
+    "E02": "Full metric panel (AUROC + calibration + MCC + DCA)."
+  },
+  "rag_failure_classes": [
+    {"label": "definition_leakage", "gate": "definition_variable_guard", "codes": ["definition_variable_leakage"]},
+    {"label": "cross_sectional", "gate": "cohort_definition_gate", "codes": ["cross_sectional_as_prediction", "temporal_leakage"]},
+    {"label": "selection_leakage", "gate": "leakage_gate", "codes": ["feature_selection_leakage", "test_set_tuning"]},
+    {"label": "incomplete_eval", "gate": "clinical_metrics_gate", "codes": ["missing_calibration", "missing_ci"]}
+  ],
+  "concerns": [
+    {
+      "id": "GT-1",
+      "severity": "critical",
+      "rule": "F01",
+      "headline": "Circular diabetes model: HbA1c / FBG / Insulin both DEFINE and PREDICT DM",
+      "evidence_quote": "DM was defined as having a history of diabetes or an HbA1c level > 6.5%. ... For DM, the most informative 10 factors were HbA1c, TYG, TYG_BMI, insulin, AIP, TG, LDL-c, age, BMI, and RAR.",
+      "why": "HbA1c is literally the DM definition variable yet is also the top single predictor (AUC 0.881); GLM7 embeds FBG + Insulin. DM GLM7-AUC 0.966 is the highest of all five outcomes -- the definition-leakage signature.",
+      "expected_layers": ["deterministic", "rag", "llm"],
+      "deterministic_target": "dm",
+      "definition_columns": ["HbA1c", "FBG", "Insulin"],
+      "rag_concern_ids": ["PR-001-C02", "PR-EXP-0212-C01"]
+    },
+    {
+      "id": "GT-2",
+      "severity": "critical",
+      "rule": "F02",
+      "headline": "Cross-sectional data marketed as future-onset 'prediction'",
+      "evidence_quote": "A total of 26 289 individuals were included in this cross-sectional investigation ... predict the future onset of multiple diseases ... The outcome variables included the incidence of all diseases.",
+      "why": "NHANES and CHARLS are cross-sectional surveys with no follow-up; predictors and outcomes are measured at the same visit, so all ascertained cases are prevalent and no temporal ordering supports the 'incidence' / 'future onset' / 'prognosis' framing.",
+      "expected_layers": ["llm", "rag"],
+      "deterministic_target": null,
+      "rag_concern_ids": ["PR-001-C01", "PR-024-C01"]
+    },
+    {
+      "id": "GT-3",
+      "severity": "high",
+      "rule": "M01",
+      "headline": "Feature/index selection performed on the full dataset before the train/test split",
+      "evidence_quote": "we ultimately focused on exploring the impact of seven routine detection indicators ... incorporating insights from univariate regression analysis, the GLM7 formula was refined",
+      "why": "Univariate AUC ranking over all 49 indicators and the GLM7 refinement use the whole sample with no mention of a prior split; the 0.7:0.3 split appears only later in the XGBoost methods, so the test set informed selection -> optimistic test performance.",
+      "expected_layers": ["llm", "rag"],
+      "deterministic_target": null,
+      "rag_concern_ids": ["PR-111-C01", "PR-072-C01"]
+    },
+    {
+      "id": "GT-4",
+      "severity": "high",
+      "rule": "external_validity",
+      "headline": "CHARLS 'external validation' is re-fit inside the external cohort",
+      "evidence_quote": "For external validation, a separate cohort of 19 328 participants was drawn from The China Health and Retirement Longitudinal Study (CHARLS)",
+      "why": "The Methods assign CHARLS the single role 'external validation cohort', yet the Results report for CHARLS BOTH a training-set AUROC and a validation-set AUROC per outcome -- a transported model yields one external AUROC, not a separate CHARLS training AUROC -- so the model was re-fit inside CHARLS. Performance also shifts by dataset (liver NHANES-test 0.89 -> CHARLS 0.728).",
+      "expected_layers": ["llm"],
+      "deterministic_target": null,
+      "rag_concern_ids": ["PR-001-C06"]
+    },
+    {
+      "id": "GT-5",
+      "severity": "high",
+      "rule": "E02",
+      "headline": "Flagship XGBoost models report no calibration, no DCA, and no CI on the AUROCs",
+      "evidence_quote": "machine learning techniques grounded in the XGBoost package were leveraged for constructing predictive models.",
+      "why": "No calibration anywhere (the string 'calibrat' does not occur); the XGBoost model AUROCs are bare point estimates while only the univariate Table 2 AUCs carry 95% CI; and DCA (rmda / Figure S2) is described only for the logistic/GLM7 block, not for the flagship XGBoost predictive models that carry the clinical claim. A discrimination-only result cannot support that claim.",
+      "expected_layers": ["llm", "rag"],
+      "deterministic_target": null,
+      "rag_concern_ids": ["PR-002-C01", "PR-033-C01"]
+    },
+    {
+      "id": "GT-6",
+      "severity": "medium",
+      "rule": "F01",
+      "headline": "Kidney definition leakage for the comorbidity outcome (BUN)",
+      "evidence_quote": "Comorbid conditions were defined as the presence of any of the following conditions: failing kidneys, ... ; Regarding other comorbidities, the most informative 10 factors were age, TYG, TYG_BMI, LDL-c, TG, insulin, BUN, AIP, and RAR.",
+      "why": "'failing kidneys' (CKD) is part of the comorbidity outcome while BUN -- a CKD definition variable -- is an explicit top-10 predictor of that outcome. (Creatinine/Cr is also among the 49 model inputs and is a CKD definition variable, but it is NOT in the comorbidity top-10, so only BUN is claimed as a top predictor here.)",
+      "expected_layers": ["deterministic", "llm"],
+      "deterministic_target": "comorbidity_ckd",
+      "definition_columns": ["BUN", "Cr"],
+      "rag_concern_ids": ["PR-001-C02"],
+      "rag_concern_ids_note": "PR-001-C02 is the same KB concern credited to GT-1 (a shared definition-leakage concern). The runner counts distinct retrievals so this does not double-inflate the retrieval-relevance number."
+    }
+  ]
+}

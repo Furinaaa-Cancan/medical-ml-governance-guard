@@ -1,0 +1,62 @@
+{
+  "_comment": "FROZEN INPUT for the GLM7 integration-benchmark N=1 record. All fields are faithfully extracted from the paper's own full text (methods/results). Do not edit to match a desired outcome; edit only to correct a transcription error against the source, and re-stamp fulltext_sha256.",
+  "case_id": "glm7-n1",
+  "tier": "B+",
+  "tier_rationale": "Real paper, methods-text + declared-feature coverage (RAG + LLM + the disease-KB definition check on declared features). NOT full 33-gate execution: that consumes evidence/*.json from an instrumented training run, which a published paper does not emit (see integration-benchmark-PLAN.md S5).",
+  "title": "GLM7 – A Novel Composite Glycolipid Index Derived from Routine Health Indicators for Enhanced Diagnosis and Prediction of Multimorbidity",
+  "doi": "10.1002/advs.202510552",
+  "journal": "Advanced Science",
+  "year": 2025,
+  "pmc": "PMC12622479",
+  "source": {
+    "fulltext_origin": "NCBI BioC API (pmcoa.cgi BioC_json PMC12622479/unicode)",
+    "fulltext_sha256": "88d9225e3138568f45a1b60a6e7f6b8a64062748b2244148ca176a640fb5a595",
+    "fulltext_chars": 54989,
+    "in_peer_review_kb": false,
+    "in_peer_review_kb_note": "Confirmed absent (DOI / 'glm7' / cohort size 26289 all not present). So this is a genuine OUT-OF-KB external paper: RAG retrieval cannot self-leak this paper's own concerns; LOPO exclusion is a declared no-op here."
+  },
+  "design": {
+    "type": "cross-sectional",
+    "declared_quote": "A total of 26 289 individuals were included in this cross-sectional investigation, all of whom were participants in the National Health and Nutrition Examination Survey (NHANES) conducted over the period of 2013-2023.",
+    "framing_quotes": [
+      "Harnessing routine health examination data efficiently to predict the future onset of multiple diseases is critical",
+      "its significant potential as a novel diagnostic and predictive tool for diseases in the future",
+      "The outcome variables included the incidence of all diseases"
+    ],
+    "framing_conflict": "Data are explicitly cross-sectional (NHANES/CHARLS surveys with no follow-up; predictors and outcomes measured at the same visit), so all ascertained cases are PREVALENT; yet outcomes are labeled 'incidence' and the index is marketed for 'future onset' prediction."
+  },
+  "data": {
+    "derivation_cohort": {"name": "NHANES", "years": "2013-2023", "n": 26289},
+    "external_cohort": {"name": "CHARLS", "years": "2011-2020", "n": 19328,
+      "note": "Reported as 'external validation', but the text reports BOTH a training and a validation AUROC within CHARLS (model re-fit inside the external cohort) -> not a clean transportability test."}
+  },
+  "outcomes": {
+    "DM": {"definition_quote": "DM was defined as having a history of diabetes or an HbA1c level > 6.5%.", "n_cases": 5136},
+    "CVD": {"definition_quote": "CVD was defined as the presence of any of the following conditions: heart failure, stroke, coronary artery disease, heart attack (myocardial infarction), and angina pectoris, or as having a history of CVD.", "n_cases": 3097},
+    "liver_disease": {"definition_quote": "diagnosed with any liver condition by a physician", "n_cases": 1249},
+    "cancer": {"definition_quote": "diagnosed with any neoplastic disease by a physician", "n_cases": 2690},
+    "comorbidity": {"definition_quote": "the presence of any of the following conditions: failing kidneys, chronic bronchitis, thyroid problems, and rheumatoid disorders.", "n_cases": 4582,
+      "note": "'failing kidneys' is the CKD/renal-failure component; predictors include BUN and Cr (creatinine), which are CKD definition variables."}
+  },
+  "predictors": {
+    "n_declared": 49,
+    "feature_manifest_csv": "inputs/features.csv",
+    "groups": {
+      "demographic": ["Age", "Gender", "Race", "Education", "Marital", "PIR", "Smoke", "Alcohol", "Sleep_time", "Sport_level", "BMI"],
+      "examination": ["ALT", "AST", "ALP", "ALB", "BUN", "Cr", "UA", "HbA1c", "FBG", "GGT", "Insulin", "TG", "HDL-c", "LDL-c", "TC", "LDH", "Hb", "GLOB", "Ca", "Na", "K", "P"],
+      "complete_blood_count": ["Basophil", "Eosinophil", "Lymphocyte", "Monocyte", "Neutrophils", "MCHC", "Platelet", "RBC", "RDW", "WBC", "TBIL"],
+      "derived": ["AIP", "UHR", "RAR", "TYG", "TYG_BMI", "GLM7"]
+    },
+    "glm7_formula": "log10[Age * BMI * FBG * Insulin * TG * LDL-c / HDL-c]",
+    "glm7_formula_note": "The composite predictor itself embeds FBG and Insulin (diabetes metabolic variables); for DM this folds definition-adjacent variables into the index."
+  },
+  "feature_selection_quote": "we ultimately focused on exploring the impact of seven routine detection indicators-age, TG, FBG, BMI, HDL-c, LDL-c, and insulin... Building on this understanding and incorporating insights from univariate regression analysis, the GLM7 formula was refined",
+  "feature_selection_note": "Univariate AUC ranking of all 49 indicators was computed on the full dataset; the 7-factor GLM7 was then refined from that ranking BEFORE the train/test split -> selection used the whole sample.",
+  "ml_method": "XGBoost predictive models (R 4.4.3)",
+  "reported_metrics": {
+    "GLM7_AUC_by_disease": {"CVD": 0.933, "DM": 0.966, "liver": 0.894, "cancer": 0.887, "comorbid": 0.867},
+    "single_variable_DM_AUC": {"HbA1c": 0.881, "Insulin": 0.809, "TYG": 0.878, "TYG_BMI": 0.836, "AIP": 0.794, "FBG": 0.621},
+    "too_good_signature": "GLM7 DM-AUC = 0.966 is the highest of the five outcomes, and HbA1c ALONE reaches 0.881 for DM -- the fingerprint of definition leakage, not a transportable signal.",
+    "missing": ["calibration curve / results", "decision-curve (DCA) results despite rmda mentioned", "95% CI on the XGBoost AUROCs"]
+  }
+}
