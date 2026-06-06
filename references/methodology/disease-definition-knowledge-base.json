@@ -1,5 +1,5 @@
 {
-  "version": "1.2",
+  "version": "1.3",
   "description": "Disease definition knowledge base for clinical prediction models. Based on UK Biobank phenotyping methodology (Torralbo 2025, Eastwood 2016). Provides multi-source definition templates that can be adapted to any dataset, not just UKB.",
   "methodology_reference": {
     "framework": "Torralbo et al. A computational framework for defining and validating reproducible phenotyping algorithms of 313 diseases. Scientific Reports. 2025;15. doi:10.1038/s41598-025-05838-9",
@@ -206,16 +206,23 @@
         ]
       },
       "definition_variables_to_exclude": [
+        "a1c",
         "c_peptide",
         "diabetes_diagnosis",
         "diabetes_status",
         "dm_flag",
+        "fasting_blood_glucose",
+        "fasting_blood_sugar",
         "fasting_glucose",
         "fasting_plasma_glucose",
         "fbg",
         "fpg",
+        "glucose_tolerance_test",
+        "glycated_hemoglobin",
         "glycohemoglobin",
+        "glycosylated_hemoglobin",
         "hba1c",
+        "hgba1c",
         "homa_ir",
         "insulin",
         "insulin_level",
@@ -226,7 +233,8 @@
         "oral_glucose_tolerance_test",
         "random_glucose",
         "random_glucose_result",
-        "random_plasma_glucose"
+        "random_plasma_glucose",
+        "t2dm"
       ],
       "ukb_definition_fields": [
         "30750",
@@ -332,13 +340,17 @@
         "bp_systolic",
         "dbp",
         "dbp_mean",
+        "diabp",
         "diastolic",
         "diastolic_blood_pressure",
+        "diastolic_bp",
         "hypertension_flag",
         "sbp",
         "sbp_mean",
+        "sysbp",
         "systolic",
-        "systolic_blood_pressure"
+        "systolic_blood_pressure",
+        "systolic_bp"
       ],
       "ukb_definition_fields": [
         "4080",
@@ -470,9 +482,12 @@
         "angina_flag",
         "cad_flag",
         "ck_mb",
+        "ctni",
+        "ctnt",
         "heart_attack",
         "hs_ctnt",
         "hs_troponin",
+        "hsctni",
         "mi_flag",
         "troponin",
         "troponin_i",
@@ -570,6 +585,8 @@
         "creatinine_serum",
         "cystatin_c",
         "egfr",
+        "estimated_gfr",
+        "gfr",
         "kidney_function",
         "serum_creatinine",
         "uacr"
@@ -654,10 +671,15 @@
         }
       ],
       "definition_variables_to_exclude": [
+        "b_type_natriuretic_peptide",
         "bnp",
+        "brain_natriuretic_peptide",
         "ejection_fraction",
         "heart_failure_flag",
+        "left_ventricular_ejection_fraction",
+        "lv_ejection_fraction",
         "lvef",
+        "n_terminal_pro_bnp",
         "nt-probnp",
         "nt_probnp",
         "ntprobnp",
@@ -738,8 +760,12 @@
         }
       ],
       "definition_variables_to_exclude": [
+        "cerebrovascular_accident",
+        "nih_stroke_scale",
+        "nihss",
         "nihss_score",
         "stroke_flag",
+        "stroke_subtype",
         "stroke_type"
       ],
       "ukb_definition_fields": [
@@ -816,14 +842,17 @@
       "definition_variables_to_exclude": [
         "copd_gold_stage",
         "fev1",
+        "fev1_fvc",
         "fev1_fvc_ratio",
         "fev1_pct",
         "fev1_percent_predicted",
+        "fev1_pp",
         "fev1_predicted",
         "fvc",
         "peak_expiratory_flow",
         "peak_flow",
         "pef",
+        "pefr",
         "spirometry"
       ],
       "ukb_definition_fields": [
@@ -910,10 +939,13 @@
       ],
       "note": "Self-report and medication alone have high false-positive rate. Structured clinical interview (SCID) is gold standard but rarely available in large datasets.",
       "definition_variables_to_exclude": [
+        "cesd",
         "cesd_score",
         "depression_flag",
         "depression_score",
+        "phq2",
         "phq2_score",
+        "phq9",
         "phq9_score"
       ],
       "ukb_definition_fields": [
@@ -1013,7 +1045,8 @@
         "cancer_flag",
         "cancer_type",
         "tnm_stage",
-        "tumor_stage"
+        "tumor_stage",
+        "tumour_stage"
       ],
       "ukb_definition_fields": [
         "40005",
@@ -1087,10 +1120,13 @@
       ],
       "definition_variables_to_exclude": [
         "af_flag",
+        "afib",
         "atrial_fibrillation_status",
         "ecg",
         "ecg_result",
         "ecg_rhythm",
+        "ekg",
+        "electrocardiogram",
         "holter",
         "holter_monitor",
         "holter_result",
@@ -1150,8 +1186,13 @@
       ],
       "definition_variables_to_exclude": [
         "days_to_readmission",
+        "is_readmitted",
         "readmission_flag",
-        "readmit_status"
+        "readmit",
+        "readmit_status",
+        "readmitted",
+        "time_to_readmission",
+        "unplanned_readmission"
       ],
       "recommended_adjudication": "any_one",
       "note": "This is an administrative outcome, not a clinical diagnosis. Definition depends on data source (claims vs EHR). CMS definition is the de facto standard in the US.",
@@ -1196,6 +1237,11 @@
       "version": "1.2",
       "date": "2026-06-06",
       "change": "Added common abbreviation synonyms to definition_variables_to_exclude: 'fbg' (fasting blood glucose) to type_2_diabetes alongside the existing fpg/fasting_plasma_glucose; 'cr' (creatinine) to chronic_kidney_disease alongside the existing creatinine/serum_creatinine. Synonym expansion only -- no new clinical claim, so per-disease clinician_review_status is unchanged. Surfaced by the GLM7 integration-benchmark N=1 (definition_variable_guard missed the 'FBG'/'Cr' columns because the canonical-name list lacked these abbreviations); the guard now catches them (column recall 3/5 -> 5/5)."
+    },
+    {
+      "version": "1.3",
+      "date": "2026-06-06",
+      "change": "Synonym-coverage audit: added 41 common abbreviation/spell-out synonyms of variables ALREADY represented, across 11 diseases (e.g. a1c/glycated_hemoglobin for hba1c; sysbp/systolic_bp for systolic_blood_pressure; ctni/ctnt for troponin; gfr/estimated_gfr for egfr; ekg/afib for ecg/af; nihss for nihss_score). Each was adversarially vetted for false-positive collision risk in a feature CSV (short/ambiguous tokens like fbs/htn/acr/scr/ef/cva/gtt/malignancy were REJECTED). Synonym expansion only -- no new clinical entity -- so per-disease clinician_review_status is unchanged. Four candidates that cross into NEW defining variables (albuminuria, bdi, bdiii, afburden) were deferred to clinical review, see disease-kb-clinical-review-queue.md. Motivated by the GLM7 integration-benchmark N=1, which showed the canonical-name lists were missing common abbreviations."
     }
   ]
 }
