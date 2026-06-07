@@ -1,0 +1,311 @@
+{
+  "case_id": "glm7-n1",
+  "schema": "integration_benchmark_n1.v2",
+  "generated_by": "scripts/rag/evals/run_glm7_n1.py",
+  "tier": "B+",
+  "provenance": {
+    "fulltext_sha256": "88d9225e3138568f45a1b60a6e7f6b8a64062748b2244148ca176a640fb5a595",
+    "disease_kb_version": "1.2",
+    "in_peer_review_kb": false,
+    "lopo_excluded_paper_ids": [
+      "glm7-n1-not-in-kb"
+    ]
+  },
+  "layers": {
+    "deterministic": {
+      "measured": true,
+      "reproducible": true,
+      "guard_runs": [
+        {
+          "target": "comorbidity_ckd",
+          "status": "fail",
+          "exit_code": 2,
+          "hits": [
+            {
+              "feature": "BUN",
+              "matched_rule": "bun"
+            },
+            {
+              "feature": "Cr",
+              "matched_rule": "cr"
+            }
+          ],
+          "emitted_codes": [
+            "definition_variable_leakage"
+          ]
+        },
+        {
+          "target": "dm",
+          "status": "fail",
+          "exit_code": 2,
+          "hits": [
+            {
+              "feature": "FBG",
+              "matched_rule": "fbg"
+            },
+            {
+              "feature": "HbA1c",
+              "matched_rule": "hba1c"
+            },
+            {
+              "feature": "Insulin",
+              "matched_rule": "insulin"
+            }
+          ],
+          "emitted_codes": [
+            "definition_variable_leakage"
+          ]
+        }
+      ],
+      "verdict": "fail",
+      "binding": true,
+      "concern_coverage": "2/6",
+      "column_level": {
+        "expected_definition_columns": [
+          "HbA1c",
+          "FBG",
+          "Insulin",
+          "BUN",
+          "Cr"
+        ],
+        "caught": [
+          "BUN",
+          "Cr",
+          "FBG",
+          "HbA1c",
+          "Insulin"
+        ],
+        "missed": [],
+        "recall": "5/5"
+      }
+    },
+    "rag": {
+      "metric_kind": "retrieval_self_consistency",
+      "metric_caveat": "GT rag ids were observed from retrieval, so this is NOT blind recall.",
+      "reproducible": true,
+      "retrievals": {
+        "definition_leakage": [
+          "PR-EXP-0212-C01",
+          "PR-001-C02",
+          "PR-EXP-0098-C01",
+          "PR-EXP-0105-C01"
+        ],
+        "cross_sectional": [
+          "PR-001-C01",
+          "PR-024-C01",
+          "PR-029-C01",
+          "PR-EXP-0110-C02"
+        ],
+        "selection_leakage": [
+          "PR-111-C01",
+          "PR-EXP-0155-C03",
+          "PR-072-C01",
+          "PR-114-C04"
+        ],
+        "incomplete_eval": [
+          "PR-002-C01",
+          "PR-033-C01",
+          "PR-002-C07",
+          "PR-EXP-0153-C04"
+        ]
+      },
+      "failure_class_provenance": {
+        "definition_leakage": {
+          "source": "gate_run",
+          "codes_used": [
+            "definition_variable_leakage"
+          ],
+          "gate": "definition_variable_guard"
+        },
+        "cross_sectional": {
+          "source": "analysis",
+          "codes_used": [
+            "cross_sectional_as_prediction",
+            "temporal_leakage"
+          ],
+          "gate": "cohort_definition_gate"
+        },
+        "selection_leakage": {
+          "source": "analysis",
+          "codes_used": [
+            "feature_selection_leakage",
+            "test_set_tuning"
+          ],
+          "gate": "leakage_gate"
+        },
+        "incomplete_eval": {
+          "source": "analysis",
+          "codes_used": [
+            "missing_calibration",
+            "missing_ci"
+          ],
+          "gate": "clinical_metrics_gate"
+        }
+      },
+      "gate_derived_classes": [
+        "definition_leakage"
+      ],
+      "verdict": "concern",
+      "on_topic_coverage": "5/6",
+      "distinct_concerns_credited": 8,
+      "independent_precision": "8/16"
+    },
+    "llm": {
+      "metric_kind": "self_attested",
+      "metric_caveat": "self_attested_coverage is from the frozen file's own addresses_gt; blind_adjudicated_coverage is the independent blind check (see adjudication).",
+      "reproducible": false,
+      "verdict": "fail",
+      "self_attested_coverage": "6/6",
+      "blind_adjudicated_coverage": "6/6"
+    }
+  },
+  "attribution": [
+    {
+      "gt_id": "GT-1",
+      "severity": "critical",
+      "rule": "F01",
+      "headline": "Circular diabetes model: HbA1c / FBG / Insulin both DEFINE and PREDICT DM",
+      "expected_layers": [
+        "deterministic",
+        "rag",
+        "llm"
+      ],
+      "caught_by": [
+        "deterministic",
+        "rag",
+        "llm"
+      ],
+      "uncaught": false,
+      "off_prediction_layers": []
+    },
+    {
+      "gt_id": "GT-2",
+      "severity": "critical",
+      "rule": "F02",
+      "headline": "Cross-sectional data marketed as future-onset 'prediction'",
+      "expected_layers": [
+        "llm",
+        "rag"
+      ],
+      "caught_by": [
+        "rag",
+        "llm"
+      ],
+      "uncaught": false,
+      "off_prediction_layers": []
+    },
+    {
+      "gt_id": "GT-3",
+      "severity": "high",
+      "rule": "M01",
+      "headline": "Feature/index selection performed on the full dataset before the train/test split",
+      "expected_layers": [
+        "llm",
+        "rag"
+      ],
+      "caught_by": [
+        "rag",
+        "llm"
+      ],
+      "uncaught": false,
+      "off_prediction_layers": []
+    },
+    {
+      "gt_id": "GT-4",
+      "severity": "high",
+      "rule": "external_validity",
+      "headline": "CHARLS 'external validation' is re-fit inside the external cohort",
+      "expected_layers": [
+        "llm"
+      ],
+      "caught_by": [
+        "llm"
+      ],
+      "uncaught": false,
+      "off_prediction_layers": []
+    },
+    {
+      "gt_id": "GT-5",
+      "severity": "high",
+      "rule": "E02",
+      "headline": "Flagship XGBoost models report no calibration, no DCA, and no CI on the AUROCs",
+      "expected_layers": [
+        "llm",
+        "rag"
+      ],
+      "caught_by": [
+        "rag",
+        "llm"
+      ],
+      "uncaught": false,
+      "off_prediction_layers": []
+    },
+    {
+      "gt_id": "GT-6",
+      "severity": "medium",
+      "rule": "F01",
+      "headline": "Kidney definition leakage for the comorbidity outcome (BUN)",
+      "expected_layers": [
+        "deterministic",
+        "llm"
+      ],
+      "caught_by": [
+        "deterministic",
+        "rag",
+        "llm"
+      ],
+      "uncaught": false,
+      "off_prediction_layers": [
+        "rag"
+      ]
+    }
+  ],
+  "metrics": {
+    "n_ground_truth": 6,
+    "deterministic_concern_coverage": "2/6",
+    "deterministic_column_recall": "5/5",
+    "rag_retrieval_self_consistency": "5/6",
+    "rag_independent_precision": "8/16",
+    "llm_self_attested_coverage": "6/6",
+    "llm_blind_adjudicated_coverage": "6/6",
+    "llm_self_attestation_validated": true,
+    "union_any_layer": "6/6",
+    "union_reproducible_layers_only": "5/6",
+    "reproducible_verdict": "fail",
+    "frozen_augmented_verdict": "fail",
+    "off_prediction_hits": [
+      "GT-6"
+    ],
+    "asymmetry": {
+      "property": "structural",
+      "note": "final = min(...) can never RAISE a verdict by construction. This N=1 cannot empirically TEST asymmetry: rag_verdict is a fixed advisory cap and every layer here lands at <= concern, so nothing was in a position to (incorrectly) raise the verdict. Report this as a design invariant, not a measurement."
+    }
+  },
+  "adjudication": {
+    "method": {
+      "reviewer": "Claude Code agents (fresh context), blind to the labels under test",
+      "llm_panel_size": 3,
+      "rag_judges": "1 per failure class (4)",
+      "date": "2026-06-07",
+      "paid_api_call": false,
+      "independence": "blind-to-labels, same model family (not cross-model)"
+    },
+    "reproducible": false,
+    "llm": {
+      "blind_adjudicated_coverage": "6/6",
+      "blind_matches_self_declared": "6/6",
+      "self_attestation_validated": true
+    },
+    "rag": {
+      "independent_precision": "8/16",
+      "per_class": {
+        "definition_leakage": "1/4",
+        "cross_sectional": "2/4",
+        "selection_leakage": "2/4",
+        "incomplete_eval": "3/4"
+      }
+    },
+    "note": "Blind-to-labels (panel never saw addresses_gt; relevance judged blind to retrieval rank), same model family -- catches self-attestation inflation, not shared-model bias."
+  },
+  "followups": []
+}

@@ -1,0 +1,34 @@
+{
+  "_comment": "FROZEN capture of the LLM advisory layer. The reviewer is Claude Code itself (an agent), NOT a paid API call -- so this layer is NOT script-reproducible: re-running spawns a fresh agent whose wording varies. We freeze the captured output + the method so the record is auditable. The runner treats this file as a fixed input and does not regenerate it.",
+  "_scoring_caveat": "Each concern's 'addresses_gt' is SELF-DECLARED by the same analyst who wrote ground_truth.json; the runner credits the LLM via these tags without independently re-matching message text to GT. So the LLM 'coverage' number is SELF-ATTESTED, not independently adjudicated, and the reviewer is non-reproducible. Treat it as a captured claim, not a measured recall. Independent adjudication (a blind matcher) is future work (plan P2 / C3).",
+  "method": {
+    "reviewer": "Claude Code agent (Opus 4.x), spawned with fresh/independent context",
+    "independence_note": "Deliberately spawned WITHOUT the main conversation's prior (abstract-based) analysis, to avoid confirmation bias -- the prompt described the audit METHOD, not the expected findings. This is the session's 'independent adversarial reviewer' discipline.",
+    "input": "full text of PMC12622479 (sha256 88d9225e...), 54989 chars",
+    "date": "2026-06-06",
+    "deterministic": false,
+    "paid_api_call": false
+  },
+  "verdict": "not_publication_grade",
+  "verdict_quote": "Not publication-grade. It is a cross-sectional study marketed as future-onset 'prediction', and its flagship diabetes result is circular -- FBG/insulin/HbA1c both define and predict diabetes, so DM AUC ~0.95-0.97 reflects definition leakage, not a useful tool.",
+  "concerns": [
+    {"severity": "major", "addresses_gt": "GT-1", "code": "definition_leakage_dm",
+     "message": "Diabetes model is circular: DM is defined by HbA1c>6.5%, and HbA1c/insulin (+FBG via GLM7) are top predictors. DM AUC 0.95-0.97 and HbA1c-alone 0.881 are the leakage signature.",
+     "novelty_vs_rag": "synthesized (ties the paper's own DM definition to its feature list and the AUC gradient; not a verbatim KB copy)"},
+    {"severity": "major", "addresses_gt": "GT-2", "code": "cross_sectional_as_prediction",
+     "message": "Explicitly cross-sectional ('26 289 individuals ... cross-sectional investigation') yet claims future onset / prediction / prognosis. All NHANES cases are prevalent, not incident.",
+     "novelty_vs_rag": "synthesized"},
+    {"severity": "major", "addresses_gt": "GT-3", "code": "selection_leakage",
+     "message": "Feature/threshold selection (univariate AUC ranking, 7-factor GLM7 refinement) done on the full dataset before the 0.7:0.3 split -> selection leakage. Also found an 'ElasticNet ... superior' sentence embedded in the XGBoost section -- a likely copy-paste/reproducibility red flag.",
+     "novelty_vs_rag": "synthesized + NEW (the ElasticNet/XGBoost copy-paste artifact is not in any KB concern; pure full-text catch)"},
+    {"severity": "major", "addresses_gt": "GT-4", "code": "external_validation_refit",
+     "message": "CHARLS 'external validation' reports both a training and a validation AUROC within CHARLS (model re-fit inside the external cohort); liver AUC drops 0.89->0.73 -> dataset-specific, not transported.",
+     "novelty_vs_rag": "synthesized (corrects the over-generous 'clean external cohort' read)"},
+    {"severity": "major", "addresses_gt": "GT-5", "code": "incomplete_evaluation",
+     "message": "No calibration, no DCA results (despite rmda mentioned), no CIs on the XGBoost AUROCs. Discrimination-only cannot support the clinical-use claim.",
+     "novelty_vs_rag": "copy_from_rag-adjacent (echoes PR-002-C01 family but adds the missing-DCA-despite-rmda specific)"},
+    {"severity": "minor", "addresses_gt": "GT-6", "code": "ckd_definition_leakage",
+     "message": "BUN and creatinine (CKD definition variables) are predictors of the comorbidity outcome that includes 'failing kidneys'.",
+     "novelty_vs_rag": "synthesized"}
+  ]
+}
