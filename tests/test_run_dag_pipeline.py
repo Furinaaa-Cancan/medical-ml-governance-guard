@@ -271,6 +271,40 @@ class TestBuildAggregationCmd:
         # Leakage report was not created → flag should be omitted
         assert "--leakage-report" not in cmd
 
+    def test_skipped_gates_declared_but_crash_stays_undeclared(self, tmp_path: Path):
+        """Skip-vs-crash fail-open fix (orchestrator side): publication_gate gets
+        --skipped-gates listing the INTENTIONALLY-skipped components, but a crashed
+        dependency (meant to run, no report) is NOT declared, so the gate fails
+        closed on it. Directly pins the security-critical declared/crashed split."""
+        report_paths = _make_report_paths(tmp_path)
+        for p in report_paths.values():
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text("{}", encoding="utf-8")
+        # split_protocol_gate auto-skipped (intentional → no report, declared);
+        # leakage_gate CRASHED (meant to run, no report, NOT declared).
+        report_paths["split_protocol_gate"].unlink()
+        report_paths["leakage_gate"].unlink()
+        args = _make_args()
+        args.skipped_component_names = ["split_protocol_report"]
+        cmd = _build_aggregation_cmd("publication_gate", report_paths, args)
+        assert "--skipped-gates" in cmd
+        declared = cmd[cmd.index("--skipped-gates") + 1].split(",")
+        assert "split_protocol_report" in declared      # intentional skip → tolerated
+        assert "leakage_report" not in declared          # crash → undeclared → fail closed
+
+    def test_skipped_gates_absent_for_legacy_callers(self, tmp_path: Path):
+        """Backward compat: without skipped_component_names on args, no --skipped-gates
+        flag is emitted (publication_gate stays in legacy lenient mode)."""
+        report_paths = _make_report_paths(tmp_path)
+        for p in report_paths.values():
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text("{}", encoding="utf-8")
+        args = _make_args()  # no skipped_component_names attribute
+        if hasattr(args, "skipped_component_names"):
+            delattr(args, "skipped_component_names")
+        cmd = _build_aggregation_cmd("publication_gate", report_paths, args)
+        assert "--skipped-gates" not in cmd
+
     def test_self_critique_forwards_allow_missing_comparison(self):
         report_paths = _make_report_paths(Path("/tmp/ev"))
         args = _make_args(allow_missing_compare=True)

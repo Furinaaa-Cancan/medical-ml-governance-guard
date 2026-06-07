@@ -160,6 +160,20 @@ def parse_args() -> argparse.Namespace:
             "where the KB is not referenced (e.g., synthetic-data demos)."
         ),
     )
+    parser.add_argument(
+        "--skipped-gates",
+        default=None,
+        help=(
+            "Comma-separated component report names the orchestrator INTENTIONALLY "
+            "skipped (e.g. split_protocol_report when there is no test split). "
+            "Closes the skip-vs-crash fail-open: when this is provided, a component "
+            "that is entirely absent AND not in this list means the detector "
+            "crashed / was dropped, so the gate fails closed. Absent + listed = a "
+            "legitimate skip (tolerated). Omitting the flag entirely keeps the "
+            "legacy lenient behavior (absent = tolerated) for partial-evidence "
+            "callers that do not declare their skips."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -921,6 +935,24 @@ def main() -> int:
                 )
 
     strict_optional_components = set()
+    # Skip-vs-crash fail-open fix (audit deferred MUST-FIX): an ENTIRELY-absent
+    # leakage-detector report was previously skipped ("not failed"), so a crashed
+    # detector dropped by the orchestrator's exists() filter let the gate exit
+    # 0/pass with compliance="none". A crash and a LEGITIMATE auto-skip (e.g.
+    # split_protocol_gate in CV-only / no-test-split mode) are byte-identical at
+    # this gate's input, so the orchestrator must DECLARE its intentional skips
+    # via --skipped-gates. With that list present, an absent component NOT in it
+    # means the detector crashed -> fail closed. Absent + declared = tolerated.
+    # Flag entirely omitted (legacy / partial-evidence callers) -> lenient (no
+    # behavior change). See run_dag_pipeline, which passes the auto-skipped set.
+    _declared_skipped = (
+        None if getattr(args, "skipped_gates", None) is None
+        else {s.strip() for s in str(args.skipped_gates).split(",") if s.strip()}
+    )
+    # Genuinely-optional components (loaded only when provided); exempt from the
+    # new fail-closed-on-undeclared-absence branch. Single source of truth, also
+    # used by the tier-membership check below.
+    _OPTIONAL_COMPONENTS = {"cohort_definition_report", "shap_interpretability_report"}
     for component in (
         "request_report",
         "execution_attestation_report",
@@ -951,14 +983,29 @@ def main() -> int:
         "sample_size_report",
         "cohort_definition_report",
         "shap_interpretability_report",
-        "distribution_generalization_report",
-        "external_validation_report",
-        "robustness_report",
-        "seed_stability_report",
     ):
         # Only validate components that were provided (have a file path).
-        # Missing optional components are skipped, not failed.
+        # An entirely-absent component is tolerated ONLY if the orchestrator
+        # declared it as intentionally skipped; an undeclared absence (when a
+        # skip list was given) means the detector crashed / was dropped -> fail
+        # closed. No skip list (legacy) -> tolerated, as before. The genuinely
+        # OPTIONAL components (cohort_definition / shap, see _TIER_OPTIONAL_GATES)
+        # are exempt — they are loaded only when provided and may be legitimately
+        # absent without an explicit declaration.
         if component not in files and component not in loaded:
+            if (
+                _declared_skipped is not None
+                and component not in _declared_skipped
+                and component not in _OPTIONAL_COMPONENTS
+            ):
+                add_issue(
+                    failures,
+                    "missing_component_report",
+                    "A gate report is entirely absent and was not declared as an "
+                    "intentional skip (--skipped-gates); the detector crashed or was "
+                    "dropped, so the evidence cannot be certified.",
+                    {"component": component},
+                )
             continue
         validate_component_status(
             component,
@@ -1054,7 +1101,7 @@ def main() -> int:
     # run could earn an L1 leakage-audit tier with the leakage detectors
     # (split_protocol/definition/lineage/tuning/imbalance/missingness/
     # covariate_shift) never run (security-failclosed-fixes, SecB).
-    _TIER_OPTIONAL_GATES = {"cohort_definition_report", "shap_interpretability_report"}
+    _TIER_OPTIONAL_GATES = _OPTIONAL_COMPONENTS
 
     def _tier_passed(tier_gates: set) -> bool:
         for g in tier_gates:
