@@ -88,15 +88,72 @@ The prevalence of data leakage and methodological flaws in medical ML papers far
 
 ## Harness Engineering
 
-MLGG's core is not "yet another set of check scripts" — it is an **engineered fail-closed verification harness** that treats *trustworthy verdicts* as a first-class engineering goal:
+MLGG's central thesis is to treat the **trustworthy verdict as a first-class engineering goal**: a publication-grade governance conclusion must remain **non-forgeable, reproducible, and semantically defensible at top-journal standards** even under the threat model that *the agent producing the evidence can edit any file*. The full architecture, top-down:
 
-- **Asymmetric two-tier verdict.** 33 **deterministic gates** issue the binding pass/fail; the LLM review layer is a **read-only advisory tier** that can only **raise concerns**, never turn a gate failure into a pass. Invariant: `final_verdict = min(gate, llm)` (order FAIL < CONCERN < PASS). Trust lives in the deterministic layer, not in model output.
-- **Fail-closed everywhere.** All 33 gates **fail closed** (exit 2) on exception, missing evidence, or malformed input — there is no "error means allow" default in the safe direction.
-- **Tamper-evident certification boundary.** Every run signs each evidence envelope with a run-scoped HMAC **seal**; publication_gate **verifies the seal** before trusting any status, and execution-attestation requires a **verified signature** — the certifier never trusts agent-writable unsigned JSON (closes the C1/C2 criticals).
-- **Reproducible evidence envelope.** Every sealed report binds the runtime environment (Python + numpy / pandas / scikit-learn / scipy versions), so a verdict is sealed together with the coordinates to reproduce it.
-- **Adversarial engineering discipline.** Every security-relevant change to the harness itself goes through real-producer round-trip tests + an independent adversarial review — green CI plus self-review proved insufficient to defend the certification boundary.
+### A1 · Threat model & design axioms
 
-> In one line: **gates decide, the LLM may only doubt, a key locks the evidence, and the environment is sealed into the envelope.**
+- **Threat model (ii): defend against the agent itself.** The agent that produces evidence and the certifier that consumes it share a process family, and the agent has read/write access to files. Therefore any design that *trusts the JSON `status` an agent wrote* is unsound — trust must be anchored to a **key the agent does not hold** and to **deterministic computation**, not to model output.
+- **Axiom: no default-allow in the safe direction.** Exceptions, missing evidence, and malformed input all fail closed (`exit 2`). In a governance harness "error means pass" is a critical defect, not graceful degradation.
+
+### A2 · Three-layer verdict architecture (data flow)
+
+```
+code     ─[static]──> 30 AST lint rules (R001–R030)        structural anti-patterns, zero runtime deps
+evidence ─[determin.]> 33 fail-closed gates (9-layer DAG) ─> each emits a sealed report envelope
+                                              │
+synthesis─[advisory]─> LLM review layer (read-only, opt-in) ─raise concerns─┤
+                                              ▼
+                                    publication_gate (certifier)
+                                              ▼
+                                     final = min(gate, llm)
+```
+
+- **Layer 1 · static (lint):** AST pattern-matching on source, zero runtime deps; catches `fit()` before the split and similar structural anti-patterns.
+- **Layer 2 · deterministic (gates):** reproducible verification over produced evidence, issuing the **binding** pass/fail — the source of trust for the whole system.
+- **Layer 3 · advisory (LLM):** hands all gate evidence + RAG reviewer quotes to an LLM to synthesize methodology concerns. **Read-only** — constraint in A3.
+
+### A3 · The asymmetry invariant (the heart)
+
+> **`final_verdict = min(gate_verdict, llm_verdict)`**, ordering **FAIL < CONCERN < PASS**.
+
+Mechanically, the LLM review report can only **append to** `failures[]` / `warnings[]` and force tier booleans **down**; there is **no code path** by which LLM input can set a tier `True` or reduce `failure_count`. "Can add doubt, never remove it" is enforced by **data flow**, not by prompt. A `blocking` concern caps the compliance tier at `none`; an `advisory` one is recorded and only fails under strict. The layer defaults to a **deterministic test double** (no network, reproducible); only `--live` makes a real Claude call.
+
+### A4 · Fail-closed contract & "skip ≠ crash"
+
+- All 33 gates obey `should_fail = bool(failures) or (strict and bool(warnings))`, `return 2 if should_fail` — `test_gate_failclosed_contract` pins this formula across all 33 gates, so any future edit dropping the strict clause fails CI.
+- **A crashed detector and a legitimately-skipped gate are byte-identical at the certifier's input** (both: flag absent, no report). So the orchestrator **declares** the components it intentionally skipped (`--skipped-gates`): an **undeclared** absence = crash = fail closed; a **declared** skip is tolerated. This closes the "a leakage detector crashed yet the certifier PASSed" fail-open.
+
+### A5 · Tamper-evident trust boundary (C1 / C2)
+
+- **Run-scoped HMAC seal:** every evidence envelope is signed with a key that is **per-run and not held by the agent** (`MLGG_RUN_KEY`, alive only in the orchestrator process env, never on disk); publication_gate **verifies the seal** before trusting any `status`. A hand-edited `status` cannot be re-sealed → verification fails → fail-closed (closes **C2**: certifier trusting unsigned JSON).
+- **Verified-signature attestation:** the contract requires `signature_verification.verified` true, the signer on a trusted allowlist, and `allow_unsigned_mode` off — the certifier rejects any agent-writable unsigned attestation (closes **C1**).
+- **Run binding:** every report is stamped with the orchestrator's one-time `run_id` (`MLGG_RUN_ID`); publication_gate rejects a mixed-run evidence set (`mixed_run_evidence`), preventing a "looks-passing" set stitched across runs.
+
+### A6 · Compliance-tier semantics (missing evidence fails closed)
+
+| Tier | Meaning | Composition | When required evidence is absent |
+|:--|:--|:--|:--|
+| **L1** | Core leakage audit (minimum for internal use) | 12 gates | any required gate **entirely absent** → that tier fails closed (no longer treated as "satisfied") |
+| **L2** | Statistically valid (preprint / conference) | 25 gates | same |
+| **L3** | Publication-grade (top journal) | `L3_GATES` set = 30 component reports + verified attestation | same; an unreviewed disease-KB or any `blocking` reviewer concern caps L3 at `none` |
+
+> **On "33 vs 30":** the system has **33 gates** and all of them run; but a compliance tier is verified over the **component-evidence set** — the L1/L2/L3 tier-pass sets are **12 / 25 / 30** component reports. The 3 not counted are `publication_gate` (the certifier itself), `self_critique_gate`, and `security_audit_gate` — they run at/after the certifier and audit **its output**, so by construction they are not self-verified tier members.
+
+### A7 · Reproducible evidence envelope
+
+Every sealed report seals the verdict together with the **coordinates to reproduce it**: `run_id` + the runtime environment (Python and numpy / pandas / scikit-learn / scipy versions, captured by a cached `capture_environment` and written into the envelope **before** the seal is computed, so it is signed too). A reviewer can thus reconstruct *what produced these metrics* — sklearn 1.8 vs another version can change results.
+
+### A8 · RAG two-path architecture (deterministic vs semantic)
+
+- **Gate path (shipping):** on a gate failure, `retrieve_for_failure(gate_name, codes)` runs **BM25** retrieval (pure stdlib, no torch) — deterministic, lightweight, fail-closed — and embeds the reviewer quotes into the report's `peer_review_context`.
+- **Offline path:** the dense / hybrid retriever in `scripts/rag/query.py` (BGE-small, 384d) serves offline exploration and paper-audit only; it does **not** run on the gate-failure path, which would otherwise add ~500MB of torch and cold-start to every short-lived gate process.
+- **Honest boundary:** the gate path is **category-precise**; mechanism-level discrimination (telling "definition-variable leakage" from "proxy-variable leakage") needs the dense / LLM layer — a design trade-off, not a tunable bug.
+
+### A9 · Engineering discipline (the harness verifies the harness)
+
+Every security-relevant change to the harness itself goes through **real-producer round-trip tests + an independent adversarial review** — this project has repeatedly seen "green CI + self-review passed, yet independent adversarial review caught a critical / a false-fail regression." Cross-layer correctness is validated by an **integration benchmark** (running the deterministic layer + RAG + LLM together on a real NC paper and comparing to the paper's actual reviewer concerns); the LLM layer's coverage is checked by a **blind adjudicator** (independent, blind-to-labels matching) rather than self-attestation.
+
+> In one line: **gates decide, the LLM may only doubt, a key locks the evidence, the environment is sealed into the envelope, and a crash never passes.**
 
 ---
 
@@ -230,7 +287,7 @@ Raw Data ──→ 9-Phase Workflow ──→ 33-Gate Audit ──→ Compliance
 |:-------|:------------|:------|
 | **33 Safety Gates** | Fail-closed DAG architecture covering leakage/interpretability/fairness/calibration/robustness/TRIPOD+AI/PROBAST+AI | 9-layer parallel execution |
 | **12-Dimension Scoring** | Data integrity/leakage protection/pipeline isolation/model selection/statistical validity/generalization evidence/clinical completeness/reporting standards/reproducibility/security/fairness/sample size | 0-100 score |
-| **3-Level Compliance** | L1 (12 gates, leakage audit) / L2 (25 gates, statistically valid) / L3 (all 33 gates, publication-grade) | Progressive certification |
+| **3-Level Compliance** | L1 (12 gates, leakage audit) / L2 (25 gates, statistically valid) / L3 (all deterministic gates, publication-grade) | Progressive certification |
 | **23 Model Families** | LR / SVM / RF / ExtraTrees / XGBoost / CatBoost / LightGBM / HistGB / KNN / MLP / AdaBoost / imbalanced ensembles / TabPFN + Stacking / Voting, etc. ([full 23-family table](#23-model-families)) | Auto hyperparameter search |
 | **16 Real Datasets** | UCI / CDC / NCI / Vanderbilt official data | 630K+ total rows |
 | **Multi-Model SHAP Engine** | Multi-family L1-normalized ensemble + Kendall tau consistency (FDR-BH correction) + cross-model Spearman rank correlation + 5 publication-grade CSVs | RF/XGB/CatBoost/LGBM/LR |
@@ -956,7 +1013,7 @@ Each domain judged low / high / unclear. Overall ROB must be `low` to claim publ
 |:------|:-----|:------|:---------|:----------|:-----------|
 | **L1** | Leakage Audit | 12 | Conference papers, preliminary reports | &mdash; | &mdash; |
 | **L2** | Statistically Valid | 25 | Professional journals (JAMIA, npj DM) | >= 17/27 | low/unclear |
-| **L3** | Publication-Grade | **All 33 gates** | Nature Medicine, Lancet, JAMA, BMJ | >= 23/27 | **low** |
+| **L3** | Publication-Grade | **All deterministic gates** (tier set: 30 reports) | Nature Medicine, Lancet, JAMA, BMJ | >= 23/27 | **low** |
 
 > **External validation policy**: Without external validation data, `external_validation_gate` returns `status="skipped"`, total audit score hard-capped at 85 (impossible to reach >=90 top-journal level), L3 compliance auto-blocked, and Limitations must declare this. Supports three external validation types: `cross_period` (temporal validation) / `cross_institution` (geographic validation) / `independent_cohort` (independent cohort).
 
