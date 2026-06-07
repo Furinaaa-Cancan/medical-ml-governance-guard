@@ -90,6 +90,19 @@ def test_glm7_not_in_kb_so_lopo_is_clean(computed):
     assert computed["provenance"]["in_peer_review_kb"] is False
 
 
+def test_failure_class_provenance_is_gate_derived_where_a_gate_runs(computed):
+    """The one gate that runs on a paper (definition_variable_guard) feeds the
+    definition_leakage RAG query from its LIVE emitted codes (gate-derived, not
+    hand-authored); the three design concerns have no runnable gate on a paper and
+    are honestly labeled 'analysis'."""
+    prov = computed["layers"]["rag"]["failure_class_provenance"]
+    assert prov["definition_leakage"]["source"] == "gate_run"
+    assert prov["definition_leakage"]["codes_used"] == ["definition_variable_leakage"]
+    assert computed["layers"]["rag"]["gate_derived_classes"] == ["definition_leakage"]
+    for label in ("cross_sectional", "selection_leakage", "incomplete_eval"):
+        assert prov[label]["source"] == "analysis"
+
+
 def test_blind_adjudication_upgrades_soft_numbers(computed):
     """The blind-to-labels adjudication (control C3) validated the LLM self-attestation
     (6/6, 3-panel unanimous) and exposed the real RAG precision (8/16) that the

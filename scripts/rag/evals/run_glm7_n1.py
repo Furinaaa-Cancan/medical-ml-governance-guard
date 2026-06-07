@@ -76,27 +76,46 @@ def _run_guard(target: str) -> Dict[str, Any]:
     report = json.loads(out.read_text(encoding="utf-8"))
     out.unlink(missing_ok=True)
     hits: List[Dict[str, str]] = []
+    codes: List[str] = []
     for f in report.get("failures", []):
+        if f.get("code"):
+            codes.append(f["code"])
         if f.get("code") == "definition_variable_leakage":
             hits = f.get("details", {}).get("hits", [])
-    return {"target": target, "status": report.get("status"), "exit_code": proc.returncode, "hits": hits}
+    return {"target": target, "status": report.get("status"), "exit_code": proc.returncode,
+            "hits": hits, "emitted_codes": sorted(set(codes))}
 
 
-def _run_rag(failure_classes: List[Dict[str, Any]]) -> Dict[str, List[str]]:
-    """Drive the shipping BM25 retrieval path for each failure class (LOPO-excluded)."""
+def _run_rag(failure_classes: List[Dict[str, Any]],
+             gate_emitted_codes: Dict[str, List[str]]) -> Dict[str, Any]:
+    """Drive the shipping BM25 retrieval path for each failure class (LOPO-excluded).
+
+    Failure-class provenance: a ``source == "gate_run"`` class whose gate actually
+    ran on this paper DERIVES its codes from the live gate output (not the
+    hand-authored list); ``analysis`` classes have no runnable gate on a paper, so
+    their codes are analyst-asserted from the text. Both are recorded.
+    """
     sys.path.insert(0, str(REPO_ROOT))
     from scripts.rag.retrieval.bm25 import retrieve_for_failure
 
     retrievals: Dict[str, List[str]] = {}
+    provenance: Dict[str, Dict[str, Any]] = {}
     for fc in failure_classes:
+        if fc.get("source") == "gate_run" and gate_emitted_codes.get(fc["gate"]):
+            codes = gate_emitted_codes[fc["gate"]]
+            source = "gate_run"
+        else:
+            codes = fc["codes"]
+            source = fc.get("source", "analysis")
+        provenance[fc["label"]] = {"source": source, "codes_used": codes, "gate": fc["gate"]}
         try:
-            res = retrieve_for_failure(fc["gate"], fc["codes"], limit=4)
+            res = retrieve_for_failure(fc["gate"], codes, limit=4)
         except Exception as exc:  # pragma: no cover - retrieval availability
             retrievals[fc["label"]] = [f"<error: {exc}>"]
             continue
         ids = [r.get("concern_id") or r.get("id") or r.get("citation_id") for r in res]
         retrievals[fc["label"]] = [c for c in ids if c]
-    return retrievals
+    return {"retrievals": retrievals, "provenance": provenance}
 
 
 def _verdict_min(*verdicts: str) -> str:
@@ -131,7 +150,12 @@ def compute_record() -> Dict[str, Any]:
     det_missed_cols = [c for c in expected_cols if c not in det_caught_cols]
 
     # --- Layer 2: RAG (real retrieval). Honest framing: SELF-CONSISTENCY, not recall. ---
-    retrievals = _run_rag(gt["rag_failure_classes"])
+    # The one gate that runs on a paper (definition_variable_guard) feeds its EMITTED
+    # codes into the matching failure class (gate-derived, not hand-authored).
+    gate_emitted = {"definition_variable_guard": sorted({c for g in guard_runs for c in g.get("emitted_codes", [])})}
+    rag_out = _run_rag(gt["rag_failure_classes"], gate_emitted)
+    retrievals = rag_out["retrievals"]
+    rag_provenance = rag_out["provenance"]
     retrieved_ids = {cid for ids in retrievals.values() for cid in ids}
     rag_verdict = "concern"  # advisory layer: a fixed, structural cap (cannot clear a floor, cannot raise one)
 
@@ -232,6 +256,8 @@ def compute_record() -> Dict[str, Any]:
                 "metric_caveat": "GT rag ids were observed from retrieval, so this is NOT blind recall.",
                 "reproducible": True,
                 "retrievals": retrievals,
+                "failure_class_provenance": rag_provenance,
+                "gate_derived_classes": sorted(k for k, v in rag_provenance.items() if v["source"] == "gate_run"),
                 "verdict": rag_verdict,
                 "on_topic_coverage": f"{_cov('rag')}/{n}",
                 "distinct_concerns_credited": len(rag_credited_concern_ids),

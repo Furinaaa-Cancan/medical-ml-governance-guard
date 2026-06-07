@@ -13,10 +13,10 @@
     "E02": "Full metric panel (AUROC + calibration + MCC + DCA)."
   },
   "rag_failure_classes": [
-    {"label": "definition_leakage", "gate": "definition_variable_guard", "codes": ["definition_variable_leakage"]},
-    {"label": "cross_sectional", "gate": "cohort_definition_gate", "codes": ["cross_sectional_as_prediction", "temporal_leakage"]},
-    {"label": "selection_leakage", "gate": "leakage_gate", "codes": ["feature_selection_leakage", "test_set_tuning"]},
-    {"label": "incomplete_eval", "gate": "clinical_metrics_gate", "codes": ["missing_calibration", "missing_ci"]}
+    {"label": "definition_leakage", "gate": "definition_variable_guard", "codes": ["definition_variable_leakage"], "source": "gate_run", "source_note": "definition_variable_guard actually runs on the declared features (Tier B+), so the runner DERIVES these codes from the live guard output, not from this hand-authored list."},
+    {"label": "cross_sectional", "gate": "cohort_definition_gate", "codes": ["cross_sectional_as_prediction", "temporal_leakage"], "source": "analysis", "source_note": "No runnable gate on a paper (cohort_definition_gate needs an instrumented run's evidence); analyst-asserted from the paper text."},
+    {"label": "selection_leakage", "gate": "leakage_gate", "codes": ["feature_selection_leakage", "test_set_tuning"], "source": "analysis", "source_note": "Analyst-asserted; leakage_gate is not runnable on a published paper."},
+    {"label": "incomplete_eval", "gate": "clinical_metrics_gate", "codes": ["missing_calibration", "missing_ci"], "source": "analysis", "source_note": "Analyst-asserted; clinical_metrics_gate is not runnable on a published paper."}
   ],
   "concerns": [
     {

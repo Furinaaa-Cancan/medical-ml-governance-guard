@@ -90,10 +90,12 @@ position:
    raise a verdict by construction, and in this case every layer lands at ≤ concern with `rag_verdict`
    fixed — so nothing was in a position to test it. It is reported as a design property.
 5. **N=1.** The runner is data-driven from `ground_truth.json` (failure classes, deterministic targets,
-   definition columns) so a second case is a new folder, **but** the failure classes are still authored
-   per paper rather than derived from a live gate run. Blind adjudication (control C3) is now done for
-   this case; what remains for the general harness (plan P1/P2): auto-deriving failure classes from a
-   live gate run, **cross-model** adjudication (not same-family), and scaling to N>1.
+   definition columns) so a second case is a new folder. The **definition_leakage** RAG class is now
+   **gate-derived** — its codes come from the live `definition_variable_guard` run, not a hand-authored
+   list (see `layers.rag.failure_class_provenance`). The other three classes stay `analysis`-sourced
+   because their gates aren't runnable on a published paper (no instrumented-run evidence) — an inherent
+   Tier-B+ limit, now labeled honestly. Blind adjudication (control C3) is done for this case; what
+   remains for the general harness: **cross-model** adjudication (not same-family) and scaling to N>1.
 
 ## Files
 
