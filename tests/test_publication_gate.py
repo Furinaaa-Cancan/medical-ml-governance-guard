@@ -344,6 +344,54 @@ class TestCLI:
         codes = [f["code"] for f in report["failures"]]
         assert "invalid_or_missing_json" in codes
 
+    # ── Skip-vs-crash fail-open fix (audit deferred MUST-FIX) ────────────────
+    # An entirely-absent leakage detector used to let the gate exit 0/pass with
+    # compliance="none" (a crashed detector dropped by the orchestrator's exists()
+    # filter). A crash and a LEGITIMATE auto-skip (e.g. split_protocol in CV-only
+    # mode) are byte-identical at this gate's input, so the orchestrator DECLARES
+    # its intentional skips via --skipped-gates; an undeclared absence = crash =
+    # fail closed. These two components are checked by the gate but not created by
+    # _make_all_artifacts, so any --skipped-gates run must also declare them.
+    _BASE_SKIPPED = "cohort_definition_report,shap_interpretability_report"
+
+    def _cmd_without(self, tmp_path, paths, drop, skipped=None):
+        full = _build_cmd(tmp_path, paths)
+        p = str(paths[drop])
+        i = full.index(p)
+        cmd = full[: i - 1] + full[i + 1 :]  # drop the flag AND its value
+        paths[drop].unlink()
+        if skipped is not None:
+            cmd += ["--skipped-gates", skipped]
+        return cmd
+
+    def test_absent_declared_skip_is_tolerated(self, tmp_path: Path):
+        """A legitimately auto-skipped detector (declared in --skipped-gates) must
+        NOT fail — this is the CV-only / no-test-split run an earlier per-component
+        'mandatory' fix wrongly broke."""
+        paths = _make_all_artifacts(tmp_path)
+        cmd = self._cmd_without(tmp_path, paths, "split_protocol_report",
+                                skipped=self._BASE_SKIPPED + ",split_protocol_report")
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        assert result.returncode == 0, f"declared skip must pass.\nstdout: {result.stdout}"
+
+    def test_absent_undeclared_is_fail_closed(self, tmp_path: Path):
+        """A crashed/dropped detector (absent, NOT declared skipped) must fail closed
+        — this is the fail-open the fix closes."""
+        paths = _make_all_artifacts(tmp_path)
+        cmd = self._cmd_without(tmp_path, paths, "split_protocol_report", skipped=self._BASE_SKIPPED)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        assert result.returncode == 2
+        report = json.loads((tmp_path / "report.json").read_text())
+        assert "missing_component_report" in [f["code"] for f in report["failures"]]
+
+    def test_absent_without_skip_list_is_legacy_lenient(self, tmp_path: Path):
+        """Backward compatibility: a caller that does NOT pass --skipped-gates keeps
+        the old lenient behavior (absent optional component tolerated)."""
+        paths = _make_all_artifacts(tmp_path)
+        cmd = self._cmd_without(tmp_path, paths, "split_protocol_report", skipped=None)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        assert result.returncode == 0
+
     def test_invalid_json_component(self, tmp_path: Path):
         paths = _make_all_artifacts(tmp_path)
         paths["leakage_report"].write_text("{bad json", encoding="utf-8")

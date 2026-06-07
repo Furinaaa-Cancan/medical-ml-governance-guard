@@ -559,6 +559,38 @@ def _build_aggregation_cmd(
         if getattr(args, "allow_missing_compare", False):
             cmd.append("--allow-missing-comparison")
 
+    # Skip-vs-crash fail-open fix: declare the intentionally-skipped components so
+    # publication_gate fails closed only on an UNDECLARED absence (a crashed /
+    # dropped detector). The declared set is every aggregatable component that
+    # publication_gate will NOT receive a forwarded report for, EXCEPT the ones
+    # that crashed (a pub_gate dependency that was meant to run — i.e. not in the
+    # orchestrator's intentional-skip set — yet produced no report). Components
+    # not forwarded for a benign reason (intentionally skipped, or not a
+    # pub_gate dependency) are declared skipped; only a real crash stays
+    # undeclared and trips the fail-closed path.
+    if gate_name == "publication_gate" and getattr(args, "skipped_component_names", None) is not None:
+        # Map every aggregation flag -> component name from the registry (robust;
+        # not a "-report" string-suffix heuristic that would miss e.g. --manifest).
+        _flag_to_comp = {
+            spec.aggregation_flag: spec.aggregation_flag.lstrip("-").replace("-", "_")
+            for _g, spec in GATE_REGISTRY.items()
+            if getattr(spec, "aggregation_flag", "")
+        }
+        forwarded = {comp for flag, comp in _flag_to_comp.items() if flag in cmd}
+        intentionally_skipped = set(args.skipped_component_names)
+        all_components = set(_flag_to_comp.values())
+        # A crash = a pub_gate dependency meant to run (not intentionally skipped)
+        # whose report was not forwarded (absent).
+        pubgate_deps = set(target_spec.depends_on) if target_spec else set()
+        dep_components = {
+            GATE_REGISTRY[d].aggregation_flag.lstrip("-").replace("-", "_")
+            for d in pubgate_deps
+            if d in GATE_REGISTRY and getattr(GATE_REGISTRY[d], "aggregation_flag", "")
+        }
+        crashed = {c for c in dep_components if c not in forwarded and c not in intentionally_skipped}
+        declared = sorted((all_components - forwarded) - crashed)
+        cmd.extend(["--skipped-gates", ",".join(declared)])
+
     return cmd
 
 
@@ -961,6 +993,19 @@ def main() -> int:
             print(f"[INFO] No test split — auto-skipping {len(_auto_skipped)} gate(s): "
                   f"{', '.join(_auto_skipped)}", file=sys.stderr)
             gates_to_run = [g for g in gates_to_run if g not in _no_test_gates]
+
+    # Skip-vs-crash fail-open fix: DECLARE the intentionally-skipped components to
+    # publication_gate (via --skipped-gates) so it can distinguish a legitimate
+    # skip (triage / no-test auto-skip / --only / --skip) from a crashed-or-dropped
+    # detector. Any aggregatable gate NOT in the final gates_to_run was
+    # intentionally excluded; a gate that IS in gates_to_run but produces no report
+    # (crash) is therefore NOT declared, so publication_gate fails closed on it.
+    _ran_gates = set(gates_to_run)
+    args.skipped_component_names = sorted(
+        spec.aggregation_flag.lstrip("-").replace("-", "_")
+        for g, spec in GATE_REGISTRY.items()
+        if g not in _ran_gates and getattr(spec, "aggregation_flag", "")
+    )
 
     if args.dry_run:
         print("\n[DRY-RUN] Would execute these gates:")
