@@ -1198,8 +1198,7 @@ End-to-end benchmarks on 5 medical datasets (all stored under `experiments/`):
 
 ## Project Structure
 
-<details>
-<summary><strong>Expand the full directory tree (scripts / references / tests / …)</strong></summary>
+**Full directory tree** (scripts / references / tests / …) — LOC snapshot drifts per commit; run `wc -l` for exact:
 
 ```
 medical-ml-governance-guard/
@@ -1376,8 +1375,6 @@ medical-ml-governance-guard/
     ├── CHANGELOG.md                      #   Version history
     └── LICENSE                           #   PolyForm Noncommercial 1.0.0
 ```
-
-</details>
 
 ### Data Flow
 

@@ -1393,8 +1393,7 @@ UKB 的「字段-instance-array」结构（同一字段在 baseline / imaging / 
 
 ## 项目结构
 
-<details>
-<summary><strong>展开完整目录树（scripts / references / tests / …）</strong></summary>
+**完整目录树**（scripts / references / tests / …）——LOC 快照随 commit 漂移，精确值请跑 `wc -l`：
 
 ```
 medical-ml-governance-guard/
@@ -1656,8 +1655,6 @@ medical-ml-governance-guard/
     ├── CHANGELOG.md                      #   版本历史
     └── LICENSE                           #   PolyForm Noncommercial 1.0.0
 ```
-
-</details>
 
 ### 数据流
 
