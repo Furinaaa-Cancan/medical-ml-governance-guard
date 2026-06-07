@@ -88,12 +88,12 @@ The prevalence of data leakage and methodological flaws in medical ML papers far
 
 ## Harness Engineering
 
-MLGG's central thesis is to treat the **trustworthy verdict as a first-class engineering goal**: a publication-grade governance conclusion must remain **non-forgeable, reproducible, and semantically defensible at top-journal standards** even under the threat model that *the agent producing the evidence can edit any file*. The full architecture, top-down:
+This section describes MLGG's verification architecture. Design goal: under the threat model that *the agent producing the evidence has read/write access to files*, governance verdicts remain non-forgeable, reproducible, and anchored to deterministic computation rather than agent output. The layers, top-down:
 
 ### A1 · Threat model & design axioms
 
 - **Threat model (ii): defend against the agent itself.** The agent that produces evidence and the certifier that consumes it share a process family, and the agent has read/write access to files. Therefore any design that *trusts the JSON `status` an agent wrote* is unsound — trust must be anchored to a **key the agent does not hold** and to **deterministic computation**, not to model output.
-- **Axiom: no default-allow in the safe direction.** Exceptions, missing evidence, and malformed input all fail closed (`exit 2`). In a governance harness "error means pass" is a critical defect, not graceful degradation.
+- **Axiom: no default-allow in the safe direction.** Exceptions, missing evidence, and malformed input all fail closed (`exit 2`); no safety-relevant path defaults to "error means pass".
 
 ### A2 · Three-layer verdict architecture (data flow)
 
@@ -109,14 +109,14 @@ synthesis─[advisory]─> LLM review layer (read-only, opt-in) ─raise concern
 ```
 
 - **Layer 1 · static (lint):** AST pattern-matching on source, zero runtime deps; catches `fit()` before the split and similar structural anti-patterns.
-- **Layer 2 · deterministic (gates):** reproducible verification over produced evidence, issuing the **binding** pass/fail — the source of trust for the whole system.
+- **Layer 2 · deterministic (gates):** reproducible verification over produced evidence, issuing the binding pass/fail; the system's final verdict is determined by the deterministic layer.
 - **Layer 3 · advisory (LLM):** hands all gate evidence + RAG reviewer quotes to an LLM to synthesize methodology concerns. **Read-only** — constraint in A3.
 
-### A3 · The asymmetry invariant (the heart)
+### A3 · The asymmetry invariant
 
 > **`final_verdict = min(gate_verdict, llm_verdict)`**, ordering **FAIL < CONCERN < PASS**.
 
-Mechanically, the LLM review report can only **append to** `failures[]` / `warnings[]` and force tier booleans **down**; there is **no code path** by which LLM input can set a tier `True` or reduce `failure_count`. "Can add doubt, never remove it" is enforced by **data flow**, not by prompt. A `blocking` concern caps the compliance tier at `none`; an `advisory` one is recorded and only fails under strict. The layer defaults to a **deterministic test double** (no network, reproducible); only `--live` makes a real Claude call.
+The LLM review report can only append to `failures[]` / `warnings[]` and force tier booleans down; no code path lets LLM input set a tier `True` or reduce `failure_count`. This one-directionality is enforced by data flow, not by prompt. A `blocking` concern caps the compliance tier at `none`; an `advisory` one is recorded and only fails under strict. The layer defaults to a deterministic test double (no network, reproducible); only `--live` makes a real Claude call.
 
 ### A4 · Fail-closed contract & "skip ≠ crash"
 
@@ -147,13 +147,11 @@ Every sealed report seals the verdict together with the **coordinates to reprodu
 
 - **Gate path (shipping):** on a gate failure, `retrieve_for_failure(gate_name, codes)` runs **BM25** retrieval (pure stdlib, no torch) — deterministic, lightweight, fail-closed — and embeds the reviewer quotes into the report's `peer_review_context`.
 - **Offline path:** the dense / hybrid retriever in `scripts/rag/query.py` (BGE-small, 384d) serves offline exploration and paper-audit only; it does **not** run on the gate-failure path, which would otherwise add ~500MB of torch and cold-start to every short-lived gate process.
-- **Honest boundary:** the gate path is **category-precise**; mechanism-level discrimination (telling "definition-variable leakage" from "proxy-variable leakage") needs the dense / LLM layer — a design trade-off, not a tunable bug.
+- **Precision boundary:** the gate path is category-precise; mechanism-level discrimination (distinguishing "definition-variable leakage" from "proxy-variable leakage") requires the dense / LLM layer — a design trade-off.
 
-### A9 · Engineering discipline (the harness verifies the harness)
+### A9 · Engineering discipline
 
-Every security-relevant change to the harness itself goes through **real-producer round-trip tests + an independent adversarial review** — this project has repeatedly seen "green CI + self-review passed, yet independent adversarial review caught a critical / a false-fail regression." Cross-layer correctness is validated by an **integration benchmark** (running the deterministic layer + RAG + LLM together on a real NC paper and comparing to the paper's actual reviewer concerns); the LLM layer's coverage is checked by a **blind adjudicator** (independent, blind-to-labels matching) rather than self-attestation.
-
-> In one line: **gates decide, the LLM may only doubt, a key locks the evidence, the environment is sealed into the envelope, and a crash never passes.**
+Security-relevant changes to the harness itself go through real-producer round-trip tests and an independent adversarial review. Cross-layer correctness is validated by an integration benchmark — running the deterministic layer, RAG, and LLM together on a real NC paper and comparing to that paper's actual reviewer concerns; the LLM layer's coverage is checked by a blind adjudicator (independent, blind-to-labels matching) rather than self-attestation.
 
 ---
 
