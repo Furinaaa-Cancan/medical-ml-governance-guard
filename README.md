@@ -105,15 +105,72 @@
 
 ## 工程化 Harness 架构
 
-MLGG 的核心不是"又一组检查脚本"，而是一套**工程化的 fail-closed 验证 harness**——把"可信判定"当作一等工程目标来设计：
+MLGG 的核心命题是把**"可信判定"当作一等工程目标**：一个发布级治理结论，必须在"生成证据的 agent 可以编辑任何文件"的威胁模型下，依然**不可伪造、可复现、且语义上经得起顶刊审稿**。下面自顶向下给出完整架构。
 
-- **非对称双层判定**：33 道**确定性门控**发出有约束力的 pass/fail；LLM 评审层是**只读咨询层**——只能**追加疑点**，永远不能把门控的 fail 洗成 pass。不变式 `final_verdict = min(gate, llm)`（顺序 FAIL < CONCERN < PASS）。信任住在确定性层，而非 agent 输出。
-- **全程 fail-closed 契约**：33 道门控在异常、缺失证据、畸形输入时一律**失败关闭**（exit 2），安全方向上不存在"出错即放行"的默认值。
-- **防伪造认证边界**：每次运行用 run-scoped HMAC **seal** 签名每份证据信封，publication_gate 在信任任何 status 之前先**验签**；execution-attestation 要求**已验证的签名**——certifier 不信任任何 agent 可写的未签名 JSON（堵住 C1/C2 critical）。
-- **可复现的证据信封**：每份 sealed report 绑定运行环境（python + numpy / pandas / scikit-learn / scipy 版本），判定连同复现坐标一起封存。
-- **对抗式工程纪律**：harness 自身每次安全相关改动都要过"真实生产者往返测试 + 独立对抗式评审"——绿 CI + 自审被证明不足以守住认证边界。
+### A1 · 威胁模型与设计公理
 
-> 一句话：**门控负责判，LLM 只能质疑，密钥锁住证据，环境封进信封。**
+- **威胁模型 (ii)：防御 agent 自身。** 生成证据的 agent 与消费证据的 certifier 同处一个进程族，agent 拥有文件读写权限。因此任何"信任 agent 写出的 JSON `status`"的设计在本质上都是不安全的——信任必须锚定在 **agent 不持有的密钥**与**确定性计算**上，而不是 agent 的输出。
+- **公理：安全方向上不存在默认放行。** 异常、缺证、畸形输入一律 fail-closed（`exit 2`）。在治理 harness 里，"出错即通过"是 critical 级缺陷，不是容错。
+
+### A2 · 三层判定架构（数据流）
+
+```
+代码 ─[静态]──> 30 条 AST lint (R001–R030)         结构性反模式，零运行依赖
+证据 ─[确定性]> 33 道 fail-closed 门控 (9 层 DAG) ─> 每门产出 sealed report 信封
+                                            │
+合成 ─[咨询]──> LLM 评审层 (只读, opt-in) ─追加疑点─┤
+                                            ▼
+                                  publication_gate (certifier)
+                                            ▼
+                                   final = min(gate, llm)
+```
+
+- **第一层 · 静态（lint）：** 在源码上做 AST 模式匹配，零运行依赖，抓 `fit()` 在 split 前等结构性反模式。
+- **第二层 · 确定性（gates）：** 在运行产出的证据上做可复现验证，发出**有约束力**的 pass/fail——这是整套系统的信任之源。
+- **第三层 · 咨询（LLM）：** 把全部门控证据 + RAG 审稿原文交给 LLM 合成方法学疑点。**只读**，约束见 A3。
+
+### A3 · 非对称不变式（架构之心）
+
+> **`final_verdict = min(gate_verdict, llm_verdict)`**，序关系 **FAIL < CONCERN < PASS**。
+
+机制上，LLM 评审报告只能**追加** `failures[]` / `warnings[]` 并把 tier 布尔值**单向压低**；代码里**不存在**任何路径能由 LLM 输入将某个 tier 置 `True` 或减少 `failure_count`。"能加疑点、永不能洗白"是由**数据流**保证的，而非由 prompt 约束。`blocking` 意见把合规 tier 压到 `none`；`advisory` 仅记录，strict 下才致 fail。该层默认是**确定性 test double**（无网络、可复现），仅 `--live` 才发起真实 Claude 调用。
+
+### A4 · Fail-closed 契约与"跳过 ≠ 崩溃"
+
+- 33 道门控统一遵守 `should_fail = bool(failures) or (strict and bool(warnings))`，`return 2 if should_fail`——`test_gate_failclosed_contract` 把这条公式锁死在全部 33 门上，未来任何删掉 strict 子句的改动都会被 CI 拒绝。
+- **崩溃的检测器与合法跳过的门控，在 certifier 入口处字节级相同**（都是 flag 缺失、无报告）。因此编排器**显式声明**它有意跳过的组件（`--skipped-gates`）：certifier 对**未声明的缺失** = 崩溃 = fail-closed，对**已声明的跳过** = 容忍。这堵住了"崩了一个泄漏检测器、认证门却 PASS"的 fail-open。
+
+### A5 · 防伪造信任边界（C1 / C2）
+
+- **run-scoped HMAC seal：** 每份证据信封用**每次运行独有、agent 不持有**的密钥（`MLGG_RUN_KEY`，只存活在编排器进程 env、永不落盘）签名；publication_gate 在信任任何 `status` 之前**先验签**。一个被手改 `status` 的报告无法重新签名 → 验签失败 → fail-closed（堵住 **C2**：certifier 信任未签名 JSON）。
+- **已验证签名的执行认证：** attestation 契约要求 `signature_verification.verified` 为真、签名者在受信任 allowlist 内、且未开启 `allow_unsigned_mode`——certifier 拒绝一切 agent 可写的未签名 attestation（堵住 **C1**）。
+- **运行绑定：** 每份报告烙上编排器一次性签发的 `run_id`（`MLGG_RUN_ID`）；publication_gate 拒绝混合运行的证据集（`mixed_run_evidence`），防止跨运行拼接出一份"看起来通过"的证据。
+
+### A6 · 合规分层语义（缺证即降级，且必失败）
+
+| Tier | 含义 | 组成 | 缺必需证据时 |
+|:--|:--|:--|:--|
+| **L1** | 核心泄漏审计（内部可用最低线） | 12 门 | 任一必需门**完全缺失** → 该 tier fail-closed（不再被当作"满足"） |
+| **L2** | 统计有效（preprint / 会议） | 25 门 | 同上 |
+| **L3** | 发布级（顶刊） | `L3_GATES` 集 = 30 份组件证据 + 已验证 attestation | 同上；未临床复核的疾病库、或任一 `blocking` 评审意见，把 L3 压到 `none` |
+
+> **关于"33 vs 30"的精确说明：** 系统共有 **33 道门控**且全部运行；但合规 tier 验证的是**组件证据集**——L1/L2/L3 的 tier-pass 集分别是 **12 / 25 / 30** 份组件报告。差额的 3 道是 `publication_gate`（certifier 自身）、`self_critique_gate`、`security_audit_gate`——它们在 certifier 之处/之后运行、审计的是 **certifier 的输出**，按构造不作为自身验证的 tier 成员。
+
+### A7 · 可复现证据信封
+
+每份 sealed report 把判定连同**复现坐标**一并封存：`run_id` + 运行环境（python 与 numpy / pandas / scikit-learn / scipy 版本，由 `capture_environment` 缓存采集，在 seal 计算**之前**写入信封，因而被一同签名）。审稿人由此能复原"究竟是什么产生了这些指标"——sklearn 1.8 与另一版本可能给出不同结果。
+
+### A8 · RAG 两路架构（确定性 vs 语义）
+
+- **门控路径（shipping）：** gate 失败时走 `retrieve_for_failure(gate_name, codes)` 的 **BM25** 检索（纯 stdlib、无 torch），确定性、轻量、fail-closed，把审稿原话嵌入 report 的 `peer_review_context`。
+- **离线路径：** `scripts/rag/query.py` 的 dense / hybrid（BGE-small 384d）只服务离线探索与 paper-audit，**不**在 gate 失败路径上运行——否则会给每个短生命周期 gate 进程引入 ~500MB torch 依赖与冷启动。
+- **诚实边界：** 门控路径是**类别级**精度；机制级语义判别（区分"定义变量泄漏"与"代理变量泄漏"）需要 dense / LLM 层，这是设计取舍，不是可调参的 bug。
+
+### A9 · 工程纪律（harness 验证 harness）
+
+harness 自身的每次安全相关改动都要过**真实生产者往返测试 + 独立对抗式评审**——本项目历史上多次出现"绿 CI + 自审通过，独立对抗评审却抓出 critical / 误杀回归"的案例。跨层正确性由**集成基准**（在真实 NC 论文上同时跑确定性层 + RAG + LLM，与论文真实审稿意见比对）验证；LLM 层的覆盖由**盲裁判**（对标签设盲的独立匹配）校验，而非自证。
+
+> 一句话：**门控负责判，LLM 只能质疑，密钥锁住证据，环境封进信封，崩溃绝不放行。**
 
 ---
 
@@ -249,7 +306,7 @@ gate report 不会为这些 gate 显示占位条目——避免 "no concerns ret
 |:-----|:-----|:-----|
 | **33 道安全门控** | fail-closed DAG 架构，覆盖泄漏/可解释性/公平性/校准/鲁棒性/TRIPOD+AI/PROBAST+AI | 9 层并行执行 |
 | **12 维量化评分** | 数据完整性/防泄漏/流水线隔离/模型选择/统计有效性/泛化证据/临床完整性/报告标准/可重复性/安全与溯源/公平性/样本量 | 0-100 分 |
-| **3 级合规** | L1 (12 门, 泄漏审计) / L2 (25 门, 统计有效) / L3 (全部 33 门, 发布级) | 渐进认证 |
+| **3 级合规** | L1 (12 门, 泄漏审计) / L2 (25 门, 统计有效) / L3 (全部确定性门控, 发布级) | 渐进认证 |
 | **23 个模型族** | LR / SVM / RF / ExtraTrees / XGBoost / CatBoost / LightGBM / HistGB / KNN / MLP / AdaBoost / 不平衡集成 / TabPFN + Stacking / Voting 等（[完整 23 族表](#23-个模型族)） | 自动超参搜索 |
 | **16 个真实数据集** | UCI / CDC / NCI / Vanderbilt / MIT-LCP / Framingham / Vanderbilt SUPPORT2 官方数据 | 总计 630K+ 行 |
 | **多模型 SHAP 集成引擎** | 多族 L1 归一化集成 + Kendall tau 一致性 (FDR-BH 校正) + 跨模型 Spearman 排名相关 + 5 张发表级 CSV | RF/XGB/CatBoost/LGBM/LR |
@@ -989,7 +1046,7 @@ SHAP 对相关特征可能产生误导（联盟博弈论假设）。PDP 提供�
 |:------|:-----|:------|:-----------------|:----------|:-----------|
 | **L1** | 泄漏审计 | 12 | 会议论文、初步报告 | &mdash; | &mdash; |
 | **L2** | 统计有效 | 25 | 专业期刊（JAMIA、npj DM） | >= 17/27 | low/unclear |
-| **L3** | 发布级 | **全部 33 门** | Nature Medicine、Lancet、JAMA、BMJ | >= 23/27 | **low** |
+| **L3** | 发布级 | **全部确定性门控**（tier 集 30 份证据） | Nature Medicine、Lancet、JAMA、BMJ | >= 23/27 | **low** |
 
 > **外部验证政策**: 无外部验证数据时，`external_validation_gate` 返回 `status="skipped"`，总审计评分硬性上限 85 分（不可能达到 >=90 顶刊级），L3 合规自动阻断，并强制要求在 Limitations 中声明。支持三种外部验证类型：`cross_period`（时间验证）/ `cross_institution`（地理验证）/ `independent_cohort`（独立队列）。
 
