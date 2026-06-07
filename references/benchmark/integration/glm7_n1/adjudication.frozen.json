@@ -1,0 +1,186 @@
+{
+  "_comment": "FROZEN blind-to-labels adjudication of the GLM7 N=1. Like llm_review.frozen.json this is NON-REPRODUCIBLE (the adjudicators are Claude Code agents, no paid API). The improvement over self-attestation is BLINDNESS: the LLM->GT panel never saw addresses_gt; the RAG-relevance judges never saw retrieval rank/score. Independence is blind-to-LABELS, NOT cross-model — same model family, so shared-model bias is not eliminated (only label-copying / self-attestation inflation is caught).",
+  "method": {
+    "reviewer": "Claude Code agents (fresh context), blind to the labels under test",
+    "llm_panel_size": 3,
+    "rag_judges": "1 per failure class (4)",
+    "date": "2026-06-07",
+    "paid_api_call": false,
+    "independence": "blind-to-labels, same model family (not cross-model)"
+  },
+  "llm_blind_adjudication": {
+    "consensus": {
+      "L1": {
+        "assigned_gt": "GT-1",
+        "agreement": "3/3",
+        "votes": {
+          "GT-1": 3
+        }
+      },
+      "L2": {
+        "assigned_gt": "GT-2",
+        "agreement": "3/3",
+        "votes": {
+          "GT-2": 3
+        }
+      },
+      "L3": {
+        "assigned_gt": "GT-3",
+        "agreement": "3/3",
+        "votes": {
+          "GT-3": 3
+        }
+      },
+      "L4": {
+        "assigned_gt": "GT-4",
+        "agreement": "3/3",
+        "votes": {
+          "GT-4": 3
+        }
+      },
+      "L5": {
+        "assigned_gt": "GT-5",
+        "agreement": "3/3",
+        "votes": {
+          "GT-5": 3
+        }
+      },
+      "L6": {
+        "assigned_gt": "GT-6",
+        "agreement": "3/3",
+        "votes": {
+          "GT-6": 3
+        }
+      }
+    },
+    "self_declared": {
+      "L1": "GT-1",
+      "L2": "GT-2",
+      "L3": "GT-3",
+      "L4": "GT-4",
+      "L5": "GT-5",
+      "L6": "GT-6"
+    },
+    "blind_matches_self_declared": "6/6",
+    "blind_gts_covered": "6/6",
+    "blind_gts_covered_set": [
+      "GT-1",
+      "GT-2",
+      "GT-3",
+      "GT-4",
+      "GT-5",
+      "GT-6"
+    ],
+    "note": "Blind = panelists never saw addresses_gt. Agreement with self-declared validates (or refutes) the self-attested 6/6."
+  },
+  "rag_independent_relevance": {
+    "overall_precision": "8/16",
+    "per_class": {
+      "definition_leakage": {
+        "on_topic": 1,
+        "of": 4,
+        "judgments": [
+          {
+            "concern_id": "PR-EXP-0212-C01",
+            "on_topic": true,
+            "reason": "Exactly definition leakage: serum Cr defines AKI yet prior Cr/Cr-tracking features (BUN, Phos) are used as predictors, 'in the causal pathway' inflating AUC -- the same mechanism as GLM7's defining-variable-as-feature flaw."
+          },
+          {
+            "concern_id": "PR-001-C02",
+            "on_topic": false,
+            "reason": "Describes a treatment/proxy-for-existing-disease leakage (NSAIDs prescribed for OA), not a defining variable used as a feature; NSAIDs are not part of the OA definition, so it is a different specific leakage mechanism."
+          },
+          {
+            "concern_id": "PR-EXP-0098-C01",
+            "on_topic": false,
+            "reason": "A reverse-causation / missing-control-group confounding concern (proteome may reflect eGFR decline); it does not assert that an outcome-defining variable was used as a predictor."
+          },
+          {
+            "concern_id": "PR-EXP-0105-C01",
+            "on_topic": false,
+            "reason": "A confounding / unadjusted-covariate concern (other eye diseases also affect RNFLT); the features are not the outcome's defining variable used as their own predictor, so it does not support definition leakage."
+          }
+        ]
+      },
+      "cross_sectional": {
+        "on_topic": 2,
+        "of": 4,
+        "judgments": [
+          {
+            "concern_id": "PR-001-C01",
+            "on_topic": true,
+            "reason": "Critiques a 'prediction' model that conditions on future data and is effectively retrospective, not true future-onset prediction — squarely the cross-sectional-as-prediction flaw."
+          },
+          {
+            "concern_id": "PR-024-C01",
+            "on_topic": true,
+            "reason": "Directly warns a high-AUC model 'may just be diagnosing established cancers' rather than predicting future onset — the prevalent-vs-incident concern."
+          },
+          {
+            "concern_id": "PR-029-C01",
+            "on_topic": false,
+            "reason": "About a stale 72h prediction window vs 3-month outcome in longitudinal data; a time-window-mismatch issue, not the same-visit prevalent-case cross-sectional flaw."
+          },
+          {
+            "concern_id": "PR-EXP-0110-C02",
+            "on_topic": false,
+            "reason": "Suggests detecting CTRCD once it develops and adding post-chemo ECG features; a feature-timing/detection note, not a critique that cross-sectional data can't support future-onset claims."
+          }
+        ]
+      },
+      "selection_leakage": {
+        "on_topic": 2,
+        "of": 4,
+        "judgments": [
+          {
+            "concern_id": "PR-111-C01",
+            "on_topic": true,
+            "reason": "Selecting among all candidate models by evaluating them on the test set is exactly selection leakage that inflates test performance, matching the theme."
+          },
+          {
+            "concern_id": "PR-EXP-0155-C03",
+            "on_topic": false,
+            "reason": "About calibration shrinking the test set and increasing training fit, not about feature/model selection performed on full data before the split."
+          },
+          {
+            "concern_id": "PR-072-C01",
+            "on_topic": false,
+            "reason": "Describes train/test overlap from correlated phenotypes (contaminated split), a different mechanism than selection done on the full data before splitting."
+          },
+          {
+            "concern_id": "PR-114-C04",
+            "on_topic": true,
+            "reason": "Explicitly flags 'tuning leakage' from refitting the gene signature across cohorts, a selection/tuning-on-evaluation-data mechanism that supports the selection-leakage theme."
+          }
+        ]
+      },
+      "incomplete_eval": {
+        "on_topic": 3,
+        "of": 4,
+        "judgments": [
+          {
+            "concern_id": "PR-002-C01",
+            "on_topic": true,
+            "reason": "Explicitly faults AUC-only evaluation and asks for calibration curves (plus PPV/NPV) — directly the missing-calibration/incomplete-metric flaw."
+          },
+          {
+            "concern_id": "PR-033-C01",
+            "on_topic": true,
+            "reason": "Demands calibration and net benefit (DCA) on top of AUROC, arguing clinical applicability can't be assessed without them — matches missing calibration/DCA exactly."
+          },
+          {
+            "concern_id": "PR-002-C07",
+            "on_topic": true,
+            "reason": "Requests a reliability (calibration) diagram and PR curve to assess calibration and threshold trade-offs — squarely the missing-calibration gap."
+          },
+          {
+            "concern_id": "PR-EXP-0153-C04",
+            "on_topic": false,
+            "reason": "Concerns reporting of low-confidence/abstained predictions and practical usability, not calibration, DCA, or CIs on AUROC — a different evaluation issue."
+          }
+        ]
+      }
+    },
+    "note": "Independent on-topic precision of the retrieved candidates, judged blind to retrieval rank."
+  }
+}

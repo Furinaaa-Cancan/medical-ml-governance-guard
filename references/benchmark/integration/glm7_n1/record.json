@@ -105,14 +105,16 @@
       },
       "verdict": "concern",
       "on_topic_coverage": "5/6",
-      "distinct_concerns_credited": 8
+      "distinct_concerns_credited": 8,
+      "independent_precision": "8/16"
     },
     "llm": {
       "metric_kind": "self_attested",
-      "metric_caveat": "scored from the frozen file's own addresses_gt; not independently adjudicated; reviewer non-reproducible.",
+      "metric_caveat": "self_attested_coverage is from the frozen file's own addresses_gt; blind_adjudicated_coverage is the independent blind check (see adjudication).",
       "reproducible": false,
       "verdict": "fail",
-      "self_attested_coverage": "6/6"
+      "self_attested_coverage": "6/6",
+      "blind_adjudicated_coverage": "6/6"
     }
   },
   "attribution": [
@@ -221,7 +223,10 @@
     "deterministic_concern_coverage": "2/6",
     "deterministic_column_recall": "5/5",
     "rag_retrieval_self_consistency": "5/6",
+    "rag_independent_precision": "8/16",
     "llm_self_attested_coverage": "6/6",
+    "llm_blind_adjudicated_coverage": "6/6",
+    "llm_self_attestation_validated": true,
     "union_any_layer": "6/6",
     "union_reproducible_layers_only": "5/6",
     "reproducible_verdict": "fail",
@@ -233,6 +238,32 @@
       "property": "structural",
       "note": "final = min(...) can never RAISE a verdict by construction. This N=1 cannot empirically TEST asymmetry: rag_verdict is a fixed advisory cap and every layer here lands at <= concern, so nothing was in a position to (incorrectly) raise the verdict. Report this as a design invariant, not a measurement."
     }
+  },
+  "adjudication": {
+    "method": {
+      "reviewer": "Claude Code agents (fresh context), blind to the labels under test",
+      "llm_panel_size": 3,
+      "rag_judges": "1 per failure class (4)",
+      "date": "2026-06-07",
+      "paid_api_call": false,
+      "independence": "blind-to-labels, same model family (not cross-model)"
+    },
+    "reproducible": false,
+    "llm": {
+      "blind_adjudicated_coverage": "6/6",
+      "blind_matches_self_declared": "6/6",
+      "self_attestation_validated": true
+    },
+    "rag": {
+      "independent_precision": "8/16",
+      "per_class": {
+        "definition_leakage": "1/4",
+        "cross_sectional": "2/4",
+        "selection_leakage": "2/4",
+        "incomplete_eval": "3/4"
+      }
+    },
+    "note": "Blind-to-labels (panel never saw addresses_gt; relevance judged blind to retrieval rank), same model family -- catches self-attestation inflation, not shared-model bias."
   },
   "followups": []
 }

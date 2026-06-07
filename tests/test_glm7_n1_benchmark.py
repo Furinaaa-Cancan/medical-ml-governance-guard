@@ -88,3 +88,19 @@ def test_off_prediction_hit_is_flagged_not_hidden(computed):
 def test_glm7_not_in_kb_so_lopo_is_clean(computed):
     """Validity: GLM7 is out-of-KB, so RAG cannot self-leak its own concerns."""
     assert computed["provenance"]["in_peer_review_kb"] is False
+
+
+def test_blind_adjudication_upgrades_soft_numbers(computed):
+    """The blind-to-labels adjudication (control C3) validated the LLM self-attestation
+    (6/6, 3-panel unanimous) and exposed the real RAG precision (8/16) that the
+    self-consistency '5/6' masked — both are surfaced, not hidden."""
+    adj = computed["adjudication"]
+    assert adj is not None
+    assert adj["llm"]["self_attestation_validated"] is True
+    assert adj["llm"]["blind_adjudicated_coverage"] == "6/6"
+    assert adj["rag"]["independent_precision"] == "8/16"
+    m = computed["metrics"]
+    assert m["rag_retrieval_self_consistency"] == "5/6"   # the soft number, kept for contrast
+    assert m["rag_independent_precision"] == "8/16"        # the honest blind-judged number
+    assert m["llm_blind_adjudicated_coverage"] == "6/6"
+    assert m["llm_self_attestation_validated"] is True

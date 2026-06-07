@@ -17,8 +17,8 @@ declared feature manifest**, which *is* runnable on a paper.
 | Layer | Verdict | Number | What the number means |
 |---|---|---|---|
 | **Deterministic** (`definition_variable_guard`) | **FAIL** (binds) | concern 2/6 · **column 5/5** | **Measured + reproducible.** Flags DM + CKD definition leakage; catches all five definition columns (HbA1c, FBG, Insulin, BUN, Cr) after the disease-KB v1.2 synonym fix below (was 3/5 at v1.1). |
-| **RAG** (`retrieve_for_failure`, BM25) | concern | self-consistency 5/6 | **Retrieval self-consistency, NOT blind recall** — the GT's `rag_concern_ids` were observed from retrieval (see caveat below). 8 distinct KB concerns credited. |
-| **LLM** (frozen Claude reviewer) | not_publication_grade | **self-attested** 6/6 | Scored from the frozen file's own `addresses_gt`; **not independently adjudicated; non-reproducible.** |
+| **RAG** (`retrieve_for_failure`, BM25) | concern | self-consistency 5/6 · **independent precision 8/16** | Self-consistency (a concern retrieved for 5/6 themes) *masked* the precision: judged blind to rank, **only half the retrieved concerns are genuinely on-topic** (definition_leakage 1/4, cross_sectional 2/4, selection 2/4, eval 3/4). |
+| **LLM** (frozen Claude reviewer) | not_publication_grade | self-attested 6/6 · **blind-adjudicated 6/6 ✓** | A 3-panelist blind matcher (never saw `addresses_gt`) re-derived the same mapping **3/3 unanimous on every concern** → the self-attestation **held** under independent scrutiny. Still non-reproducible. |
 
 **Verdicts:**
 - **`reproducible_verdict = min(deterministic=FAIL, rag=concern) = FAIL`** — from the two reproducible
@@ -38,6 +38,22 @@ declared feature manifest**, which *is* runnable on a paper.
   (full text line 139) — a genuine copy-paste/reproducibility artifact, independently verified.
 - **Overlap** — det ∩ rag ∩ llm = {GT-1, GT-6}; rag∩llm adds {GT-2, GT-3, GT-5}; llm-only = {GT-4}.
 
+## Blind adjudication (turning the soft numbers honest)
+
+The two non-deterministic layers' first-pass numbers were *self-graded*. A blind-to-labels
+adjudication pass (`adjudication.frozen.json`) re-measured both independently:
+
+- **LLM coverage — validated.** 3 panelists, blind to `addresses_gt`, each matched the 6 LLM messages
+  to GTs; **3/3 unanimous on all six**, 6/6 agreement with the self-declared mapping. The LLM layer's
+  claims hold up — the self-attested 6/6 was not inflation.
+- **RAG precision — deflated and made honest.** Judging each retrieved concern's relevance blind to
+  rank: **8/16 (50%)**. Per class: definition_leakage **1/4** (3 of 4 are *different* leakage
+  mechanisms — NSAID-proxy, confounding, reverse-causation), cross_sectional 2/4, selection 2/4,
+  eval 3/4. → a concrete BM25 gate-path precision finding the rosy "5/6" hid.
+- **Caveat:** adjudicators are the *same model family* (no paid cross-model call). This catches
+  self-attestation inflation and rank-driven self-consistency, **not** shared-model bias — true
+  independence needs a different model. The adjudication is itself frozen / non-reproducible.
+
 ## Closed loop — the disease-KB gap this N=1 found, and fixed (RESOLVED)
 
 At disease-KB **v1.1**, the deterministic layer missed **FBG** and **Cr** (column recall 3/5): the KB
@@ -55,13 +71,16 @@ close it.
 This record was revised after an adversarial review flagged first-pass over-claims. The corrected
 position:
 
-1. **The RAG number is self-consistency, not recall.** `ground_truth.json`'s `rag_concern_ids` were
-   read off a retrieval run, so "5/6" measures whether the shipping path surfaces an on-topic KB
-   concern per failure class — it does **not** measure recall against a blind, pre-registered key. A
-   true precision/recall needs a key authored from concern *text* before any retrieval (plan P2).
-2. **The LLM number is self-attested.** The runner credits the LLM via the frozen file's own
-   `addresses_gt` tags; the same author wrote both files, so 6/6 is coverage-by-construction, not an
-   independent match. A blind LLM→GT adjudicator is future work (plan P2 / control C3).
+1. **The RAG "5/6" is self-consistency; the honest number is precision 8/16.** `ground_truth.json`'s
+   `rag_concern_ids` were read off a retrieval run, so 5/6 only measures that *something* on-topic was
+   retrieved per theme. The **blind relevance adjudication** (judging each retrieved candidate on-topic
+   blind to rank) gives the real number: **8/16 = 50% precision** — half the retrieved KB concerns are
+   the right broad category but a *different specific mechanism*. Use the precision, not the 5/6.
+2. **The LLM "6/6" is self-attested but was independently validated.** The runner credits the LLM via
+   the frozen file's own `addresses_gt`. A **3-panelist blind matcher** (never shown `addresses_gt`)
+   independently re-derived the mapping **3/3 unanimous on all six** → the self-attestation held. Caveat:
+   the adjudicators are the *same model family* (no paid cross-model call), so this catches
+   label-copying / inflation, **not** shared-model bias. See `adjudication.frozen.json`.
 3. **Only 2 of 3 layers are reproducible.** `final` and the 6/6 union depend on the frozen LLM file;
    the runner re-verifies only the deterministic + RAG layers (hence the separate
    `reproducible_verdict` and `union_reproducible_layers_only = 5/6`).
@@ -70,8 +89,9 @@ position:
    fixed — so nothing was in a position to test it. It is reported as a design property.
 5. **N=1.** The runner is data-driven from `ground_truth.json` (failure classes, deterministic targets,
    definition columns) so a second case is a new folder, **but** the failure classes are still authored
-   per paper rather than derived from a live gate run. The general multi-paper harness (auto-deriving
-   failure classes; blind adjudication) is plan P1/P2, not this record.
+   per paper rather than derived from a live gate run. Blind adjudication (control C3) is now done for
+   this case; what remains for the general harness (plan P1/P2): auto-deriving failure classes from a
+   live gate run, **cross-model** adjudication (not same-family), and scaling to N>1.
 
 ## Files
 
@@ -82,6 +102,7 @@ position:
 | `inputs/features.csv` | The 49 declared predictors + GLM7 as a header-only feature manifest. |
 | `ground_truth.json` | **Isolated** answer key (C5): 6 concerns → rule, severity, quote, expected layer(s); plus data fields driving the runner. |
 | `llm_review.frozen.json` | Frozen LLM layer (Claude Code agent, not a paid call; non-reproducible). |
+| `adjudication.frozen.json` | Frozen blind-to-labels adjudication: 3-panelist LLM→GT match (no `addresses_gt`) + per-class RAG relevance (blind to rank). Non-reproducible. |
 | `record.json` | Generated result: per-layer flags, attribution, metrics, verdicts, follow-ups. |
 
 ## Reproduce

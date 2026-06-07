@@ -110,6 +110,10 @@ def compute_record() -> Dict[str, Any]:
     llm = _load("llm_review.frozen.json")
     gt = _load("ground_truth.json")  # validity control C5: loaded with inputs but used only after flags
     concerns = gt["concerns"]
+    try:
+        adj = _load("adjudication.frozen.json")  # blind-to-labels adjudication (frozen, non-reproducible)
+    except FileNotFoundError:
+        adj = None
 
     # --- Layer 1: deterministic (real gate), driven by GT deterministic_target ---
     targets = sorted({c["deterministic_target"] for c in concerns if c.get("deterministic_target")})
@@ -162,6 +166,30 @@ def compute_record() -> Dict[str, Any]:
     reproducible_verdict = _verdict_min(det_verdict, rag_verdict)
     frozen_augmented_verdict = _verdict_min(reproducible_verdict, llm_verdict)
 
+    # --- Blind-to-labels adjudication (frozen, non-reproducible) ---
+    # Upgrades the two soft numbers: the LLM panel re-derived coverage WITHOUT
+    # seeing addresses_gt (catches self-attestation inflation); RAG relevance was
+    # judged blind to retrieval rank (turns "self-consistency" into real precision).
+    adjudication = None
+    if adj:
+        la = adj["llm_blind_adjudication"]
+        ra = adj["rag_independent_relevance"]
+        adjudication = {
+            "method": adj.get("method"),
+            "reproducible": False,
+            "llm": {
+                "blind_adjudicated_coverage": la["blind_gts_covered"],
+                "blind_matches_self_declared": la["blind_matches_self_declared"],
+                "self_attestation_validated": la["blind_matches_self_declared"] == f"{n}/{n}",
+            },
+            "rag": {
+                "independent_precision": ra["overall_precision"],
+                "per_class": {k: f"{v['on_topic']}/{v['of']}" for k, v in ra["per_class"].items()},
+            },
+            "note": "Blind-to-labels (panel never saw addresses_gt; relevance judged blind to retrieval "
+                    "rank), same model family -- catches self-attestation inflation, not shared-model bias.",
+        }
+
     followups = []
     if det_missed_cols:
         followups.append({
@@ -207,13 +235,16 @@ def compute_record() -> Dict[str, Any]:
                 "verdict": rag_verdict,
                 "on_topic_coverage": f"{_cov('rag')}/{n}",
                 "distinct_concerns_credited": len(rag_credited_concern_ids),
+                "independent_precision": adjudication["rag"]["independent_precision"] if adjudication else None,
             },
             "llm": {
                 "metric_kind": "self_attested",
-                "metric_caveat": "scored from the frozen file's own addresses_gt; not independently adjudicated; reviewer non-reproducible.",
+                "metric_caveat": "self_attested_coverage is from the frozen file's own addresses_gt; "
+                                 "blind_adjudicated_coverage is the independent blind check (see adjudication).",
                 "reproducible": False,
                 "verdict": llm_verdict,
                 "self_attested_coverage": f"{_cov('llm')}/{n}",
+                "blind_adjudicated_coverage": adjudication["llm"]["blind_adjudicated_coverage"] if adjudication else None,
             },
         },
         "attribution": attribution,
@@ -222,7 +253,10 @@ def compute_record() -> Dict[str, Any]:
             "deterministic_concern_coverage": f"{_cov('deterministic')}/{n}",
             "deterministic_column_recall": f"{len(det_caught_cols)}/{len(expected_cols)}",
             "rag_retrieval_self_consistency": f"{_cov('rag')}/{n}",
+            "rag_independent_precision": adjudication["rag"]["independent_precision"] if adjudication else None,
             "llm_self_attested_coverage": f"{_cov('llm')}/{n}",
+            "llm_blind_adjudicated_coverage": adjudication["llm"]["blind_adjudicated_coverage"] if adjudication else None,
+            "llm_self_attestation_validated": adjudication["llm"]["self_attestation_validated"] if adjudication else None,
             "union_any_layer": f"{sum(1 for a in attribution if a['caught_by'])}/{n}",
             "union_reproducible_layers_only": f"{sum(1 for a in attribution if ({'deterministic','rag'} & set(a['caught_by'])))}/{n}",
             "reproducible_verdict": reproducible_verdict,
@@ -233,6 +267,7 @@ def compute_record() -> Dict[str, Any]:
                 "note": "final = min(...) can never RAISE a verdict by construction. This N=1 cannot empirically TEST asymmetry: rag_verdict is a fixed advisory cap and every layer here lands at <= concern, so nothing was in a position to (incorrectly) raise the verdict. Report this as a design invariant, not a measurement.",
             },
         },
+        "adjudication": adjudication,
         "followups": followups,
     }
 
@@ -277,8 +312,8 @@ def main() -> int:
     print(f"[run_glm7_n1] OK — reproducible layers match. "
           f"reproducible_verdict={m['reproducible_verdict']} (det binds) | "
           f"det concern {m['deterministic_concern_coverage']} col {m['deterministic_column_recall']} | "
-          f"rag self-consistency {m['rag_retrieval_self_consistency']} | "
-          f"llm self-attested {m['llm_self_attested_coverage']}")
+          f"rag self-consistency {m['rag_retrieval_self_consistency']} (blind precision {m['rag_independent_precision']}) | "
+          f"llm self-attested {m['llm_self_attested_coverage']} (blind-adjudicated {m['llm_blind_adjudicated_coverage']})")
     return 0
 
 
