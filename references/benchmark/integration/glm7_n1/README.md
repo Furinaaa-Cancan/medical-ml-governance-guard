@@ -49,7 +49,9 @@ adjudication pass (`adjudication.frozen.json`) re-measured both independently:
 - **RAG precision — deflated and made honest.** Judging each retrieved concern's relevance blind to
   rank: **8/16 (50%)**. Per class: definition_leakage **1/4** (3 of 4 are *different* leakage
   mechanisms — NSAID-proxy, confounding, reverse-causation), cross_sectional 2/4, selection 2/4,
-  eval 3/4. → a concrete BM25 gate-path precision finding the rosy "5/6" hid.
+  eval 3/4. → a concrete BM25 gate-path precision finding the rosy "5/6" hid. Three principled fixes
+  (min_score, exact-tag bonus, structured-field rerank) were tested and **empirically refuted** — the
+  50% is a category-vs-mechanism *design* limit, not a tuning bug. See `rag_precision_findings.md`.
 - **Caveat:** adjudicators are the *same model family* (no paid cross-model call). This catches
   self-attestation inflation and rank-driven self-consistency, **not** shared-model bias — true
   independence needs a different model. The adjudication is itself frozen / non-reproducible.
@@ -103,6 +105,7 @@ position:
 | `ground_truth.json` | **Isolated** answer key (C5): 6 concerns → rule, severity, quote, expected layer(s); plus data fields driving the runner. |
 | `llm_review.frozen.json` | Frozen LLM layer (Claude Code agent, not a paid call; non-reproducible). |
 | `adjudication.frozen.json` | Frozen blind-to-labels adjudication: 3-panelist LLM→GT match (no `addresses_gt`) + per-class RAG relevance (blind to rank). Non-reproducible. |
+| `rag_precision_findings.md` | Why the gate-path RAG precision is 50% and why three scoring fixes (min_score / exact-tag / structured rerank) were tested and refuted — it's a category-vs-mechanism design limit. |
 | `record.json` | Generated result: per-layer flags, attribution, metrics, verdicts, follow-ups. |
 
 ## Reproduce
