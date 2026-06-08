@@ -8,7 +8,7 @@
   <br><br>
   <strong style="font-size: 2.5em;">ML Governance Guard</strong>
   <br>
-  <em>Top-Journal Review Standards &times; AI-Driven Medical Prediction Model Governance Framework</em>
+  <em>A fail-closed governance and verification framework for medical prediction models</em>
   <br><br>
   <a href="https://github.com/Furinaaa-Cancan/medical-ml-governance-guard"><img src="https://img.shields.io/badge/GitHub-Furinaaa--Cancan%2Fmedical--ml--governance--guard-181717?logo=github" alt="GitHub Repo"></a>
   <br>
@@ -29,7 +29,7 @@
 <br>
 <strong>23 Model Families</strong> &middot; <strong>16 Real Medical Datasets (630K+ rows)</strong> &middot; <strong>335 NC+CM Peer Review PDFs · 154 Curated with Concerns</strong> &middot; <strong>30 Static Analysis Rules</strong>
 <br><br>
-<em>Every audit recommendation cites real top-journal peer review opinions as evidence.<br>Not a prompt-stitched AI assistant &mdash; a fail-closed verification harness: the LLM only orchestrates, while pass/fail is decided by deterministic, CI-replayable Python gates — hallucination can't reach the verdict layer.</em>
+<em>Audit recommendations cite real journal peer-review opinions as evidence. Pass/fail is decided by deterministic, CI-replayable Python gates; the LLM only orchestrates and does not participate in the final verdict.</em>
 </p>
 
 ---
@@ -82,7 +82,7 @@ The prevalence of data leakage and methodological flaws in medical ML papers far
 | Cohort filter cascade undocumented — reviewers cannot audit selection bias | Top-3 cause of NC peer-review rejections | Gate C01 `--cohort-spec`: declare inclusion/exclusion cascade → monotonicity + final row-count consistency check; publication-grade tier fails without it |
 | Feature names `gene_BRCA1` / `rs12345` / `ENSG00000...` | Out-of-scope: using MLGG for omics data is a modality mismatch | `mlgg-lint` R028: ≥3 omics-pattern name matches → rejected with pointers to Scanpy / TCGAbiolinks / PLINK |
 
-> **MLGG is not yet another ML toolkit.** It is a fail-closed verification harness meeting top-journal review standards &mdash; 33 fail-closed gates + 154 NC+CM curated reviews (Nature Communications + Communications Medicine; 817 structured concerns; 181 additional PDFs cataloged and pending extraction) as a knowledge base. Every recommendation can cite reviewer quotes as evidence.
+> MLGG is a fail-closed verification harness: 33 fail-closed gates, with a knowledge base of 154 NC+CM curated reviews (real reviewer concerns from Nature Communications and Communications Medicine papers; 817 structured concerns; 181 additional PDFs cataloged and pending extraction). Every recommendation can cite reviewer quotes as evidence.
 
 ---
 
@@ -157,7 +157,7 @@ Security-relevant changes to the harness itself go through real-producer round-t
 
 ## Reviewer-Grade Review Mechanism
 
-MLGG's core is not running scripts, but **reviewing your code like a top-journal reviewer**.
+This section describes MLGG's code-review mechanism: checking code for methodology problems against peer-review standards.
 
 ```
 Your code ──→ /mlgg review ──→ Find issues ──→ Cite reviewer quotes ──→ Provide fix code ──→ Re-verify
@@ -188,7 +188,7 @@ Structurally extracted 817 review opinions from 154 NC + CM medical ML papers (1
 
 **Honest coverage caveat**: the KB is peer-review opinions on already-published NC papers. The pre-publication filter removes egregious leakage, so leakage-category concerns are rare by design (≈4%). The KB is strong on evaluation / reporting / external validation; for leakage failures rely on `leakage_gate` + `mlgg-lint` R001-R030 rather than the KB.
 
-> When MLGG finds an issue in your code, it doesn't just say "violated rule E02" &mdash; it tells you: *"NC+CM reviewers requested improved evaluation metrics 196 times (24%) across 154 papers. This is the most frequently raised concern category."*
+> Beyond naming the violated rule (e.g. E02), the report attaches a KB statistic: *"NC+CM reviewers requested improved evaluation metrics 196 times (24%) across 154 papers"* — evaluation metrics is the most frequently raised concern category.
 
 ---
 
@@ -1153,7 +1153,7 @@ UKB's field-instance-array structure (the same field collected at baseline / ima
   - **Temporal leakage**: feature instance > target instance (e.g. using imaging-visit HbA1c `p30750_i2` to predict a baseline `i0` outcome);
   - **Instance-participation MNAR**: post-baseline visits have low attendance (instance 1 ≈ 4%, instance 2 ≈ 20%); participation < 50% is auto-flagged MNAR;
   - **Categorical encoding**: categorical fields with > 2 categories warn when numerically encoded (false ordinal relationship).
-- **Field-list generation**: `--generate [disease]` joins outcome fields from the disease-KB and emits a RAP field list; `--exclude-risk outcome_derived,death_registry,hospital_derived` drops leakage-risk categories in one flag.
+- **Field-list generation**: `--generate [disease]` joins outcome fields from the disease-KB and emits a RAP field list; `--exclude-risk outcome_derived,death_registry,hospital_derived` drops leakage-risk categories.
 
 **Onboarding auto-trigger**: `mlgg onboarding --input-csv nhanes_diabetes.csv` auto-detects dataset/disease/cross-sectional and runs codebook RAG + definition_variable_guard + leakage_gate before training.
 

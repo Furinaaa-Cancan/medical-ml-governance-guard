@@ -11,7 +11,7 @@
   <br><br>
   <strong style="font-size: 2em;">ML Governance Guard</strong>
   <br>
-  <em>顶刊级审稿标准 × AI 驱动的医学预测模型治理框架</em>
+  <em>医学预测模型的 fail-closed 治理与验证框架</em>
   <br><br>
   <a href="https://github.com/Furinaaa-Cancan/medical-ml-governance-guard"><img src="https://img.shields.io/badge/GitHub-Furinaaa--Cancan%2Fmedical--ml--governance--guard-181717?logo=github" alt="GitHub Repo"></a>
   <br>
@@ -32,7 +32,7 @@
 <br>
 <strong>23 个模型族</strong> &middot; <strong>16 个真实医学数据集 (630K+ 行)</strong> &middot; <strong>335 篇 NC+CM 同行评审 PDF · 154 篇已抽审稿意见</strong> &middot; <strong>30 条静态分析规则</strong>
 <br><br>
-<em>每一条审查建议都引用真实顶刊审稿意见作为论据。<br>不是 prompt 拼出来的 AI 助手，是一套 fail-closed 验证型 harness：LLM 只做软编排，pass/fail 由确定性、CI 可回归的 Python gate 裁定——幻觉穿不透到结论层。</em>
+<em>审查建议引用真实期刊审稿意见作为论据。pass/fail 由确定性、CI 可回归的 Python gate 裁定；LLM 仅做软编排，不参与最终判定。</em>
 </p>
 
 ---
@@ -99,7 +99,7 @@
 | 未声明队列筛选级联，审稿人无从审 selection bias | NC 审稿拒点 top-3 | Gate C01 `--cohort-spec`: 声明 inclusion/exclusion cascade → 单调性 + 最终行数一致性校验；publication-grade tier 不声明直接 FAIL |
 | 特征列命名 `gene_BRCA1` / `rs12345` / `ENSG00000...` | 把组学数据拿来跑 MLGG 是 scope 错配 | `mlgg-lint` R028: ≥3 个组学命名前缀匹配即拒绝，引导到 Scanpy / TCGAbiolinks / PLINK |
 
-> **MLGG 不是又一个 ML 工具包。** 它是一套达到顶刊审稿标准的 fail-closed 验证 harness——33 道 fail-closed 门控 + 154 篇 Nature Communications + Communications Medicine 真实审稿意见作为知识库（另 181 篇 PDF 已收录待抽取）。每一条建议都能引用审稿人原文作为论据。
+> MLGG 是一套 fail-closed 验证 harness：33 道 fail-closed 门控，以 154 篇 Nature Communications 与 Communications Medicine 论文的真实审稿意见为知识库（另 181 篇 PDF 已收录待抽取）。每条建议可引用审稿人原文作为论据。
 
 ---
 
@@ -174,7 +174,7 @@ harness 自身的安全相关改动经过真实生产者往返测试与独立对
 
 ## 审稿级审查机制
 
-MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代码**。
+本节描述 MLGG 的代码审查机制：对照同行评审标准检查代码中的方法学问题。
 
 ```
 你的代码 ──→ /mlgg 审查 ──→ 发现问题 ──→ 引用审稿人原文 ──→ 给出修复代码 ──→ 重新验证
@@ -207,7 +207,7 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 
 **KB 覆盖诚实说明**：KB 是 NC 已发表论文的审稿意见——pre-publication filter 已经筛掉了严重 leakage。结果：leakage 类审稿意见稀少（≈4%）；KB 强在 evaluation / reporting / external validation，弱在 leakage。遇到 leakage 失败时优先依赖 `leakage_gate` + `mlgg-lint` R001-R030，不依赖 KB。
 
-> 当 MLGG 发现你的代码有问题时，它不只是说"违反了规则 E02"——它会告诉你：*"NC+CM 审稿人在 154 篇论文中 196 次（24%）要求完善评估指标。这是审稿人最常提出的问题类别。"*
+> 报告除指出违反的规则（如 E02）外，还附 KB 统计：*"NC+CM 审稿人在 154 篇论文中 196 次（24%）要求完善评估指标"*——评估指标是审稿意见中最常见的类别。
 
 ---
 
@@ -1272,7 +1272,7 @@ python3 examples/download_real_data.py pima     # 768 rows
 
 </details>
 
-所有数据来自官方机构（CDC / UCI / NCI-NIH / Vanderbilt），无需注册，一键下载。总计 630K 行。
+所有数据来自官方机构（CDC / UCI / NCI-NIH / Vanderbilt），无需注册即可下载。总计 630K 行。
 
 ---
 
@@ -1348,7 +1348,7 @@ UKB 的「字段-instance-array」结构（同一字段在 baseline / imaging / 
   - **时序泄漏**：特征 instance > target instance（如用 imaging 访视的 HbA1c `p30750_i2` 预测 baseline `i0` 结局）；
   - **instance-participation MNAR**：post-baseline 访视参与率低（instance 1 ≈ 4%、instance 2 ≈ 20%），参与率 < 50% 自动标记 MNAR；
   - **类别编码**：> 2 类的 categorical 字段被数值编码会强加伪序关系，自动告警。
-- **字段清单生成**：`--generate [disease]` 按疾病从 disease-KB join 出 outcome 字段生成 RAP 字段清单；`--exclude-risk outcome_derived,death_registry,hospital_derived` 一键剔除泄漏风险类。
+- **字段清单生成**：`--generate [disease]` 按疾病从 disease-KB join 出 outcome 字段生成 RAP 字段清单；`--exclude-risk outcome_derived,death_registry,hospital_derived` 批量剔除泄漏风险类。
 
 **Onboarding 自动触发**：`mlgg onboarding --input-csv nhanes_diabetes.csv` 自动检测 dataset/disease/cross-sectional，训练前运行 codebook RAG + definition_variable_guard + leakage_gate。
 
