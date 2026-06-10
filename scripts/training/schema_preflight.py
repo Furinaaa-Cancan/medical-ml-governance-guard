@@ -417,7 +417,7 @@ def finish(
     summary: Dict[str, Any],
     mapping_payload: Optional[Dict[str, Any]],
 ) -> int:
-    should_fail = bool(failures)
+    should_fail = bool(failures) or (bool(args.strict) and bool(warnings))
     report = {
         "status": "fail" if should_fail else "pass",
         "strict_mode": bool(args.strict),
