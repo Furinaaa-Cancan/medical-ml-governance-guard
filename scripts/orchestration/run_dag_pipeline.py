@@ -1284,7 +1284,10 @@ def _finalize(
 
     summary = {
         "contract_version": PIPELINE_REPORT_VERSION,
-        "status": "dry_run" if _is_dry else ("pass" if success else "fail"),
+        # A real gate failure during dry-run planning (e.g. request_contract)
+        # must still surface as "fail" — only the synthetic "would execute"
+        # listing (success=True, nothing run) is relabeled dry_run.
+        "status": "dry_run" if (_is_dry and success) else ("pass" if success else "fail"),
         "dry_run": _is_dry,
         "strict_mode": bool(args.strict),
         "diagnostic_only": bool(args.continue_on_fail),
