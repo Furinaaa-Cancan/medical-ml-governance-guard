@@ -1277,12 +1277,20 @@ def _finalize(
     # Aggregate issues from all gate reports, sorted by severity
     _print_prioritized_issues(steps, evidence_dir)
 
+    # A dry-run executes nothing; its report must never read as a real
+    # pass nor be publication-eligible, and must not silently overwrite a
+    # genuine prior report's verdict without a machine-readable marker.
+    _is_dry = bool(getattr(args, "dry_run", False))
+
     summary = {
         "contract_version": PIPELINE_REPORT_VERSION,
-        "status": "pass" if success else "fail",
+        "status": "dry_run" if _is_dry else ("pass" if success else "fail"),
+        "dry_run": _is_dry,
         "strict_mode": bool(args.strict),
         "diagnostic_only": bool(args.continue_on_fail),
-        "publication_eligible": bool(args.strict and not args.continue_on_fail and success),
+        "publication_eligible": bool(
+            args.strict and not args.continue_on_fail and success and not _is_dry
+        ),
         "failure_count": sum(1 for s in steps if s.get("status") == "fail"),
         "pass_count": sum(1 for s in steps if s.get("status") == "pass"),
         "skip_count": sum(1 for s in steps if s.get("status") == "skip"),
