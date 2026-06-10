@@ -34,16 +34,21 @@ jobs:
             --report /tmp/mlgg_kb_hygiene_report.json
 
       - name: Retrieval end-to-end regression (seed scenarios)
-        # Runs the 3-scenario retrieval eval and compares to the pinned
+        # Runs the 30-scenario retrieval eval and compares to the pinned
         # baseline in references/retrieval_eval/baseline.json. Fails
         # if any scenario drops below its baseline coverage / hit@K /
         # tag_precision-floor. Catches KB rewording or synonym-table
         # changes that silently tank retrieval quality.
+        #
+        # --mode bm25_only: exercises the SHIPPING gate path (gates are
+        # BM25-only; hybrid/dense is offline-only) and avoids a hard
+        # ModuleNotFoundError on runners without sentence-transformers.
         run: |
           python3 scripts/rag/evals/harness.py \
             --scenarios references/retrieval_eval/scenarios.json \
             --baseline references/retrieval_eval/baseline.json \
             --report /tmp/mlgg_retrieval_eval_report.json \
+            --mode bm25_only \
             --strict
 
       - name: Full onboarding (guided demo, informational)
