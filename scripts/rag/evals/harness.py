@@ -326,6 +326,7 @@ def evaluate_scenario(
         "mode": mode,
         "retrieved_count": len(results),
         "coverage": coverage,
+        "expected_tag_count": len(expected_tags),
         "hit_at_k": hit_at_k,
         "tag_precision": round(tag_precision, 3),
         "matched_expected_categories": sorted(set(hit_categories)),
@@ -483,6 +484,11 @@ def main() -> int:
         if regressions:
             return 2
         for s in per_scenario:
+            # Zero-retrieval probes (no expected_tags — e.g. off-domain or
+            # empty-query scenarios) have hit@K=0 by construction; they test
+            # that retrieval stays quiet, not recall. Don't enforce hit@K on them.
+            if s["expected_tag_count"] == 0:
+                continue
             if s["hit_at_k"] < 1.0:
                 print(f"\nSTRICT FAIL: scenario '{s['scenario_id']}' has "
                       f"hit@K=0 — top-{args.top_k} concerns matched no "
