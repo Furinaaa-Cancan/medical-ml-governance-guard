@@ -112,11 +112,15 @@ def extract_digest(evidence_dir: Path) -> Dict[str, Any]:
                 }
 
     # Gate status counts — derive from registry (single source of truth).
+    gate_registry_error: Optional[str] = None
     try:
         from _gate_registry import GATE_REGISTRY
         gate_files = [spec.report_output for spec in GATE_REGISTRY.values()]
-    except ImportError:
+    except ImportError as exc:
+        # Fail-closed: an empty registry must not render as "0 gates, all
+        # fine". Surface the error so the digest can't be read as healthy.
         gate_files = []
+        gate_registry_error = f"gate registry unavailable: {exc}"
     passed = 0
     failed = 0
     missing = 0
@@ -148,6 +152,7 @@ def extract_digest(evidence_dir: Path) -> Dict[str, Any]:
             "failed": failed,
             "missing": missing,
         },
+        "gate_registry_error": gate_registry_error,
         "metrics": metrics,
         "calibration_ece": ece,
         "model": {
@@ -253,6 +258,13 @@ def main() -> int:
         print(f"Digest written to: {out_path}")
     else:
         print(output)
+
+    # Fail-closed: if the gate registry could not be loaded, the gate
+    # counts are meaningless (total=0) — exit non-zero rather than report
+    # a hollow "all clear".
+    if digest.get("gate_registry_error"):
+        print(f"ERROR: {digest['gate_registry_error']}", file=sys.stderr)
+        return 2
 
     return 0
 
