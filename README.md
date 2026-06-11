@@ -1397,7 +1397,7 @@ UKB 的「字段-instance-array」结构（同一字段在 baseline / imaging / 
 medical-ml-governance-guard/
 │
 ├── scripts/                              # ─── 核心代码 (106 files, ~83K LOC) ───
-│   │                                      # LOC snapshot 2026-04-24; drifts per commit —
+│   │                                      # LOC snapshot 2026-06-11; drifts per commit —
 │   │                                      # treat as order-of-magnitude, run `wc -l` for exact.
 │   │
 │   ├── core/              (7 files, 6.4K LOC)   # 框架底座 — 所有 gate 共享的基础设施
