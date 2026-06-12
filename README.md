@@ -11,7 +11,7 @@
   <br><br>
   <strong style="font-size: 2em;">ML Governance Guard</strong>
   <br>
-  <em>顶刊级审稿标准 × AI 驱动的医学预测模型治理框架</em>
+  <em>医学预测模型的 fail-closed 治理与验证框架</em>
   <br><br>
   <a href="https://github.com/Furinaaa-Cancan/medical-ml-governance-guard"><img src="https://img.shields.io/badge/GitHub-Furinaaa--Cancan%2Fmedical--ml--governance--guard-181717?logo=github" alt="GitHub Repo"></a>
   <br>
@@ -32,7 +32,7 @@
 <br>
 <strong>23 个模型族</strong> &middot; <strong>16 个真实医学数据集 (630K+ 行)</strong> &middot; <strong>335 篇 NC+CM 同行评审 PDF · 154 篇已抽审稿意见</strong> &middot; <strong>30 条静态分析规则</strong>
 <br><br>
-<em>每一条审查建议都引用真实顶刊审稿意见作为论据。<br>不是 prompt 拼出来的 AI 助手，是一套 fail-closed 验证型 harness：LLM 只做软编排，pass/fail 由确定性、CI 可回归的 Python gate 裁定——幻觉穿不透到结论层。</em>
+<em>审查建议引用真实期刊审稿意见作为论据。pass/fail 由确定性、CI 可回归的 Python gate 裁定；LLM 仅做软编排，不参与最终判定。</em>
 </p>
 
 ---
@@ -99,18 +99,18 @@
 | 未声明队列筛选级联，审稿人无从审 selection bias | NC 审稿拒点 top-3 | Gate C01 `--cohort-spec`: 声明 inclusion/exclusion cascade → 单调性 + 最终行数一致性校验；publication-grade tier 不声明直接 FAIL |
 | 特征列命名 `gene_BRCA1` / `rs12345` / `ENSG00000...` | 把组学数据拿来跑 MLGG 是 scope 错配 | `mlgg-lint` R028: ≥3 个组学命名前缀匹配即拒绝，引导到 Scanpy / TCGAbiolinks / PLINK |
 
-> **MLGG 不是又一个 ML 工具包。** 它是一套达到顶刊审稿标准的 fail-closed 验证 harness——33 道 fail-closed 门控 + 154 篇 Nature Communications + Communications Medicine 真实审稿意见作为知识库（另 181 篇 PDF 已收录待抽取）。每一条建议都能引用审稿人原文作为论据。
+> MLGG 是一套 fail-closed 验证 harness：33 道 fail-closed 门控，以 154 篇 Nature Communications 与 Communications Medicine 论文的真实审稿意见为知识库（另 181 篇 PDF 已收录待抽取）。每条建议可引用审稿人原文作为论据。
 
 ---
 
 ## 工程化 Harness 架构
 
-MLGG 的核心命题是把**"可信判定"当作一等工程目标**：一个发布级治理结论，必须在"生成证据的 agent 可以编辑任何文件"的威胁模型下，依然**不可伪造、可复现、且语义上经得起顶刊审稿**。下面自顶向下给出完整架构。
+本节描述 MLGG 的验证架构。设计目标：在"生成证据的 agent 拥有文件读写权限"的威胁模型下，治理判定仍然不可伪造、可复现，并锚定于确定性计算而非 agent 输出。以下自顶向下描述各层。
 
 ### A1 · 威胁模型与设计公理
 
 - **威胁模型 (ii)：防御 agent 自身。** 生成证据的 agent 与消费证据的 certifier 同处一个进程族，agent 拥有文件读写权限。因此任何"信任 agent 写出的 JSON `status`"的设计在本质上都是不安全的——信任必须锚定在 **agent 不持有的密钥**与**确定性计算**上，而不是 agent 的输出。
-- **公理：安全方向上不存在默认放行。** 异常、缺证、畸形输入一律 fail-closed（`exit 2`）。在治理 harness 里，"出错即通过"是 critical 级缺陷，不是容错。
+- **公理：安全方向上不设默认放行。** 异常、缺证、畸形输入一律 fail-closed（`exit 2`）；安全相关路径不存在"出错即通过"的默认值。
 
 ### A2 · 三层判定架构（数据流）
 
@@ -126,14 +126,14 @@ MLGG 的核心命题是把**"可信判定"当作一等工程目标**：一个发
 ```
 
 - **第一层 · 静态（lint）：** 在源码上做 AST 模式匹配，零运行依赖，抓 `fit()` 在 split 前等结构性反模式。
-- **第二层 · 确定性（gates）：** 在运行产出的证据上做可复现验证，发出**有约束力**的 pass/fail——这是整套系统的信任之源。
+- **第二层 · 确定性（gates）：** 在运行产出的证据上做可复现验证，发出有约束力的 pass/fail；系统的最终判定以确定性层为准。
 - **第三层 · 咨询（LLM）：** 把全部门控证据 + RAG 审稿原文交给 LLM 合成方法学疑点。**只读**，约束见 A3。
 
-### A3 · 非对称不变式（架构之心）
+### A3 · 非对称不变式
 
 > **`final_verdict = min(gate_verdict, llm_verdict)`**，序关系 **FAIL < CONCERN < PASS**。
 
-机制上，LLM 评审报告只能**追加** `failures[]` / `warnings[]` 并把 tier 布尔值**单向压低**；代码里**不存在**任何路径能由 LLM 输入将某个 tier 置 `True` 或减少 `failure_count`。"能加疑点、永不能洗白"是由**数据流**保证的，而非由 prompt 约束。`blocking` 意见把合规 tier 压到 `none`；`advisory` 仅记录，strict 下才致 fail。该层默认是**确定性 test double**（无网络、可复现），仅 `--live` 才发起真实 Claude 调用。
+LLM 评审报告只能追加 `failures[]` / `warnings[]` 并把 tier 布尔值单向压低；代码中不存在任何路径能由 LLM 输入将某个 tier 置 `True` 或减少 `failure_count`。该单向性由数据流保证，而非由 prompt 约束。`blocking` 意见把合规 tier 压到 `none`；`advisory` 仅记录，strict 下才致 fail。该层默认为确定性 test double（无网络、可复现），仅 `--live` 发起真实 Claude 调用。
 
 ### A4 · Fail-closed 契约与"跳过 ≠ 崩溃"
 
@@ -164,19 +164,17 @@ MLGG 的核心命题是把**"可信判定"当作一等工程目标**：一个发
 
 - **门控路径（shipping）：** gate 失败时走 `retrieve_for_failure(gate_name, codes)` 的 **BM25** 检索（纯 stdlib、无 torch），确定性、轻量、fail-closed，把审稿原话嵌入 report 的 `peer_review_context`。
 - **离线路径：** `scripts/rag/query.py` 的 dense / hybrid（BGE-small 384d）只服务离线探索与 paper-audit，**不**在 gate 失败路径上运行——否则会给每个短生命周期 gate 进程引入 ~500MB torch 依赖与冷启动。
-- **诚实边界：** 门控路径是**类别级**精度；机制级语义判别（区分"定义变量泄漏"与"代理变量泄漏"）需要 dense / LLM 层，这是设计取舍，不是可调参的 bug。
+- **精度边界：** 门控路径为类别级精度；区分"定义变量泄漏"与"代理变量泄漏"等机制级语义判别需要 dense / LLM 层，属设计取舍。
 
-### A9 · 工程纪律（harness 验证 harness）
+### A9 · 工程纪律
 
-harness 自身的每次安全相关改动都要过**真实生产者往返测试 + 独立对抗式评审**——本项目历史上多次出现"绿 CI + 自审通过，独立对抗评审却抓出 critical / 误杀回归"的案例。跨层正确性由**集成基准**（在真实 NC 论文上同时跑确定性层 + RAG + LLM，与论文真实审稿意见比对）验证；LLM 层的覆盖由**盲裁判**（对标签设盲的独立匹配）校验，而非自证。
-
-> 一句话：**门控负责判，LLM 只能质疑，密钥锁住证据，环境封进信封，崩溃绝不放行。**
+harness 自身的安全相关改动经过真实生产者往返测试与独立对抗式评审。跨层正确性由集成基准验证——在真实 NC 论文上同时运行确定性层、RAG 与 LLM，并与该论文的真实审稿意见比对；LLM 层的覆盖由盲裁判（对标签设盲的独立匹配）校验，而非自证。
 
 ---
 
 ## 审稿级审查机制
 
-MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代码**。
+本节描述 MLGG 的代码审查机制：对照同行评审标准检查代码中的方法学问题。
 
 ```
 你的代码 ──→ /mlgg 审查 ──→ 发现问题 ──→ 引用审稿人原文 ──→ 给出修复代码 ──→ 重新验证
@@ -209,7 +207,7 @@ MLGG 的核心不是跑脚本，而是**像顶刊审稿人一样审查你的代�
 
 **KB 覆盖诚实说明**：KB 是 NC 已发表论文的审稿意见——pre-publication filter 已经筛掉了严重 leakage。结果：leakage 类审稿意见稀少（≈4%）；KB 强在 evaluation / reporting / external validation，弱在 leakage。遇到 leakage 失败时优先依赖 `leakage_gate` + `mlgg-lint` R001-R030，不依赖 KB。
 
-> 当 MLGG 发现你的代码有问题时，它不只是说"违反了规则 E02"——它会告诉你：*"NC+CM 审稿人在 154 篇论文中 196 次（24%）要求完善评估指标。这是审稿人最常提出的问题类别。"*
+> 报告除指出违反的规则（如 E02）外，还附 KB 统计：*"NC+CM 审稿人在 154 篇论文中 196 次（24%）要求完善评估指标"*——评估指标是审稿意见中最常见的类别。
 
 ---
 
@@ -1274,7 +1272,7 @@ python3 examples/download_real_data.py pima     # 768 rows
 
 </details>
 
-所有数据来自官方机构（CDC / UCI / NCI-NIH / Vanderbilt），无需注册，一键下载。总计 630K 行。
+所有数据来自官方机构（CDC / UCI / NCI-NIH / Vanderbilt），无需注册即可下载。总计 630K 行。
 
 ---
 
@@ -1350,7 +1348,7 @@ UKB 的「字段-instance-array」结构（同一字段在 baseline / imaging / 
   - **时序泄漏**：特征 instance > target instance（如用 imaging 访视的 HbA1c `p30750_i2` 预测 baseline `i0` 结局）；
   - **instance-participation MNAR**：post-baseline 访视参与率低（instance 1 ≈ 4%、instance 2 ≈ 20%），参与率 < 50% 自动标记 MNAR；
   - **类别编码**：> 2 类的 categorical 字段被数值编码会强加伪序关系，自动告警。
-- **字段清单生成**：`--generate [disease]` 按疾病从 disease-KB join 出 outcome 字段生成 RAP 字段清单；`--exclude-risk outcome_derived,death_registry,hospital_derived` 一键剔除泄漏风险类。
+- **字段清单生成**：`--generate [disease]` 按疾病从 disease-KB join 出 outcome 字段生成 RAP 字段清单；`--exclude-risk outcome_derived,death_registry,hospital_derived` 批量剔除泄漏风险类。
 
 **Onboarding 自动触发**：`mlgg onboarding --input-csv nhanes_diabetes.csv` 自动检测 dataset/disease/cross-sectional，训练前运行 codebook RAG + definition_variable_guard + leakage_gate。
 
@@ -1393,8 +1391,7 @@ UKB 的「字段-instance-array」结构（同一字段在 baseline / imaging / 
 
 ## 项目结构
 
-<details>
-<summary><strong>展开完整目录树（scripts / references / tests / …）</strong></summary>
+**完整目录树**（scripts / references / tests / …）——LOC 快照随 commit 漂移，精确值请跑 `wc -l`：
 
 ```
 medical-ml-governance-guard/
@@ -1656,8 +1653,6 @@ medical-ml-governance-guard/
     ├── CHANGELOG.md                      #   版本历史
     └── LICENSE                           #   PolyForm Noncommercial 1.0.0
 ```
-
-</details>
 
 ### 数据流
 
