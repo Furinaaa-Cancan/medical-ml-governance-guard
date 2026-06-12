@@ -10,6 +10,11 @@ venv/
 *.log
 .windsurf/
 
+# Local caches: rag embeddings (.cache/rag/) + paper-audit clones
+# (.cache/audit-repos/). Regenerated on demand; large, and the audit
+# clones contain scraped third-party paper text — never stage them.
+.cache/
+
 experiments/authority-e2e/authority_e2e_summary*.json
 experiments/authority-e2e/stress_seed_search_report*.json
 experiments/authority-e2e/stress_seed_selection*.json
