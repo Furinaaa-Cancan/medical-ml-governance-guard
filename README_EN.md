@@ -1202,7 +1202,7 @@ End-to-end benchmarks on 5 medical datasets (all stored under `experiments/`):
 medical-ml-governance-guard/
 │
 ├── scripts/                              # ─── Core Code (106 files, ~83K lines) ───
-│   │                                     # File / LOC snapshot 2026-06-11; counts drift per commit.
+│   │                                     # File / LOC snapshot 2026-06-13; counts drift per commit.
 │   ├── core/              (8)            # Framework foundation
 │   │   ├── _gate_framework.py            #   GateIssue/Severity, report envelope v2.0, CLI contract
 │   │   ├── _gate_registry.py             #   33-gate DAG (8-layer topological sort, parallel markers)
