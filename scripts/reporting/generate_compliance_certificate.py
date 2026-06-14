@@ -256,13 +256,22 @@ def get_gate_status(report: Optional[Dict[str, Any]]) -> str:
 
 
 def get_self_critique_scores(evidence_dir: Path) -> Optional[Dict[str, Any]]:
-    """Extract 10-dimension scores from self_critique_report.json."""
-    report_path = evidence_dir / "self_critique_report.json"
-    report = load_gate_report(report_path)
+    """Extract the self-critique quality score (0-100) from self_critique_report.json.
+
+    The gate emits a single clamped ``summary.quality_score`` (self_critique_gate
+    clamps it to [0, 100]); it has NO per-dimension breakdown. Earlier code read
+    non-existent ``dimension_scores``/``scores`` keys, so ``score_total`` was always
+    None and the certificate's L3 score floor was silently inert. Return the real
+    score under a stable key so ``sum(...)`` yields the quality_score.
+    """
+    report = load_gate_report(evidence_dir / "self_critique_report.json")
     if report is None:
         return None
     summary = report.get("summary", {})
-    return summary.get("dimension_scores") or summary.get("scores") or None
+    qs = summary.get("quality_score") if isinstance(summary, dict) else None
+    if not isinstance(qs, (int, float)):
+        return None
+    return {"quality_score": float(qs)}
 
 
 def get_reporting_bias_summary(evidence_dir: Path) -> Dict[str, Any]:
@@ -292,6 +301,118 @@ def get_key_metrics(evidence_dir: Path) -> Dict[str, Any]:
         if metrics:
             return metrics
     return {}
+
+
+# ---------------------------------------------------------------------------
+# publication_gate sealed-verdict consumption (the certifier's root of trust)
+# ---------------------------------------------------------------------------
+
+# publication_gate emits summary.compliance_level in {"l1","l2","l3","none"}.
+_PUB_LEVEL_TO_CONFORMANCE = {
+    "none": "BELOW_L1",
+    "l1": "L1-Leakage-Audited",
+    "l2": "L2-Statistically-Valid",
+    "l3": "L3-Publication-Grade",
+}
+_CONFORMANCE_RANK = {
+    "BELOW_L1": 0,
+    "L1-Leakage-Audited": 1,
+    "L2-Statistically-Valid": 2,
+    "L3-Publication-Grade": 3,
+}
+
+
+def get_publication_gate_verdict(evidence_dir: Path) -> Dict[str, Any]:
+    """Load publication_gate's OWN sealed verdict and verify its run-scoped seal.
+
+    The certificate's authority derives from publication_gate, whose
+    ``summary.compliance_level`` already folds in component seal verification,
+    the LLM advisory floor, the disease-KB block, run-binding and the
+    execution-attestation contract. Recomputing tiers here from raw, unsigned
+    gate ``status`` fields (as the certificate historically did) bypasses ALL of
+    that — an agent able to write ``evidence/*.json`` could mint L3.
+
+    Returns a dict:
+        present:           publication_gate_report.json was found
+        compliance_level:  mapped to the certificate vocabulary, or None
+        seal_active:       MLGG_RUN_KEY is set (sealing is in force)
+        seal_verified:     the report carries a valid run-scoped seal
+        reason:            human note on trust status
+    """
+    out: Dict[str, Any] = {
+        "present": False,
+        "compliance_level": None,
+        "seal_active": bool(os.environ.get("MLGG_RUN_KEY")),
+        "seal_verified": False,
+        "reason": "",
+    }
+    report = load_gate_report(evidence_dir / "publication_gate_report.json")
+    if report is None:
+        out["reason"] = "publication_gate_report.json missing or unreadable"
+        return out
+    out["present"] = True
+
+    summary = report.get("summary", {})
+    raw_level = str(summary.get("compliance_level", "")).strip().lower() if isinstance(summary, dict) else ""
+    out["compliance_level"] = _PUB_LEVEL_TO_CONFORMANCE.get(raw_level)
+    if out["compliance_level"] is None:
+        out["reason"] = f"publication_gate compliance_level unrecognized: {raw_level!r}"
+
+    run_key = os.environ.get("MLGG_RUN_KEY")
+    if run_key and run_key.strip():
+        try:
+            from _security import verify_envelope_seal
+            if verify_envelope_seal(report, run_key.strip()):
+                out["seal_verified"] = True
+                out["reason"] = out["reason"] or "run-scoped seal verified"
+            else:
+                out["reason"] = "publication_gate report seal missing/invalid under active MLGG_RUN_KEY"
+        except Exception as exc:  # _security unavailable → cannot verify → untrusted
+            out["reason"] = f"seal verification unavailable: {exc}"
+    else:
+        out["reason"] = out["reason"] or "MLGG_RUN_KEY not set — verdict consumed but NOT cryptographically verified"
+    return out
+
+
+def cap_conformance_to_publication_gate(
+    self_level: str, pub_verdict: Dict[str, Any]
+) -> Tuple[str, List[str]]:
+    """Cap a self-computed conformance level to publication_gate's sealed verdict.
+
+    Rules (fail-closed):
+      1. Active run key but the publication_gate report is missing/unsealed/
+         tampered → refuse outright (BELOW_L1): its verdict cannot be trusted.
+      2. No publication_gate verdict at all → BELOW_L1: the certifier has no
+         authority to certify above the floor without it.
+      3. Otherwise cap to min(self, publication_gate) by tier rank.
+      4. L3 (publication-grade) additionally requires a cryptographically
+         verified run seal; without one the top tier is withheld (→ L2).
+    """
+    if pub_verdict["seal_active"] and not pub_verdict["seal_verified"]:
+        return "BELOW_L1", [
+            f"publication_gate verdict not trusted under active MLGG_RUN_KEY: {pub_verdict['reason']}"
+        ]
+
+    pub_level = pub_verdict["compliance_level"]
+    if pub_level is None:
+        return "BELOW_L1", [
+            "publication_gate sealed verdict absent — certificate authority requires it"
+        ]
+
+    reasons: List[str] = []
+    level = self_level
+    if _CONFORMANCE_RANK[pub_level] < _CONFORMANCE_RANK[level]:
+        reasons.append(f"capped to publication_gate sealed verdict: {pub_level}")
+        level = pub_level
+
+    if level == "L3-Publication-Grade" and not pub_verdict["seal_verified"]:
+        reasons.append(
+            "L3 withheld: publication-grade requires a cryptographically verified "
+            "run seal — set MLGG_RUN_KEY so the verdict can be authenticated"
+        )
+        level = "L2-Statistically-Valid"
+
+    return level, reasons
 
 
 # ---------------------------------------------------------------------------
@@ -424,6 +545,18 @@ def generate_certificate(
         gate_outcomes, strict_mode, score_total, reporting_summary
     )
 
+    # Cap to publication_gate's sealed verdict (the certifier's root of trust).
+    # The certificate must never grant a tier higher than publication_gate's own
+    # sealed decision — which already enforces seal verification, the LLM
+    # advisory floor, the disease-KB block and the execution-attestation
+    # contract. Without this cap, recomputing tiers from raw gate statuses lets
+    # anyone who can write evidence/*.json mint L3.
+    pub_verdict = get_publication_gate_verdict(evidence_dir)
+    conformance_level, cap_reasons = cap_conformance_to_publication_gate(
+        conformance_level, pub_verdict
+    )
+    reasons_for_not_higher = cap_reasons + reasons_for_not_higher
+
     conformance_descriptions = {
         "BELOW_L1": "Pipeline does not meet minimum L1 requirements. Results cannot be presented without major remediation.",
         "L1-Leakage-Audited": "Passed all anti-leakage and data integrity gates. Suitable for conference presentations with caveats.",
@@ -468,6 +601,13 @@ def generate_certificate(
             "missing": missing_count,
             "strict_mode": strict_mode,
             "gate_outcomes": gate_outcomes,
+        },
+
+        "publication_gate_verdict": {
+            "sealed_compliance_level": pub_verdict["compliance_level"],
+            "seal_active": pub_verdict["seal_active"],
+            "seal_verified": pub_verdict["seal_verified"],
+            "trust_note": pub_verdict["reason"],
         },
 
         "scores": {
@@ -574,7 +714,18 @@ def verify_certificate(
         )
         return 2
 
-    print(f"VERIFICATION PASSED: Certificate {cert.get('certificate_id', '?')} is authentic.")
+    # Don't overclaim authenticity when the signature was made under the
+    # machine-derived fallback key: anyone on the same host/user can recompute
+    # it, so the signature proves integrity locally but is NOT independent proof.
+    cert_id = cert.get("certificate_id", "?")
+    if os.environ.get("MLGG_SIGNING_KEY"):
+        print(f"VERIFICATION PASSED: Certificate {cert_id} signature is valid (portable key).")
+    else:
+        print(
+            f"VERIFICATION PASSED (LOCAL KEY): Certificate {cert_id} signature is valid under a "
+            "machine-derived key — integrity checked locally, but NOT independently verifiable. "
+            "Set MLGG_SIGNING_KEY for portable, third-party-verifiable proof."
+        )
     print(f"  Conformance level: {cert.get('conformance_level', 'unknown')}")
     print(f"  Study ID:          {cert.get('study', {}).get('study_id', 'unknown')}")
     print(f"  Issued at:         {cert.get('issuance', {}).get('issued_at', 'unknown')}")
