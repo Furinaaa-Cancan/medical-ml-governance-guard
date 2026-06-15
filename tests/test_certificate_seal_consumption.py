@@ -2,11 +2,11 @@
 SEALED verdict and never grant a tier higher than it.
 
 Threat model: an agent/user able to write evidence/*.json sets every gate
-status to "pass" and tries to mint L3-Publication-Grade. The certificate must
+status to "pass" and tries to mint a compliance tier. The certificate must
 refuse unless publication_gate's own sealed verdict (which already enforces
 seal verification, the LLM advisory floor, the disease-KB block and the
-execution-attestation contract) grants it — and the top tier additionally
-requires a cryptographically verified run seal.
+execution-attestation contract) grants it under a cryptographically verified
+run seal.
 
 This is the real-producer round-trip the prior security-review gap called for:
 forged evidence in → certificate refuses, sealed verdict in → certificate caps.
@@ -134,7 +134,7 @@ class TestCapConformance:
         v = self._verdict(seal_verified=False, reason="seal invalid")
         level, reasons = gcc.cap_conformance_to_publication_gate("L3-Publication-Grade", v)
         assert level == "BELOW_L1"
-        assert any("not trusted" in r for r in reasons)
+        assert any("requires a verified run seal" in r for r in reasons)
 
     def test_absent_verdict_refuses(self):
         v = self._verdict(compliance_level=None, seal_active=False, seal_verified=False)
@@ -153,12 +153,12 @@ class TestCapConformance:
         assert level == "L3-Publication-Grade"
         assert reasons == []
 
-    def test_l3_withheld_without_verified_seal(self):
-        # no run key → seal_active False, seal_verified False, verdict says L3
+    def test_unverified_verdict_refused_without_run_key(self):
+        # no run key → verdict is unsigned/unverified, so no certification tier is trusted
         v = self._verdict(seal_active=False, seal_verified=False)
         level, reasons = gcc.cap_conformance_to_publication_gate("L3-Publication-Grade", v)
-        assert level == "L2-Statistically-Valid"
-        assert any("L3 withheld" in r for r in reasons)
+        assert level == "BELOW_L1"
+        assert any("requires a verified run seal" in r for r in reasons)
 
 
 # ── end-to-end: generate_certificate refuses forged evidence ─────────────────
@@ -182,6 +182,19 @@ class TestCertificateEndToEnd:
         _build_evidence(evidence, pub_compliance_level="l3", seal_pub_with=WRONG_KEY)
         cert = _gen(evidence, tmp_path)
         assert cert["conformance_level"] == "BELOW_L1"
+
+    def test_forged_l2_without_run_key_is_refused(self, tmp_path, monkeypatch):
+        """No active run key means publication_gate's level is unverified.
+
+        Without this guard an offline attacker can forge every gate pass plus
+        publication_gate "l2" and mint an L2 certificate from unsigned JSON.
+        """
+        monkeypatch.delenv("MLGG_RUN_KEY", raising=False)
+        evidence = tmp_path / "evidence"
+        _build_evidence(evidence, pub_compliance_level="l2", seal_pub_with=None)
+        cert = _gen(evidence, tmp_path)
+        assert cert["conformance_level"] == "BELOW_L1"
+        assert cert["publication_gate_verdict"]["seal_verified"] is False
 
     def test_caps_to_sealed_l1_even_when_all_gates_pass(self, tmp_path, monkeypatch):
         monkeypatch.setenv("MLGG_RUN_KEY", RUN_KEY)

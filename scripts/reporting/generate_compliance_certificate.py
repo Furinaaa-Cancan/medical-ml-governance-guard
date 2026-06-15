@@ -37,6 +37,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from _gate_registry import GATE_REGISTRY
+
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -53,75 +55,12 @@ SIGNING_KEY_MIN_BYTES = 32
 class SigningKeyError(RuntimeError):
     """Raised when the configured signing key is set but invalid (fail-closed)."""
 
-# Ordered list of all 33 gate report filenames (canonical names from _gate_registry.py)
-GATE_REPORT_FILENAMES = [
-    "request_contract_report.json",
-    "manifest.json",
-    "execution_attestation_report.json",
-    "leakage_report.json",
-    "split_protocol_report.json",
-    "covariate_shift_report.json",
-    "reporting_bias_report.json",
-    "definition_guard_report.json",
-    "lineage_report.json",
-    "imbalance_policy_report.json",
-    "missingness_policy_report.json",
-    "tuning_leakage_report.json",
-    "model_selection_audit_report.json",
-    "feature_engineering_audit_report.json",
-    "clinical_metrics_report.json",
-    "calibration_dca_report.json",
-    "ci_matrix_gate_report.json",
-    "distribution_generalization_report.json",
-    "evaluation_quality_report.json",
-    "external_validation_gate_report.json",
-    "fairness_equity_report.json",
-    "generalization_gap_report.json",
-    "metric_consistency_report.json",
-    "permutation_report.json",
-    "prediction_replay_report.json",
-    "robustness_gate_report.json",
-    "sample_size_report.json",
-    "seed_stability_report.json",
-    "publication_gate_report.json",
-    "self_critique_report.json",
-    "security_audit_gate_report.json",
-]
-
-# Gate name → report filename mapping
+# Gate name -> report filename mapping. This must stay registry-derived so the
+# certificate cannot drift behind the fail-closed DAG when gates are added.
 GATE_NAME_TO_REPORT = {
-    "request_contract_gate": "request_contract_report.json",
-    "manifest_lock": "manifest.json",
-    "execution_attestation_gate": "execution_attestation_report.json",
-    "leakage_gate": "leakage_report.json",
-    "split_protocol_gate": "split_protocol_report.json",
-    "covariate_shift_gate": "covariate_shift_report.json",
-    "reporting_bias_gate": "reporting_bias_report.json",
-    "definition_variable_guard": "definition_guard_report.json",
-    "feature_lineage_gate": "lineage_report.json",
-    "imbalance_policy_gate": "imbalance_policy_report.json",
-    "missingness_policy_gate": "missingness_policy_report.json",
-    "tuning_leakage_gate": "tuning_leakage_report.json",
-    "model_selection_audit_gate": "model_selection_audit_report.json",
-    "feature_engineering_audit_gate": "feature_engineering_audit_report.json",
-    "clinical_metrics_gate": "clinical_metrics_report.json",
-    "calibration_dca_gate": "calibration_dca_report.json",
-    "ci_matrix_gate": "ci_matrix_gate_report.json",
-    "distribution_generalization_gate": "distribution_generalization_report.json",
-    "evaluation_quality_gate": "evaluation_quality_report.json",
-    "external_validation_gate": "external_validation_gate_report.json",
-    "fairness_equity_gate": "fairness_equity_report.json",
-    "generalization_gap_gate": "generalization_gap_report.json",
-    "metric_consistency_gate": "metric_consistency_report.json",
-    "permutation_significance_gate": "permutation_report.json",
-    "prediction_replay_gate": "prediction_replay_report.json",
-    "robustness_gate": "robustness_gate_report.json",
-    "sample_size_gate": "sample_size_report.json",
-    "seed_stability_gate": "seed_stability_report.json",
-    "publication_gate": "publication_gate_report.json",
-    "self_critique_gate": "self_critique_report.json",
-    "security_audit_gate": "security_audit_gate_report.json",
+    gate_name: spec.report_output for gate_name, spec in GATE_REGISTRY.items()
 }
+GATE_REPORT_FILENAMES = list(GATE_NAME_TO_REPORT.values())
 
 # L1 required gates
 L1_REQUIRED_GATES = {
@@ -380,17 +319,16 @@ def cap_conformance_to_publication_gate(
     """Cap a self-computed conformance level to publication_gate's sealed verdict.
 
     Rules (fail-closed):
-      1. Active run key but the publication_gate report is missing/unsealed/
-         tampered → refuse outright (BELOW_L1): its verdict cannot be trusted.
+      1. Missing/unsealed/tampered/unverifiable publication_gate verdict →
+         refuse outright (BELOW_L1): its verdict cannot be trusted.
       2. No publication_gate verdict at all → BELOW_L1: the certifier has no
          authority to certify above the floor without it.
       3. Otherwise cap to min(self, publication_gate) by tier rank.
-      4. L3 (publication-grade) additionally requires a cryptographically
-         verified run seal; without one the top tier is withheld (→ L2).
     """
-    if pub_verdict["seal_active"] and not pub_verdict["seal_verified"]:
+    if not pub_verdict["seal_verified"]:
         return "BELOW_L1", [
-            f"publication_gate verdict not trusted under active MLGG_RUN_KEY: {pub_verdict['reason']}"
+            "publication_gate verdict requires a verified run seal before any "
+            f"certificate tier can be granted: {pub_verdict['reason']}"
         ]
 
     pub_level = pub_verdict["compliance_level"]
@@ -404,13 +342,6 @@ def cap_conformance_to_publication_gate(
     if _CONFORMANCE_RANK[pub_level] < _CONFORMANCE_RANK[level]:
         reasons.append(f"capped to publication_gate sealed verdict: {pub_level}")
         level = pub_level
-
-    if level == "L3-Publication-Grade" and not pub_verdict["seal_verified"]:
-        reasons.append(
-            "L3 withheld: publication-grade requires a cryptographically verified "
-            "run seal — set MLGG_RUN_KEY so the verdict can be authenticated"
-        )
-        level = "L2-Statistically-Valid"
 
     return level, reasons
 
