@@ -37,6 +37,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from _gate_registry import GATE_REGISTRY
+
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -53,75 +55,12 @@ SIGNING_KEY_MIN_BYTES = 32
 class SigningKeyError(RuntimeError):
     """Raised when the configured signing key is set but invalid (fail-closed)."""
 
-# Ordered list of all 33 gate report filenames (canonical names from _gate_registry.py)
-GATE_REPORT_FILENAMES = [
-    "request_contract_report.json",
-    "manifest.json",
-    "execution_attestation_report.json",
-    "leakage_report.json",
-    "split_protocol_report.json",
-    "covariate_shift_report.json",
-    "reporting_bias_report.json",
-    "definition_guard_report.json",
-    "lineage_report.json",
-    "imbalance_policy_report.json",
-    "missingness_policy_report.json",
-    "tuning_leakage_report.json",
-    "model_selection_audit_report.json",
-    "feature_engineering_audit_report.json",
-    "clinical_metrics_report.json",
-    "calibration_dca_report.json",
-    "ci_matrix_gate_report.json",
-    "distribution_generalization_report.json",
-    "evaluation_quality_report.json",
-    "external_validation_gate_report.json",
-    "fairness_equity_report.json",
-    "generalization_gap_report.json",
-    "metric_consistency_report.json",
-    "permutation_report.json",
-    "prediction_replay_report.json",
-    "robustness_gate_report.json",
-    "sample_size_report.json",
-    "seed_stability_report.json",
-    "publication_gate_report.json",
-    "self_critique_report.json",
-    "security_audit_gate_report.json",
-]
-
-# Gate name → report filename mapping
+# Gate name -> report filename mapping. This must stay registry-derived so the
+# certificate cannot drift behind the fail-closed DAG when gates are added.
 GATE_NAME_TO_REPORT = {
-    "request_contract_gate": "request_contract_report.json",
-    "manifest_lock": "manifest.json",
-    "execution_attestation_gate": "execution_attestation_report.json",
-    "leakage_gate": "leakage_report.json",
-    "split_protocol_gate": "split_protocol_report.json",
-    "covariate_shift_gate": "covariate_shift_report.json",
-    "reporting_bias_gate": "reporting_bias_report.json",
-    "definition_variable_guard": "definition_guard_report.json",
-    "feature_lineage_gate": "lineage_report.json",
-    "imbalance_policy_gate": "imbalance_policy_report.json",
-    "missingness_policy_gate": "missingness_policy_report.json",
-    "tuning_leakage_gate": "tuning_leakage_report.json",
-    "model_selection_audit_gate": "model_selection_audit_report.json",
-    "feature_engineering_audit_gate": "feature_engineering_audit_report.json",
-    "clinical_metrics_gate": "clinical_metrics_report.json",
-    "calibration_dca_gate": "calibration_dca_report.json",
-    "ci_matrix_gate": "ci_matrix_gate_report.json",
-    "distribution_generalization_gate": "distribution_generalization_report.json",
-    "evaluation_quality_gate": "evaluation_quality_report.json",
-    "external_validation_gate": "external_validation_gate_report.json",
-    "fairness_equity_gate": "fairness_equity_report.json",
-    "generalization_gap_gate": "generalization_gap_report.json",
-    "metric_consistency_gate": "metric_consistency_report.json",
-    "permutation_significance_gate": "permutation_report.json",
-    "prediction_replay_gate": "prediction_replay_report.json",
-    "robustness_gate": "robustness_gate_report.json",
-    "sample_size_gate": "sample_size_report.json",
-    "seed_stability_gate": "seed_stability_report.json",
-    "publication_gate": "publication_gate_report.json",
-    "self_critique_gate": "self_critique_report.json",
-    "security_audit_gate": "security_audit_gate_report.json",
+    gate_name: spec.report_output for gate_name, spec in GATE_REGISTRY.items()
 }
+GATE_REPORT_FILENAMES = list(GATE_NAME_TO_REPORT.values())
 
 # L1 required gates
 L1_REQUIRED_GATES = {

@@ -10,6 +10,7 @@ import pytest
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
 
 import generate_compliance_certificate as gcc
+from core._gate_registry import GATE_REGISTRY
 
 
 # ── crypto helpers ────────────────────────────────────────────────────────────
@@ -164,6 +165,20 @@ class TestGetGateStatus:
 
     def test_unknown(self):
         assert gcc.get_gate_status({}) == "unknown"
+
+
+# ── gate registry contract ───────────────────────────────────────────────────
+
+class TestGateRegistryContract:
+    def test_certificate_gate_mapping_matches_registry(self):
+        assert set(gcc.GATE_NAME_TO_REPORT) == set(GATE_REGISTRY)
+        for gate_name, spec in GATE_REGISTRY.items():
+            assert gcc.GATE_NAME_TO_REPORT[gate_name] == spec.report_output
+
+    def test_certificate_report_filenames_match_registry_outputs(self):
+        assert gcc.GATE_REPORT_FILENAMES == [
+            spec.report_output for spec in GATE_REGISTRY.values()
+        ]
 
 
 # ── determine_conformance_level ───────────────────────────────────────────────
