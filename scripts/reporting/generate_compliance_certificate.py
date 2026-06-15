@@ -380,17 +380,16 @@ def cap_conformance_to_publication_gate(
     """Cap a self-computed conformance level to publication_gate's sealed verdict.
 
     Rules (fail-closed):
-      1. Active run key but the publication_gate report is missing/unsealed/
-         tampered → refuse outright (BELOW_L1): its verdict cannot be trusted.
+      1. Missing/unsealed/tampered/unverifiable publication_gate verdict →
+         refuse outright (BELOW_L1): its verdict cannot be trusted.
       2. No publication_gate verdict at all → BELOW_L1: the certifier has no
          authority to certify above the floor without it.
       3. Otherwise cap to min(self, publication_gate) by tier rank.
-      4. L3 (publication-grade) additionally requires a cryptographically
-         verified run seal; without one the top tier is withheld (→ L2).
     """
-    if pub_verdict["seal_active"] and not pub_verdict["seal_verified"]:
+    if not pub_verdict["seal_verified"]:
         return "BELOW_L1", [
-            f"publication_gate verdict not trusted under active MLGG_RUN_KEY: {pub_verdict['reason']}"
+            "publication_gate verdict requires a verified run seal before any "
+            f"certificate tier can be granted: {pub_verdict['reason']}"
         ]
 
     pub_level = pub_verdict["compliance_level"]
@@ -404,13 +403,6 @@ def cap_conformance_to_publication_gate(
     if _CONFORMANCE_RANK[pub_level] < _CONFORMANCE_RANK[level]:
         reasons.append(f"capped to publication_gate sealed verdict: {pub_level}")
         level = pub_level
-
-    if level == "L3-Publication-Grade" and not pub_verdict["seal_verified"]:
-        reasons.append(
-            "L3 withheld: publication-grade requires a cryptographically verified "
-            "run seal — set MLGG_RUN_KEY so the verdict can be authenticated"
-        )
-        level = "L2-Statistically-Valid"
 
     return level, reasons
 
