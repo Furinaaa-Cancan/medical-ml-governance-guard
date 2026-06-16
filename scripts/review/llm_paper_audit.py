@@ -47,6 +47,8 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+from scripts.rag._enrich import default_failure_codes_for_gate
+
 try:
     from pydantic import BaseModel, Field
 except ImportError:
@@ -382,10 +384,11 @@ def _retrieve_rag_context_for_priming(
     1. General free-text rag_query on the methods text — surfaces topic
        neighbours (cohort design, evaluation metrics, etc.). 4-signal
        fusion (dense + tag + severity + corroboration), no BM25.
-    2. Focused rag_query with ``gate="leakage_gate"`` — activates BM25
-       on the leakage-tagged subset (W30-R1 logic, but ALWAYS-on here
-       since priming asks "what concerns should I be aware of?", not
-       "what concerns has the user already named").
+    2. Focused rag_query with ``gate="leakage_gate"`` plus leakage
+       failure-code probes — activates BM25 on the leakage-tagged subset
+       (W30-R1 logic, but ALWAYS-on here since priming asks "what concerns
+       should I be aware of?", not "what concerns has the user already
+       named").
 
     Merge: union by ``concern_id``, keep the higher ``_final_score`` per
     record. Order by score desc. Truncate by sum of top_k_general +
@@ -408,7 +411,14 @@ def _retrieve_rag_context_for_priming(
             return []
 
     general = _safe_call(top_k=max(1, top_k_general))
-    leakage = _safe_call(gate="leakage_gate", top_k=max(1, top_k_leakage))
+    leakage_kwargs: dict[str, Any] = {
+        "gate": "leakage_gate",
+        "top_k": max(1, top_k_leakage),
+    }
+    leakage_failure_codes = default_failure_codes_for_gate("leakage_gate")
+    if leakage_failure_codes:
+        leakage_kwargs["failure_codes"] = leakage_failure_codes
+    leakage = _safe_call(**leakage_kwargs)
 
     # Merge by concern_id; higher score wins. Records without concern_id
     # are kept individually (defensive: malformed KB rows can't drop legit hits).
@@ -456,8 +466,9 @@ def enrich_with_rag(
     attach up to ``top_k`` KB citations whose ``_final_score >= min_score``.
 
     Uses ``concern.suggested_gate_hint`` as the ``gate=`` argument to
-    rag_query when present — this is what activates BM25 in the hybrid
-    ranker (see SKILL.md §Hybrid retrieval caveat). Falls back to
+    rag_query when present. For known gate-scoped probes such as
+    ``leakage_gate``, this also supplies default ``failure_codes`` because
+    ``hybrid_rank`` needs both fields before BM25 is active. Falls back to
     free-text retrieval when the hint is null.
 
     Returns a list of ``EnrichedConcern`` in input order. Citations may be
@@ -473,12 +484,16 @@ def enrich_with_rag(
     for c in concerns:
         query_text = f"{c.headline}. {c.body}"
         try:
-            records = rag_query(
-                query=query_text,
-                gate=c.suggested_gate_hint,
-                top_k=top_k,
-                min_score=min_score,
-            )
+            rag_kwargs: dict[str, Any] = {
+                "query": query_text,
+                "gate": c.suggested_gate_hint,
+                "top_k": top_k,
+                "min_score": min_score,
+            }
+            failure_codes = default_failure_codes_for_gate(c.suggested_gate_hint)
+            if failure_codes:
+                rag_kwargs["failure_codes"] = failure_codes
+            records = rag_query(**rag_kwargs)
         except Exception as exc:  # noqa: BLE001 — RAG failure shouldn't kill the audit
             log.warning("rag_query failed for concern %r: %s", c.headline[:60], exc)
             records = []

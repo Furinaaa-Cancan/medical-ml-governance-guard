@@ -158,6 +158,33 @@ def test_run_mlgg_pipeline_missing_code_repo_key_is_treated_as_none():
     assert result["errors"] == []
 
 
+def test_run_mlgg_pipeline_excludes_current_paper_from_rag_synthesis():
+    """NCPR holdout papers must not retrieve their own KB rows."""
+    calls: list[dict] = []
+
+    def fake_synthesize(query: str, **kwargs):
+        calls.append({"query": query, **kwargs})
+        return []
+
+    with mock.patch.object(
+        ncpr_paper_runner,
+        "synthesize_flags_from_rag",
+        side_effect=fake_synthesize,
+    ), mock.patch.object(subprocess, "run") as mocked_sub:
+        result = run_mlgg_pipeline({
+            "paper_id": "P001",
+            "methods_text": "We used random splits on a single hospital cohort.",
+            "code_repo_path": None,
+        })
+
+    mocked_sub.assert_not_called()
+    assert result["paper_id"] == "P001"
+    assert calls == [{
+        "query": "We used random splits on a single hospital cohort.",
+        "excluded_paper_ids": ["P001"],
+    }]
+
+
 # ────────────────────────────────────────────────────────────────────────
 # run_mlgg_pipeline — subprocess merge path
 # ────────────────────────────────────────────────────────────────────────
@@ -523,10 +550,43 @@ def test_leakage_probe_on_makes_two_calls_second_pinned_to_leakage_gate():
         f"Second call must pin gate='leakage_gate'; got kwargs={second_kwargs!r}"
     )
     assert second_kwargs.get("top_k") == max(3, 10 // 2) == 5
+    assert second_kwargs.get("failure_codes"), (
+        "Second call must supply failure_codes so hybrid_rank's BM25 path "
+        f"is actually active; got kwargs={second_kwargs!r}"
+    )
+    assert "definition_variable_leakage" in second_kwargs["failure_codes"]
     # Both records carry distinct concern_ids → both survive the merge.
     assert {f["evidence_text"] for f in flags} == {
         "BM25 leakage hit", "free-text hit"
     }
+
+
+def test_synthesize_flags_threads_excluded_paper_ids_to_both_rag_calls():
+    """Leave-one-paper-out exclusion must cover free-text and leakage probe."""
+    calls: list[dict] = []
+
+    def fake_rag_query(**kwargs):
+        calls.append(kwargs)
+        if kwargs.get("gate") == "leakage_gate":
+            return [_scored_record("probe1", "probe hit", 0.7)]
+        return [_scored_record("free1", "free hit", 0.9)]
+
+    with mock.patch("scripts.rag.query.rag_query", side_effect=fake_rag_query):
+        flags = synthesize_flags_from_rag(
+            "methods",
+            top_k=4,
+            leakage_probe=True,
+            excluded_paper_ids=["PR-001"],
+        )
+
+    assert len(flags) == 2
+    assert [c.get("excluded_paper_ids") for c in calls] == [
+        ["PR-001"],
+        ["PR-001"],
+    ]
+    assert calls[1].get("failure_codes"), (
+        f"Leakage probe must still carry BM25 failure_codes; got {calls[1]!r}"
+    )
 
 
 def test_leakage_probe_merge_higher_score_wins_same_concern():

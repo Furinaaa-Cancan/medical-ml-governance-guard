@@ -122,7 +122,7 @@ def stub_synth(monkeypatch):
         ],
     }
 
-    def _fake_synth(query: str, top_k: int = 20):
+    def _fake_synth(query: str, top_k: int = 20, **_kwargs):
         flags = pool.get(query, [])
         # Truncate to top_k so smaller k gives strictly fewer flags.
         return list(flags[: max(1, top_k)])
@@ -169,6 +169,32 @@ def test_top_k_recall_monotonicity(holdout, kb_entries, stub_synth):
     assert r30 + 1e-9 >= r5, (
         f"top_k_30 recall ({r30}) must be >= top_k_5 recall ({r5})"
     )
+
+
+def test_ablation_excludes_current_paper_from_flag_synth(
+    holdout, kb_entries, monkeypatch
+):
+    """Every ablation config that calls RAG must pass per-paper exclusions."""
+    calls: list[dict] = []
+
+    def capture(query: str, top_k: int = 20, **kwargs):
+        calls.append({"query": query, "top_k": top_k, **kwargs})
+        return []
+
+    monkeypatch.setattr(ab, "_synthesize_flags_from_rag", capture)
+    out = ab.run_ablation(
+        holdout,
+        kb_entries=kb_entries,
+        configs=["full", "retrieval_only"],
+    )
+
+    assert set(out.keys()) == {"full", "retrieval_only"}
+    assert [c.get("excluded_paper_ids") for c in calls] == [
+        ["PR-001", "10.1/a"],
+        ["PR-002", "10.1/b"],
+        ["PR-001", "10.1/a"],
+        ["PR-002", "10.1/b"],
+    ]
 
 
 # ── 3. report deltas vs baseline ───────────────────────────────────────────

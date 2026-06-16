@@ -204,7 +204,9 @@ except ImportError:  # pragma: no cover
     _STUBBED.append("ncpr_paper_runner")
 
     def _synthesize_flags_from_rag(  # type: ignore[no-redef]
-        query: str, top_k: int = 20
+        query: str,
+        top_k: int = 20,
+        excluded_paper_ids: list[str] | None = None,
     ) -> list[dict]:
         """Stub: emit zero flags so ablation row is meaningfully zero."""
         return []
@@ -318,7 +320,11 @@ def _per_paper_with_matcher(
             _x1_mod.match_all = original  # type: ignore[attr-defined]
 
 
-def _retrieval_only_flags(query: str, top_k: int) -> list[dict]:
+def _retrieval_only_flags(
+    query: str,
+    top_k: int,
+    excluded_paper_ids: list[str] | None = None,
+) -> list[dict]:
     """Bypass the MLGG flag-shape mapping; pass raw RAG records through.
 
     The RAG retriever returns concern-like dicts; ``ncpr_paper_runner``
@@ -337,7 +343,11 @@ def _retrieval_only_flags(query: str, top_k: int) -> list[dict]:
     """
     if not isinstance(query, str) or not query.strip():
         return []
-    raw = _synthesize_flags_from_rag(query, top_k=top_k)
+    raw = _synthesize_flags_from_rag(
+        query,
+        top_k=top_k,
+        excluded_paper_ids=excluded_paper_ids,
+    )
     degraded: list[dict] = []
     for r in raw or []:
         degraded.append({
@@ -362,7 +372,7 @@ def _evaluate_one_config(
     """
     top_k = 20
     matcher: Optional[Callable] = None
-    flag_synth: Callable[[str, int], list[dict]] = _synthesize_flags_from_rag
+    flag_synth: Callable[..., list[dict]] = _synthesize_flags_from_rag
 
     if config == "full":
         pass
@@ -404,7 +414,11 @@ def _evaluate_one_config(
                 concerns = kb_index.get(str(doi), []) or []
 
         query = _paper_query_text(paper)
-        flags = flag_synth(query, top_k)
+        flags = flag_synth(
+            query,
+            top_k,
+            excluded_paper_ids=_paper_exclusion_ids(paper),
+        )
 
         score = _per_paper_with_matcher(paper_id, flags, concerns, matcher)
         if score.get("paper_excluded"):
@@ -443,6 +457,20 @@ def _paper_query_text(paper: dict) -> str:
             return v
     parts = [str(paper.get(k, "")) for k in ("title", "paper_title", "paper_id")]
     return " ".join(p for p in parts if p).strip()
+
+
+def _paper_exclusion_ids(paper: dict) -> list[str] | None:
+    """Collect stable identifiers for leave-one-paper-out RAG exclusion."""
+    ids: list[str] = []
+    seen: set[str] = set()
+    for key in ("paper_id", "id", "paper_doi", "doi"):
+        value = paper.get(key)
+        text = str(value).strip() if value is not None else ""
+        if not text or text == "<unknown>" or text in seen:
+            continue
+        seen.add(text)
+        ids.append(text)
+    return ids or None
 
 
 def _build_kb_index(kb_entries: list[dict]) -> dict[str, list[dict]]:

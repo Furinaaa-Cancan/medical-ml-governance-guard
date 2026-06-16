@@ -175,7 +175,11 @@ try:
 except ImportError:
     _STUBBED.append("ncpr_paper_runner")
 
-    def _synthesize_flags_from_rag(query: str, top_k: int = 20) -> list[dict]:  # type: ignore[no-redef]
+    def _synthesize_flags_from_rag(  # type: ignore[no-redef]
+        query: str,
+        top_k: int = 20,
+        excluded_paper_ids: list[str] | None = None,
+    ) -> list[dict]:
         """Stub: emit zero flags. Real X4 invokes the RAG retriever + LLM."""
         return []
 
@@ -289,6 +293,20 @@ def _paper_query_text(paper: dict) -> str:
     return " ".join(p for p in parts if p).strip()
 
 
+def _paper_exclusion_ids(paper: dict) -> list[str] | None:
+    """Collect stable identifiers for leave-one-paper-out RAG exclusion."""
+    ids: list[str] = []
+    seen: set[str] = set()
+    for key in ("paper_id", "id", "paper_doi", "doi"):
+        value = paper.get(key)
+        text = str(value).strip() if value is not None else ""
+        if not text or text == "<unknown>" or text in seen:
+            continue
+        seen.add(text)
+        ids.append(text)
+    return ids or None
+
+
 def _flatten_per_paper(
     score: dict, coverage: dict, *, paper_id: str
 ) -> dict:
@@ -349,8 +367,11 @@ def evaluate_paper(
     if synth_fn is not None:
         flags = synth_fn(paper, top_k=top_k, rag_only=rag_only)
     else:
-        # Real X4 signature: synthesize_flags_from_rag(query: str, top_k: int)
-        flags = _synthesize_flags_from_rag(_paper_query_text(paper), top_k=top_k)
+        flags = _synthesize_flags_from_rag(
+            _paper_query_text(paper),
+            top_k=top_k,
+            excluded_paper_ids=_paper_exclusion_ids(paper),
+        )
 
     # X2 calls X1 internally — we don't pre-match here.
     score = _per_paper_score(paper_id, flags, concerns)

@@ -55,8 +55,9 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Optional, TypedDict
+from typing import Iterable, Optional, TypedDict
 
+from scripts.rag._enrich import default_failure_codes_for_gate
 # MlggFlag schema is owned by W22-X1; we re-use it verbatim.
 from scripts.rag.evals.ncpr_matcher import MlggFlag
 
@@ -155,6 +156,36 @@ _STOPWORDS = frozenset({
     "some", "other", "between", "across", "model", "models",
 })
 _TOKEN_RE = re.compile(r"[a-z][a-z0-9]{3,}")
+
+
+def _normalize_excluded_paper_ids(
+    excluded_paper_ids: Optional[Iterable[str]],
+) -> Optional[list[str]]:
+    """Return a reusable list of non-empty paper identifiers to exclude."""
+    if excluded_paper_ids is None:
+        return None
+    if isinstance(excluded_paper_ids, str):
+        excluded_paper_ids = [excluded_paper_ids]
+    normalised = [
+        str(p).strip()
+        for p in excluded_paper_ids
+        if p is not None and str(p).strip()
+    ]
+    return normalised or None
+
+
+def _paper_exclusion_ids(paper: dict) -> Optional[list[str]]:
+    """Collect paper identifiers that can refer to the current holdout row."""
+    ids: list[str] = []
+    seen: set[str] = set()
+    for key in ("paper_id", "id", "paper_doi", "doi"):
+        value = paper.get(key)
+        text = str(value).strip() if value is not None else ""
+        if not text or text == "<unknown>" or text in seen:
+            continue
+        seen.add(text)
+        ids.append(text)
+    return ids or None
 
 
 def _count_topic_tokens(query: str) -> int:
@@ -292,6 +323,7 @@ def synthesize_flags_from_rag(
     adaptive: bool = False,
     dedup_by_code: bool = False,
     leakage_probe: bool = False,
+    excluded_paper_ids: Optional[Iterable[str]] = None,
 ) -> list[MlggFlag]:
     """RAG-only flagging: query the KB, convert each hit to an ``MlggFlag``.
 
@@ -319,16 +351,19 @@ def synthesize_flags_from_rag(
             by the precision metric, inflating FP without adding signal.
         leakage_probe: If ``True`` (W30-R1, opt-in), follow the normal
             free-text retrieval with a second focused ``rag_query`` call
-            pinned to ``gate="leakage_gate"``. The gate parameter
-            re-activates BM25 inside ``hybrid_rank`` (which is silent on
-            ``gate=None`` per the W30 RAG audit on Wang 2025 GLM7), giving
-            lexical anchoring for target/definition-leakage patterns that
-            dense embeddings miss. Results are unioned with the free-text
-            hits by ``concern_id``, the higher ``_final_score`` wins per
-            concern, the merged list is re-sorted by score descending, and
-            truncated back to the caller's original ``top_k`` before flag
-            conversion. Default ``False`` preserves W22-X4 / W25 / W27
-            benchmark reproducibility (defaults-off discipline).
+            pinned to ``gate="leakage_gate"`` plus leakage failure-code
+            probes. ``hybrid_rank`` requires both ``gate`` and
+            ``failure_codes`` before BM25 is active, so the probe supplies
+            broad leakage codes for lexical anchoring. Results are unioned
+            with the free-text hits by ``concern_id``, the higher
+            ``_final_score`` wins per concern, the merged list is re-sorted
+            by score descending, and truncated back to the caller's original
+            ``top_k`` before flag conversion. Default ``False`` preserves
+            W22-X4 / W25 / W27 benchmark reproducibility (defaults-off
+            discipline).
+        excluded_paper_ids: Optional holdout paper identifiers to exclude
+            from both the free-text and gate-anchored RAG calls. This is the
+            leave-one-paper-out guard for NCPR benchmark runs.
     """
     if not isinstance(query, str) or not query.strip():
         return []
@@ -344,7 +379,12 @@ def synthesize_flags_from_rag(
     except ImportError:
         return []
 
-    records = rag_query(query=query, top_k=top_k) or []
+    excluded = _normalize_excluded_paper_ids(excluded_paper_ids)
+    rag_kwargs = {"query": query, "top_k": top_k}
+    if excluded is not None:
+        rag_kwargs["excluded_paper_ids"] = excluded
+
+    records = rag_query(**rag_kwargs) or []
 
     if leakage_probe:
         # Second call: gate-anchored. Smaller top_k by design — this is a
@@ -352,9 +392,17 @@ def synthesize_flags_from_rag(
         # highly-relevant hits within a tight neighbourhood. The merge step
         # respects the caller's original top_k.
         probe_k = max(3, top_k // 2)
-        probe_records = rag_query(
-            query=query, gate="leakage_gate", top_k=probe_k
-        ) or []
+        probe_kwargs = {
+            "query": query,
+            "gate": "leakage_gate",
+            "top_k": probe_k,
+        }
+        failure_codes = default_failure_codes_for_gate("leakage_gate")
+        if failure_codes:
+            probe_kwargs["failure_codes"] = failure_codes
+        if excluded is not None:
+            probe_kwargs["excluded_paper_ids"] = excluded
+        probe_records = rag_query(**probe_kwargs) or []
         records = _merge_by_concern_id(records, probe_records, top_k)
 
     flags = [_concern_to_flag(rec) for rec in records]
@@ -497,7 +545,10 @@ def run_mlgg_pipeline(paper: PaperInput, timeout_s: int = 600) -> dict:
     errors: list[str] = []
 
     # Always: RAG retrieval against methods_text.
-    flags: list[MlggFlag] = synthesize_flags_from_rag(methods_text)
+    flags: list[MlggFlag] = synthesize_flags_from_rag(
+        methods_text,
+        excluded_paper_ids=_paper_exclusion_ids(paper),
+    )
 
     # Optional: subprocess gates if the paper ships a code repo.
     if code_repo_path:

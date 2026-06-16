@@ -195,6 +195,11 @@ def test_retrieve_rag_context_for_priming_does_two_passes():
     assert len(calls) == 2
     assert calls[0].get("gate") is None         # free-text first
     assert calls[1].get("gate") == "leakage_gate"  # leakage probe second
+    assert calls[1].get("failure_codes"), (
+        "leakage_gate priming call must pass failure_codes so BM25 is active; "
+        f"got {calls[1]!r}"
+    )
+    assert "definition_variable_leakage" in calls[1]["failure_codes"]
     ids = {c.concern_id for c in pool}
     assert ids == {"PR-001-C02", "PR-007-C01"}
 
@@ -288,12 +293,17 @@ def test_enrich_with_rag_attaches_citations_in_input_order():
 
 
 def test_enrich_with_rag_passes_gate_hint_through():
-    """W28 finding: BM25 only activates when gate= is set. The shim must
-    forward suggested_gate_hint to rag_query verbatim."""
-    seen_gates: list = []
+    """Gate hints are forwarded, and leakage hints carry BM25 probe codes."""
+    calls: list[dict] = []
 
-    def capture(query, gate=None, top_k=3, min_score=0.0, **_):
-        seen_gates.append(gate)
+    def capture(query, gate=None, top_k=3, min_score=0.0, **kwargs):
+        calls.append({
+            "query": query,
+            "gate": gate,
+            "top_k": top_k,
+            "min_score": min_score,
+            **kwargs,
+        })
         return []
 
     concerns = [
@@ -302,7 +312,12 @@ def test_enrich_with_rag_passes_gate_hint_through():
     ]
     with mock.patch("scripts.rag.query.rag_query", side_effect=capture):
         enrich_with_rag(concerns)
-    assert seen_gates == ["leakage_gate", None]
+    assert [c.get("gate") for c in calls] == ["leakage_gate", None]
+    assert calls[0].get("failure_codes"), (
+        f"leakage_gate enrichment must supply BM25 failure_codes; got {calls[0]!r}"
+    )
+    assert "definition_variable_leakage" in calls[0]["failure_codes"]
+    assert calls[1].get("failure_codes") is None
 
 
 def test_enrich_with_rag_tolerates_failing_rag_query():

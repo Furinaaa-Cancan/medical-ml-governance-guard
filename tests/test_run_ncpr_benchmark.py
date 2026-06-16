@@ -227,6 +227,49 @@ class TestRunBenchmark:
         )
         assert result["n_papers_evaluated"] == 2
 
+    def test_evaluate_paper_excludes_current_paper_from_real_sut(
+        self, monkeypatch
+    ):
+        """The non-injected SUT branch must run leave-one-paper-out RAG."""
+        paper = {
+            "paper_id": "PR-001",
+            "paper_doi": "10.1/a",
+            "methods_text": "methods text for PR-001",
+        }
+        kb_entries = [{
+            "paper_id": "PR-001",
+            "paper_doi": "10.1/a",
+            "reviewer_concerns": [{
+                "concern_id": "C1",
+                "category": "leakage",
+                "dimension": "leakage",
+                "severity": "CRITICAL",
+                "concern_text": "future information used as feature",
+                "mlgg_gates": ["leakage_gate"],
+            }],
+        }]
+        calls: list[dict] = []
+
+        def fake_synthesize(query: str, **kwargs):
+            calls.append({"query": query, **kwargs})
+            return []
+
+        monkeypatch.setattr(orch, "_synthesize_flags_from_rag", fake_synthesize)
+        result = orch.evaluate_paper(
+            paper,
+            kb_entries,
+            top_k=10,
+            rag_only=True,
+            synth_fn=None,
+        )
+
+        assert result["paper_id"] == "PR-001"
+        assert calls == [{
+            "query": "methods text for PR-001",
+            "top_k": 10,
+            "excluded_paper_ids": ["PR-001", "10.1/a"],
+        }]
+
     def test_unrecognized_holdout_shape_raises(self, tmp_path):
         """Defensive: unknown top-level shape fails loud, not silent."""
         bad = tmp_path / "bad.json"

@@ -32,6 +32,33 @@ import re
 from typing import Any, Optional
 
 # ---------------------------------------------------------------------------
+# (0) Gate-scoped probe defaults
+# ---------------------------------------------------------------------------
+
+
+LEAKAGE_PROBE_FAILURE_CODES: tuple[str, ...] = (
+    "definition_variable_leakage",
+    "future_information_leakage",
+    "target_leakage",
+    "temporal_leakage",
+    "discharge_finalized_icd_as_feature",
+)
+
+
+def default_failure_codes_for_gate(gate_name: Optional[str]) -> Optional[list[str]]:
+    """Return BM25 probe codes for gate-only RAG calls that need lexical anchoring.
+
+    ``hybrid_rank`` activates BM25 only when both ``gate`` and
+    ``failure_codes`` are supplied. Consumers that know they want a focused
+    leakage probe can use this helper instead of assuming
+    ``gate="leakage_gate"`` alone is enough.
+    """
+    if str(gate_name or "").strip() == "leakage_gate":
+        return list(LEAKAGE_PROBE_FAILURE_CODES)
+    return None
+
+
+# ---------------------------------------------------------------------------
 # (a) Query synthesis -- snake_case -> space normalization
 # ---------------------------------------------------------------------------
 
