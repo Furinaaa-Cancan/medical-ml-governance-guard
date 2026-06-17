@@ -122,6 +122,44 @@ def _write_kb(tmp_path: Path, paper_ids: list[str], per_paper: int = 2) -> Path:
     return kb_path
 
 
+def _write_kb_with_dois(tmp_path: Path) -> Path:
+    """Materialize a test KB whose holdout identity may arrive as DOI only."""
+    kb_path = tmp_path / "kb.json"
+    kb_path.write_text(
+        json.dumps({
+            "contract_version": "test.v1",
+            "entries": [
+                {
+                    "id": "PR-001",
+                    "paper_doi": "10.1/self",
+                    "paper_title": "self paper",
+                    "reviewer_concerns": [{
+                        "concern_id": "PR-001-C01",
+                        "severity": "HIGH",
+                        "mlgg_gates": ["leakage_gate"],
+                        "tags": ["self"],
+                        "concern_text": "self concern",
+                    }],
+                },
+                {
+                    "id": "PR-002",
+                    "paper_doi": "10.1/other",
+                    "paper_title": "other paper",
+                    "reviewer_concerns": [{
+                        "concern_id": "PR-002-C01",
+                        "severity": "HIGH",
+                        "mlgg_gates": ["leakage_gate"],
+                        "tags": ["other"],
+                        "concern_text": "other concern",
+                    }],
+                },
+            ],
+        }),
+        encoding="utf-8",
+    )
+    return kb_path
+
+
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
@@ -182,6 +220,27 @@ def test_excluding_paper_drops_only_its_concerns(
 
     concern_ids = {rec["concern_id"] for rec in records}
     assert all(not cid.startswith("PR-001") for cid in concern_ids)
+
+
+def test_excluding_paper_by_doi_drops_its_concerns(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A DOI-only holdout identifier must still exclude the paper's rows."""
+
+    kb_path = _write_kb_with_dois(tmp_path)
+    cache_dir = tmp_path / ".cache"
+    _redirect_cache(monkeypatch, kb_path, cache_dir)
+    _stub_embed(monkeypatch)
+
+    embeddings, records = builder_mod.build_or_load_index(
+        kb_path=kb_path,
+        force_rebuild=True,
+        excluded_paper_ids=["10.1/self"],
+    )
+
+    assert [rec["concern_id"] for rec in records] == ["PR-002-C01"]
+    assert {rec["paper_doi"] for rec in records} == {"10.1/other"}
+    assert embeddings.shape[0] == 1
 
 
 def test_distinct_exclusion_sets_produce_distinct_cache_keys(

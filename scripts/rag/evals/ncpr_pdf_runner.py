@@ -212,7 +212,11 @@ def _chunk_methods_text(text: str, n_chunks: int) -> list[str]:
 # ────────────────────────────────────────────────────────────────────────
 
 
-def _flags_for_chunk(chunk: str, top_k: int) -> list:
+def _flags_for_chunk(
+    chunk: str,
+    top_k: int,
+    excluded_paper_ids: list[str] | None = None,
+) -> list:
     """Run RAG retrieval on ``chunk`` and convert hits to MlggFlag dicts.
 
     Reuses ``synthesize_flags_from_rag`` from the v1 runner so the KB-row
@@ -223,7 +227,11 @@ def _flags_for_chunk(chunk: str, top_k: int) -> list:
     # where the RAG stack is not installed (e.g. doc-build CI).
     from scripts.rag.evals.ncpr_paper_runner import synthesize_flags_from_rag
 
-    return synthesize_flags_from_rag(chunk, top_k=top_k)
+    return synthesize_flags_from_rag(
+        chunk,
+        top_k=top_k,
+        excluded_paper_ids=excluded_paper_ids,
+    )
 
 
 def _dedupe_flags(flags: list) -> list:
@@ -287,7 +295,13 @@ def _run_on_pdf_inner(
     all_flags: list = []
     for idx, chunk in enumerate(chunks):
         try:
-            all_flags.extend(_flags_for_chunk(chunk, top_k=top_k))
+            all_flags.extend(
+                _flags_for_chunk(
+                    chunk,
+                    top_k=top_k,
+                    excluded_paper_ids=[paper_id],
+                )
+            )
         except Exception as exc:  # noqa: BLE001 — RAG can fail many ways
             errors.append(f"rag-chunk-{idx}: {type(exc).__name__}: {exc}")
 

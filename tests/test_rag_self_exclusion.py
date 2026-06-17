@@ -66,6 +66,16 @@ def test_drop_excluded_papers_filters_by_paper_id():
     assert _drop_excluded_papers(cands, frozenset()) == cands
 
 
+def test_drop_excluded_papers_filters_by_doi_aliases():
+    cands = {
+        "a": {"paper_doi": "10.1/self"},   # dense-style DOI field
+        "b": {"_paper_doi": "10.1/self"},  # BM25-style DOI field
+        "c": {"_paper_doi": "10.1/other"},
+    }
+    out = _drop_excluded_papers(cands, frozenset({"10.1/self"}))
+    assert set(out) == {"c"}
+
+
 # ── hybrid_rank integration: closes the BM25-union leak (no torch) ───────────
 
 def _rec(cid: str, paper_id: str, gate: str, id_field: str = "paper_id") -> dict:
@@ -85,7 +95,7 @@ def _rec(cid: str, paper_id: str, gate: str, id_field: str = "paper_id") -> dict
 def _patch_retrieval(monkeypatch, dense_recs, bm25_recs):
     """Replace the dense index + BM25 retriever with in-memory fakes."""
     def fake_import():
-        def build_or_load_index():
+        def build_or_load_index(**_kwargs):
             return (np.zeros((len(dense_recs), 3), dtype="float32"), dense_recs)
 
         def vector_search(query, embeddings, records, top_k=5):
@@ -126,6 +136,36 @@ def test_hybrid_rank_excludes_paper_from_both_dense_and_bm25(monkeypatch):
     # specifically the BM25-only concern of the excluded paper (underscore
     # field) is gone — the case a paper_id-only filter would have missed
     assert "P_self-c2" not in {r["concern_id"] for r in excluded}
+
+
+def test_hybrid_rank_threads_exclusion_to_dense_index_builder(monkeypatch):
+    """Dense retrieval must build against the holdout-excluded index."""
+    seen = {}
+    gate = "leakage_gate"
+    dense = [_rec("P_other-c1", "P_other", gate)]
+
+    def fake_import():
+        def build_or_load_index(**kwargs):
+            seen["excluded"] = kwargs.get("excluded_paper_ids")
+            return (np.zeros((len(dense), 3), dtype="float32"), dense)
+
+        def vector_search(query, embeddings, records, top_k=5):
+            return [dict(r, _dense_score=0.9) for r in records[:top_k]]
+
+        return build_or_load_index, vector_search
+
+    monkeypatch.setattr(hybrid_mod, "_import_sibling_modules", fake_import)
+    monkeypatch.setattr(hybrid_mod, "retrieve_for_failure", lambda g, codes, limit=50: [])
+
+    hybrid_mod.hybrid_rank(
+        "q",
+        gate=gate,
+        failure_codes=["P01"],
+        top_k=5,
+        excluded_paper_ids=["P_self", "10.1/self"],
+    )
+
+    assert seen["excluded"] == ["P_self", "10.1/self"]
 
 
 # ── public API threads the param ─────────────────────────────────────────────

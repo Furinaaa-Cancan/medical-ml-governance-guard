@@ -75,7 +75,7 @@ def test_run_on_pdf_happy_path_returns_deduped_flag_list(fake_pdf):
         ncpr_pdf_runner, "_flags_for_chunk",
         # Each chunk yields one unique flag + one duplicate "LEAK-01"
         # so the dedupe path is also exercised.
-        side_effect=lambda chunk, top_k: [
+        side_effect=lambda chunk, top_k, **_kwargs: [
             _flag("LEAK-01", evidence=chunk[:20]),
             _flag(f"UNIQ-{hash(chunk) % 1000}"),
         ],
@@ -94,6 +94,30 @@ def test_run_on_pdf_happy_path_returns_deduped_flag_list(fake_pdf):
     # that many unique non-LEAK codes plus the single LEAK-01.
     expected = 1 + DEFAULT_CHUNK_COUNT
     assert len(codes) == expected
+
+
+def test_run_on_pdf_excludes_current_paper_on_every_rag_chunk(fake_pdf):
+    """PDF-backed NCPR must not retrieve the paper's own KB rows."""
+    fake_extract = mock.Mock(return_value=_SAMPLE_METHODS)
+    calls: list[dict] = []
+
+    def fake_flags(chunk, top_k, **kwargs):
+        calls.append({"chunk": chunk, "top_k": top_k, **kwargs})
+        return [_flag("OK")]
+
+    with mock.patch.object(
+        ncpr_pdf_runner, "_load_extractor",
+        return_value=(fake_extract, False),
+    ), mock.patch.object(
+        ncpr_pdf_runner,
+        "_flags_for_chunk",
+        side_effect=fake_flags,
+    ):
+        result = run_on_pdf("PR-042", fake_pdf, top_k=10)
+
+    assert result["errors"] == []
+    assert calls
+    assert {tuple(c.get("excluded_paper_ids", [])) for c in calls} == {("PR-042",)}
 
 
 # ────────────────────────────────────────────────────────────────────────
@@ -154,7 +178,7 @@ def test_batch_run_pdfs_continues_past_per_paper_failure(tmp_path):
         return_value=(fake_extract, False),
     ), mock.patch.object(
         ncpr_pdf_runner, "_flags_for_chunk",
-        return_value=[_flag("OK-1")],
+        side_effect=lambda chunk, top_k, **_kwargs: [_flag("OK-1")],
     ):
         results = batch_run_pdfs(
             {"P1": good, "P2": bad, "P3": good2},
@@ -214,7 +238,7 @@ def test_run_on_pdf_stub_fallback_surfaces_in_errors(fake_pdf):
         return_value=(stub_fn, True),
     ), mock.patch.object(
         ncpr_pdf_runner, "_flags_for_chunk",
-        return_value=[_flag("STUB-OK")],
+        side_effect=lambda chunk, top_k, **_kwargs: [_flag("STUB-OK")],
     ):
         result = run_on_pdf("PR-stub", fake_pdf, top_k=5)
 

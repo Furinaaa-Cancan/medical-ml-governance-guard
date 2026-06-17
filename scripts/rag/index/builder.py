@@ -208,6 +208,15 @@ def _normalize_excluded(
     )
 
 
+def _record_identity_values(record: dict[str, Any]) -> set[str]:
+    """Return paper identifiers that can name this KB record."""
+    return {
+        str(v).strip()
+        for v in (record.get("paper_id"), record.get("paper_doi"))
+        if v is not None and str(v).strip()
+    }
+
+
 def _exclusion_signature(excluded: frozenset[str]) -> str:
     """Stable sha256 over a sorted exclusion set, ``""`` if empty.
 
@@ -245,12 +254,13 @@ def build_or_load_index(
         kb_path: Path to ``peer-review-kb.json``. Relative paths are anchored
             to the repository root.
         force_rebuild: If ``True``, ignore any existing cache and rebuild.
-        excluded_paper_ids: Optional iterable of ``paper_id`` strings to drop
-            from the built index. Concerns whose ``paper_id`` is in this set
-            are skipped before embedding. Used to construct honest holdout
-            indexes for the NCPR benchmark (W22-Y1): the rebuilder can excise
-            a paper from the KB at index time so retrieval can't "cheat" by
-            returning a concern from the very paper being evaluated.
+        excluded_paper_ids: Optional iterable of paper identifiers
+            (``paper_id`` or ``paper_doi``) to drop from the built index.
+            Concerns whose paper identity matches this set are skipped before
+            embedding. Used to construct honest holdout indexes for the NCPR
+            benchmark (W22-Y1): the rebuilder can excise a paper from the KB
+            at index time so retrieval can't "cheat" by returning a concern
+            from the very paper being evaluated.
             ``None`` (the default) is exactly equivalent to ``set()`` and
             preserves the pre-W22 cache key (and the on-disk cache).
 
@@ -303,20 +313,25 @@ def build_or_load_index(
     records = _build_records(entries)
     if excluded:
         total = len(records)
-        present_ids = {rec.get("paper_id") for rec in records}
+        present_ids = set().union(
+            *(_record_identity_values(rec) for rec in records)
+        ) if records else set()
         missing = sorted(p for p in excluded if p not in present_ids)
         if missing:
             # No-op for unknown ids: warn (audit trail) but do not crash. The
             # holdout caller may iterate over a paper-id list that's a superset
             # of what's in the current KB; that should not break index build.
             _logger.warning(
-                "build_or_load_index: %d excluded paper_id(s) not present in KB: %s",
+                "build_or_load_index: %d excluded paper identifier(s) not present in KB: %s",
                 len(missing),
                 missing,
             )
-        records = [rec for rec in records if rec.get("paper_id") not in excluded]
+        records = [
+            rec for rec in records
+            if not (_record_identity_values(rec) & excluded)
+        ]
         _logger.info(
-            "build_or_load_index: excluded %d concern(s) for %d paper_id(s); %d remain",
+            "build_or_load_index: excluded %d concern(s) for %d paper identifier(s); %d remain",
             total - len(records),
             len(excluded),
             len(records),

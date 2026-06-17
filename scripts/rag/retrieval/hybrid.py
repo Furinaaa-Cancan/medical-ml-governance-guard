@@ -565,6 +565,23 @@ def _normalize_excluded(excluded_paper_ids: Optional[Iterable[str]]) -> frozense
     )
 
 
+def _normalize_excluded_list(excluded_paper_ids: Optional[Iterable[str]]) -> list[str]:
+    """Normalize exclusions while preserving caller order for downstream calls."""
+    if not excluded_paper_ids:
+        return []
+    if isinstance(excluded_paper_ids, str):
+        excluded_paper_ids = [excluded_paper_ids]
+    seen: set[str] = set()
+    values: list[str] = []
+    for p in excluded_paper_ids:
+        text = str(p).strip() if p is not None else ""
+        if not text or text in seen:
+            continue
+        seen.add(text)
+        values.append(text)
+    return values
+
+
 def _candidate_paper_id(candidate: Dict[str, Any]) -> str:
     """Return a candidate's paper id, tolerating both producers' field names.
 
@@ -576,6 +593,20 @@ def _candidate_paper_id(candidate: Dict[str, Any]) -> str:
     :func:`_normalize_excluded` so a whitespace-padded id can't slip through.
     """
     return str(candidate.get("paper_id") or candidate.get("_paper_id") or "").strip()
+
+
+def _candidate_identity_values(candidate: Dict[str, Any]) -> frozenset[str]:
+    """Return all paper identifiers carried by a dense or BM25 candidate."""
+    return frozenset(
+        str(v).strip()
+        for v in (
+            candidate.get("paper_id"),
+            candidate.get("_paper_id"),
+            candidate.get("paper_doi"),
+            candidate.get("_paper_doi"),
+        )
+        if v is not None and str(v).strip()
+    )
 
 
 def _drop_excluded_papers(
@@ -595,7 +626,7 @@ def _drop_excluded_papers(
     return {
         cid: c
         for cid, c in candidates.items()
-        if _candidate_paper_id(c) not in excluded
+        if not (_candidate_identity_values(c) & excluded)
     }
 
 
@@ -661,9 +692,14 @@ def hybrid_rank(
         )
 
     build_or_load_index, vector_search = _import_sibling_modules()
+    excluded_list = _normalize_excluded_list(excluded_paper_ids)
+    excluded = frozenset(excluded_list)
 
     # ---- 1. Build / load the dense index ---------------------------------
-    embeddings, records = build_or_load_index()
+    build_kwargs: Dict[str, Any] = {}
+    if excluded_list:
+        build_kwargs["excluded_paper_ids"] = excluded_list
+    embeddings, records = build_or_load_index(**build_kwargs)
 
     # ---- 2. Dense candidates --------------------------------------------
     # Fix 4: grow the candidate pool with the caller's request so a
@@ -736,7 +772,6 @@ def hybrid_rank(
     # Drop candidates from excluded papers BEFORE any scoring/rerank so they
     # can never occupy a result slot. Done post-union so it covers the BM25
     # hits too (build-time dense exclusion in index.builder cannot).
-    excluded = _normalize_excluded(excluded_paper_ids)
     if excluded:
         candidates_by_id = _drop_excluded_papers(candidates_by_id, excluded)
 
