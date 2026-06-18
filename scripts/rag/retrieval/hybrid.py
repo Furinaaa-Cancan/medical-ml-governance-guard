@@ -668,11 +668,12 @@ def hybrid_rank(
             also set.
         top_k: Number of final results to return. Defaults to
             ``config.DEFAULT_TOP_K``.
-        excluded_paper_ids: Optional paper ids to exclude from the results
-            (leave-one-paper-out). Any candidate whose ``paper_id`` is in this
-            set is dropped post-union — covering both the dense and BM25 paths —
-            so a paper can never retrieve its own reviewer concerns. ``None``
-            (default) disables exclusion.
+        excluded_paper_ids: Optional paper ids or DOIs to exclude from the
+            results (leave-one-paper-out). The list is threaded into the dense
+            index builder and BM25 retriever before their own limits, then
+            applied again post-union — so a paper can never retrieve its own
+            reviewer concerns or consume candidate slots before exclusion.
+            ``None`` (default) disables exclusion.
 
     Returns:
         Up to ``top_k`` concern dicts in descending ``_final_score``
@@ -738,10 +739,14 @@ def hybrid_rank(
     bm25_score_by_id: Dict[str, float] = {}
     bm25_records_by_id: Dict[str, Dict[str, Any]] = {}
     if gate and failure_codes:
+        bm25_kwargs: Dict[str, Any] = {}
+        if excluded_list:
+            bm25_kwargs["excluded_paper_ids"] = excluded_list
         bm25_hits = retrieve_for_failure(
             gate,
             failure_codes,
             limit=dense_top_k,
+            **bm25_kwargs,
         )
         raw_scores = [
             _bm25_raw_score(c, rank, len(bm25_hits))

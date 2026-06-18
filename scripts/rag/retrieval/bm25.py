@@ -22,7 +22,7 @@ import json
 import math
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, Iterable, List, Optional, Set
 
 # Tag/text tokenizer: split on any non-alphanumeric-non-underscore run,
 # then further split on `_` since tags are snake_case. Used by
@@ -341,15 +341,48 @@ def _enrich_concern(concern: Dict, entry: Dict) -> Dict:
     }
 
 
+def _normalize_excluded_paper_ids(
+    excluded_paper_ids: Optional[Iterable[str]],
+) -> frozenset[str]:
+    """Return normalized paper identifiers to exclude from retrieval."""
+    if excluded_paper_ids is None:
+        return frozenset()
+    if isinstance(excluded_paper_ids, str):
+        excluded_paper_ids = [excluded_paper_ids]
+    return frozenset(
+        str(p).strip()
+        for p in excluded_paper_ids
+        if p is not None and str(p).strip()
+    )
+
+
+def _entry_identity_values(entry: Dict[str, Any]) -> frozenset[str]:
+    """Return all identifiers that can name a KB entry."""
+    return frozenset(
+        str(v).strip()
+        for v in (
+            entry.get("id"),
+            entry.get("paper_id"),
+            entry.get("paper_doi"),
+            entry.get("doi"),
+        )
+        if v is not None and str(v).strip()
+    )
+
+
 def _collect_concerns(
     kb: Dict[str, Any],
     filter_fn,
     severity: Optional[str] = None,
     limit: int = 5,
+    excluded_paper_ids: Optional[Iterable[str]] = None,
 ) -> List[Dict]:
     """Collect concerns from all papers matching a filter function."""
+    excluded = _normalize_excluded_paper_ids(excluded_paper_ids)
     results = []
     for entry in kb.get("entries", []):
+        if excluded and (_entry_identity_values(entry) & excluded):
+            continue
         for concern in entry.get("reviewer_concerns", []):
             if not filter_fn(concern, entry):
                 continue
@@ -510,6 +543,7 @@ def retrieve_for_failure(
     issue_codes: List[str],
     limit: int = 5,
     kb_path: Optional[Path] = None,
+    excluded_paper_ids: Optional[Iterable[str]] = None,
 ) -> List[Dict]:
     """Retrieve concerns for a gate failure, ranked by issue-code relevance.
 
@@ -530,6 +564,8 @@ def retrieve_for_failure(
         issue_codes: List of failure/warning codes from the gate's report.
         limit: Max results.
         kb_path: Optional KB path for tests.
+        excluded_paper_ids: Optional paper ids or DOIs to exclude before
+            ranking, used by leave-one-paper-out evaluations.
 
     Returns:
         Enriched concern dicts, ranked by (score desc, severity rank asc).
@@ -541,6 +577,7 @@ def retrieve_for_failure(
         kb,
         lambda c, _: gate_name in c.get("mlgg_gates", []),
         limit=10_000,
+        excluded_paper_ids=excluded_paper_ids,
     )
     if not candidates:
         return []

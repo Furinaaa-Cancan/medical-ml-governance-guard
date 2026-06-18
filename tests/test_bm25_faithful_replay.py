@@ -6,8 +6,9 @@ old harness even synthesized a query string, which the gate never passes. These
 tests lock the shipping path's contract so any future "benchmark" measures what
 gates really do:
 
-  * retrieve_for_failure takes only (gate_name, issue_codes[, limit, kb_path]) —
+  * retrieve_for_failure keeps (gate_name, issue_codes) as its first arguments —
     NO query/query_text param (a synthesized-query regression would break this);
+    operational kwargs such as limit, kb_path, and holdout exclusion may follow;
   * it is deterministic (a benchmark over it is reproducible);
   * it returns concerns on the real KB using the exact gate call shape.
 

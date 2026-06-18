@@ -97,6 +97,62 @@ class TestRetrieveByText:
         assert len(results) <= 2
 
 
+# ─── retrieve_for_failure ────────────────────────────────────────────
+
+
+class TestRetrieveForFailure:
+    def test_excluded_paper_ids_drop_holdout_before_limit(self, tmp_path):
+        kb_path = tmp_path / "peer-review-kb.json"
+        kb_path.write_text(json.dumps({
+            "entries": [
+                {
+                    "id": "PR-SELF",
+                    "paper_doi": "10.1/self",
+                    "paper_title": "Holdout case",
+                    "year": 2026,
+                    "domain": "test",
+                    "reviewer_concerns": [
+                        {
+                            "concern_id": "PR-SELF-C01",
+                            "severity": "CRITICAL",
+                            "mlgg_gates": ["leakage_gate"],
+                            "tags": ["target_leakage"],
+                            "concern_text": "Target leakage via an outcome proxy.",
+                            "author_response": "Removed the leaking feature.",
+                        }
+                    ],
+                },
+                {
+                    "id": "PR-OTHER",
+                    "paper_doi": "10.1/other",
+                    "paper_title": "Neighbor case",
+                    "year": 2026,
+                    "domain": "test",
+                    "reviewer_concerns": [
+                        {
+                            "concern_id": "PR-OTHER-C01",
+                            "severity": "HIGH",
+                            "mlgg_gates": ["leakage_gate"],
+                            "tags": ["target_leakage"],
+                            "concern_text": "Target leakage via an outcome proxy.",
+                            "author_response": "Removed the leaking feature.",
+                        }
+                    ],
+                },
+            ]
+        }), encoding="utf-8")
+
+        results = bm25.retrieve_for_failure(
+            "leakage_gate",
+            ["target_leakage"],
+            limit=1,
+            kb_path=kb_path,
+            excluded_paper_ids=["PR-SELF", "10.1/self"],
+        )
+
+        assert [r["_paper_id"] for r in results] == ["PR-OTHER"]
+
+
 # ─── retrieve_by_category ────────────────────────────────────────────
 
 

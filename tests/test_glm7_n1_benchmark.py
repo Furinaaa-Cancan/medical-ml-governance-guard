@@ -90,6 +90,45 @@ def test_glm7_not_in_kb_so_lopo_is_clean(computed):
     assert computed["provenance"]["in_peer_review_kb"] is False
 
 
+def test_rag_runner_threads_declared_lopo_exclusion(monkeypatch):
+    """The provenance field must match the actual BM25 call shape."""
+    mod = _load_runner()
+    calls = []
+
+    def fake_retrieve_for_failure(gate, issue_codes, limit=5, **kwargs):
+        calls.append({
+            "gate": gate,
+            "issue_codes": issue_codes,
+            "limit": limit,
+            **kwargs,
+        })
+        return [{"concern_id": "PR-OTHER-C01"}]
+
+    import scripts.rag.retrieval.bm25 as bm25
+
+    monkeypatch.setattr(bm25, "retrieve_for_failure", fake_retrieve_for_failure)
+    mod._run_rag(
+        [
+            {
+                "label": "definition_leakage",
+                "gate": "definition_variable_guard",
+                "codes": ["hand_authored_code"],
+                "source": "gate_run",
+            }
+        ],
+        {"definition_variable_guard": ["definition_variable_leakage"]},
+    )
+
+    assert calls == [
+        {
+            "gate": "definition_variable_guard",
+            "issue_codes": ["definition_variable_leakage"],
+            "limit": 4,
+            "excluded_paper_ids": [mod.GLM7_KB_ID],
+        }
+    ]
+
+
 def test_failure_class_provenance_is_gate_derived_where_a_gate_runs(computed):
     """The one gate that runs on a paper (definition_variable_guard) feeds the
     definition_leakage RAG query from its LIVE emitted codes (gate-derived, not

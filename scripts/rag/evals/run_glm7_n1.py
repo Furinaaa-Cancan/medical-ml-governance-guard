@@ -86,15 +86,23 @@ def _run_guard(target: str) -> Dict[str, Any]:
             "hits": hits, "emitted_codes": sorted(set(codes))}
 
 
-def _run_rag(failure_classes: List[Dict[str, Any]],
-             gate_emitted_codes: Dict[str, List[str]]) -> Dict[str, Any]:
+def _run_rag(
+    failure_classes: List[Dict[str, Any]],
+    gate_emitted_codes: Dict[str, List[str]],
+    excluded_paper_ids: List[str] | None = None,
+) -> Dict[str, Any]:
     """Drive the shipping BM25 retrieval path for each failure class (LOPO-excluded).
 
     Failure-class provenance: a ``source == "gate_run"`` class whose gate actually
     ran on this paper DERIVES its codes from the live gate output (not the
     hand-authored list); ``analysis`` classes have no runnable gate on a paper, so
-    their codes are analyst-asserted from the text. Both are recorded.
+    their codes are analyst-asserted from the text. Both are recorded. The
+    ``excluded_paper_ids`` argument is threaded into BM25 so the declared LOPO
+    provenance and the actual retrieval call shape cannot drift.
     """
+    if excluded_paper_ids is None:
+        excluded_paper_ids = [GLM7_KB_ID]
+
     sys.path.insert(0, str(REPO_ROOT))
     from scripts.rag.retrieval.bm25 import retrieve_for_failure
 
@@ -109,7 +117,12 @@ def _run_rag(failure_classes: List[Dict[str, Any]],
             source = fc.get("source", "analysis")
         provenance[fc["label"]] = {"source": source, "codes_used": codes, "gate": fc["gate"]}
         try:
-            res = retrieve_for_failure(fc["gate"], codes, limit=4)
+            res = retrieve_for_failure(
+                fc["gate"],
+                codes,
+                limit=4,
+                excluded_paper_ids=excluded_paper_ids,
+            )
         except Exception as exc:  # pragma: no cover - retrieval availability
             retrievals[fc["label"]] = [f"<error: {exc}>"]
             continue
@@ -153,7 +166,11 @@ def compute_record() -> Dict[str, Any]:
     # The one gate that runs on a paper (definition_variable_guard) feeds its EMITTED
     # codes into the matching failure class (gate-derived, not hand-authored).
     gate_emitted = {"definition_variable_guard": sorted({c for g in guard_runs for c in g.get("emitted_codes", [])})}
-    rag_out = _run_rag(gt["rag_failure_classes"], gate_emitted)
+    rag_out = _run_rag(
+        gt["rag_failure_classes"],
+        gate_emitted,
+        excluded_paper_ids=[GLM7_KB_ID],
+    )
     retrievals = rag_out["retrievals"]
     rag_provenance = rag_out["provenance"]
     retrieved_ids = {cid for ids in retrievals.values() for cid in ids}

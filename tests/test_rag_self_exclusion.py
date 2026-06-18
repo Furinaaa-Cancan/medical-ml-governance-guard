@@ -105,7 +105,9 @@ def _patch_retrieval(monkeypatch, dense_recs, bm25_recs):
 
     monkeypatch.setattr(hybrid_mod, "_import_sibling_modules", fake_import)
     monkeypatch.setattr(
-        hybrid_mod, "retrieve_for_failure", lambda g, codes, limit=50: list(bm25_recs)
+        hybrid_mod,
+        "retrieve_for_failure",
+        lambda g, codes, limit=50, **_kwargs: list(bm25_recs),
     )
 
 
@@ -155,7 +157,43 @@ def test_hybrid_rank_threads_exclusion_to_dense_index_builder(monkeypatch):
         return build_or_load_index, vector_search
 
     monkeypatch.setattr(hybrid_mod, "_import_sibling_modules", fake_import)
-    monkeypatch.setattr(hybrid_mod, "retrieve_for_failure", lambda g, codes, limit=50: [])
+    monkeypatch.setattr(
+        hybrid_mod,
+        "retrieve_for_failure",
+        lambda g, codes, limit=50, **_kwargs: [],
+    )
+
+    hybrid_mod.hybrid_rank(
+        "q",
+        gate=gate,
+        failure_codes=["P01"],
+        top_k=5,
+        excluded_paper_ids=["P_self", "10.1/self"],
+    )
+
+    assert seen["excluded"] == ["P_self", "10.1/self"]
+
+
+def test_hybrid_rank_threads_exclusion_to_bm25_retriever(monkeypatch):
+    """BM25 must exclude before its own limit so holdout hits cannot consume slots."""
+    seen = {}
+    gate = "leakage_gate"
+
+    def fake_import():
+        def build_or_load_index(**_kwargs):
+            return (np.zeros((0, 3), dtype="float32"), [])
+
+        def vector_search(query, embeddings, records, top_k=5):
+            return []
+
+        return build_or_load_index, vector_search
+
+    def fake_retrieve_for_failure(gate_name, issue_codes, limit=50, **kwargs):
+        seen["excluded"] = kwargs.get("excluded_paper_ids")
+        return []
+
+    monkeypatch.setattr(hybrid_mod, "_import_sibling_modules", fake_import)
+    monkeypatch.setattr(hybrid_mod, "retrieve_for_failure", fake_retrieve_for_failure)
 
     hybrid_mod.hybrid_rank(
         "q",
@@ -209,7 +247,11 @@ def test_hybrid_rank_tolerates_nonfinite_dense_score(monkeypatch):
         return build_or_load_index, vector_search
 
     monkeypatch.setattr(hybrid_mod, "_import_sibling_modules", fake_import)
-    monkeypatch.setattr(hybrid_mod, "retrieve_for_failure", lambda g, codes, limit=50: [])
+    monkeypatch.setattr(
+        hybrid_mod,
+        "retrieve_for_failure",
+        lambda g, codes, limit=50, **_kwargs: [],
+    )
     out = hybrid_mod.hybrid_rank("q", gate=gate, failure_codes=["P01"], top_k=5)
     for r in out:  # no crash; non-finite dense -> 0.0, so every score is finite
         assert math.isfinite(r.get("_final_score", 0.0))
