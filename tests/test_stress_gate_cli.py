@@ -6,8 +6,8 @@ Designed for overnight CI runs (~30-60 minutes).
 """
 from __future__ import annotations
 
-import importlib
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -138,6 +138,39 @@ class TestAllScriptsHelp:
             f"Output head: {combined[:300]!r}"
         )
 
+    def test_train_help_survives_missing_sklearn_neighbors(self, tmp_path: Path):
+        """--help must not fail just because an optional heavy model backend cannot load."""
+        sitecustomize = tmp_path / "sitecustomize.py"
+        sitecustomize.write_text(
+            "\n".join([
+                "import builtins",
+                "_real_import = builtins.__import__",
+                "def _guarded_import(name, globals=None, locals=None, fromlist=(), level=0):",
+                "    if name == 'sklearn.neighbors' or name.startswith('sklearn.neighbors.'):",
+                "        raise OSError('blocked sklearn.neighbors import during help')",
+                "    return _real_import(name, globals, locals, fromlist, level)",
+                "builtins.__import__ = _guarded_import",
+            ]),
+            encoding="utf-8",
+        )
+        script = _find_script("train_select_evaluate")
+        env = {
+            **os.environ,
+            "PYTHONPATH": os.pathsep.join([str(tmp_path), str(SCRIPTS_DIR)]),
+        }
+
+        result = subprocess.run(
+            [sys.executable, str(script), "--help"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            env=env,
+        )
+        combined = (result.stdout or "") + (result.stderr or "")
+
+        assert result.returncode == 0, result.stderr[-500:]
+        assert "usage:" in combined.lower()
+
 
 # ────────────────────────────────────────────────────────
 # Gate scripts with missing required args should exit non-zero
@@ -198,7 +231,7 @@ class TestGateReportContract:
         request.write_text('{"target_column": "target", "study_name": "test"}',
                            encoding="utf-8")
         # Run gate
-        result = subprocess.run(
+        subprocess.run(
             [sys.executable, str(script), "--report", str(report_path)],
             capture_output=True, text=True, timeout=120,
             env={**dict(__import__("os").environ), "PYTHONPATH": str(SCRIPTS_DIR)},

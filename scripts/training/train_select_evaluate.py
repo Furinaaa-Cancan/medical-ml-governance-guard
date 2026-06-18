@@ -47,6 +47,193 @@ from itertools import product
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
+
+def _build_arg_parser() -> argparse.ArgumentParser:
+    """Build the CLI parser without importing heavy ML dependencies."""
+    parser = argparse.ArgumentParser(description="Train/select/evaluate leakage-safe medical binary models.")
+    parser.add_argument("--train", required=True, help="Path to train CSV.")
+    parser.add_argument("--valid", default="", help="Path to valid CSV (optional for two-way/CV-only split modes).")
+    parser.add_argument("--test", default="", help="Path to test CSV (optional for CV-only mode; uses bootstrap internal validation).")
+    parser.add_argument("--target-col", default="y", help="Target column.")
+    parser.add_argument("--patient-id-col", default="patient_id", help="Patient ID column used for trace hashing.")
+    parser.add_argument("--ignore-cols", default="patient_id,event_time", help="Comma-separated non-feature columns.")
+    parser.add_argument("--definition-cols", default="", help="Comma-separated columns used to DEFINE the outcome (e.g., HbA1c,fasting_glucose). These are forcibly excluded from features to prevent target leakage.")
+    parser.add_argument("--performance-policy", help="Optional performance policy JSON path.")
+    parser.add_argument("--missingness-policy", help="Optional missingness policy JSON path.")
+    parser.add_argument("--selection-data", default="cv_inner", help="Model selection source (valid/cv_inner/nested_cv).")
+    parser.add_argument("--threshold-selection-split", default="valid", help="Split used for threshold selection.")
+    parser.add_argument(
+        "--calibration-method",
+        default="none",
+        choices=["sigmoid", "isotonic", "power", "beta", "none"],
+        help="Probability calibration method fit on leakage-safe split.",
+    )
+    parser.add_argument("--cv-splits", type=int, default=5, help="CV folds for candidate scoring.")
+    parser.add_argument("--temporal-cv", action="store_true",
+                        help="Use TimeSeriesSplit instead of StratifiedKFold for CV. "
+                             "Required when training data has temporal ordering to prevent "
+                             "future-to-past leakage within CV folds.")
+    parser.add_argument(
+        "--model-pool",
+        default="",
+        help=(
+            "Comma-separated model families. Supported: "
+            "logistic_l1,logistic_l2,logistic_elasticnet,random_forest_balanced,"
+            "extra_trees_balanced,hist_gradient_boosting_l2,adaboost,xgboost,catboost,"
+            "lightgbm,svm_linear,svm_rbf,tabpfn,soft_voting,weighted_voting,stacking."
+        ),
+    )
+    parser.add_argument(
+        "--include-optional-models",
+        action="store_true",
+        help="Append optional backends (xgboost/catboost/lightgbm/tabpfn) when installed.",
+    )
+    parser.add_argument(
+        "--ensemble-top-k",
+        type=int,
+        default=0,
+        help="Build voting/stacking ensembles from top-K base models after CV (0=disabled). "
+        "Requires soft_voting/weighted_voting/stacking in --model-pool.",
+    )
+    parser.add_argument(
+        "--device",
+        default="cpu",
+        choices=["cpu", "gpu", "mps", "auto"],
+        help="Compute device. 'auto' selects MPS on Apple Silicon, CUDA GPU if available, else CPU. "
+        "Affects XGBoost/LightGBM/CatBoost/TabPFN device placement.",
+    )
+    parser.add_argument(
+        "--max-trials-per-family",
+        type=int,
+        default=1,
+        help="Maximum hyperparameter candidates per model family.",
+    )
+    parser.add_argument(
+        "--hyperparam-search",
+        default="fixed_grid",
+        choices=["random_subsample", "fixed_grid", "optuna"],
+        help="Candidate search strategy within each family. "
+        "'optuna' requires optuna package and uses Bayesian optimization.",
+    )
+    parser.add_argument(
+        "--optuna-trials",
+        type=int,
+        default=50,
+        help="Number of Optuna trials per family when --hyperparam-search=optuna (default: 50).",
+    )
+    parser.add_argument(
+        "--n-jobs",
+        type=int,
+        default=-1,
+        help="Parallel CPU workers for multi-core estimators (e.g., RF/XGBoost).",
+    )
+    parser.add_argument("--beta", type=float, default=2.0, help="Beta for F-beta threshold objective. Default 2.0 (F2: sensitivity-weighted, standard for medical screening).")
+    parser.add_argument("--sensitivity-floor", type=float, default=0.70, help="Minimum sensitivity for threshold choice (default 0.70; performance-policy.example.json recommends 0.85 for publication-grade).")
+    parser.add_argument("--npv-floor", type=float, default=0.70, help="Minimum NPV for threshold choice (default 0.70; performance-policy.example.json recommends 0.90 for publication-grade).")
+    parser.add_argument("--specificity-floor", type=float, default=0.60, help="Minimum specificity for threshold choice (default 0.60; performance-policy.example.json uses 0.40).")
+    parser.add_argument("--ppv-floor", type=float, default=0.50, help="Minimum PPV for threshold choice (default 0.50; performance-policy.example.json recommends 0.55).")
+    parser.add_argument(
+        "--class-weight-override",
+        default="auto",
+        choices=["auto", "none", "balanced"],
+        help="Override class weight strategy. 'auto' uses balanced when imbalance ratio >= 1.5. "
+        "'none' disables class weighting. 'balanced' always enables it.",
+    )
+    parser.add_argument(
+        "--imbalance-strategy",
+        default="",
+        help=(
+            "Explicit single imbalance strategy. Supported: "
+            "auto,none,class_weight,random_oversample,random_undersample,smote,adasyn. "
+            "If set, overrides --class-weight-override."
+        ),
+    )
+    parser.add_argument(
+        "--imbalance-strategy-candidates",
+        default="",
+        help=(
+            "Comma-separated candidate imbalance strategies. Trainer probes each candidate and "
+            "selects the best by --imbalance-selection-metric before model selection."
+        ),
+    )
+    parser.add_argument(
+        "--imbalance-selection-metric",
+        default="pr_auc",
+        choices=["pr_auc", "roc_auc"],
+        help="Metric used to select the best imbalance strategy from candidates.",
+    )
+    parser.add_argument("--random-seed", type=int, default=20260225, help="Random seed.")
+    parser.add_argument("--primary-metric", default="pr_auc", help="Primary optimization metric.")
+    parser.add_argument("--bootstrap-resamples", type=int, default=500, help="Bootstrap samples for CI.")
+    parser.add_argument("--ci-bootstrap-resamples", type=int, default=2000, help="Bootstrap samples for CI matrix report.")
+    parser.add_argument("--permutation-resamples", type=int, default=300, help="Permutation samples for null metric.")
+    parser.add_argument(
+        "--fast-diagnostic-mode",
+        action="store_true",
+        help=(
+            "Skip expensive publication-style summary computations (e.g., CI matrix) "
+            "for fast seed-search diagnostics."
+        ),
+    )
+    parser.add_argument(
+        "--skip-preflight-check",
+        action="store_true",
+        help=argparse.SUPPRESS,
+    )
+    parser.add_argument("--model-selection-report-out", required=True, help="Output model_selection_report.json.")
+    parser.add_argument("--evaluation-report-out", required=True, help="Output evaluation_report.json.")
+    parser.add_argument("--feature-group-spec", help="Optional feature_group_spec JSON path.")
+    parser.add_argument("--feature-engineering-report-out", help="Optional feature_engineering_report JSON output path.")
+    parser.add_argument(
+        "--feature-engineering-mode",
+        default="strict",
+        choices=["strict", "moderate", "quick"],
+        help="Feature engineering aggressiveness mode.",
+    )
+    parser.add_argument("--distribution-report-out", help="Optional distribution_report JSON output path.")
+    parser.add_argument("--ci-matrix-report-out", help="Optional ci_matrix_report JSON output path.")
+    parser.add_argument("--prediction-trace-out", help="Optional output prediction_trace CSV/CSV.GZ.")
+    parser.add_argument("--external-cohort-spec", help="Optional external cohort spec JSON path.")
+    parser.add_argument("--external-validation-report-out", help="Optional output external_validation_report.json.")
+    parser.add_argument("--robustness-report-out", help="Optional output robustness_report.json.")
+    parser.add_argument("--robustness-time-slices", type=int, default=4, help="Number of chronological slices for robustness report.")
+    parser.add_argument("--robustness-group-count", type=int, default=4, help="Number of hash-based patient groups for robustness report.")
+    parser.add_argument("--seed-sensitivity-out", help="Optional output seed_sensitivity_report.json.")
+    parser.add_argument(
+        "--seed-sensitivity-seeds",
+        default="20260224,20260225,20260226,20260227,20260228",
+        help="Comma-separated integer seeds for robustness sensitivity report.",
+    )
+    parser.add_argument("--model-out", help="Optional model artifact output path.")
+    parser.add_argument("--model-pool-out", help="Optional multi-family model pool for SHAP interpretability gate.")
+    parser.add_argument("--permutation-null-out", help="Optional null metric output file (one value per line).")
+    parser.add_argument(
+        "--low-memory",
+        action="store_true",
+        help="Enable low-memory mode: downcast numeric dtypes, release intermediate "
+        "DataFrames early, and call gc.collect() at key pipeline stages.",
+    )
+    parser.add_argument(
+        "--checkpoint-file",
+        help="Path for saving/loading training checkpoint JSON.",
+    )
+    parser.add_argument(
+        "--resume-from-checkpoint",
+        action="store_true",
+        help="Resume training from an existing checkpoint file, "
+        "skipping already-scored candidates.",
+    )
+    return parser
+
+
+def _exit_early_for_help() -> None:
+    """Print full argparse help before importing heavy ML dependencies."""
+    if any(arg in {"-h", "--help"} for arg in sys.argv[1:]):
+        _build_arg_parser().parse_args(["--help"])
+
+
+_exit_early_for_help()
+
 # Keep loky from probing physical-core internals that print noisy traceback
 # on some macOS/Python combinations. Use (logical_cores - 1) to stay below the
 # logical-core ceiling while preserving parallelism.
@@ -592,180 +779,7 @@ def parse_args() -> argparse.Namespace:
     Returns:
         Parsed argument namespace with all CLI parameters.
     """
-    parser = argparse.ArgumentParser(description="Train/select/evaluate leakage-safe medical binary models.")
-    parser.add_argument("--train", required=True, help="Path to train CSV.")
-    parser.add_argument("--valid", default="", help="Path to valid CSV (optional for two-way/CV-only split modes).")
-    parser.add_argument("--test", default="", help="Path to test CSV (optional for CV-only mode; uses bootstrap internal validation).")
-    parser.add_argument("--target-col", default="y", help="Target column.")
-    parser.add_argument("--patient-id-col", default="patient_id", help="Patient ID column used for trace hashing.")
-    parser.add_argument("--ignore-cols", default="patient_id,event_time", help="Comma-separated non-feature columns.")
-    parser.add_argument("--definition-cols", default="", help="Comma-separated columns used to DEFINE the outcome (e.g., HbA1c,fasting_glucose). These are forcibly excluded from features to prevent target leakage.")
-    parser.add_argument("--performance-policy", help="Optional performance policy JSON path.")
-    parser.add_argument("--missingness-policy", help="Optional missingness policy JSON path.")
-    parser.add_argument("--selection-data", default="cv_inner", help="Model selection source (valid/cv_inner/nested_cv).")
-    parser.add_argument("--threshold-selection-split", default="valid", help="Split used for threshold selection.")
-    parser.add_argument(
-        "--calibration-method",
-        default="none",
-        choices=["sigmoid", "isotonic", "power", "beta", "none"],
-        help="Probability calibration method fit on leakage-safe split.",
-    )
-    parser.add_argument("--cv-splits", type=int, default=5, help="CV folds for candidate scoring.")
-    parser.add_argument("--temporal-cv", action="store_true",
-                        help="Use TimeSeriesSplit instead of StratifiedKFold for CV. "
-                             "Required when training data has temporal ordering to prevent "
-                             "future-to-past leakage within CV folds.")
-    parser.add_argument(
-        "--model-pool",
-        default="",
-        help=(
-            "Comma-separated model families. Supported: "
-            "logistic_l1,logistic_l2,logistic_elasticnet,random_forest_balanced,"
-            "extra_trees_balanced,hist_gradient_boosting_l2,adaboost,xgboost,catboost,"
-            "lightgbm,svm_linear,svm_rbf,tabpfn,soft_voting,weighted_voting,stacking."
-        ),
-    )
-    parser.add_argument(
-        "--include-optional-models",
-        action="store_true",
-        help="Append optional backends (xgboost/catboost/lightgbm/tabpfn) when installed.",
-    )
-    parser.add_argument(
-        "--ensemble-top-k",
-        type=int,
-        default=0,
-        help="Build voting/stacking ensembles from top-K base models after CV (0=disabled). "
-        "Requires soft_voting/weighted_voting/stacking in --model-pool.",
-    )
-    parser.add_argument(
-        "--device",
-        default="cpu",
-        choices=["cpu", "gpu", "mps", "auto"],
-        help="Compute device. 'auto' selects MPS on Apple Silicon, CUDA GPU if available, else CPU. "
-        "Affects XGBoost/LightGBM/CatBoost/TabPFN device placement.",
-    )
-    parser.add_argument(
-        "--max-trials-per-family",
-        type=int,
-        default=1,
-        help="Maximum hyperparameter candidates per model family.",
-    )
-    parser.add_argument(
-        "--hyperparam-search",
-        default="fixed_grid",
-        choices=["random_subsample", "fixed_grid", "optuna"],
-        help="Candidate search strategy within each family. "
-        "'optuna' requires optuna package and uses Bayesian optimization.",
-    )
-    parser.add_argument(
-        "--optuna-trials",
-        type=int,
-        default=50,
-        help="Number of Optuna trials per family when --hyperparam-search=optuna (default: 50).",
-    )
-    parser.add_argument(
-        "--n-jobs",
-        type=int,
-        default=-1,
-        help="Parallel CPU workers for multi-core estimators (e.g., RF/XGBoost).",
-    )
-    parser.add_argument("--beta", type=float, default=2.0, help="Beta for F-beta threshold objective. Default 2.0 (F2: sensitivity-weighted, standard for medical screening).")
-    parser.add_argument("--sensitivity-floor", type=float, default=0.70, help="Minimum sensitivity for threshold choice (default 0.70; performance-policy.example.json recommends 0.85 for publication-grade).")
-    parser.add_argument("--npv-floor", type=float, default=0.70, help="Minimum NPV for threshold choice (default 0.70; performance-policy.example.json recommends 0.90 for publication-grade).")
-    parser.add_argument("--specificity-floor", type=float, default=0.60, help="Minimum specificity for threshold choice (default 0.60; performance-policy.example.json uses 0.40).")
-    parser.add_argument("--ppv-floor", type=float, default=0.50, help="Minimum PPV for threshold choice (default 0.50; performance-policy.example.json recommends 0.55).")
-    parser.add_argument(
-        "--class-weight-override",
-        default="auto",
-        choices=["auto", "none", "balanced"],
-        help="Override class weight strategy. 'auto' uses balanced when imbalance ratio >= 1.5. "
-        "'none' disables class weighting. 'balanced' always enables it.",
-    )
-    parser.add_argument(
-        "--imbalance-strategy",
-        default="",
-        help=(
-            "Explicit single imbalance strategy. Supported: "
-            "auto,none,class_weight,random_oversample,random_undersample,smote,adasyn. "
-            "If set, overrides --class-weight-override."
-        ),
-    )
-    parser.add_argument(
-        "--imbalance-strategy-candidates",
-        default="",
-        help=(
-            "Comma-separated candidate imbalance strategies. Trainer probes each candidate and "
-            "selects the best by --imbalance-selection-metric before model selection."
-        ),
-    )
-    parser.add_argument(
-        "--imbalance-selection-metric",
-        default="pr_auc",
-        choices=["pr_auc", "roc_auc"],
-        help="Metric used to select the best imbalance strategy from candidates.",
-    )
-    parser.add_argument("--random-seed", type=int, default=20260225, help="Random seed.")
-    parser.add_argument("--primary-metric", default="pr_auc", help="Primary optimization metric.")
-    parser.add_argument("--bootstrap-resamples", type=int, default=500, help="Bootstrap samples for CI.")
-    parser.add_argument("--ci-bootstrap-resamples", type=int, default=2000, help="Bootstrap samples for CI matrix report.")
-    parser.add_argument("--permutation-resamples", type=int, default=300, help="Permutation samples for null metric.")
-    parser.add_argument(
-        "--fast-diagnostic-mode",
-        action="store_true",
-        help=(
-            "Skip expensive publication-style summary computations (e.g., CI matrix) "
-            "for fast seed-search diagnostics."
-        ),
-    )
-    parser.add_argument(
-        "--skip-preflight-check",
-        action="store_true",
-        help=argparse.SUPPRESS,  # Hidden: bypass pre-training gate verification (testing only)
-    )
-    parser.add_argument("--model-selection-report-out", required=True, help="Output model_selection_report.json.")
-    parser.add_argument("--evaluation-report-out", required=True, help="Output evaluation_report.json.")
-    parser.add_argument("--feature-group-spec", help="Optional feature_group_spec JSON path.")
-    parser.add_argument("--feature-engineering-report-out", help="Optional feature_engineering_report JSON output path.")
-    parser.add_argument(
-        "--feature-engineering-mode",
-        default="strict",
-        choices=["strict", "moderate", "quick"],
-        help="Feature engineering aggressiveness mode.",
-    )
-    parser.add_argument("--distribution-report-out", help="Optional distribution_report JSON output path.")
-    parser.add_argument("--ci-matrix-report-out", help="Optional ci_matrix_report JSON output path.")
-    parser.add_argument("--prediction-trace-out", help="Optional output prediction_trace CSV/CSV.GZ.")
-    parser.add_argument("--external-cohort-spec", help="Optional external cohort spec JSON path.")
-    parser.add_argument("--external-validation-report-out", help="Optional output external_validation_report.json.")
-    parser.add_argument("--robustness-report-out", help="Optional output robustness_report.json.")
-    parser.add_argument("--robustness-time-slices", type=int, default=4, help="Number of chronological slices for robustness report.")
-    parser.add_argument("--robustness-group-count", type=int, default=4, help="Number of hash-based patient groups for robustness report.")
-    parser.add_argument("--seed-sensitivity-out", help="Optional output seed_sensitivity_report.json.")
-    parser.add_argument(
-        "--seed-sensitivity-seeds",
-        default="20260224,20260225,20260226,20260227,20260228",
-        help="Comma-separated integer seeds for robustness sensitivity report.",
-    )
-    parser.add_argument("--model-out", help="Optional model artifact output path.")
-    parser.add_argument("--model-pool-out", help="Optional multi-family model pool for SHAP interpretability gate.")
-    parser.add_argument("--permutation-null-out", help="Optional null metric output file (one value per line).")
-    parser.add_argument(
-        "--low-memory",
-        action="store_true",
-        help="Enable low-memory mode: downcast numeric dtypes, release intermediate "
-        "DataFrames early, and call gc.collect() at key pipeline stages.",
-    )
-    parser.add_argument(
-        "--checkpoint-file",
-        help="Path for saving/loading training checkpoint JSON.",
-    )
-    parser.add_argument(
-        "--resume-from-checkpoint",
-        action="store_true",
-        help="Resume training from an existing checkpoint file, "
-        "skipping already-scored candidates.",
-    )
-    return parser.parse_args()
+    return _build_arg_parser().parse_args()
 
 
 def ensure_parent(path: Path) -> None:
