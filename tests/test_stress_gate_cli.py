@@ -171,6 +171,36 @@ class TestAllScriptsHelp:
         assert result.returncode == 0, result.stderr[-500:]
         assert "usage:" in combined.lower()
 
+    def test_train_import_does_not_consume_outer_help_flag(self, tmp_path: Path):
+        """Importing train helpers inside another CLI must not steal that CLI's --help."""
+        probe = tmp_path / "probe_import_train.py"
+        probe.write_text(
+            "\n".join([
+                "import sys",
+                "sys.argv = ['outer_cli.py', '--help']",
+                "import train_select_evaluate",
+                "print('import-ok')",
+            ]),
+            encoding="utf-8",
+        )
+
+        result = subprocess.run(
+            [sys.executable, str(probe)],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            env={
+                **os.environ,
+                "PYTHONPATH": os.pathsep.join([
+                    str(SCRIPTS_DIR),
+                    str(SCRIPTS_DIR / "training"),
+                ]),
+            },
+        )
+
+        assert result.returncode == 0, result.stderr[-500:]
+        assert result.stdout.strip().endswith("import-ok")
+
 
 # ────────────────────────────────────────────────────────
 # Gate scripts with missing required args should exit non-zero

@@ -232,7 +232,8 @@ def _exit_early_for_help() -> None:
         _build_arg_parser().parse_args(["--help"])
 
 
-_exit_early_for_help()
+if __name__ == "__main__":
+    _exit_early_for_help()
 
 # Keep loky from probing physical-core internals that print noisy traceback
 # on some macOS/Python combinations. Use (logical_cores - 1) to stay below the
