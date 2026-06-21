@@ -193,12 +193,15 @@ def _normalize_excluded(
 
     Empty / ``None`` collapses to an empty :class:`frozenset` so the
     ``default == None`` cache key is preserved (see signature notes in
-    :func:`build_or_load_index`). Non-string members are coerced via
+    :func:`build_or_load_index`). A single string id is accepted without
+    being split into characters. Non-string members are coerced via
     ``str()`` so callers can pass numeric paper ids without ceremony.
     """
 
-    if not excluded_paper_ids:
+    if excluded_paper_ids is None:
         return frozenset()
+    if isinstance(excluded_paper_ids, str):
+        excluded_paper_ids = [excluded_paper_ids]
     # .strip() so " PR-001 " and "PR-001" produce the SAME exclusion set (and
     # thus the same cache key) and match the runtime filter in retrieval.hybrid
     # (_normalize_excluded there strips too). Without this, a whitespace-padded

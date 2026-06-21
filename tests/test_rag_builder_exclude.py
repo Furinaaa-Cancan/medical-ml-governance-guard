@@ -337,7 +337,11 @@ def test_helpers_normalize_and_sign_excluded_set() -> None:
 
     assert builder_mod._normalize_excluded(None) == frozenset()
     assert builder_mod._normalize_excluded([]) == frozenset()
+    assert builder_mod._normalize_excluded("PR-001") == frozenset({"PR-001"})
     assert builder_mod._normalize_excluded(["", None]) == frozenset()
+    assert builder_mod._normalize_excluded(
+        np.array([" PR-001 ", "PR-002"], dtype=object)
+    ) == frozenset({"PR-001", "PR-002"})
 
     assert builder_mod._exclusion_signature(frozenset()) == ""
 

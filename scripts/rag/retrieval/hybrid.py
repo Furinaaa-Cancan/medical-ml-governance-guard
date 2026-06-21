@@ -556,7 +556,7 @@ def _normalize_excluded(excluded_paper_ids: Optional[Iterable[str]]) -> frozense
     is intentionally stricter than ``index.builder._normalize_excluded`` (which
     is build-time only and not on the runtime path this filter guards).
     """
-    if not excluded_paper_ids:
+    if excluded_paper_ids is None:
         return frozenset()
     if isinstance(excluded_paper_ids, str):
         excluded_paper_ids = [excluded_paper_ids]
@@ -567,7 +567,7 @@ def _normalize_excluded(excluded_paper_ids: Optional[Iterable[str]]) -> frozense
 
 def _normalize_excluded_list(excluded_paper_ids: Optional[Iterable[str]]) -> list[str]:
     """Normalize exclusions while preserving caller order for downstream calls."""
-    if not excluded_paper_ids:
+    if excluded_paper_ids is None:
         return []
     if isinstance(excluded_paper_ids, str):
         excluded_paper_ids = [excluded_paper_ids]

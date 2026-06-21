@@ -41,6 +41,9 @@ def test_normalize_excluded_variants():
     assert _normalize_excluded(["PR-001", "PR-002", "", None, "  "]) == frozenset(
         {"PR-001", "PR-002"}
     )
+    array_like = np.array([" PR-001 ", "PR-002"], dtype=object)
+    assert _normalize_excluded(array_like) == frozenset({"PR-001", "PR-002"})
+    assert hybrid_mod._normalize_excluded_list(array_like) == ["PR-001", "PR-002"]
 
 
 def test_exclusion_normalization_agrees_on_both_sides():
