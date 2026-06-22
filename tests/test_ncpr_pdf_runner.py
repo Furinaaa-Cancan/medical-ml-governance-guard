@@ -120,6 +120,37 @@ def test_run_on_pdf_excludes_current_paper_on_every_rag_chunk(fake_pdf):
     assert {tuple(c.get("excluded_paper_ids", [])) for c in calls} == {("PR-042",)}
 
 
+def test_run_on_pdf_excludes_all_supplied_paper_identifiers(fake_pdf):
+    """DOI/alias identifiers must ride along with the primary paper id."""
+    fake_extract = mock.Mock(return_value=_SAMPLE_METHODS)
+    calls: list[dict] = []
+
+    def fake_flags(chunk, top_k, **kwargs):
+        calls.append({"chunk": chunk, "top_k": top_k, **kwargs})
+        return [_flag("OK")]
+
+    with mock.patch.object(
+        ncpr_pdf_runner, "_load_extractor",
+        return_value=(fake_extract, False),
+    ), mock.patch.object(
+        ncpr_pdf_runner,
+        "_flags_for_chunk",
+        side_effect=fake_flags,
+    ):
+        result = run_on_pdf(
+            "PR-042",
+            fake_pdf,
+            top_k=10,
+            paper_identifiers=[" 10.1/pdf-doi ", "PR-042", None, ""],
+        )
+
+    assert result["errors"] == []
+    assert calls
+    assert {tuple(c.get("excluded_paper_ids", [])) for c in calls} == {
+        ("PR-042", "10.1/pdf-doi"),
+    }
+
+
 # ────────────────────────────────────────────────────────────────────────
 # 2. PDF not found → graceful error, no crash
 # ────────────────────────────────────────────────────────────────────────

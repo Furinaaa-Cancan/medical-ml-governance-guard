@@ -234,6 +234,32 @@ def _flags_for_chunk(
     )
 
 
+def _paper_exclusion_ids(
+    paper_id: str,
+    paper_identifiers: object = None,
+) -> list[str]:
+    """Collect the primary id plus optional DOI/aliases for LOPO exclusion."""
+    if paper_identifiers is None:
+        extras = []
+    elif isinstance(paper_identifiers, str):
+        extras = [paper_identifiers]
+    else:
+        try:
+            extras = list(paper_identifiers)  # type: ignore[arg-type]
+        except TypeError:
+            extras = [paper_identifiers]
+
+    ids: list[str] = []
+    seen: set[str] = set()
+    for value in [paper_id, *extras]:
+        text = str(value).strip() if value is not None else ""
+        if not text or text == "<unknown>" or text in seen:
+            continue
+        seen.add(text)
+        ids.append(text)
+    return ids
+
+
 def _dedupe_flags(flags: list) -> list:
     """Dedupe by ``code``, preserving first occurrence."""
     seen: set[str] = set()
@@ -259,6 +285,7 @@ def _run_on_pdf_inner(
     pdf_path: Path,
     top_k: int,
     errors: list,
+    excluded_paper_ids: list[str],
 ) -> list:
     """Do the work; append any non-fatal issues to ``errors``.
 
@@ -299,7 +326,7 @@ def _run_on_pdf_inner(
                 _flags_for_chunk(
                     chunk,
                     top_k=top_k,
-                    excluded_paper_ids=[paper_id],
+                    excluded_paper_ids=excluded_paper_ids,
                 )
             )
         except Exception as exc:  # noqa: BLE001 — RAG can fail many ways
@@ -318,6 +345,7 @@ def run_on_pdf(
     pdf_path: Path,
     top_k: int = 20,
     timeout_s: int = DEFAULT_TIMEOUT_S,
+    paper_identifiers: object = None,
 ) -> PdfRunResult:
     """Run the PDF-backed flag pipeline on a single paper.
 
@@ -331,13 +359,17 @@ def run_on_pdf(
 
     Args:
         paper_id: Caller's identifier for this paper. Echoed back in the
-            result; not used internally.
+            result and always included in RAG self-exclusion.
         pdf_path: Path to the per-paper PDF.
         top_k: ``rag_query`` retrieval depth per chunk. Clamped to ≥ 1
             inside ``synthesize_flags_from_rag``.
         timeout_s: Wall-clock budget for the whole call. On expiry the
             returned result has ``flags=[]`` and an error string; the
             in-flight worker thread is left to finish in the background.
+        paper_identifiers: Optional DOI / alternate ids for the same paper.
+            These are threaded into ``excluded_paper_ids`` for every RAG chunk
+            alongside ``paper_id`` so DOI-keyed KB rows cannot leak back into
+            a PDF-backed leave-one-paper-out run.
 
     Returns:
         ``PdfRunResult`` — always returns, never raises. Per-step
@@ -345,6 +377,7 @@ def run_on_pdf(
     """
     t0 = time.perf_counter()
     pid = str(paper_id)
+    excluded_paper_ids = _paper_exclusion_ids(pid, paper_identifiers)
     errors: list = []
     flags_holder: dict = {"flags": []}
     done = threading.Event()
@@ -352,7 +385,7 @@ def run_on_pdf(
     def _worker() -> None:
         try:
             flags_holder["flags"] = _run_on_pdf_inner(
-                pid, Path(pdf_path), top_k, errors,
+                pid, Path(pdf_path), top_k, errors, excluded_paper_ids,
             )
         except Exception as exc:  # noqa: BLE001 — last-ditch safety net
             errors.append(f"unhandled: {type(exc).__name__}: {exc}")
@@ -383,6 +416,7 @@ def batch_run_pdfs(
     paper_ids_to_paths: dict,
     top_k: int = 20,
     timeout_s: int = DEFAULT_TIMEOUT_S,
+    paper_identifiers_by_id: dict | None = None,
 ) -> dict:
     """Iterate ``run_on_pdf`` over ``{paper_id: pdf_path}``.
 
@@ -397,6 +431,8 @@ def batch_run_pdfs(
         paper_ids_to_paths: Mapping of paper id → PDF path.
         top_k: Forwarded to ``run_on_pdf``.
         timeout_s: Forwarded to ``run_on_pdf``.
+        paper_identifiers_by_id: Optional mapping of paper id → DOI/aliases
+            forwarded to ``run_on_pdf`` for leave-one-paper-out exclusion.
 
     Returns:
         ``{paper_id: PdfRunResult}`` with one entry per input paper.
@@ -409,9 +445,18 @@ def batch_run_pdfs(
 
     results: dict[str, PdfRunResult] = {}
     for pid, path in paper_ids_to_paths.items():
+        extra_ids = None
+        if paper_identifiers_by_id:
+            extra_ids = paper_identifiers_by_id.get(pid)
+            if extra_ids is None:
+                extra_ids = paper_identifiers_by_id.get(str(pid))
         try:
             results[str(pid)] = run_on_pdf(
-                str(pid), Path(path), top_k=top_k, timeout_s=timeout_s,
+                str(pid),
+                Path(path),
+                top_k=top_k,
+                timeout_s=timeout_s,
+                paper_identifiers=extra_ids,
             )
         except Exception as exc:  # noqa: BLE001 — defensive: log + continue
             logger.exception("batch_run_pdfs: unexpected crash on %s", pid)
