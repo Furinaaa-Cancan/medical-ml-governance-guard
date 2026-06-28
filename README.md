@@ -246,6 +246,8 @@ query → embed (BGE-small, 384d) → cosine top-50 → 4 信号融合 → top-K
 
 **Gate 集成（实际路径）：** gate 失败时，`build_report_envelope`（`scripts/core/_gate_framework.py`）直接调用 `scripts.rag.retrieval.bm25.retrieve_for_failure(gate_name, failure_codes)`，用 **BM25 关键词检索**（纯 stdlib，无 torch）把审稿原话作为 `peer_review_context` 字段嵌入 report.json。上文描述的 dense / hybrid 检索仅服务于离线 `scripts/rag/query.py` 与 paper-audit 工具，**不**在 gate 失败路径上运行——gate 运行时只依赖 numpy + scikit-learn，刻意保持轻量、确定性与 fail-closed（接入 hybrid 会给每个短生命周期 gate 进程引入 ~500MB torch 依赖与 ~12s 冷启动）。
 
+**离线评测自排除（NCPR / PDF runner）：** paper-audit 与 NCPR benchmark 在评估 KB 内论文时必须做 leave-one-paper-out：当前论文的 `paper_id` / `id` / `paper_doi` / `doi` 会通过 `excluded_paper_ids` 传入 RAG，dense index 构建、BM25 检索、hybrid 合并后的候选池都会过滤这些标识。PDF-backed runner 还支持额外 `paper_identifiers`（如 DOI、别名），并在每个 Methods chunk 查询时同步排除，防止一篇论文用自己的 reviewer concerns 作为检索答案。未知或空标识会被忽略，不影响普通离线查询。
+
 **局限说明：** 当前向量模型是 `BAAI/bge-small-en-v1.5`（384 维，英文调优），中文自由文本查询精度会下降——KB 本身是英文审稿意见，所以英文 query 命中率最高；如果你要用中文描述失败，建议同时传 `--codes MLGG-XXX` 让 BM25 + tag-overlap 路径兜底。
 
 ### 已知限制 (Known Limitations)
