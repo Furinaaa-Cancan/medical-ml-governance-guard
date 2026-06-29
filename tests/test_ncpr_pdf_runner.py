@@ -228,6 +228,46 @@ def test_batch_run_pdfs_continues_past_per_paper_failure(tmp_path):
     assert results["P3"]["errors"] == []
 
 
+def test_batch_run_pdfs_threads_paper_identifiers_to_rag_chunks(tmp_path):
+    """Batch PDF runs must preserve DOI/alias self-exclusion for each paper."""
+    pdf1 = tmp_path / "p1.pdf"
+    pdf1.write_bytes(b"%PDF-1.4\n")
+    pdf2 = tmp_path / "p2.pdf"
+    pdf2.write_bytes(b"%PDF-1.4\n")
+    calls: list[dict] = []
+
+    def fake_flags(chunk, top_k, **kwargs):
+        calls.append({"chunk": chunk, "top_k": top_k, **kwargs})
+        return [_flag("OK")]
+
+    with mock.patch.object(
+        ncpr_pdf_runner, "_load_extractor",
+        return_value=(mock.Mock(return_value=_SAMPLE_METHODS), False),
+    ), mock.patch.object(
+        ncpr_pdf_runner,
+        "_flags_for_chunk",
+        side_effect=fake_flags,
+    ):
+        results = batch_run_pdfs(
+            {"P1": pdf1, "P2": pdf2},
+            top_k=5,
+            paper_identifiers_by_id={
+                "P1": ["10.1/p1", "P1"],
+                "P2": "10.1/p2",
+            },
+        )
+
+    assert set(results.keys()) == {"P1", "P2"}
+    assert results["P1"]["errors"] == []
+    assert results["P2"]["errors"] == []
+    assert {
+        tuple(c.get("excluded_paper_ids", [])) for c in calls
+    } == {
+        ("P1", "10.1/p1"),
+        ("P2", "10.1/p2"),
+    }
+
+
 # ────────────────────────────────────────────────────────────────────────
 # 5. Per-paper timeout protection
 # ────────────────────────────────────────────────────────────────────────
