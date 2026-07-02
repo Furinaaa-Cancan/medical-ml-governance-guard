@@ -78,6 +78,7 @@ What this module deliberately does NOT do
 """
 from __future__ import annotations
 
+from collections.abc import Mapping
 import logging
 import re
 import threading
@@ -211,6 +212,8 @@ def _chunk_methods_text(text: str, n_chunks: int) -> list[str]:
 # RAG bridge + flag dedupe
 # ────────────────────────────────────────────────────────────────────────
 
+_PAPER_IDENTIFIER_KEYS: tuple[str, ...] = ("paper_id", "id", "paper_doi", "doi")
+
 
 def _flags_for_chunk(
     chunk: str,
@@ -243,6 +246,8 @@ def _paper_exclusion_ids(
         extras = []
     elif isinstance(paper_identifiers, str):
         extras = [paper_identifiers]
+    elif isinstance(paper_identifiers, Mapping):
+        extras = [paper_identifiers.get(k) for k in _PAPER_IDENTIFIER_KEYS]
     else:
         try:
             extras = list(paper_identifiers)  # type: ignore[arg-type]
@@ -366,10 +371,12 @@ def run_on_pdf(
         timeout_s: Wall-clock budget for the whole call. On expiry the
             returned result has ``flags=[]`` and an error string; the
             in-flight worker thread is left to finish in the background.
-        paper_identifiers: Optional DOI / alternate ids for the same paper.
-            These are threaded into ``excluded_paper_ids`` for every RAG chunk
-            alongside ``paper_id`` so DOI-keyed KB rows cannot leak back into
-            a PDF-backed leave-one-paper-out run.
+        paper_identifiers: Optional DOI / alternate ids for the same paper,
+            or a holdout-style mapping carrying ``paper_id`` / ``id`` /
+            ``paper_doi`` / ``doi``. These are threaded into
+            ``excluded_paper_ids`` for every RAG chunk alongside ``paper_id``
+            so DOI-keyed KB rows cannot leak back into a PDF-backed
+            leave-one-paper-out run.
 
     Returns:
         ``PdfRunResult`` — always returns, never raises. Per-step
