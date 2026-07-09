@@ -15,7 +15,7 @@ shap>=0.42             # SHAP interpretability gate
 # balanced_random_forest, easy_ensemble, rusboost model families).
 # CI installs this because tests/test_train_select_evaluate.py covers
 # these model families; users with class-imbalance problems should too.
-imbalanced-learn>=0.14.1
+imbalanced-learn>=0.14.2
 
 # AES-256-GCM for scripts/core/_security.py::encrypt_evidence /
 # decrypt_evidence. The functions fail-closed (raise RuntimeError) when
